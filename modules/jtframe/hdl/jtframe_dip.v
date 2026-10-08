@@ -1,26 +1,12 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-10-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-10-2019 */
 
 module jtframe_dip(
     input              clk,
     input      [63:0]  status,
-    input      [ 6:0]  core_mod,
     input              game_pause,
+                       vertical, dipflip_xor,
 
     //Video aspect ratio for HDMI. Most retro systems have ratio 4:3.
     output reg [12:0]  hdmi_arx,
@@ -29,9 +15,7 @@ module jtframe_dip(
     output reg         rot_osdonly,
     output reg         rot_control, // rotate player control inputs
 
-    output reg         enable_fm,
-    output reg         enable_psg,
-    output             osd_pause,
+    output reg         osd_pause,
     input              osd_shown,
 
     input              game_test,
@@ -51,7 +35,7 @@ parameter XOR_ROT=0;
 // "O2,Aspect Ratio,Original,Wide;",
 // "OD,Original screen,No,Yes;",
 // "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", -- MiSTer
-// "O34,Video Mode, pass thru, linear, analogue, dark;",  -- MiST
+// "O34,Video Mode, pass thru, linear, analogue, scanlines;",  -- MiST
 // "O6,Test mode,OFF,ON;",
 // "O7,PSG,ON,OFF;",
 // "O8,FM ,ON,OFF;",
@@ -83,36 +67,19 @@ assign dip_flip    = ~status[1];
         `ifdef DIP_TEST
         assign dip_test = 0;
         `else
-        assign dip_test = ~game_test;
+        assign dip_test = game_test;
         `endif
     `else
-        assign dip_test = ~(status[10] | game_test); // assumes it is always active low
+        assign dip_test = ~status[10] & game_test; // assumes it is always active low
     `endif
 `else
-assign dip_test = ~game_test;
+assign dip_test = game_test;
 `endif
 
 wire [1:0] ar = status[17:16];    // only MiSTer
 
-`ifdef POCKET
-    assign osd_pause = osd_shown;
-`else
-    `ifndef JTFRAME_OSD_NOCREDITS
-        `ifndef MISTER // Only MiST and derivatives can pause via the OSD
-            assign osd_pause   = status[12];
-        `else
-            assign osd_pause   = 1'b0;  // MiSTer relies on the keyboard/gamepad for pause
-        `endif
-    `else
-        assign osd_pause = 1'b0;
-    `endif
-`endif
-
 // Screen or control rotation
 `ifdef JTFRAME_VERTICAL
-    // core_mod[0] = 0 horizontal game
-    //             = 1 vertical game
-    // core_mod[2] = XOR with dip_flip
     // status[13]  = 0 Rotate screen
     //             = 1 no rotation
     wire tate;
@@ -123,18 +90,18 @@ generate
         `else
             wire status_roten= ~status[2];
         `endif
-        assign tate = (!MISTER || status_roten) && core_mod[0]; // 1 if screen is vertical (tate in Japanese)
+        assign tate = (!MISTER || status_roten) && vertical; // 1 if screen is vertical (tate in Japanese)
         initial rot_control = 0;
         initial rot_osdonly = 0;
     end else begin // MiST derivativatives are always vertical
-        assign tate   = 1'b1 & core_mod[0];
+        assign tate   = vertical;
         always @(posedge clk) begin
-            rot_control <= (status[2]^XOR_ROT[0])&core_mod[0]&rot_osdonly;
+            rot_control <= (status[2]^XOR_ROT[0]) & tate & rot_osdonly;
             rot_osdonly <= !status[13];
         end
     end
 endgenerate
-    wire   swap_ar = ~tate | ~core_mod[0];
+    wire   swap_ar = ~tate | ~vertical;
 `else
     wire    tate        = 0;
     initial rot_control = 0;
@@ -142,29 +109,30 @@ endgenerate
     wire    swap_ar     = 1;
 `endif
 
+initial osd_pause = 0;
+`ifndef JTFRAME_OSD_NOCREDITS
+`ifndef MISTER // Only MiST and derivatives can pause via the OSD
+always @* begin
+        osd_pause = status[12];
+end
+`endif
+`endif
+
 // all signals that are not direct re-wirings are latched
 always @(posedge clk) begin
-    rotate      <= { dip_flip ^ core_mod[2], tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
+    rotate      <= { dip_flip ^ dipflip_xor, tate && !rot_control }; // rotate[1] keeps the image upright regardless of dip_flip
     dip_fxlevel <= 2'b10 ^ status[7:6];
-    `ifndef JTFRAME_OSD_SND_EN
-    enable_fm   <= 1;
-    enable_psg  <= 1;
-    `else
-    enable_fm   <= ~status[9];
-    enable_psg  <= ~status[8];
-    `endif
     // only for MiSTer
-    hdmi_arx    <= (!ar) ? (swap_ar ? ARX : ARY) : (ar-2'd1);
-    hdmi_ary    <= (!ar) ? (swap_ar ? ARY : ARX) : 13'd0;
+    hdmi_arx    <= ar==0 ? (swap_ar ? ARX : ARY) : {11'd0,ar-2'd1};
+    hdmi_ary    <= ar==0 ? (swap_ar ? ARY : ARX) : 13'd0;
 
+    dip_pause   <= ~game_pause & ~osd_shown; // active low
     `ifdef SIMULATION
         `ifdef DIP_PAUSE
             dip_pause <= 1'b0; // use to simulate pause screen
         `else
             dip_pause <= 1'b1; // avoid having the main CPU halted in simulation
         `endif
-    `else
-        dip_pause <= ~game_pause; // all dips are active low
     `endif
 end
 

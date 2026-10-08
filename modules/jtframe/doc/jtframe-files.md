@@ -1,37 +1,48 @@
-The project files are defined in cores/corename/game.yaml.
-jtframe files command will also add the required files for the
-selected compilation or simulation target.
+Project files are defined in `cores/<corename>/cfg/files.yaml`.
+The `jtframe files` command merges those with framework files and target files.
 
-The first argument selects simulation (sim) or synthesis (output). The
-synthesis output consists of .qip files compatible with Intel Quartus.
+Command syntax:
 
-A third option is "plain", which simply generates a plain text file with
-the file names and path used.
+`jtframe files <sim|syn|plain> <core-name> [--target target] [--macro A,B,...] [--rel] [--local]`
 
-The simulation output creates two files:
+- `sim` generates simulation file lists
+- `syn` generates Quartus assignments
+- `plain` generates a plain list of files
+
+Output files:
+
 - game.f for all verilog files
 - jtsim_vhdl.f for all VHDL files
+- files.qip for synthesis (`syn` mode)
+- files for plain text output (`plain` mode)
 
-The yaml file is composed of several sections, which can only appear once:
+The `--target` flag also includes:
 
-- game: get files from a given core hdl folder
-- jtframe: get files from jtframe/hdl folders
-- modules: get files from the modules folder
+- `$JTFRAME/target/<target>/cfg/files.yaml`
+- `$JTFRAME/target/<target>/cfg/sim.yaml` (only in `sim` mode)
 
-For modules, there is a shortcut for JT ones and a generic way
+The YAML file is composed of several sections, each of which can only appear once:
 
-modules:
-  jt:
-    - name: jt51
-      when: MACRO name
-    - name: jtkcpu
-      unless: MACRO name
-  other:
-  	- from: foo
-  	  get: [ hdl/foo.v ]
+- core-name: get files from a given core folder
+- module-name: get files from a given folder in modules
+
+# Search rules:
+
+- If only a path is specified, `cfg/files.yaml` in that path is used
+- HDL files are looked for in the `hdl` folder
+- SDC, QIP files must be in the `syn` folder
+- YAML files used to generate more files must be in `cfg`
+
+# File order
+
+The file order is kept in the generated files and it is sometimes important:
+
+- SDC rules can cancel out so the order is important
+- VHDL files must be read in a certain order
 
 # Conditional file parsing:
 
 Each file list can be parsed conditionally using the keys:
+
 - unless: will always parse it unless the macro is defined
 - when: will only parse it when the macro is defined

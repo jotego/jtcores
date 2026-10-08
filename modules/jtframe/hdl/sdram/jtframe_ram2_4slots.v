@@ -1,23 +1,10 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-11-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-11-2022 */
 
 module jtframe_ram2_4slots #(parameter
     SDRAMW = 22,
+    TAG_RAM = 0,
     SLOT0_ERASE  = 1, // erase memory contents after a reset
     SLOT1_ERASE  = 1, // erase memory contents after a reset
     SLOT0_FASTWR = 0,
@@ -37,6 +24,10 @@ module jtframe_ram2_4slots #(parameter
 
     CACHE2_SIZE = 0,
     CACHE3_SIZE = 0,
+    CACHE2_LARGE = 0,
+    CACHE3_LARGE = 0,
+    SLOT2_BURSTLEN = 32,
+    SLOT3_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT2_OFFSET = 0,
     parameter [SDRAMW-1:0] SLOT3_OFFSET = 0,
@@ -156,7 +147,7 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(SLOT1_FASTW
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
     .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
-    .CACHE_SIZE(CACHE2_SIZE))
+    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT2_BURSTLEN ))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -176,7 +167,7 @@ u_slot2(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
     .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
-    .CACHE_SIZE(CACHE3_SIZE))
+    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT3_BURSTLEN ))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

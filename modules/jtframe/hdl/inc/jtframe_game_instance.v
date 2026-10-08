@@ -1,24 +1,24 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 14-1-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 14-1-2023 */
 
 // Game instantiation. Shared by all target top-level modules
 
+
 localparam STARTW=4;
+
+wire [16:0]  sram_addr;
+wire [15:0]  sram_din, sram_dout;
+wire [ 1:0]  sram_dsn;
+wire         sram_wen, sram_ok;
+
+wire [15:0]  sav_din, sav_dout, sav_addr;
+wire         sav_change, sav_wait, sav_done, sav_ack;
+wire [ 1:0]  sav_wr;
+
+`ifdef JTFRAME_LF_ZOOM
+wire [ 8:0]  game_h_step, game_v_step;
+`endif
 
 `ifdef SIMULATION
 assign sim_hb         = ~LHBL;
@@ -50,16 +50,6 @@ assign sim_dwnld_busy = dwnld_busy;
 `endif
 `endif
 
-// `ifndef JTFRAME_LF_BUFFER
-//     assign game_vrender = 0,
-//            game_hdump   = 0,
-//            ln_addr      = 0,
-//            ln_data      = 0,
-//            ln_done      = 0,
-//            ln_we        = 0;
-// `endif
-
-
 `GAMETOP
 u_game(
     .rst         ( game_rst       ),
@@ -87,18 +77,17 @@ u_game(
     .cab_1p ( game_start[STARTW-1:0]      ), .coin ( game_coin[STARTW-1:0]       ),
     .joystick1    ( game_joy1[`JTFRAME_BUTTONS+3:0] ), .joystick2  ( game_joy2[`JTFRAME_BUTTONS+3:0] ),
     .joystick3    ( game_joy3[`JTFRAME_BUTTONS+3:0] ), .joystick4  ( game_joy4[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_PADDLE
-    .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ),
-    .paddle_3     ( paddle_3         ), .paddle_4     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
-    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_SPINNER
+    .paddle_0     ( paddle_1         ), .paddle_1     ( paddle_2         ),
+    .paddle_2     ( paddle_3         ), .paddle_3     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
+    .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_LIGHTGUN
+    .gun_1p_x     ( gun_1p_x         ), .gun_1p_y     ( gun_1p_y         ),
+    .gun_2p_x     ( gun_2p_x         ), .gun_2p_y     ( gun_2p_y         ), `endif `ifdef JTFRAME_SPINNER
     .spinner_1p   ( spinner_1p       ), .spinner_2p   ( spinner_2p       ), `endif
     .joyana_l1    ( joyana_l1        ), .joyana_l2    ( joyana_l2        ),
     .joyana_l3    ( joyana_l3        ), .joyana_l4    ( joyana_l4        ),
     .joyana_r1    ( joyana_r1        ), .joyana_r2    ( joyana_r2        ),
     .joyana_r3    ( joyana_r3        ), .joyana_r4    ( joyana_r4        ),
     .dial_x       ( dial_x           ), .dial_y       ( dial_y           ),
-    // Sound control
-    .enable_fm   ( enable_fm      ),
-    .enable_psg  ( enable_psg     ),
     // PROM programming
     .ioctl_addr  ( ioctl_addr     ),
     .ioctl_dout  ( ioctl_dout     ),
@@ -119,21 +108,41 @@ u_game(
     .ln_data      ( ln_data          ),
     .ln_done      ( ln_done          ),
     .ln_hs        ( ln_hs            ),
+    .ln_dout      ( ln_dout          ),
     .ln_pxl       ( ln_pxl           ),
     .ln_v         ( ln_v             ),
-    .ln_we        ( ln_we            ), `endif
+    .ln_vs        ( ln_vs            ),
+    .ln_lvbl      ( ln_lvbl          ),
+    .ln_we        ( ln_we            ),
+    .fb_keep      ( fb_keep          ), `endif
+
+`ifdef JTFRAME_LF_ZOOM
+    .h_step       ( game_h_step      ),
+    .v_step       ( game_v_step      ), `endif
 
     // Bank 0: allows R/W
     .ba0_addr   ( ba0_addr      ),
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+`endif
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),
     .ba_dst     ( ba_dst        ),
     .ba_dok     ( ba_dok        ),
     .ba_rdy     ( ba_rdy        ),
     .ba_ack     ( ba_ack        ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+    .burst_rdy  ( burst_rdy     ),
+    .burst_ack  ( burst_ack     ),
+`endif
     .ba0_din    ( ba0_din       ),
     .ba0_dsn    ( ba0_dsn       ),
     .ba1_din    ( ba1_din       ),
@@ -142,6 +151,9 @@ u_game(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_din  ( burst_din     ),
+`endif
 
     .prog_ba    ( prog_ba       ),
     .prog_rdy   ( prog_rdy      ),
@@ -150,6 +162,27 @@ u_game(
     .prog_dst   ( prog_dst      ),
     .prog_data  ( prog_data     ),
 
+`ifdef JTFRAME_SRAM
+    // SRAM
+    .sram_addr  ( sram_addr     ),
+    .sram_din   ( sram_din      ),
+    .sram_dout  ( sram_dout     ),
+    .sram_wen   ( sram_wen      ),
+    .sram_dsn   ( sram_dsn      ),
+    .sram_ok    ( sram_ok       ),
+`endif
+
+`ifdef JTFRAME_SAVEGAME
+    // Save/Load
+    .sav_change ( sav_change    ),
+    .sav_wait   ( sav_wait      ),
+    .sav_done   ( sav_done      ),
+    .sav_wr     ( sav_wr        ),
+    .sav_ack    ( sav_ack       ),
+    .sav_din    ( sav_din       ),
+    .sav_dout   ( sav_dout      ),
+    .sav_addr   ( sav_addr      ),
+`endif
     // common ROM-load interface
     .prog_addr  ( prog_addr     ),
     .prog_rd    ( prog_rd       ),

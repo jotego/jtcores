@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 23-8-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-8-2024 */
 
 module jtcircus_snd(
     input                rst,
@@ -69,7 +55,7 @@ always @(posedge clk) begin
     end else begin
         if( psg2_cen   ) cnt      <= cnt+1'd1;
         if( psgdata_cs ) psg_data <= dout;
-        if( rdac_cs    ) rdac     <= dout;
+        if( rdac_cs    ) rdac     <= dout!=0 ? dout-8'h80 : dout;
         if( rcen_cs    ) rc_en    <= A[6:3];
     end
 end

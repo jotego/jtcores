@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 11-11-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 11-11-2021 */
 
 module jtsbaskt_main(
     input               rst,
@@ -64,6 +50,8 @@ module jtsbaskt_main(
     input      [7:0]    dipsw_a,
     input      [7:0]    dipsw_b
 );
+
+`ifndef NOMAIN
 
 reg  [ 7:0] cabinet, cpu_din;
 wire [ 7:0] din_dec;
@@ -209,4 +197,14 @@ mc6809i u_cpu(
     .RegData    (           )
 );
 
+`else
+assign rom_addr = 16'd0;
+assign ram_we   = 1'b0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+initial begin
+    rom_cs=0; vscr_cs=0; vram_cs=0; objram_cs=0; obj_frame=0;
+    snd_data_cs=0; snd_on_cs=0; pal_sel=0; flip=0;
+end
+`endif
 endmodule

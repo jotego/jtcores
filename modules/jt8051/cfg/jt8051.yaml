@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+# SPDX-License-Identifier: GPL-3.0-or-later
+jt8051:
+  - get:
+      - jt8051.v
+      - jt8051_ctrl.v
+      - jt8051_regs.v
+      - jt8051_alu.v
+      - jt8051_periph.v
+      - jt8051_serial.v
+      - timing.sdc
+    ucode:
+      src: "8051.yaml"
+      output: "jt8051"

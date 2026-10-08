@@ -1,0 +1,26 @@
+jtframe:
+  - from: cpu
+    get:
+      - jtsh7604_cps3_region.v
+      - jtsh7604.sv
+  - from: cpu/sh7604
+    get:
+      - SH_pkg.sv
+      - SH_mem.sv
+      - SH_regfile.sv
+      - SH_core_trace.sv
+      - SH_core.sv
+      - SH7604_pkg.sv
+      - SH7604_mem.sv
+      - CACHE.sv
+      - BSC.sv
+      - DMAC.sv
+      - UBC.sv
+      - INTC.sv
+      - FRT.sv
+      - WDT.sv
+      - SCI.sv
+      - DIVU.sv
+      - MULT.sv
+      - MSBY.sv
+      - SH7604.sv

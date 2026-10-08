@@ -1,0 +1,66 @@
+1941:
+  video: 2200
+  inputs: ../game/b1.cab
+cworld2j:
+  inputs: reg.cab
+captcomm:
+  video: 2200
+cawing:
+  video: 2200
+  inputs: reg.cab
+dynwar:
+  video: 2200
+  inputs: reg.cab
+ffight:
+  inputs: reg.cab
+forgottn:
+  inputs: reg.cab
+ghouls:
+  video: 2400
+  inputs: reg.cab
+gulunpa:
+  inputs: ../game/b1.cab
+knights:
+  video: 2400
+  inputs: reg.cab
+msword:
+  video: 2200
+mpumpkin:
+megaman:
+  inputs: ../game/b1.cab
+mtwins:
+  video: 2200
+  inputs: reg.cab
+mercs:
+  inputs: reg.cab
+nemo:
+  video: 2200
+pang3:
+  inputs: reg.cab
+pnickj:
+  inputs: reg.cab 
+pokonyan:
+qad:
+  video: 2200
+qtono2j:
+  video: 2200
+  inputs: reg.cab
+sf2ce:
+  inputs: reg.cab
+sf2hf:
+  inputs: reg.cab
+sf2:
+  inputs: reg.cab
+sfzch:
+strider:
+kod:
+  video: 2200
+3wonders:
+unsquad:
+  inputs: reg.cab
+varth:
+  video: 2200
+  inputs: ../game/b1.cab
+willow:
+  video: 2200
+  inputs: reg.cab

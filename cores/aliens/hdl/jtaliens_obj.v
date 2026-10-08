@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-4-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-4-2023 */
 
 module jtaliens_obj(
     input             rst,
@@ -69,6 +55,8 @@ module jtaliens_obj(
     output     [ 7:0] st_dout
 );
 
+parameter DMA_CEN=0;
+
 wire [ 8:0] xpos;
 wire [ 3:0] ysub;
 wire [ 7:0] ram_dout;
@@ -102,7 +90,7 @@ always @* begin
     end
 end
 
-jt051960 u_scan(    // sprite logic
+jt051960 #(.DMA_CEN(DMA_CEN)) u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

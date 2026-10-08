@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-12-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-12-2020 */
 
 // Original order
 // 0  X
@@ -123,10 +109,7 @@ always @(posedge clk_gfx) begin
     clr_addr <= clr_addr+1'd1;
 end
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objx_lo.bin"), .SIMFILE_HI("objx_hi.bin")
-) u_x(
+jtframe_dual_ram16 #(.AW(AW-2)) u_x(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU
@@ -141,10 +124,7 @@ jtframe_dual_ram16 #(
     .q1         ( obj_x        )
 );
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objy_lo.bin"), .SIMFILE_HI("objy_hi.bin")
-) u_y(
+jtframe_dual_ram16 #(.AW(AW-2)) u_y(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU
@@ -159,10 +139,7 @@ jtframe_dual_ram16 #(
     .q1         ( obj_y        )
 );
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objattr_lo.bin"), .SIMFILE_HI("objattr_hi.bin")
-) u_attr(
+jtframe_dual_ram16 #(.AW(AW-2)) u_attr(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU
@@ -177,10 +154,7 @@ jtframe_dual_ram16 #(
     .q1         ( obj_attr     )
 );
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objcode_lo.bin"), .SIMFILE_HI("objcode_hi.bin")
-) u_code(
+jtframe_dual_ram16 #(.AW(AW-2)) u_code(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU

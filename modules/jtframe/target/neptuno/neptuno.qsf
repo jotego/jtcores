@@ -227,7 +227,7 @@ set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]
 set_global_assignment -name FORCE_SYNCH_CLEAR ON
 
-set_global_assignment -name QIP_FILE game.qip
+set_global_assignment -name QIP_FILE files.qip
 
 # NeptUNO also shares the MIST macro
 set_global_assignment -name VERILOG_MACRO "MIST=1"

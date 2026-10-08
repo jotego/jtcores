@@ -1,0 +1,6 @@
+# Regression script: boot, insert a coin, start a 1P game.
+=560
+4 coin
+40
+4 1p
+200

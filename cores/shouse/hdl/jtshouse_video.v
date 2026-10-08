@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 22-9-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 22-9-2023 */
 
 module jtshouse_video(
     input             rst,
@@ -73,13 +59,7 @@ module jtshouse_video(
     output reg [ 7:0] st_dout
 );
 
-localparam [8:0]
-    V_START  = 9'h0F8,
-    VB_START = 9'h0F8,
-    VB_END   = 9'h120,
-    VS_START = 9'h108,
-    VS_END   = 9'h110,
-    VCNT_END = 9'h1FF;
+`include "vtimer.vh"
 
 wire [ 8:0] vdump, vrender, vrender1;
 wire [ 7:0] st_scr, st_obj, st_colmix,
@@ -103,34 +83,17 @@ always @(posedge clk) begin
     endcase
 end
 
-// See https://github.com/jotego/jtcores/issues/348
-jtframe_vtimer #(
-    .HCNT_START ( 9'h000    ),
-    .HCNT_END   ( 9'h17F    ),
-    .HB_START   ( 9'h160    ), // 288 visible, 384 total (96 pxl=HB)
-    .HB_END     ( 9'h040    ), // Fixed layer is mapped for a counter that leaves blanking at $40
-    .HS_START   ( 9'h17f    ), // HS starts 32 pixels after HB
-    .HS_END     ( 9'h01f    ), // 32 pixel wide
-
-    .V_START    ( V_START   ), // 224 visible, 40 blank, 264 total
-    .VB_START   ( VB_START  ),
-    .VB_END     ( VB_END    ),
-    .VS_START   ( VS_START  ), // 8 lines wide, 8 lines after VB start
-    .VS_END     ( VS_END    ), // 60.6 Hz according to MAME
-    .VCNT_END   ( VCNT_END  )
-) u_vtimer(
+jtshouse_vtimer u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .vdump      ( vdump     ),
     .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
-    .H          ( hdump     ),
-    .Hinit      (           ),
-    .Vinit      (           ),
-    .LHBL       ( lhbl      ),
-    .LVBL       ( lvbl      ),
-    .HS         ( hs        ), // 16kHz
-    .VS         ( vs        )
+    .hdump      ( hdump     ),
+    .lhbl       ( lhbl      ),
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+    .vs         ( vs        )
 );
 
 jtshouse_scr #(.VB_END(VB_END)) u_scroll(

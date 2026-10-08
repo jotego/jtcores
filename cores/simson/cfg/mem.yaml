@@ -2,7 +2,7 @@ params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START) >> 1" }
 clocks:
   clk48:
-    - freq: 24000000
+    - freq: 24M
       outputs:
         - cen24
         - cen12
@@ -15,7 +15,10 @@ audio:
   channels:
     # both FM and PCM are mixed inside K053260, then converted with the same YM3012 DAC
     # the 0.033MM capacitor in sch. has a 333K mark (physical device). 33nF must be right
-    - { name: snd, module: jt053260, rsum: 50k, rc: [ { r: 1rout, c: 2.2n }, { r: 985, c: 33n } ]}
+    # but 985 Ohm and 33nF is just too heavy damping, especially for the FM part that does
+    # not need an antialising filter. So I am using a much lighter 1nF instead that will
+    # let users hear the FM music better
+    - { name: snd, module: jt053260, rsum: 50k, rc: [ { r: 1rout, c: 2.2n }, { r: 985, c: 1n } ]}
 sdram:
   banks:
     - buses:
@@ -56,6 +59,7 @@ sdram:
         - name: lyro
           addr_width: 22
           data_width: 32
+          cache_size: 1kB
 bram:
   - name: ram
     addr_width: 13
@@ -63,7 +67,7 @@ bram:
     rw: true
     addr: main_addr[12:0]
   # EEROM
-  - name: nv
+  - name: nvram
     addr_width: 7
     data_width: 8
     rw: true

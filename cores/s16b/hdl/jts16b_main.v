@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-7-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-7-2021 */
 
 module jts16b_main(
     input              rst,
@@ -58,10 +44,10 @@ module jts16b_main(
     output      [12:1] cpu_addr,
 
     // cabinet I/O
-    input       [ 7:0] joystick1,
-    input       [ 7:0] joystick2,
-    input       [ 7:0] joystick3,
-    input       [ 7:0] joystick4,
+    input       [ 8:0] joystick1,
+    input       [ 8:0] joystick2,
+    input       [ 8:0] joystick3,
+    input       [ 8:0] joystick4,
     input       [15:0] joyana1,
     input       [15:0] joyana1b,
     input       [15:0] joyana2,
@@ -137,6 +123,7 @@ wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn;
 wire        ok_dly;
 reg         sdram_ok;
+wire        ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw, mul_dout, cmp_dout, cmp2_dout;
 
 reg         io_cs, mul_cs, cmp_cs, cmp2_cs, wdog_cs, tbank_cs;
@@ -215,6 +202,7 @@ jts16b_mapper u_mapper(
     .bus_dsn    ( {UDSn,  LDSn}  ),
     .bus_cs     ( bus_cs         ),
     .bus_busy   ( bus_busy       ),
+    .bus_legit  ( 1'b0           ),
     // effective bus signals
     .addr_out   ( A              ),
 
@@ -266,7 +254,6 @@ jts16b_mapper u_mapper(
 
 
 jtframe_8751mcu #(
-    .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
     .SYNC_P1    ( 1             ),
     .SYNC_INT   ( 1             )
@@ -305,8 +292,18 @@ jtframe_8751mcu #(
 
 // System 16B memory map
 always @* begin
-    sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok);
+    sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok_dly);
 end
+
+wire ram_acc = ram_cs | vram_cs;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

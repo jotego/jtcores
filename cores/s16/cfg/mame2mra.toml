@@ -61,25 +61,6 @@ main_setnames=[
     "quartet2a",
 ]
 
-[Audio]
-volume = [
-    { machine="aceattaca", value=0x8D },
-    { machine="afighter", value=0x59 },
-    { machine="afighter", value=0x85 },
-    { machine="alexkidd", value=0x43 },
-    { machine="bodyslam", value=0x47 },
-    { machine="fantzone", value=0x27 },
-    { machine="mjleague", value=0x84 },
-    { machine="quartet2a", value=0x5C },
-    { machine="sdi", value=0xCB },
-    { machine="shinobi", value=0x7C },
-    { machine="tetris", value=0x4C },
-    { machine="passsht", value=0xC4 },
-    { machine="timescan", value=0xE4 },
-    { setname="wb31", value=0xEE },
-    { setname="wb35", value=0xCA },
-]
-
 [buttons]
 names = [
     { machine="afighter",  names="Shot,Special Weapon" },
@@ -111,6 +92,13 @@ rename = [
 ]
 
 [header]
+info="""
+        byte 0x10[0]: FD1089A
+        byte 0x10[1]: FD1089B
+        byte 0x11[0]: FD1094
+        byte 0x13[0]: i8751
+        byte 0x18:    board type
+"""
 fill=0
 data = [
     { offset=0x10, dev="fd1089a",      data="01" },
@@ -122,14 +110,9 @@ data = [
     { offset=0x18, setname="afighterd",data="1d" },  # enable analogue input
     { offset=0x18, machine="passsht",  data="02" },  # enable four players
     { offset=0x18, setname="quartet",  data="04" },  # enable four players
-    { offset=0x18, setname="quarteta", data="04" }   # enable four players
+    { offset=0x18, setname="quarteta", data="04" },  # enable four players
+    { offset=0x18, setname="timescan1",data="1c" },  # extra DIP switches
 ]
-
-# Sample header data
-# data=[
-#     { offset=8,    data=[0xff, 0x43, 0x34] },
-#     { offset=0x10, data=[0xca, 0xfe] }
-# ]
 
 [ROM]
 regions = [
@@ -139,15 +122,15 @@ regions = [
     { name="gfx1",          start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
     { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true, rom_len=0x10000, no_offset=true },
     { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
-    { name="n7751",         start="N7751_START", len=0x400 },
-    { name="n7751data",     start="PCM_START" },
+    { name="upd7751",       start="N7751_START",   len=0x400 },
+    { name="upd7751data",   start="PCM_START" },
     { name="fd1089",        start="FD1089_START" },
     { name="plds",          skip=true }
 ]
 # { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
 order = [
-    "maincpu", "soundcpu", "n7751data", "gfx1",
-    "sprites", "mcu", "maincpu:key", "n7751"
+    "maincpu", "soundcpu", "upd7751data", "gfx1",
+    "sprites", "mcu", "maincpu:key", "upd7751"
 ]
 
 remove = [

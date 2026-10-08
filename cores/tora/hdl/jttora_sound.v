@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 module jttora_sound(
     input           rst,
@@ -107,9 +93,7 @@ jttora_adpcm u_adpcmcpu(
     assign rom_cs     = 0;
     assign rom2_addr  = 0;
     assign rom2_cs    = 0;
-    assign ym_snd     = 0;
-    assign sample     = 0;
+    assign fm0 =0, fm1 = 0, psg0 = 0, psg1 = 0, pcm = 0;
     assign debug_view = 0;
-    initial peak = 0;
 `endif
 endmodule

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-5-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-5-2023 */
 
 module jttmnt_sound(
     input           rst,
@@ -24,6 +10,7 @@ module jttmnt_sound(
     input           cen_640,
     input           cen_20,
     input   [ 2:0]  game_id,
+    input           fm_mono_en,
     // communication with main CPU
     input   [ 7:0]  main_dout,  // bus access for Punk Shot
     output  [ 7:0]  main_din,
@@ -33,7 +20,7 @@ module jttmnt_sound(
     input           snd_irq,
     input   [ 7:0]  snd_latch,  // latch for other games
     // ROM
-    output  [14:0]  rom_addr,
+    output  [15:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
@@ -70,8 +57,9 @@ module jttmnt_sound(
 
     // Sound output
     output reg signed [15:0] title,
-    output     signed [15:0] fm_l,  fm_r, k60_l, k60_r,
-    output     signed [11:0] pcm,
+    output reg signed [15:0] fm_l,  fm_r,
+    output     signed [15:0] k60_l, k60_r,
+    output     signed [10:0] pcm,
     output     signed [ 8:0] upd,
     // Debug
     input         [ 7:0] debug_bus,
@@ -96,8 +84,10 @@ reg         [ 7:0]  upd_latch;
 wire                upd_bsyn;
 wire                upper4k;
 reg                 upd_rst, k7232_rst, k53260_rst, k60, nmi_clr;
+wire signed [15:0]  fm_raw_l, fm_raw_r, fm_mono, fm_mux_l, fm_mux_r;
+wire signed [21:0]  fm_att_l, fm_att_r;
 
-assign rom_addr = A[14:0];
+assign rom_addr = A[15:0];
 assign title_cs = 1;
 assign st_dout  = snd_latch;
 assign upper4k  = &A[15:12];
@@ -106,9 +96,26 @@ assign pcmb_addr = k60 ? k60b_addr : { 4'd0, k32b_addr };
 assign pcma_cs   = k60 ? k60a_cs : k32a_cs;
 assign pcmb_cs   = k60 ? k60b_cs : k32b_cs;
 
+jtframe_st2mono #(.W(16),.STEREO_IN(1),.STEREO_OUT(0)) u_fm_mono(
+    .sin ( { fm_raw_l, fm_raw_r } ),
+    .sout( fm_mono                )
+);
+
+assign fm_mux_l = fm_mono_en ? fm_mono : fm_raw_l;
+assign fm_mux_r = fm_mono_en ? fm_mono : fm_raw_r;
+
+// thndrx2 balance: FM 70% / K053260 PCM 100% (45/64 = 0.703).
+assign fm_att_l = fm_mux_l * 7'sd45;
+assign fm_att_r = fm_mux_r * 7'sd45;
+
+always @(posedge clk) begin
+    fm_l <= game_id==THNDRX2 ? fm_att_l[21:6] : fm_mux_l;
+    fm_r <= game_id==THNDRX2 ? fm_att_r[21:6] : fm_mux_r;
+end
+
 always @(posedge clk) begin
     // keep unused chips in reset state
-    if( game_id==PUNKSHOT ) begin
+    if( game_id==PUNKSHOT || game_id==THNDRX2 ) begin
        k60        <= 1;
        upd_rst    <= 1;
        k7232_rst  <= 1;
@@ -139,7 +146,7 @@ always @(*) begin
     k60_cs   = 0;
     nmi_clr  = 1;
 
-    if( game_id==PUNKSHOT ) begin
+    if( game_id==PUNKSHOT || game_id==THNDRX2 ) begin
         mem_upper = mem_acc &  upper4k;
         rom_cs    = mem_acc & ~upper4k;
         ram_cs    = mem_upper && A[11]==0;
@@ -251,8 +258,8 @@ jt51 u_jt51(
     .left       (           ),
     .right      (           ),
     // Full resolution output
-    .xleft      ( fm_l      ),
-    .xright     ( fm_r      )
+    .xleft      ( fm_raw_l  ),
+    .xright     ( fm_raw_r  )
 );
 
 /* verilator tracing_on */
@@ -296,11 +303,13 @@ jt053260 u_k53260(
     .romd_cs    ( pcmd_cs   ),
     // .romd_ok    ( pcmd_ok   ),
     // sound output - raw
+    .ch_en      ( 5'h1f     ),
     .aux_l      ( 16'd0     ),
     .aux_r      ( 16'd0     ),
     .snd_l      ( k60_l     ),
     .snd_r      ( k60_r     ),
-    .sample     (           )
+    .sample     (           ),
+    .tim2       (           )
 );
 
 jt007232 u_k7232(

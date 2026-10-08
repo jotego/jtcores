@@ -1,0 +1,26 @@
+kchamp:
+  - get:
+    - jtkchamp_game.v
+    - jtkchamp_main.v
+    - jtkchamp_video.v
+    - jtkchamp_snd.v
+    - jtkchamp_char.v
+    - jtkchamp_obj.v
+    - jtkchamp_colmix.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+jt5205:
+jt12:
+  - get:
+    - jt49.yaml

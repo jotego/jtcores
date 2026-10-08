@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-1-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-1-2022 */
 
 module jtmikie_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -35,7 +21,7 @@ wire [ 2:0] pal_sel;
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vram_cs, objram_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout, cpu_dout, st_snd;
+wire [ 7:0] vscr_dout, vcpu_din, obj_dout, cpu_dout, st_snd;
 wire        vsync60;
 wire        snd_cen, psg_cen;
 
@@ -46,7 +32,9 @@ wire        m2s_on;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[17:0];
 assign dip_flip = dipsw_c[0];
+assign vramrw_din = {2{cpu_dout}};
 assign debug_view = st_snd;
+assign ioctl_din = 0;
 
 always @(*) begin
     post_data = prog_data;
@@ -68,7 +56,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jtmikie_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -90,7 +77,7 @@ jtmikie_main u_main(
     .cpu_rnw        ( cpu_rnw       ),
 
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
     .vscr_dout      ( vscr_dout     ),
 
     .objram_cs      ( objram_cs     ),
@@ -109,18 +96,6 @@ jtmikie_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-`else
-    assign main_cs = 0;
-    assign objram_cs = 0;
-    assign snd     = 0;
-    assign sample  = 0;
-    assign game_led= 0;
-    `ifndef PALSEL
-    `define PALSEL 0
-    `endif
-    assign pal_sel = `PALSEL;
-    assign flip    = 0;
-`endif
 
 jtmikie_snd u_sound(
     .rst        ( rst       ),
@@ -159,9 +134,14 @@ jtmikie_video u_video(
     .cpu_addr   ( main_addr[10:0]  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_rnw    ( cpu_rnw   ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .vcpu_din   ( vcpu_din  ),
     // Scroll
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( 1'b0      ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  ( vscr_dout ),
     // Objects

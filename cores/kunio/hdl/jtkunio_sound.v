@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-7-2022 */
 
 module jtkunio_sound(
     input             clk,        // 24 MHz
@@ -195,11 +181,11 @@ jt5205 #(.INTERPOL(0)) u_decod(
 );
 
 `else
-    assign peak     = 0;
-    assign sound    = 0;
     assign pcm_cs   = 0;
     initial rom_cs  = 0;
     assign pcm_addr = 0;
     assign rom_addr = 0;
+    assign pcm      = 0;
+    assign fm       = 0;
 `endif
 endmodule

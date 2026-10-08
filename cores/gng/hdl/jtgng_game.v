@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 
 module jtgng_game(
@@ -45,15 +31,6 @@ assign block_flash = status[13];
 assign dip_flip    = flip;
 assign debug_view  = debug_bus[7] ? st_snd :
             { 3'd0, ~sres_b, 2'd0, blcnten, OKOUT };
-
-localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START;
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr >= OBJ_START ) begin
-        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-    end
-end
 
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -90,7 +67,6 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-`ifndef NOMAIN
 jtgng_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -146,20 +122,7 @@ jtgng_main u_main(
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   )
 );
-`else
-assign main_addr   = 17'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign blue_cs     = 1'b0;
-assign redgreen_cs = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-`endif
 
-`ifndef NOSOUND
 jtgng_sound u_sound (
     .rst            ( rst        ),
     .clk            ( clk        ),
@@ -187,15 +150,6 @@ jtgng_sound u_sound (
     .mcu_srd        (            ),
     .snd2_latch     (            )
 );
-`else
-    assign snd_addr = 0;
-    assign snd_cs   = 0;
-    assign fm0      = 0;
-    assign fm1      = 0;
-    assign psg0     = 0;
-    assign psg1     = 0;
-    assign st_snd   = 0;
-`endif
 
 /* verilator tracing_off */
 jtgng_video #(.GNGPAL(1)) u_video(

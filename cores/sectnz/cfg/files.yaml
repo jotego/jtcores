@@ -1,0 +1,31 @@
+sectnz:
+  - get:
+    - jtsectnz_game.v
+    - jtsectnz_video.v
+    - jtsectnz_colmix.v
+commnd:
+  - get:
+    - jtcommnd_main.v
+gng:
+  - get:
+    - jtgng_video.v
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+  - from: video
+    get:
+      - jtframe_blank.v
+jt12:
+  - get:
+    - jt12_rst.v
+    - jt03.yaml

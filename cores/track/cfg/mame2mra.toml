@@ -3,8 +3,18 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "trackfld.cpp" ]
-skip.bootlegs=true
-skip.setnames=["mastkin","wizzquiz","wizzquiza","reaktor","trackfldu"]
+skip.setnames=[
+    "mastkin","wizzquiz","wizzquiza","reaktor","trackfldu",
+    # ROM offset problems
+    "atlantol","hipoly","hyprolyma",
+    # unlisted regions
+    "hyprolymba","hyprolymb",
+    # different memory map
+    "yieartf"
+]
+parents = [
+    { name="yiear", Description="Yie Ar Kungfu" }
+]
 
 [Audio]
 volume = [
@@ -14,7 +24,7 @@ volume = [
 [buttons]
 core=3 # max number of buttons supported by the core
 names=[
-    { names="Left, Centre, Right" }
+    { names="Left, Centre, Right", map="YXA" }
 ]
 
 [dipsw]

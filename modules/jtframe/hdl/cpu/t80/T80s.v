@@ -3004,7 +3004,8 @@ module t80_mcode_0_0_1_2_3_4_5_6_7
   reg n3776_o;
   reg n3779_o;
   reg n3783_o;
-  wire n3785_o;
+  wire n3785_o, stack_busy; // imperfect busy signal, but it catches some instances
+  assign stack_busy=n3785_o;
   wire [30:0] n3788_o;
   wire n3790_o;
   wire [2:0] n3792_o;
@@ -20357,7 +20358,7 @@ module t80_0_1_0_1_2_3_4_5_6_7
   /* T80.vhd:1224:51  */
   assign n1815_o = tstate == 3'b010;
   /* T80.vhd:1225:49  */
-  assign n1817_o = setei ? 1'b1 : inte_ff1;
+  assign n1817_o = (setei & ~nmicycle) ? 1'b1 : inte_ff1;
   /* T80.vhd:1224:41  */
   assign n1819_o = n1822_o ? 1'b1 : inte_ff2;
   /* T80.vhd:1229:49  */

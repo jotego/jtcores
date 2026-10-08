@@ -1,1 +1,0 @@
-The Simpsons logo should only be visible behind the clouds

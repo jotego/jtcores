@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-9-2021 */
 
 module jtcps2_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -78,19 +64,14 @@ wire        cpu_cen, cpu_cenb;
 wire        turbo, skip_en, video_flip;
 reg         rst_game;
 
-`ifdef JTCPS_TURBO
-assign turbo = 1;
-`else
-assign turbo = status[6];
-`endif
-
+`include "turbo.vh"
 assign skip_en  = status[7];
 assign snd_vu   = 0;
 assign snd_peak = 0;
 
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
-
+/* verilator tracing_off */
 // CPU clock enable signals come from 48MHz domain
 jtframe_cen48 u_cen48(
     .clk        ( clk48         ),
@@ -117,18 +98,14 @@ assign rst_gfx = rst;
 
 always @(posedge clk) rst_game <= hold_rst | rst48;
 
-// reg [1:0] aux;
-// assign cpu_cen = cen12;
-// always @(posedge clk48 ) aux<={ aux[0], cen12};
-// assign cpu_cenb = aux==2'b10;
 
 localparam REGSIZE=24;
 
 // Turbo speed disables DMA
 wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
+assign busack = busack_cpu | turbo;
 
-`ifndef NOMAIN
 jtcps2_main u_main(
     .rst        ( rst_game          ),
     .clk_rom    ( clk               ),
@@ -205,32 +182,6 @@ jtcps2_main u_main(
     .debug_bus   ( debug_bus        ),
     .st_dout     ( debug_view       )
 );
-
-assign busack = busack_cpu | turbo;
-
-`else
-    assign ram_addr      = 0;
-    assign main_ram_cs   = 0;
-    assign main_vram_cs  = 0;
-    assign main_rom_cs   = 0;
-    assign oram_base     = 0;
-    assign main_oram_cs  = 0;
-    assign main_rom_addr = 0;
-    assign main_dout     = 0;
-    assign z80_rstn      = 1;
-    assign dsn           = 2'b11;
-    assign main_rnw      = 1;
-    assign sclk          = 0;
-    assign sdi           = 0;
-    assign scs           = 0;
-    assign obank         = 0;
-    assign busack        = 1;
-    assign ppu1_cs       = 0;
-    assign ppu2_cs       = 0;
-    assign objcfg_cs     = 0;
-    assign ppu_rstn      = 1;
-    assign cpu_dout      = 0;
-`endif
 
 reg rst_video, rst_sdram;
 
@@ -355,7 +306,6 @@ end
 wire vol_up   = ~(coin[0] | joystick1[3]);
 wire vol_down = ~(coin[0] | joystick1[2]);
 
-`ifndef NOMAIN
 jtcps15_sound u_sound(
     .rst        ( qsnd_rst          ),
     .clk48      ( clk48             ),
@@ -399,16 +349,7 @@ jtcps15_sound u_sound(
     .right      ( snd_right         ),
     .sample     ( sample            )
 );
-`else
-    assign snd_left  = 0;
-    assign snd_right = 0;
-    assign sample    = 0;
-    assign snd_cs    = 0;
-    assign snd_addr  = 0;
-    assign qsnd_cs   = 0;
-    assign qsnd_addr = 0;
-`endif
-
+/* verilator tracing_on */
 jtcps1_sdram #(.CPS(2), .REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),

@@ -1,30 +1,59 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mem
 
 import(
-    "fmt"
-    "github.com/jotego/jtframe/def"
+    "jotego/jtframe/macros"
 )
 
-func (item *MacroEnabled) Enabled(macros map[string]string) bool {
-    for _,disabler := range item.Unless {
-        if def.Defined(macros,disabler) {
-            if verbose { fmt.Printf("Disabled because %s was set\n",disabler)}
-            return false
-        }
-    }
-    for _,enabler := range item.When {
-        if def.Defined(macros,enabler) {
-            if verbose { fmt.Printf("Enabled because %s was set\n",enabler)}
-            return true
-        }
-    }
-    return len(item.When)==0
-}
-
-func (item *BRAMBus_Ioctl) Enabled(macros map[string]string) bool {
-    aux := MacroEnabled{
+func (item *BRAMBus_Ioctl) Enabled() bool {
+    aux := macros.MacroEnabled{
         When: item.When,
         Unless: item.Unless,
     }
-    return aux.Enabled(macros)
+    return aux.Enabled()
+}
+
+func (item *BRAMBus) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
+}
+
+func (item *SDRAMBus) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
+}
+
+func (item *SDRAMCacheLine) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
+}
+
+func (item *SDRAMCacheCfgSelect) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
+}
+
+func (cfg *MemConfig)calc_prom_we() {
+    offset := 0
+    for k,_ := range cfg.BRAM {
+        bram := &cfg.BRAM[k]
+        if !bram.Prom { continue }
+        bram.PROM_offset = offset
+        offset += 1<<bram.Addr_width
+    }
 }

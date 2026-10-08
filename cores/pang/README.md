@@ -42,6 +42,7 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
     R,F,G,D 2P direction
     Q,S,A   2P buttons 3,2 and 1
 
+Note that on test screen you need to use the 2P button to enter the options. You will need to plug a second controller or a keyboard to your system as the 2P button does not get mapped to the first controller.
 
 # ROM Generation
 
@@ -53,7 +54,7 @@ MiSTerFPGA, MiST, SiDi, NeptUNO and MC+/2 platforms are supported. Look for your
 
 # Compilation
 
-This project uses the [JTFRAME](https://github.com/jotego/JTFRAME) framework. Please refer to it.
+This project uses the [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) framework. Please refer to it.
 
 # Special thanks to Patreon subscribers
 ```

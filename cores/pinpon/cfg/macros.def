@@ -2,6 +2,9 @@
 include ../../kicker/cfg/common.def
 
 CORENAME=JTPINPON
+# The buttons reported by MAME are wrong. Using 4 here to avoid a warning
+# in jtframe mra. Only 2 are used in the core
+JTFRAME_BUTTONS=4
 
 SCR_START=0x08000
 OBJ_START=0xa000

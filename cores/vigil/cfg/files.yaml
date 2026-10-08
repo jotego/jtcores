@@ -1,0 +1,29 @@
+vigil:
+  - get:
+    - jtvigil_game.v
+    - jtvigil_main.v
+    - jtvigil_snd.v
+    - jtvigil_pcm.v
+    - jtvigil_video.v
+    - jtvigil_scr1.v
+    - jtvigil_scr2.v
+    - jtvigil_obj.v
+    - jtvigil_colmix.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: clocking
+    get:
+      - jtframe_cen24.v
+      - jtframe_cen48.v
+  - from: ram
+    get:
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_linebuf.v
+  - get:
+      - jtframe_sort.v
+jt51:

@@ -1401,7 +1401,6 @@
 		(uuid "f30c942f-8f98-4311-8116-92a967d09944")
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
 		(at 166.37 78.74 0)
 		(unit 1)
@@ -1469,7 +1468,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
 		(at 170.18 118.11 0)
 		(unit 1)
@@ -1750,7 +1748,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:N2N")
 		(lib_id "ga_fujitsu_av:N2N")
 		(at 149.86 118.11 0)
 		(unit 1)
@@ -1821,7 +1818,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:R2P")
 		(lib_id "ga_fujitsu_av:R2P")
 		(at 156.21 86.36 0)
 		(unit 1)
@@ -1892,7 +1888,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
 		(at 160.02 118.11 0)
 		(unit 1)
@@ -2097,7 +2092,6 @@
 		)
 	)
 	(symbol
-		(lib_name "ga_fujitsu_av:BD3")
 		(lib_id "ga_fujitsu_av:BD3")
 		(at 176.53 78.74 0)
 		(unit 1)

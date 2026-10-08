@@ -3,7 +3,7 @@ audio:
   missing_info: true # double check VLM5030's output impedance
   channels:
     # vlm's pre is 82/(4.7+VLM5030's Rout), VLM5030's might be 55 kOhm based on rough measurements
-    - { name: vlm, module: vlm5030, rsum: 1k, pre: 1.37, rc: [
+    - { name: vlm, module: vlm5030, rsum: 1k, pre: 2.74, rc: [
         { r:  10k, c: 47n }, { r: 1k, c: 220n}, # both filters active
         { r:  10k, c: 47n }],  # only 1st filter
       rc_en: true }

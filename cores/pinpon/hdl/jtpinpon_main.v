@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 26-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 26-3-2022 */
 
 module jtpinpon_main(
     input               rst,
@@ -58,6 +44,8 @@ module jtpinpon_main(
     // Sound
     output signed [10:0] snd
 );
+
+`ifndef NOMAIN
 
 reg  [ 7:0] cabinet, cpu_din;
 wire [15:0] A;
@@ -111,8 +99,7 @@ always @(posedge clk) begin
         1: cabinet <= { joystick1[4], joystick1[1:0], joystick1[5],
                         joystick2[4], joystick2[1:0], joystick2[5] };
         2: cabinet <= dipsw_a;
-        3: cabinet <= { dipsw_b[0], dipsw_b[1], dipsw_b[2], dipsw_b[3],
-                        dipsw_b[4], dipsw_b[5], dipsw_b[6], dipsw_b[7] };
+        3: cabinet <= dipsw_b;
     endcase
     cpu_din <= rom_cs  ? rom_data  :
                vram_cs ? vram_dout :
@@ -213,5 +200,15 @@ jtframe_z80_romwait  u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
+
+`else
+assign cpu_cen  = 1'b0;
+assign rom_addr = 15'd0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+assign flip     = 1'b0;
+assign snd      = 11'sd0;
+initial begin rom_cs=0; vram_cs=0; oram_cs=0; end
+`endif
 
 endmodule

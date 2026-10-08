@@ -1,0 +1,46 @@
+rastan:
+  - get:
+    - jtrastan_game.v
+    - jtrastan_cchip.v
+    - jtrastan_header.v
+    - jtrastan_main.v
+    - jtrastan_video.v
+    - jtrastan_colmix.v
+    - jtrastan_mmr.v
+    - jtrastan_scr.v
+    - jtrastan_tilemap.v
+    - jtrastan_obj.v
+    - jtrastan_snd.v
+    - jtrastan_mix.v
+    - jtopwolf_mix.v
+    - jtrastan_pc060.v
+    - jt060dca.v
+jtframe:
+  - get:
+      - jtframe_8bit_reg.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_dual_ram16.v
+      - jtframe_dual_ram32.v
+      - jtframe_dual_nvram16.v
+      - jtframe_ram_rdmux.v
+  - from: video
+    get:
+      - jtframe_obj.yaml
+  - from: clocking
+    get:
+      - jtframe_sync.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+jttc0030cmd:
+ikaopm:
+jt5205:
+jtopl:

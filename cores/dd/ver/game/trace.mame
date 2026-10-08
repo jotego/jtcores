@@ -1,6 +1,8 @@
 focus 1
 trace off
-trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,frame_cnt=%x* ",pc,s,x,cc|c0,a,b,frame}
+trace debug.csv,sub,noloop,{tracelog "%X,%X,%X,%X,%X,%X,%x,",pc,s,x,cc|c0,a,b,frame}
+tracelog "PC,S,X,CC,A,B,frame_cnt\n"
+softreset
 
 gtime 25000
 traceflush

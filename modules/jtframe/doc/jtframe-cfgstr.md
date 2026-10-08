@@ -1,8 +1,8 @@
 # Configuration String
 
-MiST derived FPGA platforms, including MiSTer, send core configuration from the FPGA to the microcontroller through a string called *configuration string*. This string is stored in a text template called `cfgstr` in each target folder. For instance, `$JTFRAME/mister/cfgstr` contains MiSTer's config string. The `jtframe cfgstr` command will parse this text template and integrate it into the core build.
+MiST derived FPGA platforms, including MiSTer, send core configuration from the FPGA to the microcontroller through a string called *configuration string*. This string is stored in a text template called `cfgstr` in each target folder. For instance, `$JTFRAME/target/mister/cfgstr` contains MiSTer's config string. The `jtframe cfgstr` command parses this text template and integrates it into the core build.
 
-`jtframe cfgstr` is also the generic tool for macro parsing and converts core macro definitions to *bash*, *Quartus TCL* and *C++* formats to be used in other tools.
+`jtframe cfgstr` is also the generic tool for macro parsing and converts core macro definitions to *bash*, *Quartus TCL*, *cfgstr* text, and simulator-specific formats used by `jtsim`.
 
 # Macro Definition
 
@@ -85,4 +85,3 @@ GAMETOP       | Core's game module name | $CORENAME_game(_sdram)
 # JTFRAME Macros
 
 The macros that configure a core or the overall JTFRAME framework are listed in [macros.md]. Type `jtmacros` in the terminal to display them.
-

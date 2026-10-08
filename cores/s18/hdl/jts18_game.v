@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-4-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-4-2024 */
 
 module jts18_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -31,9 +17,6 @@ wire [ 8:0] vrender;
 wire [ 7:0] tile_bank;
 wire [ 2:0] vdp_prio;
 wire        flip, vdp_en, vid16_en, sound_en, gray_n, vint;
-wire [ 2:0] crosshairs;
-wire [ 8:0] lg1_x, lg2_x;
-wire [ 8:0] lg1_y, lg2_y;
 
 // SDRAM interface
 wire        vram_cs, ram_cs;
@@ -104,7 +87,7 @@ always @(posedge clk) begin
     end
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jts18_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -150,10 +133,10 @@ jts18_main u_main(
     .joystick1   ( joystick1  ),
     .joystick2   ( joystick2  ),
     .joystick3   ( joystick3  ),
-    .lg1_x       ( lg1_x      ),
-    .lg1_y       ( lg1_y      ),
-    .lg2_x       ( lg2_x      ),
-    .lg2_y       ( lg2_y      ),
+    .gun_1p_x    ( gun_1p_x   ),
+    .gun_1p_y    ( gun_1p_y   ),
+    .gun_2p_x    ( gun_2p_x   ),
+    .gun_2p_y    ( gun_2p_y   ),
     .dial_x      ( dial_x     ),
     .dial_y      ( dial_y     ),
     .cab_1p      ( cab_1p[2:0]),
@@ -192,7 +175,7 @@ jts18_main u_main(
     .st_dout     ( st_main    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jts18_sound u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -226,7 +209,7 @@ jts18_sound u_sound(
     .pcm        ( pcm       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jts18_video u_video(
     .rst        ( rst       ),
     .clk96      ( clk96     ),
@@ -293,8 +276,6 @@ jts18_video u_video(
     .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),
 
-    .lightguns  ( crosshairs),
-
     .joystick1   ( {joystick1[6],joystick1[5]}  ),
     // Video signal
     .HS         ( HS        ),
@@ -310,34 +291,5 @@ jts18_video u_video(
     .st_addr    ( debug_bus ),
     .st_dout    ( st_video  )
 );
-
-jts18_crosshair crosshair_left (
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .dx         ( mouse_1p[ 7: 0] ),
-    .dy         ( mouse_1p[15: 8] ),
-    .strobe     ( mouse_strobe[0] ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
-    .x          ( lg1_x     ),
-    .y          ( lg1_y     ),
-    .crosshair  ( crosshairs[0] )
-);
-
-jts18_crosshair crosshair_center (
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .dx         ( mouse_2p[ 7: 0] ),
-    .dy         ( mouse_2p[15: 8] ),
-    .strobe     ( mouse_strobe[1] ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
-    .x          ( lg2_x     ),
-    .y          ( lg2_y     ),
-    .crosshair  ( crosshairs[1] )
-);
-
-// 2 guns are supported right now
-assign crosshairs[2] = 0;
 
 endmodule

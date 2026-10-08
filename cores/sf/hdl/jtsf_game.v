@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 17-8-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-8-2020 */
 
 `ifndef SIM_SCR1POS
     `define SIM_SCR1POS 0
@@ -48,9 +34,9 @@ wire        mcu_brn, mcu_DMAONn, mcu_ds;
 
 
 reg snd_rst, video_rst, main_rst; // separate reset signals to aid recovery time
-reg game_id=0; // 1 for SFJ style inputs
+reg cabcfg=0; // 1 for SFJ style inputs
 
-assign debug_view = 0;
+assign debug_view = {7'd0,cabcfg};
 assign dip_flip   = flip;
 assign vrom_cs    = vrom_reg;
 
@@ -67,35 +53,6 @@ always @(posedge clk) begin
     vrom_reg <= LVBL || (V==9'hf0 || V==9'hf );
 end
 
-/////////////////////////////////////
-// 48 MHz based clock enable signals
-`ifndef JTFRAME_CLK96
-jtframe_cen48 u_cen48(
-    .clk    ( clk           ),
-    .cen16  ( pxl2_cen      ),
-    .cen16b (               ),
-    .cen12  (               ),
-    .cen12b (               ),
-    .cen8   ( pxl_cen       ),
-    .cen6   (               ),
-    .cen6b  (               ),
-    .cen4   (               ),
-    .cen4_12(               ),
-    .cen3   (               ),
-    .cen3q  (               ),
-    .cen3qb (               ),
-    .cen3b  (               ),
-    .cen1p5 (               ),
-    .cen1p5b(               )
-);
-`else
-jtframe_cen96 u_cen96(
-    .clk    ( clk           ),
-    .cen16  ( pxl2_cen      ),
-    .cen8   ( pxl_cen       )
-);
-`endif
-
 wire       RnW;
 // sound
 wire [7:0] snd_latch;
@@ -107,30 +64,21 @@ wire [12:0] obj_AB;
 wire [15:0] oram_dout;
 reg         prog_obj;
 
-// Optimize cache use for object ROMs
-localparam [25:0] OBJ_START  = `OBJ_START,
-                  PROM_START = `JTFRAME_PROM_START;
-always @* begin
-    prog_obj  = ioctl_addr>=OBJ_START && ioctl_addr<PROM_START;
-    post_addr = prog_addr;
-    if( prog_obj ) post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-end
-
 // This distinguishes the games using SFJ-style input from the rest
+localparam [2:0] CABCFG=1;
+
 always @(posedge clk) begin
-    if( ioctl_addr==26'h19910 && prog_we )
-        game_id <= prog_data==6;
+    if( header && prog_addr[2:0]==CABCFG && prog_we ) cabcfg  <= prog_data[0];
 end
 
 wire [15:0] scrposh, scrposv, dmaout;
 wire        UDSWn, LDSWn;
 
-`ifndef NOMAIN
 jtsf_main u_main (
     .rst        ( main_rst      ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
-    .game_id    ( game_id       ),
+    .cabcfg     ( debug_bus[7] ? debug_bus[0] : cabcfg ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -201,53 +149,6 @@ jtsf_main u_main (
     .dipsw_a    ( dipsw[31:16]  ),
     .dipsw_b    ( dipsw[15: 0]  )
 );
-`else
-    `ifndef SIM_SND_LATCH
-    `define SIM_SND_LATCH 8'd0
-    `endif
-    assign main_addr = {MAINW{1'b0}};
-    assign cpu_AB    = 13'd0;
-    assign char_cs   = 0;
-    assign main_cs   = 0;
-    assign bus_ack   = 1;
-    assign flip      = 0;
-    assign scr1posh  = `SIM_SCR1POS;
-    assign scr2posh  = `SIM_SCR2POS;
-    assign cpu_cen   = 0;
-    assign charon    = 1;
-    assign scr1on    = 1;
-    assign scr2on    = 1;
-    assign objon     = 1;
-    assign snd_latch = `SIM_SND_LATCH;
-    `ifdef OBJLOAD
-    jtsf_objload u_objload( // this doesn't work after moving OBJ RAM to its own BRAM
-        .clk        ( clk       ),
-        .rst        ( rst       ),
-        .obj_AB     ( obj_AB    ),
-        .cen8       ( pxl_cen   ),
-        .LVBL       ( LVBL      ),
-        .ram_addr   ( ram_addr  ),
-        .cpu_dout   ( cpu_dout  ),
-        .ram_data   ( ram_data  ),
-        .dmaout     ( dmaout    ),
-        .UDSWn      ( UDSWn     ),
-        .LDSWn      ( LDSWn     ),
-        .RnW        ( RnW       ),
-        .ram_cs     ( ram_cs    ),
-        .OKOUT      ( OKOUT     )
-    );
-    `else
-    assign OKOUT    = 0;
-    assign cpu_dout = 16'd0;
-    assign RnW      = 1;
-    assign UDSWn    = 1;
-    assign LDSWn    = 1;
-    assign ram_addr = 0;
-    assign ram_cs   = 0;
-    assign col_uw   = 0;
-    assign col_lw   = 0;
-    `endif
-`endif
 
 `ifndef NOMCU
     jtsf_mcu u_mcu(

@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME. If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 22-6-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 22-6-2022 */
 
 module jtframe_mouse(
     input              rst,
@@ -28,8 +14,8 @@ module jtframe_mouse(
     input              mouse_st,    // strobe
     input              mouse_idx,   // up to two mouse devices
     // Mouse emulation
-    input       [ 3:0] joy1,
-    input       [ 3:0] joy2,
+    input       [ 3:0] joyn1,       // active low
+    input       [ 3:0] joyn2,
 
     // { 8-bit dx, 8-bit dy } encoded for the core
     // in 2's complement unless JTFRAME_MOUSE_NO2COMPL is defined
@@ -42,10 +28,15 @@ module jtframe_mouse(
 );
 
 reg  [3:0] joy1_l, joy2_l;
-wire [3:0] joy1_on, joy1_off, joy2_on, joy2_off;
+wire [3:0] joy1,   joy2,
+           joy1_on, joy1_off, joy2_on, joy2_off;
 
 `ifndef JTFRAME_MOUSE_NOEMU
-    localparam MOUSE_EMU=1;
+    `ifndef JTFRAME_LIGHTGUN
+        localparam MOUSE_EMU=1;
+    `else
+        localparam MOUSE_EMU=0;
+    `endif
 `else
     localparam MOUSE_EMU=0;
 `endif
@@ -66,12 +57,14 @@ function [7:0] cv( input [8:0] min ); // convert to the right format
     `endif
 endfunction
 
+assign joy1     = ~joyn1,
+       joy2     = ~joyn2;
 assign joy1_on  =  joy1 & ~joy1_l;
 assign joy1_off = ~joy1 &  joy1_l;
 assign joy2_on  =  joy2 & ~joy2_l;
 assign joy2_off = ~joy2 &  joy2_l;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         mouse_1p <= 0;
         mouse_2p <= 0;

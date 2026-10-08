@@ -1,0 +1,28 @@
+# Insert a credit once the first attract/title graphics are visible, then start
+# 1P. On the weapon-select screen, B1 enters edit mode, so use B2 to confirm
+# the default weapon type. Gameplay uses B1+B2 for a robust shot mapping.
+=1120
+4 coin
+24
+4 1p
+140
+12 b2
+120
+90 b2
+60 right
+60 up b1 b2
+816 b1 b2
+400 up b1 b2
+70 b1 b2
+480 down b1 b2
+200 b1 b2
+300 up b1 b2
+100 b1 b2
+500 down b1 b2
+2400 b1 b2
+650 up b1 b2
+200 b1 b2
+450 down b1 b2
+100 b1 b2
+1400 up b1 b2
+1200 b1 b2

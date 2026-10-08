@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 12-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-3-2022 */
 
 module jtroadf_main(
     input               rst,
@@ -72,12 +58,15 @@ module jtroadf_main(
     output     [ 7:0]   ioctl_din
 );
 
+`ifndef NOMAIN
+
 reg  [ 7:0] cabinet, cpu_din;
 wire [ 7:0] ram_dout;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n;
 wire        irq_trigger;
 reg         irq_clrn, ram_cs;
+wire        ok_dly;
 reg         ior_cs, in5_cs, intst_cs, intst_l,
             iow_cs;
 wire        VMA, nvram_we;
@@ -123,7 +112,7 @@ always @(*) begin
 end
 
 function [2:0] rev3( input [6:0] x );
-    rev3 = {x[4]&x[0], x[5]&x[2], x[6]&x[1]}; // merge buttons and directions
+    rev3 = {x[4]&x[0], x[5], x[6]&x[1]}; // merge buttons and directions
 endfunction
 
 always @(posedge clk) begin
@@ -146,6 +135,14 @@ always @(posedge clk) begin
                ior_cs  ? cabinet  :
                in5_cs  ? dipsw_b  : 8'hff;
 end
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -214,7 +211,7 @@ jtframe_sys6809_dma #(.RAM_AW(12),.KONAMI(1)) u_cpu(
     .VMA        ( VMA       ),
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .rom_ok     ( ok_dly    ),
     // Bus multiplexer is external
     .ram_dout   ( ram_dout  ),
     .cpu_dout   ( cpu_dout  ),
@@ -227,4 +224,14 @@ jtframe_sys6809_dma #(.RAM_AW(12),.KONAMI(1)) u_cpu(
     .dma_we     ( nvram_we      )
 );
 
+`else
+assign cpu_cen   = 1'b0;
+assign rom_addr  = 16'd0;
+assign cpu_rnw   = 1'b1;
+assign cpu_dout  = 8'd0;
+assign ioctl_din = 8'd0;
+initial begin
+    rom_cs=0; vram_cs=0; objram_cs=0; obj_frame=0; snd_data_cs=0; snd_irq=0; flip=0;
+end
+`endif
 endmodule

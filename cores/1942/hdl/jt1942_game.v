@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-1-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-1-2019 */
 
 
 module jt1942_game(
@@ -56,24 +42,18 @@ assign prom_scr_we   = prom_we && prog_addr[11:8]==4; // sb-4.d6
 assign prom_obj_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd5 : 4'd2); // sb-8.k3
 assign prom_d1_we    = prom_we && prog_addr[11:8]==6; // sb-2.d1 -- unused by Vulgus
 assign prom_d2_we    = prom_we && prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
-assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd8 : 4'd3); // sb-1.k6
+assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd9 : 4'd4); // sb-1.k6
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
-assign debug_view = 0;
-assign dip_flip = eff_flip^flip_xor;
+assign debug_view = {dipsw[16], 3'b0, 1'b0, dip_flip, flip_xor, flip };
+assign dip_flip = (game_id==VULGUS & dipsw[16]) ^ flip;
 // CHAR VRAM in mem.yaml
 assign chram_dout = cpu_AB[10] ? chram_o16[15:8] : chram_o16[7:0];
 assign chram_din  = {2{cpu_dout}};
 assign chram_addr = cpu_AB[9:0];
 assign chram_we   = {2{char_cs&~wr_n}} & {cpu_AB[10],~cpu_AB[10]};
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr[24:8]>=OBJ_START[24:8] && ioctl_addr[24:8]<BA3_START[24:8] && !hige ) begin // bypass the header in the comparison
-        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
-    end
-end
+assign not_higemaru = ~hige;
 
 always @(posedge clk) begin
     hige <= game_id==HIGEMARU;
@@ -83,8 +63,8 @@ always @(posedge clk) begin
             1: flip_xor <= prog_data[0];
         endcase
     end
-    // Vulgus has an "extra" DIP switch to enable screnn flip
-    eff_flip <= (game_id==VULGUS & dipsw[16]) ^ flip_xor ^ flip ;
+    // Vulgus has an "extra" DIP switch to enable screen flip
+    eff_flip <= dip_flip ^ flip_xor;
 end
 /* verilator tracing_off */
 jt1942_main u_main(
@@ -187,7 +167,7 @@ jt1942_video u_video(
     .H          ( H             ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
-    .flip       ( dip_flip      ),
+    .flip       ( eff_flip      ),
     .cpu_dout   ( cpu_dout      ),
     .pause      ( ~dip_pause    ), //dipsw_a[7]    ),
     // CHAR

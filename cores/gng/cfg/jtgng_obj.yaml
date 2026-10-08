@@ -2,13 +2,12 @@ jtframe:
   - from: clocking
     get:
       - jtframe_cencross_strobe.v
-game:
-  - from: gng
-    get:
-      - jtgng_obj.v
-      - jtgng_objbuf.v
-      - jtgng_objdma.v
-      - jtgng_objdraw.v
-      - jtgng_objpxl.v
-      - jtgng_objcnt.v
+gng:
+  - get:
+    - jtgng_obj.v
+    - jtgng_objbuf.v
+    - jtgng_objdma.v
+    - jtgng_objdraw.v
+    - jtgng_objpxl.v
+    - jtgng_objcnt.v
 

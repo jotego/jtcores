@@ -1,0 +1,86 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-1-2025 */
+
+module jtframe_objscan #(parameter
+    OBJW=6,
+    STW=4,
+    HREPW=3,
+    HOLD_WHILE_DRBUSY=1,
+    // do not modify:
+    AW=OBJW+STW
+)(
+    input               clk,
+    input               hs,
+    input               blankn,
+    input        [ 8:0] vrender,
+    output reg   [ 8:0] vlatch,
+    output reg          cen=0,
+    
+    input               draw_step,
+    input               skip,
+    input               inzone,
+
+    // support for multiple horizontal tiles
+    input      [HREPW-1:0] hsize,  // number of extra tiles to repeat (default zero)
+    output     [HREPW-1:0] haddr,  // tile code portion (goes to rom_addr)
+    output reg [HREPW-1:0] hsub=0, // H position delta
+    output     [HREPW-1:0] hcnt_nx,
+    input                  hflip,
+
+    input               dr_busy,
+    output reg          dr_draw = 0,
+
+    output     [AW-1:0] addr,
+    output reg[STW-1:0] step
+);
+
+reg             hs_l=0,done=0, hs_latched;
+reg [OBJW-1:0]  objcnt;
+reg [HREPW-1:0] hcnt; // current tile repetition
+
+assign addr    = {objcnt,step};
+assign haddr   = hcnt^{HREPW{hflip}};
+assign hcnt_nx = hcnt+1'd1;
+
+always @(posedge clk) begin
+    cen <= ~cen;
+end
+
+always @(posedge clk) if(cen) begin
+    hs_l    <= hs;
+    dr_draw <= 0;
+    if( !done ) begin
+        if(!dr_busy && HOLD_WHILE_DRBUSY==1) step  <= step + 1'd1;
+        if(step==0) begin
+            hcnt<=0;
+        end
+        if(skip) begin
+            step <= 0;
+            {done,objcnt} <= {1'd0,objcnt}+1'd1;
+        end
+        if(draw_step) begin            
+            step <= step;
+            if( !dr_busy || !inzone ) begin
+                if(inzone) begin
+                    dr_draw <= 1;
+                    hsub    <= hcnt;
+                end
+                if(hcnt!=hsize) begin
+                    hcnt<=hcnt_nx;
+                end else begin
+                    step  <= 0;
+                    {done,objcnt} <= {1'd0,objcnt}+1'd1;
+                end
+            end
+        end
+    end
+    if( hs && !hs_l && blankn ) begin
+        done   <= 0;
+        objcnt <= 0;
+        step   <= 0;
+        vlatch <= vrender;
+    end
+end
+
+endmodule

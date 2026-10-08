@@ -72,6 +72,7 @@ cores/*/ver/regrun
 cores/*/ver/*/frames
 cores/*/zxuno/*
 cores/*/hdl/*_mmr.v
+cores/*/hdl/*_header.v
 default.dip
 defmacros.h
 dump2bin.sh
@@ -119,3 +120,16 @@ x
 jt680x.vh
 6?0?.vh
 900h.vh
+unzip
+framerate
+/.codex
+/tasks
+lint
+AGENTS.md
+.jtsandbox
+seed/
+scenes/
+/cores/*/ver/**
+!/cores/*/ver/**/
+!*.cab
+!sim.sh

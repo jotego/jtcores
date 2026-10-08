@@ -1,0 +1,70 @@
+jtframe/target/mister:
+  - get:
+    - jtframe_emu.sv
+    - jtframe_mister.sv
+    - jtframe_mister_dwnld.v
+    - jtframe_mister_status.v
+    - jtframe_target_info.sv
+    - jtframe_mr_ddrmux.v
+    - jtframe_mr_ddrtest.v
+    - jtframe_joymux.v
+    - sys.qip
+    - pll.qip
+    - joydb15.v
+  - when: [ JTFRAME_SAVEGAME ]
+    get:
+      - jtframe_mister_cartsave.v
+  - when: [ JTFRAME_PLL_TUNE ]
+    get:
+      - jtframe_pll_tune.v
+  - when: [ JTFRAME_PLL7159 ]
+    get:
+      - pll7159.qip
+  - when: [ JTFRAME_PLL7000 ]
+    get:
+      - pll7000.qip
+  - when: [ JTFRAME_PLL6000 ]
+    get:
+      - pll6000.qip
+  - when: [ JTFRAME_PLL6144 ]
+    get:
+      - pll6144.qip
+  - when: [ JTFRAME_PLL6293 ]
+    get:
+      - pll6293.qip
+  - when: [ JTFRAME_PLL6671 ]
+    get:
+      - pll6671.qip
+  - when: [ JTFRAME_SDRAM96 ]
+    get:
+      - sdram_clk96.sdc
+  - unless: [ JTFRAME_SDRAM96 ]
+    get:
+      - sdram_clk48.sdc
+jtframe:
+  - from: sdram
+    get:
+    - jtframe_shadow.v
+  - from: video
+    get:
+    - jtframe_hsize.v
+    - jtframe_lfbuf_ddr.v
+    - jtframe_lfbuf_ddr_ctrl.v
+    - jtframe_lfbuf_line.v
+    - jtframe_logo.v
+    - jtframe_linebuf.v
+  - from: video
+    when: [ JTFRAME_MR_LF_BRAM ]
+    get:
+    - jtframe_lfbuf_bram.v
+    - jtframe_lfbuf_bram_ctrl.v
+  - from: video/tilemap
+    get:
+    - jtframe_tilemap.v
+  - from: clocking
+    get:
+    - jtframe_rst_sync.v
+    - jtframe_sync.v
+  - from: ram
+    get:
+      - jtframe_prom.v

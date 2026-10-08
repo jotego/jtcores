@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 21-8-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-8-2021 */
 
 module jtmx5k_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -40,7 +26,6 @@ wire        prio_latch;
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
 
-`ifndef NOMAIN
 jtcontra_main #(.GAME(2)) u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -82,16 +67,6 @@ jtcontra_main #(.GAME(2)) u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-`else
-// load a sound code for simulation
-assign snd_latch = 8'h22;
-reg pre_irq=0;
-initial begin
-    #100_000_000 pre_irq=1;
-end
-
-assign snd_irq = pre_irq;
-`endif
 
 `ifndef NOVIDEO
 jtmx5k_video u_video (

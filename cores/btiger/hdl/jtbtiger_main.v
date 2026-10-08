@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-11-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-11-2019 */
 
 
 module jtbtiger_main(
@@ -80,6 +66,8 @@ module jtbtiger_main(
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
 );
+
+`ifndef NOMAIN
 
 wire [15:0] A;
 wire t80_rst_n;
@@ -339,4 +327,19 @@ jtframe_z80 u_cpu(
 //    //if( rom_cs ) $display("%1X,%4X (%5X) -> %2X", bank, A, rom_addr, rom_data );
 //`endif
 
-endmodule // jtgng_main
+`else
+assign cpu_cen  = 1'b0;
+assign cpu_dout = 8'd0;
+assign cpu_AB   = 13'd0;
+assign ram_dout = 8'd0;
+assign RnW      = 1'b1;
+assign bus_ack  = 1'b1;
+initial begin
+    flip=0; blue_cs=0; redgreen_cs=0; sres_b=1; snd_latch=0;
+    char_cs=0; scr_cs=0; scr_hpos=0; scr_vpos=0; scr_bank=0; scr_layout=0;
+    CHRON=0; SCRON=0; OBJON=0; mcu_din=0; mcu_wr=0; mcu_rd=0; OKOUT=0;
+    rom_cs=0; rom_addr=0;
+end
+`endif
+
+endmodule

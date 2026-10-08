@@ -1,0 +1,8 @@
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_8751mcu.v
+      - mc8051.yaml
+  - from: ram
+    get:
+      - jtframe_ram_rst.v

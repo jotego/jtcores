@@ -1,0 +1,14 @@
+ikaopm:
+  - get:
+    - IKAOPM_primitives.v
+    - IKAOPM_timinggen.v
+    - IKAOPM_reg.v
+    - IKAOPM_lfo.v
+    - IKAOPM_pg.v
+    - IKAOPM_eg.v
+    - IKAOPM_op.v
+    - IKAOPM_noise.v
+    - IKAOPM_acc.v
+    - IKAOPM_timer.v
+    - IKAOPM.v
+    - jtikaopm.v

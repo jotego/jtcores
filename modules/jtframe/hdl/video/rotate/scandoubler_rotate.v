@@ -25,8 +25,12 @@
 // The SDRAM controller is responsible for the actual cornerturn.
 //
 
-module scandoubler_rotate
-(
+module scandoubler_rotate #(parameter
+    HCNT_WIDTH = 10,        // Resolution of scandoubler buffer
+    COLOR_DEPTH = 6,        // Bits per colour to be stored in the buffer
+    OUT_COLOR_DEPTH = 6,    // Bits per color outputted
+    XPOS_MIN = 4'd10        // Filter out partial lines do to H/Vblank misalignments)
+)(
 	// system interface
 	input        clk_sys,
 
@@ -73,11 +77,6 @@ module scandoubler_rotate
 	input wire          vidout_ack    // Valid data available.
 );
 
-parameter HCNT_WIDTH = 10; // Resolution of scandoubler buffer
-parameter COLOR_DEPTH = 6; // Bits per colour to be stored in the buffer
-parameter OUT_COLOR_DEPTH = 6; // Bits per color outputted
-parameter XPOS_MIN = 4'd10; // Filter out partial lines do to H/Vblank misalignments
-
 // Scale incoming video signal to RGB565
 wire [15:0] vin_rgb565;
 
@@ -118,6 +117,8 @@ always @(posedge clk_sys) if (pe_in) begin
 	end
 end
 
+reg [3:0] rowwptr;
+
 always @(posedge clk_sys) if (pe_in) begin
 	if((hb_in | vb_in) && rowwptr[3:0] == 0)
 		in_xpos<=0;
@@ -129,7 +130,6 @@ end
 // (16 word bursts, striped across two banks, SDRAM controller handles the actual cornerturn)
 
 reg [15:0] rowbuf[0:15] /* synthesis ramstyle="logic" */;
-reg [3:0] rowwptr;
 reg [3:0] rowrptr;
 reg running=1'b0;
 
@@ -195,6 +195,7 @@ reg vs_sd_stb;
 
 
 localparam vi_fracwidth=16;
+localparam hi_fracwidth=16;
 
 wire [HCNT_WIDTH-1:0] vi_whole; // Row number
 wire [hi_fracwidth-1:0] vi_fraction; // Blend factor
@@ -271,8 +272,6 @@ assign vidout_req = fetch;
 
 
 // Basic horizontal interpolation
-
-localparam hi_fracwidth=16;
 
 wire [HCNT_WIDTH-1:0] hi_whole; // Index into pixel buffer
 wire [hi_fracwidth-1:0] hi_fraction; // Blend factor

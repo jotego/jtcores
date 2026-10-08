@@ -1,0 +1,17 @@
+track:
+  - get:
+    - jttrack_game.v
+    - jttrack_main.v
+    - jttrack_video.v
+    - jttrack_scroll.v
+    - jttrack_obj.v
+    - jttrack_snd.v
+yiear:
+  - get:
+    - jtyiear_colmix.v
+kicker:
+  - get:
+    - common.yaml
+sbaskt:
+  - get:
+    - sound.yaml

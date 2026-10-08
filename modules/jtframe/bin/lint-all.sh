@@ -1,5 +1,34 @@
 #!/bin/bash
 
+main() {
+    if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        usage
+        return 0
+    fi
+    if [[ -n "$1" ]]; then
+        printf 'lint-all.sh: unknown argument: %s\n' "$1" >&2
+        usage >&2
+        return 1
+    fi
+
+    setup
+    lint_cores
+    report_logs
+    report_result
+}
+
+usage() {
+    cat <<'EOF'
+Usage: lint-all.sh [options]
+
+Lint all JT cores with Verilator and report warnings and errors.
+
+Options:
+  -h, --help   Show this help and exit
+EOF
+}
+
+setup() {
 if [ -z "$JTFRAME" ]; then
     cd /jtcores
     git config --global --add safe.directory /jtcores
@@ -9,46 +38,65 @@ fi
 WARNLIST=
 ERRLIST=
 FAIL=
+LOGFOLDER=$JTROOT/log/linter
 cd $CORES
+rm -rf $LOGFOLDER
+mkdir -p $LOGFOLDER
+}
 
-for i in *; do
-    if [ ! -d $i ]; then continue; fi
-    LOG=lint-$i.log
-    $JTFRAME/bin/lint-one.sh $i > $LOG 2>&1
+lint_cores() {
+for core in *; do
+    if [ ! -d $core ]; then continue; fi
+    LOG=$LOGFOLDER/lint-$core.log
+    if ! $JTFRAME/bin/lint-one.sh $core > $LOG 2>&1; then
+        if [ ! -z "$ERRLIST" ]; then ERRLIST="$ERRLIST "; fi
+        ERRLIST="${ERRLIST}$core"
+    fi
     if [ -e $LOG ]; then
         if grep %Warning- $LOG > /dev/null; then
-            echo "Warnings for $i"
             if [ ! -z "$WARNLIST" ]; then WARNLIST="$WARNLIST "; fi
-            WARNLIST="${WARNLIST}$i"
-        fi
-
-        if grep -i error $LOG > /dev/null; then
-            echo "Errors on $i"
-            if [ ! -z "$ERRLIST" ]; then ERRLIST="$ERRLIST "; fi
-            ERRLIST="${ERRLIST}$i"
+            WARNLIST="${WARNLIST}$core"
         fi
     fi
 done
+}
 
+# print out all log files that have problems
+report_logs() {
+if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
+    for core in $WARNLIST $ERRLIST; do
+        printf "=========== %8s ===========\n" $core
+        ls -l $LOGFOLDER/lint-$core.log
+        cat $LOGFOLDER/lint-$core.log
+    done
+fi
+}
+
+function make_table {
+    if which column > /dev/null; then
+        echo $* | tr ' ' '\n' | column
+    else
+        echo $*
+    fi
+}
+
+function count_cores {
+    echo $* | wc -w
+}
+
+report_result() {
 if [ ! -z "$WARNLIST" ]; then
     echo "Cores with linter warnings:"
-    echo $WARNLIST
-    echo
+    make_table $WARNLIST
+    echo `count_cores $WARNLIST` warnings
     FAIL=1
 fi
 
 if [ ! -z "$ERRLIST" ]; then
     echo "Cores with linter errors:"
-    echo $ERRLIST
+    make_table $ERRLIST
+    echo `count_cores $ERRLIST` errors
     FAIL=1
-fi
-
-# print out all log files that have problems
-if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
-    for i in $WARNLIST $ERRLIST; do
-        echo =========== $i ================
-        cat lint-$i.log
-    done
 fi
 
 if [ -z "$FAIL" ]; then
@@ -59,3 +107,6 @@ else
 fi
 
 rm -f lint*.log
+}
+
+main "$@"

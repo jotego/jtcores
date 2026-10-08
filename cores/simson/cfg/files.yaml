@@ -1,0 +1,51 @@
+simson:
+  - get:
+    - jtsimson_game.v
+    - jtsimson_main.v
+    - jtsimson_video.v
+    - jtsimson_scroll.v
+    - jtsimson_obj.v
+    - jtsimson_sound.v
+    - jtsimson_colmix.v
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jt053246_dma.v
+    - jt053246_mmr.v
+    - jtcolmix_053251.v
+  - unless: [PARODA]
+    get:
+      # Vendetta
+      - jtk054000.v
+      - jtk054000_mmr.v
+aliens:
+  - get:
+    - jt052109.v
+    - jt051962.v
+riders:
+  - get:
+    - jtriders_dump.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jtkcpu:
+jt51:
+jt053260:
+jteeprom:
+  - get:
+    - jt5911.sv
+

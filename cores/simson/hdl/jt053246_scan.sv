@@ -1,28 +1,15 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
-    Version: 1.0
-    Date: 23-9-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-9-2024 */
 
 // See JTSIMSON's README.md
 
 module jt053246_scan (    // sprite logic
     input             rst,
     input             clk,
-    input             simson,   // enables temporary hack for The Simpsons
+    input      [ 9:0] voffset,
 
+    output reg        done,
     // ROM addressing 22 bits in total
     output reg [15:0] code,
     // There are 22 bits communicating both chips on the PCB
@@ -39,14 +26,13 @@ module jt053246_scan (    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    // input             vs,
     input             hs,
 
     input      [15:0] scan_even, 
     input      [15:0] scan_odd,
     input      [ 9:0] xoffset,
     input      [ 9:0] yoffset,
-    input             ghf, gvf,
+    input             ghf, gvf, half_width,
     output     [11:2] scan_addr,
 
     // shadow
@@ -59,27 +45,32 @@ module jt053246_scan (    // sprite logic
     // Debug
     input      [ 7:0] debug_bus
 );
-parameter XMEN = 0;
+parameter [7:0] SCAN_START = 8'd0;
+parameter [8:0] BOTTOM     = 9'h1F7;
+parameter [9:0] HOFFSET    = 10'd62;
 
-localparam [9:0] HDUMP_MIN = 10'h020,
-                 HADJ      = 10'h008;
+localparam [11:0] MAX_ZOOMIN= 6; // a value below 3 will break the "pass" scene in run&gun
+localparam [ 9:0] HDUMP_MIN = 10'h020,
+                  HADJ      = 10'h008;
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2, xstart;
 reg  [ 8:0] vlatch, ymove, vscl, hscl;
 reg  [ 7:0] scan_obj/*, zcode*/; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
-reg         inzone, hs_l, done, hdone,
+reg         inzone, hs_l, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
             hmir_eff, vmir_eff, hhalf, left_wrap;
 
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
+wire [ 9:0] xhalf_raw;
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
+integer     missing;
 
 assign hflip     = ghf ^ pre_hf ^ hmir_eff;
 assign scan_addr = { scan_obj, scan_sub };
@@ -87,16 +78,18 @@ assign ysub      = ydiff[3:0];
 assign last_obj  = &scan_obj[7:0];
 assign nx_mir    = scan_even[15:14];
 assign {vsz,hsz} = size;
+assign xhalf_raw = {1'b0,scan_odd[9:1]} + 10'd1;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - 10'd62;
-    yadj <= yoffset + (XMEN==1   ? 10'h0FF :
-                       simson    ? 10'h117 : 10'h107); // Vendetta
+    // GX975's half-width mode uses an X origin 48 pixels beyond GX081.
+    xadj <= xoffset - HOFFSET - (half_width ? 10'd48 : 10'd0);
+    yadj <= yoffset + voffset;
     vscl <= rd_pzoffset(vzoom[9:0]);
     hscl <= rd_pzoffset(hzoom[9:0]);
+    ydiff_b <= y2 + { vlatch[8], vlatch };
     /* verilator lint_off WIDTH */
     yz_add  <= vzoom[9:0]*ydiff_b; // vzoom < 10'h40 enlarge, >10'h40 reduce
                                    // opposite to the one in Aliens, which always
@@ -120,15 +113,14 @@ function [8:0] rd_pzoffset( input [9:0] zoom );
         2:       rd_pzoffset =  9'd3;
         3:       rd_pzoffset =  9'd2;
     endcase
-endfunction 
+endfunction
 
 always @* begin : B
     ymove     = zmove( vsz, vscl );
     y2        = y + {1'b0,ymove};
-    ydiff_b   = y2 + { vlatch[8], vlatch };
     ydiff     = yz_add[6+:10];
     x2        = x - zmove( hsz, hscl );
-    left_wrap = x2 < HDUMP_MIN;
+    left_wrap = xstart < HDUMP_MIN;
     // test ver/game/scene/1 -> shadow, scan_obj 9
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
@@ -143,7 +135,7 @@ always @* begin : B
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
-    if( y2[9] || |yz_add[17:16] ) inzone=0;
+    if( |yz_add[17:16] ) inzone=0;
     case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
@@ -165,7 +157,7 @@ always @* begin : B
 end
 
 // Table scan
-always @(posedge clk, posedge rst) begin : A
+always @(posedge clk) begin : A
     if( rst ) begin
         hs_l     <= 0;
         scan_obj <= 0;
@@ -182,27 +174,33 @@ always @(posedge clk, posedge rst) begin : A
         indr     <= 0;
         hhalf    <= 0;
         shd      <= 0;
+        done     <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         dr_start <= 0;
-        if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
+        if( hs && !hs_l && vdump>9'h10D && vdump<=BOTTOM) begin
             done     <= 0;
-            scan_obj <= 0;
+            scan_obj <= SCAN_START;
             scan_sub <= 0;
             indr     <= 0;
             vlatch   <= vdump;
-            if( scan_obj!=0 ) $display("Obj scan did not finish. Last obj %X",scan_obj);
+            if( scan_obj!=0 ) begin
+                $display("Obj scan did not finish. Last obj %X",scan_obj);
+                missing <= missing + 1;
+            end
+            if(vdump==BOTTOM && missing!=0 ) begin
+                missing <= 0;
+                $display("%d uncompleted lines",missing);
+            end
         end else if( !done ) begin
             {indr, scan_sub} <= {indr, scan_sub} + 1'd1;
             case( {indr, scan_sub} )
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
-                    // zcode   <= scan_even[7:0];
                     code    <= scan_odd;
                     hstep   <= 0;
                     hz_keep <= 0;
-                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
                     if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
@@ -211,7 +209,8 @@ always @(posedge clk, posedge rst) begin : A
                 end
                 1: begin
                     y <= gvf ? -scan_even[9:0] : scan_even[9:0];
-                    x <= ghf ? -scan_odd[ 9:0] : scan_odd[ 9:0];
+                    x <= ghf ? -(half_width ? xhalf_raw : scan_odd[9:0]) :
+                                (half_width ? xhalf_raw : scan_odd[9:0]);
                     hcode <= {code[4],code[2],code[0]};
                     hstep <= 0;
                 end
@@ -219,17 +218,25 @@ always @(posedge clk, posedge rst) begin : A
                     x <= x-xadj;
                     y <= y+yadj;
                     vzoom <= {2'b0, scan_even[9:0]};
-                    hzoom <= sq ? {2'b0, scan_even[9:0]} : {2'b0, scan_odd[9:0]};
+                    hzoom <= half_width ?
+                             (sq ? {1'b0, scan_even[9:0], 1'b0} : {1'b0, scan_odd[9:0], 1'b0}) :
+                             (sq ? {2'b0, scan_even[9:0]}       : {2'b0, scan_odd[9:0]});
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     { reserved, shd, attr } <= scan_even[13:0];
                     vflip <= pre_vf ^ gvf ^ vmir_eff;
+                    if( hzoom < MAX_ZOOMIN ) begin
+                        { indr, scan_sub } <= 0;
+                        scan_obj <= scan_obj + 1'd1;
+                        if( last_obj ) done <= 1;
+                    end
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
                     {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
+                    xstart <= x2;
                     if( ~inzone ) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
@@ -246,9 +253,9 @@ always @(posedge clk, posedge rst) begin : A
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos    <= x2 + (left_wrap ? HADJ : 10'b0 );
+                            hpos    <= xstart + (left_wrap ? HADJ : 10'b0 );
                         end else begin
-                            hpos    <= hpos + 10'h10;
+                            hpos    <= hpos + (half_width ? 10'h08 : 10'h10);
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
@@ -257,7 +264,6 @@ always @(posedge clk, posedge rst) begin : A
                             { indr, scan_sub } <= 0;
                             scan_obj <= scan_obj + 1'd1;
                             indr     <= 0;
-                            // hz_keep <= 0;
                             if( last_obj ) done <= 1;
                         end
                     end

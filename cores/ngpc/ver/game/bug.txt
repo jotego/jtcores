@@ -1,0 +1,131 @@
+FF2163: bit 5,(0x6f86)
+FF2167: jr NZ,0xff2172
+FF2169: ld (0x6e85),(0xb2)
+FF216E: or (0xb2),0x01
+FF2172: push WA
+FF2173: bit 7,(0x6f85)
+FF2177: jr Z,0xff217d
+FF217D: calr 0xff26fc
+
+	FF26FC: ld A,(0xb0)
+	FF26FF: ex (0x6c5f),A
+	FF2703: ld W,A
+	FF2705: xor A,(0x6c5f)
+	FF2709: and W,A
+	FF270B: cpl A
+	FF270D: and A,(0x6c5f)
+	FF2711: or A,W
+	FF2713: ld (0x6f82),A
+	FF2717: ret
+
+FF2180: calr 0xff344c
+
+	FF344C: bit 7,(0x6da2)
+	FF3450: ret Z
+	FF3452: bit 5,(0x6da2)
+	FF3456: ret NZ
+	FF3458: ld W,(0xbc)
+	FF345B: cp (0x6da4),W
+	FF345F: ret NZ
+	FF3461: ld A,(0x6da0)
+	FF3465: cp (0x6da1),A
+	FF3469: ret Z
+
+FF2183: bit 6,(0x6f85)
+FF2187: jr NZ,0xff21b8
+FF2189: bit 6,(0x6f86)
+FF218D: jr Z,0xff21b8
+
+FF21B8: calr 0xff2b26
+
+	FF2B26: ld A,(0xb1)
+	FF2B29: ex (0x6c21),A
+	FF2B2D: ld W,A
+	FF2B2F: xor A,(0x6c21)
+	FF2B33: and W,A
+	FF2B35: cpl A
+	FF2B37: and A,(0x6c21)
+	FF2B3B: or A,W
+	FF2B3D: and A,0x02
+	FF2B40: jr NZ,0xff2b59
+	FF2B59: ld (0x6c22),0x00
+	FF2B5E: ret
+
+FF21BB: calr 0xff2b5f
+
+	FF2B5F: bit 7,(0x6f8a)
+	FF2B63: jr Z,0xff2b7c
+	FF2B7C: ret
+
+FF21BE: bit 3,(0x6f83)
+FF21C2: jr NZ,0xff21ed
+FF21C4: incw 1,(0x6c18)
+FF21C8: ld WA,(0x6c18)
+FF21CC: cp WA,(0x6c1a)
+FF21D0: jr C,0xff21ea
+FF21EA: calr 0xff2b7d
+
+	FF2B7D: bit 7,(0x6f85)
+	FF2B81: jr NZ,0xff2bbc
+	FF2B83: cp (0x6c20),0x00
+	FF2B88: jr Z,0xff2bbc
+	FF2BBC: ret
+
+FF21ED: pop WA
+FF21EE: pushw (0x6fce)
+FF21F2: pushw (0x6fcc)
+FF21F6: bit 5,(0x6f86)
+FF21FA: jr NZ,0xff2201
+FF21FC: ld (0xb2),(0x6e85)
+FF2201: ret
+
+FF590B: cp (0x6f85),0x00
+FF5910: jr NZ,0xff598c
+FF5912: ld (0x6f),0x4e
+FF5915: call 0xff4fdf
+
+	FF4FDF: cp (0x6dc5),0x00
+	FF4FE4: ret Z
+
+FF5919: srl (0x4e00)
+FF591D: jrl NC,0xff5987
+FF5987: inc 1,(0x4e01)
+FF598B: reti
+
+After RETI
+
+FF53FF: ld (0x4e01),0x00
+FF5404: ld XHL,0x00005040
+FF5409: ld XWA,(XHL+0xc0)
+FF540C: call T,XWA
+	FF55D6: ret			; siempre viene aquí, en MAME igual
+FF540E: ld XWA,(XHL)	; XHL=5040
+FF5410: call T,XWA
+	FF547A: ld XWA,0x00ff547a	; mame salta ff5734
+	FF547F: calr 0xff5834
+		FF5834: ld (XHL+0x00),XWA
+		FF5837: dec 1,(XHL+0x34)
+		FF583A: ret
+	FF5482: ret NZ
+	FF5484: inc 1,(0x8103)
+	FF5488: ld A,(0x8103)
+	FF548C: srl 0x01,A
+	FF548F: ld (0x8102),A
+	FF5493: inc 1,(0x8106)
+	FF5497: cp (0x8103),0x07
+	FF549C: jr NZ,0xff5476
+	FF5476: ld (XHL+0x34),0x04
+	FF547A: ld XWA,0x00ff547a
+	FF547F: calr 0xff5834
+		FF5834: ld (XHL+0x00),XWA
+		FF5837: dec 1,(XHL+0x34)
+		FF583A: ret
+	FF5482: ret NZ
+
+
+FF5412: cp (XHL+0x3e),0x0000
+FF5417: jr Z,0xff53f8
+
+FF53F8: cp (0x4e01),0x01
+FF53FD: jr C,0xff53f8
+

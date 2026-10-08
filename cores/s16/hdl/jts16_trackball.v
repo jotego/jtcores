@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-10-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-10-2021 */
 
 module jts16_trackball(
     input             rst,
@@ -23,10 +9,6 @@ module jts16_trackball(
 
     input             right_en,
 
-    input      [ 7:0] joystick1,
-    input      [ 7:0] joystick2,
-    input      [ 7:0] joystick3,
-    input      [ 7:0] joystick4,
     input      [15:0] joyana1,
     input      [15:0] joyana1b, // used by Heavy Champ
     input      [15:0] joyana2,

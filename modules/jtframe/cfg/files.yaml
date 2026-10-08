@@ -1,0 +1,132 @@
+jtframe:
+  - get:
+      - jtframe_board.v
+      - jtframe_board_sdram.v
+      - jtframe_coremod.v
+      - jtframe_led.v
+      - jtframe_bcd_cnt.v
+      - jtframe_enlarger.v
+      - jtframe_reset.v
+      - jtframe_uart.v
+      - jtframe_dip.v
+      - jtframe_sh.v
+      - jtframe_bcd_cnt.v
+      - jtframe_rsthold.v
+      - jtframe_toggle.v
+      - jtframe_edge.v
+      - jtframe_countup.v
+  - from: debug
+    get:
+      - jtframe_debug.v
+      - jtframe_debug_bus.v
+      - jtframe_debug_ctrl.v
+      - jtframe_sys_info.v
+      - jtframe_binhex_overlay.v
+      - jtframe_debug_viewmux.v
+      - jtframe_debug_keys.v
+  - from: clocking
+    get:
+      - jtframe_gated_cen.v
+      - jtframe_frac_cen.v
+      - jtframe_freqinfo.v
+      - jtframe_pxlcen.v
+  - from: keyboard
+    get:
+      - jtframe_keyboard.v
+      - jtframe_filter_keyboard.v
+      - jtframe_multiway.v
+      - jtframe_inputs.v
+      - jtframe_joysticks.v
+      - jtframe_pause.v
+      - jtframe_rec_inputs.v
+      - jtframe_paddle.v
+      - jtframe_mouse.v
+      - jtframe_dial.v
+      - jtframe_beta_lock.v
+      - jtframe_ps2key_decoder.v
+      - jt4701.v
+      - ps2_intf_v.v
+  - from: keyboard
+    when: [ SIMULATION ]
+    get:
+      - jtframe_sim_inputs.v
+  - from: ver
+    when: [ SIMULATION ]
+    get:
+      - jtframe_romrq_rdy_check.v
+      - jtframe_ddr_model.v
+  - from: lightgun
+    get:
+      - "*.v"
+  - from: video
+    get:
+      - jtframe_resync.v
+      - jtframe_credits.v
+      - jtframe_wirebw.v
+      - jtframe_short_blank.v
+      - jtframe_video_counter.v
+      - jtframe_blank_length.v
+      - jtframe_font.v
+      - jtframe_blank.v
+  - from: video/crosshair
+    get:
+      - jtframe_crosshair_disable.v
+      - jtframe_crosshair.v
+      - jtframe_crosshair_draw.sv
+      - jtframe_crosshair_color.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+      - jtframe_ioctl_range.v
+      - jtframe_headerbyte.v
+      - jtframe_okdly.v
+      - jtframe_sdram.v
+      - jtframe_sdram64.yaml
+      - jtframe_burst_sdram.yaml
+      - jtframe_sdram_stats.v
+  - from: sdram
+    when: [ SIMULATION ]
+    get:
+      - jtframe_sdram_stats_sim.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_dual_ram32.v
+      - jtframe_rpwp_ram.v
+      - jtframe_bram_rom.v
+      - jtframe_prom.v
+      - jtframe_ram.v
+      - jtframe_ram16.v
+      - jtframe_ram32.v
+      - jtframe_ioctl_dump.v
+  # Cheat system (enabled with JTFRAME_CHEAT)
+  - from: cpu
+    get:
+      - pauloblaze.yaml
+  - from: cheat
+    get:
+      - jtframe_cheat.v
+      - jtframe_cheat_rom.v
+  - from: sound
+    get:
+      - jtframe_mixer_en.v
+      - jtframe_mixer.v
+      - jtframe_iir2.v
+      - jtframe_fir.v
+      - jtframe_rcmix.v
+      - jtframe_limsum.v
+      - jtframe_limmul.v
+      - jtframe_sndchain.v
+      - jtframe_pole.v
+      - jtframe_dcrm.v
+      - jtframe_volume.v
+      - jtframe_vumeter.sv
+      - jtframe_st2mono.v
+      - jtframe_gainmux.v
+  # Analogizer support (for Pocket platform with analog video output)
+  - from: analogizer
+    when: [ POCKET ]
+    get:
+      - analogizer_psx.sv
+      - dualshock_controller.v

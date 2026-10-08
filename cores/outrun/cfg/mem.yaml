@@ -1,5 +1,5 @@
 include:
-  - file: audio
+  - file: audio.yaml
 params:
   - { name: ROAD_START }
   - { name: FD_PROM,     value: "`FD1089_START" }
@@ -11,22 +11,21 @@ params:
   - { name: RD1_OFFSET,  value: RD0_OFFSET+62'h4000 }
 clocks:
   clk48:
-    - freq: 8000000
+    - freq: 8M
+      gate: [ pcm ]
       outputs:
         - cen_pcm
+    - freq: 4M
+      outputs:
         - cen_fm
         - cen_fm2
-    - freq: 5000000
-      outputs:
-        - cen_snd
-        - cen_nc
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
     - buses:
         - { name: xram,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: subram, addr_width: 15, data_width: 16, offset: SRAM_OFFSET, rw: true }
-        - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+        - { name: main,   addr_width: 19, data_width: 16, cache_size: 1kB } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
         - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
       # dump:
@@ -34,7 +33,7 @@ sdram:
 
     # Bank 1 for sound & frame buffer
     - buses:
-        - { name: subrom, addr_width: 19, data_width: 16 } # ok latch 0, # latch 0
+        - { name: subrom, addr_width: 19, data_width: 16, cache_size: 1kB } # ok latch 0, # latch 0
         - { name: snd, addr_width: 16, data_width: 8, offset: SND_OFFSET }
         - { name: pcm, addr_width: 19, data_width: 8, offset: PCM_OFFSET }
 

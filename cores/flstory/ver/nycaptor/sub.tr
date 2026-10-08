@@ -1,0 +1,14 @@
+g
+mask AF 00FF
+mask AF2 00FF
+ignore AF2 IX IY SP
+g
+st
+st
+s
+s
+i AF
+g
+# coming back from interrupt at a different point
+i AF
+g

@@ -1,0 +1,22 @@
+labrun:
+  - get:
+    - jtlabrun_game.v
+    - jtlabrun_main.v
+    - jtlabrun_video.v
+    - jtlabrun_colmix.v
+contra:
+  - get:
+    - jtcontra_gfx.v
+    - jtcontra_gfx_tilemap.v
+    - jtcontra_gfx_obj.v
+    # Protection device / Math coprocessor
+    - jt051733.v
+    - divfunc.v
+    - common.yaml
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_6809.yaml
+jt12:
+  - get:
+    - jt03.yaml

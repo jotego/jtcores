@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-8-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-8-2023 */
 
 module jttwin16_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -29,7 +15,7 @@ wire [ 7:0] st_main, st_video, st_snd;
 wire [15:0] m_dout, s_dout, shs_dout, shm_dout, obj_dx, obj_dy;
 wire [19:1] m_addr;
 wire [17:1] s_addr;
-wire [ 1:0] vam_we, vbm_we, om_we,
+wire [ 1:0] vam_we, vbm_we, om_we, stile_we16,
             vas_we, vbs_we, os_we,
             shs_we, shm_we;
 reg  [ 7:0] debug_mux, ioctl_mux;
@@ -45,6 +31,34 @@ assign sram_din   = s_dout;
 assign mram_din   = m_dout;
 assign stile_addr = s_addr;
 
+`ifdef SCRTILE_SDRAM
+wire [15:0] stile_dout = stile_data;
+assign stile_dsn = sram_dsn;
+assign stile_we  = sram_we;
+`else
+wire [31:0] lyra_data, lyrb_data;
+wire [17:2] lyra_addr, lyrb_addr;
+wire   stile_cs, lyra_cs, lyrb_cs, nc;
+reg    stile_ok;
+assign stile_we  = stile_we16;
+always @(posedge clk) stile_ok <= stile_cs;
+
+/* verilator tracing_off */
+// makes consequitive requests to
+// convert 16 bit data to 32 bits
+jttwin16_tile u_tile(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .vramcvf    ( vramcvf       ),
+    .lyra_addr  ( lyra_addr     ),
+    .lyrb_addr  ( lyrb_addr     ),
+    .stram_addr ( stram_addr    ),
+    .stram_dout ( stram_dout    ),
+    .lyra_data  ( lyra_data     ),
+    .lyrb_data  ( lyrb_data     )
+);
+`endif
+
 always @(posedge clk) begin
     case( ioctl_addr[3:0] )
          0: ioctl_mux <= scra_x[7:0];
@@ -56,6 +70,7 @@ always @(posedge clk) begin
          8: ioctl_mux <= obj_dx[15:8];
          9: ioctl_mux <= obj_dy[ 7:0];
         10: ioctl_mux <= obj_dy[15:8];
+        11: ioctl_mux <= {7'd0, dma_on};
         default: ioctl_mux <= 0;
     endcase
 end
@@ -73,13 +88,14 @@ end
 //     if( prog_addr==0 && prog_we && header )
 //         game_id <= prog_data[2:0];
 // end
-/* verilator tracing_off */
+/* verilator tracing_on */
 jttwin16_share u_share(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen            ( cen_1m5       ),
     .tim1           ( tim1          ),  // main CPU has access to video
     .tim2           ( tim2          ),  // sub CPU does
+    .dma_bsy        ( dma_bsy       ),
     // main CPU
     .m_addr         ( m_addr[13:1]  ),
     .m_dout         ( m_dout        ),
@@ -104,8 +120,7 @@ jttwin16_share u_share(
     .oram_we        ( osha_we       ),
     .v_din          ( v_din         )
 );
-
-
+/* verilator tracing_off */
 jttwin16_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -176,7 +191,7 @@ jttwin16_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttwin16_sub u_sub(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -190,8 +205,8 @@ jttwin16_sub u_sub(
     .ram_dout       ( sram_data     ),
     .ram_ok         ( sram_ok       ),
     .ram_cs         ( sram_cs       ),
-    .ram_dsn        ( sram_dsn      ),
-    .ram_we         ( sram_we       ),
+    .bus_dsn        ( sram_dsn      ),
+    .bus_we         ( sram_we       ),
 
     .cpu_addr       ( s_addr        ),
     .cpu_dout       ( s_dout        ),
@@ -207,8 +222,10 @@ jttwin16_sub u_sub(
     .oram_we        ( os_we         ),
 
     // tile RAMs
-    .stile_we       ( stile_we      ),
+    .stile_cs       ( stile_cs      ),
+    .stile_we       ( stile_we16    ),
     .stile_dout     ( stile_dout    ),
+    .stile_ok       ( stile_ok      ),
     // video ROM checks
     .obj_addr       ( chko_addr     ),
     .obj_cs         ( chko_cs       ),
@@ -222,7 +239,7 @@ jttwin16_sub u_sub(
     .dip_pause      ( dip_pause     )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jttwin16_video u_video (
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -262,8 +279,12 @@ jttwin16_video u_video (
     .pal_addr       ( pal_addr      ),
     .pal_dout       ( pal_dout      ),
     // tile RAM
-    .stram_addr     ( stram_addr    ),
-    .stram_dout     ( stram_dout    ),
+    .lyra_cs        ( lyra_cs       ),
+    .lyra_addr      ( lyra_addr     ),
+    .lyra_data      ( lyra_data     ),
+    .lyrb_cs        ( lyrb_cs       ),
+    .lyrb_addr      ( lyrb_addr     ),
+    .lyrb_data      ( lyrb_data     ),
     // SDRAM
     .lyrf_addr      ( lyrf_addr     ),
     .lyro_addr      ( lyro_addr     ),
@@ -291,6 +312,7 @@ jttmnt_sound u_sound(
     .cen_640    ( cen_640       ),
     .cen_20     ( 1'b0          ),  // for title music in TMNT, unused here
     .game_id    ( 3'd0          ),
+    .fm_mono_en ( 1'b0          ),
     // communication with main CPU
     .main_dout  ( 8'd0          ),
     .main_din   (               ),
@@ -299,7 +321,7 @@ jttmnt_sound u_sound(
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
     // ROM
-    .rom_addr   ( snd_addr      ),
+    .rom_addr   ( {nc,snd_addr} ),
     .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
     .rom_ok     ( snd_ok        ),

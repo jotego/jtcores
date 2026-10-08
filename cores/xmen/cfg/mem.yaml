@@ -1,36 +1,24 @@
 params:
-  - { name: RAM_OFFSET,   value: "22'h100000" }
   - { name: PCM_OFFSET,   value: "22'h020000>>1" }
 clocks:
   clk48:
-    - freq: 16000000
+    - freq: 16M
       outputs:
         - cen_16
         - cen_8
         - cen_4   # cen_fm
         - cen_2   # cen_fm2
-    # adjusted for pitch
-    # - freq: 18432000
-    - freq: 12288000
-    # - freq: 5926736
-    # - freq: 12315757
-    # - freq: 11853472
+    - freq: 18432k
       gate: [pcm]
       outputs:
         - cen_pcm
 audio:
-  rsum: 2k
+  gain: 1.99
   channels:
-    - { name: fm,     module: jt51,     rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }
-    - { name: k539,   module: jt054539, rsum: 960, rc: [ { r: 4.7k, c: 2.2n } ] }
+    - { name: k539,   module: jt054539, rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 14
-          data_width: 16
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 20
           data_width: 16
@@ -57,10 +45,19 @@ sdram:
           addr_width: 22
           data_width: 32
 bram:
+  # Main CPU work RAM
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    addr: main_addr[13:1]
+    din: ram_din
+    dout: ram_data
   # EEROM
   - name: nvram
     addr_width: 7
     data_width: 8
-    sim_file: true
+    simfile: {}
+
     rw: true
     ioctl: { save: true, restore: true, order: 0 }

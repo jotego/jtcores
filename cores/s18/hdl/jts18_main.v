@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 21-4-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-4-2024 */
 
 module jts18_main(
     input              rst,
@@ -67,10 +53,10 @@ module jts18_main(
     input       [ 7:0] joystick1,
     input       [ 7:0] joystick2,
     input       [ 7:0] joystick3,
-    input       [ 8:0] lg1_x,
-    input       [ 8:0] lg1_y,
-    input       [ 8:0] lg2_x,
-    input       [ 8:0] lg2_y,
+    input       [ 8:0] gun_1p_x,
+    input       [ 8:0] gun_1p_y,
+    input       [ 8:0] gun_2p_x,
+    input       [ 8:0] gun_2p_y,
     input       [ 1:0] dial_x,
     input       [ 1:0] dial_y,
     input       [ 2:0] cab_1p,
@@ -141,6 +127,7 @@ wire [23:0] A_full = {A,1'b0};
 wire        BRn, BGACKn, BGn,
             BUSn, cpu_RnW, ok_dly, io_we, io_rd;
 reg         sdram_ok, io_cs, vdp_cs;
+wire        vram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw;
 
 wire [ 7:0] active, mcu_din, mcu_dout;
@@ -184,7 +171,6 @@ end
 
 `ifndef NOMCU
 jtframe_8751mcu #(
-    .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
     .SYNC_P1    ( 1             ),
     .SYNC_INT   ( 1             ),
@@ -242,8 +228,16 @@ always @* begin
 end
 
 always @* begin
-    sdram_ok = ASn || (rom_cs ? ok_dly : vram_ok);
+    sdram_ok = ASn || (rom_cs ? ok_dly : vram_ok_dly);
 end
+
+jtframe_okdly u_vram_okdly(
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .cs     ( vram_cs     ),
+    .ok     ( vram_ok     ),
+    .ok_dly ( vram_ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -312,10 +306,10 @@ always @(posedge clk) begin
 
     if (io_we && A[15:4] == 12'h301) begin
         case (A[2:1])
-            0: m6253_shift_reg <= ~lg1_y[7:0];
-            1: m6253_shift_reg <= lg_xscale(lg1_x);
-            2: m6253_shift_reg <= ~lg2_y[7:0];
-            3: m6253_shift_reg <= lg_xscale(lg2_x);
+            0: m6253_shift_reg <= ~gun_1p_y[7:0];
+            1: m6253_shift_reg <= lg_xscale(gun_1p_x);
+            2: m6253_shift_reg <= ~gun_2p_y[7:0];
+            3: m6253_shift_reg <= lg_xscale(gun_2p_x);
             default: ;
         endcase
     end
@@ -478,6 +472,7 @@ jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
     .bus_dsn    ( {UDSn,  LDSn}  ),
     .bus_cs     ( bus_cs         ),
     .bus_busy   ( bus_busy       ),
+    .bus_legit  ( 1'b0           ),
     // effective bus signals
     .addr_out   ( A              ),
 

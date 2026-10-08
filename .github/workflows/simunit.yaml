@@ -1,0 +1,50 @@
+name: Unit Simulations
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  repository_dispatch:
+    types: rebuild
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * *' # runs every night
+jobs:
+  find_unit_sims:
+    runs-on: ubuntu-latest
+    outputs:
+      unitsims: ${{ steps.generate-matrix.outputs.unitsims }}
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        submodules: 'recursive'
+        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+    - id: generate-matrix
+      run: |
+        for folder in `find -name .simunit | xargs dirname`; do
+          if [ ! -z "$UNITSIMS" ]; then UNITSIMS="$UNITSIMS, "; fi
+          UNITSIMS="$UNITSIMS \"$folder\""
+        done
+        UNITSIMS="[ $UNITSIMS ]"
+        echo $UNITSIMS
+        echo "unitsims=${UNITSIMS}" >> $GITHUB_OUTPUT
+  run_sims:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    needs:
+      - find_unit_sims
+    strategy:
+      fail-fast: false
+      matrix:
+        unitsim: ${{ fromJSON(needs.find_unit_sims.outputs.unitsims) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+      - id: simulation
+        run: |
+          docker run --network host -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/${{matrix.unitsim}}

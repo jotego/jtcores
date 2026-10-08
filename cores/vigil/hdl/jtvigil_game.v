@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-4-2022 */
 
 module jtvigil_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -34,26 +20,14 @@ wire [ 8:0] scr1pos;
 wire [10:0] scr2pos;
 wire [ 2:0] scr2col;
 wire        flip, scr2enb;
-wire        is_tiles, is_obj;
 
 // Cabinet inputs
 assign dip_flip   = ~flip;
 assign debug_view = debug_mux;
 
-assign is_tiles  = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
-assign is_obj    = prog_ba==3;
 assign pal1_we   = ~main_rnw & pal_cs;
 assign scr1_we   = ~main_rnw & scr1_ramcs;
 assign ioctl_din = dump_mux;
-
-always @* begin
-    post_addr = prog_addr;
-    // moves the H address bit to the LSBs
-    if( is_tiles )
-        post_addr[3:0] = { prog_addr[2:0], prog_addr[3] };
-    if( is_obj )
-        post_addr[5:0] = { prog_addr[3:0], prog_addr[5:4] };
-end
 
 always @(posedge clk) begin
     case(ioctl_addr[1:0])
@@ -111,7 +85,7 @@ jtvigil_main u_main(
     .dipsw_a     ( dipsw[ 7:0]),
     .dipsw_b     ( dipsw[15:8])
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtvigil_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -167,7 +141,7 @@ jtvigil_video u_video(
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus )
 );
-
+/* verilator tracing_on */
 jtvigil_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),

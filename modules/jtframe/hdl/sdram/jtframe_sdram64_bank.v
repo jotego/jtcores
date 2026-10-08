@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-4-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-4-2021 */
 
 // SDRAM is set to burst=2 (64 bits)
 /* verilator coverage_off */
@@ -83,7 +69,7 @@ localparam IDLE    = 0,
            ACT     = PRE_ACT+1,
            PRE_RD  = PRE_ACT + (HF ? 2:1),
            READ    = PRE_RD+1,
-           DST     = READ + (SHIFTED ? 1 : 2) ,
+           DST     = READ + (SHIFTED==1 ? 1 : 2) ,
            DTICKS  = BURSTLEN==64 ? 4 : (BURSTLEN==32?2:1),
            BUSY    = DST+(DTICKS-1),
            RDY     = DST + (BALEN==16 ? 0 : (BALEN==32? 1 : 3)),
@@ -129,7 +115,7 @@ assign ack      = st[READ],
        rd_wr    = rd | wr,
        idle     = st[0];
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         in_busy   <= 0; // |st[ (BALEN==16? READ+1 : RDY-2):READ]
         in_busy64 <= 0; // |{st[BUSY:READ], do_read}
@@ -187,7 +173,7 @@ end
 
 generate
     if( HF==1 ) begin
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 br <= 0;
             end else begin
@@ -220,7 +206,7 @@ always @(*) begin
             { do_read ? AUTOPRECH[0] : PRECHARGE_ALL[0], addr[AW-1], addr[8:0]};
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         prechd   <= 0;
         actd     <= 0;

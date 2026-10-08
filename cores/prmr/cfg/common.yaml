@@ -1,0 +1,44 @@
+riders:
+  - get:
+    - jt054321.v
+    - jtriders_dump.v
+    - jtriders_sound.v
+simson:
+  - get:
+    - jt053246_dma.v
+    - jt053246_mmr.v
+    - jtcolmix_053251.v
+aliens:
+  - get:
+    - jtaliens_scroll.v
+    - jt052109.v
+    - jt051962.v
+    - jt051960.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_counter.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+      - jtframe_linebuf.v
+      - jtframe_linebuf_gate.v
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_nvram16.v
+jt51:
+jt053260:
+jteeprom:
+  - get:
+    - jt5911.sv

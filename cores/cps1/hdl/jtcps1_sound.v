@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-1-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-1-2020 */
 
 module jtcps1_sound(
     input                rst,
@@ -46,6 +32,8 @@ module jtcps1_sound(
     input         [ 7:0] debug_bus
 );
 
+`ifndef NOSOUND
+
 wire signed [13:0] oki_pre, pcm_rc, pcm_butter;
 reg  signed [13:0] pcm_snd;
 wire signed [15:0] fm_left, fm_right;
@@ -55,7 +43,7 @@ wire        [15:0] A;
 reg                fm_cs, latch0_cs, latch1_cs, ram_cs, oki_cs, oki7_cs, bank_cs,
                    oki7, bank, latch_cs, dev_cs, mem_cs, rom_ok2;
 wire               cen_fm, cen_fm2, cen_oki, nc, cpu_cen, io_cs,
-                   peak_l, peak_r, pcm_en, fm_en, iorq_n, m1_n,
+                   peak_l, peak_r, pcm_en, fm_en, iorq_n, m1_n, rfsh_n,
                    mreq_n, int_n, WRn, oki_wrn, rd_n, wr_n, RAM_we;
 
 assign RAM_we   = ram_cs && !WRn;
@@ -64,7 +52,7 @@ assign adpcm_cs = 1'b1;
 assign oki_wrn  = ~(oki_cs & ~WRn);
 assign pcm_en   = 1; //~debug_bus[0];
 assign fm_en    = 1; //~debug_bus[1];
-assign io_cs    = !mreq_n && A[15:12] == 4'b1111;
+assign io_cs    = !mreq_n && rfsh_n && A[15:12] == 4'b1111;
 assign pcmbase  = pcm_en ? 8'h18 : 8'h0;
 
 always @(posedge clk) begin
@@ -146,9 +134,9 @@ always @(posedge clk) begin
         latch0_cs <= 1'b0;
         latch1_cs <= 1'b0;
     end else begin
-        rom_cs    <= !mreq_n && !rd_n && (!A[15] || A[15:14]==2'b10);
+        rom_cs    <= rfsh_n && !mreq_n && !rd_n && (!A[15] || A[15:14]==2'b10);
         rom_addr  <= A[15] ? { 1'b1, bank, A[13:0] } : { 1'b0, A[14:0] };
-        ram_cs    <= !mreq_n && A[15:12] == 4'b1101;
+        ram_cs    <= rfsh_n && !mreq_n && A[15:12] == 4'b1101;
         fm_cs     <= io_cs && A[3:1]==3'd0;
         oki_cs    <= io_cs && A[3:1]==3'd1;
         bank_cs   <= io_cs && A[3:1]==3'd2;
@@ -215,7 +203,7 @@ jtframe_z80_romwait u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
@@ -288,5 +276,21 @@ jtframe_iir2 #(.G(2), .WS(14)) u_butter(
     .sin        ( oki_pre   ),
     .sout       ( pcm_butter)
 );
+
+`else
+
+assign adpcm_addr = 18'd0;
+assign adpcm_cs   = 1'b0;
+assign left       = 16'sd0;
+assign right      = 16'sd0;
+assign sample     = 1'b0;
+
+initial begin
+    rom_addr = 16'd0;
+    rom_cs   = 1'b0;
+    peak     = 1'b0;
+end
+
+`endif
 
 endmodule

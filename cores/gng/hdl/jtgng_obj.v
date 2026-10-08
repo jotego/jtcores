@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 module jtgng_obj #(
     parameter [9:0] OBJMAX      = 10'h180,
@@ -37,6 +23,7 @@ module jtgng_obj #(
     INVY        = 0,   // Invert Y position, used by Tiger Road
     PALW        = 2,
     PALETTE     = 0, // 1 if the palette PROM is used
+    parameter
     PALETTE1_SIMFILE = "", // only for simulation
     PALETTE0_SIMFILE = ""  // only for simulation
 ) (

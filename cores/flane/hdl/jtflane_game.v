@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-8-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-8-2021 */
 
 module jtflane_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -31,7 +17,6 @@ wire [ 7:0] pal_dout, cpu_dout, gfx_dout, st_video;
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
 
-`ifndef NOMAIN
 jtflane_main u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -91,9 +76,6 @@ jtflane_main u_main(
     .pcm0           ( pcm0          ),
     .pcm1           ( pcm1          )
 );
-`else
-assign main_cs = 0;
-`endif
 
 `ifndef NOVIDEO
 jtlabrun_video #(.GAME(1))

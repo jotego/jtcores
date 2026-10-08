@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-1-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-1-2022 */
 
 module jtmikie_video(
     input               rst,
@@ -35,8 +21,14 @@ module jtmikie_video(
 
     input               vram_cs,
     input               vscr_cs,
-    output        [7:0] vram_dout,
     output        [7:0] vscr_dout,
+    output        [7:0] vcpu_din,
+    output       [ 1:0] vramrw_we,
+    input        [15:0] vramrw_dout,
+    output       [10:1] vramrw_addr,
+    //VRAM read out
+    output       [10:1] vram_addr,
+    input        [15:0] vram_dout,
 
     input               objram_cs,
     output        [7:0] obj_dout,
@@ -123,8 +115,13 @@ jtkicker_scroll #(.LAYOUT(LAYOUT),.NOSCROLL(1)) u_scroll(
     .cpu_rnw    ( cpu_rnw   ),
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( vscr_cs   ),
-    .vram_dout  ( vram_dout ),
+    .cpu_din    ( vcpu_din  ),
     .vscr_dout  ( vscr_dout ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .rd_addr    ( vram_addr ),
+    .vram_dout  ( vram_dout ),
 
     // video inputs
     .LHBL       ( LHBL      ),

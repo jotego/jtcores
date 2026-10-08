@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 3-10-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 3-10-2020 */
 
 // Clocks are derived from H counter on the original PCB
 // Yet, that doesn't seem to be important and it only
@@ -59,6 +45,8 @@ module jtlabrun_main(
     output signed [15:0] fm0, fm1,
     output        [ 9:0] psg0, psg1
 );
+
+`ifndef NOMAIN
 
 localparam RAM_AW = 11;
 
@@ -242,5 +230,16 @@ jt03 u_fm1(
     .snd        (            ),
     .debug_view (            )
 );
+
+`else
+assign cpu_cen  = 1'b0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+assign fm0      = 16'sd0;
+assign fm1      = 16'sd0;
+assign psg0     = 10'd0;
+assign psg1     = 10'd0;
+initial begin rom_addr=0; rom_cs=0; gfx_addr=0; gfx_cs=0; pal_cs=0; end
+`endif
 
 endmodule

@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 16-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-4-2022 */
 
 module jtframe_freqinfo #(parameter
     KHZ   = 1,      // set to 1 to output kHz, set to 0 to output Hz
@@ -46,7 +32,7 @@ generate
         // This is useful when the input signal is below 1kHz
         reg [9:0] div;
         assign cen = div==999;
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 div <= 0;
             end else begin
@@ -59,7 +45,7 @@ endgenerate
 // Frequency reporting
 assign cnt_event = pulse & ~pulse_l;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         freq_cnt <= 0;
         fworst   <= {DIGITS*4{1'b1}};

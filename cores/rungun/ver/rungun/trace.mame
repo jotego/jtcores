@@ -1,0 +1,11 @@
+focus 0
+trace off
+trace debug.csv,maincpu,noloop,{tracelog "%X,%X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%02X,%X,%x,",rPC,SP,d0,d1,d2,d3,d4,d5,d6,d7,a0,a1,a2,a3,a4,a5,a6,USP,ir,frame}
+tracelog "PC,SSP,D0,D1,D2,D3,D4,D5,D6,D7,A0,A1,A2,A3,A4,A5,A6,A7,IR,frame_cnt\n"
+softreset
+bp 8e8
+go
+curpc=8ee
+rpc=8ee
+gtime 1200
+traceflush

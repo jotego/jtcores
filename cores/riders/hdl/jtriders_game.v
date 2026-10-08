@@ -1,85 +1,122 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-7-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-7-2024 */
 
 module jtriders_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [2:0] SSRIDERS = 3'd0,
-                 TMNT2    = 3'd1;
+localparam SSRIDERS = 0,
+           TMNT2    = 1,
+           LGTNFGHT = 2,
+           GLFGREAT = 3;
 
-/* verilator tracing_off */
-wire        snd_irq, rmrd, rst8, dimmod, dimpol,
-            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs,
+/* verilator tracing_on */
+wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
+            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n, enc_done,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
-            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
+            BGn, riders_brn, riders_bgackn, prot_irqn, riders_cs, objreg_cs, oram_cs,
+            ram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
 reg  [ 7:0] debug_mux;
-reg  [ 2:0] game_id;
-reg         ssriders, tmnt2;
+reg         ssriders=0, tmnt2=0, lgtnfght=0, glfgreat=0;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch,
             st_main, st_video;
+wire [ 7:0] platch;
 wire [ 2:0] dim;
-wire [ 1:0] oram_we;
+wire [ 1:0] oram_we, ram_dsn;
+
+wire        tmnt_asn, tmnt_wrn, tmnt_brn, tmnt_bgackn, tmnt_cs, tmnt_dtack_n;
+wire [23:1] tmnt_addr;
+wire [15:0] tmnt_din, tmnt_dout;
+wire [ 1:0] tmnt_dsn;
+
+`ifdef NOPSAC
+wire [ 1:0] lmem_we;
+wire [15:0] lmem_dout=0, line_dout=0;
+wire [10:1] line_addr;
+wire [17:1] t2x2_addr, tmap_addr;
+wire [15:0] t2x2_din,  tmap_dout=0;
+wire [ 1:0] t2x2_we;
+`endif
+wire        tmap_ok;
+`ifdef POCKET
+wire [17:1] t2x2_addr, tmap_addr;
+wire [15:0] t2x2_din,  tmap_dout;
+wire [ 1:0] t2x2_we;
+
+assign sram_addr =  enc_done ? tmap_addr : t2x2_addr;
+assign sram_din  =  t2x2_din;
+assign sram_wen  = ~t2x2_we[0];
+assign sram_dsn  =  0;
+assign tmap_dout =  sram_dout;
+assign tmap_ok   =  sram_ok;
+`else
+assign tmap_ok   = 1;
+`endif
 
 assign debug_view = debug_mux;
-assign ram_we     = cpu_we & ram_cs;
-assign ram_addr   = main_addr[13:1];
+assign ram_we     = {2{cpu_we & ram_cs}} & ~ram_dsn;
 assign omsb_din   = ram_din[7:0];
-assign oaread_en  = tmnt2;
+assign oaread_en  = 1'b0; // tmnt2;
 assign video_dumpa= ioctl_addr[15:0]-16'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        3: debug_mux <= { 2'b0, dimpol, dimmod, 1'b0, dim };
-        default: debug_mux <= 0;
+        2: debug_mux <= { 4'd0,glfgreat,lgtnfght,tmnt2,ssriders };
+        3: debug_mux <= { enc_done, 1'b0, dimpol, dimmod, 1'b0, dim };
     endcase
 end
 
 always @(posedge clk) begin
-    if( prog_addr[3:0]==15 && prog_we && header ) game_id <= prog_data[2:0];
-    ssriders <= game_id == SSRIDERS;
-    tmnt2    <= game_id == TMNT2;
+    if( prog_addr[3:0]==15 && prog_we && header ) begin
+        ssriders <= prog_data[SSRIDERS];
+        tmnt2    <= prog_data[TMNT2];
+        lgtnfght <= prog_data[LGTNFGHT];
+        glfgreat <= prog_data[GLFGREAT];
+    end
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
-    .LVBL           ( LVBL          ),
+    .lgtnfght       ( lgtnfght      ),
+    .glfgreat       ( glfgreat      ),
+    .tmnt2          ( tmnt2         ),
+    .ssriders       ( ssriders      ),
 
+    .LVBL           ( LVBL          ),
     .cpu_we         ( cpu_we        ),
-    .cpu_dout       ( ram_din       ),
+    .bus_din        ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
+    .cpu_n          ( cpu_n         ),
 
-    // protection chip
-    .BGACKn         ( BGACKn        ),
-    .BRn            ( BRn           ),
+    // ssriders sprite chip
+    .riders_bgackn  ( riders_bgackn ),
+    .riders_brn     ( riders_brn    ),
     .BGn            ( BGn           ),
     .prot_irqn      ( prot_irqn     ),
-    .prot_cs        ( prot_cs       ),
+    .riders_cs      ( riders_cs     ),
     .prot_dout      ( prot_dout     ),
+
+    // TMNT sprite chip
+    .tmnt_cs        ( tmnt_cs       ),
+    .tmnt_asn       ( tmnt_asn      ),
+    .tmnt_addr      ( tmnt_addr     ),
+    .tmnt_din       ( tmnt_din      ),
+    .tmnt_dout      ( tmnt_dout     ),
+    .tmnt_dsn       ( tmnt_dsn      ),
+    .tmnt_wrn       ( tmnt_wrn      ),
+    .tmnt_dtack_n   ( tmnt_dtack_n  ),
+    .tmnt_brn       ( tmnt_brn      ),
+    .tmnt_bgackn    ( tmnt_bgackn   ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -89,23 +126,29 @@ jtriders_main u_main(
     .ram_dsn        ( ram_dsn       ),
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
-    .ram_ok         ( ram_ok        ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
-    .joystick3      ( joystick3     ),
-    .joystick4      ( joystick4     ),
+    .joystick1      ( joystick1[6:0]),
+    .joystick2      ( joystick2[6:0]),
+    .joystick3      ( joystick3[6:0]),
+    .joystick4      ( joystick4[6:0]),
     .service        ( {4{service}}  ),
 
     .vram_dout      ( tilesys_dout  ),
     .oram_dout      ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
+    // PSAC
+    .psreg_cs       ( psac_cs       ),
+    .psac_bank      ( psac_bank     ),
+    .lmem_we        ( lmem_we       ),
+    .lmem_dout      ( lmem_dout     ),
+    .platch         ( platch        ),
     // Object MSB RAM
     .omsb_we        ( omsb_we       ),
     .omsb_addr      ( omsb_addr     ),
     .omsb_dout      ( omsb_dout     ),
+    .dma_bsy        ( dma_bsy       ),
     // To video
     .rmrd           ( rmrd          ),
     .dimmod         ( dimmod        ),
@@ -128,6 +171,7 @@ jtriders_main u_main(
     .nv_din         ( nvram_din     ),
     .nv_we          ( nvram_we      ),
     // DIP switches
+    .dipsw          ( dipsw[19:0]   ),
     .dip_pause      ( dip_pause     ),
     .dip_test       ( dip_test      ),
     // Debug
@@ -137,31 +181,57 @@ jtriders_main u_main(
 
 /* verilator tracing_off */
 jtriders_prot u_prot(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen_16     ( cen_16    ),
-    .cen_8      ( cen_8     ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen_16     ( cen_16        ),
+    .cen_8      ( cen_8         ),
 
-    .cs         ( prot_cs   ),
+    .cs         ( riders_cs     ),
     .addr       (main_addr[13:1]),
-    .cpu_we     ( cpu_we    ),
-    .din        ( ram_din   ), // = cpu_dout
-    .dout       ( prot_dout ),
-    .ram_we     ( ram_we    ), // includes ram_cs as part of ram_we
-    .dsn        ( ram_dsn   ),
+    .cpu_we     ( cpu_we        ),
+    .din        ( ram_din       ), // = cpu_dout
+    .dout       ( prot_dout     ),
+    .ram_we     ( |ram_we       ), // includes ram_cs as part of ram_we
+    .dsn        ( ram_dsn       ),
     // DMA
-    .objsys_cs  ( objsys_cs ),
-    .oram_cs    ( oram_cs   ),
-    .oram_addr  ( oram_addr ),
-    .oram_din   ( oram_din  ),
-    .oram_dout  ( oram_dout ),
-    .oram_we    ( oram_we   ),
-    .irqn       ( prot_irqn ),
-    .BRn        ( BRn       ),
-    .BGn        ( BGn       ),
-    .BGACKn     ( BGACKn    ),
+    .objsys_cs  ( objsys_cs     ),
+    .oram_cs    ( oram_cs       ),
+    .oram_addr  ( oram_addr     ),
+    .oram_din   ( oram_din      ),
+    .oram_dout  ( oram_dout     ),
+    .oram_we    ( oram_we       ),
+    .irqn       ( prot_irqn     ),
+    .BRn        ( riders_brn    ),
+    .BGACKn     (riders_bgackn  ),
+    .BGn        ( BGn           ),
 
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( debug_bus     )
+);
+
+/* verilator tracing_on */
+jtriders_tmnt2 u_tmnt2(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( cen_16        ),
+
+    .cs         ( tmnt_cs       ),
+    .addr       (main_addr[4:1] ),
+    .dsn        ( ram_dsn       ),
+    .din        ( ram_din       ), // = cpu_dout
+    .cpu_we     ( cpu_we        ),
+    .dtack_n    ( tmnt_dtack_n  ),
+
+    // DMA
+    .bus_asn    ( tmnt_asn      ),
+    .bus_addr   ( tmnt_addr     ),
+    .bus_din    ( tmnt_din      ),
+    .bus_dout   ( tmnt_dout     ),
+    .bus_dsn    ( tmnt_dsn      ),
+    .bus_wrn    ( tmnt_wrn      ),
+
+    .BRn        ( tmnt_brn      ),
+    .BGn        ( BGn           ),
+    .BGACKn     (tmnt_bgackn    )
 );
 
 /* verilator tracing_on */
@@ -171,8 +241,13 @@ jtriders_video u_video (
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
+    .cpu_n          ( cpu_n         ),
+    .enc_done       ( enc_done      ),
 
     .ssriders       ( ssriders      ),
+    .lgtnfght       ( lgtnfght      ),
+    .glfgreat       ( glfgreat      ),
+    .tmnt2          ( tmnt2         ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -205,7 +280,35 @@ jtriders_video u_video (
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),
     .rmrd           ( rmrd          ),
-    .dma_bsy        (               ),
+    .dma_bsy        ( dma_bsy       ),
+    .platch         ( platch        ),
+    // PSAC GFX
+    .psac_cs        ( psac_cs       ),
+    .psac_bank      ( psac_bank     ),
+    .psc_addr       ( psc_addr      ),
+    .psc_data       ( psc_data      ),
+    .psc_cs         ( psc_cs        ),
+    .psc_ok         ( psc_ok        ),
+
+    .psclo_addr     ( psclo_addr    ),
+    .psclo_data     ( psclo_data    ),
+    .psclo_ok       ( psclo_ok      ),
+    .psclo_cs       ( psclo_cs      ),
+
+    .pschi_addr     ( pschi_addr    ),
+    .pschi_data     ( pschi_data    ),
+    .pschi_ok       ( pschi_ok      ),
+    .pschi_cs       ( pschi_cs      ),
+
+    .line_addr      ( line_addr     ),
+    .line_dout      ( line_dout     ),
+
+    .t2x2_addr      ( t2x2_addr     ),
+    .t2x2_din       ( t2x2_din      ),
+    .t2x2_we        ( t2x2_we       ),
+    .tmap_addr      ( tmap_addr     ),
+    .tmap_ok        ( tmap_ok       ),
+    .tmap_dout      ( tmap_dout     ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
@@ -248,8 +351,12 @@ jtriders_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
     .cen_pcm    ( cen_pcm       ),
 
+    .lgtnfght   ( lgtnfght      ),
+    .glfgreat   ( glfgreat      ),
+    .ssriders   ( ssriders      ),
+
     // communication with main CPU
-    .main_dout  ( ram_din[7:0]  ),
+    .main_dout  ( ram_din       ),
     .main_din   ( snd2main      ),
     .main_addr  ( main_addr[4:1]),
     .main_rnw   ( snd_wrn       ),
@@ -280,9 +387,8 @@ jtriders_sound u_sound(
     .pcmd_cs    ( pcmd_cs       ),
     .pcmd_ok    ( pcmd_ok       ),
 
+    .snd_en     ( snd_en        ),
     // Sound output
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
     .k60_l      ( k60_l         ),
     .k60_r      ( k60_r         )
 );

@@ -1,0 +1,25 @@
+# trigger the magic so the song is played. See issue #1091
+50 coin
+25
+# 75
+# press 1p
+loop
+1 1p
+1
+repeat 25
+# 100
+
+# bypass intro
+loop
+1 b1
+1
+repeat 50
+# 150
+50
+# magic
+loop
+1 b1
+1
+1 b2
+1
+repeat 50

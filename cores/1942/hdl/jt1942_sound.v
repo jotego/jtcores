@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-1-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-1-2019 */
 
 // 1942 Sound
 // Schematics page 3/8
@@ -47,7 +33,7 @@ module jt1942_sound(
 
 `ifndef NOSOUND
 `include "1942.vh"
-wire mreq_n, rd_n, wr_n;
+wire mreq_n, rfsh_n, rd_n, wr_n;
 reg  ay1_cs, ay0_cs, latch_cs, ram_cs, hige;
 
 reg [7:0] AH;
@@ -92,7 +78,7 @@ always @(*) begin
     latch_cs = 1'b0;
     ay0_cs   = 1'b0;
     ay1_cs   = 1'b0;
-    if( !mreq_n ) casez(A[15:13])
+    if( !mreq_n && rfsh_n ) casez(A[15:13])
         3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
@@ -143,7 +129,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

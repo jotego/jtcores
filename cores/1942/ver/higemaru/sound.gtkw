@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Jan 19 16:52:00 2025
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/1942/ver/higemaru/test.fst"
+[dumpfile_mtime] "Sun Jan 19 16:49:21 2025"
+[dumpfile_size] 3135830
+[savefile] "/home/jtejada/jtcores/cores/1942/ver/higemaru/sound.gtkw"
+[timestart] 1675474689840
+[size] 2532 1005
+[pos] -1 -1
+*-38.081467 1675474689840 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[sst_width] 278
+[signals_width] 487
+[sst_expanded] 1
+[sst_vpaned_height] 327
+@25
+TOP.game_test.frame_cnt[31:0]
+@22
+TOP.game_test.u_game.u_game.u_sound.psg0[9:0]
+TOP.game_test.u_game.u_game.u_sound.psg1[9:0]
+TOP.game_test.u_game.u_game.coin[3:0]
+[pattern_trace] 1
+[pattern_trace] 0

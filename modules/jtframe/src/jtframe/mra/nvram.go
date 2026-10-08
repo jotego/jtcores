@@ -1,13 +1,22 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mra
 
 import (
-	"fmt"
-	"path/filepath"
+	"log"
 	"os"
+	"path/filepath"
+
+	"jotego/jtframe/common"
+	. "jotego/jtframe/xmlnode"
 )
 
 func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename string) {
-	if cfg.ROM.Nvram.length == 0 { return }
+	if cfg.ROM.Nvram.length == 0 {
+		return
+	}
 	add_nvram := len(cfg.ROM.Nvram.Machines) == 0
 	if !add_nvram {
 		for _, each := range cfg.ROM.Nvram.Machines {
@@ -17,10 +26,10 @@ func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename strin
 			}
 		}
 	}
-	if rawbytes, e := nvram_file(machine, corename); e==nil { // look in cfg folder for matching file
+	if rawbytes, e := nvram_file(machine, corename); e == nil { // look in cfg folder for matching file
 		root.AddNode("rom").AddAttr("index", "2").AddNode("part").SetText("\n" + hexdump(rawbytes, 16))
-	} else if !nvram_verbatim(root, machine,cfg) { // explicit defaults in the TOML
-		nvram_rom(root,machine,cfg)  // get the defaults from MAME
+	} else if !nvram_verbatim(root, machine, cfg) { // explicit defaults in the TOML
+		nvram_rom(root, machine, cfg) // get the defaults from MAME
 	}
 	if add_nvram {
 		n := root.AddNode("nvram").AddAttr("index", "2")
@@ -28,18 +37,20 @@ func make_nvram(root *XMLNode, machine *MachineXML, cfg Mame2MRA, corename strin
 	}
 }
 
-func nvram_file( machine *MachineXML, core string) ([]byte, error) {
-	cfgdir := filepath.Join(os.Getenv("JTROOT"),"cores",core,"cfg")
-	fname := filepath.Join(cfgdir,machine.Name+".nvm")
+func nvram_file(machine *MachineXML, core string) ([]byte, error) {
+	cfgdir := common.ConfigFilePath(core, "")
+	fname := filepath.Join(cfgdir, machine.Name+".nvm")
 	f, e := os.Open(fname)
-	if e!=nil {
+	if e != nil {
 		f.Close()
-		if machine.Cloneof=="" { return nil, e }
-		fname := filepath.Join(cfgdir,machine.Cloneof+".nvm")
+		if machine.Cloneof == "" {
+			return nil, e
+		}
+		fname := filepath.Join(cfgdir, machine.Cloneof+".nvm")
 		f, e = os.Open(fname)
-		if e!= nil {
+		if e != nil {
 			f.Close()
-			return nil,e	// not found
+			return nil, e // not found
 		}
 	}
 	f.Close()
@@ -52,7 +63,7 @@ func nvram_verbatim(root *XMLNode, machine *MachineXML, cfg Mame2MRA) bool {
 		if each.Machine == "" && each.Setname == "" && raw == nil {
 			raw = &cfg.ROM.Nvram.Defaults[k]
 		}
-		if each.Match(machine)>0 {
+		if each.Match(machine) > 0 {
 			raw = &cfg.ROM.Nvram.Defaults[k]
 		}
 		if each.Setname == machine.Name {
@@ -69,16 +80,25 @@ func nvram_verbatim(root *XMLNode, machine *MachineXML, cfg Mame2MRA) bool {
 }
 
 func nvram_rom(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
-	reg := find_region_cfg(machine,"nvram",cfg,false)
-	if reg==nil { return }
-	roms := extract_region(reg, machine.Rom, cfg.ROM.Remove)
-	if len(roms)==0 { return }
-	if len(roms)!=1 {
-		fmt.Println("Warning: more than one ROM for NVRAM section in %s. Skipping it\n", machine.Name)
+	reg := find_region_cfg(machine, "nvram", cfg)
+	if reg == nil {
 		return
 	}
-	rom := root.AddNode("rom").AddAttr("index", "2").AddAttr("zip",zipName(machine,cfg))
+	roms, e := reg.extract_region(machine.Rom, cfg.ROM.Remove)
+	if e != nil {
+		log.Printf("Warning: cannot parse NVRAM region in %s: %v\n", machine.Name, e)
+		return
+	}
+	if len(roms) == 0 {
+		return
+	}
+	if len(roms) != 1 {
+		log.Printf("Warning: more than one ROM for NVRAM section in %s. Skipping it\n", machine.Name)
+		return
+	}
+	zip_name := make_zip_name(machine, cfg.Global.Zip.Alt)
+	rom := root.AddNode("rom").AddAttr("index", "2").AddAttr("zip", zip_name)
 	p := rom.AddNode("part")
-	p.AddAttr("name",roms[0].Name)
-	p.AddAttr("crc",roms[0].Crc)
+	p.AddAttr("name", roms[0].Name)
+	p.AddAttr("crc", roms[0].Crc)
 }

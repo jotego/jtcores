@@ -1,0 +1,11 @@
+jtframe/target/mist:
+jtframe/target/sidi128:
+  - get:
+    - sidi128.sdc
+    - pll.qip
+jtframe:
+  - from: video
+    get:
+      - jtframe_lfbuf_sdr.v
+      - jtframe_lfbuf_sdr_ctrl.v
+      - jtframe_lfbuf_line.v

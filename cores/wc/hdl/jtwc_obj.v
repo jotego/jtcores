@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-11-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-11-2024 */
 
 module jtwc_obj(
     input             rst,
@@ -34,7 +20,7 @@ module jtwc_obj(
     output     [10:2] fb_addr,
     output reg [31:0] fb_din,
     input      [31:0] fb_dout,
-    output reg        fb_we,
+    output     [ 3:0] fb_we,
     // ROM
     output     [15:2] rom_addr,
     input      [31:0] rom_data,
@@ -74,16 +60,19 @@ assign fb_addr   = fb_sel ? {~frame,dma_wa} : {frame,scan_a};
 //     rom_data[28],rom_data[24],rom_data[20],rom_data[16],rom_data[12],rom_data[ 8],rom_data[4],rom_data[0]
 // };
 
+reg we;
+assign fb_we = {4{we}};
+
 always @(posedge clk) begin
     if(rst) begin
-        fb_we    <= 0;
+        we       <= 0;
         fb_din   <= 0;
         dma_done <= 0;
         dma_wa   <= 0;
     end else begin
         dma_cen <= ~dma_cen;
-        fb_we   <= 0;
-        fb_sel  <= !dma_done || fb_we;
+        we      <= 0;
+        fb_sel  <= !dma_done || we;
         if( hs && !hs_l && vrender==9'h10e ) begin
             dma_a    <= 0;
             dma_wa   <= 0;
@@ -94,7 +83,7 @@ always @(posedge clk) begin
         if( !dma_done && dma_cen ) begin
             {dma_done, dma_a} <= {1'b0,dma_a}+1'd1;
             fb_din <= {vram_data,fb_din[31:8]};
-            fb_we  <= dma_a[1:0]==3;
+            we     <= dma_a[1:0]==3;
             dma_wa <= dma_a[9:2];
         end
     end

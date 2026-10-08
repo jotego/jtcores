@@ -1,22 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-11-2021
-
-*/
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-11-2021 */
 
 module jtframe_uart(
     input            rst,
@@ -50,7 +34,7 @@ parameter [4:0] CLK_DIVIDER  = 28,
 reg  [4:0] clk_cnt;
 reg zero;
 
-always @(posedge clk or posedge rst) begin : clock_divider
+always @(posedge clk) begin : clock_divider
     if(rst) begin
         clk_cnt <= CLK_DIVIDER - 5'b1;
         zero    <= 1'b0;
@@ -79,7 +63,7 @@ reg [4:0] rx_divcnt;
 reg [3:0] rx_bitcnt;
 reg [7:0] rx_reg;
 
-always @(posedge clk or posedge rst) begin : rx_logic
+always @(posedge clk) begin : rx_logic
     if(rst) begin
         rx_rdy    <= 0;     // output data is valid
         rx_busy   <= 0;
@@ -123,7 +107,7 @@ reg [3:0] tx_bitcnt;
 reg [4:0] tx_divcnt;
 reg [7:0] tx_reg;
 
-always @(posedge clk or posedge rst) begin :tx_logic
+always @(posedge clk) begin :tx_logic
     if(rst) begin
         tx_busy   <= 0;
         uart_tx   <= 1;

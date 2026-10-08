@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-4-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-4-2023 */
 
 module jtaliens_scroll(
     input             rst,
@@ -89,9 +75,11 @@ module jtaliens_scroll(
     output     [ 7:0] st_dout
 );
 
-parameter [8:0] HB_EXTRAL=0,
+parameter [8:0] HB_OFFSET=0,
+                HB_EXTRAL=0,
                 HB_EXTRAR=0;
 parameter       FULLRAM  =0; // Enables the three possible memory chips
+parameter       K051961  =0;
 
 wire [ 7:0] tilemap_dout, tilerom_dout;
 wire [ 2:0] hsub_a, hsub_b;
@@ -105,7 +93,7 @@ assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 always @(posedge clk) cpu_rom_dtack <= ~(rmrd & gfx_cs) | lyra_ok;
 
-jt052109 #(.FULLRAM(FULLRAM)) u_tilemap(
+jt052109 #(.FULLRAM(FULLRAM),.K051961(K051961)) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -164,6 +152,7 @@ jt052109 #(.FULLRAM(FULLRAM)) u_tilemap(
 
 /* verilator tracing_on */
 jt051962 #(
+    .HB_OFFSET  ( HB_OFFSET ),
     .HB_EXTRAL  ( HB_EXTRAL ),
     .HB_EXTRAR  ( HB_EXTRAR )
 ) u_draw(

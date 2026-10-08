@@ -5,7 +5,7 @@ clocks:
     # making this frequency larger than 18MHz causes sprite
     # corruption in the 1st boss of Aliens.
     # See https://github.com/jotego/jtcores/issues/267
-    - freq: 24000000
+    - freq: 24M
       outputs:
         - cen24
         - cen12
@@ -15,9 +15,18 @@ clocks:
         - cen_fm2
 audio:
   rsum: 10k
+  rsum_feedback_res: true
+  pcb:
+    # must match PCB order in TOML file - not automated check yet
+    - { rfb: 10k, rsums: [  7.1k, 12.25k ], pres: [ 1.0, 1.00 ] } # aliens
+    - { rfb: 10k, rsums: [  3.2k, 13.25k ], pres: [ 1.0, 1.00 ] } # crimfght, gbusters, pregain does not follow sch, which must be wrong
+    - { rfb: 27k, rsums: [ 12.0k, 12.25k ], pres: [ 1.0, 0.16 ] } # thunderx, FM could also be 24k instead of 12k as there is a typo either in R4 or R5 in sch
+    - { rfb: 27k, rsums: [  4.7k, 12.25k ], pres: [ 1.0, 0.32 ] } # scontra
   channels:
-    - {name: fm,  module: jt51,     rsum:  6.2k,  rc: [{ r:  859,   c: 33n  }, {r: 1rout, c: 2.2n }]}
-    - {name: pcm, module: jt007232, rsum: 12.25k, rc: [{ r: 33k, c: 470p }], pre: 0.28 }
+    - {name: fm,  module: jt51,     rsum:  7.1k,  rc: [{ r: 687, c: 33n  }, {r: 1rout, c: 2.2n }] }
+    # pcm: 0.20 gain before variable gain bloc 4066
+    # resistor divider of 120kOhm and parallel(47k,47k+47k)
+    - {name: pcm, module: jt007232, rsum: 12.25k, rc: [{ r: 33k,  c: 470p }], pre: 0.20 }
 sdram:
   banks:
     - buses:

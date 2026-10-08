@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-9-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-9-2023 */
 
 // Port 4 configured as output --> use as address bus
 // Port 6 configured as output
@@ -23,7 +9,7 @@ module jtshouse_mcu(
     input              clk,
     input              game_rst,
     input              rstn,
-    input              cen,
+    input              cen, pxl_cen,
     input              lvbl,
 
     input       [8:0]  hdump,
@@ -32,7 +18,7 @@ module jtshouse_mcu(
     output             rnw,
     output reg         ram_cs,      // Tri port RAM
     input       [7:0]  ram_dout,
-    output             halted,      // signals an decoding error too
+    output             halted,      // signals a decoding error too
     // Ports
     // cabinet I/O
     input       [1:0]  io_mode,
@@ -293,6 +279,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .rst        ( ~rstn         ),
     .clk        ( clk           ),
     .cen        ( cen           ),
+    .cen_tmr    ( pxl_cen       ),
 
     // Bus
     .wr         ( wr            ),

@@ -1,0 +1,23 @@
+castle:
+  - get:
+    - jtcastle_game.v
+    - jtcastle_main.v
+    - jtcastle_video.v
+    - jtcastle_sound.v
+    - jtcastle_colmix.v
+    - jt051649.v
+mx5k:
+  - get:
+    - jtmx5k_colmix.v
+flane:
+  - get:
+    - common.yaml
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jtopl:
+  - get:
+    - jtopl2.yaml
+jtkcpu:
+jt007232:

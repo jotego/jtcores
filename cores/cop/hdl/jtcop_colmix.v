@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-9-2021 */
 
 module jtcop_colmix(
     input              rst,
@@ -113,11 +99,7 @@ jtframe_blank #(.DLY(2),.DW(24)) u_blank(
 );
 
 // Red - Green palette RAM
-jtframe_dual_ram16 #(
-    .AW        ( 10          ),
-    .SIMFILE_LO("pal0_lo.bin"),
-    .SIMFILE_HI("pal0_hi.bin")
-) u_ram_gr(
+jtframe_dual_ram16 #(.AW(10)) u_ram_gr(
     // CPU writes
     .clk0   ( clk_cpu   ),
     .addr0  ( cpu_addr  ),

@@ -1,0 +1,9 @@
+$JTFRAME/hdl/sdram/jtframe_ram1_2slots.v
+$JTFRAME/hdl/sdram/jtframe_rom_1slot.v
+$JTFRAME/hdl/sdram/jtframe_rom_2slots.v
+$JTFRAME/hdl/sdram/jtframe_ram_rq.v
+$JTFRAME/hdl/sdram/jtframe_romrq.v
+$JTFRAME/hdl/sdram/jtframe_romrq_bcache.v
+$JTFRAME/hdl/sdram/jtframe_romrq_xscache.v
+$JTFRAME/hdl/sdram/jtframe_ucache.v
+$JTFRAME/hdl/sdram/jtframe_ramslot_ctrl.v

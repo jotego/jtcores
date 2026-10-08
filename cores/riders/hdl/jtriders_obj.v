@@ -1,24 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 21-8-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-8-2024 */
 
 // 053244/5
 module jtriders_obj #(parameter
-    RAMW   = 12
+    RAMW   = 12,
+    HFLIP_OFFSET = 0,
+    SHADOW = 0
 )(
     input             rst,
     input             clk,
@@ -28,9 +16,8 @@ module jtriders_obj #(parameter
     input      [ 8:0] hdump,
     input      [ 8:0] vdump,
     input             hs,
-    input             vs,
-    input             lhbl, // not an input in the original
     input             lvbl,
+    input             lgtnfght,
 
     // CPU interface
     input             ram_cs,
@@ -67,12 +54,14 @@ module jtriders_obj #(parameter
     input      [ 7:0] debug_bus
 );
 
+localparam SHADOW_PEN = SHADOW[0]==1 ? 4'd15 : 4'd0;
+
 wire        pre_shd;
 wire [ 3:0] pen_eff;
 wire [15:0] ram_data, dma_data;
 wire [22:2] pre_addr;
 wire [21:1] rmrd_addr;
-wire [13:1] dma_addr;
+wire [13:1] scn_addr, dma_addr;
 wire [15:0] pre_pxl;
 
 // Draw module
@@ -83,7 +72,6 @@ wire        hflip, vflip, hz_keep, pre_cs;
 wire [ 9:0] hpos;
 wire [ 3:0] ysub;
 wire [11:0] hzoom;
-wire [31:0] sorted;
 wire        pen15;
 
 wire scr_hflip, scr_vflip;
@@ -94,10 +82,11 @@ endfunction
 
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-    { 1'd0, pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] };
+    { pre_addr[21], pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
                     ram_data;
+assign dma_addr  = lgtnfght ? {scn_addr[10:4],2'b00,scn_addr[3:1],1'b0} : scn_addr;
 
 // Shadow understanding so far
 // The 053251 color mixer lets shadow pass based on numerical priority only
@@ -112,13 +101,12 @@ assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
 // 053244 (parodius) has 7 palette bits, top 2 used for priority
 assign pen15   = &pre_pxl[3:0];
 assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real color or 0 if shadow
-assign shd     =  pre_pxl[14] & pen15;
+assign shd     =  pre_pxl[14];
 assign prio    =  {1'd1,pre_pxl[10:9],2'd0} ;
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
-assign sorted = rom_data;
-
-jt053244 u_scan(    // sprite logic
+jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET)
+    )u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl2_cen   ( pxl2_cen  ),
@@ -133,7 +121,7 @@ jt053244 u_scan(    // sprite logic
     .rmrd_addr  ( rmrd_addr ),
 
     // External RAM
-    .dma_addr   ( dma_addr  ), // up to 16 kB
+    .dma_addr   ( scn_addr  ), // up to 16 kB
     .dma_data   ( dma_data  ),
     .dma_bsy    ( dma_bsy   ),
 
@@ -150,7 +138,7 @@ jt053244 u_scan(    // sprite logic
     // control
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
-    .vs         ( lvbl      ), // this board uses VB here, instead of VS
+    .lvbl       ( lvbl      ),
     .hs         ( hs        ),
 
     // shadow
@@ -168,6 +156,7 @@ jt053244 u_scan(    // sprite logic
 );
 
 jtframe_objdraw #(
+    .SHADOW(SHADOW),.SHADOW_PEN(SHADOW_PEN),.SW(2),
     .AW(10),.CW(16),.PW(4+10+2),.LATCH(1),.SWAPH(1),
     .ZW(12),.ZI(6),.ZENLARGE(1),
     .FLIP_OFFSET(9'h12),.KEEP_OLD(0)
@@ -195,15 +184,14 @@ jtframe_objdraw #(
     .rom_addr   ( pre_addr      ),
     .rom_cs     ( pre_cs        ),
     .rom_ok     ( rom_ok        ),
-    .rom_data   ( sorted        ),
+    .rom_data   ( rom_data      ),
 
     .pxl        ( pre_pxl       )
 );
 
 jtframe_dual_nvram16 #(
-    .AW        ( RAMW       ),
-    .SIMFILE_LO("obj_lo.bin"),
-    .SIMFILE_HI("obj_hi.bin")
+    .AW     ( RAMW    ),
+    .SIMFILE("obj.bin")
 ) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
     // Port 0 - CPU access
     .clk0   ( clk       ),

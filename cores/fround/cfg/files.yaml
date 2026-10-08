@@ -1,0 +1,34 @@
+fround:
+  - get:
+    - jtfround_game.v
+    - jtfround_main.v
+    - jtfround_video.v
+    - jtfround_obj.v
+    - jtfround_objdraw.v
+    - jtfround_draw.v
+    - jtfround_colmix.v
+    - jt00778x*.v
+tmnt:
+  - get:
+    - jttmnt_sound.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+      - jtframe_scroll.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+jt51:
+jt053260:
+jt7759:
+jt007232:

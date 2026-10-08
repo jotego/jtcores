@@ -1,14 +1,8 @@
-game:
-  - from: cps15
-    get:
-      - jtcps15_sound.v
+cps15:
+  - get:
+    - jtcps15_sound.v
 jtframe:
   - from: cpu
     get:
       - jtframe_kabuki.v
-modules:
-  jt:
-    - name: jtdsp16
-
-
-
+jtdsp16:

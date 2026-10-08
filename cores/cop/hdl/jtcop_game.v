@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-9-2021 */
 
 module jtcop_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -90,6 +76,8 @@ assign sta_video  = st_addr;
 assign ram_we     = ~main_rnw;
 assign ba2mcu_we  = ~ba2mcu_rnw;
 assign ba2mcu_din = {2{ba2mcu_dout}};
+assign cen_opl    = cen3;
+assign cen_opn    = cen1p5;
 
 always @(posedge clk) begin
     st_mux <= 0;
@@ -100,18 +88,7 @@ always @(posedge clk) begin
         3: st_mux <= std_video;
     endcase
 end
-/* verilator tracing_off */
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen3   ( cen_opl   ),
-    .cen1p5 ( cen_opn   ),
-    .cen8   (           ),
-    // unused
-    .cen12(), .cen6(),   .cen4(),
-    .cen3q(), .cen12b(), .cen6b(),
-    .cen3b(), .cen3qb(), .cen1p5b(),
-    .cen16(), .cen16b(), .cen4_12()
-);
+
 /* verilator tracing_off */
 jtcop_main u_main(
     .rst        ( rst       ),
@@ -302,6 +279,7 @@ jtcop_video u_video(
 jtcop_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen6       ( cen6      ),
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 
@@ -384,7 +362,6 @@ jtcop_snd u_sound(
 
     jtframe_8751mcu #(
         .ROMBIN     ("../../../../rom/ei31.9a"),
-        .DIVCEN     ( 1             ),
         .SYNC_XDATA ( 1             ),
         //.SYNC_P1    ( 1             ),
         .SYNC_INT   ( 1             )

@@ -87,7 +87,7 @@ its submodules following standard git instructions. Go to the root folder and
 type `source setprj.sh`. Now you can compile the core with `jtcore contra -mist`
 Use `-mister` or `-sidi` if appropriate.
 
-Also check the instructions in [modules/jtframe/doc/compilation.md](JTFRAME)
+Also check the instructions in [JTFRAME compilation guide](../../modules/jtframe/doc/compilation.md)
 
 # ROM file
 
@@ -101,7 +101,7 @@ Name          | Purpose           | Author  | URL
 JT7759        | ADPCM  sound      | jotego  | https://github.com/jotego/jt7759
 JT12          | YM2203 sound      | jotego  | https://github.com/jotego/jt12
 JT51          | YM2151 sound      | jotego  | https://github.com/jotego/jt51
-JTFRAME       | FPGA framework    | jotego  | https://github.com/jotego/jtframe
+JTFRAME       | FPGA framework    | jotego  | https://github.com/jotego/jtcores/tree/master/modules/jtframe
 
 # KONAMI 007121
 

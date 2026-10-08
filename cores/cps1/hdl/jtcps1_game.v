@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-1-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-1-2020 */
 
 module jtcps1_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -62,11 +48,7 @@ wire        cfg_we;
 // EEPROM
 wire        sclk, sdi, sdo, scs;
 
-`ifndef SIMULATION
-    assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[23:0];
-`else
-assign { dipsw_c, dipsw_b, dipsw_a } = ~24'd0;
-`endif
+assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[23:0];
 
 wire [15:0] fave;
 wire [ 1:0] dsn;
@@ -76,16 +58,7 @@ wire        charger;
 wire        turbo, video_flip, filter_old;
 reg         rst_game;
 
-`ifdef JTCPS_TURBO
-assign turbo = 1;
-`else
-    `ifdef MISTER
-        assign turbo = status[13] | cpu_speed;
-    `else
-        assign turbo = status[5] | cpu_speed;
-    `endif
-`endif
-
+`include "turbo.vh"
 assign snd_vu       = 0;
 assign filter_old   = dipsw[24];
 assign debug_view   = debug_bus[0] ? fave[7:0] : fave[15:8];
@@ -105,7 +78,6 @@ wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 assign busack = busack_cpu | turbo;
 /* verilator tracing_on */
-`ifndef NOMAIN
 jtcps1_main u_main(
     .rst        ( rst_game          ),
     .clk        ( clk48             ),
@@ -163,20 +135,6 @@ jtcps1_main u_main(
     .dipsw_c     ( dipsw_c          ),
     .fave        ( fave             )
 );
-`else
-assign ram_addr      = 0;
-assign main_ram_cs   = 0;
-assign main_vram_cs  = 0;
-assign main_rom_cs   = 0;
-assign main_rom_addr = 0;
-assign main_dout     = 0;
-assign dsn           = 2'b11;
-assign main_rnw      = 1'b1;
-assign busack_cpu    = 1;
-assign ppu1_cs       = 0;
-assign ppu2_cs       = 0;
-assign ppu_rstn      = 1;
-`endif
 
 reg rst_video;
 
@@ -278,7 +236,6 @@ jtcps1_video #(REGSIZE) u_video(
     .debug_bus      ( debug_bus     )
 );
 
-`ifndef NOSOUND
 `ifdef FAKE_LATCH
 integer snd_frame_cnt=0;
 reg [7:0] fake_latch0 = 8'h0, fake_latch1 = 8'h0;
@@ -373,16 +330,6 @@ jtcps1_sound u_sound(
     .peak           ( snd_peak      ),
     .debug_bus      ( debug_bus     )
 );
-`else
-assign snd_addr   = 0;
-assign snd_cs     = 0;
-assign snd_left   = 0;
-assign snd_right  = 0;
-assign adpcm_addr = 0;
-assign adpcm_cs   = 0;
-assign sample     = 0;
-assign game_led   = 0;
-`endif
 
 reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;

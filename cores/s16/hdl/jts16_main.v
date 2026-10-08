@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 17-3-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-3-2021 */
 
 module jts16_main(
     input              rst,
@@ -57,10 +43,10 @@ module jts16_main(
     output             sound_en,
     input              snd_ack,
     // cabinet I/O
-    input       [ 7:0] joystick1,
-    input       [ 7:0] joystick2,
-    input       [ 7:0] joystick3,
-    input       [ 7:0] joystick4,
+    input       [ 8:0] joystick1,
+    input       [ 8:0] joystick2,
+    input       [ 8:0] joystick3,
+    input       [ 8:0] joystick4,
     input       [15:0] joyana1,
     input       [15:0] joyana1b,
     input       [15:0] joyana2,
@@ -92,6 +78,7 @@ module jts16_main(
     input              dip_test,
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b,
+    input    [7:0]     dipsw_c, // used by timescan1
 
     // MCU enable and ROM programming
     input              mcu_en,
@@ -103,6 +90,8 @@ module jts16_main(
     output reg  [ 7:0] st_dout
 );
 
+`ifndef NOMAIN
+
 localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
                  GAME_QUARTET =`GAME_QUARTET ,
                  GAME_PASSSHT =`GAME_PASSSHT ,
@@ -112,6 +101,7 @@ localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
                  GAME_EXCTLEAG=`GAME_EXCTLEAG,
                  GAME_BULLET  =`GAME_BULLET  ,
                  GAME_PASSSHT3=`GAME_PASSSHT3,
+                 GAME_TIMESCAN=`GAME_TIMESCAN,
                  GAME_AFIGHTAN=`GAME_AFIGHTAN,  // Action Fighter, analogue controls
                  GAME_SDI     =`GAME_SDI     ;
 wire [23:1] A, cpu_A;
@@ -124,7 +114,8 @@ wire [23:0] A_full = {A,1'b0};
 
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn, VPAn;
-wire        ok_dly;
+wire        ok_dly, ram_acc;
+wire        ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw;
 reg  [15:0] cpu_din;
 wire        cpu_LDSn, cpu_UDSn, cpu_RnW, DTACKn;
@@ -210,6 +201,7 @@ end
 
 assign ram_cs  = pre_ram_cs,
        vram_cs = pre_vram_cs;
+assign ram_acc = ram_cs | vram_cs;
 
 // cabinet input
 reg [ 7:0] cab_dout, sort1, sort2;
@@ -244,8 +236,8 @@ assign { flip, sound_en, video_en } = { ppib_dout[7], ~ppib_dout[5], ppib_dout[4
 //assign video_en = 1;
 
 always @(*) begin
-    sort1 = sort_joy( joystick1 );
-    sort2 = sort_joy( joystick2 );
+    sort1 = sort_joy( joystick1[7:0] );
+    sort2 = sort_joy( joystick2[7:0] );
 end
 
 reg  game_sdi, game_afightan; // game_passsht
@@ -264,10 +256,6 @@ jts16_trackball u_trackball(
 
     .right_en   ( game_sdi      ),
 
-    .joystick1  ( joystick1     ),
-    .joystick2  ( joystick2     ),
-    .joystick3  ( joystick3     ),
-    .joystick4  ( joystick4     ),
     .joyana1    ( joyana1       ),
     .joyana1b   ( joyana1b      ), // used by Heavy Champ
     .joyana2    ( joyana2       ),
@@ -324,10 +312,10 @@ always @(posedge clk, posedge rst) begin
                             GAME_PASSSHT: begin
                                 if( !last_iocs ) port_cnt <= port_cnt + 2'd1;
                                 case( port_cnt )
-                                    1: cab_dout <= pass_joy( joystick1 );
-                                    2: cab_dout <= pass_joy( joystick2 );
-                                    3: cab_dout <= pass_joy( joystick3 );
-                                    0: cab_dout <= pass_joy( joystick4 );
+                                    1: cab_dout <= pass_joy( joystick1[7:0] );
+                                    2: cab_dout <= pass_joy( joystick2[7:0] );
+                                    3: cab_dout <= pass_joy( joystick3[7:0] );
+                                    0: cab_dout <= pass_joy( joystick4[7:0] );
                                 endcase
                             end
                             GAME_AFIGHTAN: cab_dout <=
@@ -356,6 +344,8 @@ always @(posedge clk, posedge rst) begin
                                     joyana1[0] ? 8'h02 : 8'h01);
                             GAME_QUARTET:
                                 cab_dout <= {1'b1, coin[2], joystick3[4], joystick3[5], joystick3[1], joystick3[0], joystick3[3], joystick3[2] };
+                            GAME_TIMESCAN:
+                                cab_dout <= dipsw_c;
                              default: ;
                          endcase
                     end
@@ -389,6 +379,9 @@ end
 
 `ifndef NOMCU
     reg [7:0] mcu_din;
+    wire [7:0] mcu_rom_din;
+    wire [7:0] mcu_xdin = mcu_ctrl[5:3]>=5 ? mcu_rom_din : mcu_din;
+    reg       mcu_acc_l;
     wire      mcu_br;
 
     assign mcu_bus = ~BGACKn | cpu_rst;
@@ -396,29 +389,28 @@ end
 
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
-            mcu_din <= 0;
-        end else if(mcu_bus) begin
-            mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
+            mcu_din   <= 0;
+            mcu_acc_l <= 0;
+        end else begin
+            // The 68k bus return is registered after the request.  Capture
+            // it on the following MCU clock and retain it until the next
+            // transaction; otherwise the idle bus overwrites a valid MOVX
+            // byte before the wrapper's synchronous input reaches the MCU.
+            mcu_acc_l <= mcu_acc;
+            if(mcu_bus && mcu_acc_l)
+                mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
         end
     end
 
-    // `ifdef SIMULATION
-    // reg  mcu_busl;
-    // wire nothing_cs = mcu_top == NOTHING_CS;
-
-    // always @(posedge clk) mcu_busl <= mcu_bus;
-
-    // always @(posedge mcu_busl ) begin
-    //     $display("MCU access to %X (%s) %s ",A_full,mcu_wr ? "WR" : "RD",
-    //         ram_cs ? "RAM" : io_cs ? "IO" : pal_cs ? "PAL" :
-    //         char_cs ? "Char" : rom_cs ? "ROM" :
-    //         nothing_cs ? "Nothing" : "N/A");
-    //     //if(mcu_top==0) begin
-    //     //    $display("Unexpected MCU access");
-    //     //    $finish;
-    //     //end
-    // end
-    // `endif
+    jts16_mcu_romresp u_mcu_romresp(
+        .rst    ( rst         ),
+        .clk    ( clk         ),
+        .mcu_bus( mcu_bus     ),
+        .rom_ok ( rom_ok      ),
+        .LDSn   ( LDSn        ),
+        .rom_din( rom_dec     ),
+        .mcu_din( mcu_rom_din )
+    );
 
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
@@ -460,7 +452,6 @@ end
     );
 
     jtframe_8751mcu #(
-        .DIVCEN     ( 1             ),
         .SYNC_XDATA ( 1             ),
         .SYNC_P1    ( 1             ),
         .SYNC_INT   ( 1             ),
@@ -473,10 +464,10 @@ end
         .int0n      ( ~vint         ),
         .int1n      ( ~ppib_dout[6] ),
 
-        .p0_i       ( mcu_din       ),
+        .p0_i       ( mcu_xdin      ),
         .p1_i       ( mcu_ctrl      ), // feedback the output, need for PUSH p1 to work as expected
         .p2_i       ( 8'hff         ),
-        .p3_i       ( {4'hf, ~ppib_dout[6], ~vint, 2'b11} ), // need for instructions like jb int0,xx
+        .p3_i       ( 8'hff         ),
 
         .p0_o       (               ),
         .p1_o       ( mcu_ctrl      ),
@@ -484,7 +475,7 @@ end
         .p3_o       (               ),
 
         // external memory
-        .x_din      ( mcu_din       ),
+        .x_din      ( mcu_xdin      ),
         .x_dout     ( mcu_dout      ),
         .x_addr     ( mcu_addr      ),
         .x_wr       ( mcu_wr        ),
@@ -569,9 +560,17 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire bus_cs    = pal_cs | char_cs | pre_vram_cs | pre_ram_cs | rom_cs | objram_cs | io_cs;
-wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok };
+wire bus_cs    = pal_cs | char_cs | ram_acc | rom_cs | objram_cs | io_cs;
+wire bus_busy  = |{ rom_cs & ok_dly===0, ram_acc & ~ram_ok_dly };
 wire bus_legit = 0;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .rst        ( rst       ),
@@ -581,6 +580,7 @@ jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 7'd29     ),  // numerator
@@ -699,4 +699,25 @@ always @(posedge clk) begin
     endcase
 end
 
+`else
+assign cpu_cen   = 1'b0;
+assign cpu_cenb  = 1'b0;
+assign flip      = 1'b0;
+assign video_en  = 1'b0;
+assign colscr_en = 1'b0;
+assign rowscr_en = 1'b0;
+assign ram_cs    = 1'b0;
+assign vram_cs   = 1'b0;
+assign cpu_dout  = 16'd0;
+assign UDSWn     = 1'b1;
+assign LDSWn     = 1'b1;
+assign RnW       = 1'b1;
+assign cpu_addr  = 12'd0;
+assign snd_latch = 8'd0;
+assign snd_irqn  = 1'b1;
+assign sound_en  = 1'b0;
+assign rom_addr  = 18'd0;
+assign key_addr  = 13'd0;
+initial begin char_cs=0; pal_cs=0; objram_cs=0; rom_cs=0; st_dout=0; end
+`endif
 endmodule

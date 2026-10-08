@@ -1,29 +1,17 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-4-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-4-2021 */
 /* verilator coverage_off */
 module jtframe_sdram64_init #(parameter
     HF      =1,
-    BURSTLEN=64
+    BURSTLEN=64,
+    XL      =0
 ) (
     input               rst,
     input               clk,
 
     output   reg        init,
+    output   reg        chip,
     output   reg  [3:0] cmd,
     output   reg [12:0] sdram_a
 );
@@ -46,10 +34,11 @@ reg [13:0] wait_cnt;
 reg [ 2:0] init_st;
 reg [ 3:0] init_cmd;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         // initialization loop
         init     <= 1;
+        chip     <= 0;
         wait_cnt <= INIT_WAIT; // wait for 100us
         init_st  <= 3'd0;
         init_cmd <= CMD_NOP;
@@ -84,7 +73,14 @@ always @(posedge clk, posedge rst) begin
                     wait_cnt <= 14'd3;
                 end
                 3'd4: begin
-                    init <= 0;
+                    if( XL && !chip ) begin
+                        chip     <= 1;
+                        init_st  <= 3'd0;
+                        init_cmd <= CMD_NOP;
+                        wait_cnt <= 14'd2;
+                    end else begin
+                        init <= 0;
+                    end
                 end
                 default: begin
                     cmd  <= init_cmd;

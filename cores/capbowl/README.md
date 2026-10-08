@@ -56,7 +56,7 @@ MiSTerFPGA, MiST, SiDi, NeptUNO and MC+/2 platforms are supported. Look for your
 
 # Compilation
 
-This project uses the [JTFRAME](https://github.com/jotego/JTFRAME) framework. Please refer to it.
+This project uses the [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) framework. Please refer to it.
 
 # Special thanks to Patreon subscribers
 

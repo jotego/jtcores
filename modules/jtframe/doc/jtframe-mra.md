@@ -2,19 +2,30 @@ Parses the core's mame2mra.toml file to generate MRA files.
 
 If called with --reduce, the argument must be the path to mame.xml,
 otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used. The tool
-should be used to update $JTROOT/doc/mame.xml with new data each tiem a new
-core is added. The core folder should contain both the .def and .toml files,
-defining at least the MAME source file and the core name.
+should be used to update $JTROOT/doc/mame.xml with new data each time a new
+core is added. The core folder should contain both cfg/macros.def and
+cfg/mame2mra.toml.
 
-Each repository is meant to have a reduced mame.xml file in $ROM as
-part of the source file commited in git.
+If `$JTROOT/doc/custom.xml` exists, it is parsed after `mame.xml` and merged
+into the machine list. Entries with the same machine name override the one
+coming from `mame.xml`.
+
+Each repository is meant to have a reduced mame.xml file in $JTROOT/doc as
+part of the source file committed in git.
 
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
 
-Macros in macros.def are parsed for the "mister" target. This is relevant when
-for some macros like JTFRAME_IOCTL_RD, which may have different values for
-debugging in MiST without affecting the MRA generation.
+Macros in macros.def are parsed by the MRA flow before conversion.
+
+From `$JTROOT/cores`, run `jtframe mra --skipROM *` to audit all cores after
+updating MAME XML. The command validates ROM region names and builds and checks each set's MRA ROM layout, without opening ROM ZIP files or writing `.rom` files. It continues after TOML, region-name and ROM-layout errors and exits nonzero if any core or set fails. Errors identify the core and, for layout errors, the set.
+
+ROM-less cores may provide a `cfg/mame2mra.toml` with no `[parse].sourcefile`,
+no explicit `[parse].machine`, and no `[ROM].regions`. In that case `jtframe
+mra` emits a dull MRA containing only the core metadata and RBF link, without a
+ROM download node. This is intended for test cores whose required contents are
+synthesized into FPGA BRAM.
 
 TOML elements (see full reference in mame2mra.go)
 
@@ -24,6 +35,12 @@ Orientation={ Fixed=true } # use when rotation CW/CCW information from MAME is n
 
 [parse]
 sourcefile=[ "mamefile1.cpp", "mamefile2.cpp"... ]
+# Explicit parent sets to keep clone families together when the parent
+# is not part of the selected sourcefile list. The description is used
+# to name alternate folders.
+parents=[
+    { name="parentset", description="Parent Description" }
+]
 skip.Setnames=["willskip1","willskip2"]
 skip.Bootlegs=true # to skip bootlegs
 debug={ # do not parse when --nodbg is set
@@ -41,7 +58,7 @@ display_modes=[ 0x61 ] # add extra display modes for Analogue Pocket
 
 [cheat]
 # Cheat file is read by default from cores/core/cheat/machine.s
-# It can disabled globally or skipped based on machine/setname
+# It can be disabled globally or skipped based on machine/setname
 disable=false
 files=[
 	{ filename="sameforall.s" }, # use the same file for all games
@@ -52,7 +69,8 @@ files=[
 rename=[ {name="Bonus Life", to="Bonus", values=[ "value1", "value2"...] }, ... ]
 delete=[ { machine="..." names=[ "Name*", "match??" ] }, ... ] # use */? for matching
 # applies an offset to the bit position of MAME's DIP sw tag given by "name"
-# JTTMNT uses this for PunkShot
+# The bit count for the given DIP tag will start at the given value
+# Used in TMNT and RIDER cores
 offset=[
 	{ machine="", setname="", name="", value=0 },...
 ]
@@ -73,10 +91,25 @@ defaults=[
 # verilog: if( prog_addr==0 && prog_we && header ) mycfg <= prog_data;
 info="Describe the header"
 fill=0xff
+# this can be used in mem.yaml for audio gain selection
+PCBs = [
+    { machine=  "aliens"   },
+    { machines=["crimfght","gbusters"] },
+    { machine=  "thunderx" },
+    { machine=  "scontra"  },
+]
+# explicit data assignment in the TOML
 data = [
+	{ pcb_id = true, offset=0 } # filled with the PCB array information
 	{ machine="...", setname="...", dev="...", offset=3, data="12 32 43 ..." },
 	...
 ]
+# automatic header module generation
+registers = [
+	{ name="scr2bpp",   pos="1[0]", values=[{machine="hopmappy", value=1}], desc="Scroll uses only 2 color planes" },
+	{ name="sndext_en", pos="2[0]", values=[{machines=["genpeitd","rthunder","wndrmomo"], value=1}], desc="Additional board for PCM sound" },
+]
+
 
 # region offset table at "start" byte in the header. This will also enable
 # the LUT parameters in jtframe_dwnld automatically
@@ -85,7 +118,7 @@ offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 # if there are black bars on the side of the image
 # because of black tiles rendered by the software in some games, but not all
 # this can be removed by the framework. In some cases, the value will be taken
-# from MAME correctly, but in others with assymetrical bands, a compromise
+# from MAME correctly, but in others with asymmetrical bands, a compromise
 # value must be set here.
 # MAME may have wrong information too. The explicit definition here will
 # override the calculation derived from MAME.
@@ -94,6 +127,16 @@ frames = [
 ]
 
 [buttons]
+# Names stay in core input-bit order. Optional map assigns one physical
+# gamepad button per name, using A/B/X/Y/L/R (default order: ABXYLR).
+# A is the right face button, B bottom, X top, Y left; L/R are shoulders.
+# Example: { names="Shoot left,Shoot centre,Shoot right", map="YXA" }
+# This produces MRA defaults Y,X,A and Pocket keys pad_btn_y/x/a.
+# Use - for an unused input, e.g. names="Left,-,Right", map="Y-A".
+# Map length must equal the number of names (maximum six); keys cannot repeat.
+# Name and map are selected together by machine/setname, including clones.
+# Omitting map keeps the existing defaults. --buttons overrides names and
+# resets the MRA mapping to the default order.
 names=[
 	{ setname="...", machine="...", names="shot,jump" }
 ]
@@ -104,11 +147,22 @@ dial = [
 [ROM]
 # these MAME ROM regions make up the .rom file (index 1 in MiSTer)
 # only specify regions that need parameters
+# name accepts glob patterns with * and ? to merge multiple MAME regions.
+# This only applies to ROM.regions, and the pattern must match at least one region.
 regions = [
 	{ name=maincpu, machine=optional, start="MACRONAME_START", width=16, len=0x10000,
 		reverse=true, no_offset=true, overrules=[ { names="...", reverse=false }, ... ] },
 	{ name==soundcpu, sequence=[2,1,0,0], no_offset=true } # inverts the order and repeats the first ROM
+	# With rom_len set, sequence values >= file count select fixed-size chunks:
+	# index + chunk*file_count selects chunk N of that file.
+	{ name="maincpu", sequence=[0,1,8,9], rom_len=0x20000, no_offset=true }
+	{ name="simm3.?", width=16, sequence=[0,1,2,3,4,5,6,7], no_offset=true } # merge matching MAME regions
 	{ name=plds, skip=true },
+	# Set mirror=true to duplicate the parts until the region is filled, instead of filling with FF
+	{ name=gfx3, rename="obj", mirror=true },
+	# Set rom_len when the PCB socket is for a larger ROM than the one used on some games.
+	# duplicate files to match it. You may also need to set no_offset=true to avoid warnings
+	{ name=gfx2, rom_len=0x20000 },
 	{ name=gfx1, skip=true, remove=[ "notwanted"... ] }, # remove specific files from the dump
 	{ name=proms, files=[ {name="myname", crc="12345678", size=0x200 }... ] }	# Replace mame.xml information with specific files
 	# regions called "nvram" are automatically skipped

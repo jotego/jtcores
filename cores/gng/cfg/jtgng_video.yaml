@@ -1,10 +1,9 @@
-game:
-  - from: gng
-    get:
-      - jtgng_char.v
-      - jtgng_scroll.v
-      - jtgng_tilemap.v
-      - jtgng_tile3.v
-      - jtgng_tile4.v
-      - jtgng_timer.v
-      - jtgng_obj.yaml
+gng:
+  - get:
+    - jtgng_char.v
+    - jtgng_scroll.v
+    - jtgng_tilemap.v
+    - jtgng_tile3.v
+    - jtgng_tile4.v
+    - jtgng_timer.v
+    - jtgng_obj.yaml

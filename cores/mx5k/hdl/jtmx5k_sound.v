@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 22-8-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 22-8-2021 */
 
 module jtmx5k_sound(
     input           clk,        // 24 MHz
@@ -41,7 +27,7 @@ module jtmx5k_sound(
 
     // Sound output
     output signed [15:0] fm_l, fm_r,
-    output signed [11:0] pcm
+    output signed [10:0] pcm
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout;
@@ -192,6 +178,8 @@ jt007232 u_pcm(
 initial rom_cs   = 0;
 assign  pcma_cs  = 0;
 assign  pcmb_cs  = 0;
+assign  pcma_addr= 18'd0;
+assign  pcmb_addr= 18'd0;
 assign  rom_addr = 15'd0;
 assign  pcm      = 0;
 assign  fm_l     = 0;

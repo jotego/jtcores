@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-1-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-1-2019 */
 
 // 1942 Object Generation
 
@@ -113,22 +99,8 @@ jt1942_objram u_ram(
     .objbuf_data3   ( objbuf_data3  )
 );
 
-wire [8:0] posx;
+wire [8:0] posx, posx_eff;
 wire [3:0] new_pxl;
-
-`ifdef OBJ_TEST
-    reg [15:0] test_data, td0, td1, td2;
-    always @(*)
-        case( obj_addr[14:8] )
-            7'h3b: td0 = {2{~obj_addr[3:0],obj_addr[3:0]}};
-            default: td0 = 16'd0;
-        endcase
-    always @(posedge clk) if(cen6) begin
-        td1 <= td0;
-        td2 <= td1;
-        test_data <= td2;
-    end
-`endif
 
 // draw the sprite
 jt1942_objdraw u_draw(
@@ -149,11 +121,7 @@ jt1942_objdraw u_draw(
     .objbuf_data1   ( objbuf_data1  ),
     .objbuf_data2   ( objbuf_data2  ),
     .objbuf_data3   ( objbuf_data3  ),
-    `ifdef OBJ_TEST
-    .obj_data       ( test_data     ),
-    `else
     .obj_data       ( obj_data      ),
-    `endif
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .obj_ok         ( obj_ok        ),
@@ -165,32 +133,23 @@ jt1942_objdraw u_draw(
     .new_pxl        ( new_pxl       )
 );
 
-`ifndef JTFRAME_LF_BUFFER
-    assign LHBL_eff = LHBL,
-           V_eff    = V;
-    jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
-        .rst            ( rst           ),
-        .clk            ( clk           ),
-        .cen            ( 1'b1          ),
-        .pxl_cen        ( cen6          ),    //  6 MHz
-        // screen
-        .LHBL           ( LHBL          ),
-        .flip           ( flip          ),
-        .posx           ( posx          ),
-        .line           ( line          ),
-        // pixel data
-        .new_pxl        ( new_pxl       ),
-        .obj_pxl        ( obj_pxl       )
-    );
-`else
-    // Define the macro JTFRAME_LFBUF_CLR=15
-    assign ln_data  = {12'd0, new_pxl },
-           ln_done  = over,
-           ln_addr  = posx^9'h100, // Objects will be offset because we are not using PXL_DLY
-           ln_we    = !over && new_pxl!=4'hf,
-           LHBL_eff = ln_hs,
-           obj_pxl  = ln_pxl[3:0],
-           V_eff    = ln_v;
-`endif
+assign LHBL_eff = LHBL,
+       V_eff    = V;
+assign posx_eff = flip ? posx+9'd1 : posx;
+
+jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .cen            ( 1'b1          ),
+    .pxl_cen        ( cen6          ),    //  6 MHz
+    // screen
+    .LHBL           ( LHBL          ),
+    .flip           ( flip          ),
+    .posx           ( posx_eff      ),
+    .line           ( line          ),
+    // pixel data
+    .new_pxl        ( new_pxl       ),
+    .obj_pxl        ( obj_pxl       )
+);
 
 endmodule

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-8-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-8-2023 */
 
 module jttmnt_video(
     input             rst,
@@ -131,10 +117,12 @@ jtriders_dump u_dump(
     .pal_mmr        ( pal_mmr       ),
     .scr_mmr        ( scr_mmr       ),
     .obj_mmr        ( obj_mmr       ),
+    .psac_mmr       ( 8'b0          ),
     .other          ( dump_other    ),
     .ioctl_addr     ( ioctl_addr    ),
     .ioctl_din      ( ioctl_din     ),
     .obj_amsb       (               ),
+    .part_addr      (               ),
 
     .debug_bus      ( debug_bus     ),
     .st_scr         ( st_scr        ),
@@ -202,7 +190,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    sort_en <= game_id!=PUNKSHOT;
+    sort_en <= game_id!=PUNKSHOT && game_id!=THNDRX2;
 end
 
 always @* begin
@@ -217,12 +205,12 @@ always @* begin
                                               {ca[6],  ca[4],ca[2:0],ca[7] },ca[5],ca[3] };
         end
 
-        PUNKSHOT: begin
+        PUNKSHOT, THNDRX2: begin
         lyrf_addr = { pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
         lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
         lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
         opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
-        ocode_eff = { opal[4], ocode };
+        ocode_eff = { game_id==THNDRX2 ? 1'b0 : opal[4], ocode };
         lyro_addr = ca;
         end
 

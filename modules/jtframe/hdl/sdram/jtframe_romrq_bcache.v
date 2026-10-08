@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-2-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-2-2019 */
 
 // The best use case is with addr_ok going down and up for each addr change
 // but it works too with addr_ok permanently high as long as addr input is
@@ -24,8 +10,6 @@
 // LATCH LATENCY Timing Requirements
 //    0     1    medium
 //    1     2    easy
-
-`timescale 1ns/1ps
 
 module jtframe_romrq_bcache #(parameter
     SDRAMW  = 22,  // SDRAM width
@@ -88,7 +72,7 @@ end
 
 // reg [1:0] ok_sr;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         good         <= 0;
         cached_data0 <= 0;
@@ -179,16 +163,25 @@ jtframe_romrq_stats u_stats(
 reg [AW-1:0] last_addr;
 reg          waiting, last_req;
 
-always @(posedge clk, posedge rst) begin
+integer addr_warn_cnt=0, req_warn_cnt=0;
+localparam MAX_WARN_CNT=200;
+
+always @(posedge clk) begin
     if( rst ) begin
         waiting <= 0;
         last_req <= 0;
     end else begin
         last_req <= req;
-        if( req && !last_req ) begin
+        if( req && !last_req && req_warn_cnt<MAX_WARN_CNT ) begin
             if( waiting ) begin
+                req_warn_cnt <= req_warn_cnt+1;
                 $display("ERROR: %m new request without finishing the previous");
+                if(req_warn_cnt==MAX_WARN_CNT-1) begin
+                    $display("Maximum warning count reached further warnings will be supressed");
+                end
+`ifndef JTFRAME_SIM_SDRAM_NONSTOP
                 $finish;
+`endif
             end
             last_addr <= addr;
             waiting <= 1;
@@ -196,12 +189,20 @@ always @(posedge clk, posedge rst) begin
         if( din_ok && we ) waiting <= 0;
         if( waiting && !addr_ok ) begin
             $display("ERROR: %m data request interrupted");
+`ifndef JTFRAME_SIM_SDRAM_NONSTOP
             $finish;
+`endif
         end
-        if( addr != last_addr && addr_ok) begin
+        if( addr != last_addr && addr_ok && addr_warn_cnt<MAX_WARN_CNT ) begin
             if( waiting ) begin
+                addr_warn_cnt <= addr_warn_cnt+1;
                 $display("ERROR: %m address changed at time %t",$time);
+                if(addr_warn_cnt==MAX_WARN_CNT-1) begin
+                    $display("Maximum warning count reached further warnings will be supressed");
+                end
+`ifndef JTFRAME_SIM_SDRAM_NONSTOP
                 #40 $finish;
+`endif
             end else waiting <= !hit0 && !hit1;
         end
     end
@@ -228,7 +229,7 @@ module jtframe_romrq_stats(
 integer cur, longest, shortest, total, acc_cnt;
 reg cnt_en, last_req, first;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         cur      <= 0;
         longest  <= 0;

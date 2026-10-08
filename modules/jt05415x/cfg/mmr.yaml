@@ -1,0 +1,62 @@
+- name: "054156"
+  no_core_name: true
+  size: 64
+  dw: 16
+  regs:
+    - { name: glob_ctrl, desc: "global/timing control; bit 4 H flip, bit 5 V flip", dw: 8,  at: "0x00" }
+    - { name: flip_en,   desc: "per-layer H/V flip-enable bitmap",                 dw: 8,  at: "0x02" }
+    - { name: attr_ctrl, desc: "tile attribute/LUT/color and address-latch mode",   dw: 8,  at: "0x04" }
+    - { name: irq_attr,  desc: "IRQ/FIRQ/NMI enable and attribute/data steering",   dw: 8,  at: "0x06" }
+    - { name: addr_ctrl, desc: "CA/VA address-source mode and vertical sync-scroll", dw: 8, at: "0x08" }
+    - { name: lnscr_ctrl, desc: "two-bit-per-layer linescroll control",             dw: 8,  at: "0x0a" }
+    - { name: vram_ctrl, desc: "VRAM DB/strobe/address timing control",             dw: 6,  at: "0x0c[5:0]" }
+
+    - { name: a_vgrid,   desc: "layer A vertical grid/height",                     dw: 6,  at: "0x10[5:0]" }
+    - { name: b_vgrid,   desc: "layer B vertical grid/height",                     dw: 6,  at: "0x12[5:0]" }
+    - { name: c_vgrid,   desc: "layer C vertical grid/height",                     dw: 6,  at: "0x14[5:0]" }
+    - { name: d_vgrid,   desc: "layer D vertical grid/height",                     dw: 6,  at: "0x16[5:0]" }
+    - { name: a_hgrid,   desc: "layer A horizontal grid/width",                    dw: 6,  at: "0x18[5:0]" }
+    - { name: b_hgrid,   desc: "layer B horizontal grid/width",                    dw: 6,  at: "0x1a[5:0]" }
+    - { name: c_hgrid,   desc: "layer C horizontal grid/width",                    dw: 6,  at: "0x1c[5:0]" }
+    - { name: d_hgrid,   desc: "layer D horizontal grid/width",                    dw: 6,  at: "0x1e[5:0]" }
+
+    - { name: a_scry,    desc: "layer A Y scroll",                                 dw: 11, at: "0x21[2:0],0x20" }
+    - { name: b_scry,    desc: "layer B Y scroll",                                 dw: 11, at: "0x23[2:0],0x22" }
+    - { name: c_scry,    desc: "layer C Y scroll",                                 dw: 11, at: "0x25[2:0],0x24" }
+    - { name: d_scry,    desc: "layer D Y scroll",                                 dw: 11, at: "0x27[2:0],0x26" }
+    - { name: a_scrx,    desc: "layer A X scroll",                                 dw: 12, at: "0x29[3:0],0x28" }
+    - { name: b_scrx,    desc: "layer B X scroll",                                 dw: 12, at: "0x2b[3:0],0x2a" }
+    - { name: c_scrx,    desc: "layer C X scroll",                                 dw: 12, at: "0x2d[3:0],0x2c" }
+    - { name: d_scrx,    desc: "layer D X scroll",                                 dw: 12, at: "0x2f[3:0],0x2e" }
+
+    - { name: lnscr_bank, desc: "line-scroll/active-page RAM bank",                dw: 6,  at: "0x30[5:0]" }
+    - { name: cpu_bank,   desc: "CPU-visible VRAM bank",                           dw: 6,  at: "0x32[5:0]" }
+    - { name: rom_bank,   desc: "ROM/checksum bank low byte; bit 0 feeds CA11",    dw: 8,  at: "0x34" }
+    - { name: rom_col,    desc: "ROM/checksum COL output byte",                    dw: 8,  at: "0x35" }
+    - { name: rom_vrc,    desc: "secondary ROM/checksum VRC bits",                 dw: 2,  at: "0x36[1:0]" }
+    - { name: tile_lut,   desc: "tile-bank lookup table",                          dw: 16, at: "0x39,0x38" }
+    - { name: hflip_corr, desc: "HFLIP horizontal correction",                     dw: 12, at: "0x3b[3:0],0x3a" }
+    - { name: vflip_corr, desc: "VFLIP vertical correction",                       dw: 11, at: "0x3d[2:0],0x3c" }
+
+- name: "054157"
+  no_core_name: true
+  size: 8
+  dw: 16
+  regs:
+    - { name: hofs_phase, desc: "global H offset phase/polarity control",          dw: 1, at: "0x00[0]" }
+    - { name: clk_fanout, desc: "page-1 clock fanout reset/enable",                dw: 1, at: "0x00[3]" }
+    - { name: ram_clkph,  desc: "page-9 RAM/readout clock phase select",           dw: 1, at: "0x00[4]" }
+
+    - { name: a_hofs_flip, desc: "HOFSA flip enable",                              dw: 1, at: "0x02[0]" }
+    - { name: b_hofs_flip, desc: "HOFSB flip enable",                              dw: 1, at: "0x02[2]" }
+    - { name: c_hofs_flip, desc: "HOFSC flip enable",                              dw: 1, at: "0x02[4]" }
+    - { name: d_hofs_flip, desc: "HOFSD flip enable",                              dw: 1, at: "0x02[6]" }
+
+    - { name: ramout_mux, desc: "RAM/readout/output mux mode",                     dw: 1, at: "0x04[3]" }
+    - { name: dbout_mux,  desc: "RAM/readout/output mux mode",                     dw: 1, at: "0x04[4]" }
+    - { name: vc_dir,     desc: "readout/VC direction qualifier",                  dw: 1, at: "0x04[5]" }
+    - { name: crom_decode, desc: "CROM/RAM-mode page-9 decode control",            dw: 1, at: "0x04[6]" }
+
+    - { name: db_lane,  desc: "DB half/byte-lane selector",                        dw: 1, at: "0x06[5]" }
+    - { name: col_src0, desc: "color/attribute column source select",              dw: 1, at: "0x06[6]" }
+    - { name: col_src1, desc: "color/attribute column source select",              dw: 1, at: "0x06[7]" }

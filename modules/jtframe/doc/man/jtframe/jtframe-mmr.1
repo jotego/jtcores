@@ -1,0 +1,166 @@
+.TH JTFRAME-MMR 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-mmr \- generate memory-mapped register RTL
+.SH SYNOPSIS
+.B jtframe mmr
+.RI "[core-or-module-name] [flags]"
+.SH DESCRIPTION
+\fBjtframe mmr\fR
+reads
+\fB$CORES/<core>/cfg/mmr.yaml\fR
+and renders the template
+\fB$JTFRAME/hdl/inc/mmr.v\fR
+into generated Verilog modules under
+\fB$CORES/<core>/hdl/\fR.
+.PP
+With
+\fB-m\fR
+or
+\fB--module\fR,
+the argument names a folder under
+\fB$MODULES\fR.
+The input file is
+\fB$MODULES/<module>/cfg/mmr.yaml\fR
+and generated Verilog modules are written under
+\fB$MODULES/<module>/hdl/\fR.
+.PP
+Each
+\fBmmr.yaml\fR
+entry defines one MMR block.
+.SH OPTIONS
+.TP
+.B \-m, \-\-module
+Interpret the argument as a module folder instead of a core folder.
+.SS Block Keys
+.TP
+.B include
+Optional.
+Imports definitions from another core.
+It accepts:
+\fBcore\fR
+and
+\fBname\fR.
+\fBcore\fR
+is mandatory and points to
+\fB$CORES/<core>/cfg/mmr.yaml\fR.
+\fBname\fR
+can be omitted (imports all blocks),
+one string (import one block), or a list of strings (import several blocks).
+Examples:
+\fB - include:\fR
+\fB       core: shouse\fR
+\fB       name: [cus30,cus116]\fR
+\fB - include:\fR
+\fB       core: shouse\fR
+.TP
+.B name
+Required.
+Block name.
+The generated module is normally
+\fBjt<core>_<name>_mmr.v\fR.
+If
+\fBno_core_name: true\fR
+is set, the module becomes
+\fBjt<name>_mmr.v\fR.
+.TP
+.B size
+Required.
+Number of bytes in the internal
+\fBmmr[]\fR
+array.
+It must be at least 4.
+.TP
+.B dw
+Optional.
+Host bus width, either 8 or 16.
+When
+\fBdw: 16\fR
+is used, the generated interface includes 16-bit
+\fBdin\fR
+and
+\fBdout\fR
+signals plus
+\fBdsn\fR
+byte strobes.
+.TP
+.B read_only
+Optional.
+When true, write handling and
+\fBdout\fR
+generation are omitted.
+.TP
+.B regs
+Required.
+List of exported register signals.
+.SS Register Keys
+.TP
+.B name
+Required.
+Output signal name.
+.TP
+.B dw
+Required unless
+\fBevent\fR
+is not
+\fBnone\fR.
+Output signal width.
+.TP
+.B at
+Required.
+Byte or bit mapping into
+\fBmmr[]\fR.
+Accepted forms are
+\fBN\fR,
+\fBN[B]\fR,
+\fBN[MSB:LSB]\fR,
+or a comma-separated list of those forms.
+Example:
+\fB0x10[7:0], 0x11[3:0]\fR.
+.TP
+.B event
+Optional.
+Select one-clock pulse generation for the first
+\fBat\fR
+address.
+The default is
+\fBnone\fR.
+Accepted values are
+\fBnone\fR,
+\fBwrite\fR,
+\fBany\fR,
+\fBone\fR,
+and
+\fBzero\fR.
+\fBwrite\fR
+pulses on write access,
+\fBany\fR
+pulses on read or write access,
+and
+\fBone\fR
+or
+\fBzero\fR
+pulse when writing that value to a bit-qualified
+\fBat\fR
+location.
+If
+\fBevent\fR
+is not
+\fBnone\fR
+and
+\fBdw\fR
+is omitted or zero, the item is treated as event-only.
+.TP
+.B desc
+Optional metadata only.
+It does not affect code generation.
+.SH FLAGS
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-parse (1),
+.BR jtframe-mem (1)

@@ -21,10 +21,11 @@ regions = [
     { name="16x16tiles", start="JTFRAME_BA3_START", width=16, reverse=true, no_offset=true  },
     { name="32x32tiles", start="SCR2_START" },
     { name="sprites",    start="OBJ_START", width=16, reverse=true, no_offset=true  },
-    { name="proms",      start="JTFRAME_PROM_START" }
+    { name="proms" },
+    { name="irqprom",      start="JTFRAME_PROM_START" }
 ]
 
 order = [
     "maincpu", "audiocpu", "tilerom", "chars", "16x16tiles", "32x32tiles",
-    "sprites", "proms"
+    "sprites", "irqprom", "proms"
 ]

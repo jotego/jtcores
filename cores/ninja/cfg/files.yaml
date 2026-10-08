@@ -1,0 +1,13 @@
+cop:
+  - get:
+    - common.yaml
+    - jtcop_decoder.v
+    - jtcop_colmix.v
+    - jtcop_snd.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_8751.yaml
+jt680x:
+  - get:
+    - jt65c02.yaml

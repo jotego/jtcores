@@ -8777,7 +8777,6 @@
 	)
 	(label "SND_A0"
 		(at 191.77 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8788,7 +8787,6 @@
 	)
 	(label "~{NMISET}"
 		(at 101.6 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8799,7 +8797,6 @@
 	)
 	(label "SND_A9"
 		(at 186.69 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8810,7 +8807,6 @@
 	)
 	(label "SND_D3"
 		(at 255.27 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8821,7 +8817,6 @@
 	)
 	(label "SND_D0"
 		(at 309.88 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8832,7 +8827,6 @@
 	)
 	(label "SND_A4"
 		(at 186.69 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8843,7 +8837,6 @@
 	)
 	(label "SND_A14"
 		(at 186.69 160.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8854,7 +8847,6 @@
 	)
 	(label "SND_A11"
 		(at 191.77 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8865,7 +8857,6 @@
 	)
 	(label "SND_A9"
 		(at 270.51 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8876,7 +8867,6 @@
 	)
 	(label "SND_D4"
 		(at 255.27 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8887,7 +8877,6 @@
 	)
 	(label "ROM~{OE}"
 		(at 252.73 71.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8898,7 +8887,6 @@
 	)
 	(label "SND_A8"
 		(at 270.51 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8909,7 +8897,6 @@
 	)
 	(label "SND_A7"
 		(at 186.69 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8920,7 +8907,6 @@
 	)
 	(label "SND_A0"
 		(at 191.77 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8931,7 +8917,6 @@
 	)
 	(label "~{RFSH}"
 		(at 208.28 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8942,7 +8927,6 @@
 	)
 	(label "SND_A0"
 		(at 270.51 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8953,7 +8937,6 @@
 	)
 	(label "S~{RD}"
 		(at 261.62 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8964,7 +8947,6 @@
 	)
 	(label "SND_D5"
 		(at 309.88 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8975,7 +8957,6 @@
 	)
 	(label "SND_D2"
 		(at 309.88 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8986,7 +8967,6 @@
 	)
 	(label "VSS"
 		(at 228.6 179.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8997,7 +8977,6 @@
 	)
 	(label "SND_A12"
 		(at 191.77 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9008,7 +8987,6 @@
 	)
 	(label "SND_A5"
 		(at 186.69 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9019,7 +8997,6 @@
 	)
 	(label "SND_D1"
 		(at 255.27 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9030,7 +9007,6 @@
 	)
 	(label "VCC"
 		(at 140.97 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9041,7 +9017,6 @@
 	)
 	(label "SND_A2"
 		(at 186.69 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9052,7 +9027,6 @@
 	)
 	(label "S~{WR}"
 		(at 208.28 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9063,7 +9037,6 @@
 	)
 	(label "SND_D6"
 		(at 309.88 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9074,7 +9047,6 @@
 	)
 	(label "SND_D7"
 		(at 186.69 185.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9085,7 +9057,6 @@
 	)
 	(label "SND_D4"
 		(at 309.88 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9096,7 +9067,6 @@
 	)
 	(label "SND_A9"
 		(at 191.77 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9107,7 +9077,6 @@
 	)
 	(label "VCC"
 		(at 228.6 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9118,7 +9087,6 @@
 	)
 	(label "SND_A6"
 		(at 186.69 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9129,7 +9097,6 @@
 	)
 	(label "SND_A0"
 		(at 186.69 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9140,7 +9107,6 @@
 	)
 	(label "S~{WR}"
 		(at 261.62 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9151,7 +9117,6 @@
 	)
 	(label "VCC"
 		(at 281.94 48.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9162,7 +9127,6 @@
 	)
 	(label "SND_A10"
 		(at 191.77 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9173,7 +9137,6 @@
 	)
 	(label "SND_A1"
 		(at 191.77 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9184,7 +9147,6 @@
 	)
 	(label "SND_A11"
 		(at 191.77 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9195,7 +9157,6 @@
 	)
 	(label "~{WSET}"
 		(at 139.7 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9206,7 +9167,6 @@
 	)
 	(label "SND_A3"
 		(at 186.69 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9217,7 +9177,6 @@
 	)
 	(label "SND_D1"
 		(at 186.69 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9228,7 +9187,6 @@
 	)
 	(label "~{WAIT}"
 		(at 134.62 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9239,7 +9197,6 @@
 	)
 	(label "SND_D0"
 		(at 255.27 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9250,7 +9207,6 @@
 	)
 	(label "S~{WR}"
 		(at 134.62 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9261,7 +9217,6 @@
 	)
 	(label "SND_D3"
 		(at 309.88 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9272,7 +9227,6 @@
 	)
 	(label "SND_A1"
 		(at 191.77 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9283,7 +9237,6 @@
 	)
 	(label "SND_A6"
 		(at 191.77 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9294,7 +9247,6 @@
 	)
 	(label "SND_D7"
 		(at 255.27 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9305,7 +9257,6 @@
 	)
 	(label "SND_A4"
 		(at 270.51 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9316,7 +9267,6 @@
 	)
 	(label "SND_D7"
 		(at 309.88 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9327,7 +9277,6 @@
 	)
 	(label "SND_D0"
 		(at 186.69 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9338,7 +9287,6 @@
 	)
 	(label "SND_A5"
 		(at 191.77 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9349,7 +9297,6 @@
 	)
 	(label "SND_A0"
 		(at 261.62 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9360,7 +9307,6 @@
 	)
 	(label "SND_A10"
 		(at 186.69 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9371,7 +9317,6 @@
 	)
 	(label "SND_D1"
 		(at 261.62 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9382,7 +9327,6 @@
 	)
 	(label "VCC"
 		(at 101.6 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9393,7 +9337,6 @@
 	)
 	(label "S~{IORQ}"
 		(at 64.77 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9404,7 +9347,6 @@
 	)
 	(label "SND_A8"
 		(at 191.77 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9415,7 +9357,6 @@
 	)
 	(label "SND_A13"
 		(at 191.77 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9426,7 +9367,6 @@
 	)
 	(label "SND_A7"
 		(at 191.77 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9437,7 +9377,6 @@
 	)
 	(label "SND_A11"
 		(at 186.69 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9448,7 +9387,6 @@
 	)
 	(label "SND_A2"
 		(at 191.77 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9459,7 +9397,6 @@
 	)
 	(label "S~{MREQ}"
 		(at 208.28 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9470,7 +9407,6 @@
 	)
 	(label "SND_D4"
 		(at 261.62 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9481,7 +9417,6 @@
 	)
 	(label "~{NMISET}"
 		(at 252.73 81.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9492,7 +9427,6 @@
 	)
 	(label "SND_D7"
 		(at 261.62 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9503,7 +9437,6 @@
 	)
 	(label "~{M1}"
 		(at 208.28 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9514,7 +9447,6 @@
 	)
 	(label "VSS"
 		(at 254 49.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9525,7 +9457,6 @@
 	)
 	(label "SND_A7"
 		(at 270.51 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9536,7 +9467,6 @@
 	)
 	(label "VCC"
 		(at 101.6 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9547,7 +9477,6 @@
 	)
 	(label "SND_A10"
 		(at 252.73 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9558,7 +9487,6 @@
 	)
 	(label "~{M1}"
 		(at 134.62 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9569,7 +9497,6 @@
 	)
 	(label "SND_D6"
 		(at 261.62 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9580,7 +9507,6 @@
 	)
 	(label "SND_D4"
 		(at 186.69 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9591,7 +9517,6 @@
 	)
 	(label "S~{WR}"
 		(at 270.51 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9602,7 +9527,6 @@
 	)
 	(label "SND_A2"
 		(at 191.77 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9613,7 +9537,6 @@
 	)
 	(label "SND_A2"
 		(at 270.51 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9624,7 +9547,6 @@
 	)
 	(label "~{WSET}"
 		(at 252.73 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9635,7 +9557,6 @@
 	)
 	(label "VSS"
 		(at 281.94 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9646,7 +9567,6 @@
 	)
 	(label "SRAM~{CE}"
 		(at 270.51 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9657,7 +9577,6 @@
 	)
 	(label "SND_A10"
 		(at 270.51 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9668,7 +9587,6 @@
 	)
 	(label "SND_A3"
 		(at 191.77 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9679,7 +9597,6 @@
 	)
 	(label "~{SYSRES}"
 		(at 64.77 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9690,7 +9607,6 @@
 	)
 	(label "SND_A5"
 		(at 270.51 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9701,7 +9617,6 @@
 	)
 	(label "ROM~{OE}"
 		(at 207.01 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9712,7 +9627,6 @@
 	)
 	(label "SND_A13"
 		(at 186.69 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9723,7 +9637,6 @@
 	)
 	(label "SND_D6"
 		(at 255.27 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9734,7 +9647,6 @@
 	)
 	(label "SND_D2"
 		(at 255.27 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9745,7 +9657,6 @@
 	)
 	(label "SND_D6"
 		(at 186.69 182.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9756,7 +9667,6 @@
 	)
 	(label "SND_D5"
 		(at 255.27 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9767,7 +9677,6 @@
 	)
 	(label "S~{MREQ}"
 		(at 134.62 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9778,7 +9687,6 @@
 	)
 	(label "S~{IORQ}"
 		(at 134.62 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9789,7 +9697,6 @@
 	)
 	(label "SND_A6"
 		(at 270.51 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9800,7 +9707,6 @@
 	)
 	(label "SND_D5"
 		(at 186.69 180.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9811,7 +9717,6 @@
 	)
 	(label "SND_A1"
 		(at 186.69 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9822,7 +9727,6 @@
 	)
 	(label "SND_A1"
 		(at 270.51 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9833,7 +9737,6 @@
 	)
 	(label "SND_D0"
 		(at 261.62 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9844,7 +9747,6 @@
 	)
 	(label "SND_A8"
 		(at 186.69 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9855,7 +9757,6 @@
 	)
 	(label "S~{RD}"
 		(at 270.51 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9866,7 +9767,6 @@
 	)
 	(label "SND_D2"
 		(at 186.69 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9877,7 +9777,6 @@
 	)
 	(label "SRAM~{CE}"
 		(at 252.73 68.58 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9888,7 +9787,6 @@
 	)
 	(label "VCC"
 		(at 95.25 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9899,7 +9797,6 @@
 	)
 	(label "S~{CLK}"
 		(at 137.16 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9910,7 +9807,6 @@
 	)
 	(label "SND_D2"
 		(at 261.62 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9921,7 +9817,6 @@
 	)
 	(label "SND_A9"
 		(at 252.73 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9932,7 +9827,6 @@
 	)
 	(label "~{WAIT}"
 		(at 167.64 204.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9943,7 +9837,6 @@
 	)
 	(label "SND_A3"
 		(at 270.51 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9954,7 +9847,6 @@
 	)
 	(label "VCC"
 		(at 110.49 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9965,7 +9857,6 @@
 	)
 	(label "SND_D3"
 		(at 186.69 175.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9976,7 +9867,6 @@
 	)
 	(label "SND_D5"
 		(at 261.62 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9987,7 +9877,6 @@
 	)
 	(label "S~{RD}"
 		(at 208.28 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9998,7 +9887,6 @@
 	)
 	(label "~{RFSH}"
 		(at 134.62 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10009,7 +9897,6 @@
 	)
 	(label "SND_A12"
 		(at 191.77 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10020,7 +9907,6 @@
 	)
 	(label "SND_A12"
 		(at 186.69 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10031,7 +9917,6 @@
 	)
 	(label "SND_A15"
 		(at 191.77 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10042,7 +9927,6 @@
 	)
 	(label "SND_D1"
 		(at 309.88 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10053,7 +9937,6 @@
 	)
 	(label "SROM~{CE}"
 		(at 207.01 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10064,7 +9947,6 @@
 	)
 	(label "SND_A4"
 		(at 191.77 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10075,7 +9957,6 @@
 	)
 	(label "~{SYSRES}"
 		(at 261.62 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10086,7 +9967,6 @@
 	)
 	(label "SND_D3"
 		(at 261.62 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10097,7 +9977,6 @@
 	)
 	(label "SND_A14"
 		(at 191.77 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10108,7 +9987,6 @@
 	)
 	(label "VCC"
 		(at 256.54 38.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10119,7 +9997,6 @@
 	)
 	(label "SND_A15"
 		(at 186.69 162.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10130,7 +10007,6 @@
 	)
 	(label "VSS"
 		(at 101.6 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10142,7 +10018,6 @@
 	(hierarchical_label "S16MHz"
 		(shape input)
 		(at 97.79 209.55 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10154,7 +10029,6 @@
 	(hierarchical_label "SND_D[7..0]"
 		(shape tri_state)
 		(at 320.04 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10166,7 +10040,6 @@
 	(hierarchical_label "SND_A[15..0]"
 		(shape output)
 		(at 320.04 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10178,7 +10051,6 @@
 	(hierarchical_label "~{SYSRES}"
 		(shape input)
 		(at 106.68 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10190,7 +10062,6 @@
 	(hierarchical_label "STBI"
 		(shape output)
 		(at 300.99 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10202,7 +10073,6 @@
 	(hierarchical_label "S~{RD}"
 		(shape output)
 		(at 135.89 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10214,7 +10084,6 @@
 	(hierarchical_label "AUX1"
 		(shape output)
 		(at 300.99 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10226,7 +10095,6 @@
 	(hierarchical_label "PCM~{CS}"
 		(shape output)
 		(at 245.11 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10238,7 +10106,6 @@
 	(hierarchical_label "PCMCLK"
 		(shape output)
 		(at 273.05 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10250,7 +10117,6 @@
 	(hierarchical_label "~{SOUNDON}"
 		(shape input)
 		(at 74.93 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10262,7 +10128,6 @@
 	(hierarchical_label "SH1"
 		(shape input)
 		(at 106.68 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

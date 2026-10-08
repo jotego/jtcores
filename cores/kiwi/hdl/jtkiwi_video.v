@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-09-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-09-2022 */
 
 module jtkiwi_video(
     input               rst,
@@ -23,6 +9,7 @@ module jtkiwi_video(
     input               pxl2_cen,
     input               pxl_cen,
     input               hb_dly,
+    input               drtoppel,
 
     output              LHBL,
     output              LVBL,
@@ -30,6 +17,16 @@ module jtkiwi_video(
     output              VS,
     output              flip,
     output     [ 8:0]   hdump,
+    // X1-001 Internal RAM (defined in mem.yaml)
+    output     [ 9:0]   col_addr,
+    input      [ 7:0]   col_data, yram_dout,
+    output              yram_we,
+    // X1-001 External VRAM (defined in mem.yaml)
+    output     [12:1]   dma_addr,
+    output     [15:0]   dma_din,
+    output     [ 1:0]   dma_we,
+    input      [15:0]   dma_dout, code_dout,
+    output     [11:0]   code_addr,
     // PROMs
     input      [ 9:0]   prog_addr,
     input      [ 7:0]   prog_data,
@@ -119,6 +116,7 @@ jtkiwi_gfx u_gfx(
     // .prom_we    ( prom_we        ),
     // Screen
     .flip       ( flip           ),
+    .drtoppel   ( drtoppel       ),
     .LHBL       ( LHBL           ),
     .LVBL       ( LVBL           ),
     .vs         ( VS             ),
@@ -134,6 +132,23 @@ jtkiwi_gfx u_gfx(
     .cpu_addr   ( cpu_addr       ),
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
+    // IOCTL dump
+    .ioctl_addr ( 2'd0           ),
+    .ioctl_din  (                ),
+    // 16-bit interface -unused-
+    .cpu_dsn    ( 2'b00          ),
+    // X1-001 Internal RAM
+    .yram_we    ( yram_we        ),
+    .yram_dout  ( yram_dout      ),
+    .col_data   ( col_data       ),
+    .col_addr   ( col_addr       ),
+    // External VRAM (defined in mem.yaml)
+    .dma_addr   ( dma_addr       ),
+    .dma_din    ( dma_din        ),
+    .dma_we     ( dma_we         ),
+    .dma_dout   ( dma_dout       ),
+    .code_dout  ( code_dout      ),
+    .code_addr  ( code_addr      ),
     // SDRAM
     .scr_addr   ( scr_addr       ),
     .scr_data   ( scr_data       ),

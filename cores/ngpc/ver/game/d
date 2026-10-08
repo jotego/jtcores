@@ -1,0 +1,39 @@
+mv TOP.game_test.frame_cnt==892
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.pc==$FF598B
+mt PC==$ff598b
+go
+; skip frame counter proc
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.pc==$FF2bbc
+mt PC==$ff2bbc
+s
+s
+s
+st
+st
+d
+
+
+
+
+
+
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.pc==$ff55d6
+match-trace
+go
+
+
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.pc==$ff2bbc
+
+
+mv TOP.game_test.frame_cnt==657
+match-vcd
+go
+
+
+
+; 8e83e00
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa3==149437952
+
+mv TOP.game_test.frame_cnt==652
+; 8e83e00
+mv TOP.game_test.u_game.u_game.u_main.u_mcu.u_cpu.u_regs.xwa3==149437952

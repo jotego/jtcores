@@ -1,0 +1,48 @@
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19
+
+Outputs:
+
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, Output feedback output, Active low)
+18 (Combinatorial, Output feedback output, Active low)
+19 (Combinatorial, Output feedback output, Active high)
+
+External logic:
+/i11 = FIXDT & LANCDT & (W2DT & PSDT)
+
+Equations:
+
+        !i1 &   !i2 &   !i3 &   !i4 &   !i5 & i9
+/BOOT = /AS & /AB23 & /AB22 & /AB21 & /AB20 & RW
+
+       !i1 &   !i2 &   !i3 &   i4 & !i5
+/ROM = /AS & /AB23 & /AB22 & AB21 & /AB20 +
+       !i1 &   !i2 &   !i3 &   !i4 & i5
+       /AS & /AB23 & /AB22 & /AB21 & AB20
+
+       !i1 &   !i2 &   !i3 &   i4 &   i5 &  i6;
+/RAM = /AS & /AB23 & /AB22 & AB21 & AB20 &  AB19
+
+       !i1 &   !i2 &   !i3 &   i4 &   i5 &  !i6;
+/CRM = /AS & /AB23 & /AB22 & AB21 & AB20 & /AB19
+
+/GFX = /AS & /AB23 & AB22
+
+        !i1 &   !i2 &   !i3 &   i4 &   i5 &   i6
+/DMAC = /AS & /AB23 & /AB22 & AB21 & AB20 & AB19
+
+/o18 = UDS & LDS
+
+o19 = AB22 & AB21 & AB20 & /i11 +
+      AB22 & /AB21 & /AB20 & //AB19 & /i11 +
+      AS & /AB22 & //AB19 & /i11 +
+      AS & AB21 & /i11 +
+      AS & /AB20 & /AB19 & /i11 +
+      AS & /AB21 & AB20 & /i11 +
+      AB23 & /i11

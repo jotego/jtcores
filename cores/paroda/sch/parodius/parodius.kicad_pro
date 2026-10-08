@@ -282,7 +282,16 @@
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "Default",
+        "pattern": "/GM12"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/scroll/M12"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {

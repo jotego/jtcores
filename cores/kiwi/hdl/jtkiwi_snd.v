@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-9-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-9-2022 */
 
 module jtkiwi_snd(
     input               rst,
@@ -25,6 +11,7 @@ module jtkiwi_snd(
 
     input               LVBL,
     input               fast_fm,
+    input               unlump,     // sum the PSG channels instead of shorting them
 
     // MCU
     input               mcu_en,
@@ -80,8 +67,8 @@ module jtkiwi_snd(
 
     // Sound output
     output signed [15:0] fm,
-    output        [ 9:0] psg,
-    output        [ 7:0] pcm,
+    output reg    [ 9:0] psg,
+    output        [ 9:0] pcm,
     // Debug
     input      [ 7:0]    debug_bus,
     input      [ 7:0]    st_addr,
@@ -117,7 +104,7 @@ assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
 assign mcu_we   = {2{mcu_cs & ~wr_n}} & { A[0], ~A[0] };
 assign mcu_rd   = {2{mcu_cs & ~rd_n}} & { A[0], ~A[0] };
-assign pcm      = kabuki ? portb_dout : pcm_re;
+assign pcm      = kabuki ? {2'b0,portb_dout} : {pcm_re,2'b0};
 
 assign irq_ack = /*!m1_n &&*/ !iorq_n; // The original PCB just uses iorq_n,
     // the orthodox way to do it is to use m1_n too
@@ -500,6 +487,13 @@ reg fm_cen;
 
 always @(negedge clk) fm_cen <= fast_fm ? cen3 : cen1p5;
 
+wire [7:0] psg_a, psg_b, psg_c;
+wire [9:0] psg_lump;
+
+always @(posedge clk) begin
+    psg <= unlump ? {2'd0,psg_a} + {2'd0,psg_b} + {2'd0,psg_c} : psg_lump;
+end
+
 jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~comb_rstn ),
     .clk        ( clk        ),
@@ -509,7 +503,7 @@ jt03 #(.YM2203_LUMPED(1)) u_2203(
     .addr       ( kabuki ? snd_A[0] : A[0] ),
     .cs_n       ( ~fm_cs & ~snd_fm_cs ),
     .wr_n       ( kabuki ? snd_wr_n : wr_n ),
-    .psg_snd    ( psg        ),
+    .psg_snd    ( psg_lump   ),
     .fm_snd     ( fm         ),
     .snd_sample ( sample     ),
     .irq_n      ( fmint_n    ),
@@ -521,9 +515,9 @@ jt03 #(.YM2203_LUMPED(1)) u_2203(
     .IOB_out    ( portb_dout ),
     .IOB_oe     (            ),
     // unused outputs
-    .psg_A      (            ),
-    .psg_B      (            ),
-    .psg_C      (            ),
+    .psg_A      ( psg_a      ),
+    .psg_B      ( psg_b      ),
+    .psg_C      ( psg_c      ),
     .snd        (            ),
     .debug_view (            )
 );

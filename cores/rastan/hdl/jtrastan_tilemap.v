@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-4-2022 */
 
 // This module implements the pc080sn logic
 // The original clock was 26.686MHz/2 = 13.343MHz
@@ -137,19 +123,7 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-/*
-`ifdef SIMULATION
-reg check=0;
-always @(posedge clk) begin
-    if(hinit) check<=1;
-    if ( hdump<320 && hdump > hcnt && check && hcnt!=0) begin
-        $display("Horizontal buffer overrun %m");
-        //$finish;
-    end
-end
-`endif
-*/
-// Not a double line buffer
+
 jtframe_dual_ram #(
     .DW (4+7    ),
     .AW ( 9     )  // 320 points

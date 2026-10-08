@@ -4,7 +4,7 @@ params:
   - name: BRAM_OFFSET
 clocks:
   clk48:
-    - freq: 12000000
+    - freq: 12M
       gate: [ main, sub ]
       outputs:
         - dummy12
@@ -23,7 +23,7 @@ audio:
     - { name: psg, module: jt03_psg, rsum: 1, pre: 0.58 }
     # there is a 2nd order filter on the board but the component values
     # are not right in the schematics (so far). Using the FIR filter for now
-    - { name: pcm, dcrm: true,       rsum: 1, vpp: 1.0, data_width: 8, fir: fir_192k_4k.csv }
+    - { name: pcm, dcrm: true,       rsum: 1, data_width: 10, fir: fir_192k_4k.csv }
 sdram:
   # post_addr: true
   banks:
@@ -62,3 +62,21 @@ bram:
     data_width: 8
     rw: true
     # offset: BRAM_OFFSET
+  # X1-001 internal RAM
+  - name: yram
+    addr_width: 10
+    data_width: 8
+    din: cpu_dout
+    addr: main_addr[9:0]
+    rw: true
+    dual_port:
+      name: col
+      dout: col_data
+  # X1-001 external video RAM
+  - name: dma
+    addr_width: 13
+    data_width: 16
+    rw: true
+    dual_port:
+      name: code
+      dout: code_dout

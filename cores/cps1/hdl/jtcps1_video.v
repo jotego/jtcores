@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-1-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-1-2020 */
 
 
 // Scroll 1 is 512x512, 8x8 tiles
@@ -361,11 +347,7 @@ jtcps1_mmr #(REGSIZE) u_mmr(
 
     // OBJ DMA
     `ifndef CPS2
-        `ifndef NOMAIN
-            .obj_dma_ok ( obj_dma_ok    ),
-        `else
-            .obj_dma_ok (               ),
-        `endif
+        .obj_dma_ok ( obj_dma_ok        ),
     `else
         .obj_dma_ok (                   ),
     `endif
@@ -390,11 +372,7 @@ jtcps1_mmr #(REGSIZE) u_mmr(
     .vram_row_base  ( vram_row_base     ),
     .row_offset     ( row_offset        ),
     .pal_base       ( pal_base          ),
-`ifndef NOMAIN
     .pal_copy       ( pal_dma_ok        ),
-`else
-    .pal_copy       (                   ),
-`endif
 
     // CPS-B Registers
     .cfg_we         ( cfg_we            ),
@@ -606,6 +584,7 @@ jtcps2_colmix u_objmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .LVBL       ( LVBL          ),
 
     .objcfg_cs  ( objcfg_cs     ),
     .addr       ( addr[3:1]     ),
@@ -654,24 +633,6 @@ assign vpal_cs   = 1'b0;
 assign vpal_addr = 17'd0;
 assign LVBL_dly  = ~VB;
 assign LHBL_dly  = ~HB;
-`endif
-
-// Fake DMA signals to allow for video-only simulation
-`ifdef  NOMAIN
-reg fake_pal, last_VB;
-
-assign pal_dma_ok = fake_pal;
-assign obj_dma_ok = fake_pal;
-
-always @(posedge clk or posedge rst) begin
-    if( rst ) begin
-        fake_pal <= 0;
-        last_VB  <= 1;
-    end else if(pxl_cen) begin
-        last_VB  <= VB;
-        fake_pal <= VB && !last_VB;
-    end
-end
 `endif
 
 endmodule

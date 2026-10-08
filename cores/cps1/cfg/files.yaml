@@ -1,0 +1,14 @@
+cps1:
+  - get:
+    - jtcps1_game.v
+    - jtcps1_main.v
+    - jtcps1_sound.v
+    - jtcps1_obj.v
+    - common.yaml
+jtframe:
+  - from: sound
+    get:
+      - jtframe_pole.v
+      - jtframe_iir2.v
+jt51:
+jt6295:

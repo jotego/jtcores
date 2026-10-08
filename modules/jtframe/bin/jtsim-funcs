@@ -1,0 +1,710 @@
+show_help() {
+        cat << EOF
+JTFRAME simulation tool
+usage: jtsim [options] [file.cab]
+
+Common options:
+    -verilator | -iverilog | -modelsim   Select simulator
+    -d <macro>                           Define a simulation macro
+    -u | -undef <macro>                  Undefine a simulation macro
+    -time <ms>                           Simulate for a fixed number of milliseconds
+    -video [frames]                      Dump video output
+    -norotate                            Keep Verilator dumped frames unrotated
+    -dummyROM                            Use a local dummy rom.bin without set-name lookup
+    -w [frame] | -deep [frame]           Dump waveform data (overrides .cab tracing_on)
+    file.cab                             Feed a cabinet-input script (Verilator)
+    -setname <name>                      Build the ROM for a specific setname
+    -scene | -s <path>                   Run a saved scene dump
+    -zoom                                Scale dumped frames to 200%
+    -lint                                Run Verilator lint instead of simulation
+    -help | -h | --help                  Show this summary
+
+Use "man jtsim" for the full option reference.
+EOF
+}
+
+define_terminal_colors() {
+	if [ -n "$TERM" ]; then # if running on a terminal
+	    export TERM
+	    red=`tput setaf 1`
+	    green=`tput setaf 2`
+	    blue=`tput setaf 4`
+	    white=`tput setaf 7`
+	    rBG=`tput setab 1; tput setaf 7`
+	    gBG=`tput setab 2; tput setaf 7`
+	    bBG=`tput setab 4; tput setaf 7`
+	    yBG=`tput setab 3; tput setaf 7`
+	    wBG=`tput setab 7; tput setaf 0`
+	    NC=`tput sgr0`
+	fi
+}
+
+has_parent() {
+    p=`pwd`
+    while [ "$p" != "/" ]; do
+        parent=$(dirname "$p")
+        if [ $(basename "$parent") = "$1" ]; then return 0; fi
+        p=$parent
+    done
+    return 1
+}
+
+clean_up() {
+    rm -f frame.raw \
+       game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
+       make.log defmacros.h filtered.f microrom.mem nanorom.mem
+    if [ -z "$TESTCPP" ]; then
+        rm -f test.cpp sdram.cpp sdram.h wavewritter.cpp wavewritter.h cabinet.cpp cabinet.h cheats.cpp cheats.h sim_utils.cpp sim_utils.h
+    fi
+    rm -f video.raw video.pipe
+    echo -e "\e[0m"
+    echo
+}
+
+add_dir() {
+    if [ ! -d "$1" ]; then
+        echo "${rBG}Error:${NC} add_dir (sim.sh) failed because $1 is not a directory" 1>&2
+        exit 1
+    fi
+    processF=no
+    echo "Adding dir $1 $2" >&2
+    for i in $(cat $1/$2); do
+        if [ "$i" = "-sv" ]; then
+            # ignore statements that iVerilog cannot understand
+            continue;
+        fi
+        if [ "$processF" = yes ]; then
+            processF=no
+            # echo $(dirname $i) >&2
+            # echo $(basename $i) >&2
+            dn=$(dirname $i)
+            if [ "$dn" = . ]; then
+                dn=$1
+            fi
+            add_dir $dn $(basename $i)
+            continue
+        fi
+        if [[ "$i" = -F || "$i" == -f ]]; then
+            processF=yes
+            continue
+        fi
+        # ignore comments
+        if [ "${i:0:1}" = \# ]; then
+            continue
+        fi
+        fn="$1/$i"
+        if [ ! -e "$fn" ]; then
+            (>&2 echo "Cannot find file $fn")
+        fi
+        echo $fn
+    done
+}
+
+# iverilog does not have a -F command:
+emulate_F() {
+    oldIFS="$IFS"
+    while IFS= read -r line; do
+        if [ `expr "$line" : -F ` -eq 2 ]; then
+            line=${line:3}
+            dname=$(dirname "$line")
+            fname=$(basename "$line")
+            add_dir $dname $fname
+        else
+            echo "$line"
+        fi
+    done < $1
+    IFS="$oldIFS"
+}
+
+# First parse all the arguments in search of simulator arguments
+preparse_args() {
+    while [ $# -gt 0 ]; do
+        case ${1:1} in
+            verilator|lint)
+                SIMULATOR=verilator
+                MACROPREFIX=-D
+                ;;
+            ncverilog|synapticad|modelsim|iverilog|questasim)
+                SIMULATOR=${1:1}
+                MACROPREFIX=+define+
+                ;;
+            xcelium)
+                SIMULATOR=${1:1}
+                MACROPREFIX="-define "
+                ;;
+            sysname) shift; SYSNAME=$1
+        esac
+        shift
+    done
+}
+
+require() {
+    if [ -z "$1" ]; then
+        echo "${rBG}Error:${NC} $2"
+        exit 1
+    fi
+}
+
+enable_load() {
+    # Moves away the old files to prevent mistakes
+    if [[ -e sdram_bank0.bin || -e sdram_bank0.hex ]]; then
+        echo "Moving old sdram_bank files to sdram.old"
+        mkdir -p sdram.old
+        mv sdram_bank?.* sdram.old > /dev/null
+    fi
+    add_macro LOADROM
+    echo ROM load through SPI enabled
+}
+
+add_macro() {
+    if [ $# = 0 ]; then return; fi
+    if [ ! -z "$ALLMACROS" ]; then
+        ALLMACROS=${ALLMACROS},
+    fi
+    ALLMACROS=${ALLMACROS}$1
+    shift
+    add_macro $*
+}
+
+has_macro() {
+    local name="$1"
+    IFS=',' read -ra allmacros <<< "$ALLMACROS"
+    for macro in "${allmacros[@]}"; do
+        local macro_name="${macro%%=*}"
+        if [ $name = $macro_name ]; then return 0; fi
+    done
+    return 1
+}
+
+get_macro() {
+    local name="$1"
+    local allmacros=()
+    if [ -z "$name" ]; then return; fi
+    IFS=',' read -ra allmacros <<< "$ALLMACROS"
+    for macro in "${allmacros[@]}"; do
+        local macro_name macro_value
+        macro_name="${macro%%=*}"
+        if [[ "$macro" == *"="* ]]; then
+            macro_value="${macro#*=}"
+        fi
+        if [ $macro_name = $name ]; then
+            echo $macro_value
+            return
+        fi
+    done
+}
+
+warn_if_longsim_noinputs() {
+    local maxframes
+    maxframes=`get_macro MAXFRAME`
+    if [ -z "$maxframes" ]; then return; fi
+    if [ "$maxframes" -lt 100 ]; then return; fi
+    if [ -z "$CABINET_INPUTS" ]; then
+        echo "${rBG}WARNING:${NC} Long simulation ($maxframes frames) without cabinet inputs"
+    fi
+}
+
+# A jtsim run rewrites generated file lists, obj_dir and output files in its
+# current folder.  Keep that work exclusive while allowing independent game
+# folders to simulate in parallel.
+simulation_process_stamp() {
+    ps -o lstart= -p "$1" 2>/dev/null | tr -s ' ' | sed 's/^ //;s/ $//'
+}
+
+release_simulation_lock() {
+    [ -n "$JTSIM_LOCK_DIR" ] || return
+    [ -f "$JTSIM_LOCK_DIR/pid" ] || return
+    local owner
+    owner=$(head -n 1 "$JTSIM_LOCK_DIR/pid" 2>/dev/null)
+    [ "$owner" = "$$" ] || return
+    rm -f "$JTSIM_LOCK_DIR/pid" "$JTSIM_LOCK_DIR/stamp"
+    rmdir "$JTSIM_LOCK_DIR" 2>/dev/null || true
+    JTSIM_LOCK_DIR=
+}
+
+acquire_simulation_lock() {
+    local lock_dir="${1:-$PWD/.jtsim.lock}"
+    local owner owner_stamp current_stamp
+
+    if mkdir "$lock_dir" 2>/dev/null; then
+        simulation_process_stamp "$$" > "$lock_dir/stamp"
+        printf '%s\n' "$$" > "$lock_dir/pid"
+        JTSIM_LOCK_DIR="$lock_dir"
+        return 0
+    fi
+
+    owner=$(head -n 1 "$lock_dir/pid" 2>/dev/null)
+    owner_stamp=$(cat "$lock_dir/stamp" 2>/dev/null)
+    if [[ "$owner" =~ ^[0-9]+$ ]] && kill -0 "$owner" 2>/dev/null; then
+        current_stamp=$(simulation_process_stamp "$owner")
+        if [ -n "$owner_stamp" ] && [ "$owner_stamp" = "$current_stamp" ]; then
+            echo "Error: a jtsim simulation is already active in $PWD" >&2
+            echo "Active simulation PID: $owner" >&2
+            return 1
+        fi
+    fi
+
+    # The owner exited without running its EXIT trap (for example, after a
+    # forced kill).  A stale lock must not prevent a later simulation.
+    rm -f "$lock_dir/pid" "$lock_dir/stamp"
+    if ! rmdir "$lock_dir" 2>/dev/null || ! mkdir "$lock_dir" 2>/dev/null; then
+        echo "Error: cannot acquire the jtsim lock in $PWD" >&2
+        return 1
+    fi
+    simulation_process_stamp "$$" > "$lock_dir/stamp"
+    printf '%s\n' "$$" > "$lock_dir/pid"
+    JTSIM_LOCK_DIR="$lock_dir"
+}
+
+set_mist_as_target() {
+    TOP=mist_test
+    TARGET=mist
+}
+
+set_sidi128_as_target() {
+    TOP=mist_test
+    TARGET=sidi128
+}
+
+set_zoom() {
+    export CONVERT_OPTIONS="-filter point -resize 200% $CONVERT_OPTIONS"
+}
+
+# Use this function to create
+# HEX files with initial contents for some of the RAMs
+clear_hex_file() {
+    cnt=0
+    rm -f $1.hex
+    while [ $cnt -lt $2 ]; do
+        echo 0 >> $1.hex
+        cnt=$((cnt+1))
+    done
+}
+
+jtcfgstr() {
+    jtframe cfgstr $SYSNAME --target=$TARGET --output=$1 --def=$ALLMACROS --undef=$UNDEF
+}
+
+build_core_firmware() {
+    local core_path="$1"
+    local fw_dir="$core_path/firmware"
+    if [ -z "${JTFRAME_BUILD_FIRMWARE+x}" ]; then
+        return
+    fi
+    if [ ! -e "$fw_dir/Makefile" ]; then
+        echo "${rBG}Error:${NC} JTFRAME_BUILD_FIRMWARE set but $fw_dir/Makefile does not exist"
+        exit 1
+    fi
+    make -C "$fw_dir" || exit $?
+}
+
+make_verilator_command() {
+	echo "${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
+"       -I$JTFRAME/hdl/inc "\
+"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl -I$JTFRAME/hdl/cpu/ika32010 "\
+"       --timescale 1ps/1ps "\
+"       $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS "\
+"       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\
+"       -o sim --quiet-stats"\
+"       $EXTRA $TRACE --prefix UUT --assert "\
+"       --cc --exe test.cpp sdram.cpp wavewritter.cpp cabinet.cpp cheats.cpp sim_utils.cpp $COV "\
+"       -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE "
+}
+
+is_lint_on() {
+	echo "$EXTRA" | grep lint-only
+}
+
+set_verilator_optimization() {
+    local sim_opt=-O1
+    local maxframe="${MAXFRAME:-}"
+    if [ -z "$maxframe" ]; then maxframe=$(get_macro MAXFRAME); fi
+    if [[ "$maxframe" =~ ^[0-9]+$ && "$maxframe" -gt 600 ]]; then sim_opt=-O2; fi
+    if [ -n "$FAST" ]; then sim_opt=-O3; fi
+    if [ -z "$OPT_FAST" ]; then OPT_FAST="$sim_opt -march=native"; fi
+    if [ -z "$OPT_SLOW" ]; then OPT_SLOW="$sim_opt -march=native"; fi
+    if [ -z "$OPT_GLOBAL" ]; then OPT_GLOBAL="$sim_opt -march=native"; fi
+    export OPT_FAST OPT_SLOW OPT_GLOBAL
+}
+
+compile_verilator_sim() {
+    if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim \
+        OPT_FAST="$OPT_FAST" OPT_SLOW="$OPT_SLOW" \
+        OPT_GLOBAL="$OPT_GLOBAL" > make.log; then
+        cat make.log
+        exit $?
+    fi
+}
+
+clear_frames() {
+    if [ -n "$SHOWCMD" ]; then return; fi
+    rm -rf frames
+    mkdir -p frames
+}
+
+prepare_fst_pipe() {
+	rm -f test.vcd
+    if [[ -n "$DUMP" && -z "$SHOWCMD" ]]; then
+        if which vcd2fst > /dev/null; then
+            mkfifo test.vcd
+            vcd2fst -p test.vcd test.fst&
+        fi
+    fi
+}
+
+run_verilator_sim() {
+	$SHOWCMD obj_dir/sim $TRACE "${RUNTIME_ARGS[@]}" -time $SIM_MS
+	local rc=$?
+	if [ $rc != 0 ]; then
+		echo "Verilator sim exit code $rc"
+		exit $rc
+	fi
+}
+
+clean_fst_pipe() {
+	rm -f test.vcd
+}
+
+run_coverage() {
+    mkdir -p cov
+    verilator_coverage --annotate cov logs/coverage.dat
+}
+
+convert_raw2wav() {
+    if [ ! -e $JTUTIL/bin/raw2wav ]; then
+        echo "Bypassing sound.raw conversion to wav file as raw2wav was not found"
+        return
+    fi
+	if [ -e sound.raw ]; then
+	    $JTUTIL/bin/raw2wav $SAMPLING_RATE < sound.raw
+	    rm -f sound.raw
+	fi
+}
+
+check_shasum() {
+	if [ ! -z "$SETNAME" ]; then
+	    if [ ! -z "$SHAUP" ]; then
+	        shasum frames/frame*png frames/frame*jpg 2>/dev/null > ../$SETNAME.sha;
+	    elif [ -e ../$SETNAME.sha ]; then
+	        if shasum --check ../$SETNAME.sha; then echo PASS; else echo FAIL; fi
+	    fi
+	fi
+}
+
+count_frame_images() {
+	ls frames/frame*png frames/frame*jpg 2>/dev/null | wc -l
+}
+
+last_frame_image() {
+	ls frames/frame_*.png frames/frame_*.jpg 2>/dev/null | tail -n 1
+}
+
+make_mpeg() {
+    jtutil mp4 --rate "$(<framerate)"
+}
+
+convert_channel_raw2wav() {
+	shopt -s nullglob
+	CHRAW=(ch?.raw)
+	shopt -u nullglob
+	for i in "${CHRAW[@]}"; do
+	    if [ $(od -An -tx1 -v $i | grep -v ' 00 ' | wc -l) -eq 0 ]; then
+	        echo "$i is empty, deleting it" > /dev/null
+	    else
+	        ffmpeg -y -f s16le -ar 192000 -ac 2 -i $i ${i%.raw}.wav > /dev/null 2>&1 || continue
+	    fi
+	    rm -f $i
+	done
+}
+
+copy_scene_frame() {
+    local scnnum=$(basename $(dirname "$SCENE"))
+    local frame=$(last_frame_image)
+    local dst=$(dirname "$SCENE")/$scnnum.png
+    mv "$frame" "$dst"
+    echo "$dst"
+}
+
+compare_scene_snapshot() {
+    local candidate="$1"
+    local scene_dir=$(dirname "$SCENE")
+    local snapshot="$scene_dir/snapshot.png"
+    local scene_name=$(basename "$scene_dir")
+    local diff="$scene_dir/$scene_name-diff.png"
+    local csv="$scene_dir/$scene_name-compare.csv"
+
+    [ -e "$snapshot" ] || return 0
+    [ -e "$candidate" ] || return 0
+    if ! command -v identify >/dev/null || ! command -v convert >/dev/null || ! command -v compare >/dev/null; then
+        echo "Scene snapshot compare skipped: ImageMagick tools not found"
+        return 0
+    fi
+
+    local ref_size cand_size
+    ref_size=$(identify -format "%w,%h" "$snapshot" 2>/dev/null) || return 0
+    cand_size=$(identify -format "%w,%h" "$candidate" 2>/dev/null) || return 0
+    if [ "$ref_size" != "$cand_size" ]; then
+        echo "scene,core,ref,diff,nonzero,total,nonzero_pct,mean_abs,max_abs,status" > "$csv"
+        echo "$scene_name,$candidate,$snapshot,,0,0,0,0,0,size_mismatch:${ref_size/,/x}:${cand_size/,/x}" >> "$csv"
+        echo "Scene snapshot compare: MISMATCH $scene_name size mismatch ref=$ref_size core=$cand_size"
+        return 1
+    fi
+
+    convert "$snapshot" "$candidate" -compose difference -composite "$diff" 2>/dev/null || return 0
+
+    local width height total nonzero mean_abs max_abs nonzero_pct
+    width=${ref_size%,*}
+    height=${ref_size#*,}
+    total=$((width * height))
+    nonzero=$(compare -metric AE "$snapshot" "$candidate" null: 2>&1 >/dev/null)
+    read -r mean_abs max_abs < <(identify -format "%[fx:mean*255] %[fx:maxima*255]" "$diff" 2>/dev/null)
+    nonzero_pct=$(awk -v n="$nonzero" -v t="$total" 'BEGIN { if (t) printf "%.4f", 100*n/t; else print "0.0000" }')
+    mean_abs=$(awk -v v="$mean_abs" 'BEGIN { printf "%.4f", v }')
+    max_abs=$(awk -v v="$max_abs" 'BEGIN { printf "%.0f", v }')
+
+    local status label
+    if [ "$nonzero" = 0 ] && [ "$mean_abs" = "0.0000" ] && [ "$max_abs" = 0 ]; then
+        status=match
+        label=MATCH
+    else
+        status=mismatch
+        label=MISMATCH
+    fi
+
+    echo "scene,core,ref,diff,nonzero,total,nonzero_pct,mean_abs,max_abs,status" > "$csv"
+    echo "$scene_name,$candidate,$snapshot,$diff,$nonzero,$total,$nonzero_pct,$mean_abs,$max_abs,$status" >> "$csv"
+    echo "Scene snapshot compare: $label $scene_name nonzero=$nonzero/$total (${nonzero_pct}%) mean_abs=$mean_abs max_abs=$max_abs"
+    [ "$status" = match ]
+}
+
+display_scene_frame() {
+	last_frame_image=$(last_frame_image)
+	eom $last_frame_image
+}
+
+use_setname() {
+    if [ ! -z "$DIR" ]; then # Run the simulation inside a folder named after the set
+        mkdir -p "$SETNAME" || exit $?
+        cd "$SETNAME"
+    fi
+    if [ -z "$SKIPROM" ]; then getset.sh $SYSNAME $SETNAME $SKIPROM || exit $?; fi
+    if [ -s $ROM/$SETNAME.dip ]; then
+        if ! has_macro JTFRAME_SIM_DIPS; then
+            # Not all systems have DIPs
+            DIPS=`cat $ROM/$SETNAME.dip`
+            if [ ! -z "$DIPS" ]; then add_macro JTFRAME_SIM_DIPS=0x$DIPS; fi
+        fi
+    fi
+    ROMFILE=$ROM/$SETNAME.rom
+    if [ ! -e $ROMFILE ]; then
+        cat<<EOF
+jtsim: cannot produce $ROMFILE"
+    This may occur if the setname is longer than 8 characters or
+    if you are not in the core folder for the game
+EOF
+        exit 1
+    fi
+    if [[ ! -e rom.bin || `readlink rom.bin` != "$ROMFILE" ]]; then
+        ln -srf $ROMFILE rom.bin
+        enable_load
+    fi
+    if [ -e $ROM/$SETNAME.mod ]; then cp $ROM/$SETNAME.mod core.mod; fi
+}
+
+derive_corename_from_folder() {
+    local corename=$(realpath `pwd` --relative-to=$CORES | cut -d/ -f1)
+    if [[ $corename == ..* ]]; then
+        echo "You must run jtsim from inside a folder in $CORES" >&2
+        exit 1
+    fi
+    echo $corename
+}
+
+derive_setname_from_folder() {
+    local setname=$(basename `pwd`)
+    echo $setname
+}
+
+get_default_dipsw() {
+    local setname="$1"
+    if [ -z "$setname" ]; then
+        echo "get_default_dipsw called by setname is blank"
+        exit 1
+    fi
+    local dipfile=$ROM/${setname}.dip
+    if [ ! -s $dipfile ]; then
+        echo "${rBG}WARNING${NC}: $ROM/${setname}.dip not found"
+        return
+    fi
+    local hexdip
+    hexdip=`cat $ROM/${setname}.dip`
+    add_macro JTFRAME_SIM_DIPS=0x$hexdip
+    echo "Using DIP switches from rom/${setname}.dip"
+}
+
+copy_mod_file() {
+    local setname="$1"
+    if [ ! -e $ROM/${setname}.mod ]; then
+        return
+    fi
+    cp $ROM/${setname}.mod core.mod
+}
+
+delete_scene_dump_files() {
+    if [[ -n "$SCENE" || ! -x ../game/dump2bin.sh ]]; then
+        return 0
+    fi
+    ../game/dump2bin.sh --delete
+}
+
+make_rombin_link() {
+    local setname="$1"
+    if [ -z "$setname" ]; then
+        echo "Create rom.bin manually or run the sim from a folder named after the ROM set name"
+        exit 1
+    fi
+    local romfile="$ROM/$setname.rom"
+    if [ ! -e $romfile ]; then
+        echo "ERROR: cannot make rom.bin from $romfile"
+        exit 1
+    fi
+    ln -sr $romfile rom.bin
+}
+
+get_file_length() {
+    local filename="$1"
+    if ! stat --version > /dev/null 2>&1; then
+        stat -L -f %z "$filename"
+    else
+        stat -L -c%s "$filename"
+    fi
+}
+
+get_file_mtime() {
+    local filename="$1"
+    if ! stat --version > /dev/null 2>&1; then
+        stat -L -f %m "$filename"
+    else
+        stat -L -c%Y "$filename"
+    fi
+}
+
+check_mra_outputs_current() {
+    local toml="$CORES/$SYSNAME/cfg/mame2mra.toml"
+    local stale=
+    local filename
+    local toml_mtime file_mtime
+
+    if [[ -n "$ROMLESS" || -n "$DUMMYROM" || ! -e "$toml" ]]; then
+        return 0
+    fi
+
+    toml_mtime=$(get_file_mtime "$toml") || return 1
+    for filename in rom.bin sdram_bank?.bin; do
+        if [ ! -e "$filename" ]; then
+            continue
+        fi
+        file_mtime=$(get_file_mtime "$filename") || return 1
+        if (( toml_mtime > file_mtime )); then
+            stale="$stale $filename"
+        fi
+    done
+
+    if [ -n "$stale" ]; then
+        echo "${rBG}Error:${NC} $toml is newer than generated ROM data:$stale" >&2
+        echo "Run: jtframe mra $SYSNAME" >&2
+        exit 1
+    fi
+}
+
+disable_patreon_credits() {
+    $SED /JTFRAME_CREDITS/d core.def
+}
+
+prepare_gatelevel_sim() {
+    # Gate-level simulation uses the synthesis output directly
+    GATENETLIST=$CORES/$SYSNAME/mist/simulation/ncsim/${CORENAME,,}_8_1200mv_85c_slow.vo
+    if [ ! -e "$GATENETLIST" ]; then
+        echo "${rBG}Error:${NC} cannot open the gate-level netlist. Looking for file"
+        echo "$GATENETLIST"
+        echo "Generate it using Quartus II, for the MiST core files"
+        exit 1
+    fi
+    QPATH=`which quartus`
+    if [[ -z "$QPATH" ]]; then
+        echo "${rBG}Error:${NC} Quartus is not in the PATH"
+        exit 1
+    fi
+    QPATH=${QPATH%quartus/bin/quartus}/modelsim_ae/altera/verilog/src
+    if [ ! -d "$QPATH" ]; then
+        echo "${rBG}Error:${NC} cannot find the path to Quartus simulation files"
+        echo Looking at "$QPATH"
+        exit 1
+    fi
+    echo $GATENETLIST > filtered.f
+    echo $QPATH/{altera_primitives,cycloneiii_atoms}.v >> filtered.f
+    echo $JTFRAME/target/mist/mist_test.v \
+mist_dump.v \
++define+GATES \
+>> filtered.f
+    # Remove MiST definitions
+    FILES=
+}
+
+rename_scene_file() {
+    local folder="scenes/$1"
+    local scene="$folder/dump.bin"
+    if [ -e "$scene" ]; then return; fi
+    if rename_ext_file "$folder" nvm; then return; fi
+    rename_ext_file "$folder" RAM
+}
+
+link_scene_folder() {
+    local corename="$1"
+    local setname="$2"
+    local scene_root="${JOTEGO:-}/scenes/$corename/$setname"
+    local scene_target
+    local current_target
+
+    if [ -z "${JOTEGO:-}" ]; then
+        echo "jtsim -s requires JOTEGO to be defined as the support-files directory" >&2
+        return 1
+    fi
+    if [ ! -d "$scene_root" ]; then
+        echo "Scene folder not found: $scene_root" >&2
+        return 1
+    fi
+    scene_target=$(realpath "$scene_root") || return 1
+
+    if [ -e scenes ] && [ ! -L scenes ]; then
+        echo "Cannot create scene link: scenes is an existing directory" >&2
+        return 1
+    fi
+    if [ -L scenes ]; then
+        current_target=$(readlink -f scenes)
+        if [ "$current_target" = "$scene_target" ]; then
+            return 0
+        fi
+        unlink scenes || return 1
+    fi
+    ln -s "$scene_target" scenes
+}
+
+rename_ext_file() {
+    local folder="$1"
+    local ext=$2
+    local old_name=$(find $folder -maxdepth 1 -name "*.$ext" | head -n 1)
+    if [[ -z "$old_name" || ! -e "$old_name" ]]; then return 1; fi
+    mv "$old_name" $folder/dump.bin
+}
+
+check_jtframe_macro_name() {
+    local name="$1"
+    if [ -z "$name" ]; then return; fi
+    if [[ $name != JTFRAME_* && $name != VERILATOR_* ]]; then return; fi
+    if ! grep -q -w $name $JTFRAME/doc/macros.md; then
+        echo "Cannot find macro $name in macros.md"
+        echo "Is the spelling right?"
+        return 1
+    fi
+}

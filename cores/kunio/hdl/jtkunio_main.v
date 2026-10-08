@@ -1,24 +1,11 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-7-2022 */
 
 module jtkunio_main(
     input              clk,        // 24 MHz
     input              rst,
+    input              cen6,
     input              cen3,
     input              cen1p5,
     input              LVBL,
@@ -64,15 +51,17 @@ wire [15:0] cpu_addr;
 reg  [ 7:0] cpu_din, cab_dout;
 wire [ 7:0] mcu_dout;
 reg         bank, bank_cs, io_cs, flip_cs,
-            scrpos0_cs, scrpos1_cs,
+            scrpos0_cs, scrpos1_cs, cab_cs,
             irq_clr, nmi_clr, mcu_clr, main2mcu_cs, mcu2main_cs;
-wire        rdy, irqn, nmi_n,
+wire        rdy, irq, nmi, cpu_wr, cpu_rd, cpu_acc,
             mcu_stn, mcu_irqn;
 
 assign rom_addr = { cpu_addr[15], cpu_addr[15] ? cpu_addr[14] : bank, cpu_addr[13:0] };
 assign rdy      = ~rom_cs | rom_ok;
 assign bus_addr = cpu_addr[12:0];
-assign nmi_n    = LVBL & dip_pause;
+assign nmi      = ~(LVBL & dip_pause);
+assign cpu_rnw  = ~cpu_wr;
+assign cpu_acc  =  cpu_wr | cpu_rd;
 
 always @* begin
     rom_cs      = 0;
@@ -91,9 +80,10 @@ always @* begin
     main2mcu_cs = 0;
     mcu2main_cs = 0;
     mcu_clr     = 0;
+    cab_cs      = 0;
     if( cpu_addr[15:14]>= 1 ) begin
-        rom_cs = 1;
-    end else begin
+        rom_cs = cpu_rd;
+    end else if(cpu_acc) begin
         case( cpu_addr[13:11] )
             0,1,2,3: ram_cs = 1; // 8kB in total, the character VRAM is the upper 2kB. Merged in the same chips.
             4: objram_cs = 1;
@@ -102,10 +92,10 @@ always @* begin
             7: begin
                 io_cs = 1;
                 case( cpu_addr[2:0] )
-                    0: scrpos0_cs = !cpu_rnw;
-                    1: scrpos1_cs = !cpu_rnw;
-                    2: snd_irq = !cpu_rnw;
-                    3: flip_cs = !cpu_rnw;
+                    0: begin cab_cs = 1; scrpos0_cs = !cpu_rnw; end
+                    1: begin cab_cs = 1; scrpos1_cs = !cpu_rnw; end
+                    2: begin cab_cs = 1; snd_irq = !cpu_rnw;    end
+                    3: begin cab_cs = 1; flip_cs = !cpu_rnw;    end
                     4: begin
                         main2mcu_cs = !cpu_rnw;
                         // if( !mcu_stn ) $display("Rd %X from MCU",mcu_dout);
@@ -133,14 +123,14 @@ always @(posedge clk) begin
     endcase
 end
 
-always @(posedge clk) begin
-    cpu_din <=rom_cs      ? rom_data :
+always @* begin
+    cpu_din = rom_cs      ? rom_data :
               ram_cs      ? ram_dout :
               objram_cs   ? obj_dout :
               scrram_cs   ? scr_dout :
               pal_cs      ? pal_dout :
               mcu2main_cs ? mcu_dout :
-              io_cs       ? cab_dout : 8'hff;
+              cab_cs      ? cab_dout : 8'h0;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -161,41 +151,32 @@ end
 jtframe_ff u_ff (
     .clk    ( clk       ),
     .rst    ( rst       ),
-    .cen    ( cen1p5    ),
+    .cen    ( 1'b1      ),
     .din    ( 1'b1      ),
-    .q      (           ),
-    .qn     ( irqn      ),
+    .q      ( irq       ),
+    .qn     (           ),
     .set    ( 1'b0      ),
     .clr    ( irq_clr   ),
     .sigedge( v8        )
 );
 
 wire [7:0] nc;
-/* verilator tracing_off */
-T65 u_cpu(
-    .Mode   ( 2'd0      ),  // 6502 mode
-    .Res_n  ( ~rst      ),
-    .Enable ( cen1p5    ),
-    .Clk    ( clk       ),
-    .Rdy    ( rdy       ),
-    .Abort_n( 1'b1      ),
-    .IRQ_n  ( irqn      ),
-    .NMI_n  ( nmi_n     ),
-    .SO_n   ( 1'b1      ),
-    .R_W_n  ( cpu_rnw   ),
-    .Sync   (           ),
-    .EF     (           ),
-    .MF     (           ),
-    .XF     (           ),
-    .ML_n   (           ),
-    .VP_n   (           ),
-    .VDA    (           ),
-    .VPA    (           ),
-    .A      ({nc,cpu_addr}),
-    .DI     ( cpu_din   ),
-    .DO     ( cpu_dout  )
-);
 
+jt65c02 u_cpu(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cen6      ),  // crystal clock freq. = 4x E pin freq.
+    .irq    ( irq       ),
+    .nmi    ( nmi       ),
+    .opdec  ( 1'b0      ),
+    .wr     ( cpu_wr    ),
+    .rd     ( cpu_rd    ),
+    .fetch  (           ),
+    .addr   ( cpu_addr  ), // always valid
+    .din    ( cpu_din   ),
+    .dout   ( cpu_dout  )
+);
+/* verilator tracing_off */
 jtkunio_mcu u_mcu(
     .rst        ( rst           ),
     .clk        ( clk           ),

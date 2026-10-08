@@ -1,6 +1,7 @@
 include ../../dd/cfg/macros.def
 
 CORENAME=JTDD2
+JTFRAME_RATE=57.45
 DD2
 TV80S
 

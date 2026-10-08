@@ -1,16 +1,14 @@
-game:
-  - from: contra
-    get:
-      - jtcontra_gfx.v
-      - jtcontra_gfx_tilemap.v
-      - jtcontra_gfx_obj.v
+contra:
+  - get:
+    - jtcontra_gfx.v
+    - jtcontra_gfx_tilemap.v
+    - jtcontra_gfx_obj.v
 jtframe:
   - get: [ jtframe_ff.v ]
   - from: clocking
     get:
       - jtframe_cen48.v
       - jtframe_cen24.v
-      - jtframe_frac_cen.v
   - from: video
     get:
       - jtframe_vtimer.v
@@ -23,6 +21,3 @@ jtframe:
       - jtframe_dual_nvram.v
       - jtframe_prom.v
       - jtframe_obj_buffer.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v

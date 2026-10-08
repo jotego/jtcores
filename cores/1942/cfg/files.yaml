@@ -1,0 +1,35 @@
+1942:
+  - get:
+    - jt1942_sound.v
+    - jt1942_obj.v
+    - jt1942_objtiming.v
+    - jt1942_objram.v
+    - jt1942_objdraw.v
+    - jt1942_obj.v
+    - jt1942_sound.v
+    - jt1942_main.v
+    - jt1942_game.v
+    - jt1942_colmix.v
+    - jt1942_video.v
+gng:
+  - get:
+    - jtgng_video.yaml
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+jt12:
+  - get:
+    - jt49.yaml
+    - jt12_rst.v
+

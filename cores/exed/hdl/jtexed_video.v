@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-8-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-8-2021 */
 
 module jtexed_video #(
     parameter OBJW  = 14
@@ -97,16 +83,16 @@ localparam LAYOUT     = 11;
 
 localparam SCR_OFFSET = 2;
 
-localparam PROM_CHAR   = 3,
-           PROM_SCR1   = 5,
-           PROM_SCR2L4 = 4,
-           PROM_OBJ_LO = 6,
-           PROM_OBJ_HI = 7,
+localparam PROM_CHAR   = 4,
+           PROM_SCR1   = 6,
+           PROM_SCR2L4 = 5,
+           PROM_OBJ_LO = 7,
+           PROM_OBJ_HI = 8,
            PROM_PRIO   =11,
            PROM_SCR2L3 =10,
-           PROM_RED    = 0,
-           PROM_GREEN  = 1,
-           PROM_BLUE   = 2;
+           PROM_RED    = 1,
+           PROM_GREEN  = 2,
+           PROM_BLUE   = 3;
 
 wire [3:0] char_pxl;
 wire [7:0] obj_pxl;

@@ -1,0 +1,333 @@
+parse_args() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --corestamp)
+                if [ -z "$1" ]; then echo "Error: expecting word after --corestamp"; exit 1; fi
+                shift
+                CORESTAMP=$1;;
+            --credits)
+                MACROS="$MACROS NOSOUND MISTER_DEBUG_NOHDMI NOMAIN"
+                TARGET=mister;;
+            --def|-d)
+                shift
+                if [ ! -z "$1" ]; then
+                    MACROS="$1 $MACROS"
+                fi
+                ;;
+            --prog|-p) PROG=TRUE;;
+            --prog-only | -w)
+                PROG=TRUE
+                SKIP_COMPILE=TRUE;;
+            --quick|-q)
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X JTFRAME_NOSTA"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
+            -qs)
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS";;
+            --skip | -s) SKIP_COMPILE=TRUE;;
+            --quicker|-qq)
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC JTFRAME_NOSTA"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                TARGET=mister;;
+            -mr)
+                TARGET=mister;;
+            --mrpasswd)
+                shift
+                if [ -z "$1" ]; then echo "Error: expecting word after --mrpasswd"; exit 1; fi
+                MISTERPASSWD=$1;;
+            -mrq)
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC JTFRAME_NOSTA"
+                UNMACROS="$UNMACROS JTFRAME_CREDITS"
+                TARGET=mister;;
+            --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nocopy) NOCOPY=1;;
+            --nolinter) NOLINTER=1;;
+            --nosta) SKIPTIMING=1;;
+            --output)
+                shift
+                if [[ -z "$1" || "${1:0:1}" = - ]]; then echo "Error: expecting folder after --output"; exit 1; fi
+                OUTPUT_FOLDER=$1;;
+            --sim)   SIM=TRUE;;
+            --signaltap)
+                MACROS="$MACROS JTFRAME_SIGNALTAP"
+                SIGNALTAP=TRUE;;
+            --sd)
+                if [ "${2:0:1}" != - ]; then
+                    shift
+                    JTBIN2SD=$1
+                else
+                    JTBIN2SD=" "
+                fi;;
+            --showmacros) SHOWMACROS=1;;
+            --target|-t)
+                shift
+                if [[ ! -d "$JTFRAME/target/$1" || -z "$1" ]]; then
+                    echo "Target $1 does not exist in $JTFRAME/target"
+                    exit 1
+                fi
+                TARGET=$1;;
+            --seed)
+                shift
+                if [[ ! $1 =~ ^[0-9]+$ ]]; then
+                    echo "Error: use an integer after --seed"
+                    exit 1
+                fi
+                SEED=$1;;
+            --undef|-u)
+                shift
+                if [ -z "$1" ]; then echo "Error: expecting word after --undef"; exit 1; fi
+                UNMACROS="$1 $UNMACROS"
+                ;;
+            --verbose | -v)
+                VERBOSE=-v;;
+            --version)
+                cd $JTROOT; latest.sh
+                exit 0;;
+            --help | -h)
+                show_usage;;
+            *)  if [[ -z "$PRJ" && ${1:0:1} != - ]]; then
+                    PRJ=$1
+                elif [ -d "$JTFRAME/target/${1:1}" ]; then
+                    # the name is a valid target because there was a folder for it in $JTFRAME/target
+                    TARGET=${1:1}
+                else
+                    echo "Project name had already been defined to " $PRJ
+                    echo -e "${rBG}ERROR:${NC}${wBG} Unknown option ${red}$1${NC}";
+                    exit 1
+                fi
+                ;;
+        esac
+        shift
+    done
+}
+
+show_usage() {
+    cat << EOF
+JTCORE compilation tool
+usage: jtcore <corename> [options]
+
+Compile one core at a time. Use jtframe update for multi-core update flows.
+
+Common options:
+    --target | -t <target>   Select target platform
+    --def | -d <macro>       Define a Verilog macro
+    --undef | -u <macro>     Undefine a Verilog macro
+    --quick | -q             Faster build with reduced features
+    --quicker | -qq          Faster MiSTer-oriented build
+    --program | -p           Program the FPGA after the build
+    --skip | -s              Skip compilation and run the remaining steps
+    --output <folder>        Copy the compiled core under this output folder
+    --nocopy                 Skip copying the compiled core to the output folder
+    --signaltap              Merge syn/signaltap.qsf and enable SignalTap
+    --help | -h              Show this summary
+
+Use "man jtcore" for the full option reference.
+EOF
+   exit 0
+}
+
+
+lint_core() {
+	local core="$1"
+	local log=`mktemp`
+	local fail
+    # using sidi128 version to avoid linter error on MiSTer because of
+    # using PauloBlaze module (VHDL) and verilator not finding the module
+	if ! $JTFRAME/bin/lint-one.sh $core -sidi128 > /dev/null 2> $log; then
+		cat $log
+		fail=1
+	fi
+	if grep ^%Warning $log; then
+		cat $log
+		fail=1
+	fi
+	rm -f $log
+	if [ "$fail" = 1 ]; then
+		exit 1
+	fi
+}
+
+# Sets the commit string to a short commit and an optional -dirty suffix
+is_dirty() {
+    git status --short | grep -i "^ M " > /dev/null
+}
+
+escape_bars() {
+    echo ${1//\//\\/}
+}
+
+macros2def() {
+    local MM=""
+    for i in $MACROS; do
+        if [ -n "$MM" ]; then
+            MM="$MM,$i"
+        else
+            MM="$i"
+        fi
+    done
+    if [ ! -z "$MM" ]; then
+        MM="--def $MM"
+    fi
+    echo $MM
+}
+
+umacros2undef() {
+    local UM=""
+    for i in $UNMACROS; do
+        UM="$i,$UM"
+    done
+    if [ ! -z "$UM" ]; then
+        UM="--undef $UM"
+    fi
+    echo $UM
+}
+
+make_macros_env_vars() {
+    local macros
+    macros=`parse_macros bash`
+    if [ $? != 0 ]; then echo "Stopping at macro conversion"; exit 1; fi
+    eval "$macros"
+}
+
+parse_macros() {
+    if [ ! -z "$VERBOSE" ]; then
+        echo jtframe cfgstr $PRJ $NODBG --target=$TARGET `macros2def` `umacros2undef` --output $* > /dev/stderr
+    fi
+    jtframe cfgstr $PRJ $NODBG --target=$TARGET `macros2def` `umacros2undef` --output $*
+}
+
+# qsf line to disable SOUND synthesis
+# set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
+copy_templates() {
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf --target=$TARGET `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf --target=$TARGET `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
+    MACROS_FILE=$PRJPATH/cfg/macros.def
+    QSF=$BUILDDIR/$corename.qsf
+    # Add definitions in "macros" files
+    if [ -e $MACROS_FILE ]; then
+        echo >> $QSF # add blank line
+        (parse_macros quartus | sort >> $QSF) || exit $?
+        if [ -n "$SHOWMACROS" ]; then
+            gawk -f $JTFRAME/bin/jtmacros.awk target=$TARGET $MACROS_FILE
+            exit 0
+        fi
+        # Prepare config string
+        parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
+    fi
+}
+
+build_core_firmware() {
+    local core_path="$1"
+    local fw_dir="$core_path/firmware"
+    if [ -z "${JTFRAME_BUILD_FIRMWARE+x}" ]; then
+        return
+    fi
+    if [ ! -e "$fw_dir/Makefile" ]; then
+        echo -e "${rBG}ERROR:${NC}${wBG} JTFRAME_BUILD_FIRMWARE set but ${red}$fw_dir/Makefile${NC}${wBG} does not exist.${NC}"
+        exit 1
+    fi
+    make -C "$fw_dir" || exit $?
+}
+
+append_signaltap_qsf() {
+    local tap_qsf=$PRJPATH/syn/signaltap.qsf
+    if [[ "$SIGNALTAP" != TRUE && ! -v JTFRAME_SIGNALTAP ]]; then
+        return
+    fi
+    if [ ! -e "$tap_qsf" ]; then
+        echo -e "${rBG}ERROR:${NC}${wBG} SignalTap requested but ${red}$tap_qsf${NC}${wBG} does not exist.${NC}"
+        exit 1
+    fi
+    echo >> $QSF
+    echo "# Core SignalTap assignments" >> $QSF
+    echo "set_global_assignment -name ENABLE_SIGNALTAP ON" >> $QSF
+    cat "$tap_qsf" >> $QSF
+}
+
+append_if_exists() {
+    val=
+    while [ $# -gt 0 ]; do
+        if [ -e "$1" ]; then
+            val="$val $1"
+        fi
+        shift
+    done
+    echo $val
+}
+
+announce() {
+    if [ ! -z "$VERBOSE" ]; then echo "== $* =="; fi
+}
+
+is_mister_family() {
+    if [[ $TARGET = mister || $TARGET = sockit || $TARGET = de1soc || $TARGET = de10std ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# derive the default core name from the path
+get_corename_from_folder() {
+	local defprj
+	defprj=$(realpath . --relative-to=$CORES)
+	if [[ "$defprj" == ..* ]]; then
+		echo "Execute the program from a folder in $CORES" >&2
+		exit 1
+	fi
+	echo ${defprj%%/*}
+}
+
+report_sdc_problems() {
+    local rpt_files_path="$1"
+    local sta_rpt=$(find "$rpt_files_path" -name "*sta.rpt" | head -n 1)
+    if [ ! -e "$sta_rpt" ]; then
+        echo "Cannot find STA report file in $rpt_files_path"
+        exit 1
+    fi
+    report_unknown_clocks "$sta_rpt"
+    if is_using_cram "$sta_rpt"; then
+        report_cram_warnings "$sta_rpt"
+    fi
+}
+
+report_unknown_clocks() {
+    local rpt="$1"
+    grep -i "ignored.* -clock " "$rpt"
+}
+
+is_using_cram() {
+    local rpt="$1"
+    if grep -q 'No paths exist between clock target "cram0_clk"' "$rpt"; then
+        return 1
+    fi
+}
+
+report_cram_warnings() {
+    local rpt="$1"
+    grep -i "Warning.*cram.*" "$rpt"
+}
+
+worst_negative_sta_slack() {
+    local log="$1"
+    gawk '
+    match($0, /Worst-case.*slack[^-+0-9]*([-+]?[0-9]+(\.[0-9]+)?)/, m) {
+        slack = m[1] + 0
+        if (slack < 0 && (!found || slack < worst)) {
+            worst = slack
+            found = 1
+        }
+    }
+    END {
+        if (found) {
+            printf "%.3f\n", worst
+            exit 0
+        }
+        exit 1
+    }' "$log"
+}
+
+easy_sta_accepts() {
+    local slack="$1"
+    gawk -v slack="$slack" 'BEGIN { exit(slack >= -0.333 ? 0 : 1) }'
+}

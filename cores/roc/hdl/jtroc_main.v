@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-8-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-8-2022 */
 
 module jtroc_main(
     input               rst,
@@ -61,6 +47,8 @@ module jtroc_main(
 
     output    [ 7:0]    st_dout
 );
+
+`ifndef NOMAIN
 
 reg  [ 7:0] cabinet, cpu_din, vectors_dout;
 wire [ 7:0] ram_dout;
@@ -201,4 +189,15 @@ jtframe_sys6809 #(.RAM_AW(12),.KONAMI(1)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
+`else
+assign cpu_cen  = 1'b0;
+assign bus_addr = 11'd0;
+assign rom_addr = 16'd0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+assign st_dout  = 8'd0;
+initial begin
+    rom_cs=0; vram_cs=0; objram_cs=0; snd_latch=0; snd_on=0; mute=0; flip=0;
+end
+`endif
 endmodule

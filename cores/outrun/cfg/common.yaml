@@ -1,32 +1,28 @@
-game:
-  - from: outrun
-    get:
-      - jtoutrun_game.v
-      - jtoutrun_main.v
-      - jtoutrun_sub.v
-      - jtoutrun_video.v
-      - jtoutrun_road.v
-      - jtoutrun_snd.v
-      - jtoutrun_pcm.v
-      - jtoutrun_motor.v
-  - from: s16b
-    get:
-      - jts16b_mapper.v
-  - from: s16
-    get:
-      - jts16_cen.v
-      - jts16_fd1089.v
-      - jts16_fd1094.v
-      - jts16_fd1094_dec.v
-      - jts16_fd1094_ctrl.v
-      - tilemap.yaml
-      - ../syn/timing.sdc
+outrun:
+  - get:
+    - jtoutrun_game.v
+    - jtoutrun_main.v
+    - jtoutrun_sub.v
+    - jtoutrun_video.v
+    - jtoutrun_road.v
+    - jtoutrun_snd.v
+    - jtoutrun_pcm.v
+    - jtoutrun_motor.v
+s16b:
+  - get:
+    - jts16b_mapper.v
+s16:
+  - get:
+    - jts16_cen.v
+    - jts16_fd1089.v
+    - jts16_fd1094.v
+    - jts16_fd1094_dec.v
+    - jts16_fd1094_ctrl.v
+    - tilemap.yaml
+    - timing.sdc
 jtframe:
   - get:
       - jtframe_ff.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
   - from: ram
     get:
       - jtframe_dual_ram16.v
@@ -46,11 +42,5 @@ jtframe:
       - jtframe_vtimer.v
       - jtframe_blank.v
       - jtframe_linebuf.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
-      - jtframe_pole.v
-modules:
-  jt:
-    - name: jt8255
-    - name: jt51
+jt8255:
+jt51:

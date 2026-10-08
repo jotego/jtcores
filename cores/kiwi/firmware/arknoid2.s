@@ -21,9 +21,16 @@
 	RELAXED ON
 
 CMD	EQU	R4
-RDSEL  	EQU	R5
+REPORT 	EQU	R5
 OLDCOIN	EQU	R6
 CREDITS	EQU	R7
+
+COIN_A	EQU	$30
+CRED_A	EQU	$31
+COIN_B	EQU	$32
+CRED_B	EQU	$33
+COUNT_A	EQU	$34
+COUNT_B	EQU	$35
 
 TOMAIN  MACRO   VAL
 	MOV A,#VAL
@@ -74,7 +81,7 @@ $$LOOP:	MOV @R0,A
 	TOMAIN $AA
 
 	; Get 4 values for the coin settings
-	MOV R0,#$30
+	MOV R0,#COIN_A
 	MOV R1,#4
 COINAGE:
 	READDB
@@ -86,10 +93,18 @@ COINAGE:
 	TOMAIN $5A	; final initialization signal
 
 	MOV CREDITS,#0
+	MOV REPORT,#0
+	; Poll the coin switches independently from the Z80's C1 command.
+	; The timer overflow throttles this polling and gives short pulses a
+	; chance to be latched without keeping the status code asserted.
+	MOV A,#211
+	MOV T,A
+	STRT T
 	; infinite loop to read cabinet inputs
 L:  	JOBF L2
 	JMP CKCMD
-L2:	JNIBF L
+L2:	CALL RDCOINS
+	JNIBF L
 	IN A,DBB
 	JF1 A1WR
 	; check if command is 41
@@ -106,11 +121,12 @@ L2:	JNIBF L
 A1WR:
 	CLR F1
 	MOV CMD,A
-	; If CMD=C1, set the read port selection to zero
+	; If CMD=C1, return credits and consume one latched coin report
 	ADD A,#$3F	; -$C1
 	JNZ CK15
-	MOV RDSEL,#0
-	CALL RDCOINS	; Update STS with coin information
+	MOV A,REPORT
+	MOV STS,A
+	MOV REPORT,#0
 	MOV A,CREDITS
 	OUT DBB,A
 	JMP L
@@ -124,6 +140,10 @@ CK15:	; if CMD=15, decrement the credits by 1
 	JMP L
 
 CKCMD:	; output buttons, all inactive for now
+	; A coin report belongs to one C1 reply only.  Clearing the status
+	; here prevents a stale coin code from being counted more than once.
+	MOV A,#0
+	MOV STS,A
 	MOV A,#4
 	OUTL P2,A
 	IN A,P1
@@ -142,26 +162,89 @@ CKCMD:	; output buttons, all inactive for now
 	JMP L
 
 RDCOINS:
+	; The timer keeps this independent from C1 but avoids re-sampling on
+	; every pass through the UPI-41 wait loop.
+	MOV A,T
+	JNZ COINDONE
+
 	MOV A,#0
 	JNT0 T0C	; T0/1 high when coin is held
 	ORL A,#0x10
 T0C:	JNT1 T1C
 	ORL A,#0x20
-T1C:	MOV R0,A	; save the new coins
-	JZ NOCOINS
-	XRL A,OLDCOIN
-	JZ NOCOINS
-	MOV A,CREDITS
-	ADD A,#$F7
-	JC NOCOINS	; Do not pass 9 credits
-	INC CREDITS
-	MOV A,R0
-	MOV STS,A
+T1C:	MOV R2,A	; preserve the new coin switches across the coinage calls
+
+	; Each slot is edge-triggered independently.  If both switches close
+	; together, report coin A (the same priority as the MAME model) while
+	; crediting both slots.
+	MOV A,R2
+	ANL A,#$10
+	JZ CKB
+	MOV A,OLDCOIN
+	ANL A,#$10
+	JNZ CKB
+	CALL ADDA
+CKB:	MOV A,R2
+	ANL A,#$20
+	JZ SAVEC
+	MOV A,OLDCOIN
+	ANL A,#$20
+	JNZ SAVEC
+	CALL ADDB
+SAVEC:
+	MOV A,R2
 	MOV OLDCOIN,A
+
+COINDONE:
 	RET
-NOCOINS:
-	MOV A,R0
-	MOV OLDCOIN,A
+
+ADDA:	MOV REPORT,#$10
+	MOV R0,#COUNT_A
+	MOV A,@R0
+	INC A
+	MOV @R0,A
+	MOV R1,A
+	MOV R0,#COIN_A
+	MOV A,@R0
+	XRL A,R1
+	JNZ ADONE
+	MOV R0,#COUNT_A
 	MOV A,#0
-	MOV STS,A	; No activity to report
+	MOV @R0,A
+	MOV R0,#CRED_A
+	MOV A,@R0
+	CALL ADDCRED
+ADONE:	RET
+
+ADDB:	MOV A,REPORT
+	JNZ BCOUNT
+	MOV REPORT,#$20
+BCOUNT:	MOV R0,#COUNT_B
+	MOV A,@R0
+	INC A
+	MOV @R0,A
+	MOV R1,A
+	MOV R0,#COIN_B
+	MOV A,@R0
+	XRL A,R1
+	JNZ BDONE
+	MOV R0,#COUNT_B
+	MOV A,#0
+	MOV @R0,A
+	MOV R0,#CRED_B
+	MOV A,@R0
+	CALL ADDCRED
+BDONE:	RET
+
+ADDCRED:
+	MOV R1,A
+	MOV A,CREDITS
+	ADD A,R1
+	MOV R1,A
+	ADD A,#$F7
+	JNC ADDOK
+	MOV CREDITS,#9
+	RET
+ADDOK:	MOV A,R1
+	MOV CREDITS,A
 	RET

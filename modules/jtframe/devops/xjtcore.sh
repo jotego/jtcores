@@ -35,14 +35,14 @@ ls -l $JTUTIL/beta.bin
 if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
     # Beta key is enabled for cores listed in beta.yaml
     for TARGET in $*; do
-        if jtframe cfgstr $CORENAME --target=$TARGET --output bash | grep JTFRAME_SKIP; then
+        if jtframe cfgstr $CORENAME --target=$TARGET --output bash | grep -q '^export JTFRAME_SKIP='; then
             echo "Skipping $CORENAME for $TARGET because of JTFRAME_SKIP"
             continue
         fi
         if [ $TARGET != pocket ]; then SKIPPOCKET=--skipPocket; else unset SKIPPOCKET; fi
         jtframe mra $NODBG --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
-        jtseed 6 $CORENAME -$TARGET $NODBG
+        jtutil seed --max-trials 4 $CORENAME -$TARGET $NODBG --nolinter
         # recover hard disk space
         rm -rf $CORES/$CORENAME/$TARGET
     done

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-4-2022 */
 
 module jtvigil_main(
     input              clk,
@@ -69,7 +55,7 @@ reg         rst_n, ram_cs, dip1_cs, dip2_cs,
             out2_cs, bank_cs,
             scr1pos_cs, scr2pos_cs, scr2col_cs;
 reg         flipr;
-wire        rd_n, wr_n, mreq_n, iorq_n;
+wire        rd_n, wr_n, mreq_n, rfsh_n, iorq_n;
 wire        int_n;
 
 assign main_rnw = wr_n;
@@ -80,11 +66,11 @@ always @(posedge clk) rst_n <= ~rst;
 
 always @* begin
     // Memory mapped
-    rom_cs  = !mreq_n && ( !A[15] || A[15:14]==2'b10 ); // 16kB Banks x 8 = 128
-    ram_cs  = !mreq_n && A[15:12]==4'he;
-    scr_cs  = !mreq_n && A[15:12]==4'hd;
-    pal_cs  = !mreq_n && A[15:11]==5'b11001; // C8
-    obj_cs  = !mreq_n && A[15:11]==5'b11000 && !wr_n; // C0
+    rom_cs  = !mreq_n && rfsh_n && ( !A[15] || A[15:14]==2'b10 ); // 16kB Banks x 8 = 128
+    ram_cs  = !mreq_n && rfsh_n && A[15:12]==4'he;
+    scr_cs  = !mreq_n && rfsh_n && A[15:12]==4'hd;
+    pal_cs  = !mreq_n && rfsh_n && A[15:11]==5'b11001; // C8
+    obj_cs  = !mreq_n && rfsh_n && A[15:11]==5'b11000 && !wr_n; // C0
     // IO mapped
     in0_cs  = !iorq_n && !rd_n && A[2:0]==0;
     in1_cs  = !iorq_n && !rd_n && A[2:0]==1;
@@ -166,7 +152,7 @@ jtframe_sysz80 #(
     .iorq_n     ( iorq_n    ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),

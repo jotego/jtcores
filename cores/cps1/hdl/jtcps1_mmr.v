@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-1-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-1-2020 */
 
 
 // This module represents the register logic of both CPS-A and CPS-B chips
@@ -314,7 +300,8 @@ initial begin
     // layer_ctrl     = {2'b0, 2'd0,2'd3,2'd1,2'd2,6'h1f}; // no carrier
     //layer_ctrl     = {  8'b01_00_10_11 , 6'b011010 };
     //layer_ctrl     = {  8'b01_10_00_11 , 6'b011010 }; // works
-    obj_dma_ok = 1'b1; // so data is copied at the beginning of sim.
+    pal_copy   = 1'b1; // so the scene palette is copied at the beginning of sim.
+    obj_dma_ok = 1'b1; // so the scene object table is copied at the beginning of sim.
 end
 assign reg_rst = 1'b0;  // reset is skipped for this type of simulation
 `else

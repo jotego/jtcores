@@ -2,25 +2,20 @@ name: Cores affected
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: rebuild
-  push:
-    branches:
-      - master
-  schedule:
-    - cron: '0 0 * * *' # runs every night
+  workflow_call:
 jobs:
   check_cores:
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v6
       with:
         go-version: '1.21.3'
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+        fetch-depth: 50
     - id: files
       name: filechange.sh
       env:
@@ -29,5 +24,5 @@ jobs:
         . setprj.sh
         jtframe
         echo "Cores affected (if any):"
-        filechange.sh `git log --since="1 day ago" --pretty=format:"%H" | tr "\n" " "`
-
+        REFCOMMIT=`git log --since="1 day ago" --pretty=format:"%H" | tr "\n" " "`
+        filechange.sh $REFCOMMIT

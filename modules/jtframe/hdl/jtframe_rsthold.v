@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-2-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-2-2024 */
 
 module jtframe_rsthold(
     input      rst,
@@ -31,14 +17,21 @@ module jtframe_rsthold(
 `endif    
 );
 
-always @(negedge clk)   rst_h   <= rst   || hold;
+always @(posedge clk) begin
+    rst_h <= rst || hold;
+end
 
 reg hold24;
-always @(posedge clk24) hold24  <= hold;
-always @(negedge clk24) rst24_h <= rst24 || hold24;
+always @(posedge clk24) begin
+    hold24  <= hold;
+    rst24_h <= rst24 || hold24;
+end
 `ifdef JTFRAME_CLK48
 reg hold48;
-always @(posedge clk48) hold48  <= hold;
-always @(negedge clk48) rst48_h <= rst48 || hold48; `endif
+always @(posedge clk48) begin
+    hold48  <= hold;
+    rst48_h <= rst48 || hold48;
+end
+`endif
 
 endmodule

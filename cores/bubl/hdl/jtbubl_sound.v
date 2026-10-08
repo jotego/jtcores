@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 02-06-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 02-06-2020 */
 
 module jtbubl_sound(
     input             rst,    // System reset
@@ -42,17 +28,18 @@ module jtbubl_sound(
     input         [ 7:0] debug_bus
 );
 
+`ifndef NOSOUND
+
 wire        [15:0] A;
 wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
-reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en;
-wire               mreq_n, rfsh_n;
+reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en, macc_n;
+wire               mreq_n, rfsh_n, nmi_n;
 reg         [ 7:0] din;
 wire        [ 9:0] pre_psg;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
-wire               nmi_n;
 wire               snd_rstn = ~rst & rstn;
 
 assign int_n      = intn_fm0 & intn_fm1;
@@ -64,16 +51,17 @@ always @(posedge clk) psg <= tokio ? pre_psg>>2 : pre_psg;
 
 
 always @(*) begin
-    rom_cs = !mreq_n && !A[15];
-    ram_cs = !mreq_n &&  A[15] && A[14:12]==3'b00;
+    macc_n =  mreq_n | ~rfsh_n;
+    rom_cs = !macc_n && !A[15];
+    ram_cs = !macc_n &&  A[15] && A[14:12]==3'b00;
     if( tokio ) begin
-        fm0_cs = !mreq_n && A[15:12]==4'b1011; // YM2203
+        fm0_cs = !macc_n && A[15:12]==4'b1011; // YM2203
         fm1_cs = 0;
-        io_cs  = !mreq_n && (A[15:12]==4'b1001 || A[15:12]==4'b1010);
+        io_cs  = !macc_n && (A[15:12]==4'b1001 || A[15:12]==4'b1010);
     end else begin
-        fm0_cs = !mreq_n && A[15] && A[14:12]==3'b01; // YM2203
-        fm1_cs = !mreq_n && A[15] && A[14:12]==3'b10; // OPL
-        io_cs  = !mreq_n && A[15] && A[14:12]==3'b11;
+        fm0_cs = !macc_n && A[15] && A[14:12]==3'b01; // YM2203
+        fm1_cs = !macc_n && A[15] && A[14:12]==3'b10; // OPL
+        io_cs  = !macc_n && A[15] && A[14:12]==3'b11;
     end
 end
 
@@ -150,7 +138,7 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .iorq_n     (             ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
@@ -161,19 +149,6 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( 1'b1        )   // SDRAM gating managed in mem.yaml
 );
-
-// always @(posedge clk) begin
-//     if( tokio ) begin
-//         fm0_gain <= 8'h20;      // YM2203
-//         fm1_gain <= 8'h40;      // YM3526
-//         psg_gain <= 8'h02;
-//     end else begin
-//         // Both FM chips have the same gain according to the schematics
-//         fm1_gain <= 8'h10;      // YM2203 FX
-//         fm1_gain <= 8'h08;      // YM3526 music
-//         psg_gain <= 8'h10;      // seems unused in Bubble Bobble
-//     end
-// end
 
 jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~snd_rstn  ),
@@ -215,5 +190,19 @@ jtopl u_opl(
     .snd        ( fm26       ),
     .sample     (            )
 );
+
+`else
+assign snd_flag = 1'b0;
+assign rom_addr = 15'd0;
+assign fm03     = 16'sd0;
+assign fm26     = 16'sd0;
+
+initial begin
+    main_latch = 8'd0;
+    main_stb   = 1'b0;
+    rom_cs     = 1'b0;
+    psg        = 10'd0;
+end
+`endif
 
 endmodule

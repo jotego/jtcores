@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-1-2018 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-1-2018 */
 
 // Each read takes 8 clock cycles
 // clk should be 8*clk_slow
@@ -143,7 +129,7 @@ end
 reg refresh_cycle;
 reg [1:0] refresh_sr;
 
-`ifdef JTFRAME_CLK96
+`ifdef JTFRAME_SDRAM96
 // 96 MHz operation
 localparam [ 7:0] ST_ZERO   = 8'h1, ST_ONE = 8'h2, ST_TWO = 8'h4, ST_THREE = 8'h8, ST_FIVE = 8'h20, ST_SIX = 8'h40;
 localparam [ 7:0] ST_NOP    = 8'b1111_1010;

@@ -4,6 +4,8 @@ OTHER=
 SCENE=
 BATCH=
 CRC=
+FULLOBJ=
+FSIZE=$(wc -c <"rest.bin")
 
 while [ $# -gt 0 ]; do
     case $1 in
@@ -23,7 +25,11 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-dump_split.sh --scene "$SCENE" --nvram
+if [[ $FSIZE -gt 0x70A0 ]]; then
+    FULLOBJ="--fullobj"
+fi
+
+dump_split.sh --scene "$SCENE" --nvram $FULLOBJ
 
 jtsim $OTHER
 

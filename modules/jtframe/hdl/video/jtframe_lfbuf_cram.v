@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-10-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-10-2022 */
 
 // Frame buffer built on top of two line buffers
 // the frame is stored in two PSRAM chips
@@ -23,24 +9,33 @@
 module jtframe_lfbuf_cram #(parameter
     DW      =  16,
     VW      =   8,
-    HW      =   9
+    HW      =   9,
+    FW      =   8
 )(
     input               rst,     // hold in reset for >150 us
     input               clk,
+    input               clk48,
     input               pxl_cen,
 
     // video status
     input      [VW-1:0] vrender,
     input      [HW-1:0] hdump,
+    input               hs,
     input               vs,
     input               lhbl,
     input               lvbl,
+
+    // zoom step in 1.FW fixed-point
+    input      [FW:0]   h_step,
+    input      [FW:0]   v_step,
 
     // core interface
     input      [HW-1:0] ln_addr,
     input      [DW-1:0] ln_data,
     input               ln_done,
-    output              ln_hs,
+    input               fb_keep,
+    output              ln_hs, ln_vs, ln_lvbl,
+    output     [DW-1:0] ln_dout,
     output     [DW-1:0] ln_pxl,
     output     [VW-1:0] ln_v,
     input               ln_we,
@@ -58,22 +53,32 @@ module jtframe_lfbuf_cram #(parameter
     output              cr_wen
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we;
+wire          frame, fb_clr, fb_done, line, scr_we, fb_blank, pxl48_cen;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
+wire [VW-1:0] vread;
+
+jtframe_crossclk_cen u_crosscen(
+    .clk_in     ( clk       ),    // fast clock
+    .cen_in     ( pxl_cen   ),
+    .clk_out    ( clk48     ),    // slow clock
+    .cen_out    ( pxl48_cen )
+);
 
 jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .clk        ( clk48     ),
+    .pxl_cen    ( pxl48_cen ),
 
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
     .ln_done    ( ln_done   ),
+    .fb_keep    ( fb_keep   ),
     .vrender    ( vrender   ),
     .ln_v       ( ln_v      ),
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),
@@ -102,23 +107,35 @@ jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
 jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .clk_ctrl   ( clk48     ),
     .pxl_cen    ( pxl_cen   ),
     // video status
     .vrender    ( vrender   ),
+    .vread      ( vread     ),
     .hdump      ( hdump     ),
+    .hs         ( hs        ),
+    .lhbl       ( lhbl      ),
     .vs         ( vs        ),   // vertical sync, the buffer is swapped here
     .lvbl       ( lvbl      ),   // vertical blank, active low
+
+    // zoom step
+    .h_step     ( h_step    ),
+    .v_step     ( v_step    ),
 
     // core interface
     .ln_hs      ( ln_hs     ),
     .ln_v       ( ln_v      ),
+    .ln_vs      ( ln_vs     ),
+    .ln_lvbl    ( ln_lvbl   ),
     .ln_addr    ( ln_addr   ),
     .ln_data    ( ln_data   ),
     .ln_we      ( ln_we     ),
+    .ln_dout    ( ln_dout   ),
     .ln_pxl     ( ln_pxl    ),
 
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),

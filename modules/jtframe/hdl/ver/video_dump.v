@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-9-2021 */
 
 ////////////////////////////////////////////////////////////////////
 // video output dump
@@ -31,11 +17,10 @@ module video_dump(
     input        pxl_cen,
     input        pxl_hb,
     input        pxl_vb,
-    input [ 3:0] red,
-    input [ 3:0] green,
-    input [ 3:0] blue,
+    input [ 7:0] red,
+    input [ 7:0] green,
+    input [ 7:0] blue,
     input [31:0] frame_cnt
-    //input        downloading
 );
 
 
@@ -57,7 +42,7 @@ initial begin
     fvideo = $fopen(`DUMP_VIDEO_FNAME,"wb");
 end
 
-wire [31:0] video_dump = { 8'hff, {2{blue}}, {2{green}}, {2{red}} };
+wire [31:0] video_dump = { 6'h0,last_vb,last_hb, blue, green, red };
 
 // Define VIDEO_START with the first frame number for which
 // video will be dumped. If undefined, it will start from frame 0
@@ -76,7 +61,7 @@ always @(posedge pxl_clk) if( pxl_cen && hvinfo_done<1 ) begin
         vcnt<=0;
         if( hvinfo_done==0 && vcnt>0 && hcnt>0 ) begin
             finfo  = $fopen("video.info","w");
-            $fdisplay( finfo, "1%d\n%1d\n", hcnt, vcnt );
+            $fdisplay( finfo, "%1d\n%1d\n", hcnt, vcnt );
             $display( "Visible screen size: %1dx%1d\n", hcnt, vcnt );
             $fclose(finfo);
             hvinfo_done <= 1;

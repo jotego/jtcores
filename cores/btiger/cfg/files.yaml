@@ -1,0 +1,32 @@
+btiger:
+  - get:
+    - jtbtiger_main.v
+    - jtbtiger_game.v
+    - jtbtiger_video.v
+    - jtbtiger_mcu.v
+    - jtbtiger_colmix.v
+    - jtbtiger_scroll.v
+gng:
+  - get:
+    - jtgng_video.v
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
+    - jtgng_colmix.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_8751.yaml
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+jt12:
+  - get:
+    - jt12_rst.v

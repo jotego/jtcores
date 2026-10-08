@@ -3,12 +3,14 @@ params:
   - { name: SCR_OFFSET, value: "32'h4000" }
 clocks:
   clk24:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen_mcu
         - cen_nc
-    - freq: 3000000
+    - freq: 6M
+      gate: [ snd ]
       outputs:
+        - cen6
         - cen_opl
         - cen_opn
 audio:
@@ -25,6 +27,7 @@ sdram:
         - name: main
           data_width: 16
           addr_width: 19
+          cache_size: 1kB
     - buses:
         - name: snd
           data_width: 8
@@ -54,20 +57,26 @@ bram:
   - name: vram
     data_width: 16
     addr_width: 11
-    sim_file: true
+    simfile: {}
+
+    ioctl: { save: true, order: 0 }
     dual_port: { name: main, we: vram_we, rw: true }
 
   - name: scrram
     data_width: 16
     addr_width: 11
-    sim_file: true
+    simfile: {}
+
+    ioctl: { save: true, order: 1 }
     dual_port: { name: main, we: scrram_we, rw: true }
 
   - name: objram
     data_width: 16
     addr_width: 12
     addr: dma_addr
-    sim_file: true
+    simfile: {}
+
+    ioctl: { save: true, order: 2 }
     dual_port: { name: main, we: objram_we, rw: true }
 
   - name: objbuf
@@ -79,5 +88,5 @@ bram:
   # - name: objram
   #   data_width: 16
   #   addr_width: 12
-  #   sim_file: true
+  #   simfile: {}
   #   dual_port: { name: main, cs: objram_cs, rw: true, dmacopy: true }

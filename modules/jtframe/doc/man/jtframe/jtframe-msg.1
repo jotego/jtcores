@@ -1,0 +1,49 @@
+.TH JTFRAME-MSG 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-msg \- generate a pause-screen message from \fBcfg/msg\fR
+.SH SYNOPSIS
+.B jtframe msg
+.RI "<core-name> [flags]"
+.SH DESCRIPTION
+\fBjtframe msg\fR
+parses the core's
+\fBcfg/msg\fR
+file and generates
+\fBmsg.hex\fR
+and
+\fBmsg.bin\fR
+for the pause or credits screen used when
+\fBJTFRAME_CREDITS\fR
+is enabled.
+.SS Message Rules
+.IP \[bu] 2
+Lines cannot be longer than 32 characters.
+.IP \[bu] 2
+Four colours are available:
+red, green, blue, and white.
+Each line starts in white.
+.IP \[bu] 2
+Colour changes use the escapes
+\fB\\R\fR,
+\fB\\G\fR,
+\fB\\B\fR,
+and
+\fB\\W\fR.
+.IP \[bu] 2
+\fB\\D\fR
+is replaced by the current date in year-month-day format.
+.IP \[bu] 2
+\fB\\C\fR
+is replaced by the string passed in the
+\fB--commit\fR
+argument when that flow is used.
+.SH FLAGS
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-cfgstr (1)

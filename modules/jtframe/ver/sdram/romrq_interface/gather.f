@@ -1,0 +1,10 @@
+$JTFRAME/hdl/sdram/jtframe_romrq.v
+$JTFRAME/hdl/sdram/jtframe_romrq_bcache.v
+$JTFRAME/hdl/sdram/jtframe_romrq_lcache.v
+$JTFRAME/hdl/ram/jtframe_rpwp_ram.v
+$JTFRAME/hdl/sdram/jtframe_sdram64.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_latch.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_init.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_rfsh.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_bank.v
+$JTFRAME/hdl/ver/mt48lc16m16a2.v

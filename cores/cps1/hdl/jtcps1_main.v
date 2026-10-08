@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-1-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-1-2020 */
 
 module jtcps1_main(
     input              rst,
@@ -93,6 +79,8 @@ module jtcps1_main(
     `endif
 );
 
+`ifndef NOMAIN
+
 wire [23:1] A;
 wire        BERRn = 1'b1;
 
@@ -107,6 +95,7 @@ reg         io_cs, joy_cs, eeprom_cs,
 reg         dsn_dly;
 
 reg         sys_sel;
+wire        ok_dly;
 `ifdef CPS15
 reg         io15_cs, joy3_cs, joy4_cs;
 `else
@@ -316,8 +305,10 @@ always @(posedge clk) begin
 `ifdef CPS15
     if( joy_cs ) begin
         sys_data     <= { joystick2[7:0], joystick1[7:0] };
-        sys_data[7]  <= joystick3[6]; // button 3
-        sys_data[15] <= joystick4[6]; // button 3
+        if(!charger) begin
+            sys_data[7]  <= joystick3[6]; // button 3
+            sys_data[15] <= joystick4[6]; // button 3
+        end
     end else if( joy3_cs )
         sys_data <= { 2{cab_1p[2], coin[2], joystick3[5:0] }};
     else if( joy4_cs )
@@ -386,17 +377,28 @@ wire       bus_cs =   |{
     main2qs_cs,
 `endif
     rom_cs, ram_cs, vram_cs };
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs | vram_cs };
+assign ok_in = { rom_ok, ram_ok };
 
 wire       bus_busy = |{
 `ifdef CPS15
     main2qs_cs & ~main2qs_waitn,
 `endif
-    rom_cs & ~rom_ok,
-    (ram_cs|vram_cs) & ~ram_ok };
+    rom_cs & ~ok_dly,
+    (ram_cs|vram_cs) & ~ok_dly };
 //                          wait_cycles[0] };
 wire       DTACKn;
 reg        last_LVBL;
 wire       dtack_clr;
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 `ifdef CPS15
     reg qs_busakn_s;
@@ -426,6 +428,7 @@ jtframe_68kdtack_cen #(.MFREQ(48000),.WAIT1(1)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn | dtack_clr ),
     .DSn        ( {UDSn, LDSn} ),
     .num        ( cen_num  ),
@@ -557,6 +560,40 @@ always @(posedge cpu_cen) begin
 end
 
 `endif
+`endif
+
+`else
+
+assign cen10   = 1'b0;
+assign cen10b  = 1'b0;
+assign cpu_cen = 1'b0;
+assign UDSWn   = 1'b1;
+assign LDSWn   = 1'b1;
+assign busack  = 1'b1;
+assign RnW     = 1'b1;
+assign addr    = 17'd0;
+assign cpu_dout = 16'd0;
+assign fave    = 16'd0;
+
+initial begin
+    ppu1_cs   = 1'b0;
+    ppu2_cs   = 1'b0;
+    ppu_rstn  = 1'b1;
+    snd_latch0 = 8'd0;
+    snd_latch1 = 8'd0;
+    ram_cs    = 1'b0;
+    vram_cs   = 1'b0;
+    rom_cs    = 1'b0;
+    rom_addr  = 21'd0;
+    `ifdef CPS15
+    eeprom_sclk = 1'b0;
+    eeprom_sdi  = 1'b0;
+    eeprom_scs  = 1'b0;
+    main2qs_addr = 23'd0;
+    main2qs_cs   = 1'b0;
+    `endif
+end
+
 `endif
 
 endmodule

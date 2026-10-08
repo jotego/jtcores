@@ -1,0 +1,19 @@
+prmr:
+  - get:
+    - "*.v"
+riders:
+  - get:
+    - common.yaml
+    - jtriders_obj.v
+    - jtriders_colmix.v
+    - jt053244.sv
+    - jt053244_scan.sv
+rungun:
+  - get:
+    - jt053936.v
+    - jtrungun_sound.v
+jtframe:
+  - get:
+    - jtframe_toggle.v
+    - jtframe_8bit_reg.v
+jt539:

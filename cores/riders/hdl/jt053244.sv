@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-7-2023 */
 
 module jt053244(    // sprite logic
     input             rst,
@@ -53,7 +39,7 @@ module jt053244(    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    input             vs,
+    input             lvbl,
     input             hs,
 
     // shadow
@@ -70,6 +56,8 @@ module jt053244(    // sprite logic
     output     [ 7:0] st_dout
 );
 
+parameter HFLIP_OFFSET = 0;
+
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
                  REG_CFG   = 2; // interrupt control, ROM read
@@ -80,7 +68,7 @@ wire [11:2] scan_addr;
 wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
 wire [ 7:0] cfg;
-wire        dma_wel, dma_weh, dma_trig, vb_rd,
+wire        dma_wel, dma_weh, dma_trig, vb_rd, nc,
             cpu_bsy, ghf, gvf, mode8, dma_en, flicker;
 
 
@@ -91,7 +79,8 @@ assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = cs && cpu_addr[2:1]==3;
 
-jt053244_scan u_scan(
+jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET)
+    )u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
     .code      ( code       ),
@@ -130,7 +119,7 @@ jt053246_dma u_dma(
     .simson     ( 1'b0      ),
 
     .hs         ( hs        ),
-    .vs         ( vs        ),
+    .lvbl       ( lvbl      ),
 
     // External RAM
     .dma_addr   ( dma_addr  ), // up to 16 kB
@@ -157,7 +146,7 @@ jt053246_mmr u_mmr(
     .cfg        ( cfg       ),
     .xoffset    ( xoffset   ),
     .yoffset    ( yoffset   ),
-    .rmrd_addr  ( rmrd_addr ),
+    .rmrd_addr  ({nc,rmrd_addr}),
     .st_addr    ( st_addr   ),
     .st_dout    ( st_dout   )
 );

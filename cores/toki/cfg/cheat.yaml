@@ -1,0 +1,10 @@
+# MAME v1 cheats for Cabal. RAM_OFFSET maps the main RAM to bank 0, byte 0x100000.
+cabal:
+  - name: finish-level
+    mame: "Finish Current Level Now!"
+    sdram:
+      - { bank: 0, offset: 0x100049, byte-mask: 0x01, data: 0x01 }
+  - name: destroy-boss
+    mame: "Destroy Boss Now!"
+    sdram:
+      - { bank: 0, offset: 0x100049, byte-mask: 0x01, data: 0x05 }

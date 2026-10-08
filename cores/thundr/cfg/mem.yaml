@@ -1,0 +1,150 @@
+params:
+  - { name: EXT_OFFSET,  value: "`EXT_START>>1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR1_OFFSET, value: "(`SCR1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: MCU_OFFSET,  value: "(`MCUSUB_START-`JTFRAME_BA3_START)>>1" }
+clocks:
+  clk48:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 6k
+      outputs:
+        - cen_pcm
+    - freq: 3072k
+      outputs:
+        - cen_c30
+audio:
+  rsum: 18k
+  gain: 1.99 # See issue 1275
+  channels:
+    - { name: fm, module: jt51, rsum: 4.7k, rc: [{ r: 1rout, c: 2.2n }], pre: 0.5 } # it should be pre=2.2
+    # to do: variable gain for PCM
+    - { name: pcm0, data_width: 12, rsum: 2k, fir: fir_192k_4k.csv, vpp: 5.0, pre: 1.0 }
+    - { name: pcm1, data_width: 12, rsum: 2k, fir: fir_192k_4k.csv, vpp: 5.0, pre: 1.0 }
+    - { name: cus30, module: jtcus30, rsum: 6.8k }
+ports:
+  - { name: bdout, msb:  7, lsb: 0 }
+  - { name: baddr, msb: 12, lsb: 0 }
+  - { name: vtxta, msb: 12, lsb: 1 }
+  - { name: metrocrs }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+      - name: ext   # sound extension board on some games
+        addr_width: 18
+        data_width: 8
+        offset: EXT_OFFSET
+    - buses:
+      - name: txt       # Metro Cross text layer
+        addr_width: 13
+        data_width: 16
+        gfx_sort: hvvv
+        gfx_sort_en: metrocrs
+      - name: snd
+        addr_width: 16
+        data_width: 8
+      - name: pcm0
+        addr_width: 19
+        data_width: 8
+        offset: PCM_OFFSET
+      - name: pcm1
+        addr_width: 19
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: scr0a
+        addr_width: 17
+        data_width: 32
+      - name: scr0b
+        addr_width: 17
+        data_width: 32
+      - name: scr1a
+        addr_width: 16
+        data_width: 32
+        offset: SCR1_OFFSET
+      - name: scr1b
+        addr_width: 16
+        data_width: 32
+        offset: SCR1_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 20
+        data_width: 32
+      - name: mcusub
+        addr_width: 15
+        data_width: 8
+        offset: MCU_OFFSET
+bram:
+  # PROM order here must match the MRA order
+  - name: mcu
+    addr_width: 12
+    data_width: 8
+    prom: true
+  - name: scrpal # 4V
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: objpal # 5V
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: rgpal # 3R
+    addr_width: 9
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: bpal # 3S
+    addr_width: 9
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: dec0 # 6U
+    addr_width: 5
+    data_width: 8
+    prom: true
+  - name: dec1 # 6U (copy)
+    addr_width: 5
+    data_width: 8
+    prom: true
+  # Tile maps
+  - name: vram0 # CUS42 tilemap RAM -> gfx1
+    addr_width: 13
+    data_width: 16
+    simfile: {}
+    dual_port:
+      name: sh0
+      addr: baddr[12:1]
+      din:  "{2{bdout}}"
+      rw:   true
+    ioctl: { save: true, order: 0 }
+  - name: vram1 # CUS42 tilemap RAM -> gfx2
+    addr_width: 13
+    data_width: 16
+    simfile: {}
+    dual_port:
+      name: sh1
+      addr: vtxta
+      din:  "{2{bdout}}"
+      rw:   true
+    ioctl: { save: true, order: 1 }
+  # Objects
+  - name: oram
+    addr_width: 13
+    data_width: 16
+    rw: true
+    dual_port:
+      name: osh
+      addr: baddr[12:1]
+      din:  "{2{bdout}}"
+      rw:   true
+    ioctl: { save: true, order: 2 }
+  # sound RAM connected to cus30
+  - name: sndram
+    rw: true
+    addr_width: 12
+    data_width: 8

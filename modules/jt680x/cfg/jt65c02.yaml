@@ -1,0 +1,8 @@
+jt680x:
+  - get:
+    - jt65c02_alu.v
+    - jt65c02_ctrl.v
+    - jt65c02_regs.v
+    - jt65c02.v
+    ucode:
+      src: "65c02.yaml"

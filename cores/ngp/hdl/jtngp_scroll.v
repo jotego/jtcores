@@ -1,24 +1,9 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. https://patreon.com/jotego
-    Version: 1.0
-    Date: 23-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-3-2022 */
 
 module jtngp_scr #( parameter
-    SIMFILE_LO = "scr1_lo.bin",
-    SIMFILE_HI = "scr1_hi.bin"
+    SIMFILE = "scr1.bin"
 )(
     input             rst,
     input             clk,
@@ -65,9 +50,8 @@ always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { cpu_addr, cpu_dout & {{8{w
 `endif
 // 2048 bytes = 32x32 characters
 jtframe_dual_ram16 #(
-    .AW         (  10         ),
-    .SIMFILE_LO ( SIMFILE_LO  ),
-    .SIMFILE_HI ( SIMFILE_HI  )
+    .AW      (  10      ),
+    .SIMFILE ( SIMFILE  )
 ) u_ram(
     // Port 0
     .clk0   ( clk       ),

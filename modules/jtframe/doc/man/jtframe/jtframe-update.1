@@ -1,0 +1,117 @@
+.TH JTFRAME-UPDATE 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-update \- update compiled outputs or CI files
+.SH SYNOPSIS
+.B jtframe update
+.RI "[--cores] core1,core2,... <--target mist|mister...> [flags]"
+.SH DESCRIPTION
+\fBjtframe update\fR
+builds the list of release-oriented jobs used by the JTFRAME update flow.
+It is intended for batch updates across several cores and targets.
+.PP
+Typical tasks include:
+.IP \[bu] 2
+extract MRA files
+.IP \[bu] 2
+compile FPGA cores
+.IP \[bu] 2
+generate schematic PDF files
+.PP
+The resulting job list is used by the
+\fBjtupdate\fR
+script to run work in parallel.
+Arguments after
+\fB--\fR
+are forwarded directly to
+\fBjtcore\fR.
+.PP
+The default output folder is
+\fB$JTROOT/release\fR.
+Use
+\fB--git\fR
+to write into
+\fB$JTBIN\fR
+instead and define
+\fBJTFRAME_RELEASE\fR.
+.SH FLAGS
+.TP
+.B \-\-all
+Update all target platforms.
+.TP
+.BI "\-c, \-\-cores " list
+Comma-separated list of cores.
+.TP
+.BI "\-\-corestamp " text
+Date string for the RBF file.
+Passed through to
+\fBjtcore\fR.
+.TP
+.BI "\-d, \-\-def " list
+Comma-separated list of extra macros.
+.TP
+.B \-\-dry
+Show the jobs without running them.
+.TP
+.B \-\-git
+Use
+\fB$JTBIN\fR
+as the output and define
+\fBJTFRAME_RELEASE\fR.
+.TP
+.BI "\-\-group " name
+Core group specified in
+\fB$JTROOT/.jtupdate\fR.
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.BI "\-\-jobs " value
+Limit the number of parallel jobs.
+.TP
+.B \-\-keep
+Do not delete the release folder.
+.TP
+.B \-o, \-\-mainonly
+Parse only the main version of each game.
+.TP
+.B \-\-network
+Allow network resources.
+.TP
+.B \-\-nodbg
+Define
+\fBJTFRAME_RELEASE\fR.
+.TP
+.B \-\-nohdmi
+Disable HDMI in the MiSTer build.
+.TP
+.B \-\-nosnd
+Define the
+\fBNOSOUND\fR
+macro.
+.TP
+.B \-\-private
+Build for the JTALPHA team.
+This defines
+\fBJTFRAME_RELEASE\fR
+and enables a red OSD.
+.TP
+.BI "\-\-seed " value
+Random-seed iteration used for compilation.
+.TP
+.B \-s, \-\-skipRBF
+Skip RBF generation and update only MRA files.
+.TP
+.B \-n, \-\-skipROM
+Skip ROM generation when parsing MRA files.
+.TP
+.BI "\-t, \-\-target " list
+Comma-separated list of targets.
+The default is
+\fBmist,sidi,sidi128,mister,pocket\fR.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-mra (1),
+.BR jtcore (1)

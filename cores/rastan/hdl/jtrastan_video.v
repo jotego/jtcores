@@ -1,24 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-4-2022 */
 
 module jtrastan_video(
     input           rst,
     input           clk,
+    input           opwolf,
+    input           rbisland,
     output          pxl_cen,
     output          pxl2_cen,
 
@@ -30,31 +18,40 @@ module jtrastan_video(
 
     input    [18:1] main_addr,
     input    [15:0] main_dout,
-    output   [15:0] oram_dout,
-    output   [15:0] pal_dout,
     input    [ 1:0] main_dsn,
     input           main_rnw,
     input           scr_cs,
-    input           pal_cs,
     input           obj_cs,
     input    [ 2:0] obj_pal,
     output          sdakn,
     output          odakn,
 
+    input    [ 4:0] ioctl_addr,
+    output   [ 7:0] ioctl_din,
+
+    output   [12:1] objram_addr,
+    input    [15:0] objram_dout,
+    output   [11:1] palram_addr,
+    input    [15:0] palram_video_data,
+
+`ifdef RASTAN_SCRRAM_SDRAM
     output   [15:2] ram0_addr,
     input    [31:0] ram0_data,
     input           ram0_ok,
     output          ram0_cs,
+    output   [15:2] ram1_addr,
+    input    [31:0] ram1_data,
+    input           ram1_ok,
+    output          ram1_cs,
+`else
+    output   [15:2] ram_addr,
+    input    [31:0] ram_data,
+`endif
 
     output   [19:2] rom0_addr,
     input    [31:0] rom0_data,
     input           rom0_ok,
     output          rom0_cs,
-
-    output   [15:2] ram1_addr,
-    input    [31:0] ram1_data,
-    input           ram1_ok,
-    output          ram1_cs,
 
     output   [19:2] rom1_addr,
     input    [31:0] rom1_data,
@@ -72,17 +69,23 @@ module jtrastan_video(
 
     input     [3:0] gfx_en,
     input     [7:0] debug_bus,
-    output   [ 7:0] debug_view,
-    // NVRAM (debug) dump
-    input    [10:0] ioctl_addr,
-    output   [ 7:0] ioctl_din,
-    input           ioctl_ram
+    output   [ 7:0] debug_view
 );
 
 wire        preLHBL, preLVBL;
 wire [10:0] scr1_pxl, scr0_pxl;
 wire [ 7:0] obj_pxl;
 wire [ 8:0] hdump, vrender;
+wire [31:0] scr0rom_data, scr1rom_data, objrom_data;
+
+// Operation Wolf graphics ROMs use ROM_LOAD16_WORD_SWAP, whereas Rastan's
+// paired byte ROMs already arrive in the native renderer order.
+assign scr0rom_data = opwolf ? {rom0_data[23:16],rom0_data[31:24],
+                                rom0_data[ 7: 0],rom0_data[15: 8]} : rom0_data;
+assign scr1rom_data = opwolf ? {rom1_data[23:16],rom1_data[31:24],
+                                rom1_data[ 7: 0],rom1_data[15: 8]} : rom1_data;
+assign objrom_data  = opwolf ? {orom_data[23:16],orom_data[31:24],
+                                orom_data[ 7: 0],orom_data[15: 8]} : orom_data;
 
 jtrastan_scr u_scr(
     .rst        ( rst       ),
@@ -105,23 +108,30 @@ jtrastan_scr u_scr(
     .scr_cs     ( scr_cs    ),        // selection from address decoder
     .dtackn     ( sdakn     ),
 
+    .ioctl_addr ( ioctl_addr ),
+    .ioctl_din  ( ioctl_din  ),
+
+`ifdef RASTAN_SCRRAM_SDRAM
     .ram0_addr  ( ram0_addr ),
     .ram0_data  ( ram0_data ),
     .ram0_ok    ( ram0_ok   ),
     .ram0_cs    ( ram0_cs   ),
-
-    .rom0_addr  ( rom0_addr ),
-    .rom0_data  ( rom0_data ),
-    .rom0_ok    ( rom0_ok   ),
-    .rom0_cs    ( rom0_cs   ),
-
     .ram1_addr  ( ram1_addr ),
     .ram1_data  ( ram1_data ),
     .ram1_ok    ( ram1_ok   ),
     .ram1_cs    ( ram1_cs   ),
+`else
+    .ram_addr   ( ram_addr  ),
+    .ram_data   ( ram_data  ),
+`endif
+
+    .rom0_addr  ( rom0_addr ),
+    .rom0_data  ( scr0rom_data ),
+    .rom0_ok    ( rom0_ok   ),
+    .rom0_cs    ( rom0_cs   ),
 
     .rom1_addr  ( rom1_addr ),
-    .rom1_data  ( rom1_data ),
+    .rom1_data  ( scr1rom_data ),
     .rom1_ok    ( rom1_ok   ),
     .rom1_cs    ( rom1_cs   ),
 
@@ -141,37 +151,27 @@ jtrastan_obj u_obj(
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
 
-    .main_addr  ( main_addr[10:1] ),
-    .main_dout  ( main_dout ),
-    .main_din   ( oram_dout ),
-    .main_dsn   ( main_dsn  ),
-    .main_rnw   ( main_rnw  ),
-    .obj_cs     ( obj_cs    ),        // selection from address decoder
+    .ram_addr   ( objram_addr ),
+    .ram_data   ( objram_dout ),
     .dtackn     ( odakn     ),
 
     .rom_addr   ( orom_addr ),
-    .rom_data   ( orom_data ),
+    .rom_data   ( objrom_data ),
     .rom_cs     ( orom_cs   ),
     .rom_ok     ( orom_ok   ),
     .pxl        ( obj_pxl   ),
-    // Debug
-    .debug_bus  ( debug_bus ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din )
+    .debug_bus  ( debug_bus )
 );
 
 jtrastan_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .opwolf     ( opwolf    ),
+    .rbisland   ( rbisland  ),
 
-    .main_addr  ( main_addr[11:1] ),
-    .main_dout  ( main_dout ),
-    .main_dsn   ( main_dsn  ),
-    .main_din   ( pal_dout  ),
-    .main_rnw   ( main_rnw  ),
-    .pal_cs     ( pal_cs    ),        // selection from address decoder
+    .palram_addr( palram_addr ),
+    .palram_video_data( palram_video_data ),
 
     .preLHBL    ( preLHBL   ),
     .preLVBL    ( preLVBL   ),

@@ -33,11 +33,13 @@ module jtframe_lfbuf_sdr_ctrl #(parameter
 
     input               lhbl,
     input               ln_done,
+    input               fb_keep,
     input      [VW-1:0] vrender,
     input      [VW-1:0] ln_v,
     input               vs,
     // data written to external memory
     input               frame,
+    input               fb_blank,
     output reg [HW-1:0] fb_addr,
     input      [  15:0] fb_din,
     output reg          fb_clr,
@@ -68,7 +70,7 @@ module jtframe_lfbuf_sdr_ctrl #(parameter
 );
 
 localparam AW=HW+VW+1;
-localparam [2:0] IDLE=0, READ1=1, WRITE1=2, READ=3, WRITE=4;
+localparam [2:0] IDLE=0, READ1=1, WRITE1=2, READ=3, WRITE=4, WRITE2=5;
 
 localparam RASCAS_DELAY   = 3'd2;   // tRCD=20ns -> 2 cycles@<100MHz
 localparam BURST_LENGTH   = 3'b000; // 000=1, 001=2, 010=4, 011=8
@@ -89,6 +91,7 @@ localparam CMD_BURST_TERMINATE = 4'b0110;
 localparam CMD_PRECHARGE       = 4'b0010;
 localparam CMD_AUTO_REFRESH    = 4'b0001;
 localparam CMD_LOAD_MODE       = 4'b0000;
+localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_CLR `endif ;
 
 reg           lhbl_l, ln_done_l, do_wr;
 reg  [   2:0] st;
@@ -97,6 +100,7 @@ wire [HW-1:0] nx_rd_addr;
 reg  [HW-1:0] hblen, hlim, hcnt;
 wire          fb_over;
 reg           sdram_init = 1;
+reg  [VW-1:0] wr_v;
 reg     [6:0] sdram_init_st = 0;
 reg    [15:0] sdram_din;
 reg    [15:0] sdram_dout;
@@ -104,6 +108,13 @@ reg           sdram_oe;
 reg     [3:0] sdram_cmd = CMD_NOP;
 reg     [1:0] sdram_del;
 reg           sdram_prechg;
+wire          fb_rd_bank, fb_wr_bank, sdram_keep_blank;
+wire [HW-1:0] fb_addr_prev = fb_addr - 1'd1;
+wire [12:0]   sdram_act_addr = { {13-HW{1'b0}}, act_addr };
+wire [12:0]   sdram_fb_prev  = { {13-HW{1'b0}}, fb_addr_prev };
+wire [12:0]   sdram_fb_last  = { {13-HW{1'b0}}, {HW{1'b1}} };
+wire [12:0]   sdram_rd_row   = { {12-VW{1'b0}}, fb_rd_bank, vrender };
+wire [12:0]   sdram_wr_row   = { {12-VW{1'b0}}, fb_wr_bank, wr_v    };
 
 assign SDRAM_CKE = 1;
 assign SDRAM_BA = 0;
@@ -115,6 +126,9 @@ assign SDRAM_nWE  = sdram_cmd[0];
 
 assign fb_over    = &fb_addr;
 assign fb_dout    = sdram_dout[15:0];
+assign fb_rd_bank = fb_keep ? 1'b0 : ~frame;
+assign fb_wr_bank = fb_keep ? 1'b0 :  frame;
+assign sdram_keep_blank = fb_keep && fb_din == LFBUF_CLR;
 
 always @(posedge clk) begin
     case( st_addr[3:0] )
@@ -132,7 +146,7 @@ always @(posedge clk) begin
     endcase
 end
 
-always @( posedge clk, posedge rst ) begin
+always @( posedge clk ) begin
     if( rst ) begin
         hblen  <= 0;
         hlim   <= 0;
@@ -151,7 +165,9 @@ always @( posedge clk, posedge rst ) begin
     end
 end
 
-always @( posedge clk, posedge rst ) begin
+wire skip_blank_lines = do_wr && fb_blank;
+
+always @( posedge clk ) begin
     if( rst ) begin
         fb_addr  <= 0;
         fb_clr   <= 0;
@@ -162,6 +178,7 @@ always @( posedge clk, posedge rst ) begin
         scr_we   <= 0;
         ln_done_l<= 0;
         do_wr    <= 0;
+        wr_v     <= 0;
         st       <= IDLE;
         sdram_cmd <= CMD_NOP;
         sdram_oe  <= 0;
@@ -175,7 +192,10 @@ always @( posedge clk, posedge rst ) begin
 
         fb_done <= 0;
         ln_done_l <= ln_done;
-        if (ln_done && !ln_done_l ) do_wr <= 1;
+        if (ln_done && !ln_done_l ) begin
+            do_wr <= 1;
+            wr_v  <= ln_v;
+        end
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
             // read operation can happen independently
@@ -212,15 +232,18 @@ always @( posedge clk, posedge rst ) begin
                     if( lhbl_l & ~lhbl ) begin
                         act_addr <= 0;
                         rd_addr  <= 0;
-                        SDRAM_A  <= { ~frame, vrender };
+                        SDRAM_A  <= sdram_rd_row;
                         sdram_cmd<= CMD_ACTIVE;
                         sdram_del<= 3;
                         st       <= READ1;
+                    end else if( skip_blank_lines ) begin
+                        fb_done  <= 1;
+                        do_wr    <= 0;
                     end else if( do_wr && !fb_clr &&
                         hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                         fb_addr  <= 0;
                         act_addr <= 0;
-                        SDRAM_A  <= { frame, ln_v };
+                        SDRAM_A  <= sdram_wr_row;
                         sdram_cmd<= CMD_ACTIVE;
                         do_wr    <= 0;
                         st       <= WRITE1;
@@ -230,7 +253,7 @@ always @( posedge clk, posedge rst ) begin
 
             READ1: st <= READ;
             READ: begin
-                SDRAM_A <= act_addr;
+                SDRAM_A <= sdram_act_addr;
 
                 if ( !sdram_prechg ) begin
                     sdram_cmd <= CMD_READ;
@@ -261,19 +284,28 @@ always @( posedge clk, posedge rst ) begin
             end
 
             WRITE: begin
-                SDRAM_A <= fb_addr - 1'd1;
-                { SDRAM_DQML, SDRAM_DQMH } <= 2'b00;
+                SDRAM_A <= sdram_fb_prev;
+                { SDRAM_DQML, SDRAM_DQMH } <= {2{sdram_keep_blank}};
                 sdram_cmd <= CMD_WRITE;
                 sdram_oe <= 1;
                 sdram_din <= fb_din;
                 if ( &fb_addr ) begin
-                    SDRAM_A[10] <= 1;
-                    fb_done <= 1;
-                    fb_clr  <= 1;
-                    line    <= ~line;
-                    st      <= IDLE;
+                    st      <= WRITE2;
                 end
                 fb_addr <= fb_addr +1'd1;
+            end
+
+            WRITE2: begin
+                SDRAM_A <= sdram_fb_last;
+                SDRAM_A[10] <= 1;
+                { SDRAM_DQML, SDRAM_DQMH } <= {2{sdram_keep_blank}};
+                sdram_cmd <= CMD_WRITE;
+                sdram_oe  <= 1;
+                sdram_din <= fb_din;
+                fb_done   <= 1;
+                fb_clr    <= 1;
+                line      <= ~line;
+                st        <= IDLE;
             end
 
             default: st <= IDLE;

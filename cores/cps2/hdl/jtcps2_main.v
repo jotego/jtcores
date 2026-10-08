@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-1-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-1-2021 */
 
 module jtcps2_main(
     input              rst,
@@ -91,6 +77,8 @@ module jtcps2_main(
     output reg  [ 7:0] st_dout
 );
 
+`ifndef NOMAIN
+
 localparam [1:0] BUT6   = 2'b00,
                  PUZZL2 = 2'b01,
                  ECOFGT = 2'b10;
@@ -113,7 +101,8 @@ reg         io_cs, eeprom_cs,
             sys_cs, paddle_en;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
-reg         dsn_dly, one_wait;
+reg         dsn_dly;
+wire        ram_ok_dly;
 wire [11:0] spin1p, spin2p;
 wire        dir1p,  dir2p;
 
@@ -161,10 +150,6 @@ always @(posedge clk) begin
         reg_oram_cs <= pre_oram_cs;
         dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
     end
-end
-
-always @(*) begin // below 5MB and above 8MB
-    one_wait = !ASn && BGACKn && (A[23:20]<4'h5 || A[23:20]>=4'h8);
 end
 
 always @(posedge clk, posedge rst) begin
@@ -257,6 +242,11 @@ always @(posedge clk) begin
     in0 <= { joystick2[7:0], joystick1[7:0] };
     in1 <= { joystick4[7:0], joystick3[7:0] };
     in2 <= { coin, cab_1p, ~5'b0, service, dip_test, eeprom_sdo };
+    `ifdef POCKET
+    // Pressing Start 1 + Start 2 is needed to save settings in some games
+    // Bypass this in Pocket handheld mode with L + R + Start 1
+    in2[9] <= cab_1p[1] & (|joystick1[9:8] | cab_1p[0]);
+    `endif
     case( joymode )
         default:;
         BUT6: begin
@@ -333,13 +323,25 @@ end
 
 // DTACKn generation
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, pre_ram_cs, pre_vram_cs, pre_oram_cs, main2qs_cs };
+wire       board_wait, bus_legit;
+wire       bus_cs =   |{ rom_cs, pre_ram_cs, pre_vram_cs, pre_oram_cs, main2qs_cs, board_wait };
+wire       dtack_clr;
 wire       bus_busy = |{ rom_cs & ~(rom_ok&rom_ok2),
-                    (pre_ram_cs|pre_vram_cs|pre_oram_cs) & ~ram_ok,
-                    main2qs_cs & ~main2qs_waitn };
+                    (pre_ram_cs|pre_vram_cs|pre_oram_cs) & ~ram_ok_dly,
+                    main2qs_cs & ~main2qs_waitn,
+                    dtack_clr, board_wait };
 
 wire       DTACKn;
+wire       ram_acc = pre_ram_cs | pre_vram_cs | pre_oram_cs;
 reg        last_LVBL;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 reg qs_busakn_s;
 
@@ -350,26 +352,38 @@ always @(posedge clk, posedge rst) begin
         qs_busakn_s <= main2qs_busakn;
 end
 
-reg fail_cnt_ok;
+assign dtack_clr = main2qs_cs & qs_busakn_s; // do not count until the bus is granted
+assign bus_legit = dtack_clr | board_wait;
 
-jtcps2_dtack u_dtack(
+jtcps2_dtack u_board_dtack(
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .cpu_cen    ( cen16      ),
+    .cpu_cenb   ( cen16b     ),
+    .ASn        ( ASn        ),
+    .BGACKn     ( BGACKn     ),
+    .A          ( A[23:20]   ),
+    .board_wait ( board_wait )
+);
+
+jtframe_68kdtack_cen #(.MFREQ(48_000)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen16      ( cen16     ),
-    .cen16b     ( cen16b    ),
-
-    .ASn        ( ASn       ),
-    .UDSn       ( UDSn      ),
-    .LDSn       ( LDSn      ),
-    .one_wait   ( one_wait  ),
+    .cpu_cen    ( cen16     ),
+    .cpu_cenb   ( cen16b    ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .busack     ( busack    ),
-
-    .main2qs_cs ( main2qs_cs  ),
-    .qs_busakn_s( qs_busakn_s ),
-
-    .DTACKn     ( DTACKn    )
+    .bus_legit  ( bus_legit ),
+    .bus_ack    ( busack    ),
+    .ASn        ( ASn       ),
+    .DSn        ({UDSn,LDSn}),
+    .num        ( 4'd1      ),
+    .den        ( 5'd3      ),
+    .DTACKn     ( DTACKn    ),
+    .wait2      ( 1'b0      ),
+    .wait3      ( 1'b0      ),
+    .fave       (           ),
+    .fworst     (           )
 );
 
 jtcps2_decrypt u_decrypt(
@@ -460,5 +474,38 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( { int2, int1, 1'b1 } ) // Raster, VBLANK
 );
+
+`else
+
+assign cpu_cen  = 1'b0;
+assign ppu_rstn = 1'b1;
+assign UDSWn    = 1'b1;
+assign LDSWn    = 1'b1;
+assign busack   = 1'b1;
+assign RnW      = 1'b1;
+assign addr     = 17'd0;
+assign cpu_dout = 16'd0;
+assign ram_cs   = 1'b0;
+assign vram_cs  = 1'b0;
+assign oram_cs  = 1'b0;
+
+initial begin
+    ppu1_cs      = 1'b0;
+    ppu2_cs      = 1'b0;
+    objcfg_cs    = 1'b0;
+    obank        = 1'b0;
+    oram_base    = 16'd0;
+    rom_cs       = 1'b0;
+    rom_addr     = 21'd0;
+    eeprom_sclk  = 1'b0;
+    eeprom_sdi   = 1'b0;
+    eeprom_scs   = 1'b0;
+    z80_rstn     = 1'b1;
+    main2qs_addr = 23'd0;
+    main2qs_cs   = 1'b0;
+    st_dout      = 8'd0;
+end
+
+`endif
 
 endmodule

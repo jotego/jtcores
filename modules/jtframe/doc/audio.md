@@ -1,10 +1,29 @@
 # Audio Processing (Filters!)
 
-There are some facilities to help with the upsampling needed for the DACs. Some modules need a hex file containing the value of the coefficients to be copied into the MiST(er) folder for compilation. The hex files are available in hdl/sound folder.
+There are facilities to help with the upsampling needed for DACs. Some modules need a hex file containing coefficient values to be copied into the MiST(er) folder for compilation. The hex files are available in the `hdl/sound` folder.
 
 ## jtframe_fir
 
 The module **jtframe_fir** is designed to operate on a stereo signal input to apply a FIR filter of up to 127 coefficients. It takes one BRAM block. As it needs about 256 clocks per sample, the input sampling frequency must be lower than clk/256.
+
+### Sallen-Key low-pass stages
+
+Specify the circuit parts in a channel to generate `fir_<channel>.csv` and its
+`fir_<channel>.hex` synthesis image automatically:
+
+```yaml
+audio:
+  channels:
+    - { name: pcm, module: jt7759, rsum: 5.1k, sallen-key: { R1: 5.6k, R2: 10k, R3: 5.6k, C1: 22n, C2: 4.7n } }
+```
+
+`R3` is optional. When present, the effective first resistance is `R1||R3`,
+and the channel's `pre` gain becomes `R3/(R1+R3)`. Do not set `pre` separately
+with `R3`. The natural frequency is
+`1/(2*pi*sqrt((R1||R3)*R2*C1*C2))`, using `R1` when `R3` is absent. Values
+outside 1–24 kHz produce a warning. The generated 68-tap FIR is the sampled
+second-order circuit response at the 192 kHz audio rate. The tap count matches
+the current `jtframe_fir` instance's fixed `KMAX=68`.
 
 ## jtframe_dcrm
 
@@ -16,15 +35,47 @@ This covers the usual situation of having two JT49 instances in a core. This mod
 
 # Audio Parameters in mem.yaml
 
-Schematic information can be translated to parameters in mem.yaml to automatically compute low-pass filters and gain balance
+Schematic information can be translated to parameters in `mem.yaml` to automatically compute low-pass filters and gain balance.
 
 ![Filter example](images/rsum1.png)
 
 ```
 rsum: 1k+1k+1.2k = 3.2k
 rc: [ r: 1k, c: 33n ]
-``
+```
 
 If the filter is of second order without an amplifier separating each filter pole, an equivalent 2-stage single-pole filter must be calculated. See the image below.
 
 ![second-order filter in a single stage](images/rc-equivalent.png)
+
+## Switchable filters (`rc_en`)
+
+`rc_en: true` makes a channel's filter switchable at runtime, modelling a 4066 that gates a cap in/out. It exposes a `<name>_rcen` game output and selects the pole by it: `rcen ? pole : 0` (0 = filter off). With `rc_en` the two-pole limit is lifted — list more poles and each pair becomes one switchable filter, with `<name>_rcen` widening to `[N-1:0]`.
+
+```yaml
+- { name: psga, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+```
+
+Drive `<name>_rcen` from the relevant control bits (example in ddribble: YM2203 IOA[2:0] via the 4066 D5); 
+This feauture is used by `ddribble`, `mikie`, `comsc`, `circus`, `roc`.
+
+### Complete example — ddribble SSG voices
+
+Three SSG channels, each with a 0.15uF cap switched by one bit of the YM2203 port-A output:
+
+```yaml
+audio:
+  channels:
+    - { name: psga, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+    - { name: psgb, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+    - { name: psgc, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+```
+
+The sound program enables/disables each cap by writing the YM2203 port A. Wire each `*_rcen` to its IOA bit — writing `1` switches the cap in (filter on), `0` switches it out (filter off):
+
+```verilog
+wire [7:0] ym_ioa_out;
+jt03 u_ym2203( /* ... */ .IOA_out( ym_ioa_out ) /* ... */ );
+
+assign { psga_rcen, psgb_rcen, psgc_rcen } = ym_ioa_out[2:0];
+```

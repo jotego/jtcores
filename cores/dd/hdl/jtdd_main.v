@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 // Clocks are derived from H counter on the original PCB
 // Yet, that doesn't seem to be important and it only
@@ -73,6 +59,8 @@ module jtdd_main(
     input  [7:0]       dipsw_a,
     input  [7:0]       dipsw_b
 );
+
+`ifndef NOMAIN
 
 wire [15:0] A;
 wire [ 7:0] ram_dout;
@@ -291,4 +279,15 @@ jtframe_sys6809 #(.RAM_AW(13),.CENDIV(0),.RECOVERY(0)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
+`else
+assign mcu_nmi_set = 1'b0;
+assign flip        = 1'b0;
+assign cpu_dout    = 8'd0;
+assign cpu_AB      = 13'd0;
+assign RnW         = 1'b1;
+initial begin
+    mcu_haltn=0; com_cs=0; pal_cs=0; mcu_rstb=0; snd_irq=0; snd_latch=0;
+    cram_cs=0; oram_cs=0; vram_cs=0; scrhpos=0; scrvpos=0; rom_cs=0; rom_addr=0;
+end
+`endif
 endmodule // jtdd_main

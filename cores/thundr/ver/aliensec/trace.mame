@@ -1,0 +1,8 @@
+focus 1
+trace off
+trace debug.csv,mcu,noloop,{tracelog "%X,%X,%X,%X,%X,%X,%d,%x,",pc,s,x,cc|c0,a,b,totalcycles,frame}
+tracelog "PC,S,X,CC,A,B,ticks,frame_cnt\n"
+softreset
+
+gtime 900
+traceflush

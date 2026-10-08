@@ -1,19 +1,16 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mra
 
 import(
-	"errors"
 	"fmt"
+	"errors"
 	"os"
 	"strings"
 	"strconv"
 )
-
-func must(e error) {
-	if e!=nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-}
 
 func comb_errors( f, e error ) error {
 	if e!=nil {
@@ -41,4 +38,11 @@ func rawdata2bytes(rawstr string) []byte {
 		rawbytes = append(rawbytes, byte(conv))
 	}
 	return rawbytes
+}
+
+func must(e error) {
+	if e!=nil {
+		fmt.Println(e)
+		os.Exit(1)
+	}
 }

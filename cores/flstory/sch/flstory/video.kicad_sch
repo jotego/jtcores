@@ -5384,6 +5384,16 @@
 	)
 	(wire
 		(pts
+			(xy 267.97 144.78) (xy 279.4 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "18f2de0e-399b-4394-b9c9-eab2973d57f4")
+	)
+	(wire
+		(pts
 			(xy 148.59 133.35) (xy 160.02 133.35)
 		)
 		(stroke
@@ -5512,6 +5522,16 @@
 		)
 		(uuid "2ee9e793-1fb7-4f9d-9b13-d7a4a67c1a2c")
 	)
+	(wire
+		(pts
+			(xy 267.97 160.02) (xy 279.4 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2f9c72cf-4a5d-4446-b236-b30e04cdd4f6")
+	)
 	(bus
 		(pts
 			(xy 67.31 134.62) (xy 76.2 134.62)
@@ -5614,7 +5634,7 @@
 	)
 	(bus
 		(pts
-			(xy 269.24 149.86) (xy 279.4 149.86)
+			(xy 267.97 149.86) (xy 279.4 149.86)
 		)
 		(stroke
 			(width 0)
@@ -5882,6 +5902,16 @@
 		)
 		(uuid "6c92af4d-4caa-4ab6-8141-6c103bc0b4c8")
 	)
+	(wire
+		(pts
+			(xy 148.59 175.26) (xy 160.02 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6d48e0da-dfdf-48dd-b627-58fc9df12c11")
+	)
 	(bus
 		(pts
 			(xy 115.57 139.7) (xy 124.46 139.7)
@@ -5921,6 +5951,16 @@
 			(type default)
 		)
 		(uuid "73852b72-6d23-475d-a17f-441de4c259e6")
+	)
+	(bus
+		(pts
+			(xy 267.97 142.24) (xy 279.4 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "73b1c8b5-12fd-4834-bf9b-773fa7bb41c0")
 	)
 	(bus
 		(pts
@@ -5981,6 +6021,16 @@
 			(type default)
 		)
 		(uuid "7fb2c4ac-7dc4-4800-9593-4129414917f2")
+	)
+	(wire
+		(pts
+			(xy 267.97 162.56) (xy 279.4 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8021a420-9761-446f-a09a-6997b7bb2912")
 	)
 	(wire
 		(pts
@@ -6184,7 +6234,7 @@
 	)
 	(bus
 		(pts
-			(xy 266.7 157.48) (xy 279.4 157.48)
+			(xy 267.97 157.48) (xy 279.4 157.48)
 		)
 		(stroke
 			(width 0)
@@ -6254,7 +6304,7 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 152.4) (xy 279.4 152.4)
+			(xy 267.97 152.4) (xy 279.4 152.4)
 		)
 		(stroke
 			(width 0)
@@ -6574,6 +6624,16 @@
 	)
 	(wire
 		(pts
+			(xy 303.53 180.34) (xy 316.23 180.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d3bc8416-5eb0-4240-bc43-336917af9982")
+	)
+	(wire
+		(pts
 			(xy 372.11 143.51) (xy 375.92 143.51)
 		)
 		(stroke
@@ -6581,6 +6641,16 @@
 			(type default)
 		)
 		(uuid "d3edc7a7-a6e4-4c1c-9800-8fefa8aca1ec")
+	)
+	(bus
+		(pts
+			(xy 267.97 139.7) (xy 279.4 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d59868b1-0508-4c34-8108-bb3765514d09")
 	)
 	(wire
 		(pts
@@ -6734,7 +6804,6 @@
 	)
 	(label "AB7"
 		(at 375.92 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6745,7 +6814,6 @@
 	)
 	(label "~{MAxDC}*"
 		(at 316.23 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6756,7 +6824,6 @@
 	)
 	(label "~{VCRT}"
 		(at 316.23 160.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6767,7 +6834,6 @@
 	)
 	(label "~{PXLEN}"
 		(at 148.59 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6779,7 +6845,6 @@
 	)
 	(label "~{MAxDC}"
 		(at 148.59 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6790,7 +6855,6 @@
 	)
 	(label "DB6"
 		(at 375.92 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6801,7 +6865,6 @@
 	)
 	(label "~{CLK6}*"
 		(at 124.46 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6812,7 +6875,6 @@
 	)
 	(label "~{PXLEN}"
 		(at 203.2 81.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6824,7 +6886,6 @@
 	)
 	(label "DB5"
 		(at 375.92 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6834,8 +6895,7 @@
 		(uuid "0cb72468-f91a-4188-a81f-26bd4d4de57a")
 	)
 	(label "PXL[0..7]"
-		(at 269.24 149.86 0)
-		(fields_autoplaced yes)
+		(at 267.97 149.86 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6846,7 +6906,6 @@
 	)
 	(label "AB1"
 		(at 375.92 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6857,7 +6916,6 @@
 	)
 	(label "~{SHARD}"
 		(at 151.13 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6868,7 +6926,6 @@
 	)
 	(label "OPXL[0..11]"
 		(at 267.97 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6879,7 +6936,6 @@
 	)
 	(label "DB1"
 		(at 375.92 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6890,7 +6946,6 @@
 	)
 	(label "~{PH}[0..9]"
 		(at 124.46 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6901,7 +6956,6 @@
 	)
 	(label "HF[3..7]"
 		(at 124.46 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6912,7 +6966,6 @@
 	)
 	(label "~{MAxDC}*"
 		(at 151.13 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6923,7 +6976,6 @@
 	)
 	(label "ORAMD[0..7]"
 		(at 210.82 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6934,7 +6986,6 @@
 	)
 	(label "~{PH}[0..9]"
 		(at 151.13 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6945,7 +6996,6 @@
 	)
 	(label "SUM[0..7]"
 		(at 203.2 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6957,7 +7007,6 @@
 	)
 	(label "H2"
 		(at 80.01 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6968,7 +7017,6 @@
 	)
 	(label "AB8"
 		(at 355.6 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6979,7 +7027,6 @@
 	)
 	(label "~{CLK6}*"
 		(at 210.82 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6990,7 +7037,6 @@
 	)
 	(label "GHFLIP"
 		(at 67.31 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7001,7 +7047,6 @@
 	)
 	(label "DB[0..7]"
 		(at 148.59 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7010,9 +7055,18 @@
 		)
 		(uuid "38917920-e7af-4389-9550-24f0110effb4")
 	)
+	(label "TRIGGER"
+		(at 316.23 180.34 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "395ab0ca-ff22-4fb2-b614-9654f3502132")
+	)
 	(label "SUM[0..7]"
 		(at 148.59 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7025,7 +7079,6 @@
 	)
 	(label "AB9"
 		(at 375.92 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7036,7 +7089,6 @@
 	)
 	(label "~{OSCNHF}*"
 		(at 316.23 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7045,9 +7097,18 @@
 		)
 		(uuid "42916bd4-5416-43f4-8fc3-324e34737c56")
 	)
+	(label "AB[0..10]"
+		(at 267.97 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "43213a3d-7190-4505-a497-8ab5851080dd")
+	)
 	(label "HF[0..6]"
 		(at 148.59 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7058,7 +7119,6 @@
 	)
 	(label "~{SHAWE}"
 		(at 148.59 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7069,7 +7129,6 @@
 	)
 	(label "DB0"
 		(at 375.92 151.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7080,7 +7139,6 @@
 	)
 	(label "VBL"
 		(at 151.13 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7091,7 +7149,6 @@
 	)
 	(label "GHFLIP"
 		(at 316.23 165.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7102,7 +7159,6 @@
 	)
 	(label "BBANK[0..1]"
 		(at 316.23 162.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7113,7 +7169,6 @@
 	)
 	(label "VSS"
 		(at 355.6 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7124,7 +7179,6 @@
 	)
 	(label "GREEN"
 		(at 316.23 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7135,7 +7189,6 @@
 	)
 	(label "PXL[4..7]"
 		(at 203.2 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7146,7 +7199,6 @@
 	)
 	(label "~{GHFLIP}*"
 		(at 148.59 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7157,7 +7209,6 @@
 	)
 	(label "preHBL"
 		(at 124.46 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7168,7 +7219,6 @@
 	)
 	(label "~{CHA}[0..3]"
 		(at 203.2 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7179,7 +7229,6 @@
 	)
 	(label "VF[0..7]"
 		(at 124.46 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7188,9 +7237,18 @@
 		)
 		(uuid "561798e8-fa2a-4c3b-a536-1028eb711aaa")
 	)
+	(label "PALB8"
+		(at 267.97 160.02 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "56ed3134-b8e8-4ba9-b187-7c548bc6d104")
+	)
 	(label "BPRIO[0..1]"
 		(at 203.2 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7201,7 +7259,6 @@
 	)
 	(label "~{HVLATCH}"
 		(at 316.23 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7212,7 +7269,6 @@
 	)
 	(label "HF[3..7]"
 		(at 151.13 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7223,7 +7279,6 @@
 	)
 	(label "AB5"
 		(at 375.92 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7234,7 +7289,6 @@
 	)
 	(label "~{HVLATCH}"
 		(at 67.31 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7245,7 +7299,6 @@
 	)
 	(label "~{OSCNHF}"
 		(at 203.2 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7256,7 +7309,6 @@
 	)
 	(label "~{SHARD}"
 		(at 148.59 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7267,7 +7319,6 @@
 	)
 	(label "DB3"
 		(at 375.92 143.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7278,7 +7329,6 @@
 	)
 	(label "PXL[0..3]"
 		(at 201.93 175.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7289,7 +7339,6 @@
 	)
 	(label "AB[0..10]"
 		(at 148.59 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7300,7 +7349,6 @@
 	)
 	(label "AB3"
 		(at 375.92 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7311,7 +7359,6 @@
 	)
 	(label "DB4"
 		(at 375.92 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7322,7 +7369,6 @@
 	)
 	(label "OPXL[0..11]"
 		(at 260.35 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7331,9 +7377,18 @@
 		)
 		(uuid "7242a366-9c45-4a7e-8711-9ae1d43e833b")
 	)
+	(label "DB[0..7]"
+		(at 267.97 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "73d40cb3-c4d6-4b49-8172-cef2a7aeeaf9")
+	)
 	(label "OPRIO[0..2]"
 		(at 203.2 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7344,7 +7399,6 @@
 	)
 	(label "PH3"
 		(at 151.13 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7355,7 +7409,6 @@
 	)
 	(label "~{TRCRT}"
 		(at 67.31 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7366,7 +7419,6 @@
 	)
 	(label "RED"
 		(at 316.23 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7377,7 +7429,6 @@
 	)
 	(label "~{VRAM}"
 		(at 148.59 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7388,7 +7439,6 @@
 	)
 	(label "AB4"
 		(at 355.6 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7399,7 +7449,6 @@
 	)
 	(label "~{SHAWE}"
 		(at 151.13 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7410,7 +7459,6 @@
 	)
 	(label "OPRIO[0..2]"
 		(at 210.82 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7421,7 +7469,6 @@
 	)
 	(label "AB11"
 		(at 375.92 118.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7432,7 +7479,6 @@
 	)
 	(label "AB[0..7]"
 		(at 151.13 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7443,7 +7489,6 @@
 	)
 	(label "~{PH}[0..9]"
 		(at 148.59 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7454,7 +7499,6 @@
 	)
 	(label "BGFLIP_EN"
 		(at 316.23 175.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7465,7 +7509,6 @@
 	)
 	(label "PXL[0..7]"
 		(at 210.82 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7476,7 +7519,6 @@
 	)
 	(label "~{GHFLIP}*"
 		(at 124.46 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7487,7 +7529,6 @@
 	)
 	(label "BGFLIP_EN"
 		(at 148.59 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7498,7 +7539,6 @@
 	)
 	(label "GHFLIP"
 		(at 148.59 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7509,7 +7549,6 @@
 	)
 	(label "~{SEL}[0..3]"
 		(at 316.23 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7520,7 +7559,6 @@
 	)
 	(label "H[0..8]"
 		(at 151.13 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7531,7 +7569,6 @@
 	)
 	(label "CA[0..13]"
 		(at 148.59 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7542,7 +7579,6 @@
 	)
 	(label "ORAMD[0..7]"
 		(at 203.2 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7553,7 +7589,6 @@
 	)
 	(label "PH3"
 		(at 203.2 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7564,7 +7599,6 @@
 	)
 	(label "VD[0..7]"
 		(at 203.2 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7575,7 +7609,6 @@
 	)
 	(label "CA[0..13]"
 		(at 203.2 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7586,7 +7619,6 @@
 	)
 	(label "~{CHA}[0..3]"
 		(at 148.59 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7597,7 +7629,6 @@
 	)
 	(label "GVFLIP"
 		(at 67.31 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7608,7 +7639,6 @@
 	)
 	(label "~{VCRT}"
 		(at 67.31 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7619,7 +7649,6 @@
 	)
 	(label "BBANK[0..1]"
 		(at 160.02 151.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7630,7 +7659,6 @@
 	)
 	(label "~{HCRT}"
 		(at 316.23 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7641,7 +7669,6 @@
 	)
 	(label "VBL"
 		(at 124.46 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7652,7 +7679,6 @@
 	)
 	(label "FLIP"
 		(at 67.31 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7663,7 +7689,6 @@
 	)
 	(label "~{TRCRT}"
 		(at 316.23 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7674,7 +7699,6 @@
 	)
 	(label "VD[0..7]"
 		(at 151.13 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7685,7 +7709,6 @@
 	)
 	(label "CLK6M"
 		(at 148.59 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7696,7 +7719,6 @@
 	)
 	(label "DB7"
 		(at 375.92 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7707,7 +7729,6 @@
 	)
 	(label "~{HCRT}"
 		(at 67.31 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7718,7 +7739,6 @@
 	)
 	(label "~{OSCNHF}*"
 		(at 210.82 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7729,7 +7749,6 @@
 	)
 	(label "~{OSCNHF}"
 		(at 267.97 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7740,7 +7759,6 @@
 	)
 	(label "AB10"
 		(at 355.6 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7750,8 +7768,7 @@
 		(uuid "e2f7adaf-7733-4f4c-9378-9772803b5dcc")
 	)
 	(label "BPRIO[0..1]"
-		(at 266.7 157.48 0)
-		(fields_autoplaced yes)
+		(at 267.97 157.48 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7762,7 +7779,6 @@
 	)
 	(label "DB[0..7]"
 		(at 151.13 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7771,9 +7787,18 @@
 		)
 		(uuid "e603028c-f2bb-45ba-a240-6cb07e9cc8d1")
 	)
+	(label "TRIGGER"
+		(at 67.31 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e61386d8-0ed7-4fb3-9271-0d59f680bef5")
+	)
 	(label "PXL[0..7]"
 		(at 210.82 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7784,7 +7809,6 @@
 	)
 	(label "DB2"
 		(at 375.92 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7795,7 +7819,6 @@
 	)
 	(label "H[0..8]"
 		(at 124.46 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7804,9 +7827,18 @@
 		)
 		(uuid "eaaebe46-9a1d-4f95-bdbb-b04a7ce1d369")
 	)
+	(label "~{GUN}"
+		(at 267.97 162.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "eaf65f3c-b334-4f5b-91db-3433143d480e")
+	)
 	(label "AB2"
 		(at 355.6 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7816,8 +7848,7 @@
 		(uuid "ec7a8b92-66a0-46d5-82d4-30ebdc16450c")
 	)
 	(label "~{SHARD}"
-		(at 269.24 152.4 0)
-		(fields_autoplaced yes)
+		(at 267.97 152.4 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7828,7 +7859,6 @@
 	)
 	(label "~{PH}6"
 		(at 151.13 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7839,7 +7869,6 @@
 	)
 	(label "DB[0..7]"
 		(at 67.31 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7850,7 +7879,6 @@
 	)
 	(label "HOVER"
 		(at 203.2 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7861,7 +7889,6 @@
 	)
 	(label "ORAMD[0..7]"
 		(at 147.32 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7872,7 +7899,6 @@
 	)
 	(label "AB0"
 		(at 355.6 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7883,7 +7909,6 @@
 	)
 	(label "SYNC"
 		(at 124.46 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7894,7 +7919,6 @@
 	)
 	(label "AB6"
 		(at 355.6 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7905,7 +7929,6 @@
 	)
 	(label "GVFLIP"
 		(at 316.23 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7916,7 +7939,6 @@
 	)
 	(label "BLUE"
 		(at 316.23 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7928,7 +7950,6 @@
 	(hierarchical_label "~{SHARD}"
 		(shape input)
 		(at 375.92 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7940,7 +7961,6 @@
 	(hierarchical_label "preHBL"
 		(shape output)
 		(at 375.92 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7952,7 +7972,6 @@
 	(hierarchical_label "VSS"
 		(shape input)
 		(at 356.87 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7964,7 +7983,6 @@
 	(hierarchical_label "SYNC"
 		(shape output)
 		(at 375.92 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7976,7 +7994,6 @@
 	(hierarchical_label "GREEN"
 		(shape output)
 		(at 375.92 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7988,7 +8005,6 @@
 	(hierarchical_label "CLK6M"
 		(shape output)
 		(at 124.46 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8000,7 +8016,6 @@
 	(hierarchical_label "RED"
 		(shape output)
 		(at 375.92 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8012,7 +8027,6 @@
 	(hierarchical_label "~{SHAWE}"
 		(shape input)
 		(at 375.92 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8024,7 +8038,6 @@
 	(hierarchical_label "~{VRAM}"
 		(shape input)
 		(at 375.92 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8036,7 +8049,6 @@
 	(hierarchical_label "H0"
 		(shape output)
 		(at 375.92 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8048,7 +8060,6 @@
 	(hierarchical_label "AB[0..11]"
 		(shape input)
 		(at 349.25 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8060,7 +8071,6 @@
 	(hierarchical_label "H0"
 		(shape output)
 		(at 124.46 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8072,7 +8082,6 @@
 	(hierarchical_label "VCC"
 		(shape input)
 		(at 356.87 168.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8084,7 +8093,6 @@
 	(hierarchical_label "BLUE"
 		(shape output)
 		(at 375.92 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8096,7 +8104,6 @@
 	(hierarchical_label "~{MRST}"
 		(shape input)
 		(at 356.87 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8108,7 +8115,6 @@
 	(hierarchical_label "~{MAxDC}"
 		(shape input)
 		(at 375.92 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8120,7 +8126,6 @@
 	(hierarchical_label "VBL"
 		(shape output)
 		(at 375.92 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9585,7 +9590,7 @@
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2"
-					(page "16")
+					(page "13")
 				)
 			)
 		)
@@ -9713,7 +9718,7 @@
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2"
-					(page "17")
+					(page "14")
 				)
 			)
 		)
@@ -9952,7 +9957,7 @@
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2"
-					(page "13")
+					(page "10")
 				)
 			)
 		)
@@ -9988,7 +9993,7 @@
 				(hide yes)
 			)
 		)
-		(pin "AB[10..0]" input
+		(pin "AB[0..10]" input
 			(at 279.4 139.7 180)
 			(effects
 				(font
@@ -10008,7 +10013,7 @@
 			)
 			(uuid "7ac7f948-d1b8-4726-8b9f-aba2ad7e0159")
 		)
-		(pin "DB[7..0]" bidirectional
+		(pin "DB[0..7]" bidirectional
 			(at 279.4 142.24 180)
 			(effects
 				(font
@@ -10228,10 +10233,20 @@
 			)
 			(uuid "3e23e091-57f6-403e-a6f7-bd5170a77e41")
 		)
+		(pin "TRIGGER" output
+			(at 303.53 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "df13ccea-1da1-4a00-a4fa-eafe2b508aad")
+		)
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2"
-					(page "14")
+					(page "12")
 				)
 			)
 		)
@@ -10470,7 +10485,7 @@
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2"
-					(page "13")
+					(page "11")
 				)
 			)
 		)
@@ -10569,7 +10584,7 @@
 		(instances
 			(project "fairyland"
 				(path "/f5eb1c9e-3094-41e4-b993-3476e3a4b758/c390cb2e-f868-499c-8d5c-c75efb799de2"
-					(page "12")
+					(page "9")
 				)
 			)
 		)

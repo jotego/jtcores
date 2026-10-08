@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 17-5-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-5-2023 */
 
 // the original flash has an 8-bit interface
 // adapted here for 16 bits
@@ -23,7 +9,7 @@ module jtngp_flash(
     input             rst,
     input             clk,
 
-    input      [ 2:0] dev_type, // see below
+    input      [ 3:0] dev_type, // see below
     // interface to CPU
     input      [20:1] cpu_addr,
     input             cpu_cs,
@@ -40,12 +26,33 @@ module jtngp_flash(
     input             cart_ok,
     input      [15:0] cart_data,
     output reg [ 1:0] cart_dsn,
-    output reg [15:0] cart_din
+    output reg [15:0] cart_din,
+
+    // save/load memory
+    input             cart,
+    input      [15:0] sav_addr,
+    input      [15:0] sav_dout,
+    input      [ 1:0] sav_wr,
+    input             sav_ack,
+    output reg [15:0] sav_din,
+    output reg        sav_done,
+    output reg        sav_wait,
+    output reg        sav_change,
+
+    input      [15:0] gs_data,
+    output reg [15:0] gs_din,
+    output reg [20:1] gs_addr,
+    output reg [ 1:0] gs_dsn,
+    input             gs_ok,
+    output reg        gs_we,
+    output reg        gs_cs
+    // , output reg [15:0] auto_addr_max, auto_addr_min
 );
 
-localparam [2:0] DEV_2F = 4, //   2 or 4 MB
-                 DEV_2C = 2, //   1 MB
-                 DEV_AB = 1; // <=512 kB
+localparam [3:0] DEV_2F_4 = 8, //   4 MB
+                 DEV_2F_2 = 4, //   2 MB
+                 DEV_2C   = 2, //   1 MB
+                 DEV_AB   = 1; // <=512 kB
 
 localparam [2:0] IDLE     = 0,
                  READ     = 1,
@@ -112,10 +119,10 @@ always @* begin
     ba_addr = { eff_addr[20:13], 12'd0 };
     ba_size = BA_64K;
     case( dev_type )
-        DEV_AB:  ba_full = ~&eff_addr[18:16];
-        DEV_2C:  ba_full = ~&eff_addr[19:16];
-        DEV_2F:  ba_full = ~&eff_addr[20:16];
-        default: ba_full = 1;
+        DEV_AB:             ba_full = ~&eff_addr[18:16];
+        DEV_2C:             ba_full = ~&eff_addr[19:16];
+        DEV_2F_2, DEV_2F_4: ba_full = ~&eff_addr[20:16];
+        default:            ba_full = 1;
     endcase
 
     if( ba_full ) begin
@@ -140,14 +147,86 @@ always @* begin
     end
 end
 
+
 `ifdef SIMULATION
 reg cart_wel;
-
 always @(posedge clk) begin
     cart_wel <= cart_we;
     if( cart_we && !cart_wel ) $display("Flash written to");
 end
 `endif
+
+reg  [12:0] auto_addr_max, auto_addr_min;
+reg         ack_l, ack_ll;
+wire [12:0] eff_sblk;
+wire [ 7:0] lba;
+wire        sav_minmax;
+
+initial auto_addr_max = 0;
+initial auto_addr_min = 13'h1FFF;
+initial sav_change    = 0;
+assign  sav_minmax =~|sav_addr[ 7:2];
+assign  lba        =  sav_addr[15:8] - 8'b1;
+assign  eff_sblk   = auto_addr_min   +{5'b0,lba};
+always @(posedge clk) begin
+    if(cart) begin
+       ack_l         <= 0;
+       ack_ll        <= 0;
+       sav_wait      <= 0;
+       sav_change    <= 0;
+       auto_addr_max <= 0;
+       auto_addr_min <= 13'h1FFF;
+    end else begin
+        {ack_l, ack_ll} <= {sav_ack, ack_l};
+        if(prog_bsy && |prog_st) begin
+            sav_change <= 1;
+            if(cart_addr[20:8] > auto_addr_max)
+                auto_addr_max <= cart_addr[20:8];
+            if(cart_addr[20:8] < auto_addr_min)
+                auto_addr_min <= cart_addr[20:8];
+        end
+        if(sav_ack) begin
+            sav_change <= 0;
+            if(ack_l && ack_ll) begin
+                sav_wait <= ~gs_ok;
+                if(&lba) sav_wait <= 0;
+            end
+            if(~ack_l)
+                sav_wait <= 1;
+            if(&lba && gs_we && sav_minmax) begin
+                case (sav_addr[1:0])
+                    0: auto_addr_max[ 7:0] <= sav_dout[ 7:0];
+                    1: auto_addr_max[12:8] <= sav_dout[12:8];
+                    2: auto_addr_min[ 7:0] <= sav_dout[ 7:0];
+                    3: auto_addr_min[12:8] <= sav_dout[12:8];
+                    default:;
+                endcase
+            end
+        end else
+            sav_wait <= 0;
+    end
+end
+
+always @(*) begin
+    gs_addr  = {eff_sblk,sav_addr[7:1]};
+    gs_din   = sav_dout;
+    gs_cs    = sav_ack;
+    gs_we    = |sav_wr;
+    gs_dsn   = ~sav_wr;
+    sav_din  = gs_data;
+    sav_done = eff_sblk==auto_addr_max;
+    if(&lba) begin
+        gs_cs   = 0;
+        sav_din = 0;
+        if(sav_minmax) begin
+            if(sav_addr[1])
+                sav_din = {3'b0, auto_addr_min};
+            else
+                sav_din = {3'b0, auto_addr_max};
+
+        end
+    end
+end
 
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin

@@ -1,0 +1,18 @@
+shanon:
+  - get:
+    - "*.v"
+outrun:
+  - get:
+    - common.yaml
+s16:
+  - get:
+    - jts16_obj.v
+    - jts16_obj_ram.v
+    - jts16_obj_scan.v
+    - jts16_obj_draw.v
+    - tilemap.yaml
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v

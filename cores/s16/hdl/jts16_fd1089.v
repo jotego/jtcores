@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-3-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-3-2021 */
 
 module jts16_fd1089(
     input             rst,
@@ -128,7 +114,7 @@ assign last[13] = `BITSWAP( xored_last_in[13], 6,3,7,0,5,4,2,1 );
 assign last[14] = `BITSWAP( xored_last_in[14], 6,1,3,2,7,4,5,0 );
 assign last[15] = `BITSWAP( xored_last_in[15], 1,6,3,5,0,7,4,2 );
 
-assign ok_dly = dec_en ? ok_latch : rom_ok;
+assign ok_dly = ok_latch;
 
 always @(posedge clk) ok_latch <= rom_ok;
 
@@ -267,4 +253,3 @@ jtframe_prom #(.AW(8),.SIMFILE("fd1089.bin")) u_lut(
 `undef BITSWAP
 
 endmodule
-

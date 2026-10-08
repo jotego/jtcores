@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 26-10-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 26-10-2024 */
 
 module jtwc_sound(
     input            rst_n,
@@ -55,7 +41,6 @@ wire signed [11:0] pcm_raw;
 
 assign rom_addr = A[13:0];
 assign pcm_cs   = 1;
-assign rfsh_n   = 0;
 assign st_dout  = { pcm_en, 3'd0, gain };
 
 // AY0
@@ -80,7 +65,7 @@ always @* begin
     latch_cs = 0;
     ay0_cs   = 0;
     ay1_cs   = 0;
-    if( !mreq_n && !rfsh_n ) casez(A[15:14])
+    if( !mreq_n && rfsh_n ) casez(A[15:14])
         0: rom_cs   = 1;
         1: ram_cs   = 1;
         2: if(!wr_n) case(A[1:0])
@@ -148,7 +133,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
@@ -229,6 +214,6 @@ initial begin
     rom_cs   = 0;
     pcm_addr = 0;
 end
-assign {rom_addr, pcm_cs, psg0, psg1, pcm} = 0;
+assign {rom_addr, pcm_cs, psg0, psg1, pcm,st_dout} = 0;
 `endif
 endmodule

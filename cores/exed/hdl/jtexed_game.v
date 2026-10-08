@@ -1,26 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-8-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-8-2021 */
 
 module jtexed_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-assign debug_view = 0;
+assign debug_view = { 7'd0, dip_flip };
 
 wire [8:0] V, H;
 
@@ -39,7 +25,7 @@ wire cen12, cen8, cen6, cen3, cen1p5;
 wire char_on, scr1_on, scr2_on, obj_on;
 
 // PROMs
-localparam PROM_IRQ = 8;
+localparam PROM_IRQ = 0;
 reg  [11:0] prom;
 
 assign pxl2_cen = cen12;
@@ -102,7 +88,6 @@ always @(*) begin
     if(ioctl_addr>= OBJ_START[25:0] && ioctl_addr<PROM_START[25:0]) post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
 end
 
-`ifndef NOMAIN
 jtcommnd_main #(.GAME(3)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -174,16 +159,6 @@ jtcommnd_main #(.GAME(3)) u_main(
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   )
 );
-`else
-assign main_addr   = 17'd0;
-assign char_cs     = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr1_hpos   = 0;
-assign scr1_vpos   = 0;
-assign cpu_cen     = cen3;
-`endif
 
 jtexed_sound u_sound(
     .rst            ( rst            ),

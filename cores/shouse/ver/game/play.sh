@@ -1,3 +1,2 @@
 #!/bin/bash
-jtsim -inputs -video 1500 $*
-
+jtsim -inputs sim_inputs.cab -video 1500 $*

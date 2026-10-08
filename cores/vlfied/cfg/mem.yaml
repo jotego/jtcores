@@ -1,0 +1,71 @@
+clocks:
+  clk:
+    - freq: 4 MHz
+      outputs:
+        - fm_cen
+    - freq: 10 MHz
+      outputs:
+        - cchip_cen
+audio:
+  rsum: 10k
+  channels:
+    - { name: fm,  module: jt03_fm,  rsum: 10k }
+    - { name: psg, module: jt03_psg, rsum: 15k }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 20
+        data_width: 16
+        cache_size: 1kB
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+    - buses:
+      - name: orom
+        addr_width: 20
+        data_width: 32
+    # dedicated 512 KB player-drawn bitmap framebuffer
+    - buses:
+      # fbram : CPU read/write (RW). jtvlfied_fb does the video_mask RMW.
+      - name: fbram
+        addr_width: 19      # port = [18:1] = 18-bit word address = 256K x 16 = 512 KB
+        data_width: 16
+        rw: true
+        cs: fbram_sel
+        din: fb_wdata
+      # fbrd  : video line fetch (read) into the double line buffer.
+      - name: fbrd
+        addr_width: 19
+        data_width: 16
+bram:
+  - name: objram
+    addr_width: 13
+    data_width: 16
+    addr: objram_addr
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: main
+      addr: main_addr[12:1]
+      din: main_dout
+      dout: objram2main_data
+      rw: true
+      we: objram_we
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    addr: main_addr[13:1]
+    din: main_dout
+    rw: true
+  - name: pal
+    addr_width: 14
+    data_width: 16
+    addr: main_addr[13:1]
+    din: main_dout
+    rw: true
+    dual_port:
+      name: palrd
+      dout: pal_data
+  - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
+  - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }

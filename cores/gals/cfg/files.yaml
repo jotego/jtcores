@@ -1,0 +1,21 @@
+gals:
+  - get:
+    - jtgals_game.v
+    - jtgals_main.v
+    - jtgals_calc.v
+    - jtgals_obj.v
+    - jtgals_sound.v
+    - jtgals_video.v
+    - jtgals_colmix.v
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_virq.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+jt6295:

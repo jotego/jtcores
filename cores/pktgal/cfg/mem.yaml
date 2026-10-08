@@ -1,0 +1,79 @@
+clocks:
+  clk:
+    - freq: 8M
+      gate: [ main ]
+      outputs:
+        - cpu
+    - freq: 6M
+      gate: [ snd ]
+      outputs:
+        - sndcpu
+    - freq: 3M
+      outputs:
+        - ym3812  # 3   MHz
+        - ym2203  # 1.5 MHz
+    - freq: 384k
+      outputs:
+        - pcm
+
+audio:
+  rsum: 10k
+  missing_info: true
+  channels:
+    - { name: jt03_fm,  module: jt03_fm,  rsum: 10k }
+    - { name: jt03_psg, module: jt03_psg, rsum: 10k }
+    - { name: ym3812,   module: jtopl2,   rsum: 6k }
+    - { name: pcm,      module: jt5205,   rsum: 8.6k, fir: fir_192k_4k.csv }
+
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: char
+        addr_width: 17
+        data_width: 32
+    - buses:
+      - name: obj
+        addr_width: 16
+        data_width: 8
+
+bram:
+  - name: pf
+    size: 2kB
+    data_width: 16
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: cpu
+      addr: pf_cpu_addr
+      din: pf_cpu_din
+      dout: pf_cpu_dout
+      we: pf_we
+      rw: true
+
+  - name: objram
+    size: 512B
+    data_width: 8
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: cpu
+      addr: obj_cpu_addr
+      din: obj_cpu_din
+      dout: obj_cpu_dout
+      we: obj_we
+      rw: true
+
+  - name: promrg
+    size: 512B
+    data_width: 8
+    prom: true
+  - name: promb
+    size: 512B
+    data_width: 8
+    prom: true

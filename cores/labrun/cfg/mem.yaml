@@ -10,7 +10,7 @@ audio:
     - { name: fm1,  module: jt03_fm,  rsum: 5.9k, rc: [{ r: 830,  c: 33n }] }
 clocks:
   clk24:
-    - freq: 12000000
+    - freq: 12M
       outputs:
         - cen12
         - cen6

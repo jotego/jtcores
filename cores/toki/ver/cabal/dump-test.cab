@@ -1,0 +1,5 @@
+# creates a dump at frame 5, which has visible
+# output so we can test scene generation from
+# a .cab file
+=5 dump
+1

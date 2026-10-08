@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 module jtdd2_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -41,7 +27,7 @@ wire       [ 8:0]  scrhpos, scrvpos;
 wire cpu_cen;
 wire turbo;
 
-assign turbo      = status[13];
+assign turbo      = `ifdef POCKET dipsw[16] `else status[13] `endif ;
 assign dip_flip   = flip;
 assign debug_view = 0;
 assign scr_cs     = LVBL;
@@ -51,7 +37,6 @@ assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
 assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 assign cpu_cen    = turbo ? cen6 : cen3;
 
-`ifndef NOMAIN
 jtdd_main u_main(
     .clk            ( clk24         ),  // slower clock to ease synthesis
     .rst            ( rst24         ),
@@ -103,39 +88,6 @@ jtdd_main u_main(
     .dipsw_a        ( dipsw[ 7:0]   ),
     .dipsw_b        ( dipsw[15:8]   )
 );
-`else
-assign main_cs   = 1'b0;
-assign main_addr = 18'd0;
-assign cram_cs   = 1'b0;
-assign vram_cs   = 1'b0;
-assign oram_cs   = 1'b0;
-assign pal_cs    = 1'b0;
-assign mcu_cs    = 1'b0;
-assign flip      = 1'b0;
-assign cpu_AB    = 13'd0;
-assign cpu_wrn   = 1'b1;
-assign scrhpos   = 9'h0;
-assign scrvpos   = 9'h0;
-assign mcu_rstb  = 1'b0;
-
-    `ifndef SIMULATION
-    assign snd_latch = 8'd0;
-    assign snd_irq   = 1'b0;
-    `else
-    reg [7:0] snd_latch2;
-    reg       snd_irq2;
-    assign snd_latch = snd_latch2;
-    assign snd_irq   = snd_irq2;
-    initial begin
-        snd_latch2 = 8'hfe;
-        snd_irq2   = 1'b0;
-        #11_000_000 snd_latch2 = 8'h3a; // coin sound
-        snd_irq2 = 1'b1;
-        #100_000 snd_irq2 = 1'b0;
-        snd_latch2 = 8'hfe;
-    end
-    `endif
-`endif
 
 wire mcu_cen = turbo ? cen8 : cen4;
 

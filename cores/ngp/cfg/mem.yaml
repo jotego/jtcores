@@ -1,5 +1,6 @@
 params:
   - { name: MB2, value: "22'h10_0000" }
+  - { name: SV0, value: "22'h1E_0000" }
 clocks:
   clk:
     - freq: 1024
@@ -9,11 +10,11 @@ clocks:
       outputs:
         - v0_cen          # pxl_cen, but I cannot use that name here
         - v1_cen
-    - freq: 6144000
+    - freq: 6144k
       outputs:
         - cen6
         - cen3
-    - freq: 25000000
+    - freq: 25M
       outputs:
         - cpu_cen
         - phi1_cen        # 12.5MHz, MCU timer base
@@ -23,11 +24,22 @@ sdram:
   banks:
     -
     - buses:
+        - name: gs0
+          addr_width: 21
+          # addr_width: 16
+          data_width: 16
+          rw: true
+          # offset: SV0
         - name: cart0
           addr_width: 21
           data_width: 16
           rw: true
           do_not_erase: true
+        - name: gs1
+          addr_width: 16
+          data_width: 16
+          # rw: true
+          offset: SV0
         - name: cart1
           addr_width: 21
           data_width: 16
@@ -38,7 +50,8 @@ bram: # 64+8+4+16=92kB
   - name: rom # 64 kB
     addr_width: 16
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     rom:
       offset: 0
   - name: nvram
@@ -46,7 +59,7 @@ bram: # 64+8+4+16=92kB
     data_width: 16
     addr: "cpu_addr[12:1]"
     din: cpu_dout
-    # sim_file: true
+    # simfile: {}
     rw: true
     ioctl:
       save: true

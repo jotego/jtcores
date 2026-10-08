@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-9-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-9-2023 */
 
 // Implementation of Namco's CUS30 - 8-channel stereo DAC
 // Based on MAME's namco_snd.cpp information and Atari's schematics
@@ -62,7 +48,10 @@ wire        xwe   = xcs & ~(bsel ? brnw : srnw);
 wire        mmr_cs= (bsel ? bcs  : scs) && xaddr[9:6]==4'b0100;
 wire        mmr_wn= ~mmr_cs | (bsel ? brnw : srnw);
 
-wire        cen120, zero;
+wire [ 7:0] xwave;
+reg         cntpos_cs;
+reg  [ 2:0] chsel;
+wire        cen120;
 // channel configuration data
 wire [7:0][ 3:0] lvol;
 wire [7:0][ 3:0] rvol;
@@ -80,13 +69,14 @@ wire [ 9:0] rd_addr = {2'b0, wsel[ch_l], cnt[ch_l][(A0+1)+:4] };
 wire signed [ 3:0] wdata;
 
 // LFSR polynomial
-reg  [17:0] lfsr;
-reg         noise;
-reg  [ 7:0] zero_l;
+reg  [7:0][16:0] lfsr;  // one per channel
+reg  [7:0][ 7:0] nacc;  // noise clock, only freq[7:0] is used
+reg  [7:0]  nbit;
+wire [16:0] lfsr_l = lfsr[ch_l];
+wire [ 8:0] nsum   = {1'b0,nacc[ch_l]}+{1'b0,freq[ch_l][7:0]};
 
 assign sample = ch==0 && cen120;
 assign wdata  = cnt[ch][A0] ? wdata8[3:0] : wdata8[7:4];
-assign zero   = cnt[ch_l][CW-1:A0]==0;
 
 `ifdef DUMP
 reg [7:0][3:0] wav;
@@ -115,22 +105,24 @@ always @(posedge clk, posedge rst ) begin
         racc  <= 0;
         raw_l <= 0;
         raw_r <= 0;
-        lfsr  <= 18'h1;
-        noise <= 0;
-        zero_l<= 0;
+        lfsr  <= {8{17'h1}};
+        nbit  <= 0;
     end else if(cen120) begin
         ch   <= ch+3'd1;
         ch_l <= ch;
         cnt[ch] <= cnt[ch]+{1'd0,freq[ch]};
-        zero_l[ch_l] <= zero;
+        nacc[ch_l] <= nsum[7:0];
+        if( nsum[8] ) begin
+            nbit[ch_l] <= nbit[ch_l]^(^lfsr_l[1:0]);
+            lfsr[ch_l] <= { lfsr_l[0], lfsr_l[16], lfsr_l[15]^lfsr_l[0], lfsr_l[14:1] };
+        end
 
         if( !no_en[ch_l] ) begin
             lamp <= { 1'b0, wdata } * { 1'b0, lvol[ch_l] };
             ramp <= { 1'b0, wdata } * { 1'b0, rvol[ch_l] };
-        end else if( zero && !zero_l[ch_l]) begin
-            lamp <= 5'd7*({1'b0,lvol[ch_l]});
-            ramp <= 5'd7*({1'b0,rvol[ch_l]});
-            if(!noise) {lamp,ramp} <= 0;
+        end else begin
+            lamp <= nbit[ch_l] ? 5'd7*({1'b0,lvol[ch_l]}) : 10'd0;
+            ramp <= nbit[ch_l] ? 5'd7*({1'b0,rvol[ch_l]}) : 10'd0;
         end
 
         // accumulator and output
@@ -140,9 +132,6 @@ always @(posedge clk, posedge rst ) begin
             raw_l <= lacc;
             raw_r <= racc;
         end
-        // LFSR
-        noise <= noise^(^lfsr[1:0]);
-        lfsr <= { lfsr[0], lfsr[17]^lfsr[0], lfsr[16], lfsr[15]^{lfsr[0]}, lfsr[14:1] }; // MAME's polynomial, is it verified?
     end
 end
 
@@ -169,13 +158,17 @@ jtframe_cendiv #(.MDIV(8)) u_cendiv(
     .cen_da     (           )
 );
 
-jtframe_dual_ram u_wave( // 4 (waves) + 5 (wave length) = 9 bits, 10th bit must be used as regular RAM
+// 4 (waves) + 5 (wave length) = 9 bits, 10th bit must be used as regular RAM
+// connected to a 4kB RAM on Rolling Thunder through a 2kB address interface
+// it should be possible to take this RAM out of this module and have it
+// external as part of the larger RAM
+jtframe_dual_ram u_wave(
     // Port 0 - CPUs
     .clk0   ( clk        ),
     .data0  ( xdout      ),
     .addr0  ( xaddr[9:0] ),
     .we0    ( xwe        ),
-    .q0     ( xdin       ),
+    .q0     ( xwave      ),
     // Port 1 - Waveform reading
     .clk1   ( clk        ),
     .data1  (  8'd0      ),
@@ -184,7 +177,13 @@ jtframe_dual_ram u_wave( // 4 (waves) + 5 (wave length) = 9 bits, 10th bit must 
     .q1     ( wdata8     )
 );
 
-jtshouse_cus30_mmr u_mmr(
+always @(posedge clk) begin
+    cntpos_cs <= xaddr[9:6]==4'b0100 && xaddr[2:0]==3'd5;
+    chsel     <= 3'd7 - xaddr[5:3];
+end
+assign xdin = cntpos_cs ? { 3'd0, cnt[chsel][CW-1:A0] } : xwave;
+
+jtcus30_mmr u_mmr(
     .rst    ( rst       ),
     .clk    ( clk       ),
 

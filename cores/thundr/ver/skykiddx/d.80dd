@@ -1,0 +1,9 @@
+help
+ds
+mv TOP.game_test.u_game.u_game.u_sound.u_63701.u_mcu.u_regs.pc==$80de
+mt line==15021
+d
+st
+st
+d
+

@@ -1,0 +1,803 @@
+# SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# The control word is generated from the sequences below. `ops` deliberately
+# lists every opcode: it is the only opcode decoder in JT8051.
+config:
+  entry_len: 64
+  entries: 512
+  cycle_factor: 12
+  auto: { min: 256, max: 510 }
+
+ops:
+  - { name: NOP,  op: 0x00, cycles: 1 }
+  - { name: AJMP, op: 0x01, cycles: 2, ctl: { pre: ajmp } }
+  - { name: LJMP, op: 0x02, cycles: 2, ctl: { pre: abs } }
+  - { name: RR,   op: 0x03, cycles: 1, ctl: { alu: rr,  flag: "" } }
+  - { name: INC,  op: 0x04, cycles: 1, ctl: { pre: none, src: a,  dst: a,      alu: inc } }
+  - { name: INC,  op: 0x05, cycles: 1, ctl: { pre: directl, src: md, dst: direct, alu: inc } }
+  - { name: INC,  op: 0x06, cycles: 1, ctl: { pre: ri, src: md, dst: ri,     alu: inc } }
+  - { name: INC,  op: 0x07, cycles: 1, ctl: { pre: ri, src: md, dst: ri,     alu: inc } }
+  - { name: INC,  op: 0x08, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x09, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x0a, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x0b, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x0c, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x0d, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x0e, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: INC,  op: 0x0f, cycles: 1, ctl: { pre: rn, src: md, dst: rn,     alu: inc } }
+  - { name: JBC,  op: 0x10, cycles: 2, ctl: { pre: bitrell, cond: bit } }
+  - { name: ACALL,op: 0x11, cycles: 2, ctl: { pre: acall } }
+  - { name: LCALL,op: 0x12, cycles: 2, ctl: { pre: abs } }
+  - { name: RRC,  op: 0x13, cycles: 1, ctl: { alu: rrc, flag: cya } }
+  - { name: DEC,  op: 0x14, cycles: 1, ctl: { pre: none, src: a,  dst: a,      alu: dec } }
+  - { name: DEC,  op: 0x15, cycles: 1, ctl: { pre: directl, src: md, dst: direct, alu: dec } }
+  - { name: DEC,  op: 0x16, cycles: 1, ctl: { pre: ri, src: md, dst: ri,      alu: dec } }
+  - { name: DEC,  op: 0x17, cycles: 1, ctl: { pre: ri, src: md, dst: ri,      alu: dec } }
+  - { name: DEC,  op: 0x18, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x19, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x1a, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x1b, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x1c, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x1d, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x1e, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: DEC,  op: 0x1f, cycles: 1, ctl: { pre: rn, src: md, dst: rn,      alu: dec } }
+  - { name: JB,   op: 0x20, cycles: 2, ctl: { pre: bitrel, cond: bit } }
+  - { name: AJMP, op: 0x21, cycles: 2, ctl: { pre: ajmp } }
+  - { name: RET,  op: 0x22, cycles: 2 }
+  - { name: RL,   op: 0x23, cycles: 1, ctl: { alu: rl,  flag: "" } }
+  - { name: ADD,  op: 0x24, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: imm,    src: op1 } }
+  - { name: ADD,  op: 0x25, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: direct, src: md } }
+  - { name: ADD,  op: 0x26, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: ri,     src: md } }
+  - { name: ADD,  op: 0x27, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: ri,     src: md } }
+  - { name: ADD,  op: 0x28, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x29, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x2a, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x2b, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x2c, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x2d, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x2e, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADD,  op: 0x2f, cycles: 1, ctl: { alu: add, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: JNB,  op: 0x30, cycles: 2, ctl: { pre: bitrel, cond: nbit } }
+  - { name: ACALL,op: 0x31, cycles: 2, ctl: { pre: acall } }
+  - { name: RETI, op: 0x32, cycles: 2 }
+  - { name: RLC,  op: 0x33, cycles: 1, ctl: { alu: rlc, flag: cya } }
+  - { name: ADDC, op: 0x34, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: imm,    src: op1 } }
+  - { name: ADDC, op: 0x35, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: direct, src: md } }
+  - { name: ADDC, op: 0x36, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: ri,     src: md } }
+  - { name: ADDC, op: 0x37, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: ri,     src: md } }
+  - { name: ADDC, op: 0x38, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x39, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x3a, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x3b, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x3c, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x3d, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x3e, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: ADDC, op: 0x3f, cycles: 1, ctl: { alu: addc, flag: add, lhs: a, dst: a, pre: rn,     src: md } }
+  - { name: JC,   op: 0x40, cycles: 2, ctl: { pre: rel, cond: c } }
+  - { name: AJMP, op: 0x41, cycles: 2, ctl: { pre: ajmp } }
+  - { name: ORL,  op: 0x42, cycles: 1, ctl: { alu: or, flag: "", pre: directl,    lhs: md, src: a,   dst: direct } }
+  - { name: ORL,  op: 0x43, cycles: 2, ctl: { alu: or, flag: "", pre: directimml, lhs: md, src: op2, dst: direct } }
+  - { name: ORL,  op: 0x44, cycles: 1, ctl: { alu: or, flag: "", pre: imm,       lhs: a,  src: op1, dst: a } }
+  - { name: ORL,  op: 0x45, cycles: 1, ctl: { alu: or, flag: "", pre: direct,    lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x46, cycles: 1, ctl: { alu: or, flag: "", pre: ri,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x47, cycles: 1, ctl: { alu: or, flag: "", pre: ri,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x48, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x49, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x4a, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x4b, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x4c, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x4d, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x4e, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ORL,  op: 0x4f, cycles: 1, ctl: { alu: or, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: JNC,  op: 0x50, cycles: 2, ctl: { pre: rel, cond: nc } }
+  - { name: ACALL,op: 0x51, cycles: 2, ctl: { pre: acall } }
+  - { name: ANL,  op: 0x52, cycles: 1, ctl: { alu: and, flag: "", pre: directl,    lhs: md, src: a,   dst: direct } }
+  - { name: ANL,  op: 0x53, cycles: 2, ctl: { alu: and, flag: "", pre: directimml, lhs: md, src: op2, dst: direct } }
+  - { name: ANL,  op: 0x54, cycles: 1, ctl: { alu: and, flag: "", pre: imm,       lhs: a,  src: op1, dst: a } }
+  - { name: ANL,  op: 0x55, cycles: 1, ctl: { alu: and, flag: "", pre: direct,    lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x56, cycles: 1, ctl: { alu: and, flag: "", pre: ri,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x57, cycles: 1, ctl: { alu: and, flag: "", pre: ri,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x58, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x59, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x5a, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x5b, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x5c, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x5d, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x5e, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: ANL,  op: 0x5f, cycles: 1, ctl: { alu: and, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: JZ,   op: 0x60, cycles: 2, ctl: { pre: rel, cond: z } }
+  - { name: AJMP, op: 0x61, cycles: 2, ctl: { pre: ajmp } }
+  - { name: XRL,  op: 0x62, cycles: 1, ctl: { alu: xor, flag: "", pre: directl,    lhs: md, src: a,   dst: direct } }
+  - { name: XRL,  op: 0x63, cycles: 2, ctl: { alu: xor, flag: "", pre: directimml, lhs: md, src: op2, dst: direct } }
+  - { name: XRL,  op: 0x64, cycles: 1, ctl: { alu: xor, flag: "", pre: imm,       lhs: a,  src: op1, dst: a } }
+  - { name: XRL,  op: 0x65, cycles: 1, ctl: { alu: xor, flag: "", pre: direct,    lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x66, cycles: 1, ctl: { alu: xor, flag: "", pre: ri,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x67, cycles: 1, ctl: { alu: xor, flag: "", pre: ri,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x68, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x69, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x6a, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x6b, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x6c, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x6d, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x6e, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: XRL,  op: 0x6f, cycles: 1, ctl: { alu: xor, flag: "", pre: rn,        lhs: a,  src: md,  dst: a } }
+  - { name: JNZ,  op: 0x70, cycles: 2, ctl: { pre: rel, cond: nz } }
+  - { name: ACALL,op: 0x71, cycles: 2, ctl: { pre: acall } }
+  - { name: ORL,  op: 0x72, cycles: 2, ctl: { alu: or, flag: "", pre: bit, lhs: carry, src: bit, dst: carry } }
+  - { name: JMP,  op: 0x73, cycles: 2 }
+  - { name: MOV,  op: 0x74, cycles: 1, ctl: { pre: imm, src: op1, dst: a } }
+  - { name: MOV,  op: 0x75, cycles: 2, ctl: { pre: dimm, src: op2, dst: direct } }
+  - { name: MOV,  op: 0x76, cycles: 1, ctl: { pre: riimm, src: op1, dst: ri } }
+  - { name: MOV,  op: 0x77, cycles: 1, ctl: { pre: riimm, src: op1, dst: ri } }
+  - { name: MOV,  op: 0x78, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x79, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x7a, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x7b, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x7c, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x7d, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x7e, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: MOV,  op: 0x7f, cycles: 1, ctl: { pre: imm, src: op1, dst: rn } }
+  - { name: SJMP, op: 0x80, cycles: 2, ctl: { pre: rel } }
+  - { name: AJMP, op: 0x81, cycles: 2, ctl: { pre: ajmp } }
+  - { name: ANL,  op: 0x82, cycles: 2, ctl: { alu: and, flag: "", pre: bit, lhs: carry, src: bit, dst: carry } }
+  - { name: MOVC, op: 0x83, cycles: 2, ctl: { pre: apc, code: apc } }
+  - { name: DIV,  op: 0x84, cycles: 4, ctl: { alu: div } }
+  - { name: MOV,  op: 0x85, cycles: 2, ctl: { pre: ddirect, src: md, dst: eaw } }
+  - { name: MOV,  op: 0x86, cycles: 2, ctl: { pre: ridirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x87, cycles: 2, ctl: { pre: ridirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x88, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x89, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x8a, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x8b, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x8c, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x8d, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x8e, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x8f, cycles: 2, ctl: { pre: rndirect, src: md, dst: direct } }
+  - { name: MOV,  op: 0x90, cycles: 2, ctl: { pre: abs, src: abs, dst: dptr } }
+  - { name: ACALL,op: 0x91, cycles: 2, ctl: { pre: acall } }
+  - { name: MOV,  op: 0x92, cycles: 2, ctl: { pre: bitl, src: carry, dst: bit } }
+  - { name: MOVC, op: 0x93, cycles: 2, ctl: { pre: adptr, code: dptra } }
+  - { name: SUBB, op: 0x94, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: imm, src: op1 } }
+  - { name: SUBB, op: 0x95, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: direct, src: md } }
+  - { name: SUBB, op: 0x96, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: ri, src: md } }
+  - { name: SUBB, op: 0x97, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: ri, src: md } }
+  - { name: SUBB, op: 0x98, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x99, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x9a, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x9b, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x9c, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x9d, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x9e, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: SUBB, op: 0x9f, cycles: 1, ctl: { alu: subb, flag: add, lhs: a, dst: a, pre: rn, src: md } }
+  - { name: ORL,  op: 0xa0, cycles: 2, ctl: { alu: or, flag: "", pre: nbit, lhs: carry, src: nbit, dst: carry } }
+  - { name: AJMP, op: 0xa1, cycles: 2, ctl: { pre: ajmp } }
+  - { name: MOV,  op: 0xa2, cycles: 1, ctl: { pre: bit, src: bit, dst: carry } }
+  - { name: INC,  op: 0xa3, cycles: 2, ctl: { pre: none, src: dptr, dst: dptri, alu: inc } }
+  - { name: MUL,  op: 0xa4, cycles: 4, ctl: { alu: mul } }
+  - { name: RESERVED, op: 0xa5, cycles: 1 }
+  - { name: MOV,  op: 0xa6, cycles: 2, ctl: { pre: directri, src: md, dst: ri } }
+  - { name: MOV,  op: 0xa7, cycles: 2, ctl: { pre: directri, src: md, dst: ri } }
+  - { name: MOV,  op: 0xa8, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xa9, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xaa, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xab, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xac, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xad, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xae, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: MOV,  op: 0xaf, cycles: 2, ctl: { pre: direct, src: md, dst: rn } }
+  - { name: ANL,  op: 0xb0, cycles: 2, ctl: { alu: and, flag: "", pre: nbit, lhs: carry, src: nbit, dst: carry } }
+  - { name: ACALL,op: 0xb1, cycles: 2, ctl: { pre: acall } }
+  - { name: CPL,  op: 0xb2, cycles: 1, ctl: { pre: bitl, src: bit,   dst: bit } }
+  - { name: CPL,  op: 0xb3, cycles: 1, ctl: { pre: none,src: carry, dst: carry } }
+  - { name: CJNE, op: 0xb4, cycles: 2, ctl: { pre: cjnei,  src: a,  rhs: op1 } }
+  - { name: CJNE, op: 0xb5, cycles: 2, ctl: { pre: cjned,  src: a,  rhs: md } }
+  - { name: CJNE, op: 0xb6, cycles: 2, ctl: { pre: cjneri, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xb7, cycles: 2, ctl: { pre: cjneri, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xb8, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xb9, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xba, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xbb, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xbc, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xbd, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xbe, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: CJNE, op: 0xbf, cycles: 2, ctl: { pre: cjnern, src: md, rhs: op1 } }
+  - { name: PUSH, op: 0xc0, cycles: 2, ctl: { pre: direct, src: md } }
+  - { name: AJMP, op: 0xc1, cycles: 2, ctl: { pre: ajmp } }
+  - { name: CLR,  op: 0xc2, cycles: 1, ctl: { pre: bitl, dst: bit } }
+  - { name: CLR,  op: 0xc3, cycles: 1, ctl: { pre: none, dst: carry } }
+  - { name: SWAP, op: 0xc4, cycles: 1 }
+  - { name: XCH,  op: 0xc5, cycles: 1, ctl: { pre: directl, src: md, dst: direct } }
+  - { name: XCH,  op: 0xc6, cycles: 1, ctl: { pre: ri, src: md, dst: ri } }
+  - { name: XCH,  op: 0xc7, cycles: 1, ctl: { pre: ri, src: md, dst: ri } }
+  - { name: XCH,  op: 0xc8, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xc9, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xca, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xcb, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xcc, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xcd, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xce, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: XCH,  op: 0xcf, cycles: 1, ctl: { pre: rn, src: md, dst: rn } }
+  - { name: POP,  op: 0xd0, cycles: 2, ctl: { pre: direct, dst: direct } }
+  - { name: ACALL,op: 0xd1, cycles: 2, ctl: { pre: acall } }
+  - { name: SETB, op: 0xd2, cycles: 1, ctl: { pre: bitl, dst: bit } }
+  - { name: SETB, op: 0xd3, cycles: 1, ctl: { pre: none, dst: carry } }
+  - { name: DA,   op: 0xd4, cycles: 1 }
+  - { name: DJNZ, op: 0xd5, cycles: 2, ctl: { pre: directrell, src: md, dst: direct, pc: rel2c } }
+  - { name: XCHD, op: 0xd6, cycles: 1, ctl: { pre: ri, src: md, dst: ri } }
+  - { name: XCHD, op: 0xd7, cycles: 1, ctl: { pre: ri, src: md, dst: ri } }
+  - { name: DJNZ, op: 0xd8, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xd9, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xda, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xdb, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xdc, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xdd, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xde, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: DJNZ, op: 0xdf, cycles: 2, ctl: { pre: rnrel, src: md, dst: rn, pc: relc } }
+  - { name: MOVX, op: 0xe0, cycles: 2, ctl: { pre: xdptr, x: dptr, src: x, dst: a, xwr: off } }
+  - { name: AJMP, op: 0xe1, cycles: 2, ctl: { pre: ajmp } }
+  - { name: MOVX, op: 0xe2, cycles: 2, ctl: { pre: xri, x: ri, src: x, dst: a, xwr: off } }
+  - { name: MOVX, op: 0xe3, cycles: 2, ctl: { pre: xri, x: ri, src: x, dst: a, xwr: off } }
+  - { name: CLR,  op: 0xe4, cycles: 1, ctl: { pre: none, dst: a } }
+  - { name: MOV,  op: 0xe5, cycles: 1, ctl: { pre: direct, src: md, dst: a } }
+  - { name: MOV,  op: 0xe6, cycles: 1, ctl: { pre: ri, src: md, dst: a } }
+  - { name: MOV,  op: 0xe7, cycles: 1, ctl: { pre: ri, src: md, dst: a } }
+  - { name: MOV,  op: 0xe8, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xe9, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xea, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xeb, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xec, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xed, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xee, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOV,  op: 0xef, cycles: 1, ctl: { pre: rn, src: md, dst: a } }
+  - { name: MOVX, op: 0xf0, cycles: 2, ctl: { pre: xdptr, x: dptr, src: a, dst: x, xwr: on } }
+  - { name: ACALL,op: 0xf1, cycles: 2, ctl: { pre: acall } }
+  - { name: MOVX, op: 0xf2, cycles: 2, ctl: { pre: xri, x: ri, src: a, dst: x, xwr: on } }
+  - { name: MOVX, op: 0xf3, cycles: 2, ctl: { pre: xri, x: ri, src: a, dst: x, xwr: on } }
+  - { name: CPL,  op: 0xf4, cycles: 1, ctl: { pre: none,src: a,     dst: a } }
+  - { name: MOV,  op: 0xf5, cycles: 1, ctl: { pre: direct, src: a, dst: direct } }
+  - { name: MOV,  op: 0xf6, cycles: 1, ctl: { pre: ri, src: a, dst: ri } }
+  - { name: MOV,  op: 0xf7, cycles: 1, ctl: { pre: ri, src: a, dst: ri } }
+  - { name: MOV,  op: 0xf8, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xf9, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xfa, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xfb, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xfc, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xfd, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xfe, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+  - { name: MOV,  op: 0xff, cycles: 1, ctl: { pre: none, src: a, dst: rn } }
+
+ucode:
+  - name: fetch0
+    seq:
+      - pc_code
+      - code_src, ir_dst, inc_pc
+      - ni
+  - name: fetch
+    seq:
+      - pc_code
+      - code_src, ir_dst, inc_pc, ret_jsr
+  - name: isrfetch
+    seq:
+      - pc_code
+      -
+      - code_src, ir_dst, inc_pc, ret_jsr
+  - name: none
+    seq:
+      - ret_jsr
+  - name: imm
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc, ret_jsr
+  - name: rel
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc, ret_jsr
+  - name: abs
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      -
+      -
+      -
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: ajmp
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc, ret_jsr
+  - name: acall
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc, ret_jsr
+  - name: direct
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - direct_addr
+      - direct_src, md_dst, ret_jsr
+  - name: directl
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - direct_addr, latch
+      - direct_src, md_dst, latch, ret_jsr
+  - name: dimm
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      -
+      -
+      -
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: directimm
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      - code_src, op2_dst, inc_pc
+      - direct_addr
+      - direct_src, md_dst, ret_jsr
+  - name: directimml
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      - code_src, op2_dst, inc_pc
+      - direct_addr, latch
+      - direct_src, md_dst, latch, ret_jsr
+  - name: rn
+    seq:
+      - reg_addr
+      - reg_addr
+      - ram_src, md_dst, ret_jsr
+  - name: ri
+    seq:
+      - ri_addr
+      - ram_src, ea_dst
+      - ea_addr
+      - ram_src, md_dst, ret_jsr
+  - name: riimm
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - ri_addr
+      - ram_src, ea_dst, ret_jsr
+  - name: bit
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - bit_addr
+      - bitq_src, md_dst, ret_jsr
+  - name: bitl
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - bit_addr, latch
+      - bitq_src, md_dst, latch, ret_jsr
+  - name: bitrel
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - bit_addr
+      - bit_addr
+      - bitq_src, md_dst
+      - pc_code
+      -
+      -
+      -
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: bitrell
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - bit_addr, latch
+      - bit_addr, latch
+      - bitq_src, md_dst, latch
+      - pc_code
+      -
+      -
+      -
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: apc
+    seq:
+      - apc_code
+      - apc_code
+      - apc_code
+      - apc_code
+      - apc_code, ret_jsr
+  - name: adptr
+    seq:
+      - dptra_code
+      - dptra_code
+      - dptra_code
+      - dptra_code
+      - dptra_code, ret_jsr
+  - name: xdptr
+    seq:
+      - ret_jsr
+  - name: xri
+    seq:
+      - ri_addr
+      - ri_addr
+      - ram_src, ea_dst
+      - ret_jsr
+  - name: nbit
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - bit_addr
+      - bit_addr
+      - bitq_src, md_dst, ret_jsr
+  - name: ddirect
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      -
+      -
+      -
+      - code_src, op2_dst, inc_pc
+      - direct_addr
+      - direct_addr
+      - direct_src, md_dst
+      - op2_src, ea_dst, ret_jsr
+  - name: ridirect
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - ri_addr
+      - ri_addr
+      - ram_src, ea_dst
+      - ea_addr
+      - ea_addr
+      - ram_src, md_dst, ret_jsr
+  - name: directri
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - ri_addr
+      - ri_addr
+      - ram_src, ea_dst
+      - direct_addr
+      - direct_addr
+      - direct_src, md_dst, ret_jsr
+  - name: rndirect
+    seq:
+      - pc_code
+      -
+      -
+      -
+      - code_src, op1_dst, inc_pc
+      - reg_addr
+      - reg_addr
+      - ram_src, md_dst, ret_jsr
+  - name: cjnei
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: cjned
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - direct_addr
+      - direct_src, md_dst
+      - pc_code
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: cjneri
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      - code_src, op2_dst, inc_pc
+      - ri_addr
+      - ri_addr
+      - ram_src, ea_dst
+      - ea_addr
+      - ea_addr
+      - ram_src, md_dst, ret_jsr
+  - name: cjnern
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - pc_code
+      - code_src, op2_dst, inc_pc
+      - reg_addr
+      - ram_src, md_dst, ret_jsr
+  - name: directrel
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - direct_addr
+      - direct_src, md_dst
+      - pc_code
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: directrell
+    seq:
+      - pc_code
+      - code_src, op1_dst, inc_pc
+      - direct_addr, latch
+      - direct_src, md_dst, latch
+      - pc_code
+      - code_src, op2_dst, inc_pc, ret_jsr
+  - name: rirel
+    seq:
+      - ri_addr
+      - ri_addr
+      - ram_src, ea_dst
+      - ea_addr
+      - ea_addr
+      - ram_src, md_dst
+      - pc_code
+      - code_src, op1_dst, inc_pc, ret_jsr
+  - name: rnrel
+    seq:
+      - reg_addr
+      - ram_src, md_dst
+      - pc_code
+      - code_src, op1_dst, inc_pc, ret_jsr
+  - name: isr
+    cycles: 2
+    seq:
+      # The next opcode has already been fetched at this boundary.  Save its
+      # address so RETI re-executes it instead of skipping it.
+      - stackp_addr, isrpclo_src, wr, sp_inc
+      - stackp_addr, isrpchi_src, wr, sp_inc
+      - irq_pc
+      # The wrapper program ROM is synchronous.  Let the vector address
+      # reach it before the shared fetch procedure captures the opcode.
+      -
+      -
+      - isrfetch_jsr
+      - ni
+  - mnemo: [NOP, RESERVED]
+    seq:
+      - fetch_jsr
+      - ni
+  - mnemo: [MOV]
+    seq:
+      - ${pre}_jsr
+      - ${src}_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [INC, DEC]
+    seq:
+      - ${pre}_jsr
+      - ${src}_src, lhs_dst
+      - ${alu}_alu, alu_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [ADD, ADDC, SUBB, ORL, ANL, XRL]
+    seq:
+      - ${pre}_jsr
+      - ${lhs}_src, lhs_dst
+      - ${src}_src, rhs_dst
+      - ${alu}_alu, alu_src, ${dst}_dst, ${flag}_flag
+      - fetch_jsr
+      - ni
+  - mnemo: [RR, RL, RRC, RLC]
+    seq:
+      - a_src, lhs_dst
+      - ${alu}_alu, alu_src, a_dst, ${flag}_flag
+      - fetch_jsr
+      - ni
+  - mnemo: [LJMP]
+    seq:
+      - ${pre}_jsr
+      - abs16_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [AJMP]
+    seq:
+      - ${pre}_jsr
+      - abs11_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [SJMP]
+    seq:
+      - ${pre}_jsr
+      - rel_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [JC, JNC, JZ, JNZ]
+    seq:
+      - ${pre}_jsr
+      - ${cond}_cond, relc_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [JB, JNB]
+    seq:
+      - ${pre}_jsr
+      - ${cond}_cond, rel2c_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [JBC]
+    seq:
+      - ${pre}_jsr
+      - zero_src, bitc_dst, ${cond}_cond, rel2c_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [RET]
+    seq:
+      - stack_addr
+      - stack_addr
+      - ram_src, op1_dst, sp_dec
+      - stack_addr
+      - stack_addr
+      - ram_src, op2_dst, sp_dec
+      - ret_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [RETI]
+    seq:
+      - stack_addr
+      - stack_addr
+      - ram_src, op1_dst, sp_dec
+      - stack_addr
+      - stack_addr
+      - ram_src, op2_dst, sp_dec
+      - ret_pc, reti
+      - fetch_jsr
+      - ni
+  - mnemo: [DIV, MUL]
+    seq:
+      - a_src, lhs_dst
+      - b_src, rhs_dst
+      - ${alu}_alu, alu_src, a_dst, mul_flag
+      - ${alu}_alu, aux_src, b_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [MOVX]
+    seq:
+      - ${pre}_jsr
+      - ${x}_x, x_acc, ${xwr}_xwr
+      # The shared bus returns a byte one enabled edge after the request.  A
+      # two-stage wrapper synchroniser presents that byte to the core on the
+      # third following edge, so retain three wait microsteps.  Only the
+      # first slot asserts the request; mapper interfaces treat it as an
+      # edge.
+      - ${x}_x
+      - ${x}_x
+      - ${x}_x
+      - ${x}_x, ${src}_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [MOVC]
+    seq:
+      - ${pre}_jsr
+      - ${code}_code, code_src, a_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [CLR]
+    seq:
+      - ${pre}_jsr
+      - zero_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [CPL]
+    seq:
+      - ${pre}_jsr
+      - ${src}_src, lhs_dst
+      - cpl_alu, alu_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [SETB]
+    seq:
+      - ${pre}_jsr
+      - one_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [DA]
+    seq:
+      - a_src, lhs_dst
+      - da_alu, alu_src, a_dst, cya_flag
+      - fetch_jsr
+      - ni
+  - mnemo: [SWAP]
+    seq:
+      - a_src, lhs_dst
+      - swap_alu, alu_src, a_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [LCALL]
+    seq:
+      - ${pre}_jsr
+      - stackp_addr, pclo_src, wr, sp_inc
+      - stackp_addr, pchi_src, wr, sp_inc
+      - abs16_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [ACALL]
+    seq:
+      - ${pre}_jsr
+      - stackp_addr, pclo_src, wr, sp_inc
+      - stackp_addr, pchi_src, wr, sp_inc
+      - abs11_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [JMP]
+    seq:
+      - dptra_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [CJNE]
+    seq:
+      - ${pre}_jsr
+      - ${src}_src, lhs_dst
+      - ${rhs}_src, rhs_dst
+      - cmp_alu, alu_src, cmp_flag, neq_cond, rel2c_pc
+      - fetch_jsr
+      - ni
+  - mnemo: [PUSH]
+    seq:
+      - ${pre}_jsr
+      - stackp_addr, ${src}_src, wr, sp_inc
+      - fetch_jsr
+      - ni
+  - mnemo: [POP]
+    seq:
+      - ${pre}_jsr
+      - stack_addr
+      - stack_addr
+      - ram_src, md_dst, sp_dec
+      - md_src, ${dst}_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [XCH]
+    seq:
+      - ${pre}_jsr
+      - a_src, ${dst}_dst
+      - ${src}_src, a_dst
+      - fetch_jsr
+      - ni
+  - mnemo: [XCHD]
+    seq:
+      - ${pre}_jsr
+      - a_src, lhs_dst
+      - ${src}_src, rhs_dst
+      - xchd_alu, alu_src, ${dst}_dst
+      - xchd_alu, aux_src, a_dst, fetch_jsr
+      - ni
+  - mnemo: [DJNZ]
+    seq:
+      - ${pre}_jsr
+      - ${src}_src, lhs_dst
+      - dec_alu, alu_src, ${dst}_dst, nzalu_cond, ${pc}_pc
+      - fetch_jsr
+      - ni

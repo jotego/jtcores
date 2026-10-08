@@ -1,107 +1,46 @@
-/*  This file is part of JT_FRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 28-8-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-8-2022 */
 
 package cmd
 
 import (
 	"fmt"
-	"path/filepath"
+	. "jotego/jtframe/common"
+	"jotego/jtframe/mra"
 	"os"
-	"github.com/jotego/jtframe/mra"
-	"github.com/jotego/jtframe/common"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
 
 var mra_args mra.Args
-var reduce, clear_folders bool
+var cmd_args = struct {
+	reduce, clear_folders bool
+}{}
 
 // mraCmd represents the mra command
 var mraCmd = &cobra.Command{
 	Use:   "mra <core-name core-name...> or mra --reduce <path-to-mame.xml>",
-	Short: "Parses the core's TOML file to generate MRA files. Accepts */? in core name",
-	Long: common.Doc2string("jtframe-mra.md"),
-	Run: func(cmd *cobra.Command, args []string) {
-		if reduce {
-			mra.Reduce(args[0], mra_args.Verbose)
-		} else { // regular operation, each core name is an argument
-			cores, e := get_corenames(args); must(e)
-			parse_cores(cores)
-		}
-	},
-}
-
-func parse_cores( corenames []string ) {
-	if clear_folders {
-		root := os.Getenv("JTROOT")
-		if root=="" {
-			fmt.Println("Environment variable JTROOT is not set")
-			os.Exit(1)
-		}
-		e := os.RemoveAll( filepath.Join(root,"release") )
-		if mra_args.Verbose && e!= nil { fmt.Println(nil) }
-		e = os.RemoveAll( filepath.Join(root,"rom") )
-		if mra_args.Verbose && e!= nil { fmt.Println(nil) }
-	}
-	mra_args.Xml_path=filepath.Join(os.Getenv("JTROOT"),"doc","mame.xml")
-	mra_args.Def_cfg.Target="mister"
-	entries, e := os.ReadDir(filepath.Join(os.Getenv("JTROOT"),"cores"))
-	if e != nil {
-		fmt.Println(e)
-		os.Exit(1)
-	}
-	for _, entry := range entries {
-		if !entry.IsDir() { continue }
-		for _, pattern := range corenames {
-			if match,_ := filepath.Match(pattern, entry.Name()); !match { continue }
-			mra_args.Def_cfg.Core = entry.Name()
-			if !check_files(mra_args.Def_cfg.Core) {
-				fmt.Println("Skipping", mra_args.Def_cfg.Core,"missing def/toml")
-				continue
-			}
-			mra.Run(mra_args)
-		}
-	}
-}
-
-func check_files( corename string ) bool {
-	f, e := os.Open(filepath.Join(os.Getenv("JTROOT"),"cores",corename,"cfg","macros.def"))
-	defer f.Close()
-	if e!= nil { return false }
-	f.Close()
-	f, e = os.Open(filepath.Join(os.Getenv("JTROOT"),"cores",corename,"cfg","mame2mra.toml"))
-	if e!= nil { return false }
-	return true
+	Short: "Parses each core's TOML file to generate MRA files",
+	Long:  man_blurb("jtframe-mra", "Generate MRA files from a core mame2mra.toml configuration."),
+	Run:   runMRA,
 }
 
 func init() {
 	rootCmd.AddCommand(mraCmd)
 	flag := mraCmd.Flags()
 
-	mra_args.Def_cfg.Target = "mist"
-	flag.StringVar(&mra_args.Def_cfg.Commit, "commit", "", "result of running 'git rev-parse --short HEAD'")
+	mra_args.Target = "mist"
+	mame_roms := filepath.Join(os.Getenv("HOME"), ".mame", "roms")
 	// flag.StringVar(&mra_args.Xml_path, "xml", os.Getenv("JTROOT")+"/doc/mame.xml", "Path to MAME XML file")
 	flag.StringVar(&mra_args.Year, "year", "", "Year string for MRA file comment")
-	flag.BoolVarP(&mra_args.Verbose, "verbose", "v", false, "verbose")
-	flag.BoolVarP(&reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
-	flag.BoolVar(&clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
+	flag.BoolVarP(&cmd_args.reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
+	flag.BoolVar(&cmd_args.clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")
-	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
+	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files. It still validates mame2mra.toml vs mame.xml")
 	flag.BoolVarP(&mra_args.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
+	flag.BoolVar(&mra_args.Alt, "alt", false, "Generate only alternative MRA files")
 	flag.BoolVar(&mra_args.Nodbg, "nodbg", false, "Do not parse games in debug phase")
 	flag.BoolVarP(&mra_args.Md5, "md5", "m", false, "Calculate MD5 sum even if the ROM is not saved")
 	flag.BoolVar(&mra_args.PrintNames, "names", false, "Print out the title of each game supported")
@@ -109,6 +48,87 @@ func init() {
 	flag.BoolVarP(&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
 	flag.BoolVarP(&mra_args.JTbin, "git", "g", false, "Save files to JTBIN")
 	flag.StringVar(&mra_args.Buttons, "buttons", "", "Buttons used by the game -upto six-")
+	flag.StringVar(&mra_args.Setname, "setname", "", "Extract only the specified setname")
 	flag.StringVar(&mra_args.URL, "url", "https://patreon.com/jotego", "Author's URL")
-	flag.StringVar(&mra_args.Rom_path,"path",filepath.Join(os.Getenv("HOME"), ".mame", "roms"),"Path to MAME .zip files")
+	flag.StringVar(&mra_args.Rom_path, "path", mame_roms, "Path to MAME .zip files")
+}
+
+func runMRA(cmd *cobra.Command, args []string) {
+	mra.Verbose = verbose
+	if mra_args.Alt {
+		mra_args.SkipPocket = true
+		mra_args.SkipROM = true
+	}
+	if cmd_args.reduce {
+		if len(args) < 1 {
+			fmt.Println("Expected one argument with the path mame.xml")
+			os.Exit(1)
+		}
+		mame_xml_path := args[0]
+		Must(mra.Reduce(mame_xml_path))
+	} else { // regular operation, each core name is an argument
+		cores, e := get_corenames(args)
+		Must(e)
+		validate_mra_core_args(cores)
+		if cmd_args.clear_folders {
+			clear_folders()
+		}
+		parse_errors := parse_cores(cores)
+		Must(parse_errors)
+	}
+}
+
+func validate_mra_core_args(cores []string) {
+	if len(cores) == 0 {
+		fmt.Println("Provide at least one core name as an argument or run the program from a core folder")
+		os.Exit(1)
+	}
+	if len(cores) > 1 && mra_args.Setname != "" {
+		fmt.Println("Setname cannot be used when multiple cores are specified")
+		os.Exit(1)
+	}
+}
+
+func clear_folders() {
+	e1 := os.RemoveAll(MakeJTpath("release"))
+	e2 := os.RemoveAll(MakeJTpath("rom"))
+	if mra.Verbose {
+		ShowErrors(e1, e2)
+	}
+}
+
+func parse_cores(corenames []string) error {
+	mra_args.Xml_path = MakeJTpath("doc", "mame.xml")
+	mra_args.Target = "pocket"
+	if verbose {
+		fmt.Println("Parsing", mra_args.Xml_path)
+	}
+	var all_errors error
+	for _, corename := range corenames {
+		if e := valid_core(corename); e != nil {
+			all_errors = JoinErrors(all_errors, e)
+			continue
+		}
+		core_args := mra_args
+		core_args.Core = corename
+		if !check_files(corename) {
+			all_errors = JoinErrors(all_errors, fmt.Errorf("%s: missing def/toml", corename))
+			continue
+		}
+		core_errors := core_args.Convert()
+		if core_errors != nil { core_errors = fmt.Errorf("%s: %w", corename, core_errors) }
+		all_errors = JoinErrors(all_errors, core_errors)
+	}
+	return all_errors
+}
+
+func check_files(corename string) bool {
+	required_files := []string{"macros.def", "mame2mra.toml"}
+	for _, name := range required_files {
+		path := ConfigFilePath(corename, name)
+		if !FileExists(path) {
+			return false
+		}
+	}
+	return true
 }

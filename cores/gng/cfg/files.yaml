@@ -1,0 +1,26 @@
+gng:
+  - get:
+      - jtgng_main.v
+      - jtgng_game.v
+      - jtgng_video.v
+      - jtgng_video.yaml
+      - jtgng_dual_ram.v
+      - jtgng_sound.yaml
+      - jtgng_colmix.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: cpu
+    get:
+      - jtframe_6809.yaml
+      - jtframe_z80.yaml
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      # - jtframe_cen24.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+jt12:
+  - get:
+      - jt12_rst.v

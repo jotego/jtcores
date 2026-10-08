@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+main() {
+  initialize_state
+  parse_args "$@"
+  validate_requirements
+  load_cached_container
+  create_container_if_needed
+  set_stop_trap
+
+  if [[ "$RUN_MODE" == "shell" ]]; then
+    run_shell_session
+    return
+  fi
+
+  ensure_codex_present
+  run_codex_session
+}
+
+initialize_state() {
+  IMAGE="${JTSANDBOX_IMAGE:-${JTSANDBOX_TAG:-jotego/codex:latest}}"
+  HOST_DIR="$(pwd)"
+  STATE_FILE="$HOST_DIR/.jtsandbox"
+  SKILLS_DIR="${HOME}/jtcores-skills"
+  OPT_DIR="/opt"
+  MAME_ROMS_HOST="/nobackup/mame/current"
+  MAME_ROMS_CONTAINER="/root/.mame/roms"
+  CONTAINER_USER="${JTSANDBOX_CONTAINER_USER:-0:0}"
+  NAME_PREFIX="jtsandbox-$(basename "$HOST_DIR")"
+  CONTAINER_NAME=""
+}
+
+validate_requirements() {
+  if [[ ! -d "$HOST_DIR" ]]; then
+    echo "[jtsandbox] current directory does not exist: $HOST_DIR" >&2
+    exit 1
+  fi
+
+  if [[ ! -d "$SKILLS_DIR" ]]; then
+    echo "[jtsandbox] Missing required directory: $SKILLS_DIR" >&2
+    echo "Create it with: mkdir -p $SKILLS_DIR" >&2
+    exit 1
+  fi
+
+  if [[ ! -d "$OPT_DIR" ]]; then
+    echo "[jtsandbox] Missing required directory: $OPT_DIR" >&2
+    exit 1
+  fi
+
+  if [[ ! -d "$MAME_ROMS_HOST" ]]; then
+    echo "[jtsandbox] Missing required directory: $MAME_ROMS_HOST" >&2
+    echo "Create it before running jtsandbox." >&2
+    exit 1
+  fi
+
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "[jtsandbox] docker command is required" >&2
+    exit 1
+  fi
+}
+
+parse_args() {
+  RUN_MODE="codex"
+  SKIP_CODEX_INSTALL="${JTSANDBOX_SKIP_CODEX_INSTALL:-0}"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --shell)
+        RUN_MODE="shell"
+        ;;
+      --skip-codex-install)
+        SKIP_CODEX_INSTALL=1
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        echo "Unknown option: $1" >&2
+        echo "Use --help for usage" >&2
+        exit 1
+        ;;
+    esac
+    shift
+  done
+}
+
+load_cached_container() {
+  if [[ ! -f "$STATE_FILE" ]]; then
+    return
+  fi
+
+  CACHED_NAME="$(sed -n '1p' "$STATE_FILE" | tr -d '\r' | awk '{print $1}')"
+  if [[ -z "${CACHED_NAME:-}" ]]; then
+    return
+  fi
+
+  if ! docker inspect "$CACHED_NAME" >/dev/null 2>&1; then
+    return
+  fi
+
+  CACHED_CONTAINER_USER="$(docker inspect --format='{{.Config.User}}' "$CACHED_NAME")"
+  if [[ "$CACHED_CONTAINER_USER" != "$CONTAINER_USER" ]]; then
+    CONTAINER_NAME=""
+    return
+  fi
+
+  CONTAINER_NAME="$CACHED_NAME"
+  if [[ "$(docker inspect --format='{{.State.Running}}' "$CONTAINER_NAME")" == "true" ]]; then
+    return
+  fi
+
+  if ! docker start "$CONTAINER_NAME" >/dev/null; then
+    CONTAINER_NAME=""
+    return
+  fi
+
+  if [[ "$(docker inspect --format='{{.State.Running}}' "$CONTAINER_NAME")" != "true" ]]; then
+    CONTAINER_NAME=""
+  fi
+}
+
+create_container_if_needed() {
+  if [[ -n "$CONTAINER_NAME" ]]; then
+    return
+  fi
+
+  CONTAINER_NAME="${NAME_PREFIX}-$(date +%s)"
+  docker run -d \
+    --name "$CONTAINER_NAME" \
+    --network=host \
+    --user "$CONTAINER_USER" \
+    --workdir /jtcores \
+    -v "$HOST_DIR:/jtcores" \
+    -v "$SKILLS_DIR:/jtcores-skills" \
+    -v /opt:/opt:ro \
+    -v "$MAME_ROMS_HOST:$MAME_ROMS_CONTAINER:ro" \
+    "$IMAGE" \
+    -lc 'while :; do sleep 3600; done'
+  printf '%s\n' "$CONTAINER_NAME" > "$STATE_FILE"
+}
+
+set_stop_trap() {
+  trap 'docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true' EXIT
+}
+
+run_shell_session() {
+  docker exec -it -u "$CONTAINER_USER" "$CONTAINER_NAME" bash --noprofile --norc
+}
+
+ensure_codex_present() {
+  if docker exec -u "$CONTAINER_USER" "$CONTAINER_NAME" bash -lc 'command -v codex >/dev/null 2>&1'; then
+    return
+  fi
+
+  if [[ "$SKIP_CODEX_INSTALL" == "1" ]]; then
+    return
+  fi
+
+  if docker exec -u "$CONTAINER_USER" "$CONTAINER_NAME" bash -lc \
+    "python3 -m pip install --user --quiet --upgrade --break-system-packages openai-codex"; then
+    return
+  fi
+
+  docker exec -u "$CONTAINER_USER" "$CONTAINER_NAME" bash -lc \
+    "npm install -g --no-audit --no-fund @openai/codex || true"
+}
+
+run_codex_session() {
+  docker exec -it -u "$CONTAINER_USER" "$CONTAINER_NAME" bash -lc 'exec codex --dangerously-bypass-approvals-and-sandbox'
+}
+
+usage() {
+  cat <<'EOF'
+Usage: jtsandbox [--shell] [--skip-codex-install]
+  --shell                  Open an interactive shell in the container
+  --skip-codex-install     Skip automatic codex install/update step
+  -h, --help              Show this help text
+EOF
+}
+
+main "$@"

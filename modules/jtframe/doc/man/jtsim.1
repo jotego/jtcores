@@ -1,0 +1,343 @@
+.TH JTSIM 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtsim \- run JTFRAME simulations
+.SH SYNOPSIS
+.B jtsim
+.RI [ options ]
+.RI [ file.cab ]
+.SH DESCRIPTION
+.B jtsim
+runs a core simulation from a verification folder, typically
+\fBcores/<core>/ver/<setname>\fR.
+It prepares macro files with
+\fBjtframe cfgstr\fR,
+generates local memory and MMR outputs with
+\fBjtframe mem\fR
+and
+\fBjtframe mmr\fR,
+builds simulator file lists with
+\fBjtframe files sim\fR,
+and then launches the selected simulator.
+.PP
+If a set name is requested,
+\fBjtsim\fR
+uses the ROM preparation flow driven by
+\fBjtframe mra\fR
+through
+\fBgetset.sh\fR
+to obtain the right
+\fB.rom\fR
+file and DIP switch defaults.
+.PP
+The script must be sourced into a JTFRAME environment first, usually by running
+\fBsource setprj.sh\fR.
+.PP
+Scene simulations also require the \fBJOTEGO\fR environment variable. It names
+the private JTCORES support-files directory, where scene data is stored as
+\fB$JOTEGO/scenes/<core-name>/<set-name>\fR. When \fB-s\fR is used from a
+core verification folder, \fBjtsim\fR creates the local \fBscenes\fR symbolic
+link to that directory.
+.SH OPTIONS
+.TP
+.B \-args
+Pass additional arguments directly to the selected simulator.
+.TP
+.B \-batch
+Tell
+\fBjtsim\fR
+that it is being run by a batch process.
+.TP
+.B \-cov
+Enable coverage collection for Verilator runs.
+Annotated coverage output is written under
+\fBcov/\fR.
+.TP
+.BI "\-d " macro
+Define a simulation macro.
+The macro name is validated before being added to the generated macro outputs.
+.TP
+.BI "\-debug_bus " value
+Set
+\fBJTFRAME_SIM_DEBUG\fR
+to the given value.
+.TP
+.B \-dir
+When used with
+\fB-setname\fR,
+run the simulation inside a directory named after the set.
+.TP
+.B \-deep
+Enable waveform dumping and request a deeper signal dump.
+If followed by a number, dumping starts at that frame.
+.TP
+.BI "\-dipsw " hex
+Set
+\fBJTFRAME_SIM_DIPS\fR
+to the given hexadecimal value.
+If this option is omitted,
+\fBjtsim\fR
+tries to load default DIP switches from
+\fB$ROM/<setname>.dip\fR.
+.TP
+.BI "\-dump " frame
+Set
+\fBJTFRAME_SIM_IODUMP\fR
+to the given frame number.
+This uses the IOCTL dump interface and requires
+\fBJTFRAME_IOCTL_RD\fR.
+.TP
+.B \-fast
+Increase C++ optimization for Verilator simulations.
+This can speed up long runs, but may reduce stability in some cases.
+.TP
+.B \-fx68k
+Keep FX68K support files for Icarus Verilog runs.
+.TP
+.B \-gates
+Run a gate-level simulation.
+This mode is not available with Verilator.
+.TP
+.BI "\-gfx " hex
+Set
+\fBJTFRAME_SIM_GFXEN\fR
+to the given hexadecimal value.
+.TP
+.B \-help
+.br
+.B \-h
+.br
+.B \-\-help
+Show the short command-line help.
+Use
+\fBman jtsim\fR
+for the full reference.
+.TP
+.B \-norotate
+Keep Verilator dumped frame images in the core's native orientation.
+By default, vertical cores are rotated during PNG conversion.
+.SH CABINET INPUTS
+.TP
+.BI file.cab
+Pass the cabinet script to the Verilator executable as \fB--inputs file.cab\fR.
+.PP
+The file must have the \fB.cab\fR extension. Its contents are validated before
+the simulation starts; malformed timing, loop, action, or cheat entries stop
+the run with an error. Cabinet scripts are supported by the Verilator harness.
+.PP
+Cabinet frames are applied at the rising edge of \fBLVBL\fR, after
+vertical-blank processing has completed.
+.PP
+Without an explicit \fB-video count\fR, the simulation runs until every frame
+expanded from the cabinet script has been executed, including idle-only frame
+count lines.
+.PP
+Each non-comment line has an optional frame count followed by zero or more
+inputs: \fBcoin\fR, \fB2coin\fR, \fBservice\fR, \fB1p\fR, \fB2p\fR,
+\fBright\fR, \fBleft\fR, \fBdown\fR, \fBup\fR, \fBb1\fR, \fBb2\fR,
+\fBb3\fR, their \fB2...\fR player-two forms, \fBtest\fR, \fBreset\fR,
+and \fBdump\fR.
+.PP
+\fBtracing_on\fR enables Verilator tracing at that cabinet frame. It has
+the same delayed-dump effect as \fBjtsim -w <frame>\fR; no VCD samples are
+written before the command, so the resulting \fBtest.fst\fR begins there. It
+may be used once in a cabinet frame. With \fB=<frame> action\fR, the action
+fires only on the final frame of the absolute wait.
+Use \fBloop\fR and \fBrepeat <count>\fR to repeat a block, or
+\fB=<frame>\fR for an absolute final frame.
+.PP
+\fBdump\fR starts an IOCTL state dump at that cabinet frame. When the read
+finishes, it writes \fBscenes/<frame>/dump.bin\fR, which can be restored with
+\fBjtsim -s <frame>\fR. It requires \fBJTFRAME_IOCTL_RD\fR.
+.PP
+\fBdipsw=<hex-value>\fR overrides the DIP-switch value driven by the test
+bench from that frame onward. It can be combined with button inputs and is
+validated as an unsigned hexadecimal value; the \fB0x\fR prefix is optional.
+.PP
+An entry of the form \fBcheat=<name>\fR applies the named cheat once on each
+requested frame. Cheats are defined by the current core's
+\fBcfg/cheat.yaml\fR and can only write SDRAM-backed CPU RAM. A definition is:
+.RS
+.nf
+cabal:
+  - name: finish
+    mame: "Finish Current Level Now!"
+    sdram:
+      - { bank: 0, offset: 0x1234, byte-mask: 0x01, data: 0x01 }
+.fi
+.RE
+Names may contain letters, digits, underscores, and hyphens. The byte mask is
+\fB1\fR, \fB2\fR, or \fB3\fR; bit 0 selects the byte at \fBoffset\fR and bit 1
+selects the following byte. The top-level YAML keys are MAME machine or
+setname selectors, and each contains its applicable cheat array.
+.TP
+.B \-iverilog
+Use Icarus Verilog as the simulator.
+.TP
+.B \-keepcpp
+Do not overwrite the local Verilator support files such as
+\fBtest.cpp\fR.
+.TP
+.B \-lint
+Run Verilator in lint mode instead of running a simulation.
+.TP
+.B \-load
+Load the ROM through the simulated SPI/download path instead of relying on
+prebuilt SDRAM bank files.
+This is slower, but it reproduces the download path.
+.TP
+.B \-mist
+Use the MiST simulation target.
+.TP
+.B \-modelsim
+Use ModelSim as the simulator.
+.TP
+.B \-modules
+Accepted for compatibility.
+The current script ignores the value.
+.TP
+.B \-mister
+.br
+.B \-mr
+Use the MiSTer simulation target.
+This switches the top module to
+\fBmister_test\fR
+and prepares a fake
+\fBbuild_id.v\fR.
+.TP
+.B \-ncverilog
+Use NCVerilog as the simulator.
+.TP
+.B \-nosnd
+.br
+.B \-q
+Disable sound-related hardware for a faster simulation by defining
+\fBNOSOUND\fR,
+\fBNOFM\fR,
+and
+\fBNOSSG\fR.
+.TP
+.B \-pause
+Enable the pause DIP setting.
+Equivalent to defining
+\fBDIP_PAUSE\fR.
+.TP
+.B \-pocket
+Use the Pocket target and switch the top module to
+\fBtest\fR.
+.TP
+.B \-questasim
+Use QuestaSim as the simulator.
+.TP
+.B \-safe
+Disable some Verilator optimizations that may stall elaboration.
+.TP
+.B \-scene
+.br
+.BI "\-s " path
+Simulate a saved scene dump.
+This mode uses the dump file and
+\fBdump2bin.sh\fR
+to prepare a short replay-oriented simulation.
+The local \fBscenes\fR path is linked to
+\fB$JOTEGO/scenes/<core-name>/<set-name>\fR.
+If the scene has a
+\fBsnapshot.png\fR
+reference and the rendered frame does not match it,
+\fBjtsim\fR
+exits with a nonzero status.
+.TP
+.BI "\-setname " name
+Build or reuse the ROM for the given MAME set name.
+This drives the ROM-generation flow before simulation starts.
+.TP
+.B \-shaup
+Update the SHA file used to validate dumped frame images.
+.TP
+.B \-showcmd
+Print the simulator command instead of running it.
+.TP
+.B \-sidi128
+Use the SiDi128 target.
+.TP
+.B \-skipROM
+Do not regenerate the
+\fB.rom\fR
+file when using
+\fB-setname\fR.
+.TP
+.BI "\-srate " rate
+Set the sampling rate used when converting raw audio output to WAV.
+.TP
+.B \-stats
+Enable SDRAM statistics by defining
+\fBJTFRAME_SDRAM_STATS\fR.
+.TP
+.B \-synap
+Use the SynaptiCAD simulator.
+.TP
+.B \-test
+Enable the test DIP setting.
+Equivalent to defining
+\fBDIP_TEST\fR.
+.TP
+.BI "\-time " milliseconds
+Simulate for the given number of milliseconds.
+.TP
+.B \-u
+.br
+.BI "\-undef " macro
+Undefine a simulation macro.
+.TP
+.B \-verilator
+Use Verilator as the simulator.
+This is the default unless another simulator is selected.
+.TP
+.B \-video
+Enable video dumping.
+If followed by a number, that number is used as the frame limit.
+.TP
+.B \-w
+.RI [ frame ]
+Enable waveform dumping for a smaller set of signals.
+If a frame number is given, dumping starts there.
+.TP
+.B \-xcelium
+Use Xcelium as the simulator.
+.TP
+.B \-zoom
+Enlarge rendered output images.
+.SH FILES
+.TP
+.B core.def
+Simulator-oriented macro definitions generated by
+\fBjtframe cfgstr\fR.
+.TP
+.B defmacros.h
+Verilator C/C++ macro header generated by
+\fBjtframe cfgstr --output cpp\fR.
+.TP
+.B game.f
+.br
+.B jtsim_vhdl.f
+.br
+.B filtered.f
+Simulation file lists derived from the core and target file descriptions.
+.TP
+.B rom.bin
+Symbolic link to the selected ROM image for the current set. For cores defining
+.B JTFRAME_ROMLESS
+, this is an empty local placeholder created by
+.BR jtsim .
+.TP
+.BI "sdram_bank" n ".bin"
+Prebuilt SDRAM bank contents reused by later simulations.
+.TP
+.BI file.cab
+Cabinet input script for frame-by-frame replay.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-cfgstr (1),
+.BR jtframe-files (1),
+.BR jtframe-mem (1),
+.BR jtframe-mra (1),
+.BR jtutil-sdram (1)

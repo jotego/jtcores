@@ -10,7 +10,7 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
@@ -41,7 +41,7 @@ jobs:
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
@@ -50,7 +50,7 @@ jobs:
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket sidi sidi128
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-${{ matrix.core }}
           path: release
@@ -61,9 +61,9 @@ jobs:
     needs: [ compile_cores20 ]
     if: ${{ always() }} # upload the results even if some core did not compile correctly
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: release
           pattern: release-*
@@ -80,13 +80,7 @@ jobs:
           touch -m -d "$COMMIT_DATE" "$ARTIFACT_NAME"
           ls -l $ARTIFACT_NAME
       - name: Upload bundle
-        uses: bayssmekanique/action-simple-file-upload@v2
+        uses: actions/upload-artifact@v6
         with:
-          user: ${{ secrets.FTPUSER }}
-          password: ${{ secrets.FTPPASS }}
-          host: jotego.es
-          src: ${{ env.ARTIFACT_NAME }}
-          dest: ${{ env.ARTIFACT_NAME }}
-      - uses: geekyeggo/delete-artifact@v4
-        with:
-            name: $ARTIFACT_NAME
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_NAME }}

@@ -2,12 +2,13 @@
 // Factored out of the scandoubler by AMR, and adjusted to cope with 
 // output bit depth being less than input depth
 
-module scandoubler_scaledepth (
+module scandoubler_scaledepth #(
+parameter IN_DEPTH = 6,
+          OUT_DEPTH = 6
+)(
 	input [IN_DEPTH-1:0] d,
 	output wire [OUT_DEPTH-1:0] q
 );	
-parameter IN_DEPTH = 6;
-parameter OUT_DEPTH = 6;
 
 localparam m = OUT_DEPTH < IN_DEPTH ? 1 : OUT_DEPTH/IN_DEPTH;
 localparam n = OUT_DEPTH < IN_DEPTH ? 0 : OUT_DEPTH%IN_DEPTH;

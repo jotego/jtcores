@@ -4,7 +4,7 @@ Designed by Jose Tejada (jotego - @topapate). PCB donated by **DJ HARDRICH**.
 
 You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)
-* [Paypal] (https://paypal.me/topapate)
+* [Paypal](https://paypal.me/topapate)
 
 Yes, you always wanted to have a Karate Champ arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. On top of that, an original PCB from Japan costs $500. Don't worry, MiST(er) is here to the rescue.
 
@@ -48,7 +48,7 @@ The **Analogue Pocket** version is supported for [Patreon](https://patreon.com/j
 
 ## Compilation
 
-This project uses the [JTFRAME](https://github.com/jotego/JTFRAME) framework. Please refer to it for compilation instructions.
+This project uses the [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) framework. Please refer to it for compilation instructions.
 
 ## Special thanks to Patreon subscribers
 

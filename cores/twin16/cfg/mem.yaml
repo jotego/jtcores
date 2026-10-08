@@ -1,8 +1,9 @@
 params:
-  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA2_START) >> 1" }
-  - { name: UPD_OFFSET,  value: "(`UPD_START-`JTFRAME_BA2_START) >> 1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA3_START) >> 1" }
+  - { name: UPD_OFFSET,  value: "(`UPD_START-`JTFRAME_BA3_START) >> 1" }
   - { name: GFX_OFFSET,  value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
   - { name: GFX_LEN,     value: "(`JTFRAME_BA2_START>>1)-GFX_OFFSET"   }
+  - { name: STRAM_OFFSET,value: "22'h100000" }
   - { name: MRAM_OFFSET, value: "22'h100000" }
   - { name: SRAM_OFFSET, value: "GFX_OFFSET+GFX_LEN" }
 clocks:
@@ -11,19 +12,20 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 640000
+    - freq: 640k
       outputs:
         - cen_640
         - cen_320
-    - freq: 1536000
+    - freq: 1536k
       outputs:
         - cen_1m5
 audio:
   rsum: 12k
   rsum_feedback_res: true
-  channels:
+  gain: 1.99
+  channels: # stereo output
     - { name: fm,  module: jt51,     rsum: 3k,   rc: [ { r: rout, c: 2.2n }, { r: 666,  c:  33n } ] } # 1k || (1k+1k)
-    - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 120k, c: 470p } ], pre: 0.3  } # 0.37*10k/12.2k
+    - { name: pcm, module: jt007232, rsum: 5.1k, rc: [ { r: 19.65k, c: 470p } ], pre: 0.131  } # 0.164*10k/12.2k
     - { name: upd, module: jt7759,   rsum: 8.5k, fir: fir_192k_4k.csv }
 sdram:
   banks:
@@ -37,6 +39,7 @@ sdram:
         - name: main
           addr_width: 18
           data_width: 16
+          cache_size: 1kB
     - buses:
         - name: sram
           #  16kB of work RAM
@@ -51,6 +54,7 @@ sdram:
         - name: sub
           addr_width: 19
           data_width: 16
+          cache_size: 1kB
         # SRAM is mapped after lyro so the first 128 kB of SRAM
         # are accessible from the lyro slot
         - name: lyro
@@ -64,6 +68,28 @@ sdram:
           addr_width: 21
           data_width: 16
           offset: GFX_OFFSET
+    - buses:
+        # Scroll tiles on SDRAM for machines with little BRAM
+        - name: stile
+          addr_width: 18
+          data_width: 16
+          din: sram_din
+          rw: true
+          offset: STRAM_OFFSET
+          when: [ SCRTILE_SDRAM ]
+        - name: lyra
+          addr_width: 18
+          data_width: 32
+          offset: STRAM_OFFSET
+          when: [ SCRTILE_SDRAM ]
+        - name: lyrb
+          addr_width: 18
+          data_width: 32
+          offset: STRAM_OFFSET
+          when: [ SCRTILE_SDRAM ]
+        - name: lyrf
+          addr_width: 14
+          data_width: 32
     - buses:
         - name: snd
           addr_width: 15
@@ -80,53 +106,55 @@ sdram:
           addr_width: 17
           data_width: 8
           offset: UPD_OFFSET
-    - buses:
-        - name: lyrf
-          addr_width: 14
-          data_width: 32
 bram:
   # 8 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL)
   - name: nvram
-    data_width: 16
     addr_width: 15
+    data_width: 16
     din: mram_din
     rw: true
     ioctl: { save: true, order: 0, when: [ JTFRAME_RELEASE ] }
   - name: fram
-    data_width: 16
     addr_width: 14
-    sim_file: true
+    data_width: 16
+    simfile: {}
+
     ioctl: { save: true, order: 0, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: fx_we, rw: true, din: mram_din, dout: mf_dout }
-  # 256kB for Scroll Tile Bitmaps
+  # 256kB for Scroll Tile Bitmaps as BRAM
   - name: stram
-    data_width: 16
+    unless: [ SCRTILE_SDRAM ]
     addr_width: 18
+    data_width: 16
     ioctl: { save: true, order: 1, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: stile, rw: true, din: sram_din, dout: stile_dout }
   # VRAM in schematics is mapped to scra and scrb
   - name: scra
-    data_width: 16
     addr_width: 13
-    sim_file: true
+    data_width: 16
+    simfile: {}
+
     ioctl: { save: true, order: 2, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: vram, we: va_we, rw: true, din: v_din, dout: ma_dout }
   - name: scrb
-    data_width: 16
     addr_width: 13
-    sim_file: true
+    data_width: 16
+    simfile: {}
+
     ioctl: { save: true, order: 3, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: vram, we: vb_we, rw: true, din: v_din, dout: mb_dout }
   - name: oram
-    data_width: 16
     addr_width: 14
+    data_width: 16
     rw: true
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 4, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: osha, we: osha_we, rw: true, din: v_din, dout: mo_dout }
   - name: pal
-    data_width: 8
     addr_width: 12
-    sim_file: true
+    data_width: 8
+    simfile: {}
+
     ioctl: { save: true, order: 5, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "mram_din[7:0]", dout: mp_dout }

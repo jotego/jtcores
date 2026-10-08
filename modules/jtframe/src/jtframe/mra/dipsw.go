@@ -1,12 +1,20 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mra
 
 import(
     "fmt"
+    "log"
+    "os"
     "path/filepath"
     "regexp"
     "sort"
     "strconv"
     "strings"
+
+    . "jotego/jtframe/xmlnode"
 )
 
 func dipsw_tag(ds MachineDIP ) bool {
@@ -27,63 +35,46 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
     base := 0
     def_all := 0xffffffff // 32 bits
     game_bitcnt := cfg.Dipsw.Bitcnt
-diploop:
     for _, ds := range machine.Dipswitch {
-        ignore := false
-        for _, each := range cfg.Dipsw.Delete {
-            if each.Match(machine)>0 {
-                for _, name := range each.Names {
-                    patternLwr := strings.ToLower(name)
-                    dipLwr := strings.ToLower(ds.Name)
-                    baseMatch :=  patternLwr == dipLwr
-                    // GLOB match considers / a special character (separtor) in linux
-                    // replace it for comparison
-                    globMatch, _ := filepath.Match(strings.ReplaceAll(patternLwr,"/","_"), strings.ReplaceAll(dipLwr,"/","_"))
-                    if baseMatch || globMatch {
-                        if args.Verbose { fmt.Printf("DIP switch '%s' skipped\n", ds.Name) }
-                        continue diploop
-                    }
-                }
-            }
-        }
+        ignore := cfg.Dipsw.is_deleted( ds.Name, machine )
         if ds.Condition.Tag != "" && ds.Condition.Value == 0 {
-            continue diploop // This switch depends on others, skip it
+            continue // This switch depends on others, skip it
         }
-        dip_rename( &ds, cfg )
-        if args.Verbose {
+        cfg.Dipsw.rename( &ds )
+        if Verbose {
             fmt.Printf("\tDIP %s (%s) %d:%d - default = %06X.\n",
                 ds.Name, ds.Tag, ds.msb, ds.lsb, uint(def_all) )
         }
         if ds.Tag != last_tag {
             last_tag = ds.Tag
             m := n.AddNode(last_tag)
-            m.comment = true
+            m.SetIndent()
         }
         sort.Slice(ds.Dipvalue, func(p, q int) bool {
             return ds.Dipvalue[p].Value < ds.Dipvalue[q].Value
         })
-        options, opt_dev := dip_option_string( ds.Mask, args.Verbose, ds.Dipvalue )
+        options, opt_dev := dip_option_string( ds.Mask, ds.Dipvalue )
         if !ignore {
             dip_add_node( machine.Name, ds.Name, options, n, ds.lsb, ds.msb, &game_bitcnt )
         }
         // apply the default value
         def_all &= ^ds.full_mask
         def_all |= opt_dev<<ds.offset
-        if args.Verbose {
+        if Verbose {
             fmt.Printf("\t\tMask %X (MAME %X) this one %x -> all =%X (base=%d)\n",
                 uint(ds.full_mask), ds.Mask, uint(opt_dev<<ds.offset), uint(def_all&0xffffff), base)
         }
     }
     def_str := dip_int2str( def_all, game_bitcnt )
-    if args.Verbose {
+    if Verbose {
         fmt.Printf("Default string before applying TOML overrides: %s (bit count=%d)\n",
             def_str, game_bitcnt)
     }
-    // Override the defaults is set so in the TOML
+    // Override the defaults if set so in the TOML
     for _,each := range cfg.Dipsw.Defaults {
         if each.Match(machine)>0 {
             def_str = each.Value
-            if args.Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
+            if Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
         }
     }
     if def_str=="" { // do not leave them as 00,00!
@@ -111,7 +102,7 @@ func dip_int2str( def, maxbit int ) string {
     return s
 }
 
-func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int) {
+func dip_option_string( mask int, all MAMEDIPValues ) (string, int) {
     total := mask
     offset := 0
     def := 0
@@ -127,7 +118,7 @@ func dip_option_string( mask int, verbose bool, all MAMEDIPValues ) (string, int
         options[v] = strings.ReplaceAll(each.Name, ",", " ")
         if each.Default == "yes" {
             def = each.Value
-            if verbose {
+            if Verbose {
                 fmt.Printf("\t\tDefault = %s. %X -> %X \n", each.Name, each.Value, uint(def) )
             }
         }
@@ -176,7 +167,7 @@ func dip_add_node( machineName, dsName, options string, n *XMLNode, lsb, msb int
                 tl = name_len + len(chunks[k])-26
             }
             if tl>0 {
-                fmt.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
+                log.Printf("\tWarning DIP option too long for MiSTer (%d extra): (%s)\n\t%s:%s\n",
                     tl, machineName, dsName, chunks[k])
             }
         }
@@ -186,21 +177,53 @@ func dip_add_node( machineName, dsName, options string, n *XMLNode, lsb, msb int
     m.AddAttr("ids", strings.TrimSpace(options))
 }
 
-func dip_rename( ds *MachineDIP, cfg Mame2MRA ) {
-    for _, each := range cfg.Dipsw.Rename {
-        if each.Name == ds.Name {
-            if each.To != "" {
-                ds.Name = each.To
+func (cfg *DipswCfg)is_deleted( dip_name string, machine *MachineXML ) bool {
+    for _, each := range cfg.Delete {
+        if each.Match(machine)==0 { continue }
+        if each.is_deleted(dip_name) {
+            return true
+        }
+    }
+    return false
+}
+
+func (del DIPswDelete)is_deleted(dip_name string) bool {
+    for _, name := range del.Names {
+        patternLwr := strings.ToLower(name)
+        dipLwr := strings.ToLower(dip_name)
+        baseMatch :=  patternLwr == dipLwr
+        // GLOB match considers / a special character (separator) in linux
+        // replace it for comparison
+        globMatch, _ := filepath.Match(strings.ReplaceAll(patternLwr,"/","_"), strings.ReplaceAll(dipLwr,"/","_"))
+        if baseMatch || globMatch {
+            if Verbose { fmt.Printf("DIP switch '%s' skipped\n", dip_name) }
+            return true
+        }
+    }
+    return false
+}
+
+func (cfg *DipswCfg)rename( ds *MachineDIP ) {
+    dip_name := strings.ToLower(ds.Name)
+    for _, rename := range cfg.Rename {
+        lwr_name := strings.ToLower(rename.Name)
+        if lwr_name == dip_name {
+            if rename.To != "" {
+                ds.Name = rename.To
             }
-            for k, v := range each.Values {
-                if k > len(ds.Dipvalue) {
-                    break
-                }
-                if v != "" {
-                    ds.Dipvalue[k].Name = v
-                }
-            }
+            rename.overwrite_dipsw_values(ds.Dipvalue)
             break
+        }
+    }
+}
+
+func (rename *DipswCfgRename) overwrite_dipsw_values( mame MAMEDIPValues ) {
+    for k, v := range rename.Values {
+        if k >= len(mame) {
+            break
+        }
+        if v != "" {
+            mame[k].Name = v
         }
     }
 }
@@ -209,7 +232,8 @@ func add_extra_dip(n *XMLNode, create_parent bool, machine *MachineXML, cfg Mame
     // Add DIP switches in the extra section, note that these
     // one will always have a default value of 1
     for _, each := range cfg.Dipsw.Extra {
-        if args.Verbose {
+        if each.Target != "" && each.Target != args.Target { continue }
+        if Verbose {
             fmt.Printf("\tChecking extra DIPSW %s for %s/%s (current %s/%s)\n",
                 each.Name, each.Machine, each.Setname, machine.Cloneof, machine.Name)
         }
@@ -288,4 +312,38 @@ func dip_mask( bits string ) int {
         mask &= ^(1<<k)
     }
     return mask
+}
+
+func make_dip_file(root *XMLNode) string {
+    setname := get_setname_from_mra(root)
+    filename := filepath.Join(os.Getenv("JTROOT"),"rom",setname+".dip")
+    dipval := get_dipsw_from_mra(root)
+    if dipval == "" { return "" }
+    save_dip_file(filename,dipval)
+    return filename
+}
+
+func get_setname_from_mra(root *XMLNode) (string) {
+    node := root.FindNode("setname")
+    if node==nil {
+        return ""
+    }
+    return node.GetText()
+}
+
+func get_dipsw_from_mra(root *XMLNode) (string) {
+    swnode := root.FindNode("switches")
+    if swnode==nil {
+        return ""
+    }
+    return swnode.GetAttr("default")
+}
+
+func save_dip_file(filename, ds string) {
+    parts := strings.Split(ds,",")
+    reordered := ""
+    for k:=len(parts)-1;k>=0;k-- {
+        reordered += parts[k]
+    }
+    os.WriteFile(filename,[]byte(reordered),0644)
 }

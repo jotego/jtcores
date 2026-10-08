@@ -1,0 +1,8 @@
+#!/usr/bin/env -S bashc -c 'exec jtsim -q -video 560 -w 520 -inputs "$0" "$@"'
+440
+loop
+2 coin
+4
+2 1p
+repeat 10
+200 right

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-8-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-8-2023 */
 
 module jttwin16_main(
     input                rst,
@@ -94,7 +80,8 @@ wire [15:0] vdout;
 reg  [ 7:0] cab_dout;
 reg  [ 4:0] nvram_ahi;
 reg         LVBLl;
-wire        bus_cs, bus_busy, BUSn, ab_sel;
+wire        ok_dly;
+wire        bus_cs, bus_busy, bus_legit, BUSn, ab_sel;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -103,9 +90,21 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr  = A[19:1];
 assign nvram_addr = {nvram_ahi,A[9:1]};
 assign ram_dsn    = {UDSn, LDSn};
-assign bus_cs     = rom_cs | ram_cs;
-assign bus_busy   = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok);
+assign bus_cs     = rom_cs | ram_cs | oram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
+assign bus_busy   = ((rom_cs | ram_cs) & ~ok_dly) | (oram_cs & dma_bsy);
 assign BUSn       = ASn | (LDSn & UDSn);
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
+
 assign cpu_we     = ~RnW;
 assign ram_we     = ~RnW;
 assign pal_we     = pal_cs & cpu_we & ~LDSn;
@@ -117,6 +116,7 @@ assign va_we      = dws & {2{vram_cs & ~A[13]}};
 assign vb_we      = dws & {2{vram_cs &  A[13]}};
 assign fx_we      = dws & {2{fix_cs}};
 assign oram_we    = dws & {2{oeff_cs}};
+assign bus_legit  = oram_cs;
 
 always @* begin
     case( debug_bus[3:0] )
@@ -280,7 +280,8 @@ jtframe_68kdtack_cen #(.W(5),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 4'd3      ),  // numerator
@@ -325,7 +326,7 @@ jtframe_m68k u_cpu(
 );
 `else
     integer fin, fcnt;
-    reg [7:0] mmr[0:10];
+    reg [7:0] mmr[0:11];
 
     initial begin
         for( fcnt=0; fcnt<11; fcnt=fcnt+1 ) mmr[fcnt]=0;
@@ -343,6 +344,7 @@ jtframe_m68k u_cpu(
         vflip    = mmr[4][7];
         obj_dx   = {mmr[8],mmr[7]};
         obj_dy   = {mmr[10],mmr[9]};
+        dma_on   = mmr[11][0];
     end
     // integer framecnt=0;
     // always @(posedge LVBL) begin
@@ -352,7 +354,6 @@ jtframe_m68k u_cpu(
     initial begin
         rom_cs    = 0;
         ram_cs    = 0;
-        dma_on    = 0;
         vramcvf   = 0;
         snd_latch = 0;
         sndon     = 0;

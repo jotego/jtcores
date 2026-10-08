@@ -1,7 +1,7 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-1-2023 */
 
-*/
 package cmd
 
 import (
@@ -10,20 +10,20 @@ import (
 	"os"
 	"strings"
 
-	"path/filepath"
 	"github.com/spf13/cobra"
+	"path/filepath"
 )
 
-// rootCmd represents the base command when called without any subcommands
+var verbose bool
+
 var rootCmd = &cobra.Command{
 	Use:   "jtframe",
-	Short: "File parser for JTFRAME projects. Jose Tejada (c) 2022",
-	Long: `File parser for JTFRAME projects. Jose Tejada (c) 2022
+	Short: "JTFRAME project utilities",
+	Long: `JTFRAME project utilities.
 
-Use jtframe to parse the core's def and yaml files to
-generate simulation and synthesis files`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
+Use "man jtframe" for the overview. Use "man jtframe-<command>" for
+command-specific documentation, for example "man jtframe-mem" or
+"man jtframe-mra".`,
 	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
@@ -42,52 +42,89 @@ func init() {
 	// will be global for your application.
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jtframe.yaml)")
-
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	check_environment()
+}
+
+func check_environment() {
+	for _, env := range []string{"JTROOT", "JTFRAME", "CORES"} {
+		value := os.Getenv(env)
+		if value == "" {
+			fmt.Printf("Environment variable %s is not set\n", env)
+			os.Exit(1)
+		}
+	}
 }
 
 var CANNOT_SOLVE_CORENAME error = errors.New("Cannot derive the core name from the current path")
 
-func get_corenames(args []string) ([]string,error) {
-	if len(args)>0 {
-		for _,corename := range args {
-			if e := valid_core(corename); e!= nil { return nil, e }
+func get_corenames(args []string) ([]string, error) {
+	if len(args) > 0 {
+		for _, corename := range args {
+			if e := valid_core(corename); e != nil {
+				return nil, e
+			}
 		}
 		return args, nil
 	}
 	corename, e := get_corename(args)
-	if e!= nil { return nil, e }
-	return []string{corename},nil
+	if e != nil {
+		return nil, e
+	}
+	return []string{corename}, nil
 }
 
 // Check that the core folder exist
 func valid_core(name string) error {
-    fi, e := os.Stat( filepath.Join(os.Getenv("CORES"),name) )
-    if e != nil || !fi.IsDir() {
-        return fmt.Errorf("%s is not a valid core name", name)
-    }
-    return nil
+	dirname, rest := filepath.Split(name)
+	if dirname != "" {
+		return fmt.Errorf("the core name cannot include paths")
+	}
+	if rest != name {
+		return fmt.Errorf("the core name must be a valid file name")
+	}
+	if name == "" {
+		return fmt.Errorf("the core name cannot be blank")
+	}
+	if name == "." {
+		return fmt.Errorf("'.' is not a valid core name")
+	}
+	if name == ".." {
+		return fmt.Errorf("'..' is not a valid core name")
+	}
+
+	fi, e := os.Stat(filepath.Join(os.Getenv("CORES"), name))
+	if e != nil || !fi.IsDir() {
+		return fmt.Errorf("%s is not a valid core name", name)
+	}
+	return nil
 }
 
 func get_corename(args []string) (string, error) {
-	if len(args)>0 {
+	if len(args) > 0 {
 		corename := args[0]
-		if e := valid_core(corename); e!= nil { return "", e }
+		if e := valid_core(corename); e != nil {
+			return "", e
+		}
 		return corename, nil
 	}
 	// look for the core name in the path
 	cwd, _ := os.Getwd()
-	cores_path := filepath.Join(os.Getenv("JTROOT"),"cores")
-	rel, e := filepath.Rel(cores_path,cwd); if e!=nil { return "",CANNOT_SOLVE_CORENAME }
-	parts := strings.Split( filepath.ToSlash(rel), "/" )
-	if len(parts)==0 { return "",CANNOT_SOLVE_CORENAME }
-	return parts[0],nil
-}
-
-func must(e error) {
-	if(e==nil) {return}
-    fmt.Println(e)
-    os.Exit(1)
+	cores_path := filepath.Join(os.Getenv("JTROOT"), "cores")
+	rel, e := filepath.Rel(cores_path, cwd)
+	if e != nil {
+		return "", CANNOT_SOLVE_CORENAME
+	}
+	parts := strings.Split(filepath.ToSlash(rel), "/")
+	if len(parts) == 0 {
+		return "", CANNOT_SOLVE_CORENAME
+	}
+	corename := parts[0]
+	if e := valid_core(corename); e != nil {
+		return "", fmt.Errorf("cannot derive core name from folder %s", cwd)
+	}
+	return corename, nil
 }

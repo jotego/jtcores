@@ -1,0 +1,16 @@
+xmen:
+  - get:
+    - "*.v"
+riders:
+  - get:
+    - common.yaml
+simson:
+  - get:
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jtsimson_obj.v
+jtframe:
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+jt539:

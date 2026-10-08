@@ -1,0 +1,38 @@
+/** Inputs **/
+Pin	1 = FCOL3;
+Pin	2 = FCOL2;
+Pin	3 = i3;
+Pin	4 = i4;
+Pin	5 = PCL3;
+Pin	6 = PCL2;
+Pin	7 = PCL1;
+Pin	8 = PCL0;
+Pin	9 = i9;
+Pin	11 = PRI;
+Pin	14 = OCL0;
+Pin	15 = OCL1;
+Pin	16 = OCL2;
+Pin	17 = OCL3;
+
+/** Outputs **/
+Pin	12 = o12; /**(Combinatorial, No output feedback, Active high) **/
+Pin	13 = o13; /**(Combinatorial, Output feedback output, Active high) **/
+Pin	18 = o18; /**(Combinatorial, Output feedback output, Active high) **/
+Pin	19 = o19; /**(Combinatorial, No output feedback, Active high) **/
+
+/** Equations **/
+
+i3 = FCOL1 | FCOL0
+
+SLB = !FCOL3 & !FCOL2 & !i3;
+
+o13 = !FCOL3 & !FCOL2 & !i3;
+
+o18 = !FCOL3 & !FCOL2 & !i3 & !OCL0 & !OCL1 & !OCL2 & !OCL3
+    # !FCOL3 & !FCOL2 & !i3 & i9;
+
+SLA = !PCL3 & !PCL2 & !PCL1 & !PCL0
+    # !PRI & OCL0
+    # !PRI & OCL1
+    # !PRI & OCL2
+    # !PRI & OCL3;

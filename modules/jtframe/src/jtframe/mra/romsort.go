@@ -1,3 +1,7 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mra
 
 import (
@@ -8,17 +12,9 @@ import (
 	"strings"
 )
 
-func apply_sort(reg_cfg *RegCfg, roms []MameROM, setname string, verbose bool) []MameROM {
+func apply_sort(reg_cfg *RegCfg, roms []MameROM, setname string) []MameROM {
 	if len(reg_cfg.Sequence) > 0 {
 		return apply_sequence(reg_cfg, roms)
-	}
-	if len(reg_cfg.Ext_sort) > 0 {
-		sort_ext_list(reg_cfg, roms)
-		return roms
-	}
-	if len(reg_cfg.Name_sort) > 0 {
-		sort_name_list(reg_cfg, roms)
-		return roms
 	}
 	if reg_cfg.Sort_even {
 		sort_even_odd(reg_cfg, roms, true)
@@ -44,37 +40,6 @@ func sort_even_odd(reg_cfg *RegCfg, roms []MameROM, even_first bool) {
 	}
 }
 
-func sort_ext_list(reg_cfg *RegCfg, roms []MameROM) {
-	base := make([]MameROM, len(roms))
-	copy(base, roms)
-	k := 0
-	for _, ext := range reg_cfg.Ext_sort {
-		for i, _ := range base {
-			if strings.HasSuffix(base[i].Name, ext) {
-				roms[k] = base[i]
-				k++
-				break
-			}
-		}
-	}
-}
-
-func sort_name_list(reg_cfg *RegCfg, roms []MameROM) {
-	// fmt.Println("Applying name sorting ", reg_cfg.Name_sort)
-	base := make([]MameROM, len(roms))
-	copy(base, roms)
-	k := 0
-	for _, each := range reg_cfg.Name_sort {
-		for i, _ := range base {
-			if base[i].Name == each {
-				roms[k] = base[i]
-				k++
-				break
-			}
-		}
-	}
-}
-
 func apply_sequence(reg_cfg *RegCfg, roms []MameROM) []MameROM {
 	kmax := len(roms)
 	seqd := make([]MameROM, len(reg_cfg.Sequence))
@@ -84,10 +49,20 @@ func apply_sequence(reg_cfg *RegCfg, roms []MameROM) []MameROM {
 	}
 	copy(seqd, roms)
 	for i, k := range reg_cfg.Sequence {
+		chunk := 0
+		if reg_cfg.Rom_len > 0 && k >= kmax {
+			chunk = k / kmax
+			k = k % kmax
+		}
 		if k >= kmax {
 			k = 0 // Not necessarily an error, as some ROM sets may have more files than others
 		}
 		seqd[i] = roms[k]
+		if reg_cfg.Rom_len > 0 && reg_cfg.Rom_len < seqd[i].Size {
+			seqd[i].Size = reg_cfg.Rom_len
+			seqd[i].show_len = true
+			seqd[i].add_offset = chunk * reg_cfg.Rom_len
+		}
 	}
 	return seqd
 }

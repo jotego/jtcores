@@ -1,24 +1,11 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 26-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 26-9-2021 */
 
 module jtcop_snd(
     input                rst,
     input                clk,
+    input                cen6,
     input                cen_opn,
     input                cen_opl,
 
@@ -54,16 +41,16 @@ wire [ 7:0] cpu_dout, opl_dout, opn_dout, ram_dout, oki_dout;
 reg  [ 7:0] cpu_din, dev_mux;
 reg         nmin, opl_cs, opn_cs, ram_cs, bank_cs,
             nmi_clr, oki_cs, dev_cs;
-wire        irqn, ram_we, cpu_rnw, oki_wrn, rdy;
+wire        irqn, ram_we, cpu_rnw, oki_wrn;
 wire        opn_irqn, opl_irqn;
-
+wire        cpu_acc;
 
 assign irqn     = KARNOV ? opl_irqn : opn_irqn & opl_irqn;
-assign ram_we   = ram_cs & ~cpu_rnw;
-assign oki_wrn  = ~(oki_cs & ~cpu_rnw);
+assign ram_we   = ram_cs & cpu_wr;
+assign oki_wrn  = ~(oki_cs & cpu_wr);
 assign rom_addr = cpu_addr;
-assign rdy      = ~rom_cs | rom_ok;
 assign status   = { 1'b0, opn_irqn, opl_irqn, opn_dout[7], oki_dout[3:0]};
+assign cpu_acc  = cpu_rd | cpu_wr;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -78,7 +65,7 @@ always @(posedge clk, posedge rst) begin
         opl_cs  <= 0;
         nmi_clr <= 0;
         oki_cs  <= 0;
-        if( KARNOV ) begin
+        if( KARNOV==1 && cpu_acc ) begin
             bank_cs <= 0;
             rom_cs  <= cpu_addr[15];
             if( !cpu_addr[15] ) begin
@@ -89,7 +76,7 @@ always @(posedge clk, posedge rst) begin
                     3: opl_cs  <= 1;
                 endcase
             end
-        end else begin
+        end else if(cpu_acc) begin
             bank_cs <= BANKS && cpu_addr[15] && !cpu_rnw;
             rom_cs  <= |cpu_addr[15:14]; // some games only use bit 15
             if(cpu_addr[15:14]==0) begin
@@ -145,28 +132,22 @@ end
 // As the sound tempo comes from interruptions,
 // cycle recovery isn't probably needed
 wire [7:0] nc;
-T65 u_cpu(
-    .Mode   ( 2'd0      ),  // 6502 mode
-    .Res_n  ( ~rst      ),
-    .Enable ( cen_opn   ),
-    .Clk    ( clk       ),
-    .Rdy    ( rdy       ),
-    .Abort_n( 1'b1      ),
-    .IRQ_n  ( irqn      ),
-    .NMI_n  ( nmin      ),
-    .SO_n   ( 1'b1      ),
-    .R_W_n  ( cpu_rnw   ),
-    .Sync   (           ),
-    .EF     (           ),
-    .MF     (           ),
-    .XF     (           ),
-    .ML_n   (           ),
-    .VP_n   (           ),
-    .VDA    (           ),
-    .VPA    (           ),
-    .A      ({nc,cpu_addr}),
-    .DI     ( cpu_din   ),
-    .DO     ( cpu_dout  )
+wire cpu_wr, cpu_rd;
+assign cpu_rnw = ~cpu_wr;
+
+jt65c02 u_cpu(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cen6      ),  // crystal clock freq. = 4x E pin freq.
+    .irq    (~irqn      ),
+    .nmi    (~nmin      ),
+    .opdec  ( 1'b0      ),
+    .rd     ( cpu_rd    ),
+    .wr     ( cpu_wr    ),
+    .fetch  (           ),
+    .addr   ( cpu_addr  ), // always valid
+    .din    ( cpu_din   ),
+    .dout   ( cpu_dout  )
 );
 
 jtframe_ram #(.AW(11)) u_ram(

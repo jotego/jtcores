@@ -1,0 +1,19 @@
+kicker:
+  - get:
+    - jtkicker_colmix.v
+    - common.yaml
+mikie:
+  - get:
+    - jtmikie_game.v
+    - jtmikie_main.v
+    - jtmikie_video.v
+    - jtmikie_snd.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - get:
+    - jtframe_sort.v
+jt12:
+  - get:
+    - jt89.yaml

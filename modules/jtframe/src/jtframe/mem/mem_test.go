@@ -1,70 +1,93 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mem
 
 import (
-	"testing"
 	"encoding/json"
+	"io"
+	"os"
+	"path/filepath"
+	"slices"
+	"strconv"
+	"strings"
+	"testing"
+	"text/template"
+
+	"jotego/jtframe/macros"
+
+	"github.com/Masterminds/sprig/v3"
+	"gopkg.in/yaml.v2"
 )
 
-func TestDelete_optional_IOCTL( t *testing.T ) {
+func TestDelete_optional_IOCTL(t *testing.T) {
 	cfg := MemConfig{
 		BRAM: []BRAMBus{
 			BRAMBus{
 				Name: "onlydebug",
 				Ioctl: BRAMBus_Ioctl{
-					Order: 0,
+					Order:   0,
 					Restore: true,
-					MacroEnabled: MacroEnabled{Unless: []string{"JTFRAME_RELEASE"}},
+					Unless:  []string{"JTFRAME_RELEASE"},
 				},
 			},
 			BRAMBus{
 				Name: "onlyrelease",
 				Ioctl: BRAMBus_Ioctl{
-					Order: 0,
+					Order:   0,
 					Restore: true,
-					MacroEnabled: MacroEnabled{When: []string{"JTFRAME_RELEASE"}},
+					When:    []string{"JTFRAME_RELEASE"},
 				},
 			},
 			BRAMBus{
 				Name: "onlypocket",
 				Ioctl: BRAMBus_Ioctl{
-					Order: 1,
+					Order:   1,
 					Restore: true,
-					MacroEnabled: MacroEnabled{When: []string{"POCKET"}},
+					When:    []string{"POCKET"},
 				},
 			},
 		},
 	}
 	copy, e := json.Marshal(cfg)
-	if e!=nil { t.Error(e); return }
-	macros_debug_pocket:=map[string]string{
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	macros_debug_pocket := map[string]string{
 		"POCKET": "",
 	}
-
-	delete_optional(&cfg,macros_debug_pocket)
-	if count_ioctl_buses(cfg.BRAM,t)!=2 {
-		show_ioctl(cfg.BRAM,t)
+	macros.MakeFromMap(macros_debug_pocket)
+	delete_optional_ioctl(cfg.BRAM)
+	if count_ioctl_buses(cfg.BRAM, t) != 2 {
+		show_ioctl(cfg.BRAM, t)
 		t.Error("Expected only entries for POCKET and debug")
 	}
 
-	macros_release_mister:=map[string]string{
-		"MISTER": "",
+	macros_release_mister := map[string]string{
+		"MISTER":          "",
 		"JTFRAME_RELEASE": "",
 	}
 
 	// restores the test data
-	if e := json.Unmarshal(copy,&cfg); e!=nil { t.Error(e); return }
-	delete_optional(&cfg,macros_release_mister)
-	if count:=count_ioctl_buses(cfg.BRAM,t);count!=1 {
-		t.Logf("Found %d IOCTL buses.\nDump",count)
-		show_ioctl(cfg.BRAM,t)
+	if e := json.Unmarshal(copy, &cfg); e != nil {
+		t.Error(e)
+		return
+	}
+	macros.MakeFromMap(macros_release_mister)
+	delete_optional_ioctl(cfg.BRAM)
+	if count := count_ioctl_buses(cfg.BRAM, t); count != 1 {
+		t.Logf("Found %d IOCTL buses.\nDump", count)
+		show_ioctl(cfg.BRAM, t)
 		t.Error("Expected only the entry for MiSTer")
 	}
 }
 
 func count_ioctl_buses(bram_buses []BRAMBus, t *testing.T) int {
 	total := 0
-	for _,bus := range bram_buses {
-		if bus.Ioctl.Save || bus.Ioctl.Restore || bus.Ioctl.Order>0 {
+	for _, bus := range bram_buses {
+		if bus.Ioctl.Save || bus.Ioctl.Restore || bus.Ioctl.Order > 0 {
 			t.Log(bus.Name)
 			total++
 		}
@@ -72,9 +95,2208 @@ func count_ioctl_buses(bram_buses []BRAMBus, t *testing.T) int {
 	return total
 }
 
-func show_ioctl( bram_buses []BRAMBus, t *testing.T) {
-	for _,bus := range bram_buses {
+func show_ioctl(bram_buses []BRAMBus, t *testing.T) {
+	for _, bus := range bram_buses {
 		t.Log(bus.Name)
 		t.Log(bus.Ioctl)
 	}
+}
+
+func Test_BRAMBus_When_Unless(t *testing.T) {
+	sample := `name: sample_BRAM
+when: [ WHEN_MACRO ]
+unless: [ UNLESS_MACRO ]
+rw: true
+`
+	var bram BRAMBus
+	if e := yaml.Unmarshal([]byte(sample), &bram); e != nil {
+		t.Error(e)
+	}
+	if bram.Name != "sample_BRAM" {
+		t.Errorf("Bad name: %s", bram.Name)
+	}
+	if slices.Compare(bram.When, []string{"WHEN_MACRO"}) != 0 {
+		t.Errorf("Bad 'when' field: %s", bram.When)
+	}
+	if slices.Compare(bram.Unless, []string{"UNLESS_MACRO"}) != 0 {
+		t.Errorf("Bad 'unless' field: %s", bram.Unless)
+	}
+	if !bram.Rw {
+		t.Errorf("Bad RW (should be true)")
+	}
+	macros.MakeFromMap(map[string]string{"WHEN_MACRO": ""})
+	if !bram.Enabled() {
+		t.Errorf("Should have been enabled")
+	}
+
+	macros.MakeFromMap(map[string]string{"xx": ""})
+	if bram.Enabled() {
+		t.Errorf("Should have been disabled")
+	}
+
+	macros.MakeFromMap(nil)
+	if bram.Enabled() {
+		t.Errorf("Should have been disabled")
+	}
+}
+
+func Test_BRAMBus_Size_To_AddrWidth(t *testing.T) {
+	sample := `bram:
+  - { name: plain_bytes, size: 1024 }
+  - { name: bytes_suffix, size: 1024B }
+  - { name: kilobytes_suffix, size: 1kB }
+  - { name: kilobytes_no_b, size: 1k }
+  - { name: kilobytes_spaced, size: "1 kB" }
+  - { name: kilobytes_spaced_no_b, size: "1 k" }
+  - { name: max_size, size: 512kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+
+	expected := map[string]int{
+		"plain_bytes":           10,
+		"bytes_suffix":          10,
+		"kilobytes_suffix":      10,
+		"kilobytes_no_b":        10,
+		"kilobytes_spaced":      10,
+		"kilobytes_spaced_no_b": 10,
+		"max_size":              19,
+	}
+	for _, bram := range cfg.BRAM {
+		if bram.Addr_width != expected[bram.Name] {
+			t.Errorf("Wrong addr_width for %s. Got %d, wanted %d",
+				bram.Name, bram.Addr_width, expected[bram.Name])
+		}
+	}
+}
+
+func Test_parse_memory_size(t *testing.T) {
+	cases := map[string]int{
+		"1024": 1024,
+		"1k":   1024,
+		"1kB":  1024,
+		"1 kB": 1024,
+		"1MB":  1024 * 1024,
+		"8 MB": 8 * 1024 * 1024,
+	}
+	for raw, expected := range cases {
+		got, err := parse_memory_size(raw)
+		if err != nil {
+			t.Fatalf("Unexpected error for %s: %v", raw, err)
+		}
+		if got != expected {
+			t.Fatalf("Wrong size for %s. Got %d, wanted %d", raw, got, expected)
+		}
+	}
+}
+
+func Test_BRAMBus_Size_Rejections(t *testing.T) {
+	cases := []string{
+		`bram: [ { name: mixed, addr_width: 10, size: 1kB } ]`,
+		`bram: [ { name: not_power_of_two, size: 3kB } ]`,
+		`bram: [ { name: too_large, size: 1024kB } ]`,
+		`bram: [ { name: bad_suffix, size: 1KB } ]`,
+		`bram: [ { name: bad_suffix_lower, size: 1kb } ]`,
+		`bram: [ { name: bad_suffix_spaced, size: "1 KB" } ]`,
+		`bram: [ { name: bad_suffix_spaced_lower, size: "1 kb" } ]`,
+	}
+
+	for _, sample := range cases {
+		var cfg MemConfig
+		if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+			t.Errorf("Unexpected YAML error for %s: %v", sample, e)
+			continue
+		}
+		if e := cfg.normalize_bram(); e == nil {
+			t.Errorf("Expected size validation to fail for %s", sample)
+		}
+	}
+}
+
+func Test_BRAMBus_Simfile_Unmarshal(t *testing.T) {
+	sample := `bram:
+  - { name: default_little, size: 1kB }
+  - { name: explicit_big, size: 1kB, simfile: { big_endian: true } }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if cfg.BRAM[0].Simfile.Enabled {
+		t.Fatalf("Expected simfile to be disabled by default")
+	}
+	if !cfg.BRAM[1].Simfile.Enabled {
+		t.Fatalf("Expected simfile to be enabled when object is present")
+	}
+	if !cfg.BRAM[1].Simfile.Big_endian {
+		t.Fatalf("Expected BRAM simfile.big_endian to unmarshal as true")
+	}
+}
+
+func Test_BRAMBus_Unmarshal_RejectsOldSimFields(t *testing.T) {
+	sample := `bram:
+  - { name: old, size: 1kB, sim_file: true, sim_big_endian: true }
+`
+	var cfg MemConfig
+	e := yaml.Unmarshal([]byte(sample), &cfg)
+	if e == nil {
+		t.Fatal("Expected old BRAM sim fields to be rejected")
+	}
+	if !strings.Contains(e.Error(), "Unexpected field sim_") {
+		t.Fatalf("Wrong error for old BRAM sim schema. Got %v", e)
+	}
+}
+
+func Test_BRAMBus_Simfile_Validation(t *testing.T) {
+	cfg := MemConfig{
+		BRAM: []BRAMBus{
+			{
+				Name:       "bytes",
+				Data_width: 8,
+				Simfile:    BRAMSimfile{Enabled: true, Big_endian: true},
+			},
+			{
+				Name:       "words",
+				Data_width: 16,
+				Simfile:    BRAMSimfile{Enabled: true, Big_endian: true},
+			},
+			{
+				Name:       "longs",
+				Data_width: 32,
+				Simfile:    BRAMSimfile{Enabled: true, Big_endian: true},
+			},
+		},
+	}
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatalf("Expected 8-bit big-endian BRAM to be rejected")
+	}
+
+	cfg.BRAM = cfg.BRAM[1:]
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatalf("Expected 16-bit and 32-bit big-endian BRAMs to be accepted: %v", e)
+	}
+}
+
+func Test_BRAMBus_Latch_Unmarshal_Validation(t *testing.T) {
+	sample := `bram:
+  - name: chars
+    addr_width: 10
+    latch: inputs
+    dual_port:
+      name: video
+      latch: outputs
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if got := cfg.BRAM[0].Latch; got != "inputs" {
+		t.Fatalf("wrong BRAM latch value. Got %s", got)
+	}
+	if got := cfg.BRAM[0].Dual_port.Latch; got != "outputs" {
+		t.Fatalf("wrong dual-port latch value. Got %s", got)
+	}
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatalf("Expected valid BRAM latch values to be accepted: %v", e)
+	}
+	cfg.BRAM[0].Latch = "bad"
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatal("Expected invalid BRAM latch value to be rejected")
+	}
+	cfg.BRAM[0].Latch = "none"
+	cfg.BRAM[0].Dual_port.Latch = "bad"
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatal("Expected invalid BRAM dual-port latch value to be rejected")
+	}
+}
+
+func Test_fill_implicit_ports_expands_32bit_bram_write_enable(t *testing.T) {
+	cfg := MemConfig{
+		BRAM: []BRAMBus{
+			{
+				Name:       "fb",
+				Addr_width: 11,
+				Data_width: 32,
+				Rw:         true,
+				Dual_port: struct {
+					Name     string `yaml:"name"`
+					Addr     string `yaml:"addr"`
+					Din      string `yaml:"din"`
+					Dout     string `yaml:"dout"`
+					Rw       bool   `yaml:"rw"`
+					We       string `yaml:"we"`
+					Latch    string `yaml:"latch"`
+					AddrFull string
+				}{
+					Name: "video",
+					Rw:   true,
+					We:   "video_we",
+				},
+			},
+		},
+	}
+
+	fill_implicit_ports(&cfg)
+
+	ports := map[string]Port{}
+	for _, each := range cfg.Ports {
+		ports[each.Name] = each
+	}
+
+	if got := ports["fb_we"].MSB; got != 3 {
+		t.Fatalf("fb_we width mismatch. Got MSB %d, wanted 3", got)
+	}
+	if got := ports["video_we"].MSB; got != 3 {
+		t.Fatalf("video_we width mismatch. Got MSB %d, wanted 3", got)
+	}
+	if got := ports["fb_addr"].LSB; got != 2 {
+		t.Fatalf("fb_addr LSB mismatch. Got %d, wanted 2", got)
+	}
+	if got := ports["video_addr"].LSB; got != 2 {
+		t.Fatalf("video_addr LSB mismatch. Got %d, wanted 2", got)
+	}
+	if got := cfg.BRAM[0].Dual_port.AddrFull; got != "video_addr[10:2]" {
+		t.Fatalf("unexpected dual-port address expansion: %s", got)
+	}
+}
+
+func Test_make_ioctl_restore_uses_32bit_write_enable_width(t *testing.T) {
+	cfg := MemConfig{
+		BRAM: []BRAMBus{
+			{
+				Name:       "fb",
+				Addr_width: 11,
+				Data_width: 32,
+				Rw:         true,
+				Ioctl: BRAMBus_Ioctl{
+					Save:    true,
+					Restore: true,
+					Order:   0,
+				},
+			},
+		},
+	}
+
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+
+	if got := cfg.Ioctl.Buses[0].We; got != "fb_we" {
+		t.Fatalf("wrong IOCTL restore write-enable source. Got %s, wanted fb_we", got)
+	}
+	if got := cfg.BRAM[0].We; got != "fb_wemx" {
+		t.Fatalf("wrong BRAM restore mux write-enable. Got %s", got)
+	}
+}
+
+func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
+	sample := `sdram:
+  big_endian: true
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 32, size: 1kB }
+      at:    { bank: 3, offset: CHAR, length: 8MB }
+      rw: true
+      flush: { enable: true, invalidates: [ scene ] }
+      simfile: { name: tilechar.bin, big_endian: true, data_type: u32 }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg.SDRAM.Cache_lanes) != 1 {
+		t.Fatalf("Wrong cache-lane count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lanes))
+	}
+	if !cfg.SDRAM.Big_endian {
+		t.Fatal("Expected sdram.big_endian to unmarshal as true")
+	}
+	line := cfg.SDRAM.Cache_lanes[0]
+	if line.Name != "tiles" {
+		t.Fatalf("Wrong cache-lane name. Got %s", line.Name)
+	}
+	if !line.At.Defined {
+		t.Fatal("Expected cache-lane at to be marked as defined")
+	}
+	if line.At.Offset != "CHAR" {
+		t.Fatalf("Wrong cache-lane offset. Got %s", line.At.Offset)
+	}
+	if line.Data_width != 32 {
+		t.Fatalf("Wrong cache-lane data width. Got %d", line.Data_width)
+	}
+	if line.Blocks.Count != 32 || line.Blocks.Size != "1kB" {
+		t.Fatalf("Wrong cache-lane blocks. Got %+v", line.Blocks)
+	}
+	if !line.Rw {
+		t.Fatal("Expected cache-lane rw to unmarshal as true")
+	}
+	if !line.Flush.Enable {
+		t.Fatal("Expected cache-lane flush to unmarshal as true")
+	}
+	if slices.Compare(line.Flush.Invalidates, []string{"scene"}) != 0 {
+		t.Fatalf("Wrong flush.invalidates list. Got %v", line.Flush.Invalidates)
+	}
+	if line.Simfile.Name != "tilechar.bin" {
+		t.Fatalf("Wrong cache-lane simfile. Got %s", line.Simfile.Name)
+	}
+	if !line.Simfile.Big_endian {
+		t.Fatalf("Expected cache-lane simfile.big_endian to unmarshal as true")
+	}
+	if line.Simfile.Data_type != "u32" {
+		t.Fatalf("Expected cache-lane simfile.data_type to unmarshal as u32, got %q", line.Simfile.Data_type)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_OverridesDirectValues(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        count: 512
+        size: 128
+        select:
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong default cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        count: 512
+        size: 128
+        select:
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 256 || blocks.Size != "128" {
+		t.Fatalf("Wrong selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_DefaultEntry(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong default cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 256 || blocks.Size != "128" {
+		t.Fatalf("Wrong selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_UnlessAndSize(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        select:
+          - count: 256
+            size: 64
+          - unless: [ SIDI128 ]
+            count: 512
+            size: 128
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong unless cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        select:
+          - count: 256
+            size: 64
+          - unless: [ SIDI128 ]
+            count: 512
+            size: 128
+`)
+	if blocks.Count != 256 || blocks.Size != "64" {
+		t.Fatalf("Wrong inverted selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func parse_cache_blocks(t *testing.T, macro_map map[string]string, blocks string) SDRAMCacheCfg {
+	t.Helper()
+	macros.MakeFromMap(macro_map)
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 128` + blocks + `
+      at: { bank: 3, offset: TILES, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg.SDRAM.Cache_lanes) != 1 {
+		t.Fatalf("Wrong cache-lane count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lanes))
+	}
+	return cfg.SDRAM.Cache_lanes[0].Blocks
+}
+
+func Test_SDRAMCacheLine_Unmarshal_AllowsMissingAt(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 16
+      blocks: { count: 8, size: 1kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg.SDRAM.Cache_lanes) != 1 {
+		t.Fatalf("Wrong cache-lane count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lanes))
+	}
+	line := cfg.SDRAM.Cache_lanes[0]
+	if line.At.Defined {
+		t.Fatal("Expected missing cache-lane at to stay undefined")
+	}
+}
+
+func Test_SDRAMCacheLine_Unmarshal_RejectsStart(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 32, size: 1kB }
+      at:    { bank: 3, start: CHAR, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e == nil {
+		t.Fatal("Expected cache-lane start field to be rejected")
+	}
+}
+
+func Test_SDRAMCacheLine_Unmarshal_RejectsWrAlias(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 32, size: 1kB }
+      at:    { bank: 3, offset: CHAR, length: 8MB }
+      wr: true
+`
+	var cfg MemConfig
+	e := yaml.Unmarshal([]byte(sample), &cfg)
+	if e == nil {
+		t.Fatal("Expected cache-lane wr alias to be rejected")
+	}
+	if !strings.Contains(e.Error(), "Unexpected field wr in cache line") {
+		t.Fatalf("Wrong error for cache-lane wr alias. Got %v", e)
+	}
+}
+
+func Test_SDRAMCacheLine_Unmarshal_RejectsOldCacheWrapper(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      cache: { blocks: 32, size: 1kB, data_width: 32 }
+      at:    { bank: 3, offset: CHAR, length: 8MB }
+`
+	var cfg MemConfig
+	e := yaml.Unmarshal([]byte(sample), &cfg)
+	if e == nil {
+		t.Fatal("Expected old cache wrapper schema to be rejected")
+	}
+	if !strings.Contains(e.Error(), "Unexpected field cache in cache line") {
+		t.Fatalf("Wrong error for old cache wrapper. Got %v", e)
+	}
+}
+
+func Test_SDRAMBus_Simfile_Unmarshal(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+        - name: tiles
+          addr_width: 12
+          data_width: 16
+          simfile: { name: tiles.bin, big_endian: true, data_type: u16 }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if got := cfg.SDRAM.Banks[0].Buses[0].Simfile.Name; got != "tiles.bin" {
+		t.Fatalf("Wrong bus simfile. Got %s", got)
+	}
+	if !cfg.SDRAM.Banks[0].Buses[0].Simfile.Big_endian {
+		t.Fatalf("Expected bus simfile.big_endian to unmarshal as true")
+	}
+	if cfg.SDRAM.Banks[0].Buses[0].Simfile.Data_type != "u16" {
+		t.Fatalf("Expected bus simfile.data_type to unmarshal as u16")
+	}
+}
+
+func Test_SDRAMBus_Unmarshal_RejectsOldSimBigEndian(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+        - name: tiles
+          addr_width: 12
+          data_width: 16
+          simfile: { name: tiles.bin }
+          sim_big_endian: true
+`
+	var cfg MemConfig
+	e := yaml.Unmarshal([]byte(sample), &cfg)
+	if e == nil {
+		t.Fatal("Expected old SDRAM bus sim_big_endian field to be rejected")
+	}
+	if !strings.Contains(e.Error(), "Unexpected field sim_big_endian in SDRAM bus") {
+		t.Fatalf("Wrong error for old SDRAM bus sim schema. Got %v", e)
+	}
+}
+
+func Test_check_sdram_cache_lanes(t *testing.T) {
+	cfg := MemConfig{
+		Params: []Param{{Name: "CHAR", Value: "22'h100"}},
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{
+				{
+					Name:       "tiles",
+					Data_width: 32,
+					Blocks: SDRAMCacheCfg{
+						Count: 32,
+						Size:  "1kB",
+					},
+					At: SDRAMCacheAddr{
+						Bank:   3,
+						Offset: "CHAR",
+						Length: "8MB",
+					},
+				},
+				{
+					Name:       "pal",
+					Data_width: 16,
+					Blocks: SDRAMCacheCfg{
+						Count: 8,
+						Size:  "1kB",
+					},
+					At: SDRAMCacheAddr{
+						Length: "256kB",
+					},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	if cfg.SDRAM.Burst_len != 1024 {
+		t.Fatalf("Wrong burst length. Got %d, wanted 1024", cfg.SDRAM.Burst_len)
+	}
+	if cfg.SDRAM.Burst != "1kB" {
+		t.Fatalf("Wrong default burst. Got %s, wanted 1kB", cfg.SDRAM.Burst)
+	}
+	if cfg.SDRAM.Cache_lanes[0].Total != 32*1024 {
+		t.Fatalf("Wrong total cache size. Got %d", cfg.SDRAM.Cache_lanes[0].Total)
+	}
+}
+
+func Test_check_sdram_cache_lanes_accepts_exact_bank_end(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 32,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+				At: SDRAMCacheAddr{
+					Offset: "0x3FF000",
+					Length: "8kB",
+				},
+			}},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_bank_overflow(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 32,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+				At: SDRAMCacheAddr{
+					Offset: "0x3FF000",
+					Length: "16kB",
+				},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected cache-lane bank overflow to fail")
+	}
+}
+
+func Test_check_sdram_cache_lanes_accepts_large_bank_overflow_case(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 32,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+				At: SDRAMCacheAddr{
+					Offset: "0x3FF000",
+					Length: "16kB",
+				},
+			}},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func Test_check_sdram_cache_lanes_uses_full_sdram_when_at_is_omitted(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 16,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	line := cfg.SDRAM.Cache_lanes[0]
+	if !line.Full_range {
+		t.Fatal("Expected omitted at to enable full SDRAM range")
+	}
+	if line.Span_bytes != 32*1024*1024 {
+		t.Fatalf("Wrong full SDRAM span. Got %d", line.Span_bytes)
+	}
+	if cache_line_aw(line) != 25 {
+		t.Fatalf("Wrong cache-line AW for full 32MB span. Got %d", cache_line_aw(line))
+	}
+}
+
+func Test_check_sdram_cache_lanes_uses_large_full_sdram_when_macro_is_set(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 16,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+			}},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	line := cfg.SDRAM.Cache_lanes[0]
+	if line.Span_bytes != 64*1024*1024 {
+		t.Fatalf("Wrong large full SDRAM span. Got %d", line.Span_bytes)
+	}
+	if cache_line_aw(line) != 26 {
+		t.Fatalf("Wrong cache-line AW for full 64MB span. Got %d", cache_line_aw(line))
+	}
+}
+
+
+func Test_check_sdram_cache_lanes_uses_xl_full_sdram_when_macro_is_set(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 16,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+			}},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_XL": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	line := cfg.SDRAM.Cache_lanes[0]
+	if line.Span_bytes != 128*1024*1024 {
+		t.Fatalf("Wrong XL full SDRAM span. Got %d", line.Span_bytes)
+	}
+	if cache_line_aw(line) != 27 {
+		t.Fatalf("Wrong cache-line AW for full 128MB span. Got %d", cache_line_aw(line))
+	}
+}
+
+func Test_check_sdram_cache_lanes_accepts_xl_chip_one(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at: { bank: 2, chip: 1, offset: 0x1000, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_XL": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	line := cfg.SDRAM.Cache_lanes[0]
+	if line.At.Chip != 1 {
+		t.Fatalf("Wrong chip decoded. Got %d", line.At.Chip)
+	}
+	start, _, e := cache_lane_abs_range(line, nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	wantStart := int64(64*1024*1024 + 2*16*1024*1024 + 0x2000)
+	if start != wantStart {
+		t.Fatalf("Wrong chip-1 cache start. Got %X, wanted %X", start, wantStart)
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_chip_without_xl(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 32,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+				At:         SDRAMCacheAddr{Bank: 0, Chip: 1, Length: "8MB"},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected chip 1 cache lane to require JTFRAME_SDRAM_XL")
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects(t *testing.T) {
+	cases := []MemConfig{
+		{
+			SDRAM: SDRAMCfg{
+				Banks:       []SDRAMBank{{}},
+				Cache_lanes: []SDRAMCacheLine{{Name: "tiles"}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lanes: []SDRAMCacheLine{{
+					Name:       "tiles",
+					Data_width: 32,
+					Blocks:     SDRAMCacheCfg{Count: 0, Size: "1kB"},
+					At:         SDRAMCacheAddr{Length: "8MB"},
+				}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lanes: []SDRAMCacheLine{
+					{Name: "a", Data_width: 16, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "1kB"}, At: SDRAMCacheAddr{Length: "8MB"}},
+					{Name: "b", Data_width: 16, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "1kB"}, At: SDRAMCacheAddr{Length: "8MB"}},
+					{Name: "c", Data_width: 16, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "1kB"}, At: SDRAMCacheAddr{Length: "8MB"}},
+					{Name: "d", Data_width: 16, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "1kB"}, At: SDRAMCacheAddr{Length: "8MB"}},
+					{Name: "e", Data_width: 16, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "1kB"}, At: SDRAMCacheAddr{Length: "8MB"}},
+				},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lanes: []SDRAMCacheLine{{
+					Name:       "tiles",
+					Data_width: 24,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "8MB"},
+				}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lanes: []SDRAMCacheLine{{
+					Name:       "tiles",
+					Data_width: 16,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At: SDRAMCacheAddr{
+						Offset: "UNKNOWN",
+						Length: "8MB",
+					},
+				}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lanes: []SDRAMCacheLine{{
+					Name:       "tiles",
+					Data_width: 8,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "8MB"},
+					Simfile:    SDRAMCacheSimfile{Name: "tiles.bin", Big_endian: true},
+				}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lanes: []SDRAMCacheLine{{
+					Name:       "tiles",
+					Data_width: 128,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "8MB"},
+					Simfile:    SDRAMCacheSimfile{Name: "tiles.bin", Big_endian: true},
+				}},
+			},
+		},
+	}
+	for _, cfg := range cases {
+		macros.MakeFromMap(nil)
+		if e := cfg.check_sdram(); e == nil {
+			t.Fatal("Expected cache-lane validation to fail")
+		}
+	}
+}
+
+func Test_check_sdram_rejects_empty_definition(t *testing.T) {
+	cfg := MemConfig{}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected empty SDRAM definition to fail")
+	}
+}
+
+func Test_check_sdram_rejects_8bit_big_endian_bank_simfile(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Banks: []SDRAMBank{{
+				Buses: []SDRAMBus{{
+					Name:       "tiles",
+					Data_width: 8,
+					Simfile:    SDRAMBusSimfile{Name: "tiles.bin", Big_endian: true},
+				}},
+			}},
+		},
+	}
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected 8-bit bank simfile.big_endian to fail")
+	}
+}
+
+func Test_check_sdram_rejects_wide_big_endian_bank_simfile_without_data_type(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Banks: []SDRAMBank{{
+				Buses: []SDRAMBus{{
+					Name:       "tiles",
+					Data_width: 64,
+					Simfile:    SDRAMBusSimfile{Name: "tiles.bin", Big_endian: true},
+				}},
+			}},
+		},
+	}
+	err := cfg.check_sdram()
+	if err == nil {
+		t.Fatal("Expected wide big-endian bank simfile without data_type to fail")
+	}
+	if !strings.Contains(err.Error(), "simfile.data_type") {
+		t.Fatalf("Wrong error for missing bank simfile.data_type. Got %v", err)
+	}
+}
+
+func Test_check_sdram_rejects_bank_big_endian(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Big_endian: true,
+			Banks: []SDRAMBank{{
+				Buses: []SDRAMBus{{
+					Name:       "tiles",
+					Data_width: 16,
+					Addr_width: 12,
+				}},
+			}},
+		},
+	}
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected sdram.big_endian with bank SDRAM to fail")
+	}
+}
+
+func Test_check_sdram_cache_lanes_accepts_hex_offset(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{
+				{
+					Name:       "tiles",
+					Data_width: 16,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At: SDRAMCacheAddr{
+						Offset: "0x100",
+						Length: "256kB",
+					},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_decimal_offset(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{
+				{
+					Name:       "tiles",
+					Data_width: 16,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At: SDRAMCacheAddr{
+						Offset: "256",
+						Length: "256kB",
+					},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected decimal cache-lane offset to fail")
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_flush_without_rw(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 16,
+				Flush:      SDRAMCacheFlush{Enable: true},
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+				At:         SDRAMCacheAddr{Length: "256kB"},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected flush without rw to fail")
+	}
+}
+
+func Test_check_sdram_cache_lanes_accepts_flush_invalidates(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{
+				{
+					Name:       "cpu",
+					Data_width: 32,
+					Rw:         true,
+					Flush:      SDRAMCacheFlush{Enable: true, Invalidates: []string{"scene"}},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "256kB"},
+				},
+				{
+					Name:       "scene",
+					Data_width: 32,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "256kB"},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	if got := cache_inval_mask(cfg.SDRAM.Cache_lanes, 0); got != "8'b00000010" {
+		t.Fatalf("Wrong invalidation mask. Got %s", got)
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_bad_flush_invalidates(t *testing.T) {
+	cases := []MemConfig{
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}, Flush: SDRAMCacheFlush{Invalidates: []string{"scene"}}},
+				{Name: "scene", Data_width: 32, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+			}},
+		},
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Flush: SDRAMCacheFlush{Enable: true, Invalidates: []string{"missing"}}, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+			}},
+		},
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Flush: SDRAMCacheFlush{Enable: true, Invalidates: []string{"other"}}, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+				{Name: "other", Data_width: 32, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+			}},
+		},
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Flush: SDRAMCacheFlush{Enable: true, Invalidates: []string{"scene"}}, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+				{Name: "scene", Data_width: 32, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Bank: 1, Length: "256kB"}},
+			}},
+		},
+	}
+	for _, cfg := range cases {
+		macros.MakeFromMap(nil)
+		if e := cfg.check_sdram(); e == nil {
+			t.Fatal("Expected invalid flush.invalidates setup to fail")
+		}
+	}
+}
+
+func Test_ParseFile_Converts_BRAM_Size(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("JTROOT", root)
+
+	cfgDir := filepath.Join(root, "cores", "sizeparse", "cfg")
+	if e := os.MkdirAll(cfgDir, 0o755); e != nil {
+		t.Fatal(e)
+	}
+
+	memPath := filepath.Join(cfgDir, "mem.yaml")
+	memYaml := `bram:
+  - { name: spaced_kilo, size: "1 kB" }
+  - { name: plain_kilo, size: "1k" }
+`
+	if e := os.WriteFile(memPath, []byte(memYaml), 0o644); e != nil {
+		t.Fatal(e)
+	}
+
+	var cfg MemConfig
+	if e := ParseFile("sizeparse", "mem.yaml", &cfg); e != nil {
+		t.Fatal(e)
+	}
+
+	if len(cfg.BRAM) != 2 {
+		t.Fatalf("Wrong BRAM count. Got %d, wanted 2", len(cfg.BRAM))
+	}
+	for _, bram := range cfg.BRAM {
+		if bram.Addr_width != 10 {
+			t.Errorf("Wrong addr_width for %s. Got %d, wanted 10", bram.Name, bram.Addr_width)
+		}
+	}
+}
+
+func Test_delete_optional_bram(t *testing.T) {
+	sample := `bram:
+  - {name: always }
+  - {name: not_pocket, unless: [ POCKET ] }
+  - {name: only_pocket, when: [ POCKET ] }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Error(e)
+		return
+	}
+	macros.MakeFromMap(map[string]string{"POCKET": ""})
+	delete_optional_bram(&cfg)
+	var always, not_pocket, only_pocket bool
+	for _, bram := range cfg.BRAM {
+		switch bram.Name {
+		case "always":
+			always = true
+		case "not_pocket":
+			not_pocket = true
+		case "only_pocket":
+			only_pocket = true
+		}
+	}
+	if total := len(cfg.BRAM); total != 2 {
+		t.Errorf("Expecting 2 elements, found %d", total)
+	}
+	if !always {
+		t.Error("Missing 'always'")
+	}
+	if not_pocket {
+		t.Error("'not_pocket' should not appear")
+	}
+	if !only_pocket {
+		t.Error("missing 'only_pocket")
+	}
+}
+
+func Test_delete_optional_sdram(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+      - {name: always }
+      - {name: not_pocket, unless: [ POCKET ] }
+      - {name: only_pocket, when: [ POCKET ] }
+    - buses:
+      - {name: always }
+      - {name: not_pocket, unless: [ POCKET ] }
+      - {name: only_pocket, when: [ POCKET ] }
+    - buses:
+      - {name: not_pocket1, unless: [ POCKET ] }
+      - {name: not_pocket2, unless: [ POCKET ] }
+      - {name: not_pocket3, unless: [ POCKET ] }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Error(e)
+		return
+	}
+	if len(cfg.SDRAM.Banks) != 3 {
+		t.Errorf("Expecting 3 SDRAM banks")
+		return
+	}
+	for k := 0; k < 3; k++ {
+		if total := len(cfg.SDRAM.Banks[k].Buses); total != 3 {
+			t.Errorf("Expecting 3 SDRAM buses at bank %d. Found %d", k, total)
+			return
+		}
+	}
+
+	macros.MakeFromMap(map[string]string{"POCKET": ""})
+	delete_optional_sdram(&cfg)
+
+	if len(cfg.SDRAM.Banks) != 3 {
+		t.Errorf("Expecting 3 SDRAM banks")
+		return
+	}
+	for k := 0; k < 2; k++ {
+		if total := len(cfg.SDRAM.Banks[k].Buses); total != 2 {
+			t.Errorf("Expecting 2 SDRAM buses at bank %d. Found %d", k, total)
+			return
+		}
+	}
+	if len(cfg.SDRAM.Banks[2].Buses) != 0 {
+		t.Errorf("Bank 2 should be empty")
+	}
+
+	var always, not_pocket, only_pocket bool
+	for k := 0; k < 2; k++ {
+		for _, bus := range cfg.SDRAM.Banks[k].Buses {
+			t.Logf("bank[%d]: %s", k, bus.Name)
+			switch bus.Name {
+			case "always":
+				always = true
+			case "not_pocket":
+				not_pocket = true
+			case "only_pocket":
+				only_pocket = true
+			}
+		}
+		if !always {
+			t.Errorf("Missing 'always' at bank %d", k)
+		}
+		if not_pocket {
+			t.Errorf("'not_pocket' should not appear at bank %d", k)
+		}
+		if !only_pocket {
+			t.Errorf("missing 'only_pocket at bank %d", k)
+		}
+	}
+}
+
+func Test_empty_bank(t *testing.T) {
+	mem_yaml := `
+sdram:
+  banks:
+    -
+    - buses:
+        - name: cart0
+`
+	var cfg MemConfig
+	e := unmarshal([]byte(mem_yaml), &cfg)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	if total := len(cfg.SDRAM.Banks); total != 2 {
+		t.Errorf("Expecting 2 banks, got %d", total)
+		return
+	}
+	if total := len(cfg.SDRAM.Banks[1].Buses); total != 1 {
+		t.Errorf("Expecting 2 buses on bank 1, got %d", total)
+		return
+	}
+	if cfg.SDRAM.Banks[1].Buses[0].Name != "cart0" {
+		t.Error("Bus 0 of Bank 1 is not named cart0")
+	}
+}
+
+const BRAM_YAML = `
+bram:
+  - name: pal
+    addr_width: 8
+    data_width: 8
+    prom: true
+  - name: pal1
+    addr_width: 9
+    data_width: 8
+    prom: true
+  - name: pal2
+    addr_width: 5
+    data_width: 8
+    prom: true
+  - name: pal3
+    addr_width: 6
+    data_width: 4
+    prom: true
+`
+
+func Test_prom_start(t *testing.T) {
+	var cfg MemConfig
+	e := unmarshal([]byte(BRAM_YAML), &cfg)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	cfg.calc_prom_we()
+	expected := []int{0, 0x100, 0x300, 0x320}
+	for k, bram := range cfg.BRAM {
+		if bram.PROM_offset != expected[k] {
+			t.Errorf("Wrong start for PROM %d. Got %X, wanted %X",
+				k, bram.PROM_offset, expected[k])
+		}
+	}
+}
+
+func Test_prom_template(t *testing.T) {
+	var cfg MemConfig
+	e := unmarshal([]byte(BRAM_YAML), &cfg)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	cfg.check_bram()
+	cfg.calc_prom_we()
+	tpl := get_prom_dwnld_template(t)
+	var verilog strings.Builder
+	for _, bram := range cfg.BRAM {
+		tpl.Execute(&verilog, bram)
+	}
+	expected_fname := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "prom_test.out")
+	compare_string_with_file(verilog.String(), expected_fname, t)
+}
+
+func compare_string_with_file(got, fname string, t *testing.T) {
+	expected, e := os.ReadFile(fname)
+	if e != nil {
+		t.Error(e)
+	}
+	bad := false
+	if got != string(expected) {
+		e := string(expected)
+		line := 1
+		col := 1
+		for k, _ := range got {
+			if k >= len(e) {
+				t.Logf("Result is too long. Difference at line %d, column %d", line, col)
+				bad = true
+				break
+			}
+			if got[k] != e[k] {
+				t.Logf("Difference at line %d, column %d", line, col)
+				bad = true
+				break
+			}
+			col++
+			if got[k] == '\n' {
+				line++
+				col = 1
+			}
+		}
+		t.Error("Output differs")
+	}
+	if bad {
+		t.Log(got)
+	}
+}
+
+func get_prom_dwnld_template(t *testing.T) *template.Template {
+	prom_dwnld := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "prom_dwnld.v")
+	tpl := template.New("prom_dwnld.v")
+	tpl.Funcs(funcMap)
+	_, e := tpl.ParseFiles(prom_dwnld)
+	if e != nil {
+		t.Error(e)
+		t.FailNow()
+	}
+	return tpl
+}
+
+func get_game_sdram_template(t *testing.T) *template.Template {
+	gameAudio := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_audio.v")
+	gameSdram := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "game_sdram.v")
+	ioctlDump := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ioctl_dump.v")
+	promDwnld := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "prom_dwnld.v")
+
+	tpl := template.New("game_sdram.v")
+	tpl.Funcs(funcMap).Funcs(sprig.FuncMap())
+	tpl.Funcs(audio_template_functions)
+	_, e := tpl.ParseFiles(gameAudio, gameSdram, ioctlDump, promDwnld)
+	if e != nil {
+		t.Error(e)
+		t.FailNow()
+	}
+	return tpl
+}
+
+func get_mem_ports_template(t *testing.T) *template.Template {
+	ports := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
+	tpl := template.New("ports.v")
+	tpl.Funcs(funcMap).Funcs(sprig.FuncMap())
+	_, e := tpl.ParseFiles(ports)
+	if e != nil {
+		t.Error(e)
+		t.FailNow()
+	}
+	return tpl
+}
+
+func capture_stdout(t *testing.T, f func()) string {
+	t.Helper()
+	old := os.Stdout
+	r, w, e := os.Pipe()
+	if e != nil {
+		t.Fatal(e)
+	}
+	os.Stdout = w
+	defer func() { os.Stdout = old }()
+	f()
+	_ = w.Close()
+	out, e := io.ReadAll(r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	_ = r.Close()
+	return string(out)
+}
+
+func Test_game_sdram_template_passes_balut_reverse(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		reverse bool
+		want    string
+	}{
+		{name: "forward", reverse: false, want: ".BALUT_REVERSE( 0 ),"},
+		{name: "reverse", reverse: true, want: ".BALUT_REVERSE( 1 ),"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := MemConfig{
+				Core:         "test",
+				Gfx4:         "1'b0;",
+				Gfx8:         "1'b0;",
+				Gfx16:        "1'b0;",
+				Gfx16b:       "1'b0;",
+				Gfx16c:       "1'b0;",
+				Balut:        1,
+				Lutsh:        16,
+				BalutReverse: tc.reverse,
+			}
+			tpl := get_game_sdram_template(t)
+			var verilog strings.Builder
+			if e := tpl.Execute(&verilog, cfg); e != nil {
+				t.Fatal(e)
+			}
+			out := verilog.String()
+			if !strings.Contains(out, tc.want) {
+				t.Fatalf("generated template is missing %q\n%s", tc.want, out)
+			}
+		})
+	}
+}
+
+func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
+	sample := `bram:
+  - name: fb
+    addr_width: 11
+    data_width: 32
+    rw: true
+    simfile: {}
+  - name: scene
+    addr_width: 12
+    data_width: 32
+    rw: true
+    simfile: {}
+    dual_port:
+      name: video
+      rw: true
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.normalize_bram_data_width()
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.check_bram(); e != nil {
+		t.Fatal(e)
+	}
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	cfg.fill_gfx_sort()
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"jtframe_ram32 #(",
+		"jtframe_dual_ram32 #(",
+		".ENDIAN(0)",
+		".SIMFILE(\"fb.bin\")",
+		".SIMFILE(\"scene.bin\")",
+		".we0",
+		"scene_we",
+		".we1",
+		"video_we",
+		"wire    [3:0]video_we;",
+		".AW(11)",
+		".AW(12)",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, ".DW(32)") {
+		t.Fatalf("generated template should not pass .DW(32) to jtframe_ram32\n%s", out)
+	}
+	if strings.Contains(out, ".SIMFILE_0(") || strings.Contains(out, ".SIMFILE_3(") {
+		t.Fatalf("generated template should not emit per-lane binary SIMFILE parameters\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_uses_32bit_ioctl_dump_restore(t *testing.T) {
+	sample := `bram:
+  - name: fb
+    addr_width: 11
+    data_width: 32
+    rw: true
+    simfile: {}
+    ioctl: { save: true, restore: true }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.normalize_bram_data_width()
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.check_bram(); e != nil {
+		t.Fatal(e)
+	}
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	cfg.fill_gfx_sort()
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"wire [3:0] fb_wemx;",
+		".DW0( 32 ), .AW0( 11 )",
+		".we0          ( fb_we),",
+		".we0_mx       ( fb_wemx )",
+		".we     ( fb_wemx )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "wire [  1:0] fb_wemx") {
+		t.Fatalf("generated template should use a 4-bit ioctl write-enable mux for 32-bit BRAM\n%s", out)
+	}
+	if strings.Contains(out, "{ 1'b0,fb_we }") {
+		t.Fatalf("generated template should not narrow 32-bit ioctl write-enable input\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_emits_bram_latch_parameters(t *testing.T) {
+	sample := `bram:
+  - name: chars
+    addr_width: 10
+    data_width: 8
+    rw: true
+    latch: inputs
+  - name: palette
+    addr_width: 11
+    data_width: 16
+    rw: true
+    latch: outputs
+  - name: scene
+    addr_width: 12
+    data_width: 32
+    rw: true
+    latch: all
+    dual_port:
+      name: video
+      rw: true
+      latch: inputs
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.normalize_bram_data_width()
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.check_bram(); e != nil {
+		t.Fatal(e)
+	}
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	cfg.fill_gfx_sort()
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"jtframe_ram #(\n    .AW(10),\n    .LATCH_IN(1),\n    .LATCH_OUT(0),\n    .DW(8)",
+		"jtframe_ram16 #(\n    .AW(11-1),\n    .LATCH_IN(0),\n    .LATCH_OUT(1),\n    .ENDIAN(0)",
+		"jtframe_dual_ram32 #(\n    .AW(12),\n    .LATCH0_IN(1),\n    .LATCH0_OUT(1),\n    .LATCH1_IN(1),\n    .LATCH1_OUT(0),\n    .ENDIAN(0)",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+}
+
+func Test_game_sdram_template_passes_cache_endian_to_mux(t *testing.T) {
+	sample := `sdram:
+  big_endian: true
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 4, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+    - name: chars
+      data_width: 64
+      blocks: { count: 2, size: 1kB }
+      at:    { bank: 2, offset: CHARS, length: 2MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{
+		{Name: "TILES", Value: "22'h100"},
+		{Name: "CHARS", Value: "22'h400"},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"jtframe_cache_mux #(",
+		".ENDIAN   ( 0 )",
+		".FULL0    ( 0 )",
+		".FULL1    ( 0 )",
+		".ENDIAN0 ( 1 )",
+		".ENDIAN1 ( 0 )",
+		".DW0      ( 32 )",
+		".DW1      ( 64 )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, ".ENDIAN   ( 1 )") {
+		t.Fatalf("generated template should not broadcast big-endian to every mux lane\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_marks_full_range_cache_lanes(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 16
+      blocks: { count: 1, size: 512B }
+    - name: chars
+      data_width: 16
+      blocks: { count: 1, size: 512B }
+      at:    { bank: 2, offset: CHARS, length: 2MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "CHARS", Value: "22'h400"}}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		".FULL0    ( 1 )",
+		".AW0      ( 25 )",
+		".BA0      ( 0 )",
+		".OFFSET0  ( 0 )",
+		".FULL1    ( 0 )",
+		".BA1      ( 2 )",
+		".OFFSET1  ( CHARS )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+}
+
+func Test_game_sdram_template_emits_cache_write_ports(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+      rw: true
+    - name: palette
+      data_width: 16
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 1, offset: 0x100, length: 256kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"wire        tiles_we;",
+		"wire [31:0] tiles_din;",
+		"wire [3:0] tiles_dsn;",
+		"wire        tiles_rd, tiles_ok;",
+		".tiles_rd   ( tiles_rd   )",
+		".tiles_we   ( tiles_we   )",
+		".tiles_din  ( tiles_din  )",
+		".tiles_dsn  ( tiles_dsn  )",
+		".rd0   ( tiles_rd )",
+		".wr0   ( tiles_we )",
+		".din0  ( tiles_din )",
+		".wdsn0 ( tiles_dsn )",
+		".wr1   ( 1'b0 )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, ".wr4") {
+		t.Fatalf("generated template should not expose write ports above lane 3\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_emits_cache_flush_ports(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+      rw: true
+      flush: { enable: true }
+    - name: palette
+      data_width: 16
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 1, offset: 0x100, length: 256kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"wire        tiles_flush, tiles_flushing, tiles_flush_done;",
+		"`ifdef SCENE\nassign tiles_flushing   = 1'b0;\nassign tiles_flush_done = tiles_flush;\n`endif",
+		".tiles_flush      ( tiles_flush      )",
+		".tiles_flushing   ( tiles_flushing   )",
+		".tiles_flush_done ( tiles_flush_done )",
+		"`ifdef SCENE\n    .flush0      ( 1'b0 ),\n    .flushing0   (  ),\n    .flush_done0 (  ),\n`else\n    .flush0      ( tiles_flush ),",
+		".flush0      ( tiles_flush )",
+		".flushing0   ( tiles_flushing )",
+		".flush_done0 ( tiles_flush_done )",
+		".flush1      ( 1'b0 )",
+		".flushing1   (  )",
+		".flush_done1 (  )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "palette_flush") {
+		t.Fatalf("generated template should not expose flush ports for non-flush cache lanes\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_emits_sdram_bus_latch_parameters(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+        - name: obj
+          addr_width: 20
+          data_width: 32
+          latch: OBJ_LATCH
+        - name: ram
+          addr_width: 14
+          data_width: 16
+          rw: true
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	if !strings.Contains(out, ".SLOT0_LATCH(OBJ_LATCH)") {
+		t.Fatalf("generated template is missing the requested SDRAM latch parameter\n%s", out)
+	}
+	if strings.Contains(out, ".SLOT1_LATCH(") {
+		t.Fatalf("generated template should not emit latch parameters for writable SDRAM slots\n%s", out)
+	}
+}
+
+func Test_check_banks_large_cache(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+        - { name: main, addr_width: 20, data_width: 16, cache_size: 128kB }
+        - { name: tiles, addr_width: 20, data_width: 16, cache_size: 4 }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	old_macros := macros.CopyToMap()
+	defer macros.MakeFromMap(old_macros)
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM96": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	if !cfg.SDRAM.Banks[0].Buses[0].Cache_large {
+		t.Fatal("string cache_size did not select the large cache path")
+	}
+	if cfg.SDRAM.Banks[0].Buses[0].Cache_size != 128*1024 {
+		t.Fatalf("large cache size was not converted to bytes: %#v", cfg.SDRAM.Banks[0].Buses[0].Cache_size)
+	}
+	if cfg.SDRAM.Banks[0].Buses[1].Cache_large {
+		t.Fatal("numeric cache_size must preserve the existing cache path")
+	}
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+	checks := []string{
+		".CACHE0_SIZE(131072)",
+		".CACHE0_LARGE(1)",
+		".TAG_RAM(1)",
+		".SLOT0_BURSTLEN(`JTFRAME_BA0_LEN)",
+		".SLOT0_BURSTLEN(32)",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+}
+
+func Test_check_banks_rejects_invalid_large_cache(t *testing.T) {
+	cases := []string{
+		`cache_size: 512B`,
+		`cache_size: 3kB`,
+		`cache_size: 256kB`,
+		`cache_size: 1kB
+          rw: true`,
+		`cache_size: true`,
+	}
+	for _, item := range cases {
+		sample := "sdram:\n  banks:\n    - buses:\n        - name: main\n          addr_width: 20\n          data_width: 16\n          " + item + "\n"
+		var cfg MemConfig
+		if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+			t.Fatal(e)
+		}
+		macros.MakeFromMap(nil)
+		if e := cfg.check_sdram(); e == nil {
+			t.Fatalf("invalid cache configuration was accepted: %s", item)
+		}
+	}
+	limited_bus := `sdram:
+  banks:
+    - buses:
+        - { name: main, addr_width: 13, data_width: 16, cache_size: 2kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(limited_bus), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("cache larger than one eighth of the address space was accepted")
+	}
+}
+
+func Test_mem_ports_template_emits_cache_write_ports(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles_wr
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+      rw: true
+    - name: tiles
+      data_width: 16
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 1, offset: 0x100, length: 256kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_mem_ports_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"input    [31:0] tiles_wr_data,",
+		"output          tiles_wr_rd,",
+		"output   [21:2] tiles_wr_addr,",
+		"input           tiles_wr_ok,",
+		"output          tiles_wr_we,",
+		"output   [31:0] tiles_wr_din,",
+		"output   [3:0] tiles_wr_dsn,",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated mem ports are missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "tiles_we") {
+		t.Fatalf("generated mem ports should not emit write ports for read-only cache lanes\n%s", out)
+	}
+}
+
+func Test_mem_ports_template_emits_cache_flush_ports(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles_wr
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+      rw: true
+      flush: { enable: true }
+    - name: tiles
+      data_width: 16
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 1, offset: 0x100, length: 256kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_mem_ports_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"input           tiles_wr_flushing,",
+		"input           tiles_wr_flush_done,",
+		"output          tiles_wr_flush,",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated mem ports are missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "tiles_flush") {
+		t.Fatalf("generated mem ports should not emit flush ports for non-flush cache lanes\n%s", out)
+	}
+}
+
+func Test_mem_ports_template_uses_wide_cache_addr_ranges(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: line64
+      data_width: 64
+      blocks: { count: 2, size: 1kB }
+      at:    { bank: 2, offset: LINE64, length: 4MB }
+    - name: line128
+      data_width: 128
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: LINE128, length: 4MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{
+		{Name: "LINE64", Value: "22'h200"},
+		{Name: "LINE128", Value: "22'h400"},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_mem_ports_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"output   [21:3] line64_addr,",
+		"output   [21:4] line128_addr,",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated mem ports are missing %q\n%s", each, out)
+		}
+	}
+}
+
+func Test_mem_ports_template_uses_full_range_cache_addr_ranges(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: full16
+      data_width: 16
+      blocks: { count: 2, size: 512B }
+    - name: full32
+      data_width: 32
+      blocks: { count: 1, size: 512B }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_mem_ports_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"output   [24:1] full16_addr,",
+		"output   [24:2] full32_addr,",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated mem ports are missing %q\n%s", each, out)
+		}
+	}
+}
+
+func Test_check_sdram_rejects_sub_16b_cache_lanes(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiny
+      data_width: 32
+      blocks: { count: 1, size: 8B }
+      at:    { bank: 3, offset: TINY, length: 4MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Params = []Param{{Name: "TINY", Value: "22'h80"}}
+	macros.MakeFromMap(nil)
+	e := cfg.check_sdram()
+	if e == nil {
+		t.Fatal("Expected sub-16B cache line to fail")
+	}
+	if !strings.Contains(e.Error(), "must be at least 16") {
+		t.Fatalf("Wrong error for sub-16B cache line. Got %v", e)
+	}
+}
+
+func Test_check_sdram_warns_about_big_endian_non32_cache_lanes(t *testing.T) {
+	sample := `sdram:
+  big_endian: true
+  cache-lanes:
+    - name: line32
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: LINE32, length: 4MB }
+    - name: line64
+      data_width: 64
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 2, offset: LINE64, length: 4MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Params = []Param{
+		{Name: "LINE32", Value: "22'h100"},
+		{Name: "LINE64", Value: "22'h200"},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	Verbose = true
+	defer func() { Verbose = false }()
+	out := capture_stdout(t, func() {
+		if e := cfg.check_sdram(); e != nil {
+			t.Fatal(e)
+		}
+	})
+	if !strings.Contains(out, "sdram.big_endian only applies to 32-bit cache-lanes") {
+		t.Fatalf("Expected big-endian warning, got %q", out)
+	}
+	if !strings.Contains(out, "line64 uses 64 bits") {
+		t.Fatalf("Expected wide-line warning detail, got %q", out)
+	}
+}
+
+func Test_byte_en_width(t *testing.T) {
+	cases := map[int]int{
+		8:   1,
+		16:  2,
+		32:  4,
+		64:  8,
+		128: 16,
+	}
+	for dw, expected := range cases {
+		t.Run(strconv.Itoa(dw), func(t *testing.T) {
+			if got := byte_en_width(dw); got != expected {
+				t.Fatalf("wrong byte enable width for %d-bit bus. Got %d, wanted %d", dw, got, expected)
+			}
+		})
+	}
+}
+
+func Test_fill_gfx_sort_rejects_conflicting_gfx16b0(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Banks: []SDRAMBank{
+				{
+					Buses: []SDRAMBus{
+						{Name: "a", Addr_width: 16, Gfx: "hhvvvv"},
+						{Name: "b", Addr_width: 16, Offset: "16'h100", Gfx: "hvvvvx"},
+					},
+				},
+			},
+		},
+	}
+	defer func() {
+		if recover() == nil {
+			t.Fatal("fill_gfx_sort should panic when gfx16 and gfx16c require different bit0")
+		}
+	}()
+	cfg.fill_gfx_sort()
 }

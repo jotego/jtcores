@@ -6,6 +6,6 @@ COLMIX=jtngpc_colmix
 debug JTFRAME_IOCTL_RD+=512
 
 [mister]
-# keep using JTNGPC during beta phase
-CORENAME=JTNGPC
+# name in line with the common MiSTer approach
+CORENAME=NeoGeoPocket-Color
 GAMETOP=jtngpc_game_sdram

@@ -1,0 +1,210 @@
+name: Core regression (5% daily)
+
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: '0 6 * * *' # runs every day at 03:00 UTC
+
+jobs:
+  list_setnames:
+    runs-on: ubuntu-22.04
+    container:
+      image: jotego/simulator
+    outputs:
+      pairs: ${{ steps.get.outputs.pairs }}
+    steps:
+      - &clone_repo
+        name: Clone repo
+        env:
+          PAT: ${{ secrets.PAT }}
+          SERVER_URL: ${{ github.server_url }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git -c "http.${SERVER_URL}/.extraHeader=Authorization: token ${PAT}" clone \
+            --depth 1 \
+            "${SERVER_URL}/${{ github.repository }}.git" .
+
+          git config --global url."${SERVER_URL}/jotego/".insteadOf "https://github.com/jotego/"
+          git config --global --add url."${SERVER_URL}/jotego/".insteadOf "https://www.github.com/jotego/"
+          git config --global --add url."${SERVER_URL}/jotego/".insteadOf "git@github.com:jotego/"
+          git config --global url."${SERVER_URL}/jotego/fx68k.git".insteadOf "https://github.com/jtfpga/fx68k"
+          git config --global url."https://github.com/colinbourassa/".insteadOf "git@github.com:colinbourassa/"
+
+          git submodule set-url cores/cps3 "${SERVER_URL}/jotego/cps3.git"
+          git submodule set-url modules/fx68k "${SERVER_URL}/jotego/fx68k.git"
+          git submodule set-url modules/jt51 "${SERVER_URL}/jotego/jt51.git"
+          git submodule set-url modules/jt5205 "${SERVER_URL}/jotego/jt5205.git"
+          git submodule set-url modules/jt12 "${SERVER_URL}/jotego/jt12.git"
+          git submodule set-url modules/jtopl "${SERVER_URL}/jotego/jtopl.git"
+          git submodule set-url modules/jt6295 "${SERVER_URL}/jotego/jt6295.git"
+          git submodule set-url modules/jteeprom "${SERVER_URL}/jotego/jteeprom.git"
+          git submodule set-url modules/jttms "${SERVER_URL}/jotego/jttms.git"
+          git submodule set-url modules/jt49 "${SERVER_URL}/jotego/jt49.git"
+          git submodule set-url modules/jt89 "${SERVER_URL}/jotego/jt89.git"
+          git submodule set-url modules/jt7759 "${SERVER_URL}/jotego/jt7759.git"
+          git submodule set-url modules/jtdsp16 "${SERVER_URL}/jotego/jtdsp16.git"
+          git submodule set-url modules/jt8255 "${SERVER_URL}/jotego/jt8255.git"
+          git submodule set-url modules/jtkcpu "${SERVER_URL}/jotego/jtkcpu.git"
+          git submodule set-url modules/jt900h "${SERVER_URL}/jotego/jt900h.git"
+          git submodule set-url modules/jtframe/target/pocket "${SERVER_URL}/jotego/pocket.git"
+          git submodule set-url modules/jt539 "${SERVER_URL}/jotego/jt539.git"
+          git submodule set-url modules/jt680x/crasm "https://github.com/colinbourassa/crasm.git"
+
+          git -c "http.${SERVER_URL}/.extraHeader=Authorization: token ${PAT}" submodule update \
+            --init \
+            --recursive \
+            --depth 1 \
+            --jobs 8
+
+      - name: Get core/setname pairs
+        id: get
+        shell: bash
+        run: |
+          JSON="["
+          first=1
+          for f in cores/*/cfg/reg.yaml; do
+            core=$(basename "$(dirname "$(dirname "$f")")")
+            for sn in $(yq -r 'keys | .[]' "$f"); do
+              if (( first )); then
+                JSON="${JSON}{\"core\":\"$core\",\"setname\":\"$sn\"}"
+                first=0
+              else
+                JSON="${JSON}, {\"core\":\"$core\",\"setname\":\"$sn\"}"
+              fi
+            done
+          done
+          JSON="${JSON}]"
+          echo "pairs=$JSON" >> "$GITHUB_OUTPUT"
+
+  make_batches:
+    runs-on: ubuntu-22.04
+    container:
+      image: jotego/simulator
+    outputs:
+      batches: ${{ steps.extract.outputs.batches }}
+    needs:
+      - list_setnames
+    steps:
+      - name: Extract batches
+        id: extract
+        env:
+          PAIRS: ${{ needs.list_setnames.outputs.pairs }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAX=256
+          printf '%s' "$PAIRS" > pairs.json
+          LEN=$(yq -r 'length' pairs.json)
+          if (( LEN == 0 )); then
+            echo "batches=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if (( LEN < MAX )); then
+            num_batches="$LEN"
+          else
+            num_batches="$MAX"
+          fi
+          echo '[]' > batches.json
+          for ((b=0; b<num_batches; b++)); do
+            yq -i -I=0 '. += [ [] ]' batches.json
+          done
+          for ((count=0; count<LEN; count++)); do
+            item=$(yq -o=json -I=0 ".[$count]" pairs.json)
+            batch=$(( count % num_batches ))
+            yq -i -I=0 ".[$batch] += [ ${item} ]" batches.json
+          done
+
+          batches_with_titles=$(yq -o=json -I=0 '
+            [ .[] | {"title": (map(.core + "/" + .setname) | join(", ")), "items": .} ]
+          ' batches.json)
+
+          {
+            echo "batches<<EOF"
+            echo "$batches_with_titles"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  sample_batches:
+    runs-on: ubuntu-22.04
+    container:
+      image: jotego/simulator
+    outputs:
+      batches: ${{ steps.pick.outputs.batches }}
+    needs:
+      - make_batches
+    steps:
+      - name: Pick random 5% of batches
+        id: pick
+        env:
+          BATCHES: ${{ needs.make_batches.outputs.batches }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          SAMPLE_PERCENT=5
+          printf '%s' "$BATCHES" > batches.json
+          TOTAL=$(yq -r 'length' batches.json)
+          if (( TOTAL == 0 )); then
+            echo "batches=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          SAMPLE_COUNT=$(( (TOTAL * SAMPLE_PERCENT + 99) / 100 ))
+          if (( SAMPLE_COUNT < 1 )); then
+            SAMPLE_COUNT=1
+          fi
+          if (( SAMPLE_COUNT > TOTAL )); then
+            SAMPLE_COUNT="$TOTAL"
+          fi
+
+          mapfile -t PICKED_IDX < <(seq 0 "$((TOTAL - 1))" | shuf -n "$SAMPLE_COUNT")
+          echo '[]' > sampled-batches.json
+          for idx in "${PICKED_IDX[@]}"; do
+            item=$(yq -o=json -I=0 ".[$idx]" batches.json)
+            yq -i -I=0 ". += [ ${item} ]" sampled-batches.json
+          done
+
+          {
+            echo "batches<<EOF"
+            yq -o=json -I=0 '.' sampled-batches.json
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  simulate:
+    name: Regression (5%) ${{ matrix.batch.title }}
+    runs-on: ubuntu-22.04
+    container:
+      image: jotego/simulator
+      volumes:
+        - ${{ secrets.MAME }}:/root/.mame/roms:ro
+        - ${{ secrets.REGRUNS }}:/nobackup/regression
+    needs:
+      - sample_batches
+    strategy:
+      fail-fast: false
+      matrix:
+        batch: ${{ fromJSON(needs.sample_batches.outputs.batches) }}
+
+    steps:
+      - *clone_repo
+
+      - name: Run regression
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAME: ${{ secrets.MAME }}
+          REGRUNS: ${{ secrets.REGRUNS }}
+        shell: bash
+        run: |
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
+          
+          printf '%s' '${{ toJSON(matrix.batch.items) }}' > batch.json
+          yq -r '.[] | .core' batch.json > cores.lst
+          yq -r '.[] | .setname' batch.json > setnames.lst
+          job='
+            source setprj.sh
+            run_regression.sh {1} {2} --check --push
+            ec=$?
+            # create_regression_issue.sh "$ec" {1} {2} || true
+            exit "$ec"
+          '
+          parallel --jobs 0 --halt never "$job" :::: cores.lst ::::+ setnames.lst

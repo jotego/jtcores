@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 16-3-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-3-2021 */
 
 module jts16_snd(
     input                rst,
@@ -51,7 +37,7 @@ module jts16_snd(
 `ifndef NOSOUND
 wire [15:0] A;
 reg         fm_cs, latch_cs, ram_cs;
-wire        mreq_n, iorq_n, int_n, nmi_n;
+wire        mreq_n, rfsh_n, iorq_n, int_n, nmi_n;
 wire        WRn;
 reg  [ 7:0] din, pcm_cmd;
 reg         rom_ok2;
@@ -66,15 +52,15 @@ assign ack      = latch_cs;
 assign cmd_cs   = !iorq_n && A[7:6]==2 && !wr_n; // 80
 
 always @(*) begin
-    latch_cs = (!mreq_n &&  A[15:12]==4'he && A[11]) // e800
+    latch_cs = (!mreq_n && rfsh_n && A[15:12]==4'he && A[11]) // e800
              || (!iorq_n &&  A[7:6]==3);
 
     fm_cs    = !iorq_n && A[7:6]==0;
 end
 
 always @(posedge clk) begin
-    ram_cs   <=  !mreq_n && &A[15:11];
-    rom_cs   <=  !mreq_n && !A[15];
+    ram_cs   <=  !mreq_n && rfsh_n && &A[15:11];
+    rom_cs   <=  !mreq_n && rfsh_n && !A[15];
     rom_ok2  <= rom_ok;
     if( cmd_cs ) pcm_cmd <= dout;
 
@@ -110,7 +96,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
@@ -180,6 +166,7 @@ assign  rom_addr = 0;
 assign  pcm_addr = 0;
 assign  pcm_cs   = 0;
 assign  fm_l     = 0;
+assign  fm_r     = 0;
 assign  pcm      = 0;
 initial rom_cs   = 0;
 `endif

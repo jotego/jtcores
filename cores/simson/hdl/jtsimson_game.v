@@ -1,31 +1,17 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 23-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-7-2023 */
 
 module jtsimson_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 /* verilator tracing_off */
-wire [ 7:0] snd2main, video_dump;
+wire [ 7:0] snd2main, video_dump, fm_dout;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
-wire        pal_we, pal_bank,
+wire        pal_we, pal_bank, fm_irqn,
             cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
-wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
+wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs, main_fmcs;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
@@ -33,7 +19,7 @@ wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
 wire [15:0] video_dumpa;
 reg  [ 7:0] debug_mux;
-reg         simson, paroda, vendetta;
+reg         simson, paroda, vendetta, esckids, suratk;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -42,9 +28,11 @@ assign video_dumpa= ioctl_addr[15:0]-16'h80;
 
 always @(posedge clk) begin
     if( header && prog_we && prog_addr[1:0]==0 ) begin
-        simson   <= prog_data[1:0]==0;
-        paroda   <= prog_data[1:0]==1;
-        vendetta <= prog_data[1:0]==2;
+        simson   <= prog_data[2:0]==0;
+        paroda   <= prog_data[2:0]==1;
+        vendetta <= prog_data[2:0]==2;
+        esckids  <= prog_data[2:0]==3;
+        suratk   <= prog_data[2:0]==4;
     end
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
@@ -54,16 +42,22 @@ always @(posedge clk) begin
     endcase
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_main u_main(
-    .rst            ( rst           ),
-    .clk            ( clk           ),
+    .rst            ( rst48         ),
+    .clk            ( clk48         ),
     .cen_ref        ( cen24         ), // should it be cen12?
     .cpu_cen        ( cpu_cen       ),
 
     .simson         ( simson        ),
     .paroda         ( paroda        ),
     .vendetta       ( vendetta      ),
+    .esckids        ( esckids       ),
+    .suratk         ( suratk        ),
+    // YM2151 (only suratk)
+    .fm_cs          ( main_fmcs     ),
+    .fm_dout        ( fm_dout       ),
+    .fm_irqn        ( fm_irqn       ),
 
     .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( cpu_dout      ),
@@ -111,10 +105,10 @@ jtsimson_main u_main(
     .snd_wrn        ( snd_wrn       ),
     .mono           ( mono          ),
     // EEPROM
-    .nv_addr        ( nv_addr       ),
-    .nv_dout        ( nv_dout       ),
-    .nv_din         ( nv_din        ),
-    .nv_we          ( nv_we         ),
+    .nv_addr        ( nvram_addr    ),
+    .nv_dout        ( nvram_dout    ),
+    .nv_din         ( nvram_din     ),
+    .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_test       ( dip_test      ),
     .dip_pause      ( dip_pause     ),
@@ -126,12 +120,13 @@ jtsimson_main u_main(
 
 /* verilator tracing_off */
 jtsimson_sound u_sound(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
 
     .simson     ( simson        ),
+    .suratk     ( suratk        ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .main_dout  ( cpu_dout      ),
@@ -139,6 +134,10 @@ jtsimson_sound u_sound(
     .main_addr  ( cpu_addr[0]   ),
     .main_rnw   ( snd_wrn       ),
     .mono       ( mono          ),
+    // YM2151 (only suratk)
+    .main_fmcs  ( main_fmcs     ),
+    .fm_dout    ( fm_dout       ),
+    .fm_irqn    ( fm_irqn       ),
     // ROM
     .rom_addr   ( snd_addr      ),
     .rom_cs     ( snd_cs        ),
@@ -168,6 +167,7 @@ jtsimson_sound u_sound(
     .snd_l      ( snd_l         ),
     .snd_r      ( snd_r         ),
     // Debug
+    .snd_en     ( snd_en        ),
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_snd        )
 );
@@ -180,6 +180,8 @@ jtsimson_video u_video (
 
     .simson         ( simson        ),
     .paroda         ( paroda        ),
+    .suratk         ( suratk        ),
+    .esckids        ( esckids       ),
 
     // base video
     .pxl_cen        ( pxl_cen       ),

@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-1-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-1-2020 */
 
 module jtframe_rom_wait(
     input       rst_n,
@@ -74,7 +60,7 @@ reg       locked, latched;
 assign gate = !( rom_bad || dev_busy || locked || latched);
 wire bus_ok = (rom_ok||!rom_cs) && !dev_busy;
 
-always @(posedge clk, negedge rst_n) begin
+always @(posedge clk) begin
     if( !rst_n ) begin
         gated_at <= 1'b0;
         latched  <= 1'b0;
@@ -97,7 +83,7 @@ always @(posedge clk)
     cen_out <= cen_in & {2{gate}};
 
 
-always @(posedge clk or negedge rst_n) begin
+always @(posedge clk) begin
     if( !rst_n ) begin
         last_rom_cs <= 1'b1;
         locked      <= 1'b0;
@@ -169,7 +155,7 @@ end
 
 always @(posedge clk) cen_l <= cen_out;
 
-always @(posedge clk, negedge rst_n) begin
+always @(posedge clk) begin
     if( !rst_n ) begin
         miss_cnt <= 4'd0;
     end else begin
@@ -188,7 +174,7 @@ end
 always @(*)
     cen_out = (cen_in & gate) | rec;
 
-always @(posedge clk or negedge rst_n) begin
+always @(posedge clk) begin
     if( !rst_n ) begin
         last_rom_cs <= 1'b1;
         locked      <= 1'b0;

@@ -1,0 +1,19 @@
+s16:
+s16b:
+  - get:
+    - jts16b_main.v
+    - jts16b_cabinet.v
+    - jts16b_mapper.v
+    - jts16b_snd.v
+    - jts16b_mul.v
+    - jts16b_timer.v
+    - jtmc8123.v
+    - timing.sdc
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_8751.yaml
+  - from: clocking
+    get:
+      - jtframe_sync.v
+jt7759:

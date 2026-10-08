@@ -1,0 +1,47 @@
+sf:
+  - get:
+    - jtsf_colmix.v
+    - jtsf_game.v
+    - jtsf_main.v
+    - jtsf_video.v
+    - jtsf_sound.v
+    - jtsf_adpcm.v
+    - jtsf_scroll.v
+    - jtsf_mcu.v
+biocom:
+  - get:
+    - jtbiocom_sound.v
+gng:
+  - get:
+    - jtgng_video.yaml
+    - jtgng_dual_ram.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_cen96.v
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+      - jtframe_8751.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_blank.v
+      - jtframe_vtimer.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilebuf.v
+jt51:
+jt5205:
+jt12:
+  - get:
+    - jt12_rst.v

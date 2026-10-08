@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-8-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-8-2021 */
 
 // Clocks are derived from H counter on the original PCB
 // Yet, that doesn't seem to be important and it only
@@ -78,8 +64,10 @@ module jtflane_main(
     input               pcmd_ok,
 
     // Sound
-    output signed [11:0] pcm0, pcm1
+    output signed [10:0] pcm0, pcm1
 );
+
+`ifndef NOMAIN
 
 wire [ 7:0] prot_dout, ram_dout;
 wire [15:0] A;
@@ -286,6 +274,24 @@ jt007232 #(.INVA0(1)) u_pcm1(
     assign pcmb_cs = 0;
     assign pcmc_cs = 0;
     assign pcmd_cs = 0;
+`endif
+
+`else
+assign cpu_cen   = 1'b0;
+assign gfx_addr  = 14'd0;
+assign cpu_rnw   = 1'b1;
+assign cpu_dout  = 8'd0;
+assign pcma_addr = 17'd0;
+assign pcma_cs   = 1'b0;
+assign pcmb_addr = 17'd0;
+assign pcmb_cs   = 1'b0;
+assign pcmc_addr = 19'd0;
+assign pcmc_cs   = 1'b0;
+assign pcmd_addr = 19'd0;
+assign pcmd_cs   = 1'b0;
+assign pcm0      = 11'sd0;
+assign pcm1      = 11'sd0;
+initial begin rom_addr=0; rom_cs=0; gfx_cs=0; end
 `endif
 
 endmodule

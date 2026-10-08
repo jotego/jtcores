@@ -1,0 +1,22 @@
+# jtsim -video 700 -inputs sound.cab -w 521
+# go into test mode and force the patrol car sound
+80
+4 test
+40
+# move to sound menu
+loop
+	30 left
+repeat 5
+4 test
+10
+# select "effect B"
+30 right
+1p
+80
+# select PATCAR SIREN
+loop
+	40 left
+repeat 3
+# frame 521
+10
+4 1p

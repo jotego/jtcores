@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 19-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 19-3-2022 */
 
 module jttrack_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -57,7 +43,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jttrack_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -104,23 +89,7 @@ jttrack_main u_main(
     .ioctl_wr       ( prog_we       ),
     .ioctl_addr     ( prog_addr[15:0])
 );
-`else
-    assign main_cs   = 0;
-    assign main_addr = 0;
-    assign cpu_rnw   = 1;
-    assign vram_cs   = 0;
-    assign cpu_dout  = 0;
-    assign m2s_irq   = 0;
-    assign m2s_data  = 0;
-    assign objram_cs = 0;
-    assign snd       = 0;
-    assign sample    = 0;
-    assign game_led  = 0;
-    assign flip      = 0;
-    assign pcm_addr  = 0;
-`endif
 
-`ifndef NOSOUND
 jttrack_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk24     ),
@@ -148,15 +117,6 @@ jttrack_snd u_sound(
     .rdac_rcen  ( rdac_rcen ),
     .debug_view (debug_view )
 );
-`else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign pcm_addr=0;
-    assign snd=0;
-    assign sample=0;
-    assign game_led=0;
-    assign debug_view = 0;
-`endif
 
 jttrack_video u_video(
     .rst        ( rst       ),

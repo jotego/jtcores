@@ -1,0 +1,209 @@
+.TH JTFRAME-CFGSTR 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-cfgstr \- expand JTFRAME macros and cfgstr templates
+.SH SYNOPSIS
+.B jtframe cfgstr
+.RI [ core-name ]
+.RI [ flags ]
+.SH DESCRIPTION
+.SS Configuration String
+MiST-derived FPGA platforms, including MiSTer, send core configuration from the
+FPGA to the microcontroller through a configuration string.
+That string usually comes from
+\fB$JTFRAME/target/<target>/cfgstr\fR,
+and
+\fBjtframe cfgstr\fR
+expands it with the macro set of the selected core.
+.PP
+The same command is also the generic JTFRAME macro parser.
+It can emit cfgstr text, shell assignments, Quartus Tcl, and simulator-oriented
+macro definitions used by
+\fBjtsim\fR.
+.SS Macro Files
+Macros are normally read from
+\fBcores/<corename>/cfg/macros.def\fR.
+That file may include additional
+\fB.def\fR
+files and may define target-specific sections.
+Macros can also be added or removed on the command line with
+\fB--def\fR
+and
+\fB--undef\fR.
+.PP
+The same macro set is used for Verilog and for generated C or C++ outputs.
+For C-family outputs, macro names are emitted with a leading underscore, so
+\fBABC\fR
+becomes
+\fB_ABC\fR.
+.PP
+Section names may contain shell-style globs.
+Use them to override a value only for selected targets:
+.RS
+.nf
+# defines FOO as 4
+FOO=4
+[sidi]
+# but in the sidi platform, it will become 6
+FOO=6
+[mist*]
+# and in mist/mister platforms, it will be 7
+FOO=7
+[*]
+# matches all targets
+.fi
+.RE
+.PP
+Macro files can include other files with:
+.RS
+.nf
+include <path-to-def-file>
+.fi
+.RE
+.PP
+The included path is resolved relative to the
+\fB.def\fR
+file containing the
+\fBinclude\fR
+line.
+.PP
+Macros prefixed with
+\fBdebug\fR
+are ignored in release mode:
+.RS
+.nf
+[*]
+debug SHOWINFO
+ABC
+.fi
+.RE
+.PP
+If
+\fBJTFRAME_RELEASE\fR
+is defined,
+\fBSHOWINFO\fR
+is skipped while
+\fBABC\fR
+is still emitted.
+.PP
+Macros may be removed by prefixing them with a minus sign:
+.RS
+.nf
+ABC
+[mist]
+\-ABC
+.fi
+.RE
+.PP
+This removes
+\fBABC\fR
+for the MiST target only.
+.PP
+Text concatenation is supported with
+\fB+=\fR:
+.RS
+.nf
+TEXT=abc
+TEXT+=def
+.fi
+.RE
+.PP
+The resulting value of
+\fBTEXT\fR
+is
+\fBabcdef\fR.
+The same syntax also works with integers written in decimal, octal,
+hexadecimal, or binary:
+.RS
+.nf
+NUMBER=0b1001
+NUMBER+=0b0110
+.fi
+.RE
+.PP
+The resulting value is 15, that is
+\fB0b1111\fR.
+No other arithmetic is performed:
+\fBADD=2+3\fR
+is stored as a string, not evaluated.
+.SS System Name Macros
+Two macros define the public name of the core and the game module connected to
+the target top level.
+If they are not provided explicitly, JTFRAME derives them from the core folder
+and from the presence of
+\fBcfg/mem.yaml\fR.
+.TP
+.B CORENAME
+Public core name.
+Default:
+the core folder name.
+.TP
+.B GAMETOP
+Game module name.
+Default:
+\fB$CORENAME_game\fR
+or
+\fB$CORENAME_game_sdram\fR.
+.PP
+JTFRAME also defines a macro derived from the core folder name in uppercase, so
+shared HDL can test which core is being built.
+.SS JTFRAME Macros
+Framework-wide macros are documented in
+\fB$JTFRAME/doc/macros.md\fR.
+You can also run
+\fBjtmacros\fR
+from the shell to inspect them.
+.SH FLAGS
+.TP
+.BI "\-d, \-\-def " list
+Define one or more macros, separated by commas.
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.B \-\-nodbg
+Enable release-mode parsing and skip
+\fBdebug\fR
+macro declarations.
+.TP
+.BI "\-o, \-\-output " type
+Select the output format.
+Common values are
+\fBcfgstr\fR,
+\fBbash\fR,
+\fBquartus\fR,
+and the simulator names accepted by
+\fBjtsim\fR.
+The default is
+\fBcfgstr\fR.
+.TP
+.BI "\-t, \-\-target " name
+Select the target platform.
+Examples include
+\fBmist\fR,
+\fBmister\fR,
+\fBsidi\fR,
+\fBsidi128\fR,
+\fBneptuno\fR,
+\fBmc2\fR,
+\fBmcp\fR,
+\fBpocket\fR,
+\fBsockit\fR,
+\fBde1soc\fR,
+and
+\fBde10std\fR.
+The default is
+\fBmist\fR.
+.TP
+.BI "\-\-tpl " path
+Use an explicit template file instead of the default cfgstr template.
+.TP
+.BI "\-u, \-\-undef " list
+Remove one or more macros, separated by commas.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-files (1),
+.BR jtframe-parse (1),
+.BR jtsim (1)

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-(*keep*)     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 19-9-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 19-9-2020 */
 
 module jtcps15_sound(
     input             rst,
@@ -60,6 +46,8 @@ module jtcps15_sound(
     output               sample
 );
 
+`ifndef NOSOUND
+
 localparam LATCH=`ifdef KABUKI_LATCH 1 `else 0 `endif ;
 
 wire        cpu_cen, cen_extra;
@@ -95,7 +83,6 @@ reg         base_sample;
 reg         last_pids_n;
 reg         rom_okl, last_romcs;
 
-`ifndef NOSOUND
 assign      dsp_rdy_n = ~(dsp_irq | dsp_iack);
 assign      dsp_doen  = 1; // ignored by dsp16
 
@@ -114,21 +101,6 @@ jtcps15_qsnd_cen u_dspcen(
     .r_out       ( right       ),
     .resample48  ( sample      )
 );
-
-`else
-reg rdy_reads, last_rd;
-assign      dsp_rdy_n = rdy_reads;
-
-always @(posedge clk48, posedge rst) begin
-    if( rst ) begin
-        rdy_reads <= 0;
-        last_rd   <= 0;
-    end else begin
-        last_rd <= qsnd_rd;
-        if( !qsnd_rd && last_rd ) rdy_reads <= ~rdy_reads;
-    end
-end
-`endif
 
 `ifdef SIMULATION
 wire bank_access = rom_cs & A[15];
@@ -163,34 +135,15 @@ always @(negedge clk48) begin
     rstn <= ~rst;
 end
 
-//always @(posedge clk48, posedge rst) begin
 always @(*) begin
-    //if ( rst ) begin
-    //    rom_cs    <= 0;
-    //    rom_addr  <= 16'd0;
-    //    ram_cs    <= 0;
-    //    bank_cs   <= 0;
-    //    qsnd_wr   <= 0;
-    //    qsnd_rd   <= 0;
-    //end else begin
-        rom_cs  = !bus_mreqn && (!bus_A[15] || bus_A[15:14]==2'b10);
-        //if(!bus_mreqn) begin
-        rom_addr = (bus_A[15] ? ({ 1'b0, bank, bus_A[13:0] } + 19'h8000) : { 4'b0, bus_A[14:0] });
-//            rom_addr = (~mreq_n & main_busakn) ?
-//                // Z80
-//                (bus_A[15] ? ({ 1'b0, bank, bus_A[13:0] } + 19'h8000) : { 4'b0, bus_A[14:0] }) :
-//                // M68000
-//                main_addr[19:1];
-        //end
-        ram_cs   = !bus_mreqn && (bus_A[15:12] == 4'hc || bus_A[15:12]==4'hf);
-        qsnd_wr  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]<=3'd2);
-        bank_cs  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd3);
-        qsnd_rd  = !bus_mreqn && !rd_n && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd7);
-   // end
+    rom_cs  = !bus_mreqn && (!bus_A[15] || bus_A[15:14]==2'b10);
+    rom_addr = (bus_A[15] ? ({ 1'b0, bank, bus_A[13:0] } + 19'h8000) : { 4'b0, bus_A[14:0] });
+    ram_cs   = !bus_mreqn && (bus_A[15:12] == 4'hc || bus_A[15:12]==4'hf);
+    qsnd_wr  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]<=3'd2);
+    bank_cs  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd3);
+    qsnd_rd  = !bus_mreqn && !rd_n && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd7);
 end
 
-// wire qs0l_w = qsnd_wr && A[2:0]==2'd0;
-// wire qs0h_w = qsnd_wr && A[2:0]==2'd1;
 wire qs1l_w = qsnd_wr && A[2:0]==2;
 reg [23:0] cpu2dsp_s;
 
@@ -396,8 +349,7 @@ always @(posedge clk96, posedge rst) begin
             qsnd_addr[15:0] <= dsp_pbus_out;
         end
         if( dsp_ab[15] && dsp_cen_cko ) begin
-            qsnd_addr[22:16] <= dsp_ab[6:0];/*{ dsp_ab[2:0], dsp_ab[4], dsp_ab[5],
-                dsp_ab[6], dsp_ab[7] };*/
+            qsnd_addr[22:16] <= dsp_ab[6:0];
         end
     end
 end
@@ -406,7 +358,6 @@ always @(*) begin
     dsp_pbus_in = dsp_dsel96 ? {8'd0, cpu2dsp_s[23:16]} : cpu2dsp_s[15:0];
 end
 
-`ifndef NOSOUND
 wire        dsp_fault;
 
 assign qsnd_cs = 1;
@@ -433,7 +384,7 @@ jtdsp16 u_dsp16(
     .sadd       ( dsp_sadd      ),  // serial address
     .psel       ( dsp_psel      ),  // peripheral select
     .ser_out    (               ),  // debug output to bypass the serial register
-        // Unused by QSound firmware:
+    // Unused by QSound firmware:
     .ose        (               ),  // output shift register empty
     .old        (               ),  // output load
     .ibf        (               ),  // input buffer full
@@ -451,16 +402,20 @@ jtdsp16 u_dsp16(
     .fault      ( dsp_fault     )
 );
 `else
-assign dsp_pbus_out = 16'd0;
-assign dsp_pods_n   = 1;
-assign dsp_pids_n   = 1;
-assign dsp_do       = 1;
-assign dsp_ock      = 1;
-assign dsp_doen     = 0;
-assign dsp_sadd     = 0;
-assign dsp_psel     = 0;
-assign dsp_ab       = 16'd0;
-assign qsnd_cs      = 0;
+assign main_busakn = 1'b1;
+assign main_waitn  = 1'b1;
+assign qsnd_cs     = 1'b0;
+assign left        = 16'sd0;
+assign right       = 16'sd0;
+assign sample      = 1'b0;
+
+initial begin
+    volume     = 13'd0;
+    main_din   = 8'hff;
+    rom_addr   = 19'd0;
+    rom_cs     = 1'b0;
+    qsnd_addr  = 23'd0;
+end
 `endif
 
 endmodule

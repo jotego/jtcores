@@ -1,0 +1,34 @@
+ddrbl:
+  - get:
+    - jtddrbl_main.v
+    - jtddrbl_sub.v
+    - jtddrbl_sound.v
+    - jtddrbl_k005885.v            # ground-up 005885 port — wraps jtframe_scroll
+    - jtddrbl_scroll.v             # 005885 tilemap layer (jtframe_scroll + packed converter)
+    - jtddrbl_obj.v                # 005885 sprite engine (blanked during the tilemap stage)
+    - jtddrbl_colmix.v             # colour mixer: 007327 palette LUT/RGB DAC + LS157/LS32 priority
+    - jtddrbl_video.v              # video pipeline: 2x jtddrbl_k005885 + their VRAM BRAMs
+    - jtddrbl_game.v
+jtframe:
+  - get:
+      - jtframe_ff.v 
+      - jtframe_8bit_reg.v
+      - jtframe_edge.v
+  - from: video
+    get:
+      - jtframe_vtimer.v          # video timing for the 005885 (E1)
+      - jtframe_scroll.yaml       # jtframe_scroll tilemap + scroll_offset (E3)
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v  # packed->planar gfx converter for jtframe_scroll
+  - from: ram
+    get:
+      - jtframe_obj_buffer.v      # sprite line buffer used by jtddrbl_k005885
+      - jtframe_bram_dma.v        # vblank OBJ-list snapshot (sprite frame-buffer emulation)
+  - from: cpu
+    get:
+      - jtframe_6809.yaml
+jt12:
+  - get:
+    - jt03.yaml
+vlm5030:

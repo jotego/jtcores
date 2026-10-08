@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 26-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 26-3-2022 */
 
 module jtpinpon_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -36,7 +22,7 @@ wire        vram_cs, oram_cs, flip;
 wire [ 7:0] vram_dout, obj_dout, cpu_dout;
 wire        vsync60;
 
-assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[18:0];
+assign { dipsw_c, dipsw_b, dipsw_a } = { dipsw[13], 6'h3f, dipsw[11:0] };
 assign dip_flip = flip;
 assign debug_view= 0;
 
@@ -56,7 +42,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jtpinpon_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -70,8 +55,8 @@ jtpinpon_main u_main(
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
+    .joystick1      ( joystick1[5:0]),
+    .joystick2      ( joystick2[5:0]),
     .service        ( service       ),
     // GFX
     .cpu_dout       ( cpu_dout      ),
@@ -96,15 +81,6 @@ jtpinpon_main u_main(
     // Sound
     .snd            ( ti1           )
 );
-`else
-    assign cpu_rnw   = 1;
-    assign cpu_dout  = 0;
-    assign vram_cs   = 0;
-    assign oram_cs   = 0;
-    assign snd       = 0;
-    assign sample    = 0;
-    assign flip      = 0;
-`endif
 
 jtpinpon_video u_video(
     .rst        ( rst       ),

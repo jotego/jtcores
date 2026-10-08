@@ -23,7 +23,7 @@ volume = [
 [buttons]
 core=3 # max number of buttons supported by the core
 names=[
-    { names="Fire-Left,Fire-Right,Power" },
+    { names="Fire-Left,Fire-Right,Power", map="YAB" },
 ]
 
 [dipsw]

@@ -1,0 +1,39 @@
+gaiden:
+  - get:
+    - jtgaiden_*.v
+    - jtgaiden_*.sv
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_counter.v
+    - jtframe_16bit_reg.v
+    - jtframe_mmr_reg.v
+  - from: debug
+    get:
+      - jtframe_simdumper.v
+  - from: ram
+    get:
+      - jtframe_bram_burst.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+      - jtframe_framebuf.v
+      - jtframe_objscan.v
+      - jtframe_objdraw.v
+      - jtframe_objdraw_gate.v
+      - jtframe_draw.v
+      - jtframe_blink.v
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+jt6295:
+jt12:
+  - get:
+    - jt03.yaml

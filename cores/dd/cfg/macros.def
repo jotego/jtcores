@@ -1,4 +1,5 @@
 CORENAME=JTDD
+JTFRAME_RATE=57.45
 
 JTFRAME_BUTTONS=3
 JTFRAME_CLK24
@@ -7,7 +8,6 @@ JTFRAME_DIPBASE=16
 # OSD
 # Turbo does not work with the new MCU
 CORE_OSD=OD,Turbo,Off,On;
-JTFRAME_CREDITS
 
 # Video
 JTFRAME_WIDTH=256
@@ -32,5 +32,3 @@ JTFRAME_ARX=5
 JTFRAME_ARY=4
 
 [pocket]
-# turbo does not work with the new CPU
-ALWAYS_TURBO

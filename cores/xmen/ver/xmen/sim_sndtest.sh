@@ -12,6 +12,6 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-jtsim -inputs snd_test.in -video $LAST -w 332
+jtsim -inputs snd_test.cab -video $LAST -w 332
 mv test.fst sndtest.fst
 mv test.wav sndtest.wav

@@ -1,0 +1,12 @@
+vlm5030:
+  - unless: [VERILATOR]
+    get:
+    - vlm5030_gl.vhd
+    - vlm5030_pack.vhd
+    - vlm5030_subcircuits.vhd
+    - clock_functions_pack.vhd
+  - when: [VERILATOR]
+    get:
+      - vlm5030.v
+
+

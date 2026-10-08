@@ -1,0 +1,29 @@
+gunsmk:
+  - get:
+    - jtgunsmk_game.v
+    - jtgunsmk_main.v
+"1943":
+  - get:
+    - jt1943_colmix.v
+    - jt1943_video.v
+    - jt1943_scroll.yaml
+gng:
+  - get:
+    - jtgng_video.yaml
+    - jtgng_sound.yaml
+    - jtgng_dual_ram.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+jt12:
+  - get:
+    - jt12_rst.v
+    - jt49.yaml

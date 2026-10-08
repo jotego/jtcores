@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-9-2021 */
 
 module jtcop_main(
     input              rst,
@@ -117,8 +103,8 @@ wire        disp_cs, sysram_cs, cblk, vint_clr,
             prisel_cs, mixpsel_cs,
             nexrm1,         // used on Heavy Barrel PCB for the track balls
             nexrm0_cs;      // a signal on Robocop sch. unused. Reused for SlySpy for the protection IC
-reg         secirq, vint,
-            ok_dly;
+reg         secirq, vint;
+wire        ok_dly;
 wire        pre_ram_cs;
 wire        cpu_cen, cpu_cenb;
 wire [ 2:0] read_cs;
@@ -229,12 +215,9 @@ always @(posedge clk, posedge rst) begin
         sec2_l  <= 0;
         snd_latch <= 0;
         mcu_din <= 0;
-        ok_dly  <= 0;
         // prisel  <= 0;
         mixpsel <= 0;
     end else begin
-        ok_dly <= rom_ok;
-
         LVBL_l <= LVBL;
         if( vint_clr )
             vint <= 0;
@@ -390,8 +373,19 @@ end
 
 reg  disp_busy;
 wire bus_cs    = pal_cs!=0 || pre_ram_cs || rom_cs;
-wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ram_ok, disp_cs & disp_busy };
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, pre_ram_cs };
+assign ok_in = { rom_ok, ram_ok };
+wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ok_dly, disp_cs & disp_busy };
 wire bus_legit = disp_cs;
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 // Memory access to the display area gets locked until a blank starts
 // during a blank, each access has a 2 clock delay until DTACKn is generated
@@ -489,7 +483,6 @@ end
 
 localparam [6:0] MHZ = `ifdef DEC1 12 `else 10 `endif ; // 12 MHz used on Midnight Resistance
 
-`ifndef NOMAIN
 wire DTACKn;
 
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
@@ -500,6 +493,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( MHZ>>1    ),  // numerator
@@ -543,22 +537,6 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-    jtframe_simwr_68k u_simwr(
-        .rst    ( rst       ),
-        .clk    ( clk       ),
-        .DTACKn ( DTACKn    ),
-        .A      ( A         ),
-        .dout   ( cpu_dout  ),
-        .dsn    ({UDSn,LDSn}),
-        .wrn    ( RnW       ),
-        .ASn    ( ASn       )
-    );
-
-    assign fave = 0;
-    assign FC   = 0;
-    // assign obj_copy = !LVBL && LVBL_l;
-`endif
-`else
     // sound
     // reg [7:0]   snd_aux;
     // always @* snd_latch = snd_aux;
@@ -574,19 +552,19 @@ jtframe_m68k u_cpu(
     );
 
     assign  cpu_dout = 0,
-            //cpu_addr = 0,
+            cpu_addr = 0,
             UDSWn    = 1,
             LDSWn    = 1,
             RnW      = 0,
             sec      = 0,
             pal_cs   = 0,
-            // fmode_cs = 0,
+            fmode_cs = 0,
             fsft_cs  = 0,
             fmap_cs  = 0,
-            // bmode_cs = 0,
+            bmode_cs = 0,
             bsft_cs  = 0,
             bmap_cs  = 0,
-            // cmode_cs = 0,
+            cmode_cs = 0,
             csft_cs  = 0,
             cmap_cs  = 0,
             huc_cs   = 0,

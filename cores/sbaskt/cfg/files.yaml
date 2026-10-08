@@ -1,0 +1,11 @@
+sbaskt:
+  - get:
+    - jtsbaskt_game.v
+    - jtsbaskt_main.v
+    - jtsbaskt_video.v
+    - jtsbaskt_obj.v
+    - jtsbaskt_colmix.v
+    - sound.yaml
+kicker:
+  - get:
+    - common.yaml

@@ -1,3 +1,7 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package ucode
 
 import (
@@ -186,7 +190,7 @@ func chunk2code( mnemok, up0, opk int, id string, proc bool, code []string, used
 	return upk
 }
 
-func expand_entry(opk, mnemok int, code []string, desc *UcDesc) {
+func (desc *UcDesc)expand_entry(opk, mnemok int, code []string) {
 	used := make(map[string]bool) // used OP parameters. All parameters defined in the Op must be referenced to in the ucode template
 	up0 := 0
 	proc := false
@@ -235,7 +239,7 @@ func find_chunk(opName string, desc *UcDesc) int {
 	return ref
 }
 
-func find_proc(name string, desc *UcDesc) int {
+func (desc *UcDesc)find_proc(name string) int {
 	name = strings.ToUpper(name)
 	for k, chunk := range desc.Chunks {
 		if strings.ToUpper(chunk.Name) == name {
@@ -300,7 +304,7 @@ func expand_all(desc *UcDesc) []string {
 			}
 			continue
 		}
-		expand_entry(-1, k, code, desc)
+		desc.expand_entry(-1, k, code)
 		if desc.Chunks[k].Start>=0 {
 			if Args.Verbose { fmt.Printf("> %03X = %s (chunk)\n", desc.Chunks[k].Start, desc.Chunks[k].Name)}
 			op_dups[desc.Chunks[k].Start]=true
@@ -332,7 +336,7 @@ func expand_all(desc *UcDesc) []string {
 			missing++
 			continue
 		}
-		expand_entry(opk, ref, code, desc)
+		desc.expand_entry(opk, ref, code)
 		range_mask( desc.Cfg.Entries, each, func( opnx int) {
 			src := each.Op*desc.Cfg.EntryLen
 			op_dups[opnx]=true
@@ -348,22 +352,26 @@ func expand_all(desc *UcDesc) []string {
 	}
 	// fill unused entries with the bus_error entry
 	if desc.Cfg.BusError!="" {
-		ref := find_proc(desc.Cfg.BusError, desc)
-		if ref == -1 {
-			fmt.Printf("Missing ucode for %s\n", desc.Cfg.BusError)
-		} else {
-			for k:=0; k<desc.Cfg.Entries; k++ {
-				f, _ := op_dups[k]
-				if f { continue }
-				expand_entry(k, ref, code, desc)
-				if Args.Verbose {
-					fmt.Printf("%X filled as bus error\n",k)
-				}
-			}
-		}
+		desc.fill_bus_error(code,op_dups)
 	}
 	if missing>0 { fmt.Printf("%d instructions lack ucode sequence\n",missing)}
 	return code
+}
+
+func (desc *UcDesc)fill_bus_error( code []string, op_dups map[int]bool) {
+	ref := desc.find_proc(desc.Cfg.BusError)
+	if ref == -1 {
+		fmt.Printf("Missing ucode for %s\n", desc.Cfg.BusError)
+		return
+	}
+	for k:=0; k<desc.Cfg.Entries; k++ {
+		f, _ := op_dups[k]
+		if f { continue }
+		desc.expand_entry(k, ref, code)
+		if Args.Verbose {
+			fmt.Printf("%X filled as bus error\n",k)
+		}
+	}
 }
 
 func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc, was_ni *bool) int {
@@ -389,7 +397,7 @@ func calc_cycles(uaddr int, code []string, recurse bool, desc *UcDesc, was_ni *b
 			if jsr[1] == "RET" {
 				break
 			}
-			proc := find_proc(jsr[1], desc)
+			proc := desc.find_proc(jsr[1])
 			if proc == -1 {
 				fmt.Printf("Cannot find microcode procedure %s\n", jsr[1])
 				os.Exit(1)
@@ -421,8 +429,8 @@ func fix_cycles(code []string, desc *UcDesc, verbose bool) {
 			for k:=main-1; k>=0;k-- {
 				code[uaddr+k+delta]=code[uaddr+k]
 			}
-			for ;delta>0;delta-- {
-				code[uaddr+delta]=""
+			for k:=0;k<delta;k++ {
+				code[uaddr+k]=""
 			}
 		}
 	}
@@ -716,7 +724,7 @@ func dump_param_vh(fname string, params []UcParam, entrylen, entries int, chunks
 	t, e := template.New("ucparam.vh").Funcs(sprig.FuncMap()).ParseFiles(tpath)
 	if e!=nil { return e }
 	var buffer bytes.Buffer
-	t.Execute(&buffer, context)
+	if e=t.Execute(&buffer, context); e!=nil { return e }
 	// Dump the file
 	os.WriteFile(fname+"_param.vh", buffer.Bytes(), 0644)
 	return nil
@@ -871,14 +879,12 @@ func read_yaml( fpath string ) UcDesc {
 		if desc.Cfg.Entries==0 	 { desc.Cfg.Entries=inc.Cfg.Entries 	}
 		if desc.Cfg.CycleK==0 	 { desc.Cfg.CycleK=inc.Cfg.CycleK 		}
 		if desc.Cfg.BusError=="" { desc.Cfg.BusError=inc.Cfg.BusError 	}
-		if len(inc.Ops)!=0 {
-			fmt.Printf("Include file %s has an ops section. This is still not supported\n", each)
-			os.Exit(1)
-		}
+		if !desc.Cfg.Implicit   { desc.Cfg.Implicit=inc.Cfg.Implicit 	}
+		desc.Ops = append(inc.Ops, desc.Ops...)
 		next_chunk:
 		for k, _ := range inc.Chunks {
 			if inc.Chunks[k].Name!="" {
-				cur := find_proc( inc.Chunks[k].Name, &desc )
+				cur := desc.find_proc( inc.Chunks[k].Name )
 				if cur<0 {
 					desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
 					continue next_chunk
@@ -904,7 +910,7 @@ func read_yaml( fpath string ) UcDesc {
 
 func Make(modname, fname string) (e error) {
 	if Args.Output=="" { Args.Output=strings.TrimSuffix(fname,".yaml") }
-	fpath := filepath.Join(os.Getenv("MODULES"), modname, "hdl", fname)
+	fpath := get_ucode_path(modname, fname)
 	desc := read_yaml(fpath)
 	if desc.Cfg.Entries <= 0 || desc.Cfg.EntryLen <= 0 {
 		return fmt.Errorf("Set non-zero values for entry_len and entries in the config section")
@@ -939,4 +945,9 @@ func Make(modname, fname string) (e error) {
 		fmt.Printf("         See details with: jtframe ucode --report %s %s\n",modname, fname)
 	}
 	return nil
+}
+
+func get_ucode_path(module,file string) string {
+	const ucode_folder="ucode"
+	return filepath.Join(os.Getenv("MODULES"), module, ucode_folder, file)
 }

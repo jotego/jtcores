@@ -1,31 +1,16 @@
- /*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-5-2021 */
 
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+//         Logic cells  | Registers | Memory bits | M9Ks | Compilation time (jtcore shinobi -q -p)
+// fx68k    5174        |  1388     | 39584       |  6   | 3m00s
+// fx68k*   3078        |   881     | 40608       |  8   | 3m30s
+// j68      9020        |  1870     |  7344       |  2   | 5m00s
+//
+// * using Gyurco's BRAM option
 
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-5-2021 */
-
-/*
-        Logic cells  | Registers | Memory bits | M9Ks | Compilation time (jtcore shinobi -q -p)
-fx68k    5174        |  1388     | 39584       |  6   | 3m00s
-fx68k*   3078        |   881     | 40608       |  8   | 3m30s
-j68      9020        |  1870     |  7344       |  2   | 5m00s
-
-* using Gyurco's BRAM option
-
-*/
-
+/* verilator tracing_off */
+`ifdef VERILATOR_KEEP_CPU /* verilator tracing_on  */ `endif
 module jtframe_m68k(
     input   clk,
     input   rst,
@@ -62,7 +47,6 @@ module jtframe_m68k(
     output [2:0] FC
 );
 
-`ifndef VERILATOR_KEEP_CPU /* verilator tracing_off  */ `endif
 `ifdef JTFRAME_J68
 jtframe_j68 u_cpu(
     .clk        ( clk         ),

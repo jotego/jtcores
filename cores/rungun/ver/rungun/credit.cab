@@ -1,0 +1,28 @@
+# skips the RUN&GUN logo, inserts a coin and
+loop
+	1 b1
+	1
+repeat 40
+
+1 coin
+2
+loop
+	1 1p
+	1
+repeat 50
+
+# select single screen
+=230
+1 right
+20
+loop
+	1 b1
+	1
+repeat 50
+
+# try to move the selector
+=400
+loop
+	1 down
+	4
+repeat 50

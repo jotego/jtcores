@@ -1,18 +1,12 @@
-game:
-  - from: sbaskt
-    get:
-      - jtsbaskt_snd.v
-      - jtsbaskt_snd_dev.v
+sbaskt:
+  - get:
+    - jtsbaskt_snd.v
+    - jtsbaskt_snd_dev.v
 jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
-  - from: sound
-    get:
-      - jtframe_dcrm.v
-      - jtframe_pole.v
-modules:
-  jt:
-    - name: jt89
-  other:
-    - get: [ vlm5030/vlm5030.yaml ]
+jt12:
+  - get:
+    - jt89.yaml
+vlm5030:

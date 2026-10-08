@@ -1,0 +1,19 @@
+g
+s
+s
+s
+s
+s
+g
+d
+help
+match-vcd
+d
+g
+match-vcd
+g
+mt line==14984
+match-trace
+g
+mt line==15927
+st

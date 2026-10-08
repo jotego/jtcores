@@ -1,9 +1,7 @@
 include:
-  - file: audio
+  - file: audio.yaml
 params:
   - { name: SND_OFFSET, value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
-download:
-  post_addr: true
 sdram:
   banks:
     - buses:
@@ -28,4 +26,5 @@ sdram:
       - name: obj
         addr_width: 17
         data_width: 16
-        cs: LVBL
+        gfx_sort: hvvvvxx
+        cs: 1'b1

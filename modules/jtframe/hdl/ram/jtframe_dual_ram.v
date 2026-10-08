@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 // Generic dual port RAM with clock enable
 // parameters:
@@ -23,14 +9,23 @@
 //      SIMFILE => binary file to load during simulation
 //      SIMHEXFILE => hexadecimal file to load during simulation
 //      SYNFILE => hexadecimal file to load for synthesis
+//      LATCHn_IN  => Register port n address, data, cen and we before the RAM.
+//                    Adds one clock cycle of latency.
+//      LATCHn_OUT => Register port n output data after the RAM. Adds one
+//                    clock cycle of latency.
 
 /* verilator lint_off MULTIDRIVEN */
 
 module jtframe_dual_ram #(parameter DW=8, AW=10,
     SIMFILE="", SIMHEXFILE="",
+    SIMFILE_BYTE=0, SIMFILE_DW=8,
     SYNFILE="",
     ASCII_BIN=0,  // set to 1 to read the ASCII file as binary
-    DUMPFILE="dump.hex"
+    DUMPFILE="dump.hex",
+    LATCH0_IN=0,  // latch: inputs on port 0; adds one clock cycle
+    LATCH0_OUT=0, // latch: outputs on port 0; adds one clock cycle
+    LATCH1_IN=0,  // latch: inputs on port 1; adds one clock cycle
+    LATCH1_OUT=0  // latch: outputs on port 1; adds one clock cycle
 )(
     // Port 0
     input   clk0,
@@ -54,9 +49,15 @@ module jtframe_dual_ram #(parameter DW=8, AW=10,
         .AW         ( AW        ),
         .SIMFILE    ( SIMFILE   ),
         .SIMHEXFILE ( SIMHEXFILE),
+        .SIMFILE_BYTE( SIMFILE_BYTE ),
+        .SIMFILE_DW ( SIMFILE_DW ),
         .SYNFILE    ( SYNFILE   ),
         .ASCII_BIN  ( ASCII_BIN ),
-        .DUMPFILE   ( DUMPFILE  )
+        .DUMPFILE   ( DUMPFILE  ),
+        .LATCH0_IN  ( LATCH0_IN ),
+        .LATCH0_OUT ( LATCH0_OUT),
+        .LATCH1_IN  ( LATCH1_IN ),
+        .LATCH1_OUT ( LATCH1_OUT)
     ) u_ram (
         .clk0   ( clk0  ),
         .cen0   ( 1'b1  ),
@@ -82,9 +83,14 @@ endmodule
 
 module jtframe_dual_ram_cen #(parameter DW=8, AW=10,
     SIMFILE="", SIMHEXFILE="",
+    SIMFILE_BYTE=0, SIMFILE_DW=8,
     SYNFILE="",
     ASCII_BIN=0,  // set to 1 to read the ASCII file as binary
-    DUMPFILE="dump" // do not add an extension to the name
+    DUMPFILE="dump", // do not add an extension to the name
+    LATCH0_IN=0,  // latch: inputs on port 0; adds one clock cycle
+    LATCH0_OUT=0, // latch: outputs on port 0; adds one clock cycle
+    LATCH1_IN=0,  // latch: inputs on port 1; adds one clock cycle
+    LATCH1_OUT=0  // latch: outputs on port 1; adds one clock cycle
 )(
     input   clk0,
     input   cen0,
@@ -134,19 +140,74 @@ localparam POCKET=0;
 //                 .q_b      ( q1      )
 //             );
 //         end else begin
-            reg [DW-1:0] qq0, qq1;
+            reg  [DW-1:0] qq0, qq1;
+            reg  [DW-1:0] data0_l, data1_l;
+            reg  [AW-1:0] addr0_l, addr1_l;
+            reg           cen0_l, cen1_l, we0_l, we1_l;
+            wire [DW-1:0] data0_m, data1_m;
+            wire [AW-1:0] addr0_m, addr1_m;
+            wire          cen0_m, cen1_m, we0_m, we1_m;
             (* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:(2**AW)-1];
 
-            assign { q0, q1 } = { qq0, qq1 };
+            generate
+                if( LATCH0_IN!=0 ) begin : gen_latch0_input
+                    always @(posedge clk0) begin
+                        data0_l <= data0;
+                        addr0_l <= addr0;
+                        cen0_l  <= cen0;
+                        we0_l   <= we0;
+                    end
+                    assign data0_m = data0_l;
+                    assign addr0_m = addr0_l;
+                    assign cen0_m  = cen0_l;
+                    assign we0_m   = we0_l;
+                end else begin : gen_no_latch0_input
+                    assign data0_m = data0;
+                    assign addr0_m = addr0;
+                    assign cen0_m  = cen0;
+                    assign we0_m   = we0;
+                end
+                if( LATCH1_IN!=0 ) begin : gen_latch1_input
+                    always @(posedge clk1) begin
+                        data1_l <= data1;
+                        addr1_l <= addr1;
+                        cen1_l  <= cen1;
+                        we1_l   <= we1;
+                    end
+                    assign data1_m = data1_l;
+                    assign addr1_m = addr1_l;
+                    assign cen1_m  = cen1_l;
+                    assign we1_m   = we1_l;
+                end else begin : gen_no_latch1_input
+                    assign data1_m = data1;
+                    assign addr1_m = addr1;
+                    assign cen1_m  = cen1;
+                    assign we1_m   = we1;
+                end
+                if( LATCH0_OUT!=0 ) begin : gen_latch0_output
+                    reg [DW-1:0] q0_l;
+                    assign q0 = q0_l;
+                    always @(posedge clk0) q0_l <= qq0;
+                end else begin : gen_no_latch0_output
+                    assign q0 = qq0;
+                end
+                if( LATCH1_OUT!=0 ) begin : gen_latch1_output
+                    reg [DW-1:0] q1_l;
+                    assign q1 = q1_l;
+                    always @(posedge clk1) q1_l <= qq1;
+                end else begin : gen_no_latch1_output
+                    assign q1 = qq1;
+                end
+            endgenerate
 
-            always @(posedge clk0) if(cen0) begin
-                qq0 <= mem[addr0];
-                if(we0) mem[addr0] <= data0;
+            always @(posedge clk0) if(cen0_m) begin
+                qq0 <= mem[addr0_m];
+                if(we0_m) mem[addr0_m] <= data0_m;
             end
 
-            always @(posedge clk1) if(cen1) begin
-                qq1 <= mem[addr1];
-                if(we1) mem[addr1] <= data1;
+            always @(posedge clk1) if(cen1_m) begin
+                qq1 <= mem[addr1_m];
+                if(we1_m) mem[addr1_m] <= data1_m;
             end
 
             /* verilator lint_off WIDTH */
@@ -178,25 +239,63 @@ localparam POCKET=0;
                     end
                 `endif
 
-                integer f, readcnt;
+                localparam SIMFILE_BYTES = SIMFILE_DW==32 ? 4 : (SIMFILE_DW==16 ? 2 : 1);
+                integer f, readcnt, loadcnt, loadpos;
+                reg [7:0] file_data[0:(2**AW)*4-1];
                 initial begin
-                    for( f=0; f<(2**AW)-1;f=f+1) begin
+                    if( SIMFILE_DW!=8 && SIMFILE_DW!=16 && SIMFILE_DW!=32 ) begin
+                        $display("ERROR: %m invalid SIMFILE_DW=%0d", SIMFILE_DW);
+                        $finish;
+                    end
+                    if( SIMFILE_DW==16 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>1) ) begin
+                        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for SIMFILE_DW=16", SIMFILE_BYTE);
+                        $finish;
+                    end
+                    if( SIMFILE_DW==32 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>3) ) begin
+                        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for SIMFILE_DW=32", SIMFILE_BYTE);
+                        $finish;
+                    end
+                    if( SIMFILE_DW!=8 && DW!=8 ) begin
+                        $display("ERROR: %m partial SIMFILE loading requires DW=8");
+                        $finish;
+                    end
+                    for( f=0; f<2**AW; f=f+1 ) begin
                         mem[f] = 0;
                     end
                     if( SIMFILE != "" ) begin
                         f=$fopen(SIMFILE,"rb");
                         if( f != 0 ) begin
-                            readcnt=$fread( mem, f );
+                            if( SIMFILE_DW==8 ) begin
+                                readcnt=$fread( mem, f );
+                            end else begin
+                                readcnt=$fread( file_data, f );
+                                loadcnt = 0;
+                                for( loadpos=SIMFILE_BYTE; loadpos<readcnt && loadcnt<(2**AW); loadpos=loadpos+SIMFILE_BYTES ) begin
+                                    /* verilator lint_off WIDTHTRUNC */
+                                    /* verilator lint_off WIDTHEXPAND */
+                                    mem[loadcnt] = file_data[loadpos];
+                                    /* verilator lint_on WIDTHEXPAND */
+                                    /* verilator lint_on WIDTHTRUNC */
+                                    loadcnt = loadcnt+1;
+                                end
+                                if( readcnt%SIMFILE_BYTES != 0 )
+                                    $display("WARNING: %m ignored %0d trailing bytes from %s", readcnt%SIMFILE_BYTES, SIMFILE);
+                            end
                             $display("-%-12s (%4d bytes) %m",
                                 SIMFILE, readcnt);
-                            if( readcnt != 2**AW && readcnt!=0)
-                                $display("\tthe memory was not filled by the file data");
+                            if( SIMFILE_DW==8 ) begin
+                                if( readcnt != 2**AW && readcnt!=0)
+                                    $display("\tthe memory was not filled by the file data");
+                            end else begin
+                                if( loadcnt != 2**AW && readcnt!=0)
+                                    $display("\tthe memory was not filled by the file data");
+                            end
                             $fclose(f);
                         end else begin
                             f=$fopen(SIMFILE,"wb");
                             if( f!=0 ) begin
                                 for( readcnt=0; readcnt<(2**AW)-1; readcnt=readcnt+2) begin
-                                    $fwrite(f,"%u",32'hffff);
+                                    $fwrite(f,"%u",32'h0000);
                                 end
                                 $fclose(f);
                                 $display("Blank %s created",SIMFILE);

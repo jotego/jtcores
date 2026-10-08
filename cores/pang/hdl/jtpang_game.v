@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    ( at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 21-5-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-5-2022 */
 
 module jtpang_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -149,7 +135,6 @@ jtpang_main u_main(
     .rom_ok      ( main_ok      )
 );
 
-`ifndef NOSOUND
 jtpang_snd u_snd(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
@@ -163,9 +148,6 @@ jtpang_snd u_snd(
     .pcm_dout   ( pcm_dout      ),
     .pcm_cs     ( oki_cs        ),
 
-    .enable_fm  ( enable_fm     ),
-    .enable_psg ( enable_psg    ),
-
     .rom_addr   ( pcm_addr      ),
     .rom_data   ( pcm_data      ),
     .rom_ok     ( pcm_ok        ),
@@ -173,13 +155,6 @@ jtpang_snd u_snd(
     .fm         ( fm            ),
     .pcm        ( pcm           )
 );
-`else
-    assign pcm_addr = 0;
-    assign sample   = 0;
-    assign game_led = 0;
-    assign snd      = 0;
-    assign pcm_dout = 0;
-`endif
 
 jtpang_video u_video(
     .rst        ( rst           ),

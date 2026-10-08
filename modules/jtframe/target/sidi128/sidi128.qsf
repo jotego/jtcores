@@ -348,7 +348,7 @@ set_global_assignment -name ALLOW_SYNCH_CTRL_USAGE ON
 set_global_assignment -name VHDL_INPUT_VERSION VHDL_1993
 set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
 
-{{ if (index .Macros "JTFRAME_RELEASE") -}}
+{{ if .Macros.JTFRAME_RELEASE -}}
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 {{ else -}}
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED
@@ -411,7 +411,7 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name DSP_BLOCK_BALANCING "DSP BLOCKS"
 set_global_assignment -name AUTO_MERGE_PLLS OFF
 
-set_global_assignment -name QIP_FILE game.qip
+set_global_assignment -name QIP_FILE files.qip
 
 set_global_assignment -name SEARCH_PATH "../hdl"
 set_global_assignment -name SEARCH_PATH "{{ env "JTFRAME" }}/hdl/inc"

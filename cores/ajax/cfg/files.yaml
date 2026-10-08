@@ -1,0 +1,27 @@
+ajax:
+  - get:
+    - "*.v"
+aliens:
+  - get:
+    - jtaliens_scroll.v
+    - jtaliens_obj.v
+    - jt052109.v
+    - jt051962.v
+    - jt051960.v
+    - jt052591.v    # collision detector for Thunder Force
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_counter.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+      - jtframe_linebuf.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_6809.yaml
+jtkcpu:
+jt51:
+jt007232:

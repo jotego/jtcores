@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 // Ghosts'n Goblins: Main CPU
 
@@ -68,11 +54,11 @@ module jtgng_main(
     input  [7:0]       dipsw_a,
     input  [7:0]       dipsw_b
 );
-
+`ifndef NOMAIN
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 wire        nRESET, bus_busy, cpu_cen;
-reg         sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
+reg         sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs, ok_dly;
 reg  [ 7:0] cpu_din, cabinet_input;
 reg  [ 2:0] bank;
 
@@ -170,6 +156,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok;
     cpu_din <= ram_cs  ? ram_dout  :
                char_cs ? char_dout :
                scr_cs  ? scr_dout  :
@@ -212,7 +199,7 @@ jtframe_sys6809_dma #(
     .VMA        (           ),
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .rom_ok     ( ok_dly    ),
     // Bus multiplexer is external
     .ram_dout   ( ram_dout  ),
     .cpu_dout   ( cpu_dout  ),
@@ -224,5 +211,11 @@ jtframe_sys6809_dma #(
     .dma_din    ( 8'd0      ),
     .dma_dout   ( dma_dout  )
 );
-
+`else
+assign rom_addr = 0, char_cs = 0, scr_cs   = 0, blue_cs   = 0, redgreen_cs = 0,
+       bus_ack  = 0, flip    = 0, RnW      = 0, scr_hpos  = 0, scr_vpos    = 0,
+       sres_b   = 0, OKOUT   = 0, dma_dout = 0, snd_latch = 0, cpu_dout    = 0,
+       cpu_AB   = 0;
+initial rom_cs  = 0;
+`endif
 endmodule

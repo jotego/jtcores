@@ -45,7 +45,7 @@ always @(WRITE,A,D)
 	end
 
 
-endmodule // jt_gng_ram
+endmodule
 
 module jt_gng_genram_alt #(parameter addrw=12, dataw=8, id=0)(
 	input [addrw-1:0] A,
@@ -88,4 +88,4 @@ always @(WRITE,A,din)
 	end
 
 
-endmodule // jt_gng_ram
+endmodule

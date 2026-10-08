@@ -14,25 +14,28 @@ All macros defined in the core's *cfg/macros.def* file are parsed by *jtsim* and
 
 # Cabinet Inputs During Simulation
 
-You can use a hex file with inputs for simulation. Enable this with the macro
-SIM_INPUTS. The file must be called sim_inputs.hex. Each line has a hexadecimal
-number with inputs coded. Active high only:
+For Verilator simulation, use a cabinet input script with
+`jtsim file.cab`. The simulator validates the full script before it
+starts and applies one entry per video frame at the rising edge of `LVBL`,
+after vertical-blank processing has completed. A line has an optional frame
+count followed by button names such as `coin`, `1p`, `up`, and `b1`;
+player two uses the `2` prefix (for example `2coin` and `2b1`).
+`loop`/`repeat` blocks and `=frame` waits are also supported. `tracing_on`
+enables Verilator tracing at its cabinet frame, equivalent to using
+`jtsim -w <frame>`; frames before it are not written to `test.fst`.
+With `=frame action`, any action fires only at that final frame.
+`dump` starts an IOCTL state dump and writes `scenes/<frame>/dump.bin`, ready
+for `jtsim -s <frame>`.
+See `man jtsim` for the complete schema.
+`dipsw=<hex-value>` overrides the simulation DIP-switch value from that
+frame onward; the `0x` prefix is optional.
 
-bit  | meaning
------|------------
-0    | coin 1
-1    | coin 2
-2    | 1P start
-3    | 2P start
-4    | right   (may vary with each game)
-5    | left    (may vary with each game)
-6    | down    (may vary with each game)
-7    | up      (may vary with each game)
-8    | Button 1
-9    | Button 2
-10   | Test button
-
-Each line will be applied on a new frame.
+A line may also contain `cheat=<name>`. The name resolves to the active
+core's `cfg/cheat.yaml`; its declared SDRAM byte writes are applied once for
+each frame requested by that line. This only models MAME cheats that write
+SDRAM-backed CPU RAM. The top level is a map whose keys are MAME setnames or
+machine names; each key contains its applicable cheat array. `jtsim` selects
+the array for the active set and rejects a cheat request for another target.
 
 # Fast Load
 
@@ -44,7 +47,7 @@ set_global_assignment -name VERILOG_MACRO "JTFRAME_MIST_DIRECT=0"
 ```
 
 ## MiSTer
-In order to preserve the 8-bit ROM download interface with MiST, _jtframe_mister_ presents it too. However it can operate internally with 16-bit packets if the macro **JTFRAME_MR_FASTIO** is set to 1. This has only been tested with 96MHz clock. Indeed, if **JTFRAME_CLK96** is defined and **JTFRAME_MR_FASTIO** is not, then it will be defined to 1.
+In order to preserve the 8-bit ROM download interface with MiST, _jtframe_mister_ presents it too. However it can operate internally with 16-bit packets if the macro **JTFRAME_MR_FASTIO** is set to 1. This has only been tested with the 96MHz clock.
 
 The measured speed for data transfers in MiSTer is about 1.2MHz (800ns) per request. If **JTFRAME_MR_FASTIO** is set, each request is 16-bit words, otherwise, 8 bits.
 
@@ -53,7 +56,7 @@ A model for SDRAM mt48lc16m16a2 is included in JTFRAME. The model will load the 
 
 The current contents of the SDRAM can be dumped at the beginning of each frame (falling edge of vertical blank) if **JTFRAME_SAVESDRAM** is defined. Because this is quite an overhead, it is possible to restrict it to dump only a certain **DUMP_START** frame count has been reached. All frames will be dumped after it. The macro **DUMP_START** is the same one used for setting the start of signal dump to the __VCD__ file.
 
-To simulate the SDRAM load operation use **-load** on sim.sh. The normal download speed 1/270ns=3.7MHz. This is faster than the real systems but speeds up simulation. It is possible to slow it down by adding dead clock cycles to each transfer. The macro **JTFRAME_SIM_LOAD_EXTRA** can be defined with the required number of extra cycles.
+To simulate the SDRAM load operation use `jtsim -load`. The normal download speed 1/270ns=3.7MHz. This is faster than the real systems but speeds up simulation. It is possible to slow it down by adding dead clock cycles to each transfer. The macro **JTFRAME_SIM_LOAD_EXTRA** can be defined with the required number of extra cycles.
 
 ## SDRAM Preparation
 
@@ -62,6 +65,8 @@ The core needs to have a SDRAM with the game ROM loaded into it. The most basic 
 The ROM download process is slow but normally you only need to run it once to produce the sdram files. After that, calling `jtsim` will load those files directly to the SDRAM simulation model.
 
 `jtsim -setname game` will create the .rom file for the given name in the **$JTROOT/rom** folder and make a symbolic link to it called **rom.bin** in the simulation folder. It will then proceed to load the rom.
+
+ROM-less test cores can define **JTFRAME_ROMLESS** in `cfg/macros.def`. In that case `jtsim` accepts a `ver/game` simulation folder and creates an empty local **rom.bin** instead of requiring a MAME set or `$JTROOT/rom/<setname>.rom`.
 
 As the .rom download can sometimes be very slow and it does not require any core CPU, you can often use `jtsim -load -d NOMAIN -q` in order to simulate without the main and sound CPUs. Somecores will also take `-d NOMCU` to skip the MCU simulation. After creating the sdram files, a regular simulation with CPUs can be executed.
 
@@ -86,6 +91,59 @@ The advantage of ModelSim over the other two is mixed VHDL/Verilog simulations.
 
 Verilator simulations do not simulate the *target* but only the game top. SDRAM access is particularly faster in Verilator. Verilator does not simulate 4-state signals either.
 
+Verilator PNG frame dumps rotate vertical cores by default. Use `jtsim -video -norotate`
+to keep dumped frames in the core's native orientation.
+
 ## Audio output
 
 By default, all audio output gets dumped to test.wav. If the **Audio** section of the **mem.yaml** file is used, then per-channel audio files can be generated too. In order to enable per-channel files, either request jtsim to dump waveforms `jtsim -w` or use the macro **JTFRAME_SIM_CH_RAW** so produce wave files without dumping logic waveforms.
+
+# Regression
+
+The script `run_regression.sh` is used for automatic regressions triggered by Gitea Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), the workflow reports the failing regression result.
+
+The script `run_regression.sh` runs a simulation using `jtsim` according to the options defined in a configuration file located in `<core>/cfg`, called `reg.yaml`. In this file, you can specify the same options available when using `jtsim`. The syntax is as follows:
+
+```yaml
+1942:
+    video: number
+    inputs: reg.cab
+    dipsw: binary_number
+    d: MACRO1,MACRO2
+    ...
+1942-flip:
+    inputs: ../setname1/reg.cab
+    dipsw: ef77
+...
+higemaru:
+    ...
+```
+
+You can simulate the same setname with different options by adding a suffix after the setname using a hyphen to separate them, such as in `1942-flip`
+
+> [!NOTE]
+> GitHub uses these configuration files to decide which setnames will be executed during regression. Any setnames not included in these files will be skipped. If you want a setname to be triggered without options, just type <setname>: without any additional fields.
+
+There is also a reg.yaml file in $JTFRAME/bin, where you can define default options. The syntax is the same as above, but you do not need to specify a setname:
+```yaml
+video: number
+inputs: file
+dipsw: binary_number
+d: MACRO1,MACRO2
+...
+```
+
+> [!NOTE]
+> To see all available options for these configuration files, run jtsim --help.
+
+This script also allows validating a simulation against a reference. To do this, use the `--check` flag. MAME zip files are read from the folder pointed to by `MAME`, and reference/results data is read from and written to the folder pointed to by `REGRUNS`. The `--local-check <folder>` flag is kept as a convenience alias for `REGRUNS=<folder> --check`.
+
+The following folder structure is required:
+- `$MAME/`: contains all zipped ROMs.
+- `$REGRUNS/<core>/<setname>/valid/`: contains reference `frames.zip` or `frames/`, and `audio.zip` or `audio.wav`.
+- `$REGRUNS/<core>/<setname-or-variant>/{not_checked,fail}/`: receives generated regression results when `--push` is used.
+
+You can also use the `--push` flag to store simulation results. Depending on the validation outcome, results will be copied to either the `fail` or `not_checked` folder. Reference frames/audio must always be added manually to the `valid` folder.
+
+> [!IMPORTANT]
+> When run by Gitea Actions, the script is executed with the `--check` and `--push` flags. The workflow will only pass if validation succeeds.

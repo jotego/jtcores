@@ -22,10 +22,18 @@ wire [ 1:0] SDRAM_BA;
 wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS,
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
-wire [5:0] VGA_R, VGA_G, VGA_B;
+wire [7:0] VGA_R, VGA_G, VGA_B;
 // the pxl_ wires represent the core pure output
 // regardless of the scan doubler or the composity sync
 wire pxl_clk, pxl_cen, pxl_vb, pxl_hb;
+
+`ifdef MIST_DUAL_SDRAM
+wire [12:0] SDRAM2_A;
+wire [15:0] SDRAM2_DQ;
+wire        SDRAM2_DQML, SDRAM2_DQMH, SDRAM2_nWE, SDRAM2_nCAS, SDRAM2_nRAS,
+            SDRAM2_nCS, SDRAM2_CLK, SDRAM2_CKE;
+wire [ 1:0] SDRAM2_BA;
+`endif
 
 mist_dump u_dump(
     .VGA_VS     ( pxl_vb    ),
@@ -54,9 +62,9 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("rom.bin"),
     // Video dumping. VGA_ signals are equal to game signals in simulation.
     .HS          ( pxl_hb    ),
     .VS          ( pxl_vb    ),
-    .red         ( VGA_R[5:2]),
-    .green       ( VGA_G[5:2]),
-    .blue        ( VGA_B[5:2]),
+    .red         ( VGA_R     ),
+    .green       ( VGA_G     ),
+    .blue        ( VGA_B     ),
     .frame_cnt   ( frame_cnt ),
     // SDRAM
     .SDRAM_DQ    ( SDRAM_DQ  ),
@@ -70,6 +78,20 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("rom.bin"),
     .SDRAM_BA    ( SDRAM_BA  ),
     .SDRAM_CLK   ( SDRAM_CLK ),
     .SDRAM_CKE   ( SDRAM_CKE ),
+`ifdef MIST_DUAL_SDRAM
+    // Second SDRAM (used for frame buffer)
+    .SDRAM2_A   ( SDRAM2_A      ),
+    .SDRAM2_DQ  ( SDRAM2_DQ     ),
+    .SDRAM2_DQML( SDRAM2_DQML   ),
+    .SDRAM2_DQMH( SDRAM2_DQMH   ),
+    .SDRAM2_nWE ( SDRAM2_nWE    ),
+    .SDRAM2_nCAS( SDRAM2_nCAS   ),
+    .SDRAM2_nRAS( SDRAM2_nRAS   ),
+    .SDRAM2_nCS ( SDRAM2_nCS    ),
+    .SDRAM2_BA  ( SDRAM2_BA     ),
+    .SDRAM2_CLK ( SDRAM2_CLK    ),
+    .SDRAM2_CKE ( SDRAM2_CKE    ),
+`endif
     // unused
     .H0          ( 1'bz      ),
     .autorefresh ( 1'bz      ),
@@ -105,17 +127,30 @@ mist_top UUT(
     .SDRAM_BA   ( SDRAM_BA  ),
     .SDRAM_CLK  ( SDRAM_CLK ),
     .SDRAM_CKE  ( SDRAM_CKE ),
-    `ifdef SIM_UART
+`ifdef SIM_UART
     .UART_RX    ( UART_RX   ),
     .UART_TX    ( UART_TX   ),
-    `endif
+`endif
+`ifdef MIST_DUAL_SDRAM
+    // Second SDRAM (used for frame buffer)
+    .SDRAM2_A   ( SDRAM2_A      ),
+    .SDRAM2_DQ  ( SDRAM2_DQ     ),
+    .SDRAM2_DQML( SDRAM2_DQML   ),
+    .SDRAM2_DQMH( SDRAM2_DQMH   ),
+    .SDRAM2_nWE ( SDRAM2_nWE    ),
+    .SDRAM2_nCAS( SDRAM2_nCAS   ),
+    .SDRAM2_nRAS( SDRAM2_nRAS   ),
+    .SDRAM2_nCS ( SDRAM2_nCS    ),
+    .SDRAM2_BA  ( SDRAM2_BA     ),
+    .SDRAM2_CLK ( SDRAM2_CLK    ),
+    .SDRAM2_CKE ( SDRAM2_CKE    ),
+`endif
     // SPI interface to arm io controller
     .SPI_DO     ( SPI_DO    ),
     .SPI_DI     ( SPI_DI    ),
     .SPI_SCK    ( SPI_SCK   ),
     .SPI_SS2    ( SPI_SS2   ),
     .SPI_SS3    ( SPI_SS3   ),
-    .SPI_SS4    ( 1'b0      ),
     .CONF_DATA0 ( CONF_DATA0),
     // sound
     .AUDIO_L    ( AUDIO_L   ),
@@ -146,6 +181,5 @@ assign pxl_vb  = VGA_VS;
 assign pxl_hb  = VGA_HS;
 assign dwnld_busy = 0;
 `endif
-
 
 endmodule

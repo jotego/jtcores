@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-12-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-12-2022 */
 
 module jtkarnov_game(
     `include "jtframe_game_ports.inc"
@@ -46,7 +32,8 @@ assign objram_we  = {2{objram_cs & ~main_wrn}} & ~main_dsn;
 assign sdtkn = 0;
 
 always @(posedge clk) begin
-    if( ioctl_addr=='h163 ) wndrplnt <= prog_data==2;
+    if( ioctl_addr=='h163 && !ioctl_ram )
+        wndrplnt <= prog_data==2;
 end
 
 jtkarnov_main u_main(
@@ -106,6 +93,8 @@ jtkarnov_main u_main(
     .dipsw      ( dipsw[15:0]   ),
 
     // Debug
+    .ioctl_addr ( ioctl_addr[1:0]),
+    .ioctl_din  ( ioctl_din     ),
     .st_addr    ( debug_bus     ),
     .st_dout    ( st_main       )
 );
@@ -167,11 +156,10 @@ jtkarnov_main u_main(
     assign mcu_dout = debug_bus[6] ? {mcu_p1o,mcu_p0o} : aux;
 
     jtframe_8751mcu #(
-        .ROMBIN     ("../../../../rom/chelnov/ee-e.k14"),
+        .ROMBIN     ("../../../../rom/chelnov/ee-e.k14")
         // .SYNC_XDATA ( 1             ),
         //.SYNC_P1    ( 1             ),
-        // .SYNC_INT   ( 1             ),
-        .DIVCEN     ( 1             )
+        // .SYNC_INT   ( 1             )
     ) u_mcu(
         .rst        ( rst24         ),
         .clk        ( clk24         ),
@@ -273,6 +261,7 @@ jtkarnov_video u_video(
 jtcop_snd #(.KARNOV(1)) u_sound(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
+    .cen6       ( cen6      ),
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 

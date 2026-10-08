@@ -1,22 +1,8 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-4-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-4-2021 */
 /* verilator coverage_off */
-module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9)
+module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9, XL=0)
 (
     input               rst,
     input               clk,
@@ -26,6 +12,7 @@ module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9)
     input               bg,
     input               noreq,
     output   reg        rfshing,
+    output   reg        chip,
     output   reg  [3:0] cmd,
     output   reg        help,
     output       [12:0] sdram_a
@@ -70,13 +57,14 @@ wire   [CW:0] next_cnt;
 
 assign next_cnt = {1'b0, cnt} + RFSHCNT[CW-1:0];
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         st      <= 1;
         cmd     <= CMD_NOP;
         cnt     <= 0;
         br      <= 0;
         rfshing <= 0;
+        chip    <= 0;
         help    <= 0;
     end else begin
         // Forces a refresh if we have built up too much debt
@@ -103,6 +91,7 @@ always @(posedge clk, posedge rst) begin
         if( st[STW-1] ) begin
             if( cnt!=0 ) begin
                 cnt <= cnt - 1'd1;
+                if( XL ) chip <= ~chip;
                 if( !noreq ) begin
                     rfshing <= 0;
                 end else  begin

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-2-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-2-2023 */
 
 module jtcastle_sound(
     input           clk,        // 24 MHz
@@ -41,7 +27,8 @@ module jtcastle_sound(
 
     // Sound output
     output signed [15:0] fm,
-    output signed [11:0] pcm_a, pcm_b, scc
+    output signed [11:0] scc,
+    output signed [10:0] pcm_a, pcm_b
 );
 `ifndef NOSOUND
 wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, scc_dout;

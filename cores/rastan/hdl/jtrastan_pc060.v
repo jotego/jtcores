@@ -1,35 +1,18 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 4-4-2022 */
-
-// Designed according to MAME's description:
-// it lacks the mute output for the amp
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-4-2022 */
 
 module jtrastan_pc060(
-    input           rst48,
-    input           clk48,
+    input           rst,
+    input           clk,
+    input           main_cen,
+    input           snd_cen,
     input     [3:0] main_dout,
     output    [3:0] main_din,
     input           main_addr,
     input           main_rnw,
     input           main_cs,
 
-    input           rst24,
-    input           clk24,
     input     [3:0] snd_dout,
     output    [3:0] snd_din,
     input           snd_addr,
@@ -42,19 +25,20 @@ module jtrastan_pc060(
     wire [3:0] snd_ptr, main_ptr, status;
     wire [3:0] main_ram, snd_ram;
     wire       main_ramwr, snd_ramwr,
-               nmi_enb, subrst;
+               nmi_en, subrst;
     wire [1:0] set_sndst,  snd_full,
                set_mainst, main_full;
 
     assign status     = { main_full, snd_full };
-    assign snd_nmin   = nmi_enb || snd_full[1:0]==0;
+    assign snd_nmin   = ~nmi_en || snd_full[1:0]==0;
     assign main_din   = main_ptr[2] ? status : main_ram;
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
 
     jtrastan_pc060_unit u_main(
-        .rst        ( rst48     ),
-        .clk        ( clk48     ),
-        .clk_other  ( clk24     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( main_cen  ),
+        .clk_other  ( clk       ),
 
         .din        ( main_dout ),
         .cs         ( main_cs   ),
@@ -75,9 +59,10 @@ module jtrastan_pc060(
     );
 
     jtrastan_pc060_unit u_snd(
-        .rst        ( rst24     ),
-        .clk        ( clk24     ),
-        .clk_other  ( clk48     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( snd_cen   ),
+        .clk_other  ( clk       ),
 
         .din        ( snd_dout  ),
         .cs         (  snd_cs   ),
@@ -94,12 +79,12 @@ module jtrastan_pc060(
         .is_full    ( snd_full  ),
 
         .ptr        ( snd_ptr   ),
-        .flag       ( nmi_enb   )
+        .flag       ( nmi_en    )
     );
 
     jtframe_sync #(.W(1),.LATCHIN(1)) u_sync1(
-        .clk_in ( clk48     ),
-        .clk_out( clk24     ),
+        .clk_in ( clk       ),
+        .clk_out( clk       ),
         .raw    ( subrst    ),
         .sync   ( snd_rst   )
     );
@@ -107,13 +92,13 @@ module jtrastan_pc060(
     // Force 1kB RAM to be used, so synthesis works
     jtframe_dual_ram #(.DW(4),.AW(10)) u_share(
         // Port 0: main
-        .clk0   ( clk48         ),
+        .clk0   ( clk           ),
         .data0  ( main_dout     ),
         .addr0  ( { 7'd0,main_ramwr, main_ptr[1:0] } ),
         .we0    ( main_ramwr    ),
         .q0     ( main_ram      ),
         // Port 1: sound sub CPU
-        .clk1   ( clk24         ),
+        .clk1   ( clk           ),
         .addr1  ( { 7'd0,~snd_ramwr, snd_ptr[1:0] } ),
         .data1  ( snd_dout      ),
         .we1    ( snd_ramwr     ),
@@ -121,7 +106,6 @@ module jtrastan_pc060(
     );
 
 endmodule
-
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -129,6 +113,7 @@ endmodule
 module jtrastan_pc060_unit(
     input            rst,
     input            clk,
+    input            cen,
     input            clk_other,
     input            cs,
     input            a,
@@ -162,11 +147,10 @@ module jtrastan_pc060_unit(
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            flag    <= 0;
             ptr     <= 0;
             full_rq <= 0;
             is_full <= 0;
-        end else begin
+        end else if( cen ) begin
             wel <= we;
             csl <= cs;
             al  <= a;
@@ -189,13 +173,22 @@ module jtrastan_pc060_unit(
                                 full_rq[1] <= 1;
                             else
                                 is_full[1] <= 0;
-                        4: flag <= din[0];
-                        5: flag <= 1;
-                        6: flag <= 0;
                         default:;
                     endcase
                 end
             end
         end
+    end
+
+    always @(posedge clk, posedge rst) begin
+        if( rst )
+            flag <= 0;
+        else if( cs & we & a & ptr[2] & ~ptr[3] )
+            case( ptr[1:0] )
+                2'd0: flag <= din[0];
+                2'd1: flag <= 1'b0;
+                2'd2: flag <= 1'b1;
+                default:;
+            endcase
     end
 endmodule

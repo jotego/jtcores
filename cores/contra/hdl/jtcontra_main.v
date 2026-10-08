@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 // Clocks are derived from H counter on the original PCB
 // Yet, that doesn't seem to be important and it only
@@ -63,8 +49,9 @@ module jtcontra_main(
     input      [7:0]    dipsw_b,
     input      [3:0]    dipsw_c
 );
-
 parameter  GAME=0;
+
+`ifndef NOMAIN
 localparam RAM_AW = GAME==0 ? 12 : 13;
 
 wire [ 7:0] ram_dout;
@@ -261,9 +248,11 @@ jtframe_sys6809 #(.RAM_AW(RAM_AW),.CENDIV(0)) u_cpu(
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   )
 );
-
 `ifdef SIMULATION
 always @(negedge snd_irq) $display("INFO: sound latch %X", snd_latch );
 `endif
-
+`else
+    assign cpu_cen=0,snd_irq=0,snd_latch=0,rom_addr=0,rom_cs=0,cpu_addr=0,
+        cpu_rnw=0,cpu_dout=0,video_bank=0,prio_latch=0;
+`endif
 endmodule

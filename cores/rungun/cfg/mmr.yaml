@@ -1,0 +1,19 @@
+- name: k053252
+  no_core_name: true
+  size: 16
+  regs:
+    - { name: hcnt0,      dw: 10, at: "0[1:0],1" }
+    - { name: hbstart,    dw: 9,  at: "2[0],3"   }
+    - { name: hb2cnt0,    dw: 9,  at: "4[0],5"   }
+    - { name: nhbs_dly,   dw: 3,  at: "6[2:0]"   }
+    - { name: fcnt_out,   dw: 2,  at: "7[1:0]"   }
+    - { name: hcnt_dis,   dw: 1,  at: "7[7]"     }
+    - { name: vcnt0,      dw: 9,  at: "8[0],9"   }
+    - { name: vbstart,    dw: 8,  at: 10         }
+    - { name: vbcnt0,     dw: 8,  at: 11         }
+    - { name: vswidth,    dw: 4,  at: "12[7:4]"  }
+    - { name: hswidth,    dw: 4,  at: "12[3:0]"  }
+    - { name: int2cnt0,   dw: 8,  at: 13         }
+    - { name: set_int2en, event: write, at: 13 }
+    - { name: int1ack,    event: write, at: 14 }
+    - { name: int2ack,    event: write, at: 15 }

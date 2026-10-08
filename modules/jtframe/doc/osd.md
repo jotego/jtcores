@@ -21,7 +21,7 @@ Value | Meaning                 | Colour
 
 # DIP switches and OSD
 
-To disable support of DIP switches in MRA files define the macro **JTFRAME_NO_MRA_DIP**. The maximum length of DIP switches is 32 bits. To alter the value of DIP switches in simulation use **JTFRAME_SIM_DIPS**.
+The maximum length of DIP switches is 32 bits. To alter the value of DIP switches in simulation use **JTFRAME_SIM_DIPS**.
 
 In MiST, DIP switches are incorporated into the status word. As some bits in the status word are used for other OSD settings, DIP switches are by default located in range 31:16. This is set by the macro **JTFRAME_DIPBASE**, whose **default value is 16**. Note that the MRA should match this, the **base** attribute can be used in the MRA dip definition to shift the switch bits up. Note that this macro must be defined on the **MiSTer** section of **macros.def** for the *jtframe mra* tool to parse it correctly.
 
@@ -37,14 +37,14 @@ Status bits in the configuration string are indicated with characters. This is t
 
 ```
 Bits 0-31 (o in upper case)
-bit          00000000001111111112222222222233
-  number   : 01234567890123456789012345678901
-status char: 0123456789ABCDEFGHIJKLMNOPQRSTUV
+bit          00000000 00111111 11122222 22222233
+  number   : 01234567 89012345 67890123 45678901
+status char: 01234567 89ABCDEF GHIJKLMN OPQRSTUV
 
 Bits 32-63 (o in lower case)
-bit          33333333444444444455555555556666
-  number   : 23456789012345678901234567890123
-status char: 0123456789ABCDEFGHIJKLMNOPQRSTUV
+bit          33333333 44444444 44555555 55556666
+  number   : 23456789 01234567 89012345 67890123
+status char: 01234567 89ABCDEF GHIJKLMN OPQRSTUV
 
 ```
 
@@ -74,14 +74,16 @@ bit     |  meaning                | Enabled with macro
 3-5     | Scandoubler Fx          | Scan line mode and HQ2X enable (MiSTer only)
 6-7     | FX Volume (00=lowest)   | JTFRAME_OSD_VOL
 6-7     | Spinner sensitivity     | MiST cfgstr maps the spinner here, but jtframe_board always looks at 32-33
-8       | FX enable/disable       | JTFRAME_OSD_SND_EN
-9       | FM enable/disable       | JTFRAME_OSD_SND_EN
+8       | Sinden Lightgun borders | Mister only, enables white borders for use with Sinden lightguns
+9       | Sinden show crosshair   | Mister only, enables crosshair being shown when using Sinden lightguns
 10      | Test mode               | JTFRAME_OSD_TEST
 11      | Horizontal filter       | MiSTer only
 12      | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)
-13-15   | Reserved for core use   | CORE_OSD (option char: D,E,F)
+13-15   | Core-specific options   | CORE_OSD (option char: D,E,F)
+13-15   | CRT clock tuning        | JTFRAME_PLL_TUNE (MiSTer)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
-18      | Autofire button 0       | JTFRAME_AUTOFIRE0
+18-19   | Joystick 1 position     | JTFRAME_JOY1_POS
+20-22   | Game saves options      | JTFRAME_SAVEGAME
 32-33   | Spinner sensitivity     | MiSTer/Pocket only
 37-38   | User output options     | MiSTer, selects DB15, UART, etc.
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)
@@ -93,6 +95,8 @@ bit     |  meaning                | Enabled with macro
 53-56   | CRT H offset            | MiSTer only
 57-60   | CRT V offset            | MiSTer only
 61-63   |    -- free --           |
+
+Note that CORE_OSD cannot be used with JTFRAME_PLL_TUNE
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
 
@@ -118,7 +122,7 @@ Only one CORE_OSD can be defined, but it an contain multiple values separated by
 
 ### Screen Rotation
 
-Screen rotation features require **JTFRAME_VERTICAL** to work. Remember to enable it first in the **.def** file. Screen rotation is done clockwise unless **JTFRAME_ROTCCW** is defined.
+Screen rotation features require **JTFRAME_VERTICAL** to work. Remember to enable it first in the **.def** file.
 
 Most arcade games have a flip setting among the DIP switches. This is the preferred method to enable it. When that is not possible, using the JTFRAME_OSD_FLIP will add the option to the OSD. The option will appear outside the *DIP Switches* submenu in the OSD.
 

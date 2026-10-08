@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 module jtdd_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -38,7 +24,7 @@ wire       [ 8:0]  scrhpos, scrvpos;
 wire               turbo, mcu_cen, cpu_cen;
 reg                turbo_l=0;
 
-assign turbo      = `ifdef ALWAYS_TURBO 1 `else status[13] `endif ;
+assign turbo      = `ifdef POCKET dipsw[16] `else status[13] `endif ;
 assign dip_flip   = flip;
 assign debug_view = { 7'd0, turbo };
 assign scr_cs     = LVBL;
@@ -51,7 +37,6 @@ assign cpu_cen    = turbo_l ? cen6 : cen3;
 
 always @(posedge clk) if( mcu_cen && cpu_cen ) turbo_l <= turbo;
 
-`ifndef NOMAIN
 /* verilator tracing_on */
 // CPU and sub CPU from slower clock in order to
 // prevent timing error in 6809 CC bit Z
@@ -106,23 +91,6 @@ jtdd_main u_main(
     .dipsw_a        ( dipsw[ 7:0]   ),
     .dipsw_b        ( dipsw[15:8]   )
 );
-`else
-assign main_cs   = 1'b0;
-assign main_addr = 18'd0;
-assign cram_cs   = 1'b0;
-assign vram_cs   = 1'b0;
-assign oram_cs   = 1'b0;
-assign pal_cs    = 1'b0;
-assign mcu_cs    = 1'b0;
-assign flip      = 1'b0;
-assign cpu_AB    = 13'd0;
-assign cpu_wrn   = 1'b1;
-assign scrhpos   = 9'h0;
-assign scrvpos   = 9'h0;
-assign snd_latch = 8'd0;
-assign snd_irq   = 1'b0;
-assign mcu_rstb  = 1'b0;
-`endif
 
 /* verilator tracing_on */
 jtdd_mcu u_mcu(

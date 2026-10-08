@@ -1,0 +1,10 @@
+jtframe:
+  - from: cpu
+    get:
+      - jt63701y.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+jt680x:
+  - get:
+    - jt6301.yaml

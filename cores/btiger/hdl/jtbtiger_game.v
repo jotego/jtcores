@@ -1,27 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-11-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-11-2019 */
 
 module jtbtiger_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START,
-                    PROM_START = `JTFRAME_PROM_START,
+localparam [25:0]   PROM_START = `JTFRAME_PROM_START,
                     MCUOVER    = PROM_START+26'h1000;
 
 wire [12:0] cpu_AB;
@@ -53,12 +38,6 @@ assign prom[4] = prom_we && !mcuover;
 /* verilator tracing_off */
 always @(posedge clk) pause <= ~dip_pause;
 
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr >= OBJ_START ) begin
-        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-    end
-end
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
@@ -92,7 +71,6 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-`ifndef NOMAIN
 jtbtiger_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -158,19 +136,6 @@ jtbtiger_main u_main(
     .dipsw_a    ( dipsw[15:8]   ),
     .dipsw_b    ( dipsw[ 7:0]   )
 );
-`else
-assign main_addr   = 19'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-assign cpu_cen     = cen3;
-assign scr_layout  = 1'b0;
-assign scr_bank    = 2'b0;
-`endif
 
 `ifndef NOMCU
 jtbtiger_mcu u_mcu(

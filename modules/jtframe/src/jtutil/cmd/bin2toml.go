@@ -1,13 +1,13 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
-*/
 package cmd
 
 import (
 	"fmt"
-	"path"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -17,7 +17,8 @@ import (
 var bin2tomlCmd = &cobra.Command{
 	Use:   "bin2toml <files to convert>",
 	Short: "Convert binary files to data statements, usable in mame2mra.toml files",
-	Args: cobra.MinimumNArgs(1),
+	Long:  man_blurb("jtutil-bin2toml", "Convert binary files into TOML data statements."),
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		for _, each := range args {
 			bin2toml(each)
@@ -39,24 +40,24 @@ func init() {
 	// bin2tomlCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func bin2toml( fname string ) {
+func bin2toml(fname string) {
 	data, e := os.ReadFile(fname)
 	must(e)
 	var b strings.Builder
 	for k, each := range data {
-		if k!=0 {
-			if (k&15)==0 {
+		if k != 0 {
+			if (k & 15) == 0 {
 				b.WriteString("\n\t")
 			} else {
 				b.WriteString(" ")
 			}
 		}
-		b.WriteString(fmt.Sprintf("%02X",each))
+		b.WriteString(fmt.Sprintf("%02X", each))
 	}
 	setname := path.Base(fname)
-	if k := strings.Index(setname,"."); k!=-1 {
+	if k := strings.Index(setname, "."); k != -1 {
 		setname = setname[0:k]
 	}
-	setname = strings.ReplaceAll(setname,"_","")
+	setname = strings.ReplaceAll(setname, "_", "")
 	fmt.Printf("\t{ setname=\"%s\", data=\"\"\"\\\n\t%s\"\"\"},\n", setname, b.String())
 }

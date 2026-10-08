@@ -1,5 +1,5 @@
 include:
-  - file: audio
+  - file: audio.yaml
 params:
   - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
   - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
@@ -61,3 +61,13 @@ bram:
     rw: true
     addr: "main_addr[11:0]"
     din: cpu_dout
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    dual_port:
+      name: vramrw
+      din:  "{2{cpu_dout}}"
+      dout: vramrw_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }

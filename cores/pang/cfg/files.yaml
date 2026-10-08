@@ -1,0 +1,32 @@
+pang:
+  - get:
+    - jtpang_game.v
+    - jtpang_main.v
+    - jtpang_video.v
+    - jtpang_colmix.v
+    - jtpang_char.v
+    - jtpang_obj.v
+    - jtpang_snd.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_obj_buffer.v
+  - from: clocking
+    get:
+      - jtframe_sync.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_obj.yaml
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_kabuki.v
+jteeprom:
+jt6295:
+jtopl:
+  - get:
+    - jt2413.yaml

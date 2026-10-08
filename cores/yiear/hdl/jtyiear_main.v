@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-12-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-12-2021 */
 
 module jtyiear_main(
     input               rst,
@@ -31,8 +17,8 @@ module jtyiear_main(
     // cabinet I/O
     input       [ 1:0]  cab_1p,
     input       [ 1:0]  coin,
-    input       [ 5:0]  joystick1,
-    input       [ 5:0]  joystick2,
+    input       [ 6:0]  joystick1,
+    input       [ 6:0]  joystick2,
     input               service,
 
     // GFX
@@ -138,8 +124,8 @@ end
 always @(posedge clk) begin
     case( A[1:0] )
         0: cabinet <= { ~3'd0, cab_1p, service, coin };
-        1: cabinet <= { 2'b11, joystick1[5:0] };
-        2: cabinet <= { 2'b11, joystick2[5:0] };
+        1: cabinet <= { 1'b1, joystick1[6:0] };
+        2: cabinet <= { 1'b1, joystick2[6:0] };
         3: cabinet <= dipsw_a;
     endcase
     cpu_din <= rom_cs  ? rom_data  :

@@ -1,0 +1,34 @@
+pktgal:
+  - get:
+    - jtpktgal_game.v
+    - jtpktgal_main.v
+    - jtpktgal_sound.v
+    - jtpktgal_video.v
+    - jtpktgal_bac06.v
+    - jtpktgal_obj.v
+    - jtpktgal_colmix.v
+    - jtpktgal_header.v
+    - jtpktgal_bac06_mmr.v
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+      - jtframe_scroll.yaml
+jt680x:
+  - get:
+    - jtdeco222.yaml
+jt12:
+  - get:
+    - jt03.yaml
+jtopl:
+  - get:
+    - jtopl2.yaml
+jt5205:

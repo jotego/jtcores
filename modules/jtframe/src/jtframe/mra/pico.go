@@ -1,3 +1,7 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
+
 package mra
 
 import (
@@ -136,7 +140,7 @@ func dump_bin(fname string, data []byte) {
 
 func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	olddir, _ := os.Getwd()
-	path := filepath.Join(os.Getenv("CORES"), args.Def_cfg.Core, "cheat")
+	path := filepath.Join(os.Getenv("CORES"), args.Core, "cheat")
 	// Check if the cheat folder exists
 	f, e := os.Open(path)
 	folder_ok := e == nil
@@ -144,8 +148,8 @@ func picoasm(filename string, cfg Mame2MRA, args Args) []byte {
 	e = os.Chdir(path)
 	defer os.Chdir(olddir)
 	if e != nil {
-		if folder_ok || args.Verbose { // only warns when the core/cheat folder exists but the file was not present
-			fmt.Printf("Warning: cannot open %s/%s\n", path, filename)
+		if folder_ok || Verbose { // only warns when the core/cheat folder exists but the file was not present
+			log.Printf("Warning: cannot open %s/%s\n", path, filename)
 		}
 		return nil
 	}

@@ -1,25 +1,11 @@
-/*  This file is part of JTCORES1.
-    JTCORES1 program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES1 program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES1.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-1-2021 */
-
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-1-2021 */
 
 module jtcps2_colmix(
     input              rst,
     input              clk,
+    input              LVBL,
     input              pxl_cen,
 
     input              objcfg_cs,
@@ -41,7 +27,7 @@ localparam [3:1] OBJ_PRIO = 3'b010;
 
 reg         obj1st, obj_sel;
 reg  [ 3:0] scr_prio;
-reg  [15:0] lyr_prio;
+reg  [15:0] lyr_prio, cur_prio;
 
 wire [2:0] obj_prio = obj_pxl[11:9],
            scr_lyr  = scr_pxl[11:9];
@@ -55,20 +41,25 @@ endfunction
 
 always @(*) begin
     case( scr_lyr )
-        1: scr_prio = lyr_prio[ 7: 4];
-        2: scr_prio = lyr_prio[11: 8];
-        3: scr_prio = lyr_prio[15:12];
-        default: scr_prio = 4'd7;
+        1: scr_prio = cur_prio[ 7: 4];
+        2: scr_prio = cur_prio[11: 8];
+        3: scr_prio = cur_prio[15:12];
+        // A transparent scroll pixel still blocks priority-0 sprites.
+        default: scr_prio = 4'd0;
     endcase
     obj1st = obj_prio > scr_prio[2:0];
-    obj_sel = ~blank(obj_pxl) & (obj1st | blank(scr_pxl));
+    obj_sel = ~blank(obj_pxl) & obj1st;
 end
 
+reg LVBL_l;
+
 always @(posedge clk) begin
+    LVBL_l <= LVBL;
     if( objcfg_cs && addr[3:1]==OBJ_PRIO) begin
         if( dsn[1] ) lyr_prio[15:8] <= cpu_dout[15:8];
         if( dsn[0] ) lyr_prio[ 7:0] <= cpu_dout[ 7:0];
     end
+    if( !LVBL && LVBL_l ) cur_prio <= lyr_prio;
 end
 
 always @(posedge clk) if(pxl_cen) begin

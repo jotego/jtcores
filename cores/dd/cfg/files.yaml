@@ -1,0 +1,16 @@
+dd:
+  - get:
+    - jtdd_game.v
+    - jtdd_mcu.v
+    - jtdd_sound.v
+    - jtdd_adpcm.v
+    - common.yaml
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_63701y.yaml
+      - 6801_core.sv
+  - from: clocking
+    get:
+      - jtframe_cendiv.v
+jt5205:

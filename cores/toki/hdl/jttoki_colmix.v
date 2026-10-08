@@ -1,0 +1,76 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-7-2025 */
+
+module jttoki_colmix(
+    input             clk,
+    input             pxl_cen,
+    input             cabal,
+    input      [8:0]  hdump,
+    input             lhbl, lvbl,
+
+    input      [7:0]  fix_pxl,
+    input      [7:0]  scr1_pxl,
+    input      [7:0]  scr2_pxl,
+    input      [7:0]  obj_pxl,
+    input             bg_order,
+
+    output reg [10:1] pal_addr,
+    input      [15:0] pal_data,
+
+    output     [3:0]  red,
+    output     [3:0]  green,
+    output     [3:0]  blue,
+
+    input      [3:0]  gfx_en
+);
+
+localparam [1:0] OBJ  = 2'd0,
+                 VRAM = 2'd1,
+                 SCR1 = 2'd2,
+                 SCR2 = 2'd3;
+
+wire blank = ~lvbl | ~lhbl;
+wire fix_visible    = cabal ? fix_pxl[1:0] != 2'd3 : fix_pxl[3:0] != 4'hf;
+wire obj_visible    = obj_pxl[3:0] != 4'hf;
+wire scr1_visible   = scr1_pxl[3:0] != 4'hf;
+wire scr2_visible   = scr2_pxl[3:0] != 4'hf;
+wire [10:1] fix_pal_addr  = cabal ? {2'b00, fix_pxl[7:2], fix_pxl[1:0]} : {VRAM, fix_pxl};
+wire [10:1] obj_pal_addr  = cabal ? {2'b01, obj_pxl} : {OBJ, obj_pxl};
+wire [10:1] scr1_pal_addr = cabal ? {2'b10, scr1_pxl} : {SCR1, scr1_pxl};
+
+assign red   = blank ? 4'd0 : pal_data[ 3:0];
+assign green = blank ? 4'd0 : pal_data[ 7:4];
+assign blue  = blank ? 4'd0 : pal_data[11:8];
+
+always @(posedge clk) if (pxl_cen) begin
+    if (gfx_en[0] && fix_visible)
+        pal_addr <= fix_pal_addr;
+    else if (gfx_en[3] && obj_visible)
+        pal_addr <= obj_pal_addr;
+    else if (cabal) begin
+        if (gfx_en[1])
+            pal_addr <= scr1_pal_addr;
+        else
+            pal_addr <= 'h3ff;
+    end else begin
+        if (!bg_order) begin
+            if (gfx_en[1] && scr1_visible)
+                pal_addr <= scr1_pal_addr;
+            else if (gfx_en[2] && scr2_visible)
+                pal_addr <= {SCR2, scr2_pxl};
+            else
+                pal_addr <= 'h3ff;
+        end else begin
+            if (gfx_en[2] && scr2_visible)
+                pal_addr <= {SCR2, scr2_pxl};
+            else if (gfx_en[1] && scr1_visible)
+                pal_addr <= scr1_pal_addr;
+            else
+                pal_addr <= 'h3ff;
+        end
+    end
+end
+
+
+endmodule

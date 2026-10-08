@@ -1,5 +1,4 @@
 #!/bin/bash
 # enters service menu
-# use test_obj.inputs as sim_inputs.hex to enter the object test
-# cp test_obj.inputs sim_inputs.hex
-jtsim -inputs -setname 1943 -q -dipsw ff78 $*
+# Convert test_obj.inputs to a .cab file to enter the object test.
+jtsim -inputs sim_inputs.cab -setname 1943 -q -dipsw ff78 $*

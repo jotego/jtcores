@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-7-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-7-2024 */
 
 module jtxmen_video(
     input             rst,
@@ -34,7 +20,6 @@ module jtxmen_video(
     // Object DMA
     input      [13:1] oram_addr,
     input      [ 1:0] oram_we,
-    input      [15:0] oram_din,
     // CPU interface
     input      [16:1] cpu_addr,
     input      [ 1:0] cpu_dsn,
@@ -98,7 +83,6 @@ module jtxmen_video(
     output     [ 7:0] st_dout
 );
 
-wire [21:2] lyro_prea;
 wire [15:0] cpu_saddr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
 wire [11:0] lyra_pxl, lyrb_pxl;
@@ -109,18 +93,15 @@ wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
 wire [ 4:0] obj_prio;
 wire [ 1:0] shadow;
 wire [ 3:0] obj_amsb;
-wire        lyrf_blnk_n,
+wire        lyrf_blnk_n, nc,
             lyra_blnk_n, obj_nmin,
-            lyrb_blnk_n, lyro_precs,
+            lyrb_blnk_n,
             lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
 
-assign cpu_weg   = cpu_we && cpu_dsn!=3;
-assign cpu_saddr = cpu_addr;
-assign cpu_d8    = cpu_dout[ 7:0]  ;
-// Object ROM address MSB might come from a RAM
-assign lyro_addr   = lyro_prea;
-assign lyro_cs     = lyro_precs;
-assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
+assign cpu_weg    = cpu_we && cpu_dsn!=3;
+assign cpu_saddr  = cpu_addr;
+assign cpu_d8     = cpu_dout[7:0];
+assign dump_other = {2'd0,dimpol, dimmod, 1'b0, dim};
 
 jtriders_dump #(.FULLRAM(1)) u_dump(
     .clk            ( clk             ),
@@ -130,11 +111,13 @@ jtriders_dump #(.FULLRAM(1)) u_dump(
     .pal_mmr        ( pal_mmr         ),
     .scr_mmr        ( scr_mmr         ),
     .obj_mmr        ( obj_mmr         ),
+    .psac_mmr       ( 8'b0            ),
     .other          ( dump_other      ),
 
     .ioctl_addr     ( ioctl_addr      ),
     .ioctl_din      ( ioctl_din       ),
     .obj_amsb       ( obj_amsb        ),
+    .part_addr      (                 ),
 
     .debug_bus      ( debug_bus       ),
     .st_scr         ( st_scr          ),
@@ -170,6 +153,7 @@ end
 // the end of stage 2
 // It also makes the grid look squared, wihtout nothing hanging off the sides
 jtaliens_scroll #(
+    .HB_OFFSET( 9'd2 ),
     .HB_EXTRAL( 9'd8 ),
     .HB_EXTRAR( 9'd8 ),
     .FULLRAM  ( 1    )
@@ -257,32 +241,32 @@ jtaliens_scroll #(
 /* verilator tracing_on */
 wire [ 4:0] lyro_pri;
 wire [ 3:0] ommra;
-wire [ 8:0] vmux;
 wire [13:1] orama;
 
 assign ommra = {cpu_addr[3:1],cpu_dsn[1]};
 // xmen never exercises cpu_addr[13], although it is connected to the RAM
 assign orama = cpu_addr[13:1];
-assign vmux  = vdump;
 
-jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
+localparam [9:0] OVOFFSET=10'hff;
+
+jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-
     .simson     ( 1'b0      ),
+    .ln_done    (           ),
+
+    .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
     .hs         ( hs        ),
-    .vs         ( vs        ),
     .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
-    .vdump      ( vmux      ),
+    .vdump      ( vdump     ),
     // CPU interface
     .ram_cs     ( objsys_cs ),
     .ram_addr   ( orama     ),
-    .ram_din    ( oram_din  ),
+    .ram_din    ( cpu_dout  ),
     .ram_we     ( oram_we   ),
     .cpu_din    (objsys_dout),
 
@@ -294,10 +278,10 @@ jtsimson_obj #(.RAMW(13), .XMEN(1)) u_obj(    // sprite logic
 
     .dma_bsy    ( dma_bsy   ),
     // ROM
-    .rom_addr   ( lyro_prea ),
+    .rom_addr   ({nc,lyro_addr}),
     .rom_data   ( lyro_data ),
     .rom_ok     ( lyro_ok   ),
-    .rom_cs     (lyro_precs ),
+    .rom_cs     ( lyro_cs   ),
     .objcha_n   ( objcha_n  ),
     // pixel output
     .pxl        ( lyro_pxl  ),

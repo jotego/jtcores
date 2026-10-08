@@ -1,4 +1,0 @@
-target:
-  - from: mist
-    get:
-      - target.yaml

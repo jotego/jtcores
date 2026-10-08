@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-5-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-5-2023 */
 
 module jtaliens_main(
     input               rst,
@@ -79,7 +65,8 @@ module jtaliens_main(
 `ifndef NOMAIN
 `include "jtaliens.inc"
 
-wire [ 7:0] Aupper, pmc_st;
+wire [ 7:0] Aupper, pmc_st, pmc_cpu_din;
+wire [12:0] pmc_full_addr;
 reg  [ 7:0] cpu_din, port_in;
 reg  [ 3:0] bank;
 reg  [ 3:0] eff_bank;
@@ -95,6 +82,7 @@ wire        norA65, norA43, eff_firqn, pmc_out0;
 
 assign dtack     = (~rom_cs | rom_ok) & tilesys_rom_dtack;
 assign ram_we    = ram_cs & cpu_we;
+assign pmc_addr  = pmc_full_addr[10:0]; // EA12:11 are not connected on this PCB
 assign pal_we    = pal_cs & cpu_we;
 assign norA65    = ~|A[6:5],
        norA43    = ~|A[4:3];
@@ -212,7 +200,7 @@ always @* begin
               pal_cs     ? pal_dout  :
               tilesys_cs ? tilesys_dout :
               objsys_cs  ? objsys_dout  :
-              pmc_cs     ? pmc2main_data: 8'hff;
+              pmc_cs     ? pmc_cpu_din : 8'hff;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -222,6 +210,8 @@ always @(posedge clk, posedge rst) begin
         port_in   <= 0;
         work      <= 0;
         pmc_work  <= 0;
+        pmc_start <= 0;
+        pmc_bk    <= 0;
         prio      <= 0;
         rmrd      <= 0;
         init      <= 0; // missing this will result in garbled scroll after reset
@@ -342,23 +332,28 @@ always @(posedge clk, posedge rst) begin
 end
 
 jt052591 u_pmc(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cen12     ),
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .cen         ( cen12         ),
 
-    .cs         ( pmc_cs    ),
-    .cpu_we     ( cpu_we    ),
-    .cpu2ram_we ( cpu2pmc_we),
+    .cs          ( pmc_cs        ),
+    .cpu_we      ( cpu_we        ),
+    .cpu_addr    ( A[12:0]       ),
+    .cpu_dout    ( cpu_dout      ),
+    .cpu_ram_dout( pmc2main_data ),
+    .cpu_din     ( pmc_cpu_din   ),
+    .cpu2ram_we  ( cpu2pmc_we    ),
 
-    .ram_we     ( pmc_we    ),
-    .ram_addr   ( pmc_addr  ),
-    .ram_dout   ( pmc_dout  ),
-    .ram_din    ( pmc_din   ),
+    .ram_we      ( pmc_we        ),
+    .ram_oe      (               ),
+    .ram_addr    ( pmc_full_addr ),
+    .ram_dout    ( pmc_dout      ),
+    .ram_din     ( pmc_din       ),
 
-    .bk         ( pmc_bk    ),     // 1=internal RAM, 0=external RAM
-    .out0       ( pmc_out0  ),     // connected to PCMFIRQ in Thunder Cross
-    .start      ( pmc_start ),     // triggers the programmed process
-    .st_dout    ( pmc_st    )
+    .bk          ( pmc_bk        ), // 0=internal RAM, 1=external RAM
+    .out0        ( pmc_out0      ), // PCMFIRQ in Thunder Cross
+    .start       ( pmc_start     ), // held high while the program runs
+    .st_dout     ( pmc_st        )
 );
 
 /* xverilator tracing_off */
@@ -394,6 +389,10 @@ jtkcpu u_cpu(
     assign st_dout  = 0;
     assign pal_we   = 0;
     assign rom_addr = 0;
+    assign pmc_we   = 0;
+    assign pmc_addr = 0;
+    assign pmc_din  = 0;
+    assign cpu2pmc_we = 0;
 
     reg [7:0] prio_init[0:0];
     integer f,fcnt=0;

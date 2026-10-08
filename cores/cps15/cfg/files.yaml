@@ -1,0 +1,9 @@
+cps15:
+  - get:
+    - jtcps15_game.v
+    - qsound.yaml
+cps1:
+  - get:
+    - jtcps1_obj.v
+    - jtcps1_main.v
+    - common.yaml

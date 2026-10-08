@@ -1,0 +1,42 @@
+toki:
+  - get:
+    - jttoki_game.v
+    - jttoki_main.v
+    - jttoki_cabal_adpcm.v
+    - jttoki_video_mmr.v
+    - jttoki_video.v
+    - jttoki_colmix.v
+    - jttoki_fix.v
+    - jttoki_scroll.v
+    - jttoki_obj.v
+    - jttoki_irq.v
+    - jttoki_sound.v
+    - sei80bu.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_ram16.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_rpwp_ram.v
+  - from: cpu
+    get:
+      - jtframe_virq.v
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+  - from: video
+    get:
+      - jtframe_credits.v
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+      - jtframe_obj.yaml
+jt6295:
+jtopl:
+  - get:
+    - jtopl2.yaml
+jt51:
+jt5205:

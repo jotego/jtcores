@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 9-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 9-7-2022 */
 
 module jtoutrun_sub(
     input              rst,
@@ -32,6 +18,7 @@ module jtoutrun_sub(
     input      [15:0]  road_dout,
     output reg [15:0]  sub_din,     // bus output to sub CPU
     output             sub_ok,
+    output             sub_bsy,
 
     // sub CPU bus
     output     [15:0]  cpu_dout,
@@ -66,6 +53,7 @@ wire        bus_busy, bus_cs;
 wire        cpu_cen, cpu_cenb;
 wire        inta_n;
 reg         BGACKnl;
+wire        ok_dly;
 
 `ifdef SIMULATION
 wire [19:0] A_full = {A,1'b0};
@@ -78,12 +66,16 @@ assign RnW      = BGACKn ? cpu_RnW : main_rnw;
 assign cpu_dout = BGACKn ? cpu_dout_raw : main_dout;
 assign A        = BGACKn ? cpu_A[19:1] : main_A;
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
+assign bus_busy = (rom_cs & ~ok_dly) | (ram_cs & ~ok_dly);
 assign inta_n   = ~&FC[1:0];
 assign VPAn     = ~(~ASn & ~inta_n); // autovector
 assign sub_ok   = ~BGACKnl & ~bus_busy; // for
 assign BUSn     = LDSn & UDSn;
 assign sub_addr = A[18:1];
+assign sub_bsy  = sub_br & BGn & BGACKn;
 
 // memory map
 always @(posedge clk, posedge rst) begin
@@ -130,6 +122,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
+
 jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack( // 10 MHz
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -138,6 +138,7 @@ jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack( // 10 MHz
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn | ~inta_n ), // do not generate DTACK for int ack
     .DSn        ({cpu_UDSn,cpu_LDSn}),
     .num        ( 7'd29     ),  // numerator

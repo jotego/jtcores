@@ -38,7 +38,9 @@ Bit  |  Action
  3   | up
  4+  | buttons
 
-Analog controllers are not connected to the game module by default. In order to get them connected, use the following input ports in the game module
+If a different mapping is needed, it should be set via a JTFRAME_JOY macro. The analog stick is used to emulate a 32-way joystick via pulse-width modulation.
+
+Analog controllers are connected via ports:
 
 ```
 input   [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
@@ -111,10 +113,6 @@ Original documentation [here](https://www.analogue.co/developer/docs/bus-communi
 The DB15 hardware from Antonio Villena can be enabled in the OSD. It will replace USB input to the game for players 1P and 2P. Controlling the OSD with the DB15 input is possible and uses the command byte *0xF*. If future MiSTer versions used that value, the file *hps_io.v* will need to be edited to support it. Declaring the macro **JTFRAME_NO_DB15_OSD** will disable OSD control.
 
 The macro **JTFRAME_NO_DB15** disables DB15 support.
-
-## Autofire
-
-It is not encouraged to provide a generic autofire option as it alters the gameplay. But, for some games that used a spinner (like Heavy Barrel), it helps controlling the character. By defining **JTFRAME_AUTOFIRE0** an option will appear on the OSD to enable autofire only for the first button (joystick bit 4). The autofire is triggered every 8 frames.
 
 # Trackball
 

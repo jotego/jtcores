@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. https://patreon.com/jotego
-    Version: 1.0
-    Date: 22-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 22-3-2022 */
 
 module jtngp_obj(
     input             rst,
@@ -76,9 +62,8 @@ assign lut_addr = { 1'b0, scan_addr };
 assign cpu_din = obj2_cs ? {4'd0,pre_din[11:8],4'd0,pre_din[3:0]} : pre_din;
 
 jtframe_dual_ram16 #(
-    .AW         (  8          ),
-    .SIMFILE_LO ("obj_lo.bin" ),
-    .SIMFILE_HI ("obj_hi.bin" )
+    .AW      (  8       ),
+    .SIMFILE ("obj.bin" )
     // ,.VERBOSE(1),.VERBOSE_OFFSET('h8800)
 ) u_objram(
     // Port 0

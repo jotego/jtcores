@@ -1,0 +1,242 @@
+.TH JTUTIL-TRACE 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtutil-trace \- compare VCD output against a MAME trace
+.SH SYNOPSIS
+.B jtutil trace
+.RI [ flags ]
+.SH DESCRIPTION
+\fBjtutil trace\fR
+helps debug a simulation against MAME by comparing a register trace with a VCD
+capture.
+.PP
+The default input files are:
+.TP
+.B debug.csv
+CSV text trace generated from MAME.
+It must start with a header row (for example
+\fI"pc,a,x,y,frame_cnt"\fR) and each following row is one CSV sample.
+.TP
+.B debug.vcd
+VCD file used for comparison.
+.PP
+Use
+\fB--base-name\fR
+to override those file names.
+.PP
+\fBdebug.csv\fR must follow a strict CSV contract:
+\fIHeader\fR
+line:
+\fIPC,AF,BC,...\fR
+followed by one line per sample.
+Interrupt lines such as
+\fC(interrupted at 0000F2C, IRQ 12)\fR
+are accepted and converted into synthetic rows that reuse the previous register
+state and expose the event text in the assembler column.
+.PP
+JTFRAME attempts to match MAME variables and VCD signals automatically.
+If a signal is not matched, add it manually with the interactive
+\fBalias\fR
+command.
+.PP
+The comparison session is interactive, although a script can also be used.
+Type
+\fBhelp\fR
+to list the commands.
+Session commands are stored in
+\fBtrace.ses\fR
+and overwritten each time.
+\fBsave\fR
+stores the current VCD and CSV offsets in
+\fB.jtutil.toml\fR so a later
+\fBrestore\fR
+can resume from the same position.
+.PP
+At the interactive prompt,
+\fBo\fR
+or
+\fBoption\fR
+sets comparison options. The supported options are:
+.TP
+.BI "mame-lookahead=" n
+Number of MAME trace states to search while recovering a mismatch.
+.TP
+.BI "vcd-lookahead=" n
+Number of VCD states to search while recovering a mismatch.
+\fBkmax\fR
+is accepted as a legacy name for the same setting.
+.TP
+.BI "merge-window=" n
+Number of adjacent VCD states allowed to satisfy one MAME state.
+.TP
+.B retry
+When a difference is found, try a step-trace before stopping; if there are no
+differences, continue the comparison.
+.TP
+.BI "color=" bool
+Enable ANSI color in trace-display output. The default is
+.BR true .
+Changed values in the
+.B dt
+table are highlighted in red.
+.TP
+.BI "table-width=" n
+Limit trace display and browse tables to
+.I n
+columns. The default is
+.BR 120 .
+Overlong assembly text and table cells are truncated to keep the table within
+this width.
+.PP
+Options entered with
+\fBo\fR,
+\fBoption\fR,
+or the legacy
+\fBkmax\fR
+command are saved in
+\fB.jtutil.toml\fR
+in the current working directory under
+\fB[trace.options]\fR.
+.PP
+The
+\fBr\fR
+or
+\fBreset\fR
+command restarts comparison from the initial VCD and trace position while
+keeping the current option settings.
+\fBsave\fR
+and
+\fBrestore\fR
+commands persist and reload the offsets in
+\fB.jtutil.toml\fR under
+\fB[trace.session]\fR.
+The section includes:
+.IP \[bu] 2
+\fBvcd_file\fR
+\fIname of the VCD file\fR
+.IP \[bu] 2
+\fBcsv_file\fR
+\fIname of the trace CSV file\fR
+.IP \[bu] 2
+\fBvcd_line\fR
+\fIline number in the VCD stream\fR
+.IP \[bu] 2
+\fBcsv_line\fR
+\fIline number in the CSV stream\fR
+.IP \[bu] 2
+\fBvcd_time\fR
+\fItimestamp saved with the VCD position\fR
+.IP \[bu] 2
+\fBcsv_time\fR
+\fItimestamp saved with the CSV position\fR
+.IP \[bu] 2
+\fBvcd_mtime_ns\fR
+\fIVCD file modification timestamp (ns)\fR
+.IP \[bu] 2
+\fBcsv_mtime_ns\fR
+\fICSV file modification timestamp (ns)\fR
+.IP \[bu] 2
+\fBsaved_at\fR
+\fItime when the session was saved
+\fR.
+Restore uses saved file modification timestamps to detect stale
+or changed inputs and emits warning messages when differences are found.
+.PP
+Recovery messages such as exact-match and merged recovery reports are only
+printed when verbose output is enabled.
+.PP
+The
+.B dt
+or
+.B display-trace
+command prints a table around the current MAME trace line. It displays up to
+two previous lines, the current line, and up to two following lines. The
+assembler text comes from CSV input rows (interrupt rows use the event text), and values that change
+from the previous displayed column are highlighted when
+.B color
+is enabled.
+The table width is limited by
+.BR table-width ,
+which truncates overlong assembly text and cells.
+.PP
+The
+.B b
+or
+.B browse
+command enters an interactive trace-table browser. It starts with the current
+trace line centered like
+.B dt .
+Left and right move the displayed window by one trace line, Page Up and Page
+Down move by five lines, Up and Down move the focused row one visible row,
+while Home returns to the initial centered window, and
+Escape or Enter exits browse mode. Browsing does not change the active trace
+comparison position.
+The focused row is underlined only when color is enabled.
+No wraparound is used: up/down stay at top/bottom.
+Browse tables use the same
+.B table-width
+limit as
+.B dt .
+.PP
+Comparison is paused while these signals are high:
+.IP \[bu] 2
+\fBalu_busy\fR:
+the ALU is solving a long operation
+.IP \[bu] 2
+\fBstr_busy\fR:
+a long string operation is in progress
+.IP \[bu] 2
+\fBstack_busy\fR:
+stack-related long operations are in progress
+.PP
+If the VCD exposes
+\fBtrace_seq\fR
+or
+\fBtrace_valid\fR,
+\fBjtutil trace\fR
+uses them as trace sample markers instead of advancing on any matched register
+signal change.
+This is useful for pipelined CPUs where several
+\fBtrace_*\fR
+register signals are updated in the same simulation timestamp.
+.TP
+.B trace_seq
+Monotonic sample counter. When present, each value change marks a new coherent
+CPU trace snapshot ready for comparison.
+.TP
+.B trace_valid
+Sample-valid pulse. It is used as a fallback sample marker when
+\fBtrace_seq\fR
+is not present.
+.PP
+When neither signal is present, comparison falls back to the older behavior of
+advancing to the next change in any aliased VCD signal.
+.SH FLAGS
+.TP
+.BI "\-b, \-\-base-name " name
+Use
+\fB<name>.csv\fR
+and
+\fB<name>.vcd\fR
+instead of
+\fBdebug.csv\fR
+and
+\fBdebug.vcd\fR.
+The default base name is
+\fBdebug\fR.
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.BI "\-m, \-\-make " cpu
+Create a MAME trace script for the given CPU. The generated script writes CSV
+rows to \fBdebug.vcd\fR via:
+\fBtrace debug.csv,CPU,noloop,{tracelog "%X,...,",...}\fR
+followed by a header
+\fBtracelog "PC,...,frame_cnt\\n"\fR
+command.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtutil (1),
+.BR jtutil-vcd (1)

@@ -1,0 +1,107 @@
+.TH JTFRAME-FILES 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-files \- generate simulation, synthesis, or plain file lists
+.SH SYNOPSIS
+.B jtframe files
+.RI "<sim|syn|plain> <core-name> [flags]"
+.SH DESCRIPTION
+\fBjtframe files\fR
+reads the core description in
+\fBcores/<corename>/cfg/files.yaml\fR
+and merges it with JTFRAME-wide and target-specific file lists.
+It is the step used by
+\fBjtcore\fR
+and
+\fBjtsim\fR
+to turn the project description into concrete file lists for synthesis or
+simulation.
+.SS Modes
+.TP
+.B sim
+Generate simulation file lists.
+This produces
+\fBgame.f\fR
+for Verilog and
+\fBjtsim_vhdl.f\fR
+for VHDL.
+.TP
+.B syn
+Generate Quartus-oriented synthesis assignments.
+This produces
+\fBfiles.qip\fR.
+.TP
+.B plain
+Generate a plain text file list named
+\fBfiles\fR.
+.SS Inputs
+The base description comes from
+\fBcores/<corename>/cfg/files.yaml\fR.
+When
+\fB--target\fR
+is used,
+\fBjtframe files\fR
+also incorporates:
+.IP \[bu] 2
+\fB$JTFRAME/target/<target>/cfg/files.yaml\fR
+.IP \[bu] 2
+\fB$JTFRAME/target/<target>/cfg/sim.yaml\fR
+when running in
+\fBsim\fR
+mode
+.PP
+The file list may reference other core folders or shared module folders.
+JTFRAME keeps the declared order, which matters for SDC precedence and for VHDL
+compilation order.
+.SS Search Rules
+.IP \[bu] 2
+If only a path is given, JTFRAME looks for
+\fBcfg/files.yaml\fR
+in that path.
+.IP \[bu] 2
+HDL files are searched under the
+\fBhdl/\fR
+folder.
+.IP \[bu] 2
+SDC and QIP files are searched under
+\fBsyn/\fR.
+.IP \[bu] 2
+YAML files used to generate more files are searched under
+\fBcfg/\fR.
+.SS Conditional Parsing
+Entries may be gated with the usual JTFRAME macro conditions:
+.TP
+.B when
+Parse the entry only when the named macro is defined.
+.TP
+.B unless
+Parse the entry unless the named macro is defined.
+.SH FLAGS
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.B \-\-local
+Refer to
+\fBmem.yaml\fR-derived files in the local folder instead of the target folder.
+.TP
+.BI "\-m, \-\-macro " list
+Add extra Verilog macros separated by commas.
+.TP
+.B \-\-rel
+Output relative paths.
+.TP
+.BI "\-t, \-\-target " name
+Select the target platform, such as
+\fBmist\fR,
+\fBmister\fR,
+or
+\fBpocket\fR.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-mem (1),
+.BR jtframe-cfgstr (1),
+.BR jtsim (1),
+.BR jtcore (1)

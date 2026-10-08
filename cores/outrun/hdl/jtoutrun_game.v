@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 10-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 10-7-2022 */
 
 module jtoutrun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -61,12 +47,14 @@ reg         dec_en, dec_type,
 wire [ 7:0] key_data;
 wire [12:0] key_addr;
 
-wire        flip, video_en, sound_en, line_intn;
+wire        flip, video_en, sound_en, line_intn, sub_bsy;
 
 // Cabinet inputs
 wire [ 7:0] dipsw_a, dipsw_b;
 reg  [ 1:0] game_id;
 wire [ 2:0] ctrl_type = status[22:20];
+wire        gear_toggle = ~dipsw[16];
+wire        gear_show   = ~dipsw[17];
 
 // Status report
 wire [7:0] st_video, st_main, st_sub, st_snd;
@@ -103,6 +91,7 @@ assign fd1089_we = prom_we && prog_addr[21: 8]==FD_PROM [21: 8];
 `ifdef JTFRAME_LF_BUFFER
     assign game_hdump = hdump;
     assign game_vrender = vrender[7:0];
+    assign fb_keep = 1'b0;
 `endif
 
 initial begin
@@ -113,7 +102,7 @@ end
 
 always @(posedge clk48) begin
     case( st_addr[7:6] )
-        0: st_mux <= st_snd; //st_main;
+        0: st_mux <= st_snd;
         1: st_mux <= st_sub;
         2: st_mux <= st_video;
         3: case( st_addr[3:0] )
@@ -152,8 +141,7 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
 `else
     assign key_data = 0;
 `endif
-/* verilator tracing_off */
-`ifndef NOMAIN
+/* verilator tracing_on */
 jtoutrun_main u_main(
     .rst         ( rst48      ),
     .clk         ( clk48      ),
@@ -190,6 +178,7 @@ jtoutrun_main u_main(
     .sub_cs      ( sub_br     ),
     .sub_ok      ( sub_ok     ),
     .sub_din     ( sub_din    ),
+    .sub_bsy     ( sub_bsy    ),
     .creset      ( creset     ),
     // cabinet I/O
     .ctrl_type   ( ctrl_type  ),
@@ -200,6 +189,8 @@ jtoutrun_main u_main(
     .cab_1p      ( cab_1p[1:0]),
     .coin        ( coin[1:0]  ),
     .service     ( service    ),
+    .gear_toggle ( gear_toggle),
+    .gear_show   ( gear_show  ),
     // ROM access
     .addr        ( full_addr  ),
     .rom_cs      ( main_cs    ),
@@ -232,30 +223,7 @@ jtoutrun_main u_main(
     .st_addr     ( st_addr    ),
     .st_dout     ( st_main    )
 );
-`else
-    assign flip        = 0;
-    assign sndmap_dout = 0;
-    assign main_cs     = 0;
-    assign full_addr   = 0;
-    assign obj_swap    = 0;
-    assign main_dsn    = 3;
-    assign char_cs     = 0;
-    assign pal_cs      = 0;
-    assign objram_cs   = 0;
-    assign ram_cs      = 0;
-    assign sub_br      = 0;
-    assign vram_cs     = 0;
-    assign main_rnw    = 1;
-    assign main_dout   = 0;
-    assign video_en    = 1;
-    assign key_addr    = 0;
-    assign st_main     = 0;
-    assign obj_cfg     = 0;
-    assign snd_rstb    = 0;
-    assign mute        = 0;
-    assign creset      = 0;
-`endif
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifndef NOSUB
 jtoutrun_sub u_sub(
     .rst        ( rst48     ),
@@ -272,6 +240,7 @@ jtoutrun_sub u_sub(
     .sub_din    ( sub_din   ),
     .main_dout  ( main_dout ),
     .sub_ok     ( sub_ok    ),
+    .sub_bsy    ( sub_bsy   ),
     .road_dout  ( road_dout ),
 
     // sub CPU bus
@@ -308,7 +277,6 @@ jtoutrun_sub u_sub(
     assign st_sub   = 0;
 `endif
 /* verilator tracing_off */
-`ifndef NOSOUND
 jtoutrun_snd u_sound(
     .rst        ( rst48     ),
     .clk        ( clk48     ),
@@ -345,20 +313,6 @@ jtoutrun_snd u_sound(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
-`else
-    assign snd_cs    = 0;
-    assign pcm_cs    = 0;
-    assign pcm_addr  = 0;
-    assign snd_addr  = 0;
-    assign fm_l      = 0;
-    assign fm_r      = 0;
-    assign pcm_l     = 0;
-    assign pcm_r     = 0;
-    assign sndmap_rd = 0;
-    assign sndmap_wr = 0;
-    assign sndmap_din= 0;
-    assign st_snd    = 0;
-`endif
 /* verilator tracing_on */
 jtoutrun_video u_video(
     .rst        ( rst       ),

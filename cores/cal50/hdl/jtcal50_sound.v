@@ -1,0 +1,155 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-11-2025 */
+
+module jtcal50_sound(
+    input              clk,
+    input              rst,
+    input              cen8, cen244, cen_pcm,
+
+    input       [ 7:0] snd_cmd,
+    output      [ 7:0] snd_rply,
+    input              set_cmd,
+    // PCM ROM
+    output      [19:0] pcm_addr,
+    input       [ 7:0] pcm_data,
+    output             pcm_cs,
+    // ROM
+    input              rom_ok,
+    output reg         rom_cs,
+    output      [17:0] rom_addr,
+    input       [ 7:0] rom_data,
+    // Sound
+    // left channel is used for music and goes to a 8kHz antialising filter
+    // right channel is used for bass and sound effects, 4kHz antialising
+    output signed [15:0] snd_left, snd_right,
+    output reg         mute,
+    // Debug
+    input       [ 7:0] debug_bus,
+    output      [ 7:0] st_dout
+);
+`ifndef NOMAIN  // sound is required to boot
+wire [15:0] A;
+wire [ 3:0] rom_upper;
+reg  [ 7:0] cpu_din;
+wire [ 7:0] nc, cfg, cpu_dout, pcm_dout;
+wire [ 3:0] bank;
+reg         cfg_cs, bank_cs, st_cs, cmd_cs, x1pcm_cs;
+wire        nmi, nmi_clrn, irq, irq_clrn, rnw,
+            cpu_wr, cpu_rd, cpu_acc, mute_n;
+
+// $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
+assign rom_addr  = { rom_upper, A[13:0] };
+assign rom_upper = bank_cs ? bank : 4'b0;
+assign {bank,nmi_clrn,irq_clrn,mute_n} = cfg[7:1];
+
+assign st_dout     = {7'd0,mute};
+assign rnw         =~cpu_wr;
+assign cpu_acc     = cpu_wr | cpu_rd;
+
+always @(posedge clk) begin
+    mute <= ~mute_n;
+end
+
+always @* begin
+    x1pcm_cs = cpu_acc && A[15:14]==0;
+    cmd_cs   = cpu_rd  && A[15:14]==1;
+    cfg_cs   = cpu_wr  && A[15:14]==1;
+    rom_cs   = cpu_rd  && A[15];
+    bank_cs  = cpu_rd  && A[15:14]==2;
+    st_cs    = cpu_wr  && A[15:14]==3;
+end
+
+jtframe_edge u_244hz(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( cen244    ),
+    .clr    (~irq_clrn  ),
+    .q      ( irq       )
+);
+
+jtframe_edge u_cmd(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( set_cmd   ),
+    .clr    (~nmi_clrn  ),
+    .q      ( nmi       )
+);
+
+jtframe_8bit_reg u_st(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .wr_n       ( rnw       ),
+    .din        ( cpu_dout  ),
+    .cs         ( st_cs     ),
+    .dout       ( snd_rply  )
+);
+
+jtframe_8bit_reg u_cfg(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .wr_n       ( rnw       ),
+    .din        ( cpu_dout  ),
+    .cs         ( cfg_cs   ),
+    .dout       ( cfg       )
+);
+
+always @* begin
+    cpu_din = rom_cs   ? rom_data :
+              x1pcm_cs ? pcm_dout :
+              cmd_cs   ? snd_cmd  : 8'h0;
+end
+
+jtx1010 u_pcm(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen_pcm   ),
+
+    // CPU interface
+    .addr       ( {~A[12],A[11:0]} ),
+    .din        ( cpu_dout  ),
+    .dout       ( pcm_dout  ),
+    .we         ( cpu_wr    ),
+    .cs         ( x1pcm_cs  ),
+
+    // ROM interface
+    .rom_addr   ( pcm_addr  ),
+    .rom_data   ( pcm_data  ),
+    .rom_cs     ( pcm_cs    ),
+
+    // sound output
+    .left       ( snd_left  ),
+    .right      ( snd_right ),
+    .sample     (           )
+);
+
+jt65c02 u_cpu(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen8      ),  // crystal clock freq. = 4x E pin freq.
+    .irq        ( irq       ),
+    .nmi        ( nmi       ),
+    .opdec      ( 1'b0      ),
+    .rd         ( cpu_rd    ),
+    .wr         ( cpu_wr    ),
+    .fetch      (           ),
+    .addr       ( A         ), // always valid
+    .din        ( cpu_din   ),
+    .dout       ( cpu_dout  )
+);
+`else
+    initial begin
+        rom_cs = 0;
+        mute   = 0;
+    end
+    assign  rom_addr = 0,
+            snd_rply = 0,
+            pcm_addr = 0,
+            pcm_cs   = 0,
+            snd_left = 0,
+            snd_right= 0,
+            snd_right= 0,
+            st_dout  = 0;
+
+`endif
+endmodule

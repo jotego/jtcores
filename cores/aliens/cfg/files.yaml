@@ -1,0 +1,26 @@
+aliens:
+  - get:
+    - jtaliens_game.v
+    - jtaliens_main.v
+    - jtaliens_video.v
+    - jtaliens_scroll.v
+    - jtaliens_obj.v
+    - jtaliens_sound.v
+    - jtaliens_colmix.v
+    - jt052109.v
+    - jt051962.v
+    - jt051960.v
+    - jt052591.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jtkcpu:
+jt51:
+jt007232:

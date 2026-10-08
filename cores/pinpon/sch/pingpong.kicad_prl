@@ -41,7 +41,6 @@
       11,
       12,
       13,
-      14,
       15,
       16,
       17,
@@ -67,24 +66,17 @@
     "visible_layers": "fffffff_ffffffff",
     "zone_display_mode": 0
   },
+  "git": {
+    "repo_password": "",
+    "repo_type": "",
+    "repo_username": "",
+    "ssh_key": ""
+  },
   "meta": {
     "filename": "pingpong.kicad_prl",
     "version": 3
   },
   "project": {
-    "files": [
-      {
-        "name": "pingpong.kicad_sch",
-        "open": false,
-        "window": {
-          "display": 1,
-          "maximized": true,
-          "pos_x": 318,
-          "pos_y": 118,
-          "size_x": 972,
-          "size_y": 1024
-        }
-      }
-    ]
+    "files": []
   }
 }

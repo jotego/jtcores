@@ -1,0 +1,9 @@
+$JTROOT/modules/jt6295/hdl/jt6295.v
+$JTROOT/modules/jt6295/hdl/jt6295_timing.v
+$JTROOT/modules/jt6295/hdl/jt6295_rom.v
+$JTROOT/modules/jt6295/hdl/jt6295_ctrl.v
+$JTROOT/modules/jt6295/hdl/jt6295_serial.v
+$JTROOT/modules/jt6295/hdl/jt6295_adpcm.v
+$JTROOT/modules/jt6295/hdl/jt6295_acc.v
+$JTROOT/modules/jt6295/hdl/jt6295_sh_rst.v
+$JTFRAME/hdl/ram/jtframe_prom.v

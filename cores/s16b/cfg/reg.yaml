@@ -1,0 +1,34 @@
+aliensyn:
+altbeast:
+aurail:
+bayroute:
+bullet:
+cotton:
+  inputs: reg.cab
+# dunkshot does not boot up in simulation. The FD1089 data does not get
+# decoded correctly. It works on the FPGA though. Same with s16's afighter
+# dunkshot:
+ddux:
+eswat:
+exctleag:
+fantzn2x:
+fpoint:
+  video: 2200
+goldnaxe:
+  video: 2200
+mvp:
+  inputs: reg.cab
+passsht:
+riotcity:
+ryukyu:
+sonicbom:
+  inputs: reg.cab
+sjryuko:
+suprleag:
+timescan:
+  inputs: reg.cab
+toryumon:
+tturfu:
+wb3:
+  inputs: reg.cab
+wrestwar:

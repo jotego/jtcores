@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
-    Version: 1.0
-    Date: 27-9-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-9-2024 */
 
     module jt053244_scan (    // sprite logic
     input             rst,
@@ -36,7 +22,6 @@
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    // input             vs,
     input             hs,
 
     input      [15:0] scan_even,
@@ -57,6 +42,8 @@
     input      [ 7:0] debug_bus
 );
 
+parameter HFLIP_OFFSET = 0;
+
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
 reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj;
@@ -68,6 +55,7 @@ reg  [ 1:0] scan_sub, reserved;
 reg         inzone, hs_l, done, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
             hmir_eff, vmir_eff, vs_l, hhalf;
+wire [ 9:0] hflip_off;
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
 reg  [ 8:0] zoffset [0:255];
@@ -80,12 +68,13 @@ assign ysub      = ydiff[3:0];
 assign last_obj  = &scan_obj[6:0];
 assign nx_mir    = scan_even[9:8];
 assign {vsz,hsz} = size;
+assign hflip_off = ghf ? HFLIP_OFFSET[9:0] : 0;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset + 10'h66 ;
+    xadj <= xoffset + 10'h66 + hflip_off;
     yadj <= yoffset + 10'h107;
     hscl <= rd_pzoffset(hzoom);
     /* verilator lint_off WIDTH */
@@ -122,10 +111,10 @@ always @* begin
     ydiff  = yz_add[6+:10];
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && ydiff[3] && ydiff[9:4]==0;
-        1: vmir_eff = nx_mir[1] && ydiff[4] && ydiff[9:5]==0;
-        2: vmir_eff = nx_mir[1] && ydiff[5] && ydiff[9:6]==0;
-        3: vmir_eff = nx_mir[1] && ydiff[6] && ydiff[9:7]==0;
+        0: vmir_eff = nx_mir[1] && !ydiff[3] && ydiff[9:4]==0;
+        1: vmir_eff = nx_mir[1] && !ydiff[4] && ydiff[9:5]==0;
+        2: vmir_eff = nx_mir[1] && !ydiff[5] && ydiff[9:6]==0;
+        3: vmir_eff = nx_mir[1] && !ydiff[6] && ydiff[9:7]==0;
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -134,7 +123,7 @@ always @* begin
         2: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:6]==0; // 64
         3: inzone = ydiff_b[9]==ydiff[9] && ydiff[9:7]==0; // 128
     endcase
-    if( y2[9] || yz_add[16] ) inzone=0;
+    if( yz_add[16] ) inzone=0;
     case( hsz )
         0: hdone = 1;
         1: hdone = hstep==1;
@@ -154,8 +143,17 @@ always @* begin
         3: vsum = ydiff[6:4]^{3{vflip}};
     endcase
 end
+`ifndef JTFRAME_RELEASE
+wire flicker;
 
+jtframe_toggle #(.W(1))u_toggle(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
 
+    .toggle ( hs        ),
+    .q      ( flicker   )
+);
+`endif
 // Table scan
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -176,7 +174,6 @@ always @(posedge clk, posedge rst) begin
         shd      <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
-        // vs_l <= vs;
         dr_start <= 0;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;
@@ -189,12 +186,12 @@ always @(posedge clk, posedge rst) begin
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
-                    code    <= {2'b0, scan_odd[13:0]};
+                    code    <= {1'b0, scan_odd[14:0]}; // bit 14 needed for tmnt2
                     pri <= scan_even[6:0];
                     hstep   <= 0;
                     hz_keep <= 0;
-                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
-                    if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
+                    // if( !scan_even[15]  || scan_obj[6:0]!=2  ) begin
+                    if( !scan_even[15] `ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;
@@ -216,7 +213,8 @@ always @(posedge clk, posedge rst) begin
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     { shd, attr } <= scan_even[7:0];
-                    vflip <= pre_vf ^ gvf ^ vmir_eff;
+                    // Global Y flip does not invert a locally mirrored sprite.
+                    vflip <= pre_vf ^ (gvf & ~nx_mir[1]) ^ vmir_eff;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom

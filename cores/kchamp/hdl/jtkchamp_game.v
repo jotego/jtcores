@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-8-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-8-2022 */
 
 module jtkchamp_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -40,7 +26,7 @@ wire        snd_rstn, snd_req, v6;
 reg  [24:0] dwn_addr;
 wire [ 7:0] pre_data;
 
-assign flip       = ~dip_flip ^ ~main_flip;
+assign flip       = dip_flip ^ main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
 assign link_joys  = `ifdef POCKET 1'b0 `else dipsw[8] `endif ;
 
@@ -83,7 +69,6 @@ jtframe_frac_cen #(.W(2),.WC(6)) u_snd_cen(
     .cenb   (       )
 );
 
-`ifndef NOMAIN
 jtkchamp_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -124,15 +109,6 @@ jtkchamp_main u_main(
     .dip_pause      ( dip_pause     ),
     .dipsw          ( dipsw[7:0]    )
 );
-`else
-    assign main_cs   = 0;
-    assign oram_cs   = 0;
-    assign vram_cs   = 0;
-    assign cpu_rnw   = 1;
-    assign main_addr = 0;
-    assign cpu_dout  = 0;
-    assign main_flip = 1;
-`endif
 
 jtkchamp_snd u_sound(
     .rst        ( rst24     ),

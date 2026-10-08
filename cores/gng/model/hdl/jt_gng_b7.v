@@ -144,4 +144,4 @@ jt7474 u_7Cb(
 assign MRDY2_b =  mrdyq[1] | SCRCS_b;
 assign SCREN_b = ~mrdyq[0] | SCRCS_b;
 
-endmodule // jt_gng_a7
+endmodule

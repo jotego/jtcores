@@ -1,0 +1,45 @@
+tmnt:
+  - get:
+    - jttmnt_game.v
+    - jttmnt_main.v
+    - jttmnt_sound.v
+    - jttmnt_video.v
+    - jttmnt_colmix.v
+    - jtk054000_mmr.v
+simson:
+  - get:
+    - jtcolmix_053251.v
+    - jtk054000.v
+aliens:
+  - get:
+    - jtaliens_scroll.v
+    - jtaliens_obj.v
+    - jt052109.v
+    - jt051962.v
+    - jt051960.v
+    # - jt051937.v
+riders:
+  - get:
+    - jtriders_dump.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jt51:
+jt053260:
+jt7759:
+jt007232:
+jteeprom:
+  - get:
+    - jt5911.sv

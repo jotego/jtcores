@@ -20,6 +20,7 @@ data = [
 	{ machine="xmen",     offset=15, data="02" },
 ]
 offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
+frames = [ { width=8 }, ]
 
 [ROM]
 regions = [

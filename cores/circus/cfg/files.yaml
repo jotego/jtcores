@@ -1,0 +1,35 @@
+circus:
+  - get:
+    - "*.v"
+kicker:
+  - get:
+    - jtkicker_vtimer.v
+    - jtkicker_scroll.v
+    - jtkicker_objdraw.v
+yiear:
+  - get:
+    - jtyiear_colmix.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: cpu
+    get:
+      - mc6809i.v
+      - jtframe_sys6809.v
+      - jtframe_z80wait.v
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_crossclk_cen.v
+jt12:
+  - get:
+    - jt89.yaml

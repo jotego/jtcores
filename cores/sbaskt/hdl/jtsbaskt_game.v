@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 11-11-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 11-11-2021 */
 
 module jtsbaskt_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -30,7 +16,7 @@ wire [ 3:0] pal_sel;
 wire        obj_frame;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
 wire        vscr_cs, vram_cs, objram_cs, flip;
-wire [ 7:0] vscr_dout, vram_dout, obj_dout,
+wire [ 7:0] vscr_dout, vcpu_din, obj_dout,
             debug_snd;
 wire        vsync60;
 
@@ -39,6 +25,7 @@ reg         decode;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
+assign ioctl_din  = 0;
 assign debug_view = {3'd0, vlm_rcen, psg_rcen, rdac_rcen };
 
 wire [ 7:0] nc, pre_data;
@@ -54,7 +41,6 @@ always @(posedge clk) begin
     if( header && prog_we && prog_addr[1:0]==0 ) decode <= prog_data[0];
 end
 
-`ifndef NOMAIN
 jtsbaskt_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -79,7 +65,7 @@ jtsbaskt_main u_main(
 
     .vscr_cs        ( vscr_cs       ),
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
     .vscr_dout      ( vscr_dout     ),
 
     .objram_cs      ( objram_cs     ),
@@ -99,16 +85,6 @@ jtsbaskt_main u_main(
     .dipsw_a        ( dipsw_a       ),
     .dipsw_b        ( dipsw_b       )
 );
-`else
-    assign main_cs = 0;
-    assign objram_cs = 0;
-    assign snd     = 0;
-    assign sample  = 0;
-    assign game_led= 0;
-    assign pal_sel = 0;
-    assign flip    = 0;
-    assign pcm_addr= 0;
-`endif
 
 jtsbaskt_snd u_sound(
     .rst        ( rst       ),
@@ -157,9 +133,14 @@ jtsbaskt_video u_video(
     .cpu_addr   ( main_addr[10:0]  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_rnw    ( cpu_rnw   ),
+    .vcpu_din   ( vcpu_din  ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
     // Scroll
     .vram_cs    ( vram_cs   ),
     .vscr_cs    ( vscr_cs   ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     .vscr_dout  ( vscr_dout ),
     // Objects

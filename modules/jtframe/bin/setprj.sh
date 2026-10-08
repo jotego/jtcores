@@ -1,18 +1,29 @@
 #!/bin/bash
-# Define JTROOT before sourcing this file
-
+# This script may be sourced from any folder inside the project hierarchy.
+setup_dir() {
+    local setup_script=${BASH_SOURCE[0]}
+    if [[ "$setup_script" != */* ]]; then
+        setup_script=$(type -P -- "$setup_script")
+    fi
+    cd -- "$(dirname -- "$setup_script")" && pwd -P
+}
 if (echo $PATH | grep modules/jtframe/bin -q); then
-    unalias jtcore
+    unalias jtcore 2>/dev/null
     PATH=$(echo $PATH | sed 's/:[^:]*jtframe\/bin//g')
     PATH=$(echo $PATH | sed 's/:\.//g')
     unset JT12 JT51 CC MRA ROM CORES
 fi
 
-export JTROOT=$(pwd)
+export JTROOT=$(cd -- "$(setup_dir)/../../.." && pwd -P)
 export JTFRAME=$JTROOT/modules/jtframe
+export CODEX_HOME=$JTROOT/.codex
 # . path comes before JTFRAME/bin as setprj.sh
 # can be in the working directory and in JTFRAME/bin
 PATH=$PATH:.:$JTFRAME/bin
+MANPATH=$(printf ':%s:' "${MANPATH:-}" | sed "s#:$JTFRAME/doc/man:#:#g")
+MANPATH=${MANPATH#:}
+MANPATH=${MANPATH%:}
+export MANPATH=$JTFRAME/doc/man:${MANPATH:-}
 
 if [ ! -d "$JTBIN" ]; then
     export JTBIN=$JTROOT/release
@@ -58,6 +69,23 @@ function lint {
     lint-one.sh $CORENAME -u JTFRAME_SKIP
 }
 
+function cpscene {
+    local ramfile
+    local scene_name="$1"
+    ramfile=`find /media/$USER -name "*.RAM" | head -n 1`
+    if [ ! -e "$ramfile" ]; then
+        echo "Did not find any .RAM files"
+        return 1
+    fi
+    if [ -z "$scene_name" ]; then
+        echo "You must specify a name for the scene"
+        return 1
+    fi
+    local folder="scenes/$scene_name"
+    mkdir -p "$folder" || return 1
+    mv $ramfile "$folder"/dump.bin
+}
+
 function swcore {
     if [ -z "$JTROOT" ]; then
         echo Have you forgot to define JTROOT?
@@ -100,7 +128,7 @@ function swcore {
 }
 
 # change to a folder inside "$CORES/*/ver" folders
-function cdver {
+function cdgame {
     local setname=$1
     if [ -z "$JTROOT" ]; then
         echo Have you forgot to define JTROOT?
@@ -114,11 +142,6 @@ function cdver {
     if [ -z "$path" ]; then echo "No $setname in verification folders"; return 1; fi
     cd "$path"
 }
-
-if [ "$1" != "--quiet" ]; then
-    echo "Use swcore <corename> to switch to a different core once you are"
-    echo "inside the cores folder"
-fi
 
 # Git prompt
 source $JTFRAME/bin/git-prompt.sh
@@ -167,7 +190,7 @@ EOF
 
 # Cleans up the simulation folder
 function cleansim {
-    rm -f *.wav *.f *.def *bak *.raw *.bin test.* game_test.v frame*jpg \
+    rm -f *.wav *.f *.def *bak *.raw *.bin test.* game_test.v frame*jpg frame*png \
           microrom.mem nanorom.mem *.log *.h waiver
     rm -rf obj_dir sdram.old cfg history
 }
@@ -215,7 +238,7 @@ function target {
 
 # check that git hooks are present
 for HOOK in $JTFRAME/bin/hooks/*; do
-    echo cp --update $HOOK $(git rev-parse --git-path hooks)
+    cp --update $HOOK $(git rev-parse --git-path hooks)
 done
 
 if ! git config -l | grep instead > /dev/null; then

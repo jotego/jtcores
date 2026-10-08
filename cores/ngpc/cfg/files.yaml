@@ -1,0 +1,34 @@
+ngp:
+  - get:
+    - "*.v"
+ngpc:
+  - get:
+    - "*.v"
+jtframe:
+  - get:
+      - jtframe_edge.v
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_rtc.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+      - jtframe_ram16.v
+      - jtframe_obj_buffer.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jt900h:
+  - get:
+    - files.yaml
+    - jt95c061.v
+    - jt95c061_timer.v
+jt12:
+  - get:
+    - jt89.yaml

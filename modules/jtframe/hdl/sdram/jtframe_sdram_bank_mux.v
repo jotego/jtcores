@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-11-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-11-2020 */
 
 
 // Macros used
@@ -133,7 +119,7 @@ generate
     if( MUXLATCH ) begin
         reg post_ack;
 
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 { fifo_addr, fifo_rd, fifo_wr, fifo_ba } <= {RQW{1'b0}};
                 post_ack <= 0;
@@ -153,7 +139,7 @@ generate
 endgenerate
 
 `ifdef JTFRAME_SDRAM_REPACK
-always @(posedge clk, posedge rst ) begin
+always @(posedge clk) begin
     if( rst )begin
         ba0_rdy <= 0;
         ba1_rdy <= 0;
@@ -189,7 +175,7 @@ end
 `endif
 
 // Produce one refresh cycle after each programming write
-always @(posedge clk, posedge rst ) begin
+always @(posedge clk) begin
     if( rst )
         ctl_rfsh_en <= 0;
     else begin
@@ -243,7 +229,7 @@ always @(*) begin
     if( BWAIT_EN && bwait!=5'd0 ) mux_data = {RQW-2{1'd0}};
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         queue   <= 4'd0;
         ba_last <= 2'd0;

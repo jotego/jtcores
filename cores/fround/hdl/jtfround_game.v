@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-8-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-8-2023 */
 
 module jtfround_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -31,8 +17,7 @@ wire [15:0] scr_bank;
 wire [19:1] cpu_addr;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-wire        oram_wex;
-// reg  [ 2:0] game_id;
+wire        oram_wex, nc;
 
 assign main_addr  = cpu_addr[18:1];
 assign debug_view = debug_mux;
@@ -224,13 +209,14 @@ jtfround_video u_video (
 
 /* verilator tracing_off */
 jttmnt_sound u_sound(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .cen_640    ( cen_640       ),
     .cen_20     ( 1'b0          ),  // for title music in TMNT, unused here
     .game_id    ( 3'd0          ),
+    .fm_mono_en ( 1'b0          ),
     // communication with main CPU
     .main_dout  ( 8'd0          ),
     .main_din   (               ),
@@ -239,7 +225,7 @@ jttmnt_sound u_sound(
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
     // ROM
-    .rom_addr   ( snd_addr      ),
+    .rom_addr   ( {nc,snd_addr} ),
     .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
     .rom_ok     ( snd_ok        ),

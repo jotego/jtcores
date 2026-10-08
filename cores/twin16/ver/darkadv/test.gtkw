@@ -1,60 +1,40 @@
 [*]
 [*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Tue Dec 24 14:29:33 2024
+[*] Mon Dec 30 10:28:47 2024
 [*]
 [dumpfile] "/home/jtejada/jtcores/cores/twin16/ver/darkadv/test.fst"
-[dumpfile_mtime] "Tue Dec 24 13:17:45 2024"
-[dumpfile_size] 7307746770
+[dumpfile_mtime] "Mon Dec 30 10:12:12 2024"
+[dumpfile_size] 837406348
 [savefile] "/home/jtejada/jtcores/cores/twin16/ver/darkadv/test.gtkw"
-[timestart] 10172
+[timestart] 22949920000000
 [size] 1920 1033
-[pos] -1 -1
-*-40.384033 2374000000000 4625304393164 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -27 -24
+*-28.996721 -1 4625304393164 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.game_test.
 [treeopen] TOP.game_test.u_game.
 [treeopen] TOP.game_test.u_game.u_game.
-[treeopen] TOP.game_test.u_game.u_game.u_share.
-[treeopen] TOP.game_test.u_game.u_game.u_share.u_shram.
-[treeopen] TOP.game_test.u_game.u_game.u_share.u_shram.u_hi.
-[treeopen] TOP.game_test.u_game.u_game.u_share.u_shram.u_lo.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
 [treeopen] TOP.game_test.u_game.u_game.u_sub.
 [treeopen] TOP.game_test.u_game.u_game.u_video.
+[treeopen] TOP.game_test.u_game.u_game.u_video.u_obj.
 [sst_width] 278
 [signals_width] 236
 [sst_expanded] 1
-[sst_vpaned_height] 338
+[sst_vpaned_height] 372
 @24
 TOP.game_test.frame_cnt[31:0]
-@200
--main
 @22
-TOP.game_test.u_game.u_game.u_main.A_full[23:0]
+TOP.game_test.u_game.u_game.u_video.vdump[8:0]
 @28
-TOP.game_test.u_game.u_game.u_main.bus_cs
-TOP.game_test.u_game.u_game.u_main.dma_cs
-TOP.game_test.u_game.u_game.u_main.fix_cs
-TOP.game_test.u_game.u_game.u_main.pal_cs
-TOP.game_test.u_game.u_game.u_main.ram_cs
-TOP.game_test.u_game.u_game.u_main.rom_cs
-[color] 1
-TOP.game_test.u_game.u_game.u_main.sh_cs
-TOP.game_test.u_game.u_game.u_main.u_tim_dtack.vacc
-TOP.game_test.u_game.u_game.u_main.oram_cs
-[color] 2
-TOP.game_test.u_game.u_game.u_main.vram_cs
-TOP.game_test.u_game.u_game.u_main.io_cs
-@200
--shared
-@28
-TOP.game_test.u_game.u_game.u_share.shm_we[1:0]
-@29
-TOP.game_test.u_game.u_game.u_share.shs_we[1:0]
-@22
-TOP.game_test.u_game.u_game.u_share.s_addr[13:1]
-TOP.game_test.u_game.u_game.u_share.s_dout[15:0]
-TOP.game_test.u_game.u_game.u_sub.A_full[23:0]
-@28
-TOP.game_test.u_game.u_game.u_sub.sh_cs
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_on
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.dma_bsy
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.half
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.oram_we
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.lut_we
+TOP.game_test.u_game.u_game.u_video.vs
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.obj_en
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan.beflag
+TOP.game_test.u_game.u_game.u_sub.oram_we[1:0]
 [pattern_trace] 1
 [pattern_trace] 0

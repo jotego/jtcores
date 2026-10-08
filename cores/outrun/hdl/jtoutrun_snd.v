@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-7-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-7-2021 */
 
 module jtoutrun_snd(
     input                rst,
@@ -51,9 +37,11 @@ module jtoutrun_snd(
     output signed [15:0] pcm_l, pcm_r
 );
 
+`ifndef NOSOUND
+
 wire [15:0] A;
 reg         fm_cs, mapper_cs, ram_cs, pcm_ce;
-wire        mreq_n, iorq_n, int_n;
+wire        mreq_n, rfsh_n, iorq_n, int_n;
 reg  [ 7:0] cpu_din, pcmgain, fmgain;
 wire [ 7:0] cpu_dout, fm_dout, ram_dout, pcm_dout;
 wire        nmi_n, wr_n, rd_n, m1_n;
@@ -72,9 +60,9 @@ assign pcm_addr   =
     { pcm_pre[18:16], 1'b0, pcm_pre[14:0] } : pcm_pre;
 
 always @(*) begin
-    ram_cs = !mreq_n && &A[15:11]; // 0xf8~
-    rom_cs = !mreq_n &&  A[15:12]!=4'hf;
-    pcm_ce = !mreq_n &&  A[15:11]==5'b11110;
+    ram_cs = !mreq_n && rfsh_n && &A[15:11]; // 0xf8~
+    rom_cs = !mreq_n && rfsh_n &&  A[15:12]!=4'hf;
+    pcm_ce = !mreq_n && rfsh_n &&  A[15:11]==5'b11110;
 
     // Port Map
     fm_cs     = !iorq_n && m1_n && A[7:6]==0;
@@ -103,7 +91,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
@@ -138,7 +126,7 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtoutrun_pcm u_pcm(
+jtoutrun_pcm #(.WD(16)) u_pcm(
     .rst        ( mix_rst       ),
     .clk        ( clk           ),
     .cen        ( cen_pcm       ),
@@ -162,5 +150,21 @@ jtoutrun_pcm u_pcm(
     .snd_right  ( pcm_r         ),
     .sample     (               )
 );
+
+`else
+assign mapper_rd  = 1'b0;
+assign mapper_wr  = 1'b0;
+assign mapper_din = 8'd0;
+assign st_dout    = 8'd0;
+assign rom_addr   = 16'd0;
+assign pcm_addr   = 19'd0;
+assign pcm_cs     = 1'b0;
+assign fm_l       = 16'sd0;
+assign fm_r       = 16'sd0;
+assign pcm_l      = 16'sd0;
+assign pcm_r      = 16'sd0;
+
+initial rom_cs = 1'b0;
+`endif
 
 endmodule

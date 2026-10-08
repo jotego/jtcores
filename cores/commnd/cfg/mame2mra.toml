@@ -30,4 +30,4 @@ regions=[
 ]
 
 order=[ "maincpu", "audiocpu", "chars",
-    "sprites", "tiles", "proms" ]
+    "sprites", "tiles", "proms", "irqprom" ]

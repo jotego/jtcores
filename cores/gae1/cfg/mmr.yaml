@@ -1,0 +1,16 @@
+- name: scroll
+  size: 8
+  dw: 16
+  regs:
+    - name: scr0_y
+      dw: 16
+      at: "1,0"
+    - name: scr0_x
+      dw: 16
+      at: "3,2"
+    - name: scr1_y
+      dw: 16
+      at: "5,4"
+    - name: scr1_x
+      dw: 16
+      at: "7,6"

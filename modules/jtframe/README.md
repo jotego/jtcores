@@ -16,6 +16,7 @@ You can show your appreciation through
 * [Compilation](doc/compilation.md)
 * [The command line tool jtframe](doc/jtframe.md)
 * [Simulation](doc/sim.md)
+* [Unit tests](doc/simunit.md)
 * [Version history](doc/version.md)
 
 ## More Details
@@ -32,6 +33,12 @@ You can show your appreciation through
 * [Compilation macros](doc/macros.md)
 * [IP reference](doc/ip.md)
 * [Style guidelnes](doc/style.md)
+
+## Private Support Files
+
+Set `JOTEGO` to the private support-files directory used by JTCORES regressions and scene data. Generic scene simulations store their data in `$JOTEGO/scenes/<core-name>/<set-name>`.
+
+When `jtsim -s <scene>` runs from `cores/<core-name>/ver/<set-name>`, it requires `JOTEGO` and creates the local `scenes` symbolic link to that private scene directory.
 
 ## Target Specific
 * [Pocket](target/pocket/README.md)

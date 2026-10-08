@@ -1,0 +1,16 @@
+contra:
+  - get:
+    - common.yaml
+    - jtcontra_game.v
+comsc:
+  - get:
+    - jtcomsc_main_decoder.v
+    - jtcomsc_sound.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jt7759:
+jt12:
+  - get:
+    - jt03.yaml

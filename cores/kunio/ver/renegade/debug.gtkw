@@ -1,0 +1,82 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Dec  8 08:34:24 2025
+[*]
+[dumpfile] "/home/jtejada/jtcores/cores/kunio/ver/renegade/test.fst"
+[dumpfile_mtime] "Mon Dec  8 08:33:24 2025"
+[dumpfile_size] 6015432
+[savefile] "/home/jtejada/jtcores/cores/kunio/ver/renegade/debug.gtkw"
+[timestart] 10416
+[size] 1110 1005
+[pos] -1 -1
+*-36.383923 167500000000 348140040528 278519829840 54228852048 76490093904 76522589000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.game_test.
+[treeopen] TOP.game_test.u_game.
+[treeopen] TOP.game_test.u_game.u_game.
+[treeopen] TOP.game_test.u_game.u_game.u_main.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_cpu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.
+[treeopen] TOP.game_test.u_game.u_game.u_main.u_mcu.u_mcu.
+[sst_width] 278
+[signals_width] 222
+[sst_expanded] 1
+[sst_vpaned_height] 327
+@24
+TOP.game_test.frame_cnt[31:0]
+@28
+TOP.game_test.rst
+@22
+TOP.game_test.u_game.u_game.u_main.cpu_addr[15:0]
+TOP.game_test.u_game.u_game.u_main.cpu_din[7:0]
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.stack_busy
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.pc[15:0]
+@200
+-
+@c00022
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(1)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(2)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(3)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(4)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(5)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(6)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+(7)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.a[7:0]
+@1401200
+-group_end
+@22
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.ir[7:0]
+@c00022
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+@28
+(0)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(1)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(2)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(3)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(4)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(5)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(6)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+(7)TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.p[7:0]
+@1401200
+-group_end
+@22
+[color] 1
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.s[7:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.x[7:0]
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_regs.y[7:0]
+@200
+-
+@28
+TOP.game_test.u_game.u_game.u_main.u_cpu.nmi
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.pendng
+TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.i
+TOP.game_test.u_game.u_game.u_main.u_cpu.irq
+TOP.game_test.u_game.u_game.LVBL
+@200
+-
+[pattern_trace] 1
+[pattern_trace] 0

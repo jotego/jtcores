@@ -1,24 +1,24 @@
-/*
-Copyright © 2023 Jose Tejada <jose.tejada@jotego.es>
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
-*/
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-	"bufio"
 	"strconv"
 
-	"jtutil/vcd"
 	"github.com/spf13/cobra"
+	"jtutil/vcd"
 )
 
 // delayCmd represents the delay command
 var delayCmd = &cobra.Command{
 	Use:   "delay",
 	Short: "Copy all signals in a VCD file delayed by 1 frame",
-	Long: `Delay by 1 frame all signals in the file debug.vcd and store the results into delayed.vcd`,
+	Long:  man_blurb("jtutil-vcd-delay", "Copy all signals in a VCD file delayed by one frame."),
 
 	Run: func(cmd *cobra.Command, args []string) {
 		runDelay()
@@ -41,13 +41,13 @@ func init() {
 }
 
 func runDelay() {
-	const FRAME_PERIOD=16652300800
-	fin  := &vcd.LnFile{}
+	const FRAME_PERIOD = 16652300800
+	fin := &vcd.LnFile{}
 	fin.Open("debug.vcd")
 	defer fin.Close()
 
 	fout, e := os.Create("delayed.vcd")
-	if e!=nil {
+	if e != nil {
 		fmt.Println(e)
 		return
 	}
@@ -58,10 +58,12 @@ func runDelay() {
 	// modify all time stamps by subtracting a whole frame period
 	for fin.Scan() {
 		txt := fin.Text()
-		if txt!="" && txt[0]=='#' {
-			told,_ := strconv.ParseUint( txt[1:],10,64 )
-			if told!=0 { told += FRAME_PERIOD }
-			txt = fmt.Sprintf("#%d",told)
+		if txt != "" && txt[0] == '#' {
+			told, _ := strconv.ParseUint(txt[1:], 10, 64)
+			if told != 0 {
+				told += FRAME_PERIOD
+			}
+			txt = fmt.Sprintf("#%d", told)
 		}
 		wr.WriteString(txt)
 		wr.WriteString("\n")

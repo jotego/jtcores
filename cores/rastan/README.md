@@ -7,121 +7,39 @@ You can show your appreciation through
 * Paypal: https://paypal.me/topapate
 * Github: https://github.com/sponsors/jotego
 
-# Disclaimer
+## Disclaimer
 
 This work is for research and historical purposes. This work itself does not contain copyrighted software and should not be packed or distributed with illegal copies of the copyright protected software.
 
-# Known Issues
-
-None.
-
-# Region Comparison
-
-Rastan Saga presents several regional differences, so please explore the different game versions.
-
-# Video Timing
+## Video Timing
 
 The original clock was based on a crystal oscillator at 26.686MHz. The video chips operate at 13.343MHz and the pixel clock is 6.6715
 
-# Acknowledgement
+# Sound
 
-This development has been possible thanks to the following patrons:
+The sound subsystem of Rastan and Operation Wolf boards is quite different. They share the YM2151 but the number and use of PCM chips (MSM5205) is different. The analog signal processing for each output is different too
 
-```
-8bits4ever             Adam Leslie            Adam Small             Adrian Labastida      
-Alan McGrath           Alan Shurvinton        Alden                  Alex Mandic           
-Alexander Facchini     Alexander Lash         Alexander Stieglmayr   Alexander Upton       
-Alfonso Clemente       Allen Tipper           Allister Fiend         Alvaro Paniagua       
-Andrea Chiavazza       Andreas Micklei        Andrew Boudreau        Andrew Hannan         
-Andrew P Gibson        Andrew Schmidt         Angel Aguinaga         Angelfred             
-Angelo Kanaris         Angry flying           Anselmo Moreno         Anthony Monaco        
-Antoine Mariette       Anton Gale             Antwon                 Aquijacks (Flashjacks 
-Arend Pronk            Arkadiusz              Arthur Fung            Aurich Lawson         
-BRCDEvg                Banane                 Bear S                 Ben                   
-Ben Sanborn            Ben Toman              BigRedPimp             Bitmap Bureau         
-Bitmaps Retro          Bliz 452               Blue Abs               Boris Pruessmann      
-Brandon Lennie         Brandon Peach          Brandon Smith          Brandon Thomas        
-Brent Fraser           Brian Peek             Bruce Fontaine         Bruno Meyere          
-Bruno Silva            Bryan Adams            Bryan Evans            Byshop303             
-Cameron Berkenpas      Cameron Tinker         Carlos Bailleres       Carlos Gruberman      
-Carrboroman            Cesar Sandoval         Charles                Chris                 
-Chris Babishoff        Chris D                Chris Hoff             Chris Maguire         
-Chris Mzhickteno       Chris Scully           Chris Tuckwell         Chris W Miller        
-Chris smith            Christian Bailey       Clinton Cronin         Cobra Clips           
-Colin Colehour         Colin Edwards          Cory Stargel           Dan Doyle             
-Daniel .               Daniel Casadevall      Daniel Dongil          Daniel Fowler         
-Daniel Page            Daniele Pellegrini     Darren Wootton         Daryll David          
-Dasutin                Dave Bennett           Dave Douglas           David Drury           
-David Filskov          David Fleetwood        David Jones            Denis Brækhus         
-Denny Letourneau       Diana Carolina         Didgeridoo             Didier Touron         
-Dimitris Zongas        Dr. Octagon            DrMnike                Dre137                
-Edward Mallett         Enthropy               Eren Kotan             Eric                  
-Eric Gutt              Eric J Faulkes         Eric Sorensen          Eric Walklet          
-Fabio Michelin         Fabricio               Federico               Five Year Guy         
-Florian Raoult         Fred Rojas             GeorgeSpinner          GohanX                
-Grant McNaught         Greg                   Greg Sargent           Gregory Val           
-Grumpy Old             GuitarJedi             Handheld Obsession     Harmonica             
-Henry                  Henry R                Hentai Joe             Hugo Pinto            
-ItsBobDudes            JOSE LUIS              JR                     JSwan                 
-Jack Sammons           Jacob Hoffman          Jacob Lawter           James Dingo           
-James Kilgore          James Wilson           Jason Baker            Jeff Roberts          
-Jeremy Hasse           Jerry Suggs            Jesse Clark            Jim Knowler           
-JimLahey               Jimmy Richards         Jockel                 Joe Giuliano          
-Joel Albino            Johan Smolinski        John Figueroa          John Fletcher         
-John Hood              John Silva             John T. Keen           John Wilson           
-Johnny harvick         Jonah Phillips         Jonathan               Jonathan Brochu       
-Jonathan Tuttle        JonathanValls          Joost Peters           Jootec from           
-Jorge                  Jork Sonkinfield       Josep Barbie           Joseph Kulinski       
-Joseph Milazzo         Joseph Mogavero        Josh Mayer             Josh Yates-Walker     
-Josiah Wilson          Justin D'Arcangelo     Justin Rudebaugh       Kai Cherry            
-Kai Luotojoki          Keith Gordon           Ken Scott              Kevin Dayton          
-Kike Alcor             KnC                    Kricys                 KrzysFR               
-Kyle Pedersen          L.Rapter               Lakeside               Lee Grocott           
-Lee Osborne            Lucius Bono            Luis F Giron           M Reznor              
-MaDDoG                 Mack H                 Madox                  Magnus Kvevlander     
-Manuel Astudillo       Marco Emparan          Mark Baffa             MarthSR               
-Martin Ansin           Matsu                  Matt Elder             Matt Evans            
-Matt Hargett           Matt Heinrich          Matt Lichtenberg       Matt Postema          
-Matthew Pollard        Matthew Woodford       MechaGG                MiSTer Retro          
-Michael Anderson       Michael Bariszlovits   Michael Berger         Michael C             
-Michael Eggers         Michael Martin         Michael Rea            Michael_DKT           
-Mike Holzinger         Mike Jegenjan          Mike Olson             Mottzilla             
-Nailbomb               Nathan Souris          Neil St Clair          NerdyNester           
-Nic Kaiman             Nick Daniels           Nick Delia             Nick Gudauskas        
-Nico Stamp             Nicolas Hurtado        Niko                   NonstopXiaowei        
-Obvious Fakename       OopsAllBerrys          Oriez                  OtakuAnthony          
-Pascal Courtois        Patrick McCarron       Patrick Roman          Paul                  
-Paul Cunningham        Paul Hoggett           Paulo M.               Paweł Mandes          
-PeFClic                Pedro Santiago         Per Ole                Peter Mehes           
-Philip Lai             Philip Lawson          Pierre-Emmanuel Martin Pirates TCG           
-Rachael Netz           Rachel Schaeffer       Ralph Barbagallo       Ramon Gamaliel        
-RandomRetro            Raphael Melgar         Raul3D                 RayGun                
-RetroPrez              RetroRGB               Rex Kung               Rex Willer            
-Richard Eng            Richard Murillo        Richard Simpson        Rick Ochoa            
-Riyad Twair            Robert Daniel          Robert Hayes           Romain Dijoux         
-Ronald Dean            Ronan Amicel           Ruben                  Ryan                  
-Ryan O'Malley          SIDKidd64              Sam Hall               Samuel Warner         
-Sang Hee               Sascha Zupanek         Schnookums             Ser Erris             
-Shad Uttam             Shannon King           Spank Minister         SteelRush             
-Stefan Krueger         Stephen R Price        Steve Ikeguchi         Steve Lin             
-Steve Skrzyniarz       Steve Tack             Steven A               Steven Hansen         
-Steven Yedwab          Stry8993               Stuart Morton          Sunder Raj            
-SuperBabyHix           Synbios                Taehyun Kim            Tales Dilli           
-Terse                  The Collector          The Video              Thomas Attanasio      
-Thomas Irwin           Thorias                Timothy Bearup         Tobias Dossin         
-Tom Milner             Tony Escobar           Topher Campbell        Travis Brown          
-Trifle                 Tulio Adriano          Two Bards              Ty B                  
-VickiViperZabel        Victor Bly             Victor Fontanez        Will Abbott           
-William Clemens        William Tryon          Yunus Soğukkanlı       Zach Marquette        
-Zoltan Kovacs          albertprime            alejandro carlos       angel_killah          
-arcadebros             benedict lindley       blackwine              brian burney          
-cbab                   circletheory           dARKrEIGn20xx          datajerk              
-deathr0w               deathwombat            derFunkenstein         gunmakuma             
-jbrlll                 jim br                 kamel rasennadja       kccheng               
-kernelchagi            keropi                 liphy                  meng po               
-metal                  natalie                pacoarcade             patrick pejic         
-raoulvp                retrod00d              rsn8887                slayer213             
-starman_jr             taal.M                 tim rogers             tonitellezb           
-troy coberly           turbochop3300          twilitezoner           type78                
-yoaarond               
-```
+## Rastan
+
+The FM right/left outputs are added with unity gain, together with the PCM at 1.1x.
+
+The PCM chip has a 4th order filter at 4kHz. We model it with `fir_192k_4k.csv`
+
+## Operation Wolf
+
+There are two MSM5205 chips. They are amplified digitally by a chip labeld as `TC0060DCA`. This chip registers the CPU output with the volume value when the signals VAVOL and VBVOL are set:
+
+- `VAVOL = !mreq_n && A[15:12]==4'b1011 && A[2:0]==5`
+- `VBVOL = !mreq_n && A[15:12]==4'b1100 && A[2:0]==5`
+
+`A[15:12]==4'b1011` selects operation for the `VA` MSM5205. `4'b1100` selects the `VB` MSM5205.
+
+The `VA` chip output goes straight into the volume multiplier. Then it goes through a -5dB attenuation network getting merge with the YM2151 output inside HIC-SEIBU, HB-41. Let's assume that HIC-SEIBU simply mixes the channels without adding gain. The output is called MIXOUT in the schematics
+
+The `VB` chip output goes first through three low-pass filters, which are equivalent to a very flat response upto 4kHz and a very sharp decay after that. We model that with `fir_192k_4k.csv` in mem.yaml. The output of `VB` after the filter and the TC0060DCA gain is called `VBOUT`.
+
+The MIXOUT (VA+YM2151) is then added via an opamp. MIXOUT is applied unity gain, and `VBOUT` has a 0.55x gain. Let's call this output `PREAMP=MIXOUT+VBOUT*0.55`
+
+PREAMP goes into a second TC0060DCA, whose gain is programmed when `A[15:12]==4'b1101` for speaker 1 and `A[15:12]==4'b1110` for speaker 2. Which one is left/right is unclear.
+
+The digital amplifier TC0060DCA seems to be a kind of linear-in-db amplifier whose transmission function is documented in `cores/rastan/doc/tc0060dca.cpp`.

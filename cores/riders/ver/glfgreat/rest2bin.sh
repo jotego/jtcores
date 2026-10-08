@@ -1,0 +1,1 @@
+../game/rest2bin.sh

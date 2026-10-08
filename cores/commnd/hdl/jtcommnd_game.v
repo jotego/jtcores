@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-6-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-6-2019 */
 
 
 module jtcommnd_game(
@@ -49,8 +35,8 @@ wire prom_1d = prom_sel[0];
 wire prom_2d = prom_sel[1];
 wire prom_3d = prom_sel[2];
 // wire prom_1h = prom_sel[3];
-wire prom_6l = prom_sel[4];
-// wire prom_6e = prom_sel[5];
+// wire prom_6e = prom_sel[4];
+wire prom_6l = prom_sel[5];
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
@@ -58,15 +44,6 @@ assign pxl_cen  = cen6;
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = flip;
 assign debug_view = 0;
-
-localparam OBJ_START = `JTFRAME_BA2_START + (`OBJ_OFFSET<<1);
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr[24:0]>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
-        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
-    end
-end
 
 jtgng_timer u_timer(
     .clk       ( clk      ),

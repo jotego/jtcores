@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-9-2021 */
 
 // Largest ROM seen
 // As   | Size
@@ -52,8 +38,8 @@ module jtcop_bac06 #(
     input             rst,
     input             clk,        // 12MHz original
     input             clk_cpu,
-    inout             pxl2_cen,   // 12 MHz
-    inout             pxl_cen,    //  6 MHz
+    input             pxl2_cen,   // 12 MHz
+    input             pxl_cen,    //  6 MHz
 
     input             mode_cs,
     inout             flip,       // set by master BAC06
@@ -206,16 +192,6 @@ generate
         wire [8:0] vrender1;
         assign flip  = mode[0][7];
         assign vload = vrender1==7; // second last line before the end of V blank
-
-        jtframe_cen48 u_cen(
-            .clk    ( clk       ),    // 48 MHz
-            .cen6   ( pxl_cen   ),
-            .cen12  ( pxl2_cen  ),
-            // unused
-            .cen16(), .cen8(), .cen4(), .cen4_12(), .cen3(),
-            .cen3q(), .cen1p5(), .cen16b(), .cen12b(),
-            .cen6b(), .cen3b(), .cen3qb(), .cen1p5b()
-        );
 
         jtframe_vtimer #(
             .VB_START   ( 9'hf7     ),

@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-9-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-9-2021 */
 
 /////////////////////////////////////////////
 //  This module includes the SDRAM model
@@ -45,9 +31,9 @@ module test_harness(
     // Video dumping
     input             HS,
     input             VS,
-    input       [3:0] red,
-    input       [3:0] green,
-    input       [3:0] blue,
+    input       [7:0] red,
+    input       [7:0] green,
+    input       [7:0] blue,
     output reg [31:0] frame_cnt,
     // SPI
     output       SPI_SCK,
@@ -56,6 +42,19 @@ module test_harness(
     output       SPI_SS2,
     output       SPI_SS3,
     output       CONF_DATA0,
+`ifdef MIST_DUAL_SDRAM
+    input    [12:0] SDRAM2_A,
+    inout    [15:0] SDRAM2_DQ,
+    input           SDRAM2_DQML,
+    input           SDRAM2_DQMH,
+    input           SDRAM2_nWE,
+    input           SDRAM2_nCAS,
+    input           SDRAM2_nRAS,
+    input           SDRAM2_nCS,
+    input     [1:0] SDRAM2_BA,
+    input           SDRAM2_CLK,
+    input           SDRAM2_CKE,
+`endif
     // SDRAM
     inout [15:0] SDRAM_DQ,
     inout [12:0] SDRAM_A,
@@ -225,6 +224,24 @@ mt48lc16m16a2 #(.filename(GAME_ROMNAME)) u_sdram (
     .downloading( dwnld_busy    ),
     .VS         ( VS            ),
     .frame_cnt  ( frame_cnt     )
+);
+`endif
+
+`ifdef MIST_DUAL_SDRAM
+mt48lc16m16a2 u_sdram2 (
+    .Dq         ( SDRAM2_DQ      ),
+    .Addr       ( SDRAM2_A       ),
+    .Ba         ( SDRAM2_BA      ),
+    .Clk        ( SDRAM2_CLK     ),
+    .Cke        ( SDRAM2_CKE     ),
+    .Cs_n       ( SDRAM2_nCS     ),
+    .Ras_n      ( SDRAM2_nRAS    ),
+    .Cas_n      ( SDRAM2_nCAS    ),
+    .We_n       ( SDRAM2_nWE     ),
+    .Dqm        ( {SDRAM2_DQMH,SDRAM2_DQML}   ),
+    .downloading( 1'b0           ),
+    .VS         ( 1'b1           ),
+    .frame_cnt  ( 32'd0          )
 );
 `endif
 

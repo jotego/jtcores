@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-4-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-4-2024 */
 
 module jts18_video(
     input              rst,
@@ -84,8 +70,6 @@ module jts18_video(
     output     [22:1]  obj_addr,
     input      [15:0]  obj_data,
 
-    input       [2:0]  lightguns,
-
     // Video signal
     output             HS,
     output             VS,
@@ -119,7 +103,7 @@ wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b, vdp_ysn;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
 wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
            scr1_sel, scr2_sel, vdp_on,
-           sa, sb, fix, s1_pri, s2_pri;
+           obj, sa, sb, fix, s1_pri, s2_pri;
 wire [1:0] obj_prio;
 wire [2:0] scr1_bank, scr2_bank;
 wire [3:0] obj_bank;
@@ -213,6 +197,7 @@ jts18_video16 u_video16(
     .obj_data   ( obj_data  ),
 
     // Video signal
+    .obj        ( obj       ),
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),
@@ -285,9 +270,8 @@ jts18_colmix u_colmix(
     .vdp_ysn    ( vdp_ysn   ),
     .vdp_prio   ( vdp_prio  ),
     .vid16_en   ( vid16_en  ),
-    // Lighgun crosshairs
-    .lightguns  ( lightguns & {3{game_id[PCB_5873]}} ),
     // S16 Video priority
+    .obj16     ( obj       ),
     .sa         ( sa        ),
     .sb         ( sb        ),
     .fix        ( fix       ),

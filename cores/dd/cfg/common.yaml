@@ -1,11 +1,10 @@
-game:
-  - from: dd
-    get:
-      - jtdd_main.v
-      - jtdd_colmix.v
-      - jtdd_video.v
-      - jtdd_obj.v
-      - jtdd_scroll.v
+dd:
+  - get:
+    - jtdd_main.v
+    - jtdd_colmix.v
+    - jtdd_video.v
+    - jtdd_obj.v
+    - jtdd_scroll.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -24,18 +23,15 @@ jtframe:
       - mc6809i.v
       - jtframe_sys6809.v
       - jtframe_z80wait.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: video
     get:
       - jtframe_vtimer.v
-      - jtframe_tilemap.v
       - jtframe_obj.yaml
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
   - from: sdram
     get:
       - jtframe_sdram64.yaml
       - jtframe_dwnld.v
-modules:
-  jt:
-    - name: jt51
+jt51:

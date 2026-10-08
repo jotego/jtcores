@@ -1,0 +1,6 @@
+-mjwx
+-i custom.ihx
+-b _CODE = 0x0100
+-b _DATA = 0xC000
+crt0.rel
+custom.rel

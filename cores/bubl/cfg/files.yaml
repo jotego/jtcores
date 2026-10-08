@@ -1,0 +1,40 @@
+bubl:
+  - get:
+    - jtbubl_game.v
+    - jtbubl_main.v
+    - jtbubl_colmix.v
+    - jtbubl_video.v
+    - jtbubl_gfx.v
+    - jtbubl_sound.v
+kunio:
+  - get:
+    - jtkunio_mcu.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      # Z80
+      - jtframe_z80.yaml
+      # MCU
+      - jtframe_6801mcu.yaml
+      - jtframe_6805mcu.yaml
+jt12:
+  - get:
+    - jt03.yaml
+jtopl:
+  - get:
+    - jt26.yaml

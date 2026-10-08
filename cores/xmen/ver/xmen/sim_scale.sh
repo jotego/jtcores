@@ -11,4 +11,4 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-jtsim -inputs snd_scale.in -video $LAST -w $FIRST
+jtsim -inputs snd_scale.cab -video $LAST -w $FIRST

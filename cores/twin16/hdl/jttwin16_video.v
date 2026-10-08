@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-8-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-8-2023 */
 
 module jttwin16_video(
     input             rst,
@@ -54,9 +40,14 @@ module jttwin16_video(
     output     [11:0] pal_addr,
     input      [ 7:0] pal_dout,
 
-    // Tile RAM (scroll layers)
-    output     [17:1] stram_addr,
-    input      [15:0] stram_dout,
+    // Scroll layers
+    output            lyra_cs,
+    output     [17:2] lyra_addr,
+    input      [31:0] lyra_data,
+
+    output            lyrb_cs,
+    output     [17:2] lyrb_addr,
+    input      [31:0] lyrb_data,
     // Tile ROMs
     output     [13:2] lyrf_addr,
     output     [21:2] lyro_addr,
@@ -82,11 +73,10 @@ module jttwin16_video(
 localparam [8:0] HB_OFFSET=0;
 
 wire [ 8:0] vdump, hdump, vrender, vrender1, hdump_off, hscr_off, vdump_scr;
-wire [31:0] fsorted, lyra_data, lyrb_data, asorted, bsorted, osorted;
+wire [31:0] fsorted, asorted, bsorted, osorted;
 wire [ 7:0] lyrf_pxl,  lyro_pxl;
 wire [ 6:0] lyra_pxl,  lyrb_pxl;
 wire [ 1:0] lyra_sel,  lyrb_sel;
-wire [17:2] lyra_addr, lyrb_addr;
 wire        preo_cs;
 
 assign fram_addr[13:12]=0;
@@ -192,20 +182,6 @@ jtframe_tilemap #(
     .pxl        ( lyrf_pxl  )
 );
 
-// makes consequitive requests to
-// convert 16 bit data to 32 bits
-jttwin16_tile u_tile(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .vramcvf    ( vramcvf       ),
-    .lyra_addr  ( lyra_addr     ),
-    .lyrb_addr  ( lyrb_addr     ),
-    .stram_addr ( stram_addr    ),
-    .stram_dout ( stram_dout    ),
-    .lyra_data  ( lyra_data     ),
-    .lyrb_data  ( lyrb_data     )
-);
-
 jtframe_scroll #(
     .VA(12),
     .CW(13),
@@ -229,11 +205,11 @@ jtframe_scroll #(
     .code       (scra_dout[12:0]),
     .pal        (scra_dout[15:13]),
     .hflip      ( hflip     ),
-    .vflip      ( 1'b0      ),
+    .vflip      ( vramcvf   ),
 
     .rom_addr   ( lyra_addr ),
     .rom_data   ( asorted   ),
-    .rom_cs     (           ),
+    .rom_cs     ( lyra_cs   ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyra_pxl  )
@@ -262,11 +238,11 @@ jtframe_scroll #(
     .code       (scrb_dout[12:0]),
     .pal        (scrb_dout[15:13]),
     .hflip      ( hflip     ),
-    .vflip      ( 1'b0      ),
+    .vflip      ( vramcvf   ),
 
     .rom_addr   ( lyrb_addr ),
     .rom_data   ( bsorted   ),
-    .rom_cs     (           ),
+    .rom_cs     ( lyrb_cs   ),
     .rom_ok     ( 1'b1      ),
 
     .pxl        ( lyrb_pxl  )

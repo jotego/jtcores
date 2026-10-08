@@ -1,0 +1,5 @@
+jt053260:
+  - get:
+    - jt053260.v
+    - jt053260_channel.v
+    - jt053260_timer.v

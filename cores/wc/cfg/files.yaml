@@ -1,0 +1,18 @@
+wc:
+  - get:
+    - "*.v"
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+      - jtframe_obj.yaml
+jt5205:
+jt12:
+  - get:
+    - jt49.yaml

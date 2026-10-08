@@ -1,0 +1,15 @@
+g
+mask AF 00FF
+mask AF2 00FF
+ignore AF2 IX IY SP
+s
+s
+s
+st
+st
+st
+d
+g
+s
+s
+g

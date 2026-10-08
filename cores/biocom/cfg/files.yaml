@@ -1,0 +1,40 @@
+biocom:
+  - get:
+    - jtbiocom_colmix.v
+    - jtbiocom_game.v
+    - jtbiocom_main.v
+    - jtbiocom_mcu.v
+    - jtbiocom_video.v
+    - jtbiocom_sound.v
+tora:
+  - get:
+    - jttora_obj.v
+    - jttora_objdata.v
+gng:
+  - get:
+    - jtgng_video.yaml
+    - jtgng_dual_ram.v
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+      - jtframe_8751.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_blank.v
+      - jtframe_obj.yaml
+jt51:
+jt12:
+  - get:
+    - jt49.yaml
+    - jt12_rst.v

@@ -1,0 +1,12 @@
+cop:
+  - get:
+    - common.yaml
+slyspy:
+  - get:
+    - jtslyspy_decoder.v
+    - jtslyspy_snd.v
+    - jtslyspy_colmix.v
+jtframe:
+  - get:
+    - jtframe_sort.v
+HUC6280:

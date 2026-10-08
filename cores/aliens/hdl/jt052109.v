@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-4-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-4-2023 */
 
 // Based on Furrtek's RE work on die shots
 // and MAME documentation
@@ -84,6 +70,7 @@ module jt052109(
 );
 
 parameter FULLRAM=0;
+parameter K051961=0;
 
 // MMR go from 1C00 to 1F00
 localparam [15:0] REGBASE = 16'h1C00;
@@ -96,7 +83,8 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
                   REG_FLIP  = 5, // 1E80                    only 3 bit used
                   REG_BANK1 = 6; // 1F00
 
-// REG_CFG bits 1:0 act as a memory mapper, allowing up to 3 RAM chips
+// Default bank decode (K051961=0). REG_CFG bits 1:0 act as a memory mapper,
+// allowing up to 3 RAM chips
 // to be connected to the K052109, but the third chip
 //    ATTR CODE CPU-only
 //    RWE0 RWE1 RWE2
@@ -154,6 +142,12 @@ assign mmr_dump    = mmr[ioctl_addr[2:0]];
 assign ioctl_din   = FULLRAM==1 && ioctl_addr[14]? ram0_dout : ( ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0] );
 
 reg  [5:0] range;
+// GX861 has a 051961 at U75. Its CPU-visible tile RAM starts at $4000,
+// $2000 below the windows in this 052109 model at reset. This would be
+// a difference between 052109 and 051961 that we need to confirm.
+// GX861 (88 Games) does not have a "INIT" signal on board like boards
+// using 052109
+wire [15:0] map_addr = K051961 ? cpu_addr + 16'h2000 : cpu_addr;
 wire [3:0] range0 = range[5:2],
            range1 = range[3:0],
            range2 = range[4:1];
@@ -171,7 +165,7 @@ end
 
 // CPU Memory Mapper
 always @* begin
-    casez( cpu_addr[15:13] )
+    casez( map_addr[15:13] )
           0: range = 6'b111110;    // 0000~1FFF
           1: range = 6'b111101;    // 2000~3FFF
           2: range = 6'b111011;    // 4000~5FFF

@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-9-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-9-2019 */
 
 // Simple scan doubler
 // CRT-like output:
@@ -119,19 +105,19 @@ function [DW-1:0] blend(
         ave(a[COLORW-1:0],b[COLORW-1:0]) };
 endfunction
 
-`ifdef JTFRAME_CLK96
-localparam CLKSTEPS=8;
-localparam [CLKSTEPS-1:0] BLEND_ST = 8'b10;
-`else
+// `ifdef JTFRAME_SDRAM96
+// localparam CLKSTEPS=8;
+// localparam [CLKSTEPS-1:0] BLEND_ST = 8'b10;
+// `else
 localparam CLKSTEPS=4;
 localparam [CLKSTEPS-1:0] BLEND_ST = 2;
-`endif
+// `endif
 
 localparam [CLKSTEPS-1:0] PURE_ST  = 0;
 reg alt_pxl=0; // this is needed in case pxl2_cen and pxl_cen are not aligned.
 reg [CLKSTEPS-1:0] mixst;
 
-always@(posedge clk or posedge rst) begin
+always@(posedge clk) begin
     if( rst ) begin
         preout <= {DW{1'b0}};
     end else begin

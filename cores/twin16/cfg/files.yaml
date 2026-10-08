@@ -1,0 +1,32 @@
+twin16:
+  - get:
+    - jttwin16_*.v
+fround:
+  - get:
+    - jt00778x*.v
+    - jtfround_objdraw.v
+    - jtfround_draw.v
+tmnt:
+  - get:
+    - jttmnt_sound.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    # - jtframe_sort.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+      - jtframe_obj.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+jt51:
+jt053260:
+jt7759:
+jt007232:

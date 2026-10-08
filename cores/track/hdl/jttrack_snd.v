@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 11-11-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 11-11-2021 */
 
 module jttrack_snd(
     input               rst,
@@ -45,6 +31,8 @@ module jttrack_snd(
     output        [ 7:0] debug_view
 );
 
+`ifndef NOSOUND
+
 // Road Fighter: sch. has bit A10 as a jumper to either ground or VDD
 // Track'n Field has A10 connected to the CPU, so RAM_AW must be set to 11 for it
 parameter RAM_AW=11;
@@ -54,7 +42,7 @@ localparam CNTW=13;
 reg  [ 7:0] din;
 wire [ 7:0] ram_dout, latch;
 reg         ram_cs;
-wire        mreq_n;
+wire        mreq_n, rfsh_n;
 wire [15:0] A;
 reg  [ 3:0] cap_en;
 reg         vlm_rst, vlm_st, vlm_sel;
@@ -89,7 +77,7 @@ always @* begin
     psg_cs      = 0;
     cap_cs      = 0;
     vlm_rd_cs   = 0;
-    if( !mreq_n ) begin
+    if( !mreq_n && rfsh_n ) begin
         case(A[15:13])
             0,1: rom_cs    = 1;
             2: ram_cs      = 1; // 4000
@@ -129,6 +117,7 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
     .din        ( din       ),
     .ram_dout   ( ram_dout  ),
     .mreq_n     ( mreq_n    ),
+    .rfsh_n     ( rfsh_n    ),
     // Misc
     .ram_cs     ( ram_cs    ),
     .cnt_cs     ( cnt_cs    ),
@@ -166,5 +155,18 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
     .debug_bus  ( 8'd0      )
 );
 
+`else
+assign rom_addr   = 14'd0;
+assign pcm_addr   = 16'd0;
+assign psg        = 11'sd0;
+assign vlm        = 10'sd0;
+assign rdac       = 8'sd0;
+assign vlm_rcen   = 2'd0;
+assign psg_rcen   = 2'd0;
+assign rdac_rcen  = 1'b0;
+assign debug_view = 8'd0;
+
+initial rom_cs = 1'b0;
+`endif
 
 endmodule

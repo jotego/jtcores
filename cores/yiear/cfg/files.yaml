@@ -1,0 +1,13 @@
+kicker:
+  - get:
+    - jtkicker_game.v
+    - common.yaml
+yiear:
+  - get:
+    - jtyiear_main.v
+    - jtyiear_video.v
+    - jtyiear_colmix.v
+jt12:
+  - get:
+    - jt89.yaml
+vlm5030:

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-2-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-2-2023 */
 
 // Clocks are derived from H counter on the original PCB
 // Yet, that doesn't seem to be important and it only
@@ -70,6 +56,7 @@ module jtcastle_main(
     input      [3:0]    dipsw_c,
     output              buserror
 );
+`ifndef NOMAIN
 
 localparam RAM_AW = 13;
 
@@ -212,4 +199,25 @@ jtkcpu u_cpu(
     .buserror   (           )
 );
 /* verilator tracing_on */
+`else
+assign cpu_cen  = 0;
+assign cpu_addr = 0;
+assign cpu_rnw  = 1;
+assign cpu_dout = 0;
+assign ram_addr = 0;
+assign ram_we   = 0;
+assign gfx1_cs  = 0;
+assign gfx2_cs  = 0;
+assign pal_cs   = 0;
+assign buserror = 0;
+
+initial begin
+    snd_irq    = 0;
+    snd_latch  = 0;
+    rom_addr   = 0;
+    rom_cs     = 0;
+    video_bank = 0;
+    prio       = 0;
+end
+`endif
 endmodule

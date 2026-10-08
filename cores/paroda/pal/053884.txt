@@ -1,0 +1,48 @@
+Same one in Parodius
+
+pin 1   = /AS; /* Input */
+pin 2   = I1; /* Unused input */
+pin 3   = A9; /* Input */
+pin 4   = A8; /* Input */
+pin 5   = A7; /* Input */
+pin 6   = paro_i6n; /* Input */
+pin 7   = paro_i7n; /* Input */
+pin 8   = A6; /* Input */
+pin 9   = A5; /* Input */
+pin 11  = A4; /* Input */
+
+/* Programmable output pins */
+
+pin 12  = JOYSTK; /* Combinatorial output */
+pin 13  = IOCS; /* Combinatorial output */
+pin 14  = MISC; /* Combinatorial output */
+pin 15  = B3; /* Combinatorial output */
+pin 16  = PCU; /* Combinatorial output */
+pin 17  = OBJSET; /* Combinatorial output */
+pin 18  = VCS; /* Combinatorial output */
+pin 19  = FM; /* Combinatorial output */
+
+/* Output equations */
+
+/FM =  /AS &  A9 &  A8 &  A7 & /paro_i6n &  A6 & /A5 &  A4;
+/VCS=  /AS & /A9 & /A8 & /A7 & /paro_i6n & /paro_i7n
+    #  /AS &  A9 & /A8 & /A7 & /paro_i6n & /paro_i7n
+    #  /AS & /A9 &  A8 & /A7 & /paro_i6n & /paro_i7n
+    #  /AS &  A9 &  A8 & /A7 & /paro_i6n & /paro_i7n
+    #  /AS & /A9 & /A8 &  A7 & /paro_i6n & /paro_i7n
+    #  /AS &  A9 & /A8 &  A7 & /paro_i6n & /paro_i7n
+    #  /AS & /A9 &  A8 &  A7 & /paro_i6n & /paro_i7n
+    #  /AS & /A9 & /A8 & /A7 &  paro_i6n & /paro_i7n
+    #  /AS &  A9 & /A8 & /A7 &  paro_i6n & /paro_i7n
+    #  /AS & /A9 &  A8 & /A7 &  paro_i6n & /paro_i7n
+    #  /AS &  A9 &  A8 & /A7 &  paro_i6n & /paro_i7n
+    #  /AS & /A9 & /A8 &  A7 &  paro_i6n & /paro_i7n
+    #  /AS &  A9 & /A8 &  A7 &  paro_i6n & /paro_i7n
+    #  /AS & /A9 &  A8 &  A7 &  paro_i6n & /paro_i7n
+    #  /AS &  A9 &  A8 &  A7 &  paro_i6n & /paro_i7n;
+/OBJSET =  /AS &  A9 &  A8 &  A7 & /paro_i6n & /A6 &  A5 & /A4;
+/PCU =  /AS &  A9 &  A8 &  A7 & /paro_i6n & /A6 &  A5 &  A4;
+/B3 =  A9 &  A8 &  A7 & /paro_i6n;
+/MISC =  /AS &  A9 &  A8 &  A7 & /paro_i6n &  A6 & /A5 & /A4;
+/IOCS =  /AS &  A9 &  A8 &  A7 & /paro_i6n & /A6 & /A5 &  A4;
+/JOYSTK =  /AS &  A9 &  A8 &  A7 & /paro_i6n & /A6 & /A5 & /A4;

@@ -1,0 +1,43 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-11-2024 */
+
+module jtflstory_header(
+    input       clk,
+                header, prog_we,
+    input [2:0] prog_addr,
+    input [7:0] prog_data,
+    output reg  mirror=0, mcu_enb=0, coinxor=0, gfx=0, prio=0,
+                palw=0,   cab=0,     obj=0,     sub,   dec=0,
+                iocfg=0,  osdflip=0, psg2_en=0, ramcfg=0,
+    output reg [1:0] banks=0
+);
+
+localparam [2:0] MIRROR  = 3'd1,
+                 MCUENB  = 3'd2,
+                 COINXOR = 3'd3,
+                 GFXCFG  = 3'd4,
+                 PRIOCFG = 3'd5,
+                 PALW    = 3'd6;
+
+always @(posedge clk) begin
+    if( header && prog_addr[2:0]==MIRROR  && prog_we ) {osdflip,mirror}  <= {prog_data[4],prog_data[0]};
+    if( header && prog_addr[2:0]==MCUENB  && prog_we ) begin
+        { dec, sub, mcu_enb } <= prog_data[2:0];
+        case(prog_data[4:3])
+            0: banks <= 0;
+            1: banks <= 1;
+            2: banks <= 2;
+            default: banks <= 0;
+        endcase
+    end
+    if( header && prog_addr[2:0]==COINXOR && prog_we )
+        {ramcfg,psg2_en,iocfg,coinxor} <= {prog_data[6:4],prog_data[0]};
+    if( header && prog_addr[2:0]==GFXCFG  && prog_we ) gfx     <= prog_data[0];
+    if( header && prog_addr[2:0]==PRIOCFG && prog_we ) prio    <= prog_data[0];
+    if( header && prog_addr[2:0]==PALW    && prog_we ) begin
+        {obj,cab,palw} <= prog_data[2:0];
+    end
+end
+
+endmodule

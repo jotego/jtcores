@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-06-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-06-2020 */
 
 module jtbubl_main(
     input               rst,
@@ -79,6 +65,8 @@ module jtbubl_main(
     input      [ 7:0]   debug_bus
 );
 
+`ifndef NOMAIN
+
 wire        cen_main, cen_sub;
 reg  [ 7:0] main_din, sub_din;
 wire [ 7:0] ram2sub, main_dout, sub_dout, comm2main, comm2mcu, mcu_dout,
@@ -91,7 +79,8 @@ reg         h1;
 wire [11:0] mcu_bus;
 wire [15:0] main_addr, sub_addr;
 wire        main_mreq_n, main_iorq_n, main_rdn, main_wrn, main_rfsh_n;
-wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_halt_n;
+wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_rfsh_n;
+reg         main_macc_n, sub_macc_n;
 wire        mcu_stn, mcu_irqn;
 reg         rammcu_we, rammcu_cs;
 reg         main_work_cs, mcram_cs, // shared memories
@@ -149,26 +138,27 @@ end
 
 // Main CPU address decoder
 always @(*) begin
-    main_rom_cs    = !main_mreq_n && (!main_addr[15] || main_addr[15:14]==2'b10); // 0000-7FFF and 8000-BFFF
-    vram_cs        = !main_mreq_n && main_addr[15:13]==3'b110; // C000-DCFF
-    main_work_cs   = !main_mreq_n && main_addr[15:13]==3'b111 && main_addr[12:11]!=2'b11; //E000-F7FF
-    pal_cs         = !main_mreq_n && main_addr[15: 9]==7'b1111_100; // F800-F9FF
+    main_macc_n    =  main_mreq_n | ~main_rfsh_n;
+    main_rom_cs    = !main_macc_n && (!main_addr[15] || main_addr[15:14]==2'b10); // 0000-7FFF and 8000-BFFF
+    vram_cs        = !main_macc_n && main_addr[15:13]==3'b110; // C000-DCFF
+    main_work_cs   = !main_macc_n && main_addr[15:13]==3'b111 && main_addr[12:11]!=2'b11; //E000-F7FF
+    pal_cs         = !main_macc_n && main_addr[15: 9]==7'b1111_100; // F800-F9FF
     if( tokio ) begin
-        sound_cs    = !main_mreq_n && main_addr[15: 8]==8'hFC && !main_addr[7];
-        misc_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA &&  main_addr[7] && !main_wrn;
-        flip_cs     = !main_mreq_n && main_addr[15: 8]==8'hFB && !main_addr[7] && !main_wrn;
-        main2sub_nmi= !main_mreq_n && main_addr[15: 8]==8'hFB &&  main_addr[7] && !main_wrn;
-        tres_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA && !main_addr[7]; // watchdog
-        mcu_cs      = !main_mreq_n && main_addr[15: 9]==7'b1111_111; // FE
+        sound_cs    = !main_macc_n && main_addr[15: 8]==8'hFC && !main_addr[7];
+        misc_cs     = !main_macc_n && main_addr[15: 8]==8'hFA &&  main_addr[7] && !main_wrn;
+        flip_cs     = !main_macc_n && main_addr[15: 8]==8'hFB && !main_addr[7] && !main_wrn;
+        main2sub_nmi= !main_macc_n && main_addr[15: 8]==8'hFB &&  main_addr[7] && !main_wrn;
+        tres_cs     = !main_macc_n && main_addr[15: 8]==8'hFA && !main_addr[7]; // watchdog
+        mcu_cs      = !main_macc_n && main_addr[15: 9]==7'b1111_111; // FE
         mcram_cs    = 0;
-        cabinet_cs  = !main_mreq_n && main_addr[15: 7]==9'b1111_1010_0 && main_wrn;
+        cabinet_cs  = !main_macc_n && main_addr[15: 7]==9'b1111_1010_0 && main_wrn;
     end else begin // Bubble Bobble
-        sound_cs    = !main_mreq_n && main_addr[15: 8]==8'hFA && !main_addr[7];
-        misc_cs     = !main_mreq_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b01 && !main_wrn;
+        sound_cs    = !main_macc_n && main_addr[15: 8]==8'hFA && !main_addr[7];
+        misc_cs     = !main_macc_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b01 && !main_wrn;
         flip_cs     = 0; // misc_cs used instead
-        main2sub_nmi= !main_mreq_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b00 && !main_wrn;
-        tres_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA && main_addr[7];
-        mcram_cs    = !main_mreq_n && main_addr[15:10]==6'b1111_11; // FC
+        main2sub_nmi= !main_macc_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b00 && !main_wrn;
+        tres_cs     = !main_macc_n && main_addr[15: 8]==8'hFA && main_addr[7];
+        mcram_cs    = !main_macc_n && main_addr[15:10]==6'b1111_11; // FC
         mcu_cs      = 0;
         cabinet_cs  = 0;
     end
@@ -247,11 +237,12 @@ jtframe_ff u_flag(
 
 // Sub CPU address decoder
 always @(*) begin
-    sub_rom_cs     = !sub_mreq_n && !sub_addr[15];
+    sub_macc_n =  sub_mreq_n || !sub_rfsh_n;
+    sub_rom_cs = !sub_macc_n && !sub_addr[15];
     if(tokio)
-        sub_work_cs    = !sub_mreq_n &&  sub_addr[15:13]==3'b100;
+        sub_work_cs = !sub_macc_n && sub_addr[15:13]==3'b100;
     else // Bubble Bobble
-        sub_work_cs    = !sub_mreq_n &&  sub_addr[15:13]==3'b111;
+        sub_work_cs = !sub_macc_n && sub_addr[15:13]==3'b111;
 end
 
 // Sub CPU input mux
@@ -334,7 +325,9 @@ jtframe_z80 u_maincpu(
     .dout     ( main_dout      )
 );
 
-jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
+wire main_wait = |{ vram_cs & h1, sde & main_work_cs };
+
+jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_mainwait(
     .rst_n    ( main_rst_n      ),
     .clk      ( clk             ),
     .cen_in   ( cen6            ),
@@ -344,7 +337,7 @@ jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
     .mreq_n   ( main_mreq_n     ),
     .iorq_n   ( main_iorq_n     ),
     .busak_n  ( 1'b1            ),
-    .dev_busy ( { vram_cs & h1, sde & main_work_cs }    ),
+    .dev_busy ( main_wait       ),
     // SDRAM gating managed in mem.yaml
     .rom_cs   ( 1'b0            ),
     .rom_ok   ( 1'b1            )
@@ -366,13 +359,15 @@ jtframe_z80 u_subcpu(
     .iorq_n   ( sub_iorq_n     ),
     .rd_n     ( sub_rd_n       ),
     .wr_n     ( sub_wrn        ),
-    .rfsh_n   (                ),
-    .halt_n   ( sub_halt_n     ),
+    .rfsh_n   ( sub_rfsh_n     ),
+    .halt_n   (                ),
     .busak_n  (                ),
     .A        ( sub_addr       ),
     .din      ( sub_din        ),
     .dout     ( sub_dout       )
 );
+
+wire sub_wait = (main_work_cs & ~sde) & sub_work_cs;
 
 jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
     .rst_n    ( sub_rst_n       ),
@@ -384,7 +379,7 @@ jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
     .mreq_n   ( sub_mreq_n      ),
     .iorq_n   ( sub_iorq_n      ),
     .busak_n  ( 1'b1            ),
-    .dev_busy ( (main_work_cs & ~sde) & sub_work_cs ),
+    .dev_busy ( sub_wait        ),
     // SDRAM gating managed in mem.yaml
     .rom_cs   ( 1'b0            ),
     .rom_ok   ( 1'b1            )
@@ -528,6 +523,7 @@ jtframe_6801mcu #(.MODE(7)) u_mcu01 ( // MC6801U4
     // .rst( rst ), // for quick sims
     .clk        ( clk           ),
     .cen        ( cen_mcu       ),
+    .cen_tmr    ( cen_mcu       ),
     .wr         (               ),
     .addr       (               ),
     .dout       (               ),
@@ -567,4 +563,18 @@ jtkunio_mcu u_mcu05(
     .rom_data   ( mcu_rom_data  )
 );
 
+`else
+assign cpu_addr      = 13'd0;
+assign cpu_dout      = 8'd0;
+assign cpu_rnw       = 1'b1;
+assign main_flag     = 1'b0;
+assign main_rom_addr = 18'd0;
+assign sub_rom_addr  = 15'd0;
+assign mcu_rom_addr  = 12'd0;
+assign mcu_rom_cs    = 1'b0;
+initial begin
+    vram_cs=0; pal_cs=0; black_n=1; flip=0; snd_latch=0; snd_stb=0; snd_rst=0;
+    main_rom_cs=0; sub_rom_cs=0;
+end
+`endif
 endmodule

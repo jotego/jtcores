@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-9-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-9-2022 */
 
 module jtkiwi_colmix(
     input        clk,
@@ -60,7 +46,6 @@ reg         half, obj_sel;
 // PROM variation
 wire [15:0] prom_dout;
 wire        promhi_we, promlo_we;
-wire [ 3:0] sort;
 
 assign pal_addr = { coll, half };
 assign pal_we   = (pal_cs & ~cpu_rnw) | (pal2_cs & ~cpu2_rnw);
@@ -94,12 +79,6 @@ always @(posedge clk) begin
     pall <= pal_dout;
 end
 
-jtframe_sort u_sort(
-    .debug_bus  ( debug_bus ),
-    .busin      ( col_addr[3:0]    ),
-    .busout     ( sort  )
-);
-
 // Palette RAM X1-007 chip
 jtframe_dual_ram #(.AW(10),.SIMFILE("pal.bin")) u_comm(
     .clk0   ( clk_cpu      ),
@@ -121,7 +100,7 @@ jtframe_prom #( .AW(9), .SIMFILE("../../../../rom/extrmatn/b06-09.15f")) u_promh
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),
-    .rd_addr( {col_addr[8:4], sort}  ),
+    .rd_addr( col_addr  ),
     .wr_addr( prog_addr[8:0]  ),
     .we     ( promhi_we ),
     .q      ( prom_dout[15:8] )
@@ -131,7 +110,7 @@ jtframe_prom #( .AW(9), .SIMFILE("../../../../rom/extrmatn/b06-08.17f")) u_proml
     .clk    ( clk       ),
     .cen    ( 1'b1      ),
     .data   ( prog_data ),
-    .rd_addr( {col_addr[8:4], sort}  ),
+    .rd_addr( col_addr  ),
     .wr_addr( prog_addr[8:0] ),
     .we     ( promlo_we ),
     .q      ( prom_dout[7:0] )

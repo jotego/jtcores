@@ -1,0 +1,55 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sat Jan 31 16:13:50 2026
+[*]
+[dumpfile] "/home/jtejada/jtcores-3/cores/cps2/ver/raster/test.lxt"
+[dumpfile_mtime] "Sat Jan 31 16:07:03 2026"
+[dumpfile_size] 1289301
+[savefile] "/home/jtejada/jtcores-3/cores/cps2/ver/raster/test.gtkw"
+[timestart] 791000
+[size] 1266 1005
+[pos] -27 -58
+*-16.209106 901285 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] test.
+[treeopen] test.uut.
+[sst_width] 278
+[signals_width] 170
+[sst_expanded] 1
+[sst_vpaned_height] 327
+@c00028
+test.uut.zero[2:0]
+@28
+(0)test.uut.zero[2:0]
+(1)test.uut.zero[2:0]
+(2)test.uut.zero[2:0]
+@1401200
+-group_end
+@28
+test.uut.raster[0]
+@8022
+test.u_timing.vdump[8:0]
+@200
+-cnt 0
+@22
+test.uut.u_cnt0.cnt[8:0]
+test.uut.u_cnt0.cnt_start[8:0]
+@28
+test.uut.u_cnt0.zero[0]
+@200
+-cnt 1
+@22
+test.uut.u_cnt1.cnt[8:0]
+test.uut.u_cnt1.cnt_start[8:0]
+@28
+test.uut.u_cnt1.zero[0]
+@200
+-cnt 2
+@8023
+test.u_timing.hdump[8:0]
+@22
+test.uut.u_cnt2.cnt[7:0]
+test.uut.u_cnt2.cnt_start[8:0]
+@28
+test.uut.u_cnt2.zero[0]
+[pattern_trace] 1
+[pattern_trace] 0

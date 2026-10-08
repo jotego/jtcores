@@ -1,22 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 4-1-2020
-
-*/
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2020 */
 
 module jtframe_6809wait(
     input           rstn,
@@ -92,11 +76,12 @@ module jtframe_6809wait(
 endmodule
 
 
-// Wrapper that hides the DMA access to RAM
+// Wrapper with RAM but without DMA
 module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1 mode
+    IRQFF    = KONAMI==2,// Add latches for IRQ signals
     CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(
     input           rstn,
@@ -127,7 +112,8 @@ module jtframe_sys6809 #( parameter
         .RAM_AW     ( RAM_AW    ),
         .RECOVERY   ( RECOVERY  ),
         .KONAMI     ( KONAMI    ),
-        .CENDIV     ( CENDIV    )
+        .CENDIV     ( CENDIV    ),
+        .IRQFF      ( IRQFF     )
     ) u_sys6809(
         .rstn       ( rstn      ),
         .clk        ( clk       ),
@@ -217,7 +203,7 @@ module jtframe_sys6809_dma #( parameter
     assign irq_ack = {BA,BS}==2'b01;
     assign bg      = {BA,BS}==2'b11; // this will toggle once every 16 cycles when granted
 
-    always @(posedge clk, negedge rstn) begin
+    always @(posedge clk) begin
         if( !rstn )
             VMA <= 1;
         else

@@ -1,0 +1,38 @@
+blkout:
+  - get:
+    - jtblkout_colmix.v
+    - jtblkout_frontcol_mmr.v
+    - jtblkout_game.v
+    - jtblkout_header.v
+    - jtblkout_main.v
+    - jtblkout_video.v
+    - jtblkout_fb.v
+
+# Technos Z80 + YM2151 + OKI6295 sound subsystem, reused as-is.
+dd2:
+  - get:
+    - jtdd2_sound.v
+
+jtframe:
+  - get:
+      - jtframe_ff.v
+      - jtframe_edge.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_rpwp_ram.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+      - jtframe_gated_cen.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_linebuf.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+
+jt51:
+jt6295:

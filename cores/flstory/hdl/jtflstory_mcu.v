@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-11-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-11-2024 */
 
 module jtflstory_mcu(
     input             rst,
@@ -49,6 +35,7 @@ localparam  COMM_RD = 1,
             BUSM_RD = 5,
             ADLO_LE = 6,
             ADHI_LE = 7;
+localparam HIGH_FOR_COLT_BOOTUP=1'd1;
 
 reg  [7:0] bus2mcu, mcu2bus, pbl;
 wire [7:0] pa_in, pa_out, pb_out;
@@ -71,7 +58,7 @@ assign ale[0]  = ~pbl[ADLO_LE] & pb_out[ADLO_LE];
 always @(posedge clk) begin
     if( rst ) begin
         ibf     <= 0;
-        obf     <= 0;
+        obf     <= HIGH_FOR_COLT_BOOTUP;
         mcu2bus <= 8'hff;
         bus2mcu <= 0;
     end else begin

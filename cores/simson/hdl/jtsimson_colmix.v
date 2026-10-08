@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 23-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-7-2023 */
 
 // Color mixer compatible with K053251
 // See Furrtek's files for RE information
@@ -23,6 +9,7 @@ module jtsimson_colmix(
     input             rst,
     input             clk,
 
+    input             dim_onlyred,
     // Base Video
     input             pxl_cen,
     input             lhbl,
@@ -71,7 +58,10 @@ function [23:0] dim( input [14:0] cin, input shade );
     dim = !shade? {     cin[14:10], cin[14:12],    // do not dim
                             cin[ 9: 5], cin[ 9: 7],
                             cin[ 4: 0], cin[ 4: 2] } :
-                  {   1'b0, cin[14:10], cin[14:13],    // dim
+    dim_onlyred ? {     cin[14:10], cin[14:12],    // do not dim blue/green
+                            cin[ 9: 5], cin[ 9: 7],
+                      1'b0, cin[ 4: 0], cin[ 4: 3] } : // only dim red channel
+                  {   1'b0, cin[14:10], cin[14:13], // dim all
                       1'b0, cin[ 9: 5], cin[ 9: 8],
                       1'b0, cin[ 4: 0], cin[ 4: 3] } ;
 endfunction

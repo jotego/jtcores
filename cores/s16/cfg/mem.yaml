@@ -9,44 +9,48 @@ params:
   # - { name: SRAM_OFFSET, value: 22'h18_0000 }
 clocks:
   clk48:
-    - freq: 4000000
+    - freq: 4M
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 5000000
+    - freq: 5M
       outputs:
         - cen_snd
         - cen_nc1
-    - freq: 6000000
+    - freq: 6M
       outputs:
         - cen6
         - cen_nc2
-    - freq: 640000
+    - freq: 640k
       outputs:
         - cen_pcm
         - cen_nc3
   clk24:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - mcu_cen
         - cen_nc4
 audio:
-  rsum: 10k
   mute: true
+  rsum: 47k
   rc: { r: 47k, c: 1n }
+  rsum_feedback_res: true
+  # pcb:
+  #   # must match PCB order in TOML file - not automated check yet
+  #   - { rfb: 47k, rsums: [ 47k, 47k ], pres: [ 0.5, 1.00 ] } # Quartet
+  #   - { rfb: 47k, rsums: [ 47k, 47k ], pres: [ 0.5, 1.00 ] } # Other games
   channels:
-    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1rout, c: 1.5n}]}
-    # 0.8 because of TTL output not reaching the supply fully
+    - { name: fm, module: jt51, rsum: 47k, rc: [{r: 1rout, c: 1.5n}], pre: 0.5 }
+    # 0.8 because of TTL output not reaching the supply fully: 3.6Vpp/5V = 0.72
     # roughly equivalent to original 4th order filter (4V for high, 0.4 for low)
-    # 3.6Vpp/5V = 0.72
-    - { name: pcm, data_width: 8, rsum: 10k, fir: fir_192k_4k.csv, vpp: 0.72, pre: 0.1 }
+    - { name: pcm, data_width: 8, rsum: 47k, fir: fir_192k_4k.csv, vpp: 0.72 }
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
     - buses:
         # XRAM does not include the first 16kB of work RAM
         - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
-        - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+        - { name: main,   addr_width: 19, data_width: 16, cache_size: 1kB } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
         - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
 

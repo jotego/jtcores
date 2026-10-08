@@ -1,0 +1,18 @@
+aceattaca:
+  inputs: reg.cab
+# afighter does not boot up in simulation. The FD1089 data does not get
+# decoded correctly. It works on the FPGA though. Same with s16b's dunkshot
+# afighter:
+alexkidd:
+bodyslam:
+fantzone:
+mjleague:
+  inputs: reg.cab
+quartet:
+  video: 2200
+  inputs: reg.cab
+quartet2a:
+  inputs: reg.cab
+sdi:
+shinobi:
+tetris:

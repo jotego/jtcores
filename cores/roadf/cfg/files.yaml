@@ -1,0 +1,16 @@
+roadf:
+  - get:
+    - jtroadf_game.v
+    - jtroadf_main.v
+    - jtroadf_video.v
+    - jtroadf_scroll.v
+    - jtroadf_obj.v
+yiear:
+  - get:
+    - jtyiear_colmix.v
+kicker:
+  - get:
+    - common.yaml
+sbaskt:
+  - get:
+    - sound.yaml

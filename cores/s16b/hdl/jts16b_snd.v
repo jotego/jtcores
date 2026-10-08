@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-7-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-7-2021 */
 
 module jts16b_snd(
     input                rst,
@@ -52,7 +38,7 @@ module jts16b_snd(
 wire [15:0] A;
 reg         fm_cs, mapper_cs, ram_cs, bank_cs,
             pcm_cs, misc_cs;
-wire        mreq_n, iorq_n, int_n;
+wire        mreq_n, rfsh_n, iorq_n, int_n;
 reg  [ 7:0] cpu_din, pcm_cmd;
 reg         rom_ok2;
 wire        rom_good, dec_ok;
@@ -91,9 +77,9 @@ always @(*) begin
 end
 
 always @(*) begin
-    ram_cs  = !mreq_n && &A[15:11];
-    bank_cs = !mreq_n && (A[15:12]>=8 && A[15:12]<4'he);
-    rom_cs  = (!mreq_n && !A[15]) || bank_cs;
+    ram_cs  =  !mreq_n && rfsh_n && &A[15:11];
+    bank_cs =  !mreq_n && rfsh_n && (A[15:12]>=8 && A[15:12]<4'he);
+    rom_cs  = (!mreq_n && rfsh_n && !A[15]) || bank_cs;
 
     // Port Map
     { fm_cs, misc_cs, pcm_cs, mapper_cs } = 0;
@@ -105,7 +91,7 @@ always @(*) begin
             3: mapper_cs = 1;
         endcase
     end else begin
-        mapper_cs = (!mreq_n &&  A[15:12]==4'he && A[11]); // e800
+        mapper_cs = (!mreq_n && rfsh_n && A[15:12]==4'he && A[11]); // e800
     end
 end
 
@@ -171,7 +157,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

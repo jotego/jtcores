@@ -1,0 +1,295 @@
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-11-2025 */
+
+module jtcal50_main(
+    input                rst, clk, pxl_cen,
+    input                lvbl, cen244,
+    input         [ 1:0] hdump,
+
+    output        [19:1] rom_addr,
+    output        [16:1] ram_addr,
+    output        [12:0] cpu_addr,
+    output        [ 1:0] cpu_dsn,
+    output        [ 1:0] ram_we,
+    output        [15:0] cpu_dout,
+
+    // 8-bit interface
+    output               cpu_rnw,
+    // Sound interface
+    output        [ 7:0] snd_cmd,
+    input         [ 7:0] snd_rply,
+    output               set_cmd,
+    output           reg snd_rst,
+
+    output reg           rom_cs,
+    output        [ 1:0] pal_we,
+    output        [ 1:0] nvram_we,
+    input         [15:0] nvram_dout,
+    // Video interface
+    output reg           vram_cs, vflag_cs, vctrl_cs, // same as in jtkiwi
+                         tctrl_cs, // X1-012 control
+    input         [15:0] pal_dout, tlv_dout, vram_dout,
+    output        [ 1:0] tlv_we,
+
+    input         [15:0] ram_dout,
+    input         [15:0] rom_data,
+    input                rom_ok,
+
+    // Cabinet
+    input         [ 5:0] joystick1,
+    input         [ 5:0] joystick2,
+    input         [ 1:0] cab_1p,
+    input         [ 1:0] coin,
+    input                service,
+    input         [ 1:0] dial_x, dial_y,
+    input         [15:0] dipsw,
+    input                dip_pause,
+    input                dip_test,
+    input                tilt,
+    output        [ 7:0] st_dout,
+    input         [ 7:0] debug_bus
+);
+`ifndef NOMAIN
+wire [23:1] A;
+wire [ 2:0] FC;
+wire [ 7:0] coin_coil;
+wire [15:0] fave;
+reg  [15:0] cpu_din;
+reg  [ 7:0] cab_dout;
+reg  [ 9:0] cab2_dout;
+reg  [ 2:0] IPLn;
+reg         ram_cs;
+wire        ok_dly;
+wire        int4ms, int16ms,
+            cpu_cen, cpu_cenb, dtackn, VPAn, vgfx_cs,
+            UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
+reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlv_cs, coil_cs,
+            buf_cs, pal_cs, cab_cs, snd_cs, HALTn, vgfx_bsy;
+
+`ifdef SIMULATION
+wire [23:0] A_full = {A,1'b0};
+`endif
+
+assign cpu_addr = A[13:1];
+assign rom_addr = A[19:1];
+assign VPAn     = ~&{A[23],~ASn};
+assign cpu_dsn  = {UDSn, LDSn};
+assign bus_cs   = rom_cs | vgfx_cs;
+assign bus_busy = (rom_cs & ~ok_dly) | vgfx_bsy;
+assign BUSn     = ASn | (LDSn & UDSn);
+assign cpu_rnw  = RnW;
+assign ram_addr = { buf_cs, A[15:1] };
+assign ram_we   = ~cpu_dsn & {2{ram_cs & ~RnW}};
+assign nvram_we = ~cpu_dsn & {2{nvram_cs&~RnW}};
+assign pal_we   = ~cpu_dsn & {2{  pal_cs&~RnW}};
+assign tlv_we   = ~cpu_dsn & {2{  tlv_cs&~RnW}};
+assign set_cmd  =  snd_cs & ~(RnW | LDSn);
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
+assign st_dout  = 0;
+assign vgfx_cs  = vram_cs | vflag_cs | vctrl_cs;
+
+always @* begin
+    rom_cs   = !BUSn &&  A[23:20]==0;
+    ipl2_cs  = !ASn  &&  A[23:20]==1;
+    nvram_cs = !ASn  &&  A[23:20]==2;
+    ipl1_cs  = !ASn  &&  A[23:20]==3;
+//  wdog_cs  = !ASn  &&  A[23:20]==4;
+    coil_cs  = !ASn  &&  A[23:20]==5;
+    dips_cs  = !ASn  &&  A[23:20]==6;
+    pal_cs   = !ASn  &&  A[23:20]==7;
+
+    tctrl_cs = !ASn  && !A[16] && A[23:20]==8 && !RnW;    // tiles configuration
+    tlv_cs   = !ASn  && !A[16] && A[23:20]==9 && !A[14];  // tiles VRAM
+    buf_cs   = !BUSn && !A[16] && A[23:20]==9 &&  A[14];  // tiles VRAM related? extra RAM
+    cab_cs   = !ASn  && !A[16] && A[23:20]==4'hA;
+    snd_cs   = !ASn  && !A[16] && A[23:20]==4'hB;
+    // SETA X1-001 chip
+    vflag_cs = !ASn  && !A[16] && A[23:20]==4'hC;
+    vctrl_cs = !ASn  && !A[16] && A[23:20]==4'hD && (A[9:8]!=3 || !LDSn);
+    vram_cs  = !ASn  && !A[16] && A[23:20]==4'hE;
+
+    ram_cs   = !BUSn &&  A[23:20]==4'hF;
+    if(buf_cs) ram_cs = 1;
+end
+
+reg [7:0] dipsw_mx;
+
+always @* begin
+    dipsw_mx = A[1] ? dipsw[7:0] : dipsw[15:8];
+end
+
+always @* begin
+    IPLn = 7;
+    if( int16ms ) IPLn[1] = 0;
+    if( int4ms  ) IPLn[2] = 0;
+end
+
+reg        dial_rst;
+wire [7:0] dial_dout;
+wire       dial_cs = cab_cs && A[4:3]==2;
+
+always @(posedge clk) begin
+    if(!vgfx_cs)
+        vgfx_bsy <= 0;
+    else if(pxl_cen) vgfx_bsy <= hdump==3;
+end
+
+always @(posedge clk) begin
+    HALTn    <= dip_pause & ~rst;
+    dial_rst <= 0;
+    snd_rst  <= ~coin_coil[4];
+    casez(A[4:1])
+              0: cab_dout <= {cab_1p[0], 1'b1, joystick1};
+              1: cab_dout <= {cab_1p[1], 1'b1, joystick2};
+              4: cab_dout <= {coin[0],coin[1],service,tilt,4'hf};
+        4'b10??: cab_dout <= dial_dout;
+        4'b11??: dial_rst <= cab_cs;
+    endcase
+    cpu_din  <= rom_cs   ? rom_data        :
+                ram_cs   ? ram_dout        :
+                nvram_cs ? nvram_dout      :
+    (vram_cs | vctrl_cs) ? vram_dout       :
+                pal_cs   ? pal_dout        :
+                tlv_cs   ? tlv_dout        :
+                snd_cs   ? {8'd0,snd_rply} :
+                dips_cs  ? {8'hff,dipsw_mx}:
+                cab_cs   ? {8'd0,cab_dout} : 16'h0;
+end
+
+jt4701 u_dial(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .x_in       ( {dial_x[0],dial_x[1]} ),
+    .y_in       ( {dial_y[0],dial_y[1]} ),
+    .rightn     ( 1'b1      ),
+    .leftn      ( 1'b1      ),
+    .middlen    ( 1'b1      ),
+    .x_rst      ( dial_rst  ),
+    .y_rst      ( dial_rst  ),
+    .csn        (~dial_cs   ),        // clear flags
+    .uln        ( A[1]      ),        // byte selection
+    .xn_y       ( A[2]      ),        // select x or y for reading
+    .cfn        (           ),        // counter flag
+    .sfn        (           ),        // switch flag
+    .dir        (           ),
+    .dout       ( dial_dout )
+);
+
+/* verilator tracing_on */
+jtframe_edge u_16ms(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof (~lvbl      ),
+    .clr    ( ipl1_cs   ),
+    .q      ( int16ms   )
+);
+
+jtframe_edge u_4ms(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( cen244    ),
+    .clr    ( ipl2_cs   ),
+    .q      ( int4ms    )
+);
+
+jtframe_8bit_reg u_snd(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .wr_n       ( RnW | LDSn    ),
+    .din        ( cpu_dout[7:0] ),
+    .cs         ( snd_cs        ),
+    .dout       ( snd_cmd       )
+);
+
+jtframe_8bit_reg u_coil(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .wr_n       ( RnW | LDSn    ),
+    .din        ( cpu_dout[7:0] ),
+    .cs         ( coil_cs       ),
+    .dout       ( coin_coil     )
+);
+/* verilator tracing_off */
+jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cpu_cen    ( cpu_cen   ),
+    .cpu_cenb   ( cpu_cenb  ),
+    .bus_cs     ( bus_cs    ),
+    .bus_busy   ( bus_busy  ),
+    .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
+    .ASn        ( ASn       ),
+    .DSn        ({UDSn,LDSn}),
+    .num        ( 5'd1      ),  // numerator
+    .den        ( 6'd6      ),  // denominator, 6 (48/6=8MHz)
+    .DTACKn     ( dtackn    ),
+    .wait2      ( 1'b0      ),
+    .wait3      ( 1'b0      ),
+    // Frequency report
+    .fave       ( fave      ),
+    .fworst     (           )
+);
+/* verilator tracing_on */
+jtframe_m68k u_cpu(
+    .clk        ( clk         ),
+    .rst        ( rst         ),
+    .RESETn     (             ),
+    .cpu_cen    ( cpu_cen     ),
+    .cpu_cenb   ( cpu_cenb    ),
+
+    // Buses
+    .eab        ( A           ),
+    .iEdb       ( cpu_din     ),
+    .oEdb       ( cpu_dout    ),
+
+
+    .eRWn       ( RnW         ),
+    .LDSn       ( LDSn        ),
+    .UDSn       ( UDSn        ),
+    .ASn        ( ASn         ),
+    .VPAn       ( VPAn        ),
+    .FC         ( FC          ),
+
+    .BERRn      ( 1'b1        ),
+    // Bus arbitrion
+    .HALTn      ( HALTn       ),
+    .BRn        ( 1'b1        ),
+    .BGACKn     ( 1'b1        ),
+    .BGn        (             ),
+
+    .DTACKn     ( dtackn      ),
+    .IPLn       ( IPLn        ) // VBLANK
+);
+`else
+    initial begin
+        rom_cs    = 0;
+        snd_rst   = 1;
+    end
+    assign rom_addr  = 0,
+           ram_addr  = 0,
+           cpu_addr  = 0,
+           cpu_dsn   = 3,
+           ram_we    = 0,
+           cpu_dout  = 0,
+           cpu_rnw   = 1,
+           snd_cmd   = 0,
+           set_cmd   = 0,
+           pal_we    = 0,
+           nvram_we  = 0,
+           vram_cs   = 0,
+           vflag_cs  = 0,
+           vctrl_cs  = 0,
+           tctrl_cs  = 0,
+           tlv_we    = 0,
+           st_dout   = 0;
+`endif
+endmodule

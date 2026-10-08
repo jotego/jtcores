@@ -1,10 +1,9 @@
-game:
-  - from: kicker
-    get:
-      - jtkicker_vtimer.v
-      - jtkicker_scroll.v
-      - jtkicker_obj.v
-      - jtkicker_objdraw.v
+kicker:
+  - get:
+    - jtkicker_vtimer.v
+    - jtkicker_scroll.v
+    - jtkicker_obj.v
+    - jtkicker_objdraw.v
 jtframe:
   - get:
       - jtframe_ff.v
@@ -24,9 +23,6 @@ jtframe:
   - from: sdram
     get:
       - jtframe_dwnld.v
-  - from: sound
-    get:
-      - jtframe_mixer.v
   - from: clocking
     get:
       - jtframe_cen48.v

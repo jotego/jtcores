@@ -1,0 +1,11 @@
+riders:
+  - get:
+    - "*.v"
+    - "*.sv"
+    - common.yaml
+rungun:
+  - get:
+    - jt053936.v
+jtframe:
+  - get:
+    - jtframe_toggle.v

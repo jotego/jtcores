@@ -1,0 +1,36 @@
+pinpon:
+  - get:
+    - jtpinpon_game.v
+    - jtpinpon_main.v
+    - jtpinpon_video.v
+    - jtpinpon_char.v
+    - jtpinpon_obj.v
+    - jtpinpon_objdraw.v
+kicker:
+  - get:
+    - jtkicker_vtimer.v
+yiear:
+  - get:
+    - jtyiear_colmix.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+      - jtframe_sort.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_crossclk_cen.v
+jt12:
+  - get:
+    - jt89.yaml

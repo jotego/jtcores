@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-12-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-12-2022 */
 
 module jtkarnov_obj(
     input              rst,
@@ -50,7 +36,8 @@ reg  [ 1:0] st;
 reg         dr_draw, adv;
 wire        dr_busy;
 reg  [11:0] dr_code;
-reg  [ 8:0] dr_xpos, xpos, ypos, ydiff, vf;
+reg  [ 8:0] dr_xpos, xpos, ypos, ydiff, vf,
+            xoff, hdf;
 reg  [ 3:0] dr_ysub, dr_pal;
 reg         hflip, vflip, dr_hflip, dr_vflip;
 
@@ -60,9 +47,15 @@ always @* begin
     vf = vrender^{1'd0,{8{flip}}};
     ydiff = ypos-vf;
     match = ram_data[4] ? ydiff[8:5]==0 : ydiff[8:4]==0;
+    xoff  = flip ? 9'd24 : 9'd8;
 end
 
 always @(posedge clk) cen <= ~cen;
+
+always @(posedge clk) if(pxl_cen) begin
+    hdf <= hdump;
+    if(flip) hdf[7] <= hdump[8]^hdump[7];
+end
 
 always @* begin
     case( st )
@@ -102,7 +95,7 @@ always @(posedge clk, posedge rst ) begin
                         dr_code  <= ram_data[11:0];
                         if( tall ) dr_code[0] <= vflip^ydiff[4];
                         dr_pal   <= ram_data[15:12];
-                        dr_xpos  <= xpos + (flip ? -25: -7);
+                        dr_xpos  <= xpos - xoff;
                         dr_ysub  <= ydiff[3:0];
                         dr_hflip <= hflip;
                         dr_vflip <= vflip;
@@ -127,7 +120,7 @@ jtframe_objdraw #(.HJUMP(1)) u_objdraw(
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdf       ),
 
     .draw       ( dr_draw   ),
     .busy       ( dr_busy   ),

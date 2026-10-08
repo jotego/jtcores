@@ -7,9 +7,10 @@ params:
     value: "'h30000"
 clocks:
   clk24:
-    - freq: 3000000
+    - freq: 6M
       gate: [ main, snd ]
       outputs:
+        - cen6
         - cen3
         - cen1p5
 audio:
@@ -61,6 +62,7 @@ bram:
   - name: mcu
     addr_width: 11
     data_width: 8
-    sim_file: true
+    simfile: {}
+
     rom:
       offset: "(`MCU_START)>>1"

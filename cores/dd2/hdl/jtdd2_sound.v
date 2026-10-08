@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 // Clocks are derived from H counter on the original PCB
 // Yet, that doesn't seem to be important and it only
@@ -57,7 +43,7 @@ reg ram_cs, latch_cs, oki_cs, fm_cs;
 wire oki_wrn = oki_cs & ~wr_n;
 assign rom_addr = A[14:0];
 
-wire mreq_n;
+wire mreq_n, rfsh_n;
 
 always @(*) begin
     ram_cs   = 1'b0;
@@ -65,7 +51,7 @@ always @(*) begin
     fm_cs    = 1'b0;
     oki_cs   = 1'b0;
     rom_cs   = 1'b0;
-    if(!mreq_n) begin
+    if(!mreq_n && rfsh_n) begin
         if(A[15]) begin
             case(A[14:11])
                 4'b0000: ram_cs   = 1'b1; // 8000-87ff
@@ -115,7 +101,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .iorq_n     (               ),
     .rd_n       (               ),
     .wr_n       ( wr_n          ),
-    .rfsh_n     (               ),
+    .rfsh_n     ( rfsh_n        ),
     .halt_n     (               ),
     .busak_n    (               ),
     .A          ( A             ),

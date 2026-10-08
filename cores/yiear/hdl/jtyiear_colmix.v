@@ -1,25 +1,11 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-12-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-12-2021 */
 
 module jtyiear_colmix(
     input               clk,        // 48 MHz
 
-    input               pxl_cen,
+    input               pxl_cen, scr_prio,
 
     // video inputs
     input         [3:0] obj_pxl,
@@ -45,10 +31,11 @@ parameter BLANK_DLY=8, LOWONLY=0,SIMFILE="407c10.1g";
 reg  [4:0] mux;
 wire       obj_blank = obj_pxl[3:0]==0 || !gfx_en[3];
 wire [3:0] scr_gated = gfx_en[0] ? scr_pxl : 4'd0;
+wire       scrsel    = scr_prio || obj_blank;
 
 always @(posedge clk) if(pxl_cen) begin
-    mux[4]   <= obj_blank & ~LOWONLY[0]; // the upper half is used as blanking in Roc'n Rope
-    mux[3:0] <= obj_blank ? scr_gated : obj_pxl;
+    mux[4]   <= scrsel & ~LOWONLY[0]; // the upper half is used as blanking in Roc'n Rope
+    mux[3:0] <= scrsel ? scr_gated : obj_pxl;
 end
 
 wire [7:0] raw, rgb;

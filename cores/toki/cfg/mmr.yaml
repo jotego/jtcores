@@ -1,0 +1,20 @@
+- name: video
+  size: 128
+  dw: 16
+  read_only: true
+  regs:
+    - name: scr1_scroll_x
+      dw: 9
+      at: "0xa[4],0xc[6:0],0xc[7]"
+    - name: scr1_scroll_y
+      dw: 9
+      at: "0x1a[4],0x1c[6:0],0x1c[7]"
+    - name: scr2_scroll_x
+      dw: 9
+      at: "0x2a[4],0x2c[6:0],0x2c[7]"
+    - name: scr2_scroll_y
+      dw: 9
+      at: "0x3a[4],0x3c[6:0],0x3c[7]"
+    - name: bg_order
+      dw: 1
+      at: "0x51[0]"

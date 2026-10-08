@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 16-8-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-8-2020 */
 
 // Street Fighter: Main CPU
 // 8MHz 68000 CPU
@@ -65,7 +51,7 @@ module jtsf_main #(
     input       [ 1:0] cab_1p,
     input       [ 1:0] coin,
     input              service,
-    input              game_id,
+    input              cabcfg,
     // BUS sharing
     output      [13:1] cpu_AB,
     output      [15:0] dmaout,
@@ -106,6 +92,8 @@ module jtsf_main #(
     input       [15:0] dipsw_a,
     input       [15:0] dipsw_b
 );
+
+`ifndef NOMAIN
 
 wire [23:1] A;
 wire        cen8, cen8b;
@@ -298,7 +286,7 @@ always @(posedge clk) begin
                 joystick1[BUT6], // 2
                 coin       // 1-0
             };
-        3'd1: cabinet_input <= game_id==0 ? { // IN1 in MAME
+        3'd1: cabinet_input <= cabcfg==0 ? { // IN1 in MAME
             joystick2[BUT5],
             joystick2[BUT4],
             joystick2[BUT2],
@@ -321,7 +309,7 @@ always @(posedge clk) begin
             4'b1111,
             joystick1[3:0]
         };
-        3'd2: cabinet_input <= game_id==0 ? 16'hffff : { // IN2 in MAME
+        3'd2: cabinet_input <= cabcfg==0 ? 16'hffff : { // IN2 in MAME
             1'b1,
             joystick2[BUT6],
             joystick2[BUT5],
@@ -380,6 +368,7 @@ jtframe_68kdtack_cen u_dtack( // 48 -> 8MHz
     .bus_cs     ( bus_cs     ),
     .bus_busy   ( bus_busy   ),
     .bus_legit  ( char_busy  ),
+    .bus_ack    ( 1'b0       ),
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
     .DTACKn     ( DTACKn     ),
@@ -512,6 +501,28 @@ fx68k u_cpu(
 //     );
 // `endif
 
+`else
+assign cpu_cen  = 1'b0;
+assign cpu_dout = 16'd0;
+assign UDSWn    = 1'b1;
+assign LDSWn    = 1'b1;
+assign cpu_AB   = 13'd0;
+assign dmaout   = 16'd0;
+assign RnW      = 1'b1;
+assign bus_ack  = 1'b1;
+assign col_uw   = 1'b0;
+assign col_lw   = 1'b0;
+assign addr     = {MAINW{1'b0}};
+assign ram_addr = {RAMW{1'b0}};
+assign ram_din  = 16'd0;
+assign ram_dsn  = 2'b11;
+assign ram_we   = 1'b0;
+initial begin
+    flip=0; snd_latch=0; snd_nmi_n=1; char_cs=0; scr1posh=0; scr2posh=0;
+    charon=0; scr1on=0; scr2on=0; objon=0; OKOUT=0; mcu_din=0; mcu_DMAONn=1;
+    ram_cs=0; rom_cs=0;
+end
+`endif
 endmodule
 
 module jtsf_intgen(

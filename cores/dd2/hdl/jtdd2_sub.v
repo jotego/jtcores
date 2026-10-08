@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 // Port 4 configured as output --> use as address bus
 // Port 6 configured as output
@@ -45,7 +31,7 @@ module jtdd2_sub(
 );
 
 (*keep*) reg         shared_cs, nmi_ack;
-(*keep*) wire        rnw, int_n, mreq_n, busak_n;
+(*keep*) wire        rnw, int_n, mreq_n, rfsh_n, busak_n;
 wire [15:0] A;
 wire [ 7:0] cpu_dout;
 reg  [ 7:0] cpu_din;
@@ -87,7 +73,7 @@ always @(*) begin
     shared_cs   = 1'b0;
     mcu_irqmain = 1'b0;
     nmi_ack     = 1'b0;
-    if( !mreq_n ) begin
+    if( !mreq_n && rfsh_n ) begin
         if( A[15:14]!=2'b11 )
             rom_cs    = 1'b1; // < Cxxx
         else begin
@@ -125,7 +111,7 @@ jtframe_z80_romwait #(.RECOVERY(0)) u_sub(
     .iorq_n     (               ),
     .rd_n       (               ),
     .wr_n       ( rnw           ),
-    .rfsh_n     (               ),
+    .rfsh_n     ( rfsh_n        ),
     .halt_n     (               ),
     .busak_n    ( busak_n       ),
     .A          ( A             ),

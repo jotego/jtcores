@@ -1,0 +1,13 @@
+$JTFRAME/hdl/cpu/jtframe_8751mcu.v
++incdir+$JTROOT/modules/jt8051/hdl
+$JTROOT/modules/jt8051/hdl/jt8051.v
+$JTROOT/modules/jt8051/hdl/jt8051_ctrl.v
+$JTROOT/modules/jt8051/hdl/jt8051_regs.v
+$JTROOT/modules/jt8051/hdl/jt8051_alu.v
+$JTROOT/modules/jt8051/hdl/jt8051_periph.v
+$JTROOT/modules/jt8051/hdl/jt8051_serial.v
+$JTFRAME/hdl/clocking/jtframe_sync.v
+$JTFRAME/hdl/ram/jtframe_dual_ram.v
+$JTFRAME/hdl/ram/jtframe_ram_rst.v
+$JTFRAME/hdl/ram/jtframe_ram.v
+$JTROOT/cores/biocom/hdl/jtbiocom_mcu.v

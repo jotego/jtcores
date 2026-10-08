@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-8-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-8-2022 */
 
 module jtroc_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -33,8 +19,8 @@ reg  [ 7:0] view_mux;
 
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
-wire        vram_cs, objram_cs, flip;
-wire [ 7:0] vram_dout, obj_dout, cpu_dout;
+wire        vram_cs, objram_cs, flip, osd_flip;
+wire [ 7:0] vcpu_din, obj_dout, cpu_dout;
 
 // Sound
 wire [ 7:0] snd_latch;
@@ -43,8 +29,10 @@ wire        mute, snd_on;
 wire        m2s_on;
 reg  [24:0] dwn_addr;
 
-assign dip_flip   = ~flip;
+assign vramrw_din = {2{cpu_dout}};
+assign osd_flip   = ~dip_flip;
 assign debug_view = view_mux;
+assign ioctl_din  = 0;
 
 always @(*) begin
     case( debug_bus[7:6])
@@ -68,7 +56,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jtroc_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -91,7 +78,7 @@ jtroc_main u_main(
 
     .bus_addr       ( cpu_addr      ),
     .vram_cs        ( vram_cs       ),
-    .vram_dout      ( vram_dout     ),
+    .vram_dout      ( vcpu_din      ),
 
     .objram_cs      ( objram_cs     ),
     .obj_dout       ( obj_dout      ),
@@ -108,14 +95,6 @@ jtroc_main u_main(
     .dipsw          ( dipsw[23:0]   ),
     .st_dout        ( st_main       )
 );
-`else
-    assign objram_cs = 0;
-    assign vram_cs   = 0;
-    assign cpu_rnw   = 1;
-    assign cpu_addr  = 0;
-    assign cpu_dout  = 0;
-    assign flip      = 1;
-`endif
 
 jtroc_snd u_sound(
     .rst        ( rst24     ),
@@ -156,13 +135,19 @@ jtroc_video u_video(
 
     // configuration
     .flip       ( flip      ),
+    .osd_flip   ( osd_flip  ),
 
     // CPU interface
     .cpu_addr   ( cpu_addr[10:0]  ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_rnw    ( cpu_rnw   ),
+    .vramrw_we  ( vramrw_we ),
+    .vramrw_addr(vramrw_addr),
+    .vramrw_dout(vramrw_dout),
+    .vcpu_din   ( vcpu_din  ),
     // Scroll
     .vram_cs    ( vram_cs   ),
+    .vram_addr  ( vram_addr ),
     .vram_dout  ( vram_dout ),
     // Objects
     .objram_cs  ( objram_cs ),
