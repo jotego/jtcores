@@ -175,11 +175,11 @@ assign ba1_din = 0, ba2_din = 0, ba3_din = 0,
 localparam [24:0] PROM_START  = 25'h04_4000;
 
 // offsets (in bytes) where each of the ROMs starts
-localparam [24:0] CPU_OFFSET     = 25'h00_0000,
-                  SND_OFFSET     = 25'h04_0000,
-                  WAV1_OFFSET    = 25'h04_4000,
-                  WAV2_OFFSET    = 25'h04_4100,
-                  WAV_VOL_OFFSET = 25'h04_4200;
+localparam [21:0] CPU_OFFSET     = 22'h00_0000,
+                  SND_OFFSET     = 22'h04_0000,
+                  WAV1_OFFSET    = 22'h04_4000,
+                  WAV2_OFFSET    = 22'h04_4100,
+                  WAV_VOL_OFFSET = 22'h04_4200;
 
 wire [7:0] nc;
 
