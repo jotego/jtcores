@@ -14,6 +14,10 @@ module jtkiwi_gfx #(
     parameter [8:0] OBJ_XOFF=0,
     parameter [7:0] OBJ_YOFF=0,
     parameter       OBJ_YWRAP=0,
+    parameter [8:0] SCR_VOFF=0,
+    parameter [8:0] SCR_HOFF=0,
+    parameter [8:0] SCR_VOFF_F=SCR_VOFF,
+    parameter [8:0] SCR_HOFF_F=SCR_HOFF,
     parameter [8:0] OBJ_LIMIT=9'h1ff,
     // 12 = 8kB sprite RAM, page selects the 0x800 half (tnzs/calibr50)
     // 13 = 16kB, page selects the 0x1000 buffer (metafox/arbalest, MAME seta001 setac)
@@ -218,7 +222,12 @@ always @* begin
     endcase
 end
 
-jtkiwi_tilemap u_tilemap(
+jtkiwi_tilemap #(
+    .VOFF  ( SCR_VOFF   ),
+    .HOFF  ( SCR_HOFF   ),
+    .VOFF_F( SCR_VOFF_F ),
+    .HOFF_F( SCR_HOFF_F )
+) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
