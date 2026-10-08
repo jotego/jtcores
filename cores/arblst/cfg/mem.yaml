@@ -10,11 +10,11 @@ clocks:
       outputs:
         - cen_pcm
 audio:
+  gain: 1.9
   mute: true
   channels:
-    # Same dual 4k/8k anti-alias filtering as cal50 (X1-010 left/right mono mix)
-    - { name: pcm_4k, data_width: 16, rsum:  47k, fir: fir_192k_4k.csv }
-    - { name: pcm_8k, data_width: 16, rsum:  47k, fir: fir_192k_8k.csv }
+    - { name: pcm_l, data_width: 16, rsum: 47k, fir: fir_192k_8k.csv }
+    - { name: pcm_r, data_width: 16, rsum: 47k, fir: fir_192k_8k.csv }
 sdram:
   banks:
     - buses:
