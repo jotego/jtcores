@@ -17,6 +17,12 @@ wire        flip, cpu_rnw, sub_rst,
 
 reg game_id = 1'b0;
 
+// X1-012 tile origin: Meta Fox / Arbalester. HDL flip is active low.
+// Include the tile pipeline offset (29 - MAME's unflipped xoffset).
+// Mirror around the 384-pixel window when flipped (384 - 29 + xoffset).
+wire [15:0] thoffs = flip ? (game_id ? 16'h1f : 16'h0d) :
+                           (game_id ? 16'h162 : 16'h150);
+
 always @(posedge clk) if( prog_we && header ) case( prog_addr[3:0] )
     4'd0: game_id <= prog_data[0];
     default:;
@@ -119,7 +125,12 @@ jtcal50_video #(
     .VB_END  ( 9'd8    ),
     .VB_START( 9'd232  ),
     // set_fg_xoffsets noflip: calibr50 -1, metafox/arbalest 0 -> one count right
-    .OBJ_XOFF( 9'h1ff  )
+    .OBJ_XOFF( 9'h1ff  ),
+    // X1-001 columns have a separate origin from foreground sprites.
+    .SCR_VOFF( -9'd11  ),
+    .SCR_HOFF(  9'd1   ),
+    .SCR_VOFF_F( 9'd11 ),
+    .SCR_HOFF_F( 9'd4  )
 ) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -133,6 +144,7 @@ jtcal50_video #(
     .VS         ( VS            ),
     .hdump      ( hdump         ),
     .flip       ( flip          ),
+    .thoffs     ( thoffs        ),
 
     .cpu_rnw    ( cpu_rnw       ),
     .cpu_dsn    ( cpu_dsn       ),
