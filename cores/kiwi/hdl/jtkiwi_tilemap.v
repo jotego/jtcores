@@ -6,7 +6,10 @@
 // This one uses an independent line buffer
 // from that of the sprites
 
-module jtkiwi_tilemap(
+module jtkiwi_tilemap #(
+    parameter [8:0] VOFF=0, HOFF=0,
+    parameter [8:0] VOFF_F=VOFF, HOFF_F=HOFF
+)(
     input               rst,
     input               clk,
     input               pxl_cen,
@@ -46,6 +49,9 @@ reg  [ 8:0] eff_h, eff_v, dr_xpos;
 reg  [ 7:0] yscr;
 reg  [ 8:0] xscr;
 wire [ 8:0] vf, raw_pxl;
+// Layer coordinates are independent of the raster counters used for control.
+wire [ 8:0] render_y = vrender + (flip ? VOFF : VOFF_F),
+            read_x   = hdump   + (flip ? HOFF : HOFF_F);
 reg  [ 1:0] st;
 reg         dr_draw, dr_hflip, dr_vflip, hflip, vflip;
 reg  [13:0] dr_code, code;
@@ -55,7 +61,7 @@ wire        buf_we;
 
 assign tm_addr  = { page, 1'b1, st[0], eff_h[8:5], eff_v[7:4], eff_h[4] }; // 1 + 1 + 1 + 4 + 5 = 12
 assign col_addr = { col_cnt[4:1], 1'd0, st[0], 2'd0 };
-assign vf       = {9{~flip}} ^ vrender;
+assign vf       = {9{~flip}} ^ render_y;
 assign pxl      = video_en ? raw_pxl : 9'd0;
 
 always @* begin
@@ -161,7 +167,7 @@ jtframe_obj_buffer #(
     .wr_addr( buf_addr  ),
     // Previous line reading
     .rd     ( pxl_cen   ),
-    .rd_addr( hdump     ),
+    .rd_addr( read_x    ),
     .rd_data( raw_pxl   )
 );
 
