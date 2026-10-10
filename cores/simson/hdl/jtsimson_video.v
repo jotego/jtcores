@@ -210,6 +210,7 @@ jtriders_obj #(
     .HFLIP_OFFSET ( 10'd134 )
    ,.SHADOW       ( 1       )
 ) u_obj(
+    .cpu_ok     (           ),
     .lgtnfght   ( 1'b0      ),
     .mmr_noa1  ( 1'b0      ),
 `endif
