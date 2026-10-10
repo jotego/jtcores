@@ -1,0 +1,48 @@
+nemesis:
+  - get:
+      - jtnemesis_game.v
+      - nemesis_main.v
+      - nemesis_68k_addr_dec.v
+      - nemesis_sound.v
+      - nemesis_rom_debug.v
+      - gx400a_video.v
+      - gx400_cen.v
+      - gx400_priority_handler.v
+      - colour_lut.v
+      - k5289.v
+      - k5290.v
+      - k5291.v
+      - k5292.v
+      - k5293.v
+      - k5294.v
+      - k5295.v
+      - bus_ff.v
+      - lmn74194_nbit.v
+      - os_pulse_gen.v
+      - unsigned_mixer.v
+
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+
+# AY-3-8910 x2
+jt12:
+  - get: [ jt49.yaml ]
