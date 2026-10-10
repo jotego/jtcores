@@ -31,12 +31,13 @@ module jt6805_ctrl(
     output [3:0] rmux_sel
 );
 
-`include "6805_param.vh"
-`include "6805.vh"
-
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
 wire       halt, swi, ni;
+
+`include "6805_param.vh"
+`include "6805.vh"
+
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
 always @(posedge clk, posedge rst) begin

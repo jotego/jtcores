@@ -1,0 +1,12 @@
+# Original Tiger-Heli: coin/start, launch animation and held control inputs.
+=100
+2 coin
+=160
+2 1p
+=480
+40 b1
+20 right b1
+20 left b1
+20 up b1
+20 down b1
+60 b1 b2
