@@ -70,14 +70,11 @@ wire [ 7:0] bg_pxl, fg_pxl;
 wire [11:0] bg_vaddr_lo, obj_pxl;
 wire [14:0] fg_rom_addr;
 wire        lhbl, lvbl;
-reg  [ 1:0] lhbl_sh, lvbl_sh;
 
 // the tile engines start 16 counts before the visible line
 assign heff = hdump >= 9'd430 ? hdump - 9'd446 : hdump;
 
 assign bg_vaddr = { bg_bank, bg_vaddr_lo };
-assign LHBL     = lhbl_sh[1];
-assign LVBL     = lvbl_sh[1];
 assign fg_addr  = { fg_bank, fg_rom_addr };
 
 // The real PCB uses a programmable CRT controller: HD6845S
@@ -92,8 +89,8 @@ jtframe_vtimer #(
     .VB_START   ( 9'd239            ),
     .VB_END     ( 9'd285            ),
     .VCNT_END   ( 9'd285            ),
-    .VS_START   ( 9'd248            ),
-    .VS_END     ( 9'd256            )
+    .VS_START   ( 9'd264            ),
+    .VS_END     ( 9'd272            )
 ) u_vtimer(
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
@@ -108,11 +105,6 @@ jtframe_vtimer #(
     .HS         ( HS                ),
     .VS         ( VS                )
 );
-
-always @(posedge clk) if( pxl_cen ) begin
-    lhbl_sh <= { lhbl_sh[0], lhbl };
-    lvbl_sh <= { lvbl_sh[0], lvbl };
-end
 
 jtwardnr_scroll #(.LATCH(LATCH)) u_bg(
     .rst        ( rst               ),
@@ -206,8 +198,10 @@ jtwardnr_obj #(.HWSCAN(HWSCAN)) u_obj(
 jtwardnr_colmix u_colmix(
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
-    .LVBL       ( lvbl              ),
-    .LHBL       ( lhbl              ),
+    .preLVBL    ( lvbl              ),
+    .preLHBL    ( lhbl              ),
+    .LVBL       ( LVBL              ),
+    .LHBL       ( LHBL              ),
     .video_on   ( video_on          ),
     .gfx_en     ( gfx_en            ),
     .bg_pxl     ( bg_pxl            ),
