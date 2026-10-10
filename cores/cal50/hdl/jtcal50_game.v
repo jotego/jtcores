@@ -120,6 +120,7 @@ jtcal50_video u_video(
     .VS             ( VS            ),
     .hdump          ( hdump         ),
     .flip           ( flip          ),
+    .thoffs         ( flip ? 16'h20 : 16'h1e1 ),
     // GFX - CPU interface
     .cpu_rnw        ( cpu_rnw       ),
     .cpu_dsn        ( cpu_dsn       ),

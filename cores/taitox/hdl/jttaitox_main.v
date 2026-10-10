@@ -229,13 +229,13 @@ jtframe_m68k u_cpu(
 );
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_rnw=1, cpu_dsn=3, cpu_cen=0,
-       rom_addr=0, ram_we=0, pal_we=0;
+       rom_addr=0, ram_we=0, pal_we=0, syt_rst=1, cchip_rst=1;
 `ifdef RAM_IN_SDRAM
 assign ram_dsn=3;
 `endif
 initial begin
     rom_cs=0; oram_cs=0; vdcm_cs=0; syt_cs=0; cchip_cs=0;
-    ram_cs=0; pal_cs=0; dip_cs=0; in_cs=0;
+    ram_cs=0;
 end
 `endif
 endmodule
