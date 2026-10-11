@@ -4,7 +4,6 @@ roller:
 ajax:
   - get:
     - jt051316.v
-    - jtk051316_mmr.v
 riders:
   - get:
     - jtriders_obj.v
