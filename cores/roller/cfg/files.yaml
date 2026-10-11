@@ -17,7 +17,6 @@ simson:
 rungun:
   - get:
     - jtk053252.v
-    - jtk053252_mmr.v
 jtframe:
   - get:
     - jtframe_counter.v
