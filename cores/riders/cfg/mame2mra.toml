@@ -72,18 +72,6 @@ regions = [
 
 order=["maincpu","audiocpu","pcm","k052109","obj", "z-tiles", "z-tilemap"]
 
-patches=[
-	# skip the 54-frame wait after displaying the memory check
-	{setname="ssriders",offset=0x1a40,data="71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E 71 4E"},
-	# skip wait after displaying the video grid
-	{setname="ssriders",offset=0x1392,data="71 4E"},
-	# skip wait after displaying the video grid
-	# {setname="lgtnfght",offset=0x181a,data="71 4E 71 4E"},
-	# {setname="lgtnfght",offset=0x1824,data="71 4E 71 4E"},
-	# # bypass halt on boot-up errors
-	# {setname="lgtnfght",offset=0x1830,data="71 4E"},
-]
-
 # default configuration to prevent from boot-up error
 nvram={	Defaults=[
 	{ setname="ssriderseaa", data="""\
@@ -267,4 +255,3 @@ nvram={	Defaults=[
 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""},
 ] }
-
