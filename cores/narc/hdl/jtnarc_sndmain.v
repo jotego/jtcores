@@ -133,7 +133,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_sys6809 #(.RAM_AW(13),.NMI_EARLY(1)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(13)) u_cpu(
     .rstn     ( cpu_rstn ),
     .clk      ( clk      ),
     .cen      ( cen8     ),
