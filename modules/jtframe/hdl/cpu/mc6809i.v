@@ -44,8 +44,7 @@
 
 module mc6809i
 #(
-    parameter ILLEGAL_INSTRUCTIONS="GHOST",
-    parameter NMI_EARLY=0   // 1: an NMI edge before the first LDS is kept and taken once S is loaded
+    parameter ILLEGAL_INSTRUCTIONS="GHOST"
 )
 (
 
@@ -557,7 +556,8 @@ endgenerate
 ///////////////////////////////////////////////////////////////////////
 
 
-//always @(negedge NMISample2 or posedge wNMIClear)
+// NMI edges after reset are retained until S is initialized (Motorola programming manual).
+// NMIMask blocks recognition, not edge capture.
 reg last_NMISample2, last_wNMIClear, NMIPend;
 
 always @(posedge clk, negedge nRESET) begin
@@ -577,7 +577,7 @@ always @(posedge clk, negedge nRESET) begin
                 NMILatched <= 0;
             else begin
                 NMILatched <= 1;
-                NMIPend    <= NMI_EARLY!=0;
+                NMIPend    <= 1;
             end
         end else if (NMIPend && !NMIMask) begin
             NMILatched <= 0;
