@@ -44,7 +44,8 @@
 
 module mc6809i
 #(
-    parameter ILLEGAL_INSTRUCTIONS="GHOST"
+    parameter ILLEGAL_INSTRUCTIONS="GHOST",
+    parameter NMI_EARLY=0   // 1: an NMI edge before the first LDS is kept and taken once S is loaded
 )
 (
 
@@ -557,13 +558,14 @@ endgenerate
 
 
 //always @(negedge NMISample2 or posedge wNMIClear)
-reg last_NMISample2, last_wNMIClear;
+reg last_NMISample2, last_wNMIClear, NMIPend;
 
 always @(posedge clk, negedge nRESET) begin
     if( !nRESET ) begin
         last_NMISample2 <= 1;
         last_wNMIClear  <= 1;
         NMILatched      <= 1;
+        NMIPend         <= 0;
     end else if(cen_Q) begin : NMIlatch
         last_NMISample2 <= NMISample2;
         last_wNMIClear  <= wNMIClear;
@@ -573,8 +575,13 @@ always @(posedge clk, negedge nRESET) begin
                 NMILatched <= 1;
             else if (NMIMask == 0)
                 NMILatched <= 0;
-            else
+            else begin
                 NMILatched <= 1;
+                NMIPend    <= NMI_EARLY!=0;
+            end
+        end else if (NMIPend && !NMIMask) begin
+            NMILatched <= 0;
+            NMIPend    <= 0;
         end
     end
 end
