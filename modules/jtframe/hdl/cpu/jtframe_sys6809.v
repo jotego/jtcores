@@ -82,8 +82,7 @@ module jtframe_sys6809 #( parameter
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1 mode
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
-    CENDIV   = 1,   // set to zero to not divide by four the input cen, implies RECOVERY=0
-    NMI_EARLY= 0    // see mc6809i
+    CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(
     input           rstn,
     input           clk,
@@ -114,8 +113,7 @@ module jtframe_sys6809 #( parameter
         .RECOVERY   ( RECOVERY  ),
         .KONAMI     ( KONAMI    ),
         .CENDIV     ( CENDIV    ),
-        .IRQFF      ( IRQFF     ),
-        .NMI_EARLY  ( NMI_EARLY )
+        .IRQFF      ( IRQFF     )
     ) u_sys6809(
         .rstn       ( rstn      ),
         .clk        ( clk       ),
@@ -160,8 +158,7 @@ module jtframe_sys6809_dma #( parameter
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1/2 mode
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
-    CENDIV   = 1,        // set to zero to not divide by four the input cen, implies RECOVERY=0
-    NMI_EARLY= 0         // see mc6809i
+    CENDIV   = 1         // set to zero to not divide by four the input cen, implies RECOVERY=0
 )
 (
     input           rstn,
@@ -308,7 +305,7 @@ module jtframe_sys6809_dma #( parameter
     // cycle accurate core
     wire [111:0] RegData;
 
-    mc6809i #(.NMI_EARLY(NMI_EARLY)) u_cpu(
+    mc6809i u_cpu(
         .D       ( din_dec ),
         .DOut    ( cpu_dout),
         .ADDR    ( A       ),
