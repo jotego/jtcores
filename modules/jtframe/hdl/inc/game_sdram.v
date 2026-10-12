@@ -295,6 +295,17 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .st_addr      ( st_addr        ),
     .st_dout      ( st_dout        ),
 `endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .ddr_burstcnt  ( ddr_burstcnt   ),
+    .ddr_addr      ( ddr_addr       ),
+    .ddr_rd        ( ddr_rd         ),
+    .ddr_we        ( ddr_we         ),
+    .ddr_be        ( ddr_be         ),
+    .ddr_din       ( ddr_din        ),
+    .ddr_busy      ( ddr_busy       ),
+    .ddr_dout      ( ddr_dout       ),
+    .ddr_dout_ready( ddr_dout_ready ),
+`endif
 `ifdef JTFRAME_LF_BUFFER
     .game_vrender( game_vrender  ),
     .game_hdump  ( game_hdump    ),
