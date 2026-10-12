@@ -125,6 +125,13 @@ func CheckMacros() error {
 	if IsSet("JTFRAME_MR_LF_BRAM") && !IsSet("JTFRAME_VERTICAL") {
 		return fmt.Errorf("jtframe: JTFRAME_MR_LF_BRAM requires JTFRAME_VERTICAL")
 	}
+	if IsSet("JTFRAME_MR_GAME_DDR") {
+		for _, name := range []string{"JTFRAME_VERTICAL", "JTFRAME_LF_BUFFER", "JTFRAME_MR_DDRLOAD"} {
+			if IsSet(name) {
+				return fmt.Errorf("jtframe: JTFRAME_MR_GAME_DDR uses the DDR port that %s needs", name)
+			}
+		}
+	}
 	if IsSet("JTFRAME_JOY1_POS") && GetInt("JTFRAME_DIPBASE")<20 {
 		return fmt.Errorf("jtframe: JTFRAME_JOY1_POS requires JTFRAME_DIPBASE to be at least 20")
 	}
