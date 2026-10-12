@@ -556,14 +556,16 @@ endgenerate
 ///////////////////////////////////////////////////////////////////////
 
 
-//always @(negedge NMISample2 or posedge wNMIClear)
-reg last_NMISample2, last_wNMIClear;
+// NMI edges after reset are retained until S is initialized (Motorola programming manual).
+// NMIMask blocks recognition, not edge capture.
+reg last_NMISample2, last_wNMIClear, NMIPend;
 
 always @(posedge clk, negedge nRESET) begin
     if( !nRESET ) begin
         last_NMISample2 <= 1;
         last_wNMIClear  <= 1;
         NMILatched      <= 1;
+        NMIPend         <= 0;
     end else if(cen_Q) begin : NMIlatch
         last_NMISample2 <= NMISample2;
         last_wNMIClear  <= wNMIClear;
@@ -573,8 +575,13 @@ always @(posedge clk, negedge nRESET) begin
                 NMILatched <= 1;
             else if (NMIMask == 0)
                 NMILatched <= 0;
-            else
+            else begin
                 NMILatched <= 1;
+                NMIPend    <= 1;
+            end
+        end else if (NMIPend && !NMIMask) begin
+            NMILatched <= 0;
+            NMIPend    <= 0;
         end
     end
 end

@@ -5,7 +5,11 @@
 // 053244/5
 module jtriders_obj #(parameter
     RAMW   = 12,
+    CPU_ROM_REG = 0,
+    CPU_8BIT = 0,
     HFLIP_OFFSET = 0,
+    VFLIP_OFFSET = 0,
+    DEBUG_FLICKER = 1,
     SHADOW = 0
 )(
     input             rst,
@@ -26,11 +30,13 @@ module jtriders_obj #(parameter
     input      [ 3:0] mmr_addr,
     input      [15:0] mmr_din,
     input      [ 1:0] mmr_dsn,
+    input             mmr_noa1,
 
     input      [15:0] ram_din, // 16-bit interface
     input      [ 1:0] ram_we,
     input    [RAMW:1] ram_addr,
     output     [15:0] cpu_din,
+    output            cpu_ok,
     output            dma_bsy,
 
     // ROM addressing
@@ -63,6 +69,14 @@ wire [22:2] pre_addr;
 wire [21:1] rmrd_addr;
 wire [13:1] scn_addr, dma_addr;
 wire [15:0] pre_pxl;
+wire        rom_read;
+wire [15:0] rom_word;
+wire [ 3:0] mmr_even;
+wire [ 1:0] rom_lane;
+reg  [ 7:0] rom_lo, rom_mid;
+reg  [ 2:0] rom_hi;
+reg         rom_read_l;
+reg  [21:2] rom_addr_l;
 
 // Draw module
 wire        dr_start, dr_busy;
@@ -80,12 +94,63 @@ function [5:0] paroda_conv(input [5:0]x);
     paroda_conv = { x[5], x[3], x[1], x[4], x[2], x[0] };
 endfunction
 
-assign rom_cs    = ~objcha_n | pre_cs;
-assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
+assign rom_read  = CPU_ROM_REG && reg_cs && !mmr_we && mmr_addr[3:2]==2'b11;
+assign rom_cs    = rom_read | ~objcha_n | pre_cs;
+// The 053244 register pair 8/9 and register B address a 32-bit ROM word.
+assign rom_addr  = rom_read ? {1'b0,rom_hi,rom_mid,rom_lo} :
+                   !objcha_n ? rmrd_addr[21:2] :
     { pre_addr[21], pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] };
-
-assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
+assign rom_word  = mmr_addr[1] ? rom_data[31:16] : rom_data[15:0];
+// 053244 swaps the low address bit on CPU byte reads (C/D and E/F).
+assign rom_lane  = mmr_addr[1:0] ^ 2'b01;
+assign cpu_din   = rom_read  ? (CPU_8BIT || !mmr_noa1) ?
+                   {8'd0,rom_data[{rom_lane,3'b000}+:8]} : rom_word :
+                   !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
+                   CPU_ROM_REG && reg_cs && !CPU_8BIT ? 16'd0 :
                     ram_data;
+// JTFRAME's registered cache may keep rom_ok high for the old draw address
+// during the first clock of a CPU read or after a word-address change.
+assign cpu_ok    = !rom_read || (rom_read_l && rom_addr_l==rom_addr && rom_ok);
+assign mmr_even  = {mmr_addr[3:1],1'b0};
+
+always @(posedge clk) begin
+    rom_read_l <= !rst && rom_read;
+    rom_addr_l <= rst ? 20'd0 : rom_addr;
+end
+
+always @(posedge clk) begin
+    if (rst) begin
+        rom_lo  <= 0;
+        rom_mid <= 0;
+        rom_hi  <= 0;
+    end else if (CPU_ROM_REG && reg_cs && mmr_we) begin
+        if (CPU_8BIT) begin
+            case (mmr_addr)
+                4'h8: rom_mid <= mmr_din[7:0];
+                4'h9: rom_lo  <= mmr_din[7:0];
+                4'hb: rom_hi  <= mmr_din[2:0];
+                default: ;
+            endcase
+        end else if (mmr_noa1) begin
+            if (!mmr_dsn[1]) case (mmr_even)
+                4'h8: rom_mid <= mmr_din[15:8];
+                default: ;
+            endcase
+            if (!mmr_dsn[0]) case (mmr_even | 4'h1)
+                4'h9: rom_lo <= mmr_din[7:0];
+                4'hb: rom_hi <= mmr_din[2:0];
+                default: ;
+            endcase
+        end else if (!mmr_dsn[0]) begin
+            case (mmr_addr)
+                4'h8: rom_mid <= mmr_din[7:0];
+                4'h9: rom_lo  <= mmr_din[7:0];
+                4'hb: rom_hi  <= mmr_din[2:0];
+                default: ;
+            endcase
+        end
+    end
+end
 assign dma_addr  = lgtnfght ? {scn_addr[10:4],2'b00,scn_addr[3:1],1'b0} : scn_addr;
 
 // Shadow understanding so far
@@ -105,7 +170,8 @@ assign shd     =  pre_pxl[14];
 assign prio    =  {1'd1,pre_pxl[10:9],2'd0} ;
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
 
-jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET)
+jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),
+    .DEBUG_FLICKER(DEBUG_FLICKER)
     )u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
