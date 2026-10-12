@@ -1,5 +1,16 @@
 #!/bin/bash -e
 
+if [[ ${1:-} == --delete ]]; then
+    rm -f scr0.bin scr1.bin scrx.bin line.bin line_hi.bin line_lo.bin \
+          pal.bin pal_hi.bin pal_lo.bin \
+          obj.bin obj_hi.bin obj_lo.bin psac.bin pal_mmr.bin scr_mmr.bin \
+          obj_mmr.bin other.bin AB.bin CC.bin A.bin B.bin C.bin \
+          t2x2.bin t2x2_hi.bin t2x2_lo.bin tilemap_2x2.hex
+    # dump2bin.sh removes nvram.bin first; a local seed supports boot tests.
+    if [[ -f nvram.seed ]]; then cp nvram.seed nvram.bin; fi
+    exit 0
+fi
+
 PSAC=
 FSIZE=$(wc -c <"rest.bin")
 

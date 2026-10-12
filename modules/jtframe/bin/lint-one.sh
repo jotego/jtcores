@@ -5,6 +5,7 @@
 trap "clean_up; exit 1" INT KILL
 
 main() {
+    local status=0
     if [[ "$1" == "-h" || "$1" == "--help" ]]; then
         usage
         return 0
@@ -35,9 +36,10 @@ main() {
     cd $TEST_FOLDER
     make_dummy_rom
 
-    run_linter "$SIM_ARGS"
-    check_msg
+    run_linter "$SIM_ARGS" || status=$?
+    check_msg || status=$?
     clean_up
+    return "$status"
 }
 
 usage() {

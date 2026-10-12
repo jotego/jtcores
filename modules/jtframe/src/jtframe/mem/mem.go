@@ -123,7 +123,7 @@ func (bus AudioCh) Is_nbits(n int) bool        { return bus.Data_width == n }
 func (bus SDRAMCacheLine) Is_nbits(n int) bool { return bus.Data_width == n }
 
 func addr_range(bus Bus) string {
-	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)
+	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, cache_data_aw0(bus.Get_dw()))
 }
 
 func data_range(bus Bus) string {
