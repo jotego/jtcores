@@ -1,0 +1,30 @@
+CORENAME=JTNARC
+JTFRAME_RATE=54.82
+
+# 48 MHz board crystal: TMS34010 on clk48, rest on clk at 96 MHz (a 16 MHz pixel clock needs pxl2_cen at 32 MHz)
+JTFRAME_SDRAM96
+JTFRAME_CLK48
+
+# Video: 512x400, 16 MHz dot clock, timing programmed by the game into the TMS34010
+JTFRAME_WIDTH=512
+JTFRAME_HEIGHT=400
+JTFRAME_SKIP_RATE_TEST
+# the game programs the TMS34010 video timing during the first frame after reset (402 lines), later frames are 400
+JTFRAME_SIM_SKIP_VSIZE
+
+# Inputs: 8-way joystick, fire, jump, rocket bomb, crouch per player; button 5 = Service (the game's ADVANCE switch)
+JTFRAME_BUTTONS=5
+# ADVANCE (test/service) from the OSD service switch, F2 or the fifth button (Service)
+JTFRAME_OSD_TEST
+JTFRAME_OSD_NOLOGO
+
+# ROM: program + sound in bank 0, image ROM in bank 2; VRAM in DDR3
+SND_START=0x100000
+JTFRAME_BA2_START=0x160000
+JTFRAME_IOCTL_RD=8192
+JTFRAME_COLORW=5
+JTFRAME_MR_GAME_DDR
+
+[mist|sidi|sidi128|pocket|neptuno]
+# The 1 MB VRAM lives in the DE10-Nano DDR3 (JTFRAME_MR_GAME_DDR): MiSTer only
+JTFRAME_SKIP
