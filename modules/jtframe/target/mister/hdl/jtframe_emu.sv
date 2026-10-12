@@ -65,6 +65,17 @@ module emu
     output  [1:0] VGA_SL,
     output        VGA_SCALER,
     output        VGA_DISABLE, // analog out is off
+`ifdef JTFRAME_CRT480I
+    // the core's native picture for the HDMI scaler; VGA_* is native or 480i (MRA mod bit 18)
+    output        CRT480I_ON,
+    output        NATIVE_CE,
+    output  [7:0] NATIVE_R,
+    output  [7:0] NATIVE_G,
+    output  [7:0] NATIVE_B,
+    output        NATIVE_HS,
+    output        NATIVE_VS,
+    output        NATIVE_DE,
+`endif
 
     input  [11:0] HDMI_WIDTH,
     input  [11:0] HDMI_HEIGHT,
@@ -184,11 +195,16 @@ module emu
     localparam SDRAMW=22; // 32 MB
 `endif
 
-`ifndef JTFRAME_INTERLACED
-assign VGA_F1=1'b0;
+`ifdef JTFRAME_CRT480I
+wire   crt_f1;
+assign VGA_F1=crt_f1;
 `else
-wire   field;
-assign VGA_F1=field;
+    `ifndef JTFRAME_INTERLACED
+    assign VGA_F1=1'b0;
+    `else
+    wire   field;
+    assign VGA_F1=field;
+    `endif
 `endif
 
 // unused features
@@ -697,6 +713,28 @@ u_frame(
     .hdmi_ary       ( VIDEO_ARY      ),
     .hdmi_width     ( HDMI_WIDTH     ),
     .hdmi_height    ( HDMI_HEIGHT    ),
+`ifdef JTFRAME_CRT480I
+    // native picture to the HDMI scaler; native or 480i to the analog output
+    .scan2x_r       ( NATIVE_R       ),
+    .scan2x_g       ( NATIVE_G       ),
+    .scan2x_b       ( NATIVE_B       ),
+    .scan2x_hs      ( NATIVE_HS      ),
+    .scan2x_vs      ( NATIVE_VS      ),
+    .scan2x_clk     ( CLK_VIDEO      ),
+    .scan2x_cen     ( NATIVE_CE      ),
+    .scan2x_de      ( NATIVE_DE      ),
+    .scan2x_sl      (                ),
+    .crt_r          ( VGA_R          ),
+    .crt_g          ( VGA_G          ),
+    .crt_b          ( VGA_B          ),
+    .crt_hs         ( VGA_HS         ),
+    .crt_vs         ( VGA_VS         ),
+    .crt_de         ( VGA_DE         ),
+    .crt_cen        ( CE_PIXEL       ),
+    .crt_f1         ( crt_f1         ),
+    .crt_sl         ( VGA_SL         ),
+    .crt_on         ( CRT480I_ON     ),
+`else
     // scan doubler output to VGA pins
     .scan2x_r       ( VGA_R          ),
     .scan2x_g       ( VGA_G          ),
@@ -707,6 +745,7 @@ u_frame(
     .scan2x_cen     ( CE_PIXEL       ),
     .scan2x_de      ( VGA_DE         ),
     .scan2x_sl      ( VGA_SL         ),
+`endif
     // status
     .st_addr        ( st_addr        ),
     .st_dout        ( st_dout        ),
