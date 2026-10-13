@@ -36,7 +36,8 @@ module jtflstory_sound(
 );
 `ifndef NOSOUND
 wire [15:0] A;
-wire [14:0] msm1, msm2, msm_mix;
+wire [14:0] msm1, msm2;
+wire [15:0] msm_mix;
 wire [ 7:0] ram_dout, cpu_dout, ay1_dout, ay2_dout, ioa, iob, io2a,io2b;
 wire        irq_ack, mreq_n, m1_n, iorq_n, wr_n, rd_n, nmi_n, rfsh_n;
 reg  [ 7:0] ibuf, obuf, din;       // input/output buffers
@@ -160,9 +161,10 @@ always @* begin
                     bc1[A[1]]  = !A[0];
                 end
                 1: if( psg2_en ) msmw = 1; // C900
-                2: if(!psg2_en ) msmw = 1; // CA00
-                4,5: cfg0 = 1; // CC00
-                6,7: cfg1 = 1; // CD00
+                2: if(!psg2_en ) msmw = 1; else cfg0 = 1; // CA00
+                3: if( psg2_en ) cfg1 = 1; // CB00
+                4,5: if(!psg2_en ) cfg0 = 1; // CC00
+                6,7: if(!psg2_en ) cfg1 = 1; // CD00
                 default:;
             endcase
             2,3: begin // D000~D7FFF (nycaptor psg2_en=1) D800~DFFF (flstory psg2_en=0)
@@ -288,13 +290,30 @@ jt7630_bal #(15) u_bal(
 );
 
 wire [15:0] msm_amp, psg_amp, psg2_amp;
+wire [16:0] psg_bmix, psg2_bmix;
+
+jt7630_bal #(16) u_bal_psg(
+    .clk    ( clk             ),
+    .bal    ( psg_bal         ),
+    .sin1   ( {psg_raw,6'd0}  ),
+    .sin2   ( {psg_raw,6'd0}  ),
+    .sout   ( psg_bmix        )
+);
+
+jt7630_bal #(16) u_bal_psg2(
+    .clk    ( clk             ),
+    .bal    ( psg2_bal        ),
+    .sin1   ( {psg2_raw,6'd0} ),
+    .sin2   ( {psg2_raw,6'd0} ),
+    .sout   ( psg2_bmix       )
+);
 
 jt7630_vol u_vol(
     .clk    ( clk     ),
     .vol0   ( psg_vol ),
     .vol1   ( msm_vol ),
-    .sin0   ( {psg_raw,6'd0} ),
-    .sin1   ( {msm_mix,1'b0} ),
+    .sin0   ( psg_bmix[15:0] ),
+    .sin1   ( msm_mix ),
     .sout0  ( psg_amp ),
     .sout1  ( msm_amp )
 );
@@ -304,7 +323,7 @@ jt7630_vol u_vol_psg2(
     .clk    ( clk       ),
     .vol0   ( psg2_vol  ),
     .vol1   ( 4'd0      ),
-    .sin0   ( {psg2_raw,6'd0}),
+    .sin0   ( psg2_bmix[15:0]),
     .sin1   ( 16'd0     ),
     .sout0  ( psg2_amp  ),
     .sout1  (           )
