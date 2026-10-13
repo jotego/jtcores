@@ -181,9 +181,9 @@ end
 // If neither macro is defined, the nemesis_rom_debug module just passes the
 // cs and addr signals through.
 
-wire [16:0] main_sdram_addr;
-wire [13:0] audio_sdram_addr;
-wire        main_sdram_cs, audio_sdram_cs;
+wire [16:0] req_main_addr;
+wire [13:0] req_audio_addr;
+wire        req_main_cs, req_audio_cs;
 
 nemesis_rom_debug u_rom_debug(
 	.i_clk             ( clk                  ),
@@ -194,19 +194,19 @@ nemesis_rom_debug u_rom_debug(
 	.o_debug_view      ( debug_view           ),
 `endif
 
-	.i_z80_cs          ( audio_cs | ~cpu_start  ),
+	.i_z80_cs          ( req_audio_cs | ~cpu_start ),
 	.i_z80_ok          ( audio_ok               ),
-	.i_z80_addr        ( audio_addr             ),
+	.i_z80_addr        ( req_audio_addr         ),
 	.i_z80_data        ( audio_data             ),
-	.o_z80_sdram_cs    ( audio_sdram_cs         ),
-	.o_z80_sdram_addr  ( audio_sdram_addr       ),
+	.o_z80_sdram_cs    ( audio_cs               ),
+	.o_z80_sdram_addr  ( audio_addr             ),
 	
-	.i_main_cs         ( main_cs | ~cpu_start ),
+	.i_main_cs         ( req_main_cs | ~cpu_start ),
 	.i_main_ok         ( main_ok              ),
-	.i_main_addr       ( main_addr            ),
+	.i_main_addr       ( req_main_addr        ),
 	.i_main_data       ( main_data            ),
-	.o_main_sdram_cs   ( main_sdram_cs        ),
-	.o_main_sdram_addr ( main_sdram_addr      )
+	.o_main_sdram_cs   ( main_cs              ),
+	.o_main_sdram_addr ( main_addr            )
 );
 
 ///// PROMs /////
@@ -350,8 +350,8 @@ nemesis_main main(
 	.o_vzcs         ( vzcs            ),
 
 	// ROM
-	.o_rom_cs       ( main_cs         ),
-	.o_rom_addr     ( main_sdram_addr ),
+	.o_rom_cs       ( req_main_cs     ),
+	.o_rom_addr     ( req_main_addr   ),
 	.i_rom_data     ( main_data       ), // 16 bits data in from PROM
 	.i_rom_ok       ( main_ok         ),
 
@@ -553,8 +553,8 @@ nemesis_sound u_sound(
 	.i_sound_on_n     ( sound_on_n        ),
 `endif
 	.i_cpu_start      ( cpu_start         ),
-	.o_z80_cs         ( audio_cs          ),
-	.o_z80_addr       ( audio_sdram_addr  ),
+	.o_z80_cs         ( req_audio_cs      ),
+	.o_z80_addr       ( req_audio_addr    ),
 	.i_z80_data       ( audio_data        ),
 	.i_z80_ok         ( audio_ok          ),
 
