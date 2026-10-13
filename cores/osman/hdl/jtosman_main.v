@@ -28,10 +28,17 @@ module jtosman_main(
     input             jm, cr, md, mdp, hv,
     output reg        oki1_bank,  // hvysmsh banked sfx OKI
 
-    // main work RAM (mem.yaml BRAM)
+    // 93C46 defaults, saved-image restore and live EEPROM upload (index 2)
+    input    [25:0]   ioctl_addr,
+    input    [ 7:0]   ioctl_dout,
+    input             ioctl_wr, ioctl_ram,
+    output   [ 7:0]   ioctl_din,
+    // main work RAM (mem.yaml BRAM; mramh = high half, hvysmsh 32-bit RAM)
     output   [14:2]   mram_addr,
     output   [ 1:0]   mram_we,
     input    [15:0]   mram_dout,
+    output   [ 1:0]   mramh_we,
+    input    [15:0]   mramh_dout,
 
     // program ROM (SDRAM, 32-bit, deco156 decrypt-at-fetch)
     output reg        rom_cs,
@@ -83,6 +90,8 @@ module jtosman_main(
 assign rom_addr = 18'd0;
 assign mram_addr = 13'd0;
 assign mram_we   = 2'd0;
+assign mramh_we  = 2'd0;
+assign ioctl_din = 8'hff;
 assign cpu_addr = 16'd0;
 assign cpu_dout = 16'd0;
 assign cpu_dhi  = 16'd0;
@@ -140,6 +149,7 @@ wire is_pfram  = page==pframpage;               // pf name tables (0x6000)
 wire is_rowscr = page==rowscrpage;              // rowscroll
 wire is_in0    = page==8'h20 & ~wb_adr[12];     // 200000 IN0
 wire is_sram   = page==8'h20 &  wb_adr[12];     // 201000-201FFF systemram (32-bit)
+wire is_dmachk = hvio & page==8'h1d;            // hvysmsh 1D0010-1D002F nopr: DMA-complete flags, IRQ handler spins on bit3 unless 0
 
 wire is_video  = is_pfctl | is_pfram | is_rowscr | is_pal | is_oram;
 wire is_bram   = is_mram | is_sram | is_video;  // 1-cycle BRAM read latency
@@ -180,28 +190,16 @@ jtosman_deco156 u_dec156(
 assign rom_addr = arm_word;
 
 // ---- 93C46 EEPROM (jt9346), bit-banged via 0x1B0000 write ----
-// Osman/Cannon Dancer do NOT init their own EEPROM: word[0]=0xffbe, word[0x20]=0x0088
-// must be present or the game won't boot (simpl156.cpp note). Preload the osman image
-// through the dump port at power-up (64 words, runs during reset). TODO: candance image;
-// hardware NVRAM path via the MRA eeprom region.
-reg  [15:0] eegold [0:63];
-reg  [ 6:0] eeld = 7'd0;   // [6]=done
-initial $readmemh("eeprom_osman.hex", eegold);
-always @(posedge clk) if( !eeld[6] ) eeld <= eeld + 7'd1;
-jt9346 #(.AW(6),.DW(16)) u_eeprom(
-    .rst      ( rst     ),
-    .clk      ( clk     ),
-    .sclk     ( ee_sclk ),
-    .sdi      ( ee_sdi  ),
-    .sdo      ( ee_sdo  ),
-    .scs      ( ee_scs  ),
-    .dump_clk ( clk         ),
-    .dump_addr( eeld[5:0]   ),
-    .dump_we  ( ~eeld[6]    ),
-    .dump_din ( eegold[eeld[5:0]] ),
-    .dump_dout(         ),
-    .dump_clr ( 1'b1    ),
-    .dump_flag(         )
+// Use the EEPROM's own dump port: no second RAM or background save mirror.
+wire nvram_busy;
+wire cpu_rst = rst | nvram_busy;
+jtosman_eeprom u_eeprom(
+    .rst(rst), .clk(clk),
+    .swap_bytes(md | mdp),
+    .sclk(ee_sclk), .sdi(ee_sdi), .sdo(ee_sdo), .scs(ee_scs),
+    .ioctl_addr(ioctl_addr), .ioctl_dout(ioctl_dout),
+    .ioctl_wr(ioctl_wr), .ioctl_ram(ioctl_ram), .ioctl_din(ioctl_din),
+    .busy(nvram_busy)
 );
 
 // ---- work RAM: mem.yaml BRAM (board memory), BYTE-writable (ARM uses STRB/STRH).
@@ -213,6 +211,7 @@ wire [15:0] mram_q = mram_dout;
 wire [31:0] sram_q;
 assign mram_addr = wb_adr[14:2];
 assign mram_we   = {2{is_mram&wr}} & wb_sel[1:0];
+assign mramh_we  = {2{is_mram&wr}} & wb_sel[3:2];   // kept FFFF on reads unless hv
 jtframe_dual_ram16 #(.AW(10)) u_sysram_lo(       // systemram low 16 bits
     .clk0(clk), .addr0(wb_adr[11:2]), .data0(wb_wdat[15:0]),
     .we0({2{is_sram&wr}} & wb_sel[1:0]), .q0(sram_q[15:0]),
@@ -238,12 +237,13 @@ assign obj_copy = 1'b0;   // TODO: sprite DMA trigger (simpl156 copies spriteram
 //      the handler forever and the main loop never draws. ----
 reg irq_l, vbl_l;
 always @(posedge clk) begin
-    if( rst ) begin irq_l <= 1'b0; vbl_l <= 1'b0; end
+    if( cpu_rst ) begin irq_l <= 1'b0; vbl_l <= 1'b0; end
     else begin
         vbl_l <= vbl;
         if( !vbl )                                            irq_l <= 1'b0;  // CLEAR_LINE at vblank end: a masked IRQ is lost, never held pending
         else if( vbl & ~vbl_l )                               irq_l <= 1'b1;  // vblank start
         else if( is_rom & rd & wb_ack & wb_adr[23:2]==22'h6 ) irq_l <= 1'b0;  // vector 0x18 fetched
+        else if( hvio & is_io & wr & wb_ack & wb_adr[3:2]==2'd2 ) irq_l <= 1'b0; // hvysmsh io+8 explicit ack (MAME nopw)
     end
 end
 
@@ -260,7 +260,7 @@ end
 // ---- BRAM read ack: 1-cycle settle ----
 reg bram_rdy;
 always @(posedge clk) begin
-    if( rst ) bram_rdy <= 1'b0;
+    if( cpu_rst ) bram_rdy <= 1'b0;
     else      bram_rdy <= acc & is_bram & ~bram_rdy;
 end
 
@@ -269,8 +269,8 @@ always @* begin
     wb_rdat = 32'hffff_ffff;   // data-bus pull-ups
     wb_ack  = 1'b0;
     if( acc ) begin
-        if( is_rom )      begin wb_rdat = rom_dec;                 wb_ack = rom_cs & rom_ok; end
-        else if( is_mram )begin wb_rdat = {16'hffff, mram_q};      wb_ack = wr | bram_rdy;  end
+        if( is_rom )      begin wb_rdat = rom_dec;                 wb_ack = wr | (rom_cs & rom_ok); end // ROM writes ack+discard (MAME rom() drops them; hvysmsh does one)
+        else if( is_mram )begin wb_rdat = {hv ? mramh_dout : 16'hffff, mram_q}; wb_ack = wr | bram_rdy; end
         else if( is_sram )begin wb_rdat = sram_q;                  wb_ack = wr | bram_rdy;  end
         else if( is_pal ) begin wb_rdat = {16'hffff, pal_dout};    wb_ack = wr | bram_rdy;  end
         else if( is_oram )begin wb_rdat = {16'hffff, oram_dout};   wb_ack = wr | bram_rdy;  end
@@ -282,13 +282,14 @@ always @* begin
         // this to know when a phrase is done; a hardcoded 0 makes it re-trigger forever (noise).
         else if( is_okisfx ) begin wb_rdat = {24'hff_ffff, oki1_dout}; wb_ack = 1'b1; end
         else if( is_okimus ) begin wb_rdat = {24'hff_ffff, oki2_dout}; wb_ack = 1'b1; end
+        else if( is_dmachk ) begin wb_rdat = 32'd0;                    wb_ack = 1'b1; end
         else              begin wb_rdat = 32'hffff_ffff;           wb_ack = 1'b1; end   // rowscroll/ctrl/unmapped
     end
 end
 
 // ---- registered write side: OKI, eeprom_w, IRQ clear ----
 always @(posedge clk) begin
-    if( rst ) begin
+    if( cpu_rst ) begin
         oki1_wr<=0; oki2_wr<=0; oki_din<=0; oki2_bank<=0; oki1_bank<=0;
         ee_sclk<=0; ee_sdi<=0; ee_scs<=0; flip<=0;
     end else begin
@@ -433,10 +434,10 @@ always @(posedge clk) if( is_rom & rd & wb_ack & arm_tr!=0 )
 
 a23_core u_arm(
     .i_clk        ( clk       ),
-    .i_reset      ( rst       ),
+    .i_reset      ( cpu_rst   ),
     .i_irq        ( irq_l     ),
     .i_firq       ( 1'b0      ),
-    .i_system_rdy ( sysrdy    ),  // paced at the real 7 MHz by cen_arm; see sysrdy above
+    .i_system_rdy ( sysrdy & ~ioctl_ram ), // freeze during live EEPROM uploads
     .o_wb_adr     ( wb_adr    ),
     .o_wb_sel     ( wb_sel    ),
     .o_wb_we      ( wb_we     ),

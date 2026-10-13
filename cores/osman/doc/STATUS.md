@@ -1,5 +1,10 @@
 # Osman / Cannon Dancer — bring-up status
 
+**EEPROM update:** ROM-set defaults and MiSTer saves now use the direct 93C46
+ioctl interface. See [NVRAM.md](NVRAM.md) for boot order, byte order, regeneration,
+save instructions and verification. Older bring-up notes below describe the
+superseded hardcoded `eeprom_osman.hex` preload.
+
 New jtcores core. **Osman (World)** / **Cannon Dancer (Japan)**, Mitchell (Atlus license), 1996.
 Hardware: Data East **"Simple 156"** — board MT5601-0 (DEC-22VO), the *simplest* DE156 board.
 

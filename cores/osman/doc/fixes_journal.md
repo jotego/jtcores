@@ -1,5 +1,19 @@
 # Osman — fixes journal
 
+## EEPROM defaults and MiSTer save/restore
+
+The initial hardcoded Osman image and later byte-scanning BRAM mirror have been
+replaced by `jtosman_eeprom`, using the native 16-bit `jt9346` dump port. The
+mirror's inverted byte address could commit words before both bytes arrived;
+reloading only after reset also missed independent NVRAM restores. The direct
+adapter latches complete words and their addresses, resets the ARM throughout
+restoration, and uploads the live EEPROM contents. Soft reset retains settings.
+
+MRAs use the per-set EEPROM ROM/CRC, or explicit erased defaults for families
+without a dump. Magical Drop / Plus retain their MAME WORD_SWAP convention on
+both download and upload. Boot helpers prepare the selected MRA's bytes and
+force full ioctl loading. [NVRAM.md](NVRAM.md) documents the complete workflow.
+
 ## HW test #1: joystick directions scrambled + okimusic is noise
 
 Two independent bugs from the first MiSTer test (SFX was fine, music was noise, dirs wrong).

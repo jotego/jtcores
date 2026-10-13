@@ -74,12 +74,13 @@ jtframe mra osman --skipPocket
 
 run_sim() { # 12-frame sim with the PC dumper
     local set=$1
+    bash "$HERE/prepare_nvram.sh" "$set" "$HERE/game/nvram.seed" || return 1
     docker run --platform linux/arm64 --rm -v "$JTROOT:/jtcores" \
         -v "$ROMS_HOST:/root/.mame/roms:ro" -w /jtcores --entrypoint bash "$IMAGE" -c "
 unset VERILATOR_ROOT
 source modules/jtframe/bin/setprj.sh --quiet
 cd cores/osman/ver/game
-jtsim -setname $set -video $FRAMES -d OSMAN_PCTRACE
+jtsim -setname $set -load -video $FRAMES -d OSMAN_PCTRACE
 " > /tmp/osman_bootchk_$set.log 2>&1
     grep -q "JTSIM finished" /tmp/osman_bootchk_$set.log
 }

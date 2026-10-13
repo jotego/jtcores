@@ -44,12 +44,20 @@ audio:
 # stays in the modules: the deco16ic pf name tables + control regs (jtosman_video /
 # jtdeco16ic_mmr) and the DE156 system RAM (32-bit scratch on every map at 0x201000).
 bram:
+  # 93C46 NVRAM uses jtosman_eeprom's direct ioctl port, not a BRAM mirror.
   - name: mram               # main work RAM, 16-bit at dword spacing (page moves per family)
     addr_width: 14
     data_width: 16
     addr: mram_addr
     din: cpu_dout
     we: mram_we
+    rw: true
+  - name: mramh              # work RAM high half (hvysmsh 32-bit RAM; simpl156 reads FFFF)
+    addr_width: 14
+    data_width: 16
+    addr: mram_addr
+    din: cpu_dhi
+    we: mramh_we
     rw: true
   - name: pal                # 1024 colours; xBGR555 low half (hvysmsh adds palh)
     addr_width: 11

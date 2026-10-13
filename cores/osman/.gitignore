@@ -1,0 +1,7 @@
+# Keep EEPROM regression sources and boot helpers; generated verification data
+# remains ignored by the repository-wide cores/*/ver/** rule.
+!ver/eeprom/
+!ver/eeprom/run.sh
+!ver/eeprom/test.v
+!ver/prepare_nvram.sh
+!ver/attract_run.sh

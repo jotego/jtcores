@@ -3,7 +3,7 @@
 # Base pattern: nslasher (ARM width=32 maincpu). gfx packing borrows cninja's deco16/decospr technique.
 
 [global]
-author=["jotego"]
+author=["andrea bogazzi"]
 
 [parse]
 sourcefile=[ "simpl156.cpp", "deco156.cpp" ]   # deco156.cpp = hvysmsh+wcvol95 in MAME 0.282 (split to hvysmsh.cpp later)
@@ -41,13 +41,35 @@ registers=[
 ]
 
 [buttons]
-# osman is a Strider-like action game, 3 buttons (EEPROM is fixed to 3-button). TODO confirm names.
+# osman is a Strider-like action game, 3 buttons (EEPROM is fixed to 3-button).
 Names = [ { machine="osman", names="Attack,Jump,Special" },
           { machine="hvysmsh", names="Shot,Jump,Special" } ]
 
 [ROM]
+# These families have no EEPROM ROM region in MAME. Start with an erased
+# 93C46 so the game can initialize it; clones inherit machine matching.
+nvram = { defaults=[
+    { machine="joemacr", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
+    { machine="charlien", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
+    { machine="hvysmsh", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
+] }
 regions = [
     { name="maincpu",  width=32, reverse=true },                         # ARM DE156, deco156-encrypted
+    # hvysmsh code = 2x ROM_LOAD32_WORD halves; the offset-sort + reverse=true path swaps the
+    # halves (full 32-bit reversal). Explicit parts keep halves in place, byte-swap each 16-bit
+    # word — byte-checked against the single-ROM convention (osman: cc 02 9b 0f).
+    { name="maincpu", setname="hvysmsh", width=32, parts=[
+        { name="lt01-2.3j", crc="ce2a75e2", map="0012" },
+        { name="lt00-2.2j", crc="f6e10fc0", map="1200" },
+    ]},
+    { name="maincpu", setname="hvysmsha", width=32, parts=[
+        { name="xx01-4.3j", crc="8c24c5ed", map="0012" },
+        { name="xx00-4.2j", crc="333a92c1", map="1200" },
+    ]},
+    { name="maincpu", setname="hvysmshj", width=32, parts=[
+        { name="lp01-2.3j", crc="a6fe282a", map="0012" },
+        { name="lp00-2.2j", crc="3f8fd724", map="1200" },
+    ]},
     # ---- tiles (deco56-encrypted, decrypt-at-fetch). RAW load for now — boot doesn't fetch gfx.
     # TODO(video step): ROM_CONTINUE reorder (blk0->0,blk1->0x100000,blk2->0x080000,blk3->0x180000)
     # + 4bpp RGN_FRAC(1,2) plane split, byte-checked (never hand-derive).
@@ -61,7 +83,9 @@ regions = [
     # hvysmsh names its OKI regions oki1/oki2 directly (sfx 512 KB banked; music raw)
     { name="oki1", machine="hvysmsh", start="PCM1_START", No_offset=true },
     { name="oki2", machine="hvysmsh", start="PCM2_START", No_offset=true },
-    { name="eeprom" },                                                        # 93C46 defaults (candance differs here)
+    # Raw per-set defaults at index 2. Magical Drop / Plus use WORD_SWAP in
+    # MAME; jtosman_eeprom swaps both download and upload byte pairs for them.
+    { name="eeprom", rename="nvram", skip=true },
     { name="plds",     skip=true },
 ]
 

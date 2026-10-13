@@ -124,6 +124,13 @@ jtosman_main u_main(
     .mram_addr  ( mram_addr ),
     .mram_we    ( mram_we   ),
     .mram_dout  ( mram_dout ),
+    .mramh_we   ( mramh_we  ),
+    .mramh_dout ( mramh_dout),
+    .ioctl_addr ( ioctl_addr[25:0] ),
+    .ioctl_dout ( ioctl_dout),
+    .ioctl_wr   ( ioctl_wr  ),
+    .ioctl_ram  ( ioctl_ram ),
+    .ioctl_din  ( ioctl_din ),
     .cen_arm    ( cen_arm   ),
     .LVBL       ( LVBL      ),
     // program ROM (SDRAM, deco156 decrypt-at-fetch)
@@ -134,6 +141,7 @@ jtosman_main u_main(
     // CPU bus
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
+    .cpu_dhi    ( cpu_dhi   ),
     .cpu_rnw    ( cpu_rnw   ),
     .dsn        ( dsn       ),
     // video interface
