@@ -371,9 +371,9 @@ nemesis_main main(
 	.o_blue         ( blue5           ),
 
 	// DIP switches
-	.i_dip1         ( ~dipsw[ 7: 0]   ),
-	.i_dip2         ( ~dipsw[15: 8]   ),
-	.i_dip3         ( ~dipsw[23:16]   ),
+	.i_dip1         ( dipsw[ 7: 0]    ),
+	.i_dip2         ( dipsw[15: 8]    ),
+	.i_dip3         ( dipsw[23:16]    ),
 
 	// PS2401_4 @ 2E, 2F, 2G, 2H, 2J
 	// A: solder side, B: parts side, cf. manual, page 4
