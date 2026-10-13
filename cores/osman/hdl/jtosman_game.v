@@ -113,6 +113,9 @@ always @* begin
         post_addr = jm          ? { prog_addr[21:19], prog_addr[17:0], ~prog_addr[18] } :
                     (cr|md|mdp|cn) ? { prog_addr[21:20], prog_addr[18:0], ~prog_addr[19] } :
                                    { prog_addr[20:0], ~prog_addr[21] };
+    // Heavy Smash populates only the first 2MB of each 4MB plane half.
+    // MRA padding is FF; the empty MAME ROM-region slots are zero-filled.
+    if( prog_ba==2'd3 && hv && prog_addr[20] ) post_data = 8'd0;
 end
 
 /* verilator tracing_off */

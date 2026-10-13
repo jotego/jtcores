@@ -1,5 +1,33 @@
 # Osman — fixes journal
 
+## Heavy Smash sprite ROM spacing
+
+Heavy Smash boots and initializes EEPROM, but the generic `No_offset=true`
+sprite rule placed its two 2 MiB ROMs consecutively. MAME's 8 MiB region loads
+them at offsets 0 and 4 MiB, and the HDL loader interleaves those two 4 MiB plane
+halves. Compacting the region therefore put both ROMs in the first plane half,
+causing outlined title lettering and missing sprite colors/shapes.
+
+A family-specific `sprites` rule preserves offsets and the full 8 MiB length
+for `hvysmsh`, `hvysmsha` and `hvysmshj`. JTFRAME fills the two unused 2 MiB slots
+with FF in the MRA; `jtosman_game` converts these slots to zero during download
+to match MAME's empty ROM region. The slots are selected by bank 3, the `hv`
+header flag and bit 20 of the bank-local word address. Existing sprite address
+interleaving is unchanged.
+
+Rebuild the RBF and regenerate the Heavy Smash MRAs/ROM streams together. A
+full `-load` is required in simulation; old compact ROMs and cached bank data
+have the incorrect plane layout. Validation compares the downloaded 8 MiB
+sprite bank against both MAME ROM plane halves and zero-filled holes, then
+checks a full boot through title/tutorial plus the EEPROM upload.
+
+Verified on European `hvysmsh`: all 8 MiB of downloaded sprite RAM match the
+packed MAME ROM planes and zero-filled holes byte-for-byte. A 1,200-game-frame
+cold boot reaches the correctly colored title and tutorial; the 128-byte
+EEPROM upload matches fresh MAME factory contents. Asia and Japan MRAs were
+regenerated and checked for the same region layout; their boot runs were not
+repeated because the sprite ROMs and hardware mapping are identical.
+
 ## EEPROM defaults and MiSTer save/restore
 
 The initial hardcoded Osman image and later byte-scanning BRAM mirror have been
