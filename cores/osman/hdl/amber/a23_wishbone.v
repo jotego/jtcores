@@ -71,6 +71,7 @@ input       [31:0]          i_address,
 input                       i_translate,      // assert the translate pin from the core.
 output                      o_stall,
 output                      o_abort,
+output      [31:0]          o_read_data,
 
 // Cache Accesses to Wishbone bus
 input                       i_cache_req,
@@ -118,8 +119,46 @@ reg                         wbuf_busy_r = 'd0;
 
 assign read_ack             = !o_wb_we && i_wb_ack;
 wire   write_ack            =  o_wb_we && i_wb_ack;
-assign o_stall              = ( core_write_request  && !write_ack )       || 
-                              ( core_read_request  && !read_ack )       || 
+// Adapted from NightSlashers_MiSTer's Amber read-completion fix
+// (Umberto Parisi): the pipeline is CE-paced but Wishbone runs every clk.
+// Hold completion until the core changes its request, otherwise an ack
+// between CE ticks is lost and the same transaction is issued again.
+// Retain read data too: JTFRAME targets return pull-ups once stb drops.
+// Apply the same rule to writes, including byte lanes and write data, so
+// a stalled instruction does not repeatedly write an IO register.
+reg         access_done = 1'b0;
+reg  [31:0] done_address, done_data, read_data_r;
+reg  [3:0]  done_sel;
+reg         done_write;
+wire        same_access = i_address == done_address &&
+                          i_write_enable == done_write &&
+                          (!i_write_enable || (i_byte_enable == done_sel &&
+                                               i_write_data == done_data));
+wire        read_done = access_done && same_access && core_read_request;
+wire        write_done = access_done && same_access && core_write_request;
+assign o_read_data = read_done ? read_data_r : i_wb_dat;
+
+always @(posedge i_clk)
+    if (i_reset) begin
+        access_done <= 1'b0;
+        done_address <= 32'd0;
+        done_data <= 32'd0;
+        done_sel <= 4'd0;
+        done_write <= 1'b0;
+        read_data_r <= 32'd0;
+    end else if (!i_select || (access_done && !same_access))
+        access_done <= 1'b0;
+    else if (o_wb_stb && i_wb_ack && !servicing_cache && !i_cache_req) begin
+        access_done <= 1'b1;
+        done_address <= i_address;
+        done_write <= i_write_enable;
+        done_sel <= i_byte_enable;
+        done_data <= i_write_data;
+        read_data_r <= i_wb_dat;
+    end
+
+assign o_stall              = ( core_write_request  && !write_ack && !write_done ) ||
+                              ( core_read_request  && !read_ack && !read_done ) ||
                               ( core_read_request  && servicing_cache ) ||
                               ( core_write_request && servicing_cache ) ||
                               ( cache_write_request && wishbone_st == WB_WAIT_ACK) ||
@@ -136,7 +175,8 @@ assign cache_read_request   = i_cache_req && !i_write_enable;
 assign cache_write_request  = i_cache_req &&  i_write_enable;
 
 assign wb_wait              = o_wb_stb && !i_wb_ack;
-assign start_access         = (core_read_request || core_write_request || i_cache_req) && !wb_wait ;
+assign start_access         = ((core_read_request && !read_done) ||
+                               (core_write_request && !write_done) || i_cache_req) && !wb_wait;
 
 // For writes the byte enable is always 4'hf
 assign byte_enable          = wbuf_busy_r                                   ? wbuf_sel_r    :
@@ -151,7 +191,9 @@ assign byte_enable          = wbuf_busy_r                                   ? wb
 
 
 always @( posedge i_clk )
-    if ( wb_wait && !wbuf_busy_r && (core_write_request || cache_write_request) )
+    if (i_reset)
+        wbuf_busy_r <= 1'b0;
+    else if ( wb_wait && !wbuf_busy_r && (core_write_request || cache_write_request) )
         begin
         wbuf_addr_r <= i_address;
         wbuf_sel_r  <= i_byte_enable;
@@ -180,6 +222,8 @@ always @( posedge i_clk )
       o_wb_cyc    <= 1'd0;
       o_wb_stb    <= 1'd0;
       o_wb_tga    <= 1'b0;
+      servicing_cache <= 1'b0;
+      exclusive_access <= 1'b0;
    end else
     case ( wishbone_st )
         WB_IDLE :
@@ -215,7 +259,7 @@ always @( posedge i_clk )
                 wishbone_st         <= WB_BURST1;
                 exclusive_access    <= 1'd0;
                 end                    
-            else if ( core_read_request )
+            else if ( core_read_request && !read_done )
                 begin
                 wishbone_st         <= WB_WAIT_ACK;
                 exclusive_access    <= i_exclusive;

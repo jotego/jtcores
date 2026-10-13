@@ -1,5 +1,39 @@
 # Osman — fixes journal
 
+## Amber completion and warm reset
+
+The ARM pipeline advances on a 7 MHz enable while its Wishbone interface runs
+at 56 MHz. The original interface forgot acknowledgements arriving between
+enable ticks: it reissued reads and writes while the same instruction remained
+selected. The instruction regression issued 521 transfers and 49 writes for
+work requiring 66 transfers and seven writes, taking 1,827 system clocks.
+
+Adapted the completion-latch fix from NightSlashers_MiSTer's Amber implementation
+(Umberto Parisi, reference commit `c75532fa06741b77d9e3409e32ae372ede401dd1`).
+Our adapter also holds the acknowledged read data, since JTFRAME returns
+pull-ups after the request ends, and tracks completed writes using address,
+byte enables and data to prevent repeated IO side effects. The same regression
+now completes with exactly 66 transfers and seven writes in 787 clocks. This
+2.32x result describes the instruction test, not a measured gameplay speedup.
+Both system and CPU-enable clocks remain unchanged.
+
+Warm reset now explicitly restores flags, supervisor mode, IRQ/FIRQ masks and
+bank-selection state, and clears pending Wishbone/cache-service state. The
+existing rotated-immediate carry and logical-overflow preservation fixes are
+retained. Night Slashers' savestate interface, CPU-speed menu and different
+coprocessor implementation are not part of these completion/reset changes.
+
+`ver/amber/run.sh` executes a real ARM instruction program at the normal 1/8
+enable ratio with 1, 2, 5, 8 and 13 system-clock response delays. It checks
+word/byte loads and stores, LDM/STM, carry, overflow, one write per operation,
+and correct execution after warm reset. EEPROM regressions also pass.
+Atomic word/byte swaps pass with short and long response delays. Full cold
+boots of Osman (1,800 game frames) and Heavy Smash Europe (1,200) reach title
+and attract/tutorial scenes; their 128-byte EEPROM uploads match the Osman
+defaults and fresh MAME Heavy Smash factory contents respectively. The
+converted MiSTer project passes Quartus 17.0.2 analysis and elaboration with
+the identical CPU patch. Fitting/timing and physical speed checks remain.
+
 ## Heavy Smash sprite ROM spacing
 
 Heavy Smash boots and initializes EEPROM, but the generic `No_offset=true`

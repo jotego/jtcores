@@ -458,15 +458,24 @@ begin
     if (i_reset) begin
         o_copro_write_data <= 32'd0;
         o_write_data <= 32'd0;
-        o_address <= 32'hdead_dead;
+        o_address <= 32'd0;
         o_adex <= 1'd0;           // Address Exception
         o_address_valid <= 1'd0;  // Prevents the reset address value being a
-        o_priviledged <= 1'd0;    // Priviledged access
+        o_priviledged <= 1'd1;    // Reset enters supervisor mode
         o_exclusive <= 1'd0;      // swap access
         o_write_enable <= 1'd0;
         o_translate <= 1'd0;
         o_byte_enable <= 4'd0;
         o_data_access <= 1'd0;    // To Fetch stage. high = data fetch;
+        // Reset the architectural status on every reset, not just at FPGA
+        // configuration (also fixed in NightSlashers_MiSTer's Amber).
+        base_address <= 32'd0;
+        status_bits_flags <= 4'd0;
+        status_bits_mode <= SVC;
+        status_bits_mode_rds_oh <= 1'd1 << OH_SVC;
+        status_bits_mode_rds <= SVC;
+        status_bits_irq_mask <= 1'd1;
+        status_bits_firq_mask <= 1'd1;
     end else begin
         o_priviledged           <= priviledged_update             ? priviledged_nxt              : o_priviledged;
         o_exclusive             <= exclusive_update               ? i_exclusive_exec             : o_exclusive;

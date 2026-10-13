@@ -92,6 +92,7 @@ wire                        cache_wb_req;
 wire                        address_cachable;
 
 wire                        wb_abort;
+wire    [31:0]              wb_read_data;
 
 // ======================================
 // Memory Decode
@@ -106,7 +107,7 @@ assign sel_wb            = !sel_cache && i_address_valid && !(cache_stall);
 
 // Return read data either from the wishbone bus or the cache
 assign o_read_data       = sel_cache  ? cache_read_data : 
-                           sel_wb     ? i_wb_dat        :
+                           sel_wb     ? wb_read_data    :
                                         32'hffeeddcc    ;
 
 // Stall the instruction decode and execute stages of the core
@@ -160,6 +161,7 @@ a23_wishbone u_wishbone (
     .i_address                  ( i_address             ),
     .o_stall                    ( wb_stall              ),
     .o_abort                    ( wb_abort              ),
+    .o_read_data                ( wb_read_data          ),
 
     // Cache Accesses to Wishbone bus 
     // L1 Cache enable - used for hprot
