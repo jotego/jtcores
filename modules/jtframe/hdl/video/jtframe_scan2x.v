@@ -64,6 +64,8 @@ localparam AW=HLEN<=512 ? 9:10;
 localparam DW=COLORW*3;
 
 reg  [DW-1:0] preout=0;
+reg           preout_vb=1;
+reg           preout_hb=1;
 reg  [AW-1:0] wraddr, rdaddr, hlen, hswidth, hb_rise, hb_fall, vb_rise, vb_fall, vs_rise, vs_fall;
 reg           scanline;
 reg           last_HS, last_VS, last_HB, last_VB;
@@ -76,6 +78,8 @@ wire          HS_posedge     =  x1_hs && !last_HS;
 wire          HS_negedge     = !x1_hs &&  last_HS;
 wire [DW-1:0] next;
 wire [DW-1:0] linebuf_q;
+wire          linebuf_vb;
+wire          linebuf_hb;
 wire [DW-1:0] dim2, dim4;
 reg [COLORW:0] ab;
 wire [COLORW*3-1:0] gated_pxl;
@@ -120,18 +124,27 @@ reg [CLKSTEPS-1:0] mixst;
 always@(posedge clk) begin
     if( rst ) begin
         preout <= {DW{1'b0}};
+        preout_vb <= 1;
+        preout_hb <= 1;
     end else begin
         `ifndef JTFRAME_SCAN2X_NOBLEND
             // mixing can only be done if clk is at least 4x pxl2_cen
             mixst <= { mixst[0+:CLKSTEPS-1],pxl2_cen};
             if(mixst==BLEND_ST) begin
+                preout_vb <= linebuf_vb;
+                preout_hb <= linebuf_hb;
                 preout <= blend_en ?
                     blend( rdaddr=={AW{1'b0}} ? {DW{1'b0}} : preout, next) :
                     next;
-            end else if( mixst==PURE_ST )
+            end else if( mixst==PURE_ST ) begin
                 preout <= next;
+                preout_vb <= linebuf_vb;
+                preout_hb <= linebuf_hb;
+            end
         `else
             preout <= next;
+            preout_vb <= linebuf_vb;
+            preout_hb <= linebuf_hb;
         `endif
     end
 end
@@ -228,6 +241,11 @@ always @(posedge clk) if(pxl2_cen) begin
     if (vs_rising && rdaddr == vs_rise) x2_vs <= 1;
     if (vs_falling && rdaddr == vs_fall) x2_vs <= 0;
 
+    // The unrotated picture comes from the previous buffered input line.
+    // Replay its blanking through the same pipeline as RGB. Reconstructing
+    // it from live input edges can select the wrong line or pixel phase.
+    // Keep the existing reconstructed timing for the rotation framebuffer.
+    if( rotation==0 ) {x2_HB,x2_VB} <= {preout_hb,preout_vb};
     if( enb ) {x2_hs,x2_HB,x2_vs,x2_VB} <= {x1_hs,x1_hb,x1_vs,x1_vb};
 end
 
@@ -347,16 +365,16 @@ assign sd_cas = 1;
 assign sd_cke = 0;
 `endif
 
-jtframe_dual_ram #(.DW(DW),.AW(AW+1)) u_buffer(
+jtframe_dual_ram #(.DW(DW+2),.AW(AW+1)) u_buffer(
     .clk0   ( clk            ),
     .clk1   ( clk            ),
     // Port 0: read
-    .data0  ( {DW{1'b0}}     ),
+    .data0  ( {(DW+2){1'b0}} ),
     .addr0  ( {line, rdaddr} ),
     .we0    ( 1'b0           ),
-    .q0     ( linebuf_q      ),
+    .q0     ( {linebuf_hb, linebuf_vb, linebuf_q} ),
     // Port 1: write
-    .data1  ( gated_pxl      ),
+    .data1  ( {x1_hb, x1_vb, gated_pxl} ),
     .addr1  ( {~line, wraddr}),
     .we1    ( pxl_cen        ),
     .q1     (                )
