@@ -1,13 +1,3 @@
-# ioctl sends bytes one at a time, but apparently they’re read from SDRAM in pairs,
-# so they might need to be swapped. In our case, the 68k ROM (16-bit width) comes out
-# of the SDRAM in the same order as out of the mra tool, but the Z80 ROM (8-bit width)
-# comes out swapped, with the second byte at address 0, the first at address 1, etc.
-# Therefore, the ROM needs to be swapped in the MRA using an interleave of width 16
-# and a map="12" attribute on the part:
-# 
-# <interleave output="16">
-#   <part name="456-d09.9c" crc="26bf9636" map="12"/>
-# </interleave>
 params:
   # SDRAM addresses 16-bit words, but ioctl sends bytes,
   # so we need to divide the offsets by 2
