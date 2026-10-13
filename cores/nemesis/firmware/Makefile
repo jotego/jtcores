@@ -10,11 +10,13 @@
 # - src/emu/video/resnet.h
 # - src/emu/video/resnet.cpp
 
+COLMIX = nemesis_colmix.hex
+PROM_VOL = nemesis_prom_vol.hex
+
+default: $(COLMIX) $(PROM_VOL)
+
 RESNET_BIN = ./resnet_colmix
 RESNET_CPP = resnet_colmix.cpp
-COLMIX = nemesis_colmix.hex
-
-default: $(COLMIX)
 
 $(RESNET_CPP): mame/resnet.cpp resnet.patch
 	cp mame/resnet.cpp $@
@@ -26,5 +28,12 @@ $(COLMIX): $(RESNET_BIN)
 $(RESNET_BIN): $(RESNET_CPP) mame/resnet.h mame/palette.h
 	g++ -o $@ -std=c++17 $(RESNET_CPP)
 
+# Generate the volume table for the resistor networks at the output of
+# the K5289 PROMs, using our own calculations. Approach A from the
+# prom_volumes.py program have been determined to be the correct one.
+
+$(PROM_VOL): prom_volumes.py
+	python prom_volumes.py > $@
+
 clean:
-	rm -f $(RESNET_CPP) $(RESNET_BIN)
+	rm -f $(RESNET_CPP) $(RESNET_BIN) $(COLMIX) $(PROM_VOL)

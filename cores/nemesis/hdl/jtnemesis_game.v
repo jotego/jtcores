@@ -275,7 +275,8 @@ u_wav2_rom(
 
 jtframe_prom #(
 	.AW      (  8             ),
-	.DW      (  8             )
+	.DW      (  8             ),
+	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
 	`ifdef JTFRAME_PROM_DUMP
 	, .dumpfile("dump_wav1_vol.hex")
 	`endif
@@ -295,7 +296,8 @@ u_wav1_vol_rom(
 
 jtframe_prom #(
 	.AW      (  8             ),
-	.DW      (  8             )
+	.DW      (  8             ),
+	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
 	`ifdef JTFRAME_PROM_DUMP
 	, .dumpfile("dump_wav2_vol.hex")
 	`endif
