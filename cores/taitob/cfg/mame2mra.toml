@@ -1,0 +1,92 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "taito_b.cpp" ]
+# Phase A: Rastan Saga 2 / Nastar / Nastar Warrior — three regional sets
+# of the same ROM (only the region-byte ROM B81-07/12/13 differs).
+# All other Taito B games share the same TC0140SYT + TC0220IOC + TC0180VCU
+# + YM2610 hardware and could ship in this bitstream once the video chip
+# is solid:
+#   ashura blaster / crime city / rambo3 / silent dragon / sel feena /
+#   ryujin / tetris (B-System conversion) / space invaders DX / qzshowby /
+#   puzzle bobble / sonic blast man — all YM2610 family
+#
+# Out-of-scope variants (different sound chips, different IOCs, etc.):
+#   violence fight / hit the ice (YM2203 + M6295)
+#   master of weapon (YM2203, TMP82C265 I/O)
+#   ashura blaster / silent dragon variants
+skip = { setnames = [
+    # Still skipped: games that need HDL work the core doesn't have yet.
+    #   tetrista        — Master of Weapon kit → YM2203 + PC060HA
+    #   hitice*         — YM2203 + OKIM6295
+    #   rambo3*         — 2 MB gfx (needs mem.yaml gfx bus 1MB→2MB + 4-ROM dup)
+    #   pbobble/spacedx/qzshowby — EEPROM + TC0640FIO + MB87078 (B-tier)
+    #   viofight/masterw — YM2203 (+OKI) sound subsystem
+    #   silentd/ryujin/sbm — YM2610B / TC0510NIO (B-tier)
+    #   realpunc        — adds HD63484 2nd video path
+    # De-skipped (Group A, 1 MB gfx, YM2610+SYT+TC0220IOC): crimec, tetrist.
+    # Still re-skipped because they error out in jtframe-mra (fatal validation):
+    #   ashura/ashuraj/ashurau   — vertical (need JTFRAME_VERTICAL)
+    #   selfeena, spacedxo       — 3-button (need JTFRAME_BUTTONS=3, per-game)
+    # Once we add per-machine JTFRAME_VERTICAL / BUTTONS overrides they'll un-skip.
+    "ashura",  "ashurau", "ashuraj",
+    "selfeena",
+    "spacedxo",
+    "tetrista",
+    "hitice",  "hiticerb", "hiticej",
+    "rambo3",  "rambo3p",  "rambo3u",
+    "pbobble", "bublbust",
+    "spacedx", "spacedxj",
+    "qzshowby",
+    "viofight","viofightu","viofightj",
+    "masterw", "masterwj", "masterwu", "yukiwo",
+    "silentd", "silentdj", "silentdu",
+    "ryujin",  "ryujina",
+    "sbm",     "sbmj",
+    "realpunc","realpuncj",
+]}
+
+[buttons]
+names=[
+    # Rastan Saga 2 / Nastar: 2 buttons — Attack + Jump.
+    { machines=["nastar","nastarw","rastsag2"], names="Attack,Jump" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+# ROM regions for rastsag2 (taito_b.cpp:2793):
+#   maincpu       = 512 KB (16-bit, 4 × ROM_LOAD16_BYTE pairs)
+#   audiocpu      =  64 KB (Z80)
+#   tc0180vcu     =   1 MB (2 × 512 KB ROMs, sprite+tile gfx)
+#   ymsnd:adpcma  = 512 KB
+#   ymsnd:adpcmb  = 512 KB (Delta-T voice samples — wired into the jt10
+#                            ADPCM-B port; loaded into SDRAM bank 3 at
+#                            JTFRAME_BA3_START)
+regions = [
+    { name="maincpu",  width=16, reverse=true, no_offset=true },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="ymsnd:adpcma", rename="adpcma", start="PCM_START" },
+    { name="ymsnd:adpcmb", rename="adpcmb", start="ADPCMB_START" },
+    # tc0180vcu graphics ROMs land at the start of bank 2.
+    # MAME loads the two 512 KB ROMs with plain ROM_LOAD (straight
+    # concatenation): b81-03 → 0x00000 (planes 0/1), b81-04 → 0x80000
+    # (planes 2/3, via the charlayout/tilelayout RGN_FRAC(1,2) split).
+    # They are NOT a 16-bit byte-interleaved pair, so width=8 keeps each
+    # ROM as a contiguous half. (width=16 interleaved every byte and
+    # scrambled all tile gfx into noise.)
+    # gfx duplicated into 2 MB: sequence=[0,1,0,1] lays b81-03,b81-04 twice
+    # → copy 1 at bank 2 (BA2, bg/obj/tx) and copy 2 at bank 3 (BA3, fg).
+    # Two banks let the BG fill (bank 2) and FG fill (bank 3) interleave on
+    # the SDRAM controller instead of serializing on one bank. Each 1 MB half
+    # is gfx_sort'd independently via its mem.yaml bus (tx for bank 2, fg for
+    # bank 3). BA3_START must equal BA2_START + 0x100000 for copy 2 to land
+    # where the fg bus reads it.
+    { name="tc0180vcu", rename="gfx1", start="JTFRAME_BA2_START", width=8, no_offset=true, sequence=[0,1,0,1] },
+]
+
+order = [
+    "maincpu", "audiocpu", "adpcma", "adpcmb", "gfx1"
+]
