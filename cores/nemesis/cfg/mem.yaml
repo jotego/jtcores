@@ -1,8 +1,3 @@
-params:
-  # SDRAM addresses 16-bit words, but ioctl sends bytes,
-  # so we need to divide the offsets by 2
-  - { name: SND_OFFSET,  value: "(`SND_START)>>1" }
-
 download:
   pre_addr: false
   post_addr: false
@@ -16,7 +11,7 @@ sdram:
         # but in the MRA, it says "length 0x40000 (18 bits)", so OK
         addr_width: 18
         data_width: 16
+    - buses:
       - name: audio
         addr_width: 14
         data_width: 8
-        offset: SND_OFFSET

@@ -21,7 +21,7 @@ JTFRAME_SIGNED_SND=0
 
 JTFRAME_SDRAM_BANKS
 
-SND_START=0x40000
+JTFRAME_BA1_START=0x40000
 # Determines from which ioctl_addr offset (in bytes) data stops
 # being sent to SDRAM and starts being sent to PROMs (BRAM),
 # using the prog_addr, prog_data, and prom_we signals.
