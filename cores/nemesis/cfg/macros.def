@@ -35,12 +35,6 @@ VOLUME_AY2=8'd102
 #ROM_DEBUG_Z80
 #ROM_DEBUG_MAIN
 
-# add enough spaces to make it 7 characters so the authors only show when scrolling
-VERSION_NAME=RC 1   
-
-# Does nothing, we don’t use the right file, so the VHDL version is used.
-# TV80S
-
 # wide address busses in K5295 instead of RAS/CAS
 GX400_UNFOLD_DRAM_ADDR
 
@@ -57,4 +51,4 @@ K5291_NO_MUX
 JTFRAME_ARX=5
 JTFRAME_ARY=4
 
-#include debug.def
+# include debug.def
