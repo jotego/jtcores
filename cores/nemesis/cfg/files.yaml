@@ -1,16 +1,21 @@
 nemesis:
   - get:
+      # Game module
       - jtnemesis_game.v
       - gx400_cen.v
       - nemesis_rom_debug.v
       - nemesis_sound_debug.v
+      # Main PCB
       - nemesis_main.v
       - nemesis_68k_addr_dec.v
+      # Sound
       - nemesis_sound.v
       - k5289.v
       - nemesis_jt49_exp.v
+      # Video
       - gx400a_video.yaml
       - colour_lut.v
+      # Utilities
       - bus_ff.v
       - lmn74194_nbit.v
       - os_pulse_gen.v

@@ -194,7 +194,7 @@ assign o_TM_B_HFLIP = tm_b_shift_b_latched[7];
 bus_ff #( .W( 16 ) ) u_obj_ff(
 	.rst     ( i_RST            ),
 	.clk     ( i_CLK            ),
-	.trig    ( i_1H_n          ),
+	.trig    ( i_1H_n           ),
 	.d       ( i_OBJ_PX_DATA    ),
 	.q       ( { obj_b_px_data_latched, obj_a_px_data_latched } ),
 	.q_n     (                  )

@@ -34,22 +34,22 @@ You can read the whole license file at http://www.gnu.org/licenses/
 
 module GX400A_VIDEO
 (
-	input               i_MCLK,     // Main clock 48 MHz
-	input               i_RESET,    // RESET signal
+	input               i_MCLK,      // Main clock 48 MHz
+	input               i_RESET,     // RESET signal
 
-	input               i_cen6,    // Pixel Clock Enable at  6 MHz
-	input               i_cen6b,   // Pixel Clock Enable at  6 MHz
-	input               i_clk6,    // Pixel Clock at  6 MHz
+	input               i_cen6,      // Pixel Clock Enable at  6 MHz
+	input               i_cen6b,     // Pixel Clock Enable at  6 MHz
+	input               i_clk6,      // Pixel Clock at  6 MHz
 
-	input               i_HFLIP,    // Horizontal Flip
-	input               i_VFLIP,    // Vertical Flip
+	input               i_HFLIP,     // Horizontal Flip
+	input               i_VFLIP,     // Vertical Flip
 	input               i_INTER_NON, // Interlaced/Non-Interlaced
 	input               i_288_256,   // 288 vs. 256 columns
 
-	output              o_HS,       // out          - Horizontal sync (VGA_HS)
-	output              o_VS,       // out          - Vertiacl sync (VGA_VS)
-	output              o_HBL,      // out          - Horizontal BLANK
-	output              o_VBL,      // out          - Vertical BLANK
+	output              o_HS,        // Horizontal sync (VGA_HS)
+	output              o_VS,        // Vertical sync (VGA_VS)
+	output              o_HBL,       // Horizontal BLANK
+	output              o_VBL,       // Vertical BLANK
 
 	output     [10:0]   o_pal_addr,
 	
@@ -454,8 +454,8 @@ reg asl, asr, bsl, bsr;
 always @( posedge i_MCLK ) begin
 	asl <= |{  aff, ~tile_shift_a1 }; // output 3
 	asr <= |{ ~aff, ~tile_shift_a1 }; // output 11
-	bsl <= |{  bff, ~tile_shift_b };  // output 6
-	bsr <= |{ ~bff, ~tile_shift_b };  // output 8
+	bsl <= |{  bff, ~tile_shift_b  }; // output 6
+	bsr <= |{ ~bff, ~tile_shift_b  }; // output 8
 end
 
 assign tm_a_shift_L_n = asl; // output 3
@@ -467,29 +467,29 @@ assign tm_b_shift_R_n = bsr; // output 8
 // ** [K0005290] @ 7D                 **
 K005290 u_5290
 (
-	.i_MCLK          ( i_MCLK                     ),  // Main clock 48 MHz
-	.i_RST           ( i_RESET                    ),  // RESET signal on pos edge
-	.i_CLK_px6       ( w_clk_6MHz                 ),  // clock Pixel 6MHz
-	.i_AFF           ( aff                        ),  // Tile A Flip
-	.i_BFF           ( bff                        ),  // Tile B Flip
-	.i_9E_pin3       ( tm_a_shift_L_n             ),  // Tile A shift left  if 0
-	.i_9E_pin11      ( tm_a_shift_R_n             ),  // Tile A shift right if 0
-	.i_9E_pin6       ( tm_b_shift_L_n             ),  // Tile B shift left  if 0
-	.i_9E_pin8       ( tm_b_shift_R_n             ),  // Tile B shift right if 0
-	.i_A             ( A[0:3]                     ),  // Input 4bit data from char ram
-	.i_B             ( B[0:3]                     ),  // Input 4bit data from char ram
-	.i_C             ( C[0:3]                     ),  // Input 4bit data from char ram
-	.i_D             ( D[0:3]                     ),  // Input 4bit data from char ram
-	.i_E             ( E[0:3]                     ),  // Input 4bit data from char ram
-	.i_F             ( F[0:3]                     ),  // Input 4bit data from char ram
-	.i_G             ( G[0:3]                     ),  // Input 4bit data from char ram
-	.i_H             ( H[0:3]                     ),  // Input 4bit data from char ram
-	.i_2HD           ( w_2hd                      ),  // Horizontal Pixel (counter bus)
-	.i_4HD_n         ( ~w_4hd                     ),  // Horizontal Pixel (counter bus)
-	.o_TM_A_px_trans ( tm_a_px_trans              ),  // output pixel data
-	.o_TM_A_pixels   ( tm_a_px_data               ),  // output pixel data
-	.o_TM_B_px_trans ( tm_b_px_trans              ),  // output pixel data
-	.o_TM_B_pixels   ( tm_b_px_data               )   // output pixel data
+	.i_MCLK          ( i_MCLK            ),  // Main clock 48 MHz
+	.i_RST           ( i_RESET           ),  // RESET signal on pos edge
+	.i_CLK_px6       ( w_clk_6MHz        ),  // clock Pixel 6MHz
+	.i_AFF           ( aff               ),  // Tile A Flip
+	.i_BFF           ( bff               ),  // Tile B Flip
+	.i_9E_pin3       ( tm_a_shift_L_n    ),  // Tile A shift left  if 0
+	.i_9E_pin11      ( tm_a_shift_R_n    ),  // Tile A shift right if 0
+	.i_9E_pin6       ( tm_b_shift_L_n    ),  // Tile B shift left  if 0
+	.i_9E_pin8       ( tm_b_shift_R_n    ),  // Tile B shift right if 0
+	.i_A             ( A[0:3]            ),  // Input 4bit data from char ram
+	.i_B             ( B[0:3]            ),  // Input 4bit data from char ram
+	.i_C             ( C[0:3]            ),  // Input 4bit data from char ram
+	.i_D             ( D[0:3]            ),  // Input 4bit data from char ram
+	.i_E             ( E[0:3]            ),  // Input 4bit data from char ram
+	.i_F             ( F[0:3]            ),  // Input 4bit data from char ram
+	.i_G             ( G[0:3]            ),  // Input 4bit data from char ram
+	.i_H             ( H[0:3]            ),  // Input 4bit data from char ram
+	.i_2HD           ( w_2hd             ),  // Horizontal Pixel (counter bus)
+	.i_4HD_n         ( ~w_4hd            ),  // Horizontal Pixel (counter bus)
+	.o_TM_A_px_trans ( tm_a_px_trans     ),  // output pixel data
+	.o_TM_A_pixels   ( tm_a_px_data      ),  // output pixel data
+	.o_TM_B_px_trans ( tm_b_px_trans     ),  // output pixel data
+	.o_TM_B_pixels   ( tm_b_px_data      )   // output pixel data
 );
 
 ///////////////////
@@ -517,27 +517,27 @@ wire [15:0] obj_px_data = { obj_buff_b_dout_dly, obj_buff_a_dout_dly };
 // ** Custom Chip Konami Priority Processor **
 // ** [K0005293] @ 11D                      **
 K005293 u_5293(
-	.i_RST            ( i_RESET                     ),
-	.i_CLK            ( i_MCLK                      ), // Pin 23
-	.i_CEN6           ( w_clk_6MHz                  ), // |
-	.i_SHIFT_A1_CLKD  ( shift_a1_clkd               ), // Pin 18
-	.i_SHIFT_A2_CLKD  ( shift_a2_clkd               ), // Pin 17
-	.i_SHIFT_B_CLKD   ( shift_b_clkd                ), // Pin 19
-	.i_2HD_CLKD       ( w_2hd_clkd                  ), // Pin 21
-	.i_4HD_CLKD       ( w_4hd_clkd                  ), // Pin 20
-	.o_TM_A_HFLIP     ( tm_a_hflip                  ), // Pin 36
-	.o_TM_B_HFLIP     ( tm_b_hflip                  ), // Pin 37
-	.i_TM_A_PX_DATA   ( tm_a_px_data                ), // Pins 3–10, 15–16
-	.i_TM_A_PX_TRANS  ( tm_a_px_trans               ), // |
-	.i_TM_B_PX_DATA   ( tm_b_px_data                ), // |
-	.i_TM_B_PX_TRANS  ( tm_b_px_trans               ), // |
-	.i_HFLIP          ( i_HFLIP                     ), // Pin 56
-	.i_TILE_PRIORITY  ( tile_pr                     ), // PR, Pins 11–14
-	.i_VHFF           ( vhff                        ), // Pin 57
-	.i_VRAM2_DATA     ( tile_color                  ), // VC
-	.i_OBJ_PX_DATA    ( obj_px_data                 ), // DQ
-	.o_COLOR_RAM_ADDR ( o_pal_addr                  ), // CD
-	.i_1H_n           ( w_1h_n                      )  // Pin 22
+	.i_RST            ( i_RESET          ),
+	.i_CLK            ( i_MCLK           ), // Pin 23
+	.i_CEN6           ( w_clk_6MHz       ), // |
+	.i_SHIFT_A1_CLKD  ( shift_a1_clkd    ), // Pin 18
+	.i_SHIFT_A2_CLKD  ( shift_a2_clkd    ), // Pin 17
+	.i_SHIFT_B_CLKD   ( shift_b_clkd     ), // Pin 19
+	.i_2HD_CLKD       ( w_2hd_clkd       ), // Pin 21
+	.i_4HD_CLKD       ( w_4hd_clkd       ), // Pin 20
+	.o_TM_A_HFLIP     ( tm_a_hflip       ), // Pin 36
+	.o_TM_B_HFLIP     ( tm_b_hflip       ), // Pin 37
+	.i_TM_A_PX_DATA   ( tm_a_px_data     ), // Pins 3–10, 15–16
+	.i_TM_A_PX_TRANS  ( tm_a_px_trans    ), // |
+	.i_TM_B_PX_DATA   ( tm_b_px_data     ), // |
+	.i_TM_B_PX_TRANS  ( tm_b_px_trans    ), // |
+	.i_HFLIP          ( i_HFLIP          ), // Pin 56
+	.i_TILE_PRIORITY  ( tile_pr          ), // PR, Pins 11–14
+	.i_VHFF           ( vhff             ), // Pin 57
+	.i_VRAM2_DATA     ( tile_color       ), // VC
+	.i_OBJ_PX_DATA    ( obj_px_data      ), // DQ
+	.o_COLOR_RAM_ADDR ( o_pal_addr       ), // CD
+	.i_1H_n           ( w_1h_n           )  // Pin 22
 );
 
 ///////////////////
@@ -726,12 +726,12 @@ wire u19g_clk = |{ w_8h, w_4h, w_2h };
 // ** [LS374] @ 19G                **
 bus_ff #( .W( 8 ) )
 u_obj_pri_ff(
-	.rst     ( i_RESET                   ),
-	.clk     ( i_MCLK                    ),
-	.trig    ( u19g_clk                  ),
-	.d       ( objram_gfx_dout           ),
-	.q       ( obj_pri                   ),
-	.q_n     (                           )
+	.rst     ( i_RESET          ),
+	.clk     ( i_MCLK           ),
+	.trig    ( u19g_clk         ),
+	.d       ( objram_gfx_dout  ),
+	.q       ( obj_pri          ),
+	.q_n     (                  )
 );
 
 // ** 3 x Quad 2-Input Multiplexer **
@@ -750,12 +750,12 @@ assign obj_table_we_n = |{ dma_n, w_1h_n };
 // ** [LS374] @ 17G     **
 bus_ff #( .W( 8 ) )
 u_obj_din_ff(
-	.rst     ( i_RESET                   ),
-	.clk     ( i_MCLK                    ),
-	.trig    ( w_1h_n                    ),
-	.d       ( objram_gfx_dout           ),
-	.q       ( obj_table_din             ),
-	.q_n     (                           )
+	.rst     ( i_RESET          ),
+	.clk     ( i_MCLK           ),
+	.trig    ( w_1h_n           ),
+	.d       ( objram_gfx_dout  ),
+	.q       ( obj_table_din    ),
+	.q_n     (                  )
 );
 
 // ** 2k x 8bit Static RAM **
@@ -765,12 +765,12 @@ jtframe_ram #(
 	.DW(8)
 )
 u_obj_table(
-	.clk     ( i_MCLK          ),
-	.cen     ( 1'b1            ),
-	.addr    ( obj_table_addr  ),
-	.data    ( obj_table_din   ),
-	.we      ( ~obj_table_we_n ),
-	.q       ( obj_table_dout  )
+	.clk     ( i_MCLK           ),
+	.cen     ( 1'b1             ),
+	.addr    ( obj_table_addr   ),
+	.data    ( obj_table_din    ),
+	.we      ( ~obj_table_we_n  ),
+	.q       ( obj_table_dout   )
 );
 
 ///////////////////
@@ -853,7 +853,7 @@ end
 K005294 u_5294
 (
 	.i_EMU_MCLK           ( i_MCLK             ), // Main clock 48 MHz
-	.i_EMU_CLK6MPCEN_n    ( ~cen6          ), // clock enable 6MHz
+	.i_EMU_CLK6MPCEN_n    ( ~cen6              ), // clock enable 6MHz
 
 	.i_GFXDATA            ( { A[0:3], B[0:3], C[0:3], D[0:3], E[0:3], F[0:3], G[0:3], H[0:3] } ),
 	.i_WRTIME2            (wrtime2             ),

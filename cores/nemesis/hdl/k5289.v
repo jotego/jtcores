@@ -84,20 +84,20 @@ GND    |_|21         22|_| GND
 
 module K005289
 (
-	input               i_RST_n,          // RESET signal
-	input               i_CLK,            // Main clock
-	input               i_CEN,            // Clock enable
+	input               i_RST_n,    // RESET signal
+	input               i_CLK,      // Main clock
+	input               i_CEN,      // Clock enable
 
-	input               i_LD1,            // 
-	input               i_TG1,            //
+	input               i_LD1,      // 
+	input               i_TG1,      //
 
-	input               i_LD2,            //
-	input               i_TG2,            //
+	input               i_LD2,      //
+	input               i_TG2,      //
 
-	input     [11:0]    i_COUNTER,        // 12 bits input counter to play frequency
+	input     [11:0]    i_COUNTER,  // 12 bits input counter to play frequency
 
-	output     [4:0]    o_Q1,             // 5 bits output
-	output     [4:0]    o_Q2              // 5 bits output
+	output     [4:0]    o_Q1,       // 5 bits output
+	output     [4:0]    o_Q2        // 5 bits output
 );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

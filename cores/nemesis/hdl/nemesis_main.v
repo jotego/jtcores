@@ -158,17 +158,17 @@ reg         reg_ram_cs;
 ///////////////////
 
 // chip select outputs to video
-assign o_chacs_n  = chara;
-assign o_vzcs     = vzure;
-assign o_vcs1     = vramcs1;
-assign o_vcs2     = vramcs2;
-assign o_objram_n = objram;
+assign o_chacs_n      = chara;
+assign o_vzcs         = vzure;
+assign o_vcs1         = vramcs1;
+assign o_vcs2         = vramcs2;
+assign o_objram_n     = objram;
 
 // settings outputs to video
-assign o_hflip      = u11k_out[2];
-assign o_vflip      = u11k_out[3];
-assign o_288_256    = u11k_out[4];
-assign o_inter_non  = u11k_out[5];
+assign o_hflip        = u11k_out[2];
+assign o_vflip        = u11k_out[3];
+assign o_288_256      = u11k_out[4];
+assign o_inter_non    = u11k_out[5];
 
 // address and data to video
 assign o_rw_n         = RnW;
@@ -178,9 +178,9 @@ assign o_addr         = cpu_addr[15:1];
 assign o_data_bus_out = cpu_dout;
 
 // data output to sound
-assign o_sound_db   = cpu_dout[7:0];
-assign o_data_n     = data_n;
-assign o_sound_on_n = u13j_out[2];
+assign o_sound_db     = cpu_dout[7:0];
+assign o_data_n       = data_n;
+assign o_sound_on_n   = u13j_out[2];
 
 ///////////////////
 // Input MUX
@@ -196,7 +196,7 @@ wire [7:0]  input_mux_a, input_mux_b, input_mux_c, input_mux_d;
 // ** [PS2401-4] @ 2E, 2F, 2G, 2H, 2J **
 // ** 8-Bit DIP Switch                **
 // ** [DIP] @ 5G                      **
-assign input_mux_a = { 3'b0, ~i_2p_start, ~i_1p_start, ~i_service, ~i_coin2, ~i_coin1 };
+assign input_mux_a = { 3'b0, ~i_2p_start, ~i_1p_start,   ~i_service,   ~i_coin2,   ~i_coin1 };
 assign input_mux_b = { 1'b0, ~i_1p_shoot, ~i_1p_missile, ~i_1p_sp_pow, ~i_1p_down, ~i_1p_up, ~i_1p_right, ~i_1p_left };
 assign input_mux_c = { 1'b0, ~i_2p_shoot, ~i_2p_missile, ~i_2p_sp_pow, ~i_2p_down, ~i_2p_up, ~i_2p_right, ~i_2p_left };
 assign input_mux_d = i_dip3;

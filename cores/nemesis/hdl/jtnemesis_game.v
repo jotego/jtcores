@@ -186,27 +186,27 @@ wire [13:0] req_audio_addr;
 wire        req_main_cs, req_audio_cs;
 
 nemesis_rom_debug u_rom_debug(
-	.i_clk             ( clk                  ),
-	.i_cen             ( cen6                 ),
+	.i_clk             ( clk                       ),
+	.i_cen             ( cen6                      ),
 
 `ifndef JTFRAME_RELEASE
-	.i_debug_bus       ( debug_bus            ),
-	.o_debug_view      ( debug_view           ),
+	.i_debug_bus       ( debug_bus                 ),
+	.o_debug_view      ( debug_view                ),
 `endif
 
 	.i_z80_cs          ( req_audio_cs | ~cpu_start ),
-	.i_z80_ok          ( audio_ok               ),
-	.i_z80_addr        ( req_audio_addr         ),
-	.i_z80_data        ( audio_data             ),
-	.o_z80_sdram_cs    ( audio_cs               ),
-	.o_z80_sdram_addr  ( audio_addr             ),
+	.i_z80_ok          ( audio_ok                  ),
+	.i_z80_addr        ( req_audio_addr            ),
+	.i_z80_data        ( audio_data                ),
+	.o_z80_sdram_cs    ( audio_cs                  ),
+	.o_z80_sdram_addr  ( audio_addr                ),
 	
-	.i_main_cs         ( req_main_cs | ~cpu_start ),
-	.i_main_ok         ( main_ok              ),
-	.i_main_addr       ( req_main_addr        ),
-	.i_main_data       ( main_data            ),
-	.o_main_sdram_cs   ( main_cs              ),
-	.o_main_sdram_addr ( main_addr            )
+	.i_main_cs         ( req_main_cs | ~cpu_start  ),
+	.i_main_ok         ( main_ok                   ),
+	.i_main_addr       ( req_main_addr             ),
+	.i_main_data       ( main_data                 ),
+	.o_main_sdram_cs   ( main_cs                   ),
+	.o_main_sdram_addr ( main_addr                 )
 );
 
 ///// PROMs /////
@@ -229,20 +229,20 @@ assign prom_vol_we = prom_we && ( prog_addr >= WAV_VOL_OFFSET );
 // ** 1K (256 x 4) NiCR PROM **
 // ** [6301] @ 7A            **
 jtframe_prom #(
-	.AW      (  8             ),
-	.DW      (  4             )
+	.AW      (  8              ),
+	.DW      (  4              )
 	`ifdef JTFRAME_PROM_DUMP
 	, .dumpfile("dump_wav1.hex")
 	`endif
 )
 u_wav1_rom(
-	.clk     ( clk            ),
-	.cen     ( 1'b1           ),
-	.rd_addr ( wav1_addr[7:0] ),
+	.clk     ( clk             ),
+	.cen     ( 1'b1            ),
+	.rd_addr ( wav1_addr[7:0]  ),
 	.wr_addr ( prog_addr_wave1 ),
-	.data    ( prog_data[3:0] ),
-	.we      ( prom_a01_we    ),
-	.q       ( wav1_data      )
+	.data    ( prog_data[3:0]  ),
+	.we      ( prom_a01_we     ),
+	.q       ( wav1_data       )
 	`ifdef JTFRAME_PROM_DUMP
 	, .dump  ( ~ioctl_rom )
 	`endif
@@ -251,22 +251,22 @@ u_wav1_rom(
 // ** 1K (256 x 4) NiCR PROM **
 // ** [6301] @ 7B            **
 jtframe_prom #(
-	.AW      (  8             ),
-	.DW      (  4             )
+	.AW      (  8              ),
+	.DW      (  4              )
 	`ifdef JTFRAME_PROM_DUMP
 	, .dumpfile("dump_wav2.hex")
 	`endif
 )
 u_wav2_rom(
-	.clk     ( clk            ),
-	.cen     ( 1'b1           ),
-	.rd_addr ( wav2_addr[7:0] ),
+	.clk     ( clk             ),
+	.cen     ( 1'b1            ),
+	.rd_addr ( wav2_addr[7:0]  ),
 	.wr_addr ( prog_addr_wave2 ),
-	.data    ( prog_data[3:0] ),
-	.we      ( prom_a02_we    ),
-	.q       ( wav2_data  )
+	.data    ( prog_data[3:0]  ),
+	.we      ( prom_a02_we     ),
+	.q       ( wav2_data       )
 	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom )
+	, .dump  ( ~ioctl_rom      )
 	`endif
 );
 
@@ -274,8 +274,8 @@ u_wav2_rom(
 // resistor ladders at the output of the 6301 PROMs @ 7A, 7B.
 
 jtframe_prom #(
-	.AW      (  8             ),
-	.DW      (  8             ),
+	.AW      (  8                 ),
+	.DW      (  8                 ),
 	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
 	`ifdef JTFRAME_PROM_DUMP
 	, .dumpfile("dump_wav1_vol.hex")
@@ -295,8 +295,8 @@ u_wav1_vol_rom(
 );
 
 jtframe_prom #(
-	.AW      (  8             ),
-	.DW      (  8             ),
+	.AW      (  8                 ),
+	.DW      (  8                 ),
 	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
 	`ifdef JTFRAME_PROM_DUMP
 	, .dumpfile("dump_wav2_vol.hex")
@@ -311,7 +311,7 @@ u_wav2_vol_rom(
 	.we      ( prom_vol_we        ),
 	.q       ( wav2_vol_data      )
 	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom       )
+	, .dump  ( ~ioctl_rom         )
 	`endif
 );
 
@@ -363,7 +363,7 @@ nemesis_main main(
 	.o_sound_db     ( sound_din       ),
 
 	// Video
-	.o_addr         ( video_addr       ),
+	.o_addr         ( video_addr      ),
 	.i_cd           ( pal_addr        ),
 	.i_data_bus_in  ( video_dout      ),
 	.o_data_bus_out ( video_din       ),
@@ -452,12 +452,12 @@ wire preLVBL_n;
 `ifdef NOVIDEO
 
 jtframe_vtimer vtimer(
-	.clk     ( clk ),
+	.clk     ( clk     ),
 	.pxl_cen ( pxl_cen ),
 	.LHBL    ( preLHBL ),
 	.LVBL    ( preLVBL ),
-	.HS      ( HS ),
-	.VS      ( VS )
+	.HS      ( HS      ),
+	.VS      ( VS      )
 );
 
 `else // NOVIDEO

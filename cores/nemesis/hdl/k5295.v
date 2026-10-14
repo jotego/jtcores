@@ -149,19 +149,12 @@ module K005295
 `endif
 );
 
-
-
 ///////////////////////////////////////////////////////////
 //////  GLOBAL SIGNALS
 ////
 
 reg             hsize_parity = 1'b0;
 reg             pixellatch_wait_n;
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  PIXEL3
@@ -173,11 +166,6 @@ reg             pixellatch_wait_n;
 */
 
 wire            pixel3_n = ~(i_ABS_1H & i_ABS_2H);
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  4H clocked DMA_n
@@ -201,11 +189,6 @@ begin
         end
     end
 end
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  ORA/register enable generation
@@ -245,11 +228,6 @@ begin
         end
     end
 end
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  SPRITE ATTRIBUTE LATCHES
@@ -371,8 +349,6 @@ begin
     end
 end
 
-
-
 ///////////////////////////////////////////////////////////
 //////  TILELINE/HLINE COMPLETE FLAG
 ////
@@ -405,10 +381,6 @@ begin
         4'h7: hline_complete <= tileline1_complete; //16*16     2 horizontal tileline
     endcase
 end
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  VZOOM FEEDBACK ACCUMULATOR
@@ -463,10 +435,6 @@ begin
     end
 end
 
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  DRAWING COMPLETE FLAG
 ////
@@ -507,11 +475,6 @@ begin
     endcase
 end
 
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  FRAMEBUFFER XYPOS COUNTER
 ////
@@ -536,7 +499,6 @@ begin
         ypos_cnt_dly_n[3:1] <= ypos_cnt_dly_n[2:0];
     end
 end
-
 
 //xpos counter
 reg     [7:0]   evenbuffer_xpos_counter;
@@ -591,11 +553,6 @@ begin
     end
 end
 
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  DRAWING STATUS FLAGS
 ////
@@ -609,12 +566,6 @@ wire            end_of_tileline = tileline0_complete | x_offscreen;
 wire            end_of_hline = hline_complete | x_offscreen;
 //wire            end_of_last_hline_n = ~(~(vtile_complete_n | vzoom_cnt_n) | y_offscreen);
 wire            end_of_last_hline_n = ~(~(vtile_complete_n) | y_offscreen);
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  SPRITE ENGINE MegaPAL
@@ -632,8 +583,6 @@ localparam KEEP_DRAWING     = 3'b100;
 localparam END_OF_TILELINE  = 2'b01; //3'bX01 will not work
 localparam END_OF_HLINE     = 3'b111;
 localparam END_OF_SPRITE    = 3'b011;
-
-
 
 /*
     [4H CLK] FSM SUSPEND AND RESUME
@@ -654,8 +603,6 @@ begin
     end
 end
 
-
-
 /*
     [6M CLK] CHA O/V
 */
@@ -670,8 +617,6 @@ begin
         end
     end
 end
-
-
 
 /*
     [4H CLK] FOR ATTRIBUTE FETCHING END DETECTION
@@ -688,8 +633,6 @@ begin
         end
     end
 end
-
-
 
 /*
     [6M CLK] HSIZE PARITY
@@ -712,8 +655,6 @@ begin
         end
     end
 end
-
-
 
 /*
     [6M CLK] FINITE STATE MACHINE
@@ -968,8 +909,6 @@ begin
                     end
                 end
 
-
-
             // WAIT STATE: WAITING FOR /PX3
             HWAIT_S0:
                 if(pixel3_n == 1'b0) //exit condition: encounter px3
@@ -1026,7 +965,6 @@ begin
                 begin
                     sprite_engine_state <= HWAIT_S0;
                 end
-            
             
             // WAIT FOR WRITE ONLY A SINGLE PIXEL
             ODDSIZE_S0:
@@ -1106,7 +1044,6 @@ begin
                     end
                 end
 
-
             // SUSPEND STATE: WAITING FOR /PX3
             SUSPEND_S0:
                 if(pixel3_n == 1'b0) //exit condition: encounter px3
@@ -1155,7 +1092,6 @@ begin
 
             default:
                 sprite_engine_state <= SUSPEND_S0;
-            
         endcase
     end
 end
@@ -1185,6 +1121,7 @@ begin
 
             pixellatch_wait_n <= 1'b0;
         end
+
         ATTR_LATCHING_S1: begin
             if(LATCH_F_2H_NCLKD_en_n == 1'b0 && pixel3_n == 1'b0)
             begin
@@ -1380,7 +1317,6 @@ begin
                 end
             end
         end
-
     
         HWAIT_S0: begin
         /*
@@ -1747,8 +1683,6 @@ begin
     endcase
 end
 
-
-
 /*
     [6M CLK] WRTIME DELAY
 */
@@ -1766,8 +1700,6 @@ begin
     end
 end
 
-
-
 /*
     [6M CLK] o_PIXELLATCH_WAIT_n DELAY
 */
@@ -1779,11 +1711,6 @@ begin
         o_PIXELLATCH_WAIT_n <= pixellatch_wait_n;
     end
 end
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  PIXEL SELECT(005294), LINE SELECT, TILE SELECT
@@ -1827,13 +1754,6 @@ begin
         4'hF: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*32    4 vetrical tiles
     endcase
 end
-
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  SCREEN COUNTER
@@ -1910,11 +1830,6 @@ begin
     end
 end
 
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  BUFFER MUX
 ////
@@ -1940,7 +1855,6 @@ begin
         end
     end
 end
-
 
 reg     [15:0]  EVENBUFFER_ADDR; //unmultiplexed, buffer A on the Nemesis schematics
 reg     [15:0]  ODDBUFFER_ADDR; //unmultiplexed, buffer B on the Nemesis schematics
@@ -1975,12 +1889,6 @@ begin
     endcase
 end
 
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  XA7 XB7
 ////
@@ -2005,17 +1913,11 @@ begin
     end
 end
 
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  CAS
 ////
 
 assign  o_CAS = i_OBJHL;
-
 
 reg debug;
 always @(*)
@@ -2029,6 +1931,5 @@ begin
         debug <= 1'b0;
     end
 end
-
 
 endmodule

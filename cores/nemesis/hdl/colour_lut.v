@@ -61,9 +61,9 @@ end
 /* verilator lint_on WIDTH */
 
 always @(posedge clk) begin
-    out_red   <= lut[ in_red ];
+    out_red   <= lut[ in_red   ];
     out_green <= lut[ in_green ];
-    out_blue  <= lut[ in_blue ];
+    out_blue  <= lut[ in_blue  ];
 end
 
 endmodule

@@ -43,7 +43,7 @@ module os_pulse_gen
 
 reg  trig_prev = 1'b0;
 
-reg [ DELAY + DURATION:0 ] delay_line = { DELAY + DURATION + 1 {1'b0}};
+reg [ DELAY + DURATION:0 ] delay_line = { DELAY + DURATION + 1 {1'b0} };
 
 wire dl0 = trig_en ? trig & ~trig_prev : 1'b0;
 
@@ -53,9 +53,9 @@ always @( posedge clk ) begin
 	delay_line <= { delay_line[DELAY + DURATION - 1:0], dl0 };
 end
 
-wire [ DELAY + DURATION + 1:0 ] toto = { delay_line, dl0 };
+wire [ DELAY + DURATION + 1:0 ] pulse_gen = { delay_line, dl0 };
 
 assign dl = delay_line;
-assign pulse = |{ toto[ DELAY + DURATION - 1:DELAY ] };
+assign pulse = |{ pulse_gen[ DELAY + DURATION - 1:DELAY ] };
 
 endmodule

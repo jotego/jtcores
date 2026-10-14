@@ -49,8 +49,8 @@ module nemesis_sound_debug(
 	
 	// balance
 	output reg [ 7:0]  o_bal_prom,
-	output reg [ 7:0]  o_bal_ay7, // AY2 from MAME
-	output reg [ 7:0]  o_bal_ay8  // AY1 from MAME
+	output reg [ 7:0]  o_bal_ay7,     // AY2 from MAME
+	output reg [ 7:0]  o_bal_ay8      // AY1 from MAME
 );
 
 always @(*) begin
@@ -101,17 +101,17 @@ end
 // audio balance (use sound/vol_controls.py)
 always @(*) begin
 	case( i_vol_prom )
-		4'd0: o_bal_prom <= 78;
-		4'd1: o_bal_prom <= 80;
-		4'd2: o_bal_prom <= 82;
-		4'd3: o_bal_prom <= 84;
-		4'd4: o_bal_prom <= 86;
-		4'd5: o_bal_prom <= 88;
-		4'd6: o_bal_prom <= 90;
-		4'd7: o_bal_prom <= 92;
-		4'd8: o_bal_prom <= 94;
-		4'd9: o_bal_prom <= 96;
-		4'd10: o_bal_prom <= 98;
+		4'd0:  o_bal_prom <=  78;
+		4'd1:  o_bal_prom <=  80;
+		4'd2:  o_bal_prom <=  82;
+		4'd3:  o_bal_prom <=  84;
+		4'd4:  o_bal_prom <=  86;
+		4'd5:  o_bal_prom <=  88;
+		4'd6:  o_bal_prom <=  90;
+		4'd7:  o_bal_prom <=  92;
+		4'd8:  o_bal_prom <=  94;
+		4'd9:  o_bal_prom <=  96;
+		4'd10: o_bal_prom <=  98;
 		4'd11: o_bal_prom <= 100;
 		4'd12: o_bal_prom <= 102;
 		4'd13: o_bal_prom <= 104;
@@ -119,40 +119,40 @@ always @(*) begin
 		4'd15: o_bal_prom <= 108;
 	endcase
 	case( i_vol_ay7 )
-		4'd0: o_bal_ay7 <= 86;
-		4'd1: o_bal_ay7 <= 88;
-		4'd2: o_bal_ay7 <= 90;
-		4'd3: o_bal_ay7 <= 92;
-		4'd4: o_bal_ay7 <= 94;
-		4'd5: o_bal_ay7 <= 96;
-		4'd6: o_bal_ay7 <= 98;
-		4'd7: o_bal_ay7 <= 100;
-		4'd8: o_bal_ay7 <= 102;
-		4'd9: o_bal_ay7 <= 104;
-		4'd10: o_bal_ay7 <= 106;
-		4'd11: o_bal_ay7 <= 108;
-		4'd12: o_bal_ay7 <= 110;
-		4'd13: o_bal_ay7 <= 112;
-		4'd14: o_bal_ay7 <= 114;
-		4'd15: o_bal_ay7 <= 116;
+		4'd0:  o_bal_ay7  <=  86;
+		4'd1:  o_bal_ay7  <=  88;
+		4'd2:  o_bal_ay7  <=  90;
+		4'd3:  o_bal_ay7  <=  92;
+		4'd4:  o_bal_ay7  <=  94;
+		4'd5:  o_bal_ay7  <=  96;
+		4'd6:  o_bal_ay7  <=  98;
+		4'd7:  o_bal_ay7  <= 100;
+		4'd8:  o_bal_ay7  <= 102;
+		4'd9:  o_bal_ay7  <= 104;
+		4'd10: o_bal_ay7  <= 106;
+		4'd11: o_bal_ay7  <= 108;
+		4'd12: o_bal_ay7  <= 110;
+		4'd13: o_bal_ay7  <= 112;
+		4'd14: o_bal_ay7  <= 114;
+		4'd15: o_bal_ay7  <= 116;
 	endcase
 	case( i_vol_ay8 )
-		4'd0: o_bal_ay8 <= 118;
-		4'd1: o_bal_ay8 <= 120;
-		4'd2: o_bal_ay8 <= 122;
-		4'd3: o_bal_ay8 <= 124;
-		4'd4: o_bal_ay8 <= 126;
-		4'd5: o_bal_ay8 <= 128;
-		4'd6: o_bal_ay8 <= 130;
-		4'd7: o_bal_ay8 <= 132;
-		4'd8: o_bal_ay8 <= 134;
-		4'd9: o_bal_ay8 <= 136;
-		4'd10: o_bal_ay8 <= 138;
-		4'd11: o_bal_ay8 <= 140;
-		4'd12: o_bal_ay8 <= 142;
-		4'd13: o_bal_ay8 <= 144;
-		4'd14: o_bal_ay8 <= 146;
-		4'd15: o_bal_ay8 <= 148;
+		4'd0:  o_bal_ay8  <= 118;
+		4'd1:  o_bal_ay8  <= 120;
+		4'd2:  o_bal_ay8  <= 122;
+		4'd3:  o_bal_ay8  <= 124;
+		4'd4:  o_bal_ay8  <= 126;
+		4'd5:  o_bal_ay8  <= 128;
+		4'd6:  o_bal_ay8  <= 130;
+		4'd7:  o_bal_ay8  <= 132;
+		4'd8:  o_bal_ay8  <= 134;
+		4'd9:  o_bal_ay8  <= 136;
+		4'd10: o_bal_ay8  <= 138;
+		4'd11: o_bal_ay8  <= 140;
+		4'd12: o_bal_ay8  <= 142;
+		4'd13: o_bal_ay8  <= 144;
+		4'd14: o_bal_ay8  <= 146;
+		4'd15: o_bal_ay8  <= 148;
 	endcase
 end
 

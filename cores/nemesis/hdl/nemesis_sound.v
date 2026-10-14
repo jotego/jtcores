@@ -32,15 +32,15 @@ You can read the whole license file at http://www.gnu.org/licenses/
 `default_nettype none
 
 module nemesis_sound(
-	input         i_clk,        // 48 MHz
+	input         i_clk,           // 48 MHz
 	input         i_cen3p5,
 	input         i_cen1p7,
 	input         i_cen_clk_div,
 	input         i_rst,
 
-	input  [ 7:0] i_main_db,    // Sound input data (DATA Bus 0-7)
-	input         i_data_n,     // Sound request (/DATA)
-	input         i_sound_on_n, // Sound On (/SOUND_ON)
+	input  [ 7:0] i_main_db,       // Sound input data (DATA Bus 0-7)
+	input         i_data_n,        // Sound request (/DATA)
+	input         i_sound_on_n,    // Sound On (/SOUND_ON)
 
 	input         i_cpu_start,
 	output        o_z80_cs,
@@ -57,7 +57,7 @@ module nemesis_sound(
 	input  [ 3:0] i_wav2_data,
 	input  [ 7:0] i_wav2_vol_data,
 
-	output [15:0] o_sound,      // Sound output
+	output [15:0] o_sound,         // Sound output
 
 	// OSD controls, temporary
 	input         i_prom1_on,
@@ -454,7 +454,7 @@ bus_ff #( .W( 2 ) ) u_ay_filter_ff(
 	.rst     ( i_rst           ),
 	.clk     ( i_clk           ),
 	.trig    ( r_filter_ff_clk ),
-	.d       ( { cpu_addr[12], cpu_addr[11]   } ),
+	.d       ( { cpu_addr[12],  cpu_addr[11]  } ),
 	.q       ( { ay8_filter_on, ay7_filter_on } ),
 	.q_n     (                 )
 );

@@ -60,8 +60,6 @@ module K005294
     input   wire    [2:0]   i_PIXELSEL
 );
 
-
-
 ///////////////////////////////////////////////////////////
 //////  COLORLATCH
 ////
@@ -80,13 +78,6 @@ begin
     end
 end
 
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////
 //////  TILELINE LATCH
 ////
@@ -103,13 +94,6 @@ begin
     
     TILELINELATCH_n_prev <= i_TILELINELATCH_n;
 end
-
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  PIXEL SELECT / PIXELLATCH_WAIT / WRTIME2 DELAY
@@ -153,7 +137,6 @@ begin
     end
 end
 
-
 always @(posedge i_EMU_MCLK)
 begin
     if(!i_EMU_CLK6MPCEN_n)
@@ -164,13 +147,6 @@ begin
         pixellatch_wait_dly[3] <= pixellatch_wait_dly[2];
     end
 end
-
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  PIXEL SELECTOR AND PIXEL LATCH
@@ -204,12 +180,6 @@ begin
         end
     end
 end
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////
 //////  DOUT MUX
