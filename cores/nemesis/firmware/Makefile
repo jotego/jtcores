@@ -19,8 +19,7 @@ RESNET_BIN = ./resnet_colmix
 RESNET_CPP = resnet_colmix.cpp
 
 $(RESNET_CPP): mame/resnet.cpp resnet.patch
-	cp mame/resnet.cpp $@
-	patch -p0 -i resnet.patch
+	patch -p0 -i resnet.patch -o $(RESNET_CPP)
 
 $(COLMIX): $(RESNET_BIN)
 	$(RESNET_BIN) > $@
@@ -33,7 +32,7 @@ $(RESNET_BIN): $(RESNET_CPP) mame/resnet.h mame/palette.h
 # prom_volumes.py program have been determined to be the correct one.
 
 $(PROM_VOL): prom_volumes.py
-	python prom_volumes.py > $@
+	python3 prom_volumes.py > $@
 
 clean:
 	rm -f $(RESNET_CPP) $(RESNET_BIN) $(COLMIX) $(PROM_VOL)
