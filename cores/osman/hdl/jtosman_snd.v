@@ -2,11 +2,13 @@
     Author: Andrea Bogazzi.
 
     Osman sound: two OKI M6295 (jt6295), driven directly by the main ARM (no sound CPU).
-    Both run at 28MHz/28 = 1 MHz with PIN7 HIGH (ss=1) per mitchell156.
+    Mitchell: both run at 1 MHz; DECO boards: SFX 1 MHz, music 2 MHz.
+    PIN7 is HIGH (ss=1) for both chips.
       okisfx   @0x100000 — SFX/voice, no banking.
       okimusic @0x140000 — music, bank[2:0] from eeprom_w + a ROM address descramble.
 
-    okimusic descramble: init_simpl156 permutes the ROM at load — buf1[bitswap(x)] = rom[x],
+    Music descramble: init_simpl156 and Heavy Smash's init_hvysmsh both permute
+    the ROM at load — buf1[bitswap(x)] = rom[x],
     with bitswap<24>(x, 23,22,21, 0,20, 19..1) moving the true low address line up to bit 20
     ("low line goes to the banking chip"). The SDRAM holds the raw ROM, so the inverse is
     applied to the read address: for A = {bank[2:0], oki_addr[17:0]}, x = {A[19:0], A[20]}.
@@ -17,7 +19,6 @@ module jtosman_snd(
     input             cen_oki1,
     input             cen_oki2,
     input             oki1_bank,     // hvysmsh: sfx OKI 512KB, banked x2
-    input             musraw,        // hvysmsh: music OKI without the address bitswap
 
     input    [ 7:0]   din,
     input             oki1_wr,       // 1-clk pulse (main is_okisfx write)
@@ -45,11 +46,11 @@ assign rom1_cs = 1'b1;   // jt6295 fetches ROM continuously
 assign rom2_cs = 1'b1;
 
 // OKI #2 banked read address; the init_simpl156 bitswap moves the true low address
-// line up to bit 20, undone here. hvysmsh (musraw) has no bitswap.
+// line up to bit 20, undone here. Heavy Smash uses this same permutation.
 wire [17:0] oki1_a, oki2_a;
 assign rom1_addr = { oki1_bank, oki1_a };   // 2x256KB banks (hvysmsh); bank tied 0 elsewhere
 wire [20:0] oki2_banked = { oki2_bank, oki2_a };
-assign rom2_addr = musraw ? oki2_banked : { oki2_banked[19:0], oki2_banked[20] };
+assign rom2_addr = { oki2_banked[19:0], oki2_banked[20] };
 
 jt6295 u_okisfx(
     .rst     ( rst       ),

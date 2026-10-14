@@ -70,7 +70,6 @@ jtosman_header u_header(
 // Per-family behaviour, derived - no game tables in the MRA:
 wire tile1mb = jm|cr|md|mdp;        // 1MB plain tile region (else 2MB w/ ROM_CONTINUE swap)
 wire mus2m   = jm|cr|md|mdp|hv;     // music OKI at 28/14 = 2 MHz (Mitchell = 1 MHz)
-wire musraw  = hv;                  // music OKI without the init_simpl156 bitswap
 wire sfxbank = hv;                  // 512KB banked sfx OKI
 wire pal888  = hv;                  // xBGR888 32-bit palette
 
@@ -183,7 +182,6 @@ jtosman_snd u_snd(
     .cen_oki1   ( cen_oki1  ),
     .cen_oki2   ( mus2m ? cen_oki2b : cen_oki2 ),  // DECO PCBs + hvysmsh: music OKI at 2 MHz
     .oki1_bank  ( oki1_bank & sfxbank ),
-    .musraw     ( musraw    ),
     .din        ( oki_din   ),
     .oki1_wr    ( oki1_wr   ),
     .oki2_wr    ( oki2_wr   ),

@@ -40,7 +40,7 @@ JTFRAME_IOCTL_RD=128
 # BA0: main ARM ROM (32-bit, deco156 decrypt-at-fetch; 1MB slot: 512KB simpl156, 1MB hvysmsh)
 # BA1: tiles 0x200000 (16-bit, deco56 decrypt-at-fetch; mcf-00 ROM_CONTINUE + RGN_FRAC(1,2))
 # BA2: okisfx (8-bit; 512 KB slot: 256 KB on simpl156, 512 KB banked on hvysmsh)
-#      + okimusic 0x200000 (8-bit; simpl156 address-bitswap + bank[2:0], hvysmsh raw+bank)
+#      + okimusic 0x200000 (8-bit; same address-bitswap + bank[2:0] for every supported family)
 # BA3: sprites 0x800000 (4bpp RGN_FRAC(1,2), plain; 32-bit packed fetch)
 JTFRAME_BA1_START=0x100000
 JTFRAME_BA2_START=0x300000
