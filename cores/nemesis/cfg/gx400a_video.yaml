@@ -1,9 +1,6 @@
-gx400a-video:
+nemesis:
   - get:
     - gx400a_video.v
-
-gx400-custom:
-  - get:
     - gx400_priority_handler.v
     - k5290.v
     - k5291.v

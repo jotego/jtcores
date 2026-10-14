@@ -1,12 +1,21 @@
 nemesis:
   - get:
       - jtnemesis_game.v
-      - nemesis_main.v
-      - nemesis_sound.v
-      - nemesis_jt49_exp.v
-      - nemesis_68k_addr_dec.v
-      - nemesis_sound_debug.v
+      - gx400_cen.v
       - nemesis_rom_debug.v
+      - nemesis_sound_debug.v
+      - nemesis_main.v
+      - nemesis_68k_addr_dec.v
+      - nemesis_sound.v
+      - k5289.v
+      - nemesis_jt49_exp.v
+      - gx400a_video.yaml
+      - colour_lut.v
+      - bus_ff.v
+      - lmn74194_nbit.v
+      - os_pulse_gen.v
+      - unsigned_mixer.v
+
 jtframe:
   - get:
       - jtframe_ff.v
@@ -36,23 +45,6 @@ jtframe:
 jt12:
   - get:
     - jt49.yaml
-
-gx400a-video:
-  - get:
-    - gx400a_video.yaml
-    - gx400_cen.v
-    - colour_lut.v
-
-util:
-  - get:  
-    - bus_ff.v
-    - lmn74194_nbit.v
-    - os_pulse_gen.v
-    - unsigned_mixer.v
-
-gx400-custom:
-  - get:
-    - k5289.v
 
 fx68k:
   - get:
