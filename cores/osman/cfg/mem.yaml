@@ -72,6 +72,7 @@ bram:
   - name: palh               # xBGR888 high half (hvysmsh only; zero elsewhere)
     addr_width: 11
     data_width: 16
+    simfile: {}
     addr: pal_rd
     dual_port:
       name: palhrw

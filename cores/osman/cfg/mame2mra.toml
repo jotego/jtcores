@@ -78,6 +78,10 @@ regions = [
     # (@0x600000/0x400000/0x200000/0x000000). Plane-pair pack for jtframe_decospr = TODO byte-check
     # (cninja darkseal/supbtime pattern: load straight + game.v plane-pair rotate, OR width=32 parts).
     { name="sprites",  start="JTFRAME_BA3_START", No_offset=true },
+    # Chain Reaction uses ROM_LOAD16_BYTE pairs (u3/u4 and u5/u6), unlike
+    # the contiguous sprite mask ROMs used by the other simpl156 games.
+    # Preserve MAME's even/odd byte lanes before HDL packs the plane halves.
+    { name="sprites", setname="chainrec", start="JTFRAME_BA3_START", width=16, No_offset=false },
     # Heavy Smash has 2MB ROMs at 0 and 4MB in an 8MB plane-split region.
     # Keep the intervening/trailing holes: compacting them loses bitplanes.
     { name="sprites", machine="hvysmsh", start="JTFRAME_BA3_START", No_offset=false, len=0x800000 },

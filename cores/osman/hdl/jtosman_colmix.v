@@ -1,11 +1,12 @@
 /*  This file is part of JTCORES. GPLv3. See jtosman_game.v header.
     Author: Andrea Bogazzi.
 
-    Osman colour mixer. Palette xBGR-555, 1 word/colour: {x,B[14:10],G[9:5],R[4:0]}.
+    Osman colour mixer. Palette xBGR-555, or Heavy Smash xBGR-888.
     simpl156 screen_update draw order back->front: fill pen 256 (0x100 backdrop) <
     pf2 (col_bank 0x10 -> pens 0x100+) < pf1 (col_bank 0x00 -> pens 0x000+) < sprites
     (gfxdecode base 0x200). deco16 pxl = {colour[3:0],pixel[3:0]}; pen 0 transparent.
-    v0: layer inputs are 0 -> the whole screen shows the backdrop pen 0x100.
+    Heavy Smash draws opaque pf2, then sprites, then transparent pf1. Its tile
+    priority bitmap stays zero, so sprite priority bits do not change that order.
 */
 module jtosman_colmix(
     input             clk,
@@ -46,7 +47,7 @@ wire obj_mid   = obj_op & (obj_pri==2'd1);   // between pf1 and pf2
 wire obj_back  = obj_op &  obj_pri[1];        // pri 2/3: behind both, above backdrop
 
 // front->back: obj(0) > pf1_16 > pf1_8 > obj(1) > pf2_16 > pf2_8 > obj(2/3) > backdrop(0x100).
-wire [9:0] pal_idx = obj_front ? {1'b1, obj_pxl[8:0]}  :   // 0x200 + colour*16 + pixel
+wire [9:0] simpl_idx = obj_front ? {1'b1, obj_pxl[8:0]}  :   // 0x200 + colour*16 + pixel
                      pf1a_op ? {2'b00, pf1a_pxl}     :   // pf1 pen 0x000-0x0FF
                      pf1b_op ? {2'b00, pf1b_pxl}     :
                      obj_mid ? {1'b1, obj_pxl[8:0]}  :   // sprites between pf1 and pf2
@@ -54,6 +55,17 @@ wire [9:0] pal_idx = obj_front ? {1'b1, obj_pxl[8:0]}  :   // 0x200 + colour*16 
                      pf2b_op ? {2'b01, pf2b_pxl}     :
                      obj_back ? {1'b1, obj_pxl[8:0]} :   // sprites behind both playfields
                                10'h100;                   // backdrop pen 256
+
+// jtosman_game derives pal888 directly from the hv header bit: it selects the
+// Heavy Smash board. MAME deco156/hvysmsh screen_update draws PF1 last, regardless
+// of the sprite's word2[15:14]. PF2 is opaque, including each colour bank's pen 0.
+// jtosman_video gates the unused 8x8/16x16 input to zero before this mixer.
+wire [7:0] pf2_selected = pf2a_pxl | pf2b_pxl;
+wire [9:0] hv_idx = pf1a_op ? {2'b00, pf1a_pxl} :
+                   pf1b_op ? {2'b00, pf1b_pxl} :
+                   obj_op  ? {1'b1, obj_pxl[8:0]} :
+                             {2'b01, pf2_selected};
+wire [9:0] pal_idx = pal888 ? hv_idx : simpl_idx;
 
 always @(posedge clk) if(pxl_cen) pal_addr <= pal_idx;
 
