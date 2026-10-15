@@ -11,11 +11,6 @@ on:
         description: Comma-separated FPGA targets
         required: true
         type: string
-      debug:
-        description: Include games marked as debug
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   list_targets:
@@ -99,12 +94,7 @@ jobs:
 
           test -e "cores/${{ matrix.core }}/cfg/macros.def"
 
-          debug_args=()
-          if [[ "${{ inputs.debug }}" == "true" ]]; then
-            debug_args+=(--debug)
-          fi
-
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${debug_args[@]}" "${{ matrix.target }}"
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${{ matrix.target }}"
 
       # On a failed compile, ship the build log for triage. jtframe/bin/jtcore
       # writes it to log/<target>/<core>.log inside the container, which maps
