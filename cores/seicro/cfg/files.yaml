@@ -8,7 +8,7 @@ jtframe:
 jt12:
   - get: [ jt49.yaml ]
 jt680x:
-  - get: [ jt680x_alu.v, jt680x_regs.v ]
+  - get: [ jt680x_alu.v ]
   - ucode:
       src: ../../../cores/seicro/ucode/6802.yaml
       output: 6801

@@ -5,6 +5,7 @@ module jtseicro_m6802_cpu(
     input             rst,
     input             clk,
     input             cen,
+    input             nsc8105,
     output            wr,
     output            fetch,
     output            instruction_end,
@@ -52,9 +53,11 @@ wire [8:0] cmp_hi = {1'b0,op0[15:8]}-{1'b0,op1[15:8]};
 wire cmp_v = (op0[15]^op1[15]) & (op0[15]^cmp_hi[7]);
 `include "6801_param.vh"
 wire cmpx = alu16 && alu_sel==SUB_ALU && ld_sel!=D_LD && cc_sel==NZVC_CC;
-assign rslt_cc = cmpx ? {cmp_hi[7],rslt==16'd0,cmp_v,c} : alu_cc;
+wire adcx = nsc8105 && ld_sel==X_LD && cc_sel==HNZVC_CC;
+assign rslt_cc = cmpx ? {cmp_hi[7],rslt==16'd0,cmp_v,c} :
+                adcx ? {alu_cc[3:1],rslt[8]} : alu_cc;
 
-assign next_op=md[7:0];
+assign next_op=nsc8105 ? {md[6],md[7],md[5:2],md[0],md[1]} : md[7:0];
 
 jtseicro_m6802_ctrl u_ctrl(
     .ni         ( instruction_end ),
@@ -62,6 +65,7 @@ jtseicro_m6802_ctrl u_ctrl(
     .clk        ( clk             ),
     .cen        ( cen             ),
     .md         ( md              ),
+    .opcode     ( next_op         ),
     .ext_halt   ( ext_halt        ),
     .ba         ( ba              ),
     .nmi        ( nmi             ),
@@ -109,10 +113,11 @@ jt680x_alu u_alu(
     .rslt_cc   ( alu_cc    )
 );
 
-jt680x_regs u_regs(
+jtseicro_m6802_regs u_regs(
     .rst      ( rst      ),
     .clk      ( clk      ),
     .cen      ( cen      ),
+    .nsc8105  ( nsc8105  ),
     .md       ( md       ),
     .alt      ( alt      ),
     .brlatch  ( brlatch  ),

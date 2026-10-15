@@ -6,6 +6,7 @@ module jtseicro_m6802_ctrl(
     input        clk,
     input        cen,
     input [15:0] md,
+    input [7:0]  opcode,
 
     input        i,
     input        irq,
@@ -79,7 +80,7 @@ always @(posedge clk) begin
         if( ~halt & ~ext_halt       ) ba<=0;
         if( ni | halt ) begin
             if( !still ) begin
-                uaddr <= { md[7:0], 4'd0 };
+                uaddr <= { opcode, 4'd0 };
                 stack_busy <= 0;
 
 

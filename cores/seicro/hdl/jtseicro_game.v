@@ -6,10 +6,15 @@ wire [15:0] cpu_addr;
 wire [7:0] cpu_dout, ay_data, main_debug, mcu_debug;
 wire ay_bdir, ay_bc1, irq_en, flip, mcu_reset, mcu_run, cpu_lvbl;
 wire watchdog_clr;
+reg nsc8105;
 wire [9:0] psg;
 wire [3:0] dac;
 wire signed [10:0] psg_ac=$signed({1'b0,psg})-11'sd512;
 wire signed [5:0] dac_ac=$signed({1'b0,dac,1'b0})-6'sd15;
+
+always @(posedge clk) begin
+    if(prog_we && header && prog_addr==0) nsc8105<=prog_data[0];
+end
 
 `ifdef SIMSCENE
 always @(posedge clk) begin
@@ -87,6 +92,7 @@ jtseicro_mcu u_mcu(
     .run         ( mcu_run            ),
     .reset_req   ( mcu_reset          ),
     .dip_pause   ( dip_pause          ),
+    .nsc8105     ( nsc8105            ),
     .dipsw       ( dipsw[23:0]        ),
     .rom_addr    ( mcu_addr           ),
     .rom_cs      ( mcu_cs             ),

@@ -120,10 +120,8 @@ ops:
   - { name: LDAB, op: 0xd6, ctl: {            op0: md,         addr: dir,   ld: b,   cc: nzv0 }, cycles: 3 }
   - { name: LDAB, op: 0xe6, ctl: {            op0: md,         addr: idx,   ld: b,   cc: nzv0 }, cycles: 5 }
   - { name: LDAB, op: 0xf6, ctl: {            op0: md,         addr: ext,   ld: b,   cc: nzv0 }, cycles: 4 }
-  - { name: LDD,  op: 0xcc, ctl: {  alu16: 1, op0: md,         addr: imm16, ld: d,   cc: nzv0 }, cycles: 3 }
   - { name: LDD,  op: 0xdc, ctl: {  alu16: 1, op0: md,         addr: dir16, ld: d,   cc: nzv0 }, cycles: 4 }
-  - { name: LDD,  op: 0xec, ctl: {  alu16: 1, op0: md,         addr: idx16, ld: d,   cc: nzv0 }, cycles: 5 }
-  - { name: LDD,  op: 0xfc, ctl: {  alu16: 1, op0: md,         addr: ext16, ld: d,   cc: nzv0 }, cycles: 5 }
+  - { name: LDD,  op: 0xcc, ctl: {  alu16: 1, op0: md,         addr: imm16, ld: d,   cc: nzv0 }, cycles: 3 }
   - { name: LDX,  op: 0xce, ctl: {  alu16: 1, op0: md,         addr: imm16, ld: x,   cc: nzv0 }, cycles: 3 }
   - { name: LDX,  op: 0xde, ctl: {  alu16: 1, op0: md,         addr: dir16, ld: x,   cc: nzv0 }, cycles: 4 }
   - { name: LDX,  op: 0xee, ctl: {  alu16: 1, op0: md,         addr: idx16, ld: x,   cc: nzv0 }, cycles: 6 }
@@ -226,7 +224,67 @@ ops:
   - { name: UNDOC1, op: 0x12, cycles: 3 }
   - { name: UNDOC2, op: 0x13, cycles: 3 }
 
+  - { name: ADCX, op: 0xec, cycles: 5 }
+  - { name: ADDX, op: 0xfc, cycles: 4 }
+  - { name: STIM, op: 0x71, cycles: 6 }
+  - { name: BTST, op: 0x7b, cycles: 6 }
+
 ucode:
+  - name: nscext16
+    start: 0x18
+    seq:
+      - fetch, inc_pc
+      -
+      - fetch, inc_pc, md_shift
+      - ld0_opnd
+      - ea_ld
+      - m_ea, ea_rmux, ld0_opnd
+      - m_ea, fetch, one_rmux, ld1_opnd
+      - m_ea, add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch, md_shift, ret_jsr
+  - mnemo: [ ADCX ]
+    seq:
+      - imm_jsr, inc_pc
+      - x_rmux, ld0_opnd
+      - ld1_opnd, fetch
+      - add_alu, x_ld, hnzvc_cc, ni
+  - mnemo: [ ADDX ]
+    seq:
+      - nscext16_jsr, inc_pc
+      - x_rmux, ld0_opnd
+      - ld1_opnd, fetch
+      - add_alu, alu16, x_ld, nzvc_cc, ni
+  - mnemo: [ STIM ]
+    seq:
+      - inc_pc
+      - fetch, inc_pc, alt
+      - fetch, inc_pc
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - alt, ld0_opnd
+      - md_ld, nzv0_cc
+      - m_ea, wr
+      - fetch
+      -
+      - ni
+  - mnemo: [ BTST ]
+    seq:
+      - inc_pc
+      - fetch, inc_pc, alt
+      - fetch, inc_pc
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea_ld
+      - m_ea
+      - m_ea, fetch
+      - ld0_opnd
+      - alt, ld1_opnd
+      - and_alu, nzv0c0_cc
+      - fetch
+      -
+      - ni
   - mnemo: [ MUL ]
     seq:
       - idle6_jsr

@@ -3,16 +3,16 @@ author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=["seicross.cpp"]
-main_setnames=["sectrzont"]
+main_setnames=["seicross","sectrzont"]
 
 [parse.mustbe]
 machines=["seicross"]
 
-[parse.skip]
-setnames=["seicross","seicrossa","sectrzon","sectrzona"]
-
-[parse.debug]
-machines=["seicross"]
+[header]
+data=[
+    { setnames=["seicross","seicrossa","sectrzon","sectrzona"], data="01" },
+    { setname="sectrzont", data="00" },
+]
 
 [buttons]
 names=[{ names="Button 1" }]

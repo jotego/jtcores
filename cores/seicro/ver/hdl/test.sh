@@ -29,7 +29,7 @@ for top in jtseicro_game jtseicro_game_sdram; do
         -f definitions.txt -c rtl.f -o elaboration
     printf 'PASS elaboration: %s\n' "$top"
 done
-for top in decode_tb main_tb mcu_tb; do
+for top in decode_tb main_tb mcu_tb nsc8105_tb; do
     iverilog -g2012 -DSIMULATION -DIVERILOG -s "$top" -I. -I"$JTFRAME/hdl/inc" \
         -o test -f definitions.txt -c rtl.f "$CORES/seicro/ver/hdl/$top.v"
     vvp test
@@ -43,3 +43,7 @@ iverilog -g2012 -DSIMULATION -DIVERILOG -DNOMAIN -DNOSOUND -s scene_tb \
     -I. -I"$JTFRAME/hdl/inc" -o scene_test -f definitions.txt -c rtl.f \
     "$CORES/seicro/ver/hdl/scene_tb.v"
 vvp scene_test
+iverilog -g2012 -DSIMULATION -DIVERILOG -DNOMAIN -DNOSOUND -s header_tb \
+    -I. -I"$JTFRAME/hdl/inc" -o header_test -f definitions.txt -c rtl.f \
+    "$CORES/seicro/ver/hdl/header_tb.v"
+vvp header_test

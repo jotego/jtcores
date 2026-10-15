@@ -21,7 +21,8 @@ always @(posedge clk) begin
 end
 jtseicro_mcu dut(
     .*,
-    .dipsw ( 24'hfae3f5 )
+    .nsc8105 ( 1'b0       ),
+    .dipsw   ( 24'hfae3f5 )
 );
 initial begin
     for(i=0;i<32768;i=i+1) rom[i]=8'h01;

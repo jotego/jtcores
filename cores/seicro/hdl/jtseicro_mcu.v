@@ -1,5 +1,5 @@
 module jtseicro_mcu(
-    input             rst, clk, cen, run, reset_req, dip_pause,
+    input             rst, clk, cen, run, reset_req, dip_pause, nsc8105,
     input      [23:0] dipsw,
     output     [14:0] rom_addr,
     output            rom_cs,
@@ -54,7 +54,7 @@ always @(posedge clk) begin
         if(cen && dip_pause && stall_count!=0) stall_count<=stall_count-5'd1;
         if(step) begin
             stall_count <= (addr[15] && (fetch || wr) ? 5'd4 : 5'd0) +
-                           (instruction_end ? {1'b0,padding(next_op)} : 5'd0);
+                           (instruction_end ? {1'b0,padding(next_op,nsc8105)} : 5'd0);
             if(instruction_end) opcode<=next_op;
         end
         if(step && wr && addr==16'h2000) dac<=dout[7:4];
@@ -63,6 +63,7 @@ end
 
 function [3:0] padding;
     input [7:0] op;
+    input nsc;
     begin
         case(op)
             8'h60,8'h63,8'h64,8'h66,8'h67,8'h68,8'h69,8'h6a,
@@ -72,6 +73,12 @@ function [3:0] padding;
             8'h9f,8'hdf: padding=1;
             8'haf,8'hef: padding=7;
             default: padding=0;
+        endcase
+        if(nsc) case(op)
+            8'h30,8'h35,8'h6d: padding=padding+4'd4;
+            8'h71,8'h7b: padding=8;
+            8'hec: padding=3;
+            default:;
         endcase
     end
 endfunction
@@ -91,6 +98,7 @@ jtseicro_m6802_cpu u_cpu(
     .rst             ( core_rst        ),
     .clk             ( clk             ),
     .cen             ( step            ),
+    .nsc8105         ( nsc8105         ),
     .wr              ( wr              ),
     .fetch           ( fetch           ),
     .instruction_end ( instruction_end ),
