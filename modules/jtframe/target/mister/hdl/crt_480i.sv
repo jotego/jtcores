@@ -25,10 +25,13 @@
 //  - HL comes from the measured frame period: the odd count nearest a line
 //    rate of 15075 + 11 x (frame rate) Hz, so 525 at 59.94 Hz (NTSC) and 625
 //    at 50 Hz (PAL); 571 for 54.82 Hz, 547 for 57.5 Hz (all about 15.65-15.76
-//    kHz). It is never below 525: from about 59.8 Hz up a field keeps 262.5 lines
-//    and the line rate rises with the frame rate, to 16.5 kHz at most. HL is
+//    kHz). It is never below HL_MIN (525 by default): from about 59.8 Hz up a
+//    field keeps 262.5 lines and the line rate rises with the frame rate, to
+//    16.5 kHz at most. A core whose picture is shorter than 240 lines a field
+//    can set HL_MIN lower (e.g. 513 for 224 lines at 61.4 Hz: 15.74 kHz). HL is
 //    held while locked. The lines a slower frame adds go half above, half
-//    below the visible window (VIS_FIRST moves down by (HL - 525) / 4).
+//    below the visible window (VIS_FIRST moves down by (HL - 525) / 4; up, for
+//    HL below 525).
 //  - Field 0 shows source lines 0,2,4..., field 1 lines 1,3,5..., from a
 //    RING-line buffer that holds every source line, both parities, because
 //    deflicker and stretch read the neighbouring lines too.
@@ -46,8 +49,8 @@
 //
 //  Self-measuring: frame period, line period, active width and height, and
 //  the VSync-to-first-active-line time. It locks after 3 stable frames, only
-//  from 49 Hz up to the rate where 525 half-lines give a 16.5 kHz line
-//  (62.86 Hz), or lower if H_START + W_MAX would not fit that line, and drops
+//  from 49 Hz up to the rate where HL_MIN half-lines give a 16.5 kHz line
+//  (62.86 Hz at 525), or lower if H_START + W_MAX would not fit that line, and drops
 //  the lock within a frame if the source VSync stops or its timing changes. A
 //  picture narrower than W_MAX or shorter than the field is centred; pixels
 //  past W_MAX are dropped. At 1:1 an odd last source line is not shown.
@@ -91,7 +94,9 @@ module crt_480i #(
     parameter VIS_FIRST = 21,    // first visible line of a field
     parameter VIS_LINES = 240,   // visible lines of a field (active is centred in them)
     parameter VS_HL     = 6,     // VSync start, half-lines after field start
-    parameter VS_LEN    = 6      // VSync length, half-lines (3 lines)
+    parameter VS_LEN    = 6,     // VSync length, half-lines (3 lines)
+    parameter HL_MIN    = 525    // fewest half-lines a frame (odd); below 525 only for pictures
+                                 // shorter than 240 lines a field (VIS_FIRST + VIS_LINES must fit)
 )(
     input             clk,
     input             ce_in,     // source pixel enable
@@ -125,20 +130,21 @@ wire       vs_rise = vs_in & ~vs_l;
 wire       de_rise = de_in & ~de_l;
 reg [21:0] fcnt = 0;               // clk since source VSync
 reg [21:0] tf = 0;                 // frame period
-reg [21:0] ta_run = 0, ta = 0;     // VSync -> first active line
+reg [21:0] tz_run = 0, tz = 0;     // VSync -> last active line (its DE rise)
 reg [11:0] lcnt = 0, tls = 0;      // source line period (DE rise to DE rise)
 reg [ 9:0] hs_run = 0, hsrc = 0;   // active lines per frame
 reg [AW:0] xw = 0, ws_run = 0, wsrc = 0;
 reg        seen_de = 0;
 reg [ 1:0] stable = 0;
 assign     locked = stable == 2'd3;
-// Frame-rate window. Slowest: 49 Hz (HL 637, 15.6 kHz). Fastest: HL is 525 from 59.94 Hz up, so
-// the output line is tf / 262.5; it must last at least a 16.5 kHz line and hold H_START + W_MAX.
+// Frame-rate window. Slowest: 49 Hz (HL 637, 15.6 kHz). Fastest: HL is HL_MIN from about 59.8 Hz
+// up (525) so the output line is 2 tf / HL_MIN; it must last at least a 16.5 kHz line and hold
+// H_START + W_MAX.
 localparam integer OUT_X2 = 2 * CLK_DIV + CLK_FRAC;               // clocks per 2 output pixels
 localparam integer TL_HZ  = CLK_HZ / 16500 + 1;
 localparam integer TL_PX  = ((H_START + W_MAX) * OUT_X2 + 1) / 2;
 localparam integer TL_MIN = TL_HZ > TL_PX ? TL_HZ : TL_PX;      // shortest output line, clk
-localparam [21:0] TF_MIN = (TL_MIN * 525 + 1) / 2, TF_MAX = CLK_HZ / 49;
+localparam [21:0] TF_MIN = (TL_MIN * HL_MIN + 1) / 2, TF_MAX = CLK_HZ / 49;
 
 always @(posedge clk) begin
     vs_l <= vs_in;
@@ -147,7 +153,7 @@ always @(posedge clk) begin
     lcnt <= de_rise ? 12'd1 : lcnt + 1'd1;
     if( de_rise ) begin
         if( seen_de ) tls <= lcnt;
-        if( !seen_de ) ta_run <= fcnt;
+        tz_run  <= fcnt;
         seen_de <= 1;
         hs_run  <= hs_run + 1'd1;
     end
@@ -161,7 +167,7 @@ always @(posedge clk) begin
     end
     if( vs_rise ) begin
         tf      <= fcnt;
-        ta      <= ta_run;
+        tz      <= tz_run;
         hsrc    <= hs_run;
         wsrc    <= ws_run;
         hs_run  <= 0;
@@ -180,17 +186,19 @@ end
 // ---------------------------------------------------------------------------
 // Per-frame geometry: output line period, active window and field delay
 // ---------------------------------------------------------------------------
-// Half-lines a frame: L = floor(15075 x tf / CLK_HZ + 11) lines a field, HL = 2L + 1, at least 525.
+// Half-lines a frame: L = floor(15075 x tf / CLK_HZ + 11) lines a field, HL = 2L + 1, at least HL_MIN.
 // (Line rate (L + 0.5) x fps: 525 at 59.94 Hz, 625 at 50 Hz.) Followed while unlocked, held while
 // locked, so a frame period on a rounding boundary cannot switch it back and forth.
 localparam [47:0] HL_K = CLK_HZ == 0 ? 48'd0 : ((48'd15075 << 32) + CLK_HZ / 2) / CLK_HZ;
 reg [45:0] m_hl = 0;
-reg [13:0] hl_f = 0;               // lines a field, before the 525 floor
-reg [10:0] hl_n = 11'd525;         // half-lines a frame (odd)
+localparam [10:0] HLM  = HL_MIN;
+localparam [13:0] LMIN = (HL_MIN - 1) / 2;
+reg [13:0] hl_f = 0;               // lines a field, before the HL_MIN floor
+reg [10:0] hl_n = HLM;             // half-lines a frame (odd)
 always @(posedge clk) begin
     m_hl <= tf * HL_K[23:0];
     hl_f <= m_hl[45:32] + 14'd11;
-    if( !locked ) hl_n <= hl_f < 14'd262 ? 11'd525 : hl_f > 14'd1023 ? 11'd2047 : { hl_f[9:0], 1'b1 };
+    if( !locked ) hl_n <= hl_f < LMIN ? HLM : hl_f > 14'd1023 ? 11'd2047 : { hl_f[9:0], 1'b1 };
 end
 
 // tlo = tf / (HL/2) = 2 tf / HL, output line period (floor, error < 1 clk): a shift-subtract
@@ -238,27 +246,36 @@ reg signed [11:0] v_want = 0;
 // the active lines stay clear of VSync and inside the (HL-1)/2 whole lines of a field
 localparam integer V_MIN = (VS_HL + VS_LEN + 1) / 2;
 reg [22:0] dly = 0;                // source VSync -> field start
-reg [ 9:0] v_add = 0;              // lines a slower frame adds above the visible window
+reg signed [10:0] v_add = 0;       // lines a slower frame adds above the visible window (< 0: removes)
 // What a field displays: a snapshot, taken at its start, of the same geometry its start time was
 // computed from. A menu change (Height, V-Position) therefore applies whole, from a field start.
 reg        f_vfull = 0;
 reg [ 9:0] f_lines = 0, f_vstart = 0;
 reg [23:0] f_step = 0;
 reg [21:0] m_src, m_out;
+reg [11:0] tls_h = 0;              // tls, held while locked
+reg [21:0] tz_h = 0;               // tz, held while it moves by 8 clk or less
 
 always @(posedge clk) begin
     // pipelined over the frame; results are stable long before they are used
-    v_add    <= (hl_n - 11'd525) >> 2;
+    v_add    <= $signed({1'b0, hl_n} - 12'd525) >>> 2;
     half_act <= hsrc[9:1];
     out_lines<= vfull ? hsel : half_act > VIS_LINES ? VIS_LINES[9:0] : half_act;
     v_cen    <= (VIS_LINES[9:0] - out_lines) >> 1;       // centred in the visible lines
-    v_want   <= $signed({2'b00, VIS_FIRST[9:0] + v_add + v_cen}) + $signed({{5{voffset[6]}}, voffset});
+    v_want   <= $signed({2'b00, VIS_FIRST[9:0] + v_cen}) + $signed({v_add[10], v_add}) + $signed({{5{voffset[6]}}, voffset});
     v_hi     <= hl_n[10:1] - out_lines;
     vstart   <= v_want < V_MIN ? V_MIN[9:0] : v_want > $signed({2'b00, v_hi}) ? v_hi : v_want[9:0];
     // step = hsrc / (2*lines) in 8.16: hsrc * floor(2^24/(2*lines)) >> 8
     m_step   <= hsrc * hk;
     step     <= m_step[31:8];
-    m_src    <= ta + hsrc * tls + (tls << 1);                // source finishes, plus two lines
+    // measured from the last line, not first line + hsrc x tls, with the line period held while
+    // locked: a source whose line period alternates by 1 clk (Popeye: 1523/1524) would otherwise
+    // move the field start from frame to frame (by hsrc clk with the old formula; the field
+    // period then alternated and a CRT dropped the picture for single frames)
+    // tz is held too unless it really moves (the source's picture moved: more than 8 clk)
+    if( !locked ) tls_h <= tls;
+    if( !locked || (tz > tz_h ? tz - tz_h : tz_h - tz) > 22'd8 ) tz_h <= tz;
+    m_src    <= tz_h + tls_h + (tls_h << 1);                 // source finishes, plus two lines
     m_out    <= (vstart + out_lines - 1'd1) * tlo;            // field start -> last active line
     // field start = source finish - that; if it lands before VSync, start in the previous frame
     dly      <= (m_src >= m_out) ? {1'b0, m_src - m_out} : {1'b0, m_src} + {1'b0, tf} - {1'b0, m_out};
@@ -522,6 +539,8 @@ localparam [7:0]   PH_C = (1+LL) % CLK_DIV, PH_A = (2+LL) % CLK_DIV,
                    PH_B = (3+LL) % CLK_DIV, PH_M = PM % CLK_DIV;
 localparam integer LAT = PM / CLK_DIV + 1;
 localparam integer TD  = 1 + LL;              // read -> colour on rgb, clocks
+// how far the visible window moves at the shortest field: floor((HL_MIN - 525) / 4)
+localparam integer VADD_MIN = HL_MIN >= 525 ? (HL_MIN - 525) / 4 : -((525 - HL_MIN + 3) / 4);
 
 // synthesis translate_off
 initial begin
@@ -531,9 +550,10 @@ initial begin
         $fatal(1, "crt_480i: CLK_FRAC needs PM/CLK_DIV == PM/(CLK_DIV+1) (e.g. CLK_DIV 4)");
     if( W_MAX != 1 << AW )             $fatal(1, "crt_480i: W_MAX must be a power of 2");
     if( !LUT_EXT && PW < 6 )           $fatal(1, "crt_480i: packed colour needs PW >= 6");
-    if( VIS_FIRST + VIS_LINES > 262 )  $fatal(1, "crt_480i: VIS_FIRST + VIS_LINES exceed a field");   // 525: the shortest
+    if( HL_MIN % 2 == 0 || HL_MIN < 401 || HL_MIN > 625 ) $fatal(1, "crt_480i: HL_MIN must be odd, 401..625");
+    if( VIS_FIRST + VADD_MIN + VIS_LINES > (HL_MIN-1)/2 ) $fatal(1, "crt_480i: VIS_FIRST + VIS_LINES exceed the shortest field (HL_MIN)");
     if( CLK_HZ != 0 && (HL_K >= (1 << 24) || HL_K < (1 << 17)) ) $fatal(1, "crt_480i: CLK_HZ out of range (4..200 MHz)");
-    if( VIS_FIRST < V_MIN )            $fatal(1, "crt_480i: VIS_FIRST overlaps VSync");
+    if( VIS_FIRST + VADD_MIN < V_MIN ) $fatal(1, "crt_480i: VIS_FIRST overlaps VSync (at HL_MIN)");
 end
 // synthesis translate_on
 // The same rules as build errors (Quartus ignores the block above): each instantiates a module
@@ -561,6 +581,15 @@ generate
     end
     if( CLK_HZ != 0 && LINE_HI < H_START + W_MAX ) begin : g_too_slow
         crt_480i_output_line_too_short_for_H_START_plus_W_MAX u_err();
+    end
+    if( HL_MIN % 2 == 0 || HL_MIN < 401 || HL_MIN > 625 ) begin : g_hl_min
+        crt_480i_HL_MIN_must_be_odd_401_to_625 u_err();
+    end
+    if( VIS_FIRST + VADD_MIN + VIS_LINES > (HL_MIN-1)/2 ) begin : g_hl_min_fit
+        crt_480i_VIS_FIRST_plus_VIS_LINES_exceed_the_shortest_field u_err();
+    end
+    if( VIS_FIRST + VADD_MIN < V_MIN ) begin : g_vis_first
+        crt_480i_VIS_FIRST_overlaps_VSync u_err();
     end
 endgenerate
 
