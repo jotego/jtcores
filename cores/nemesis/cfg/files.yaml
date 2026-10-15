@@ -1,57 +1,18 @@
 nemesis:
   - get:
-      # Game module
       - jtnemesis_game.v
-      - gx400_cen.v
       - nemesis_rom_debug.v
       - nemesis_sound_debug.v
-      # Main PCB
-      - nemesis_main.v
-      - nemesis_68k_addr_dec.v
-      # Sound
-      - nemesis_sound.v
-      - k5289.v
-      - nemesis_jt49_exp.v
-      # Video
+      - nemesis_main.yaml
+      - nemesis_sound.yaml
       - gx400a_video.yaml
-      - colour_lut.v
-      # Utilities
       - bus_ff.v
-      - lmn74194_nbit.v
-      - os_pulse_gen.v
-      - unsigned_mixer.v
 
 jtframe:
   - get:
       - jtframe_ff.v
-  - from: clocking
-    get:
-      - jtframe_frac_cen.v
-  - from: cpu
-    get:
-      - T80.yaml
-      - jtframe_z80wait.v
   - from: ram
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
       - jtframe_prom.v
-  - from: sdram
-    get:
-      - jtframe_dwnld.v
-  - from: video
-    get:
-      - jtframe_blank.v
-  - from: video
-    when: [ NOVIDEO ]
-    get:
-      - jtframe_vtimer.v
-
-jt12:
-  - get:
-    - jt49.yaml
-
-fx68k:
-  - get:
-    - files.yaml
-    unless: [ SIMULATION ]

@@ -8,3 +8,15 @@ nemesis:
       - k5293.v
       - k5294.v
       - k5295.v
+      - colour_lut.v
+      - lmn74194_nbit.v
+      - os_pulse_gen.v
+
+jtframe:
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: video
+    when: [ NOVIDEO ]
+    get:
+      - jtframe_vtimer.v

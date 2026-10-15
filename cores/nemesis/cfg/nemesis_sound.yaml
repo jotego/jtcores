@@ -1,0 +1,16 @@
+nemesis:
+  - get:
+      - nemesis_sound.v
+      - k5289.v
+      - nemesis_jt49_exp.v
+      - unsigned_mixer.v
+
+jtframe:
+  - from: cpu
+    get:
+      - T80.yaml
+      - jtframe_z80wait.v
+
+jt12:
+  - get:
+      - jt49.yaml
