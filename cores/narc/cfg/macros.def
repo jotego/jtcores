@@ -25,6 +25,11 @@ JTFRAME_IOCTL_RD=8192
 JTFRAME_COLORW=5
 JTFRAME_MR_GAME_DDR
 
+# 15 kHz 480i on the analog output (crt_480i) when the MRA sets mod bit 18; native otherwise. HDMI native.
+JTFRAME_CRT480I
+# 400 active lines at 23.7 kHz shrunk to 200 output lines: 400 - 200 x 23.74/15.65 + 3 = 100 > the default 96
+JTFRAME_CRT480I_RING=128
+
 [mist|sidi|sidi128|pocket|neptuno]
 # The 1 MB VRAM lives in the DE10-Nano DDR3 (JTFRAME_MR_GAME_DDR): MiSTer only
 JTFRAME_SKIP

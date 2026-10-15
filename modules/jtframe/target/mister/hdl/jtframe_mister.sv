@@ -208,6 +208,15 @@ module jtframe_mister #(parameter
     output          scan2x_cen,
     output          scan2x_de,
     output    [1:0] scan2x_sl,
+`ifdef JTFRAME_CRT480I
+    // Analog output. MRA mod bit 18 selects 15 kHz 480i (crt_480i); otherwise the
+    // scan2x_* picture as in any JTFRAME core. scan2x_* always feeds the HDMI scaler.
+    output    [7:0] crt_r, crt_g, crt_b,
+    output          crt_hs, crt_vs, crt_de, crt_cen, crt_f1,
+    output    [1:0] crt_sl,
+    output          crt_on,     // 480i selected, or still waiting for the mod bytes: sys_top keeps the scaler off
+                                // the analog output and gives HDMI the native picture
+`endif
     // non standard:
     output            dip_pause,
     inout             dip_flip,
@@ -240,7 +249,12 @@ wire        force_scan2x, direct_video;
 wire        video_rotated;
 wire        lightgun_en;
 
+`ifdef JTFRAME_CRT480I
+wire [18:0] core_mod;
+wire        core_mod_ok;
+`else
 wire [17:0] core_mod;
+`endif
 wire [ 7:0] st_lpbuf, game_vol;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
@@ -331,6 +345,9 @@ always @(posedge clk_sys)
 
 jtframe_mister_status u_status(
     .status         ( status         ),
+`ifdef JTFRAME_CRT480I
+    .crt_on         ( crt_on         ),
+`endif
     .crop_en        ( crop_en        ),
     .vcopt          ( vcopt          ),
     .crop_scale     ( crop_scale     ),
@@ -392,7 +409,13 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 wire [15:0] status_menumask; // a high value hides the menu item
 wire        vertical;
 
-assign status_menumask[15:7] = 0,
+assign status_menumask[15:9] = 0,
+`ifdef JTFRAME_CRT480I
+       status_menumask[8]    = crt_on,  // JTFRAME's CRT offsets: native analog output only
+       status_menumask[7]    = ~crt_on, // CRT 480i page: 480i analog output only
+`else
+       status_menumask[8:7]  = 0,
+`endif
        status_menumask[6]    = ~lightgun_en, // sinden lightgun borders
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
@@ -441,6 +464,9 @@ jtframe_mister_dwnld u_dwnld(
 
     // Configuration
     .core_mod       ( core_mod       ),
+`ifdef JTFRAME_CRT480I
+    .core_mod_ok    ( core_mod_ok    ),
+`endif
     .game_vol       ( game_vol       ),
     .status         ( status         ),
     .dipsw          ( dipsw          ),
@@ -506,15 +532,29 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
+`ifdef JTFRAME_CRT480I
+wire [127:0] status_full;   // CRT 480i options live in 64-80
+assign status = status_full[63:0];
+`endif
+
 hps_io #(
-    .STRLEN(1024),.PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
+`ifdef JTFRAME_CRT480I
+    .STRLEN(2048), // the CRT 480i page takes the menu over 1 KB
+`else
+    .STRLEN(1024),
+`endif
+    .PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
 ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
 
     .buttons         ( buttons        ),
+`ifdef JTFRAME_CRT480I
+    .status          ( status_full    ),
+`else
     .status          ( status         ),
+`endif
     .status_menumask ( status_menumask),
     .gamma_bus       ( gamma_bus      ),
     .direct_video    ( direct_video   ),
@@ -703,8 +743,104 @@ u_arcade_video(
 
     .gamma_bus  ( gamma_bus     ),
     .fx         ( status[5:3]   ), // scanlines
+`ifdef JTFRAME_CRT480I
+    .forced_scandoubler( force_scan2x & ~crt_on ) // with 480i this path feeds the HDMI scaler only
+`else
     .forced_scandoubler( force_scan2x )
+`endif
 );
+
+`ifdef JTFRAME_CRT480I
+// crt_480i (GPL-2.0-or-later, Chris Watson) re-times the game's own video into 15 kHz 480i for
+// the analog output when the MRA sets mod bit 18. It takes the same video as arcade_video,
+// before any scaler or scan line effect. It runs on clk_pico (48 MHz / 4.5 = 10.67 MHz output
+// pixels), where it meets timing (at 96 MHz its deflicker blend does not): each game pixel is
+// handed over with a toggle, and its output comes back to clk_sys for the single video clock.
+// clk_pico and clk_sys come from the same PLL; a game pixel and an output pixel both last
+// at least two clk_pico cycles.
+// The mod bytes arrive after the ROM, so the analog output stays black with no syncs until
+// they have: a 15 kHz monitor never sees the native rate while a 480i MRA loads. Every
+// jtframe MRA has them; an MRA without them gets no analog output (HDMI is not affected).
+reg [80:64] st480_m, st480;
+reg [3*COLORW-1:0] v1_pix, v2_pix;
+reg         v1_de, v1_vs, v1_t=0, v2_de, v2_vs, v2_t=0, v2_ce=0, c480_cen_l=0;
+reg         ana_on=0, crt_sel=0;
+wire  [7:0] c480_r, c480_g, c480_b;
+wire  [2:0] c480_dfl, c480_vh;
+
+// the OSD lists the defaults first (Deflicker Full, Height 224): back to crt_480i's encoding
+assign c480_dfl = 3'd4 - st480[66:64];
+assign c480_vh  = st480[69:67] < 3'd3 ? st480[69:67] + 3'd4 : st480[69:67] - 3'd3;
+
+assign crt_on = crt_sel | ~ana_on;
+wire        c480_hs, c480_vs, c480_de, c480_cen, c480_f1;
+
+always @(posedge clk_sys) if( pxl_cen ) begin
+    v1_pix <= base_rgb;
+    { v1_de, v1_vs } <= { base_lhbl & base_lvbl, hsize_vs };
+    v1_t   <= ~v1_t;
+end
+
+always @(posedge clk_pico) begin
+    st480_m <= status_full[80:64];
+    st480   <= st480_m;
+    v2_t    <= v1_t;
+    v2_ce   <= v2_t != v1_t;
+    if( v2_t != v1_t ) begin
+        v2_pix <= v1_pix;
+        { v2_de, v2_vs } <= { v1_de, v1_vs };
+    end
+end
+
+always @(posedge clk_sys) begin
+    c480_cen_l <= c480_cen;
+    // crt_on follows bit 18 after every mod download
+    if( core_mod_ok && !hps_download ) begin
+        crt_sel <= core_mod[18];
+        ana_on <= 1;
+    end
+end
+
+crt_480i #(
+    .CLK_HZ     ( 48_000_000    ),
+    .CLK_DIV    ( 4             ),
+    .CLK_FRAC   ( 1             ),    // 48 MHz / 4.5 = 10.67 MHz
+`ifdef JTFRAME_CRT480I_RING
+    .RING       ( `JTFRAME_CRT480I_RING ),
+`endif
+    .PW         ( 3*COLORW      ),
+    .LUT_EXT    ( 0             )
+) u_crt480i(
+    .clk        ( clk_pico      ),
+    .ce_in      ( v2_ce         ),
+    .pix_in     ( v2_pix        ),
+    .vs_in      ( v2_vs         ),
+    .de_in      ( v2_de         ),
+    .hoffset    ( $signed({st480[75], st480[75:70]})         ), // H-Position
+    .voffset    ( $signed({{2{st480[80]}}, st480[80:76]})    ), // V-Position
+    .deflicker  ( c480_dfl      ),
+    .vheight    ( c480_vh       ),                              // 1:1, or 200..240 lines
+    .lut_addr   (               ),
+    .lut_rgb    ( 24'd0         ),
+    .ce_out     ( c480_cen      ),
+    .r_out      ( c480_r        ),
+    .g_out      ( c480_g        ),
+    .b_out      ( c480_b        ),
+    .hs_out     ( c480_hs       ),
+    .vs_out     ( c480_vs       ),
+    .de_out     ( c480_de       ),
+    .hb_out     (               ),
+    .vb_out     (               ),
+    .field      ( c480_f1       ),
+    .locked     (               )
+);
+
+assign { crt_r, crt_g, crt_b } = !ana_on ? 24'd0 : crt_on ? { c480_r, c480_g, c480_b } : { scan2x_r, scan2x_g, scan2x_b };
+assign { crt_hs, crt_vs, crt_de } = !ana_on ? 3'd0 : crt_on ? { c480_hs, c480_vs, c480_de } : { scan2x_hs, scan2x_vs, scan2x_de };
+assign crt_cen = crt_on ? c480_cen & ~c480_cen_l : scan2x_cen; // one clk_sys cycle per output pixel
+assign crt_f1  = crt_on & c480_f1;
+assign crt_sl  = crt_on ? 2'd0 : scan2x_sl;
+`endif
 
 jtframe_board #(
     .BUTTONS               ( BUTTONS              ),
@@ -732,7 +868,7 @@ jtframe_board #(
     .clk_rom        ( clk_rom         ),
     .clk_pico       ( clk_pico        ),
 
-    .core_mod       ( core_mod        ),
+    .core_mod       ( core_mod[17:0]  ),
     .game_vol       ( game_vol        ),
     .vertical       ( vertical        ),
     .black_frame    (                 ),
