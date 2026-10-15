@@ -31,7 +31,7 @@ skip.setnames=[
 
 [buttons]
 names=[
-    { machines=["nemesis", "nemesisuk"], names="Option,Fire,Bomb,Start,Coin,Pause" },
+    { machines=["nemesis", "nemesisuk"], names="Option,Fire,Bomb", map="YBA" },
 ]
 
 [ROM]
