@@ -18,10 +18,18 @@ sdram:
           addr_width: 15
           data_width: 8
           offset: MAINCPU_OFFSET
-    - buses:
-        - name: gfx
-          addr_width: 14
+        - name: mcu
+          addr_width: 15
           data_width: 8
+          offset: MAINCPU_OFFSET
+    - buses:
+        - name: scr
+          addr_width: 14
+          data_width: 16
+          offset: GFX_OFFSET
+        - name: obj
+          addr_width: 14
+          data_width: 16
           offset: GFX_OFFSET
 
 bram:
@@ -45,24 +53,29 @@ bram:
     size: 1kB
     data_width: 8
     rw: true
+    simfile: {}
     dual_port: { name: tile_vram, dout: tile_vram_data }
   - name: colorram
     size: 512
     data_width: 8
     rw: true
+    simfile: {}
     dual_port: { name: tile_color, dout: tile_color_data }
   - name: spriteram0
     size: 128
     data_width: 8
     rw: true
+    simfile: {}
     dual_port: { name: obj_ram0, dout: obj_ram0_data }
   - name: spriteram1
     size: 32
     data_width: 8
     rw: true
+    simfile: {}
     dual_port: { name: obj_ram1, dout: obj_ram1_data }
   - name: row_scroll
     size: 32
     data_width: 8
     rw: true
+    simfile: {}
     dual_port: { name: scroll_video, dout: scroll_video_data }

@@ -3,9 +3,13 @@ author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=["seicross.cpp"]
+main_setnames=["sectrzont"]
 
 [parse.mustbe]
 machines=["seicross"]
+
+[parse.skip]
+setnames=["seicross","seicrossa","sectrzon","sectrzona"]
 
 [parse.debug]
 machines=["seicross"]

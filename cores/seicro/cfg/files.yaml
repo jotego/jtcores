@@ -1,2 +1,14 @@
 seicro:
   - get: [ "*.v" ]
+jtframe:
+  - from: cpu
+    get: [ jtframe_z80.yaml ]
+  - from: video
+    get: [ jtframe_vtimer.v, jtframe_scroll.yaml, jtframe_obj.yaml ]
+jt12:
+  - get: [ jt49.yaml ]
+jt680x:
+  - get: [ jt680x_alu.v, jt680x_regs.v ]
+  - ucode:
+      src: ../../../cores/seicro/ucode/6802.yaml
+      output: 6801
