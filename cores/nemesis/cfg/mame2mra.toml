@@ -1,5 +1,7 @@
 [global]
 author=["LMN-san", "OScherler", "Raki"]
+webpage="https://gx400-friends.github.io/"
+twitter="-"
 
 [parse]
 sourcefile=["nemesis.cpp"]
