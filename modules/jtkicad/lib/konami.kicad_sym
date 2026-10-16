@@ -76739,24 +76739,6 @@
 				)
 			)
 			(pin passive line
-				(at -11.43 1.27 0)
-				(length 5.08)
-				(name "NC"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "14"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
 				(at -11.43 -1.27 0)
 				(length 5.08)
 				(name "NC"
@@ -76767,6 +76749,24 @@
 					)
 				)
 				(number "15"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at -11.43 1.27 0)
+				(length 5.08)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "16"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -83828,7 +83828,7 @@
 		)
 		(symbol "KONAMI_EDGE_0_0"
 			(text "parts side"
-				(at 10.16 24.13 0)
+				(at 8.89 24.13 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -83836,7 +83836,7 @@
 				)
 			)
 			(text "solder side"
-				(at -7.62 24.13 0)
+				(at -8.89 24.13 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -83846,8 +83846,8 @@
 		)
 		(symbol "KONAMI_EDGE_0_1"
 			(rectangle
-				(start -12.7 22.86)
-				(end 15.24 -25.4)
+				(start -13.97 22.86)
+				(end 13.97 -25.4)
 				(stroke
 					(width 0)
 					(type default)
@@ -83859,7 +83859,7 @@
 		)
 		(symbol "KONAMI_EDGE_1_0"
 			(pin power_in line
-				(at -17.78 20.32 0)
+				(at -19.05 20.32 0)
 				(length 5.08)
 				(name "-5V"
 					(effects
@@ -83877,7 +83877,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 -2.54 0)
+				(at -19.05 -2.54 0)
 				(length 5.08)
 				(name "COIN1"
 					(effects
@@ -83895,7 +83895,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 -5.08 0)
+				(at -19.05 -5.08 0)
 				(length 5.08)
 				(name "1P_DOWN"
 					(effects
@@ -83913,9 +83913,9 @@
 				)
 			)
 			(pin input line
-				(at -17.78 -7.62 0)
+				(at -19.05 -7.62 0)
 				(length 5.08)
-				(name "NC1"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -83931,7 +83931,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 -10.16 0)
+				(at -19.05 -10.16 0)
 				(length 5.08)
 				(name "VIDEO_GREEN"
 					(effects
@@ -83949,7 +83949,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 -12.7 0)
+				(at -19.05 -12.7 0)
 				(length 5.08)
 				(name "VIDEO_RED"
 					(effects
@@ -83967,9 +83967,9 @@
 				)
 			)
 			(pin input line
-				(at -17.78 -15.24 0)
+				(at -19.05 -15.24 0)
 				(length 5.08)
-				(name "NC2"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -83985,9 +83985,9 @@
 				)
 			)
 			(pin power_in line
-				(at -17.78 -17.78 0)
+				(at -19.05 -17.78 0)
 				(length 5.08)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84003,9 +84003,9 @@
 				)
 			)
 			(pin power_in line
-				(at -17.78 -20.32 0)
+				(at -19.05 -20.32 0)
 				(length 5.08)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84021,7 +84021,7 @@
 				)
 			)
 			(pin power_in line
-				(at -17.78 -22.86 0)
+				(at -19.05 -22.86 0)
 				(length 5.08)
 				(name "+5V"
 					(effects
@@ -84039,9 +84039,9 @@
 				)
 			)
 			(pin input line
-				(at -17.78 17.78 0)
+				(at -19.05 17.78 0)
 				(length 5.08)
-				(name "BAFFLE"
+				(name "SPK2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84057,9 +84057,9 @@
 				)
 			)
 			(pin output line
-				(at -17.78 15.24 0)
+				(at -19.05 15.24 0)
 				(length 5.08)
-				(name "2P_BTN_2"
+				(name "2P_BTN_1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84075,7 +84075,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 12.7 0)
+				(at -19.05 12.7 0)
 				(length 5.08)
 				(name "2P_LEFT"
 					(effects
@@ -84093,9 +84093,9 @@
 				)
 			)
 			(pin output line
-				(at -17.78 10.16 0)
+				(at -19.05 10.16 0)
 				(length 5.08)
-				(name "e1P_START"
+				(name "1P_START"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84111,9 +84111,9 @@
 				)
 			)
 			(pin output line
-				(at -17.78 7.62 0)
+				(at -19.05 7.62 0)
 				(length 5.08)
-				(name "1P_BTN1"
+				(name "1P_BTN2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84129,9 +84129,9 @@
 				)
 			)
 			(pin output line
-				(at -17.78 5.08 0)
+				(at -19.05 5.08 0)
 				(length 5.08)
-				(name "1P_BTN2"
+				(name "1P_BTN1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84147,7 +84147,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 2.54 0)
+				(at -19.05 2.54 0)
 				(length 5.08)
 				(name "1P_RIGHT"
 					(effects
@@ -84165,7 +84165,7 @@
 				)
 			)
 			(pin output line
-				(at -17.78 0 0)
+				(at -19.05 0 0)
 				(length 5.08)
 				(name "1P_UP"
 					(effects
@@ -84183,7 +84183,7 @@
 				)
 			)
 			(pin power_in line
-				(at 20.32 20.32 180)
+				(at 19.05 20.32 180)
 				(length 5.08)
 				(name "+12V"
 					(effects
@@ -84201,7 +84201,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 -2.54 180)
+				(at 19.05 -2.54 180)
 				(length 5.08)
 				(name "COIN2"
 					(effects
@@ -84219,7 +84219,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 -5.08 180)
+				(at 19.05 -5.08 180)
 				(length 5.08)
 				(name "COIN_CNT1"
 					(effects
@@ -84237,9 +84237,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 -7.62 180)
+				(at 19.05 -7.62 180)
 				(length 5.08)
-				(name "COIN_CNT2"
+				(name "COINT_CNT2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84255,7 +84255,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 -10.16 180)
+				(at 19.05 -10.16 180)
 				(length 5.08)
 				(name "VIDEO_BLUE"
 					(effects
@@ -84273,7 +84273,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 -12.7 180)
+				(at 19.05 -12.7 180)
 				(length 5.08)
 				(name "VIDEO_SYNC"
 					(effects
@@ -84291,9 +84291,9 @@
 				)
 			)
 			(pin input line
-				(at 20.32 -15.24 180)
+				(at 19.05 -15.24 180)
 				(length 5.08)
-				(name "NC3"
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84309,9 +84309,9 @@
 				)
 			)
 			(pin power_in line
-				(at 20.32 -17.78 180)
+				(at 19.05 -17.78 180)
 				(length 5.08)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84327,9 +84327,9 @@
 				)
 			)
 			(pin power_in line
-				(at 20.32 -20.32 180)
+				(at 19.05 -20.32 180)
 				(length 5.08)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84344,8 +84344,8 @@
 					)
 				)
 			)
-			(pin power_out line
-				(at 20.32 -22.86 180)
+			(pin power_in line
+				(at 19.05 -22.86 180)
 				(length 5.08)
 				(name "+5V"
 					(effects
@@ -84363,9 +84363,9 @@
 				)
 			)
 			(pin input line
-				(at 20.32 17.78 180)
+				(at 19.05 17.78 180)
 				(length 5.08)
-				(name "BAFFLE"
+				(name "SPK1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84381,9 +84381,9 @@
 				)
 			)
 			(pin output line
-				(at 20.32 15.24 180)
+				(at 19.05 15.24 180)
 				(length 5.08)
-				(name "2P_BTN1"
+				(name "2P_BTN2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -84399,7 +84399,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 12.7 180)
+				(at 19.05 12.7 180)
 				(length 5.08)
 				(name "2P_RIGHT"
 					(effects
@@ -84417,7 +84417,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 10.16 180)
+				(at 19.05 10.16 180)
 				(length 5.08)
 				(name "2P_START"
 					(effects
@@ -84435,7 +84435,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 7.62 180)
+				(at 19.05 7.62 180)
 				(length 5.08)
 				(name "2P_UP"
 					(effects
@@ -84453,7 +84453,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 5.08 180)
+				(at 19.05 5.08 180)
 				(length 5.08)
 				(name "SERVICE"
 					(effects
@@ -84471,7 +84471,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 2.54 180)
+				(at 19.05 2.54 180)
 				(length 5.08)
 				(name "1P_LEFT"
 					(effects
@@ -84489,7 +84489,7 @@
 				)
 			)
 			(pin output line
-				(at 20.32 0 180)
+				(at 19.05 0 180)
 				(length 5.08)
 				(name "2P_DOWN"
 					(effects
