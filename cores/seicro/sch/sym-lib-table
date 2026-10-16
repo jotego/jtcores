@@ -1,0 +1,1 @@
+(sym_lib_table (lib (name "Seicro") (type "KiCad") (uri "${KIPRJMOD}/seicro-audio.kicad_sym") (options "") (descr "Partial SZ-2 audio trace")))

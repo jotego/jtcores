@@ -6,6 +6,7 @@ wire [15:0] cpu_addr;
 wire [7:0] cpu_dout, ay_data, main_debug, mcu_debug;
 wire ay_bdir, ay_bc1, irq_en, flip, mcu_reset, mcu_run, cpu_lvbl;
 wire watchdog_clr;
+wire video_flip=flip ^ dip_flip;
 reg nsc8105;
 wire [9:0] psg;
 wire [3:0] dac;
@@ -37,7 +38,6 @@ assign colorram_din=cpu_dout;
 assign spriteram0_din=cpu_dout;
 assign spriteram1_din=cpu_dout;
 assign row_scroll_din=cpu_dout;
-assign dip_flip=flip;
 assign debug_view=debug_bus[0] ? mcu_debug : main_debug;
 `ifndef NOSOUND
 assign snd=($signed({{5{psg_ac[10]}},psg_ac}) <<< 4) +
@@ -136,7 +136,7 @@ jtseicro_video u_video(
     .rst               ( rst               ),
     .clk               ( clk               ),
     .pxl_cen           ( pxl_cen           ),
-    .flip              ( flip              ),
+    .flip              ( video_flip        ),
     .HS                ( HS                ),
     .VS                ( VS                ),
     .LHBL              ( LHBL              ),

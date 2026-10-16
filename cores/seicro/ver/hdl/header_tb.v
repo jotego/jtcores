@@ -7,6 +7,7 @@ always #5 clk=~clk;
 jtseicro_game dut(
     .rst       ( rst       ),
     .clk       ( clk       ),
+    .dip_flip  ( 1'b1      ),
     .prog_addr ( prog_addr ),
     .prog_data ( prog_data ),
     .prog_we   ( prog_we   ),

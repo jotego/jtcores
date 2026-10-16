@@ -9,6 +9,8 @@ clocks:
       outputs: [cpu_cen, audio_cen]
 
 audio:
+  rsum: 47k
+  rsum_feedback_res: true
   channels: []
 
 sdram:

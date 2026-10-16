@@ -47,3 +47,7 @@ iverilog -g2012 -DSIMULATION -DIVERILOG -DNOMAIN -DNOSOUND -s header_tb \
     -I. -I"$JTFRAME/hdl/inc" -o header_test -f definitions.txt -c rtl.f \
     "$CORES/seicro/ver/hdl/header_tb.v"
 vvp header_test
+iverilog -g2012 -DSIMULATION -DIVERILOG -DNOMAIN -s flip_tb \
+    -I. -I"$JTFRAME/hdl/inc" -o flip_test -f definitions.txt -c rtl.f \
+    "$CORES/seicro/ver/hdl/flip_tb.v"
+vvp flip_test
