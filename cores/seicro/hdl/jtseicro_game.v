@@ -6,15 +6,17 @@ wire [15:0] cpu_addr;
 wire [7:0] cpu_dout, ay_data, main_debug, mcu_debug;
 wire ay_bdir, ay_bc1, irq_en, flip, mcu_reset, mcu_run, cpu_lvbl;
 wire watchdog_clr;
-wire video_flip=flip ^ dip_flip;
-reg nsc8105;
+reg nsc8105, frisky, radial;
+wire video_flip=flip ^ dip_flip ^ (frisky | radial);
+wire [7:0] ay_debug=(frisky | radial) ? 8'd0 : dipsw[31:24];
 wire [9:0] psg;
 wire [3:0] dac;
 wire signed [10:0] psg_ac=$signed({1'b0,psg})-11'sd512;
 wire signed [5:0] dac_ac=$signed({1'b0,dac,1'b0})-6'sd15;
 
 always @(posedge clk) begin
-    if(prog_we && header && prog_addr==0) nsc8105<=prog_data[0];
+    if(prog_we && header && prog_addr==0)
+        {radial,frisky,nsc8105}<=prog_data[2:0];
 end
 
 `ifdef SIMSCENE
@@ -39,6 +41,9 @@ assign spriteram0_din=cpu_dout;
 assign spriteram1_din=cpu_dout;
 assign row_scroll_din=cpu_dout;
 assign debug_view=debug_bus[0] ? mcu_debug : main_debug;
+`ifdef JTFRAME_IOCTL_RD
+assign ioctl_din=0;
+`endif
 `ifndef NOSOUND
 assign snd=($signed({{5{psg_ac[10]}},psg_ac}) <<< 4) +
            ($signed({{10{dac_ac[5]}},dac_ac}) <<< 8);
@@ -53,13 +58,15 @@ jtseicro_main u_main(
     .dip_pause       ( dip_pause       ),
     .LVBL            ( cpu_lvbl        ),
     .irq_en          ( irq_en          ),
+    .frisky          ( frisky          ),
+    .radial          ( radial          ),
     .cab_1p          ( cab_1p[1:0]     ),
     .coin            ( coin[1:0]       ),
     .joystick1       ( joystick1       ),
     .joystick2       ( joystick2       ),
     .service         ( service         ),
     .dip_test        ( dip_test        ),
-    .test_dip        ( dipsw[25:24]    ),
+    .test_dip        ( dipsw[31:24]    ),
     .cpu_addr        ( cpu_addr        ),
     .cpu_dout        ( cpu_dout        ),
     .sharedram_we    ( sharedram_we    ),
@@ -93,6 +100,11 @@ jtseicro_mcu u_mcu(
     .reset_req   ( mcu_reset          ),
     .dip_pause   ( dip_pause          ),
     .nsc8105     ( nsc8105            ),
+    .nvram_en    ( frisky             ),
+    .nvram_addr  ( nvram_addr         ),
+    .nvram_din   ( nvram_din          ),
+    .nvram_we    ( nvram_we           ),
+    .nvram_dout  ( nvram_dout         ),
     .dipsw       ( dipsw[23:0]        ),
     .rom_addr    ( mcu_addr           ),
     .rom_cs      ( mcu_cs             ),
@@ -113,23 +125,26 @@ assign mcu_sharedram_din = 0;
 assign mcu_sharedram_we = 0;
 assign dac = 0;
 assign mcu_debug = 0;
+assign nvram_addr = 0;
+assign nvram_din = 0;
+assign nvram_we = 0;
 `endif
 
 jtseicro_snd u_snd(
-    .rst       ( rst          ),
-    .clk       ( clk          ),
-    .audio_cen ( audio_cen    ),
-    .bdir      ( ay_bdir      ),
-    .bc1       ( ay_bc1       ),
-    .cpu_dout  ( cpu_dout     ),
-    .cpu_din   ( ay_data      ),
-    .debug_dip ( dipsw[31:24] ),
-    .irq_en    ( irq_en       ),
-    .flip      ( flip         ),
-    .mcu_reset ( mcu_reset    ),
-    .mcu_run   ( mcu_run      ),
-    .psg       ( psg          ),
-    .sample    ( sample       )
+    .rst       ( rst       ),
+    .clk       ( clk       ),
+    .audio_cen ( audio_cen ),
+    .bdir      ( ay_bdir   ),
+    .bc1       ( ay_bc1    ),
+    .cpu_dout  ( cpu_dout  ),
+    .cpu_din   ( ay_data   ),
+    .debug_dip ( ay_debug  ),
+    .irq_en    ( irq_en    ),
+    .flip      ( flip      ),
+    .mcu_reset ( mcu_reset ),
+    .mcu_run   ( mcu_run   ),
+    .psg       ( psg       ),
+    .sample    ( sample    )
 );
 
 jtseicro_video u_video(

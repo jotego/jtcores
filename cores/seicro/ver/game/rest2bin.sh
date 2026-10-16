@@ -2,6 +2,10 @@
 set -euo pipefail
 if [ "${1:-}" = --delete ]; then
     rm -f videoram.bin colorram.bin spriteram0.bin spriteram1.bin row_scroll.bin seicro_portb.hex
+    if [ -n "${SEICRO_NVRAM_FILE:-}" ]; then
+        [ "$(wc -c < "$SEICRO_NVRAM_FILE" | tr -d ' ')" = 256 ]
+        cp "$SEICRO_NVRAM_FILE" nvram.bin
+    fi
     if [ -z "${SEICRO_SCENE_DUMP:-}" ]; then exit 0; fi
     seicro_dump=$SEICRO_SCENE_DUMP
 else

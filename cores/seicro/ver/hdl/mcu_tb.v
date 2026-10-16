@@ -10,6 +10,8 @@ reg [7:0] rom_data, shared_dout;
 reg [7:0] rom[0:32767], ram[0:2047];
 wire rom_ok=cnt>=8;
 wire [3:0] dac;
+wire [7:0] nvram_addr, nvram_din;
+wire nvram_we;
 integer i,steps=0;
 always #5 clk=~clk;
 always @(posedge clk) begin
@@ -21,8 +23,10 @@ always @(posedge clk) begin
 end
 jtseicro_mcu dut(
     .*,
-    .nsc8105 ( 1'b0       ),
-    .dipsw   ( 24'hfae3f5 )
+    .nsc8105    ( 1'b0       ),
+    .nvram_en   ( 1'b0       ),
+    .nvram_dout ( 8'hff      ),
+    .dipsw      ( 24'hfae3f5 )
 );
 initial begin
     for(i=0;i<32768;i=i+1) rom[i]=8'h01;

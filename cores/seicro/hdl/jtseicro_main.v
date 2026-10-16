@@ -1,10 +1,10 @@
 module jtseicro_main(
     input              rst, clk, cpu_cen, dip_pause,
-    input              LVBL, irq_en,
+    input              LVBL, irq_en, frisky, radial,
     input       [1:0]  cab_1p, coin,
-    input       [4:0]  joystick1, joystick2,
+    input       [5:0]  joystick1, joystick2,
     input              service, dip_test,
-    input       [1:0]  test_dip,
+    input       [7:0]  test_dip,
     output     [15:0]  cpu_addr,
     output      [7:0]  cpu_dout,
     output             sharedram_we, videoram_we, colorram_we,
@@ -35,11 +35,22 @@ assign colorram_we = color_cs & ~wr_n & cpu_step;
 assign spriteram0_we = obj0_cs & ~wr_n & cpu_step;
 assign spriteram1_we = obj1_cs & ~wr_n & cpu_step;
 assign row_scroll_we = scroll_cs & ~wr_n & cpu_step;
-assign in0 = ~{cab_1p,coin,joystick1[0],joystick1[1],joystick1[2],joystick1[3]};
-assign in1 = {~joystick2[4],~joystick1[4],1'b0,~service,
-              ~joystick2[0],~joystick2[1],~joystick2[2],~joystick2[3]};
-assign test_in = {6'd0,test_dip[1],test_dip[0] | ~dip_test};
 assign debug_view = cpu_addr[15:8];
+
+jtseicro_cab u_cab(
+    .frisky    ( frisky    ),
+    .radial    ( radial    ),
+    .cab_1p    ( cab_1p    ),
+    .coin      ( coin      ),
+    .joystick1 ( joystick1 ),
+    .joystick2 ( joystick2 ),
+    .service   ( service   ),
+    .dip_test  ( dip_test  ),
+    .test_dip  ( test_dip  ),
+    .in0       ( in0       ),
+    .in1       ( in1       ),
+    .test_in   ( test_in   )
+);
 
 always @(posedge clk) begin
     lvbl_l <= LVBL;

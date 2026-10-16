@@ -14,21 +14,22 @@ jtseicro_game dut(
     .header    ( header    )
 );
 
+integer mode;
 initial begin
-    @(negedge clk); header=1; prog_we=1; prog_data=1;
-    @(negedge clk); prog_we=0;
-    if(dut.nsc8105!==1) $fatal(1,"NSC header not loaded");
-    repeat(5) @(negedge clk);
-    rst=0;
-    @(negedge clk); prog_we=1; prog_addr=1; prog_data=0;
-    @(negedge clk); header=0; prog_addr=0;
-    @(negedge clk); prog_we=0;
-    if(dut.nsc8105!==1) $fatal(1,"CPU mode changed outside selector byte");
-    @(negedge clk); header=1; prog_we=1;
-    @(negedge clk); prog_we=0; rst=1;
-    repeat(5) @(negedge clk);
-    if(dut.nsc8105!==0) $fatal(1,"M6802 header not retained across reset");
-    $display("PASS header: per-set CPU selection and reset retention");
+    for(mode=0;mode<8;mode=mode+1) begin
+        @(negedge clk); header=1; prog_we=1; prog_addr=0; prog_data=8'ha0+mode;
+        @(negedge clk); prog_we=0; rst=1;
+        repeat(5) @(negedge clk);
+        rst=0;
+        if({dut.radial,dut.frisky,dut.nsc8105}!==mode[2:0])
+            $fatal(1,"Game mode not loaded/retained: %0d",mode);
+        @(negedge clk); prog_we=1; prog_addr=1; prog_data=8'hff;
+        @(negedge clk); header=0; prog_addr=0;
+        @(negedge clk); prog_we=0;
+        if({dut.radial,dut.frisky,dut.nsc8105}!==mode[2:0])
+            $fatal(1,"Game mode changed outside selector byte: %0d",mode);
+    end
+    $display("PASS header: CPU/game selectors, byte isolation and reset retention");
     $finish;
 end
 endmodule

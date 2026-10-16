@@ -3,19 +3,26 @@ author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=["seicross.cpp"]
-main_setnames=["seicross","sectrzont"]
+main_setnames=["seicross","sectrzont","friskyt","radrad"]
 
 [parse.mustbe]
-machines=["seicross"]
+machines=["seicross","friskyt","radrad"]
 
 [header]
 data=[
     { setnames=["seicross","seicrossa","sectrzon","sectrzona"], data="01" },
     { setname="sectrzont", data="00" },
+    { setnames=["friskyt","friskyta"], data="03" },
+    { setname="friskytb", data="02" },
+    { setnames=["radrad","radradj"], data="05" },
 ]
 
 [buttons]
-names=[{ names="Button 1" }]
+names=[
+    { machine="seicross", names="Button 1" },
+    { machine="friskyt", names="-,-", map="--" },
+    { machine="radrad", names="Button 1,Button 2" },
+]
 
 [dipsw]
 bitcnt=32
@@ -24,6 +31,7 @@ offset=[
     { name="DSW2", value=8 },
     { name="DSW3", value=16 },
     { name="TEST", value=24 },
+    { name="IN1", value=24 },
     { name="DEBUG", value=24 },
 ]
 
@@ -67,5 +75,45 @@ regions=[
         { name="czt_7.bin", crc="7b34dc1c", offset=0x800, length=0x800 },
         { name="czt_8.bin", crc="673a20e7", offset=0x0, length=0x800 },
     ] },
+    { name="maincpu", setname="radradj", len=0x7800, parts=[
+        { name="1.3a", crc="b1e958ca", offset=0x0, length=0x800 },
+        { name="1.3a", crc="b1e958ca", offset=0x800, length=0x800 },
+        { name="2.3b", crc="30ba76b3", offset=0x0, length=0x800 },
+        { name="2.3b", crc="30ba76b3", offset=0x800, length=0x800 },
+        { name="3.3d", crc="1c9f397b", offset=0x0, length=0x800 },
+        { name="3.3d", crc="1c9f397b", offset=0x800, length=0x800 },
+        { name="4.3d", crc="453966a3", offset=0x0, length=0x800 },
+        { name="4.3d", crc="453966a3", offset=0x800, length=0x800 },
+        { name="5.3f", crc="c337c4bd", offset=0x0, length=0x800 },
+        { name="5.3f", crc="c337c4bd", offset=0x800, length=0x800 },
+        { name="6.3h", crc="06e15b59", offset=0x0, length=0x800 },
+        { name="6.3h", crc="06e15b59", offset=0x800, length=0x800 },
+        { name="7.3i", crc="02b1f9c9", offset=0x0, length=0x800 },
+        { name="7.3i", crc="02b1f9c9", offset=0x800, length=0x800 },
+        { name="8.3j", crc="bc9c7fae", offset=0x800, length=0x800 },
+    ] },
 ]
 order=["maincpu","gfx","proms"]
+
+[ROM.nvram]
+machines=["friskyt","friskyta","friskytb"]
+defaults=[
+    { machine="friskyt", data="""
+00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 01
+00 01 00 01 00 01 00 03 00 01 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+""" },
+]

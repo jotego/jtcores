@@ -8,10 +8,12 @@ export JTFRAME="$JTROOT/modules/jtframe"
 export CORES="$JTROOT/cores"
 export MODULES="$JTROOT/modules"
 export JTBIN="$JTROOT/release"
+seicro_native=${JTFRAME_NATIVE:-$CORES/seicro/ver/game/jtframemac}
+if [ ! -x "$seicro_native" ]; then seicro_native=$JTFRAME/bin/jtframemac; fi
 cd -- "$seicro_test_dir"
-"$JTFRAME/bin/jtframemac" mem seicro -t mister --local --inc
-"$JTFRAME/bin/jtframemac" files plain seicro -t mister -m IVERILOG,SIMULATION --local > generation.log
-"$JTFRAME/bin/jtframemac" cfgstr seicro -t mister -o iverilog > definitions.txt
+"$seicro_native" mem seicro -t mister --local --inc
+"$seicro_native" files plain seicro -t mister -m IVERILOG,SIMULATION --local > generation.log
+"$seicro_native" cfgstr seicro -t mister -o iverilog > definitions.txt
 python3 - <<'PY'
 from pathlib import Path
 import os
@@ -29,11 +31,15 @@ for top in jtseicro_game jtseicro_game_sdram; do
         -f definitions.txt -c rtl.f -o elaboration
     printf 'PASS elaboration: %s\n' "$top"
 done
-for top in decode_tb main_tb mcu_tb nsc8105_tb; do
+for top in decode_tb cab_tb main_tb mcu_tb nsc8105_tb nvram_tb nvram_io_tb; do
     iverilog -g2012 -DSIMULATION -DIVERILOG -s "$top" -I. -I"$JTFRAME/hdl/inc" \
         -o test -f definitions.txt -c rtl.f "$CORES/seicro/ver/hdl/$top.v"
     vvp test
 done
+iverilog -g2012 -DSIMULATION -DIVERILOG -s nvram_tb -Pnvram_tb.NSC=1 \
+    -I. -I"$JTFRAME/hdl/inc" -o nvram_nsc_test -f definitions.txt -c rtl.f \
+    "$CORES/seicro/ver/hdl/nvram_tb.v"
+vvp nvram_nsc_test
 iverilog -g2012 -DSIMULATION -DIVERILOG -s video_tb -Pvideo_tb.WITH_SPRITES=1 \
     -I. -I"$JTFRAME/hdl/inc" -o test -f definitions.txt -c rtl.f \
     "$CORES/seicro/ver/hdl/video_tb.v"

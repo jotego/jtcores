@@ -35,6 +35,12 @@ sdram:
           offset: GFX_OFFSET
 
 bram:
+  - name: nvram
+    size: 256
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+
   - name: proms
     size: 64
     data_width: 8

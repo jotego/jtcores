@@ -1,6 +1,10 @@
 module jtseicro_mcu(
     input             rst, clk, cen, run, reset_req, dip_pause, nsc8105,
     input      [23:0] dipsw,
+    input             nvram_en,
+    output      [7:0] nvram_addr, nvram_din,
+    output            nvram_we,
+    input       [7:0] nvram_dout,
     output     [14:0] rom_addr,
     output            rom_cs,
     input       [7:0] rom_data,
@@ -20,6 +24,7 @@ wire [7:0] next_op;
 reg [7:0] opcode;
 wire internal_cs=addr<16'h0080;
 wire shared_cs=addr>=16'hf800;
+wire nvram_cs=nvram_en && addr[15:8]==8'h10;
 reg [7:0] din;
 reg [4:0] stall_count;
 wire core_rst=rst | reset_req | ~run;
@@ -30,6 +35,9 @@ assign step=cen && dip_pause && stall_count==0 && (!rom_cs || rom_ok);
 assign shared_addr=addr[10:0];
 assign shared_din=dout;
 assign shared_we=shared_cs && wr && step && !core_rst;
+assign nvram_addr=addr[7:0];
+assign nvram_din=dout;
+assign nvram_we=nvram_cs && wr && step && !core_rst;
 assign debug_view=addr[15:8];
 
 always @* begin
@@ -37,6 +45,7 @@ always @* begin
     if(internal_cs) din=internal_data;
     else if(shared_cs) din=shared_dout;
     else if(rom_cs) din=rom_data;
+    else if(nvram_cs) din=nvram_dout;
     else case(addr)
         16'h1003: din={4'd0,dipsw[3:0]};
         16'h1005: din={4'd0,dipsw[11:8]};

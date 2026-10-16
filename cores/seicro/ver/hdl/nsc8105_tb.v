@@ -91,6 +91,8 @@ jtseicro_mcu dut(
     .reset_req   ( reset_req   ),
     .dip_pause   ( dip_pause   ),
     .nsc8105     ( 1'b1        ),
+    .nvram_en    ( 1'b0        ),
+    .nvram_dout  ( 8'hff       ),
     .dipsw       ( 24'hfae3f5  ),
     .rom_addr    ( rom_addr    ),
     .rom_cs      ( rom_cs      ),
