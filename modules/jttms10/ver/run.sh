@@ -50,6 +50,13 @@ iverilog -g2012 -s test -I"$ver_dir/build" \
     cd "$ver_dir/build"
     vvp arrayirq.vvp
 )
+iverilog -g2012 -s test -I"$ver_dir/build" \
+    -o "$ver_dir/build/lineirq.vvp" "$ver_dir/line/interrupt.sv" \
+    "$ver_dir"/../hdl/*.v
+(
+    cd "$ver_dir/build"
+    vvp lineirq.vvp
+)
 iverilog -g2012 -s test -o "$ver_dir/build/io.vvp" \
     "$ver_dir/io/test.sv" "$ver_dir/../hdl/jttms10_io.v" \
     "$ver_dir/../hdl/jttms10_video.v" "$ver_dir/../hdl/jttms10_refresh.v" \

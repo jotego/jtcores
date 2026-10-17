@@ -6858,3 +6858,975 @@ cases:
     - at: 576
       words:
       - 43981
+
+  # TI guide pp. 12-99–104: Bresenham LINE, windows and pixel processing.
+  - name: line_count_zero
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 0
+    pmask: 0
+    words:
+    - 2544
+    - 0
+    - 0
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 0
+    - 0
+    - 2550
+    - 15
+    - 15
+    - 2551
+    - 0
+    - 0
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 0
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 512
+      words:
+      - 42300
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 0
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 0
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 983055
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 0
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 0
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 0
+        B2: 131074
+        B10: 0
+      flags:
+        V: 0
+      wvp: 0
+      mem:
+      - addr: 512
+        size: 16
+        value: 42300
+  - name: line_tie_z0_uses_major
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 0
+    pmask: 0
+    words:
+    - 2544
+    - 0
+    - 0
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 0
+    - 0
+    - 2550
+    - 15
+    - 15
+    - 2551
+    - 2
+    - 1
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 1
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 752
+      words:
+      - 62087
+      - 52428
+      - 55577
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 0
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 0
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 983055
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 65538
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 1
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 2
+        B2: 131075
+        B10: 0
+      flags:
+        V: 0
+      wvp: 0
+      mem:
+      - addr: 752
+        size: 16
+        value: 62087
+      - addr: 768
+        size: 16
+        value: 51148
+      - addr: 784
+        size: 16
+        value: 55577
+  - name: line_tie_z1_uses_diagonal
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 0
+    pmask: 0
+    words:
+    - 2544
+    - 0
+    - 0
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 0
+    - 0
+    - 2550
+    - 15
+    - 15
+    - 2551
+    - 2
+    - 1
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 1
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57242
+    mem:
+    - at: 752
+      words:
+      - 62087
+      - 52428
+      - 55577
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 0
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 0
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 983055
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 65538
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 1
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 4294967294
+        B2: 196611
+        B10: 0
+      flags:
+        V: 0
+      wvp: 0
+      mem:
+      - addr: 752
+        size: 16
+        value: 62087
+      - addr: 768
+        size: 16
+        value: 51148
+      - addr: 784
+        size: 16
+        value: 55577
+  - name: line_window_hit
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 64
+    pmask: 0
+    words:
+    - 2544
+    - 65533
+    - 65535
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 4
+    - 2
+    - 2550
+    - 4
+    - 2
+    - 2551
+    - 3
+    - 0
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 4
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 752
+      words:
+      - 62087
+      - 52428
+      - 55577
+      - 11110
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 4294967293
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 131076
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 131076
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 3
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 4
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 4294967293
+        B2: 131077
+        B10: 1
+      flags:
+        V: 0
+      wvp: 1
+      mem:
+      - addr: 752
+        size: 16
+        value: 62087
+      - addr: 768
+        size: 16
+        value: 52428
+      - addr: 784
+        size: 16
+        value: 55577
+      - addr: 800
+        size: 16
+        value: 11110
+  - name: line_window_abort
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 128
+    pmask: 0
+    words:
+    - 2544
+    - 65533
+    - 65535
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 2
+    - 2
+    - 2550
+    - 3
+    - 2
+    - 2551
+    - 3
+    - 0
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 4
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 752
+      words:
+      - 62087
+      - 52428
+      - 55577
+      - 11110
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 4294967293
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 131074
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 131075
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 3
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 4
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 4294967293
+        B2: 131077
+        B10: 1
+      flags:
+        V: 1
+      wvp: 1
+      mem:
+      - addr: 752
+        size: 16
+        value: 62087
+      - addr: 768
+        size: 16
+        value: 30668
+      - addr: 784
+        size: 16
+        value: 55577
+      - addr: 800
+        size: 16
+        value: 11110
+  - name: line_window_clip_last_out
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 192
+    pmask: 0
+    words:
+    - 2544
+    - 65533
+    - 65535
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 3
+    - 2
+    - 2550
+    - 4
+    - 2
+    - 2551
+    - 3
+    - 0
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 4
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 752
+      words:
+      - 62087
+      - 52428
+      - 55577
+      - 11110
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 4294967293
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 131075
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 131076
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 3
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 4
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 4294967293
+        B2: 131078
+        B10: 0
+      flags:
+        V: 1
+      wvp: 0
+      mem:
+      - addr: 752
+        size: 16
+        value: 62087
+      - addr: 768
+        size: 16
+        value: 31948
+      - addr: 784
+        size: 16
+        value: 55575
+      - addr: 800
+        size: 16
+        value: 11110
+  - name: line_xor_mask_transparent
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 10272
+    pmask: 8738
+    words:
+    - 2544
+    - 65533
+    - 65535
+    - 2546
+    - 2
+    - 2
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 0
+    - 0
+    - 2550
+    - 15
+    - 15
+    - 2551
+    - 3
+    - 0
+    - 2553
+    - 21845
+    - 21845
+    - 2554
+    - 4
+    - 0
+    - 2555
+    - 1
+    - 1
+    - 2556
+    - 1
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 752
+      words:
+      - 62087
+      - 52428
+      - 55577
+      - 11110
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 4294967293
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 131074
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 0
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 983055
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 3
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 1431655765
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 4
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 65537
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 1
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 4294967293
+        B2: 131078
+        B10: 0
+      flags:
+        V: 0
+      wvp: 0
+      mem:
+      - addr: 752
+        size: 16
+        value: 62087
+      - addr: 768
+        size: 16
+        value: 39372
+      - addr: 784
+        size: 16
+        value: 55628
+      - addr: 800
+        size: 16
+        value: 11110
+  - name: line_octant_x_negx_negy
+    entry: 4096
+    pixel_size: 4
+    convdp: 24
+    control: 0
+    pmask: 0
+    words:
+    - 2544
+    - 65535
+    - 65535
+    - 2546
+    - 6
+    - 6
+    - 2548
+    - 512
+    - 0
+    - 2549
+    - 0
+    - 0
+    - 2550
+    - 15
+    - 15
+    - 2551
+    - 3
+    - 1
+    - 2553
+    - 30583
+    - 30583
+    - 2554
+    - 4
+    - 0
+    - 2555
+    - 65535
+    - 65535
+    - 2556
+    - 65535
+    - 0
+    - 2557
+    - 65535
+    - 65535
+    - 2558
+    - 39903
+    - 4951
+    - 57114
+    mem:
+    - at: 1136
+      words:
+      - 43407
+      - 48084
+      - 37921
+      - 58990
+    - at: 1280
+      words:
+      - 5548
+      - 26617
+      - 29126
+    checks:
+    - after: 4096
+      pc: 4144
+      regs:
+        B0: 4294967295
+    - after: 4144
+      pc: 4192
+      regs:
+        B2: 393222
+    - after: 4192
+      pc: 4240
+      regs:
+        B4: 512
+    - after: 4240
+      pc: 4288
+      regs:
+        B5: 0
+    - after: 4288
+      pc: 4336
+      regs:
+        B6: 983055
+    - after: 4336
+      pc: 4384
+      regs:
+        B7: 65539
+    - after: 4384
+      pc: 4432
+      regs:
+        B9: 2004318071
+    - after: 4432
+      pc: 4480
+      regs:
+        B10: 4
+    - after: 4480
+      pc: 4528
+      regs:
+        B11: 4294967295
+    - after: 4528
+      pc: 4576
+      regs:
+        B12: 65535
+    - after: 4576
+      pc: 4624
+      regs:
+        B13: 4294967295
+    - after: 4624
+      pc: 4672
+      regs:
+        B14: 324508639
+    - after: 4672
+      pc: 4688
+      regs:
+        B0: 1
+        B2: 327682
+        B10: 0
+      flags:
+        V: 0
+      wvp: 0
+      mem:
+      - addr: 1136
+        size: 16
+        value: 43407
+      - addr: 1152
+        size: 16
+        value: 31700
+      - addr: 1168
+        size: 16
+        value: 37927
+      - addr: 1184
+        size: 16
+        value: 58990
+      - addr: 1280
+        size: 16
+        value: 5548
+      - addr: 1296
+        size: 16
+        value: 26489
+      - addr: 1312
+        size: 16
+        value: 29126

@@ -15,6 +15,8 @@ module jttms10_ctrl(
     input              array_binary, array_binary_need_read,
     input              array_zero, array_last,
     input              array_checkpoint, reti_pbx,
+    input              line_ir, line_checkpoint, line_empty,
+                       line_last, line_abort,
     input              array_window_needed, array_window_done,
                        array_window_abort, array_window_query,
                        array_offset_needed, array_corner_next,
@@ -40,6 +42,10 @@ module jttms10_ctrl(
     output            array_save_active, array_restore_active,
     output            array_rebase_active,
     output     [1:0]  array_rebase_phase,
+    output            line_setup_active, line_prep_active,
+                      line_loop_active, line_advance_active,
+                      line_write_active,
+    output     [3:0]  line_phase,
     output            array_offset_active, array_query_active,
                       array_query_first, array_canon_active,
                       array_canon_dst, array_win,
@@ -126,7 +132,9 @@ module jttms10_ctrl(
     wire boundary = !cen && uaddr==FETCH_SEQA;
     wire array_boundary = !cen && array_checkpoint &&
                           uaddr==ARRAYLOOP_SEQA;
-    assign hw_take = (boundary || array_boundary) && !rst &&
+    wire line_boundary = !cen && line_checkpoint &&
+                         uaddr==LINELOOP_SEQA;
+    assign hw_take = (boundary || array_boundary || line_boundary) && !rst &&
                      !halted && !emu_hold &&
                      (nmi_req || (irq_req && ie));
     assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
@@ -139,6 +147,12 @@ module jttms10_ctrl(
     assign array_restore_active = uaddr[11:4]==ARRAYRESTORE_SEQA[11:4];
     assign array_rebase_active = uaddr[11:4]==ARRAYREBASE_SEQA[11:4];
     assign array_rebase_phase = uaddr[1:0];
+    assign line_setup_active = uaddr[11:4]==LINESETUP_SEQA[11:4];
+    assign line_prep_active = uaddr[11:4]==LINEPREP_SEQA[11:4];
+    assign line_loop_active = uaddr[11:4]==LINELOOP_SEQA[11:4];
+    assign line_advance_active = uaddr[11:4]==LINEADVANCE_SEQA[11:4];
+    assign line_write_active = uaddr[11:4]==LINEWRITE_SEQA[11:4];
+    assign line_phase = uaddr[3:0];
     assign array_wb_src = uaddr==ARRAYFINISH_SEQA;
     assign array_offset_active =
         uaddr[11:4]==ARRAYOFFSET_SEQA[11:4];
@@ -186,6 +200,7 @@ module jttms10_ctrl(
             16'h0f00,16'h0f20,16'h0f40,16'h0f60,
             16'h0f80,16'h0fa0,16'h0fc0,16'h0fe0:
                 entry = ARRAY_SEQA;
+            16'hdf1a,16'hdf9a: entry = LINE_SEQA;
             16'b1110011?????????: entry = CPW_SEQA;
             16'b1110100?????????: entry = CVXYL_SEQA;
             16'b1111000?????????: entry = PIXT_RXY_SEQA;
@@ -364,20 +379,30 @@ module jttms10_ctrl(
             // PIXT W1 and clipped W2/W3 leave before the source MTR.
             if(gfx_step && wincheck_active && jsr_sel==RET_JSR &&
                pixel_abort) uaddr <= PIXEND_SEQA;
-            if(array_init) uaddr <= ARRAYSETUP_SEQA;
-            if(array_cap)
+            if(array_init) uaddr <= line_ir ? LINESETUP_SEQA :
+                                  ARRAYSETUP_SEQA;
+            if(array_cap && line_setup_active)
+                uaddr <= array_index==4'd6 ?
+                         (line_empty ? PIXEND_SEQA : LINEPREP_SEQA) :
+                         LINESETUP_SEQA;
+            if(array_cap && !line_setup_active && !array_restore_active)
                 uaddr <= array_index==4'd9 ?
                     (array_zero ? PIXEND_SEQA :
                      array_window_needed ? ARRAYWINDOW_SEQA :
                      ARRAYPREP_SEQA) :
                     ARRAYSETUP_SEQA;
-            if(array_win && !array_canon_active &&
+            if(array_win && !line_prep_active &&
+               !line_advance_active && !array_canon_active &&
                !array_rebase_active && array_window_done)
                 uaddr <= array_window_query ? ARRAYFINISH_SEQA :
                          array_window_abort ? PIXEND_SEQA :
                          array_corner_next ? ARRAYWINDOW_SEQA :
                          array_offset_needed ? ARRAYOFFSET_SEQA :
                          ARRAYPREP_SEQA;
+            if(array_win && !line_prep_active &&
+               !line_advance_active && !array_canon_active &&
+               !array_rebase_active && !array_window_done)
+                uaddr <= ARRAYWINDOW_SEQA;
             if(array_active && array_offset_active &&
                a_sel==SAVESRC_A) uaddr <= ARRAYPREP_SEQA;
             if(array_active && array_binary && array_source_phase &&
@@ -405,6 +430,15 @@ module jttms10_ctrl(
             if(array_rebase_active && array_win &&
                array_rebase_phase==2'd2)
                 uaddr <= ARRAYLOOP_SEQA;
+            if(line_prep_active && array_win && line_phase==4'd1)
+                uaddr <= LINELOOP_SEQA;
+            if(line_loop_active && mem_sel==WRITE_MEM)
+                uaddr <= LINEADVANCE_SEQA;
+            if(line_advance_active && array_win && line_phase==4'd3)
+                uaddr <= LINEWRITE_SEQA;
+            if(line_write_active && listwr && line_phase==4'd2)
+                uaddr <= line_last || line_abort ? PIXEND_SEQA :
+                         LINELOOP_SEQA;
             if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)

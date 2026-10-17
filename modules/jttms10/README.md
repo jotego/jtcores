@@ -29,6 +29,7 @@ Compare the same scalar programs against the pinned existing CPU with:
 
 ```sh
 python3 modules/jttms10/ver/reference.py
+python3 modules/jttms10/ver/decoder/check.py
 modules/jttms10/ver/lint.sh
 ```
 
@@ -53,12 +54,12 @@ PUSHST/POPST, CALL/CALLA/CALLR, RETS, TRAP/RETI, ABS/NEG/NEGB/NOT,
 ANDI/ANDNI/ORI/XORI, ADDC/SUBB, and all MOVE/MOVB memory addressing forms. The latter
 include both field definitions, sign extension, auto-update aliases, signed
 offsets, absolute addresses, and memory-to-memory copies.
-Additional encoded families in the YAML require corresponding tests before
-being claimed as verified. Reserved opcode ranges take architectural
-TRAP 30. Unsupported defined
-instructions still stop with `fault`.
+Reserved opcode ranges take architectural TRAP 30; `fault` remains a
+development diagnostic for encodings outside the implemented families.
+The exhaustive decoder audit compares all 65,536 words with the pinned
+reference, requiring coverage of every recognized instruction encoding.
 Stack and trap assertions cover architectural results and physical
-MSW-first writes; RETI graphics resumption remains outstanding.
+MSW-first writes. RETI graphics resumption has separate focused tests.
 See [stack and unary ISA notes](docs/stack-isa.md).
 SLA/SLL/SRA/SRL/RL support both constant and register counts through a shared
 one-bit loop; [shift notes](docs/shifts.md) describe count encoding, flags,
@@ -104,9 +105,13 @@ field/HOLD tests and is connected to the CPU. The real system test covers
 opcode/extension fills, loop hits and host-written CD/CF modes.
 FILL L/XY and all six PIXBLT forms have microcoded loops and tests for
 row pitch, direction, windows, overlap, binary expansion and completion
-pointers; see [array ISA notes](docs/array-isa.md). LINE and interruptible
-graphics continuation remain outstanding.
+pointers; see [array ISA notes](docs/array-isa.md). Binary transfers fetch
+32-bit source chunks and save cached bits for PBX continuation.
+[LINE](docs/line-isa.md) shares the pixel/window/ALU paths and has independent
+octant/tie/window cases plus a PC-rewind interrupt test. Array and LINE
+continuation benches nest ISR graphics under MMTM/MMFM and compare resumed
+write streams; architectural agreement does not establish cycle parity.
 
 The reference runner separately reports documented old-CPU differences for
-three same-register auto-update cases. Primary assertions retain the TI
+three same-register auto-update cases and empty register lists. Primary assertions retain the TI
 sequencing; see [the memory ISA notes](docs/memory-isa.md).

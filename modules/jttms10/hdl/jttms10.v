@@ -38,6 +38,9 @@ module jttms10(
     wire array_save_active, array_restore_active;
     wire array_rebase_active;
     wire [1:0] array_rebase_phase;
+    wire line_setup_active, line_prep_active, line_loop_active;
+    wire line_advance_active, line_write_active;
+    wire [3:0] line_phase;
     wire gfx_step, cvloop_active, wincheck_active, pixconv_active;
     wire hw_take, reserved_opcode, push_entry, push_active, emu_step;
     wire [3:0] cc_sel;
@@ -71,6 +74,7 @@ module jttms10(
     reg array_canon_linear;
     reg [15:0] array_dyminus1;
     reg array_checkpoint, pbx_push;
+    reg line_checkpoint, line_abort, line_hw_push;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
@@ -105,6 +109,7 @@ module jttms10(
     wire pix_xyreg = ir[15:9]==7'b1111001;
     wire pix_xyxy = ir[15:9]==7'b1111010;
     wire drav_ir = ir[15:9]==7'b1111011;
+    wire line_ir = ir==16'hdf1a || ir==16'hdf9a;
     wire pix_rlin = ir[15:9]==7'b1111100;
     wire pix_linreg = ir[15:9]==7'b1111101;
     wire pix_linlin = ir[15:9]==7'b1111110;
@@ -129,6 +134,10 @@ module jttms10(
     wire array_zero = array_dx==0 || array_yleft==0;
     wire array_rowend = array_xleft==16'd1;
     wire array_last = array_rowend && array_yleft==16'd1;
+    wire line_diag = !pix_src_val[31] &&
+                     (pix_src_val!=0 || ir[7]);
+    wire line_empty = array_height==0;
+    wire line_last = array_height==0;
     wire reti_pbx = ir==16'h0940 && tmp[25];
     wire array_corner_needed = !array_fill && !array_binary &&
         (control[8] || control[9]) && (array_src_xy || array_dst_xy);
@@ -174,8 +183,9 @@ module jttms10(
          array_window_overlap);
     wire pix_load = pix_xyreg || pix_linreg;
     wire pix_field = pix_rxy || pix_xyreg || pix_xyxy || drav_ir ||
+                     line_ir ||
                      pix_rlin || pix_linreg || pix_linlin || array_ir;
-    wire pix_register_source = pix_rxy || pix_rlin || drav_ir ||
+    wire pix_register_source = pix_rxy || pix_rlin || drav_ir || line_ir ||
                                (array_ir && array_fill);
     wire pixel_need_dest = !pix_clip &&
                            (control[14:10]!=0 || pmask!=0);
@@ -263,6 +273,9 @@ module jttms10(
         .array_convert(array_convert), .array_zero(array_zero),
         .array_last(array_last), .array_index(array_index),
         .array_checkpoint(array_checkpoint), .reti_pbx(reti_pbx),
+        .line_ir(line_ir), .line_checkpoint(line_checkpoint),
+        .line_empty(line_empty), .line_last(line_last),
+        .line_abort(line_abort),
         .array_window_needed(array_window_needed),
         .array_window_done(array_window_done),
         .array_window_abort(array_window_abort),
@@ -305,6 +318,12 @@ module jttms10(
         .array_restore_active(array_restore_active),
         .array_rebase_active(array_rebase_active),
         .array_rebase_phase(array_rebase_phase),
+        .line_setup_active(line_setup_active),
+        .line_prep_active(line_prep_active),
+        .line_loop_active(line_loop_active),
+        .line_advance_active(line_advance_active),
+        .line_write_active(line_write_active),
+        .line_phase(line_phase),
         .array_offset_active(array_offset_active),
         .array_query_active(array_query_active),
         .array_query_first(array_query_first),
@@ -325,8 +344,18 @@ module jttms10(
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
     reg [4:0] array_ctx_rs, array_ctx_wa;
+    reg [4:0] line_setup_rs;
     reg [31:0] array_ctx_wd;
     always @* begin
+        case(array_index)
+            4'd0: line_setup_rs=5'd16; // B0 decision
+            4'd1: line_setup_rs=5'd18; // B2 XY pointer
+            4'd2: line_setup_rs=5'd23; // B7 b:a
+            4'd3: line_setup_rs=5'd25; // B9 COLOR1
+            4'd4: line_setup_rs=5'd26; // B10 count
+            4'd5: line_setup_rs=5'd27; // B11 diagonal increment
+            default: line_setup_rs=5'd28; // B12 lateral increment
+        endcase
         case(array_index)
             4'd0: array_ctx_rs=5'd16;  // B0
             4'd1: array_ctx_rs=5'd17;  // B1
@@ -355,7 +384,8 @@ module jttms10(
         endcase
     end
     jttms10_regs u_regs(
-        .clk(clk), .rs(array_restore_active ? array_ctx_rs :
+        .clk(clk), .rs(line_setup_active ? line_setup_rs :
+                       array_restore_active ? array_ctx_rs :
                        gfx_rs==3'd1 ? 5'd21 :
                        gfx_rs==3'd2 ? 5'd22 :
                        gfx_rs==3'd3 ? 5'd20 :
@@ -366,7 +396,10 @@ module jttms10(
         .rd(stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
-        .wa(array_save_active ? array_ctx_wa :
+        .wa(line_write_active ?
+                (line_phase==4'd0 ? 5'd16 :
+                 line_phase==4'd1 ? 5'd18 : 5'd26) :
+            array_save_active ? array_ctx_wa :
             wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
             array_query_active && listwr ?
                 (array_query_first ? 5'd18 : 5'd23) :
@@ -383,7 +416,10 @@ module jttms10(
                      ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
                      (!div_ir || (!div_early &&
                        (!div_error || (div_mod && div_signed))))) && !rst),
-        .wd(array_save_active ? array_ctx_wd :
+        .wd(line_write_active ?
+                (line_phase==4'd0 ? pix_src_val :
+                 line_phase==4'd1 ? pix_dst_val : array_height) :
+            array_save_active ? array_ctx_wd :
             pix_load && a_sel==LOAD_A && wr_reg ?
                 {16'd0,pixel_visible_source} :
             drav_ir && wr_reg ? md :
@@ -426,7 +462,8 @@ module jttms10(
         psize==16'd4  ? {14'd0,array_width[15:0],2'd0} :
         psize==16'd2  ? {15'd0,array_width[15:0],1'd0} :
                         {16'd0,array_width[15:0]};
-    wire [15:0] pixel_source = drav_ir || array_fill || array_binary ?
+    wire [15:0] pixel_source = drav_ir || line_ir ||
+                               array_fill || array_binary ?
         ((array_ir ? array_color : pix_color) >> ea[3:0]) : pix_src_pixel;
     jttms10_pixel u_pixel(
         .psize(psize[4:0]), .ppop(control[14:10]),
@@ -444,7 +481,11 @@ module jttms10(
     );
     always @* begin
         alu_op=0;
-        if(array_rebase_active && array_win)
+        if(line_prep_active && array_win)
+            alu_op=line_phase==0 ? 1 : 3;
+        else if(line_advance_active && array_win)
+            alu_op=line_phase==4'd3 ? 3 : 1;
+        else if(array_rebase_active && array_win)
             alu_op=array_rebase_phase==0 || !array_rev_h ? 3 : 1;
         else if((array_win &&
             (array_corner_mode ? array_winphase==4'd0 :
@@ -492,7 +533,21 @@ module jttms10(
     wire [31:0] cpw_start_y = {{16{tmp[31]}},tmp[31:16]};
     wire [31:0] cpw_end_x = {{16{b[15]}},b[15:0]};
     wire [31:0] cpw_end_y = {{16{b[31]}},b[31:16]};
-    wire [31:0] alu_a = array_rebase_active && array_win ?
+    wire [31:0] alu_a = line_prep_active && array_win ?
+                            (line_phase==0 ?
+                             {15'd0,array_yleft,1'b0} :
+                             {15'd0,array_dx,1'b0}) :
+                        line_advance_active && array_win ?
+                            (line_phase==4'd0 ?
+                             {16'd0,(line_diag ? array_sptch[15:0] :
+                                  array_dptch[15:0])} :
+                             line_phase==4'd1 ?
+                             {16'd0,(line_diag ? array_sptch[31:16] :
+                                  array_dptch[31:16])} :
+                             line_phase==4'd2 ?
+                             (line_diag ? array_yend : array_xend) :
+                             32'd1) :
+                        array_rebase_active && array_win ?
                             (array_rebase_phase==0 ?
                              {16'd0,array_xleft} :
                              array_rebase_phase==1 ?
@@ -539,7 +594,16 @@ module jttms10(
                         xyy ? {16'd0,a[31:16]} :
                         divnegmd ? md : divnegb ? b :
                         mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    wire [31:0] alu_b = array_rebase_active && array_win ?
+    wire [31:0] alu_b = line_prep_active && array_win ?
+                            (line_phase==0 ? 32'd0 : array_xend) :
+                        line_advance_active && array_win ?
+                            (line_phase==4'd0 ?
+                             {16'd0,pix_dst_val[15:0]} :
+                             line_phase==4'd1 ?
+                             {16'd0,pix_dst_val[31:16]} :
+                             line_phase==4'd2 ?
+                             pix_src_val : array_height) :
+                        array_rebase_active && array_win ?
                             (array_rebase_phase==0 ?
                              {16'd0,array_dx} :
                              array_rebase_phase==1 ?
@@ -700,6 +764,9 @@ module jttms10(
             array_canon_linear<=0;
             array_checkpoint<=0;
             pbx_push<=0;
+            line_checkpoint<=0;
+            line_abort<=0;
+            line_hw_push<=0;
         end else begin
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
@@ -707,6 +774,8 @@ module jttms10(
                 hw_entry<=1;
                 array_checkpoint<=0;
                 pbx_push<=array_checkpoint && !(nmi_req && nmi_nostack);
+                line_checkpoint<=0;
+                line_hw_push<=line_checkpoint && !(nmi_req && nmi_nostack);
                 if(array_checkpoint) array_index<=0;
             end
             if(push_entry) push_high<=1;
@@ -726,7 +795,10 @@ module jttms10(
                 if(bus_op && !mem_we) md<=read_data;
                 case(md_sel)
                     A_MD: md<=a;
-                    PC_MD: md<=pc;
+                    PC_MD: begin
+                        md<=line_hw_push ? pc-32'd16 : pc;
+                        line_hw_push<=0;
+                    end
                     ST_MD: begin
                         md<=st | (pbx_push ? 32'h0200_0000 : 32'd0);
                         pbx_push<=0;
@@ -773,6 +845,8 @@ module jttms10(
                     array_canon_linear<=0;
                     array_xoff<=0;
                     array_yoff<=0;
+                    line_abort<=0;
+                    line_checkpoint<=0;
                 end
                 if(array_save_active && listwr)
                     array_index<=array_index+4'd1;
@@ -808,7 +882,23 @@ module jttms10(
                         end
                     endcase
                 end
-                if(array_cap && !array_restore_active) begin
+                if(array_cap && line_setup_active) begin
+                    array_index<=array_index+4'd1;
+                    case(array_index)
+                        4'd0: pix_src_val<=rs_data;
+                        4'd1: pix_dst_val<=rs_data;
+                        4'd2: begin
+                            array_dx<=rs_data[15:0];
+                            array_yleft<=rs_data[31:16];
+                        end
+                        4'd3: pix_color<=rs_data[15:0];
+                        4'd4: array_height<=rs_data;
+                        4'd5: array_sptch<=rs_data;
+                        default: array_dptch<=rs_data;
+                    endcase
+                end
+                if(array_cap && !line_setup_active &&
+                   !array_restore_active) begin
                     array_index<=array_index+4'd1;
                     if(array_index==4'd9 && !(
                        array_dst_xy && control[7:6]!=0))
@@ -917,7 +1007,21 @@ module jttms10(
                 end
                 if(array_offset_active && a_sel==SRCPREP_A)
                     array_offset_convert<=1;
-                if(array_rebase_active && array_win) begin
+                if(line_prep_active && array_win) begin
+                    if(line_phase==0) array_xend<=result;
+                    else array_yend<=result;
+                end else if(line_advance_active && array_win) begin
+                    case(line_phase)
+                        4'd0: md[15:0]<=result[15:0];
+                        4'd1: md[31:16]<=result[15:0];
+                        4'd2: begin
+                            pix_src_val<=result;
+                            pix_dst_val<=md;
+                        end
+                        4'd3: array_height<=result;
+                        default:;
+                    endcase
+                end else if(array_rebase_active && array_win) begin
                     case(array_rebase_phase)
                         2'd0: array_width<=result;
                         2'd1: if(!array_fill) array_src_row<=result;
@@ -1037,6 +1141,10 @@ module jttms10(
                     end else array_xleft<=result[15:0];
                 end
                 if(array_source_phase && step) array_checkpoint<=0;
+                if(line_loop_active && a_sel==WINPREP_A)
+                    line_checkpoint<=0;
+                if(line_write_active && listwr && line_phase==4'd2)
+                    line_checkpoint<=!line_last && !line_abort;
                 if(a_sel==DRAVX_A) md[15:0]<=result[15:0];
                 if(a_sel==DRAVY_A) md[31:16]<=result[15:0];
                 if(gfx_step) begin
@@ -1066,6 +1174,12 @@ module jttms10(
                                        (control[7:6]==2'd2 && (|md[8:5])))
                                         wvp_set<=1;
                                 end
+                                if(line_ir)
+                                    line_abort<=
+                                        (control[7:6]==2'd1 &&
+                                         !(|md[8:5])) ||
+                                        (control[7:6]==2'd2 &&
+                                         (|md[8:5]));
                             end
                             default:;
                         endcase

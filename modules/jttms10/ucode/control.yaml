@@ -585,3 +585,41 @@ ucode:
   - name: arraybit
     start: 130
     seq: [srccap_a]
+  # LINE stores its live decision, XY pointer and count in architectural B
+  # registers after every pixel, so an IRQ can rewind the pushed PC by one
+  # opcode word and RETI can restart without a private context stack.
+  - name: line
+    start: 131
+    seq: [arrayinit_misc]
+  - name: linesetup
+    start: 132
+    seq: [arraycap_misc]
+  - name: lineprep
+    start: 133
+    seq:
+      - arraywin_misc
+      - arraywin_misc
+  - name: lineloop
+    start: 134
+    seq:
+      - winprep_a
+      - wincheck_jsr
+      - dstprep_a
+      - pixconv_jsr
+      - savedst_a
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+  - name: lineadvance
+    start: 135
+    seq:
+      - arraywin_misc
+      - arraywin_misc
+      - arraywin_misc
+      - arraywin_misc
+  - name: linewrite
+    start: 136
+    seq:
+      - listwr
+      - listwr
+      - listwr

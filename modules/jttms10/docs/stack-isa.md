@@ -42,7 +42,9 @@ cover PUSHST, CALLA and TRAP; the final memory field remains little-endian.
 Unaligned halfword writes use the field adapter's preservation/RMW rules.
 
 RETI's PBX-controlled resumption of interrupted PIXBLT/FILL (p. 12-230) is
-not implemented. Boundary interrupts do observe the ST restored by RETI
+tested with published B-register context, cached binary source bits and
+nested ISR graphics. LINE uses ordinary opcode-PC restart with PBX clear.
+Boundary interrupts observe the ST restored by RETI
 before another instruction fetch. Reserved-opcode TRAP 30, NMI and maskable
 interrupt entry share the stack helper; see [interrupt notes](interrupts.md).
 Instruction and bus timing still require validation.

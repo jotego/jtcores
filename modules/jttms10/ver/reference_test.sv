@@ -200,7 +200,8 @@ module reference_test;
                    last_state == CORE_PBLT_WB2 ||
                    last_state == CORE_PBLT_WIN_MISS ||
                    last_state == CORE_PBLT_WIN_HIT ||
-                   last_state == CORE_PBLT_W1_DYDX))))
+                   last_state == CORE_PBLT_W1_DYDX ||
+                   last_state == CORE_LINE_WB_COUNT))))
       check_step();
     last_state = state_w;
   end

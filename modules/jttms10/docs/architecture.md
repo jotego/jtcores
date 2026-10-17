@@ -60,7 +60,7 @@ word-cycle arbitration; its field-adapter bench checks waits, cross-register
 I/O, and HOLD restart. `jttms10_system` combines these with host, interrupts,
 video/refresh, cache and graphics. NARC can select it with `JTNARC_UCODE`
 for bring-up. Reserved ranges execute architectural TRAP 30; `fault` stops
-defined instructions that still lack implementation, currently LINE.
+encodings outside the implemented families.
 
 ## Validation sources
 
@@ -137,7 +137,8 @@ ADDC/SUBB with both input carry/borrow values.
 The stack helper issues two 16-bit predecrements, high half first, to preserve
 TI's physical push order independently of the field adapter's ascending
 word order. IRQ/NMI/HLT/EMU boundaries and array PBX continuation, including cached
-binary source chunks, have focused tests. LINE remains incomplete;
+binary source chunks, have focused tests. LINE also has ordinary PC-rewind
+continuation tests;
 see [interrupts.md](interrupts.md) and [stack-isa.md](stack-isa.md).
 
 ## Iterative shift loop
@@ -159,3 +160,12 @@ MMFM restores descending register numbers with a direct mask. Both use
 ordinary shared-ALU steps and forced 32-bit fields. The empty-mask test
 asserts an exact bus-request count to exclude the old CPU's unintended data
 transfer. See [register-lists.md](register-lists.md).
+
+## Opcode recognition audit
+
+`python3 modules/jttms10/ver/decoder/check.py` enumerates all 65,536 opcode
+words against the unchanged pinned old decoder. It requires every defined
+reference encoding to have a microcode entry and compares reserved-range
+classification for every word. This is a recognition check; the architectural
+programs and dedicated bus/interrupt tests establish the behavior they assert.
+LINE and both of its decision-tie encodings are included.

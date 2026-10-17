@@ -79,8 +79,8 @@ verilator --lint-only -Wall --top-module jttms10_cache \
 The bench checks fill order, PC-extension hits, subsegment and segment misses,
 replacement LRU, waits and stable held payload, stale self-modifying reads,
 CD preservation, held CF behavior, IAQ/pixel/data bypass, one acknowledgment
-per held request, and reset during a stalled fill. Combined-system area has
-not yet been measured with this helper.
+per held request, and reset during a stalled fill. Integrated cache and
+system fits are recorded in [the area measurements](../ver/area/README.md).
 
 An isolated Quartus Prime 20.1.1 Analysis & Synthesis map of source SHA-256
 `e1318b798308c6737f4c079b6b7b73b4a280bfa368b80975217f9a4ffce09cdf`

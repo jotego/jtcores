@@ -205,3 +205,20 @@ arrays and LINE. The area requirement is not met. Relative to the pre-array
 other blocks are largely unchanged. The next area work targets transient
 array/window state and its wide operand selectors, with further measured
 fits required after the remaining graphics behavior is complete.
+
+## Binary PBX baseline and isolated width experiment, 2026-10-17
+
+The complete binary-chunk/PBX checkpoint `641f0b727` fits at **4,154 ALMs /
+2,151 registers / 266,240 RAM bits in 35 blocks / 0 DSPs**. Snapshot:
+`/tmp/jttms10-141-area/narc-641f-baseline`. Its 23 snapshot hashes were
+verified and every non-generated input matches that commit. The larger
+256-slot control ROM accounts for the increased BRAM. This is 654 ALMs above
+the target before LINE, so further reduction is required.
+
+An isolated earlier `38b` width-only experiment reduced 3,896 to **3,857
+fitted ALMs**, removing 110 registers with unchanged RAM. All 165 programs
+and lint passed, and all snapshot hashes were verified. Reports:
+`/tmp/jttms10-141-area/narc-array-width18-19`. The 39-ALM saving is
+insufficient. This patch is not integrated: its array-only narrowing of
+`array_height` would truncate LINE's reused full 32-bit COUNT. Future
+sharing/window-serialization experiments must preserve that width.

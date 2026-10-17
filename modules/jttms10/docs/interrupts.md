@@ -58,6 +58,9 @@ unaligned source chunks, exact source requests, and cached-bit continuation.
 Its 15 runs include six baselines, six IRQ resumes, stacked NMI resume,
 no-stack NMI abandonment without further pixels or stack writes, and
 simultaneous NMI+HLT. The latter completes entry, holds handler fetch until
-HLT clears, then resumes through RETI. LINE continuation and complete
-instruction/bus cycle parity still need validation. Cache behavior has
+HLT clears, then resumes through RETI. LINE uses ordinary restart with PBX clear: after each nonfinal pixel it
+publishes B0/B2/B10, then accepts IRQ/NMI and stacks PC minus 16. Its focused
+bench checks refetch, nested drawing, exact destination writes and a wide
+COUNT checkpoint. See [line-isa.md](line-isa.md). Complete instruction/bus
+cycle parity still needs validation. Cache behavior has
 separate tests documented in [cache.md](cache.md).
