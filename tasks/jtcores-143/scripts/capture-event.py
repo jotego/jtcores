@@ -48,6 +48,7 @@ def capture_event(args):
     for suffix,data in [('.init.bin',init),('.event.bin',event)]:
         with artifact(suffix).open('xb') as f: f.write(data)
     report = {'state':'started','capture_id':args.capture_id,'settle_seconds':args.settle,
+              'capture_script_sha256':digest(Path(__file__).read_bytes()),
               'init_sha256':digest(init),'event_sha256':digest(event),
               'nominal_master_clock_hz':3580000,'nominal_sample_rate_hz':55937.5/args.stride,
               'stereo_stride':args.stride,'requested_words':args.words,
@@ -80,7 +81,10 @@ def capture_event(args):
                 report['hps_tool_sha256'] = ssh(args,'sha256sum '+CAPTURE).split()[0]
                 report['configuration'] = ssh(args,CAPTURE+' configure 3 15 0')
                 submit(pico,artifact('.init.bin'),artifact('.init.log'))
+                report['init_reply_host_monotonic'] = time.monotonic()
                 time.sleep(args.settle)
+                report['settle_wait_seconds_lower_bound'] = time.monotonic()-report['init_reply_host_monotonic']
+                assert report['settle_wait_seconds_lower_bound'] >= args.settle
                 report['arm_host_start'] = time.monotonic()
                 arm = ssh(args,f'{CAPTURE} arm 1 {args.words} {args.stride} {args.capture_id} && {CAPTURE} status')
                 armed = True

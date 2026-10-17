@@ -323,3 +323,49 @@ Remaining LFO rates/wider combinations, audio noise, algorithms/feedback, CSM,
 EG KS/KC/history and mixing/clipping are still open. Audio-noise models and
 independent scorer/stimuli are prepared separately; no physical noise claim is
 included in this checkpoint.
+
+## Native audio-noise checkpoint
+
+318 native stereo recordings and 45 raw SO/SH pin recordings cover the 32-code
+matrix and selected NE/channel/operator/TL/EG controls: 144 targets, 144 paired
+cleanup observations, 12 adverse preflight and 18 focused floor/positive controls.
+114 frozen-model outputs comprise 96 matrix, eight preflight and ten additional
+warm/long-settle controls. The latter preserve both off-state model floors after
+the listed cleanup/quiet dwell and four-second settling; NEoff companions are
+exact zero. No universal initialization-history or internal-cause claim follows.
+All capture/input hashes, framing/exponents, counts, monitor generations and
+measured quiet waits pass. The board is quiet; production jt51 remains frozen.
+
+Every target starts after NEoff, all 32 RR15 writes before all eight KEYOFF
+writes, at least 0.5 seconds measured after reply, and an independent native
+quiet capture. All 144 main cleanup recordings are zero throughout on both
+outputs; shortest measured wait 0.500067091 seconds. The actual final-event bound
+plus 128 leaves at least 5113 frames. All 192 rate observations retain stationary
+levels −2044/+2040 and compatible candidate D=32−code. Coarsest agrees for
+00..1D; 1E/1F remain ambiguous about hidden clocks. All 90 sine/isolation fits
+qualify increment 4124. Levels/TL and finite AR24/NE-roundtrip observations retain
+explicit limits rather than a universal waveform claim.
+
+The fixed comparison retains 328 endpoint states: 314 inside, six outside and
+eight unqualified. The six outliers are OPM's tiny off-floor −8 versus physical
+0; the short KEYOFF prefixes remain unqualified. jt51 −1 is inside the 4-PCM
+endpoint screen but still differs directly from the PCB's exact-zero state.
+Never-keyed whole records, KEYOFF final 4096 and guaranteed pre-AR24 segments
+are physical 0. Independent raw Go and integer-Python bit-center decoders agree
+on all 45 raw recordings. Actual zero words are 0x3004/exponent 1/mantissa 512;
+the keyed TL127 positive resolves −9/+8 via exponent 1/mantissas 503/520 and
+demonstrates low-bit visibility. No model prediction replaces the physical words.
+Public-output quantization/history boundaries and MAME source-only inference
+remain explicit; no internal cause, constant or candidate RTL patch is inferred.
+
+The promoted generator reproduces 153 binary payloads, including model/physical
+INITs, preflight and cleanup; four CLI negatives pass. Promoted 1152-fixture and
+control reports match originals exactly. Nine CSV/CLI/bounds checks, 54 positive
+and 12 negative observed-region controls, native/raw independent audits,
+build/test/vet and capture-script syntax/import/AST-equivalence checks pass
+within scope. The new capture metadata measures settle time and records script
+provenance. Full numerical bounds and evidence are in
+[noise-measurements.md](noise-measurements.md). Artifacts remain local.
+Algorithms/feedback, CSM, remaining LFO rates/wider EG KS/KC/history and output
+mixing/clipping are still open. Full noise periods, seeds and arbitrary
+noise/LFO/envelope combinations are not claimed.

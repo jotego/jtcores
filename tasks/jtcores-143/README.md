@@ -444,3 +444,25 @@ qualified window64 isolated extractor at recorded increment32992/stride8;
 Intentional KEYOFF silence and held TEST states have distinct checks. An
 unchanged post-event fit alone does not establish uninterrupted earlier LFO
 phase, and intentional reset controls must not be forced to match a null.
+
+## Audio noise and off-envelope controls
+
+[Noise methods and results](plans/noise-measurements.md) cover the 32 frequency
+codes, selected NE/channel/operator/TL/EG controls, and an independent raw-pin
+check of the off-state PCM floor. All targets require measured cleanup followed
+by a separate quiet capture; keyed TL127 is an audible positive control.
+
+```
+go run host/noise_programs.go -output artifacts/fresh-noise
+go test host/noise_score.go host/tone.go host/noise_score_test.go
+go run host/noise_score.go host/tone.go -column linear -start-sample 128 artifacts/capture-0-1.csv
+```
+
+These commands run from the task directory. Use native stride1. Physical INIT
+and model INIT differ deliberately: model INIT contains its finite cleanup wait;
+physical use must measure the post-reply wait and verify both outputs quiet
+before target INIT. Capture metadata now records the actual settle interval.
+The native-rate classifier reports compatible sampled lattices and explicit
+unresolved states; it does not recover every internal noise update, a seed,
+polynomial or full sequence period. Physical exact-zero off-state output and
+the tiny model residuals remain distinct from the coarse endpoint screen.
