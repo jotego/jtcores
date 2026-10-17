@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+main() {
+    local src output external program csv
+    [[ $# -ge 2 && $# -le 3 ]] || {
+        echo "Usage: $0 PROGRAM CSV [SAMPLES]" >&2; exit 2;
+    }
+    src=$(cd -- "$(dirname -- "$0")" && pwd)
+    output="$src/../../artifacts/opm-reference/build"
+    external=${NUKED_OPM_ROOT:-/nobackup/jtmisc/reverse/Nuked-OPM}
+    program=$(realpath "$1")
+    csv=$(realpath -m "$2")
+    [[ -f "$external/opm.c" && -f "$external/opm.h" ]] || {
+        echo "NUKED_OPM_ROOT must point to an existing external Nuked-OPM checkout" >&2
+        exit 2
+    }
+    mkdir -p "$output"
+    cc -std=c99 -O2 -Wall -Wextra -I "$external" -c "$external/opm.c" \
+        -o "$output/opm.o" > "$output/build.log" 2>&1
+    c++ -std=c++17 -O2 -Wall -Wextra -Werror -I "$external" \
+        "$src/test.cpp" "$output/opm.o" -o "$output/opm-oracle" \
+        >> "$output/build.log" 2>&1
+    "$output/opm-oracle" "$program" "$csv" "${3:-16384}"
+}
+
+main "$@"

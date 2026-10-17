@@ -43,9 +43,11 @@ Bring-up alone does not complete this issue.
   Initial, tone and silence raw files have matching HPS/PC SHA256.
 - Raw bits 0/1 are staggered periodic pulses (about 55.94 kHz each), bit 2 changes
   with tone, bit 3 is static. Provisional SH/SH/SO identity inferred from signals;
-  physical pin mapping, adapter polarity and absolute left/right await confirmation.
-- Timers currently have functional flag smoke tests only, not period comparison
-  against jt51. Raw audio has not yet been qualified as decoded samples.
+  user confirmed the open-drain inverting adapter; post-reset pan controls now
+  qualify latch channel 0 as right and channel 1 as left.
+- At this initial milestone, timers had functional flag smoke tests only, not
+  period comparison against jt51, and raw audio was not yet qualified as decoded
+  samples. Later decoder and phase milestones qualify the audio path below.
 
 ## Decoder milestone
 
@@ -72,5 +74,24 @@ Bring-up alone does not complete this issue.
   985a573dcfc1ff135553a39f7eae21d18ba57cbe), with native sample cadence 64 clocks.
   Physical short captures at KC=4A/4C looked unexpectedly slow, while KC=7C gave
   ~3729.84 Hz. Do not classify this as a jt51 mismatch yet: establish a known
-  YM reset state and use long captures first. PCB power cycle requested; a
-  live bounded PicoROM poll is waiting for the next boot frame.
+  YM reset state and use long captures first. This has now been done: see the
+  post-reset milestone below. The old bounded boot poll has finished.
+
+## Post-reset phase milestone
+
+- User power-cycled the PCB; fresh monitor boot frame `B0 2A 00` received.
+  Chameleon96 and PicoROM remained running. All 17 original cases repeat.
+- User reports master clock 32.22 MHz / 9, nominal sample rate 55,937.5 Hz;
+  on-pin frequency 3.57–3.58 MHz with 0.01 MHz tolerance. Raw SH timing agrees.
+- 243 independent full programs cover KC, KF, DT1, DT2 and multiplier/base
+  interactions. jt51 and an independent external Nuked-OPM oracle agree in
+  every case. The PCB has 129 matches and 114 effective increments lower by 8192.
+- The complete pattern fits a missing bit-13 contribution when MUL bit0 is set;
+  it is not a general mask after multiplication. Do not emulate this in jt51
+  without separating chip behavior from control/capture setup.
+- Accepted captures have verified transfer hashes, zero framing errors, nonzero
+  samples of both signs and low sine-fit residual. Two failing framing captures
+  are retained and excluded; the transient disturbance remains unexplained.
+- Independent pan-only programs qualify stereo ownership and exact controlled
+  silence. See [phase-measurements.md](phase-measurements.md) for exact coverage,
+  inference limits, waveform-fit method and local evidence locations.

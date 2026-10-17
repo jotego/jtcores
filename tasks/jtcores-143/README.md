@@ -19,10 +19,19 @@ Chameleon96 USB Linux is at `192.168.96.96`, using the retained SSH configuratio
 The capture design assigns J3.16/18/20/22 (FPGA E5/F5/A6/A5) as input-only 1.8 V
 pins. These are the same assignments as the previous qualified capture design.
 Raw observations identify two staggered strobes on bits 0/1 and SO-like data on
-bit 2. Physical mapping and adapter details have not yet been confirmed by the user.
-Raw decoding currently applies inversion mask 15, consistent with the earlier
-inverting adapter and the controlled zero/nonzero serial words. Absolute
-left/right names remain provisional; tools label channels by their latch input.
+bit 2. The user confirmed that the outputs pass through open-drain inverters
+into the 1.8 V domain. Both decoders correct inversion before interpreting edges
+or data (mask 15, including the unused fourth input). Absolute left/right names
+are qualified by independent pan controls: latch channel 0 is right, channel 1
+is left. Tools retain latch-based labels so evidence remains tied to input pins.
+
+The user reports a YM2151 clock of **32.22 MHz / 9 = 3.58 MHz**, confirmed on-pin
+at 3.57–3.58 MHz with 0.01 MHz measurement tolerance. Nominal native sample rate
+is **55,937.5 Hz**. Raw SH timing independently measures about 55,937 Hz. The
+package marking reported by the user is **9223 EAEG**. A user-confirmed PCB power
+cycle returned the resident monitor's fresh `B0 2A 00` boot frame; Chameleon96
+and PicoROM remained running. [Phase measurements](plans/phase-measurements.md)
+record the discrepancy that persisted after that reset.
 
 ## Sound CPU monitor
 
@@ -167,7 +176,44 @@ Generate one offline (from this task directory) using
 `python scripts/monitor.py emit tone --output artifacts/fresh-tone.bin`, then run
 `bash ver/jt51/sim.sh artifacts/fresh-tone.bin artifacts/fresh-jt51.csv`.
 It has been checked for a 64-clock native sample cadence and a nonzero 440 Hz
-tone matching MAME. This is still a simulation control; the PCB comparison
-requires a known reset baseline and quantified capture alignment.
+tone matching MAME. Its steady pitch is now compared against post-reset PCB
+recordings and an [independent OPM oracle](ver/opm/README.md). Transient capture
+alignment remains unqualified.
+
+## Steady phase measurements
+
+Generate the complete 243-case PG matrix from the canonical tone, using a new
+output directory. It covers all KC values, all KF values at KC=4A, all DT1 values
+at KC=4A, all DT2 values at KC=40 and all MUL values at KC=40. It adds multiplier
+interaction sweeps at KC=4A/50/60:
+
+```
+python scripts/monitor.py emit tone --output artifacts/fresh-tone.bin
+go run host/programs.go -base artifacts/fresh-tone.bin -output artifacts/fresh-pg
+```
+
+Each generated program contains the full initialization and one controlled
+single-operator voice. The manifest includes program hashes. Apply a program
+with `monitor.py run --program FILE --until-reply`, capture mode 3, and submit
+the identical file to the jt51/OPM harnesses. Transfer hashes and zero framing
+errors are prerequisites for accepting a physical capture. Preserve failed
+recordings separately; do not include their samples in a result.
+
+The phase fitter regresses inferred sine phase against native sample index.
+Its result is independent of master-clock calibration and initial phase:
+
+```
+go run host/phase.go host/tone.go -sample-rate 55937.5 artifacts/capture-0-0.csv
+go run host/phase.go host/tone.go -column left -sample-rate 55937.5 artifacts/jt51.csv
+go test host/phase.go host/tone.go host/phase_test.go host/tone_test.go
+```
+
+It requires a controlled, unmodulated single sine of known peak amplitude
+(default 8170, quantization offset -8), consecutive samples, and positive
+effective phase advance below one eighth of the sample rate. It rejects silent,
+non-sinusoidal, changing-frequency and malformed inputs. This estimates an
+effective 20-bit phase increment from output; it does not read internal chip
+state or establish transient envelope equivalence. `-sample-rate` is optional
+and adds a calibrated frequency without altering the fitted increment.
 
 Artifacts, generated fixtures, builds, ROMs, captures and local state stay out of git.
