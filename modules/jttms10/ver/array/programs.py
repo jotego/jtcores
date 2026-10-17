@@ -95,6 +95,9 @@ def make_case(form_index, width, sample, rng):
     codes = (0, 1, 10) if width in (1, 2) else (0, 1, 10, 16, 19, 20, 21)
     code = codes[(form_index * 3 + sample) % len(codes)]
     control = (code << 10) | (0x20 if transparent else 0)
+    # TI FILL and binary PIXBLT transfer forward and ignore PBH/PBV.
+    if source_kind in (None, "binary"):
+        control |= (sample & 3) << 8
     mask = (1 << width) - 1
 
     initial = {}
