@@ -216,4 +216,19 @@ effective 20-bit phase increment from output; it does not read internal chip
 state or establish transient envelope equivalence. `-sample-rate` is optional
 and adds a calibrated frequency without altering the fitted increment.
 
+## Timer measurements
+
+[Timer results](plans/timer-measurements.md) record a physical status-flag gap
+in production jt51 and the uncertainty of period-boundary observations. The
+production revision remains frozen while measurement gaps are collected.
+
+```
+go run host/timer_programs.go -output artifacts/fresh-timers
+bash ver/timer_flags/sim.sh
+```
+
+The standalone timer conformance probe intentionally returns failure against
+the frozen baseline; it is not registered in CI. Its README distinguishes
+physically measured status behavior from unobserved physical IRQ behavior.
+
 Artifacts, generated fixtures, builds, ROMs, captures and local state stay out of git.

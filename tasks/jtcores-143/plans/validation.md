@@ -14,7 +14,8 @@ Bring-up alone does not complete this issue.
 5. Apply identical register programs to hardware and jt51. Compare timer periods
    and flags; PG key codes/fractions/multipliers/detune; EG rates/levels/key scaling;
    LFO waveforms/rates/AM/PM; noise, algorithms, feedback, clipping and reset state.
-6. Investigate discrepancies, make justified jt51 fixes and rerun affected tests.
+6. Investigate discrepancies and consolidate the gap inventory before proposing
+   implementation work, following the user's earlier jt51 #3 instruction.
 7. Commit/push reproducible source and measurement documentation; retain raw data
    locally, report exact validated coverage and close only after the full audit.
 
@@ -95,3 +96,22 @@ Bring-up alone does not complete this issue.
 - Independent pan-only programs qualify stereo ownership and exact controlled
   silence. See [phase-measurements.md](phase-measurements.md) for exact coverage,
   inference limits, waveform-fit method and local evidence locations.
+
+## Timer status and coarse period milestone
+
+- All sixteen register-14 control combinations measured three times: physical
+  results and independent OPM agree in all 48 observations; production jt51
+  disagrees in seven combinations because it records disabled overflow flags.
+- Fourteen physical state-sequence observations confirm sticky flags across
+  disabling/stopping, with explicit clear required. Physical IRQ is unobserved;
+  independent models also expose a related IRQ persistence difference in jt51.
+- Standalone public-port probe reports eight expected assertion failures on
+  the unchanged baseline. Counter/reload/clear/CEN/ZERO and period checks pass.
+  It is deliberately not registered as a passing CI test.
+- Ten timer preload settings have guarded clear/overflow bounds, each repeated
+  five times: all 100 physical observations pass. First-overflow phase remains
+  uncertain; no cycle-accurate period equivalence is claimed.
+- The actual assembled monitor's delay was calibrated in MAME CPU execution.
+  The new generator reproduces all flag and guarded-period program bytes.
+  See [timer-measurements.md](timer-measurements.md). Production jt51 remains at
+  985a573; no RTL or candidate patch was created.
