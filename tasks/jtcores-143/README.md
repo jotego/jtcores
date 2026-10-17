@@ -232,3 +232,23 @@ the frozen baseline; it is not registered in CI. Its README distinguishes
 physically measured status behavior from unobserved physical IRQ behavior.
 
 Artifacts, generated fixtures, builds, ROMs, captures and local state stay out of git.
+
+## Native envelope events
+
+The [envelope report](plans/envelope-measurements.md) records pretrigger
+qualification, AR12–31 and key-scale boundaries, isolated D1/D2 zero-rate holds,
+and AR0 negative controls with a nonzero AR1 control. The capture helper retains
+exact inputs, timing bounds, device identities, replies, hashes and decoded data.
+The models record throughout event bytecode, with exclusive event-clock sidecars.
+
+```
+go run host/envelope_programs.go -base artifacts/fresh-tone.bin -output artifacts/fresh-ar
+python scripts/capture-event.py artifacts/fresh-ar/ar14-init.bin artifacts/fresh-ar/keyon.bin artifacts/fresh-ar14 --capture-id 2000
+go run host/envelope.go host/tone.go -increment 65984 -window 32 artifacts/fresh-ar14-0-0.csv
+```
+
+These commands run from the task directory; use Python with PyUSB. The capture
+helper currently requires the qualified native-rate protocol 960103 recorder.
+For decay/hold analysis use `-curve-only`; attack timing against a reduced final
+level is not meaningful. The [gap inventory](plans/gaps.md) separates confirmed
+production gaps, unresolved physical/reference differences and remaining scope.

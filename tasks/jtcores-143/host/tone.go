@@ -1,6 +1,9 @@
 package main
 
 import (
+    "bytes"
+    "encoding/csv"
+    "strconv"
     "fmt"
     "math"
 )
@@ -78,4 +81,28 @@ func fit_phase(values []float64,amplitude,offset float64) (phase_fit,error) {
         return result,fmt.Errorf("signal does not fit the controlled-sine assumptions: %+v",result)
     }
     return result,nil
+}
+
+func read_phase_csv(raw []byte,column string) ([]float64,error) {
+    rows,e:=csv.NewReader(bytes.NewReader(raw)).ReadAll()
+    if e!=nil { return nil,e }
+    if len(rows)<129 { return nil,fmt.Errorf("not enough CSV samples") }
+    index,sample_index:=-1,-1
+    for i,name:=range rows[0] {
+        if name==column { index=i }
+        if name=="sample" { sample_index=i }
+    }
+    if index<0 || sample_index<0 { return nil,fmt.Errorf("missing signal or sample column") }
+    values:=make([]float64,len(rows)-1)
+    for i,row:=range rows[1:] {
+        if len(row)<=index || len(row)<=sample_index { return nil,fmt.Errorf("short CSV row %d",i+2) }
+        sample,e:=strconv.Atoi(row[sample_index])
+        if e!=nil || sample!=i { return nil,fmt.Errorf("nonconsecutive sample at row %d",i+2) }
+        value,e:=strconv.ParseFloat(row[index],64)
+        if e!=nil || math.IsNaN(value) || value < -32768 || value > 32767 {
+            return nil,fmt.Errorf("invalid sample at row %d",i+2)
+        }
+        values[i]=value
+    }
+    return values,nil
 }

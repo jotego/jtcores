@@ -115,3 +115,25 @@ Bring-up alone does not complete this issue.
   The new generator reproduces all flag and guarded-period program bytes.
   See [timer-measurements.md](timer-measurements.md). Production jt51 remains at
   985a573; no RTL or candidate patch was created.
+
+## Native envelope milestone
+
+- Event captures retain silent pretrigger and attacks; model wrappers record
+  during event instructions and export write/capture clock sidecars. Legacy
+  steady model outputs remain byte-identical. Host timing is not a chip timestamp.
+- AR12–31 at KS0 measured three times, 60 captures. One clear attack gap at
+  effective rates 30/31 survives independent phase/settling/history controls.
+  Three additional KS boundary groups add 27 physical captures.
+- Isolated D1 and D2 zero-rate hold fixtures at all KS add 24 captures; physical
+  levels hold while production loses level at nonzero KS. AR0 controls add 12
+  silent captures, contrasted with 3 nonzero AR1/KS3 controls. Production leaks
+  quantized AR0 output at KS2/3. Internal traces diagnose the shared rate path.
+- Nine initial qualification captures bring total to 135 event recordings;
+  all hashes/framing/reply checks pass. Twelve intentional silent controls are
+  kept separate from 123 nonzero transients. No reset or dropped byte observed.
+- Fixed carrier projection and synthetic linear/nonlinear attack tests qualify
+  feature extraction, with explicit 0.572 ms window resolution. This does not
+  validate sub-window onset timing or full sample identity.
+- See [envelope-measurements.md](envelope-measurements.md) and the central
+  [gap inventory](gaps.md). Longer acquisition, remaining EG stages/boundaries
+  and LFO/noise/algorithm/CSM/output tests remain. Production is still frozen.

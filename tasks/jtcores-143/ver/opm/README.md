@@ -27,7 +27,7 @@ CSV `clock` counts master clocks after the API reset routine. Its absolute origi
 is not synchronized to the PCB or jt51 harness.
 
 Delay bytecodes use the same nominal 32 master clocks/count as the jt51 harness;
-this does not calibrate the CPU's physical delay loop. Capture intentionally
+this does not calibrate the CPU's physical delay loop. Steady capture intentionally
 waits 512 API clocks after the program, then snapshots at a consistent pipeline
 cycle. This makes it suitable for steady single-operator PG tests, not envelope
 attack alignment. Files are created exclusively to retain previous evidence.
@@ -36,3 +36,28 @@ The source-review interface summary is saved separately in
 `artifacts/opm-reference/interface.md`; it describes the reference behavior
 without reproducing third-party implementation code. Internal increments are
 model observations and do not establish the real chip's internal state.
+
+Transient event captures use the compatible optional interface:
+
+```
+bash tasks/jtcores-143/ver/opm/sim.sh --event INIT.bin EVENT.bin OUTPUT.csv [SAMPLES]
+```
+
+INIT executes first, followed by 4096 input master clocks of settling. Capture
+starts before EVENT executes, with output recorded throughout its writes, busy
+waits and delays, then until the requested native frame count (default 16384).
+There is no post-event settling gap. Snapshots occur at the same operator cycle
+once every 64 master clocks, including during EVENT. If EVENT outlasts the
+capture window, it still completes but no rows beyond the requested count are
+written. This supports envelope-duration and level measurements; initial state
+and event timing are not synchronized exactly with the PCB or jt51.
+
+Event mode also exclusively creates `OUTPUT.csv.events.csv`, with columns
+`kind,clock,reg,value`. `capture_start` gives the arming master-clock timestamp.
+`write` gives the master-clock timestamp of submitting EVENT's data byte to
+`OPM_Write`, with decimal register/value fields. This API submission time is not
+the model's later internal register-latch time. INIT writes are not included;
+EVENT writes after the capture window still appear. Timestamps count input
+master clocks after API reset, including setup, settling and bytecode execution.
+The external-model and jt51 clock origins differ. Delay opcodes remain
+approximately 32 master clocks/count and do not reproduce CPU instruction timing.
