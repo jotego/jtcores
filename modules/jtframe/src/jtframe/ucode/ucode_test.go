@@ -31,6 +31,66 @@ func Test_dump_ucrom_without_subroutines(t *testing.T) {
 	}
 }
 
+func Test_compile_constants_from_nested_includes(t *testing.T) {
+	jtframe, err := filepath.Abs("../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("JTFRAME", jtframe)
+	modules := t.TempDir()
+	t.Setenv("MODULES", modules)
+	folder := filepath.Join(modules, "graphics", "ucode")
+	if err := os.MkdirAll(folder, 0755); err != nil {
+		t.Fatal(err)
+	}
+	files := map[string]string{
+		"root.yaml": `config:
+  entries: 4
+  entry_len: 1
+  latch_ucode: true
+  ignore_cycles: true
+include: [middle.yaml]
+constants: {SELECTED: parent}
+ucode:
+  - {name: first, start: 0, seq: ["${SELECTED}"]}
+`,
+		"middle.yaml": "include: [leaf.yaml]\nconstants: {SELECTED: middle}\n",
+		"leaf.yaml": `constants: {INHERITED: inherited, SELECTED: child}
+ucode:
+  - {name: second, start: 1, seq: ["${INHERITED}, ${SELECTED}"]}
+`,
+	}
+	for name, contents := range files {
+		if err := os.WriteFile(filepath.Join(folder, name), []byte(contents), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	previous := Args
+	t.Cleanup(func() { Args = previous })
+	Args.Output = filepath.Join(t.TempDir(), "graphics")
+	if err := Make("graphics", "root.yaml"); err != nil {
+		t.Fatal(err)
+	}
+	image, err := os.ReadFile(Args.Output + ".uc")
+	if err != nil {
+		t.Fatal(err)
+	}
+	words := strings.Fields(string(image))
+	if len(words) != 4 || (words[0] != "01" && words[0] != "10") ||
+		words[1] != "11" || words[2] != "00" || words[3] != "00" {
+		t.Fatalf("expected inherited control and parent override in compiled ROM, got %q", image)
+	}
+	header, err := os.ReadFile(Args.Output + ".vh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(header), "assign inherited") ||
+		!strings.Contains(string(header), "assign parent") ||
+		strings.Contains(string(header), "assign child") || strings.Contains(string(header), "assign middle") {
+		t.Fatalf("included constants did not preserve the parent override:\n%s", header)
+	}
+}
+
 func Test_fix_cycles_adds_leading_idle_cycles(t *testing.T) {
 	desc := UcDesc{}
 	desc.Cfg.EntryLen = 16

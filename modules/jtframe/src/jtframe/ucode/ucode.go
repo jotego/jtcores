@@ -881,6 +881,14 @@ func read_yaml( fpath string ) UcDesc {
 		if desc.Cfg.CycleK==0 	 { desc.Cfg.CycleK=inc.Cfg.CycleK 		}
 		if desc.Cfg.BusError=="" { desc.Cfg.BusError=inc.Cfg.BusError 	}
 		if !desc.Cfg.Implicit   { desc.Cfg.Implicit=inc.Cfg.Implicit 	}
+		if len(inc.Constants)>0 {
+			if desc.Constants==nil { desc.Constants=make(map[string]string) }
+			for name,value := range inc.Constants {
+				if _,defined := desc.Constants[name]; !defined {
+					desc.Constants[name]=value
+				}
+			}
+		}
 		desc.Ops = append(inc.Ops, desc.Ops...)
 		next_chunk:
 		for k, _ := range inc.Chunks {
