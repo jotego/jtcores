@@ -82,6 +82,10 @@ The separate 4096×64 graphics ROM, control ROM, cache, and mirrored register
 file account for the larger block RAM use. The board cycle controller remains
 outside both measured boundaries.
 
+The final CPU also passes full-board constrained timing and unmodified-ROM
+MiSTer gameplay. Build profiles, bitstream hashes and validation scope are
+recorded in the [NARC validation report](../../docs/narc.md).
+
 ## Preliminary result, 2026-10-17
 
 | Boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

@@ -3,9 +3,9 @@
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
 The complete NARC CPU boundary fits in **2,746 ALMs**, or **19.6%** of the
 existing CPU's 14,000 ALMs, meeting the 25% target. It trades block RAM for
-instruction control and registers (69 M10Ks, no DSPs). The architectural
-implementation and regression suite are in place; final-source NARC
-simulation and MiSTer validation are running. See the matched
+instruction control and registers (69 M10Ks, no DSPs). Final-source NARC
+gameplay/audio simulation, FPGA constrained timing and unmodified-ROM
+MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 [area measurements](ver/area/README.md).
 
 `ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
@@ -42,14 +42,16 @@ That command requires Verilator and a C++ compiler; it checks architectural
 results rather than instruction timing. [Area measurements](ver/area/README.md)
 use standalone Quartus projects with recorded source hashes.
 
-Remaining acceptance gates:
-
-- Close any compatibility gaps found by longer NARC gameplay, graphics/audio,
-  host and peripheral tests against TI's guide and the pinned CPU.
-- Finish full-board timing validation. The implementation does not claim
-  instruction-cycle equivalence with the original CPU.
-- Validate this final source in NARC simulation and on MiSTer, including a
-  `jtcore narc -mrq` build.
+Validation passes 180 architectural programs, the unit/system suite, 160
+independent array programs, 44 all-PPOP PIXT programs, 20 LINE programs and
+strict lint. The final NARC simulation completes its 1,310-input-frame
+script with exit status zero, over 36.7 million reported retirements and
+captured gameplay/audio. It uses the directed POST skip; unmodified startup
+is independently verified on MiSTer. The normal quick build is compiled
+with `jtcore narc -mrq --seed 2` and passes constrained timing. The
+implementation does not claim instruction-cycle equivalence with the
+original CPU. Build profiles, source hashes and limitations are recorded
+in the [validation report](docs/narc.md).
 
 Current tests cover reset-vector loading, MOVI/MOVK, ADD/SUB and their K
 and immediate forms, register MOVE including cross-file, short conditional
@@ -85,7 +87,8 @@ and FS1 handling. See [multiply notes](docs/multiply.md) for the independent
 seeded arithmetic check.
 The [synchronous host engine](docs/host.md) also shares the I/O state and
 bus arbiter; its bench covers byte ordering, prefetch, increments, ownership,
-and host-indirect I/O. Physical asynchronous host-pin timing remains pending.
+and host-indirect I/O. Physical asynchronous host-pin timing is outside the
+NARC validation, which uses the existing host tie-offs.
 DIVS/DIVU/MODS/MODU share an iterative restoring divide through the same ALU;
 [divide notes](docs/divide.md) describe flags, overflow, and the seeded
 quotient/remainder check.
