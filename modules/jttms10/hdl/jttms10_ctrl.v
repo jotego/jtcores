@@ -13,6 +13,7 @@ module jttms10_ctrl(
     input              pixel_abort,
     input              array_active, array_fill, array_convert,
     input              array_zero, array_last,
+    input              array_checkpoint, reti_pbx,
     input              array_window_needed, array_window_done,
                        array_window_abort, array_window_query,
                        array_offset_needed, array_corner_next,
@@ -35,6 +36,9 @@ module jttms10_ctrl(
                       array_dststep, array_count,
                       array_srcpre, array_dstpre,
     output            array_source_phase, array_wb_src,
+    output            array_save_active, array_restore_active,
+    output            array_rebase_active,
+    output     [1:0]  array_rebase_phase,
     output            array_offset_active, array_query_active,
                       array_query_first, array_canon_active,
                       array_canon_dst, array_win,
@@ -51,7 +55,7 @@ module jttms10_ctrl(
     /* verilator lint_off UNUSEDPARAM */
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
-    localparam [10:0] ILLEGAL_SEQA = DIAGFAULT_SEQA;
+    localparam [11:0] ILLEGAL_SEQA = DIAGFAULT_SEQA;
     wire dispatch;
     wire multiskip;
     wire [1:0] multi_sel;
@@ -105,7 +109,7 @@ module jttms10_ctrl(
     assign gfx_step = mul_sel==GFX_MUL;
     wire [3:0] jsr_sel;
     reg cen;
-    reg [10:0] jsr_ret2;
+    reg [11:0] jsr_ret2;
     reg [1:0] jsr_depth;
     reg halted, emu_hold;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
@@ -119,22 +123,29 @@ module jttms10_ctrl(
     assign execute = cen && enable && ready && !halt;
     assign active = cen;
     wire boundary = !cen && uaddr==FETCH_SEQA;
-    assign hw_take = boundary && !rst && !halted && !emu_hold &&
+    wire array_boundary = !cen && array_checkpoint &&
+                          uaddr==ARRAYLOOP_SEQA;
+    assign hw_take = (boundary || array_boundary) && !rst &&
+                     !halted && !emu_hold &&
                      (nmi_req || (irq_req && ie));
     assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
-    assign push_active = uaddr[10:4]==PUSH32_SEQA[10:4];
-    assign cvloop_active = uaddr[10:4]==CVLOOP_SEQA[10:4];
-    assign wincheck_active = uaddr[10:4]==WINCHECK_SEQA[10:4];
-    assign pixconv_active = uaddr[10:4]==PIXCONV_SEQA[10:4];
-    assign array_source_phase = uaddr[10:4]==ARRAYLOOP_SEQA[10:4];
+    assign push_active = uaddr[11:4]==PUSH32_SEQA[11:4];
+    assign cvloop_active = uaddr[11:4]==CVLOOP_SEQA[11:4];
+    assign wincheck_active = uaddr[11:4]==WINCHECK_SEQA[11:4];
+    assign pixconv_active = uaddr[11:4]==PIXCONV_SEQA[11:4];
+    assign array_source_phase = uaddr[11:4]==ARRAYLOOP_SEQA[11:4];
+    assign array_save_active = uaddr[11:4]==ARRAYSAVE_SEQA[11:4];
+    assign array_restore_active = uaddr[11:4]==ARRAYRESTORE_SEQA[11:4];
+    assign array_rebase_active = uaddr[11:4]==ARRAYREBASE_SEQA[11:4];
+    assign array_rebase_phase = uaddr[1:0];
     assign array_wb_src = uaddr==ARRAYFINISH_SEQA;
     assign array_offset_active =
-        uaddr[10:4]==ARRAYOFFSET_SEQA[10:4];
+        uaddr[11:4]==ARRAYOFFSET_SEQA[11:4];
     assign array_query_active =
-        array_query_mode && uaddr[10:4]==ARRAYFINISH_SEQA[10:4];
+        array_query_mode && uaddr[11:4]==ARRAYFINISH_SEQA[11:4];
     assign array_query_first = uaddr==ARRAYFINISH_SEQA;
     assign array_canon_active =
-        uaddr[10:4]==ARRAYCANON_SEQA[10:4];
+        uaddr[11:4]==ARRAYCANON_SEQA[11:4];
     assign array_canon_dst = array_canon_active && uaddr[3:0]>=4'd3;
     // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
     // Defined opcodes without a microcode implementation remain diagnostic.
@@ -155,13 +166,13 @@ module jttms10_ctrl(
                        (mulstep && mul_count!=5'd1) ||
                        (divstep && mul_count!=5'd1);
     // Dispatch addresses match the six ops' class IDs in ucode/tms10.yaml.
-    localparam [10:0] ADDIW_ENTRY = 11'h190,
-                      SUBIW_ENTRY = 11'h1a0,
-                      CMPIW_ENTRY = 11'h1b0,
-                      ADDIL_ENTRY = 11'h1c0,
-                      SUBIL_ENTRY = 11'h1d0,
-                      CMPIL_ENTRY = 11'h1e0;
-    reg [10:0] entry;
+    localparam [11:0] ADDIW_ENTRY = 12'h190,
+                      SUBIW_ENTRY = 12'h1a0,
+                      CMPIW_ENTRY = 12'h1b0,
+                      ADDIL_ENTRY = 12'h1c0,
+                      SUBIL_ENTRY = 12'h1d0,
+                      CMPIL_ENTRY = 12'h1e0;
+    reg [11:0] entry;
     always @* begin
         entry = ILLEGAL_SEQA;
         casez(md)
@@ -311,7 +322,8 @@ module jttms10_ctrl(
             end else if(boundary && emu_hold) begin
                 if(emu_run) emu_hold <= 0;
             end else if(hw_take) begin
-                uaddr <= nmi_req && nmi_nostack ? HWNOSAVE_SEQA : HWSAVE_SEQA;
+                uaddr <= nmi_req && nmi_nostack ? HWNOSAVE_SEQA :
+                         array_boundary ? ARRAYSAVE_SEQA : HWSAVE_SEQA;
             end else if(boundary && halt_req) begin
                 halted <= 1;
             end else begin
@@ -328,7 +340,7 @@ module jttms10_ctrl(
                    (jsr_sel==PIXCONV_JSR && array_active && !array_convert) ||
                    (jsr_sel==PIXDSTREAD_JSR && !pixel_need_dest) ||
                    (jsr_sel==LMOLOOP_JSR && !lmo_more))
-                    uaddr <= uaddr+11'd1;
+                    uaddr <= uaddr+12'd1;
                 else begin
                     uaddr <= jsr_ua;
                     if(jsr_sel==RET_JSR) begin
@@ -336,10 +348,10 @@ module jttms10_ctrl(
                         if(!loop_repeat && jsr_depth!=0)
                             jsr_depth <= jsr_depth-2'd1;
                     end else if(jsr_depth==0) begin
-                        jsr_ret <= uaddr+11'd1;
+                        jsr_ret <= uaddr+12'd1;
                         jsr_depth <= 1;
                     end else begin
-                        jsr_ret2 <= uaddr+11'd1;
+                        jsr_ret2 <= uaddr+12'd1;
                         jsr_depth <= 2;
                     end
                 end
@@ -358,7 +370,8 @@ module jttms10_ctrl(
                      array_window_needed ? ARRAYWINDOW_SEQA :
                      ARRAYPREP_SEQA) :
                     ARRAYSETUP_SEQA;
-            if(array_win && !array_canon_active && array_window_done)
+            if(array_win && !array_canon_active &&
+               !array_rebase_active && array_window_done)
                 uaddr <= array_window_query ? ARRAYFINISH_SEQA :
                          array_window_abort ? PIXEND_SEQA :
                          array_corner_next ? ARRAYWINDOW_SEQA :
@@ -379,6 +392,15 @@ module jttms10_ctrl(
                 uaddr <= array_last ?
                     (array_canon_needed ? ARRAYCANON_SEQA :
                      ARRAYFINISH_SEQA) : ARRAYLOOP_SEQA;
+            if(array_save_active && listwr)
+                uaddr <= array_index==4'd6 ? HWSAVE_SEQA :
+                         ARRAYSAVE_SEQA;
+            if(array_restore_active && array_cap)
+                uaddr <= array_index==4'd10 ? ARRAYREBASE_SEQA :
+                         ARRAYRESTORE_SEQA;
+            if(array_rebase_active && array_win &&
+               array_rebase_phase==2'd2)
+                uaddr <= ARRAYLOOP_SEQA;
             if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
@@ -387,7 +409,7 @@ module jttms10_ctrl(
             if(divcheck && div_early_cond) uaddr <= DIVFAIL_SEQA;
             if(divstep && mul_count!=5'd1) uaddr <= DIVLOOP_SEQA;
             if(ni) begin
-                uaddr <= FETCH_SEQA;
+                uaddr <= reti_pbx ? ARRAYRESTORE_SEQA : FETCH_SEQA;
                 jsr_depth <= 0;
             end
             if(dispatch) begin

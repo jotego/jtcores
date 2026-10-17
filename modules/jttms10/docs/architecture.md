@@ -26,7 +26,7 @@ unfinished synthesized CPU does not prove the area requirement.
 
 ## Sequencer
 
-The ROM has 128 dispatch slots with 16 microsteps each, rather than one slot
+The ROM has 256 dispatch slots with 16 microsteps each, rather than one slot
 per 16-bit opcode. A compact masked decoder selects a family; register/file,
 constant, and condition fields remain in IR. Named YAML chunks are the
 dispatch slots, and generated `_SEQA` constants define their addresses.
@@ -41,9 +41,9 @@ execution and ROM priming to prevent duplicate transactions.
 The generator groups tokens by underscore suffix, so `add_alu` selects an
 ALU field, but the standalone PC increment control is `pcinc`. Naming it
 `inc_pc` would merge it with the `md_pc`/`reg_pc`/`rel_pc` selector. The
-one-deep generated JSR/RET mechanism is used for reset-vector loading and
-shared 32-bit stack transfers. Microcode must not nest calls without extending
-the return storage. CALL targets and RETI's saved status use the scratch
+generated JSR/RET mechanism has two return levels for shared pixel-conversion
+and one-bit shift helpers, reset-vector loading, and stack transfers.
+CALL targets and RETI's saved status use the scratch
 register, which those helpers preserve.
 
 The initial immediate-arithmetic families use the compiler's `ops.ctl`
@@ -57,10 +57,10 @@ IAQ through all words of a transaction. Its smoke test checks request drain,
 waiting memory, partial-word locks, and acknowledgement while CPU execution
 is disabled. The separate `jttms10_fabric` integrates I/O/video/refresh and
 word-cycle arbitration; its field-adapter bench checks waits, cross-register
-I/O, and HOLD restart. CPU integration with this fabric, host transactions,
-interrupt entry, cache, and graphics execution remain pending.
-`fault` currently stops unsupported instructions;
-it is a development diagnostic rather than the architectural trap sequence.
+I/O, and HOLD restart. `jttms10_system` combines these with host, interrupts,
+video/refresh, cache and graphics. NARC can select it with `JTNARC_UCODE`
+for bring-up. Reserved ranges execute architectural TRAP 30; `fault` stops
+defined instructions that still lack implementation, currently LINE.
 
 ## Validation sources
 
@@ -75,13 +75,13 @@ it is a development diagnostic rather than the architectural trap sequence.
 
 The initial YAML programs exercise varying 1–3-clock memory response delays
 and check that requests stay stable until acknowledgement. These results
-prove only the states asserted by the tests. No NARC execution or complete
-area/timing result is claimed at this stage.
+prove only the states asserted by the tests. NARC startup execution has been
+captured, but attract/gameplay and full timing validation remain open. The
+array checkpoint exceeds the area target; see [area measurements](../ver/area/README.md).
 
 `ver/reference.py` runs the same architectural checkpoints on the unchanged
 existing CPU at `29bcb384ec3dba892ea54db2ee92b38ae395d575`, in its functional
-mode. It excludes the development-only illegal halt and external enable
-tests. It checks the asserted register/status/PC values, not all register
+mode. It excludes the external enable-pause test. It checks the asserted register/status/PC values, not all register
 state or silicon timing. Separate ALU and field-sequencer benches cover
 arithmetic boundaries and every offset 0–15/width 1–32 combination.
 
@@ -134,11 +134,11 @@ ANDI's encoded extension is complemented, while ANDNI names the same opcode
 with a direct extension. Logical operations update only Z. Tests also cover
 ADDC/SUBB with both input carry/borrow values.
 
-These checks do not establish complete trap or interrupt behavior. The field
-adapter still writes ascending physical words, while TI specifies MSW-first
-stack writes for TRAP. RETI's PBX-controlled graphics restart and immediate
-interrupt acceptance require the graphics and interrupt engines. See
-[stack-isa.md](stack-isa.md) for primary references and limits.
+The stack helper issues two 16-bit predecrements, high half first, to preserve
+TI's physical push order independently of the field adapter's ascending
+word order. IRQ/NMI/HLT/EMU boundaries and full-color array PBX continuation
+have focused tests. Binary chunk continuation and LINE remain incomplete;
+see [interrupts.md](interrupts.md) and [stack-isa.md](stack-isa.md).
 
 ## Iterative shift loop
 

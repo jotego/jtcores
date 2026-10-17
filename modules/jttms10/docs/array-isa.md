@@ -55,6 +55,33 @@ status flags unchanged, while windowed FILL XY defines V. PIXBLT L,L lists
 N/C/Z/V as undefined (guide p. 12-190), so ordinary PIXBLT completion
 vectors do not assert them. Window violation and WVP behavior follow the pixel window
 controls described in [pixel-isa.md](pixel-isa.md). Interruptible mid-array
-checkpoints and PBX/RETI resume require separate validation; completed
-instruction tests here assert memory and the defined B0/B2/B7 and status
-results at retirement.
+checkpoints and PBX/RETI resume have separate focused tests documented in
+[interrupts.md](interrupts.md); binary source-chunk continuation is incomplete.
+Completed instruction tests assert memory and the defined B0/B2/B7 and
+status results at retirement.
+
+Binary expansion selects COLOR0/1 before pixel processing. The expanded
+pixel is source-masked at its destination lane; the bitmap bit itself is
+unmasked. This qualification is inferred from TI pp. 7-12/13 (the explicit
+register-source exemption lists FILL, DRAV, LINE and register-source PIXT,
+excluding binary PIXBLT) and p. 12-175 (expansion precedes processing with
+PMASK enabled), and agrees with the pinned implementation. The directed
+MAX/PMASK/transparency case distinguishes this from exempting expanded COLOR:
+COLOR0=A05B, destination=F6D4 and PMASK=A49E produce source=0041 and
+destination=5240 before MAX, preserving final F6D4. It is not recorded as
+an old-reference divergence.
+
+`ver/array/programs.py` independently calculates bit-addressed memory and
+pixel equations for all eight forms, five pixel sizes, pitches, rows,
+source alignment, masks, processing and transparency. It does not import RTL.
+Run a reproducible set with:
+
+```sh
+python3 modules/jttms10/ver/array/programs.py --seed 34010 --samples 4 --out /tmp/array.yaml
+python3 modules/jttms10/ver/run.py --vectors /tmp/array.yaml
+python3 modules/jttms10/ver/reference.py --vectors /tmp/array.yaml
+```
+
+These are architectural memory-result checks, not physical traffic or
+timing checks. In particular, the current one-bit binary source transactions
+still require replacement with TI's 32-pixel chunk reads (p. 12-176).

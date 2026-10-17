@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Dispatch entries are instruction families, not the complete 16-bit opcode.
 config:
-  entries: 128
+  entries: 256
   entry_len: 16
   latch_ucode: true
   ignore_cycles: true
@@ -34,7 +34,7 @@ ucode:
   # Named diagnostic fallback; the generator's reserved final slot does not
   # emit a SEQA constant. Keep the controller independent of that slot.
   - name: diagfault
-    start: 126
+    start: 254
     seq:
       - halt
   - name: nop

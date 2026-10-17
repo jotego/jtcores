@@ -31,5 +31,28 @@ and EMU bus quiescence/resumption. The scalar YAML suite compares reserved
 opcode entry and RETI with the unchanged old CPU. `ver/system/test.sv` also
 runs CPU/display-IRQ/handler/RETI through the real field and peripheral fabric.
 
-Interruptible PIXBLT/FILL/LINE checkpoints, PBX graphics resumption, cache
-behavior and instruction/bus cycle parity remain outstanding.
+FILL and full-color PIXBLT may accept an interrupt after a completed
+destination word or row. A partial logical field finishes first. The
+unfinished array emits no retirement pulse; entry stacks next PC and
+ST.PBX=1. Seven synchronous register writes publish B0/B2 and the restart
+image in B10–B14. RETI with stacked PBX reloads that image, clears the live
+PBX bit, rebases row pointers through the shared ALU, and resumes without
+fetching the original opcode. The ISR must preserve the implied B-register
+context when it uses graphics; the test uses MMTM/MMFM B0–B14 around a
+nested FILL. There is no hidden one-level snapshot to overwrite.
+
+`ver/array/interrupt.sv` compares interrupted and uninterrupted write
+streams. It covers 16-bit FILL and unaligned 4-bit PIXBLT with PMASK/XOR,
+waiting ACKs, stacked PBX/PC, no entry retirement, nested drawing and one
+original opcode fetch. The 4-bit case raises IRQ after its first pixel but
+requires entry after the third pixel completes the destination word.
+PBH reverse traversal also compares the exact write stream and checkpoint;
+TI p. 12-188 requires a linear starting pointer one pixel past the corner,
+so its first access predecrements before drawing.
+
+Binary PIXBLT still reads one source bit per pixel; TI requires 32-pixel
+source chunks and corresponding B0/context updates. Binary interrupt
+continuation is therefore not accepted. Mid-array NMI/no-stack/HLT
+combinations, LINE continuation, and complete
+instruction/bus cycle parity still need validation. Cache behavior has
+separate tests documented in [cache.md](cache.md).

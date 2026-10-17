@@ -190,3 +190,18 @@ The NARC count leaves 664 ALMs below the 3,500 ceiling, but this source still
 lacks FILL/PIXBLT/LINE and interruptible graphics continuation. These are
 intermediate resource measurements. The completed implementation and working
 NARC simulation/hardware must pass before the 25% goal is accepted.
+
+## FILL/PIXBLT checkpoint, 2026-10-17
+
+The exact committed array checkpoint `38b60f7b0c105f409a38abcce8827482d6de85cd`
+fits at **3,896 ALMs / 2,146 registers / 135,168 block-memory bits in 16 RAM
+blocks / 0 DSPs** at the same NARC GSP boundary, device, 20 ns clock, seed and
+effort. Report and manifest: `/tmp/jttms10-141-area/narc-array`. All 23
+copied/generated hashes and all committed source blobs were verified.
+
+This is **396 ALMs above** the 3,500 ceiling and predates interruptible
+arrays and LINE. The area requirement is not met. Relative to the pre-array
+2,836-ALM fit, the core's own logic grows by 1,159 ALMs and 541 registers;
+other blocks are largely unchanged. The next area work targets transient
+array/window state and its wide operand selectors, with further measured
+fits required after the remaining graphics behavior is complete.

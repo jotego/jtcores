@@ -4435,6 +4435,56 @@ cases:
     - at: 608
       words:
       - 61185
+
+  # TI guide pp. 7-12–16 and 12-175–178: the binary bit selects COLOR0,
+  # then PMASK qualifies the expanded source and destination before MAX.
+  # Masked source=0041, masked destination=5240, so MAX chooses destination;
+  # T=1 does not suppress it, and protected planes leave F6D4 intact.
+  - name: pixblt_binary_expanded_color_masked_before_max
+    entry: 0x1000
+    pixel_size: 16
+    control: 0x5020
+    pmask: 0xA49E
+    words:
+    - 0x09F0 # B0 bitmap address
+    - 0x0200
+    - 0x0000
+    - 0x09F1 # B1 bitmap pitch
+    - 0x0080
+    - 0x0000
+    - 0x09F2 # B2 destination address
+    - 0x0600
+    - 0x0000
+    - 0x09F3 # B3 destination pitch
+    - 0x0080
+    - 0x0000
+    - 0x09F7 # B7 1x1
+    - 0x0001
+    - 0x0001
+    - 0x09F8 # B8 COLOR0, selected by bitmap zero
+    - 0xA05B
+    - 0xA05B
+    - 0x09F9 # B9 COLOR1
+    - 0x2AA6
+    - 0x2AA6
+    - 0x0F80 # PIXBLT B,L
+    mem:
+    - {at: 0x0200, words: [0x0000]}
+    - {at: 0x0600, words: [0xF6D4]}
+    checks:
+    - {after: 0x1000, pc: 0x1030, regs: {B0: 0x0200}}
+    - {after: 0x1030, pc: 0x1060, regs: {B1: 0x0080}}
+    - {after: 0x1060, pc: 0x1090, regs: {B2: 0x0600}}
+    - {after: 0x1090, pc: 0x10C0, regs: {B3: 0x0080}}
+    - {after: 0x10C0, pc: 0x10F0, regs: {B7: 0x00010001}}
+    - {after: 0x10F0, pc: 0x1120, regs: {B8: 0xA05BA05B}}
+    - {after: 0x1120, pc: 0x1150, regs: {B9: 0x2AA62AA6}}
+    - after: 0x1150
+      pc: 0x1160
+      regs: {B0: 0x0280, B2: 0x0680, B7: 0x00010001}
+      mem:
+      - {addr: 0x0200, size: 16, value: 0x0000}
+      - {addr: 0x0600, size: 16, value: 0xF6D4}
   - name: pixblt_ll_pbh_reverse_prepositioned_corners
     entry: 4096
     pixel_size: 4

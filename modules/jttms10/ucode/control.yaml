@@ -564,3 +564,19 @@ ucode:
       - arraywin_misc
       - pixconv_jsr
       - add_alu, savedst_a
+  # PBX checkpoints write the restart image through the single RF write
+  # port. RETI reloads that image through the synchronous RF read port.
+  - name: arraysave
+    start: 127
+    seq: [listwr]
+  - name: arrayrestore
+    start: 128
+    seq: [arraycap_misc]
+  # Reconstruct both row bases from the saved next-pixel addresses and the
+  # number of pixels already drawn in this row, using the shared ALU.
+  - name: arrayrebase
+    start: 129
+    seq:
+      - sub_alu, arraywin_misc
+      - add_alu, arraywin_misc
+      - add_alu, arraywin_misc
