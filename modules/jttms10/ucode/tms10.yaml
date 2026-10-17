@@ -31,6 +31,12 @@ ucode:
     start: -1
     seq:
       - halt
+  # Named diagnostic fallback; the generator's reserved final slot does not
+  # emit a SEQA constant. Keep the controller independent of that slot.
+  - name: diagfault
+    start: 126
+    seq:
+      - halt
   - name: nop
     start: 2
     seq: [ni]

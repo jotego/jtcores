@@ -3,6 +3,10 @@
 // requests describe 1..32-bit fields. Peripheral/bus integration is separate.
 module jttms10(
     input             rst, clk, cen,
+    input             irq_req,
+    input      [31:0] irq_vector,
+    input             nmi_req, nmi_nostack, halt_req, emu_run,
+    output reg        nmi_clear, emu_ack,
     output            mem_req, mem_we, mem_iaq,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
@@ -24,6 +28,7 @@ module jttms10(
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire dsjfinish, xyx, xyy;
+    wire hw_take, reserved_opcode, push_entry, push_active, emu_step;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
     wire [4:0] a_sel;
@@ -33,6 +38,8 @@ module jttms10(
     wire [31:0] rs_data, rd_data, result;
     wire n,z,c,v;
     reg [31:0] md, a, b, ea, tmp, bus_data;
+    reg [31:0] vector_latched;
+    reg push_high, hw_entry;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
@@ -94,9 +101,11 @@ module jttms10(
         ((!ir[9] && rs_data[field_msb]) ? ~field_mask : 32'd0);
     assign mem_we = mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = (stack_sel!=0 || vector)
-                    ? 6'd32 : field_op ? field_size : 6'd16;
-    assign mem_wdata = md;
+    assign mem_size = push_active && stack_sel==WRITE_STACK ? 6'd16 :
+                      (stack_sel!=0 || vector) ? 6'd32 :
+                      field_op ? field_size : 6'd16;
+    assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
+                       {16'd0, push_high ? md[31:16] : md[15:0]} : md;
     assign mem_iaq = fetch;
 
     jttms10_ctrl u_ctrl(
@@ -106,6 +115,11 @@ module jttms10(
         .multi_load(ir[5]),
         .mul_count(mul_count),
         .div_early_cond(a==0 || !c),
+        .irq_req(irq_req), .nmi_req(nmi_req),
+        .nmi_nostack(nmi_nostack), .halt_req(halt_req),
+        .emu_run(emu_run), .ie(st[21]),
+        .hw_take(hw_take), .reserved_opcode(reserved_opcode),
+        .push_entry(push_entry), .push_active(push_active), .emu_step(emu_step),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
@@ -140,7 +154,7 @@ module jttms10(
     jttms10_regs u_regs(
         .clk(clk), .rs(multi_ir ? {ir[4],multi_index} :
                          call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
-        .rd(stack_ir ? 5'd15 :
+        .rd(stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
         .wa(wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
@@ -225,6 +239,8 @@ module jttms10(
     end
     always @(posedge clk) begin
         retire <= 0;
+        nmi_clear <= 0;
+        emu_ack <= 0;
         if(rst) begin
             pc<=0;
             st<=32'h10;
@@ -252,7 +268,16 @@ module jttms10(
             fault<=0;
             completed<=0;
             bus_data<=0;
+            vector_latched<=0;
+            push_high<=0;
+            hw_entry<=0;
         end else begin
+            if(hw_take) begin
+                vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
+                nmi_clear<=nmi_req;
+                hw_entry<=1;
+            end
+            if(push_entry) push_high<=1;
             if(mem_req && mem_ack) begin
                 completed<=1;
                 bus_data<=mem_rdata;
@@ -260,6 +285,12 @@ module jttms10(
             if(active && cen && halt) fault<=1;
             if(step) begin
                 completed<=0;
+                if(emu_step) emu_ack<=1;
+                if(push_active && stack_sel==WRITE_STACK)
+                    push_high<=~push_high;
+                if(ld_ir && reserved_opcode) begin
+                    vector_latched<=32'hfffffc20;
+                end
                 if(bus_op && !mem_we) md<=read_data;
                 case(md_sel)
                     A_MD: md<=a;
@@ -410,6 +441,7 @@ module jttms10(
                     PC_A: a<=pc;
                     REV_A: a<=32'd8;
                     WORD_A: a<=32'd32;
+                    HALF_A: a<=32'd16;
                     ONE_A: a<=32'd1;
                     MOVX_A: a<={rd_data[31:16],rs_data[15:0]};
                     MOVY_A: a<={rs_data[31:16],rd_data[15:0]};
@@ -426,6 +458,7 @@ module jttms10(
                     TMP_EA: ea<=tmp;
                     SWAP_EA: begin ea<=tmp; tmp<=ea; end
                     TRAP_EA: ea<=32'hffffffe0-{22'd0,ir[4:0],5'd0};
+                    HWVECTOR_EA: ea<=vector_latched;
                     default:;
                 endcase
                 case(pc_sel)
@@ -473,7 +506,8 @@ module jttms10(
                 end
                 if(btstfinish) st[29]<=~a[btst_index];
                 if(lmofinish) st[29]<=a==0;
-                retire<=ni;
+                retire<=ni && !hw_entry;
+                if(ni) hw_entry<=0;
             end
         end
     end

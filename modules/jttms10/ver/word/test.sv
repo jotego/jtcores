@@ -9,10 +9,17 @@ module test;
     reg [15:0] word_rdata = 0;
     reg word_ack = 0;
     reg [15:0] words [0:1023];
+    reg [31:0] stack_write_addr [0:7];
+    reg [15:0] stack_write_data [0:7];
+    integer stack_writes=0;
     integer k;
 
     jttms10_word u_cpu(
         .rst(rst), .clk(clk), .cen(cen),
+        .irq_req(1'b0), .irq_vector(32'd0),
+        .nmi_req(1'b0), .nmi_nostack(1'b0),
+        .halt_req(1'b0), .emu_run(1'b1),
+        .nmi_clear(), .emu_ack(),
         .word_req(word_req), .word_we(word_we), .word_addr(word_addr),
         .word_wdata(word_wdata), .word_iaq(word_iaq), .word_lock(word_lock),
         .word_rdata(word_rdata), .word_ack(word_ack), .word_restart(1'b0),
@@ -30,6 +37,19 @@ module test;
         words['h103]=16'hDEAD;
         words['h104]=16'h8020; // MOVE A1,*A0: unaligned FS0=16 write
         words['h105]=16'h8402; // MOVE *A0,A2: read back and zero extend
+        words['h106]=16'h09CF; // MOVI IW 0300,SP
+        words['h107]=16'h0300;
+        words['h108]=16'h09E3; // MOVI IL 60200010,A3
+        words['h109]=16'h0010;
+        words['h10A]=16'h6020;
+        words['h10B]=16'h01A3; // PUTST A3
+        words['h10C]=16'h01E0; // PUSHST
+        words['h10D]=16'h0D5F; // CALLA 1140
+        words['h10E]=16'h1140;
+        words['h10F]=16'h0000;
+        words['h110]=16'h0901; // TRAP 1 after return
+        words['h114]=16'h0960; // RETS 0
+        words['h120]=16'h0940; // RETI (not reached before check)
         repeat (5) @(negedge clk);
         rst=0;
     end
@@ -45,7 +65,11 @@ module test;
     integer drains=0;
     wire expected_iaq =
         word_addr==32'h1000 || word_addr==32'h1020 ||
-        word_addr==32'h1040 || word_addr==32'h1050;
+        word_addr==32'h1040 || word_addr==32'h1050 ||
+        word_addr==32'h1060 || word_addr==32'h1080 ||
+        word_addr==32'h10B0 || word_addr==32'h10C0 ||
+        word_addr==32'h10D0 ||
+        word_addr==32'h1100 || word_addr==32'h1140;
 
     // One pulse acknowledges each physical word. The responder can accept
     // the next payload even when word_req never falls between word cycles.
@@ -87,11 +111,23 @@ module test;
                 end else if (held_addr==32'hfffffff0) begin
                     if (held_we) $fatal(1,"reset vector written");
                     word_rdata<=16'd0;
+                end else if (held_addr==32'hffffffc0) begin
+                    if (held_we) $fatal(1,"trap vector written");
+                    word_rdata<=16'h1200;
+                end else if (held_addr==32'hffffffd0) begin
+                    if (held_we) $fatal(1,"trap vector written");
+                    word_rdata<=16'd0;
                 end else if (held_addr>=32'd16384)
                     $fatal(1,"out of range address %h",held_addr);
-                else if (held_we)
+                else if (held_we) begin
+                    if (held_addr>=32'h0280 && held_addr<32'h0300) begin
+                        if (stack_writes>=8) $fatal(1,"extra stack write");
+                        stack_write_addr[stack_writes]<=held_addr;
+                        stack_write_data[stack_writes]<=held_wdata;
+                        stack_writes<=stack_writes+1;
+                    end
                     words[held_addr>>4]<=held_wdata;
-                else
+                end else
                     word_rdata<=words[held_addr>>4];
                 word_ack<=1;
                 busy<=0;
@@ -159,7 +195,22 @@ module test;
                 !pause_done || !paused_ack)
                 $fatal(1,"RMW, drain or pause coverage failed %0d/%0d drains=%0d pause=%b/%b",
                     locked_reads,locked_writes,drains,pause_done,paused_ack);
-            $display("PASS: word wrapper, %0d physical requests, %0d drained field acks, two RMW pairs, paused field ack",requests,drains);
+        end
+        if (retired==11) begin
+            if (pc!==32'h1200 || st!==32'h00000010 ||
+                u_cpu.u_core.u_regs.ram0[15]!==32'h02A0 || stack_writes!=8)
+                $fatal(1,"stack state PC=%h ST=%h SP=%h writes=%0d",
+                    pc,st,u_cpu.u_core.u_regs.ram0[15],stack_writes);
+            if (stack_write_addr[0]!==32'h02F0 || stack_write_data[0]!==16'h6020 ||
+                stack_write_addr[1]!==32'h02E0 || stack_write_data[1]!==16'h0010 ||
+                stack_write_addr[2]!==32'h02D0 || stack_write_data[2]!==16'h0000 ||
+                stack_write_addr[3]!==32'h02C0 || stack_write_data[3]!==16'h1100 ||
+                stack_write_addr[4]!==32'h02D0 || stack_write_data[4]!==16'h0000 ||
+                stack_write_addr[5]!==32'h02C0 || stack_write_data[5]!==16'h1110 ||
+                stack_write_addr[6]!==32'h02B0 || stack_write_data[6]!==16'h6020 ||
+                stack_write_addr[7]!==32'h02A0 || stack_write_data[7]!==16'h0010)
+                $fatal(1,"PUSHST/CALL/TRAP physical writes must be MSW first");
+            $display("PASS: word wrapper, %0d requests, two RMW pairs, paused ack, MSW-first PUSHST/CALL/TRAP",requests);
             $finish;
         end
     end

@@ -98,7 +98,12 @@ ucode:
   - name: push32
     start: 64
     seq:
-      - word_a, reg_b
+      # MSW first: two predecremented 16-bit writes, so the final 32-bit
+      # stack value remains little-endian at SP. MD retains the whole value.
+      - half_a, reg_b
+      - sub_alu, sum_ea, wr_sp
+      - write_stack
+      - half_a, reg_b
       - sub_alu, sum_ea, wr_sp
       - write_stack, ret_jsr
   - name: pop32
@@ -338,3 +343,23 @@ ucode:
       - reg_a, reg_b
       - sub_alu, x_misc
       - sub_alu, y_misc, ni
+  # Boundary interrupt and reserved-opcode entries do not retire an
+  # architectural instruction. The datapath suppresses retire for these.
+  - name: hwsave
+    start: 100
+    seq:
+      - pc_md, push32_jsr
+      - st_md, push32_jsr
+      - hwvector_ea
+      - read_stack
+      - init_st, md_pc, ni
+  - name: hwnosave
+    start: 101
+    seq:
+      - hwvector_ea
+      - read_stack
+      - init_st, md_pc, ni
+  - name: emu
+    start: 102
+    seq:
+      - emu_misc, ni

@@ -55,9 +55,10 @@ include both field definitions, sign extension, auto-update aliases, signed
 offsets, absolute addresses, and memory-to-memory copies.
 Additional encoded families in the YAML require corresponding tests before
 being claimed as verified. Unsupported instructions stop with `fault`;
-architectural illegal-opcode trapping remains to be implemented.
-Stack and trap assertions currently cover architectural results; physical
-MSW-first trap writes and RETI graphics resumption remain outstanding.
+reserved opcode ranges take architectural TRAP 30. Unsupported defined
+instructions still stop with `fault`.
+Stack and trap assertions cover architectural results and physical
+MSW-first writes; RETI graphics resumption remains outstanding.
 See [stack and unary ISA notes](docs/stack-isa.md).
 SLA/SLL/SRA/SRL/RL support both constant and register counts through a shared
 one-bit loop; [shift notes](docs/shifts.md) describe count encoding, flags,
@@ -69,7 +70,7 @@ The [standalone peripheral page](docs/peripherals.md) implements CPU-visible
 I/O storage/masks, interrupt state, video timing, display-address scheduling,
 and DRAM refresh. The [bus arbiter](docs/bus.md) handles NARC cycle kinds,
 priority, waits, and partial-write reservations/HOLD restart. Their focused
-benches are part of `ver/run.sh`. CPU integration remains pending.
+benches are part of `ver/run.sh`.
 `jttms10_fabric` connects the peripherals and arbiter; its field-adapter
 integration bench also runs in the standard suite. MMTM/MMFM use the shared
 register RAM and a mask scan, with [register-list semantics](docs/register-lists.md)
@@ -88,6 +89,10 @@ and pinned-reference tests; see [scalar XY notes](docs/scalar-xy.md).
 The [pixel helper](docs/pixel.md) separately verifies all defined PPOP,
 plane-mask, and transparency rules through the shared ALU. Graphics
 instruction sequencing is still pending.
+The [integrated system](docs/system.md) connects the CPU, field adapter and
+peripheral fabric. Its test runs a display-interrupt handler through a waiting
+NARC cycle target, including host HLT release and RETI. Boundary IRQ/NMI,
+halt and EMU behavior are described in [interrupt notes](docs/interrupts.md).
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

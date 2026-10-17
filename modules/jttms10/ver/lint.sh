@@ -9,6 +9,8 @@ verilator --lint-only -Wall --top-module jttms10_field \
     "$ver_dir/../hdl/jttms10_field.v"
 verilator --lint-only -Wall -Wno-EOFNEWLINE \
     -I"$ver_dir/build" --top-module jttms10_word "$ver_dir"/../hdl/*.v
+verilator --lint-only -Wall -Wno-EOFNEWLINE \
+    -I"$ver_dir/build" --top-module jttms10_system "$ver_dir"/../hdl/*.v
 verilator --lint-only -Wall --top-module jttms10_io \
     "$ver_dir/../hdl/jttms10_io.v" "$ver_dir/../hdl/jttms10_video.v" \
     "$ver_dir/../hdl/jttms10_refresh.v" "$ver_dir/../hdl/jttms10_host.v"

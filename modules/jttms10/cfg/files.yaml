@@ -12,6 +12,7 @@ jttms10:
       - jttms10_refresh.v
       - jttms10_bus.v
       - jttms10_fabric.v
+      - jttms10_system.v
       - jttms10_pixel.v
     ucode:
       src: tms10.yaml

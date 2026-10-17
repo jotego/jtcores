@@ -166,7 +166,11 @@ module reference_test;
     step_count = 0;
   end
   always @(negedge clk) begin
-    if (!rst && last_state == CORE_WRITEBACK && state_w == CORE_FETCH)
+    // Reserved opcodes enter vector 30 through interrupt microstates and
+    // bypass WRITEBACK. The sticky illegal diagnostic distinguishes this
+    // boundary from an ordinary hardware interrupt (TI guide §8.7).
+    if (!rst && ((last_state == CORE_WRITEBACK && state_w == CORE_FETCH) ||
+                 (last_state == CORE_INT_DONE && state_w == CORE_FETCH && illegal_w)))
       check_step();
     last_state = state_w;
   end

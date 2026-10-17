@@ -221,13 +221,30 @@ cases:
       - {after: 0x1060, pc: 0x1090, regs: {B1: 0xFFFFFFFF}, flags: {N: 1, C: 1, Z: 0, V: 0}}
       - {after: 0x1090, pc: 0x10C0, regs: {B1: 0xFFFFFFFF}, flags: {N: 0, C: 0, Z: 1, V: 0}}
 
-  - name: illegal_opcode_halts
+  - name: illegal_opcode_traps_to_vector_thirty
     entry: 0x1000
-    words: [0x0300, 0x0200] # NOP, reserved 02xx cell
-    expect_fault: true
-    fault_ir: 0x0200
+    vectors: {30: 0x1080} # ILLOP vector at FFFFFC20 (TI guide, 8-9)
+    words:
+      - 0x09CF # MOVI IW 0x0300,SP
+      - 0x0300
+      - 0x0200 # reserved opcode: acts as TRAP 30
+      - 0x1821 # MOVK 1,A1 after RETI
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0940 # RETI in vector 30 handler
     checks:
-      - {after: 0x1000, pc: 0x1010, st: 0x00000010}
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0300}}
+      - after: 0x1020
+        pc: 0x1080
+        st: 0x00000010
+        regs: {A15: 0x02C0}
+        mem:
+          - {addr: 0x02C0, size: 32, value: 0x00000010}
+          - {addr: 0x02E0, size: 32, value: 0x00001030}
+      - {after: 0x1080, pc: 0x1030, st: 0x00000010, regs: {A15: 0x0300}}
+      - {after: 0x1030, pc: 0x1040, regs: {A1: 1}}
 
   - name: pause_across_memory_ack
     entry: 0x1000

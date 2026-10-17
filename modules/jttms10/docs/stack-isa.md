@@ -18,7 +18,7 @@ used as proof for the new microcode.
 | ANDI/ANDNI / ORI / XORI | `0B80` / `0BA0` / `0BC0` + R/Rd, low/high immediate | 12-43, 12-45, 12-173, 12-256 | Logical immediate operations, Z only |
 
 CALL through SP uses the original SP as its destination, even though the
-push updates SP. All stack transfers currently support unaligned SP and
+push updates SP. All stack transfers support unaligned SP and
 preserve neighboring field bits. TRAP zero is a separate microcode path:
 it does not push PC/ST or update SP. Nonzero traps use two 32-bit pushes;
 RETI restores them in the inverse order. The tests initialize independent
@@ -33,17 +33,16 @@ NOT changes only Z. ANDI and ANDNI share a hardware opcode, which computes
 `Rd & ~encoded_immediate`; the assembler complements the extension for the
 source-level ANDI mnemonic. ORI/XORI use the encoded immediate directly.
 
-## Outstanding physical and system behavior
+## Physical and system behavior
 
 TI p. 12-253 requires PC and ST to be pushed MSW first, predecrementing SP
-before each word. The current field-facing implementation predecrements by
-32 and transfers a complete field; its physical adapter visits ascending
-words. The final memory contents and architectural SP match, but physical
-write ordering does not yet implement that requirement. The tests assert
-architectural transfer order and memory contents, not silicon bus ordering.
+before each word. The shared push helper performs two 16-bit predecrements
+and writes the high half before the low half. Physical word-bus assertions
+cover PUSHST, CALLA and TRAP; the final memory field remains little-endian.
+Unaligned halfword writes use the field adapter's preservation/RMW rules.
 
 RETI's PBX-controlled resumption of interrupted PIXBLT/FILL (p. 12-230) is
-not implemented, nor is interrupt sampling on the final RETI state. These
-depend on the pending graphics and interrupt engines. The supported TRAP
-instruction does not yet provide automatic illegal-opcode, NMI, or hardware
-interrupt entry. Instruction and bus timing still require validation.
+not implemented. Boundary interrupts do observe the ST restored by RETI
+before another instruction fetch. Reserved-opcode TRAP 30, NMI and maskable
+interrupt entry share the stack helper; see [interrupt notes](interrupts.md).
+Instruction and bus timing still require validation.

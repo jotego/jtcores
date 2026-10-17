@@ -16,6 +16,10 @@ module test;
 
     jttms10 u_cpu (
         .rst(rst), .clk(clk), .cen(cen),
+        .irq_req(1'b0), .irq_vector(32'd0),
+        .nmi_req(1'b0), .nmi_nostack(1'b0),
+        .halt_req(1'b0), .emu_run(1'b1),
+        .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack),

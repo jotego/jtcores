@@ -9,7 +9,9 @@ module jttms10_ctrl(
     input              multi_load,
     input      [4:0]   mul_count,
     input              div_early_cond,
+    input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
     output            execute, active,
+    output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
     output            shiftkinit, shiftrinit, shift_step, shift_finish,
@@ -31,6 +33,7 @@ module jttms10_ctrl(
     /* verilator lint_off UNUSEDPARAM */
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
+    localparam [10:0] ILLEGAL_SEQA = DIAGFAULT_SEQA;
     wire dispatch;
     wire multiskip;
     wire [1:0] multi_sel;
@@ -48,6 +51,7 @@ module jttms10_ctrl(
     assign dsjfinish = misc_sel==DSJ_MISC;
     assign xyx = misc_sel==X_MISC;
     assign xyy = misc_sel==Y_MISC;
+    assign emu_step = misc_sel==EMU_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
     assign shift_step = shift_sel==STEP_SHIFT;
@@ -74,6 +78,7 @@ module jttms10_ctrl(
     assign divstep = mul_sel==STEPDIV_MUL;
     wire [3:0] jsr_sel;
     reg cen;
+    reg halted, emu_hold;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
     /* verilator lint_off BLKSEQ */
     `include "tms10.vh"
@@ -84,6 +89,23 @@ module jttms10_ctrl(
     // execution independently of the memory response capture in the datapath.
     assign execute = cen && enable && ready && !halt;
     assign active = cen;
+    wire boundary = !cen && uaddr==FETCH_SEQA;
+    assign hw_take = boundary && !rst && !halted && !emu_hold &&
+                     (nmi_req || (irq_req && ie));
+    assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
+    assign push_active = uaddr[10:4]==PUSH32_SEQA[10:4];
+    // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
+    // Defined opcodes without a microcode implementation remain diagnostic.
+    assign reserved_opcode =
+        (md[15:8]==8'h02 || md[15:8]==8'h04 ||
+         md[15:8]==8'h08 || md[15:8]==8'h0a ||
+         md[15:8]==8'h0c || md[15:8]==8'h0e) ||
+        (md[15:10]==6'b001101) ||
+        (md[15:12]==4'h7) ||
+        (md[15:9]==7'b1001111) ||
+        (md[15:9]==7'b1011111) ||
+        (md[15:11]==5'b11011 && md[10:8]!=3'b111) ||
+        (md[15:9]==7'b1111111);
     // Dispatch addresses match the six ops' class IDs in ucode/tms10.yaml.
     localparam [10:0] ADDIW_ENTRY = 11'h190,
                       SUBIW_ENTRY = 11'h1a0,
@@ -93,13 +115,14 @@ module jttms10_ctrl(
                       CMPIL_ENTRY = 11'h1e0;
     reg [10:0] entry;
     always @* begin
-        entry = 11'h7f0;
+        entry = ILLEGAL_SEQA;
         casez(md)
             16'h0300: entry = NOP_SEQA;
             16'h0320: entry = CLRC_SEQA;
             16'h0de0: entry = SETC_SEQA;
             16'h0360: entry = DINT_SEQA;
             16'h0d60: entry = EINT_SEQA;
+            16'h0100: entry = EMU_SEQA;
             16'b00000011100?????: entry = ABS_SEQA;
             16'b00000011101?????: entry = NEG_SEQA;
             16'b00000011110?????: entry = NEGB_SEQA;
@@ -206,6 +229,7 @@ module jttms10_ctrl(
             end
             default:;
         endcase
+        if(reserved_opcode) entry = HWSAVE_SEQA;
     end
 
     always @(posedge clk) begin
@@ -213,10 +237,23 @@ module jttms10_ctrl(
             cen <= 0;
             uaddr <= RESET_SEQA;
             jsr_ret <= 0;
+            halted <= 0;
+            emu_hold <= 0;
         end else if(!cen) begin
-            cen <= 1;
+            if(boundary && halted) begin
+                if(!halt_req && !emu_hold) halted <= 0;
+            end else if(boundary && emu_hold) begin
+                if(emu_run) emu_hold <= 0;
+            end else if(hw_take) begin
+                uaddr <= nmi_req && nmi_nostack ? HWNOSAVE_SEQA : HWSAVE_SEQA;
+            end else if(boundary && halt_req) begin
+                halted <= 1;
+            end else begin
+                cen <= 1;
+            end
         end else if(execute) begin
             cen <= 0;
+            if(emu_step && !emu_run) emu_hold <= 1;
             uaddr[3:0] <= uaddr[3:0]+1'b1;
             if(jsr_en) begin
                 // Zero-count shifts skip the helper while retaining C=0.

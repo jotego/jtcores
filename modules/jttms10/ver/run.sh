@@ -20,6 +20,22 @@ iverilog -g2012 -s test -I"$ver_dir/build" \
     cd "$ver_dir/build"
     vvp word.vvp
 )
+iverilog -g2012 -s test -I"$ver_dir/build" \
+    -o "$ver_dir/build/arch.vvp" "$ver_dir/arch/test.sv" \
+    "$ver_dir"/../hdl/*.v
+(
+    cd "$ver_dir/build"
+    for mode in 1 2 3 4 5 6 7 8; do
+        vvp arch.vvp +mode="$mode"
+    done
+)
+iverilog -g2012 -s test -I"$ver_dir/build" \
+    -o "$ver_dir/build/system.vvp" "$ver_dir/system/test.sv" \
+    "$ver_dir"/../hdl/*.v
+(
+    cd "$ver_dir/build"
+    vvp system.vvp
+)
 iverilog -g2012 -s test -o "$ver_dir/build/io.vvp" \
     "$ver_dir/io/test.sv" "$ver_dir/../hdl/jttms10_io.v" \
     "$ver_dir/../hdl/jttms10_video.v" "$ver_dir/../hdl/jttms10_refresh.v" \

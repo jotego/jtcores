@@ -6,6 +6,10 @@ module jttms10_word(
     input             rst,
     input             clk,
     input             cen,
+    input             irq_req,
+    input      [31:0] irq_vector,
+    input             nmi_req, nmi_nostack, halt_req, emu_run,
+    output            nmi_clear, emu_ack,
     output            word_req,
     output            word_we,
     output     [31:0] word_addr,
@@ -28,6 +32,10 @@ module jttms10_word(
 
     jttms10 u_core(
         .rst(rst), .clk(clk), .cen(cen),
+        .irq_req(irq_req), .irq_vector(irq_vector),
+        .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
+        .halt_req(halt_req), .emu_run(emu_run),
+        .nmi_clear(nmi_clear), .emu_ack(emu_ack),
         .mem_req(field_req), .mem_we(field_we), .mem_iaq(field_iaq),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),

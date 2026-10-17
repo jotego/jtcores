@@ -3,7 +3,9 @@
 
 The reference is the untouched modules/tms34010 submodule at the pinned
 commit below. Comparison is at architectural retirement, not by clock cycle.
-The expected illegal-opcode and clock-enable protocol cases are excluded.
+Clock-enable protocol cases are excluded because the pinned core has no
+equivalent public clock-enable input. Legacy diagnostic-fault cases, if any,
+are excluded; reserved opcodes use architectural trap checkpoints instead.
 """
 
 import argparse
@@ -71,7 +73,7 @@ def main():
               if not case.get("expect_fault") and not case.get("pause_on_ack")]
     selected = [case for case in scalar if args.case in (None, case["name"])]
     if not selected:
-        parser.error("case is unknown or specific to illegal-opcode/clock-enable testing")
+        parser.error("case is unknown or specific to diagnostic-fault/clock-enable testing")
 
     rtl = REFERENCE / "rtl"
     sources = [rtl / "tms34010_pkg.sv"]
