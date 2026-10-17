@@ -155,7 +155,20 @@ def main():
         call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
               "--output", "tms10", "jttms10", "tms10"],
              cwd=out, log=out / "ucode_build.log", env=env)
-        for name in ("tms10.uc", "tms10.vh", "tms10_param.vh"):
+        image_names = ["tms10.uc", "tms10.vh", "tms10_param.vh"]
+        controller = out / "src/modules/jttms10/hdl/jttms10_ctrl.v"
+        if "function automatic [7:0] decode_family" in controller.read_text():
+            for relative in ("ver/decoder/generate.py", "ver/decoder/dump.sv",
+                             "hdl/tms10_dispatch.hex"):
+                snapshot(MODULE / relative,
+                         out / "src/modules/jttms10" / relative, hashes, source_ref)
+            generator = out / "src/modules/jttms10/ver/decoder/generate.py"
+            image = out / "src/modules/jttms10/hdl/tms10_dispatch.hex"
+            call(["python3", str(generator), str(controller), str(out),
+                  "--check", str(image)],
+                 cwd=out, log=out / "dispatch_build.log")
+            image_names.append("tms10_dispatch.hex")
+        for name in image_names:
             hashes[f"generated/{name}"] = hashlib.sha256((out / name).read_bytes()).hexdigest()
         qsf.append(f"set_global_assignment -name SEARCH_PATH {qsf_path(out)}")
         if args.narc:

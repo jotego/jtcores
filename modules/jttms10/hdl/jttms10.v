@@ -66,7 +66,8 @@ module jttms10(
     reg pix_transparent;
     reg [3:0] array_index;
     reg [15:0] array_dx, array_xleft, array_yleft, array_color0;
-    reg [31:0] array_wstart, array_wend;
+    wire [31:0] array_wstart = rs_data;
+    wire [31:0] array_wend = rd_data;
     // Array endpoints and extents fit signed 18 bits; corner offsets need 19.
     // Preserve 32-bit sign-extended values at every consumer.
     reg signed [17:0] array_xend_q;
@@ -162,7 +163,7 @@ module jttms10(
     wire array_window_needed =
         (array_dst_xy && control[7:6]!=0) || array_corner_needed;
     wire array_window_done = array_corner_mode ?
-        array_winphase==4'd5 : array_winphase==4'd14;
+        array_winphase==4'd7 : array_winphase==4'd15;
     wire signed [31:0] array_x0 = {{16{pix_dst_val[15]}},pix_dst_val[15:0]};
     wire signed [31:0] array_y0 = {{16{pix_dst_val[31]}},pix_dst_val[31:16]};
     wire signed [31:0] array_wx0 =
@@ -239,12 +240,22 @@ module jttms10(
     wire [4:0] fs = mul_ir ? st[10:6] : ir[9] ? st[10:6] : st[4:0];
     wire [5:0] field_size = byte_op ? 6'd8 : fs==0 ? 6'd32 : {1'b0,fs};
     wire field_signed = byte_op || (ir[9] ? st[11] : st[5]);
-    wire [31:0] field_mask = 32'hffffffff >> (6'd32-field_size);
+    wire [31:0] field_mask;
+    genvar field_bit;
+    generate for (field_bit=0; field_bit<32; field_bit=field_bit+1) begin : g_field_mask
+        assign field_mask[field_bit] = field_size > field_bit;
+    end endgenerate
     wire [4:0] field_msb = field_size[4:0]-5'd1;
-    wire [31:0] extended = (md & field_mask) |
-        ((field_signed && md[field_msb]) ? ~field_mask : 32'd0);
-    wire [31:0] mul_field = (rs_data & field_mask) |
-        ((!ir[9] && rs_data[field_msb]) ? ~field_mask : 32'd0);
+    // Field extension has three mutually exclusive consumers: memory-load
+    // EXT_A, register SEXT/ZEXT, and multiply's source-field capture.
+    wire [31:0] field_ext_input = mulinit ? rs_data :
+                                  a_sel==EXT_A ? md : a;
+    wire field_ext_signed = mulinit ? !ir[9] :
+                            a_sel==EXT_A ? field_signed :
+                            a_sel==SEXT_A;
+    wire field_ext_fill = field_ext_signed && field_ext_input[field_msb];
+    wire [31:0] field_extended = (field_ext_input & field_mask) |
+                                 ({32{field_ext_fill}} & ~field_mask);
     assign mem_we = mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = push_active && stack_sel==WRITE_STACK ? 6'd16 :
@@ -387,8 +398,8 @@ module jttms10(
             4'd3: begin array_ctx_wa=5'd27;
                         array_ctx_wd={array_yleft,array_xleft}; end
             4'd4: begin array_ctx_wa=5'd28;
-                        array_ctx_wd=array_binary ? tmp : array_wstart; end
-            4'd5: begin array_ctx_wa=5'd29; array_ctx_wd=array_wend; end
+                        array_ctx_wd=array_binary ? tmp : rs_data; end
+            4'd5: begin array_ctx_wa=5'd29; array_ctx_wd=rs_data; end
             default: begin array_ctx_wa=5'd30;
                            array_ctx_wd={array_height[15:0],
                                          array_dyminus1}; end
@@ -421,16 +432,60 @@ module jttms10(
         ((scratch_save_src && !array_offset_active &&
           !array_canon_linear) ||
          (scratch_save_dst && !array_canon_linear)) ? a : result;
+    // WSTART/WEND occupy upper mirrored-RF words 34/35. They are read
+    // together throughout window/canonical phases; context-save primes the
+    // source port one step before writing each architectural PBX word.
+    wire window_ctx_read = array_ir &&
+        ((array_win && !line_prep_active && !line_advance_active &&
+          !array_rebase_active) || array_canon_active ||
+         (array_count && array_last && array_canon_needed));
+    wire scratch_save_read = array_save_active &&
+        (array_index==4'd3 || array_index==4'd4);
+    wire window_plain_step = array_win && !line_prep_active &&
+        !line_advance_active && !array_rebase_active &&
+        !array_canon_active;
+    wire scratch_ws_write =
+        (array_cap && !line_setup_active && !array_restore_active &&
+         array_index==4'd5) ||
+        (array_restore_active && array_cap && array_index==4'd8 &&
+         !array_binary) ||
+        (window_plain_step && !array_corner_mode &&
+         array_winphase==4'd14 && array_corner_needed &&
+         !array_window_abort) ||
+        (window_plain_step && array_corner_mode &&
+         array_winphase==4'd0 && control[7:6]==2'd0);
+    wire scratch_we_write =
+        (array_cap && !line_setup_active && !array_restore_active &&
+         array_index==4'd6) ||
+        (array_restore_active && array_cap && array_index==4'd9) ||
+        (window_plain_step && !array_corner_mode &&
+         array_winphase==4'd15 && array_corner_needed &&
+         !array_window_abort) ||
+        (window_plain_step && array_corner_mode &&
+         array_winphase==4'd1 && control[7:6]==2'd0);
+    wire scratch_wstart_wend_write = scratch_ws_write || scratch_we_write;
+    wire scratch_any_write = scratch_write || scratch_wstart_wend_write;
+
+    wire [4:0] scratch_wa = scratch_ws_write ? 5'd2 :
+        scratch_we_write ? 5'd3 : scratch_dst_write ? 5'd1 : 5'd0;
+    wire [31:0] scratch_any_wdata = array_cap ? rs_data :
+        scratch_ws_write ? pix_src_val :
+        scratch_we_write ?
+            ((!array_corner_mode && control[7:6]==2'd3) ?
+              {array_top[15:0],array_left[15:0]} : pix_dst_val) :
+        scratch_wdata;
     // Prime the synchronous RF port while the pixel write completes; LINE
     // phases 0/1 then consume B11/B12 directly without pitch flip-flops.
     wire line_pitch_read =
         (line_loop_active && mem_sel==WRITE_MEM) ||
         (line_advance_active && line_phase<=4'd1);
     jttms10_regs u_regs(
-        .clk(clk), .rs_ext(1'b0),
-        .rd_ext(array_pitch_src || array_pitch_dst),
-        .wa_ext(scratch_write),
-        .rs(line_pitch_read ? (line_diag ? 5'd27 : 5'd28) :
+        .clk(clk), .rs_ext(window_ctx_read || scratch_save_read),
+        .rd_ext(window_ctx_read || array_pitch_src || array_pitch_dst),
+        .wa_ext(scratch_any_write),
+        .rs(window_ctx_read ? 5'd2 :
+            scratch_save_read ? (array_index==4'd3 ? 5'd2 : 5'd3) :
+            line_pitch_read ? (line_diag ? 5'd27 : 5'd28) :
             line_setup_active ? line_setup_rs :
             array_restore_active ? array_ctx_rs :
             array_pitch_src ? 5'd17 :
@@ -442,7 +497,8 @@ module jttms10(
                        array_ir ? {1'b1,array_index} :
                        multi_ir ? {ir[4],multi_index} :
                          call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
-        .rd(array_pitch_src ? 5'd0 :
+        .rd(window_ctx_read ? 5'd3 :
+            array_pitch_src ? 5'd0 :
             array_pitch_dst ? 5'd1 :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
@@ -450,7 +506,7 @@ module jttms10(
         .wa(line_write_active ?
                 (line_phase==4'd0 ? 5'd16 :
                  line_phase==4'd1 ? 5'd18 : 5'd26) :
-            scratch_write ? (scratch_dst_write ? 5'd1 : 5'd0) :
+            scratch_any_write ? scratch_wa :
             array_save_active ? array_ctx_wa :
             wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
             array_query_active && listwr ?
@@ -460,7 +516,7 @@ module jttms10(
             mulwrlo && (div_ir ? div_pair : !ir[0]) ?
                 {ir[4],ir[3:0]+4'd1} :
             wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (scratch_write || wr_reg || wrsrc || wr_sp || ptrwr ||
+        .we(step && (scratch_any_write || wr_reg || wrsrc || wr_sp || ptrwr ||
                      (listwr && (array_save_active ||
                                  !(array_ir && array_fill &&
                                   array_wb_src && !array_query_active))) ||
@@ -471,7 +527,7 @@ module jttms10(
         .wd(line_write_active ?
                 (line_phase==4'd0 ? pix_src_val :
                  line_phase==4'd1 ? pix_dst_val : array_height) :
-            scratch_write ? scratch_wdata :
+            scratch_any_write ? scratch_any_wdata :
             array_save_active ? array_ctx_wd :
             pix_load && a_sel==LOAD_A && wr_reg ?
                 {16'd0,pixel_visible_source} :
@@ -541,7 +597,7 @@ module jttms10(
         else if(array_rebase_active && array_win)
             alu_op=array_rebase_phase==0 || !array_rev_h ? 3 : 1;
         else if((array_win &&
-            (array_corner_mode ? array_winphase==4'd0 :
+            (array_corner_mode ? array_winphase==4'd2 :
              (array_winphase>=4'd4 && array_winphase<=4'd11))) ||
            array_count || (array_rev_h &&
            (array_srcpre || array_dstpre)) ||
@@ -608,9 +664,9 @@ module jttms10(
                             {16'd0,array_height[15:0]} :
                         array_win ?
                             (array_corner_mode ?
-                             (array_winphase==4'd0 ? 32'd1 :
-                              array_winphase==4'd1 ||
-                              array_winphase==4'd3 ?
+                             (array_winphase==4'd2 ? 32'd1 :
+                              array_winphase==4'd3 ||
+                              array_winphase==4'd5 ?
                               {16'd0,array_dx} :
                               {16'd0,array_dyminus1}) :
                              array_winphase==4'd0 ? {16'd0,array_dx} :
@@ -669,16 +725,16 @@ module jttms10(
                              {{16{array_wstart[31]}},array_wstart[31:16]}) :
                         array_win ?
                             (array_corner_mode ?
-                             (array_winphase==4'd0 ? {16'd0,array_yleft} :
-                              array_winphase==4'd1 ?
+                             (array_winphase==4'd2 ? {16'd0,array_yleft} :
+                              array_winphase==4'd3 ?
                                   (array_src_xy ?
                                    {{16{pix_src_val[15]}},pix_src_val[15:0]} :
                                    array_xoff) :
-                              array_winphase==4'd2 ?
+                              array_winphase==4'd4 ?
                                   (array_src_xy ?
                                    {{16{pix_src_val[31]}},pix_src_val[31:16]} :
                                    array_yoff) :
-                              array_winphase==4'd3 ?
+                              array_winphase==4'd5 ?
                                   (array_dst_xy ? array_x0 : array_xoff) :
                                   (array_dst_xy ? array_y0 : array_yoff)) :
                              array_winphase==4'd0 ? array_x0 :
@@ -924,8 +980,6 @@ module jttms10(
                             array_xleft<=rs_data[15:0];
                         end
                         4'd8: if(array_binary) tmp<=rs_data;
-                              else array_wstart<=rs_data;
-                        4'd9: array_wend<=rs_data;
                         default: begin
                             array_height<={16'd0,rs_data[31:16]};
                             array_dyminus1<=rs_data[15:0];
@@ -959,8 +1013,7 @@ module jttms10(
                         4'd2: begin
                             pix_dst_val<=rs_data;
                         end
-                        4'd5: array_wstart<=rs_data;
-                        4'd6: array_wend<=rs_data;
+
                         4'd7: begin
                             array_dx<=rs_data[15:0];
                             array_xleft<=rs_data[15:0];
@@ -970,11 +1023,6 @@ module jttms10(
                         4'd8: array_color0<=rs_data[15:0];
                         4'd9: begin
                             pix_color<=rs_data[15:0];
-                            if(array_corner_needed &&
-                               !(array_dst_xy && control[7:6]!=0)) begin
-                                array_wstart<=pix_src_val;
-                                array_wend<=pix_dst_val;
-                            end
                         end
                         default:;
                     endcase
@@ -1085,23 +1133,23 @@ module jttms10(
                     array_winphase<=array_winphase+4'd1;
                     if(array_corner_mode) begin
                         case(array_winphase)
-                            4'd0: array_dyminus1<=result[15:0];
-                            4'd1: if(control[8]) begin
+                            4'd2: array_dyminus1<=result[15:0];
+                            4'd3: if(control[8]) begin
                                 if(array_src_xy)
                                     pix_src_val[15:0]<=result[15:0];
                                 else array_xoff_q<=result[18:0];
                             end
-                            4'd2: if(control[9]) begin
+                            4'd4: if(control[9]) begin
                                 if(array_src_xy)
                                     pix_src_val[31:16]<=result[15:0];
                                 else array_yoff_q<=result[18:0];
                             end
-                            4'd3: if(control[8]) begin
+                            4'd5: if(control[8]) begin
                                 if(array_dst_xy)
                                     pix_dst_val[15:0]<=result[15:0];
                                 else array_xoff_q<=result[18:0];
                             end
-                            4'd4: if(control[9]) begin
+                            4'd6: if(control[9]) begin
                                 if(array_dst_xy)
                                     pix_dst_val[31:16]<=result[15:0];
                                 else array_yoff_q<=result[18:0];
@@ -1139,15 +1187,8 @@ module jttms10(
                             pix_src_val[15:0]<=result[15:0];
                         4'd13: if(control[7:6]==2'd3 && array_src_xy)
                             pix_src_val[31:16]<=result[15:0];
-                        4'd14: begin
+                        4'd15: begin
                             if(array_window_query) array_query_mode<=1;
-                            if(array_corner_needed &&
-                               !array_window_abort) begin
-                                array_wstart<=pix_src_val;
-                                array_wend<=control[7:6]==2'd3 ?
-                                    {array_top[15:0],array_left[15:0]} :
-                                    pix_dst_val;
-                            end
                             if(array_corner_next) begin
                                 array_corner_mode<=1;
                                 array_winphase<=0;
@@ -1293,8 +1334,8 @@ module jttms10(
                     // Capture both operands before either half of a pair write.
                     a<=rd_data;
                     b<=0;
-                    md<=mul_field;
-                    tmp<=mul_field;
+                    md<=field_extended;
+                    tmp<=field_extended;
                     mul_count<=0; // zero encodes the first of 32 steps
                 end
                 if(mulstep) begin
@@ -1391,7 +1432,7 @@ module jttms10(
                     RD_A: a<=rd_data;
                     ST_A: a<=st;
                     SIZE_A: a<={26'd0,field_size};
-                    EXT_A: a<=extended;
+                    EXT_A: a<=field_extended;
                     PC_A: a<=pc;
                     REV_A: a<=32'd8;
                     WORD_A: a<=32'd32;
@@ -1400,9 +1441,8 @@ module jttms10(
                     MOVX_A: a<={rd_data[31:16],rs_data[15:0]};
                     MOVY_A: a<={rs_data[31:16],rd_data[15:0]};
                     RETADJ_A: a<=32'd32+{23'd0,ir[4:0],4'd0};
-                    SEXT_A: a<=(a & field_mask) |
-                              (a[field_msb] ? ~field_mask : 32'd0);
-                    ZEXT_A: a<=a & field_mask;
+                    SEXT_A: a<=field_extended;
+                    ZEXT_A: a<=field_extended;
                     default:;
                 endcase
                 case(ea_sel)

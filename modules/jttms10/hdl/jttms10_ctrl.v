@@ -169,16 +169,22 @@ module jttms10_ctrl(
     assign array_canon_dst = array_canon_active && uaddr[3:0]>=4'd3;
     // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
     // Defined opcodes without a microcode implementation remain diagnostic.
-    assign reserved_opcode =
-        (md[15:8]==8'h02 || md[15:8]==8'h04 ||
-         md[15:8]==8'h08 || md[15:8]==8'h0a ||
-         md[15:8]==8'h0c || md[15:8]==8'h0e) ||
-        (md[15:10]==6'b001101) ||
-        (md[15:12]==4'h7) ||
-        (md[15:9]==7'b1001111) ||
-        (md[15:9]==7'b1011111) ||
-        (md[15:11]==5'b11011 && md[10:8]!=3'b111) ||
-        (md[15:9]==7'b1111111);
+    // This classification is also used when elaborating the dispatch ROM.
+    function automatic is_reserved(input [7:0] opcode_hi);
+        begin
+            is_reserved =
+        (opcode_hi[7:0]==8'h02 || opcode_hi[7:0]==8'h04 ||
+         opcode_hi[7:0]==8'h08 || opcode_hi[7:0]==8'h0a ||
+         opcode_hi[7:0]==8'h0c || opcode_hi[7:0]==8'h0e) ||
+        (opcode_hi[7:2]==6'b001101) ||
+        (opcode_hi[7:4]==4'h7) ||
+        (opcode_hi[7:1]==7'b1001111) ||
+        (opcode_hi[7:1]==7'b1011111) ||
+        (opcode_hi[7:3]==5'b11011 && opcode_hi[2:0]!=3'b111) ||
+        (opcode_hi[7:1]==7'b1111111);
+        end
+    endfunction
+    assign reserved_opcode = is_reserved(md[15:8]);
     wire loop_repeat = (shift_step && shift_count>5'd1) ||
                        (gfx_step && cvloop_active && shift_count>5'd1) ||
                        (lmoscan && lmo_more) ||
@@ -192,137 +198,193 @@ module jttms10_ctrl(
                       ADDIL_ENTRY = 12'h1c0,
                       SUBIL_ENTRY = 12'h1d0,
                       CMPIL_ENTRY = 12'h1e0;
-    reg [11:0] entry;
-    always @* begin
-        entry = ILLEGAL_SEQA;
-        casez(md)
-            16'h0300: entry = NOP_SEQA;
-            16'h0320: entry = CLRC_SEQA;
-            16'h0de0: entry = SETC_SEQA;
-            16'h0360: entry = DINT_SEQA;
-            16'h0d60: entry = EINT_SEQA;
-            16'h0100: entry = EMU_SEQA;
+    // All dispatch targets are 16-microstep aligned. Every group of 32
+    // opcodes has one common family; the sparse low-five-bit exceptions are
+    // below. The coarse ROM is sampled in the fetch prime cycle.
+    function automatic [7:0] decode_family(input [15:0] opcode);
+        reg [7:0] decoded;
+        begin
+        decoded = ILLEGAL_SEQA[11:4];
+        casez(opcode)
+            16'h0300: decoded = NOP_SEQA[11:4];
+            16'h0320: decoded = CLRC_SEQA[11:4];
+            16'h0de0: decoded = SETC_SEQA[11:4];
+            16'h0360: decoded = DINT_SEQA[11:4];
+            16'h0d60: decoded = EINT_SEQA[11:4];
+            16'h0100: decoded = EMU_SEQA[11:4];
             16'h0f00,16'h0f20,16'h0f40,16'h0f60,
             16'h0f80,16'h0fa0,16'h0fc0,16'h0fe0:
-                entry = ARRAY_SEQA;
-            16'hdf1a,16'hdf9a: entry = LINE_SEQA;
-            16'b1110011?????????: entry = CPW_SEQA;
-            16'b1110100?????????: entry = CVXYL_SEQA;
-            16'b1111000?????????: entry = PIXT_RXY_SEQA;
-            16'b1111001?????????: entry = PIXT_XYREG_SEQA;
-            16'b1111010?????????: entry = PIXT_XYXY_SEQA;
-            16'b1111011?????????: entry = DRAV_SEQA;
-            16'b1111100?????????: entry = PIXT_RLIN_SEQA;
-            16'b1111101?????????: entry = PIXT_LINREG_SEQA;
-            16'b1111110?????????: entry = PIXT_LINLIN_SEQA;
-            16'b00000011100?????: entry = ABS_SEQA;
-            16'b00000011101?????: entry = NEG_SEQA;
-            16'b00000011110?????: entry = NEGB_SEQA;
-            16'b00000011111?????: entry = NOT_SEQA;
-            16'b00001011100?????: entry = ANDI_SEQA;
-            16'b00001011101?????: entry = ORI_SEQA;
-            16'b00001011110?????: entry = XORI_SEQA;
+                decoded = ARRAY_SEQA[11:4];
+            16'hdf1a,16'hdf9a: decoded = LINE_SEQA[11:4];
+            16'b1110011?????????: decoded = CPW_SEQA[11:4];
+            16'b1110100?????????: decoded = CVXYL_SEQA[11:4];
+            16'b1111000?????????: decoded = PIXT_RXY_SEQA[11:4];
+            16'b1111001?????????: decoded = PIXT_XYREG_SEQA[11:4];
+            16'b1111010?????????: decoded = PIXT_XYXY_SEQA[11:4];
+            16'b1111011?????????: decoded = DRAV_SEQA[11:4];
+            16'b1111100?????????: decoded = PIXT_RLIN_SEQA[11:4];
+            16'b1111101?????????: decoded = PIXT_LINREG_SEQA[11:4];
+            16'b1111110?????????: decoded = PIXT_LINLIN_SEQA[11:4];
+            16'b00000011100?????: decoded = ABS_SEQA[11:4];
+            16'b00000011101?????: decoded = NEG_SEQA[11:4];
+            16'b00000011110?????: decoded = NEGB_SEQA[11:4];
+            16'b00000011111?????: decoded = NOT_SEQA[11:4];
+            16'b00001011100?????: decoded = ANDI_SEQA[11:4];
+            16'b00001011101?????: decoded = ORI_SEQA[11:4];
+            16'b00001011110?????: decoded = XORI_SEQA[11:4];
             16'b001000??????????,
             16'b001001??????????,
             16'b001010??????????,
             16'b001011??????????,
-            16'b001100??????????: entry = SHIFTK_SEQA;
+            16'b001100??????????: decoded = SHIFTK_SEQA[11:4];
             16'b0110000?????????,
             16'b0110001?????????,
             16'b0110010?????????,
             16'b0110011?????????,
-            16'b0110100?????????: entry = SHIFTR_SEQA;
-            16'b000001?101??????: entry = SETF_SEQA;
-            16'b000001?1000?????: entry = SEXT_SEQA;
-            16'b000001?1001?????: entry = ZEXT_SEQA;
-            16'b110101?1000?????: entry = EXGF_SEQA;
+            16'b0110100?????????: decoded = SHIFTR_SEQA[11:4];
+            16'b000001?101??????: decoded = SETF_SEQA[11:4];
+            16'b000001?1000?????: decoded = SEXT_SEQA[11:4];
+            16'b000001?1001?????: decoded = ZEXT_SEQA[11:4];
+            16'b110101?1000?????: decoded = EXGF_SEQA[11:4];
             16'b000111??????????,
-            16'b0100101?????????: entry = BTST_SEQA;
-            16'b0110101?????????: entry = LMO_SEQA;
-            16'b00001001100?????: entry = MMTM_SEQA;
-            16'b00001001101?????: entry = MMFM_SEQA;
-            16'b010111??????????: entry = MPY_SEQA;
+            16'b0100101?????????: decoded = BTST_SEQA[11:4];
+            16'b0110101?????????: decoded = LMO_SEQA[11:4];
+            16'b00001001100?????: decoded = MMTM_SEQA[11:4];
+            16'b00001001101?????: decoded = MMFM_SEQA[11:4];
+            16'b010111??????????: decoded = MPY_SEQA[11:4];
             16'b010110??????????,
-            16'b011011??????????: entry = DIV_SEQA;
-            16'b00001101100?????: entry = DSJ_SEQA;
-            16'b00001101101?????: entry = DSJ_SEQA;
-            16'b00001101110?????: entry = DSJ_SEQA;
-            16'b00111???????????: entry = DSJS_SEQA;
-            16'b1110110?????????: entry = MOVX_SEQA;
-            16'b1110111?????????: entry = MOVY_SEQA;
-            16'b1110000?????????: entry = ADDXY_SEQA;
-            16'b1110001?????????: entry = SUBXY_SEQA;
-            16'b1110010?????????: entry = CMPXY_SEQA;
-            16'h01e0: entry = PUSHST_SEQA;
-            16'h01c0: entry = POPST_SEQA;
-            16'h0d5f: entry = CALLA_SEQA;
-            16'h0d3f: entry = CALLR_SEQA;
-            16'h0940: entry = RETI_SEQA;
-            16'b00001001001?????: entry = CALLRS_SEQA;
-            16'b00001001011?????: entry = RETS_SEQA;
-            16'b00001001000?????: entry = md[4:0]==0 ? TRAP0_SEQA : TRAP_SEQA;
-            16'b000110??????????: entry = MOVK_SEQA;
-            16'b000100??????????: entry = ADDK_SEQA;
-            16'b000101??????????: entry = SUBK_SEQA;
-            16'b00001001110?????: entry = MOVIW_SEQA;
-            16'b00001001111?????: entry = MOVIL_SEQA;
-            16'b00001011000?????: entry = ADDIW_ENTRY;
-            16'b00001011111?????: entry = SUBIW_ENTRY;
-            16'b00001011010?????: entry = CMPIW_ENTRY;
-            16'b00001011001?????: entry = ADDIL_ENTRY;
-            16'b00001101000?????: entry = SUBIL_ENTRY;
-            16'b00001011011?????: entry = CMPIL_ENTRY;
-            16'b010011??????????: entry = MOVE_SEQA;
-            16'b0100000?????????: entry = ADD_SEQA;
-            16'b0100001?????????: entry = ADDC_SEQA;
-            16'b0100010?????????: entry = SUB_SEQA;
-            16'b0100011?????????: entry = SUBB_SEQA;
-            16'b0100100?????????: entry = CMP_SEQA;
-            16'b0101000?????????: entry = AND_SEQA;
-            16'b0101001?????????: entry = ANDN_SEQA;
-            16'b0101010?????????: entry = OR_SEQA;
-            16'b0101011?????????: entry = XOR_SEQA;
-            16'b00000001011?????: entry = JUMP_SEQA;
-            16'b00000001010?????: entry = GETPC_SEQA;
-            16'b00000001001?????: entry = EXGPC_SEQA;
-            16'b00000000001?????: entry = REV_SEQA;
-            16'b00000001100?????: entry = GETST_SEQA;
-            16'b00000001101?????: entry = PUTST_SEQA;
-            16'b100000??????????: entry = STORE_SEQA;
-            16'b100001??????????: entry = LOAD_SEQA;
-            16'b100100??????????: entry = STOREPI_SEQA;
-            16'b100101??????????: entry = LOADPI_SEQA;
-            16'b101000??????????: entry = STOREPD_SEQA;
-            16'b101001??????????: entry = LOADPD_SEQA;
-            16'b101100??????????: entry = STOREOFF_SEQA;
-            16'b101101??????????: entry = LOADOFF_SEQA;
-            16'b000001?1100?????: entry = STOREABS_SEQA;
-            16'b000001?1101?????: entry = LOADABS_SEQA;
-            16'b1000110?????????: entry = STORE_SEQA;    // MOVB
-            16'b1000111?????????: entry = LOAD_SEQA;
-            16'b1010110?????????: entry = STOREOFF_SEQA;
-            16'b1010111?????????: entry = LOADOFF_SEQA;
-            16'b00000101111?????: entry = STOREABS_SEQA;
-            16'b00000111111?????: entry = LOADABS_SEQA;
-            16'b100010??????????: entry = MOVEIND_SEQA;
-            16'b100110??????????: entry = MOVEPI_SEQA;
-            16'b101010??????????: entry = MOVEPD_SEQA;
-            16'b101110??????????: entry = MOVEOFF_SEQA;
-            16'b110100??????????: entry = MOVEOFFPI_SEQA;
-            16'b110101?0000?????: entry = MOVEABSPI_SEQA;
-            16'b000001?111000000: entry = MOVEABS_SEQA;
-            16'b1001110?????????: entry = MOVEIND_SEQA; // MOVB
-            16'b1011110?????????: entry = MOVEOFF_SEQA;
-            16'h0340: entry = MOVEABS_SEQA;
+            16'b011011??????????: decoded = DIV_SEQA[11:4];
+            16'b00001101100?????: decoded = DSJ_SEQA[11:4];
+            16'b00001101101?????: decoded = DSJ_SEQA[11:4];
+            16'b00001101110?????: decoded = DSJ_SEQA[11:4];
+            16'b00111???????????: decoded = DSJS_SEQA[11:4];
+            16'b1110110?????????: decoded = MOVX_SEQA[11:4];
+            16'b1110111?????????: decoded = MOVY_SEQA[11:4];
+            16'b1110000?????????: decoded = ADDXY_SEQA[11:4];
+            16'b1110001?????????: decoded = SUBXY_SEQA[11:4];
+            16'b1110010?????????: decoded = CMPXY_SEQA[11:4];
+            16'h01e0: decoded = PUSHST_SEQA[11:4];
+            16'h01c0: decoded = POPST_SEQA[11:4];
+            16'h0d5f: decoded = CALLA_SEQA[11:4];
+            16'h0d3f: decoded = CALLR_SEQA[11:4];
+            16'h0940: decoded = RETI_SEQA[11:4];
+            16'b00001001001?????: decoded = CALLRS_SEQA[11:4];
+            16'b00001001011?????: decoded = RETS_SEQA[11:4];
+            16'b00001001000?????: decoded = opcode[4:0]==0 ? TRAP0_SEQA[11:4] : TRAP_SEQA[11:4];
+            16'b000110??????????: decoded = MOVK_SEQA[11:4];
+            16'b000100??????????: decoded = ADDK_SEQA[11:4];
+            16'b000101??????????: decoded = SUBK_SEQA[11:4];
+            16'b00001001110?????: decoded = MOVIW_SEQA[11:4];
+            16'b00001001111?????: decoded = MOVIL_SEQA[11:4];
+            16'b00001011000?????: decoded = ADDIW_ENTRY[11:4];
+            16'b00001011111?????: decoded = SUBIW_ENTRY[11:4];
+            16'b00001011010?????: decoded = CMPIW_ENTRY[11:4];
+            16'b00001011001?????: decoded = ADDIL_ENTRY[11:4];
+            16'b00001101000?????: decoded = SUBIL_ENTRY[11:4];
+            16'b00001011011?????: decoded = CMPIL_ENTRY[11:4];
+            16'b010011??????????: decoded = MOVE_SEQA[11:4];
+            16'b0100000?????????: decoded = ADD_SEQA[11:4];
+            16'b0100001?????????: decoded = ADDC_SEQA[11:4];
+            16'b0100010?????????: decoded = SUB_SEQA[11:4];
+            16'b0100011?????????: decoded = SUBB_SEQA[11:4];
+            16'b0100100?????????: decoded = CMP_SEQA[11:4];
+            16'b0101000?????????: decoded = AND_SEQA[11:4];
+            16'b0101001?????????: decoded = ANDN_SEQA[11:4];
+            16'b0101010?????????: decoded = OR_SEQA[11:4];
+            16'b0101011?????????: decoded = XOR_SEQA[11:4];
+            16'b00000001011?????: decoded = JUMP_SEQA[11:4];
+            16'b00000001010?????: decoded = GETPC_SEQA[11:4];
+            16'b00000001001?????: decoded = EXGPC_SEQA[11:4];
+            16'b00000000001?????: decoded = REV_SEQA[11:4];
+            16'b00000001100?????: decoded = GETST_SEQA[11:4];
+            16'b00000001101?????: decoded = PUTST_SEQA[11:4];
+            16'b100000??????????: decoded = STORE_SEQA[11:4];
+            16'b100001??????????: decoded = LOAD_SEQA[11:4];
+            16'b100100??????????: decoded = STOREPI_SEQA[11:4];
+            16'b100101??????????: decoded = LOADPI_SEQA[11:4];
+            16'b101000??????????: decoded = STOREPD_SEQA[11:4];
+            16'b101001??????????: decoded = LOADPD_SEQA[11:4];
+            16'b101100??????????: decoded = STOREOFF_SEQA[11:4];
+            16'b101101??????????: decoded = LOADOFF_SEQA[11:4];
+            16'b000001?1100?????: decoded = STOREABS_SEQA[11:4];
+            16'b000001?1101?????: decoded = LOADABS_SEQA[11:4];
+            16'b1000110?????????: decoded = STORE_SEQA[11:4];    // MOVB
+            16'b1000111?????????: decoded = LOAD_SEQA[11:4];
+            16'b1010110?????????: decoded = STOREOFF_SEQA[11:4];
+            16'b1010111?????????: decoded = LOADOFF_SEQA[11:4];
+            16'b00000101111?????: decoded = STOREABS_SEQA[11:4];
+            16'b00000111111?????: decoded = LOADABS_SEQA[11:4];
+            16'b100010??????????: decoded = MOVEIND_SEQA[11:4];
+            16'b100110??????????: decoded = MOVEPI_SEQA[11:4];
+            16'b101010??????????: decoded = MOVEPD_SEQA[11:4];
+            16'b101110??????????: decoded = MOVEOFF_SEQA[11:4];
+            16'b110100??????????: decoded = MOVEOFFPI_SEQA[11:4];
+            16'b110101?0000?????: decoded = MOVEABSPI_SEQA[11:4];
+            16'b000001?111000000: decoded = MOVEABS_SEQA[11:4];
+            16'b1001110?????????: decoded = MOVEIND_SEQA[11:4]; // MOVB
+            16'b1011110?????????: decoded = MOVEOFF_SEQA[11:4];
+            16'h0340: decoded = MOVEABS_SEQA[11:4];
             16'b1100????????????: begin
-                if(md[7:0]==8'h00) entry = JRL_SEQA;
-                else if(md[7:0]==8'h80) entry = JACC_SEQA;
-                else entry = JR_SEQA;
+                if(opcode[7:0]==8'h00) decoded = JRL_SEQA[11:4];
+                else if(opcode[7:0]==8'h80) decoded = JACC_SEQA[11:4];
+                else decoded = JR_SEQA[11:4];
             end
             default:;
         endcase
-        if(reserved_opcode) entry = HWSAVE_SEQA;
+        if(is_reserved(opcode[15:8])) decoded = HWSAVE_SEQA[11:4];
+            decode_family = decoded;
+        end
+    endfunction
+    (* ramstyle = "M10K" *) reg [7:0] dispatch_rom [0:2047];
+`ifndef TMS10_DISPATCH_GENERATE
+`ifdef __ICARUS__
+    integer dispatch_init_i;
+    initial begin
+        for(dispatch_init_i=0;dispatch_init_i<2048;
+            dispatch_init_i=dispatch_init_i+1)
+            dispatch_rom[dispatch_init_i]=
+                decode_family({dispatch_init_i[10:0],5'b00001});
     end
+`elsif VERILATOR
+    integer dispatch_init_i;
+    initial begin
+        for(dispatch_init_i=0;dispatch_init_i<2048;
+            dispatch_init_i=dispatch_init_i+1)
+            dispatch_rom[dispatch_init_i]=
+                decode_family({dispatch_init_i[10:0],5'b00001});
+    end
+`else
+    initial $readmemh("tms10_dispatch.hex", dispatch_rom);
+`endif
+`endif
+    reg [7:0] entry_family_q;
+    always @(posedge clk) entry_family_q <= dispatch_rom[md[15:5]];
+    reg [7:0] entry_family;
+    always @* begin
+        entry_family = entry_family_q;
+        casez(md)
+            16'h0100: entry_family = EMU_SEQA[11:4];
+            16'h01c0: entry_family = POPST_SEQA[11:4];
+            16'h01e0: entry_family = PUSHST_SEQA[11:4];
+            16'h0300: entry_family = NOP_SEQA[11:4];
+            16'h0320: entry_family = CLRC_SEQA[11:4];
+            16'h0340,16'h05c0,16'h07c0:
+                entry_family = MOVEABS_SEQA[11:4];
+            16'h0360: entry_family = DINT_SEQA[11:4];
+            16'h0900: entry_family = TRAP0_SEQA[11:4];
+            16'h0940: entry_family = RETI_SEQA[11:4];
+            16'h0d3f: entry_family = CALLR_SEQA[11:4];
+            16'h0d5f: entry_family = CALLA_SEQA[11:4];
+            16'h0d60: entry_family = EINT_SEQA[11:4];
+            16'h0de0: entry_family = SETC_SEQA[11:4];
+            16'b00001111???00000: entry_family = ARRAY_SEQA[11:4];
+            16'b1100????00000000: entry_family = JRL_SEQA[11:4];
+            16'b1100????10000000: entry_family = JACC_SEQA[11:4];
+            16'b11011111?0011010: entry_family = LINE_SEQA[11:4];
+            default:;
+        endcase
+    end
+    wire [11:0] entry = {entry_family,4'b0};
 
     always @(posedge clk) begin
         if(rst) begin

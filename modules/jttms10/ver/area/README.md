@@ -261,3 +261,24 @@ LINE fit is **4,168 ALMs / 1,931 registers / 268,288 RAM bits in 35 blocks /
 redundant duplicate window redirect present in that fitted snapshot was
 removed before integration; the merged source therefore requires a new fit.
 A masked-OR operand-mux variant fitted at 4,278 ALMs and was discarded.
+
+
+## Combined reductions and follow-on experiments, 2026-10-17
+
+Committed `dac5e681b` fits at **4,109 ALMs / 1,931 registers / 268,288 RAM
+bits in 35 blocks / 0 DSPs**, in `/tmp/jttms10-141-area/narc-reductions`.
+This combines PC/PPOP sharing and the first RF/window changes; the target
+is still exceeded by 609 ALMs. Independent follow-on fits are:
+
+| Baseline | Change | Fitted ALMs | Snapshot |
+| --- | --- | ---: | --- |
+| dac5e681b, 4,109 | Shared field extension and threshold mask | 4,026 | `/tmp/jttms10-141-area/narc-ext-share` |
+| RF/window candidate, 4,168 | WSTART/WEND in register RAM | 4,110 | `/tmp/jttms10-141-area/narc-line-windowrf` |
+| acae6f9c2, 4,341 | 2,048x8 dispatch ROM plus sparse exceptions | 4,262 | `/tmp/jttms10-141-area/narc-line-decode-rom-coarse2` |
+
+The dispatch candidate adds 16,384 bits in two M10Ks. A full 65,536x8 table
+saved only 78 ALMs while adding 64 M10Ks, so the smaller table replaces it.
+All three candidates pass their full architectural/interrupt/lint suites;
+the dispatch also passes exhaustive entry comparison. A fresh combined fit
+is required after integration. The separate field-adapter buffer-sharing
+trial removes 80 registers but grows to 4,150 ALMs, so it was discarded.

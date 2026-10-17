@@ -1,0 +1,2 @@
+# Locate the deterministic dispatch ROM image for native jtcore builds.
+set_global_assignment -name SEARCH_PATH [file join $::quartus(qip_path) ../hdl]

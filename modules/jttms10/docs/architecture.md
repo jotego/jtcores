@@ -30,8 +30,9 @@ unfinished synthesized CPU does not prove the area requirement.
 ## Sequencer
 
 The ROM has 256 dispatch slots with 16 microsteps each, rather than one slot
-per 16-bit opcode. A compact masked decoder selects a family; register/file,
-constant, and condition fields remain in IR. Named YAML chunks are the
+per 16-bit opcode. A synchronous 2048-by-8 dispatch ROM selects the common family for each
+IR[15:5] group; eighteen sparse exception patterns decode the remaining low
+bits. Register/file, constant, and condition fields remain in IR. Named YAML chunks are the
 dispatch slots, and generated `_SEQA` constants define their addresses.
 
 `latch_ucode: true` uses JTFRAME's existing synchronous-ROM contract. An
@@ -192,3 +193,21 @@ sign extend these scratch values. LINE's reused COUNT remains 32 bits.
 The W1 maximum-extent regression and RF64 alias/read-during-write bench cover
 these storage boundaries; generated array/LINE programs cover the retimed
 reads. Exact combined area still requires a fresh fit.
+
+
+The dispatch ROM is sampled during the existing fetch priming clock, adding
+no instruction phase. `hdl/tms10_dispatch.hex` is a deterministic synthesis
+asset; the module QIP supplies its Quartus search path. Simulation initializes
+the same table from `decode_family`, and the exhaustive audit compares all
+65,536 final entries with the pre-ROM controller as well as the pinned
+reference classification. After a microcode layout/decode change, run
+`ver/decoder/generate.py hdl/jttms10_ctrl.v ver/build` after generating headers
+and copy the resulting image to `hdl/tms10_dispatch.hex`. `ver/build.sh`
+rejects a stale checked-in table. Area snapshots copy/hash the generator,
+bench and image and regenerate from the copied controller/YAML.
+
+WSTART/WEND also occupy upper RF words 34/35. Setup, corner updates and PBX
+save/restore serialize writes to the single write port. The source and
+destination read ports supply window operands together during comparison
+and canonicalization. Scalar memory loads, SEXT/ZEXT and multiply source
+capture share one field-extension input/sign/mask network.

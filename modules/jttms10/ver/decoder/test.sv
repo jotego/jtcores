@@ -5,18 +5,23 @@
 module test;
     import tms34010_pkg::*;
     reg [15:0] opcode;
+    reg clk=0;
     decoded_instr_t decoded;
     wire reserved;
     tms34010_decode u_reference(.instr(opcode), .decoded(decoded));
-    // Only MD affects combinational entry/reserved decoding. Keep the ROM
-    // clock stopped; the remaining sequencer ports are intentionally unused.
-    jttms10_ctrl u_new(.rst(1'b1), .clk(1'b0), .md(opcode),
+    jttms10_ctrl u_new(.rst(1'b1), .clk(clk), .md(opcode),
                        .reserved_opcode(reserved));
-    integer index, missing=0, reserved_diff=0, recognized=0;
+    jttms10_ctrl_old u_old(.rst(1'b1), .clk(clk), .md(opcode));
+    integer index, missing=0, reserved_diff=0, entry_diff=0, recognized=0;
     initial begin
         for(index=0;index<65536;index=index+1) begin
             opcode=index[15:0];
-            #1;
+            #1; clk=1; #1;
+            if(u_new.entry!==u_old.entry) begin
+                $display("entry difference opcode=%h new=%h old=%h",
+                         opcode,u_new.entry,u_old.entry);
+                entry_diff=entry_diff+1;
+            end
             if(!decoded.illegal && !decoded.illegal_trap) begin
                 recognized=recognized+1;
                 if(u_new.entry==u_new.ILLEGAL_SEQA) begin
@@ -29,10 +34,11 @@ module test;
                          opcode,reserved,decoded.illegal_trap);
                 reserved_diff=reserved_diff+1;
             end
+            clk=0; #1;
         end
-        if(missing || reserved_diff)
-            $fatal(1,"decode audit missing=%0d reserved differences=%0d",
-                   missing,reserved_diff);
+        if(missing!=0 || reserved_diff!=0 || entry_diff!=0)
+            $fatal(1,"decode audit missing=%0d reserved differences=%0d entry differences=%0d",
+                   missing,reserved_diff,entry_diff);
         $display("decode PASS: 65536 words, %0d defined-reference words",recognized);
         $finish;
     end

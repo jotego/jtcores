@@ -51,6 +51,7 @@ def main():
             (work / "vector_init.txt").write_text(vector_init(case))
             (work / "expected.svh").write_text(sv_checks(case))
             shutil.copyfile(build / "tms10.uc", work / "tms10.uc")
+            shutil.copyfile(build / "tms10_dispatch.hex", work / "tms10_dispatch.hex")
             binary = work / "sim.vvp"
             compile_cmd = ["iverilog", "-g2012", "-s", "test", "-I", str(work),
                            "-I", str(hdl), "-I", str(build),
