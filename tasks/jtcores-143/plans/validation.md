@@ -159,3 +159,46 @@ one nonzero AR1/KS1 control. OPM stays exactly silent; jt51 reaches nearly full
 level then decays, so its attack score is deliberately rejected. This confirms
 the previously internal-only KS1 AR0 gap in observable output. All 37 new slow
 captures have valid framing, verified transfers and expected CPU generations.
+
+## Decay, level and finite history checkpoint
+
+All sixteen D1L settings have three physical recordings each (48), with 32
+reference outputs. Levels 0–14 agree within 0.546 PCM units in projected tail
+median. D1L15 gives exact-zero physical/OPM tails after nonzero transients;
+production jt51 retains approximately ±31 PCM. Primary Yamaha Fig 2.13 specifies
+nominal 93 dB for 15. Quantized zero does not measure that analog endpoint directly.
+This adds a confirmed production gap, recorded in [envelope-stages.md](envelope-stages.md).
+
+D1R/D2R0–31, RR0–15 and selected configured-key-on complements add 270 physical
+recordings and 180 references. All acquisition/input hashes, framing, exponents,
+requested counts, nonzero audio and continuous CPU generations pass. Fixed
+windowed features retain 15 resolution-limited cases and 2 unresolved peaks;
+2 finite holds are explicitly bounded. 69 baseline features agree within the
+physical repeat range plus two windows. Two fixed-phase rate12 outliers have
+overlapping ranges in a wider reference starting-phase study, so no additional
+timing defect is inferred from that baseline alone. Scope remains KC4A/KS0.
+
+A separate output-level diagnostic does confirm a granularity gap at rate12:
+all six D1/D2 physical captures and independent OPM resolve approximately
+0.09375 dB attenuation steps, while frozen jt51 resolves approximately
+0.1875 dB. Forty-eight staircase/carrier-phase/window qualifications and 420
+reanalyses retain this distinction without rounding to an assumed step grid.
+This is a scoped output-granularity result, not a constant-period timing defect
+or an all-rate conformance claim. No production fix is proposed in this checkpoint.
+
+Sixteen stage-write/key-history cases add 48 physical recordings and 32 references.
+Inactive writes and repeated key events have compatible finite behavior, with
+active/opposite-edge controls. Held repeated-key-on retains global sine phase;
+release comparison adds early 99→80/99→40 features so a concealed early reset is
+not masked by an unchanged 80→40 interval. The repeated attack key-on occurs early;
+later mid-attack/retrigger cases remain outstanding. Full details, numerical
+bounds, model CPU-delay limits and local evidence locations are in the stage report.
+
+This checkpoint adds 366 physical recordings and 244 baseline reference outputs,
+with additional phase/projection controls retained separately. No reset
+or dropped reply occurs. A qualified idle-only PicoROM recorder rearm archives
+the finite session before exhaustion and preserves ROM/control state; guard tests
+reject uncertain CPU state and unqualified ROM enable/masks. The physical monitor
+remains resident and the PCB is quiet. Production jt51 stays frozen at 985a573;
+no candidate RTL patch has been created. LFO, noise, algorithms/feedback, CSM,
+remaining EG KS/KC/history combinations and output mixing/clipping remain open.

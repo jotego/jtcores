@@ -14,12 +14,12 @@ NAME = 'E66550A14758A021'
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['install', 'poll', 'run', 'emit'])
+    parser.add_argument('action', choices=['install', 'poll', 'run', 'emit', 'rearm'])
     parser.add_argument('test', nargs='?', choices=['timer-a', 'timer-b', 'clear', 'tone', 'tone-left', 'tone-right', 'silence'])
     parser.add_argument('--seconds', type=float, default=5)
     parser.add_argument('--program', type=Path, help='raw monitor bytecode instead of a built-in test')
     parser.add_argument('--until-reply', action='store_true', help='return after one complete CPU reply')
-    parser.add_argument('--output', type=Path, help='destination for emit; must not exist')
+    parser.add_argument('--output', type=Path, help='fresh destination for emit or rearm report')
     args = parser.parse_args()
     if args.action == 'run' and not (args.test or args.program):
         parser.error('run requires a test')
@@ -29,6 +29,8 @@ def main():
         with args.output.open('xb') as output:
             output.write(make_table(args.test))
         return
+    if args.action == 'rearm' and not args.output:
+        parser.error('rearm requires --output REPORT.json')
     with (ROOT/'artifacts/monitor.lock').open('w') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         pico = Pico(NAME)
@@ -39,6 +41,9 @@ def main():
                 install(pico)
             elif args.action == 'run':
                 run(pico, args.test, args.program)
+            elif args.action == 'rearm':
+                rearm(pico,args.output)
+                return
             poll(pico, args.seconds, args.until_reply)
         finally:
             pico.close()
@@ -74,6 +79,60 @@ def run(pico, test, program=None):
     save_state(state)
     pico.write(0x2000,bytes([gen,gen^255]))
     print(f'Submitted {test}, generation {gen}, {len(table)} bytes.', flush=True)
+
+def rearm(pico, output):
+    """Renew only a verified idle reply session; never reload ROM or reset CPU."""
+    state = load_state()
+    assert state['booted'] and not state['pending'] and not state.get('reply_partial'), 'Monitor is not verified idle'
+    window = output.with_suffix('.window.bin')
+    assert not output.exists() and not window.exists(), 'Rearm outputs must be fresh'
+    output.parent.mkdir(parents=True,exist_ok=True)
+    report = {'state':'started','monitor_before':state}
+    def save():
+        temporary=output.with_suffix('.new')
+        temporary.write_text(json.dumps(report,indent=2)+'\n')
+        temporary.replace(output)
+    with output.open('x') as f: json.dump(report,f)
+    try:
+        control = bytes([state['generation'],state['generation']^255])
+        assert pico.read(0x2000,2) == control, 'Generation control differs'
+        report['parameters_before'] = {key:pico.get(key) for key in ['rom_enable','addr_mask']}
+        assert report['parameters_before']['rom_enable'] == '1', 'ROM service is not enabled'
+        assert int(report['parameters_before']['addr_mask'],0) == 0xffff, 'ROM address mask differs from the qualified 64 KiB mapping'
+        boot_hash = hashlib.sha256(pico.read(0,8192)).hexdigest()
+        report['boot_bank_sha256'] = boot_hash
+        report['unexpected_reply_before'] = pico.poll().hex()
+        assert not report['unexpected_reply_before'], 'Unexpected unconsumed CPU reply'
+        before = pico.events(BASE)
+        report['events_before'] = before
+        assert before['active'] and not before['capture_stopped'] and not before['dropped_bytes']
+        time.sleep(.02)
+        report['unexpected_reply_idle'] = pico.poll().hex()
+        assert not report['unexpected_reply_idle'], 'CPU reply during idle qualification'
+        assert pico.events(BASE) == before, 'Reply producer is not idle'
+        snapshot = pico.read(BASE,1024)
+        assert pico.events(BASE) == before, 'Reply producer advanced during archive'
+        with window.open('xb') as f: f.write(snapshot)
+        report['window_sha256'] = hashlib.sha256(snapshot).hexdigest()
+        save()
+        pico.end()
+        pico.start(BASE)
+        after = pico.events(BASE)
+        report['events_after'] = after
+        assert after['active'] and after['count']==0 and not after['capture_stopped'] and not after['dropped_bytes']
+        assert pico.read(0x2000,2) == control, 'Generation changed during rearm'
+        assert hashlib.sha256(pico.read(0,8192)).hexdigest() == boot_hash, 'Boot ROM bank changed'
+        assert {key:pico.get(key) for key in report['parameters_before']} == report['parameters_before']
+        report['unexpected_reply_after'] = pico.poll().hex()
+        assert not report['unexpected_reply_after'], 'CPU produced an unexpected reply after rearm'
+        assert load_state() == state, 'Monitor host state changed during rearm'
+        report['state'] = 'complete'
+        save()
+        print(json.dumps({'state':'complete','archived_markers':before['count'],'generation':state['generation']}),flush=True)
+    except BaseException as error:
+        report.update(state='failed',error=str(error))
+        save()
+        raise
 
 def make_table(test):
     def wr(reg, val): return [1,reg,val]

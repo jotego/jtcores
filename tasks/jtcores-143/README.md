@@ -75,8 +75,8 @@ The host records pending commands in `artifacts/monitor-state.json` and rejects
 overlapping submissions. After a timeout, use `poll` before issuing another test.
 Do not delete the state to bypass a pending operation. A reset during a pending
 test is reported as an error. Each PicoROM session has a 4096-marker limit;
-current runs use three markers per reply. A session rearm procedure will be
-needed before exhausting that budget.
+current runs use three markers per reply. Use the verified-idle rearm procedure
+below before exhausting that budget.
 
 Bytecode, supplied as a binary file with `run --program FILE`:
 
@@ -274,3 +274,78 @@ A low carrier KC00/MUL0 was independently measured at increment 162 before using
 large strides. At stride 1024, analyze its envelope with increment 165888 and
 sample rate 54.62646484375 Hz. The main KC4A/MUL8 carrier must not be used for
 that low recorded rate. See `plans/long-acquisition.md` for qualification.
+
+## Rearm the finite PicoROM reply recorder
+
+The existing PicoROM diagnostic firmware stops its reply marker recorder at
+4096 events. Before exhaustion, renew only a verified idle session:
+
+```
+python scripts/monitor.py rearm --output artifacts/fresh-rearm.json
+```
+
+The helper holds the normal monitor lock and refuses pending/partial/unverified
+CPU state, unconsumed replies, inactive/stopped/dropped capture or an advancing
+producer. It archives the old 1 KiB reply window and metadata before end/start.
+ROM service must be enabled with the qualified 64 KiB address mask. The 8 KiB
+boot bank hash, ROM-enable/mask and generation pair must remain equal;
+no ROM upload or CPU reset is performed. The new recorder must be active/empty
+and the CPU must not produce an unexpected frame. Failures remain in the report.
+The first live qualification archived 3171 markers, then passed generations 32/33
+through separate fresh USB clients, without a second boot frame or reply drop.
+Run guard tests with the qualified PyUSB Python environment:
+
+```
+python scripts/test_monitor.py
+```
+
+## Decay, level and release experiments
+
+See [methods and coverage](plans/envelope-stages.md). Generate fresh cases from
+an emitted canonical tone table:
+
+```
+go run host/decay_programs.go -base artifacts/canonical-tone.bin -output artifacts/fresh-stages
+```
+
+Profiles `d1` and `d2` begin with a keyed-on stable level, then write the active
+stage's rate. `release` starts from the same level and keys off. `d1l` and the
+selected `d1-keyon`/`d2-keyon` complements configure the rate before key-on and
+begin recording from silence. Each manifest records exact INIT/EVENT paths,
+hashes, carrier, stride, window and frame count. Automatic scheduling uses
+qualified high/native or divided/stride carriers; a carrier above recorded
+Nyquist is rejected. Slow horizons are qualified by reference pilots rather
+than assumed from the attack sweep.
+
+Acquire with `capture-event.py` using each manifest's stride and twice its frame
+count as `--words`. For example, the slow D1R1 case uses stride 64 and 32768 words.
+For that case export and score the fixed amplitude curve:
+
+```
+go run host/envelope.go host/tone.go -curve-only -increment 263936 -window 32 -sample-rate 874.0234375 -csv artifacts/fresh-amplitude.csv artifacts/fresh-capture-0-0.csv
+go run host/decay.go -window 32 -sample-rate 874.0234375 artifacts/fresh-amplitude.csv
+```
+
+Use `-keyon` on the decay scorer only for the configured-key-on complements.
+Unresolved peaks, incomplete falls and features below the two-window limit
+remain explicit results. Level sweeps compare absolute tail statistics and
+retain low-level quantization limits; a missing relative-quality score is not
+a passing result. Validate the scorer with:
+
+```
+go test host/decay.go host/decay_test.go
+```
+
+Generate finite stage-write and key-history controls separately:
+
+```
+go run host/history_programs.go -base artifacts/canonical-tone.bin -output artifacts/fresh-history
+```
+
+These sixteen fixtures include inactive and active stage writes, repeated high
+key-on, repeated key-off, release/rekey and early repeated key-on during AR12.
+Each manifest gives ordered writes, delay counts, baseline and positive-control
+roles. Use the same event capture helper at native rate. For a held/repeated-key
+comparison, apply the global `phase.go` fit across the complete recording;
+independently fitting each side of the event could conceal a phase restart.
+Model CPU-delay approximations preclude absolute intervention-latency claims.
