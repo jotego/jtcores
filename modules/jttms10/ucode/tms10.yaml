@@ -25,7 +25,7 @@ ucode:
   - name: fetch
     start: 1
     seq:
-      - fetch, pcinc
+      - fetch_bus, pcinc
       - ld_ir, dispatch
   - name: illegal
     start: -1
@@ -42,15 +42,15 @@ ucode:
   - name: moviw
     start: 4
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: movil
     start: 5
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: move
@@ -134,7 +134,7 @@ ucode:
   - name: boot
     start: 24
     seq:
-      - vector
+      - vector_bus
       - md_pc, ret_jsr
   - name: getst
     start: 31
@@ -150,15 +150,15 @@ ucode:
   # in their extension words (TI User's Guide pp. 12-54/55, 12-249/250).
   - mnemo: [ADDIW, SUBIW, CMPIW]
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a, reg_b
       - ${inv}
       - ${alu}_alu, ${wr}, nvzc_cc, ni
   - mnemo: [ADDIL, SUBIL, CMPIL]
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a, reg_b
       - ${inv}
       - ${alu}_alu, ${wr}, nvzc_cc, ni

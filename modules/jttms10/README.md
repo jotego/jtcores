@@ -83,6 +83,8 @@ and host-indirect I/O. Physical asynchronous host-pin timing remains pending.
 DIVS/DIVU/MODS/MODU share an iterative restoring divide through the same ALU;
 [divide notes](docs/divide.md) describe flags, overflow, and the seeded
 quotient/remainder check.
+DSJ variants, MOVX/MOVY, and sequential ADDXY/SUBXY/CMPXY also have primary
+and pinned-reference tests; see [scalar XY notes](docs/scalar-xy.md).
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

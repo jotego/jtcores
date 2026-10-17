@@ -19,6 +19,7 @@ module jttms10_ctrl(
                       mulfinish, mulwrhi, mulwrlo,
     output            divinit, divload, divnega, divnegmd,
                       divnegb, divcheck, divstep,
+    output            dsjfinish, xyx, xyy,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -36,10 +37,17 @@ module jttms10_ctrl(
     wire [3:0] mul_sel;
     wire [1:0] lmo_sel;
     wire [2:0] shift_sel;
-    wire [1:0] misc_sel;
+    wire [2:0] misc_sel;
+    wire [1:0] bus_sel;
+    assign fetch = bus_sel==FETCH_BUS;
+    assign imm = bus_sel==IMM_BUS;
+    assign vector = bus_sel==VECTOR_BUS;
     assign setf = misc_sel==SETF_MISC;
     assign exgf = misc_sel==EXGF_MISC;
     assign btstfinish = misc_sel==BTSTFINISH_MISC;
+    assign dsjfinish = misc_sel==DSJ_MISC;
+    assign xyx = misc_sel==X_MISC;
+    assign xyy = misc_sel==Y_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
     assign shift_step = shift_sel==STEP_SHIFT;
@@ -121,6 +129,15 @@ module jttms10_ctrl(
             16'b010111??????????: entry = MPY_SEQA;
             16'b010110??????????,
             16'b011011??????????: entry = DIV_SEQA;
+            16'b00001101100?????: entry = DSJ_SEQA;
+            16'b00001101101?????: entry = DSJ_SEQA;
+            16'b00001101110?????: entry = DSJ_SEQA;
+            16'b00111???????????: entry = DSJS_SEQA;
+            16'b1110110?????????: entry = MOVX_SEQA;
+            16'b1110111?????????: entry = MOVY_SEQA;
+            16'b1110000?????????: entry = ADDXY_SEQA;
+            16'b1110001?????????: entry = SUBXY_SEQA;
+            16'b1110010?????????: entry = CMPXY_SEQA;
             16'h01e0: entry = PUSHST_SEQA;
             16'h01c0: entry = POPST_SEQA;
             16'h0d5f: entry = CALLA_SEQA;

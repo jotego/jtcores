@@ -2217,3 +2217,254 @@ cases:
       - {after: 0x1100, pc: 0x1120, regs: {A1: 7}}
       - {after: 0x1120, pc: 0x1130, st: 0xD0000010}
       - {after: 0x1130, pc: 0x1140, regs: {A1: 1}, st: 0xC0000010}
+
+  # TI SPVU001A pp. 12-162/163: MOVX/MOVY replace only one half;
+  # source, opposite half, and all ST bits remain unchanged.
+  - name: movx_movy_halves_bfile_sp_and_self_alias
+    entry: 0x1000
+    words:
+      - 0x09E0 # A0=12345678
+      - 0x5678
+      - 0x1234
+      - 0x09E1 # A1=ABCD9876
+      - 0x9876
+      - 0xABCD
+      - 0x09F0 # B0=0F0FF0F0
+      - 0xF0F0
+      - 0x0F0F
+      - 0x09FF # B15/shared SP=AAAA5555
+      - 0x5555
+      - 0xAAAA
+      - 0x09E2 # status sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A2 # PUTST
+      - 0xEC01 # MOVX A0,A1 -> ABCD5678
+      - 0xEE01 # MOVY A0,A1 -> 12345678
+      - 0xEC1F # MOVX B0,B15 -> AAAAF0F0
+      - 0xEE1F # MOVY B0,B15 -> 0F0FF0F0
+      - 0xEDFF # MOVX B15,B15 self-alias
+      - 0xEE21 # MOVY A1,A1 self-alias
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x12345678}}
+      - {after: 0x1030, pc: 0x1060, regs: {A1: 0xABCD9876}}
+      - {after: 0x1060, pc: 0x1090, regs: {B0: 0x0F0FF0F0}}
+      - {after: 0x1090, pc: 0x10C0, regs: {A15: 0xAAAA5555, B15: 0xAAAA5555}}
+      - {after: 0x10C0, pc: 0x10F0, regs: {A2: 0xD0000010}}
+      - {after: 0x10F0, pc: 0x1100, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x1110, regs: {A0: 0x12345678, A1: 0xABCD5678}, st: 0xD0000010}
+      - {after: 0x1110, pc: 0x1120, regs: {A1: 0x12345678}, st: 0xD0000010}
+      - {after: 0x1120, pc: 0x1130, regs: {B0: 0x0F0FF0F0, A15: 0xAAAAF0F0, B15: 0xAAAAF0F0}, st: 0xD0000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A15: 0x0F0FF0F0, B15: 0x0F0FF0F0}, st: 0xD0000010}
+      - {after: 0x1140, pc: 0x1150, regs: {B15: 0x0F0FF0F0}, st: 0xD0000010}
+      - {after: 0x1150, pc: 0x1160, regs: {A1: 0x12345678}, st: 0xD0000010}
+
+  # TI pp. 12-41/56/252: ADDXY has two independent 16-bit sums;
+  # SUBXY compares signed source/destination halves, while CMPXY's
+  # C/V come from the signs of wrapped 16-bit differences.
+  - name: xy_add_sub_compare_distinct_flag_semantics
+    entry: 0x1000
+    words:
+      - 0x09E0 # A0=0001FFFF
+      - 0xFFFF
+      - 0x0001
+      - 0x09E1 # A1=FFFF0001
+      - 0x0001
+      - 0xFFFF
+      - 0x09E2 # status sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A2
+      - 0xE020 # ADDXY A1,A0: independent sums -> both zero
+      - 0x09E0 # A0=80008000 (both -32768)
+      - 0x8000
+      - 0x8000
+      - 0x09E1 # A1=7FFF7FFF (both +32767)
+      - 0x7FFF
+      - 0x7FFF
+      - 0x01A2
+      - 0xE220 # SUBXY A1,A0: wrapped result 00010001, signed Rs>Rd
+      - 0x09E0 # restore same operands for nondestructive CMPXY
+      - 0x8000
+      - 0x8000
+      - 0x01A2
+      - 0xE420 # CMPXY A1,A0: wrapped positive deltas, C/V=0
+      - 0x09E0 # A0=00000001, X=1/Y=0
+      - 0x0001
+      - 0x0000
+      - 0x09E1 # A1=0001FFFF, X=-1/Y=1
+      - 0xFFFF
+      - 0x0001
+      - 0x01A2
+      - 0xE220 # SUBXY: X=2,Y=-1; signed X comparison false
+      - 0x09E0 # A0=A1 for equal CMPXY
+      - 0xFFFF
+      - 0x0001
+      - 0x01A2
+      - 0xE420 # CMPXY equal: N=Z=1,C=V=0
+      - 0x09F0 # B0=7FFF7FFF
+      - 0x7FFF
+      - 0x7FFF
+      - 0x09F1 # B1=00010001
+      - 0x0001
+      - 0x0001
+      - 0x01A2
+      - 0xE030 # ADDXY B1,B0: both sums cross signed half boundary
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x0001FFFF}}
+      - {after: 0x1030, pc: 0x1060, regs: {A1: 0xFFFF0001}}
+      - {after: 0x1060, pc: 0x1090, regs: {A2: 0xD0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A0: 0}, st: 0xA0000010}
+      - {after: 0x10B0, pc: 0x10E0, regs: {A0: 0x80008000}}
+      - {after: 0x10E0, pc: 0x1110, regs: {A1: 0x7FFF7FFF}}
+      - {after: 0x1110, pc: 0x1120, st: 0xD0000010}
+      - {after: 0x1120, pc: 0x1130, regs: {A0: 0x00010001}, st: 0x50000010}
+      - {after: 0x1130, pc: 0x1160, regs: {A0: 0x80008000}}
+      - {after: 0x1160, pc: 0x1170, st: 0xD0000010}
+      - {after: 0x1170, pc: 0x1180,
+         regs: {A0: 0x80008000, A1: 0x7FFF7FFF}, st: 0x00000010}
+      - {after: 0x1180, pc: 0x11B0, regs: {A0: 1}}
+      - {after: 0x11B0, pc: 0x11E0, regs: {A1: 0x0001FFFF}}
+      - {after: 0x11E0, pc: 0x11F0, st: 0xD0000010}
+      - {after: 0x11F0, pc: 0x1200, regs: {A0: 0xFFFF0002}, st: 0x40000010}
+      - {after: 0x1200, pc: 0x1230, regs: {A0: 0x0001FFFF}}
+      - {after: 0x1230, pc: 0x1240, st: 0xD0000010}
+      - {after: 0x1240, pc: 0x1250,
+         regs: {A0: 0x0001FFFF, A1: 0x0001FFFF}, st: 0xA0000010}
+      - {after: 0x1250, pc: 0x1280, regs: {B0: 0x7FFF7FFF}}
+      - {after: 0x1280, pc: 0x12B0, regs: {B1: 0x00010001}}
+      - {after: 0x12B0, pc: 0x12C0, st: 0xD0000010}
+      - {after: 0x12C0, pc: 0x12D0,
+         regs: {B0: 0x80008000, B1: 0x00010001}, st: 0x50000010}
+
+  # TI pp. 12-70/75: branch offsets count 16-bit words from PC after
+  # any extension; DSJ decrements first and never changes status.
+  - name: dsj_long_forward_backward_zero_wrap_and_fallthrough
+    entry: 0x1000
+    words:
+      - 0x09C0 # A0=2
+      - 0x0002
+      - 0x09C1 # A1=1
+      - 0x0001
+      - 0x09C2 # A2=0
+      - 0x0000
+      - 0x09E3 # status sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A3
+      - 0x0D80 # DSJ A0,+2 words: PC'=10C0 ->10E0
+      - 0x0002
+      - 0x0300 # skipped
+      - 0x0300 # skipped
+      - 0x0D81 # DSJ A1,+2: decrements to0, no branch
+      - 0x0002
+      - 0x0D82 # DSJ A2,-6: 0 wraps to FFFFFFFF, target10C0
+      - 0xFFFA
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 2}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 1}}
+      - {after: 0x1040, pc: 0x1060, regs: {A2: 0}}
+      - {after: 0x1060, pc: 0x1090, regs: {A3: 0xD0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10E0, regs: {A0: 1}, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x1100, regs: {A1: 0}, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x10C0, regs: {A2: 0xFFFFFFFF}, st: 0xD0000010}
+
+  - name: dsjeq_dsjne_gate_and_extension_consumption
+    entry: 0x1000
+    words:
+      - 0x09D0 # B0=2
+      - 0x0002
+      - 0x09D1 # B1=1
+      - 0x0001
+      - 0x09D2 # B2=2
+      - 0x0002
+      - 0x09D3 # B3=1
+      - 0x0001
+      - 0x09E0 # A0=F0000010 Z1
+      - 0x0010
+      - 0xF000
+      - 0x09E1 # A1=D0000010 Z0
+      - 0x0010
+      - 0xD000
+      - 0x01A0 # PUTST A0
+      - 0x0DB0 # DSJEQ B0,+2 taken
+      - 0x0002
+      - 0x0300 # skipped
+      - 0x0300 # skipped
+      - 0x0DB1 # DSJEQ B1,+2 decrements to zero, no branch
+      - 0x0002
+      - 0x01A1 # PUTST A1, Z0
+      - 0x0DB2 # DSJEQ B2,+2 gate false: no decrement
+      - 0x0002
+      - 0x0DD2 # DSJNE B2,+2 taken
+      - 0x0002
+      - 0x0300 # skipped
+      - 0x0300 # skipped
+      - 0x0DD3 # DSJNE B3,+2 decrements to zero, no branch
+      - 0x0002
+      - 0x01A0 # PUTST A0, Z1
+      - 0x0DD2 # DSJNE B2,+2 gate false: no decrement
+      - 0x0002
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {B0: 2}}
+      - {after: 0x1020, pc: 0x1040, regs: {B1: 1}}
+      - {after: 0x1040, pc: 0x1060, regs: {B2: 2}}
+      - {after: 0x1060, pc: 0x1080, regs: {B3: 1}}
+      - {after: 0x1080, pc: 0x10B0, regs: {A0: 0xF0000010}}
+      - {after: 0x10B0, pc: 0x10E0, regs: {A1: 0xD0000010}}
+      - {after: 0x10E0, pc: 0x10F0, st: 0xF0000010}
+      - {after: 0x10F0, pc: 0x1130, regs: {B0: 1}, st: 0xF0000010}
+      - {after: 0x1130, pc: 0x1150, regs: {B1: 0}, st: 0xF0000010}
+      - {after: 0x1150, pc: 0x1160, st: 0xD0000010}
+      - {after: 0x1160, pc: 0x1180, regs: {B2: 2}, st: 0xD0000010}
+      - {after: 0x1180, pc: 0x11C0, regs: {B2: 1}, st: 0xD0000010}
+      - {after: 0x11C0, pc: 0x11E0, regs: {B3: 0}, st: 0xD0000010}
+      - {after: 0x11E0, pc: 0x11F0, st: 0xF0000010}
+      - {after: 0x11F0, pc: 0x1210, regs: {B2: 1}, st: 0xF0000010}
+
+  - name: dsjs_short_forward_backward_and_count_edges
+    entry: 0x1000
+    words:
+      - 0x09C0 # A0=2
+      - 0x0002
+      - 0x09C1 # A1=1
+      - 0x0001
+      - 0x09C2 # A2=0
+      - 0x0000
+      - 0x09E3 # status sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A3
+      - 0x3820 # DSJS A0,+1 -> skips one instruction word
+      - 0x0300 # skipped
+      - 0x3BE1 # DSJS A1,+31: decrements to0, falls through
+      - 0x3FE2 # DSJS A2,-31: wraps, backward target0EF0
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 2}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 1}}
+      - {after: 0x1040, pc: 0x1060, regs: {A2: 0}}
+      - {after: 0x1060, pc: 0x1090, regs: {A3: 0xD0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10C0, regs: {A0: 1}, st: 0xD0000010}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A1: 0}, st: 0xD0000010}
+      - {after: 0x10D0, pc: 0x0EF0, regs: {A2: 0xFFFFFFFF}, st: 0xD0000010}
+
+  - name: dsjs_short_zero_and_maximum_forward_count
+    entry: 0x1000
+    words:
+      - 0x09C0 # A0=0; first decrement wraps
+      - 0x0000
+      - 0x09E1 # A1=status sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A1
+      - 0x3800 # DSJS A0,+0: branch taken to next instruction
+      - 0x3BE0 # DSJS A0,+31: PC'1080 + 31 words ->1270
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0}}
+      - {after: 0x1020, pc: 0x1050, regs: {A1: 0xD0000010}}
+      - {after: 0x1050, pc: 0x1060, st: 0xD0000010}
+      - {after: 0x1060, pc: 0x1070, regs: {A0: 0xFFFFFFFF}, st: 0xD0000010}
+      - {after: 0x1070, pc: 0x1270, regs: {A0: 0xFFFFFFFE}, st: 0xD0000010}

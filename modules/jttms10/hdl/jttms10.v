@@ -23,6 +23,7 @@ module jttms10(
     wire multiinit, multiadvance, ptrwr, listwr;
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
+    wire dsjfinish, xyx, xyy;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
     wire [4:0] a_sel;
@@ -51,6 +52,16 @@ module jttms10(
     wire div_qneg = div_dvdneg ^ div_dvsneg;
     wire div_range = div_signed &&
         (div_qneg ? md>32'h8000_0000 : md>=32'h8000_0000);
+    wire dsjs_ir = ir[15:11]==5'b00111;
+    wire dsj_allow = ir[15:5]==11'h06d ? st[29] :
+                     ir[15:5]==11'h06e ? !st[29] : 1'b1;
+    wire signed [9:0] dsjs_disp = ir[10] ?
+        -$signed({1'b0,ir[9:5],4'd0}) : $signed({1'b0,ir[9:5],4'd0});
+    wire [31:0] dsj_delta = dsjs_ir ? {{22{dsjs_disp[9]}},dsjs_disp} :
+                                      {{12{md[15]}},md[15:0],4'd0};
+    wire xy_add = ir[15:9]==7'b1110000;
+    wire xy_sub = ir[15:9]==7'b1110001;
+    wire xy_op = xy_add || xy_sub;
     wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
@@ -113,6 +124,7 @@ module jttms10(
         .divinit(divinit), .divload(divload), .divnega(divnega),
         .divnegmd(divnegmd), .divnegb(divnegb),
         .divcheck(divcheck), .divstep(divstep),
+        .dsjfinish(dsjfinish), .xyx(xyx), .xyy(xyy),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -137,11 +149,13 @@ module jttms10(
                 {ir[4],ir[3:0]+4'd1} :
             wrsrc ? {ir[4],ir[8:5]} : dst),
         .we(step && (wr_reg || wrsrc || wr_sp || ptrwr || listwr ||
+                     (dsjfinish && dsj_allow) ||
                      ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
                      (!div_ir || (!div_early &&
                        (!div_error || (div_mod && div_signed))))) && !rst),
         .wd(exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} : listwr ? md :
+            xy_op && wr_reg ? md :
             mulwrhi ? (div_ir ? md : b) :
             mulwrlo ? (div_ir && (div_mod || div_pair) ? b : md) : result),
         .qs(rs_data), .qd(rd_data)
@@ -176,9 +190,13 @@ module jttms10(
         endcase
     end
     wire [31:0] div_trial = {b[30:0],md[31]};
-    wire [31:0] alu_a = divnegmd ? md : divnegb ? b :
+    wire [31:0] alu_a = xyx ? {16'd0,a[15:0]} :
+                        xyy ? {16'd0,a[31:16]} :
+                        divnegmd ? md : divnegb ? b :
                         mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    wire [31:0] alu_b = divstep ? div_trial : divnegb ? 32'd0 : b;
+    wire [31:0] alu_b = xyx ? {16'd0,b[15:0]} :
+                        xyy ? {16'd0,b[31:16]} :
+                        divstep ? div_trial : divnegb ? 32'd0 : b;
     wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
     jttms10_alu u_alu(.a(alu_a),.b(alu_b),.op(alu_op),.cin(alu_cin),
         .result(result),.n(n),.z(z),.c(c),.v(v));
@@ -330,6 +348,20 @@ module jttms10(
                     md<={md[30:0],b[31] || !c};
                     mul_count<=mul_count-5'd1;
                 end
+                if(xyx) begin
+                    md[15:0]<=result[15:0];
+                    st[31]<=result[15:0]==0;
+                    st[28]<=xy_sub ?
+                        (a[15]!=b[15] ? !a[15] && b[15] : result[15]) :
+                        result[15];
+                end
+                if(xyy) begin
+                    md[31:16]<=result[15:0];
+                    st[29]<=result[15:0]==0;
+                    st[30]<=xy_sub ?
+                        (a[31]!=b[31] ? !a[31] && b[31] : result[15]) :
+                        result[15];
+                end
                 if(mulfinish) begin
                     if(div_ir) begin
                         div_phase<=1;
@@ -356,6 +388,8 @@ module jttms10(
                     lmo_count<=lmo_count+5'd1;
                 end
                 if(pcinc) pc<=pc+32'd16;
+                if(dsjfinish && dsj_allow && result!=0)
+                    pc<=pc+dsj_delta;
                 case(b_sel)
                     REG_B: b<=rd_data;
                     ZERO_B: b<=0;
@@ -376,6 +410,9 @@ module jttms10(
                     PC_A: a<=pc;
                     REV_A: a<=32'd8;
                     WORD_A: a<=32'd32;
+                    ONE_A: a<=32'd1;
+                    MOVX_A: a<={rd_data[31:16],rs_data[15:0]};
+                    MOVY_A: a<={rs_data[31:16],rd_data[15:0]};
                     RETADJ_A: a<=32'd32+{23'd0,ir[4:0],4'd0};
                     SEXT_A: a<=(a & field_mask) |
                               (a[field_msb] ? ~field_mask : 32'd0);

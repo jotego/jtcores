@@ -59,7 +59,7 @@ ucode:
   - name: storeoff
     start: 39
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a, reg_b
       - add_alu, sum_ea
       - reg_a
@@ -69,7 +69,7 @@ ucode:
   - name: loadoff
     start: 40
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a, bsrc
       - add_alu, sum_ea
       - read_mem
@@ -78,9 +78,9 @@ ucode:
   - name: storeabs
     start: 41
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a
       - a_ea
       - rd_a
@@ -90,9 +90,9 @@ ucode:
   - name: loadabs
     start: 42
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a
       - a_ea
       - read_mem
@@ -136,11 +136,11 @@ ucode:
   - name: moveoff
     start: 46
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a, bsrc
       - add_alu, sum_ea
       - ea_tmp
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a, reg_b
       - add_alu, sum_ea
       - swap_ea
@@ -151,7 +151,7 @@ ucode:
   - name: moveoffpi
     start: 47
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immse_a, bsrc
       - add_alu, sum_ea
       - read_mem
@@ -163,9 +163,9 @@ ucode:
   - name: moveabspi
     start: 48
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a
       - a_ea
       - read_mem
@@ -177,15 +177,15 @@ ucode:
   - name: moveabs
     start: 49
     seq:
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a
       - a_ea
       - ea_tmp
-      - imm, pcinc
+      - imm_bus, pcinc
       - immlo_a
-      - imm, pcinc
+      - imm_bus, pcinc
       - immhi_a
       - a_ea
       - swap_ea
