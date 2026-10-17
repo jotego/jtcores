@@ -22,10 +22,12 @@ from vectors import HERE, load_cases, memory_init, sv_checks, validate_case, vec
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", help="run only this YAML case")
+    parser.add_argument("--vectors", type=Path, default=HERE / "tests.yaml",
+                        help="YAML/JSON vector file (default: ver/tests.yaml)")
     parser.add_argument("--rtl", action="append", type=Path, default=[],
                         help="extra generated RTL source (repeatable)")
     args = parser.parse_args()
-    cases = load_cases(yaml.safe_load((HERE / "tests.yaml").read_text()))
+    cases = load_cases(yaml.safe_load(args.vectors.read_text()))
     for case in cases:
         validate_case(case)
     selected = [case for case in cases if args.case in (None, case["name"])]

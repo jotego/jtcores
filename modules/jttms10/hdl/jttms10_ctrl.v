@@ -7,12 +7,15 @@ module jttms10_ctrl(
     input              multi_bit,
     input      [4:0]   multi_steps,
     input              multi_load,
+    input      [4:0]   mul_count,
     output            execute, active,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
     output            shiftkinit, shiftrinit, shift_step, shift_finish,
     output            setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish,
     output            multiinit, multiadvance, ptrwr, listwr,
+    output            mulinit, mulstep, mulcorrq, mulcorrm,
+                      mulfinish, mulwrhi, mulwrlo,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -26,6 +29,27 @@ module jttms10_ctrl(
     /* verilator lint_on UNUSEDPARAM */
     wire dispatch;
     wire multiskip;
+    wire [1:0] multi_sel;
+    wire [2:0] mul_sel;
+    wire [1:0] lmo_sel;
+    wire [2:0] shift_sel;
+    assign shiftkinit = shift_sel==KINIT_SHIFT;
+    assign shiftrinit = shift_sel==RINIT_SHIFT;
+    assign shift_step = shift_sel==STEP_SHIFT;
+    assign shift_finish = shift_sel==FINISH_SHIFT;
+    assign lmoinit = lmo_sel==INIT_LMO;
+    assign lmoscan = lmo_sel==SCAN_LMO;
+    assign lmofinish = lmo_sel==FINISH_LMO;
+    assign multiinit = multi_sel==INIT_MULTI;
+    assign multiskip = multi_sel==SKIP_MULTI;
+    assign multiadvance = multi_sel==ADVANCE_MULTI;
+    assign mulinit = mul_sel==INIT_MUL;
+    assign mulstep = mul_sel==STEP_MUL;
+    assign mulcorrq = mul_sel==CORRQ_MUL;
+    assign mulcorrm = mul_sel==CORRM_MUL;
+    assign mulfinish = mul_sel==FINISH_MUL;
+    assign mulwrhi = mul_sel==WRHI_MUL;
+    assign mulwrlo = mul_sel==WRLO_MUL;
     wire [3:0] jsr_sel;
     reg cen;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
@@ -80,6 +104,7 @@ module jttms10_ctrl(
             16'b0110101?????????: entry = LMO_SEQA;
             16'b00001001100?????: entry = MMTM_SEQA;
             16'b00001001101?????: entry = MMFM_SEQA;
+            16'b010111??????????: entry = MPY_SEQA;
             16'h01e0: entry = PUSHST_SEQA;
             16'h01c0: entry = POPST_SEQA;
             16'h0d5f: entry = CALLA_SEQA;
@@ -176,6 +201,7 @@ module jttms10_ctrl(
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
                 uaddr <= multi_load ? MMFMLOOP_SEQA : MMTMLOOP_SEQA;
+            if(mulstep && mul_count!=5'd1) uaddr <= MULLOOP_SEQA;
             if(ni) uaddr <= FETCH_SEQA;
             if(dispatch) uaddr <= entry;
         end

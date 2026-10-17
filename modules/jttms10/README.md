@@ -75,6 +75,9 @@ remain pending.
 integration bench also runs in the standard suite. MMTM/MMFM use the shared
 register RAM and a mask scan, with [register-list semantics](docs/register-lists.md)
 and an additional documented empty-list reference difference.
+MPYS/MPYU use an iterative shared-adder multiply with even/odd destination
+and FS1 handling. See [multiply notes](docs/multiply.md) for the independent
+seeded arithmetic check.
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

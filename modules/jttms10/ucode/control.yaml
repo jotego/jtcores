@@ -67,7 +67,7 @@ ucode:
   - name: rets
     start: 60
     seq:
-      - sp_b
+      - reg_b
       - b_ea
       - read_stack
       - retadj_a
@@ -98,13 +98,13 @@ ucode:
   - name: push32
     start: 64
     seq:
-      - word_a, sp_b
+      - word_a, reg_b
       - sub_alu, sum_ea, wr_sp
       - write_stack, ret_jsr
   - name: pop32
     start: 65
     seq:
-      - sp_b
+      - reg_b
       - b_ea
       - read_stack
       - word_a
@@ -162,19 +162,19 @@ ucode:
   - name: shiftk
     start: 73
     seq:
-      - rd_a, shiftkinit
+      - rd_a, kinit_shift
       - shiftloop_jsr
-      - pass_alu, wr_reg, shift_finish, ni
+      - pass_alu, wr_reg, finish_shift, ni
   - name: shiftr
     start: 74
     seq:
-      - rd_a, shiftrinit
+      - rd_a, rinit_shift
       - shiftloop_jsr
-      - pass_alu, wr_reg, shift_finish, ni
+      - pass_alu, wr_reg, finish_shift, ni
   - name: shiftloop
     start: 75
     seq:
-      - shift_alu, shift_step, ret_jsr
+      - shift_alu, step_shift, ret_jsr
   - name: setf
     start: 76
     seq:
@@ -204,51 +204,67 @@ ucode:
   - name: lmo
     start: 81
     seq:
-      - reg_a, lmoinit
+      - reg_a, init_lmo
       - lmoloop_jsr
-      - lmofinish, wr_reg, ni
+      - finish_lmo, wr_reg, ni
   - name: lmoloop
     start: 82
     seq:
-      - lmo_alu, lmoscan, ret_jsr
+      - lmo_alu, scan_lmo, ret_jsr
   # TI pp.12-109..112: both encodings consume the mask MSB first. MMTM's
   # bit15 names R0 and walks upward; MMFM's bit15 names R15 and walks down.
   - name: mmtm
     start: 83
     seq:
       - imm, pcinc
-      - multiinit
+      - init_multi
       - mmtmloop_jsr
       - ni
   - name: mmfm
     start: 84
     seq:
       - imm, pcinc
-      - multiinit
+      - init_multi
       - mmfmloop_jsr
       - ni
   - name: mmtmloop
     start: 85
     seq:
-      - multiskip
+      - skip_multi
       - word_a, reg_b
       - sub_alu, sum_ea, ptrwr
       - reg_a
       - a_md
       - write_stack
-      - multiadvance, ret_jsr
+      - advance_multi, ret_jsr
   - name: mmfmloop
     start: 86
     seq:
-      - multiskip
+      - skip_multi
       - reg_b
       - b_ea
       - read_stack
       - listwr
       - word_a, reg_b
       - add_alu, ptrwr
-      - multiadvance, ret_jsr
+      - advance_multi, ret_jsr
   - name: multinext
     start: 87
     seq:
-      - multiadvance, ret_jsr
+      - advance_multi, ret_jsr
+  # The 32 right-shift/add steps use the ordinary 32-bit ALU carry. MPYS
+  # corrects the high word for signed operands after the unsigned loop.
+  - name: mpy
+    start: 88
+    seq:
+      - init_mul
+      - mulloop_jsr
+      - sub_alu, corrq_mul
+      - sub_alu, corrm_mul
+      - finish_mul
+      - wrhi_mul
+      - wrlo_mul, ni
+  - name: mulloop
+    start: 89
+    seq:
+      - add_alu, step_mul, ret_jsr

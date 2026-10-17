@@ -21,6 +21,7 @@ module jttms10(
     wire shiftkinit, shiftrinit, shift_step, shift_finish;
     wire setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish;
     wire multiinit, multiadvance, ptrwr, listwr;
+    wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
     wire [4:0] a_sel;
@@ -30,6 +31,7 @@ module jttms10(
     wire [31:0] rs_data, rd_data, result;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [4:0] shift_count;
+    reg [4:0] mul_count;
     reg shift_c, shift_v;
     reg [4:0] lmo_count;
     reg [15:0] multi_mask;
@@ -37,6 +39,7 @@ module jttms10(
     reg [4:0] multi_steps;
     wire multi_bit = multi_mask[15];
     wire multi_ir = ir[15:5]==11'h04c || ir[15:5]==11'h04d;
+    wire mul_ir = ir[15:10]==6'b010111;
     wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
@@ -58,13 +61,15 @@ module jttms10(
     wire byte_op = ir[15:10]==6'b100011 || ir[15:10]==6'b101011 ||
                    ir[15:9]==7'b1001110 || ir[15:9]==7'b1011110 ||
                    ir[15:5]==11'h02f || ir[15:5]==11'h03f || ir==16'h0340;
-    wire [4:0] fs = ir[9] ? st[10:6] : st[4:0];
+    wire [4:0] fs = mul_ir ? st[10:6] : ir[9] ? st[10:6] : st[4:0];
     wire [5:0] field_size = byte_op ? 6'd8 : fs==0 ? 6'd32 : {1'b0,fs};
     wire field_signed = byte_op || (ir[9] ? st[11] : st[5]);
     wire [31:0] field_mask = 32'hffffffff >> (6'd32-field_size);
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     wire [31:0] extended = (md & field_mask) |
         ((field_signed && md[field_msb]) ? ~field_mask : 32'd0);
+    wire [31:0] mul_field = (rs_data & field_mask) |
+        ((!ir[9] && rs_data[field_msb]) ? ~field_mask : 32'd0);
     assign mem_we = mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = (stack_sel!=0 || vector)
@@ -77,6 +82,7 @@ module jttms10(
         .shift_count(shift_count), .lmo_more(lmo_more),
         .multi_bit(multi_bit), .multi_steps(multi_steps),
         .multi_load(ir[5]),
+        .mul_count(mul_count),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
@@ -89,6 +95,9 @@ module jttms10(
         .lmoinit(lmoinit), .lmoscan(lmoscan), .lmofinish(lmofinish),
         .multiinit(multiinit),
         .multiadvance(multiadvance), .ptrwr(ptrwr), .listwr(listwr),
+        .mulinit(mulinit), .mulstep(mulstep),
+        .mulcorrq(mulcorrq), .mulcorrm(mulcorrm),
+        .mulfinish(mulfinish), .mulwrhi(mulwrhi), .mulwrlo(mulwrlo),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -107,10 +116,13 @@ module jttms10(
         .rd(stack_ir ? 5'd15 : {ir[4],ir[3:0]}),
         .wa(wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
             listwr ? {ir[4],multi_index} :
+            mulwrlo && !ir[0] ? {ir[4],ir[3:0]+4'd1} :
             wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (wr_reg || wrsrc || wr_sp || ptrwr || listwr) && !rst),
+        .we(step && (wr_reg || wrsrc || wr_sp || ptrwr || listwr ||
+                     (mulwrhi && !ir[0]) || mulwrlo) && !rst),
         .wd(exgf ? {26'd0,old_field} :
-            lmofinish ? {27'd0,lmo_count} : listwr ? md : result),
+            lmofinish ? {27'd0,lmo_count} : listwr ? md :
+            mulwrhi ? b : mulwrlo ? md : result),
         .qs(rs_data), .qd(rd_data)
     );
     reg [3:0] alu_op;
@@ -143,7 +155,8 @@ module jttms10(
         endcase
     end
     wire n,z,c,v;
-    jttms10_alu u_alu(.a(a),.b(b),.op(alu_op),.cin(st[30]),
+    wire [31:0] alu_a = mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
+    jttms10_alu u_alu(.a(alu_a),.b(b),.op(alu_op),.cin(st[30]),
         .result(result),.n(n),.z(z),.c(c),.v(v));
     reg condition;
     always @* begin
@@ -180,6 +193,7 @@ module jttms10(
             ea<=0;
             tmp<=0;
             shift_count<=0;
+            mul_count<=0;
             shift_c<=0;
             shift_v<=0;
             lmo_count<=0;
@@ -236,13 +250,34 @@ module jttms10(
                     multi_steps<=multi_steps-5'd1;
                     multi_index<=multi_index+(ir[5] ? 4'hf : 4'd1);
                 end
+                if(mulinit) begin
+                    // Capture both operands before either half of a pair write.
+                    a<=rd_data;
+                    b<=0;
+                    md<=mul_field;
+                    tmp<=mul_field;
+                    mul_count<=0; // zero encodes the first of 32 steps
+                end
+                if(mulstep) begin
+                    // Shift the 33-bit sum one bit right into the 64-bit
+                    // partial product; ALU C supplies the top carry bit.
+                    b<={c,result[31:1]};
+                    md<={result[0],md[31:1]};
+                    mul_count<=mul_count-5'd1;
+                end
+                if(mulcorrq && !ir[9] && tmp[31]) b<=result;
+                if(mulcorrm && !ir[9] && a[31]) b<=result;
+                if(mulfinish) begin
+                    if(!ir[9]) st[31]<=ir[0] ? md[31] : b[31];
+                    st[29]<=ir[0] ? md==0 : b==0 && md==0;
+                end
                 if(lmoscan && lmo_more) begin
                     a<=result;
                     lmo_count<=lmo_count+5'd1;
                 end
                 if(pcinc) pc<=pc+32'd16;
                 case(b_sel)
-                    REG_B, SP_B: b<=rd_data;
+                    REG_B: b<=rd_data;
                     ZERO_B: b<=0;
                     default:;
                 endcase
