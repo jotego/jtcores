@@ -46,42 +46,42 @@ localparam [2:0]
 
 reg [2:0] state;
 reg [31:0] base_addr;
-reg [47:0] mask_window, data_window, read_window;
-reg [31:0] rdata_q;
+reg [47:0] data_window, read_window;
+reg [5:0] span_remaining;
 reg [15:0] old_word;
 reg [1:0] index, last_index;
 reg [3:0] align_count, offset;
 reg write_q;
-reg [15:0] word_mask, word_data;
-wire [31:0] size_mask = 32'hffff_ffff >> (6'd32 - size);
+wire [15:0] word_mask;
+reg [15:0] word_data;
 wire [5:0] field_span = {2'b00,addr[3:0]} + size;
 // HOLD may break a partial-word pair only after its read completed and
 // before its write was accepted. Cancel that pending write and reread the
 // external word after HOLD releases, so unrelated bits cannot go stale.
 wire restart_rmw = word_restart && state == WRITE && word_mask != 16'hffff;
 
-assign rdata = rdata_q;
+// The lower bound applies only to the first word; the remaining span
+// supplies the upper bound. This replaces a shifted 48-bit mask window.
+genvar mask_bit;
+generate for(mask_bit=0;mask_bit<16;mask_bit=mask_bit+1) begin: g_word_mask
+    localparam [5:0] UPPER_BIT=mask_bit;
+    if(mask_bit==15) begin: g_last
+        assign word_mask[mask_bit] = span_remaining>UPPER_BIT;
+    end else begin: g_lower
+        localparam [3:0] LOWER_BIT=mask_bit;
+        assign word_mask[mask_bit] =
+            (index!=0 || offset<=LOWER_BIT) && span_remaining>UPPER_BIT;
+    end
+end endgenerate
+
+// Read data is valid with ack and remains stable until the next request.
+assign rdata = read_window[31:0];
 assign word_lock = (state == RMW_READ) ||
                    ((state == WRITE) && (word_mask != 16'hffff) && !restart_rmw);
 
 always @* begin
-    case (index)
-        2'd0: begin
-            word_mask = mask_window[15:0];
-            word_data = data_window[15:0];
-            word_addr = base_addr;
-        end
-        2'd1: begin
-            word_mask = mask_window[31:16];
-            word_data = data_window[31:16];
-            word_addr = base_addr + 32'd16;
-        end
-        default: begin
-            word_mask = mask_window[47:32];
-            word_data = data_window[47:32];
-            word_addr = base_addr + 32'd32;
-        end
-    endcase
+    word_data = data_window[15:0];
+    word_addr = base_addr;
     word_req = (state == READ) || (state == RMW_READ) ||
                ((state == WRITE) && !restart_rmw);
     word_we = (state == WRITE) && !restart_rmw;
@@ -94,10 +94,9 @@ always @(posedge clk) begin
     if (rst) begin
         state       <= IDLE;
         base_addr   <= 32'd0;
-        mask_window <= 48'd0;
+        span_remaining <= 6'd0;
         data_window <= 48'd0;
         read_window <= 48'd0;
-        rdata_q     <= 32'd0;
         old_word    <= 16'd0;
         index       <= 2'd0;
         last_index  <= 2'd0;
@@ -108,10 +107,9 @@ always @(posedge clk) begin
         case (state)
             IDLE: if (req) begin
                 base_addr   <= {addr[31:4],4'b0000};
-                mask_window <= {16'd0,size_mask};
+                span_remaining <= field_span;
                 data_window <= {16'd0,wdata};
                 read_window <= 48'd0;
-                rdata_q     <= 32'd0;
                 index       <= 2'd0;
                 last_index  <= field_span > 6'd32 ? 2'd2 :
                                field_span > 6'd16 ? 2'd1 : 2'd0;
@@ -126,7 +124,6 @@ always @(posedge clk) begin
                     state <= we ? SELECT : READ;
             end
             PREP: begin
-                mask_window <= {mask_window[46:0],1'b0};
                 data_window <= {data_window[46:0],1'b0};
                 align_count <= align_count - 4'd1;
                 if (align_count == 4'd1)
@@ -141,8 +138,11 @@ always @(posedge clk) begin
                 if (index == last_index) begin
                     align_count <= offset;
                     state <= ALIGN;
-                end else
+                end else begin
                     index <= index + 2'd1;
+                    base_addr <= base_addr + 32'd16;
+                    span_remaining <= span_remaining - 6'd16;
+                end
             end
             SELECT: state <= (word_mask == 16'hffff) ? WRITE : RMW_READ;
             RMW_READ: if (word_ack) begin
@@ -156,6 +156,9 @@ always @(posedge clk) begin
                     state <= RESPONSE;
                 else begin
                     index <= index + 2'd1;
+                    base_addr <= base_addr + 32'd16;
+                    span_remaining <= span_remaining - 6'd16;
+                    data_window <= {16'd0,data_window[47:16]};
                     state <= SELECT;
                 end
             end
@@ -163,7 +166,6 @@ always @(posedge clk) begin
                 read_window <= {1'b0,read_window[47:1]};
                 align_count <= align_count - 4'd1;
             end else begin
-                rdata_q <= read_window[31:0];
                 state <= RESPONSE;
             end
             RESPONSE: if (!req) state <= IDLE;

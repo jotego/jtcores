@@ -224,3 +224,12 @@ the transparency flag between source capture and PROCESS. PROCESS replaces
 that bit with the actual transparency decision. No extra pixel phase is
 introduced. Regressions cover arithmetic PPOP with held writes and binary
 source-bit/transparency handoff.
+
+
+The field adapter consumes the low word of its write window and advances
+one physical address per acknowledgement. A six-bit remaining span and the
+first-word offset generate masks by bit thresholds, replacing the 48-bit
+shifted mask. The aligned read window itself supplies response data, held
+until the next request. Field setup/response clocks and HOLD reread behavior
+are unchanged. The complete offset/width sweep, cache/field HOLD bench and
+full architectural/peripheral suite cover this storage change.

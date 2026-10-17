@@ -315,3 +315,16 @@ the 4,109 baseline to 4,195; a low-request-gap field/cache/bus protocol saved
 only 8 ALMs while adding physical-word latency; and two 2x32 M10K pointer
 banks increased the pixel candidate's map estimate by 31 ALMs. Register
 reductions alone are not sufficient evidence of fitted logic savings.
+
+
+## Field-span counter, 2026-10-17
+
+On the pixel-sharing baseline, replacing the shifted mask with a six-bit
+remaining span and reusing the aligned read window fits at **3,814 ALMs /
+1,745 registers / 284,672 RAM bits in 37 M10Ks / 0 DSPs**, saving 33 ALMs
+and 74 registers. Snapshot: `/tmp/jttms10-141-area/narc-field-counter`.
+The same 177-program, peripheral/interrupt/HOLD and strict-lint suite passes;
+physical word sequencing and latency are retained. The integrated HDL has
+only a comment/indentation cleanup after that snapshot. A first consumed-
+window-only variant grew to 3,883 ALMs and was discarded. This result is
+still **314 ALMs above** the complete replacement ceiling.
