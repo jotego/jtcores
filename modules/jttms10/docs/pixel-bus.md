@@ -33,8 +33,8 @@ VRAM serial-register payload on LAD. Compatible VRAM behavior belongs to the
 external NARC cycle controller and memory devices.
 
 `jttms10_system` wires fabric `pixel_srt` to the word wrapper and returns
-`word_pixel` to the fabric. The current CPU drives `mem_pixel=0` until PIXT
-microcode issues tagged logical requests. The standalone pixel-bus test
+`word_pixel` to the fabric. Graphics microcode tags its logical pixel reads
+and writes; scalar and instruction requests stay untagged. The standalone pixel-bus test
 forces only the CPU-side logical request while running the real word adapter
 and arbiter. It checks normal and SRT partial writes, MTR/RTM kind and
 address, non-SRT tagged read data, SRT read zero, a non-pixel access under

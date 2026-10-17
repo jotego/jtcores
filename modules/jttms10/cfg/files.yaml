@@ -14,7 +14,11 @@ jttms10:
       - jttms10_fabric.v
       - jttms10_system.v
       - jttms10_pixel.v
+      - jttms10_gfx.v
       - jttms10_cache.v
       - jttms10_rom.qip
     ucode:
       src: tms10.yaml
+  - ucode:
+      src: gfx.yaml
+      output: tms10_gfx

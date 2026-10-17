@@ -56,7 +56,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--reference", action="store_true", help="old jtnarc_gsp boundary")
-    mode.add_argument("--scalar", action="store_true", help="current incomplete jttms10 CPU alone")
+    mode.add_argument("--scalar", action="store_true", help="jttms10 CPU and graphics engine alone")
     mode.add_argument("--word", action="store_true", help="jttms10 plus physical-word field adapter")
     mode.add_argument("--fabric", action="store_true", help="peripheral I/O/video/refresh/bus/host fabric alone")
     mode.add_argument("--system", action="store_true", help="integrated CPU, field adapter and synchronous fabric")
@@ -64,6 +64,8 @@ def main():
     parser.add_argument("output", type=Path, help="new, empty output directory, preferably under /tmp")
     parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/intelFPGA_lite/20.1/quartus/bin"))
     parser.add_argument("--source-ref", help="copy new CPU/NARC inputs from this git commit instead of live files")
+    parser.add_argument("--snapshot-only", action="store_true",
+                        help="capture and generate sources without starting Quartus")
     args = parser.parse_args()
     if args.source_ref and args.reference:
         parser.error("--source-ref applies to new CPU modes; reference uses the pinned old submodule")
@@ -156,6 +158,28 @@ def main():
               "--output", "tms10", "jttms10", "tms10"],
              cwd=out, log=out / "ucode_build.log", env=env)
         image_names = ["tms10.uc", "tms10.vh", "tms10_param.vh"]
+        if (out / "src/modules/jttms10/ucode/gfx.yaml").exists():
+            call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
+                  "--output", "tms10_gfx", "jttms10", "gfx"],
+                 cwd=out, log=out / "gfx_ucode_build.log", env=env)
+            image_names.extend(("tms10_gfx.uc", "tms10_gfx.vh",
+                                "tms10_gfx_param.vh"))
+            checker_source = MODULE / "ver/gfx/check_targets.py"
+            checker = snapshot(checker_source,
+                               out / "src" / checker_source.relative_to(ROOT),
+                               hashes, source_ref)
+            call(["python3", str(checker),
+                  str(out / "src/modules/jttms10/ucode/gfx.yaml"),
+                  str(out / "tms10_gfx_param.vh"), str(out / "tms10_gfx.uc")],
+                 cwd=out, log=out / "gfx_target_check.log")
+            flow_source = MODULE / "ver/gfx/check_flow.py"
+            flow = snapshot(flow_source,
+                            out / "src" / flow_source.relative_to(ROOT),
+                            hashes, source_ref)
+            call(["python3", str(flow),
+                  str(out / "src/modules/jttms10/ucode/gfx.yaml"),
+                  "--engine", str(out / "src/modules/jttms10/hdl/jttms10_gfx.v")],
+                 cwd=out, log=out / "gfx_flow_check.log")
         controller = out / "src/modules/jttms10/hdl/jttms10_ctrl.v"
         if "function automatic [7:0] decode_family" in controller.read_text():
             for relative in ("ver/decoder/generate.py", "ver/decoder/dump.sv",
@@ -220,17 +244,20 @@ def main():
         "source_sha256": hashes,
         "scope": ("old NARC GSP with tied-off host/HOLD and VCLK enable"
                   if args.reference else
-                  "new NARC GSP with tied-off host/HOLD and VCLK enable; graphics/timing incomplete; same board cycle-controller exclusion as reference"
+                  "new NARC GSP with tied-off host/HOLD and VCLK enable; complete graphics engine; same board cycle-controller exclusion as reference"
                   if args.narc else
                   "standalone I/O, video, refresh, bus and synchronous host fabric; excludes CPU, field adapter, asynchronous physical host pins and graphics datapath"
                   if args.fabric else
-                  "integrated CPU, field adapter/cache, I/O/video/refresh/bus and synchronous host; incomplete graphics/timing, excludes asynchronous physical host pins and NARC timing controller"
+                  "integrated CPU with graphics engine, field adapter/cache, I/O/video/refresh/bus and synchronous host; excludes asynchronous physical host pins and NARC timing controller"
                   if args.system else
-                  "incomplete scalar CPU plus physical-word field adapter/cache; excludes I/O, video, arbitration and complete graphics"
+                  "CPU with graphics engine plus physical-word field adapter/cache; excludes I/O, video, arbitration and NARC integration"
                   if args.word else
-                  "incomplete scalar CPU alone; excludes I/O, video, field adapter, arbitration and graphics"),
+                  "CPU with graphics engine alone; excludes I/O, video, field adapter, arbitration and NARC integration"),
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    if args.snapshot_only:
+        print(f"Source snapshot: {out / 'manifest.json'}")
+        return
     for phase in ("map", "fit"):
         print(f"{project}: quartus_{phase}", flush=True)
         call([str(tool / f"quartus_{phase}"), project,

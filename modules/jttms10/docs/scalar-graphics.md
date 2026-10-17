@@ -13,6 +13,11 @@ printed pages 12-57–12-58 and CVXYL on pages 12-59–12-60. The programs in
 file. A source/destination alias must use the original source value; writing
 B4 as CVXYL's destination must use its original OFFSET value.
 
+Both families run in the graphics microcode ROM. The microprogram primes
+implied B-register reads, then uses the shared ALU for signed half-word
+comparisons or iterative XY-to-linear conversion; it adds no dedicated
+coordinate arithmetic unit.
+
 CPW treats both halves of the point and the window corners as signed 16-bit
 coordinates. WSTART and WEND are inclusive. Their coordinates must be
 positive; TI calls negative window coordinates unpredictable. The destination

@@ -1,0 +1,1760 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# TMS34010 graphics microprogram. gschema entries are unreachable width anchors.
+config:
+  entries: 256
+  entry_len: 16
+  latch_ucode: true
+  ignore_cycles: true
+include:
+- gfx_line.yaml
+constants:
+  TARGET_GFXIDLE: ''
+  TARGET_GCPW: t4
+  TARGET_GCVXYL: t5
+  TARGET_GPIXT_RXY: t4 t5
+  TARGET_GPIXT_XYREG: t6
+  TARGET_GPIXT_XYXY: t4 t6
+  TARGET_GDRAV: t5 t6
+  TARGET_GPIXT_RLIN: t4 t5 t6
+  TARGET_GPIXT_LINREG: t7
+  TARGET_GPIXT_LINLIN: t4 t7
+  TARGET_GARRAY: t5 t7
+  TARGET_GLINE: t4 t5 t7
+  TARGET_GPIXCONV: t6 t7
+  TARGET_GWINCHECK: t4 t6 t7
+  TARGET_GPROCESS: t5 t6 t7
+  TARGET_GPIXEND: t4 t5 t6 t7
+  TARGET_GARRAYREBASE: t8
+  TARGET_GPXDREAD: t4 t8
+  TARGET_GCONVSRC: t5 t8
+  TARGET_GCONVDST: t4 t5 t8
+  TARGET_GCONVCORE: t6 t8
+  TARGET_GCONVYLOOP: t4 t6 t8
+  TARGET_GCONVXINIT: t5 t6 t8
+  TARGET_GCONVXLOOP: t4 t5 t6 t8
+  TARGET_GRXYW1: t4 t5 t6 t7 t8
+  TARGET_GRXYW23: t9
+  TARGET_GRXYDRAW: t4 t9
+  TARGET_GWVPEND: t5 t9
+  TARGET_GXYXYW1: t4 t5 t9
+  TARGET_GXYXYW23: t6 t9
+  TARGET_GXYXYDRAW: t4 t6 t9
+  TARGET_GDRAVW1: t5 t6 t9
+  TARGET_GDRAVW23: t4 t5 t6 t9
+  TARGET_GDRAVWVP: t7 t9
+  TARGET_GDRAVDRAW: t4 t7 t9
+  TARGET_GDRAVADVANCE: t5 t7 t9
+  TARGET_GFILLDISPATCH: t4 t5 t7 t9
+  TARGET_GFILLL: t6 t7 t9
+  TARGET_GFILLHEIGHT: t4 t6 t7 t9
+  TARGET_GFILLLOOP: t5 t6 t7 t9
+  TARGET_GFILLADV: t4 t5 t6 t7 t9
+  TARGET_GFILLROW: t8 t9
+  TARGET_GFILLDONE: t4 t8 t9
+  TARGET_GFILLXY: t5 t8 t9
+  TARGET_GFILLDIMS: t4 t5 t6 t7 t8 t9
+  TARGET_GBLTLL: t4 t5 t8 t9
+  TARGET_GBLTHT: t6 t8 t9
+  TARGET_GBLTLOOP: t4 t6 t8 t9
+  TARGET_GBLTADV: t5 t6 t8 t9
+  TARGET_GBLTROW: t4 t5 t6 t8 t9
+  TARGET_GBLTROWFINISH: t7 t8 t9
+  TARGET_GBLTDONE: t4 t7 t8 t9
+  TARGET_GBLTDONEWRITE: t5 t7 t9 t11
+  TARGET_GBLTPRE: t6 t7 t8 t9
+  TARGET_GBLTCOUNT: t4 t6 t7 t8 t9
+  TARGET_GBLTROWREVERSE: t5 t6 t7 t8 t9
+  TARGET_GBLTXY: t5 t7 t8 t9
+  TARGET_GBLTDIMS: t10
+  TARGET_GBLTSRCLIN: t4 t10
+  TARGET_GBLTSRCXY: t5 t10
+  TARGET_GBLTDESTDECIDE: t4 t5 t10
+  TARGET_GBLTDESTLIN: t6 t10
+  TARGET_GBLTDESTXY: t4 t6 t10
+  TARGET_GBINARY: t4 t5 t7 t8 t9
+  TARGET_GBINLOOP: t11
+  TARGET_GBINSELECT: t7 t8 t11
+  TARGET_GBINCHUNK: t4 t11
+  TARGET_GBINCOLOR0: t5 t11
+  TARGET_GBINCOLOR1: t4 t5 t11
+  TARGET_GBINDEST: t6 t11
+  TARGET_GBINADV: t4 t6 t11
+  TARGET_GBINCOUNT: t5 t6 t11
+  TARGET_GBINROWFINISH: t4 t5 t6 t11
+  TARGET_GBLTCHK: t7 t11
+  TARGET_GBLTCHKREV: t4 t7 t11
+  TARGET_GBINCHK: t5 t7 t11
+  TARGET_GCTXBLT: t4 t5 t7 t11
+  TARGET_GCTXBITMAP: t6 t7 t11
+  TARGET_GCTXNOBITMAP: t4 t6 t7 t11
+  TARGET_GCTXTAIL: t5 t6 t7 t11
+  TARGET_GBLTROWFORWARD: t4 t5 t6 t7 t11
+  TARGET_GREBASEHEAD: t8 t11
+  TARGET_GREBASEPTR: t4 t8 t11
+  TARGET_GREBASEFILL: t5 t8 t11
+  TARGET_GFILLCHK: t4 t6 t8 t11
+  TARGET_GCTXFILL: t5 t6 t8 t11
+  TARGET_GCTXFILLTAIL: t4 t5 t6 t8 t11
+  TARGET_GREBASEHEIGHT: t4 t5 t7 t9 t11
+  TARGET_GFWSETUP: t5 t6 t10
+  TARGET_GFWHEIGHT: t4 t5 t6 t10
+  TARGET_GFWEXTENT: t7 t10
+  TARGET_GFWBOUNDS: t4 t7 t10
+  TARGET_GFWVIOLATE: t5 t7 t10
+  TARGET_GFWPOLICY: t4 t5 t7 t10
+  TARGET_GFW2: t6 t7 t10
+  TARGET_GFW2ABORT: t4 t6 t7 t10
+  TARGET_GFW3: t5 t6 t7 t10
+  TARGET_GFWDRAWFULL: t4 t5 t6 t7 t10
+  TARGET_GFWINTERSECT: t8 t10
+  TARGET_GFWNOHIT: t4 t8 t10
+  TARGET_GFWW1MISS: t5 t8 t10
+  TARGET_GFWW1HIT: t4 t5 t8 t10
+  TARGET_GFWCLIPCALC: t6 t8 t10
+  TARGET_GFWCLIPCALCWIN: t4 t6 t8 t10
+  TARGET_GFWCLIPCALCORIG: t5 t6 t8 t10
+  TARGET_GFWTOPPICK: t4 t5 t6 t8 t10
+  TARGET_GFWTOPPICKWIN: t7 t8 t10
+  TARGET_GFWTOPPICKORIG: t4 t7 t8 t10
+  TARGET_GFWRIGHTPICK: t5 t7 t8 t10
+  TARGET_GFWRIGHTPICKWIN: t4 t5 t7 t8 t10
+  TARGET_GFWRIGHTPICKORIG: t6 t7 t8 t10
+  TARGET_GFWBOTTOMPICK: t4 t6 t7 t8 t10
+  TARGET_GFWBOTTOMPICKWIN: t5 t6 t7 t8 t10
+  TARGET_GFWBOTTOMPICKORIG: t4 t5 t6 t7 t8 t10
+  TARGET_GFWDIMENSIONS: t9 t10
+  TARGET_GFWW1RESULT: t4 t9 t10
+  TARGET_GFWW3DRAW: t5 t9 t10
+  TARGET_GFWCLIPCONV: t4 t5 t9 t10
+  TARGET_GBLTDESTMODE: t4 t7 t8 t11
+  TARGET_GMIXWINENTRY: t5 t7 t8 t11
+  TARGET_GMIXSOURCE: t4 t5 t7 t8 t11
+  TARGET_GMIXSRCLIN: t6 t7 t8 t11
+  TARGET_GMIXSRCXY: t4 t6 t7 t8 t11
+  TARGET_GMIXDSTSET: t5 t6 t7 t8 t11
+  TARGET_GMIXSOURCECLIP: t4 t5 t6 t7 t8 t11
+  TARGET_GMIXCLIPDELTA: t9 t11
+  TARGET_GMIXSRCXYCLIP: t4 t9 t11
+  TARGET_GMIXSRCLINCLIP: t5 t9 t11
+  TARGET_GBINCLIPSCALE: t5 t6 t9 t11
+  TARGET_GCLIPXMUL: t4 t5 t6 t9 t11
+  TARGET_GCLIPXMULFINISH: t7 t9 t11
+  TARGET_GMULINIT: t4 t5 t9 t11
+  TARGET_GMULLOOP: t6 t9 t11
+  TARGET_GMULSHIFT: t4 t6 t9 t11
+  TARGET_GMULDONE: t4 t7 t9 t11
+  TARGET_GBLTSTART: t6 t7 t9 t11
+  TARGET_GMIXDONE: t4 t6 t7 t9 t11
+  TARGET_GCORNERSTART: t5 t6 t7 t9 t11
+  TARGET_GCORNERH: t4 t5 t6 t7 t9 t11
+  TARGET_GCORNERHOFF: t8 t9 t11
+  TARGET_GCORNERV: t4 t8 t9 t11
+  TARGET_GCORNERVSRC: t5 t8 t9 t11
+  TARGET_GCORNERVDEST: t4 t5 t8 t9 t11
+  TARGET_GCORNERCURRENT: t6 t8 t9 t11
+  TARGET_GCANONH: t4 t6 t8 t9 t11
+  TARGET_GCANONHSUB: t5 t6 t8 t9 t11
+  TARGET_GCANONV: t4 t5 t6 t8 t9 t11
+  TARGET_GCANONVSRC: t7 t8 t9 t11
+  TARGET_GCANONVDEST: t4 t7 t8 t9 t11
+  TARGET_GCPWXLOW: t4 t7 t8
+  TARGET_GCPWXHIGH: t5 t7 t8
+  TARGET_GCPWYLOW: t4 t5 t7 t8
+  TARGET_GCPWYHIGH: t6 t7 t8
+  TARGET_GCPWSET: t4 t6 t7 t8
+  TARGET_GCPWSHIFT: t5 t6 t7 t8
+  TARGET_GCONVFINISH: t7 t8
+ucode:
+- name: gfxidle
+  start: 0
+  seq:
+  - end_gflow
+- name: gcpw
+  start: 1
+  seq:
+  - sa2 sa3 sa4 sa5, da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da2 da3 da4 da5
+  - rf_gdst, sa5, da5
+  - k_gas
+  - rf_gdst, sa1 sa4 sa5, da1 da4 da5
+  - k_gas, m3_gam
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - clear_gclip
+  - jump_gflow, ${TARGET_GCPWXLOW}
+- name: gcvxyl
+  start: 2
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa2 sa3 sa4 sa5, da0 da5
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa1 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: gpixt_rxy
+  start: 3
+  seq:
+  - sa0 sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qd_gas, sa0 sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa0 sa5, da0 da5
+  - call_gflow, ${TARGET_GWINCHECK}
+  - w1_gcond, jump_gflow, ${TARGET_GRXYW1}
+  - w2_gcond, jump_gflow, ${TARGET_GRXYW23}
+  - w3_gcond, jump_gflow, ${TARGET_GRXYW23}
+  - jump_gflow, ${TARGET_GRXYDRAW}
+- name: gpixt_xyreg
+  start: 4
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa2 sa3 sa4 sa5, da5
+  - call_gflow, ${TARGET_GCONVSRC}
+  - rdpx_gbus, source_gpix
+  - mdrf, sa5, da5
+  - visible_gpix, vpix_gflg, sa5, da0 da2 da3 da4 da5
+  - mdrf, sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: gpixt_xyxy
+  start: 5
+  seq:
+  - sa0 sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qd_gas, sa0 sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa0 sa5, da0 da5
+  - call_gflow, ${TARGET_GWINCHECK}
+  - w1_gcond, jump_gflow, ${TARGET_GXYXYW1}
+  - w2_gcond, jump_gflow, ${TARGET_GXYXYW23}
+  - w3_gcond, jump_gflow, ${TARGET_GXYXYW23}
+  - jump_gflow, ${TARGET_GXYXYDRAW}
+- name: gdrav
+  start: 6
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa5, da5
+  - sa0 sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa0 sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa0 sa5, da0 da5
+  - call_gflow, ${TARGET_GWINCHECK}
+  - w1_gcond, jump_gflow, ${TARGET_GDRAVW1}
+  - w2_gcond, jump_gflow, ${TARGET_GDRAVW23}
+  - w3_gcond, jump_gflow, ${TARGET_GDRAVW23}
+  - jump_gflow, ${TARGET_GDRAVDRAW}
+- name: gpixt_rlin
+  start: 7
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qd_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - ea_gdst, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - process_gpix, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - transparent_gcond, jump_gflow, ${TARGET_GPIXEND}, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - wrpx_gbus, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: gpixt_linreg
+  start: 8
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - ea_gdst, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rdpx_gbus, source_gpix, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - mdrf, sa5, da5
+  - visible_gpix, vpix_gflg, sa5, da0 da2 da3 da4 da5
+  - mdrf, sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: gpixt_linlin
+  start: 9
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - ea_gdst, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rdpx_gbus, source_gpix, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - mdrf, sa0 sa2 sa3 sa4 sa5, da5
+  - qs_gas, sa5, da0 da2 da3 da4 da5
+  - ea_gdst, sa5, da0 da2 da3 da4 da5
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa5, da0 da2 da3 da4 da5
+  - sa5, da0 da2 da3 da4 da5
+  - process_gpix, sa5, da0 da2 da3 da4 da5
+  - transparent_gcond, jump_gflow, ${TARGET_GPIXEND}, sa5, da0 da2 da3 da4 da5
+  - wrpx_gbus, sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: garray
+  start: 10
+  seq:
+  - fill_gcond, jump_gflow, ${TARGET_GFILLDISPATCH}
+  - binary_gcond, jump_gflow, ${TARGET_GBINARY}
+  - dstxy_gcond, jump_gflow, ${TARGET_GBLTDESTMODE}
+  - srcxy_gcond, jump_gflow, ${TARGET_GBLTXY}
+  - jump_gflow, ${TARGET_GBLTLL}
+- name: gline
+  start: 11
+  seq:
+  - jump_gflow, ${TARGET_GLINEINIT}
+- name: gpixconv
+  start: 12
+  seq:
+  - end_gflow
+- name: gwincheck
+  start: 13
+  seq:
+  - clear_gclip
+  - sa0 sa2 sa4, da0 da5
+  - qs_gas, m1_gam, qd_gbs, m1_gbm, sa0 sa2 sa4, da0 da5
+  - sub_galu, lt_gclip
+  - sa1 sa2 sa4, da0 da5
+  - qs_gas, m1_gam, qd_gbs, m1_gbm, sa1 sa2 sa4, da0 da5
+  - sub_galu, gt_gclip
+  - sa0 sa2 sa4, da0 da5
+  - qs_gas, m3_gam, qd_gbs, m3_gbm, sa0 sa2 sa4, da0 da5
+  - sub_galu, lt_gclip
+  - sa1 sa2 sa4, da0 da5
+  - qs_gas, m3_gam, qd_gbs, m3_gbm, sa1 sa2 sa4, da0 da5
+  - sub_galu, gt_gclip
+  - ret_gflow
+- name: gprocess
+  start: 14
+  seq:
+  - end_gflow
+- name: gpixend
+  start: 15
+  seq:
+  - end_gflow
+- name: garrayrebase
+  start: 16
+  seq:
+  - jump_gflow, ${TARGET_GREBASEHEAD}
+- name: gpxdread
+  start: 17
+  seq:
+  - rdpx_gbus
+  - ret_gflow
+- name: gconvsrc
+  start: 18
+  seq:
+  - sa5, da5
+  - qs_gas, m2_gam, sa5, da5
+  - rf_gdst, sa5, da1 da3 da5
+  - sa5, da5
+  - qs_gas, m3_gam, sa5, da5
+  - rf_gdst, sa5, da0 da1 da3 da5
+  - k_gas, m4_gam
+  - rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - call_gflow, ${TARGET_GCONVCORE}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - ea_gdst, ret_gflow
+- name: gconvdst
+  start: 19
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, m2_gam, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da1 da3 da5
+  - sa0 sa5, da0 da5
+  - qs_gas, m3_gam, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da0 da1 da3 da5
+  - k_gas, m5_gam
+  - rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - call_gflow, ${TARGET_GCONVCORE}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - ea_gdst, ret_gflow
+- name: gconvcore
+  start: 20
+  seq:
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gas, sa0 sa4 sa5, da0 da4 da5
+  - k_gbs, m3_gbm
+  - sub_galu, rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gbs, sa0 sa4 sa5, da0 da4 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - jump_gflow, ${TARGET_GCONVYLOOP}
+- name: gconvyloop
+  start: 21
+  seq:
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gas, sa0 sa4 sa5, da0 da4 da5
+  - z_gcond, jump_gflow, ${TARGET_GCONVXINIT}
+  - sa0 sa1 sa3 sa5, da0 da1 da3 da5
+  - qs_gas, sa0 sa1 sa3 sa5, da0 da1 da3 da5
+  - shl_galu, rf_gdst, sa0 sa1 sa3 sa5, da0 da1 da3 da5
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gbs, sa0 sa4 sa5, da0 da4 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - jump_gflow, ${TARGET_GCONVYLOOP}
+- name: gconvxinit
+  start: 22
+  seq:
+  - k_gas, m2_gam
+  - rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - jump_gflow, ${TARGET_GCONVXLOOP}
+- name: gconvxloop
+  start: 23
+  seq:
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gas, sa0 sa4 sa5, da0 da4 da5
+  - k_gbs, m1_gbm
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GCONVFINISH}
+  - sa1 sa3 sa5, da1 da3 da5
+  - qs_gas, sa1 sa3 sa5, da1 da3 da5
+  - shl_galu, rf_gdst, sa1 sa3 sa5, da1 da3 da5
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gas, sa0 sa4 sa5, da0 da4 da5
+  - shr_galu, rf_gdst, sa0 sa4 sa5, da0 da4 da5
+  - jump_gflow, ${TARGET_GCONVXLOOP}
+- name: grxyw1
+  start: 31
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GWVPEND}
+  - end_gflow
+- name: grxyw23
+  start: 32
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GRXYDRAW}
+  - w2_gcond, jump_gflow, ${TARGET_GWVPEND}
+  - end_gflow
+- name: grxydraw
+  start: 33
+  seq:
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - process_gpix, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - transparent_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - wrpx_gbus
+  - end_gflow
+- name: gwvpend
+  start: 34
+  seq:
+  - wvp_gflg
+  - end_gflow
+- name: gxyxyw1
+  start: 35
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GWVPEND}
+  - end_gflow
+- name: gxyxyw23
+  start: 36
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GXYXYDRAW}
+  - w2_gcond, jump_gflow, ${TARGET_GWVPEND}
+  - end_gflow
+- name: gxyxydraw
+  start: 37
+  seq:
+  - sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - qs_gas, sa2 sa3 sa4 sa5, da0 da2 da3 da4 da5
+  - rf_gdst, sa2 sa3 sa4 sa5, da5
+  - call_gflow, ${TARGET_GCONVSRC}
+  - rdpx_gbus, source_gpix
+  - mdrf, sa1 sa5, da1 da5
+  - call_gflow, ${TARGET_GCONVDST}
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}
+  - sa1 sa5, da1 da5
+  - process_gpix, sa1 sa5, da1 da5
+  - transparent_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - wrpx_gbus
+  - end_gflow
+- name: gdravw1
+  start: 38
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GDRAVWVP}
+  - jump_gflow, ${TARGET_GDRAVADVANCE}
+- name: gdravw23
+  start: 39
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GDRAVDRAW}
+  - w2_gcond, jump_gflow, ${TARGET_GDRAVWVP}
+  - jump_gflow, ${TARGET_GDRAVADVANCE}
+- name: gdravwvp
+  start: 40
+  seq:
+  - wvp_gflg
+  - jump_gflow, ${TARGET_GDRAVADVANCE}
+- name: gdravdraw
+  start: 41
+  seq:
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa3 sa4, da0 da3 da4
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4, da0 da3 da4
+  - sa0 sa3 sa4, da0 da3 da4
+  - process_gpix, sa0 sa3 sa4, da0 da3 da4
+  - transparent_gcond, jump_gflow, ${TARGET_GDRAVADVANCE}
+  - wrpx_gbus
+  - jump_gflow, ${TARGET_GDRAVADVANCE}
+- name: gdravadvance
+  start: 42
+  seq:
+  - sa5, da0 da5
+  - qs_gas, m2_gam, qd_gbs, m2_gbm, sa5, da0 da5
+  - add_galu, rf_gdst, sa5, da1 da3 da5
+  - sa5, da0 da5
+  - qs_gas, m4_gam, qd_gbs, m4_gbm, sa5, da0 da5
+  - add_galu, rf_gdst, sa5, da0 da1 da3 da5
+  - sa0 sa1 sa3 sa5, da1 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa0 sa1 sa3 sa5, da1 da3 da5
+  - or_galu, rf_gdst, sa0 sa1 sa3 sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: gfilldispatch
+  start: 43
+  seq:
+  - dstxy_gcond, jump_gflow, ${TARGET_GFILLXY}
+  - jump_gflow, ${TARGET_GFILLL}
+- name: gfilll
+  start: 44
+  seq:
+  - sa1 sa4, da1 da4
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa1 sa4, da0 da5
+  - rf_gdst, sa1 sa4, da5
+  - jump_gflow, ${TARGET_GFILLDIMS}
+- name: gfillheight
+  start: 45
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - jump_gflow, ${TARGET_GFILLLOOP}
+- name: gfillloop
+  start: 46
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - ea_gdst
+  - sa0 sa3 sa4, da0 da3 da4
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4, da0 da3 da4
+  - sa0 sa3 sa4, da0 da3 da4
+  - process_gpix, sa0 sa3 sa4, da0 da3 da4
+  - transparent_gcond, jump_gflow, ${TARGET_GFILLADV}
+  - wrpx_gbus
+  - jump_gflow, ${TARGET_GFILLADV}
+- name: gfilladv
+  start: 47
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - k_gbs, m2_gbm
+  - add_galu, rf_gdst, sa0 sa5, da0 da5
+  - sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - qs_gbs, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GFILLROW}
+  - jump_gflow, ${TARGET_GFILLCHK}
+- name: gfillrow
+  start: 48
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gbs, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GFILLDONE}
+  - sa5, da0 da1 da4
+  - qs_gas, qd_gbs, sa5, da0 da1 da4
+  - add_galu, rf_gdst, sa5, da5
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da0 da5
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - rf_gdst, sa2 sa3 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GCTXFILL}
+- name: gfilldone
+  start: 49
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da1 da4
+  - end_gflow
+- name: gfillxy
+  start: 50
+  seq:
+  - sa1 sa4, da1 da4
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa0 sa5, da0 da5
+  - w1_gcond, jump_gflow, ${TARGET_GFWSETUP}
+  - w2_gcond, jump_gflow, ${TARGET_GFWSETUP}
+  - w3_gcond, jump_gflow, ${TARGET_GFWSETUP}
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da5
+  - jump_gflow, ${TARGET_GFILLDIMS}
+- name: gfilldims
+  start: 63
+  seq:
+  - sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - qs_gas, m2_gam, sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - rf_gdst, sa0 sa1 sa2 sa4, da2 da3 da5
+  - rf_gdst, sa0 sa1 sa2 sa4, da0 da2 da3 da5
+  - sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - qs_gas, m4_gam, sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - rf_gdst, sa0 sa1 sa2 sa4, da1 da2 da3 da5
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - jump_gflow, ${TARGET_GFILLHEIGHT}
+- name: gbltll
+  start: 51
+  seq:
+  - sa4, da4
+  - qs_gas, sa4, da4
+  - rf_gdst, sa4, da5
+  - rf_gdst, sa1 sa4, da1 da5
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa1 sa4, da0 da5
+  - rf_gdst, sa1 sa4, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTDIMS}
+- name: gbltht
+  start: 52
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - binary_gcond, jump_gflow, ${TARGET_GBINLOOP}
+  - jump_gflow, ${TARGET_GBLTLOOP}
+- name: gbltloop
+  start: 53
+  seq:
+  - pbh_gcond, call_gflow, ${TARGET_GBLTPRE}
+  - sa1 sa5, da1 da5
+  - qs_gas, sa1 sa5, da1 da5
+  - ea_gdst
+  - rdpx_gbus, source_gpix
+  - mdrf, sa2 sa5, da2 da5
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - ea_gdst
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}
+  - sa2 sa5, da2 da5
+  - process_gpix, sa2 sa5, da2 da5
+  - transparent_gcond, jump_gflow, ${TARGET_GBLTADV}
+  - wrpx_gbus
+  - jump_gflow, ${TARGET_GBLTADV}
+- name: gbltadv
+  start: 54
+  seq:
+  - pbh_gcond, jump_gflow, ${TARGET_GBLTCOUNT}
+  - sa1 sa5, da1 da5
+  - qs_gas, sa1 sa5, da1 da5
+  - k_gbs, m2_gbm
+  - add_galu, rf_gdst, sa1 sa5, da1 da5
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - k_gbs, m2_gbm
+  - add_galu, rf_gdst, sa0 sa1 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTCOUNT}
+- name: gbltrow
+  start: 55
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gbs, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - binary_gcond, jump_gflow, ${TARGET_GBLTROWFORWARD}
+  - pbv_gcond, jump_gflow, ${TARGET_GBLTROWREVERSE}
+  - sa5, da0 da4
+  - qs_gas, qd_gbs, sa5, da0 da4
+  - add_galu, rf_gdst, sa5, da5
+  - sa0 sa5, da0 da1 da4
+  - qs_gas, qd_gbs, sa0 sa5, da0 da1 da4
+  - add_galu, rf_gdst, sa0 sa5, da0 da5
+  - jump_gflow, ${TARGET_GBLTROWFINISH}
+- name: gbltrowfinish
+  start: 56
+  seq:
+  - binary_gcond, jump_gflow, ${TARGET_GBINROWFINISH}
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GBLTDONE}
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da1 da5
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da0 da1 da5
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - rf_gdst, sa2 sa3 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GCTXBLT}
+- name: gbltdone
+  start: 57
+  seq:
+  - binary_gcond, jump_gflow, ${TARGET_GBLTDONEWRITE}
+  - srcxy_gcond, jump_gflow, ${TARGET_GMIXDONE}
+  - dstxy_gcond, jump_gflow, ${TARGET_GMIXDONE}
+  - jump_gflow, ${TARGET_GBLTDONEWRITE}
+- name: gbltdonewrite
+  start: 170
+  seq:
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da4
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da1 da4
+  - end_gflow
+- name: gbltpre
+  start: 60
+  seq:
+  - sa1 sa5, da1 da5
+  - qs_gbs, sa1 sa5, da1 da5
+  - k_gas, m2_gam
+  - sub_galu, rf_gdst, sa1 sa5, da1 da5
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gbs, sa0 sa1 sa5, da0 da1 da5
+  - k_gas, m2_gam
+  - sub_galu, rf_gdst, sa0 sa1 sa5, da0 da1 da5
+  - ret_gflow
+- name: gbltcount
+  start: 61
+  seq:
+  - sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - qs_gbs, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GBLTROW}
+  - jump_gflow, ${TARGET_GBLTCHK}
+- name: gbltrowreverse
+  start: 62
+  seq:
+  - sa0 sa4, da5
+  - qs_gas, qd_gbs, sa0 sa4, da5
+  - sub_galu, rf_gdst, sa5, da5
+  - sa0 sa1 sa4, da0 da5
+  - qs_gas, qd_gbs, sa0 sa1 sa4, da0 da5
+  - sub_galu, rf_gdst, sa0 sa5, da0 da5
+  - jump_gflow, ${TARGET_GBLTROWFINISH}
+- name: gbltxy
+  start: 58
+  seq:
+  - srcxy_gcond, jump_gflow, ${TARGET_GBLTSRCXY}
+  - jump_gflow, ${TARGET_GBLTSRCLIN}
+- name: gbltdims
+  start: 64
+  seq:
+  - sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - qs_gas, m2_gam, sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - rf_gdst, sa0 sa1 sa2 sa4, da2 da3 da5
+  - rf_gdst, sa0 sa1 sa2 sa4, da0 da2 da3 da5
+  - sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - qs_gas, m4_gam, sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - rf_gdst, sa0 sa1 sa2 sa4, da1 da2 da3 da5
+  - rf_gdst, sa0 sa1 sa2 sa4, da0 da1 da2 da3 da5
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - jump_gflow, ${TARGET_GBLTSTART}
+- name: gbltsrclin
+  start: 65
+  seq:
+  - sa4, da4
+  - qs_gas, sa4, da4
+  - rf_gdst, sa4, da5
+  - rf_gdst, sa4, da1 da5
+  - jump_gflow, ${TARGET_GBLTDESTDECIDE}
+- name: gbltsrcxy
+  start: 66
+  seq:
+  - sa4, da4
+  - qs_gas, sa4, da4
+  - rf_gdst, sa5, da5
+  - call_gflow, ${TARGET_GCONVSRC}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da1 da5
+  - jump_gflow, ${TARGET_GBLTDESTDECIDE}
+- name: gbltdestdecide
+  start: 67
+  seq:
+  - dstxy_gcond, jump_gflow, ${TARGET_GBLTDESTXY}
+  - jump_gflow, ${TARGET_GBLTDESTLIN}
+- name: gbltdestlin
+  start: 68
+  seq:
+  - sa1 sa4, da1 da4
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa1 sa4, da0 da5
+  - rf_gdst, sa1 sa4, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTDIMS}
+- name: gbltdestxy
+  start: 69
+  seq:
+  - sa1 sa4, da1 da4
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa0 sa5, da0 da5
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTDIMS}
+- name: gbinary
+  start: 59
+  seq:
+  - dstxy_gcond, jump_gflow, ${TARGET_GBLTDESTMODE}
+  - jump_gflow, ${TARGET_GBLTLL}
+- name: gbinloop
+  start: 128
+  seq:
+  - sa0 sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, qd_gbs, sa0 sa2 sa3 sa5, da2 da3 da5
+  - sub_galu, rf_gdst, sa0 sa2 sa3 sa5, da1 da4 da5
+  - sa1 sa4 sa5, da1 da4 da5
+  - qs_gas, m5_gam, sa1 sa4 sa5, da1 da4 da5
+  - z_gcond, jump_gflow, ${TARGET_GBINCHUNK}
+  - jump_gflow, ${TARGET_GBINSELECT}
+- name: gbinselect
+  start: 152
+  seq:
+  - sa4 sa5, da4 da5
+  - qs_gas, sa4 sa5, da4 da5
+  - k_gbs, m1_gbm
+  - and_galu, z_gcond, jump_gflow, ${TARGET_GBINCOLOR0}
+  - jump_gflow, ${TARGET_GBINCOLOR1}
+- name: gbinchunk
+  start: 129
+  seq:
+  - sa1 sa5, da1 da5
+  - qs_gas, sa1 sa5, da1 da5
+  - ea_gdst, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - rd_gbus, chunk_gsize, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - mdrf, sa1 sa5, da4 da5
+  - qs_gas, k_gbs, m3_gbm, sa1 sa5, da1 da5
+  - add_galu, rf_gdst, sa1 sa5, da1 da5
+  - jump_gflow, ${TARGET_GBINSELECT}
+- name: gbincolor0
+  start: 130
+  seq:
+  - sa3 sa4, da3 da4
+  - qs_gas, sa3 sa4, da3 da4
+  - rf_gdst, sa3 sa4, da2 da5
+  - jump_gflow, ${TARGET_GBINDEST}
+- name: gbincolor1
+  start: 131
+  seq:
+  - sa0 sa3 sa4, da0 da3 da4
+  - qs_gas, sa0 sa3 sa4, da0 da3 da4
+  - rf_gdst, sa0 sa3 sa4, da2 da5
+  - jump_gflow, ${TARGET_GBINDEST}
+- name: gbindest
+  start: 132
+  seq:
+  - sa4 sa5, da4 da5
+  - qs_gas, sa4 sa5, da4 da5
+  - shr_galu, rf_gdst, sa4 sa5, da4 da5
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - ea_gdst
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}
+  - sa2 sa5, da2 da5
+  - process_gpix, sa2 sa5, da2 da5
+  - transparent_gcond, jump_gflow, ${TARGET_GBINADV}
+  - wrpx_gbus
+  - jump_gflow, ${TARGET_GBINADV}
+- name: gbinadv
+  start: 133
+  seq:
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - k_gbs, m2_gbm
+  - add_galu, rf_gdst, sa0 sa1 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBINCOUNT}
+- name: gbincount
+  start: 134
+  seq:
+  - sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - qs_gbs, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GBLTROW}
+  - jump_gflow, ${TARGET_GBINCHK}
+- name: gbinrowfinish
+  start: 135
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GBLTDONE}
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da1 da5
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da0 da1 da5
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - rf_gdst, sa2 sa3 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GCTXBLT}
+- name: gbltchk
+  start: 136
+  seq:
+  - pbh_gcond, jump_gflow, ${TARGET_GBLTCHKREV}
+  - sa0 sa1 sa5, da0 da1 da5
+  - wordboundary_gcond, jump_gflow, ${TARGET_GCTXBLT}
+  - jump_gflow, ${TARGET_GBLTLOOP}
+- name: gbltchkrev
+  start: 137
+  seq:
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gbs, sa0 sa1 sa5, da0 da1 da5
+  - k_gas, m2_gam
+  - sub_galu, rf_gdst, sa0 sa1 sa5, da1 da4 da5
+  - sa1 sa4 sa5, da1 da4 da5
+  - wordboundary_gcond, jump_gflow, ${TARGET_GCTXBLT}
+  - jump_gflow, ${TARGET_GBLTLOOP}
+- name: gbinchk
+  start: 138
+  seq:
+  - sa0 sa1 sa5, da0 da1 da5
+  - wordboundary_gcond, jump_gflow, ${TARGET_GCTXBLT}
+  - jump_gflow, ${TARGET_GBINLOOP}
+- name: gctxblt
+  start: 139
+  seq:
+  - sa1 sa5, da1 da5
+  - qs_gas, sa1 sa5, da1 da5
+  - rf_gdst, sa1 sa5, da4
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - rf_gdst, sa0 sa1 sa5, da1 da4
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, m6_gam, sa2 sa3 sa5, da2 da3 da5
+  - k_gbs, m7_gbm
+  - or_galu, rf_gdst, sa2 sa3 sa5, da1 da3 da4
+  - sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - or_galu, rf_gdst, sa1 sa2 sa3 sa5, da0 da1 da3 da4
+  - binary_gcond, jump_gflow, ${TARGET_GCTXBITMAP}
+  - jump_gflow, ${TARGET_GCTXNOBITMAP}
+- name: gctxbitmap
+  start: 140
+  seq:
+  - sa4 sa5, da4 da5
+  - qs_gas, sa4 sa5, da4 da5
+  - rf_gdst, sa4 sa5, da2 da3 da4
+  - jump_gflow, ${TARGET_GCTXTAIL}
+- name: gctxnobitmap
+  start: 141
+  seq:
+  - sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - qs_gas, m6_gam, sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - rf_gdst, sa0 sa1 sa2 sa3 sa5, da2 da3 da4
+  - jump_gflow, ${TARGET_GCTXTAIL}
+- name: gctxtail
+  start: 142
+  seq:
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da0 da2 da3 da4
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da1 da2 da3 da4
+  - check_gflow
+  - binary_gcond, jump_gflow, ${TARGET_GBINLOOP}
+  - jump_gflow, ${TARGET_GBLTLOOP}
+- name: gbltrowforward
+  start: 143
+  seq:
+  - sa5, da0 da4
+  - qs_gas, qd_gbs, sa5, da0 da4
+  - add_galu, rf_gdst, sa5, da5
+  - sa0 sa5, da0 da1 da4
+  - qs_gas, qd_gbs, sa0 sa5, da0 da1 da4
+  - add_galu, rf_gdst, sa0 sa5, da0 da5
+  - jump_gflow, ${TARGET_GBLTROWFINISH}
+- name: grebasehead
+  start: 144
+  seq:
+  - sa1 sa3 sa4, da1 da3 da4
+  - qs_gas, m2_gam, sa1 sa3 sa4, da1 da3 da4
+  - ir_gdst
+  - sa1 sa3 sa4, da1 da3 da4
+  - qs_gas, m4_gam, sa1 sa3 sa4, da1 da3 da4
+  - rf_gdst, sa1 sa3 sa4, da2 da3 da5
+  - sa0 sa1 sa3 sa4, da0 da1 da3 da4
+  - qs_gas, m2_gam, sa0 sa1 sa3 sa4, da0 da1 da3 da4
+  - rf_gdst, sa0 sa1 sa3 sa4, da0 da2 da3 da5
+  - sa0 sa1 sa3 sa4, da0 da1 da3 da4
+  - qs_gas, m4_gam, sa0 sa1 sa3 sa4, da0 da1 da3 da4
+  - rf_gdst, sa0 sa1 sa3 sa4, da1 da2 da3 da5
+  - sa2 sa3 sa4, da2 da3 da4
+  - qs_gas, sa2 sa3 sa4, da2 da3 da4
+  - rf_gdst, sa2 sa3 sa4, da4 da5
+  - jump_gflow, ${TARGET_GREBASEPTR}
+- name: grebaseptr
+  start: 145
+  seq:
+  - sa0 sa2 sa3 sa4, da0 da2 da3 da4
+  - qs_gas, sa0 sa2 sa3 sa4, da0 da2 da3 da4
+  - rf_gdst, sa0 sa2 sa3 sa4, da5
+  - sa1 sa2 sa3 sa4, da1 da2 da3 da4
+  - qs_gas, sa1 sa2 sa3 sa4, da1 da2 da3 da4
+  - rf_gdst, sa1 sa2 sa3 sa4, da0 da5
+  - sa4, da4
+  - qs_gas, sa4, da4
+  - rf_gdst, sa4, da1 da5
+  - sa1 sa4, da1 da4
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa1 sa4, da0 da1 da5
+  - fill_gcond, jump_gflow, ${TARGET_GREBASEFILL}
+  - binary_gcond, jump_gflow, ${TARGET_GBINLOOP}
+  - jump_gflow, ${TARGET_GREBASEHEIGHT}
+- name: grebasefill
+  start: 146
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da5
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - rf_gdst, sa0 sa1 sa5, da0 da5
+  - jump_gflow, ${TARGET_GFILLLOOP}
+- name: gfillchk
+  start: 149
+  seq:
+  - sa0 sa5, da0 da5
+  - wordboundary_gcond, jump_gflow, ${TARGET_GCTXFILL}
+  - jump_gflow, ${TARGET_GFILLLOOP}
+- name: gctxfill
+  start: 150
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da1 da4
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, m6_gam, sa2 sa3 sa5, da2 da3 da5
+  - k_gbs, m7_gbm
+  - or_galu, rf_gdst, sa2 sa3 sa5, da1 da3 da4
+  - sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - or_galu, rf_gdst, sa1 sa2 sa3 sa5, da0 da1 da3 da4
+  - k_gas
+  - rf_gdst, sa2 sa3 sa4, da2 da3 da4
+  - rf_gdst, sa0 sa2 sa3 sa4, da0 da2 da3 da4
+  - jump_gflow, ${TARGET_GCTXFILLTAIL}
+- name: gctxfilltail
+  start: 151
+  seq:
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da1 da2 da3 da4
+  - check_gflow
+  - jump_gflow, ${TARGET_GFILLLOOP}
+- name: grebaseheight
+  start: 171
+  seq:
+  - sa2 sa3 sa4, da2 da3 da4
+  - qs_gas, m4_gam, sa2 sa3 sa4, da2 da3 da4
+  - rf_gdst, sa2 sa3 sa4, da0 da1 da2 da3 da5
+  - jump_gflow, ${TARGET_GBLTLOOP}
+- name: gfwsetup
+  start: 70
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, m2_gam, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da1 da5
+  - sa0 sa5, da0 da5
+  - qs_gas, m3_gam, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da0 da1 da5
+  - sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - qs_gas, m2_gam, sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - rf_gdst, sa0 sa1 sa2 sa4, da4 da5
+  - sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - qs_gas, m4_gam, sa0 sa1 sa2 sa4, da0 da1 da2 da4
+  - rf_gdst, sa0 sa1 sa2 sa4, da0 da4 da5
+  - sa4 sa5, da4 da5
+  - qs_gas, sa4 sa5, da4 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - jump_gflow, ${TARGET_GFWHEIGHT}
+- name: gfwheight
+  start: 71
+  seq:
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gas, sa0 sa4 sa5, da0 da4 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - jump_gflow, ${TARGET_GFWEXTENT}
+- name: gfwextent
+  start: 72
+  seq:
+  - sa4 sa5, da1 da5
+  - qs_gas, qd_gbs, sa4 sa5, da1 da5
+  - add_galu, rf_gdst, sa4 sa5, da2 da5
+  - sa2 sa5, da2 da5
+  - qd_gbs, sa2 sa5, da2 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa2 sa5, da2 da5
+  - sa0 sa4 sa5, da0 da1 da5
+  - qs_gas, qd_gbs, sa0 sa4 sa5, da0 da1 da5
+  - add_galu, rf_gdst, sa0 sa4 sa5, da0 da2 da5
+  - sa0 sa2 sa5, da0 da2 da5
+  - qd_gbs, sa0 sa2 sa5, da0 da2 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa0 sa2 sa5, da0 da2 da5
+  - jump_gflow, ${TARGET_GFWBOUNDS}
+- name: gfwbounds
+  start: 73
+  seq:
+  - sa0 sa2 sa4, da0 da2 da4
+  - qs_gas, m1_gam, sa0 sa2 sa4, da0 da2 da4
+  - rf_gdst, sa0 sa2 sa4, da1 da2 da5
+  - sa0 sa2 sa4, da0 da2 da4
+  - qs_gas, m3_gam, sa0 sa2 sa4, da0 da2 da4
+  - rf_gdst, sa0 sa2 sa4, da0 da1 da2 da5
+  - sa1 sa2 sa4, da1 da2 da4
+  - qs_gas, m1_gam, sa1 sa2 sa4, da1 da2 da4
+  - rf_gdst, sa1 sa2 sa4, da3 da5
+  - sa1 sa2 sa4, da1 da2 da4
+  - qs_gas, m3_gam, sa1 sa2 sa4, da1 da2 da4
+  - rf_gdst, sa1 sa2 sa4, da0 da3 da5
+  - clear_gclip
+  - jump_gflow, ${TARGET_GFWVIOLATE}
+- name: gfwviolate
+  start: 74
+  seq:
+  - sa1 sa2 sa5, da1 da5
+  - qs_gas, qd_gbs, sa1 sa2 sa5, da1 da5
+  - sub_galu, lt_gclip
+  - sa3 sa5, da2 da5
+  - qs_gas, qd_gbs, sa3 sa5, da2 da5
+  - sub_galu, gt_gclip
+  - sa0 sa1 sa2 sa5, da0 da1 da5
+  - qs_gas, qd_gbs, sa0 sa1 sa2 sa5, da0 da1 da5
+  - sub_galu, lt_gclip
+  - sa0 sa3 sa5, da0 da2 da5
+  - qs_gas, qd_gbs, sa0 sa3 sa5, da0 da2 da5
+  - sub_galu, gt_gclip
+  - jump_gflow, ${TARGET_GFWPOLICY}
+- name: gfwpolicy
+  start: 75
+  seq:
+  - w2_gcond, jump_gflow, ${TARGET_GFW2}
+  - w3_gcond, jump_gflow, ${TARGET_GFW3}
+  - jump_gflow, ${TARGET_GFWINTERSECT}
+- name: gfw2
+  start: 76
+  seq:
+  - vclip_gflg
+  - clip_gcond, jump_gflow, ${TARGET_GFW2ABORT}
+  - jump_gflow, ${TARGET_GFWDRAWFULL}
+- name: gfw2abort
+  start: 77
+  seq:
+  - wvp_gflg
+  - end_gflow
+- name: gfw3
+  start: 78
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GFWDRAWFULL}
+  - jump_gflow, ${TARGET_GFWINTERSECT}
+- name: gfwdrawfull
+  start: 79
+  seq:
+  - sa4 sa5, da4 da5
+  - qs_gas, sa4 sa5, da4 da5
+  - rf_gdst, sa4 sa5, da2 da3 da5
+  - rf_gdst, sa4 sa5, da0 da2 da3 da5
+  - sa0 sa4 sa5, da0 da4 da5
+  - qs_gas, sa0 sa4 sa5, da0 da4 da5
+  - rf_gdst, sa0 sa4 sa5, da1 da2 da3 da5
+  - rf_gdst, sa0 sa4 sa5, da0 da1 da2 da3 da5
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da5
+  - fill_gcond, jump_gflow, ${TARGET_GFILLLOOP}
+  - jump_gflow, ${TARGET_GMIXSOURCE}
+- name: gfwintersect
+  start: 80
+  seq:
+  - clear_gclip
+  - sa1 sa2 sa5, da2 da5
+  - qs_gas, qd_gbs, sa1 sa2 sa5, da2 da5
+  - sub_galu, lt_gclip
+  - sa3 sa5, da1 da5
+  - qs_gas, qd_gbs, sa3 sa5, da1 da5
+  - sub_galu, gt_gclip
+  - sa0 sa1 sa2 sa5, da0 da2 da5
+  - qs_gas, qd_gbs, sa0 sa1 sa2 sa5, da0 da2 da5
+  - sub_galu, lt_gclip
+  - sa0 sa3 sa5, da0 da1 da5
+  - qs_gas, qd_gbs, sa0 sa3 sa5, da0 da1 da5
+  - sub_galu, gt_gclip
+  - clip_gcond, jump_gflow, ${TARGET_GFWNOHIT}
+  - w1_gcond, jump_gflow, ${TARGET_GFWW1HIT}
+  - jump_gflow, ${TARGET_GFWCLIPCALC}
+- name: gfwnohit
+  start: 81
+  seq:
+  - w1_gcond, jump_gflow, ${TARGET_GFWW1MISS}
+  - end_gflow
+- name: gfww1miss
+  start: 82
+  seq:
+  - vclip_gflg
+  - end_gflow
+- name: gfww1hit
+  start: 83
+  seq:
+  - vclip_gflg
+  - wvp_gflg
+  - jump_gflow, ${TARGET_GFWCLIPCALC}
+- name: gfwclipcalc
+  start: 84
+  seq:
+  - sa1 sa2 sa5, da1 da5
+  - qs_gas, qd_gbs, sa1 sa2 sa5, da1 da5
+  - sub_galu, lt_gcond, jump_gflow, ${TARGET_GFWCLIPCALCWIN}
+  - jump_gflow, ${TARGET_GFWCLIPCALCORIG}
+- name: gfwclipcalcwin
+  start: 85
+  seq:
+  - sa1 sa2 sa5, da1 da2 da5
+  - qs_gas, sa1 sa2 sa5, da1 da2 da5
+  - rf_gdst, sa1 sa2 sa5, da1 da3 da5
+  - jump_gflow, ${TARGET_GFWTOPPICK}
+- name: gfwclipcalcorig
+  start: 86
+  seq:
+  - sa1 sa5, da1 da5
+  - qs_gas, sa1 sa5, da1 da5
+  - rf_gdst, sa1 sa5, da1 da3 da5
+  - jump_gflow, ${TARGET_GFWTOPPICK}
+- name: gfwtoppick
+  start: 87
+  seq:
+  - sa0 sa1 sa2 sa5, da0 da1 da5
+  - qs_gas, qd_gbs, sa0 sa1 sa2 sa5, da0 da1 da5
+  - sub_galu, lt_gcond, jump_gflow, ${TARGET_GFWTOPPICKWIN}
+  - jump_gflow, ${TARGET_GFWTOPPICKORIG}
+- name: gfwtoppickwin
+  start: 88
+  seq:
+  - sa0 sa1 sa2 sa5, da0 da1 da2 da5
+  - qs_gas, sa0 sa1 sa2 sa5, da0 da1 da2 da5
+  - rf_gdst, sa0 sa1 sa2 sa5, da0 da1 da3 da5
+  - jump_gflow, ${TARGET_GFWRIGHTPICK}
+- name: gfwtoppickorig
+  start: 89
+  seq:
+  - sa0 sa1 sa5, da0 da1 da5
+  - qs_gas, sa0 sa1 sa5, da0 da1 da5
+  - rf_gdst, sa0 sa1 sa5, da0 da1 da3 da5
+  - jump_gflow, ${TARGET_GFWRIGHTPICK}
+- name: gfwrightpick
+  start: 90
+  seq:
+  - sa3 sa5, da2 da5
+  - qs_gas, qd_gbs, sa3 sa5, da2 da5
+  - sub_galu, gt_gcond, jump_gflow, ${TARGET_GFWRIGHTPICKWIN}
+  - jump_gflow, ${TARGET_GFWRIGHTPICKORIG}
+- name: gfwrightpickwin
+  start: 91
+  seq:
+  - sa3 sa5, da3 da5
+  - qs_gas, sa3 sa5, da3 da5
+  - rf_gdst, sa3 sa5, da2 da3 da5
+  - jump_gflow, ${TARGET_GFWBOTTOMPICK}
+- name: gfwrightpickorig
+  start: 92
+  seq:
+  - sa2 sa5, da2 da5
+  - qs_gas, sa2 sa5, da2 da5
+  - rf_gdst, sa2 sa5, da2 da3 da5
+  - jump_gflow, ${TARGET_GFWBOTTOMPICK}
+- name: gfwbottompick
+  start: 93
+  seq:
+  - sa0 sa3 sa5, da0 da2 da5
+  - qs_gas, qd_gbs, sa0 sa3 sa5, da0 da2 da5
+  - sub_galu, gt_gcond, jump_gflow, ${TARGET_GFWBOTTOMPICKWIN}
+  - jump_gflow, ${TARGET_GFWBOTTOMPICKORIG}
+- name: gfwbottompickwin
+  start: 94
+  seq:
+  - sa0 sa3 sa5, da0 da3 da5
+  - qs_gas, sa0 sa3 sa5, da0 da3 da5
+  - rf_gdst, sa0 sa3 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GFWDIMENSIONS}
+- name: gfwbottompickorig
+  start: 95
+  seq:
+  - sa0 sa2 sa5, da0 da2 da5
+  - qs_gas, sa0 sa2 sa5, da0 da2 da5
+  - rf_gdst, sa0 sa2 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GFWDIMENSIONS}
+- name: gfwdimensions
+  start: 96
+  seq:
+  - sa1 sa3 sa5, da2 da3 da5
+  - qs_gas, qd_gbs, sa1 sa3 sa5, da2 da3 da5
+  - sub_galu, rf_gdst, sa1 sa3 sa5, da1 da2 da3 da5
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qd_gbs, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - k_gas, m1_gam
+  - add_galu, rf_gdst, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - sa0 sa1 sa3 sa5, da0 da2 da3 da5
+  - qs_gas, qd_gbs, sa0 sa1 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, rf_gdst, sa0 sa1 sa3 sa5, da0 da1 da2 da3 da5
+  - sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - qd_gbs, sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - k_gas, m1_gam
+  - add_galu, rf_gdst, sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - w1_gcond, jump_gflow, ${TARGET_GFWW1RESULT}
+  - jump_gflow, ${TARGET_GFWW3DRAW}
+- name: gfww1result
+  start: 97
+  seq:
+  - sa0 sa1 sa3 sa5, da1 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa0 sa1 sa3 sa5, da1 da3 da5
+  - or_galu, rf_gdst, sa0 sa1 sa3 sa5, da1 da4
+  - sa0 sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa0 sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - or_galu, rf_gdst, sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da4
+  - end_gflow
+- name: gfww3draw
+  start: 98
+  seq:
+  - sa0 sa1 sa3 sa5, da1 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa0 sa1 sa3 sa5, da1 da3 da5
+  - or_galu, rf_gdst, sa0 sa1 sa3 sa5, da0 da5
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - rf_gdst, sa1 sa2 sa3 sa5, da2 da3 da5
+  - rf_gdst, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - qs_gas, sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - rf_gdst, sa0 sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - fill_gcond, jump_gflow, ${TARGET_GFWCLIPCONV}
+  - jump_gflow, ${TARGET_GMIXCLIPDELTA}
+- name: gfwclipconv
+  start: 99
+  seq:
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da0 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da5
+  - fill_gcond, jump_gflow, ${TARGET_GFILLLOOP}
+  - jump_gflow, ${TARGET_GMIXSOURCECLIP}
+- name: gbltdestmode
+  start: 153
+  seq:
+  - w1_gcond, jump_gflow, ${TARGET_GMIXWINENTRY}
+  - w2_gcond, jump_gflow, ${TARGET_GMIXWINENTRY}
+  - w3_gcond, jump_gflow, ${TARGET_GMIXWINENTRY}
+  - jump_gflow, ${TARGET_GBLTXY}
+- name: gmixwinentry
+  start: 154
+  seq:
+  - sa1 sa4, da1 da4
+  - qs_gas, sa1 sa4, da1 da4
+  - rf_gdst, sa1 sa4, da0 da5
+  - jump_gflow, ${TARGET_GFWSETUP}
+- name: gmixsource
+  start: 155
+  seq:
+  - srcxy_gcond, jump_gflow, ${TARGET_GMIXSRCXY}
+  - jump_gflow, ${TARGET_GMIXSRCLIN}
+- name: gmixsrclin
+  start: 156
+  seq:
+  - sa4, da4
+  - qs_gas, sa4, da4
+  - rf_gdst, sa4, da5
+  - rf_gdst, sa4, da1 da5
+  - jump_gflow, ${TARGET_GMIXDSTSET}
+- name: gmixsrcxy
+  start: 157
+  seq:
+  - sa4, da4
+  - qs_gas, sa4, da4
+  - rf_gdst, sa4, da5
+  - call_gflow, ${TARGET_GCONVSRC}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da1 da5
+  - jump_gflow, ${TARGET_GMIXDSTSET}
+- name: gmixdstset
+  start: 158
+  seq:
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTSTART}
+- name: gmixsourceclip
+  start: 159
+  seq:
+  - srcxy_gcond, jump_gflow, ${TARGET_GMIXSRCXYCLIP}
+  - jump_gflow, ${TARGET_GMIXSRCLINCLIP}
+- name: gmixclipdelta
+  start: 160
+  seq:
+  - sa1 sa5, da1 da3 da5
+  - qs_gas, qd_gbs, sa1 sa5, da1 da3 da5
+  - sub_galu, rf_gdst, sa1 sa5, da1 da2 da5
+  - sa0 sa1 sa5, da0 da1 da3 da5
+  - qs_gas, qd_gbs, sa0 sa1 sa5, da0 da1 da3 da5
+  - sub_galu, rf_gdst, sa0 sa1 sa5, da0 da1 da2 da5
+  - jump_gflow, ${TARGET_GFWCLIPCONV}
+- name: gmixsrcxyclip
+  start: 161
+  seq:
+  - sa4, da1 da2 da5
+  - qs_gas, m1_gam, qd_gbs, sa4, da1 da2 da5
+  - add_galu, rf_gdst, sa4, da3 da5
+  - sa4, da0 da1 da2 da5
+  - qs_gas, m3_gam, qd_gbs, sa4, da0 da1 da2 da5
+  - add_galu, rf_gdst, sa4, da0 da3 da5
+  - sa0 sa3 sa5, da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa0 sa3 sa5, da3 da5
+  - or_galu, rf_gdst, sa0 sa3 sa5, da5
+  - call_gflow, ${TARGET_GCONVSRC}
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da5
+  - rf_gdst, sa0 sa1 sa4 sa5, da1 da5
+  - jump_gflow, ${TARGET_GMIXDSTSET}
+- name: gmixsrclinclip
+  start: 162
+  seq:
+  - sa1 sa2 sa5, da1 da2 da5
+  - qs_gas, sa1 sa2 sa5, da1 da2 da5
+  - rf_gdst, sa1 sa2 sa5, da3 da5
+  - binary_gcond, jump_gflow, ${TARGET_GBINCLIPSCALE}
+  - k_gas, m2_gam
+  - rf_gdst, sa0 sa3 sa5, da0 da3 da5
+  - jump_gflow, ${TARGET_GCLIPXMUL}
+- name: gbinclipscale
+  start: 166
+  seq:
+  - k_gas, m1_gam
+  - rf_gdst, sa0 sa3 sa5, da0 da3 da5
+  - jump_gflow, ${TARGET_GCLIPXMUL}
+- name: gclipxmul
+  start: 167
+  seq:
+  - call_gflow, ${TARGET_GMULINIT}
+  - sa1 sa4 sa5, da1 da4 da5
+  - qs_gas, sa1 sa4 sa5, da1 da4 da5
+  - rf_gdst, sa1 sa4 sa5, da0 da1 da4 da5
+  - sa0 sa1 sa2 sa5, da0 da1 da2 da5
+  - qs_gas, sa0 sa1 sa2 sa5, da0 da1 da2 da5
+  - rf_gdst, sa0 sa1 sa2 sa5, da3 da5
+  - sa0 sa4, da0 da4
+  - qs_gas, sa0 sa4, da0 da4
+  - rf_gdst, sa0 sa4, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCLIPXMULFINISH}
+- name: gclipxmulfinish
+  start: 168
+  seq:
+  - sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da0 da1 da4 da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da1 da4 da5
+  - sa1 sa4 sa5, da4
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da4
+  - add_galu, rf_gdst, sa1 sa4 sa5, da5
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da1 da5
+  - jump_gflow, ${TARGET_GMIXDSTSET}
+- name: gmulinit
+  start: 163
+  seq:
+  - k_gas
+  - rf_gdst, sa1 sa4 sa5, da1 da4 da5
+  - jump_gflow, ${TARGET_GMULLOOP}
+- name: gmulloop
+  start: 164
+  seq:
+  - sa3 sa5, da3 da5
+  - qs_gas, sa3 sa5, da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GMULDONE}
+  - k_gbs, m1_gbm
+  - and_galu, z_gcond, jump_gflow, ${TARGET_GMULSHIFT}
+  - sa0 sa3 sa5, da1 da4 da5
+  - qs_gas, qd_gbs, sa0 sa3 sa5, da1 da4 da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da1 da4 da5
+  - jump_gflow, ${TARGET_GMULSHIFT}
+- name: gmulshift
+  start: 165
+  seq:
+  - sa0 sa3 sa5, da0 da3 da5
+  - qs_gas, sa0 sa3 sa5, da0 da3 da5
+  - shl_galu, rf_gdst, sa0 sa3 sa5, da0 da3 da5
+  - sa3 sa5, da3 da5
+  - qs_gas, sa3 sa5, da3 da5
+  - shr_galu, rf_gdst, sa3 sa5, da3 da5
+  - jump_gflow, ${TARGET_GMULLOOP}
+- name: gmuldone
+  start: 169
+  seq:
+  - ret_gflow
+- name: gbltstart
+  start: 172
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - binary_gcond, jump_gflow, ${TARGET_GBLTHT}
+  - srcxy_gcond, jump_gflow, ${TARGET_GCORNERSTART}
+  - dstxy_gcond, jump_gflow, ${TARGET_GCORNERSTART}
+  - jump_gflow, ${TARGET_GBLTHT}
+- name: gmixdone
+  start: 173
+  seq:
+  - pbh_gcond, jump_gflow, ${TARGET_GCANONH}
+  - pbv_gcond, jump_gflow, ${TARGET_GCANONV}
+  - jump_gflow, ${TARGET_GBLTDONEWRITE}
+- name: gcornerstart
+  start: 174
+  seq:
+  - pbh_gcond, jump_gflow, ${TARGET_GCORNERH}
+  - pbv_gcond, jump_gflow, ${TARGET_GCORNERV}
+  - jump_gflow, ${TARGET_GBLTHT}
+- name: gcornerh
+  start: 175
+  seq:
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - rf_gdst, sa2 sa3 sa5, da3 da5
+  - k_gas, m2_gam
+  - rf_gdst, sa0 sa3 sa5, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCORNERHOFF}
+- name: gcornerhoff
+  start: 176
+  seq:
+  - sa1 sa4 sa5, da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da5
+  - sa1 sa4 sa5, da0 da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da0 da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da0 da5
+  - pbv_gcond, jump_gflow, ${TARGET_GCORNERV}
+  - jump_gflow, ${TARGET_GCORNERCURRENT}
+- name: gcornerv
+  start: 177
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - qs_gbs, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, sa1 sa2 sa3 sa5, da2 da4 da5
+  - sa2 sa4 sa5, da2 da4 da5
+  - qs_gas, sa2 sa4 sa5, da2 da4 da5
+  - rf_gdst, sa2 sa4 sa5, da3 da5
+  - sa0 sa4, da0 da4
+  - qs_gas, sa0 sa4, da0 da4
+  - rf_gdst, sa0 sa4, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCORNERVSRC}
+- name: gcornervsrc
+  start: 178
+  seq:
+  - sa1 sa4 sa5, da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da5
+  - sa2 sa4 sa5, da2 da4 da5
+  - qs_gas, sa2 sa4 sa5, da2 da4 da5
+  - rf_gdst, sa2 sa4 sa5, da3 da5
+  - sa0 sa1 sa4, da0 da1 da4
+  - qs_gas, sa0 sa1 sa4, da0 da1 da4
+  - rf_gdst, sa0 sa1 sa4, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCORNERVDEST}
+- name: gcornervdest
+  start: 179
+  seq:
+  - sa1 sa4 sa5, da0 da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da0 da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da0 da5
+  - jump_gflow, ${TARGET_GCORNERCURRENT}
+- name: gcornercurrent
+  start: 180
+  seq:
+  - sa5, da5
+  - qs_gas, sa5, da5
+  - rf_gdst, sa5, da1 da5
+  - sa0 sa5, da0 da5
+  - qs_gas, sa0 sa5, da0 da5
+  - rf_gdst, sa0 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTHT}
+- name: gcanonh
+  start: 181
+  seq:
+  - sa2 sa3 sa5, da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da2 da3 da5
+  - rf_gdst, sa2 sa3 sa5, da3 da5
+  - k_gas, m2_gam
+  - rf_gdst, sa0 sa3 sa5, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCANONHSUB}
+- name: gcanonhsub
+  start: 182
+  seq:
+  - sa1 sa4 sa5, da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da5
+  - sub_galu, rf_gdst, sa1 sa4 sa5, da5
+  - sa1 sa4 sa5, da0 da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da0 da5
+  - sub_galu, rf_gdst, sa1 sa4 sa5, da0 da5
+  - pbv_gcond, jump_gflow, ${TARGET_GCANONV}
+  - jump_gflow, ${TARGET_GBLTDONEWRITE}
+- name: gcanonv
+  start: 183
+  seq:
+  - sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - qs_gbs, sa0 sa1 sa2 sa3 sa5, da0 da1 da2 da3 da5
+  - k_gas, m1_gam
+  - add_galu, rf_gdst, sa0 sa1 sa2 sa3 sa5, da2 da4 da5
+  - sa2 sa4 sa5, da2 da4 da5
+  - qs_gas, sa2 sa4 sa5, da2 da4 da5
+  - rf_gdst, sa2 sa4 sa5, da3 da5
+  - sa0 sa4, da0 da4
+  - qs_gas, sa0 sa4, da0 da4
+  - rf_gdst, sa0 sa4, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCANONVSRC}
+- name: gcanonvsrc
+  start: 184
+  seq:
+  - sa1 sa4 sa5, da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da5
+  - sa2 sa4 sa5, da2 da4 da5
+  - qs_gas, sa2 sa4 sa5, da2 da4 da5
+  - rf_gdst, sa2 sa4 sa5, da3 da5
+  - sa0 sa1 sa4, da0 da1 da4
+  - qs_gas, sa0 sa1 sa4, da0 da1 da4
+  - rf_gdst, sa0 sa1 sa4, da0 da3 da5
+  - call_gflow, ${TARGET_GMULINIT}
+  - jump_gflow, ${TARGET_GCANONVDEST}
+- name: gcanonvdest
+  start: 185
+  seq:
+  - sa1 sa4 sa5, da0 da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da0 da5
+  - add_galu, rf_gdst, sa1 sa4 sa5, da0 da5
+  - jump_gflow, ${TARGET_GBLTDONEWRITE}
+- name: gcpwxlow
+  start: 25
+  seq:
+  - sa0 sa2 sa4, da5
+  - qs_gas, m1_gam, qd_gbs, m1_gbm, sa0 sa2 sa4, da5
+  - sub_galu, lt_gclip, sa0 sa2 sa4, da5
+  - sub_galu, lt_gcond, call_gflow, ${TARGET_GCPWSET}
+  - call_gflow, ${TARGET_GCPWSHIFT}
+  - jump_gflow, ${TARGET_GCPWXHIGH}
+- name: gcpwxhigh
+  start: 26
+  seq:
+  - sa1 sa2 sa4, da5
+  - qs_gas, m1_gam, qd_gbs, m1_gbm, sa1 sa2 sa4, da5
+  - sub_galu, gt_gclip, sa1 sa2 sa4, da5
+  - sub_galu, gt_gcond, call_gflow, ${TARGET_GCPWSET}
+  - call_gflow, ${TARGET_GCPWSHIFT}
+  - jump_gflow, ${TARGET_GCPWYLOW}
+- name: gcpwylow
+  start: 27
+  seq:
+  - sa0 sa2 sa4, da5
+  - qs_gas, m3_gam, qd_gbs, m3_gbm, sa0 sa2 sa4, da5
+  - sub_galu, lt_gclip, sa0 sa2 sa4, da5
+  - sub_galu, lt_gcond, call_gflow, ${TARGET_GCPWSET}
+  - call_gflow, ${TARGET_GCPWSHIFT}
+  - jump_gflow, ${TARGET_GCPWYHIGH}
+- name: gcpwyhigh
+  start: 28
+  seq:
+  - sa1 sa2 sa4, da5
+  - qs_gas, m3_gam, qd_gbs, m3_gbm, sa1 sa2 sa4, da5
+  - sub_galu, gt_gclip, sa1 sa2 sa4, da5
+  - sub_galu, gt_gcond, call_gflow, ${TARGET_GCPWSET}
+  - sa1 sa4 sa5, da1 da4 da5
+  - qs_gas, sa1 sa4 sa5, da1 da4 da5
+  - rf_gdst, vclip_gflg, sa1 sa4 sa5, da0 da2 da3 da4 da5
+  - end_gflow
+- name: gcpwset
+  start: 29
+  seq:
+  - sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da0 da1 da4 da5
+  - or_galu, rf_gdst, sa1 sa4 sa5, da1 da4 da5
+  - ret_gflow
+- name: gcpwshift
+  start: 30
+  seq:
+  - sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - qs_gas, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - shl_galu, rf_gdst, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - ret_gflow
+- name: gconvfinish
+  start: 24
+  seq:
+  - sa1 sa3 sa5, da0 da1 da3 da5
+  - qs_gas, qd_gbs, sa1 sa3 sa5, da0 da1 da3 da5
+  - or_galu, rf_gdst, sa1 sa4 sa5, da1 da4 da5
+  - sa1 sa4 sa5, da2 da4
+  - qs_gas, qd_gbs, sa1 sa4 sa5, da2 da4
+  - add_galu, rf_gdst, sa0 sa1 sa4 sa5, da0 da1 da4 da5
+  - ret_gflow
+- name: gschema0
+  start: 126
+  seq:
+  - qs_gas, qs_gbs, m1_gam, m1_gbm, add_galu, a_gdst, rd_gbus, word_gsize, source_gpix, z_gflg, jump_gflow,
+    z_gcond, clear_gclip, sa0, sa1, sa2, sa3, sa4, sa5, da0, da1, da2, da3, da4, da5, t0, t1, t2, t3,
+    t4, t5, t6, t7, t8, t9, t10, t11
+  - qd_gas, qd_gbs, m2_gam, m2_gbm, adc_galu, b_gdst, wr_gbus, half_gsize, visible_gpix, nz_gflg, call_gflow,
+    nz_gcond, lt_gclip, mdrf
+  - k_gas, k_gbs, m3_gam, m3_gbm, sub_galu, md_gdst, rdpx_gbus, chunk_gsize, process_gpix, nvzc_gflg,
+    ret_gflow, n_gcond, le_gclip
+  - m4_gam, m4_gbm, sbc_galu, ea_gdst, wrpx_gbus, test_gpix, vclip_gflg, end_gflow, nn_gcond, gt_gclip
+  - m5_gam, m5_gbm, and_galu, tmp_gdst, vpix_gflg, check_gflow, clip_gcond, ge_gclip
+  - m6_gam, m6_gbm, andn_galu, rf_gdst, vclear_gflg, nclip_gcond
+  - m7_gam, m7_gbm, or_galu, ir_gdst, wvp_gflg, need_gcond
+  - xor_galu, transparent_gcond
+  - not_galu, w1_gcond
+  - neg_galu, w2_gcond
+  - abs_galu, w3_gcond
+  - shl_galu, lt_gcond
+  - shr_galu, gt_gcond
+  - sar_galu, fill_gcond
+  - rol_galu, binary_gcond
+  - srcxy_gcond
+- name: gschema1
+  start: 127
+  seq:
+  - dstxy_gcond
+  - pbh_gcond
+  - pbv_gcond
+  - wordboundary_gcond
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow
+  - end_gflow

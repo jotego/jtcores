@@ -36,8 +36,8 @@ when PBH or PBV is set; XY forms make that corner adjustment in hardware
 (guide pp. 12-187–189 and §7.2.2). Binary PIXBLT expands one source bit per
 destination pixel and selects the corresponding lane of B8 or B9. It fetches
 32-bit source chunks, followed by a final partial chunk when needed, through
-the field adapter (TI p. 13-35). Cached bits shift from the shared scratch
-register; no further source request occurs until those bits are consumed.
+the field adapter (TI p. 13-35). Cached bits shift in upper register-RAM
+scratch; no further source request occurs until those bits are consumed.
 For L,XY with PBV=1, SPTCH must be a power of two and CONVSP must describe
 it; for XY,L with PBV=1, the corresponding requirement applies to DPTCH and
 CONVDP (guide pp. 12-195, 12-202). Mixed-format tests use both conversion

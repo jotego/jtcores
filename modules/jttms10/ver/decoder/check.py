@@ -30,8 +30,26 @@ def main():
             'git', '-C', str(MODULE), 'show',
             f'{BASELINE}:modules/jttms10/hdl/jttms10_ctrl.v'
         ], text=True)
-        (work / 'jttms10_ctrl_old.v').write_text(
-            old.replace('module jttms10_ctrl(', 'module jttms10_ctrl_old(', 1))
+        # The evolving graphics controller may remove obsolete helper tokens.
+        # Extract only the pre-rewrite opcode classifier, not its sequencer,
+        # so the canonical comparison survives that change.
+        reserved_start = old.index('assign reserved_opcode =')
+        reserved_end = old.index(';', reserved_start) + 1
+        constants_start = old.index('localparam [11:0] ADDIW_ENTRY')
+        constants_end = old.index(';', constants_start) + 1
+        entry_start = old.index('reg [11:0] entry;')
+        entry_end = old.index('\n    always @(posedge clk)', entry_start)
+        legacy = '\n'.join((
+            'module jttms10_ctrl_old(input rst, clk, input [15:0] md);',
+            '`include "tms10_param.vh"',
+            'localparam [11:0] ILLEGAL_SEQA = DIAGFAULT_SEQA;',
+            'wire reserved_opcode;',
+            old[reserved_start:reserved_end],
+            old[constants_start:constants_end],
+            old[entry_start:entry_end],
+            'endmodule',
+        )) + '\n'
+        (work / 'jttms10_ctrl_old.v').write_text(legacy)
         subprocess.run([
             'verilator', '--binary', '--timing', '--quiet-build', '-Wno-fatal',
             '-Wno-PINMISSING', '-Wno-TIMESCALEMOD', '--top-module', 'test',

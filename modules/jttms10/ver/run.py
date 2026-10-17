@@ -37,6 +37,8 @@ def main():
     build = HERE / "build"
     if not (build / "tms10_param.vh").exists() or not (build / "tms10.vh").exists():
         parser.error("generated microcode headers are missing; run ver/build.sh first")
+    if (HERE.parent / "ucode/gfx.yaml").exists() and not (build / "tms10_gfx.uc").exists():
+        parser.error("generated graphics microcode is missing; run ver/build.sh first")
     sources = sorted(hdl.glob("*.v")) + sorted(hdl.glob("*.sv")) + args.rtl
     if not any(path.stem == "jttms10" for path in sources):
         parser.error("jttms10 RTL is missing; run the module build first")
@@ -51,6 +53,8 @@ def main():
             (work / "vector_init.txt").write_text(vector_init(case))
             (work / "expected.svh").write_text(sv_checks(case))
             shutil.copyfile(build / "tms10.uc", work / "tms10.uc")
+            if (build / "tms10_gfx.uc").exists():
+                shutil.copyfile(build / "tms10_gfx.uc", work / "tms10_gfx.uc")
             shutil.copyfile(build / "tms10_dispatch.hex", work / "tms10_dispatch.hex")
             binary = work / "sim.vvp"
             compile_cmd = ["iverilog", "-g2012", "-s", "test", "-I", str(work),

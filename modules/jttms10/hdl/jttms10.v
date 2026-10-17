@@ -30,19 +30,18 @@ module jttms10(
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire dsjfinish, xyx, xyy;
-    wire array_init, array_cap, array_srcstep, array_dststep, array_count;
-    wire array_srcpre, array_dstpre;
-    wire array_win, array_offset_active, array_query_active,
-         array_query_first, array_canon_active, array_canon_dst;
-    wire array_source_phase, array_wb_src;
-    wire array_pitch_src, array_pitch_dst;
-    wire array_save_active, array_restore_active;
-    wire array_rebase_active;
-    wire [1:0] array_rebase_phase;
-    wire line_setup_active, line_prep_active, line_loop_active;
-    wire line_advance_active, line_write_active;
-    wire [3:0] line_phase;
-    wire gfx_step, cvloop_active, wincheck_active, pixconv_active;
+    wire gfx_active, gfx_checkpoint, gfx_done, gfx_enter, gfx_resume,
+         gfx_take, gfx_clip;
+    wire [7:0] gfx_family;
+    wire [5:0] gfx_rf_sa, gfx_rf_da, gfx_rf_wa, gfx_bus_size;
+    wire gfx_load_a,gfx_load_b,gfx_dst_a,gfx_dst_b,gfx_dst_md,
+         gfx_dst_ea,gfx_dst_tmp,gfx_dst_rf,gfx_dst_ir,gfx_mdrf;
+    wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel;
+    wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test;
+    wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
+         gfx_flag_vpix,gfx_flag_vclear,gfx_flag_wvp;
+    wire [31:0] gfx_a_data,gfx_b_data;
+    wire [3:0] gfx_alu_op;
     wire hw_take, reserved_opcode, push_entry, push_active, emu_step;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
@@ -57,41 +56,9 @@ module jttms10(
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [31:0] vector_latched;
     reg push_high, hw_entry;
-    reg [2:0] gfx_phase;
-    reg [2:0] gfx_rs;
-    reg pix_conv_src, pix_clip;
-    reg [31:0] pix_src_val, pix_dst_val;
     reg [3:0] pix_src_addr;
-    reg [15:0] pix_color;
     reg pix_transparent;
-    reg [3:0] array_index;
-    reg [15:0] array_dx, array_xleft, array_yleft, array_color0;
-    wire [31:0] array_wstart = rs_data;
-    wire [31:0] array_wend = rd_data;
-    // Array endpoints and extents fit signed 18 bits; corner offsets need 19.
-    // Preserve 32-bit sign-extended values at every consumer.
-    reg signed [17:0] array_xend_q;
-    wire signed [31:0] array_xend = {{14{array_xend_q[17]}},array_xend_q};
-    reg signed [17:0] array_yend_q;
-    wire signed [31:0] array_yend = {{14{array_yend_q[17]}},array_yend_q};
-    reg signed [17:0] array_wxend_q;
-    wire signed [31:0] array_wxend = {{14{array_wxend_q[17]}},array_wxend_q};
-    reg signed [17:0] array_wyend_q;
-    wire signed [31:0] array_wyend = {{14{array_wyend_q[17]}},array_wyend_q};
-    reg signed [17:0] array_width_q;
-    wire signed [31:0] array_width = {{14{array_width_q[17]}},array_width_q};
-    reg [31:0] array_height;
-    reg signed [18:0] array_xoff_q;
-    wire signed [31:0] array_xoff = {{13{array_xoff_q[18]}},array_xoff_q};
-    reg signed [18:0] array_yoff_q;
-    wire signed [31:0] array_yoff = {{13{array_yoff_q[18]}},array_yoff_q};
-    reg [3:0] array_winphase;
-    reg array_window_violation_q;
-    reg array_offset_convert, array_corner_mode, array_query_mode;
-    reg array_canon_linear;
-    reg [15:0] array_dyminus1;
-    reg array_checkpoint, pbx_push;
-    reg line_checkpoint, line_abort, line_hw_push;
+    reg pbx_push, line_hw_push;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
@@ -121,97 +88,19 @@ module jttms10(
     wire xy_add = ir[15:9]==7'b1110000;
     wire xy_sub = ir[15:9]==7'b1110001;
     wire xy_op = xy_add || xy_sub;
-    wire cpw_ir = ir[15:9]==7'b1110011;
     wire pix_rxy = ir[15:9]==7'b1111000;
-    wire pix_xyreg = ir[15:9]==7'b1111001;
-    wire pix_xyxy = ir[15:9]==7'b1111010;
     wire drav_ir = ir[15:9]==7'b1111011;
     wire line_ir = ir==16'hdf1a || ir==16'hdf9a;
     wire pix_rlin = ir[15:9]==7'b1111100;
-    wire pix_linreg = ir[15:9]==7'b1111101;
-    wire pix_linlin = ir[15:9]==7'b1111110;
     wire array_ir = ir==16'h0f00 || ir==16'h0f20 ||
                     ir==16'h0f40 || ir==16'h0f60 ||
                     ir==16'h0f80 || ir==16'h0fa0 ||
                     ir==16'h0fc0 || ir==16'h0fe0;
     wire array_fill = ir==16'h0fc0 || ir==16'h0fe0;
     wire array_binary = ir==16'h0f80 || ir==16'h0fa0;
-    // A binary source field is fetched once per 32 destination pixels.
-    // DX-XLEFT is the number consumed in this row, so its low five bits
-    // identify the start of each segment without another counter.
-    wire array_binary_need_read =
-        array_dx[4:0]==array_xleft[4:0];
-    wire array_rev_h = !array_fill && !array_binary && control[8];
-    wire array_rev_v = !array_fill && !array_binary && control[9];
-    wire array_src_xy = ir==16'h0f40 || ir==16'h0f60;
-    wire array_dst_xy = ir==16'h0f20 || ir==16'h0f60 ||
-                        ir==16'h0fa0 || ir==16'h0fe0;
-    wire array_convert = array_offset_convert || array_canon_linear ||
-                         (pix_conv_src ? array_src_xy : array_dst_xy);
-    wire array_zero = array_dx==0 || array_yleft==0;
-    wire array_rowend = array_xleft==16'd1;
-    wire array_last = array_rowend && array_yleft==16'd1;
-    wire line_diag = !pix_src_val[31] &&
-                     (pix_src_val!=0 || ir[7]);
-    wire line_empty = array_height==0;
-    wire line_last = array_height==0;
     wire reti_pbx = ir==16'h0940 && tmp[25];
-    wire array_corner_needed = !array_fill && !array_binary &&
-        (control[8] || control[9]) && (array_src_xy || array_dst_xy);
-    wire array_canon_needed = array_corner_needed;
-    wire array_offset_dest = array_src_xy && !array_dst_xy;
-    wire array_window_needed =
-        (array_dst_xy && control[7:6]!=0) || array_corner_needed;
-    wire array_window_done = array_corner_mode ?
-        array_winphase==4'd7 : array_winphase==4'd15;
-    wire signed [31:0] array_x0 = {{16{pix_dst_val[15]}},pix_dst_val[15:0]};
-    wire signed [31:0] array_y0 = {{16{pix_dst_val[31]}},pix_dst_val[31:16]};
-    wire signed [31:0] array_wx0 =
-        {{16{array_wstart[15]}},array_wstart[15:0]};
-    wire signed [31:0] array_wy0 =
-        {{16{array_wstart[31]}},array_wstart[31:16]};
-    // Endpoint registers become the clipped bounds after four shared-ALU
-    // comparisons. The violation bit captures whether any bound changed.
-    wire signed [31:0] array_left = array_xend;
-    wire signed [31:0] array_top = array_yend;
-    wire signed [31:0] array_right = array_wxend;
-    wire signed [31:0] array_bottom = array_wyend;
-    wire array_window_overlap =
-        $signed(array_width)>0 && $signed(array_height)>0;
-    wire array_window_violation = array_window_violation_q;
-    wire array_window_query = control[7:6]==2'd1 &&
-                              array_window_overlap;
-    wire array_window_abort = control[7:6]==2'd1 ||
-        (control[7:6]==2'd2 && array_window_violation) ||
-        (control[7:6]==2'd3 && !array_window_overlap);
-    wire array_corner_next = !array_corner_mode &&
-        array_corner_needed && !array_window_abort;
-    wire array_offset_needed = !array_fill &&
-        (array_xoff!=0 || array_yoff!=0) &&
-        (!array_src_xy || !array_dst_xy) &&
-        (!array_dst_xy || control[7:6]!=2'd3 ||
-         array_window_overlap);
-    wire pix_load = pix_xyreg || pix_linreg;
-    wire pix_field = pix_rxy || pix_xyreg || pix_xyxy || drav_ir ||
-                     line_ir ||
-                     pix_rlin || pix_linreg || pix_linlin || array_ir;
     wire pix_register_source = pix_rxy || pix_rlin || drav_ir || line_ir ||
                                (array_ir && array_fill);
-    wire pixel_need_dest = !pix_clip &&
-                           (control[14:10]!=0 || pmask!=0);
-    // W1 never draws, and W2/W3 abort an out-of-window PIXT before its
-    // source access. The final WINCHECK step sees the completed clip bits.
-    wire pixel_abort = (pix_rxy || pix_xyxy) &&
-                       (control[7:6]==2'd1 ||
-                        (control[7:6]!=0 && |md[8:5]));
-    wire pix_skip_write = pix_field && mem_sel==WRITE_MEM &&
-                          (pix_clip || pix_transparent);
-    wire [4:0] pixel_shift = psize==16'd16 ? 5'd4 :
-                             psize==16'd8  ? 5'd3 :
-                             psize==16'd4  ? 5'd2 :
-                             psize==16'd2  ? 5'd1 : 5'd0;
-    // The architectural register is 16 bits; conversion encodes its shift
-    // solely in the low five bits.
     wire unused_convdp_high = &convdp[15:5];
     wire unused_convsp_high = &convsp[15:5];
     wire unused_control_bits = &{control[15],control[9:8],control[4:0]};
@@ -223,15 +112,18 @@ module jttms10(
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
     wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
     reg completed;
-    wire field_op = mem_sel!=0 || stack_sel!=0;
+    wire field_op = mem_sel!=0 || stack_sel!=0 ||
+                    gfx_bus_read || gfx_bus_write;
     wire bus_op = vector || fetch || imm || field_op;
-    wire ready = !bus_op || completed || mem_ack || pix_skip_write;
+    wire gfx_skip_write = gfx_active && gfx_bus_write &&
+                          gfx_bus_pixel && pix_transparent;
+    wire ready = !bus_op || completed || mem_ack || gfx_skip_write;
     wire [31:0] read_data = completed ? bus_data : mem_rdata;
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
     assign mem_req = active && bus_op && !completed && !rst && !fault &&
-                     !pix_skip_write;
+                     !gfx_skip_write;
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
     wire byte_op = ir[15:10]==6'b100011 || ir[15:10]==6'b101011 ||
@@ -256,27 +148,24 @@ module jttms10(
     wire field_ext_fill = field_ext_signed && field_ext_input[field_msb];
     wire [31:0] field_extended = (field_ext_input & field_mask) |
                                  ({32{field_ext_fill}} & ~field_mask);
-    assign mem_we = mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
+    assign mem_we = gfx_active ? gfx_bus_write :
+                    mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = push_active && stack_sel==WRITE_STACK ? 6'd16 :
+    assign mem_size = gfx_active ? gfx_bus_size :
+                      push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
-                      array_binary && array_source_phase &&
-                      mem_sel==READ_MEM ?
-                          (array_xleft>=16'd32 ? 6'd32 :
-                           {1'b0,array_xleft[4:0]}) :
-                      pix_field && field_op ? {1'b0,psize[4:0]} :
                       field_op ? field_size : 6'd16;
-    assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
+    assign mem_wdata = gfx_active ? md :
+                       push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} :
-                       pix_field && mem_sel==WRITE_MEM ?
-                       {16'd0,md[15:0]} : md;
+                       md;
     assign mem_iaq = fetch;
     // The cache accepts every PC-directed word, including extension words.
     // IAQ remains the separate opcode bus-status signal.
     assign mem_program = fetch || imm;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
-    assign mem_pixel = pix_field && field_op;
+    assign mem_pixel = gfx_active && gfx_bus_pixel;
 
     jttms10_ctrl u_ctrl(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
@@ -285,31 +174,18 @@ module jttms10(
         .multi_load(ir[5]),
         .mul_count(mul_count),
         .div_early_cond(a==0 || !c),
-        .pixel_need_dest(pixel_need_dest),
-        .pixel_abort(pixel_abort),
-        .array_active(array_ir), .array_fill(array_fill),
-        .array_binary(array_binary),
-        .array_binary_need_read(array_binary_need_read),
-        .array_convert(array_convert), .array_zero(array_zero),
-        .array_last(array_last), .array_index(array_index),
-        .array_checkpoint(array_checkpoint), .reti_pbx(reti_pbx),
-        .line_ir(line_ir), .line_checkpoint(line_checkpoint),
-        .line_empty(line_empty), .line_last(line_last),
-        .line_abort(line_abort),
-        .array_window_needed(array_window_needed),
-        .array_window_done(array_window_done),
-        .array_window_abort(array_window_abort),
-        .array_window_query(array_window_query),
-        .array_offset_needed(array_offset_needed),
-        .array_corner_next(array_corner_next),
-        .array_query_mode(array_query_mode),
-        .array_canon_needed(array_canon_needed),
+        .reti_pbx(reti_pbx),
+        .gfx_active(gfx_active), .gfx_done(gfx_done),
+        .gfx_checkpoint(gfx_checkpoint),
+        .gfx_pbx_ir(rs_data[15:0]),
         .irq_req(irq_req), .nmi_req(nmi_req),
         .nmi_nostack(nmi_nostack), .halt_req(halt_req),
         .emu_run(emu_run), .ie(st[21]),
         .hw_take(hw_take), .reserved_opcode(reserved_opcode),
         .push_entry(push_entry), .push_active(push_active), .emu_step(emu_step),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
+        .gfx_enter(gfx_enter), .gfx_resume(gfx_resume),
+        .gfx_take(gfx_take), .gfx_family(gfx_family),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
         .md_sel(md_sel), .wrsrc(wrsrc), .stld(stld),
@@ -328,33 +204,36 @@ module jttms10(
         .divnegmd(divnegmd), .divnegb(divnegb),
         .divcheck(divcheck), .divstep(divstep),
         .dsjfinish(dsjfinish), .xyx(xyx), .xyy(xyy),
-        .array_init(array_init), .array_cap(array_cap),
-        .array_srcstep(array_srcstep), .array_dststep(array_dststep),
-        .array_count(array_count),
-        .array_srcpre(array_srcpre), .array_dstpre(array_dstpre),
-        .array_source_phase(array_source_phase),
-        .array_wb_src(array_wb_src),
-        .array_pitch_src(array_pitch_src),
-        .array_pitch_dst(array_pitch_dst),
-        .array_save_active(array_save_active),
-        .array_restore_active(array_restore_active),
-        .array_rebase_active(array_rebase_active),
-        .array_rebase_phase(array_rebase_phase),
-        .line_setup_active(line_setup_active),
-        .line_prep_active(line_prep_active),
-        .line_loop_active(line_loop_active),
-        .line_advance_active(line_advance_active),
-        .line_write_active(line_write_active),
-        .line_phase(line_phase),
-        .array_offset_active(array_offset_active),
-        .array_query_active(array_query_active),
-        .array_query_first(array_query_first),
-        .array_canon_active(array_canon_active),
-        .array_canon_dst(array_canon_dst), .array_win(array_win),
-        .gfx_step(gfx_step), .cvloop_active(cvloop_active),
-        .wincheck_active(wincheck_active), .pixconv_active(pixconv_active),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
+    );
+    wire gfx_need_dest=(control[14:10]!=0 || pmask!=0);
+    jttms10_gfx u_gfx(
+        .clk(clk), .rst(rst), .cen(active), .step(step && gfx_active),
+        .enter(gfx_enter), .resume(gfx_resume),
+        .interrupt_take(gfx_take), .family(gfx_family), .ir(ir),
+        .rf_qs(rs_data), .rf_qd(rd_data),
+        .psize(psize), .convsp(convsp), .convdp(convdp),
+        .control(control), .last_pixel_addr(ea),
+        .alu_n(n), .alu_z(z), .alu_v(v),
+        .need_dest(gfx_need_dest), .transparent(pix_transparent),
+        .active(gfx_active), .checkpoint(gfx_checkpoint),
+        .done(gfx_done),
+        .rf_sa(gfx_rf_sa), .rf_da(gfx_rf_da), .rf_wa(gfx_rf_wa),
+        .load_a(gfx_load_a), .load_b(gfx_load_b),
+        .a_data(gfx_a_data), .b_data(gfx_b_data), .alu_op(gfx_alu_op),
+        .dst_a(gfx_dst_a), .dst_b(gfx_dst_b), .dst_md(gfx_dst_md),
+        .dst_ea(gfx_dst_ea), .dst_tmp(gfx_dst_tmp), .dst_rf(gfx_dst_rf),
+        .dst_ir(gfx_dst_ir),
+        .md_to_rf(gfx_mdrf),
+        .bus_read(gfx_bus_read), .bus_write(gfx_bus_write),
+        .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size),
+        .pix_source(gfx_pix_source), .pix_visible(gfx_pix_visible),
+        .pix_process(gfx_pix_process), .pix_test(gfx_pix_test),
+        .flag_z(gfx_flag_z), .flag_nz(gfx_flag_nz),
+        .flag_nvzc(gfx_flag_nvzc), .flag_vclip(gfx_flag_vclip),
+        .flag_vpix(gfx_flag_vpix), .flag_vclear(gfx_flag_vclear),
+        .flag_wvp(gfx_flag_wvp), .clip(gfx_clip)
     );
     wire cross_move = ir[15:10]==6'b010011 && ir[9];
     wire [4:0] dst = {ir[4]^cross_move,ir[3:0]};
@@ -365,182 +244,34 @@ module jttms10(
                     ir[15:5]==11'h049 || ir[15:5]==11'h04b ||
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
-    reg [4:0] array_ctx_rs, array_ctx_wa;
-    reg [4:0] line_setup_rs;
-    reg [31:0] array_ctx_wd;
-    always @* begin
-        case(array_index)
-            4'd0: line_setup_rs=5'd16; // B0 decision
-            4'd1: line_setup_rs=5'd18; // B2 XY pointer
-            4'd2: line_setup_rs=5'd23; // B7 b:a
-            4'd3: line_setup_rs=5'd25; // B9 COLOR1
-            4'd4: line_setup_rs=5'd26; // B10 count
-            4'd5: line_setup_rs=5'd27; // B11 diagonal increment
-            default: line_setup_rs=5'd28; // B12 lateral increment
-        endcase
-        case(array_index)
-            4'd0: array_ctx_rs=5'd16;  // B0
-            4'd1: array_ctx_rs=5'd17;  // B1
-            4'd2: array_ctx_rs=5'd18;  // B2
-            4'd3: array_ctx_rs=5'd19;  // B3
-            4'd4: array_ctx_rs=5'd24;  // B8
-            4'd5: array_ctx_rs=5'd25;  // B9
-            4'd6: array_ctx_rs=5'd26;  // B10
-            4'd7: array_ctx_rs=5'd27;  // B11
-            4'd8: array_ctx_rs=5'd28;  // B12
-            4'd9: array_ctx_rs=5'd29;  // B13
-            default: array_ctx_rs=5'd30; // B14
-        endcase
-        case(array_index)
-            4'd0: begin array_ctx_wa=5'd16; array_ctx_wd=pix_src_val; end
-            4'd1: begin array_ctx_wa=5'd18; array_ctx_wd=pix_dst_val; end
-            4'd2: begin array_ctx_wa=5'd26; array_ctx_wd={array_dx,ir}; end
-            4'd3: begin array_ctx_wa=5'd27;
-                        array_ctx_wd={array_yleft,array_xleft}; end
-            4'd4: begin array_ctx_wa=5'd28;
-                        array_ctx_wd=array_binary ? tmp : rs_data; end
-            4'd5: begin array_ctx_wa=5'd29; array_ctx_wd=rs_data; end
-            default: begin array_ctx_wa=5'd30;
-                           array_ctx_wd={array_height[15:0],
-                                         array_dyminus1}; end
-        endcase
-    end
-    // Row bases live in the unused upper half of the mirrored RF RAM.
-    // Both RF reads are primed on the clock before each microstep executes.
-    wire scratch_src_cap = array_cap && array_index==4'd0;
-    wire scratch_dst_cap = array_cap && array_index==4'd2;
-    wire scratch_offset_dst = a_sel==SAVESRC_A &&
-                              array_offset_active && array_offset_dest;
-    wire scratch_save_src = a_sel==SAVESRC_A && !scratch_offset_dst &&
-        array_ir && (!array_canon_active || array_src_xy ||
-                     array_canon_linear);
-    wire scratch_save_dst = a_sel==SAVEDST_A && array_ir &&
-        (!array_canon_active || array_dst_xy || array_canon_linear);
-    wire scratch_rebase_src = array_rebase_active && array_win &&
-                              array_rebase_phase==2'd1 && !array_fill;
-    wire scratch_rebase_dst = array_rebase_active && array_win &&
-                              array_rebase_phase==2'd2;
-    wire scratch_step_src = array_srcstep && !array_fill && array_rowend;
-    wire scratch_step_dst = array_dststep && array_rowend &&
-                             !(array_fill && array_last);
-    wire scratch_src_write = scratch_src_cap || scratch_save_src ||
-                             scratch_rebase_src || scratch_step_src;
-    wire scratch_dst_write = scratch_dst_cap || scratch_offset_dst ||
-        scratch_save_dst || scratch_rebase_dst || scratch_step_dst;
-    wire scratch_write = scratch_src_write || scratch_dst_write;
-    wire [31:0] scratch_wdata = array_cap ? rs_data :
-        ((scratch_save_src && !array_offset_active &&
-          !array_canon_linear) ||
-         (scratch_save_dst && !array_canon_linear)) ? a : result;
-    // WSTART/WEND occupy upper mirrored-RF words 34/35. They are read
-    // together throughout window/canonical phases; context-save primes the
-    // source port one step before writing each architectural PBX word.
-    wire window_ctx_read = array_ir &&
-        ((array_win && !line_prep_active && !line_advance_active &&
-          !array_rebase_active) || array_canon_active ||
-         (array_count && array_last && array_canon_needed));
-    wire scratch_save_read = array_save_active &&
-        (array_index==4'd3 || array_index==4'd4);
-    wire window_plain_step = array_win && !line_prep_active &&
-        !line_advance_active && !array_rebase_active &&
-        !array_canon_active;
-    wire scratch_ws_write =
-        (array_cap && !line_setup_active && !array_restore_active &&
-         array_index==4'd5) ||
-        (array_restore_active && array_cap && array_index==4'd8 &&
-         !array_binary) ||
-        (window_plain_step && !array_corner_mode &&
-         array_winphase==4'd14 && array_corner_needed &&
-         !array_window_abort) ||
-        (window_plain_step && array_corner_mode &&
-         array_winphase==4'd0 && control[7:6]==2'd0);
-    wire scratch_we_write =
-        (array_cap && !line_setup_active && !array_restore_active &&
-         array_index==4'd6) ||
-        (array_restore_active && array_cap && array_index==4'd9) ||
-        (window_plain_step && !array_corner_mode &&
-         array_winphase==4'd15 && array_corner_needed &&
-         !array_window_abort) ||
-        (window_plain_step && array_corner_mode &&
-         array_winphase==4'd1 && control[7:6]==2'd0);
-    wire scratch_wstart_wend_write = scratch_ws_write || scratch_we_write;
-    wire scratch_any_write = scratch_write || scratch_wstart_wend_write;
-
-    wire [4:0] scratch_wa = scratch_ws_write ? 5'd2 :
-        scratch_we_write ? 5'd3 : scratch_dst_write ? 5'd1 : 5'd0;
-    wire [31:0] scratch_any_wdata = array_cap ? rs_data :
-        scratch_ws_write ? pix_src_val :
-        scratch_we_write ?
-            ((!array_corner_mode && control[7:6]==2'd3) ?
-              {array_top[15:0],array_left[15:0]} : pix_dst_val) :
-        scratch_wdata;
-    // Prime the synchronous RF port while the pixel write completes; LINE
-    // phases 0/1 then consume B11/B12 directly without pitch flip-flops.
-    wire line_pitch_read =
-        (line_loop_active && mem_sel==WRITE_MEM) ||
-        (line_advance_active && line_phase<=4'd1);
     jttms10_regs u_regs(
-        .clk(clk), .rs_ext(window_ctx_read || scratch_save_read),
-        .rd_ext(window_ctx_read || array_pitch_src || array_pitch_dst),
-        .wa_ext(scratch_any_write),
-        .rs(window_ctx_read ? 5'd2 :
-            scratch_save_read ? (array_index==4'd3 ? 5'd2 : 5'd3) :
-            line_pitch_read ? (line_diag ? 5'd27 : 5'd28) :
-            line_setup_active ? line_setup_rs :
-            array_restore_active ? array_ctx_rs :
-            array_pitch_src ? 5'd17 :
-            array_pitch_dst ? 5'd19 :
-                       gfx_rs==3'd1 ? 5'd21 :
-                       gfx_rs==3'd2 ? 5'd22 :
-                       gfx_rs==3'd3 ? 5'd20 :
-                       gfx_rs==3'd4 ? 5'd25 :
-                       array_ir ? {1'b1,array_index} :
-                       multi_ir ? {ir[4],multi_index} :
-                         call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
-        .rd(window_ctx_read ? 5'd3 :
-            array_pitch_src ? 5'd0 :
-            array_pitch_dst ? 5'd1 :
+        .clk(clk),
+        .rs_ext(gfx_active && gfx_rf_sa[5]),
+        .rd_ext(gfx_active && gfx_rf_da[5]),
+        .wa_ext(gfx_active && gfx_rf_wa[5]),
+        .rs(gfx_active ? gfx_rf_sa[4:0] :
+            ir==16'h0940 && tmp[25] ? 5'd26 :
+            multi_ir ? {ir[4],multi_index} :
+            call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
+        .rd(gfx_active ? gfx_rf_da[4:0] :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
-        .wa(line_write_active ?
-                (line_phase==4'd0 ? 5'd16 :
-                 line_phase==4'd1 ? 5'd18 : 5'd26) :
-            scratch_any_write ? scratch_wa :
-            array_save_active ? array_ctx_wa :
+        .wa(gfx_active ? gfx_rf_wa[4:0] :
             wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
-            array_query_active && listwr ?
-                (array_query_first ? 5'd18 : 5'd23) :
-            array_ir && listwr ? (array_wb_src ? 5'd16 : 5'd18) :
             listwr ? {ir[4],multi_index} :
             mulwrlo && (div_ir ? div_pair : !ir[0]) ?
                 {ir[4],ir[3:0]+4'd1} :
             wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (scratch_any_write || wr_reg || wrsrc || wr_sp || ptrwr ||
-                     (listwr && (array_save_active ||
-                                 !(array_ir && array_fill &&
-                                  array_wb_src && !array_query_active))) ||
-                     (dsjfinish && dsj_allow) ||
-                     ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
-                     (!div_ir || (!div_early &&
-                       (!div_error || (div_mod && div_signed))))) && !rst),
-        .wd(line_write_active ?
-                (line_phase==4'd0 ? pix_src_val :
-                 line_phase==4'd1 ? pix_dst_val : array_height) :
-            scratch_any_write ? scratch_any_wdata :
-            array_save_active ? array_ctx_wd :
-            pix_load && a_sel==LOAD_A && wr_reg ?
-                {16'd0,pixel_visible_source} :
-            drav_ir && wr_reg ? md :
-            cpw_ir && wr_reg ? md :
+        .we(step && ((gfx_active && (gfx_dst_rf || gfx_mdrf)) ||
+                    wr_reg || wrsrc || wr_sp || ptrwr || listwr ||
+                    (dsjfinish && dsj_allow) ||
+                    ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
+                    (!div_ir || (!div_early &&
+                      (!div_error || (div_mod && div_signed))))) && !rst),
+        .wd(gfx_active ? (gfx_mdrf ? md : result) :
             exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} :
-            array_query_active && listwr ?
-                (array_query_first ?
-                 {array_top[15:0],array_left[15:0]} :
-                 {array_height[15:0],array_width[15:0]}) :
-            array_ir && listwr ?
-                (array_wb_src ? pix_src_val : pix_dst_val) :
             listwr ? md :
             xy_op && wr_reg ? md :
             mulwrhi ? (div_ir ? md : b) :
@@ -553,28 +284,10 @@ module jttms10(
     wire pixel_alu_req, pixel_transparent;
     wire unused_pixel_valid;
     wire [15:0] unused_pixel_result, unused_pixel_mask;
-    // Before PROCESS, the binary bit occupies the transparency flag; the
-    // process step replaces it with the actual transparency decision.
-    wire [15:0] array_color = array_binary && !pix_transparent ?
-                               array_color0 : pix_color;
-    wire [11:0] array_chunks_read =
-        {1'b0,array_width[15:5]}+{11'd0,(|array_width[4:0])};
-    wire [31:0] array_rebase_src_bits = array_binary ?
-        {15'd0,array_chunks_read,5'd0} :
-        psize==16'd16 ? {12'd0,array_width[15:0],4'd0} :
-        psize==16'd8  ? {13'd0,array_width[15:0],3'd0} :
-        psize==16'd4  ? {14'd0,array_width[15:0],2'd0} :
-        psize==16'd2  ? {15'd0,array_width[15:0],1'd0} :
-                        {16'd0,array_width[15:0]};
-    wire [31:0] array_rebase_dst_bits =
-        psize==16'd16 ? {12'd0,array_width[15:0],4'd0} :
-        psize==16'd8  ? {13'd0,array_width[15:0],3'd0} :
-        psize==16'd4  ? {14'd0,array_width[15:0],2'd0} :
-        psize==16'd2  ? {15'd0,array_width[15:0],1'd0} :
-                        {16'd0,array_width[15:0]};
-    wire [15:0] pixel_source = drav_ir || line_ir ||
-                               array_fill || array_binary ?
-        ((array_ir ? array_color : pix_color) >> ea[3:0]) : array_color0;
+    wire gfx_color_lane = drav_ir || line_ir ||
+                          (array_ir && (array_fill || array_binary));
+    wire [15:0] pixel_source = gfx_color_lane ?
+                               rs_data[15:0] >> ea[3:0] : rs_data[15:0];
     jttms10_pixel u_pixel(
         .psize(psize[4:0]), .ppop(control[14:10]),
         .transparency(control[5]), .pmask(pmask),
@@ -582,7 +295,7 @@ module jttms10(
         .src_addr_lo(array_binary ? ea[3:0] : pix_src_addr),
         .dst_addr_lo(ea[3:0]),
         .source_pixel(pixel_source),
-        .dest_pixel(pixel_need_dest ? md[15:0] : 16'd0),
+        .dest_pixel(gfx_need_dest ? md[15:0] : 16'd0),
         .alu_a(pixel_alu_a), .alu_b(pixel_alu_b),
         .alu_op(pixel_alu_op), .alu_req(pixel_alu_req),
         .alu_result(result), .alu_borrow(c),
@@ -592,22 +305,9 @@ module jttms10(
     );
     always @* begin
         alu_op=0;
-        if(line_prep_active && array_win)
-            alu_op=line_phase==0 ? 1 : 3;
-        else if(line_advance_active && array_win)
-            alu_op=line_phase==4'd3 ? 3 : 1;
-        else if(array_rebase_active && array_win)
-            alu_op=array_rebase_phase==0 || !array_rev_h ? 3 : 1;
-        else if((array_win &&
-            (array_corner_mode ? array_winphase==4'd2 :
-             (array_winphase>=4'd4 && array_winphase<=4'd11))) ||
-           array_count || (array_rev_h &&
-           (array_srcpre || array_dstpre)) ||
-           (array_rev_v && array_rowend &&
-           (array_srcstep || array_dststep))) alu_op=3;
-        else if(array_win || array_srcpre || array_dstpre ||
-                array_srcstep || array_dststep) alu_op=1;
-        else if(a_sel==PROCESS_A && pixel_alu_req) alu_op=pixel_alu_op;
+        if(gfx_active)
+            alu_op=gfx_pix_process && pixel_alu_req ?
+                   pixel_alu_op : gfx_alu_op;
         else case(alu_sel)
             PASS_ALU: alu_op=0;
             ADD_ALU:  alu_op=1;
@@ -621,168 +321,33 @@ module jttms10(
             NOT_ALU:  alu_op=9;
             NEG_ALU:  alu_op=10;
             ABS_ALU:  alu_op=11;
-            SHIFT_ALU: begin
-                if(cvloop_active) alu_op=12;
-                else case(shift_kind)
-                    3'd0,3'd1: alu_op=12;
-                    3'd2:      alu_op=14;
-                    3'd3:      alu_op=13;
-                    3'd4:      alu_op=15;
-                    default:;
-                endcase
-            end
+            SHIFT_ALU: case(shift_kind)
+                3'd0,3'd1: alu_op=12;
+                3'd2:      alu_op=14;
+                3'd3:      alu_op=13;
+                3'd4:      alu_op=15;
+                default:;
+            endcase
             LMO_ALU: alu_op=12;
             default:;
         endcase
     end
     wire [31:0] div_trial = {b[30:0],md[31]};
-    wire cpw_compare = wincheck_active && gfx_step &&
-                       gfx_phase>=3'd2 && gfx_phase<=3'd5;
-    wire [31:0] cpw_source_x = {{16{a[15]}},a[15:0]};
-    wire [31:0] cpw_source_y = {{16{a[31]}},a[31:16]};
-    wire [31:0] cpw_start_x = {{16{tmp[15]}},tmp[15:0]};
-    wire [31:0] cpw_start_y = {{16{tmp[31]}},tmp[31:16]};
-    wire [31:0] cpw_end_x = {{16{b[15]}},b[15:0]};
-    wire [31:0] cpw_end_y = {{16{b[31]}},b[31:16]};
-    wire [31:0] alu_a = line_prep_active && array_win ?
-                            (line_phase==0 ?
-                             {15'd0,array_yleft,1'b0} :
-                             {15'd0,array_dx,1'b0}) :
-                        line_advance_active && array_win ?
-                            (line_phase==4'd0 ?
-                             {16'd0,(rs_data[15:0])} :
-                             line_phase==4'd1 ?
-                             {16'd0,(rs_data[31:16])} :
-                             line_phase==4'd2 ?
-                             (line_diag ? array_yend : array_xend) :
-                             32'd1) :
-                        array_rebase_active && array_win ?
-                            (array_rebase_phase==0 ?
-                             {16'd0,array_xleft} :
-                             array_rebase_phase==1 ?
-                             array_rebase_src_bits :
-                             array_rebase_dst_bits) :
-                        array_canon_active && array_win ?
-                            {16'd0,array_height[15:0]} :
-                        array_win ?
-                            (array_corner_mode ?
-                             (array_winphase==4'd2 ? 32'd1 :
-                              array_winphase==4'd3 ||
-                              array_winphase==4'd5 ?
-                              {16'd0,array_dx} :
-                              {16'd0,array_dyminus1}) :
-                             array_winphase==4'd0 ? {16'd0,array_dx} :
-                             array_winphase==4'd1 ? {16'd0,array_yleft} :
-                             array_winphase==4'd2 ||
-                             array_winphase==4'd3 ? 32'd1 :
-                             array_winphase==4'd4 ? array_wxend :
-                             array_winphase==4'd5 ? array_wyend :
-                             array_winphase==4'd6 ? array_wx0 :
-                             array_winphase==4'd7 ? array_wy0 :
-                             array_winphase==4'd8 ? array_left :
-                             array_winphase==4'd9 ? array_top :
-                             array_winphase==4'd10 ? array_x0 :
-                             array_winphase==4'd11 ? array_y0 :
-                             array_winphase==4'd12 ? array_xoff :
-                             array_yoff) :
-                        array_count ? 32'd1 :
-                        array_srcpre || array_dstpre ? {16'd0,psize} :
-                        array_srcstep ?
-                            (array_rowend ? rs_data :
-                             (array_binary ? 32'd32 : {16'd0,psize})) :
-                        array_dststep ?
-                            (array_rowend && !(array_fill && array_last) ?
-                             rs_data : {16'd0,psize}) :
-                        array_canon_active && array_canon_linear &&
-                        (a_sel==SAVESRC_A || a_sel==SAVEDST_A) ? a :
-                        array_offset_active && a_sel==SAVESRC_A ? a :
-                        a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_a :
-                        a_sel==DRAVX_A ? {16'd0,pix_src_val[15:0]} :
-                        a_sel==DRAVY_A ? {16'd0,pix_src_val[31:16]} :
-                        cpw_compare ?
-                        (gfx_phase==3'd2 ? cpw_start_x :
-                         gfx_phase==3'd3 ? cpw_start_y :
-                         gfx_phase==3'd4 ? cpw_source_x : cpw_source_y) :
-                        xyx ? {16'd0,a[15:0]} :
-                        xyy ? {16'd0,a[31:16]} :
-                        divnegmd ? md : divnegb ? b :
-                        mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    wire [31:0] alu_b = line_prep_active && array_win ?
-                            (line_phase==0 ? 32'd0 : array_xend) :
-                        line_advance_active && array_win ?
-                            (line_phase==4'd0 ?
-                             {16'd0,pix_dst_val[15:0]} :
-                             line_phase==4'd1 ?
-                             {16'd0,pix_dst_val[31:16]} :
-                             line_phase==4'd2 ?
-                             pix_src_val : array_height) :
-                        array_rebase_active && array_win ?
-                            (array_rebase_phase==0 ?
-                             {16'd0,array_dx} :
-                             array_rebase_phase==1 ?
-                             pix_src_val : pix_dst_val) :
-                        array_canon_active && array_win ?
-                            (array_canon_dst ?
-                             {{16{array_wend[31]}},array_wend[31:16]} :
-                             {{16{array_wstart[31]}},array_wstart[31:16]}) :
-                        array_win ?
-                            (array_corner_mode ?
-                             (array_winphase==4'd2 ? {16'd0,array_yleft} :
-                              array_winphase==4'd3 ?
-                                  (array_src_xy ?
-                                   {{16{pix_src_val[15]}},pix_src_val[15:0]} :
-                                   array_xoff) :
-                              array_winphase==4'd4 ?
-                                  (array_src_xy ?
-                                   {{16{pix_src_val[31]}},pix_src_val[31:16]} :
-                                   array_yoff) :
-                              array_winphase==4'd5 ?
-                                  (array_dst_xy ? array_x0 : array_xoff) :
-                                  (array_dst_xy ? array_y0 : array_yoff)) :
-                             array_winphase==4'd0 ? array_x0 :
-                             array_winphase==4'd1 ? array_y0 :
-                             array_winphase==4'd2 ?
-                                 {{16{array_wend[15]}},array_wend[15:0]} :
-                             array_winphase==4'd3 ?
-                                 {{16{array_wend[31]}},array_wend[31:16]} :
-                             array_winphase==4'd4 ? array_xend :
-                             array_winphase==4'd5 ? array_yend :
-                             array_winphase==4'd6 ? array_x0 :
-                             array_winphase==4'd7 ? array_y0 :
-                             array_winphase==4'd8 ? array_right :
-                             array_winphase==4'd9 ? array_bottom :
-                             array_winphase==4'd10 ? array_left :
-                             array_winphase==4'd11 ? array_top :
-                             array_winphase==4'd12 ?
-                                 {{16{pix_src_val[15]}},pix_src_val[15:0]} :
-                                 {{16{pix_src_val[31]}},pix_src_val[31:16]}) :
-                        array_canon_active && array_canon_linear &&
-                        (a_sel==SAVESRC_A || a_sel==SAVEDST_A) ?
-                            (array_canon_dst ? array_wend : array_wstart) :
-                        array_offset_active && a_sel==SAVESRC_A ?
-                            (array_offset_dest ? pix_dst_val : pix_src_val) :
-                        array_count ?
-                            (array_rowend ? {16'd0,array_yleft} :
-                             {16'd0,array_xleft}) :
-                        array_srcpre ? pix_src_val :
-                        array_dstpre ? pix_dst_val :
-                        array_srcstep ?
-                            (array_rowend ? rd_data : pix_src_val) :
-                        array_dststep ?
-                            (array_rowend && !(array_fill && array_last) ?
-                             rd_data : pix_dst_val) :
-                        a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_b :
-                        a_sel==DRAVX_A ? {16'd0,pix_dst_val[15:0]} :
-                        a_sel==DRAVY_A ? {16'd0,pix_dst_val[31:16]} :
-                        cpw_compare ?
-                        (gfx_phase==3'd2 ? cpw_source_x :
-                         gfx_phase==3'd3 ? cpw_source_y :
-                         gfx_phase==3'd4 ? cpw_end_x : cpw_end_y) :
-                        xyy ? {16'd0,b[31:16]} :
-                        xyx ? {16'd0,b[15:0]} :
-                        divstep ? div_trial : divnegb ? 32'd0 : b;
+    wire [31:0] alu_a =
+        xyx ? {16'd0,a[15:0]} :
+        xyy ? {16'd0,a[31:16]} :
+        divnegmd ? md : divnegb ? b :
+        mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
+    wire [31:0] alu_b =
+        xyy ? {16'd0,b[31:16]} :
+        xyx ? {16'd0,b[15:0]} :
+        divstep ? div_trial : divnegb ? 32'd0 : b;
     wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
-    jttms10_alu u_alu(.a(alu_a),.b(alu_b),.op(alu_op),.cin(alu_cin),
+    wire [31:0] shared_alu_a = gfx_active ?
+        (gfx_pix_process && pixel_alu_req ? pixel_alu_a : a) : alu_a;
+    wire [31:0] shared_alu_b = gfx_active ?
+        (gfx_pix_process && pixel_alu_req ? pixel_alu_b : b) : alu_b;
+    jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
         .result(result),.n(n),.z(z),.c(c),.v(v));
     reg condition;
     always @* begin
@@ -856,36 +421,19 @@ module jttms10(
             vector_latched<=0;
             push_high<=0;
             hw_entry<=0;
-            gfx_phase<=0;
-            gfx_rs<=0;
-            pix_conv_src<=0;
-            pix_clip<=0;
-            pix_src_val<=0;
-            pix_dst_val<=0;
             pix_src_addr<=0;
-            pix_color<=0;
             pix_transparent<=0;
-            array_index<=0;
-            array_winphase<=0;
-            array_offset_convert<=0;
-            array_corner_mode<=0;
-            array_query_mode<=0;
-            array_canon_linear<=0;
-            array_checkpoint<=0;
             pbx_push<=0;
-            line_checkpoint<=0;
-            line_abort<=0;
             line_hw_push<=0;
         end else begin
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
                 nmi_clear<=nmi_req;
                 hw_entry<=1;
-                array_checkpoint<=0;
-                pbx_push<=array_checkpoint && !(nmi_req && nmi_nostack);
-                line_checkpoint<=0;
-                line_hw_push<=line_checkpoint && !(nmi_req && nmi_nostack);
-                if(array_checkpoint) array_index<=0;
+                pbx_push<=gfx_checkpoint && array_ir &&
+                          !(nmi_req && nmi_nostack);
+                line_hw_push<=gfx_checkpoint && line_ir &&
+                             !(nmi_req && nmi_nostack);
             end
             if(push_entry) push_high<=1;
             if(mem_req && mem_ack) begin
@@ -923,385 +471,8 @@ module jttms10(
                 if(ld_ir) begin
                     ir<=md[15:0];
                     div_pairread<=0;
-                    gfx_phase<=0;
-                    gfx_rs<=0;
-                    pix_conv_src<=0;
-                    array_offset_convert<=0;
-                    array_corner_mode<=0;
-                    array_query_mode<=0;
-                    array_canon_linear<=0;
                 end
-                if(ni && reti_pbx) begin
-                    array_index<=0;
-                    gfx_rs<=0;
-                    pix_clip<=0;
-                    pix_transparent<=0;
-                    array_offset_convert<=0;
-                    array_corner_mode<=0;
-                    array_query_mode<=0;
-                    array_canon_linear<=0;
-                end
-                if(array_init) begin
-                    array_index<=0;
-                    gfx_rs<=0;
-                    pix_clip<=0;
-                    pix_transparent<=0;
-                    array_winphase<=0;
-                    array_corner_mode<=0;
-                    array_query_mode<=0;
-                    array_canon_linear<=0;
-                    array_xoff_q<=0;
-                    array_yoff_q<=0;
-                    line_abort<=0;
-                    line_checkpoint<=0;
-                end
-                if(array_save_active && listwr)
-                    array_index<=array_index+4'd1;
-                if(array_restore_active && array_cap) begin
-                    array_index<=array_index+4'd1;
-                    case(array_index)
-                        4'd0: begin
-                            pix_src_val<=rs_data;
-                        end
-                        4'd2: begin
-                            pix_dst_val<=rs_data;
-                        end
-                        4'd4: array_color0<=rs_data[15:0];
-                        4'd5: pix_color<=rs_data[15:0];
-                        4'd6: begin
-                            ir<=rs_data[15:0];
-                            array_dx<=rs_data[31:16];
-                        end
-                        4'd7: begin
-                            array_yleft<=rs_data[31:16];
-                            array_xleft<=rs_data[15:0];
-                        end
-                        4'd8: if(array_binary) tmp<=rs_data;
-                        default: begin
-                            array_height<={16'd0,rs_data[31:16]};
-                            array_dyminus1<=rs_data[15:0];
-                        end
-                    endcase
-                end
-                if(array_cap && line_setup_active) begin
-                    array_index<=array_index+4'd1;
-                    case(array_index)
-                        4'd0: pix_src_val<=rs_data;
-                        4'd1: pix_dst_val<=rs_data;
-                        4'd2: begin
-                            array_dx<=rs_data[15:0];
-                            array_yleft<=rs_data[31:16];
-                        end
-                        4'd3: pix_color<=rs_data[15:0];
-                        4'd4: array_height<=rs_data;
-                        default:;
-                    endcase
-                end
-                if(array_cap && !line_setup_active &&
-                   !array_restore_active) begin
-                    array_index<=array_index+4'd1;
-                    if(array_index==4'd9 && !(
-                       array_dst_xy && control[7:6]!=0))
-                        array_corner_mode<=array_corner_needed;
-                    case(array_index)
-                        4'd0: begin
-                            pix_src_val<=rs_data;
-                        end
-                        4'd2: begin
-                            pix_dst_val<=rs_data;
-                        end
-
-                        4'd7: begin
-                            array_dx<=rs_data[15:0];
-                            array_xleft<=rs_data[15:0];
-                            array_yleft<=rs_data[31:16];
-                            array_height<={16'd0,rs_data[31:16]};
-                        end
-                        4'd8: array_color0<=rs_data[15:0];
-                        4'd9: begin
-                            pix_color<=rs_data[15:0];
-                        end
-                        default:;
-                    endcase
-                end
-                if(a_sel==INIT_A) begin
-                    pix_src_val<=rs_data;
-                    pix_dst_val<=rd_data;
-                    array_color0<=rs_data[15:0];
-                    pix_clip<=0;
-                    pix_transparent<=0;
-                    gfx_rs<=drav_ir ? 3'd4 : 3'd0; // B9 COLOR1
-                end
-                if(cc_sel==SRCADDR_CC) begin
-                    ea<=pix_src_val;
-                    pix_src_addr<=pix_src_val[3:0];
-                end
-                if(cc_sel==DSTADDR_CC) ea<=pix_dst_val;
-                if(a_sel==SRCPREP_A) begin
-                    a<=array_offset_active ?
-                        {array_yoff[15:0],array_xoff[15:0]} :
-                        pix_src_val;
-                    pix_conv_src<=!array_offset_active ||
-                                  !array_offset_dest;
-                    gfx_phase<=0;
-                end
-                if(a_sel==DSTPREP_A) begin
-                    a<=pix_dst_val;
-                    pix_conv_src<=0;
-                    gfx_phase<=0;
-                end
-                if(a_sel==SAVESRC_A) begin
-                    pix_src_addr<=a[3:0];
-                    ea<=a;
-                    if(array_offset_active && array_offset_dest) begin
-                        pix_dst_val<=result;
-                    end else if(array_ir &&
-                       (!array_canon_active || array_src_xy ||
-                        array_canon_linear)) begin
-                        pix_src_val<=array_offset_active ||
-                            array_canon_linear ? result : a;
-                    end
-                    if(array_offset_active) array_offset_convert<=0;
-                end
-                if(a_sel==SAVEDST_A) begin
-                    ea<=a;
-                    if(array_ir &&
-                       (!array_canon_active || array_dst_xy ||
-                        array_canon_linear)) begin
-                        pix_dst_val<=array_canon_linear ? result : a;
-                    end
-                end
-                if(a_sel==SRCCAP_A) begin
-                    if(array_binary) begin
-                        pix_transparent<=array_binary_need_read ?
-                            md[0] : tmp[0];
-                        tmp<=array_binary_need_read ?
-                            {1'b0,md[31:1]} : {1'b0,tmp[31:1]};
-                    end else array_color0<=md[15:0];
-                end
-                if(a_sel==PROCESS_A) begin
-                    // The destination read has already been consumed. Reuse
-                    // MD to hold the processed pixel across write waits.
-                    md[15:0]<=pixel_write_pixel;
-                    pix_transparent<=pixel_transparent;
-                end
-                if(a_sel==LOAD_A) st[28]<=pixel_visible_source!=0;
-                if(a_sel==WINPREP_A) begin
-                    a<=pix_dst_val;
-                    gfx_phase<=0;
-                    pix_clip<=0;
-                end
-                if(array_offset_active && a_sel==SRCPREP_A)
-                    array_offset_convert<=1;
-                if(line_prep_active && array_win) begin
-                    if(line_phase==0) array_xend_q<=result[17:0];
-                    else array_yend_q<=result[17:0];
-                end else if(line_advance_active && array_win) begin
-                    case(line_phase)
-                        4'd0: md[15:0]<=result[15:0];
-                        4'd1: md[31:16]<=result[15:0];
-                        4'd2: begin
-                            pix_src_val<=result;
-                            pix_dst_val<=md;
-                        end
-                        4'd3: array_height<=result;
-                        default:;
-                    endcase
-                end else if(array_rebase_active && array_win) begin
-                    case(array_rebase_phase)
-                        2'd0: array_width_q<=result[17:0];
-                        2'd1:;
-                        2'd2:;
-                        default:;
-                    endcase
-                end else if(array_canon_active && array_win) begin
-                    a<=array_canon_dst ?
-                        (array_dst_xy ?
-                         {result[15:0],array_wend[15:0]} :
-                         {array_height[15:0],16'd0}) :
-                        (array_src_xy ?
-                         {result[15:0],array_wstart[15:0]} :
-                         {array_height[15:0],16'd0});
-                    pix_conv_src<=!array_canon_dst;
-                    array_canon_linear<=array_canon_dst ?
-                        !array_dst_xy : !array_src_xy;
-                    gfx_phase<=0;
-                end else if(array_win) begin
-                    array_winphase<=array_winphase+4'd1;
-                    if(array_corner_mode) begin
-                        case(array_winphase)
-                            4'd2: array_dyminus1<=result[15:0];
-                            4'd3: if(control[8]) begin
-                                if(array_src_xy)
-                                    pix_src_val[15:0]<=result[15:0];
-                                else array_xoff_q<=result[18:0];
-                            end
-                            4'd4: if(control[9]) begin
-                                if(array_src_xy)
-                                    pix_src_val[31:16]<=result[15:0];
-                                else array_yoff_q<=result[18:0];
-                            end
-                            4'd5: if(control[8]) begin
-                                if(array_dst_xy)
-                                    pix_dst_val[15:0]<=result[15:0];
-                                else array_xoff_q<=result[18:0];
-                            end
-                            4'd6: if(control[9]) begin
-                                if(array_dst_xy)
-                                    pix_dst_val[31:16]<=result[15:0];
-                                else array_yoff_q<=result[18:0];
-                            end
-                            default:;
-                        endcase
-                    end else begin
-                    case(array_winphase)
-                        4'd0: array_xend_q<=result[17:0];
-                        4'd1: array_yend_q<=result[17:0];
-                        4'd2: array_wxend_q<=result[17:0];
-                        4'd3: array_wyend_q<=result[17:0];
-                        4'd4: begin
-                            array_wxend_q<=n ? array_xend_q : array_wxend_q;
-                            array_window_violation_q<=!n && !z;
-                        end
-                        4'd5: begin
-                            array_wyend_q<=n ? array_yend_q : array_wyend_q;
-                            array_window_violation_q<=
-                                array_window_violation_q || (!n && !z);
-                        end
-                        4'd6: begin
-                            array_xend_q<=n ? array_wx0[17:0] : array_x0[17:0];
-                            array_window_violation_q<=array_window_violation_q || n;
-                        end
-                        4'd7: begin
-                            array_yend_q<=n ? array_wy0[17:0] : array_y0[17:0];
-                            array_window_violation_q<=array_window_violation_q || n;
-                        end
-                        4'd8: array_width_q<=result[17:0];
-                        4'd9: array_height<={{14{result[17]}},result[17:0]};
-                        4'd10: array_xoff_q<=result[18:0];
-                        4'd11: array_yoff_q<=result[18:0];
-                        4'd12: if(control[7:6]==2'd3 && array_src_xy)
-                            pix_src_val[15:0]<=result[15:0];
-                        4'd13: if(control[7:6]==2'd3 && array_src_xy)
-                            pix_src_val[31:16]<=result[15:0];
-                        4'd15: begin
-                            if(array_window_query) array_query_mode<=1;
-                            if(array_corner_next) begin
-                                array_corner_mode<=1;
-                                array_winphase<=0;
-                            end
-                            st[28]<=control[7:6]==2'd1 ?
-                                    !array_window_overlap :
-                                    array_window_violation;
-                            if((control[7:6]==2'd1 &&
-                                array_window_overlap) ||
-                               (control[7:6]==2'd2 &&
-                                array_window_violation)) wvp_set<=1;
-                            if(control[7:6]==2'd3 &&
-                               array_window_overlap) begin
-                                pix_dst_val<=
-                                    {array_top[15:0],array_left[15:0]};
-                                array_dx<=array_width[15:0];
-                                array_xleft<=array_width[15:0];
-                                array_yleft<=array_height[15:0];
-                            end
-                        end
-                        default:;
-                    endcase
-                    end
-                end
-                if(cc_sel==COLOR_CC) pix_color<=rs_data[15:0];
-                if(array_srcpre && array_rev_h) pix_src_val<=result;
-                if(array_dstpre && array_rev_h) pix_dst_val<=result;
-                if(array_srcstep && !array_fill) begin
-                    if(array_rowend ||
-                       (array_binary ? array_binary_need_read :
-                        !array_rev_h)) pix_src_val<=result;
-                end
-                if(array_dststep) begin
-                    if(array_rowend || !array_rev_h) pix_dst_val<=result;
-                end
-                if(array_count) begin
-                    array_checkpoint<=!array_last &&
-                        (array_rowend ||
-                         (array_rev_h ?
-                          (psize==16'd16 ||
-                           {1'b0,pix_dst_val[3:0]}<psize[4:0]) :
-                          pix_dst_val[31:4]!=ea[31:4]));
-                    if(array_rowend) begin
-                        array_yleft<=result[15:0];
-                        array_xleft<=array_dx;
-                    end else array_xleft<=result[15:0];
-                end
-                if(array_source_phase && step) array_checkpoint<=0;
-                if(line_loop_active && a_sel==WINPREP_A)
-                    line_checkpoint<=0;
-                if(line_write_active && listwr && line_phase==4'd2)
-                    line_checkpoint<=!line_last && !line_abort;
-                if(a_sel==DRAVX_A) md[15:0]<=result[15:0];
-                if(a_sel==DRAVY_A) md[31:16]<=result[15:0];
-                if(gfx_step) begin
-                    if(cvloop_active) begin
-                        a<=result;
-                        shift_count<=shift_count-5'd1;
-                    end else if(wincheck_active) begin
-                        gfx_phase<=gfx_phase+3'd1;
-                        case(gfx_phase)
-                            3'd0: begin
-                                md<=0;
-                                gfx_rs<=3'd1; // B5 WSTART
-                            end
-                            3'd1: begin
-                                tmp<=rs_data;
-                                gfx_rs<=3'd2; // B6 WEND
-                            end
-                            3'd2: md[5]<=n;
-                            3'd3: begin md[7]<=n; b<=rs_data; end
-                            3'd4: md[6]<=n;
-                            3'd5: md[8]<=n;
-                            3'd6: begin
-                                if(!cpw_ir && control[7:6]!=0) begin
-                                    st[28]<=|md[8:5];
-                                    pix_clip<=control[7:6]==2'd1 || |md[8:5];
-                                    if((control[7:6]==2'd1 && !(|md[8:5])) ||
-                                       (control[7:6]==2'd2 && (|md[8:5])))
-                                        wvp_set<=1;
-                                end
-                                if(line_ir)
-                                    line_abort<=
-                                        (control[7:6]==2'd1 &&
-                                         !(|md[8:5])) ||
-                                        (control[7:6]==2'd2 &&
-                                         (|md[8:5]));
-                            end
-                            default:;
-                        endcase
-                    end else if(pixconv_active) begin
-                            gfx_phase<=gfx_phase+3'd1;
-                            case(gfx_phase)
-                                3'd0: begin
-                                    tmp<=a;
-                                    a<={{16{a[31]}},a[31:16]};
-                                    shift_count<=5'd31-
-                                        (pix_field && pix_conv_src ?
-                                         convsp[4:0] : convdp[4:0]);
-                                    gfx_rs<=3'd3; // B4 OFFSET
-                                end
-                                3'd1: begin
-                                    b<=a;
-                                    a<={16'd0,tmp[15:0]};
-                                    shift_count<=array_offset_convert &&
-                                        array_binary ? 5'd0 : pixel_shift;
-                                end
-                                3'd2: a<=result;
-                                3'd3: b<=array_offset_convert ||
-                                           array_canon_linear ? 32'd0 :
-                                                rs_data;
-                                3'd4: a<=result;
-                                default:;
-                            endcase
-                    end
-                end
+                if(gfx_active && gfx_dst_ir) ir<=result[15:0];
                 if(shiftkinit || shiftrinit) begin
                     shift_count<=shift_right ? -shift_raw : shift_raw;
                     shift_c<=0;
@@ -1495,8 +666,32 @@ module jttms10(
                 end
                 if(btstfinish) st[29]<=~a[btst_index];
                 if(lmofinish) st[29]<=a==0;
-                if(cpw_ir && wr_reg) st[28]<=|md[8:5];
-                retire<=ni && !hw_entry;
+                if(gfx_active) begin
+                    if(gfx_load_a) a<=gfx_a_data;
+                    if(gfx_load_b) b<=gfx_b_data;
+                    if(gfx_dst_a) a<=result;
+                    if(gfx_dst_b) b<=result;
+                    if(gfx_dst_md) md<=result;
+                    if(gfx_dst_ea) ea<=result;
+                    if(gfx_dst_tmp) tmp<=result;
+                    if(gfx_pix_source) pix_src_addr<=ea[3:0];
+                    if(gfx_pix_visible) md<={16'd0,pixel_visible_source};
+                    if(gfx_pix_process) begin
+                        md<={16'd0,pixel_write_pixel};
+                        pix_transparent<=pixel_transparent;
+                    end
+                    if(gfx_pix_test) pix_transparent<=pixel_transparent;
+                    if(gfx_flag_z) st[29]<=z;
+                    if(gfx_flag_nz) begin st[31]<=n; st[29]<=z; end
+                    if(gfx_flag_nvzc) begin
+                        st[31]<=n; st[30]<=c; st[29]<=z; st[28]<=v;
+                    end
+                    if(gfx_flag_vclip) st[28]<=gfx_clip;
+                    if(gfx_flag_vpix) st[28]<=|pixel_visible_source;
+                    if(gfx_flag_vclear) st[28]<=0;
+                    if(gfx_flag_wvp) wvp_set<=1;
+                end
+                retire<=(ni || gfx_done) && !hw_entry;
                 if(ni) hw_entry<=0;
             end
         end

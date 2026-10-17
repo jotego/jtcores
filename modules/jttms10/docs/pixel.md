@@ -1,6 +1,6 @@
 # Pixel-processing helper
 
-`jttms10_pixel.v` processes one right-justified pixel for future microcoded
+`jttms10_pixel.v` processes one right-justified pixel for the microcoded
 graphics instructions. Inputs `source_pixel` and `dest_pixel` contain the raw
 low PSIZE bits. `psize` is the bit count 1, 2, 4, 8, or 16; `ppop` is
 CONTROL[14:10]. `src_addr_lo` and `dst_addr_lo` are the low four **bit-address**

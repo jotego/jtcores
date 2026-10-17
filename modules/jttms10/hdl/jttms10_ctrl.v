@@ -9,21 +9,13 @@ module jttms10_ctrl(
     input              multi_load,
     input      [4:0]   mul_count,
     input              div_early_cond,
-    input              pixel_need_dest,
-    input              pixel_abort,
-    input              array_active, array_fill, array_convert,
-    input              array_binary, array_binary_need_read,
-    input              array_zero, array_last,
-    input              array_checkpoint, reti_pbx,
-    input              line_ir, line_checkpoint, line_empty,
-                       line_last, line_abort,
-    input              array_window_needed, array_window_done,
-                       array_window_abort, array_window_query,
-                       array_offset_needed, array_corner_next,
-                       array_query_mode, array_canon_needed,
-    input      [3:0]   array_index,
+    input              reti_pbx,
+    input              gfx_active, gfx_done, gfx_checkpoint,
+    input      [15:0]  gfx_pbx_ir,
     input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
     output            execute, active,
+    output            gfx_enter, gfx_resume, gfx_take,
+    output     [7:0]  gfx_family,
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
@@ -35,23 +27,6 @@ module jttms10_ctrl(
     output            divinit, divload, divnega, divnegmd,
                       divnegb, divcheck, divstep,
     output            dsjfinish, xyx, xyy,
-    output            array_init, array_cap, array_srcstep,
-                      array_dststep, array_count,
-                      array_srcpre, array_dstpre,
-    output            array_source_phase, array_wb_src,
-    output            array_pitch_src, array_pitch_dst,
-    output            array_save_active, array_restore_active,
-    output            array_rebase_active,
-    output     [1:0]  array_rebase_phase,
-    output            line_setup_active, line_prep_active,
-                      line_loop_active, line_advance_active,
-                      line_write_active,
-    output     [3:0]  line_phase,
-    output            array_offset_active, array_query_active,
-                      array_query_first, array_canon_active,
-                      array_canon_dst, array_win,
-    output            gfx_step, cvloop_active, wincheck_active,
-                      pixconv_active,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -70,8 +45,9 @@ module jttms10_ctrl(
     wire [3:0] mul_sel;
     wire [1:0] lmo_sel;
     wire [2:0] shift_sel;
-    wire [3:0] misc_sel;
+    wire [2:0] misc_sel;
     wire [1:0] bus_sel;
+    wire gfx_step;
     assign fetch = bus_sel==FETCH_BUS;
     assign imm = bus_sel==IMM_BUS;
     assign vector = bus_sel==VECTOR_BUS;
@@ -82,14 +58,6 @@ module jttms10_ctrl(
     assign xyx = misc_sel==X_MISC;
     assign xyy = misc_sel==Y_MISC;
     assign emu_step = misc_sel==EMU_MISC;
-    assign array_init = misc_sel==ARRAYINIT_MISC;
-    assign array_cap = misc_sel==ARRAYCAP_MISC;
-    assign array_srcstep = misc_sel==ARRAYSRCSTEP_MISC;
-    assign array_dststep = misc_sel==ARRAYDSTSTEP_MISC;
-    assign array_count = misc_sel==ARRAYCOUNT_MISC;
-    assign array_srcpre = misc_sel==ARRAYSRCPRE_MISC;
-    assign array_dstpre = misc_sel==ARRAYDSTPRE_MISC;
-    assign array_win = misc_sel==ARRAYWIN_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
     assign shift_step = shift_sel==STEP_SHIFT;
@@ -131,42 +99,27 @@ module jttms10_ctrl(
     assign execute = cen && enable && ready && !halt;
     assign active = cen;
     wire boundary = !cen && uaddr==FETCH_SEQA;
-    wire array_boundary = !cen && array_checkpoint &&
-                          uaddr==ARRAYLOOP_SEQA;
-    wire line_boundary = !cen && line_checkpoint &&
-                         uaddr==LINELOOP_SEQA;
-    assign hw_take = (boundary || array_boundary || line_boundary) && !rst &&
+    wire gfx_boundary = !cen && gfx_active && gfx_checkpoint;
+    assign hw_take = (boundary || gfx_boundary) && !rst &&
                      !halted && !emu_hold &&
                      (nmi_req || (irq_req && ie));
+    assign gfx_family=uaddr[11:4];
+    wire gfx_migrated = gfx_family==8'd103 || gfx_family==8'd104 ||
+                        (gfx_family>=8'd106 && gfx_family<=8'd109) ||
+                        (gfx_family>=8'd110 && gfx_family<=8'd112) ||
+                        gfx_family==8'd131 ||
+                        (gfx_family>=8'd139 && gfx_family<=8'd146);
+    assign gfx_enter=execute && gfx_step && !gfx_active && gfx_migrated;
+    // The architectural B10 image identifies a resumable graphics opcode.
+    // It is read during RETI, so nested ISR graphics needs no hidden mode bit.
+    assign gfx_resume=execute && ni && reti_pbx &&
+        (gfx_pbx_ir==16'h0fc0 || gfx_pbx_ir==16'h0fe0 ||
+         gfx_pbx_ir==16'h0f00 || gfx_pbx_ir==16'h0f80 ||
+         gfx_pbx_ir==16'h0f20 || gfx_pbx_ir==16'h0f40 ||
+         gfx_pbx_ir==16'h0f60 || gfx_pbx_ir==16'h0fa0);
+    assign gfx_take=hw_take && gfx_active;
     assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
     assign push_active = uaddr[11:4]==PUSH32_SEQA[11:4];
-    assign cvloop_active = uaddr[11:4]==CVLOOP_SEQA[11:4];
-    assign wincheck_active = uaddr[11:4]==WINCHECK_SEQA[11:4];
-    assign pixconv_active = uaddr[11:4]==PIXCONV_SEQA[11:4];
-    assign array_source_phase = uaddr[11:4]==ARRAYLOOP_SEQA[11:4];
-    // B1/B3 are immutable through a row; preselect them for the RF's
-    // synchronous read before the source/destination row-step executes.
-    assign array_pitch_src = uaddr==ARRAYDST_SEQA+12'd5;
-    assign array_pitch_dst = uaddr==ARRAYDST_SEQA+12'd6;
-    assign array_save_active = uaddr[11:4]==ARRAYSAVE_SEQA[11:4];
-    assign array_restore_active = uaddr[11:4]==ARRAYRESTORE_SEQA[11:4];
-    assign array_rebase_active = uaddr[11:4]==ARRAYREBASE_SEQA[11:4];
-    assign array_rebase_phase = uaddr[1:0];
-    assign line_setup_active = uaddr[11:4]==LINESETUP_SEQA[11:4];
-    assign line_prep_active = uaddr[11:4]==LINEPREP_SEQA[11:4];
-    assign line_loop_active = uaddr[11:4]==LINELOOP_SEQA[11:4];
-    assign line_advance_active = uaddr[11:4]==LINEADVANCE_SEQA[11:4];
-    assign line_write_active = uaddr[11:4]==LINEWRITE_SEQA[11:4];
-    assign line_phase = uaddr[3:0];
-    assign array_wb_src = uaddr==ARRAYFINISH_SEQA;
-    assign array_offset_active =
-        uaddr[11:4]==ARRAYOFFSET_SEQA[11:4];
-    assign array_query_active =
-        array_query_mode && uaddr[11:4]==ARRAYFINISH_SEQA[11:4];
-    assign array_query_first = uaddr==ARRAYFINISH_SEQA;
-    assign array_canon_active =
-        uaddr[11:4]==ARRAYCANON_SEQA[11:4];
-    assign array_canon_dst = array_canon_active && uaddr[3:0]>=4'd3;
     // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
     // Defined opcodes without a microcode implementation remain diagnostic.
     // This classification is also used when elaborating the dispatch ROM.
@@ -186,7 +139,6 @@ module jttms10_ctrl(
     endfunction
     assign reserved_opcode = is_reserved(md[15:8]);
     wire loop_repeat = (shift_step && shift_count>5'd1) ||
-                       (gfx_step && cvloop_active && shift_count>5'd1) ||
                        (lmoscan && lmo_more) ||
                        (multiadvance && multi_steps>5'd1) ||
                        (mulstep && mul_count!=5'd1) ||
@@ -212,9 +164,14 @@ module jttms10_ctrl(
             16'h0360: decoded = DINT_SEQA[11:4];
             16'h0d60: decoded = EINT_SEQA[11:4];
             16'h0100: decoded = EMU_SEQA[11:4];
-            16'h0f00,16'h0f20,16'h0f40,16'h0f60,
-            16'h0f80,16'h0fa0,16'h0fc0,16'h0fe0:
-                decoded = ARRAY_SEQA[11:4];
+            16'h0fc0: decoded = FILL_L_SEQA[11:4];
+            16'h0f00: decoded = BLT_LL_SEQA[11:4];
+            16'h0fe0: decoded = FILL_XY_SEQA[11:4];
+            16'h0f80: decoded = BLT_BL_SEQA[11:4];
+            16'h0f20: decoded = BLT_LXY_SEQA[11:4];
+            16'h0f40: decoded = BLT_XYL_SEQA[11:4];
+            16'h0f60: decoded = BLT_XYXY_SEQA[11:4];
+            16'h0fa0: decoded = BLT_BXY_SEQA[11:4];
             16'hdf1a,16'hdf9a: decoded = LINE_SEQA[11:4];
             16'b1110011?????????: decoded = CPW_SEQA[11:4];
             16'b1110100?????????: decoded = CVXYL_SEQA[11:4];
@@ -377,7 +334,14 @@ module jttms10_ctrl(
             16'h0d5f: entry_family = CALLA_SEQA[11:4];
             16'h0d60: entry_family = EINT_SEQA[11:4];
             16'h0de0: entry_family = SETC_SEQA[11:4];
-            16'b00001111???00000: entry_family = ARRAY_SEQA[11:4];
+            16'h0fc0: entry_family = FILL_L_SEQA[11:4];
+            16'h0f00: entry_family = BLT_LL_SEQA[11:4];
+            16'h0fe0: entry_family = FILL_XY_SEQA[11:4];
+            16'h0f80: entry_family = BLT_BL_SEQA[11:4];
+            16'h0f20: entry_family = BLT_LXY_SEQA[11:4];
+            16'h0f40: entry_family = BLT_XYL_SEQA[11:4];
+            16'h0f60: entry_family = BLT_XYXY_SEQA[11:4];
+            16'h0fa0: entry_family = BLT_BXY_SEQA[11:4];
             16'b1100????00000000: entry_family = JRL_SEQA[11:4];
             16'b1100????10000000: entry_family = JACC_SEQA[11:4];
             16'b11011111?0011010: entry_family = LINE_SEQA[11:4];
@@ -406,7 +370,7 @@ module jttms10_ctrl(
                 if(emu_run) emu_hold <= 0;
             end else if(hw_take) begin
                 uaddr <= nmi_req && nmi_nostack ? HWNOSAVE_SEQA :
-                         array_boundary ? ARRAYSAVE_SEQA : HWSAVE_SEQA;
+                         HWSAVE_SEQA;
             end else if(boundary && halt_req) begin
                 halted <= 1;
             end else begin
@@ -419,9 +383,6 @@ module jttms10_ctrl(
             if(jsr_en) begin
                 // Zero-count shifts skip the helper while retaining C=0.
                 if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
-                   (jsr_sel==CVLOOP_JSR && shift_count==0) ||
-                   (jsr_sel==PIXCONV_JSR && array_active && !array_convert) ||
-                   (jsr_sel==PIXDSTREAD_JSR && !pixel_need_dest) ||
                    (jsr_sel==LMOLOOP_JSR && !lmo_more))
                     uaddr <= uaddr+12'd1;
                 else begin
@@ -441,73 +402,6 @@ module jttms10_ctrl(
             end
             // The helper's RET_JSR returns on its final one-bit shift.
             if(shift_step && shift_count>5'd1) uaddr <= SHIFTLOOP_SEQA;
-            if(gfx_step && cvloop_active && shift_count>5'd1)
-                uaddr <= CVLOOP_SEQA;
-            // PIXT W1 and clipped W2/W3 leave before the source MTR.
-            if(gfx_step && wincheck_active && jsr_sel==RET_JSR &&
-               pixel_abort) uaddr <= PIXEND_SEQA;
-            if(array_init) uaddr <= line_ir ? LINESETUP_SEQA :
-                                  ARRAYSETUP_SEQA;
-            if(array_cap && line_setup_active)
-                uaddr <= array_index==4'd6 ?
-                         (line_empty ? PIXEND_SEQA : LINEPREP_SEQA) :
-                         LINESETUP_SEQA;
-            if(array_cap && !line_setup_active && !array_restore_active)
-                uaddr <= array_index==4'd9 ?
-                    (array_zero ? PIXEND_SEQA :
-                     array_window_needed ? ARRAYWINDOW_SEQA :
-                     ARRAYPREP_SEQA) :
-                    ARRAYSETUP_SEQA;
-            // Repeat the single ARRAYWINDOW microstep without traversing its
-            // otherwise empty 16-word class between window phases.
-            if(array_win && !line_prep_active &&
-               !line_advance_active && !array_canon_active &&
-               !array_rebase_active && array_window_done)
-                uaddr <= array_window_query ? ARRAYFINISH_SEQA :
-                         array_window_abort ? PIXEND_SEQA :
-                         array_corner_next ? ARRAYWINDOW_SEQA :
-                         array_offset_needed ? ARRAYOFFSET_SEQA :
-                         ARRAYPREP_SEQA;
-            if(array_win && !line_prep_active &&
-               !line_advance_active && !array_canon_active &&
-               !array_rebase_active && !array_window_done)
-                uaddr <= ARRAYWINDOW_SEQA;
-            if(array_active && array_offset_active &&
-               a_sel==SAVESRC_A) uaddr <= ARRAYPREP_SEQA;
-            if(array_active && array_binary && array_source_phase &&
-               array_srcpre && !array_binary_need_read)
-                uaddr <= ARRAYBIT_SEQA;
-            if(array_active && array_canon_active &&
-               a_sel==SAVEDST_A) uaddr <= ARRAYFINISH_SEQA;
-            if(array_active && !array_canon_active &&
-               a_sel==SAVEDST_A)
-                uaddr <= ARRAYLOOP_SEQA;
-            if(array_active && cc_sel==SRCADDR_CC && array_fill)
-                uaddr <= ARRAYDST_SEQA;
-            if(array_active && a_sel==SRCCAP_A)
-                uaddr <= ARRAYDST_SEQA;
-            if(array_count)
-                uaddr <= array_last ?
-                    (array_canon_needed ? ARRAYCANON_SEQA :
-                     ARRAYFINISH_SEQA) : ARRAYLOOP_SEQA;
-            if(array_save_active && listwr)
-                uaddr <= array_index==4'd6 ? HWSAVE_SEQA :
-                         ARRAYSAVE_SEQA;
-            if(array_restore_active && array_cap)
-                uaddr <= array_index==4'd10 ? ARRAYREBASE_SEQA :
-                         ARRAYRESTORE_SEQA;
-            if(array_rebase_active && array_win &&
-               array_rebase_phase==2'd2)
-                uaddr <= ARRAYLOOP_SEQA;
-            if(line_prep_active && array_win && line_phase==4'd1)
-                uaddr <= LINELOOP_SEQA;
-            if(line_loop_active && mem_sel==WRITE_MEM)
-                uaddr <= LINEADVANCE_SEQA;
-            if(line_advance_active && array_win && line_phase==4'd3)
-                uaddr <= LINEWRITE_SEQA;
-            if(line_write_active && listwr && line_phase==4'd2)
-                uaddr <= line_last || line_abort ? PIXEND_SEQA :
-                         LINELOOP_SEQA;
             if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
@@ -516,13 +410,15 @@ module jttms10_ctrl(
             if(divcheck && div_early_cond) uaddr <= DIVFAIL_SEQA;
             if(divstep && mul_count!=5'd1) uaddr <= DIVLOOP_SEQA;
             if(ni) begin
-                uaddr <= reti_pbx ? ARRAYRESTORE_SEQA : FETCH_SEQA;
+                uaddr <= FETCH_SEQA;
                 jsr_depth <= 0;
             end
             if(dispatch) begin
                 uaddr <= entry;
                 jsr_depth <= 0;
             end
+            if(gfx_enter || gfx_resume) uaddr <= GFXRUN_SEQA;
+            if(gfx_active) uaddr <= gfx_done ? FETCH_SEQA : GFXRUN_SEQA;
         end
     end
 endmodule

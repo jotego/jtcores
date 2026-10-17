@@ -2,13 +2,16 @@
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
 The target is at most 25% of the existing CPU's logic utilization, trading
-block RAM for instruction control and registers. This is an implementation
-in progress; it is not ready to replace the NARC CPU.
+block RAM for instruction control and registers. The architectural
+implementation and regression suite are in place. Final area measurement and
+validation of this exact source in NARC remain pending.
 
-`ucode/tms10.yaml` is compiled by `jtframe ucode`, as in JT680X. The
-execution RTL contains a shared ALU, synchronous register RAM, a microcode
-sequencer, and architectural PC/status/operand registers. Instruction
-sequencing and flag masks belong in the YAML.
+`ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
+JT680X. The scalar and graphics sequencers share one ALU, synchronous
+register RAM, operand registers and field bus. Graphics control uses a
+separate 4,096-by-64-bit block-ROM image; YAML selects ALU operands, register
+addresses, memory/pixel actions, flag masks and flow. See
+[the architecture](docs/architecture.md).
 
 Run the self-checking instruction programs with:
 
@@ -25,7 +28,7 @@ against a waiting 16-bit memory, including partial-word write preservation.
 See [the architecture](docs/architecture.md), [field transfers](docs/field.md), and
 [the opcode references](docs/opcodes.md).
 
-Compare the same scalar programs against the pinned existing CPU with:
+Compare the same architectural programs against the pinned existing CPU with:
 
 ```sh
 python3 modules/jttms10/ver/reference.py
@@ -39,13 +42,12 @@ use standalone Quartus projects with recorded source hashes.
 
 Remaining acceptance gates:
 
-- Complete scalar, memory, graphics, interrupt, and peripheral behavior,
-  validated against the existing CPU and TI's TMS34010 User's Guide.
-- Preserve the timing needed by NARC; measure instruction and bus timing.
-- Measure complete old/new CPU utilization on the same FPGA/constraints;
-  the fully functional replacement must use at most one quarter of the logic.
-- Replace NARC's CPU and verify game simulation including graphics/audio.
-- Compile NARC with `jtcore narc -mrq`, then validate on MiSTer.
+- Close any compatibility gaps found by longer NARC gameplay, graphics/audio,
+  host and peripheral tests against TI's guide and the pinned CPU.
+- Measure instruction/bus timing and the complete old/new CPU utilization on
+  the same FPGA and constraints; the limit is one quarter of the old logic.
+- Validate this final source in NARC simulation and on MiSTer, including a
+  `jtcore narc -mrq` build.
 
 Current tests cover reset-vector loading, MOVI/MOVK, ADD/SUB and their K
 and immediate forms, register MOVE including cross-file, short conditional
@@ -103,7 +105,7 @@ halt and EMU behavior are described in [interrupt notes](docs/interrupts.md).
 The [instruction-cache helper](docs/cache.md) has standalone and integrated
 field/HOLD tests and is connected to the CPU. The real system test covers
 opcode/extension fills, loop hits and host-written CD/CF modes.
-FILL L/XY and all six PIXBLT forms have microcoded loops and tests for
+FILL L/XY and all six PIXBLT forms run in the graphics ROM and have tests for
 row pitch, direction, windows, overlap, binary expansion and completion
 pointers; see [array ISA notes](docs/array-isa.md). Binary transfers fetch
 32-bit source chunks and save cached bits for PBX continuation.

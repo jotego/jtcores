@@ -31,8 +31,9 @@ CF refills through real CPU and host I/O operations.
 CPW and CVXYL use the implied B registers and the fabric's PSIZE/CONVDP taps.
 The [pixel tag path](pixel-bus.md) connects the CPU through the word wrapper
 to the fabric, with SRT classification and partial-field RMW sequencing.
-PIXT/DRAV drive the pixel tag, and window checks pulse `wvp_set` into INTPEND.
-`jttms10_pixel.v` provides the field operation used by graphics microcode.
+PIXT, DRAV, FILL, PIXBLT and LINE drive the pixel tag, and window checks
+pulse `wvp_set` into INTPEND. `jttms10_pixel.v` computes pixel processing;
+the shared field adapter performs the tagged memory transfer.
 
 The focused system bench runs a real program through the CPU, field adapter,
 fabric, and a waiting NARC target. A host-present reset emits eight RAS-only

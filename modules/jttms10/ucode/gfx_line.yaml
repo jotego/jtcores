@@ -1,0 +1,154 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Generic LINE0/LINE1 microprogram. The parent graphics ROM includes this
+# leaf. B0, B2 and full-width B10 are committed before every CHECK boundary.
+# Scratch 36/37 hold 2b and 2b-2a across XY conversion; 52 holds the
+# selected XY increment after the converter has returned.
+constants:
+  TARGET_GLINEINIT: t7 t9 t10
+  TARGET_GLINELOOP: t4 t7 t9 t10
+  TARGET_GLINEW1: t5 t7 t9 t10
+  TARGET_GLINEW2: t4 t5 t7 t9 t10
+  TARGET_GLINEW3: t6 t7 t9 t10
+  TARGET_GLINEDRAW: t4 t6 t7 t9 t10
+  TARGET_GLINEADVANCE: t5 t6 t7 t9 t10
+  TARGET_GLINEDIAG: t4 t5 t6 t7 t9 t10
+  TARGET_GLINELATERAL: t8 t9 t10
+  TARGET_GLINEXY: t4 t8 t9 t10
+  TARGET_GLINECOUNT: t5 t8 t9 t10
+  TARGET_GLINEAFTERW1: t4 t5 t8 t9 t10
+  TARGET_GLINEAFTERW2: t6 t8 t9 t10
+  TARGET_GLINEFINISH: t4 t6 t8 t9 t10
+  TARGET_GLINEWVP: t5 t6 t8 t9 t10
+ucode:
+- name: glineinit
+  start: 104
+  seq:
+  - sa1 sa3 sa4 # B10 COUNT
+  - qs_gas, sa1 sa3 sa4
+  - z_gcond, jump_gflow, ${TARGET_GLINEFINISH}
+  - sa0 sa1 sa2 sa4 # B7 b:a
+  - qs_gas, m4_gam, sa0 sa1 sa2 sa4 # unsigned b
+  - shl_galu, a_gdst
+  - rf_gdst, da2 da5 # scratch36 = 2b
+  - b_gdst
+  - sa0 sa1 sa2 sa4
+  - qs_gas, m2_gam, sa0 sa1 sa2 sa4 # unsigned a
+  - shl_galu, a_gdst
+  - sub_galu, rf_gdst, da0 da2 da5 # scratch37 = 2b-2a
+  - jump_gflow, ${TARGET_GLINELOOP}
+- name: glineloop
+  start: 105
+  seq:
+  - sa1 sa4 # B2 XY pointer
+  - qs_gas, sa1 sa4
+  - rf_gdst, da0 da5 # scratch33 for window and converter
+  - call_gflow, ${TARGET_GWINCHECK}
+  - w1_gcond, jump_gflow, ${TARGET_GLINEW1}
+  - w2_gcond, jump_gflow, ${TARGET_GLINEW2}
+  - w3_gcond, jump_gflow, ${TARGET_GLINEW3}
+  - jump_gflow, ${TARGET_GLINEDRAW}
+- name: glinew1
+  start: 106
+  seq:
+  - vclip_gflg
+  - nclip_gcond, jump_gflow, ${TARGET_GLINEWVP}
+  - jump_gflow, ${TARGET_GLINEADVANCE}
+- name: glinew2
+  start: 107
+  seq:
+  - vclip_gflg
+  - clip_gcond, jump_gflow, ${TARGET_GLINEWVP}
+  - jump_gflow, ${TARGET_GLINEDRAW}
+- name: glinew3
+  start: 108
+  seq:
+  - vclip_gflg
+  - clip_gcond, jump_gflow, ${TARGET_GLINEADVANCE}
+  - jump_gflow, ${TARGET_GLINEDRAW}
+- name: glinedraw
+  start: 109
+  seq:
+  - call_gflow, ${TARGET_GCONVDST}
+  - sa0 sa3 sa4 # B9 COLOR1; register source bypasses source PMASK
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4
+  - sa0 sa3 sa4
+  - process_gpix, sa0 sa3 sa4
+  - transparent_gcond, jump_gflow, ${TARGET_GLINEADVANCE}
+  - wrpx_gbus
+  - jump_gflow, ${TARGET_GLINEADVANCE}
+- name: glineadvance
+  start: 110
+  seq:
+  - sa4 # B0 signed decision
+  - qs_gas, sa4
+  - linediag_gcond, jump_gflow, ${TARGET_GLINEDIAG}
+  - jump_gflow, ${TARGET_GLINELATERAL}
+- name: glinediag
+  start: 111
+  seq:
+  - sa0 sa2 sa5, da4 # scratch37 and B0
+  - qs_gas, qd_gbs, sa0 sa2 sa5, da4
+  - add_galu, rf_gdst, sa0 sa1 sa3 sa4, da4 # B0 += 2b-2a; prime B11
+  - qs_gas, sa0 sa1 sa3 sa4
+  - rf_gdst, da2 da4 da5 # scratch52 = B11 packed XY increment
+  - jump_gflow, ${TARGET_GLINEXY}
+- name: glinelateral
+  start: 112
+  seq:
+  - sa2 sa5, da4 # scratch36 and B0
+  - qs_gas, qd_gbs, sa2 sa5, da4
+  - add_galu, rf_gdst, sa2 sa3 sa4, da4 # B0 += 2b; prime B12
+  - qs_gas, sa2 sa3 sa4
+  - rf_gdst, da2 da4 da5 # scratch52 = B12 packed XY increment
+  - jump_gflow, ${TARGET_GLINEXY}
+- name: glinexy
+  start: 113
+  seq:
+  - sa2 sa4 sa5, da1 da4 # scratch52 and B2
+  - qs_gas, m2_gam, qd_gbs, m2_gbm, sa2 sa4 sa5, da1 da4
+  - add_galu, rf_gdst, da1 da5 # scratch34 = new X low half
+  - sa2 sa4 sa5, da1 da4
+  - qs_gas, m4_gam, qd_gbs, m4_gbm, sa2 sa4 sa5, da1 da4
+  - add_galu, rf_gdst, da0 da1 da5 # scratch35 = new Y low half
+  - sa1 sa5, da0 da1 da5
+  - qs_gas, m2_gam, qd_gbs, m6_gbm, sa1 sa5, da0 da1 da5
+  - or_galu, rf_gdst, da1 da4 # B2 = independently wrapped XY halves
+  - jump_gflow, ${TARGET_GLINECOUNT}
+- name: glinecount
+  start: 114
+  seq:
+  - sa1 sa3 sa4 # B10 full 32-bit count
+  - qs_gbs, sa1 sa3 sa4
+  - k_gas, m1_gam
+  - sub_galu, rf_gdst, da1 da3 da4 # --B10
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GLINEFINISH}
+  - w1_gcond, jump_gflow, ${TARGET_GLINEAFTERW1}
+  - w2_gcond, jump_gflow, ${TARGET_GLINEAFTERW2}
+  - check_gflow
+  - jump_gflow, ${TARGET_GLINELOOP}
+- name: glineafterw1
+  start: 115
+  seq:
+  - nclip_gcond, jump_gflow, ${TARGET_GLINEFINISH}
+  - check_gflow
+  - jump_gflow, ${TARGET_GLINELOOP}
+- name: glineafterw2
+  start: 116
+  seq:
+  - clip_gcond, jump_gflow, ${TARGET_GLINEFINISH}
+  - check_gflow
+  - jump_gflow, ${TARGET_GLINELOOP}
+- name: glinefinish
+  start: 117
+  seq:
+  - end_gflow
+- name: glinewvp
+  start: 118
+  seq:
+  - wvp_gflg
+  - jump_gflow, ${TARGET_GLINEADVANCE}
+# Unreachable schema anchor for LINE-specific controls.
+- name: glineschema
+  start: 125
+  seq:
+  - linediag_gcond

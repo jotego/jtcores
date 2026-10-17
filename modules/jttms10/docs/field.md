@@ -51,10 +51,11 @@ iverilog -g2012 -s test -I modules/jttms10/ver/build \
 (cd modules/jttms10/ver/build && vvp /tmp/jttms10_word_test)
 ```
 
-To limit combinational shift logic, the adapter shifts a 48-bit data/mask
+To limit combinational shift logic, the adapter shifts a 48-bit write-data
 window left once per bit offset before bus access and shifts the captured
-read window right once per bit offset afterward. Each direction adds 0–15
-clocks. Writes also use one selection clock per physical word; partial words
+read-data window right once per bit offset afterward. A six-bit remaining
+span and first-word offset generate each word mask. Each shift direction adds
+0–15 clocks. Writes also use one selection clock per physical word; partial words
 need two word-bus acknowledgements. Read completion uses one further clock
 to copy the aligned result. These clocks are in addition to word-bus waits.
 

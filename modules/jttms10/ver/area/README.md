@@ -10,6 +10,7 @@ python3 modules/jttms10/ver/area/run.py --word /tmp/jttms10-word
 python3 modules/jttms10/ver/area/run.py --fabric /tmp/jttms10-fabric
 python3 modules/jttms10/ver/area/run.py --system /tmp/jttms10-system
 python3 modules/jttms10/ver/area/run.py --narc --source-ref HEAD /tmp/jttms10-narc
+python3 modules/jttms10/ver/area/run.py --narc --snapshot-only /tmp/jttms10-snapshot
 ```
 
 All six projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
@@ -17,17 +18,25 @@ performance effort, and virtual pins for every exposed port. The reference
 adds the existing TMS34010 core timing exceptions. Sources and generated
 microcode are copied into the output directory, whose `manifest.json` records
 the tool version, repository and old-module commits, SHA-256 source hashes,
-and scope. For scalar and word fits, it copies instruction YAML before
+and scope. For every new-CPU fit, it copies instruction YAML before
 generating microcode with `MODULES` set to that snapshot, so the ROM comes
 from the exact YAML recorded in the manifest. The script runs Analysis &
 Synthesis and Fitter; compare **fitted
 ALMs** from `*.fit.rpt`. The map report additionally confirms whether the
-generated control ROM and two 32×32 register-file mirrors become RAM.
+generated control and graphics ROMs and two 64×32 register-file mirrors become RAM.
+When `ucode/gfx.yaml` is present, the snapshot also generates and hashes the
+separate 4096-word `tms10_gfx` ROM and checks its named branch targets against the
+generated entry addresses. Any YAML included by `gfx.yaml` (including
+`gfx_line.yaml`) is copied and hashed before generation, and the target checker
+follows those includes. The flow checker audits reachable graphics words and
+the two-entry return stack against the snapshotted engine. `--snapshot-only`
+performs those checks and writes
+the source manifest without launching Quartus; it produces no area result.
 
-The `--scalar` top is the currently incomplete scalar CPU. The `--word` top
-adds its physical 16-bit field adapter and instruction cache. Both exclude the I/O/video registers,
-arbitration, graphics, and NARC integration, so their ALM counts are inference
-checks, not the 25% replacement acceptance result.
+The `--scalar` top is the CPU including its graphics engine. The `--word` top
+adds the physical 16-bit field adapter and instruction cache. Both exclude
+I/O/video registers, arbitration, and NARC integration, so their ALM counts
+are inference checks, not the 25% replacement acceptance result.
 The `--fabric` top measures I/O, video, refresh, bus arbitration, and the
 synchronous host-indirect engine. Its six HDL files are analyzed as plain
 Verilog, as in JTFRAME synthesis.
@@ -35,15 +44,14 @@ The manifest also hashes the current instruction YAML for snapshot context,
 but the fabric project does not generate or instantiate microcode. Its exposed
 host request/data, external sync, HOLD, and sideband ports are virtual; NARC
 will tie some of those signals to constants. It excludes the CPU, field
-adapter, asynchronous physical host-pin interface, and graphics datapath. A
+adapter, asynchronous physical host-pin interface, and CPU graphics engine. A
 combined replacement must be fitted
 separately; standalone counts are not additive area evidence.
 The `--system` top combines CPU, field adapter, I/O/video/refresh,
 arbitration, and the generic synchronous host engine under one physical-word
-boundary. Its graphics instructions and timing validation are incomplete, and
-the fit excludes asynchronous physical host-pin timing and the board's NARC
-cycle controller. The system boundary is the closest current replacement
-area estimate, but it cannot establish functional or timing acceptance yet.
+boundary. The fit excludes asynchronous physical host-pin timing and the
+board's NARC cycle controller. Functional and timing acceptance require the
+full NARC boundary and independent validation.
 
 The `--narc` top is the same `jtnarc_gsp` wrapper and port list as the old
 reference, with `JTNARC_UCODE` selecting the new implementation. NARC's host,

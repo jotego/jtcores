@@ -12,14 +12,24 @@ module test;
     jttms10_ctrl u_new(.rst(1'b1), .clk(clk), .md(opcode),
                        .reserved_opcode(reserved));
     jttms10_ctrl_old u_old(.rst(1'b1), .clk(clk), .md(opcode));
+    wire [11:0] expected_entry = opcode==16'h0fc0 ? u_new.FILL_L_SEQA :
+                                 opcode==16'h0f00 ? u_new.BLT_LL_SEQA :
+                                 opcode==16'h0fe0 ? u_new.FILL_XY_SEQA :
+                                 opcode==16'h0f80 ? u_new.BLT_BL_SEQA :
+                                 opcode==16'h0f20 ? u_new.BLT_LXY_SEQA :
+                                 opcode==16'h0f40 ? u_new.BLT_XYL_SEQA :
+                                 opcode==16'h0f60 ? u_new.BLT_XYXY_SEQA :
+                                 opcode==16'h0fa0 ? u_new.BLT_BXY_SEQA :
+                                 u_old.entry;
     integer index, missing=0, reserved_diff=0, entry_diff=0, recognized=0;
     initial begin
         for(index=0;index<65536;index=index+1) begin
             opcode=index[15:0];
             #1; clk=1; #1;
-            if(u_new.entry!==u_old.entry) begin
-                $display("entry difference opcode=%h new=%h old=%h",
-                         opcode,u_new.entry,u_old.entry);
+            if(u_new.entry!==expected_entry) begin
+                $display("entry difference opcode=%h new=%h expected=%h old=%h",
+                         opcode,u_new.entry,expected_entry,
+                         u_old.entry);
                 entry_diff=entry_diff+1;
             end
             if(!decoded.illegal && !decoded.illegal_trap) begin
@@ -39,7 +49,7 @@ module test;
         if(missing!=0 || reserved_diff!=0 || entry_diff!=0)
             $fatal(1,"decode audit missing=%0d reserved differences=%0d entry differences=%0d",
                    missing,reserved_diff,entry_diff);
-        $display("decode PASS: 65536 words, %0d defined-reference words",recognized);
+        $display("decode PASS: 65536 words, %0d defined-reference words; all eight exact array opcodes remapped",recognized);
         $finish;
     end
 endmodule

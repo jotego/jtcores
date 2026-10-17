@@ -33,6 +33,11 @@ suppresses the write when transparency is enabled. Protected destination bits
 and every neighboring pixel remain unchanged. See [pixel.md](pixel.md) for
 the complete PPOP truth table and arithmetic reference equations.
 
+All six PIXT forms and DRAV run in the graphics control ROM. Its YAML words
+prime register reads and sequence XY conversion, window decisions, source
+and destination memory cycles, pixel processing and flag/writeback masks
+through the shared ALU and field adapter.
+
 XY source conversion uses CONVSP, XY destination conversion uses CONVDP;
 both add B4 OFFSET. The signed Y and positive X halves are converted as in
 CVXYL. Linear PIXT ignores CONTROL.W. XY store and XY-to-XY PIXT use B5/B6

@@ -39,8 +39,8 @@ image in B10–B14. RETI with stacked PBX reloads that image, clears the live
 PBX bit, rebases row pointers through the shared ALU, and resumes without
 fetching the original opcode. The ISR must preserve the implied B-register
 context when it uses graphics; the test uses MMTM/MMFM B0–B14 around a
-nested FILL. There is no hidden one-level snapshot to overwrite. Binary PIXBLT reuses
-the shared scratch register as its 32-bit source-bit cache and publishes
+nested FILL. There is no hidden one-level snapshot to overwrite. Binary
+PIXBLT keeps its 32-bit source-bit cache in upper register RAM and publishes
 that cache in B12 at entry. B0 advances by 32 on a segment fetch; row-base
 reconstruction accounts for the already fetched source chunks.
 
@@ -55,8 +55,9 @@ so its first access predecrements before drawing.
 
 The same bench covers binary DX32/33/65 transfers across two rows, with
 unaligned source chunks, exact source requests, and cached-bit continuation.
-Its 15 runs include six baselines, six IRQ resumes, stacked NMI resume,
-no-stack NMI abandonment without further pixels or stack writes, and
+The bench covers eight baseline/IRQ variants, including clipped W3 FILL XY
+and reverse mixed-format PIXBLT, plus stacked NMI resume, no-stack NMI
+abandonment without further pixels or stack writes, and
 simultaneous NMI+HLT. The latter completes entry, holds handler fetch until
 HLT clears, then resumes through RETI. LINE uses ordinary restart with PBX clear: after each nonfinal pixel it
 publishes B0/B2/B10, then accepts IRQ/NMI and stacks PC minus 16. Its focused

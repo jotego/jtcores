@@ -104,15 +104,14 @@ adapter; raw size zero returns without a bus cycle.
 `word_restart` cancels an unaccepted partial write when HOLD is accepted
 after its read; the adapter then rereads before merging. The integrated
 field/fabric bench checks this with an external owner changing unrelated
-memory bits during HOLD. The existing old fabric also handles
-on-chip I/O and graphics pixel read-modify-write semantics separately. This
-adapter has no keep mask, transparency, plane mask, or pixel-operation input;
-it cannot replace that graphics path as-is.
+memory bits during HOLD. Graphics microcode and `jttms10_pixel` compute plane
+masks, transparency and pixel operations before issuing tagged field requests.
+The adapter itself handles field alignment and partial-word preservation.
 
 The serial alignment costs up to 15 clocks before access and another 15 for
 read assembly, plus one read-result clock, one selection clock per written
 word, and bus waits. These extra clocks may exceed the NARC CPU-state
-timing budget. Its 32-bit size-mask shift and three 48-bit window registers
-also need Quartus measurement before claiming the 25% CPU-area target. The
-unit bench verifies field values, stalls, and HOLD restart; the fabric bench
+timing budget. Its six-bit span counter and two 48-bit data windows still
+need a final-source Quartus measurement before claiming the 25% CPU-area
+target. The unit bench verifies field values, stalls, and HOLD restart; the fabric bench
 adds on-chip I/O and arbitration handshakes. Neither measures NARC throughput.

@@ -14,9 +14,10 @@ jtsim -mister -d JTNARC_UCODE -video 120
 
 ROM/SDRAM inputs must already be present, or use the usual `-load` flow.
 A simulation diagnostic stops on an unsupported defined opcode and reports
-its IR and following PC. This selection is for bring-up while graphics,
-cache and timing validation are incomplete. It does not establish game
-compatibility or the completed area target.
+its IR and following PC. Graphics and cache have architectural and focused
+bus tests, but final-source NARC gameplay, timing and area validation remain
+pending. This optional selection does not itself establish game compatibility
+or the completed area target.
 
 The old CPU's first 571-input-frame run completed normally at 54.83 Hz. It
 reached NARC's connector/chip ROM-test display, with no attract screen yet.

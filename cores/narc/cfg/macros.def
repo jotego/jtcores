@@ -1,5 +1,6 @@
 CORENAME=JTNARC
 JTFRAME_RATE=54.82
+JTNARC_UCODE
 
 # 48 MHz board crystal: TMS34010 on clk48, rest on clk at 96 MHz (a 16 MHz pixel clock needs pxl2_cen at 32 MHz)
 JTFRAME_SDRAM96

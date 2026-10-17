@@ -51,3 +51,8 @@ opcode PC and PBX=0, then one opcode refetch and exact final memory. A
 separate first-pixel checkpoint starts COUNT at `00010001` and requires
 `00010000` at IRQ entry, protecting full 32-bit count storage without a
 65,537-pixel simulation.
+
+The implementation uses the graphics ROM and upper register-RAM scratch for
+the two decision deltas and current XY update. Each X/Y half passes through
+the shared 32-bit ALU separately; no private LINE arithmetic state or
+parallel half-word adders are required.

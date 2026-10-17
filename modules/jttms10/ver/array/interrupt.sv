@@ -20,6 +20,7 @@ module test;
     reg [31:0] baseline_source_addr [0:15];
     reg [5:0] baseline_source_size [0:15];
     reg [15:0] baseline_mem [0:79];
+    reg [31:0] baseline_b0, baseline_b2;
     integer baseline_count=0, drawn=0, retired=0, array_fetches=0;
     integer nmi_clears=0, stack_writes=0, halt_cycles=0;
     integer source_reads=0, baseline_source_reads=0;
@@ -49,8 +50,10 @@ module test;
         begin
             read_field=0;
             if (size==32 && addr==32'hffffffe0) read_field=32'h1000;
-            else if (size==32 && addr==32'hfffffec0) read_field=32'h1200;
-            else if (size==32 && addr==32'hfffffee0) read_field=32'h1200;
+            else if (size==32 && addr==32'hfffffec0)
+                read_field=variant>=6 ? 32'h1400 : 32'h1200;
+            else if (size==32 && addr==32'hfffffee0)
+                read_field=variant>=6 ? 32'h1400 : 32'h1200;
             else begin
                 if (size<1 || size>32 || addr+size>32'd16384)
                     $fatal(1,"invalid read @%h/%0d",addr,size);
@@ -89,7 +92,7 @@ module test;
         begin
             for (i=0;i<1024;i=i+1) words[i]=16'h0300;
             put_movi('h100,4'd15,32'h3000); // SP
-            put_movi('h103,4'd0,variant==0 ? 32'd0 :
+            put_movi('h103,4'd0,variant==0 ? 32'hface1234 :
                                     variant==2 ? 32'h0214 :
                                     variant>=3 ? 32'h020d : 32'h0204); // B0
             put_movi('h106,4'd1,variant>=3 ? 32'h00a0 : 32'h0080); // B1
@@ -114,6 +117,29 @@ module test;
             words['h12c]=16'h09bf; words['h12d]=16'h7fff; // MMFM B15, B0..B14
             words['h12e]=16'h0940; // RETI
             if (run_mode==3) words['h120]=16'h0300; // no-stack NMI abandons array
+            if (variant>=6) begin
+                // W3 clips DY=3 to rows Y=1..2. Variant 7 reverses both axes
+                // and reads the full-color source through a linear pointer.
+                put_movi('h103,4'd0,variant==7 ? 32'h0200 : 32'hface1234);
+                put_movi('h106,4'd1,32'h0080);
+                put_movi('h109,4'd2,32'd0); // XY=(0,0)
+                put_movi('h10c,4'd3,32'h0080);
+                put_movi('h10f,4'd7,32'h00030004); // DY=3, DX=4
+                put_movi('h115,4'd9,32'h55aa55aa);
+                put_movi('h118,4'd4,32'h0600); // OFFSET
+                put_movi('h11b,4'd5,32'h00010000); // WSTART=(0,1)
+                put_movi('h11e,4'd6,32'h00020003); // WEND=(3,2)
+                words['h121]=16'h0d60; // EINT
+                words['h122]=variant==6 ? 16'h0fe0 : 16'h0f20;
+                words['h123]=16'h0300;
+                words['h140]=16'h099f; words['h141]=16'hfffe;
+                put_movi('h142,4'd2,32'h0c00);
+                put_movi('h145,4'd7,32'h00010001);
+                put_movi('h148,4'd9,32'h12345678);
+                words['h14b]=16'h0fc0; // nested one-pixel FILL L
+                words['h14c]=16'h09bf; words['h14d]=16'h7fff;
+                words['h14e]=16'h0940;
+            end
             for (i='h60;i<='h9f;i=i+1) words[i]=16'hc33c;
             for (i='h20;i<='h3f;i=i+1) words[i]=16'h1357 ^ (i*16'h0111);
             words['hc0]=16'hbeef;
@@ -137,8 +163,10 @@ module test;
             delay_left<=2+(requests%3);
             requests<=requests+1;
             busy<=1;
-            if (mem_iaq && mem_addr==32'h1190) array_fetches<=array_fetches+1;
-            if (variant>=3 && !mem_we && mem_addr>=32'h0200 &&
+            if (mem_iaq && mem_addr==(variant>=6 ? 32'h1220 : 32'h1190))
+                array_fetches<=array_fetches+1;
+            if ((variant>=3 && variant<=5 || variant==7) &&
+                !mem_we && mem_addr>=32'h0200 &&
                 mem_addr<32'h0400) begin
                 if (source_reads>=16) $fatal(1,"too many binary source reads");
                 if (run_mode==0) begin
@@ -199,11 +227,13 @@ module test;
     always @(posedge clk) if (!rst && nmi_clear) nmi_clears<=nmi_clears+1;
 
     always @(negedge clk) if (!rst && run_mode!=0) begin
-        if (pc==32'h1200 && !handler_seen) begin
+        if (pc==(variant>=6 ? 32'h1400 : 32'h1200) && !handler_seen) begin
             handler_seen=1;
             irq_req=0;
             nmi_req=0;
-            if (retired!=9 || drawn!=((variant==1 || variant>=3) ? 3 : 1))
+            if (retired!=(variant>=6 ? 12 : 9) ||
+                drawn!=(variant>=6 ? 4 :
+                         (variant==1 || variant>=3) ? 3 : 1))
                 $fatal(1,"IRQ entered outside first destination checkpoint: retire=%0d writes=%0d",
                     retired,drawn);
             if (run_mode==3) begin
@@ -211,16 +241,33 @@ module test;
                     $fatal(1,"no-stack NMI wrote context: writes=%0d SP=%h",
                         stack_writes,u_cpu.u_regs.ram0[15]);
             end else if ((read_field(32'h2fc0,32) & 32'h02200010)!==32'h02200010 ||
-                         read_field(32'h2fe0,32)!==32'h11a0)
+                         read_field(32'h2fe0,32)!==
+                             (variant>=6 ? 32'h1230 : 32'h11a0))
                 $fatal(1,"PBX stack ST=%h PC=%h",
                     read_field(32'h2fc0,32),read_field(32'h2fe0,32));
-            if (variant>=3 && run_mode!=3 && (source_reads!=1 ||
+            if (variant>=3 && variant<=5 && run_mode!=3 &&
+                (source_reads!=1 ||
                                baseline_source_addr[0]!==32'h020d ||
                                baseline_source_size[0]!==6'd32 ||
                                u_cpu.u_regs.ram0[16]!==32'h022d))
                 $fatal(1,"binary source checkpoint reads=%0d B0=%h first=%h/%0d",
                     source_reads,u_cpu.u_regs.ram0[16],
                     baseline_source_addr[0],baseline_source_size[0]);
+            if (variant>=6 && run_mode!=3) begin
+                if (u_cpu.u_regs.ram0[26]!==
+                        (variant==6 ? 32'h00040fe0 : 32'h00040f20) ||
+                    u_cpu.u_regs.ram0[28]!==
+                        (variant==6 ? 32'd0 : 32'h00020000) ||
+                    (variant==7 &&
+                        (u_cpu.u_regs.ram0[29]!==32'h00000290 ||
+                         u_cpu.u_regs.ram0[30]!==32'h00000690)))
+                    $fatal(1,"W3 PBX image B10=%h B12=%h B13=%h B14=%h",
+                        u_cpu.u_regs.ram0[26],u_cpu.u_regs.ram0[28],
+                        u_cpu.u_regs.ram0[29],u_cpu.u_regs.ram0[30]);
+            end
+            if ((variant==0 || variant==6) && run_mode!=3 &&
+                u_cpu.u_regs.ram0[16]!==32'hface1234)
+                $fatal(1,"FILL checkpoint changed B0=%h",u_cpu.u_regs.ram0[16]);
             if (run_mode!=3) pbx_seen=1;
         end
         if (run_mode==4 && handler_seen && halt_req) begin
@@ -237,7 +284,9 @@ module test;
             run_mode=mode;
             pixel_size=variant==0 ? 16'd16 : 16'd4;
             plane_mask=(variant==0 || variant>=3) ? 16'd0 : 16'h2222;
-            control=(variant==0 || variant>=3) ? 16'd0 :
+            control=variant==6 ? 16'h00c0 :
+                    variant==7 ? 16'h03c0 :
+                    (variant==0 || variant>=3) ? 16'd0 :
                     variant==2 ? 16'h2900 : 16'h2800; // XOR + optional PBH
             rst=1;
             irq_req=0;
@@ -257,7 +306,9 @@ module test;
             repeat(5) @(negedge clk);
             rst=0;
             timeout=0;
-            while (retired<(mode==0 ? 11 : mode==3 ? 10 : 18) && timeout<30000) begin
+            while (retired<(variant>=6 ? (mode==0 ? 13 : 20) :
+                           (mode==0 ? 11 : mode==3 ? 10 : 18)) &&
+                   timeout<30000) begin
                 @(negedge clk);
                 timeout=timeout+1;
             end
@@ -275,12 +326,12 @@ module test;
                     $fatal(1,"no-stack NMI failed: retires=%0d writes=%0d src=%0d stack=%0d",
                         retired,drawn,source_reads,stack_writes);
             end else begin
-            if (drawn!=(variant==0 ? 8 : variant>=3 ?
+            if (drawn!=(variant>=6 ? 8 : variant==0 ? 8 : variant>=3 ?
                           2*(variant==3 ? 32 : variant==4 ? 33 : 65) : 10) ||
                 array_fetches!=1 ||
-                u_cpu.u_regs.ram0[18] !== (variant==0 ? 32'h06c0 :
-                                          variant==2 ? 32'h0714 :
-                                          variant>=3 ? 32'h0a04 : 32'h0704))
+                (variant<6 && u_cpu.u_regs.ram0[18] !==
+                    (variant==0 ? 32'h06c0 : variant==2 ? 32'h0714 :
+                     variant>=3 ? 32'h0a04 : 32'h0704)))
                 $fatal(1,"completion mode=%0d writes=%0d fetches=%0d B2=%h",
                     mode,drawn,array_fetches,u_cpu.u_regs.ram0[18]);
             if (mode!=0 && (!irq_sent || !handler_seen || !pbx_seen ||
@@ -288,18 +339,21 @@ module test;
                             words['hc0] !== (variant==0 ? 16'h5678 :
                                              variant>=3 ? 16'hbee8 : 16'hbee7)))
                 $fatal(1,"IRQ/ISR result SP=%h nested=%h",u_cpu.u_regs.ram0[15],words['hc0]);
+            if ((variant==0 || variant==6) &&
+                u_cpu.u_regs.ram0[16]!==32'hface1234)
+                $fatal(1,"FILL completion changed B0=%h",u_cpu.u_regs.ram0[16]);
             if ((mode==2 || mode==4) && nmi_clears!=1)
                 $fatal(1,"NMI clear pulse count=%0d",nmi_clears);
             if (mode==4 && halt_cycles!=20)
                 $fatal(1,"HLT did not hold ISR fetch for 20 clocks");
-            if (variant>=3 && source_reads !=
+            if (variant>=3 && variant<=5 && source_reads !=
                               2*(variant==3 ? 1 : variant==4 ? 2 : 3))
                 $fatal(1,"binary source segment count variant=%0d count=%0d",
                     variant,source_reads);
-            if (variant>=3 && u_cpu.u_regs.ram0[16]!==32'h034d)
+            if (variant>=3 && variant<=5 && u_cpu.u_regs.ram0[16]!==32'h034d)
                 $fatal(1,"binary B0 completion variant=%0d value=%h",
                     variant,u_cpu.u_regs.ram0[16]);
-            if (variant>=3 && mode==0) begin
+            if (variant>=3 && variant<=5 && mode==0) begin
                 width=variant==3 ? 32 : variant==4 ? 33 : 65;
                 index=0;
                 for (row=0;row<2;row=row+1)
@@ -321,12 +375,20 @@ module test;
     endtask
 
     initial begin
-        for (variant=0;variant<6;variant=variant+1) begin
+        for (variant=0;variant<8;variant=variant+1) begin
             execute(0);
             baseline_count=drawn;
+            baseline_b0=u_cpu.u_regs.ram0[16];
+            baseline_b2=u_cpu.u_regs.ram0[18];
             baseline_source_reads=source_reads;
             for (i=0;i<80;i=i+1) baseline_mem[i]=words['h60+i];
             execute(1);
+            if (variant>=6 &&
+                (u_cpu.u_regs.ram0[16]!==baseline_b0 ||
+                 u_cpu.u_regs.ram0[18]!==baseline_b2))
+                $fatal(1,"W3 canonical B0/B2 mismatch %h/%h expected %h/%h",
+                    u_cpu.u_regs.ram0[16],u_cpu.u_regs.ram0[18],
+                    baseline_b0,baseline_b2);
             if (source_reads!=baseline_source_reads)
                 $fatal(1,"source stream count variant%0d=%0d expected%0d",
                     variant,source_reads,baseline_source_reads);
