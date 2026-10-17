@@ -80,3 +80,13 @@ EVENT writes after the capture window still appear. Timestamps count input
 master clocks after API reset, including setup, settling and bytecode execution.
 The external-model and jt51 clock origins differ. Delay opcodes remain
 approximately 32 master clocks/count and do not reproduce CPU instruction timing.
+
+Optional `--keyon-phase P`, before `--stride`, delays nonzero register08 data
+API calls to even master-clock residue P modulo64. Only0,2,..62 are accepted:
+the original two-master-clock API cadence is preserved. It implies
+`--public-bus`; that flag alone logs without inserting timing. Both exclusively
+create `OUTPUT.csv.bus.csv`, retaining INIT/EVENT address/data API calls and
+status. No internal register-acceptance timestamp is inferred. Default runs
+create the original files with original timing. The
+[algorithm phase methods](../../plans/algorithm-measurements.md) retain the
+32-presentation coverage and physical phase uncertainty.

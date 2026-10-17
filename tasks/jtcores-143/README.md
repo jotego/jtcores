@@ -466,3 +466,27 @@ The native-rate classifier reports compatible sampled lattices and explicit
 unresolved states; it does not recover every internal noise update, a seed,
 polynomial or full sequence period. Physical exact-zero off-state output and
 the tiny model residuals remain distinct from the coarse endpoint screen.
+
+## Algorithms, feedback and joint key-on phase
+
+[Methods and results](plans/algorithm-measurements.md) cover229 native profiles,
+each with three targets and three independent quiet observations, plus separate
+joint-key-on phase controls. Full key-mask/algorithm routing states, feedback
+isolation, static stereo and full-level feedback stress retain absolute PCM
+descriptors. Relative output phase and high-feedback periodicity remain explicit
+limits; a finite harmonic residual is not a universal conformance verdict.
+
+```
+go run host/algorithm_programs.go -output artifacts/fresh-algorithms
+go test host/algorithm_score.go host/tone.go host/algorithm_score_test.go
+go test host/algorithm_phase.go host/tone.go host/sine_fit.go host/algorithm_phase_test.go host/algorithm_frequency_test.go
+go run host/sine_frequency.go host/sine_fit.go host/tone.go -column linear INPUT.csv
+```
+
+Run these from the task directory. Separate model/physical INITs retain their
+conditioning semantics. The phase observer uses one common timeline with
+marked transitions excluded; its phases never correct complex algorithm
+waveforms. Optional task-wrapper public bus/key-on phase diagnostics are
+documented under `ver/jt51` and `ver/opm`; default output bytes are preserved.
+The original full-sweep export failure, same-buffer recovery and idle recorder
+rearms are retained in the local evidence, with no retaken measurement or reset.

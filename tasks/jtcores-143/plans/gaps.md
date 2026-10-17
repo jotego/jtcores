@@ -27,6 +27,8 @@ No RTL change or candidate patch has been made.
 | Selected C0 LFO hold/reset/key history | Consistent finite observations | 36 PCB recordings; all 21 ordinary pre/post comparisons fit fixed screens, all nine intentional resets are detected independently of their good post fits. Three whole holds and three final-silence controls get no forced period. Two-sample changes remain unresolved; wider histories remain. |
 | Audio-noise codes and selected isolation/level controls | Consistent finite sampled features | All 32 codes×3×2 outputs retain compatible candidate lattices and −2044/+2040 PCM levels. Codes30/31 hidden clocks remain unresolved. Sine/isolation/TL/attack/NE controls retain their own states; no seed/full-period or universal-noise claim. |
 | NEon off-envelope PCM floor | Reproduced physical/public-output difference; cause unclassified | PCB exact 0 in never-keyed, KEYOFF-tail and pre-AR24 controls; jt51 −1/0 (inside frozen 4-PCM screen), OPM −8/0 (six endpoint outliers). 45 raw-pin recordings independently confirm zero and keyed −9/+8 low-bit visibility. Ten additional warm/long-settle model controls preserve both floors while NEoff controls produce zero. Short-prefix endpoint limits remain; no inferred RTL fix. |
+| Algorithm/key-mask/feedback/stereo matrix | Finite routing and public-output coverage; no general arithmetic pass | 229 profiles times three targets with independent paired quiet,1374 matrix records.1092 target-latch observations bipolar and282 exactzero match primary state policies.458 frozen model outputs and2748 target-latch/model comparisons retain absolute descriptors; high feedback is not forced periodic and2/17PCM synthetic guards are not chip bands. |
+| Joint-key-on relative output phase | Unclassified physical/model output difference | 36 physical controls retain approximately+1-native-sample M2/C1/C2 phase relative to M1, across order/preheat/repetitions.192 public timing-grid model records give zero/negative JT families and zero OPM RIGHT family. Accepted physical write phase/internal state remains unobserved; no per-operator correction or causal RTL gap inferred. |
 | Stereo pan controls | Qualified for current wiring; earlier human labels corrected | Primary ACC notes: bit6 left, bit7 right. Actual captures map latch0 to left, latch1 to right. Old left/right artifact names were reversed; latch indices and both-pan results remain intact. |
 | Output-visible pan markers | Scoped physical continuity; reference-only output difference retained | Nine physical captures have three left/latch0 zero pulses and continuous right/latch1 output. Constant right carrier has an unbroken phase fit. Separately qualified local/coherent diagnostics find no PCB disturbance at the observed OPM pan-only error scale. No physical same-clock counterfactual, byte-identity claim, oracle patch or causal diagnosis. |
 | Transient SH framing disturbance | Acquisition anomaly, retained and excluded | Two earlier failed recordings; all accepted pitch/event recordings pass framing and transfer checks. No causal conclusion about probing/wiring. |
@@ -41,10 +43,11 @@ Detailed methods and evidence locations:
 - [LFO depth storage and write ordering](lfo-storage.md)
 - [LFO route isolation and selected history](lfo-history.md)
 - [Audio-noise measurements](noise-measurements.md)
+- [Algorithms, feedback and joint-key-on phase](algorithm-measurements.md)
 
 Long acquisition is now available (see [qualification](long-acquisition.md)).
 Open coverage includes full EG KS/KC combinations and remaining history
 boundaries, remaining LFO rates, wider isolation/history combinations and further storage cases, wider audio-noise history/coupling,
-algorithms/feedback, CSM, output mixing
+remaining algorithm/feedback histories and relative-phase investigation, CSM, output mixing
 and clipping. These are incomplete measurements, not passing defaults. The
 earlier X-Men planning issues are not marked complete by this direct-serial work.

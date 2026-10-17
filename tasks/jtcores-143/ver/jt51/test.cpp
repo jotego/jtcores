@@ -20,14 +20,17 @@ class simulation {
     uint64_t clocks=0;
     FILE *output=nullptr;
     FILE *events=nullptr;
+    FILE *bus=nullptr;
+    int keyon_phase=-1;
+    const char *program_kind="init";
     unsigned captured=0;
     unsigned capture_limit=0;
     unsigned sample_stride=1;
     unsigned native_phase=0;
     bool recording=false;
 public:
-    simulation(const std::string &csv, bool event_mode=false, unsigned stride=1)
-        : sample_stride(stride) {
+    simulation(const std::string &csv, bool event_mode=false, unsigned stride=1, int phase=-1, bool public_bus=false)
+        : keyon_phase(phase), sample_stride(stride) {
         output=std::fopen(csv.c_str(),"wx");
         if(!output) throw std::runtime_error("cannot exclusively create output CSV");
         if(event_mode) {
@@ -40,6 +43,11 @@ public:
             std::fprintf(events,"kind,clock,reg,value\n");
         }
         std::fprintf(output,"sample,left,right,xleft,xright,clock,status\n");
+        if(public_bus) {
+            bus=std::fopen((csv+".bus.csv").c_str(),"wx");
+            if(!bus) throw std::runtime_error("cannot create public bus log");
+            std::fprintf(bus,"program,kind,clock,residue,reg,value,cs_n,wr_n,a0,din,cen,cen_p1_scheduled,status\n");
+        }
         top.clk=0; top.rst=1; top.cen=1; top.cen_p1=0;
         top.cs_n=0; top.wr_n=1; top.a0=0; top.din=0;
 #ifdef TRACE
@@ -58,6 +66,7 @@ public:
 #endif
         if(output) std::fclose(output);
         if(events) std::fclose(events);
+        if(bus) std::fclose(bus);
     }
     void step(unsigned count) {
         for(unsigned i=0;i<count;i++) {
@@ -86,12 +95,22 @@ public:
         wait_busy();
         top.a0=0; top.din=reg; top.wr_n=0; step(2);
         top.wr_n=1; step(10);
+        if(keyon_phase>=0 && reg==8 && (value&0x78))
+            step((unsigned(keyon_phase)+64-unsigned(clocks&63))&63);
         if(events && recording)
             std::fprintf(events,"write,%llu,%u,%u\n",
                 static_cast<unsigned long long>(clocks),reg,value);
-        top.a0=1; top.din=value; top.wr_n=0; step(2);
-        top.wr_n=1; step(2);
+        top.a0=1; top.din=value; top.wr_n=0;
+        log_bus("data_assert",reg,value); step(2);
+        top.wr_n=1; log_bus("data_release",reg,value); step(2);
         wait_busy();
+    }
+    void log_bus(const char *kind,uint8_t reg,uint8_t value) {
+        if(!bus) return;
+        // This parity is scheduled for the upcoming evaluation in step().
+        std::fprintf(bus,"%s,%s,%llu,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",program_kind,kind,
+            static_cast<unsigned long long>(clocks),unsigned(clocks&63),reg,value,
+            top.cs_n,top.wr_n,top.a0,top.din,top.cen,unsigned(clocks&1),top.dout);
     }
     void wait_busy() {
         unsigned count=0;
@@ -133,11 +152,13 @@ public:
         recording=true;
         std::fprintf(events,"capture_start,%llu,,\n",
             static_cast<unsigned long long>(clocks));
+        program_kind="event";
         program(event);
         finish_capture();
     }
     void finish_capture() {
         while(captured<capture_limit) step(1);
+        if(bus && std::fflush(bus)) throw std::runtime_error("public bus log write failed");
         if(std::fflush(output)) throw std::runtime_error("CSV write failed");
         if(events && std::fflush(events)) throw std::runtime_error("events CSV write failed");
         std::cout<<"Captured "<<captured<<" jt51 samples\n";
@@ -154,6 +175,20 @@ static std::vector<uint8_t> read_program(const char *path) {
 
 int main(int argc,char **argv) {
     try {
+        int key_phase=-1;
+        bool public_bus=false;
+        while(argc>1) {
+            if(std::string(argv[1])=="--public-bus") {
+                public_bus=true; --argc; ++argv; continue;
+            }
+            if(std::string(argv[1])!="--keyon-phase") break;
+            if(key_phase>=0) throw std::runtime_error("duplicate key-on phase");
+            if(argc<3) throw std::runtime_error("missing key-on phase");
+            const std::string v=argv[2];
+            if(v.empty() || v.find_first_not_of("0123456789")!=std::string::npos || std::stoull(v)>63)
+                throw std::runtime_error("invalid key-on phase");
+            key_phase=int(std::stoul(v)); public_bus=true; argc-=2; argv+=2;
+        }
         int first=1;
         unsigned stride=1;
         if(argc>1 && std::string(argv[1])=="--stride") {
@@ -183,7 +218,7 @@ int main(int argc,char **argv) {
             throw std::runtime_error("invalid sample count");
         if(samples*stride>16777216)
             throw std::runtime_error("capture exceeds 16777216 native frames");
-        simulation sim(argv[first+(event_mode ? 3 : 1)],event_mode,stride);
+        simulation sim(argv[first+(event_mode ? 3 : 1)],event_mode,stride,key_phase,public_bus);
         sim.program(init);
         if(event_mode) sim.capture_event(event,samples);
         else sim.capture(samples);

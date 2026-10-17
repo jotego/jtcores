@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <sstream>
 
 class Oracle {
     opm_t chip{};
@@ -14,12 +15,17 @@ class Oracle {
     uint64_t ticks = 0;
     FILE* csv = nullptr;
     FILE* events = nullptr;
+    FILE* bus = nullptr;
+    int keyon_phase = -1;
+    const char* program_kind = "init";
     unsigned captured = 0;
     unsigned capture_limit = 0;
     unsigned sample_stride = 1;
     unsigned native_phase = 0;
     bool recording = false;
 
+    bool log_public_bus=false;
+    std::ostringstream public_bus;
     void advance(unsigned count) {
         for (unsigned n = 0; n < count; ++n) {
             OPM_Clock(&chip, dac, nullptr, nullptr, nullptr);
@@ -44,18 +50,29 @@ class Oracle {
 
     void write(uint8_t address, uint8_t value) {
         idle();
+        log_bus("api_address",address,address,0);
         OPM_Write(&chip, 0, address);
         advance(8);
+        if(keyon_phase>=0 && address==8 && (value&0x78))
+            advance(((unsigned(keyon_phase)+64-unsigned((ticks*2)&63))&63)/2);
         if (events && recording)
             std::fprintf(events, "write,%llu,%u,%u\n",
                 static_cast<unsigned long long>(ticks * 2), address, value);
+        log_bus("api_data",address,value,1);
         OPM_Write(&chip, 1, value);
         advance(8);
         idle();
     }
 
+    void log_bus(const char* kind,uint8_t address,uint8_t value,unsigned port) {
+        if(!log_public_bus) return;
+        public_bus << program_kind << ',' << kind << ',' << ticks*2 << ',' << ((ticks*2)&63)
+            << ',' << unsigned(address) << ',' << unsigned(value) << ',' << port << ','
+            << unsigned(OPM_Read(&chip,1)) << '\n';
+    }
 public:
-    explicit Oracle(unsigned stride = 1) : sample_stride(stride) {
+    explicit Oracle(unsigned stride = 1,int phase=-1,bool public_log=false)
+        : keyon_phase(phase),sample_stride(stride),log_public_bus(public_log) {
         OPM_Reset(&chip);
         advance(256);
     }
@@ -63,6 +80,7 @@ public:
     ~Oracle() {
         if (csv) std::fclose(csv);
         if (events) std::fclose(events);
+        if (bus) std::fclose(bus);
     }
 
     void program(const std::vector<uint8_t>& data) {
@@ -106,6 +124,11 @@ public:
             std::fprintf(events, "kind,clock,reg,value\n");
         }
         std::fprintf(csv, "sample,left,right,clock,inc0,inc8,inc16,inc24,phase24\n");
+        if(log_public_bus) {
+            bus=std::fopen((std::string(path)+".bus.csv").c_str(),"wx");
+            if(!bus) throw std::runtime_error("cannot create public API log");
+            std::fprintf(bus,"program,kind,clock,residue,reg,value,port,status\n");
+        }
         capture_limit = samples;
     }
 
@@ -125,12 +148,17 @@ public:
         recording = true;
         std::fprintf(events, "capture_start,%llu,,\n",
             static_cast<unsigned long long>(ticks * 2));
+        program_kind="event";
         program(event);
         finish_capture();
     }
 
     void finish_capture() {
         while (captured < capture_limit) advance(1);
+        if(bus) {
+            std::fputs(public_bus.str().c_str(),bus);
+            if(std::fflush(bus)) throw std::runtime_error("public log write failed");
+        }
         if (std::fflush(csv)) throw std::runtime_error("CSV write failed");
         if (events && std::fflush(events)) throw std::runtime_error("events CSV write failed");
         std::cout << "Captured " << captured << " OPM samples; carrier increment="
@@ -149,6 +177,20 @@ static std::vector<uint8_t> read_program(const char* path) {
 
 int main(int argc, char** argv) {
     try {
+        int key_phase=-1;
+        bool public_bus=false;
+        while(argc>1) {
+            if(std::string(argv[1])=="--public-bus") {
+                public_bus=true; --argc; ++argv; continue;
+            }
+            if(std::string(argv[1])!="--keyon-phase") break;
+            if(key_phase>=0) throw std::runtime_error("duplicate key-on phase");
+            if(argc<3) throw std::runtime_error("missing key-on phase");
+            const std::string v=argv[2];
+            if(v.empty() || v.find_first_not_of("0123456789")!=std::string::npos || std::stoull(v)>63 || std::stoull(v)%2)
+                throw std::runtime_error("invalid even key-on phase");
+            key_phase=int(std::stoul(v)); public_bus=true; argc-=2; argv+=2;
+        }
         int first = 1;
         unsigned stride = 1;
         if (argc > 1 && std::string(argv[1]) == "--stride") {
@@ -178,7 +220,7 @@ int main(int argc, char** argv) {
             throw std::runtime_error("invalid sample count");
         if (samples * stride > 16777216)
             throw std::runtime_error("capture exceeds 16777216 native frames");
-        Oracle oracle(stride);
+        Oracle oracle(stride,key_phase,public_bus);
         oracle.program(init);
         if (event_mode) oracle.capture_event(argv[first + 3], event, samples);
         else oracle.capture(argv[first + 1], samples);

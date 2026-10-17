@@ -369,3 +369,44 @@ provenance. Full numerical bounds and evidence are in
 Algorithms/feedback, CSM, remaining LFO rates/wider EG KS/KC/history and output
 mixing/clipping are still open. Full noise periods, seeds and arbitrary
 noise/LFO/envelope combinations are not claimed.
+
+## Algorithms, feedback and output-phase checkpoint
+
+229 native profiles each have three independently initialized targets and three
+paired cleanup recordings:1374 matrix records, all raw/input/transfer/CSV hashes,
+framing/exponents, ordered unique coverage and generation/reply chains audited.
+All687 paired quiet recordings are entirely zero. Targets contribute1092 bipolar
+and282 exact-quiet latch observations matching the primary output-state policies.
+Two final native quiet captures and36 jointly keyed phase controls are separate
+from that matrix.458 frozen whole-model outputs retain their own native64-clock
+cadence and hashes; all2748 physical target-latch/model comparisons preserve
+absolute gain/DC and a single training-selected global phase with early holdout.
+High-feedback residuals are not forced periodic, and the2/17PCM synthetic method
+screens are not physical chip tolerances.
+
+The phase controls retain a positive approximately one-native-sample M2/C1/C2
+family relative to M1, across both exposure orders/preheats/repetitions, with
+supported free sine fits and stable return to M1. A separately audited192-record
+public timing grid covers64 actual JT strobe residues and32 genuine even OPM API
+presentations, each with a matched exact-quiet leak control. The positive PCB
+family is absent from those fixed model protocols. Physical accepted writes and
+internal scheduling remain unobserved; no phase correction is fed into complex
+waveforms and no causal RTL gap follows automatically.
+
+An export failure at record1020 came from a full Chameleon `/tmp`. Original
+failed metadata and truncated bytes remain intact; the same retained DONE
+buffer was independently recovered and accepted before the remaining258 records
+continued.3463 archived exports retain identical hashes. No capture retake,
+register-program resubmission, ROM reload or reset occurred. Both idle recorder
+rearms retain complete archives and continuous generation/image evidence.
+
+Reproducible Go stimuli/observers and primary graph fixture retain724 original
+payload bytes and seven original qualification reports exactly. The free-sine Go
+calculation numerically reproduces all60 original physical fits. Independent
+native-integrated synthetic controls, CLI rejection checks, tests/build/vet and
+fresh-build default/public-phase wrapper compatibility pass within scope.
+Full details are in [algorithm-measurements.md](algorithm-measurements.md).
+Production jt51 remains985a573, with no candidate fix or new implementation issue.
+CSM, mixing/clipping, remaining LFO rates, broader EG KS/KC/history and wider noise
+coupling remain outstanding; physical IRQ and accepted bus/internal phase are
+unobserved. This checkpoint does not close the issue.

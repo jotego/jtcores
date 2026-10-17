@@ -5,9 +5,20 @@ main() {
     local src output external csv samples
     local args=()
     local stride_args=()
+    local probe_args=()
     src=$(cd -- "$(dirname -- "$0")" && pwd)
     output="$src/../../artifacts/opm-reference/build"
     external=${NUKED_OPM_ROOT:-/nobackup/jtmisc/reverse/Nuked-OPM}
+    while [[ ${1:-} == --public-bus || ${1:-} == --keyon-phase ]]; do
+        if [[ $1 == --public-bus ]]; then
+            probe_args+=("$1")
+            shift
+        else
+            [[ $# -ge 2 ]] || { usage; exit 2; }
+            probe_args+=("$1" "$2")
+            shift 2
+        fi
+    done
     if [[ ${1:-} == --stride ]]; then
         [[ $# -ge 2 ]] || { usage; exit 2; }
         stride_args=(--stride "$2")
@@ -35,12 +46,12 @@ main() {
     c++ -std=c++17 -O2 -Wall -Wextra -Werror -I "$external" \
         "$src/test.cpp" "$output/opm.o" -o "$output/opm-oracle" \
         >> "$output/build.log" 2>&1
-    "$output/opm-oracle" "${stride_args[@]}" "${args[@]}"
+    "$output/opm-oracle" "${probe_args[@]}" "${stride_args[@]}" "${args[@]}"
 }
 
 usage() {
-    echo "Usage: $0 [--stride N] PROGRAM CSV [SAMPLES]" >&2
-    echo "       $0 [--stride N] --event INIT EVENT CSV [SAMPLES]" >&2
+    echo "Usage: $0 [--public-bus] [--keyon-phase P] [--stride N] PROGRAM CSV [SAMPLES]" >&2
+    echo "       $0 [--public-bus] [--keyon-phase P] [--stride N] --event INIT EVENT CSV [SAMPLES]" >&2
 }
 
 main "$@"

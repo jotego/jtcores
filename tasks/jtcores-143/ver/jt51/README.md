@@ -59,3 +59,15 @@ The CSV clock origin includes the harness reset/startup cycles and is not shared
 with the external-model clock origin. Delay bytecodes remain approximately
 32 master clocks per count; compare envelope durations and levels after the
 observed event rather than matching absolute sample indices across devices.
+
+Optional public key-on timing diagnostics precede `--stride` (and follow
+`--keep`): `--keyon-phase P` inserts0..63 master clocks before each nonzero
+register08 data strobe so its assertion clock has residue P modulo64. It
+implies `--public-bus`, which can also be used alone without changing timing.
+Both options create `OUTPUT.csv.bus.csv` exclusively. The log includes INIT
+and EVENT data assertions/releases, assigned public pin values and status;
+`cen_p1_scheduled` is the parity scheduled for the upcoming evaluation, not
+an independently sampled prior pin. These timestamps do not establish internal
+acceptance or the PCB's write phase. Omit both options to preserve the original
+output files and timing. [Algorithm phase methods](../../plans/algorithm-measurements.md)
+describe the finite64-residue experiment and its limits.
