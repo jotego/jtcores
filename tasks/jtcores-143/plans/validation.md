@@ -516,3 +516,43 @@ adapter source files are exact; generic numerical helpers, method JSON and
 existing fitter remain unchanged. Builds, explicit Go tests/vet, literal
 catalog/parser/CLI and exclusive-output checks pass; no new model or capture is
 part of promotion verification.
+
+## Finite fast-LFO rate checkpoint
+
+Twelve original W0 AM profiles cover C0/CF/D0/DF/E0/E1/E7/E8/EE/EF/F0/FF, plus
+a separate AMD0 carrier. Target stride4/window16/hop4 retains native65984 as
+263936. Independent generic qualification precedes model/physical data:3456
+positives,48 wrong-rate,48 carrier/null and eight adverse/alias controls retain
+all original guards/states. The new predeclared endpoint-span diagnostic leaves
+the published coarse median/bands unchanged, including ten wrong-rate examples
+that remain coarse-periodic but fail the fine screen. Native-before-decimation
+provenance and independent carrier/crossing qualification remain necessary.
+
+All26 frozen stereo model outputs have exact256-masterclock cadence and valid
+public output geometry; all48 AM fine diagnostics pass. OPM RIGHT carrier
+relative RMS0.004425788>.003 remains unqualified, so its12 AM results remain
+conditional. Physical controls independently qualify all six carriers before
+ROOT authorizes the rate stage. Carrier7 plus AM73 makes80 physical captures,
+39 targets and41 entire-zero quiets including two separate final quiets.
+All raw, measured-wait/status/horizon conditioning and feature gates pass.
+
+All72 physical AM observations retain coarse periodic state and qualify under
+the unchanged fine1%/propagated-bound screen; maximum absolute endpoint-span
+error0.097709%, maximum bound0.585938%. Actual posts1971–2785 retain at least
+three nominal cycles plus40 samples. The first512 actual stable/bipolar baseline
+is delay-derived, not an exact TEST-release timestamp. Raw validity never
+depends on model agreement. Source/CSV/word/reply/transfer identities and all150
+AM output/71 source pins pass ROOT review. Original optional-field summary error
+is preserved without scorer rerun. Final quiet monitor state21/702; no reset,
+reload, retake or retry. Full results/provenance: [lfo-rates.md](lfo-rates.md).
+Other rates, slow staircase timing and the approximately1200s slowest complete
+period remain outside this finite batch; no exact hidden-counter claim follows.
+
+Six promoted source files preserve the four runtime bodies, original generic
+grid and unchanged exporter. The full scientific report digest matches after
+only48 declared CSV output-root substitutions. All26 payloads and complete
+literal register/manifest checks reproduce; original20 generator and6/24 scorer
+CLI controls, exclusive-report-root refusal, builds/four vet groups and focused
+tests pass. All130 existing model/physical scorer JSONs and curves reproduce
+byte-for-byte, including the known OPM RIGHT carrier failure. No new model or
+capture is part of relocation validation.

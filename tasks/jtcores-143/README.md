@@ -14,6 +14,9 @@ Production jt51 remains unchanged; broader audit work is still in progress.
 
 The held-history source tools and explicit Go build/test groups are documented
 in [mixing-history.md](plans/mixing-history.md#reproduce-the-source-tools).
+The [fast-LFO rate checkpoint](plans/lfo-rates.md) adds80 physical captures across
+twelve selected rates and independently qualifies all six physical carrier
+outputs. The retained OPM RIGHT model-carrier exception remains explicit.
 
 ## Hardware and initial state
 
