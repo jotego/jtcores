@@ -282,3 +282,36 @@ All three candidates pass their full architectural/interrupt/lint suites;
 the dispatch also passes exhaustive entry comparison. A fresh combined fit
 is required after integration. The separate field-adapter buffer-sharing
 trial removes 80 registers but grows to 4,150 ALMs, so it was discarded.
+
+
+## Compact dispatch and pixel-state sharing, 2026-10-17
+
+The exact combined `8548e0f7b5` source fits at **3,877 ALMs / 1,867 registers /
+284,672 RAM bits in 37 M10Ks / 0 DSPs**, in
+`/tmp/jttms10-141-area/narc-rom-extension`. All 27 copied/generated hashes
+and committed source inputs were verified. This combines shared field
+extension, WSTART/WEND in RF, and the compact dispatch ROM; it is 377 ALMs
+above the target.
+
+Reusing MD for destination/processed pixel data and COLOR0/the transparency
+flag for source data reduces the fresh complete fit to **3,847 ALMs / 1,819
+registers / 284,672 RAM bits in 37 M10Ks / 0 DSPs**. Snapshot:
+`/tmp/jttms10-141-area/narc-current-pixel`. All 27 fit hashes match the
+integrated source/generated images. The full 177-program suite, focused
+bus/cache/peripheral/PBX/LINE tests, independent generated pixel/array/LINE
+programs, and strict lint pass. The two new pixel-lifetime regressions also
+pass on the pinned reference. The result remains **347 ALMs above** the
+3,500 ceiling; gameplay on the earlier MiSTer build does not accept this
+final area/source gate.
+
+Native Quartus QIP lookup was checked separately in
+`/tmp/jttms10-141-area/native-rom-qip`, with no dispatch image in the build
+working directory. Analysis & Synthesis resolved the image through the
+module's QIP search path and inferred its 2,048x8 M10K ROM without errors.
+
+Further isolated experiments were rejected: Boolean-ALU/bit selector sharing
+increased the 3,877 baseline to 3,957 ALMs; LINE operand preloading increased
+the 4,109 baseline to 4,195; a low-request-gap field/cache/bus protocol saved
+only 8 ALMs while adding physical-word latency; and two 2x32 M10K pointer
+banks increased the pixel candidate's map estimate by 31 ALMs. Register
+reductions alone are not sufficient evidence of fitted logic savings.

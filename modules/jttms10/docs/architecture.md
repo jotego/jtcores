@@ -79,9 +79,11 @@ encodings outside the implemented families.
 
 The initial YAML programs exercise varying 1–3-clock memory response delays
 and check that requests stay stable until acknowledgement. These results
-prove only the states asserted by the tests. NARC startup execution has been
-captured, but attract/gameplay and full timing validation remain open. The
-array checkpoint exceeds the area target; see [area measurements](../ver/area/README.md).
+prove only the states asserted by the tests. The complete-instruction `acae6f9c2` HDMI build reaches attract mode and
+active gameplay on MiSTer, with movement/fire input and positive setup/hold
+slack. That build predates the latest reductions; final-source simulation,
+audio and hardware validation remain open. The current combined fit exceeds
+the area target; see [area measurements](../ver/area/README.md).
 
 `ver/reference.py` runs the same architectural checkpoints on the unchanged
 existing CPU at `29bcb384ec3dba892ea54db2ee92b38ae395d575`, in its functional
@@ -211,3 +213,14 @@ save/restore serialize writes to the single write port. The source and
 destination read ports supply window operands together during comparison
 and canonicalization. Scalar memory loads, SEXT/ZEXT and multiply source
 capture share one field-extension input/sign/mask network.
+
+
+Pixel PROCESS consumes the raw destination from MD, then replaces MD's low
+half with the processed write pixel. WRITE therefore keeps its data stable
+through memory waits without requiring a separate destination or write
+buffer. Nonbinary pixel sources reuse the COLOR0 scratch word; binary
+expansion still needs COLOR0, so its next source bit temporarily occupies
+the transparency flag between source capture and PROCESS. PROCESS replaces
+that bit with the actual transparency decision. No extra pixel phase is
+introduced. Regressions cover arithmetic PPOP with held writes and binary
+source-bit/transparency handoff.

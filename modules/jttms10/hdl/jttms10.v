@@ -52,6 +52,7 @@ module jttms10(
     wire [2:0] ea_sel;
     wire [31:0] rs_data, rd_data, result;
     wire [15:0] pixel_visible_source;
+    wire [15:0] pixel_write_pixel;
     wire n,z,c,v;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [31:0] vector_latched;
@@ -62,7 +63,6 @@ module jttms10(
     reg [31:0] pix_src_val, pix_dst_val;
     reg [3:0] pix_src_addr;
     reg [15:0] pix_color;
-    reg [15:0] pix_src_pixel, pix_dst_pixel, pix_write_data;
     reg pix_transparent;
     reg [3:0] array_index;
     reg [15:0] array_dx, array_xleft, array_yleft, array_color0;
@@ -269,7 +269,7 @@ module jttms10(
     assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} :
                        pix_field && mem_sel==WRITE_MEM ?
-                       {16'd0,pix_write_data} : md;
+                       {16'd0,md[15:0]} : md;
     assign mem_iaq = fetch;
     // The cache accepts every PC-directed word, including extension words.
     // IAQ remains the separate opcode bus-status signal.
@@ -551,10 +551,11 @@ module jttms10(
     wire [31:0] pixel_alu_a, pixel_alu_b;
     wire [3:0] pixel_alu_op;
     wire pixel_alu_req, pixel_transparent;
-    wire [15:0] pixel_write_pixel;
     wire unused_pixel_valid;
     wire [15:0] unused_pixel_result, unused_pixel_mask;
-    wire [15:0] array_color = array_binary && !pix_src_pixel[0] ?
+    // Before PROCESS, the binary bit occupies the transparency flag; the
+    // process step replaces it with the actual transparency decision.
+    wire [15:0] array_color = array_binary && !pix_transparent ?
                                array_color0 : pix_color;
     wire [11:0] array_chunks_read =
         {1'b0,array_width[15:5]}+{11'd0,(|array_width[4:0])};
@@ -573,14 +574,15 @@ module jttms10(
                         {16'd0,array_width[15:0]};
     wire [15:0] pixel_source = drav_ir || line_ir ||
                                array_fill || array_binary ?
-        ((array_ir ? array_color : pix_color) >> ea[3:0]) : pix_src_pixel;
+        ((array_ir ? array_color : pix_color) >> ea[3:0]) : array_color0;
     jttms10_pixel u_pixel(
         .psize(psize[4:0]), .ppop(control[14:10]),
         .transparency(control[5]), .pmask(pmask),
         .source_is_register(pix_register_source),
         .src_addr_lo(array_binary ? ea[3:0] : pix_src_addr),
         .dst_addr_lo(ea[3:0]),
-        .source_pixel(pixel_source), .dest_pixel(pix_dst_pixel),
+        .source_pixel(pixel_source),
+        .dest_pixel(pixel_need_dest ? md[15:0] : 16'd0),
         .alu_a(pixel_alu_a), .alu_b(pixel_alu_b),
         .alu_op(pixel_alu_op), .alu_req(pixel_alu_req),
         .alu_result(result), .alu_borrow(c),
@@ -862,9 +864,6 @@ module jttms10(
             pix_dst_val<=0;
             pix_src_addr<=0;
             pix_color<=0;
-            pix_src_pixel<=0;
-            pix_dst_pixel<=0;
-            pix_write_data<=0;
             pix_transparent<=0;
             array_index<=0;
             array_winphase<=0;
@@ -947,8 +946,6 @@ module jttms10(
                     gfx_rs<=0;
                     pix_clip<=0;
                     pix_transparent<=0;
-                    pix_src_pixel<=0;
-                    pix_dst_pixel<=0;
                     array_winphase<=0;
                     array_corner_mode<=0;
                     array_query_mode<=0;
@@ -1030,8 +1027,7 @@ module jttms10(
                 if(a_sel==INIT_A) begin
                     pix_src_val<=rs_data;
                     pix_dst_val<=rd_data;
-                    pix_src_pixel<=rs_data[15:0];
-                    pix_dst_pixel<=0;
+                    array_color0<=rs_data[15:0];
                     pix_clip<=0;
                     pix_transparent<=0;
                     gfx_rs<=drav_ir ? 3'd4 : 3'd0; // B9 COLOR1
@@ -1077,15 +1073,16 @@ module jttms10(
                 end
                 if(a_sel==SRCCAP_A) begin
                     if(array_binary) begin
-                        pix_src_pixel<=array_binary_need_read ?
-                            {15'd0,md[0]} : {15'd0,tmp[0]};
+                        pix_transparent<=array_binary_need_read ?
+                            md[0] : tmp[0];
                         tmp<=array_binary_need_read ?
                             {1'b0,md[31:1]} : {1'b0,tmp[31:1]};
-                    end else pix_src_pixel<=md[15:0];
+                    end else array_color0<=md[15:0];
                 end
-                if(cc_sel==DSTCAP_CC) pix_dst_pixel<=md[15:0];
                 if(a_sel==PROCESS_A) begin
-                    pix_write_data<=pixel_write_pixel;
+                    // The destination read has already been consumed. Reuse
+                    // MD to hold the processed pixel across write waits.
+                    md[15:0]<=pixel_write_pixel;
                     pix_transparent<=pixel_transparent;
                 end
                 if(a_sel==LOAD_A) st[28]<=pixel_visible_source!=0;

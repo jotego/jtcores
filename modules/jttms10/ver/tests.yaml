@@ -2693,6 +2693,23 @@ cases:
       - {after: 0x1080, pc: 0x1090, st: 0xF0000010}
       - {after: 0x1090, pc: 0x10A0, st: 0xF0000010, regs: {A0: 0x0208, A1: 0x12340006}, mem: [{addr: 0x0200, size: 16, value: 0x1634}]}
 
+  - name: pixt_arithmetic_add_held_write_data
+    entry: 0x1000
+    pixel_size: 4
+    control: 0x4000 # PPOP 16: ADD through the shared ALU
+    pmask: 0x0000
+    mem: [{at: 0x0200, words: [0x0007]}]
+    words:
+      - 0x09C0 # A0=destination pixel at bit address 0200
+      - 0x0200
+      - 0x09C1 # A1=source pixel 6
+      - 0x0006
+      - 0xF820 # PIXT A1,*A0; 6+7=13
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0x0200}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 6}}
+      - {after: 0x1040, pc: 0x1050, mem: [{addr: 0x0200, size: 16, value: 0x000D}]}
+
   - name: pixt_linear_to_register_pmask_nonzero_pixel_v
     entry: 0x1000
     pixel_size: 4
@@ -4222,6 +4239,45 @@ cases:
     - at: 576
       words:
       - 22136
+  - name: pixblt_binary_bit_then_transparency_reuses_flag
+    entry: 0x1000
+    pixel_size: 4
+    control: 0x0020 # transparency enabled, source bit selects COLOR0/1
+    mem:
+      - {at: 0x0200, words: [0x0002]} # first bit 0, second bit 1
+      - {at: 0x0240, words: [0x00CC]}
+    words:
+      - 0x09F0 # B0 source bit address
+      - 0x0200
+      - 0x0000
+      - 0x09F1 # B1 source pitch
+      - 0x0020
+      - 0x0000
+      - 0x09F2 # B2 destination bit address
+      - 0x0240
+      - 0x0000
+      - 0x09F3 # B3 destination pitch
+      - 0x0020
+      - 0x0000
+      - 0x09F7 # B7 DY=1, DX=2
+      - 0x0002
+      - 0x0001
+      - 0x09F8 # B8 COLOR0=0 (transparent)
+      - 0x0000
+      - 0x0000
+      - 0x09F9 # B9 COLOR1=0xAAAA
+      - 0xAAAA
+      - 0x0000
+      - 0x0F80 # PIXBLT BINARY/LINEAR
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B0: 0x0200}}
+      - {after: 0x1030, pc: 0x1060, regs: {B1: 0x0020}}
+      - {after: 0x1060, pc: 0x1090, regs: {B2: 0x0240}}
+      - {after: 0x1090, pc: 0x10C0, regs: {B3: 0x0020}}
+      - {after: 0x10C0, pc: 0x10F0, regs: {B7: 0x00010002}}
+      - {after: 0x10F0, pc: 0x1120, regs: {B8: 0x0000}}
+      - {after: 0x1120, pc: 0x1150, regs: {B9: 0xAAAA}}
+      - {after: 0x1150, pc: 0x1160, mem: [{addr: 0x0240, size: 16, value: 0x00AC}]}
   - name: pixblt_bxy_binary_zero_selects_color0
     entry: 4096
     pixel_size: 4
