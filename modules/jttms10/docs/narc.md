@@ -1,23 +1,24 @@
-# NARC development selection
+# NARC integration
 
-The NARC GSP wrapper can select the new CPU with `JTNARC_UCODE`. Its file
-list then uses `modules/jttms10` and generates the YAML microcode; otherwise
-it retains the pinned old CPU. The new selection uses the same NARC cycle
+NARC defines `JTNARC_UCODE` in `cfg/macros.def`, so its GSP wrapper and file
+list use `modules/jttms10` and generate both YAML microcode ROMs by default.
+The conditional wrapper retains the pinned old CPU for reference work.
+The new selection uses the same NARC cycle
 controller, 48 MHz clock, and video clock enable. Host, HOLD and external
 video sync inputs use NARC's existing tie-offs.
 
 For example, from `cores/narc/ver/narc`:
 
 ```sh
-jtsim -mister -d JTNARC_UCODE -video 120
+jtsim -mister -video -time 1000
 ```
 
 ROM/SDRAM inputs must already be present, or use the usual `-load` flow.
 A simulation diagnostic stops on an unsupported defined opcode and reports
 its IR and following PC. Graphics and cache have architectural and focused
-bus tests, but final-source NARC gameplay, timing and area validation remain
-pending. This optional selection does not itself establish game compatibility
-or the completed area target.
+bus tests. The matched CPU-boundary fit is 2,746 ALMs against the old
+14,000 ALMs; final-source NARC gameplay and board timing validation are
+running. See the [area report](../ver/area/README.md).
 
 The old CPU's first 571-input-frame run completed normally at 54.83 Hz. It
 reached NARC's connector/chip ROM-test display, with no attract screen yet.

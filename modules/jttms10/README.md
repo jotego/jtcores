@@ -1,10 +1,12 @@
 # JTTMS10
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
-The target is at most 25% of the existing CPU's logic utilization, trading
-block RAM for instruction control and registers. The architectural
-implementation and regression suite are in place. Final area measurement and
-validation of this exact source in NARC remain pending.
+The complete NARC CPU boundary fits in **2,746 ALMs**, or **19.6%** of the
+existing CPU's 14,000 ALMs, meeting the 25% target. It trades block RAM for
+instruction control and registers (69 M10Ks, no DSPs). The architectural
+implementation and regression suite are in place; final-source NARC
+simulation and MiSTer validation are running. See the matched
+[area measurements](ver/area/README.md).
 
 `ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
 JT680X. The scalar and graphics sequencers share one ALU, synchronous
@@ -44,8 +46,8 @@ Remaining acceptance gates:
 
 - Close any compatibility gaps found by longer NARC gameplay, graphics/audio,
   host and peripheral tests against TI's guide and the pinned CPU.
-- Measure instruction/bus timing and the complete old/new CPU utilization on
-  the same FPGA and constraints; the limit is one quarter of the old logic.
+- Finish full-board timing validation. The implementation does not claim
+  instruction-cycle equivalence with the original CPU.
 - Validate this final source in NARC simulation and on MiSTer, including a
   `jtcore narc -mrq` build.
 

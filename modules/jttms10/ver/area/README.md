@@ -62,6 +62,25 @@ one committed tree while development continues elsewhere. Its resolved
 `source_commit` and all copied/generated hashes are recorded in the manifest.
 The reference mode continues to use the unchanged pinned old submodule.
 
+## Complete graphics engine, 2026-10-17
+
+| Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |
+| --- | ---: | ---: | ---: | ---: |
+| Pinned old TMS34010 | 14,000 | 7,117 | 2,048 / 1 | 6 |
+| New generic graphics microcode | 2,746 | 1,523 | 542,720 / 69 | 0 |
+
+The new boundary uses **19.6%** of the old ALMs, leaving 754 ALMs below the
+3,500-ALM quarter-area limit. Both fits used Quartus Prime Lite 20.1.1 Build
+720, Cyclone V `5CSEBA6U23I7`, a 20 ns `clk`, high performance effort, seed
+1, and the same virtual-pin NARC boundary. The old fit is
+`/tmp/jttms10-141-area/reference-repro/`; the corrected new fit and full
+source/ROM hash manifest are in
+`/tmp/jttms10-141-area/generic-final-snapshot/`. Every source hash in that
+manifest matches commit `a0d3612799adaa1df556aac8b5f6f2b27ae33b5b`.
+The separate 4096×64 graphics ROM, control ROM, cache, and mirrored register
+file account for the larger block RAM use. The board cycle controller remains
+outside both measured boundaries.
+
 ## Preliminary result, 2026-10-17
 
 | Boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |
