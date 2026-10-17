@@ -11,6 +11,13 @@ module jttms10_ctrl(
     input              div_early_cond,
     input              pixel_need_dest,
     input              pixel_abort,
+    input              array_active, array_fill, array_convert,
+    input              array_zero, array_last,
+    input              array_window_needed, array_window_done,
+                       array_window_abort, array_window_query,
+                       array_offset_needed, array_corner_next,
+                       array_query_mode, array_canon_needed,
+    input      [3:0]   array_index,
     input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
     output            execute, active,
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
@@ -24,6 +31,13 @@ module jttms10_ctrl(
     output            divinit, divload, divnega, divnegmd,
                       divnegb, divcheck, divstep,
     output            dsjfinish, xyx, xyy,
+    output            array_init, array_cap, array_srcstep,
+                      array_dststep, array_count,
+                      array_srcpre, array_dstpre,
+    output            array_source_phase, array_wb_src,
+    output            array_offset_active, array_query_active,
+                      array_query_first, array_canon_active,
+                      array_canon_dst, array_win,
     output            gfx_step, cvloop_active, wincheck_active,
                       pixconv_active,
     output     [4:0]  a_sel,
@@ -44,7 +58,7 @@ module jttms10_ctrl(
     wire [3:0] mul_sel;
     wire [1:0] lmo_sel;
     wire [2:0] shift_sel;
-    wire [2:0] misc_sel;
+    wire [3:0] misc_sel;
     wire [1:0] bus_sel;
     assign fetch = bus_sel==FETCH_BUS;
     assign imm = bus_sel==IMM_BUS;
@@ -56,6 +70,14 @@ module jttms10_ctrl(
     assign xyx = misc_sel==X_MISC;
     assign xyy = misc_sel==Y_MISC;
     assign emu_step = misc_sel==EMU_MISC;
+    assign array_init = misc_sel==ARRAYINIT_MISC;
+    assign array_cap = misc_sel==ARRAYCAP_MISC;
+    assign array_srcstep = misc_sel==ARRAYSRCSTEP_MISC;
+    assign array_dststep = misc_sel==ARRAYDSTSTEP_MISC;
+    assign array_count = misc_sel==ARRAYCOUNT_MISC;
+    assign array_srcpre = misc_sel==ARRAYSRCPRE_MISC;
+    assign array_dstpre = misc_sel==ARRAYDSTPRE_MISC;
+    assign array_win = misc_sel==ARRAYWIN_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
     assign shift_step = shift_sel==STEP_SHIFT;
@@ -104,6 +126,16 @@ module jttms10_ctrl(
     assign cvloop_active = uaddr[10:4]==CVLOOP_SEQA[10:4];
     assign wincheck_active = uaddr[10:4]==WINCHECK_SEQA[10:4];
     assign pixconv_active = uaddr[10:4]==PIXCONV_SEQA[10:4];
+    assign array_source_phase = uaddr[10:4]==ARRAYLOOP_SEQA[10:4];
+    assign array_wb_src = uaddr==ARRAYFINISH_SEQA;
+    assign array_offset_active =
+        uaddr[10:4]==ARRAYOFFSET_SEQA[10:4];
+    assign array_query_active =
+        array_query_mode && uaddr[10:4]==ARRAYFINISH_SEQA[10:4];
+    assign array_query_first = uaddr==ARRAYFINISH_SEQA;
+    assign array_canon_active =
+        uaddr[10:4]==ARRAYCANON_SEQA[10:4];
+    assign array_canon_dst = array_canon_active && uaddr[3:0]>=4'd3;
     // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
     // Defined opcodes without a microcode implementation remain diagnostic.
     assign reserved_opcode =
@@ -139,6 +171,9 @@ module jttms10_ctrl(
             16'h0360: entry = DINT_SEQA;
             16'h0d60: entry = EINT_SEQA;
             16'h0100: entry = EMU_SEQA;
+            16'h0f00,16'h0f20,16'h0f40,16'h0f60,
+            16'h0f80,16'h0fa0,16'h0fc0,16'h0fe0:
+                entry = ARRAY_SEQA;
             16'b1110011?????????: entry = CPW_SEQA;
             16'b1110100?????????: entry = CVXYL_SEQA;
             16'b1111000?????????: entry = PIXT_RXY_SEQA;
@@ -290,6 +325,7 @@ module jttms10_ctrl(
                 // Zero-count shifts skip the helper while retaining C=0.
                 if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
                    (jsr_sel==CVLOOP_JSR && shift_count==0) ||
+                   (jsr_sel==PIXCONV_JSR && array_active && !array_convert) ||
                    (jsr_sel==PIXDSTREAD_JSR && !pixel_need_dest) ||
                    (jsr_sel==LMOLOOP_JSR && !lmo_more))
                     uaddr <= uaddr+11'd1;
@@ -315,6 +351,34 @@ module jttms10_ctrl(
             // PIXT W1 and clipped W2/W3 leave before the source MTR.
             if(gfx_step && wincheck_active && jsr_sel==RET_JSR &&
                pixel_abort) uaddr <= PIXEND_SEQA;
+            if(array_init) uaddr <= ARRAYSETUP_SEQA;
+            if(array_cap)
+                uaddr <= array_index==4'd9 ?
+                    (array_zero ? PIXEND_SEQA :
+                     array_window_needed ? ARRAYWINDOW_SEQA :
+                     ARRAYPREP_SEQA) :
+                    ARRAYSETUP_SEQA;
+            if(array_win && !array_canon_active && array_window_done)
+                uaddr <= array_window_query ? ARRAYFINISH_SEQA :
+                         array_window_abort ? PIXEND_SEQA :
+                         array_corner_next ? ARRAYWINDOW_SEQA :
+                         array_offset_needed ? ARRAYOFFSET_SEQA :
+                         ARRAYPREP_SEQA;
+            if(array_active && array_offset_active &&
+               a_sel==SAVESRC_A) uaddr <= ARRAYPREP_SEQA;
+            if(array_active && array_canon_active &&
+               a_sel==SAVEDST_A) uaddr <= ARRAYFINISH_SEQA;
+            if(array_active && !array_canon_active &&
+               a_sel==SAVEDST_A)
+                uaddr <= ARRAYLOOP_SEQA;
+            if(array_active && cc_sel==SRCADDR_CC && array_fill)
+                uaddr <= ARRAYDST_SEQA;
+            if(array_active && a_sel==SRCCAP_A)
+                uaddr <= ARRAYDST_SEQA;
+            if(array_count)
+                uaddr <= array_last ?
+                    (array_canon_needed ? ARRAYCANON_SEQA :
+                     ARRAYFINISH_SEQA) : ARRAYLOOP_SEQA;
             if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)

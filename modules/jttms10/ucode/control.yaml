@@ -503,3 +503,64 @@ ucode:
   - name: pixend
     start: 116
     seq: [ni]
+  # Implied B registers are sampled through one synchronous RF read port.
+  # The controller repeats the single capture microstep for B0..B9.
+  - name: array
+    start: 117
+    seq: [arrayinit_misc]
+  - name: arraysetup
+    start: 118
+    seq: [arraycap_misc]
+  - name: arrayprep
+    start: 119
+    seq:
+      - srcprep_a
+      - pixconv_jsr
+      - savesrc_a
+      - dstprep_a
+      - pixconv_jsr
+      - savedst_a
+  - name: arrayloop
+    start: 120
+    seq:
+      - arraysrcpre_misc
+      - srcaddr_cc
+      - read_mem
+      - srccap_a
+  - name: arraydst
+    start: 121
+    seq:
+      - arraydstpre_misc
+      - dstaddr_cc
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+      - arraysrcstep_misc
+      - arraydststep_misc
+      - arraycount_misc
+  - name: arrayfinish
+    start: 122
+    seq:
+      - listwr
+      - listwr, ni
+  - name: arrayoffset
+    start: 123
+    seq:
+      - srcprep_a
+      - pixconv_jsr
+      - add_alu, savesrc_a
+  - name: arraywindow
+    start: 124
+    seq: [arraywin_misc]
+  # XY corner-adjusted block moves report canonical next-row pointers,
+  # independent of PBH/PBV transfer direction. Reconvert original XY starts
+  # advanced by DY with the same iterative converter used for PIXT.
+  - name: arraycanon
+    start: 125
+    seq:
+      - arraywin_misc
+      - pixconv_jsr
+      - add_alu, savesrc_a
+      - arraywin_misc
+      - pixconv_jsr
+      - add_alu, savedst_a

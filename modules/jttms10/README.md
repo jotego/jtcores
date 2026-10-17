@@ -101,8 +101,11 @@ NARC cycle target, including host HLT release and RETI. Boundary IRQ/NMI,
 halt and EMU behavior are described in [interrupt notes](docs/interrupts.md).
 The [instruction-cache helper](docs/cache.md) has standalone and integrated
 field/HOLD tests and is connected to the CPU. The real system test covers
-opcode/extension fills, loop hits and host-written CD/CF modes. PIXBLT, FILL and LINE
-sequencing and interruptible graphics continuation remain outstanding.
+opcode/extension fills, loop hits and host-written CD/CF modes.
+FILL L/XY and all six PIXBLT forms have microcoded loops and tests for
+row pitch, direction, windows, overlap, binary expansion and completion
+pointers; see [array ISA notes](docs/array-isa.md). LINE and interruptible
+graphics continuation remain outstanding.
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

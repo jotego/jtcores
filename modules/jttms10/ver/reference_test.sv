@@ -2,7 +2,7 @@
 
 // Runs the same program/checkpoint stream as test.sv against the established
 // TMS34010 core. The old core has a different cycle schedule; completion is
-// detected at its architectural WRITEBACK -> FETCH transition.
+// detected at its architectural instruction-final state -> FETCH transition.
 module reference_test;
   import tms34010_pkg::*;
 
@@ -186,9 +186,21 @@ module reference_test;
   always @(negedge clk) begin
     // Reserved opcodes enter vector 30 through interrupt microstates and
     // bypass WRITEBACK. The sticky illegal diagnostic distinguishes this
-    // boundary from an ordinary hardware interrupt (TI guide §8.7).
+    // boundary from an ordinary hardware interrupt (TI guide §8.7). Array
+    // instructions have dedicated final writeback, empty and window paths.
     if (!rst && ((last_state == CORE_WRITEBACK && state_w == CORE_FETCH) ||
-                 (last_state == CORE_INT_DONE && state_w == CORE_FETCH && illegal_w)))
+                 (last_state == CORE_INT_DONE && state_w == CORE_FETCH && illegal_w) ||
+                 (state_w == CORE_FETCH &&
+                  (last_state == CORE_FILL_SETUP ||
+                   last_state == CORE_FILL_WB ||
+                   last_state == CORE_FILL_WIN_MISS ||
+                   last_state == CORE_FILL_WIN_HIT ||
+                   last_state == CORE_FILL_W1_DYDX ||
+                   last_state == CORE_PBLT_SETUP ||
+                   last_state == CORE_PBLT_WB2 ||
+                   last_state == CORE_PBLT_WIN_MISS ||
+                   last_state == CORE_PBLT_WIN_HIT ||
+                   last_state == CORE_PBLT_W1_DYDX))))
       check_step();
     last_state = state_w;
   end

@@ -30,6 +30,11 @@ module jttms10(
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire dsjfinish, xyx, xyy;
+    wire array_init, array_cap, array_srcstep, array_dststep, array_count;
+    wire array_srcpre, array_dstpre;
+    wire array_win, array_offset_active, array_query_active,
+         array_query_first, array_canon_active, array_canon_dst;
+    wire array_source_phase, array_wb_src;
     wire gfx_step, cvloop_active, wincheck_active, pixconv_active;
     wire hw_take, reserved_opcode, push_entry, push_active, emu_step;
     wire [3:0] cc_sel;
@@ -52,6 +57,16 @@ module jttms10(
     reg [15:0] pix_color;
     reg [15:0] pix_src_pixel, pix_dst_pixel, pix_write_data;
     reg pix_transparent;
+    reg [3:0] array_index;
+    reg [31:0] array_sptch, array_dptch, array_src_row, array_dst_row;
+    reg [15:0] array_dx, array_xleft, array_yleft, array_color0;
+    reg [31:0] array_wstart, array_wend;
+    reg [31:0] array_xend, array_yend, array_wxend, array_wyend;
+    reg [31:0] array_width, array_height, array_xoff, array_yoff;
+    reg [3:0] array_winphase;
+    reg array_offset_convert, array_corner_mode, array_query_mode;
+    reg array_canon_linear;
+    reg [15:0] array_dyminus1;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
@@ -89,10 +104,69 @@ module jttms10(
     wire pix_rlin = ir[15:9]==7'b1111100;
     wire pix_linreg = ir[15:9]==7'b1111101;
     wire pix_linlin = ir[15:9]==7'b1111110;
+    wire array_ir = ir==16'h0f00 || ir==16'h0f20 ||
+                    ir==16'h0f40 || ir==16'h0f60 ||
+                    ir==16'h0f80 || ir==16'h0fa0 ||
+                    ir==16'h0fc0 || ir==16'h0fe0;
+    wire array_fill = ir==16'h0fc0 || ir==16'h0fe0;
+    wire array_binary = ir==16'h0f80 || ir==16'h0fa0;
+    wire array_rev_h = !array_fill && !array_binary && control[8];
+    wire array_rev_v = !array_fill && !array_binary && control[9];
+    wire array_src_xy = ir==16'h0f40 || ir==16'h0f60;
+    wire array_dst_xy = ir==16'h0f20 || ir==16'h0f60 ||
+                        ir==16'h0fa0 || ir==16'h0fe0;
+    wire array_convert = array_offset_convert || array_canon_linear ||
+                         (pix_conv_src ? array_src_xy : array_dst_xy);
+    wire array_zero = array_dx==0 || array_yleft==0;
+    wire array_rowend = array_xleft==16'd1;
+    wire array_last = array_rowend && array_yleft==16'd1;
+    wire array_corner_needed = !array_fill && !array_binary &&
+        (control[8] || control[9]) && (array_src_xy || array_dst_xy);
+    wire array_canon_needed = array_corner_needed;
+    wire array_offset_dest = array_src_xy && !array_dst_xy;
+    wire array_window_needed =
+        (array_dst_xy && control[7:6]!=0) || array_corner_needed;
+    wire array_window_done = array_corner_mode ?
+        array_winphase==4'd5 : array_winphase==4'd10;
+    wire signed [31:0] array_x0 = {{16{pix_dst_val[15]}},pix_dst_val[15:0]};
+    wire signed [31:0] array_y0 = {{16{pix_dst_val[31]}},pix_dst_val[31:16]};
+    wire signed [31:0] array_wx0 =
+        {{16{array_wstart[15]}},array_wstart[15:0]};
+    wire signed [31:0] array_wy0 =
+        {{16{array_wstart[31]}},array_wstart[31:16]};
+    wire signed [31:0] array_left =
+        array_x0>array_wx0 ? array_x0 : array_wx0;
+    wire signed [31:0] array_top =
+        array_y0>array_wy0 ? array_y0 : array_wy0;
+    wire signed [31:0] array_right =
+        $signed(array_xend)<$signed(array_wxend) ?
+        $signed(array_xend) : $signed(array_wxend);
+    wire signed [31:0] array_bottom =
+        $signed(array_yend)<$signed(array_wyend) ?
+        $signed(array_yend) : $signed(array_wyend);
+    wire array_window_overlap =
+        $signed(array_width)>0 && $signed(array_height)>0;
+    wire array_window_violation =
+        array_left!=array_x0 || array_top!=array_y0 ||
+        array_right!=$signed(array_xend) ||
+        array_bottom!=$signed(array_yend);
+    wire array_window_query = control[7:6]==2'd1 &&
+                              array_window_overlap;
+    wire array_window_abort = control[7:6]==2'd1 ||
+        (control[7:6]==2'd2 && array_window_violation) ||
+        (control[7:6]==2'd3 && !array_window_overlap);
+    wire array_corner_next = !array_corner_mode &&
+        array_corner_needed && !array_window_abort;
+    wire array_offset_needed = !array_fill &&
+        (array_xoff!=0 || array_yoff!=0) &&
+        (!array_src_xy || !array_dst_xy) &&
+        (!array_dst_xy || control[7:6]!=2'd3 ||
+         array_window_overlap);
     wire pix_load = pix_xyreg || pix_linreg;
     wire pix_field = pix_rxy || pix_xyreg || pix_xyxy || drav_ir ||
-                     pix_rlin || pix_linreg || pix_linlin;
-    wire pix_register_source = pix_rxy || pix_rlin || drav_ir;
+                     pix_rlin || pix_linreg || pix_linlin || array_ir;
+    wire pix_register_source = pix_rxy || pix_rlin || drav_ir ||
+                               (array_ir && (array_fill || array_binary));
     wire pixel_need_dest = !pix_clip &&
                            (control[14:10]!=0 || pmask!=0);
     // W1 never draws, and W2/W3 abort an out-of-window PIXT before its
@@ -146,6 +220,8 @@ module jttms10(
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
+                      array_binary && array_source_phase &&
+                      mem_sel==READ_MEM ? 6'd1 :
                       pix_field && field_op ? {1'b0,psize[4:0]} :
                       field_op ? field_size : 6'd16;
     assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
@@ -169,6 +245,17 @@ module jttms10(
         .div_early_cond(a==0 || !c),
         .pixel_need_dest(pixel_need_dest),
         .pixel_abort(pixel_abort),
+        .array_active(array_ir), .array_fill(array_fill),
+        .array_convert(array_convert), .array_zero(array_zero),
+        .array_last(array_last), .array_index(array_index),
+        .array_window_needed(array_window_needed),
+        .array_window_done(array_window_done),
+        .array_window_abort(array_window_abort),
+        .array_window_query(array_window_query),
+        .array_offset_needed(array_offset_needed),
+        .array_corner_next(array_corner_next),
+        .array_query_mode(array_query_mode),
+        .array_canon_needed(array_canon_needed),
         .irq_req(irq_req), .nmi_req(nmi_req),
         .nmi_nostack(nmi_nostack), .halt_req(halt_req),
         .emu_run(emu_run), .ie(st[21]),
@@ -193,6 +280,17 @@ module jttms10(
         .divnegmd(divnegmd), .divnegb(divnegb),
         .divcheck(divcheck), .divstep(divstep),
         .dsjfinish(dsjfinish), .xyx(xyx), .xyy(xyy),
+        .array_init(array_init), .array_cap(array_cap),
+        .array_srcstep(array_srcstep), .array_dststep(array_dststep),
+        .array_count(array_count),
+        .array_srcpre(array_srcpre), .array_dstpre(array_dstpre),
+        .array_source_phase(array_source_phase),
+        .array_wb_src(array_wb_src),
+        .array_offset_active(array_offset_active),
+        .array_query_active(array_query_active),
+        .array_query_first(array_query_first),
+        .array_canon_active(array_canon_active),
+        .array_canon_dst(array_canon_dst), .array_win(array_win),
         .gfx_step(gfx_step), .cvloop_active(cvloop_active),
         .wincheck_active(wincheck_active), .pixconv_active(pixconv_active),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
@@ -212,17 +310,23 @@ module jttms10(
                        gfx_rs==3'd2 ? 5'd22 :
                        gfx_rs==3'd3 ? 5'd20 :
                        gfx_rs==3'd4 ? 5'd25 :
+                       array_ir ? {1'b1,array_index} :
                        multi_ir ? {ir[4],multi_index} :
                          call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
         .wa(wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
+            array_query_active && listwr ?
+                (array_query_first ? 5'd18 : 5'd23) :
+            array_ir && listwr ? (array_wb_src ? 5'd16 : 5'd18) :
             listwr ? {ir[4],multi_index} :
             mulwrlo && (div_ir ? div_pair : !ir[0]) ?
                 {ir[4],ir[3:0]+4'd1} :
             wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (wr_reg || wrsrc || wr_sp || ptrwr || listwr ||
+        .we(step && (wr_reg || wrsrc || wr_sp || ptrwr ||
+                     (listwr && !(array_ir && array_fill &&
+                                  array_wb_src && !array_query_active)) ||
                      (dsjfinish && dsj_allow) ||
                      ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
                      (!div_ir || (!div_early &&
@@ -232,7 +336,14 @@ module jttms10(
             drav_ir && wr_reg ? md :
             cpw_ir && wr_reg ? md :
             exgf ? {26'd0,old_field} :
-            lmofinish ? {27'd0,lmo_count} : listwr ? md :
+            lmofinish ? {27'd0,lmo_count} :
+            array_query_active && listwr ?
+                (array_query_first ?
+                 {array_top[15:0],array_left[15:0]} :
+                 {array_height[15:0],array_width[15:0]}) :
+            array_ir && listwr ?
+                (array_wb_src ? pix_src_val : pix_dst_val) :
+            listwr ? md :
             xy_op && wr_reg ? md :
             mulwrhi ? (div_ir ? md : b) :
             mulwrlo ? (div_ir && (div_mod || div_pair) ? b : md) : result),
@@ -245,8 +356,10 @@ module jttms10(
     wire [15:0] pixel_write_pixel;
     wire unused_pixel_valid;
     wire [15:0] unused_pixel_result, unused_pixel_mask;
-    wire [15:0] pixel_source = drav_ir ?
-        (pix_color[15:0] >> ea[3:0]) : pix_src_pixel;
+    wire [15:0] array_color = array_binary && !pix_src_pixel[0] ?
+                               array_color0 : pix_color;
+    wire [15:0] pixel_source = drav_ir || array_fill || array_binary ?
+        ((array_ir ? array_color : pix_color) >> ea[3:0]) : pix_src_pixel;
     jttms10_pixel u_pixel(
         .psize(psize[4:0]), .ppop(control[14:10]),
         .transparency(control[5]), .pmask(pmask),
@@ -262,7 +375,16 @@ module jttms10(
     );
     always @* begin
         alu_op=0;
-        if(a_sel==PROCESS_A && pixel_alu_req) alu_op=pixel_alu_op;
+        if((array_win &&
+            (array_corner_mode ? array_winphase==4'd0 :
+             (array_winphase>=4'd4 && array_winphase<=4'd7))) ||
+           array_count || (array_rev_h &&
+           (array_srcpre || array_dstpre)) ||
+           (array_rev_v && array_rowend &&
+           (array_srcstep || array_dststep))) alu_op=3;
+        else if(array_win || array_srcpre || array_dstpre ||
+                array_srcstep || array_dststep) alu_op=1;
+        else if(a_sel==PROCESS_A && pixel_alu_req) alu_op=pixel_alu_op;
         else case(alu_sel)
             PASS_ALU: alu_op=0;
             ADD_ALU:  alu_op=1;
@@ -299,7 +421,37 @@ module jttms10(
     wire [31:0] cpw_start_y = {{16{tmp[31]}},tmp[31:16]};
     wire [31:0] cpw_end_x = {{16{b[15]}},b[15:0]};
     wire [31:0] cpw_end_y = {{16{b[31]}},b[31:16]};
-    wire [31:0] alu_a = a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_a :
+    wire [31:0] alu_a = array_canon_active && array_win ?
+                            {16'd0,array_height[15:0]} :
+                        array_win ?
+                            (array_corner_mode ?
+                             (array_winphase==4'd0 ? 32'd1 :
+                              array_winphase==4'd1 ||
+                              array_winphase==4'd3 ?
+                              {16'd0,array_dx} :
+                              {16'd0,array_dyminus1}) :
+                             array_winphase==4'd0 ? {16'd0,array_dx} :
+                             array_winphase==4'd1 ? {16'd0,array_yleft} :
+                             array_winphase==4'd2 ||
+                             array_winphase==4'd3 ? 32'd1 :
+                             array_winphase==4'd4 ? array_left :
+                             array_winphase==4'd5 ? array_top :
+                             array_winphase==4'd6 ? array_x0 :
+                             array_winphase==4'd7 ? array_y0 :
+                             array_winphase==4'd8 ? array_xoff :
+                             array_yoff) :
+                        array_count ? 32'd1 :
+                        array_srcpre || array_dstpre ? {16'd0,psize} :
+                        array_srcstep ?
+                            (array_rowend ? array_sptch :
+                             (array_binary ? 32'd1 : {16'd0,psize})) :
+                        array_dststep ?
+                            (array_rowend && !(array_fill && array_last) ?
+                             array_dptch : {16'd0,psize}) :
+                        array_canon_active && array_canon_linear &&
+                        (a_sel==SAVESRC_A || a_sel==SAVEDST_A) ? a :
+                        array_offset_active && a_sel==SAVESRC_A ? a :
+                        a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_a :
                         a_sel==DRAVX_A ? {16'd0,pix_src_val[15:0]} :
                         a_sel==DRAVY_A ? {16'd0,pix_src_val[31:16]} :
                         cpw_compare ?
@@ -310,7 +462,53 @@ module jttms10(
                         xyy ? {16'd0,a[31:16]} :
                         divnegmd ? md : divnegb ? b :
                         mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    wire [31:0] alu_b = a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_b :
+    wire [31:0] alu_b = array_canon_active && array_win ?
+                            (array_canon_dst ?
+                             {{16{array_wend[31]}},array_wend[31:16]} :
+                             {{16{array_wstart[31]}},array_wstart[31:16]}) :
+                        array_win ?
+                            (array_corner_mode ?
+                             (array_winphase==4'd0 ? {16'd0,array_yleft} :
+                              array_winphase==4'd1 ?
+                                  (array_src_xy ?
+                                   {{16{pix_src_val[15]}},pix_src_val[15:0]} :
+                                   array_xoff) :
+                              array_winphase==4'd2 ?
+                                  (array_src_xy ?
+                                   {{16{pix_src_val[31]}},pix_src_val[31:16]} :
+                                   array_yoff) :
+                              array_winphase==4'd3 ?
+                                  (array_dst_xy ? array_x0 : array_xoff) :
+                                  (array_dst_xy ? array_y0 : array_yoff)) :
+                             array_winphase==4'd0 ? array_x0 :
+                             array_winphase==4'd1 ? array_y0 :
+                             array_winphase==4'd2 ?
+                                 {{16{array_wend[15]}},array_wend[15:0]} :
+                             array_winphase==4'd3 ?
+                                 {{16{array_wend[31]}},array_wend[31:16]} :
+                             array_winphase==4'd4 ? array_right :
+                             array_winphase==4'd5 ? array_bottom :
+                             array_winphase==4'd6 ? array_left :
+                             array_winphase==4'd7 ? array_top :
+                             array_winphase==4'd8 ?
+                                 {{16{pix_src_val[15]}},pix_src_val[15:0]} :
+                                 {{16{pix_src_val[31]}},pix_src_val[31:16]}) :
+                        array_canon_active && array_canon_linear &&
+                        (a_sel==SAVESRC_A || a_sel==SAVEDST_A) ?
+                            (array_canon_dst ? array_wend : array_wstart) :
+                        array_offset_active && a_sel==SAVESRC_A ?
+                            (array_offset_dest ? pix_dst_val : pix_src_val) :
+                        array_count ?
+                            (array_rowend ? {16'd0,array_yleft} :
+                             {16'd0,array_xleft}) :
+                        array_srcpre ? pix_src_val :
+                        array_dstpre ? pix_dst_val :
+                        array_srcstep ?
+                            (array_rowend ? array_src_row : pix_src_val) :
+                        array_dststep ?
+                            (array_rowend && !(array_fill && array_last) ?
+                             array_dst_row : pix_dst_val) :
+                        a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_b :
                         a_sel==DRAVX_A ? {16'd0,pix_dst_val[15:0]} :
                         a_sel==DRAVY_A ? {16'd0,pix_dst_val[31:16]} :
                         cpw_compare ?
@@ -393,6 +591,31 @@ module jttms10(
             pix_dst_pixel<=0;
             pix_write_data<=0;
             pix_transparent<=0;
+            array_index<=0;
+            array_sptch<=0;
+            array_dptch<=0;
+            array_src_row<=0;
+            array_dst_row<=0;
+            array_dx<=0;
+            array_xleft<=0;
+            array_yleft<=0;
+            array_color0<=0;
+            array_wstart<=0;
+            array_wend<=0;
+            array_xend<=0;
+            array_yend<=0;
+            array_wxend<=0;
+            array_wyend<=0;
+            array_width<=0;
+            array_height<=0;
+            array_xoff<=0;
+            array_yoff<=0;
+            array_winphase<=0;
+            array_offset_convert<=0;
+            array_corner_mode<=0;
+            array_dyminus1<=0;
+            array_query_mode<=0;
+            array_canon_linear<=0;
         end else begin
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
@@ -432,6 +655,60 @@ module jttms10(
                     gfx_phase<=0;
                     gfx_rs<=0;
                     pix_conv_src<=0;
+                    array_offset_convert<=0;
+                    array_corner_mode<=0;
+                    array_query_mode<=0;
+                    array_canon_linear<=0;
+                end
+                if(array_init) begin
+                    array_index<=0;
+                    gfx_rs<=0;
+                    pix_clip<=0;
+                    pix_transparent<=0;
+                    pix_src_pixel<=0;
+                    pix_dst_pixel<=0;
+                    array_winphase<=0;
+                    array_corner_mode<=0;
+                    array_query_mode<=0;
+                    array_canon_linear<=0;
+                    array_xoff<=0;
+                    array_yoff<=0;
+                end
+                if(array_cap) begin
+                    array_index<=array_index+4'd1;
+                    if(array_index==4'd9 && !(
+                       array_dst_xy && control[7:6]!=0))
+                        array_corner_mode<=array_corner_needed;
+                    case(array_index)
+                        4'd0: begin
+                            pix_src_val<=rs_data;
+                            array_src_row<=rs_data;
+                        end
+                        4'd1: array_sptch<=rs_data;
+                        4'd2: begin
+                            pix_dst_val<=rs_data;
+                            array_dst_row<=rs_data;
+                        end
+                        4'd3: array_dptch<=rs_data;
+                        4'd5: array_wstart<=rs_data;
+                        4'd6: array_wend<=rs_data;
+                        4'd7: begin
+                            array_dx<=rs_data[15:0];
+                            array_xleft<=rs_data[15:0];
+                            array_yleft<=rs_data[31:16];
+                            array_height<={16'd0,rs_data[31:16]};
+                        end
+                        4'd8: array_color0<=rs_data[15:0];
+                        4'd9: begin
+                            pix_color<=rs_data[15:0];
+                            if(array_corner_needed &&
+                               !(array_dst_xy && control[7:6]!=0)) begin
+                                array_wstart<=pix_src_val;
+                                array_wend<=pix_dst_val;
+                            end
+                        end
+                        default:;
+                    endcase
                 end
                 if(a_sel==INIT_A) begin
                     pix_src_val<=rs_data;
@@ -448,8 +725,11 @@ module jttms10(
                 end
                 if(cc_sel==DSTADDR_CC) ea<=pix_dst_val;
                 if(a_sel==SRCPREP_A) begin
-                    a<=pix_src_val;
-                    pix_conv_src<=1;
+                    a<=array_offset_active ?
+                        {array_yoff[15:0],array_xoff[15:0]} :
+                        pix_src_val;
+                    pix_conv_src<=!array_offset_active ||
+                                  !array_offset_dest;
                     gfx_phase<=0;
                 end
                 if(a_sel==DSTPREP_A) begin
@@ -460,9 +740,30 @@ module jttms10(
                 if(a_sel==SAVESRC_A) begin
                     pix_src_addr<=a[3:0];
                     ea<=a;
+                    if(array_offset_active && array_offset_dest) begin
+                        pix_dst_val<=result;
+                        array_dst_row<=result;
+                    end else if(array_ir &&
+                       (!array_canon_active || array_src_xy ||
+                        array_canon_linear)) begin
+                        pix_src_val<=array_offset_active ||
+                            array_canon_linear ? result : a;
+                        array_src_row<=array_offset_active ||
+                            array_canon_linear ? result : a;
+                    end
+                    if(array_offset_active) array_offset_convert<=0;
                 end
-                if(a_sel==SAVEDST_A) ea<=a;
-                if(a_sel==SRCCAP_A) pix_src_pixel<=md[15:0];
+                if(a_sel==SAVEDST_A) begin
+                    ea<=a;
+                    if(array_ir &&
+                       (!array_canon_active || array_dst_xy ||
+                        array_canon_linear)) begin
+                        pix_dst_val<=array_canon_linear ? result : a;
+                        array_dst_row<=array_canon_linear ? result : a;
+                    end
+                end
+                if(a_sel==SRCCAP_A)
+                    pix_src_pixel<=array_binary ? {15'd0,md[0]} : md[15:0];
                 if(cc_sel==DSTCAP_CC) pix_dst_pixel<=md[15:0];
                 if(a_sel==PROCESS_A) begin
                     pix_write_data<=pixel_write_pixel;
@@ -474,7 +775,112 @@ module jttms10(
                     gfx_phase<=0;
                     pix_clip<=0;
                 end
+                if(array_offset_active && a_sel==SRCPREP_A)
+                    array_offset_convert<=1;
+                if(array_canon_active && array_win) begin
+                    a<=array_canon_dst ?
+                        (array_dst_xy ?
+                         {result[15:0],array_wend[15:0]} :
+                         {array_height[15:0],16'd0}) :
+                        (array_src_xy ?
+                         {result[15:0],array_wstart[15:0]} :
+                         {array_height[15:0],16'd0});
+                    pix_conv_src<=!array_canon_dst;
+                    array_canon_linear<=array_canon_dst ?
+                        !array_dst_xy : !array_src_xy;
+                    gfx_phase<=0;
+                end else if(array_win) begin
+                    array_winphase<=array_winphase+4'd1;
+                    if(array_corner_mode) begin
+                        case(array_winphase)
+                            4'd0: array_dyminus1<=result[15:0];
+                            4'd1: if(control[8]) begin
+                                if(array_src_xy)
+                                    pix_src_val[15:0]<=result[15:0];
+                                else array_xoff<=result;
+                            end
+                            4'd2: if(control[9]) begin
+                                if(array_src_xy)
+                                    pix_src_val[31:16]<=result[15:0];
+                                else array_yoff<=result;
+                            end
+                            4'd3: if(control[8]) begin
+                                if(array_dst_xy)
+                                    pix_dst_val[15:0]<=result[15:0];
+                                else array_xoff<=result;
+                            end
+                            4'd4: if(control[9]) begin
+                                if(array_dst_xy)
+                                    pix_dst_val[31:16]<=result[15:0];
+                                else array_yoff<=result;
+                            end
+                            default:;
+                        endcase
+                    end else begin
+                    case(array_winphase)
+                        4'd0: array_xend<=result;
+                        4'd1: array_yend<=result;
+                        4'd2: array_wxend<=result;
+                        4'd3: array_wyend<=result;
+                        4'd4: array_width<=result;
+                        4'd5: array_height<=result;
+                        4'd6: array_xoff<=result;
+                        4'd7: array_yoff<=result;
+                        4'd8: if(control[7:6]==2'd3 && array_src_xy)
+                            pix_src_val[15:0]<=result[15:0];
+                        4'd9: if(control[7:6]==2'd3 && array_src_xy)
+                            pix_src_val[31:16]<=result[15:0];
+                        4'd10: begin
+                            if(array_window_query) array_query_mode<=1;
+                            if(array_corner_needed &&
+                               !array_window_abort) begin
+                                array_wstart<=pix_src_val;
+                                array_wend<=control[7:6]==2'd3 ?
+                                    {array_top[15:0],array_left[15:0]} :
+                                    pix_dst_val;
+                            end
+                            if(array_corner_next) begin
+                                array_corner_mode<=1;
+                                array_winphase<=0;
+                            end
+                            st[28]<=control[7:6]==2'd1 ?
+                                    !array_window_overlap :
+                                    array_window_violation;
+                            if((control[7:6]==2'd1 &&
+                                array_window_overlap) ||
+                               (control[7:6]==2'd2 &&
+                                array_window_violation)) wvp_set<=1;
+                            if(control[7:6]==2'd3 &&
+                               array_window_overlap) begin
+                                pix_dst_val<=
+                                    {array_top[15:0],array_left[15:0]};
+                                array_dx<=array_width[15:0];
+                                array_xleft<=array_width[15:0];
+                                array_yleft<=array_height[15:0];
+                            end
+                        end
+                        default:;
+                    endcase
+                    end
+                end
                 if(cc_sel==COLOR_CC) pix_color<=rs_data[15:0];
+                if(array_srcpre && array_rev_h) pix_src_val<=result;
+                if(array_dstpre && array_rev_h) pix_dst_val<=result;
+                if(array_srcstep && !array_fill) begin
+                    if(array_rowend || !array_rev_h) pix_src_val<=result;
+                    if(array_rowend) array_src_row<=result;
+                end
+                if(array_dststep) begin
+                    if(array_rowend || !array_rev_h) pix_dst_val<=result;
+                    if(array_rowend && !(array_fill && array_last))
+                        array_dst_row<=result;
+                end
+                if(array_count) begin
+                    if(array_rowend) begin
+                        array_yleft<=result[15:0];
+                        array_xleft<=array_dx;
+                    end else array_xleft<=result[15:0];
+                end
                 if(a_sel==DRAVX_A) md[15:0]<=result[15:0];
                 if(a_sel==DRAVY_A) md[31:16]<=result[15:0];
                 if(gfx_step) begin
@@ -521,10 +927,13 @@ module jttms10(
                                 3'd1: begin
                                     b<=a;
                                     a<={16'd0,tmp[15:0]};
-                                    shift_count<=pixel_shift;
+                                    shift_count<=array_offset_convert &&
+                                        array_binary ? 5'd0 : pixel_shift;
                                 end
                                 3'd2: a<=result;
-                                3'd3: b<=rs_data;
+                                3'd3: b<=array_offset_convert ||
+                                           array_canon_linear ? 32'd0 :
+                                                rs_data;
                                 3'd4: a<=result;
                                 default:;
                             endcase
