@@ -33,6 +33,33 @@ jtnarc_vclk u_vclk(
     .vclk_cen ( vclk_cen )
 );
 
+`ifdef JTNARC_UCODE
+// Development selection while the new CPU's graphics and timing gates are
+// still open. The external NARC cycle controller and video clock are shared.
+wire new_fault;
+wire [15:0] new_ir;
+jttms10_system #(.CLKS_PER_STATE(8)) u_tms(
+    .clk(clk), .rst(rst), .cen(1'b1), .vclk_cen(vclk_cen),
+    .hcs_n(1'b0), .hsync_n(1'b1), .vsync_n(1'b1),
+    .lint1_n(lint1_n), .lint2_n(lint2_n),
+    .hold_req(1'b0), .hold_ack(), .emu_run(1'b1), .emu_ack(),
+    .host_req(1'b0), .host_we(1'b0), .host_reg(2'd0),
+    .host_be(2'd0), .host_wdata(16'd0), .host_rdata(),
+    .host_ack(), .host_busy(), .hint_n(),
+    .hs(hs), .vs(vs), .hblank(hblank), .vblank(vblank), .blank(),
+    .cyc_req(cyc_req), .cyc_kind(cyc_kind), .cyc_addr(cyc_addr),
+    .cyc_wdata(cyc_wdata), .cyc_io_rdata(cyc_io_rdata),
+    .cyc_iaq(cyc_iaq), .cyc_srfaddr(cyc_srfaddr),
+    .cyc_dpytap(cyc_dpytap), .cyc_org(cyc_org), .cyc_dram_row(),
+    .cyc_rdata(cyc_rdata), .cyc_ack(cyc_ack),
+    .pc(pc), .st(), .ir(new_ir), .retire(), .fault(new_fault),
+    .intenb(), .intpend(), .irq_pending(), .nmi_pending(), .halt()
+);
+`ifdef SIMULATION
+always @(posedge clk) if(!rst && new_fault)
+    $fatal(1,"JTTMS10 unimplemented instruction IR=%h PC=%h",new_ir,pc);
+`endif
+`else
 tms34010_system #(.CLKS_PER_STATE(8),.CYCLE_ACCURATE(1'b1),.VCLK_CEN(1'b1)) u_tms(
     .clk                ( clk          ),
     .vclk_i             ( vclk_cen     ),
@@ -81,5 +108,6 @@ tms34010_system #(.CLKS_PER_STATE(8),.CYCLE_ACCURATE(1'b1),.VCLK_CEN(1'b1)) u_tm
     .instr_word_o       (              ),
     .illegal_opcode_o   (              )
 );
+`endif
 
 endmodule

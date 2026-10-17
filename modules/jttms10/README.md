@@ -54,8 +54,8 @@ ANDI/ANDNI/ORI/XORI, ADDC/SUBB, and all MOVE/MOVB memory addressing forms. The l
 include both field definitions, sign extension, auto-update aliases, signed
 offsets, absolute addresses, and memory-to-memory copies.
 Additional encoded families in the YAML require corresponding tests before
-being claimed as verified. Unsupported instructions stop with `fault`;
-reserved opcode ranges take architectural TRAP 30. Unsupported defined
+being claimed as verified. Reserved opcode ranges take architectural
+TRAP 30. Unsupported defined
 instructions still stop with `fault`.
 Stack and trap assertions cover architectural results and physical
 MSW-first writes; RETI graphics resumption remains outstanding.

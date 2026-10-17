@@ -32,3 +32,6 @@ jtframe:
     - jtframe_hipass.v
 jt51:
 tms34010:
+  - unless: [JTNARC_UCODE]
+jttms10:
+  - when: [JTNARC_UCODE]

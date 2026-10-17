@@ -8,9 +8,10 @@ python3 modules/jttms10/ver/area/run.py --reference /tmp/jttms10-reference
 python3 modules/jttms10/ver/area/run.py --scalar /tmp/jttms10-scalar
 python3 modules/jttms10/ver/area/run.py --word /tmp/jttms10-word
 python3 modules/jttms10/ver/area/run.py --fabric /tmp/jttms10-fabric
+python3 modules/jttms10/ver/area/run.py --system /tmp/jttms10-system
 ```
 
-All four projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
+All five projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
 performance effort, and virtual pins for every exposed port. The reference
 adds the existing TMS34010 core timing exceptions. Sources and generated
 microcode are copied into the output directory, whose `manifest.json` records
@@ -36,6 +37,12 @@ will tie some of those signals to constants. It excludes the CPU, field
 adapter, asynchronous physical host-pin interface, and graphics datapath. A
 combined replacement must be fitted
 separately; standalone counts are not additive area evidence.
+The `--system` top combines CPU, field adapter, I/O/video/refresh,
+arbitration, and the generic synchronous host engine under one physical-word
+boundary. Its graphics instructions and cache behavior are incomplete, and
+the fit excludes asynchronous physical host-pin timing and the board's NARC
+cycle controller. The system boundary is the closest current replacement
+area estimate, but it cannot establish functional or timing acceptance yet.
 
 ## Preliminary result, 2026-10-17
 
@@ -126,3 +133,29 @@ integration. The fabric fit excludes the CPU, field adapter, graphics, and
 asynchronous physical host pins. Their ALM counts are standalone resource
 checks, not an additive or complete replacement measurement against the
 3,500-ALM limit.
+
+## Integrated IRQ system snapshot, 2026-10-17
+
+The fresh `--system` fit at `/tmp/jttms10-141-area/system-irq/` succeeded with
+**2,461 fitted ALMs**, **1,507 registers**, **131,072 block-memory bits in 15
+RAM blocks**, **0 DSPs**, and **302 virtual pins**. It used Quartus Prime Lite
+20.1.1 Build 720 on Cyclone V `5CSEBA6U23I7`, a 20 ns `clk`, seed 1, and high
+performance effort. The map report confirms the 2048×63 control ROM and two
+32×32 register-file mirrors infer `ALTSYNCRAM`. All 20 copied HDL/YAML and
+generated files still match their manifest SHA-256 hashes; the ROM hash is
+`b2989267caca3960543df27fe4daaf187d4d4abb05b0e21a89f46c9583a0ce14`.
+The system wrapper hash is
+`c1c533488a4edb3b23432d2e6a54eff13221f968d68608099229f93719fbbdd7`.
+The manifest records repository HEAD `40980ea8d76531fc0b1c56aa71a222756a6a0496`
+at snapshot time and old-module commit
+`29bcb384ec3dba892ea54db2ee92b38ae395d575`; the per-file hashes pin the
+new IRQ source snapshot even though some of those files were not yet committed
+at that HEAD.
+
+This integrated count is below the provisional 3,500-ALM ceiling (25% of the
+14,000-ALM old wrapper), with 1,039 ALMs of arithmetic headroom. Graphics
+instructions and cache behavior are incomplete, and the external NARC timing
+controller plus asynchronous physical host pins are outside this generic
+synchronous host boundary. A 20 ns fit of this snapshot is not full-system
+timing signoff or a completed 25% acceptance result. A new fit is required
+after graphics and remaining architectural functions are integrated.

@@ -42,6 +42,7 @@ def main():
     mode.add_argument("--scalar", action="store_true", help="current incomplete jttms10 CPU alone")
     mode.add_argument("--word", action="store_true", help="jttms10 plus physical-word field adapter")
     mode.add_argument("--fabric", action="store_true", help="peripheral I/O/video/refresh/bus/host fabric alone")
+    mode.add_argument("--system", action="store_true", help="integrated CPU, field adapter and synchronous fabric")
     parser.add_argument("output", type=Path, help="new, empty output directory, preferably under /tmp")
     parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/intelFPGA_lite/20.1/quartus/bin"))
     args = parser.parse_args()
@@ -111,7 +112,9 @@ def main():
                  "cyc_dpytap[*]", "cyc_org", "cyc_dram_row[*]",
                  "cyc_rdata[*]", "cyc_ack"]
     else:
-        project, top = ("word", "jttms10_word") if args.word else ("scalar", "jttms10")
+        project, top = (("system", "jttms10_system") if args.system else
+                        ("word", "jttms10_word") if args.word else
+                        ("scalar", "jttms10"))
         for source in sorted((MODULE / "hdl").glob("*.v")):
             target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
             sources.append(("VERILOG_FILE", target))
@@ -128,14 +131,34 @@ def main():
         for name in ("tms10.uc", "tms10.vh", "tms10_param.vh"):
             hashes[f"generated/{name}"] = hashlib.sha256((out / name).read_bytes()).hexdigest()
         qsf.append(f"set_global_assignment -name SEARCH_PATH {qsf_path(out)}")
-        if args.word:
+        if args.system:
+            ports = ["clk", "rst", "cen", "vclk_cen", "hcs_n", "hsync_n",
+                     "vsync_n", "lint1_n", "lint2_n", "hold_req", "emu_run",
+                     "hold_ack", "emu_ack", "host_req", "host_we",
+                     "host_reg[*]", "host_be[*]", "host_wdata[*]",
+                     "host_rdata[*]", "host_ack", "host_busy", "hint_n",
+                     "hs", "vs", "hblank", "vblank", "blank", "cyc_req",
+                     "cyc_kind[*]", "cyc_addr[*]", "cyc_wdata[*]",
+                     "cyc_io_rdata[*]", "cyc_iaq", "cyc_srfaddr[*]",
+                     "cyc_dpytap[*]", "cyc_org", "cyc_dram_row[*]",
+                     "cyc_rdata[*]", "cyc_ack", "pc[*]", "st[*]",
+                     "ir[*]", "retire", "fault", "intenb[*]", "intpend[*]",
+                     "irq_pending", "nmi_pending", "halt"]
+        elif args.word:
             ports = ["rst", "clk", "cen", "word_req", "word_we", "word_addr[*]",
                      "word_wdata[*]", "word_iaq", "word_lock", "word_rdata[*]",
-                     "word_ack", "word_restart", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
+                     "word_ack", "word_restart", "irq_req", "irq_vector[*]",
+                     "nmi_req", "nmi_nostack", "halt_req", "emu_run",
+                     "psize[*]", "convdp[*]",
+                     "nmi_clear", "emu_ack", "pc[*]", "st[*]", "ir[*]",
+                     "retire", "fault"]
         else:
             ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq",
                      "mem_addr[*]", "mem_wdata[*]", "mem_size[*]", "mem_rdata[*]",
-                     "mem_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
+                     "mem_ack", "irq_req", "irq_vector[*]", "nmi_req",
+                     "nmi_nostack", "halt_req", "emu_run", "nmi_clear",
+                     "psize[*]", "convdp[*]",
+                     "emu_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
 
     qsf += [f"set_global_assignment -name TOP_LEVEL_ENTITY {top}",
             f"set_global_assignment -name SDC_FILE {project}.sdc"]
@@ -155,6 +178,8 @@ def main():
                   if args.reference else
                   "standalone I/O, video, refresh, bus and synchronous host fabric; excludes CPU, field adapter, asynchronous physical host pins and graphics datapath"
                   if args.fabric else
+                  "integrated CPU, field adapter, I/O/video/refresh/bus and synchronous host; incomplete graphics and cache, excludes asynchronous physical host pins and NARC timing controller"
+                  if args.system else
                   "incomplete scalar CPU plus physical-word field adapter; excludes I/O, video, arbitration and graphics"
                   if args.word else
                   "incomplete scalar CPU alone; excludes I/O, video, field adapter, arbitration and graphics"),
