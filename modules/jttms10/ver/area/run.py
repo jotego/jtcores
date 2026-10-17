@@ -88,13 +88,13 @@ def main():
         call(["bash", str(MODULE / "ver/build.sh"), str(out)], log=out / "ucode_build.log")
         for name in ("tms10.uc", "tms10.vh", "tms10_param.vh"):
             hashes[f"generated/{name}"] = hashlib.sha256((out / name).read_bytes()).hexdigest()
-        hashes[str((MODULE / "ucode/tms10.yaml").relative_to(ROOT))] = hashlib.sha256(
-            (MODULE / "ucode/tms10.yaml").read_bytes()).hexdigest()
+        for source in sorted((MODULE / "ucode").glob("*.yaml")):
+            snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
         qsf.append(f"set_global_assignment -name SEARCH_PATH {qsf_path(out)}")
         if args.word:
             ports = ["rst", "clk", "cen", "word_req", "word_we", "word_addr[*]",
                      "word_wdata[*]", "word_iaq", "word_lock", "word_rdata[*]",
-                     "word_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
+                     "word_ack", "word_restart", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
         else:
             ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq",
                      "mem_addr[*]", "mem_wdata[*]", "mem_size[*]", "mem_rdata[*]",

@@ -16,13 +16,15 @@ module test;
     wire [15:0] word_wdata;
     reg [15:0] word_rdata = 0;
     reg word_ack = 0;
+    reg word_restart = 0;
 
     jttms10_field dut(
         .clk(clk), .rst(rst), .req(req), .we(we), .addr(addr),
         .wdata(wdata), .size(size), .ack(ack), .rdata(rdata),
         .word_req(word_req), .word_we(word_we), .word_lock(word_lock),
         .word_addr(word_addr),
-        .word_wdata(word_wdata), .word_rdata(word_rdata), .word_ack(word_ack)
+        .word_wdata(word_wdata), .word_rdata(word_rdata), .word_ack(word_ack),
+        .word_restart(word_restart)
     );
 
     reg [15:0] mem [0:15];
@@ -36,6 +38,7 @@ module test;
     reg [31:0] pending_rmw_addr;
     integer delay_left = 0;
     integer transactions = 0;
+    integer restart_reads = 0, restart_writes = 0;
     integer i, j, offset, width, watchdog;
     reg [31:0] data, expected;
 
@@ -48,8 +51,16 @@ module test;
             busy <= 0;
             pending_rmw <= 0;
             delay_left <= 0;
+            restart_reads <= 0;
+            restart_writes <= 0;
         end else if (word_ack) begin
             word_ack <= 0;
+        end else if (word_restart) begin
+            // HOLD discards the previous lock. The pending partial write is
+            // canceled at this edge, so its next physical cycle must read.
+            if (word_req || word_we || word_lock || !pending_rmw)
+                $fatal(1, "restart did not cancel pending partial write");
+            pending_rmw <= 0;
         end else if (!busy && word_req) begin
             if (word_addr[3:0] !== 4'd0 || word_addr > 32'd240)
                 $fatal(1, "unaligned or out-of-range word address %h", word_addr);
@@ -67,6 +78,10 @@ module test;
             held_lock <= word_lock;
             held_addr <= word_addr;
             held_wdata <= word_wdata;
+            if (word_addr == 32'd128) begin
+                if (word_we) restart_writes <= restart_writes + 1;
+                else restart_reads <= restart_reads + 1;
+            end
             delay_left <= transactions % 4;
             transactions <= transactions + 1;
             busy <= 1;
@@ -146,6 +161,43 @@ module test;
                 transact(0,32+offset,0,width[5:0],expected);
             end
 
+        // HOLD intervenes after the partial read but before its write. An
+        // external owner changes the unprotected bits while HOLD is active.
+        // The restarted pair must read that new value before merging data.
+        @(negedge clk);
+        mem[8] = 16'ha0a0;
+        req = 1;
+        we = 1;
+        addr = 32'd131;
+        wdata = 32'h15;
+        size = 6'd5;
+        watchdog = 0;
+        while (!(dut.state == dut.WRITE && word_req && word_we && word_lock)
+               && watchdog < 100) begin
+            @(negedge clk);
+            watchdog = watchdog + 1;
+        end
+        if (watchdog == 100) $fatal(1, "RMW read did not reach pending write");
+        word_restart = 1;
+        mem[8] = 16'h5f5f; // changed by the temporary external bus owner
+        #1;
+        if (word_req || word_we || word_lock)
+            $fatal(1, "pending stale write visible during restart");
+        @(negedge clk);
+        word_restart = 0;
+        watchdog = 0;
+        while (!ack && watchdog < 100) begin
+            @(negedge clk);
+            watchdog = watchdog + 1;
+        end
+        if (!ack) $fatal(1, "restarted field write timed out");
+        if (restart_reads != 2 || restart_writes != 1)
+            $fatal(1, "restart issued %0d reads and %0d writes",restart_reads,restart_writes);
+        if (mem[8] !== ((16'h5f5f & ~16'h00f8) | (16'h0015 << 3)))
+            $fatal(1, "restart merged stale word, got=%h",mem[8]);
+        req = 0;
+        @(negedge clk);
+
         // Reset discards an outstanding read. A new field must still work.
         @(negedge clk);
         req = 1;
@@ -163,7 +215,7 @@ module test;
         for (j = 0; j < 32; j = j + 1)
             expected[j] = reference_bits[47+j];
         transact(0,32'd47,0,6'd32,expected);
-        $display("PASS: 512 writes, 513 reads, all offsets/sizes, waits and reset");
+        $display("PASS: 512 writes, 513 reads, all offsets/sizes, HOLD restart, waits and reset");
         $finish;
     end
 endmodule

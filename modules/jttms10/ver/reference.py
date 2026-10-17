@@ -15,15 +15,15 @@ from pathlib import Path
 import yaml
 
 sys.dont_write_bytecode = True
-from vectors import HERE, load_cases, memory_init, validate_case
+from vectors import HERE, load_cases, memory_init, opcode_at, validate_case, vector_init
 
 
 REFERENCE_SHA = "29bcb384ec3dba892ea54db2ee92b38ae395d575"
 REFERENCE = HERE.parents[1] / "tms34010"
 
 
-def check_line(check, words, entry):
-    opcode = words[(check["after"] - entry) // 16]
+def check_line(check, case):
+    opcode = opcode_at(case, check["after"])
     mask = 0
     value = 0
     if "st" in check:
@@ -94,8 +94,9 @@ def main():
                 "".join(f"{word:04x}\n" for word in case["words"])
             )
             (work / "memory_init.txt").write_text(memory_init(case))
+            (work / "vector_init.txt").write_text(vector_init(case))
             (work / "checks.txt").write_text(
-                "".join(check_line(check, case["words"], case["entry"])
+                "".join(check_line(check, case)
                         for check in checks)
             )
             result = subprocess.run(

@@ -892,3 +892,366 @@ cases:
       - {after: 0x10E0, pc: 0x1100, regs: {A1: 0x0000003F}}
       - {after: 0x1100, pc: 0x1110, st: 0x0000003F}
       - {after: 0x1110, pc: 0x1120, regs: {A5: 0xC0000001}, flags: {N: 1, Z: 0}}
+
+  - name: pushst_popst_unaligned_stack
+    entry: 0x1000
+    mem:
+      - {at: 0x0200, words: [0xAAAA, 0xBBBB, 0xCCCC, 0xDDDD, 0xEEEE]}
+    words:
+      - 0x09CF # MOVI IW 0x0235,A15 = shared SP
+      - 0x0235
+      - 0x09E0 # MOVI IL 0xC0000028,A0
+      - 0x0028
+      - 0xC000
+      - 0x01A0 # PUTST A0
+      - 0x01E0 # PUSHST: SP=0x0215, three physical words touched
+      - 0x09C1 # MOVI IW 0x10,A1
+      - 0x0010
+      - 0x01A1 # PUTST A1
+      - 0x01C0 # POPST: restore old ST, SP=0x0235
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0235, B15: 0x0235}}
+      - {after: 0x1020, pc: 0x1050, regs: {A0: 0xC0000028}}
+      - {after: 0x1050, pc: 0x1060, st: 0xC0000028}
+      - after: 0x1060
+        pc: 0x1070
+        st: 0xC0000028
+        regs: {A15: 0x0215, B15: 0x0215}
+        mem:
+          - {addr: 0x0215, size: 32, value: 0xC0000028}
+          - {addr: 0x0200, size: 16, value: 0xAAAA}
+          - {addr: 0x0210, size: 16, value: 0x051B}
+          - {addr: 0x0220, size: 16, value: 0x0000}
+          - {addr: 0x0230, size: 16, value: 0xDDD8}
+          - {addr: 0x0240, size: 16, value: 0xEEEE}
+      - {after: 0x1070, pc: 0x1090, regs: {A1: 0x10}}
+      - {after: 0x1090, pc: 0x10A0, st: 0x00000010}
+      - {after: 0x10A0, pc: 0x10B0, st: 0xC0000028, regs: {A15: 0x0235, B15: 0x0235}}
+
+  - name: call_register_unaligned_sp_rets_arguments
+    entry: 0x1000
+    mem:
+      - {at: 0x0320, words: [0xAAAA, 0xBBBB, 0xCCCC, 0xDDDD]}
+    words:
+      - 0x09CF # MOVI IW 0x0355,SP
+      - 0x0355
+      - 0x09C0 # MOVI IW 0x10B7,A0: CALL clears target low nibble
+      - 0x10B7
+      - 0x0920 # CALL A0, pushes next PC=0x1050 at SP-32=0x0335
+      - 0x1821 # at 0x1050: MOVK 1,A1 after return
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0962 # at 0x10B0: RETS 2, SP += 32 + 2*16
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0355}}
+      - {after: 0x1020, pc: 0x1040, regs: {A0: 0x10B7}}
+      - after: 0x1040
+        pc: 0x10B0
+        st: 0x00000010
+        regs: {A15: 0x0335, B15: 0x0335, A0: 0x10B7}
+        mem:
+          - {addr: 0x0335, size: 32, value: 0x1050}
+          - {addr: 0x0320, size: 16, value: 0xAAAA}
+      - {after: 0x10B0, pc: 0x1050, st: 0x00000010, regs: {A15: 0x0375, B15: 0x0375}}
+      - {after: 0x1050, pc: 0x1060, regs: {A1: 1}, mem: [{addr: 0x0335, size: 32, value: 0x1050}]}
+
+  - name: call_sp_uses_original_target_before_push
+    entry: 0x1000
+    mem:
+      - {at: 0x01E0, words: [0xAAAA, 0xBBBB]}
+      - {at: 0x0200, words: [0x0960]} # RETS 0 subroutine at original SP
+    words:
+      - 0x09CF # MOVI IW 0x0200,SP
+      - 0x0200
+      - 0x092F # CALL A15/SP: target is old 0x0200, then SP=0x01E0
+      - 0x1821 # at 0x1030: MOVK 1,A1 after return
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0200, B15: 0x0200}}
+      - {after: 0x1020, pc: 0x0200, regs: {A15: 0x01E0, B15: 0x01E0}, mem: [{addr: 0x01E0, size: 32, value: 0x1030}]}
+      - {after: 0x0200, pc: 0x1030, regs: {A15: 0x0200, B15: 0x0200}}
+      - {after: 0x1030, pc: 0x1040, regs: {A1: 1}}
+
+  - name: call_absolute_low_high_target_alignment
+    entry: 0x1000
+    words:
+      - 0x09CF # MOVI IW 0x0300,SP
+      - 0x0300
+      - 0x0D5F # CALLA 0x00001097 -> aligned 0x1090
+      - 0x1097
+      - 0x0000
+      - 0x1821 # at 0x1050: MOVK 1,A1 after return
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0960 # at 0x1090: RETS 0
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0300}}
+      - {after: 0x1020, pc: 0x1090, st: 0x00000010, regs: {A15: 0x02E0}, mem: [{addr: 0x02E0, size: 32, value: 0x1050}]}
+      - {after: 0x1090, pc: 0x1050, regs: {A15: 0x0300}}
+      - {after: 0x1050, pc: 0x1060, regs: {A1: 1}}
+
+  - name: call_relative_negative_offset
+    entry: 0x1000
+    words:
+      - 0x09CF # MOVI IW 0x0300,SP
+      - 0x0300
+      - 0xC003 # JRUC +3 to CALLR at 0x1060
+      - 0x0960 # at 0x1030: RETS 0
+      - 0x0300
+      - 0x0300
+      - 0x0D3F # at 0x1060: CALLR -5 words from PC'=0x1080
+      - 0xFFFB
+      - 0x1821 # at 0x1080: MOVK 1,A1 after return
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0300}}
+      - {after: 0x1020, pc: 0x1060, regs: {A15: 0x0300}}
+      - {after: 0x1060, pc: 0x1030, regs: {A15: 0x02E0}, mem: [{addr: 0x02E0, size: 32, value: 0x1080}]}
+      - {after: 0x1030, pc: 0x1080, regs: {A15: 0x0300}}
+      - {after: 0x1080, pc: 0x1090, regs: {A1: 1}}
+
+  - name: trap_one_stack_order_and_reti
+    entry: 0x1000
+    vectors: {1: 0x1100} # @FFFFFFC0
+    mem:
+      - {at: 0x02C0, words: [0xAAAA, 0xBBBB, 0xCCCC, 0xDDDD, 0xEEEE, 0xFFFF]}
+    words:
+      - 0x09CF # MOVI IW 0x0305,SP: unaligned stack
+      - 0x0305
+      - 0x09E0 # MOVI IL 0x60200010,A0: C,Z,IE set
+      - 0x0010
+      - 0x6020
+      - 0x01A0 # PUTST A0
+      - 0x0901 # TRAP 1: push PC'=0x1070, then ST, load vector 1
+      - 0x1821 # at 0x1070: MOVK 1,A1 after RETI
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0940 # at 0x1100: RETI pops ST first, then PC
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0305}}
+      - {after: 0x1020, pc: 0x1050, regs: {A0: 0x60200010}}
+      - {after: 0x1050, pc: 0x1060, st: 0x60200010}
+      - after: 0x1060
+        pc: 0x1100
+        st: 0x00000010
+        regs: {A15: 0x02C5, B15: 0x02C5}
+        mem:
+          - {addr: 0x02C5, size: 32, value: 0x60200010}
+          - {addr: 0x02E5, size: 32, value: 0x1070}
+          - {addr: 0x02C0, size: 5, value: 0x000A}
+          - {addr: 0x0305, size: 11, value: 0x0777}
+      - {after: 0x1100, pc: 0x1070, st: 0x60200010, regs: {A15: 0x0305, B15: 0x0305}}
+      - {after: 0x1070, pc: 0x1080, st: 0x60200010, regs: {A1: 1}}
+
+  - name: trap_zero_reset_vector_no_stack_push
+    entry: 0x1000
+    mem:
+      - {at: 0x02C0, words: [0xAAAA, 0xBBBB, 0xCCCC, 0xDDDD, 0xEEEE]}
+    words:
+      - 0x09CF # MOVI IW 0x0300,SP
+      - 0x0300
+      - 0x09E0 # MOVI IL 0xC0000010,A0
+      - 0x0010
+      - 0xC000
+      - 0x01A0 # PUTST A0
+      - 0x0900 # TRAP 0: reset vector, no PC/ST pushes or SP change
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0300}}
+      - {after: 0x1020, pc: 0x1050, regs: {A0: 0xC0000010}}
+      - {after: 0x1050, pc: 0x1060, st: 0xC0000010}
+      - after: 0x1060
+        pc: 0x1000
+        st: 0x00000010
+        regs: {A15: 0x0300, B15: 0x0300}
+        mem:
+          - {addr: 0x02C0, size: 32, value: 0xBBBBAAAA}
+          - {addr: 0x02E0, size: 32, value: 0xDDDDCCCC}
+
+  - name: trap_thirty_one_high_vector
+    entry: 0x1000
+    vectors: {31: 0x1080} # @FFFFFC00, far end of trap-vector table
+    words:
+      - 0x09CF # MOVI IW 0x0300,SP
+      - 0x0300
+      - 0x091F # TRAP 31, vector @FFFFFC00
+      - 0x1821 # at 0x1030: MOVK 1,A1 after RETI
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x0940 # at 0x1080: RETI
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x0300}}
+      - after: 0x1020
+        pc: 0x1080
+        st: 0x00000010
+        regs: {A15: 0x02C0}
+        mem:
+          - {addr: 0x02C0, size: 32, value: 0x00000010}
+          - {addr: 0x02E0, size: 32, value: 0x00001030}
+      - {after: 0x1080, pc: 0x1030, st: 0x00000010, regs: {A15: 0x0300}}
+      - {after: 0x1030, pc: 0x1040, regs: {A1: 1}}
+
+  - name: abs_sign_of_negated_input_and_carry_preserve
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL -1,A0
+      - 0xFFFF
+      - 0xFFFF
+      - 0x0DE0 # SETC; ABS must preserve carry
+      - 0x0380 # ABS A0: -1 -> +1, N=0
+      - 0x09C1 # MOVI IW +1,A1
+      - 0x0001
+      - 0x0381 # ABS A1: +1 -> +1, N=1 (sign of 0-input)
+      - 0x09C2 # MOVI IW 0,A2
+      - 0x0000
+      - 0x0382 # ABS A2: 0, N=0 Z=1
+      - 0x09E3 # MOVI IL 0x80000000,A3
+      - 0x0000
+      - 0x8000
+      - 0x0383 # ABS A3: MIN_INT unchanged, N=1 V=1
+      - 0x09E4 # MOVI IL 0x80000001,A4
+      - 0x0001
+      - 0x8000
+      - 0x0384 # ABS A4: 0x7FFFFFFF, N=0
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0xFFFFFFFF}}
+      - {after: 0x1030, pc: 0x1040, flags: {C: 1}}
+      - {after: 0x1040, pc: 0x1050, regs: {A0: 1}, st: 0x40000010}
+      - {after: 0x1050, pc: 0x1070, regs: {A1: 1}}
+      - {after: 0x1070, pc: 0x1080, regs: {A1: 1}, st: 0xC0000010}
+      - {after: 0x1080, pc: 0x10A0, regs: {A2: 0}}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A2: 0}, st: 0x60000010}
+      - {after: 0x10B0, pc: 0x10E0, regs: {A3: 0x80000000}}
+      - {after: 0x10E0, pc: 0x10F0, regs: {A3: 0x80000000}, st: 0xD0000010}
+      - {after: 0x10F0, pc: 0x1120, regs: {A4: 0x80000001}}
+      - {after: 0x1120, pc: 0x1130, regs: {A4: 0x7FFFFFFF}, st: 0x40000010}
+
+  - name: negate_zero_min_and_borrow
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL MIN_INT,A0
+      - 0x0000
+      - 0x8000
+      - 0x03A0 # NEG A0 -> MIN_INT with borrow and overflow
+      - 0x09C1 # MOVI IW 0,A1
+      - 0x0000
+      - 0x03A1 # NEG A1 -> 0, no borrow
+      - 0x09C2 # MOVI IW -1,A2
+      - 0xFFFF
+      - 0x03A2 # NEG A2 -> +1 with borrow
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x80000000}}
+      - {after: 0x1030, pc: 0x1040, regs: {A0: 0x80000000}, st: 0xD0000010}
+      - {after: 0x1040, pc: 0x1060, regs: {A1: 0}}
+      - {after: 0x1060, pc: 0x1070, regs: {A1: 0}, st: 0x20000010}
+      - {after: 0x1070, pc: 0x1090, regs: {A2: 0xFFFFFFFF}}
+      - {after: 0x1090, pc: 0x10A0, regs: {A2: 1}, st: 0x40000010}
+
+  - name: negate_with_borrow_carry_input
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW -1,A0
+      - 0xFFFF
+      - 0x0DE0 # SETC (borrow input)
+      - 0x03C0 # NEGB A0: -(-1)-1 = 0, borrow remains set
+      - 0x09C1 # MOVI IW 0,A1
+      - 0x0000
+      - 0x0DE0 # SETC
+      - 0x03C1 # NEGB A1: -0-1 = FFFFFFFF
+      - 0x09E2 # MOVI IL MIN_INT,A2
+      - 0x0000
+      - 0x8000
+      - 0x03C2 # NEGB A2 with C=1 -> 7FFFFFFF, no V
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0xFFFFFFFF}}
+      - {after: 0x1020, pc: 0x1030, flags: {C: 1}}
+      - {after: 0x1030, pc: 0x1040, regs: {A0: 0}, st: 0x60000010}
+      - {after: 0x1040, pc: 0x1060, regs: {A1: 0}}
+      - {after: 0x1060, pc: 0x1070, flags: {C: 1}}
+      - {after: 0x1070, pc: 0x1080, regs: {A1: 0xFFFFFFFF}, st: 0xC0000010}
+      - {after: 0x1080, pc: 0x10B0, regs: {A2: 0x80000000}}
+      - {after: 0x10B0, pc: 0x10C0, regs: {A2: 0x7FFFFFFF}, st: 0x40000010}
+
+  - name: not_updates_only_zero
+    entry: 0x1000
+    words:
+      - 0x09E1 # MOVI IL FFFFFFFF,A1
+      - 0xFFFF
+      - 0xFFFF
+      - 0x09E0 # MOVI IL D0000010,A0: N,C,V set
+      - 0x0010
+      - 0xD000
+      - 0x01A0 # PUTST A0
+      - 0x03E1 # NOT A1 -> 0, set Z only
+      - 0x03E1 # NOT A1 -> FFFFFFFF, clear Z only
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A1: 0xFFFFFFFF}}
+      - {after: 0x1030, pc: 0x1060, regs: {A0: 0xD0000010}}
+      - {after: 0x1060, pc: 0x1070, st: 0xD0000010}
+      - {after: 0x1070, pc: 0x1080, regs: {A1: 0}, st: 0xF0000010}
+      - {after: 0x1080, pc: 0x1090, regs: {A1: 0xFFFFFFFF}, st: 0xD0000010}
+
+  - name: logical_immediates_extension_order_and_only_zero
+    entry: 0x1000
+    words:
+      - 0x09E1 # MOVI IL F0F00F0F,A1
+      - 0x0F0F
+      - 0xF0F0
+      - 0x09E0 # MOVI IL D0000010,A0: N,C,V set
+      - 0x0010
+      - 0xD000
+      - 0x01A0 # PUTST A0
+      - 0x0B81 # ANDI 0F0FFFFF,A1; encoded one's complement F0F00000
+      - 0x0000
+      - 0xF0F0
+      - 0x0B81 # ANDNI FFFFFFFF,A1 -> 0, direct extension
+      - 0xFFFF
+      - 0xFFFF
+      - 0x0BA1 # ORI 80000000,A1
+      - 0x0000
+      - 0x8000
+      - 0x0BC1 # XORI 80000000,A1 -> 0
+      - 0x0000
+      - 0x8000
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A1: 0xF0F00F0F}}
+      - {after: 0x1030, pc: 0x1060, regs: {A0: 0xD0000010}}
+      - {after: 0x1060, pc: 0x1070, st: 0xD0000010}
+      - {after: 0x1070, pc: 0x10A0, regs: {A1: 0x00000F0F}, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10D0, regs: {A1: 0}, st: 0xF0000010}
+      - {after: 0x10D0, pc: 0x1100, regs: {A1: 0x80000000}, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x1130, regs: {A1: 0}, st: 0xF0000010}
+
+  - name: addc_subb_register_carry_borrow_input
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW -1,A0
+      - 0xFFFF
+      - 0x09C1 # MOVI IW 1,A1
+      - 0x0001
+      - 0x0DE0 # SETC, carry input 1
+      - 0x4220 # ADDC A1,A0: FFFFFFFF+1+1 = 1, carry out 1
+      - 0x0320 # CLRC, carry input 0
+      - 0x4220 # ADDC A1,A0: 1+1+0 = 2
+      - 0x4620 # SUBB A1,A0: 2-1-0 = 1
+      - 0x0DE0 # SETC, borrow input 1
+      - 0x4620 # SUBB A1,A0: 1-1-1 = FFFFFFFF, borrow 1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0xFFFFFFFF}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 1}}
+      - {after: 0x1040, pc: 0x1050, flags: {C: 1}}
+      - {after: 0x1050, pc: 0x1060, regs: {A0: 1}, st: 0x40000010}
+      - {after: 0x1060, pc: 0x1070, st: 0x00000010}
+      - {after: 0x1070, pc: 0x1080, regs: {A0: 2}, st: 0x00000010}
+      - {after: 0x1080, pc: 0x1090, regs: {A0: 1}, st: 0x00000010}
+      - {after: 0x1090, pc: 0x10A0, st: 0x40000010}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A0: 0xFFFFFFFF}, st: 0xC0000010}

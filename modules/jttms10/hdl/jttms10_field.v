@@ -10,7 +10,9 @@
  * Physical request/address/data stay stable until word_ack. word_ack is one
  * pulse per accepted word; word_req may remain high with new payload after
  * the acknowledgement edge. A partial-word read/write pair holds word_lock
- * throughout both physical cycles for arbiter reservation.
+ * throughout both physical cycles for arbiter reservation. If HOLD breaks
+ * the pair after the read and before the write starts, word_restart cancels
+ * the stale write and repeats the read after HOLD releases.
  */
 module jttms10_field(
     input             clk,
@@ -28,7 +30,8 @@ module jttms10_field(
     output reg [31:0] word_addr,
     output reg [15:0] word_wdata,
     input      [15:0] word_rdata,
-    input             word_ack
+    input             word_ack,
+    input             word_restart
 );
 
 localparam [2:0]
@@ -52,10 +55,14 @@ reg write_q;
 reg [15:0] word_mask, word_data;
 wire [31:0] size_mask = 32'hffff_ffff >> (6'd32 - size);
 wire [5:0] field_span = {2'b00,addr[3:0]} + size;
+// HOLD may break a partial-word pair only after its read completed and
+// before its write was accepted. Cancel that pending write and reread the
+// external word after HOLD releases, so unrelated bits cannot go stale.
+wire restart_rmw = word_restart && state == WRITE && word_mask != 16'hffff;
 
 assign rdata = rdata_q;
 assign word_lock = (state == RMW_READ) ||
-                   ((state == WRITE) && (word_mask != 16'hffff));
+                   ((state == WRITE) && (word_mask != 16'hffff) && !restart_rmw);
 
 always @* begin
     case (index)
@@ -75,8 +82,9 @@ always @* begin
             word_addr = base_addr + 32'd32;
         end
     endcase
-    word_req = (state == READ) || (state == RMW_READ) || (state == WRITE);
-    word_we = (state == WRITE);
+    word_req = (state == READ) || (state == RMW_READ) ||
+               ((state == WRITE) && !restart_rmw);
+    word_we = (state == WRITE) && !restart_rmw;
     word_wdata = (state == WRITE && word_mask != 16'hffff) ?
         ((old_word & ~word_mask) | (word_data & word_mask)) : word_data;
     ack = (state == RESPONSE);
@@ -141,7 +149,9 @@ always @(posedge clk) begin
                 old_word <= word_rdata;
                 state <= WRITE;
             end
-            WRITE: if (word_ack) begin
+            WRITE: if (restart_rmw) begin
+                state <= RMW_READ;
+            end else if (word_ack) begin
                 if (index == last_index)
                     state <= RESPONSE;
                 else begin

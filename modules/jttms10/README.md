@@ -48,13 +48,17 @@ Remaining acceptance gates:
 
 Current tests cover reset-vector loading, MOVI/MOVK, ADD/SUB and their K
 and immediate forms, register MOVE including cross-file, short conditional
-JR (short and long), JAcc, JUMP, GETPC/EXGPC, REV, GETST/PUTST, and all
-MOVE/MOVB memory addressing forms. The latter
+JR (short and long), JAcc, JUMP, GETPC/EXGPC, REV, GETST/PUTST,
+PUSHST/POPST, CALL/CALLA/CALLR, RETS, TRAP/RETI, ABS/NEG/NEGB/NOT,
+ANDI/ANDNI/ORI/XORI, ADDC/SUBB, and all MOVE/MOVB memory addressing forms. The latter
 include both field definitions, sign extension, auto-update aliases, signed
 offsets, absolute addresses, and memory-to-memory copies.
 Additional encoded families in the YAML require corresponding tests before
 being claimed as verified. Unsupported instructions stop with `fault`;
 architectural illegal-opcode trapping remains to be implemented.
+Stack and trap assertions currently cover architectural results; physical
+MSW-first trap writes and RETI graphics resumption remain outstanding.
+See [stack and unary ISA notes](docs/stack-isa.md).
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

@@ -41,8 +41,10 @@ execution and ROM priming to prevent duplicate transactions.
 The generator groups tokens by underscore suffix, so `add_alu` selects an
 ALU field, but the standalone PC increment control is `pcinc`. Naming it
 `inc_pc` would merge it with the `md_pc`/`reg_pc`/`rel_pc` selector. The
-one-deep generated JSR/RET mechanism is used for reset-vector loading;
-microcode must not nest calls without extending the return storage.
+one-deep generated JSR/RET mechanism is used for reset-vector loading and
+shared 32-bit stack transfers. Microcode must not nest calls without extending
+the return storage. CALL targets and RETI's saved status use the scratch
+register, which those helpers preserve.
 
 The initial immediate-arithmetic families use the compiler's `ops.ctl`
 substitution: ADDI, SUBI, and CMPI share word/long operand-fetch sequences,
@@ -111,3 +113,27 @@ both same-register memory-copy forms and samples a predecrement store's
 source too early when it aliases the pointer. Explicit alternate reference
 checks record those known differences; primary new-CPU assertions follow the
 specified sequencing.
+
+## Stack and unary instructions
+
+`ucode/control.yaml` implements PUSHST/POPST, three CALL forms, RETS,
+TRAP, and RETI with shared push/pop helpers. Stack accesses force a 32-bit
+field independently of FS/FE. The synchronous register port selects the
+shared SP throughout these instructions, and CALL through SP captures its
+original target before push predecrement. TRAP zero reloads the reset vector
+without touching the stack. Tests check unaligned stacks and adjacent bits,
+return-address alignment and extension order, RETS argument disposal,
+TRAP 1/31 vectors, status restoration, and trap-zero behavior.
+
+ABS, NEG, NEGB, NOT, and immediate logical instructions use existing shared
+ALU operations. ABS computes its flags from `0 - Rd`, then stores the absolute
+value; in particular, a positive nonzero input sets N. It preserves C.
+ANDI's encoded extension is complemented, while ANDNI names the same opcode
+with a direct extension. Logical operations update only Z. Tests also cover
+ADDC/SUBB with both input carry/borrow values.
+
+These checks do not establish complete trap or interrupt behavior. The field
+adapter still writes ascending physical words, while TI specifies MSW-first
+stack writes for TRAP. RETI's PBX-controlled graphics restart and immediate
+interrupt acceptance require the graphics and interrupt engines. See
+[stack-isa.md](stack-isa.md) for primary references and limits.

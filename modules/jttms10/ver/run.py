@@ -16,7 +16,7 @@ from pathlib import Path
 import yaml
 
 sys.dont_write_bytecode = True
-from vectors import HERE, load_cases, memory_init, sv_checks, validate_case
+from vectors import HERE, load_cases, memory_init, sv_checks, validate_case, vector_init
 
 
 def main():
@@ -46,6 +46,7 @@ def main():
                 "".join(f"{word:04x}\n" for word in case["words"])
             )
             (work / "memory_init.txt").write_text(memory_init(case))
+            (work / "vector_init.txt").write_text(vector_init(case))
             (work / "expected.svh").write_text(sv_checks(case))
             shutil.copyfile(build / "tms10.uc", work / "tms10.uc")
             binary = work / "sim.vvp"

@@ -59,6 +59,16 @@ def check_uint(value, bits, where):
         raise ValueError(f"{where}: expected unsigned {bits}-bit integer, got {value!r}")
 
 
+def opcode_at(case, address):
+    """Opcode word from the program or a separately initialized code block."""
+    for block in [{"at": case["entry"], "words": case["words"]},
+                  *case.get("mem", [])]:
+        offset = address - block["at"]
+        if offset >= 0 and offset % 16 == 0 and offset // 16 < len(block["words"]):
+            return block["words"][offset // 16]
+    raise ValueError(f"{case['name']}: no opcode word at {address:#x}")
+
+
 def validate_case(case):
     name = case["name"]
     if not re.fullmatch(r"[a-z][a-z0-9_]*", name):
@@ -74,6 +84,12 @@ def validate_case(case):
         check_uint(word, 16, f"{name}.words[{i}]")
     if entry + 16 * len(words) > MEMORY_BITS:
         raise ValueError(f"{name}.words exceed test memory")
+    for number, target in case.get("vectors", {}).items():
+        if not isinstance(number, int) or isinstance(number, bool) or not 1 <= number <= 31:
+            raise ValueError(f"{name}.vectors: trap number must be 1..31 (0 is reset)")
+        check_uint(target, 32, f"{name}.vectors[{number}]")
+        if (target & ~15) + 16 > MEMORY_BITS:
+            raise ValueError(f"{name}.vectors[{number}] target outside test memory")
     for i, block in enumerate(case.get("mem", [])):
         tag = f"{name}.mem[{i}]"
         at = block["at"]
@@ -87,6 +103,18 @@ def validate_case(case):
             raise ValueError(f"{tag} overlaps program words")
         for j, word in enumerate(data):
             check_uint(word, 16, f"{tag}.words[{j}]")
+    # The pinned reference memory target aliases nonzero high trap vectors
+    # into its top 62 low-memory words. Reject low-memory overlap so both
+    # benches observe the same independent vector contents.
+    regions = [(entry, entry + 16 * len(words))] + [
+        (block["at"], block["at"] + 16 * len(block["words"]))
+        for block in case.get("mem", [])
+    ]
+    for number in case.get("vectors", {}):
+        low_alias = (0xFFFFFFE0 - 32 * number) & (MEMORY_BITS - 1)
+        if any(start < low_alias + 32 and low_alias < end
+               for start, end in regions):
+            raise ValueError(f"{name}.vectors[{number}] overlaps reference low-memory alias")
     checks = case["checks"]
     if not isinstance(checks, list) or not checks:
         raise ValueError(f"{name}.checks must be a nonempty list")
@@ -97,8 +125,10 @@ def validate_case(case):
             check_uint(check[key], 32, f"{tag}.{key}")
             if check[key] & 15:
                 raise ValueError(f"{tag}.{key} must be instruction-word aligned")
-        if check["after"] not in range(entry, entry + 16 * len(words), 16):
-            raise ValueError(f"{tag}.after is outside the loaded program")
+        try:
+            opcode_at(case, check["after"])
+        except ValueError as error:
+            raise ValueError(f"{tag}.after is outside loaded memory") from error
         if check["after"] in seen:
             raise ValueError(f"{tag}.after repeats an opcode address")
         seen.add(check["after"])
@@ -158,7 +188,7 @@ def sv_checks(case):
              "  case (step)"]
     for i, check in enumerate(case["checks"]):
         tag = f"{case['name']} step {i} opcode @{check['after']:08x}"
-        word = case["words"][(check["after"] - case["entry"]) // 16]
+        word = opcode_at(case, check["after"])
         lines.extend([f"    {i}: begin",
                       f"      if (ir !== 16'h{word:04x}) $fatal(1, \"{tag}: IR %h\", ir);",
                       f"      if (pc !== 32'h{check['pc']:08x}) $fatal(1, \"{tag}: PC %h\", pc);"])
@@ -202,6 +232,12 @@ def memory_init(case):
     )
 
 
+def vector_init(case):
+    """Trap-number/target pairs; trap zero shares the reset vector."""
+    return "".join(f"{number} {target:08x}\n"
+                   for number, target in sorted(case.get("vectors", {}).items()))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("case", nargs="?", help="one case name; default: all")
@@ -225,9 +261,11 @@ def main():
                 "".join(f"{word:04x}\n" for word in case["words"])
             )
             base.with_suffix(".data").write_text(memory_init(case))
+            base.with_suffix(".vectors").write_text(vector_init(case))
             base.with_suffix(".json").write_text(json.dumps({
                 "entry": case["entry"], "reset_vector_addr": 0xFFFFFFE0,
                 "mem": case.get("mem", []),
+                "vectors": case.get("vectors", {}),
                 "checks": case["checks"],
                 "reference_checks": case.get("reference_checks"),
                 "reference_divergence": case.get("reference_divergence"),

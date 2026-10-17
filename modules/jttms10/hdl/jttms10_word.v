@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 // Word-bus variant of the microcoded TMS34010. Addresses remain bit addresses.
+// word_restart is the arbiter's one-clock HOLD pulse between the read and
+// write of a partial-word RMW pair; the field adapter then rereads that word.
 module jttms10_word(
     input             rst,
     input             clk,
@@ -12,6 +14,7 @@ module jttms10_word(
     output            word_lock,
     input      [15:0] word_rdata,
     input             word_ack,
+    input             word_restart,
     output     [31:0] pc,
     output     [31:0] st,
     output     [15:0] ir,
@@ -37,7 +40,8 @@ module jttms10_word(
         .ack(field_ack), .rdata(field_rdata),
         .word_req(word_req), .word_we(word_we), .word_addr(word_addr),
         .word_wdata(word_wdata), .word_lock(word_lock),
-        .word_rdata(word_rdata), .word_ack(word_ack)
+        .word_rdata(word_rdata), .word_ack(word_ack),
+        .word_restart(word_restart)
     );
 
     // The field adapter captures the CPU request on the same edge. Its first

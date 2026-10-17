@@ -17,15 +17,15 @@ module jttms10(
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
     wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt;
-    wire reg_b, wr_reg, bsrc, a_md, wrsrc, stld, ea_tmp;
-    wire [2:0] cc_sel;
+    wire wr_reg, bsrc, wrsrc, stld, wr_sp;
+    wire [3:0] cc_sel;
     wire [3:0] alu_sel, a_sel;
     wire [2:0] pc_sel;
-    wire [1:0] mem_sel;
+    wire [1:0] b_sel, md_sel, mem_sel, stack_sel, tmp_sel, st_sel;
     wire [2:0] ea_sel;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg completed;
-    wire field_op = mem_sel!=0;
+    wire field_op = mem_sel!=0 || stack_sel!=0;
     wire bus_op = vector || fetch || imm || field_op;
     wire ready = !bus_op || completed || mem_ack;
     wire [31:0] read_data = completed ? bus_data : mem_rdata;
@@ -45,9 +45,10 @@ module jttms10(
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     wire [31:0] extended = (md & field_mask) |
         ((field_signed && md[field_msb]) ? ~field_mask : 32'd0);
-    assign mem_we = mem_sel==WRITE_MEM;
+    assign mem_we = mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = field_op ? field_size : vector ? 6'd32 : 6'd16;
+    assign mem_size = (stack_sel!=0 || vector)
+                    ? 6'd32 : field_op ? field_size : 6'd16;
     assign mem_wdata = md;
     assign mem_iaq = fetch;
 
@@ -55,19 +56,28 @@ module jttms10(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
-        .reg_b(reg_b), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
-        .a_md(a_md), .wrsrc(wrsrc), .stld(stld),
-        .ea_tmp(ea_tmp),
+        .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
+        .md_sel(md_sel), .wrsrc(wrsrc), .stld(stld),
+        .tmp_sel(tmp_sel), .wr_sp(wr_sp), .stack_sel(stack_sel),
+        .st_sel(st_sel),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
     wire [31:0] rs_data, rd_data, result;
     wire cross_move = ir[15:10]==6'b010011 && ir[9];
     wire [4:0] dst = {ir[4]^cross_move,ir[3:0]};
+    // Stack instructions continuously select SP on the synchronous read
+    // port, including the ROM-prime cycle before their first microstep.
+    wire stack_ir = ir==16'h01e0 || ir==16'h01c0 || ir==16'h0d5f ||
+                    ir==16'h0d3f || ir==16'h0940 ||
+                    ir[15:5]==11'h049 || ir[15:5]==11'h04b ||
+                    ir[15:5]==11'h048;
+    wire call_rs_ir = ir[15:5]==11'h049;
     jttms10_regs u_regs(
-        .clk(clk), .rs({ir[4],ir[8:5]}), .rd({ir[4],ir[3:0]}),
-        .wa(wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (wr_reg || wrsrc) && !rst), .wd(result),
+        .clk(clk), .rs(call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
+        .rd(stack_ir ? 5'd15 : {ir[4],ir[3:0]}),
+        .wa(wr_sp ? 5'd15 : wrsrc ? {ir[4],ir[8:5]} : dst),
+        .we(step && (wr_reg || wrsrc || wr_sp) && !rst), .wd(result),
         .qs(rs_data), .qd(rd_data)
     );
     reg [3:0] alu_op;
@@ -83,6 +93,9 @@ module jttms10(
             ANDN_ALU: alu_op=6;
             OR_ALU:   alu_op=7;
             XOR_ALU:  alu_op=8;
+            NOT_ALU:  alu_op=9;
+            NEG_ALU:  alu_op=10;
+            ABS_ALU:  alu_op=11;
             default:;
         endcase
     end
@@ -135,11 +148,25 @@ module jttms10(
             if(step) begin
                 completed<=0;
                 if(bus_op && !mem_we) md<=read_data;
-                if(a_md) md<=a;
-                if(ea_tmp) tmp<=ea;
+                case(md_sel)
+                    A_MD: md<=a;
+                    PC_MD: md<=pc;
+                    ST_MD: md<=st;
+                    default:;
+                endcase
+                case(tmp_sel)
+                    EA_TMP: tmp<=ea;
+                    A_TMP: tmp<=a;
+                    MD_TMP: tmp<=md;
+                    default:;
+                endcase
                 if(ld_ir) ir<=md[15:0];
                 if(pcinc) pc<=pc+32'd16;
-                if(reg_b) b<=rd_data;
+                case(b_sel)
+                    REG_B, SP_B: b<=rd_data;
+                    ZERO_B: b<=0;
+                    default:;
+                endcase
                 if(bsrc) b<=rs_data;
                 case(a_sel)
                     REG_A: a<=rs_data;
@@ -154,6 +181,9 @@ module jttms10(
                     EXT_A: a<=extended;
                     PC_A: a<=pc;
                     REV_A: a<=32'd8;
+                    CALL_A: a<=rs_data;
+                    WORD_A: a<=32'd32;
+                    RETADJ_A: a<=32'd32+{23'd0,ir[4:0],4'd0};
                     default:;
                 endcase
                 case(ea_sel)
@@ -162,6 +192,7 @@ module jttms10(
                     SUM_EA: ea<=result;
                     TMP_EA: ea<=tmp;
                     SWAP_EA: begin ea<=tmp; tmp<=ea; end
+                    TRAP_EA: ea<=32'hffffffe0-{22'd0,ir[4:0],5'd0};
                     default:;
                 endcase
                 case(pc_sel)
@@ -170,12 +201,21 @@ module jttms10(
                     REL_PC:if(condition) pc<=pc+{{20{ir[7]}},ir[7:0],4'd0};
                     LONGREL_PC:if(condition) pc<=pc+{{12{md[15]}},md[15:0],4'd0};
                     ABS_PC:if(condition) pc<={a[31:4],4'd0};
+                    TMP_PC:pc<={tmp[31:4],4'd0};
+                    TMPREL_PC:pc<=pc+{tmp[27:0],4'd0};
                     default:;
                 endcase
                 if(stld) st<=a;
+                case(st_sel)
+                    MD_ST: st<=md;
+                    TMP_ST: st<=tmp;
+                    INIT_ST: st<=32'h10;
+                    default:;
+                endcase
                 case(cc_sel)
                     NZV_CC: begin st[31]<=n; st[29]<=z; st[28]<=0; end
                     NVZC_CC:begin st[31]<=n; st[30]<=c; st[29]<=z; st[28]<=v; end
+                    NZVABS_CC:begin st[31]<=n; st[29]<=z; st[28]<=v; end
                     Z_CC:st[29]<=z;
                     C0_CC:st[30]<=0;
                     C1_CC:st[30]<=1;

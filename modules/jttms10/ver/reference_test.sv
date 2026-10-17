@@ -51,12 +51,13 @@ module reference_test;
     .mem_rdata(mem_rdata), .mem_ack(mem_ack)
   );
 
-  integer checks_fd, program_fd, data_fd, loaded, step_count, expected_count;
+  integer checks_fd, program_fd, data_fd, vector_fd, loaded, step_count, expected_count;
   integer index, reg_idx, nregs, nmem, rc, word_index, data_count, data_index;
-  integer field_size;
+  integer field_size, vector_number;
   logic [15:0] program_word, expected_ir;
   logic [31:0] entry, expected_after, expected_pc, st_mask, st_value;
   logic [31:0] reg_value, actual_reg, data_at, field_addr, field_value;
+  logic [31:0] vector_value, vector_addr;
 
   function automatic logic [31:0] read_backing(input logic [31:0] address,
                                                 input integer size);
@@ -83,7 +84,8 @@ module reference_test;
     checks_fd = $fopen("checks.txt", "r");
     program_fd = $fopen("program.mem", "r");
     data_fd = $fopen("memory_init.txt", "r");
-    if (checks_fd == 0 || program_fd == 0 || data_fd == 0)
+    vector_fd = $fopen("vector_init.txt", "r");
+    if (checks_fd == 0 || program_fd == 0 || data_fd == 0 || vector_fd == 0)
       $fatal(1, "missing generated input");
     #1;
     u_mem.level0_vector = entry;
@@ -105,6 +107,17 @@ module reference_test;
       end
     end
     $fclose(data_fd);
+    while ($fscanf(vector_fd, "%d %h", vector_number, vector_value) == 2) begin
+      if (vector_number < 1 || vector_number > 31)
+        $fatal(1, "invalid trap vector %0d", vector_number);
+      vector_addr = 32'hffffffe0 - (vector_number << 5);
+      // The established sim_memory_model truncates non-reset physical word
+      // addresses to ten index bits. Reserve its top 62 words for trap vectors.
+      word_index = (vector_addr >> 4) & 1023;
+      u_mem.mem[word_index] = vector_value[15:0];
+      u_mem.mem[word_index+1] = vector_value[31:16];
+    end
+    $fclose(vector_fd);
     repeat (6) @(posedge clk);
     rst <= 0;
   end

@@ -16,12 +16,22 @@ partial-word read to its matching write. The word-bus controller must treat
 the acknowledgement edge as the boundary between requests, even if
 `word_req` never falls. `word_lock` stays high from the partial-word read
 request through its matching write acknowledgement; arbitration must keep
-that pair together. This interface has no restart input for a lock broken by
-HOLD.
+that pair together. HOLD is the exception: if the arbiter accepts HOLD after
+the partial read has completed and before its matching write has started,
+it must pulse `word_restart` for one clock. The adapter suppresses the stale
+write and drops `word_lock` on that edge, then requests a fresh read of the
+same aligned word. The subsequent write merges against this fresh read data.
+The field's index, mask, address, and write data remain held across the
+restart. `word_restart` has no effect on other states or a fully covered
+direct write. It is invalid once a partial write has been accepted by the
+physical controller; an in-flight write must complete. This matches the
+HOLD restart boundary in the existing TMS34010 arbiter and field sequencer
+(1988 User's Guide §11.3, page 11-4).
 
-`jttms10_word` connects the CPU's architectural field port to this adapter
-and exports the physical word bus. It captures IAQ with each architectural
-request and holds `word_iaq` through every physical word of that request.
+`jttms10_word` passes `word_restart` to the adapter, connects the CPU's
+architectural field port, and exports the physical word bus. It captures IAQ
+with each architectural request and holds `word_iaq` through every physical
+word of that request.
 The CPU captures `ack` even when `cen` is low, then lowers its request while
 holding the response internally. This gives the adapter a clock to leave its
 held RESPONSE state before the next request. The standalone wrapper smoke
@@ -49,7 +59,8 @@ need two word-bus acknowledgements. Read completion uses one further clock
 to copy the aligned result. These clocks are in addition to word-bus waits.
 
 Simulation covers every offset 0–15 and size 1–32, with waits, whole-memory
-write-preservation checks, lock pairing, and reset during a read. NARC
+write-preservation checks, lock pairing, HOLD restart after an external owner
+changes unprotected bits, and reset during a read. NARC
 performance and silicon timing are unverified. The serial alignment latency
 may exceed the TMS34010 timing budget; measure it in the integrated NARC
 workload and optimize before replacing the existing core.

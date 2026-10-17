@@ -29,3 +29,131 @@ ucode:
     seq:
       - rev_a
       - pass_alu, wr_reg, ni
+  - name: pushst
+    start: 55
+    seq:
+      - st_md, push32_jsr
+      - ni
+  - name: popst
+    start: 56
+    seq:
+      - pop32_jsr
+      - md_st, ni
+  - name: callrs
+    start: 57
+    seq:
+      - call_a
+      - a_tmp
+      - pc_md, push32_jsr
+      - tmp_pc, ni
+  - name: calla
+    start: 58
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - a_tmp
+      - pc_md, push32_jsr
+      - tmp_pc, ni
+  - name: callr
+    start: 59
+    seq:
+      - imm, pcinc
+      - immse_a
+      - a_tmp
+      - pc_md, push32_jsr
+      - tmprel_pc, ni
+  - name: rets
+    start: 60
+    seq:
+      - sp_b
+      - b_ea
+      - read_stack
+      - retadj_a
+      - add_alu, wr_sp, md_pc, ni
+  - name: reti
+    start: 61
+    seq:
+      - pop32_jsr
+      - md_tmp
+      - pop32_jsr
+      - tmp_st, md_pc, ni
+  - name: trap
+    start: 62
+    seq:
+      - pc_md, push32_jsr
+      - st_md, push32_jsr
+      - trap_ea
+      - read_stack
+      - init_st, md_pc, ni
+  - name: trap0
+    start: 63
+    seq:
+      - trap_ea
+      - read_stack
+      - init_st, md_pc, ni
+  # A one-level generated JSR is sufficient: callers never invoke another
+  # helper from within these routines. Both transfers force a 32-bit field.
+  - name: push32
+    start: 64
+    seq:
+      - word_a, sp_b
+      - sub_alu, sum_ea, wr_sp
+      - write_stack, ret_jsr
+  - name: pop32
+    start: 65
+    seq:
+      - sp_b
+      - b_ea
+      - read_stack
+      - word_a
+      - add_alu, wr_sp, ret_jsr
+  # ABS sets N from 0-Rd, but writes |Rd| and preserves C (TI p.12-35).
+  - name: abs
+    start: 66
+    seq:
+      - rd_a
+      - neg_alu, nzvabs_cc
+      - abs_alu, wr_reg, ni
+  - name: neg
+    start: 67
+    seq:
+      - rd_a
+      - neg_alu, wr_reg, nvzc_cc, ni
+  - name: negb
+    start: 68
+    seq:
+      - rd_a, zero_b
+      - sbc_alu, wr_reg, nvzc_cc, ni
+  - name: not
+    start: 69
+    seq:
+      - rd_a
+      - not_alu, wr_reg, z_cc, ni
+  # ANDI/ANDNI share one opcode. Hardware always computes Rd & ~encoded IL;
+  # the assembler complements the extension words for source-level ANDI.
+  - name: andi
+    start: 70
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a, reg_b
+      - andn_alu, wr_reg, z_cc, ni
+  - name: ori
+    start: 71
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a, reg_b
+      - or_alu, wr_reg, z_cc, ni
+  - name: xori
+    start: 72
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a, reg_b
+      - xor_alu, wr_reg, z_cc, ni

@@ -27,10 +27,18 @@ module test;
     // Backing store has 1024 physical 16-bit words. All public addresses
     // are bit addresses; the reset vector is handled at its high address.
     reg [15:0] words [0:1023];
+    reg [31:0] vector_target [0:31];
+    reg vector_valid [0:31];
     integer i, data_fd, data_at, data_count, data_index, data_rc;
+    integer vector_fd, vector_number, vector_rc;
     reg [15:0] init_word;
+    reg [31:0] init_vector;
     initial begin
         for (i=0; i<1024; i=i+1) words[i] = 16'h0300;
+        for (i=0; i<32; i=i+1) begin
+            vector_target[i] = 0;
+            vector_valid[i] = 0;
+        end
         $readmemh("program.mem", words, ENTRY >> 4);
         data_fd = $fopen("memory_init.txt", "r");
         if (data_fd == 0) $fatal(1, "missing memory_init.txt");
@@ -42,18 +50,33 @@ module test;
             end
         end
         $fclose(data_fd);
+        vector_fd = $fopen("vector_init.txt", "r");
+        if (vector_fd == 0) $fatal(1, "missing vector_init.txt");
+        while ($fscanf(vector_fd, "%d %h", vector_number, init_vector) == 2) begin
+            if (vector_number < 1 || vector_number > 31)
+                $fatal(1, "invalid trap vector number %0d", vector_number);
+            vector_target[vector_number] = init_vector;
+            vector_valid[vector_number] = 1;
+        end
+        $fclose(vector_fd);
         repeat (5) @(posedge clk);
         rst <= 0;
     end
 
     function automatic [31:0] read_field(input [31:0] address, input [5:0] size);
         integer bit_index;
+        integer vector_index;
         reg [31:0] physical;
         begin
             read_field = 0;
-            if (address == 32'hffffffe0 && size == 6'd32)
-                read_field = ENTRY;
-            else begin
+            if (size == 6'd32 && address >= 32'hfffffc00 &&
+                address <= 32'hffffffe0 && address[4:0] == 0) begin
+                vector_index = (32'hffffffe0 - address) >> 5;
+                if (vector_index == 0) read_field = ENTRY;
+                else if (vector_valid[vector_index])
+                    read_field = vector_target[vector_index];
+                else $fatal(1, "uninitialized trap vector %0d", vector_index);
+            end else begin
                 if (size < 1 || size > 32 || address + size > 32'd16384)
                     $fatal(1, "invalid read size %0d at bit address %h", size, address);
                 for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin

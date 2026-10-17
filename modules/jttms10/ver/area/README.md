@@ -30,6 +30,7 @@ checks, not the 25% replacement acceptance result.
 | Existing NARC `jtnarc_gsp` | 14,000 | 7,117 | 2,048 / 1 | 6 |
 | Incomplete scalar `jttms10` alone | 404 | 203 | 51,200 / 7 | 0 |
 | Incomplete `jttms10_word` with field adapter | 780 | 537 | 75,776 / 10 | 0 |
+| Later `jttms10_word` with stack, unary, and HOLD restart | 968 | 537 | 96,256 / 12 | 0 |
 
 These were fitted by Quartus Prime Lite 20.1.1 Build 720 for Cyclone V
 `5CSEBA6U23I7`, 20 ns `clk`, high performance effort, with exposed ports as
@@ -42,6 +43,13 @@ The later word-adapter snapshot and manifest are in
 `/tmp/jttms10-141-area/word-memory/`; its control ROM is 2048×36. The scalar
 and word measurements use different evolving CPU source snapshots, so their
 difference is not an isolated field-adapter cost.
+The stack/unary/HOLD-restart snapshot is in
+`/tmp/jttms10-141-area/word-stack/`; its manifest records repository commit
+`062fd0750e5be9c9ebc09eb0925a4cdb5cc6559c` and hashes all 12 source,
+microcode, and generated files. Every copied file matched its manifest hash.
+Its 2048×46 ROM and both 32×32 register mirrors inferred `ALTSYNCRAM`.
+This later count still excludes on-chip I/O, video, bus arbitration, graphics,
+and NARC integration, and the ISA remains incomplete.
 That scalar snapshot predates the ADDI/SUBI/CMPI microcode additions; rerun
 the driver to measure the current source rather than reusing its count.
 The old TMS34010 submodule was at

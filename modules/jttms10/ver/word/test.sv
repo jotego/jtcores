@@ -15,7 +15,7 @@ module test;
         .rst(rst), .clk(clk), .cen(cen),
         .word_req(word_req), .word_we(word_we), .word_addr(word_addr),
         .word_wdata(word_wdata), .word_iaq(word_iaq), .word_lock(word_lock),
-        .word_rdata(word_rdata), .word_ack(word_ack),
+        .word_rdata(word_rdata), .word_ack(word_ack), .word_restart(1'b0),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 

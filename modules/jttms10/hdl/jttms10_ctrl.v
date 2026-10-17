@@ -4,10 +4,11 @@ module jttms10_ctrl(
     input      [15:0]  md,
     output            execute, active,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
-    output            reg_b, wr_reg, bsrc, a_md, wrsrc, stld, ea_tmp,
+    output            wr_reg, bsrc, wrsrc, stld, wr_sp,
     output     [3:0]  a_sel,
     output     [3:0]  alu_sel,
-    output     [2:0]  cc_sel,
+    output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
+    output     [3:0]  cc_sel,
     output     [2:0]  pc_sel,
     output     [1:0]  mem_sel,
     output     [2:0]  ea_sel
@@ -16,7 +17,7 @@ module jttms10_ctrl(
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
     wire dispatch;
-    wire [1:0] jsr_sel;
+    wire [2:0] jsr_sel;
     reg cen;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
     /* verilator lint_off BLKSEQ */
@@ -44,6 +45,21 @@ module jttms10_ctrl(
             16'h0de0: entry = SETC_SEQA;
             16'h0360: entry = DINT_SEQA;
             16'h0d60: entry = EINT_SEQA;
+            16'b00000011100?????: entry = ABS_SEQA;
+            16'b00000011101?????: entry = NEG_SEQA;
+            16'b00000011110?????: entry = NEGB_SEQA;
+            16'b00000011111?????: entry = NOT_SEQA;
+            16'b00001011100?????: entry = ANDI_SEQA;
+            16'b00001011101?????: entry = ORI_SEQA;
+            16'b00001011110?????: entry = XORI_SEQA;
+            16'h01e0: entry = PUSHST_SEQA;
+            16'h01c0: entry = POPST_SEQA;
+            16'h0d5f: entry = CALLA_SEQA;
+            16'h0d3f: entry = CALLR_SEQA;
+            16'h0940: entry = RETI_SEQA;
+            16'b00001001001?????: entry = CALLRS_SEQA;
+            16'b00001001011?????: entry = RETS_SEQA;
+            16'b00001001000?????: entry = md[4:0]==0 ? TRAP0_SEQA : TRAP_SEQA;
             16'b000110??????????: entry = MOVK_SEQA;
             16'b000100??????????: entry = ADDK_SEQA;
             16'b000101??????????: entry = SUBK_SEQA;
