@@ -1952,3 +1952,268 @@ cases:
       - {after: 0x10B0, pc: 0x10C0, st: 0xD0000010}
       - {after: 0x10C0, pc: 0x10D0,
          regs: {B13: 2, B14: 1, A15: 0, B15: 0}, st: 0xD0000010}
+
+  # TI SPVU001A pp. 12-65/66: even Rd uses a 64-bit dividend and
+  # returns quotient:remainder; early overflow leaves both halves intact.
+  - name: divu_even_normal_early_overflow_zero_and_odd_zero_quotient
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW 0,A0 high dividend
+      - 0x0000
+      - 0x09C1 # MOVI IW 100,A1 low dividend
+      - 0x0064
+      - 0x09C2 # MOVI IW 7,A2 divisor
+      - 0x0007
+      - 0x09E3 # MOVI IL D0000010,A3 N/C/V sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A3 # PUTST A3
+      - 0x5A40 # DIVU A2,A0: 100/7 -> 14 rem2
+      - 0x09C0 # high=divisor: early quotient overflow
+      - 0x0007
+      - 0x09C1 # low=5
+      - 0x0005
+      - 0x01A3
+      - 0x5A40 # DIVU A2,A0: unchanged, V1,Z0
+      - 0x09C2 # divisor zero
+      - 0x0000
+      - 0x01A3
+      - 0x5A40 # divide zero: unchanged, V1,Z0
+      - 0x09C2 # divisor 7
+      - 0x0007
+      - 0x01A3
+      - 0x5A41 # DIVU A2,A1: odd 5/7 -> quotient0,Z1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 100}}
+      - {after: 0x1040, pc: 0x1060, regs: {A2: 7}}
+      - {after: 0x1060, pc: 0x1090, regs: {A3: 0xD0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A0: 14, A1: 2}, st: 0xC0000010}
+      - {after: 0x10B0, pc: 0x10D0, regs: {A0: 7}}
+      - {after: 0x10D0, pc: 0x10F0, regs: {A1: 5}}
+      - {after: 0x10F0, pc: 0x1100, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x1110, regs: {A0: 7, A1: 5}, st: 0xD0000010}
+      - {after: 0x1110, pc: 0x1130, regs: {A2: 0}}
+      - {after: 0x1130, pc: 0x1140, st: 0xD0000010}
+      - {after: 0x1140, pc: 0x1150, regs: {A0: 7, A1: 5}, st: 0xD0000010}
+      - {after: 0x1150, pc: 0x1170, regs: {A2: 7}}
+      - {after: 0x1170, pc: 0x1180, st: 0xD0000010}
+      - {after: 0x1180, pc: 0x1190, regs: {A1: 0}, st: 0xE0000010}
+
+  - name: divs_negative_remainder_and_odd_signs
+    entry: 0x1000
+    words:
+      - 0x09C0 # high half -1
+      - 0xFFFF
+      - 0x09C1 # low half -100
+      - 0xFF9C
+      - 0x09C2 # divisor 7
+      - 0x0007
+      - 0x09E3 # C/V sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A3
+      - 0x5840 # DIVS A2,A0: -100/7 -> -14, remainder -2
+      - 0x09C1 # odd dividend -100
+      - 0xFF9C
+      - 0x09C2 # divisor -7
+      - 0xFFF9
+      - 0x01A3
+      - 0x5841 # DIVS A2,A1: -100/-7 -> +14
+      - 0x09C1 # odd dividend3
+      - 0x0003
+      - 0x09C2 # divisor7
+      - 0x0007
+      - 0x01A3
+      - 0x5841 # DIVS A2,A1: 3/7 -> quotient0
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0xFFFFFFFF}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 0xFFFFFF9C}}
+      - {after: 0x1040, pc: 0x1060, regs: {A2: 7}}
+      - {after: 0x1060, pc: 0x1090, regs: {A3: 0xD0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10B0,
+         regs: {A0: 0xFFFFFFF2, A1: 0xFFFFFFFE, A2: 7}, st: 0xC0000010}
+      - {after: 0x10B0, pc: 0x10D0, regs: {A1: 0xFFFFFF9C}}
+      - {after: 0x10D0, pc: 0x10F0, regs: {A2: 0xFFFFFFF9}}
+      - {after: 0x10F0, pc: 0x1100, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x1110, regs: {A1: 14}, st: 0x40000010}
+      - {after: 0x1110, pc: 0x1130, regs: {A1: 3}}
+      - {after: 0x1130, pc: 0x1150, regs: {A2: 7}}
+      - {after: 0x1150, pc: 0x1160, st: 0xD0000010}
+      - {after: 0x1160, pc: 0x1170, regs: {A1: 0}, st: 0x60000010}
+
+  - name: divs_early_overflow_zero_and_min_over_minus_one
+    entry: 0x1000
+    words:
+      - 0x09C0 # high half 7
+      - 0x0007
+      - 0x09C1 # low half 0
+      - 0x0000
+      - 0x09C2 # divisor 7
+      - 0x0007
+      - 0x09E3 # N/C/V sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A3
+      - 0x5840 # even high half >= divisor: early overflow
+      - 0x09C2 # divisor zero
+      - 0x0000
+      - 0x01A3
+      - 0x5840 # divide zero, early overflow
+      - 0x09E1 # odd dividend INT_MIN
+      - 0x0000
+      - 0x8000
+      - 0x09C2 # divisor -1
+      - 0xFFFF
+      - 0x01A3
+      - 0x5841 # range overflow, candidate 80000000h; N1,V1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 7}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 0}}
+      - {after: 0x1040, pc: 0x1060, regs: {A2: 7}}
+      - {after: 0x1060, pc: 0x1090, regs: {A3: 0xD0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000010}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A0: 7, A1: 0}, st: 0x50000010}
+      - {after: 0x10B0, pc: 0x10D0, regs: {A2: 0}}
+      - {after: 0x10D0, pc: 0x10E0, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x10F0, regs: {A0: 7, A1: 0}, st: 0x50000010}
+      - {after: 0x10F0, pc: 0x1120, regs: {A1: 0x80000000}}
+      - {after: 0x1120, pc: 0x1140, regs: {A2: 0xFFFFFFFF}}
+      - {after: 0x1140, pc: 0x1150, st: 0xD0000010}
+      - {after: 0x1150, pc: 0x1160,
+         regs: {A1: 0x80000000, A2: 0xFFFFFFFF}, st: 0xD0000010}
+
+  # TI pp. 12-113/114 say MOD Z follows "quotient" in prose, but their
+  # worked examples 8 mod 4 -> 0/Z1 and 7 mod 4 -> 3/Z0 establish that
+  # Z follows the stored remainder. Divide by zero explicitly preserves Z.
+  - name: mods_remainder_sign_zero_divzero_and_min_over_minus_one
+    entry: 0x1000
+    words:
+      - 0x09C0 # divisor4
+      - 0x0004
+      - 0x09C1 # dividend8
+      - 0x0008
+      - 0x09E2 # N0,C1,Z1,V0 sentinel
+      - 0x0010
+      - 0x6000
+      - 0x01A2 # PUTST A2
+      - 0x6C01 # MODS A0,A1: 8 mod4=0, Z1
+      - 0x09C1 # dividend3, quotient0 but remainder3/Z0
+      - 0x0003
+      - 0x01A2
+      - 0x6C01
+      - 0x09C1 # dividend -7, remainder -3, N stays0
+      - 0xFFF9
+      - 0x01A2
+      - 0x6C01
+      - 0x09C0 # divisor zero: no write, Z preserved1, V1
+      - 0x0000
+      - 0x01A2
+      - 0x6C01
+      - 0x09C0 # divisor -1
+      - 0xFFFF
+      - 0x09E1 # dividend INT_MIN
+      - 0x0000
+      - 0x8000
+      - 0x01A2
+      - 0x6C01 # quotient overflows but valid remainder0, Z1/V1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 4}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 8}}
+      - {after: 0x1040, pc: 0x1070, regs: {A2: 0x60000010}}
+      - {after: 0x1070, pc: 0x1080, st: 0x60000010}
+      - {after: 0x1080, pc: 0x1090, regs: {A1: 0}, st: 0x60000010}
+      - {after: 0x1090, pc: 0x10B0, regs: {A1: 3}}
+      - {after: 0x10B0, pc: 0x10C0, st: 0x60000010}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A1: 3}, st: 0x40000010}
+      - {after: 0x10D0, pc: 0x10F0, regs: {A1: 0xFFFFFFF9}}
+      - {after: 0x10F0, pc: 0x1100, st: 0x60000010}
+      - {after: 0x1100, pc: 0x1110, regs: {A1: 0xFFFFFFFD}, st: 0x40000010}
+      - {after: 0x1110, pc: 0x1130, regs: {A0: 0}}
+      - {after: 0x1130, pc: 0x1140, st: 0x60000010}
+      - {after: 0x1140, pc: 0x1150, regs: {A1: 0xFFFFFFFD}, st: 0x70000010}
+      - {after: 0x1150, pc: 0x1170, regs: {A0: 0xFFFFFFFF}}
+      - {after: 0x1170, pc: 0x11A0, regs: {A1: 0x80000000}}
+      - {after: 0x11A0, pc: 0x11B0, st: 0x60000010}
+      - {after: 0x11B0, pc: 0x11C0, regs: {A1: 0}, st: 0x70000010}
+
+  - name: modu_remainder_zero_quotient_zero_divzero_and_alias
+    entry: 0x1000
+    words:
+      - 0x09C0 # divisor4
+      - 0x0004
+      - 0x09C1 # dividend8
+      - 0x0008
+      - 0x09E2 # N/C/Z sentinel, V0
+      - 0x0010
+      - 0xE000
+      - 0x01A2
+      - 0x6E01 # MODU A0,A1: 8 mod4=0,Z1
+      - 0x09C1 # dividend3: quotient0 but rem3,Z0
+      - 0x0003
+      - 0x01A2
+      - 0x6E01
+      - 0x09C0 # divisor zero
+      - 0x0000
+      - 0x01A2
+      - 0x6E01 # preserves Z1 from PUTST, leaves A1=3
+      - 0x09C1 # dividend/divisor7, same register
+      - 0x0007
+      - 0x01A2
+      - 0x6E21 # MODU A1,A1 ->0, source captured
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 4}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 8}}
+      - {after: 0x1040, pc: 0x1070, regs: {A2: 0xE0000010}}
+      - {after: 0x1070, pc: 0x1080, st: 0xE0000010}
+      - {after: 0x1080, pc: 0x1090, regs: {A1: 0}, st: 0xE0000010}
+      - {after: 0x1090, pc: 0x10B0, regs: {A1: 3}}
+      - {after: 0x10B0, pc: 0x10C0, st: 0xE0000010}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A1: 3}, st: 0xC0000010}
+      - {after: 0x10D0, pc: 0x10F0, regs: {A0: 0}}
+      - {after: 0x10F0, pc: 0x1100, st: 0xE0000010}
+      - {after: 0x1100, pc: 0x1110, regs: {A1: 3}, st: 0xF0000010}
+      - {after: 0x1110, pc: 0x1130, regs: {A1: 7}}
+      - {after: 0x1130, pc: 0x1140, st: 0xE0000010}
+      - {after: 0x1140, pc: 0x1150, regs: {A1: 0}, st: 0xE0000010}
+
+  - name: divu_divisor_alias_and_bfile_pair14_shared_sp
+    entry: 0x1000
+    words:
+      - 0x09C0 # even high dividend0
+      - 0x0000
+      - 0x09C1 # even low dividend10; also divisor Rs=Rd+1
+      - 0x000A
+      - 0x09DD # B13 divisor7
+      - 0x0007
+      - 0x09DE # B14 high dividend0
+      - 0x0000
+      - 0x09DF # B15/shared SP low dividend100
+      - 0x0064
+      - 0x09E2 # N/C/V sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A2
+      - 0x5A20 # DIVU A1,A0: old A1=10 captured before remainder write
+      - 0x5BBE # DIVU B13,B14: quotient14, SP becomes remainder2
+      - 0x09C1 # odd dividend/divisor7 in same register
+      - 0x0007
+      - 0x01A2
+      - 0x5A21 # DIVU A1,A1: 7/7=1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 10}}
+      - {after: 0x1040, pc: 0x1060, regs: {B13: 7}}
+      - {after: 0x1060, pc: 0x1080, regs: {B14: 0}}
+      - {after: 0x1080, pc: 0x10A0, regs: {A15: 100, B15: 100}}
+      - {after: 0x10A0, pc: 0x10D0, regs: {A2: 0xD0000010}}
+      - {after: 0x10D0, pc: 0x10E0, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x10F0,
+         regs: {A0: 1, A1: 0}, st: 0xC0000010}
+      - {after: 0x10F0, pc: 0x1100,
+         regs: {B13: 7, B14: 14, A15: 2, B15: 2}, st: 0xC0000010}
+      - {after: 0x1100, pc: 0x1120, regs: {A1: 7}}
+      - {after: 0x1120, pc: 0x1130, st: 0xD0000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A1: 1}, st: 0xC0000010}

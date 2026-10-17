@@ -8,6 +8,7 @@ module jttms10_ctrl(
     input      [4:0]   multi_steps,
     input              multi_load,
     input      [4:0]   mul_count,
+    input              div_early_cond,
     output            execute, active,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
@@ -16,6 +17,8 @@ module jttms10_ctrl(
     output            multiinit, multiadvance, ptrwr, listwr,
     output            mulinit, mulstep, mulcorrq, mulcorrm,
                       mulfinish, mulwrhi, mulwrlo,
+    output            divinit, divload, divnega, divnegmd,
+                      divnegb, divcheck, divstep,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -30,9 +33,13 @@ module jttms10_ctrl(
     wire dispatch;
     wire multiskip;
     wire [1:0] multi_sel;
-    wire [2:0] mul_sel;
+    wire [3:0] mul_sel;
     wire [1:0] lmo_sel;
     wire [2:0] shift_sel;
+    wire [1:0] misc_sel;
+    assign setf = misc_sel==SETF_MISC;
+    assign exgf = misc_sel==EXGF_MISC;
+    assign btstfinish = misc_sel==BTSTFINISH_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
     assign shift_step = shift_sel==STEP_SHIFT;
@@ -50,6 +57,13 @@ module jttms10_ctrl(
     assign mulfinish = mul_sel==FINISH_MUL;
     assign mulwrhi = mul_sel==WRHI_MUL;
     assign mulwrlo = mul_sel==WRLO_MUL;
+    assign divinit = mul_sel==INITDIV_MUL;
+    assign divload = mul_sel==LOADDIV_MUL;
+    assign divnega = mul_sel==NEGDIV_MUL;
+    assign divnegmd = mul_sel==NEGMD_MUL;
+    assign divnegb = mul_sel==NEGB_MUL;
+    assign divcheck = mul_sel==CHECKDIV_MUL;
+    assign divstep = mul_sel==STEPDIV_MUL;
     wire [3:0] jsr_sel;
     reg cen;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
@@ -105,6 +119,8 @@ module jttms10_ctrl(
             16'b00001001100?????: entry = MMTM_SEQA;
             16'b00001001101?????: entry = MMFM_SEQA;
             16'b010111??????????: entry = MPY_SEQA;
+            16'b010110??????????,
+            16'b011011??????????: entry = DIV_SEQA;
             16'h01e0: entry = PUSHST_SEQA;
             16'h01c0: entry = POPST_SEQA;
             16'h0d5f: entry = CALLA_SEQA;
@@ -202,6 +218,8 @@ module jttms10_ctrl(
             if(multiadvance && multi_steps>5'd1)
                 uaddr <= multi_load ? MMFMLOOP_SEQA : MMTMLOOP_SEQA;
             if(mulstep && mul_count!=5'd1) uaddr <= MULLOOP_SEQA;
+            if(divcheck && div_early_cond) uaddr <= DIVFAIL_SEQA;
+            if(divstep && mul_count!=5'd1) uaddr <= DIVLOOP_SEQA;
             if(ni) uaddr <= FETCH_SEQA;
             if(dispatch) uaddr <= entry;
         end

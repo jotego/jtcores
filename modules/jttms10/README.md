@@ -80,6 +80,9 @@ seeded arithmetic check.
 The [synchronous host engine](docs/host.md) also shares the I/O state and
 bus arbiter; its bench covers byte ordering, prefetch, increments, ownership,
 and host-indirect I/O. Physical asynchronous host-pin timing remains pending.
+DIVS/DIVU/MODS/MODU share an iterative restoring divide through the same ALU;
+[divide notes](docs/divide.md) describe flags, overflow, and the seeded
+quotient/remainder check.
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

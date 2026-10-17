@@ -22,6 +22,7 @@ module jttms10(
     wire setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish;
     wire multiinit, multiadvance, ptrwr, listwr;
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
+    wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
     wire [4:0] a_sel;
@@ -29,9 +30,12 @@ module jttms10(
     wire [1:0] b_sel, md_sel, mem_sel, stack_sel, tmp_sel, st_sel;
     wire [2:0] ea_sel;
     wire [31:0] rs_data, rd_data, result;
+    wire n,z,c,v;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
+    reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
+    reg div_phase, div_early, div_error;
     reg shift_c, shift_v;
     reg [4:0] lmo_count;
     reg [15:0] multi_mask;
@@ -40,6 +44,13 @@ module jttms10(
     wire multi_bit = multi_mask[15];
     wire multi_ir = ir[15:5]==11'h04c || ir[15:5]==11'h04d;
     wire mul_ir = ir[15:10]==6'b010111;
+    wire div_ir = ir[15:10]==6'b010110 || ir[15:10]==6'b011011;
+    wire div_mod = ir[15:10]==6'b011011;
+    wire div_signed = !ir[9];
+    wire div_pair = !div_mod && !ir[0];
+    wire div_qneg = div_dvdneg ^ div_dvsneg;
+    wire div_range = div_signed &&
+        (div_qneg ? md>32'h8000_0000 : md>=32'h8000_0000);
     wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
@@ -83,6 +94,7 @@ module jttms10(
         .multi_bit(multi_bit), .multi_steps(multi_steps),
         .multi_load(ir[5]),
         .mul_count(mul_count),
+        .div_early_cond(a==0 || !c),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
@@ -98,6 +110,9 @@ module jttms10(
         .mulinit(mulinit), .mulstep(mulstep),
         .mulcorrq(mulcorrq), .mulcorrm(mulcorrm),
         .mulfinish(mulfinish), .mulwrhi(mulwrhi), .mulwrlo(mulwrlo),
+        .divinit(divinit), .divload(divload), .divnega(divnega),
+        .divnegmd(divnegmd), .divnegb(divnegb),
+        .divcheck(divcheck), .divstep(divstep),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -113,16 +128,22 @@ module jttms10(
     jttms10_regs u_regs(
         .clk(clk), .rs(multi_ir ? {ir[4],multi_index} :
                          call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
-        .rd(stack_ir ? 5'd15 : {ir[4],ir[3:0]}),
+        .rd(stack_ir ? 5'd15 :
+            div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
+            {ir[4],ir[3:0]}),
         .wa(wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
             listwr ? {ir[4],multi_index} :
-            mulwrlo && !ir[0] ? {ir[4],ir[3:0]+4'd1} :
+            mulwrlo && (div_ir ? div_pair : !ir[0]) ?
+                {ir[4],ir[3:0]+4'd1} :
             wrsrc ? {ir[4],ir[8:5]} : dst),
         .we(step && (wr_reg || wrsrc || wr_sp || ptrwr || listwr ||
-                     (mulwrhi && !ir[0]) || mulwrlo) && !rst),
+                     ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
+                     (!div_ir || (!div_early &&
+                       (!div_error || (div_mod && div_signed))))) && !rst),
         .wd(exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} : listwr ? md :
-            mulwrhi ? b : mulwrlo ? md : result),
+            mulwrhi ? (div_ir ? md : b) :
+            mulwrlo ? (div_ir && (div_mod || div_pair) ? b : md) : result),
         .qs(rs_data), .qd(rd_data)
     );
     reg [3:0] alu_op;
@@ -154,9 +175,12 @@ module jttms10(
             default:;
         endcase
     end
-    wire n,z,c,v;
-    wire [31:0] alu_a = mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    jttms10_alu u_alu(.a(alu_a),.b(b),.op(alu_op),.cin(st[30]),
+    wire [31:0] div_trial = {b[30:0],md[31]};
+    wire [31:0] alu_a = divnegmd ? md : divnegb ? b :
+                        mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
+    wire [31:0] alu_b = divstep ? div_trial : divnegb ? 32'd0 : b;
+    wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
+    jttms10_alu u_alu(.a(alu_a),.b(alu_b),.op(alu_op),.cin(alu_cin),
         .result(result),.n(n),.z(z),.c(c),.v(v));
     reg condition;
     always @* begin
@@ -194,6 +218,13 @@ module jttms10(
             tmp<=0;
             shift_count<=0;
             mul_count<=0;
+            div_pairread<=0;
+            div_dvdneg<=0;
+            div_dvsneg<=0;
+            div_lowzero<=0;
+            div_phase<=0;
+            div_early<=0;
+            div_error<=0;
             shift_c<=0;
             shift_v<=0;
             lmo_count<=0;
@@ -224,7 +255,10 @@ module jttms10(
                     MD_TMP: tmp<=md;
                     default:;
                 endcase
-                if(ld_ir) ir<=md[15:0];
+                if(ld_ir) begin
+                    ir<=md[15:0];
+                    div_pairread<=0;
+                end
                 if(shiftkinit || shiftrinit) begin
                     shift_count<=shift_right ? -shift_raw : shift_raw;
                     shift_c<=0;
@@ -267,9 +301,55 @@ module jttms10(
                 end
                 if(mulcorrq && !ir[9] && tmp[31]) b<=result;
                 if(mulcorrm && !ir[9] && a[31]) b<=result;
+                if(divinit) begin
+                    // qs and qd are already primed by the fetch/dispatch
+                    // cycles. The pair low half is read after this step.
+                    a<=rs_data;
+                    tmp<=rd_data;
+                    div_dvsneg<=rs_data[31];
+                    div_dvdneg<=rd_data[31];
+                    div_pairread<=div_pair;
+                    div_phase<=0;
+                    div_early<=0;
+                    div_error<=0;
+                    mul_count<=0;
+                end
+                if(divload) begin
+                    b<=div_pair ? tmp : 32'd0;
+                    md<=div_pair ? rd_data : tmp;
+                    div_lowzero<=div_pair ? rd_data==0 : tmp==0;
+                end
+                if(divnega && div_signed && div_dvsneg) a<=result;
+                if(divnegmd && div_signed &&
+                   (div_phase ? div_qneg : div_dvdneg)) md<=result;
+                if(divnegb && div_signed && div_dvdneg &&
+                   (div_phase || div_pair)) b<=result;
+                if(divcheck) div_early<=a==0 || !c;
+                if(divstep) begin
+                    b<=b[31] || !c ? result : div_trial;
+                    md<={md[30:0],b[31] || !c};
+                    mul_count<=mul_count-5'd1;
+                end
                 if(mulfinish) begin
-                    if(!ir[9]) st[31]<=ir[0] ? md[31] : b[31];
-                    st[29]<=ir[0] ? md==0 : b==0 && md==0;
+                    if(div_ir) begin
+                        div_phase<=1;
+                        div_error<=div_early || div_range;
+                        st[28]<=div_early || div_range;
+                        if(div_mod) begin
+                            // TI MOD examples use remainder, despite the
+                            // contradictory "quotient" word in flag prose.
+                            if(!div_early) st[29]<=b==0;
+                        end else begin
+                            st[29]<=!div_early && !div_range && md==0;
+                            if(div_signed)
+                                st[31]<=!div_early &&
+                                    (md==32'h8000_0000 ||
+                                     (div_qneg && md!=0));
+                        end
+                    end else begin
+                        if(!ir[9]) st[31]<=ir[0] ? md[31] : b[31];
+                        st[29]<=ir[0] ? md==0 : b==0 && md==0;
+                    end
                 end
                 if(lmoscan && lmo_more) begin
                     a<=result;
