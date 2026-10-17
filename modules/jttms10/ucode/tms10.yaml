@@ -1,0 +1,151 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Dispatch entries are instruction families, not the complete 16-bit opcode.
+config:
+  entries: 128
+  entry_len: 16
+  latch_ucode: true
+  ignore_cycles: true
+  bus_error: illegal
+ops:
+  - {name: ADDIW, op: 25, ctl: {inv: "", alu: add, wr: wr_reg}}
+  - {name: SUBIW, op: 26, ctl: {inv: inv_a, alu: sub, wr: wr_reg}}
+  - {name: CMPIW, op: 27, ctl: {inv: inv_a, alu: sub, wr: ""}}
+  - {name: ADDIL, op: 28, ctl: {inv: "", alu: add, wr: wr_reg}}
+  - {name: SUBIL, op: 29, ctl: {inv: inv_a, alu: sub, wr: wr_reg}}
+  - {name: CMPIL, op: 30, ctl: {inv: inv_a, alu: sub, wr: ""}}
+ucode:
+  - name: reset
+    start: 0
+    seq:
+      - boot_jsr
+      - fetch_jsr
+  - name: fetch
+    start: 1
+    seq:
+      - fetch, pcinc
+      - ld_ir, dispatch
+  - name: illegal
+    start: -1
+    seq:
+      - halt
+  - name: nop
+    start: 2
+    seq: [ni]
+  - name: movk
+    start: 3
+    seq:
+      - k_a
+      - pass_alu, wr_reg, ni
+  - name: moviw
+    start: 4
+    seq:
+      - imm, pcinc
+      - immse_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: movil
+    start: 5
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: move
+    start: 6
+    seq:
+      - reg_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: add
+    start: 7
+    seq:
+      - reg_a, reg_b
+      - add_alu, wr_reg, nvzc_cc, ni
+  - name: addc
+    start: 8
+    seq:
+      - reg_a, reg_b
+      - adc_alu, wr_reg, nvzc_cc, ni
+  - name: sub
+    start: 9
+    seq:
+      - reg_a, reg_b
+      - sub_alu, wr_reg, nvzc_cc, ni
+  - name: subb
+    start: 10
+    seq:
+      - reg_a, reg_b
+      - sbc_alu, wr_reg, nvzc_cc, ni
+  - name: cmp
+    start: 11
+    seq:
+      - reg_a, reg_b
+      - sub_alu, nvzc_cc, ni
+  - name: addk
+    start: 12
+    seq:
+      - k_a, reg_b
+      - add_alu, wr_reg, nvzc_cc, ni
+  - name: subk
+    start: 13
+    seq:
+      - k_a, reg_b
+      - sub_alu, wr_reg, nvzc_cc, ni
+  - name: and
+    start: 14
+    seq:
+      - reg_a, reg_b
+      - and_alu, wr_reg, z_cc, ni
+  - name: andn
+    start: 15
+    seq:
+      - reg_a, reg_b
+      - andn_alu, wr_reg, z_cc, ni
+  - name: or
+    start: 16
+    seq:
+      - reg_a, reg_b
+      - or_alu, wr_reg, z_cc, ni
+  - name: xor
+    start: 17
+    seq:
+      - reg_a, reg_b
+      - xor_alu, wr_reg, z_cc, ni
+  - name: jump
+    start: 18
+    seq: [reg_pc, ni]
+  - name: jr
+    start: 19
+    seq: [rel_pc, ni]
+  - name: clrc
+    start: 20
+    seq: [c0_cc, ni]
+  - name: setc
+    start: 21
+    seq: [c1_cc, ni]
+  - name: dint
+    start: 22
+    seq: [i0_cc, ni]
+  - name: eint
+    start: 23
+    seq: [i1_cc, ni]
+  - name: boot
+    start: 24
+    seq:
+      - vector
+      - md_pc, ret_jsr
+  # SUBI and CMPI store the one's complement of the source-level immediate
+  # in their extension words (TI User's Guide pp. 12-54/55, 12-249/250).
+  - mnemo: [ADDIW, SUBIW, CMPIW]
+    seq:
+      - imm, pcinc
+      - immse_a, reg_b
+      - ${inv}
+      - ${alu}_alu, ${wr}, nvzc_cc, ni
+  - mnemo: [ADDIL, SUBIL, CMPIL]
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a, reg_b
+      - ${inv}
+      - ${alu}_alu, ${wr}, nvzc_cc, ni

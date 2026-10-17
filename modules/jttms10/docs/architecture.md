@@ -1,0 +1,79 @@
+# Architecture and development evidence
+
+## Required end state
+
+Issue 141 requires a new `modules/jttms10` CPU using JTFRAME YAML microcode,
+no more than 25% of the old TMS34010 CPU's logic resources, validation against
+the old implementation and TI documentation, and a working NARC replacement
+in simulation and on MiSTer. A passing subset of instructions or a small
+unfinished synthesized CPU does not prove the area requirement.
+
+## Datapath
+
+- A/B registers occupy mirrored 32-by-32 synchronous RAMs, providing two
+  read ports and one write port. A15 and B15 map to physical register 15.
+  General registers have no architectural reset value and are not reset;
+  this permits block RAM inference.
+- One 32-bit ALU supplies arithmetic and logic. A single 33-bit adder is
+  shared by addition, subtraction, negation, and absolute value. Shifts are
+  one bit per operation; wide variable shifters and parallel dividers are
+  excluded from the area-oriented datapath.
+- PC is a bit address. Instruction words increment it by 16. Extension words
+  are fetched low word first. Branch/jump destinations are word aligned.
+- Status resets to `00000010`. Microcode selects which of N/C/Z/V to update;
+  logical operations change Z only, register moves and MOVI update N/Z and
+  clear V, and MOVK leaves status unchanged. Subtraction C denotes borrow.
+
+## Sequencer
+
+The ROM has 128 dispatch slots with 16 microsteps each, rather than one slot
+per 16-bit opcode. A compact masked decoder selects a family; register/file,
+constant, and condition fields remain in IR. Named YAML chunks are the
+dispatch slots, and generated `_SEQA` constants define their addresses.
+
+`latch_ucode: true` uses JTFRAME's existing synchronous-ROM contract. An
+inactive microcycle reads ROM; the following active microcycle executes it.
+The controller holds its address and controls through a memory wait. An
+acknowledgement received while the external clock enable is low is captured
+once and consumed when execution resumes. Requests are disabled between
+execution and ROM priming to prevent duplicate transactions.
+
+The generator groups tokens by underscore suffix, so `add_alu` selects an
+ALU field, but the standalone PC increment control is `pcinc`. Naming it
+`inc_pc` would merge it with the `md_pc`/`reg_pc`/`rel_pc` selector. The
+one-deep generated JSR/RET mechanism is used for reset-vector loading;
+microcode must not nest calls without extending the return storage.
+
+The initial immediate-arithmetic families use the compiler's `ops.ctl`
+substitution: ADDI, SUBI, and CMPI share word/long operand-fetch sequences,
+while YAML selects inversion, arithmetic, and writeback. SUBI/CMPI extension
+words contain the one's complement of the source-level immediate.
+
+The initial external memory interface describes bit-addressed fields up to
+32 bits. The physical 16-bit word sequencer, I/O, video timing, host
+interface, refresh arbitration, interrupts, cache, and graphics execution
+are not yet integrated. `fault` currently stops unsupported instructions;
+it is a development diagnostic rather than the architectural trap sequence.
+
+## Validation sources
+
+- TI, *TMS34010 User's Guide*, 1988, SPVU001A, instruction pages in chapter
+  12 and encoding summary in appendix A. A scanned primary-source copy is
+  available from [Bitsavers](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf).
+- The user's `/gdrive/jotego/arcade/components/tms34010.pdf` is a scanned
+  60-page device data sheet; use it for electrical/interface checks and the
+  User's Guide for detailed instruction semantics.
+- The existing `modules/tms34010` implementation is read-only reference
+  material, including its instruction, graphics, and cycle-accuracy ledgers.
+
+The initial YAML programs exercise varying 1–3-clock memory response delays
+and check that requests stay stable until acknowledgement. These results
+prove only the states asserted by the tests. No NARC execution or complete
+area/timing result is claimed at this stage.
+
+`ver/reference.py` runs the same architectural checkpoints on the unchanged
+existing CPU at `29bcb384ec3dba892ea54db2ee92b38ae395d575`, in its functional
+mode. It excludes the development-only illegal halt and external enable
+tests. It checks the asserted register/status/PC values, not all register
+state or silicon timing. Separate ALU and field-sequencer benches cover
+arithmetic boundaries and every offset 0–15/width 1–32 combination.

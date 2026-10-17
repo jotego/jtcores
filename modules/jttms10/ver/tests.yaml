@@ -1,0 +1,211 @@
+# Each case loads the 16-bit words consecutively at `entry` (a bit address).
+# `after` is the opcode's bit address. `pc` is the PC after retirement.
+# A future testbench should sample one retire pulse per expected checkpoint.
+# Unlisted registers/status bits are deliberately unconstrained.
+cases:
+  - name: reset_vector_and_movk32
+    entry: 0x1000
+    words: [0x1800, 0x0300] # MOVK 32,A0; NOP
+    checks:
+      - {after: 0x1000, pc: 0x1010, regs: {A0: 32}, st: 0x00000010}
+      - {after: 0x1010, pc: 0x1020, regs: {A0: 32}, st: 0x00000010}
+
+  - name: immediate_arithmetic_and_move
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW 5,A0
+      - 0x0005
+      - 0x1060 # ADDK 3,A0
+      - 0x1420 # SUBK 1,A0
+      - 0x4C01 # MOVE A0,A1
+      - 0x4001 # ADD A0,A1
+      - 0x4401 # SUB A0,A1
+      - 0x4E02 # MOVE A0,B2 (cross file)
+      - 0x09C3 # MOVI IW -1,A3
+      - 0xFFFF
+      - 0x09F4 # MOVI IL 80000000,B4
+      - 0x0000
+      - 0x8000
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 5}, flags: {N: 0, Z: 0, V: 0}}
+      - {after: 0x1020, pc: 0x1030, regs: {A0: 8}, flags: {N: 0, Z: 0, C: 0, V: 0}}
+      - {after: 0x1030, pc: 0x1040, regs: {A0: 7}, flags: {N: 0, Z: 0, C: 0, V: 0}}
+      - {after: 0x1040, pc: 0x1050, regs: {A1: 7}, flags: {N: 0, Z: 0, C: 0, V: 0}}
+      - {after: 0x1050, pc: 0x1060, regs: {A1: 14}, flags: {N: 0, Z: 0, C: 0, V: 0}}
+      - {after: 0x1060, pc: 0x1070, regs: {A1: 7}, flags: {N: 0, Z: 0, C: 0, V: 0}}
+      - {after: 0x1070, pc: 0x1080, regs: {B2: 7}, flags: {N: 0, Z: 0, C: 0, V: 0}}
+      - {after: 0x1080, pc: 0x10A0, regs: {A3: 0xFFFFFFFF}, flags: {N: 1, Z: 0, V: 0}}
+      - {after: 0x10A0, pc: 0x10D0, regs: {B4: 0x80000000}, flags: {N: 1, Z: 0, V: 0}}
+
+  - name: conditional_branch_taken_and_not_taken
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW 0,A0: Z=1
+      - 0x0000
+      - 0xCA01 # JR EQ,+1; skips MOVK 31,A0
+      - 0x1BE0 # skipped
+      - 0x1820 # MOVK 1,A0; leaves Z=1
+      - 0x09C1 # MOVI IW 1,A1: Z=0
+      - 0x0001
+      - 0xCA01 # JR EQ,+1; not taken
+      - 0x1BE0 # MOVK 31,A0
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0}, flags: {Z: 1}}
+      - {after: 0x1020, pc: 0x1040, regs: {A0: 0}, flags: {Z: 1}}
+      - {after: 0x1040, pc: 0x1050, regs: {A0: 1}, flags: {Z: 1}}
+      - {after: 0x1050, pc: 0x1070, regs: {A1: 1}, flags: {Z: 0}}
+      - {after: 0x1070, pc: 0x1080, regs: {A0: 1}, flags: {Z: 0}}
+      - {after: 0x1080, pc: 0x1090, regs: {A0: 31}, flags: {Z: 0}}
+
+  - name: jump_register_alignment
+    entry: 0x1000
+    words:
+      - 0x09E3 # MOVI IL 0x1087,A3
+      - 0x1087
+      - 0x0000
+      - 0x0163 # JUMP A3; target low nibble is cleared
+      - 0x1BE0 # skipped MOVK 31,A0
+      - 0x0300
+      - 0x0300
+      - 0x0300
+      - 0x1820 # target at 0x1080: MOVK 1,A0
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A3: 0x1087}}
+      - {after: 0x1030, pc: 0x1080, regs: {A3: 0x1087}}
+      - {after: 0x1080, pc: 0x1090, regs: {A0: 1}}
+
+  - name: carry_borrow_and_signed_overflow
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL FFFFFFFF,A0
+      - 0xFFFF
+      - 0xFFFF
+      - 0x1020 # ADDK 1,A0 -> 0 with carry
+      - 0x1420 # SUBK 1,A0 -> FFFFFFFF with borrow
+      - 0x09E1 # MOVI IL 7FFFFFFF,A1
+      - 0xFFFF
+      - 0x7FFF
+      - 0x1021 # ADDK 1,A1 -> signed overflow
+      - 0x09E2 # MOVI IL 80000000,A2
+      - 0x0000
+      - 0x8000
+      - 0x1422 # SUBK 1,A2 -> signed overflow
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0xFFFFFFFF}, flags: {N: 1, C: 0, Z: 0, V: 0}}
+      - {after: 0x1030, pc: 0x1040, regs: {A0: 0}, flags: {N: 0, C: 1, Z: 1, V: 0}}
+      - {after: 0x1040, pc: 0x1050, regs: {A0: 0xFFFFFFFF}, flags: {N: 1, C: 1, Z: 0, V: 0}}
+      - {after: 0x1050, pc: 0x1080, regs: {A1: 0x7FFFFFFF}, flags: {N: 0, C: 1, Z: 0, V: 0}}
+      - {after: 0x1080, pc: 0x1090, regs: {A1: 0x80000000}, flags: {N: 1, C: 0, Z: 0, V: 1}}
+      - {after: 0x1090, pc: 0x10C0, regs: {A2: 0x80000000}, flags: {N: 1, C: 0, Z: 0, V: 0}}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A2: 0x7FFFFFFF}, flags: {N: 0, C: 0, Z: 0, V: 1}}
+
+  - name: movi_word_sign_zero_and_carry_preserve
+    entry: 0x1000
+    words:
+      - 0x0DE0 # SETC
+      - 0x09C0 # MOVI IW -1,A0
+      - 0xFFFF
+      - 0x09C1 # MOVI IW 0,A1
+      - 0x0000
+      - 0x09D0 # MOVI IW 8000,B0 -> FFFF8000
+      - 0x8000
+    checks:
+      - {after: 0x1000, pc: 0x1010, flags: {C: 1}}
+      - {after: 0x1010, pc: 0x1030, regs: {A0: 0xFFFFFFFF}, flags: {N: 1, C: 1, Z: 0, V: 0}}
+      - {after: 0x1030, pc: 0x1050, regs: {A1: 0}, flags: {N: 0, C: 1, Z: 1, V: 0}}
+      - {after: 0x1050, pc: 0x1070, regs: {B0: 0xFFFF8000}, flags: {N: 1, C: 1, Z: 0, V: 0}}
+
+  - name: logical_updates_only_z
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 7FFFFFFF,A0
+      - 0xFFFF
+      - 0x7FFF
+      - 0x1020 # ADDK 1,A0 -> N=1,V=1
+      - 0x0DE0 # SETC -> C=1
+      - 0x1821 # MOVK 1,A1; flags unchanged
+      - 0x5020 # AND A1,A0 -> zero, preserve N/C/V
+      - 0x1862 # MOVK 3,A2
+      - 0x5222 # ANDN A1,A2 -> 2
+      - 0x5420 # OR A1,A0 -> 1
+      - 0x5600 # XOR A0,A0 -> zero
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x7FFFFFFF}}
+      - {after: 0x1030, pc: 0x1040, regs: {A0: 0x80000000}, flags: {N: 1, C: 0, Z: 0, V: 1}}
+      - {after: 0x1040, pc: 0x1050, flags: {N: 1, C: 1, Z: 0, V: 1}}
+      - {after: 0x1050, pc: 0x1060, regs: {A1: 1}, flags: {N: 1, C: 1, Z: 0, V: 1}}
+      - {after: 0x1060, pc: 0x1070, regs: {A0: 0}, flags: {N: 1, C: 1, Z: 1, V: 1}}
+      - {after: 0x1070, pc: 0x1080, regs: {A2: 3}, flags: {N: 1, C: 1, Z: 1, V: 1}}
+      - {after: 0x1080, pc: 0x1090, regs: {A2: 2}, flags: {N: 1, C: 1, Z: 0, V: 1}}
+      - {after: 0x1090, pc: 0x10A0, regs: {A0: 1}, flags: {N: 1, C: 1, Z: 0, V: 1}}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A0: 0}, flags: {N: 1, C: 1, Z: 1, V: 1}}
+
+  - name: shared_sp_alias
+    entry: 0x1000
+    words:
+      - 0x09CF # MOVI IW 1234,A15 (SP)
+      - 0x1234
+      - 0x4DE0 # MOVE A15,A0
+      - 0x183F # MOVK 1,B15 (the same SP)
+      - 0x4DF1 # MOVE B15,B1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A15: 0x1234, B15: 0x1234}}
+      - {after: 0x1020, pc: 0x1030, regs: {A0: 0x1234}}
+      - {after: 0x1030, pc: 0x1040, regs: {A15: 1, B15: 1}}
+      - {after: 0x1040, pc: 0x1050, regs: {B1: 1}}
+
+  - name: immediate_arithmetic_iw_complement_and_flags
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 7FFFFFFF,A0
+      - 0xFFFF
+      - 0x7FFF
+      - 0x0B00 # ADDI IW 1,A0 -> 80000000, signed overflow
+      - 0x0001
+      - 0x0BE0 # SUBI IW 1,A0; extension is one's complement of 1
+      - 0xFFFE
+      - 0x0B40 # CMPI IW -1,A0; extension is one's complement of FFFF
+      - 0x0000
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x7FFFFFFF}}
+      - {after: 0x1030, pc: 0x1050, regs: {A0: 0x80000000}, flags: {N: 1, C: 0, Z: 0, V: 1}}
+      - {after: 0x1050, pc: 0x1070, regs: {A0: 0x7FFFFFFF}, flags: {N: 0, C: 0, Z: 0, V: 1}}
+      - {after: 0x1070, pc: 0x1090, regs: {A0: 0x7FFFFFFF}, flags: {N: 1, C: 1, Z: 0, V: 1}}
+
+  - name: immediate_arithmetic_il_complement_and_flags
+    entry: 0x1000
+    words:
+      - 0x09F1 # MOVI IL FFFFFFFF,B1
+      - 0xFFFF
+      - 0xFFFF
+      - 0x0B31 # ADDI IL 1,B1 -> zero with carry
+      - 0x0001
+      - 0x0000
+      - 0x0D11 # SUBI IL 1,B1; both extension words complemented
+      - 0xFFFE
+      - 0xFFFF
+      - 0x0B71 # CMPI IL -1,B1; complement is 00000000
+      - 0x0000
+      - 0x0000
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B1: 0xFFFFFFFF}}
+      - {after: 0x1030, pc: 0x1060, regs: {B1: 0}, flags: {N: 0, C: 1, Z: 1, V: 0}}
+      - {after: 0x1060, pc: 0x1090, regs: {B1: 0xFFFFFFFF}, flags: {N: 1, C: 1, Z: 0, V: 0}}
+      - {after: 0x1090, pc: 0x10C0, regs: {B1: 0xFFFFFFFF}, flags: {N: 0, C: 0, Z: 1, V: 0}}
+
+  - name: illegal_opcode_halts
+    entry: 0x1000
+    words: [0x0300, 0x0200] # NOP, reserved 02xx cell
+    expect_fault: true
+    fault_ir: 0x0200
+    checks:
+      - {after: 0x1000, pc: 0x1010, st: 0x00000010}
+
+  - name: pause_across_memory_ack
+    entry: 0x1000
+    words: [0x09C0, 0x0007, 0x1020] # MOVI IW 7,A0; ADDK 1,A0
+    pause_on_ack: true
+    expected_requests: 4 # reset vector + three instruction words, each once
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 7}}
+      - {after: 0x1020, pc: 0x1030, regs: {A0: 8}}
