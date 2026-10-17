@@ -1442,3 +1442,172 @@ cases:
       - {after: 0x1140, pc: 0x1160, regs: {B0: 32}}
       - {after: 0x1160, pc: 0x1170, st: 0xD0000010}
       - {after: 0x1170, pc: 0x1180, regs: {A15: 3, B15: 3}, st: 0x90000010}
+
+  # TI SPVU001A pp. 12-237, 12-238, 12-256: zero FS encodes 32,
+  # SETF preserves unrelated ST bits, and extensions ignore FE.
+  - name: setf_sext_zext_field_boundaries
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL D0000010,A0: N/C/V sentinel
+      - 0x0010
+      - 0xD000
+      - 0x09C1 # MOVI IW 1,A1
+      - 0x0001
+      - 0x09E2 # MOVI IL FFFFFFFE,A2
+      - 0xFFFE
+      - 0xFFFF
+      - 0x09E3 # MOVI IL 40000001,A3
+      - 0x0001
+      - 0x4000
+      - 0x09C4 # MOVI IW -1,A4
+      - 0xFFFF
+      - 0x01A0 # PUTST A0
+      - 0x0561 # SETF 1,1,F0
+      - 0x077F # SETF 31,1,F1
+      - 0x0501 # SEXT A1,F0: FE1 and FS1 irrelevant
+      - 0x0522 # ZEXT A2,F0: FE0=1 ignored
+      - 0x0703 # SEXT A3,F1: sign bit is bit30
+      - 0x0724 # ZEXT A4,F1: FE1=1 ignored
+      - 0x0540 # SETF 32,0,F0: encoded size zero
+      - 0x0740 # SETF 32,0,F1
+      - 0x0524 # ZEXT A4,F0: full 32-bit value
+      - 0x0703 # SEXT A3,F1: full 32-bit value
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0xD0000010}}
+      - {after: 0x1030, pc: 0x1050, regs: {A1: 1}}
+      - {after: 0x1050, pc: 0x1080, regs: {A2: 0xFFFFFFFE}}
+      - {after: 0x1080, pc: 0x10B0, regs: {A3: 0x40000001}}
+      - {after: 0x10B0, pc: 0x10D0, regs: {A4: 0xFFFFFFFF}}
+      - {after: 0x10D0, pc: 0x10E0, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x10F0, st: 0xD0000021}
+      - {after: 0x10F0, pc: 0x1100, st: 0xD0000FE1}
+      - {after: 0x1100, pc: 0x1110, regs: {A1: 0xFFFFFFFF}, st: 0xD0000FE1}
+      - {after: 0x1110, pc: 0x1120, regs: {A2: 0}, st: 0xF0000FE1}
+      - {after: 0x1120, pc: 0x1130, regs: {A3: 0xC0000001}, st: 0xD0000FE1}
+      - {after: 0x1130, pc: 0x1140, regs: {A4: 0x7FFFFFFF}, st: 0xD0000FE1}
+      - {after: 0x1140, pc: 0x1150, st: 0xD0000FC0}
+      - {after: 0x1150, pc: 0x1160, st: 0xD0000000}
+      - {after: 0x1160, pc: 0x1170, regs: {A4: 0x7FFFFFFF}, st: 0xD0000000}
+      - {after: 0x1170, pc: 0x1180, regs: {A3: 0xC0000001}, st: 0xD0000000}
+
+  - name: f1_single_bit_extensions_ignore_fe
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL D0000010,A0
+      - 0x0010
+      - 0xD000
+      - 0x09C1 # MOVI IW 1,A1
+      - 0x0001
+      - 0x09C2 # MOVI IW -2,A2
+      - 0xFFFE
+      - 0x01A0 # PUTST A0
+      - 0x0741 # SETF 1,0,F1
+      - 0x0701 # SEXT A1,F1: sign extends despite FE1=0
+      - 0x0722 # ZEXT A2,F1: low bit zero
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0xD0000010}}
+      - {after: 0x1030, pc: 0x1050, regs: {A1: 1}}
+      - {after: 0x1050, pc: 0x1070, regs: {A2: 0xFFFFFFFE}}
+      - {after: 0x1070, pc: 0x1080, st: 0xD0000010}
+      - {after: 0x1080, pc: 0x1090, st: 0xD0000050}
+      - {after: 0x1090, pc: 0x10A0, regs: {A1: 0xFFFFFFFF}, st: 0xD0000050}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A2: 0}, st: 0xF0000050}
+
+  # TI p. 12-77: EXGF exchanges all six bits; register upper bits clear.
+  - name: exgf_both_fields_and_shared_sp
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL D0000FE1,A0: both pairs and N/C/V
+      - 0x0FE1
+      - 0xD000
+      - 0x09E1 # MOVI IL FFFFFFC5,A1: low six bits 05
+      - 0xFFC5
+      - 0xFFFF
+      - 0x09FF # MOVI IL FFFFFFE2,B15/shared SP: low six bits 22
+      - 0xFFE2
+      - 0xFFFF
+      - 0x01A0 # PUTST A0
+      - 0xD501 # EXGF A1,F0: old field 21 -> A1, old A1 low6 05 -> ST
+      - 0xD701 # EXGF A1,F1: old field 3F -> A1, old A1 low6 21 -> ST
+      - 0xD51F # EXGF B15,F0: old field 05 -> shared SP, old SP low6 22 -> ST
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0xD0000FE1}}
+      - {after: 0x1030, pc: 0x1060, regs: {A1: 0xFFFFFFC5}}
+      - {after: 0x1060, pc: 0x1090, regs: {A15: 0xFFFFFFE2, B15: 0xFFFFFFE2}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xD0000FE1}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A1: 0x21}, st: 0xD0000FC5}
+      - {after: 0x10B0, pc: 0x10C0, regs: {A1: 0x3F}, st: 0xD0000845}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A15: 5, B15: 5}, st: 0xD0000862}
+
+  # TI pp. 12-46/47: K is one's-complement encoded; Rs uses low five bits.
+  - name: btst_constant_and_register_extremes
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 80000001,A0
+      - 0x0001
+      - 0x8000
+      - 0x09C1 # MOVI IW 32,A1
+      - 0x0020
+      - 0x09C2 # MOVI IW 63,A2
+      - 0x003F
+      - 0x09E3 # MOVI IL D0000010,A3
+      - 0x0010
+      - 0xD000
+      - 0x01A3 # PUTST A3
+      - 0x1FE0 # BTST 0,A0
+      - 0x1C00 # BTST 31,A0
+      - 0x1E00 # BTST 15,A0: clear bit sets Z
+      - 0x4A20 # BTST A1,A0: 32 truncates to bit0
+      - 0x4A40 # BTST A2,A0: 63 truncates to bit31
+      - 0x1FE1 # BTST 0,A1: bit0 clear
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x80000001}}
+      - {after: 0x1030, pc: 0x1050, regs: {A1: 32}}
+      - {after: 0x1050, pc: 0x1070, regs: {A2: 63}}
+      - {after: 0x1070, pc: 0x10A0, regs: {A3: 0xD0000010}}
+      - {after: 0x10A0, pc: 0x10B0, st: 0xD0000010}
+      - {after: 0x10B0, pc: 0x10C0, regs: {A0: 0x80000001}, st: 0xD0000010}
+      - {after: 0x10C0, pc: 0x10D0, st: 0xD0000010}
+      - {after: 0x10D0, pc: 0x10E0, st: 0xF0000010}
+      - {after: 0x10E0, pc: 0x10F0, regs: {A1: 32}, st: 0xD0000010}
+      - {after: 0x10F0, pc: 0x1100, regs: {A2: 63}, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x1110, st: 0xF0000010}
+
+  # TI p. 12-108: Z tests the source, including when result is zero.
+  - name: lmo_guide_vectors_and_source_zero_flag
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW 0,A0
+      - 0x0000
+      - 0x09C1 # MOVI IW 1,A1
+      - 0x0001
+      - 0x09C2 # MOVI IW 0x10,A2
+      - 0x0010
+      - 0x09E3 # MOVI IL 08000000,A3
+      - 0x0000
+      - 0x0800
+      - 0x09E4 # MOVI IL 80000000,A4
+      - 0x0000
+      - 0x8000
+      - 0x09E6 # MOVI IL D0000010,A6
+      - 0x0010
+      - 0xD000
+      - 0x01A6 # PUTST A6
+      - 0x6A05 # LMO A0,A5: zero source -> result0,Z1
+      - 0x6A25 # LMO A1,A5: bit0 ->31
+      - 0x6A45 # LMO A2,A5: bit4 ->27
+      - 0x6A65 # LMO A3,A5: bit27 ->4
+      - 0x6A84 # LMO A4,A4: bit31 ->0, but Z0
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 1}}
+      - {after: 0x1040, pc: 0x1060, regs: {A2: 0x10}}
+      - {after: 0x1060, pc: 0x1090, regs: {A3: 0x08000000}}
+      - {after: 0x1090, pc: 0x10C0, regs: {A4: 0x80000000}}
+      - {after: 0x10C0, pc: 0x10F0, regs: {A6: 0xD0000010}}
+      - {after: 0x10F0, pc: 0x1100, st: 0xD0000010}
+      - {after: 0x1100, pc: 0x1110, regs: {A5: 0}, st: 0xF0000010}
+      - {after: 0x1110, pc: 0x1120, regs: {A5: 31}, st: 0xD0000010}
+      - {after: 0x1120, pc: 0x1130, regs: {A5: 27}, st: 0xD0000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A5: 4}, st: 0xD0000010}
+      - {after: 0x1140, pc: 0x1150, regs: {A4: 0}, st: 0xD0000010}

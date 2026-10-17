@@ -19,8 +19,10 @@ module jttms10(
     wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
     wire shiftkinit, shiftrinit, shift_step, shift_finish;
+    wire setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish;
     wire [3:0] cc_sel;
-    wire [3:0] alu_sel, a_sel;
+    wire [3:0] alu_sel;
+    wire [4:0] a_sel;
     wire [2:0] pc_sel;
     wire [1:0] b_sel, md_sel, mem_sel, stack_sel, tmp_sel, st_sel;
     wire [2:0] ea_sel;
@@ -28,6 +30,10 @@ module jttms10(
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [4:0] shift_count;
     reg shift_c, shift_v;
+    reg [4:0] lmo_count;
+    wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
+    wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
+    wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
     // The two encoding families use the same five operation numbers.
     wire [2:0] shift_kind = ir[15:13]==3'b001 ? ir[12:10] : ir[11:9];
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
@@ -62,7 +68,7 @@ module jttms10(
 
     jttms10_ctrl u_ctrl(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
-        .shift_count(shift_count),
+        .shift_count(shift_count), .lmo_more(lmo_more),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
@@ -71,6 +77,8 @@ module jttms10(
         .st_sel(st_sel),
         .shiftkinit(shiftkinit), .shiftrinit(shiftrinit),
         .shift_step(shift_step), .shift_finish(shift_finish),
+        .setf(setf), .exgf(exgf), .btstfinish(btstfinish),
+        .lmoinit(lmoinit), .lmoscan(lmoscan), .lmofinish(lmofinish),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -87,7 +95,9 @@ module jttms10(
         .clk(clk), .rs(call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(stack_ir ? 5'd15 : {ir[4],ir[3:0]}),
         .wa(wr_sp ? 5'd15 : wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (wr_reg || wrsrc || wr_sp) && !rst), .wd(result),
+        .we(step && (wr_reg || wrsrc || wr_sp) && !rst),
+        .wd(exgf ? {26'd0,old_field} :
+            lmofinish ? {27'd0,lmo_count} : result),
         .qs(rs_data), .qd(rd_data)
     );
     reg [3:0] alu_op;
@@ -115,6 +125,7 @@ module jttms10(
                     default:;
                 endcase
             end
+            LMO_ALU: alu_op=12;
             default:;
         endcase
     end
@@ -158,6 +169,7 @@ module jttms10(
             shift_count<=0;
             shift_c<=0;
             shift_v<=0;
+            lmo_count<=0;
             fault<=0;
             completed<=0;
             bus_data<=0;
@@ -194,6 +206,11 @@ module jttms10(
                     shift_v<=shift_v | (a[31]^result[31]);
                     a<=result;
                 end
+                if(lmoinit) lmo_count<=0;
+                if(lmoscan && lmo_more) begin
+                    a<=result;
+                    lmo_count<=lmo_count+5'd1;
+                end
                 if(pcinc) pc<=pc+32'd16;
                 case(b_sel)
                     REG_B, SP_B: b<=rd_data;
@@ -214,9 +231,11 @@ module jttms10(
                     EXT_A: a<=extended;
                     PC_A: a<=pc;
                     REV_A: a<=32'd8;
-                    CALL_A: a<=rs_data;
                     WORD_A: a<=32'd32;
                     RETADJ_A: a<=32'd32+{23'd0,ir[4:0],4'd0};
+                    SEXT_A: a<=(a & field_mask) |
+                              (a[field_msb] ? ~field_mask : 32'd0);
+                    ZEXT_A: a<=a & field_mask;
                     default:;
                 endcase
                 case(ea_sel)
@@ -239,6 +258,14 @@ module jttms10(
                     default:;
                 endcase
                 if(stld) st<=a;
+                if(setf) begin
+                    if(ir[9]) st[11:6]<={ir[5],ir[4:0]};
+                    else st[5:0]<={ir[5],ir[4:0]};
+                end
+                if(exgf) begin
+                    if(ir[9]) st[11:6]<=rd_data[5:0];
+                    else st[5:0]<=rd_data[5:0];
+                end
                 case(st_sel)
                     MD_ST: st<=md;
                     TMP_ST: st<=tmp;
@@ -249,6 +276,7 @@ module jttms10(
                     NZV_CC: begin st[31]<=n; st[29]<=z; st[28]<=0; end
                     NVZC_CC:begin st[31]<=n; st[30]<=c; st[29]<=z; st[28]<=v; end
                     NZVABS_CC:begin st[31]<=n; st[29]<=z; st[28]<=v; end
+                    NZFIELD_CC:begin st[31]<=n; st[29]<=z; end
                     Z_CC:st[29]<=z;
                     C0_CC:st[30]<=0;
                     C1_CC:st[30]<=1;
@@ -262,6 +290,8 @@ module jttms10(
                     if(shift_kind==3'd0 || shift_kind==3'd2) st[31]<=n;
                     if(shift_kind==3'd0) st[28]<=shift_v;
                 end
+                if(btstfinish) st[29]<=~a[btst_index];
+                if(lmofinish) st[29]<=a==0;
                 retire<=ni;
             end
         end

@@ -62,6 +62,8 @@ See [stack and unary ISA notes](docs/stack-isa.md).
 SLA/SLL/SRA/SRL/RL support both constant and register counts through a shared
 one-bit loop; [shift notes](docs/shifts.md) describe count encoding, flags,
 and the outstanding timing difference.
+SETF, SEXT/ZEXT, EXGF, BTST, and iterative LMO are also covered; see
+[scalar field and bit notes](docs/field-bits.md).
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

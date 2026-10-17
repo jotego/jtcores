@@ -3,11 +3,13 @@ module jttms10_ctrl(
     input             rst, clk, enable, ready,
     input      [15:0]  md,
     input      [4:0]   shift_count,
+    input              lmo_more,
     output            execute, active,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
     output            shiftkinit, shiftrinit, shift_step, shift_finish,
-    output     [3:0]  a_sel,
+    output            setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish,
+    output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
     output     [3:0]  cc_sel,
@@ -64,6 +66,13 @@ module jttms10_ctrl(
             16'b0110010?????????,
             16'b0110011?????????,
             16'b0110100?????????: entry = SHIFTR_SEQA;
+            16'b000001?101??????: entry = SETF_SEQA;
+            16'b000001?1000?????: entry = SEXT_SEQA;
+            16'b000001?1001?????: entry = ZEXT_SEQA;
+            16'b110101?1000?????: entry = EXGF_SEQA;
+            16'b000111??????????,
+            16'b0100101?????????: entry = BTST_SEQA;
+            16'b0110101?????????: entry = LMO_SEQA;
             16'h01e0: entry = PUSHST_SEQA;
             16'h01c0: entry = POPST_SEQA;
             16'h0d5f: entry = CALLA_SEQA;
@@ -146,7 +155,8 @@ module jttms10_ctrl(
             uaddr[3:0] <= uaddr[3:0]+1'b1;
             if(jsr_en) begin
                 // Zero-count shifts skip the helper while retaining C=0.
-                if(jsr_sel==SHIFTLOOP_JSR && shift_count==0)
+                if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
+                   (jsr_sel==LMOLOOP_JSR && !lmo_more))
                     uaddr <= uaddr+11'd1;
                 else begin
                     uaddr <= jsr_ua;
@@ -155,6 +165,7 @@ module jttms10_ctrl(
             end
             // The helper's RET_JSR returns on its final one-bit shift.
             if(shift_step && shift_count>5'd1) uaddr <= SHIFTLOOP_SEQA;
+            if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(ni) uaddr <= FETCH_SEQA;
             if(dispatch) uaddr <= entry;
         end

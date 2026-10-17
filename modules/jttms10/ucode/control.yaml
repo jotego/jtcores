@@ -42,7 +42,7 @@ ucode:
   - name: callrs
     start: 57
     seq:
-      - call_a
+      - reg_a
       - a_tmp
       - pc_md, push32_jsr
       - tmp_pc, ni
@@ -175,3 +175,39 @@ ucode:
     start: 75
     seq:
       - shift_alu, shift_step, ret_jsr
+  - name: setf
+    start: 76
+    seq:
+      - setf, ni
+  - name: sext
+    start: 77
+    seq:
+      - rd_a
+      - sext_a
+      - pass_alu, wr_reg, nzfield_cc, ni
+  - name: zext
+    start: 78
+    seq:
+      - rd_a
+      - zext_a
+      - pass_alu, wr_reg, z_cc, ni
+  - name: exgf
+    start: 79
+    seq:
+      - exgf, wr_reg, ni
+  # K is one's-complement encoded. The register form uses Rs[4:0].
+  - name: btst
+    start: 80
+    seq:
+      - rd_a, bsrc
+      - btstfinish, ni
+  - name: lmo
+    start: 81
+    seq:
+      - reg_a, lmoinit
+      - lmoloop_jsr
+      - lmofinish, wr_reg, ni
+  - name: lmoloop
+    start: 82
+    seq:
+      - lmo_alu, lmoscan, ret_jsr
