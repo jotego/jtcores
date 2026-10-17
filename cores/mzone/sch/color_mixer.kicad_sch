@@ -5,7 +5,7 @@
 	(uuid "a3025cf0-606c-44c9-a868-b23bcc45f344")
 	(paper "A3")
 	(title_block
-		(title "Megazone")
+		(title "Mega Zone")
 		(date "2026-10-16")
 		(company "Konami GX319")
 	)
@@ -5732,7 +5732,6 @@
 	)
 	(label "R1"
 		(at 274.32 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5743,7 +5742,6 @@
 	)
 	(label "OCOL0"
 		(at 160.02 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5754,7 +5752,6 @@
 	)
 	(label "R0"
 		(at 274.32 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5765,7 +5762,6 @@
 	)
 	(label "G2"
 		(at 274.32 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5776,7 +5772,6 @@
 	)
 	(label "B0"
 		(at 274.32 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5787,7 +5782,6 @@
 	)
 	(label "TCOL''2"
 		(at 160.02 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5798,7 +5792,6 @@
 	)
 	(label "G2"
 		(at 276.86 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5809,7 +5802,6 @@
 	)
 	(label "R0"
 		(at 276.86 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5820,7 +5812,6 @@
 	)
 	(label "B1"
 		(at 276.86 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5831,7 +5822,6 @@
 	)
 	(label "TCOL''3"
 		(at 160.02 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5842,7 +5832,6 @@
 	)
 	(label "G1"
 		(at 276.86 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5853,7 +5842,6 @@
 	)
 	(label "G0"
 		(at 276.86 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5864,7 +5852,6 @@
 	)
 	(label "R2"
 		(at 276.86 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5875,7 +5862,6 @@
 	)
 	(label "TCOL''1"
 		(at 160.02 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5886,7 +5872,6 @@
 	)
 	(label "R1"
 		(at 276.86 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5897,7 +5882,6 @@
 	)
 	(label "B1"
 		(at 274.32 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5908,7 +5892,6 @@
 	)
 	(label "TCOL''0"
 		(at 160.02 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5919,7 +5902,6 @@
 	)
 	(label "OCOL2"
 		(at 160.02 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5930,7 +5912,6 @@
 	)
 	(label "B0"
 		(at 276.86 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5941,7 +5922,6 @@
 	)
 	(label "R2"
 		(at 274.32 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5952,7 +5932,6 @@
 	)
 	(label "OCOL1"
 		(at 160.02 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5963,7 +5942,6 @@
 	)
 	(label "OCOL3"
 		(at 160.02 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5974,7 +5952,6 @@
 	)
 	(label "G1"
 		(at 274.32 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5985,7 +5962,6 @@
 	)
 	(label "G0"
 		(at 274.32 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5997,7 +5973,6 @@
 	(hierarchical_label "OCOL[3..0]"
 		(shape input)
 		(at 154.94 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6009,7 +5984,6 @@
 	(hierarchical_label "~{CHBLANK}"
 		(shape input)
 		(at 115.57 176.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6021,7 +5995,6 @@
 	(hierarchical_label "BLUE"
 		(shape output)
 		(at 300.99 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6033,7 +6006,6 @@
 	(hierarchical_label "~{BLANK}"
 		(shape input)
 		(at 146.05 179.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6045,7 +6017,6 @@
 	(hierarchical_label "SEL"
 		(shape input)
 		(at 146.05 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6057,7 +6028,6 @@
 	(hierarchical_label "RED"
 		(shape output)
 		(at 300.99 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6069,7 +6039,6 @@
 	(hierarchical_label "PXCK2'"
 		(shape input)
 		(at 210.82 165.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6081,7 +6050,6 @@
 	(hierarchical_label "CFIX"
 		(shape input)
 		(at 146.05 165.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6093,7 +6061,6 @@
 	(hierarchical_label "TCOL''[3..0]"
 		(shape input)
 		(at 154.94 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6105,7 +6072,6 @@
 	(hierarchical_label "GREEN"
 		(shape output)
 		(at 300.99 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

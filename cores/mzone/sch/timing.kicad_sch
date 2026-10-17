@@ -5,7 +5,7 @@
 	(uuid "b928e80d-bc4f-4ed1-92a1-d35752a0d2da")
 	(paper "A3")
 	(title_block
-		(title "Megazone")
+		(title "Mega Zone")
 		(date "2026-10-16")
 		(company "Konami GX319")
 	)
@@ -12197,7 +12197,7 @@
 	)
 	(polyline
 		(pts
-			(xy 40.64 45.72) (xy 40.64 121.92)
+			(xy 40.64 55.88) (xy 40.64 121.92)
 		)
 		(stroke
 			(width 0)
@@ -14047,7 +14047,7 @@
 	)
 	(polyline
 		(pts
-			(xy 77.47 55.88) (xy 77.47 45.72)
+			(xy 77.47 55.88) (xy 77.47 55.88)
 		)
 		(stroke
 			(width 0)
@@ -14627,7 +14627,7 @@
 	)
 	(polyline
 		(pts
-			(xy 40.64 45.72) (xy 77.47 45.72)
+			(xy 40.64 55.88) (xy 77.47 55.88)
 		)
 		(stroke
 			(width 0)
@@ -18554,7 +18554,6 @@
 	)
 	(label "HRD3"
 		(at 346.71 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18565,7 +18564,6 @@
 	)
 	(label "VF4"
 		(at 375.92 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18576,7 +18574,6 @@
 	)
 	(label "HRD5"
 		(at 248.92 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18587,7 +18584,6 @@
 	)
 	(label "HRD1"
 		(at 248.92 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18598,7 +18594,6 @@
 	)
 	(label "HF128"
 		(at 279.4 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18609,7 +18604,6 @@
 	)
 	(label "~{OPCK}"
 		(at 95.25 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18620,7 +18614,6 @@
 	)
 	(label "HF2"
 		(at 226.06 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18631,7 +18624,6 @@
 	)
 	(label "H2"
 		(at 248.92 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18642,7 +18634,6 @@
 	)
 	(label "HRD1"
 		(at 334.01 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18653,7 +18644,6 @@
 	)
 	(label "V2"
 		(at 375.92 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18664,7 +18654,6 @@
 	)
 	(label "HF64"
 		(at 279.4 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18675,7 +18664,6 @@
 	)
 	(label "HF128"
 		(at 223.52 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18686,7 +18674,6 @@
 	)
 	(label "HRD7"
 		(at 346.71 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18697,7 +18684,6 @@
 	)
 	(label "V256"
 		(at 341.63 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18708,7 +18694,6 @@
 	)
 	(label "HRD6"
 		(at 346.71 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18719,7 +18704,6 @@
 	)
 	(label "FLIP'"
 		(at 360.68 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18730,7 +18714,6 @@
 	)
 	(label "HF4"
 		(at 226.06 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18741,7 +18724,6 @@
 	)
 	(label "V1"
 		(at 375.92 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18752,7 +18734,6 @@
 	)
 	(label "HF16"
 		(at 279.4 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18763,7 +18744,6 @@
 	)
 	(label "H2"
 		(at 165.1 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18774,7 +18754,6 @@
 	)
 	(label "HRD7"
 		(at 248.92 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18785,7 +18764,6 @@
 	)
 	(label "~{ODB}5"
 		(at 128.27 264.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18796,7 +18774,6 @@
 	)
 	(label "H1"
 		(at 185.42 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18807,7 +18784,6 @@
 	)
 	(label "VF1"
 		(at 375.92 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18818,7 +18794,6 @@
 	)
 	(label "HRD'2"
 		(at 307.34 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18829,7 +18804,6 @@
 	)
 	(label "~{LBRST}"
 		(at 299.72 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18840,7 +18814,6 @@
 	)
 	(label "FLIP'"
 		(at 146.05 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18851,7 +18824,6 @@
 	)
 	(label "~{HSYNC}"
 		(at 359.41 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18862,7 +18834,6 @@
 	)
 	(label "~{ODB}6"
 		(at 107.95 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18873,7 +18844,6 @@
 	)
 	(label "HRD4"
 		(at 346.71 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18884,7 +18854,6 @@
 	)
 	(label "FLIP"
 		(at 207.01 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18895,7 +18864,6 @@
 	)
 	(label "FLIP'"
 		(at 356.87 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18906,7 +18874,6 @@
 	)
 	(label "HRD2"
 		(at 334.01 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18917,7 +18884,6 @@
 	)
 	(label "HRD0"
 		(at 334.01 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18928,7 +18894,6 @@
 	)
 	(label "~{HSYNC68}"
 		(at 232.41 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18939,7 +18904,6 @@
 	)
 	(label "V32"
 		(at 379.73 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18950,7 +18914,6 @@
 	)
 	(label "V128"
 		(at 17.78 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18961,7 +18924,6 @@
 	)
 	(label "V128"
 		(at 341.63 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18972,7 +18934,6 @@
 	)
 	(label "HRD1"
 		(at 346.71 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18983,7 +18944,6 @@
 	)
 	(label "FLIP"
 		(at 294.64 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18994,7 +18954,6 @@
 	)
 	(label "~{ODB}1"
 		(at 125.73 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19005,7 +18964,6 @@
 	)
 	(label "~{16H}"
 		(at 227.33 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19016,7 +18974,6 @@
 	)
 	(label "H4"
 		(at 165.1 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19027,7 +18984,6 @@
 	)
 	(label "FLIP'"
 		(at 198.12 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19038,7 +18994,6 @@
 	)
 	(label "HRD6"
 		(at 334.01 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19049,7 +19004,6 @@
 	)
 	(label "OA2"
 		(at 78.74 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19060,7 +19014,6 @@
 	)
 	(label "OP3"
 		(at 67.31 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19071,7 +19024,6 @@
 	)
 	(label "V64"
 		(at 17.78 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19082,7 +19034,6 @@
 	)
 	(label "VF16"
 		(at 375.92 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19093,7 +19044,6 @@
 	)
 	(label "V32"
 		(at 17.78 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19104,7 +19054,6 @@
 	)
 	(label "V4"
 		(at 341.63 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19115,7 +19064,6 @@
 	)
 	(label "OA7"
 		(at 209.55 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19126,7 +19074,6 @@
 	)
 	(label "HF16"
 		(at 223.52 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19137,7 +19084,6 @@
 	)
 	(label "HRD'3"
 		(at 279.4 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19148,7 +19094,6 @@
 	)
 	(label "~{OACNTEN}"
 		(at 116.84 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19159,7 +19104,6 @@
 	)
 	(label "FLIP"
 		(at 207.01 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19170,7 +19114,6 @@
 	)
 	(label "OACK"
 		(at 129.54 232.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19181,7 +19124,6 @@
 	)
 	(label "~{LBRST}"
 		(at 35.56 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19192,7 +19134,6 @@
 	)
 	(label "HRD'3"
 		(at 307.34 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19203,7 +19144,6 @@
 	)
 	(label "PXCK2''"
 		(at 124.46 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19214,7 +19154,6 @@
 	)
 	(label "HRD'2"
 		(at 279.4 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19225,7 +19164,6 @@
 	)
 	(label "~{FIX}"
 		(at 307.34 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19236,7 +19174,6 @@
 	)
 	(label "VF128"
 		(at 379.73 228.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19247,7 +19184,6 @@
 	)
 	(label "V256"
 		(at 379.73 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19258,7 +19194,6 @@
 	)
 	(label "~{ODB}3"
 		(at 125.73 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19269,7 +19204,6 @@
 	)
 	(label "HRD6"
 		(at 248.92 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19280,7 +19214,6 @@
 	)
 	(label "HRD0"
 		(at 334.01 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19291,7 +19224,6 @@
 	)
 	(label "V16"
 		(at 341.63 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19302,7 +19234,6 @@
 	)
 	(label "H4"
 		(at 195.58 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19313,7 +19244,6 @@
 	)
 	(label "~{ODB}5"
 		(at 107.95 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19324,7 +19254,6 @@
 	)
 	(label "~{OAOF}"
 		(at 233.68 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19335,7 +19264,6 @@
 	)
 	(label "H1"
 		(at 95.25 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19346,7 +19274,6 @@
 	)
 	(label "HF8"
 		(at 226.06 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19357,7 +19284,6 @@
 	)
 	(label "HRD1"
 		(at 334.01 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19368,7 +19294,6 @@
 	)
 	(label "HF64"
 		(at 223.52 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19379,7 +19304,6 @@
 	)
 	(label "FLIP'"
 		(at 356.87 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19390,7 +19314,6 @@
 	)
 	(label "OP2"
 		(at 67.31 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19401,7 +19324,6 @@
 	)
 	(label "~{ODB}3"
 		(at 120.65 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19412,7 +19334,6 @@
 	)
 	(label "HRD4"
 		(at 334.01 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19423,7 +19344,6 @@
 	)
 	(label "FLIP'"
 		(at 165.1 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19434,7 +19354,6 @@
 	)
 	(label "OA5"
 		(at 209.55 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19445,7 +19364,6 @@
 	)
 	(label "FLIP'"
 		(at 360.68 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19456,7 +19374,6 @@
 	)
 	(label "VF2"
 		(at 375.92 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19467,7 +19384,6 @@
 	)
 	(label "OA1"
 		(at 209.55 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19478,7 +19394,6 @@
 	)
 	(label "~{HSYNC}"
 		(at 199.39 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19489,7 +19404,6 @@
 	)
 	(label "~{ODB}1"
 		(at 120.65 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19500,7 +19414,6 @@
 	)
 	(label "V32"
 		(at 341.63 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19511,7 +19424,6 @@
 	)
 	(label "HRD3"
 		(at 248.92 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19522,7 +19434,6 @@
 	)
 	(label "OA3"
 		(at 78.74 259.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19533,7 +19444,6 @@
 	)
 	(label "OA4"
 		(at 209.55 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19544,7 +19454,6 @@
 	)
 	(label "HRD0"
 		(at 248.92 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19555,7 +19464,6 @@
 	)
 	(label "V4"
 		(at 375.92 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19566,7 +19474,6 @@
 	)
 	(label "V1"
 		(at 337.82 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19577,7 +19484,6 @@
 	)
 	(label "OA0"
 		(at 209.55 234.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19588,7 +19494,6 @@
 	)
 	(label "VF32"
 		(at 379.73 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19599,7 +19504,6 @@
 	)
 	(label "~{HBLANK}"
 		(at 318.77 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19610,7 +19514,6 @@
 	)
 	(label "HRD[7..0]"
 		(at 326.39 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19621,7 +19524,6 @@
 	)
 	(label "H1"
 		(at 248.92 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19632,7 +19534,6 @@
 	)
 	(label "~{ODB}0"
 		(at 107.95 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19643,7 +19544,6 @@
 	)
 	(label "HRD0"
 		(at 346.71 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19654,7 +19554,6 @@
 	)
 	(label "H4"
 		(at 257.81 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19665,7 +19564,6 @@
 	)
 	(label "~{ODB}3"
 		(at 107.95 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19676,7 +19574,6 @@
 	)
 	(label "HF32"
 		(at 223.52 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19687,7 +19584,6 @@
 	)
 	(label "HRD'2"
 		(at 307.34 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19698,7 +19594,6 @@
 	)
 	(label "V8"
 		(at 375.92 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19709,7 +19604,6 @@
 	)
 	(label "{HRD}"
 		(at 293.37 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19720,7 +19614,6 @@
 	)
 	(label "FLIP"
 		(at 207.01 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19731,7 +19624,6 @@
 	)
 	(label "~{FLIP}"
 		(at 165.1 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19742,7 +19634,6 @@
 	)
 	(label "HRD5"
 		(at 334.01 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19753,7 +19644,6 @@
 	)
 	(label "OA6"
 		(at 209.55 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19764,7 +19654,6 @@
 	)
 	(label "HRD7"
 		(at 334.01 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19775,7 +19664,6 @@
 	)
 	(label "V128"
 		(at 379.73 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19786,7 +19674,6 @@
 	)
 	(label "FLIP'"
 		(at 356.87 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19797,7 +19684,6 @@
 	)
 	(label "HF32"
 		(at 303.53 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19808,7 +19694,6 @@
 	)
 	(label "HF32"
 		(at 279.4 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19819,7 +19704,6 @@
 	)
 	(label "~{ODB}5"
 		(at 125.73 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19830,7 +19714,6 @@
 	)
 	(label "OA7"
 		(at 78.74 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19841,7 +19724,6 @@
 	)
 	(label "HF16"
 		(at 307.34 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19852,7 +19734,6 @@
 	)
 	(label "OACNTEN"
 		(at 116.84 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19863,7 +19744,6 @@
 	)
 	(label "OP0"
 		(at 67.31 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19874,7 +19754,6 @@
 	)
 	(label "OA3"
 		(at 209.55 242.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19885,7 +19764,6 @@
 	)
 	(label "HRD4"
 		(at 334.01 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19896,7 +19774,6 @@
 	)
 	(label "HRD4"
 		(at 248.92 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19907,7 +19784,6 @@
 	)
 	(label "H2"
 		(at 185.42 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19918,7 +19794,6 @@
 	)
 	(label "HRD2"
 		(at 334.01 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19929,7 +19804,6 @@
 	)
 	(label "V16"
 		(at 36.83 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19940,7 +19814,6 @@
 	)
 	(label "VF64"
 		(at 379.73 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19951,7 +19824,6 @@
 	)
 	(label "~{ODB}[6..0]"
 		(at 118.11 160.02 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19962,7 +19834,6 @@
 	)
 	(label "HRD'3"
 		(at 307.34 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19973,7 +19844,6 @@
 	)
 	(label "V64"
 		(at 379.73 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19984,7 +19854,6 @@
 	)
 	(label "V8"
 		(at 341.63 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19995,7 +19864,6 @@
 	)
 	(label "FLIP'"
 		(at 360.68 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20006,7 +19874,6 @@
 	)
 	(label "V256"
 		(at 336.55 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20017,7 +19884,6 @@
 	)
 	(label "HRD3"
 		(at 334.01 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20028,7 +19894,6 @@
 	)
 	(label "HRD5"
 		(at 346.71 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20039,7 +19904,6 @@
 	)
 	(label "~{HBLANK}"
 		(at 294.64 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20050,7 +19914,6 @@
 	)
 	(label "FLIP'"
 		(at 356.87 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20061,7 +19924,6 @@
 	)
 	(label "16H"
 		(at 185.42 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20072,7 +19934,6 @@
 	)
 	(label "FLIP'"
 		(at 356.87 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20083,7 +19944,6 @@
 	)
 	(label "~{ODB}0"
 		(at 125.73 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20094,7 +19954,6 @@
 	)
 	(label "HF16"
 		(at 307.34 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20105,7 +19964,6 @@
 	)
 	(label "HF32"
 		(at 307.34 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20116,7 +19974,6 @@
 	)
 	(label "HSYNC"
 		(at 359.41 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20127,7 +19984,6 @@
 	)
 	(label "~{PXCK2}"
 		(at 124.46 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20138,7 +19994,6 @@
 	)
 	(label "~{HSYNC60}"
 		(at 228.6 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20149,7 +20004,6 @@
 	)
 	(label "~{ODB}6"
 		(at 120.65 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20160,7 +20014,6 @@
 	)
 	(label "HSYNC"
 		(at 279.4 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20171,7 +20024,6 @@
 	)
 	(label "HRD5"
 		(at 334.01 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20182,7 +20034,6 @@
 	)
 	(label "HRD2"
 		(at 346.71 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20193,7 +20044,6 @@
 	)
 	(label "HRD3"
 		(at 334.01 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20204,7 +20054,6 @@
 	)
 	(label "~{H2}"
 		(at 129.54 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20215,7 +20064,6 @@
 	)
 	(label "~{ODB}0"
 		(at 120.65 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20226,7 +20074,6 @@
 	)
 	(label "OACK"
 		(at 171.45 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20237,7 +20084,6 @@
 	)
 	(label "VF8"
 		(at 375.92 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20248,7 +20094,6 @@
 	)
 	(label "HRD6"
 		(at 334.01 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20259,7 +20104,6 @@
 	)
 	(label "H8"
 		(at 185.42 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20270,7 +20114,6 @@
 	)
 	(label "~{FIX}"
 		(at 279.4 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20281,7 +20124,6 @@
 	)
 	(label "HRD2"
 		(at 248.92 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20292,7 +20134,6 @@
 	)
 	(label "V64"
 		(at 341.63 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20303,7 +20144,6 @@
 	)
 	(label "~{LBRST}"
 		(at 137.16 274.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20314,7 +20154,6 @@
 	)
 	(label "~{LBRST}"
 		(at 100.33 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20325,7 +20164,6 @@
 	)
 	(label "HF32"
 		(at 307.34 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20336,7 +20174,6 @@
 	)
 	(label "~{ODB}1"
 		(at 107.95 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20347,7 +20184,6 @@
 	)
 	(label "~{FIX}"
 		(at 307.34 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20358,7 +20194,6 @@
 	)
 	(label "OP1"
 		(at 67.31 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20369,7 +20204,6 @@
 	)
 	(label "H2"
 		(at 251.46 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20380,7 +20214,6 @@
 	)
 	(label "HRD7"
 		(at 334.01 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20391,7 +20224,6 @@
 	)
 	(label "OA2"
 		(at 209.55 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20402,7 +20234,6 @@
 	)
 	(label "V2"
 		(at 341.63 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20413,7 +20244,6 @@
 	)
 	(label "V16"
 		(at 375.92 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20425,7 +20255,6 @@
 	(hierarchical_label "FLIP"
 		(shape input)
 		(at 313.69 44.45 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20437,7 +20266,6 @@
 	(hierarchical_label "H2'"
 		(shape output)
 		(at 284.48 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20449,7 +20277,6 @@
 	(hierarchical_label "DMA"
 		(shape output)
 		(at 114.3 232.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20461,7 +20288,6 @@
 	(hierarchical_label "WRIH"
 		(shape output)
 		(at 237.49 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20473,7 +20299,6 @@
 	(hierarchical_label "V[128..1]"
 		(shape output)
 		(at 393.7 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20485,7 +20310,6 @@
 	(hierarchical_label "PXCK2"
 		(shape output)
 		(at 139.7 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20497,7 +20321,6 @@
 	(hierarchical_label "H4"
 		(shape output)
 		(at 194.31 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20509,7 +20332,6 @@
 	(hierarchical_label "~{ODB}[5..0]"
 		(shape output)
 		(at 135.89 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20521,7 +20343,6 @@
 	(hierarchical_label "OP3"
 		(shape output)
 		(at 97.79 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20533,7 +20354,6 @@
 	(hierarchical_label "OP0OP1"
 		(shape output)
 		(at 97.79 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20545,7 +20365,6 @@
 	(hierarchical_label "HF[128..2]"
 		(shape output)
 		(at 233.68 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20557,7 +20376,6 @@
 	(hierarchical_label "BLANK"
 		(shape output)
 		(at 129.54 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20569,7 +20387,6 @@
 	(hierarchical_label "~{H1}"
 		(shape output)
 		(at 209.55 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20581,7 +20398,6 @@
 	(hierarchical_label "~{BLANK}"
 		(shape output)
 		(at 64.77 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20593,7 +20409,6 @@
 	(hierarchical_label "H1B"
 		(shape output)
 		(at 284.48 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20605,7 +20420,6 @@
 	(hierarchical_label "~{OACNTEN'}"
 		(shape output)
 		(at 156.21 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20617,7 +20431,6 @@
 	(hierarchical_label "~{HBLANK}"
 		(shape output)
 		(at 293.37 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20629,7 +20442,6 @@
 	(hierarchical_label "~{LB2EN}"
 		(shape output)
 		(at 297.18 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20641,7 +20453,6 @@
 	(hierarchical_label "~{CSYNC}"
 		(shape output)
 		(at 358.14 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20653,7 +20464,6 @@
 	(hierarchical_label "OPCK"
 		(shape output)
 		(at 96.52 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20665,7 +20475,6 @@
 	(hierarchical_label "PXCK2'"
 		(shape output)
 		(at 139.7 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20677,7 +20486,6 @@
 	(hierarchical_label "OA[7..0]"
 		(shape output)
 		(at 218.44 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20689,7 +20497,6 @@
 	(hierarchical_label "VF[128..1]"
 		(shape output)
 		(at 391.16 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20701,7 +20508,6 @@
 	(hierarchical_label "FLIP"
 		(shape input)
 		(at 182.88 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20713,7 +20519,6 @@
 	(hierarchical_label "~{LB1EN}"
 		(shape output)
 		(at 297.18 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20725,7 +20530,6 @@
 	(hierarchical_label "~{VBLANK}"
 		(shape output)
 		(at 129.54 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20737,7 +20541,6 @@
 	(hierarchical_label "H1"
 		(shape output)
 		(at 194.31 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20749,7 +20552,6 @@
 	(hierarchical_label "H2B"
 		(shape output)
 		(at 284.48 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20761,7 +20563,6 @@
 	(hierarchical_label "~{LBRST}"
 		(shape output)
 		(at 298.45 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20773,7 +20574,6 @@
 	(hierarchical_label "~{LBRST}"
 		(shape input)
 		(at 138.43 237.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20785,7 +20585,6 @@
 	(hierarchical_label "PXCK1"
 		(shape output)
 		(at 123.19 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20797,7 +20596,6 @@
 	(hierarchical_label "~{H2}"
 		(shape output)
 		(at 284.48 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20809,7 +20607,6 @@
 	(hierarchical_label "~{FIX}"
 		(shape output)
 		(at 314.96 21.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20821,7 +20618,6 @@
 	(hierarchical_label "~{OP}2"
 		(shape output)
 		(at 97.79 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22890,7 +22686,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "25f52068-0cf1-4174-8907-7b42a905ab2f")
 		(property "Reference" "#PWR0213"
 			(at 38.1 68.58 0)
@@ -22902,7 +22697,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 40.64 68.5799 90)
+			(at 45.72 72.39 90)
 			(effects
 				(font
 					(size 1.27 1.27)
