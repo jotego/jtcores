@@ -62,12 +62,33 @@ module test;
     reg [15:0] data_q,io_q;
     reg iaq_q;
     integer delay_q=0,cycles=0,io_writes=0,irq_vector_reads=0;
+    integer init_seen=0;
+    reg host_released=0;
+    integer pre_release_local_cycles=0;
     always @(posedge clk) begin
         if (rst) begin
             state<=IDLE; cyc_ack<=0; cyc_rdata<=0;
-            cycles<=0; io_writes<=0; irq_vector_reads<=0;
+            cycles<=0; io_writes<=0; irq_vector_reads<=0; init_seen<=0;
+            pre_release_local_cycles<=0;
         end else case(state)
             IDLE: if(cyc_req) begin
+                if (init_seen < 8) begin
+                    if (cyc_kind !== 4'd3 || cyc_addr !== 32'd0 ||
+                        cyc_dram_row !== 8'd0 || cyc_iaq !== 1'b0)
+                        $fatal(1,"startup cycle %0d was not RAS-only: kind=%0d addr=%h row=%h iaq=%b",
+                               init_seen,cyc_kind,cyc_addr,cyc_dram_row,cyc_iaq);
+                    init_seen<=init_seen+1;
+                end
+                // TI §8.8: host-present reset holds the processor before its
+                // level-0 vector fetch. Refresh/RAS initialization may still
+                // use the NARC bus while the host has HLT asserted.
+                if (!host_released && (cyc_kind==0 || cyc_kind==1 ||
+                                       cyc_kind==5 || cyc_kind==6 ||
+                                       cyc_kind==7 || cyc_kind==8)) begin
+                    pre_release_local_cycles<=pre_release_local_cycles+1;
+                    $fatal(1,"CPU/local cycle %0d @%h before host HLT release",
+                           cyc_kind,cyc_addr);
+                end
                 kind_q<=cyc_kind; addr_q<=cyc_addr;
                 data_q<=cyc_wdata; io_q<=cyc_io_rdata; iaq_q<=cyc_iaq;
                 delay_q<=2; state<=WAIT; cycles<=cycles+1;
@@ -114,6 +135,7 @@ module test;
             g=0;
             while(!host_ack && g<30) begin tick(); g=g+1; end
             if(!host_ack) $fatal(1,"host halt-release timeout");
+            host_released=1;
             @(negedge clk); host_req=0; host_we=0;
             tick();
         end
@@ -124,9 +146,10 @@ module test;
         wait(!rst);
         repeat(20) tick();
         if(!halt) $fatal(1,"host-present reset did not assert HLT");
-        repeat(50) tick(); // allow reset-vector transaction to finish
-        if(pc!=32'h1000 || retire)
-            $fatal(1,"host-present HLT allowed instruction retirement pc=%08x ir=%04x",pc,ir);
+        repeat(50) tick(); // refresh/init cycles may continue; CPU must not
+        if(pc!==32'd0 || retire || pre_release_local_cycles!=0 || init_seen!=8)
+            $fatal(1,"host-present HLT allowed vector fetch/retirement pc=%08x ir=%04x cycles=%0d",
+                   pc,ir,pre_release_local_cycles);
         host_release_halt();
         if(halt) $fatal(1,"host did not release reset HLT");
         guard=0;

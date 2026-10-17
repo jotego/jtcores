@@ -9,6 +9,8 @@ module jttms10_ctrl(
     input              multi_load,
     input      [4:0]   mul_count,
     input              div_early_cond,
+    input              pixel_need_dest,
+    input              pixel_abort,
     input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
     output            execute, active,
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
@@ -22,7 +24,8 @@ module jttms10_ctrl(
     output            divinit, divload, divnega, divnegmd,
                       divnegb, divcheck, divstep,
     output            dsjfinish, xyx, xyy,
-    output            gfx_step, cvloop_active,
+    output            gfx_step, cvloop_active, wincheck_active,
+                      pixconv_active,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -80,6 +83,8 @@ module jttms10_ctrl(
     assign gfx_step = mul_sel==GFX_MUL;
     wire [3:0] jsr_sel;
     reg cen;
+    reg [10:0] jsr_ret2;
+    reg [1:0] jsr_depth;
     reg halted, emu_hold;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
     /* verilator lint_off BLKSEQ */
@@ -97,6 +102,8 @@ module jttms10_ctrl(
     assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
     assign push_active = uaddr[10:4]==PUSH32_SEQA[10:4];
     assign cvloop_active = uaddr[10:4]==CVLOOP_SEQA[10:4];
+    assign wincheck_active = uaddr[10:4]==WINCHECK_SEQA[10:4];
+    assign pixconv_active = uaddr[10:4]==PIXCONV_SEQA[10:4];
     // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
     // Defined opcodes without a microcode implementation remain diagnostic.
     assign reserved_opcode =
@@ -109,6 +116,12 @@ module jttms10_ctrl(
         (md[15:9]==7'b1011111) ||
         (md[15:11]==5'b11011 && md[10:8]!=3'b111) ||
         (md[15:9]==7'b1111111);
+    wire loop_repeat = (shift_step && shift_count>5'd1) ||
+                       (gfx_step && cvloop_active && shift_count>5'd1) ||
+                       (lmoscan && lmo_more) ||
+                       (multiadvance && multi_steps>5'd1) ||
+                       (mulstep && mul_count!=5'd1) ||
+                       (divstep && mul_count!=5'd1);
     // Dispatch addresses match the six ops' class IDs in ucode/tms10.yaml.
     localparam [10:0] ADDIW_ENTRY = 11'h190,
                       SUBIW_ENTRY = 11'h1a0,
@@ -128,6 +141,13 @@ module jttms10_ctrl(
             16'h0100: entry = EMU_SEQA;
             16'b1110011?????????: entry = CPW_SEQA;
             16'b1110100?????????: entry = CVXYL_SEQA;
+            16'b1111000?????????: entry = PIXT_RXY_SEQA;
+            16'b1111001?????????: entry = PIXT_XYREG_SEQA;
+            16'b1111010?????????: entry = PIXT_XYXY_SEQA;
+            16'b1111011?????????: entry = DRAV_SEQA;
+            16'b1111100?????????: entry = PIXT_RLIN_SEQA;
+            16'b1111101?????????: entry = PIXT_LINREG_SEQA;
+            16'b1111110?????????: entry = PIXT_LINLIN_SEQA;
             16'b00000011100?????: entry = ABS_SEQA;
             16'b00000011101?????: entry = NEG_SEQA;
             16'b00000011110?????: entry = NEGB_SEQA;
@@ -242,10 +262,16 @@ module jttms10_ctrl(
             cen <= 0;
             uaddr <= RESET_SEQA;
             jsr_ret <= 0;
+            jsr_ret2 <= 0;
+            jsr_depth <= 0;
             halted <= 0;
             emu_hold <= 0;
         end else if(!cen) begin
-            if(boundary && halted) begin
+            // Host-present reset holds before the first vector fetch until
+            // the host releases HLT (TI section 8.8).
+            if(uaddr==RESET_SEQA && halt_req) begin
+                cen <= 0;
+            end else if(boundary && halted) begin
                 if(!halt_req && !emu_hold) halted <= 0;
             end else if(boundary && emu_hold) begin
                 if(emu_run) emu_hold <= 0;
@@ -264,17 +290,31 @@ module jttms10_ctrl(
                 // Zero-count shifts skip the helper while retaining C=0.
                 if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
                    (jsr_sel==CVLOOP_JSR && shift_count==0) ||
+                   (jsr_sel==PIXDSTREAD_JSR && !pixel_need_dest) ||
                    (jsr_sel==LMOLOOP_JSR && !lmo_more))
                     uaddr <= uaddr+11'd1;
                 else begin
                     uaddr <= jsr_ua;
-                    if(jsr_sel!=RET_JSR) jsr_ret <= uaddr+11'd1;
+                    if(jsr_sel==RET_JSR) begin
+                        uaddr <= jsr_depth==2 ? jsr_ret2 : jsr_ret;
+                        if(!loop_repeat && jsr_depth!=0)
+                            jsr_depth <= jsr_depth-2'd1;
+                    end else if(jsr_depth==0) begin
+                        jsr_ret <= uaddr+11'd1;
+                        jsr_depth <= 1;
+                    end else begin
+                        jsr_ret2 <= uaddr+11'd1;
+                        jsr_depth <= 2;
+                    end
                 end
             end
             // The helper's RET_JSR returns on its final one-bit shift.
             if(shift_step && shift_count>5'd1) uaddr <= SHIFTLOOP_SEQA;
             if(gfx_step && cvloop_active && shift_count>5'd1)
                 uaddr <= CVLOOP_SEQA;
+            // PIXT W1 and clipped W2/W3 leave before the source MTR.
+            if(gfx_step && wincheck_active && jsr_sel==RET_JSR &&
+               pixel_abort) uaddr <= PIXEND_SEQA;
             if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
@@ -282,8 +322,14 @@ module jttms10_ctrl(
             if(mulstep && mul_count!=5'd1) uaddr <= MULLOOP_SEQA;
             if(divcheck && div_early_cond) uaddr <= DIVFAIL_SEQA;
             if(divstep && mul_count!=5'd1) uaddr <= DIVLOOP_SEQA;
-            if(ni) uaddr <= FETCH_SEQA;
-            if(dispatch) uaddr <= entry;
+            if(ni) begin
+                uaddr <= FETCH_SEQA;
+                jsr_depth <= 0;
+            end
+            if(dispatch) begin
+                uaddr <= entry;
+                jsr_depth <= 0;
+            end
         end
     end
 endmodule

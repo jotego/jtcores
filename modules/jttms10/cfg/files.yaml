@@ -14,5 +14,6 @@ jttms10:
       - jttms10_fabric.v
       - jttms10_system.v
       - jttms10_pixel.v
+      - jttms10_cache.v
     ucode:
       src: tms10.yaml

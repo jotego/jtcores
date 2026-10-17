@@ -132,8 +132,10 @@ def validate_case(case):
         if check["after"] in seen:
             raise ValueError(f"{tag}.after repeats an opcode address")
         seen.add(check["after"])
-        if not any(field in check for field in ("regs", "flags", "st", "mem")):
+        if not any(field in check for field in ("regs", "flags", "st", "mem", "wvp")):
             raise ValueError(f"{tag} has no architectural assertion")
+        if "wvp" in check and (isinstance(check["wvp"], bool) or check["wvp"] not in (0, 1)):
+            raise ValueError(f"{tag}.wvp must be 0 or 1")
         for reg, value in check.get("regs", {}).items():
             if not REG.fullmatch(reg):
                 raise ValueError(f"{tag}: invalid register {reg!r}")
@@ -164,6 +166,9 @@ def validate_case(case):
             raise ValueError(f"{name}.pixel_size must be 1, 2, 4, 8 or 16")
     if "convdp" in case:
         check_uint(case["convdp"], 16, f"{name}.convdp")
+    for control_name in ("convsp", "control", "pmask"):
+        if control_name in case:
+            check_uint(case[control_name], 16, f"{name}.{control_name}")
     if "reference_checks" in case or "reference_divergence" in case:
         reason = case.get("reference_divergence")
         alternate = case.get("reference_checks")
@@ -191,6 +196,9 @@ def sv_checks(case):
              f"localparam int EXPECTED_REQUESTS = {case.get('expected_requests', -1)};",
              f"localparam logic [15:0] PIXEL_SIZE = 16'h{case.get('pixel_size', 16):04x};",
              f"localparam logic [15:0] CONVDP = 16'h{case.get('convdp', 0x14):04x};",
+             f"localparam logic [15:0] CONVSP = 16'h{case.get('convsp', 0x14):04x};",
+             f"localparam logic [15:0] CONTROL = 16'h{case.get('control', 0):04x};",
+             f"localparam logic [15:0] PMASK = 16'h{case.get('pmask', 0):04x};",
              "task automatic check_retire(input integer step);",
              "  case (step)"]
     for i, check in enumerate(case["checks"]):
@@ -216,6 +224,11 @@ def sv_checks(case):
             lines.append(
                 f"      if (st !== 32'h{check['st']:08x}) "
                 f"$fatal(1, \"{tag}: ST %h\", st);"
+            )
+        if "wvp" in check:
+            lines.append(
+                f"      if (wvp_seen !== 1'b{check['wvp']}) "
+                f"$fatal(1, \"{tag}: WVP %b\", wvp_seen);"
             )
         for field in check.get("mem", []):
             lines.append(

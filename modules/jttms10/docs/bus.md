@@ -9,6 +9,16 @@ cycle kinds and partial-word reservation rule. The synchronous host-register
 and indirect client are described in [host.md](host.md); physical asynchronous
 host-pin timing remains outside this fabric.
 
+The integrated system enables `RESET_REFRESH`, which schedules the eight
+initial RAS-only cycles required by TI §8.8 (8-10) before screen, ordinary
+refresh, host-indirect or CPU traffic. Each cycle waits for its real target
+acknowledgment and the return of ACK low. HOLD still has priority; an active
+RAS cycle completes before HOLD acknowledgment. Periodic refresh requests
+arriving during initialization retain the normal pending-slot behavior.
+Standalone arbiter/fabric units default this parameter off to allow isolated
+transaction tests. `ver/startup/test.sv` enables it and checks initial order,
+waits, HOLD, waiting clients and reinitialization after reset.
+
 `jttms10_fabric.v` connects this arbiter and the I/O/video/refresh block while
 keeping a physical-word client interface independent of the CPU. Its
 `ver/fabric/test.sv` bench uses the actual field adapter and a waiting NARC

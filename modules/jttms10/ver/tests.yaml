@@ -2668,3 +2668,1006 @@ cases:
       - {after: 0x1000, pc: 0x1030, regs: {B4: 0}}
       - {after: 0x1030, pc: 0x1060, regs: {A0: 0x00400030}}
       - {after: 0x1060, pc: 0x1070, regs: {A1: 0x000100C0}, st: 0x00000010}
+
+  # TI User's Guide pp. 12-213–225: six pixel-transfer forms.
+  - name: pixt_register_to_linear_uses_raw_source_and_dest_pmask
+    entry: 0x1000
+    pixel_size: 4
+    pmask: 0xA0A0
+    mem: [{at: 0x0200, words: [0x1234]}]
+    words:
+      - 0x09C0 # A0=bit address 0208, pixel lane 2
+      - 0x0208
+      - 0x09E1 # A1=12340006, low nibble source 6
+      - 0x0006
+      - 0x1234
+      - 0x09E2 # status sentinel
+      - 0x0010
+      - 0xF000
+      - 0x01A2 # PUTST
+      - 0xF820 # PIXT A1,*A0; mask nibble A protects bit 9
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0x0208}}
+      - {after: 0x1020, pc: 0x1050, regs: {A1: 0x12340006}}
+      - {after: 0x1050, pc: 0x1080, regs: {A2: 0xF0000010}}
+      - {after: 0x1080, pc: 0x1090, st: 0xF0000010}
+      - {after: 0x1090, pc: 0x10A0, st: 0xF0000010, regs: {A0: 0x0208, A1: 0x12340006}, mem: [{addr: 0x0200, size: 16, value: 0x1634}]}
+
+  - name: pixt_linear_to_register_pmask_nonzero_pixel_v
+    entry: 0x1000
+    pixel_size: 4
+    pmask: 0x0909
+    control: 0x0000
+    mem: [{at: 0x0200, words: [0x0B00]}]
+    words:
+      - 0x09C0 # A0=0208, raw pixel B
+      - 0x0208
+      - 0xFA01 # PIXT *A0,A1 -> B & ~9 = 2, V=1
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0x0208}}
+      - {after: 0x1020, pc: 0x1030, regs: {A0: 0x0208, A1: 2}, flags: {V: 1}, mem: [{addr: 0x0200, size: 16, value: 0x0B00}]}
+
+  - name: pixt_linear_to_linear_masks_both_memory_operands
+    entry: 0x1000
+    pixel_size: 8
+    control: 0x2800 # PPOP 10: XOR
+    pmask: 0x0F0F
+    mem:
+      - {at: 0x0200, words: [0x00E3]}
+      - {at: 0x0210, words: [0x5A77]}
+    words:
+      - 0x09C0 # A0=source 0200
+      - 0x0200
+      - 0x09C1 # A1=destination high byte 0218
+      - 0x0218
+      - 0x09E2 # all flags sentinel
+      - 0x0010
+      - 0xF000
+      - 0x01A2
+      - 0xFC01 # PIXT *A0,*A1: (E0 XOR 50)&F0=B0, preserve low nibble A
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0x0200}}
+      - {after: 0x1020, pc: 0x1040, regs: {A1: 0x0218}}
+      - {after: 0x1040, pc: 0x1070, regs: {A2: 0xF0000010}}
+      - {after: 0x1070, pc: 0x1080, st: 0xF0000010}
+      - after: 0x1080
+        pc: 0x1090
+        st: 0xF0000010
+        regs: {A0: 0x0200, A1: 0x0218}
+        mem: [{addr: 0x0200, size: 16, value: 0x00E3}, {addr: 0x0210, size: 16, value: 0xBA77}]
+
+  - name: pixt_register_to_xy_then_xy_to_register
+    entry: 0x1000
+    pixel_size: 4
+    convsp: 0x1B
+    convdp: 0x1B # 16-bit pitch; Y=0 in this case
+    mem: [{at: 0x0200, words: [0x7600]}]
+    words:
+      - 0x09D4 # B4/OFFSET=0200
+      - 0x0200
+      - 0x09C0 # A0 register pixel A
+      - 0x000A
+      - 0x09C1 # A1 XY=(2,0) -> 0208
+      - 0x0002
+      - 0xF001 # PIXT A0,*A1.XY
+      - 0xF222 # PIXT *A1.XY,A2
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {B4: 0x0200}}
+      - {after: 0x1020, pc: 0x1040, regs: {A0: 0xA}}
+      - {after: 0x1040, pc: 0x1060, regs: {A1: 2}}
+      - {after: 0x1060, pc: 0x1070, mem: [{addr: 0x0200, size: 16, value: 0x7A00}], regs: {A1: 2}, flags: {V: 0}}
+      - {after: 0x1070, pc: 0x1080, mem: [{addr: 0x0200, size: 16, value: 0x7A00}], regs: {A2: 0xA}, flags: {V: 1}}
+
+  - name: pixt_xy_to_xy_same_word_neighbor_preservation
+    entry: 0x1000
+    pixel_size: 4
+    convsp: 0x1B
+    convdp: 0x1B
+    mem: [{at: 0x0200, words: [0x7600]}]
+    words:
+      - 0x09D4 # B4/OFFSET=0200
+      - 0x0200
+      - 0x09C0 # A0=(2,0) -> source nibble 6 at 0208
+      - 0x0002
+      - 0x09C1 # A1=(3,0) -> destination nibble 7 at 020C
+      - 0x0003
+      - 0xF401 # PIXT *A0.XY,*A1.XY
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {B4: 0x0200}}
+      - {after: 0x1020, pc: 0x1040, regs: {A0: 2}}
+      - {after: 0x1040, pc: 0x1060, regs: {A1: 3}}
+      - {after: 0x1060, pc: 0x1070, regs: {A0: 2, A1: 3}, st: 0x10, mem: [{addr: 0x0200, size: 16, value: 0x6600}]}
+
+  - name: drav_color_lane_and_independent_xy_halves
+    entry: 0x1000
+    pixel_size: 4
+    convdp: 0x1B
+    mem: [{at: 0x0200, words: [0x7600]}]
+    words:
+      - 0x09D4 # B4/OFFSET=0200
+      - 0x0200
+      - 0x09D9 # B9/COLOR1=A1B2, destination lane2 selects nibble1
+      - 0xA1B2
+      - 0x09C0 # A0 Rd=(X=2,Y=0)
+      - 0x0002
+      - 0x09E1 # A1 Rs=(X=-1,Y=+1)
+      - 0xFFFF
+      - 0x0001
+      - 0xF620 # DRAV A1,A0; draws at 0208, then A0=(1,1)
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {B4: 0x0200}}
+      - {after: 0x1020, pc: 0x1040, regs: {B9: 0xFFFFA1B2}}
+      - {after: 0x1040, pc: 0x1060, regs: {A0: 2}}
+      - {after: 0x1060, pc: 0x1090, regs: {A1: 0x0001FFFF}}
+      - {after: 0x1090, pc: 0x10A0, regs: {A0: 0x00010001, A1: 0x0001FFFF}, st: 0x10, mem: [{addr: 0x0200, size: 16, value: 0x7100}]}
+
+
+  - name: pixt_xy_window_w0_outside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 0
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 4
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 4
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 1
+      wvp: 0
+      regs:
+        A0: 10
+        A1: 4
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17194
+      st: 4026531856
+  - name: pixt_xy_window_w1_inside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 64
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 2
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 2
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 0
+      wvp: 1
+      regs:
+        A0: 10
+        A1: 2
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17185
+      st: 3758096400
+  - name: pixt_xy_window_w1_outside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 64
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 4
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 4
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 1
+      wvp: 0
+      regs:
+        A0: 10
+        A1: 4
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17185
+      st: 4026531856
+  - name: pixt_xy_window_w2_inside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 128
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 2
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 2
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 0
+      wvp: 0
+      regs:
+        A0: 10
+        A1: 2
+      mem:
+      - addr: 512
+        size: 16
+        value: 31232
+      - addr: 528
+        size: 16
+        value: 17185
+      st: 3758096400
+  - name: pixt_xy_window_w2_outside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 128
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 4
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 4
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 1
+      wvp: 1
+      regs:
+        A0: 10
+        A1: 4
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17185
+      st: 4026531856
+  - name: pixt_xy_window_w3_inside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 192
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 2
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 2
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 0
+      wvp: 0
+      regs:
+        A0: 10
+        A1: 2
+      mem:
+      - addr: 512
+        size: 16
+        value: 31232
+      - addr: 528
+        size: 16
+        value: 17185
+      st: 3758096400
+  - name: pixt_xy_window_w3_outside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 192
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 10
+    - 2497
+    - 4
+    - 2530
+    - 16
+    - 61440
+    - 418
+    - 61441
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 10
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 4
+    - after: 4256
+      pc: 4304
+      regs:
+        A2: 4026531856
+    - after: 4304
+      pc: 4320
+      st: 4026531856
+    - after: 4320
+      pc: 4336
+      flags:
+        V: 1
+      wvp: 0
+      regs:
+        A0: 10
+        A1: 4
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17185
+      st: 4026531856
+
+  # TI pixel pipeline: transparency, pointer aliases, DRAV windows.
+  - name: pixt_transparency_post_mask_0
+    entry: 4096
+    pixel_size: 4
+    pmask: 10
+    control: 0
+    mem:
+    - at: 512
+      words:
+      - 4661
+    words:
+    - 2496
+    - 512
+    - 2497
+    - 10
+    - 63520
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        A0: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        A1: 10
+    - after: 4160
+      pc: 4176
+      regs:
+        A0: 512
+        A1: 10
+      st: 16
+      mem:
+      - addr: 512
+        size: 16
+        value: 4656
+  - name: pixt_transparency_post_mask_1
+    entry: 4096
+    pixel_size: 4
+    pmask: 10
+    control: 32
+    mem:
+    - at: 512
+      words:
+      - 4661
+    words:
+    - 2496
+    - 512
+    - 2497
+    - 10
+    - 63520
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        A0: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        A1: 10
+    - after: 4160
+      pc: 4176
+      regs:
+        A0: 512
+        A1: 10
+      st: 16
+      mem:
+      - addr: 512
+        size: 16
+        value: 4661
+  - name: pixt_register_source_pointer_alias
+    entry: 4096
+    pixel_size: 4
+    mem:
+    - at: 512
+      words:
+      - 4660
+    words:
+    - 2496
+    - 516
+    - 63488
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        A0: 516
+    - after: 4128
+      pc: 4144
+      regs:
+        A0: 516
+      st: 16
+      mem:
+      - addr: 512
+        size: 16
+        value: 4676
+  - name: pixt_memory_source_destination_register_alias
+    entry: 4096
+    pixel_size: 4
+    mem:
+    - at: 512
+      words:
+      - 4660
+    words:
+    - 2496
+    - 516
+    - 64000
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        A0: 516
+    - after: 4128
+      pc: 4144
+      regs:
+        A0: 3
+      flags:
+        V: 1
+      mem:
+      - addr: 512
+        size: 16
+        value: 4660
+  - name: pixt_memory_to_same_pixel_xor
+    entry: 4096
+    pixel_size: 4
+    control: 10240
+    mem:
+    - at: 512
+      words:
+      - 4660
+    words:
+    - 2496
+    - 516
+    - 64512
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        A0: 516
+    - after: 4128
+      pc: 4144
+      regs:
+        A0: 516
+      st: 16
+      mem:
+      - addr: 512
+        size: 16
+        value: 4612
+  - name: drav_window_w2_outside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 128
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2521
+    - 2560
+    - 2496
+    - 4
+    - 2497
+    - 1
+    - 63008
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        B9: 2560
+    - after: 4224
+      pc: 4256
+      regs:
+        A0: 4
+    - after: 4256
+      pc: 4288
+      regs:
+        A1: 1
+    - after: 4288
+      pc: 4304
+      regs:
+        A0: 5
+        A1: 1
+      flags:
+        V: 1
+      wvp: 1
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17185
+  - name: drav_window_w3_inside
+    entry: 4096
+    pixel_size: 4
+    convdp: 27
+    control: 192
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2521
+    - 2560
+    - 2496
+    - 2
+    - 2497
+    - 1
+    - 63008
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        B9: 2560
+    - after: 4224
+      pc: 4256
+      regs:
+        A0: 2
+    - after: 4256
+      pc: 4288
+      regs:
+        A1: 1
+    - after: 4288
+      pc: 4304
+      regs:
+        A0: 3
+        A1: 1
+      flags:
+        V: 0
+      wvp: 0
+      mem:
+      - addr: 512
+        size: 16
+        value: 31232
+      - addr: 528
+        size: 16
+        value: 17185
+
+  # CVXYL after an XY source must select CONVDP afresh (TI pp. 12-59, 12-218).
+  - name: cvxyl_after_pixt_xy_source_uses_convdp
+    entry: 4096
+    pixel_size: 4
+    convsp: 27
+    convdp: 26
+    mem:
+    - at: 528
+      words:
+      - 2560
+    words:
+    - 2516
+    - 512
+    - 2528
+    - 2
+    - 1
+    - 61953
+    - 59394
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4176
+      regs:
+        A0: 65538
+    - after: 4176
+      pc: 4192
+      regs:
+        A1: 10
+        A0: 65538
+      flags:
+        V: 1
+    - after: 4192
+      pc: 4208
+      regs:
+        A2: 552
+        A0: 65538
+      flags:
+        V: 1
+
+  # TI p. 12-225: clipped memory-to-memory PIXT aborts before source read.
+  - name: pixt_xyxy_clipped_skips_source_read
+    entry: 4096
+    pixel_size: 4
+    convsp: 27
+    convdp: 27
+    control: 128
+    expected_requests: 12
+    mem:
+    - at: 512
+      words:
+      - 30208
+      - 17185
+    words:
+    - 2516
+    - 512
+    - 2517
+    - 1
+    - 2518
+    - 3
+    - 2496
+    - 2
+    - 2497
+    - 4
+    - 62465
+    checks:
+    - after: 4096
+      pc: 4128
+      regs:
+        B4: 512
+    - after: 4128
+      pc: 4160
+      regs:
+        B5: 1
+    - after: 4160
+      pc: 4192
+      regs:
+        B6: 3
+    - after: 4192
+      pc: 4224
+      regs:
+        A0: 2
+    - after: 4224
+      pc: 4256
+      regs:
+        A1: 4
+    - after: 4256
+      pc: 4272
+      regs:
+        A0: 2
+        A1: 4
+      flags:
+        V: 1
+      wvp: 1
+      mem:
+      - addr: 512
+        size: 16
+        value: 30208
+      - addr: 528
+        size: 16
+        value: 17185

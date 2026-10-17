@@ -2,7 +2,9 @@
 // NARC abstract local-cycle arbiter for the jttms10 physical 16-bit word bus.
 // Priority: HOLD, reserved CPU partial RMW pair, screen, DRAM, host, CPU.
 // Follows TI TMS34010 User's Guide 11.3 and the GPL tms34010_bus_arbiter.
-module jttms10_bus(
+module jttms10_bus #(
+    parameter integer RESET_REFRESH=0
+)(
     input clk, rst,
     input hold_req,
     output hold_ack,
@@ -55,20 +57,23 @@ module jttms10_bus(
     reg [31:0] last_addr;
     reg [15:0] last_wdata;
     reg active_we;
+    reg [3:0] init_left;
+    reg active_init;
     wire same_word=word_we==last_we && word_iaq==last_iaq &&
         word_lock==last_lock && word_pixel==last_pixel &&
         word_addr==last_addr && word_wdata==last_wdata;
     wire cpu_ready=word_req && (!cpu_seen || !same_word);
     wire grant_hold=state==IDLE && hold_req;
-    wire grant_cpu=state==IDLE && !hold_req && cpu_ready &&
+    wire grant_init=state==IDLE && !hold_req && init_left!=0;
+    wire grant_cpu=state==IDLE && !hold_req && init_left==0 && cpu_ready &&
         (reservation || (!screen_req || screen_served) &&
          !dram_pending && !refresh_req &&
          (!host_mem_req || host_served));
-    wire grant_screen=state==IDLE && !hold_req && !reservation &&
+    wire grant_screen=state==IDLE && !hold_req && init_left==0 && !reservation &&
         screen_req && !screen_served;
-    wire grant_dram=state==IDLE && !hold_req && !reservation &&
+    wire grant_dram=state==IDLE && !hold_req && init_left==0 && !reservation &&
         !(screen_req && !screen_served) && (dram_pending || refresh_req);
-    wire grant_host=state==IDLE && !hold_req && !reservation &&
+    wire grant_host=state==IDLE && !hold_req && init_left==0 && !reservation &&
         !(screen_req && !screen_served) && !dram_pending && !refresh_req &&
         host_mem_req && !host_served;
     wire complete=state==ACTIVE && cyc_ack;
@@ -89,6 +94,8 @@ module jttms10_bus(
             cpu_seen<=0; last_we<=0; last_iaq<=0;
             last_lock<=0; last_pixel<=0; last_addr<=0; last_wdata<=0;
             active_we<=0;
+            init_left<=RESET_REFRESH!=0 ? 4'd8 : 4'd0;
+            active_init<=0;
             cyc_kind<=0; cyc_addr<=0; cyc_wdata<=0; cyc_io_rdata<=0;
             cyc_iaq<=0; cyc_srfaddr<=0; cyc_dpytap<=0;
             cyc_org<=0; cyc_dram_row<=0;
@@ -111,7 +118,17 @@ module jttms10_bus(
 
             case (state)
                 IDLE: begin
+                    active_init<=0;
                     if (grant_hold) state<=HOLD;
+                    else if (grant_init) begin
+                        // TI 8.8: initialize external DRAM with eight
+                        // RAS-only cycles before ordinary local traffic.
+                        state<=ACTIVE; owner<=DRAM; active_init<=1;
+                        cyc_kind<=4'd3; cyc_addr<=0; cyc_wdata<=0;
+                        cyc_io_rdata<=0; cyc_iaq<=0;
+                        cyc_srfaddr<=0; cyc_dpytap<=0;
+                        cyc_org<=0; cyc_dram_row<=0;
+                    end
                     else if (grant_cpu) begin
                         state<=ACTIVE; owner<=CPU; active_we<=word_we;
                         cyc_kind<=is_io ? (word_we ? 4'd6 : 4'd5) :
@@ -158,6 +175,7 @@ module jttms10_bus(
                 end
                 ACTIVE: if (cyc_ack) begin
                     state<=DRAIN;
+                    if (active_init) init_left<=init_left-4'd1;
                     if (owner==CPU && active_we && reservation)
                         reservation<=0;
                 end

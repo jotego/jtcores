@@ -368,17 +368,37 @@ ucode:
   - name: cpw
     start: 103
     seq:
-      - gfx_mul
-      - gfx_mul
-      - sub_alu, gfx_mul
-      - sub_alu, gfx_mul
-      - sub_alu, gfx_mul
-      - sub_alu, gfx_mul
-      - gfx_mul, wr_reg, ni
+      - reg_a
+      - wincheck_jsr
+      - wr_reg, ni
   # CVXYL shifts Y and X one bit at a time using the shared ALU. B4 OFFSET is
   # read through the same synchronous RF port before the final addition.
   - name: cvxyl
     start: 104
+    seq:
+      - reg_a
+      - pixconv_jsr
+      - pass_alu, wr_reg, ni
+  - name: cvloop
+    start: 105
+    seq:
+      - shift_alu, gfx_mul, ret_jsr
+  # A shared window helper leaves the four outside bits in MD[8:5]. The
+  # caller supplies the XY point in A and consumes the result after return.
+  - name: wincheck
+    start: 113
+    seq:
+      - gfx_mul
+      - gfx_mul
+      - sub_alu, gfx_mul
+      - sub_alu, gfx_mul
+      - sub_alu, gfx_mul
+      - sub_alu, gfx_mul
+      - gfx_mul, ret_jsr
+  # Two nested one-bit CVLOOP calls require a two-deep sequencer return stack.
+  # The caller supplies XY in A; this helper returns its linear address in A.
+  - name: pixconv
+    start: 114
     seq:
       - gfx_mul
       - cvloop_jsr
@@ -386,8 +406,100 @@ ucode:
       - cvloop_jsr
       - or_alu, gfx_mul
       - gfx_mul
-      - add_alu, wr_reg, ni
-  - name: cvloop
-    start: 105
+      - add_alu, gfx_mul, ret_jsr
+  # Pixel transfers share source/destination capture, the iterative XY
+  # converter, window helper, destination read and one PPOP operation.
+  - name: pixt_rxy
+    start: 106
     seq:
-      - shift_alu, gfx_mul, ret_jsr
+      - init_a
+      - winprep_a
+      - wincheck_jsr
+      - dstprep_a
+      - pixconv_jsr
+      - savedst_a
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+      - ni
+  - name: pixt_xyreg
+    start: 107
+    seq:
+      - init_a
+      - srcprep_a
+      - pixconv_jsr
+      - savesrc_a
+      - read_mem
+      - srccap_a
+      - load_a, wr_reg, ni
+  - name: pixt_xyxy
+    start: 108
+    seq:
+      - init_a
+      - winprep_a
+      - wincheck_jsr
+      - srcprep_a
+      - pixconv_jsr
+      - savesrc_a
+      - read_mem
+      - srccap_a
+      - dstprep_a
+      - pixconv_jsr
+      - savedst_a
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+      - ni
+  - name: drav
+    start: 109
+    seq:
+      - init_a
+      - color_cc
+      - winprep_a
+      - wincheck_jsr
+      - dstprep_a
+      - pixconv_jsr
+      - savedst_a
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+      - add_alu, dravx_a
+      - add_alu, dravy_a
+      - wr_reg, ni
+  - name: pixt_rlin
+    start: 110
+    seq:
+      - init_a
+      - dstaddr_cc
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+      - ni
+  - name: pixt_linreg
+    start: 111
+    seq:
+      - init_a
+      - srcaddr_cc
+      - read_mem
+      - srccap_a
+      - load_a, wr_reg, ni
+  - name: pixt_linlin
+    start: 112
+    seq:
+      - init_a
+      - srcaddr_cc
+      - read_mem
+      - srccap_a
+      - dstaddr_cc
+      - pixdstread_jsr
+      - process_a
+      - write_mem
+      - ni
+  - name: pixdstread
+    start: 115
+    seq:
+      - read_mem
+      - dstcap_cc, ret_jsr
+  - name: pixend
+    start: 116
+    seq: [ni]

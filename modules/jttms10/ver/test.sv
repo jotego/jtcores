@@ -7,23 +7,26 @@ module test;
     reg cen = 1;
     always #5 clk = ~clk;
 
-    wire        mem_req, mem_we, mem_iaq, retire, fault;
+    wire        mem_req, mem_we, mem_iaq, mem_pixel, wvp_set, retire, fault;
     wire [31:0] mem_addr, mem_wdata, pc, st;
     wire [5:0]  mem_size;
     wire [15:0] ir;
     reg  [31:0] mem_rdata = 0;
     reg         mem_ack = 0;
+    reg         wvp_seen = 0;
 
     `include "expected.svh"
 
     jttms10 u_cpu (
         .rst(rst), .clk(clk), .cen(cen),
         .psize(PIXEL_SIZE), .convdp(CONVDP),
+        .convsp(CONVSP), .control(CONTROL), .pmask(PMASK),
+        .wvp_set(wvp_set),
         .irq_req(1'b0), .irq_vector(32'd0),
         .nmi_req(1'b0), .nmi_nostack(1'b0),
         .halt_req(1'b0), .emu_run(1'b1),
         .nmi_clear(), .emu_ack(),
-        .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
+        .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
@@ -116,7 +119,7 @@ module test;
     reg [1:0] bus_state = BUS_IDLE;
     reg [31:0] held_addr = 0, held_wdata = 0;
     reg [5:0] held_size = 0;
-    reg held_we = 0, held_iaq = 0;
+    reg held_we = 0, held_iaq = 0, held_pixel = 0;
     integer wait_left = 0;
     integer request_count = 0;
 
@@ -133,6 +136,7 @@ module test;
                     held_size <= mem_size;
                     held_we <= mem_we;
                     held_iaq <= mem_iaq;
+                    held_pixel <= mem_pixel;
                     wait_left <= 1 + (request_count % 3);
                     request_count <= request_count + 1;
                     bus_state <= BUS_WAIT;
@@ -140,7 +144,7 @@ module test;
                 BUS_WAIT: begin
                     if (!mem_req || mem_addr !== held_addr ||
                         mem_size !== held_size || mem_we !== held_we ||
-                        mem_iaq !== held_iaq ||
+                        mem_iaq !== held_iaq || mem_pixel !== held_pixel ||
                         (held_we && mem_wdata !== held_wdata))
                         $fatal(1, "memory request changed before ack");
                     if (wait_left == 0) bus_state <= BUS_ACK;
@@ -159,6 +163,10 @@ module test;
     end
 
     reg pause_done = 0;
+    always @(posedge clk) begin
+        if (rst) wvp_seen <= 0;
+        else if (wvp_set) wvp_seen <= 1;
+    end
     reg ack_while_paused = 0;
     integer pause_left = 0;
     reg [31:0] pause_pc = 0;

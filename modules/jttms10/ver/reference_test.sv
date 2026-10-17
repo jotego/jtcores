@@ -52,13 +52,13 @@ module reference_test;
   );
 
   integer checks_fd, program_fd, data_fd, vector_fd, loaded, step_count, expected_count;
-  integer index, reg_idx, nregs, nmem, rc, word_index, data_count, data_index;
+  integer index, reg_idx, nregs, nmem, expected_wvp, rc, word_index, data_count, data_index;
   integer field_size, vector_number;
   logic [15:0] program_word, expected_ir;
   logic [31:0] entry, expected_after, expected_pc, st_mask, st_value;
   logic [31:0] reg_value, actual_reg, data_at, field_addr, field_value;
   logic [31:0] vector_value, vector_addr;
-  logic [15:0] pixel_size, convdp;
+  logic [15:0] pixel_size, convdp, convsp, control_value, pmask;
 
   function automatic logic [31:0] read_backing(input logic [31:0] address,
                                                 input integer size);
@@ -80,8 +80,11 @@ module reference_test;
     if (!$value$plusargs("entry=%h", entry) ||
         !$value$plusargs("count=%d", expected_count) ||
         !$value$plusargs("pixel_size=%h", pixel_size) ||
-        !$value$plusargs("convdp=%h", convdp))
-      $fatal(1, "missing entry/count/pixel_size/convdp plusargs");
+        !$value$plusargs("convdp=%h", convdp) ||
+        !$value$plusargs("convsp=%h", convsp) ||
+        !$value$plusargs("control=%h", control_value) ||
+        !$value$plusargs("pmask=%h", pmask))
+      $fatal(1, "missing graphics control plusargs");
     if (entry[3:0] != 0 || entry >= 32'd12288)
       $fatal(1, "program entry outside reference memory");
     checks_fd = $fopen("checks.txt", "r");
@@ -128,14 +131,17 @@ module reference_test;
     // initialize their architectural values without editing that submodule.
     u_core.u_io_regs.io_reg[IO_IDX_PSIZE] = pixel_size;
     u_core.u_io_regs.io_reg[IO_IDX_CONVDP] = convdp;
+    u_core.u_io_regs.io_reg[IO_IDX_CONVSP] = convsp;
+    u_core.u_io_regs.io_reg[IO_IDX_CONTROL] = control_value;
+    u_core.u_io_regs.io_reg[IO_IDX_PMASK] = pmask;
   end
 
   task automatic check_step;
     begin
-      rc = $fscanf(checks_fd, "%h %h %h %h %h %d %d",
+      rc = $fscanf(checks_fd, "%h %h %h %h %h %d %d %d",
                    expected_after, expected_pc, expected_ir,
-                   st_mask, st_value, nregs, nmem);
-      if (rc != 7) $fatal(1, "missing checkpoint %0d", step_count);
+                   st_mask, st_value, nregs, nmem, expected_wvp);
+      if (rc != 8) $fatal(1, "missing checkpoint %0d", step_count);
       if (instr_w !== expected_ir || pc_w !== expected_pc)
         $fatal(1, "step %0d opcode @%h: IR %h/%h PC %h/%h",
                step_count, expected_after, instr_w, expected_ir,
@@ -143,6 +149,10 @@ module reference_test;
       if ((u_core.u_status_reg.st_o & st_mask) !== st_value)
         $fatal(1, "step %0d ST %h mask %h expected %h", step_count,
                u_core.u_status_reg.st_o, st_mask, st_value);
+      if (expected_wvp >= 0 &&
+          u_core.u_io_regs.io_reg[IO_IDX_INTPEND][INT_WV_BIT] !== expected_wvp[0])
+        $fatal(1, "step %0d WVP %b expected %b", step_count,
+               u_core.u_io_regs.io_reg[IO_IDX_INTPEND][INT_WV_BIT], expected_wvp[0]);
       for (index=0; index<nregs; index=index+1) begin
         rc = $fscanf(checks_fd, "%d %h", reg_idx, reg_value);
         if (rc != 2) $fatal(1, "truncated checkpoint register list");

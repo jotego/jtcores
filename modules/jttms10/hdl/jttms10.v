@@ -6,8 +6,9 @@ module jttms10(
     input             irq_req,
     input      [31:0] irq_vector,
     input             nmi_req, nmi_nostack, halt_req, emu_run,
-    input      [15:0] psize, convdp,
+    input      [15:0] psize, convsp, convdp, control, pmask,
     output reg        nmi_clear, emu_ack,
+    output reg        wvp_set,
     output            mem_req, mem_we, mem_iaq, mem_pixel,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
@@ -29,7 +30,7 @@ module jttms10(
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire dsjfinish, xyx, xyy;
-    wire gfx_step, cvloop_active;
+    wire gfx_step, cvloop_active, wincheck_active, pixconv_active;
     wire hw_take, reserved_opcode, push_entry, push_active, emu_step;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
@@ -38,12 +39,19 @@ module jttms10(
     wire [1:0] b_sel, md_sel, mem_sel, stack_sel, tmp_sel, st_sel;
     wire [2:0] ea_sel;
     wire [31:0] rs_data, rd_data, result;
+    wire [15:0] pixel_visible_source;
     wire n,z,c,v;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [31:0] vector_latched;
     reg push_high, hw_entry;
     reg [2:0] gfx_phase;
-    reg [1:0] gfx_rs;
+    reg [2:0] gfx_rs;
+    reg pix_conv_src, pix_clip;
+    reg [31:0] pix_src_val, pix_dst_val;
+    reg [3:0] pix_src_addr;
+    reg [15:0] pix_color;
+    reg [15:0] pix_src_pixel, pix_dst_pixel, pix_write_data;
+    reg pix_transparent;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
@@ -74,7 +82,26 @@ module jttms10(
     wire xy_sub = ir[15:9]==7'b1110001;
     wire xy_op = xy_add || xy_sub;
     wire cpw_ir = ir[15:9]==7'b1110011;
-    wire cvxyl_ir = ir[15:9]==7'b1110100;
+    wire pix_rxy = ir[15:9]==7'b1111000;
+    wire pix_xyreg = ir[15:9]==7'b1111001;
+    wire pix_xyxy = ir[15:9]==7'b1111010;
+    wire drav_ir = ir[15:9]==7'b1111011;
+    wire pix_rlin = ir[15:9]==7'b1111100;
+    wire pix_linreg = ir[15:9]==7'b1111101;
+    wire pix_linlin = ir[15:9]==7'b1111110;
+    wire pix_load = pix_xyreg || pix_linreg;
+    wire pix_field = pix_rxy || pix_xyreg || pix_xyxy || drav_ir ||
+                     pix_rlin || pix_linreg || pix_linlin;
+    wire pix_register_source = pix_rxy || pix_rlin || drav_ir;
+    wire pixel_need_dest = !pix_clip &&
+                           (control[14:10]!=0 || pmask!=0);
+    // W1 never draws, and W2/W3 abort an out-of-window PIXT before its
+    // source access. The final WINCHECK step sees the completed clip bits.
+    wire pixel_abort = (pix_rxy || pix_xyxy) &&
+                       (control[7:6]==2'd1 ||
+                        (control[7:6]!=0 && |md[8:5]));
+    wire pix_skip_write = pix_field && mem_sel==WRITE_MEM &&
+                          (pix_clip || pix_transparent);
     wire [4:0] pixel_shift = psize==16'd16 ? 5'd4 :
                              psize==16'd8  ? 5'd3 :
                              psize==16'd4  ? 5'd2 :
@@ -82,6 +109,8 @@ module jttms10(
     // The architectural register is 16 bits; conversion encodes its shift
     // solely in the low five bits.
     wire unused_convdp_high = &convdp[15:5];
+    wire unused_convsp_high = &convsp[15:5];
+    wire unused_control_bits = &{control[15],control[9:8],control[4:0]};
     wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
@@ -92,12 +121,13 @@ module jttms10(
     reg completed;
     wire field_op = mem_sel!=0 || stack_sel!=0;
     wire bus_op = vector || fetch || imm || field_op;
-    wire ready = !bus_op || completed || mem_ack;
+    wire ready = !bus_op || completed || mem_ack || pix_skip_write;
     wire [31:0] read_data = completed ? bus_data : mem_rdata;
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
-    assign mem_req = active && bus_op && !completed && !rst && !fault;
+    assign mem_req = active && bus_op && !completed && !rst && !fault &&
+                     !pix_skip_write;
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
     wire byte_op = ir[15:10]==6'b100011 || ir[15:10]==6'b101011 ||
@@ -116,13 +146,16 @@ module jttms10(
     assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
+                      pix_field && field_op ? {1'b0,psize[4:0]} :
                       field_op ? field_size : 6'd16;
     assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
-                       {16'd0, push_high ? md[31:16] : md[15:0]} : md;
+                       {16'd0, push_high ? md[31:16] : md[15:0]} :
+                       pix_field && mem_sel==WRITE_MEM ?
+                       {16'd0,pix_write_data} : md;
     assign mem_iaq = fetch;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
-    assign mem_pixel = 1'b0;
+    assign mem_pixel = pix_field && field_op;
 
     jttms10_ctrl u_ctrl(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
@@ -131,6 +164,8 @@ module jttms10(
         .multi_load(ir[5]),
         .mul_count(mul_count),
         .div_early_cond(a==0 || !c),
+        .pixel_need_dest(pixel_need_dest),
+        .pixel_abort(pixel_abort),
         .irq_req(irq_req), .nmi_req(nmi_req),
         .nmi_nostack(nmi_nostack), .halt_req(halt_req),
         .emu_run(emu_run), .ie(st[21]),
@@ -156,6 +191,7 @@ module jttms10(
         .divcheck(divcheck), .divstep(divstep),
         .dsjfinish(dsjfinish), .xyx(xyx), .xyy(xyy),
         .gfx_step(gfx_step), .cvloop_active(cvloop_active),
+        .wincheck_active(wincheck_active), .pixconv_active(pixconv_active),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -169,9 +205,10 @@ module jttms10(
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
     jttms10_regs u_regs(
-        .clk(clk), .rs(gfx_rs==2'd1 ? 5'd21 :
-                       gfx_rs==2'd2 ? 5'd22 :
-                       gfx_rs==2'd3 ? 5'd20 :
+        .clk(clk), .rs(gfx_rs==3'd1 ? 5'd21 :
+                       gfx_rs==3'd2 ? 5'd22 :
+                       gfx_rs==3'd3 ? 5'd20 :
+                       gfx_rs==3'd4 ? 5'd25 :
                        multi_ir ? {ir[4],multi_index} :
                          call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(stack_ir || push_active ? 5'd15 :
@@ -187,7 +224,10 @@ module jttms10(
                      ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
                      (!div_ir || (!div_early &&
                        (!div_error || (div_mod && div_signed))))) && !rst),
-        .wd(cpw_ir && wr_reg ? md :
+        .wd(pix_load && a_sel==LOAD_A && wr_reg ?
+                {16'd0,pixel_visible_source} :
+            drav_ir && wr_reg ? md :
+            cpw_ir && wr_reg ? md :
             exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} : listwr ? md :
             xy_op && wr_reg ? md :
@@ -196,9 +236,31 @@ module jttms10(
         .qs(rs_data), .qd(rd_data)
     );
     reg [3:0] alu_op;
+    wire [31:0] pixel_alu_a, pixel_alu_b;
+    wire [3:0] pixel_alu_op;
+    wire pixel_alu_req, pixel_transparent;
+    wire [15:0] pixel_write_pixel;
+    wire unused_pixel_valid;
+    wire [15:0] unused_pixel_result, unused_pixel_mask;
+    wire [15:0] pixel_source = drav_ir ?
+        (pix_color[15:0] >> ea[3:0]) : pix_src_pixel;
+    jttms10_pixel u_pixel(
+        .psize(psize[4:0]), .ppop(control[14:10]),
+        .transparency(control[5]), .pmask(pmask),
+        .source_is_register(pix_register_source),
+        .src_addr_lo(pix_src_addr), .dst_addr_lo(ea[3:0]),
+        .source_pixel(pixel_source), .dest_pixel(pix_dst_pixel),
+        .alu_a(pixel_alu_a), .alu_b(pixel_alu_b),
+        .alu_op(pixel_alu_op), .alu_req(pixel_alu_req),
+        .alu_result(result), .alu_borrow(c),
+        .valid(unused_pixel_valid), .visible_source(pixel_visible_source),
+        .result_pixel(unused_pixel_result), .write_mask(unused_pixel_mask),
+        .write_pixel(pixel_write_pixel), .transparent(pixel_transparent)
+    );
     always @* begin
         alu_op=0;
-        case(alu_sel)
+        if(a_sel==PROCESS_A && pixel_alu_req) alu_op=pixel_alu_op;
+        else case(alu_sel)
             PASS_ALU: alu_op=0;
             ADD_ALU:  alu_op=1;
             ADC_ALU:  alu_op=2;
@@ -226,7 +288,7 @@ module jttms10(
         endcase
     end
     wire [31:0] div_trial = {b[30:0],md[31]};
-    wire cpw_compare = cpw_ir && gfx_step &&
+    wire cpw_compare = wincheck_active && gfx_step &&
                        gfx_phase>=3'd2 && gfx_phase<=3'd5;
     wire [31:0] cpw_source_x = {{16{a[15]}},a[15:0]};
     wire [31:0] cpw_source_y = {{16{a[31]}},a[31:16]};
@@ -234,7 +296,10 @@ module jttms10(
     wire [31:0] cpw_start_y = {{16{tmp[31]}},tmp[31:16]};
     wire [31:0] cpw_end_x = {{16{b[15]}},b[15:0]};
     wire [31:0] cpw_end_y = {{16{b[31]}},b[31:16]};
-    wire [31:0] alu_a = cpw_compare ?
+    wire [31:0] alu_a = a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_a :
+                        a_sel==DRAVX_A ? {16'd0,pix_src_val[15:0]} :
+                        a_sel==DRAVY_A ? {16'd0,pix_src_val[31:16]} :
+                        cpw_compare ?
                         (gfx_phase==3'd2 ? cpw_start_x :
                          gfx_phase==3'd3 ? cpw_start_y :
                          gfx_phase==3'd4 ? cpw_source_x : cpw_source_y) :
@@ -242,7 +307,10 @@ module jttms10(
                         xyy ? {16'd0,a[31:16]} :
                         divnegmd ? md : divnegb ? b :
                         mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    wire [31:0] alu_b = cpw_compare ?
+    wire [31:0] alu_b = a_sel==PROCESS_A && pixel_alu_req ? pixel_alu_b :
+                        a_sel==DRAVX_A ? {16'd0,pix_dst_val[15:0]} :
+                        a_sel==DRAVY_A ? {16'd0,pix_dst_val[31:16]} :
+                        cpw_compare ?
                         (gfx_phase==3'd2 ? cpw_source_x :
                          gfx_phase==3'd3 ? cpw_source_y :
                          gfx_phase==3'd4 ? cpw_end_x : cpw_end_y) :
@@ -279,6 +347,7 @@ module jttms10(
         retire <= 0;
         nmi_clear <= 0;
         emu_ack <= 0;
+        wvp_set <= 0;
         if(rst) begin
             pc<=0;
             st<=32'h10;
@@ -311,6 +380,16 @@ module jttms10(
             hw_entry<=0;
             gfx_phase<=0;
             gfx_rs<=0;
+            pix_conv_src<=0;
+            pix_clip<=0;
+            pix_src_val<=0;
+            pix_dst_val<=0;
+            pix_src_addr<=0;
+            pix_color<=0;
+            pix_src_pixel<=0;
+            pix_dst_pixel<=0;
+            pix_write_data<=0;
+            pix_transparent<=0;
         end else begin
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
@@ -349,39 +428,92 @@ module jttms10(
                     div_pairread<=0;
                     gfx_phase<=0;
                     gfx_rs<=0;
+                    pix_conv_src<=0;
                 end
+                if(a_sel==INIT_A) begin
+                    pix_src_val<=rs_data;
+                    pix_dst_val<=rd_data;
+                    pix_src_pixel<=rs_data[15:0];
+                    pix_dst_pixel<=0;
+                    pix_clip<=0;
+                    pix_transparent<=0;
+                    gfx_rs<=drav_ir ? 3'd4 : 3'd0; // B9 COLOR1
+                end
+                if(cc_sel==SRCADDR_CC) begin
+                    ea<=pix_src_val;
+                    pix_src_addr<=pix_src_val[3:0];
+                end
+                if(cc_sel==DSTADDR_CC) ea<=pix_dst_val;
+                if(a_sel==SRCPREP_A) begin
+                    a<=pix_src_val;
+                    pix_conv_src<=1;
+                    gfx_phase<=0;
+                end
+                if(a_sel==DSTPREP_A) begin
+                    a<=pix_dst_val;
+                    pix_conv_src<=0;
+                    gfx_phase<=0;
+                end
+                if(a_sel==SAVESRC_A) begin
+                    pix_src_addr<=a[3:0];
+                    ea<=a;
+                end
+                if(a_sel==SAVEDST_A) ea<=a;
+                if(a_sel==SRCCAP_A) pix_src_pixel<=md[15:0];
+                if(cc_sel==DSTCAP_CC) pix_dst_pixel<=md[15:0];
+                if(a_sel==PROCESS_A) begin
+                    pix_write_data<=pixel_write_pixel;
+                    pix_transparent<=pixel_transparent;
+                end
+                if(a_sel==LOAD_A) st[28]<=pixel_visible_source!=0;
+                if(a_sel==WINPREP_A) begin
+                    a<=pix_dst_val;
+                    gfx_phase<=0;
+                    pix_clip<=0;
+                end
+                if(cc_sel==COLOR_CC) pix_color<=rs_data[15:0];
+                if(a_sel==DRAVX_A) md[15:0]<=result[15:0];
+                if(a_sel==DRAVY_A) md[31:16]<=result[15:0];
                 if(gfx_step) begin
-                    if(cpw_ir) begin
+                    if(cvloop_active) begin
+                        a<=result;
+                        shift_count<=shift_count-5'd1;
+                    end else if(wincheck_active) begin
                         gfx_phase<=gfx_phase+3'd1;
                         case(gfx_phase)
                             3'd0: begin
-                                a<=rs_data;
                                 md<=0;
-                                gfx_rs<=2'd1; // B5 WSTART
+                                gfx_rs<=3'd1; // B5 WSTART
                             end
                             3'd1: begin
                                 tmp<=rs_data;
-                                gfx_rs<=2'd2; // B6 WEND
+                                gfx_rs<=3'd2; // B6 WEND
                             end
                             3'd2: md[5]<=n;
                             3'd3: begin md[7]<=n; b<=rs_data; end
                             3'd4: md[6]<=n;
                             3'd5: md[8]<=n;
-                            3'd6: st[28]<=|md[8:5];
+                            3'd6: begin
+                                if(!cpw_ir && control[7:6]!=0) begin
+                                    st[28]<=|md[8:5];
+                                    pix_clip<=control[7:6]==2'd1 || |md[8:5];
+                                    if((control[7:6]==2'd1 && !(|md[8:5])) ||
+                                       (control[7:6]==2'd2 && (|md[8:5])))
+                                        wvp_set<=1;
+                                end
+                            end
                             default:;
                         endcase
-                    end else if(cvxyl_ir) begin
-                        if(cvloop_active) begin
-                            a<=result;
-                            shift_count<=shift_count-5'd1;
-                        end else begin
+                    end else if(pixconv_active) begin
                             gfx_phase<=gfx_phase+3'd1;
                             case(gfx_phase)
                                 3'd0: begin
-                                    tmp<=rs_data;
-                                    a<={{16{rs_data[31]}},rs_data[31:16]};
-                                    shift_count<=5'd31-convdp[4:0];
-                                    gfx_rs<=2'd3; // B4 OFFSET
+                                    tmp<=a;
+                                    a<={{16{a[31]}},a[31:16]};
+                                    shift_count<=5'd31-
+                                        (pix_field && pix_conv_src ?
+                                         convsp[4:0] : convdp[4:0]);
+                                    gfx_rs<=3'd3; // B4 OFFSET
                                 end
                                 3'd1: begin
                                     b<=a;
@@ -390,9 +522,9 @@ module jttms10(
                                 end
                                 3'd2: a<=result;
                                 3'd3: b<=rs_data;
+                                3'd4: a<=result;
                                 default:;
                             endcase
-                        end
                     end
                 end
                 if(shiftkinit || shiftrinit) begin
@@ -593,6 +725,7 @@ module jttms10(
                 end
                 if(btstfinish) st[29]<=~a[btst_index];
                 if(lmofinish) st[29]<=a==0;
+                if(cpw_ir && wr_reg) st[28]<=|md[8:5];
                 retire<=ni && !hw_entry;
                 if(ni) hw_entry<=0;
             end

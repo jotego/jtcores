@@ -12,8 +12,9 @@ maskable interrupt entry. `nmi_pending` and `nmi_nmim` go to its NMI entry;
 the CPU's `nmi_clear` pulse returns to HSTCTLH. HSTCTLH.HLT controls
 `halt_req`, and the separate `emu_run` input and `emu_ack` output expose the
 processor's EMU/RUN boundary. `hcs_n` is sampled by the I/O block at reset:
-a host-present value of one sets HLT until a direct synchronous host HSTCTL
-write releases it. The host request/ack ports are synchronous; physical
+a host-present value of one sets HLT and defers the level-0 reset-vector
+fetch until a direct synchronous host HSTCTL write clears HLT. The host
+request/ack ports are synchronous; physical
 asynchronous HCS/HREAD/HWRITE/HRDY timing and clock crossing remain outside
 this wrapper.
 
@@ -25,14 +26,14 @@ field adapter so an interrupted partial-word RMW rereads fresh memory data.
 CPW and CVXYL use the implied B registers and the fabric's PSIZE/CONVDP taps.
 The [pixel tag path](pixel-bus.md) connects the CPU through the word wrapper
 to the fabric, with SRT classification and partial-field RMW sequencing.
-The CPU drives that tag low until pixel instruction microcode is added;
-`wvp_set` is also tied low. `jttms10_pixel.v` remains a standalone processing
-helper until graphics microcode and field scheduling are added.
+PIXT/DRAV drive the pixel tag, and window checks pulse `wvp_set` into INTPEND.
+`jttms10_pixel.v` provides the field operation used by graphics microcode.
 
 The focused system bench runs a real program through the CPU, field adapter,
-fabric, and a waiting NARC target. A host-present reset allows the reset-vector
-transaction to finish but holds instruction retirement; a host HSTCTL write
-releases the CPU. The program sets INTENB, enables video,
+fabric, and a waiting NARC target. A host-present reset emits eight RAS-only
+DRAM initialization cycles before ordinary bus traffic, then no CPU-local or
+reset-vector transactions until the host HSTCTL write clears HLT. Periodic
+refresh may continue while halted. The program then sets INTENB, enables video,
 and sets ST.IE; one video tick latches display IRQ. The CPU enters the display
 vector, saves PC/ST, executes a handler that clears INTPEND.DIP, and returns
 with RETI. The bench checks the vector read count, stack order, restored PC/ST,

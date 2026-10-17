@@ -43,7 +43,7 @@ def check_line(check, case):
     memory = check.get("mem", [])
     fields = [f"{check['after']:08x}", f"{check['pc']:08x}",
               f"{opcode:04x}", f"{mask:08x}", f"{value:08x}",
-              str(len(regs)), str(len(memory))]
+              str(len(regs)), str(len(memory)), str(check.get("wvp", -1))]
     for physical, reg_value in sorted(regs.items()):
         fields.extend([str(physical), f"{reg_value:08x}"])
     for field in memory:
@@ -55,6 +55,8 @@ def check_line(check, case):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", help="run one scalar case")
+    parser.add_argument("--vectors", type=Path, default=HERE / "tests.yaml",
+                        help="YAML/JSON vector file (default: ver/tests.yaml)")
     args = parser.parse_args()
     actual_sha = subprocess.check_output(
         ["git", "-C", str(REFERENCE), "rev-parse", "HEAD"], text=True
@@ -66,7 +68,7 @@ def main():
     ).strip()
     if dirty:
         parser.error("reference submodule has local changes; pinned comparison requires a clean tree")
-    cases = load_cases(yaml.safe_load((HERE / "tests.yaml").read_text()))
+    cases = load_cases(yaml.safe_load(args.vectors.read_text()))
     for case in cases:
         validate_case(case)
     scalar = [case for case in cases
@@ -105,7 +107,10 @@ def main():
                 [str(obj / "Vreference_test"), f"+entry={case['entry']:x}",
                  f"+count={len(checks)}",
                  f"+pixel_size={case.get('pixel_size', 16):x}",
-                 f"+convdp={case.get('convdp', 0x14):x}"], cwd=work,
+                 f"+convdp={case.get('convdp', 0x14):x}",
+                 f"+convsp={case.get('convsp', 0x14):x}",
+                 f"+control={case.get('control', 0):x}",
+                 f"+pmask={case.get('pmask', 0):x}"], cwd=work,
                 capture_output=True, text=True
             )
             if result.returncode or "TEST_RESULT: PASS" not in result.stdout:

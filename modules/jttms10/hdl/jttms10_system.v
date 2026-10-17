@@ -4,7 +4,8 @@
  * Addresses on word/cyc buses are bit addresses.
  */
 module jttms10_system #(
-    parameter integer CLKS_PER_STATE=8
+    parameter integer CLKS_PER_STATE=8,
+    parameter integer RESET_REFRESH=1
 )(
     input clk, rst, cen, vclk_cen,
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
@@ -36,10 +37,10 @@ module jttms10_system #(
     wire word_req, word_we, word_iaq, word_lock, word_pixel;
     wire [31:0] word_addr;
     wire [15:0] word_wdata, word_rdata;
-    wire word_ack, word_restart, nmi_clear;
+    wire word_ack, word_restart, nmi_clear, wvp_set;
     wire [31:0] irq_vector;
     wire nmi_nmim;
-    wire [15:0] psize, convdp;
+    wire [15:0] psize, convsp, convdp, control, pmask;
     wire pixel_srt;
 
     jttms10_word u_cpu(
@@ -47,8 +48,9 @@ module jttms10_system #(
         .irq_req(irq_pending),.irq_vector(irq_vector),
         .nmi_req(nmi_pending),.nmi_nostack(nmi_nmim),
         .halt_req(halt),.emu_run(emu_run),
-        .psize(psize),.convdp(convdp),.pixel_srt(pixel_srt),
-        .nmi_clear(nmi_clear),.emu_ack(emu_ack),
+        .psize(psize),.convsp(convsp),.convdp(convdp),
+        .control(control),.pmask(pmask),.pixel_srt(pixel_srt),
+        .nmi_clear(nmi_clear),.emu_ack(emu_ack),.wvp_set(wvp_set),
         .word_req(word_req),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
@@ -58,7 +60,8 @@ module jttms10_system #(
 
     // CVXYL consumes the pixel size and destination conversion pitch.
     /* verilator lint_off PINCONNECTEMPTY */
-    jttms10_fabric #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_fabric(
+    jttms10_fabric #(.CLKS_PER_STATE(CLKS_PER_STATE),
+                     .RESET_REFRESH(RESET_REFRESH)) u_fabric(
         .clk(clk),.rst(rst),.vclk_cen(vclk_cen),
         .hcs_n(hcs_n),.hsync_n(hsync_n),.vsync_n(vsync_n),
         .lint1_n(lint1_n),.lint2_n(lint2_n),
@@ -71,8 +74,9 @@ module jttms10_system #(
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),
         .word_restart(word_restart),
-        .nmi_clear(nmi_clear),.wvp_set(1'b0),
-        .psize(psize),.convsp(),.convdp(convdp),.control(),.pmask(),
+        .nmi_clear(nmi_clear),.wvp_set(wvp_set),
+        .psize(psize),.convsp(convsp),.convdp(convdp),
+        .control(control),.pmask(pmask),
         .pixel_srt(pixel_srt),.intenb(intenb),.intpend(intpend),.hstctlh(),
         .irq_pending(irq_pending),.irq_vector(irq_vector),
         .nmi_pending(nmi_pending),.nmi_nmim(nmi_nmim),

@@ -56,6 +56,15 @@ jttms10_system #(.CLKS_PER_STATE(8)) u_tms(
     .intenb(), .intpend(), .irq_pending(), .nmi_pending(), .halt()
 );
 `ifdef SIMULATION
+integer new_retired=0;
+always @(posedge clk) begin
+    if(rst) new_retired<=0;
+    else if(u_tms.retire) begin
+        new_retired<=new_retired+1;
+        if(new_retired<4 || new_retired[15:0]==0)
+            $display("JTTMS10 NARC retired=%0d IR=%h PC=%h",new_retired+1,new_ir,pc);
+    end
+end
 always @(posedge clk) if(!rst && new_fault)
     $fatal(1,"JTTMS10 unimplemented instruction IR=%h PC=%h",new_ir,pc);
 `endif

@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 // Physical-word fabric and peripherals, independent of the microcoded CPU.
 module jttms10_fabric #(
-    parameter integer CLKS_PER_STATE=8
+    parameter integer CLKS_PER_STATE=8,
+    parameter integer RESET_REFRESH=0
 )(
     input clk, rst, vclk_cen,
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
@@ -77,7 +78,7 @@ module jttms10_fabric #(
         .refresh_req(refresh_req),.refresh_row(refresh_row),
         .refresh_cbr(refresh_cbr)
     );
-    jttms10_bus u_bus(
+    jttms10_bus #(.RESET_REFRESH(RESET_REFRESH)) u_bus(
         .clk(clk),.rst(rst),.hold_req(hold_req),.hold_ack(hold_ack),
         .screen_req(screen_req),.screen_ack(screen_ack),
         .screen_srfaddr(screen_srfaddr),.screen_dpytap(screen_dpytap),
