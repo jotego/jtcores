@@ -25,6 +25,7 @@ module test;
 
     jttms10 u_cpu(
         .rst(rst), .clk(clk), .cen(cen),
+        .psize(16'd16), .convdp(16'h14),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
         .halt_req(halt_req), .emu_run(emu_run),

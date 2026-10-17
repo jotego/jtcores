@@ -103,7 +103,9 @@ def main():
             )
             result = subprocess.run(
                 [str(obj / "Vreference_test"), f"+entry={case['entry']:x}",
-                 f"+count={len(checks)}"], cwd=work,
+                 f"+count={len(checks)}",
+                 f"+pixel_size={case.get('pixel_size', 16):x}",
+                 f"+convdp={case.get('convdp', 0x14):x}"], cwd=work,
                 capture_output=True, text=True
             )
             if result.returncode or "TEST_RESULT: PASS" not in result.stdout:

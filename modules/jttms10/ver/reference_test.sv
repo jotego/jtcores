@@ -58,6 +58,7 @@ module reference_test;
   logic [31:0] entry, expected_after, expected_pc, st_mask, st_value;
   logic [31:0] reg_value, actual_reg, data_at, field_addr, field_value;
   logic [31:0] vector_value, vector_addr;
+  logic [15:0] pixel_size, convdp;
 
   function automatic logic [31:0] read_backing(input logic [31:0] address,
                                                 input integer size);
@@ -77,8 +78,10 @@ module reference_test;
 
   initial begin
     if (!$value$plusargs("entry=%h", entry) ||
-        !$value$plusargs("count=%d", expected_count))
-      $fatal(1, "missing entry/count plusargs");
+        !$value$plusargs("count=%d", expected_count) ||
+        !$value$plusargs("pixel_size=%h", pixel_size) ||
+        !$value$plusargs("convdp=%h", convdp))
+      $fatal(1, "missing entry/count/pixel_size/convdp plusargs");
     if (entry[3:0] != 0 || entry >= 32'd12288)
       $fatal(1, "program entry outside reference memory");
     checks_fd = $fopen("checks.txt", "r");
@@ -120,6 +123,11 @@ module reference_test;
     $fclose(vector_fd);
     repeat (6) @(posedge clk);
     rst <= 0;
+    #1;
+    // The established core owns these mapped I/O registers internally;
+    // initialize their architectural values without editing that submodule.
+    u_core.u_io_regs.io_reg[IO_IDX_PSIZE] = pixel_size;
+    u_core.u_io_regs.io_reg[IO_IDX_CONVDP] = convdp;
   end
 
   task automatic check_step;

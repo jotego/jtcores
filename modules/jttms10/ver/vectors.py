@@ -159,6 +159,11 @@ def validate_case(case):
         raise ValueError(f"{name}.pause_on_ack must be a boolean")
     if "expected_requests" in case:
         check_uint(case["expected_requests"], 16, f"{name}.expected_requests")
+    if "pixel_size" in case:
+        if isinstance(case["pixel_size"], bool) or case["pixel_size"] not in (1, 2, 4, 8, 16):
+            raise ValueError(f"{name}.pixel_size must be 1, 2, 4, 8 or 16")
+    if "convdp" in case:
+        check_uint(case["convdp"], 16, f"{name}.convdp")
     if "reference_checks" in case or "reference_divergence" in case:
         reason = case.get("reference_divergence")
         alternate = case.get("reference_checks")
@@ -184,6 +189,8 @@ def sv_checks(case):
              f"localparam logic [15:0] FAULT_IR = 16'h{case.get('fault_ir', 0):04x};",
              f"localparam bit PAUSE_ON_ACK = 1'b{int(bool(case.get('pause_on_ack')))};",
              f"localparam int EXPECTED_REQUESTS = {case.get('expected_requests', -1)};",
+             f"localparam logic [15:0] PIXEL_SIZE = 16'h{case.get('pixel_size', 16):04x};",
+             f"localparam logic [15:0] CONVDP = 16'h{case.get('convdp', 0x14):04x};",
              "task automatic check_retire(input integer step);",
              "  case (step)"]
     for i, check in enumerate(case["checks"]):

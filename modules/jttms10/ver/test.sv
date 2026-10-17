@@ -14,8 +14,11 @@ module test;
     reg  [31:0] mem_rdata = 0;
     reg         mem_ack = 0;
 
+    `include "expected.svh"
+
     jttms10 u_cpu (
         .rst(rst), .clk(clk), .cen(cen),
+        .psize(PIXEL_SIZE), .convdp(CONVDP),
         .irq_req(1'b0), .irq_vector(32'd0),
         .nmi_req(1'b0), .nmi_nostack(1'b0),
         .halt_req(1'b0), .emu_run(1'b1),
@@ -25,8 +28,6 @@ module test;
         .mem_rdata(mem_rdata), .mem_ack(mem_ack),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
-
-    `include "expected.svh"
 
     // Backing store has 1024 physical 16-bit words. All public addresses
     // are bit addresses; the reset vector is handled at its high address.

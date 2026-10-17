@@ -6,8 +6,9 @@ module jttms10(
     input             irq_req,
     input      [31:0] irq_vector,
     input             nmi_req, nmi_nostack, halt_req, emu_run,
+    input      [15:0] psize, convdp,
     output reg        nmi_clear, emu_ack,
-    output            mem_req, mem_we, mem_iaq,
+    output            mem_req, mem_we, mem_iaq, mem_pixel,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
@@ -28,6 +29,7 @@ module jttms10(
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire dsjfinish, xyx, xyy;
+    wire gfx_step, cvloop_active;
     wire hw_take, reserved_opcode, push_entry, push_active, emu_step;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
@@ -40,6 +42,8 @@ module jttms10(
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [31:0] vector_latched;
     reg push_high, hw_entry;
+    reg [2:0] gfx_phase;
+    reg [1:0] gfx_rs;
     reg [4:0] shift_count;
     reg [4:0] mul_count;
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
@@ -69,6 +73,15 @@ module jttms10(
     wire xy_add = ir[15:9]==7'b1110000;
     wire xy_sub = ir[15:9]==7'b1110001;
     wire xy_op = xy_add || xy_sub;
+    wire cpw_ir = ir[15:9]==7'b1110011;
+    wire cvxyl_ir = ir[15:9]==7'b1110100;
+    wire [4:0] pixel_shift = psize==16'd16 ? 5'd4 :
+                             psize==16'd8  ? 5'd3 :
+                             psize==16'd4  ? 5'd2 :
+                             psize==16'd2  ? 5'd1 : 5'd0;
+    // The architectural register is 16 bits; conversion encodes its shift
+    // solely in the low five bits.
+    wire unused_convdp_high = &convdp[15:5];
     wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
@@ -107,6 +120,9 @@ module jttms10(
     assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} : md;
     assign mem_iaq = fetch;
+    // PIXT will assert this for its logical pixel field transaction. CPW
+    // and CVXYL are register-only operations and never tag memory cycles.
+    assign mem_pixel = 1'b0;
 
     jttms10_ctrl u_ctrl(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
@@ -139,6 +155,7 @@ module jttms10(
         .divnegmd(divnegmd), .divnegb(divnegb),
         .divcheck(divcheck), .divstep(divstep),
         .dsjfinish(dsjfinish), .xyx(xyx), .xyy(xyy),
+        .gfx_step(gfx_step), .cvloop_active(cvloop_active),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -152,7 +169,10 @@ module jttms10(
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
     jttms10_regs u_regs(
-        .clk(clk), .rs(multi_ir ? {ir[4],multi_index} :
+        .clk(clk), .rs(gfx_rs==2'd1 ? 5'd21 :
+                       gfx_rs==2'd2 ? 5'd22 :
+                       gfx_rs==2'd3 ? 5'd20 :
+                       multi_ir ? {ir[4],multi_index} :
                          call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
@@ -167,7 +187,8 @@ module jttms10(
                      ((mulwrhi && (div_ir ? div_pair : !ir[0])) || mulwrlo) &&
                      (!div_ir || (!div_early &&
                        (!div_error || (div_mod && div_signed))))) && !rst),
-        .wd(exgf ? {26'd0,old_field} :
+        .wd(cpw_ir && wr_reg ? md :
+            exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} : listwr ? md :
             xy_op && wr_reg ? md :
             mulwrhi ? (div_ir ? md : b) :
@@ -191,7 +212,8 @@ module jttms10(
             NEG_ALU:  alu_op=10;
             ABS_ALU:  alu_op=11;
             SHIFT_ALU: begin
-                case(shift_kind)
+                if(cvloop_active) alu_op=12;
+                else case(shift_kind)
                     3'd0,3'd1: alu_op=12;
                     3'd2:      alu_op=14;
                     3'd3:      alu_op=13;
@@ -204,12 +226,28 @@ module jttms10(
         endcase
     end
     wire [31:0] div_trial = {b[30:0],md[31]};
-    wire [31:0] alu_a = xyx ? {16'd0,a[15:0]} :
+    wire cpw_compare = cpw_ir && gfx_step &&
+                       gfx_phase>=3'd2 && gfx_phase<=3'd5;
+    wire [31:0] cpw_source_x = {{16{a[15]}},a[15:0]};
+    wire [31:0] cpw_source_y = {{16{a[31]}},a[31:16]};
+    wire [31:0] cpw_start_x = {{16{tmp[15]}},tmp[15:0]};
+    wire [31:0] cpw_start_y = {{16{tmp[31]}},tmp[31:16]};
+    wire [31:0] cpw_end_x = {{16{b[15]}},b[15:0]};
+    wire [31:0] cpw_end_y = {{16{b[31]}},b[31:16]};
+    wire [31:0] alu_a = cpw_compare ?
+                        (gfx_phase==3'd2 ? cpw_start_x :
+                         gfx_phase==3'd3 ? cpw_start_y :
+                         gfx_phase==3'd4 ? cpw_source_x : cpw_source_y) :
+                        xyx ? {16'd0,a[15:0]} :
                         xyy ? {16'd0,a[31:16]} :
                         divnegmd ? md : divnegb ? b :
                         mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
-    wire [31:0] alu_b = xyx ? {16'd0,b[15:0]} :
+    wire [31:0] alu_b = cpw_compare ?
+                        (gfx_phase==3'd2 ? cpw_source_x :
+                         gfx_phase==3'd3 ? cpw_source_y :
+                         gfx_phase==3'd4 ? cpw_end_x : cpw_end_y) :
                         xyy ? {16'd0,b[31:16]} :
+                        xyx ? {16'd0,b[15:0]} :
                         divstep ? div_trial : divnegb ? 32'd0 : b;
     wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
     jttms10_alu u_alu(.a(alu_a),.b(alu_b),.op(alu_op),.cin(alu_cin),
@@ -271,6 +309,8 @@ module jttms10(
             vector_latched<=0;
             push_high<=0;
             hw_entry<=0;
+            gfx_phase<=0;
+            gfx_rs<=0;
         end else begin
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
@@ -307,6 +347,53 @@ module jttms10(
                 if(ld_ir) begin
                     ir<=md[15:0];
                     div_pairread<=0;
+                    gfx_phase<=0;
+                    gfx_rs<=0;
+                end
+                if(gfx_step) begin
+                    if(cpw_ir) begin
+                        gfx_phase<=gfx_phase+3'd1;
+                        case(gfx_phase)
+                            3'd0: begin
+                                a<=rs_data;
+                                md<=0;
+                                gfx_rs<=2'd1; // B5 WSTART
+                            end
+                            3'd1: begin
+                                tmp<=rs_data;
+                                gfx_rs<=2'd2; // B6 WEND
+                            end
+                            3'd2: md[5]<=n;
+                            3'd3: begin md[7]<=n; b<=rs_data; end
+                            3'd4: md[6]<=n;
+                            3'd5: md[8]<=n;
+                            3'd6: st[28]<=|md[8:5];
+                            default:;
+                        endcase
+                    end else if(cvxyl_ir) begin
+                        if(cvloop_active) begin
+                            a<=result;
+                            shift_count<=shift_count-5'd1;
+                        end else begin
+                            gfx_phase<=gfx_phase+3'd1;
+                            case(gfx_phase)
+                                3'd0: begin
+                                    tmp<=rs_data;
+                                    a<={{16{rs_data[31]}},rs_data[31:16]};
+                                    shift_count<=5'd31-convdp[4:0];
+                                    gfx_rs<=2'd3; // B4 OFFSET
+                                end
+                                3'd1: begin
+                                    b<=a;
+                                    a<={16'd0,tmp[15:0]};
+                                    shift_count<=pixel_shift;
+                                end
+                                3'd2: a<=result;
+                                3'd3: b<=rs_data;
+                                default:;
+                            endcase
+                        end
+                    end
                 end
                 if(shiftkinit || shiftrinit) begin
                     shift_count<=shift_right ? -shift_raw : shift_raw;

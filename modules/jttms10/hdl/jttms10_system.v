@@ -33,27 +33,30 @@ module jttms10_system #(
     output [15:0] intenb, intpend,
     output irq_pending, nmi_pending, halt
 );
-    wire word_req, word_we, word_iaq, word_lock;
+    wire word_req, word_we, word_iaq, word_lock, word_pixel;
     wire [31:0] word_addr;
     wire [15:0] word_wdata, word_rdata;
     wire word_ack, word_restart, nmi_clear;
     wire [31:0] irq_vector;
     wire nmi_nmim;
+    wire [15:0] psize, convdp;
+    wire pixel_srt;
 
     jttms10_word u_cpu(
         .rst(rst),.clk(clk),.cen(cen),
         .irq_req(irq_pending),.irq_vector(irq_vector),
         .nmi_req(nmi_pending),.nmi_nostack(nmi_nmim),
         .halt_req(halt),.emu_run(emu_run),
+        .psize(psize),.convdp(convdp),.pixel_srt(pixel_srt),
         .nmi_clear(nmi_clear),.emu_ack(emu_ack),
         .word_req(word_req),.word_we(word_we),.word_addr(word_addr),
-        .word_wdata(word_wdata),.word_iaq(word_iaq),.word_lock(word_lock),
+        .word_wdata(word_wdata),.word_iaq(word_iaq),
+        .word_lock(word_lock),.word_pixel(word_pixel),
         .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),
         .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault)
     );
 
-    // The graphics register taps have no consumer until the graphics engine
-    // is integrated; leaving them open lets synthesis prune unused paths.
+    // CVXYL consumes the pixel size and destination conversion pitch.
     /* verilator lint_off PINCONNECTEMPTY */
     jttms10_fabric #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_fabric(
         .clk(clk),.rst(rst),.vclk_cen(vclk_cen),
@@ -64,13 +67,13 @@ module jttms10_system #(
         .host_be(host_be),.host_wdata(host_wdata),
         .host_rdata(host_rdata),.host_ack(host_ack),.host_busy(host_busy),
         .word_req(word_req),.word_we(word_we),.word_iaq(word_iaq),
-        .word_lock(word_lock),.word_pixel(1'b0),
+        .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),
         .word_restart(word_restart),
         .nmi_clear(nmi_clear),.wvp_set(1'b0),
-        .psize(),.convsp(),.convdp(),.control(),.pmask(),
-        .pixel_srt(),.intenb(intenb),.intpend(intpend),.hstctlh(),
+        .psize(psize),.convsp(),.convdp(convdp),.control(),.pmask(),
+        .pixel_srt(pixel_srt),.intenb(intenb),.intpend(intpend),.hstctlh(),
         .irq_pending(irq_pending),.irq_vector(irq_vector),
         .nmi_pending(nmi_pending),.nmi_nmim(nmi_nmim),
         .halt(halt),.hint_n(hint_n),

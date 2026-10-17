@@ -2485,3 +2485,186 @@ cases:
       - {after: 0x1050, pc: 0x1060, st: 0xD0000010}
       - {after: 0x1060, pc: 0x1070, regs: {A0: 0xFFFFFFFF}, st: 0xD0000010}
       - {after: 0x1070, pc: 0x1270, regs: {A0: 0xFFFFFFFE}, st: 0xD0000010}
+
+  # TI User's Guide pp. 12-57–58: inclusive signed XY window, code bits 5–8.
+  - name: cpw_inclusive_edges_and_source_destination_alias
+    entry: 0x1000
+    words:
+      - 0x09F5 # MOVI IL (5,5),B5/WSTART
+      - 0x0005
+      - 0x0005
+      - 0x09F6 # MOVI IL (10,10),B6/WEND
+      - 0x000A
+      - 0x000A
+      - 0x09E7 # MOVI IL E0000010,A7: N/C/Z sentinel
+      - 0x0010
+      - 0xE000
+      - 0x01A7 # PUTST A7
+      - 0x09E1 # point (4,4), outside both low edges
+      - 0x0004
+      - 0x0004
+      - 0xE620 # CPW A1,A0 -> bits 5,7
+      - 0x09E1 # point (5,5), inclusive low corner
+      - 0x0005
+      - 0x0005
+      - 0xE621 # CPW A1,A1: source/destination alias
+      - 0x09E1 # point (10,10), inclusive high corner
+      - 0x000A
+      - 0x000A
+      - 0xE620 # CPW A1,A0
+      - 0x09E1 # point (11,11), outside both high edges
+      - 0x000B
+      - 0x000B
+      - 0xE620 # CPW A1,A0 -> bits 6,8
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B5: 0x00050005}}
+      - {after: 0x1030, pc: 0x1060, regs: {B6: 0x000A000A}}
+      - {after: 0x1060, pc: 0x1090, regs: {A7: 0xE0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xE0000010}
+      - {after: 0x10A0, pc: 0x10D0, regs: {A1: 0x00040004}}
+      - {after: 0x10D0, pc: 0x10E0, regs: {A0: 0x000000A0, A1: 0x00040004}, st: 0x50000010}
+      - {after: 0x10E0, pc: 0x1110, regs: {A1: 0x00050005}}
+      - {after: 0x1110, pc: 0x1120, regs: {A1: 0}, st: 0x40000010}
+      - {after: 0x1120, pc: 0x1150, regs: {A1: 0x000A000A}}
+      - {after: 0x1150, pc: 0x1160, regs: {A0: 0}, st: 0x40000010}
+      - {after: 0x1160, pc: 0x1190, regs: {A1: 0x000B000B}}
+      - {after: 0x1190, pc: 0x11A0, regs: {A0: 0x00000140}, st: 0x50000010}
+
+  - name: cpw_signed_halves_bfile_and_implied_register_alias
+    entry: 0x1000
+    words:
+      - 0x09F5 # WSTART=(1,1)
+      - 0x0001
+      - 0x0001
+      - 0x09F6 # WEND=(32767,32767)
+      - 0x7FFF
+      - 0x7FFF
+      - 0x09F1 # B1=(X=2,Y=-1)
+      - 0x0002
+      - 0xFFFF
+      - 0xE631 # CPW B1,B1 -> below WSTART.Y, source alias
+      - 0x09F2 # B2=(X=-1,Y=2)
+      - 0xFFFF
+      - 0x0002
+      - 0xE650 # CPW B2,B0 -> below WSTART.X
+      - 0xE655 # CPW B2,B5: original WSTART read before overwrite
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B5: 0x00010001}}
+      - {after: 0x1030, pc: 0x1060, regs: {B6: 0x7FFF7FFF}}
+      - {after: 0x1060, pc: 0x1090, regs: {B1: 0xFFFF0002}}
+      - {after: 0x1090, pc: 0x10A0, regs: {B1: 0x00000080}, st: 0x90000010}
+      - {after: 0x10A0, pc: 0x10D0, regs: {B2: 0x0002FFFF}}
+      - {after: 0x10D0, pc: 0x10E0, regs: {B0: 0x00000020}, st: 0x10000010}
+      - {after: 0x10E0, pc: 0x10F0, regs: {B5: 0x00000020, B6: 0x7FFF7FFF}, st: 0x10000010}
+
+  - name: cpw_shared_sp_source_and_destination
+    entry: 0x1000
+    words:
+      - 0x09F5 # WSTART=(5,5)
+      - 0x0005
+      - 0x0005
+      - 0x09F6 # WEND=(10,10)
+      - 0x000A
+      - 0x000A
+      - 0x09EF # SP=(4,4), used only as XY source
+      - 0x0004
+      - 0x0004
+      - 0xE7E0 # CPW A15,A0
+      - 0x09F1 # B1=(11,11)
+      - 0x000B
+      - 0x000B
+      - 0xE63F # CPW B1,B15: write shared SP
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B5: 0x00050005}}
+      - {after: 0x1030, pc: 0x1060, regs: {B6: 0x000A000A}}
+      - {after: 0x1060, pc: 0x1090, regs: {A15: 0x00040004, B15: 0x00040004}}
+      - {after: 0x1090, pc: 0x10A0, regs: {A0: 0xA0, A15: 0x00040004}, flags: {V: 1}}
+      - {after: 0x10A0, pc: 0x10D0, regs: {B1: 0x000B000B}}
+      - {after: 0x10D0, pc: 0x10E0, regs: {A15: 0x140, B15: 0x140}, flags: {V: 1}}
+
+  # TI User's Guide pp. 12-59–60: signed Y, positive X, CONVDP/PSIZE shifts.
+  - name: cvxyl_guide_pitch2048_size16_and_source_destination_alias
+    entry: 0x1000
+    pixel_size: 16
+    convdp: 0x14
+    words:
+      - 0x09E0 # MOVI IL A0=(X=0x30,Y=0x40)
+      - 0x0030
+      - 0x0040
+      - 0x09F4 # MOVI IL B4/OFFSET=0
+      - 0x0000
+      - 0x0000
+      - 0x09E7 # MOVI IL F0000010,A7: all flags set
+      - 0x0010
+      - 0xF000
+      - 0x01A7 # PUTST A7
+      - 0xE801 # CVXYL A0,A1; TI example 00020300
+      - 0xE800 # CVXYL A0,A0: source/destination alias
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x00400030}}
+      - {after: 0x1030, pc: 0x1060, regs: {B4: 0}}
+      - {after: 0x1060, pc: 0x1090, regs: {A7: 0xF0000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0xF0000010}
+      - {after: 0x10A0, pc: 0x10B0, regs: {A0: 0x00400030, A1: 0x00020300}, st: 0xF0000010}
+      - {after: 0x10B0, pc: 0x10C0, regs: {A0: 0x00020300}, st: 0xF0000010}
+
+  - name: cvxyl_signed_negative_y_offset_and_b4_destination_alias
+    entry: 0x1000
+    pixel_size: 8
+    convdp: 0x14
+    words:
+      - 0x09F4 # MOVI IL B4/OFFSET=0x8000
+      - 0x8000
+      - 0x0000
+      - 0x09F1 # MOVI IL B1=(X=0x30,Y=-1)
+      - 0x0030
+      - 0xFFFF
+      - 0x09E7 # MOVI IL 60000010,A7: C/Z set, N/V clear
+      - 0x0010
+      - 0x6000
+      - 0x01A7 # PUTST A7
+      - 0xE830 # CVXYL B1,B0: FFFFF980 + 8000 = 7980
+      - 0xE834 # CVXYL B1,B4: uses old B4 offset before writeback
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B4: 0x8000}}
+      - {after: 0x1030, pc: 0x1060, regs: {B1: 0xFFFF0030}}
+      - {after: 0x1060, pc: 0x1090, regs: {A7: 0x60000010}}
+      - {after: 0x1090, pc: 0x10A0, st: 0x60000010}
+      - {after: 0x10A0, pc: 0x10B0, regs: {B0: 0x00007980, B4: 0x8000}, st: 0x60000010}
+      - {after: 0x10B0, pc: 0x10C0, regs: {B4: 0x00007980}, st: 0x60000010}
+
+  - name: cvxyl_pitch4096_size1_negative_y_and_shared_sp
+    entry: 0x1000
+    pixel_size: 1
+    convdp: 0x13
+    words:
+      - 0x09F4 # MOVI IL B4/OFFSET=F0000000
+      - 0x0000
+      - 0xF000
+      - 0x09EF # MOVI IL SP=(X=1,Y=-2)
+      - 0x0001
+      - 0xFFFE
+      - 0xE9E2 # CVXYL A15,A2
+      - 0xE9EF # CVXYL A15,A15: shared SP destination alias
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B4: 0xF0000000}}
+      - {after: 0x1030, pc: 0x1060, regs: {A15: 0xFFFE0001, B15: 0xFFFE0001}}
+      - {after: 0x1060, pc: 0x1070, regs: {A2: 0xEFFFE001, A15: 0xFFFE0001}, st: 0x80000010}
+      - {after: 0x1070, pc: 0x1080, regs: {A15: 0xEFFFE001, B15: 0xEFFFE001}, st: 0x80000010}
+
+  - name: cvxyl_pitch1024_size4_guide_shift_variant
+    entry: 0x1000
+    pixel_size: 4
+    convdp: 0x15
+    words:
+      - 0x09F4 # OFFSET=0
+      - 0x0000
+      - 0x0000
+      - 0x09E0 # A0=(X=0x30,Y=0x40)
+      - 0x0030
+      - 0x0040
+      - 0xE801 # CVXYL A0,A1 -> 0x100C0
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B4: 0}}
+      - {after: 0x1030, pc: 0x1060, regs: {A0: 0x00400030}}
+      - {after: 0x1060, pc: 0x1070, regs: {A1: 0x000100C0}, st: 0x00000010}

@@ -363,3 +363,31 @@ ucode:
     start: 102
     seq:
       - emu_misc, ni
+  # CPW reads implied B5/B6 through the synchronous RF port after capturing
+  # Rs. Each compare uses the ordinary ALU on sign-extended 16-bit halves.
+  - name: cpw
+    start: 103
+    seq:
+      - gfx_mul
+      - gfx_mul
+      - sub_alu, gfx_mul
+      - sub_alu, gfx_mul
+      - sub_alu, gfx_mul
+      - sub_alu, gfx_mul
+      - gfx_mul, wr_reg, ni
+  # CVXYL shifts Y and X one bit at a time using the shared ALU. B4 OFFSET is
+  # read through the same synchronous RF port before the final addition.
+  - name: cvxyl
+    start: 104
+    seq:
+      - gfx_mul
+      - cvloop_jsr
+      - gfx_mul
+      - cvloop_jsr
+      - or_alu, gfx_mul
+      - gfx_mul
+      - add_alu, wr_reg, ni
+  - name: cvloop
+    start: 105
+    seq:
+      - shift_alu, gfx_mul, ret_jsr

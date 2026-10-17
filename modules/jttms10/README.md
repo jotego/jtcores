@@ -89,6 +89,9 @@ and pinned-reference tests; see [scalar XY notes](docs/scalar-xy.md).
 The [pixel helper](docs/pixel.md) separately verifies all defined PPOP,
 plane-mask, and transparency rules through the shared ALU. Graphics
 instruction sequencing is still pending.
+CPW and CVXYL have primary and pinned-reference cases; see
+[scalar graphics notes](docs/scalar-graphics.md). The word wrapper's
+[pixel tag/SRT path](docs/pixel-bus.md) also has a focused delayed-bus test.
 The [integrated system](docs/system.md) connects the CPU, field adapter and
 peripheral fabric. Its test runs a display-interrupt handler through a waiting
 NARC cycle target, including host HLT release and RETI. Boundary IRQ/NMI,

@@ -3,7 +3,7 @@ module test;
     reg clk = 0;
     always #5 clk = ~clk;
     reg rst = 1, cen = 1;
-    wire word_req, word_we, word_iaq, word_lock, retire, fault;
+    wire word_req, word_we, word_iaq, word_lock, word_pixel, retire, fault;
     wire [31:0] word_addr, pc, st;
     wire [15:0] word_wdata, ir;
     reg [15:0] word_rdata = 0;
@@ -16,12 +16,14 @@ module test;
 
     jttms10_word u_cpu(
         .rst(rst), .clk(clk), .cen(cen),
+        .psize(16'd16), .convdp(16'h14),
         .irq_req(1'b0), .irq_vector(32'd0),
         .nmi_req(1'b0), .nmi_nostack(1'b0),
         .halt_req(1'b0), .emu_run(1'b1),
         .nmi_clear(), .emu_ack(),
         .word_req(word_req), .word_we(word_we), .word_addr(word_addr),
         .word_wdata(word_wdata), .word_iaq(word_iaq), .word_lock(word_lock),
+        .pixel_srt(1'b0), .word_pixel(word_pixel),
         .word_rdata(word_rdata), .word_ack(word_ack), .word_restart(1'b0),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
@@ -83,6 +85,7 @@ module test;
         end else if (word_ack) begin
             word_ack<=0;
         end else if (!busy && word_req) begin
+            if (word_pixel) $fatal(1,"non-pixel word test unexpectedly tagged a request");
             if (word_addr[3:0]!==4'd0)
                 $fatal(1,"unaligned word address %h",word_addr);
             if (word_iaq!==expected_iaq)

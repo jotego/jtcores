@@ -22,6 +22,7 @@ module jttms10_ctrl(
     output            divinit, divload, divnega, divnegmd,
                       divnegb, divcheck, divstep,
     output            dsjfinish, xyx, xyy,
+    output            gfx_step, cvloop_active,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -76,6 +77,7 @@ module jttms10_ctrl(
     assign divnegb = mul_sel==NEGB_MUL;
     assign divcheck = mul_sel==CHECKDIV_MUL;
     assign divstep = mul_sel==STEPDIV_MUL;
+    assign gfx_step = mul_sel==GFX_MUL;
     wire [3:0] jsr_sel;
     reg cen;
     reg halted, emu_hold;
@@ -94,6 +96,7 @@ module jttms10_ctrl(
                      (nmi_req || (irq_req && ie));
     assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
     assign push_active = uaddr[10:4]==PUSH32_SEQA[10:4];
+    assign cvloop_active = uaddr[10:4]==CVLOOP_SEQA[10:4];
     // Only the ranges listed as reserved in TI Table 8-6 take ILLOP.
     // Defined opcodes without a microcode implementation remain diagnostic.
     assign reserved_opcode =
@@ -123,6 +126,8 @@ module jttms10_ctrl(
             16'h0360: entry = DINT_SEQA;
             16'h0d60: entry = EINT_SEQA;
             16'h0100: entry = EMU_SEQA;
+            16'b1110011?????????: entry = CPW_SEQA;
+            16'b1110100?????????: entry = CVXYL_SEQA;
             16'b00000011100?????: entry = ABS_SEQA;
             16'b00000011101?????: entry = NEG_SEQA;
             16'b00000011110?????: entry = NEGB_SEQA;
@@ -258,6 +263,7 @@ module jttms10_ctrl(
             if(jsr_en) begin
                 // Zero-count shifts skip the helper while retaining C=0.
                 if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
+                   (jsr_sel==CVLOOP_JSR && shift_count==0) ||
                    (jsr_sel==LMOLOOP_JSR && !lmo_more))
                     uaddr <= uaddr+11'd1;
                 else begin
@@ -267,6 +273,8 @@ module jttms10_ctrl(
             end
             // The helper's RET_JSR returns on its final one-bit shift.
             if(shift_step && shift_count>5'd1) uaddr <= SHIFTLOOP_SEQA;
+            if(gfx_step && cvloop_active && shift_count>5'd1)
+                uaddr <= CVLOOP_SEQA;
             if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)

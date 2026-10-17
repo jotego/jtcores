@@ -22,9 +22,12 @@ and field response handling remain in `clk`. `vclk_cen` advances video
 counters; I/O commits and screen acknowledgements are handled on every core
 clock. HOLD passes to the arbiter and its `word_restart` pulse returns to the
 field adapter so an interrupted partial-word RMW rereads fresh memory data.
-The currently unimplemented graphics engine has no pixel client here:
-`word_pixel` and `wvp_set` are tied low. `jttms10_pixel.v` remains a standalone
-processing helper until graphics microcode and field scheduling are added.
+CPW and CVXYL use the implied B registers and the fabric's PSIZE/CONVDP taps.
+The [pixel tag path](pixel-bus.md) connects the CPU through the word wrapper
+to the fabric, with SRT classification and partial-field RMW sequencing.
+The CPU drives that tag low until pixel instruction microcode is added;
+`wvp_set` is also tied low. `jttms10_pixel.v` remains a standalone processing
+helper until graphics microcode and field scheduling are added.
 
 The focused system bench runs a real program through the CPU, field adapter,
 fabric, and a waiting NARC target. A host-present reset allows the reset-vector

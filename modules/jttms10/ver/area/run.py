@@ -146,14 +146,14 @@ def main():
                      "irq_pending", "nmi_pending", "halt"]
         elif args.word:
             ports = ["rst", "clk", "cen", "word_req", "word_we", "word_addr[*]",
-                     "word_wdata[*]", "word_iaq", "word_lock", "word_rdata[*]",
+                     "word_wdata[*]", "word_iaq", "word_lock", "word_pixel", "word_rdata[*]",
                      "word_ack", "word_restart", "irq_req", "irq_vector[*]",
                      "nmi_req", "nmi_nostack", "halt_req", "emu_run",
-                     "psize[*]", "convdp[*]",
+                     "psize[*]", "convdp[*]", "pixel_srt",
                      "nmi_clear", "emu_ack", "pc[*]", "st[*]", "ir[*]",
                      "retire", "fault"]
         else:
-            ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq",
+            ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq", "mem_pixel",
                      "mem_addr[*]", "mem_wdata[*]", "mem_size[*]", "mem_rdata[*]",
                      "mem_ack", "irq_req", "irq_vector[*]", "nmi_req",
                      "nmi_nostack", "halt_req", "emu_run", "nmi_clear",
