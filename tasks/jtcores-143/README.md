@@ -7,7 +7,13 @@ The [CSM checkpoint](plans/csm-measurements.md) adds544 qualified physical
 recordings and an automatic-output discrepancy across all32 calibrated routes.
 The [static mixing checkpoint](plans/mixing-measurements.md) covers63 profiles,
 381 physical captures including a separately recovered quiet, and126 model runs.
+The [held-history follow-up](plans/mixing-history.md) adds37 physical captures
+and12 frozen model outputs, preserving high-level differences through TL changes
+while the voices remain keyed. The internal overload mechanism is unclassified.
 Production jt51 remains unchanged; broader audit work is still in progress.
+
+The held-history source tools and explicit Go build/test groups are documented
+in [mixing-history.md](plans/mixing-history.md#reproduce-the-source-tools).
 
 ## Hardware and initial state
 

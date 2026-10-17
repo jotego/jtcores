@@ -31,6 +31,7 @@ No RTL change or candidate patch has been made.
 | Joint-key-on relative output phase | Unclassified physical/model output difference | 36 physical controls retain approximately+1-native-sample M2/C1/C2 phase relative to M1, across order/preheat/repetitions.192 public timing-grid model records give zero/negative JT families and zero OPM RIGHT family. Accepted physical write phase/internal state remains unobserved; no per-operator correction or causal RTL gap inferred. |
 | Automatic CSM output at the measured settings | Confirmed public-output production gap | All32 channel/operator routes independently calibrated by192 manual carrier/crossing checks and48 whole-zero background observations. All192 automatic PCB outputs resolve repeated cadence supporting512 native frames; corresponding jt51 outputs are quiet, OPM repeats with overlapping support. Selected256/1024 and AR30 controls support the finite observation.544 total CSM recordings include all paired/final quiet and adverse controls. No exact attack/pulse width, internal cause, simultaneous internal-key or physical IRQ claim. |
 | Static contributor/TL/pan/split output matrix | Finite descriptive coverage; overload mechanism unclassified |63 profiles×3 targets/paired quiet,378 matrix captures+2 final quiets and1 separately recovered quiet=381 physical.342 bipolar/36 intentional-zero target-latch observations match pan states.126 frozen models/756 comparisons retain absolute populations/RMS/jumps; unknown voice phases prevent exact ideal-sum closure or a clipping/wrapping diagnosis. Common-held-history controls remain separate. |
+| Held-key TL changes with matched no-op/N1 controls | Reproduced physical/model output difference; mechanism unclassified |Six profiles×3 targets with18 paired quiet and one final quiet=37 captures;12 frozen stereo model outputs. All18 geometries and18 actual reference links resolve. N32/TL0 middle RMS27801.387–27913.611PCM versus JT31866.748/OPM27187.713; low return prediction, no-ops and second-low TL40 transfers are retained. No high-region fit or new band. N1-scaled coordinates remain conditional; individual phases and exact latent sums are unknown. |
 | Stereo pan controls | Qualified for current wiring; earlier human labels corrected | Primary ACC notes: bit6 left, bit7 right. Actual captures map latch0 to left, latch1 to right. Old left/right artifact names were reversed; latch indices and both-pan results remain intact. |
 | Output-visible pan markers | Scoped physical continuity; reference-only output difference retained | Nine physical captures have three left/latch0 zero pulses and continuous right/latch1 output. Constant right carrier has an unbroken phase fit. Separately qualified local/coherent diagnostics find no PCB disturbance at the observed OPM pan-only error scale. No physical same-clock counterfactual, byte-identity claim, oracle patch or causal diagnosis. |
 | Transient SH framing disturbance | Acquisition anomaly, retained and excluded | Two earlier failed recordings; all accepted pitch/event recordings pass framing and transfer checks. No causal conclusion about probing/wiring. |
@@ -48,10 +49,11 @@ Detailed methods and evidence locations:
 - [Algorithms, feedback and joint-key-on phase](algorithm-measurements.md)
 - [Finite CSM measurements and all32 routes](csm-measurements.md)
 - [Static output mixing measurements](mixing-measurements.md)
+- [Common-held-history output measurements](mixing-history.md)
 
 Long acquisition is now available (see [qualification](long-acquisition.md)).
 Open coverage includes full EG KS/KC combinations and remaining history
 boundaries, remaining LFO rates, wider isolation/history combinations and further storage cases, wider audio-noise history/coupling,
-remaining algorithm/feedback histories and relative-phase investigation, fast/first-key/mixed-mask CSM histories, and common-held-history output mixing/
-overload closure beyond the completed static matrix. These are incomplete measurements, not passing defaults. The
+remaining algorithm/feedback histories and relative-phase investigation, fast/first-key/mixed-mask CSM histories, and exact output-mixing/
+overload closure beyond the static and held-history observations. These are incomplete measurements, not passing defaults. The
 earlier X-Men planning issues are not marked complete by this direct-serial work.

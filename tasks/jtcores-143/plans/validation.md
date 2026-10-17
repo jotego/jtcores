@@ -477,3 +477,42 @@ methods/provenance are in [mixing-measurements.md](mixing-measurements.md).
 Production jt51 remains985a573. Remaining LFO rates, broader EG KS/KC/history,
 wider noise coupling, CSM corners and common-held-history overload analysis stay
 open. No candidate RTL change or new combined implementation issue is included.
+
+## Common-held-history output checkpoint
+
+Six profiles cover N32/N1 held-key TL32→0/32/40→32 trajectories, with identical
+LEFT pan markers and continuous RIGHT observation. Three independent
+initializations give18 targets/18 paired quiet plus one final quiet=37 native
+captures. All19 entire quiets are zero on both outputs. Independent raw-word,
+CSV, framing/exponent, transfer/input identity and ordered reply audits pass;
+all18 geometries,18 actual same-repetition reference links and57 permitted
+free-frequency diagnostics resolve. No N32/TL0 middle fit is allowed.
+
+Original early low predictions are checked on withheld and return samples.
+No-op residuals remain descriptive baselines, and matched N1 TL0/TL32 gains
+16.014150–16.014700 define only a conditional scalar coordinate. N32 TL40
+transfers0.499274–0.499294 agree descriptively with N1 transfers0.499286–0.499293;
+they do not prove uniform high-level gain for every voice. The N32/TL0 output
+retains RMS27801.387–27913.611PCM,204–206 jumps>=4096 over2187–2188 samples,
+compared with frozen jt51/OPM RMS31866.748/27187.713 over1810/1813 samples.
+Distinct duration, voice phases and bus/key-on history remain explicit.
+
+The adapter, generic observation support/null/injected-error controls and exact
+host-ceiling binding tests were frozen before analysis. All294912 full physical
+curve rows match original RIGHT samples; final ROOT review verifies100 handoff
+pins. The packaging-only24→18 reference-count correction and read-only precheck
+error are preserved without feature rerun. Capture/audit/features each completed
+once; no retake, reboot, ROM/FPGA reload, new tolerance or production edit.
+Final quiet state is117/222. Full method/results/provenance are in
+[mixing-history.md](mixing-history.md). Remaining LFO rates, broader EG KS/KC,
+noise coupling and CSM corners remain open. No internal overload cause or exact
+ideal-sum conformance result follows.
+
+The promoted source reproduces20 catalog files, all1323 generic observations
+and eight curves, and all41 adapter synthetic observations byte-for-byte.
+Existing12 model/18 physical extractions reproduce30 exact curves and complete
+reports with only executable-hash/curve-path provenance changes. Four runtime
+adapter source files are exact; generic numerical helpers, method JSON and
+existing fitter remain unchanged. Builds, explicit Go tests/vet, literal
+catalog/parser/CLI and exclusive-output checks pass; no new model or capture is
+part of promotion verification.
