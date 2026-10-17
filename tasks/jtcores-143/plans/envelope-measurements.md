@@ -218,8 +218,87 @@ Artifacts are retained under `transient-qualification`, `transient-wrapper-check
 `ar14-investigation` and `eg-zero-rate-investigation`. They remain outside git.
 Every campaign manifest points to the complete source programs and hashes.
 
-Still required: longer acquisition for slow rates/LFO, remaining AR/KS/KC
-combinations, D1R/D2R and D1L sweeps, release/hold/retrigger/live-register behavior,
-and the remaining LFO/noise/algorithm/feedback/CSM/accumulation audit. The current
-recorder buffer cannot establish complete slow envelopes from a 293 ms window.
-No full envelope, chip or issue completion is claimed.
+The native checkpoint above predates the longer-acquisition extension below.
+Still required: remaining AR/KS/KC combinations, D1R/D2R and D1L sweeps,
+release/hold/retrigger/live-register behavior, and the remaining LFO/noise/
+algorithm/feedback/CSM/accumulation audit. No full envelope, chip or issue
+completion is claimed.
+
+## Slow AR1–11 with stereo-frame stride
+
+The [longer-acquisition workflow](long-acquisition.md) now retains complete
+stereo pairs with a selectable stride. The new slow fixtures keep KC4A and KS0
+and use MUL0, reducing the carrier to about 220 Hz without changing key-scale
+contribution. An independent native physical fit confirms increment 4124.
+At stride 64 the recorded rate is 874.0234375 Hz, below-Nyquist carrier advance
+is 263936 per recorded sample, and window 32 spans 36.612 ms. EVENT delays 8192 CPU
+loop counts before key-on; measured silent pretrigger is required rather than
+assuming host ARM order establishes it. INIT remains all keys off.
+
+All eleven slow rates were independently initialized three times: **33 further
+nonzero physical transients**. AR1 records 18.74 s, AR2/3 record 9.37 s, AR4/5
+record 4.69 s, and AR6–11 record 2.34 s. Each finishes with a qualified plateau;
+all physical transfers, framing and CPU replies pass. Both models run the exact
+stimuli and all internal clocks, while emitting indices 0,64,128,... . Every
+reference CSV has the requested row count, 4096-master-clock spacing and 64 silent
+pretrigger samples. The full model duration limit was not needed for this set.
+
+| AR | PCB 10–90% feature range, ms | jt51, ms | Independent OPM, ms |
+|---|---:|---:|---:|
+| 1 | 4373.091–4374.338 | 4374.523 | 4373.432 |
+| 2 | 2890.800–2950.006 | 2890.888 | 2889.456 |
+| 3 | 2179.098–2181.384 | 2181.890 | 2180.250 |
+| 4 | 1436.878–1461.057 | 1437.311 | 1438.822 |
+| 5 | 1078.963–1083.231 | 1085.081 | 1083.373 |
+| 6 | 723.910–728.287 | 722.988 | 723.284 |
+| 7 | 541.218–544.579 | 542.894 | 543.014 |
+| 8 | 361.002–362.077 | 361.036 | 361.193 |
+| 9 | 271.055–272.337 | 271.342 | 271.574 |
+| 10 | 181.064–183.068 | 180.959 | 181.356 |
+| 11 | 136.014–137.890 | 137.513 | 137.511 |
+
+All eleven are consistent within the observed physical range widened by two
+projection windows (73.225 ms), using the same declared feature method. AR2's
+59.2 ms physical repeat range illustrates envelope-phase variation at slow rates;
+no cause is assigned merely from model agreement. This is a finite windowed
+feature result, not sample identity, precise key-on latency or full AR/KS/KC
+coverage. Together with the native AR12–31 set, all nonzero AR registers have
+been measured at KS0/KC4A; AR14 remains a confirmed instant-attack mismatch.
+
+Sources reproduce the fixtures with `host/envelope_programs.go -first 1 -last 11
+-carrier divided -pretrigger 8192`. Acquisition uses `--stride 64 --words COUNT`;
+both model wrappers use `--stride 64 --event INIT EVENT CSV SAMPLES`. Recorded
+frame counts are 16384/8192/4096/2048 for the rate groups above. Defaults reproduce
+all 21 native campaign INIT/EVENT files byte for byte. Raw data, model outputs,
+source programs, commands, hashes and comparison CSV/JSON/PNG/PDF remain local
+under `artifacts/envelope-slow-main`, with stimuli in
+`artifacts/envelope-slow-main-v2-programs`.
+
+The [complete AR1–31 comparison figure](http://gitea.jotego.es/attachments/1daf6ead-20bf-4a01-947b-8bf6a2bdbc78) shows the two acquisition resolutions
+separately. It retains the earlier AR14 mismatch and makes no sub-window claim.
+
+## AR0/KS1 beyond the native window
+
+The native checkpoint only diagnosed an internal KS1/AR0 advance because its
+293 ms output was still digitally silent. Longer acquisition now establishes an
+observable discrepancy at this setting. Three independently initialized physical
+runs at KC4A/MUL0, AR0/KS1, stride 64 retain **exactly zero PCM on both channels**
+for each 18.74-second recording. A separate AR1/KS1 positive control reaches both
+signs and the intended full level; its attack feature is 2889.805 ms. Negative
+silence is explicitly separated from this signal-path validation.
+
+The identical 18.74-second OPM program remains exactly zero. jt51 becomes nonzero
+at retained sample 427, later spans −8176/+8160 and then decays. Because the tail
+is not cleanly flat, the analyzer returns `no_clean_plateau`; no attack duration
+is assigned to that invalid score. The raw PCM difference establishes the gap
+without relying on a plateau fit. This extends physically observable AR0 leakage
+to KS1, alongside the existing KS2/3 native results. It does not claim an infinite
+duration measurement or complete reset/history coverage.
+
+All four extra physical captures pass transfer/framing/generation checks, with
+no reset or dropped reply. Exact fixtures, commands, model binaries/output hashes
+and analysis are under `artifacts/envelope-slow-zero` and
+`artifacts/envelope-slow-zero-programs`. The new slow measurement set therefore
+contains 33 main nonzero attacks, three intentional silent controls and one
+additional nonzero positive control; these 37 captures are separate from the
+135-recording native checkpoint and acquisition qualification fixtures.

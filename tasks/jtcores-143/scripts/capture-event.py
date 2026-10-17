@@ -24,11 +24,15 @@ def main():
     parser.add_argument('event', type=Path)
     parser.add_argument('prefix', type=Path, help='fresh artifact filename prefix')
     parser.add_argument('--capture-id', type=int, required=True)
+    parser.add_argument('--stride', type=int, default=1, help='retain every Nth native stereo frame (v104 only)')
+    parser.add_argument('--words', type=int, default=32768, help='even captured word count, 4096..32768')
     parser.add_argument('--settle', type=float, default=.05, help='conditioning pause after INIT, seconds')
     parser.add_argument('--ssh-config', type=Path, default=SSH_CONFIG)
     args = parser.parse_args()
     if not 0 <= args.capture_id <= 0xffffff or not 0 <= args.settle <= 10:
         parser.error('invalid capture ID or settling interval')
+    if not 1 <= args.stride <= 1024 or not 4096 <= args.words <= 32768 or args.words%2:
+        parser.error('invalid stereo stride or word count')
     args.prefix = args.prefix.resolve()
     args.prefix.parent.mkdir(parents=True, exist_ok=True)
     capture_event(args)
@@ -45,7 +49,8 @@ def capture_event(args):
         with artifact(suffix).open('xb') as f: f.write(data)
     report = {'state':'started','capture_id':args.capture_id,'settle_seconds':args.settle,
               'init_sha256':digest(init),'event_sha256':digest(event),
-              'nominal_master_clock_hz':3580000,'nominal_sample_rate_hz':55937.5,
+              'nominal_master_clock_hz':3580000,'nominal_sample_rate_hz':55937.5/args.stride,
+              'stereo_stride':args.stride,'requested_words':args.words,
               'timing_limit':'ARM and USB timestamps are host bounds, not chip-clock event timestamps'}
     def save():
         temporary=artifact('.json.tmp')
@@ -68,27 +73,30 @@ def capture_event(args):
                 assert events['count']+6 < 4096, 'Rearm a verified idle session before marker exhaustion'
                 report.update(monitor_state_before=state,events_before=events)
                 report['probe'] = ssh(args,CAPTURE+' probe')
-                assert 'protocol=0x960103 capacity=32768' in report['probe'], 'Expected qualified native Yamaha recorder'
+                protocol = int(re.search(r'protocol=(0x[0-9a-f]+) capacity=32768',report['probe'])[1],16)
+                assert protocol in (0x960103,0x960104), 'Expected qualified Yamaha recorder'
+                assert protocol == 0x960104 or args.stride == 1, 'Old recorder does not implement stride'
                 report['chameleon_boot_id'] = ssh(args,'cat /proc/sys/kernel/random/boot_id').strip()
                 report['hps_tool_sha256'] = ssh(args,'sha256sum '+CAPTURE).split()[0]
                 report['configuration'] = ssh(args,CAPTURE+' configure 3 15 0')
                 submit(pico,artifact('.init.bin'),artifact('.init.log'))
                 time.sleep(args.settle)
                 report['arm_host_start'] = time.monotonic()
-                arm = ssh(args,CAPTURE+' arm 1 32768 1 '+str(args.capture_id)+' && '+CAPTURE+' status')
+                arm = ssh(args,f'{CAPTURE} arm 1 {args.words} {args.stride} {args.capture_id} && {CAPTURE} status')
                 armed = True
                 report['arm_host_end'] = time.monotonic()
                 assert f'id={args.capture_id}' in arm and 'status=0x1 ' in arm, arm
                 report['event_host_start'] = time.monotonic()
                 submit(pico,artifact('.event.bin'),artifact('.event.log'))
                 report['event_host_end'] = time.monotonic()
-                deadline = report['arm_host_end']+2
+                duration = args.words/2*args.stride/55937.5
+                deadline = report['arm_host_end']+duration*1.01+2
                 while True:
                     status = ssh(args,CAPTURE+' status')
                     assert f'id={args.capture_id}' in status, 'Capture ownership changed'
                     if 'status=0x1 ' not in status: break
-                    assert time.monotonic() < deadline, 'Capture did not finish in its native-rate bound'
-                    time.sleep(.05)
+                    assert time.monotonic() < deadline, 'Capture did not finish in its duration bound'
+                    time.sleep(max(.05,min(.5,duration/100)))
                 armed = False
                 transfer = ssh(args,CAPTURE+' export '+shlex.quote(remote)+' && sha256sum '+shlex.quote(remote))
                 artifact('.transfer.log').write_text(arm+status+transfer)
@@ -97,7 +105,8 @@ def capture_event(args):
                 checksum = digest(data)
                 assert re.search(r'^'+checksum+r'\s+'+re.escape(remote)+r'$',transfer,re.M), 'Transfer hash mismatch'
                 header = struct.unpack_from('<18I',data,8)
-                assert data[:8] == b'C96CAP03' and header[7] == args.capture_id and header[3] == 32768 and header[5] == 1
+                magic = b'C96CAP04' if protocol == 0x960104 else b'C96CAP03'
+                assert data[:8] == magic and header[7] == args.capture_id and header[3] == args.words and header[5] == args.stride
                 analysis = json.loads(subprocess.check_output(['go','run',str(ROOT/'host/analyze.go'),'-csv',str(prefix),str(artifact('.cap'))],text=True))
                 report.update(state='complete',capture_sha256=checksum,capture_header=list(header),analysis=analysis,
                               monitor_state_after=monitor.load_state(),events_after=pico.events(monitor.BASE))

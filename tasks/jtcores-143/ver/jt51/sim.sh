@@ -5,11 +5,17 @@ main() {
     local src output csv samples
     local trace_args=()
     local args=()
+    local stride_args=()
     src=$(cd -- "$(dirname -- "$0")" && pwd)
     output="$src/../../artifacts/jt51-build"
     if [[ ${1:-} == --keep ]]; then
         trace_args=(--trace-fst -CFLAGS -DTRACE)
         shift
+    fi
+    if [[ ${1:-} == --stride ]]; then
+        [[ $# -ge 2 ]] || { usage; exit 2; }
+        stride_args=(--stride "$2")
+        shift 2
     fi
     if [[ ${1:-} == --event ]]; then
         [[ $# -ge 4 && $# -le 5 ]] || { usage; exit 2; }
@@ -29,12 +35,12 @@ main() {
         -F "$JTROOT/modules/jt51/hdl/jt51.f" "$src/test.cpp" \
         > "$output/build.log" 2>&1
     cd "$(dirname "$csv")"
-    "$output/Vjt51" "${args[@]}"
+    "$output/Vjt51" "${stride_args[@]}" "${args[@]}"
 }
 
 usage() {
-    echo "Usage: $0 [--keep] PROGRAM CSV [SAMPLES]" >&2
-    echo "       $0 [--keep] --event INIT EVENT CSV [SAMPLES]" >&2
+    echo "Usage: $0 [--keep] [--stride N] PROGRAM CSV [SAMPLES]" >&2
+    echo "       $0 [--keep] [--stride N] --event INIT EVENT CSV [SAMPLES]" >&2
 }
 
 main "$@"

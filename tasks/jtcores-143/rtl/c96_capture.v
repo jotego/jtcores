@@ -23,17 +23,22 @@ reg  [ 2:0] state;
 reg         busy, done, full, stopped, error, read_pending;
 reg  [ 3:0] invert;
 reg  [ 1:0] mode, format;
+reg  [ 9:0] frame_skip;
+reg         select_frame;
 wire [15:0] ram_q, nx_lfsr, ram_data, pcm_word, yamaha_word, serial_word;
 wire [ 3:0] pins_raw;
 wire [AW-1:0] ram_addr;
 wire        take_sample, stop_command, pcm_valid, pcm_channel, bad_frame, sampler_clear;
 wire        pcm_bad, yamaha_bad, yamaha_valid, yamaha_channel;
 wire        serial_valid, serial_channel;
+wire        keep_word;
 wire [11:0] yamaha_half_period;
 
 assign stop_command = state==EXEC && !command[30] && command[29:24]==6'd7;
 assign take_sample  = busy && !stop_command && !rst &&
-                      (mode>=2 ? serial_valid && (count!=0 || !serial_channel) : timer==0);
+                      (mode>=2 ? serial_valid && keep_word &&
+                       (count!=0 || !serial_channel) : timer==0);
+assign keep_word    = mode!=3 || (serial_channel ? select_frame : frame_skip==0);
 assign sampler_clear = state==EXEC && !command[30] && !busy &&
                        (command[29:24]==6 || command[29:24]==14 ||
                         command[29:24]==16 || command[29:24]==18);
@@ -74,10 +79,17 @@ always @(posedge clk) begin
         invert <= 0;
         format <= 0;
         framing_errors <= 0;
+        frame_skip <= 0;
+        select_frame <= 0;
     end else begin
         if (busy && bad_frame && framing_errors!=24'hffffff)
             framing_errors <= framing_errors+24'd1;
         if (busy && !stop_command) begin
+            // Decimate complete stereo pairs; framing checks still see every word.
+            if (mode==3 && serial_valid && !serial_channel) begin
+                select_frame <= frame_skip==0;
+                frame_skip <= frame_skip==0 ? period[9:0]-10'd1 : frame_skip-10'd1;
+            end
             if (take_sample) begin
                 lfsr <= nx_lfsr;
                 count <= count+24'd1;
@@ -108,7 +120,7 @@ always @(posedge clk) begin
                     error <= 1;
                     result <= 24'd1;
                 end else case (command[29:24])
-                    0: result <= 24'h960103; // Add Yamaha serial words
+                    0: result <= 24'h960104; // Yamaha stereo-frame stride
                     1: result <= CAPACITY;
                     2: result <= count;
                     3: result <= {20'd0,stopped,full,done,busy};
@@ -120,7 +132,7 @@ always @(posedge clk) begin
                         error <= 1;
                         result <= 24'd2;
                     end else limit <= command[23:0];
-                    6: if (busy) begin
+                    6: if (busy || (mode==3 && period>24'd1024)) begin
                         error <= 1;
                         result <= 24'd3;
                     end else begin
@@ -133,6 +145,8 @@ always @(posedge clk) begin
                         full <= 0;
                         stopped <= 0;
                         framing_errors <= 0;
+                        frame_skip <= 0;
+                        select_frame <= 0;
                     end
                     7: if (busy) begin
                         busy <= 0;
@@ -143,7 +157,8 @@ always @(posedge clk) begin
                         error <= 1;
                         result <= 24'd4;
                     end else read_pending <= 1;
-                    9: if (busy || command[23:0]==0) begin
+                    9: if (busy || command[23:0]==0 ||
+                           (mode==3 && command[23:0]>24'd1024)) begin
                         error <= 1;
                         result <= 24'd2;
                     end else period <= command[23:0];

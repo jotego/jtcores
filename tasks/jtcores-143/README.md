@@ -101,11 +101,18 @@ SO bit cells at their centers. It preserves the full serial word, including
 the three unspecified bits. Invalid/missing strobes increment framing errors;
 the analyzer rejects captures with any framing error.
 
-Protocol ID is 960103. Existing modes 0/1/2 keep their existing file format;
-mode 3 uses `C96CAP03`, an 80-byte little-endian header with the same fields as
-`C96CAP02`, version 3 at offset 12, mode 3 at offset 52, and the latest measured
+Protocol ID is 960104. Existing modes 0/1/2 keep their existing file format;
+mode 3 uses `C96CAP04`, an 80-byte little-endian header with the same fields as
+`C96CAP02`, version 4 at offset 12, mode 3 at offset 52, and the latest measured
 stereo-frame interval in FPGA clocks at offset 68. Offsets 72/76 stay zero.
 This interval is integer-quantized and gives approximate absolute sample rate.
+In mode 3, PERIOD (offset 28) is a stereo-frame stride, 1..1024. The recorder
+retains the first qualified pair, then every Nth complete pair. Native framing
+checks continue during skipped frames. Recorded sample rate is the native rate
+divided by stride; the 16,384-frame buffer spans about 300 seconds at stride 1024.
+This selection has no anti-alias filter: choose a known carrier below the
+recorded Nyquist frequency. Use stride 1 for waveform/noise comparisons.
+The reader preserves v3 behavior: `C96CAP03` ignored PERIOD and remains native.
 Payload words start at latch channel 0 and alternate 0/1. Each 16-bit word has
 three unspecified bits at [2:0], an offset-binary mantissa at [12:3] and exponent
 at [15:13]. The analyzer reports exponent zero as invalid.
@@ -118,13 +125,14 @@ retained in artifacts. No assumption of standard I2S framing is made.
 Build after sourcing root `setprj.sh`, with Quartus 20.1.1 and `dtc` on PATH:
 
 ```
-bash tasks/jtcores-143/board/build.sh tasks/jtcores-143/artifacts/c96-yamaha-build
+bash tasks/jtcores-143/board/build.sh tasks/jtcores-143/artifacts/c96-yamaha104-build
 ```
 
 Use `board/load-fpga.sh` on the board with the compiled RBF/DTBO in
 `/lib/firmware` and matching `host/c96-capture.c` compiled as
 alongside the loader as `/home/root/jtcores143/c96-capture`. Invoke the loader
-with `yamaha`; firmware filenames are `c96-yamaha.rbf` and `c96-yamaha.dtbo`.
+with `yamaha104`; firmware filenames are `c96-yamaha104.rbf` and
+`c96-yamaha104.dtbo`. The previous `yamaha` image remains loadable.
 The loader quiesces fabric drivers, uses the old
 kernel's configfs `path` method, probes the design ID and preserves SD boot files.
 Record backups and hashes of replaced runtime files first. The original boot
@@ -152,8 +160,7 @@ the unsupported `--quiet` argument:
 
 ```
 export PATH=$HOME/jtcores/tasks/SiliconRE-5/scripts/verilator-compat:$PATH
-simunit.sh --run tasks/jtcores-143/ver/yamaha
-simunit.sh --run tasks/jtcores-143/ver/capture
+simunit-all.sh --only c96_yamaha_sampler
 bash tasks/jtcores-143/ver/replay/sim.sh
 go test tasks/jtcores-143/host/analyze.go tasks/jtcores-143/host/analyze_test.go
 ```
@@ -248,7 +255,22 @@ go run host/envelope.go host/tone.go -increment 65984 -window 32 artifacts/fresh
 ```
 
 These commands run from the task directory; use Python with PyUSB. The capture
-helper currently requires the qualified native-rate protocol 960103 recorder.
+helper accepts the qualified Yamaha protocol 960103/960104 recorder; stride
+greater than 1 requires 104.
 For decay/hold analysis use `-curve-only`; attack timing against a reduced final
 level is not meaningful. The [gap inventory](plans/gaps.md) separates confirmed
 production gaps, unresolved physical/reference differences and remaining scope.
+
+## Longer event acquisition
+
+`capture-event.py` accepts `--stride N` (default 1) and `--words COUNT` (even,
+4096..32768, default 32768). It accepts native v103 or stride-capable v104,
+checks identity before using the stride, and computes its timeout from the
+requested duration. Capture manifests distinguish nominal recorded and native
+rates. The HPS `capture` command also uses a Yamaha duration bound; it no longer
+uses the raw-clock timeout for native or decimated serial data.
+
+A low carrier KC00/MUL0 was independently measured at increment 162 before using
+large strides. At stride 1024, analyze its envelope with increment 165888 and
+sample rate 54.62646484375 Hz. The main KC4A/MUL8 carrier must not be used for
+that low recorded rate. See `plans/long-acquisition.md` for qualification.

@@ -97,13 +97,13 @@ func (c *capture) fixture(prefix string,words [2][]uint16) error {
 func read_capture(path string) (*capture,error) {
     b,e := os.ReadFile(path)
     if e!=nil { return nil,e }
-    if len(b)<80 || (string(b[:8])!="C96CAP02" && string(b[:8])!="C96CAP03") {
+    if len(b)<80 || (string(b[:8])!="C96CAP02" && string(b[:8])!="C96CAP03" && string(b[:8])!="C96CAP04") {
         return nil,fmt.Errorf("%s: unsupported capture header",path)
     }
     c := &capture{digest:fmt.Sprintf("%x",sha256.Sum256(b))}
     for i:=range c.header { c.header[i]=binary.LittleEndian.Uint32(b[8+i*4:]) }
     h:=c.header
-    if h[0]!=80 || (h[1]!=2 && h[1]!=3) || h[7]>0xffffff ||
+    if h[0]!=80 || (h[1]!=2 && h[1]!=3 && h[1]!=4) || h[7]>0xffffff ||
        h[3]>32768 || h[4]==0 || h[4]>32768 || h[3]>h[4] ||
        h[5]==0 || h[6]!=100000000 || h[8]&1!=0 || h[8]&2==0 ||
        h[8]&^uint32(15)!=0 || h[9]!=16 || h[10]!=h[3]*2 ||
@@ -111,8 +111,9 @@ func read_capture(path string) (*capture,error) {
         return nil,fmt.Errorf("%s: invalid metadata, length or framing errors",path)
     }
     if (h[1]==2 && (string(b[:8])!="C96CAP02" || h[11]!=1 || h[15]!=0)) ||
-       (h[1]==3 && (string(b[:8])!="C96CAP03" || h[11]!=3 || h[15]<1024 || h[15]>4096)) {
-        return nil,fmt.Errorf("%s: expected raw v2 or Yamaha v3 capture",path)
+       (h[1]==3 && (string(b[:8])!="C96CAP03" || h[11]!=3 || h[15]<1024 || h[15]>4096)) ||
+       (h[1]==4 && (string(b[:8])!="C96CAP04" || h[11]!=3 || h[15]<1024 || h[15]>4096 || h[5]>1024)) {
+        return nil,fmt.Errorf("%s: expected raw v2 or Yamaha v3/v4 capture",path)
     }
     c.samples=make([]uint16,h[3])
     for i:=range c.samples { c.samples[i]=binary.LittleEndian.Uint16(b[80+2*i:]) }
@@ -123,7 +124,9 @@ func (c *capture) decode() ([2][]uint16,float64,error) {
     var words [2][]uint16
     if c.header[11]==3 {
         for i,w:=range c.samples { words[i%2]=append(words[i%2],w) }
-        return words,float64(c.header[6])/float64(c.header[15]),nil
+        stride:=uint32(1)
+        if c.header[1]==4 { stride=c.header[5] }
+        return words,float64(c.header[6])/(float64(c.header[15])*float64(stride)),nil
     }
     var edges []edge
     for i,w:=range c.samples {

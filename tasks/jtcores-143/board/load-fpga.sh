@@ -2,8 +2,8 @@
 set -euo pipefail
 
 main() {
-    [[ $# == 1 && ( $1 == yamaha || $1 == original ) ]] || {
-        echo "Usage: $0 yamaha|original (run as root on Chameleon96)" >&2
+    [[ $# == 1 && ( $1 == yamaha || $1 == yamaha104 || $1 == original ) ]] || {
+        echo "Usage: $0 yamaha104|yamaha|original (run as root on Chameleon96)" >&2
         exit 2
     }
     [[ $(id -u) == 0 && $(uname -m) == armv7l ]]
@@ -38,7 +38,7 @@ main() {
     [[ $(cat /sys/class/fpga_manager/fpga0/state) == operating ]]
     flock -u 9
     exec 9>&-
-    if [[ $1 == yamaha ]]; then "$(dirname "${BASH_SOURCE[0]}")/c96-capture" probe; fi
+    if [[ $1 != original ]]; then "$(dirname "${BASH_SOURCE[0]}")/c96-capture" probe; fi
     systemctl stop "$watchdog.timer"
     echo "Loaded $image; recovery timer cancelled. SD boot files are unchanged."
 }

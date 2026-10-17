@@ -22,9 +22,12 @@ class simulation {
     FILE *events=nullptr;
     unsigned captured=0;
     unsigned capture_limit=0;
+    unsigned sample_stride=1;
+    unsigned native_phase=0;
     bool recording=false;
 public:
-    simulation(const std::string &csv, bool event_mode=false) {
+    simulation(const std::string &csv, bool event_mode=false, unsigned stride=1)
+        : sample_stride(stride) {
         output=std::fopen(csv.c_str(),"wx");
         if(!output) throw std::runtime_error("cannot exclusively create output CSV");
         if(event_mode) {
@@ -71,9 +74,11 @@ public:
 #endif
             clocks++;
             if(sample && recording && captured<capture_limit) {
-                std::fprintf(output,"%u,%d,%d,%d,%d,%llu,%u\n",captured++,
-                    int16_t(top.left),int16_t(top.right),int16_t(top.xleft),int16_t(top.xright),
-                    static_cast<unsigned long long>(clocks),top.dout);
+                if(native_phase==0)
+                    std::fprintf(output,"%u,%d,%d,%d,%d,%llu,%u\n",captured++,
+                        int16_t(top.left),int16_t(top.right),int16_t(top.xleft),int16_t(top.xright),
+                        static_cast<unsigned long long>(clocks),top.dout);
+                native_phase=native_phase+1==sample_stride ? 0 : native_phase+1;
             }
         }
     }
@@ -149,13 +154,26 @@ static std::vector<uint8_t> read_program(const char *path) {
 
 int main(int argc,char **argv) {
     try {
-        const bool event_mode=argc>1 && std::string(argv[1])=="--event";
-        const int count_index=event_mode ? 5 : 3;
+        int first=1;
+        unsigned stride=1;
+        if(argc>1 && std::string(argv[1])=="--stride") {
+            if(argc<3) throw std::runtime_error("missing sample stride");
+            const std::string value=argv[2];
+            if(value.empty() || value.find_first_not_of("0123456789")!=std::string::npos)
+                throw std::runtime_error("invalid sample stride");
+            const auto parsed_stride=std::stoull(value);
+            if(parsed_stride==0 || parsed_stride>1024)
+                throw std::runtime_error("invalid sample stride");
+            stride=parsed_stride;
+            first=3;
+        }
+        const bool event_mode=argc>first && std::string(argv[first])=="--event";
+        const int count_index=first+(event_mode ? 4 : 2);
         if(argc!=count_index && argc!=count_index+1)
-            throw std::runtime_error("Usage: simulation PROGRAM CSV [SAMPLES]\n"
-                "       simulation --event INIT EVENT CSV [SAMPLES]");
-        const auto init=read_program(argv[event_mode ? 2 : 1]);
-        const auto event=event_mode ? read_program(argv[3]) : std::vector<uint8_t>{};
+            throw std::runtime_error("Usage: simulation [--stride N] PROGRAM CSV [SAMPLES]\n"
+                "       simulation [--stride N] --event INIT EVENT CSV [SAMPLES]");
+        const auto init=read_program(argv[first+(event_mode ? 1 : 0)]);
+        const auto event=event_mode ? read_program(argv[first+2]) : std::vector<uint8_t>{};
         size_t parsed=0;
         const std::string count=argc==count_index+1 ? argv[count_index] : "16384";
         if(count.empty() || count.find_first_not_of("0123456789")!=std::string::npos)
@@ -163,7 +181,9 @@ int main(int argc,char **argv) {
         const auto samples=std::stoull(count,&parsed);
         if(parsed!=count.size() || samples==0 || samples>10000000)
             throw std::runtime_error("invalid sample count");
-        simulation sim(argv[event_mode ? 4 : 2],event_mode);
+        if(samples*stride>16777216)
+            throw std::runtime_error("capture exceeds 16777216 native frames");
+        simulation sim(argv[first+(event_mode ? 3 : 1)],event_mode,stride);
         sim.program(init);
         if(event_mode) sim.capture_event(event,samples);
         else sim.capture(samples);

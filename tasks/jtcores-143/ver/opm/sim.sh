@@ -4,9 +4,15 @@ set -euo pipefail
 main() {
     local src output external csv samples
     local args=()
+    local stride_args=()
     src=$(cd -- "$(dirname -- "$0")" && pwd)
     output="$src/../../artifacts/opm-reference/build"
     external=${NUKED_OPM_ROOT:-/nobackup/jtmisc/reverse/Nuked-OPM}
+    if [[ ${1:-} == --stride ]]; then
+        [[ $# -ge 2 ]] || { usage; exit 2; }
+        stride_args=(--stride "$2")
+        shift 2
+    fi
     if [[ ${1:-} == --event ]]; then
         [[ $# -ge 4 && $# -le 5 ]] || { usage; exit 2; }
         args=(--event "$(realpath "$2")" "$(realpath "$3")")
@@ -29,12 +35,12 @@ main() {
     c++ -std=c++17 -O2 -Wall -Wextra -Werror -I "$external" \
         "$src/test.cpp" "$output/opm.o" -o "$output/opm-oracle" \
         >> "$output/build.log" 2>&1
-    "$output/opm-oracle" "${args[@]}"
+    "$output/opm-oracle" "${stride_args[@]}" "${args[@]}"
 }
 
 usage() {
-    echo "Usage: $0 PROGRAM CSV [SAMPLES]" >&2
-    echo "       $0 --event INIT EVENT CSV [SAMPLES]" >&2
+    echo "Usage: $0 [--stride N] PROGRAM CSV [SAMPLES]" >&2
+    echo "       $0 [--stride N] --event INIT EVENT CSV [SAMPLES]" >&2
 }
 
 main "$@"

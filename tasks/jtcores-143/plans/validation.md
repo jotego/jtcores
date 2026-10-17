@@ -137,3 +137,25 @@ Bring-up alone does not complete this issue.
 - See [envelope-measurements.md](envelope-measurements.md) and the central
   [gap inventory](gaps.md). Longer acquisition, remaining EG stages/boundaries
   and LFO/noise/algorithm/CSM/output tests remain. Production is still frozen.
+
+## Stereo-stride acquisition and slow attack checkpoint
+
+Protocol 104/C96CAP04 extends finite mode 3 captures by selecting complete stereo
+pairs at strides 1..1024 while preserving framing checks. Previous files retain
+their native-rate semantics. Hardware, model subsampling, offline metadata,
+PRNG/raw/PCM regression and 100 MHz timing are qualified in
+[long-acquisition.md](long-acquisition.md). Full 300-second acquisition is not
+claimed from the shorter 37.5-second qualification run.
+
+AR1–11 at KC4A/KS0 now have 33 additional physical captures and 22 matched model
+references with complete plateaus, nonzero audio, verified transfer/framing
+and declared 36.61 ms projection resolution. Together with the earlier native
+sweep, all nonzero AR register values have finite windowed feature evidence;
+AR14 remains a gap. Full envelope stages/keyscale/history and the rest of the
+chip audit remain outstanding.
+
+The longer AR0/KS1 extension adds three 18.74-second silent physical controls and
+one nonzero AR1/KS1 control. OPM stays exactly silent; jt51 reaches nearly full
+level then decays, so its attack score is deliberately rejected. This confirms
+the previously internal-only KS1 AR0 gap in observable output. All 37 new slow
+captures have valid framing, verified transfers and expected CPU generations.

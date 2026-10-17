@@ -11,9 +11,9 @@ main() {
     cd "$out"
     quartus_sh -t "$src/board/build.tcl" > project.log 2>&1
     quartus_sh --flow compile c96 > compile.log 2>&1
-    quartus_cpf -c output_files/c96.sof output_files/c96-yamaha.rbf > cpf.log 2>&1
-    dtc -@ -I dts -O dtb -o output_files/c96-yamaha.dtbo "$src/board/c96.dts"
-    sha256sum output_files/c96-yamaha.rbf output_files/c96-yamaha.dtbo
+    quartus_cpf -c output_files/c96.sof output_files/c96-yamaha104.rbf > cpf.log 2>&1
+    dtc -@ -I dts -O dtb -o output_files/c96-yamaha104.dtbo "$src/board/c96.dts"
+    sha256sum output_files/c96-yamaha104.rbf output_files/c96-yamaha104.dtbo
 }
 
 main "$@"

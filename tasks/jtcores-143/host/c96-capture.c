@@ -79,7 +79,7 @@ static void connect_fpga(void) {
     // Start from the last completed toggle, including after a prior process exits.
     toggle=regs[5]&0x80000000u;
     protocol=command(INFO,0);
-    if (protocol!=0x960101 && protocol!=0x960102 && protocol!=0x960103) die("Unexpected FPGA protocol identity");
+    if (protocol<0x960101 || protocol>0x960104) die("Unexpected FPGA protocol identity");
 }
 static void arm_capture(char **args) {
     uint32_t seed=number(args[0],65535), count=number(args[1],32768);
@@ -108,9 +108,10 @@ static void export_capture(const char *path) {
     uint32_t errors=protocol!=0x960101 ? command(ERRORS,0) : 0;
     uint32_t frame_clocks=mode==3 ? command(FRAME_CLOCKS,0) : 0;
     uint32_t header_size=protocol!=0x960101 ? 80 : 64;
-    uint32_t fields[]={header_size,mode==3 ? 3 : protocol!=0x960101 ? 2 : 1,seed,count,limit,
+    uint32_t version=mode==3 ? (protocol==0x960104 ? 4 : 3) : protocol!=0x960101 ? 2 : 1;
+    uint32_t fields[]={header_size,version,seed,count,limit,
         period,100000000,id,status,16,count*2,mode,invert,format,errors,frame_clocks,0,0};
-    memcpy(header,mode==3 ? "C96CAP03" : protocol!=0x960101 ? "C96CAP02" : "C96CAP01",8);
+    memcpy(header,version==4 ? "C96CAP04" : version==3 ? "C96CAP03" : version==2 ? "C96CAP02" : "C96CAP01",8);
     for (unsigned i=0;i<(header_size-8)/4;i++) put32(header+8+4*i,fields[i]);
     // Exclusive creation prevents overwriting an earlier capture.
     int fd=open(path,O_WRONLY|O_CREAT|O_EXCL,0600);
@@ -151,9 +152,9 @@ int main(int argc,char **argv) {
     if (stop) command(STOP,0);
     if (status || stop) printf("status=0x%x samples=%u id=%u\n",command(STATUS,0),command(COUNT,0),command(CAPTURE_ID,0));
     if (configure) {
-        if (protocol==0x960101) die("External input mode requires protocol 0x960102 or 0x960103");
+        if (protocol==0x960101) die("External input mode requires protocol 0x960102 or later");
         if (command(STATUS,0)&1) die("Cannot configure an active capture");
-        uint32_t mode=number(argv[2],protocol==0x960103 ? 3 : 2), invert=number(argv[3],15), format=number(argv[4],3);
+        uint32_t mode=number(argv[2],protocol>=0x960103 ? 3 : 2), invert=number(argv[3],15), format=number(argv[4],3);
         command(MODE,mode); command(INVERT,invert); command(FORMAT,format);
         if (command(GET_MODE,0)!=mode || command(GET_INVERT,0)!=invert ||
             command(GET_FORMAT,0)!=format) die("Input configuration readback failed");
@@ -164,7 +165,14 @@ int main(int argc,char **argv) {
         unsigned stop_ms=argc==8 ? number(argv[7],60000) : 0;
         arm_capture(argv+3);
         double start=now();
-        double deadline=start+number(argv[4],32768)*(double)number(argv[5],0xffffff)/1e8+5;
+        double ticks=number(argv[4],32768)*(double)number(argv[5],0xffffff);
+        if (protocol>=0x960103 && command(GET_MODE,0)==3) {
+            // Conservative upper bound for the qualified native frame interval.
+            // Older Yamaha protocols ignore PERIOD; v104 uses a stereo stride.
+            double stride=protocol==0x960104 ? number(argv[5],1024) : 1;
+            ticks=((number(argv[4],32768)+1)/2)*stride*4096;
+        }
+        double deadline=start+ticks/1e8+5;
         while (command(STATUS,0)&1) {
             if (stop_ms && now()-start>=stop_ms/1000.0) command(STOP,0);
             if (now()>deadline) { command(STOP,0); die("Capture completion timeout; stopped"); }

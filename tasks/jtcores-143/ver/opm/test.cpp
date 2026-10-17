@@ -16,6 +16,8 @@ class Oracle {
     FILE* events = nullptr;
     unsigned captured = 0;
     unsigned capture_limit = 0;
+    unsigned sample_stride = 1;
+    unsigned native_phase = 0;
     bool recording = false;
 
     void advance(unsigned count) {
@@ -23,10 +25,12 @@ class Oracle {
             OPM_Clock(&chip, dac, nullptr, nullptr, nullptr);
             ++ticks;
             if (recording && captured < capture_limit && chip.cycles == 0) {
-                std::fprintf(csv, "%u,%d,%d,%llu,%u,%u,%u,%u,%u\n", captured++,
-                    dac[0], dac[1], static_cast<unsigned long long>(ticks * 2),
-                    chip.pg_inc[0], chip.pg_inc[8], chip.pg_inc[16], chip.pg_inc[24],
-                    chip.pg_phase[24]);
+                if (native_phase == 0)
+                    std::fprintf(csv, "%u,%d,%d,%llu,%u,%u,%u,%u,%u\n", captured++,
+                        dac[0], dac[1], static_cast<unsigned long long>(ticks * 2),
+                        chip.pg_inc[0], chip.pg_inc[8], chip.pg_inc[16], chip.pg_inc[24],
+                        chip.pg_phase[24]);
+                native_phase = native_phase + 1 == sample_stride ? 0 : native_phase + 1;
             }
         }
     }
@@ -51,7 +55,7 @@ class Oracle {
     }
 
 public:
-    Oracle() {
+    explicit Oracle(unsigned stride = 1) : sample_stride(stride) {
         OPM_Reset(&chip);
         advance(256);
     }
@@ -145,13 +149,26 @@ static std::vector<uint8_t> read_program(const char* path) {
 
 int main(int argc, char** argv) {
     try {
-        const bool event_mode = argc > 1 && std::string(argv[1]) == "--event";
-        const int count_index = event_mode ? 5 : 3;
+        int first = 1;
+        unsigned stride = 1;
+        if (argc > 1 && std::string(argv[1]) == "--stride") {
+            if (argc < 3) throw std::runtime_error("missing sample stride");
+            const std::string value = argv[2];
+            if (value.empty() || value.find_first_not_of("0123456789") != std::string::npos)
+                throw std::runtime_error("invalid sample stride");
+            const auto parsed_stride = std::stoull(value);
+            if (parsed_stride == 0 || parsed_stride > 1024)
+                throw std::runtime_error("invalid sample stride");
+            stride = parsed_stride;
+            first = 3;
+        }
+        const bool event_mode = argc > first && std::string(argv[first]) == "--event";
+        const int count_index = first + (event_mode ? 4 : 2);
         if (argc != count_index && argc != count_index + 1)
-            throw std::runtime_error("Usage: opm-oracle PROGRAM CSV [SAMPLES]\n"
-                "       opm-oracle --event INIT EVENT CSV [SAMPLES]");
-        const auto init = read_program(argv[event_mode ? 2 : 1]);
-        const auto event = event_mode ? read_program(argv[3]) : std::vector<uint8_t>{};
+            throw std::runtime_error("Usage: opm-oracle [--stride N] PROGRAM CSV [SAMPLES]\n"
+                "       opm-oracle [--stride N] --event INIT EVENT CSV [SAMPLES]");
+        const auto init = read_program(argv[first + (event_mode ? 1 : 0)]);
+        const auto event = event_mode ? read_program(argv[first + 2]) : std::vector<uint8_t>{};
         size_t parsed = 0;
         const std::string count = argc == count_index + 1 ? argv[count_index] : "16384";
         if (count.empty() || count.find_first_not_of("0123456789") != std::string::npos)
@@ -159,10 +176,12 @@ int main(int argc, char** argv) {
         const auto samples = std::stoull(count, &parsed);
         if (parsed != count.size() || samples == 0 || samples > 10000000)
             throw std::runtime_error("invalid sample count");
-        Oracle oracle;
+        if (samples * stride > 16777216)
+            throw std::runtime_error("capture exceeds 16777216 native frames");
+        Oracle oracle(stride);
         oracle.program(init);
-        if (event_mode) oracle.capture_event(argv[4], event, samples);
-        else oracle.capture(argv[2], samples);
+        if (event_mode) oracle.capture_event(argv[first + 3], event, samples);
+        else oracle.capture(argv[first + 1], samples);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

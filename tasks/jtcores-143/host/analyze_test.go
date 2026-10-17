@@ -2,6 +2,7 @@ package main
 
 import (
     "encoding/binary"
+    "fmt"
     "os"
     "path/filepath"
     "testing"
@@ -76,4 +77,31 @@ func TestRawIndependentFraming(t *testing.T) {
     // Destroy a strobe, making channel boundaries repeat.
     for i:=48*ticks;i<80*ticks;i++ { c.samples[i]&^=2 }
     if _,_,e:=c.decode();e==nil { t.Fatal("malformed framing accepted") }
+}
+
+// v3 PERIOD was ignored by hardware; only v4 scales the recorded stereo rate.
+func TestYamahaStrideVersions(t *testing.T) {
+    path:=filepath.Join(t.TempDir(),"stride.cap")
+    for _,v:=range []struct{version,period uint32;valid bool}{
+        {3,1025,true},{4,1,true},{4,2,true},{4,3,true},{4,1024,true},
+        {4,0,false},{4,1025,false},
+    } {
+        h:=[18]uint32{80,v.version,1,4,4,v.period,100000000,7,2,16,8,3,15,0,0,1788,0,0}
+        b:=make([]byte,88)
+        copy(b,fmt.Sprintf("C96CAP%02d",v.version))
+        for i,value:=range h { binary.LittleEndian.PutUint32(b[8+i*4:],value) }
+        for i,w:=range []uint16{0x3000,0x3ff8,0x4000,0x5ff8} { binary.LittleEndian.PutUint16(b[80+i*2:],w) }
+        if e:=os.WriteFile(path,b,0600);e!=nil { t.Fatal(e) }
+        c,e:=read_capture(path)
+        if (e==nil)!=v.valid { t.Fatalf("version %d period %d: %v",v.version,v.period,e) }
+        if !v.valid { continue }
+        words,rate,e:=c.decode()
+        stride:=uint32(1)
+        if v.version==4 { stride=v.period }
+        if e!=nil || rate!=1e8/(1788*float64(stride)) { t.Fatalf("rate %v, %v",rate,e) }
+        if words[0][0]!=0x3000 || words[1][0]!=0x3ff8 || words[0][1]!=0x4000 || words[1][1]!=0x5ff8 { t.Fatal("stereo word order changed") }
+        b[7]='2' // Magic and version must agree.
+        if e:=os.WriteFile(path,b,0600);e!=nil { t.Fatal(e) }
+        if _,e:=read_capture(path);e==nil { t.Fatal("inconsistent magic accepted") }
+    }
 }

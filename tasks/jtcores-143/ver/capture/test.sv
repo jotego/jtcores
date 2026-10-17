@@ -10,7 +10,7 @@ reg [15:0] expected;
 integer bit_index, word_index;
 reg [15:0] serial_words[0:11];
 reg [3:0] yamaha_pins;
-integer i, stopped_count, clocks=0, last_sample=-1;
+integer i, stride, stopped_count, clocks=0, last_sample=-1;
 reg check_period=0;
 
 always #5 clk=~clk;
@@ -77,7 +77,7 @@ endtask
 initial begin
     $dumpfile("test.lxt"); $dumpvars(0,test);
     #42; @(negedge clk); rst=0;
-    cmd(0,0,0); check(reply==24'h960103,"protocol identity");
+    cmd(0,0,0); check(reply==24'h960104,"protocol identity");
     cmd(1,0,0); check(reply==32,"capacity");
     cmd(8,0,1); // No completed acquisition yet.
     cmd(4,0,1); cmd(4,24'h10000,1);
@@ -181,8 +181,58 @@ initial begin
         cmd(8,24'(i),0);
         check(reply=={8'd0,serial_words[i+1]},"Yamaha RAM/readout packing and channel order");
     end
+    // Independent source words encode their absolute serial index. Selected
+    // frames must contain adjacent latch-0/latch-1 words, with exactly stride
+    // native frames between pairs, including the maximum 1024-frame stride.
+    for(i=0;i<4;i=i+1) begin
+        case(i) 0:stride=1; 1:stride=2; 2:stride=3; 3:stride=1024; endcase
+        if(stride==1024) $dumpoff;
+        yamaha_pins=3; pins=yamaha_pins^15;
+        cmd(9,24'(stride),0); cmd(5,i==2 ? 5 : 6,0); cmd(6,24'(140+i),0);
+        for(word_index=0;word_index<4*stride+4;word_index=word_index+1) begin
+            expected=16'h3000+16'(word_index);
+            yamaha_pins[word_index%2]=0;
+            for(bit_index=0;bit_index<16;bit_index=bit_index+1) begin
+                if(bit_index==8) yamaha_pins[(word_index+1)%2]=1;
+                yamaha_pins[2]=expected[bit_index];
+                pins=yamaha_pins^15;
+                #560;
+            end
+        end
+        wait_done(); check(reply==2,"decimated completion flags");
+        cmd(21,0,0); check(reply==0,"decimated clean framing");
+        for(word_index=0;word_index<(i==2 ? 5 : 6);word_index=word_index+1) begin
+            expected=16'h3001+16'(2*stride*(word_index/2)+word_index%2);
+            cmd(8,24'(word_index),0);
+            check(reply=={8'd0,expected},"decimation retains complete indexed pairs");
+        end
+    end
+    cmd(9,1025,1); cmd(9,0,1);
+    cmd(14,0,0); cmd(9,1025,0); cmd(14,3,0);
+    cmd(6,150,1); // Changing modes cannot bypass the stride limit.
+    cmd(9,1024,0); cmd(5,6,0); cmd(6,151,0);
+    yamaha_pins=3; pins=yamaha_pins^15;
+    for(word_index=0;word_index<4;word_index=word_index+1) begin
+        yamaha_pins[word_index%2]=0;
+        for(bit_index=0;bit_index<16;bit_index=bit_index+1) begin
+            if(bit_index==8) yamaha_pins[(word_index+1)%2]=1;
+            pins=yamaha_pins^15;
+            #560;
+        end
+    end
+    #30000; // Missing strobes during an unretained frame must still be errors.
+    cmd(21,0,0); check(reply!=0,"framing errors survive decimation");
+    cmd(2,0,0); stopped_count=reply;
+    check(stopped_count==2,"one complete pair before skipped frames");
+    cmd(7,0,0); cmd(3,0,0); check(reply==10,"stride capture stops after skipped frames");
+    #2000; cmd(2,0,0); check(reply==24'(stopped_count),"stopped stride count stable");
+    cmd(9,1,0); cmd(6,152,0);
+    @(negedge clk); rst=1; gp_out=0;
+    repeat(4) @(negedge clk);
+    rst=0;
+    check(uut.frame_skip==0 && !uut.select_frame,"reset clears pair selection");
     $display("PASS finite capture: PRNG, raw, PCM, Yamaha and HPS protocol"); $finish;
 end
 
-initial begin #1000000; $display("FAIL watchdog"); $finish; end
+initial begin #100000000; $display("FAIL watchdog"); $finish; end
 endmodule

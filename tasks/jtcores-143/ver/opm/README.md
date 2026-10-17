@@ -11,6 +11,25 @@ bash tasks/jtcores-143/ver/opm/sim.sh PROGRAM.bin FRESH.csv [SAMPLES]
 go run tasks/jtcores-143/host/phase.go tasks/jtcores-143/host/tone.go -column left FRESH.csv
 ```
 
+Optional `--stride N`, before the program arguments, retains every Nth native
+stereo frame in either steady or event mode. N is from 1 through 1024, default 1:
+
+```
+bash tasks/jtcores-143/ver/opm/sim.sh --stride 1024 PROGRAM.bin OUTPUT.csv 16384
+bash tasks/jtcores-143/ver/opm/sim.sh --stride 3 --event INIT.bin EVENT.bin OUTPUT.csv 1024
+```
+
+The retained native indices are 0, N, 2N, and so on, counted from capture start.
+CSV `sample` indices count retained frames consecutively; `SAMPLES` requests that
+many retained stereo frames. Actual master-clock timestamps are retained, with
+64*N clocks between rows. The external model executes every intervening clock
+and the complete EVENT program. The recorded sample rate is 55,937.5/N Hz at
+3.58 MHz, without any claim of phase alignment with the PCB or jt51.
+The sample-count bound remains 10,000,000, with SAMPLES*N additionally limited
+to 16,777,216 native frames. The maximum 16,384-by-1024 case covers about
+300 seconds of chip time while writing only 16,384 rows. Stride 1 preserves
+previous sample CSVs and event sidecars byte for byte for identical inputs.
+
 `NUKED_OPM_ROOT` defaults to `/nobackup/jtmisc/reverse/Nuked-OPM`. The qualified
 checkout is commit `a0ab44be60cb28b68431779829454ddf3284f272`, whose source identifies
 itself as version 0.9.2 beta. Nuked-OPM is copyright Nuke.YKT, licensed under
@@ -47,7 +66,7 @@ INIT executes first, followed by 4096 input master clocks of settling. Capture
 starts before EVENT executes, with output recorded throughout its writes, busy
 waits and delays, then until the requested native frame count (default 16384).
 There is no post-event settling gap. Snapshots occur at the same operator cycle
-once every 64 master clocks, including during EVENT. If EVENT outlasts the
+once every 64 master clocks by default, including during EVENT. If EVENT outlasts the
 capture window, it still completes but no rows beyond the requested count are
 written. This supports envelope-duration and level measurements; initial state
 and event timing are not synchronized exactly with the PCB or jt51.
