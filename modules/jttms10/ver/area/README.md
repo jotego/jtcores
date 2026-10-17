@@ -7,9 +7,10 @@ directory:
 python3 modules/jttms10/ver/area/run.py --reference /tmp/jttms10-reference
 python3 modules/jttms10/ver/area/run.py --scalar /tmp/jttms10-scalar
 python3 modules/jttms10/ver/area/run.py --word /tmp/jttms10-word
+python3 modules/jttms10/ver/area/run.py --fabric /tmp/jttms10-fabric
 ```
 
-All three projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
+All four projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
 performance effort, and virtual pins for every exposed port. The reference
 adds the existing TMS34010 core timing exceptions. Sources and generated
 microcode are copied into the output directory, whose `manifest.json` records
@@ -22,6 +23,14 @@ The `--scalar` top is the currently incomplete scalar CPU. The `--word` top
 adds its physical 16-bit field adapter. Both exclude the I/O/video registers,
 arbitration, graphics, and NARC integration, so their ALM counts are inference
 checks, not the 25% replacement acceptance result.
+The `--fabric` top measures only I/O, video, refresh, and bus arbitration. Its
+five HDL files are analyzed as plain Verilog, as in JTFRAME synthesis.
+The manifest also hashes the current instruction YAML for snapshot context,
+but the fabric project does not generate or instantiate microcode. Its exposed
+host strap, external sync, HOLD, and sideband ports are virtual; NARC will tie
+some of those signals to constants. It excludes the CPU, field adapter, host
+indirect engine, and graphics datapath. A combined replacement must be fitted
+separately; standalone counts are not additive area evidence.
 
 ## Preliminary result, 2026-10-17
 
@@ -62,3 +71,22 @@ The scalar map report identifies a 2048×24 `ALTSYNCRAM` control ROM plus two
 32×32 simple dual-port `ALTSYNCRAM` register mirrors. The generated ROM MIF
 contains nonzero microinstructions. The current blocking assignment in the
 clocked ROM read inferred block RAM in this Quartus build.
+
+## Standalone peripheral budget check, 2026-10-17
+
+The fresh plain-Verilog `--fabric` snapshot at
+`/tmp/jttms10-141-area/fabric-verilog/` fitted **731 ALMs**, **716 registers**,
+**0 block RAM bits / 0 RAM blocks**, and **0 DSPs**. It used Quartus Prime Lite
+20.1.1 Build 720, Cyclone V `5CSEBA6U23I7`, a 20 ns `clk`, seed 1, high
+performance effort, and 444 virtual top-level pins. The Fitter succeeded;
+`fabric.fit.rpt` and `manifest.json` in that directory record the exact
+resources, tool, repository commit `f2b7cd30ac932ead8aed23cc43ffe51db1134b69`,
+old-module commit `29bcb384ec3dba892ea54db2ee92b38ae395d575`, and SHA-256
+hashes of the five peripheral HDL files and three instruction YAML files. The
+post-portability I/O and refresh source hashes are respectively
+`d9221c2004c0812d48efc89b0e2f6c7acb9536645efe37e7c9116faa93d60e76`
+and `daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d`.
+There is no
+CPU, field adapter, host indirect engine, or graphics datapath in this fit.
+This number is a peripheral budget check, **not** a full replacement result or
+an independently addable term in the 3,500-ALM target.

@@ -12,8 +12,9 @@ module jttms10_refresh #(
     output reg req
 );
     localparam integer PW = CLKS_PER_STATE>1 ? $clog2(CLKS_PER_STATE) : 1;
+    localparam integer LAST = CLKS_PER_STATE-1;
     reg [PW-1:0] phase;
-    wire tick = CLKS_PER_STATE==1 || phase==PW'(CLKS_PER_STATE-1);
+    wire tick = CLKS_PER_STATE==1 || phase==LAST[PW-1:0];
     wire [1:0] step = rr==0 ? 2'd2 : rr==1 ? 2'd1 : 2'd0;
     wire underflow = tick && step!=0 && refcnt[7:2]<{4'b0,step};
     assign row=refcnt[15:8];

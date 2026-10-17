@@ -41,6 +41,7 @@ module jttms10_io #(
     wire lint1_level, lint2_level;
     generate if (CLKS_PER_STATE>1) begin: g_lint_state
         localparam integer PW=$clog2(CLKS_PER_STATE);
+        localparam integer LAST=CLKS_PER_STATE-1;
         localparam integer SAMPLE=(CLKS_PER_STATE/2+2)%CLKS_PER_STATE;
         localparam integer TRANSFER=(CLKS_PER_STATE/2+CLKS_PER_STATE-1)%CLKS_PER_STATE;
         reg [PW-1:0] phase;
@@ -48,12 +49,12 @@ module jttms10_io #(
         always @(posedge clk) begin
             if (rst) begin phase<=0; l1<=2'b11; l2<=2'b11; end
             else begin
-                if (phase==PW'(CLKS_PER_STATE-1)) phase<=0;
+                if (phase==LAST[PW-1:0]) phase<=0;
                 else phase<=phase+1'b1;
-                if (phase==PW'(SAMPLE)) begin
+                if (phase==SAMPLE[PW-1:0]) begin
                     l1[0]<=lint1_sync[1]; l2[0]<=lint2_sync[1];
                 end
-                if (phase==PW'(TRANSFER)) begin
+                if (phase==TRANSFER[PW-1:0]) begin
                     l1[1]<=l1[0]; l2[1]<=l2[0];
                 end
             end

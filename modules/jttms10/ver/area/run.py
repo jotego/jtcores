@@ -40,6 +40,7 @@ def main():
     mode.add_argument("--reference", action="store_true", help="old jtnarc_gsp boundary")
     mode.add_argument("--scalar", action="store_true", help="current incomplete jttms10 CPU alone")
     mode.add_argument("--word", action="store_true", help="jttms10 plus physical-word field adapter")
+    mode.add_argument("--fabric", action="store_true", help="peripheral I/O/video/refresh/bus fabric alone")
     parser.add_argument("output", type=Path, help="new, empty output directory, preferably under /tmp")
     parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/intelFPGA_lite/20.1/quartus/bin"))
     args = parser.parse_args()
@@ -79,6 +80,32 @@ def main():
                  "cyc_addr[*]", "cyc_wdata[*]", "cyc_io_rdata[*]", "cyc_iaq",
                  "cyc_srfaddr[*]", "cyc_dpytap[*]", "cyc_org", "cyc_rdata[*]",
                  "cyc_ack", "hs", "vs", "hblank", "vblank", "pc[*]"]
+    elif args.fabric:
+        project, top = "fabric", "jttms10_fabric"
+        for name in ("jttms10_fabric.v", "jttms10_bus.v", "jttms10_io.v",
+                     "jttms10_video.v", "jttms10_refresh.v"):
+            source = MODULE / "hdl" / name
+            target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
+            sources.append(("VERILOG_FILE", target))
+        # Record the current instruction YAML snapshot for context even though
+        # this standalone fabric has no CPU or generated microcode.
+        for source in sorted((MODULE / "ucode").glob("*.yaml")):
+            snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
+        ports = ["clk", "rst", "vclk_cen", "hcs_n", "hsync_n", "vsync_n",
+                 "lint1_n", "lint2_n", "hold_req", "hold_ack", "word_req",
+                 "word_we", "word_iaq", "word_lock", "word_pixel",
+                 "word_addr[*]", "word_wdata[*]", "word_rdata[*]",
+                 "word_ack", "word_restart", "nmi_clear", "wvp_set",
+                 "psize[*]", "convsp[*]", "convdp[*]", "control[*]",
+                 "pmask[*]", "pixel_srt", "intenb[*]", "intpend[*]",
+                 "hstctlh[*]", "irq_pending", "irq_vector[*]",
+                 "nmi_pending", "nmi_nmim", "halt", "hint_n",
+                 "hcount[*]", "vcount[*]", "dpyadr[*]", "refcnt[*]",
+                 "hs", "vs", "hblank", "vblank", "blank",
+                 "cyc_req", "cyc_kind[*]", "cyc_addr[*]", "cyc_wdata[*]",
+                 "cyc_io_rdata[*]", "cyc_iaq", "cyc_srfaddr[*]",
+                 "cyc_dpytap[*]", "cyc_org", "cyc_dram_row[*]",
+                 "cyc_rdata[*]", "cyc_ack"]
     else:
         project, top = ("word", "jttms10_word") if args.word else ("scalar", "jttms10")
         for source in sorted((MODULE / "hdl").glob("*.v")):
@@ -116,6 +143,8 @@ def main():
         "source_sha256": hashes,
         "scope": ("old NARC GSP with tied-off host/HOLD and VCLK enable"
                   if args.reference else
+                  "standalone I/O, video, refresh and bus fabric; excludes CPU, field adapter, host indirect engine and graphics datapath"
+                  if args.fabric else
                   "incomplete scalar CPU plus physical-word field adapter; excludes I/O, video, arbitration and graphics"
                   if args.word else
                   "incomplete scalar CPU alone; excludes I/O, video, field adapter, arbitration and graphics"),
