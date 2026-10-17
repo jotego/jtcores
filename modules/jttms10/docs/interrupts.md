@@ -31,7 +31,7 @@ and EMU bus quiescence/resumption. The scalar YAML suite compares reserved
 opcode entry and RETI with the unchanged old CPU. `ver/system/test.sv` also
 runs CPU/display-IRQ/handler/RETI through the real field and peripheral fabric.
 
-FILL and full-color PIXBLT may accept an interrupt after a completed
+FILL and PIXBLT may accept an interrupt after a completed
 destination word or row. A partial logical field finishes first. The
 unfinished array emits no retirement pulse; entry stacks next PC and
 ST.PBX=1. Seven synchronous register writes publish B0/B2 and the restart
@@ -39,7 +39,10 @@ image in B10–B14. RETI with stacked PBX reloads that image, clears the live
 PBX bit, rebases row pointers through the shared ALU, and resumes without
 fetching the original opcode. The ISR must preserve the implied B-register
 context when it uses graphics; the test uses MMTM/MMFM B0–B14 around a
-nested FILL. There is no hidden one-level snapshot to overwrite.
+nested FILL. There is no hidden one-level snapshot to overwrite. Binary PIXBLT reuses
+the shared scratch register as its 32-bit source-bit cache and publishes
+that cache in B12 at entry. B0 advances by 32 on a segment fetch; row-base
+reconstruction accounts for the already fetched source chunks.
 
 `ver/array/interrupt.sv` compares interrupted and uninterrupted write
 streams. It covers 16-bit FILL and unaligned 4-bit PIXBLT with PMASK/XOR,
@@ -50,9 +53,11 @@ PBH reverse traversal also compares the exact write stream and checkpoint;
 TI p. 12-188 requires a linear starting pointer one pixel past the corner,
 so its first access predecrements before drawing.
 
-Binary PIXBLT still reads one source bit per pixel; TI requires 32-pixel
-source chunks and corresponding B0/context updates. Binary interrupt
-continuation is therefore not accepted. Mid-array NMI/no-stack/HLT
-combinations, LINE continuation, and complete
+The same bench covers binary DX32/33/65 transfers across two rows, with
+unaligned source chunks, exact source requests, and cached-bit continuation.
+Its 15 runs include six baselines, six IRQ resumes, stacked NMI resume,
+no-stack NMI abandonment without further pixels or stack writes, and
+simultaneous NMI+HLT. The latter completes entry, holds handler fetch until
+HLT clears, then resumes through RETI. LINE continuation and complete
 instruction/bus cycle parity still need validation. Cache behavior has
 separate tests documented in [cache.md](cache.md).

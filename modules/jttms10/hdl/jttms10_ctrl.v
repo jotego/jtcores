@@ -12,6 +12,7 @@ module jttms10_ctrl(
     input              pixel_need_dest,
     input              pixel_abort,
     input              array_active, array_fill, array_convert,
+    input              array_binary, array_binary_need_read,
     input              array_zero, array_last,
     input              array_checkpoint, reti_pbx,
     input              array_window_needed, array_window_done,
@@ -379,6 +380,9 @@ module jttms10_ctrl(
                          ARRAYPREP_SEQA;
             if(array_active && array_offset_active &&
                a_sel==SAVESRC_A) uaddr <= ARRAYPREP_SEQA;
+            if(array_active && array_binary && array_source_phase &&
+               array_srcpre && !array_binary_need_read)
+                uaddr <= ARRAYBIT_SEQA;
             if(array_active && array_canon_active &&
                a_sel==SAVEDST_A) uaddr <= ARRAYFINISH_SEQA;
             if(array_active && !array_canon_active &&

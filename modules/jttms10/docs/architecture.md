@@ -136,8 +136,8 @@ ADDC/SUBB with both input carry/borrow values.
 
 The stack helper issues two 16-bit predecrements, high half first, to preserve
 TI's physical push order independently of the field adapter's ascending
-word order. IRQ/NMI/HLT/EMU boundaries and full-color array PBX continuation
-have focused tests. Binary chunk continuation and LINE remain incomplete;
+word order. IRQ/NMI/HLT/EMU boundaries and array PBX continuation, including cached
+binary source chunks, have focused tests. LINE remains incomplete;
 see [interrupts.md](interrupts.md) and [stack-isa.md](stack-isa.md).
 
 ## Iterative shift loop

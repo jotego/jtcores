@@ -114,6 +114,11 @@ module jttms10(
                     ir==16'h0fc0 || ir==16'h0fe0;
     wire array_fill = ir==16'h0fc0 || ir==16'h0fe0;
     wire array_binary = ir==16'h0f80 || ir==16'h0fa0;
+    // A binary source field is fetched once per 32 destination pixels.
+    // DX-XLEFT is the number consumed in this row, so its low five bits
+    // identify the start of each segment without another counter.
+    wire array_binary_need_read =
+        array_dx[4:0]==array_xleft[4:0];
     wire array_rev_h = !array_fill && !array_binary && control[8];
     wire array_rev_v = !array_fill && !array_binary && control[9];
     wire array_src_xy = ir==16'h0f40 || ir==16'h0f60;
@@ -226,7 +231,9 @@ module jttms10(
     assign mem_size = push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       array_binary && array_source_phase &&
-                      mem_sel==READ_MEM ? 6'd1 :
+                      mem_sel==READ_MEM ?
+                          (array_xleft>=16'd32 ? 6'd32 :
+                           {1'b0,array_xleft[4:0]}) :
                       pix_field && field_op ? {1'b0,psize[4:0]} :
                       field_op ? field_size : 6'd16;
     assign mem_wdata = push_active && stack_sel==WRITE_STACK ?
@@ -251,6 +258,8 @@ module jttms10(
         .pixel_need_dest(pixel_need_dest),
         .pixel_abort(pixel_abort),
         .array_active(array_ir), .array_fill(array_fill),
+        .array_binary(array_binary),
+        .array_binary_need_read(array_binary_need_read),
         .array_convert(array_convert), .array_zero(array_zero),
         .array_last(array_last), .array_index(array_index),
         .array_checkpoint(array_checkpoint), .reti_pbx(reti_pbx),
@@ -337,7 +346,8 @@ module jttms10(
             4'd2: begin array_ctx_wa=5'd26; array_ctx_wd={array_dx,ir}; end
             4'd3: begin array_ctx_wa=5'd27;
                         array_ctx_wd={array_yleft,array_xleft}; end
-            4'd4: begin array_ctx_wa=5'd28; array_ctx_wd=array_wstart; end
+            4'd4: begin array_ctx_wa=5'd28;
+                        array_ctx_wd=array_binary ? tmp : array_wstart; end
             4'd5: begin array_ctx_wa=5'd29; array_ctx_wd=array_wend; end
             default: begin array_ctx_wa=5'd30;
                            array_ctx_wd={array_height[15:0],
@@ -401,8 +411,10 @@ module jttms10(
     wire [15:0] unused_pixel_result, unused_pixel_mask;
     wire [15:0] array_color = array_binary && !pix_src_pixel[0] ?
                                array_color0 : pix_color;
+    wire [11:0] array_chunks_read =
+        {1'b0,array_width[15:5]}+{11'd0,(|array_width[4:0])};
     wire [31:0] array_rebase_src_bits = array_binary ?
-        {16'd0,array_width[15:0]} :
+        {15'd0,array_chunks_read,5'd0} :
         psize==16'd16 ? {12'd0,array_width[15:0],4'd0} :
         psize==16'd8  ? {13'd0,array_width[15:0],3'd0} :
         psize==16'd4  ? {14'd0,array_width[15:0],2'd0} :
@@ -509,7 +521,7 @@ module jttms10(
                         array_srcpre || array_dstpre ? {16'd0,psize} :
                         array_srcstep ?
                             (array_rowend ? array_sptch :
-                             (array_binary ? 32'd1 : {16'd0,psize})) :
+                             (array_binary ? 32'd32 : {16'd0,psize})) :
                         array_dststep ?
                             (array_rowend && !(array_fill && array_last) ?
                              array_dptch : {16'd0,psize}) :
@@ -787,7 +799,8 @@ module jttms10(
                             array_yleft<=rs_data[31:16];
                             array_xleft<=rs_data[15:0];
                         end
-                        4'd8: array_wstart<=rs_data;
+                        4'd8: if(array_binary) tmp<=rs_data;
+                              else array_wstart<=rs_data;
                         4'd9: array_wend<=rs_data;
                         default: begin
                             array_height<={16'd0,rs_data[31:16]};
@@ -883,8 +896,14 @@ module jttms10(
                         array_dst_row<=array_canon_linear ? result : a;
                     end
                 end
-                if(a_sel==SRCCAP_A)
-                    pix_src_pixel<=array_binary ? {15'd0,md[0]} : md[15:0];
+                if(a_sel==SRCCAP_A) begin
+                    if(array_binary) begin
+                        pix_src_pixel<=array_binary_need_read ?
+                            {15'd0,md[0]} : {15'd0,tmp[0]};
+                        tmp<=array_binary_need_read ?
+                            {1'b0,md[31:1]} : {1'b0,tmp[31:1]};
+                    end else pix_src_pixel<=md[15:0];
+                end
                 if(cc_sel==DSTCAP_CC) pix_dst_pixel<=md[15:0];
                 if(a_sel==PROCESS_A) begin
                     pix_write_data<=pixel_write_pixel;
@@ -995,7 +1014,9 @@ module jttms10(
                 if(array_srcpre && array_rev_h) pix_src_val<=result;
                 if(array_dstpre && array_rev_h) pix_dst_val<=result;
                 if(array_srcstep && !array_fill) begin
-                    if(array_rowend || !array_rev_h) pix_src_val<=result;
+                    if(array_rowend ||
+                       (array_binary ? array_binary_need_read :
+                        !array_rev_h)) pix_src_val<=result;
                     if(array_rowend) array_src_row<=result;
                 end
                 if(array_dststep) begin

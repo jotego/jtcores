@@ -580,3 +580,8 @@ ucode:
       - sub_alu, arraywin_misc
       - add_alu, arraywin_misc
       - add_alu, arraywin_misc
+  # Subsequent bits in a 32-pixel expand segment are shifted from TMP and
+  # do not issue another source field transaction.
+  - name: arraybit
+    start: 130
+    seq: [srccap_a]

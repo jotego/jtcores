@@ -33,8 +33,11 @@ destination starts of the *next row* after the last row, respectively; B7
 remains the supplied dimensions in the ordinary completed transfer. For
 PIXBLT L,L, software must preadjust B0/B2 to the selected starting corners
 when PBH or PBV is set; XY forms make that corner adjustment in hardware
-(guide pp. 12-187–189 and §7.2.2). Binary PIXBLT reads one source bit per
-destination pixel and selects the corresponding lane of B8 or B9.
+(guide pp. 12-187–189 and §7.2.2). Binary PIXBLT expands one source bit per
+destination pixel and selects the corresponding lane of B8 or B9. It fetches
+32-bit source chunks, followed by a final partial chunk when needed, through
+the field adapter (TI p. 13-35). Cached bits shift from the shared scratch
+register; no further source request occurs until those bits are consumed.
 For L,XY with PBV=1, SPTCH must be a power of two and CONVSP must describe
 it; for XY,L with PBV=1, the corresponding requirement applies to DPTCH and
 CONVDP (guide pp. 12-195, 12-202). Mixed-format tests use both conversion
@@ -56,7 +59,7 @@ N/C/Z/V as undefined (guide p. 12-190), so ordinary PIXBLT completion
 vectors do not assert them. Window violation and WVP behavior follow the pixel window
 controls described in [pixel-isa.md](pixel-isa.md). Interruptible mid-array
 checkpoints and PBX/RETI resume have separate focused tests documented in
-[interrupts.md](interrupts.md); binary source-chunk continuation is incomplete.
+[interrupts.md](interrupts.md), including binary source-chunk continuation.
 Completed instruction tests assert memory and the defined B0/B2/B7 and
 status results at retirement.
 
@@ -82,6 +85,11 @@ python3 modules/jttms10/ver/run.py --vectors /tmp/array.yaml
 python3 modules/jttms10/ver/reference.py --vectors /tmp/array.yaml
 ```
 
-These are architectural memory-result checks, not physical traffic or
-timing checks. In particular, the current one-bit binary source transactions
-still require replacement with TI's 32-pixel chunk reads (p. 12-176).
+These generated cases check architectural memory results, not timing. The
+separate interrupt bench checks logical source requests: unaligned DX32/33/65
+rows issue 32-bit fields plus a one-bit remainder where needed, then restart
+at the supplied pitch. It compares the interrupted and uninterrupted source
+and destination streams. At interrupt entry B0 denotes the next 32-pixel
+source chunk (p. 12-176); B12 preserves the cached bitmap and B10/B11/B14
+retain the restart counters. The physical field adapter supplies the one,
+two or three word reads required by each logical segment (p. 13-35).
