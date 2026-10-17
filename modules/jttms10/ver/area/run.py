@@ -149,15 +149,16 @@ def main():
                      "word_wdata[*]", "word_iaq", "word_lock", "word_pixel", "word_rdata[*]",
                      "word_ack", "word_restart", "irq_req", "irq_vector[*]",
                      "nmi_req", "nmi_nostack", "halt_req", "emu_run",
-                     "psize[*]", "convdp[*]", "pixel_srt",
+                     "psize[*]", "convsp[*]", "convdp[*]", "control[*]", "pmask[*]",
+                     "pixel_srt", "cache_flush", "wvp_set",
                      "nmi_clear", "emu_ack", "pc[*]", "st[*]", "ir[*]",
                      "retire", "fault"]
         else:
-            ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq", "mem_pixel",
+            ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq", "mem_program", "mem_pixel",
                      "mem_addr[*]", "mem_wdata[*]", "mem_size[*]", "mem_rdata[*]",
                      "mem_ack", "irq_req", "irq_vector[*]", "nmi_req",
                      "nmi_nostack", "halt_req", "emu_run", "nmi_clear",
-                     "psize[*]", "convdp[*]",
+                     "psize[*]", "convsp[*]", "convdp[*]", "control[*]", "pmask[*]", "wvp_set",
                      "emu_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
 
     qsf += [f"set_global_assignment -name TOP_LEVEL_ENTITY {top}",
@@ -178,9 +179,9 @@ def main():
                   if args.reference else
                   "standalone I/O, video, refresh, bus and synchronous host fabric; excludes CPU, field adapter, asynchronous physical host pins and graphics datapath"
                   if args.fabric else
-                  "integrated CPU, field adapter, I/O/video/refresh/bus and synchronous host; incomplete graphics and cache, excludes asynchronous physical host pins and NARC timing controller"
+                  "integrated CPU, field adapter/cache, I/O/video/refresh/bus and synchronous host; incomplete graphics/timing, excludes asynchronous physical host pins and NARC timing controller"
                   if args.system else
-                  "incomplete scalar CPU plus physical-word field adapter; excludes I/O, video, arbitration and graphics"
+                  "incomplete scalar CPU plus physical-word field adapter/cache; excludes I/O, video, arbitration and complete graphics"
                   if args.word else
                   "incomplete scalar CPU alone; excludes I/O, video, field adapter, arbitration and graphics"),
     }

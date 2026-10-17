@@ -1,9 +1,10 @@
 # Instruction-cache helper
 
-`jttms10_cache` is a standalone physical 16-bit word client/server inserted
+`jttms10_cache` is a physical 16-bit word client/server inserted
 between the CPU's word interface and the memory fabric. Addresses are **bit**
 addresses, with bits 3:0 zero for a physical word. It has no dependency on the
-old TMS34010 RTL and has not yet been connected to `jttms10_system`.
+old TMS34010 RTL. `jttms10_word` connects it between the field adapter and
+the peripheral fabric; `jttms10_system` supplies the cache controls.
 
 The cache contains 128 words in a synchronous 128×16 data RAM: four 32-word
 segments, each with eight four-word subsegments. `tag[slot]` holds address
@@ -42,6 +43,15 @@ CD=1, the single-word bypass wins. A mode change during an active fill poisons
 that fill so it cannot install a partly collected subsegment. The CPU-visible
 register owners must provide these two live level signals; there is no flush
 request/ack transaction.
+
+The CPU's `mem_program` marks opcode and PC extension reads. The word
+wrapper captures that qualifier with each logical field request, supplies
+CONTROL[15] as CD, and takes CF from HSTCTLH[14]. The integrated system bench
+executes a loop and observes the first four-word fill followed by cache hits.
+Host-indirect CONTROL writes exercise CD bypass and preservation, while
+direct HSTCTL writes exercise held CF refills and recovery. Its stack and I/O
+transactions continue to bypass the cache. The word-bus stack smoke test
+explicitly disables the cache to retain its separate physical-order checks.
 
 The cache deliberately does not snoop data writes. Self-modifying code can
 leave a stale resident instruction until a flush or replacement, as on the

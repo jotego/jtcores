@@ -24,7 +24,7 @@ ALMs** from `*.fit.rpt`. The map report additionally confirms whether the
 generated control ROM and two 32×32 register-file mirrors become RAM.
 
 The `--scalar` top is the currently incomplete scalar CPU. The `--word` top
-adds its physical 16-bit field adapter. Both exclude the I/O/video registers,
+adds its physical 16-bit field adapter and instruction cache. Both exclude the I/O/video registers,
 arbitration, graphics, and NARC integration, so their ALM counts are inference
 checks, not the 25% replacement acceptance result.
 The `--fabric` top measures I/O, video, refresh, bus arbitration, and the
@@ -39,7 +39,7 @@ combined replacement must be fitted
 separately; standalone counts are not additive area evidence.
 The `--system` top combines CPU, field adapter, I/O/video/refresh,
 arbitration, and the generic synchronous host engine under one physical-word
-boundary. Its graphics instructions and cache behavior are incomplete, and
+boundary. Its graphics instructions and timing validation are incomplete, and
 the fit excludes asynchronous physical host-pin timing and the board's NARC
 cycle controller. The system boundary is the closest current replacement
 area estimate, but it cannot establish functional or timing acceptance yet.

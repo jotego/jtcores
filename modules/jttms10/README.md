@@ -100,7 +100,8 @@ peripheral fabric. Its test runs a display-interrupt handler through a waiting
 NARC cycle target, including host HLT release and RETI. Boundary IRQ/NMI,
 halt and EMU behavior are described in [interrupt notes](docs/interrupts.md).
 The [instruction-cache helper](docs/cache.md) has standalone and integrated
-field/HOLD tests; CPU integration remains pending. PIXBLT, FILL and LINE
+field/HOLD tests and is connected to the CPU. The real system test covers
+opcode/extension fills, loop hits and host-written CD/CF modes. PIXBLT, FILL and LINE
 sequencing and interruptible graphics continuation remain outstanding.
 
 The reference runner separately reports documented old-CPU differences for

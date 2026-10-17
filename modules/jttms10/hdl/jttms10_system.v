@@ -40,8 +40,9 @@ module jttms10_system #(
     wire word_ack, word_restart, nmi_clear, wvp_set;
     wire [31:0] irq_vector;
     wire nmi_nmim;
-    wire [15:0] psize, convsp, convdp, control, pmask;
+    wire [15:0] psize, convsp, convdp, control, pmask, hstctlh;
     wire pixel_srt;
+    wire unused_hstctlh = &{hstctlh[15],hstctlh[13:0]};
 
     jttms10_word u_cpu(
         .rst(rst),.clk(clk),.cen(cen),
@@ -50,6 +51,7 @@ module jttms10_system #(
         .halt_req(halt),.emu_run(emu_run),
         .psize(psize),.convsp(convsp),.convdp(convdp),
         .control(control),.pmask(pmask),.pixel_srt(pixel_srt),
+        .cache_flush(hstctlh[14]),
         .nmi_clear(nmi_clear),.emu_ack(emu_ack),.wvp_set(wvp_set),
         .word_req(word_req),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_iaq(word_iaq),
@@ -77,7 +79,7 @@ module jttms10_system #(
         .nmi_clear(nmi_clear),.wvp_set(wvp_set),
         .psize(psize),.convsp(convsp),.convdp(convdp),
         .control(control),.pmask(pmask),
-        .pixel_srt(pixel_srt),.intenb(intenb),.intpend(intpend),.hstctlh(),
+        .pixel_srt(pixel_srt),.intenb(intenb),.intpend(intpend),.hstctlh(hstctlh),
         .irq_pending(irq_pending),.irq_vector(irq_vector),
         .nmi_pending(nmi_pending),.nmi_nmim(nmi_nmim),
         .halt(halt),.hint_n(hint_n),

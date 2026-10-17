@@ -23,6 +23,11 @@ and field response handling remain in `clk`. `vclk_cen` advances video
 counters; I/O commits and screen acknowledgements are handled on every core
 clock. HOLD passes to the arbiter and its `word_restart` pulse returns to the
 field adapter so an interrupted partial-word RMW rereads fresh memory data.
+The instruction cache sits between that field adapter and the fabric. It
+caches PC-directed opcode and extension words, while vector/stack/data/pixel
+traffic bypasses it. CONTROL.CD and HSTCTLH.CF drive its modes. The system
+bench additionally checks fills, loop hits, CD bypass/preservation and held
+CF refills through real CPU and host I/O operations.
 CPW and CVXYL use the implied B registers and the fabric's PSIZE/CONVDP taps.
 The [pixel tag path](pixel-bus.md) connects the CPU through the word wrapper
 to the fabric, with SRT classification and partial-field RMW sequencing.

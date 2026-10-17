@@ -23,6 +23,7 @@ module test;
         .irq_req(1'b0),.irq_vector(32'd0),.nmi_req(1'b0),
         .nmi_nostack(1'b0),.halt_req(1'b0),.emu_run(1'b1),
         .psize(16'd4),.convdp(16'd0),.pixel_srt(pixel_srt),
+        .cache_flush(1'b0),
         .nmi_clear(),.emu_ack(),
         .word_req(word_req),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_iaq(word_iaq),.word_pixel(word_pixel),
@@ -36,6 +37,7 @@ module test;
         force dut.field_req=logical_req;
         force dut.field_we=logical_we;
         force dut.field_iaq=1'b0;
+        force dut.field_program=1'b0;
         force dut.field_pixel=logical_pixel;
         force dut.field_addr=logical_addr;
         force dut.field_wdata=logical_data;

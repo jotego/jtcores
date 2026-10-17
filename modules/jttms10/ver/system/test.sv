@@ -62,6 +62,8 @@ module test;
     reg [15:0] data_q,io_q;
     reg iaq_q;
     integer delay_q=0,cycles=0,io_writes=0,irq_vector_reads=0;
+    integer loop_reads=0, loop_retires=0;
+    integer first_sub_reads=0, extension_fetches=0;
     integer init_seen=0;
     reg host_released=0;
     integer pre_release_local_cycles=0;
@@ -69,8 +71,14 @@ module test;
         if (rst) begin
             state<=IDLE; cyc_ack<=0; cyc_rdata<=0;
             cycles<=0; io_writes<=0; irq_vector_reads<=0; init_seen<=0;
+            loop_reads<=0; loop_retires<=0;
+            first_sub_reads<=0; extension_fetches<=0;
             pre_release_local_cycles<=0;
-        end else case(state)
+        end else begin
+        if(retire && pc==32'h1120) loop_retires<=loop_retires+1;
+        if(dut.u_cpu.field_req && dut.u_cpu.field_program &&
+           !dut.u_cpu.field_iaq) extension_fetches<=extension_fetches+1;
+        case(state)
             IDLE: if(cyc_req) begin
                 if (init_seen < 8) begin
                     if (cyc_kind !== 4'd3 || cyc_addr !== 32'd0 ||
@@ -92,6 +100,12 @@ module test;
                 kind_q<=cyc_kind; addr_q<=cyc_addr;
                 data_q<=cyc_wdata; io_q<=cyc_io_rdata; iaq_q<=cyc_iaq;
                 delay_q<=2; state<=WAIT; cycles<=cycles+1;
+                if(cyc_kind==4'd0 && cyc_iaq &&
+                   cyc_addr>=32'h1100 && cyc_addr<=32'h1130)
+                    loop_reads<=loop_reads+1;
+                if(cyc_kind==4'd0 && cyc_iaq &&
+                   cyc_addr>=32'h1000 && cyc_addr<=32'h1030)
+                    first_sub_reads<=first_sub_reads+1;
             end
             WAIT: begin
                 if(!cyc_req || cyc_kind!==kind_q || cyc_addr!==addr_q ||
@@ -125,6 +139,7 @@ module test;
             end
             ACK: if(!cyc_req) begin cyc_ack<=0; state<=IDLE; end
         endcase
+        end
     end
     task tick; begin @(posedge clk); #1; end endtask
     task host_release_halt;
@@ -140,7 +155,30 @@ module test;
             tick();
         end
     endtask
+    task host_access(input wr,input [1:0] sel,input [1:0] be,
+                     input [15:0] data);
+        integer g;
+        begin
+            @(negedge clk); host_req=1; host_we=wr;
+            host_reg=sel; host_be=be; host_wdata=data;
+            g=0;
+            while(!host_ack && g<100) begin tick(); g=g+1; end
+            if(!host_ack) $fatal(1,"host register timeout");
+            @(negedge clk); host_req=0; host_we=0;
+            tick();
+        end
+    endtask
+    task wait_host_idle;
+        integer g;
+        begin
+            g=0;
+            while(host_busy && g<200) begin tick(); g=g+1; end
+            if(host_busy) $fatal(1,"host indirect cycle timeout");
+            repeat(2) tick();
+        end
+    endtask
     integer guard;
+    integer before_reads,before_retires;
     reg [31:0] saved_pc;
     initial begin
         wait(!rst);
@@ -159,6 +197,9 @@ module test;
         end
         if(guard==4000 || intenb!==16'h0400 || st!==32'h00200010)
             $fatal(1,"display IRQ not configured pc=%08x st=%08x intenb=%04x",pc,st,intenb);
+        if(first_sub_reads!=4 || extension_fetches==0)
+            $fatal(1,"opcode/immediate program cache qualification failed (fill=%0d ext=%0d)",
+                   first_sub_reads,extension_fetches);
         @(negedge clk); vclk_cen=1;
         @(negedge clk); vclk_cen=0;
         guard=0;
@@ -188,6 +229,45 @@ module test;
         repeat(60) tick();
         if(irq_vector_reads!=1 || fault || intpend[10])
             $fatal(1,"duplicate IRQ/cycle after RETI");
+        // The actual CPU fetches the one-word JRUC loop from cache. A host
+        // indirect write to CONTROL.CD then selects one external word per
+        // fetch; clearing CD restores the resident copy. HSTCTLH.CF held
+        // forces four-word discarded fills through the same CPU path.
+        before_reads=loop_reads; before_retires=loop_retires;
+        repeat(100) tick();
+        if(loop_retires<before_retires+2 || loop_reads!=before_reads)
+            $fatal(1,"enabled cache did not hit loop (reads %0d->%0d retires %0d->%0d)",
+                   before_reads,loop_reads,before_retires,loop_retires);
+        host_access(1,2'd0,2'b11,16'h00b0);
+        host_access(1,2'd1,2'b11,16'hc000);
+        wait_host_idle(); // HSTADR completion prefetches CONTROL
+        host_access(1,2'd2,2'b11,16'h8000);
+        wait_host_idle();
+        if(!dut.control[15]) $fatal(1,"host I/O write did not set CD");
+        before_reads=loop_reads;
+        repeat(100) tick();
+        if(loop_reads<before_reads+2)
+            $fatal(1,"CD did not bypass repeated CPU opcode fetches");
+        host_access(1,2'd2,2'b11,16'h0000);
+        wait_host_idle();
+        if(dut.control[15]) $fatal(1,"host I/O write did not clear CD");
+        repeat(40) tick();
+        before_reads=loop_reads;
+        repeat(100) tick();
+        if(loop_reads!=before_reads)
+            $fatal(1,"CD damaged cached loop instruction");
+        host_access(1,2'd3,2'b10,16'h4000);
+        if(!dut.hstctlh[14]) $fatal(1,"host did not set CF");
+        before_reads=loop_reads;
+        repeat(140) tick();
+        if(loop_reads<before_reads+4)
+            $fatal(1,"held CF did not refetch four-word subsegment");
+        host_access(1,2'd3,2'b10,16'h0000);
+        repeat(120) tick(); // one refill after CF clears
+        before_reads=loop_reads;
+        repeat(100) tick();
+        if(loop_reads!=before_reads || fault)
+            $fatal(1,"cache failed to resume hits after CF cleared");
         $display("jttms10_system PASS (%0d NARC cycles)",cycles); $finish;
     end
     initial begin #1000000; $fatal(1,"system integration timeout"); end

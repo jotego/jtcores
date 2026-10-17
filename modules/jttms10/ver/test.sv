@@ -28,6 +28,7 @@ module test;
         .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
+        .mem_program(),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );

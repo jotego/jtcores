@@ -9,7 +9,7 @@ module jttms10(
     input      [15:0] psize, convsp, convdp, control, pmask,
     output reg        nmi_clear, emu_ack,
     output reg        wvp_set,
-    output            mem_req, mem_we, mem_iaq, mem_pixel,
+    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
@@ -153,6 +153,9 @@ module jttms10(
                        pix_field && mem_sel==WRITE_MEM ?
                        {16'd0,pix_write_data} : md;
     assign mem_iaq = fetch;
+    // The cache accepts every PC-directed word, including extension words.
+    // IAQ remains the separate opcode bus-status signal.
+    assign mem_program = fetch || imm;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = pix_field && field_op;
