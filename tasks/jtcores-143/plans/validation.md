@@ -280,3 +280,46 @@ LFO history/isolation or physical sample identity.
 Generator reproduction/36 rejection checks and Go build/tests/vet pass. The
 earlier 128-point joint tool and production RTL remain unchanged. Exact stimuli,
 qualification boundaries, results and evidence are in [lfo-storage.md](lfo-storage.md).
+
+## C0 LFO route and selected history checkpoint
+
+324 physical recordings and 216 frozen whole-model outputs extend the earlier
+LFO work: 96 physical route baselines, 192 AM/PM positives and 36 selected history
+records. All raw hashes, framing/exponents, requested counts, bipolar prefixes
+or explicit quiet tails, marker policies and CPU generations pass. The PCB is
+quiet with its resident RAM monitor ready; no reset/reload was required.
+
+All 32 single-voice channel/operator routes independently qualify native4124 /
+retained32992. Whole baseline phase and amplitude observations retain the
+negative probes; late carrier fits cannot conceal an earlier gate disturbance.
+Primary offset/key-mask mapping is explicit: M1/M2/C1/C2 offsets0/8/16/24 use
+masks08/20/10/40. The generator reproduces all216 frozen payloads; independent
+full-register/literal-event/safe-order checks and36 rejection cases pass.
+
+The unchanged window64 isolated extractor has96 new native-integrated controls.
+All192 positive captures and128 models have stable pretrigger, resolved periods
+and independent period bands including2048. All256 endpoint checks fit the
+predeclared common0.6dB AM /4cent PM screens; largest model distances beyond the
+unexpanded physical triplicate range are0.002585dB and0.222541cent respectively.
+These are finite features at the specified carrier/depth/rate, not universal
+accuracy, ideal symmetric pitch, simultaneous-voice or sample-identity claims.
+
+A separate162-case native-forward history qualification detects large resets
+with withheld pre-event data despite good post fits; short presegments remain
+unqualified and two-sample changes unresolved. All21 ordinary physical history
+records pass fixed pre/post screens; all nine intentional TEST resets are
+independently detected. Three whole holds and three KEYOFF-only quiet tails get
+no forced period. Long-hold interiors cover3.42428 would-be cycles; short holds
+retain their duration limit. SameLFRQ exact no-effect behavior remains unresolved.
+The wrapped phase optimizer and its algebraic cache preserve original processing
+failure evidence and explicit equivalence checks; no data or method band was
+rewritten to force a pass.
+
+Go tests/build/vet,216-payload reproduction, synthetic controls and independent
+raw/feature audits pass within the declared scope. Source and full numerical
+bounds are in [lfo-history.md](lfo-history.md); artifacts remain local. Production
+jt51 remains985a573, with no candidate fix or new combined implementation issue.
+Remaining LFO rates/wider combinations, audio noise, algorithms/feedback, CSM,
+EG KS/KC/history and mixing/clipping are still open. Audio-noise models and
+independent scorer/stimuli are prepared separately; no physical noise claim is
+included in this checkpoint.

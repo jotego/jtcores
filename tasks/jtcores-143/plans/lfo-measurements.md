@@ -95,10 +95,11 @@ alignment, with no nonlinear time warps or independent alignment around events.
 
 ## Remaining LFO scope
 
-Beyond the E0 depth/gate matrix, pilots and [C0 storage controls](lfo-storage.md),
-cover every rate code with explicit finite/full-cycle limits, further storage
-histories, channel/operator gates,
-reset/hold/free-run and writes during operation. Weak W3 resolution remains a
+Beyond the E0 depth/gate matrix, [C0 storage controls](lfo-storage.md) and
+[selected C0 route/history tests](lfo-history.md), cover every rate code with
+explicit finite/full-cycle limits, wider combinations of channel/operator
+settings, further storage histories, and reset/hold/free-run writes during
+operation. Weak W3 resolution remains a
 separate limitation. W3 requires native sampling, repeated histories
 and statistics qualified against the disabled path. Key-on alone must not be
 assumed to restart the global LFO. The broader plan and public-API reference

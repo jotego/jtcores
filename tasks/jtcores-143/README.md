@@ -425,3 +425,22 @@ latch1, and the exact C0/stride 8/MUL0 fixture; every constant/support is record
 This kernel leaves the earlier 128-point joint estimator unchanged. Coherent
 comparisons use one late-data phase shift shared by AM and PM, with no per-event
 alignment or physical sample-identity claim.
+
+## C0 LFO channel/operator routes and selected history
+
+[Methods and results](plans/lfo-history.md) cover individual carrier qualification
+for all 32 channel/operator routes, ordered negative gate probes, isolated AM/PM
+positives, and selected hold/reset/free-running/key-on histories. The primary
+register/key mapping is explicit: offsets 0/8/16/24 use masks 08/20/10/40.
+
+```
+go run host/lfo_history_programs.go -base artifacts/fresh-tone.bin -output artifacts/fresh-history
+go test host/modulation.go host/tone.go host/lfo_routes_test.go
+```
+
+These commands run from the task directory. Route features use the separately
+qualified window64 isolated extractor at recorded increment32992/stride8;
+129-point squared-Hann history curves retain their own support and floors.
+Intentional KEYOFF silence and held TEST states have distinct checks. An
+unchanged post-event fit alone does not establish uninterrupted earlier LFO
+phase, and intentional reset controls must not be forced to match a null.
