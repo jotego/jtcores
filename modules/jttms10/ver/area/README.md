@@ -9,9 +9,10 @@ python3 modules/jttms10/ver/area/run.py --scalar /tmp/jttms10-scalar
 python3 modules/jttms10/ver/area/run.py --word /tmp/jttms10-word
 python3 modules/jttms10/ver/area/run.py --fabric /tmp/jttms10-fabric
 python3 modules/jttms10/ver/area/run.py --system /tmp/jttms10-system
+python3 modules/jttms10/ver/area/run.py --narc --source-ref HEAD /tmp/jttms10-narc
 ```
 
-All five projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
+All six projects target `5CSEBA6U23I7`, use a 20 ns `clk`, seed 1, high
 performance effort, and virtual pins for every exposed port. The reference
 adds the existing TMS34010 core timing exceptions. Sources and generated
 microcode are copied into the output directory, whose `manifest.json` records
@@ -43,6 +44,15 @@ boundary. Its graphics instructions and timing validation are incomplete, and
 the fit excludes asynchronous physical host-pin timing and the board's NARC
 cycle controller. The system boundary is the closest current replacement
 area estimate, but it cannot establish functional or timing acceptance yet.
+
+The `--narc` top is the same `jtnarc_gsp` wrapper and port list as the old
+reference, with `JTNARC_UCODE` selecting the new implementation. NARC's host,
+HOLD and external-video-sync tie-offs can therefore be optimized exactly as
+in the old boundary. Both sides exclude the board cycle controller. Use
+`--source-ref COMMIT` to copy the new HDL, YAML and NARC wrapper directly from
+one committed tree while development continues elsewhere. Its resolved
+`source_commit` and all copied/generated hashes are recorded in the manifest.
+The reference mode continues to use the unchanged pinned old submodule.
 
 ## Preliminary result, 2026-10-17
 
@@ -159,3 +169,24 @@ controller plus asynchronous physical host pins are outside this generic
 synchronous host boundary. A 20 ns fit of this snapshot is not full-system
 timing signoff or a completed 25% acceptance result. A new fit is required
 after graphics and remaining architectural functions are integrated.
+
+## Pixel instructions and integrated cache, 2026-10-17
+
+| Boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |
+| --- | ---: | ---: | ---: | ---: |
+| Generic system with PIXT/DRAV and cache | 3,197 | 1,900 | 133,120 / 16 | 0 |
+| Same CPU/cache at NARC GSP boundary | 2,836 | 1,676 | 133,120 / 16 | 0 |
+
+The generic snapshot is `/tmp/jttms10-141-area/system-pixel`, with 21 verified
+HDL/YAML/generated hashes. Its functional inputs match commit `ca7232750`;
+the only source difference is a later unused-signal reduction for lint. The
+NARC snapshot is `/tmp/jttms10-141-area/narc-pixel-cache`, generated with
+`--narc --source-ref ca7232750`. All 23 copied/generated hashes match and all
+non-generated inputs match that committed tree. Both fits use the same device,
+20 ns clock, seed and effort as the reference. The instruction cache adds a
+128×16 block RAM alongside the control ROM and mirrored register RAM.
+
+The NARC count leaves 664 ALMs below the 3,500 ceiling, but this source still
+lacks FILL/PIXBLT/LINE and interruptible graphics continuation. These are
+intermediate resource measurements. The completed implementation and working
+NARC simulation/hardware must pass before the 25% goal is accepted.
