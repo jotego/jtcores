@@ -159,6 +159,12 @@ def validate_case(case):
         check_uint(case["fault_ir"], 16, f"{name}.fault_ir")
     if "pause_on_ack" in case and not isinstance(case["pause_on_ack"], bool):
         raise ValueError(f"{name}.pause_on_ack must be a boolean")
+    if "pause_ack_addr" in case:
+        check_uint(case["pause_ack_addr"], 32, f"{name}.pause_ack_addr")
+    if "pause_ack_write" in case and not isinstance(case["pause_ack_write"], bool):
+        raise ValueError(f"{name}.pause_ack_write must be a boolean")
+    if ("pause_ack_addr" in case or "pause_ack_write" in case) and not case.get("pause_on_ack"):
+        raise ValueError(f"{name}: ACK pause filters require pause_on_ack")
     if "expected_requests" in case:
         check_uint(case["expected_requests"], 16, f"{name}.expected_requests")
     if "pixel_size" in case:
@@ -193,6 +199,10 @@ def sv_checks(case):
              f"localparam bit EXPECT_FAULT = 1'b{int(bool(case.get('expect_fault')))};",
              f"localparam logic [15:0] FAULT_IR = 16'h{case.get('fault_ir', 0):04x};",
              f"localparam bit PAUSE_ON_ACK = 1'b{int(bool(case.get('pause_on_ack')))};",
+             f"localparam bit PAUSE_ADDR_FILTER = 1'b{int('pause_ack_addr' in case)};",
+             f"localparam logic [31:0] PAUSE_ACK_ADDR = 32'h{case.get('pause_ack_addr', 0):08x};",
+             f"localparam bit PAUSE_WRITE_FILTER = 1'b{int('pause_ack_write' in case)};",
+             f"localparam bit PAUSE_ACK_WRITE = 1'b{int(bool(case.get('pause_ack_write')))};",
              f"localparam int EXPECTED_REQUESTS = {case.get('expected_requests', -1)};",
              f"localparam logic [15:0] PIXEL_SIZE = 16'h{case.get('pixel_size', 16):04x};",
              f"localparam logic [15:0] CONVDP = 16'h{case.get('convdp', 0x14):04x};",
@@ -292,6 +302,8 @@ def main():
                 "expect_fault": case.get("expect_fault", False),
                 "fault_ir": case.get("fault_ir"),
                 "pause_on_ack": case.get("pause_on_ack", False),
+                **{key: case[key] for key in ("pause_ack_addr", "pause_ack_write")
+                   if key in case},
                 "expected_requests": case.get("expected_requests")
             }, indent=2) + "\n")
             base.with_suffix(".svh").write_text(sv_checks(case))

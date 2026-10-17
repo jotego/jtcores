@@ -2693,7 +2693,8 @@ cases:
       - {after: 0x1080, pc: 0x1090, st: 0xF0000010}
       - {after: 0x1090, pc: 0x10A0, st: 0xF0000010, regs: {A0: 0x0208, A1: 0x12340006}, mem: [{addr: 0x0200, size: 16, value: 0x1634}]}
 
-  - name: pixt_arithmetic_add_held_write_data
+  - &pixt_arithmetic_add
+    name: pixt_arithmetic_add_held_write_data
     entry: 0x1000
     pixel_size: 4
     control: 0x4000 # PPOP 16: ADD through the shared ALU
@@ -2710,7 +2711,21 @@ cases:
       - {after: 0x1020, pc: 0x1040, regs: {A1: 6}}
       - {after: 0x1040, pc: 0x1050, mem: [{addr: 0x0200, size: 16, value: 0x000D}]}
 
-  - name: pixt_linear_to_register_pmask_nonzero_pixel_v
+  # Hold the CPU disabled while memory acknowledges each side of PPOP ADD.
+  - <<: *pixt_arithmetic_add
+    name: pixt_arithmetic_destination_ack_while_paused
+    pause_on_ack: true
+    pause_ack_addr: 0x0200
+    pause_ack_write: false
+
+  - <<: *pixt_arithmetic_add
+    name: pixt_arithmetic_write_ack_while_paused
+    pause_on_ack: true
+    pause_ack_addr: 0x0200
+    pause_ack_write: true
+
+  - &pixt_linear_load
+    name: pixt_linear_to_register_pmask_nonzero_pixel_v
     entry: 0x1000
     pixel_size: 4
     pmask: 0x0909
@@ -2723,6 +2738,12 @@ cases:
     checks:
       - {after: 0x1000, pc: 0x1020, regs: {A0: 0x0208}}
       - {after: 0x1020, pc: 0x1030, regs: {A0: 0x0208, A1: 2}, flags: {V: 1}, mem: [{addr: 0x0200, size: 16, value: 0x0B00}]}
+
+  - <<: *pixt_linear_load
+    name: pixt_source_ack_while_paused
+    pause_on_ack: true
+    pause_ack_addr: 0x0208
+    pause_ack_write: false
 
   - name: pixt_linear_to_linear_masks_both_memory_operands
     entry: 0x1000

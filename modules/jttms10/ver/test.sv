@@ -192,7 +192,9 @@ module test;
     always @(posedge clk) begin
         if (!rst && PAUSE_ON_ACK) begin
             if (mem_ack && !cen) ack_while_paused <= 1;
-            if (!pause_done && bus_state == BUS_ACK) begin
+            if (!pause_done && bus_state == BUS_ACK &&
+                (!PAUSE_ADDR_FILTER || held_addr==PAUSE_ACK_ADDR) &&
+                (!PAUSE_WRITE_FILTER || held_we==PAUSE_ACK_WRITE)) begin
                 cen <= 0;
                 pause_done <= 1;
                 pause_left <= 4;
