@@ -3,6 +3,9 @@
 Work in progress for [jtcores #143](http://gitea.jotego.es/jotego/jtcores/issues/143).
 The full validation scope and current evidence are in [plans/validation.md](plans/validation.md).
 Bring-up and decoder qualification do not yet validate jt51's subsystems.
+The [CSM checkpoint](plans/csm-measurements.md) adds544 qualified physical
+recordings and an automatic-output discrepancy across all32 calibrated routes.
+Production jt51 remains unchanged; broader audit work is still in progress.
 
 ## Hardware and initial state
 

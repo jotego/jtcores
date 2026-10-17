@@ -410,3 +410,39 @@ Production jt51 remains985a573, with no candidate fix or new implementation issu
 CSM, mixing/clipping, remaining LFO rates, broader EG KS/KC/history and wider noise
 coupling remain outstanding; physical IRQ and accepted bus/internal phase are
 unobserved. This checkpoint does not close the issue.
+
+## Finite CSM checkpoint
+
+544 physical recordings comprise12 adverse cleanup preflight,98 selected
+pilot/history/AR30 recordings and434 route recordings. The latter count includes
+432 matrix captures and TWO separate final quiet controls.212 stereo model CSVs
+retain original long/short EVENT variants and preflight references; generation
+counts are separate from physical/model coverage. All raw/input/transfer/CSV
+hashes, framing/exponents, reply chains, measured cleanup waits and actual target
+horizons pass. The CSM-specific cleanup disables CSM/stops timers FIRST before
+RR15/KEYOFF; every paired/final quiet is zero throughout on both outputs.
+
+All32 manual routes independently qualify192 native65984 carrier fits and
+crossing checks; all48 same-channel background output observations are entire
+zero. All192 automatic route outputs resolve finite repeated energy cadence,
+511.425483052–511.504054612 native samples, with every unchanged support interval
+including512. Matching frozen jt51 outputs remain quiet; all192 OPM comparisons
+resolve repetition with overlapping support. This confirms a configured
+automatic-output gap across the measured routes. Selected256/1024/AR30 controls,
+held-manual continuity and stop/disable tails retain their separate finite scope.
+No exact attack shape, hidden pulse width, internal cause, simultaneous internal
+all-slot key claim, accepted write phase or physical IRQ result follows.
+
+The two route stages use separate raw and feature gates, with all gates true
+and no issues. The idle-only reply recorder rearm preserves generation/image,
+ROM bank and mapping, without PCB reset/reload. Four original Go CLI bodies,
+318 binary payload paths, common cleanup copy and both original energy reports
+reproduce unchanged; converter/parser/exclusivity checks, builds/tests/vet and
+independent raw/feature audits pass. The energy method preserves13 unresolved
+positive controls and its finite±64 support rather than adopting a chip tolerance.
+Full methods/provenance/commands: [csm-measurements.md](csm-measurements.md).
+Production jt51 remains985a573; no implementation patch or new combined issue.
+
+Mixing/clipping is being measured separately. Remaining LFO rates, broader EG
+KS/KC/history, wider noise coupling and CSM fast/first-key/mixed-mask corners
+remain open; this checkpoint does not close the full audit.
