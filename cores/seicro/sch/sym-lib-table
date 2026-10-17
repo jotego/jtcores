@@ -1,0 +1,6 @@
+(sym_lib_table
+ (version 7)
+ (lib (name "arcade") (type "KiCad") (uri "${KIPRJMOD}/../../../modules/jtkicad/lib/arcade.kicad_sym") (options "") (descr "JT arcade symbols"))
+ (lib (name "jt74") (type "KiCad") (uri "${KIPRJMOD}/../../../modules/jtkicad/lib/jt74.kicad_sym") (options "") (descr "JT 74-series symbols"))
+ (lib (name "Seicro") (type "KiCad") (uri "${KIPRJMOD}/seicro-audio.kicad_sym") (options "") (descr "LM3900; absent from modules/jtkicad"))
+)
