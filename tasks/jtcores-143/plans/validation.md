@@ -45,7 +45,9 @@ Bring-up alone does not complete this issue.
 - Raw bits 0/1 are staggered periodic pulses (about 55.94 kHz each), bit 2 changes
   with tone, bit 3 is static. Provisional SH/SH/SO identity inferred from signals;
   user confirmed the open-drain inverting adapter; post-reset pan controls now
-  qualify latch channel 0 as right and channel 1 as left.
+  qualify latch0 as register20 bit6 and latch1 as bit7. Primary Yamaha ACC notes
+  identify these as left/right respectively; earlier human test labels were
+  reversed and are corrected without renaming the original artifacts.
 - At this initial milestone, timers had functional flag smoke tests only, not
   period comparison against jt51, and raw audio was not yet qualified as decoded
   samples. Later decoder and phase milestones qualify the audio path below.
@@ -202,3 +204,54 @@ reject uncertain CPU state and unqualified ROM enable/masks. The physical monito
 remains resident and the PCB is quiet. Production jt51 stays frozen at 985a573;
 no candidate RTL patch has been created. LFO, noise, algorithms/feedback, CSM,
 remaining EG KS/KC/history combinations and output mixing/clipping remain open.
+
+## LFO waveform, depth and marker checkpoint
+
+The E0 pilots add 42 physical captures and 28 whole-model outputs. Independent
+crossing methods measure deterministic periods near the documented 4096 native
+frames. Native W3 is retained as finite noise features without a periodic or
+seed-aligned sequence claim. The moderate W2 combined pilot has a separately
+qualified joint estimator with explicit projection bias and cross-talk limits.
+
+The 128-setting AMD/AMS/AME matrix adds 384 physical captures and 256 references.
+All input/transfer hashes, framing, exponents, bipolar whole/post-event audio and
+continuous CPU generations pass. Observation states agree across the triplicates
+and both models. All 240 resolved deterministic period estimates contain the
+documented period within their measured bands. All 384 deterministic endpoint
+checks fit common per-wave screening bounds derived from independent synthetic
+phase controls and decoded-quantum propagation. Deep attenuation includes exact
+zero held samples, which do not support a logarithmic endpoint measurement.
+
+Primary ACC notes correct the earlier human stereo names: register20 bit6 is
+left, bit7 is right, hence latch0 is left and latch1 is right for this wiring.
+The old artifact filenames and bytes remain unchanged. The built-in pan labels
+and documentation are corrected; canonical both-pan programs are byte-identical.
+
+Nine physical pan-marker controls pass independent acquisition audits and show
+exactly three left mute pulses, with the right output continuous. Constant right
+phase fits retain increment 32992 and approximately 0.00203–0.00205 rad RMS
+through the markers. This is a finite continuity control, not a sample-identity
+proof for arbitrary modulated output. OPM's opposite-pan write changes some
+continuous samples, and the reference mismatch is retained rather than patched.
+Separate synthetic/injected-error-qualified physical diagnostics find no
+counterpart at that error size/pattern class. They retain an approximately
+0.160 dB early AM prediction residual and make no physical byte-identity claim.
+
+The PMD/PMS matrix has 224 settings, 672 physical captures and 448 model outputs;
+all acquisition/hash/framing/generation and nonblank audio audits pass. All 672
+deterministic endpoint checks fit the frozen finite-grid screen, and all 465
+resolved period estimates contain E0 within measured bounds. Of 224 settings,
+223 have matching observation states; one W3/PMD1/PMS6 repeat remains unresolved
+at its measured pretrigger-jitter floor. Its approximately 2-cent span agrees
+closely with the other repeats but stays below its 2.12-cent floor; the original
+state and review remain. A guarded raw-zero-crossing measurement independently
+confirms full-depth square half-span approximately 794 cents, matching both
+models despite the primary printed nominal 700. No jt51 LFO defect is assigned.
+
+This checkpoint adds 1107 physical captures and 744 whole-model outputs,
+including the marker controls. Source/generator reproduction, negative-input
+guards, Go tests/vet, pan/rearm regression and independent data audits pass.
+Remaining LFO rates, storage order/dynamic writes, channel/operator isolation and
+hold/reset/free-run/key-on history remain open. Full methods, exact evidence
+paths and resolution limits are in [lfo-measurements.md](lfo-measurements.md).
+Production jt51 stays frozen at 985a573, with no candidate implementation patch.

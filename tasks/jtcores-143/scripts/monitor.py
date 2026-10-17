@@ -150,7 +150,8 @@ def make_table(test):
     table += wr(1,0)+wr(0x14,0x30)+wr(0x0f,0)+wr(0x18,0)+wr(0x19,0)+wr(0x19,0x80)+wr(0x1b,0)
     if test.startswith('tone'):
         # Algorithm 7, both channels, only C2 audible, A4, no modulation.
-        pan = {'tone':0xc0,'tone-left':0x80,'tone-right':0x40}[test]
+        # Yamaha ACC: register20 bit6=LEFT, bit7=RIGHT.
+        pan = {'tone':0xc0,'tone-left':0x40,'tone-right':0x80}[test]
         table += wr(0x20,pan|7)+wr(0x28,0x4a)+wr(0x30,0)
         table += wr(0x58,1)+wr(0x78,0)+wr(0x98,31)+wr(0xb8,0)+wr(0xd8,0)+wr(0xf8,15)
         table += wr(8,0x40)

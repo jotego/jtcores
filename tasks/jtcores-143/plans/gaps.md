@@ -19,7 +19,11 @@ No RTL change or candidate patch has been made.
 | KS0 AR1–11 slow attacks | Consistent windowed attack features | Three physical repetitions per rate, complete plateaus; stride 64/MUL0 retains KC4A and KS0. Window 36.61 ms; no full AR/KS/KC claim. |
 | KS0 D1R/D2R0–31 and RR0–15 | Finite feature coverage with resolution/phase limits | 270 physical recordings including configured-key-on complements; 69 baseline feature agreements, 2 finite holds, 15 resolution-limited cases, 2 unresolved peaks. Two fixed-phase rate12 outliers require the recorded starting-phase qualification; no additional timing defect inferred. |
 | Selected stage writes and key history | Consistent finite observations | 48 physical recordings with active/opposite-edge controls; global carrier continuity on held/repeated-key tests; early/full release features guard against concealed intermediate restart. Later retriggers/full KS/KC coverage remain. |
-| Stereo pan controls | Qualified for current wiring | Separate left/right/both/neither programs; input/latch 0 is right, latch 1 left. |
+| E0 LFO waveform and disabled-path pilots | Consistent finite output features | 42 physical captures and 28 references; deterministic periods measured independently, native W3 retained without a period claim. Moderate combined W2 AM/PM is separately qualified. No exact sample-identity claim. |
+| E0 AMD/AMS/AME boundaries | Consistent finite features with quantization limits | 128 cases, 384 physical captures, 256 model outputs. Observation states agree; 384 deterministic model endpoint checks fit common synthetic/decoded-quantum screening bounds. Deep exact-zero holds remain censored. |
+| E0 PMD/PMS boundaries | Consistent deterministic features; one weak-noise resolution boundary | 224 settings, 672 physical captures, 448 references. All 672 deterministic endpoint checks fit the frozen finite-grid screen; all 465 resolved periods contain E0 within measured bounds. W3/PMD1/PMS6 retains one unresolved repeat at its activity floor. Full-depth square half-span approximately 794 cents agrees across PCB/models despite the printed nominal 700; no jt51 gap assigned. |
+| Stereo pan controls | Qualified for current wiring; earlier human labels corrected | Primary ACC notes: bit6 left, bit7 right. Actual captures map latch0 to left, latch1 to right. Old left/right artifact names were reversed; latch indices and both-pan results remain intact. |
+| Output-visible pan markers | Scoped physical continuity; reference-only output difference retained | Nine physical captures have three left/latch0 zero pulses and continuous right/latch1 output. Constant right carrier has an unbroken phase fit. Separately qualified local/coherent diagnostics find no PCB disturbance at the observed OPM pan-only error scale. No physical same-clock counterfactual, byte-identity claim, oracle patch or causal diagnosis. |
 | Transient SH framing disturbance | Acquisition anomaly, retained and excluded | Two earlier failed recordings; all accepted pitch/event recordings pass framing and transfer checks. No causal conclusion about probing/wiring. |
 
 Detailed methods and evidence locations:
@@ -28,9 +32,11 @@ Detailed methods and evidence locations:
 - [Timer measurements](timer-measurements.md)
 - [Native envelope measurements](envelope-measurements.md)
 - [Decay, level and release measurements](envelope-stages.md)
+- [LFO waveform, depth and gating measurements](lfo-measurements.md)
 
 Long acquisition is now available (see [qualification](long-acquisition.md)).
 Open coverage includes full EG KS/KC combinations and remaining history
-boundaries, LFO AM/PM, noise, algorithms/feedback, CSM, output mixing
+boundaries, remaining LFO rates/storage/isolation/history, audio noise,
+algorithms/feedback, CSM, output mixing
 and clipping. These are incomplete measurements, not passing defaults. The
 earlier X-Men planning issues are not marked complete by this direct-serial work.

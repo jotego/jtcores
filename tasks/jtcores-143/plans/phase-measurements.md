@@ -93,13 +93,19 @@ channels 1, 4 and 7; repeated KC writes and TEST-bit reset pulses did not clear 
 
 ## Panning and capture qualification
 
-Four additional post-reset programs use KC=40 and select left, right, both and
-neither output. Left-only produces exactly zero PCM on latch channel 0 and a
-nonzero sine on channel 1. Right-only reverses that result; both enables both;
-neither produces exact zero on both. Thus latch/input channel 0 carries the
-right output and channel 1 the left output under these register controls.
-All four transfers pass hash/framing checks. This independently confirms
-stereo ownership and controlled silence rather than comparing blank recordings.
+Four additional post-reset programs use KC=40 and select register 20 pan masks
+87, 47, C7, 07. Mask 47 produces a nonzero sine only on latch0; mask 87 only on
+latch1; C7 enables both and 07 produces exact zero on both. All four transfers
+pass hash/framing checks and controlled nonzero/silent observations.
+
+The original helper and filenames called 87 left and 47 right. That was a naming
+error, corrected after direct visual review of Yamaha application notes
+section 2.1.8 ACC (printed 14/PDF 15): bit 7 enables RIGHT, bit 6 LEFT. Figure 2.17
+(printed 21/PDF 22) independently labels SH1 RIGHT and SH2 LEFT. Therefore actual
+latch0 is left and latch1 right for this capture wiring. `left.bin/.cap` retain
+the original 87 bytes/name and `right.bin/.cap` retain 47; no historical data or
+hash is rewritten. The both-pan PG/EG/LFO comparisons are unaffected. Future
+built-in tone-left/tone-right programs use the corrected primary bit meanings.
 
 The first expanded KC=07 capture reported 257 framing errors; an immediate
 separate diagnostic repeat reported 567. Both are retained and excluded. A later

@@ -22,8 +22,10 @@ Raw observations identify two staggered strobes on bits 0/1 and SO-like data on
 bit 2. The user confirmed that the outputs pass through open-drain inverters
 into the 1.8 V domain. Both decoders correct inversion before interpreting edges
 or data (mask 15, including the unused fourth input). Absolute left/right names
-are qualified by independent pan controls: latch channel 0 is right, channel 1
-is left. Tools retain latch-based labels so evidence remains tied to input pins.
+are qualified by the pan bits and primary Yamaha documentation: latch channel 0
+is left (register20 bit6), channel 1 is right (bit7). Earlier test names reversed
+these human labels; original artifact filenames are retained as provenance.
+Tools retain latch-based labels so evidence remains tied to input pins.
 
 The user reports a YM2151 clock of **32.22 MHz / 9 = 3.58 MHz**, confirmed on-pin
 at 3.57–3.58 MHz with 0.01 MHz measurement tolerance. Nominal native sample rate
@@ -349,3 +351,58 @@ roles. Use the same event capture helper at native rate. For a held/repeated-key
 comparison, apply the global `phase.go` fit across the complete recording;
 independently fitting each side of the event could conceal a phase restart.
 Model CPU-delay approximations preclude absolute intervention-latency claims.
+
+## LFO waveform, depth and gating measurements
+
+[LFO methods and coverage](plans/lfo-measurements.md) distinguish sample-period
+measurements, finite depth/gate observations, quantized-zero bounds and unscored
+noise sequences. Generate from a fresh canonical tone; profiles are `pilot`,
+`am-depth` (128 cases) and `pm-depth` (224 cases):
+
+```
+go run host/lfo_programs.go -base artifacts/fresh-tone.bin -output artifacts/fresh-lfo -profile pilot
+```
+
+Default `-sampling extended` uses MUL4/stride2 for deterministic waves and gates;
+W3 always uses native MUL8/stride1. `-sampling native` reproduces the original
+short pilots. Keep each manifest's actual stride/rate/carrier and horizon when
+capturing. The designated TEST bit is held during INIT, then released by EVENT;
+no other TEST bits are used.
+
+The isolated AM/PM extractor has separate guaranteed-held and guaranteed-post
+bounds; the uncertain event region belongs to neither. For a stride2 PM pilot:
+
+```
+go run host/modulation.go host/tone.go -mode pm -increment 65984 -sample-rate 27968.75 -native-stride 2 -window 32 -hop 4 -pre-end-sample 512 -start-sample POST_BOUND -expected-period 2048 -csv artifacts/fresh-pm-curve.csv artifacts/capture-0-0.csv
+go test host/modulation.go host/tone.go host/modulation_test.go
+```
+
+Use `-mode am` for isolated AM; use `-waveform noise` without an expected period
+for native W3. A wrong expected rate cannot become a returned measurement.
+Missing logarithms, insufficient cycles and low-depth resolution remain explicit.
+The fixed global sine fit is reserved for disabled controls.
+
+The separate joint estimator is qualified for the moderate W2/E0 pilot with
+both depths64, AMS1/PMS4. It uses a fixed Hann-weighted projection and phase
+differences, and preserves invalid low-amplitude segments:
+
+```
+go run host/joint_modulation.go host/tone.go -increment 65984 -sample-rate 27968.75 -native-stride 2 -window 128 -hop 8 -phase-lag 16 -pre-end-sample 512 -start-sample POST_BOUND -csv artifacts/fresh-joint-curve.csv artifacts/combined-0-0.csv
+go test host/joint_modulation.go host/tone.go host/joint_modulation_test.go
+```
+
+These are output-domain features with stated window bias and synthetic
+cross-talk limits. They do not qualify arbitrary combined waveforms/depths or
+prove exact sample identity. All generated programs, CSVs and figures stay local.
+
+Separate pan-marker fixtures retain a continuous right output while briefly
+muting the left output three times. They include matched model controls with
+the same delay sequence and no pan writes:
+
+```
+go run host/lfo_marker_programs.go -base artifacts/fresh-tone.bin -output artifacts/fresh-markers
+```
+
+These use C0, MUL0/stride 8 and recorded increment 32992. The marker method and
+its finite continuity limits are documented in the LFO report; the joint E0
+estimator's original qualification does not automatically extend to this setup.

@@ -39,4 +39,20 @@ class RearmGuards(unittest.TestCase):
                 pico.poll.assert_not_called()
                 self.assertFalse(output.with_suffix('.window.bin').exists())
 
+class PanPrograms(unittest.TestCase):
+    def test_primary_pan_bits_and_other_registers(self):
+        both=monitor.make_table('tone')
+        for name,want in [('tone-left',0x47),('tone-right',0x87),('tone',0xc7)]:
+            with self.subTest(name=name):
+                data=bytearray(monitor.make_table(name))
+                self.assertEqual(data[-1],0)
+                self.assertEqual((len(data)-1)%3,0)
+                positions=[]
+                for index in range(0,len(data)-1,3):
+                    self.assertEqual(data[index],1)
+                    if data[index+1]==0x20: positions.append(index+2)
+                self.assertEqual(data[positions[-1]],want)
+                data[positions[-1]]=0xc7
+                self.assertEqual(bytes(data),both)
+
 if __name__=='__main__': unittest.main()
