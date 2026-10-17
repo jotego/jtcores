@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -15,11 +16,11 @@ REFERENCE = ROOT / "modules/tms34010"
 DEVICE = "5CSEBA6U23I7"
 
 
-def call(args, *, cwd=None, log=None):
+def call(args, *, cwd=None, log=None, env=None):
     if log is None:
-        return subprocess.run(args, cwd=cwd, check=True, text=True, capture_output=True).stdout.strip()
+        return subprocess.run(args, cwd=cwd, env=env, check=True, text=True, capture_output=True).stdout.strip()
     with log.open("w") as stream:
-        subprocess.run(args, cwd=cwd, check=True, stdout=stream, stderr=subprocess.STDOUT)
+        subprocess.run(args, cwd=cwd, env=env, check=True, stdout=stream, stderr=subprocess.STDOUT)
 
 
 def snapshot(source, target, hashes):
@@ -40,7 +41,7 @@ def main():
     mode.add_argument("--reference", action="store_true", help="old jtnarc_gsp boundary")
     mode.add_argument("--scalar", action="store_true", help="current incomplete jttms10 CPU alone")
     mode.add_argument("--word", action="store_true", help="jttms10 plus physical-word field adapter")
-    mode.add_argument("--fabric", action="store_true", help="peripheral I/O/video/refresh/bus fabric alone")
+    mode.add_argument("--fabric", action="store_true", help="peripheral I/O/video/refresh/bus/host fabric alone")
     parser.add_argument("output", type=Path, help="new, empty output directory, preferably under /tmp")
     parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/intelFPGA_lite/20.1/quartus/bin"))
     args = parser.parse_args()
@@ -83,7 +84,7 @@ def main():
     elif args.fabric:
         project, top = "fabric", "jttms10_fabric"
         for name in ("jttms10_fabric.v", "jttms10_bus.v", "jttms10_io.v",
-                     "jttms10_video.v", "jttms10_refresh.v"):
+                     "jttms10_host.v", "jttms10_video.v", "jttms10_refresh.v"):
             source = MODULE / "hdl" / name
             target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
             sources.append(("VERILOG_FILE", target))
@@ -92,7 +93,10 @@ def main():
         for source in sorted((MODULE / "ucode").glob("*.yaml")):
             snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
         ports = ["clk", "rst", "vclk_cen", "hcs_n", "hsync_n", "vsync_n",
-                 "lint1_n", "lint2_n", "hold_req", "hold_ack", "word_req",
+                 "lint1_n", "lint2_n", "hold_req", "hold_ack",
+                 "host_req", "host_we", "host_reg[*]", "host_be[*]",
+                 "host_wdata[*]", "host_rdata[*]", "host_ack", "host_busy",
+                 "word_req",
                  "word_we", "word_iaq", "word_lock", "word_pixel",
                  "word_addr[*]", "word_wdata[*]", "word_rdata[*]",
                  "word_ack", "word_restart", "nmi_clear", "wvp_set",
@@ -111,12 +115,18 @@ def main():
         for source in sorted((MODULE / "hdl").glob("*.v")):
             target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
             sources.append(("VERILOG_FILE", target))
-        # Generate the same ROM/includes used in simulation, inside this snapshot.
-        call(["bash", str(MODULE / "ver/build.sh"), str(out)], log=out / "ucode_build.log")
-        for name in ("tms10.uc", "tms10.vh", "tms10_param.vh"):
-            hashes[f"generated/{name}"] = hashlib.sha256((out / name).read_bytes()).hexdigest()
         for source in sorted((MODULE / "ucode").glob("*.yaml")):
             snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
+        # Generate exclusively from the copied YAML, so the ROM and manifest
+        # describe one immutable source snapshot even if the live tree changes.
+        env = os.environ.copy()
+        env["MODULES"] = str(out / "src/modules")
+        env["JTFRAME"] = str(ROOT / "modules/jtframe")
+        call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
+              "--output", "tms10", "jttms10", "tms10"],
+             cwd=out, log=out / "ucode_build.log", env=env)
+        for name in ("tms10.uc", "tms10.vh", "tms10_param.vh"):
+            hashes[f"generated/{name}"] = hashlib.sha256((out / name).read_bytes()).hexdigest()
         qsf.append(f"set_global_assignment -name SEARCH_PATH {qsf_path(out)}")
         if args.word:
             ports = ["rst", "clk", "cen", "word_req", "word_we", "word_addr[*]",
@@ -143,7 +153,7 @@ def main():
         "source_sha256": hashes,
         "scope": ("old NARC GSP with tied-off host/HOLD and VCLK enable"
                   if args.reference else
-                  "standalone I/O, video, refresh and bus fabric; excludes CPU, field adapter, host indirect engine and graphics datapath"
+                  "standalone I/O, video, refresh, bus and synchronous host fabric; excludes CPU, field adapter, asynchronous physical host pins and graphics datapath"
                   if args.fabric else
                   "incomplete scalar CPU plus physical-word field adapter; excludes I/O, video, arbitration and graphics"
                   if args.word else
