@@ -222,3 +222,31 @@ and lint passed, and all snapshot hashes were verified. Reports:
 insufficient. This patch is not integrated: its array-only narrowing of
 `array_height` would truncate LINE's reused full 32-bit COUNT. Future
 sharing/window-serialization experiments must preserve that width.
+
+
+## Complete instruction coverage and isolated reductions, 2026-10-17
+
+The LINE checkpoint `acae6f9c2` fits at **4,341 ALMs / 2,154 registers /
+266,240 RAM bits in 35 blocks / 0 DSPs**. All 23 snapshot hashes and committed
+inputs were verified in `/tmp/jttms10-141-area/narc-line`. The exhaustive
+decoder audit covers all 52,728 recognized reference encodings, and the
+architectural suite passes 174 programs, including graphics continuation.
+Execution/timing equivalence and working NARC gameplay remain separate gates.
+This complete-instruction snapshot exceeds the 3,500-ALM target by 841 ALMs.
+
+Two independent, single-file experiments use the same committed baseline,
+NARC boundary and high performance settings:
+
+| Change | Fitted ALMs | Snapshot |
+| --- | ---: | --- |
+| Shared relative-PC adder, retaining direct-write priority | 4,254 | `/tmp/jttms10-141-area/pc-adder-trial` |
+| Boolean PPOP truth table in place of sixteen result branches | 4,308 | `/tmp/jttms10-141-area/narc-line-pixeltruth` |
+
+Both preserve the baseline register/RAM/DSP counts. Every copied/generated
+hash was verified; only `jttms10.v` changes in the PC trial and only
+`jttms10_pixel.v` changes in the Boolean trial. Both pass all 174 programs,
+PBX/LINE interrupt benches, focused peripheral/bus tests and strict lint.
+The PC transformation also passed 64,000 randomized priority/delta checks;
+the pixel helper passes 174,689 independent operation cases. These are
+isolated measurements: their savings must not be added to predict a merged
+fit. A fresh combined fit is required after integration.

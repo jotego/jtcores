@@ -28,6 +28,14 @@ module jttms10_pixel(
     wire [15:0] dest_pmask=(pmask >> dst_addr_lo) & field_mask;
     wire [15:0] s=visible_source;
     wire [15:0] d=dest_pixel & field_mask & ~dest_pmask;
+    // TI's Boolean PPOP encoding is the four truth-table bits, reordered:
+    // index {S,D}=00,01,10,11 selects PPOP[2],PPOP[3],~PPOP[0],~PPOP[1].
+    wire [3:0] boolean_truth={~ppop[1:0],ppop[3:2]};
+    wire [15:0] boolean_result;
+    genvar bit_index;
+    generate for(bit_index=0;bit_index<16;bit_index=bit_index+1) begin: g_boolean
+        assign boolean_result[bit_index]=boolean_truth[{s[bit_index],d[bit_index]}];
+    end endgenerate
     wire [15:0] masked_result=result_pixel & field_mask & ~dest_pmask;
     assign alu_req=valid && (ppop>=5'd16);
     assign visible_source=source_pixel & field_mask &
@@ -52,23 +60,8 @@ module jttms10_pixel(
         alu_op=(ppop==5'd16 || ppop==5'd17) ? ALU_ADD :
                ((ppop>=5'd18 && ppop<=5'd21) ? ALU_SUB : 4'd0);
         result_pixel=16'd0;
-        case (ppop)
-            5'd0:  result_pixel=s;
-            5'd1:  result_pixel=s & d;
-            5'd2:  result_pixel=s & ~d;
-            5'd3:  result_pixel=16'd0;
-            5'd4:  result_pixel=s | ~d;
-            5'd5:  result_pixel=~(s ^ d);
-            5'd6:  result_pixel=~d;
-            5'd7:  result_pixel=~(s | d);
-            5'd8:  result_pixel=s | d;
-            5'd9:  result_pixel=d;
-            5'd10: result_pixel=s ^ d;
-            5'd11: result_pixel=~s & d;
-            5'd12: result_pixel=16'hffff;
-            5'd13: result_pixel=~s | d;
-            5'd14: result_pixel=~(s & d);
-            5'd15: result_pixel=~s;
+        if(!ppop[4]) result_pixel=boolean_result;
+        else case (ppop)
             5'd16: result_pixel=alu_result[15:0];
             5'd17: result_pixel=(alu_result & ~{16'd0,field_mask})!=0
                                  ? field_mask : alu_result[15:0];

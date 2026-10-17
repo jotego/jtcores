@@ -690,6 +690,20 @@ module jttms10(
             default:;
         endcase
     end
+    // All relative PC updates share one adder. Select only an enabled
+    // update so a false conditional branch cannot mask a simultaneous DSJ
+    // or ordinary increment; direct PC writes retain their later priority.
+    wire pc_dsj_add = dsjfinish && dsj_allow && result!=0;
+    wire pc_short_add = pc_sel==REL_PC && condition;
+    wire pc_long_add = pc_sel==LONGREL_PC && condition;
+    wire pc_tmp_add = pc_sel==TMPREL_PC;
+    wire pc_add = pcinc || pc_dsj_add || pc_short_add ||
+                  pc_long_add || pc_tmp_add;
+    wire [31:0] pc_delta = pc_tmp_add ? {tmp[27:0],4'd0} :
+                           pc_long_add ? {{12{md[15]}},md[15:0],4'd0} :
+                           pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
+                           pc_dsj_add ? dsj_delta : 32'd16;
+    wire [31:0] pc_plus = pc + pc_delta;
     always @(posedge clk) begin
         retire <= 0;
         nmi_clear <= 0;
@@ -1319,9 +1333,7 @@ module jttms10(
                     a<=result;
                     lmo_count<=lmo_count+5'd1;
                 end
-                if(pcinc) pc<=pc+32'd16;
-                if(dsjfinish && dsj_allow && result!=0)
-                    pc<=pc+dsj_delta;
+                if(pc_add) pc<=pc_plus;
                 case(b_sel)
                     REG_B: b<=rd_data;
                     ZERO_B: b<=0;
@@ -1365,11 +1377,8 @@ module jttms10(
                 case(pc_sel)
                     MD_PC: pc<={md[31:4],4'd0};
                     REG_PC:pc<={rd_data[31:4],4'd0};
-                    REL_PC:if(condition) pc<=pc+{{20{ir[7]}},ir[7:0],4'd0};
-                    LONGREL_PC:if(condition) pc<=pc+{{12{md[15]}},md[15:0],4'd0};
                     ABS_PC:if(condition) pc<={a[31:4],4'd0};
                     TMP_PC:pc<={tmp[31:4],4'd0};
-                    TMPREL_PC:pc<=pc+{tmp[27:0],4'd0};
                     default:;
                 endcase
                 if(stld) st<=a;
