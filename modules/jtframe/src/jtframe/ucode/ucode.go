@@ -678,6 +678,7 @@ func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcPar
 	}
 
 	for _, chunk := range chunks {
+		if jsr == nil { break }
 		if chunk.Name=="" { continue }
 		found := false
 		name := strings.ToUpper(chunk.Name)

@@ -3,7 +3,33 @@
 
 package ucode
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+func Test_dump_ucrom_without_subroutines(t *testing.T) {
+	jtframe, err := filepath.Abs("../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("JTFRAME", jtframe)
+	output := filepath.Join(t.TempDir(), "graphics")
+	params := []UcParam{{Name: "DONE", Pos: 0, Bw: 1}}
+	chunks := []UcChunk{{Name: "finish", Start: 0, Seq: []string{"DONE"}}}
+	if err := dump_ucrom_vh(output, true, 16, 32, params, chunks); err != nil {
+		t.Fatal(err)
+	}
+	generated, err := os.ReadFile(output + ".vh")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(generated), "assign done") || strings.Contains(string(generated), "jsr_ua") {
+		t.Fatalf("expected ROM controls without subroutine logic:\n%s", generated)
+	}
+}
 
 func Test_fix_cycles_adds_leading_idle_cycles(t *testing.T) {
 	desc := UcDesc{}
