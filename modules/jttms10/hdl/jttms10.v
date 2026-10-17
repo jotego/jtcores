@@ -18,12 +18,20 @@ module jttms10(
     /* verilator lint_on UNUSEDPARAM */
     wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
+    wire shiftkinit, shiftrinit, shift_step, shift_finish;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel, a_sel;
     wire [2:0] pc_sel;
     wire [1:0] b_sel, md_sel, mem_sel, stack_sel, tmp_sel, st_sel;
     wire [2:0] ea_sel;
+    wire [31:0] rs_data, rd_data, result;
     reg [31:0] md, a, b, ea, tmp, bus_data;
+    reg [4:0] shift_count;
+    reg shift_c, shift_v;
+    // The two encoding families use the same five operation numbers.
+    wire [2:0] shift_kind = ir[15:13]==3'b001 ? ir[12:10] : ir[11:9];
+    wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
+    wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
     reg completed;
     wire field_op = mem_sel!=0 || stack_sel!=0;
     wire bus_op = vector || fetch || imm || field_op;
@@ -54,16 +62,18 @@ module jttms10(
 
     jttms10_ctrl u_ctrl(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
+        .shift_count(shift_count),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
         .md_sel(md_sel), .wrsrc(wrsrc), .stld(stld),
         .tmp_sel(tmp_sel), .wr_sp(wr_sp), .stack_sel(stack_sel),
         .st_sel(st_sel),
+        .shiftkinit(shiftkinit), .shiftrinit(shiftrinit),
+        .shift_step(shift_step), .shift_finish(shift_finish),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
-    wire [31:0] rs_data, rd_data, result;
     wire cross_move = ir[15:10]==6'b010011 && ir[9];
     wire [4:0] dst = {ir[4]^cross_move,ir[3:0]};
     // Stack instructions continuously select SP on the synchronous read
@@ -96,6 +106,15 @@ module jttms10(
             NOT_ALU:  alu_op=9;
             NEG_ALU:  alu_op=10;
             ABS_ALU:  alu_op=11;
+            SHIFT_ALU: begin
+                case(shift_kind)
+                    3'd0,3'd1: alu_op=12;
+                    3'd2:      alu_op=14;
+                    3'd3:      alu_op=13;
+                    3'd4:      alu_op=15;
+                    default:;
+                endcase
+            end
             default:;
         endcase
     end
@@ -136,6 +155,9 @@ module jttms10(
             b<=0;
             ea<=0;
             tmp<=0;
+            shift_count<=0;
+            shift_c<=0;
+            shift_v<=0;
             fault<=0;
             completed<=0;
             bus_data<=0;
@@ -161,6 +183,17 @@ module jttms10(
                     default:;
                 endcase
                 if(ld_ir) ir<=md[15:0];
+                if(shiftkinit || shiftrinit) begin
+                    shift_count<=shift_right ? -shift_raw : shift_raw;
+                    shift_c<=0;
+                    shift_v<=0;
+                end
+                if(shift_step) begin
+                    shift_count<=shift_count-5'd1;
+                    shift_c<=c;
+                    shift_v<=shift_v | (a[31]^result[31]);
+                    a<=result;
+                end
                 if(pcinc) pc<=pc+32'd16;
                 case(b_sel)
                     REG_B, SP_B: b<=rd_data;
@@ -223,6 +256,12 @@ module jttms10(
                     I1_CC:st[21]<=1;
                     default:;
                 endcase
+                if(shift_finish) begin
+                    st[30]<=shift_c;
+                    st[29]<=z;
+                    if(shift_kind==3'd0 || shift_kind==3'd2) st[31]<=n;
+                    if(shift_kind==3'd0) st[28]<=shift_v;
+                end
                 retire<=ni;
             end
         end

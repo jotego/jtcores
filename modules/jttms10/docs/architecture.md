@@ -137,3 +137,13 @@ adapter still writes ascending physical words, while TI specifies MSW-first
 stack writes for TRAP. RETI's PBX-controlled graphics restart and immediate
 interrupt acceptance require the graphics and interrupt engines. See
 [stack-isa.md](stack-isa.md) for primary references and limits.
+
+## Iterative shift loop
+
+Constant and register-count SLA/SLL/SRA/SRL/RL share a one-bit ALU helper.
+The controller skips its JSR when the captured five-bit count is zero and
+repeats the helper's return until the last bit. C and sticky SLA overflow are
+held separately until final writeback, preserving the other instructions'
+flag masks. No general-purpose register is modified during the loop.
+All ten encoding forms have YAML/reference coverage; see [shifts.md](shifts.md).
+The loop's additional clocks require integrated timing and performance work.

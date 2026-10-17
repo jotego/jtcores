@@ -157,3 +157,21 @@ ucode:
       - imm, pcinc
       - immhi_a, reg_b
       - xor_alu, wr_reg, z_cc, ni
+  # Both encodings share the same iterative one-bit ALU helper. Right-shift
+  # counts are encoded as their five-bit two's complement in both forms.
+  - name: shiftk
+    start: 73
+    seq:
+      - rd_a, shiftkinit
+      - shiftloop_jsr
+      - pass_alu, wr_reg, shift_finish, ni
+  - name: shiftr
+    start: 74
+    seq:
+      - rd_a, shiftrinit
+      - shiftloop_jsr
+      - pass_alu, wr_reg, shift_finish, ni
+  - name: shiftloop
+    start: 75
+    seq:
+      - shift_alu, shift_step, ret_jsr

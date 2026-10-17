@@ -59,6 +59,9 @@ architectural illegal-opcode trapping remains to be implemented.
 Stack and trap assertions currently cover architectural results; physical
 MSW-first trap writes and RETI graphics resumption remain outstanding.
 See [stack and unary ISA notes](docs/stack-isa.md).
+SLA/SLL/SRA/SRL/RL support both constant and register counts through a shared
+one-bit loop; [shift notes](docs/shifts.md) describe count encoding, flags,
+and the outstanding timing difference.
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

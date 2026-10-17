@@ -1255,3 +1255,190 @@ cases:
       - {after: 0x1080, pc: 0x1090, regs: {A0: 1}, st: 0x00000010}
       - {after: 0x1090, pc: 0x10A0, st: 0x40000010}
       - {after: 0x10A0, pc: 0x10B0, regs: {A0: 0xFFFFFFFF}, st: 0xC0000010}
+
+  - name: sla_constant_and_register_sticky_overflow
+    entry: 0x1000
+    words:
+      - 0x09F1 # MOVI IL 40000001,B1
+      - 0x0001
+      - 0x4000
+      - 0x0DE0 # SETC
+      - 0x2011 # SLA 0,B1: clears C, updates N/Z/V
+      - 0x09F2 # MOVI IL 40000001,B2
+      - 0x0001
+      - 0x4000
+      - 0x2052 # SLA 2,B2: intermediate sign flips then final clears
+      - 0x2031 # SLA 1,B1: sign flips 0->1
+      - 0x09D0 # MOVI IW 33,B0; 5-bit source truncates to 1
+      - 0x0021
+      - 0x6011 # SLA B0,B1: shift by 1
+      - 0x09D0 # MOVI IW 32,B0; 5-bit source truncates to 0
+      - 0x0020
+      - 0x6011 # SLA B0,B1: shift by 0, clears C and V
+      - 0x23F1 # SLA 31,B1: nonzero bit shifts out; Z=1,V=1
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B1: 0x40000001}}
+      - {after: 0x1030, pc: 0x1040, flags: {C: 1}}
+      - {after: 0x1040, pc: 0x1050, regs: {B1: 0x40000001}, st: 0x00000010}
+      - {after: 0x1050, pc: 0x1080, regs: {B2: 0x40000001}}
+      - {after: 0x1080, pc: 0x1090, regs: {B2: 0x00000004}, st: 0x50000010}
+      - {after: 0x1090, pc: 0x10A0, regs: {B1: 0x80000002}, st: 0x90000010}
+      - {after: 0x10A0, pc: 0x10C0, regs: {B0: 33}}
+      - {after: 0x10C0, pc: 0x10D0, regs: {B1: 0x00000004}, st: 0x50000010}
+      - {after: 0x10D0, pc: 0x10F0, regs: {B0: 32}}
+      - {after: 0x10F0, pc: 0x1100, regs: {B1: 0x00000004}, st: 0x00000010}
+      - {after: 0x1100, pc: 0x1110, regs: {B1: 0}, st: 0x30000010}
+
+  - name: sll_constant_and_register_preserves_n_v
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 80000001,A0
+      - 0x0001
+      - 0x8000
+      - 0x09E3 # MOVI IL 80000000,A3
+      - 0x0000
+      - 0x8000
+      - 0x09C1 # MOVI IW 33,A1
+      - 0x0021
+      - 0x09E2 # MOVI IL D0000010,A2
+      - 0x0010
+      - 0xD000
+      - 0x01A2 # PUTST A2: N,C,V all set
+      - 0x2400 # SLL 0,A0: C=0, N/V preserved
+      - 0x2420 # SLL 1,A0: 80000001->2, C=1
+      - 0x27E0 # SLL 31,A0: 2->0, C=1 Z=1
+      - 0x6223 # SLL A1,A3: 33 truncates to 1, 80000000->0
+      - 0x09C1 # MOVI IW 32,A1
+      - 0x0020
+      - 0x01A2 # PUTST A2 again
+      - 0x6223 # SLL A1,A3: 32 truncates to 0
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x80000001}}
+      - {after: 0x1030, pc: 0x1060, regs: {A3: 0x80000000}}
+      - {after: 0x1060, pc: 0x1080, regs: {A1: 33}}
+      - {after: 0x1080, pc: 0x10B0, regs: {A2: 0xD0000010}}
+      - {after: 0x10B0, pc: 0x10C0, st: 0xD0000010}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A0: 0x80000001}, st: 0x90000010}
+      - {after: 0x10D0, pc: 0x10E0, regs: {A0: 2}, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x10F0, regs: {A0: 0}, st: 0xF0000010}
+      - {after: 0x10F0, pc: 0x1100, regs: {A3: 0}, st: 0xF0000010}
+      - {after: 0x1100, pc: 0x1120, regs: {A1: 32}}
+      - {after: 0x1120, pc: 0x1130, st: 0xD0000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A3: 0}, st: 0xB0000010}
+
+  - name: sra_constant_and_register_complemented_count
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 80000003,A0
+      - 0x0003
+      - 0x8000
+      - 0x09E3 # MOVI IL 7FFFFFFF,A3
+      - 0xFFFF
+      - 0x7FFF
+      - 0x09C1 # MOVI IW 33,A1; low five bits=1, right count=31
+      - 0x0021
+      - 0x09E2 # MOVI IL 10000010,A2: V=1
+      - 0x0010
+      - 0x1000
+      - 0x01A2 # PUTST A2
+      - 0x2800 # SRA 0,A0, encoded count 0
+      - 0x2BE0 # SRA 1,A0, encoded count 31
+      - 0x2820 # SRA 31,A0, encoded count 1
+      - 0x6423 # SRA A1,A3: encoded source 33 -> shift 31
+      - 0x09C1 # MOVI IW 32,A1 -> right count 0
+      - 0x0020
+      - 0x01A2 # PUTST A2
+      - 0x6420 # SRA A1,A0 -> zero-count preserve input, C=0
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x80000003}}
+      - {after: 0x1030, pc: 0x1060, regs: {A3: 0x7FFFFFFF}}
+      - {after: 0x1060, pc: 0x1080, regs: {A1: 33}}
+      - {after: 0x1080, pc: 0x10B0, regs: {A2: 0x10000010}}
+      - {after: 0x10B0, pc: 0x10C0, st: 0x10000010}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A0: 0x80000003}, st: 0x90000010}
+      - {after: 0x10D0, pc: 0x10E0, regs: {A0: 0xC0000001}, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x10F0, regs: {A0: 0xFFFFFFFF}, st: 0xD0000010}
+      - {after: 0x10F0, pc: 0x1100, regs: {A3: 0}, st: 0x70000010}
+      - {after: 0x1100, pc: 0x1120, regs: {A1: 32}}
+      - {after: 0x1120, pc: 0x1130, st: 0x10000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A0: 0xFFFFFFFF}, st: 0x90000010}
+
+  - name: srl_constant_and_register_preserves_n_v
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 80000001,A0
+      - 0x0001
+      - 0x8000
+      - 0x09E3 # MOVI IL 80000000,A3
+      - 0x0000
+      - 0x8000
+      - 0x09C1 # MOVI IW 33,A1
+      - 0x0021
+      - 0x09E2 # MOVI IL D0000010,A2: N,C,V=1
+      - 0x0010
+      - 0xD000
+      - 0x01A2 # PUTST A2
+      - 0x2C00 # SRL 0,A0: C=0, preserve N/V
+      - 0x2FE0 # SRL 1,A0: encoded count 31
+      - 0x2C20 # SRL 31,A0: encoded count 1
+      - 0x6623 # SRL A1,A3: source 33 means shift 31
+      - 0x09C1 # MOVI IW 32,A1
+      - 0x0020
+      - 0x01A2 # PUTST A2
+      - 0x6623 # SRL A1,A3: source 32 means shift 0
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x80000001}}
+      - {after: 0x1030, pc: 0x1060, regs: {A3: 0x80000000}}
+      - {after: 0x1060, pc: 0x1080, regs: {A1: 33}}
+      - {after: 0x1080, pc: 0x10B0, regs: {A2: 0xD0000010}}
+      - {after: 0x10B0, pc: 0x10C0, st: 0xD0000010}
+      - {after: 0x10C0, pc: 0x10D0, regs: {A0: 0x80000001}, st: 0x90000010}
+      - {after: 0x10D0, pc: 0x10E0, regs: {A0: 0x40000000}, st: 0xD0000010}
+      - {after: 0x10E0, pc: 0x10F0, regs: {A0: 0}, st: 0xF0000010}
+      - {after: 0x10F0, pc: 0x1100, regs: {A3: 1}, st: 0x90000010}
+      - {after: 0x1100, pc: 0x1120, regs: {A1: 32}}
+      - {after: 0x1120, pc: 0x1130, st: 0xD0000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A3: 1}, st: 0x90000010}
+
+  - name: rotate_left_constant_register_and_shared_sp
+    entry: 0x1000
+    words:
+      - 0x09F1 # MOVI IL 80000001,B1
+      - 0x0001
+      - 0x8000
+      - 0x09F3 # MOVI IL 40000000,B3
+      - 0x0000
+      - 0x4000
+      - 0x09FF # MOVI IL 80000001,B15/shared SP
+      - 0x0001
+      - 0x8000
+      - 0x09D0 # MOVI IW 33,B0
+      - 0x0021
+      - 0x09E0 # MOVI IL D0000010,A0: N,C,V=1
+      - 0x0010
+      - 0xD000
+      - 0x01A0 # PUTST A0
+      - 0x3011 # RL 0,B1: clear C, preserve N/V
+      - 0x3031 # RL 1,B1: 80000001->3, C=1
+      - 0x33F1 # RL 31,B1: 3->80000001, C=1
+      - 0x6813 # RL B0,B3: 33 truncates to 1
+      - 0x681F # RL B0,B15: shared SP 80000001->3
+      - 0x09D0 # MOVI IW 32,B0
+      - 0x0020
+      - 0x01A0 # PUTST A0
+      - 0x681F # RL B0,B15: 32 truncates to 0, clears C
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B1: 0x80000001}}
+      - {after: 0x1030, pc: 0x1060, regs: {B3: 0x40000000}}
+      - {after: 0x1060, pc: 0x1090, regs: {A15: 0x80000001, B15: 0x80000001}}
+      - {after: 0x1090, pc: 0x10B0, regs: {B0: 33}}
+      - {after: 0x10B0, pc: 0x10E0, regs: {A0: 0xD0000010}}
+      - {after: 0x10E0, pc: 0x10F0, st: 0xD0000010}
+      - {after: 0x10F0, pc: 0x1100, regs: {B1: 0x80000001}, st: 0x90000010}
+      - {after: 0x1100, pc: 0x1110, regs: {B1: 3}, st: 0xD0000010}
+      - {after: 0x1110, pc: 0x1120, regs: {B1: 0x80000001}, st: 0xD0000010}
+      - {after: 0x1120, pc: 0x1130, regs: {B3: 0x80000000}, st: 0x90000010}
+      - {after: 0x1130, pc: 0x1140, regs: {A15: 3, B15: 3}, st: 0xD0000010}
+      - {after: 0x1140, pc: 0x1160, regs: {B0: 32}}
+      - {after: 0x1160, pc: 0x1170, st: 0xD0000010}
+      - {after: 0x1170, pc: 0x1180, regs: {A15: 3, B15: 3}, st: 0x90000010}
