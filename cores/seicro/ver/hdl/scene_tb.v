@@ -2,8 +2,9 @@
 module scene_tb;
 reg clk=0, rst=1;
 wire [7:0] cpu_din;
-wire irq_en, flip, mcu_reset, mcu_run, sample;
+wire irq_en, flip, mcu_run, sample;
 wire [9:0] psg;
+wire [7:0] porta;
 always #5 clk=~clk;
 
 jtseicro_snd u_snd(
@@ -17,9 +18,9 @@ jtseicro_snd u_snd(
     .debug_dip ( 8'hff     ),
     .irq_en    ( irq_en    ),
     .flip      ( flip      ),
-    .mcu_reset ( mcu_reset ),
     .mcu_run   ( mcu_run   ),
     .psg       ( psg       ),
+    .porta     ( porta     ),
     .sample    ( sample    )
 );
 
@@ -29,7 +30,7 @@ initial begin
     rst=0;
     repeat(100) @(negedge clk);
     if(u_snd.portb!==8'ha7 || !flip || !irq_en) $fatal(1,"Restore changed after reset");
-    if(psg!==0 || sample!==0 || mcu_reset!==0 || mcu_run!==0 || cpu_din!==8'hff)
+    if(porta!==0 || psg!==0 || sample!==0 || mcu_run!==0 || cpu_din!==8'hff)
         $fatal(1,"Sound or MCU active");
     $display("PASS scene: raw port-B/flip preserved through reset; PSG and MCU release disabled");
     $finish;

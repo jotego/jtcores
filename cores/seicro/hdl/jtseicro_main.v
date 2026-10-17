@@ -1,5 +1,5 @@
 module jtseicro_main(
-    input              rst, clk, cpu_cen, dip_pause,
+    input              rst, cpu_rst, clk, cpu_cen, dip_pause,
     input              LVBL, irq_en, frisky, radial,
     input       [1:0]  cab_1p, coin,
     input       [5:0]  joystick1, joystick2,
@@ -57,9 +57,9 @@ always @(posedge clk) begin
     if(rst) begin
         irq_pending <= 0;
         lvbl_l <= 0;
-    end else if(!m1_n && !iorq_n) begin
+    end else if(!irq_en) begin
         irq_pending <= 0;
-    end else if(lvbl_l && !LVBL && irq_en && dip_pause) begin
+    end else if(lvbl_l && !LVBL && dip_pause) begin
         irq_pending <= 1;
     end
 end
@@ -105,7 +105,7 @@ jtseicro_decode u_decode(
 
 `ifndef NOMAIN
 jtframe_z80_romwait u_cpu(
-    .rst_n   ( ~rst                ),
+    .rst_n   ( ~cpu_rst            ),
     .clk     ( clk                 ),
     .cen     ( cpu_cen & dip_pause ),
     .cpu_cen ( cpu_step            ),

@@ -23,6 +23,10 @@ initial begin
         rst=0;
         if({dut.radial,dut.frisky,dut.nsc8105}!==mode[2:0])
             $fatal(1,"Game mode not loaded/retained: %0d",mode);
+        if(dut.psg_snd_rcen!==!(mode[1]|mode[2]) ||
+           dut.dac_snd_rcen!==!(mode[1]|mode[2]))
+            $fatal(1,"Schematic filters enabled for an unverified board: %0d",mode);
+        if(dut.psg_snd!==0 || dut.dac_snd!==0) $fatal(1,"NOSOUND raw activity");
         @(negedge clk); prog_we=1; prog_addr=1; prog_data=8'hff;
         @(negedge clk); header=0; prog_addr=0;
         @(negedge clk); prog_we=0;

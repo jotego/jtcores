@@ -9,15 +9,24 @@ reg [7:0] sharedram_dout, videoram_dout, colorram_dout, spriteram0_dout, row_scr
 reg [7:0] ram[0:2047], vram[0:1023], colorram[0:511], obj0[0:127], obj1[0:31], scroll[0:31];
 reg [7:0] rom[0:32767];
 wire [14:0] rom_addr;
-wire rom_cs, ay_bdir, ay_bc1, watchdog_clr, irq_en, flip, mcu_reset, mcu_run;
+wire rom_cs, ay_bdir, ay_bc1, watchdog_clr, irq_en, flip, mcu_run;
 wire [7:0] debug_view;
 wire [9:0] psg;
 wire sample;
 wire rom_ok=count[5:0]>=20;
 reg [7:0] rom_data;
-integer i, reset_count=0;
+integer i, release_count=0, irq_acks=0;
+reg mcu_run_l=0;
+reg iack_l=0;
 
 always #5 clk=~clk;
+always @(negedge clk) begin
+    iack_l<=!dut.m1_n && !dut.iorq_n;
+    if(!rst && !dut.m1_n && !dut.iorq_n) begin
+        if(!dut.irq_pending) $fatal(1,"CPU acknowledge cleared the IRQ latch");
+        if(!iack_l) irq_acks<=irq_acks+1;
+    end
+end
 always @(posedge clk) begin
     count<=count+6'd1;
     rom_data<=rom[rom_addr];
@@ -32,11 +41,13 @@ always @(posedge clk) begin
     if(spriteram0_we) obj0[cpu_addr[6:0]-7'h20]<=cpu_dout;
     if(spriteram1_we) obj1[cpu_addr[4:0]]<=cpu_dout;
     if(row_scroll_we) scroll[cpu_addr[4:0]]<=cpu_dout;
-    if(mcu_reset) reset_count<=reset_count+1;
+    mcu_run_l<=mcu_run;
+    if(mcu_run && !mcu_run_l) release_count<=release_count+1;
 end
 
 jtseicro_main dut(
     .rst             ( rst             ),
+    .cpu_rst         ( rst             ),
     .clk             ( clk             ),
     .cpu_cen         ( cpu_cen         ),
     .dip_pause       ( 1'b1            ),
@@ -85,7 +96,6 @@ jtseicro_snd snd(
     .debug_dip ( 8'he0     ),
     .irq_en    ( irq_en    ),
     .flip      ( flip      ),
-    .mcu_reset ( mcu_reset ),
     .mcu_run   ( mcu_run   ),
     .psg       ( psg       ),
     .sample    ( sample    )
@@ -150,16 +160,9 @@ initial begin
     rom[53]=8'h00;
     rom[54]=8'h00;
     rom[55]=8'h00;
-    rom[56]=8'h3a;
-    rom[57]=8'h06;
-    rom[58]=8'h78;
-    rom[59]=8'h3c;
-    rom[60]=8'h32;
-    rom[61]=8'h06;
-    rom[62]=8'h78;
-    rom[63]=8'hfb;
-    rom[64]=8'hed;
-    rom[65]=8'h4d;
+    rom[56]=8'hc3;
+    rom[57]=8'h00;
+    rom[58]=8'h01;
     rom[66]=8'h3e;
     rom[67]=8'ha5;
     rom[68]=8'h32;
@@ -250,7 +253,7 @@ initial begin
     rom[153]=8'hd3;
     rom[154]=8'h00;
     rom[155]=8'h3e;
-    rom[156]=8'h07;
+    rom[156]=8'h03;
     rom[157]=8'hd3;
     rom[158]=8'h01;
     rom[159]=8'h3e;
@@ -281,6 +284,28 @@ initial begin
     rom[184]=8'hc3;
     rom[185]=8'hb7;
     rom[186]=8'h00;
+    rom[256]=8'h3a;
+    rom[257]=8'h06;
+    rom[258]=8'h78;
+    rom[259]=8'h3c;
+    rom[260]=8'h32;
+    rom[261]=8'h06;
+    rom[262]=8'h78;
+    rom[263]=8'h3e;
+    rom[264]=8'h0f;
+    rom[265]=8'hd3;
+    rom[266]=8'h00;
+    rom[267]=8'h3e;
+    rom[268]=8'h06;
+    rom[269]=8'hd3;
+    rom[270]=8'h01;
+    rom[271]=8'h3e;
+    rom[272]=8'h07;
+    rom[273]=8'hd3;
+    rom[274]=8'h01;
+    rom[275]=8'hfb;
+    rom[276]=8'hed;
+    rom[277]=8'h4d;
     repeat(20) @(negedge clk);
     rst=0;
     wait(dut.u_cpu.u_z80_devwait.u_cpu.u_cpu.HALT_n===1'b0);
@@ -291,13 +316,27 @@ initial begin
     if(obj0[0]!==8'h11 || obj0[95]!==8'h22 || vram[0]!==8'h33 || vram[1023]!==8'h44 ||
        scroll[0]!==8'h55 || scroll[31]!==8'h66 || obj1[0]!==8'h77 || obj1[31]!==8'h88)
         $fatal(1,"memory endpoint write failed");
-    if(reset_count!=1 || !mcu_run || !irq_en || !flip)
-        $fatal(1,"AY GPIO direction/reset failed count=%d",reset_count);
+    if(release_count!=1 || !mcu_run || !irq_en || !flip)
+        $fatal(1,"AY GPIO direction/release failed count=%d",release_count);
     LVBL=0;
     wait(ram[6]==1);
+    wait(!irq_en);
+    repeat(2) @(negedge clk);
+    if(dut.irq_pending) $fatal(1,"AY B0 low did not clear IRQ");
+    wait(irq_en);
+    wait(dut.u_cpu.u_z80_devwait.u_cpu.u_cpu.HALT_n===1'b0);
     repeat(1000) @(negedge clk);
-    if(ram[6]!=1 || dut.irq_pending) $fatal(1,"IRQ acknowledge failed");
-    $display("PASS Z80 program: stalled ROM, six RAMs, inputs, color alias, AY GPIO, vblank IRQ");
+    if(ram[6]!=1 || dut.irq_pending || irq_acks!=1) $fatal(1,"IRQ acknowledge failed");
+    LVBL=1;
+    repeat(16) @(negedge clk);
+    LVBL=0;
+    wait(ram[6]==2);
+    wait(!irq_en);
+    wait(irq_en);
+    wait(dut.u_cpu.u_z80_devwait.u_cpu.u_cpu.HALT_n===1'b0);
+    repeat(1000) @(negedge clk);
+    if(ram[6]!=2 || dut.irq_pending || irq_acks!=2) $fatal(1,"IRQ rearm failed");
+    $display("PASS Z80 program: stalled ROM, six RAMs, inputs, color alias, AY GPIO, held IRQ and software acknowledge/rearm");
     $finish;
 end
 initial begin #1000000; $fatal(1,"CPU timeout PC=%h",cpu_addr); end

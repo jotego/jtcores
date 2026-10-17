@@ -4,15 +4,19 @@ module jtseicro_game(
 
 wire [15:0] cpu_addr;
 wire [7:0] cpu_dout, ay_data, main_debug, mcu_debug;
-wire ay_bdir, ay_bc1, irq_en, flip, mcu_reset, mcu_run, cpu_lvbl;
-wire watchdog_clr;
+wire ay_bdir, ay_bc1, irq_en, flip, mcu_run, cpu_lvbl;
+wire watchdog_clr, watchdog_rst;
+wire board_rst = rst | watchdog_rst;
 reg nsc8105, frisky, radial;
 wire video_flip=flip ^ dip_flip ^ (frisky | radial);
 wire [7:0] ay_debug=(frisky | radial) ? 8'd0 : dipsw[31:24];
 wire [9:0] psg;
+wire [7:0] porta;
 wire [3:0] dac;
-wire signed [10:0] psg_ac=$signed({1'b0,psg})-11'sd512;
-wire signed [5:0] dac_ac=$signed({1'b0,dac,1'b0})-6'sd15;
+wire seicross_audio=!(frisky | radial);
+
+assign psg_snd_rcen=seicross_audio;
+assign dac_snd_rcen=seicross_audio;
 
 always @(posedge clk) begin
     if(prog_we && header && prog_addr==0)
@@ -23,7 +27,7 @@ end
 always @(posedge clk) begin
     if(!rst && (sharedram_we || videoram_we || colorram_we ||
        spriteram0_we || spriteram1_we || row_scroll_we ||
-       mcu_sharedram_we || maincpu_cs || mcu_cs || snd!=0))
+       mcu_sharedram_we || maincpu_cs || mcu_cs || psg_snd!=0 || dac_snd!=0))
         $fatal(1,"SEICRO_SCENE_ACTIVITY");
 end
 `endif
@@ -44,15 +48,34 @@ assign debug_view=debug_bus[0] ? mcu_debug : main_debug;
 `ifdef JTFRAME_IOCTL_RD
 assign ioctl_din=0;
 `endif
-`ifndef NOSOUND
-assign snd=($signed({{5{psg_ac[10]}},psg_ac}) <<< 4) +
-           ($signed({{10{dac_ac[5]}},dac_ac}) <<< 8);
+
+jtseicro_audio u_audio(
+    .rst      ( board_rst      ),
+    .clk      ( clk            ),
+    .seicross ( seicross_audio ),
+    .psg      ( psg            ),
+    .porta    ( porta          ),
+    .dac      ( dac            ),
+    .psg_snd  ( psg_snd        ),
+    .dac_snd  ( dac_snd        )
+);
+
+`ifndef NOMAIN
+jtseicro_watchdog u_watchdog(
+    .rst     ( rst          ),
+    .clk     ( clk          ),
+    .enable  ( dip_pause    ),
+    .vblank  ( ~cpu_lvbl    ),
+    .service ( watchdog_clr ),
+    .reset   ( watchdog_rst )
+);
 `else
-assign snd=0;
+assign watchdog_rst = 0;
 `endif
 
 jtseicro_main u_main(
     .rst             ( rst             ),
+    .cpu_rst         ( board_rst       ),
     .clk             ( clk             ),
     .cpu_cen         ( cpu_cen         ),
     .dip_pause       ( dip_pause       ),
@@ -93,11 +116,11 @@ jtseicro_main u_main(
 
 `ifndef NOSOUND
 jtseicro_mcu u_mcu(
-    .rst         ( rst                ),
+    .rst         ( board_rst          ),
     .clk         ( clk                ),
     .cen         ( cpu_cen            ),
     .run         ( mcu_run            ),
-    .reset_req   ( mcu_reset          ),
+    .reset_req   ( 1'b0               ),
     .dip_pause   ( dip_pause          ),
     .nsc8105     ( nsc8105            ),
     .nvram_en    ( frisky             ),
@@ -131,7 +154,7 @@ assign nvram_we = 0;
 `endif
 
 jtseicro_snd u_snd(
-    .rst       ( rst       ),
+    .rst       ( board_rst ),
     .clk       ( clk       ),
     .audio_cen ( audio_cen ),
     .bdir      ( ay_bdir   ),
@@ -141,10 +164,10 @@ jtseicro_snd u_snd(
     .debug_dip ( ay_debug  ),
     .irq_en    ( irq_en    ),
     .flip      ( flip      ),
-    .mcu_reset ( mcu_reset ),
     .mcu_run   ( mcu_run   ),
     .psg       ( psg       ),
-    .sample    ( sample    )
+    .porta     ( porta     ),
+    .sample    (           )
 );
 
 jtseicro_video u_video(
