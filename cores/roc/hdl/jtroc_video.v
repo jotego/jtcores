@@ -12,7 +12,7 @@ module jtroc_video(
 
     // configuration
     input               flip,       // software flip, written by the CPU (cocktail mode)
-    input               osd_flip,   // user flip from the OSD, unknown to the game code
+    input               dip_flip,   // user flip from the OSD, unknown to the game code
 
     // CPU interface
     input        [10:0] cpu_addr,
@@ -73,14 +73,14 @@ reg        scr_flip;
 assign obj1_cs = objram_cs &  cpu_addr[10];
 assign obj2_cs = objram_cs & ~cpu_addr[10];
 assign obj_en  = gfx_en[3] & ~prio;
-assign obj_hdump = { hdump[8], hdump[7:0]^{8{osd_flip}} };
+assign obj_hdump = { hdump[8], hdump[7:0]^{8{dip_flip}} };
 
 always @* begin
     prom_we = 0;
     prom_we[ prog_addr[9:8] ] = prom_en;
 end
 
-always @(posedge clk) scr_flip <= flip ^ osd_flip;
+always @(posedge clk) scr_flip <= flip ^ dip_flip;
 
 // reg [10:0] vram_addr, objram_addr;
 
@@ -166,7 +166,7 @@ jtkicker_obj #(.LAYOUT(LAYOUT)) u_obj(
     .LVBL       ( LVBL      ),
     .vrender    (vrender[7:0]),
     .hdump      ( obj_hdump ),
-    .flip       ( osd_flip  ),      // unconnected in the original: OSD flip only
+    .flip       ( dip_flip  ),      // unconnected in the original: OSD flip only
 
     // PROMs
     .prog_data  ( prog_data[3:0] ),

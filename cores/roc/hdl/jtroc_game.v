@@ -135,7 +135,7 @@ jtroc_video u_video(
 
     // configuration
     .flip       ( flip      ),
-    .osd_flip   ( osd_flip  ),
+    .dip_flip   ( dip_flip  ),
 
     // CPU interface
     .cpu_addr   ( cpu_addr[10:0]  ),
