@@ -446,3 +446,34 @@ Production jt51 remains985a573; no implementation patch or new combined issue.
 Mixing/clipping is being measured separately. Remaining LFO rates, broader EG
 KS/KC/history, wider noise coupling and CSM fast/first-key/mixed-mask corners
 remain open; this checkpoint does not close the full audit.
+
+
+## Static output mixing checkpoint
+
+63 profiles cover48 contributor/TL sums, nine pan and six split-output settings.
+189 targets and189 paired cleanup captures give378 matrix recordings, plus TWO
+campaign-final quiets=380. One earlier first-quiet path-ownership failure was
+independently reconciled without a retake and remains outside the campaigns,
+giving381 physical captures including recovery. All192 quiets are entire zero
+on both outputs. Both acquisition and independent audit stages terminated0;
+raw hashes/framing/exponents/reply chains and760 campaign output descriptors
+and primary populations pass. All378 target-latch states match the pan policy:
+342 bipolar and36 intentional zero. Model agreement is not a raw gate.
+
+126 frozen model recordings and756 target-latch comparisons preserve absolute
+PCM/populations/RMS/endpoints/jumps/quarters, with no phase/gain/DC correction.
+The pilot reaches−32768/+32704 and N32/TL0 has1538–1560 jumps>=4096 per record;
+unknown voice phases and latch ages prevent exact sum closure or an internal
+clipping/wrapping diagnosis. Common-held-history stimuli are prepared separately,
+not included as measured coverage. Source promotion preserves four original
+CLI bodies,130 catalog files and21 complete same-input descriptor reports;
+103 finite qualification trials, literal/parser/CLI negatives, builds/tests/vet
+pass. Relocated executable/path identities are retained honestly.
+
+The relative-output-path failure, corrected absolute boundary, recovered first
+quiet and both campaign-final quiets are preserved distinctly. No PCB reboot or
+ROM reload was needed; final actual monitor state43/3732 is quiet/idle. Full
+methods/provenance are in [mixing-measurements.md](mixing-measurements.md).
+Production jt51 remains985a573. Remaining LFO rates, broader EG KS/KC/history,
+wider noise coupling, CSM corners and common-held-history overload analysis stay
+open. No candidate RTL change or new combined implementation issue is included.

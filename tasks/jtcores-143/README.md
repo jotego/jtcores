@@ -5,6 +5,8 @@ The full validation scope and current evidence are in [plans/validation.md](plan
 Bring-up and decoder qualification do not yet validate jt51's subsystems.
 The [CSM checkpoint](plans/csm-measurements.md) adds544 qualified physical
 recordings and an automatic-output discrepancy across all32 calibrated routes.
+The [static mixing checkpoint](plans/mixing-measurements.md) covers63 profiles,
+381 physical captures including a separately recovered quiet, and126 model runs.
 Production jt51 remains unchanged; broader audit work is still in progress.
 
 ## Hardware and initial state
@@ -493,3 +495,27 @@ waveforms. Optional task-wrapper public bus/key-on phase diagnostics are
 documented under `ver/jt51` and `ver/opm`; default output bytes are preserved.
 The original full-sweep export failure, same-buffer recovery and idle recorder
 rearms are retained in the local evidence, with no retaken measurement or reset.
+
+
+## Static output mixing and overload descriptors
+
+[Methods and results](plans/mixing-measurements.md) cover48 contributor/TL sums,
+nine pan and six split-output profiles. Three repetitions give189 targets and
+189 paired quiet captures; two campaign-final quiets and one separately recovered
+first quiet make381 physical captures. Independent raw and descriptor audits pass.
+The378 target-latch observations comprise342 bipolar and36 intentional pan-zero.
+Absolute PCM/RMS/populations remain descriptive; unknown voice phases prevent
+an exact ideal-sum or internal clipping/wrapping diagnosis.
+
+```
+go run host/mixing_programs.go -output artifacts/fresh-mixing
+go run host/mixing_validate.go -input artifacts/fresh-mixing
+go test host/mixing_qualify.go host/mixing_qualify_test.go
+```
+
+Run these from this task directory. The test builds all four standalone tools,
+retains the original103 finite qualification trials/21 control reports, and
+checks independent literal, malformed-input and exclusive-output refusals.
+Original CLI bodies, thresholds and all130 generated catalog files are preserved.
+Full scientific plots,126 model recordings,756 comparisons and capture provenance
+remain local artifacts. Common-held-history controls are a separate next step.
