@@ -65,6 +65,13 @@ and the outstanding timing difference.
 SETF, SEXT/ZEXT, EXGF, BTST, and iterative LMO are also covered; see
 [scalar field and bit notes](docs/field-bits.md).
 
+The [standalone peripheral page](docs/peripherals.md) implements CPU-visible
+I/O storage/masks, interrupt state, video timing, display-address scheduling,
+and DRAM refresh. The [bus arbiter](docs/bus.md) handles NARC cycle kinds,
+priority, waits, and partial-write reservations/HOLD restart. Their focused
+benches are part of `ver/run.sh`. CPU/bus integration and host transactions
+remain pending.
+
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI
 sequencing; see [the memory ISA notes](docs/memory-isa.md).
