@@ -5,7 +5,7 @@
 	(uuid "b3e039a8-74b0-4cb4-b612-5df1f0b42747")
 	(paper "A3")
 	(title_block
-		(title "Megazone")
+		(title "Mega Zone")
 		(date "2026-10-16")
 		(company "Konami GX319")
 		(comment 1 "Ulf Skutnabba, twitter: @skutis77")
@@ -6753,7 +6753,6 @@
 	)
 	(label "~{ODB}5"
 		(at 186.69 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6764,7 +6763,6 @@
 	)
 	(label "SA[1..0]"
 		(at 313.69 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6775,7 +6773,6 @@
 	)
 	(label "SA[10..0]"
 		(at 201.93 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

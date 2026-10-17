@@ -5,7 +5,7 @@
 	(uuid "a5f0c3c9-1132-4147-b95f-a49459da9e11")
 	(paper "A3")
 	(title_block
-		(title "Megazone")
+		(title "Mega Zone")
 		(date "2026-10-16")
 		(company "Konami GX319")
 	)
@@ -2420,823 +2420,6 @@
 						)
 					)
 					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
-		(symbol "KONAMI-1_1"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 0 35.56 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "KONAMI-1"
-				(at 0 33.02 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 1.27 20.32 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 1.27 20.32 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "KONAMI-1 CPU"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "KONAMI-1_1_1_1"
-				(rectangle
-					(start -6.35 31.75)
-					(end 6.35 -31.75)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin output line
-					(at 11.43 24.13 180)
-					(length 5.08)
-					(name "A13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 13.97 0)
-					(length 5.08)
-					(name "D1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at -8.89 -19.05 0)
-					(length 2.54)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 11.43 0)
-					(length 5.08)
-					(name "D0"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -13.97 180)
-					(length 5.08)
-					(name "R~{W}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at -8.89 -21.59 0)
-					(length 2.54)
-					(name "NC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 -1.27 0)
-					(length 5.08)
-					(name "E"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "15"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -26.67 180)
-					(length 5.08)
-					(name "LIC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "16"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 1.27 0)
-					(length 5.08)
-					(name "Q"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "17"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -24.13 180)
-					(length 5.08)
-					(name "AVMA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "18"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 6.35 0)
-					(length 5.08)
-					(name "~{RESET}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "19"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 26.67 180)
-					(length 5.08)
-					(name "A14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 -16.51 0)
-					(length 5.08)
-					(name "TSC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "20"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 -6.35 0)
-					(length 5.08)
-					(name "~{HALT}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "21"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -8.89 -29.21 0)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "22"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 -8.89 0)
-					(length 5.08)
-					(name "~{NMI}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "23"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 -11.43 0)
-					(length 5.08)
-					(name "~{IRQ}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "24"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -11.43 -13.97 0)
-					(length 5.08)
-					(name "~{FIRQ}"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "25"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -19.05 180)
-					(length 5.08)
-					(name "BS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "26"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -21.59 180)
-					(length 5.08)
-					(name "BUSY"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "27"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -16.51 180)
-					(length 5.08)
-					(name "BA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "28"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -8.89 -26.67 0)
-					(length 2.54)
-					(name "VCC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "29"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 29.21 180)
-					(length 5.08)
-					(name "A15"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -8.89 180)
-					(length 5.08)
-					(name "A0"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "30"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -6.35 180)
-					(length 5.08)
-					(name "A1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "31"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -3.81 180)
-					(length 5.08)
-					(name "A2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "32"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 -1.27 180)
-					(length 5.08)
-					(name "A3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "33"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 1.27 180)
-					(length 5.08)
-					(name "A4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "34"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 3.81 180)
-					(length 5.08)
-					(name "A5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "35"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 6.35 180)
-					(length 5.08)
-					(name "A6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "36"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 8.89 180)
-					(length 5.08)
-					(name "A7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "37"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 11.43 180)
-					(length 5.08)
-					(name "A8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "38"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 13.97 180)
-					(length 5.08)
-					(name "A9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "39"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 29.21 0)
-					(length 5.08)
-					(name "D7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 16.51 180)
-					(length 5.08)
-					(name "A10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "40"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 19.05 180)
-					(length 5.08)
-					(name "A11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "41"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 11.43 21.59 180)
-					(length 5.08)
-					(name "A12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "42"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 26.67 0)
-					(length 5.08)
-					(name "D6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 24.13 0)
-					(length 5.08)
-					(name "D5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 21.59 0)
-					(length 5.08)
-					(name "D4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 19.05 0)
-					(length 5.08)
-					(name "D3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin bidirectional line
-					(at -11.43 16.51 0)
-					(length 5.08)
-					(name "D2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10374,6 +9557,823 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+			)
+		)
+		(symbol "jt_cpu:KONAMI-1"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 35.56 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "KONAMI-1"
+				(at 0 33.02 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 1.27 20.32 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 1.27 20.32 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "KONAMI-1 CPU"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "KONAMI-1_1_1"
+				(rectangle
+					(start -6.35 31.75)
+					(end 6.35 -31.75)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin output line
+					(at 11.43 24.13 180)
+					(length 5.08)
+					(name "A13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 13.97 0)
+					(length 5.08)
+					(name "D1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at -8.89 -19.05 0)
+					(length 2.54)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 11.43 0)
+					(length 5.08)
+					(name "D0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -13.97 180)
+					(length 5.08)
+					(name "R~{W}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at -8.89 -21.59 0)
+					(length 2.54)
+					(name "NC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -1.27 0)
+					(length 5.08)
+					(name "E"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -26.67 180)
+					(length 5.08)
+					(name "LIC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 1.27 0)
+					(length 5.08)
+					(name "Q"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "17"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -24.13 180)
+					(length 5.08)
+					(name "AVMA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "18"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 6.35 0)
+					(length 5.08)
+					(name "~{RESET}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "19"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 26.67 180)
+					(length 5.08)
+					(name "A14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -16.51 0)
+					(length 5.08)
+					(name "TSC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "20"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -6.35 0)
+					(length 5.08)
+					(name "~{HALT}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "21"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -8.89 -29.21 0)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "22"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -8.89 0)
+					(length 5.08)
+					(name "~{NMI}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "23"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -11.43 0)
+					(length 5.08)
+					(name "~{IRQ}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "24"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -11.43 -13.97 0)
+					(length 5.08)
+					(name "~{FIRQ}"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "25"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -19.05 180)
+					(length 5.08)
+					(name "BS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "26"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -21.59 180)
+					(length 5.08)
+					(name "BUSY"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "27"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -16.51 180)
+					(length 5.08)
+					(name "BA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "28"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -8.89 -26.67 0)
+					(length 2.54)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "29"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 29.21 180)
+					(length 5.08)
+					(name "A15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -8.89 180)
+					(length 5.08)
+					(name "A0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "30"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -6.35 180)
+					(length 5.08)
+					(name "A1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "31"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -3.81 180)
+					(length 5.08)
+					(name "A2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "32"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 -1.27 180)
+					(length 5.08)
+					(name "A3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "33"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 1.27 180)
+					(length 5.08)
+					(name "A4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "34"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 3.81 180)
+					(length 5.08)
+					(name "A5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "35"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 6.35 180)
+					(length 5.08)
+					(name "A6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "36"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 8.89 180)
+					(length 5.08)
+					(name "A7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "37"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 11.43 180)
+					(length 5.08)
+					(name "A8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "38"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 13.97 180)
+					(length 5.08)
+					(name "A9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "39"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 29.21 0)
+					(length 5.08)
+					(name "D7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 16.51 180)
+					(length 5.08)
+					(name "A10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "40"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 19.05 180)
+					(length 5.08)
+					(name "A11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "41"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 11.43 21.59 180)
+					(length 5.08)
+					(name "A12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "42"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 26.67 0)
+					(length 5.08)
+					(name "D6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 24.13 0)
+					(length 5.08)
+					(name "D5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 21.59 0)
+					(length 5.08)
+					(name "D4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 19.05 0)
+					(length 5.08)
+					(name "D3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at -11.43 16.51 0)
+					(length 5.08)
+					(name "D2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
 					)
 				)
 			)
@@ -22367,7 +22367,6 @@
 	)
 	(label "MA7"
 		(at 22.86 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22378,7 +22377,6 @@
 	)
 	(label "MD'3"
 		(at 360.68 35.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22389,7 +22387,6 @@
 	)
 	(label "~{MROM}2"
 		(at 372.11 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22400,7 +22397,6 @@
 	)
 	(label "~{VRAM}"
 		(at 308.61 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22411,7 +22407,6 @@
 	)
 	(label "MA1"
 		(at 331.47 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22422,7 +22417,6 @@
 	)
 	(label "MA0"
 		(at 331.47 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22433,7 +22427,6 @@
 	)
 	(label "MD'7"
 		(at 360.68 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22444,7 +22437,6 @@
 	)
 	(label "MA1"
 		(at 311.15 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22455,7 +22447,6 @@
 	)
 	(label "MA''2"
 		(at 265.43 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22466,7 +22457,6 @@
 	)
 	(label "MA1"
 		(at 373.38 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22477,7 +22467,6 @@
 	)
 	(label "MA4"
 		(at 373.38 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22488,7 +22477,6 @@
 	)
 	(label "MD'''4"
 		(at 222.25 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22499,7 +22487,6 @@
 	)
 	(label "COIN_CNT'1"
 		(at 287.02 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22510,7 +22497,6 @@
 	)
 	(label "MD'5"
 		(at 181.61 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22521,7 +22507,6 @@
 	)
 	(label "MD'2"
 		(at 360.68 33.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22532,7 +22517,6 @@
 	)
 	(label "MA5"
 		(at 373.38 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22543,7 +22527,6 @@
 	)
 	(label "MA''11"
 		(at 265.43 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22554,7 +22537,6 @@
 	)
 	(label "MD'7"
 		(at 360.68 45.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22565,7 +22547,6 @@
 	)
 	(label "MA6"
 		(at 373.38 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22576,7 +22557,6 @@
 	)
 	(label "MA''0"
 		(at 265.43 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22587,7 +22567,6 @@
 	)
 	(label "MA'4"
 		(at 80.01 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22598,7 +22577,6 @@
 	)
 	(label "MD'0"
 		(at 360.68 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22609,7 +22587,6 @@
 	)
 	(label "MD'3"
 		(at 402.59 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22620,7 +22597,6 @@
 	)
 	(label "CLKQ"
 		(at 161.29 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22631,7 +22607,6 @@
 	)
 	(label "MA''9"
 		(at 279.4 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22642,7 +22617,6 @@
 	)
 	(label "MD''0"
 		(at 140.97 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22653,7 +22627,6 @@
 	)
 	(label "~{MSHRAM}"
 		(at 260.35 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22664,7 +22637,6 @@
 	)
 	(label "MA2"
 		(at 373.38 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22675,7 +22647,6 @@
 	)
 	(label "MA''2"
 		(at 279.4 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22686,7 +22657,6 @@
 	)
 	(label "MD'4"
 		(at 402.59 38.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22697,7 +22667,6 @@
 	)
 	(label "~{MROM}3"
 		(at 186.69 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22708,7 +22677,6 @@
 	)
 	(label "MD'''0"
 		(at 222.25 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22719,7 +22687,6 @@
 	)
 	(label "MA11"
 		(at 331.47 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22730,7 +22697,6 @@
 	)
 	(label "MA10"
 		(at 331.47 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22741,7 +22707,6 @@
 	)
 	(label "MD'3"
 		(at 360.68 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22752,7 +22717,6 @@
 	)
 	(label "MRD"
 		(at 66.04 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22763,7 +22727,6 @@
 	)
 	(label "MD'6"
 		(at 181.61 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22774,7 +22737,6 @@
 	)
 	(label "MA5"
 		(at 373.38 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22785,7 +22747,6 @@
 	)
 	(label "MA11"
 		(at 226.06 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22796,7 +22757,6 @@
 	)
 	(label "MA10"
 		(at 331.47 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22807,7 +22767,6 @@
 	)
 	(label "MD''[7..0]"
 		(at 148.59 59.69 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22818,7 +22777,6 @@
 	)
 	(label "MD'6"
 		(at 360.68 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22829,7 +22787,6 @@
 	)
 	(label "MD0"
 		(at 109.22 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22840,7 +22797,6 @@
 	)
 	(label "MA''1"
 		(at 279.4 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22851,7 +22807,6 @@
 	)
 	(label "MD''2"
 		(at 151.13 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22862,7 +22817,6 @@
 	)
 	(label "CLKE"
 		(at 236.22 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22873,7 +22827,6 @@
 	)
 	(label "MD'1"
 		(at 181.61 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22884,7 +22837,6 @@
 	)
 	(label "MA5"
 		(at 311.15 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22895,7 +22847,6 @@
 	)
 	(label "MA6"
 		(at 373.38 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22906,7 +22857,6 @@
 	)
 	(label "~{MROM}3"
 		(at 330.2 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22917,7 +22867,6 @@
 	)
 	(label "MA4"
 		(at 373.38 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22928,7 +22877,6 @@
 	)
 	(label "MA2"
 		(at 373.38 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22939,7 +22887,6 @@
 	)
 	(label "MD'5"
 		(at 402.59 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22950,7 +22897,6 @@
 	)
 	(label "MD'5"
 		(at 193.04 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22961,7 +22907,6 @@
 	)
 	(label "MD'2"
 		(at 187.96 69.85 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22972,7 +22917,6 @@
 	)
 	(label "MD'0"
 		(at 187.96 64.77 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22983,7 +22927,6 @@
 	)
 	(label "MD'7"
 		(at 181.61 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22994,7 +22937,6 @@
 	)
 	(label "MA2"
 		(at 331.47 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23005,7 +22947,6 @@
 	)
 	(label "MA5"
 		(at 22.86 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23016,7 +22957,6 @@
 	)
 	(label "MD'4"
 		(at 193.04 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23027,7 +22967,6 @@
 	)
 	(label "MD'''1"
 		(at 242.57 39.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23038,7 +22977,6 @@
 	)
 	(label "MD''6"
 		(at 140.97 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23049,7 +22987,6 @@
 	)
 	(label "~{MLATCH}"
 		(at 256.54 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23060,7 +22997,6 @@
 	)
 	(label "MD'7"
 		(at 402.59 45.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23071,7 +23007,6 @@
 	)
 	(label "MD'4"
 		(at 402.59 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23082,7 +23017,6 @@
 	)
 	(label "CLKQ"
 		(at 236.22 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23093,7 +23027,6 @@
 	)
 	(label "MRD"
 		(at 181.61 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23104,7 +23037,6 @@
 	)
 	(label "MA8"
 		(at 311.15 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23115,7 +23047,6 @@
 	)
 	(label "~{MROM}4"
 		(at 330.2 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23126,7 +23057,6 @@
 	)
 	(label "MA''4"
 		(at 265.43 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23137,7 +23067,6 @@
 	)
 	(label "MA14"
 		(at 153.67 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23148,7 +23077,6 @@
 	)
 	(label "MA''10"
 		(at 265.43 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23159,7 +23087,6 @@
 	)
 	(label "MA6"
 		(at 373.38 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23170,7 +23097,6 @@
 	)
 	(label "MA10"
 		(at 373.38 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23181,7 +23107,6 @@
 	)
 	(label "~{FIRQ}"
 		(at 62.23 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23192,7 +23117,6 @@
 	)
 	(label "MA2"
 		(at 331.47 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23203,7 +23127,6 @@
 	)
 	(label "MD'4"
 		(at 360.68 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23214,7 +23137,6 @@
 	)
 	(label "MD''1"
 		(at 140.97 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23225,7 +23147,6 @@
 	)
 	(label "MA6"
 		(at 311.15 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23236,7 +23157,6 @@
 	)
 	(label "MD'''5"
 		(at 222.25 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23247,7 +23167,6 @@
 	)
 	(label "MA0"
 		(at 22.86 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23258,7 +23177,6 @@
 	)
 	(label "~{VRAM}"
 		(at 66.04 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23269,7 +23187,6 @@
 	)
 	(label "MD'5"
 		(at 187.96 77.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23280,7 +23197,6 @@
 	)
 	(label "MA''11"
 		(at 279.4 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23291,7 +23207,6 @@
 	)
 	(label "MA1"
 		(at 373.38 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23302,7 +23217,6 @@
 	)
 	(label "MA'7"
 		(at 80.01 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23313,7 +23227,6 @@
 	)
 	(label "MD'0"
 		(at 402.59 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23324,7 +23237,6 @@
 	)
 	(label "MA4"
 		(at 373.38 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23335,7 +23247,6 @@
 	)
 	(label "MD'6"
 		(at 402.59 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23346,7 +23257,6 @@
 	)
 	(label "MA1"
 		(at 226.06 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23357,7 +23267,6 @@
 	)
 	(label "MD'5"
 		(at 360.68 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23368,7 +23277,6 @@
 	)
 	(label "~{MROM}1"
 		(at 372.11 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23379,7 +23287,6 @@
 	)
 	(label "MA7"
 		(at 331.47 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23390,7 +23297,6 @@
 	)
 	(label "MA6"
 		(at 331.47 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23401,7 +23307,6 @@
 	)
 	(label "~{MSHRAM}"
 		(at 107.95 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23412,7 +23317,6 @@
 	)
 	(label "MA''8"
 		(at 265.43 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23423,7 +23327,6 @@
 	)
 	(label "MA10"
 		(at 331.47 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23434,7 +23337,6 @@
 	)
 	(label "~{IRQ}"
 		(at 237.49 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23445,7 +23347,6 @@
 	)
 	(label "MD'7"
 		(at 402.59 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23456,7 +23357,6 @@
 	)
 	(label "MA9"
 		(at 373.38 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23467,7 +23367,6 @@
 	)
 	(label "MA12"
 		(at 331.47 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23478,7 +23377,6 @@
 	)
 	(label "MD'0"
 		(at 360.68 27.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23489,7 +23387,6 @@
 	)
 	(label "MD''2"
 		(at 140.97 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23500,7 +23397,6 @@
 	)
 	(label "MD'1"
 		(at 360.68 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23511,7 +23407,6 @@
 	)
 	(label "MA9"
 		(at 311.15 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23522,7 +23417,6 @@
 	)
 	(label "~{LATCHOE}"
 		(at 104.14 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23533,7 +23427,6 @@
 	)
 	(label "MD'''6"
 		(at 222.25 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23544,7 +23437,6 @@
 	)
 	(label "MA6"
 		(at 331.47 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23555,7 +23447,6 @@
 	)
 	(label "MD'5"
 		(at 154.94 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23566,7 +23457,6 @@
 	)
 	(label "MA''[15..0]"
 		(at 276.86 52.07 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23577,7 +23467,6 @@
 	)
 	(label "MD'2"
 		(at 154.94 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23588,7 +23477,6 @@
 	)
 	(label "MD'5"
 		(at 402.59 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23599,7 +23487,6 @@
 	)
 	(label "MA1"
 		(at 331.47 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23610,7 +23497,6 @@
 	)
 	(label "MA8"
 		(at 331.47 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23621,7 +23507,6 @@
 	)
 	(label "MD'3"
 		(at 187.96 72.39 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23632,7 +23517,6 @@
 	)
 	(label "MD'4"
 		(at 360.68 38.1 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23643,7 +23527,6 @@
 	)
 	(label "MD'''7"
 		(at 242.57 24.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23654,7 +23537,6 @@
 	)
 	(label "MA5"
 		(at 331.47 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23665,7 +23547,6 @@
 	)
 	(label "MD'2"
 		(at 181.61 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23676,7 +23557,6 @@
 	)
 	(label "MA13"
 		(at 311.15 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23687,7 +23567,6 @@
 	)
 	(label "MD'[7..0]"
 		(at 220.98 15.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23698,7 +23577,6 @@
 	)
 	(label "MA9"
 		(at 331.47 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23709,7 +23587,6 @@
 	)
 	(label "~{RESET}"
 		(at 236.22 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23720,7 +23597,6 @@
 	)
 	(label "MA''6"
 		(at 279.4 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23731,7 +23607,6 @@
 	)
 	(label "MD'3"
 		(at 360.68 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23742,7 +23617,6 @@
 	)
 	(label "MD'''6"
 		(at 242.57 26.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23753,7 +23627,6 @@
 	)
 	(label "MA4"
 		(at 331.47 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23764,7 +23637,6 @@
 	)
 	(label "MA''15"
 		(at 279.4 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23775,7 +23647,6 @@
 	)
 	(label "MD'''2"
 		(at 222.25 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23786,7 +23657,6 @@
 	)
 	(label "MA3"
 		(at 373.38 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23797,7 +23667,6 @@
 	)
 	(label "MA11"
 		(at 226.06 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23808,7 +23677,6 @@
 	)
 	(label "MD'6"
 		(at 154.94 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23819,7 +23687,6 @@
 	)
 	(label "MD'4"
 		(at 402.59 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23830,7 +23697,6 @@
 	)
 	(label "MD'''4"
 		(at 242.57 31.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23841,7 +23707,6 @@
 	)
 	(label "MD'1"
 		(at 193.04 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23852,7 +23717,6 @@
 	)
 	(label "MA'9"
 		(at 80.01 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23863,7 +23727,6 @@
 	)
 	(label "MA''12"
 		(at 265.43 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23874,7 +23737,6 @@
 	)
 	(label "MD'2"
 		(at 193.04 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23885,7 +23747,6 @@
 	)
 	(label "MD'0"
 		(at 402.59 27.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23896,7 +23757,6 @@
 	)
 	(label "MA''3"
 		(at 265.43 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23907,7 +23767,6 @@
 	)
 	(label "MA11"
 		(at 373.38 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23918,7 +23777,6 @@
 	)
 	(label "MD'1"
 		(at 154.94 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23929,7 +23787,6 @@
 	)
 	(label "MA''14"
 		(at 279.4 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23940,7 +23797,6 @@
 	)
 	(label "MD''1"
 		(at 151.13 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23951,7 +23807,6 @@
 	)
 	(label "MA[15..0]"
 		(at 269.24 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23962,7 +23817,6 @@
 	)
 	(label "~{MROM}2"
 		(at 186.69 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23973,7 +23827,6 @@
 	)
 	(label "MD'2"
 		(at 402.59 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23984,7 +23837,6 @@
 	)
 	(label "MD3"
 		(at 109.22 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23995,7 +23847,6 @@
 	)
 	(label "MA'3"
 		(at 80.01 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24006,7 +23857,6 @@
 	)
 	(label "MD'6"
 		(at 193.04 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24017,7 +23867,6 @@
 	)
 	(label "MD'''2"
 		(at 242.57 36.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24028,7 +23877,6 @@
 	)
 	(label "MA3"
 		(at 311.15 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24039,7 +23887,6 @@
 	)
 	(label "MA12"
 		(at 226.06 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24050,7 +23897,6 @@
 	)
 	(label "MA0"
 		(at 373.38 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24061,7 +23907,6 @@
 	)
 	(label "MA7"
 		(at 373.38 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24072,7 +23917,6 @@
 	)
 	(label "~{MROM}[5..0]"
 		(at 269.24 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24083,7 +23927,6 @@
 	)
 	(label "MA3"
 		(at 331.47 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24094,7 +23937,6 @@
 	)
 	(label "MA11"
 		(at 373.38 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24105,7 +23947,6 @@
 	)
 	(label "MD4"
 		(at 109.22 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24116,7 +23957,6 @@
 	)
 	(label "MA9"
 		(at 373.38 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24127,7 +23967,6 @@
 	)
 	(label "MD'7"
 		(at 402.59 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24138,7 +23977,6 @@
 	)
 	(label "MA0"
 		(at 331.47 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24149,7 +23987,6 @@
 	)
 	(label "MA3"
 		(at 226.06 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24160,7 +23997,6 @@
 	)
 	(label "~{HALT}"
 		(at 237.49 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24171,7 +24007,6 @@
 	)
 	(label "~{MROM}0"
 		(at 372.11 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24182,7 +24017,6 @@
 	)
 	(label "MR~{W}"
 		(at 265.43 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24193,7 +24027,6 @@
 	)
 	(label "MRD'"
 		(at 109.22 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24204,7 +24037,6 @@
 	)
 	(label "MA0"
 		(at 311.15 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24215,7 +24047,6 @@
 	)
 	(label "MA''4"
 		(at 279.4 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24226,7 +24057,6 @@
 	)
 	(label "~{IRQ}"
 		(at 62.23 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24237,7 +24067,6 @@
 	)
 	(label "MA'8"
 		(at 80.01 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24248,7 +24077,6 @@
 	)
 	(label "MA''5"
 		(at 279.4 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24259,7 +24087,6 @@
 	)
 	(label "MD'3"
 		(at 402.59 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24270,7 +24097,6 @@
 	)
 	(label "MD5"
 		(at 109.22 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24281,7 +24107,6 @@
 	)
 	(label "MA4"
 		(at 311.15 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24292,7 +24117,6 @@
 	)
 	(label "MD'5"
 		(at 402.59 40.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24303,7 +24127,6 @@
 	)
 	(label "~{MROM}0"
 		(at 186.69 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24314,7 +24137,6 @@
 	)
 	(label "INTST"
 		(at 294.64 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24325,7 +24147,6 @@
 	)
 	(label "MD'3"
 		(at 154.94 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24336,7 +24157,6 @@
 	)
 	(label "MD'1"
 		(at 402.59 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24347,7 +24167,6 @@
 	)
 	(label "MD'0"
 		(at 193.04 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24358,7 +24177,6 @@
 	)
 	(label "MA12"
 		(at 331.47 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24369,7 +24187,6 @@
 	)
 	(label "MD'3"
 		(at 402.59 35.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24380,7 +24197,6 @@
 	)
 	(label "MA2"
 		(at 226.06 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24391,7 +24207,6 @@
 	)
 	(label "MD'''0"
 		(at 242.57 41.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24402,7 +24217,6 @@
 	)
 	(label "MA''13"
 		(at 279.4 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24413,7 +24227,6 @@
 	)
 	(label "MD'2"
 		(at 360.68 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24424,7 +24237,6 @@
 	)
 	(label "MA4"
 		(at 22.86 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24435,7 +24247,6 @@
 	)
 	(label "MA3"
 		(at 331.47 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24446,7 +24257,6 @@
 	)
 	(label "MA1"
 		(at 373.38 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24457,7 +24267,6 @@
 	)
 	(label "MBS"
 		(at 265.43 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24468,7 +24277,6 @@
 	)
 	(label "MD7"
 		(at 109.22 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24479,7 +24287,6 @@
 	)
 	(label "MD'3"
 		(at 193.04 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24490,7 +24297,6 @@
 	)
 	(label "MD'0"
 		(at 402.59 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24501,7 +24307,6 @@
 	)
 	(label "MA'5"
 		(at 80.01 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24512,7 +24317,6 @@
 	)
 	(label "MA0"
 		(at 373.38 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24523,7 +24327,6 @@
 	)
 	(label "MA2"
 		(at 311.15 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24534,7 +24337,6 @@
 	)
 	(label "MA11"
 		(at 373.38 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24545,7 +24347,6 @@
 	)
 	(label "MD''4"
 		(at 140.97 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24556,7 +24357,6 @@
 	)
 	(label "MA''12"
 		(at 279.4 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24567,7 +24367,6 @@
 	)
 	(label "MD'''5"
 		(at 242.57 29.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24578,7 +24377,6 @@
 	)
 	(label "MA3"
 		(at 373.38 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24589,7 +24387,6 @@
 	)
 	(label "MA''8"
 		(at 279.4 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24600,7 +24397,6 @@
 	)
 	(label "~{HALT}"
 		(at 62.23 22.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24611,7 +24407,6 @@
 	)
 	(label "MD'3"
 		(at 181.61 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24622,7 +24417,6 @@
 	)
 	(label "MD'0"
 		(at 226.06 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24633,7 +24427,6 @@
 	)
 	(label "MA8"
 		(at 373.38 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24644,7 +24437,6 @@
 	)
 	(label "MA8"
 		(at 331.47 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24655,7 +24447,6 @@
 	)
 	(label "MD'0"
 		(at 181.61 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24666,7 +24457,6 @@
 	)
 	(label "MD'7"
 		(at 187.96 82.55 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24677,7 +24467,6 @@
 	)
 	(label "MA''0"
 		(at 279.4 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24688,7 +24477,6 @@
 	)
 	(label "MD'4"
 		(at 187.96 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24699,7 +24487,6 @@
 	)
 	(label "MA6"
 		(at 331.47 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24710,7 +24497,6 @@
 	)
 	(label "MA14"
 		(at 311.15 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24721,7 +24507,6 @@
 	)
 	(label "MA15"
 		(at 95.25 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24732,7 +24517,6 @@
 	)
 	(label "MD'''1"
 		(at 222.25 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24743,7 +24527,6 @@
 	)
 	(label "MA'2"
 		(at 80.01 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24754,7 +24537,6 @@
 	)
 	(label "MA7"
 		(at 373.38 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24765,7 +24547,6 @@
 	)
 	(label "MA0"
 		(at 331.47 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24776,7 +24557,6 @@
 	)
 	(label "MA5"
 		(at 331.47 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24787,7 +24567,6 @@
 	)
 	(label "~{MROM}4"
 		(at 186.69 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24798,7 +24577,6 @@
 	)
 	(label "MA12"
 		(at 373.38 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24809,7 +24587,6 @@
 	)
 	(label "MA4"
 		(at 331.47 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24820,7 +24597,6 @@
 	)
 	(label "MD'2"
 		(at 360.68 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24831,7 +24607,6 @@
 	)
 	(label "MA8"
 		(at 22.86 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24842,7 +24617,6 @@
 	)
 	(label "MD2"
 		(at 109.22 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24853,7 +24627,6 @@
 	)
 	(label "MA8"
 		(at 331.47 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24864,7 +24637,6 @@
 	)
 	(label "INTST"
 		(at 208.28 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24875,7 +24647,6 @@
 	)
 	(label "~{FIRQ}"
 		(at 237.49 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24886,7 +24657,6 @@
 	)
 	(label "MA1"
 		(at 331.47 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24897,7 +24667,6 @@
 	)
 	(label "MA'0"
 		(at 80.01 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24908,7 +24677,6 @@
 	)
 	(label "MA''5"
 		(at 265.43 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24919,7 +24687,6 @@
 	)
 	(label "MA3"
 		(at 22.86 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24930,7 +24697,6 @@
 	)
 	(label "MA''7"
 		(at 279.4 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24941,7 +24707,6 @@
 	)
 	(label "MA2"
 		(at 22.86 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24952,7 +24717,6 @@
 	)
 	(label "MD'1"
 		(at 360.68 30.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24963,7 +24727,6 @@
 	)
 	(label "MA6"
 		(at 22.86 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24974,7 +24737,6 @@
 	)
 	(label "MA11"
 		(at 331.47 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24985,7 +24747,6 @@
 	)
 	(label "MD'''7"
 		(at 222.25 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24996,7 +24757,6 @@
 	)
 	(label "MA12"
 		(at 226.06 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25007,7 +24767,6 @@
 	)
 	(label "MA10"
 		(at 311.15 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25018,7 +24777,6 @@
 	)
 	(label "MA12"
 		(at 331.47 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25029,7 +24787,6 @@
 	)
 	(label "MA8"
 		(at 373.38 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25040,7 +24797,6 @@
 	)
 	(label "MD'6"
 		(at 187.96 80.01 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25051,7 +24807,6 @@
 	)
 	(label "MD'7"
 		(at 193.04 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25062,7 +24817,6 @@
 	)
 	(label "MD'6"
 		(at 360.68 43.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25073,7 +24827,6 @@
 	)
 	(label "MD''5"
 		(at 151.13 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25084,7 +24837,6 @@
 	)
 	(label "MA13"
 		(at 153.67 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25095,7 +24847,6 @@
 	)
 	(label "MA3"
 		(at 331.47 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25106,7 +24857,6 @@
 	)
 	(label "~{MROM}1"
 		(at 186.69 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25117,7 +24867,6 @@
 	)
 	(label "MD''5"
 		(at 140.97 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25128,7 +24877,6 @@
 	)
 	(label "MD'[7..0]"
 		(at 269.24 15.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25139,7 +24887,6 @@
 	)
 	(label "MA''15"
 		(at 265.43 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25150,7 +24897,6 @@
 	)
 	(label "~{MROM}5"
 		(at 186.69 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25161,7 +24907,6 @@
 	)
 	(label "MD'1"
 		(at 187.96 67.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25172,7 +24917,6 @@
 	)
 	(label "MA10"
 		(at 373.38 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25183,7 +24927,6 @@
 	)
 	(label "MA5"
 		(at 373.38 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25194,7 +24937,6 @@
 	)
 	(label "MA''14"
 		(at 265.43 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25205,7 +24947,6 @@
 	)
 	(label "MA7"
 		(at 373.38 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25216,7 +24957,6 @@
 	)
 	(label "MA''10"
 		(at 279.4 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25227,7 +24967,6 @@
 	)
 	(label "~{MROM}5"
 		(at 330.2 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25238,7 +24977,6 @@
 	)
 	(label "MD'7"
 		(at 154.94 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25249,7 +24987,6 @@
 	)
 	(label "MD6"
 		(at 109.22 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25260,7 +24997,6 @@
 	)
 	(label "MD'1"
 		(at 402.59 30.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25271,7 +25007,6 @@
 	)
 	(label "MA10"
 		(at 373.38 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25282,7 +25017,6 @@
 	)
 	(label "MA7"
 		(at 331.47 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25293,7 +25027,6 @@
 	)
 	(label "MD'6"
 		(at 402.59 43.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25304,7 +25037,6 @@
 	)
 	(label "MD'2"
 		(at 402.59 33.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25315,7 +25047,6 @@
 	)
 	(label "MD''7"
 		(at 151.13 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25326,7 +25057,6 @@
 	)
 	(label "MA15"
 		(at 311.15 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25337,7 +25067,6 @@
 	)
 	(label "MD'''3"
 		(at 242.57 34.29 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25348,7 +25077,6 @@
 	)
 	(label "MD''4"
 		(at 151.13 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25359,7 +25087,6 @@
 	)
 	(label "~{NMI}"
 		(at 237.49 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25370,7 +25097,6 @@
 	)
 	(label "MD'0"
 		(at 360.68 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25381,7 +25107,6 @@
 	)
 	(label "MA''9"
 		(at 265.43 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25392,7 +25117,6 @@
 	)
 	(label "MA'1"
 		(at 80.01 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25403,7 +25127,6 @@
 	)
 	(label "MA12"
 		(at 311.15 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25414,7 +25137,6 @@
 	)
 	(label "MD''3"
 		(at 151.13 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25425,7 +25147,6 @@
 	)
 	(label "MA9"
 		(at 331.47 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25436,7 +25157,6 @@
 	)
 	(label "MA10"
 		(at 22.86 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25447,7 +25167,6 @@
 	)
 	(label "MD'4"
 		(at 154.94 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25458,7 +25177,6 @@
 	)
 	(label "CLKE"
 		(at 161.29 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25469,7 +25187,6 @@
 	)
 	(label "MD'6"
 		(at 402.59 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25480,7 +25197,6 @@
 	)
 	(label "MA14"
 		(at 95.25 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25491,7 +25207,6 @@
 	)
 	(label "MD''0"
 		(at 151.13 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25502,7 +25217,6 @@
 	)
 	(label "COIN_CNT'2"
 		(at 287.02 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25513,7 +25227,6 @@
 	)
 	(label "MA9"
 		(at 331.47 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25524,7 +25237,6 @@
 	)
 	(label "MD1"
 		(at 109.22 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25535,7 +25247,6 @@
 	)
 	(label "MA15"
 		(at 153.67 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25546,7 +25257,6 @@
 	)
 	(label "MD''6"
 		(at 151.13 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25557,7 +25267,6 @@
 	)
 	(label "MD'''3"
 		(at 222.25 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25568,7 +25277,6 @@
 	)
 	(label "MA2"
 		(at 331.47 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25579,7 +25287,6 @@
 	)
 	(label "MA3"
 		(at 373.38 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25590,7 +25297,6 @@
 	)
 	(label "~{CRAM}"
 		(at 66.04 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25601,7 +25307,6 @@
 	)
 	(label "MA0"
 		(at 373.38 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25612,7 +25317,6 @@
 	)
 	(label "MD'''[7..0]"
 		(at 233.68 34.29 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25623,7 +25327,6 @@
 	)
 	(label "MD'1"
 		(at 402.59 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25634,7 +25337,6 @@
 	)
 	(label "MA''6"
 		(at 265.43 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25645,7 +25347,6 @@
 	)
 	(label "MRD'"
 		(at 181.61 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25656,7 +25357,6 @@
 	)
 	(label "MD'5"
 		(at 360.68 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25667,7 +25367,6 @@
 	)
 	(label "MR~{W}"
 		(at 115.57 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25678,7 +25377,6 @@
 	)
 	(label "MA5"
 		(at 331.47 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25689,7 +25387,6 @@
 	)
 	(label "MD'2"
 		(at 402.59 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25700,7 +25397,6 @@
 	)
 	(label "MA1"
 		(at 22.86 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25711,7 +25407,6 @@
 	)
 	(label "MA12"
 		(at 373.38 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25722,7 +25417,6 @@
 	)
 	(label "MD'4"
 		(at 181.61 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25733,7 +25427,6 @@
 	)
 	(label "MA11"
 		(at 311.15 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25744,7 +25437,6 @@
 	)
 	(label "MA7"
 		(at 311.15 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25755,7 +25447,6 @@
 	)
 	(label "LACH"
 		(at 39.37 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25766,7 +25457,6 @@
 	)
 	(label "MA8"
 		(at 373.38 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25777,7 +25467,6 @@
 	)
 	(label "MD'0"
 		(at 154.94 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25788,7 +25477,6 @@
 	)
 	(label "MD''7"
 		(at 140.97 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25799,7 +25487,6 @@
 	)
 	(label "MD'7"
 		(at 360.68 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25810,7 +25497,6 @@
 	)
 	(label "MA7"
 		(at 331.47 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25821,7 +25507,6 @@
 	)
 	(label "MA'6"
 		(at 80.01 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25832,7 +25517,6 @@
 	)
 	(label "MA9"
 		(at 22.86 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25843,7 +25527,6 @@
 	)
 	(label "MD'5"
 		(at 360.68 40.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25854,7 +25537,6 @@
 	)
 	(label "MA12"
 		(at 373.38 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25865,7 +25547,6 @@
 	)
 	(label "MA'10"
 		(at 80.01 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25876,7 +25557,6 @@
 	)
 	(label "MA''13"
 		(at 265.43 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25887,7 +25567,6 @@
 	)
 	(label "MA11"
 		(at 331.47 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25898,7 +25577,6 @@
 	)
 	(label "MRD"
 		(at 152.4 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25909,7 +25587,6 @@
 	)
 	(label "~{NMI}"
 		(at 62.23 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25920,7 +25597,6 @@
 	)
 	(label "~{CRAM}"
 		(at 307.34 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25931,7 +25607,6 @@
 	)
 	(label "MA''7"
 		(at 265.43 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25942,7 +25617,6 @@
 	)
 	(label "MA2"
 		(at 373.38 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25953,7 +25627,6 @@
 	)
 	(label "MA''1"
 		(at 265.43 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25964,7 +25637,6 @@
 	)
 	(label "MD'4"
 		(at 360.68 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25975,7 +25647,6 @@
 	)
 	(label "MD''3"
 		(at 140.97 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25986,7 +25657,6 @@
 	)
 	(label "MD'6"
 		(at 360.68 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25997,7 +25667,6 @@
 	)
 	(label "MR~{W}"
 		(at 193.04 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26008,7 +25677,6 @@
 	)
 	(label "MA4"
 		(at 331.47 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26019,7 +25687,6 @@
 	)
 	(label "MD'1"
 		(at 360.68 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26030,7 +25697,6 @@
 	)
 	(label "MA9"
 		(at 373.38 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26041,7 +25707,6 @@
 	)
 	(label "MA''3"
 		(at 279.4 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26053,7 +25718,6 @@
 	(hierarchical_label "H2B"
 		(shape input)
 		(at 146.05 213.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26065,7 +25729,6 @@
 	(hierarchical_label "MA'[10..0]"
 		(shape output)
 		(at 91.44 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26077,7 +25740,6 @@
 	(hierarchical_label "~{AFR1}"
 		(shape output)
 		(at 256.54 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26089,7 +25751,6 @@
 	(hierarchical_label "H2B"
 		(shape input)
 		(at 124.46 187.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26101,7 +25762,6 @@
 	(hierarchical_label "H2B"
 		(shape input)
 		(at 146.05 187.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26113,7 +25773,6 @@
 	(hierarchical_label "~{H2}"
 		(shape input)
 		(at 72.39 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26125,7 +25784,6 @@
 	(hierarchical_label "H1B"
 		(shape input)
 		(at 124.46 190.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26137,7 +25795,6 @@
 	(hierarchical_label "~{CRAM'}"
 		(shape output)
 		(at 306.07 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26149,7 +25806,6 @@
 	(hierarchical_label "MWR"
 		(shape output)
 		(at 180.34 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26161,7 +25817,6 @@
 	(hierarchical_label "~{VRAM'}"
 		(shape output)
 		(at 307.34 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26173,7 +25828,6 @@
 	(hierarchical_label "H1B"
 		(shape input)
 		(at 22.86 52.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26185,7 +25839,6 @@
 	(hierarchical_label "~{LACH}"
 		(shape output)
 		(at 55.88 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26197,7 +25850,6 @@
 	(hierarchical_label "MD[7..0]"
 		(shape bidirectional)
 		(at 102.87 60.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26209,7 +25861,6 @@
 	(hierarchical_label "~{OBJRAM}"
 		(shape output)
 		(at 306.07 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26221,7 +25872,6 @@
 	(hierarchical_label "~{INTMAIN}"
 		(shape input)
 		(at 207.01 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26233,7 +25883,6 @@
 	(hierarchical_label "INTSND"
 		(shape output)
 		(at 287.02 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26245,7 +25894,6 @@
 	(hierarchical_label "BLANK"
 		(shape input)
 		(at 207.01 67.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26257,7 +25905,6 @@
 	(hierarchical_label "~{SCROLLY}"
 		(shape output)
 		(at 302.26 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26269,7 +25916,6 @@
 	(hierarchical_label "H2B"
 		(shape input)
 		(at 189.23 208.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26281,7 +25927,6 @@
 	(hierarchical_label "~{RESET}"
 		(shape input)
 		(at 231.14 160.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26293,7 +25938,6 @@
 	(hierarchical_label "MRD"
 		(shape output)
 		(at 180.34 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26305,7 +25949,6 @@
 	(hierarchical_label "~{MSHRAM}"
 		(shape output)
 		(at 259.08 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26317,7 +25960,6 @@
 	(hierarchical_label "COIN_CNT'[2..1]"
 		(shape output)
 		(at 304.8 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26329,7 +25971,6 @@
 	(hierarchical_label "FLIP"
 		(shape output)
 		(at 302.26 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26341,7 +25982,6 @@
 	(hierarchical_label "~{SCROLLX}"
 		(shape output)
 		(at 302.26 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -30013,8 +29653,7 @@
 		)
 	)
 	(symbol
-		(lib_name "KONAMI-1_1")
-		(lib_id "skutis-kicad:KONAMI-1")
+		(lib_id "jt_cpu:KONAMI-1")
 		(at 254 53.34 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -30057,7 +29696,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "KONAMI-1 CPU"
 			(at 254 53.34 0)
 			(effects
 				(font
