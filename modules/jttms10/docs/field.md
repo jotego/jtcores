@@ -19,6 +19,28 @@ request through its matching write acknowledgement; arbitration must keep
 that pair together. This interface has no restart input for a lock broken by
 HOLD.
 
+`jttms10_word` connects the CPU's architectural field port to this adapter
+and exports the physical word bus. It captures IAQ with each architectural
+request and holds `word_iaq` through every physical word of that request.
+The CPU captures `ack` even when `cen` is low, then lowers its request while
+holding the response internally. This gives the adapter a clock to leave its
+held RESPONSE state before the next request. The standalone wrapper smoke
+test checks this low-request drain after each of nine field responses,
+including one received while the CPU is paused. Its program writes and reads
+a 16-bit field beginning at bit offset 11, verifying two partial-word RMW
+pairs and preservation of surrounding bits through a word bus with varying
+waits.
+
+Run the smoke test from the repository root with:
+
+```sh
+bash modules/jttms10/ver/build.sh
+iverilog -g2012 -s test -I modules/jttms10/ver/build \
+  -o /tmp/jttms10_word_test modules/jttms10/hdl/*.v \
+  modules/jttms10/ver/word/test.sv
+(cd modules/jttms10/ver/build && vvp /tmp/jttms10_word_test)
+```
+
 To limit combinational shift logic, the adapter shifts a 48-bit data/mask
 window left once per bit offset before bus access and shifts the captured
 read window right once per bit offset afterward. Each direction adds 0–15

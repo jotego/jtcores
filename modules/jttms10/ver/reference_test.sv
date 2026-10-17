@@ -51,11 +51,28 @@ module reference_test;
     .mem_rdata(mem_rdata), .mem_ack(mem_ack)
   );
 
-  integer checks_fd, program_fd, loaded, step_count, expected_count;
-  integer index, reg_idx, nregs, rc, word_index;
+  integer checks_fd, program_fd, data_fd, loaded, step_count, expected_count;
+  integer index, reg_idx, nregs, nmem, rc, word_index, data_count, data_index;
+  integer field_size;
   logic [15:0] program_word, expected_ir;
   logic [31:0] entry, expected_after, expected_pc, st_mask, st_value;
-  logic [31:0] reg_value, actual_reg;
+  logic [31:0] reg_value, actual_reg, data_at, field_addr, field_value;
+
+  function automatic logic [31:0] read_backing(input logic [31:0] address,
+                                                input integer size);
+    logic [31:0] physical;
+    begin
+      read_backing = 0;
+      if (size < 1 || size > 32 || address + size > 32'd16384)
+        $fatal(1, "reference memory assertion outside model");
+      for (integer bit_index=0; bit_index<32; bit_index=bit_index+1) begin
+        if (bit_index < size) begin
+          physical = address + bit_index;
+          read_backing[bit_index] = u_mem.mem[physical >> 4][physical[3:0]];
+        end
+      end
+    end
+  endfunction
 
   initial begin
     if (!$value$plusargs("entry=%h", entry) ||
@@ -65,7 +82,8 @@ module reference_test;
       $fatal(1, "program entry outside reference memory");
     checks_fd = $fopen("checks.txt", "r");
     program_fd = $fopen("program.mem", "r");
-    if (checks_fd == 0 || program_fd == 0)
+    data_fd = $fopen("memory_init.txt", "r");
+    if (checks_fd == 0 || program_fd == 0 || data_fd == 0)
       $fatal(1, "missing generated input");
     #1;
     u_mem.level0_vector = entry;
@@ -77,16 +95,26 @@ module reference_test;
       loaded = loaded + 1;
     end
     $fclose(program_fd);
+    while ($fscanf(data_fd, "%h %d", data_at, data_count) == 2) begin
+      for (data_index=0; data_index<data_count; data_index=data_index+1) begin
+        rc = $fscanf(data_fd, "%h", program_word);
+        if (rc != 1) $fatal(1, "truncated memory_init.txt");
+        word_index = (data_at >> 4) + data_index;
+        if (word_index >= 1024) $fatal(1, "data exceeds reference memory");
+        u_mem.mem[word_index] = program_word;
+      end
+    end
+    $fclose(data_fd);
     repeat (6) @(posedge clk);
     rst <= 0;
   end
 
   task automatic check_step;
     begin
-      rc = $fscanf(checks_fd, "%h %h %h %h %h %d",
+      rc = $fscanf(checks_fd, "%h %h %h %h %h %d %d",
                    expected_after, expected_pc, expected_ir,
-                   st_mask, st_value, nregs);
-      if (rc != 6) $fatal(1, "missing checkpoint %0d", step_count);
+                   st_mask, st_value, nregs, nmem);
+      if (rc != 7) $fatal(1, "missing checkpoint %0d", step_count);
       if (instr_w !== expected_ir || pc_w !== expected_pc)
         $fatal(1, "step %0d opcode @%h: IR %h/%h PC %h/%h",
                step_count, expected_after, instr_w, expected_ir,
@@ -103,6 +131,14 @@ module reference_test;
         if (actual_reg !== reg_value)
           $fatal(1, "step %0d register %0d: %h expected %h",
                  step_count, reg_idx, actual_reg, reg_value);
+      end
+      for (index=0; index<nmem; index=index+1) begin
+        rc = $fscanf(checks_fd, "%h %d %h", field_addr, field_size, field_value);
+        if (rc != 3) $fatal(1, "truncated memory checkpoint");
+        if (read_backing(field_addr, field_size) !== field_value)
+          $fatal(1, "step %0d memory @%h size %0d: %h expected %h",
+                 step_count, field_addr, field_size,
+                 read_backing(field_addr, field_size), field_value);
       end
       step_count = step_count + 1;
       if (step_count == expected_count) begin

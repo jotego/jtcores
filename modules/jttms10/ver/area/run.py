@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Isolated Quartus Cyclone V area measurement for the old NARC GSP or scalar CPU."""
+"""Isolated Quartus Cyclone V area measurement for GSP or microcoded CPU."""
 
 import argparse
 import hashlib
@@ -39,6 +39,7 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--reference", action="store_true", help="old jtnarc_gsp boundary")
     mode.add_argument("--scalar", action="store_true", help="current incomplete jttms10 CPU alone")
+    mode.add_argument("--word", action="store_true", help="jttms10 plus physical-word field adapter")
     parser.add_argument("output", type=Path, help="new, empty output directory, preferably under /tmp")
     parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/intelFPGA_lite/20.1/quartus/bin"))
     args = parser.parse_args()
@@ -79,7 +80,7 @@ def main():
                  "cyc_srfaddr[*]", "cyc_dpytap[*]", "cyc_org", "cyc_rdata[*]",
                  "cyc_ack", "hs", "vs", "hblank", "vblank", "pc[*]"]
     else:
-        project, top = "scalar", "jttms10"
+        project, top = ("word", "jttms10_word") if args.word else ("scalar", "jttms10")
         for source in sorted((MODULE / "hdl").glob("*.v")):
             target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes)
             sources.append(("VERILOG_FILE", target))
@@ -90,9 +91,14 @@ def main():
         hashes[str((MODULE / "ucode/tms10.yaml").relative_to(ROOT))] = hashlib.sha256(
             (MODULE / "ucode/tms10.yaml").read_bytes()).hexdigest()
         qsf.append(f"set_global_assignment -name SEARCH_PATH {qsf_path(out)}")
-        ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq",
-                 "mem_addr[*]", "mem_wdata[*]", "mem_size[*]", "mem_rdata[*]",
-                 "mem_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
+        if args.word:
+            ports = ["rst", "clk", "cen", "word_req", "word_we", "word_addr[*]",
+                     "word_wdata[*]", "word_iaq", "word_lock", "word_rdata[*]",
+                     "word_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
+        else:
+            ports = ["rst", "clk", "cen", "mem_req", "mem_we", "mem_iaq",
+                     "mem_addr[*]", "mem_wdata[*]", "mem_size[*]", "mem_rdata[*]",
+                     "mem_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
 
     qsf += [f"set_global_assignment -name TOP_LEVEL_ENTITY {top}",
             f"set_global_assignment -name SDC_FILE {project}.sdc"]
@@ -109,7 +115,10 @@ def main():
         "old_module_commit": call(["git", "-C", str(REFERENCE), "rev-parse", "HEAD"]),
         "source_sha256": hashes,
         "scope": ("old NARC GSP with tied-off host/HOLD and VCLK enable"
-                  if args.reference else "incomplete scalar CPU alone; excludes I/O, video, field sequencer, arbiter"),
+                  if args.reference else
+                  "incomplete scalar CPU plus physical-word field adapter; excludes I/O, video, arbitration and graphics"
+                  if args.word else
+                  "incomplete scalar CPU alone; excludes I/O, video, field adapter, arbitration and graphics"),
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     for phase in ("map", "fit"):

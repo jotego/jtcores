@@ -6,6 +6,9 @@ config:
   latch_ucode: true
   ignore_cycles: true
   bus_error: illegal
+include:
+  - memory.yaml
+  - control.yaml
 ops:
   - {name: ADDIW, op: 25, ctl: {inv: "", alu: add, wr: wr_reg}}
   - {name: SUBIW, op: 26, ctl: {inv: inv_a, alu: sub, wr: wr_reg}}
@@ -133,6 +136,16 @@ ucode:
     seq:
       - vector
       - md_pc, ret_jsr
+  - name: getst
+    start: 31
+    seq:
+      - st_a
+      - pass_alu, wr_reg, ni
+  - name: putst
+    start: 32
+    seq:
+      - rd_a
+      - stld, ni
   # SUBI and CMPI store the one's complement of the source-level immediate
   # in their extension words (TI User's Guide pp. 12-54/55, 12-249/250).
   - mnemo: [ADDIW, SUBIW, CMPIW]

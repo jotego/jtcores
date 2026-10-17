@@ -1,6 +1,7 @@
 jttms10:
   - get:
       - jttms10.v
+      - jttms10_word.v
       - jttms10_ctrl.v
       - jttms10_regs.v
       - jttms10_alu.v

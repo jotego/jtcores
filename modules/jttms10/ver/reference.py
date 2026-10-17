@@ -15,7 +15,7 @@ from pathlib import Path
 import yaml
 
 sys.dont_write_bytecode = True
-from vectors import HERE, validate_case
+from vectors import HERE, load_cases, memory_init, validate_case
 
 
 REFERENCE_SHA = "29bcb384ec3dba892ea54db2ee92b38ae395d575"
@@ -38,10 +38,15 @@ def check_line(check, words, entry):
         index = int(reg[1:])
         physical = 15 if index == 15 else (16 if reg[0] == "B" else 0) + index
         regs[physical] = reg_value
+    memory = check.get("mem", [])
     fields = [f"{check['after']:08x}", f"{check['pc']:08x}",
-              f"{opcode:04x}", f"{mask:08x}", f"{value:08x}", str(len(regs))]
+              f"{opcode:04x}", f"{mask:08x}", f"{value:08x}",
+              str(len(regs)), str(len(memory))]
     for physical, reg_value in sorted(regs.items()):
         fields.extend([str(physical), f"{reg_value:08x}"])
+    for field in memory:
+        fields.extend([f"{field['addr']:08x}", str(field["size"]),
+                       f"{field['value']:08x}"])
     return " ".join(fields) + "\n"
 
 
@@ -59,7 +64,7 @@ def main():
     ).strip()
     if dirty:
         parser.error("reference submodule has local changes; pinned comparison requires a clean tree")
-    cases = yaml.safe_load((HERE / "tests.yaml").read_text())["cases"]
+    cases = load_cases(yaml.safe_load((HERE / "tests.yaml").read_text()))
     for case in cases:
         validate_case(case)
     scalar = [case for case in cases
@@ -84,22 +89,28 @@ def main():
                         *(str(source) for source in sources)],
                        check=True, cwd=work)
         for case in selected:
+            checks = case.get("reference_checks", case["checks"])
             (work / "program.mem").write_text(
                 "".join(f"{word:04x}\n" for word in case["words"])
             )
+            (work / "memory_init.txt").write_text(memory_init(case))
             (work / "checks.txt").write_text(
                 "".join(check_line(check, case["words"], case["entry"])
-                        for check in case["checks"])
+                        for check in checks)
             )
             result = subprocess.run(
                 [str(obj / "Vreference_test"), f"+entry={case['entry']:x}",
-                 f"+count={len(case['checks'])}"], cwd=work,
+                 f"+count={len(checks)}"], cwd=work,
                 capture_output=True, text=True
             )
             if result.returncode or "TEST_RESULT: PASS" not in result.stdout:
                 print(f"{case['name']}: FAIL\n{result.stdout}{result.stderr}")
                 raise SystemExit(1)
-            print(f"{case['name']}: PASS (reference {REFERENCE_SHA[:12]})")
+            if "reference_divergence" in case:
+                print(f"{case['name']}: KNOWN REFERENCE DIVERGENCE "
+                      f"({REFERENCE_SHA[:12]}): {case['reference_divergence']}")
+            else:
+                print(f"{case['name']}: PASS (reference {REFERENCE_SHA[:12]})")
 
 
 if __name__ == "__main__":

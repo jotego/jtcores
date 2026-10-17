@@ -16,7 +16,7 @@ from pathlib import Path
 import yaml
 
 sys.dont_write_bytecode = True
-from vectors import HERE, sv_checks, validate_case
+from vectors import HERE, load_cases, memory_init, sv_checks, validate_case
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     parser.add_argument("--rtl", action="append", type=Path, default=[],
                         help="extra generated RTL source (repeatable)")
     args = parser.parse_args()
-    cases = yaml.safe_load((HERE / "tests.yaml").read_text())["cases"]
+    cases = load_cases(yaml.safe_load((HERE / "tests.yaml").read_text()))
     for case in cases:
         validate_case(case)
     selected = [case for case in cases if args.case in (None, case["name"])]
@@ -45,6 +45,7 @@ def main():
             (work / "program.mem").write_text(
                 "".join(f"{word:04x}\n" for word in case["words"])
             )
+            (work / "memory_init.txt").write_text(memory_init(case))
             (work / "expected.svh").write_text(sv_checks(case))
             shutil.copyfile(build / "tms10.uc", work / "tms10.uc")
             binary = work / "sim.vvp"

@@ -4,11 +4,13 @@ module jttms10_ctrl(
     input      [15:0]  md,
     output            execute, active,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
-    output            reg_b, wr_reg,
-    output     [2:0]  a_sel,
+    output            reg_b, wr_reg, bsrc, a_md, wrsrc, stld, ea_tmp,
+    output     [3:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [2:0]  cc_sel,
-    output     [1:0]  pc_sel
+    output     [2:0]  pc_sel,
+    output     [1:0]  mem_sel,
+    output     [2:0]  ea_sel
 );
     /* verilator lint_off UNUSEDPARAM */
     `include "tms10_param.vh"
@@ -64,10 +66,41 @@ module jttms10_ctrl(
             16'b0101010?????????: entry = OR_SEQA;
             16'b0101011?????????: entry = XOR_SEQA;
             16'b00000001011?????: entry = JUMP_SEQA;
+            16'b00000001010?????: entry = GETPC_SEQA;
+            16'b00000001001?????: entry = EXGPC_SEQA;
+            16'b00000000001?????: entry = REV_SEQA;
+            16'b00000001100?????: entry = GETST_SEQA;
+            16'b00000001101?????: entry = PUTST_SEQA;
+            16'b100000??????????: entry = STORE_SEQA;
+            16'b100001??????????: entry = LOAD_SEQA;
+            16'b100100??????????: entry = STOREPI_SEQA;
+            16'b100101??????????: entry = LOADPI_SEQA;
+            16'b101000??????????: entry = STOREPD_SEQA;
+            16'b101001??????????: entry = LOADPD_SEQA;
+            16'b101100??????????: entry = STOREOFF_SEQA;
+            16'b101101??????????: entry = LOADOFF_SEQA;
+            16'b000001?1100?????: entry = STOREABS_SEQA;
+            16'b000001?1101?????: entry = LOADABS_SEQA;
+            16'b1000110?????????: entry = STORE_SEQA;    // MOVB
+            16'b1000111?????????: entry = LOAD_SEQA;
+            16'b1010110?????????: entry = STOREOFF_SEQA;
+            16'b1010111?????????: entry = LOADOFF_SEQA;
+            16'b00000101111?????: entry = STOREABS_SEQA;
+            16'b00000111111?????: entry = LOADABS_SEQA;
+            16'b100010??????????: entry = MOVEIND_SEQA;
+            16'b100110??????????: entry = MOVEPI_SEQA;
+            16'b101010??????????: entry = MOVEPD_SEQA;
+            16'b101110??????????: entry = MOVEOFF_SEQA;
+            16'b110100??????????: entry = MOVEOFFPI_SEQA;
+            16'b110101?0000?????: entry = MOVEABSPI_SEQA;
+            16'b000001?111000000: entry = MOVEABS_SEQA;
+            16'b1001110?????????: entry = MOVEIND_SEQA; // MOVB
+            16'b1011110?????????: entry = MOVEOFF_SEQA;
+            16'h0340: entry = MOVEABS_SEQA;
             16'b1100????????????: begin
-                // Extension-word forms are added separately; never execute
-                // their sentinel byte as a short displacement.
-                if(md[7:0]!=0 && md[7:0]!=8'h80) entry = JR_SEQA;
+                if(md[7:0]==8'h00) entry = JRL_SEQA;
+                else if(md[7:0]==8'h80) entry = JACC_SEQA;
+                else entry = JR_SEQA;
             end
             default:;
         endcase

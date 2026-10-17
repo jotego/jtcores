@@ -1,0 +1,195 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# TI SPVU001A pp. 12-127..155; addresses and pointer increments are in BITS.
+# MOVB shares these sequences; the opcode forces byte width/sign extension.
+ucode:
+  - name: store
+    start: 33
+    seq:
+      - reg_a, reg_b
+      - a_md, b_ea
+      - write_mem
+      - ni
+  - name: load
+    start: 34
+    seq:
+      - reg_a
+      - a_ea
+      - read_mem
+      - ext_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: storepi
+    start: 35
+    seq:
+      - reg_a, reg_b
+      - a_md, b_ea
+      - write_mem
+      - size_a
+      - add_alu, wr_reg, ni
+  - name: loadpi
+    start: 36
+    seq:
+      - reg_a, bsrc
+      - a_ea
+      - read_mem
+      - size_a
+      - add_alu, wrsrc
+      - ext_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: storepd
+    start: 37
+    seq:
+      - reg_b
+      - size_a
+      - sub_alu, sum_ea, wr_reg
+      # The source is sampled AFTER predecrement (TI p.12-130). If Rs==Rd,
+      # the value written is the decremented pointer, not its original value.
+      - reg_a
+      - a_md
+      - write_mem
+      - ni
+  - name: loadpd
+    start: 38
+    seq:
+      - bsrc
+      - size_a
+      - sub_alu, sum_ea, wrsrc
+      - read_mem
+      - ext_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: storeoff
+    start: 39
+    seq:
+      - imm, pcinc
+      - immse_a, reg_b
+      - add_alu, sum_ea
+      - reg_a
+      - a_md
+      - write_mem
+      - ni
+  - name: loadoff
+    start: 40
+    seq:
+      - imm, pcinc
+      - immse_a, bsrc
+      - add_alu, sum_ea
+      - read_mem
+      - ext_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: storeabs
+    start: 41
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - a_ea
+      - rd_a
+      - a_md
+      - write_mem
+      - ni
+  - name: loadabs
+    start: 42
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - a_ea
+      - read_mem
+      - ext_a
+      - pass_alu, wr_reg, nzv_cc, ni
+  - name: moveind
+    start: 43
+    seq:
+      - reg_a, reg_b
+      - a_ea
+      - read_mem
+      - b_ea
+      - write_mem
+      - ni
+  - name: movepi
+    start: 44
+    seq:
+      - reg_a, bsrc
+      - a_ea
+      - read_mem
+      - size_a
+      - add_alu, wrsrc
+      - reg_b
+      - b_ea
+      - write_mem
+      - size_a
+      - add_alu, wr_reg, ni
+  - name: movepd
+    start: 45
+    seq:
+      - bsrc
+      - size_a
+      - sub_alu, sum_ea, wrsrc
+      - read_mem
+      - reg_b
+      - size_a
+      - sub_alu, sum_ea
+      - write_mem
+      # TI p.12-145 explicitly requires TWO decrements for Rs==Rd.
+      - sub_alu, wr_reg, ni
+  - name: moveoff
+    start: 46
+    seq:
+      - imm, pcinc
+      - immse_a, bsrc
+      - add_alu, sum_ea
+      - ea_tmp
+      - imm, pcinc
+      - immse_a, reg_b
+      - add_alu, sum_ea
+      - swap_ea
+      - read_mem
+      - tmp_ea
+      - write_mem
+      - ni
+  - name: moveoffpi
+    start: 47
+    seq:
+      - imm, pcinc
+      - immse_a, bsrc
+      - add_alu, sum_ea
+      - read_mem
+      - reg_b
+      - b_ea
+      - write_mem
+      - size_a
+      - add_alu, wr_reg, ni
+  - name: moveabspi
+    start: 48
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - a_ea
+      - read_mem
+      - reg_b
+      - b_ea
+      - write_mem
+      - size_a
+      - add_alu, wr_reg, ni
+  - name: moveabs
+    start: 49
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - a_ea
+      - ea_tmp
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - a_ea
+      - swap_ea
+      - read_mem
+      - tmp_ea
+      - write_mem
+      - ni

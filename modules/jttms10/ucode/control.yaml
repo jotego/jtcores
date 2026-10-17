@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# PC' is the bit address after all instruction words have been fetched.
+ucode:
+  - name: jrl
+    start: 50
+    seq:
+      - imm, pcinc
+      - longrel_pc, ni
+  - name: jacc
+    start: 51
+    seq:
+      - imm, pcinc
+      - immlo_a
+      - imm, pcinc
+      - immhi_a
+      - abs_pc, ni
+  - name: getpc
+    start: 52
+    seq:
+      - pc_a
+      - pass_alu, wr_reg, ni
+  - name: exgpc
+    start: 53
+    seq:
+      - pc_a
+      - pass_alu, wr_reg, reg_pc, ni
+  - name: rev
+    start: 54
+    seq:
+      - rev_a
+      - pass_alu, wr_reg, ni

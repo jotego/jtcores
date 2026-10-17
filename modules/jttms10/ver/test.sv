@@ -24,37 +24,63 @@ module test;
 
     `include "expected.svh"
 
-    // Test programs fit in the first 256 words above ENTRY. The exception
-    // is the architected level-0 reset vector at FFFFFFE0.
-    reg [15:0] words [0:255];
-    integer i;
+    // Backing store has 1024 physical 16-bit words. All public addresses
+    // are bit addresses; the reset vector is handled at its high address.
+    reg [15:0] words [0:1023];
+    integer i, data_fd, data_at, data_count, data_index, data_rc;
+    reg [15:0] init_word;
     initial begin
-        for (i=0; i<256; i=i+1) words[i] = 16'h0300;
-        $readmemh("program.mem", words);
+        for (i=0; i<1024; i=i+1) words[i] = 16'h0300;
+        $readmemh("program.mem", words, ENTRY >> 4);
+        data_fd = $fopen("memory_init.txt", "r");
+        if (data_fd == 0) $fatal(1, "missing memory_init.txt");
+        while ($fscanf(data_fd, "%h %d", data_at, data_count) == 2) begin
+            for (data_index=0; data_index<data_count; data_index=data_index+1) begin
+                data_rc = $fscanf(data_fd, "%h", init_word);
+                if (data_rc != 1) $fatal(1, "truncated memory_init.txt");
+                words[(data_at >> 4) + data_index] = init_word;
+            end
+        end
+        $fclose(data_fd);
         repeat (5) @(posedge clk);
         rst <= 0;
     end
 
-    function automatic [15:0] read_word(input [31:0] address);
+    function automatic [31:0] read_field(input [31:0] address, input [5:0] size);
+        integer bit_index;
+        reg [31:0] physical;
         begin
-            if (address < ENTRY || address >= ENTRY + 32'd4096 || address[3:0] != 0)
-                $fatal(1, "invalid instruction address %h", address);
-            read_word = words[(address-ENTRY) >> 4];
+            read_field = 0;
+            if (address == 32'hffffffe0 && size == 6'd32)
+                read_field = ENTRY;
+            else begin
+                if (size < 1 || size > 32 || address + size > 32'd16384)
+                    $fatal(1, "invalid read size %0d at bit address %h", size, address);
+                for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
+                    if (bit_index < size) begin
+                        physical = address + bit_index;
+                        read_field[bit_index] = words[physical >> 4][physical[3:0]];
+                    end
+                end
+            end
         end
     endfunction
 
-    function automatic [31:0] read_field(input [31:0] address, input [5:0] size);
+    task automatic write_field(input [31:0] address, input [5:0] size,
+                               input [31:0] data);
+        integer bit_index;
+        reg [31:0] physical;
         begin
-            if (address == 32'hffffffe0 && size == 6'd32)
-                read_field = ENTRY;
-            else if (size == 6'd16)
-                read_field = {16'd0, read_word(address)};
-            else if (size == 6'd32)
-                read_field = {read_word(address + 32'd16), read_word(address)};
-            else
-                $fatal(1, "unsupported read size %0d at %h", size, address);
+            if (size < 1 || size > 32 || address + size > 32'd16384)
+                $fatal(1, "invalid write size %0d at bit address %h", size, address);
+            for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
+                if (bit_index < size) begin
+                    physical = address + bit_index;
+                    words[physical >> 4][physical[3:0]] = data[bit_index];
+                end
+            end
         end
-    endfunction
+    endtask
 
     // Held request, one-cycle ack. The latency varies per transaction, so
     // instruction fetch and reset-vector reads exercise the stall path.
@@ -93,8 +119,8 @@ module test;
                     else wait_left <= wait_left - 1;
                 end
                 BUS_ACK: begin
-                    if (held_we) $fatal(1, "unexpected write at %h", held_addr);
-                    mem_rdata <= read_field(held_addr, held_size);
+                    if (held_we) write_field(held_addr, held_size, held_wdata);
+                    else mem_rdata <= read_field(held_addr, held_size);
                     mem_ack <= 1;
                     bus_state <= BUS_DRAIN;
                 end

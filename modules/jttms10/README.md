@@ -19,8 +19,10 @@ modules/jttms10/ver/run.sh
 This requires the repository's `jtframe` binary, Python/PyYAML, Icarus Verilog,
 and `vvp`. Generated files stay in `ver/build`. `ver/tests.yaml` documents
 program words and expected architectural state at retirement. The command
-also runs the ALU boundary and complete field-offset/width sweeps. See
-[the architecture](docs/architecture.md), [field transfers](docs/field.md), and
+also runs the ALU boundary and complete field-offset/width sweeps.
+The word-bus smoke test additionally runs the CPU and field adapter together
+against a waiting 16-bit memory, including partial-word write preservation.
+See [the architecture](docs/architecture.md), [field transfers](docs/field.md), and
 [the opcode references](docs/opcodes.md).
 
 Compare the same scalar programs against the pinned existing CPU with:
@@ -45,7 +47,15 @@ Remaining acceptance gates:
 - Compile NARC with `jtcore narc -mrq`, then validate on MiSTer.
 
 Current tests cover reset-vector loading, MOVI/MOVK, ADD/SUB and their K
-forms, register MOVE including cross-file, short conditional JR, and JUMP.
+and immediate forms, register MOVE including cross-file, short conditional
+JR (short and long), JAcc, JUMP, GETPC/EXGPC, REV, GETST/PUTST, and all
+MOVE/MOVB memory addressing forms. The latter
+include both field definitions, sign extension, auto-update aliases, signed
+offsets, absolute addresses, and memory-to-memory copies.
 Additional encoded families in the YAML require corresponding tests before
 being claimed as verified. Unsupported instructions stop with `fault`;
 architectural illegal-opcode trapping remains to be implemented.
+
+The reference runner separately reports documented old-CPU differences for
+three same-register auto-update cases. Primary assertions retain the TI
+sequencing; see [the memory ISA notes](docs/memory-isa.md).

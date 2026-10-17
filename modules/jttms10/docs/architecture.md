@@ -49,10 +49,13 @@ substitution: ADDI, SUBI, and CMPI share word/long operand-fetch sequences,
 while YAML selects inversion, arithmetic, and writeback. SUBI/CMPI extension
 words contain the one's complement of the source-level immediate.
 
-The initial external memory interface describes bit-addressed fields up to
-32 bits. The physical 16-bit word sequencer, I/O, video timing, host
-interface, refresh arbitration, interrupts, cache, and graphics execution
-are not yet integrated. `fault` currently stops unsupported instructions;
+The execution interface describes bit-addressed fields up to 32 bits.
+`jttms10_word` connects it to the physical 16-bit word sequencer and latches
+IAQ through all words of a transaction. Its smoke test checks request drain,
+waiting memory, partial-word locks, and acknowledgement while CPU execution
+is disabled. I/O, video timing, host interface, refresh arbitration,
+interrupts, cache, and graphics execution are not yet integrated.
+`fault` currently stops unsupported instructions;
 it is a development diagnostic rather than the architectural trap sequence.
 
 ## Validation sources
@@ -77,3 +80,34 @@ mode. It excludes the development-only illegal halt and external enable
 tests. It checks the asserted register/status/PC values, not all register
 state or silicon timing. Separate ALU and field-sequencer benches cover
 arithmetic boundaries and every offset 0–15/width 1–32 combination.
+
+## Field-memory instruction sequencing
+
+`ucode/memory.yaml` implements the MOVE/MOVB memory addressing matrix.
+Register-to-field stores preserve flags. Postincrement stores sample source
+data before the update; predecrement stores sample it afterward, so aliasing
+uses the decremented pointer as data. Field-to-register loads extend according
+to FS/FE (MOVB always sign extends 8 bits), update N/Z, clear V, and preserve
+C. Zero field-size encodings become 32 before memory access. GETST/PUTST
+expose both field definitions to programs.
+
+One effective-address register and one scratch address support offset and
+absolute memory-to-memory transfers. The raw source field remains in MD
+while the destination is selected. These copies preserve status. Pointer
+updates are ordinary shared-ALU microsteps: source updates precede destination
+reads, so the same-register postincrement copy uses the incremented
+destination address. Both pointer updates execute even when the register
+aliases. The corresponding predecrement alias also decrements twice, as TI
+explicitly requires on p. 12-145. A load whose source pointer
+is also its destination writes the loaded data last.
+
+The YAML test memory independently reads/writes individual bits. The same
+initial physical words and per-retirement field assertions are also run on
+the old CPU's memory model. These checks include neighboring bits, rather
+than only testing the just-written field. See [memory-isa.md](memory-isa.md)
+for instruction encodings, primary references, alias rules, and remaining
+MMTM/MMFM work. The pinned old CPU suppresses the second pointer update in
+both same-register memory-copy forms and samples a predecrement store's
+source too early when it aliases the pointer. Explicit alternate reference
+checks record those known differences; primary new-CPU assertions follow the
+specified sequencing.
