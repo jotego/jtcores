@@ -1170,6 +1170,7 @@ cyclonev_hps_interface_peripheral_i2c hdmi_i2c
 		.hs_in(hdmi_hs_mask),
 		.vs_in(hdmi_vs_mask),
 		.de_in(hdmi_de_mask),
+		.de_ref(hdmi_de_mask),
 
 		.dout(hdmi_data_osd),
 		.hs_out(hdmi_hs_osd),
@@ -1435,6 +1436,7 @@ osd vga_osd
 	.hs_in(vga_hs_hz),
 	.vs_in(vga_vs_hz),
 	.de_in(vga_de_hz),
+	.de_ref(vga_de_sl),
 
 	.dout(vga_data_osd),
 	.hs_out(vga_hs_osd),

@@ -80,6 +80,7 @@ osd dut(
 	.din		( 24'd0      ),
 	.dout		( {r,g,b}    ),
 	.de_in		( de_in      ),
+	.de_ref     ( de_in      ),
 	.de_out     ( de_out     ),
 	.osd_status ( osd_status )
 );

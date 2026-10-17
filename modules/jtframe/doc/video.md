@@ -104,7 +104,7 @@ The FIFO depth is derived at build time from `JTFRAME_WIDTH` and STEP, sized to 
 
 ### Where it sits
 
-The re-timer is instantiated in `sys_top.v` on the VGA branch, between the scanlines filter and the analog OSD — **downstream of the point where the HDMI scaler taps the stream**, so HDMI output is unaffected by construction. It is bypassed when the scandoubler is forced, as h-size only makes sense on a 15 kHz monitor.
+The re-timer is instantiated in `sys_top.v` on the VGA branch, between the scanlines filter and the analog OSD — **downstream of the point where the HDMI scaler taps the stream**, so HDMI output is unaffected by construction. The analog OSD uses the original active window for its pixel timing and placement while drawing over the re-timed picture at the full video clock. It is bypassed when the scandoubler is forced, as h-size only makes sense on a 15 kHz monitor.
 
 ### Auto-centring
 
