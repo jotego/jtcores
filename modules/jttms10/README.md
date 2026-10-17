@@ -71,6 +71,10 @@ and DRAM refresh. The [bus arbiter](docs/bus.md) handles NARC cycle kinds,
 priority, waits, and partial-write reservations/HOLD restart. Their focused
 benches are part of `ver/run.sh`. CPU/bus integration and host transactions
 remain pending.
+`jttms10_fabric` connects the peripherals and arbiter; its field-adapter
+integration bench also runs in the standard suite. MMTM/MMFM use the shared
+register RAM and a mask scan, with [register-list semantics](docs/register-lists.md)
+and an additional documented empty-list reference difference.
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

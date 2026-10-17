@@ -73,7 +73,7 @@ a separate primary/reference checkpoint pair records that difference too.
 A15/B15 share SP physically, so alias comparisons must use physical register
 identity as well as the encoded file bit.
 
-MMTM and MMFM should use a 16-bit residual-list register and a 4-bit scan
+MMTM and MMFM use a 16-bit residual-list register and a 4-bit scan
 index, looping over one 32-bit field transaction per selected register. For
 MMTM, mask bit **15-N** names register N: scan the highest set mask bit
 first (lowest register number), decrement Rp by 32 before each write, and
@@ -85,6 +85,8 @@ the last read. Flags do not change. The guide says including Rp in its own
 list is unpredictable (pp. 12-109, 12-111); do not design tests that require
 a deterministic result for that case. The two list encodings are asymmetric,
 as confirmed by the TI assembler examples in the old core's coverage ledger.
+See [register-lists.md](register-lists.md) for the implemented microcode,
+empty-list behavior, tests, and the fourth documented reference difference.
 
 ## Field adapter integration audit
 
@@ -98,12 +100,11 @@ needs a request/response bridge that lowers `req` before the next command.
 Normalize an architectural FS encoding of zero to size **32** before this
 adapter; raw size zero returns without a bus cycle.
 
-`word_lock` reserves each partial-word read→write pair, but the adapter has
-no restart input. The NARC arbiter accepts HOLD between the read and write
-and currently tells the old sequencer to repeat the read; connecting this
-adapter directly would write stale merged data after such a HOLD. Add a
-restart input and return to RMW_READ before issuing the write, or have the
-new arbiter defer HOLD for the entire pair. The existing fabric also handles
+`word_lock` reserves each partial-word read→write pair. The new arbiter's
+`word_restart` cancels an unaccepted partial write when HOLD is accepted
+after its read; the adapter then rereads before merging. The integrated
+field/fabric bench checks this with an external owner changing unrelated
+memory bits during HOLD. The existing old fabric also handles
 on-chip I/O and graphics pixel read-modify-write semantics separately. This
 adapter has no keep mask, transparency, plane mask, or pixel-operation input;
 it cannot replace that graphics path as-is.
@@ -113,5 +114,5 @@ read assembly, plus one read-result clock, one selection clock per written
 word, and bus waits. These extra clocks may exceed the NARC CPU-state
 timing budget. Its 32-bit size-mask shift and three 48-bit window registers
 also need Quartus measurement before claiming the 25% CPU-area target. The
-current unit bench verifies field values and stalls; it does not measure
-NARC throughput, HOLD restart, or the integrated fabric handshake.
+unit bench verifies field values, stalls, and HOLD restart; the fabric bench
+adds on-chip I/O and arbitration handshakes. Neither measures NARC throughput.

@@ -14,3 +14,7 @@ verilator --lint-only -Wall --top-module jttms10_io \
     "$ver_dir/../hdl/jttms10_refresh.v"
 verilator --lint-only -Wall --top-module jttms10_bus \
     "$ver_dir/../hdl/jttms10_bus.v"
+verilator --lint-only -Wall --top-module jttms10_fabric \
+    "$ver_dir/../hdl/jttms10_fabric.v" "$ver_dir/../hdl/jttms10_bus.v" \
+    "$ver_dir/../hdl/jttms10_io.v" "$ver_dir/../hdl/jttms10_video.v" \
+    "$ver_dir/../hdl/jttms10_refresh.v"

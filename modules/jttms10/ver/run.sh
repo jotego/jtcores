@@ -27,3 +27,9 @@ vvp "$ver_dir/build/io.vvp"
 iverilog -g2012 -s test -o "$ver_dir/build/bus.vvp" \
     "$ver_dir/bus/test.sv" "$ver_dir/../hdl/jttms10_bus.v"
 vvp "$ver_dir/build/bus.vvp"
+iverilog -g2012 -s test -o "$ver_dir/build/fabric.vvp" \
+    "$ver_dir/fabric/test.sv" "$ver_dir/../hdl/jttms10_fabric.v" \
+    "$ver_dir/../hdl/jttms10_field.v" "$ver_dir/../hdl/jttms10_bus.v" \
+    "$ver_dir/../hdl/jttms10_io.v" "$ver_dir/../hdl/jttms10_video.v" \
+    "$ver_dir/../hdl/jttms10_refresh.v"
+vvp "$ver_dir/build/fabric.vvp"

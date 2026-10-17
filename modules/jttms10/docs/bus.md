@@ -9,6 +9,14 @@ cycle kinds and partial-word reservation rule. Host indirect traffic is not
 implemented in this block; a generic host-capable variant will need a held
 host client between DRAM and CPU, plus the host register/indirect engine.
 
+`jttms10_fabric.v` connects this arbiter and the I/O/video/refresh block while
+keeping a physical-word client interface independent of the CPU. Its
+`ver/fabric/test.sv` bench uses the actual field adapter and a waiting NARC
+cycle model. It checks a 24-bit I/O field spanning two registers, partial-word
+preservation and one commit per write, I/O readback, HOLD with an external
+memory change, delayed screen completion, and a REFCNT-generated refresh.
+The standard `ver/run.sh` and `ver/lint.sh` include this integration boundary.
+
 `word_addr` is a 32-bit **bit** address. The field adapter holds `word_req`,
 `word_we`, address, and data until `word_ack`, which the arbiter generates for
 one clock when NARC acknowledges the selected cycle. `word_req` may remain

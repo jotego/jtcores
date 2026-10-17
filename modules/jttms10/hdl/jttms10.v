@@ -20,6 +20,7 @@ module jttms10(
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
     wire shiftkinit, shiftrinit, shift_step, shift_finish;
     wire setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish;
+    wire multiinit, multiadvance, ptrwr, listwr;
     wire [3:0] cc_sel;
     wire [3:0] alu_sel;
     wire [4:0] a_sel;
@@ -31,6 +32,11 @@ module jttms10(
     reg [4:0] shift_count;
     reg shift_c, shift_v;
     reg [4:0] lmo_count;
+    reg [15:0] multi_mask;
+    reg [3:0] multi_index;
+    reg [4:0] multi_steps;
+    wire multi_bit = multi_mask[15];
+    wire multi_ir = ir[15:5]==11'h04c || ir[15:5]==11'h04d;
     wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
@@ -69,6 +75,8 @@ module jttms10(
     jttms10_ctrl u_ctrl(
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
         .shift_count(shift_count), .lmo_more(lmo_more),
+        .multi_bit(multi_bit), .multi_steps(multi_steps),
+        .multi_load(ir[5]),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
         .b_sel(b_sel), .wr_reg(wr_reg), .a_sel(a_sel), .bsrc(bsrc),
@@ -79,6 +87,8 @@ module jttms10(
         .shift_step(shift_step), .shift_finish(shift_finish),
         .setf(setf), .exgf(exgf), .btstfinish(btstfinish),
         .lmoinit(lmoinit), .lmoscan(lmoscan), .lmofinish(lmofinish),
+        .multiinit(multiinit),
+        .multiadvance(multiadvance), .ptrwr(ptrwr), .listwr(listwr),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -92,12 +102,15 @@ module jttms10(
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
     jttms10_regs u_regs(
-        .clk(clk), .rs(call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
+        .clk(clk), .rs(multi_ir ? {ir[4],multi_index} :
+                         call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(stack_ir ? 5'd15 : {ir[4],ir[3:0]}),
-        .wa(wr_sp ? 5'd15 : wrsrc ? {ir[4],ir[8:5]} : dst),
-        .we(step && (wr_reg || wrsrc || wr_sp) && !rst),
+        .wa(wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
+            listwr ? {ir[4],multi_index} :
+            wrsrc ? {ir[4],ir[8:5]} : dst),
+        .we(step && (wr_reg || wrsrc || wr_sp || ptrwr || listwr) && !rst),
         .wd(exgf ? {26'd0,old_field} :
-            lmofinish ? {27'd0,lmo_count} : result),
+            lmofinish ? {27'd0,lmo_count} : listwr ? md : result),
         .qs(rs_data), .qd(rd_data)
     );
     reg [3:0] alu_op;
@@ -170,6 +183,9 @@ module jttms10(
             shift_c<=0;
             shift_v<=0;
             lmo_count<=0;
+            multi_mask<=0;
+            multi_index<=0;
+            multi_steps<=0;
             fault<=0;
             completed<=0;
             bus_data<=0;
@@ -207,6 +223,19 @@ module jttms10(
                     a<=result;
                 end
                 if(lmoinit) lmo_count<=0;
+                if(multiinit) begin
+                    multi_mask<=md[15:0];
+                    multi_steps<=5'd16;
+                    multi_index<=ir[5] ? 4'd15 : 4'd0;
+                    // MMTM N is the sign of 0-Rp, including the guide's
+                    // zero and MIN_INT exceptions: complement original sign.
+                    if(!ir[5]) st[31]<=~rd_data[31];
+                end
+                if(multiadvance) begin
+                    multi_mask<={multi_mask[14:0],1'b0};
+                    multi_steps<=multi_steps-5'd1;
+                    multi_index<=multi_index+(ir[5] ? 4'hf : 4'd1);
+                end
                 if(lmoscan && lmo_more) begin
                     a<=result;
                     lmo_count<=lmo_count+5'd1;

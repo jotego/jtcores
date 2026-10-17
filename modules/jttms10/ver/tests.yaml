@@ -1611,3 +1611,190 @@ cases:
       - {after: 0x1120, pc: 0x1130, regs: {A5: 27}, st: 0xD0000010}
       - {after: 0x1130, pc: 0x1140, regs: {A5: 4}, st: 0xD0000010}
       - {after: 0x1140, pc: 0x1150, regs: {A4: 0}, st: 0xD0000010}
+
+  # TI SPVU001A pp. 12-109..112: an empty list leaves Rp and memory
+  # unchanged. MMTM's N is the inverse of the original pointer sign,
+  # including the guide's zero and 80000000h exceptions.
+  - name: multiple_empty_list_zero_and_min_pointer
+    entry: 0x1000
+    expected_requests: 19 # reset vector plus 18 opcode/extension fetches; no data transfer
+    words:
+      - 0x09E0 # MOVI IL 70000010,A0: C/Z/V=1, N=0
+      - 0x0010
+      - 0x7000
+      - 0x09C1 # MOVI IW 0,A1
+      - 0x0000
+      - 0x01A0 # PUTST A0
+      - 0x0981 # MMTM A1,{}: N=1 even for zero pointer
+      - 0x0000
+      - 0x09A1 # MMFM A1,{}: all flags unchanged
+      - 0x0000
+      - 0x09E1 # MOVI IL 80000000,A1
+      - 0x0000
+      - 0x8000
+      - 0x01A0 # PUTST A0
+      - 0x0981 # MMTM A1,{}: N=0 for min pointer
+      - 0x0000
+      - 0x09A1 # MMFM A1,{}
+      - 0x0000
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x70000010}}
+      - {after: 0x1030, pc: 0x1050, regs: {A1: 0}}
+      - {after: 0x1050, pc: 0x1060, st: 0x70000010}
+      - {after: 0x1060, pc: 0x1080, regs: {A1: 0}, st: 0xF0000010}
+      - {after: 0x1080, pc: 0x10A0, regs: {A1: 0}, st: 0xF0000010}
+      - {after: 0x10A0, pc: 0x10D0, regs: {A1: 0x80000000}}
+      - {after: 0x10D0, pc: 0x10E0, st: 0x70000010}
+      - {after: 0x10E0, pc: 0x1100, regs: {A1: 0x80000000}, st: 0x70000010}
+      - {after: 0x1100, pc: 0x1120, regs: {A1: 0x80000000}, st: 0x70000010}
+    reference_divergence: >-
+      TI TMS34010 User's Guide pp. 12-109/111 defines pointer steps per
+      selected register and does not exclude an empty list; MAME
+      34010ops.hxx MMTM loop (e5a5a102889d6c62f12e39a4db3e950e4f5d6822)
+      likewise skips its decrement for mask zero. Pinned old core performs
+      one spurious 32-bit predecrement/write and one postincrement/read for
+      zero masks, with that read overwriting A0.
+    reference_checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x70000010}}
+      - {after: 0x1030, pc: 0x1050, regs: {A1: 0}}
+      - {after: 0x1050, pc: 0x1060, st: 0x70000010}
+      - {after: 0x1060, pc: 0x1080, regs: {A1: 0xFFFFFFE0}, st: 0xF0000010}
+      - {after: 0x1080, pc: 0x10A0, regs: {A0: 0, A1: 0}, st: 0xF0000010}
+      - {after: 0x10A0, pc: 0x10D0, regs: {A1: 0x80000000}}
+      - {after: 0x10D0, pc: 0x10E0, st: 0}
+      - {after: 0x10E0, pc: 0x1100, regs: {A1: 0x7FFFFFE0}, st: 0}
+      - {after: 0x1100, pc: 0x1120, regs: {A1: 0x80000000}, st: 0}
+
+  # Sparse A-file mask reverses on MMTM (bit15=A0), then uses direct
+  # mapping on MMFM (bit0=A0). Pointer is deliberately bit-unaligned.
+  - name: multiple_sparse_a_roundtrip_unaligned
+    entry: 0x1000
+    words:
+      - 0x09E0 # MOVI IL 11223344,A0
+      - 0x3344
+      - 0x1122
+      - 0x09E2 # MOVI IL 55667788,A2
+      - 0x7788
+      - 0x5566
+      - 0x09EE # MOVI IL 99AABBCC,A14
+      - 0xBBCC
+      - 0x99AA
+      - 0x09FF # MOVI IL 0F1E2D3C,B15/shared SP
+      - 0x2D3C
+      - 0x0F1E
+      - 0x09C8 # MOVI IW 0245,A8 pointer
+      - 0x0245
+      - 0x09E1 # MOVI IL 70000010,A1 status sentinel
+      - 0x0010
+      - 0x7000
+      - 0x01A1 # PUTST A1
+      - 0x0541 # SETF 1,0,F0: multiple transfers stay 32 bits
+      - 0x075F # SETF 31,0,F1
+      - 0x0988 # MMTM A8,{A0,A2,A14,SP}, reversed mask
+      - 0xA003
+      - 0x09C0 # Clobber A0,A2,A14,SP before restoring
+      - 0x0000
+      - 0x09C2
+      - 0x0000
+      - 0x09CE
+      - 0x0000
+      - 0x09CF
+      - 0x0000
+      - 0x01A1 # Restore flag sentinel before MMFM
+      - 0x09A8 # MMFM A8,{A0,A2,A14,SP}, direct mask
+      - 0xC005
+    mem:
+      - at: 0x01C0
+        words: [0x5A5A, 0x5A5A, 0x5A5A, 0x5A5A, 0x5A5A,
+                0x5A5A, 0x5A5A, 0x5A5A, 0x5A5A]
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {A0: 0x11223344}}
+      - {after: 0x1030, pc: 0x1060, regs: {A2: 0x55667788}}
+      - {after: 0x1060, pc: 0x1090, regs: {A14: 0x99AABBCC}}
+      - {after: 0x1090, pc: 0x10C0, regs: {A15: 0x0F1E2D3C, B15: 0x0F1E2D3C}}
+      - {after: 0x10C0, pc: 0x10E0, regs: {A8: 0x245}}
+      - {after: 0x10E0, pc: 0x1110, regs: {A1: 0x70000010}}
+      - {after: 0x1110, pc: 0x1120, st: 0x70000010}
+      - {after: 0x1120, pc: 0x1130, st: 0x70000001}
+      - {after: 0x1130, pc: 0x1140, st: 0x700007C1}
+      - {after: 0x1140, pc: 0x1160, regs: {A8: 0x1C5}, st: 0xF00007C1,
+         mem: [{addr: 0x1C0, size: 5, value: 0x1A},
+               {addr: 0x1C5, size: 32, value: 0x0F1E2D3C},
+               {addr: 0x1E5, size: 32, value: 0x99AABBCC},
+               {addr: 0x205, size: 32, value: 0x55667788},
+               {addr: 0x225, size: 32, value: 0x11223344},
+               {addr: 0x245, size: 11, value: 0x2D2}]}
+      - {after: 0x1160, pc: 0x1180, regs: {A0: 0}}
+      - {after: 0x1180, pc: 0x11A0, regs: {A2: 0}}
+      - {after: 0x11A0, pc: 0x11C0, regs: {A14: 0}}
+      - {after: 0x11C0, pc: 0x11E0, regs: {A15: 0, B15: 0}}
+      - {after: 0x11E0, pc: 0x11F0, st: 0x70000010}
+      - {after: 0x11F0, pc: 0x1210,
+         regs: {A0: 0x11223344, A2: 0x55667788, A14: 0x99AABBCC,
+                A15: 0x0F1E2D3C, B15: 0x0F1E2D3C, A8: 0x245},
+         st: 0x70000010}
+
+  - name: multiple_sparse_b_restore_sp_first
+    entry: 0x1000
+    words:
+      - 0x09C0 # MOVI IW 0200,A0
+      - 0x0200
+      - 0x09D0 # MOVI IW 0200,B0 pointer
+      - 0x0200
+      - 0x09E1 # MOVI IL D0000010,A1 status sentinel
+      - 0x0010
+      - 0xD000
+      - 0x01A1 # PUTST A1
+      - 0x09B0 # MMFM B0,{B1,B9,SP}; highest SP restored first
+      - 0x8202
+    mem:
+      - at: 0x0200
+        words: [0x4567, 0x0123, 0xCDEF, 0x89AB, 0xBA98, 0xFEDC]
+    checks:
+      - {after: 0x1000, pc: 0x1020, regs: {A0: 0x200}}
+      - {after: 0x1020, pc: 0x1040, regs: {B0: 0x200}}
+      - {after: 0x1040, pc: 0x1070, regs: {A1: 0xD0000010}}
+      - {after: 0x1070, pc: 0x1080, st: 0xD0000010}
+      - {after: 0x1080, pc: 0x10A0,
+         regs: {B0: 0x260, B1: 0xFEDCBA98, B9: 0x89ABCDEF,
+                A15: 0x01234567, B15: 0x01234567}, st: 0xD0000010,
+         mem: [{addr: 0x200, size: 32, value: 0x01234567},
+               {addr: 0x220, size: 32, value: 0x89ABCDEF},
+               {addr: 0x240, size: 32, value: 0xFEDCBA98}]}
+
+  # TI pp. 12-111/112: B15 is the shared SP pointer, outside the list;
+  # B1 saves first at SP-32 and B9 next at SP-64, LSW first.
+  - name: multiple_sparse_b_store_shared_sp_pointer
+    entry: 0x1000
+    expected_requests: 17 # reset + 14 instruction words + two 32-bit stores
+    words:
+      - 0x09F1 # MOVI IL 12345678,B1
+      - 0x5678
+      - 0x1234
+      - 0x09F9 # MOVI IL A1B2C3D4,B9
+      - 0xC3D4
+      - 0xA1B2
+      - 0x09DF # MOVI IW 0285,B15/shared SP pointer
+      - 0x0285
+      - 0x09E0 # MOVI IL 70000010,A0 status sentinel
+      - 0x0010
+      - 0x7000
+      - 0x01A0 # PUTST A0
+      - 0x099F # MMTM B15,{B1,B9}; reversed mask bits14 and6
+      - 0x4040
+    mem:
+      - at: 0x0240
+        words: [0x5A5A, 0x5A5A, 0x5A5A, 0x5A5A, 0x5A5A]
+    checks:
+      - {after: 0x1000, pc: 0x1030, regs: {B1: 0x12345678}}
+      - {after: 0x1030, pc: 0x1060, regs: {B9: 0xA1B2C3D4}}
+      - {after: 0x1060, pc: 0x1080, regs: {A15: 0x285, B15: 0x285}}
+      - {after: 0x1080, pc: 0x10B0, regs: {A0: 0x70000010}}
+      - {after: 0x10B0, pc: 0x10C0, st: 0x70000010}
+      - {after: 0x10C0, pc: 0x10E0,
+         regs: {B1: 0x12345678, B9: 0xA1B2C3D4, A15: 0x245, B15: 0x245},
+         st: 0xF0000010,
+         mem: [{addr: 0x240, size: 5, value: 0x1A},
+               {addr: 0x245, size: 32, value: 0xA1B2C3D4},
+               {addr: 0x265, size: 32, value: 0x12345678},
+               {addr: 0x285, size: 11, value: 0x2D2}]}

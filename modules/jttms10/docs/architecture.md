@@ -55,8 +55,10 @@ The execution interface describes bit-addressed fields up to 32 bits.
 `jttms10_word` connects it to the physical 16-bit word sequencer and latches
 IAQ through all words of a transaction. Its smoke test checks request drain,
 waiting memory, partial-word locks, and acknowledgement while CPU execution
-is disabled. I/O, video timing, host interface, refresh arbitration,
-interrupts, cache, and graphics execution are not yet integrated.
+is disabled. The separate `jttms10_fabric` integrates I/O/video/refresh and
+word-cycle arbitration; its field-adapter bench checks waits, cross-register
+I/O, and HOLD restart. CPU integration with this fabric, host transactions,
+interrupt entry, cache, and graphics execution remain pending.
 `fault` currently stops unsupported instructions;
 it is a development diagnostic rather than the architectural trap sequence.
 
@@ -107,8 +109,8 @@ The YAML test memory independently reads/writes individual bits. The same
 initial physical words and per-retirement field assertions are also run on
 the old CPU's memory model. These checks include neighboring bits, rather
 than only testing the just-written field. See [memory-isa.md](memory-isa.md)
-for instruction encodings, primary references, alias rules, and remaining
-MMTM/MMFM work. The pinned old CPU suppresses the second pointer update in
+for instruction encodings, primary references, alias rules, and MMTM/MMFM
+sequencing. The pinned old CPU suppresses the second pointer update in
 both same-register memory-copy forms and samples a predecrement store's
 source too early when it aliases the pointer. Explicit alternate reference
 checks record those known differences; primary new-CPU assertions follow the
@@ -147,3 +149,13 @@ held separately until final writeback, preserving the other instructions'
 flag masks. No general-purpose register is modified during the loop.
 All ten encoding forms have YAML/reference coverage; see [shifts.md](shifts.md).
 The loop's additional clocks require integrated timing and performance work.
+
+## Register-list scan
+
+MMTM/MMFM scan a 16-bit mask through one dynamic register-RAM read address.
+The other read port retains Rp; one write port updates either Rp or a loaded
+list register. MMTM saves ascending register numbers with a reversed mask;
+MMFM restores descending register numbers with a direct mask. Both use
+ordinary shared-ALU steps and forced 32-bit fields. The empty-mask test
+asserts an exact bus-request count to exclude the old CPU's unintended data
+transfer. See [register-lists.md](register-lists.md).
