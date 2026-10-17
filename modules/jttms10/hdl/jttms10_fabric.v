@@ -7,6 +7,11 @@ module jttms10_fabric #(
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
     input hold_req,
     output hold_ack,
+    input host_req, host_we,
+    input [1:0] host_reg, host_be,
+    input [15:0] host_wdata,
+    output [15:0] host_rdata,
+    output host_ack, host_busy,
     input word_req, word_we, word_iaq, word_lock, word_pixel,
     input [31:0] word_addr,
     input [15:0] word_wdata,
@@ -38,6 +43,9 @@ module jttms10_fabric #(
     wire [13:0] screen_srfaddr;
     wire refresh_req, refresh_cbr;
     wire [7:0] refresh_row;
+    wire host_mem_req, host_mem_we, host_mem_is_io, host_mem_ack;
+    wire [31:0] host_mem_addr;
+    wire [15:0] host_mem_wdata, host_mem_io_rdata, host_mem_rdata;
     jttms10_io #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_io(
         .clk(clk),.rst(rst),.vclk_cen(vclk_cen),
         .hcs_n(hcs_n),.hsync_n(hsync_n),.vsync_n(vsync_n),
@@ -45,6 +53,15 @@ module jttms10_fabric #(
         .word_req(word_req),.word_we(word_we),.word_ack(word_ack),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .is_io(is_io),.io_rdata(io_rdata),
+        .host_req(host_req),.host_we(host_we),.host_reg(host_reg),
+        .host_be(host_be),.host_wdata(host_wdata),
+        .host_rdata(host_rdata),.host_ack(host_ack),
+        .host_busy(host_busy),
+        .host_mem_req(host_mem_req),.host_mem_we(host_mem_we),
+        .host_mem_addr(host_mem_addr),.host_mem_wdata(host_mem_wdata),
+        .host_mem_is_io(host_mem_is_io),
+        .host_mem_io_rdata(host_mem_io_rdata),
+        .host_mem_rdata(host_mem_rdata),.host_mem_ack(host_mem_ack),
         .nmi_clear(nmi_clear),.wvp_set(wvp_set),
         .psize(psize),.convsp(convsp),.convdp(convdp),
         .control(control),.pmask(pmask),.pixel_srt(pixel_srt),
@@ -67,6 +84,11 @@ module jttms10_fabric #(
         .screen_org(screen_org),
         .refresh_req(refresh_req),.refresh_row(refresh_row),
         .refresh_cbr(refresh_cbr),
+        .host_mem_req(host_mem_req),.host_mem_we(host_mem_we),
+        .host_mem_addr(host_mem_addr),.host_mem_wdata(host_mem_wdata),
+        .host_mem_is_io(host_mem_is_io),
+        .host_mem_io_rdata(host_mem_io_rdata),
+        .host_mem_rdata(host_mem_rdata),.host_mem_ack(host_mem_ack),
         .word_req(word_req),.word_we(word_we),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),

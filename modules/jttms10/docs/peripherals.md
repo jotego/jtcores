@@ -33,13 +33,12 @@ ST.IE to `irq_pending`. NMI is independent of ST.IE and HLT. CPU writes to
 HSTCTLL preserve host-owned MSGIN, clear INTIN on zero, write MSGOUT, and set
 INTOUT on one. HSTADRL forces its low four bits to zero.
 
-The direct host-pin register interface and host-initiated indirect memory
-engine are **not implemented in this standalone block**. CPU-visible HSTADR,
-HSTDATA, and HSTCTL storage and CPU-side semantics are implemented. NARC ties
-host requests inactive, but full generic host compatibility requires a later
-host transaction client with the TI byte-order, prefetch, increment, and
-per-side HSTCTL rules. Similarly, external sync is accepted here but the NARC
-wrapper only uses HS/VS/HBLANK/VBLANK; sync output-enable pins are not exposed.
+The synchronous host-register and indirect-word engine is implemented in
+`jttms10_host.v`, instantiated by this I/O page; see [host.md](host.md).
+Physical asynchronous host-pin timing is a separate boundary. NARC ties
+the synchronous host request inactive. External sync is accepted here but
+the NARC wrapper only uses HS/VS/HBLANK/VBLANK; sync output-enable pins are
+not exposed.
 
 TI User's Guide section 9.10.1 (pages 9-20/9-21) resolves an apparent
 shortcut in the chapter 6 wording: with ORG=0, software loads the one's
@@ -61,6 +60,7 @@ Focused standalone verification:
 ```sh
 iverilog -g2012 -s test -o /tmp/jttms10io-test.vvp \
     modules/jttms10/ver/io/test.sv modules/jttms10/hdl/jttms10_io.v \
-    modules/jttms10/hdl/jttms10_video.v modules/jttms10/hdl/jttms10_refresh.v
+    modules/jttms10/hdl/jttms10_host.v modules/jttms10/hdl/jttms10_video.v \
+    modules/jttms10/hdl/jttms10_refresh.v
 vvp /tmp/jttms10io-test.vvp
 ```

@@ -1,13 +1,13 @@
 # NARC abstract-cycle arbiter
 
 `jttms10_bus.v` connects a `jttms10_word` physical 16-bit client, the held
-screen-refresh request from `jttms10_io`, and the one-clock DRAM-refresh event
+screen-refresh and host-indirect requests from `jttms10_io`, and the one-clock DRAM-refresh event
 to the existing NARC `cyc_*` interface. It uses the TMS34010 priority from the
-1988 TI User's Guide §11.3: HOLD, screen refresh, DRAM refresh, then CPU.
+1988 TI User's Guide §11.3: HOLD, screen refresh, DRAM refresh, host, then CPU.
 The old GPL `modules/tms34010/rtl/memory/tms34010_bus_arbiter.sv` informed the
-cycle kinds and partial-word reservation rule. Host indirect traffic is not
-implemented in this block; a generic host-capable variant will need a held
-host client between DRAM and CPU, plus the host register/indirect engine.
+cycle kinds and partial-word reservation rule. The synchronous host-register
+and indirect client are described in [host.md](host.md); physical asynchronous
+host-pin timing remains outside this fabric.
 
 `jttms10_fabric.v` connects this arbiter and the I/O/video/refresh block while
 keeping a physical-word client interface independent of the CPU. Its
