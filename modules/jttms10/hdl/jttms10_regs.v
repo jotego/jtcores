@@ -5,15 +5,19 @@
 module jttms10_regs(
     input             clk,
     input      [4:0]  rs, rd, wa,
+    input             rs_ext, rd_ext, wa_ext,
     input             we,
     input      [31:0] wd,
     output reg [31:0] qs, qd
 );
-    reg [31:0] ram0 [0:31];
-    reg [31:0] ram1 [0:31];
-    wire [4:0] sa = rs[3:0]==4'hf ? 5'd15 : rs;
-    wire [4:0] da = rd[3:0]==4'hf ? 5'd15 : rd;
-    wire [4:0] wr = wa[3:0]==4'hf ? 5'd15 : wa;
+    reg [31:0] ram0 [0:63];
+    reg [31:0] ram1 [0:63];
+    wire [5:0] sa = rs_ext ? {1'b1,rs} :
+                    rs[3:0]==4'hf ? 6'd15 : {1'b0,rs};
+    wire [5:0] da = rd_ext ? {1'b1,rd} :
+                    rd[3:0]==4'hf ? 6'd15 : {1'b0,rd};
+    wire [5:0] wr = wa_ext ? {1'b1,wa} :
+                    wa[3:0]==4'hf ? 6'd15 : {1'b0,wa};
     always @(posedge clk) begin
         qs <= ram0[sa];
         qd <= ram1[da];

@@ -39,6 +39,7 @@ module jttms10_ctrl(
                       array_dststep, array_count,
                       array_srcpre, array_dstpre,
     output            array_source_phase, array_wb_src,
+    output            array_pitch_src, array_pitch_dst,
     output            array_save_active, array_restore_active,
     output            array_rebase_active,
     output     [1:0]  array_rebase_phase,
@@ -143,6 +144,10 @@ module jttms10_ctrl(
     assign wincheck_active = uaddr[11:4]==WINCHECK_SEQA[11:4];
     assign pixconv_active = uaddr[11:4]==PIXCONV_SEQA[11:4];
     assign array_source_phase = uaddr[11:4]==ARRAYLOOP_SEQA[11:4];
+    // B1/B3 are immutable through a row; preselect them for the RF's
+    // synchronous read before the source/destination row-step executes.
+    assign array_pitch_src = uaddr==ARRAYDST_SEQA+12'd5;
+    assign array_pitch_dst = uaddr==ARRAYDST_SEQA+12'd6;
     assign array_save_active = uaddr[11:4]==ARRAYSAVE_SEQA[11:4];
     assign array_restore_active = uaddr[11:4]==ARRAYRESTORE_SEQA[11:4];
     assign array_rebase_active = uaddr[11:4]==ARRAYREBASE_SEQA[11:4];
@@ -391,6 +396,8 @@ module jttms10_ctrl(
                      array_window_needed ? ARRAYWINDOW_SEQA :
                      ARRAYPREP_SEQA) :
                     ARRAYSETUP_SEQA;
+            // Repeat the single ARRAYWINDOW microstep without traversing its
+            // otherwise empty 16-word class between window phases.
             if(array_win && !line_prep_active &&
                !line_advance_active && !array_canon_active &&
                !array_rebase_active && array_window_done)

@@ -10,8 +10,10 @@ unfinished synthesized CPU does not prove the area requirement.
 
 ## Datapath
 
-- A/B registers occupy mirrored 32-by-32 synchronous RAMs, providing two
-  read ports and one write port. A15 and B15 map to physical register 15.
+- A/B registers occupy the lower half of mirrored 64-by-32 synchronous RAMs,
+  providing two read ports and one write port. A15 and B15 map to physical
+  register 15. Upper words 32/33 hold internal array row bases; upper-bank
+  addresses do not have the architectural SP alias.
   General registers have no architectural reset value and are not reset;
   this permits block RAM inference.
 - One 32-bit ALU supplies arithmetic and logic. A single 33-bit adder is
@@ -19,7 +21,8 @@ unfinished synthesized CPU does not prove the area requirement.
   one bit per operation; wide variable shifters and parallel dividers are
   excluded from the area-oriented datapath.
 - PC is a bit address. Instruction words increment it by 16. Extension words
-  are fetched low word first. Branch/jump destinations are word aligned.
+  are fetched low word first. Branch/jump destinations are word aligned. Relative PC updates select
+  one delta before a shared adder; direct PC writes retain priority.
 - Status resets to `00000010`. Microcode selects which of N/C/Z/V to update;
   logical operations change Z only, register moves and MOVI update N/Z and
   clear V, and MOVK leaves status unchanged. Subtraction C denotes borrow.
@@ -169,3 +172,23 @@ reference encoding to have a microcode entry and compares reserved-range
 classification for every word. This is a recognition check; the architectural
 programs and dedicated bus/interrupt tests establish the behavior they assert.
 LINE and both of its decision-tie encodings are included.
+
+
+## Graphics scratch sharing
+
+Array row bases use upper register-RAM words 32/33. Row steps read B1/B3 pitch
+and the corresponding row base through the two synchronous ports. LINE reads
+B11/B12 increments through those ports during its existing pixel/advance
+phases. This removes four 32-bit pitch/row flip-flop registers without adding
+per-pixel phases. Transient array data is initialized by setup rather than
+reset; architectural general registers likewise have no reset value.
+
+Window clipping performs four sequential signed comparisons through the
+shared ALU and reuses endpoint registers for the clipped bounds. Endpoints,
+window ends and widths use signed 18-bit storage; corner offsets use 19 bits.
+A signed 16-bit coordinate plus unsigned 16-bit extent lies between -32768
+and 98302, while LINE's 2b and 2b-2a lie within +/-131070. Consumers explicitly
+sign extend these scratch values. LINE's reused COUNT remains 32 bits.
+The W1 maximum-extent regression and RF64 alias/read-during-write bench cover
+these storage boundaries; generated array/LINE programs cover the retimed
+reads. Exact combined area still requires a fresh fit.

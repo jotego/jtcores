@@ -13,6 +13,9 @@ for unit in alu field; do
         "$bench" "$ver_dir/../hdl/jttms10_$unit.v"
     vvp "$ver_dir/build/$unit.vvp"
 done
+iverilog -g2012 -s test -o "$ver_dir/build/regs.vvp" \
+    "$ver_dir/regs/test.sv" "$ver_dir/../hdl/jttms10_regs.v"
+vvp "$ver_dir/build/regs.vvp"
 iverilog -g2012 -s test -I"$ver_dir/build" \
     -o "$ver_dir/build/word.vvp" "$ver_dir/word/test.sv" \
     "$ver_dir"/../hdl/*.v

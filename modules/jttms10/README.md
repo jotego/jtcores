@@ -113,5 +113,6 @@ continuation benches nest ISR graphics under MMTM/MMFM and compare resumed
 write streams; architectural agreement does not establish cycle parity.
 
 The reference runner separately reports documented old-CPU differences for
-three same-register auto-update cases and empty register lists. Primary assertions retain the TI
-sequencing; see [the memory ISA notes](docs/memory-isa.md).
+three same-register auto-update cases, empty register lists, and a maximum-extent
+window query. Primary assertions retain the TI results; see
+[the memory ISA notes](docs/memory-isa.md) and [array notes](docs/array-isa.md).

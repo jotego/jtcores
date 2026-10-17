@@ -7830,3 +7830,61 @@ cases:
       - addr: 1312
         size: 16
         value: 29126
+  # W1 query reaches x0 + DX - 1 = 98301; this exceeds signed 17-bit
+  # range but must retain the 18-bit endpoint until window clipping.
+  - name: fill_xy_w1_query_maximum_x_extent
+    entry: 4096
+    pixel_size: 4
+    words: [2546, 32767, 0, 2547, 0, 0, 2548, 512, 0,
+            2549, 32767, 0, 2550, 32767, 0, 2551, 65535, 1,
+            2553, 0, 0, 4064]
+    checks:
+    - after: 4096
+      pc: 4144
+      regs: {B2: 32767}
+    - after: 4144
+      pc: 4192
+      regs: {B3: 0}
+    - after: 4192
+      pc: 4240
+      regs: {B4: 512}
+    - after: 4240
+      pc: 4288
+      regs: {B5: 32767}
+    - after: 4288
+      pc: 4336
+      regs: {B6: 32767}
+    - after: 4336
+      pc: 4384
+      regs: {B7: 131071}
+    - after: 4384
+      pc: 4432
+      regs: {B9: 0}
+    - after: 4432
+      pc: 4448
+      regs: {B2: 32767, B7: 65537}
+      flags: {V: 0}
+      wvp: 1
+      mem:
+      - {addr: 528, size: 16, value: 4660}
+    mem:
+    - {at: 528, words: [4660]}
+    control: 64
+    convdp: 27
+    expected_requests: 23
+    reference_divergence: >-
+      TI TMS34010 User's Guide pp. 7-26 and 12-85: W1 must find the
+      common rectangle whenever any destination pixel intersects the window.
+      At X=32767 with DX=65535, the far endpoint is 98301. The pinned old
+      core truncates this endpoint to signed 16 bits in fill_arr_x1
+      (tms34010_core.sv, fill window setup), reports no hit, leaves B7
+      unchanged, sets V and does not raise WVP.
+    reference_checks:
+    - {"after":4096,"pc":4144,"regs":{"B2":32767}}
+    - {"after":4144,"pc":4192,"regs":{"B3":0}}
+    - {"after":4192,"pc":4240,"regs":{"B4":512}}
+    - {"after":4240,"pc":4288,"regs":{"B5":32767}}
+    - {"after":4288,"pc":4336,"regs":{"B6":32767}}
+    - {"after":4336,"pc":4384,"regs":{"B7":131071}}
+    - {"after":4384,"pc":4432,"regs":{"B9":0}}
+    - {"after":4432,"pc":4448,"regs":{"B2":32767,"B7":131071},"flags":{"V":1},"wvp":0,"mem":[{"addr":528,"size":16,"value":4660}]}

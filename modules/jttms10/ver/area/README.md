@@ -250,3 +250,14 @@ The PC transformation also passed 64,000 randomized priority/delta checks;
 the pixel helper passes 174,689 independent operation cases. These are
 isolated measurements: their savings must not be added to predict a merged
 fit. A fresh combined fit is required after integration.
+
+
+The independently tested window/RF candidate serializes window comparisons,
+narrows bounded scratch values, removes resets from setup-initialized data,
+and stores row bases in upper register-RAM words. Reading B1/B3 pitches and
+LINE B11/B12 increments directly removes further flip-flops. Its complete
+LINE fit is **4,168 ALMs / 1,931 registers / 268,288 RAM bits in 35 blocks /
+0 DSPs**, in `/tmp/jttms10-141-area/narc-line-scratch-pitch`. A functionally
+redundant duplicate window redirect present in that fitted snapshot was
+removed before integration; the merged source therefore requires a new fit.
+A masked-OR operand-mux variant fitted at 4,278 ALMs and was discarded.

@@ -74,6 +74,16 @@ COLOR0=A05B, destination=F6D4 and PMASK=A49E produce source=0041 and
 destination=5240 before MAX, preserving final F6D4. It is not recorded as
 an old-reference divergence.
 
+W1 FILL XY uses the intersection of the destination array and the window,
+even when the array's far endpoint exceeds signed 16 bits. For X=32767 and
+DX=65535, the mathematical far endpoint is 98301. A one-pixel window at
+X=32767 therefore produces B2.X=32767, B7.DX=1, V=0 and WVP=1 with no
+pixel writes. This follows the hit and common-rectangle rules in the TI
+TMS34010 User's Guide pp. 7-26 and 12-85. The pinned reference truncates
+the far endpoint to 16 bits (`fill_arr_x1` in `tms34010_core.sv`), reports
+a miss, preserves B7=0x0001ffff, sets V and leaves WVP clear. The durable
+W1 maximum-extent vector records that fifth known reference divergence.
+
 `ver/array/programs.py` independently calculates bit-addressed memory and
 pixel equations for all eight forms, five pixel sizes, pitches, rows,
 source alignment, masks, processing and transparency. It does not import RTL.
