@@ -75,8 +75,9 @@ The new boundary uses **19.6%** of the old ALMs, leaving 754 ALMs below the
 1, and the same virtual-pin NARC boundary. The old fit is
 `/tmp/jttms10-141-area/reference-repro/`; the corrected new fit and full
 source/ROM hash manifest are in
-`/tmp/jttms10-141-area/generic-final-snapshot/`. Every source hash in that
-manifest matches commit `a0d3612799adaa1df556aac8b5f6f2b27ae33b5b`.
+`/tmp/jttms10-141-area/generic-final-snapshot/`. All 28 copied source files
+match commit `a0d3612799adaa1df556aac8b5f6f2b27ae33b5b`; the seven generated
+files match independent regeneration from that committed source.
 The separate 4096×64 graphics ROM, control ROM, cache, and mirrored register
 file account for the larger block RAM use. The board cycle controller remains
 outside both measured boundaries.

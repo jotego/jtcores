@@ -7,6 +7,10 @@ The new selection uses the same NARC cycle
 controller, 48 MHz clock, and video clock enable. Host, HOLD and external
 video sync inputs use NARC's existing tie-offs.
 
+NARC sets `JTFRAME_NO_REGISTER_RETIMING` to disable Quartus's optional physical
+register-retiming search, which takes excessive time on the shared microcoded
+datapath. The clocks and timing constraints are unchanged.
+
 For example, from `cores/narc/ver/narc`:
 
 ```sh
