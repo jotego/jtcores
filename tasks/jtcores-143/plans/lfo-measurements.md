@@ -95,8 +95,9 @@ alignment, with no nonlinear time warps or independent alignment around events.
 
 ## Remaining LFO scope
 
-Beyond the E0 depth/gate matrix and pilots, cover every rate code with explicit
-finite/full-cycle limits, independent AMD/PMD storage, channel/operator gates,
+Beyond the E0 depth/gate matrix, pilots and [C0 storage controls](lfo-storage.md),
+cover every rate code with explicit finite/full-cycle limits, further storage
+histories, channel/operator gates,
 reset/hold/free-run and writes during operation. Weak W3 resolution remains a
 separate limitation. W3 requires native sampling, repeated histories
 and statistics qualified against the disabled path. Key-on alone must not be
@@ -216,8 +217,9 @@ have valid joint features with no high-residual window-limited points.
 All three combined physical recordings and both models retain simultaneous
 AM/PM: combined observed AM extrema 0.1737–11.7739 dB and PM approximately
 −24.1949..+22.4714 cents. Thus AMD remains observable when PMD is subsequently
-written in this INIT ordering. Reverse ordering, dynamic storage writes and
-other waveforms/depths remain separate work. Phase is absent below 512 PCM,
+written in this INIT ordering. [Separate C0 controls](lfo-storage.md) now cover
+reverse ordering and selected dynamic storage writes; other waveforms/depths
+and histories remain open. Phase is absent below 512 PCM,
 logarithm absent below 64 PCM, and derivatives cannot cross invalid segments.
 High carrier residual marks a window-limited neighborhood. The original
 moderate-depth qualification is not extended to deep/weak cases by those flags.

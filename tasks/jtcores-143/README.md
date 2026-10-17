@@ -406,3 +406,22 @@ go run host/lfo_marker_programs.go -base artifacts/fresh-tone.bin -output artifa
 These use C0, MUL0/stride 8 and recorded increment 32992. The marker method and
 its finite continuity limits are documented in the LFO report; the joint E0
 estimator's original qualification does not automatically extend to this setup.
+
+## LFO depth storage and INIT ordering
+
+[Storage methods and results](plans/lfo-storage.md) cover opposite-selector
+writes, matched nulls, own-depth positives and reversed AMD/PMD INIT ordering.
+The separate fixed 129-point squared-Hann extractor preserves the measured
+sharp-corner limitation at AMD127:
+
+```
+go run host/lfo_storage_programs.go -base artifacts/fresh-tone.bin -output artifacts/fresh-storage
+go run host/lfo_projection.go host/tone.go -column linear -csv artifacts/fresh-storage-curve.csv artifacts/capture-0-1.csv
+go test host/lfo_projection.go host/tone.go host/lfo_projection_test.go
+```
+
+These commands run from the task directory. Use model column `right`, physical
+latch1, and the exact C0/stride 8/MUL0 fixture; every constant/support is recorded.
+This kernel leaves the earlier 128-point joint estimator unchanged. Coherent
+comparisons use one late-data phase shift shared by AM and PM, with no per-event
+alignment or physical sample-identity claim.

@@ -255,3 +255,28 @@ Remaining LFO rates, storage order/dynamic writes, channel/operator isolation an
 hold/reset/free-run/key-on history remain open. Full methods, exact evidence
 paths and resolution limits are in [lfo-measurements.md](lfo-measurements.md).
 Production jt51 stays frozen at 985a573, with no candidate implementation patch.
+
+## C0 LFO storage checkpoint
+
+Eight additional fixtures have 24 independently initialized physical captures
+and 16 whole-model outputs, all with verified raw/input hashes, framing,
+exponents, counts, bipolar signals, markers and continuous generations. The
+physical session ends with successful silence at generation 218/marker 147.
+
+Opposite-selector writes retain the active AM or PM trajectory; own-depth
+positives change it and return to 64. Reversed final AMD/PMD INIT order retains
+the same moderate combined output, with AM and PM constrained to one shared
+global phase shift. Templates come from same-device nulls and fit only late
+data after every intervention. No event-by-event fitting or time warping is used.
+
+A new fixed 129-point squared-Hann Go extractor reproduces all 36 synthetic,
+16 model and 24 physical feature curves numerically, without origin/gain/time
+adjustments. Tracked independent native-rate tests preserve the original six
+AMD127 sharp-corner failures (max 0.37423 dB exceeds 0.3 dB); deep precise extrema
+and instantaneous transitions remain unqualified. Moderate combined and isolated
+PM127 guards pass. This adds no production gap and does not establish complete
+LFO history/isolation or physical sample identity.
+
+Generator reproduction/36 rejection checks and Go build/tests/vet pass. The
+earlier 128-point joint tool and production RTL remain unchanged. Exact stimuli,
+qualification boundaries, results and evidence are in [lfo-storage.md](lfo-storage.md).
