@@ -85,6 +85,9 @@ DIVS/DIVU/MODS/MODU share an iterative restoring divide through the same ALU;
 quotient/remainder check.
 DSJ variants, MOVX/MOVY, and sequential ADDXY/SUBXY/CMPXY also have primary
 and pinned-reference tests; see [scalar XY notes](docs/scalar-xy.md).
+The [pixel helper](docs/pixel.md) separately verifies all defined PPOP,
+plane-mask, and transparency rules through the shared ALU. Graphics
+instruction sequencing is still pending.
 
 The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases. Primary assertions retain the TI

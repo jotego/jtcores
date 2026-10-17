@@ -40,3 +40,7 @@ iverilog -g2012 -s test -o "$ver_dir/build/host.vvp" \
     "$ver_dir/../hdl/jttms10_video.v" "$ver_dir/../hdl/jttms10_refresh.v" \
     "$ver_dir/../hdl/jttms10_host.v"
 vvp "$ver_dir/build/host.vvp"
+iverilog -g2012 -s test -o "$ver_dir/build/pixel.vvp" \
+    "$ver_dir/pixel/test.sv" "$ver_dir/../hdl/jttms10_pixel.v" \
+    "$ver_dir/../hdl/jttms10_alu.v"
+vvp "$ver_dir/build/pixel.vvp"
