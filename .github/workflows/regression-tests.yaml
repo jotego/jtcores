@@ -1,0 +1,91 @@
+name: Regression Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      cores:
+        description: 'Comma-separated core names (empty = all cores with reg/regtest.zip)'
+        required: false
+        type: string
+        default: 'gng'
+  workflow_call:
+    inputs:
+      cores:
+        description: 'Comma-separated core names'
+        required: false
+        type: string
+        default: 'gng'
+  pull_request:
+    branches: [master]
+
+jobs:
+  find_cores:
+    runs-on: ubuntu-latest
+    outputs:
+      cores: ${{ steps.list.outputs.cores }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+
+      - id: list
+        env:
+          INPUT_CORES: ${{ inputs.cores }}
+        run: |
+          if [ -n "$INPUT_CORES" ]; then
+            # Use the provided core list
+            JSON="["
+            IFS=',' read -ra ITEMS <<< "$INPUT_CORES"
+            for item in "${ITEMS[@]}"; do
+              item="${item// /}"
+              if [ -n "$item" ]; then
+                [ "$JSON" != "[" ] && JSON="$JSON,"
+                JSON="$JSON\"$item\""
+              fi
+            done
+            JSON="$JSON]"
+          else
+            # Auto-discover cores with reg/regtest.zip
+            JSON="["
+            for zip in cores/*/reg/build/regtest.zip; do
+              core=$(echo "$zip" | cut -d/ -f2)
+              [ "$JSON" != "[" ] && JSON="$JSON,"
+              JSON="$JSON\"$core\""
+            done
+            JSON="$JSON]"
+          fi
+          echo "cores=$JSON"
+          echo "cores=$JSON" >> $GITHUB_OUTPUT
+
+  regression:
+    runs-on: ubuntu-latest
+    needs: find_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.find_cores.outputs.cores) }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+
+      - id: test
+        run: |
+          docker run --network host \
+            -v "$(pwd)":/jtcores \
+            jotego/simulator \
+            /jtcores/modules/jtframe/devops/xregtest.sh "${{ matrix.core }}"
+
+      - id: upload-frames
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: frames-${{ matrix.core }}
+          path: cores/${{ matrix.core }}/ver/regtest/frames/
+          retention-days: 7
+          if-no-files-found: warn

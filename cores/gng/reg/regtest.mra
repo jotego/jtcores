@@ -1,0 +1,79 @@
+<!--          GnG Core Regression Test ROM
+              Original code and graphics - no copyrighted material.
+              SPDX-License-Identifier: GPL-3.0-or-later
+              (c) Andrea Bogazzi, 2026
+-->
+
+<misterromdescription>
+    <about author="jotego" webpage="https://patreon.com/jotego" twitter="@topapate" source="https://jotego/jtcores"/>
+    <rotation>horizontal</rotation>
+    <name>GNG Core Test ROM</name>
+    <setname>regtest</setname>
+    <mameversion>0282</mameversion>
+    <year>2026</year>
+    <manufacturer>JOTEGO</manufacturer>
+    <players>2</players>
+    <rbf>jtgng</rbf>
+    <joystick>4</joystick>
+    <region>World</region>
+    <rom index="0" zip="regtest.zip" md5="None">
+        <!-- maincpu - starts at 0x0 - length 0x14000 (17 bits) -->
+        <part name="gg3.bin"/>
+        <part name="gg4.bin"/>
+        <part name="gg5.bin"/>
+        <!-- JTFRAME_BA1_START -->
+        <!-- chars - starts at 0x14000 - length 0x4000 (14 bits) -->
+        <interleave output="16">
+            <part name="gg1.bin" map="12"/>
+        </interleave>
+        <!-- SND_START -->
+        <!-- audiocpu - starts at 0x18000 - length 0x8000 (15 bits) -->
+        <part name="gg2.bin"/>
+        <!-- JTFRAME_BA2_START -->
+        <!-- tiles - starts at 0x20000 - length 0x20000 (17 bits) -->
+        <interleave output="32">
+            <part name="gg7.bin" map="0001"/>
+            <part name="gg9.bin" map="0010"/>
+            <part name="gg11.bin" map="0100"/>
+            <part name="gg11.bin" map="1000"/>
+        </interleave>
+        <interleave output="32">
+            <part name="gg6.bin" map="0001"/>
+            <part name="gg8.bin" map="0010"/>
+            <part name="gg10.bin" map="0100"/>
+            <part name="gg10.bin" map="1000"/>
+        </interleave>
+        <!-- JTFRAME_BA3_START -->
+        <!-- sprites - starts at 0x40000 - length 0x18000 (17 bits) -->
+        <interleave output="16">
+            <part name="gg14.bin" map="01"/>
+            <part name="gg17.bin" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="gg13.bin" map="01"/>
+            <part name="gg16.bin" map="10"/>
+        </interleave>
+        <interleave output="16">
+            <part name="gg12.bin" map="01"/>
+            <part name="gg15.bin" map="10"/>
+        </interleave>
+        <!-- Total 0x58000 bytes - 352 kBytes -->
+    </rom>
+    <rom index="1">
+        <part>00 7F</part>
+    </rom>
+    <switches page_id="1" page_name="Switches" base="16" default="df,fb">
+        <DSW1/>
+        <dip name="Coinage" bits="0,3" ids="Free Play,4/3,4/1,3/4,3/2,3/1,2/5,2/3,2/1,1/7,1/6,1/5,1/4,1/3,1/2,1/1"/>
+        <dip name="Coinage affects" bits="4" ids="Coin B,Coin A"/>
+        <dip name="Demo Sounds" bits="5" ids="On,Off"/>
+        <dip name="Service Mode" bits="6" ids="On,Off"/>
+        <dip name="Flip Screen" bits="7" ids="On,Off"/>
+        <DSW2/>
+        <dip name="Lives" bits="8,9" ids="7,5,4,3"/>
+        <dip name="Cabinet" bits="10" ids="Upright,Cocktail"/>
+        <dip name="Bonus" bits="11,12" ids="30K and 80K Only,20K and 80K Only,30K 80K Every 80K,20K 70K Every 70K"/>
+        <dip name="Difficulty" bits="13,14" ids="Very Difficult,Difficult,Easy,Normal"/>
+    </switches>
+    <buttons names="Fire,Jump,Start,Coin,Core credits" default="A,B,Start,Select,-" count="2"/>
+</misterromdescription>
