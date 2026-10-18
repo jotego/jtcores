@@ -119,7 +119,12 @@ comes from the four pre-existing errors in rastan/taitox/vlfied
 (`IKA87AD.sv` blocking/nonblocking assignments) and toki (loop array assignment),
 plus warnings in ktiger/wardnr (`IKA32010.sv` initialization assignments).
 No diagnostic names JT51; the missing dependencies have been initialized.
-Contra FPGA compilation is still running. JT51 master and private tea/master
+Contra `jtcore contra -mrq` completed with exit0: zero errors,398 warnings,
+11,640 ALMs and62 RAM blocks. The compiled CRT MiSTer image is left at
+`release/mister/jtcontra.rbf`, SHA256
+`17fd24380b16c64b2e6fcd02f79c10fedf849c2b881ca200a5a715ed53b86e40`.
+Its executable RTL matches the recorded candidate hash; generated version
+metadata predates the final source commit. JT51 master and private tea/master
 are verified at e868314898b53cf734cef0e5c2c878aaa46f091e.
 The requested comment cleanup was already published as4c8811e; no new RTL
 comments were added. #16 and #15 remain open.
@@ -139,6 +144,7 @@ methods are retained alongside the measurements.
 | `right-confirmation.tar.gz` |737|`b83e8ea5a55d73e66f8613f66a931ab26f624e6f7a51fdd3dcddd07d18318440`|
 | `jt51-e868314-source.tar.gz` |38|`a56b4411098b36912de3b1ee4d7c24ace8e390b4774f7f2870c7b99b794b3720`|
 | `published-correction-validation.tar.gz` |240|`b0a884ae6f93dae0b2eb697d722827ca43186888fa01431a10fee5d8d7e6aba1`|
+| `contra-e868314-build.tar.gz` |9|`eb98267bb1ea1230b7a210699c1fb6a5a98736641e528077d8b937c0646788f7`|
 
 ## Remaining families
 
