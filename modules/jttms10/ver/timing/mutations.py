@@ -416,6 +416,12 @@ def main():
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        emu_case='emu_run_phase_a0_hit';emu_extra=['--wait-states','1','--pause-clocks','1']
+        evidence['emu_control']=run_case(work,'emu_control',emu_case,emu_extra)
+        short_emu=work/'short-emu';shutil.copytree(MODULE/'hdl',short_emu)
+        replace_once(short_emu/'jttms10.v',"decode_emu ? 6'd6 :","decode_emu ? 6'd5 :")
+        evidence['short_emu']=run_case(work,'short_emu',emu_case,
+            ['--rtl-dir',str(short_emu),*emu_extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,

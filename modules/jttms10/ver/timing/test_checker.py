@@ -24,9 +24,41 @@ from copy_cases import (alignment as copy_alignment,counts as copy_counts,fixtur
 from pointer_copy_cases import literal_cases as pointer_copy_literals, pointer_copy_cases
 from copy_extension_cases import literal_cases as copy_extension_literals, copy_extension_cases
 from copy_pair_cases import literal_cases as copy_pair_literals, copy_pair_cases
+from emu_cases import emu_cases
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_emu_run_keeps_primary_count_alternatives(self):
+        rows=list(emu_cases());self.assertEqual(len(rows),296)
+        self.assertEqual(len({r['name'] for r in rows}),296)
+        for r in rows:
+            self.assertEqual(r['states'],9 if r['cache_disabled'] else 6)
+            self.assertEqual(r['source_values']['entry_cpu'],8)
+            self.assertEqual(r['source_values']['entry_cd'],11)
+            self.assertEqual(r['source_values']['datasheet_cpu'],6)
+        audit=inventory(rows,accept_project_choices=True)
+        self.assertEqual(len(audit['project_source_choices']),296)
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        self.assertEqual(len(inventory(rows)['unresolved_source_probes']),296)
+
+    def test_emu_run_nop_preserves_full_state_and_ignored_fields(self):
+        rows=list(emu_cases())
+        for row in rows:
+            self.assertEqual(row['opcode'],0x0100)
+            self.assertEqual(row['regs'],row['expected_regs'])
+            self.assertEqual(row['expected_st'],row['regs'][3])
+            self.assertEqual(row['initial_sp'],row['expected_extra_regs']['sp'])
+            for q,v in row['initial_b_regs'].items():self.assertEqual(v,row['expected_extra_regs']['b'+str(q)])
+            self.assertTrue(row['conditions']['run'])
+        self.assertEqual({r['conditions']['opcode_offset'] for r in rows if '_phase_' in r['name']},{0,1,2,3})
+
+    def test_emu_correct_nop_at_wrong_time_is_rejected(self):
+        row=next(r for r in emu_cases() if not r['cache_disabled'])
+        obs=dict(clocks=48,paused=0,st=row['expected_st'],**row['expected_extra_regs'])
+        obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+        self.assertEqual(check(row,obs),[])
+        obs['clocks']=40;self.assertTrue(check(row,obs))
+
     def test_two_address_copy_primary_equation_and_printed_alternatives(self):
         self.assertEqual(copy_counts(0,0,16,mode='offset_offset')[:3],(5,1,15))
         self.assertEqual(copy_counts(0,0,32,mode='absolute_absolute')[:3],(9,3,27))
@@ -368,7 +400,7 @@ class TimingCheckerTest(unittest.TestCase):
     def test_project_choice_inventory_leaves_absolute_byte_open(self):
         # Preserve the independently audited coordinate-stage inventory;
         # later families have their own source-policy checks below.
-        audit=inventory((row for row in cases() if 'data_copy' not in row),accept_project_choices=True)
+        audit=inventory((row for row in cases() if 'data_copy' not in row and row['coverage_id']!='EMU'),accept_project_choices=True)
         self.assertEqual(len(audit['project_source_choices']),3520)
         self.assertEqual(len(audit['unresolved_source_probes']),116)
         self.assertEqual({r['identifier'] for r in audit['unresolved_source_probes']},{'MOVB_R_ABS'})

@@ -102,6 +102,7 @@ vvp "$ver_dir/build/pixel.vvp"
 python3 -B "$ver_dir/timing/test_checker.py"
 python3 "$ver_dir/bus_timing/check.py"
 python3 "$ver_dir/load_pause/check.py"
+python3 "$ver_dir/emu/check.py"
 # Validate mutation injection sites before starting the larger timing matrices.
 python3 "$ver_dir/timing/mutations.py"
 timing_simulator=${JTTMS10_TIMING_SIMULATOR:-iverilog}

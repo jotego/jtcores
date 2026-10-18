@@ -285,7 +285,8 @@ module jttms10 #(
     wire decode_xy_cmp=decode_opcode[15:9]==7'b1110010;
     wire decode_cpw=decode_opcode[15:9]==7'b1110011;
     wire decode_cvxyl=decode_opcode[15:9]==7'b1110100;
-    wire decode_timed=decode_copy || decode_cpw || decode_cvxyl || decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
+    wire decode_emu=decode_opcode==16'h0100;
+    wire decode_timed=decode_emu || decode_copy || decode_cpw || decode_cvxyl || decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
@@ -297,7 +298,7 @@ module jttms10 #(
     // destination read select its shorter path during the first ROM prime.
     wire [5:0] decode_states=decode_control ?
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
-                            decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :

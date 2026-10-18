@@ -102,6 +102,11 @@ for identifier,rows in {
                     entry_typical_cpu=ec,entry_typical_cd=ed)
         CHOICES[identifier,signature(values)]='two-address-copy-common-equation'
 
+# The later data-sheet minimum6 agrees with the guide summary6/9, while
+# the instruction entry prints8/11. RUN-low emulation duration is separate.
+CHOICES['EMU',signature(dict(summary_cpu=6,summary_cd=9,entry_cpu=8,entry_cd=11,
+    datasheet_cpu=6,policy_cpu=6,policy_cd=9))]='emu-run-summary-and-datasheet'
+
 
 def project_choice(identifier,values,kind):
     if kind=='agreed-published-target-gap':return None

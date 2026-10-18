@@ -24,6 +24,7 @@ from copy_cases import copy_cases, transactions as copy_transactions
 from pointer_copy_cases import pointer_copy_cases
 from copy_extension_cases import copy_extension_cases
 from copy_pair_cases import copy_pair_cases
+from emu_cases import emu_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -115,6 +116,7 @@ def cases():
     yield from pointer_copy_cases()
     yield from copy_extension_cases()
     yield from copy_pair_cases()
+    yield from emu_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -496,7 +498,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

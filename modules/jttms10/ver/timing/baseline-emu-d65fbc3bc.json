@@ -1,0 +1,2342 @@
+{
+  "source_commit": "d65fbc3bc",
+  "total": 296,
+  "failed": 296,
+  "architectural_failures": 0,
+  "note": "Historical unscheduled EMU RUN-high behavior:6 INCLK hit/32 CD versus selected48/72. The guide entry8/11 differs from summary6/9 and later data-sheet minimum6. These are historical observations, never an oracle, allowlist or official TI correction.",
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "d52ba3943338e61289c5ba263e43e3161629f4044fea517c469bd47f26bbff71",
+    "hdl/jttms10_alu.v": "07218ac79d1ed88465323efd17b0c6dc9c396bd13e7f9ce8f9792913ed57daea",
+    "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "fb0dd7f6c33d094f9eb6901c7d08a3e16f70647f98000f99e8eb564ea2f66982",
+    "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+    "hdl/jttms10_field.v": "d92ca04f2c5c247421dbb6e790b7ee0d80c359d594d98d7366924d647b793201",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "b65342e27ac9c757c49656e17b71a14c3f8297140a920e901bc988a4e233d990",
+    "ucode/control.yaml": "4141c16eab82c74ff60568a55dae51d4736ccc160a328489125bb2c4c4f0c3b4",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "62956f86054e2128b2a3c4a8e5887bc9099c71a850d2aae6242f96fcabc27b41",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "d52ba3943338e61289c5ba263e43e3161629f4044fea517c469bd47f26bbff71",
+      "hdl/jttms10_alu.v": "07218ac79d1ed88465323efd17b0c6dc9c396bd13e7f9ce8f9792913ed57daea",
+      "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+      "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+      "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+      "hdl/jttms10_ctrl.v": "fb0dd7f6c33d094f9eb6901c7d08a3e16f70647f98000f99e8eb564ea2f66982",
+      "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+      "hdl/jttms10_field.v": "d92ca04f2c5c247421dbb6e790b7ee0d80c359d594d98d7366924d647b793201",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "b65342e27ac9c757c49656e17b71a14c3f8297140a920e901bc988a4e233d990",
+      "ucode/control.yaml": "4141c16eab82c74ff60568a55dae51d4736ccc160a328489125bb2c4c4f0c3b4",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "62956f86054e2128b2a3c4a8e5887bc9099c71a850d2aae6242f96fcabc27b41",
+      "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+      "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+      "ver/timing/run.py": "fe1b49084b779ec58bb28eea68e0083f4d995ee7946f4abdaa4bc1ccf96d915e",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+      "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+      "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+      "ver/timing/load_mode_cases.py": "9ff6ae751706b7925d5b97352df99fa3dbd0f0fce0e43de09e6034d3b9aa8b9d",
+      "ver/timing/store_cases.py": "77c06214093c031e9121537d997f2a1d172ba9a339478b8a7292878b8de37bcf",
+      "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
+      "ver/timing/control_cases.py": "0fb907e3996c6cf7fb34ce0618388d485a12b96871567ba78ca292b8c0c53bb8",
+      "ver/timing/xy_cases.py": "27675e4d4d9f7d3ec2659d9077792a51d53009094a04b1b113e14b1084bf8cd3",
+      "ver/timing/coordinate_cases.py": "a876cb4c9825292c745b101e9266c305cdef2a521fc39e5cd213ed3fbedd06cb",
+      "ver/timing/copy_cases.py": "498bae753b99c523ab1e9d76b42e820373ab93a5544d8d9a8aec397cd6ea4508",
+      "ver/timing/pointer_copy_cases.py": "7b148a713cd33392495c8737b619984334bafb42e65ad0da54b366db2fa0fa45",
+      "ver/timing/copy_extension_cases.py": "a9abe14650135e6bfc57b13696e7c8f8a963b5f378f196191358114b1693d8a9",
+      "ver/timing/copy_pair_cases.py": "a1662b592635cbf983b20bb81df5927d15a07bb3793cf7e27b2c26f3fe8e58e4",
+      "ver/timing/emu_cases.py": "0c0054aa8cb9ed70c2a5577457b54246e1366bf1d08f47d0317e8a5b3dbefadf",
+      "ver/timing/test.sv": "e7a1d6473ed33fb6da4c4fbdc28df0a2caa37cfbf8a3186360bdc5dd2b0adf0a"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "a574f4c5bd29915f5ab6c727f64f7cb82287545a00c1d876a5484b7cb3ce34dc",
+      "tms10.vh": "feba9d47d6d87d61cd9737f6c6dcbfa3755b4202e6d82dc424b61744c2211a68",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "d61386ba7fda4383aca36307adcfd9dc006098e63cb60cc8db777b63aae03d7e"
+    }
+  },
+  "representatives": [
+    {
+      "name": "emu_run_flags0_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_st": 2064,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2064,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 0,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_flags15_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028631056
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028631056
+      ],
+      "expected_st": 4028631056,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028631056,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 15,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_flags0_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_st": 2064,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2064,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 16,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_flags15_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028631056
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028631056
+      ],
+      "expected_st": 4028631056,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028631056,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 31,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f0_w1_fe0_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534657
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534657
+      ],
+      "expected_st": 270534657,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270534657,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 32,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 270534657,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270534657,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f0_w1_fe1_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534689
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534689
+      ],
+      "expected_st": 270534689,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270534689,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 33,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 270534689,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270534689,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f0_w32_fe0_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2048
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2048
+      ],
+      "expected_st": 2048,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2048,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 94,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 2048,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2048,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f0_w32_fe1_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2080
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2080
+      ],
+      "expected_st": 2080,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2080,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 95,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 2080,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2080,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f1_w1_fe0_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270532688
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270532688
+      ],
+      "expected_st": 270532688,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270532688,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 96,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 270532688,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270532688,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f1_w1_fe1_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534736
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534736
+      ],
+      "expected_st": 270534736,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270534736,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 97,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 270534736,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270534736,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f1_w32_fe0_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        16
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        16
+      ],
+      "expected_st": 16,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 16,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 158,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 16,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 16,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f1_w32_fe1_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_st": 2064,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2064,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 159,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_ignored_f0_w1_fe0_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534657
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534657
+      ],
+      "expected_st": 270534657,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270534657,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 160,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 270534657,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270534657,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f0_w1_fe1_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534689
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534689
+      ],
+      "expected_st": 270534689,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270534689,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 161,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 270534689,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270534689,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f0_w32_fe0_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2048
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2048
+      ],
+      "expected_st": 2048,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2048,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 222,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 2048,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2048,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f0_w32_fe1_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2080
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2080
+      ],
+      "expected_st": 2080,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2080,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 223,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 2080,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2080,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f1_w1_fe0_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270532688
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270532688
+      ],
+      "expected_st": 270532688,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270532688,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 224,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 270532688,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270532688,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f1_w1_fe1_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534736
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        270534736
+      ],
+      "expected_st": 270534736,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 270534736,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 225,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 270534736,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 270534736,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f1_w32_fe0_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        16
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        16
+      ],
+      "expected_st": 16,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 16,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 286,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 16,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 16,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_ignored_f1_w32_fe1_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        2064
+      ],
+      "expected_st": 2064,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 2064,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 287,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_phase_a0_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 288,
+        "clocks": 6,
+        "start": 2104,
+        "end": 2110,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_phase_a1_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 1,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 1
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4880,
+      "next_pc": 4896,
+      "observed": {
+        "case": 289,
+        "clocks": 6,
+        "start": 2120,
+        "end": 2126,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_phase_a2_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 2,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 2
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4896,
+      "next_pc": 4912,
+      "observed": {
+        "case": 290,
+        "clocks": 6,
+        "start": 2136,
+        "end": 2142,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_phase_a3_hit",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": false,
+      "states": 6,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 3,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 3
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4912,
+      "next_pc": 4928,
+      "observed": {
+        "case": 291,
+        "clocks": 6,
+        "start": 2224,
+        "end": 2230,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 6 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "emu_run_phase_a0_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 0,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 0
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 292,
+        "clocks": 32,
+        "start": 3424,
+        "end": 3456,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3472, observed 3432",
+        "target dispatch outside TI readiness window: 3432 versus 3472..3478"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00001310 0000 1",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00001310 0000 1",
+        "TARGET_END 3436 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "emu_run_phase_a1_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 1,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 1
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4880,
+      "next_pc": 4896,
+      "observed": {
+        "case": 293,
+        "clocks": 32,
+        "start": 3488,
+        "end": 3520,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3536, observed 3496",
+        "target dispatch outside TI readiness window: 3496 versus 3536..3542"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3496 0 00001320 0000 1",
+        "BUS_ACCEPT 3496",
+        "BUS_END 3512 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3496 0 00001320 0000 1",
+        "TARGET_END 3500 0 00001320 0300"
+      ]
+    },
+    {
+      "name": "emu_run_phase_a2_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 2,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 2
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4896,
+      "next_pc": 4912,
+      "observed": {
+        "case": 294,
+        "clocks": 32,
+        "start": 3552,
+        "end": 3584,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3600, observed 3560",
+        "target dispatch outside TI readiness window: 3560 versus 3600..3606"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3560 0 00001330 0000 1",
+        "BUS_ACCEPT 3560",
+        "BUS_END 3576 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3560 0 00001330 0000 1",
+        "TARGET_END 3564 0 00001330 0300"
+      ]
+    },
+    {
+      "name": "emu_run_phase_a3_off",
+      "coverage_id": "EMU",
+      "opcode": 256,
+      "regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        2779077210,
+        4028633087
+      ],
+      "expected_st": 4028633087,
+      "cache_disabled": true,
+      "states": 9,
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "instruction_word_offset": 3,
+      "citation": "SPVS002C June1991 p14; SPVU001A12-17/77",
+      "conditions": {
+        "run": true,
+        "initial_status": 4028633087,
+        "opcode_offset": 3
+      },
+      "source_values": {
+        "summary_cpu": 6,
+        "summary_cd": 9,
+        "entry_cpu": 8,
+        "entry_cd": 11,
+        "datasheet_cpu": 6,
+        "policy_cpu": 6,
+        "policy_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "Guide entry8/11 conflicts with summary6/9 and later data-sheet minimum6. Keep the simple6/9 schedule under the owner direction. Data-sheet status dashes preserve fullST; guide indeterminateNCZV allows that result. RUN-low hold/resume is not a fixed-duration claim; no official TI correction is claimed.",
+      "test_pc": 4912,
+      "next_pc": 4928,
+      "observed": {
+        "case": 295,
+        "clocks": 32,
+        "start": 3616,
+        "end": 3648,
+        "paused": 0,
+        "st": 4028633087,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 2779077210,
+        "a3": 4028633087,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3664, observed 3624",
+        "target dispatch outside TI readiness window: 3624 versus 3664..3670"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3624 0 00001340 0000 1",
+        "BUS_ACCEPT 3624",
+        "BUS_END 3640 0 00001340 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3624 0 00001340 0000 1",
+        "TARGET_END 3628 0 00001340 0300"
+      ]
+    }
+  ]
+}
