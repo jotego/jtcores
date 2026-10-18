@@ -4,7 +4,7 @@
 import unittest
 
 from oracle import multiply_states, setf_states, divide_states, immediate_states, load_states
-from run import cases, check, check_bus, check_target, split_transcripts, program
+from run import cases, check, check_bus, check_target, split_transcripts, program, measured_trace, reads
 from alu_cases import arithmetic
 from immediate_cases import result as immediate_result, extension_words, TI_EXAMPLES
 from load_cases import extract
@@ -15,6 +15,7 @@ from store_mode_cases import literal_cases as store_literal_cases
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 from coverage import inventory, REQUIRED
+from control_cases import condition, decrement, control_states, fixture as control_fixture
 
 
 class TimingCheckerTest(unittest.TestCase):
@@ -219,6 +220,8 @@ class TimingCheckerTest(unittest.TestCase):
         gap=result['unresolved_source_probes'][0]
         self.assertEqual(gap['kind'],'agreed-published-target-gap')
         self.assertEqual((gap['source_values']['entry_typical_cpu'],gap['source_values']['summary_cpu'],gap['source_values']['policy_cpu']),(1,1,3))
+        case['source_values']['datasheet_cpu']=2
+        self.assertEqual(inventory([case])['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
         # An unaligned byte uses Table13-2, not the byte-aligned entry.
         unaligned=store_fixture('absolute',8,1,0,False,0,byte=True)
         self.assertIsNone(unaligned['source_values']['entry_typical_cpu'])
@@ -239,6 +242,105 @@ class TimingCheckerTest(unittest.TestCase):
     def test_coverage_rejects_unknown_instruction_form(self):
         with self.assertRaisesRegex(ValueError,'unknown TI coverage identifier'):
             inventory([dict(name='unknown',coverage_id='NOT_A_TI_INSTRUCTION',cache_disabled=False)])
+
+    def test_control_condition_table_all_flags(self):
+        # Bit q says the condition is true for NCZV=q, transcribed from
+        # the Boolean conditions in TI pp.12-92..97, including positive.
+        masks=(0xFFFF,0x0033,0xFCFC,0x0303,0x55AA,0xAA55,0xDDEE,0x2211,
+               0xF0F0,0x0F0F,0xCCCC,0x3333,0xAAAA,0x5555,0xFF00,0x00FF)
+        for code,mask in enumerate(masks):
+            self.assertEqual(sum(int(condition(code,flags<<28))<<flags for flags in range(16)),mask)
+        with self.assertRaises(ValueError):condition(16,0)
+
+    def test_control_decrement_literal_results_and_original_z_gate(self):
+        # TI pp.12-70/72/74/75 literal examples, including zero wrap.
+        for before,after,taken in ((9,8,True),(1,0,False),(0,0xFFFFFFFF,True)):
+            for name in ('DSJ','DSJS'):
+                for flags in (0,0xF0000000):self.assertEqual(decrement(name,before,flags),(after,taken))
+            for name,enabled_flags,disabled_flags in (('DSJEQ',0x20000000,0),('DSJNE',0,0x20000000)):
+                self.assertEqual(decrement(name,before,enabled_flags),(after,taken))
+                self.assertEqual(decrement(name,before,disabled_flags),(before,False))
+        self.assertEqual(decrement('DSJS',0x80000000,0xF0000010),(0x7FFFFFFF,True))
+
+    def test_control_primary_path_counts_and_source_conflicts(self):
+        for name in ('JUMP','EXGPC'):
+            self.assertEqual([control_states(name,cache_disabled=off) for off in (False,True)],[2,5])
+        for name in ('DSJ','DSJEQ','DSJNE'):
+            for taken,counts in ((True,(3,9)),(False,(2,8))):
+                self.assertEqual(tuple(control_states(name,taken=taken,cache_disabled=off) for off in (False,True)),counts)
+        self.assertEqual([control_states('DSJS',taken=x) for x in (True,False)],[2,3])
+        self.assertEqual([control_states('JACC',taken=x,cache_disabled=True) for x in (True,False)],[6,7])
+        for name,entry,summary,selected in (('JR_SHORT',1,2,1),('JR_LONG',4,1,2)):
+            case=control_fixture(name,code=10,flags=0)
+            self.assertEqual((case['states'],case['source_values']['entry_typical_cpu'],case['source_values']['summary_cpu'],case['source_values']['datasheet_cpu']),(selected,entry,summary,selected))
+            self.assertEqual(len(inventory([case])['unresolved_source_probes']),1)
+        self.assertEqual(control_states('JR_LONG',taken=False,cache_disabled=True),5)
+
+    def test_control_assembled_targets_banks_sp_and_displacement_endpoints(self):
+        for name in ('JUMP','EXGPC','DSJ','DSJS','JR_SHORT','JR_LONG','JACC'):
+            for displacement in ((-32768,32767) if name in ('DSJ','JR_LONG') else (-8,8)):
+                for bank,reg in ((0,1),(1,1),(1,15)):
+                    case=control_fixture(name,bank=bank,reg=reg,displacement=displacement,low_bits=15)
+                    words,pc,npc=program(case)
+                    image={0x1000+16*q:word for q,word in enumerate(words)}
+                    image.update(case.get('initial_memory',[]))
+                    self.assertEqual(npc,(pc+16*(1+len(case['extensions'])+displacement))&0xFFFFFFFF)
+                    self.assertEqual(image[npc],0x0300)
+                    self.assertEqual(image[(npc+16)&0xFFFFFFFF],0x016C)
+                    if name=='EXGPC':
+                        result=case['expected_extra_regs']['sp'] if reg==15 else case['expected_extra_regs']['b1'] if bank else case['expected_regs'][reg]
+                        self.assertEqual(result,pc+16)
+
+    def test_control_word_plan_and_bus_checks_cannot_be_waived_by_total(self):
+        case=control_fixture('JACC',off=True)
+        words,pc,npc=program(case);case.update(test_pc=pc,next_pc=npc)
+        observed=dict(start=96,end=144,clocks=48,paused=0,st=case['expected_st'],
+                      **{f'a{q}':v for q,v in enumerate(case['expected_regs'])},**case['expected_extra_regs'])
+        bus=[];raw=[]
+        for q,(_,addr,data,iaq) in enumerate(reads(case)):
+            start=96+16*q
+            bus += [f'BUS_BEGIN {start} 0 {addr:08x} 0000 {iaq}',f'BUS_END {start+16} 0 {addr:08x} {data:04x}']
+            raw += [f'TARGET_BEGIN {start+4} 0 {addr:08x} 0000 {iaq}',f'TARGET_END {start+8} 0 {addr:08x} {data:04x}']
+        self.assertEqual(check(case,observed),[])
+        self.assertEqual(check_bus(case,observed,bus,0),[])
+        self.assertEqual(check_target(case,observed,raw+bus,0),[])
+        wrong=list(bus);wrong[0]=wrong[0][:-1]+'1'
+        self.assertTrue(check_bus(case,observed,wrong,0))
+        wrong=list(bus);wrong[1]=wrong[1].replace('112','111')
+        self.assertTrue(check_bus(case,observed,wrong,0))
+        self.assertTrue(check_target(case,observed,raw,0))
+        self.assertTrue(check_bus(case,observed,bus[:-2],0))
+        observed['clocks']=72
+        self.assertEqual(check(case,observed,wait_states=1),[])
+        untaken=control_fixture('JACC',off=True,code=10,flags=0)
+        words,pc,npc=program(untaken);untaken.update(test_pc=pc,next_pc=npc)
+        self.assertEqual(reads(untaken),[(4,npc,0x0300,1)])
+
+    def test_trace_boundary_excludes_preceding_completion_only(self):
+        log='\n'.join(('BUS_END 96 0 00001000 ca80','BUS_BEGIN 96 0 00001010 0000 0',
+                       'BUS_END 112 0 00001010 1234','BUS_BEGIN 128 0 00001200 0000 1',
+                       'BUS_END 144 0 00001200 0300','BUS_BEGIN 144 0 00006000 0000 0',
+                       'BUS_BEGIN 160 0 00001210 0000 1'))
+        observed=dict(start=96,end=144)
+        selected=measured_trace(log,'BUS',observed)
+        self.assertEqual(selected,log.splitlines()[1:5])
+        self.assertEqual(measured_trace(log,'BUS',observed,trailing=True),log.splitlines()[1:])
+
+    def test_control_literal_return_and_following_fields(self):
+        from control_cases import control_cases
+        selected=[case for case in control_cases() if 'literal_return_pc' in case or 'control_follow' in case]
+        self.assertEqual(len(selected),12)
+        for case in selected:
+            words,pc,npc=program(case)
+            if 'literal_return_pc' in case:
+                self.assertEqual(pc,0x2080)
+                self.assertEqual(case['expected_regs'][1],0x2090)
+                self.assertIn(npc,(0x1C10,0x1C50))
+            elif case['control_follow']['kind']=='load':
+                self.assertEqual(case['expected_follow_regs'][0],0x4B2D)
+                self.assertEqual(case['expected_follow_st']&0xF0000000,0)
+            else:
+                self.assertEqual(dict(case['expected_follow_memory']),{0x6000:0x9B6D,0x6010:0xCDB6,0x6020:0x35C6})
 
     def test_high_and_wrapped_store_addresses(self):
         row=store_fixture('offset',16,0,0,False,2,base=0x80006000,displacement=-32768)

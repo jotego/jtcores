@@ -299,6 +299,7 @@ module test;
                     if(seen==measure_pass) begin start_clock<=now; measuring<=1; end
                 end
                 if(measuring && !draining && accepted_pc==next_pc) begin
+                    if((watch_extra & 2)!=0) $display("NEXT_OPCODE %04h",accepted_ir);
                     if(watch_extra!=0)
                         $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h b0=%08h b1=%08h b2=%08h b3=%08h sp=%08h",
                             case_id,now-start_clock,start_clock,now,paused,st,

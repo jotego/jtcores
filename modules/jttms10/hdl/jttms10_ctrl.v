@@ -11,6 +11,7 @@ module jttms10_ctrl(
     input              gfx_active, gfx_done, gfx_checkpoint,
     input      [15:0]  gfx_pbx_ir,
     input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
+    input              branch_condition,
     output            execute, active,
     output            gfx_enter, gfx_resume, gfx_take,
     output     [7:0]  gfx_family,
@@ -368,6 +369,12 @@ module jttms10_ctrl(
                          HWSAVE_SEQA;
             end else if(boundary && halt_req) begin
                 halted <= 1;
+            end else if(uaddr==JRL_SEQA && !branch_condition) begin
+                // Redirect while priming, before an unused extension can
+                // request the bus. Prime the replacement word next clock.
+                uaddr <= JRL_FALSE_SEQA;
+            end else if(uaddr==JACC_SEQA && !branch_condition) begin
+                uaddr <= JACC_FALSE_SEQA;
             end else begin
                 cen <= 1;
             end

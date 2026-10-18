@@ -2,7 +2,10 @@
 // Microcoded TMS34010 execution datapath. Addresses are BIT addresses and
 // requests describe 1..32-bit fields. Peripheral/bus integration is separate.
 module jttms10 #(
-    parameter integer CLKS_PER_STATE=8
+    parameter integer CLKS_PER_STATE=8,
+    // Timed word clients retain read data before Q4 completion, allowing
+    // the dispatch ROM to decode a branch's following opcode before ACK.
+    parameter integer TIMED_PROGRAM=0
 )(
     input             rst, clk, cen,
     input             irq_req,
@@ -11,7 +14,7 @@ module jttms10 #(
     input      [15:0] psize, convsp, convdp, control, pmask,
     output reg        nmi_clear, emu_ack,
     output reg        wvp_set,
-    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post,
+    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post, mem_fast,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
@@ -55,6 +58,7 @@ module jttms10 #(
     wire [15:0] pixel_visible_source;
     wire [15:0] pixel_write_pixel;
     wire n,z,c,v;
+    reg condition;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [31:0] vector_latched;
     reg push_high, hw_entry;
@@ -80,6 +84,7 @@ module jttms10 #(
     wire div_range = div_signed &&
         (div_qneg ? md>32'h8000_0000 : md>=32'h8000_0000);
     wire dsjs_ir = ir[15:11]==5'b00111;
+    wire dsj_ir = ir[15:7]==9'h01b && ir[6:5]!=2'b11;
     wire dsj_allow = ir[15:5]==11'h06d ? st[29] :
                      ir[15:5]==11'h06e ? !st[29] : 1'b1;
     wire signed [9:0] dsjs_disp = ir[10] ?
@@ -151,6 +156,16 @@ module jttms10 #(
                                                          {immediate_word,a[15:0]};
     reg timing_active, immediate_last, load_pending, load_started, load_address_ready;
     reg store_pending,store_started;
+    reg branch_pending,branch_taken;
+    wire branch_relative=ir[15:12]==4'hc;
+    wire branch_short=branch_relative && ir[7:0]!=0 && ir[7:0]!=8'h80;
+    wire branch_will_take=(dsj_ir || dsjs_ir) ? dsj_allow && rd_data!=32'd1 :
+                          !branch_relative || condition;
+    wire branch_shorter=dsjs_ir ? branch_will_take : dsj_ir ? !branch_will_take :
+                        branch_relative && (branch_short ? !branch_will_take : branch_will_take);
+    wire branch_long_untaken=branch_relative && ir[7:0]==0 && !condition;
+    wire [15:0] branch_cut_clocks=(branch_long_untaken ? 16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
+    wire [15:0] dsj_tail_clocks=(branch_taken ? 16'd3 : 16'd2)*CLKS_PER_STATE[15:0];
     wire store_absolute=(ir & 16'hfde0)==16'h0580 || (ir & 16'hffe0)==16'h05e0;
     wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
     wire store_direct=ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
@@ -179,7 +194,7 @@ module jttms10 #(
     wire decode_mod=decode_opcode[15:10]==6'b011011;
     wire [5:0] decode_div_states=decode_mod ? (decode_opcode[9] ? 6'd35 : 6'd40) :
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
-    // General scalar classes. PC-changing, memory and graphics forms retain
+    // General scalar classes. Unlisted memory and graphics forms retain
     // their old schedule until their event rules are independently covered.
     wire decode_store_post=decode_opcode[15:10]==6'b100100;
     wire decode_store_pre=decode_opcode[15:10]==6'b101000;
@@ -219,8 +234,14 @@ module jttms10 #(
     wire decode_rev=decode_opcode[15:5]==11'h001;
     wire decode_carry=decode_opcode==16'h0320 || decode_opcode==16'h0de0;
     wire decode_ie=decode_opcode==16'h0360 || decode_opcode==16'h0d60;
+    wire decode_pc_register=decode_opcode[15:5]==11'h009 || decode_opcode[15:5]==11'h00b;
+    wire decode_dsjs=decode_opcode[15:11]==5'b00111;
+    wire decode_dsj=decode_opcode[15:7]==9'h01b && decode_opcode[6:5]!=2'b11;
+    wire decode_relative=decode_opcode[15:12]==4'hc;
+    wire decode_relative_short=decode_relative && decode_opcode[7:0]!=0 && decode_opcode[7:0]!=8'h80;
+    wire decode_control=decode_pc_register || decode_dsjs || decode_dsj || decode_relative;
     wire decode_btstr=decode_opcode[15:9]==7'b0100101;
-    wire decode_timed=decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
+    wire decode_timed=decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
@@ -228,7 +249,11 @@ module jttms10 #(
                       decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
-    wire [5:0] decode_states=decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+    // Start control flow at its longer path. The original flags and primed
+    // destination read select its shorter path during the first ROM prime.
+    wire [5:0] decode_states=decode_control ?
+                            (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
+                            decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_ie || decode_putst || decode_immediate_long ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -255,7 +280,8 @@ module jttms10 #(
                           gfx_bus_pixel && pix_transparent;
     // Fetch uses the response latch so the synchronous dispatch ROM has a
     // full clock to decode the returned opcode before fetch/dispatch commits.
-    wire operation_ready=(fetch || imm) ? completed && fetch_wait==0 :
+    wire operation_ready=(fetch || imm) ? (completed && fetch_wait==0) ||
+                         (fetch && mem_fast && mem_ack) :
                          !bus_op || completed || mem_ack || gfx_skip_write;
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
     // Only the execution phase owns the bus; this prevents a completed
@@ -264,6 +290,7 @@ module jttms10 #(
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
                       (active && bus_op && !(load_pending && mem_sel==READ_MEM) && !(store_pending && mem_sel==WRITE_MEM))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
+                     !(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
                      !((load_pending || store_pending) && imm && ((!immediate_last && load_issue_left>LOAD_FIRST_LIMIT) ||
                        (immediate_last && !(load_offset || store_offset) && load_issue_left>LOAD_NEXT_LIMIT)));
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
@@ -308,6 +335,11 @@ module jttms10 #(
     // The cache accepts every PC-directed word, including extension words.
     // IAQ remains the separate opcode bus-status signal.
     assign mem_program = (fetch || imm) && !early_load && !early_store;
+    // Extended taken jumps stream CD words through the timed port. Cached
+    // words retain normal cache handling. Generic/raw memory clients leave
+    // TIMED_PROGRAM disabled and need no pre-ACK data-valid guarantee.
+    assign mem_fast=TIMED_PROGRAM!=0 && control[15] && branch_relative &&
+                    !branch_short && condition && mem_program;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = gfx_active && gfx_bus_pixel;
@@ -325,7 +357,7 @@ module jttms10 #(
         .gfx_pbx_ir(rs_data[15:0]),
         .irq_req(irq_req), .nmi_req(nmi_req),
         .nmi_nostack(nmi_nostack), .halt_req(halt_req),
-        .emu_run(emu_run), .ie(st[21]),
+        .emu_run(emu_run), .ie(st[21]), .branch_condition(condition),
         .hw_take(hw_take), .reserved_opcode(reserved_opcode),
         .push_entry(push_entry), .push_active(push_active), .emu_step(emu_step),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
@@ -395,12 +427,12 @@ module jttms10 #(
         .rd_ext(gfx_active && gfx_rf_da[5]),
         .wa_ext(gfx_active && gfx_rf_wa[5]),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
-            fetch && completed ? {decode_opcode[4],decode_opcode[8:5]} :
+            fetch && (completed || mem_fast) ? {decode_opcode[4],decode_opcode[8:5]} :
             ir==16'h0940 && tmp[25] ? 5'd26 :
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(gfx_active ? gfx_rf_da[4:0] :
-            fetch && completed && decode_store ? {decode_opcode[4],decode_opcode[3:0]} :
+            fetch && (completed || mem_fast) && (decode_store || decode_control) ? {decode_opcode[4],decode_opcode[3:0]} :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
@@ -489,7 +521,6 @@ module jttms10 #(
         (gfx_pix_process && pixel_alu_req ? pixel_alu_b : b) : alu_b;
     jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
         .result(result),.n(n),.z(z),.c(c),.v(v));
-    reg condition;
     always @* begin
         condition=0;
         case(ir[11:8])
@@ -526,12 +557,13 @@ module jttms10 #(
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
-    // Scheduling covers the scalar/immediate and load/store families with oracle
-    // probes. Other memory/PC/graphics forms retain their earlier schedule
+    // Scheduling covers scalar/immediate, control flow and load/store families
+    // with oracle probes. Other memory/graphics forms retain their earlier schedule
     // until their event contracts are independently covered.
     always @(posedge clk) begin
         if(rst) begin
             timing_active<=0;
+            branch_pending<=0;branch_taken<=0;
             immediate_last<=0;
             store_pending<=0;store_started<=0;
             load_pending<=0; load_started<=0; load_address_ready<=0; load_issue_left<=0;
@@ -549,6 +581,8 @@ module jttms10 #(
             // part of that state; cached hits have no external-fetch penalty.
             if(mem_req && mem_ack && (fetch || imm))
                 fetch_wait<=mem_cached ? 16'd0 : CLKS_PER_STATE[15:0]-16'd2;
+            if(mem_req && mem_ack && mem_fast && (fetch || ir[7:0]==8'h80))
+                fetch_wait<=0;
             // A cache-fill penalty must leave the following intrinsic word
             // states intact. CD already supplies a separate processing state
             // for each external word. With the cache enabled, rebase from
@@ -557,6 +591,12 @@ module jttms10 #(
             // The cache response bridge has consumed one clock at this ACK.
             if(mem_req && mem_ack && imm && !mem_cached && !control[15] && timing_active)
                 time_left<=immediate_tail_clocks-16'd2;
+            // DSJ's final decrement/test work survives an external offset
+            // fetch. TI pp.12-70..74 requires 3/9 taken and 2/8 untaken.
+            if(mem_req && mem_ack && imm && !mem_cached && timing_active && dsj_ir)
+                time_left<=dsj_tail_clocks-16'd2;
+            if(mem_req && mem_ack && imm && mem_fast && ir[7:0]==0)
+                time_left<=16'd2*CLKS_PER_STATE[15:0]+FETCH_OVERLAP-16'd1;
             // Keep the intrinsic address-generation states after an external
             // extension response. Its cache bridge has consumed one clock.
             if((load_pending || store_pending) && imm && mem_req && mem_ack && !mem_cached)
@@ -575,12 +615,21 @@ module jttms10 #(
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed;
+                branch_pending<=decode_control;
                 immediate_last<=decode_immediate_word;
                 load_pending<=decode_load; load_started<=0;
                 store_pending<=decode_store;store_started<=0;
                 load_address_ready<=decode_load_direct || (decode_store && !decode_store_pre && !decode_store_extension);
-                load_issue_left<=decode_load_pre || decode_store_pre ? LOAD_PRE : (decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_issue_left<=decode_load_pre || decode_store_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
+            end
+            if(cen && branch_pending) begin
+                branch_pending<=0;
+                branch_taken<=branch_will_take;
+                // SPVS002C p14: untaken long JR is two states. The older
+                // entry says four; source alternatives stay in the tests.
+                if(branch_shorter || branch_long_untaken)
+                    time_left<=time_left-branch_cut_clocks-16'd1;
             end
             // MPYU's extra state depends on the selected field's sign bit,
             // which is available once synchronous register reads complete.
@@ -824,7 +873,8 @@ module jttms10 #(
                 case(pc_sel)
                     MD_PC: pc<={md[31:4],4'd0};
                     REG_PC:pc<={rd_data[31:4],4'd0};
-                    ABS_PC:if(condition) pc<={a[31:4],4'd0};
+                    ABS_PC:if(condition) pc<=imm && a_sel==IMMHI_A ?
+                                             {immediate_word,a[15:4],4'd0} : {a[31:4],4'd0};
                     TMP_PC:pc<={tmp[31:4],4'd0};
                     default:;
                 endcase

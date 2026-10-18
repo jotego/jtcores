@@ -9,11 +9,19 @@ ucode:
   - name: jacc
     start: 51
     seq:
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - abs_pc, ni
+      - imm_bus, pcinc, immlo_a
+      - imm_bus, pcinc, immhi_a, abs_pc, ni
+  # Untaken extended jumps advance over their unused address words. The
+  # core still enforces the printed path count before the next fetch.
+  - name: jrl_false
+    start: 147
+    seq:
+      - pcinc, ni
+  - name: jacc_false
+    start: 148
+    seq:
+      - pcinc
+      - pcinc, ni
   - name: getpc
     start: 52
     seq:

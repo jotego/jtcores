@@ -44,7 +44,7 @@ module jttms10_system #(
     wire pixel_srt;
     wire unused_hstctlh = &{hstctlh[15],hstctlh[13:0]};
 
-    jttms10_word #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_cpu(
+    jttms10_word #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(1)) u_cpu(
         .rst(rst),.clk(clk),.cen(cen),
         .irq_req(irq_pending),.irq_vector(irq_vector),
         .nmi_req(nmi_pending),.nmi_nostack(nmi_nmim),

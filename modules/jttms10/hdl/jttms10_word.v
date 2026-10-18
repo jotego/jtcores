@@ -3,7 +3,8 @@
 // word_restart is the arbiter's one-clock HOLD pulse between the read and
 // write of a partial-word RMW pair; the field adapter then rereads that word.
 module jttms10_word #(
-    parameter integer CLKS_PER_STATE=8
+    parameter integer CLKS_PER_STATE=8,
+    parameter integer TIMED_PROGRAM=0
 )(
     input             rst,
     input             clk,
@@ -32,7 +33,7 @@ module jttms10_word #(
     output            retire,
     output            fault
 );
-    wire        field_req, field_we, field_iaq, field_program, field_pixel, field_ack, field_post;
+    wire        field_req, field_we, field_iaq, field_program, field_pixel, field_ack, field_post, field_fast;
     wire [31:0] field_addr, field_wdata, field_rdata;
     wire [5:0]  field_size;
     wire cache_ack, cache_hit, field_busy;
@@ -52,6 +53,7 @@ module jttms10_word #(
     // and stacks still use the field adapter, including all RMW/HOLD handling.
     wire program_read=field_program && !field_we && field_size==6'd16 &&
                       field_addr[3:0]==0;
+    wire fast_program=program_read && field_fast;
     wire data_request=field_req && !program_read;
     wire data_accept=data_request && !field_busy && !post_ack && !post_busy;
     // Keep one logical operation pending across the cache/field helper's
@@ -68,11 +70,15 @@ module jttms10_word #(
     wire indirect_load=ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
-    assign word_early=early_data_q && data_owner && (slot_eligible || slot_phase==0);
+    reg fast_slot;
+    assign word_early=(early_data_q && data_owner && (slot_eligible || slot_phase==0)) ||
+                      (fast_program && !data_owner && fast_slot);
     always @(posedge clk) begin
-        if(rst) begin slot_phase<=0; slot_eligible<=0; end
+        if(rst) begin slot_phase<=0; slot_eligible<=0; fast_slot<=0; end
         else begin
             slot_phase<=slot_phase==SLOT_LAST ? {SLOT_PW{1'b0}} : slot_phase+1'b1;
+            if(slot_phase==0) fast_slot<=cen;
+            else if(!cen) fast_slot<=0;
             if(!field_req && !data_owner) slot_eligible<=0;
             else if(slot_phase==0 || (!request_latched && slot_phase==1)) slot_eligible<=1;
         end
@@ -80,16 +86,16 @@ module jttms10_word #(
 
     // Program lookup can hit the existing RAM while a data operation owns
     // the external bus. A miss waits for that operation, preserving ordering.
-    assign word_req=data_owner ? field_word_req && !data_word_ack : cache_word_req;
+    assign word_req=data_owner ? field_word_req && !data_word_ack : fast_program ? field_req : cache_word_req;
     assign word_we=data_owner && field_word_we;
-    assign word_addr=data_owner ? field_word_addr : cache_word_addr;
+    assign word_addr=data_owner ? field_word_addr : fast_program ? field_addr : cache_word_addr;
     assign word_wdata=data_owner ? field_word_wdata : 16'd0;
-    assign word_iaq=data_owner ? iaq_q : cache_word_iaq;
+    assign word_iaq=data_owner ? iaq_q : fast_program ? field_iaq : cache_word_iaq;
     assign word_pixel=data_owner && pixel_q;
     assign word_lock=data_owner && field_word_lock;
-    assign cache_word_ack=word_ack && !data_owner;
-    assign field_ack=program_read ? cache_ack : post_ack || (!post_busy && data_ack);
-    assign field_rdata=program_read ? {16'd0,cache_rdata} : data_rdata;
+    assign cache_word_ack=word_ack && !data_owner && !fast_program;
+    assign field_ack=fast_program ? word_ack && !data_owner : program_read ? cache_ack : post_ack || (!post_busy && data_ack);
+    assign field_rdata=program_read ? {16'd0,fast_program ? word_rdata : cache_rdata} : data_rdata;
     wire [15:0] field_word_rdata=pixel_q && srt_q && !field_word_we ?
                                   16'd0 : data_word_rdata;
     // Match the existing registered bypass response. CPU CEN cannot discard
@@ -102,7 +108,7 @@ module jttms10_word #(
         end
     end
 
-    jttms10 #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_core(
+    jttms10 #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(TIMED_PROGRAM)) u_core(
         .rst(rst), .clk(clk), .cen(cen),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
@@ -112,7 +118,7 @@ module jttms10_word #(
         .nmi_clear(nmi_clear), .emu_ack(emu_ack), .wvp_set(wvp_set),
         .mem_req(field_req), .mem_we(field_we), .mem_iaq(field_iaq),
         .mem_program(field_program),
-        .mem_pixel(field_pixel), .mem_post(field_post),
+        .mem_pixel(field_pixel), .mem_post(field_post), .mem_fast(field_fast),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit),
@@ -132,7 +138,7 @@ module jttms10_word #(
     jttms10_cache u_cache(
         .clk(clk), .rst(rst),
         .cache_disable(control[15]), .cache_flush(cache_flush),
-        .c_req(field_req && program_read), .c_we(1'b0), .c_iaq(field_iaq),
+        .c_req(field_req && program_read && !fast_program), .c_we(1'b0), .c_iaq(field_iaq),
         .c_program(1'b1), .c_pixel(1'b0), .c_lock(1'b0),
         .c_addr(field_addr), .c_wdata(16'd0),
         .c_rdata(cache_rdata), .c_ack(cache_ack), .c_hit(cache_hit), .c_restart(unused_cache_restart),
@@ -140,6 +146,19 @@ module jttms10_word #(
         .m_addr(cache_word_addr), .m_wdata(unused_cache_wdata),
         .m_rdata(word_rdata), .m_ack(cache_word_ack), .m_restart(word_restart && !data_owner)
     );
+
+    // The timed fabric samples readiness/data at Q1 and retains the data
+    // through Q4. Direct dispatch needs one settled ROM-read clock before
+    // ACK; raw word interfaces do not opt into this capability.
+    // synthesis translate_off
+    reg [15:0] fast_data_q;
+    always @(posedge clk) begin
+        fast_data_q<=word_rdata;
+        if(!rst && fast_program && field_iaq && word_ack && !data_owner &&
+           word_rdata!==fast_data_q)
+            $fatal(1,"fast program data did not settle before ACK");
+    end
+    // synthesis translate_on
 
     // Data metadata belongs to the accepted field until every physical word
     // completes; the CPU may independently address the program cache.

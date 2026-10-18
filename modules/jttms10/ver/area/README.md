@@ -192,6 +192,19 @@ Same NARC boundary, 158 virtual pins, device, 20 ns clock, seed and effort.
 These are synthesis estimates. Current fitted-area/STA/NARC validation and
 remaining ISA/condition checks are still required.
 
+The control-flow stage's matched snapshot at
+`/tmp/jttms10-144-control-datasheet-map` reports **3,356 estimated ALMs,
+4,808 combinational ALUTs, 1,653 registers, 538,624 block-memory bits,
+five DSP blocks and zero MLAB bits**. Relative to extension stores this is
++16 estimated ALMs/+41 ALUTs/-61 registers, with unchanged RAM/DSP totals.
+The measurement includes path budgets, unused-word skipping, combined
+address capture and direct timed branch reads; it does not isolate one
+change's cost. The existing PC adder, counters and arithmetic units remain
+shared. Same complete NARC GSP boundary, 158 virtual pins, device, 20 ns,
+seed1 and effort. All 36 snapshot hashes and 29 copied inputs verify, with
+the same 46 warning classifications. These remain synthesis estimates,
+without current fitted-area, physical M10K count, STA or NARC signoff.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 82 of 133 instruction forms; the other 51 remain unvalidated.
+probes cover 91 of 133 instruction forms; the other 42 remain unvalidated.
 Some printed store counts conflict; affected probes label their inferred
 source policy explicitly and do not establish unqualified TI compliance.
 Single-word absolute MOVB also has a known gap against counts on which
@@ -189,13 +189,17 @@ it also fails on unresolved timing-source overrides, even if every form has
 probes. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-20,372-case inventory has 248 unresolved probe instances: 242 store probes
-and six aligned absolute MOVE load CD probes. Twenty-seven store probe
+35,874-case inventory has 2,244 unresolved probe instances: 242 store probes,
+six aligned absolute MOVE load CD probes and 1,996 untaken relative-jump
+probes with conflicting primary counts. Twenty-seven store probe
 instances disagree with matching entry/summary counts. The JSON preserves
 each affected name, condition-specific source counts and citation. These
-are counts of probe instances, not distinct timing rules. Four checker
+are counts of probe instances, not distinct timing rules. The audit includes
+applicable data-sheet counts as well as entry/summary alternatives; a third
+disagreeing source cannot be misreported as agreement between all sources.
+Four checker
 regressions keep all-form presence, numeric relabeling and applicable load
-source conflicts from bypassing this gate. There are now 45 checker/model
+source conflicts from bypassing this gate. There are now 52 checker/model
 tests. Probe presence and resolved sources remain necessary gates; neither
 completes the condition/bus/interrupt audit.
 The full #144 checklist remains open.
@@ -226,7 +230,8 @@ The full #144 checklist remains open.
 | I/O fixed duration and ignored ready | p.11-14 | Timer tests with ACK permanently low/high; timed queued-host I/O and system register/IRQ regression | Two-state/ACK-independent contract passes; exact internal I/O latch edge excluded as undocumented |
 | External wait addition | §13.1.2 p.13-3; §11.4.10 p.11-16 | Full CPU raw ready at 4/12 INCLK, logical bus duration 16/24; exact added delay and independent target/start/order checks | Current probes pass |
 | Immediate forms: IW 2,8; IL 3,12 | ADDI pp.12-38–39, CMPI 12-54–55, MOVI 12-159–160, SUBI 12-249–250; ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 | 2,828 programs: source-level encoding/sign/flags, warm word alignments and first/second-extension misses; per-word waits and IAQ | Current probes pass; [immediate-timing.md](immediate-timing.md) records the contract and exclusions |
-| Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
+| JUMP/EXGPC, DSJ/EQ/NE/S and conditional JR/JAcc | SPVU001A pp.12-70..79,92..98; SPVS002C June1991 p.14 | 15,502 programs: both paths, all conditions/flags, A/B/SP, target alignment, displacement endpoints, literal PCs, CEN phases and immediate target fields | Current selected-count probes; untaken JR source discrepancies and the inferred long-JR CD5 remain explicit in [control-timing.md](control-timing.md) |
+| Calls/returns/traps, register lists and other hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
 | MOVE post/pre/offset/absolute and MOVB offset/absolute; load B/SP conditions | Table13-1 p.13-5; pp.12-120,123,139–154; §5.4.7 | 3,200 additional fixtures, A/B/SP aliases/wrap, displacement/ignored-byte-field boundaries, cold address-word fills and six early CEN phases | Current probes pass; absolute MOVE entry conflicts with summary, with explicit oracle policy in [load-timing.md](load-timing.md) |
 | MOVE register to indirect/post/pre and MOVB register to indirect | Table13-2 p.13-6; pp.12-115,127–131; hidden states pp.13-2/3 | 3,344 store cases plus 70 following-load dependency probes, preserved memory, ordered RMW/writes beyond the next decode, file B/SP/aliases and waits/CEN | Current probes pass; [store-timing.md](store-timing.md) records the contract and source conflicts for other modes |
@@ -331,6 +336,16 @@ explicit in the [store ledger](store-timing.md); passing an inferred-policy
 case is not unqualified TI-count signoff. The standard presence gate remains
 necessary only; all remaining condition/bus/interrupt and final hardware
 requirements stay open.
+
+The control-flow expansion adds **15,502 programs**, giving **35,874 cases
+per matrix** and **107,900 timing programs** across three matrices, two DIV
+pauses and six 46-case phase unions. Nine additional forms have probes
+(91/133; 42 remain missing). Fifty-two checker/model tests, 31 mutation
+positive controls and 38 rejection checks accompany the probes. The latter
+comprise 35 timing/stimulus demonstrations and three event contracts.
+[control-timing.md](control-timing.md) records the newer data-sheet minimum
+for untaken long JR, the conflicting older counts, direct timed program
+reads, trace boundaries and post-branch register/field dependencies.
 
 
 ## Current implementation boundary

@@ -196,18 +196,18 @@ def main():
 
         pause=work / 'load-absorbs-substate-pause-hdl'
         shutil.copytree(MODULE / 'hdl',pause)
-        replace_once(pause / 'jttms10_word.v','early_data_q && data_owner && (slot_eligible || slot_phase==0);',
-                     'early_data_q && data_owner;')
+        replace_once(pause / 'jttms10_word.v','(early_data_q && data_owner && (slot_eligible || slot_phase==0))',
+                     '(early_data_q && data_owner)')
         evidence['load_absorbs_substate_pause']=run_case(work,'load_absorbs_substate_pause',load_pause,
             ['--rtl-dir',str(pause),'--wait-states','1','--pause-clocks','1'],mutated=True)
 
         cached_data=work / 'incorrectly-cached-data-hdl'
         shutil.copytree(MODULE / 'hdl',cached_data)
         path=cached_data/'jttms10_word.v'
-        replace_once(path,'.c_req(field_req && program_read)', '.c_req((field_req && program_read) || (data_owner && field_word_req && !field_word_we))')
+        replace_once(path,'.c_req(field_req && program_read && !fast_program)', '.c_req((field_req && program_read && !fast_program) || (data_owner && field_word_req && !field_word_we))')
         replace_once(path,'.c_addr(field_addr)', '.c_addr(program_read ? field_addr : field_word_addr)')
-        replace_once(path,'word_req=data_owner ? field_word_req && !data_word_ack : cache_word_req', 'word_req=data_owner && field_word_we ? field_word_req && !data_word_ack : cache_word_req')
-        replace_once(path,'word_addr=data_owner ? field_word_addr : cache_word_addr', 'word_addr=data_owner && field_word_we ? field_word_addr : cache_word_addr')
+        replace_once(path,'word_req=data_owner ?', 'word_req=data_owner && field_word_we ?')
+        replace_once(path,'word_addr=data_owner ?', 'word_addr=data_owner && field_word_we ?')
         replace_once(path,'cache_word_ack=word_ack && !data_owner', 'cache_word_ack=word_ack && (!data_owner || !field_word_we)')
         replace_once(path,'data_word_ack<=word_ack && data_owner;', 'data_word_ack<=data_owner && !field_word_we ? cache_ack : word_ack && data_owner;')
         replace_once(path,'if(word_ack && data_owner) data_word_rdata<=word_rdata;', 'if(data_owner && !field_word_we) data_word_rdata<=cache_rdata; else if(word_ack && data_owner) data_word_rdata<=word_rdata;')
@@ -216,8 +216,8 @@ def main():
 
         pre_mode=work / 'wrong-pre-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',pre_mode)
-        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre ? LOAD_PRE : (decode_load_extension || decode_store_extension) ?',
-                     'decode_load_pre || decode_store_pre ? LOAD_LEAD : (decode_load_extension || decode_store_extension) ?')
+        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ?',
+                     'decode_load_pre || decode_store_pre || decode_dsj ? LOAD_LEAD : (decode_load_extension || decode_store_extension) ?')
         evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
             ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
 
@@ -236,7 +236,8 @@ def main():
 
         second_word=work / 'early-second-address-word-hdl'
         shutil.copytree(MODULE/'hdl',second_word)
-        replace_once(second_word/'jttms10.v',"load_issue_left>LOAD_NEXT_LIMIT","1'b0")
+        replace_once(second_word/'jttms10.v',"immediate_last && !(load_offset || store_offset) && load_issue_left>LOAD_NEXT_LIMIT",
+                     "immediate_last && !(load_offset || store_offset) && 1'b0")
         evidence['early_second_address_word']=run_case(work,'early_second_address_word',second_word_case,
             ['--rtl-dir',str(second_word),'--wait-states','1','--pause-clocks','1'],mutated=True)
 
@@ -244,7 +245,7 @@ def main():
         evidence['store_control']=run_case(work,'store_control',store_case)
         for name,old,new in (
             ('blocking_store',"if(field_post) begin post_busy<=1;post_ack<=1;end", "if(1'b0) begin post_busy<=1;post_ack<=1;end"),
-            ('no_cached_write_overlap','.c_req(field_req && program_read)', '.c_req(field_req && program_read && !data_owner)'),
+            ('no_cached_write_overlap','.c_req(field_req && program_read && !fast_program)', '.c_req(field_req && program_read && !fast_program && !data_owner)'),
             ('lost_hidden_pending','assign word_pending=field_req || data_owner;', 'assign word_pending=field_req;')):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10_word.v',old,new)
@@ -261,6 +262,58 @@ def main():
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v',old,new)
             evidence[name]=run_case(work,name,case,['--rtl-dir',str(mutant),'--wait-states','1','--pause-clocks','1'],mutated=True)
+
+        jump_case='control_jump_cc0_nzcv0_r0_0_v00000009_dp8_lo0_a0_hit'
+        dsjs_case='control_dsjs_cc0_nzcv0_r0_0_v00000001_dp3_lo0_a0_hit'
+        dsj_case='control_dsj_cc0_nzcv0_r0_0_v00000009_dp8_lo0_a0_off'
+        relative_case='control_jr_long_cc10_nzcv3_r0_0_v00000009_dp8_lo0_a0_off'
+        absolute_case='control_jacc_cc10_nzcv3_r0_0_v00000009_dp8_lo0_a0_off'
+        untaken_case='control_jacc_cc10_nzcv0_r0_0_v00000009_dp8_lo0_a0_off'
+        counter_case='control_dsjs_cc0_nzcv0_r1_1_v00000001_dm3_lo0_a0_off'
+        long_untaken_case='control_jr_long_cc10_nzcv0_r0_0_v00000009_dp8_lo0_a0_hit'
+        for name,probe,extra in (
+            ('jump_control',jump_case,()),('dsjs_control',dsjs_case,()),
+            ('dsj_control',dsj_case,('--wait-states','1','--pause-clocks','1')),
+            ('relative_control',relative_case,()),
+            ('absolute_control',absolute_case,('--wait-states','1')),
+            ('untaken_control',untaken_case,('--wait-states','1')),
+            ('primed_counter_control',counter_case,()),
+            ('long_untaken_control',long_untaken_case,())):
+            evidence[name]=run_case(work,name,probe,extra)
+        for name,probe,extra,file,old,new in (
+            ('one_state_jump',jump_case,(),'jttms10.v',
+             "decode_relative && !decode_relative_short ? 6'd4 : 6'd2)",
+             "decode_relative && !decode_relative_short ? 6'd4 : decode_pc_register ? 6'd1 : 6'd2)"),
+            ('short_dsjs_fallthrough',dsjs_case,(),'jttms10.v',
+             'branch_shorter=dsjs_ir ? branch_will_take :',"branch_shorter=dsjs_ir ? 1'b1 :"),
+            ('lost_dsj_offset_work',dsj_case,('--wait-states','1','--pause-clocks','1'),'jttms10.v',
+             'timing_active && dsj_ir)',"timing_active && 1'b0)"),
+            ('late_relative_fetch',relative_case,(),'jttms10.v',
+             "time_left<=16'd2*CLKS_PER_STATE[15:0]+FETCH_OVERLAP-16'd1;",
+             "time_left<=16'd2*CLKS_PER_STATE[15:0]-16'd1;"),
+            ('serialized_branch_words',absolute_case,('--wait-states','1'),'jttms10.v',
+             'assign mem_fast=TIMED_PROGRAM!=0 &&',"assign mem_fast=1'b0 &&"),
+            ('unused_branch_extension_reads',untaken_case,('--wait-states','1'),'jttms10_ctrl.v',
+             'uaddr==JACC_SEQA && !branch_condition',"1'b0"),
+            ('absorbed_dsj_offset_pause',dsj_case,('--wait-states','1','--pause-clocks','1'),'jttms10.v',
+             '!(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT)',"1'b1"),
+            ('unprimed_branch_counter',counter_case,(),'jttms10.v',
+             'fetch && (completed || mem_fast) && (decode_store || decode_control)',
+             'fetch && completed && (decode_store || decode_control)'),
+            ('old_long_jr_fallthrough',long_untaken_case,(),'jttms10.v',
+             'branch_long_untaken=branch_relative && ir[7:0]==0 && !condition',"branch_long_untaken=1'b0")):
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+            if name=='late_relative_fetch':
+                row=evidence[name]['cases'][0]
+                if row['observed']['clocks']!=48 or not any('read duration' in e for e in row['errors']):
+                    raise RuntimeError('late_relative_fetch must retain the correct total but fail its bus cycle')
+        late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
+        replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
+        evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,
+            ['--rtl-dir',str(late_data)],mutated=True,
+            event_error='fast program data did not settle before ACK')
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

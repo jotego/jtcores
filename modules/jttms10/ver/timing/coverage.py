@@ -175,16 +175,15 @@ def inventory(rows):
         values = case.get('source_values', {})
         suffix = 'cd' if case['cache_disabled'] else 'cpu'
         policy = values.get('policy_'+suffix)
-        summary = values.get('summary_'+suffix)
-        entry = values.get('entry_typical_'+suffix)
         if policy is not None:
             miss = 9 if case.get('cache_miss') in ('load_extension','store_extension') else 0
             if case['states'] != policy + miss:
                 raise ValueError(f"{case['name']}: source policy differs from the probe expectation")
-        differs = policy is not None and any(
-            count is not None and count != policy for count in (summary, entry))
+        published = [count for key,count in values.items()
+                     if key.endswith('_'+suffix) and not key.startswith('policy_') and count is not None]
+        differs = policy is not None and any(count != policy for count in published)
         if differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
-            agreed_gap = summary is not None and summary == entry and summary != policy
+            agreed_gap = len(published)>=2 and len(set(published))==1 and published[0]!=policy
             unresolved.append(dict(
                 name=case['name'], identifier=identifier, citation=case['citation'],
                 clock_unit='machine states', cache_disabled=case['cache_disabled'],

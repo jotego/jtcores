@@ -24,6 +24,7 @@ from load_cases import load_cases
 from load_mode_cases import load_mode_cases
 from store_cases import store_cases, transactions as store_transactions
 from store_mode_cases import store_mode_cases
+from control_cases import control_cases, program as control_program, fetch_extensions
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -101,6 +102,7 @@ def cases():
     yield from load_mode_cases()
     yield from store_cases()
     yield from store_mode_cases()
+    yield from control_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -110,6 +112,8 @@ def cases():
 
 
 def program(case):
+    if 'control_flow' in case:
+        return control_program(case,movi)
     # Disable DRAM refresh and video; only the CPU uses the physical bus.
     words = movi(0xC00000B0, 14) + movi(0x8018 if case['cache_disabled'] else 0x18, 13)
     words += [0x0550, 0x81AE]  # SETF 16,0,0; MOVE A13,*A14,0
@@ -181,6 +185,25 @@ def simulate(command, work, timeout):
         return subprocess.CompletedProcess(command, 124, output, 'simulation timed out\n')
 
 
+def measured_trace(log, prefix, observed, *, trailing=False):
+    """A previous opcode may complete exactly as direct dispatch starts.
+
+    Include new allocations at the opening boundary, and completions after
+    it through the closing boundary. A prior completion at start belongs
+    to the preceding instruction, not the measured transfer sequence.
+    """
+    result=[]
+    for line in log.splitlines():
+        if not line.startswith(prefix+'_'):continue
+        if observed is not None:
+            clock=int(line.split()[1])
+            if clock<observed['start'] or line.startswith(prefix+'_END ') and clock==observed['start']:continue
+            if not trailing and clock>observed['end']:continue
+            if not trailing and clock==observed['end'] and not line.startswith(prefix+'_END '):continue
+        result.append(line)
+    return result
+
+
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
     if 'data_store' in case:
@@ -198,6 +221,8 @@ def check(case, observed, wait_states=0, pause_clocks=0):
     load=case.get('data_load')
     data_words=(((load['address']&15)+load['width']+15)//16) if load else 0
     words=data_words+(4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled']))
+    if 'control_flow' in case:
+        words=(1+len(fetch_extensions(case)))*int(case['cache_disabled'])
     added_clocks = words * wait_states * INPUT_CLOCKS_PER_STATE
     alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE if words else 0
     expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks + alignment
@@ -227,6 +252,15 @@ def reads(case, wait_states=0):
     Each immediate word consumes an intrinsic state and its external-fetch
     penalty. No data writes or hidden states occur in these fixtures.
     """
+    if 'control_flow' in case:
+        if not case['cache_disabled']:return []
+        extensions=fetch_extensions(case)
+        # The instruction entries specify total counts, not an internal
+        # word-by-word CPU schedule for extended branches. Assert every
+        # transfer/address/IAQ and the TI state grid without inventing such
+        # microinstruction edges. Single-word forms retain the fixed slot.
+        return [(None,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]+[
+            (None if extensions else case['states']-3,case['next_pc'],case['expected_next_opcode'],1)]
     if 'data_load' in case:
         load=case['data_load'];address=load['address']
         count=((address&15)+load['width']+15)//16
@@ -272,13 +306,20 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     if len(begin) != len(plan) or len(end) != len(plan):
         errors.append(f"expected {len(plan)} physical instruction reads, observed {len(begin)} starts/{len(end)} ACKs")
     elif plan:
+        if 'control_flow' in case and any(int(b[1])<int(e[1]) for b,e in zip(begin[1:],end[:-1])):
+            errors.append('control-flow instruction reads overlap or are out of order')
         if observed['start']%INPUT_CLOCKS_PER_STATE:
             errors.append('external fetch begins from an instruction off the machine-state grid')
         alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE
         for (offset,addr,data,iaq),b,e in zip(plan,begin,end):
-            start=observed['start']+offset*INPUT_CLOCKS_PER_STATE+pause_clocks+alignment
-            if int(b[1]) != start:
-                errors.append(f"TI instruction read start: expected clock {start}, observed {b[1]}")
+            if offset is None:
+                start=int(b[1])
+                if start%8 or not observed['start']<=start<int(e[1])<=observed['end']:
+                    errors.append('extended control-flow read outside the TI grid/instruction interval')
+            else:
+                start=observed['start']+offset*INPUT_CLOCKS_PER_STATE+pause_clocks+alignment
+                if int(b[1]) != start:
+                    errors.append(f"TI instruction read start: expected clock {start}, observed {b[1]}")
             if (int(b[2]), int(b[3], 16), int(b[5])) != (0,addr,iaq):
                 errors.append(f"unexpected physical cycle: {' '.join(b)}; expected address {addr:08x}, IAQ {iaq}")
             if e[2:4] != b[2:4] or int(e[4], 16) != data:
@@ -298,8 +339,14 @@ def check_target(case,observed,lines,wait_states,pause_clocks=0):
     errors=[]
     if len(begin)!=len(plan) or len(end)!=len(plan):
         return [f'expected {len(plan)} target reads, observed {len(begin)} starts/{len(end)} ACKs']
-    for (offset,addr,data,iaq),b,e in zip(plan,begin,end):
-        logical=observed['start']+offset*8+pause_clocks+(-pause_clocks)%8
+    logical_begin=[line.split() for line in lines if line.startswith('BUS_BEGIN ')]
+    for q,((offset,addr,data,iaq),b,e) in enumerate(zip(plan,begin,end)):
+        if offset is None:
+            if len(logical_begin)!=len(plan):
+                errors.append('missing logical bus allocations for extended control-flow target checks')
+                continue
+            logical=int(logical_begin[q][1])
+        else:logical=observed['start']+offset*8+pause_clocks+(-pause_clocks)%8
         if not logical<=int(b[1])<=logical+6:
             errors.append(f'target dispatch outside TI readiness window: {b[1]} versus {logical}..{logical+6}')
         if (int(b[2]),int(b[3],16),int(b[5]))!=(0,addr,iaq):
@@ -393,7 +440,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -442,12 +489,12 @@ def main():
                 (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs")))}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case else 0)}',
                     f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions',0)}", f"+FOLLOW_PC={case.get('follow_pc',0):x}", f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs')))} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
@@ -483,13 +530,32 @@ def main():
             row = dict(case, observed=observed, errors=errors)
             # Keep measured bus traffic with the verdict, including expected
             # zero-traffic warm hits. Full launch trace is available separately.
-            row['bus_trace'] = [line for line in log.splitlines() if line.startswith('BUS_') and
-                                (observed is None or observed['start'] <= int(line.split()[1]) and ('data_store' in case or int(line.split()[1]) <= observed['end']))]
-            row['target_trace'] = [line for line in log.splitlines() if line.startswith('TARGET_') and
-                                (observed is None or observed['start'] <= int(line.split()[1]) and ('data_store' in case or int(line.split()[1]) <= observed['end']))]
+            row['bus_trace'] = measured_trace(log,'BUS',observed,trailing='data_store' in case)
+            row['target_trace'] = measured_trace(log,'TARGET',observed,trailing='data_store' in case)
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
-                errors.extend(check_target(case,observed,row['target_trace'],args.wait_states,args.pause_clocks))
+                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case else []),args.wait_states,args.pause_clocks))
+            if 'control_flow' in case:
+                next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
+                row['observed_next_opcodes']=next_opcodes
+                if next_opcodes != [case['expected_next_opcode']]:errors.append('control-flow target opcode mismatch')
+            if 'control_follow' in case:
+                follow=[line for line in log.splitlines() if line.startswith('FOLLOW ')]
+                if len(follow)!=1:errors.append('expected exactly one post-branch instruction observation')
+                else:
+                    fields=dict(item.split('=') for item in follow[0].split()[1:])
+                    actual={key:int(value,10 if key=='clock' else 16) for key,value in fields.items()}
+                    row['observed_follow']=actual
+                    spec=case['control_follow']
+                    clocks=8*(spec['states']+spec['transfers']*args.wait_states)
+                    if observed is not None and actual['clock']-observed['end']!=clocks:
+                        errors.append(f'first instruction after branch: expected {clocks} INCLK, observed {actual["clock"]-observed["end"]}')
+                    for q,value in enumerate(case['expected_follow_regs']):
+                        if actual[f'a{q}']!=value:errors.append(f'first instruction after branch A{q} mismatch')
+                    if actual['st']!=case['expected_follow_st']:errors.append('first instruction after branch ST mismatch')
+                memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
+                row['observed_memory']=memory
+                if sorted(memory)!=sorted(case['expected_follow_memory']):errors.append('memory after first post-branch instruction mismatch')
             if 'data_store' in case:
                 memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
                 row['observed_memory']=memory

@@ -210,8 +210,10 @@ and final-memory comparison passes. Twenty-four form/cache/cold/min-max-span
 representatives and 22 verified historical HDL/YAML hashes are retained as
 historical evidence only. Two new RTL mutations omit store address pacing
 or lose post-fill intrinsic work; both must fail with correct registers/ST
-and drained memory. The full suite has 23 positive controls and 28 rejection
+and drained memory. The extension-store milestone has 23 positive controls and 28 rejection
 checks: 26 timing/stimulus demonstrations and two event contracts.
+Current suite totals, including subsequent control-flow checks, are in
+[control-timing.md](control-timing.md).
 
 Memory-to-memory moves, all other hidden-write instructions, consecutive
 stores, wrap conditions beyond the present probes, replacement/prefetch,

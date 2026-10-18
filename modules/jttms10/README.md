@@ -11,10 +11,10 @@ MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
-The standard runner fails its acceptance gate on 51 missing instruction
-forms and unresolved timing-source policies. The current 82-form matrix includes
+The standard runner fails its acceptance gate on 42 missing instruction
+forms and unresolved timing-source policies. The current 91-form matrix includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
-memory-to-register MOVE/MOVB modes and register-to-memory stores with
+memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
 [hidden-write/dependency checks](docs/store-timing.md). Probe presence is
 only a necessary gate; conflicting printed store counts have explicitly
 labeled inferred policies and remain excluded from unqualified signoff.
