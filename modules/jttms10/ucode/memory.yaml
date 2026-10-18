@@ -69,12 +69,10 @@ ucode:
   - name: moveind
     start: 43
     seq:
-      - reg_a, reg_b
-      - a_ea
+      # Prime both pointers at opcode acceptance; the read captures the
+      # entire source before posting the destination, including overlaps.
       - read_mem
-      - b_ea
-      - write_mem
-      - ni
+      - write_mem, ni
   - name: movepi
     start: 44
     seq:

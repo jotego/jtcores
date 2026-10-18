@@ -218,8 +218,8 @@ inputs verify; the same 46 warning classifications remain. These are
 synthesis estimates; fitted-area/STA/NARC acceptance remains required.
 
 The coordinate CPW/CVXYL stage at `/tmp/jttms10-144-coordinate-map` reports
-**3,451 estimated ALMs,4,931 combinational ALUTs,1,653 registers,538,624
-block-memory bits,five DSP blocks and zero MLAB bits**. Relative to XY
+**3,451 estimated ALMs,4,931 combinational ALUTs,1,653 registers, 538,624
+block-memory bits, five DSP blocks and zero MLAB bits**. Relative to XY
 this is+74 estimated ALMs/+138ALUTs, with unchanged registers/RAM/DSPs.
 CPW shares the packed ALU; CVXYL shares the existing scalar DSP and adder.
 Same complete NARC GSP/158virtual pins, Quartus Lite20.1.1 Build720,
@@ -227,6 +227,19 @@ Same complete NARC GSP/158virtual pins, Quartus Lite20.1.1 Build720,
 and generated ROMs must match the final committed source. There are
 0errors and the same46warning classifications. These remain map estimates;
 fitted-area≤3500ALMs, positive STA and NARC gates remain open.
+
+The plain-copy stage at `/tmp/jttms10-144-copy-map` reports **3,517
+estimated ALMs, 5,008 combinational ALUTs, 1,717 registers, 538,624 block-memory
+bits, five DSP blocks and zero MLAB bits**. Relative to coordinate timing:
++66 estimated ALMs/+77 ALUTs/+64 registers, unchanged RAM/DSPs. The combined
+measurement includes copy scheduling, the field handoff and first-word
+request timing. No additional DSP is inferred. Same complete NARC GSP
+boundary/158 virtual pins, device, 20 ns, seed 1 and effort. All 36 source/ROM hashes and 29 copied inputs match the captured timing
+sources. There are 47 classified warnings: one additional constant-width
+truncation in the copy delay assignment, whose value13 fits its five bits
+at CLKS_PER_STATE=8; other warning classes are unchanged. The 3,500-ALM requirement applies
+to the final fitted result; this map does not establish it. Fitted area,
+positive STA, NARC simulation and MiSTer gameplay remain required.
 
 ## Complete graphics engine, 2026-10-17
 

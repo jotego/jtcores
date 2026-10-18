@@ -249,6 +249,8 @@ def main():
             ('lost_hidden_pending','assign word_pending=field_req || data_owner;', 'assign word_pending=field_req;')):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10_word.v',old,new)
+            if name=='blocking_store':
+                replace_once(mutant/'jttms10_word.v','(data_accept && field_post) || ','')
             evidence[name]=run_case(work,name,store_case,['--rtl-dir',str(mutant)],mutated=True,
                 event_error='pending field lost while physical work remains' if name=='lost_hidden_pending' else None)
 
@@ -299,8 +301,8 @@ def main():
             ('absorbed_dsj_offset_pause',dsj_case,('--wait-states','1','--pause-clocks','1'),'jttms10.v',
              '!(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT)',"1'b1"),
             ('unprimed_branch_counter',counter_case,(),'jttms10.v',
-             'fetch && (completed || mem_fast) && (decode_store || decode_control)',
-             'fetch && completed && (decode_store || decode_control)'),
+             'fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control)',
+             'fetch && completed && (decode_copy || decode_store || decode_control)'),
             ('old_long_jr_fallthrough',long_untaken_case,(),'jttms10.v',
              'branch_long_untaken=branch_relative && ir[7:0]==0 && !condition',"branch_long_untaken=1'b0"),
             ('late_branch_boundary_credit',absolute_case,('--wait-states','1','--pause-clocks','6'),'jttms10_word.v',
@@ -337,6 +339,24 @@ def main():
              "decode_states=decode_cvxyl ? 6'd2 : decode_control ?")):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v','decode_states=decode_control ?',new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        copy_hit='copy_move_w16_s0_d0_f0_fe0_r1_2_0_hit'
+        copy_off='copy_move_w16_s0_d0_f0_fe0_r1_2_0_off'
+        for name,probe,file,old,new in (
+            ('extra_copy_cpu_state',copy_hit,'jttms10.v',
+             "copy_long_finish ? 16'd3 : !copy_ir &&",
+             "copy_long_finish ? 16'd3 : copy_ir ? 16'd2 : !copy_ir &&"),
+            ('lost_copy_slot_credit',copy_off,'jttms10_word.v',
+             '(!indirect_copy || !cen)',"1'b1"),
+            ('late_copy_first_word',copy_off,'jttms10_field.v',
+             "state <= !we ? READ : addr[3:0]==0 && size>=6'd16 ? WRITE : RMW_READ;",
+             'state <= we ? SELECT : READ;'),
+            ('registered_copy_post_response',copy_hit,'jttms10_word.v',
+             '(data_accept && field_post) || ','')):
+            extra=['--wait-states','1','--pause-clocks','7']
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")

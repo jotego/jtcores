@@ -27,7 +27,7 @@ module jttms10 #(
     /* verilator lint_off UNUSEDPARAM */
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
-    wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt;
+    wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt, active;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
     wire shiftkinit, shiftrinit, shift_finish;
     wire setf, exgf, btstfinish, lmoinit, lmofinish;
@@ -172,10 +172,11 @@ module jttms10 #(
     wire branch_long_untaken=branch_relative && ir[7:0]==0 && !condition;
     wire [15:0] branch_cut_clocks=(branch_long_untaken ? 16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [15:0] dsj_tail_clocks=(branch_taken ? 16'd3 : 16'd2)*CLKS_PER_STATE[15:0];
+    wire copy_ir=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110;
     wire store_absolute=(ir & 16'hfde0)==16'h0580 || (ir & 16'hffe0)==16'h05e0;
     wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
     wire store_direct=ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
-    wire [31:0] store_source=store_absolute ? rd_data : rs_data;
+    wire [31:0] store_source=copy_ir ? md : store_absolute ? rd_data : rs_data;
     localparam integer LOAD_IW=$clog2(2*CLKS_PER_STATE+1);
     localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
     localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
@@ -184,7 +185,8 @@ module jttms10 #(
     localparam [LOAD_IW-1:0] LOAD_FIRST_LIMIT=LOAD_FIRST_LIMIT_I[LOAD_IW-1:0];
     localparam [LOAD_IW-1:0] LOAD_NEXT_LIMIT=3;
     reg [LOAD_IW-1:0] load_issue_left;
-    wire early_store=store_pending && load_address_ready && load_issue_left==0;
+    wire early_store=store_pending && load_address_ready && load_issue_left==0 &&
+                     (!copy_ir || active);
     wire early_load=load_pending && load_address_ready && load_issue_left==0;
     wire load_offset=ir[15:10]==6'b101101 || ir[15:9]==7'b1010111;
     wire load_direct=ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
@@ -202,6 +204,7 @@ module jttms10 #(
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
     // General scalar classes. Unlisted memory and graphics forms retain
     // their old schedule until their event rules are independently covered.
+    wire decode_copy=decode_opcode[15:10]==6'b100010 || decode_opcode[15:9]==7'b1001110;
     wire decode_store_post=decode_opcode[15:10]==6'b100100;
     wire decode_store_pre=decode_opcode[15:10]==6'b101000;
     wire decode_store_offset=decode_opcode[15:10]==6'b101100 || decode_opcode[15:9]==7'b1010110;
@@ -252,7 +255,7 @@ module jttms10 #(
     wire decode_xy_cmp=decode_opcode[15:9]==7'b1110010;
     wire decode_cpw=decode_opcode[15:9]==7'b1110011;
     wire decode_cvxyl=decode_opcode[15:9]==7'b1110100;
-    wire decode_timed=decode_cpw || decode_cvxyl || decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
+    wire decode_timed=decode_copy || decode_cpw || decode_cvxyl || decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
@@ -264,7 +267,7 @@ module jttms10 #(
     // destination read select its shorter path during the first ROM prime.
     wire [5:0] decode_states=decode_control ?
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
-                            decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+                            decode_copy ? 6'd3 : decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -297,7 +300,6 @@ module jttms10 #(
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
-    wire active;
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
                       (active && bus_op && !(load_pending && mem_sel==READ_MEM) && !(store_pending && mem_sel==WRITE_MEM))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
@@ -317,7 +319,10 @@ module jttms10 #(
     generate for (field_bit=0; field_bit<32; field_bit=field_bit+1) begin : g_field_mask
         assign field_mask[field_bit] = field_size > field_bit;
     end endgenerate
-    wire [15:0] load_finish_clocks=(field_signed && !byte_op && field_size!=6'd32 ?
+    wire [5:0] copy_source_span={2'd0,rs_data[3:0]}+field_size;
+    wire [5:0] copy_dest_span={2'd0,rd_data[3:0]}+field_size;
+    wire copy_long_finish=copy_ir && copy_source_span>6'd32 && copy_dest_span>6'd32;
+    wire [15:0] load_finish_clocks=(copy_long_finish ? 16'd3 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
                                   16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     // Field extension has three mutually exclusive consumers: memory-load
@@ -453,7 +458,7 @@ module jttms10 #(
         .rd(gfx_active ? gfx_rf_da[4:0] :
             fetch && (completed || mem_fast || mem_ack) && decode_cpw ? 5'd21 :
             fetch && (completed || mem_fast) && decode_cvxyl ? 5'd20 :
-            fetch && (completed || mem_fast) && (decode_store || decode_control) ? {decode_opcode[4],decode_opcode[3:0]} :
+            fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control) ? {decode_opcode[4],decode_opcode[3:0]} :
             cpw_ir ? 5'd22 : cvxyl_ir ? 5'd20 :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
@@ -627,7 +632,12 @@ module jttms10 #(
             // that final state at this ACK; sign extension needs one more.
             if(mem_req && mem_ack && early_load && timing_active)
                 time_left<=load_finish_clocks-16'd3;
-            if(step && mem_sel==READ_MEM) load_pending<=0;
+            if(step && mem_sel==READ_MEM) begin
+                load_pending<=0;
+                if(copy_ir) begin store_pending<=1;load_address_ready<=1;end
+            end
+            if(mem_req && mem_ack && early_load && copy_long_finish)
+                load_issue_left<=LOAD_LEAD-3;
             if(early_store && !store_started && cen && mem_req) store_started<=1;
             if(step && mem_sel==WRITE_MEM) store_pending<=0;
             if(step && imm) immediate_last<=1;
@@ -636,9 +646,9 @@ module jttms10 #(
                 timing_active<=decode_timed;
                 branch_pending<=decode_control;
                 immediate_last<=decode_immediate_word;
-                load_pending<=decode_load; load_started<=0;
+                load_pending<=decode_load || decode_copy; load_started<=0;
                 store_pending<=decode_store;store_started<=0;
-                load_address_ready<=decode_load_direct || (decode_store && !decode_store_pre && !decode_store_extension);
+                load_address_ready<=decode_load_direct || decode_copy || (decode_store && !decode_store_pre && !decode_store_extension);
                 load_issue_left<=decode_load_pre || decode_store_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end

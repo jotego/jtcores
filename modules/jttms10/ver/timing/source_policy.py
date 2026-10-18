@@ -51,6 +51,11 @@ for identifier,decision,values in [
 ]:
     CHOICES[identifier,signature(values)]=decision
 
+# Table13-4 index12's CPU5 conflicts with its three source reads and
+# its own CD17/H7 arithmetic. Retain the simpler shared read schedule.
+CHOICES['MOVE_IND_IND',signature(dict(summary_cpu=5,summary_cd=17,
+    policy_cpu=7,policy_cd=17))]='copy-three-source-word-schedule'
+
 for printed,formula in [(0x20000,0x200C0),(0x28000,0x280C0),
                         (0x0F020000,0x0F0200C0),(0x10000,0x10030)]:
     values=dict(entry_cpu=3,entry_cd=6,policy_cpu=3,policy_cd=6,

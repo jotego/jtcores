@@ -67,7 +67,9 @@ module jttms10_word #(
     localparam [SLOT_PW-1:0] SLOT_LAST=CLKS_PER_STATE[SLOT_PW-1:0]-1'b1;
     reg [SLOT_PW-1:0] slot_phase;
     reg slot_eligible;
-    wire indirect_load=ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
+    wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110;
+    wire indirect_load=indirect_copy ||
+        ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
     reg fast_slot;
@@ -79,7 +81,7 @@ module jttms10_word #(
             slot_phase<=slot_phase==SLOT_LAST ? {SLOT_PW{1'b0}} : slot_phase+1'b1;
             if(slot_phase==0) fast_slot<=cen;
             else if(!cen) fast_slot<=0;
-            if(!field_req && !data_owner) slot_eligible<=0;
+            if(!field_req && !data_owner && (!indirect_copy || !cen)) slot_eligible<=0;
             else if(slot_phase==0 || (!request_latched && slot_phase==1)) slot_eligible<=1;
         end
     end
@@ -94,7 +96,11 @@ module jttms10_word #(
     assign word_pixel=data_owner && pixel_q;
     assign word_lock=data_owner && field_word_lock;
     assign cache_word_ack=word_ack && !data_owner && !fast_program;
-    assign field_ack=fast_program ? word_ack && !data_owner : program_read ? cache_ack : post_ack || (!post_busy && data_ack);
+    // A posted operation may finish its CPU microinstruction on the edge
+    // which captures the field, with the response register retaining ACK
+    // if CEN is low. Copy read/write requests retain a separating low clock.
+    assign field_ack=fast_program ? word_ack && !data_owner : program_read ? cache_ack :
+                     (data_accept && field_post) || post_ack || (!post_busy && data_ack);
     assign field_rdata=program_read ? {16'd0,fast_program ? word_rdata : cache_rdata} : data_rdata;
     wire [15:0] field_word_rdata=pixel_q && srt_q && !field_word_we ?
                                   16'd0 : data_word_rdata;

@@ -130,7 +130,9 @@ always @(posedge clk) begin
                 if (size == 6'd0 || size > 6'd32)
                     state <= RESPONSE;
                 else
-                    state <= we ? SELECT : READ;
+                    // The first word's coverage is known at acceptance; it needs
+                    // no selector clock before its first physical request.
+                    state <= !we ? READ : addr[3:0]==0 && size>=6'd16 ? WRITE : RMW_READ;
             end
             READ: if (word_ack) begin
                 case (index)

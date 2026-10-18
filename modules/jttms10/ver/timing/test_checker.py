@@ -19,9 +19,104 @@ from control_cases import condition, decrement, control_states, fixture as contr
 from xy_cases import arithmetic as xy_arithmetic, fixture as xy_fixture, LITERALS as XY_LITERALS
 from coordinate_cases import point_code, linear, fixture as coordinate_fixture, CPW_EXAMPLES, CV_EXAMPLES
 from run import parse_result
+from copy_cases import (alignment as copy_alignment,counts as copy_counts,fixture as copy_fixture,
+    literal_cases as copy_literals,transactions as copy_transactions)
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_copy_alignment_classes(self):
+        rows=[(0,16,'A'),(0,8,'B'),(4,8,'B'),(0,32,'C'),
+              (15,17,'D'),(0,17,'E'),(7,16,'F'),(15,18,'G')]
+        for address,width,expected in rows:self.assertEqual(copy_alignment(address,width),expected)
+        with self.assertRaises(ValueError):copy_alignment(0,33)
+
+    def test_copy_literal_memory_examples(self):
+        rows=list(copy_literals());self.assertEqual(len(rows),116)
+        for row in rows:self.assertEqual(row['literal_model_memory'],row['expected_memory'],row['name'])
+
+    def test_copy_overlap_models_each_warm_pass(self):
+        row=copy_fixture(32,0,0,0,False,3,source_address=0x5007,destination_address=0x5008)
+        image=sum(value<<(address-0x5000) for address,value in row['initial_memory'])
+        mask=(1<<32)-1
+        for key in ('memory_before_measured','expected_memory'):
+            value=(image>>7)&mask
+            image=(image&~(mask<<8))|(value<<8)
+            self.assertEqual(sum(value<<(address-0x5000) for address,value in row[key]),image)
+        self.assertNotEqual(row['memory_before_measured'],row['expected_memory'])
+
+    def test_copy_byte_has_no_field_encoding_bit(self):
+        row=copy_fixture(8,0,0,1,True,0,byte=True)
+        self.assertEqual(row['opcode']&0xFE00,0x9C00)
+
+    def test_copy_wrapped_source_preserves_initial_reset_vector(self):
+        row=copy_fixture(32,0,0,1,False,0,source_address=0xFFFFFFF8,
+                         destination_address=0x8000600F)
+        self.assertEqual(dict(row['initial_memory'])[0xFFFFFFF0],0)
+        reads,_=copy_transactions(row)
+        self.assertEqual([item[1] for item in reads],[0xFFFFFFF0,0,16])
+
+    def test_copy_primary_counts_retain_discrepancies(self):
+        self.assertEqual(copy_counts(0,0,16)[:4],(3,1,7,1))
+        self.assertEqual(copy_counts(1,0,16)[:4],(5,1,9,4))
+        self.assertEqual(copy_counts(15,1,32)[:4],(9,9,21,13))
+        self.assertEqual(copy_counts(15,1,18)[:4],(7,7,17,12))
+        self.assertEqual(copy_counts(15,1,18)[4]['summary_cpu'],5)
+        self.assertEqual(copy_counts(0,0,8,byte=True)[4]['summary_cd'],7)
+
+    def test_copy_waits_charge_source_and_keep_trailing_writes_hidden(self):
+        row=copy_fixture(16,0,0,0,False,0)
+        observed=dict(start=0,end=40,clocks=40,paused=7,st=row['expected_st'],
+                      **{f'a{q}':v for q,v in enumerate(row['expected_regs'])},
+                      **row['expected_extra_regs'])
+        self.assertEqual(check(row,observed,1,7),[])
+        observed['clocks']=48;observed['end']=48
+        self.assertTrue(check(row,observed,1,7))
+
+    def copy_trace(self):
+        row=copy_fixture(16,0,0,0,False,0)
+        row.update(test_pc=0x1000,next_pc=0x1010)
+        reads,writes=copy_transactions(row)
+        trace=[]
+        for offset,(kind,address,data,iaq) in zip((0,16),reads+writes):
+            trace += [f'BUS_BEGIN {96+offset} {kind} {address:08x} {data:04x} {iaq}',
+                      f'BUS_END {112+offset} {kind} {address:08x} {data:04x}']
+        return row,dict(start=96,end=120,clocks=24),trace
+
+    def test_copy_padded_duration_cannot_hide_short_bus_cycle(self):
+        row,observed,trace=self.copy_trace()
+        self.assertEqual(check_store_bus(row,observed,trace,0),[])
+        trace[1]=trace[1].replace('112','111',1)
+        self.assertTrue(any('duration' in e for e in check_store_bus(row,observed,trace,0)))
+
+    def test_copy_padded_duration_cannot_hide_serialized_write(self):
+        row,observed,trace=self.copy_trace()
+        trace[2]=trace[2].replace('112','120',1);trace[3]=trace[3].replace('128','136',1)
+        self.assertTrue(any('start' in e for e in check_store_bus(row,observed,trace,0)))
+
+    def test_copy_dependency_includes_the_source_read_wait(self):
+        row=copy_fixture(16,0,0,0,False,0)
+        row.update(test_pc=0x1000,next_pc=0x1010,follow_delay=0)
+        reads,writes=copy_transactions(row)
+        destination=row['data_copy']['destination']
+        plan=reads+writes+[(0,destination,dict(row['expected_memory'])[destination],0)]
+        trace=[]
+        for start,(kind,address,data,iaq) in zip((8,32,56),plan):
+            trace += [f'BUS_BEGIN {start} {kind} {address:08x} {data:04x} {iaq}',
+                      f'BUS_END {start+24} {kind} {address:08x} {data:04x}']
+        observed=dict(start=0,end=40,clocks=40)
+        self.assertEqual(check_store_bus(row,observed,trace,1,7),[])
+        trace[4]=trace[4].replace('56','48',1);trace[5]=trace[5].replace('80','72',1)
+        self.assertTrue(any('start' in e for e in check_store_bus(row,observed,trace,1,7)))
+
+    def test_copy_project_source_policy_keeps_byte_targets_open(self):
+        from copy_cases import copy_cases
+        audit=inventory(copy_cases(),accept_project_choices=True)
+        self.assertEqual(len(audit['project_source_choices']),100)
+        self.assertEqual(len(audit['unresolved_source_probes']),332)
+        self.assertEqual(sum(row['kind']=='agreed-published-target-gap'
+            for row in audit['unresolved_source_probes']),18)
+        self.assertEqual({row['identifier'] for row in audit['unresolved_source_probes']},{'MOVB_IND_IND'})
+
     def test_project_choice_is_explicit_and_keeps_all_sources(self):
         row=xy_fixture('CMPXY',1,2)
         audit=inventory([row],accept_project_choices=True)
@@ -87,7 +182,9 @@ class TimingCheckerTest(unittest.TestCase):
             inventory([row],accept_project_choices=True)
 
     def test_project_choice_inventory_leaves_absolute_byte_open(self):
-        audit=inventory(cases(),accept_project_choices=True)
+        # Preserve the independently audited coordinate-stage inventory;
+        # later families have their own source-policy checks below.
+        audit=inventory((row for row in cases() if 'data_copy' not in row),accept_project_choices=True)
         self.assertEqual(len(audit['project_source_choices']),3520)
         self.assertEqual(len(audit['unresolved_source_probes']),116)
         self.assertEqual({r['identifier'] for r in audit['unresolved_source_probes']},{'MOVB_R_ABS'})

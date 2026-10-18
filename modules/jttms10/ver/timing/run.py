@@ -20,6 +20,7 @@ from scalar_cases import shift_cases, lmo_cases
 from alu_cases import alu_cases
 from xy_cases import xy_cases
 from coordinate_cases import coordinate_cases
+from copy_cases import copy_cases, transactions as copy_transactions
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -107,6 +108,7 @@ def cases():
     yield from control_cases()
     yield from xy_cases()
     yield from coordinate_cases()
+    yield from copy_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -216,7 +218,11 @@ def measured_trace(log, prefix, observed, *, trailing=False):
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
     if 'data_store' in case:
-        count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
+        if 'data_copy' in case:
+            reads,writes=copy_transactions(case)
+            count=len(reads)+(len(writes)+1)*int(case['cache_disabled'])
+        else:
+            count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
         alignment=(-pause_clocks)%8 if count else 0
         clocks=case['states']*8+count*wait_states*8+pause_clocks+alignment
         if observed['clocks']!=clocks:errors.append(f"{case['name']}: expected {clocks} INCLK, observed {observed['clocks']} INCLK")
@@ -372,31 +378,48 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     prefix='TARGET' if raw else 'BUS'
     begin=[x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
     end=[x.split() for x in lines if x.startswith(prefix+'_END ')]
-    spec=case['data_store'];data_plan=store_transactions(case);plan=[];starts=[]
-    extensions=case.get('extensions',[])
-    lead=spec['cpu']-1
-    first=lead
-    if case['cache_disabled']:
-        plan=[(0,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]
-        starts=[1+q*(4+wait_states) for q in range(len(extensions))]
-        first+=(3+wait_states)*len(extensions)
-    if case.get('cache_miss')=='store_extension':
-        missing=case['miss_word'];fill=extensions[missing-1:]+[0x0300]*4
-        plan=[(0,case['test_pc']+16*(missing+q),fill[q],1) for q in range(4)]
-        starts=[missing+q*(2+wait_states) for q in range(4)]
-        first+=9+4*wait_states
-    starts.extend(first+q*(2+wait_states) for q in range(len(data_plan)))
-    plan.extend(data_plan)
-    if case['cache_disabled']:
-        starts.append(first+len(data_plan)*(2+wait_states))
-        plan.append((0,case['next_pc'],0x0300,1))
-    if 'follow_delay' in case:
-        start=max(spec['cpu']+case['follow_delay'],lead+len(plan)*(2+wait_states))
-        image=dict(case['expected_memory']);address=spec['address']
-        count=((address&15)+spec['width']+15)//16
-        for q in range(count):
-            word=((address&~15)+16*q)&MASK32
-            starts.append(start+q*(2+wait_states));plan.append((0,word,image[word],0))
+    if 'data_copy' in case:
+        reads,writes=copy_transactions(case);plan=reads+writes
+        starts=[q*(2+wait_states) for q in range(len(reads))]
+        first=case['data_copy']['cpu']-1+len(reads)*wait_states
+        starts += [first+q*(2+wait_states) for q in range(len(writes))]
+        if case['cache_disabled']:
+            starts.append(first+len(writes)*(2+wait_states))
+            plan.append((0,case['next_pc'],0x0300,1))
+        if 'follow_delay' in case:
+            start=max(case['data_copy']['cpu']+len(reads)*wait_states+case['follow_delay'],
+                      first+len(writes)*(2+wait_states))
+            address=case['data_copy']['destination'];width=case['data_copy']['width']
+            image=dict(case['expected_memory'])
+            for q in range(((address&15)+width+15)//16):
+                word=((address&~15)+16*q)&MASK32
+                starts.append(start+q*(2+wait_states));plan.append((0,word,image[word],0))
+    else:
+        spec=case['data_store'];data_plan=store_transactions(case);plan=[];starts=[]
+        extensions=case.get('extensions',[])
+        lead=spec['cpu']-1
+        first=lead
+        if case['cache_disabled']:
+            plan=[(0,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]
+            starts=[1+q*(4+wait_states) for q in range(len(extensions))]
+            first+=(3+wait_states)*len(extensions)
+        if case.get('cache_miss')=='store_extension':
+            missing=case['miss_word'];fill=extensions[missing-1:]+[0x0300]*4
+            plan=[(0,case['test_pc']+16*(missing+q),fill[q],1) for q in range(4)]
+            starts=[missing+q*(2+wait_states) for q in range(4)]
+            first+=9+4*wait_states
+        starts.extend(first+q*(2+wait_states) for q in range(len(data_plan)))
+        plan.extend(data_plan)
+        if case['cache_disabled']:
+            starts.append(first+len(data_plan)*(2+wait_states))
+            plan.append((0,case['next_pc'],0x0300,1))
+        if 'follow_delay' in case:
+            start=max(spec['cpu']+case['follow_delay'],lead+len(plan)*(2+wait_states))
+            image=dict(case['expected_memory']);address=spec['address']
+            count=((address&15)+spec['width']+15)//16
+            for q in range(count):
+                word=((address&~15)+16*q)&MASK32
+                starts.append(start+q*(2+wait_states));plan.append((0,word,image[word],0))
     errors=[]
     if len(begin)!=len(plan) or len(end)!=len(plan):
         return [f'expected {len(plan)} {prefix} store/fetch transfers, observed {len(begin)} starts/{len(end)} completions']
@@ -449,7 +472,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -589,7 +612,8 @@ def main():
                         values=dict(x.split('=') for x in follow[0].split()[1:])
                         actual={n:int(v,10 if n=='clock' else 16) for n,v in values.items()};row['observed_follow']=actual
                         spec=case['data_store'];count=len(store_transactions(case));reads_count=((spec['address']&15)+spec['width']+15)//16
-                        begin=max(spec['cpu']+case['follow_delay'],spec['cpu']-1+count*(2+args.wait_states))*8+args.pause_clocks+(-args.pause_clocks)%8
+                        source_wait=len(copy_transactions(case)[0])*args.wait_states if 'data_copy' in case else 0
+                        begin=(source_wait+max(spec['cpu']+case['follow_delay'],spec['cpu']-1+count*(2+args.wait_states)))*8+args.pause_clocks+(-args.pause_clocks)%8
                         expected=begin+reads_count*(16+8*args.wait_states)+8
                         if actual['clock']-observed['start']!=expected:errors.append(f'following dependent load: expected {expected} INCLK, observed {actual["clock"]-observed["start"]}')
                         for q,value in enumerate(case['expected_follow_regs']):
