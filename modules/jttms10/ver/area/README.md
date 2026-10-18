@@ -241,6 +241,14 @@ at CLKS_PER_STATE=8; other warning classes are unchanged. The 3,500-ALM requirem
 to the final fitted result; this map does not establish it. Fitted area,
 positive STA, NARC simulation and MiSTer gameplay remain required.
 
+The response-tag correction at `b4dfd3a8d` maps at **3,514 estimated ALMs,
+5,011 ALUTs, 1,717 registers, 538,624 block-memory bits, five DSPs and
+zero MLAB bits**. Same complete boundary, constraints and 47 classified
+warnings; all 36 snapshot hashes and 29 copied inputs match the committed
+source. The pointer-copy expansion changes no arithmetic unit or storage
+bank; its own fresh map is pending. The final fitted ≤3,500-ALM limit,
+FPGA setup/hold closure and NARC acceptance remain required.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

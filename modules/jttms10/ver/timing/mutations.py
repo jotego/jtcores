@@ -216,8 +216,8 @@ def main():
 
         pre_mode=work / 'wrong-pre-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',pre_mode)
-        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ?',
-                     'decode_load_pre || decode_store_pre || decode_dsj ? LOAD_LEAD : (decode_load_extension || decode_store_extension) ?')
+        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ?',
+                     'decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_LEAD : (decode_load_extension || decode_store_extension) ?')
         evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
             ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
 
@@ -351,8 +351,8 @@ def main():
         copy_off='copy_move_w16_s0_d0_f0_fe0_r1_2_0_off'
         for name,probe,file,old,new in (
             ('extra_copy_cpu_state',copy_hit,'jttms10.v',
-             "copy_long_finish ? 16'd3 : !copy_ir &&",
-             "copy_long_finish ? 16'd3 : copy_ir ? 16'd2 : !copy_ir &&"),
+             "copy_post ? 16'd2 : !copy_ir &&",
+             "copy_post ? 16'd2 : copy_ir ? 16'd2 : !copy_ir &&"),
             ('lost_copy_slot_credit',copy_off,'jttms10_word.v',
              '(!indirect_copy || !cen)',"1'b1"),
             ('late_copy_first_word',copy_off,'jttms10_field.v',
@@ -364,6 +364,19 @@ def main():
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        for name,probe,old,new in (
+            ('short_post_copy','copy_move_post_w16_s0_d0_f0_fe0_r1_2_0_hit',
+             "copy_post ? 16'd2 : !copy_ir &&", "copy_post ? 16'd1 : !copy_ir &&"),
+            ('late_pre_copy','copy_move_pre_phase_w16_r1_15_0_off',
+             'decode_copy_pre || decode_dsj ? LOAD_PRE :',
+             'decode_copy_pre || decode_dsj ? (decode_copy_pre ? LOAD_LEAD : LOAD_PRE) :'),
+            ('changed_copy_source_span','copy_move_post_w18_s15_d15_f0_fe0_r0_2_0_hit',
+             "copy_source_span={2'd0,ea[3:0]}", "copy_source_span={2'd0,rs_data[3:0]}")):
+            extra=['--wait-states','1','--pause-clocks','7']
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/'jttms10.v',old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")

@@ -56,6 +56,14 @@ for identifier,decision,values in [
 CHOICES['MOVE_IND_IND',signature(dict(summary_cpu=5,summary_cd=17,
     policy_cpu=7,policy_cd=17))]='copy-three-source-word-schedule'
 
+# Table13-4 pointer forms retain the same simpler read schedule.
+for identifier,values in [
+    ('MOVE_POST_POST',dict(summary_cpu=6,summary_cd=17,policy_cpu=8,policy_cd=17)),
+    ('MOVE_PRE_PRE',dict(summary_cpu=6,summary_cd=18,policy_cpu=8,policy_cd=18)),
+    ('MOVE_PRE_PRE',dict(summary_cpu=6,summary_cd=15,policy_cpu=6,policy_cd=16)),
+]:
+    CHOICES[identifier,signature(values)]='pointer-copy-common-state-equation'
+
 for printed,formula in [(0x20000,0x200C0),(0x28000,0x280C0),
                         (0x0F020000,0x0F0200C0),(0x10000,0x10030)]:
     values=dict(entry_cpu=3,entry_cd=6,policy_cpu=3,policy_cd=6,

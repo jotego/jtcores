@@ -67,7 +67,8 @@ module jttms10_word #(
     localparam [SLOT_PW-1:0] SLOT_LAST=CLKS_PER_STATE[SLOT_PW-1:0]-1'b1;
     reg [SLOT_PW-1:0] slot_phase;
     reg slot_eligible;
-    wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110;
+    wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
+                       ir[15:10]==6'b100110 || ir[15:10]==6'b101010;
     wire indirect_load=indirect_copy ||
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||

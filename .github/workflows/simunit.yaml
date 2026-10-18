@@ -61,7 +61,8 @@ jobs:
         run: /usr/bin/python3 modules/jtframe/ver/video/rotation/run.py --suite
   jttms10:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Complete timing matrices and independent mutation builds exceed 15 minutes.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
         with:

@@ -37,9 +37,26 @@ INDICES={
 PRINTED=((3,1,7),(3,3,9),(3,7,13),(5,1,9),(5,3,11),
          (5,3,11),(5,5,13),(5,7,15),(5,9,17),(7,3,13),
          (7,5,15),(5,7,17),(9,9,21))
+POST_PRINTED=((4,0,7),(4,2,9),(4,6,13),(6,0,9),(6,2,11),
+              (6,2,11),(6,4,13),(6,6,15),(6,8,17),(8,2,13),
+              (8,4,15),(6,6,17),(10,8,21))
+PRE_PRINTED=((4,1,8),(4,3,10),(4,7,14),(6,1,10),(6,3,12),
+             (6,3,12),(6,5,14),(6,7,15),(6,9,18),(8,3,14),
+             (8,5,16),(6,7,18),(10,9,22))
 
 
-def counts(source,destination,width,*,byte=False):
+def counts(source,destination,width,*,byte=False,mode='indirect'):
+    if mode not in ('indirect','post','pre') or (byte and mode!='indirect'):
+        raise ValueError('undefined copy addressing mode')
+    if mode!='indirect':
+        cpu,hidden,_,index,_=counts(source,destination,width)
+        cpu+=1
+        hidden-=int(mode=='post')
+        cd=cpu+hidden+3
+        printed=(POST_PRINTED if mode=='post' else PRE_PRINTED)[index-1]
+        values={} if (cpu,hidden,cd)==printed else dict(
+            summary_cpu=printed[0],summary_cd=printed[2],policy_cpu=cpu,policy_cd=cd)
+        return cpu,hidden,cd,index,values
     if byte and width!=8:raise ValueError('MOVB forces eight bits')
     sa,da=alignment(source,width),alignment(destination,width)
     index=INDICES[sa][da];cpu,hidden,cd=PRINTED[index-1]
@@ -60,7 +77,8 @@ def counts(source,destination,width,*,byte=False):
 
 def fixture(width,source_offset,destination_offset,field,off,index,*,
             byte=False,bank=0,source=2,dest=0,fe=0,ignored=None,
-            source_address=None,destination_address=None,alignment_offset=0,tag=None):
+            source_address=None,destination_address=None,alignment_offset=0,tag=None,
+            mode='indirect'):
     if bank not in (0,1) or source not in (0,1,2,15) or dest not in (0,1,2,15):
         raise ValueError('unobserved register identity')
     if field not in (0,1) or fe not in (0,1) or (byte and width!=8):
@@ -78,7 +96,17 @@ def fixture(width,source_offset,destination_offset,field,off,index,*,
         elif bank:b[reg]=value
         else:a[reg]=value
     def get(reg):return sp if reg==15 else b[reg] if bank else a[reg]
-    put(source,src);put(dest,dst);src=get(source);dst=get(dest)
+    # Input addresses describe the first data field. Predecrement pointers
+    # start one width above it; aliases then obey sequential double updates.
+    put(source,(src+(width if mode=='pre' else 0))&MASK32)
+    put(dest,(dst+(width if mode=='pre' else 0))&MASK32)
+    initial_a=list(a);initial_b=dict(b);initial_sp=sp
+    if mode=='pre':put(source,(get(source)-width)&MASK32)
+    src=get(source)
+    if mode=='post':put(source,(get(source)+width)&MASK32)
+    if mode=='pre':put(dest,(get(dest)-width)&MASK32)
+    dst=get(dest)
+    if mode=='post':put(dest,(get(dest)+width)&MASK32)
     touched={((address+bit)&MASK32)&~15 for address in (src,dst) for bit in range(width)}
     # Sparse memory also supplies the reset-vector high word. Wrapped
     # source fields may read it, but must keep the initial reset PC at0x1000.
@@ -86,27 +114,33 @@ def fixture(width,source_offset,destination_offset,field,off,index,*,
         ((word>>4)*0x9E37+0x35C6+index*0x123)&65535) for word in touched)
     before=insert(memory,dst,width,extract(memory,src,width,False))
     expected=insert(before,dst,width,extract(before,src,width,False))
-    cpu,hidden,cd,table_index,values=counts(src,dst,width,byte=byte)
+    cpu,hidden,cd,table_index,values=counts(src,dst,width,byte=byte,mode=mode)
     selected_cd=values.get('policy_cd',cd)
     label=tag or f'w{width}_s{source_offset}_d{destination_offset}_f{field}_fe{fe}'
-    row=dict(name=f'copy_{"movb" if byte else "move"}_{label}_r{bank}_{source}_{dest}_{"off" if off else "hit"}',
-        coverage_id='MOVB_IND_IND' if byte else 'MOVE_IND_IND',
-        opcode=(0x9C00 if byte else 0x8800)|(0 if byte else field<<9)|(source<<5)|(bank<<4)|dest,
-        regs=a,expected_regs=list(a),initial_b_regs=b,initial_sp=sp,
+    mode_label='' if mode=='indirect' else mode+'_'
+    row=dict(name=f'copy_{"movb" if byte else "move"}_{mode_label}{label}_r{bank}_{source}_{dest}_{"off" if off else "hit"}',
+        coverage_id='MOVB_IND_IND' if byte else {'indirect':'MOVE_IND_IND','post':'MOVE_POST_POST','pre':'MOVE_PRE_PRE'}[mode],
+        opcode=(0x9C00 if byte else {'indirect':0x8800,'post':0x9800,'pre':0xA800}[mode])|(0 if byte else field<<9)|(source<<5)|(bank<<4)|dest,
+        regs=initial_a,expected_regs=list(a),initial_b_regs=initial_b,initial_sp=initial_sp,
         expected_extra_regs={**{f'b{q}':v for q,v in b.items()},'sp':sp},
         expected_st=st,cache_disabled=off,states=selected_cd if off else cpu,
         initial_memory=memory,memory_before_measured=before,expected_memory=expected,
         data_copy=dict(source=src,destination=dst,width=width,byte=byte,cpu=cpu,hidden=hidden),
         data_store=dict(address=dst,width=width,cpu=cpu),
         instruction_word_offset=alignment_offset,tail_instructions=32,drain_instructions=-1 if off else 24,
-        citation='SPVU001A 13-4,13-6/7; '+('12-119' if byte else '12-137/138'),
+        citation='SPVU001A 13-4,13-6/7; '+('12-119' if byte else {'indirect':'12-137/138','post':'12-141/142','pre':'12-145/146'}[mode]),
         conditions=dict(width=width,field=field,field_extension=fe,source=src,destination=dst,
             source_alignment=alignment(src,width),destination_alignment=alignment(dst,width),
             table_index=table_index,bank=bank,source_register=source,destination_register=dest))
+    if mode!='indirect':
+        row['conditions']['mode']=mode
+        row['data_copy'].update(mode=mode,read_lead=int(mode=='pre'),
+                                write_start=cpu-(2 if mode=='post' else 1))
     if values:
         differs=values['policy_cd' if off else 'policy_cpu']!=values['summary_cd' if off else 'summary_cpu']
         row.update(source_values=values,timing_source_status='inferred-conflict-resolution' if differs else 'primary-summary-consistent',
-            source_notes='MOVE index12 prints CPU5/CD17/H7 despite its three source reads. The common read/hidden-write equation selects CPU7/CD17. MOVB index2 prints CPU3/CD7, while the same field equation selects CPU3/CD9; that agreed entry/summary target remains a known gap. Printed alternatives are retained; no official erratum is claimed.')
+            source_notes=('MOVE index12 prints CPU5/CD17/H7 despite its three source reads. The common read/hidden-write equation selects CPU7/CD17. MOVB index2 prints CPU3/CD7, while the same field equation selects CPU3/CD9; that agreed entry/summary target remains a known gap. Printed alternatives are retained; no official erratum is claimed.' if mode=='indirect' else
+                          'Table13-4 pointer copies add one CPU state to the plain copy. Postincrement overlaps one further hidden state; predecrement retains its hidden states. The project selects this common equation for index12 CPU and predecrement index8 CD, retaining the printed alternatives under the owner direction. This is not an official TI correction.'))
     return row
 
 

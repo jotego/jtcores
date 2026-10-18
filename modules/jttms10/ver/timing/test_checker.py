@@ -21,9 +21,64 @@ from coordinate_cases import point_code, linear, fixture as coordinate_fixture, 
 from run import parse_result
 from copy_cases import (alignment as copy_alignment,counts as copy_counts,fixture as copy_fixture,
     literal_cases as copy_literals,transactions as copy_transactions)
+from pointer_copy_cases import literal_cases as pointer_copy_literals, pointer_copy_cases
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_pointer_copy_literal_memory_examples(self):
+        rows=list(pointer_copy_literals());self.assertEqual(len(rows),104)
+        # Hand-transcribed After A0/A1 columns, p.12-142, independent of
+        # the fixture's general pointer-update calculation.
+        post_after=((0x15501,0x1553E),(0x1550A,0x1553D),(0x15514,0x15549),
+                    (0x15520,0x15543),(0x15517,0x15539),(0x1551E,0x15547),
+                    (0x1551B,0x15547),(0x1552C,0x15556),(0x1552F,0x1554B),
+                    (0x1552F,0x1554F),(0x15530,0x1555C),(0x15530,0x1555F),
+                    (0x15520,0x15550))
+        for row in rows:
+            self.assertEqual(row['literal_model_memory'],row['expected_memory'],row['name'])
+            if row['conditions']['mode']=='post':
+                q=int(row['name'].split('guide_field')[1].split('_')[0])
+                pair=tuple(row['expected_extra_regs']['b'+str(r)] for r in (0,1)) if row['conditions']['bank'] else tuple(row['expected_regs'][:2])
+                self.assertEqual(pair,post_after[q],row['name'])
+
+    def test_pointer_copy_alias_updates_twice_in_order(self):
+        for mode,src,dst,result in [('post',0x5000,0x5010,0x5020),('pre',0x5000,0x4FF0,0x4FF0)]:
+            for bank,reg in [(0,0),(1,0),(0,15),(1,15)]:
+                row=copy_fixture(16,0,0,0,False,0,source_address=0x5000,destination_address=0x5000,
+                                 mode=mode,bank=bank,source=reg,dest=reg)
+                self.assertEqual((row['data_copy']['source'],row['data_copy']['destination']),(src,dst))
+                self.assertEqual(row['expected_extra_regs']['sp'] if reg==15 else
+                                 row['expected_extra_regs']['b0'] if bank else row['expected_regs'][0],result)
+
+    def test_pointer_copy_primary_counts_and_alternatives(self):
+        self.assertEqual(copy_counts(0,0,16,mode='post')[:4],(4,0,7,1))
+        self.assertEqual(copy_counts(0,0,16,mode='pre')[:4],(4,1,8,1))
+        self.assertEqual(copy_counts(15,15,32,mode='post')[:4],(10,8,21,13))
+        self.assertEqual(copy_counts(15,15,32,mode='pre')[:4],(10,9,22,13))
+        self.assertEqual(copy_counts(15,1,18,mode='post')[4],dict(summary_cpu=6,summary_cd=17,policy_cpu=8,policy_cd=17))
+        self.assertEqual(copy_counts(1,1,16,mode='pre')[4],dict(summary_cpu=6,summary_cd=15,policy_cpu=6,policy_cd=16))
+
+    def test_pointer_copy_project_choices_remain_explicit(self):
+        audit=inventory(pointer_copy_cases(),accept_project_choices=True)
+        self.assertFalse(audit['full_isa_signoff'])
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        self.assertTrue(audit['project_source_choices'])
+        self.assertTrue(inventory(pointer_copy_cases())['unresolved_source_probes'])
+
+    def test_pointer_copy_write_overlap_is_independent_of_cpu_retirement(self):
+        row=copy_fixture(16,0,0,0,False,0,mode='post')
+        self.assertEqual(row['states'],4)
+        self.assertEqual(row['data_copy']['write_start'],2)
+        reads,writes=copy_transactions(row)
+        obs=dict(start=0,end=32,clocks=32,paused=0)
+        trace=['BUS_BEGIN 0 0 00005000 %04x 0'%reads[0][2],
+               'BUS_END 16 0 00005000 %04x'%reads[0][2],
+               'BUS_BEGIN 16 1 00006000 %04x 0'%writes[0][2],
+               'BUS_END 32 1 00006000 %04x'%writes[0][2]]
+        self.assertEqual(check_store_bus(row,obs,trace,0),[])
+        late=[s.replace('16 1','24 1').replace('32 1','40 1') for s in trace]
+        self.assertTrue(check_store_bus(row,obs,late,0))
+
     def test_copy_alignment_classes(self):
         rows=[(0,16,'A'),(0,8,'B'),(4,8,'B'),(0,32,'C'),
               (15,17,'D'),(0,17,'E'),(7,16,'F'),(15,18,'G')]
