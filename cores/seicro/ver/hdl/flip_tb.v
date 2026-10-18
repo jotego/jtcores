@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module flip_tb;
 reg clk=0, rst=1;
 reg [63:0] status=0;

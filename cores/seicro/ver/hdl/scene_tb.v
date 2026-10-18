@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 `timescale 1ns/1ps
 module scene_tb;
 reg clk=0, rst=1;

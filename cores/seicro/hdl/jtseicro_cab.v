@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_cab(
     input            frisky, radial,
     input      [1:0] cab_1p, coin,

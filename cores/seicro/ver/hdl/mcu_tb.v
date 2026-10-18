@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module mcu_tb;
 reg rst=1, clk=0, run=0, reset_req=0, dip_pause=1;
 reg [5:0] cnt=0;

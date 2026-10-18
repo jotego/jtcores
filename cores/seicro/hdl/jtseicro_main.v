@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_main(
     input              rst, cpu_rst, clk, cpu_cen, dip_pause,
     input              LVBL, irq_en, frisky, radial,

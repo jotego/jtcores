@@ -1,3 +1,4 @@
+# Author: Andrea Bogazzi
 params:
   - { name: MAINCPU_OFFSET, value: "0" }
   - { name: GFX_OFFSET, value: "0" }

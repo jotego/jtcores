@@ -1,4 +1,5 @@
 #!/bin/bash
+# Author: Andrea Bogazzi
 set -euo pipefail
 if [ "${1:-}" = --delete ]; then
     rm -f videoram.bin colorram.bin spriteram0.bin spriteram1.bin row_scroll.bin seicro_portb.hex

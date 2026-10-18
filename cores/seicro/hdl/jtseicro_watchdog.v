@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_watchdog(
     input      rst, clk, enable, vblank, service,
     output     reset

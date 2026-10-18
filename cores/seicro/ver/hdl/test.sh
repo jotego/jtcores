@@ -1,4 +1,5 @@
 #!/bin/bash
+# Author: Andrea Bogazzi
 set -euo pipefail
 seicro_repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd -P)
 seicro_test_dir="$seicro_repo/cores/seicro/ver/hdl/build"
@@ -56,7 +57,7 @@ iverilog -g2012 -DSIMULATION -DIVERILOG -DNOSOUND -s audio_mix_tb \
     -I. -I"$JTFRAME/hdl/inc" -o audio_nosound_test -f definitions.txt -c rtl.f \
     seicro_mixer.v "$CORES/seicro/ver/hdl/audio_mix_tb.v"
 vvp audio_nosound_test
-for top in blanking_tb reset_tb decode_tb cab_tb main_tb mcu_tb nsc8105_tb nvram_tb nvram_io_tb; do
+for top in blanking_tb colmix_tb reset_tb decode_tb cab_tb main_tb mcu_tb nsc8105_tb nvram_tb nvram_io_tb; do
     iverilog -g2012 -DSIMULATION -DIVERILOG -s "$top" -I. -I"$JTFRAME/hdl/inc" \
         -o test -f definitions.txt -c rtl.f "$CORES/seicro/ver/hdl/$top.v"
     vvp test

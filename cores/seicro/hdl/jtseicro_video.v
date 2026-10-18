@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_video(
     input             rst, clk, pxl_cen, flip,
     output            HS, VS, LHBL, LVBL,

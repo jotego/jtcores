@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module nvram_io_tb;
 reg clk=0, rst=1, ioctl_ram=0, ioctl_wr=0;
 reg [25:0] ioctl_addr=0;

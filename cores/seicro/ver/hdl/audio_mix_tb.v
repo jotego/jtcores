@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 `timescale 1ns/1ps
 module audio_mix_tb;
 reg clk=0, rst=1, cen=0, filters=0;

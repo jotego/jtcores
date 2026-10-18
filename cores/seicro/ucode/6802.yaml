@@ -1,3 +1,4 @@
+# Author: Andrea Bogazzi
 config:
   implicit: true
 include:

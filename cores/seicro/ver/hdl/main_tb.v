@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module main_tb;
 reg rst=1, clk=0, LVBL=1;
 reg [5:0] count=0;

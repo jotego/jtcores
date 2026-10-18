@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module nvram_tb;
 parameter NSC=0;
 reg clk=0, rst=1, run=0, reset_req=0, dip_pause=1, nvram_en=1;

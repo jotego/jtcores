@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module decode_tb;
 reg [15:0] addr;
 reg mreq_n, iorq_n, m1_n, rfsh_n, rd_n, wr_n;

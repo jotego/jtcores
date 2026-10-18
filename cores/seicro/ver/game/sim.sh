@@ -1,4 +1,5 @@
 #!/bin/bash
+# Author: Andrea Bogazzi
 set -euo pipefail
 seicro_repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd -P)
 seicro_image=${JTFRAME_SIM_IMAGE:-jotego/simulator:arm64}

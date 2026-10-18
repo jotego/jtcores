@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module video_tb;
 parameter WITH_SPRITES=0;
 reg clk=0, rst=1, flip=0;

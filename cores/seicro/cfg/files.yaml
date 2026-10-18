@@ -1,3 +1,4 @@
+# Author: Andrea Bogazzi
 seicro:
   - get: [ "*.v" ]
 jtframe:

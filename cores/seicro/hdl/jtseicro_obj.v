@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_obj(
     input             rst, clk, pxl_cen, HS, flip,
     input       [8:0] hdump, vrender,

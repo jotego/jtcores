@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_mcu(
     input             rst, clk, cen, run, reset_req, dip_pause, nsc8105,
     input      [23:0] dipsw,

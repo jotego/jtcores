@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_audio(
     input             rst, clk,
     input             seicross,

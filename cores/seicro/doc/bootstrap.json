@@ -85,5 +85,6 @@
     "sectrzona",
     "sectrzont"
   ],
-  "mame_revision": "50edfc27b43a76028ea595a9d433663c5ecb037f"
+  "mame_revision": "50edfc27b43a76028ea595a9d433663c5ecb037f",
+  "author": "Andrea Bogazzi"
 }

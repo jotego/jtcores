@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_snd(
     input             rst, clk, audio_cen,
     input             bdir, bc1,

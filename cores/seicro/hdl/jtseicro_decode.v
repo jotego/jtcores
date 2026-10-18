@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module jtseicro_decode(
     input      [15:0] addr,
     input             mreq_n, iorq_n, m1_n, rfsh_n, rd_n, wr_n,

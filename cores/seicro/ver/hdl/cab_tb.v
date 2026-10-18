@@ -1,3 +1,4 @@
+// Author: Andrea Bogazzi
 module cab_tb;
 reg frisky, radial, service, dip_test;
 reg [1:0] cab_1p, coin;
