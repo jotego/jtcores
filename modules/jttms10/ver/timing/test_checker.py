@@ -14,6 +14,7 @@ from run import check_store_bus
 from store_mode_cases import literal_cases as store_literal_cases
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
+from coverage import inventory, REQUIRED
 
 
 class TimingCheckerTest(unittest.TestCase):
@@ -198,6 +199,46 @@ class TimingCheckerTest(unittest.TestCase):
             self.assertEqual(row['timing_source_status'],'inferred-conflict-resolution')
         self.assertEqual(store_fixture('absolute',8,15,0,False,0,byte=True)['timing_source_status'],'primary-summary-consistent')
         with self.assertRaises(ValueError):store_fixture('post',8,0,0,False,0,byte=True)
+
+    def test_full_form_coverage_cannot_waive_unresolved_timing_sources(self):
+        complete=[dict(name=key,coverage_id=key,cache_disabled=False) for key in REQUIRED]
+        # All forms present is still only a necessary gate, never full signoff.
+        self.assertTrue(inventory(complete)['gate_passed'])
+        self.assertFalse(inventory(complete)['full_isa_signoff'])
+        case=store_fixture('offset',16,0,0,True,0)
+        result=inventory([*complete,case])
+        self.assertEqual(result['missing_forms'],[])
+        self.assertFalse(result['gate_passed'])
+        self.assertEqual(result['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
+
+    def test_agreeing_ti_counts_are_a_published_target_gap(self):
+        case=store_fixture('absolute',8,0,0,False,0,byte=True)
+        # Relabeling a policy cannot bypass the independent numeric audit.
+        case['timing_source_status']='primary-summary-consistent'
+        result=inventory([case])
+        gap=result['unresolved_source_probes'][0]
+        self.assertEqual(gap['kind'],'agreed-published-target-gap')
+        self.assertEqual((gap['source_values']['entry_typical_cpu'],gap['source_values']['summary_cpu'],gap['source_values']['policy_cpu']),(1,1,3))
+        # An unaligned byte uses Table13-2, not the byte-aligned entry.
+        unaligned=store_fixture('absolute',8,1,0,False,0,byte=True)
+        self.assertIsNone(unaligned['source_values']['entry_typical_cpu'])
+        self.assertEqual(inventory([unaligned])['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
+        case['states']=1
+        with self.assertRaisesRegex(ValueError,'source policy differs from the probe expectation'):
+            inventory([case])
+
+    def test_absolute_load_source_choice_blocks_acceptance(self):
+        case=load_mode_fixture('absolute',16,0,0,False,True,0,2,0,0)
+        result=inventory([case])
+        self.assertEqual(len(result['unresolved_source_probes']),1)
+        values=result['unresolved_source_probes'][0]['source_values']
+        self.assertEqual((values['summary_cd'],values['entry_typical_cd'],values['policy_cd']),(14,15,14))
+        case=load_mode_fixture('absolute',16,0,0,False,False,0,2,0,0)
+        self.assertEqual(inventory([case])['unresolved_source_probes'],[])
+
+    def test_coverage_rejects_unknown_instruction_form(self):
+        with self.assertRaisesRegex(ValueError,'unknown TI coverage identifier'):
+            inventory([dict(name='unknown',coverage_id='NOT_A_TI_INSTRUCTION',cache_disabled=False)])
 
     def test_high_and_wrapped_store_addresses(self):
         row=store_fixture('offset',16,0,0,False,2,base=0x80006000,displacement=-32768)

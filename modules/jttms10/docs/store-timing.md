@@ -166,6 +166,14 @@ have further inconsistent CPU/CD counts. The printed values include:
 | MOVB absolute, one word | `1+(3),7` p.12-117, byte aligned | `1+(3),7` | `3+(3),15` |
 | MOVB absolute, two words | Refers to summary | `3+(7),13` | `3+(7),19` |
 
+Single-word absolute MOVB needs particular care: its instruction entry and
+summary **agree** on `1+(3),7`. The present implementation/policy uses
+`3+(3),15`. This is an unresolved mismatch against an agreed published
+target, not a disagreement between those two TI tables. The current
+three-state address schedule does not prove that the printed one-state
+cached path is impossible or erroneous. Both the cached and CD targets
+remain open; these policy probes cannot establish their compliance.
+
 An undated separate TI chapter copy at
 [Whtech](https://www.whtech.com/ftp/datasheets%20and%20manuals/Datasheets%20-%20TI/TMS34010/TMS34010-13-Instruction%20Timings.pdf)
 also disagrees with SPVU001A at MOVE offset. The scanned 1988 summary was
@@ -174,6 +182,11 @@ an authoritative later revision/erratum or hardware evidence if it resolves
 these conflicts; retain the explicit distinctions until then. A passing
 policy probe must not silently become a claim that both contradictory
 published numbers have been satisfied.
+The permanent `ver/timing/coverage.py` gate now fails on unresolved
+source/policy differences as well as missing forms. Its JSON distinguishes
+an agreed published-target gap from an unresolved choice between sources.
+It compares the numeric alternatives independently of the status label;
+relabeling a probe as summary-consistent cannot make a differing count pass.
 
 The additional matrix covers both fields/FE/cache modes, width/alignment
 boundaries, signed offset endpoints, aliases and full transport addresses.

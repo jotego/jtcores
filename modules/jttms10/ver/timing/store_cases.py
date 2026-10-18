@@ -76,7 +76,7 @@ def fixture(mode,width,offset,field,off,index,*,byte=False,bank=0,source=2,dest=
     if mode in ('offset','absolute'):
         row['extensions']=[displacement&0xFFFF] if mode=='offset' else [address&0xFFFF,address>>16]
         row['conditions'].update(displacement=displacement if mode=='offset' else None,fe=(st>>(6*field+5))&1)
-        row['source_notes']='Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (§5.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.'
+        row['source_notes']='Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (§5.4.7). Source/policy differences are retained in source_values; this is not an official erratum. Single-word absolute MOVB still disagrees with the cached C=1 printed in both TI tables.'
         hidden=row['hidden_states']
         summary_cpu=1 if byte and mode=='absolute' and hidden==3 else 3
         summary_cd=({3:7,7:13}[hidden] if byte else
@@ -85,6 +85,7 @@ def fixture(mode,width,offset,field,off,index,*,byte=False,bank=0,source=2,dest=
         entry_cpu=1 if byte and mode=='absolute' else cpu
         entry_cd=(7 if mode=='absolute' else 9) if byte else 7 if width==16 and offset==0 else 9 if width==32 and offset==0 else None
         if byte and offset%8:entry_cd=None
+        if entry_cd is None:entry_cpu=None  # Typical entry does not cover this alignment/width.
         row['source_values'].update(entry_typical_cpu=entry_cpu,entry_typical_cd=entry_cd)
         row['timing_source_status']='inferred-conflict-resolution' if (summary_cpu!=cpu or off and (summary_cd!=row['states'] or entry_cd is not None and entry_cd!=row['states'])) else 'primary-summary-consistent'
         if mode=='absolute':row['conditions'].update(destination=None,alias=False)

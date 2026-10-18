@@ -66,6 +66,17 @@ def fixture(mode,width,offset,field,sign,off,bank,source,dest,index,*,byte=False
             alias=source==dest and mode!='absolute',ignored_field_definition=ignored))
     if mode=='absolute' and not byte:
         row['source_notes']='Table13-1 and §5.4.7 supply CD counts; p12-153 prints conflicting 5/15 and 7/13. Postulated entry typo, not an official erratum.'
+        cpu=load_states(address=address,width=width,signed=sign,mode=mode)
+        # The entry's typical FE=0 16-bit and full-width cases disagree
+        # with the summary only with CD. Preserve the applicable alternatives
+        # so full-form probe coverage cannot waive that unresolved choice.
+        typical=(address&15)==0 and (width==32 or width==16 and not sign)
+        entry_cpu=(7 if width==32 else 5) if typical else None
+        entry_cd=(13 if width==32 else 15) if typical else None
+        row['source_values']=dict(summary_cpu=cpu,summary_cd=cpu+9,
+            policy_cpu=cpu,policy_cd=cpu+9,
+            entry_typical_cpu=entry_cpu,entry_typical_cd=entry_cd)
+        row['timing_source_status']='inferred-conflict-resolution' if off and typical else 'primary-summary-consistent'
     if mode=='post' and source==dest:
         row['source_notes']='Loaded data wins pointer alias writeback; interpretation of p12-139 corroborated by MAME MOVE_NI_R (p12-143 states the predecrement rule explicitly).'
     return row

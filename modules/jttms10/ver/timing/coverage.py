@@ -5,6 +5,8 @@
 This is a necessary coverage gate, not a substitute for condition/bus/IRQ
 audits. The index is transcribed from SPVU001A §12.10 (June 1988), using
 printed instruction-entry page numbers. It is independent of RTL dispatch.
+Unresolved timing-source overrides also block acceptance, even if every
+instruction form has probes and every implementation-policy probe passes.
 """
 import argparse
 import json
@@ -156,29 +158,74 @@ if len(REQUIRED) != len(REQUIRED_ROWS):
     raise ValueError('duplicate instruction form in the TI coverage index')
 
 
+def inventory(rows):
+    """Inventory probe presence and unresolved expectations independently.
+
+    Source values are transcribed in fixtures; no RTL or measured latency is
+    consulted. In particular, agreeing TI entry/summary values must not be
+    called a conflict between sources when the chosen policy differs.
+    """
+    probes = {identifier: [] for identifier in REQUIRED}
+    unresolved = []
+    for case in rows:
+        identifier = case['coverage_id']
+        if identifier not in REQUIRED:
+            raise ValueError(f"unknown TI coverage identifier {identifier!r}")
+        probes[identifier].append(case['name'])
+        values = case.get('source_values', {})
+        suffix = 'cd' if case['cache_disabled'] else 'cpu'
+        policy = values.get('policy_'+suffix)
+        summary = values.get('summary_'+suffix)
+        entry = values.get('entry_typical_'+suffix)
+        if policy is not None:
+            miss = 9 if case.get('cache_miss') in ('load_extension','store_extension') else 0
+            if case['states'] != policy + miss:
+                raise ValueError(f"{case['name']}: source policy differs from the probe expectation")
+        differs = policy is not None and any(
+            count is not None and count != policy for count in (summary, entry))
+        if differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
+            agreed_gap = summary is not None and summary == entry and summary != policy
+            unresolved.append(dict(
+                name=case['name'], identifier=identifier, citation=case['citation'],
+                clock_unit='machine states', cache_disabled=case['cache_disabled'],
+                kind='agreed-published-target-gap' if agreed_gap else 'unresolved-source-policy',
+                source_values=values))
+    missing = [identifier for identifier, names in probes.items() if not names]
+    return dict(
+        full_isa_signoff=False,
+        gate_passed=not missing and not unresolved,
+        note='Probe presence and resolved timing sources are necessary; condition and bus/IRQ audits also remain required.',
+        missing_forms=missing, unresolved_source_probes=unresolved,
+        forms=[dict(identifier=identifier, source='SPVU001A '+page,
+                    probes=probes[identifier], status='probes-present' if probes[identifier] else 'unvalidated')
+               for identifier, page in REQUIRED.items()])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
-    probes = {identifier: [] for identifier in REQUIRED}
-    for case in cases():
-        identifier = case['coverage_id']
-        if identifier not in REQUIRED:
-            parser.error(f"unknown TI coverage identifier {identifier!r}")
-        probes[identifier].append(case['name'])
-    missing = [identifier for identifier, names in probes.items() if not names]
+    try:
+        result = inventory(cases())
+    except ValueError as error:
+        parser.error(str(error))
+    missing = result['missing_forms']
     print(f'TI instruction-form coverage: {len(REQUIRED)-len(missing)}/{len(REQUIRED)} have timing probes')
     for identifier in missing:
         print(f'UNVALIDATED {identifier}: SPVU001A {REQUIRED[identifier]}')
+    unresolved = result['unresolved_source_probes']
+    agreed = [row for row in unresolved if row['kind']=='agreed-published-target-gap']
+    print(f'TI timing-source acceptance: {len(unresolved)} unresolved probes, including {len(agreed)} probes with agreed published-target gaps')
+    for identifier in dict.fromkeys(row['identifier'] for row in unresolved):
+        affected = [row for row in unresolved if row['identifier']==identifier]
+        print(f'UNRESOLVED {identifier}: {len(affected)} source-policy probes; see source_values in the coverage report')
+    if agreed:
+        row = agreed[0]
+        print(f'PUBLISHED_TARGET_GAP {row["name"]}: {row["source_values"]} ({row["citation"]})')
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
-        args.report.write_text(json.dumps(dict(
-            full_isa_signoff=False,
-            note='Probe presence is necessary; timing conditions and bus/IRQ contracts also require audit.',
-            forms=[dict(identifier=identifier, source='SPVU001A '+page,
-                        probes=probes[identifier], status='probes-present' if probes[identifier] else 'unvalidated')
-                   for identifier, page in REQUIRED.items()]), indent=2)+'\n')
-    return int(bool(missing))
+        args.report.write_text(json.dumps(result, indent=2)+'\n')
+    return int(not result['gate_passed'])
 
 
 if __name__ == '__main__':

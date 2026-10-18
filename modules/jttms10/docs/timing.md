@@ -4,8 +4,11 @@ The CPU is **not fully instruction timing compliant**. The current timing
 probes cover 82 of 133 instruction forms; the other 51 remain unvalidated.
 Some printed store counts conflict; affected probes label their inferred
 source policy explicitly and do not establish unqualified TI compliance.
-The standard runner's coverage gate deliberately fails until that gap is
-closed. Passing the present probe matrix is not full-ISA acceptance.
+Single-word absolute MOVB also has a known gap against counts on which
+both TI tables agree: cached CPU 1 state/CD 7 versus the present policy's
+3/15. The standard runner's acceptance gate fails on missing forms and
+unresolved source/policy differences. Passing the present probe matrix is
+not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
 separate checks.
 
@@ -182,7 +185,19 @@ event bench separately runs three controls and one duplicate-read mutation.
 This ledger records the present scope explicitly. A rule with no committed
 probe remains unvalidated. `ver/timing/coverage.py` lists all 133 instruction
 forms with individual TI entry-page citations. It fails on absent probes;
-probe presence alone does not complete the condition/bus/interrupt audit.
+it also fails on unresolved timing-source overrides, even if every form has
+probes. Numeric source alternatives are audited independently of their
+status labels. An agreed published target differing from the selected
+policy is reported separately from conflicting TI sources. The current
+20,372-case inventory has 248 unresolved probe instances: 242 store probes
+and six aligned absolute MOVE load CD probes. Twenty-seven store probe
+instances disagree with matching entry/summary counts. The JSON preserves
+each affected name, condition-specific source counts and citation. These
+are counts of probe instances, not distinct timing rules. Four checker
+regressions keep all-form presence, numeric relabeling and applicable load
+source conflicts from bypassing this gate. There are now 45 checker/model
+tests. Probe presence and resolved sources remain necessary gates; neither
+completes the condition/bus/interrupt audit.
 The full #144 checklist remains open.
 
 | Rule | TI source | Present coverage | Compliance |
