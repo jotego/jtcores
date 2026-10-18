@@ -1,5 +1,12 @@
 # XY arithmetic timing (issue #144, partial)
 
+The owner's subsequent ambiguity fallback is recorded in
+[source-policy.md](source-policy.md). It keeps the simpler implementation
+under explicit project interpretations and preserves every printed
+alternative. Earlier unresolved-source counts below describe the stricter
+source-only audit; the normal gate now distinguishes those choices from
+remaining published-target gaps. This is not an official TI erratum.
+
 `ver/timing/xy_cases.py` adds **4,156 programs** for ADDXY, SUBXY and CMPXY.
 The total inventory is **40,070 cases**, with probes for **94/133 forms**;
 39 forms still lack probes. Presence does not establish condition/bus/IRQ

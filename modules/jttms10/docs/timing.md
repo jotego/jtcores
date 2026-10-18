@@ -2,12 +2,14 @@
 
 The CPU is **not fully instruction timing compliant**. The current timing
 probes cover 96 of 133 instruction forms; the other 37 remain unvalidated.
-Some printed store counts conflict; affected probes label their inferred
-source policy explicitly and do not establish unqualified TI compliance.
+Some printed counts conflict. The owner authorizes the simpler implementation
+where reliable clarification cannot be found; explicit project choices keep
+all alternatives visible. See [source-policy.md](source-policy.md).
 Single-word absolute MOVB also has a known gap against counts on which
 both TI tables agree: cached CPU 1 state/CD 7 versus the present policy's
 3/15. The standard runner's acceptance gate fails on missing forms and
-unresolved source/policy differences. Passing the present probe matrix is
+unresolved source/policy differences, with the recorded project choices
+applied explicitly. Passing the present probe matrix is
 not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
 separate checks.
@@ -185,8 +187,9 @@ event bench separately runs three controls and one duplicate-read mutation.
 This ledger records the present scope explicitly. A rule with no committed
 probe remains unvalidated. `ver/timing/coverage.py` lists all 133 instruction
 forms with individual TI entry-page citations. It fails on absent probes;
-it also fails on unresolved timing-source overrides, even if every form has
-probes. Numeric source alternatives are audited independently of their
+it also fails on unresolved source overrides, even if every form has
+probes. The normal gate applies the explicit owner-selected interpretations
+in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
 45,186-case inventory has 3,636 source-policy probe instances before the
@@ -201,7 +204,7 @@ applicable data-sheet counts as well as entry/summary alternatives; a third
 disagreeing source cannot be misreported as agreement between all sources.
 Four checker
 regressions keep all-form presence, numeric relabeling and applicable load
-source conflicts from bypassing this gate. There are64 checker/model tests at the coordinate stage. Probe presence and resolved sources remain necessary gates; neither
+source conflicts from bypassing this gate. There are 74 checker/model tests after the project-policy audit. Probe presence and resolved sources remain necessary gates; neither
 completes the condition/bus/interrupt audit.
 The full #144 checklist remains open.
 
@@ -411,3 +414,12 @@ source discrepancies. The owner authorizes the simpler implementation
 when reliable source clarification cannot be found; printed alternatives
 and agreed published-target gaps remain explicit. This choice is not an
 official TI erratum or full issue acceptance.
+
+The owner's ambiguity fallback is recorded in [source-policy.md](source-policy.md).
+It selects the current simple schedules/formula for 3,520 conflicting-source
+probe instances. The gate retains 116 unresolved absolute-MOVB probes,
+including 27 with matching published targets; all 37 missing forms also
+remain blockers. No HDL, microcode, timing golden, result expectation or
+encoded program changes in this source-policy step. The source-only audit
+remains available and reports all 3,636 discrepancies. These are explicit
+project interpretations, not official TI errata or full compliance signoff.

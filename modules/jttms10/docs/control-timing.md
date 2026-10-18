@@ -1,5 +1,12 @@
 # Control-flow timing (issue #144, partial)
 
+The owner's subsequent ambiguity fallback is recorded in
+[source-policy.md](source-policy.md). It keeps the simpler implementation
+under explicit project interpretations and preserves every printed
+alternative. Earlier unresolved-source counts below describe the stricter
+source-only audit; the normal gate now distinguishes those choices from
+remaining published-target gaps. This is not an official TI erratum.
+
 `ver/timing/control_cases.py` supplies independent timing and architectural
 expectations for JUMP, EXGPC, DSJ/DSJEQ/DSJNE/DSJS, short/long JRcc and JAcc.
 There are **15,542 programs**, taking the total matrix to **35,914** and form

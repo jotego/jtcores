@@ -1,5 +1,12 @@
 # Stores and hidden writes (#144)
 
+The owner's subsequent ambiguity fallback is recorded in
+[source-policy.md](source-policy.md). It keeps the simpler implementation
+under explicit project interpretations and preserves every printed
+alternative. Earlier unresolved-source counts below describe the stricter
+source-only audit; the normal gate now distinguishes those choices from
+remaining published-target gaps. This is not an official TI erratum.
+
 The primary source is TI's June 1988 SPVU001A
 [TMS34010 User's Guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf),
 §13.1.1 pp.13-2/3, Fig.13-1 pp.13-4/5 and Table13-2 p.13-6.

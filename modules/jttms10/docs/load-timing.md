@@ -1,5 +1,12 @@
 # Data-load timing (#144)
 
+The owner's subsequent ambiguity fallback is recorded in
+[source-policy.md](source-policy.md). It keeps the simpler implementation
+under explicit project interpretations and preserves every printed
+alternative. Earlier unresolved-source counts below describe the stricter
+source-only audit; the normal gate now distinguishes those choices from
+remaining published-target gaps. This is not an official TI erratum.
+
 The independent oracle uses TI's June 1988 SPVU001A, Table 13-1 on printed
 p.13-5 and the instruction entries below in the
 [primary guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf).

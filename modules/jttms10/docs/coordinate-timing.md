@@ -1,5 +1,12 @@
 # Coordinate timing (issue #144, in progress)
 
+The owner's subsequent ambiguity fallback is recorded in
+[source-policy.md](source-policy.md). It keeps the simpler implementation
+under explicit project interpretations and preserves every printed
+alternative. Earlier unresolved-source counts below describe the stricter
+source-only audit; the normal gate now distinguishes those choices from
+remaining published-target gaps. This is not an official TI erratum.
+
 CPW uses **1/4 machine states** and CVXYL **3/6** for a cache hit/cache
 disabled. SPVU001A printed pp.12-57–60 and summary p.12-12 agree on
 these counts; the June1991 SPVS002C data sheet p.11 gives minima1/3.
@@ -84,8 +91,8 @@ HDL/YAML hashes per capture. It is never an oracle or allowlist.
 The normal inventory has **45,186 programs per matrix**, three matrices,
 two mid-DIV pauses and six66-case phase unions: **135,956 exact timing
 programs** under the documented expectations. It covers96/133 forms;
-37 remain missing. The independent models/checker have64 checks before
-the subsequent project source-policy audit. Two new RTL mutations add an
+37 remain missing. The independent models/checker have 64 checks before
+the subsequent project source-policy audit, and 74 afterward. Two new RTL mutations add an
 unwanted CPW state or shorten CVXYL; they must fail timing with correct
 registers/ST. This brings mutation controls/rejections to36/43, including
 three separate event-contract rejections. The response-retention bench's

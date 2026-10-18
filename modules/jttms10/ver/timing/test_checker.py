@@ -22,6 +22,78 @@ from run import parse_result
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_project_choice_is_explicit_and_keeps_all_sources(self):
+        row=xy_fixture('CMPXY',1,2)
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        choice=audit['project_source_choices'][0]
+        self.assertEqual(choice['source_values'],row['source_values'])
+        self.assertFalse(choice['project_choice']['official_ti_resolution'])
+        self.assertEqual(choice['project_choice']['authority'],'project-owner-2026-10-18')
+
+    def test_project_choice_does_not_establish_full_signoff(self):
+        complete=[dict(name=key,coverage_id=key,cache_disabled=False) for key in REQUIRED]
+        row=store_fixture('offset',16,0,0,True,0)
+        audit=inventory([*complete,row],accept_project_choices=True)
+        self.assertTrue(audit['gate_passed'])
+        self.assertFalse(audit['full_isa_signoff'])
+        self.assertEqual(len(audit['project_source_choices']),1)
+
+    def test_project_choices_do_not_waive_agreed_targets(self):
+        row=store_fixture('absolute',8,0,0,False,0,byte=True)
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['project_source_choices'],[])
+        self.assertEqual(audit['unresolved_source_probes'][0]['kind'],'agreed-published-target-gap')
+
+    def test_project_choices_do_not_waive_absolute_byte_extrapolations(self):
+        row=store_fixture('absolute',8,1,0,True,0,byte=True)
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['project_source_choices'],[])
+        self.assertEqual(len(audit['unresolved_source_probes']),1)
+
+    def test_new_source_alternative_cannot_inherit_project_choice(self):
+        row=xy_fixture('CMPXY',1,2)
+        row['source_values']['entry_cpu']=2
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['project_source_choices'],[])
+        self.assertEqual(len(audit['unresolved_source_probes']),1)
+
+    def test_project_choice_cannot_move_to_another_form(self):
+        row=xy_fixture('CMPXY',1,2);row['coverage_id']='ADDXY_RR'
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['project_source_choices'],[])
+        self.assertEqual(len(audit['unresolved_source_probes']),1)
+
+    def test_changed_expectation_cannot_inherit_project_choice(self):
+        row=xy_fixture('CMPXY',1,2)
+        row['states']=2;row['source_values']['policy_cpu']=2
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['project_source_choices'],[])
+        self.assertEqual(len(audit['unresolved_source_probes']),1)
+
+    def test_conversion_project_choice_preserves_printed_results(self):
+        row=coordinate_fixture('CVXYL',0x400030,size=4)
+        audit=inventory([row],accept_project_choices=True)
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        choice=audit['project_source_choices'][0]
+        self.assertEqual(choice['kind'],'unresolved-behavior-source')
+        self.assertEqual(choice['source_values']['entry_example_result'],0x20000)
+        self.assertEqual(choice['source_values']['formula_result'],0x200C0)
+
+    def test_project_choice_still_audits_actual_expected_result(self):
+        row=coordinate_fixture('CVXYL',0x400030,size=4)
+        row['expected_regs'][0]^=1
+        with self.assertRaisesRegex(ValueError,'source result policy differs'):
+            inventory([row],accept_project_choices=True)
+
+    def test_project_choice_inventory_leaves_absolute_byte_open(self):
+        audit=inventory(cases(),accept_project_choices=True)
+        self.assertEqual(len(audit['project_source_choices']),3520)
+        self.assertEqual(len(audit['unresolved_source_probes']),116)
+        self.assertEqual({r['identifier'] for r in audit['unresolved_source_probes']},{'MOVB_R_ABS'})
+        self.assertEqual(sum(r['kind']=='agreed-published-target-gap' for r in audit['unresolved_source_probes']),27)
+        self.assertFalse(audit['gate_passed'])
+
     def test_point_code_literal_examples(self):
         for point,value in CPW_EXAMPLES:
             self.assertEqual(point_code(point,0x50005,0xA000A),value)

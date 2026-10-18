@@ -5,8 +5,10 @@
 This is a necessary coverage gate, not a substitute for condition/bus/IRQ
 audits. The index is transcribed from SPVU001A §12.10 (June 1988), using
 printed instruction-entry page numbers. It is independent of RTL dispatch.
-Unresolved timing-source overrides also block acceptance, even if every
-instruction form has probes and every implementation-policy probe passes.
+Unresolved source overrides block acceptance. The normal runner explicitly
+accepts the owner's recorded choices for contradictory sources; an audit
+without those choices remains available through inventory(). All alternatives
+remain visible, and agreed published-target gaps cannot be waived.
 """
 import argparse
 import json
@@ -15,6 +17,7 @@ import sys
 
 sys.dont_write_bytecode = True
 from run import cases
+from source_policy import project_choice
 
 # Identifier, printed page(s). Separate encodings/addressing forms must not
 # disappear behind a single instruction-family or opcode-decoder match.
@@ -158,7 +161,7 @@ if len(REQUIRED) != len(REQUIRED_ROWS):
     raise ValueError('duplicate instruction form in the TI coverage index')
 
 
-def inventory(rows):
+def inventory(rows, *, accept_project_choices=False):
     """Inventory probe presence and unresolved expectations independently.
 
     Source values are transcribed in fixtures; no RTL or measured latency is
@@ -167,6 +170,7 @@ def inventory(rows):
     """
     probes = {identifier: [] for identifier in REQUIRED}
     unresolved = []
+    choices = []
     for case in rows:
         identifier = case['coverage_id']
         if identifier not in REQUIRED:
@@ -195,18 +199,24 @@ def inventory(rows):
             result_differs=any(value!=selected for value in results)
         if differs or result_differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
             agreed_gap = len(published)>=2 and len(set(published))==1 and published[0]!=policy
-            unresolved.append(dict(
+            discrepancy=dict(
                 name=case['name'], identifier=identifier, citation=case['citation'],
                 clock_unit='machine states', cache_disabled=case['cache_disabled'],
                 kind='unresolved-behavior-source' if result_differs or case.get('source_conflict_kind')=='behavior' else
                      'agreed-published-target-gap' if agreed_gap else 'unresolved-source-policy',
-                source_values=values))
+                source_values=values)
+            choice=project_choice(identifier,values,discrepancy['kind']) if accept_project_choices else None
+            if choice:
+                choices.append(dict(**discrepancy,project_choice=choice))
+            else:
+                unresolved.append(discrepancy)
     missing = [identifier for identifier, names in probes.items() if not names]
     return dict(
         full_isa_signoff=False,
         gate_passed=not missing and not unresolved,
-        note='Probe presence and resolved timing sources are necessary; condition and bus/IRQ audits also remain required.',
+        note='Probe presence and resolved or explicitly selected project interpretations are necessary; condition and bus/IRQ audits remain required. Project choices are not official TI resolutions.',
         missing_forms=missing, unresolved_source_probes=unresolved,
+        project_source_choices=choices,
         forms=[dict(identifier=identifier, source='SPVU001A '+page,
                     probes=probes[identifier], status='probes-present' if probes[identifier] else 'unvalidated')
                for identifier, page in REQUIRED.items()])
@@ -217,7 +227,7 @@ def main():
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
     try:
-        result = inventory(cases())
+        result = inventory(cases(),accept_project_choices=True)
     except ValueError as error:
         parser.error(str(error))
     missing = result['missing_forms']
@@ -227,6 +237,7 @@ def main():
     unresolved = result['unresolved_source_probes']
     agreed = [row for row in unresolved if row['kind']=='agreed-published-target-gap']
     print(f'TI expectation-source acceptance: {len(unresolved)} unresolved probes, including {len(agreed)} probes with agreed published-target gaps')
+    print(f'Project source choices: {len(result["project_source_choices"])} probes under explicit owner-selected interpretations; TI alternatives retained')
     for identifier in dict.fromkeys(row['identifier'] for row in unresolved):
         affected = [row for row in unresolved if row['identifier']==identifier]
         print(f'UNRESOLVED {identifier}: {len(affected)} source-policy probes; see source_values in the coverage report')
