@@ -41,9 +41,47 @@ Historical pre-promotion source versions remain in the archived
 `artifacts/prepromotion-baseline-v1/` mapping. Do not rewrite old source
 hashes or scientific indices to match current promoted sources.
 
-The separately acquired reconciliation supplement is tracked under
-`tasks/ym2151-archive-20261018/`. Its archive, final inventory, issue
-reconciliation and verification are listed in the permanent archive index
-when complete. The original archive remains immutable. A failed numerical
-feature, unresolved slow/random behavior or old invalid acquisition remains
-part of the evidence; archive integrity does not turn it into a chip pass.
+The complete reconciliation supplement is `supplement-measurements.tar.zst`:
+87,480 regular files (6,377,724,208 logical uncompressed bytes) and two symlinks.
+Its 759,989,183 compressed bytes have SHA256
+`c02ff34d2018f57dca6ab24e27af016a3e50104e03ff568ef762840f689ac8c0`.
+Every archived file/link was independently decompressed and checked for original
+SHA256, size, mode and link target against `supplement-files.jsonl` (SHA256
+`b4065c033c1431abfb2689d91c553288c7d2929e54838a9c997b81deacc06f14`).
+`supplement-archive-verification.json` records the successful full check and
+exclusive final installation. The original archive remains unchanged.
+
+The supplement contains the ENTIRE `tasks/ym2151-archive-20261018/` task:
+raw captures, full register histories, models, source snapshots, original
+failed/partial attempts, qualifications, individual results, figures and reviews.
+It was frozen only after all physical/model/scorer/join/audit producers ended.
+Final archive hashes, issue readbacks and source-commit proofs are outside that
+sealed task, under the campaign's `issue-reconciliation-final/` and
+`final-source-publication/`. The final committed documentation/source snapshot
+and its identity proof are under `sources/`. Pre-seal prose candidates remain
+in the supplement's `artifacts/publication-source-checkpoint-v1/`; its older
+archive-guide snapshot necessarily precedes this final archive hash.
+
+`SUPPLEMENT.md` and `supplement-browse/` expose the completed pitch/level,
+live/key-history, all-code LFO and reconciliation reports plus five PNG figures
+and three LFO PDFs. Detailed source/raw references outside the selected browse
+set are available in the full archives. Both archives keep partial/unresolved,
+failed-qualification and conditional model observations as originally recorded.
+Archive integrity does not turn them into a chip pass.
+
+From the campaign directory, verify and extract the supplement alongside the
+original task:
+
+```sh
+python3 verify-archive.py supplement-measurements.tar.zst --manifest supplement-files.jsonl
+zstd -dc supplement-measurements.tar.zst | tar -xf - -C extracted
+```
+
+Its member root is `ym2151-archive-20261018/`. Replace the old absolute prefix
+`/home/jtejada/jtcores-2/tasks/ym2151-archive-20261018/` with
+`extracted/ym2151-archive-20261018/` when consulting provenance. Scientific pins
+to earlier `jtcores-143/` documents resolve to the immutable original archive;
+the later publication prose is preserved separately in the final Git snapshot.
+Do not overwrite the original extracted sources or revise old scientific hashes
+to match later prose. The [reconciliation](reconciliation.md) report explicitly
+retains the unavailable original Rastan trace as an essential input blocker.

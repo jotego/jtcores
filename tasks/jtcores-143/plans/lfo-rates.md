@@ -100,8 +100,8 @@ conditioning and feature gates stay separate; all are true, with no issues or
 feature outliers in either stage. No reset, reload, retake or retry was needed.
 
 Physical post is frozen as
-`max(ceil((event_host_end-arm_host_start)*14023.4375)+64,1794)+80`, using the
-user's3.59MHz conservative upper clock. Each AM case must retain at least
+`max(ceil((event_host_end-arm_host_start)*14023.4375)+64,1794)+80`, using
+ROOT's conservative3.59MHz upper bound, derived from the user's on-pin3.57–3.58MHz measurement and0.01MHz tolerance. Each AM case must retain at least
 `ceil(3*nominal_period)+40` frames after that bound. Actual posts are1971–2785;
 all36 horizons qualify. This bounds EVENT completion, not an accepted internal
 write, and does not redefine the independent first512 baseline. Short horizons
@@ -195,3 +195,7 @@ executable and fresh output destinations change. The OPM RIGHT carrier exception
 is reproduced exactly. Extraction creates no new model run or physical capture;
 actual new executable identities remain in the promotion provenance under
 `artifacts/lfo-rate-fast12-v1/promoted-validation-v1/`.
+
+The later [all-code supplement](lfo-all-codes.md) adds the242 previously absent
+codes with separate partial/unresolved limits; this original checkpoint remains
+unchanged as evidence for its twelve selected rates.

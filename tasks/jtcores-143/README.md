@@ -1,16 +1,18 @@
 # Diet Go Go YM2151 measurements
 
-Work in progress for [jtcores #143](http://gitea.jotego.es/jotego/jtcores/issues/143).
-The full validation scope and current evidence are in [plans/validation.md](plans/validation.md).
-Bring-up and decoder qualification do not yet validate jt51's subsystems.
-The [CSM checkpoint](plans/csm-measurements.md) adds544 qualified physical
-recordings and an automatic-output discrepancy across all32 calibrated routes.
-The [static mixing checkpoint](plans/mixing-measurements.md) covers63 profiles,
-381 physical captures including a separately recovered quiet, and126 model runs.
-The [held-history follow-up](plans/mixing-history.md) adds37 physical captures
-and12 frozen model outputs, preserving high-level differences through TL changes
-while the voices remain keyed. The internal overload mechanism is unclassified.
-Production jt51 remains unchanged; broader audit work is still in progress.
+The bounded direct-serial measurements and issue reconciliation for
+[jtcores #143](http://gitea.jotego.es/jotego/jtcores/issues/143) are recorded in
+[reconciliation](plans/reconciliation.md), the [coverage report](plans/validation.md)
+and [gap inventory](plans/gaps.md). The original campaign and the complete
+reconciliation supplement are preserved through the [archive guide](plans/archive.md).
+
+The supplement adds2145 independently reviewed physical captures: pitch/level,
+live-register/operator histories and242 previously absent LFO codes. The
+[all-code LFO report](plans/lfo-all-codes.md) retains partial/unresolved observations
+and conditional reference results. Production jt51 remains985a573 unchanged.
+Exact Rastan preceding-history replay lacks its original input; jt51#7/#8/#13
+and parent#3 remain open, and implementation#14 remains blocked by#13.
+Earlier checkpoint paragraphs below retain their historical observation limits.
 
 The held-history source tools and explicit Go build/test groups are documented
 in [mixing-history.md](plans/mixing-history.md#reproduce-the-source-tools).

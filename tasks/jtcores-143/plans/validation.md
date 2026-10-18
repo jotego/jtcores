@@ -19,7 +19,27 @@ Bring-up alone does not complete this issue.
 7. Commit/push reproducible source and measurement documentation; retain raw data
    locally, report exact validated coverage and close only after the full audit.
 
-## Current evidence (2026-10-17)
+## Final finite reconciliation (2026-10-18)
+
+[Reconciliation](reconciliation.md) supersedes the earlier checkpoint schedules
+below. The supplement completes1067 physical targets/2145 captures,908 pitch/level
+models,186 history audio models/eight timer runs,12 key-history models and492
+LFO models. All raw observations and saved numerical results have separate audits.
+The final1524-row LFO export/audit preserves268 physical partial,242 periodic,
+six unresolved active observations and24 controls; each model retains252/228/4/8.
+All52 new fast OPM RIGHT results remain conditional on their original carrier.
+
+The original43 issue requests are preserved: five superseded setup items, six
+qualified replacement setup items,28 bounded scientific items, three missing
+exact-history items and one blocked completion condition. The original Rastan
+trace is unavailable; distilled programs do not replace it. The six confirmed
+requirements in [gaps.md](gaps.md) remain unchanged. No RTL fixes were started.
+See [all-code LFO](lfo-all-codes.md), [pitch/level](pitch-supplement.md),
+[live/key histories](history-measurements.md) and [archive](archive.md).
+Full Cartesian combinations, full slowest periods and hidden accepted-write/IRQ
+phase remain outside the bounded observations; none is a passing default.
+
+## Initial evidence (2026-10-17)
 
 - Branch `jtcores-143`, unrelated user module changes untouched.
 - PicoROM `E66550A14758A021`: P28_27C512_70ns. Initial image was 64 KiB of FF.

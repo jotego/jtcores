@@ -6,7 +6,11 @@ Production jt51 remains at `985a573dcfc1ff135553a39f7eae21d18ba57cbe`.
 Six physically supported implementation requirements are consolidated separately
 for review under the user's [jt51 #3 instruction](http://gitea.jotego.es/jotego/jt51/issues/3).
 No RTL change or candidate patch has been made. Broader finite limits and untested
-combinations remain open; this does not close the earlier X-Men rounds.
+combinations retain their stated limits. [Reconciliation](reconciliation.md)
+accounts for the earlier issue rounds on the replacement bench. Their essential
+remaining input is the unavailable exact Rastan prefix; jt51#7/#8/#13/#3 stay open
+and #14 stays blocked. Historical checkpoint schedules below are superseded by
+the completed finite supplements, without changing their original results.
 
 | Observation | Classification | Evidence and limit |
 |---|---|---|
@@ -43,6 +47,14 @@ combinations remain open; this does not close the earlier X-Men rounds.
 | Split manual/automatic CSM coexistence controls | Finite support for the existing confirmed CSM output gap | Three profiles×3 targets with10 whole-zero quiets=19 captures plus9 separate STATUS1 queries. All six C2 manual/null controls qualify; RIGHT zero PCM retains actual raw low bits. C3 manual LEFT stays held; C3 RIGHT/C4 both outputs resolve cadence supporting512. No new mechanism/IRQ/first-load claim. |
 | Low-LFO finite complements | Coarse full-period and partial-only output evidence, with precision limits | Four profiles×3 targets plus14 whole-zero quiets across two stages=26 captures. All six L2 own carriers qualify independently. Six rate60 coarse periods support1024 retained samples; all six original fine screens remain unqualified (about2.34375% propagated bound). Six rate00 partial changes and six held controls retain periodnull; no256-rate/hidden-update extrapolation. |
 
+## Completed reconciliation supplements
+
+| Observation | Classification | Evidence and limit |
+|---|---|---|
+| Dense TL/KF/KC and live ordering | Bounded characterization; no additional confirmed gap |500 targets/1004 captures,908 frozen models and reviewed joins. Deep TL zeros, poor reserved-KC sampled fits and the original odd-MUL pattern retain separate limits. See [pitch/level](pitch-supplement.md). |
+| Live-register, operator-key and combined histories | Recorded finite descriptors and eligible features |279 history targets/559 captures plus18 key targets/37 captures;186+12 audio models/eight separate timer models.330 history helper calls/660 model links preserve quiet/phase/CSM limits. Exact preceding Rastan trace remains input-missing. See [history](history-measurements.md). |
+| Every LFO frequency byte observed | Partial/full/unresolved features; no additional confirmed gap |242 new codes plus14 separately linked originals.540 physical+984 model rows; physical268partial/242periodic/6unresolved/24controls. Models each252/228/4/8;52 new OPM RIGHT results conditional. Different ROI ages and original failed recurrence screens prevent universal period/shape identity. See [all-code LFO](lfo-all-codes.md). |
+
 Detailed methods and evidence locations:
 
 - [Phase measurements](phase-measurements.md)
@@ -61,12 +73,13 @@ Detailed methods and evidence locations:
 
 - [Finite audit complements](audit-complements.md)
 
-Long acquisition is now available (see [qualification](long-acquisition.md)).
-Open coverage includes full EG KS/KC combinations and remaining history
-boundaries, remaining LFO rates, wider isolation/history combinations and further storage cases, wider audio-noise history/coupling,
-remaining algorithm/feedback histories and relative-phase investigation, fast/first-key/mixed-mask CSM histories, and exact output-mixing/
-overload closure beyond the static and held-history observations. These are incomplete measurements, not passing defaults. The
-earlier X-Men planning issues are not marked complete by this direct-serial work.
+Long acquisition and the named finite reconciliation rounds are complete.
+Full EG KS/KC Cartesian combinations, full slowest LFO periods, arbitrary
+simultaneous histories and exact internal overload/accepted-write/IRQ causes
+retain their explicit limits. The earlier dated checkpoint schedules are
+superseded by [reconciliation](reconciliation.md). Its essential remaining input
+is the unavailable original Rastan trace: exact preceding-history replay stays
+unmeasured in jt51#7/#8/#13 and prevents full parent#3 completion or starting#14.
 
 ## Selected EG KS/KC follow-up
 
@@ -84,5 +97,5 @@ measured rate12 granularity gap or establish general feature/sample agreement.
 The actual 150 same-input frontend and one descriptor-report parity completed with
 terminal 0, preserving all 150 curves and all six scientific documents exactly.
 This validates source-promotion parity, not new chip coverage. Production remains
-unchanged; full EG KS/KC combinations, deferred history and the rest of the audit
-remain outstanding.
+unchanged. Full EG KS/KC combinations remain outside that finite checkpoint;
+the later completed histories and audit are recorded in [reconciliation](reconciliation.md).
