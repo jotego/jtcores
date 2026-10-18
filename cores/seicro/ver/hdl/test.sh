@@ -1,5 +1,8 @@
 #!/bin/bash
-# Author: Andrea Bogazzi
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 15-10-2026
+
 set -euo pipefail
 seicro_repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd -P)
 seicro_test_dir="$seicro_repo/cores/seicro/ver/hdl/build"

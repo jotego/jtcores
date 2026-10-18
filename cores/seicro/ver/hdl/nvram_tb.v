@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-10-2026 */
+
 module nvram_tb;
 parameter NSC=0;
 reg clk=0, rst=1, run=0, reset_req=0, dip_pause=1, nvram_en=1;

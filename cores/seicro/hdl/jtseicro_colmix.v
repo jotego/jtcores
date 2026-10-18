@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-10-2026 */
+
 module jtseicro_colmix(
     input             clk, pxl_cen,
     input             hblankn, vblankn,

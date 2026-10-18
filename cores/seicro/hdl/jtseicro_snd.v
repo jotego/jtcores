@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-10-2026 */
+
 module jtseicro_snd(
     input             rst, clk, audio_cen,
     input             bdir, bc1,

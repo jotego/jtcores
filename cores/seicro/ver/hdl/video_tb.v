@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-10-2026 */
+
 module video_tb;
 parameter WITH_SPRITES=0;
 reg clk=0, rst=1, flip=0;

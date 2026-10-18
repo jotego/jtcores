@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-10-2026 */
+
 module header_tb;
 reg clk=0, rst=1, header=0, prog_we=0;
 reg [21:0] prog_addr=0;

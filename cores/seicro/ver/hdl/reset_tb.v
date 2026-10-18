@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-10-2026 */
+
 `timescale 1ns/1ps
 module reset_tb;
 reg clk=0, rst=1, pause_n=1, lvbl=1, service=0;

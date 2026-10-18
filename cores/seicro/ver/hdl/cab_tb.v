@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-10-2026 */
+
 module cab_tb;
 reg frisky, radial, service, dip_test;
 reg [1:0] cab_1p, coin;

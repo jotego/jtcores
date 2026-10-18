@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-10-2026 */
+
 module jtseicro_obj(
     input             rst, clk, pxl_cen, HS, flip,
     input       [8:0] hdump, vrender,

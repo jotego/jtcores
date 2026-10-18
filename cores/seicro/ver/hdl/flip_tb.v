@@ -1,4 +1,7 @@
-// Author: Andrea Bogazzi
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-10-2026 */
+
 module flip_tb;
 reg clk=0, rst=1;
 reg [63:0] status=0;

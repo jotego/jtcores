@@ -1,5 +1,8 @@
 #!/bin/bash
-# Author: Andrea Bogazzi
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 15-10-2026
+
 set -euo pipefail
 if [ "${1:-}" = --delete ]; then
     rm -f videoram.bin colorram.bin spriteram0.bin spriteram1.bin row_scroll.bin seicro_portb.hex

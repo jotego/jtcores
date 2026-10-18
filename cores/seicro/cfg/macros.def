@@ -1,4 +1,7 @@
-# Author: Andrea Bogazzi
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 15-10-2026
+
 CORENAME=JTSEICRO
 JTFRAME_PLL=jtframe_pll6144
 JTFRAME_PXLCLK=6

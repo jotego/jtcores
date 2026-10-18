@@ -1,5 +1,5 @@
-// Author: Andrea Bogazzi
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 22-11-2023 */
 module jtseicro_m6802_ctrl(
