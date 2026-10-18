@@ -2,14 +2,14 @@
 
 `ver/timing/control_cases.py` supplies independent timing and architectural
 expectations for JUMP, EXGPC, DSJ/DSJEQ/DSJNE/DSJS, short/long JRcc and JAcc.
-There are **15,502 programs**, taking the total matrix to **35,874** and form
+There are **15,542 programs**, taking the total matrix to **35,914** and form
 presence to **91/133**. Forty-two forms still lack probes. Source overrides
 remain separate acceptance blockers; probe presence is not full signoff.
 
 The [historical baseline](../ver/timing/baseline-control-8488555.json) uses
-unchanged `8488555fb` RTL/YAML. **12,955 of 15,502 programs fail** their
+unchanged `8488555fb` RTL/YAML. **12,995 of 15,542 programs fail** their
 timing/bus checks, with zero register/ST/target-opcode or following-field
-memory failures. Forty-four path/cache/literal/following-field cases and
+memory failures. Sixty-eight path/cache/literal/following-field/high-target cases and
 22 verified historical HDL/YAML hashes are retained as evidence, never
 loaded as an oracle or failure allowlist. Every form has baseline failures;
 some untaken short-JR/DSJ cases already happened to match.
@@ -66,8 +66,10 @@ The matrix covers every condition code and all sixteen NCZV patterns for
 conditional jumps, both outcomes, positive/negative displacements and
 signed 16-bit endpoints. Decrement tests include 0/1/2/9, signed minimum
 and all ones; the **original Z** gates both decrement and jump for DSJEQ/NE.
-Both register banks, shared SP, all sixteen ignored low target-PC bits,
-opcode word offsets and zero/nearby/self targets are exercised. Full ST,
+Both register banks, shared SP, all sixteen ignored register-target PC bits,
+opcode word offsets and zero/nearby/self targets are exercised. Forty
+additional cases cover nonzero absolute/register target high words, bit31
+and near-wrap addresses; absolute targets also exercise ignored low bits. Full ST,
 A0..A3, B0..B3 and SP are compared before the target instruction executes.
 
 Targets normally contain NOP and return through A12 to initialization, so
@@ -127,9 +129,12 @@ ports before ACK. A full-matrix failure exposed B/SP counters selecting
 the wrong timing path despite correct final arithmetic; the ordinary
 post-decode microcode had eventually read the right register. Both that
 timing regression and the immediate target load/store checks remain.
+A six-clock pause also exposed a stale boundary-eligibility register at
+arbitration. Combinational boundary lookahead fixes that extra state, and
+a separate mutation restores it under the permanent short-pause profile.
 
-The suite has **52 checker/model tests**, **31 mutation positive controls**
-and **38 rejection checks** (35 timing/stimulus, three separately identified
+The suite has **52 checker/model tests**, **32 mutation positive controls**
+and **39 rejection checks** (36 timing/stimulus, three separately identified
 event contracts). New RTL mutations shorten JUMP/DSJS, lose DSJ post-fetch
 work, absorb its pause, fail to prime the counter, restore long-JR's older
 four-state untaken path, serialize branch words or read unused extensions.
@@ -139,7 +144,7 @@ reject it. Late program data is an event-contract violation, not a
 correct-architecture timing-only demonstration.
 
 The standard runner contains three complete matrices, two DIV pauses and
-six 46-case short-CEN unions: **107,900 timing programs**. The new 32
+six 46-case short-CEN unions: **108,020 timing programs**. The new 32
 control-path phase cases cover both cache modes under every early pause
 length 1..6; the full stress matrix uses seven paused clocks and one wait
 state per transfer. A cached duration gains exactly the pause; CD gains

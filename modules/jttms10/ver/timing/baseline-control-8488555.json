@@ -1,8 +1,8 @@
 {
   "source_commit": "8488555fb",
   "note": "Historical unchanged-RTL/YAML capture using primary-source expectations, including explicit data-sheet/guide conflicts. Not an oracle, allowlist or official erratum.",
-  "total": 15502,
-  "failed": 12955,
+  "total": 15542,
+  "failed": 12995,
   "architectural_or_memory_failures": 0,
   "verified_hdl_yaml_sha256": {
     "hdl/jttms10.v": "82d8d366ce5f155ab9ba430b3284663fb0612889f55046a7a9cfa30cdbcc33be",
@@ -62,7 +62,7 @@
       "ver/timing/load_mode_cases.py": "9ff6ae751706b7925d5b97352df99fa3dbd0f0fce0e43de09e6034d3b9aa8b9d",
       "ver/timing/store_cases.py": "77c06214093c031e9121537d997f2a1d172ba9a339478b8a7292878b8de37bcf",
       "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
-      "ver/timing/control_cases.py": "b34cb280f8aa31f9e623c5df6d96aad410fd3b58936ea3f378a0f19bd80ea28f",
+      "ver/timing/control_cases.py": "63c75ce96fe03ad716d81cc185b6237594451def44df5c1c1d334c39ea76326d",
       "ver/timing/test.sv": "15edefc6f82d3001b45125671d3e7946da5df2958719c92c62ae0e665c8239d2"
     },
     "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
@@ -238,186 +238,6 @@
         "st": 2064,
         "a0": 5072,
         "a1": 1432778632,
-        "a2": 2578103244,
-        "a3": 2064,
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "errors": [
-        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
-      ],
-      "bus_trace": [],
-      "target_trace": [],
-      "observed_next_opcodes": [
-        768
-      ]
-    },
-    {
-      "name": "control_exgpc_guide_00001c10_hit",
-      "coverage_id": "EXGPC_R",
-      "opcode": 289,
-      "extensions": [],
-      "regs": [
-        287454020,
-        7184,
-        2578103244,
-        2064
-      ],
-      "initial_b_regs": {
-        "0": 2953846832,
-        "1": 2970755892,
-        "2": 2987664952,
-        "3": 3004574012
-      },
-      "initial_sp": 305418240,
-      "expected_regs": [
-        287454020,
-        8336,
-        2578103244,
-        2064
-      ],
-      "expected_extra_regs": {
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "expected_st": 2064,
-      "cache_disabled": false,
-      "states": 2,
-      "citation": "SPVU001A 12-79",
-      "control_flow": {
-        "form": "EXGPC",
-        "taken": true,
-        "displacement": -72,
-        "bank": 0,
-        "register": 1,
-        "low_bits": 0,
-        "single_pass": false,
-        "test_address": 8320
-      },
-      "instruction_word_offset": 0,
-      "conditions": {
-        "form": "EXGPC",
-        "taken": true,
-        "nczv": 0,
-        "condition_code": 0,
-        "bank": 0,
-        "register": 1,
-        "value": 9,
-        "displacement": -72,
-        "low_bits": 0,
-        "test_pc": 8320,
-        "pc_prime": 8336,
-        "target": 7184
-      },
-      "literal_return_pc": 8336,
-      "expected_next_opcode": 768,
-      "test_pc": 8320,
-      "next_pc": 7184,
-      "observed": {
-        "case": 512,
-        "clocks": 8,
-        "start": 2082,
-        "end": 2090,
-        "paused": 0,
-        "st": 2064,
-        "a0": 287454020,
-        "a1": 8336,
-        "a2": 2578103244,
-        "a3": 2064,
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "errors": [
-        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
-      ],
-      "bus_trace": [],
-      "target_trace": [],
-      "observed_next_opcodes": [
-        768
-      ]
-    },
-    {
-      "name": "control_exgpc_guide_00001c50_hit",
-      "coverage_id": "EXGPC_R",
-      "opcode": 289,
-      "extensions": [],
-      "regs": [
-        287454020,
-        7248,
-        2578103244,
-        2064
-      ],
-      "initial_b_regs": {
-        "0": 2953846832,
-        "1": 2970755892,
-        "2": 2987664952,
-        "3": 3004574012
-      },
-      "initial_sp": 305418240,
-      "expected_regs": [
-        287454020,
-        8336,
-        2578103244,
-        2064
-      ],
-      "expected_extra_regs": {
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "expected_st": 2064,
-      "cache_disabled": false,
-      "states": 2,
-      "citation": "SPVU001A 12-79",
-      "control_flow": {
-        "form": "EXGPC",
-        "taken": true,
-        "displacement": -68,
-        "bank": 0,
-        "register": 1,
-        "low_bits": 0,
-        "single_pass": false,
-        "test_address": 8320
-      },
-      "instruction_word_offset": 0,
-      "conditions": {
-        "form": "EXGPC",
-        "taken": true,
-        "nczv": 0,
-        "condition_code": 0,
-        "bank": 0,
-        "register": 1,
-        "value": 9,
-        "displacement": -68,
-        "low_bits": 0,
-        "test_pc": 8320,
-        "pc_prime": 8336,
-        "target": 7248
-      },
-      "literal_return_pc": 8336,
-      "expected_next_opcode": 768,
-      "test_pc": 8320,
-      "next_pc": 7248,
-      "observed": {
-        "case": 513,
-        "clocks": 8,
-        "start": 2082,
-        "end": 2090,
-        "paused": 0,
-        "st": 2064,
-        "a0": 287454020,
-        "a1": 8336,
         "a2": 2578103244,
         "a3": 2064,
         "b0": 2953846832,
@@ -1414,9 +1234,9 @@
         "taken": true,
         "nczv": 0,
         "condition_code": 0,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -127,
         "low_bits": 0,
         "test_pc": 6976,
@@ -1514,9 +1334,9 @@
         "taken": false,
         "nczv": 2,
         "condition_code": 1,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -127,
         "low_bits": 0,
         "test_pc": 6976,
@@ -1614,9 +1434,9 @@
         "taken": true,
         "nczv": 0,
         "condition_code": 0,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -32768,
         "low_bits": 0,
         "test_pc": 4928,
@@ -1750,9 +1570,9 @@
         "taken": false,
         "nczv": 2,
         "condition_code": 1,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -32768,
         "low_bits": 0,
         "test_pc": 4928,
@@ -1887,11 +1707,12 @@
         "taken": true,
         "nczv": 0,
         "condition_code": 0,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
+        "target_operand": 4976,
         "test_pc": 5056,
         "pc_prime": 5104,
         "target": 4976
@@ -1979,11 +1800,12 @@
         "taken": false,
         "nczv": 2,
         "condition_code": 1,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
+        "target_operand": 4976,
         "test_pc": 5056,
         "pc_prime": 5104,
         "target": 4976
@@ -2208,204 +2030,6 @@
       "target_trace": [
         "TARGET_BEGIN 3392 0 00001350 0000 1",
         "TARGET_END 3396 0 00001350 0300"
-      ],
-      "observed_next_opcodes": [
-        768
-      ]
-    },
-    {
-      "name": "control_exgpc_guide_00001c10_off",
-      "coverage_id": "EXGPC_R",
-      "opcode": 289,
-      "extensions": [],
-      "regs": [
-        287454020,
-        7184,
-        2578103244,
-        2064
-      ],
-      "initial_b_regs": {
-        "0": 2953846832,
-        "1": 2970755892,
-        "2": 2987664952,
-        "3": 3004574012
-      },
-      "initial_sp": 305418240,
-      "expected_regs": [
-        287454020,
-        8336,
-        2578103244,
-        2064
-      ],
-      "expected_extra_regs": {
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "expected_st": 2064,
-      "cache_disabled": true,
-      "states": 5,
-      "citation": "SPVU001A 12-79",
-      "control_flow": {
-        "form": "EXGPC",
-        "taken": true,
-        "displacement": -72,
-        "bank": 0,
-        "register": 1,
-        "low_bits": 0,
-        "single_pass": false,
-        "test_address": 8320
-      },
-      "instruction_word_offset": 0,
-      "conditions": {
-        "form": "EXGPC",
-        "taken": true,
-        "nczv": 0,
-        "condition_code": 0,
-        "bank": 0,
-        "register": 1,
-        "value": 9,
-        "displacement": -72,
-        "low_bits": 0,
-        "test_pc": 8320,
-        "pc_prime": 8336,
-        "target": 7184
-      },
-      "literal_return_pc": 8336,
-      "expected_next_opcode": 768,
-      "test_pc": 8320,
-      "next_pc": 7184,
-      "observed": {
-        "case": 8259,
-        "clocks": 32,
-        "start": 3384,
-        "end": 3416,
-        "paused": 0,
-        "st": 2064,
-        "a0": 287454020,
-        "a1": 8336,
-        "a2": 2578103244,
-        "a3": 2064,
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "errors": [
-        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
-        "TI instruction read start: expected clock 3400, observed 3392",
-        "target dispatch outside TI readiness window: 3392 versus 3400..3406"
-      ],
-      "bus_trace": [
-        "BUS_BEGIN 3392 0 00001c10 0000 1",
-        "BUS_ACCEPT 3392",
-        "BUS_END 3408 0 00001c10 0300"
-      ],
-      "target_trace": [
-        "TARGET_BEGIN 3392 0 00001c10 0000 1",
-        "TARGET_END 3396 0 00001c10 0300"
-      ],
-      "observed_next_opcodes": [
-        768
-      ]
-    },
-    {
-      "name": "control_exgpc_guide_00001c50_off",
-      "coverage_id": "EXGPC_R",
-      "opcode": 289,
-      "extensions": [],
-      "regs": [
-        287454020,
-        7248,
-        2578103244,
-        2064
-      ],
-      "initial_b_regs": {
-        "0": 2953846832,
-        "1": 2970755892,
-        "2": 2987664952,
-        "3": 3004574012
-      },
-      "initial_sp": 305418240,
-      "expected_regs": [
-        287454020,
-        8336,
-        2578103244,
-        2064
-      ],
-      "expected_extra_regs": {
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "expected_st": 2064,
-      "cache_disabled": true,
-      "states": 5,
-      "citation": "SPVU001A 12-79",
-      "control_flow": {
-        "form": "EXGPC",
-        "taken": true,
-        "displacement": -68,
-        "bank": 0,
-        "register": 1,
-        "low_bits": 0,
-        "single_pass": false,
-        "test_address": 8320
-      },
-      "instruction_word_offset": 0,
-      "conditions": {
-        "form": "EXGPC",
-        "taken": true,
-        "nczv": 0,
-        "condition_code": 0,
-        "bank": 0,
-        "register": 1,
-        "value": 9,
-        "displacement": -68,
-        "low_bits": 0,
-        "test_pc": 8320,
-        "pc_prime": 8336,
-        "target": 7248
-      },
-      "literal_return_pc": 8336,
-      "expected_next_opcode": 768,
-      "test_pc": 8320,
-      "next_pc": 7248,
-      "observed": {
-        "case": 8260,
-        "clocks": 32,
-        "start": 3384,
-        "end": 3416,
-        "paused": 0,
-        "st": 2064,
-        "a0": 287454020,
-        "a1": 8336,
-        "a2": 2578103244,
-        "a3": 2064,
-        "b0": 2953846832,
-        "b1": 2970755892,
-        "b2": 2987664952,
-        "b3": 3004574012,
-        "sp": 305418240
-      },
-      "errors": [
-        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
-        "TI instruction read start: expected clock 3400, observed 3392",
-        "target dispatch outside TI readiness window: 3392 versus 3400..3406"
-      ],
-      "bus_trace": [
-        "BUS_BEGIN 3392 0 00001c50 0000 1",
-        "BUS_ACCEPT 3392",
-        "BUS_END 3408 0 00001c50 0300"
-      ],
-      "target_trace": [
-        "TARGET_BEGIN 3392 0 00001c50 0000 1",
-        "TARGET_END 3396 0 00001c50 0300"
       ],
       "observed_next_opcodes": [
         768
@@ -3474,9 +3098,9 @@
         "taken": true,
         "nczv": 0,
         "condition_code": 0,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -127,
         "low_bits": 0,
         "test_pc": 6976,
@@ -3583,9 +3207,9 @@
         "taken": false,
         "nczv": 2,
         "condition_code": 1,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -127,
         "low_bits": 0,
         "test_pc": 6976,
@@ -3690,9 +3314,9 @@
         "taken": true,
         "nczv": 0,
         "condition_code": 0,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -32768,
         "low_bits": 0,
         "test_pc": 4928,
@@ -3838,9 +3462,9 @@
         "taken": false,
         "nczv": 2,
         "condition_code": 1,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -32768,
         "low_bits": 0,
         "test_pc": 4928,
@@ -3989,11 +3613,12 @@
         "taken": true,
         "nczv": 0,
         "condition_code": 0,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
+        "target_operand": 4976,
         "test_pc": 5056,
         "pc_prime": 5104,
         "target": 4976
@@ -4098,11 +3723,12 @@
         "taken": false,
         "nczv": 2,
         "condition_code": 1,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
+        "target_operand": 4976,
         "test_pc": 5056,
         "pc_prime": 5104,
         "target": 4976
@@ -4150,6 +3776,384 @@
         "TARGET_END 3492 0 000013e0 0000",
         "TARGET_BEGIN 3520 0 000013f0 0000 1",
         "TARGET_END 3524 0 000013f0 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_guide_00001c10_hit",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        7184,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        8336,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": -72,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": 8320
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 0,
+        "condition_code": 0,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": -72,
+        "low_bits": 0,
+        "test_pc": 8320,
+        "pc_prime": 8336,
+        "target": 7184
+      },
+      "literal_return_pc": 8336,
+      "expected_next_opcode": 768,
+      "test_pc": 8320,
+      "next_pc": 7184,
+      "observed": {
+        "case": 512,
+        "clocks": 8,
+        "start": 2082,
+        "end": 2090,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 8336,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_guide_00001c50_hit",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        7248,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        8336,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": -68,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": 8320
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 0,
+        "condition_code": 0,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": -68,
+        "low_bits": 0,
+        "test_pc": 8320,
+        "pc_prime": 8336,
+        "target": 7248
+      },
+      "literal_return_pc": 8336,
+      "expected_next_opcode": 768,
+      "test_pc": 8320,
+      "next_pc": 7248,
+      "observed": {
+        "case": 513,
+        "clocks": 8,
+        "start": 2082,
+        "end": 2090,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 8336,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_guide_00001c10_off",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        7184,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        8336,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": -72,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": 8320
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 0,
+        "condition_code": 0,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": -72,
+        "low_bits": 0,
+        "test_pc": 8320,
+        "pc_prime": 8336,
+        "target": 7184
+      },
+      "literal_return_pc": 8336,
+      "expected_next_opcode": 768,
+      "test_pc": 8320,
+      "next_pc": 7184,
+      "observed": {
+        "case": 8259,
+        "clocks": 32,
+        "start": 3384,
+        "end": 3416,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 8336,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3400, observed 3392",
+        "target dispatch outside TI readiness window: 3392 versus 3400..3406"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00001c10 0000 1",
+        "BUS_ACCEPT 3392",
+        "BUS_END 3408 0 00001c10 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3392 0 00001c10 0000 1",
+        "TARGET_END 3396 0 00001c10 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_guide_00001c50_off",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        7248,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        8336,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": -68,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": 8320
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 0,
+        "condition_code": 0,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": -68,
+        "low_bits": 0,
+        "test_pc": 8320,
+        "pc_prime": 8336,
+        "target": 7248
+      },
+      "literal_return_pc": 8336,
+      "expected_next_opcode": 768,
+      "test_pc": 8320,
+      "next_pc": 7248,
+      "observed": {
+        "case": 8260,
+        "clocks": 32,
+        "start": 3384,
+        "end": 3416,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 8336,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3400, observed 3392",
+        "target dispatch outside TI readiness window: 3392 versus 3400..3406"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00001c50 0000 1",
+        "BUS_ACCEPT 3392",
+        "BUS_END 3408 0 00001c50 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3392 0 00001c50 0000 1",
+        "TARGET_END 3396 0 00001c50 0300"
       ],
       "observed_next_opcodes": [
         768
@@ -4208,9 +4212,9 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
         "test_pc": 5056,
@@ -4387,9 +4391,9 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": 8,
         "low_bits": 0,
         "test_pc": 4928,
@@ -4566,9 +4570,9 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
         "test_pc": 5056,
@@ -4745,9 +4749,9 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": 8,
         "low_bits": 0,
         "test_pc": 4928,
@@ -4925,11 +4929,12 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
+        "target_operand": 4976,
         "test_pc": 5056,
         "pc_prime": 5104,
         "target": 4976
@@ -5099,11 +5104,12 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": 8,
         "low_bits": 0,
+        "target_operand": 5104,
         "test_pc": 4928,
         "pc_prime": 4976,
         "target": 5104
@@ -5273,11 +5279,12 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": -8,
         "low_bits": 0,
+        "target_operand": 4976,
         "test_pc": 5056,
         "pc_prime": 5104,
         "target": 4976
@@ -5447,11 +5454,12 @@
         "taken": true,
         "nczv": 3,
         "condition_code": 10,
-        "bank": 0,
-        "register": 0,
-        "value": 9,
+        "bank": null,
+        "register": null,
+        "value": null,
         "displacement": 8,
         "low_bits": 0,
+        "target_operand": 5104,
         "test_pc": 4928,
         "pc_prime": 4976,
         "target": 5104
@@ -5565,6 +5573,3130 @@
           24608,
           13766
         ]
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_01000000_r0_hit",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        268440415,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        268440415,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 16777216,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 16777216,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 268440400
+      },
+      "initial_memory": [
+        [
+          268440384,
+          768
+        ],
+        [
+          268440400,
+          768
+        ],
+        [
+          268440416,
+          364
+        ],
+        [
+          268440432,
+          768
+        ],
+        [
+          268440448,
+          768
+        ],
+        [
+          268440464,
+          768
+        ],
+        [
+          268440480,
+          768
+        ],
+        [
+          268440496,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 268440400,
+      "observed": {
+        "case": 15502,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 268440415,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_07fff000_r0_hit",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147423071,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        2147423071,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 134213632,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134213632,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147423056
+      },
+      "initial_memory": [
+        [
+          2147423040,
+          768
+        ],
+        [
+          2147423056,
+          768
+        ],
+        [
+          2147423072,
+          364
+        ],
+        [
+          2147423088,
+          768
+        ],
+        [
+          2147423104,
+          768
+        ],
+        [
+          2147423120,
+          768
+        ],
+        [
+          2147423136,
+          768
+        ],
+        [
+          2147423152,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147423056,
+      "observed": {
+        "case": 15503,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 2147423071,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_08000000_r0_hit",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147488607,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        2147488607,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 134217728,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134217728,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147488592
+      },
+      "initial_memory": [
+        [
+          2147488576,
+          768
+        ],
+        [
+          2147488592,
+          768
+        ],
+        [
+          2147488608,
+          364
+        ],
+        [
+          2147488624,
+          768
+        ],
+        [
+          2147488640,
+          768
+        ],
+        [
+          2147488656,
+          768
+        ],
+        [
+          2147488672,
+          768
+        ],
+        [
+          2147488688,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147488592,
+      "observed": {
+        "case": 15504,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 2147488607,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_0ffff000_r0_hit",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        4294906719,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4294906719,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 268431360,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 268431360,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 4294906704
+      },
+      "initial_memory": [
+        [
+          4294906688,
+          768
+        ],
+        [
+          4294906704,
+          768
+        ],
+        [
+          4294906720,
+          364
+        ],
+        [
+          4294906736,
+          768
+        ],
+        [
+          4294906752,
+          768
+        ],
+        [
+          4294906768,
+          768
+        ],
+        [
+          4294906784,
+          768
+        ],
+        [
+          4294906800,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 4294906704,
+      "observed": {
+        "case": 15505,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4294906719,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_01000000_r0_hit",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        268440415,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 16777216,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 16777216,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 268440400
+      },
+      "initial_memory": [
+        [
+          268440384,
+          768
+        ],
+        [
+          268440400,
+          768
+        ],
+        [
+          268440416,
+          364
+        ],
+        [
+          268440432,
+          768
+        ],
+        [
+          268440448,
+          768
+        ],
+        [
+          268440464,
+          768
+        ],
+        [
+          268440480,
+          768
+        ],
+        [
+          268440496,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 268440400,
+      "observed": {
+        "case": 15510,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_07fff000_r0_hit",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147423071,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 134213632,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134213632,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147423056
+      },
+      "initial_memory": [
+        [
+          2147423040,
+          768
+        ],
+        [
+          2147423056,
+          768
+        ],
+        [
+          2147423072,
+          364
+        ],
+        [
+          2147423088,
+          768
+        ],
+        [
+          2147423104,
+          768
+        ],
+        [
+          2147423120,
+          768
+        ],
+        [
+          2147423136,
+          768
+        ],
+        [
+          2147423152,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147423056,
+      "observed": {
+        "case": 15511,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_08000000_r0_hit",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147488607,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 134217728,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134217728,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147488592
+      },
+      "initial_memory": [
+        [
+          2147488576,
+          768
+        ],
+        [
+          2147488592,
+          768
+        ],
+        [
+          2147488608,
+          364
+        ],
+        [
+          2147488624,
+          768
+        ],
+        [
+          2147488640,
+          768
+        ],
+        [
+          2147488656,
+          768
+        ],
+        [
+          2147488672,
+          768
+        ],
+        [
+          2147488688,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147488592,
+      "observed": {
+        "case": 15512,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_0ffff000_r0_hit",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        4294906719,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 2,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 268431360,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 268431360,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 4294906704
+      },
+      "initial_memory": [
+        [
+          4294906688,
+          768
+        ],
+        [
+          4294906704,
+          768
+        ],
+        [
+          4294906720,
+          364
+        ],
+        [
+          4294906736,
+          768
+        ],
+        [
+          4294906752,
+          768
+        ],
+        [
+          4294906768,
+          768
+        ],
+        [
+          4294906784,
+          768
+        ],
+        [
+          4294906800,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 4294906704,
+      "observed": {
+        "case": 15513,
+        "clocks": 8,
+        "start": 2000,
+        "end": 2008,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 8 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_01000000_r0_hit",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        4096
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 3,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 16777216,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 16777216,
+        "low_bits": 15,
+        "target_operand": 268440447,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 268440432
+      },
+      "initial_memory": [
+        [
+          268440384,
+          768
+        ],
+        [
+          268440400,
+          768
+        ],
+        [
+          268440416,
+          768
+        ],
+        [
+          268440432,
+          768
+        ],
+        [
+          268440448,
+          364
+        ],
+        [
+          268440464,
+          768
+        ],
+        [
+          268440480,
+          768
+        ],
+        [
+          268440496,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 268440432,
+      "observed": {
+        "case": 15518,
+        "clocks": 18,
+        "start": 2088,
+        "end": 2106,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 18 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_07fff000_r0_hit",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        32767
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 3,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 134213632,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 134213632,
+        "low_bits": 15,
+        "target_operand": 2147423103,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 2147423088
+      },
+      "initial_memory": [
+        [
+          2147423040,
+          768
+        ],
+        [
+          2147423056,
+          768
+        ],
+        [
+          2147423072,
+          768
+        ],
+        [
+          2147423088,
+          768
+        ],
+        [
+          2147423104,
+          364
+        ],
+        [
+          2147423120,
+          768
+        ],
+        [
+          2147423136,
+          768
+        ],
+        [
+          2147423152,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147423088,
+      "observed": {
+        "case": 15519,
+        "clocks": 18,
+        "start": 2088,
+        "end": 2106,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 18 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_08000000_r0_hit",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        32768
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 3,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 134217728,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 134217728,
+        "low_bits": 15,
+        "target_operand": 2147488639,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 2147488624
+      },
+      "initial_memory": [
+        [
+          2147488576,
+          768
+        ],
+        [
+          2147488592,
+          768
+        ],
+        [
+          2147488608,
+          768
+        ],
+        [
+          2147488624,
+          768
+        ],
+        [
+          2147488640,
+          364
+        ],
+        [
+          2147488656,
+          768
+        ],
+        [
+          2147488672,
+          768
+        ],
+        [
+          2147488688,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147488624,
+      "observed": {
+        "case": 15520,
+        "clocks": 18,
+        "start": 2088,
+        "end": 2106,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 18 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_0ffff000_r0_hit",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        65535
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": false,
+      "states": 3,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 268431360,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 268431360,
+        "low_bits": 15,
+        "target_operand": 4294906751,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 4294906736
+      },
+      "initial_memory": [
+        [
+          4294906688,
+          768
+        ],
+        [
+          4294906704,
+          768
+        ],
+        [
+          4294906720,
+          768
+        ],
+        [
+          4294906736,
+          768
+        ],
+        [
+          4294906752,
+          364
+        ],
+        [
+          4294906768,
+          768
+        ],
+        [
+          4294906784,
+          768
+        ],
+        [
+          4294906800,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 4294906736,
+      "observed": {
+        "case": 15521,
+        "clocks": 18,
+        "start": 2088,
+        "end": 2106,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 18 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": [],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_01000000_r0_off",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        268440415,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        268440415,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 16777216,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 16777216,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 268440400
+      },
+      "initial_memory": [
+        [
+          268440384,
+          768
+        ],
+        [
+          268440400,
+          768
+        ],
+        [
+          268440416,
+          364
+        ],
+        [
+          268440432,
+          768
+        ],
+        [
+          268440448,
+          768
+        ],
+        [
+          268440464,
+          768
+        ],
+        [
+          268440480,
+          768
+        ],
+        [
+          268440496,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 268440400,
+      "observed": {
+        "case": 15522,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 268440415,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 10001350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 10001350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 10001350 0000 1",
+        "TARGET_END 3332 0 10001350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_07fff000_r0_off",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147423071,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        2147423071,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 134213632,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134213632,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147423056
+      },
+      "initial_memory": [
+        [
+          2147423040,
+          768
+        ],
+        [
+          2147423056,
+          768
+        ],
+        [
+          2147423072,
+          364
+        ],
+        [
+          2147423088,
+          768
+        ],
+        [
+          2147423104,
+          768
+        ],
+        [
+          2147423120,
+          768
+        ],
+        [
+          2147423136,
+          768
+        ],
+        [
+          2147423152,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147423056,
+      "observed": {
+        "case": 15523,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 2147423071,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 7fff1350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 7fff1350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 7fff1350 0000 1",
+        "TARGET_END 3332 0 7fff1350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_08000000_r0_off",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147488607,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        2147488607,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 134217728,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134217728,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147488592
+      },
+      "initial_memory": [
+        [
+          2147488576,
+          768
+        ],
+        [
+          2147488592,
+          768
+        ],
+        [
+          2147488608,
+          364
+        ],
+        [
+          2147488624,
+          768
+        ],
+        [
+          2147488640,
+          768
+        ],
+        [
+          2147488656,
+          768
+        ],
+        [
+          2147488672,
+          768
+        ],
+        [
+          2147488688,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147488592,
+      "observed": {
+        "case": 15524,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 2147488607,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 80001350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 80001350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 80001350 0000 1",
+        "TARGET_END 3332 0 80001350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jump_high_pc_0ffff000_r0_off",
+      "coverage_id": "JUMP_R",
+      "opcode": 353,
+      "extensions": [],
+      "regs": [
+        287454020,
+        4294906719,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4294906719,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-98",
+      "control_flow": {
+        "form": "JUMP",
+        "taken": true,
+        "displacement": 268431360,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JUMP",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 268431360,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 4294906704
+      },
+      "initial_memory": [
+        [
+          4294906688,
+          768
+        ],
+        [
+          4294906704,
+          768
+        ],
+        [
+          4294906720,
+          364
+        ],
+        [
+          4294906736,
+          768
+        ],
+        [
+          4294906752,
+          768
+        ],
+        [
+          4294906768,
+          768
+        ],
+        [
+          4294906784,
+          768
+        ],
+        [
+          4294906800,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 4294906704,
+      "observed": {
+        "case": 15525,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4294906719,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 ffff1350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 ffff1350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 ffff1350 0000 1",
+        "TARGET_END 3332 0 ffff1350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_01000000_r0_off",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        268440415,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 16777216,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 16777216,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 268440400
+      },
+      "initial_memory": [
+        [
+          268440384,
+          768
+        ],
+        [
+          268440400,
+          768
+        ],
+        [
+          268440416,
+          364
+        ],
+        [
+          268440432,
+          768
+        ],
+        [
+          268440448,
+          768
+        ],
+        [
+          268440464,
+          768
+        ],
+        [
+          268440480,
+          768
+        ],
+        [
+          268440496,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 268440400,
+      "observed": {
+        "case": 15530,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 10001350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 10001350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 10001350 0000 1",
+        "TARGET_END 3332 0 10001350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_07fff000_r0_off",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147423071,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 134213632,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134213632,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147423056
+      },
+      "initial_memory": [
+        [
+          2147423040,
+          768
+        ],
+        [
+          2147423056,
+          768
+        ],
+        [
+          2147423072,
+          364
+        ],
+        [
+          2147423088,
+          768
+        ],
+        [
+          2147423104,
+          768
+        ],
+        [
+          2147423120,
+          768
+        ],
+        [
+          2147423136,
+          768
+        ],
+        [
+          2147423152,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147423056,
+      "observed": {
+        "case": 15531,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 7fff1350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 7fff1350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 7fff1350 0000 1",
+        "TARGET_END 3332 0 7fff1350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_08000000_r0_off",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        2147488607,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 134217728,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 134217728,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 2147488592
+      },
+      "initial_memory": [
+        [
+          2147488576,
+          768
+        ],
+        [
+          2147488592,
+          768
+        ],
+        [
+          2147488608,
+          364
+        ],
+        [
+          2147488624,
+          768
+        ],
+        [
+          2147488640,
+          768
+        ],
+        [
+          2147488656,
+          768
+        ],
+        [
+          2147488672,
+          768
+        ],
+        [
+          2147488688,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147488592,
+      "observed": {
+        "case": 15532,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 80001350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 80001350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 80001350 0000 1",
+        "TARGET_END 3332 0 80001350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_exgpc_high_pc_0ffff000_r0_off",
+      "coverage_id": "EXGPC_R",
+      "opcode": 289,
+      "extensions": [],
+      "regs": [
+        287454020,
+        4294906719,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        4944,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 5,
+      "citation": "SPVU001A 12-79",
+      "control_flow": {
+        "form": "EXGPC",
+        "taken": true,
+        "displacement": 268431360,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "EXGPC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": 0,
+        "register": 1,
+        "value": 9,
+        "displacement": 268431360,
+        "low_bits": 15,
+        "test_pc": 4928,
+        "pc_prime": 4944,
+        "target": 4294906704
+      },
+      "initial_memory": [
+        [
+          4294906688,
+          768
+        ],
+        [
+          4294906704,
+          768
+        ],
+        [
+          4294906720,
+          364
+        ],
+        [
+          4294906736,
+          768
+        ],
+        [
+          4294906752,
+          768
+        ],
+        [
+          4294906768,
+          768
+        ],
+        [
+          4294906784,
+          768
+        ],
+        [
+          4294906800,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 4294906704,
+      "observed": {
+        "case": 15533,
+        "clocks": 32,
+        "start": 3320,
+        "end": 3352,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 4944,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 32 INCLK",
+        "TI instruction read start: expected clock 3336, observed 3328",
+        "target dispatch outside TI readiness window: 3328 versus 3336..3342"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3328 0 ffff1350 0000 1",
+        "BUS_ACCEPT 3328",
+        "BUS_END 3344 0 ffff1350 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3328 0 ffff1350 0000 1",
+        "TARGET_END 3332 0 ffff1350 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_01000000_r0_off",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        4096
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 16777216,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 16777216,
+        "low_bits": 15,
+        "target_operand": 268440447,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 268440432
+      },
+      "initial_memory": [
+        [
+          268440384,
+          768
+        ],
+        [
+          268440400,
+          768
+        ],
+        [
+          268440416,
+          768
+        ],
+        [
+          268440432,
+          768
+        ],
+        [
+          268440448,
+          364
+        ],
+        [
+          268440464,
+          768
+        ],
+        [
+          268440480,
+          768
+        ],
+        [
+          268440496,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 268440432,
+      "observed": {
+        "case": 15538,
+        "clocks": 96,
+        "start": 3384,
+        "end": 3480,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 96 INCLK"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00001350 0000 0",
+        "BUS_ACCEPT 3392",
+        "BUS_END 3408 0 00001350 137f",
+        "BUS_BEGIN 3424 0 00001360 0000 0",
+        "BUS_ACCEPT 3424",
+        "BUS_END 3440 0 00001360 1000",
+        "BUS_BEGIN 3456 0 10001370 0000 1",
+        "BUS_ACCEPT 3456",
+        "BUS_END 3472 0 10001370 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3392 0 00001350 0000 0",
+        "TARGET_END 3396 0 00001350 137f",
+        "TARGET_BEGIN 3424 0 00001360 0000 0",
+        "TARGET_END 3428 0 00001360 1000",
+        "TARGET_BEGIN 3456 0 10001370 0000 1",
+        "TARGET_END 3460 0 10001370 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_07fff000_r0_off",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        32767
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 134213632,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 134213632,
+        "low_bits": 15,
+        "target_operand": 2147423103,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 2147423088
+      },
+      "initial_memory": [
+        [
+          2147423040,
+          768
+        ],
+        [
+          2147423056,
+          768
+        ],
+        [
+          2147423072,
+          768
+        ],
+        [
+          2147423088,
+          768
+        ],
+        [
+          2147423104,
+          364
+        ],
+        [
+          2147423120,
+          768
+        ],
+        [
+          2147423136,
+          768
+        ],
+        [
+          2147423152,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147423088,
+      "observed": {
+        "case": 15539,
+        "clocks": 96,
+        "start": 3384,
+        "end": 3480,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 96 INCLK"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00001350 0000 0",
+        "BUS_ACCEPT 3392",
+        "BUS_END 3408 0 00001350 137f",
+        "BUS_BEGIN 3424 0 00001360 0000 0",
+        "BUS_ACCEPT 3424",
+        "BUS_END 3440 0 00001360 7fff",
+        "BUS_BEGIN 3456 0 7fff1370 0000 1",
+        "BUS_ACCEPT 3456",
+        "BUS_END 3472 0 7fff1370 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3392 0 00001350 0000 0",
+        "TARGET_END 3396 0 00001350 137f",
+        "TARGET_BEGIN 3424 0 00001360 0000 0",
+        "TARGET_END 3428 0 00001360 7fff",
+        "TARGET_BEGIN 3456 0 7fff1370 0000 1",
+        "TARGET_END 3460 0 7fff1370 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_08000000_r0_off",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        32768
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 134217728,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 134217728,
+        "low_bits": 15,
+        "target_operand": 2147488639,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 2147488624
+      },
+      "initial_memory": [
+        [
+          2147488576,
+          768
+        ],
+        [
+          2147488592,
+          768
+        ],
+        [
+          2147488608,
+          768
+        ],
+        [
+          2147488624,
+          768
+        ],
+        [
+          2147488640,
+          364
+        ],
+        [
+          2147488656,
+          768
+        ],
+        [
+          2147488672,
+          768
+        ],
+        [
+          2147488688,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 2147488624,
+      "observed": {
+        "case": 15540,
+        "clocks": 96,
+        "start": 3384,
+        "end": 3480,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 96 INCLK"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00001350 0000 0",
+        "BUS_ACCEPT 3392",
+        "BUS_END 3408 0 00001350 137f",
+        "BUS_BEGIN 3424 0 00001360 0000 0",
+        "BUS_ACCEPT 3424",
+        "BUS_END 3440 0 00001360 8000",
+        "BUS_BEGIN 3456 0 80001370 0000 1",
+        "BUS_ACCEPT 3456",
+        "BUS_END 3472 0 80001370 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3392 0 00001350 0000 0",
+        "TARGET_END 3396 0 00001350 137f",
+        "TARGET_BEGIN 3424 0 00001360 0000 0",
+        "TARGET_END 3428 0 00001360 8000",
+        "TARGET_BEGIN 3456 0 80001370 0000 1",
+        "TARGET_END 3460 0 80001370 0300"
+      ],
+      "observed_next_opcodes": [
+        768
+      ]
+    },
+    {
+      "name": "control_jacc_high_pc_0ffff000_r0_off",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        4991,
+        65535
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 268431360,
+        "bank": 0,
+        "register": 1,
+        "low_bits": 15,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 268431360,
+        "low_bits": 15,
+        "target_operand": 4294906751,
+        "test_pc": 4928,
+        "pc_prime": 4976,
+        "target": 4294906736
+      },
+      "initial_memory": [
+        [
+          4294906688,
+          768
+        ],
+        [
+          4294906704,
+          768
+        ],
+        [
+          4294906720,
+          768
+        ],
+        [
+          4294906736,
+          768
+        ],
+        [
+          4294906752,
+          364
+        ],
+        [
+          4294906768,
+          768
+        ],
+        [
+          4294906784,
+          768
+        ],
+        [
+          4294906800,
+          768
+        ]
+      ],
+      "expected_next_opcode": 768,
+      "test_pc": 4928,
+      "next_pc": 4294906736,
+      "observed": {
+        "case": 15541,
+        "clocks": 96,
+        "start": 3384,
+        "end": 3480,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 96 INCLK"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00001350 0000 0",
+        "BUS_ACCEPT 3392",
+        "BUS_END 3408 0 00001350 137f",
+        "BUS_BEGIN 3424 0 00001360 0000 0",
+        "BUS_ACCEPT 3424",
+        "BUS_END 3440 0 00001360 ffff",
+        "BUS_BEGIN 3456 0 ffff1370 0000 1",
+        "BUS_ACCEPT 3456",
+        "BUS_END 3472 0 ffff1370 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3392 0 00001350 0000 0",
+        "TARGET_END 3396 0 00001350 137f",
+        "TARGET_BEGIN 3424 0 00001360 0000 0",
+        "TARGET_END 3428 0 00001360 ffff",
+        "TARGET_BEGIN 3456 0 ffff1370 0000 1",
+        "TARGET_END 3460 0 ffff1370 0300"
+      ],
+      "observed_next_opcodes": [
+        768
       ]
     }
   ]

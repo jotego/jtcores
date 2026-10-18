@@ -278,6 +278,7 @@ def main():
             ('absolute_control',absolute_case,('--wait-states','1')),
             ('untaken_control',untaken_case,('--wait-states','1')),
             ('primed_counter_control',counter_case,()),
+            ('branch_phase_control',absolute_case,('--wait-states','1','--pause-clocks','6')),
             ('long_untaken_control',long_untaken_case,())):
             evidence[name]=run_case(work,name,probe,extra)
         for name,probe,extra,file,old,new in (
@@ -301,7 +302,9 @@ def main():
              'fetch && (completed || mem_fast) && (decode_store || decode_control)',
              'fetch && completed && (decode_store || decode_control)'),
             ('old_long_jr_fallthrough',long_untaken_case,(),'jttms10.v',
-             'branch_long_untaken=branch_relative && ir[7:0]==0 && !condition',"branch_long_untaken=1'b0")):
+             'branch_long_untaken=branch_relative && ir[7:0]==0 && !condition',"branch_long_untaken=1'b0"),
+            ('late_branch_boundary_credit',absolute_case,('--wait-states','1','--pause-clocks','6'),'jttms10_word.v',
+             'fast_slot || slot_phase==0','fast_slot')):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)

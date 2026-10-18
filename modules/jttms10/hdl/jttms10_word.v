@@ -72,7 +72,7 @@ module jttms10_word #(
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
     reg fast_slot;
     assign word_early=(early_data_q && data_owner && (slot_eligible || slot_phase==0)) ||
-                      (fast_program && !data_owner && fast_slot);
+                      (fast_program && !data_owner && (fast_slot || slot_phase==0));
     always @(posedge clk) begin
         if(rst) begin slot_phase<=0; slot_eligible<=0; fast_slot<=0; end
         else begin

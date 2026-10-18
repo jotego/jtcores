@@ -132,6 +132,8 @@ def fixture(name, *, off=False, flags=0, bank=0, reg=0, value=9,
                         bank=bank,register=reg,value=value,
                         displacement=displacement,low_bits=low_bits))
     if single_pass:row['measure_pass']=0
+    if name in ('JR_SHORT','JR_LONG','JACC'):
+        row['conditions'].update(bank=None,register=None,value=None)
     if name in ('JR_SHORT','JR_LONG'):
         summary_hit = (2 if name=='JR_SHORT' else 3) if taken else (2 if name=='JR_SHORT' else 1)
         summary_cd=summary_hit+3
@@ -206,7 +208,10 @@ def program(case, movi):
             else:case['expected_regs'][reg]=saved
     if name in ('DSJ','DSJEQ','DSJNE','JR_LONG'):
         case['extensions']=[displacement&0xFFFF]
-    elif name=='JACC':case['extensions']=[target&0xFFFF,target>>16]
+    elif name=='JACC':
+        operand=target|flow['low_bits']
+        case['extensions']=[operand&0xFFFF,operand>>16]
+        case['conditions']['target_operand']=operand
     words += [case['opcode'],*case['extensions'],0x0300,0x016C]
     if single_pass and target_index>=len(words):
         words += [0x0300]*(target_index+1-len(words))
@@ -307,3 +312,13 @@ def control_cases():
                     expected_follow_memory=insert(memory,0x600F,16,a[2]) if kind=='store' else memory,
                     drain_instructions=2)
                 yield row
+    # The combined absolute-address capture must use a nonzero high word,
+    # including bit31 and near-wrap targets. Register jumps exercise the
+    # same full transport addresses and ignored low target bits.
+    for off in (False,True):
+        for name in ('JUMP','EXGPC','JACC'):
+            for bank in ((0,) if name=='JACC' else (0,1)):
+                for displacement in (0x01000000,0x07FFF000,0x08000000,0x0FFFF000):
+                    yield fixture(name,off=off,flags=3,code=10,bank=bank,reg=1,
+                        displacement=displacement,low_bits=15,
+                        tag=f'high_pc_{displacement:08x}_r{bank}')

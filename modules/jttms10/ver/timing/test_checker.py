@@ -287,6 +287,9 @@ class TimingCheckerTest(unittest.TestCase):
                     self.assertEqual(npc,(pc+16*(1+len(case['extensions'])+displacement))&0xFFFFFFFF)
                     self.assertEqual(image[npc],0x0300)
                     self.assertEqual(image[(npc+16)&0xFFFFFFFF],0x016C)
+                    if name=='JACC':
+                        self.assertEqual(case['extensions'][0]&15,15)
+                        self.assertEqual(((case['extensions'][1]<<16)|case['extensions'][0])&0xFFFFFFF0,npc)
                     if name=='EXGPC':
                         result=case['expected_extra_regs']['sp'] if reg==15 else case['expected_extra_regs']['b1'] if bank else case['expected_regs'][reg]
                         self.assertEqual(result,pc+16)
