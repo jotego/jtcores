@@ -172,6 +172,16 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .LVBL           ( LVBL          ),
     .HS             ( HS            ),
     .VS             ( VS            ),
+`ifdef JTFRAME_SPLIT_VIDEO
+    .split_r        ( split_r       ),
+    .split_g        ( split_g       ),
+    .split_b        ( split_b       ),
+    .split_hs       ( split_hs      ),
+    .split_vs       ( split_vs      ),
+    .split_de       ( split_de      ),
+    .split_ce       ( split_ce      ),
+    .split_field    ( split_field   ),
+`endif
     // cabinet I/O
     .cab_1p   ( cab_1p  ),
     .coin     ( coin    ),

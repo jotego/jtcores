@@ -145075,6 +145075,1010 @@
 		</port>
 		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
 	</machine>
+	<machine name="popeye" sourcefile="nintendo/popeye.cpp">
+		<description>Popeye (revision D)</description>
+		<year>1982</year>
+		<manufacturer>Nintendo</manufacturer>
+		<rom name="tpp2-c.7a" size="8192" crc="9af7c821" sha1="592acfe221b5c3bd9b920f639b141f37a56d6997" region="maincpu" offset="0"/>
+		<rom name="tpp2-c.7b" size="8192" crc="c3704958" sha1="af96d10fa9bdb86b00c89d10f67cb5ca5586f446" region="maincpu" offset="2000"/>
+		<rom name="tpp2-c.7c" size="8192" crc="5882ebf9" sha1="5531229b37f9ba0ede7fdc24909e3c3efbc8ade4" region="maincpu" offset="4000"/>
+		<rom name="tpp2-c.7e" size="8192" crc="ef8649ca" sha1="a0157f91600e56e2a953dadbd76da4330652e5c8" region="maincpu" offset="6000"/>
+		<rom name="tpp2-v.5n" size="4096" crc="cca61ddd" sha1="239f87947c3cc8c6693c295ebf5ea0b7638b781c" region="gfx1" offset="0"/>
+		<rom name="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" region="proms" offset="0"/>
+		<rom name="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" region="proms" offset="20"/>
+		<rom name="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" region="sprpal" offset="0"/>
+		<rom name="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" region="sprpal" offset="0"/>
+		<rom name="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="netlist_sound"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_out"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<chip type="audio" tag="snd_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyeb2" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (bootleg set 2)</description>
+		<year>1982</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="po1" size="8192" crc="b14a07ca" sha1="b8666a4c6b833f60905692774e30e73f0795df11" region="maincpu" offset="0"/>
+		<rom name="po2" size="8192" crc="995475ff" sha1="5cd5ac23a73722e32c80cd6ffc435584750a46c9" region="maincpu" offset="2000"/>
+		<rom name="po3" size="8192" crc="99d6a04a" sha1="b683a5bb1ac4f6bec7478760c8ad0ff7c00bc652" region="maincpu" offset="4000"/>
+		<rom name="po4" size="8192" crc="548a6514" sha1="006e076781a3e5c3afa084c723247365358e3187" region="maincpu" offset="6000"/>
+		<rom name="po5" size="4096" crc="ce6c9f8e" sha1="d52058c71c1769d9b9c4e713ac347096ac97bf1e" region="gfx1" offset="0"/>
+		<rom name="po6" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="po7" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="po8" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="po9" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="popeye.pr1" size="32" crc="d138e8a4" sha1="eba7f870ccab72105593007f5cd7e0b863912402" region="proms" offset="0"/>
+		<rom name="popeye.pr2" size="32" crc="0f364007" sha1="b77d71df391a9ac9e778e84475627e72de2b8507" region="proms" offset="20"/>
+		<rom name="popeye.pr3" size="256" crc="ca4d7b6a" sha1="ec979fffea9db5a327a5270241e376c21516e343" region="sprpal" offset="0"/>
+		<rom name="popeye.pr4" size="256" crc="cab9bc53" sha1="e63ba8856190187996e405f6fcee254c8ca6e81f" region="sprpal" offset="0"/>
+		<rom name="popeye.d1" size="256" crc="2e1b143a" sha1="7e0fd19328ccd6f2b2148739ef64703ade585060" region="blprot" offset="0"/>
+		<rom name="popeye.e1" size="256" crc="978b1c63" sha1="ae67a4ac554e84c970c0acc82f4bc6a490f9d6ef" region="blprot" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyeb3" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (bootleg set 3)</description>
+		<year>1982</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="bdf-5" size="8192" crc="c02b5e95" sha1="c3bf184777971943f08859b9e664507d6d11876a" region="maincpu" offset="0"/>
+		<rom name="bdf-6" size="8192" crc="efdf02c3" sha1="4fa616bdb4e21f752e46890d007c911fff9ceadc" region="maincpu" offset="2000"/>
+		<rom name="bdf-7" size="8192" crc="8eee859e" sha1="a597d5655d06d565653c64b18ed8842625e15088" region="maincpu" offset="4000"/>
+		<rom name="bdf-8" size="8192" crc="bac64fdd" sha1="ed87ecc6509c634950d27e87d4694896d0e41052" region="maincpu" offset="6000"/>
+		<rom name="bdf-9" merge="tpp2-v.5n" size="4096" crc="cca61ddd" sha1="239f87947c3cc8c6693c295ebf5ea0b7638b781c" region="gfx1" offset="0"/>
+		<rom name="bdf-4" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="bdf-3" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="bdf-2" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="bdf-1" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="tpp2-c.4a" merge="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" status="baddump" region="proms" offset="0"/>
+		<rom name="tpp2-c.3a" merge="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" status="baddump" region="proms" offset="20"/>
+		<rom name="tpp2-c.5b" merge="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" status="baddump" region="sprpal" offset="0"/>
+		<rom name="tpp2-c.5a" merge="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" status="baddump" region="sprpal" offset="0"/>
+		<rom name="tpp2-v.7j" merge="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" status="baddump" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="netlist_sound"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_out"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<chip type="audio" tag="snd_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyebl" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (bootleg set 1)</description>
+		<year>1982</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="app_exe.3j.2764" size="8192" crc="6e267c48" sha1="d4984eedb12d15867f0fdef4b525e8288d656962" region="maincpu" offset="0"/>
+		<rom name="2.3l.2764" size="8192" crc="995475ff" sha1="5cd5ac23a73722e32c80cd6ffc435584750a46c9" region="maincpu" offset="2000"/>
+		<rom name="3.3m.2764" size="8192" crc="99d6a04a" sha1="b683a5bb1ac4f6bec7478760c8ad0ff7c00bc652" region="maincpu" offset="4000"/>
+		<rom name="4.3p.2764" size="8192" crc="548a6514" sha1="006e076781a3e5c3afa084c723247365358e3187" region="maincpu" offset="6000"/>
+		<rom name="5.10gh.2732" size="4096" crc="ce6c9f8e" sha1="d52058c71c1769d9b9c4e713ac347096ac97bf1e" region="gfx1" offset="0"/>
+		<rom name="6.6n.2764" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="7.6r.2764" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="8.6s.2764" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="9.6u.2764" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="6.2u.18s030" size="32" crc="d138e8a4" sha1="eba7f870ccab72105593007f5cd7e0b863912402" region="proms" offset="0"/>
+		<rom name="5.2t.18s030" size="32" crc="0f364007" sha1="b77d71df391a9ac9e778e84475627e72de2b8507" region="proms" offset="20"/>
+		<rom name="3.2r.24s10" size="256" crc="ca4d7b6a" sha1="ec979fffea9db5a327a5270241e376c21516e343" status="baddump" region="sprpal" offset="0"/>
+		<rom name="4.2s.24s10" size="256" crc="cab9bc53" sha1="e63ba8856190187996e405f6fcee254c8ca6e81f" region="sprpal" offset="0"/>
+		<rom name="1.1d.24s10" size="256" crc="2e1b143a" sha1="7e0fd19328ccd6f2b2148739ef64703ade585060" region="blprot" offset="0"/>
+		<rom name="2.1e.24s10" size="256" crc="978b1c63" sha1="ae67a4ac554e84c970c0acc82f4bc6a490f9d6ef" region="blprot" offset="0"/>
+		<rom name="7.11s.24s10" size="256" crc="1c5c8dea" sha1="5738303b2a9c79b7d06bcf20fdb4d9b29f6e2d96" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyef" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (revision F)</description>
+		<year>1982</year>
+		<manufacturer>Nintendo</manufacturer>
+		<rom name="tpp2-c_f.7a" size="8192" crc="5fc5264d" sha1="6c3d4df748c55293b6de58bd874a08f8164b878d" region="maincpu" offset="0"/>
+		<rom name="tpp2-c_f.7b" size="8192" crc="51de48e8" sha1="7573931c6fcb53ee5ab9408906cd8eb2ba271c64" region="maincpu" offset="2000"/>
+		<rom name="tpp2-c_f.7c" size="8192" crc="62df9647" sha1="65d043b4142aa3ad2db7a1d4e1a2c22656ca7ade" region="maincpu" offset="4000"/>
+		<rom name="tpp2-c_f.7e" size="8192" crc="f31e7916" sha1="0f54ea7b1691b7789067fe880ffc56fac1d9523a" region="maincpu" offset="6000"/>
+		<rom name="tpp2-v.5n" merge="tpp2-v.5n" size="4096" crc="cca61ddd" sha1="239f87947c3cc8c6693c295ebf5ea0b7638b781c" region="gfx1" offset="0"/>
+		<rom name="tpp2-v.1e" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="tpp2-v.1f" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="tpp2-v.1j" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="tpp2-v.1k" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="tpp2-c.4a" merge="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" region="proms" offset="0"/>
+		<rom name="tpp2-c.3a" merge="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" region="proms" offset="20"/>
+		<rom name="tpp2-c.5b" merge="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" region="sprpal" offset="0"/>
+		<rom name="tpp2-c.5a" merge="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" region="sprpal" offset="0"/>
+		<rom name="tpp2-v.7j" merge="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="netlist_sound"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_out"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<chip type="audio" tag="snd_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="A 3/1 B 1/2" value="3"/>
+			<dipvalue name="2 Coins/1 Credit" value="14"/>
+			<dipvalue name="A 2/1 B 2/5" value="1"/>
+			<dipvalue name="A 2/1 B 1/3" value="4"/>
+			<dipvalue name="A 1/1 B 2/1" value="7"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="A 1/1 B 1/2" value="12"/>
+			<dipvalue name="1 Coin/2 Credits" value="13"/>
+			<dipvalue name="A 1/2 B 1/4" value="6"/>
+			<dipvalue name="A 1/2 B 1/5" value="11"/>
+			<dipvalue name="A 2/5 B 1/1" value="2"/>
+			<dipvalue name="A 1/3 B 1/1" value="10"/>
+			<dipvalue name="A 1/4 B 1/1" value="9"/>
+			<dipvalue name="A 1/5 B 1/1" value="5"/>
+			<dipvalue name="A 1/6 B 1/1" value="8"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="20000" value="48" default="yes"/>
+			<dipvalue name="30000" value="32"/>
+			<dipvalue name="50000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyehs" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (Braze High Score Kit P1.00D)</description>
+		<year>1982</year>
+		<manufacturer>hack (Braze Technologies)</manufacturer>
+		<rom name="tpp2-c.7a" merge="tpp2-c.7a" size="8192" crc="9af7c821" sha1="592acfe221b5c3bd9b920f639b141f37a56d6997" region="maincpu" offset="0"/>
+		<rom name="tpp2-c.7b" merge="tpp2-c.7b" size="8192" crc="c3704958" sha1="af96d10fa9bdb86b00c89d10f67cb5ca5586f446" region="maincpu" offset="2000"/>
+		<rom name="tpp2-c.7c" merge="tpp2-c.7c" size="8192" crc="5882ebf9" sha1="5531229b37f9ba0ede7fdc24909e3c3efbc8ade4" region="maincpu" offset="4000"/>
+		<rom name="tpp2-c.7e" merge="tpp2-c.7e" size="8192" crc="ef8649ca" sha1="a0157f91600e56e2a953dadbd76da4330652e5c8" region="maincpu" offset="6000"/>
+		<rom name="p100d.bin" size="32768" crc="ab8d7821" sha1="368352af26caaac8abd95c391263c59c1358fd28" region="brazehs" offset="0"/>
+		<rom name="tpp2-v.5n" merge="tpp2-v.5n" size="4096" crc="cca61ddd" sha1="239f87947c3cc8c6693c295ebf5ea0b7638b781c" region="gfx1" offset="0"/>
+		<rom name="tpp2-v.1e" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="tpp2-v.1f" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="tpp2-v.1j" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="tpp2-v.1k" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="tpp2-c.4a" merge="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" region="proms" offset="0"/>
+		<rom name="tpp2-c.3a" merge="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" region="proms" offset="20"/>
+		<rom name="tpp2-c.5b" merge="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" region="sprpal" offset="0"/>
+		<rom name="tpp2-c.5a" merge="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" region="sprpal" offset="0"/>
+		<rom name="tpp2-v.7j" merge="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="netlist_sound"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_out"/>
+		<device_ref name="93c46_8"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<chip type="audio" tag="snd_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyej" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (Japan)</description>
+		<year>1982</year>
+		<manufacturer>Nintendo</manufacturer>
+		<rom name="tpp1-c.2a,2732" size="4096" crc="4176761e" sha1="6977da294e88bb2d08ce02901f35c99df69dd6a5" region="maincpu" offset="0"/>
+		<rom name="tpp1-c.2b,2732" size="4096" crc="4e0b7f06" sha1="02667e297ef2112cf4150c0c18e5715c9010e4ac" region="maincpu" offset="1000"/>
+		<rom name="tpp1-c.2c,2732" size="4096" crc="b1c18b7e" sha1="12a067e2914a9d2051b2507de0673ac4a5198329" region="maincpu" offset="2000"/>
+		<rom name="tpp1-c.2d,2732" size="4096" crc="79d0e988" sha1="7c8ee46918996dab39b417e4361edef259935dbf" region="maincpu" offset="3000"/>
+		<rom name="tpp1-c.2e,2732" size="4096" crc="74854ca1" sha1="9b9e5112e32105a9726fff23162be38b5b9e3f7b" region="maincpu" offset="4000"/>
+		<rom name="tpp1-c.2f,2732" size="4096" crc="e2b08891" sha1="e73b1d355f543772c79e1970426e3e9696b2b23c" region="maincpu" offset="5000"/>
+		<rom name="tpp1-c.2g,2732" size="4096" crc="b74a1a97" sha1="3a51b08f80d378403b1e0df8446057b69157ea9b" region="maincpu" offset="6000"/>
+		<rom name="tpp1-c.2h,2732" size="4096" crc="30e84104" sha1="c781cb47d940e8e5d4f3cb799222db634d99e054" region="maincpu" offset="7000"/>
+		<rom name="tpp1-v.3h,2716" size="2048" crc="fa52a752" sha1="45b8f52e4c15f9fe761d7c7f7109b4a70ada0cda" region="gfx1" offset="0"/>
+		<rom name="tpp1-e.1e,2763" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="tpp1-e.2e,2763" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="tpp1-e.3e,2763" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="tpp1-e.5e,2763" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="tpp1-t.4a,82s123" merge="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" region="proms" offset="0"/>
+		<rom name="tpp1-t.1a,82s123" merge="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" region="proms" offset="20"/>
+		<rom name="tpp1-t.3a,82s129" merge="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" region="sprpal" offset="0"/>
+		<rom name="tpp1-t.2a,82s129" merge="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" region="sprpal" offset="0"/>
+		<rom name="tpp1-t.3j,82s129" merge="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyejo" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (Japan, Older)</description>
+		<year>1982</year>
+		<manufacturer>Nintendo</manufacturer>
+		<rom name="tpp1-c.2a.bin" size="4096" crc="4176761e" sha1="6977da294e88bb2d08ce02901f35c99df69dd6a5" region="maincpu" offset="0"/>
+		<rom name="tpp1-c.2b.bin" size="4096" crc="2cc76c54" sha1="56b9970c930e83dc9d5c6d5581160c42382f5c89" region="maincpu" offset="1000"/>
+		<rom name="tpp1-c.2c,2732" size="4096" crc="b1c18b7e" sha1="12a067e2914a9d2051b2507de0673ac4a5198329" region="maincpu" offset="2000"/>
+		<rom name="tpp1-c.2d.bin" size="4096" crc="79d0e988" sha1="7c8ee46918996dab39b417e4361edef259935dbf" region="maincpu" offset="3000"/>
+		<rom name="tpp1-c.2e.bin" size="4096" crc="74854ca1" sha1="9b9e5112e32105a9726fff23162be38b5b9e3f7b" region="maincpu" offset="4000"/>
+		<rom name="tpp1-c.2f.bin" size="4096" crc="e2b08891" sha1="e73b1d355f543772c79e1970426e3e9696b2b23c" region="maincpu" offset="5000"/>
+		<rom name="tpp1-c.2g.bin" size="4096" crc="b74a1a97" sha1="3a51b08f80d378403b1e0df8446057b69157ea9b" region="maincpu" offset="6000"/>
+		<rom name="tpp1-c.2h.bin" size="4096" crc="a1dcf54d" sha1="de2574c0437eba6d01658f8936a1f9285a362b4b" region="maincpu" offset="7000"/>
+		<rom name="tpp1-v.3h.bin" size="2048" crc="fa52a752" sha1="45b8f52e4c15f9fe761d7c7f7109b4a70ada0cda" region="gfx1" offset="0"/>
+		<rom name="tpp1-e.1e.bin" size="8192" crc="90889e1d" sha1="11af14ce7e2583a1aced942031284219eaf63e66" region="gfx2" offset="0"/>
+		<rom name="tpp1-e.2e.bin" size="8192" crc="ed06af50" sha1="68db835d9747e11ca85d0dd945e52bc1f538e251" region="gfx2" offset="2000"/>
+		<rom name="tpp1-e.3e.bin" size="8192" crc="72b258f2" sha1="a1fe2a380f3c46bd54043dc001c168734873d854" region="gfx2" offset="4000"/>
+		<rom name="tpp1-e.5e.bin" size="8192" crc="7355ff16" sha1="15d3cb701ad360a36c26eb5c34b2e89b5972ba82" region="gfx2" offset="6000"/>
+		<rom name="tpp1-t.4a.82s123" merge="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" region="proms" offset="0"/>
+		<rom name="tpp1-t.1a.82s123" merge="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" region="proms" offset="20"/>
+		<rom name="tpp1-t.3a.82s129" merge="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" region="sprpal" offset="0"/>
+		<rom name="tpp1-t.2a.82s129" merge="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" region="sprpal" offset="0"/>
+		<rom name="tpp1-t.3j.82s129" merge="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="popeyeu" sourcefile="nintendo/popeye.cpp" cloneof="popeye" romof="popeye">
+		<description>Popeye (revision D not protected)</description>
+		<year>1982</year>
+		<manufacturer>Nintendo</manufacturer>
+		<rom name="7a" size="8192" crc="0bd04389" sha1="3b08186c9b20dd4dfb92df98941b18999f23aece" region="maincpu" offset="0"/>
+		<rom name="7b" size="8192" crc="efdf02c3" sha1="4fa616bdb4e21f752e46890d007c911fff9ceadc" region="maincpu" offset="2000"/>
+		<rom name="7c" size="8192" crc="8eee859e" sha1="a597d5655d06d565653c64b18ed8842625e15088" region="maincpu" offset="4000"/>
+		<rom name="7e" size="8192" crc="b64aa314" sha1="b5367f518350223e191d94434dc535873efb4c74" region="maincpu" offset="6000"/>
+		<rom name="tpp2-v.5n" merge="tpp2-v.5n" size="4096" crc="cca61ddd" sha1="239f87947c3cc8c6693c295ebf5ea0b7638b781c" region="gfx1" offset="0"/>
+		<rom name="tpp2-v.1e" merge="tpp2-v.1e" size="8192" crc="0f2cd853" sha1="426c9b4f6579bfcebe72b976bfe4f05147d53f96" region="gfx2" offset="0"/>
+		<rom name="tpp2-v.1f" merge="tpp2-v.1f" size="8192" crc="888f3474" sha1="ddee56b2b49bd50aaf9c98d8ef6e905e3f6ab859" region="gfx2" offset="2000"/>
+		<rom name="tpp2-v.1j" merge="tpp2-v.1j" size="8192" crc="7e864668" sha1="8e275dbb1c586f4ebca7548db05246ef0f56d7b1" region="gfx2" offset="4000"/>
+		<rom name="tpp2-v.1k" merge="tpp2-v.1k" size="8192" crc="49e1d170" sha1="bd51a4e34ce8109f26954760156e3cf05fb9db57" region="gfx2" offset="6000"/>
+		<rom name="tpp2-c.4a" merge="tpp2-c.4a" size="32" crc="375e1602" sha1="d84159a0af5db577821c43712bc733329a43af80" region="proms" offset="0"/>
+		<rom name="tpp2-c.3a" merge="tpp2-c.3a" size="32" crc="e950bea1" sha1="0b48082fe79d9fcdca7e80caff1725713d0c3163" region="proms" offset="20"/>
+		<rom name="tpp2-c.5b" merge="tpp2-c.5b" size="256" crc="c5826883" sha1="f2c4d3473b3bfa55bffad003dc1fd79540e7e0d1" region="sprpal" offset="0"/>
+		<rom name="tpp2-c.5a" merge="tpp2-c.5a" size="256" crc="c576afba" sha1="013c8e8db08a03c7ba156cfefa671d26155fe835" region="sprpal" offset="0"/>
+		<rom name="tpp2-v.7j" merge="tpp2-v.7j" size="256" crc="a4655e2e" sha1="2a620932fccb763c6c667278c0914f31b9f00ddf" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="netlist_sound"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_in"/>
+		<device_ref name="nl_stream_out"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<chip type="audio" tag="snd_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="4"/>
+			<control type="joy" player="2" buttons="1" ways="4"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="6 Coins/1 Credit" value="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="9"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="13"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="3"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="12" default="yes"/>
+			<dipvalue name="Medium" value="8"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="40000" value="48" default="yes"/>
+			<dipvalue name="60000" value="32"/>
+			<dipvalue name="80000" value="16"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Copyright" tag="DSW0" mask="96">
+			<confsetting name="Nintendo" value="64" default="yes"/>
+			<confsetting name="Nintendo Co.,Ltd" value="32"/>
+			<confsetting name="Nintendo of America" value="96"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="prmrsocr" sourcefile="konami/tmnt2.cpp">
 		<description>Premier Soccer (ver EAB)</description>
 		<year>1993</year>
@@ -202407,6 +203411,119 @@
 		<port tag=":DSWA">
 		</port>
 		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="skyskipr" sourcefile="nintendo/popeye.cpp">
+		<description>Sky Skipper</description>
+		<year>1981</year>
+		<manufacturer>Nintendo</manufacturer>
+		<rom name="tnx1-c.2a" size="4096" crc="bdc7f218" sha1="9a5f5959b9228912f810568ddad70daa81c4daac" region="maincpu" offset="0"/>
+		<rom name="tnx1-c.2b" size="4096" crc="cbe601a8" sha1="78edc384b75b7958906f887d11eb7cf235d6dc44" region="maincpu" offset="1000"/>
+		<rom name="tnx1-c.2c" size="4096" crc="5ca79abf" sha1="0712364ad8785a146c4a146cc688c4892dd59c93" region="maincpu" offset="2000"/>
+		<rom name="tnx1-c.2d" size="4096" crc="6b7a7071" sha1="949a8106a5b750bc15a5919786fb99f15cd9424e" region="maincpu" offset="3000"/>
+		<rom name="tnx1-c.2e" size="4096" crc="6b0c0525" sha1="e4e12ea9e3140736d7543a274f3b266e58059356" region="maincpu" offset="4000"/>
+		<rom name="tnx1-c.2f" size="4096" crc="d1712424" sha1="2de42c379f18bfbd68fc64db24c9b0d38de26c29" region="maincpu" offset="5000"/>
+		<rom name="tnx1-c.2g" size="4096" crc="8b33c4cf" sha1="86d51b5098dffc69330b28662b04bd906d962792" region="maincpu" offset="6000"/>
+		<rom name="tnx1-v.3h" size="2048" crc="ecb6a046" sha1="7fd2312d39fefe6237699e2916e0c313165755ad" region="gfx1" offset="0"/>
+		<rom name="tnx1-t.1e" size="4096" crc="01c1120e" sha1="c1ab2af9c582e647e98836a87cb09fe4bcdaf19f" region="gfx2" offset="0"/>
+		<rom name="tnx1-t.2e" size="4096" crc="70292a71" sha1="51a5677351e438e7ef2b3812ef5e0e610da6ef4d" region="gfx2" offset="1000"/>
+		<rom name="tnx1-t.3e" size="4096" crc="92b6a0e8" sha1="d11ff39932cec9b5408dc957bf825dcf1d00c027" region="gfx2" offset="2000"/>
+		<rom name="tnx1-t.5e" size="4096" crc="cc5f0ac3" sha1="3374b1c387df3a3eba6c523f7c13711260074a89" region="gfx2" offset="3000"/>
+		<rom name="tnx1-t.4a" size="32" crc="98846924" sha1="89688d05c4c2d6f389da4e9c0c13e0f022f2d376" region="proms" offset="0"/>
+		<rom name="tnx1-t.1a" size="32" crc="c2bca435" sha1="e7d3e68d153d646eaf12b263d58b07da2615399c" region="proms" offset="20"/>
+		<rom name="tnx1-t.3a" size="256" crc="8abf9de4" sha1="6e5500639a2dca3c288619fb8bdd120eb49bf8e0" region="sprpal" offset="0"/>
+		<rom name="tnx1-t.2a" size="256" crc="aa7ff322" sha1="522d21854aa11e24f3679163354ae4fb35619eff" region="sprpal" offset="0"/>
+		<rom name="tnx1-t.3j" size="256" crc="1c5c8dea" sha1="5738303b2a9c79b7d06bcf20fdb4d9b29f6e2d96" region="timing" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="448" refresh="59.940000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="A 3/1 B 1/2" value="3"/>
+			<dipvalue name="2 Coins/1 Credit" value="14"/>
+			<dipvalue name="A 2/1 B 2/5" value="1"/>
+			<dipvalue name="A 2/1 B 1/3" value="4"/>
+			<dipvalue name="A 1/1 B 2/1" value="7"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="A 1/1 B 1/2" value="12"/>
+			<dipvalue name="1 Coin/2 Credits" value="13"/>
+			<dipvalue name="A 1/2 B 1/4" value="6"/>
+			<dipvalue name="A 1/2 B 1/5" value="11"/>
+			<dipvalue name="A 2/5 B 1/1" value="2"/>
+			<dipvalue name="A 1/3 B 1/1" value="10"/>
+			<dipvalue name="A 1/4 B 1/1" value="9"/>
+			<dipvalue name="A 1/5 B 1/1" value="5"/>
+			<dipvalue name="A 1/6 B 1/1" value="8"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="28">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easiest" value="28"/>
+			<dipvalue name="Very Easy" value="24"/>
+			<dipvalue name="Easy" value="20"/>
+			<dipvalue name="Medium Easy" value="16"/>
+			<dipvalue name="Medium Hard" value="12" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+			<dipvalue name="Very Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="15000" value="32" default="yes"/>
+			<dipvalue name="30000" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW1" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<configuration name="Interlace mode" tag="MCONF" mask="3">
+			<confsetting name="False Progressive" value="0" default="yes"/>
+			<confsetting name="Interlaced (scanline skip)" value="1"/>
+			<confsetting name="Interlaced (bitmap)" value="2"/>
+		</configuration>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":MCONF">
 		</port>
 		<port tag=":P1">
 		</port>

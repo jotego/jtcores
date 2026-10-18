@@ -292,6 +292,9 @@ reg        cfg_set      = 0;
 `ifdef MISTER_DEBUG_NOHDMI
 	wire    vga_fb       = 0;
 	wire    direct_video = 1;
+`elsif JTFRAME_SPLIT_VIDEO
+	wire    vga_fb       = 0;
+	wire    direct_video = cfg[10];
 `else
 	wire    vga_fb       = cfg[12] | vga_force_scaler;
 	wire    direct_video = cfg[10];
@@ -305,6 +308,8 @@ wire       io_osd_vga   = io_ss1 & ~io_ss2;
 	wire ypbpr_en           = cfg[5];
 	wire sog                = cfg[9];
 	`ifdef MISTER_DEBUG_NOHDMI
+		wire vga_scaler   = 0;
+	`elsif JTFRAME_SPLIT_VIDEO
 		wire vga_scaler   = 0;
 	`else
 		wire vga_scaler   = cfg[2] | vga_force_scaler;
@@ -729,7 +734,11 @@ wire         bob_deint;
 		.i_b      (hb_out),
 		.i_hs     (hhs_fix),
 		.i_vs     (hvs_fix),
+`ifdef JTFRAME_SPLIT_VIDEO
+		.i_fl     (hf1),
+`else
 		.i_fl     (f1),
+`endif
 		.i_de     (hde_emu),
 		.iauto    (1),
 		.himin    (0),
@@ -1690,6 +1699,22 @@ sync_fix sync_h(clk_vid, hs_emu, hs_fix);
 wire  [6:0] user_out, user_in;
 
 assign clk_ihdmi= clk_vid;
+`ifdef JTFRAME_SPLIT_VIDEO
+wire  [7:0] sc_r, sc_g, sc_b;
+wire        sc_ce, sc_hs, sc_vs, sc_de, sc_f1, sc_hs_fix, sc_vs_fix, hf1;
+
+sync_fix sync_sv(clk_vid, sc_vs, sc_vs_fix);
+sync_fix sync_sh(clk_vid, sc_hs, sc_hs_fix);
+
+assign ce_hpix  = direct_video ? vga_ce_sl          : sc_ce;
+assign hr_out   = direct_video ? vga_data_sl[23:16] : sc_r;
+assign hg_out   = direct_video ? vga_data_sl[15:8]  : sc_g;
+assign hb_out   = direct_video ? vga_data_sl[7:0]   : sc_b;
+assign hhs_fix  = direct_video ? vga_hs_sl          : sc_hs_fix;
+assign hvs_fix  = direct_video ? vga_vs_sl          : sc_vs_fix;
+assign hde_emu  = direct_video ? vga_de_sl          : sc_de;
+assign hf1      = direct_video ? f1                 : sc_f1;
+`else
 assign ce_hpix  = vga_ce_sl;
 assign hr_out   = vga_data_sl[23:16];
 assign hg_out   = vga_data_sl[15:8];
@@ -1697,6 +1722,7 @@ assign hb_out   = vga_data_sl[7:0];
 assign hhs_fix  = vga_hs_sl;
 assign hvs_fix  = vga_vs_sl;
 assign hde_emu  = vga_de_sl;
+`endif
 
 wire uart_dtr;
 wire uart_dsr;
@@ -1742,10 +1768,17 @@ emu emu
 (
 	.CLK_50M(FPGA_CLK2_50),
 	.RESET(reset),
+`ifdef JTFRAME_SPLIT_VIDEO
+	.HPS_BUS({fb_en, sl, hf1, HDMI_TX_VS,
+				 clk_100m, clk_ihdmi,
+				 ce_hpix, hde_emu, hhs_fix, hvs_fix,
+				 io_wait, clk_sys, io_fpga, io_uio, io_strobe, io_wide, io_din, io_dout}),
+`else
 	.HPS_BUS({fb_en, sl, f1, HDMI_TX_VS, 
 				 clk_100m, clk_ihdmi,
 				 ce_hpix, hde_emu, hhs_fix, hvs_fix, 
 				 io_wait, clk_sys, io_fpga, io_uio, io_strobe, io_wide, io_din, io_dout}),
+`endif
 
 	.VGA_R(r_out),
 	.VGA_G(g_out),
@@ -1755,6 +1788,16 @@ emu emu
 	.VGA_DE(de_emu),
 	.VGA_F1(f1),
 	.VGA_SCALER(vga_force_scaler),
+`ifdef JTFRAME_SPLIT_VIDEO
+	.SCALER_CE(sc_ce),
+	.SCALER_R(sc_r),
+	.SCALER_G(sc_g),
+	.SCALER_B(sc_b),
+	.SCALER_HS(sc_hs),
+	.SCALER_VS(sc_vs),
+	.SCALER_DE(sc_de),
+	.SCALER_F1(sc_f1),
+`endif
 
 `ifndef MISTER_DUAL_SDRAM
 	.VGA_DISABLE(VGA_DISABLE),
