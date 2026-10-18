@@ -354,7 +354,7 @@ def main():
              "copy_post ? 16'd2 : !copy_ir &&",
              "copy_post ? 16'd2 : copy_ir ? 16'd2 : !copy_ir &&"),
             ('lost_copy_slot_credit',copy_off,'jttms10_word.v',
-             '(!indirect_copy || !cen)',"1'b1"),
+             '(!indirect_copy || !copy_source_accepted || !cen)',"1'b1"),
             ('late_copy_first_word',copy_off,'jttms10_field.v',
              "state <= !we ? READ : addr[3:0]==0 && size>=6'd16 ? WRITE : RMW_READ;",
              'state <= we ? SELECT : READ;'),
@@ -378,6 +378,13 @@ def main():
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v',old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        pre_pause_case='copy_move_pre_phase_w16_r1_15_0_off'
+        pre_pause_extra=['--wait-states','1','--pause-clocks','1']
+        evidence['pre_copy_pause_control']=run_case(work,'pre_copy_pause_control',pre_pause_case,pre_pause_extra)
+        stale_copy=work/'stale-copy-read-credit';shutil.copytree(MODULE/'hdl',stale_copy)
+        replace_once(stale_copy/'jttms10_word.v','!copy_source_accepted || ','')
+        evidence['stale_copy_read_credit']=run_case(work,'stale_copy_read_credit',pre_pause_case,
+            ['--rtl-dir',str(stale_copy),*pre_pause_extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,

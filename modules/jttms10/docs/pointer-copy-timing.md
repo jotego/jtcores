@@ -52,7 +52,13 @@ The full source is captured before any destination write, including
 overlapping fields. Flags are preserved; FE does not add a copy state.
 Postincrement's final destination update shares the write microinstruction.
 The word wrapper retains copy slot eligibility across the required low
-request clock. No arithmetic unit, storage bank or DSP is added.
+request clock only after accepting the source read. A one-bit transfer tag
+is cleared on each opcode response and set on the actual copy-read
+acceptance. It prevents a short CEN pause during predecrement address
+preparation from inheriting bus credit. Without it the one-clock pause
+can make the read and retirement one state early. A permanent mutation
+removes that qualification and must fail with correct state/memory.
+No arithmetic unit, storage bank or DSP is added.
 
 Coverage includes all widths1..32, both fields/FE/cache/banks, all thirteen
 indices, A/B/shared-SP aliases, overlap and wrap, every initial flag pattern,
@@ -71,9 +77,9 @@ historical evidence, never an oracle or expected-failure list.
 
 The expanded normal runner contains three 60,982-case matrices, two DIV
 pauses and six 94-case phase unions: 183,512 exact timing programs. It
-contains 90 checker/model tests, 43 mutation positive controls and 51
-rejection checks (48 timing/stimulus and three separate event contracts).
-New RTL mutations shorten the postincrement CPU work, delay predecrement's
+contains 90 checker/model tests, 44 mutation positive controls and 52
+rejection checks (49 timing/stimulus and three separate event contracts).
+New RTL mutations reject stale initial-read bus credit, shorten the postincrement CPU work, delay predecrement's
 source issue or calculate source span from the updated pointer. Each must
 fail timing with correct registers/ST and drained memory. The normal
 runner and CI retain the independent architecture and event suites. The
@@ -87,9 +93,12 @@ python3 modules/jttms10/ver/timing/test_checker.py
 JTTMS10_TIMING_SIMULATOR=verilator bash modules/jttms10/ver/run.sh
 ```
 
-Development validation remains in progress. All 8,936 W=1/CEN=7 probes,
-180 architectural programs, 90 models, strict lint and the three new
-mutation controls/rejections pass. A representative 624-program Icarus/
+Development validation remains in progress. On the initial pointer source,
+all 8,936 W=1/CEN=7 probes,
+180 architectural programs, 90 models, strict lint and the initial three
+mutation controls/rejections passed before the bus-credit correction.
+Corrected-source validation is in progress; its short-pause positive
+control and dedicated mutation are part of the permanent runner. The initial representative 624-program Icarus/
 Verilator comparison covers all aliases, literal vectors, following loads,
 phase probes and index12 boundaries; it is not all 8,936 cases. Complete
 normal/clean-checkout and current map results will be reported separately.

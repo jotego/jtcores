@@ -177,8 +177,8 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. The current suite runs 43
-positive controls and 51 rejection checks. Three rejection checks target
+states and premature first/second address words. The current suite runs 44
+positive controls and 52 rejection checks. Three rejection checks target
 sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs three controls and one duplicate-read mutation.
@@ -441,7 +441,7 @@ STA and NARC acceptance remain open, along with all remaining issue scope.
 The pointer-copy expansion adds **8,936 programs** for **60,982 per matrix**
 and **183,512 exact timing programs**, including sixteen additional phase
 probes and 200 following loads. It covers 100/133 forms (33 missing).
-Ninety checker/model tests and 43 mutation controls/51 rejection checks
+Ninety checker/model tests and 44 mutation controls/52 rejection checks
 accompany the inventory. [pointer-copy-timing.md](pointer-copy-timing.md)
 records the pointer-update order, overlap and primary-source alternatives.
 The normal gate retains 448 unresolved MOVB probes and records 4,262
