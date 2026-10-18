@@ -25,6 +25,7 @@ from pointer_copy_cases import pointer_copy_cases
 from copy_extension_cases import copy_extension_cases
 from copy_pair_cases import copy_pair_cases
 from emu_cases import emu_cases
+from stack_cases import stack_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -117,6 +118,7 @@ def cases():
     yield from copy_extension_cases()
     yield from copy_pair_cases()
     yield from emu_cases()
+    yield from stack_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -146,6 +148,7 @@ def program(case):
     test_pc = 0x1000 + 16 * len(words)
     words += [case['opcode'],*case.get('extensions',[])]
     next_pc = 0x1000 + 16 * len(words)
+    if 'control_follow' in case:case['follow_pc']=next_pc+16
     if 'pc_result_register' in case:
         case['expected_regs'][case['pc_result_register']] = next_pc
     words += case.get('following_words',[0x0300] * case.get('tail_instructions',12))
@@ -302,6 +305,10 @@ def reads(case, wait_states=0):
             first=lead+9+4*wait_states
         plan += [(first+i*(2+wait_states),((address&~15)+16*i)&MASK32,
                   image[((address&~15)+16*i)&MASK32],0) for i in range(count)]
+        if case.get('stack_load'):
+            # The entry specifies total states and ordered stack transfers,
+            # not a particular internal first-read microinstruction edge.
+            plan=[(None,address,data,iaq) for _,address,data,iaq in plan]
         if case['cache_disabled']:
             plan.append((case['states']-3+(count+len(extensions))*wait_states,case['next_pc'],0x0300,1))
         return plan
@@ -333,6 +340,10 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     elif plan:
         if 'control_flow' in case and any(int(b[1])<int(e[1]) for b,e in zip(begin[1:],end[:-1])):
             errors.append('control-flow instruction reads overlap or are out of order')
+        if case.get('stack_load'):
+            count=((case['data_load']['address']&15)+32+15)//16
+            if any(int(b[1])!=int(e[1]) for b,e in zip(begin[1:count],end[:count-1])):
+                errors.append('stack field word transfers are not consecutive')
         if observed['start']%INPUT_CLOCKS_PER_STATE:
             errors.append('external fetch begins from an instruction off the machine-state grid')
         alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE
@@ -498,7 +509,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -592,12 +603,13 @@ def main():
             row['target_trace'] = measured_trace(log,'TARGET',observed,trailing='data_store' in case)
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
-                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case else []),args.wait_states,args.pause_clocks))
+                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') else []),args.wait_states,args.pause_clocks))
             if 'control_flow' in case:
                 next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
                 row['observed_next_opcodes']=next_opcodes
                 if next_opcodes != [case['expected_next_opcode']]:errors.append('control-flow target opcode mismatch')
             if 'control_follow' in case:
+                follow_label='first instruction after '+case.get('stack_load','branch')
                 follow=[line for line in log.splitlines() if line.startswith('FOLLOW ')]
                 if len(follow)!=1:errors.append('expected exactly one post-branch instruction observation')
                 else:
@@ -608,15 +620,24 @@ def main():
                         if len(extra)!=1:errors.append('expected exactly one following implicit-register observation')
                         else:actual.update({key:int(value,16) for key,value in (item.split('=') for item in extra[0].split()[1:])})
                         for key,value in case['expected_follow_extra_regs'].items():
-                            if actual.get(key)!=value:errors.append(f'first instruction after branch {key.upper()} mismatch')
+                            if actual.get(key)!=value:errors.append(f'{follow_label} {key.upper()} mismatch')
                     row['observed_follow']=actual
                     spec=case['control_follow']
                     clocks=8*(spec['states']+spec['transfers']*args.wait_states)
                     if observed is not None and actual['clock']-observed['end']!=clocks:
                         errors.append(f'first instruction after branch: expected {clocks} INCLK, observed {actual["clock"]-observed["end"]}')
                     for q,value in enumerate(case['expected_follow_regs']):
-                        if actual[f'a{q}']!=value:errors.append(f'first instruction after branch A{q} mismatch')
-                    if actual['st']!=case['expected_follow_st']:errors.append('first instruction after branch ST mismatch')
+                        if actual[f'a{q}']!=value:errors.append(f'{follow_label} A{q} mismatch')
+                    if actual['st']!=case['expected_follow_st']:errors.append(f'{follow_label} ST mismatch')
+                    if spec.get('data_load') and observed is not None:
+                        following=dict(name=case['name']+'_following',cache_disabled=False,
+                            states=spec['states'],test_pc=case['next_pc'],next_pc=case['follow_pc'],
+                            data_load=spec['data_load'],initial_memory=spec['initial_memory'])
+                        interval=dict(start=observed['end'],end=actual['clock'],clocks=actual['clock']-observed['end'])
+                        row['follow_bus_trace']=measured_trace(log,'BUS',interval)
+                        row['follow_target_trace']=measured_trace(log,'TARGET',interval)
+                        errors.extend('following stack load: '+error for error in check_bus(following,interval,row['follow_bus_trace'],args.wait_states))
+                        errors.extend('following stack load: '+error for error in check_target(following,interval,row['follow_target_trace'],args.wait_states))
                     if spec.get('scalar') and observed is not None:
                         following=dict(name=case['name']+'_following',cache_disabled=case['cache_disabled'],
                             states=spec['states'],test_pc=case['next_pc'],next_pc=case['follow_pc'])
@@ -647,6 +668,10 @@ def main():
                             if actual[f'a{q}']!=value:errors.append(f'following load A{q} mismatch')
                         if actual['st']!=case['expected_follow_st']:errors.append('following load ST mismatch')
                 if sorted(memory)!=sorted(case['expected_memory']):errors.append('memory after write drain differs from expected preserved field')
+            if case.get('stack_load'):
+                memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
+                row['observed_memory']=memory
+                if sorted(memory)!=sorted(case['expected_memory']):errors.append('read-only stack memory changed')
             rows.append(row)
             print(f"{case['name']}: {'FAIL' if errors else 'PASS'} ({case['citation']})")
             if errors:

@@ -52,7 +52,7 @@ The original policy-only step at `3fcd09f9b` modified no HDL, microcode, encoded
 program, timing/result expectation or simulation observation. Ten additional checker tests cover
 explicit choices, preserved alternatives, exact signatures, actual result
 consistency, agreed-target protection and the full inventory. The complete
-checker/model suite now has 107 tests after the EMU expansion. Source choices must never be inferred
+checker/model suite now has 112 tests after the POPST expansion. Source choices must never be inferred
 from measured implementation latency.
 
 

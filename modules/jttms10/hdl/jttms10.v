@@ -210,7 +210,8 @@ module jttms10 #(
     wire early_load=load_pending && load_address_ready && load_issue_left==0 &&
                     (!copy_packet || copy_operand_left==0);
     wire load_offset=ir[15:10]==6'b101101 || ir[15:9]==7'b1010111;
-    wire load_direct=ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
+    wire stack_pop=ir==16'h01c0;
+    wire load_direct=stack_pop || ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
     wire decode_multiply=decode_opcode[15:10]==6'b010111;
@@ -248,10 +249,11 @@ module jttms10 #(
     wire decode_load_absolute=(decode_opcode & 16'hfde0)==16'h05a0 ||
                               (decode_opcode & 16'hffe0)==16'h07e0;
     wire decode_load_extension=decode_load_offset || decode_load_absolute;
-    wire decode_load_direct=decode_opcode[15:10]==6'b100001 ||
+    wire decode_stack_pop=decode_opcode==16'h01c0;
+    wire decode_load_direct=decode_stack_pop || decode_opcode[15:10]==6'b100001 ||
                            decode_opcode[15:9]==7'b1000111 || decode_load_post;
     wire decode_load=decode_load_direct || decode_load_pre || decode_load_extension;
-    wire [5:0] decode_load_states=decode_load_pre ? 6'd4 : decode_load_extension ? 6'd5 : 6'd3;
+    wire [5:0] decode_load_states=decode_stack_pop ? 6'd8 : decode_load_pre ? 6'd4 : decode_load_extension ? 6'd5 : 6'd3;
     wire decode_immediate_word=decode_opcode[15:5]==11'h04e ||
         decode_opcode[15:5]==11'h058 || decode_opcode[15:5]==11'h05a ||
         decode_opcode[15:5]==11'h05f;
@@ -353,7 +355,7 @@ module jttms10 #(
     wire [5:0] copy_source_span={2'd0,ea[3:0]}+field_size;
     wire [5:0] copy_dest_span={2'd0,store_target[3:0]}+field_size;
     wire copy_long_finish=copy_ir && copy_source_span>6'd32 && copy_dest_span>6'd32;
-    wire [15:0] load_finish_clocks=(copy_long_finish ? (copy_post ? 16'd4 : 16'd3) : copy_post ? 16'd2 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
+    wire [15:0] load_finish_clocks=(stack_pop ? 16'd4 : copy_long_finish ? (copy_post ? 16'd4 : 16'd3) : copy_post ? 16'd2 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
                                   16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     // Field extension has three mutually exclusive consumers: memory-load
@@ -370,7 +372,7 @@ module jttms10 #(
     assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? rs_data : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = early_store ? field_size : early_load ? field_size : gfx_active ? gfx_bus_size :
+    assign mem_size = early_store ? field_size : early_load ? (stack_pop ? 6'd32 : field_size) : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       field_op ? field_size : 6'd16;
@@ -483,11 +485,14 @@ module jttms10 #(
         .rd_ext(gfx_active && gfx_rf_da[5]),
         .wa_ext(gfx_active && gfx_rf_wa[5]),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
+            fetch && (completed || mem_fast || mem_ack) && decode_stack_pop ? 5'd15 :
             fetch && (completed || mem_fast || (mem_ack && decode_cpw)) ? {decode_opcode[4],decode_opcode[8:5]} :
+            stack_pop ? 5'd15 :
             ir==16'h0940 && tmp[25] ? 5'd26 :
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(gfx_active ? gfx_rf_da[4:0] :
+            fetch && (completed || mem_fast || mem_ack) && decode_stack_pop ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && decode_cpw ? 5'd21 :
             fetch && (completed || mem_fast) && decode_cvxyl ? 5'd20 :
             fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control) ? {decode_opcode[4],decode_opcode[3:0]} :
@@ -674,7 +679,7 @@ module jttms10 #(
             // that final state at this ACK; sign extension needs one more.
             if(mem_req && mem_ack && early_load && timing_active)
                 time_left<=load_finish_clocks-16'd3;
-            if(step && mem_sel==READ_MEM) begin
+            if(step && (mem_sel==READ_MEM || (stack_pop && stack_sel==READ_STACK))) begin
                 load_pending<=0;
                 if(copy_ir) begin store_pending<=1;load_address_ready<=1;end
             end

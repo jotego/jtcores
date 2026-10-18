@@ -18,6 +18,19 @@ HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
 
 
+def correct_architecture(row):
+    """Timing-only rejection must preserve the instruction and its consumer."""
+    for prefix,key in [('', 'observed'),('follow_','observed_follow')]:
+        if 'expected_'+prefix+'regs' not in row:continue
+        observed=row.get(key)
+        if observed is None or observed['st']!=row['expected_'+prefix+'st']:return False
+        if any(observed[f'a{q}']!=v for q,v in enumerate(row['expected_'+prefix+'regs'])):return False
+        if any(observed.get(n)!=v for n,v in row.get('expected_'+prefix+'extra_regs',{}).items()):return False
+    if 'expected_memory' in row and sorted(row.get('observed_memory',[]))!=sorted(row['expected_memory']):return False
+    if 'expected_follow_memory' in row and sorted(row.get('observed_memory',[]))!=sorted(row['expected_follow_memory']):return False
+    return True
+
+
 def run_case(work, name, case, extra=(), mutated=False, event_error=None):
     report = work / (name+'.json')
     command = [sys.executable,str(HERE / 'run.py'),'--case',case,'--report',str(report),*extra]
@@ -28,14 +41,12 @@ def run_case(work, name, case, extra=(), mutated=False, event_error=None):
     if len(data['cases']) != 1:
         raise RuntimeError(f'{name}: expected exactly one probe')
     row = data['cases'][0]
-    observed = row['observed']
     if event_error is not None:
         if result.returncode!=1 or not row['errors'] or event_error not in result.stdout+result.stderr:
             raise RuntimeError(f'{name}: expected event contract was not rejected\n{result.stdout}{result.stderr}')
         print(f'{name}: PASS (event contract violation rejected)')
         return data
-    if observed is None or observed['st'] != row['expected_st'] or any(
-            observed[f'a{q}'] != value for q,value in enumerate(row['expected_regs'])) or any(observed.get(n)!=v for n,v in row.get('expected_extra_regs',{}).items()) or ('expected_memory' in row and sorted(row.get('observed_memory',[]))!=sorted(row['expected_memory'])):
+    if not correct_architecture(row):
         raise RuntimeError(f'{name}: functional failure is not a timing-only mutation\n{result.stdout}{result.stderr}')
     expected_exit = int(mutated)
     if result.returncode != expected_exit or bool(row['errors']) != mutated:
@@ -422,6 +433,16 @@ def main():
         replace_once(short_emu/'jttms10.v',"decode_emu ? 6'd6 :","decode_emu ? 6'd5 :")
         evidence['short_emu']=run_case(work,'short_emu',emu_case,
             ['--rtl-dir',str(short_emu),*emu_extra],mutated=True)
+        for name,probe,extra,file,old,new in (
+            ('short_popst_work','stack_popst_phase_a0_hit',
+             ['--wait-states','1','--pause-clocks','1'],'jttms10.v',
+             "stack_pop ? 16'd4 :","stack_pop ? 16'd3 :"),
+            ('late_popst_first_slot','stack_popst_phase_a0_off',
+             ['--wait-states','1','--pause-clocks','7'],'jttms10_word.v',
+             " || ir==16'h01c0",'')):
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,

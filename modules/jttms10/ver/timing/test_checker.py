@@ -25,9 +25,57 @@ from pointer_copy_cases import literal_cases as pointer_copy_literals, pointer_c
 from copy_extension_cases import literal_cases as copy_extension_literals, copy_extension_cases
 from copy_pair_cases import literal_cases as copy_pair_literals, copy_pair_cases
 from emu_cases import emu_cases
+from stack_cases import popst_fixture, stack_cases
+from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_popst_primary_counts_and_full_stack_status(self):
+        for off in (False,True):
+            aligned=popst_fixture('model',off,loaded=0xC0000010,address=0x0FF00000)
+            unaligned=popst_fixture('model',off,15,loaded=0x60000810)
+            self.assertEqual(aligned['states'],11 if off else 8)
+            self.assertEqual(unaligned['states'],13 if off else 10)
+            self.assertEqual(aligned['expected_st'],0xC0000010)
+            self.assertEqual(aligned['expected_extra_regs']['sp'],0x0FF00020)
+            self.assertEqual(aligned['initial_memory'],[(0x0FF00000,0x10),(0x0FF00010,0xC000)])
+            self.assertEqual(aligned['regs'],aligned['expected_regs'])
+
+    def test_popst_width_ignores_both_original_field_definitions(self):
+        rows=list(stack_cases());self.assertEqual(len(rows),806)
+        self.assertEqual(len({r['name'] for r in rows}),806)
+        for r in rows:
+            self.assertEqual(r['data_load']['width'],32)
+            self.assertEqual(r['expected_st'],extract(r['initial_memory'],r['initial_sp'],32,False))
+            self.assertEqual(r['expected_extra_regs']['sp'],(r['initial_sp']+32)&0xFFFFFFFF)
+            self.assertEqual(r['initial_memory'],r['expected_memory'])
+
+    def test_popst_waits_charge_all_stack_words_and_realign_pause(self):
+        for offset,clocks in [(0,88),(15,112)]:
+            row=popst_fixture('model',False,offset)
+            obs=dict(clocks=clocks,paused=7,st=row['expected_st'],**row['expected_extra_regs'])
+            obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+            self.assertEqual(check(row,obs,1,7),[])
+            obs['clocks']-=8;self.assertTrue(check(row,obs,1,7))
+
+    def test_popst_source_window_does_not_hide_a_gap_between_stack_words(self):
+        row=popst_fixture('model',False);row.update(test_pc=0x1000,next_pc=0x1010)
+        obs=dict(start=0,end=64,clocks=64)
+        trace=['BUS_BEGIN 0 0 00005000 0000 0','BUS_END 16 0 00005000 0810',
+               'BUS_BEGIN 16 0 00005010 0000 0','BUS_END 32 0 00005010 0000']
+        self.assertEqual(check_bus(row,obs,trace,0),[])
+        bad=[s.replace('BEGIN 16','BEGIN 24').replace('END 32','END 40') for s in trace]
+        self.assertTrue(any('not consecutive' in e for e in check_bus(row,obs,bad,0)))
+
+    def test_timing_mutation_cannot_pass_with_an_incorrect_following_instruction(self):
+        row=dict(expected_regs=[1,2,3,4],expected_st=0x10,
+                 expected_follow_regs=[1,9,3,4],expected_follow_st=0x10,
+                 observed=dict(a0=1,a1=2,a2=3,a3=4,st=0x10),
+                 observed_follow=dict(a0=1,a1=9,a2=3,a3=4,st=0x10))
+        self.assertTrue(correct_architecture(row))
+        row['observed_follow']['a1']=0
+        self.assertFalse(correct_architecture(row))
+
     def test_emu_run_keeps_primary_count_alternatives(self):
         rows=list(emu_cases());self.assertEqual(len(rows),296)
         self.assertEqual(len({r['name'] for r in rows}),296)

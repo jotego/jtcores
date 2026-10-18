@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 107 of 133 instruction forms; the other 26 remain unvalidated.
+probes cover 108 of 133 instruction forms; the other 25 remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -177,11 +177,11 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. The current suite runs 51
-positive controls and 59 rejection checks. Three rejection checks target
+states and premature first/second address words. The current suite runs 53
+positive controls and 61 rejection checks. Three rejection checks target
 sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
-event bench separately runs three controls and one duplicate-read mutation.
+event bench separately runs five controls and one duplicate-read mutation.
 
 ## Coverage ledger
 
@@ -193,7 +193,7 @@ probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-83,804-case inventory has 11,219 discrepancy instances before project choices:
+84,610-case inventory has 11,219 discrepancy instances before project choices:
 242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
 1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
 332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives and 296 EMU alternatives. The normal gate records 10,771 explicit project
@@ -203,7 +203,7 @@ The JSON preserves every affected name, condition-specific value and
 citation. Numeric metadata must match the actual selected expectation;
 status relabeling cannot waive a gap. The stricter source-only audit remains
 available. These are counts of probe instances, not distinct rules.
-There are 107 checker/model tests. Probe presence and resolved or explicitly
+There are 112 checker/model tests. Probe presence and resolved or explicitly
 selected source interpretations remain necessary gates; neither completes
 the condition/bus/interrupt audit.
 The full #144 checklist remains open.
@@ -240,6 +240,7 @@ The full #144 checklist remains open.
 | Calls/returns/traps, register lists and other hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed 5; byte index2 CD9 versus printed7 remains a target gap. See [copy-timing.md](copy-timing.md) |
 | Pointer memory-to-memory MOVE | Tables13-3/4 pp.13-6/7; entries12-141/142/145/146 | 8,936 programs: both pointer modes, widths/alignments, fields/FE, A/B/SP, sequential aliases, literal data/pointers, following loads and CEN | Three alternatives follow the recorded owner choice. Complete validation is in progress; see [pointer-copy-timing.md](pointer-copy-timing.md). |
+| POPST | SPVU001A3-6/12-227; summary12-17; SPVS002C June1991p14 | 806 full-state/read-only-memory programs, including24 real following loads; aligned/unaligned response pauses |8/11 aligned,10/13 otherwise; remaining stack/call forms and full IRQ/HOLD audits stay open. See[stack-timing.md](stack-timing.md). |
 | EMU with RUN asserted | SPVS002C June1991 p14; SPVU001A12-17/77 | 296 full-state/field/position cases, plus eight separate pulse controls and one missing-strobe mutation | Project6/9 follows summary/data sheet; entry8/11 retained. RUN-low hold/resume remains open. See [emu-timing.md](emu-timing.md). |
 | Two-address MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-121/124/151/157 | 13,714 programs: both offsets/absolutes, all widths/byte alignments, signed endpoints, cold operands, double fills and following loads | Entry/summary alternatives remain explicit. See [copy-pair-timing.md](copy-pair-timing.md). |
 | Extended-source postincrement MOVE | Tables13-3/4 pp.13-6/7; entries12-149/150/155/156 | 8,812 programs: offset/absolute source, all widths/indices, aliases, cold operands, following loads and CEN | Entry/summary alternatives remain explicit; full validation is in progress. See [source-copy-timing.md](source-copy-timing.md). |
@@ -479,3 +480,12 @@ and one missing-strobe mutant. The shared normal bench is unchanged.
 All83,508 preceding fixture/program/golden hashes remain unchanged.
 Full normal-runner, clean-checkout and hardware validation for this stage
 remain pending; see[emu-timing.md](emu-timing.md).
+
+POPST adds806 programs for84,610 per matrix and108/133 forms (25 missing).
+Its782 direct cases and24 real following loads retain full state, read-only
+memory and independent bus checks.112 models pass; mutation classification
+now rejects bad following state/memory before calling a failure timing-only.
+The separate response bench has five controls, including aligned/unaligned
+POPST captures during96-clock CPU pauses, and the original duplicate-read
+mutation. Full normal-runner, clean-checkout and final hardware gates remain
+pending; see[stack-timing.md](stack-timing.md).
