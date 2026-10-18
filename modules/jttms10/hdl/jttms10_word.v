@@ -35,7 +35,22 @@ module jttms10_word(
     wire        cache_req, cache_we, cache_lock, cache_ack, cache_restart;
     wire [31:0] cache_addr;
     wire [15:0] cache_wdata, cache_rdata;
+    wire field_word_req, field_word_we, field_word_lock, data_ack;
+    wire [31:0] field_word_addr, data_rdata;
+    wire [15:0] field_word_wdata;
     reg         iaq_q, program_q, pixel_q, srt_q, request_latched;
+    // Instruction and extension fetches are already aligned physical words.
+    // They need no field extraction or RESPONSE/ALIGN clocks. Data, vectors
+    // and stacks still use the field adapter, including all RMW/HOLD handling.
+    wire program_read=field_program && !field_we && field_size==6'd16 &&
+                      field_addr[3:0]==0;
+    assign cache_req=program_read ? field_req : field_word_req;
+    assign cache_we=program_read ? 1'b0 : field_word_we;
+    assign cache_lock=program_read ? 1'b0 : field_word_lock;
+    assign cache_addr=program_read ? field_addr : field_word_addr;
+    assign cache_wdata=program_read ? 16'd0 : field_word_wdata;
+    assign field_ack=program_read ? cache_ack : data_ack;
+    assign field_rdata=program_read ? {16'd0,cache_rdata} : data_rdata;
     // An SRT MTR cycle exchanges no pixel data on LAD. Return a defined
     // zero to architectural pixel loads; partial RMW still retains its
     // normal read-before-write physical cycle sequence.
@@ -59,20 +74,21 @@ module jttms10_word(
     );
 
     jttms10_field u_field(
-        .clk(clk), .rst(rst), .req(field_req), .we(field_we),
+        .clk(clk), .rst(rst), .req(field_req && !program_read), .we(field_we),
         .addr(field_addr), .wdata(field_wdata), .size(field_size),
-        .ack(field_ack), .rdata(field_rdata),
-        .word_req(cache_req), .word_we(cache_we), .word_addr(cache_addr),
-        .word_wdata(cache_wdata), .word_lock(cache_lock),
-        .word_rdata(field_word_rdata), .word_ack(cache_ack),
+        .ack(data_ack), .rdata(data_rdata),
+        .word_req(field_word_req), .word_we(field_word_we), .word_addr(field_word_addr),
+        .word_wdata(field_word_wdata), .word_lock(field_word_lock),
+        .word_rdata(field_word_rdata), .word_ack(cache_ack && !program_read),
         .word_restart(cache_restart)
     );
 
     jttms10_cache u_cache(
         .clk(clk), .rst(rst),
         .cache_disable(control[15]), .cache_flush(cache_flush),
-        .c_req(cache_req), .c_we(cache_we), .c_iaq(iaq_q),
-        .c_program(program_q), .c_pixel(pixel_q), .c_lock(cache_lock),
+        .c_req(cache_req), .c_we(cache_we), .c_iaq(program_read ? field_iaq : iaq_q),
+        .c_program(program_read || program_q), .c_pixel(program_read ? 1'b0 : pixel_q),
+        .c_lock(cache_lock),
         .c_addr(cache_addr), .c_wdata(cache_wdata),
         .c_rdata(cache_rdata), .c_ack(cache_ack),
         .c_restart(cache_restart),

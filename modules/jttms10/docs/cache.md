@@ -45,7 +45,11 @@ register owners must provide these two live level signals; there is no flush
 request/ack transaction.
 
 The CPU's `mem_program` marks opcode and PC extension reads. The word
-wrapper captures that qualifier with each logical field request, supplies
+wrapper routes aligned 16-bit program reads directly to the cache, avoiding
+the field adapter's alignment and response states. It returns cache ACK/data
+to the core, whose response latch captures ACK even while CEN is paused.
+Data, vectors, stacks and pixel fields continue through the field adapter.
+The wrapper captures qualifiers with those logical field requests, supplies
 CONTROL[15] as CD, and takes CF from HSTCTLH[14]. The integrated system bench
 executes a loop and observes the first four-word fill followed by cache hits.
 Host-indirect CONTROL writes exercise CD bypass and preservation, while
@@ -81,6 +85,12 @@ replacement LRU, waits and stable held payload, stale self-modifying reads,
 CD preservation, held CF behavior, IAQ/pixel/data bypass, one acknowledgment
 per held request, and reset during a stalled fill. Integrated cache and
 system fits are recorded in [the area measurements](../ver/area/README.md).
+
+The direct program path removes three input clocks from a cached word
+access. The permanent timing probe now measures a warm NOP at eight INCLK,
+matching its one-state figure. Other instruction and cache-disabled timing
+checks still fail; this path change alone does not establish CPU timing
+compliance. See the [timing coverage ledger](timing.md).
 
 An isolated Quartus Prime 20.1.1 Analysis & Synthesis map of source SHA-256
 `e1318b798308c6737f4c079b6b7b73b4a280bfa368b80975217f9a4ffce09cdf`

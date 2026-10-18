@@ -50,8 +50,8 @@ changing the default suite. This proves architectural arithmetic results.
 The DSP change removes the old 32-iteration loop's minimum-latency obstacle;
 it does not yet implement TI's field-size-dependent schedule. The permanent
 [timing suite](timing.md) continues to reject its incorrect timing. With
-the existing fetch path, the unpaced DSP schedule measures 23 INCLK on a
-warm hit and 40 with the cache disabled, independent of FS1/sign. A shorter
+the direct program-read path, the unpaced DSP schedule measures 20 INCLK on a
+warm hit and 37 with the cache disabled, independent of FS1/sign. A shorter
 fixed schedule remains noncompliant.
 
 The isolated matched `quartus_map` comparison attached to #144 reports three

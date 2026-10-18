@@ -86,7 +86,7 @@ probe remains unvalidated. The full #144 checklist remains open.
 | Eight INCLK per machine state | §1.3.1.5 p.1-7; data sheet p.A-41 | Explicit unit conversion in oracle and system bench | Contract established |
 | MPYS: `5+FS1/2`, `8+FS1/2` | pp.12-164–165 | All 16 defined even widths, both source-field signs, even/odd destinations, cache hit/off; arithmetic/full-ST checks | Failing |
 | MPYU: MPYS counts plus one state when source field is negative | pp.12-166–167 | Same widths/signs/parities/cache modes; ignored high bits distinguish field sign from bit31 | Failing |
-| NOP: 1,4 | p.12-170 | Warm hit/cache disabled, full ST/register preservation | Failing |
+| NOP: 1,4 | p.12-170 | Warm hit/cache disabled, full ST/register preservation | Hit passes; cache disabled fails |
 | ADD: 1,4 | p.12-36 | Warm hit/cache disabled, arithmetic/flags | Failing |
 | MOVK: 1,4 | p.12-161 | Warm hit/cache disabled, value/flags | Failing |
 | External wait addition | §13.1.2 p.13-3; LRDY p.2-8 | 262 paired runs at 0/1 wait states: exact +8 INCLK when CD, no change on hits; bus checks pass | Added-delay rule passes for these probes; absolute timing fails |
@@ -116,3 +116,11 @@ The [baseline observations and CPU source hashes](../ver/timing/baseline-740709a
 are retained as historical evidence and are never read by the oracle.
 The standard runner and CI deliberately fail on this baseline. No expected
 failure list masks the 254 mismatches while implementation work continues.
+
+After DSP integration and bypassing field extraction for aligned program
+reads, the warm NOP takes the specified eight INCLK. The unpaced multiply
+takes 20/37 INCLK, ADD and MOVK 10/27, and cache-disabled NOP 25. Thus one
+of the 262 timing probes passes and 261 fail; all architectural and bus
+checks still pass. This remains incomplete timing work. The CPU needs a
+machine-state schedule, overlapped instruction fetch, and further datapath
+changes rather than treating faster execution as compliance.
