@@ -22,6 +22,7 @@ module jttms10_field(
     input      [31:0] wdata,
     input      [5:0]  size,
     output reg        ack,
+    output            busy,
     output     [31:0] rdata,
     output reg        word_req,
     output reg        word_we,
@@ -42,6 +43,7 @@ localparam [2:0]
     RESPONSE  = 3'd7;
 
 reg [2:0] state;
+assign busy=state!=IDLE;
 reg [31:0] base_addr;
 reg [47:0] data_window, read_window;
 reg [5:0] span_remaining;

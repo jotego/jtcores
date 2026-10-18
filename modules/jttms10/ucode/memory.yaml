@@ -5,10 +5,7 @@ ucode:
   - name: store
     start: 33
     seq:
-      - reg_a, reg_b
-      - a_md, b_ea
-      - write_mem
-      - ni
+      - write_mem, ni
   - name: load
     start: 34
     seq:
@@ -17,11 +14,8 @@ ucode:
   - name: storepi
     start: 35
     seq:
-      - reg_a, reg_b
-      - a_md, b_ea
-      - write_mem
-      - size_a
-      - add_alu, wr_reg, ni
+      - size_a, reg_b
+      - add_alu, wr_reg, write_mem, ni
   - name: loadpi
     start: 36
     seq:
@@ -32,15 +26,13 @@ ucode:
   - name: storepd
     start: 37
     seq:
-      - reg_b
-      - size_a
+      - size_a, reg_b
       - sub_alu, sum_ea, wr_reg
       # The source is sampled AFTER predecrement (TI p.12-130). If Rs==Rd,
       # the value written is the decremented pointer, not its original value.
       - reg_a
       - a_md
-      - write_mem
-      - ni
+      - write_mem, ni
   - name: loadpd
     start: 38
     seq:

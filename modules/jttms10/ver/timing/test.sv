@@ -37,12 +37,14 @@ module test;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
     reg measuring=0,case_done=0,response_request_seen=0;
-    integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0,watch_extra=0;
+    integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0,watch_extra=0,drain_instructions=0,drain_left=0;
+    reg draining=0;
     reg [31:0] data_address[0:15];
     reg [15:0] data_value[0:15];
     reg [15:0] input_word;
     // A combined fetch/dispatch commits IR and increments PC on the same
     // edge. The previous two-word microcode had incremented PC earlier.
+    reg [31:0] follow_pc=0;
     wire [31:0] accepted_pc=dut.u_cpu.u_core.fetch ? pc : pc-32'd16;
     wire [15:0] accepted_ir=dut.u_cpu.u_core.fetch ?
                            dut.u_cpu.u_core.read_data[15:0] : dut.u_cpu.u_core.md[15:0];
@@ -56,8 +58,8 @@ module test;
         if($value$plusargs("BATCH=%s",batch_path)) begin
             batch_fd=$fopen(batch_path,"r");
             if(batch_fd==0) $fatal(1,"cannot open batch input");
-            rc=$fscanf(batch_fd,"%d %h %h %d %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count,watch_extra);
-            while(rc==7) begin
+            rc=$fscanf(batch_fd,"%d %h %h %d %d %d %d %d %h",case_id,test_pc,next_pc,measure_pass,word_count,memory_count,watch_extra,drain_instructions,follow_pc);
+            while(rc==9) begin
                 if(word_count<1 || word_count>3840) $fatal(1,"invalid program length");
                 for(i=0;i<4096;i=i+1) mem[i]=0;
                 for(i=0;i<word_count;i=i+1) begin
@@ -76,7 +78,7 @@ module test;
                 wait(case_done);
                 @(negedge clk); rst=1;
                 loaded=loaded+1;
-                rc=$fscanf(batch_fd,"%d %h %h %d %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count,watch_extra);
+                rc=$fscanf(batch_fd,"%d %h %h %d %d %d %d %d %h",case_id,test_pc,next_pc,measure_pass,word_count,memory_count,watch_extra,drain_instructions,follow_pc);
             end
             if(!$feof(batch_fd)) $fatal(1,"invalid batch record");
             $fclose(batch_fd);
@@ -89,6 +91,8 @@ module test;
             rc=$value$plusargs("CASE_ID=%d",case_id);
             rc=$value$plusargs("MEASURE_PASS=%d",measure_pass);
             rc=$value$plusargs("WATCH_EXTRA=%d",watch_extra);
+            rc=$value$plusargs("DRAIN_INSTRUCTIONS=%d",drain_instructions);
+            rc=$value$plusargs("FOLLOW_PC=%h",follow_pc);
             for(i=0;i<4096;i=i+1) mem[i]=0;
             $readmemh(program_path,mem);
             rc=$value$plusargs("DATA_COUNT=%d",memory_count);
@@ -220,7 +224,7 @@ module test;
     always @(posedge clk) begin
         if(rst) begin
             now<=0; seen<=0; start_clock<=0; measuring<=0;
-            paused<=0; case_done<=0; response_request_seen<=0;
+            paused<=0; case_done<=0; response_request_seen<=0; draining<=0;drain_left<=0;
         end
         else begin
             now<=now+1;
@@ -257,15 +261,22 @@ module test;
                     dut.u_cpu.u_core.step,dut.u_cpu.field_req,dut.u_cpu.field_ack,
                     dut.u_cpu.u_core.completed,dut.u_cpu.u_cache.state,
                     dut.word_req,dut.word_ack,cyc_req,cyc_ack);
+            if(measuring && !dut.u_cpu.field_req &&
+               (dut.u_cpu.field_word_req || dut.u_cpu.field_word_lock) && !dut.word_pending)
+                $fatal(1,"pending field lost while physical work remains");
             if(fault) $fatal(1,"CPU fault pc=%h ir=%h",pc,ir);
             if(dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
                 if(measuring || accepted_pc==test_pc || $test$plusargs("TRACE"))
                     $display("DECODE %0d %08h %04h",now,accepted_pc,accepted_ir);
+                if(measuring && follow_pc!=0 && accepted_pc==follow_pc)
+                    $display("FOLLOW clock=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",now,st,
+                        dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
+                        dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
                 if(accepted_pc==test_pc) begin
                     seen<=seen+1;
                     if(seen==measure_pass) begin start_clock<=now; measuring<=1; end
                 end
-                if(measuring && accepted_pc==next_pc) begin
+                if(measuring && !draining && accepted_pc==next_pc) begin
                     if(watch_extra!=0)
                         $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h b0=%08h b1=%08h b2=%08h b3=%08h sp=%08h",
                             case_id,now-start_clock,start_clock,now,paused,st,
@@ -279,8 +290,22 @@ module test;
                         case_id,now-start_clock,start_clock,now,paused,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
                         dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
-                    case_done<=1;
-                    measuring<=0;
+                    if(drain_instructions>0) begin draining<=1;drain_left<=drain_instructions;end
+                    else begin
+                        if(drain_instructions!=0)
+                            for(integer q=0;q<memory_count;q=q+1)
+                                $display("MEMORY %08h %04h",data_address[q],data_value[q]);
+                        case_done<=1;measuring<=0;
+                    end
+                end
+            end
+            if(draining && dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
+                drain_left<=drain_left-1;
+                if(drain_left==1) begin
+                    for(integer q=0;q<memory_count;q=q+1)
+                        $display("MEMORY %08h %04h",data_address[q],data_value[q]);
+                    $display("DRAIN %0d",now);
+                    case_done<=1;measuring<=0;draining<=0;
                 end
             end
             if(now==200000) $fatal(1,"timing timeout pc=%h ir=%h seen=%0d",pc,ir,seen);

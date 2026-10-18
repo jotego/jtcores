@@ -90,7 +90,7 @@ def main():
             print(row['name']+': PASS (held CPU, captured response, ordered bus and correct resume)')
         mutant=work/'lost-response-hdl';shutil.copytree(MODULE/'hdl',mutant)
         path=mutant/'jttms10.v';source=path.read_text()
-        site='if(!load_pending || bus_op) completed<=0;'
+        site='if(!(load_pending || store_pending) || bus_op) completed<=0;'
         if source.count(site)!=1:raise RuntimeError('response-retention mutation site changed')
         path.write_text(source.replace(site,'completed<=0;'))
         row=run_case(probes[0],'lost_response',mutant);row.update(kind='mutation',mutation='lost_early_response',expected_rejection=True);rows.append(row)

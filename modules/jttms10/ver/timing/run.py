@@ -22,6 +22,7 @@ from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
 from load_mode_cases import load_mode_cases
+from store_cases import store_cases, transactions as store_transactions
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -97,6 +98,7 @@ def cases():
     yield from immediate_cases()
     yield from load_cases()
     yield from load_mode_cases()
+    yield from store_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -124,7 +126,7 @@ def program(case):
     next_pc = 0x1000 + 16 * len(words)
     if 'pc_result_register' in case:
         case['expected_regs'][case['pc_result_register']] = next_pc
-    words += [0x0300] * 12
+    words += case.get('following_words',[0x0300] * case.get('tail_instructions',12))
     branch_pc = 0x1000 + 16 * len(words)
     displacement = (loop - (branch_pc + 16)) // 16
     assert -127 <= displacement < 0
@@ -179,6 +181,18 @@ def simulate(command, work, timeout):
 
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
+    if 'data_store' in case:
+        count=(len(store_transactions(case))+1) if case['cache_disabled'] else 0
+        alignment=(-pause_clocks)%8 if count else 0
+        clocks=case['states']*8+count*wait_states*8+pause_clocks+alignment
+        if observed['clocks']!=clocks:errors.append(f"{case['name']}: expected {clocks} INCLK, observed {observed['clocks']} INCLK")
+        if observed['paused']!=pause_clocks:errors.append('CPU pause count mismatch')
+        for reg,value in enumerate(case['expected_regs']):
+            if observed[f'a{reg}']!=value:errors.append(f'A{reg} result mismatch')
+        for name,value in case['expected_extra_regs'].items():
+            if observed.get(name)!=value:errors.append(name.upper()+' result mismatch')
+        if observed['st']!=case['expected_st']:errors.append('ST result mismatch')
+        return errors
     load=case.get('data_load')
     data_words=(((load['address']&15)+load['width']+15)//16) if load else 0
     words=data_words+(4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled']))
@@ -251,6 +265,7 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     errors = []
     begin = [line.split() for line in lines if line.startswith('BUS_BEGIN ')]
     end = [line.split() for line in lines if line.startswith('BUS_END ')]
+    if 'data_store' in case:return check_store_bus(case,observed,lines,wait_states,pause_clocks)
     plan=reads(case,wait_states)
     if len(begin) != len(plan) or len(end) != len(plan):
         errors.append(f"expected {len(plan)} physical instruction reads, observed {len(begin)} starts/{len(end)} ACKs")
@@ -274,6 +289,7 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
 
 def check_target(case,observed,lines,wait_states,pause_clocks=0):
     """Check actual transport requests/ACKs separately from logical states."""
+    if 'data_store' in case:return check_store_bus(case,observed,lines,wait_states,pause_clocks,raw=True)
     plan=reads(case,wait_states)
     begin=[line.split() for line in lines if line.startswith('TARGET_BEGIN ')]
     end=[line.split() for line in lines if line.startswith('TARGET_END ')]
@@ -291,6 +307,39 @@ def check_target(case,observed,lines,wait_states,pause_clocks=0):
         duration=int(e[1])-int(b[1])
         if duration!=4+8*wait_states:
             errors.append(f'target ACK: expected {4+8*wait_states} INCLK, observed {duration}')
+    return errors
+
+
+def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
+    prefix='TARGET' if raw else 'BUS'
+    begin=[x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
+    end=[x.split() for x in lines if x.startswith(prefix+'_END ')]
+    spec=case['data_store'];plan=store_transactions(case)
+    lead=spec['cpu']-1
+    starts=[lead+i*(2+wait_states) for i in range(len(plan))]
+    if case['cache_disabled']:
+        starts.append(lead+len(plan)*(2+wait_states))
+        plan=plan+[(0,case['next_pc'],0x0300,1)]
+    if 'follow_delay' in case:
+        start=max(spec['cpu']+case['follow_delay'],lead+len(plan)*(2+wait_states))
+        image=dict(case['expected_memory']);address=spec['address']
+        count=((address&15)+spec['width']+15)//16
+        for q in range(count):
+            word=((address&~15)+16*q)&MASK32
+            starts.append(start+q*(2+wait_states));plan.append((0,word,image[word],0))
+    errors=[]
+    if len(begin)!=len(plan) or len(end)!=len(plan):
+        return [f'expected {len(plan)} {prefix} store/fetch transfers, observed {len(begin)} starts/{len(end)} completions']
+    for offset,(kind,addr,data,iaq),b,e in zip(starts,plan,begin,end):
+        start=observed['start']+8*offset+pause_clocks+(-pause_clocks)%8
+        clock=int(b[1]);duration=int(e[1])-clock
+        if (not raw and clock!=start) or (raw and not start<=clock<=start+6):
+            errors.append(f'{prefix} transfer start: expected {start}'+('..'+str(start+6) if raw else '')+f', observed {clock}')
+        if (int(b[2]),int(b[3],16),int(b[5]))!=(kind,addr,iaq):errors.append(f'{prefix} request kind/address/IAQ mismatch: {b}')
+        if kind and int(b[4],16)!=data:errors.append(f'{prefix} write data mismatch')
+        if e[2:4]!=b[2:4] or (not kind and int(e[4],16)!=data):errors.append(f'{prefix} read response mismatch')
+        expected=(4 if raw else 16)+8*wait_states
+        if duration!=expected:errors.append(f'{prefix} transfer duration: expected {expected}, observed {duration}')
     return errors
 
 
@@ -330,7 +379,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -366,6 +415,7 @@ def main():
         for identifier, case in enumerate(selected):
             words, test_pc, next_pc = program(case)
             case = dict(case, test_pc=test_pc, next_pc=next_pc)
+            if 'follow_delay' in case:case['follow_pc']=next_pc+16*(case['follow_delay']+1)
             prepared.append((identifier, case, words))
         base_command = [*executable, f'+WAIT={8 * args.wait_states}', f'+PAUSE_AFTER={args.pause_after_clocks}',
                         f'+PAUSE={args.pause_clocks}', *(['+TRACE'] if args.trace_core else [])]
@@ -379,11 +429,11 @@ def main():
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
                     f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs")))}',
-                    f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
+                    f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions',0)}", f"+FOLLOW_PC={case.get('follow_pc',0):x}", f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs')))} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs')))} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
@@ -420,12 +470,29 @@ def main():
             # Keep measured bus traffic with the verdict, including expected
             # zero-traffic warm hits. Full launch trace is available separately.
             row['bus_trace'] = [line for line in log.splitlines() if line.startswith('BUS_') and
-                                (observed is None or observed['start'] <= int(line.split()[1]) <= observed['end'])]
+                                (observed is None or observed['start'] <= int(line.split()[1]) and ('data_store' in case or int(line.split()[1]) <= observed['end']))]
             row['target_trace'] = [line for line in log.splitlines() if line.startswith('TARGET_') and
-                                (observed is None or observed['start'] <= int(line.split()[1]) <= observed['end'])]
+                                (observed is None or observed['start'] <= int(line.split()[1]) and ('data_store' in case or int(line.split()[1]) <= observed['end']))]
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
                 errors.extend(check_target(case,observed,row['target_trace'],args.wait_states,args.pause_clocks))
+            if 'data_store' in case:
+                memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
+                row['observed_memory']=memory
+                if 'follow_delay' in case:
+                    follow=[x for x in log.splitlines() if x.startswith('FOLLOW ')]
+                    if len(follow)!=1:errors.append('expected exactly one following-load observation')
+                    else:
+                        values=dict(x.split('=') for x in follow[0].split()[1:])
+                        actual={n:int(v,10 if n=='clock' else 16) for n,v in values.items()};row['observed_follow']=actual
+                        spec=case['data_store'];count=len(store_transactions(case));reads_count=((spec['address']&15)+spec['width']+15)//16
+                        begin=max(spec['cpu']+case['follow_delay'],spec['cpu']-1+count*(2+args.wait_states))*8+args.pause_clocks+(-args.pause_clocks)%8
+                        expected=begin+reads_count*(16+8*args.wait_states)+8
+                        if actual['clock']-observed['start']!=expected:errors.append(f'following dependent load: expected {expected} INCLK, observed {actual["clock"]-observed["start"]}')
+                        for q,value in enumerate(case['expected_follow_regs']):
+                            if actual[f'a{q}']!=value:errors.append(f'following load A{q} mismatch')
+                        if actual['st']!=case['expected_follow_st']:errors.append('following load ST mismatch')
+                if sorted(memory)!=sorted(case['expected_memory']):errors.append('memory after write drain differs from expected preserved field')
             rows.append(row)
             print(f"{case['name']}: {'FAIL' if errors else 'PASS'} ({case['citation']})")
             if errors:

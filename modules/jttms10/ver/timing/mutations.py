@@ -32,10 +32,10 @@ def run_case(work, name, case, extra=(), mutated=False, event_error=None):
     if event_error is not None:
         if result.returncode!=1 or not row['errors'] or event_error not in result.stdout+result.stderr:
             raise RuntimeError(f'{name}: expected event contract was not rejected\n{result.stdout}{result.stderr}')
-        print(f'{name}: PASS (sequencer pause event violation rejected)')
+        print(f'{name}: PASS (event contract violation rejected)')
         return data
     if observed is None or observed['st'] != row['expected_st'] or any(
-            observed[f'a{q}'] != value for q,value in enumerate(row['expected_regs'])):
+            observed[f'a{q}'] != value for q,value in enumerate(row['expected_regs'])) or any(observed.get(n)!=v for n,v in row.get('expected_extra_regs',{}).items()) or ('expected_memory' in row and sorted(row.get('observed_memory',[]))!=sorted(row['expected_memory'])):
         raise RuntimeError(f'{name}: functional failure is not a timing-only mutation\n{result.stdout}{result.stderr}')
     expected_exit = int(mutated)
     if result.returncode != expected_exit or bool(row['errors']) != mutated:
@@ -172,7 +172,7 @@ def main():
 
         iaq = work / 'wrong-extension-iaq-hdl'
         shutil.copytree(MODULE / 'hdl',iaq)
-        replace_once(iaq / 'jttms10.v','assign mem_iaq = fetch && !early_load;','assign mem_iaq = (fetch || imm) && !early_load;')
+        replace_once(iaq / 'jttms10.v','assign mem_iaq = fetch && !early_load && !early_store;','assign mem_iaq = (fetch || imm) && !early_load && !early_store;')
         evidence['wrong_extension_iaq']=run_case(work,'wrong_extension_iaq',immediate_off,
                                               ['--rtl-dir',str(iaq)],mutated=True)
 
@@ -196,22 +196,28 @@ def main():
 
         pause=work / 'load-absorbs-substate-pause-hdl'
         shutil.copytree(MODULE / 'hdl',pause)
-        replace_once(pause / 'jttms10_word.v','!field_we && !field_pixel && (slot_eligible || slot_phase==0);',
-                     '!field_we && !field_pixel;')
+        replace_once(pause / 'jttms10_word.v','early_data_q && data_owner && (slot_eligible || slot_phase==0);',
+                     'early_data_q && data_owner;')
         evidence['load_absorbs_substate_pause']=run_case(work,'load_absorbs_substate_pause',load_pause,
             ['--rtl-dir',str(pause),'--wait-states','1','--pause-clocks','1'],mutated=True)
 
         cached_data=work / 'incorrectly-cached-data-hdl'
         shutil.copytree(MODULE / 'hdl',cached_data)
-        replace_once(cached_data / 'jttms10_word.v','c_program(program_read || program_q)',
-                     'c_program(program_read || program_q || !field_we)')
+        path=cached_data/'jttms10_word.v'
+        replace_once(path,'.c_req(field_req && program_read)', '.c_req((field_req && program_read) || (data_owner && field_word_req && !field_word_we))')
+        replace_once(path,'.c_addr(field_addr)', '.c_addr(program_read ? field_addr : field_word_addr)')
+        replace_once(path,'word_req=data_owner ? field_word_req && !data_word_ack : cache_word_req', 'word_req=data_owner && field_word_we ? field_word_req && !data_word_ack : cache_word_req')
+        replace_once(path,'word_addr=data_owner ? field_word_addr : cache_word_addr', 'word_addr=data_owner && field_word_we ? field_word_addr : cache_word_addr')
+        replace_once(path,'cache_word_ack=word_ack && !data_owner', 'cache_word_ack=word_ack && (!data_owner || !field_word_we)')
+        replace_once(path,'data_word_ack<=word_ack && data_owner;', 'data_word_ack<=data_owner && !field_word_we ? cache_ack : word_ack && data_owner;')
+        replace_once(path,'if(word_ack && data_owner) data_word_rdata<=word_rdata;', 'if(data_owner && !field_word_we) data_word_rdata<=cache_rdata; else if(word_ack && data_owner) data_word_rdata<=word_rdata;')
         evidence['incorrectly_cached_data_reads']=run_case(work,'incorrectly_cached_data_reads',load_data,
                                                          ['--rtl-dir',str(cached_data)],mutated=True)
 
         pre_mode=work / 'wrong-pre-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',pre_mode)
-        replace_once(pre_mode/'jttms10.v','decode_load_pre ? LOAD_PRE : decode_load_extension ?',
-                     'decode_load_pre ? LOAD_LEAD : decode_load_extension ?')
+        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre ? LOAD_PRE : decode_load_extension ?',
+                     'decode_load_pre || decode_store_pre ? LOAD_LEAD : decode_load_extension ?')
         evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
             ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
 
@@ -233,6 +239,17 @@ def main():
         replace_once(second_word/'jttms10.v',"load_issue_left>LOAD_NEXT_LIMIT","1'b0")
         evidence['early_second_address_word']=run_case(work,'early_second_address_word',second_word_case,
             ['--rtl-dir',str(second_word),'--wait-states','1','--pause-clocks','1'],mutated=True)
+
+        store_case='store_move_indirect_w32_o15_f0_r0_2_0_q1054_hit'
+        evidence['store_control']=run_case(work,'store_control',store_case)
+        for name,old,new in (
+            ('blocking_store',"if(field_post) begin post_busy<=1;post_ack<=1;end", "if(1'b0) begin post_busy<=1;post_ack<=1;end"),
+            ('no_cached_write_overlap','.c_req(field_req && program_read)', '.c_req(field_req && program_read && !data_owner)'),
+            ('lost_hidden_pending','assign word_pending=field_req || data_owner;', 'assign word_pending=field_req;')):
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/'jttms10_word.v',old,new)
+            evidence[name]=run_case(work,name,store_case,['--rtl-dir',str(mutant)],mutated=True,
+                event_error='pending field lost while physical work remains' if name=='lost_hidden_pending' else None)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

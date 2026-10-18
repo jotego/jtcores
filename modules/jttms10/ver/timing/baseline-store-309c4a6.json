@@ -1,0 +1,2439 @@
+{
+  "source_commit": "309c4a68c",
+  "note": "Historical initial3344storecase capture before70dependency probes; never an oracle or allowlist.",
+  "total": 3344,
+  "failed": 3344,
+  "architectural_or_memory_failures": 0,
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "c9d36f9484b633efd837611f2795445bf220bc98a74e0dcf750b643f01aff4f1",
+    "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+    "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+    "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+    "hdl/jttms10_field.v": "d33e2973e0a852586700781c9d027fabe54e746b91c1573e133e5169a0235ff2",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "48b753ef8dc98e8bf8e3a8d7b64e55e97cb71ccd6c7dd0fee5d69f82dbe017aa",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "30ee92094fcab9a0a0374060c9a8c28f4f6d7ab72b7e4f61782d0fb17d4da7c2",
+    "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "759e9460cda513bd1932aa88435dc78b4c81d042025d73ba18a38007b741d9d8",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "c9d36f9484b633efd837611f2795445bf220bc98a74e0dcf750b643f01aff4f1",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+      "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+      "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+      "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+      "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+      "hdl/jttms10_field.v": "d33e2973e0a852586700781c9d027fabe54e746b91c1573e133e5169a0235ff2",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "48b753ef8dc98e8bf8e3a8d7b64e55e97cb71ccd6c7dd0fee5d69f82dbe017aa",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "30ee92094fcab9a0a0374060c9a8c28f4f6d7ab72b7e4f61782d0fb17d4da7c2",
+      "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "759e9460cda513bd1932aa88435dc78b4c81d042025d73ba18a38007b741d9d8",
+      "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+      "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+      "ver/timing/run.py": "9f1d62ad79739d2cd35302415ddc9ce938c7683b3736d6a244448698386e2969",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+      "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+      "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+      "ver/timing/load_mode_cases.py": "c3fb7ab8150d4c6aaa7f9fd3afd51b93ba65a0df424bdc9fbdafa2816e46071f",
+      "ver/timing/store_cases.py": "2f5004b99c3cf27775a8833aba13888f8bbf099df2904fb1428447c2dcd7243b",
+      "ver/timing/test.sv": "370a7cf28bf35d05300e1192049f1a4692978b8303c19fb3ba6ce7d7796fcaf9"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "eba5d1ccbc7f7b63f5a5ecc8b720865acab85b876c3811493547301e402cf803",
+      "tms10.vh": "f109092de14593a17028369c3548ad45b98610fe6d38eac744857e74283af0ad",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "dbd6b6939a74c8705bce7d64c4cf82fa10be1aa18a9d6d09af7212422e961bed"
+    }
+  },
+  "representatives": [
+    {
+      "name": "store_move_indirect_w16_o0_f0_r1_2_0_q512_hit",
+      "opcode": 32848,
+      "coverage_id": "MOVE_R_IND",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24576,
+        "1": 2970755892,
+        "2": 3782253421,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-127",
+      "conditions": {
+        "mode": "indirect",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 1,
+      "states": 1,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 480,
+        "clocks": 40,
+        "start": 2656,
+        "end": 2696,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_indirect_w16_o0_f0_r1_2_0_q512_hit: expected 8 INCLK, observed 40 INCLK",
+        "BUS transfer start: expected 2656, observed 2672",
+        "TARGET transfer start: expected 2656..2662, observed 2672"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2672 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2672",
+        "BUS_END 2688 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2672 1 00006000 9b6d 0",
+        "TARGET_END 2676 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_indirect_w18_o15_f0_r0_2_0_q606_hit",
+      "opcode": 32832,
+      "coverage_id": "MOVE_R_IND",
+      "regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3758098450,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 18,
+        "value": 4294967295,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-127",
+      "conditions": {
+        "mode": "indirect",
+        "width": 18,
+        "offset": 15,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 9,
+      "states": 1,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 574,
+        "clocks": 104,
+        "start": 2720,
+        "end": 2824,
+        "paused": 0,
+        "st": 3758098450,
+        "a0": 24591,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098450,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_indirect_w18_o15_f0_r0_2_0_q606_hit: expected 8 INCLK, observed 104 INCLK",
+        "BUS transfer start: expected 2720, observed 2736",
+        "BUS transfer start: expected 2736, observed 2752",
+        "BUS transfer start: expected 2752, observed 2768",
+        "BUS transfer start: expected 2768, observed 2784",
+        "BUS transfer start: expected 2784, observed 2800",
+        "TARGET transfer start: expected 2720..2726, observed 2736",
+        "TARGET transfer start: expected 2736..2742, observed 2756",
+        "TARGET transfer start: expected 2752..2758, observed 2773",
+        "TARGET transfer start: expected 2768..2774, observed 2789",
+        "TARGET transfer start: expected 2784..2790, observed 2804"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2736 0 00006000 8000 0",
+        "BUS_ACCEPT 2736",
+        "BUS_END 2752 0 00006000 9b6d",
+        "BUS_BEGIN 2752 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2756",
+        "BUS_END 2768 1 00006000 9b6d",
+        "BUS_BEGIN 2768 1 00006010 ffff 0",
+        "BUS_ACCEPT 2773",
+        "BUS_END 2784 1 00006010 ffff",
+        "BUS_BEGIN 2784 0 00006020 7fff 0",
+        "BUS_ACCEPT 2789",
+        "BUS_END 2800 0 00006020 35c7",
+        "BUS_BEGIN 2800 1 00006020 35c7 0",
+        "BUS_ACCEPT 2804",
+        "BUS_END 2816 1 00006020 35c7"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2736 0 00006000 8000 0",
+        "TARGET_END 2740 0 00006000 9b6d",
+        "TARGET_BEGIN 2756 1 00006000 9b6d 0",
+        "TARGET_END 2760 1 00006000 9b6d",
+        "TARGET_BEGIN 2773 1 00006010 ffff 0",
+        "TARGET_END 2777 1 00006010 ffff",
+        "TARGET_BEGIN 2789 0 00006020 7fff 0",
+        "TARGET_END 2793 0 00006020 35c7",
+        "TARGET_BEGIN 2804 1 00006020 35c7 0",
+        "TARGET_END 2808 1 00006020 35c7"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ]
+    },
+    {
+      "name": "store_move_post_w16_o0_f0_r1_2_0_q512_hit",
+      "opcode": 36944,
+      "coverage_id": "MOVE_R_POST",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24576,
+        "1": 2970755892,
+        "2": 3782253421,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24592,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "post",
+        "cpu": 1
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-128/129",
+      "conditions": {
+        "mode": "post",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 1,
+      "states": 1,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1144,
+        "clocks": 42,
+        "start": 2664,
+        "end": 2706,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24592,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_post_w16_o0_f0_r1_2_0_q512_hit: expected 8 INCLK, observed 42 INCLK",
+        "BUS transfer start: expected 2664, observed 2680",
+        "TARGET transfer start: expected 2664..2670, observed 2680"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2680 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2680",
+        "BUS_END 2696 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2680 1 00006000 9b6d 0",
+        "TARGET_END 2684 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_post_w18_o15_f0_r0_2_0_q606_hit",
+      "opcode": 36928,
+      "coverage_id": "MOVE_R_POST",
+      "regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24609,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3758098450,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 18,
+        "value": 4294967295,
+        "mode": "post",
+        "cpu": 1
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-128/129",
+      "conditions": {
+        "mode": "post",
+        "width": 18,
+        "offset": 15,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 9,
+      "states": 1,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1166,
+        "clocks": 106,
+        "start": 2728,
+        "end": 2834,
+        "paused": 0,
+        "st": 3758098450,
+        "a0": 24609,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098450,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_post_w18_o15_f0_r0_2_0_q606_hit: expected 8 INCLK, observed 106 INCLK",
+        "BUS transfer start: expected 2728, observed 2744",
+        "BUS transfer start: expected 2744, observed 2760",
+        "BUS transfer start: expected 2760, observed 2776",
+        "BUS transfer start: expected 2776, observed 2792",
+        "BUS transfer start: expected 2792, observed 2808",
+        "TARGET transfer start: expected 2728..2734, observed 2744",
+        "TARGET transfer start: expected 2744..2750, observed 2764",
+        "TARGET transfer start: expected 2760..2766, observed 2781",
+        "TARGET transfer start: expected 2776..2782, observed 2797",
+        "TARGET transfer start: expected 2792..2798, observed 2812"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2744 0 00006000 8000 0",
+        "BUS_ACCEPT 2744",
+        "BUS_END 2760 0 00006000 9b6d",
+        "BUS_BEGIN 2760 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2764",
+        "BUS_END 2776 1 00006000 9b6d",
+        "BUS_BEGIN 2776 1 00006010 ffff 0",
+        "BUS_ACCEPT 2781",
+        "BUS_END 2792 1 00006010 ffff",
+        "BUS_BEGIN 2792 0 00006020 7fff 0",
+        "BUS_ACCEPT 2797",
+        "BUS_END 2808 0 00006020 35c7",
+        "BUS_BEGIN 2808 1 00006020 35c7 0",
+        "BUS_ACCEPT 2812",
+        "BUS_END 2824 1 00006020 35c7"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2744 0 00006000 8000 0",
+        "TARGET_END 2748 0 00006000 9b6d",
+        "TARGET_BEGIN 2764 1 00006000 9b6d 0",
+        "TARGET_END 2768 1 00006000 9b6d",
+        "TARGET_BEGIN 2781 1 00006010 ffff 0",
+        "TARGET_END 2785 1 00006010 ffff",
+        "TARGET_BEGIN 2797 0 00006020 7fff 0",
+        "TARGET_END 2801 0 00006020 35c7",
+        "TARGET_BEGIN 2812 1 00006020 35c7 0",
+        "TARGET_END 2816 1 00006020 35c7"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ]
+    },
+    {
+      "name": "store_move_pre_w16_o0_f0_r1_2_0_q512_hit",
+      "opcode": 41040,
+      "coverage_id": "MOVE_R_PRE",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24592,
+        "1": 2970755892,
+        "2": 3782253421,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "pre",
+        "cpu": 2
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-130/131",
+      "conditions": {
+        "mode": "pre",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 1,
+      "states": 2,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1400,
+        "clocks": 40,
+        "start": 2656,
+        "end": 2696,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_pre_w16_o0_f0_r1_2_0_q512_hit: expected 16 INCLK, observed 40 INCLK",
+        "BUS transfer start: expected 2664, observed 2672",
+        "TARGET transfer start: expected 2664..2670, observed 2672"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2672 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2672",
+        "BUS_END 2688 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2672 1 00006000 9b6d 0",
+        "TARGET_END 2676 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_pre_w18_o15_f0_r0_2_0_q606_hit",
+      "opcode": 41024,
+      "coverage_id": "MOVE_R_PRE",
+      "regs": [
+        24609,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3758098450,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 18,
+        "value": 4294967295,
+        "mode": "pre",
+        "cpu": 2
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-130/131",
+      "conditions": {
+        "mode": "pre",
+        "width": 18,
+        "offset": 15,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 9,
+      "states": 2,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1422,
+        "clocks": 104,
+        "start": 2720,
+        "end": 2824,
+        "paused": 0,
+        "st": 3758098450,
+        "a0": 24591,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098450,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_pre_w18_o15_f0_r0_2_0_q606_hit: expected 16 INCLK, observed 104 INCLK",
+        "BUS transfer start: expected 2728, observed 2736",
+        "BUS transfer start: expected 2744, observed 2752",
+        "BUS transfer start: expected 2760, observed 2768",
+        "BUS transfer start: expected 2776, observed 2784",
+        "BUS transfer start: expected 2792, observed 2800",
+        "TARGET transfer start: expected 2728..2734, observed 2736",
+        "TARGET transfer start: expected 2744..2750, observed 2756",
+        "TARGET transfer start: expected 2760..2766, observed 2773",
+        "TARGET transfer start: expected 2776..2782, observed 2789",
+        "TARGET transfer start: expected 2792..2798, observed 2804"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2736 0 00006000 8000 0",
+        "BUS_ACCEPT 2736",
+        "BUS_END 2752 0 00006000 9b6d",
+        "BUS_BEGIN 2752 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2756",
+        "BUS_END 2768 1 00006000 9b6d",
+        "BUS_BEGIN 2768 1 00006010 ffff 0",
+        "BUS_ACCEPT 2773",
+        "BUS_END 2784 1 00006010 ffff",
+        "BUS_BEGIN 2784 0 00006020 7fff 0",
+        "BUS_ACCEPT 2789",
+        "BUS_END 2800 0 00006020 35c7",
+        "BUS_BEGIN 2800 1 00006020 35c7 0",
+        "BUS_ACCEPT 2804",
+        "BUS_END 2816 1 00006020 35c7"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2736 0 00006000 8000 0",
+        "TARGET_END 2740 0 00006000 9b6d",
+        "TARGET_BEGIN 2756 1 00006000 9b6d 0",
+        "TARGET_END 2760 1 00006000 9b6d",
+        "TARGET_BEGIN 2773 1 00006010 ffff 0",
+        "TARGET_END 2777 1 00006010 ffff",
+        "TARGET_BEGIN 2789 0 00006020 7fff 0",
+        "TARGET_END 2793 0 00006020 35c7",
+        "TARGET_BEGIN 2804 1 00006020 35c7 0",
+        "TARGET_END 2808 1 00006020 35c7"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ]
+    },
+    {
+      "name": "store_movb_indirect_w8_o0_f0_r0_2_0_q0_hit",
+      "opcode": 35904,
+      "coverage_id": "MOVB_R_IND",
+      "regs": [
+        24576,
+        1432778632,
+        0,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24576,
+        1432778632,
+        0,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 0,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-115",
+      "conditions": {
+        "mode": "indirect",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 3,
+      "states": 1,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1536,
+        "clocks": 56,
+        "start": 2672,
+        "end": 2728,
+        "paused": 0,
+        "st": 1,
+        "a0": 24576,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_movb_indirect_w8_o0_f0_r0_2_0_q0_hit: expected 8 INCLK, observed 56 INCLK",
+        "BUS transfer start: expected 2672, observed 2688",
+        "BUS transfer start: expected 2688, observed 2704",
+        "TARGET transfer start: expected 2672..2678, observed 2688",
+        "TARGET transfer start: expected 2688..2694, observed 2708"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2688 0 00006000 0000 0",
+        "BUS_ACCEPT 2688",
+        "BUS_END 2704 0 00006000 9b00",
+        "BUS_BEGIN 2704 1 00006000 9b00 0",
+        "BUS_ACCEPT 2708",
+        "BUS_END 2720 1 00006000 9b00"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2688 0 00006000 0000 0",
+        "TARGET_END 2692 0 00006000 9b00",
+        "TARGET_BEGIN 2708 1 00006000 9b00 0",
+        "TARGET_END 2712 1 00006000 9b00"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_movb_indirect_w8_o9_f0_r0_2_0_q36_hit",
+      "opcode": 35904,
+      "coverage_id": "MOVB_R_IND",
+      "regs": [
+        24585,
+        1432778632,
+        4294967295,
+        1073741825
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24585,
+        1432778632,
+        4294967295,
+        1073741825
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1073741825,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24585,
+        "width": 8,
+        "value": 4294967295,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-115",
+      "conditions": {
+        "mode": "indirect",
+        "width": 8,
+        "offset": 9,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 7,
+      "states": 1,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1572,
+        "clocks": 88,
+        "start": 2704,
+        "end": 2792,
+        "paused": 0,
+        "st": 1073741825,
+        "a0": 24585,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 1073741825,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_movb_indirect_w8_o9_f0_r0_2_0_q36_hit: expected 8 INCLK, observed 88 INCLK",
+        "BUS transfer start: expected 2704, observed 2720",
+        "BUS transfer start: expected 2720, observed 2736",
+        "BUS transfer start: expected 2736, observed 2752",
+        "BUS transfer start: expected 2752, observed 2768",
+        "TARGET transfer start: expected 2704..2710, observed 2720",
+        "TARGET transfer start: expected 2720..2726, observed 2740",
+        "TARGET transfer start: expected 2736..2742, observed 2757",
+        "TARGET transfer start: expected 2752..2758, observed 2772"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2720 0 00006000 fe00 0",
+        "BUS_ACCEPT 2720",
+        "BUS_END 2736 0 00006000 ff6d",
+        "BUS_BEGIN 2736 1 00006000 ff6d 0",
+        "BUS_ACCEPT 2740",
+        "BUS_END 2752 1 00006000 ff6d",
+        "BUS_BEGIN 2752 0 00006010 ffff 0",
+        "BUS_ACCEPT 2757",
+        "BUS_END 2768 0 00006010 a597",
+        "BUS_BEGIN 2768 1 00006010 a597 0",
+        "BUS_ACCEPT 2772",
+        "BUS_END 2784 1 00006010 a597"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2720 0 00006000 fe00 0",
+        "TARGET_END 2724 0 00006000 ff6d",
+        "TARGET_BEGIN 2740 1 00006000 ff6d 0",
+        "TARGET_END 2744 1 00006000 ff6d",
+        "TARGET_BEGIN 2757 0 00006010 ffff 0",
+        "TARGET_END 2761 0 00006010 a597",
+        "TARGET_BEGIN 2772 1 00006010 a597 0",
+        "TARGET_END 2776 1 00006010 a597"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_indirect_w16_o0_f0_r1_2_0_q512_off",
+      "opcode": 32848,
+      "coverage_id": "MOVE_R_IND",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24576,
+        "1": 2970755892,
+        "2": 3782253421,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-127",
+      "conditions": {
+        "mode": "indirect",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 1,
+      "states": 5,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2152,
+        "clocks": 64,
+        "start": 4048,
+        "end": 4112,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_indirect_w16_o0_f0_r1_2_0_q512_off: expected 40 INCLK, observed 64 INCLK",
+        "BUS transfer start: expected 4048, observed 4064",
+        "BUS transfer start: expected 4064, observed 4088",
+        "TARGET transfer start: expected 4048..4054, observed 4064",
+        "TARGET transfer start: expected 4064..4070, observed 4088"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4064 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4064",
+        "BUS_END 4080 1 00006000 9b6d",
+        "BUS_BEGIN 4088 0 00001310 0000 1",
+        "BUS_ACCEPT 4088",
+        "BUS_END 4104 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4064 1 00006000 9b6d 0",
+        "TARGET_END 4068 1 00006000 9b6d",
+        "TARGET_BEGIN 4088 0 00001310 0000 1",
+        "TARGET_END 4092 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_indirect_w18_o15_f0_r0_2_0_q606_off",
+      "opcode": 32832,
+      "coverage_id": "MOVE_R_IND",
+      "regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3758098450,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 18,
+        "value": 4294967295,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-127",
+      "conditions": {
+        "mode": "indirect",
+        "width": 18,
+        "offset": 15,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 9,
+      "states": 13,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2246,
+        "clocks": 128,
+        "start": 4112,
+        "end": 4240,
+        "paused": 0,
+        "st": 3758098450,
+        "a0": 24591,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098450,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_indirect_w18_o15_f0_r0_2_0_q606_off: expected 104 INCLK, observed 128 INCLK",
+        "BUS transfer start: expected 4112, observed 4128",
+        "BUS transfer start: expected 4128, observed 4144",
+        "BUS transfer start: expected 4144, observed 4160",
+        "BUS transfer start: expected 4160, observed 4176",
+        "BUS transfer start: expected 4176, observed 4192",
+        "BUS transfer start: expected 4192, observed 4216",
+        "TARGET transfer start: expected 4112..4118, observed 4128",
+        "TARGET transfer start: expected 4128..4134, observed 4148",
+        "TARGET transfer start: expected 4144..4150, observed 4165",
+        "TARGET transfer start: expected 4160..4166, observed 4181",
+        "TARGET transfer start: expected 4176..4182, observed 4196",
+        "TARGET transfer start: expected 4192..4198, observed 4216"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4128 0 00006000 8000 0",
+        "BUS_ACCEPT 4128",
+        "BUS_END 4144 0 00006000 9b6d",
+        "BUS_BEGIN 4144 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4148",
+        "BUS_END 4160 1 00006000 9b6d",
+        "BUS_BEGIN 4160 1 00006010 ffff 0",
+        "BUS_ACCEPT 4165",
+        "BUS_END 4176 1 00006010 ffff",
+        "BUS_BEGIN 4176 0 00006020 7fff 0",
+        "BUS_ACCEPT 4181",
+        "BUS_END 4192 0 00006020 35c7",
+        "BUS_BEGIN 4192 1 00006020 35c7 0",
+        "BUS_ACCEPT 4196",
+        "BUS_END 4208 1 00006020 35c7",
+        "BUS_BEGIN 4216 0 00001310 0000 1",
+        "BUS_ACCEPT 4216",
+        "BUS_END 4232 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4128 0 00006000 8000 0",
+        "TARGET_END 4132 0 00006000 9b6d",
+        "TARGET_BEGIN 4148 1 00006000 9b6d 0",
+        "TARGET_END 4152 1 00006000 9b6d",
+        "TARGET_BEGIN 4165 1 00006010 ffff 0",
+        "TARGET_END 4169 1 00006010 ffff",
+        "TARGET_BEGIN 4181 0 00006020 7fff 0",
+        "TARGET_END 4185 0 00006020 35c7",
+        "TARGET_BEGIN 4196 1 00006020 35c7 0",
+        "TARGET_END 4200 1 00006020 35c7",
+        "TARGET_BEGIN 4216 0 00001310 0000 1",
+        "TARGET_END 4220 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ]
+    },
+    {
+      "name": "store_move_post_w16_o0_f0_r1_2_0_q512_off",
+      "opcode": 36944,
+      "coverage_id": "MOVE_R_POST",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24576,
+        "1": 2970755892,
+        "2": 3782253421,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24592,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "post",
+        "cpu": 1
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-128/129",
+      "conditions": {
+        "mode": "post",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 1,
+      "states": 5,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2816,
+        "clocks": 72,
+        "start": 4056,
+        "end": 4128,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24592,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_post_w16_o0_f0_r1_2_0_q512_off: expected 40 INCLK, observed 72 INCLK",
+        "BUS transfer start: expected 4056, observed 4072",
+        "BUS transfer start: expected 4072, observed 4104",
+        "TARGET transfer start: expected 4056..4062, observed 4072",
+        "TARGET transfer start: expected 4072..4078, observed 4104"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4072 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4072",
+        "BUS_END 4088 1 00006000 9b6d",
+        "BUS_BEGIN 4104 0 00001310 0000 1",
+        "BUS_ACCEPT 4104",
+        "BUS_END 4120 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4072 1 00006000 9b6d 0",
+        "TARGET_END 4076 1 00006000 9b6d",
+        "TARGET_BEGIN 4104 0 00001310 0000 1",
+        "TARGET_END 4108 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_post_w18_o15_f0_r0_2_0_q606_off",
+      "opcode": 36928,
+      "coverage_id": "MOVE_R_POST",
+      "regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24609,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3758098450,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 18,
+        "value": 4294967295,
+        "mode": "post",
+        "cpu": 1
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-128/129",
+      "conditions": {
+        "mode": "post",
+        "width": 18,
+        "offset": 15,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 9,
+      "states": 13,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2838,
+        "clocks": 136,
+        "start": 4120,
+        "end": 4256,
+        "paused": 0,
+        "st": 3758098450,
+        "a0": 24609,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098450,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_post_w18_o15_f0_r0_2_0_q606_off: expected 104 INCLK, observed 136 INCLK",
+        "BUS transfer start: expected 4120, observed 4136",
+        "BUS transfer start: expected 4136, observed 4152",
+        "BUS transfer start: expected 4152, observed 4168",
+        "BUS transfer start: expected 4168, observed 4184",
+        "BUS transfer start: expected 4184, observed 4200",
+        "BUS transfer start: expected 4200, observed 4232",
+        "TARGET transfer start: expected 4120..4126, observed 4136",
+        "TARGET transfer start: expected 4136..4142, observed 4156",
+        "TARGET transfer start: expected 4152..4158, observed 4173",
+        "TARGET transfer start: expected 4168..4174, observed 4189",
+        "TARGET transfer start: expected 4184..4190, observed 4204",
+        "TARGET transfer start: expected 4200..4206, observed 4232"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4136 0 00006000 8000 0",
+        "BUS_ACCEPT 4136",
+        "BUS_END 4152 0 00006000 9b6d",
+        "BUS_BEGIN 4152 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4156",
+        "BUS_END 4168 1 00006000 9b6d",
+        "BUS_BEGIN 4168 1 00006010 ffff 0",
+        "BUS_ACCEPT 4173",
+        "BUS_END 4184 1 00006010 ffff",
+        "BUS_BEGIN 4184 0 00006020 7fff 0",
+        "BUS_ACCEPT 4189",
+        "BUS_END 4200 0 00006020 35c7",
+        "BUS_BEGIN 4200 1 00006020 35c7 0",
+        "BUS_ACCEPT 4204",
+        "BUS_END 4216 1 00006020 35c7",
+        "BUS_BEGIN 4232 0 00001310 0000 1",
+        "BUS_ACCEPT 4232",
+        "BUS_END 4248 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4136 0 00006000 8000 0",
+        "TARGET_END 4140 0 00006000 9b6d",
+        "TARGET_BEGIN 4156 1 00006000 9b6d 0",
+        "TARGET_END 4160 1 00006000 9b6d",
+        "TARGET_BEGIN 4173 1 00006010 ffff 0",
+        "TARGET_END 4177 1 00006010 ffff",
+        "TARGET_BEGIN 4189 0 00006020 7fff 0",
+        "TARGET_END 4193 0 00006020 35c7",
+        "TARGET_BEGIN 4204 1 00006020 35c7 0",
+        "TARGET_END 4208 1 00006020 35c7",
+        "TARGET_BEGIN 4232 0 00001310 0000 1",
+        "TARGET_END 4236 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ]
+    },
+    {
+      "name": "store_move_pre_w16_o0_f0_r1_2_0_q512_off",
+      "opcode": 41040,
+      "coverage_id": "MOVE_R_PRE",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24592,
+        "1": 2970755892,
+        "2": 3782253421,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "pre",
+        "cpu": 2
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-130/131",
+      "conditions": {
+        "mode": "pre",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 1,
+      "states": 6,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3072,
+        "clocks": 64,
+        "start": 4048,
+        "end": 4112,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 3782253421,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_pre_w16_o0_f0_r1_2_0_q512_off: expected 48 INCLK, observed 64 INCLK",
+        "BUS transfer start: expected 4056, observed 4064",
+        "BUS transfer start: expected 4072, observed 4088",
+        "TARGET transfer start: expected 4056..4062, observed 4064",
+        "TARGET transfer start: expected 4072..4078, observed 4088"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4064 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4064",
+        "BUS_END 4080 1 00006000 9b6d",
+        "BUS_BEGIN 4088 0 00001310 0000 1",
+        "BUS_ACCEPT 4088",
+        "BUS_END 4104 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4064 1 00006000 9b6d 0",
+        "TARGET_END 4068 1 00006000 9b6d",
+        "TARGET_BEGIN 4088 0 00001310 0000 1",
+        "TARGET_END 4092 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_move_pre_w18_o15_f0_r0_2_0_q606_off",
+      "opcode": 41024,
+      "coverage_id": "MOVE_R_PRE",
+      "regs": [
+        24609,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24591,
+        1432778632,
+        4294967295,
+        3758098450
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3758098450,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 18,
+        "value": 4294967295,
+        "mode": "pre",
+        "cpu": 2
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-130/131",
+      "conditions": {
+        "mode": "pre",
+        "width": 18,
+        "offset": 15,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 9,
+      "states": 14,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3094,
+        "clocks": 128,
+        "start": 4112,
+        "end": 4240,
+        "paused": 0,
+        "st": 3758098450,
+        "a0": 24591,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098450,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_move_pre_w18_o15_f0_r0_2_0_q606_off: expected 112 INCLK, observed 128 INCLK",
+        "BUS transfer start: expected 4120, observed 4128",
+        "BUS transfer start: expected 4136, observed 4144",
+        "BUS transfer start: expected 4152, observed 4160",
+        "BUS transfer start: expected 4168, observed 4176",
+        "BUS transfer start: expected 4184, observed 4192",
+        "BUS transfer start: expected 4200, observed 4216",
+        "TARGET transfer start: expected 4120..4126, observed 4128",
+        "TARGET transfer start: expected 4136..4142, observed 4148",
+        "TARGET transfer start: expected 4152..4158, observed 4165",
+        "TARGET transfer start: expected 4168..4174, observed 4181",
+        "TARGET transfer start: expected 4184..4190, observed 4196",
+        "TARGET transfer start: expected 4200..4206, observed 4216"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4128 0 00006000 8000 0",
+        "BUS_ACCEPT 4128",
+        "BUS_END 4144 0 00006000 9b6d",
+        "BUS_BEGIN 4144 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4148",
+        "BUS_END 4160 1 00006000 9b6d",
+        "BUS_BEGIN 4160 1 00006010 ffff 0",
+        "BUS_ACCEPT 4165",
+        "BUS_END 4176 1 00006010 ffff",
+        "BUS_BEGIN 4176 0 00006020 7fff 0",
+        "BUS_ACCEPT 4181",
+        "BUS_END 4192 0 00006020 35c7",
+        "BUS_BEGIN 4192 1 00006020 35c7 0",
+        "BUS_ACCEPT 4196",
+        "BUS_END 4208 1 00006020 35c7",
+        "BUS_BEGIN 4216 0 00001310 0000 1",
+        "BUS_ACCEPT 4216",
+        "BUS_END 4232 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4128 0 00006000 8000 0",
+        "TARGET_END 4132 0 00006000 9b6d",
+        "TARGET_BEGIN 4148 1 00006000 9b6d 0",
+        "TARGET_END 4152 1 00006000 9b6d",
+        "TARGET_BEGIN 4165 1 00006010 ffff 0",
+        "TARGET_END 4169 1 00006010 ffff",
+        "TARGET_BEGIN 4181 0 00006020 7fff 0",
+        "TARGET_END 4185 0 00006020 35c7",
+        "TARGET_BEGIN 4196 1 00006020 35c7 0",
+        "TARGET_END 4200 1 00006020 35c7",
+        "TARGET_BEGIN 4216 0 00001310 0000 1",
+        "TARGET_END 4220 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13767
+        ]
+      ]
+    },
+    {
+      "name": "store_movb_indirect_w8_o0_f0_r0_2_0_q0_off",
+      "opcode": 35904,
+      "coverage_id": "MOVB_R_IND",
+      "regs": [
+        24576,
+        1432778632,
+        0,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24576,
+        1432778632,
+        0,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 0,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-115",
+      "conditions": {
+        "mode": "indirect",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 3,
+      "states": 7,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3208,
+        "clocks": 80,
+        "start": 4064,
+        "end": 4144,
+        "paused": 0,
+        "st": 1,
+        "a0": 24576,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_movb_indirect_w8_o0_f0_r0_2_0_q0_off: expected 56 INCLK, observed 80 INCLK",
+        "BUS transfer start: expected 4064, observed 4080",
+        "BUS transfer start: expected 4080, observed 4096",
+        "BUS transfer start: expected 4096, observed 4120",
+        "TARGET transfer start: expected 4064..4070, observed 4080",
+        "TARGET transfer start: expected 4080..4086, observed 4100",
+        "TARGET transfer start: expected 4096..4102, observed 4120"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4080 0 00006000 0000 0",
+        "BUS_ACCEPT 4080",
+        "BUS_END 4096 0 00006000 9b00",
+        "BUS_BEGIN 4096 1 00006000 9b00 0",
+        "BUS_ACCEPT 4100",
+        "BUS_END 4112 1 00006000 9b00",
+        "BUS_BEGIN 4120 0 00001310 0000 1",
+        "BUS_ACCEPT 4120",
+        "BUS_END 4136 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4080 0 00006000 0000 0",
+        "TARGET_END 4084 0 00006000 9b00",
+        "TARGET_BEGIN 4100 1 00006000 9b00 0",
+        "TARGET_END 4104 1 00006000 9b00",
+        "TARGET_BEGIN 4120 0 00001310 0000 1",
+        "TARGET_END 4124 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "store_movb_indirect_w8_o9_f0_r0_2_0_q36_off",
+      "opcode": 35904,
+      "coverage_id": "MOVB_R_IND",
+      "regs": [
+        24585,
+        1432778632,
+        4294967295,
+        1073741825
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        24585,
+        1432778632,
+        4294967295,
+        1073741825
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1073741825,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24585,
+        "width": 8,
+        "value": 4294967295,
+        "mode": "indirect",
+        "cpu": 1
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-115",
+      "conditions": {
+        "mode": "indirect",
+        "width": 8,
+        "offset": 9,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false
+      },
+      "hidden_states": 7,
+      "states": 11,
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3244,
+        "clocks": 112,
+        "start": 4096,
+        "end": 4208,
+        "paused": 0,
+        "st": 1073741825,
+        "a0": 24585,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 1073741825,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "store_movb_indirect_w8_o9_f0_r0_2_0_q36_off: expected 88 INCLK, observed 112 INCLK",
+        "BUS transfer start: expected 4096, observed 4112",
+        "BUS transfer start: expected 4112, observed 4128",
+        "BUS transfer start: expected 4128, observed 4144",
+        "BUS transfer start: expected 4144, observed 4160",
+        "BUS transfer start: expected 4160, observed 4184",
+        "TARGET transfer start: expected 4096..4102, observed 4112",
+        "TARGET transfer start: expected 4112..4118, observed 4132",
+        "TARGET transfer start: expected 4128..4134, observed 4149",
+        "TARGET transfer start: expected 4144..4150, observed 4164",
+        "TARGET transfer start: expected 4160..4166, observed 4184"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4112 0 00006000 fe00 0",
+        "BUS_ACCEPT 4112",
+        "BUS_END 4128 0 00006000 ff6d",
+        "BUS_BEGIN 4128 1 00006000 ff6d 0",
+        "BUS_ACCEPT 4132",
+        "BUS_END 4144 1 00006000 ff6d",
+        "BUS_BEGIN 4144 0 00006010 ffff 0",
+        "BUS_ACCEPT 4149",
+        "BUS_END 4160 0 00006010 a597",
+        "BUS_BEGIN 4160 1 00006010 a597 0",
+        "BUS_ACCEPT 4164",
+        "BUS_END 4176 1 00006010 a597",
+        "BUS_BEGIN 4184 0 00001310 0000 1",
+        "BUS_ACCEPT 4184",
+        "BUS_END 4200 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4112 0 00006000 fe00 0",
+        "TARGET_END 4116 0 00006000 ff6d",
+        "TARGET_BEGIN 4132 1 00006000 ff6d 0",
+        "TARGET_END 4136 1 00006000 ff6d",
+        "TARGET_BEGIN 4149 0 00006010 ffff 0",
+        "TARGET_END 4153 0 00006010 a597",
+        "TARGET_BEGIN 4164 1 00006010 a597 0",
+        "TARGET_END 4168 1 00006010 a597",
+        "TARGET_BEGIN 4184 0 00001310 0000 1",
+        "TARGET_END 4188 0 00001310 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    }
+  ]
+}

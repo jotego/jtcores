@@ -9,6 +9,8 @@ from alu_cases import arithmetic
 from immediate_cases import result as immediate_result, extension_words, TI_EXAMPLES
 from load_cases import extract
 from load_mode_cases import fixture as load_mode_fixture
+from store_cases import fixture as store_fixture,insert as store_insert
+from run import check_store_bus
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
@@ -180,6 +182,38 @@ class TimingCheckerTest(unittest.TestCase):
         warm=dict(case,cache_disabled=False,states=7)
         self.assertTrue(check_bus(warm,self.observed,[],1))
         self.assertEqual(check_bus(warm,self.observed,lines[:6],1),[])
+
+    def test_store_bit_preservation_literal(self):
+        memory=[(0x6000,0x9B6D),(0x6010,0xA596),(0x6020,0x35C6)]
+        self.assertEqual(store_insert(memory,0x600C,8,0xEF),[(0x6000,0xFB6D),(0x6010,0xA59E),(0x6020,0x35C6)])
+
+    def test_store_hidden_states_primary_alignment_cases(self):
+        # TI Fig13-1/Table13-2: A, B, C, D, F and G.
+        for width,offset,hidden in ((16,0,1),(8,0,3),(32,0,3),(17,15,5),(2,15,7),(32,15,9)):
+            for mode,cpu in (('indirect',1),('post',1),('pre',2)):
+                for off in (False,True):
+                    case=store_fixture(mode,width,offset,0,off,0)
+                    self.assertEqual(case['hidden_states'],hidden)
+                    self.assertEqual(case['states'],cpu+(hidden+3 if off else 0))
+
+    def test_store_observer_must_include_trailing_bus_work(self):
+        case=store_fixture('indirect',16,0,0,False,0)
+        data=dict(case['expected_memory'])[0x6000]
+        lines=[f'BUS_BEGIN 0 1 00006000 {data:04x} 0',f'BUS_END 16 1 00006000 {data:04x}']
+        self.assertEqual(check_store_bus(case,{'start':0},lines,0),[])
+        self.assertTrue(check_store_bus(case,{'start':0},lines[:1],0))
+        wrong=lines.copy();wrong[0]=f'BUS_BEGIN 8 1 00006000 {data:04x} 0'
+        self.assertTrue(check_store_bus(case,{'start':0},wrong,0))
+        wrong=lines.copy();wrong[0]=f'BUS_BEGIN 0 1 00006000 {data^1:04x} 0'
+        self.assertTrue(check_store_bus(case,{'start':0},wrong,0))
+
+    def test_store_pre_alias_samples_updated_pointer(self):
+        pre=store_fixture('pre',32,15,0,False,0,source=15,dest=15)
+        post=store_fixture('post',32,15,0,False,0,source=15,dest=15)
+        self.assertEqual(pre['data_store']['value'],0x600F)
+        self.assertEqual(pre['expected_extra_regs']['sp'],0x600F)
+        self.assertEqual(post['data_store']['value'],0x600F)
+        self.assertEqual(post['expected_extra_regs']['sp'],0x602F)
 
     def test_extended_register_comparisons_cannot_be_skipped(self):
         case=dict(self.case,expected_extra_regs={'b0':1,'sp':2})

@@ -168,6 +168,18 @@ STA and NARC validation remain open, alongside 59 missing timing forms.
 
 
 
+The first hidden-write stage's matched snapshot at
+`/tmp/jttms10-144-store-ack-final-map` reports **3,306 estimated ALMs,
+4,719 combinational ALUTs, 1,714 registers, 538,624 block-memory bits,
+five DSP blocks and zero MLAB bits**. Relative to the preceding load-mode
+stage this is -73 estimated ALMs, -65 ALUTs and +64 registers; RAM/DSP totals
+are unchanged. Program lookup and data bypass are separated, while accepted
+stores reuse captured field-engine state for pending writes. The measurement
+also includes early source/pointer capture, metadata and response forwarding;
+it does not isolate any single change's cost. Same NARC GSP boundary,
+158 virtual pins, device, 20 ns, seed and effort. These remain map estimates,
+without current fitted-area, physical M10K count, STA or NARC signoff.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

@@ -8,13 +8,17 @@ gameplay/audio simulation, FPGA constrained timing and unmodified-ROM
 MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 [area measurements](ver/area/README.md).
 
-Instruction timing is currently noncompliant. The independent
+Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner fails its coverage gate until the currently unvalidated
-117 instruction forms have timing probes. The current 16-form matrix includes
-MPYS/MPYU, NOP/ADD/MOVK, all shifts/rotates and LMO. It is not full ISA
-signoff. Current #144 development shares DSP multiplication with shifts;
+55 instruction forms have timing probes. The current 78-form matrix includes
+scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
+memory-to-register MOVE/MOVB modes and initial stores with
+[hidden-write/dependency checks](docs/store-timing.md). Probe presence is
+only a necessary gate; complete condition, bus and interrupt audits remain
+required. Current #144 development shares DSP multiplication with shifts
+and uses a second shared product for field alignment;
 the final fitted area, FPGA timing and NARC checks must be repeated after
 the instruction timing changes are complete.
 

@@ -11,7 +11,7 @@ module jttms10 #(
     input      [15:0] psize, convsp, convdp, control, pmask,
     output reg        nmi_clear, emu_ack,
     output reg        wvp_set,
-    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel,
+    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
@@ -150,6 +150,8 @@ module jttms10 #(
     wire [31:0] immediate_value=immediate_short ? {{16{immediate_word[15]}},immediate_word} :
                                                          {immediate_word,a[15:0]};
     reg timing_active, immediate_last, load_pending, load_started, load_address_ready;
+    reg store_pending,store_started;
+    wire store_direct=ir[15:10]!=6'b101000;
     localparam integer LOAD_IW=$clog2(2*CLKS_PER_STATE+1);
     localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
     localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
@@ -158,6 +160,7 @@ module jttms10 #(
     localparam [LOAD_IW-1:0] LOAD_FIRST_LIMIT=LOAD_FIRST_LIMIT_I[LOAD_IW-1:0];
     localparam [LOAD_IW-1:0] LOAD_NEXT_LIMIT=3;
     reg [LOAD_IW-1:0] load_issue_left;
+    wire early_store=store_pending && load_address_ready && load_issue_left==0;
     wire early_load=load_pending && load_address_ready && load_issue_left==0;
     wire load_offset=ir[15:10]==6'b101101 || ir[15:9]==7'b1010111;
     wire load_direct=ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
@@ -175,6 +178,10 @@ module jttms10 #(
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
     // General scalar classes. PC-changing, memory and graphics forms retain
     // their old schedule until their event rules are independently covered.
+    wire decode_store_post=decode_opcode[15:10]==6'b100100;
+    wire decode_store_pre=decode_opcode[15:10]==6'b101000;
+    wire decode_store=decode_opcode[15:10]==6'b100000 ||
+        decode_opcode[15:9]==7'b1000110 || decode_store_post || decode_store_pre;
     wire decode_load_post=decode_opcode[15:10]==6'b100101;
     wire decode_load_pre=decode_opcode[15:10]==6'b101001;
     wire decode_load_offset=decode_opcode[15:10]==6'b101101 || decode_opcode[15:9]==7'b1010111;
@@ -207,7 +214,7 @@ module jttms10 #(
     wire decode_carry=decode_opcode==16'h0320 || decode_opcode==16'h0de0;
     wire decode_ie=decode_opcode==16'h0360 || decode_opcode==16'h0d60;
     wire decode_btstr=decode_opcode[15:9]==7'b0100101;
-    wire decode_timed=decode_opcode==16'h0300 || decode_scalar_rr ||
+    wire decode_timed=decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
@@ -215,7 +222,7 @@ module jttms10 #(
                       decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
-    wire [5:0] decode_states=decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+    wire [5:0] decode_states=decode_store ? (decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_ie || decode_putst || decode_immediate_long ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -248,8 +255,8 @@ module jttms10 #(
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
-    assign mem_req = ((early_load && (cen || load_started)) ||
-                      (active && bus_op && !(load_pending && mem_sel==READ_MEM))) &&
+    assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
+                      (active && bus_op && !(load_pending && mem_sel==READ_MEM) && !(store_pending && mem_sel==WRITE_MEM))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
                      !(load_pending && imm && ((!immediate_last && load_issue_left>LOAD_FIRST_LIMIT) ||
                        (immediate_last && !load_offset && load_issue_left>LOAD_NEXT_LIMIT)));
@@ -279,21 +286,22 @@ module jttms10 #(
     wire field_ext_fill = field_ext_signed && field_ext_input[field_msb];
     wire [31:0] field_extended = (field_ext_input & field_mask) |
                                  ({32{field_ext_fill}} & ~field_mask);
-    assign mem_we = early_load ? 1'b0 : gfx_active ? gfx_bus_write :
+    assign mem_post=early_store;
+    assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
-    assign mem_addr = early_load ? (load_direct && !load_started ? rs_data : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = early_load ? field_size : gfx_active ? gfx_bus_size :
+    assign mem_addr = early_store ? (store_direct && !store_started ? rd_data : ea) : early_load ? (load_direct && !load_started ? rs_data : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
+    assign mem_size = early_store ? field_size : early_load ? field_size : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       field_op ? field_size : 6'd16;
-    assign mem_wdata = gfx_active ? md :
+    assign mem_wdata = early_store ? (store_started ? md : rs_data) : gfx_active ? md :
                        push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} :
                        md;
-    assign mem_iaq = fetch && !early_load;
+    assign mem_iaq = fetch && !early_load && !early_store;
     // The cache accepts every PC-directed word, including extension words.
     // IAQ remains the separate opcode bus-status signal.
-    assign mem_program = (fetch || imm) && !early_load;
+    assign mem_program = (fetch || imm) && !early_load && !early_store;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = gfx_active && gfx_bus_pixel;
@@ -386,6 +394,7 @@ module jttms10 #(
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(gfx_active ? gfx_rf_da[4:0] :
+            fetch && completed && decode_store ? {decode_opcode[4],decode_opcode[3:0]} :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
@@ -518,6 +527,7 @@ module jttms10 #(
         if(rst) begin
             timing_active<=0;
             immediate_last<=0;
+            store_pending<=0;store_started<=0;
             load_pending<=0; load_started<=0; load_address_ready<=0; load_issue_left<=0;
             time_left<=0;
             fetch_wait<=0;
@@ -545,7 +555,7 @@ module jttms10 #(
             // extension response. Its cache bridge has consumed one clock.
             if(load_pending && imm && mem_req && mem_ack && !mem_cached)
                 load_issue_left<=(load_offset || !immediate_last ? LOAD_LEAD : LOAD_PRE)-1'b1;
-            if(load_pending && step && ea_sel!=0) load_address_ready<=1;
+            if((load_pending || store_pending) && step && ea_sel!=0) load_address_ready<=1;
             if(early_load && !load_started && cen && mem_req) load_started<=1;
             // Bus waits must not consume the CPU work following a load.
             // The cache/field response bridge has consumed two clocks of
@@ -553,14 +563,17 @@ module jttms10 #(
             if(mem_req && mem_ack && early_load && timing_active)
                 time_left<=load_finish_clocks-16'd3;
             if(step && mem_sel==READ_MEM) load_pending<=0;
+            if(early_store && !store_started && cen && mem_req) store_started<=1;
+            if(step && mem_sel==WRITE_MEM) store_pending<=0;
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed;
                 immediate_last<=decode_immediate_word;
                 load_pending<=decode_load; load_started<=0;
-                load_address_ready<=decode_load_direct;
-                load_issue_left<=decode_load_pre ? LOAD_PRE : decode_load_extension ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                store_pending<=decode_store;store_started<=0;
+                load_address_ready<=decode_load_direct || (decode_store && !decode_store_pre);
+                load_issue_left<=decode_load_pre || decode_store_pre ? LOAD_PRE : decode_load_extension ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             // MPYU's extra state depends on the selected field's sign bit,
@@ -623,6 +636,10 @@ module jttms10 #(
             if(push_entry) push_high<=1;
             // Capture the old pointer before postincrement can write Rs.
             if(early_load && !load_started && cen && mem_req && load_direct) ea<=rs_data;
+            if(early_store && !store_started && cen && mem_req) begin
+                if(store_direct) ea<=rd_data;
+                md<=rs_data;
+            end
             if(mem_req && mem_ack) begin
                 completed<=1;
                 bus_data<=mem_rdata;
@@ -631,7 +648,7 @@ module jttms10 #(
             if(step) begin
                 // An early data response can arrive while pointer helpers
                 // are paused. Retain it until a bus microinstruction consumes it.
-                if(!load_pending || bus_op) completed<=0;
+                if(!(load_pending || store_pending) || bus_op) completed<=0;
                 if(emu_step) emu_ack<=1;
                 if(push_active && stack_sel==WRITE_STACK)
                     push_high<=~push_high;
