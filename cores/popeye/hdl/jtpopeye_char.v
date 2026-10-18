@@ -13,7 +13,7 @@ module jtpopeye_char(
     input             csv,
     input             memwr0,
 
-    input      [ 7:0] h,
+    input      [ 7:0] h_raw,
     input             hb,
     input      [ 7:0] v,
     input             vb,
@@ -23,79 +23,80 @@ module jtpopeye_char(
     input      [ 7:0] char_data,
 
     output reg        txtv,
-    output reg [ 3:0] txtc
+    output     [ 3:0] txtc
 );
 
 wire [ 5:0] adv;
-wire [ 9:0] cpu_a, scan;
-wire [ 7:0] ddt, tq;
-wire [ 3:0] ddtc, cq;
-wire        txtshift_n, ddtwr, dotck;
-reg  [ 9:0] ta;
-reg  [ 7:0] din, sh;
-reg         we5pr, we5s, wrt;
+wire [ 9:0] cpu_a, vram_addr;
+wire [ 7:0] code;
+wire [ 3:0] pal;
+wire [10:0] rom_addr;
+wire [ 4:0] pxl;
+wire        ddtwr, we5pr, we5s, dotck;
 
-assign adv        = ~ad[5:0];
-assign cpu_a      = { adv[5], ad[9:7], adv[4:3], ad[6], adv[2:0] };
-assign scan       = { v[7:3], h[7:3] };
-assign ddtwr      = csv & memwr0;
-assign dotck      = cen10 & ~cen5;
-assign txtshift_n = ~(&h[2:0] & ~hb);
-assign ddt        = wrt ? din      : tq;
-assign ddtc       = wrt ? din[3:0] : cq;
-assign char_addr  = { 1'b1, ddt, v[2:0] };
+assign adv       = ~ad[5:0];
+assign cpu_a     = { adv[5], ad[9:7], adv[4:3], ad[6], adv[2:0] };
+assign ddtwr     = csv & memwr0;
+assign we5pr     = ddtwr && ad[11:10]==2'd0;
+assign we5s      = ddtwr && ad[11:10]==2'd1;
+assign dotck     = cen10 & ~cen5;
+assign char_addr = { 1'b1, rom_addr };
+assign txtc      = pxl[4:1];
 
-always @(posedge clk) begin
-    if( rst ) begin
-        ta    <= 0;
-        din   <= 0;
-        wrt   <= 0;
-        we5pr <= 0;
-        we5s  <= 0;
-    end else begin
-        ta    <= csv ? cpu_a : scan;
-        din   <= dd;
-        wrt   <= ddtwr;
-        we5pr <= ddtwr && ad[11:10]==2'd0;
-        we5s  <= ddtwr && ad[11:10]==2'd1;
-    end
-end
+always @(posedge clk) txtv <= ~pxl[0] | vb;
 
-always @(posedge clk) begin
-    if( rst ) begin
-        sh   <= 0;
-        txtc <= 0;
-        txtv <= 1;
-    end else begin
-        if( dotck ) begin
-            if( !txtshift_n ) begin
-                sh   <= char_data;
-                txtc <= ddtc;
-            end else begin
-                sh   <= rv ? { sh[6:0], 1'b0 } : { 1'b0, sh[7:1] };
-            end
-        end
-        if( vb ) sh <= 0;
-        txtv <= ~(rv ? sh[7] : sh[0]);
-    end
-end
-
-jtframe_ram #(.AW(10),.DW(8)) u_5pr(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( ddt       ),
-    .addr   ( ta        ),
-    .we     ( we5pr     ),
-    .q      ( tq        )
+jtframe_dual_ram #(.AW(10),.DW(8)) u_5pr(
+    .clk0   ( clk       ),
+    .data0  ( dd        ),
+    .addr0  ( cpu_a     ),
+    .we0    ( we5pr     ),
+    .q0     (           ),
+    .clk1   ( clk       ),
+    .data1  ( 8'd0      ),
+    .addr1  ( vram_addr ),
+    .we1    ( 1'b0      ),
+    .q1     ( code      )
 );
 
-jtframe_ram #(.AW(10),.DW(4)) u_5s(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( ddtc      ),
-    .addr   ( ta        ),
-    .we     ( we5s      ),
-    .q      ( cq        )
+jtframe_dual_ram #(.AW(10),.DW(4)) u_5s(
+    .clk0   ( clk       ),
+    .data0  ( dd[3:0]   ),
+    .addr0  ( cpu_a     ),
+    .we0    ( we5s      ),
+    .q0     (           ),
+    .clk1   ( clk       ),
+    .data1  ( 4'd0      ),
+    .addr1  ( vram_addr ),
+    .we1    ( 1'b0      ),
+    .q1     ( pal       )
+);
+
+jtframe_tilemap #(
+    .CW         ( 8         ),
+    .PW         ( 5         ),
+    .BPP        ( 1         ),
+    .HDUMPW     ( 8         ),
+    .VDUMPW     ( 8         ),
+    .FLIP_VDUMP ( 0         ),
+    .XOR_HFLIP  ( 1         )
+) u_tilemap(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .pxl_cen    ( dotck     ),
+    .vdump      ( v         ),
+    .hdump      ( h_raw+8'd1),
+    .blankn     ( ~hb       ),
+    .flip       ( rv        ),
+    .vram_addr  ( vram_addr ),
+    .code       ( code      ),
+    .pal        ( pal       ),
+    .hflip      ( 1'b1      ),
+    .vflip      ( 1'b0      ),
+    .rom_addr   ( rom_addr  ),
+    .rom_data   ( char_data ),
+    .rom_cs     (           ),
+    .rom_ok     ( ~hb       ),
+    .pxl        ( pxl       )
 );
 
 endmodule
