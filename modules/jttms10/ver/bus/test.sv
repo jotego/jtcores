@@ -23,6 +23,7 @@ module test;
     wire [31:0] cyc_addr;
     wire [13:0] cyc_srfaddr;
     wire [7:0] cyc_dram_row;
+    wire word_pending=word_req;
     jttms10_bus dut(.*);
     task tick; begin @(posedge clk); #1; end endtask
     task reset_bus;

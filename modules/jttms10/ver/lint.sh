@@ -23,8 +23,11 @@ verilator --lint-only -Wall --top-module jttms10_pixel \
 verilator --lint-only -Wall --top-module jttms10_cache \
     "$ver_dir/../hdl/jttms10_cache.v"
 verilator --lint-only -Wall --top-module jttms10_bus \
-    "$ver_dir/../hdl/jttms10_bus.v"
+    "$ver_dir/../hdl/jttms10_bus.v" "$ver_dir/../hdl/jttms10_bus_timer.v"
+verilator --lint-only -Wall --top-module jttms10_bus_timer \
+    "$ver_dir/../hdl/jttms10_bus_timer.v"
 verilator --lint-only -Wall --top-module jttms10_fabric \
     "$ver_dir/../hdl/jttms10_fabric.v" "$ver_dir/../hdl/jttms10_bus.v" \
+    "$ver_dir/../hdl/jttms10_bus_timer.v" \
     "$ver_dir/../hdl/jttms10_io.v" "$ver_dir/../hdl/jttms10_video.v" \
     "$ver_dir/../hdl/jttms10_refresh.v" "$ver_dir/../hdl/jttms10_host.v"

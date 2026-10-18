@@ -5,7 +5,10 @@ adapter to `jttms10_fabric`. The field adapter emits held physical 16-bit
 requests with **bit addresses**. The fabric performs I/O/video/refresh/host
 arbitration and presents the existing NARC `cyc_*` cycle kind, address,
 payload, IAQ, screen, and DRAM-row signals. An external NARC cycle controller
-still supplies `cyc_ack` and `cyc_rdata`, including timed I/O cycles.
+supplies readiness/data on `cyc_ack` and `cyc_rdata` for external transfers.
+The fabric's timer enforces TI's local-cycle duration and Q1 ready sampling;
+on-chip I/O occupies two states internally and ignores external ACK.
+See [bus-timing.md](bus-timing.md) for the transport mapping and limits.
 
 The fabric's prioritized `irq_pending` and 32-bit `irq_vector` go to the CPU's
 maskable interrupt entry. `nmi_pending` and `nmi_nmim` go to its NMI entry;

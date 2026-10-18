@@ -38,7 +38,7 @@ adds the physical 16-bit field adapter and instruction cache. Both exclude
 I/O/video registers, arbitration, and NARC integration, so their ALM counts
 are inference checks, not the 25% replacement acceptance result.
 The `--fabric` top measures I/O, video, refresh, bus arbitration, and the
-synchronous host-indirect engine. Its six HDL files are analyzed as plain
+synchronous host-indirect engine, including the TI bus timer. Its seven HDL files are analyzed as plain
 Verilog, as in JTFRAME synthesis.
 The manifest also hashes the current instruction YAML for snapshot context,
 but the fabric project does not generate or instantiate microcode. Its exposed
@@ -115,6 +115,19 @@ is `/tmp/jttms10-144-div-final-map`; Analysis & Synthesis exits zero with
 the same 35 warning classifications, and all 35 input/generated hashes
 verify. This remains a map estimate; the final fitted-area/STA/NARC gates
 and the remaining 79 timing forms are open.
+
+The following bus-timing stage adds the two-state/Q1-ready controller,
+logical request continuity across field/cache handoffs and external-fetch
+processing for cache misses. Its matched map at
+`/tmp/jttms10-144-bus-pending-final-map` reports **3,182 estimated ALMs,
+4,502 combinational ALUTs, 1,631 registers, 538,624 block-memory bits,
+three DSP blocks and zero MLAB bits**. This is +58 estimated ALMs,
++96 ALUTs and +129 registers from the DIV/MOD stage. Analysis & Synthesis
+exits zero; all 36 source/generated hashes verify. The 50 warnings include
+16 additional constant outputs for the unused external I/O read payload;
+on-chip I/O now completes inside the timed fabric. These are synthesis
+estimates, with no new fitted-area, physical M10K count or STA result.
+The full fitted-area/STA/NARC gates and 79 missing timing forms remain open.
 
 ## Complete graphics engine, 2026-10-17
 

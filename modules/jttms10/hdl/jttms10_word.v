@@ -16,6 +16,7 @@ module jttms10_word #(
     input             cache_flush,
     output            nmi_clear, emu_ack, wvp_set,
     output            word_req,
+    output            word_pending,
     output            word_we,
     output     [31:0] word_addr,
     output     [15:0] word_wdata,
@@ -34,7 +35,7 @@ module jttms10_word #(
     wire        field_req, field_we, field_iaq, field_program, field_pixel, field_ack;
     wire [31:0] field_addr, field_wdata, field_rdata;
     wire [5:0]  field_size;
-    wire        cache_req, cache_we, cache_lock, cache_ack, cache_restart;
+    wire        cache_req, cache_we, cache_lock, cache_ack, cache_restart, cache_hit;
     wire [31:0] cache_addr;
     wire [15:0] cache_wdata, cache_rdata;
     wire field_word_req, field_word_we, field_word_lock, data_ack;
@@ -46,6 +47,10 @@ module jttms10_word #(
     // and stacks still use the field adapter, including all RMW/HOLD handling.
     wire program_read=field_program && !field_we && field_size==6'd16 &&
                       field_addr[3:0]==0;
+    // Keep one logical operation pending across the cache/field helper's
+    // short deassertions between physical words. Unrelated CPU requests
+    // release this flag before starting another operation.
+    assign word_pending=field_req;
     assign cache_req=program_read ? field_req : field_word_req;
     assign cache_we=program_read ? 1'b0 : field_word_we;
     assign cache_lock=program_read ? 1'b0 : field_word_lock;
@@ -72,6 +77,7 @@ module jttms10_word #(
         .mem_pixel(field_pixel),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
+        .mem_cached(program_read && cache_hit),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 
@@ -92,7 +98,7 @@ module jttms10_word #(
         .c_program(program_read || program_q), .c_pixel(program_read ? 1'b0 : pixel_q),
         .c_lock(cache_lock),
         .c_addr(cache_addr), .c_wdata(cache_wdata),
-        .c_rdata(cache_rdata), .c_ack(cache_ack),
+        .c_rdata(cache_rdata), .c_ack(cache_ack), .c_hit(cache_hit),
         .c_restart(cache_restart),
         .m_req(word_req), .m_we(word_we), .m_iaq(word_iaq),
         .m_pixel(word_pixel), .m_lock(word_lock),

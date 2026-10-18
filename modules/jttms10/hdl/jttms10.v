@@ -15,7 +15,7 @@ module jttms10 #(
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
-    input             mem_ack,
+    input             mem_ack, mem_cached,
     output reg [31:0] pc, st,
     output reg [15:0] ir,
     output reg        retire, fault
@@ -480,11 +480,11 @@ module jttms10 #(
                 if(fetch_wait!=0) fetch_wait<=fetch_wait-16'd1;
             end
             // ACK capture is independent of CEN, like the response data.
-            // With CD the two response clocks occupy part of the additional
-            // processing state after the two-state physical word cycle
-            // (UG §5.4.7). Complete that state before accepting the opcode.
+            // External fetches (CD or a cache fill) need the additional
+            // processing state in UG §5.4.7. Response/dispatch clocks occupy
+            // part of that state; cached hits have no external-fetch penalty.
             if(mem_req && mem_ack && fetch)
-                fetch_wait<=control[15] ? CLKS_PER_STATE[15:0]-16'd2 : 16'd0;
+                fetch_wait<=mem_cached ? 16'd0 : CLKS_PER_STATE[15:0]-16'd2;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed;

@@ -4,7 +4,7 @@
 import unittest
 
 from oracle import multiply_states, setf_states, divide_states
-from run import cases, check, check_bus, split_transcripts, program
+from run import cases, check, check_bus, check_target, split_transcripts, program
 from alu_cases import arithmetic
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
@@ -13,7 +13,7 @@ from scalar_cases import shift_result, TI_SLA_EXAMPLES
 class TimingCheckerTest(unittest.TestCase):
     def setUp(self):
         self.case = next(c for c in cases() if c['name'] == 'mpys_fs2_positive_even_hit')
-        self.observed = dict(clocks=48, start=100, end=148, paused=0, st=self.case['expected_st'],
+        self.observed = dict(clocks=48, start=96, end=144, paused=0, st=self.case['expected_st'],
                              **{f'a{n}': v for n, v in enumerate(self.case['expected_regs'])})
 
     def test_correct_math_wrong_time_fails(self):
@@ -44,10 +44,10 @@ class TimingCheckerTest(unittest.TestCase):
 
     def test_bus_contract_is_independent_of_total(self):
         case = dict(self.case, cache_disabled=True, states=9, next_pc=0x1230)
-        lines = ['BUS_BEGIN 148 0 00001230 0000 1', 'BUS_END 172 0 00001230 0300']
+        lines = ['BUS_BEGIN 144 0 00001230 0000 1', 'BUS_END 168 0 00001230 0300']
         self.assertEqual(check_bus(case, self.observed, lines, 1), [])
         # An ACK a state early must fail even if someone pads retirement.
-        lines[1] = 'BUS_END 164 0 00001230 0300'
+        lines[1] = 'BUS_END 160 0 00001230 0300'
         self.assertTrue(check_bus(case, self.observed, lines, 1))
         # Likewise a cold-cache fill cannot be classified as a warm hit.
         self.assertTrue(check_bus(self.case, self.observed, lines, 0))
@@ -66,6 +66,29 @@ class TimingCheckerTest(unittest.TestCase):
         self.assertEqual(check(self.case, self.observed, pause_clocks=7), [])
         self.observed['clocks'] = 48
         self.assertTrue(check(self.case, self.observed, pause_clocks=7))
+
+    def test_clock_paused_cpu_realigns_external_bus(self):
+        case=dict(self.case,cache_disabled=True,states=9,next_pc=0x1230)
+        self.observed.update(paused=7,clocks=80)
+        self.assertEqual(check(case,self.observed,pause_clocks=7),[])
+        self.observed['clocks']=79
+        self.assertTrue(check(case,self.observed,pause_clocks=7))
+        self.assertEqual(check_bus(case,self.observed,
+            ['BUS_BEGIN 152 0 00001230 0000 1','BUS_END 168 0 00001230 0300'],0,7),[])
+
+    def test_raw_target_ack_is_independent_of_ti_cycle(self):
+        case=dict(self.case,cache_disabled=True,states=9,next_pc=0x1230)
+        lines=['TARGET_BEGIN 144 0 00001230 0000 1','TARGET_END 156 0 00001230 0300']
+        self.assertEqual(check_target(case,self.observed,lines,1),[])
+        lines[1]='TARGET_END 148 0 00001230 0300'
+        self.assertTrue(check_target(case,self.observed,lines,1))
+
+    def test_cold_fixture_forces_next_subsegment(self):
+        case=next(c for c in cases() if c.get('cache_miss'))
+        words,start,following=program(case)
+        self.assertEqual((start%64,following%64),(48,0))
+        self.assertEqual(case['measure_pass'],0)
+        self.assertEqual(case['states'],10)  # NOP1 + four reads8 + processing1.
 
     def test_batch_case_association(self):
         log='CASE 0\nRESULT case=0\nCASE 1\nRESULT case=1\nBATCH_DONE cases=2\n'

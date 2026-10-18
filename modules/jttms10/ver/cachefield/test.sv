@@ -2,6 +2,7 @@
 // Field -> cache -> arbiter HOLD regression. A stale partial write can be
 // buffered in the cache before the arbiter revokes the field's RMW pair.
 module test;
+    parameter integer TIMING=0;
     reg clk=0;
     always #5 clk=~clk;
     reg rst=1,req=0,we=1,hold_req=0;
@@ -40,7 +41,7 @@ module test;
     wire [7:0] cyc_dram_row;
     reg [15:0] cyc_rdata=0;
     reg cyc_ack=0;
-    jttms10_bus bus_u(
+    jttms10_bus #(.TIMING(TIMING)) bus_u(
         .clk(clk),.rst(rst),.hold_req(hold_req),.hold_ack(hold_ack),
         .screen_req(1'b0),.screen_srfaddr(14'd0),
         .screen_dpytap(16'd0),.screen_org(1'b0),.screen_ack(),
@@ -49,7 +50,7 @@ module test;
         .host_mem_addr(32'd0),.host_mem_wdata(16'd0),
         .host_mem_is_io(1'b0),.host_mem_io_rdata(16'd0),
         .host_mem_rdata(),.host_mem_ack(),
-        .word_req(m_req),.word_we(m_we),.word_iaq(m_iaq),
+        .word_req(m_req),.word_pending(req),.word_we(m_we),.word_iaq(m_iaq),
         .word_lock(m_lock),.word_pixel(m_pixel),.word_addr(m_addr),
         .word_wdata(m_wdata),.is_io(1'b0),.pixel_srt(1'b0),
         .io_rdata(16'd0),.word_rdata(m_rdata),.word_ack(m_ack),
@@ -64,6 +65,21 @@ module test;
 
     reg [15:0] external_word=16'h1234;
     integer reads=0,writes=0,trace_count=0;
+    integer clock_count=0,timed_reads=0,last_read_end=0;
+    always @(posedge clk) begin
+        if(rst) begin clock_count<=0;timed_reads<=0;last_read_end<=0;end
+        else begin
+            clock_count<=clock_count+1;
+            if(TIMING!=0 && bus_u.complete) begin
+                if(cyc_kind==0) begin
+                    timed_reads<=timed_reads+1;
+                    if(timed_reads==1) last_read_end<=clock_count;
+                end
+                if(cyc_kind==1 && clock_count-last_read_end!=16)
+                    $fatal(1,"field/cache bridge inserted a state inside the RMW pair");
+            end
+        end
+    end
     reg [3:0] trace_kind [0:7];
     localparam IDLE=0,WAIT=1,ACK=2;
     reg [1:0] target_state=IDLE;
@@ -144,7 +160,7 @@ module test;
         repeat(4) tick();
         if(writes!=1 || trace_count!=3)
             $fatal(1,"held architectural request reissued");
-        $display("jttms10_cachefield PASS"); $finish;
+        $display("jttms10_cachefield PASS (TIMING=%0d)",TIMING); $finish;
     end
     initial begin #200000; $fatal(1,"cachefield test timeout"); end
 endmodule

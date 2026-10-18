@@ -30,12 +30,17 @@ are already resident. A cold miss includes a four-word subsegment fill
 disabled timing includes physical instruction/extension fetches.
 
 The current probes measure the interval from accepting the opcode into IR
-to accepting the following opcode. Each program runs twice, using only
-two cache segments, and measures the second pass. Twelve NOPs separate
+to accepting the following opcode. Warm programs run twice, using only
+two cache segments, and measure the second pass. Twelve NOPs separate
 setup from the measured instruction and follow it. These first probes are
 register-only instructions with no hidden data writes. The suite asserts
 that a warm hit causes zero external cycles and that the cache-disabled
 interval contains exactly one following-opcode read, with IAQ asserted.
+Two sequential-miss NOP probes measure the first pass instead: the current
+word is at the end of a resident subsegment and the next four words have
+not been fetched. They check the nine-state miss penalty and four ordered
+read cycles. Their initial opcode is resident, so its acquisition stays
+outside the interval.
 It checks A0–A3 and the entire ST before the following
 instruction executes. Reset, cold fills and initial register setup are
 outside the interval. No architectural register is forced by the bench.
@@ -45,31 +50,34 @@ bits retain their comparisons. These scalar fixtures use register file A;
 timed coverage of file B and shared-SP aliases remains required.
 
 The bench instantiates `jttms10_system`, including the real field adapter,
-cache and bus arbiter. The physical target consumes ACK exactly 16 INCLK
-periods after first observing a request. `--wait-states N` adds `8*N`
-periods to every physical cycle. Thus cached register-only timings must
-remain unchanged, while cache-disabled timings gain `8*N` for their one
-physical read. Payload stability and request/ACK pairing remain asserted.
-For these register-only cases, §5.4.7's extra three-state fetch cost is
-modelled as the next physical read starting after the intrinsic CPU states,
-followed by two read states and one processing state. The bench checks the
-read's start independently of the final instruction count. This establishes
-the model's cycle-interface ordering; original pin-edge phase is not proven
-by this abstract interface. Non-state-aligned delayed ACKs, early ACKs and
-contention still require further timing tests.
+cache, arbiter and TI bus timer. Its raw target supplies readiness/data after
+`4 + 8*N` INCLK. The fabric supplies the two-state cycle and samples ready
+at the end of Q1, adding whole wait states. Thus warm hits gain no external
+delay, CD gains `8*N`, and the four-word miss gains `4*8*N`.
+`BUS_BEGIN/ACCEPT/END` record logical TI allocation/completion and actual
+bridge acceptance; `TARGET_BEGIN/END` separately record raw transport.
+Kind/address/IAQ/data/order, both durations and the target's ready window
+remain asserted. Original electrical pin edges and separate LRDY/data
+availability are outside this abstract port. The standalone timer oracle
+covers all first-state dispatch phases and raw ready delays 0..40; the full
+CPU matrices currently use readiness at four clocks plus whole-state delays.
+See [bus-timing.md](bus-timing.md) for the source-backed contract and limits.
 Refresh, video, host traffic and HOLD are disabled for these intrinsic
 measurements. Their timing tests remain required work.
 
 `--pause-clocks N` pauses CEN early in the measured CPU work. Registers,
 PC and ST must stay stable, retirement and new cycles must stop, and the
-duration/read-start must increase by exactly N INCLK. Cache/fabric clocks
-continue during that pause. Pauses overlapping an outstanding bus read or
+cached duration increases by exactly N INCLK. The next external read also
+waits for its bus-state boundary: the current seven-clock pause adds one
+alignment clock, giving eight added clocks before CD/miss traffic. Base TI
+counts are unchanged. Cache/fabric clocks continue during that pause.
+Pauses overlapping an outstanding bus read or
 its ACK need separate expectations and are not covered by this early-pause
 rule.
 `--pause-after-clocks N` moves the pause into CPU work; the selected
 instruction must still be executing without an outstanding bus cycle.
-The normal runner includes a pause 32 INCLK into a signed division's
-restoring loop. A/B/MD/TMP and the iteration count must also hold during
+The normal runner includes pauses 32 INCLK into a signed division's
+restoring loop with cache hit and CD+wait. A/B/MD/TMP and the iteration count must also hold during
 these CPU-work pauses. This option does not establish ACK-during-pause
 behavior, which needs a separate bus-aware fixture.
 The instruction sequencer's address and prime/execute phase must also hold;
@@ -141,6 +149,12 @@ returning the correct field definition and architectural state.
 Two further RTL mutations reproduce a one-state-short odd DIVS minimum
 candidate and failure to shorten a divide-by-zero path. Both must fail
 timing while finishing with the correct registers and ST.
+Two bus-timer RTL mutations remove the two-state minimum or sample ready
+at cycle end instead of Q1. Correct architectural results must still fail
+the independent instruction and bus checks.
+A further RTL mutation omits cache-miss processing. The next bus phase and
+state-grid checks must reject it even if instruction duration coincidentally
+matches; architectural values remain checked.
 
 ## Coverage ledger
 
@@ -172,16 +186,20 @@ The full #144 checklist remains open.
 | GETPC/GETST/REV; CLRC/SETC: 1,4 | pp.12-52, 12-89–90, 12-233, 12-236 | All 16 initial NCZV patterns; post-opcode bit address; revision defined-bit mask | Current probes pass |
 | DINT/EINT/PUTST: 3,6 | pp.12-62, 12-76, 12-229 | Full ST effects and preserved registers; both initial IE values | Current intrinsic probes pass; interrupt acceptance remains unvalidated |
 | DIVS/DIVU/MODS/MODU normal/special/exception counts | pp.12-63–66, 12-113–114 | 902 programs: parities, zero/early/late overflow, minimum quotient, sign/remainder boundaries, aliases and 24 literal TI examples in each cache mode | Current probes pass; MOD wording interpretations documented in [divide.md](divide.md) |
-| External wait addition | §13.1.2 p.13-3; LRDY p.2-8 | Target latencies of 16 and 24 INCLK, exact added delay and bus/start/order checks | Current probes pass; other ACK phases unvalidated |
+| Bus minimum and ready sampling | pp.11-8, 11-16; Appendix A p.A-21 | 699 independent timer scenarios: all first-state dispatch phases, ready delays 0..40, held ACK, new/queued requests and data retention | Logical bus/transport contract passes; original pins/separate LRDY/data not generated |
+| I/O fixed duration and ignored ready | p.11-14 | Timer tests with ACK permanently low/high; timed queued-host I/O and system register/IRQ regression | Two-state/ACK-independent contract passes; exact internal I/O latch edge excluded as undocumented |
+| External wait addition | §13.1.2 p.13-3; §11.4.10 p.11-16 | Full CPU raw ready at 4/12 INCLK, logical bus duration 16/24; exact added delay and independent target/start/order checks | Current probes pass |
 | Immediate-extension instructions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
 | Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Memory fields/bytes and address/alignment modes | §13.2 Tables 13-1–13-5 | Not yet covered by timing probes | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
-| Cache misses/fills, prefetch and bus overlap | §5.4; §13.1 | Hit/off bus checks only; no miss timing oracle yet | Unvalidated |
+| Sequential subsegment miss | §5.4.7 p.5-24 | First-pass NOP probes, four ordered two-state reads plus processing; 80 INCLK without waits | Current directed probes pass |
+| Cache replacement/prefetch and other overlap | §5.4; §13.1 | Functional cache tests; full timing conditions still incomplete | Unvalidated |
 | CEN pauses during CPU work | Wrapper clock-enable contract described above | Seven paused clocks before work and 32 clocks into a division loop; architectural/working state, duration and read-start checks | Current directed probes pass |
-| HOLD/restart, interrupts/resumption, host/peripheral contention; ACK during CEN pause | §8; §11; §13.1.2 | Existing functional tests do not prove instruction timing | Unvalidated |
+| Timed arbiter HOLD/RMW/host interference | §11.3 p.11-4 | Pre-dispatch HOLD, stale-write cancellation, reread, reserved write and queued two-state host I/O | Directed word-client contract passes |
+| CPU HOLD/restart, interrupts/resumption and contention; ACK during CEN pause | §8; §11; §13.1.2 | Full CPU timing conditions still incomplete | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | Nineteen checker/model tests, five timing-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | Twenty-two checker/model tests, eight timing/bus-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -217,6 +235,15 @@ are retained in [baseline-21cf1d6.json](../ver/timing/baseline-21cf1d6.json),
 again historical evidence only. The standard runner runs three full matrices
 and one mid-loop CEN probe, totaling 16,351 timing programs.
 
+The bus-timed stage adds two sequential-miss fixtures. Its normal runner
+uses three 5,452-case matrices and two mid-loop CEN probes, totaling 16,358
+instruction timing programs, alongside 699 timer scenarios and the timed
+arbiter interference bench. The [fast-target baseline](../ver/timing/baseline-bus-e146386.json)
+shows the missing cycle floor at `e14638639`: 8/20/35 INCLK for NOP
+hit/CD/miss versus TI 8/32/80, with correct architecture. Earlier slow-target
+measurements supplied that missing delay in the target and did not prove
+NARC's actual fast-response timing. Historical reports are not allowlists.
+
 ## Current implementation boundary
 
 The cache returns its synchronous RAM output during HIT, without an extra
@@ -228,10 +255,11 @@ fetch within one eight-clock machine state.
 A scheduling counter currently applies to the single-word scalar forms
 listed above, DIV/MOD and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
-the captured source-field sign. With CD, the fetch response completes the
-additional processing state after the physical read. The counter freezes
+the captured source-field sign. A cache hit response is identified explicitly;
+external opcode reads, including fills, complete the additional processing
+state after the timed bus transfer. The counter freezes
 with CEN, while ACK capture remains independent of CEN. The checks assert
-both instruction duration and physical fetch start; there is no waiver for
+both instruction duration and logical/target fetch events; there is no waiver for
 late or early bus activity hidden by an otherwise correct total.
 DIV/MOD begin at their normal budgets, subtract the omitted states at an
 early operand-check exit, and add the specified signed minimum-candidate

@@ -75,6 +75,8 @@ module test;
             first_sub_reads<=0; extension_fetches<=0;
             pre_release_local_cycles<=0;
         end else begin
+        if(dut.word_ack && dut.word_we && dut.u_fabric.is_io)
+            io_writes<=io_writes+1;
         if(retire && pc==32'h1120) loop_retires<=loop_retires+1;
         if(dut.u_cpu.field_req && dut.u_cpu.field_program &&
            !dut.u_cpu.field_iaq) extension_fetches<=extension_fetches+1;
@@ -131,7 +133,7 @@ module test;
                             mem[addr_q[15:4]]<=data_q;
                         end
                         5: cyc_rdata<=io_q;
-                        6: io_writes<=io_writes+1;
+                        6: $fatal(1,"on-chip I/O escaped to external target");
                         2,3,4: cyc_rdata<=0;
                         default: $fatal(1,"unexpected cycle kind %0d",kind_q);
                     endcase
@@ -184,8 +186,13 @@ module test;
         wait(!rst);
         repeat(20) tick();
         if(!halt) $fatal(1,"host-present reset did not assert HLT");
-        repeat(50) tick(); // refresh/init cycles may continue; CPU must not
-        if(pc!==32'd0 || retire || pre_release_local_cycles!=0 || init_seen!=8)
+        // Eight two-state RAS cycles now run in the fabric rather than
+        // borrowing the target's short response latency. CPU remains halted.
+        guard=0;
+        while((init_seen<8 || dut.u_fabric.u_bus.init_left!=0) && guard<8*16+16) begin
+            tick(); guard=guard+1;
+        end
+        if(guard==8*16+16 || pc!==32'd0 || retire || pre_release_local_cycles!=0 || init_seen!=8)
             $fatal(1,"host-present HLT allowed vector fetch/retirement pc=%08x ir=%04x cycles=%0d",
                    pc,ir,pre_release_local_cycles);
         host_release_halt();

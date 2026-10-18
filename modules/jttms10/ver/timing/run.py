@@ -91,6 +91,12 @@ def cases():
     yield from lmo_cases()
     yield from alu_cases()
     yield from divide_cases()
+    for flags in (0x00000810,0xF0000810):
+        regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
+        yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
+                   regs=regs,expected_regs=list(regs),expected_st=flags,states=10,
+                   cache_disabled=False,cache_miss=True,measure_pass=0,
+                   citation='SPVU001A 5.4.7 p.5-24; 12-170',conditions=dict(next_opcode_miss=True))
 
 
 def program(case):
@@ -101,6 +107,8 @@ def program(case):
     for reg, value in enumerate(case['regs']):
         words += movi(value, reg)
     words += [0x01A3] + [0x0300] * 12  # PUTST A3, then drain previous writes
+    if case.get('cache_miss'):
+        while len(words)%4!=3:words.append(0x0300)
     test_pc = 0x1000 + 16 * len(words)
     words += [case['opcode']]
     next_pc = 0x1000 + 16 * len(words)
@@ -161,13 +169,15 @@ def simulate(command, work, timeout):
 
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
-    added_clocks = wait_states * INPUT_CLOCKS_PER_STATE if case['cache_disabled'] else 0
-    expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks
+    words=4 if case.get('cache_miss') else int(case['cache_disabled'])
+    added_clocks = words * wait_states * INPUT_CLOCKS_PER_STATE
+    alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE if words else 0
+    expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks + alignment
     if observed['paused'] != pause_clocks:
         errors.append(f"expected {pause_clocks} paused clocks, observed {observed['paused']}")
     if observed['clocks'] != expected_clocks:
         errors.append(f"expected {expected_clocks} INCLK ({case['states']} intrinsic machine states, "
-                      f"{added_clocks} external wait clocks, {pause_clocks} CEN pause clocks), "
+                      f"{added_clocks} external wait clocks, {pause_clocks} CEN pause clocks, {alignment} bus alignment clocks), "
                       f"observed {observed['clocks']} INCLK")
     for reg, value in enumerate(case['expected_regs']):
         mask = case.get('expected_masks', [MASK32]*len(case['expected_regs']))[reg]
@@ -187,24 +197,58 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     errors = []
     begin = [line.split() for line in lines if line.startswith('BUS_BEGIN ')]
     end = [line.split() for line in lines if line.startswith('BUS_END ')]
-    count = int(case['cache_disabled'])
+    count = 4 if case.get('cache_miss') else int(case['cache_disabled'])
     if len(begin) != count or len(end) != count:
         errors.append(f"expected {count} physical opcode reads, observed {len(begin)} starts/{len(end)} ACKs")
     elif count:
-        b, e = begin[0], end[0]
+        if observed['start']%INPUT_CLOCKS_PER_STATE:
+            errors.append('external fetch begins from an instruction off the machine-state grid')
         # §5.4.7 / §13.1: these register-only instructions have no hidden
         # writes. Their next memory opcode read follows the intrinsic CPU
         # states; its two-state read and one processing state add three.
-        expected_start = observed['start'] + (case['states'] - 3) * INPUT_CLOCKS_PER_STATE + pause_clocks
-        if int(b[1]) != expected_start:
-            errors.append(f"physical opcode read start: expected clock {expected_start}, observed {b[1]}")
-        if (int(b[2]), int(b[3], 16), int(b[5])) != (0, case['next_pc'], 1):
-            errors.append(f"unexpected physical cycle: {' '.join(b)}")
-        if e[2:4] != b[2:4] or int(e[4], 16) != 0x0300:
-            errors.append(f"unexpected target response: {' '.join(e)}")
-        clocks = int(e[1]) - int(b[1])
-        if clocks != 16 + 8 * wait_states:
-            errors.append(f"physical read: expected {16+8*wait_states} INCLK, observed {clocks}")
+        fetch_cost=9 if case.get('cache_miss') else 3
+        alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE
+        expected_start = observed['start'] + (case['states'] - fetch_cost) * INPUT_CLOCKS_PER_STATE + pause_clocks + alignment
+        for i,(b,e) in enumerate(zip(begin,end)):
+            start=expected_start+i*(2+wait_states)*INPUT_CLOCKS_PER_STATE
+            if int(b[1]) != start:
+                errors.append(f"TI opcode read start: expected clock {start}, observed {b[1]}")
+            if (int(b[2]), int(b[3], 16), int(b[5])) != (0, case['next_pc']+16*i, 1):
+                errors.append(f"unexpected physical cycle: {' '.join(b)}")
+            if e[2:4] != b[2:4] or int(e[4], 16) != 0x0300:
+                errors.append(f"unexpected target response: {' '.join(e)}")
+            clocks = int(e[1]) - int(b[1])
+            if clocks != 16 + 8 * wait_states:
+                errors.append(f"TI read duration: expected {16+8*wait_states} INCLK, observed {clocks}")
+    return errors
+
+
+def check_target(case,observed,lines,wait_states,pause_clocks=0):
+    """Actual transport requests/ACKs are separate from logical TI states.
+
+    The target supplies data/ready after 4+8*N clocks; the fabric must
+    retain early data and sample readiness in Q1, then finish its cycle.
+    Bridge dispatch must fit inside the first state's permitted window.
+    """
+    count=4 if case.get('cache_miss') else int(case['cache_disabled'])
+    begin=[line.split() for line in lines if line.startswith('TARGET_BEGIN ')]
+    end=[line.split() for line in lines if line.startswith('TARGET_END ')]
+    errors=[]
+    if len(begin)!=count or len(end)!=count:
+        return [f'expected {count} target reads, observed {len(begin)} starts/{len(end)} ACKs']
+    cost=9 if case.get('cache_miss') else 3
+    first=observed['start']+(case['states']-cost)*8+pause_clocks+(-pause_clocks)%8
+    for i,(b,e) in enumerate(zip(begin,end)):
+        logical=first+i*(2+wait_states)*8
+        if not logical<=int(b[1])<=logical+6:
+            errors.append(f'target dispatch outside TI readiness window: {b[1]} versus {logical}..{logical+6}')
+        if (int(b[2]),int(b[3],16),int(b[5]))!=(0,case['next_pc']+16*i,1):
+            errors.append(f'unexpected target request: {b}')
+        if e[2:4]!=b[2:4] or int(e[4],16)!=0x0300:
+            errors.append(f'unexpected target data: {e}')
+        duration=int(e[1])-int(b[1])
+        if duration!=4+8*wait_states:
+            errors.append(f'target ACK: expected {4+8*wait_states} INCLK, observed {duration}')
     return errors
 
 
@@ -290,11 +334,12 @@ def main():
                 image[0x100:0x100 + len(words)] = words
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',
                     f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {len(words)} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} " +
                 ' '.join(f'{word:04x}' for word in words) + '\n'
                 for identifier, case, words in prepared))
             executions.append((list(range(len(prepared))), simulate(
@@ -331,8 +376,11 @@ def main():
             # zero-traffic warm hits. Full launch trace is available separately.
             row['bus_trace'] = [line for line in log.splitlines() if line.startswith('BUS_') and
                                 (observed is None or observed['start'] <= int(line.split()[1]) <= observed['end'])]
+            row['target_trace'] = [line for line in log.splitlines() if line.startswith('TARGET_') and
+                                (observed is None or observed['start'] <= int(line.split()[1]) <= observed['end'])]
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
+                errors.extend(check_target(case,observed,row['target_trace'],args.wait_states,args.pause_clocks))
             rows.append(row)
             print(f"{case['name']}: {'FAIL' if errors else 'PASS'} ({case['citation']})")
             if errors:
@@ -340,11 +388,15 @@ def main():
                 print(f"  opcode={case['opcode']:04x} conditions={case['conditions']}")
                 for line in row['bus_trace'][-12:]:
                     print('  ' + line)
+                for line in row['target_trace'][-8:]:
+                    print('  ' + line)
                 if observed is None:
                     print('\n'.join(log.splitlines()[-12:]))
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(dict(clock_unit='INCLK', clocks_per_machine_state=8,
+                                              target_ready_clocks=4+8*args.wait_states,
+                                              bus_contract='TI two-state minimum; Q1 ready sampling; raw ready+data target transport',
                                               external_wait_states=args.wait_states,
                                               cpu_pause_clocks=args.pause_clocks,
                                               cpu_pause_after_clocks=args.pause_after_clocks,

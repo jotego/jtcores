@@ -2,7 +2,8 @@
 // Physical-word fabric and peripherals, independent of the microcoded CPU.
 module jttms10_fabric #(
     parameter integer CLKS_PER_STATE=8,
-    parameter integer RESET_REFRESH=0
+    parameter integer RESET_REFRESH=0,
+    parameter integer BUS_TIMING=1
 )(
     input clk, rst, vclk_cen,
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
@@ -13,7 +14,7 @@ module jttms10_fabric #(
     input [15:0] host_wdata,
     output [15:0] host_rdata,
     output host_ack, host_busy,
-    input word_req, word_we, word_iaq, word_lock, word_pixel,
+    input word_req, word_pending, word_we, word_iaq, word_lock, word_pixel,
     input [31:0] word_addr,
     input [15:0] word_wdata,
     output [15:0] word_rdata,
@@ -78,7 +79,8 @@ module jttms10_fabric #(
         .refresh_req(refresh_req),.refresh_row(refresh_row),
         .refresh_cbr(refresh_cbr)
     );
-    jttms10_bus #(.RESET_REFRESH(RESET_REFRESH)) u_bus(
+    jttms10_bus #(.RESET_REFRESH(RESET_REFRESH),.CLKS_PER_STATE(CLKS_PER_STATE),
+                 .TIMING(BUS_TIMING)) u_bus(
         .clk(clk),.rst(rst),.hold_req(hold_req),.hold_ack(hold_ack),
         .screen_req(screen_req),.screen_ack(screen_ack),
         .screen_srfaddr(screen_srfaddr),.screen_dpytap(screen_dpytap),
@@ -90,7 +92,7 @@ module jttms10_fabric #(
         .host_mem_is_io(host_mem_is_io),
         .host_mem_io_rdata(host_mem_io_rdata),
         .host_mem_rdata(host_mem_rdata),.host_mem_ack(host_mem_ack),
-        .word_req(word_req),.word_we(word_we),.word_iaq(word_iaq),
+        .word_req(word_req),.word_pending(word_pending),.word_we(word_we),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .is_io(is_io),.pixel_srt(pixel_srt),.io_rdata(io_rdata),

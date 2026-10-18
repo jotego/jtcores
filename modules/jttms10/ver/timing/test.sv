@@ -26,7 +26,7 @@ module test;
         .intenb(),.intpend(),.irq_pending(),.nmi_pending(),.halt()
     );
     reg [15:0] mem[0:4095];
-    integer i,rc,delay_clocks=16,extra_wait=0;
+    integer i,rc,delay_clocks=4,extra_wait=0;
     integer pause_clocks=0,pause_after=0,pause_left=0,paused=0;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
@@ -37,7 +37,7 @@ module test;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
     reg measuring=0,case_done=0;
-    integer case_id=0,batch_fd,word_count,loaded=0;
+    integer case_id=0,batch_fd,word_count,loaded=0,measure_pass=1;
     reg [15:0] input_word;
     // A combined fetch/dispatch commits IR and increments PC on the same
     // edge. The previous two-word microcode had incremented PC earlier.
@@ -50,12 +50,12 @@ module test;
         rc=$value$plusargs("PAUSE=%d",pause_clocks);
         rc=$value$plusargs("PAUSE_AFTER=%d",pause_after);
         if(extra_wait<0) $fatal(1,"negative wait");
-        delay_clocks=16+extra_wait;
+        delay_clocks=4+extra_wait;
         if($value$plusargs("BATCH=%s",batch_path)) begin
             batch_fd=$fopen(batch_path,"r");
             if(batch_fd==0) $fatal(1,"cannot open batch input");
-            rc=$fscanf(batch_fd,"%d %h %h %d",case_id,test_pc,next_pc,word_count);
-            while(rc==4) begin
+            rc=$fscanf(batch_fd,"%d %h %h %d %d",case_id,test_pc,next_pc,measure_pass,word_count);
+            while(rc==5) begin
                 if(word_count<1 || word_count>3840) $fatal(1,"invalid program length");
                 for(i=0;i<4096;i=i+1) mem[i]=0;
                 for(i=0;i<word_count;i=i+1) begin
@@ -69,7 +69,7 @@ module test;
                 wait(case_done);
                 @(negedge clk); rst=1;
                 loaded=loaded+1;
-                rc=$fscanf(batch_fd,"%d %h %h %d",case_id,test_pc,next_pc,word_count);
+                rc=$fscanf(batch_fd,"%d %h %h %d %d",case_id,test_pc,next_pc,measure_pass,word_count);
             end
             if(!$feof(batch_fd)) $fatal(1,"invalid batch record");
             $fclose(batch_fd);
@@ -80,6 +80,7 @@ module test;
                 !$value$plusargs("NEXT_PC=%h",next_pc))
                 $fatal(1,"missing PROGRAM/TEST_PC/NEXT_PC");
             rc=$value$plusargs("CASE_ID=%d",case_id);
+            rc=$value$plusargs("MEASURE_PASS=%d",measure_pass);
             for(i=0;i<4096;i=i+1) mem[i]=0;
             $readmemh(program_path,mem);
             $display("CASE %0d",case_id);
@@ -114,8 +115,8 @@ module test;
         end
     end
 
-    // ACK is consumed 16 INCLKs (two machine states) after the first
-    // sampling edge, plus the explicitly requested target delay.
+    // Raw target readiness/data: four clocks plus the requested delay.
+    // The CPU fabric, not this target, supplies TI's bus duration/phase.
     localparam IDLE=0,BUSY=1,ACK=2;
     reg [1:0] bus_state=IDLE;
     integer age=0;
@@ -139,7 +140,7 @@ module test;
                 io_q<=cyc_io_rdata; iaq_q<=cyc_iaq;
                 age<=1; bus_state<=BUSY;
                 if(measuring || $test$plusargs("TRACE"))
-                    $display("BUS_BEGIN %0d %0d %08h %04h %0d",now,
+                    $display("TARGET_BEGIN %0d %0d %08h %04h %0d",now,
                          cyc_kind,cyc_addr,cyc_wdata,cyc_iaq);
             end
             BUSY: begin
@@ -156,10 +157,27 @@ module test;
                     mem[addr_q[15:4]]<=data_q;
                 end
                 if(measuring || $test$plusargs("TRACE"))
-                    $display("BUS_END %0d %0d %08h %04h",now,kind_q,addr_q,cyc_rdata);
+                    $display("TARGET_END %0d %0d %08h %04h",now,kind_q,addr_q,cyc_rdata);
                 bus_state<=IDLE;
             end
         endcase
+    end
+
+    // State boundaries are on the reset-relative eight-clock grid. Queued
+    // cycles may absorb the bridge's registered handoff in their first
+    // state; retain actual acceptance/target clocks separately so those
+    // transport clocks cannot masquerade as pin-edge measurements.
+    always @(posedge clk) if(!rst && (measuring || $test$plusargs("TRACE"))) begin
+        if(dut.u_fabric.u_bus.g_timing.u_timer.start) begin
+            $display("BUS_BEGIN %0d %0d %08h %04h %0d",now-now%8,
+                dut.u_fabric.u_bus.cyc_kind,dut.u_fabric.u_bus.cyc_addr,
+                dut.u_fabric.u_bus.cyc_wdata,dut.u_fabric.u_bus.cyc_iaq);
+            $display("BUS_ACCEPT %0d",now);
+        end
+        if(dut.u_fabric.u_bus.complete)
+            $display("BUS_END %0d %0d %08h %04h",now,
+                dut.u_fabric.u_bus.cyc_kind,dut.u_fabric.u_bus.cyc_addr,
+                dut.u_fabric.u_bus.cycle_rdata);
     end
 
     // Decode-to-decode includes extension fetches and the following opcode
@@ -199,7 +217,7 @@ module test;
                     $display("DECODE %0d %08h %04h",now,accepted_pc,accepted_ir);
                 if(accepted_pc==test_pc) begin
                     seen<=seen+1;
-                    if(seen==1) begin start_clock<=now; measuring<=1; end
+                    if(seen==measure_pass) begin start_clock<=now; measuring<=1; end
                 end
                 if(measuring && accepted_pc==next_pc) begin
                     $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",

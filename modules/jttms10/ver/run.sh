@@ -78,6 +78,11 @@ iverilog -g2012 -s test -o "$ver_dir/build/cachefield.vvp" \
     "$ver_dir/cachefield/test.sv" "$ver_dir/../hdl/jttms10_field.v" \
     "$ver_dir/../hdl/jttms10_cache.v" "$ver_dir/../hdl/jttms10_bus.v"
 vvp "$ver_dir/build/cachefield.vvp"
+iverilog -g2012 -s test -Ptest.TIMING=1 -o "$ver_dir/build/cachefield-timed.vvp" \
+    "$ver_dir/cachefield/test.sv" "$ver_dir/../hdl/jttms10_field.v" \
+    "$ver_dir/../hdl/jttms10_cache.v" "$ver_dir/../hdl/jttms10_bus.v" \
+    "$ver_dir/../hdl/jttms10_bus_timer.v"
+vvp "$ver_dir/build/cachefield-timed.vvp"
 iverilog -g2012 -s test -o "$ver_dir/build/fabric.vvp" \
     "$ver_dir/fabric/test.sv" "$ver_dir/../hdl/jttms10_fabric.v" \
     "$ver_dir/../hdl/jttms10_field.v" "$ver_dir/../hdl/jttms10_bus.v" \
@@ -95,6 +100,7 @@ iverilog -g2012 -s test -o "$ver_dir/build/pixel.vvp" \
     "$ver_dir/../hdl/jttms10_alu.v"
 vvp "$ver_dir/build/pixel.vvp"
 python3 -B "$ver_dir/timing/test_checker.py"
+python3 "$ver_dir/bus_timing/check.py"
 timing_simulator=${JTTMS10_TIMING_SIMULATOR:-iverilog}
 timing_args=(--simulator "$timing_simulator")
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
@@ -104,6 +110,7 @@ python3 "$ver_dir/timing/run.py" "${timing_args[@]}"
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1 --pause-clocks 7
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_even_boundary_26_hit --pause-clocks 7 --pause-after-clocks 32
+python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_even_boundary_26_off --wait-states 1 --pause-clocks 7 --pause-after-clocks 32
 python3 "$ver_dir/timing/mutations.py"
 coverage_args=()
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then

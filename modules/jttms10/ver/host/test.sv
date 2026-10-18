@@ -20,7 +20,7 @@ module test;
     wire [7:0] cyc_dram_row;
     reg [15:0] cyc_rdata=0;
     reg cyc_ack=0,stall_local=0;
-    jttms10_fabric dut(
+    jttms10_fabric #(.BUS_TIMING(0)) dut(
         .clk(clk),.rst(rst),.vclk_cen(1'b0),
         .hcs_n(1'b0),.hsync_n(1'b1),.vsync_n(1'b1),
         .lint1_n(1'b1),.lint2_n(1'b1),
@@ -28,7 +28,7 @@ module test;
         .host_req(host_req),.host_we(host_we),
         .host_reg(host_reg),.host_be(host_be),.host_wdata(host_wdata),
         .host_rdata(host_rdata),.host_ack(host_ack),.host_busy(host_busy),
-        .word_req(word_req),.word_we(word_we),.word_iaq(word_iaq),
+        .word_req(word_req),.word_pending(word_req),.word_we(word_we),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),

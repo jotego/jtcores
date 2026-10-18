@@ -68,6 +68,9 @@ def main():
         zero_case = 'divu_odd_boundary_0_hit'
         evidence['div_min_control'] = run_case(work,'div_min_control',min_case)
         evidence['div_zero_control'] = run_case(work,'div_zero_control',zero_case)
+        evidence['bus_min_control'] = run_case(work,'bus_min_control','nop_off')
+        miss_case = 'nop_next_subsegment_miss_00000810'
+        evidence['miss_control'] = run_case(work,'miss_control',miss_case)
 
         flat = work / 'flat-width-hdl'
         shutil.copytree(MODULE / 'hdl',flat)
@@ -97,6 +100,29 @@ def main():
         evidence['wrong_div_early_exit'] = run_case(work,'wrong_div_early_exit',zero_case,
                                                   ['--rtl-dir',str(early)],mutated=True)
 
+        minimum_bus = work / 'short-bus-cycle-hdl'
+        shutil.copytree(MODULE / 'hdl',minimum_bus)
+        replace_once(minimum_bus / 'jttms10_bus_timer.v',
+                     'assign ack=active && left==0 && (io || external_done);',
+                     'assign ack=active && left<=STATE_CLKS && (io || external_done);')
+        evidence['short_bus_cycle'] = run_case(work,'short_bus_cycle','nop_off',
+                                              ['--rtl-dir',str(minimum_bus)],mutated=True)
+
+        q1 = work / 'late-ready-sample-hdl'
+        shutil.copytree(MODULE / 'hdl',q1)
+        replace_once(q1 / 'jttms10_bus_timer.v','SAMPLE_LEFT_I=3*CLKS_PER_STATE/4;',
+                     'SAMPLE_LEFT_I=0;')
+        evidence['ready_sample_at_end'] = run_case(work,'ready_sample_at_end','nop_off',
+            ['--rtl-dir',str(q1),'--wait-states','1'],mutated=True)
+
+        miss = work / 'missing-miss-processing-hdl'
+        shutil.copytree(MODULE / 'hdl',miss)
+        replace_once(miss / 'jttms10.v',
+                     "fetch_wait<=mem_cached ? 16'd0 : CLKS_PER_STATE[15:0]-16'd2;",
+                     "fetch_wait<=control[15] ? CLKS_PER_STATE[15:0]-16'd2 : 16'd0;")
+        evidence['missing_miss_processing'] = run_case(work,'missing_miss_processing',miss_case,
+                                                     ['--rtl-dir',str(miss)],mutated=True)
+
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)
         replace_once(cen / 'jttms10.v','if(cen) begin',"if(1'b1) begin")
@@ -105,7 +131,7 @@ def main():
 
         bench = work / 'ignores-wait.sv'
         shutil.copyfile(HERE / 'test.sv',bench)
-        replace_once(bench,'delay_clocks=16+extra_wait;','delay_clocks=16;')
+        replace_once(bench,'delay_clocks=4+extra_wait;','delay_clocks=4;')
         evidence['omitted_target_wait'] = run_case(work,'omitted_target_wait','nop_off',
             ['--bench',str(bench),'--wait-states','1'],mutated=True)
 

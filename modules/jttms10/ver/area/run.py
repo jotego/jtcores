@@ -106,8 +106,10 @@ def main():
         ports = NARC_PORTS
     elif args.fabric:
         project, top = "fabric", "jttms10_fabric"
+        available={p.name for p in source_files(MODULE / "hdl","*.v",source_ref)}
         for name in ("jttms10_fabric.v", "jttms10_bus.v", "jttms10_io.v",
-                     "jttms10_host.v", "jttms10_video.v", "jttms10_refresh.v"):
+                     "jttms10_host.v", "jttms10_video.v", "jttms10_refresh.v", "jttms10_bus_timer.v"):
+            if name=="jttms10_bus_timer.v" and name not in available:continue
             source = MODULE / "hdl" / name
             target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes, source_ref)
             sources.append(("VERILOG_FILE", target))
@@ -226,6 +228,16 @@ def main():
                      "nmi_nostack", "halt_req", "emu_run", "nmi_clear",
                      "psize[*]", "convsp[*]", "convdp[*]", "control[*]", "pmask[*]", "wvp_set",
                      "emu_ack", "pc[*]", "st[*]", "ir[*]", "retire", "fault"]
+
+    # Retain complete standalone port boundaries while reproducing commits
+    # that predate the cache-hit/pending-transaction metadata ports.
+    if args.fabric or args.word:
+        module_name="jttms10_fabric.v" if args.fabric else "jttms10_word.v"
+        if "word_pending" in (out/"src/modules/jttms10/hdl"/module_name).read_text():
+            ports.append("word_pending")
+    elif args.scalar:
+        if "mem_cached" in (out/"src/modules/jttms10/hdl/jttms10.v").read_text():
+            ports.append("mem_cached")
 
     qsf += [f"set_global_assignment -name TOP_LEVEL_ENTITY {top}",
             f"set_global_assignment -name SDC_FILE {project}.sdc"]

@@ -11,6 +11,7 @@ module jttms10_cache(
     input [15:0] c_wdata,
     output [15:0] c_rdata,
     output c_ack,
+    output c_hit,
     output c_restart,
     output m_req, m_we, m_iaq, m_pixel, m_lock,
     output [31:0] m_addr,
@@ -63,6 +64,7 @@ module jttms10_cache(
     // cycle after that RAM read. Mode changes may still revoke this hit.
     wire hit_ack=state==HIT && !cache_disable && !cache_flush;
     assign c_ack=hit_ack || response_ack;
+    assign c_hit=hit_ack;
     assign c_rdata=hit_ack ? ram_q : response_data;
     wire [6:0] ram_read_addr={use_slot,c_addr[8:4]};
     reg [1:0] slot_q, word_q, fill_index;

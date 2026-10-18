@@ -8,6 +8,8 @@ The old GPL `modules/tms34010/rtl/memory/tms34010_bus_arbiter.sv` informed the
 cycle kinds and partial-word reservation rule. The synchronous host-register
 and indirect client are described in [host.md](host.md); physical asynchronous
 host-pin timing remains outside this fabric.
+The normal fabric enables its TI cycle timer; see [bus-timing.md](bus-timing.md)
+for the state/ready contract, target transport, evidence and limits.
 
 The integrated system enables `RESET_REFRESH`, which schedules the eight
 initial RAS-only cycles required by TI §8.8 (8-10) before screen, ordinary
@@ -28,26 +30,30 @@ memory change, delayed screen completion, and a REFCNT-generated refresh.
 The standard `ver/run.sh` and `ver/lint.sh` include this integration boundary.
 
 `word_addr` is a 32-bit **bit** address. The field adapter holds `word_req`,
-`word_we`, address, and data until `word_ack`, which the arbiter generates for
-one clock when NARC acknowledges the selected cycle. `word_req` may remain
+`word_we`, address, and data until `word_ack`, which the timed arbiter generates
+when the TI cycle completes. `word_req` may remain
 high as the field adapter advances from a partial-word read to its write or
 to another physical word. The arbiter detects the changed physical request
 tuple at that boundary and will not issue the previous identical tuple again
 while `word_req` is held. A caller that intends a second *identical* physical
 cycle must lower `word_req` for a clock between them. This matches the current
 field adapter's request progression; if that progression changes, revisit this
-boundary contract. `word_rdata` is `cyc_rdata`, valid with `word_ack`.
+boundary contract. `word_rdata` is the retained response, valid with `word_ack`.
+`word_pending` retains the logical field/cache operation across short
+deassertions of `word_req` between physical words. It releases between
+unrelated CPU requests. This lets queued field/RMW words use their next
+bus state without adding an artificial handoff state.
 
-The selected kind and all payload fields are latched before `cyc_req` rises
-and remain stable until `cyc_ack`. Kind 0/1 are normal word read/write; 2 is
+The selected kind and all payload fields are latched before an external
+`cyc_req` rises and remain stable until target `cyc_ack`. Kind 0/1 are normal word read/write; 2 is
 screen refresh with held raw SRFADR, DPYTAP, and ORG; 3/4 are RAS/CBR DRAM
 refresh; 5/6 are I/O read/write; 7/8 are pixel MTR/RTM when the physical
 request's `word_pixel` tag and `pixel_srt` are both set. I/O classification
-has priority over the pixel tag. The internal `io_rdata` is sampled at grant
-for a stable kind-5 payload, and IAQ is suppressed on I/O and pixel cycles.
-The external NARC controller still supplies a timed acknowledgement for I/O
-cycles; the peripheral register write must commit on the resulting
-`word_ack`. `cyc_dram_row` may be left unused by the NARC board bridge, as in
+has priority over the pixel tag. IAQ is suppressed on I/O and pixel cycles.
+Timed I/O cycles are serviced on chip in two states, ignoring the external
+ACK and issuing no external kind-5/6 request. The peripheral write commits
+on the resulting `word_ack`. Raw-mode protocol clients retain external
+I/O transport. `cyc_dram_row` may be left unused by the NARC board bridge, as in
 the old wrapper.
 
 `word_lock` reserves the bus after a partial-word read is selected, so its
