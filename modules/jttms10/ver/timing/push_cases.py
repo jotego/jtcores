@@ -15,7 +15,7 @@ def push_fixture(tag,off,offset=0,status=0xC0000010,*,address=None,alignment=0):
         expected_st=status,hidden_states=8 if offset else 3,states=2+((11 if offset else 6) if off else 0),
         citation='SPVU001A12-228; SPVS002C June1991p14')
     row['regs'][3]=status;row['expected_regs'][3]=status
-    data=row['data_store'];data.update(value=status,write_start=0 if offset else 1)
+    data=row['data_store'];data.update(value=status,write_start=0 if offset else 1,reverse=True)
     row['expected_memory']=insert(row['initial_memory'],data['address'],32,status)
     row['instruction_word_offset']=alignment
     row['conditions']=dict(stack_alignment=offset,status=status,target=address,initial_sp=row['initial_sp'],opcode_offset=alignment)

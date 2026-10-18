@@ -134,7 +134,8 @@ specified sequencing.
 ## Stack and unary instructions
 
 `ucode/control.yaml` implements PUSHST/POPST, three CALL forms, RETS,
-TRAP, and RETI with shared push/pop helpers. Stack accesses force a 32-bit
+TRAP, and RETI with shared stack machinery. PUSHST uses the posted full-width
+field path; other pushes retain the halfword helper. Stack accesses force a 32-bit
 field independently of FS/FE. The synchronous register port selects the
 shared SP throughout these instructions, and CALL through SP captures its
 original target before push predecrement. TRAP zero reloads the reset vector
@@ -149,9 +150,10 @@ ANDI's encoded extension is complemented, while ANDNI names the same opcode
 with a direct extension. Logical operations update only Z. Tests also cover
 ADDC/SUBB with both input carry/borrow values.
 
-The stack helper issues two 16-bit predecrements, high half first, to preserve
-TI's physical push order independently of the field adapter's ascending
-word order. IRQ/NMI/HLT/EMU boundaries and array PBX continuation, including cached
+The CALL/TRAP/hardware-entry helper issues two16-bit predecrements, high
+half first. PUSHST computes SP-32 through the shared ALU and posts one32-bit
+field in descending physical word order. Ordinary fields remain ascending;
+both paths preserve TI's MSW-first stack order. See[push-timing.md](push-timing.md). IRQ/NMI/HLT/EMU boundaries and array PBX continuation, including cached
 binary source chunks, have focused tests. LINE also has ordinary PC-rewind
 continuation tests;
 see [interrupts.md](interrupts.md) and [stack-isa.md](stack-isa.md).

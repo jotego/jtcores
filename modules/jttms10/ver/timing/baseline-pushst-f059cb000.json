@@ -36,7 +36,7 @@
       "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
       "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
       "ver/timing/load_mode_cases.py": "9ff6ae751706b7925d5b97352df99fa3dbd0f0fce0e43de09e6034d3b9aa8b9d",
-      "ver/timing/store_cases.py": "77c06214093c031e9121537d997f2a1d172ba9a339478b8a7292878b8de37bcf",
+      "ver/timing/store_cases.py": "f54770d781b01b0bf1dbdb17ece1dfe3f69430ebf3dfdb4b7fbc22f5ba27372f",
       "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
       "ver/timing/control_cases.py": "0fb907e3996c6cf7fb34ce0618388d485a12b96871567ba78ca292b8c0c53bb8",
       "ver/timing/xy_cases.py": "27675e4d4d9f7d3ec2659d9077792a51d53009094a04b1b113e14b1084bf8cd3",
@@ -49,7 +49,7 @@
       "ver/timing/stack_cases.py": "94db9a886b5308f8bee2f191641b77f6d720091af986fe24875dc059e0f9b9d4",
       "ver/timing/return_cases.py": "3d8ada5810bb9be5487b771e173ace3ba7807a7e3bb0497543ec744129ad617c",
       "ver/timing/interrupt_return_cases.py": "b1d986f2cc2c64dc05751147ba4bcd1b92b8fbb2ae6c1561ec532cc8bc3d9cfd",
-      "ver/timing/push_cases.py": "65db4b5980ff0d27c56d77b8a5177131fb3d3f5a366a325a049df017652a2831",
+      "ver/timing/push_cases.py": "40c0208b4f3216c884ad3a7a01b2a7d6ec4a9e560e1fd64378b4a55fb5f49ca0",
       "ver/timing/test.sv": "e7a1d6473ed33fb6da4c4fbdc28df0a2caa37cfbf8a3186360bdc5dd2b0adf0a"
     },
     "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
@@ -129,7 +129,8 @@
         "value": 2064,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -167,17 +168,9 @@
       "errors": [
         "stack_pushst_o0_flags0_ie0_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '00006010', '0000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '00006010', '0000', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 00006010 0000 0",
@@ -273,7 +266,8 @@
         "value": 2099216,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -311,17 +305,9 @@
       "errors": [
         "stack_pushst_o0_flags0_ie1_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 00006010 0020 0",
@@ -417,7 +403,8 @@
         "value": 4026533904,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -455,17 +442,9 @@
       "errors": [
         "stack_pushst_o0_flags15_ie0_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '00006010', 'f000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '00006010', 'f000', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 00006010 f000 0",
@@ -561,7 +540,8 @@
         "value": 4028631056,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -599,17 +579,9 @@
       "errors": [
         "stack_pushst_o0_flags15_ie1_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '00006010', 'f020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '00006010', 'f020', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 00006010 f020 0",
@@ -705,7 +677,8 @@
         "value": 2064,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -869,7 +842,8 @@
         "value": 2099216,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -1033,7 +1007,8 @@
         "value": 4026533904,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -1197,7 +1172,8 @@
         "value": 4028631056,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -1361,7 +1337,8 @@
         "value": 2064,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -1399,18 +1376,10 @@
       "errors": [
         "stack_pushst_o0_flags0_ie0_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '00006010', '0000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '00006010', '0000', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -1512,7 +1481,8 @@
         "value": 2099216,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -1550,18 +1520,10 @@
       "errors": [
         "stack_pushst_o0_flags0_ie1_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -1663,7 +1625,8 @@
         "value": 4026533904,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -1701,18 +1664,10 @@
       "errors": [
         "stack_pushst_o0_flags15_ie0_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '00006010', 'f000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '00006010', 'f000', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -1814,7 +1769,8 @@
         "value": 4028631056,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -1852,18 +1808,10 @@
       "errors": [
         "stack_pushst_o0_flags15_ie1_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '00006010', 'f020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '00006010', 'f020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', '00006000', '0810', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -1965,7 +1913,8 @@
         "value": 2064,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -2134,7 +2083,8 @@
         "value": 2099216,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -2303,7 +2253,8 @@
         "value": 4026533904,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -2472,7 +2423,8 @@
         "value": 4028631056,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -2641,7 +2593,8 @@
         "value": 1612711937,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -2805,7 +2758,8 @@
         "value": 1612711969,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -2969,7 +2923,8 @@
         "value": 1612711936,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -3133,7 +3088,8 @@
         "value": 1612711968,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -3297,7 +3253,8 @@
         "value": 1612709968,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -3461,7 +3418,8 @@
         "value": 1612712016,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -3625,7 +3583,8 @@
         "value": 1612709904,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -3789,7 +3748,8 @@
         "value": 1612711952,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -3953,7 +3913,8 @@
         "value": 1612711937,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -4122,7 +4083,8 @@
         "value": 1612711969,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -4291,7 +4253,8 @@
         "value": 1612711936,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -4460,7 +4423,8 @@
         "value": 1612711968,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -4629,7 +4593,8 @@
         "value": 1612709968,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -4798,7 +4763,8 @@
         "value": 1612712016,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -4967,7 +4933,8 @@
         "value": 1612709904,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -5136,7 +5103,8 @@
         "value": 1612711952,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -5305,7 +5273,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -5343,17 +5312,9 @@
       "errors": [
         "stack_pushst_address_80006000_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '80006010', 'c000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', '80006000', '0010', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '80006010', 'c000', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', '80006000', '0010', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 80006010 c000 0",
@@ -5449,7 +5410,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -5613,7 +5575,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -5651,17 +5614,9 @@
       "errors": [
         "stack_pushst_address_fffffff0_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '00000000', 'c000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', 'fffffff0', '0010', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '00000000', 'c000', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', 'fffffff0', '0010', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 00000000 c000 0",
@@ -5757,7 +5712,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -5921,7 +5877,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -5959,18 +5916,10 @@
       "errors": [
         "stack_pushst_address_80006000_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '80006010', 'c000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', '80006000', '0010', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '80006010', 'c000', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', '80006000', '0010', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -6072,7 +6021,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -6241,7 +6191,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -6279,18 +6230,10 @@
       "errors": [
         "stack_pushst_address_fffffff0_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '00000000', 'c000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', 'fffffff0', '0010', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '00000000', 'c000', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', 'fffffff0', '0010', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -6392,7 +6335,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -6561,7 +6505,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -6725,7 +6670,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -6889,7 +6835,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -7053,7 +7000,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -7217,7 +7165,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -7386,7 +7335,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -7555,7 +7505,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -7724,7 +7675,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -7893,7 +7845,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -7931,17 +7884,9 @@
       "errors": [
         "stack_pushst_numeric_semantics_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 2696, observed 2704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2704', '1', '0ff00010', 'c000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 2712, observed 2736",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '2736', '1', '0ff00000', '0010', '0']",
-        "BUS write data mismatch",
         "TARGET transfer start: expected 2696..2702, observed 2704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2704', '1', '0ff00010', 'c000', '0']",
-        "TARGET write data mismatch",
-        "TARGET transfer start: expected 2712..2718, observed 2736",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '2736', '1', '0ff00000', '0010', '0']",
-        "TARGET write data mismatch"
+        "TARGET transfer start: expected 2712..2718, observed 2736"
       ],
       "bus_trace": [
         "BUS_BEGIN 2704 1 0ff00010 c000 0",
@@ -8037,7 +7982,8 @@
         "value": 3221225488,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": true,
       "tail_instructions": 32,
@@ -8075,18 +8021,10 @@
       "errors": [
         "stack_pushst_numeric_semantics_off: expected 64 INCLK, observed 96 INCLK",
         "BUS transfer start: expected 4136, observed 4144",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4144', '1', '0ff00010', 'c000', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4152, observed 4176",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '4176', '1', '0ff00000', '0010', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 4168, observed 4200",
         "TARGET transfer start: expected 4136..4142, observed 4144",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4144', '1', '0ff00010', 'c000', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4152..4158, observed 4176",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '4176', '1', '0ff00000', '0010', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 4168..4174, observed 4200"
       ],
       "bus_trace": [
@@ -8194,7 +8132,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -8290,19 +8229,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k0_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3144, observed 3152",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3152', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3160, observed 3184",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3184', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3176, observed 3208",
         "BUS transfer start: expected 3192, observed 3224",
         "TARGET transfer start: expected 3144..3150, observed 3152",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3152', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3160..3166, observed 3184",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3184', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3176..3182, observed 3211",
         "TARGET transfer start: expected 3192..3198, observed 3227",
         "following dependent load: expected 80 INCLK, observed 112"
@@ -8433,7 +8364,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -8530,19 +8462,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k1_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3152, observed 3160",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3160', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3168, observed 3192",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3192', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3184, observed 3224",
         "BUS transfer start: expected 3200, observed 3240",
         "TARGET transfer start: expected 3152..3158, observed 3160",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3160', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3168..3174, observed 3192",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3192', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3184..3190, observed 3227",
         "TARGET transfer start: expected 3200..3206, observed 3243",
         "following dependent load: expected 80 INCLK, observed 120"
@@ -8673,7 +8597,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -8771,19 +8696,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k2_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3232, observed 3240",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3240', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3248, observed 3272",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3272', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3264, observed 3312",
         "BUS transfer start: expected 3280, observed 3328",
         "TARGET transfer start: expected 3232..3238, observed 3240",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3240', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3248..3254, observed 3272",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3272', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3264..3270, observed 3315",
         "TARGET transfer start: expected 3280..3286, observed 3331",
         "following dependent load: expected 80 INCLK, observed 128"
@@ -8914,7 +8831,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -9013,19 +8931,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k3_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3240, observed 3248",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3248', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3256, observed 3280",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3280', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3272, observed 3328",
         "BUS transfer start: expected 3288, observed 3344",
         "TARGET transfer start: expected 3240..3246, observed 3248",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3248', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3256..3262, observed 3280",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3280', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3272..3278, observed 3331",
         "TARGET transfer start: expected 3288..3294, observed 3347",
         "following dependent load: expected 80 INCLK, observed 136"
@@ -9156,7 +9066,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -9259,19 +9170,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k7_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3344, observed 3352",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3352', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3360, observed 3384",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3384', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3408, observed 3464",
         "BUS transfer start: expected 3424, observed 3480",
         "TARGET transfer start: expected 3344..3350, observed 3352",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3352', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3360..3366, observed 3384",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3384', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3408..3414, observed 3467",
         "TARGET transfer start: expected 3424..3430, observed 3483",
         "following dependent load: expected 112 INCLK, observed 168"
@@ -9402,7 +9305,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -9508,19 +9412,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k10_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3440, observed 3448",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3448', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3456, observed 3480",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3480', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3528, observed 3584",
         "BUS transfer start: expected 3544, observed 3600",
         "TARGET transfer start: expected 3440..3446, observed 3448",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3448', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3456..3462, observed 3480",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3480', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3528..3534, observed 3587",
         "TARGET transfer start: expected 3544..3550, observed 3603",
         "following dependent load: expected 136 INCLK, observed 192"
@@ -9651,7 +9547,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -9767,19 +9664,11 @@
       "errors": [
         "stack_pushst_following_s0_o0_k20_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3664, observed 3672",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3672', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3680, observed 3704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3704', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3832, observed 3888",
         "BUS transfer start: expected 3848, observed 3904",
         "TARGET transfer start: expected 3664..3670, observed 3672",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3672', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3680..3686, observed 3704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3704', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3832..3838, observed 3891",
         "TARGET transfer start: expected 3848..3854, observed 3907",
         "following dependent load: expected 216 INCLK, observed 272"
@@ -9910,7 +9799,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -10170,7 +10060,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -10431,7 +10322,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -10693,7 +10585,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -10956,7 +10849,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -11223,7 +11117,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -11493,7 +11388,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -11773,7 +11669,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -11869,19 +11766,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k0_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3144, observed 3152",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3152', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3160, observed 3184",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3184', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3176, observed 3208",
         "BUS transfer start: expected 3192, observed 3224",
         "TARGET transfer start: expected 3144..3150, observed 3152",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3152', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3160..3166, observed 3184",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3184', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3176..3182, observed 3211",
         "TARGET transfer start: expected 3192..3198, observed 3227",
         "following dependent load: expected 80 INCLK, observed 112"
@@ -12012,7 +11901,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -12109,19 +11999,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k1_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3152, observed 3160",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3160', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3168, observed 3192",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3192', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3184, observed 3224",
         "BUS transfer start: expected 3200, observed 3240",
         "TARGET transfer start: expected 3152..3158, observed 3160",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3160', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3168..3174, observed 3192",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3192', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3184..3190, observed 3227",
         "TARGET transfer start: expected 3200..3206, observed 3243",
         "following dependent load: expected 80 INCLK, observed 120"
@@ -12252,7 +12134,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -12350,19 +12233,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k2_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3232, observed 3240",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3240', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3248, observed 3272",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3272', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3264, observed 3312",
         "BUS transfer start: expected 3280, observed 3328",
         "TARGET transfer start: expected 3232..3238, observed 3240",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3240', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3248..3254, observed 3272",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3272', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3264..3270, observed 3315",
         "TARGET transfer start: expected 3280..3286, observed 3331",
         "following dependent load: expected 80 INCLK, observed 128"
@@ -12493,7 +12368,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -12592,19 +12468,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k3_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3240, observed 3248",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3248', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3256, observed 3280",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3280', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3272, observed 3328",
         "BUS transfer start: expected 3288, observed 3344",
         "TARGET transfer start: expected 3240..3246, observed 3248",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3248', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3256..3262, observed 3280",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3280', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3272..3278, observed 3331",
         "TARGET transfer start: expected 3288..3294, observed 3347",
         "following dependent load: expected 80 INCLK, observed 136"
@@ -12735,7 +12603,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -12838,19 +12707,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k7_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3344, observed 3352",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3352', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3360, observed 3384",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3384', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3408, observed 3464",
         "BUS transfer start: expected 3424, observed 3480",
         "TARGET transfer start: expected 3344..3350, observed 3352",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3352', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3360..3366, observed 3384",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3384', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3408..3414, observed 3467",
         "TARGET transfer start: expected 3424..3430, observed 3483",
         "following dependent load: expected 112 INCLK, observed 168"
@@ -12981,7 +12842,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -13087,19 +12949,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k10_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3440, observed 3448",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3448', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3456, observed 3480",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3480', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3528, observed 3584",
         "BUS transfer start: expected 3544, observed 3600",
         "TARGET transfer start: expected 3440..3446, observed 3448",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3448', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3456..3462, observed 3480",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3480', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3528..3534, observed 3587",
         "TARGET transfer start: expected 3544..3550, observed 3603",
         "following dependent load: expected 136 INCLK, observed 192"
@@ -13230,7 +13084,8 @@
         "value": 2099200,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 1
+        "write_start": 1,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -13346,19 +13201,11 @@
       "errors": [
         "stack_pushst_following_s15_o0_k20_hit: expected 16 INCLK, observed 72 INCLK",
         "BUS transfer start: expected 3664, observed 3672",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3672', '1', '00006010', '0020', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3680, observed 3704",
-        "BUS request kind/address/IAQ mismatch: ['BUS_BEGIN', '3704', '1', '00006000', '0800', '0']",
-        "BUS write data mismatch",
         "BUS transfer start: expected 3832, observed 3888",
         "BUS transfer start: expected 3848, observed 3904",
         "TARGET transfer start: expected 3664..3670, observed 3672",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3672', '1', '00006010', '0020', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3680..3686, observed 3704",
-        "TARGET request kind/address/IAQ mismatch: ['TARGET_BEGIN', '3704', '1', '00006000', '0800', '0']",
-        "TARGET write data mismatch",
         "TARGET transfer start: expected 3832..3838, observed 3891",
         "TARGET transfer start: expected 3848..3854, observed 3907",
         "following dependent load: expected 216 INCLK, observed 272"
@@ -13489,7 +13336,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -13749,7 +13597,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -14010,7 +13859,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -14272,7 +14122,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -14535,7 +14386,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -14802,7 +14654,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,
@@ -15072,7 +14925,8 @@
         "value": 4028631040,
         "mode": "pre",
         "cpu": 2,
-        "write_start": 0
+        "write_start": 0,
+        "reverse": true
       },
       "cache_disabled": false,
       "tail_instructions": 32,

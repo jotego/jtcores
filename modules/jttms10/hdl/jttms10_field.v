@@ -21,6 +21,7 @@ module jttms10_field(
     input      [31:0] addr,
     input      [31:0] wdata,
     input      [5:0]  size,
+    input             reverse,
     output reg        ack,
     output            busy,
     output     [31:0] rdata,
@@ -50,9 +51,12 @@ reg [5:0] span_remaining;
 reg [15:0] old_word;
 reg [1:0] index, last_index;
 reg [3:0] offset;
+reg reverse_q;
+wire [5:0] field_span = {2'b00,addr[3:0]} + size;
+wire [1:0] request_last=field_span>6'd32 ? 2'd2 : field_span>6'd16 ? 2'd1 : 2'd0;
+wire [31:0] reverse_displacement={26'd0,request_last,4'd0};
 wire [15:0] word_mask;
 reg [15:0] word_data;
-wire [5:0] field_span = {2'b00,addr[3:0]} + size;
 // HOLD may break a partial-word pair only after its read completed and
 // before its write was accepted. Cancel that pending write and reread the
 // external word after HOLD releases, so unrelated bits cannot go stale.
@@ -116,19 +120,26 @@ always @(posedge clk) begin
         index       <= 2'd0;
         last_index  <= 2'd0;
         offset      <= 4'd0;
+        reverse_q   <= 0;
     end else begin
         case (state)
             IDLE: if (req) begin
-                base_addr   <= {addr[31:4],4'b0000};
-                span_remaining <= field_span;
-                data_window <= aligned_product;
+                base_addr <= {addr[31:4],4'b0000} + (we && reverse ? reverse_displacement : 32'd0);
+                span_remaining <= field_span - (we && reverse ? {request_last,4'd0} : 6'd0);
+                reverse_q <= we && reverse;
+                if(we && reverse && request_last==2'd2)
+                    data_window <= {aligned_product[15:0],aligned_product[31:16],aligned_product[47:32]};
+                else if(we && reverse && request_last==2'd1)
+                    data_window <= {16'd0,aligned_product[15:0],aligned_product[31:16]};
+                else data_window <= aligned_product;
                 read_window <= 48'd0;
-                index       <= 2'd0;
-                last_index  <= field_span > 6'd32 ? 2'd2 :
-                               field_span > 6'd16 ? 2'd1 : 2'd0;
+                index <= we && reverse ? request_last : 2'd0;
+                last_index <= request_last;
                 offset      <= addr[3:0];
                 if (size == 6'd0 || size > 6'd32)
                     state <= RESPONSE;
+                else if(we && reverse && request_last!=0)
+                    state <= field_span[3:0]==0 ? WRITE : RMW_READ;
                 else
                     // The first word's coverage is known at acceptance; it needs
                     // no selector clock before its first physical request.
@@ -157,12 +168,12 @@ always @(posedge clk) begin
             WRITE: if (restart_rmw) begin
                 state <= RMW_READ;
             end else if (word_ack) begin
-                if (index == last_index)
+                if (reverse_q ? index==0 : index==last_index)
                     state <= RESPONSE;
                 else begin
-                    index <= index + 2'd1;
-                    base_addr <= base_addr + 32'd16;
-                    span_remaining <= span_remaining - 6'd16;
+                    index <= reverse_q ? index-2'd1 : index+2'd1;
+                    base_addr <= base_addr + (reverse_q ? 32'hfffffff0 : 32'd16);
+                    span_remaining <= span_remaining + (reverse_q ? 6'd16 : 6'h30);
                     data_window <= {16'd0,data_window[47:16]};
                     state <= SELECT;
                 end

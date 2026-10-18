@@ -150,6 +150,7 @@ module jttms10_word #(
     jttms10_field u_field(
         .clk(clk), .rst(rst), .req(data_request && !post_busy && !post_ack), .we(field_we),
         .addr(field_addr), .wdata(field_wdata), .size(field_size),
+        .reverse(field_post && ir==16'h01e0),
         .ack(data_ack), .busy(field_busy), .rdata(data_rdata),
         .word_req(field_word_req), .word_we(field_word_we), .word_addr(field_word_addr),
         .word_wdata(field_word_wdata), .word_lock(field_word_lock),

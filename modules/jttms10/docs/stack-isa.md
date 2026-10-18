@@ -36,10 +36,12 @@ source-level ANDI mnemonic. ORI/XORI use the encoded immediate directly.
 ## Physical and system behavior
 
 TI p. 12-253 requires PC and ST to be pushed MSW first, predecrementing SP
-before each word. The shared push helper performs two 16-bit predecrements
-and writes the high half before the low half. Physical word-bus assertions
-cover PUSHST, CALLA and TRAP; the final memory field remains little-endian.
-Unaligned halfword writes use the field adapter's preservation/RMW rules.
+before each word. CALL/TRAP/hardware entry retain the two16-bit helper;
+PUSHST prepares SP-32 and posts a full32-bit field in descending physical
+word order. The unchanged word-bus assertion covers MSW-first PUSHST,
+CALLA and TRAP; final memory remains little-endian. Descending partial
+words retain RMW preservation and HOLD restart. See[push timing](push-timing.md)
+for the base/hidden counts and validation scope.
 
 RETI's PBX-controlled resumption of interrupted PIXBLT/FILL (p. 12-230) is
 tested with published B-register context, cached binary source bits and

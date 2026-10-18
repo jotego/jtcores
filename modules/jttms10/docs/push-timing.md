@@ -22,8 +22,17 @@ Two microinstructions subtract32/store the old ST and consume the posted
 The existing field engine captures the full status and handles word writes,
 RMW, wrap, HOLD/restart and overlap with program-cache hits. The instruction
 finishes after two CPU states while its write continues; later data work
-waits behind the accepted field. No arithmetic unit, register bank or DSP
+waits behind the accepted field. No CPU arithmetic unit, register bank or DSP
 is added.
+
+The field visits physical words in descending address order, preserving the
+MSW-first stack rule stated on p.12-253. Ordinary stores and reads retain
+ascending order. Captured data lanes and upper/lower masks follow the
+selected direction; a partial-word restart rereads that same word before
+continuing. The unchanged word-wrapper regression verifies MSW-first
+PUSHST/CALL/TRAP. The field unit now checks1024 write/read vectors across
+both directions, minimal RMW transfers, stable requests, every size/offset
+and forward plus descending multiword HOLD restarts.
 
 The transport's aligned field starts in state1: two writes finish in state5,
 leaving three hidden states after CPU state2. An unaligned field starts in
@@ -58,13 +67,21 @@ logical/raw read traffic after the push. The checker parses following
 implicit-register observations and refuses to classify a mutation as
 timing-only when following SP or another initialized register is wrong.
 
-Targeted corrected-source Verilator stress passes all1522 W=1/CEN=7
-programs. The short profiles,128 models and four timing mutations pass;
-the new mutants change CPU count, aligned/unaligned first-word eligibility
-or the short-pause permission. Full Icarus comparison, clean-checkout and
-standard-runner acceptance remain pending. The preceding prototype passes
-180 architectural programs and13 functional IRQ/resume scenarios; final
-corrected-source architecture/full-runner acceptance remains required.
+All1522 W=1/CEN=7 case objects and source/ROM hashes match Icarus and
+Verilator exactly. The66 short phase cases,128 models, strict lint and five
+actual RTL mutations pass. Mutants change CPU count, first-word eligibility,
+short-pause permission or physical word order. The order mutant retains
+correct duration, full state and final memory but fails bus sequencing.
+Clean-checkout and standard-runner acceptance remain pending.
+
+The initial111-form standard runner failed the existing word-wrapper
+MSW-first assertion before its timing matrices: a whole-field ascending
+write preserved architectural results but regressed the documented bus
+order. The new descending field path corrects that production bug without
+weakening the original assertion. That failed run is historical evidence,
+not full-runner acceptance. Final corrected-source architecture and a fresh
+standard runner remain required; earlier prototypes passed180 architecture
+programs and13 functional IRQ/resume scenarios.
 
 All1522 historical programs fail timing/bus checks on the old public
 f059cb000 HDL and microcode, with correct full main/following state and
@@ -74,9 +91,10 @@ harness, preserving and verifying all22 old HDL/YAML inputs and old ROM.
 Its78 committed representatives are evidence, never an oracle or allowlist.
 All87,510 preceding fixtures, programs, goldens and boundaries are unchanged.
 
-Matched corrected-source quartus_map estimates3,656 ALMs,5,180 ALUTs,
-1,724 registers,538,624 RAM bits,five DSPs and zero MLAB bits: +13 ALMs,
-+21 ALUTs and one permission register from RETI. Same158 virtual pins,
+Matched MSW-first-source quartus_map estimates3,625 ALMs,5,197 ALUTs,
+1,597 registers,538,624 RAM bits,five DSPs and zero MLAB bits: -18 ALMs,
++38 ALUTs and -126 registers from RETI. This combined synthesis result does
+not isolate a single change's cost. Same158 virtual pins,
 Quartus Lite20.1.1 Build720,5CSEBA6U23I7,20ns,seed1 and effort; the snapshot
 matches the current RTL/YAML. This is a synthesis estimate; no PUSHST fit
 or STA claim is made. The final ceiling remains≤3,500 fitted ALMs.

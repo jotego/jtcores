@@ -177,8 +177,8 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. The current suite runs 61
-positive controls and 69 rejection checks. Three rejection checks target
+states and premature first/second address words. The current suite runs 62
+positive controls and 70 rejection checks. Three rejection checks target
 sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs nine controls and one duplicate-read mutation.
@@ -530,6 +530,14 @@ It uses the existing full-width field path and a shared-ALU SP decrement,
 with two CPU states and overlapped writes. A corrected slot permission
 prevents one-clock CEN pauses from being absorbed by aligned writes. The
 224 following loads retain exact residual stalls and full initialized
-register/memory checks. The permanent mutation suite has61 controls and69
+register/memory checks. The permanent mutation suite has62 controls and70
 rejections, including the new short-pause regression. Full Icarus/clean and
 standard-runner validation remains pending; see[push-timing.md](push-timing.md).
+
+PUSHST's initial full runner exposed a real MSW-order regression despite
+passing timing/state probes. Descending full-field writes now preserve the
+unchanged legacy stack-order assertion (SPVU001A12-253). A fifth PUSHST
+mutant restores ascending order with correct duration/state/memory and must
+fail bus sequencing. The field unit checks1024 forward/descending vectors
+and both HOLD restarts. The corrected source requires a fresh full runner;
+the initial failed111-form run is not accepted.

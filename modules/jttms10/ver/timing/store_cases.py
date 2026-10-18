@@ -26,7 +26,9 @@ def transactions(case):
     image=dict(case['initial_memory'] if case.get('measure_pass',1)==0 else case['expected_memory']);final=dict(case['expected_memory'])
     touched={((address+b)&MASK32)&~15 for b in range(width)}
     result=[]
-    for word in sorted(touched,key=lambda w:(w-(address&~15))&MASK32):
+    ordered=sorted(touched,key=lambda w:(w-(address&~15))&MASK32)
+    if spec.get('reverse'):ordered.reverse()
+    for word in ordered:
         bits=sum(1 for b in range(width) if (((address+b)&MASK32)&~15)==word)
         if bits!=16:result.append((0,word,image[word],0))
         result.append((1,word,final[word],0))

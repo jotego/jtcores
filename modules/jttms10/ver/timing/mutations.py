@@ -471,7 +471,9 @@ def main():
             ('early_pushst_aligned_word','stack_pushst_following_s0_o0_k0_hit','jttms10.v',
              "rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}","1'b0 ? LOAD_PRE : {LOAD_IW{1'b0}}"),
             ('early_pushst_after_short_pause','stack_pushst_following_s0_o0_k0_hit','jttms10_word.v',
-             'stack_post_slot<=cen && field_post;','stack_post_slot<=cen;')):
+             'stack_post_slot<=cen && field_post;','stack_post_slot<=cen;'),
+            ('wrong_pushst_word_order','stack_pushst_following_s15_o0_k0_hit','jttms10_word.v',
+             ".reverse(field_post && ir==16'h01e0)",".reverse(1'b0)")):
             extra=['--wait-states','1','--pause-clocks','1' if name=='early_pushst_after_short_pause' else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)

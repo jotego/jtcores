@@ -70,9 +70,12 @@ class TimingCheckerTest(unittest.TestCase):
     def test_pushst_correct_hidden_memory_cannot_hide_early_aligned_writes(self):
         row=push_fixture('bus',False);row.update(test_pc=0x1000,next_pc=0x1010)
         obs=dict(start=0,end=16,clocks=16)
-        trace=['BUS_BEGIN 8 1 00006000 0010 0','BUS_END 24 1 00006000 0010',
-               'BUS_BEGIN 24 1 00006010 c000 0','BUS_END 40 1 00006010 c000']
+        trace=['BUS_BEGIN 8 1 00006010 c000 0','BUS_END 24 1 00006010 c000',
+               'BUS_BEGIN 24 1 00006000 0010 0','BUS_END 40 1 00006000 0010']
         self.assertEqual(check_store_bus(row,obs,trace,0),[])
+        ascending=['BUS_BEGIN 8 1 00006000 0010 0','BUS_END 24 1 00006000 0010',
+                   'BUS_BEGIN 24 1 00006010 c000 0','BUS_END 40 1 00006010 c000']
+        self.assertTrue(check_store_bus(row,obs,ascending,0))
         bad=[x.replace('BEGIN 8','BEGIN 0').replace('END 24','END 16').replace('BEGIN 24','BEGIN 16').replace('END 40','END 32') for x in trace]
         self.assertTrue(check_store_bus(row,obs,bad,0))
 

@@ -15,7 +15,7 @@ module test;
     wire [15:0] f_wdata,f_rdata;
     jttms10_field field_u(
         .clk(clk),.rst(rst),.req(req),.we(we),.addr(addr),
-        .wdata(wdata),.size(size),.ack(ack),.rdata(rdata),
+        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),
         .word_req(f_req),.word_we(f_we),.word_lock(f_lock),
         .word_addr(f_addr),.word_wdata(f_wdata),
         .word_rdata(f_rdata),.word_ack(f_ack),.word_restart(f_restart)
