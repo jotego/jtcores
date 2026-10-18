@@ -9,7 +9,7 @@ from scalar_cases import MASK32,N,Z,V
 def extract(memory, address, size, signed):
     # Read individual bits; no alignment shifter or DUT masking algorithm.
     image=dict(memory)
-    value=sum(((image.get((address+bit)&~15,0) >> ((address+bit)&15))&1)<<bit
+    value=sum(((image.get(((address+bit)&MASK32)&~15,0) >> ((address+bit)&15))&1)<<bit
               for bit in range(size))
     if signed and value&(1<<(size-1)):value-=1<<size
     return value&MASK32

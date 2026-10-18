@@ -8,6 +8,7 @@ from run import cases, check, check_bus, check_target, split_transcripts, progra
 from alu_cases import arithmetic
 from immediate_cases import result as immediate_result, extension_words, TI_EXAMPLES
 from load_cases import extract
+from load_mode_cases import fixture as load_mode_fixture
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
@@ -179,6 +180,33 @@ class TimingCheckerTest(unittest.TestCase):
         warm=dict(case,cache_disabled=False,states=7)
         self.assertTrue(check_bus(warm,self.observed,[],1))
         self.assertEqual(check_bus(warm,self.observed,lines[:6],1),[])
+
+    def test_extended_register_comparisons_cannot_be_skipped(self):
+        case=dict(self.case,expected_extra_regs={'b0':1,'sp':2})
+        self.observed.update(b0=1,sp=2)
+        self.assertEqual(check(case,self.observed),[])
+        for name in ('b0','sp'):
+            wrong=dict(self.observed);wrong[name]^=1
+            self.assertTrue(any(name.upper()+':' in e for e in check(case,wrong)))
+            del wrong[name]
+            self.assertTrue(check(case,wrong))
+
+    def test_load_mode_primary_counts_and_absolute_discrepancy(self):
+        self.assertEqual([load_states(address=0,width=16,mode=m,cache_disabled=True)
+                          for m in ('indirect','post','pre','offset','absolute')],[6,6,7,11,14])
+        # Table13-1 + §5.4.7 are consistent; p12-153's 5/15,7/13 conflict.
+        self.assertEqual(load_states(address=0,width=32,mode='absolute',cache_disabled=True),16)
+        with self.assertRaises(ValueError):load_states(address=0,width=8,byte=True,mode='post')
+
+    def test_pointer_wrap_and_shared_sp_alias_model(self):
+        memory=[(0xFFFFFFF0,0),(0,0x5A5A),(0x10,0xA5A5)]
+        self.assertEqual(extract(memory,0xFFFFFFF8,32,False),0xA55A5A00)
+        for bank in (0,1):
+            for mode in ('post','pre'):
+                row=load_mode_fixture(mode,32,8,1,False,False,bank,15,15,0,base=0xFFFFFFF0)
+                self.assertEqual(row['initial_sp'],0x18 if mode=='pre' else 0xFFFFFFF8)
+                self.assertEqual(row['expected_extra_regs']['sp'],0xA55A5A00)
+                self.assertEqual(row['expected_st'],0x80000010)
 
     def test_batch_case_association(self):
         log='CASE 0\nRESULT case=0\nCASE 1\nRESULT case=1\nBATCH_DONE cases=2\n'

@@ -21,6 +21,7 @@ from alu_cases import alu_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
+from load_mode_cases import load_mode_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -95,6 +96,7 @@ def cases():
     yield from divide_cases()
     yield from immediate_cases()
     yield from load_cases()
+    yield from load_mode_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -110,6 +112,9 @@ def program(case):
     loop = 0x1000 + 16 * len(words)
     for reg, value in enumerate(case['regs']):
         words += movi(value, reg)
+    for reg,value in case.get('initial_b_regs',{}).items():
+        words += movi(value,16+reg)
+    if 'initial_sp' in case:words += movi(case['initial_sp'],15)
     words += [0x01A3] + [0x0300] * 12  # PUTST A3, then drain previous writes
     offset=case.get('instruction_word_offset',3 if case.get('cache_miss') else None)
     if offset is not None:
@@ -176,7 +181,7 @@ def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
     load=case.get('data_load')
     data_words=(((load['address']&15)+load['width']+15)//16) if load else 0
-    words=4 if case.get('cache_miss') else data_words+(1+len(case.get('extensions',[])))*int(case['cache_disabled'])
+    words=data_words+(4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled']))
     added_clocks = words * wait_states * INPUT_CLOCKS_PER_STATE
     alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE if words else 0
     expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks + alignment
@@ -192,6 +197,9 @@ def check(case, observed, wait_states=0, pause_clocks=0):
             errors.append(f"A{reg}: expected {value:08x} (mask {mask:08x}), observed {observed[f'a{reg}']:08x}")
     if observed['st'] != case['expected_st']:
         errors.append(f"ST: expected {case['expected_st']:08x}, observed {observed['st']:08x}")
+    for name,value in case.get('expected_extra_regs',{}).items():
+        if observed.get(name)!=value:
+            errors.append(f'{name.upper()}: expected {value:08x}, observed {observed.get(name)!r}')
     return errors
 
 
@@ -207,9 +215,20 @@ def reads(case, wait_states=0):
         load=case['data_load'];address=load['address']
         count=((address&15)+load['width']+15)//16
         image=dict(case['initial_memory'])
-        plan=[(i*(2+wait_states),(address&~15)+16*i,image[(address&~15)+16*i],0) for i in range(count)]
+        mode=load.get('mode','indirect');extensions=case.get('extensions',[])
+        plan=[]
         if case['cache_disabled']:
-            plan.append((case['states']-3+count*wait_states,case['next_pc'],0x0300,1))
+            plan=[(1+i*(4+wait_states),case['test_pc']+16*(i+1),word,0) for i,word in enumerate(extensions)]
+        lead=1 if mode=='pre' else 2 if mode in ('offset','absolute') else 0
+        first=lead+(3+wait_states)*len(extensions)*int(case['cache_disabled'])
+        if case.get('cache_miss')=='load_extension':
+            missing=case['miss_word'];fill_words=extensions[missing-1:]+[0x0300]*4
+            plan=[(missing+i*(2+wait_states),case['test_pc']+16*(missing+i),fill_words[i],1) for i in range(4)]
+            first=lead+9+4*wait_states
+        plan += [(first+i*(2+wait_states),((address&~15)+16*i)&MASK32,
+                  image[((address&~15)+16*i)&MASK32],0) for i in range(count)]
+        if case['cache_disabled']:
+            plan.append((case['states']-3+(count+len(extensions))*wait_states,case['next_pc'],0x0300,1))
         return plan
     if case.get('cache_miss')=='extension':
         first=case.get('miss_word',1)
@@ -277,7 +296,7 @@ def check_target(case,observed,lines,wait_states,pause_clocks=0):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--case', help='exact case name, or substring')
+    parser.add_argument('--case', action='append', help='case name or substring; repeat for a union of probes')
     parser.add_argument('--report', type=Path, help='write all observations and verdicts as JSON')
     parser.add_argument('--traces', type=Path, help='retain full logs in this directory')
     parser.add_argument('--trace-core', action='store_true',
@@ -300,7 +319,7 @@ def main():
     started = time.monotonic()
     if args.wait_states < 0 or args.pause_clocks < 0 or args.pause_after_clocks < 0:
         parser.error('wait states and pause clocks must be nonnegative')
-    selected = [case for case in cases() if args.case is None or args.case in case['name']]
+    selected = [case for case in cases() if args.case is None or any(term in case['name'] for term in args.case)]
     if not selected:
         parser.error('no matching cases')
     hdl = args.rtl_dir.resolve()
@@ -311,7 +330,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -359,12 +378,12 @@ def main():
                 (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs")))}',
                     f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs')))} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))

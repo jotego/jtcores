@@ -30,14 +30,14 @@ module test;
     integer pause_clocks=0,pause_after=0,pause_left=0,paused=0;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
-    reg [31:0] pause_regs[0:3];
+    reg [31:0] pause_regs[0:3], pause_bregs[0:4];
     reg [11:0] pause_uaddr;
     reg pause_active;
     reg [132:0] pause_work;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
-    reg measuring=0,case_done=0;
-    integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0;
+    reg measuring=0,case_done=0,response_request_seen=0;
+    integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0,watch_extra=0;
     reg [31:0] data_address[0:15];
     reg [15:0] data_value[0:15];
     reg [15:0] input_word;
@@ -56,8 +56,8 @@ module test;
         if($value$plusargs("BATCH=%s",batch_path)) begin
             batch_fd=$fopen(batch_path,"r");
             if(batch_fd==0) $fatal(1,"cannot open batch input");
-            rc=$fscanf(batch_fd,"%d %h %h %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count);
-            while(rc==6) begin
+            rc=$fscanf(batch_fd,"%d %h %h %d %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count,watch_extra);
+            while(rc==7) begin
                 if(word_count<1 || word_count>3840) $fatal(1,"invalid program length");
                 for(i=0;i<4096;i=i+1) mem[i]=0;
                 for(i=0;i<word_count;i=i+1) begin
@@ -76,7 +76,7 @@ module test;
                 wait(case_done);
                 @(negedge clk); rst=1;
                 loaded=loaded+1;
-                rc=$fscanf(batch_fd,"%d %h %h %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count);
+                rc=$fscanf(batch_fd,"%d %h %h %d %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count,watch_extra);
             end
             if(!$feof(batch_fd)) $fatal(1,"invalid batch record");
             $fclose(batch_fd);
@@ -88,6 +88,7 @@ module test;
                 $fatal(1,"missing PROGRAM/TEST_PC/NEXT_PC");
             rc=$value$plusargs("CASE_ID=%d",case_id);
             rc=$value$plusargs("MEASURE_PASS=%d",measure_pass);
+            rc=$value$plusargs("WATCH_EXTRA=%d",watch_extra);
             for(i=0;i<4096;i=i+1) mem[i]=0;
             $readmemh(program_path,mem);
             rc=$value$plusargs("DATA_COUNT=%d",memory_count);
@@ -118,6 +119,7 @@ module test;
             cen=1; pause_done=0; pause_left=0;
         end else if(measuring && !pause_done && pause_clocks>0 && now-start_clock-1>=pause_after) begin
             cen=0;
+            if($test$plusargs("RESPONSE_PAUSE")) $display("PAUSE_BEGIN %0d",now);
             pause_done=1;
             pause_left=pause_clocks;
             pause_pc=pc;
@@ -128,9 +130,16 @@ module test;
                         dut.u_cpu.u_core.tmp,dut.u_cpu.u_core.mul_count};
             for(integer q=0;q<4;q=q+1)
                 pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
+            if(watch_extra!=0) begin
+                for(integer q=0;q<4;q=q+1)pause_bregs[q]=dut.u_cpu.u_core.u_regs.ram0[16+q];
+                pause_bregs[4]=dut.u_cpu.u_core.u_regs.ram0[15];
+            end
         end else if(pause_left>0) begin
             pause_left=pause_left-1;
-            if(pause_left==0) cen=1;
+            if(pause_left==0) begin
+                cen=1;
+                if($test$plusargs("RESPONSE_PAUSE")) $display("PAUSE_END %0d",now);
+            end
         end
     end
 
@@ -211,10 +220,17 @@ module test;
     always @(posedge clk) begin
         if(rst) begin
             now<=0; seen<=0; start_clock<=0; measuring<=0;
-            paused<=0; case_done<=0;
+            paused<=0; case_done<=0; response_request_seen<=0;
         end
         else begin
             now<=now+1;
+            if(measuring && $test$plusargs("RESPONSE_PAUSE")) begin
+                if(dut.u_cpu.field_req && !dut.u_cpu.u_core.mem_program && !response_request_seen) begin
+                    $display("PAUSE_DATA_REQ %0d",now);response_request_seen<=1;
+                end
+                if(!cen && dut.u_cpu.field_req && dut.u_cpu.field_ack)
+                    $display("PAUSE_DATA_ACK %0d",now);
+            end
             if(measuring && !cen) begin
                 paused<=paused+1;
                 if(pc!==pause_pc || st!==pause_st || retire)
@@ -228,7 +244,12 @@ module test;
                 for(integer q=0;q<4;q=q+1)
                     if(dut.u_cpu.u_core.u_regs.ram0[q]!==pause_regs[q])
                         $fatal(1,"A%0d changed while CEN paused",q);
-                if(cyc_req) $fatal(1,"CPU launched a cycle during the early CEN pause");
+                if(watch_extra!=0) begin
+                    for(integer q=0;q<4;q=q+1)
+                        if(dut.u_cpu.u_core.u_regs.ram0[16+q]!==pause_bregs[q])$fatal(1,"B%0d changed while CEN paused",q);
+                    if(dut.u_cpu.u_core.u_regs.ram0[15]!==pause_bregs[4])$fatal(1,"SP changed while CEN paused");
+                end
+                if(cyc_req && !$test$plusargs("RESPONSE_PAUSE")) $fatal(1,"CPU launched a cycle during the early CEN pause");
             end
             if($test$plusargs("TRACE") && measuring)
                 $display("CORE %0d ua=%03h active=%b step=%b req=%b ack=%b complete=%b cache=%0d word=%b/%b cycle=%b/%b",
@@ -245,6 +266,15 @@ module test;
                     if(seen==measure_pass) begin start_clock<=now; measuring<=1; end
                 end
                 if(measuring && accepted_pc==next_pc) begin
+                    if(watch_extra!=0)
+                        $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h b0=%08h b1=%08h b2=%08h b3=%08h sp=%08h",
+                            case_id,now-start_clock,start_clock,now,paused,st,
+                            dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
+                            dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3],
+                            dut.u_cpu.u_core.u_regs.ram0[16],dut.u_cpu.u_core.u_regs.ram0[17],
+                            dut.u_cpu.u_core.u_regs.ram0[18],dut.u_cpu.u_core.u_regs.ram0[19],
+                            dut.u_cpu.u_core.u_regs.ram0[15]);
+                    else
                     $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",
                         case_id,now-start_clock,start_clock,now,paused,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],

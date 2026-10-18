@@ -25,12 +25,9 @@ ucode:
   - name: loadpi
     start: 36
     seq:
-      - reg_a, bsrc
-      - a_ea
-      - read_mem
-      - size_a
+      - size_a, bsrc
       - add_alu, wrsrc
-      - ext_a
+      - read_mem, ext_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: storepd
     start: 37
@@ -47,11 +44,9 @@ ucode:
   - name: loadpd
     start: 38
     seq:
-      - bsrc
-      - size_a
+      - size_a, bsrc
       - sub_alu, sum_ea, wrsrc
-      - read_mem
-      - ext_a
+      - read_mem, ext_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: storeoff
     start: 39
@@ -66,11 +61,9 @@ ucode:
   - name: loadoff
     start: 40
     seq:
-      - imm_bus, pcinc
-      - immse_a, bsrc
+      - imm_bus, pcinc, immse_a, bsrc
       - add_alu, sum_ea
-      - read_mem
-      - ext_a
+      - read_mem, ext_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: storeabs
     start: 41
@@ -87,13 +80,9 @@ ucode:
   - name: loadabs
     start: 42
     seq:
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - a_ea
-      - read_mem
-      - ext_a
+      - imm_bus, pcinc, immlo_a
+      - imm_bus, pcinc, immhi_a, a_ea
+      - read_mem, ext_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: moveind
     start: 43

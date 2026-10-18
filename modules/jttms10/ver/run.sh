@@ -101,6 +101,7 @@ iverilog -g2012 -s test -o "$ver_dir/build/pixel.vvp" \
 vvp "$ver_dir/build/pixel.vvp"
 python3 -B "$ver_dir/timing/test_checker.py"
 python3 "$ver_dir/bus_timing/check.py"
+python3 "$ver_dir/load_pause/check.py"
 timing_simulator=${JTTMS10_TIMING_SIMULATOR:-iverilog}
 timing_args=(--simulator "$timing_simulator")
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
@@ -113,7 +114,7 @@ python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_eve
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_even_boundary_26_off --wait-states 1 --pause-clocks 7 --pause-after-clocks 32
 # Every nonzero sub-state pause must realign a newly allocated data read.
 for pause in 1 2 3 4 5 6; do
-    python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case load_move_f0_w32_o15_s1_off --wait-states 1 --pause-clocks "$pause"
+    python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case load_move_f0_w32_o15_s1_off --case _phase_ --wait-states 1 --pause-clocks "$pause"
 done
 python3 "$ver_dir/timing/mutations.py"
 coverage_args=()

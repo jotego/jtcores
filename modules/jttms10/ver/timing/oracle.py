@@ -148,7 +148,7 @@ def immediate_states(*, width, cache_disabled=False):
     return words*(4 if cache_disabled else 1)
 
 
-def load_states(*, address, width, signed=False, byte=False, cache_disabled=False):
+def load_states(*, address, width, signed=False, byte=False, cache_disabled=False, mode="indirect"):
     """Indirect MOVE/MOVB: TI Table13-1 p.13-5, entries12-118/135/136.
 
     2 states per physical word plus one CPU state. Note1 adds a state for
@@ -158,4 +158,8 @@ def load_states(*, address, width, signed=False, byte=False, cache_disabled=Fals
     if width not in range(1,33) or (byte and width!=8):
         raise ValueError('undefined load width')
     words=((address&15)+width+15)//16
-    return 1+2*words+int(signed and not byte and width!=32)+3*int(cache_disabled)
+    if mode not in ('indirect','post','pre','offset','absolute') or (byte and mode in ('post','pre')):
+        raise ValueError('undefined load addressing mode')
+    cpu=2 if mode=='pre' else 3 if mode in ('offset','absolute') else 1
+    instruction_words=3 if mode=='absolute' else 2 if mode=='offset' else 1
+    return cpu+2*words+int(signed and not byte and width!=32)+3*instruction_words*int(cache_disabled)

@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 68 of 133 instruction forms; the other 65 remain unvalidated.
+probes cover 74 of 133 instruction forms; the other 59 remain unvalidated.
 The standard runner's coverage gate deliberately fails until that gap is
 closed. Passing the present probe matrix is not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -47,7 +47,8 @@ outside the interval. No architectural register is forced by the bench.
 REV checks only its TI-defined result bits 15..3 (p.12-233); bits 31..16
 and 2..0 are explicitly undefined. Other observed register bits and all ST
 bits retain their comparisons. These scalar fixtures use register file A;
-timed coverage of file B and shared-SP aliases remains required.
+timed coverage of file B and shared-SP aliases remains required outside
+the data-load fixtures, which initialize and check B0..B3 and SP as well.
 
 The bench instantiates `jttms10_system`, including the real field adapter,
 cache, arbiter and TI bus timer. Its raw target supplies readiness/data after
@@ -80,6 +81,12 @@ The normal runner includes pauses 32 INCLK into a signed division's
 restoring loop with cache hit and CD+wait. A/B/MD/TMP and the iteration count must also hold during
 these CPU-work pauses. This option does not establish ACK-during-pause
 behavior, which needs a separate bus-aware fixture.
+The separate `ver/load_pause/check.py` event bench now covers a response
+arriving during a postincrement load's pause for three A/B/SP identities.
+It checks response retention, CPU hold and one ordered read, with a deliberate
+duplicate-read regression. Its conservative completion bound is not an exact
+TI instruction timing proof for an overlapping CPU-only CEN pause. The normal
+matrix retains exact base counts; other outstanding-response cases remain open.
 The instruction sequencer's address and prime/execute phase must also hold;
 interrupt acceptance is gated by the CPU enable. This closes an earlier
 prime-phase advance that final writeback padding could otherwise conceal.
@@ -161,6 +168,10 @@ for a CD extension. All must fail with correct registers/ST.
 Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
+Four further load-mode mutations reject incorrect predecrement/offset lead
+states and premature first/second address words. Twenty positive controls and
+23 rejection checks run in the exact timing suite. The response-retention
+event bench separately runs three controls and one duplicate-read mutation.
 
 ## Coverage ledger
 
@@ -198,6 +209,8 @@ The full #144 checklist remains open.
 | Immediate forms: IW 2,8; IL 3,12 | ADDI pp.12-38–39, CMPI 12-54–55, MOVI 12-159–160, SUBI 12-249–250; ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 | 2,828 programs: source-level encoding/sign/flags, warm word alignments and first/second-extension misses; per-word waits and IAQ | Current probes pass; [immediate-timing.md](immediate-timing.md) records the contract and exclusions |
 | Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
+| MOVE post/pre/offset/absolute and MOVB offset/absolute; load B/SP conditions | Table13-1 p.13-5; pp.12-120,123,139–154; §5.4.7 | 3,200 additional fixtures, A/B/SP aliases/wrap, displacement/ignored-byte-field boundaries, cold address-word fills and six early CEN phases | Current probes pass; absolute MOVE entry conflicts with summary, with explicit oracle policy in [load-timing.md](load-timing.md) |
+| ACK while CPU CEN is paused | Wrapper extension; TI bus counts still apply | Three postincrement A/B/SP event probes plus duplicate-read mutation | Functional response retention only; overlapping-pause exact instruction timing not claimed |
 | Other memory addressing modes, writes/hidden writes and memory-to-memory | §13.2 Tables13-1–13-4 | Functional tests; timing probes still required | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
 | Sequential subsegment miss | §5.4.7 p.5-24 | First-pass NOP probes, four ordered two-state reads plus processing; 80 INCLK without waits | Current directed probes pass |
@@ -266,6 +279,17 @@ forms, with 65 missing. All 4,352 original matrix cases failed timing with
 correct architecture on `22e601063`; the [load report](load-timing.md)
 records the baseline, DSP/early-dispatch changes and independent read oracle.
 
+The remaining load-mode expansion adds 3,200 programs, giving **15,904
+cases per matrix** and **47,762 exact instruction timing programs** across
+three matrices, two mid-loop DIV probes and six eight-case CEN-phase unions.
+Coverage is **74/133 forms**, with 59 missing. Thirty-four checker/model tests,
+20 positive controls and 23 rejection checks accompany those exact counts.
+The separate response-retention event bench adds three controls and one
+duplicate-read mutation; these are not included in the exact program total.
+On unchanged `06843c78c`, 2,800 of the first 3,164 new cases fail timing with
+correct architecture. The [load report](load-timing.md) records the source
+conflict, alias interpretation, historical baseline and separate event scope.
+
 
 ## Current implementation boundary
 
@@ -276,7 +300,8 @@ the family before IR/PC commit. This brings a register ADD's work and cached
 fetch within one eight-clock machine state.
 
 A scheduling counter currently applies to the scalar/immediate forms
-listed above, indirect MOVE/MOVB loads, DIV/MOD and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
+listed above, all memory-to-register MOVE/MOVB modes, DIV/MOD and defined
+even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
 the captured source-field sign. A cache hit response is identified explicitly;
 external opcode and extension reads, including fills, complete the additional

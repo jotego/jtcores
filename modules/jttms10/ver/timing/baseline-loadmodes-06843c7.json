@@ -1,0 +1,1812 @@
+{
+  "source_commit": "06843c78c",
+  "note": "Historical initial3164case capture; not an oracle or allowlist.2800 timing failures,zero architectural failures. Existing plain-load B/SP and ignored-MOVB-field probes pass.",
+  "total": 3164,
+  "failed": 2800,
+  "architectural_failures": 0,
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "c81aa612b860aea983e1c872701f0b19574369176fa573bd501f40096969661b",
+    "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+    "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+    "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+    "hdl/jttms10_field.v": "d33e2973e0a852586700781c9d027fabe54e746b91c1573e133e5169a0235ff2",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "48b753ef8dc98e8bf8e3a8d7b64e55e97cb71ccd6c7dd0fee5d69f82dbe017aa",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "dbeb551a340c1061399cd277f8fcc8acb7a1d10c4ce95a12347623420fd822c0",
+    "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "4985d57528e16224321a15bb373611254938561323e318014e3d287aac6d5c4e",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "c81aa612b860aea983e1c872701f0b19574369176fa573bd501f40096969661b",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+      "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+      "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+      "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+      "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+      "hdl/jttms10_field.v": "d33e2973e0a852586700781c9d027fabe54e746b91c1573e133e5169a0235ff2",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "48b753ef8dc98e8bf8e3a8d7b64e55e97cb71ccd6c7dd0fee5d69f82dbe017aa",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "dbeb551a340c1061399cd277f8fcc8acb7a1d10c4ce95a12347623420fd822c0",
+      "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "4985d57528e16224321a15bb373611254938561323e318014e3d287aac6d5c4e",
+      "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+      "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+      "ver/timing/run.py": "1dd3325bbf9ea6fabab9dd0197402475e5f4b22c4926e04a4a170262f5951e89",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+      "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+      "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+      "ver/timing/load_mode_cases.py": "3176f2833fbb583fd802e7eeeb4bcb62296af44a5cd1a88b4a5757f7f32ceed7",
+      "ver/timing/test.sv": "1e22b7568d445d80e03af0eb123c37c7ef2fa4647ddf8d322f63b47af17022c3"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "9ae51ece342e8262bd0d216bbd9b4e64e3696d77abc09e6c0c2d7259a85d18a8",
+      "tms10.vh": "332344a7c3c9f03f0dc9eb570b6b9182be7f579434dffd58a86b6e791c73b93d",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "dbd6b6939a74c8705bce7d64c4cf82fa10be1aa18a9d6d09af7212422e961bed"
+    }
+  },
+  "representatives": [
+    {
+      "name": "loadmode_move_indirect_w1_o0_f0_s0_r0_2_0_q0_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24576,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24576,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 3,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "indirect"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "mode": "indirect",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 0,
+        "clocks": 24,
+        "start": 2120,
+        "end": 2144,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24576,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [],
+      "bus_trace": [
+        "BUS_BEGIN 2120 0 00006000 8440 0",
+        "BUS_ACCEPT 2124",
+        "BUS_END 2136 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2124 0 00006000 8440 0",
+        "TARGET_END 2128 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_move_post_w1_o0_f0_s0_r0_2_0_q0_hit",
+      "coverage_id": "MOVE_POST_R",
+      "opcode": 37952,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24576,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24577,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 3,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "post"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-139/140",
+      "conditions": {
+        "mode": "post",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 112,
+        "clocks": 46,
+        "start": 2144,
+        "end": 2190,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24577,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 46 INCLK",
+        "TI instruction read start: expected clock 2144, observed 2160",
+        "target dispatch outside TI readiness window: 2160 versus 2144..2150"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2160 0 00006000 9440 0",
+        "BUS_ACCEPT 2160",
+        "BUS_END 2176 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2160 0 00006000 9440 0",
+        "TARGET_END 2164 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_move_pre_w1_o0_f0_s0_r0_2_0_q0_hit",
+      "coverage_id": "MOVE_PRE_R",
+      "opcode": 42048,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24577,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24576,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 4,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "pre"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-143/144",
+      "conditions": {
+        "mode": "pre",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 624,
+        "clocks": 42,
+        "start": 2144,
+        "end": 2186,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24576,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 42 INCLK",
+        "TI instruction read start: expected clock 2152, observed 2160",
+        "target dispatch outside TI readiness window: 2160 versus 2152..2158"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2160 0 00006000 a440 0",
+        "BUS_ACCEPT 2160",
+        "BUS_END 2176 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2160 0 00006000 a440 0",
+        "TARGET_END 2164 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_move_offset_w1_o0_f0_s0_r0_2_0_q0_hit",
+      "coverage_id": "MOVE_OFF_R",
+      "opcode": 46144,
+      "extensions": [
+        32768
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        57344,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        57344,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 5,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "offset"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-147/148",
+      "conditions": {
+        "mode": "offset",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": -32768,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 1136,
+        "clocks": 42,
+        "start": 2144,
+        "end": 2186,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 57344,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 42 INCLK"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2160 0 00006000 8000 0",
+        "BUS_ACCEPT 2160",
+        "BUS_END 2176 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2160 0 00006000 8000 0",
+        "TARGET_END 2164 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_move_absolute_w1_o0_f0_s0_r0_2_0_q0_hit",
+      "coverage_id": "MOVE_ABS_R",
+      "opcode": 1440,
+      "extensions": [
+        24576,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        2578103244,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 5,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "absolute"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-153/154",
+      "conditions": {
+        "mode": "absolute",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": null,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "source_notes": "Table13-1 and \u00a75.4.7 supply CD counts; p12-153 prints conflicting 5/15 and 7/13. Postulated entry typo, not an official erratum.",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 1248,
+        "clocks": 50,
+        "start": 2152,
+        "end": 2202,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 50 INCLK",
+        "TI instruction read start: expected clock 2168, observed 2176",
+        "target dispatch outside TI readiness window: 2176 versus 2168..2174"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2176 0 00006000 0000 0",
+        "BUS_ACCEPT 2176",
+        "BUS_END 2192 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2176 0 00006000 0000 0",
+        "TARGET_END 2180 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_movb_indirect_o0_ignored001_r0_hit",
+      "coverage_id": "MOVB_IND_R",
+      "opcode": 36416,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24576,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24576,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536870913,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 3,
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true,
+        "mode": "indirect"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-118",
+      "conditions": {
+        "mode": "indirect",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "signed": true,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": 1
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1360,
+        "clocks": 24,
+        "start": 2120,
+        "end": 2144,
+        "paused": 0,
+        "st": 536870913,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24576,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [],
+      "bus_trace": [
+        "BUS_BEGIN 2120 0 00006000 8e40 0",
+        "BUS_ACCEPT 2124",
+        "BUS_END 2136 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2124 0 00006000 8e40 0",
+        "TARGET_END 2128 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_movb_offset_o0_ignored001_r0_hit",
+      "coverage_id": "MOVB_OFF_R",
+      "opcode": 44608,
+      "extensions": [
+        32768
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        57344,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        57344,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536870913,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 5,
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true,
+        "mode": "offset"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-120",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "signed": true,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": -32768,
+        "alias": false,
+        "ignored_field_definition": 1
+      },
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 1424,
+        "clocks": 42,
+        "start": 2144,
+        "end": 2186,
+        "paused": 0,
+        "st": 536870913,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 57344,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 42 INCLK"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2160 0 00006000 8000 0",
+        "BUS_ACCEPT 2160",
+        "BUS_END 2176 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2160 0 00006000 8000 0",
+        "TARGET_END 2164 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_movb_absolute_o0_ignored001_r0_hit",
+      "coverage_id": "MOVB_ABS_R",
+      "opcode": 2016,
+      "extensions": [
+        24576,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        2578103244,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536870913,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 5,
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true,
+        "mode": "absolute"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-123",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "signed": true,
+        "bank": 0,
+        "source": null,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": 1
+      },
+      "source_notes": "Table13-1 and \u00a75.4.7 supply CD counts; p12-153 prints conflicting 5/15 and 7/13. Postulated entry typo, not an official erratum.",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 1488,
+        "clocks": 50,
+        "start": 2152,
+        "end": 2202,
+        "paused": 0,
+        "st": 536870913,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 50 INCLK",
+        "TI instruction read start: expected clock 2168, observed 2176",
+        "target dispatch outside TI readiness window: 2176 versus 2168..2174"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2176 0 00006000 0000 0",
+        "BUS_ACCEPT 2176",
+        "BUS_END 2192 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2176 0 00006000 0000 0",
+        "TARGET_END 2180 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "loadmode_move_indirect_w1_o0_f0_s0_r0_2_0_q0_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24576,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24576,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 6,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "indirect"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "mode": "indirect",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1582,
+        "clocks": 48,
+        "start": 3392,
+        "end": 3440,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24576,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00006000 8440 0",
+        "BUS_ACCEPT 3396",
+        "BUS_END 3408 0 00006000 0000",
+        "BUS_BEGIN 3416 0 00001310 0000 1",
+        "BUS_ACCEPT 3416",
+        "BUS_END 3432 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3396 0 00006000 8440 0",
+        "TARGET_END 3400 0 00006000 0000",
+        "TARGET_BEGIN 3416 0 00001310 0000 1",
+        "TARGET_END 3420 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "loadmode_move_post_w1_o0_f0_s0_r0_2_0_q0_off",
+      "coverage_id": "MOVE_POST_R",
+      "opcode": 37952,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24576,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24577,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 6,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "post"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-139/140",
+      "conditions": {
+        "mode": "post",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1694,
+        "clocks": 72,
+        "start": 3416,
+        "end": 3488,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24577,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 72 INCLK",
+        "TI instruction read start: expected clock 3416, observed 3432",
+        "TI instruction read start: expected clock 3440, observed 3464",
+        "target dispatch outside TI readiness window: 3432 versus 3416..3422",
+        "target dispatch outside TI readiness window: 3464 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00006000 9440 0",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00006000 0000",
+        "BUS_BEGIN 3464 0 00001310 0000 1",
+        "BUS_ACCEPT 3464",
+        "BUS_END 3480 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00006000 9440 0",
+        "TARGET_END 3436 0 00006000 0000",
+        "TARGET_BEGIN 3464 0 00001310 0000 1",
+        "TARGET_END 3468 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "loadmode_move_pre_w1_o0_f0_s0_r0_2_0_q0_off",
+      "coverage_id": "MOVE_PRE_R",
+      "opcode": 42048,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24577,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24576,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 7,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "pre"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-143/144",
+      "conditions": {
+        "mode": "pre",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2206,
+        "clocks": 72,
+        "start": 3416,
+        "end": 3488,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24576,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 56 INCLK (7 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 72 INCLK",
+        "TI instruction read start: expected clock 3424, observed 3432",
+        "TI instruction read start: expected clock 3448, observed 3464",
+        "target dispatch outside TI readiness window: 3432 versus 3424..3430",
+        "target dispatch outside TI readiness window: 3464 versus 3448..3454"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3432 0 00006000 a440 0",
+        "BUS_ACCEPT 3432",
+        "BUS_END 3448 0 00006000 0000",
+        "BUS_BEGIN 3464 0 00001310 0000 1",
+        "BUS_ACCEPT 3464",
+        "BUS_END 3480 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3432 0 00006000 a440 0",
+        "TARGET_END 3436 0 00006000 0000",
+        "TARGET_BEGIN 3464 0 00001310 0000 1",
+        "TARGET_END 3468 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "loadmode_move_offset_w1_o0_f0_s0_r0_2_0_q0_off",
+      "coverage_id": "MOVE_OFF_R",
+      "opcode": 46144,
+      "extensions": [
+        32768
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        57344,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        57344,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 11,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "offset"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-147/148",
+      "conditions": {
+        "mode": "offset",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": -32768,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 2718,
+        "clocks": 104,
+        "start": 3448,
+        "end": 3552,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 57344,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 88 INCLK (11 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 104 INCLK",
+        "TI instruction read start: expected clock 3488, observed 3496",
+        "TI instruction read start: expected clock 3512, observed 3528",
+        "target dispatch outside TI readiness window: 3496 versus 3488..3494",
+        "target dispatch outside TI readiness window: 3528 versus 3512..3518"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3456 0 00001310 0000 0",
+        "BUS_ACCEPT 3456",
+        "BUS_END 3472 0 00001310 8000",
+        "BUS_BEGIN 3496 0 00006000 8000 0",
+        "BUS_ACCEPT 3496",
+        "BUS_END 3512 0 00006000 0000",
+        "BUS_BEGIN 3528 0 00001320 0000 1",
+        "BUS_ACCEPT 3528",
+        "BUS_END 3544 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3456 0 00001310 0000 0",
+        "TARGET_END 3460 0 00001310 8000",
+        "TARGET_BEGIN 3496 0 00006000 8000 0",
+        "TARGET_END 3500 0 00006000 0000",
+        "TARGET_BEGIN 3528 0 00001320 0000 1",
+        "TARGET_END 3532 0 00001320 0300"
+      ]
+    },
+    {
+      "name": "loadmode_move_absolute_w1_o0_f0_s0_r0_2_0_q0_off",
+      "coverage_id": "MOVE_ABS_R",
+      "opcode": 1440,
+      "extensions": [
+        24576,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2049
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        2578103244,
+        2049
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536872961,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 14,
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false,
+        "mode": "absolute"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-153/154",
+      "conditions": {
+        "mode": "absolute",
+        "width": 1,
+        "offset": 0,
+        "field": 0,
+        "signed": false,
+        "bank": 0,
+        "source": null,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": null
+      },
+      "source_notes": "Table13-1 and \u00a75.4.7 supply CD counts; p12-153 prints conflicting 5/15 and 7/13. Postulated entry typo, not an official erratum.",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 2830,
+        "clocks": 136,
+        "start": 3480,
+        "end": 3616,
+        "paused": 0,
+        "st": 536872961,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2049,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 112 INCLK (14 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 136 INCLK",
+        "TI instruction read start: expected clock 3544, observed 3560",
+        "TI instruction read start: expected clock 3568, observed 3592",
+        "target dispatch outside TI readiness window: 3560 versus 3544..3550",
+        "target dispatch outside TI readiness window: 3592 versus 3568..3574"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3488 0 00001310 0000 0",
+        "BUS_ACCEPT 3488",
+        "BUS_END 3504 0 00001310 6000",
+        "BUS_BEGIN 3520 0 00001320 0000 0",
+        "BUS_ACCEPT 3520",
+        "BUS_END 3536 0 00001320 0000",
+        "BUS_BEGIN 3560 0 00006000 0000 0",
+        "BUS_ACCEPT 3560",
+        "BUS_END 3576 0 00006000 0000",
+        "BUS_BEGIN 3592 0 00001330 0000 1",
+        "BUS_ACCEPT 3592",
+        "BUS_END 3608 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3488 0 00001310 0000 0",
+        "TARGET_END 3492 0 00001310 6000",
+        "TARGET_BEGIN 3520 0 00001320 0000 0",
+        "TARGET_END 3524 0 00001320 0000",
+        "TARGET_BEGIN 3560 0 00006000 0000 0",
+        "TARGET_END 3564 0 00006000 0000",
+        "TARGET_BEGIN 3592 0 00001330 0000 1",
+        "TARGET_END 3596 0 00001330 0300"
+      ]
+    },
+    {
+      "name": "loadmode_movb_indirect_o0_ignored001_r0_off",
+      "coverage_id": "MOVB_IND_R",
+      "opcode": 36416,
+      "extensions": [],
+      "regs": [
+        287454020,
+        1432778632,
+        24576,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        24576,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536870913,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 6,
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true,
+        "mode": "indirect"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-118",
+      "conditions": {
+        "mode": "indirect",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "signed": true,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": 1
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2942,
+        "clocks": 48,
+        "start": 3392,
+        "end": 3440,
+        "paused": 0,
+        "st": 536870913,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 24576,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [],
+      "bus_trace": [
+        "BUS_BEGIN 3392 0 00006000 8e40 0",
+        "BUS_ACCEPT 3396",
+        "BUS_END 3408 0 00006000 0000",
+        "BUS_BEGIN 3416 0 00001310 0000 1",
+        "BUS_ACCEPT 3416",
+        "BUS_END 3432 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3396 0 00006000 8e40 0",
+        "TARGET_END 3400 0 00006000 0000",
+        "TARGET_BEGIN 3416 0 00001310 0000 1",
+        "TARGET_END 3420 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "loadmode_movb_offset_o0_ignored001_r0_off",
+      "coverage_id": "MOVB_OFF_R",
+      "opcode": 44608,
+      "extensions": [
+        32768
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        57344,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        57344,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536870913,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 11,
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true,
+        "mode": "offset"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-120",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "signed": true,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "displacement": -32768,
+        "alias": false,
+        "ignored_field_definition": 1
+      },
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 3006,
+        "clocks": 104,
+        "start": 3448,
+        "end": 3552,
+        "paused": 0,
+        "st": 536870913,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 57344,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 88 INCLK (11 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 104 INCLK",
+        "TI instruction read start: expected clock 3488, observed 3496",
+        "TI instruction read start: expected clock 3512, observed 3528",
+        "target dispatch outside TI readiness window: 3496 versus 3488..3494",
+        "target dispatch outside TI readiness window: 3528 versus 3512..3518"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3456 0 00001310 0000 0",
+        "BUS_ACCEPT 3456",
+        "BUS_END 3472 0 00001310 8000",
+        "BUS_BEGIN 3496 0 00006000 8000 0",
+        "BUS_ACCEPT 3496",
+        "BUS_END 3512 0 00006000 0000",
+        "BUS_BEGIN 3528 0 00001320 0000 1",
+        "BUS_ACCEPT 3528",
+        "BUS_END 3544 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3456 0 00001310 0000 0",
+        "TARGET_END 3460 0 00001310 8000",
+        "TARGET_BEGIN 3496 0 00006000 8000 0",
+        "TARGET_END 3500 0 00006000 0000",
+        "TARGET_BEGIN 3528 0 00001320 0000 1",
+        "TARGET_END 3532 0 00001320 0300"
+      ]
+    },
+    {
+      "name": "loadmode_movb_absolute_o0_ignored001_r0_off",
+      "coverage_id": "MOVB_ABS_R",
+      "opcode": 2016,
+      "extensions": [
+        24576,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2973913956,
+        "2": 2994046615,
+        "3": 3014179274
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        2578103244,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "expected_st": 536870913,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "states": 14,
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true,
+        "mode": "absolute"
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-123",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "signed": true,
+        "bank": 0,
+        "source": null,
+        "destination": 0,
+        "displacement": null,
+        "alias": false,
+        "ignored_field_definition": 1
+      },
+      "source_notes": "Table13-1 and \u00a75.4.7 supply CD counts; p12-153 prints conflicting 5/15 and 7/13. Postulated entry typo, not an official erratum.",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 3070,
+        "clocks": 136,
+        "start": 3480,
+        "end": 3616,
+        "paused": 0,
+        "st": 536870913,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2973913956,
+        "b2": 2994046615,
+        "b3": 3014179274,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 112 INCLK (14 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 136 INCLK",
+        "TI instruction read start: expected clock 3544, observed 3560",
+        "TI instruction read start: expected clock 3568, observed 3592",
+        "target dispatch outside TI readiness window: 3560 versus 3544..3550",
+        "target dispatch outside TI readiness window: 3592 versus 3568..3574"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3488 0 00001310 0000 0",
+        "BUS_ACCEPT 3488",
+        "BUS_END 3504 0 00001310 6000",
+        "BUS_BEGIN 3520 0 00001320 0000 0",
+        "BUS_ACCEPT 3520",
+        "BUS_END 3536 0 00001320 0000",
+        "BUS_BEGIN 3560 0 00006000 0000 0",
+        "BUS_ACCEPT 3560",
+        "BUS_END 3576 0 00006000 0000",
+        "BUS_BEGIN 3592 0 00001330 0000 1",
+        "BUS_ACCEPT 3592",
+        "BUS_END 3608 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3488 0 00001310 0000 0",
+        "TARGET_END 3492 0 00001310 6000",
+        "TARGET_BEGIN 3520 0 00001320 0000 0",
+        "TARGET_END 3524 0 00001320 0000",
+        "TARGET_BEGIN 3560 0 00006000 0000 0",
+        "TARGET_END 3564 0 00006000 0000",
+        "TARGET_BEGIN 3592 0 00001330 0000 1",
+        "TARGET_END 3596 0 00001330 0300"
+      ]
+    }
+  ]
+}

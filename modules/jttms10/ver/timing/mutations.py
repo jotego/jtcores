@@ -87,6 +87,15 @@ def main():
         evidence['load_full_control']=run_case(work,'load_full_control',load_full)
         evidence['load_pause_control']=run_case(work,'load_pause_control',load_pause,['--wait-states','1','--pause-clocks','1'])
         evidence['load_data_control']=run_case(work,'load_data_control',load_data)
+        pre_case='loadmode_move_pre_phase_r1_off'
+        offset_case='loadmode_move_offset_w1_o0_f0_s0_r0_2_0_q0_hit'
+        first_word_case='loadmode_move_offset_phase_r1_off'
+        second_word_case='loadmode_move_absolute_phase_cold2_w16_o0_r0'
+        evidence['pre_mode_control']=run_case(work,'pre_mode_control',pre_case,['--wait-states','1'])
+        evidence['offset_mode_control']=run_case(work,'offset_mode_control',offset_case)
+        evidence['first_word_control']=run_case(work,'first_word_control',first_word_case,['--wait-states','1','--pause-clocks','1'])
+        evidence['second_word_control']=run_case(work,'second_word_control',second_word_case,['--wait-states','1','--pause-clocks','1'])
+
 
 
 
@@ -198,6 +207,32 @@ def main():
                      'c_program(program_read || program_q || !field_we)')
         evidence['incorrectly_cached_data_reads']=run_case(work,'incorrectly_cached_data_reads',load_data,
                                                          ['--rtl-dir',str(cached_data)],mutated=True)
+
+        pre_mode=work / 'wrong-pre-load-lead-hdl'
+        shutil.copytree(MODULE/'hdl',pre_mode)
+        replace_once(pre_mode/'jttms10.v','decode_load_pre ? LOAD_PRE : decode_load_extension ?',
+                     'decode_load_pre ? LOAD_LEAD : decode_load_extension ?')
+        evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
+            ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
+
+        offset_mode=work / 'wrong-offset-load-lead-hdl'
+        shutil.copytree(MODULE/'hdl',offset_mode)
+        replace_once(offset_mode/'jttms10.v',"decode_load_extension ? LOAD_LEAD : {LOAD_IW{1'b0}}",
+                     "decode_load_extension ? LOAD_LEAD+LOAD_PRE : {LOAD_IW{1'b0}}")
+        evidence['wrong_offset_lead']=run_case(work,'wrong_offset_lead',offset_case,
+                                            ['--rtl-dir',str(offset_mode)],mutated=True)
+
+        first_word=work / 'early-first-address-word-hdl'
+        shutil.copytree(MODULE/'hdl',first_word)
+        replace_once(first_word/'jttms10.v',"load_issue_left>LOAD_FIRST_LIMIT","1'b0")
+        evidence['early_first_address_word']=run_case(work,'early_first_address_word',first_word_case,
+            ['--rtl-dir',str(first_word),'--wait-states','1','--pause-clocks','1'],mutated=True)
+
+        second_word=work / 'early-second-address-word-hdl'
+        shutil.copytree(MODULE/'hdl',second_word)
+        replace_once(second_word/'jttms10.v',"load_issue_left>LOAD_NEXT_LIMIT","1'b0")
+        evidence['early_second_address_word']=run_case(work,'early_second_address_word',second_word_case,
+            ['--rtl-dir',str(second_word),'--wait-states','1','--pause-clocks','1'],mutated=True)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

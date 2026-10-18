@@ -155,6 +155,17 @@ source/generated hashes verify. No current fitted-area, physical M10K,
 STA or NARC result is claimed. Those final gates and 65 missing instruction
 forms remain open.
 
+The remaining load-mode stage's matched snapshot at
+`/tmp/jttms10-144-loadmodes-final-map` reports **3,379 estimated ALMs,
+4,784 combinational ALUTs, 1,650 registers, 538,624 block-memory bits,
+five DSP blocks and zero MLAB bits**. This is +185 estimated ALMs, +210
+ALUTs and +7 registers from the plain indirect-load stage, with unchanged
+RAM/DSP totals. The measurement includes effective-address/pointer sequencing,
+extension request guards and retained early responses. The same complete
+NARC GSP boundary, 158 virtual pins, device, 20 ns clock, seed and effort
+are used. These remain synthesis estimates; fitted area, physical M10K count,
+STA and NARC validation remain open, alongside 59 missing timing forms.
+
 
 
 ## Complete graphics engine, 2026-10-17

@@ -146,9 +146,21 @@ module jttms10 #(
     // No extra microinstruction or second arithmetic unit is needed.
     wire immediate_short=a_sel==IMMSE_A || a_sel==IMMSEINV_A;
     wire immediate_invert=a_sel==IMMSEINV_A || a_sel==IMMHIINV_A;
-    wire [31:0] immediate_value=immediate_short ? {{16{md[15]}},md[15:0]} :
-                                                         {md[15:0],a[15:0]};
-    reg timing_active, immediate_last, early_load, load_started;
+    wire [15:0] immediate_word=imm ? read_data[15:0] : md[15:0];
+    wire [31:0] immediate_value=immediate_short ? {{16{immediate_word[15]}},immediate_word} :
+                                                         {immediate_word,a[15:0]};
+    reg timing_active, immediate_last, load_pending, load_started, load_address_ready;
+    localparam integer LOAD_IW=$clog2(2*CLKS_PER_STATE+1);
+    localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
+    localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
+    localparam [LOAD_IW-1:0] LOAD_LEAD=LOAD_LEAD_I[LOAD_IW-1:0];
+    localparam [LOAD_IW-1:0] LOAD_PRE=CLKS_PER_STATE[LOAD_IW-1:0];
+    localparam [LOAD_IW-1:0] LOAD_FIRST_LIMIT=LOAD_FIRST_LIMIT_I[LOAD_IW-1:0];
+    localparam [LOAD_IW-1:0] LOAD_NEXT_LIMIT=3;
+    reg [LOAD_IW-1:0] load_issue_left;
+    wire early_load=load_pending && load_address_ready && load_issue_left==0;
+    wire load_offset=ir[15:10]==6'b101101 || ir[15:9]==7'b1010111;
+    wire load_direct=ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
     wire decode_multiply=decode_opcode[15:10]==6'b010111;
@@ -163,7 +175,16 @@ module jttms10 #(
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
     // General scalar classes. PC-changing, memory and graphics forms retain
     // their old schedule until their event rules are independently covered.
-    wire decode_load=decode_opcode[15:10]==6'b100001 || decode_opcode[15:9]==7'b1000111;
+    wire decode_load_post=decode_opcode[15:10]==6'b100101;
+    wire decode_load_pre=decode_opcode[15:10]==6'b101001;
+    wire decode_load_offset=decode_opcode[15:10]==6'b101101 || decode_opcode[15:9]==7'b1010111;
+    wire decode_load_absolute=(decode_opcode & 16'hfde0)==16'h05a0 ||
+                              (decode_opcode & 16'hffe0)==16'h07e0;
+    wire decode_load_extension=decode_load_offset || decode_load_absolute;
+    wire decode_load_direct=decode_opcode[15:10]==6'b100001 ||
+                           decode_opcode[15:9]==7'b1000111 || decode_load_post;
+    wire decode_load=decode_load_direct || decode_load_pre || decode_load_extension;
+    wire [5:0] decode_load_states=decode_load_pre ? 6'd4 : decode_load_extension ? 6'd5 : 6'd3;
     wire decode_immediate_word=decode_opcode[15:5]==11'h04e ||
         decode_opcode[15:5]==11'h058 || decode_opcode[15:5]==11'h05a ||
         decode_opcode[15:5]==11'h05f;
@@ -194,9 +215,9 @@ module jttms10 #(
                       decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
-    wire [5:0] decode_states=decode_divide ? decode_div_states : decode_multiply ? 6'd5+multiply_half :
+    wire [5:0] decode_states=decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
-                            decode_ie || decode_putst || decode_immediate_long || decode_load ||
+                            decode_ie || decode_putst || decode_immediate_long ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
                             decode_btstr || decode_immediate_word ||
                             (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
@@ -227,8 +248,11 @@ module jttms10 #(
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
-    assign mem_req = ((early_load && (cen || load_started)) || (active && bus_op)) && !completed && !rst && !fault &&
-                     !gfx_skip_write;
+    assign mem_req = ((early_load && (cen || load_started)) ||
+                      (active && bus_op && !(load_pending && mem_sel==READ_MEM))) &&
+                     !completed && !rst && !fault && !gfx_skip_write &&
+                     !(load_pending && imm && ((!immediate_last && load_issue_left>LOAD_FIRST_LIMIT) ||
+                       (immediate_last && !load_offset && load_issue_left>LOAD_NEXT_LIMIT)));
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
     wire byte_op = ir[15:10]==6'b100011 || ir[15:10]==6'b101011 ||
@@ -257,7 +281,7 @@ module jttms10 #(
                                  ({32{field_ext_fill}} & ~field_mask);
     assign mem_we = early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
-    assign mem_addr = early_load ? rs_data : field_op ? ea : vector ? 32'hffffffe0 : pc;
+    assign mem_addr = early_load ? (load_direct && !load_started ? rs_data : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = early_load ? field_size : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
@@ -487,20 +511,21 @@ module jttms10 #(
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
-    // Scheduling covers single-word scalar operations, DIV/MOD and
-    // documented even-width MPYS/MPYU. PC-changing, memory and graphics families
-    // retain their existing schedule until their event contracts are added.
+    // Scheduling covers the scalar/immediate and load families with oracle
+    // probes. Other memory/PC/graphics forms retain their earlier schedule
+    // until their event contracts are independently covered.
     always @(posedge clk) begin
         if(rst) begin
             timing_active<=0;
             immediate_last<=0;
-            early_load<=0; load_started<=0;
+            load_pending<=0; load_started<=0; load_address_ready<=0; load_issue_left<=0;
             time_left<=0;
             fetch_wait<=0;
         end else begin
             if(cen) begin
                 if(timing_active && time_left!=0) time_left<=time_left-16'd1;
                 if(fetch_wait!=0) fetch_wait<=fetch_wait-16'd1;
+                if(load_issue_left!=0) load_issue_left<=load_issue_left-1'b1;
             end
             // ACK capture is independent of CEN, like the response data.
             // External fetches (CD or a cache fill) need the additional
@@ -516,19 +541,26 @@ module jttms10 #(
             // The cache response bridge has consumed one clock at this ACK.
             if(mem_req && mem_ack && imm && !mem_cached && !control[15] && timing_active)
                 time_left<=immediate_tail_clocks-16'd2;
+            // Keep the intrinsic address-generation states after an external
+            // extension response. Its cache bridge has consumed one clock.
+            if(load_pending && imm && mem_req && mem_ack && !mem_cached)
+                load_issue_left<=(load_offset || !immediate_last ? LOAD_LEAD : LOAD_PRE)-1'b1;
+            if(load_pending && step && ea_sel!=0) load_address_ready<=1;
             if(early_load && !load_started && cen && mem_req) load_started<=1;
             // Bus waits must not consume the CPU work following a load.
             // The cache/field response bridge has consumed two clocks of
             // that final state at this ACK; sign extension needs one more.
             if(mem_req && mem_ack && early_load && timing_active)
                 time_left<=load_finish_clocks-16'd3;
-            if(step && mem_sel==READ_MEM) early_load<=0;
+            if(step && mem_sel==READ_MEM) load_pending<=0;
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed;
                 immediate_last<=decode_immediate_word;
-                early_load<=decode_load; load_started<=0;
+                load_pending<=decode_load; load_started<=0;
+                load_address_ready<=decode_load_direct;
+                load_issue_left<=decode_load_pre ? LOAD_PRE : decode_load_extension ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             // MPYU's extra state depends on the selected field's sign bit,
@@ -589,13 +621,17 @@ module jttms10 #(
                              !(nmi_req && nmi_nostack);
             end
             if(push_entry) push_high<=1;
+            // Capture the old pointer before postincrement can write Rs.
+            if(early_load && !load_started && cen && mem_req && load_direct) ea<=rs_data;
             if(mem_req && mem_ack) begin
                 completed<=1;
                 bus_data<=mem_rdata;
             end
             if(active && cen && halt) fault<=1;
             if(step) begin
-                completed<=0;
+                // An early data response can arrive while pointer helpers
+                // are paused. Retain it until a bus microinstruction consumes it.
+                if(!load_pending || bus_op) completed<=0;
                 if(emu_step) emu_ack<=1;
                 if(push_active && stack_sel==WRITE_STACK)
                     push_high<=~push_high;
@@ -733,7 +769,7 @@ module jttms10 #(
                 case(a_sel)
                     REG_A: a<=rs_data;
                     K_A: a<=ir[9:5]==0 ? 32'd32 : {27'd0,ir[9:5]};
-                    IMMLO_A: a<={16'd0,md[15:0]};
+                    IMMLO_A: a<={16'd0,immediate_word};
                     IMMSE_A, IMMHI_A, IMMSEINV_A, IMMHIINV_A:
                         a<=immediate_value ^ {32{immediate_invert}};
                     RD_A: a<=rd_data;
@@ -753,7 +789,7 @@ module jttms10 #(
                     default:;
                 endcase
                 case(ea_sel)
-                    A_EA: ea<=a;
+                    A_EA: ea<=imm && a_sel==IMMHI_A ? immediate_value : a;
                     B_EA: ea<=b;
                     SUM_EA: ea<=result;
                     TMP_EA: ea<=tmp;

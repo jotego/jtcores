@@ -58,7 +58,9 @@ module jttms10_word #(
     localparam [SLOT_PW-1:0] SLOT_LAST=CLKS_PER_STATE[SLOT_PW-1:0]-1'b1;
     reg [SLOT_PW-1:0] slot_phase;
     reg slot_eligible;
-    wire indirect_load=ir[15:10]==6'b100001 || ir[15:9]==7'b1000111;
+    wire indirect_load=ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
+        ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
+        ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
     assign word_early=indirect_load && field_req && !field_program &&
                       !field_we && !field_pixel && (slot_eligible || slot_phase==0);
     always @(posedge clk) begin
