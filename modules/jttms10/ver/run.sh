@@ -101,3 +101,10 @@ if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
 fi
 python3 "$ver_dir/timing/run.py" "${timing_args[@]}"
 python3 "$ver_dir/timing/run.py" --wait-states 1
+python3 "$ver_dir/timing/run.py" --wait-states 1 --pause-clocks 7
+python3 "$ver_dir/timing/mutations.py"
+coverage_args=()
+if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
+    coverage_args+=(--report "$JTTMS10_TIMING_REPORT.coverage.json")
+fi
+python3 "$ver_dir/timing/coverage.py" "${coverage_args[@]}"

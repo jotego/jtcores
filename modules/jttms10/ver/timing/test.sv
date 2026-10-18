@@ -27,9 +27,18 @@ module test;
     );
     reg [15:0] mem[0:4095];
     integer i,rc,delay_clocks=16,extra_wait=0;
+    integer pause_clocks=0,pause_left=0,paused=0;
+    reg pause_done=0;
+    reg [31:0] pause_pc,pause_st;
+    reg [31:0] pause_regs[0:3];
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
     reg measuring=0;
+    // A combined fetch/dispatch commits IR and increments PC on the same
+    // edge. The previous two-word microcode had incremented PC earlier.
+    wire [31:0] accepted_pc=dut.u_cpu.u_core.fetch ? pc : pc-32'd16;
+    wire [15:0] accepted_ir=dut.u_cpu.u_core.fetch ?
+                           dut.u_cpu.u_core.read_data[15:0] : dut.u_cpu.u_core.md[15:0];
     string program_path;
     initial begin
         if (!$value$plusargs("PROGRAM=%s",program_path) ||
@@ -37,12 +46,30 @@ module test;
             !$value$plusargs("NEXT_PC=%h",next_pc))
             $fatal(1,"missing PROGRAM/TEST_PC/NEXT_PC");
         rc=$value$plusargs("WAIT=%d",extra_wait);
+        rc=$value$plusargs("PAUSE=%d",pause_clocks);
         if(extra_wait<0) $fatal(1,"negative wait");
         delay_clocks=16+extra_wait;
         for(i=0;i<4096;i=i+1) mem[i]=0;
         $readmemh(program_path,mem);
         repeat(5) @(negedge clk);
         rst=0;
+    end
+
+    // Pause during CPU work, before its final writeback/next opcode read.
+    // The cache/fabric remain clocked, as in the real system wrapper.
+    always @(negedge clk) begin
+        if(!rst && measuring && !pause_done && pause_clocks>0) begin
+            cen=0;
+            pause_done=1;
+            pause_left=pause_clocks;
+            pause_pc=pc;
+            pause_st=st;
+            for(integer q=0;q<4;q=q+1)
+                pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
+        end else if(pause_left>0) begin
+            pause_left=pause_left-1;
+            if(pause_left==0) cen=1;
+        end
     end
 
     // ACK is consumed 16 INCLKs (two machine states) after the first
@@ -98,16 +125,31 @@ module test;
         if(rst) now<=0;
         else begin
             now<=now+1;
+            if(measuring && !cen) begin
+                paused<=paused+1;
+                if(pc!==pause_pc || st!==pause_st || retire)
+                    $fatal(1,"architectural state advanced while CEN paused");
+                for(integer q=0;q<4;q=q+1)
+                    if(dut.u_cpu.u_core.u_regs.ram0[q]!==pause_regs[q])
+                        $fatal(1,"A%0d changed while CEN paused",q);
+                if(cyc_req) $fatal(1,"CPU launched a cycle during the early CEN pause");
+            end
+            if($test$plusargs("TRACE") && measuring)
+                $display("CORE %0d ua=%03h active=%b step=%b req=%b ack=%b complete=%b cache=%0d word=%b/%b cycle=%b/%b",
+                    now,dut.u_cpu.u_core.u_ctrl.uaddr,dut.u_cpu.u_core.active,
+                    dut.u_cpu.u_core.step,dut.u_cpu.field_req,dut.u_cpu.field_ack,
+                    dut.u_cpu.u_core.completed,dut.u_cpu.u_cache.state,
+                    dut.word_req,dut.word_ack,cyc_req,cyc_ack);
             if(fault) $fatal(1,"CPU fault pc=%h ir=%h",pc,ir);
             if(dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
-                $display("DECODE %0d %08h %04h",now,pc-32'd16,dut.u_cpu.u_core.md[15:0]);
-                if(pc-32'd16==test_pc) begin
+                $display("DECODE %0d %08h %04h",now,accepted_pc,accepted_ir);
+                if(accepted_pc==test_pc) begin
                     seen<=seen+1;
                     if(seen==1) begin start_clock<=now; measuring<=1; end
                 end
-                if(measuring && pc-32'd16==next_pc) begin
-                    $display("RESULT clocks=%0d start=%0d end=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",
-                        now-start_clock,start_clock,now,st,
+                if(measuring && accepted_pc==next_pc) begin
+                    $display("RESULT clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",
+                        now-start_clock,start_clock,now,paused,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
                         dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
                     $finish;

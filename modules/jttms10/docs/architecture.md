@@ -219,8 +219,10 @@ publishes B0/B2/B10, stacks its opcode PC with PBX clear, and restarts by
 refetching. The bus/PBX benches compare the remaining physical write stream
 with an uninterrupted run, including clipped and reverse-direction cases.
 
-The dispatch ROM is sampled during the existing fetch priming clock, adding
-no instruction phase. `hdl/tms10_dispatch.hex` is a deterministic synthesis
+The dispatch ROM samples the returned opcode while the fetch response is
+held. A response-capture clock precedes combined fetch/dispatch, so the
+synchronous family lookup completes before IR/PC commit without a separate
+decode microinstruction. `hdl/tms10_dispatch.hex` is a deterministic synthesis
 asset; the module QIP supplies its Quartus search path. Simulation initializes
 the same table from `decode_family`, and the exhaustive audit compares all
 65,536 final entries with the pre-ROM controller as well as the pinned

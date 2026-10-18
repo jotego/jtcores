@@ -222,7 +222,10 @@ module test;
     end
 
     initial begin
-        repeat (5000) @(posedge clk);
+        // Liveness budget scales with program length now that multiply uses
+        // TI machine-state timing. Exact latency is checked in ver/timing;
+        // this generous architectural watchdog must not truncate long tests.
+        repeat (5000 + 512*EXPECTED_RETIRES) @(posedge clk);
         $fatal(1, "timeout after %0d retired instructions", retired);
     end
 endmodule

@@ -10,7 +10,7 @@ from run import cases, check, check_bus
 class TimingCheckerTest(unittest.TestCase):
     def setUp(self):
         self.case = next(c for c in cases() if c['name'] == 'mpys_fs2_positive_even_hit')
-        self.observed = dict(clocks=48, start=100, end=148, st=self.case['expected_st'],
+        self.observed = dict(clocks=48, start=100, end=148, paused=0, st=self.case['expected_st'],
                              **{f'a{n}': v for n, v in enumerate(self.case['expected_regs'])})
 
     def test_correct_math_wrong_time_fails(self):
@@ -40,18 +40,29 @@ class TimingCheckerTest(unittest.TestCase):
         self.assertEqual(check(case, self.observed, wait_states=1), [])
 
     def test_bus_contract_is_independent_of_total(self):
-        case = dict(self.case, cache_disabled=True, next_pc=0x1230)
-        lines = ['BUS_BEGIN 100 0 00001230 0000 1', 'BUS_END 124 0 00001230 0300']
+        case = dict(self.case, cache_disabled=True, states=9, next_pc=0x1230)
+        lines = ['BUS_BEGIN 148 0 00001230 0000 1', 'BUS_END 172 0 00001230 0300']
         self.assertEqual(check_bus(case, self.observed, lines, 1), [])
         # An ACK a state early must fail even if someone pads retirement.
-        lines[1] = 'BUS_END 116 0 00001230 0300'
+        lines[1] = 'BUS_END 164 0 00001230 0300'
         self.assertTrue(check_bus(case, self.observed, lines, 1))
         # Likewise a cold-cache fill cannot be classified as a warm hit.
         self.assertTrue(check_bus(self.case, self.observed, lines, 0))
 
+    def test_bus_start_cannot_be_hidden_by_total_padding(self):
+        case = dict(self.case, cache_disabled=True, states=9, next_pc=0x1230)
+        lines = ['BUS_BEGIN 100 0 00001230 0000 1', 'BUS_END 124 0 00001230 0300']
+        self.assertTrue(any('read start' in e for e in check_bus(case, self.observed, lines, 1)))
+
     def test_functional_assertions_remain_active(self):
         self.observed['a0'] ^= 1
         self.assertTrue(any('A0:' in e for e in check(self.case, self.observed)))
+
+    def test_paused_clocks_cannot_be_absorbed_by_instruction_padding(self):
+        self.observed.update(paused=7, clocks=55)
+        self.assertEqual(check(self.case, self.observed, pause_clocks=7), [])
+        self.observed['clocks'] = 48
+        self.assertTrue(check(self.case, self.observed, pause_clocks=7))
 
 
 if __name__ == '__main__':

@@ -1,7 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 // Microcoded TMS34010 execution datapath. Addresses are BIT addresses and
 // requests describe 1..32-bit fields. Peripheral/bus integration is separate.
-module jttms10(
+module jttms10 #(
+    parameter integer CLKS_PER_STATE=8
+)(
     input             rst, clk, cen,
     input             irq_req,
     input      [31:0] irq_vector,
@@ -112,13 +114,32 @@ module jttms10(
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
     wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
     reg completed;
+    wire [31:0] read_data = completed ? bus_data : mem_rdata;
+    reg timing_active;
+    reg [15:0] time_left, fetch_wait;
+    wire [15:0] decode_opcode=read_data[15:0];
+    wire decode_multiply=decode_opcode[15:10]==6'b010111;
+    wire decode_timed=decode_opcode==16'h0300 ||
+                      decode_opcode[15:9]==7'b0100000 ||
+                      decode_opcode[15:10]==6'b000110 ||
+                      (decode_multiply && !st[6]);
+    wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
+    wire [5:0] decode_states=decode_multiply ? 6'd5+multiply_half : 6'd1;
+    wire [15:0] decode_clocks={10'd0,decode_states} * CLKS_PER_STATE[15:0];
+    // Four clocks cover the NI boundary, ROM prime, synchronous cache hit,
+    // and the fetch/dispatch response latch. Execution finishes early enough
+    // for that fetch to overlap its last TI machine state (UG §5.4.3/§5.5).
+    localparam [15:0] FETCH_OVERLAP=16'd4;
     wire field_op = mem_sel!=0 || stack_sel!=0 ||
                     gfx_bus_read || gfx_bus_write;
     wire bus_op = vector || fetch || imm || field_op;
     wire gfx_skip_write = gfx_active && gfx_bus_write &&
                           gfx_bus_pixel && pix_transparent;
-    wire ready = !bus_op || completed || mem_ack || gfx_skip_write;
-    wire [31:0] read_data = completed ? bus_data : mem_rdata;
+    // Fetch uses the response latch so the synchronous dispatch ROM has a
+    // full clock to decode the returned opcode before fetch/dispatch commits.
+    wire operation_ready=fetch ? completed && fetch_wait==0 :
+                         !bus_op || completed || mem_ack || gfx_skip_write;
+    wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
@@ -168,7 +189,8 @@ module jttms10(
     assign mem_pixel = gfx_active && gfx_bus_pixel;
 
     jttms10_ctrl u_ctrl(
-        .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
+        .rst(rst), .clk(clk), .enable(cen), .ready(ready),
+        .md(fetch ? read_data[15:0] : md[15:0]),
         .shift_count(shift_count), .lmo_more(lmo_more),
         .multi_bit(multi_bit), .multi_steps(multi_steps),
         .multi_load(ir[5]),
@@ -388,6 +410,36 @@ module jttms10(
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
+    // Initial scheduling coverage is deliberately limited to NOP, ADD,
+    // MOVK and the documented even-width MPYS/MPYU cases. Other families
+    // retain their existing schedule until their event contracts are added.
+    always @(posedge clk) begin
+        if(rst) begin
+            timing_active<=0;
+            time_left<=0;
+            fetch_wait<=0;
+        end else begin
+            if(cen) begin
+                if(timing_active && time_left!=0) time_left<=time_left-16'd1;
+                if(fetch_wait!=0) fetch_wait<=fetch_wait-16'd1;
+            end
+            // ACK capture is independent of CEN, like the response data.
+            // With CD the two response clocks occupy part of the additional
+            // processing state after the two-state physical word cycle
+            // (UG §5.4.7). Complete that state before accepting the opcode.
+            if(mem_req && mem_ack && fetch)
+                fetch_wait<=control[15] ? CLKS_PER_STATE[15:0]-16'd2 : 16'd0;
+            if(step && ni) timing_active<=0;
+            if(step && ld_ir) begin
+                timing_active<=decode_timed;
+                time_left<=decode_clocks-16'd1;
+            end
+            // MPYU's extra state depends on the selected field's sign bit,
+            // which is available once synchronous register reads complete.
+            if(step && mulinit && timing_active && ir[9] && field_ext_input[field_msb])
+                time_left<=time_left+CLKS_PER_STATE[15:0]-16'd1;
+        end
+    end
     always @(posedge clk) begin
         retire <= 0;
         nmi_clear <= 0;
@@ -471,7 +523,7 @@ module jttms10(
                     default:;
                 endcase
                 if(ld_ir) begin
-                    ir<=md[15:0];
+                    ir<=fetch ? read_data[15:0] : md[15:0];
                     div_pairread<=0;
                 end
                 if(gfx_active && gfx_dst_ir) ir<=result[15:0];

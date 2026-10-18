@@ -82,5 +82,5 @@ jobs:
         if: always()
         with:
           name: jttms10-timing
-          path: jttms10-timing.json
+          path: jttms10-*.json
           if-no-files-found: ignore

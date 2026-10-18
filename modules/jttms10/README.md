@@ -11,8 +11,9 @@ MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 Instruction timing is currently noncompliant. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
-The standard runner now fails on those timing mismatches even when its
-architectural programs pass. Current #144 development uses a DSP multiply;
+The standard runner fails its coverage gate until the currently unvalidated
+128 instruction forms have timing probes. The initial MPYS/MPYU/NOP/ADD/MOVK
+matrix passes; it is not full ISA signoff. Current #144 development uses a DSP multiply;
 the final fitted area, FPGA timing and NARC checks must be repeated after
 the instruction timing changes are complete.
 

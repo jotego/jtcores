@@ -25,8 +25,7 @@ ucode:
   - name: fetch
     start: 1
     seq:
-      - fetch_bus, pcinc
-      - ld_ir, dispatch
+      - fetch_bus, pcinc, ld_ir, dispatch
   - name: illegal
     start: -1
     seq:

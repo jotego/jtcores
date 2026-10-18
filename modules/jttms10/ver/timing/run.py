@@ -62,6 +62,7 @@ def cases():
                         states = multiply_states(signed=signed, fs1=fs, source=source,
                                                  cache_disabled=cache_disabled)
                         yield dict(name=name, opcode=(0x5C00 if signed else 0x5E00) | 0x40 | int(odd),
+                                   coverage_id='MPYS_RR' if signed else 'MPYU_RR',
                                    regs=regs, expected_regs=expected, expected_st=expected_st,
                                    states=states, cache_disabled=cache_disabled,
                                    citation="SPVU001A " + ("12-165" if signed else "12-167"),
@@ -77,6 +78,7 @@ def cases():
             elif name == "MOVK":
                 expected[0] = 5
             yield dict(name=f"{name.lower()}_{'off' if cache_disabled else 'hit'}",
+                       coverage_id={'NOP':'NOP', 'ADD':'ADD_RR', 'MOVK':'MOVK_K'}[name],
                        opcode=opcode, regs=regs, expected_regs=expected,
                        expected_st=expected_st, states=fixed_states(name, cache_disabled=cache_disabled),
                        cache_disabled=cache_disabled, citation="SPVU001A " + FIXED[name][2],
@@ -107,17 +109,19 @@ def parse_result(stdout):
     if len(results) != 1:
         raise ValueError(f"expected exactly one RESULT, found {len(results)}")
     fields = dict(item.split('=') for item in results[0].split()[1:])
-    return {key: int(value, 10 if key in ('clocks', 'start', 'end') else 16)
+    return {key: int(value, 10 if key in ('clocks', 'start', 'end', 'paused') else 16)
             for key, value in fields.items()}
 
 
-def check(case, observed, wait_states=0):
+def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
     added_clocks = wait_states * INPUT_CLOCKS_PER_STATE if case['cache_disabled'] else 0
-    expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks
+    expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks
+    if observed['paused'] != pause_clocks:
+        errors.append(f"expected {pause_clocks} paused clocks, observed {observed['paused']}")
     if observed['clocks'] != expected_clocks:
         errors.append(f"expected {expected_clocks} INCLK ({case['states']} intrinsic machine states, "
-                      f"{added_clocks} external wait clocks), "
+                      f"{added_clocks} external wait clocks, {pause_clocks} CEN pause clocks), "
                       f"observed {observed['clocks']} INCLK")
     for reg, value in enumerate(case['expected_regs']):
         if observed[f'a{reg}'] != value:
@@ -127,7 +131,7 @@ def check(case, observed, wait_states=0):
     return errors
 
 
-def check_bus(case, observed, lines, wait_states):
+def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     """These register-only probes have no data cycles or hidden writes.
 
     A warm hit issues no external cycles; CD issues exactly the following
@@ -141,6 +145,12 @@ def check_bus(case, observed, lines, wait_states):
         errors.append(f"expected {count} physical opcode reads, observed {len(begin)} starts/{len(end)} ACKs")
     elif count:
         b, e = begin[0], end[0]
+        # §5.4.7 / §13.1: these register-only instructions have no hidden
+        # writes. Their next memory opcode read follows the intrinsic CPU
+        # states; its two-state read and one processing state add three.
+        expected_start = observed['start'] + (case['states'] - 3) * INPUT_CLOCKS_PER_STATE + pause_clocks
+        if int(b[1]) != expected_start:
+            errors.append(f"physical opcode read start: expected clock {expected_start}, observed {b[1]}")
         if (int(b[2]), int(b[3], 16), int(b[5])) != (0, case['next_pc'], 1):
             errors.append(f"unexpected physical cycle: {' '.join(b)}")
         if e[2:4] != b[2:4] or int(e[4], 16) != 0x0300:
@@ -156,29 +166,41 @@ def main():
     parser.add_argument('--case', help='exact case name, or substring')
     parser.add_argument('--report', type=Path, help='write all observations and verdicts as JSON')
     parser.add_argument('--traces', type=Path, help='retain full logs in this directory')
+    parser.add_argument('--trace-core', action='store_true',
+                        help='include controller/cache handshakes in retained logs')
+    parser.add_argument('--rtl-dir', type=Path, default=MODULE / 'hdl',
+                        help='complete alternative HDL directory for regression mutation checks')
+    parser.add_argument('--bench', type=Path, default=HERE / 'test.sv',
+                        help='alternative testbench for stimulus mutation checks')
     parser.add_argument('--wait-states', type=int, default=0,
                         help='add this many TI machine states to every physical cycle')
+    parser.add_argument('--pause-clocks', type=int, default=0,
+                        help='pause CEN during measured CPU execution for this many input clocks')
     args = parser.parse_args()
-    if args.wait_states < 0:
-        parser.error('wait states must be nonnegative')
+    if args.wait_states < 0 or args.pause_clocks < 0:
+        parser.error('wait states and pause clocks must be nonnegative')
     selected = [case for case in cases() if args.case is None or args.case in case['name']]
     if not selected:
         parser.error('no matching cases')
+    hdl = args.rtl_dir.resolve()
+    if not (hdl / 'jttms10.v').is_file() or not args.bench.is_file():
+        parser.error('missing CPU HDL or testbench')
     if args.traces:
         args.traces.mkdir(parents=True, exist_ok=True)
     rows = []
-    sources = sorted((MODULE / 'hdl').glob('*.v')) + sorted((MODULE / 'ucode').glob('*.yaml'))
-    sources += [HERE / name for name in ('test.sv', 'oracle.py', 'run.py')]
-    provenance = dict(source_sha256={str(path.relative_to(MODULE)): hashlib.sha256(path.read_bytes()).hexdigest()
-                                     for path in sources})
+    sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
+    sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py')]
+    sources += [('ver/timing/test.sv',args.bench)]
+    provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
+                                     for name,path in sources})
     with tempfile.TemporaryDirectory(prefix='jttms10-timing-') as temp:
         work = Path(temp)
         subprocess.run(['bash', str(MODULE / 'ver/build.sh'), str(work)], check=True,
                        stdout=subprocess.DEVNULL)
-        hdl = MODULE / 'hdl'
         binary = work / 'timing.vvp'
         subprocess.run(['iverilog', '-g2012', '-s', 'test', '-I', str(work),
-                        '-o', str(binary), str(HERE / 'test.sv'),
+                        '-o', str(binary), str(args.bench.resolve()),
                         *map(str, sorted(hdl.glob('*.v')))], check=True, cwd=work)
         provenance['generated_sha256'] = {
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()
@@ -191,7 +213,9 @@ def main():
             (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
             result = subprocess.run(['vvp', str(binary), '+PROGRAM=program.mem',
                                      f'+TEST_PC={test_pc:x}', f'+NEXT_PC={next_pc:x}',
-                                     f'+WAIT={8 * args.wait_states}'],
+                                     f'+WAIT={8 * args.wait_states}',
+                                     f'+PAUSE={args.pause_clocks}',
+                                     *(['+TRACE'] if args.trace_core else [])],
                                     cwd=work, capture_output=True, text=True, timeout=30)
             log = result.stdout + result.stderr
             if args.traces:
@@ -200,7 +224,7 @@ def main():
                 if result.returncode:
                     raise ValueError(f'simulator exit {result.returncode}')
                 observed = parse_result(result.stdout)
-                errors = check(case, observed, args.wait_states)
+                errors = check(case, observed, args.wait_states, args.pause_clocks)
             except ValueError as error:
                 observed, errors = None, [str(error)]
             row = dict(case, observed=observed, errors=errors)
@@ -209,7 +233,7 @@ def main():
             row['bus_trace'] = [line for line in log.splitlines() if line.startswith('BUS_') and
                                 (observed is None or observed['start'] <= int(line.split()[1]) <= observed['end'])]
             if observed is not None:
-                errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states))
+                errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
             rows.append(row)
             print(f"{case['name']}: {'FAIL' if errors else 'PASS'} ({case['citation']})")
             if errors:
@@ -223,10 +247,13 @@ def main():
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(dict(clock_unit='INCLK', clocks_per_machine_state=8,
                                               external_wait_states=args.wait_states,
+                                              cpu_pause_clocks=args.pause_clocks,
+                                              full_isa_coverage=False,
                                               provenance=provenance,
                                               cases=rows), indent=2) + '\n')
     failures = sum(bool(row['errors']) for row in rows)
     print(f'Timing: {len(rows)-failures} passed, {failures} failed, {len(rows)} total')
+    print('Scope: MPYS, MPYU, NOP, ADD, MOVK probes; full ISA timing signoff remains open (#144).')
     return int(failures != 0)
 
 

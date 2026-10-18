@@ -86,11 +86,13 @@ CD preservation, held CF behavior, IAQ/pixel/data bypass, one acknowledgment
 per held request, and reset during a stalled fill. Integrated cache and
 system fits are recorded in [the area measurements](../ver/area/README.md).
 
-The direct program path removes three input clocks from a cached word
-access. The permanent timing probe now measures a warm NOP at eight INCLK,
-matching its one-state figure. Other instruction and cache-disabled timing
-checks still fail; this path change alone does not establish CPU timing
-compliance. See the [timing coverage ledger](timing.md).
+The direct program path removes unnecessary field-processing clocks. The
+cache now asserts its hit ACK while the synchronous RAM output is valid in
+HIT, rather than adding another response clock. Its fill/bypass response
+still uses a registered ACK. The CPU captures the hit even when CEN is paused.
+The initial NOP/ADD/MOVK/multiply timing probes pass with cache hit/off;
+missing instruction forms and cache-miss/overlap tests remain explicit gaps
+in the [timing coverage ledger](timing.md).
 
 An isolated Quartus Prime 20.1.1 Analysis & Synthesis map of source SHA-256
 `e1318b798308c6737f4c079b6b7b73b4a280bfa368b80975217f9a4ffce09cdf`

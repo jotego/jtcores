@@ -2,7 +2,9 @@
 // Word-bus variant of the microcoded TMS34010. Addresses remain bit addresses.
 // word_restart is the arbiter's one-clock HOLD pulse between the read and
 // write of a partial-word RMW pair; the field adapter then rereads that word.
-module jttms10_word(
+module jttms10_word #(
+    parameter integer CLKS_PER_STATE=8
+)(
     input             rst,
     input             clk,
     input             cen,
@@ -57,7 +59,7 @@ module jttms10_word(
     wire [15:0] field_word_rdata = pixel_q && srt_q && !cache_we ?
                                    16'd0 : cache_rdata;
 
-    jttms10 u_core(
+    jttms10 #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_core(
         .rst(rst), .clk(clk), .cen(cen),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),

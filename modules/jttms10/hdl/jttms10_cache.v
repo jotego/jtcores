@@ -9,8 +9,8 @@ module jttms10_cache(
     input c_req, c_we, c_iaq, c_program, c_pixel, c_lock,
     input [31:0] c_addr,
     input [15:0] c_wdata,
-    output reg [15:0] c_rdata,
-    output reg c_ack,
+    output [15:0] c_rdata,
+    output c_ack,
     output c_restart,
     output m_req, m_we, m_iaq, m_pixel, m_lock,
     output [31:0] m_addr,
@@ -51,11 +51,19 @@ module jttms10_cache(
             lru_next[n]=(n<=pos) ? lru[n-1] : lru[n];
     end
     wire hit_word=hit_segment && present[hit_slot][c_addr[8:6]];
+    reg response_ack;
+    reg [15:0] response_data;
 
     // Exactly 128 x 16 bits. A registered read and separate write port infer
     // one small synchronous block RAM; P flags and tags have reset, data does not.
     reg [15:0] ram [0:127];
     reg [15:0] ram_q;
+    // The synchronous RAM output is valid throughout HIT, beginning just
+    // after the acceptance edge. Do not register an additional response
+    // cycle after that RAM read. Mode changes may still revoke this hit.
+    wire hit_ack=state==HIT && !cache_disable && !cache_flush;
+    assign c_ack=hit_ack || response_ack;
+    assign c_rdata=hit_ack ? ram_q : response_data;
     wire [6:0] ram_read_addr={use_slot,c_addr[8:4]};
     reg [1:0] slot_q, word_q, fill_index;
     reg [2:0] sub_q;
@@ -86,9 +94,9 @@ module jttms10_cache(
     assign c_restart=m_restart;
 
     always @(posedge clk) begin
-        c_ack<=0;
+        response_ack<=0;
         if (rst) begin
-            state<=IDLE; seen<=0; c_rdata<=0;
+            state<=IDLE; seen<=0; response_data<=0;
             slot_q<=0; word_q<=0; fill_index<=0; sub_q<=0;
             addr_q<=0; fill_base<=0; data_q<=0; target_q<=0;
             we_q<=0; iaq_q<=0; pixel_q<=0; lock_q<=0;
@@ -150,16 +158,14 @@ module jttms10_cache(
                         fill_index<=0; fill_store<=0; fill_poison<=1;
                         state<=FILL;
                     end else begin
-                        c_rdata<=ram_q;
-                        c_ack<=1;
                         state<=DONE;
                     end
                 end
                 FILL: if (m_ack) begin
                     if (fill_index==word_q) target_q<=m_rdata;
                     if (fill_index==2'd3) begin
-                        c_rdata<=word_q==2'd3 ? m_rdata : target_q;
-                        c_ack<=1;
+                        response_data<=word_q==2'd3 ? m_rdata : target_q;
+                        response_ack<=1;
                         if (fill_store && !fill_poison &&
                             !cache_flush && !cache_disable)
                             present[slot_q][sub_q]<=1;
@@ -167,8 +173,8 @@ module jttms10_cache(
                     end else fill_index<=fill_index+2'd1;
                 end
                 BYPASS: if (m_ack) begin
-                    c_rdata<=m_rdata;
-                    c_ack<=1;
+                    response_data<=m_rdata;
+                    response_ack<=1;
                     state<=DONE;
                 end
                 DONE: state<=IDLE;
