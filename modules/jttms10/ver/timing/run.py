@@ -22,6 +22,7 @@ from xy_cases import xy_cases
 from coordinate_cases import coordinate_cases
 from copy_cases import copy_cases, transactions as copy_transactions
 from pointer_copy_cases import pointer_copy_cases
+from copy_extension_cases import copy_extension_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -111,6 +112,7 @@ def cases():
     yield from coordinate_cases()
     yield from copy_cases()
     yield from pointer_copy_cases()
+    yield from copy_extension_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -222,7 +224,8 @@ def check(case, observed, wait_states=0, pause_clocks=0):
     if 'data_store' in case:
         if 'data_copy' in case:
             reads,writes=copy_transactions(case)
-            count=len(reads)+(len(writes)+1)*int(case['cache_disabled'])
+            count=len(reads)+(len(writes)+1+len(case.get('extensions',[])))*int(case['cache_disabled'])
+            if case.get('cache_miss')=='copy_extension':count+=4
         else:
             count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
         alignment=(-pause_clocks)%8 if count else 0
@@ -381,10 +384,22 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     begin=[x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
     end=[x.split() for x in lines if x.startswith(prefix+'_END ')]
     if 'data_copy' in case:
-        reads,writes=copy_transactions(case);plan=reads+writes
-        starts=[case['data_copy'].get('read_lead',0)+q*(2+wait_states) for q in range(len(reads))]
-        first=case['data_copy'].get('write_start',case['data_copy']['cpu']-1)+len(reads)*wait_states
-        starts += [first+q*(2+wait_states) for q in range(len(writes))]
+        reads,writes=copy_transactions(case);plan=[];starts=[]
+        spec=case['data_copy'];extensions=case.get('extensions',[])
+        lead=spec.get('read_lead',0);penalty=0
+        if case['cache_disabled']:
+            plan=[(0,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]
+            starts=[1+q*(4+wait_states) for q in range(len(extensions))]
+            penalty=len(extensions)*(3+wait_states)
+        if case.get('cache_miss')=='copy_extension':
+            missing=case['miss_word'];fill=extensions[missing-1:]+[0x0300]*4
+            plan=[(0,case['test_pc']+16*(missing+q),fill[q],1) for q in range(4)]
+            starts=[missing+q*(2+wait_states) for q in range(4)]
+            penalty=9+4*wait_states
+        starts.extend(lead+penalty+q*(2+wait_states) for q in range(len(reads)))
+        first=spec.get('write_start',spec['cpu']-1)+len(reads)*wait_states+penalty
+        starts.extend(first+q*(2+wait_states) for q in range(len(writes)))
+        plan.extend(reads+writes)
         if case['cache_disabled']:
             starts.append(first+len(writes)*(2+wait_states))
             plan.append((0,case['next_pc'],0x0300,1))
@@ -474,7 +489,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

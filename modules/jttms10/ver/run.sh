@@ -102,6 +102,8 @@ vvp "$ver_dir/build/pixel.vvp"
 python3 -B "$ver_dir/timing/test_checker.py"
 python3 "$ver_dir/bus_timing/check.py"
 python3 "$ver_dir/load_pause/check.py"
+# Validate mutation injection sites before starting the larger timing matrices.
+python3 "$ver_dir/timing/mutations.py"
 timing_simulator=${JTTMS10_TIMING_SIMULATOR:-iverilog}
 timing_args=(--simulator "$timing_simulator")
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
@@ -116,7 +118,6 @@ python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_eve
 for pause in 1 2 3 4 5 6; do
     python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case load_move_f0_w32_o15_s1_off --case _phase_ --wait-states 1 --pause-clocks "$pause"
 done
-python3 "$ver_dir/timing/mutations.py"
 coverage_args=()
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
     coverage_args+=(--report "$JTTMS10_TIMING_REPORT.coverage.json")

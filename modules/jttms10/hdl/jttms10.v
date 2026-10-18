@@ -172,9 +172,12 @@ module jttms10 #(
     wire branch_long_untaken=branch_relative && ir[7:0]==0 && !condition;
     wire [15:0] branch_cut_clocks=(branch_long_untaken ? 16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [15:0] dsj_tail_clocks=(branch_taken ? 16'd3 : 16'd2)*CLKS_PER_STATE[15:0];
+    wire copy_offset_post=ir[15:10]==6'b110100;
+    wire copy_absolute_post=(ir & 16'hfde0)==16'hd400;
+    wire copy_extension=copy_offset_post || copy_absolute_post;
     wire copy_post=ir[15:10]==6'b100110;
     wire copy_pre=ir[15:10]==6'b101010;
-    wire copy_ir=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 || copy_post || copy_pre;
+    wire copy_ir=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 || copy_post || copy_pre || copy_extension;
     wire store_absolute=(ir & 16'hfde0)==16'h0580 || (ir & 16'hffe0)==16'h05e0;
     wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
     wire store_direct=ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
@@ -206,10 +209,13 @@ module jttms10 #(
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
     // General scalar classes. Unlisted memory and graphics forms retain
     // their old schedule until their event rules are independently covered.
+    wire decode_copy_offset_post=decode_opcode[15:10]==6'b110100;
+    wire decode_copy_absolute_post=(decode_opcode & 16'hfde0)==16'hd400;
+    wire decode_copy_extension=decode_copy_offset_post || decode_copy_absolute_post;
     wire decode_copy_post=decode_opcode[15:10]==6'b100110;
     wire decode_copy_pre=decode_opcode[15:10]==6'b101010;
     wire decode_copy=decode_opcode[15:10]==6'b100010 || decode_opcode[15:9]==7'b1001110 ||
-                     decode_copy_post || decode_copy_pre;
+                     decode_copy_post || decode_copy_pre || decode_copy_extension;
     wire decode_store_post=decode_opcode[15:10]==6'b100100;
     wire decode_store_pre=decode_opcode[15:10]==6'b101000;
     wire decode_store_offset=decode_opcode[15:10]==6'b101100 || decode_opcode[15:9]==7'b1010110;
@@ -272,7 +278,7 @@ module jttms10 #(
     // destination read select its shorter path during the first ROM prime.
     wire [5:0] decode_states=decode_control ?
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
-                            decode_copy ? (decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+                            decode_copy ? (decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -656,8 +662,8 @@ module jttms10 #(
                 immediate_last<=decode_immediate_word;
                 load_pending<=decode_load || decode_copy; load_started<=0;
                 store_pending<=decode_store;store_started<=0;
-                load_address_ready<=decode_load_direct || (decode_copy && !decode_copy_pre) || (decode_store && !decode_store_pre && !decode_store_extension);
-                load_issue_left<=decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_address_ready<=decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_store_pre && !decode_store_extension);
+                load_issue_left<=decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin

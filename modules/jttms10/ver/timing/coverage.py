@@ -180,7 +180,7 @@ def inventory(rows, *, accept_project_choices=False):
         suffix = 'cd' if case['cache_disabled'] else 'cpu'
         policy = values.get('policy_'+suffix)
         if policy is not None:
-            miss = 9 if case.get('cache_miss') in ('load_extension','store_extension') else 0
+            miss = 9 if case.get('cache_miss') in ('load_extension','store_extension','copy_extension') else 0
             if case['states'] != policy + miss:
                 raise ValueError(f"{case['name']}: source policy differs from the probe expectation")
         published = [count for key,count in values.items()

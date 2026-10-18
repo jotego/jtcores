@@ -245,8 +245,14 @@ The response-tag correction at `b4dfd3a8d` maps at **3,514 estimated ALMs,
 5,011 ALUTs, 1,717 registers, 538,624 block-memory bits, five DSPs and
 zero MLAB bits**. Same complete boundary, constraints and 47 classified
 warnings; all 36 snapshot hashes and 29 copied inputs match the committed
-source. The pointer-copy expansion changes no arithmetic unit or storage
-bank; its own fresh map is pending. The final fitted ≤3,500-ALM limit,
+source. The pointer-copy expansion maps at **3,549 estimated ALMs, 5,041 ALUTs,
+1,718 registers, 538,624 block-memory bits, five DSPs and zero MLAB bits**
+in `/tmp/jttms10-144-pointer-slot-map`. Its one extra register records source
+acceptance for bus-slot qualification. Same boundary/constraints; all 36
+snapshot hashes, 29 copied inputs and timing ROMs verify. Its 46 warnings
+remove the prior constant-width copy-delay truncation. The following
+extended-source copy stage adds no arithmetic unit, storage bank or DSP;
+its fresh map is pending. The final fitted ≤3,500-ALM limit,
 FPGA setup/hold closure and NARC acceptance remain required.
 
 ## Complete graphics engine, 2026-10-17

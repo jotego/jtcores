@@ -30,7 +30,7 @@ new alternatives, changed selected counts, different instruction forms or
 changed result expectations cannot silently inherit a choice.
 
 The source audit still reports every discrepancy. The normal gate separates
-**4,262 probe instances with project choices** from **448 unresolved MOVB
+**6,144 probe instances with project choices** from **448 unresolved MOVB
 probes**, including 45 matching entry/summary targets. Absolute MOVB has
 116 unresolved instances (27 agreed); plain memory-to-memory MOVB has 332
 (18 agreed). All absolute-MOVB variants remain open, including alignments
@@ -43,7 +43,7 @@ the three source reads and the same table's CD17/H7 contradict printed CPU5.
 
 The normal runner invokes the policy-aware inventory. Calling
 `inventory(rows)` without `accept_project_choices=True` retains the stricter
-source-only audit, including all 4,710 discrepancy instances. Both views
+source-only audit, including all 6,592 discrepancy instances. Both views
 preserve the original numbers and citations. A passed source-policy gate
 would still leave condition/bus/interrupt/hardware audits required;
 `full_isa_signoff` remains false. Missing forms also continue to fail.
@@ -52,7 +52,7 @@ The original policy-only step at `3fcd09f9b` modified no HDL, microcode, encoded
 program, timing/result expectation or simulation observation. Ten additional checker tests cover
 explicit choices, preserved alternatives, exact signatures, actual result
 consistency, agreed-target protection and the full inventory. The complete
-checker/model suite now has 90 tests after the pointer-copy expansion. Source choices must never be inferred
+checker/model suite now has 96 tests after the extended-source expansion. Source choices must never be inferred
 from measured implementation latency.
 
 
@@ -64,3 +64,12 @@ state equation selects CD16. [pointer-copy-timing.md](pointer-copy-timing.md)
 records these conditions and all alternatives. They are explicit owner
 choices, not official TI corrections. The 448 agreed/source-target MOVB
 instances remain open.
+
+The offset/absolute-source postincrement copies add 1,882 exact choices.
+Their entries support the common CPU+hidden+three-CD-states-per-word
+equation, while Table13-4 differs at indices6/7/8/9/12. Every affected
+probe retains summary and applicable typical-entry values.
+[source-copy-timing.md](source-copy-timing.md) also records p.12-156's
+inconsistent example pointer and address labels; its numeric result words
+anchor the bit model under explicit instruction semantics, not those
+conflicting labels. These are project interpretations, not TI corrections.

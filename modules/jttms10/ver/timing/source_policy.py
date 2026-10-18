@@ -64,6 +64,19 @@ for identifier,values in [
 ]:
     CHOICES[identifier,signature(values)]='pointer-copy-common-state-equation'
 
+# Table13-4 source-extension copies retain two address states and the
+# repeated three-CD-state cost per word; preserve every printed alternative.
+for identifier,rows in {
+    'MOVE_OFF_POST':[(7,13,7,16,7,16),(7,15,7,18,None,None),(7,16,7,20,None,None),
+                     (7,19,7,22,None,None),(7,22,9,22,None,None)],
+    'MOVE_ABS_POST':[(7,16,7,19,7,19),(7,18,7,21,None,None),(7,19,7,23,None,None),
+                     (7,22,7,25,None,None),(7,25,9,25,None,None)],
+}.items():
+    for sc,sd,pc,pd,ec,ed in rows:
+        values=dict(summary_cpu=sc,summary_cd=sd,policy_cpu=pc,policy_cd=pd,
+                    entry_typical_cpu=ec,entry_typical_cd=ed)
+        CHOICES[identifier,signature(values)]='source-extension-copy-common-equation'
+
 for printed,formula in [(0x20000,0x200C0),(0x28000,0x280C0),
                         (0x0F020000,0x0F0200C0),(0x10000,0x10030)]:
     values=dict(entry_cpu=3,entry_cd=6,policy_cpu=3,policy_cd=6,

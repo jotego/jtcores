@@ -69,7 +69,8 @@ module jttms10_word #(
     reg slot_eligible;
     reg copy_source_accepted;
     wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
-                       ir[15:10]==6'b100110 || ir[15:10]==6'b101010;
+                       ir[15:10]==6'b100110 || ir[15:10]==6'b101010 ||
+                       ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400;
     wire indirect_load=indirect_copy ||
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||

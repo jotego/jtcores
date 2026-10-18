@@ -22,9 +22,61 @@ from run import parse_result
 from copy_cases import (alignment as copy_alignment,counts as copy_counts,fixture as copy_fixture,
     literal_cases as copy_literals,transactions as copy_transactions)
 from pointer_copy_cases import literal_cases as pointer_copy_literals, pointer_copy_cases
+from copy_extension_cases import literal_cases as copy_extension_literals, copy_extension_cases
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_source_extension_copy_entry_counts_and_alternatives(self):
+        self.assertEqual(copy_counts(0,0,16,mode='offset_post')[:3],(5,1,12))
+        self.assertEqual(copy_counts(0,0,16,mode='absolute_post')[:3],(5,1,15))
+        self.assertEqual(copy_counts(0,0,32,mode='offset_post')[:3],(7,3,16))
+        self.assertEqual(copy_counts(0,0,32,mode='absolute_post')[:3],(7,3,19))
+        self.assertEqual(copy_counts(0,0,32,mode='offset_post')[4],dict(
+            summary_cpu=7,summary_cd=13,policy_cpu=7,policy_cd=16,entry_typical_cpu=7,entry_typical_cd=16))
+        self.assertEqual(copy_counts(15,1,18,mode='absolute_post')[4],dict(
+            summary_cpu=7,summary_cd=25,policy_cpu=9,policy_cd=25,entry_typical_cpu=None,entry_typical_cd=None))
+
+    def test_source_extension_copy_absolute_encoding_has_no_source_register(self):
+        row=copy_fixture(16,0,0,1,False,0,mode='absolute_post',bank=1,source=2,dest=15,source_address=0xF0005000)
+        self.assertEqual(row['opcode'],0xD61F)
+        self.assertEqual(row['extensions'],[0x5000,0xF000])
+        self.assertEqual(row['initial_b_regs'][2],row['expected_extra_regs']['b2'])
+        self.assertEqual(row['expected_extra_regs']['sp'],0x6010)
+
+    def test_source_extension_copy_alias_uses_offset_before_increment(self):
+        row=copy_fixture(16,0,0,0,False,0,mode='offset_post',source=0,dest=0,
+                         source_address=0x5000,destination_address=0x5000,displacement=17)
+        self.assertEqual(row['regs'][0],0x5000)
+        self.assertEqual(row['data_copy']['source'],0x5011)
+        self.assertEqual(row['data_copy']['destination'],0x5000)
+        self.assertEqual(row['expected_regs'][0],0x5010)
+        self.assertEqual(row['extensions'],[17])
+
+    def test_source_extension_copy_literals_match_bit_model(self):
+        rows=list(copy_extension_literals());self.assertEqual(len(rows),52)
+        for row in rows:
+            self.assertEqual(row['literal_model_memory'],row['expected_memory'],row['name'])
+            self.assertIn('inconsistent',row['literal_source_notes'])
+
+    def test_source_extension_copy_waits_include_operand_words(self):
+        row=copy_fixture(16,0,0,0,True,0,mode='offset_post')
+        obs=dict(clocks=128,paused=0,st=row['expected_st'],**row['expected_extra_regs'])
+        obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+        self.assertEqual(check(row,obs,1),[])
+        obs['clocks']=120
+        self.assertTrue(check(row,obs,1))
+
+    def test_source_extension_copy_source_choices_are_explicit(self):
+        rows=list(copy_extension_cases())
+        audit=inventory(rows,accept_project_choices=True)
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        self.assertTrue(audit['project_source_choices'])
+        self.assertTrue(inventory(rows)['unresolved_source_probes'])
+        for row in rows:
+            if row.get('cache_miss')=='copy_extension':
+                self.assertEqual(row['measure_pass'],0)
+                self.assertEqual(row['memory_before_measured'],row['initial_memory'])
+
     def test_pointer_copy_literal_memory_examples(self):
         rows=list(pointer_copy_literals());self.assertEqual(len(rows),104)
         # Hand-transcribed After A0/A1 columns, p.12-142, independent of

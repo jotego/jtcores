@@ -216,15 +216,15 @@ def main():
 
         pre_mode=work / 'wrong-pre-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',pre_mode)
-        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension) ?',
-                     'decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_LEAD : (decode_load_extension || decode_store_extension) ?')
+        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension || decode_copy_extension) ?',
+                     'decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_LEAD : (decode_load_extension || decode_store_extension || decode_copy_extension) ?')
         evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
             ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
 
         offset_mode=work / 'wrong-offset-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',offset_mode)
-        replace_once(offset_mode/'jttms10.v',"(decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}}",
-                     "(decode_load_extension || decode_store_extension) ? LOAD_LEAD+LOAD_PRE : {LOAD_IW{1'b0}}")
+        replace_once(offset_mode/'jttms10.v',"(decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}}",
+                     "(decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD+LOAD_PRE : {LOAD_IW{1'b0}}")
         evidence['wrong_offset_lead']=run_case(work,'wrong_offset_lead',offset_case,
                                             ['--rtl-dir',str(offset_mode)],mutated=True)
 
@@ -385,6 +385,22 @@ def main():
         replace_once(stale_copy/'jttms10_word.v','!copy_source_accepted || ','')
         evidence['stale_copy_read_credit']=run_case(work,'stale_copy_read_credit',pre_pause_case,
             ['--rtl-dir',str(stale_copy),*pre_pause_extra],mutated=True)
+        for name,probe,extra,file,old,new in (
+            ('short_source_copy_lead','copy_move_offset_post_phase_w16_r1_15_0_hit',
+             ['--wait-states','1','--pause-clocks','7'],'jttms10.v',
+             '(decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD :',
+             '(decode_load_extension || decode_store_extension || decode_copy_extension) ? (decode_copy_extension ? LOAD_PRE : LOAD_LEAD) :'),
+            ('early_source_copy_last_word','copy_move_absolute_post_phase_cold2_w16_o0_r0_2_0_hit',
+             ['--wait-states','1','--pause-clocks','1'],'jttms10.v',
+             'immediate_last && !(load_offset || store_offset) && load_issue_left>LOAD_NEXT_LIMIT',
+             'immediate_last && !(load_offset || store_offset || copy_absolute_post) && load_issue_left>LOAD_NEXT_LIMIT'),
+            ('lost_source_copy_slot','copy_move_absolute_post_phase_w16_r1_15_0_hit',
+             ['--wait-states','1','--pause-clocks','7'],'jttms10_word.v',
+             " ||\n                       ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400",'')):
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,

@@ -3,8 +3,9 @@
 Plain indirect MOVE and MOVB now use the shared field engine, including
 posted writes. The permanent suite adds **6,860 programs** for these two
 forms. [Pointer copies](pointer-copy-timing.md) cover the two postincrement/
-predecrement forms separately. The six extended copy forms retain their
-previous schedule and remain unvalidated for timing.
+predecrement forms separately. [Source-extension copies](source-copy-timing.md) cover two further forms.
+The four two-address copy forms retain their previous schedule and remain
+unvalidated for timing.
 
 ## Primary rules and explicit choices
 

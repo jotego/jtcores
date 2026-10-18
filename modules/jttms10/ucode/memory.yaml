@@ -109,29 +109,19 @@ ucode:
   - name: moveoffpi
     start: 47
     seq:
-      - imm_bus, pcinc
-      - immse_a, bsrc
+      - imm_bus, pcinc, immse_a, bsrc
       - add_alu, sum_ea
+      - size_a, reg_b
       - read_mem
-      - reg_b
-      - b_ea
-      - write_mem
-      - size_a
-      - add_alu, wr_reg, ni
+      - add_alu, wr_reg, write_mem, ni
   - name: moveabspi
     start: 48
     seq:
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - a_ea
+      - imm_bus, pcinc, immlo_a
+      - imm_bus, pcinc, immhi_a, a_ea
+      - size_a, reg_b
       - read_mem
-      - reg_b
-      - b_ea
-      - write_mem
-      - size_a
-      - add_alu, wr_reg, ni
+      - add_alu, wr_reg, write_mem, ni
   - name: moveabs
     start: 49
     seq:

@@ -4,7 +4,8 @@ MOVE `*Rs+,*Rd+` and `-*Rs,-*Rd` share the plain-copy field/DSP path.
 Their entries are TI SPVU001A printed pp.12-141/142 and 12-145/146;
 Tables13-3/4, pp.13-6/7, supply the thirteen alignment indices. These two
 forms add 8,936 permanent programs, bringing the inventory to 100/133 forms.
-The six extended copy forms remain unvalidated, along with the other
+Two [source-extension copies](source-copy-timing.md) are covered separately.
+The four two-address copy forms remain unvalidated, along with the other
 remaining instruction/condition/bus/interrupt/hardware requirements.
 
 The independent oracle uses the same field classifications as plain copies.
