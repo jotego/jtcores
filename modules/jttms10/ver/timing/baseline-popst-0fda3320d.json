@@ -1,6 +1,6 @@
 {
   "source_commit": "0fda3320d",
-  "source_kind": "isolated preceding EMU commit; public equivalence pending publication",
+  "source_kind": "isolated capture parent0fda3320d, verified whole Git tree identical to public82316721e",
   "total": 806,
   "failed": 415,
   "passed": 391,
@@ -19320,5 +19320,6 @@
         ]
       ]
     }
-  ]
+  ],
+  "public_equivalent_commit": "82316721e"
 }

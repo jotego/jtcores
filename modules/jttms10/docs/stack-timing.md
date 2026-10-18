@@ -61,7 +61,8 @@ three previous controls and duplicate-read mutation. This is bounded
 capture/resumption coverage: overlapping CEN can hide CPU wait time, and
 these event bounds do not replace the exact unpaused timing tests.
 
-On isolated preceding EMU commit `0fda3320d`, all415 cached baseline
+On isolated preceding EMU commit `0fda3320d` (the same complete Git tree
+as public [82316721e](http://gitea.jotego.es/jotego/jtcores/commit/82316721e)), all415 cached baseline
 programs fail timing;391 CD programs pass. Ordinary cached POPST takes
 60/76 INCLK versus the required64/80, while CD88/104 already matches.
 All806 have correct architectural, following-state and read-only memory
