@@ -512,3 +512,14 @@ pops charge every transfer, including the repeated unaligned boundary word.
 The following-load and response-pause checks retain full state/memory.
 Exact PBX resumption and enabled last-state interrupt acceptance remain
 open; see[interrupt-return-timing.md](interrupt-return-timing.md).
+
+The combined EMU+POPST108-form stage at3840d02f4 completes an uninterrupted
+standard runner:255,500 exact timing programs,112 models,180 architectural
+programs,699 bus scenarios,53 mutation controls and61 rejection checks.
+Exit1 is solely the25-missing/448-unresolved source/coverage gate. Its clean
+validation is targeted296+806 new programs/models/events; full clean-runner
+acceptance remains open. Its two parameter-header date comments differ
+across midnight; all functional generated contents match exactly, with raw
+hashes and a same-day rebuild retained. Newer RETS109-form full validation
+is running; RETI110-form validation is targeted. These scope distinctions
+remain necessary, and no full ISA signoff is claimed.

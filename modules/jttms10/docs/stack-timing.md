@@ -81,8 +81,20 @@ final limit remains≤3,500 fitted ALMs.
 
 Probe presence is108/133 forms, leaving25 missing. The matrix has84,610
 cases,10,771 project choices and448 unresolved MOVB instances; the strict
-source audit retains11,219 discrepancies. Full standard-runner and clean
-checkout validation for this stage remain pending. Other stack/call/list,
+source audit retains11,219 discrepancies. The uninterrupted combined108-form
+standard runner completes255,500 exact timing programs,112 models,180
+architectural programs,699 bus scenarios,53 mutation controls and61 rejection
+checks, then exits1 solely at the25-missing/448-unresolved gate. Clean
+validation is targeted806 stressed programs/models/response events, not a
+full standard runner; final full clean-checkout acceptance remains required. Other stack/call/list,
 graphics, full cache/peripheral/HOLD/IRQ/resumption conditions, known MOVB
 targets and final fitted area, positive STA, NARC simulation and MiSTer
 gameplay remain required. These probes are not full timing signoff.
+
+The full runner crosses midnight. Five generated files match the map
+snapshot byte-for-byte; tms10_param.vh and tms10_gfx_param.vh differ only in
+the generated SPDX Date comment (18 versus19 October2026). A same-day
+rebuild matches all seven simulation hashes exactly, and stripping only
+that single comment line proves every parameter/ROM body identical to the
+map capture. Both raw hashes are retained; no timing validation is repeated
+for this metadata-only date difference.

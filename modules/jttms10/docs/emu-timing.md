@@ -55,7 +55,11 @@ The inventory becomes83,804 cases,10,771 explicit project choices and the
 same448 unresolved MOVB instances; the strict audit retains11,219
 discrepancies. Probe presence does not validate every condition. RUN-low
 hold/resume, CPU HOLD/IRQ/graphics resumption, broader cache/peripheral
-rules, the remaining ISA and known MOVB targets all stay open. Full standard
-runner, clean checkout and hardware validation for this stage are pending.
+rules, the remaining ISA and known MOVB targets all stay open. The combined
+108-form EMU+POPST standard runner completes255,500 exact programs and exits1
+solely at missing-form/source coverage. Targeted clean/cross-simulator
+EMU296 and POPST806 checks match exactly; full clean-checkout and final
+hardware acceptance remain required. See[stack-timing.md](stack-timing.md)
+for combined runner scope and generated-date metadata.
 The final hardware gates remain fitted area≤3,500 ALMs, positive STA, NARC
 simulation and MiSTer gameplay.
