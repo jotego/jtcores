@@ -34,7 +34,7 @@ module jttms10_system #(
     output [15:0] intenb, intpend,
     output irq_pending, nmi_pending, halt
 );
-    wire word_req, word_pending, word_we, word_iaq, word_lock, word_pixel;
+    wire word_req, word_pending, word_early, word_we, word_iaq, word_lock, word_pixel;
     wire [31:0] word_addr;
     wire [15:0] word_wdata, word_rdata;
     wire word_ack, word_restart, nmi_clear, wvp_set;
@@ -53,7 +53,7 @@ module jttms10_system #(
         .control(control),.pmask(pmask),.pixel_srt(pixel_srt),
         .cache_flush(hstctlh[14]),
         .nmi_clear(nmi_clear),.emu_ack(emu_ack),.wvp_set(wvp_set),
-        .word_req(word_req),.word_pending(word_pending),.word_we(word_we),.word_addr(word_addr),
+        .word_req(word_req),.word_pending(word_pending),.word_early(word_early),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),
@@ -71,7 +71,7 @@ module jttms10_system #(
         .host_req(host_req),.host_we(host_we),.host_reg(host_reg),
         .host_be(host_be),.host_wdata(host_wdata),
         .host_rdata(host_rdata),.host_ack(host_ack),.host_busy(host_busy),
-        .word_req(word_req),.word_pending(word_pending),.word_we(word_we),.word_iaq(word_iaq),
+        .word_req(word_req),.word_pending(word_pending),.word_early(word_early),.word_we(word_we),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),

@@ -146,3 +146,16 @@ def immediate_states(*, width, cache_disabled=False):
         raise ValueError('immediate operand width must be 16 or 32')
     words=1+width//16
     return words*(4 if cache_disabled else 1)
+
+
+def load_states(*, address, width, signed=False, byte=False, cache_disabled=False):
+    """Indirect MOVE/MOVB: TI Table13-1 p.13-5, entries12-118/135/136.
+
+    2 states per physical word plus one CPU state. Note1 adds a state for
+    MOVE sign extension; width32 ignores FE (12-136), and MOVB's forced
+    sign extension is already included in its 3/6-state entry (12-118).
+    """
+    if width not in range(1,33) or (byte and width!=8):
+        raise ValueError('undefined load width')
+    words=((address&15)+width+15)//16
+    return 1+2*words+int(signed and not byte and width!=32)+3*int(cache_disabled)

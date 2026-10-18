@@ -40,6 +40,12 @@ For example, four cache-fill completions can occur at clocks 16, 32, 48
 and 64 even though the second target dispatch follows the first completion
 by three bridge clocks. That dispatch still has to supply readiness before
 the appropriate Q1 sample. Newly arriving requests wait for a state boundary.
+The two proven indirect-load forms can qualify a first-state slot through
+`word_early`. Their register/field/cache handoffs fit inside that state's
+row phase. A CEN-delayed request qualifies only at/after its resumed state
+boundary, with combinational lookahead when arbitration occurs on that
+boundary. See [load-timing.md](load-timing.md) for the data-cycle oracle
+and the directed checks for pauses 1..7.
 
 The traces preserve this distinction:
 
@@ -113,7 +119,7 @@ The full CPU timing suite uses raw target readiness after `4 + 8*W` INCLK,
 and independently checks the resulting `16 + 8*W` TI cycles. Two cold NOP
 fixtures measure the first pass, with the current opcode at the end of a
 resident subsegment and the following four words absent. The normal runner
-also keeps 28 checker/model tests and RTL mutations that remove the bus
+also keeps 31 checker/model tests and RTL mutations that remove the bus
 minimum or sample ready at cycle end. Both mutations must fail timing with
 correct architectural results.
 Another RTL mutation omits miss processing and must fail bus phase/grid

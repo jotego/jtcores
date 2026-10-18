@@ -50,7 +50,7 @@ module test;
         .host_mem_addr(32'd0),.host_mem_wdata(16'd0),
         .host_mem_is_io(1'b0),.host_mem_io_rdata(16'd0),
         .host_mem_rdata(),.host_mem_ack(),
-        .word_req(m_req),.word_pending(req),.word_we(m_we),.word_iaq(m_iaq),
+        .word_req(m_req),.word_pending(req),.word_early(1'b0),.word_we(m_we),.word_iaq(m_iaq),
         .word_lock(m_lock),.word_pixel(m_pixel),.word_addr(m_addr),
         .word_wdata(m_wdata),.is_io(1'b0),.pixel_srt(1'b0),
         .io_rdata(16'd0),.word_rdata(m_rdata),.word_ack(m_ack),

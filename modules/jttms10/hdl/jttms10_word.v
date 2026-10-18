@@ -16,7 +16,7 @@ module jttms10_word #(
     input             cache_flush,
     output            nmi_clear, emu_ack, wvp_set,
     output            word_req,
-    output            word_pending,
+    output            word_pending, word_early,
     output            word_we,
     output     [31:0] word_addr,
     output     [15:0] word_wdata,
@@ -51,6 +51,25 @@ module jttms10_word #(
     // short deassertions between physical words. Unrelated CPU requests
     // release this flag before starting another operation.
     assign word_pending=field_req;
+    // Indirect loads allocate their data read in the first intrinsic state.
+    // Registered field/cache/bus handoffs may use that state's row phase.
+    // A CEN-delayed launch qualifies only at/after its next state boundary.
+    localparam integer SLOT_PW=$clog2(CLKS_PER_STATE);
+    localparam [SLOT_PW-1:0] SLOT_LAST=CLKS_PER_STATE[SLOT_PW-1:0]-1'b1;
+    reg [SLOT_PW-1:0] slot_phase;
+    reg slot_eligible;
+    wire indirect_load=ir[15:10]==6'b100001 || ir[15:9]==7'b1000111;
+    assign word_early=indirect_load && field_req && !field_program &&
+                      !field_we && !field_pixel && (slot_eligible || slot_phase==0);
+    always @(posedge clk) begin
+        if(rst) begin slot_phase<=0; slot_eligible<=0; end
+        else begin
+            slot_phase<=slot_phase==SLOT_LAST ? {SLOT_PW{1'b0}} : slot_phase+1'b1;
+            if(!field_req) slot_eligible<=0;
+            else if(slot_phase==0 || (!request_latched && slot_phase==1)) slot_eligible<=1;
+        end
+    end
+
     assign cache_req=program_read ? field_req : field_word_req;
     assign cache_we=program_read ? 1'b0 : field_word_we;
     assign cache_lock=program_read ? 1'b0 : field_word_lock;

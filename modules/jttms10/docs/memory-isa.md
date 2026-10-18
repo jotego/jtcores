@@ -108,10 +108,12 @@ memory bits during HOLD. Graphics microcode and `jttms10_pixel` compute plane
 masks, transparency and pixel operations before issuing tagged field requests.
 The adapter itself handles field alignment and partial-word preservation.
 
-The serial alignment costs up to 15 clocks before access and another 15 for
-read assembly, plus one read-result clock, one selection clock per written
-word, and bus waits. These extra clocks may exceed the NARC CPU-state
-timing budget. Its six-bit span counter and two 48-bit data windows still
-need a final-source Quartus measurement before claiming the 25% CPU-area
-target. The unit bench verifies field values, stalls, and HOLD restart; the fabric bench
-adds on-chip I/O and arbitration handshakes. Neither measures NARC throughput.
+The field adapter now uses a shared DSP alignment product with fixed
+capture latency instead of serial shifts. The [indirect-load timing report](load-timing.md)
+records MOVE/MOVB read timings, per-word waits, sign-extension distinctions,
+ordered uncached data traffic and the first-cycle allocation contract.
+Other addressing modes, writes/hidden writes and graphics still require
+independent timing tests. The unit bench retains field values, whole-memory
+write-preservation, stalls and HOLD restart checks; functional bus/peripheral
+benches are separate from timing signoff. Current fitted area/STA and NARC
+simulation/MiSTer validation remain final #144 gates.

@@ -77,6 +77,17 @@ def main():
         evidence['immediate_control']=run_case(work,'immediate_control',immediate_case)
         evidence['extension_control']=run_case(work,'extension_control',immediate_off)
         evidence['extension_miss_control']=run_case(work,'extension_miss_control',immediate_miss)
+        load_case='load_move_f0_w16_o0_s0_hit'
+        load_sign='load_move_f1_w8_o15_s1_off'
+        load_full='load_move_f0_w32_o0_s1_hit'
+        load_pause='load_move_f0_w32_o15_s1_off'
+        load_data='load_move_f0_w32_o15_s0_hit'
+        evidence['load_control']=run_case(work,'load_control',load_case)
+        evidence['load_sign_control']=run_case(work,'load_sign_control',load_sign,['--wait-states','1'])
+        evidence['load_full_control']=run_case(work,'load_full_control',load_full)
+        evidence['load_pause_control']=run_case(work,'load_pause_control',load_pause,['--wait-states','1','--pause-clocks','1'])
+        evidence['load_data_control']=run_case(work,'load_data_control',load_data)
+
 
 
         flat = work / 'flat-width-hdl'
@@ -152,9 +163,41 @@ def main():
 
         iaq = work / 'wrong-extension-iaq-hdl'
         shutil.copytree(MODULE / 'hdl',iaq)
-        replace_once(iaq / 'jttms10.v','assign mem_iaq = fetch;','assign mem_iaq = fetch || imm;')
+        replace_once(iaq / 'jttms10.v','assign mem_iaq = fetch && !early_load;','assign mem_iaq = (fetch || imm) && !early_load;')
         evidence['wrong_extension_iaq']=run_case(work,'wrong_extension_iaq',immediate_off,
                                               ['--rtl-dir',str(iaq)],mutated=True)
+
+        late_load=work / 'late-indirect-load-hdl'
+        shutil.copytree(MODULE / 'hdl',late_load)
+        replace_once(late_load / 'jttms10_bus.v','queued_cpu || cpu_seen || word_early','queued_cpu || cpu_seen')
+        evidence['late_indirect_load']=run_case(work,'late_indirect_load',load_case,
+                                              ['--rtl-dir',str(late_load)],mutated=True)
+
+        sign_wait=work / 'load-wait-consumes-work-hdl'
+        shutil.copytree(MODULE / 'hdl',sign_wait)
+        replace_once(sign_wait / 'jttms10.v',"time_left<=load_finish_clocks-16'd3;",'time_left<=time_left;')
+        evidence['load_wait_consumes_sign_state']=run_case(work,'load_wait_consumes_sign_state',load_sign,
+            ['--rtl-dir',str(sign_wait),'--wait-states','1'],mutated=True)
+
+        full=work / 'full-width-sign-penalty-hdl'
+        shutil.copytree(MODULE / 'hdl',full)
+        replace_once(full / 'jttms10.v',"field_signed && !byte_op && field_size!=6'd32",'field_signed && !byte_op')
+        evidence['wrong_full_width_sign_penalty']=run_case(work,'wrong_full_width_sign_penalty',load_full,
+                                                         ['--rtl-dir',str(full)],mutated=True)
+
+        pause=work / 'load-absorbs-substate-pause-hdl'
+        shutil.copytree(MODULE / 'hdl',pause)
+        replace_once(pause / 'jttms10_word.v','!field_we && !field_pixel && (slot_eligible || slot_phase==0);',
+                     '!field_we && !field_pixel;')
+        evidence['load_absorbs_substate_pause']=run_case(work,'load_absorbs_substate_pause',load_pause,
+            ['--rtl-dir',str(pause),'--wait-states','1','--pause-clocks','1'],mutated=True)
+
+        cached_data=work / 'incorrectly-cached-data-hdl'
+        shutil.copytree(MODULE / 'hdl',cached_data)
+        replace_once(cached_data / 'jttms10_word.v','c_program(program_read || program_q)',
+                     'c_program(program_read || program_q || !field_we)')
+        evidence['incorrectly_cached_data_reads']=run_case(work,'incorrectly_cached_data_reads',load_data,
+                                                         ['--rtl-dir',str(cached_data)],mutated=True)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

@@ -24,7 +24,7 @@ module test;
         .refresh_cbr(1'b0),.host_mem_req(host_req),.host_mem_we(1'b0),
         .host_mem_addr(32'hc00000b0),.host_mem_wdata(16'd0),.host_mem_is_io(1'b1),
         .host_mem_io_rdata(16'h5a5a),.host_mem_rdata(host_data),.host_mem_ack(host_ack),
-        .word_req(cpu_req && !word_restart),.word_pending(cpu_req),.word_we(word_we),.word_iaq(1'b0),
+        .word_req(cpu_req && !word_restart),.word_pending(cpu_req),.word_early(1'b0),.word_we(word_we),.word_iaq(1'b0),
         .word_lock(word_lock),.word_pixel(1'b0),.word_addr(32'h200),
         .word_wdata(word_wdata),.is_io(1'b0),.pixel_srt(1'b0),.io_rdata(16'd0),
         .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),

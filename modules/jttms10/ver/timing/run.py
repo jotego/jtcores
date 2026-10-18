@@ -20,6 +20,7 @@ from scalar_cases import shift_cases, lmo_cases
 from alu_cases import alu_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
+from load_cases import load_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -93,6 +94,7 @@ def cases():
     yield from alu_cases()
     yield from divide_cases()
     yield from immediate_cases()
+    yield from load_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -172,7 +174,9 @@ def simulate(command, work, timeout):
 
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
-    words=4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled'])
+    load=case.get('data_load')
+    data_words=(((load['address']&15)+load['width']+15)//16) if load else 0
+    words=4 if case.get('cache_miss') else data_words+(1+len(case.get('extensions',[])))*int(case['cache_disabled'])
     added_clocks = words * wait_states * INPUT_CLOCKS_PER_STATE
     alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE if words else 0
     expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks + alignment
@@ -199,6 +203,14 @@ def reads(case, wait_states=0):
     Each immediate word consumes an intrinsic state and its external-fetch
     penalty. No data writes or hidden states occur in these fixtures.
     """
+    if 'data_load' in case:
+        load=case['data_load'];address=load['address']
+        count=((address&15)+load['width']+15)//16
+        image=dict(case['initial_memory'])
+        plan=[(i*(2+wait_states),(address&~15)+16*i,image[(address&~15)+16*i],0) for i in range(count)]
+        if case['cache_disabled']:
+            plan.append((case['states']-3+count*wait_states,case['next_pc'],0x0300,1))
+        return plan
     if case.get('cache_miss')=='extension':
         first=case.get('miss_word',1)
         words=case['extensions'][first-1:]+[0x0300]*4
@@ -299,7 +311,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -343,15 +355,18 @@ def main():
             for identifier, case, words in prepared:
                 image = [0] * 4096
                 image[0x100:0x100 + len(words)] = words
+                memory=case.get('initial_memory',[])
+                (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',
                     f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} " +
-                ' '.join(f'{word:04x}' for word in words) + '\n'
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} " +
+                ' '.join(f'{word:04x}' for word in words) + ' ' +
+                ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
             executions.append((list(range(len(prepared))), simulate(
                 base_command+['+BATCH=cases.txt'], work, max(30, 2*len(prepared)))))

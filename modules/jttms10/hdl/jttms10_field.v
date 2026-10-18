@@ -3,9 +3,8 @@
  *
  * Bit-addressed 1..32-bit fields on an aligned 16-bit word bus.
  *
- * Alignment is performed one bit per clock in a 48-bit shift register.
- * This trades up to 15 setup clocks (and 15 read-result clocks) for small
- * fixed shifts instead of wide variable barrel shifters. One architectural
+ * A shared DSP product by a one-hot factor aligns writes and final reads.
+ * Address preparation and read-result alignment have constant latency. One architectural
  * request is accepted while idle; ack stays asserted until req falls.
  * Physical request/address/data stay stable until word_ack. word_ack is one
  * pulse per accepted word; word_req may remain high with new payload after
@@ -36,12 +35,10 @@ module jttms10_field(
 
 localparam [2:0]
     IDLE      = 3'd0,
-    PREP      = 3'd1,
     READ      = 3'd2,
     SELECT    = 3'd3,
     RMW_READ  = 3'd4,
     WRITE     = 3'd5,
-    ALIGN     = 3'd6,
     RESPONSE  = 3'd7;
 
 reg [2:0] state;
@@ -50,8 +47,7 @@ reg [47:0] data_window, read_window;
 reg [5:0] span_remaining;
 reg [15:0] old_word;
 reg [1:0] index, last_index;
-reg [3:0] align_count, offset;
-reg write_q;
+reg [3:0] offset;
 wire [15:0] word_mask;
 reg [15:0] word_data;
 wire [5:0] field_span = {2'b00,addr[3:0]} + size;
@@ -73,6 +69,23 @@ generate for(mask_bit=0;mask_bit<16;mask_bit=mask_bit+1) begin: g_word_mask
             (index!=0 || offset<=LOWER_BIT) && span_remaining>UPPER_BIT;
     end
 end endgenerate
+
+// Merge the incoming last word before alignment, so its data and the
+// architectural response are captured together. The same 48x17 product
+// aligns a write left by 0..15 or a read right by 0..15 (product bits47:16).
+reg [47:0] assembled_read;
+always @* begin
+    assembled_read=read_window;
+    case(index)
+        2'd0: assembled_read[15:0]=word_rdata & word_mask;
+        2'd1: assembled_read[31:16]=word_rdata & word_mask;
+        default: assembled_read[47:32]=word_rdata & word_mask;
+    endcase
+end
+wire [47:0] align_input=state==IDLE ? {16'd0,wdata} : assembled_read;
+wire [4:0] align_shift=state==IDLE ? {1'b0,addr[3:0]} : 5'd16-{1'b0,offset};
+wire [16:0] align_factor=17'd1 << align_shift;
+(* multstyle="dsp" *) wire [47:0] aligned_product=align_input * align_factor;
 
 // Read data is valid with ack and remains stable until the next request.
 assign rdata = read_window[31:0];
@@ -100,34 +113,22 @@ always @(posedge clk) begin
         old_word    <= 16'd0;
         index       <= 2'd0;
         last_index  <= 2'd0;
-        align_count <= 4'd0;
         offset      <= 4'd0;
-        write_q     <= 1'b0;
     end else begin
         case (state)
             IDLE: if (req) begin
                 base_addr   <= {addr[31:4],4'b0000};
                 span_remaining <= field_span;
-                data_window <= {16'd0,wdata};
+                data_window <= aligned_product;
                 read_window <= 48'd0;
                 index       <= 2'd0;
                 last_index  <= field_span > 6'd32 ? 2'd2 :
                                field_span > 6'd16 ? 2'd1 : 2'd0;
-                align_count <= addr[3:0];
                 offset      <= addr[3:0];
-                write_q     <= we;
                 if (size == 6'd0 || size > 6'd32)
                     state <= RESPONSE;
-                else if (addr[3:0] != 4'd0)
-                    state <= PREP;
                 else
                     state <= we ? SELECT : READ;
-            end
-            PREP: begin
-                data_window <= {data_window[46:0],1'b0};
-                align_count <= align_count - 4'd1;
-                if (align_count == 4'd1)
-                    state <= write_q ? SELECT : READ;
             end
             READ: if (word_ack) begin
                 case (index)
@@ -136,8 +137,8 @@ always @(posedge clk) begin
                     default: read_window[47:32] <= word_rdata & word_mask;
                 endcase
                 if (index == last_index) begin
-                    align_count <= offset;
-                    state <= ALIGN;
+                    read_window <= {16'd0,aligned_product[47:16]};
+                    state <= RESPONSE;
                 end else begin
                     index <= index + 2'd1;
                     base_addr <= base_addr + 32'd16;
@@ -161,12 +162,6 @@ always @(posedge clk) begin
                     data_window <= {16'd0,data_window[47:16]};
                     state <= SELECT;
                 end
-            end
-            ALIGN: if (align_count != 4'd0) begin
-                read_window <= {1'b0,read_window[47:1]};
-                align_count <= align_count - 4'd1;
-            end else begin
-                state <= RESPONSE;
             end
             RESPONSE: if (!req) state <= IDLE;
             default: state <= IDLE;

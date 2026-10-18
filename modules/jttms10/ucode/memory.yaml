@@ -12,10 +12,7 @@ ucode:
   - name: load
     start: 34
     seq:
-      - reg_a
-      - a_ea
-      - read_mem
-      - ext_a
+      - read_mem, ext_a
       - pass_alu, wr_reg, nzv_cc, ni
   - name: storepi
     start: 35

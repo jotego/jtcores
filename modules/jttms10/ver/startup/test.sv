@@ -15,7 +15,7 @@ module test;
         .host_mem_addr(32'h200),.host_mem_wdata(16'h1234),
         .host_mem_is_io(1'b0),.host_mem_io_rdata(16'd0),
         .host_mem_rdata(),.host_mem_ack(host_ack),
-        .word_req(1'b1),.word_pending(1'b1),.word_we(1'b0),.word_iaq(1'b1),
+        .word_req(1'b1),.word_pending(1'b1),.word_early(1'b0),.word_we(1'b0),.word_iaq(1'b1),
         .word_lock(1'b0),.word_pixel(1'b0),.word_addr(32'h100),
         .word_wdata(16'd0),.is_io(1'b0),.pixel_srt(1'b0),.io_rdata(16'd0),
         .word_rdata(),.word_ack(word_ack),.word_restart(),

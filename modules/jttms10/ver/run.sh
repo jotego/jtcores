@@ -111,6 +111,10 @@ python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1 --pause-clocks 7
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_even_boundary_26_hit --pause-clocks 7 --pause-after-clocks 32
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_even_boundary_26_off --wait-states 1 --pause-clocks 7 --pause-after-clocks 32
+# Every nonzero sub-state pause must realign a newly allocated data read.
+for pause in 1 2 3 4 5 6; do
+    python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case load_move_f0_w32_o15_s1_off --wait-states 1 --pause-clocks "$pause"
+done
 python3 "$ver_dir/timing/mutations.py"
 coverage_args=()
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then

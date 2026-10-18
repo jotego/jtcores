@@ -141,6 +141,21 @@ the same 50 warning classifications, and all 36 source/generated hashes
 verify. Final fitted area/STA/NARC checks and 67 missing instruction forms
 remain open; this map does not establish those acceptance gates.
 
+The indirect-load/field-alignment stage's matched snapshot at
+`/tmp/jttms10-144-load-slot-final-map` reports **3,194 estimated ALMs,
+4,574 combinational ALUTs, 1,643 registers, 538,624 block-memory bits,
+five DSP blocks and zero MLAB bits**. The shared field alignment product
+uses two additional DSP blocks; the scalar multiplier/shift path retains
+its three. The complete change, including early request metadata, register
+priming, field capture, shorter load microcode and CPU timing, adds 72
+estimated ALMs, 88 ALUTs and 11 registers from the immediate stage. This
+is a combined measurement, not an isolated multiplier cost. Analysis &
+Synthesis succeeds with the same 50 warning classifications; all 36
+source/generated hashes verify. No current fitted-area, physical M10K,
+STA or NARC result is claimed. Those final gates and 65 missing instruction
+forms remain open.
+
+
 
 ## Complete graphics engine, 2026-10-17
 

@@ -25,7 +25,7 @@ module jttms10_bus #(
     input [15:0] host_mem_io_rdata,
     output [15:0] host_mem_rdata,
     output host_mem_ack,
-    input word_req, word_pending, word_we, word_iaq, word_lock, word_pixel,
+    input word_req, word_pending, word_early, word_we, word_iaq, word_lock, word_pixel,
     input [31:0] word_addr,
     input [15:0] word_wdata,
     input is_io, pixel_srt,
@@ -163,7 +163,7 @@ module jttms10_bus #(
                     end
                     else if (grant_cpu) begin
                         state<=ACTIVE; owner<=CPU; active_we<=word_we;
-                        cycle_queued<=queued_cpu || cpu_seen;
+                        cycle_queued<=queued_cpu || cpu_seen || word_early;
                         cyc_kind<=is_io ? (word_we ? 4'd6 : 4'd5) :
                             (word_pixel && pixel_srt) ?
                             (word_we ? 4'd8 : 4'd7) :

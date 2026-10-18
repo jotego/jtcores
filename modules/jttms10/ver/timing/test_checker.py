@@ -3,10 +3,11 @@
 """Guard against making the checker accept correct results at wrong times."""
 import unittest
 
-from oracle import multiply_states, setf_states, divide_states, immediate_states
+from oracle import multiply_states, setf_states, divide_states, immediate_states, load_states
 from run import cases, check, check_bus, check_target, split_transcripts, program
 from alu_cases import arithmetic
 from immediate_cases import result as immediate_result, extension_words, TI_EXAMPLES
+from load_cases import extract
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
@@ -138,6 +139,46 @@ class TimingCheckerTest(unittest.TestCase):
             self.assertEqual((start+16*first)%64,0)
             self.assertEqual(following,start+16*(1+len(case['extensions'])))
             self.assertEqual(case['states'],10+len(case['extensions']))
+
+    def test_load_primary_state_counts(self):
+        self.assertEqual(load_states(address=0,width=16),3)
+        self.assertEqual(load_states(address=15,width=16),5)
+        self.assertEqual(load_states(address=15,width=32),7)
+        self.assertEqual(load_states(address=0,width=5,signed=True),4)
+        self.assertEqual(load_states(address=0,width=32,signed=True),5)
+        self.assertEqual(load_states(address=8,width=8,signed=True,byte=True),3)
+        self.assertEqual(load_states(address=9,width=8,signed=True,byte=True,cache_disabled=True),8)
+        with self.assertRaises(ValueError):load_states(address=0,width=0)
+        with self.assertRaises(ValueError):load_states(address=0,width=16,byte=True)
+
+    def test_load_primary_literal_values(self):
+        memory=[(0x15500,0x7770),(0x15510,0x7777)]
+        self.assertEqual(extract(memory,0x15500,5,True),0xFFFFFFF0)
+        self.assertEqual(extract(memory,0x15500,18,True),0xFFFF7770)
+        self.assertEqual(extract(memory,0x15500,31,True),0xF7777770)
+        self.assertEqual(extract(memory,0x15500,32,True),0x77777770)
+        byte=[(0x5000,0xEF),(0x5010,0x89AB)]
+        self.assertEqual([extract(byte,0x5000+o,8,True) for o in (0,1,8,12)],
+                         [0xFFFFFFEF,0x77,0,0xFFFFFFB0])
+
+    def test_load_reads_are_ordered_uncached_data(self):
+        case=dict(self.case,cache_disabled=True,states=10,next_pc=0x1230,
+                  data_load=dict(address=0x600F,width=32),
+                  initial_memory=[(0x6000,0x1111),(0x6010,0x2222),(0x6020,0x3333)])
+        lines=['BUS_BEGIN 96 0 00006000 0000 0','BUS_END 120 0 00006000 1111',
+               'BUS_BEGIN 120 0 00006010 0000 0','BUS_END 144 0 00006010 2222',
+               'BUS_BEGIN 144 0 00006020 0000 0','BUS_END 168 0 00006020 3333',
+               'BUS_BEGIN 176 0 00001230 0000 1','BUS_END 200 0 00001230 0300']
+        self.assertEqual(check_bus(case,self.observed,lines,1),[])
+        self.observed.update(clocks=112)
+        self.assertEqual(check(case,self.observed,wait_states=1),[])
+        self.observed['clocks']=88  # Only opcode wait counted.
+        self.assertTrue(check(case,self.observed,wait_states=1))
+        wrong=list(lines);wrong[0]=wrong[0][:-1]+'1'
+        self.assertTrue(check_bus(case,self.observed,wrong,1))
+        warm=dict(case,cache_disabled=False,states=7)
+        self.assertTrue(check_bus(warm,self.observed,[],1))
+        self.assertEqual(check_bus(warm,self.observed,lines[:6],1),[])
 
     def test_batch_case_association(self):
         log='CASE 0\nRESULT case=0\nCASE 1\nRESULT case=1\nBATCH_DONE cases=2\n'

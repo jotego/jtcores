@@ -22,7 +22,7 @@ module test;
         .nmi_req(1'b0), .nmi_nostack(1'b0),
         .halt_req(1'b0), .emu_run(1'b1),
         .nmi_clear(), .emu_ack(),
-        .word_req(word_req), .word_pending(), .word_we(word_we), .word_addr(word_addr),
+        .word_req(word_req), .word_pending(),.word_early(), .word_we(word_we), .word_addr(word_addr),
         .word_wdata(word_wdata), .word_iaq(word_iaq), .word_lock(word_lock),
         .pixel_srt(1'b0), .word_pixel(word_pixel),
         .word_rdata(word_rdata), .word_ack(word_ack), .word_restart(1'b0),

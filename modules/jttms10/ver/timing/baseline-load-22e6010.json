@@ -1,0 +1,1495 @@
+{
+  "source_commit": "22e601063",
+  "note": "Historical original4352fixture evidence only; not an oracle or allowlist. Later literal TI examples are not part of this capture.",
+  "failed": 4352,
+  "total": 4352,
+  "architectural_failures": 0,
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "bc11f1c15b8e9f2a56580d20ae22c87058e8e37444813fafd4f528b8a819a633",
+    "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+    "hdl/jttms10_bus.v": "b40b2db52366a8395a6e3034c1925d921bf309efac469fcd83874068293e8d91",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+    "hdl/jttms10_fabric.v": "415dced04406604bb7c8578a5be9ec64a873d6c487e718256030bac785ca41d6",
+    "hdl/jttms10_field.v": "eba984151158937097f444ede9ae511209f5928b8e80abaefb4cb5e3206899cd",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "02d2e6823512261fb4911944aec4304d2acfd5f8129188baa0954ae91241b7cd",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "5abee326feb6ff3dc539ab2fe60cea4338587c06658fbef51285ff25ab7f7962",
+    "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "b4971e40b99b74951c6b0ee14ec7ed797a273f1163264cae34ff0010a8f295cd",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "bc11f1c15b8e9f2a56580d20ae22c87058e8e37444813fafd4f528b8a819a633",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "b40b2db52366a8395a6e3034c1925d921bf309efac469fcd83874068293e8d91",
+      "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+      "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+      "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+      "hdl/jttms10_fabric.v": "415dced04406604bb7c8578a5be9ec64a873d6c487e718256030bac785ca41d6",
+      "hdl/jttms10_field.v": "eba984151158937097f444ede9ae511209f5928b8e80abaefb4cb5e3206899cd",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "02d2e6823512261fb4911944aec4304d2acfd5f8129188baa0954ae91241b7cd",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "5abee326feb6ff3dc539ab2fe60cea4338587c06658fbef51285ff25ab7f7962",
+      "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "b4971e40b99b74951c6b0ee14ec7ed797a273f1163264cae34ff0010a8f295cd",
+      "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+      "ver/timing/oracle.py": "b4c6c038f5ae41c6a1658a9883da79f2855ff598d791249208e82bed4bcc7e8b",
+      "ver/timing/run.py": "6564b68fb1096e236ed9084a557252351ed868178d0febe97d7fd4b612b5dd4f",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+      "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+      "ver/timing/load_cases.py": "806e165c3f7a4a4aa1b04bf5a0aec8de0c64ee2c24e447b9db3e2bcb766e5438",
+      "ver/timing/test.sv": "9e1a6a0b9ecbb461ace15d81ea189ca60b6e1d441c76398a045cad07befa2e0a"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "ee8ed14a673ace38570a9f3a450e2dad5817ebbe4ce7715f1de99e0366334389",
+      "tms10.vh": "332344a7c3c9f03f0dc9eb570b6b9182be7f579434dffd58a86b6e791c73b93d",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "dbd6b6939a74c8705bce7d64c4cf82fa10be1aa18a9d6d09af7212422e961bed"
+    }
+  },
+  "representatives": [
+    {
+      "name": "load_move_f0_w1_o0_s0_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24576,
+        1344276481
+      ],
+      "expected_regs": [
+        1,
+        287454020,
+        24576,
+        1344276481
+      ],
+      "expected_st": 1075841025,
+      "states": 3,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          65535
+        ]
+      ],
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 1,
+        "offset": 0,
+        "signed": false,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 281474976710655
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 0,
+        "clocks": 43,
+        "start": 1616,
+        "end": 1659,
+        "paused": 0,
+        "st": 1075841025,
+        "a0": 1,
+        "a1": 287454020,
+        "a2": 24576,
+        "a3": 1344276481
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 43 INCLK",
+        "TI instruction read start: expected clock 1616, observed 1632",
+        "target dispatch outside TI readiness window: 1632 versus 1616..1622"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1632 0 00006000 8440 0",
+        "BUS_ACCEPT 1632",
+        "BUS_END 1648 0 00006000 ffff"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1632 0 00006000 8440 0",
+        "TARGET_END 1636 0 00006000 ffff"
+      ]
+    },
+    {
+      "name": "load_move_f0_w1_o0_s1_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24576,
+        1344276513
+      ],
+      "expected_regs": [
+        4294967295,
+        287454020,
+        24576,
+        1344276513
+      ],
+      "expected_st": 3223324705,
+      "states": 4,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          65535
+        ]
+      ],
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": true,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 1,
+        "offset": 0,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 281474976710655
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1,
+        "clocks": 43,
+        "start": 1616,
+        "end": 1659,
+        "paused": 0,
+        "st": 3223324705,
+        "a0": 4294967295,
+        "a1": 287454020,
+        "a2": 24576,
+        "a3": 1344276513
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 43 INCLK",
+        "TI instruction read start: expected clock 1616, observed 1632",
+        "target dispatch outside TI readiness window: 1632 versus 1616..1622"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1632 0 00006000 8440 0",
+        "BUS_ACCEPT 1632",
+        "BUS_END 1648 0 00006000 ffff"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1632 0 00006000 8440 0",
+        "TARGET_END 1636 0 00006000 ffff"
+      ]
+    },
+    {
+      "name": "load_move_f0_w2_o15_s0_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276482
+      ],
+      "expected_regs": [
+        3,
+        287454020,
+        24591,
+        1344276482
+      ],
+      "expected_st": 1075841026,
+      "states": 5,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          42435
+        ],
+        [
+          24592,
+          39789
+        ],
+        [
+          24608,
+          57712
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 2,
+        "signed": false,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 2,
+        "offset": 15,
+        "signed": false,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 247873760241091
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 124,
+        "clocks": 82,
+        "start": 1656,
+        "end": 1738,
+        "paused": 0,
+        "st": 1075841026,
+        "a0": 3,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276482
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 82 INCLK",
+        "TI instruction read start: expected clock 1656, observed 1680",
+        "TI instruction read start: expected clock 1672, observed 1696",
+        "target dispatch outside TI readiness window: 1680 versus 1656..1662",
+        "target dispatch outside TI readiness window: 1700 versus 1672..1678"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1680 0 00006000 0000 0",
+        "BUS_ACCEPT 1680",
+        "BUS_END 1696 0 00006000 a5c3",
+        "BUS_BEGIN 1696 0 00006010 0000 0",
+        "BUS_ACCEPT 1700",
+        "BUS_END 1712 0 00006010 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1680 0 00006000 0000 0",
+        "TARGET_END 1684 0 00006000 a5c3",
+        "TARGET_BEGIN 1700 0 00006010 0000 0",
+        "TARGET_END 1704 0 00006010 9b6d"
+      ]
+    },
+    {
+      "name": "load_move_f0_w2_o15_s1_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276514
+      ],
+      "expected_regs": [
+        4294967295,
+        287454020,
+        24591,
+        1344276514
+      ],
+      "expected_st": 3223324706,
+      "states": 6,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          42435
+        ],
+        [
+          24592,
+          39789
+        ],
+        [
+          24608,
+          57712
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 2,
+        "signed": true,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 2,
+        "offset": 15,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 247873760241091
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 125,
+        "clocks": 82,
+        "start": 1656,
+        "end": 1738,
+        "paused": 0,
+        "st": 3223324706,
+        "a0": 4294967295,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276514
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 82 INCLK",
+        "TI instruction read start: expected clock 1656, observed 1680",
+        "TI instruction read start: expected clock 1672, observed 1696",
+        "target dispatch outside TI readiness window: 1680 versus 1656..1662",
+        "target dispatch outside TI readiness window: 1700 versus 1672..1678"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1680 0 00006000 0000 0",
+        "BUS_ACCEPT 1680",
+        "BUS_END 1696 0 00006000 a5c3",
+        "BUS_BEGIN 1696 0 00006010 0000 0",
+        "BUS_ACCEPT 1700",
+        "BUS_END 1712 0 00006010 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1680 0 00006000 0000 0",
+        "TARGET_END 1684 0 00006000 a5c3",
+        "TARGET_BEGIN 1700 0 00006010 0000 0",
+        "TARGET_END 1704 0 00006010 9b6d"
+      ]
+    },
+    {
+      "name": "load_move_f0_w18_o15_s0_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276498
+      ],
+      "expected_regs": [
+        87381,
+        287454020,
+        24591,
+        1344276498
+      ],
+      "expected_st": 1075841042,
+      "states": 7,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          43690
+        ],
+        [
+          24592,
+          43690
+        ],
+        [
+          24608,
+          43690
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 18,
+        "signed": false,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 18,
+        "offset": 15,
+        "signed": false,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 187649984473770
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1148,
+        "clocks": 98,
+        "start": 1672,
+        "end": 1770,
+        "paused": 0,
+        "st": 1075841042,
+        "a0": 87381,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276498
+      },
+      "errors": [
+        "expected 56 INCLK (7 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 98 INCLK",
+        "TI instruction read start: expected clock 1672, observed 1696",
+        "TI instruction read start: expected clock 1688, observed 1712",
+        "TI instruction read start: expected clock 1704, observed 1728",
+        "target dispatch outside TI readiness window: 1696 versus 1672..1678",
+        "target dispatch outside TI readiness window: 1716 versus 1688..1694",
+        "target dispatch outside TI readiness window: 1732 versus 1704..1710"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1696 0 00006000 0000 0",
+        "BUS_ACCEPT 1696",
+        "BUS_END 1712 0 00006000 aaaa",
+        "BUS_BEGIN 1712 0 00006010 0000 0",
+        "BUS_ACCEPT 1716",
+        "BUS_END 1728 0 00006010 aaaa",
+        "BUS_BEGIN 1728 0 00006020 0000 0",
+        "BUS_ACCEPT 1732",
+        "BUS_END 1744 0 00006020 aaaa"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1696 0 00006000 0000 0",
+        "TARGET_END 1700 0 00006000 aaaa",
+        "TARGET_BEGIN 1716 0 00006010 0000 0",
+        "TARGET_END 1720 0 00006010 aaaa",
+        "TARGET_BEGIN 1732 0 00006020 0000 0",
+        "TARGET_END 1736 0 00006020 aaaa"
+      ]
+    },
+    {
+      "name": "load_move_f0_w18_o15_s1_hit",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276530
+      ],
+      "expected_regs": [
+        87381,
+        287454020,
+        24591,
+        1344276530
+      ],
+      "expected_st": 1075841074,
+      "states": 8,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          43690
+        ],
+        [
+          24592,
+          43690
+        ],
+        [
+          24608,
+          43690
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 18,
+        "signed": true,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 18,
+        "offset": 15,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 187649984473770
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1149,
+        "clocks": 98,
+        "start": 1672,
+        "end": 1770,
+        "paused": 0,
+        "st": 1075841074,
+        "a0": 87381,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276530
+      },
+      "errors": [
+        "expected 64 INCLK (8 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 98 INCLK",
+        "TI instruction read start: expected clock 1672, observed 1696",
+        "TI instruction read start: expected clock 1688, observed 1712",
+        "TI instruction read start: expected clock 1704, observed 1728",
+        "target dispatch outside TI readiness window: 1696 versus 1672..1678",
+        "target dispatch outside TI readiness window: 1716 versus 1688..1694",
+        "target dispatch outside TI readiness window: 1732 versus 1704..1710"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1696 0 00006000 0000 0",
+        "BUS_ACCEPT 1696",
+        "BUS_END 1712 0 00006000 aaaa",
+        "BUS_BEGIN 1712 0 00006010 0000 0",
+        "BUS_ACCEPT 1716",
+        "BUS_END 1728 0 00006010 aaaa",
+        "BUS_BEGIN 1728 0 00006020 0000 0",
+        "BUS_ACCEPT 1732",
+        "BUS_END 1744 0 00006020 aaaa"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1696 0 00006000 0000 0",
+        "TARGET_END 1700 0 00006000 aaaa",
+        "TARGET_BEGIN 1716 0 00006010 0000 0",
+        "TARGET_END 1720 0 00006010 aaaa",
+        "TARGET_BEGIN 1732 0 00006020 0000 0",
+        "TARGET_END 1736 0 00006020 aaaa"
+      ]
+    },
+    {
+      "name": "load_movb_o0_p0_c0_hit",
+      "coverage_id": "MOVB_IND_R",
+      "opcode": 36352,
+      "regs": [
+        24576,
+        287454020,
+        24576,
+        2147485736
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        24576,
+        2147485736
+      ],
+      "expected_st": 536873000,
+      "states": 3,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-118",
+      "conditions": {
+        "width": 8,
+        "offset": 0,
+        "signed": true,
+        "field": 0,
+        "source": 0,
+        "destination": 0,
+        "alias": true,
+        "pattern": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2048,
+        "clocks": 43,
+        "start": 1616,
+        "end": 1659,
+        "paused": 0,
+        "st": 536873000,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 24576,
+        "a3": 2147485736
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 43 INCLK",
+        "TI instruction read start: expected clock 1616, observed 1632",
+        "target dispatch outside TI readiness window: 1632 versus 1616..1622"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1632 0 00006000 8e00 0",
+        "BUS_ACCEPT 1632",
+        "BUS_END 1648 0 00006000 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1632 0 00006000 8e00 0",
+        "TARGET_END 1636 0 00006000 0000"
+      ]
+    },
+    {
+      "name": "load_movb_o9_p0_c0_hit",
+      "coverage_id": "MOVB_IND_R",
+      "opcode": 36416,
+      "regs": [
+        3735928559,
+        287454020,
+        24585,
+        270534696
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        24585,
+        270534696
+      ],
+      "expected_st": 538970152,
+      "states": 5,
+      "cache_disabled": false,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "data_load": {
+        "address": 24585,
+        "width": 8,
+        "signed": true,
+        "byte": true
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-118",
+      "conditions": {
+        "width": 8,
+        "offset": 9,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2120,
+        "clocks": 76,
+        "start": 1648,
+        "end": 1724,
+        "paused": 0,
+        "st": 538970152,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 24585,
+        "a3": 270534696
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 76 INCLK",
+        "TI instruction read start: expected clock 1648, observed 1672",
+        "TI instruction read start: expected clock 1664, observed 1688",
+        "target dispatch outside TI readiness window: 1672 versus 1648..1654",
+        "target dispatch outside TI readiness window: 1692 versus 1664..1670"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1672 0 00006000 8000 0",
+        "BUS_ACCEPT 1672",
+        "BUS_END 1688 0 00006000 0000",
+        "BUS_BEGIN 1688 0 00006010 8000 0",
+        "BUS_ACCEPT 1692",
+        "BUS_END 1704 0 00006010 0000"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1672 0 00006000 8000 0",
+        "TARGET_END 1676 0 00006000 0000",
+        "TARGET_BEGIN 1692 0 00006010 8000 0",
+        "TARGET_END 1696 0 00006010 0000"
+      ]
+    },
+    {
+      "name": "load_move_f0_w1_o0_s0_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24576,
+        1344276481
+      ],
+      "expected_regs": [
+        1,
+        287454020,
+        24576,
+        1344276481
+      ],
+      "expected_st": 1075841025,
+      "states": 6,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          65535
+        ]
+      ],
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": false,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 1,
+        "offset": 0,
+        "signed": false,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 281474976710655
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2176,
+        "clocks": 72,
+        "start": 2456,
+        "end": 2528,
+        "paused": 0,
+        "st": 1075841025,
+        "a0": 1,
+        "a1": 287454020,
+        "a2": 24576,
+        "a3": 1344276481
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 72 INCLK",
+        "TI instruction read start: expected clock 2456, observed 2472",
+        "TI instruction read start: expected clock 2480, observed 2504",
+        "target dispatch outside TI readiness window: 2472 versus 2456..2462",
+        "target dispatch outside TI readiness window: 2504 versus 2480..2486"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2472 0 00006000 8440 0",
+        "BUS_ACCEPT 2472",
+        "BUS_END 2488 0 00006000 ffff",
+        "BUS_BEGIN 2504 0 00001220 0000 1",
+        "BUS_ACCEPT 2504",
+        "BUS_END 2520 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2472 0 00006000 8440 0",
+        "TARGET_END 2476 0 00006000 ffff",
+        "TARGET_BEGIN 2504 0 00001220 0000 1",
+        "TARGET_END 2508 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_move_f0_w1_o0_s1_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24576,
+        1344276513
+      ],
+      "expected_regs": [
+        4294967295,
+        287454020,
+        24576,
+        1344276513
+      ],
+      "expected_st": 3223324705,
+      "states": 7,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          65535
+        ]
+      ],
+      "data_load": {
+        "address": 24576,
+        "width": 1,
+        "signed": true,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 1,
+        "offset": 0,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 281474976710655
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2177,
+        "clocks": 72,
+        "start": 2456,
+        "end": 2528,
+        "paused": 0,
+        "st": 3223324705,
+        "a0": 4294967295,
+        "a1": 287454020,
+        "a2": 24576,
+        "a3": 1344276513
+      },
+      "errors": [
+        "expected 56 INCLK (7 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 72 INCLK",
+        "TI instruction read start: expected clock 2456, observed 2472",
+        "TI instruction read start: expected clock 2488, observed 2504",
+        "target dispatch outside TI readiness window: 2472 versus 2456..2462",
+        "target dispatch outside TI readiness window: 2504 versus 2488..2494"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2472 0 00006000 8440 0",
+        "BUS_ACCEPT 2472",
+        "BUS_END 2488 0 00006000 ffff",
+        "BUS_BEGIN 2504 0 00001220 0000 1",
+        "BUS_ACCEPT 2504",
+        "BUS_END 2520 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2472 0 00006000 8440 0",
+        "TARGET_END 2476 0 00006000 ffff",
+        "TARGET_BEGIN 2504 0 00001220 0000 1",
+        "TARGET_END 2508 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_move_f0_w2_o15_s0_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276482
+      ],
+      "expected_regs": [
+        3,
+        287454020,
+        24591,
+        1344276482
+      ],
+      "expected_st": 1075841026,
+      "states": 8,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          42435
+        ],
+        [
+          24592,
+          39789
+        ],
+        [
+          24608,
+          57712
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 2,
+        "signed": false,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 2,
+        "offset": 15,
+        "signed": false,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 247873760241091
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2300,
+        "clocks": 112,
+        "start": 2496,
+        "end": 2608,
+        "paused": 0,
+        "st": 1075841026,
+        "a0": 3,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276482
+      },
+      "errors": [
+        "expected 64 INCLK (8 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 112 INCLK",
+        "TI instruction read start: expected clock 2496, observed 2520",
+        "TI instruction read start: expected clock 2512, observed 2536",
+        "TI instruction read start: expected clock 2536, observed 2584",
+        "target dispatch outside TI readiness window: 2520 versus 2496..2502",
+        "target dispatch outside TI readiness window: 2540 versus 2512..2518",
+        "target dispatch outside TI readiness window: 2584 versus 2536..2542"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2520 0 00006000 0000 0",
+        "BUS_ACCEPT 2520",
+        "BUS_END 2536 0 00006000 a5c3",
+        "BUS_BEGIN 2536 0 00006010 0000 0",
+        "BUS_ACCEPT 2540",
+        "BUS_END 2552 0 00006010 9b6d",
+        "BUS_BEGIN 2584 0 00001220 0000 1",
+        "BUS_ACCEPT 2584",
+        "BUS_END 2600 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2520 0 00006000 0000 0",
+        "TARGET_END 2524 0 00006000 a5c3",
+        "TARGET_BEGIN 2540 0 00006010 0000 0",
+        "TARGET_END 2544 0 00006010 9b6d",
+        "TARGET_BEGIN 2584 0 00001220 0000 1",
+        "TARGET_END 2588 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_move_f0_w2_o15_s1_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276514
+      ],
+      "expected_regs": [
+        4294967295,
+        287454020,
+        24591,
+        1344276514
+      ],
+      "expected_st": 3223324706,
+      "states": 9,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          42435
+        ],
+        [
+          24592,
+          39789
+        ],
+        [
+          24608,
+          57712
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 2,
+        "signed": true,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 2,
+        "offset": 15,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 247873760241091
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2301,
+        "clocks": 112,
+        "start": 2496,
+        "end": 2608,
+        "paused": 0,
+        "st": 3223324706,
+        "a0": 4294967295,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276514
+      },
+      "errors": [
+        "expected 72 INCLK (9 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 112 INCLK",
+        "TI instruction read start: expected clock 2496, observed 2520",
+        "TI instruction read start: expected clock 2512, observed 2536",
+        "TI instruction read start: expected clock 2544, observed 2584",
+        "target dispatch outside TI readiness window: 2520 versus 2496..2502",
+        "target dispatch outside TI readiness window: 2540 versus 2512..2518",
+        "target dispatch outside TI readiness window: 2584 versus 2544..2550"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2520 0 00006000 0000 0",
+        "BUS_ACCEPT 2520",
+        "BUS_END 2536 0 00006000 a5c3",
+        "BUS_BEGIN 2536 0 00006010 0000 0",
+        "BUS_ACCEPT 2540",
+        "BUS_END 2552 0 00006010 9b6d",
+        "BUS_BEGIN 2584 0 00001220 0000 1",
+        "BUS_ACCEPT 2584",
+        "BUS_END 2600 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2520 0 00006000 0000 0",
+        "TARGET_END 2524 0 00006000 a5c3",
+        "TARGET_BEGIN 2540 0 00006010 0000 0",
+        "TARGET_END 2544 0 00006010 9b6d",
+        "TARGET_BEGIN 2584 0 00001220 0000 1",
+        "TARGET_END 2588 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_move_f0_w18_o15_s0_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276498
+      ],
+      "expected_regs": [
+        87381,
+        287454020,
+        24591,
+        1344276498
+      ],
+      "expected_st": 1075841042,
+      "states": 10,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          43690
+        ],
+        [
+          24592,
+          43690
+        ],
+        [
+          24608,
+          43690
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 18,
+        "signed": false,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 18,
+        "offset": 15,
+        "signed": false,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 187649984473770
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 3324,
+        "clocks": 128,
+        "start": 2512,
+        "end": 2640,
+        "paused": 0,
+        "st": 1075841042,
+        "a0": 87381,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276498
+      },
+      "errors": [
+        "expected 80 INCLK (10 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 128 INCLK",
+        "TI instruction read start: expected clock 2512, observed 2536",
+        "TI instruction read start: expected clock 2528, observed 2552",
+        "TI instruction read start: expected clock 2544, observed 2568",
+        "TI instruction read start: expected clock 2568, observed 2616",
+        "target dispatch outside TI readiness window: 2536 versus 2512..2518",
+        "target dispatch outside TI readiness window: 2556 versus 2528..2534",
+        "target dispatch outside TI readiness window: 2572 versus 2544..2550",
+        "target dispatch outside TI readiness window: 2616 versus 2568..2574"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2536 0 00006000 0000 0",
+        "BUS_ACCEPT 2536",
+        "BUS_END 2552 0 00006000 aaaa",
+        "BUS_BEGIN 2552 0 00006010 0000 0",
+        "BUS_ACCEPT 2556",
+        "BUS_END 2568 0 00006010 aaaa",
+        "BUS_BEGIN 2568 0 00006020 0000 0",
+        "BUS_ACCEPT 2572",
+        "BUS_END 2584 0 00006020 aaaa",
+        "BUS_BEGIN 2616 0 00001220 0000 1",
+        "BUS_ACCEPT 2616",
+        "BUS_END 2632 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2536 0 00006000 0000 0",
+        "TARGET_END 2540 0 00006000 aaaa",
+        "TARGET_BEGIN 2556 0 00006010 0000 0",
+        "TARGET_END 2560 0 00006010 aaaa",
+        "TARGET_BEGIN 2572 0 00006020 0000 0",
+        "TARGET_END 2576 0 00006020 aaaa",
+        "TARGET_BEGIN 2616 0 00001220 0000 1",
+        "TARGET_END 2620 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_move_f0_w18_o15_s1_off",
+      "coverage_id": "MOVE_IND_R",
+      "opcode": 33856,
+      "regs": [
+        3735928559,
+        287454020,
+        24591,
+        1344276530
+      ],
+      "expected_regs": [
+        87381,
+        287454020,
+        24591,
+        1344276530
+      ],
+      "expected_st": 1075841074,
+      "states": 11,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          43690
+        ],
+        [
+          24592,
+          43690
+        ],
+        [
+          24608,
+          43690
+        ]
+      ],
+      "data_load": {
+        "address": 24591,
+        "width": 18,
+        "signed": true,
+        "byte": false
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-135/136",
+      "conditions": {
+        "width": 18,
+        "offset": 15,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 187649984473770
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 3325,
+        "clocks": 128,
+        "start": 2512,
+        "end": 2640,
+        "paused": 0,
+        "st": 1075841074,
+        "a0": 87381,
+        "a1": 287454020,
+        "a2": 24591,
+        "a3": 1344276530
+      },
+      "errors": [
+        "expected 88 INCLK (11 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 128 INCLK",
+        "TI instruction read start: expected clock 2512, observed 2536",
+        "TI instruction read start: expected clock 2528, observed 2552",
+        "TI instruction read start: expected clock 2544, observed 2568",
+        "TI instruction read start: expected clock 2576, observed 2616",
+        "target dispatch outside TI readiness window: 2536 versus 2512..2518",
+        "target dispatch outside TI readiness window: 2556 versus 2528..2534",
+        "target dispatch outside TI readiness window: 2572 versus 2544..2550",
+        "target dispatch outside TI readiness window: 2616 versus 2576..2582"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2536 0 00006000 0000 0",
+        "BUS_ACCEPT 2536",
+        "BUS_END 2552 0 00006000 aaaa",
+        "BUS_BEGIN 2552 0 00006010 0000 0",
+        "BUS_ACCEPT 2556",
+        "BUS_END 2568 0 00006010 aaaa",
+        "BUS_BEGIN 2568 0 00006020 0000 0",
+        "BUS_ACCEPT 2572",
+        "BUS_END 2584 0 00006020 aaaa",
+        "BUS_BEGIN 2616 0 00001220 0000 1",
+        "BUS_ACCEPT 2616",
+        "BUS_END 2632 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2536 0 00006000 0000 0",
+        "TARGET_END 2540 0 00006000 aaaa",
+        "TARGET_BEGIN 2556 0 00006010 0000 0",
+        "TARGET_END 2560 0 00006010 aaaa",
+        "TARGET_BEGIN 2572 0 00006020 0000 0",
+        "TARGET_END 2576 0 00006020 aaaa",
+        "TARGET_BEGIN 2616 0 00001220 0000 1",
+        "TARGET_END 2620 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_movb_o0_p0_c0_off",
+      "coverage_id": "MOVB_IND_R",
+      "opcode": 36352,
+      "regs": [
+        24576,
+        287454020,
+        24576,
+        2147485736
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        24576,
+        2147485736
+      ],
+      "expected_st": 536873000,
+      "states": 6,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "data_load": {
+        "address": 24576,
+        "width": 8,
+        "signed": true,
+        "byte": true
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-118",
+      "conditions": {
+        "width": 8,
+        "offset": 0,
+        "signed": true,
+        "field": 0,
+        "source": 0,
+        "destination": 0,
+        "alias": true,
+        "pattern": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 4224,
+        "clocks": 72,
+        "start": 2456,
+        "end": 2528,
+        "paused": 0,
+        "st": 536873000,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 24576,
+        "a3": 2147485736
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 72 INCLK",
+        "TI instruction read start: expected clock 2456, observed 2472",
+        "TI instruction read start: expected clock 2480, observed 2504",
+        "target dispatch outside TI readiness window: 2472 versus 2456..2462",
+        "target dispatch outside TI readiness window: 2504 versus 2480..2486"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2472 0 00006000 8e00 0",
+        "BUS_ACCEPT 2472",
+        "BUS_END 2488 0 00006000 0000",
+        "BUS_BEGIN 2504 0 00001220 0000 1",
+        "BUS_ACCEPT 2504",
+        "BUS_END 2520 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2472 0 00006000 8e00 0",
+        "TARGET_END 2476 0 00006000 0000",
+        "TARGET_BEGIN 2504 0 00001220 0000 1",
+        "TARGET_END 2508 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "load_movb_o9_p0_c0_off",
+      "coverage_id": "MOVB_IND_R",
+      "opcode": 36416,
+      "regs": [
+        3735928559,
+        287454020,
+        24585,
+        270534696
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        24585,
+        270534696
+      ],
+      "expected_st": 538970152,
+      "states": 8,
+      "cache_disabled": true,
+      "initial_memory": [
+        [
+          24576,
+          0
+        ],
+        [
+          24592,
+          0
+        ],
+        [
+          24608,
+          0
+        ]
+      ],
+      "data_load": {
+        "address": 24585,
+        "width": 8,
+        "signed": true,
+        "byte": true
+      },
+      "citation": "SPVU001A 13-5 Table13-1; 12-118",
+      "conditions": {
+        "width": 8,
+        "offset": 9,
+        "signed": true,
+        "field": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "pattern": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 4296,
+        "clocks": 104,
+        "start": 2488,
+        "end": 2592,
+        "paused": 0,
+        "st": 538970152,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 24585,
+        "a3": 270534696
+      },
+      "errors": [
+        "expected 64 INCLK (8 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 104 INCLK",
+        "TI instruction read start: expected clock 2488, observed 2512",
+        "TI instruction read start: expected clock 2504, observed 2528",
+        "TI instruction read start: expected clock 2528, observed 2568",
+        "target dispatch outside TI readiness window: 2512 versus 2488..2494",
+        "target dispatch outside TI readiness window: 2532 versus 2504..2510",
+        "target dispatch outside TI readiness window: 2568 versus 2528..2534"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2512 0 00006000 8000 0",
+        "BUS_ACCEPT 2512",
+        "BUS_END 2528 0 00006000 0000",
+        "BUS_BEGIN 2528 0 00006010 8000 0",
+        "BUS_ACCEPT 2532",
+        "BUS_END 2544 0 00006010 0000",
+        "BUS_BEGIN 2568 0 00001220 0000 1",
+        "BUS_ACCEPT 2568",
+        "BUS_END 2584 0 00001220 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2512 0 00006000 8000 0",
+        "TARGET_END 2516 0 00006000 0000",
+        "TARGET_BEGIN 2532 0 00006010 8000 0",
+        "TARGET_END 2536 0 00006010 0000",
+        "TARGET_BEGIN 2568 0 00001220 0000 1",
+        "TARGET_END 2572 0 00001220 0300"
+      ]
+    }
+  ]
+}

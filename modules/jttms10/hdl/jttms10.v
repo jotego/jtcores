@@ -148,7 +148,7 @@ module jttms10 #(
     wire immediate_invert=a_sel==IMMSEINV_A || a_sel==IMMHIINV_A;
     wire [31:0] immediate_value=immediate_short ? {{16{md[15]}},md[15:0]} :
                                                          {md[15:0],a[15:0]};
-    reg timing_active, immediate_last;
+    reg timing_active, immediate_last, early_load, load_started;
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
     wire decode_multiply=decode_opcode[15:10]==6'b010111;
@@ -163,6 +163,7 @@ module jttms10 #(
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
     // General scalar classes. PC-changing, memory and graphics forms retain
     // their old schedule until their event rules are independently covered.
+    wire decode_load=decode_opcode[15:10]==6'b100001 || decode_opcode[15:9]==7'b1000111;
     wire decode_immediate_word=decode_opcode[15:5]==11'h04e ||
         decode_opcode[15:5]==11'h058 || decode_opcode[15:5]==11'h05a ||
         decode_opcode[15:5]==11'h05f;
@@ -189,13 +190,13 @@ module jttms10 #(
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
-                      decode_immediate_word || decode_immediate_long ||
+                      decode_immediate_word || decode_immediate_long || decode_load ||
                       decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
     wire [5:0] decode_states=decode_divide ? decode_div_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
-                            decode_ie || decode_putst || decode_immediate_long ||
+                            decode_ie || decode_putst || decode_immediate_long || decode_load ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
                             decode_btstr || decode_immediate_word ||
                             (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
@@ -226,7 +227,7 @@ module jttms10 #(
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
-    assign mem_req = active && bus_op && !completed && !rst && !fault &&
+    assign mem_req = ((early_load && (cen || load_started)) || (active && bus_op)) && !completed && !rst && !fault &&
                      !gfx_skip_write;
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
@@ -241,21 +242,23 @@ module jttms10 #(
     generate for (field_bit=0; field_bit<32; field_bit=field_bit+1) begin : g_field_mask
         assign field_mask[field_bit] = field_size > field_bit;
     end endgenerate
+    wire [15:0] load_finish_clocks=(field_signed && !byte_op && field_size!=6'd32 ?
+                                  16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     // Field extension has three mutually exclusive consumers: memory-load
     // EXT_A, register SEXT/ZEXT, and multiply's source-field capture.
     wire [31:0] field_ext_input = mulinit ? rs_data :
-                                  a_sel==EXT_A ? md : rd_data;
+                                  a_sel==EXT_A ? (mem_sel==READ_MEM ? read_data : md) : rd_data;
     wire field_ext_signed = mulinit ? !ir[9] :
                             a_sel==EXT_A ? field_signed :
                             a_sel==SEXT_A;
     wire field_ext_fill = field_ext_signed && field_ext_input[field_msb];
     wire [31:0] field_extended = (field_ext_input & field_mask) |
                                  ({32{field_ext_fill}} & ~field_mask);
-    assign mem_we = gfx_active ? gfx_bus_write :
+    assign mem_we = early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
-    assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = gfx_active ? gfx_bus_size :
+    assign mem_addr = early_load ? rs_data : field_op ? ea : vector ? 32'hffffffe0 : pc;
+    assign mem_size = early_load ? field_size : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       field_op ? field_size : 6'd16;
@@ -263,10 +266,10 @@ module jttms10 #(
                        push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} :
                        md;
-    assign mem_iaq = fetch;
+    assign mem_iaq = fetch && !early_load;
     // The cache accepts every PC-directed word, including extension words.
     // IAQ remains the separate opcode bus-status signal.
-    assign mem_program = fetch || imm;
+    assign mem_program = (fetch || imm) && !early_load;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = gfx_active && gfx_bus_pixel;
@@ -354,6 +357,7 @@ module jttms10 #(
         .rd_ext(gfx_active && gfx_rf_da[5]),
         .wa_ext(gfx_active && gfx_rf_wa[5]),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
+            fetch && completed ? {decode_opcode[4],decode_opcode[8:5]} :
             ir==16'h0940 && tmp[25] ? 5'd26 :
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
@@ -490,6 +494,7 @@ module jttms10 #(
         if(rst) begin
             timing_active<=0;
             immediate_last<=0;
+            early_load<=0; load_started<=0;
             time_left<=0;
             fetch_wait<=0;
         end else begin
@@ -511,11 +516,19 @@ module jttms10 #(
             // The cache response bridge has consumed one clock at this ACK.
             if(mem_req && mem_ack && imm && !mem_cached && !control[15] && timing_active)
                 time_left<=immediate_tail_clocks-16'd2;
+            if(early_load && !load_started && cen && mem_req) load_started<=1;
+            // Bus waits must not consume the CPU work following a load.
+            // The cache/field response bridge has consumed two clocks of
+            // that final state at this ACK; sign extension needs one more.
+            if(mem_req && mem_ack && early_load && timing_active)
+                time_left<=load_finish_clocks-16'd3;
+            if(step && mem_sel==READ_MEM) early_load<=0;
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed;
                 immediate_last<=decode_immediate_word;
+                early_load<=decode_load; load_started<=0;
                 time_left<=decode_clocks-16'd1;
             end
             // MPYU's extra state depends on the selected field's sign bit,

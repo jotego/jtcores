@@ -37,14 +37,16 @@ module test;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
     reg measuring=0,case_done=0;
-    integer case_id=0,batch_fd,word_count,loaded=0,measure_pass=1;
+    integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0;
+    reg [31:0] data_address[0:15];
+    reg [15:0] data_value[0:15];
     reg [15:0] input_word;
     // A combined fetch/dispatch commits IR and increments PC on the same
     // edge. The previous two-word microcode had incremented PC earlier.
     wire [31:0] accepted_pc=dut.u_cpu.u_core.fetch ? pc : pc-32'd16;
     wire [15:0] accepted_ir=dut.u_cpu.u_core.fetch ?
                            dut.u_cpu.u_core.read_data[15:0] : dut.u_cpu.u_core.md[15:0];
-    string program_path,batch_path;
+    string program_path,batch_path,data_path;
     initial begin
         rc=$value$plusargs("WAIT=%d",extra_wait);
         rc=$value$plusargs("PAUSE=%d",pause_clocks);
@@ -54,8 +56,8 @@ module test;
         if($value$plusargs("BATCH=%s",batch_path)) begin
             batch_fd=$fopen(batch_path,"r");
             if(batch_fd==0) $fatal(1,"cannot open batch input");
-            rc=$fscanf(batch_fd,"%d %h %h %d %d",case_id,test_pc,next_pc,measure_pass,word_count);
-            while(rc==5) begin
+            rc=$fscanf(batch_fd,"%d %h %h %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count);
+            while(rc==6) begin
                 if(word_count<1 || word_count>3840) $fatal(1,"invalid program length");
                 for(i=0;i<4096;i=i+1) mem[i]=0;
                 for(i=0;i<word_count;i=i+1) begin
@@ -63,13 +65,18 @@ module test;
                     if(rc!=1) $fatal(1,"truncated batch program");
                     mem[256+i]=input_word;
                 end
+                if(memory_count<0 || memory_count>16) $fatal(1,"invalid sparse memory count");
+                for(i=0;i<memory_count;i=i+1) begin
+                    rc=$fscanf(batch_fd,"%h %h",data_address[i],data_value[i]);
+                    if(rc!=2 || data_address[i][3:0]!=0) $fatal(1,"invalid sparse memory word");
+                end
                 $display("CASE %0d",case_id);
                 repeat(5) @(negedge clk);
                 rst=0;
                 wait(case_done);
                 @(negedge clk); rst=1;
                 loaded=loaded+1;
-                rc=$fscanf(batch_fd,"%d %h %h %d %d",case_id,test_pc,next_pc,measure_pass,word_count);
+                rc=$fscanf(batch_fd,"%d %h %h %d %d %d",case_id,test_pc,next_pc,measure_pass,word_count,memory_count);
             end
             if(!$feof(batch_fd)) $fatal(1,"invalid batch record");
             $fclose(batch_fd);
@@ -83,6 +90,18 @@ module test;
             rc=$value$plusargs("MEASURE_PASS=%d",measure_pass);
             for(i=0;i<4096;i=i+1) mem[i]=0;
             $readmemh(program_path,mem);
+            rc=$value$plusargs("DATA_COUNT=%d",memory_count);
+            if(memory_count<0 || memory_count>16) $fatal(1,"invalid sparse memory count");
+            if(memory_count>0) begin
+                if(!$value$plusargs("DATA=%s",data_path)) $fatal(1,"missing sparse memory input");
+                data_fd=$fopen(data_path,"r");
+                if(data_fd==0) $fatal(1,"cannot open sparse memory input");
+                for(i=0;i<memory_count;i=i+1) begin
+                    rc=$fscanf(data_fd,"%h %h",data_address[i],data_value[i]);
+                    if(rc!=2 || data_address[i][3:0]!=0) $fatal(1,"invalid sparse memory word");
+                end
+                $fclose(data_fd);
+            end
             $display("CASE %0d",case_id);
             repeat(5) @(negedge clk);
             rst=0;
@@ -131,6 +150,8 @@ module test;
         else if(addr_q==32'hfffffff0) cyc_rdata=0;
         else if(addr_q<32'h10000) cyc_rdata=mem[addr_q[15:4]];
         else cyc_rdata=0;
+        for(integer q=0;q<memory_count;q=q+1)
+            if(addr_q==data_address[q]) cyc_rdata=data_value[q];
     end
     always @(posedge clk) begin
         if(rst) begin bus_state<=IDLE; age<=0; end
@@ -155,6 +176,10 @@ module test;
                 if(kind_q==1) begin
                     if(addr_q>=32'h10000) $fatal(1,"write outside test RAM");
                     mem[addr_q[15:4]]<=data_q;
+                end
+                if(kind_q==1) begin
+                    for(integer q=0;q<memory_count;q=q+1)
+                        if(addr_q==data_address[q]) data_value[q]<=data_q;
                 end
                 if(measuring || $test$plusargs("TRACE"))
                     $display("TARGET_END %0d %0d %08h %04h",now,kind_q,addr_q,cyc_rdata);

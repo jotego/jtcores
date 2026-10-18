@@ -28,7 +28,7 @@ module test;
         .host_req(host_req),.host_we(host_we),
         .host_reg(host_reg),.host_be(host_be),.host_wdata(host_wdata),
         .host_rdata(host_rdata),.host_ack(host_ack),.host_busy(host_busy),
-        .word_req(word_req),.word_pending(word_req),.word_we(word_we),.word_iaq(word_iaq),
+        .word_req(word_req),.word_pending(word_req),.word_early(1'b0),.word_we(word_we),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),

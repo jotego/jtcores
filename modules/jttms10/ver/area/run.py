@@ -233,8 +233,9 @@ def main():
     # that predate the cache-hit/pending-transaction metadata ports.
     if args.fabric or args.word:
         module_name="jttms10_fabric.v" if args.fabric else "jttms10_word.v"
-        if "word_pending" in (out/"src/modules/jttms10/hdl"/module_name).read_text():
-            ports.append("word_pending")
+        for metadata in ("word_pending","word_early"):
+            if metadata in (out/"src/modules/jttms10/hdl"/module_name).read_text():
+                ports.append(metadata)
     elif args.scalar:
         if "mem_cached" in (out/"src/modules/jttms10/hdl/jttms10.v").read_text():
             ports.append("mem_cached")

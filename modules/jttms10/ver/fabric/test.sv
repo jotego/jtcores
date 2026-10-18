@@ -44,7 +44,7 @@ module test;
         .host_req(1'b0),.host_we(1'b0),.host_reg(2'b00),
         .host_be(2'b00),.host_wdata(16'd0),
         .host_rdata(),.host_ack(),.host_busy(),
-        .word_req(word_req),.word_pending(word_req),.word_we(word_we),.word_iaq(iaq),
+        .word_req(word_req),.word_pending(word_req),.word_early(1'b0),.word_we(word_we),.word_iaq(iaq),
         .word_lock(word_lock),.word_pixel(1'b0),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),

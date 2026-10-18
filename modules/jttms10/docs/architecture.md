@@ -17,9 +17,9 @@ unfinished synthesized CPU does not prove the area requirement.
   General registers have no architectural reset value and are not reset;
   this permits block RAM inference.
 - One 32-bit ALU supplies arithmetic and logic. A single 33-bit adder is
-  shared by addition, subtraction, negation, and absolute value. Shifts are
-  one bit per operation; wide variable shifters and parallel dividers are
-  excluded from the area-oriented datapath.
+  shared by addition, subtraction, negation, and absolute value. Scalar shifts/rotates share the DSP multiplier through one-hot factors.
+  The field adapter shares a separate DSP product for constant-latency
+  alignment. Division retains the shared ALU/restoring loop.
 - PC is a bit address. Instruction words increment it by 16. Extension words
   are fetched low word first. Branch/jump destinations are word aligned. Relative PC updates select
   one delta before a shared adder; direct PC writes retain priority.

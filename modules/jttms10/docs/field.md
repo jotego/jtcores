@@ -51,17 +51,18 @@ iverilog -g2012 -s test -I modules/jttms10/ver/build \
 (cd modules/jttms10/ver/build && vvp /tmp/jttms10_word_test)
 ```
 
-To limit combinational shift logic, the adapter shifts a 48-bit write-data
-window left once per bit offset before bus access and shifts the captured
-read-data window right once per bit offset afterward. A six-bit remaining
-span and first-word offset generate each word mask. Each shift direction adds
-0–15 clocks. Writes also use one selection clock per physical word; partial words
-need two word-bus acknowledgements. Read completion uses one further clock
-to copy the aligned result. These clocks are in addition to word-bus waits.
+A shared 48×17 DSP product by a one-hot factor aligns write data left by
+0–15 bits at acceptance, or aligns the assembled read window right by
+0–15 bits when its last physical word returns. Alignment takes a fixed
+capture edge. The last read word is merged into the multiplier input before
+that edge; no separate serial read-alignment loop remains. A six-bit remaining
+span and first-word offset generate the word masks. Writes retain one
+selection clock per physical word and partial words retain their reserved
+read/write pair.
 
 Simulation covers every offset 0–15 and size 1–32, with waits, whole-memory
 write-preservation checks, lock pairing, HOLD restart after an external owner
-changes unprotected bits, and reset during a read. NARC
-performance and silicon timing are unverified. The serial alignment latency
-may exceed the TMS34010 timing budget; measure it in the integrated NARC
-workload and optimize before replacing the existing core.
+changes unprotected bits, and reset during a read. The complete CPU also
+has specification-based indirect MOVE/MOVB load probes; see
+[load-timing.md](load-timing.md). Other memory/graphics timings and final
+fitted area/STA/NARC validation remain required under #144.
