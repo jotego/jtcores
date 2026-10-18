@@ -1,3 +1,4 @@
 /ver/build/
 __pycache__/
 !hdl/tms10_dispatch.hex
+!ver/timing/baseline-740709a.json

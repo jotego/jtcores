@@ -59,3 +59,28 @@ jobs:
           sudo apt-get install -y verilator python3-pil
       - name: Check rotation across pixel enable cadences
         run: /usr/bin/python3 modules/jtframe/ver/video/rotation/run.py --suite
+  jttms10:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23.4'
+      - name: Install CPU simulation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog python3-yaml
+      - name: Check CPU architecture, bus protocols and TI instruction timing
+        env:
+          JTTMS10_TIMING_REPORT: ${{ github.workspace }}/jttms10-timing.json
+        run: PATH="/usr/bin:$PATH" bash modules/jttms10/ver/run.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jttms10-timing
+          path: jttms10-timing.json
+          if-no-files-found: ignore

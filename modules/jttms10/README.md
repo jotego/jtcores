@@ -8,6 +8,12 @@ gameplay/audio simulation, FPGA constrained timing and unmodified-ROM
 MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 [area measurements](ver/area/README.md).
 
+Instruction timing is currently noncompliant. The independent
+[timing suite and coverage ledger](docs/timing.md) expose the known failures
+under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
+The standard runner now fails on those timing mismatches even when its
+architectural programs pass.
+
 `ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
 JT680X. The scalar and graphics sequencers share one ALU, synchronous
 register RAM, operand registers and field bus. Graphics control uses a
