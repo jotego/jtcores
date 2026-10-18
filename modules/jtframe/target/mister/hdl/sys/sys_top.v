@@ -295,6 +295,9 @@ reg        cfg_set      = 0;
 `ifdef MISTER_DEBUG_NOHDMI
 	wire    vga_fb       = 0;
 	wire    direct_video = 1;
+`elsif JTFRAME_SPLIT_VIDEO
+	wire    vga_fb       = 0;
+	wire    direct_video = cfg[10];
 `else
 `ifdef JTFRAME_CRT480I
 	// 480i selected by the MRA (or mod bytes not in yet): the VGA port never carries the scaler
@@ -314,6 +317,8 @@ wire       io_osd_vga   = io_ss1 & ~io_ss2;
 	wire ypbpr_en           = cfg[5];
 	wire sog                = cfg[9];
 	`ifdef MISTER_DEBUG_NOHDMI
+		wire vga_scaler   = 0;
+	`elsif JTFRAME_SPLIT_VIDEO
 		wire vga_scaler   = 0;
 	`else
 	`ifdef JTFRAME_CRT480I
@@ -754,7 +759,13 @@ wire         hdmi_f1;     // the scaler's field flag: f1, or 0 for the native pi
 		.i_b      (hb_out),
 		.i_hs     (hhs_fix),
 		.i_vs     (hvs_fix),
+`ifdef JTFRAME_CRT480I
 		.i_fl     (hdmi_f1),
+`elsif JTFRAME_SPLIT_VIDEO
+		.i_fl     (hf1),
+`else
+		.i_fl     (f1),
+`endif
 		.i_de     (hde_emu),
 		.iauto    (1),
 		.himin    (0),
@@ -1804,6 +1815,22 @@ assign hb_out   = hdmi_vga ? vga_data_sl[7:0]   : nat_b;
 assign hhs_fix  = hdmi_vga ? vga_hs_sl          : nat_hs_fix;
 assign hvs_fix  = hdmi_vga ? vga_vs_sl          : nat_vs_fix;
 assign hde_emu  = hdmi_vga ? vga_de_sl          : nat_de;
+`elsif JTFRAME_SPLIT_VIDEO
+wire  [7:0] sc_r, sc_g, sc_b;
+wire        sc_ce, sc_hs, sc_vs, sc_de, sc_f1, sc_hs_fix, sc_vs_fix, hf1;
+
+sync_fix sync_sv(clk_vid, sc_vs, sc_vs_fix);
+sync_fix sync_sh(clk_vid, sc_hs, sc_hs_fix);
+
+assign ce_hpix  = direct_video ? vga_ce_sl          : sc_ce;
+assign hr_out   = direct_video ? vga_data_sl[23:16] : sc_r;
+assign hg_out   = direct_video ? vga_data_sl[15:8]  : sc_g;
+assign hb_out   = direct_video ? vga_data_sl[7:0]   : sc_b;
+assign hhs_fix  = direct_video ? vga_hs_sl          : sc_hs_fix;
+assign hvs_fix  = direct_video ? vga_vs_sl          : sc_vs_fix;
+assign hde_emu  = direct_video ? vga_de_sl          : sc_de;
+assign hf1      = direct_video ? f1                 : sc_f1;
+assign hdmi_f1  = hf1;
 `else
 assign hdmi_f1  = f1;
 assign ce_hpix  = vga_ce_sl;
@@ -1881,6 +1908,15 @@ emu emu
 	.NATIVE_HS(nat_hs),
 	.NATIVE_VS(nat_vs),
 	.NATIVE_DE(nat_de),
+`elsif JTFRAME_SPLIT_VIDEO
+	.SCALER_CE(sc_ce),
+	.SCALER_R(sc_r),
+	.SCALER_G(sc_g),
+	.SCALER_B(sc_b),
+	.SCALER_HS(sc_hs),
+	.SCALER_VS(sc_vs),
+	.SCALER_DE(sc_de),
+	.SCALER_F1(sc_f1),
 `endif
 
 `ifndef MISTER_DUAL_SDRAM
