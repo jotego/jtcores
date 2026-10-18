@@ -69,7 +69,14 @@ stressed programs and the seven response controls/one mutant with exact
 case/event observations and provenance. This is targeted clean validation,
 not a complete standard runner. All43 physical timing input hashes match
 public implementation commit dc661d409; its full Git tree matches isolated
-025fcc284. The fresh full109-form standard runner remains pending.
+025fcc284. The fresh full109-form standard runner completes260,012 exact programs:
+three86,098-case matrices, two DIV pauses and six286-case phase unions.
+All117 models,180 architecture,699 bus scenarios,55 mutation controls and
+63 rejection checks pass, along with the separate response7/1 and EMU8/1
+event benches. Exit1 is solely the24-missing/448-unresolved gate. All43
+source hashes and all seven generated hashes match this stage exactly.
+Clean scope remains targeted; no full clean standard-runner result is
+claimed. Later implementation stages require their own full validation.
 
 Matched NARC GSP quartus_map estimates3,570 ALMs,5,082 ALUTs,1,722
 registers,538,624 block-memory bits,five DSPs and zero MLAB bits: -50 ALMs

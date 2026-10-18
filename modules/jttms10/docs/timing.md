@@ -541,3 +541,14 @@ mutant restores ascending order with correct duration/state/memory and must
 fail bus sequencing. The field unit checks1024 forward/descending vectors
 and both HOLD restarts. The corrected source requires a fresh full runner;
 the initial failed111-form run is not accepted.
+
+The109-form RETS stage atdc661d409 also completes an uninterrupted standard
+runner:260,012 exact programs,117 models,180 architecture,699 bus scenarios,
+55 mutation controls and63 rejection checks. Exit1 is solely24 missing forms
+and448 unresolved source probes. All43 source and seven generated hashes
+match. Clean validation remains targeted. CurrentPUSHST111-form targeted
+validation passes1522 exact I/V/clean cases,128 models,66 short phases,
+five new mutants,1024 field vectors and the unchanged MSW-first regression.
+Its fresh corrected full runner is running; the earlier failed111-form run
+is not accepted. Final full clean/remote CI and hardware acceptance remain
+open.

@@ -72,16 +72,21 @@ Verilator exactly. The66 short phase cases,128 models, strict lint and five
 actual RTL mutations pass. Mutants change CPU count, first-word eligibility,
 short-pause permission or physical word order. The order mutant retains
 correct duration, full state and final memory but fails bus sequencing.
-Clean-checkout and standard-runner acceptance remain pending.
+A detached clean checkout repeats128 models, all1522 stressed programs and
+nine response controls/one mutant with exact case/event observations and
+source/ROM provenance. Four separate-process probes match batching apart
+from local case identifiers. All45 timing inputs match public1cd86d712,
+whose full Git tree equals isolatedf25d09e05. This clean scope is targeted;
+full clean standard-runner acceptance remains required.
 
 The initial111-form standard runner failed the existing word-wrapper
 MSW-first assertion before its timing matrices: a whole-field ascending
 write preserved architectural results but regressed the documented bus
 order. The new descending field path corrects that production bug without
 weakening the original assertion. That failed run is historical evidence,
-not full-runner acceptance. Final corrected-source architecture and a fresh
-standard runner remain required; earlier prototypes passed180 architecture
-programs and13 functional IRQ/resume scenarios.
+not full-runner acceptance. The fresh corrected-source standard runner is
+running; its architecture/unit prefix passes180 programs and13 functional
+IRQ/resume scenarios. Its complete outcome remains pending.
 
 All1522 historical programs fail timing/bus checks on the old public
 f059cb000 HDL and microcode, with correct full main/following state and
