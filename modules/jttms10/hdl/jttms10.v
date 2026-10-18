@@ -151,6 +151,10 @@ module jttms10 #(
     wire decode_shift=decode_shiftk || decode_shiftr;
     wire [2:0] decode_shift_kind=decode_shiftk ? decode_opcode[12:10] : decode_opcode[11:9];
     wire decode_lmo=decode_opcode[15:9]==7'b0110101;
+    wire decode_divide=decode_opcode[15:10]==6'b010110 || decode_opcode[15:10]==6'b011011;
+    wire decode_mod=decode_opcode[15:10]==6'b011011;
+    wire [5:0] decode_div_states=decode_mod ? (decode_opcode[9] ? 6'd35 : 6'd40) :
+                                decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
     // Single-word scalar classes. Keep immediate, PC-changing, memory and
     // graphics forms outside this schedule until their event rules exist.
     wire decode_scalar_rr=decode_opcode[15:12]==4'h4 ||
@@ -173,13 +177,21 @@ module jttms10 #(
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
                       decode_opcode[15:10]==6'b000111 ||
-                      (decode_multiply && !st[6]) || decode_shift || decode_lmo;
+                      (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
-    wire [5:0] decode_states=decode_multiply ? 6'd5+multiply_half :
+    wire [5:0] decode_states=decode_divide ? decode_div_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_ie || decode_putst || (decode_extension && !decode_opcode[5]) ? 6'd3 :
                             decode_btstr || (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
     wire [15:0] decode_clocks={10'd0,decode_states} * CLKS_PER_STATE[15:0];
+    // DIV/MOD begin with the normal budget. The operand check removes the
+    // omitted iterations on early exit; the completed magnitude identifies
+    // TI's special 41-state signed candidate (both DIV destination parities).
+    wire [5:0] div_normal_states=div_mod ? (div_signed ? 6'd40 : 6'd35) :
+                                  !div_signed ? 6'd37 : div_pair ? 6'd40 : 6'd39;
+    wire [5:0] div_early_states=div_mod ? 6'd3 : div_signed ? 6'd7 : 6'd5;
+    wire [15:0] div_cut_clocks={10'd0,div_normal_states-div_early_states} * CLKS_PER_STATE[15:0];
+    wire [15:0] div_extra_clocks=(div_mod || div_pair ? 16'd1 : 16'd2) * CLKS_PER_STATE[15:0];
     // Four clocks cover the NI boundary, ROM prime, synchronous cache hit,
     // and the fetch/dispatch response latch. Execution finishes early enough
     // for that fetch to overlap its last TI machine state (UG §5.4.3/§5.5).
@@ -454,8 +466,8 @@ module jttms10 #(
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
-    // Scheduling covers single-word scalar operations and documented
-    // even-width MPYS/MPYU. PC-changing, memory and graphics families
+    // Scheduling covers single-word scalar operations, DIV/MOD and
+    // documented even-width MPYS/MPYU. PC-changing, memory and graphics families
     // retain their existing schedule until their event contracts are added.
     always @(posedge clk) begin
         if(rst) begin
@@ -482,6 +494,10 @@ module jttms10 #(
             // which is available once synchronous register reads complete.
             if(step && mulinit && timing_active && ir[9] && field_ext_input[field_msb])
                 time_left<=time_left+CLKS_PER_STATE[15:0]-16'd1;
+            if(step && divcheck && timing_active && (a==0 || !c))
+                time_left<=time_left-div_cut_clocks-16'd1;
+            if(step && mulfinish && timing_active && div_ir && !div_early && div_signed && md==32'h8000_0000)
+                time_left<=time_left+div_extra_clocks-16'd1;
         end
     end
     always @(posedge clk) begin

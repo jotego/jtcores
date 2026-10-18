@@ -64,6 +64,10 @@ def main():
         evidence['wait_control'] = run_case(work,'wait_control','nop_off',['--wait-states','1'])
         setf_case = 'scalar_setf_f1_fs1_fe0_hit'
         evidence['setf_control'] = run_case(work,'setf_control',setf_case)
+        min_case = 'divs_odd_boundary_43_hit'
+        zero_case = 'divu_odd_boundary_0_hit'
+        evidence['div_min_control'] = run_case(work,'div_min_control',min_case)
+        evidence['div_zero_control'] = run_case(work,'div_zero_control',zero_case)
 
         flat = work / 'flat-width-hdl'
         shutil.copytree(MODULE / 'hdl',flat)
@@ -78,6 +82,20 @@ def main():
                      "decode_btstr ? 6'd2 : 6'd1")
         evidence['wrong_setf_field_latency'] = run_case(work,'wrong_setf_field_latency',setf_case,
                                                       ['--rtl-dir',str(field)],mutated=True)
+
+        minimum = work / 'wrong-div-minimum-hdl'
+        shutil.copytree(MODULE / 'hdl',minimum)
+        replace_once(minimum / 'jttms10.v',
+                     "(div_mod || div_pair ? 16'd1 : 16'd2)","16'd1")
+        evidence['wrong_divs_odd_minimum'] = run_case(work,'wrong_divs_odd_minimum',min_case,
+                                                    ['--rtl-dir',str(minimum)],mutated=True)
+
+        early = work / 'wrong-div-early-hdl'
+        shutil.copytree(MODULE / 'hdl',early)
+        replace_once(early / 'jttms10.v',"time_left<=time_left-div_cut_clocks-16'd1;",
+                     "time_left<=time_left-16'd1;")
+        evidence['wrong_div_early_exit'] = run_case(work,'wrong_div_early_exit',zero_case,
+                                                  ['--rtl-dir',str(early)],mutated=True)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

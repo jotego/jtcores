@@ -1,0 +1,1105 @@
+{
+  "note": "Historical failing observations on RTL 21cf1d6f2. All 902 new DIV/MOD cases failed timing with correct architecture. One representative per instruction/count/cache rule. Never a timing oracle, test input or allowlist.",
+  "source_commit": "21cf1d6f2",
+  "clock_unit": "INCLK",
+  "clocks_per_machine_state": 8,
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "f4db9d748baaa08b40b461f1693f7e39104be28b02fa447de46733d402896b13",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "f80281375c98665873429592ef5d84f4c039fee4de13c326fd913a6c480940b7",
+      "hdl/jttms10_cache.v": "b0cb4a50275508ae1982d4b28116f1edba2d5366fb60bf5bc779a91c0a77456a",
+      "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+      "hdl/jttms10_fabric.v": "6400a398705f5e0c67077f1c7ea62d41c29be551ee1384e9f0979a877300efe3",
+      "hdl/jttms10_field.v": "eba984151158937097f444ede9ae511209f5928b8e80abaefb4cb5e3206899cd",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "deb01a2ffdb2e5ee5896e559ae1917a3e81d473d6474b8d4b3bafa8f460c5922",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "a6b22d5991fe78d23814e48759f20c015e31e618eb5567daea854ab435eb875c",
+      "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "b4971e40b99b74951c6b0ee14ec7ed797a273f1163264cae34ff0010a8f295cd",
+      "ucode/tms10.yaml": "656dbf13c22aa20b37dfebafe5824daabcd71ef54116b8bd22d89f613e2084b9",
+      "ver/timing/oracle.py": "cc5e334e3c6373ae2103c18fa708a883ec94fe5bb21ae90f10359a5fdf7c1472",
+      "ver/timing/run.py": "fd8b2fe142b09bd11ed4b6c0feb12674c4ad518080bb979cbb67fcb9fd749957",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "2066a8b9becb77119228b93f954940d59bd2f3f794cae61d250810f9ce812f28",
+      "ver/timing/test.sv": "28201f1202873101fd13284829a58798c16862fc94a752a7821918cdd8f16ff9"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "709f4a5c07e02f44bf01a53c9741ef7581f51ab889e9effbb54112b227284f82",
+      "tms10.vh": "c8ad8e83f2d8764daa1b2d528114fa9b5c7dde5ef9ad7f00e184cce1e97b3a6c",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "f893d9c9ad4cdb8cf18cb674a3301560a47b7bf5c051fb33ef5c9438ab16da3c"
+    }
+  },
+  "cases": [
+    {
+      "name": "divs_odd_boundary_0_hit",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22593,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 7,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 0,
+        "clocks": 18,
+        "start": 1548,
+        "end": 1566,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 56 INCLK (7 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 18 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "divs_odd_boundary_1_hit",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22593,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 39,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 312 INCLK (39 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "divs_odd_boundary_43_hit",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22593,
+      "regs": [
+        287454020,
+        2147483648,
+        1,
+        2954888759
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        1,
+        2954888759
+      ],
+      "expected_st": 2149582391,
+      "states": 41,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": false,
+        "dividend": -2147483648,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 43,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 2149582391,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 1,
+        "a3": 2954888759
+      },
+      "errors": [
+        "expected 328 INCLK (41 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "divs_even_boundary_1_hit",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22592,
+      "regs": [
+        0,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        0,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 40,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": true,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 68,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 0,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 320 INCLK (40 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "divu_odd_boundary_0_hit",
+      "coverage_id": "DIVU_RR",
+      "opcode": 23105,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 5,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-65..66",
+      "conditions": {
+        "operation": "DIVU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 157,
+        "clocks": 18,
+        "start": 1548,
+        "end": 1566,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 18 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "divu_odd_boundary_1_hit",
+      "coverage_id": "DIVU_RR",
+      "opcode": 23105,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 37,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-65..66",
+      "conditions": {
+        "operation": "DIVU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 158,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 296 INCLK (37 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "divs_odd_boundary_0_off",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22593,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 10,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 309,
+        "clocks": 42,
+        "start": 2262,
+        "end": 2304,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 80 INCLK (10 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 42 INCLK",
+        "physical opcode read start: expected clock 2318, observed 2280"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2280 0 00001220 0000 1",
+        "BUS_END 2296 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "divs_odd_boundary_1_off",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22593,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 42,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 310,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 336 INCLK (42 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2648, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "divs_odd_boundary_43_off",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22593,
+      "regs": [
+        287454020,
+        2147483648,
+        1,
+        2954888759
+      ],
+      "expected_regs": [
+        287454020,
+        2147483648,
+        1,
+        2954888759
+      ],
+      "expected_st": 2149582391,
+      "states": 44,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": false,
+        "dividend": -2147483648,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 352,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 2149582391,
+        "a0": 287454020,
+        "a1": 2147483648,
+        "a2": 1,
+        "a3": 2954888759
+      },
+      "errors": [
+        "expected 352 INCLK (44 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2664, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "divs_even_boundary_1_off",
+      "coverage_id": "DIVS_RR",
+      "opcode": 22592,
+      "regs": [
+        0,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        0,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 43,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-63..64",
+      "conditions": {
+        "operation": "DIVS",
+        "paired": true,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 377,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 0,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 344 INCLK (43 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2656, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "divu_odd_boundary_0_off",
+      "coverage_id": "DIVU_RR",
+      "opcode": 23105,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 8,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-65..66",
+      "conditions": {
+        "operation": "DIVU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 466,
+        "clocks": 42,
+        "start": 2262,
+        "end": 2304,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 64 INCLK (8 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 42 INCLK",
+        "physical opcode read start: expected clock 2302, observed 2280"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2280 0 00001220 0000 1",
+        "BUS_END 2296 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "divu_odd_boundary_1_off",
+      "coverage_id": "DIVU_RR",
+      "opcode": 23105,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 40,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-65..66",
+      "conditions": {
+        "operation": "DIVU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 467,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 320 INCLK (40 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2632, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "mods_odd_boundary_0_hit",
+      "coverage_id": "MODS",
+      "opcode": 27713,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 3,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-113",
+      "conditions": {
+        "operation": "MODS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 0,
+        "clocks": 18,
+        "start": 1548,
+        "end": 1566,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 18 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "mods_odd_boundary_1_hit",
+      "coverage_id": "MODS",
+      "opcode": 27713,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 40,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-113",
+      "conditions": {
+        "operation": "MODS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 320 INCLK (40 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "mods_odd_boundary_43_hit",
+      "coverage_id": "MODS",
+      "opcode": 27713,
+      "regs": [
+        287454020,
+        2147483648,
+        1,
+        2954888759
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        2954888759
+      ],
+      "expected_st": 2686453303,
+      "states": 41,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-113",
+      "conditions": {
+        "operation": "MODS",
+        "paired": false,
+        "dividend": -2147483648,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 43,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 2686453303,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 2954888759
+      },
+      "errors": [
+        "expected 328 INCLK (41 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "modu_odd_boundary_0_hit",
+      "coverage_id": "MODU",
+      "opcode": 28225,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 3,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-114",
+      "conditions": {
+        "operation": "MODU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 67,
+        "clocks": 18,
+        "start": 1548,
+        "end": 1566,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 18 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "modu_odd_boundary_1_hit",
+      "coverage_id": "MODU",
+      "opcode": 28225,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 35,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-114",
+      "conditions": {
+        "operation": "MODU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 68,
+        "clocks": 92,
+        "start": 1622,
+        "end": 1714,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 280 INCLK (35 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 92 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "mods_odd_boundary_0_off",
+      "coverage_id": "MODS",
+      "opcode": 27713,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 6,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-113",
+      "conditions": {
+        "operation": "MODS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 142,
+        "clocks": 42,
+        "start": 2262,
+        "end": 2304,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 42 INCLK",
+        "physical opcode read start: expected clock 2286, observed 2280"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2280 0 00001220 0000 1",
+        "BUS_END 2296 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "mods_odd_boundary_1_off",
+      "coverage_id": "MODS",
+      "opcode": 27713,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 43,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-113",
+      "conditions": {
+        "operation": "MODS",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 143,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 344 INCLK (43 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2656, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "mods_odd_boundary_43_off",
+      "coverage_id": "MODS",
+      "opcode": 27713,
+      "regs": [
+        287454020,
+        2147483648,
+        1,
+        2954888759
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        2954888759
+      ],
+      "expected_st": 2686453303,
+      "states": 44,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-113",
+      "conditions": {
+        "operation": "MODS",
+        "paired": false,
+        "dividend": -2147483648,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 185,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 2686453303,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 2954888759
+      },
+      "errors": [
+        "expected 352 INCLK (44 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2664, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "modu_odd_boundary_0_off",
+      "coverage_id": "MODU",
+      "opcode": 28225,
+      "regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        0,
+        0
+      ],
+      "expected_st": 268435456,
+      "states": 6,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-114",
+      "conditions": {
+        "operation": "MODU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 0,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 209,
+        "clocks": 42,
+        "start": 2262,
+        "end": 2304,
+        "paused": 0,
+        "st": 268435456,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 0,
+        "a3": 0
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 42 INCLK",
+        "physical opcode read start: expected clock 2286, observed 2280"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2280 0 00001220 0000 1",
+        "BUS_END 2296 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "modu_odd_boundary_1_off",
+      "coverage_id": "MODU",
+      "opcode": 28225,
+      "regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_regs": [
+        287454020,
+        0,
+        1,
+        270532645
+      ],
+      "expected_st": 538968101,
+      "states": 38,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-114",
+      "conditions": {
+        "operation": "MODU",
+        "paired": false,
+        "dividend": 0,
+        "divisor": 1,
+        "source_register": 2
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 210,
+        "clocks": 116,
+        "start": 2336,
+        "end": 2452,
+        "paused": 0,
+        "st": 538968101,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 1,
+        "a3": 270532645
+      },
+      "errors": [
+        "expected 304 INCLK (38 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 116 INCLK",
+        "physical opcode read start: expected clock 2616, observed 2428"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2428 0 00001220 0000 1",
+        "BUS_END 2444 0 00001220 0300"
+      ]
+    }
+  ]
+}

@@ -27,12 +27,13 @@ module test;
     );
     reg [15:0] mem[0:4095];
     integer i,rc,delay_clocks=16,extra_wait=0;
-    integer pause_clocks=0,pause_left=0,paused=0;
+    integer pause_clocks=0,pause_after=0,pause_left=0,paused=0;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
     reg [31:0] pause_regs[0:3];
     reg [11:0] pause_uaddr;
     reg pause_active;
+    reg [132:0] pause_work;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
     reg measuring=0,case_done=0;
@@ -47,6 +48,7 @@ module test;
     initial begin
         rc=$value$plusargs("WAIT=%d",extra_wait);
         rc=$value$plusargs("PAUSE=%d",pause_clocks);
+        rc=$value$plusargs("PAUSE_AFTER=%d",pause_after);
         if(extra_wait<0) $fatal(1,"negative wait");
         delay_clocks=16+extra_wait;
         if($value$plusargs("BATCH=%s",batch_path)) begin
@@ -94,7 +96,7 @@ module test;
     always @(negedge clk) begin
         if(rst) begin
             cen=1; pause_done=0; pause_left=0;
-        end else if(measuring && !pause_done && pause_clocks>0) begin
+        end else if(measuring && !pause_done && pause_clocks>0 && now-start_clock-1>=pause_after) begin
             cen=0;
             pause_done=1;
             pause_left=pause_clocks;
@@ -102,6 +104,8 @@ module test;
             pause_st=st;
             pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
             pause_active=dut.u_cpu.u_core.active;
+            pause_work={dut.u_cpu.u_core.a,dut.u_cpu.u_core.b,dut.u_cpu.u_core.md,
+                        dut.u_cpu.u_core.tmp,dut.u_cpu.u_core.mul_count};
             for(integer q=0;q<4;q=q+1)
                 pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
         end else if(pause_left>0) begin
@@ -175,6 +179,9 @@ module test;
                 if(dut.u_cpu.u_core.u_ctrl.uaddr!==pause_uaddr ||
                    dut.u_cpu.u_core.active!==pause_active)
                     $fatal(1,"instruction sequencer advanced while CEN paused");
+                if({dut.u_cpu.u_core.a,dut.u_cpu.u_core.b,dut.u_cpu.u_core.md,
+                    dut.u_cpu.u_core.tmp,dut.u_cpu.u_core.mul_count}!==pause_work)
+                    $fatal(1,"CPU working state advanced while CEN paused");
                 for(integer q=0;q<4;q=q+1)
                     if(dut.u_cpu.u_core.u_regs.ram0[q]!==pause_regs[q])
                         $fatal(1,"A%0d changed while CEN paused",q);

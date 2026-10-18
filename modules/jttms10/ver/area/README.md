@@ -107,6 +107,15 @@ completed with zero errors and the same 35 warning classifications. Source
 and generated-ROM hashes were checked. Fitting, physical M10K count, FPGA
 setup/hold closure and full-ISA timing acceptance remain pending.
 
+Adding the normal/special/early DIV/MOD schedules maps at **3,124 estimated
+ALMs and 4,406 combinational ALUTs**, with the same 1,502 registers,
+538,624 block-memory bits, three DSP blocks and zero MLAB bits. This is
++40 estimated ALMs/+67 ALUTs from the scalar stage. The matched snapshot
+is `/tmp/jttms10-144-div-final-map`; Analysis & Synthesis exits zero with
+the same 35 warning classifications, and all 35 input/generated hashes
+verify. This remains a map estimate; the final fitted-area/STA/NARC gates
+and the remaining 79 timing forms are open.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

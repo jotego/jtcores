@@ -103,6 +103,7 @@ fi
 python3 "$ver_dir/timing/run.py" "${timing_args[@]}"
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1
 python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1 --pause-clocks 7
+python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --case divs_even_boundary_26_hit --pause-clocks 7 --pause-after-clocks 32
 python3 "$ver_dir/timing/mutations.py"
 coverage_args=()
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then

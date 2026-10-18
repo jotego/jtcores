@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 50 of 133 instruction forms; the other 83 remain unvalidated.
+probes cover 54 of 133 instruction forms; the other 79 remain unvalidated.
 The standard runner's coverage gate deliberately fails until that gap is
 closed. Passing the present probe matrix is not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -66,6 +66,12 @@ duration/read-start must increase by exactly N INCLK. Cache/fabric clocks
 continue during that pause. Pauses overlapping an outstanding bus read or
 its ACK need separate expectations and are not covered by this early-pause
 rule.
+`--pause-after-clocks N` moves the pause into CPU work; the selected
+instruction must still be executing without an outstanding bus cycle.
+The normal runner includes a pause 32 INCLK into a signed division's
+restoring loop. A/B/MD/TMP and the iteration count must also hold during
+these CPU-work pauses. This option does not establish ACK-during-pause
+behavior, which needs a separate bus-aware fixture.
 The instruction sequencer's address and prime/execute phase must also hold;
 interrupt acceptance is gated by the CPU enable. This closes an earlier
 prime-phase advance that final writeback padding could otherwise conceal.
@@ -91,6 +97,7 @@ python3 modules/jttms10/ver/timing/run.py --wait-states 1 --report timing-wait.j
 python3 modules/jttms10/ver/timing/run.py --wait-states 1 --pause-clocks 7
 python3 modules/jttms10/ver/timing/run.py --simulator verilator --report timing-verilator.json
 python3 modules/jttms10/ver/timing/run.py --case mpys_fs2_positive_even_hit --traces timing-traces
+python3 modules/jttms10/ver/timing/run.py --case divs_even_boundary_26_hit --pause-clocks 7 --pause-after-clocks 32
 python3 modules/jttms10/ver/timing/mutations.py
 python3 modules/jttms10/ver/timing/coverage.py --report timing-coverage.json
 ```
@@ -131,6 +138,9 @@ explicit sequencer-hold assertion. It is an event-contract check, separate
 from the three demonstrations that finish with correct architectural results.
 A fifth mutation removes SETF's F=1 extra state and must fail timing while
 returning the correct field definition and architectural state.
+Two further RTL mutations reproduce a one-state-short odd DIVS minimum
+candidate and failure to shorten a divide-by-zero path. Both must fail
+timing while finishing with the correct registers and ST.
 
 ## Coverage ledger
 
@@ -161,16 +171,17 @@ The full #144 checklist remains open.
 | EXGF: 1,4 | Summary p.12-17; operation p.12-78 | Both fields, six field definitions, discarded upper register bits and preserved flags | Current probes pass; instruction entry omits timing, summary supplies it |
 | GETPC/GETST/REV; CLRC/SETC: 1,4 | pp.12-52, 12-89–90, 12-233, 12-236 | All 16 initial NCZV patterns; post-opcode bit address; revision defined-bit mask | Current probes pass |
 | DINT/EINT/PUTST: 3,6 | pp.12-62, 12-76, 12-229 | Full ST effects and preserved registers; both initial IE values | Current intrinsic probes pass; interrupt acceptance remains unvalidated |
+| DIVS/DIVU/MODS/MODU normal/special/exception counts | pp.12-63–66, 12-113–114 | 902 programs: parities, zero/early/late overflow, minimum quotient, sign/remainder boundaries, aliases and 24 literal TI examples in each cache mode | Current probes pass; MOD wording interpretations documented in [divide.md](divide.md) |
 | External wait addition | §13.1.2 p.13-3; LRDY p.2-8 | Target latencies of 16 and 24 INCLK, exact added delay and bus/start/order checks | Current probes pass; other ACK phases unvalidated |
-| Immediates and divide/modulus exceptions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
+| Immediate-extension instructions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
 | Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Memory fields/bytes and address/alignment modes | §13.2 Tables 13-1–13-5 | Not yet covered by timing probes | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
 | Cache misses/fills, prefetch and bus overlap | §5.4; §13.1 | Hit/off bus checks only; no miss timing oracle yet | Unvalidated |
-| Early CEN pauses | Wrapper clock-enable contract described above | Seven paused clocks before final writeback; full duration/state/read-start checks | Current directed probes pass |
+| CEN pauses during CPU work | Wrapper clock-enable contract described above | Seven paused clocks before work and 32 clocks into a division loop; architectural/working state, duration and read-start checks | Current directed probes pass |
 | HOLD/restart, interrupts/resumption, host/peripheral contention; ACK during CEN pause | §8; §11; §13.1.2 | Existing functional tests do not prove instruction timing | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | Sixteen checker/model tests, three timing-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | Nineteen checker/model tests, five timing-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -199,6 +210,13 @@ are retained in [baseline-421774c.json](../ver/timing/baseline-421774c.json).
 This historical file is never read by the oracle or runner. The subsequent
 MOVK constant expansion adds 192 cases and is not included in that baseline.
 
+The subsequent divide/modulus expansion adds 902 fixtures, giving 5,450
+programs per matrix. All 902 failed timing on scalar-stage `21cf1d6f2` while
+retaining correct registers/ST. Representative failures by count/cache rule
+are retained in [baseline-21cf1d6.json](../ver/timing/baseline-21cf1d6.json),
+again historical evidence only. The standard runner runs three full matrices
+and one mid-loop CEN probe, totaling 16,351 timing programs.
+
 ## Current implementation boundary
 
 The cache returns its synchronous RAM output during HIT, without an extra
@@ -208,13 +226,17 @@ the family before IR/PC commit. This brings a register ADD's work and cached
 fetch within one eight-clock machine state.
 
 A scheduling counter currently applies to the single-word scalar forms
-listed above and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
+listed above, DIV/MOD and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
 the captured source-field sign. With CD, the fetch response completes the
 additional processing state after the physical read. The counter freezes
 with CEN, while ACK capture remains independent of CEN. The checks assert
 both instruction duration and physical fetch start; there is no waiver for
 late or early bus activity hidden by an otherwise correct total.
+DIV/MOD begin at their normal budgets, subtract the omitted states at an
+early operand-check exit, and add the specified signed minimum-candidate
+states after division. [divide.md](divide.md) lists the counts, primary
+versus secondary discrepancy and explicit MOD wording interpretations.
 ABS computes its result and specified N/Z/V in one final microinstruction,
 preserving C. SEXT/ZEXT extend the synchronous destination-register data
 directly into the shared field-extension network, eliminating the extra

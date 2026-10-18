@@ -18,6 +18,7 @@ sys.dont_write_bytecode = True
 from oracle import INPUT_CLOCKS_PER_STATE, FIXED, fixed_states, multiply_states
 from scalar_cases import shift_cases, lmo_cases
 from alu_cases import alu_cases
+from divide_cases import divide_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -89,6 +90,7 @@ def cases():
     yield from shift_cases()
     yield from lmo_cases()
     yield from alu_cases()
+    yield from divide_cases()
 
 
 def program(case):
@@ -225,9 +227,11 @@ def main():
                         help='add this many TI machine states to every physical cycle')
     parser.add_argument('--pause-clocks', type=int, default=0,
                         help='pause CEN during measured CPU execution for this many input clocks')
+    parser.add_argument('--pause-after-clocks', type=int, default=0,
+                        help='delay the CPU-work pause by this many INCLK (select an instruction still executing)')
     args = parser.parse_args()
     started = time.monotonic()
-    if args.wait_states < 0 or args.pause_clocks < 0:
+    if args.wait_states < 0 or args.pause_clocks < 0 or args.pause_after_clocks < 0:
         parser.error('wait states and pause clocks must be nonnegative')
     selected = [case for case in cases() if args.case is None or args.case in case['name']]
     if not selected:
@@ -240,7 +244,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -277,7 +281,7 @@ def main():
             words, test_pc, next_pc = program(case)
             case = dict(case, test_pc=test_pc, next_pc=next_pc)
             prepared.append((identifier, case, words))
-        base_command = [*executable, f'+WAIT={8 * args.wait_states}',
+        base_command = [*executable, f'+WAIT={8 * args.wait_states}', f'+PAUSE_AFTER={args.pause_after_clocks}',
                         f'+PAUSE={args.pause_clocks}', *(['+TRACE'] if args.trace_core else [])]
         executions = []
         if args.separate_processes:
@@ -343,6 +347,7 @@ def main():
         args.report.write_text(json.dumps(dict(clock_unit='INCLK', clocks_per_machine_state=8,
                                               external_wait_states=args.wait_states,
                                               cpu_pause_clocks=args.pause_clocks,
+                                              cpu_pause_after_clocks=args.pause_after_clocks,
                                               full_isa_coverage=False,
                                               simulation_mode='separate' if args.separate_processes else 'batch',
                                               simulator=args.simulator,

@@ -80,6 +80,43 @@ def setf_states(*, field, cache_disabled=False):
     return 1 + field + 3 * int(cache_disabled)
 
 
+def divide_states(name, *, dividend, divisor, paired=False, cache_disabled=False):
+    """DIVS pp.12-63/64; DIVU pp.12-65/66; MODS/U pp.12-113/114.
+
+    Operands are mathematical integers, sign-extended before calling. Early
+    paired overflow means the magnitude quotient cannot fit in 32 bits;
+    signed-range overflow after that check still takes the full operation.
+    The DIVS table explicitly gives 41 states for BOTH destination parities
+    at quotient magnitude 2**31 (not normal-odd 39 plus one).
+
+    MODS returns a remainder, whose magnitude cannot reach 2**31. Its
+    "result=80000000" extra-state line must therefore refer to the internal
+    division quotient candidate; min/+1 and min/-1 both exercise that line.
+    This interpretation is explicit rather than dropping an impossible
+    remainder condition from coverage.
+    """
+    if name not in ('DIVS', 'DIVU', 'MODS', 'MODU') or (paired and name.startswith('MOD')):
+        raise ValueError('undefined division family/width')
+    signed = name.endswith('S')
+    bits = 64 if paired else 32
+    low, high = (-(1 << (bits-1)), 1 << (bits-1)) if signed else (0, 1 << bits)
+    source_low, source_high = (-(1 << 31), 1 << 31) if signed else (0, 1 << 32)
+    if not low <= dividend < high or not source_low <= divisor < source_high:
+        raise ValueError('operand outside selected division width')
+    if divisor == 0:
+        states = 7 if name == 'DIVS' else 5 if name == 'DIVU' else 3
+    else:
+        quotient_magnitude = abs(dividend) // abs(divisor)
+        if paired and quotient_magnitude >= 1 << 32:
+            states = 7 if signed else 5
+        elif signed and quotient_magnitude == 1 << 31:
+            states = 41
+        else:
+            states = {'DIVS': 40 if paired else 39, 'DIVU': 37,
+                      'MODS': 40, 'MODU': 35}[name]
+    return states + 3 * int(cache_disabled)
+
+
 # (K page, register-count page), SPVU001A Machine States and Status Bits.
 SHIFT_PAGES = {
     'RL': ('12-234', '12-235'),
