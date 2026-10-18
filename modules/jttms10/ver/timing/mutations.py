@@ -159,8 +159,8 @@ def main():
 
         extension = work / 'missing-extension-processing-hdl'
         shutil.copytree(MODULE / 'hdl',extension)
-        replace_once(extension / 'jttms10.v','if(mem_req && mem_ack && (fetch || imm))',
-                     'if(mem_req && mem_ack && fetch)')
+        replace_once(extension / 'jttms10.v','if(mem_req && mem_ack && mem_program)',
+                     'if(mem_req && mem_ack && mem_program && fetch)')
         evidence['missing_extension_processing']=run_case(work,'missing_extension_processing',immediate_off,
                                                         ['--rtl-dir',str(extension)],mutated=True)
 
