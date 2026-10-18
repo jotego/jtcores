@@ -26,7 +26,7 @@ module test;
         .intenb(),.intpend(),.irq_pending(),.nmi_pending(),.halt()
     );
     reg [15:0] mem[0:4095];
-    integer i,rc,delay_clocks=4,extra_wait=0;
+    integer i,rc,delay_clocks=4,extra_wait=0,mapped_sparse;
     integer pause_clocks=0,pause_after=0,pause_left=0,paused=0;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
@@ -38,7 +38,7 @@ module test;
     reg [31:0] test_pc,next_pc;
     reg measuring=0,case_done=0,response_request_seen=0;
     integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0,watch_extra=0,drain_instructions=0,drain_left=0;
-    reg draining=0;
+    reg draining=0,drain_pause_started=0;
     reg [31:0] data_address[0:15];
     reg [15:0] data_value[0:15];
     reg [15:0] input_word;
@@ -120,7 +120,24 @@ module test;
     // The cache/fabric remain clocked, as in the real system wrapper.
     always @(negedge clk) begin
         if(rst) begin
-            cen=1; pause_done=0; pause_left=0;
+            cen=1; pause_done=0; pause_left=0;drain_pause_started=0;
+        // After RESULT, freeze the CPU while first-pass data writes drain.
+        // This avoids introducing unrelated cold instruction-cache fills.
+        end else if(draining && drain_instructions==-2) begin
+            cen=0;
+            if(!drain_pause_started) begin
+                drain_pause_started=1;
+                pause_pc=pc;pause_st=st;
+                pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
+                pause_active=dut.u_cpu.u_core.active;
+                pause_work={dut.u_cpu.u_core.a,dut.u_cpu.u_core.b,dut.u_cpu.u_core.md,
+                            dut.u_cpu.u_core.tmp,dut.u_cpu.u_core.mul_count};
+                for(integer q=0;q<4;q=q+1) pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
+                if(watch_extra!=0) begin
+                    for(integer q=0;q<4;q=q+1)pause_bregs[q]=dut.u_cpu.u_core.u_regs.ram0[16+q];
+                    pause_bregs[4]=dut.u_cpu.u_core.u_regs.ram0[15];
+                end
+            end
         end else if(measuring && !pause_done && pause_clocks>0 && now-start_clock-1>=pause_after) begin
             cen=0;
             if($test$plusargs("RESPONSE_PAUSE")) $display("PAUSE_BEGIN %0d",now);
@@ -187,8 +204,13 @@ module test;
             ACK: begin
                 if(!cyc_req) $fatal(1,"request disappeared before ACK");
                 if(kind_q==1) begin
-                    if(addr_q>=32'h10000) $fatal(1,"write outside test RAM");
-                    mem[addr_q[15:4]]<=data_q;
+                    if(addr_q<32'h10000) mem[addr_q[15:4]]<=data_q;
+                    else begin
+                        mapped_sparse=0;
+                        for(integer q=0;q<memory_count;q=q+1)
+                            if(addr_q==data_address[q]) mapped_sparse=1;
+                        if(mapped_sparse==0) $fatal(1,"write outside initialized sparse memory");
+                    end
                 end
                 if(kind_q==1) begin
                     for(integer q=0;q<memory_count;q=q+1)
@@ -253,7 +275,7 @@ module test;
                         if(dut.u_cpu.u_core.u_regs.ram0[16+q]!==pause_bregs[q])$fatal(1,"B%0d changed while CEN paused",q);
                     if(dut.u_cpu.u_core.u_regs.ram0[15]!==pause_bregs[4])$fatal(1,"SP changed while CEN paused");
                 end
-                if(cyc_req && !$test$plusargs("RESPONSE_PAUSE")) $fatal(1,"CPU launched a cycle during the early CEN pause");
+                if(cyc_req && !$test$plusargs("RESPONSE_PAUSE") && !(draining && drain_instructions==-2)) $fatal(1,"CPU launched a cycle during the early CEN pause");
             end
             if($test$plusargs("TRACE") && measuring)
                 $display("CORE %0d ua=%03h active=%b step=%b req=%b ack=%b complete=%b cache=%0d word=%b/%b cycle=%b/%b",
@@ -290,7 +312,7 @@ module test;
                         case_id,now-start_clock,start_clock,now,paused,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
                         dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
-                    if(drain_instructions>0) begin draining<=1;drain_left<=drain_instructions;end
+                    if(drain_instructions>0 || drain_instructions==-2) begin draining<=1;drain_left<=drain_instructions;end
                     else begin
                         if(drain_instructions!=0)
                             for(integer q=0;q<memory_count;q=q+1)
@@ -299,7 +321,7 @@ module test;
                     end
                 end
             end
-            if(draining && dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
+            if(draining && drain_instructions>0 && dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
                 drain_left<=drain_left-1;
                 if(drain_left==1) begin
                     for(integer q=0;q<memory_count;q=q+1)
@@ -307,6 +329,12 @@ module test;
                     $display("DRAIN %0d",now);
                     case_done<=1;measuring<=0;draining<=0;
                 end
+            end
+            if(draining && drain_instructions==-2 && !dut.word_pending && !dut.word_req && bus_state==IDLE) begin
+                for(integer q=0;q<memory_count;q=q+1)
+                    $display("MEMORY %08h %04h",data_address[q],data_value[q]);
+                $display("DRAIN %0d",now);
+                case_done<=1;measuring<=0;draining<=0;
             end
             if(now==200000) $fatal(1,"timing timeout pc=%h ir=%h seen=%0d",pc,ir,seen);
         end

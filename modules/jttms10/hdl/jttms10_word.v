@@ -58,7 +58,7 @@ module jttms10_word #(
     // short deassertions between physical words. Unrelated CPU requests
     // release this flag before starting another operation.
     assign word_pending=field_req || data_owner;
-    // Indirect loads allocate their data read in the first intrinsic state.
+    // Timed loads/stores allocate data in their assigned intrinsic state.
     // Registered field/cache/bus handoffs may use that state's row phase.
     // A CEN-delayed launch qualifies only at/after its next state boundary.
     localparam integer SLOT_PW=$clog2(CLKS_PER_STATE);

@@ -151,7 +151,10 @@ module jttms10 #(
                                                          {immediate_word,a[15:0]};
     reg timing_active, immediate_last, load_pending, load_started, load_address_ready;
     reg store_pending,store_started;
-    wire store_direct=ir[15:10]!=6'b101000;
+    wire store_absolute=(ir & 16'hfde0)==16'h0580 || (ir & 16'hffe0)==16'h05e0;
+    wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
+    wire store_direct=ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
+    wire [31:0] store_source=store_absolute ? rd_data : rs_data;
     localparam integer LOAD_IW=$clog2(2*CLKS_PER_STATE+1);
     localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
     localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
@@ -180,7 +183,10 @@ module jttms10 #(
     // their old schedule until their event rules are independently covered.
     wire decode_store_post=decode_opcode[15:10]==6'b100100;
     wire decode_store_pre=decode_opcode[15:10]==6'b101000;
-    wire decode_store=decode_opcode[15:10]==6'b100000 ||
+    wire decode_store_offset=decode_opcode[15:10]==6'b101100 || decode_opcode[15:9]==7'b1010110;
+    wire decode_store_absolute=(decode_opcode & 16'hfde0)==16'h0580 || (decode_opcode & 16'hffe0)==16'h05e0;
+    wire decode_store_extension=decode_store_offset || decode_store_absolute;
+    wire decode_store=decode_store_extension || decode_opcode[15:10]==6'b100000 ||
         decode_opcode[15:9]==7'b1000110 || decode_store_post || decode_store_pre;
     wire decode_load_post=decode_opcode[15:10]==6'b100101;
     wire decode_load_pre=decode_opcode[15:10]==6'b101001;
@@ -222,7 +228,7 @@ module jttms10 #(
                       decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
-    wire [5:0] decode_states=decode_store ? (decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+    wire [5:0] decode_states=decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_ie || decode_putst || decode_immediate_long ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -258,8 +264,8 @@ module jttms10 #(
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
                       (active && bus_op && !(load_pending && mem_sel==READ_MEM) && !(store_pending && mem_sel==WRITE_MEM))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
-                     !(load_pending && imm && ((!immediate_last && load_issue_left>LOAD_FIRST_LIMIT) ||
-                       (immediate_last && !load_offset && load_issue_left>LOAD_NEXT_LIMIT)));
+                     !((load_pending || store_pending) && imm && ((!immediate_last && load_issue_left>LOAD_FIRST_LIMIT) ||
+                       (immediate_last && !(load_offset || store_offset) && load_issue_left>LOAD_NEXT_LIMIT)));
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
     wire byte_op = ir[15:10]==6'b100011 || ir[15:10]==6'b101011 ||
@@ -294,7 +300,7 @@ module jttms10 #(
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       field_op ? field_size : 6'd16;
-    assign mem_wdata = early_store ? (store_started ? md : rs_data) : gfx_active ? md :
+    assign mem_wdata = early_store ? (store_started ? md : store_source) : gfx_active ? md :
                        push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} :
                        md;
@@ -520,7 +526,7 @@ module jttms10 #(
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
-    // Scheduling covers the scalar/immediate and load families with oracle
+    // Scheduling covers the scalar/immediate and load/store families with oracle
     // probes. Other memory/PC/graphics forms retain their earlier schedule
     // until their event contracts are independently covered.
     always @(posedge clk) begin
@@ -553,8 +559,8 @@ module jttms10 #(
                 time_left<=immediate_tail_clocks-16'd2;
             // Keep the intrinsic address-generation states after an external
             // extension response. Its cache bridge has consumed one clock.
-            if(load_pending && imm && mem_req && mem_ack && !mem_cached)
-                load_issue_left<=(load_offset || !immediate_last ? LOAD_LEAD : LOAD_PRE)-1'b1;
+            if((load_pending || store_pending) && imm && mem_req && mem_ack && !mem_cached)
+                load_issue_left<=(load_offset || store_offset || !immediate_last ? LOAD_LEAD : LOAD_PRE)-1'b1;
             if((load_pending || store_pending) && step && ea_sel!=0) load_address_ready<=1;
             if(early_load && !load_started && cen && mem_req) load_started<=1;
             // Bus waits must not consume the CPU work following a load.
@@ -572,8 +578,8 @@ module jttms10 #(
                 immediate_last<=decode_immediate_word;
                 load_pending<=decode_load; load_started<=0;
                 store_pending<=decode_store;store_started<=0;
-                load_address_ready<=decode_load_direct || (decode_store && !decode_store_pre);
-                load_issue_left<=decode_load_pre || decode_store_pre ? LOAD_PRE : decode_load_extension ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_address_ready<=decode_load_direct || (decode_store && !decode_store_pre && !decode_store_extension);
+                load_issue_left<=decode_load_pre || decode_store_pre ? LOAD_PRE : (decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             // MPYU's extra state depends on the selected field's sign bit,
@@ -638,7 +644,7 @@ module jttms10 #(
             if(early_load && !load_started && cen && mem_req && load_direct) ea<=rs_data;
             if(early_store && !store_started && cen && mem_req) begin
                 if(store_direct) ea<=rd_data;
-                md<=rs_data;
+                md<=store_source;
             end
             if(mem_req && mem_ack) begin
                 completed<=1;

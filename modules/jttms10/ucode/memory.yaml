@@ -43,13 +43,9 @@ ucode:
   - name: storeoff
     start: 39
     seq:
-      - imm_bus, pcinc
-      - immse_a, reg_b
+      - imm_bus, pcinc, immse_a, reg_b
       - add_alu, sum_ea
-      - reg_a
-      - a_md
-      - write_mem
-      - ni
+      - write_mem, ni
   - name: loadoff
     start: 40
     seq:
@@ -60,15 +56,9 @@ ucode:
   - name: storeabs
     start: 41
     seq:
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - a_ea
-      - rd_a
-      - a_md
-      - write_mem
-      - ni
+      - imm_bus, pcinc, immlo_a
+      - imm_bus, pcinc, immhi_a, a_ea
+      - write_mem, ni
   - name: loadabs
     start: 42
     seq:

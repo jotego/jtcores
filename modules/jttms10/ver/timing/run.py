@@ -23,6 +23,7 @@ from immediate_cases import immediate_cases
 from load_cases import load_cases
 from load_mode_cases import load_mode_cases
 from store_cases import store_cases, transactions as store_transactions
+from store_mode_cases import store_mode_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -99,6 +100,7 @@ def cases():
     yield from load_cases()
     yield from load_mode_cases()
     yield from store_cases()
+    yield from store_mode_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -182,7 +184,7 @@ def simulate(command, work, timeout):
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
     if 'data_store' in case:
-        count=(len(store_transactions(case))+1) if case['cache_disabled'] else 0
+        count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
         alignment=(-pause_clocks)%8 if count else 0
         clocks=case['states']*8+count*wait_states*8+pause_clocks+alignment
         if observed['clocks']!=clocks:errors.append(f"{case['name']}: expected {clocks} INCLK, observed {observed['clocks']} INCLK")
@@ -314,12 +316,24 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     prefix='TARGET' if raw else 'BUS'
     begin=[x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
     end=[x.split() for x in lines if x.startswith(prefix+'_END ')]
-    spec=case['data_store'];plan=store_transactions(case)
+    spec=case['data_store'];data_plan=store_transactions(case);plan=[];starts=[]
+    extensions=case.get('extensions',[])
     lead=spec['cpu']-1
-    starts=[lead+i*(2+wait_states) for i in range(len(plan))]
+    first=lead
     if case['cache_disabled']:
-        starts.append(lead+len(plan)*(2+wait_states))
-        plan=plan+[(0,case['next_pc'],0x0300,1)]
+        plan=[(0,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]
+        starts=[1+q*(4+wait_states) for q in range(len(extensions))]
+        first+=(3+wait_states)*len(extensions)
+    if case.get('cache_miss')=='store_extension':
+        missing=case['miss_word'];fill=extensions[missing-1:]+[0x0300]*4
+        plan=[(0,case['test_pc']+16*(missing+q),fill[q],1) for q in range(4)]
+        starts=[missing+q*(2+wait_states) for q in range(4)]
+        first+=9+4*wait_states
+    starts.extend(first+q*(2+wait_states) for q in range(len(data_plan)))
+    plan.extend(data_plan)
+    if case['cache_disabled']:
+        starts.append(first+len(data_plan)*(2+wait_states))
+        plan.append((0,case['next_pc'],0x0300,1))
     if 'follow_delay' in case:
         start=max(spec['cpu']+case['follow_delay'],lead+len(plan)*(2+wait_states))
         image=dict(case['expected_memory']);address=spec['address']
@@ -379,7 +393,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

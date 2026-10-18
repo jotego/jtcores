@@ -1,7 +1,9 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 78 of 133 instruction forms; the other 55 remain unvalidated.
+probes cover 82 of 133 instruction forms; the other 51 remain unvalidated.
+Some printed store counts conflict; affected probes label their inferred
+source policy explicitly and do not establish unqualified TI compliance.
 The standard runner's coverage gate deliberately fails until that gap is
 closed. Passing the present probe matrix is not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -169,8 +171,8 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. Twenty-one positive controls and
-26 rejection checks run in the timing suite. Two rejection checks target
+states and premature first/second address words. Twenty-three positive controls and
+28 rejection checks run in the timing suite. Two rejection checks target
 sequencer/pending-field event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs three controls and one duplicate-read mutation.
@@ -213,6 +215,7 @@ The full #144 checklist remains open.
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
 | MOVE post/pre/offset/absolute and MOVB offset/absolute; load B/SP conditions | Table13-1 p.13-5; pp.12-120,123,139–154; §5.4.7 | 3,200 additional fixtures, A/B/SP aliases/wrap, displacement/ignored-byte-field boundaries, cold address-word fills and six early CEN phases | Current probes pass; absolute MOVE entry conflicts with summary, with explicit oracle policy in [load-timing.md](load-timing.md) |
 | MOVE register to indirect/post/pre and MOVB register to indirect | Table13-2 p.13-6; pp.12-115,127–131; hidden states pp.13-2/3 | 3,344 store cases plus 70 following-load dependency probes, preserved memory, ordered RMW/writes beyond the next decode, file B/SP/aliases and waits/CEN | Current probes pass; [store-timing.md](store-timing.md) records the contract and source conflicts for other modes |
+| MOVE/MOVB register to offset/absolute | Table13-2 p.13-6; pp.12-116/117,132–134; §5.4.7 | 1,054 additional probes: literals, high/wrapped addresses, first/second-extension misses, both FE values and dependent loads | Probes pass under the documented policy; 242 explicitly inferred conflict-resolution cases are excluded from unqualified TI-count signoff |
 | ACK while CPU CEN is paused | Wrapper extension; TI bus counts still apply | Three postincrement A/B/SP event probes plus duplicate-read mutation | Functional response retention only; overlapping-pause exact instruction timing not claimed |
 | Other memory addressing modes, writes/hidden writes and memory-to-memory | §13.2 Tables13-1–13-4 | Functional tests; timing probes still required | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
@@ -304,6 +307,17 @@ The [store report](store-timing.md) records the 3,344 historical timing
 failures with correct architecture/memory and the new trailing-write observer.
 
 
+The extension-store expansion adds **1,054 programs**, giving **20,372
+cases per matrix** and **61,202 exact timing programs** across three matrices,
+two DIV pauses and six fourteen-case phase unions. Coverage is **82/133 forms**,
+with 51 missing. Forty-one checker/model tests, 23 positive controls and
+28 rejection checks accompany the probes. Printed-count conflicts remain
+explicit in the [store ledger](store-timing.md); passing an inferred-policy
+case is not unqualified TI-count signoff. The standard presence gate remains
+necessary only; all remaining condition/bus/interrupt and final hardware
+requirements stay open.
+
+
 ## Current implementation boundary
 
 The cache returns its synchronous RAM output during HIT, without an extra
@@ -313,8 +327,7 @@ the family before IR/PC commit. This brings a register ADD's work and cached
 fetch within one eight-clock machine state.
 
 A scheduling counter currently applies to the scalar/immediate forms
-listed above, all memory-to-register MOVE/MOVB modes, plain/post/pre MOVE stores and plain
-MOVB stores, DIV/MOD and defined
+listed above, all memory-to-register MOVE/MOVB modes, all register-to-memory MOVE/MOVB modes (with explicit source policies), DIV/MOD and defined
 even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
 the captured source-field sign. A cache hit response is identified explicitly;

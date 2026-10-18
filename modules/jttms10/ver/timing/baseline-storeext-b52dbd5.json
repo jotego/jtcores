@@ -1,0 +1,4240 @@
+{
+  "source_commit": "b52dbd556",
+  "note": "Historical unchanged-RTL/YAML capture; explicit source conflict policy is part of stimulus/oracle metadata, never an official erratum or a measured golden.",
+  "total": 1054,
+  "failed": 922,
+  "architectural_or_memory_failures": 0,
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "7addd78a70a038d5050c78d80f2623fa16fa5b71ee0ffc3810b05ade7b9d127e",
+    "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+    "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+    "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+    "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "48b753ef8dc98e8bf8e3a8d7b64e55e97cb71ccd6c7dd0fee5d69f82dbe017aa",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "f5393776644c5f87e77df485004d6f1f1c4d676197c51fff04fe7a22925c3c81",
+    "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "ab99671627a77d02fad9c4368a317fcf19802eb6f0935e5fef0384aaa04e4be2",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "7addd78a70a038d5050c78d80f2623fa16fa5b71ee0ffc3810b05ade7b9d127e",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+      "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+      "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+      "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+      "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+      "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "48b753ef8dc98e8bf8e3a8d7b64e55e97cb71ccd6c7dd0fee5d69f82dbe017aa",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "f5393776644c5f87e77df485004d6f1f1c4d676197c51fff04fe7a22925c3c81",
+      "ucode/control.yaml": "a08fec3bbf337ac4e73db26b8aa3281b348adf1fd7779a021e5d413267d7a9a1",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "ab99671627a77d02fad9c4368a317fcf19802eb6f0935e5fef0384aaa04e4be2",
+      "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+      "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+      "ver/timing/run.py": "fe846428c82b9fb8eaf582c213ec82edf8904d5b38010aad22f9ef287999b7f3",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+      "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+      "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+      "ver/timing/load_mode_cases.py": "c3fb7ab8150d4c6aaa7f9fd3afd51b93ba65a0df424bdc9fbdafa2816e46071f",
+      "ver/timing/store_cases.py": "f9907556a3e40b389385de68ab5f643c17bbebcbdaab660d4aa261938e2d73dc",
+      "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
+      "ver/timing/test.sv": "6da5f0b034cedbaa800f5191a3ca88d57b55240631e313d861e914fba436a7b7"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "9a03a5c98ba99a6bb043806b76f318f3d3b4468e856c4e41baf9892e7c6f330c",
+      "tms10.vh": "f109092de14593a17028369c3548ad45b98610fe6d38eac744857e74283af0ad",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "dbd6b6939a74c8705bce7d64c4cf82fa10be1aa18a9d6d09af7212422e961bed"
+    }
+  },
+  "representatives": [
+    {
+      "name": "storemode_move_offset_w16_o0_f0_r1_15_0_q512_hit",
+      "opcode": 45552,
+      "coverage_id": "MOVE_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24576,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 3782253421,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-132/133",
+      "conditions": {
+        "mode": "offset",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": 0,
+        "alias": false,
+        "displacement": 0,
+        "fe": 0
+      },
+      "hidden_states": 1,
+      "states": 3,
+      "extensions": [
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 1,
+        "summary_cd": 9,
+        "policy_cpu": 3,
+        "policy_cd": 10,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 48,
+        "clocks": 48,
+        "start": 2656,
+        "end": 2704,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "errors": [
+        "storemode_move_offset_w16_o0_f0_r1_15_0_q512_hit: expected 24 INCLK, observed 48 INCLK",
+        "BUS transfer start: expected 2672, observed 2680",
+        "TARGET transfer start: expected 2672..2678, observed 2680"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2680 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2680",
+        "BUS_END 2696 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2680 1 00006000 9b6d 0",
+        "TARGET_END 2684 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_offset_w31_o7_f0_r1_15_15_q1006_hit",
+      "opcode": 45567,
+      "coverage_id": "MOVE_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 24584,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 24584
+      },
+      "expected_st": 3758098463,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          1133
+        ],
+        [
+          24592,
+          48
+        ],
+        [
+          24608,
+          13760
+        ]
+      ],
+      "data_store": {
+        "address": 24583,
+        "width": 31,
+        "value": 24584,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-132/133",
+      "conditions": {
+        "mode": "offset",
+        "width": 31,
+        "offset": 7,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": 15,
+        "alias": true,
+        "displacement": -1,
+        "fe": 0
+      },
+      "hidden_states": 9,
+      "states": 3,
+      "extensions": [
+        65535
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 9,
+        "summary_cd": 18,
+        "policy_cpu": 3,
+        "policy_cd": 18,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 88,
+        "clocks": 112,
+        "start": 2720,
+        "end": 2832,
+        "paused": 0,
+        "st": 3758098463,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 3758098463,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 24584
+      },
+      "errors": [
+        "storemode_move_offset_w31_o7_f0_r1_15_15_q1006_hit: expected 24 INCLK, observed 112 INCLK",
+        "BUS transfer start: expected 2736, observed 2744",
+        "BUS transfer start: expected 2752, observed 2760",
+        "BUS transfer start: expected 2768, observed 2776",
+        "BUS transfer start: expected 2784, observed 2792",
+        "BUS transfer start: expected 2800, observed 2808",
+        "TARGET transfer start: expected 2736..2742, observed 2744",
+        "TARGET transfer start: expected 2752..2758, observed 2763",
+        "TARGET transfer start: expected 2768..2774, observed 2780",
+        "TARGET transfer start: expected 2784..2790, observed 2796",
+        "TARGET transfer start: expected 2800..2806, observed 2811"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2744 0 00006000 0400 0",
+        "BUS_ACCEPT 2744",
+        "BUS_END 2760 0 00006000 046d",
+        "BUS_BEGIN 2760 1 00006000 046d 0",
+        "BUS_ACCEPT 2763",
+        "BUS_END 2776 1 00006000 046d",
+        "BUS_BEGIN 2776 1 00006010 0030 0",
+        "BUS_ACCEPT 2780",
+        "BUS_END 2792 1 00006010 0030",
+        "BUS_BEGIN 2792 0 00006020 0000 0",
+        "BUS_ACCEPT 2796",
+        "BUS_END 2808 0 00006020 35c0",
+        "BUS_BEGIN 2808 1 00006020 35c0 0",
+        "BUS_ACCEPT 2811",
+        "BUS_END 2824 1 00006020 35c0"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2744 0 00006000 0400 0",
+        "TARGET_END 2748 0 00006000 046d",
+        "TARGET_BEGIN 2763 1 00006000 046d 0",
+        "TARGET_END 2767 1 00006000 046d",
+        "TARGET_BEGIN 2780 1 00006010 0030 0",
+        "TARGET_END 2784 1 00006010 0030",
+        "TARGET_BEGIN 2796 0 00006020 0000 0",
+        "TARGET_END 2800 0 00006020 35c0",
+        "TARGET_BEGIN 2811 1 00006020 35c0 0",
+        "TARGET_END 2815 1 00006020 35c0"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          1133
+        ],
+        [
+          24592,
+          48
+        ],
+        [
+          24608,
+          13760
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_offset_byte_o0_ignored001_r0_hit",
+      "opcode": 44096,
+      "coverage_id": "MOVB_R_OFF",
+      "regs": [
+        57344,
+        1432778632,
+        0,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        57344,
+        1432778632,
+        0,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 0,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-116",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 3,
+      "states": 3,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 3,
+        "summary_cd": 7,
+        "policy_cpu": 3,
+        "policy_cd": 12,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 112,
+        "clocks": 64,
+        "start": 2672,
+        "end": 2736,
+        "paused": 0,
+        "st": 1,
+        "a0": 57344,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_movb_offset_byte_o0_ignored001_r0_hit: expected 24 INCLK, observed 64 INCLK",
+        "BUS transfer start: expected 2688, observed 2696",
+        "BUS transfer start: expected 2704, observed 2712",
+        "TARGET transfer start: expected 2688..2694, observed 2696",
+        "TARGET transfer start: expected 2704..2710, observed 2715"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2696 0 00006000 0000 0",
+        "BUS_ACCEPT 2696",
+        "BUS_END 2712 0 00006000 9b00",
+        "BUS_BEGIN 2712 1 00006000 9b00 0",
+        "BUS_ACCEPT 2715",
+        "BUS_END 2728 1 00006000 9b00"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2696 0 00006000 0000 0",
+        "TARGET_END 2700 0 00006000 9b00",
+        "TARGET_BEGIN 2715 1 00006000 9b00 0",
+        "TARGET_END 2719 1 00006000 9b00"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_offset_byte_o9_ignored001_r0_hit",
+      "opcode": 44527,
+      "coverage_id": "MOVB_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 57353,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57353
+      },
+      "expected_st": 1073741825,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          4973
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24585,
+        "width": 8,
+        "value": 57353,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-116",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 9,
+        "field": 0,
+        "bank": 0,
+        "source": 15,
+        "destination": 15,
+        "alias": true,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 7,
+      "states": 3,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 7,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 16,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 148,
+        "clocks": 96,
+        "start": 2704,
+        "end": 2800,
+        "paused": 0,
+        "st": 1073741825,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 1073741825,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57353
+      },
+      "errors": [
+        "storemode_movb_offset_byte_o9_ignored001_r0_hit: expected 24 INCLK, observed 96 INCLK",
+        "BUS transfer start: expected 2720, observed 2728",
+        "BUS transfer start: expected 2736, observed 2744",
+        "BUS transfer start: expected 2752, observed 2760",
+        "BUS transfer start: expected 2768, observed 2776",
+        "TARGET transfer start: expected 2720..2726, observed 2728",
+        "TARGET transfer start: expected 2736..2742, observed 2747",
+        "TARGET transfer start: expected 2752..2758, observed 2764",
+        "TARGET transfer start: expected 2768..2774, observed 2779"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2728 0 00006000 1200 0",
+        "BUS_ACCEPT 2728",
+        "BUS_END 2744 0 00006000 136d",
+        "BUS_BEGIN 2744 1 00006000 136d 0",
+        "BUS_ACCEPT 2747",
+        "BUS_END 2760 1 00006000 136d",
+        "BUS_BEGIN 2760 0 00006010 01c0 0",
+        "BUS_ACCEPT 2764",
+        "BUS_END 2776 0 00006010 a596",
+        "BUS_BEGIN 2776 1 00006010 a596 0",
+        "BUS_ACCEPT 2779",
+        "BUS_END 2792 1 00006010 a596"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2728 0 00006000 1200 0",
+        "TARGET_END 2732 0 00006000 136d",
+        "TARGET_BEGIN 2747 1 00006000 136d 0",
+        "TARGET_END 2751 1 00006000 136d",
+        "TARGET_BEGIN 2764 0 00006010 01c0 0",
+        "TARGET_END 2768 0 00006010 a596",
+        "TARGET_BEGIN 2779 1 00006010 a596 0",
+        "TARGET_END 2783 1 00006010 a596"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          4973
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_absolute_w16_o0_f0_r1_15_0_q512_hit",
+      "opcode": 1439,
+      "coverage_id": "MOVE_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 3782253421,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-134",
+      "conditions": {
+        "mode": "absolute",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 1,
+      "states": 3,
+      "extensions": [
+        24576,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 1,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 13,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 224,
+        "clocks": 48,
+        "start": 2656,
+        "end": 2704,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "errors": [
+        "storemode_move_absolute_w16_o0_f0_r1_15_0_q512_hit: expected 24 INCLK, observed 48 INCLK",
+        "BUS transfer start: expected 2672, observed 2680",
+        "TARGET transfer start: expected 2672..2678, observed 2680"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2680 1 00006000 9b6d 0",
+        "BUS_ACCEPT 2680",
+        "BUS_END 2696 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2680 1 00006000 9b6d 0",
+        "TARGET_END 2684 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_absolute_w31_o7_f0_r1_15_15_q1006_hit",
+      "opcode": 1439,
+      "coverage_id": "MOVE_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 4294967295,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "expected_st": 3758098463,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65517
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13823
+        ]
+      ],
+      "data_store": {
+        "address": 24583,
+        "width": 31,
+        "value": 4294967295,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-134",
+      "conditions": {
+        "mode": "absolute",
+        "width": 31,
+        "offset": 7,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 9,
+      "states": 3,
+      "extensions": [
+        24583,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 9,
+        "summary_cd": 21,
+        "policy_cpu": 3,
+        "policy_cd": 21,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 264,
+        "clocks": 112,
+        "start": 2720,
+        "end": 2832,
+        "paused": 0,
+        "st": 3758098463,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 3758098463,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "errors": [
+        "storemode_move_absolute_w31_o7_f0_r1_15_15_q1006_hit: expected 24 INCLK, observed 112 INCLK",
+        "BUS transfer start: expected 2736, observed 2744",
+        "BUS transfer start: expected 2752, observed 2760",
+        "BUS transfer start: expected 2768, observed 2776",
+        "BUS transfer start: expected 2784, observed 2792",
+        "BUS transfer start: expected 2800, observed 2808",
+        "TARGET transfer start: expected 2736..2742, observed 2744",
+        "TARGET transfer start: expected 2752..2758, observed 2763",
+        "TARGET transfer start: expected 2768..2774, observed 2780",
+        "TARGET transfer start: expected 2784..2790, observed 2796",
+        "TARGET transfer start: expected 2800..2806, observed 2811"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2744 0 00006000 ff80 0",
+        "BUS_ACCEPT 2744",
+        "BUS_END 2760 0 00006000 ffed",
+        "BUS_BEGIN 2760 1 00006000 ffed 0",
+        "BUS_ACCEPT 2763",
+        "BUS_END 2776 1 00006000 ffed",
+        "BUS_BEGIN 2776 1 00006010 ffff 0",
+        "BUS_ACCEPT 2780",
+        "BUS_END 2792 1 00006010 ffff",
+        "BUS_BEGIN 2792 0 00006020 007f 0",
+        "BUS_ACCEPT 2796",
+        "BUS_END 2808 0 00006020 35ff",
+        "BUS_BEGIN 2808 1 00006020 35ff 0",
+        "BUS_ACCEPT 2811",
+        "BUS_END 2824 1 00006020 35ff"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2744 0 00006000 ff80 0",
+        "TARGET_END 2748 0 00006000 ffed",
+        "TARGET_BEGIN 2763 1 00006000 ffed 0",
+        "TARGET_END 2767 1 00006000 ffed",
+        "TARGET_BEGIN 2780 1 00006010 ffff 0",
+        "TARGET_END 2784 1 00006010 ffff",
+        "TARGET_BEGIN 2796 0 00006020 007f 0",
+        "TARGET_END 2800 0 00006020 35ff",
+        "TARGET_BEGIN 2811 1 00006020 35ff 0",
+        "TARGET_END 2815 1 00006020 35ff"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65517
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13823
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_absolute_byte_o0_ignored001_r0_hit",
+      "opcode": 1506,
+      "coverage_id": "MOVB_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 0,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-117",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 3,
+      "states": 3,
+      "extensions": [
+        24576,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 1,
+        "summary_hidden": 3,
+        "summary_cd": 7,
+        "policy_cpu": 3,
+        "policy_cd": 15,
+        "entry_typical_cpu": 1,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 288,
+        "clocks": 64,
+        "start": 2672,
+        "end": 2736,
+        "paused": 0,
+        "st": 1,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_movb_absolute_byte_o0_ignored001_r0_hit: expected 24 INCLK, observed 64 INCLK",
+        "BUS transfer start: expected 2688, observed 2696",
+        "BUS transfer start: expected 2704, observed 2712",
+        "TARGET transfer start: expected 2688..2694, observed 2696",
+        "TARGET transfer start: expected 2704..2710, observed 2715"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2696 0 00006000 0000 0",
+        "BUS_ACCEPT 2696",
+        "BUS_END 2712 0 00006000 9b00",
+        "BUS_BEGIN 2712 1 00006000 9b00 0",
+        "BUS_ACCEPT 2715",
+        "BUS_END 2728 1 00006000 9b00"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2696 0 00006000 0000 0",
+        "TARGET_END 2700 0 00006000 9b00",
+        "TARGET_BEGIN 2715 1 00006000 9b00 0",
+        "TARGET_END 2719 1 00006000 9b00"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_absolute_byte_o9_ignored001_r0_hit",
+      "opcode": 1519,
+      "coverage_id": "MOVB_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 4294967295,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "expected_st": 1073741825,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24585,
+        "width": 8,
+        "value": 4294967295,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": 24,
+      "citation": "SPVU001A 13-2/3,13-6; 12-117",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 9,
+        "field": 0,
+        "bank": 0,
+        "source": 15,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 7,
+      "states": 3,
+      "extensions": [
+        24585,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 7,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 19,
+        "entry_typical_cpu": 1,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 324,
+        "clocks": 96,
+        "start": 2704,
+        "end": 2800,
+        "paused": 0,
+        "st": 1073741825,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 1073741825,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "errors": [
+        "storemode_movb_absolute_byte_o9_ignored001_r0_hit: expected 24 INCLK, observed 96 INCLK",
+        "BUS transfer start: expected 2720, observed 2728",
+        "BUS transfer start: expected 2736, observed 2744",
+        "BUS transfer start: expected 2752, observed 2760",
+        "BUS transfer start: expected 2768, observed 2776",
+        "TARGET transfer start: expected 2720..2726, observed 2728",
+        "TARGET transfer start: expected 2736..2742, observed 2747",
+        "TARGET transfer start: expected 2752..2758, observed 2764",
+        "TARGET transfer start: expected 2768..2774, observed 2779"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2728 0 00006000 fe00 0",
+        "BUS_ACCEPT 2728",
+        "BUS_END 2744 0 00006000 ff6d",
+        "BUS_BEGIN 2744 1 00006000 ff6d 0",
+        "BUS_ACCEPT 2747",
+        "BUS_END 2760 1 00006000 ff6d",
+        "BUS_BEGIN 2760 0 00006010 ffff 0",
+        "BUS_ACCEPT 2764",
+        "BUS_END 2776 0 00006010 a597",
+        "BUS_BEGIN 2776 1 00006010 a597 0",
+        "BUS_ACCEPT 2779",
+        "BUS_END 2792 1 00006010 a597"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 2728 0 00006000 fe00 0",
+        "TARGET_END 2732 0 00006000 ff6d",
+        "TARGET_BEGIN 2747 1 00006000 ff6d 0",
+        "TARGET_END 2751 1 00006000 ff6d",
+        "TARGET_BEGIN 2764 0 00006010 ffff 0",
+        "TARGET_END 2768 0 00006010 a597",
+        "TARGET_BEGIN 2779 1 00006010 a597 0",
+        "TARGET_END 2783 1 00006010 a597"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_offset_w16_o0_f0_r1_15_0_q512_off",
+      "opcode": 45552,
+      "coverage_id": "MOVE_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 24576,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 3782253421,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-132/133",
+      "conditions": {
+        "mode": "offset",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": 0,
+        "alias": false,
+        "displacement": 0,
+        "fe": 0
+      },
+      "hidden_states": 1,
+      "states": 10,
+      "extensions": [
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 1,
+        "summary_cd": 9,
+        "policy_cpu": 3,
+        "policy_cd": 10,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 478,
+        "clocks": 96,
+        "start": 4120,
+        "end": 4216,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 24576,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "errors": [
+        "storemode_move_offset_w16_o0_f0_r1_15_0_q512_off: expected 80 INCLK, observed 96 INCLK",
+        "BUS transfer start: expected 4160, observed 4168",
+        "BUS transfer start: expected 4176, observed 4192",
+        "TARGET transfer start: expected 4160..4166, observed 4168",
+        "TARGET transfer start: expected 4176..4182, observed 4192"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4128 0 00001310 0000 0",
+        "BUS_ACCEPT 4128",
+        "BUS_END 4144 0 00001310 0000",
+        "BUS_BEGIN 4168 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4168",
+        "BUS_END 4184 1 00006000 9b6d",
+        "BUS_BEGIN 4192 0 00001320 0000 1",
+        "BUS_ACCEPT 4192",
+        "BUS_END 4208 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4128 0 00001310 0000 0",
+        "TARGET_END 4132 0 00001310 0000",
+        "TARGET_BEGIN 4168 1 00006000 9b6d 0",
+        "TARGET_END 4172 1 00006000 9b6d",
+        "TARGET_BEGIN 4192 0 00001320 0000 1",
+        "TARGET_END 4196 0 00001320 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_offset_w31_o7_f0_r1_15_15_q1006_off",
+      "opcode": 45567,
+      "coverage_id": "MOVE_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 24584,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 24584
+      },
+      "expected_st": 3758098463,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          1133
+        ],
+        [
+          24592,
+          48
+        ],
+        [
+          24608,
+          13760
+        ]
+      ],
+      "data_store": {
+        "address": 24583,
+        "width": 31,
+        "value": 24584,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-132/133",
+      "conditions": {
+        "mode": "offset",
+        "width": 31,
+        "offset": 7,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": 15,
+        "alias": true,
+        "displacement": -1,
+        "fe": 0
+      },
+      "hidden_states": 9,
+      "states": 18,
+      "extensions": [
+        65535
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 9,
+        "summary_cd": 18,
+        "policy_cpu": 3,
+        "policy_cd": 18,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 518,
+        "clocks": 160,
+        "start": 4184,
+        "end": 4344,
+        "paused": 0,
+        "st": 3758098463,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 3758098463,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 24584
+      },
+      "errors": [
+        "storemode_move_offset_w31_o7_f0_r1_15_15_q1006_off: expected 144 INCLK, observed 160 INCLK",
+        "BUS transfer start: expected 4224, observed 4232",
+        "BUS transfer start: expected 4240, observed 4248",
+        "BUS transfer start: expected 4256, observed 4264",
+        "BUS transfer start: expected 4272, observed 4280",
+        "BUS transfer start: expected 4288, observed 4296",
+        "BUS transfer start: expected 4304, observed 4320",
+        "TARGET transfer start: expected 4224..4230, observed 4232",
+        "TARGET transfer start: expected 4240..4246, observed 4251",
+        "TARGET transfer start: expected 4256..4262, observed 4268",
+        "TARGET transfer start: expected 4272..4278, observed 4284",
+        "TARGET transfer start: expected 4288..4294, observed 4299",
+        "TARGET transfer start: expected 4304..4310, observed 4320"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4192 0 00001310 0000 0",
+        "BUS_ACCEPT 4192",
+        "BUS_END 4208 0 00001310 ffff",
+        "BUS_BEGIN 4232 0 00006000 0400 0",
+        "BUS_ACCEPT 4232",
+        "BUS_END 4248 0 00006000 046d",
+        "BUS_BEGIN 4248 1 00006000 046d 0",
+        "BUS_ACCEPT 4251",
+        "BUS_END 4264 1 00006000 046d",
+        "BUS_BEGIN 4264 1 00006010 0030 0",
+        "BUS_ACCEPT 4268",
+        "BUS_END 4280 1 00006010 0030",
+        "BUS_BEGIN 4280 0 00006020 0000 0",
+        "BUS_ACCEPT 4284",
+        "BUS_END 4296 0 00006020 35c0",
+        "BUS_BEGIN 4296 1 00006020 35c0 0",
+        "BUS_ACCEPT 4299",
+        "BUS_END 4312 1 00006020 35c0",
+        "BUS_BEGIN 4320 0 00001320 0000 1",
+        "BUS_ACCEPT 4320",
+        "BUS_END 4336 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4192 0 00001310 0000 0",
+        "TARGET_END 4196 0 00001310 ffff",
+        "TARGET_BEGIN 4232 0 00006000 0400 0",
+        "TARGET_END 4236 0 00006000 046d",
+        "TARGET_BEGIN 4251 1 00006000 046d 0",
+        "TARGET_END 4255 1 00006000 046d",
+        "TARGET_BEGIN 4268 1 00006010 0030 0",
+        "TARGET_END 4272 1 00006010 0030",
+        "TARGET_BEGIN 4284 0 00006020 0000 0",
+        "TARGET_END 4288 0 00006020 35c0",
+        "TARGET_BEGIN 4299 1 00006020 35c0 0",
+        "TARGET_END 4303 1 00006020 35c0",
+        "TARGET_BEGIN 4320 0 00001320 0000 1",
+        "TARGET_END 4324 0 00001320 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          1133
+        ],
+        [
+          24592,
+          48
+        ],
+        [
+          24608,
+          13760
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_offset_byte_o0_ignored001_r0_off",
+      "opcode": 44096,
+      "coverage_id": "MOVB_R_OFF",
+      "regs": [
+        57344,
+        1432778632,
+        0,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        57344,
+        1432778632,
+        0,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 0,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-116",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": 0,
+        "alias": false,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 3,
+      "states": 12,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 3,
+        "summary_cd": 7,
+        "policy_cpu": 3,
+        "policy_cd": 12,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 9
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 542,
+        "clocks": 112,
+        "start": 4136,
+        "end": 4248,
+        "paused": 0,
+        "st": 1,
+        "a0": 57344,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_movb_offset_byte_o0_ignored001_r0_off: expected 96 INCLK, observed 112 INCLK",
+        "BUS transfer start: expected 4176, observed 4184",
+        "BUS transfer start: expected 4192, observed 4200",
+        "BUS transfer start: expected 4208, observed 4224",
+        "TARGET transfer start: expected 4176..4182, observed 4184",
+        "TARGET transfer start: expected 4192..4198, observed 4203",
+        "TARGET transfer start: expected 4208..4214, observed 4224"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4144 0 00001310 0000 0",
+        "BUS_ACCEPT 4144",
+        "BUS_END 4160 0 00001310 8000",
+        "BUS_BEGIN 4184 0 00006000 0000 0",
+        "BUS_ACCEPT 4184",
+        "BUS_END 4200 0 00006000 9b00",
+        "BUS_BEGIN 4200 1 00006000 9b00 0",
+        "BUS_ACCEPT 4203",
+        "BUS_END 4216 1 00006000 9b00",
+        "BUS_BEGIN 4224 0 00001320 0000 1",
+        "BUS_ACCEPT 4224",
+        "BUS_END 4240 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4144 0 00001310 0000 0",
+        "TARGET_END 4148 0 00001310 8000",
+        "TARGET_BEGIN 4184 0 00006000 0000 0",
+        "TARGET_END 4188 0 00006000 9b00",
+        "TARGET_BEGIN 4203 1 00006000 9b00 0",
+        "TARGET_END 4207 1 00006000 9b00",
+        "TARGET_BEGIN 4224 0 00001320 0000 1",
+        "TARGET_END 4228 0 00001320 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_offset_byte_o9_ignored001_r0_off",
+      "opcode": 44527,
+      "coverage_id": "MOVB_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 57353,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57353
+      },
+      "expected_st": 1073741825,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          4973
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24585,
+        "width": 8,
+        "value": 57353,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-116",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 9,
+        "field": 0,
+        "bank": 0,
+        "source": 15,
+        "destination": 15,
+        "alias": true,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 7,
+      "states": 16,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 7,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 16,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4896,
+      "observed": {
+        "case": 578,
+        "clocks": 144,
+        "start": 4168,
+        "end": 4312,
+        "paused": 0,
+        "st": 1073741825,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 1073741825,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57353
+      },
+      "errors": [
+        "storemode_movb_offset_byte_o9_ignored001_r0_off: expected 128 INCLK, observed 144 INCLK",
+        "BUS transfer start: expected 4208, observed 4216",
+        "BUS transfer start: expected 4224, observed 4232",
+        "BUS transfer start: expected 4240, observed 4248",
+        "BUS transfer start: expected 4256, observed 4264",
+        "BUS transfer start: expected 4272, observed 4288",
+        "TARGET transfer start: expected 4208..4214, observed 4216",
+        "TARGET transfer start: expected 4224..4230, observed 4235",
+        "TARGET transfer start: expected 4240..4246, observed 4252",
+        "TARGET transfer start: expected 4256..4262, observed 4267",
+        "TARGET transfer start: expected 4272..4278, observed 4288"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4176 0 00001310 0000 0",
+        "BUS_ACCEPT 4176",
+        "BUS_END 4192 0 00001310 8000",
+        "BUS_BEGIN 4216 0 00006000 1200 0",
+        "BUS_ACCEPT 4216",
+        "BUS_END 4232 0 00006000 136d",
+        "BUS_BEGIN 4232 1 00006000 136d 0",
+        "BUS_ACCEPT 4235",
+        "BUS_END 4248 1 00006000 136d",
+        "BUS_BEGIN 4248 0 00006010 01c0 0",
+        "BUS_ACCEPT 4252",
+        "BUS_END 4264 0 00006010 a596",
+        "BUS_BEGIN 4264 1 00006010 a596 0",
+        "BUS_ACCEPT 4267",
+        "BUS_END 4280 1 00006010 a596",
+        "BUS_BEGIN 4288 0 00001320 0000 1",
+        "BUS_ACCEPT 4288",
+        "BUS_END 4304 0 00001320 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4176 0 00001310 0000 0",
+        "TARGET_END 4180 0 00001310 8000",
+        "TARGET_BEGIN 4216 0 00006000 1200 0",
+        "TARGET_END 4220 0 00006000 136d",
+        "TARGET_BEGIN 4235 1 00006000 136d 0",
+        "TARGET_END 4239 1 00006000 136d",
+        "TARGET_BEGIN 4252 0 00006010 01c0 0",
+        "TARGET_END 4256 0 00006010 a596",
+        "TARGET_BEGIN 4267 1 00006010 a596 0",
+        "TARGET_END 4271 1 00006010 a596",
+        "TARGET_BEGIN 4288 0 00001320 0000 1",
+        "TARGET_END 4292 0 00001320 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          4973
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_absolute_w16_o0_f0_r1_15_0_q512_off",
+      "opcode": 1439,
+      "coverage_id": "MOVE_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 3782253421,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "expected_st": 2064,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 3782253421,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-134",
+      "conditions": {
+        "mode": "absolute",
+        "width": 16,
+        "offset": 0,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 1,
+      "states": 13,
+      "extensions": [
+        24576,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 1,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 13,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 654,
+        "clocks": 128,
+        "start": 4152,
+        "end": 4280,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 3782253421
+      },
+      "errors": [
+        "storemode_move_absolute_w16_o0_f0_r1_15_0_q512_off: expected 104 INCLK, observed 128 INCLK",
+        "BUS transfer start: expected 4216, observed 4232",
+        "BUS transfer start: expected 4232, observed 4256",
+        "TARGET transfer start: expected 4216..4222, observed 4232",
+        "TARGET transfer start: expected 4232..4238, observed 4256"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4160 0 00001310 0000 0",
+        "BUS_ACCEPT 4160",
+        "BUS_END 4176 0 00001310 6000",
+        "BUS_BEGIN 4192 0 00001320 0000 0",
+        "BUS_ACCEPT 4192",
+        "BUS_END 4208 0 00001320 0000",
+        "BUS_BEGIN 4232 1 00006000 9b6d 0",
+        "BUS_ACCEPT 4232",
+        "BUS_END 4248 1 00006000 9b6d",
+        "BUS_BEGIN 4256 0 00001330 0000 1",
+        "BUS_ACCEPT 4256",
+        "BUS_END 4272 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4160 0 00001310 0000 0",
+        "TARGET_END 4164 0 00001310 6000",
+        "TARGET_BEGIN 4192 0 00001320 0000 0",
+        "TARGET_END 4196 0 00001320 0000",
+        "TARGET_BEGIN 4232 1 00006000 9b6d 0",
+        "TARGET_END 4236 1 00006000 9b6d",
+        "TARGET_BEGIN 4256 0 00001330 0000 1",
+        "TARGET_END 4260 0 00001330 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_absolute_w31_o7_f0_r1_15_15_q1006_off",
+      "opcode": 1439,
+      "coverage_id": "MOVE_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 4294967295,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        3758098463
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "expected_st": 3758098463,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65517
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13823
+        ]
+      ],
+      "data_store": {
+        "address": 24583,
+        "width": 31,
+        "value": 4294967295,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-134",
+      "conditions": {
+        "mode": "absolute",
+        "width": 31,
+        "offset": 7,
+        "field": 0,
+        "bank": 1,
+        "source": 15,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 9,
+      "states": 21,
+      "extensions": [
+        24583,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 9,
+        "summary_cd": 21,
+        "policy_cpu": 3,
+        "policy_cd": 21,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 694,
+        "clocks": 192,
+        "start": 4216,
+        "end": 4408,
+        "paused": 0,
+        "st": 3758098463,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 3758098463,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "errors": [
+        "storemode_move_absolute_w31_o7_f0_r1_15_15_q1006_off: expected 168 INCLK, observed 192 INCLK",
+        "BUS transfer start: expected 4280, observed 4296",
+        "BUS transfer start: expected 4296, observed 4312",
+        "BUS transfer start: expected 4312, observed 4328",
+        "BUS transfer start: expected 4328, observed 4344",
+        "BUS transfer start: expected 4344, observed 4360",
+        "BUS transfer start: expected 4360, observed 4384",
+        "TARGET transfer start: expected 4280..4286, observed 4296",
+        "TARGET transfer start: expected 4296..4302, observed 4315",
+        "TARGET transfer start: expected 4312..4318, observed 4332",
+        "TARGET transfer start: expected 4328..4334, observed 4348",
+        "TARGET transfer start: expected 4344..4350, observed 4363",
+        "TARGET transfer start: expected 4360..4366, observed 4384"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4224 0 00001310 0000 0",
+        "BUS_ACCEPT 4224",
+        "BUS_END 4240 0 00001310 6007",
+        "BUS_BEGIN 4256 0 00001320 0000 0",
+        "BUS_ACCEPT 4256",
+        "BUS_END 4272 0 00001320 0000",
+        "BUS_BEGIN 4296 0 00006000 ff80 0",
+        "BUS_ACCEPT 4296",
+        "BUS_END 4312 0 00006000 ffed",
+        "BUS_BEGIN 4312 1 00006000 ffed 0",
+        "BUS_ACCEPT 4315",
+        "BUS_END 4328 1 00006000 ffed",
+        "BUS_BEGIN 4328 1 00006010 ffff 0",
+        "BUS_ACCEPT 4332",
+        "BUS_END 4344 1 00006010 ffff",
+        "BUS_BEGIN 4344 0 00006020 007f 0",
+        "BUS_ACCEPT 4348",
+        "BUS_END 4360 0 00006020 35ff",
+        "BUS_BEGIN 4360 1 00006020 35ff 0",
+        "BUS_ACCEPT 4363",
+        "BUS_END 4376 1 00006020 35ff",
+        "BUS_BEGIN 4384 0 00001330 0000 1",
+        "BUS_ACCEPT 4384",
+        "BUS_END 4400 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4224 0 00001310 0000 0",
+        "TARGET_END 4228 0 00001310 6007",
+        "TARGET_BEGIN 4256 0 00001320 0000 0",
+        "TARGET_END 4260 0 00001320 0000",
+        "TARGET_BEGIN 4296 0 00006000 ff80 0",
+        "TARGET_END 4300 0 00006000 ffed",
+        "TARGET_BEGIN 4315 1 00006000 ffed 0",
+        "TARGET_END 4319 1 00006000 ffed",
+        "TARGET_BEGIN 4332 1 00006010 ffff 0",
+        "TARGET_END 4336 1 00006010 ffff",
+        "TARGET_BEGIN 4348 0 00006020 007f 0",
+        "TARGET_END 4352 0 00006020 35ff",
+        "TARGET_BEGIN 4363 1 00006020 35ff 0",
+        "TARGET_END 4367 1 00006020 35ff",
+        "TARGET_BEGIN 4384 0 00001330 0000 1",
+        "TARGET_END 4388 0 00001330 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65517
+        ],
+        [
+          24592,
+          65535
+        ],
+        [
+          24608,
+          13823
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_absolute_byte_o0_ignored001_r0_off",
+      "opcode": 1506,
+      "coverage_id": "MOVB_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        1
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        1
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 0,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-117",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 0,
+        "field": 0,
+        "bank": 0,
+        "source": 2,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 3,
+      "states": 15,
+      "extensions": [
+        24576,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 1,
+        "summary_hidden": 3,
+        "summary_cd": 7,
+        "policy_cpu": 3,
+        "policy_cd": 15,
+        "entry_typical_cpu": 1,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 718,
+        "clocks": 144,
+        "start": 4168,
+        "end": 4312,
+        "paused": 0,
+        "st": 1,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 1,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_movb_absolute_byte_o0_ignored001_r0_off: expected 120 INCLK, observed 144 INCLK",
+        "BUS transfer start: expected 4232, observed 4248",
+        "BUS transfer start: expected 4248, observed 4264",
+        "BUS transfer start: expected 4264, observed 4288",
+        "TARGET transfer start: expected 4232..4238, observed 4248",
+        "TARGET transfer start: expected 4248..4254, observed 4267",
+        "TARGET transfer start: expected 4264..4270, observed 4288"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4176 0 00001310 0000 0",
+        "BUS_ACCEPT 4176",
+        "BUS_END 4192 0 00001310 6000",
+        "BUS_BEGIN 4208 0 00001320 0000 0",
+        "BUS_ACCEPT 4208",
+        "BUS_END 4224 0 00001320 0000",
+        "BUS_BEGIN 4248 0 00006000 0000 0",
+        "BUS_ACCEPT 4248",
+        "BUS_END 4264 0 00006000 9b00",
+        "BUS_BEGIN 4264 1 00006000 9b00 0",
+        "BUS_ACCEPT 4267",
+        "BUS_END 4280 1 00006000 9b00",
+        "BUS_BEGIN 4288 0 00001330 0000 1",
+        "BUS_ACCEPT 4288",
+        "BUS_END 4304 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4176 0 00001310 0000 0",
+        "TARGET_END 4180 0 00001310 6000",
+        "TARGET_BEGIN 4208 0 00001320 0000 0",
+        "TARGET_END 4212 0 00001320 0000",
+        "TARGET_BEGIN 4248 0 00006000 0000 0",
+        "TARGET_END 4252 0 00006000 9b00",
+        "TARGET_BEGIN 4267 1 00006000 9b00 0",
+        "TARGET_END 4271 1 00006000 9b00",
+        "TARGET_BEGIN 4288 0 00001330 0000 1",
+        "TARGET_END 4292 0 00001330 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39680
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_absolute_byte_o9_ignored001_r0_off",
+      "opcode": 1519,
+      "coverage_id": "MOVB_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 4294967295,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        1073741825
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "expected_st": 1073741825,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24585,
+        "width": 8,
+        "value": 4294967295,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": true,
+      "tail_instructions": 32,
+      "drain_instructions": -1,
+      "citation": "SPVU001A 13-2/3,13-6; 12-117",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 9,
+        "field": 0,
+        "bank": 0,
+        "source": 15,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 7,
+      "states": 19,
+      "extensions": [
+        24585,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 7,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 19,
+        "entry_typical_cpu": 1,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "test_pc": 4864,
+      "next_pc": 4912,
+      "observed": {
+        "case": 754,
+        "clocks": 176,
+        "start": 4200,
+        "end": 4376,
+        "paused": 0,
+        "st": 1073741825,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 1073741825,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 4294967295
+      },
+      "errors": [
+        "storemode_movb_absolute_byte_o9_ignored001_r0_off: expected 152 INCLK, observed 176 INCLK",
+        "BUS transfer start: expected 4264, observed 4280",
+        "BUS transfer start: expected 4280, observed 4296",
+        "BUS transfer start: expected 4296, observed 4312",
+        "BUS transfer start: expected 4312, observed 4328",
+        "BUS transfer start: expected 4328, observed 4352",
+        "TARGET transfer start: expected 4264..4270, observed 4280",
+        "TARGET transfer start: expected 4280..4286, observed 4299",
+        "TARGET transfer start: expected 4296..4302, observed 4316",
+        "TARGET transfer start: expected 4312..4318, observed 4331",
+        "TARGET transfer start: expected 4328..4334, observed 4352"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4208 0 00001310 0000 0",
+        "BUS_ACCEPT 4208",
+        "BUS_END 4224 0 00001310 6009",
+        "BUS_BEGIN 4240 0 00001320 0000 0",
+        "BUS_ACCEPT 4240",
+        "BUS_END 4256 0 00001320 0000",
+        "BUS_BEGIN 4280 0 00006000 fe00 0",
+        "BUS_ACCEPT 4280",
+        "BUS_END 4296 0 00006000 ff6d",
+        "BUS_BEGIN 4296 1 00006000 ff6d 0",
+        "BUS_ACCEPT 4299",
+        "BUS_END 4312 1 00006000 ff6d",
+        "BUS_BEGIN 4312 0 00006010 ffff 0",
+        "BUS_ACCEPT 4316",
+        "BUS_END 4328 0 00006010 a597",
+        "BUS_BEGIN 4328 1 00006010 a597 0",
+        "BUS_ACCEPT 4331",
+        "BUS_END 4344 1 00006010 a597",
+        "BUS_BEGIN 4352 0 00001330 0000 1",
+        "BUS_ACCEPT 4352",
+        "BUS_END 4368 0 00001330 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4208 0 00001310 0000 0",
+        "TARGET_END 4212 0 00001310 6009",
+        "TARGET_BEGIN 4240 0 00001320 0000 0",
+        "TARGET_END 4244 0 00001320 0000",
+        "TARGET_BEGIN 4280 0 00006000 fe00 0",
+        "TARGET_END 4284 0 00006000 ff6d",
+        "TARGET_BEGIN 4299 1 00006000 ff6d 0",
+        "TARGET_END 4303 1 00006000 ff6d",
+        "TARGET_BEGIN 4316 0 00006010 ffff 0",
+        "TARGET_END 4320 0 00006010 a597",
+        "TARGET_BEGIN 4331 1 00006010 a597 0",
+        "TARGET_END 4335 1 00006010 a597",
+        "TARGET_BEGIN 4352 0 00001330 0000 1",
+        "TARGET_END 4356 0 00001330 0300"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65389
+        ],
+        [
+          24592,
+          42391
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_offset_cold1_w16_o0_r0_hit",
+      "opcode": 45647,
+      "coverage_id": "MOVE_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        4294967295,
+        1040
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 57344,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        4294967295,
+        1040
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57344
+      },
+      "expected_st": 1040,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 4294967295,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-132/133",
+      "conditions": {
+        "mode": "offset",
+        "width": 16,
+        "offset": 0,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": 15,
+        "alias": false,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 1,
+      "states": 12,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 1,
+        "summary_cd": 9,
+        "policy_cpu": 3,
+        "policy_cd": 10,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4944,
+      "observed": {
+        "case": 860,
+        "clocks": 120,
+        "start": 1456,
+        "end": 1576,
+        "paused": 0,
+        "st": 1040,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 1040,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57344
+      },
+      "errors": [
+        "storemode_move_offset_cold1_w16_o0_r0_hit: expected 96 INCLK, observed 120 INCLK",
+        "BUS transfer start: expected 1544, observed 1552",
+        "TARGET transfer start: expected 1544..1550, observed 1552"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 8000",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0300",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1552 1 00006000 ffff 0",
+        "BUS_ACCEPT 1552",
+        "BUS_END 1568 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 8000",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0300",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1552 1 00006000 ffff 0",
+        "TARGET_END 1556 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_offset_cold1_w32_o15_r0_hit",
+      "opcode": 45647,
+      "coverage_id": "MOVE_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        3782253421,
+        4028631056
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 57359,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        3782253421,
+        4028631056
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57359
+      },
+      "expected_st": 4028631056,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          19894
+        ],
+        [
+          24608,
+          28856
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 32,
+        "value": 3782253421,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-132/133",
+      "conditions": {
+        "mode": "offset",
+        "width": 32,
+        "offset": 15,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": 15,
+        "alias": false,
+        "displacement": -32768,
+        "fe": 1
+      },
+      "hidden_states": 9,
+      "states": 12,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 9,
+        "summary_cd": 18,
+        "policy_cpu": 3,
+        "policy_cd": 18,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4944,
+      "observed": {
+        "case": 862,
+        "clocks": 184,
+        "start": 1456,
+        "end": 1640,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 3782253421,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57359
+      },
+      "errors": [
+        "storemode_move_offset_cold1_w32_o15_r0_hit: expected 96 INCLK, observed 184 INCLK",
+        "BUS transfer start: expected 1544, observed 1552",
+        "BUS transfer start: expected 1560, observed 1568",
+        "BUS transfer start: expected 1576, observed 1584",
+        "BUS transfer start: expected 1592, observed 1600",
+        "BUS transfer start: expected 1608, observed 1616",
+        "TARGET transfer start: expected 1544..1550, observed 1552",
+        "TARGET transfer start: expected 1560..1566, observed 1571",
+        "TARGET transfer start: expected 1576..1582, observed 1588",
+        "TARGET transfer start: expected 1592..1598, observed 1604",
+        "TARGET transfer start: expected 1608..1614, observed 1619"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 8000",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0300",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1552 0 00006000 8000 0",
+        "BUS_ACCEPT 1552",
+        "BUS_END 1568 0 00006000 9b6d",
+        "BUS_BEGIN 1568 1 00006000 9b6d 0",
+        "BUS_ACCEPT 1571",
+        "BUS_END 1584 1 00006000 9b6d",
+        "BUS_BEGIN 1584 1 00006010 4db6 0",
+        "BUS_ACCEPT 1588",
+        "BUS_END 1600 1 00006010 a596",
+        "BUS_BEGIN 1600 0 00006020 70b8 0",
+        "BUS_ACCEPT 1604",
+        "BUS_END 1616 0 00006020 35c6",
+        "BUS_BEGIN 1616 1 00006020 70b8 0",
+        "BUS_ACCEPT 1619",
+        "BUS_END 1632 1 00006020 35c6"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 8000",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0300",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1552 0 00006000 8000 0",
+        "TARGET_END 1556 0 00006000 9b6d",
+        "TARGET_BEGIN 1571 1 00006000 9b6d 0",
+        "TARGET_END 1575 1 00006000 9b6d",
+        "TARGET_BEGIN 1588 1 00006010 4db6 0",
+        "TARGET_END 1592 1 00006010 a596",
+        "TARGET_BEGIN 1604 0 00006020 70b8 0",
+        "TARGET_END 1608 0 00006020 35c6",
+        "TARGET_BEGIN 1619 1 00006020 70b8 0",
+        "TARGET_END 1623 1 00006020 35c6"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          19894
+        ],
+        [
+          24608,
+          28856
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_absolute_cold1_w16_o0_r0_hit",
+      "opcode": 1922,
+      "coverage_id": "MOVE_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        4294967295,
+        1040
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        4294967295,
+        1040
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1040,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 16,
+        "value": 4294967295,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-134",
+      "conditions": {
+        "mode": "absolute",
+        "width": 16,
+        "offset": 0,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 1,
+      "states": 12,
+      "extensions": [
+        24576,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 1,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 13,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4960,
+      "observed": {
+        "case": 866,
+        "clocks": 128,
+        "start": 1456,
+        "end": 1584,
+        "paused": 0,
+        "st": 1040,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 1040,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_move_absolute_cold1_w16_o0_r0_hit: expected 96 INCLK, observed 128 INCLK",
+        "BUS transfer start: expected 1544, observed 1560",
+        "TARGET transfer start: expected 1544..1550, observed 1560"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 6000",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0000",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1560 1 00006000 ffff 0",
+        "BUS_ACCEPT 1560",
+        "BUS_END 1576 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 6000",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0000",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1560 1 00006000 ffff 0",
+        "TARGET_END 1564 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          65535
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_move_absolute_cold1_w32_o15_r0_hit",
+      "opcode": 1922,
+      "coverage_id": "MOVE_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        3782253421,
+        4028631056
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        3782253421,
+        4028631056
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 4028631056,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          19894
+        ],
+        [
+          24608,
+          28856
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 32,
+        "value": 3782253421,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-134",
+      "conditions": {
+        "mode": "absolute",
+        "width": 32,
+        "offset": 15,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 1
+      },
+      "hidden_states": 9,
+      "states": 12,
+      "extensions": [
+        24591,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 9,
+        "summary_cd": 21,
+        "policy_cpu": 3,
+        "policy_cd": 21,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4960,
+      "observed": {
+        "case": 870,
+        "clocks": 192,
+        "start": 1456,
+        "end": 1648,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 3782253421,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_move_absolute_cold1_w32_o15_r0_hit: expected 96 INCLK, observed 192 INCLK",
+        "BUS transfer start: expected 1544, observed 1560",
+        "BUS transfer start: expected 1560, observed 1576",
+        "BUS transfer start: expected 1576, observed 1592",
+        "BUS transfer start: expected 1592, observed 1608",
+        "BUS transfer start: expected 1608, observed 1624",
+        "TARGET transfer start: expected 1544..1550, observed 1560",
+        "TARGET transfer start: expected 1560..1566, observed 1579",
+        "TARGET transfer start: expected 1576..1582, observed 1596",
+        "TARGET transfer start: expected 1592..1598, observed 1612",
+        "TARGET transfer start: expected 1608..1614, observed 1627"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 600f",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0000",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1560 0 00006000 8000 0",
+        "BUS_ACCEPT 1560",
+        "BUS_END 1576 0 00006000 9b6d",
+        "BUS_BEGIN 1576 1 00006000 9b6d 0",
+        "BUS_ACCEPT 1579",
+        "BUS_END 1592 1 00006000 9b6d",
+        "BUS_BEGIN 1592 1 00006010 4db6 0",
+        "BUS_ACCEPT 1596",
+        "BUS_END 1608 1 00006010 a596",
+        "BUS_BEGIN 1608 0 00006020 70b8 0",
+        "BUS_ACCEPT 1612",
+        "BUS_END 1624 0 00006020 35c6",
+        "BUS_BEGIN 1624 1 00006020 70b8 0",
+        "BUS_ACCEPT 1627",
+        "BUS_END 1640 1 00006020 35c6"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 600f",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0000",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1560 0 00006000 8000 0",
+        "TARGET_END 1564 0 00006000 9b6d",
+        "TARGET_BEGIN 1579 1 00006000 9b6d 0",
+        "TARGET_END 1583 1 00006000 9b6d",
+        "TARGET_BEGIN 1596 1 00006010 4db6 0",
+        "TARGET_END 1600 1 00006010 a596",
+        "TARGET_BEGIN 1612 0 00006020 70b8 0",
+        "TARGET_END 1616 0 00006020 35c6",
+        "TARGET_BEGIN 1627 1 00006020 70b8 0",
+        "TARGET_END 1631 1 00006020 35c6"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          19894
+        ],
+        [
+          24608,
+          28856
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_offset_cold1_w8_o0_r0_hit",
+      "opcode": 44111,
+      "coverage_id": "MOVB_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        2147483649
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 57344,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        2147483649
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57344
+      },
+      "expected_st": 2147483649,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39850
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 2863311530,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-116",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 0,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": 15,
+        "alias": false,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 3,
+      "states": 12,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 3,
+        "summary_cd": 7,
+        "policy_cpu": 3,
+        "policy_cd": 12,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 9
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4944,
+      "observed": {
+        "case": 878,
+        "clocks": 136,
+        "start": 1456,
+        "end": 1592,
+        "paused": 0,
+        "st": 2147483649,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2863311530,
+        "a3": 2147483649,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57344
+      },
+      "errors": [
+        "storemode_movb_offset_cold1_w8_o0_r0_hit: expected 96 INCLK, observed 136 INCLK",
+        "BUS transfer start: expected 1544, observed 1552",
+        "BUS transfer start: expected 1560, observed 1568",
+        "TARGET transfer start: expected 1544..1550, observed 1552",
+        "TARGET transfer start: expected 1560..1566, observed 1571"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 8000",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0300",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1552 0 00006000 aaaa 0",
+        "BUS_ACCEPT 1552",
+        "BUS_END 1568 0 00006000 9b6d",
+        "BUS_BEGIN 1568 1 00006000 9baa 0",
+        "BUS_ACCEPT 1571",
+        "BUS_END 1584 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 8000",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0300",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1552 0 00006000 aaaa 0",
+        "TARGET_END 1556 0 00006000 9b6d",
+        "TARGET_BEGIN 1571 1 00006000 9baa 0",
+        "TARGET_END 1575 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39850
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_offset_cold1_w8_o15_r0_hit",
+      "opcode": 44111,
+      "coverage_id": "MOVB_R_OFF",
+      "regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        1881145345
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 57359,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        1881145345
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57359
+      },
+      "expected_st": 1881145345,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          7021
+        ],
+        [
+          24592,
+          42453
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 8,
+        "value": 2863311530,
+        "mode": "offset",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-116",
+      "conditions": {
+        "mode": "offset",
+        "width": 8,
+        "offset": 15,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": 15,
+        "alias": false,
+        "displacement": -32768,
+        "fe": 0
+      },
+      "hidden_states": 7,
+      "states": 12,
+      "extensions": [
+        32768
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 7,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 16,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4944,
+      "observed": {
+        "case": 879,
+        "clocks": 168,
+        "start": 1456,
+        "end": 1624,
+        "paused": 0,
+        "st": 1881145345,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2863311530,
+        "a3": 1881145345,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 57359
+      },
+      "errors": [
+        "storemode_movb_offset_cold1_w8_o15_r0_hit: expected 96 INCLK, observed 168 INCLK",
+        "BUS transfer start: expected 1544, observed 1552",
+        "BUS transfer start: expected 1560, observed 1568",
+        "BUS transfer start: expected 1576, observed 1584",
+        "BUS transfer start: expected 1592, observed 1600",
+        "TARGET transfer start: expected 1544..1550, observed 1552",
+        "TARGET transfer start: expected 1560..1566, observed 1571",
+        "TARGET transfer start: expected 1576..1582, observed 1588",
+        "TARGET transfer start: expected 1592..1598, observed 1603"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 8000",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0300",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1552 0 00006000 0000 0",
+        "BUS_ACCEPT 1552",
+        "BUS_END 1568 0 00006000 9b6d",
+        "BUS_BEGIN 1568 1 00006000 1b6d 0",
+        "BUS_ACCEPT 1571",
+        "BUS_END 1584 1 00006000 9b6d",
+        "BUS_BEGIN 1584 0 00006010 5555 0",
+        "BUS_ACCEPT 1588",
+        "BUS_END 1600 0 00006010 a596",
+        "BUS_BEGIN 1600 1 00006010 a5d5 0",
+        "BUS_ACCEPT 1603",
+        "BUS_END 1616 1 00006010 a596"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 8000",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0300",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1552 0 00006000 0000 0",
+        "TARGET_END 1556 0 00006000 9b6d",
+        "TARGET_BEGIN 1571 1 00006000 1b6d 0",
+        "TARGET_END 1575 1 00006000 9b6d",
+        "TARGET_BEGIN 1588 0 00006010 5555 0",
+        "TARGET_END 1592 0 00006010 a596",
+        "TARGET_BEGIN 1603 1 00006010 a5d5 0",
+        "TARGET_END 1607 1 00006010 a596"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          7021
+        ],
+        [
+          24592,
+          42453
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_absolute_cold1_w8_o0_r0_hit",
+      "opcode": 1506,
+      "coverage_id": "MOVB_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        2147483649
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        2147483649
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2147483649,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          39850
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24576,
+        "width": 8,
+        "value": 2863311530,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-117",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 0,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 3,
+      "states": 12,
+      "extensions": [
+        24576,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 1,
+        "summary_hidden": 3,
+        "summary_cd": 7,
+        "policy_cpu": 3,
+        "policy_cd": 15,
+        "entry_typical_cpu": 1,
+        "entry_typical_cd": 7
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4960,
+      "observed": {
+        "case": 882,
+        "clocks": 144,
+        "start": 1456,
+        "end": 1600,
+        "paused": 0,
+        "st": 2147483649,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2863311530,
+        "a3": 2147483649,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_movb_absolute_cold1_w8_o0_r0_hit: expected 96 INCLK, observed 144 INCLK",
+        "BUS transfer start: expected 1544, observed 1560",
+        "BUS transfer start: expected 1560, observed 1576",
+        "TARGET transfer start: expected 1544..1550, observed 1560",
+        "TARGET transfer start: expected 1560..1566, observed 1579"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 6000",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0000",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1560 0 00006000 aaaa 0",
+        "BUS_ACCEPT 1560",
+        "BUS_END 1576 0 00006000 9b6d",
+        "BUS_BEGIN 1576 1 00006000 9baa 0",
+        "BUS_ACCEPT 1579",
+        "BUS_END 1592 1 00006000 9b6d"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 6000",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0000",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1560 0 00006000 aaaa 0",
+        "TARGET_END 1564 0 00006000 9b6d",
+        "TARGET_BEGIN 1579 1 00006000 9baa 0",
+        "TARGET_END 1583 1 00006000 9b6d"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          39850
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    },
+    {
+      "name": "storemode_movb_absolute_cold1_w8_o15_r0_hit",
+      "opcode": 1506,
+      "coverage_id": "MOVB_R_ABS",
+      "regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        1881145345
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2863311530,
+        1881145345
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1881145345,
+      "initial_memory": [
+        [
+          24576,
+          39789
+        ],
+        [
+          24592,
+          42390
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "expected_memory": [
+        [
+          24576,
+          7021
+        ],
+        [
+          24592,
+          42453
+        ],
+        [
+          24608,
+          13766
+        ]
+      ],
+      "data_store": {
+        "address": 24591,
+        "width": 8,
+        "value": 2863311530,
+        "mode": "absolute",
+        "cpu": 3
+      },
+      "cache_disabled": false,
+      "tail_instructions": 32,
+      "drain_instructions": -2,
+      "citation": "SPVU001A 13-2/3,13-6; 12-117",
+      "conditions": {
+        "mode": "absolute",
+        "width": 8,
+        "offset": 15,
+        "field": 1,
+        "bank": 0,
+        "source": 2,
+        "destination": null,
+        "alias": false,
+        "displacement": null,
+        "fe": 0
+      },
+      "hidden_states": 7,
+      "states": 12,
+      "extensions": [
+        24591,
+        0
+      ],
+      "source_notes": "Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (\u00a75.4.7). Conflicting printed entry/summary counts are retained in source_values; this is an inference, not an official erratum.",
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_hidden": 7,
+        "summary_cd": 13,
+        "policy_cpu": 3,
+        "policy_cd": 19,
+        "entry_typical_cpu": 1,
+        "entry_typical_cd": null
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "cache_miss": "store_extension",
+      "miss_word": 1,
+      "instruction_word_offset": 3,
+      "measure_pass": 0,
+      "test_pc": 4912,
+      "next_pc": 4960,
+      "observed": {
+        "case": 884,
+        "clocks": 176,
+        "start": 1456,
+        "end": 1632,
+        "paused": 0,
+        "st": 1881145345,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2863311530,
+        "a3": 1881145345,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "storemode_movb_absolute_cold1_w8_o15_r0_hit: expected 96 INCLK, observed 176 INCLK",
+        "BUS transfer start: expected 1544, observed 1560",
+        "BUS transfer start: expected 1560, observed 1576",
+        "BUS transfer start: expected 1576, observed 1592",
+        "BUS transfer start: expected 1592, observed 1608",
+        "TARGET transfer start: expected 1544..1550, observed 1560",
+        "TARGET transfer start: expected 1560..1566, observed 1579",
+        "TARGET transfer start: expected 1576..1582, observed 1596",
+        "TARGET transfer start: expected 1592..1598, observed 1611"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 1464 0 00001340 0000 1",
+        "BUS_ACCEPT 1464",
+        "BUS_END 1480 0 00001340 600f",
+        "BUS_BEGIN 1480 0 00001350 0000 1",
+        "BUS_ACCEPT 1483",
+        "BUS_END 1496 0 00001350 0000",
+        "BUS_BEGIN 1496 0 00001360 0000 1",
+        "BUS_ACCEPT 1499",
+        "BUS_END 1512 0 00001360 0300",
+        "BUS_BEGIN 1512 0 00001370 0000 1",
+        "BUS_ACCEPT 1515",
+        "BUS_END 1528 0 00001370 0300",
+        "BUS_BEGIN 1560 0 00006000 0000 0",
+        "BUS_ACCEPT 1560",
+        "BUS_END 1576 0 00006000 9b6d",
+        "BUS_BEGIN 1576 1 00006000 1b6d 0",
+        "BUS_ACCEPT 1579",
+        "BUS_END 1592 1 00006000 9b6d",
+        "BUS_BEGIN 1592 0 00006010 5555 0",
+        "BUS_ACCEPT 1596",
+        "BUS_END 1608 0 00006010 a596",
+        "BUS_BEGIN 1608 1 00006010 a5d5 0",
+        "BUS_ACCEPT 1611",
+        "BUS_END 1624 1 00006010 a596"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 1464 0 00001340 0000 1",
+        "TARGET_END 1468 0 00001340 600f",
+        "TARGET_BEGIN 1483 0 00001350 0000 1",
+        "TARGET_END 1487 0 00001350 0000",
+        "TARGET_BEGIN 1499 0 00001360 0000 1",
+        "TARGET_END 1503 0 00001360 0300",
+        "TARGET_BEGIN 1515 0 00001370 0000 1",
+        "TARGET_END 1519 0 00001370 0300",
+        "TARGET_BEGIN 1560 0 00006000 0000 0",
+        "TARGET_END 1564 0 00006000 9b6d",
+        "TARGET_BEGIN 1579 1 00006000 1b6d 0",
+        "TARGET_END 1583 1 00006000 9b6d",
+        "TARGET_BEGIN 1596 0 00006010 5555 0",
+        "TARGET_END 1600 0 00006010 a596",
+        "TARGET_BEGIN 1611 1 00006010 a5d5 0",
+        "TARGET_END 1615 1 00006010 a596"
+      ],
+      "observed_memory": [
+        [
+          24576,
+          7021
+        ],
+        [
+          24592,
+          42453
+        ],
+        [
+          24608,
+          13766
+        ]
+      ]
+    }
+  ]
+}

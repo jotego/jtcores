@@ -11,6 +11,7 @@ from load_cases import extract
 from load_mode_cases import fixture as load_mode_fixture
 from store_cases import fixture as store_fixture,insert as store_insert
 from run import check_store_bus
+from store_mode_cases import literal_cases as store_literal_cases
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
@@ -182,6 +183,32 @@ class TimingCheckerTest(unittest.TestCase):
         warm=dict(case,cache_disabled=False,states=7)
         self.assertTrue(check_bus(warm,self.observed,[],1))
         self.assertEqual(check_bus(warm,self.observed,lines[:6],1),[])
+
+    def test_store_extension_ti_literal_words(self):
+        rows=list(store_literal_cases())
+        self.assertEqual(len(rows),108)
+        for row in rows:self.assertEqual(row['literal_model_memory'],row['expected_memory'],row['name'])
+
+    def test_store_conflicting_primary_counts_remain_visible(self):
+        offset=store_fixture('offset',16,0,0,True,0)
+        absolute=store_fixture('absolute',16,0,0,True,0)
+        self.assertEqual((offset['states'],offset['source_values']['summary_cd'],offset['source_values']['entry_typical_cd']),(10,9,7))
+        self.assertEqual((absolute['states'],absolute['source_values']['summary_cd'],absolute['source_values']['entry_typical_cd']),(13,13,7))
+        for row in (offset,absolute,store_fixture('absolute',8,0,0,False,0,byte=True)):
+            self.assertEqual(row['timing_source_status'],'inferred-conflict-resolution')
+        self.assertEqual(store_fixture('absolute',8,15,0,False,0,byte=True)['timing_source_status'],'primary-summary-consistent')
+        with self.assertRaises(ValueError):store_fixture('post',8,0,0,False,0,byte=True)
+
+    def test_high_and_wrapped_store_addresses(self):
+        row=store_fixture('offset',16,0,0,False,2,base=0x80006000,displacement=-32768)
+        self.assertEqual(row['regs'][0],0x8000E000)
+        self.assertEqual(row['extensions'],[0x8000])
+        absolute=store_fixture('absolute',16,0,1,False,2,bank=1,source=1)
+        self.assertEqual(absolute['opcode'],0x0791)
+        self.assertIsNone(absolute['conditions']['destination'])
+        row=store_fixture('post',32,8,1,False,0,source=15,dest=15,base=0xFFFFFFF0)
+        self.assertEqual(row['expected_extra_regs']['sp'],0x18)
+        self.assertEqual(dict(row['expected_memory']),{0xFFFFFFF0:0xF800,0:0xFFFF,0x10:0xA5FF})
 
     def test_store_bit_preservation_literal(self):
         memory=[(0x6000,0x9B6D),(0x6010,0xA596),(0x6020,0x35C6)]

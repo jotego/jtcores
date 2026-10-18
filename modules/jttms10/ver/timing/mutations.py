@@ -216,15 +216,15 @@ def main():
 
         pre_mode=work / 'wrong-pre-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',pre_mode)
-        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre ? LOAD_PRE : decode_load_extension ?',
-                     'decode_load_pre || decode_store_pre ? LOAD_LEAD : decode_load_extension ?')
+        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre ? LOAD_PRE : (decode_load_extension || decode_store_extension) ?',
+                     'decode_load_pre || decode_store_pre ? LOAD_LEAD : (decode_load_extension || decode_store_extension) ?')
         evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
             ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
 
         offset_mode=work / 'wrong-offset-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',offset_mode)
-        replace_once(offset_mode/'jttms10.v',"decode_load_extension ? LOAD_LEAD : {LOAD_IW{1'b0}}",
-                     "decode_load_extension ? LOAD_LEAD+LOAD_PRE : {LOAD_IW{1'b0}}")
+        replace_once(offset_mode/'jttms10.v',"(decode_load_extension || decode_store_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}}",
+                     "(decode_load_extension || decode_store_extension) ? LOAD_LEAD+LOAD_PRE : {LOAD_IW{1'b0}}")
         evidence['wrong_offset_lead']=run_case(work,'wrong_offset_lead',offset_case,
                                             ['--rtl-dir',str(offset_mode)],mutated=True)
 
@@ -250,6 +250,17 @@ def main():
             replace_once(mutant/'jttms10_word.v',old,new)
             evidence[name]=run_case(work,name,store_case,['--rtl-dir',str(mutant)],mutated=True,
                 event_error='pending field lost while physical work remains' if name=='lost_hidden_pending' else None)
+
+        store_address_case='storemode_move_offset_phase_r1_off'
+        store_fill_case='storemode_move_absolute_phase_cold2_hit'
+        evidence['store_address_control']=run_case(work,'store_address_control',store_address_case,['--wait-states','1','--pause-clocks','1'])
+        evidence['store_fill_control']=run_case(work,'store_fill_control',store_fill_case,['--wait-states','1','--pause-clocks','1'])
+        for name,case,old,new in (
+            ('unpaced_store_address',store_address_case,'!((load_pending || store_pending) && imm &&','!(load_pending && imm &&'),
+            ('lost_store_fill_work',store_fill_case,"time_left<=immediate_tail_clocks-16'd2;",'time_left<=time_left;')):
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/'jttms10.v',old,new)
+            evidence[name]=run_case(work,name,case,['--rtl-dir',str(mutant),'--wait-states','1','--pause-clocks','1'],mutated=True)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

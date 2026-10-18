@@ -180,6 +180,18 @@ it does not isolate any single change's cost. Same NARC GSP boundary,
 158 virtual pins, device, 20 ns, seed and effort. These remain map estimates,
 without current fitted-area, physical M10K count, STA or NARC signoff.
 
+The extension-store stage's matched snapshot at
+`/tmp/jttms10-144-storeext-final-map` reports **3,340 estimated ALMs,
+4,767 combinational ALUTs, 1,714 registers, 538,624 block-memory bits,
+five DSP blocks and zero MLAB bits**. This is +34 estimated ALMs and +48
+ALUTs from the initial hidden-write stage, with unchanged registers/RAM/DSPs.
+The existing counter and ALU handle extension pacing/effective addresses;
+absolute stores select their source through RD. Analysis & Synthesis succeeds
+with the same 46 warning classifications; all 36 snapshot hashes verify.
+Same NARC boundary, 158 virtual pins, device, 20 ns clock, seed and effort.
+These are synthesis estimates. Current fitted-area/STA/NARC validation and
+remaining ISA/condition checks are still required.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |
