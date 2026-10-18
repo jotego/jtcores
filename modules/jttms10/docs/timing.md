@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 16 of 133 instruction forms; the other 117 remain unvalidated.
+probes cover 50 of 133 instruction forms; the other 83 remain unvalidated.
 The standard runner's coverage gate deliberately fails until that gap is
 closed. Passing the present probe matrix is not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -36,9 +36,13 @@ setup from the measured instruction and follow it. These first probes are
 register-only instructions with no hidden data writes. The suite asserts
 that a warm hit causes zero external cycles and that the cache-disabled
 interval contains exactly one following-opcode read, with IAQ asserted.
-It checks architectural registers and the entire ST before the following
+It checks A0–A3 and the entire ST before the following
 instruction executes. Reset, cold fills and initial register setup are
 outside the interval. No architectural register is forced by the bench.
+REV checks only its TI-defined result bits 15..3 (p.12-233); bits 31..16
+and 2..0 are explicitly undefined. Other observed register bits and all ST
+bits retain their comparisons. These scalar fixtures use register file A;
+timed coverage of file B and shared-SP aliases remains required.
 
 The bench instantiates `jttms10_system`, including the real field adapter,
 cache and bus arbiter. The physical target consumes ACK exactly 16 INCLK
@@ -125,6 +129,8 @@ functional failures do not count as successful timing-mutation detection.
 A fourth mutation restores that old prime-phase advance and must fail the
 explicit sequencer-hold assertion. It is an event-contract check, separate
 from the three demonstrations that finish with correct architectural results.
+A fifth mutation removes SETF's F=1 extra state and must fail timing while
+returning the correct field definition and architectural state.
 
 ## Coverage ledger
 
@@ -144,8 +150,19 @@ The full #144 checklist remains open.
 | MOVK: 1,4 | p.12-161 | Warm hit/cache disabled, value/flags | Current probes pass |
 | SLA: 3,6; SLL/SRA/SRL/RL: 1,4 | pp.12-234–235, 12-239–246 | 850 programs: both encodings/cache modes, all counts, sign/zero/minimum boundaries, aliases, ignored count bits, flags and literal TI SLA examples | Current probes pass |
 | LMO: 1,4 | p.12-108 | 76 programs: every leading-bit position, zero/dense sources, aliases and source-zero Z | Current probes pass |
+| ADD/ADDC/SUB/SUBB/CMP: 1,4 | pp.12-36–37, 12-53, 12-247–248 | Signed/unsigned boundaries, carry/borrow, equal operands, aliases, both cache modes and unchanged destination for CMP | Current probes pass |
+| ADDK/SUBK/MOVK; INC/DEC: 1,4 | pp.12-40, 12-61, 12-91, 12-161, 12-251 | All encoded constants 1..32; zero, signed maximum and unsigned maximum; explicit alias entries | Current probes pass |
+| AND/ANDN/OR/XOR; NOT/CLR: 1,4 | pp.12-42, 12-44, 12-51, 12-171–172, 12-255 | Zero/dense/complement operands, aliases, Z and preservation of other flags | Current probes pass |
+| ABS/NEG/NEGB: 1,4 | pp.12-35, 12-168–169 | Zero, signed endpoints and TI ABS examples; both initial carry values; ABS N from 0-Rd | Current probes pass |
+| MOVE/MOVX/MOVY: 1,4 | pp.12-126, 12-162–163 | Full/half register results, aliases and specified flag masks | Current probes pass |
+| BTST K: 1,4; BTST RR: 2,5 | pp.12-46–47 | Every bit both set/clear; ignored high bits of register count; no destination modification | Current probes pass |
+| SEXT: 3,6; ZEXT: 1,4 | pp.12-238, 12-257 | Both fields, every width 1..32, zero/minimum/dense/mixed values, FE opposite to operation | Current probes pass |
+| SETF F=0: 1,4; F=1: 2,5 | p.12-237 | Both fields, every size encoding and FE; preservation of unrelated ST bits | Current probes pass |
+| EXGF: 1,4 | Summary p.12-17; operation p.12-78 | Both fields, six field definitions, discarded upper register bits and preserved flags | Current probes pass; instruction entry omits timing, summary supplies it |
+| GETPC/GETST/REV; CLRC/SETC: 1,4 | pp.12-52, 12-89–90, 12-233, 12-236 | All 16 initial NCZV patterns; post-opcode bit address; revision defined-bit mask | Current probes pass |
+| DINT/EINT/PUTST: 3,6 | pp.12-62, 12-76, 12-229 | Full ST effects and preserved registers; both initial IE values | Current intrinsic probes pass; interrupt acceptance remains unvalidated |
 | External wait addition | §13.1.2 p.13-3; LRDY p.2-8 | Target latencies of 16 and 24 INCLK, exact added delay and bus/start/order checks | Current probes pass; other ACK phases unvalidated |
-| Other scalar instructions, immediates and divide/modulus exceptions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
+| Immediates and divide/modulus exceptions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
 | Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Memory fields/bytes and address/alignment modes | §13.2 Tables 13-1–13-5 | Not yet covered by timing probes | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
@@ -153,7 +170,7 @@ The full #144 checklist remains open.
 | Early CEN pauses | Wrapper clock-enable contract described above | Seven paused clocks before final writeback; full duration/state/read-start checks | Current directed probes pass |
 | HOLD/restart, interrupts/resumption, host/peripheral contention; ACK during CEN pause | §8; §11; §13.1.2 | Existing functional tests do not prove instruction timing | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | Eleven checker/model tests, two timing-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | Sixteen checker/model tests, three timing-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -173,6 +190,15 @@ are retained as historical evidence and are never read by the oracle.
 The standard runner and CI deliberately fail on this baseline. No expected
 failure list masks the 254 mismatches while implementation work continues.
 
+The scalar expansion adds 3,360 fixtures to the previous 1,188, for 4,548
+programs per wait/pause profile. Before its RTL changes, 1,556 of the first
+3,168 new scalar probes failed timing on `421774c3d`, while all architectural
+checks passed. The nine failing forms were ABS, BTST RR, SEXT, ZEXT, SETF,
+EXGF, DINT, EINT and PUTST. Representative hit/off failures and source hashes
+are retained in [baseline-421774c.json](../ver/timing/baseline-421774c.json).
+This historical file is never read by the oracle or runner. The subsequent
+MOVK constant expansion adds 192 cases and is not included in that baseline.
+
 ## Current implementation boundary
 
 The cache returns its synchronous RAM output during HIT, without an extra
@@ -181,14 +207,21 @@ response latch gives the synchronous dispatch ROM a full clock to select
 the family before IR/PC commit. This brings a register ADD's work and cached
 fetch within one eight-clock machine state.
 
-A scheduling counter currently applies to NOP, ADD, MOVK, shifts/rotates,
-LMO and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
+A scheduling counter currently applies to the single-word scalar forms
+listed above and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
 the captured source-field sign. With CD, the fetch response completes the
 additional processing state after the physical read. The counter freezes
 with CEN, while ACK capture remains independent of CEN. The checks assert
 both instruction duration and physical fetch start; there is no waiver for
 late or early bus activity hidden by an otherwise correct total.
+ABS computes its result and specified N/Z/V in one final microinstruction,
+preserving C. SEXT/ZEXT extend the synchronous destination-register data
+directly into the shared field-extension network, eliminating the extra
+capture step that exceeded ZEXT's one-state budget. Register BTST, SETF F=1,
+SEXT and status-writing instructions receive their distinct published
+state counts. Interrupt acceptance after an IE change still needs directed
+event tests before its timing contract can be signed off.
 
 Other instruction families retain their earlier schedule. They need a full
 timing audit and, where required, faster datapaths and memory/graphics

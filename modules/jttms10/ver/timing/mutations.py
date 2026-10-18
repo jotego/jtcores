@@ -62,12 +62,22 @@ def main():
         evidence['fs_control'] = run_case(work,'fs_control',case)
         evidence['cen_control'] = run_case(work,'cen_control',case,['--pause-clocks','7'])
         evidence['wait_control'] = run_case(work,'wait_control','nop_off',['--wait-states','1'])
+        setf_case = 'scalar_setf_f1_fs1_fe0_hit'
+        evidence['setf_control'] = run_case(work,'setf_control',setf_case)
 
         flat = work / 'flat-width-hdl'
         shutil.copytree(MODULE / 'hdl',flat)
         replace_once(flat / 'jttms10.v',"6'd5+multiply_half","6'd21")
         evidence['wrong_fs1_latency'] = run_case(work,'wrong_fs1_latency',case,
                                                 ['--rtl-dir',str(flat)],mutated=True)
+
+        field = work / 'wrong-setf-hdl'
+        shutil.copytree(MODULE / 'hdl',field)
+        replace_once(field / 'jttms10.v',
+                     "decode_btstr || (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1",
+                     "decode_btstr ? 6'd2 : 6'd1")
+        evidence['wrong_setf_field_latency'] = run_case(work,'wrong_setf_field_latency',setf_case,
+                                                      ['--rtl-dir',str(field)],mutated=True)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

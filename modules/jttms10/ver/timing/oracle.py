@@ -35,11 +35,49 @@ FIXED = {
     "DINT": (3, 6, "12-62"),
     "EINT": (3, 6, "12-76"),
     "SEXT": (3, 6, "12-238"),
+    "ABS": (1, 4, "12-35"),
+    "ADDC": (1, 4, "12-37"),
+    "ADDK": (1, 4, "12-40"),
+    "AND": (1, 4, "12-42"),
+    "ANDN": (1, 4, "12-44"),
+    "BTST_K": (1, 4, "12-46"),
+    "BTST_RR": (2, 5, "12-47"),
+    "CLR": (1, 4, "12-51"),
+    "CLRC": (1, 4, "12-52"),
+    "CMP": (1, 4, "12-53"),
+    "DEC": (1, 4, "12-61"),
+    # The EXGF entry omits Machine States; the primary summary gives 1/4.
+    "EXGF": (1, 4, "12-17 (summary), 12-78 (operation)"),
+    "GETPC": (1, 4, "12-89"),
+    "GETST": (1, 4, "12-90"),
+    "INC": (1, 4, "12-91"),
+    "MOVE": (1, 4, "12-126"),
+    "MOVX": (1, 4, "12-162"),
+    "MOVY": (1, 4, "12-163"),
+    "NEG": (1, 4, "12-168"),
+    "NEGB": (1, 4, "12-169"),
+    "NOT": (1, 4, "12-171"),
+    "OR": (1, 4, "12-172"),
+    "PUTST": (3, 6, "12-229"),
+    "REV": (1, 4, "12-233"),
+    "SETC": (1, 4, "12-236"),
+    "SUB": (1, 4, "12-247"),
+    "SUBB": (1, 4, "12-248"),
+    "SUBK": (1, 4, "12-251"),
+    "XOR": (1, 4, "12-255"),
+    "ZEXT": (1, 4, "12-257"),
 }
 
 
 def fixed_states(name, *, cache_disabled=False):
     return FIXED[name][int(cache_disabled)]
+
+
+def setf_states(*, field, cache_disabled=False):
+    """SETF p.12-237: F=0 takes 1/4; F=1 takes 2/5."""
+    if field not in (0, 1):
+        raise ValueError('SETF selects field 0 or 1')
+    return 1 + field + 3 * int(cache_disabled)
 
 
 # (K page, register-count page), SPVU001A Machine States and Status Bits.

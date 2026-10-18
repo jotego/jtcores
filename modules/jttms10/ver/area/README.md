@@ -84,8 +84,9 @@ memory reduction comes from narrowing a scalar control field. Physical M10K
 count is not reported by these maps. These estimates do not replace the
 2,746 fitted-ALM #141 baseline or establish the final 3,500 fitted-ALM ceiling.
 Fitting and FPGA setup/hold closure remain required after the implementation
-is complete, as does full ISA timing acceptance: only 16 of 133 instruction
-forms currently have timing probes.
+is complete, as does full ISA timing acceptance. This snapshot predates the
+following scalar expansion and represents the 16-form timing stage; it is
+not a resource measurement of later changes.
 
 The immutable snapshot, generated ROMs, manifest and full map report are in
 `/tmp/jttms10-144-shift-lmo-final-map`. Reproduce the measurement with the committed
@@ -96,6 +97,15 @@ python3 modules/jttms10/ver/area/run.py --narc --snapshot-only /path/to/new-snap
 cd /path/to/new-snapshot
 quartus_map narc --read_settings_files=on --write_settings_files=off
 ```
+
+The following 50-form scalar timing expansion was mapped with the same
+settings in `/tmp/jttms10-144-scalar-final-map`: **3,084 estimated ALMs,
+4,339 combinational ALUTs, 1,502 registers, 538,624 block-memory bits and
+three DSP blocks** (zero MLAB bits). This is +22 estimated ALMs and +29
+ALUTs from the 16-form stage; registers/RAM/DSPs are unchanged. The map
+completed with zero errors and the same 35 warning classifications. Source
+and generated-ROM hashes were checked. Fitting, physical M10K count, FPGA
+setup/hold closure and full-ISA timing acceptance remain pending.
 
 ## Complete graphics engine, 2026-10-17
 

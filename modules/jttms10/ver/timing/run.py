@@ -17,6 +17,7 @@ import time
 sys.dont_write_bytecode = True
 from oracle import INPUT_CLOCKS_PER_STATE, FIXED, fixed_states, multiply_states
 from scalar_cases import shift_cases, lmo_cases
+from alu_cases import alu_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -87,6 +88,7 @@ def cases():
                        conditions={})
     yield from shift_cases()
     yield from lmo_cases()
+    yield from alu_cases()
 
 
 def program(case):
@@ -100,6 +102,8 @@ def program(case):
     test_pc = 0x1000 + 16 * len(words)
     words += [case['opcode']]
     next_pc = 0x1000 + 16 * len(words)
+    if 'pc_result_register' in case:
+        case['expected_regs'][case['pc_result_register']] = next_pc
     words += [0x0300] * 12
     branch_pc = 0x1000 + 16 * len(words)
     displacement = (loop - (branch_pc + 16)) // 16
@@ -164,8 +168,9 @@ def check(case, observed, wait_states=0, pause_clocks=0):
                       f"{added_clocks} external wait clocks, {pause_clocks} CEN pause clocks), "
                       f"observed {observed['clocks']} INCLK")
     for reg, value in enumerate(case['expected_regs']):
-        if observed[f'a{reg}'] != value:
-            errors.append(f"A{reg}: expected {value:08x}, observed {observed[f'a{reg}']:08x}")
+        mask = case.get('expected_masks', [MASK32]*len(case['expected_regs']))[reg]
+        if (observed[f'a{reg}'] ^ value) & mask:
+            errors.append(f"A{reg}: expected {value:08x} (mask {mask:08x}), observed {observed[f'a{reg}']:08x}")
     if observed['st'] != case['expected_st']:
         errors.append(f"ST: expected {case['expected_st']:08x}, observed {observed['st']:08x}")
     return errors
@@ -235,7 +240,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

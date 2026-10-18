@@ -1,0 +1,846 @@
+{
+  "note": "Historical failing observations on RTL 421774c3d. Never an oracle, test input or expected-failure allowlist. One representative per failing form/cache mode; full experiment had 3168 cases, all architecture checks passed, 1556 timing failures.",
+  "source_commit": "421774c3d",
+  "clock_unit": "INCLK",
+  "clocks_per_machine_state": 8,
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "4d389daa1a5130c3d7e83f82a212b09fea6108a87d437b2c6c9f3cad8355c453",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "f80281375c98665873429592ef5d84f4c039fee4de13c326fd913a6c480940b7",
+      "hdl/jttms10_cache.v": "b0cb4a50275508ae1982d4b28116f1edba2d5366fb60bf5bc779a91c0a77456a",
+      "hdl/jttms10_ctrl.v": "8a79f4470abfbe420c276c909420418fb63854e6f78d32449e291b02d7d89a2b",
+      "hdl/jttms10_fabric.v": "6400a398705f5e0c67077f1c7ea62d41c29be551ee1384e9f0979a877300efe3",
+      "hdl/jttms10_field.v": "eba984151158937097f444ede9ae511209f5928b8e80abaefb4cb5e3206899cd",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "deb01a2ffdb2e5ee5896e559ae1917a3e81d473d6474b8d4b3bafa8f460c5922",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "a6b22d5991fe78d23814e48759f20c015e31e618eb5567daea854ab435eb875c",
+      "ucode/control.yaml": "85832a74a4096778b5a0a1a04dbc1a03849d8d419d21a41f90f7e2edf6285782",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "b4971e40b99b74951c6b0ee14ec7ed797a273f1163264cae34ff0010a8f295cd",
+      "ucode/tms10.yaml": "656dbf13c22aa20b37dfebafe5824daabcd71ef54116b8bd22d89f613e2084b9",
+      "ver/timing/oracle.py": "de2c4dfb52272d48b66cd409ca5a6ac80bc52de413965d483abca2891540080b",
+      "ver/timing/run.py": "29c3d9ec58334a9bc3a2bd49aae57f4224536009e2625b597e2adea7f82916ea",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "cc424d9fd4ed76521ac434869c8e73ea01e098760aaad2c76fb45d1c8276e346",
+      "ver/timing/test.sv": "28201f1202873101fd13284829a58798c16862fc94a752a7821918cdd8f16ff9"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "9f941ca8b221d4fbfb9190002390fd15336be6f1fcfd3f32abe861dfa430fa0c",
+      "tms10.vh": "c8ad8e83f2d8764daa1b2d528114fa9b5c7dde5ef9ad7f00e184cce1e97b3a6c",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "f893d9c9ad4cdb8cf18cb674a3301560a47b7bf5c051fb33ef5c9438ab16da3c"
+    }
+  },
+  "cases": [
+    {
+      "name": "scalar_abs_v0_c0_hit",
+      "coverage_id": "ABS_R",
+      "opcode": 896,
+      "regs": [
+        0,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 536872976,
+      "states": 1,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-35",
+      "conditions": {
+        "value": 0,
+        "carry": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 606,
+        "clocks": 10,
+        "start": 1508,
+        "end": 1518,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 10 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_btst_rr_b0_set0_hit",
+      "coverage_id": "BTST_RR",
+      "opcode": 19008,
+      "regs": [
+        4294967294,
+        287454020,
+        4294967264,
+        2064
+      ],
+      "expected_regs": [
+        4294967294,
+        287454020,
+        4294967264,
+        2064
+      ],
+      "expected_st": 536872976,
+      "states": 2,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-47",
+      "conditions": {
+        "bit": 0,
+        "value": 4294967294
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 740,
+        "clocks": 8,
+        "start": 1506,
+        "end": 1514,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 4294967294,
+        "a1": 287454020,
+        "a2": 4294967264,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 16 INCLK (2 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 8 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_sext_f0_fs1_v0_hit",
+      "coverage_id": "SEXT_R",
+      "opcode": 1280,
+      "regs": [
+        0,
+        287454020,
+        2779096485,
+        270534657
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        2779096485,
+        270534657
+      ],
+      "expected_st": 807405569,
+      "states": 3,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-238",
+      "conditions": {
+        "field": 0,
+        "size": 1,
+        "value": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 804,
+        "clocks": 10,
+        "start": 1508,
+        "end": 1518,
+        "paused": 0,
+        "st": 807405569,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 270534657
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 10 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_zext_f0_fs1_v0_hit",
+      "coverage_id": "ZEXT_R",
+      "opcode": 1312,
+      "regs": [
+        0,
+        287454020,
+        2779096485,
+        270534689
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        2779096485,
+        270534689
+      ],
+      "expected_st": 807405601,
+      "states": 1,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-257",
+      "conditions": {
+        "field": 0,
+        "size": 1,
+        "value": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 805,
+        "clocks": 10,
+        "start": 1508,
+        "end": 1518,
+        "paused": 0,
+        "st": 807405601,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 270534689
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 10 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_setf_f0_fs1_fe0_hit",
+      "coverage_id": "SETF",
+      "opcode": 1345,
+      "regs": [
+        305419896,
+        287454020,
+        2779096485,
+        270534672
+      ],
+      "expected_regs": [
+        305419896,
+        287454020,
+        2779096485,
+        270534672
+      ],
+      "expected_st": 270534657,
+      "states": 1,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-237",
+      "conditions": {
+        "field": 0,
+        "size": 1,
+        "extension": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 812,
+        "clocks": 6,
+        "start": 1504,
+        "end": 1510,
+        "paused": 0,
+        "st": 270534657,
+        "a0": 305419896,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 270534672
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 6 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_exgf_f0_v0_hit",
+      "coverage_id": "EXGF_R",
+      "opcode": 54528,
+      "regs": [
+        3735928320,
+        287454020,
+        2779096485,
+        2741
+      ],
+      "expected_regs": [
+        53,
+        287454020,
+        2779096485,
+        2741
+      ],
+      "expected_st": 2688,
+      "states": 1,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-16 (summary), 12-78 (operation)",
+      "conditions": {
+        "field": 0,
+        "value": 3735928320
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1124,
+        "clocks": 6,
+        "start": 1504,
+        "end": 1510,
+        "paused": 0,
+        "st": 2688,
+        "a0": 53,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2741
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 6 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_dint_flags0_hit",
+      "coverage_id": "DINT",
+      "opcode": 864,
+      "regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-62",
+      "conditions": {},
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1458,
+        "clocks": 8,
+        "start": 1506,
+        "end": 1514,
+        "paused": 0,
+        "st": 2064,
+        "a0": 3760196149,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 8 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_eint_flags0_hit",
+      "coverage_id": "EINT",
+      "opcode": 3424,
+      "regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 2099216,
+      "states": 3,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-76",
+      "conditions": {},
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1459,
+        "clocks": 8,
+        "start": 1506,
+        "end": 1514,
+        "paused": 0,
+        "st": 2099216,
+        "a0": 3760196149,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 8 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_putst_flags0_hit",
+      "coverage_id": "PUTST_R",
+      "opcode": 416,
+      "regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 3760196149,
+      "states": 3,
+      "cache_disabled": false,
+      "citation": "SPVU001A 12-229",
+      "conditions": {},
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 1461,
+        "clocks": 8,
+        "start": 1506,
+        "end": 1514,
+        "paused": 0,
+        "st": 3760196149,
+        "a0": 3760196149,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 8 INCLK"
+      ],
+      "bus_trace": []
+    },
+    {
+      "name": "scalar_abs_v0_c0_off",
+      "coverage_id": "ABS_R",
+      "opcode": 896,
+      "regs": [
+        0,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 536872976,
+      "states": 4,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-35",
+      "conditions": {
+        "value": 0,
+        "carry": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2190,
+        "clocks": 34,
+        "start": 2222,
+        "end": 2256,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 34 INCLK",
+        "physical opcode read start: expected clock 2230, observed 2232"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2232 0 00001220 0000 1",
+        "BUS_END 2248 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_btst_rr_b0_set0_off",
+      "coverage_id": "BTST_RR",
+      "opcode": 19008,
+      "regs": [
+        4294967294,
+        287454020,
+        4294967264,
+        2064
+      ],
+      "expected_regs": [
+        4294967294,
+        287454020,
+        4294967264,
+        2064
+      ],
+      "expected_st": 536872976,
+      "states": 5,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-47",
+      "conditions": {
+        "bit": 0,
+        "value": 4294967294
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2324,
+        "clocks": 32,
+        "start": 2220,
+        "end": 2252,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 4294967294,
+        "a1": 287454020,
+        "a2": 4294967264,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 40 INCLK (5 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 32 INCLK",
+        "physical opcode read start: expected clock 2236, observed 2228"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2228 0 00001220 0000 1",
+        "BUS_END 2244 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_sext_f0_fs1_v0_off",
+      "coverage_id": "SEXT_R",
+      "opcode": 1280,
+      "regs": [
+        0,
+        287454020,
+        2779096485,
+        270534657
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        2779096485,
+        270534657
+      ],
+      "expected_st": 807405569,
+      "states": 6,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-238",
+      "conditions": {
+        "field": 0,
+        "size": 1,
+        "value": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2388,
+        "clocks": 34,
+        "start": 2222,
+        "end": 2256,
+        "paused": 0,
+        "st": 807405569,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 270534657
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 34 INCLK",
+        "physical opcode read start: expected clock 2246, observed 2232"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2232 0 00001220 0000 1",
+        "BUS_END 2248 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_zext_f0_fs1_v0_off",
+      "coverage_id": "ZEXT_R",
+      "opcode": 1312,
+      "regs": [
+        0,
+        287454020,
+        2779096485,
+        270534689
+      ],
+      "expected_regs": [
+        0,
+        287454020,
+        2779096485,
+        270534689
+      ],
+      "expected_st": 807405601,
+      "states": 4,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-257",
+      "conditions": {
+        "field": 0,
+        "size": 1,
+        "value": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2389,
+        "clocks": 34,
+        "start": 2222,
+        "end": 2256,
+        "paused": 0,
+        "st": 807405601,
+        "a0": 0,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 270534689
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 34 INCLK",
+        "physical opcode read start: expected clock 2230, observed 2232"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2232 0 00001220 0000 1",
+        "BUS_END 2248 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_setf_f0_fs1_fe0_off",
+      "coverage_id": "SETF",
+      "opcode": 1345,
+      "regs": [
+        305419896,
+        287454020,
+        2779096485,
+        270534672
+      ],
+      "expected_regs": [
+        305419896,
+        287454020,
+        2779096485,
+        270534672
+      ],
+      "expected_st": 270534657,
+      "states": 4,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-237",
+      "conditions": {
+        "field": 0,
+        "size": 1,
+        "extension": 0
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2396,
+        "clocks": 30,
+        "start": 2218,
+        "end": 2248,
+        "paused": 0,
+        "st": 270534657,
+        "a0": 305419896,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 270534672
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 30 INCLK",
+        "physical opcode read start: expected clock 2226, observed 2224"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2224 0 00001220 0000 1",
+        "BUS_END 2240 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_exgf_f0_v0_off",
+      "coverage_id": "EXGF_R",
+      "opcode": 54528,
+      "regs": [
+        3735928320,
+        287454020,
+        2779096485,
+        2741
+      ],
+      "expected_regs": [
+        53,
+        287454020,
+        2779096485,
+        2741
+      ],
+      "expected_st": 2688,
+      "states": 4,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-16 (summary), 12-78 (operation)",
+      "conditions": {
+        "field": 0,
+        "value": 3735928320
+      },
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 2708,
+        "clocks": 30,
+        "start": 2218,
+        "end": 2248,
+        "paused": 0,
+        "st": 2688,
+        "a0": 53,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2741
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 30 INCLK",
+        "physical opcode read start: expected clock 2226, observed 2224"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2224 0 00001220 0000 1",
+        "BUS_END 2240 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_dint_flags0_off",
+      "coverage_id": "DINT",
+      "opcode": 864,
+      "regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 2064,
+      "states": 6,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-62",
+      "conditions": {},
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 3042,
+        "clocks": 32,
+        "start": 2220,
+        "end": 2252,
+        "paused": 0,
+        "st": 2064,
+        "a0": 3760196149,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 32 INCLK",
+        "physical opcode read start: expected clock 2244, observed 2228"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2228 0 00001220 0000 1",
+        "BUS_END 2244 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_eint_flags0_off",
+      "coverage_id": "EINT",
+      "opcode": 3424,
+      "regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 2099216,
+      "states": 6,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-76",
+      "conditions": {},
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 3043,
+        "clocks": 32,
+        "start": 2220,
+        "end": 2252,
+        "paused": 0,
+        "st": 2099216,
+        "a0": 3760196149,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 32 INCLK",
+        "physical opcode read start: expected clock 2244, observed 2228"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2228 0 00001220 0000 1",
+        "BUS_END 2244 0 00001220 0300"
+      ]
+    },
+    {
+      "name": "scalar_putst_flags0_off",
+      "coverage_id": "PUTST_R",
+      "opcode": 416,
+      "regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_regs": [
+        3760196149,
+        287454020,
+        2779096485,
+        2064
+      ],
+      "expected_st": 3760196149,
+      "states": 6,
+      "cache_disabled": true,
+      "citation": "SPVU001A 12-229",
+      "conditions": {},
+      "test_pc": 4624,
+      "next_pc": 4640,
+      "observed": {
+        "case": 3045,
+        "clocks": 32,
+        "start": 2220,
+        "end": 2252,
+        "paused": 0,
+        "st": 3760196149,
+        "a0": 3760196149,
+        "a1": 287454020,
+        "a2": 2779096485,
+        "a3": 2064
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks), observed 32 INCLK",
+        "physical opcode read start: expected clock 2244, observed 2228"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 2228 0 00001220 0000 1",
+        "BUS_END 2244 0 00001220 0300"
+      ]
+    }
+  ]
+}

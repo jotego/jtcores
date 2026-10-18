@@ -119,8 +119,7 @@ ucode:
     start: 66
     seq:
       - rd_a
-      - neg_alu, nzvabs_cc
-      - abs_alu, wr_reg, ni
+      - abs_alu, wr_reg, nzvabs_cc, ni
   - name: neg
     start: 67
     seq:
@@ -181,13 +180,11 @@ ucode:
   - name: sext
     start: 77
     seq:
-      - rd_a
       - sext_a
       - pass_alu, wr_reg, nzfield_cc, ni
   - name: zext
     start: 78
     seq:
-      - rd_a
       - zext_a
       - pass_alu, wr_reg, z_cc, ni
   - name: exgf

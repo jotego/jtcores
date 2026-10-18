@@ -151,13 +151,34 @@ module jttms10 #(
     wire decode_shift=decode_shiftk || decode_shiftr;
     wire [2:0] decode_shift_kind=decode_shiftk ? decode_opcode[12:10] : decode_opcode[11:9];
     wire decode_lmo=decode_opcode[15:9]==7'b0110101;
-    wire decode_timed=decode_opcode==16'h0300 ||
-                      decode_opcode[15:9]==7'b0100000 ||
-                      decode_opcode[15:10]==6'b000110 ||
+    // Single-word scalar classes. Keep immediate, PC-changing, memory and
+    // graphics forms outside this schedule until their event rules exist.
+    wire decode_scalar_rr=decode_opcode[15:12]==4'h4 ||
+                          decode_opcode[15:11]==5'b01010 ||
+                          decode_opcode[15:10]==6'b111011;
+    wire decode_constant=decode_opcode[15:12]==4'h1 && decode_opcode[11:10]!=2'b11;
+    wire decode_unary=decode_opcode[15:7]==9'b000000111;
+    wire decode_extension=decode_opcode[15:10]==6'b000001 && decode_opcode[8:6]==3'b100;
+    wire decode_setf=decode_opcode[15:10]==6'b000001 && decode_opcode[8:6]==3'b101;
+    wire decode_exgf=decode_opcode[15:10]==6'b110101 && decode_opcode[8:5]==4'b1000;
+    wire decode_getpc=decode_opcode[15:5]==11'h00a;
+    wire decode_getst=decode_opcode[15:5]==11'h00c;
+    wire decode_putst=decode_opcode[15:5]==11'h00d;
+    wire decode_rev=decode_opcode[15:5]==11'h001;
+    wire decode_carry=decode_opcode==16'h0320 || decode_opcode==16'h0de0;
+    wire decode_ie=decode_opcode==16'h0360 || decode_opcode==16'h0d60;
+    wire decode_btstr=decode_opcode[15:9]==7'b0100101;
+    wire decode_timed=decode_opcode==16'h0300 || decode_scalar_rr ||
+                      decode_constant || decode_unary || decode_extension ||
+                      decode_setf || decode_exgf || decode_getpc || decode_getst ||
+                      decode_putst || decode_rev || decode_carry || decode_ie ||
+                      decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
     wire [5:0] decode_states=decode_multiply ? 6'd5+multiply_half :
-                            decode_shift && decode_shift_kind==0 ? 6'd3 : 6'd1;
+                            (decode_shift && decode_shift_kind==0) ||
+                            decode_ie || decode_putst || (decode_extension && !decode_opcode[5]) ? 6'd3 :
+                            decode_btstr || (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
     wire [15:0] decode_clocks={10'd0,decode_states} * CLKS_PER_STATE[15:0];
     // Four clocks cover the NI boundary, ROM prime, synchronous cache hit,
     // and the fetch/dispatch response latch. Execution finishes early enough
@@ -195,7 +216,7 @@ module jttms10 #(
     // Field extension has three mutually exclusive consumers: memory-load
     // EXT_A, register SEXT/ZEXT, and multiply's source-field capture.
     wire [31:0] field_ext_input = mulinit ? rs_data :
-                                  a_sel==EXT_A ? md : a;
+                                  a_sel==EXT_A ? md : rd_data;
     wire field_ext_signed = mulinit ? !ir[9] :
                             a_sel==EXT_A ? field_signed :
                             a_sel==SEXT_A;
@@ -433,8 +454,8 @@ module jttms10 #(
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
-    // Scheduling coverage includes NOP, ADD, MOVK, shifts/rotates, LMO and
-    // documented even-width MPYS/MPYU. Other families
+    // Scheduling covers single-word scalar operations and documented
+    // even-width MPYS/MPYU. PC-changing, memory and graphics families
     // retain their existing schedule until their event contracts are added.
     always @(posedge clk) begin
         if(rst) begin
@@ -711,7 +732,9 @@ module jttms10 #(
                 case(cc_sel)
                     NZV_CC: begin st[31]<=n; st[29]<=z; st[28]<=0; end
                     NVZC_CC:begin st[31]<=n; st[30]<=c; st[29]<=z; st[28]<=v; end
-                    NZVABS_CC:begin st[31]<=n; st[29]<=z; st[28]<=v; end
+                    // ABS writes |a| but N records the sign of 0-a. With
+                    // ABS selected, v identifies the minimum signed value.
+                    NZVABS_CC:begin st[31]<=a[31] ? v : !z; st[29]<=z; st[28]<=v; end
                     NZFIELD_CC:begin st[31]<=n; st[29]<=z; end
                     Z_CC:st[29]<=z;
                     C0_CC:st[30]<=0;

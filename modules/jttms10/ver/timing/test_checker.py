@@ -3,8 +3,9 @@
 """Guard against making the checker accept correct results at wrong times."""
 import unittest
 
-from oracle import multiply_states
-from run import cases, check, check_bus, split_transcripts
+from oracle import multiply_states, setf_states
+from run import cases, check, check_bus, split_transcripts, program
+from alu_cases import arithmetic
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
 
@@ -86,6 +87,53 @@ class TimingCheckerTest(unittest.TestCase):
             with self.subTest(value=value,count=count):
                 actual,status=shift_result('SLA',value,count,0xF0000810)
                 self.assertEqual((actual,status),(result,(flags<<28)|0x810))
+
+    def test_ti_subb_examples(self):
+        # SPVU001A p.12-248, literal (Rd, Rs, C, result, NCZV).
+        examples = ((2,1,0,1,0), (2,1,1,0,2), (2,2,1,0xFFFFFFFF,12),
+                    (0x7FFFFFFE,0xFFFFFFFE,0,0x80000000,13),
+                    (0x7FFFFFFE,0xFFFFFFFE,1,0x7FFFFFFF,4),
+                    (0x80000001,1,1,0x7FFFFFFF,1))
+        for dest,source,carry,result,flags in examples:
+            with self.subTest(dest=dest,source=source,carry=carry):
+                self.assertEqual(arithmetic('SUBB',source,dest,0x810 | (carry<<30)),
+                                 (result,0x810 | (flags<<28)))
+
+    def test_ti_abs_examples(self):
+        # SPVU001A p.12-35: N comes from 0-Rd, not the stored magnitude.
+        examples = ((0x7FFFFFFF,0x7FFFFFFF,8), (0xFFFFFFFF,1,0),
+                    (0x80000000,0x80000000,9), (0x80000001,0x7FFFFFFF,0),
+                    (1,1,8), (0,0,2), (0xFFFA0011,0x5FFEF,0))
+        probes = [c for c in cases() if c['coverage_id']=='ABS_R' and not c['cache_disabled']]
+        for source,result,flags in examples:
+            matches = [c for c in probes if c['regs'][0]==source]
+            self.assertEqual(len(matches),2)
+            for case in matches:
+                with self.subTest(source=source,carry=bool(case['regs'][3] & (1<<30))):
+                    self.assertEqual(case['expected_regs'][0],result)
+                    self.assertEqual((case['expected_st']>>28) & 11,flags)
+                    self.assertEqual(case['expected_st'] & (1<<30),case['regs'][3] & (1<<30))
+
+    def test_setf_field_changes_timing(self):
+        self.assertEqual(setf_states(field=0),1)
+        self.assertEqual(setf_states(field=1),2)
+        self.assertEqual(setf_states(field=1,cache_disabled=True),5)
+
+    def test_rev_undefined_bits_only(self):
+        case = next(c for c in cases() if c['coverage_id']=='REV_R' and not c['cache_disabled'])
+        observed = dict(clocks=8,paused=0,st=case['expected_st'],
+                        **{f'a{n}':v for n,v in enumerate(case['expected_regs'])})
+        self.assertEqual(check(case,observed),[])
+        observed['a0'] ^= 0xFFFF0007  # Undefined by TI p.12-233.
+        self.assertEqual(check(case,observed),[])
+        observed['a0'] ^= 8  # Defined revision bit must remain asserted.
+        self.assertTrue(any('A0:' in error for error in check(case,observed)))
+
+    def test_getpc_expected_bit_address(self):
+        case = next(c for c in cases() if c['coverage_id']=='GETPC_R')
+        _,start,following = program(case)
+        self.assertEqual(following,start+16)
+        self.assertEqual(case['expected_regs'][0],following)
 
 
 if __name__ == '__main__':
