@@ -63,8 +63,13 @@ pause profiles of18 cases each (108 programs). Both new timing mutants
 and all seven response-event controls/one duplicate-read mutant pass.
 Four separate-process case objects match their batch results after removing
 only the local case identifier. All84,610 preceding fixtures, encoded
-programs, goldens and boundaries remain unchanged. Full1488-case Icarus
-comparison and targeted clean-checkout validation are pending.
+programs, goldens and boundaries remain unchanged. All1488 stressed case objects and source/generated-ROM hashes match Icarus
+and Verilator exactly. A detached clean checkout repeats117 models, all1488
+stressed programs and the seven response controls/one mutant with exact
+case/event observations and provenance. This is targeted clean validation,
+not a complete standard runner. All43 physical timing input hashes match
+public implementation commit dc661d409; its full Git tree matches isolated
+025fcc284. The fresh full109-form standard runner remains pending.
 
 Matched NARC GSP quartus_map estimates3,570 ALMs,5,082 ALUTs,1,722
 registers,538,624 block-memory bits,five DSPs and zero MLAB bits: -50 ALMs
