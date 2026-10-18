@@ -73,6 +73,7 @@ duration and independence from external ACK are normative and tested.
 ## Fetch and CEN behavior
 
 A disabled-cache opcode read costs two bus states plus one processing state.
+External extension words also complete their processing state.
 A four-word cache fill costs eight bus states plus one processing state
 (§5.4.7 p.5-24). The cache identifies hit responses so the core adds that
 processing state for external fetches, including misses, while a hit keeps
@@ -85,7 +86,10 @@ the following external fetch away from its bus-state boundary, that fetch
 also gains the required alignment clocks. The current seven-clock pause
 therefore adds seven on a hit and eight before CD/miss traffic: seven paused
 clocks and one alignment clock. Reports retain the actual paused count.
-Bus and peripheral clocks continue. Pauses overlapping outstanding responses
+Bus and peripheral clocks continue. Immediate probes additionally check per-word waits and the cache-disabled
+extension IAQ rule (TI p.11-24); [immediate-timing.md](immediate-timing.md)
+records first/second-extension fills and their remaining intrinsic work.
+Pauses overlapping outstanding responses
 need separate CPU-level tests; the present matrices pause during CPU work.
 
 ## Permanent verification and limits
@@ -109,7 +113,7 @@ The full CPU timing suite uses raw target readiness after `4 + 8*W` INCLK,
 and independently checks the resulting `16 + 8*W` TI cycles. Two cold NOP
 fixtures measure the first pass, with the current opcode at the end of a
 resident subsegment and the following four words absent. The normal runner
-also keeps 22 checker/model tests and RTL mutations that remove the bus
+also keeps 28 checker/model tests and RTL mutations that remove the bus
 minimum or sample ready at cycle end. Both mutations must fail timing with
 correct architectural results.
 Another RTL mutation omits miss processing and must fail bus phase/grid

@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 54 of 133 instruction forms; the other 79 remain unvalidated.
+probes cover 66 of 133 instruction forms; the other 67 remain unvalidated.
 The standard runner's coverage gate deliberately fails until that gap is
 closed. Passing the present probe matrix is not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -155,6 +155,9 @@ the independent instruction and bus checks.
 A further RTL mutation omits cache-miss processing. The next bus phase and
 state-grid checks must reject it even if instruction duration coincidentally
 matches; architectural values remain checked.
+Four immediate RTL mutations remove a short-form state, omit extension
+processing, lose intrinsic states after an extension fill or assert IAQ
+for a CD extension. All must fail with correct registers/ST.
 
 ## Coverage ledger
 
@@ -189,7 +192,7 @@ The full #144 checklist remains open.
 | Bus minimum and ready sampling | pp.11-8, 11-16; Appendix A p.A-21 | 699 independent timer scenarios: all first-state dispatch phases, ready delays 0..40, held ACK, new/queued requests and data retention | Logical bus/transport contract passes; original pins/separate LRDY/data not generated |
 | I/O fixed duration and ignored ready | p.11-14 | Timer tests with ACK permanently low/high; timed queued-host I/O and system register/IRQ regression | Two-state/ACK-independent contract passes; exact internal I/O latch edge excluded as undocumented |
 | External wait addition | §13.1.2 p.13-3; §11.4.10 p.11-16 | Full CPU raw ready at 4/12 INCLK, logical bus duration 16/24; exact added delay and independent target/start/order checks | Current probes pass |
-| Immediate-extension instructions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
+| Immediate forms: IW 2,8; IL 3,12 | ADDI pp.12-38–39, CMPI 12-54–55, MOVI 12-159–160, SUBI 12-249–250; ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 | 2,828 programs: source-level encoding/sign/flags, warm word alignments and first/second-extension misses; per-word waits and IAQ | Current probes pass; [immediate-timing.md](immediate-timing.md) records the contract and exclusions |
 | Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Memory fields/bytes and address/alignment modes | §13.2 Tables 13-1–13-5 | Not yet covered by timing probes | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
@@ -199,7 +202,7 @@ The full #144 checklist remains open.
 | Timed arbiter HOLD/RMW/host interference | §11.3 p.11-4 | Pre-dispatch HOLD, stale-write cancellation, reread, reserved write and queued two-state host I/O | Directed word-client contract passes |
 | CPU HOLD/restart, interrupts/resumption and contention; ACK during CEN pause | §8; §11; §13.1.2 | Full CPU timing conditions still incomplete | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | Twenty-two checker/model tests, eight timing/bus-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | Twenty-eight checker/model tests, twelve timing/bus RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -244,6 +247,14 @@ hit/CD/miss versus TI 8/32/80, with correct architecture. Earlier slow-target
 measurements supplied that missing delay in the target and did not prove
 NARC's actual fast-response timing. Historical reports are not allowlists.
 
+The immediate expansion adds 2,828 programs, for **8,280 cases per matrix**
+and **24,842 instruction programs** across three matrices and two mid-loop
+CEN probes. Twelve more forms have probes (66/133; 67 remain missing).
+The [immediate timing report](immediate-timing.md) records the primary rules,
+2,341 historical timing failures with correct architecture, per-word wait
+and IAQ checks, all word alignments and first/second-extension misses.
+
+
 ## Current implementation boundary
 
 The cache returns its synchronous RAM output during HIT, without an extra
@@ -252,12 +263,13 @@ response latch gives the synchronous dispatch ROM a full clock to select
 the family before IR/PC commit. This brings a register ADD's work and cached
 fetch within one eight-clock machine state.
 
-A scheduling counter currently applies to the single-word scalar forms
+A scheduling counter currently applies to the scalar/immediate forms
 listed above, DIV/MOD and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
 the captured source-field sign. A cache hit response is identified explicitly;
-external opcode reads, including fills, complete the additional processing
-state after the timed bus transfer. The counter freezes
+external opcode and extension reads, including fills, complete the additional
+processing state after the timed bus transfer. Immediate cache misses preserve
+the remaining intrinsic word states before final writeback and next fetch. The counter freezes
 with CEN, while ACK capture remains independent of CEN. The checks assert
 both instruction duration and logical/target fetch events; there is no waiver for
 late or early bus activity hidden by an otherwise correct total.

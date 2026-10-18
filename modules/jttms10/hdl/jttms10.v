@@ -142,7 +142,13 @@ module jttms10 #(
                         {lmo_z16,lmo_z8,lmo_z4,lmo_z2,!lmo2[1]};
     reg completed;
     wire [31:0] read_data = completed ? bus_data : mem_rdata;
-    reg timing_active;
+    // Fold source-level SUBI/CMPI complement decoding into operand capture.
+    // No extra microinstruction or second arithmetic unit is needed.
+    wire immediate_short=a_sel==IMMSE_A || a_sel==IMMSEINV_A;
+    wire immediate_invert=a_sel==IMMSEINV_A || a_sel==IMMHIINV_A;
+    wire [31:0] immediate_value=immediate_short ? {{16{md[15]}},md[15:0]} :
+                                                         {md[15:0],a[15:0]};
+    reg timing_active, immediate_last;
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
     wire decode_multiply=decode_opcode[15:10]==6'b010111;
@@ -155,8 +161,15 @@ module jttms10 #(
     wire decode_mod=decode_opcode[15:10]==6'b011011;
     wire [5:0] decode_div_states=decode_mod ? (decode_opcode[9] ? 6'd35 : 6'd40) :
                                 decode_opcode[9] ? 6'd37 : decode_opcode[0] ? 6'd39 : 6'd40;
-    // Single-word scalar classes. Keep immediate, PC-changing, memory and
-    // graphics forms outside this schedule until their event rules exist.
+    // General scalar classes. PC-changing, memory and graphics forms retain
+    // their old schedule until their event rules are independently covered.
+    wire decode_immediate_word=decode_opcode[15:5]==11'h04e ||
+        decode_opcode[15:5]==11'h058 || decode_opcode[15:5]==11'h05a ||
+        decode_opcode[15:5]==11'h05f;
+    wire decode_immediate_long=decode_opcode[15:5]==11'h04f ||
+        decode_opcode[15:5]==11'h059 || decode_opcode[15:5]==11'h05b ||
+        (decode_opcode[15:7]==9'h017 && decode_opcode[6:5]!=2'b11) ||
+        decode_opcode[15:5]==11'h068;
     wire decode_scalar_rr=decode_opcode[15:12]==4'h4 ||
                           decode_opcode[15:11]==5'b01010 ||
                           decode_opcode[15:10]==6'b111011;
@@ -176,13 +189,17 @@ module jttms10 #(
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
+                      decode_immediate_word || decode_immediate_long ||
                       decode_opcode[15:10]==6'b000111 ||
                       (decode_multiply && !st[6]) || decode_shift || decode_lmo || decode_divide;
     wire [5:0] multiply_half=st[10:6]==0 ? 6'd16 : {2'd0,st[10:7]};
     wire [5:0] decode_states=decode_divide ? decode_div_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
-                            decode_ie || decode_putst || (decode_extension && !decode_opcode[5]) ? 6'd3 :
-                            decode_btstr || (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
+                            decode_ie || decode_putst || decode_immediate_long ||
+                            (decode_extension && !decode_opcode[5]) ? 6'd3 :
+                            decode_btstr || decode_immediate_word ||
+                            (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
+    wire [15:0] immediate_tail_clocks=(immediate_last ? 16'd2 : 16'd3)*CLKS_PER_STATE[15:0];
     wire [15:0] decode_clocks={10'd0,decode_states} * CLKS_PER_STATE[15:0];
     // DIV/MOD begin with the normal budget. The operand check removes the
     // omitted iterations on early exit; the completed magnitude identifies
@@ -203,7 +220,7 @@ module jttms10 #(
                           gfx_bus_pixel && pix_transparent;
     // Fetch uses the response latch so the synchronous dispatch ROM has a
     // full clock to decode the returned opcode before fetch/dispatch commits.
-    wire operation_ready=fetch ? completed && fetch_wait==0 :
+    wire operation_ready=(fetch || imm) ? completed && fetch_wait==0 :
                          !bus_op || completed || mem_ack || gfx_skip_write;
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
     // Only the execution phase owns the bus; this prevents a completed
@@ -472,6 +489,7 @@ module jttms10 #(
     always @(posedge clk) begin
         if(rst) begin
             timing_active<=0;
+            immediate_last<=0;
             time_left<=0;
             fetch_wait<=0;
         end else begin
@@ -483,11 +501,21 @@ module jttms10 #(
             // External fetches (CD or a cache fill) need the additional
             // processing state in UG §5.4.7. Response/dispatch clocks occupy
             // part of that state; cached hits have no external-fetch penalty.
-            if(mem_req && mem_ack && fetch)
+            if(mem_req && mem_ack && (fetch || imm))
                 fetch_wait<=mem_cached ? 16'd0 : CLKS_PER_STATE[15:0]-16'd2;
+            // A cache-fill penalty must leave the following intrinsic word
+            // states intact. CD already supplies a separate processing state
+            // for each external word. With the cache enabled, rebase from
+            // this fill's ACK: one processing state plus the remaining one
+            // or two intrinsic word states, before final writeback/fetch.
+            // The cache response bridge has consumed one clock at this ACK.
+            if(mem_req && mem_ack && imm && !mem_cached && !control[15] && timing_active)
+                time_left<=immediate_tail_clocks-16'd2;
+            if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed;
+                immediate_last<=decode_immediate_word;
                 time_left<=decode_clocks-16'd1;
             end
             // MPYU's extra state depends on the selected field's sign bit,
@@ -692,10 +720,9 @@ module jttms10 #(
                 case(a_sel)
                     REG_A: a<=rs_data;
                     K_A: a<=ir[9:5]==0 ? 32'd32 : {27'd0,ir[9:5]};
-                    IMMSE_A: a<={{16{md[15]}},md[15:0]};
                     IMMLO_A: a<={16'd0,md[15:0]};
-                    IMMHI_A: a<={md[15:0],a[15:0]};
-                    INV_A: a<=~a;
+                    IMMSE_A, IMMHI_A, IMMSEINV_A, IMMHIINV_A:
+                        a<=immediate_value ^ {32{immediate_invert}};
                     RD_A: a<=rd_data;
                     ST_A: a<=st;
                     SIZE_A: a<={26'd0,field_size};

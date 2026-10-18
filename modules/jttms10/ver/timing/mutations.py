@@ -71,6 +71,13 @@ def main():
         evidence['bus_min_control'] = run_case(work,'bus_min_control','nop_off')
         miss_case = 'nop_next_subsegment_miss_00000810'
         evidence['miss_control'] = run_case(work,'miss_control',miss_case)
+        immediate_case='immediate_addi_16_p0_c0_hit'
+        immediate_off='immediate_addi_32_p0_c0_off'
+        immediate_miss='immediate_addi_32_extension_miss'
+        evidence['immediate_control']=run_case(work,'immediate_control',immediate_case)
+        evidence['extension_control']=run_case(work,'extension_control',immediate_off)
+        evidence['extension_miss_control']=run_case(work,'extension_miss_control',immediate_miss)
+
 
         flat = work / 'flat-width-hdl'
         shutil.copytree(MODULE / 'hdl',flat)
@@ -81,8 +88,8 @@ def main():
         field = work / 'wrong-setf-hdl'
         shutil.copytree(MODULE / 'hdl',field)
         replace_once(field / 'jttms10.v',
-                     "decode_btstr || (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1",
-                     "decode_btstr ? 6'd2 : 6'd1")
+                     "(decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1",
+                     "1'b0 ? 6'd2 : 6'd1")
         evidence['wrong_setf_field_latency'] = run_case(work,'wrong_setf_field_latency',setf_case,
                                                       ['--rtl-dir',str(field)],mutated=True)
 
@@ -122,6 +129,32 @@ def main():
                      "fetch_wait<=control[15] ? CLKS_PER_STATE[15:0]-16'd2 : 16'd0;")
         evidence['missing_miss_processing'] = run_case(work,'missing_miss_processing',miss_case,
                                                      ['--rtl-dir',str(miss)],mutated=True)
+
+        immediate = work / 'wrong-immediate-budget-hdl'
+        shutil.copytree(MODULE / 'hdl',immediate)
+        replace_once(immediate / 'jttms10.v','decode_btstr || decode_immediate_word ||',
+                     'decode_btstr ||')
+        evidence['wrong_immediate_word_budget']=run_case(work,'wrong_immediate_word_budget',immediate_case,
+                                                      ['--rtl-dir',str(immediate)],mutated=True)
+
+        extension = work / 'missing-extension-processing-hdl'
+        shutil.copytree(MODULE / 'hdl',extension)
+        replace_once(extension / 'jttms10.v','if(mem_req && mem_ack && (fetch || imm))',
+                     'if(mem_req && mem_ack && fetch)')
+        evidence['missing_extension_processing']=run_case(work,'missing_extension_processing',immediate_off,
+                                                        ['--rtl-dir',str(extension)],mutated=True)
+
+        tail = work / 'missing-extension-miss-tail-hdl'
+        shutil.copytree(MODULE / 'hdl',tail)
+        replace_once(tail / 'jttms10.v',"time_left<=immediate_tail_clocks-16'd2;",'time_left<=time_left;')
+        evidence['missing_extension_miss_tail']=run_case(work,'missing_extension_miss_tail',immediate_miss,
+                                                      ['--rtl-dir',str(tail)],mutated=True)
+
+        iaq = work / 'wrong-extension-iaq-hdl'
+        shutil.copytree(MODULE / 'hdl',iaq)
+        replace_once(iaq / 'jttms10.v','assign mem_iaq = fetch;','assign mem_iaq = fetch || imm;')
+        evidence['wrong_extension_iaq']=run_case(work,'wrong_extension_iaq',immediate_off,
+                                              ['--rtl-dir',str(iaq)],mutated=True)
 
         cen = work / 'ignores-cen-hdl'
         shutil.copytree(MODULE / 'hdl',cen)

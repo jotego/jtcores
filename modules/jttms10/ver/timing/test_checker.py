@@ -3,9 +3,10 @@
 """Guard against making the checker accept correct results at wrong times."""
 import unittest
 
-from oracle import multiply_states, setf_states, divide_states
+from oracle import multiply_states, setf_states, divide_states, immediate_states
 from run import cases, check, check_bus, check_target, split_transcripts, program
 from alu_cases import arithmetic
+from immediate_cases import result as immediate_result, extension_words, TI_EXAMPLES
 from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
@@ -84,11 +85,59 @@ class TimingCheckerTest(unittest.TestCase):
         self.assertTrue(check_target(case,self.observed,lines,1))
 
     def test_cold_fixture_forces_next_subsegment(self):
-        case=next(c for c in cases() if c.get('cache_miss'))
+        case=next(c for c in cases() if c.get('cache_miss') is True)
         words,start,following=program(case)
         self.assertEqual((start%64,following%64),(48,0))
         self.assertEqual(case['measure_pass'],0)
         self.assertEqual(case['states'],10)  # NOP1 + four reads8 + processing1.
+
+    def test_immediate_primary_counts(self):
+        self.assertEqual([immediate_states(width=w,cache_disabled=off)
+                          for w in (16,32) for off in (False,True)],[2,8,3,12])
+        with self.assertRaises(ValueError):immediate_states(width=8)
+
+    def test_immediate_literal_examples(self):
+        for name,width,value,before,after,flags in TI_EXAMPLES:
+            with self.subTest(name=name,width=width,value=value):
+                self.assertEqual(immediate_result(name,value,width,before,0xF0000810),
+                                 (after,0x810 | (flags<<28)))
+
+    def test_immediate_encoding_is_separate_from_operand_math(self):
+        self.assertEqual(extension_words('SUBI',-1,16),[0])
+        self.assertEqual(extension_words('CMPI',0x12345678,32),[0xA987,0xEDCB])
+        self.assertEqual(extension_words('ANDI',0x12345678,32),[0xA987,0xEDCB])
+        self.assertEqual(extension_words('ANDNI',0x12345678,32),[0x5678,0x1234])
+        self.assertEqual(immediate_result('SUBI',-1,16,0,0x810),(1,0x40000810))
+
+    def test_every_external_immediate_word_adds_wait(self):
+        case=dict(self.case,extensions=[0x1234,0x5678],cache_disabled=True,states=12)
+        self.observed.update(paused=0,clocks=120)
+        self.assertEqual(check(case,self.observed,wait_states=1),[])
+        self.observed['clocks']=104  # Only following opcode wait counted.
+        self.assertTrue(check(case,self.observed,wait_states=1))
+
+    def test_extension_bus_order_data_and_iaq_are_independent_of_total(self):
+        case=dict(self.case,extensions=[0xA987,0xEDCB],cache_disabled=True,
+                  states=12,test_pc=0x1200,next_pc=0x1230)
+        lines=['BUS_BEGIN 104 0 00001210 0000 0','BUS_END 128 0 00001210 a987',
+               'BUS_BEGIN 144 0 00001220 0000 0','BUS_END 168 0 00001220 edcb',
+               'BUS_BEGIN 184 0 00001230 0000 1','BUS_END 208 0 00001230 0300']
+        self.assertEqual(check_bus(case,self.observed,lines,1),[])
+        for index,replacement in ((0,lines[0][:-1]+'1'),(1,lines[1].replace('a987','edcb')),
+                                  (2,lines[2].replace('144','136'))):
+            wrong=list(lines);wrong[index]=replacement
+            self.assertTrue(check_bus(case,self.observed,wrong,1))
+
+    def test_cold_extension_starts_in_absent_subsegment(self):
+        variants=[c for c in cases() if c.get('cache_miss')=='extension']
+        self.assertEqual(len(variants),20)
+        for case in variants:
+            words,start,following=program(case)
+            first=case.get('miss_word',1)
+            self.assertEqual(start%64,64-16*first)
+            self.assertEqual((start+16*first)%64,0)
+            self.assertEqual(following,start+16*(1+len(case['extensions'])))
+            self.assertEqual(case['states'],10+len(case['extensions']))
 
     def test_batch_case_association(self):
         log='CASE 0\nRESULT case=0\nCASE 1\nRESULT case=1\nBATCH_DONE cases=2\n'

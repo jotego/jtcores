@@ -10,12 +10,12 @@ include:
   - memory.yaml
   - control.yaml
 ops:
-  - {name: ADDIW, op: 25, ctl: {inv: "", alu: add, wr: wr_reg}}
-  - {name: SUBIW, op: 26, ctl: {inv: inv_a, alu: sub, wr: wr_reg}}
-  - {name: CMPIW, op: 27, ctl: {inv: inv_a, alu: sub, wr: ""}}
-  - {name: ADDIL, op: 28, ctl: {inv: "", alu: add, wr: wr_reg}}
-  - {name: SUBIL, op: 29, ctl: {inv: inv_a, alu: sub, wr: wr_reg}}
-  - {name: CMPIL, op: 30, ctl: {inv: inv_a, alu: sub, wr: ""}}
+  - {name: ADDIW, op: 25, ctl: {operand: immse_a, alu: add, wr: wr_reg}}
+  - {name: SUBIW, op: 26, ctl: {operand: immseinv_a, alu: sub, wr: wr_reg}}
+  - {name: CMPIW, op: 27, ctl: {operand: immseinv_a, alu: sub, wr: ""}}
+  - {name: ADDIL, op: 28, ctl: {operand: immhi_a, alu: add, wr: wr_reg}}
+  - {name: SUBIL, op: 29, ctl: {operand: immhiinv_a, alu: sub, wr: wr_reg}}
+  - {name: CMPIL, op: 30, ctl: {operand: immhiinv_a, alu: sub, wr: ""}}
 ucode:
   - name: reset
     start: 0
@@ -156,14 +156,12 @@ ucode:
   - mnemo: [ADDIW, SUBIW, CMPIW]
     seq:
       - imm_bus, pcinc
-      - immse_a, reg_b
-      - ${inv}
+      - ${operand}, reg_b
       - ${alu}_alu, ${wr}, nvzc_cc, ni
   - mnemo: [ADDIL, SUBIL, CMPIL]
     seq:
       - imm_bus, pcinc
       - immlo_a
       - imm_bus, pcinc
-      - immhi_a, reg_b
-      - ${inv}
+      - ${operand}, reg_b
       - ${alu}_alu, ${wr}, nvzc_cc, ni

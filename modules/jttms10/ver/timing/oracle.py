@@ -132,3 +132,17 @@ def shift_states(name, *, count, cache_disabled=False):
     if name not in SHIFT_PAGES or count not in range(32):
         raise ValueError('undefined shift operation/count')
     return (3 if name == 'SLA' else 1) + 3 * int(cache_disabled)
+
+
+def immediate_states(*, width, cache_disabled=False):
+    """TI general immediates: 16-bit 2/8, 32-bit 3/12 states.
+
+    ADDI 12-38/39, CMPI 12-54/55, MOVI 12-159/160, SUBI 12-249/250;
+    ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 (32-bit only).
+    Each extra instruction word costs one intrinsic state, plus three
+    external-fetch states with CD (§5.4.7 p.5-24, §13.1 p.13-2).
+    """
+    if width not in (16,32):
+        raise ValueError('immediate operand width must be 16 or 32')
+    words=1+width//16
+    return words*(4 if cache_disabled else 1)

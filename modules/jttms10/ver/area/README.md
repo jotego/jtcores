@@ -129,6 +129,19 @@ on-chip I/O now completes inside the timed fabric. These are synthesis
 estimates, with no new fitted-area, physical M10K count or STA result.
 The full fitted-area/STA/NARC gates and 79 missing timing forms remain open.
 
+The immediate timing stage's matched map at
+`/tmp/jttms10-144-immediate-final-map` reports **3,122 estimated ALMs,
+4,486 combinational ALUTs, 1,632 registers, 538,624 block-memory bits,
+three DSP blocks and zero MLAB bits**. Compared with the preceding bus
+stage this is -60 estimated ALMs, -16 ALUTs and +1 register. It includes
+combined immediate operand capture/complement, shorter microcode sequences,
+extension processing and retained intrinsic work after a fill; it is not
+an isolated cost for any one change. Analysis & Synthesis succeeds with
+the same 50 warning classifications, and all 36 source/generated hashes
+verify. Final fitted area/STA/NARC checks and 67 missing instruction forms
+remain open; this map does not establish those acceptance gates.
+
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |
