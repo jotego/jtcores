@@ -90,7 +90,7 @@ jtpopeye_char uut(
     .dd         ( dd            ),
     .csv        ( csv           ),
     .memwr0     ( memwr0        ),
-    .h          ( h             ),
+    .h_raw      ( h_raw         ),
     .hb         ( hb            ),
     .v          ( v             ),
     .vb         ( vb            ),
@@ -269,7 +269,7 @@ always @(posedge clk) if( !rst && cen5 ) begin
             mm20_v = mm20_v + 1;
             if( mm20_v < 5 ) $display("2020 txtv differs: hb=%b h_raw=%h v=%h vb=%b vbcnt=%0d rv=%b ours(dot before)=%b 2020=%b", hb, h_raw, v, vb, vbcnt, rv, o_txtv, txtv20);
         end
-        if( tile_dot && !vb && vbcnt > 16 && txtc20 != o_txtc ) mm20_c = mm20_c + 1;
+        if( tile_dot && !vb && vbcnt > 16 && !o_txtv && txtc20 != o_txtc ) mm20_c = mm20_c + 1;
     end
     o_txtv <= txtv;
     o_txtc <= txtc;
@@ -343,8 +343,8 @@ initial begin
     csv <= 1;
     gl_v = v;
     $display("scan tile at column 8 of this line: code %02h", mt[ vid_index( 8'h40, v ) ]);
-    gl_byte = rom[ 12'h800 + { mt[gl_idx], gl_v[2:0] } ];
-    gl_col  = mc[gl_idx];
+    gl_byte = rom[ 12'h800 + { mt[ vid_index( 8'h40, gl_v ) ], gl_v[2:0] } ];
+    gl_col  = mc[ vid_index( 8'h40, gl_v ) ];
     gl_h0   = 8'h47;
     gl_n = 0; gl_bad = 0; gl_arm = 1;
     wait_hraw( 8'h47, 0 );
@@ -352,7 +352,7 @@ initial begin
     wait_hraw( 8'h50, 0 );
     gl_arm = 0;
     gl_ok = gl_n==8 && gl_bad==0;
-    $display("CSV read held over the load at column 8: loads tile %03h (code %02h) instead of the scan tile: %0s", gl_idx, mt[gl_idx], gl_ok ? "ok" : "WRONG");
+    $display("CSV read of tile %03h held over the load at column 8: scan tile still shown: %0s", gl_idx, gl_ok ? "ok" : "WRONG");
     if( !gl_ok ) errors = errors + 1;
 
     repeat(3) @(posedge hb);
@@ -364,8 +364,8 @@ initial begin
     csv    <= 1;
     memwr0 <= 1;
     gl_v = v;
-    gl_byte = rom[ 12'h800 + { gl_code, gl_v[2:0] } ];
-    gl_col  = gl_code[3:0];
+    gl_byte = rom[ 12'h800 + { mt[ vid_index( 8'h80, gl_v ) ], gl_v[2:0] } ];
+    gl_col  = mc[ vid_index( 8'h80, gl_v ) ];
     gl_h0   = 8'h87;
     gl_n = 0; gl_bad = 0; gl_arm = 1;
     wait_hraw( 8'h87, 0 );
@@ -375,7 +375,7 @@ initial begin
     wait_hraw( 8'h90, 0 );
     gl_arm = 0;
     gl_ok = gl_n==8 && gl_bad==0;
-    $display("CSV write over the load at column 16: ROM address and 5T take the CPU data %02h (DDT bus): %0s", gl_code, gl_ok ? "ok" : "WRONG");
+    $display("CSV write of %02h to tile %03h over the load at column 16: scan tile still shown: %0s", gl_code, gl_idx, gl_ok ? "ok" : "WRONG");
     if( !gl_ok ) errors = errors + 1;
 
     wait_field;
