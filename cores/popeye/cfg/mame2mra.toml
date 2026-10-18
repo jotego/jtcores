@@ -1,0 +1,53 @@
+[global]
+zip.alt="popeyebl.zip"
+
+[parse]
+sourcefile=[ "popeye.cpp" ]
+skip.setnames=[ "popeyehs" ]
+
+[buttons]
+Names = [
+    { machine="skyskipr", names="Speed,Bomb" },
+    { names="Punch" },
+]
+
+[header]
+PCBs = [
+    { machine="popeye"   },
+    { machine="skyskipr" },
+]
+data = [ { pcb_id=true, offset=0 } ]
+registers = [
+    { name="tpp1rom", pos="1[1]", desc="TPP1 program ROM address rule", values=[ { setnames=["popeyej","popeyejo","skyskipr"], value=1 } ] },
+    { name="boot",    pos="1[2]", desc="bootleg: plain ROM, PROM protection, inverted colour PROMs", values=[ { setnames=["popeyebl","popeyeb2"], value=1 } ] },
+    { name="tpp1ram", pos="1[3]", desc="work RAM at 8000", values=[ { setnames=["popeyej","popeyejo","popeyebl","popeyeb2"], value=1 } ] },
+    { name="nibd7",   pos="1[4]", desc="background nibble selected by D7", values=[ { setnames=["popeyej","popeyejo","popeyebl","popeyeb2","skyskipr"], value=1 } ] },
+    { name="tnx1",    pos="1[5]", desc="TNX1 board (Sky Skipper)", values=[ { setname="skyskipr", value=1 } ] },
+]
+
+[ROM]
+regions = [
+    { name="maincpu", setname="skyskipr", len=0x8000 },
+    { name="maincpu" },
+    { name="gfx1",   setnames=["popeyej","popeyejo","skyskipr"], start="CHAR_START", rom_len=0x1000 },
+    { name="gfx1",   start="CHAR_START" },
+    { name="gfx2",   setname="skyskipr", start="OBJ_START", rom_len=0x2000, no_offset=true },
+    { name="gfx2",   start="OBJ_START"  },
+    { name="timing", setname="popeyeb2", start="JTFRAME_PROM_START", files=[ { name="7.11s.24s10", crc="1c5c8dea", size=0x100 } ] },
+    { name="timing", start="JTFRAME_PROM_START" },
+    { name="sprpal" },
+    { name="proms"  },
+    { name="blprot", setname="popeyebl", sequence=[1,0] },
+    { name="blprot" },
+]
+
+order = [ "maincpu", "gfx1", "gfx2", "timing", "sprpal", "proms", "blprot" ]
+
+[dipsw]
+extra=[
+    { machine="popeye", name="Copyright", options="Nintendo America,Nintendo Co Ltd,Nintendo,Nintendo Amer. 2", bits="12,13" },
+]
+defaults=[
+    { value="df,03" },
+    { machine="skyskipr", value="df,06" }
+]

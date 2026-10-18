@@ -1,0 +1,90 @@
+params:
+  - { name: CHAR_OFFSET, value: "`CHAR_START>>1" }
+  - { name: OBJ0_OFFSET, value: "`OBJ_START>>1" }
+  - { name: OBJ1_OFFSET, value: "(`OBJ_START+'h2000)>>1" }
+  - { name: OBJ2_OFFSET, value: "(`OBJ_START+'h4000)>>1" }
+  - { name: OBJ3_OFFSET, value: "(`OBJ_START+'h6000)>>1" }
+clocks:
+  clk:
+    - mul: 21
+      div: 50
+      outputs:
+        - cen20
+        - cen10
+        - cen5
+    - mul: 1
+      div: 12
+      gate: [ "main" ]
+      outputs:
+        - cpu_cen
+    - mul: 1
+      div: 24
+      outputs:
+        - psg_cen
+audio:
+  rsum: 20k
+  rsum_feedback_res: true
+  pcb:
+    # same order as PCBs in mame2mra.toml
+    - { rfb: 20k, rsums: [ 20k, 30k, 30k ] } # TPP2 network (also TPP1, bootlegs)
+    - { rfb: 20k, rsums: [ 20k, 20k, 20k ] } # TNX1: plain sum
+  channels:
+    - { name: psga, data_width: 10, unsigned: true, dcrm: true, rsum: 20k, rc: [{ r: 2.5k, c: 47n }], rc_en: true }
+    - { name: psgb, data_width: 10, unsigned: true, dcrm: true, rsum: 30k }
+    - { name: psgc, data_width: 10, unsigned: true, dcrm: true, rsum: 30k }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 15
+        data_width: 8
+bram:
+  - name: char
+    addr_width: 12
+    data_width: 8
+    rom: { offset: CHAR_OFFSET }
+  - name: obj0
+    addr_width: 13
+    data_width: 16
+    rom: { offset: OBJ0_OFFSET }
+  - name: obj1
+    addr_width: 13
+    data_width: 16
+    rom: { offset: OBJ1_OFFSET }
+  - name: obj2
+    addr_width: 13
+    data_width: 16
+    rom: { offset: OBJ2_OFFSET }
+  - name: obj3
+    addr_width: 13
+    data_width: 16
+    rom: { offset: OBJ3_OFFSET }
+  # PROM order here must match the MRA order
+  - name: tprom
+    addr_width: 8
+    data_width: 4
+    prom: true
+  - name: objpall
+    addr_width: 8
+    data_width: 4
+    prom: true
+  - name: objpalh
+    addr_width: 8
+    data_width: 4
+    prom: true
+  - name: bgpal
+    addr_width: 5
+    data_width: 8
+    prom: true
+  - name: txtpal
+    addr_width: 5
+    data_width: 8
+    prom: true
+  - name: blprotl
+    addr_width: 8
+    data_width: 4
+    prom: true
+  - name: blproth
+    addr_width: 8
+    data_width: 4
+    prom: true

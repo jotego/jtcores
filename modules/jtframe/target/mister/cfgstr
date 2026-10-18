@@ -6,6 +6,7 @@
 {{ if not (.JTFRAME_NOMRA_DIP) }}   DIP;                      {{ end }}
 {{ if .JTFRAME_CHEAT }}             CHEAT;                    {{ end }}
     P1,Video;
+{{ if not .JTFRAME_SPLIT_VIDEO }}
     P1oLO,CRT H offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
     P1oPS,CRT V offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
     P1oG,CRT scale enable,Off,On;

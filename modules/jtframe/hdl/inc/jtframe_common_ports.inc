@@ -15,6 +15,10 @@
 `endif
     output   [`JTFRAME_COLORW-1:0]  red, green, blue,
     output          LHBL, LVBL, HS, VS,
+`ifdef JTFRAME_SPLIT_VIDEO
+    output   [ 7:0] split_r, split_g, split_b,
+    output          split_hs, split_vs, split_de, split_ce, split_field,
+`endif
     // cabinet I/O
     input   [ 3:0]  cab_1p, coin,
     input   [`JTFRAME_BUTTONS+3:0] joystick1, joystick2, joystick3, joystick4,

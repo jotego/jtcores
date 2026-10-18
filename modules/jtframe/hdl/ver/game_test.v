@@ -555,6 +555,16 @@ u_game(
     .LVBL        ( LVBL           ),
     .HS          ( HS             ),
     .VS          ( VS             ),
+`ifdef JTFRAME_SPLIT_VIDEO
+    .split_r     (                ),
+    .split_g     (                ),
+    .split_b     (                ),
+    .split_hs    (                ),
+    .split_vs    (                ),
+    .split_de    (                ),
+    .split_ce    (                ),
+    .split_field (                ),
+`endif
 
     .cab_1p      ( cab_1p         ),
     .coin        ( coin           ),
