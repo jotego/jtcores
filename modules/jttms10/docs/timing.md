@@ -178,7 +178,7 @@ charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
 states and premature first/second address words. The current suite runs 40
-positive controls and 47 rejection checks. Three rejection checks target
+positive controls and 48 rejection checks. Three rejection checks target
 sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs three controls and one duplicate-read mutation.
@@ -428,10 +428,10 @@ project interpretations, not official TI errata or full compliance signoff.
 The plain-copy expansion adds **6,860 programs** for **52,046 per matrix**
 and **156,608 exact timing programs**, including twelve additional early-CEN
 probes and 120 dependent loads. It covers 98/133 forms (35 missing).
-Eighty-five checker/model tests and 40 mutation controls/47 rejection checks
+Eighty-five checker/model tests and 40 mutation controls/48 rejection checks
 accompany the inventory. [copy-timing.md](copy-timing.md) records the shared
 field/DSP path, literal memory, handoff, read waits and hidden-write rules.
 The stricter audit has 4,068 discrepancies; the normal gate records 3,620
 project choices and 448 unresolved MOVB probes, including 45 agreed targets.
-The matched map estimates 3,517 ALMs/five DSPs. Final fitted-area ≤3,500 ALMs,
+The pre-response-tag-fix map (`e98c970fc`) estimates 3,517 ALMs/five DSPs. Final fitted-area ≤3,500 ALMs,
 STA and NARC acceptance remain open, along with all remaining issue scope.

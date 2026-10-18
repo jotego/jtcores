@@ -258,6 +258,13 @@ def main():
         store_fill_case='storemode_move_absolute_phase_cold2_hit'
         evidence['store_address_control']=run_case(work,'store_address_control',store_address_case,['--wait-states','1','--pause-clocks','1'])
         evidence['store_fill_control']=run_case(work,'store_fill_control',store_fill_case,['--wait-states','1','--pause-clocks','1'])
+        data_as_extension=work/'data-ack-as-extension-hdl'
+        shutil.copytree(MODULE/'hdl',data_as_extension)
+        replace_once(data_as_extension/'jttms10.v',
+            'mem_program && imm && !mem_cached && !control[15] && timing_active',
+            'imm && !mem_cached && !control[15] && timing_active')
+        evidence['data_ack_as_extension']=run_case(work,'data_ack_as_extension',store_fill_case,
+            ['--rtl-dir',str(data_as_extension),'--wait-states','1','--pause-clocks','1'],mutated=True)
         for name,case,old,new in (
             ('unpaced_store_address',store_address_case,'!((load_pending || store_pending) && imm &&','!(load_pending && imm &&'),
             ('lost_store_fill_work',store_fill_case,"time_left<=immediate_tail_clocks-16'd2;",'time_left<=time_left;')):

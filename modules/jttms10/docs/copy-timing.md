@@ -96,12 +96,21 @@ HDL/YAML hashes per capture. It is never an oracle or expected-failure list.
 
 The normal runner contains three **52,046-case** matrices, two DIV pauses
 and six 78-case early-CEN unions: **156,608 exact timing programs**. The
-suite has 85 checker/model tests, 40 mutation controls and 47 rejection
-checks (44 timing/stimulus and three separate event contracts). Four new
+suite has 85 checker/model tests, 40 mutation controls and 48 rejection
+checks (45 timing/stimulus and three separate event contracts). Four new
 actual RTL mutations add CPU work, lose copy slot credit, delay the first
 field word or restore a late registered post response. Each must fail
 with correct registers/ST and drained memory. The existing raw-field
 architectural regression also protects the read/write request gap.
+
+An early data-write ACK can arrive while the synchronous microcode ROM
+still holds the preceding extension-word control. Fetch/extension counters
+therefore qualify responses with the actual program-request tag. Without
+that guard, a cold absolute store with W=1 and a one-clock CEN pause
+incorrectly rebases intrinsic work, taking 144 rather than 136 INCLK in
+Icarus; the same original case passed Verilator and did not expose the bug.
+The existing positive control and a dedicated guard-removal RTL mutation
+check the interval with correct registers/ST and drained memory.
 
 ```sh
 python3 modules/jttms10/ver/timing/run.py --simulator verilator --case copy_
@@ -115,5 +124,5 @@ extended modes, broader consecutive/implicit-peripheral dependencies,
 full CPU HOLD/IRQ/resumption and outstanding-response CEN conditions remain
 open. Original electrical pin phases are outside the abstract word port.
 Final fitted area ≤3,500 ALMs, positive STA and NARC simulation/MiSTer
-validation remain separate gates. The current matched map estimates 3,517
+validation remain separate gates. The map before the response-tag correction (`e98c970fc`) estimates 3,517
 ALMs; it is not a fitted-area acceptance result.

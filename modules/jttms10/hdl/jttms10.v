@@ -603,9 +603,12 @@ module jttms10 #(
             // External fetches (CD or a cache fill) need the additional
             // processing state in UG §5.4.7. Response/dispatch clocks occupy
             // part of that state; cached hits have no external-fetch penalty.
-            if(mem_req && mem_ack && (fetch || imm))
+            // Early data requests can ACK while the ROM still holds the
+            // preceding extension microinstruction. Only a real program
+            // transfer may rebase fetch/extension work.
+            if(mem_req && mem_ack && mem_program)
                 fetch_wait<=mem_cached ? 16'd0 : CLKS_PER_STATE[15:0]-16'd2;
-            if(mem_req && mem_ack && mem_fast && (fetch || ir[7:0]==8'h80))
+            if(mem_req && mem_ack && mem_program && mem_fast && (fetch || ir[7:0]==8'h80))
                 fetch_wait<=0;
             // A cache-fill penalty must leave the following intrinsic word
             // states intact. CD already supplies a separate processing state
@@ -613,17 +616,17 @@ module jttms10 #(
             // this fill's ACK: one processing state plus the remaining one
             // or two intrinsic word states, before final writeback/fetch.
             // The cache response bridge has consumed one clock at this ACK.
-            if(mem_req && mem_ack && imm && !mem_cached && !control[15] && timing_active)
+            if(mem_req && mem_ack && mem_program && imm && !mem_cached && !control[15] && timing_active)
                 time_left<=immediate_tail_clocks-16'd2;
             // DSJ's final decrement/test work survives an external offset
             // fetch. TI pp.12-70..74 requires 3/9 taken and 2/8 untaken.
-            if(mem_req && mem_ack && imm && !mem_cached && timing_active && dsj_ir)
+            if(mem_req && mem_ack && mem_program && imm && !mem_cached && timing_active && dsj_ir)
                 time_left<=dsj_tail_clocks-16'd2;
-            if(mem_req && mem_ack && imm && mem_fast && ir[7:0]==0)
+            if(mem_req && mem_ack && mem_program && imm && mem_fast && ir[7:0]==0)
                 time_left<=16'd2*CLKS_PER_STATE[15:0]+FETCH_OVERLAP-16'd1;
             // Keep the intrinsic address-generation states after an external
             // extension response. Its cache bridge has consumed one clock.
-            if((load_pending || store_pending) && imm && mem_req && mem_ack && !mem_cached)
+            if((load_pending || store_pending) && imm && mem_req && mem_ack && mem_program && !mem_cached)
                 load_issue_left<=(load_offset || store_offset || !immediate_last ? LOAD_LEAD : LOAD_PRE)-1'b1;
             if((load_pending || store_pending) && step && ea_sel!=0) load_address_ready<=1;
             if(early_load && !load_started && cen && mem_req) load_started<=1;
