@@ -498,3 +498,9 @@ correct main/following state and read-only memory. The response-retention
 bench now has seven controls and one duplicate-read mutant. No new timing
 source choice or known-target waiver is added. Full standard-runner and
 clean-checkout acceptance remain pending; see[return-timing.md](return-timing.md).
+
+The isolated RETS fit at dc661d409 uses3,649 ALMs,149 above the3,500 limit,
+with68 RAM blocks and five DSPs. Internal four-corner STA at20ns has
+minimum setup+1.567ns/hold+0.163ns. External virtual I/O remains unconstrained;
+full NARC board timing closure and the final implementation's area remain
+required. This result does not pass the area acceptance gate.

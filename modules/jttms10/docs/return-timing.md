@@ -75,9 +75,12 @@ Matched NARC GSP quartus_map estimates3,570 ALMs,5,082 ALUTs,1,722
 registers,538,624 block-memory bits,five DSPs and zero MLAB bits: -50 ALMs
 and -41 ALUTs relative to POPST, unchanged registers/RAM/DSPs. Same158
 virtual pins, Quartus Lite20.1.1 Build720,5CSEBA6U23I7,20ns,seed1 and
-effort. These are synthesis estimates. An isolated fit is running; no
-fitted-area or STA claim is made. The final ceiling remains≤3,500 fitted
-ALMs.
+effort. The isolated fit completes at3,649 ALMs,1,722 registers,68 RAM
+blocks and five DSPs. This exceeds the3,500 fitted-ALM limit by149; the
+area gate fails. Four-corner internal STA at20ns has minimum setup+1.567ns
+and hold+0.163ns. External virtual I/O is unconstrained, so this is not
+full NARC board timing closure. The source snapshot matches dc661d409;
+remaining implementation changes must be fitted and analyzed again.
 
 Full standard-runner/clean-checkout, fitted area/STA and NARC/MiSTer
 acceptance remain pending. RETI/IRQ/graphics resumption, calls/traps/lists,
