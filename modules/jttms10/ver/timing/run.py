@@ -19,6 +19,7 @@ from oracle import INPUT_CLOCKS_PER_STATE, FIXED, fixed_states, multiply_states
 from scalar_cases import shift_cases, lmo_cases
 from alu_cases import alu_cases
 from xy_cases import xy_cases
+from coordinate_cases import coordinate_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -105,6 +106,7 @@ def cases():
     yield from store_mode_cases()
     yield from control_cases()
     yield from xy_cases()
+    yield from coordinate_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -119,6 +121,8 @@ def program(case):
     # Disable DRAM refresh and video; only the CPU uses the physical bus.
     words = movi(0xC00000B0, 14) + movi(0x8018 if case['cache_disabled'] else 0x18, 13)
     words += [0x0550, 0x81AE]  # SETF 16,0,0; MOVE A13,*A14,0
+    for address,value in case.get('setup_io',[]):
+        words += movi(address,14)+movi(value,13)+[0x0550,0x81AE]
     loop = 0x1000 + 16 * len(words)
     for reg, value in enumerate(case['regs']):
         words += movi(value, reg)
@@ -147,6 +151,9 @@ def parse_result(stdout):
     if len(results) != 1:
         raise ValueError(f"expected exactly one RESULT, found {len(results)}")
     fields = dict(item.split('=') for item in results[0].split()[1:])
+    implicit=[line for line in stdout.splitlines() if line.startswith('IMPLICIT ')]
+    if len(implicit)>1:raise ValueError('duplicate implicit-register observation')
+    if implicit:fields.update(item.split('=') for item in implicit[0].split()[1:])
     return {key: int(value, 10 if key in ('case', 'clocks', 'start', 'end', 'paused') else 16)
             for key, value in fields.items()}
 
@@ -442,7 +449,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -491,12 +498,12 @@ def main():
                 (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case else 0)}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case else 0) | (4 if case.get("observe_implicit") else 0)}',
                     f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions',0)}", f"+FOLLOW_PC={case.get('follow_pc',0):x}", f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case else 0) | (4 if case.get('observe_implicit') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
@@ -547,6 +554,12 @@ def main():
                 else:
                     fields=dict(item.split('=') for item in follow[0].split()[1:])
                     actual={key:int(value,10 if key=='clock' else 16) for key,value in fields.items()}
+                    if 'expected_follow_extra_regs' in case:
+                        extra=[line for line in log.splitlines() if line.startswith('FOLLOW_EXTRA ')]
+                        if len(extra)!=1:errors.append('expected exactly one following implicit-register observation')
+                        else:actual.update({key:int(value,16) for key,value in (item.split('=') for item in extra[0].split()[1:])})
+                        for key,value in case['expected_follow_extra_regs'].items():
+                            if actual.get(key)!=value:errors.append(f'first instruction after branch {key.upper()} mismatch')
                     row['observed_follow']=actual
                     spec=case['control_follow']
                     clocks=8*(spec['states']+spec['transfers']*args.wait_states)
@@ -555,6 +568,14 @@ def main():
                     for q,value in enumerate(case['expected_follow_regs']):
                         if actual[f'a{q}']!=value:errors.append(f'first instruction after branch A{q} mismatch')
                     if actual['st']!=case['expected_follow_st']:errors.append('first instruction after branch ST mismatch')
+                    if spec.get('scalar') and observed is not None:
+                        following=dict(name=case['name']+'_following',cache_disabled=case['cache_disabled'],
+                            states=spec['states'],test_pc=case['next_pc'],next_pc=case['follow_pc'])
+                        interval=dict(start=observed['end'],end=actual['clock'],clocks=actual['clock']-observed['end'])
+                        row['follow_bus_trace']=measured_trace(log,'BUS',interval)
+                        row['follow_target_trace']=measured_trace(log,'TARGET',interval)
+                        errors.extend('following coordinate: '+error for error in check_bus(following,interval,row['follow_bus_trace'],args.wait_states))
+                        errors.extend('following coordinate: '+error for error in check_target(following,interval,row['follow_target_trace'],args.wait_states))
                 memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
                 row['observed_memory']=memory
                 if sorted(memory)!=sorted(case['expected_follow_memory']):errors.append('memory after first post-branch instruction mismatch')

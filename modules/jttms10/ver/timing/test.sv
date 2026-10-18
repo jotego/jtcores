@@ -30,7 +30,7 @@ module test;
     integer pause_clocks=0,pause_after=0,pause_left=0,paused=0;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
-    reg [31:0] pause_regs[0:3], pause_bregs[0:4];
+    reg [31:0] pause_regs[0:3], pause_bregs[0:4], pause_implicit[0:2];
     reg [11:0] pause_uaddr;
     reg pause_active;
     reg [132:0] pause_work;
@@ -136,6 +136,7 @@ module test;
                 if(watch_extra!=0) begin
                     for(integer q=0;q<4;q=q+1)pause_bregs[q]=dut.u_cpu.u_core.u_regs.ram0[16+q];
                     pause_bregs[4]=dut.u_cpu.u_core.u_regs.ram0[15];
+                    if((watch_extra & 4)!=0) for(integer q=0;q<3;q=q+1)pause_implicit[q]=dut.u_cpu.u_core.u_regs.ram0[20+q];
                 end
             end
         end else if(measuring && !pause_done && pause_clocks>0 && now-start_clock-1>=pause_after) begin
@@ -154,6 +155,7 @@ module test;
             if(watch_extra!=0) begin
                 for(integer q=0;q<4;q=q+1)pause_bregs[q]=dut.u_cpu.u_core.u_regs.ram0[16+q];
                 pause_bregs[4]=dut.u_cpu.u_core.u_regs.ram0[15];
+                    if((watch_extra & 4)!=0) for(integer q=0;q<3;q=q+1)pause_implicit[q]=dut.u_cpu.u_core.u_regs.ram0[20+q];
             end
         end else if(pause_left>0) begin
             pause_left=pause_left-1;
@@ -274,15 +276,19 @@ module test;
                     for(integer q=0;q<4;q=q+1)
                         if(dut.u_cpu.u_core.u_regs.ram0[16+q]!==pause_bregs[q])$fatal(1,"B%0d changed while CEN paused",q);
                     if(dut.u_cpu.u_core.u_regs.ram0[15]!==pause_bregs[4])$fatal(1,"SP changed while CEN paused");
+                    if((watch_extra & 4)!=0) for(integer q=0;q<3;q=q+1)
+                        if(dut.u_cpu.u_core.u_regs.ram0[20+q]!==pause_implicit[q])$fatal(1,"implicit register changed while CEN paused");
                 end
                 if(cyc_req && !$test$plusargs("RESPONSE_PAUSE") && !(draining && drain_instructions==-2)) $fatal(1,"CPU launched a cycle during the early CEN pause");
             end
             if($test$plusargs("TRACE") && measuring)
-                $display("CORE %0d ua=%03h active=%b step=%b req=%b ack=%b complete=%b cache=%0d word=%b/%b cycle=%b/%b",
+                $display("CORE %0d ua=%03h active=%b step=%b req=%b ack=%b complete=%b cache=%0d word=%b/%b cycle=%b/%b a=%08h b=%08h md=%08h result=%08h qs=%08h qd=%08h",
                     now,dut.u_cpu.u_core.u_ctrl.uaddr,dut.u_cpu.u_core.active,
                     dut.u_cpu.u_core.step,dut.u_cpu.field_req,dut.u_cpu.field_ack,
                     dut.u_cpu.u_core.completed,dut.u_cpu.u_cache.state,
-                    dut.word_req,dut.word_ack,cyc_req,cyc_ack);
+                    dut.word_req,dut.word_ack,cyc_req,cyc_ack,
+                    dut.u_cpu.u_core.a,dut.u_cpu.u_core.b,dut.u_cpu.u_core.md,dut.u_cpu.u_core.result,
+                    dut.u_cpu.u_core.rs_data,dut.u_cpu.u_core.rd_data);
             if(measuring && !dut.u_cpu.field_req &&
                (dut.u_cpu.field_word_req || dut.u_cpu.field_word_lock) && !dut.word_pending)
                 $fatal(1,"pending field lost while physical work remains");
@@ -290,16 +296,25 @@ module test;
             if(dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
                 if(measuring || accepted_pc==test_pc || $test$plusargs("TRACE"))
                     $display("DECODE %0d %08h %04h",now,accepted_pc,accepted_ir);
-                if(measuring && follow_pc!=0 && accepted_pc==follow_pc)
+                if(measuring && follow_pc!=0 && accepted_pc==follow_pc) begin
                     $display("FOLLOW clock=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",now,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
                         dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
+                    if((watch_extra & 4)!=0) $display("FOLLOW_EXTRA b0=%08h b1=%08h b2=%08h b3=%08h b4=%08h b5=%08h b6=%08h sp=%08h",
+                        dut.u_cpu.u_core.u_regs.ram0[16],dut.u_cpu.u_core.u_regs.ram0[17],
+                        dut.u_cpu.u_core.u_regs.ram0[18],dut.u_cpu.u_core.u_regs.ram0[19],
+                        dut.u_cpu.u_core.u_regs.ram0[20],dut.u_cpu.u_core.u_regs.ram0[21],
+                        dut.u_cpu.u_core.u_regs.ram0[22],dut.u_cpu.u_core.u_regs.ram0[15]);
+                end
                 if(accepted_pc==test_pc) begin
                     seen<=seen+1;
                     if(seen==measure_pass) begin start_clock<=now; measuring<=1; end
                 end
                 if(measuring && !draining && accepted_pc==next_pc) begin
                     if((watch_extra & 2)!=0) $display("NEXT_OPCODE %04h",accepted_ir);
+                    if((watch_extra & 4)!=0) $display("IMPLICIT b4=%08h b5=%08h b6=%08h",
+                        dut.u_cpu.u_core.u_regs.ram0[20],dut.u_cpu.u_core.u_regs.ram0[21],
+                        dut.u_cpu.u_core.u_regs.ram0[22]);
                     if(watch_extra!=0)
                         $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h b0=%08h b1=%08h b2=%08h b3=%08h sp=%08h",
                             case_id,now-start_clock,start_clock,now,paused,st,

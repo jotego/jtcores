@@ -352,10 +352,19 @@ ucode:
   # Keep their scalar entry numbers stable for the opcode decoder.
   - name: cpw
     start: 103
-    seq: [gfx_mul]
+    seq:
+      # Source/WSTART are captured at decode; the read port then selects WEND.
+      - sub_alu, x_misc, reg_b
+      - sub_alu, x_misc, wr_reg, ni
   - name: cvxyl
     start: 104
-    seq: [gfx_mul]
+    seq:
+      # Shared DSP computes Y*pitch and X*pixel-size. B retains OFFSET.
+      - init_mul, reg_b
+      - step_mul
+      - corrq_mul
+      - step_mul
+      - add_alu, wr_reg, ni
   - name: pixt_rxy
     start: 106
     seq: [gfx_mul]

@@ -217,6 +217,17 @@ pins, device, clock, seed and effort. All 36 snapshot hashes and 29 copied
 inputs verify; the same 46 warning classifications remain. These are
 synthesis estimates; fitted-area/STA/NARC acceptance remains required.
 
+The coordinate CPW/CVXYL stage at `/tmp/jttms10-144-coordinate-map` reports
+**3,451 estimated ALMs,4,931 combinational ALUTs,1,653 registers,538,624
+block-memory bits,five DSP blocks and zero MLAB bits**. Relative to XY
+this is+74 estimated ALMs/+138ALUTs, with unchanged registers/RAM/DSPs.
+CPW shares the packed ALU; CVXYL shares the existing scalar DSP and adder.
+Same complete NARC GSP/158virtual pins, Quartus Lite20.1.1 Build720,
+5CSEBA6U23I7,20ns,seed1 and effort. The36snapshot hashes/29copied inputs
+and generated ROMs must match the final committed source. There are
+0errors and the same46warning classifications. These remain map estimates;
+fitted-area≤3500ALMs, positive STA and NARC gates remain open.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

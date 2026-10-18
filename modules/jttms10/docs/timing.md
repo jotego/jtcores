@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 91 of 133 instruction forms; the other 42 remain unvalidated.
+probes cover 96 of 133 instruction forms; the other 37 remain unvalidated.
 Some printed store counts conflict; affected probes label their inferred
 source policy explicitly and do not establish unqualified TI compliance.
 Single-word absolute MOVB also has a known gap against counts on which
@@ -174,9 +174,9 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. Twenty-three positive controls and
-28 rejection checks run in the timing suite. Two rejection checks target
-sequencer/pending-field event contracts; the others retain correct
+states and premature first/second address words. The current suite runs36
+positive controls and43 rejection checks. Three rejection checks target
+sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs three controls and one duplicate-read mutation.
 
@@ -189,9 +189,11 @@ it also fails on unresolved timing-source overrides, even if every form has
 probes. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-40,070-case inventory has 3,620 unresolved probe instances: 242 store probes,
+45,186-case inventory has 3,636 source-policy probe instances before the
+project owner’s simpler-implementation decision is applied: 242 store probes,
 six aligned absolute MOVE load CD probes, 1,996 untaken relative-jump
-probes and 1,376 CMPXY probes with conflicting primary counts. Twenty-seven store probe
+probes, 1,376 CMPXY probes with conflicting primary counts and16 CVXYL
+probes with printed/formula result differences. Twenty-seven store probe
 instances disagree with matching entry/summary counts. The JSON preserves
 each affected name, condition-specific source counts and citation. These
 are counts of probe instances, not distinct timing rules. The audit includes
@@ -199,8 +201,7 @@ applicable data-sheet counts as well as entry/summary alternatives; a third
 disagreeing source cannot be misreported as agreement between all sources.
 Four checker
 regressions keep all-form presence, numeric relabeling and applicable load
-source conflicts from bypassing this gate. There are now 52 checker/model
-tests. Probe presence and resolved sources remain necessary gates; neither
+source conflicts from bypassing this gate. There are64 checker/model tests at the coordinate stage. Probe presence and resolved sources remain necessary gates; neither
 completes the condition/bus/interrupt audit.
 The full #144 checklist remains open.
 
@@ -231,6 +232,7 @@ The full #144 checklist remains open.
 | External wait addition | §13.1.2 p.13-3; §11.4.10 p.11-16 | Full CPU raw ready at 4/12 INCLK, logical bus duration 16/24; exact added delay and independent target/start/order checks | Current probes pass |
 | Immediate forms: IW 2,8; IL 3,12 | ADDI pp.12-38–39, CMPI 12-54–55, MOVI 12-159–160, SUBI 12-249–250; ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 | 2,828 programs: source-level encoding/sign/flags, warm word alignments and first/second-extension misses; per-word waits and IAQ | Current probes pass; [immediate-timing.md](immediate-timing.md) records the contract and exclusions |
 | ADDXY/SUBXY/CMPXY | SPVU001A pp.12-41/56/252, summary12-12; SPVS002C June1991 p.11 | 4,156 programs: independent signed halves/flags, literal examples, A/B/SP, aliases, ignored field widths/FE and CEN phases | ADDXY/SUBXY hit/CD1/4; CMPXY summary3/6 conflicts with entry1/4 and remains blocked; see [xy-timing.md](xy-timing.md) |
+| CPW/CVXYL:1/4 and3/6 | SPVU001A pp.4-12,6-15,12-57..60; SPVS002C June1991 p.11 | 5,116 programs: signed/window boundaries, all pitch/pixel sizes, implicit B registers, aliases, OR/offset wrap, flags/fields, CEN and immediate branch targets | Count probes pass; four printed CVXYL result examples conflict with the formula. See [coordinate-timing.md](coordinate-timing.md) and the documented project choice |
 | JUMP/EXGPC, DSJ/EQ/NE/S and conditional JR/JAcc | SPVU001A pp.12-70..79,92..98; SPVS002C June1991 p.14 | 15,542 programs: both paths, all conditions/flags, A/B/SP, target alignment, displacement endpoints, literal PCs, CEN phases and immediate target fields | Current selected-count probes; untaken JR source discrepancies and the inferred long-JR CD5 remain explicit in [control-timing.md](control-timing.md) |
 | Calls/returns/traps, register lists and other hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
@@ -396,3 +398,16 @@ the shared packed-half adder, literal flags, independent coordinates and
 CMPXY entry1/4 versus summary3/6/data-sheet minimum3 conflict. Its 1,376
 source-policy instances increase unresolved acceptance probes to 3,620.
 These are documented test contracts; full issue acceptance remains open.
+
+The coordinate expansion adds **5,116 programs**, giving45,186 per matrix
+and135,956 exact timing programs across three matrices, two DIV pauses
+and six66-case unions. CPW/CVXYL add two forms (96/133;37 missing).
+The scalar shared ALU/DSP replaces their graphics-engine dispatch without
+adding DSPs or storage. All5,116 historical programs fail timing with
+correct architecture on70acbfee2;73 representatives are committed.
+[coordinate-timing.md](coordinate-timing.md) records the independent
+window/conversion models, literal examples, synchronous read priming and
+source discrepancies. The owner authorizes the simpler implementation
+when reliable source clarification cannot be found; printed alternatives
+and agreed published-target gaps remain explicit. This choice is not an
+official TI erratum or full issue acceptance.

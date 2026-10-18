@@ -1,0 +1,7485 @@
+{
+  "source_commit": "70acbfee2",
+  "note": "Historical unchanged HDL/YAML capture with independent primary-spec expectations. Two captures use the same old CPU: 5108 standalone programs followed by eight real post-branch coordinate programs. Four printed CVXYL result conflicts remain explicit; neither capture is an oracle, allowlist or official erratum.",
+  "total": 5116,
+  "failed": 5116,
+  "architectural_failures": 0,
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "51ec7c74866c86a3ef47f21bbe43b7f8a048f133349f61cb31ee954815807f06",
+    "hdl/jttms10_alu.v": "07218ac79d1ed88465323efd17b0c6dc9c396bd13e7f9ce8f9792913ed57daea",
+    "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "fb0dd7f6c33d094f9eb6901c7d08a3e16f70647f98000f99e8eb564ea2f66982",
+    "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+    "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "7e4c19e84d0f26d197c1e2580b3ac27851032daa52142fd22203511f28c91c52",
+    "ucode/control.yaml": "0f27ee1d156af2b0af6dca7cb2ea85d70f469814a7de79b16f6c14a3b8f71c8b",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "623e631b2eafbb5b2d0c9563220d53e32bea8787d8ea1d7e9b0bc151858d73df",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "captures": [
+    {
+      "total": 5108,
+      "provenance": {
+        "source_sha256": {
+          "hdl/jttms10.v": "51ec7c74866c86a3ef47f21bbe43b7f8a048f133349f61cb31ee954815807f06",
+          "hdl/jttms10_alu.v": "07218ac79d1ed88465323efd17b0c6dc9c396bd13e7f9ce8f9792913ed57daea",
+          "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+          "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+          "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+          "hdl/jttms10_ctrl.v": "fb0dd7f6c33d094f9eb6901c7d08a3e16f70647f98000f99e8eb564ea2f66982",
+          "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+          "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+          "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+          "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+          "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+          "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+          "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+          "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+          "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+          "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+          "hdl/jttms10_word.v": "7e4c19e84d0f26d197c1e2580b3ac27851032daa52142fd22203511f28c91c52",
+          "ucode/control.yaml": "0f27ee1d156af2b0af6dca7cb2ea85d70f469814a7de79b16f6c14a3b8f71c8b",
+          "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+          "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+          "ucode/memory.yaml": "623e631b2eafbb5b2d0c9563220d53e32bea8787d8ea1d7e9b0bc151858d73df",
+          "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+          "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+          "ver/timing/run.py": "6f9fa32c3bcfd2db28d075f3654fdd6c39ee4320bc1d4fa4ca7ea52ceb2cd762",
+          "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+          "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+          "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+          "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+          "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+          "ver/timing/load_mode_cases.py": "9ff6ae751706b7925d5b97352df99fa3dbd0f0fce0e43de09e6034d3b9aa8b9d",
+          "ver/timing/store_cases.py": "77c06214093c031e9121537d997f2a1d172ba9a339478b8a7292878b8de37bcf",
+          "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
+          "ver/timing/control_cases.py": "63c75ce96fe03ad716d81cc185b6237594451def44df5c1c1d334c39ea76326d",
+          "ver/timing/xy_cases.py": "27675e4d4d9f7d3ec2659d9077792a51d53009094a04b1b113e14b1084bf8cd3",
+          "ver/timing/coordinate_cases.py": "6d5d8f56c1264ce9dfffef2b99aa01c70bedf9bf22392d5670325da1bcebfd18",
+          "ver/timing/test.sv": "f7c85f9063bd1c9eb8ceffcf1c3767bc08d2d5dc4a69a9e03aff84d4c805ecbf"
+        },
+        "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+        "generated_sha256": {
+          "tms10.uc": "5efc659dddb7961ad3c0d19eca00f47e7b339f971e01060ce70fafe967d415f4",
+          "tms10.vh": "f109092de14593a17028369c3548ad45b98610fe6d38eac744857e74283af0ad",
+          "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+          "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+          "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+          "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+          "tms10_param.vh": "f5503d3a612a2374a0b728555d1ae189db44f9d7ba237065207da120e4459f94"
+        }
+      }
+    },
+    {
+      "total": 8,
+      "provenance": {
+        "source_sha256": {
+          "hdl/jttms10.v": "51ec7c74866c86a3ef47f21bbe43b7f8a048f133349f61cb31ee954815807f06",
+          "hdl/jttms10_alu.v": "07218ac79d1ed88465323efd17b0c6dc9c396bd13e7f9ce8f9792913ed57daea",
+          "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+          "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+          "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+          "hdl/jttms10_ctrl.v": "fb0dd7f6c33d094f9eb6901c7d08a3e16f70647f98000f99e8eb564ea2f66982",
+          "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+          "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+          "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+          "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+          "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+          "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+          "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+          "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+          "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+          "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+          "hdl/jttms10_word.v": "7e4c19e84d0f26d197c1e2580b3ac27851032daa52142fd22203511f28c91c52",
+          "ucode/control.yaml": "0f27ee1d156af2b0af6dca7cb2ea85d70f469814a7de79b16f6c14a3b8f71c8b",
+          "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+          "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+          "ucode/memory.yaml": "623e631b2eafbb5b2d0c9563220d53e32bea8787d8ea1d7e9b0bc151858d73df",
+          "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+          "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+          "ver/timing/run.py": "a5ac0b9e27e68717919770ef41e8ded85a0123feed57168e66a941f97d763c14",
+          "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+          "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+          "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+          "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+          "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+          "ver/timing/load_mode_cases.py": "9ff6ae751706b7925d5b97352df99fa3dbd0f0fce0e43de09e6034d3b9aa8b9d",
+          "ver/timing/store_cases.py": "77c06214093c031e9121537d997f2a1d172ba9a339478b8a7292878b8de37bcf",
+          "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
+          "ver/timing/control_cases.py": "0fb907e3996c6cf7fb34ce0618388d485a12b96871567ba78ca292b8c0c53bb8",
+          "ver/timing/xy_cases.py": "27675e4d4d9f7d3ec2659d9077792a51d53009094a04b1b113e14b1084bf8cd3",
+          "ver/timing/coordinate_cases.py": "a876cb4c9825292c745b101e9266c305cdef2a521fc39e5cd213ed3fbedd06cb",
+          "ver/timing/test.sv": "e7a1d6473ed33fb6da4c4fbdc28df0a2caa37cfbf8a3186360bdc5dd2b0adf0a"
+        },
+        "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+        "generated_sha256": {
+          "tms10.uc": "5efc659dddb7961ad3c0d19eca00f47e7b339f971e01060ce70fafe967d415f4",
+          "tms10.vh": "f109092de14593a17028369c3548ad45b98610fe6d38eac744857e74283af0ad",
+          "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+          "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+          "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+          "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+          "tms10_param.vh": "f5503d3a612a2374a0b728555d1ae189db44f9d7ba237065207da120e4459f94"
+        }
+      }
+    }
+  ],
+  "representatives": [
+    {
+      "name": "coordinate_cpw_window0_point0_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        2147516416,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        160,
+        1432778632,
+        2147516416,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 2147516416,
+        "window_start": 0,
+        "window_end": 0,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 0,
+        "clocks": 116,
+        "start": 2624,
+        "end": 2740,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 160,
+        "a1": 1432778632,
+        "a2": 2147516416,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 116 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch0_size1_point0_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        1,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2147483648,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1,
+        1432778632,
+        1,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2147483648,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 1,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          0
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 157,
+        "clocks": 780,
+        "start": 3720,
+        "end": 4500,
+        "paused": 0,
+        "st": 2064,
+        "a0": 1,
+        "a1": 1432778632,
+        "a2": 1,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2147483648,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 780 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_window0_point0_r0_2_0_a0_off",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        2147516416,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        160,
+        1432778632,
+        2147516416,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 2147516416,
+        "window_start": 0,
+        "window_end": 0,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 1272,
+        "clocks": 144,
+        "start": 4304,
+        "end": 4448,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 160,
+        "a1": 1432778632,
+        "a2": 2147516416,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 144 INCLK",
+        "TI instruction read start: expected clock 4312, observed 4424",
+        "target dispatch outside TI readiness window: 4424 versus 4312..4318"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4424 0 000013d0 0000 1",
+        "BUS_ACCEPT 4424",
+        "BUS_END 4440 0 000013d0 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4424 0 000013d0 0000 1",
+        "TARGET_END 4428 0 000013d0 0300"
+      ]
+    },
+    {
+      "name": "coordinate_cvxyl_pitch0_size1_point0_r0_2_0_a0_off",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        1,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2147483648,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1,
+        1432778632,
+        1,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2147483648,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 1,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          0
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 1429,
+        "clocks": 808,
+        "start": 5496,
+        "end": 6304,
+        "paused": 0,
+        "st": 2064,
+        "a0": 1,
+        "a1": 1432778632,
+        "a2": 1,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2147483648,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 808 INCLK",
+        "TI instruction read start: expected clock 5520, observed 6280",
+        "target dispatch outside TI readiness window: 6280 versus 5520..5526"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 6280 0 000014d0 0000 1",
+        "BUS_ACCEPT 6280",
+        "BUS_END 6296 0 000014d0 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 6280 0 000014d0 0000 1",
+        "TARGET_END 6284 0 000014d0 0300"
+      ]
+    },
+    {
+      "name": "coordinate_cpw_window0_point0_r1_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58960,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147516416,
+        "3": 3004574012,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 160,
+        "b1": 2970755892,
+        "b2": 2147516416,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 2147516416,
+        "window_start": 0,
+        "window_end": 0,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 2544,
+        "clocks": 116,
+        "start": 2624,
+        "end": 2740,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 160,
+        "b1": 2970755892,
+        "b2": 2147516416,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 116 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch0_size1_point0_r1_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59472,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 1,
+        "3": 2147483648,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 1,
+        "b1": 2970755892,
+        "b2": 1,
+        "b3": 2147483648,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 1,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          0
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 2701,
+        "clocks": 780,
+        "start": 3720,
+        "end": 4500,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 1,
+        "b1": 2970755892,
+        "b2": 1,
+        "b3": 2147483648,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 780 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_window0_point0_r1_2_0_a0_off",
+      "coverage_id": "CPW_RR",
+      "opcode": 58960,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147516416,
+        "3": 3004574012,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 160,
+        "b1": 2970755892,
+        "b2": 2147516416,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 2147516416,
+        "window_start": 0,
+        "window_end": 0,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 3826,
+        "clocks": 144,
+        "start": 4304,
+        "end": 4448,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 160,
+        "b1": 2970755892,
+        "b2": 2147516416,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 0,
+        "b6": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 144 INCLK",
+        "TI instruction read start: expected clock 4312, observed 4424",
+        "target dispatch outside TI readiness window: 4424 versus 4312..4318"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4424 0 000013d0 0000 1",
+        "BUS_ACCEPT 4424",
+        "BUS_END 4440 0 000013d0 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4424 0 000013d0 0000 1",
+        "TARGET_END 4428 0 000013d0 0300"
+      ]
+    },
+    {
+      "name": "coordinate_cvxyl_pitch0_size1_point0_r1_2_0_a0_off",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59472,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 1,
+        "3": 2147483648,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 1,
+        "b1": 2970755892,
+        "b2": 1,
+        "b3": 2147483648,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 1,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          0
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 3983,
+        "clocks": 808,
+        "start": 5496,
+        "end": 6304,
+        "paused": 0,
+        "st": 2064,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 1,
+        "b1": 2970755892,
+        "b2": 1,
+        "b3": 2147483648,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 808 INCLK",
+        "TI instruction read start: expected clock 5520, observed 6280",
+        "target dispatch outside TI readiness window: 6280 versus 5520..5526"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 6280 0 000014d0 0000 1",
+        "BUS_ACCEPT 6280",
+        "BUS_END 6296 0 000014d0 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 6280 0 000014d0 0000 1",
+        "TARGET_END 6284 0 000014d0 0300"
+      ]
+    },
+    {
+      "name": "coordinate_cpw_guide0_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        262148,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        160,
+        1432778632,
+        262148,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 262148,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 141,
+        "clocks": 116,
+        "start": 2624,
+        "end": 2740,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 160,
+        "a1": 1432778632,
+        "a2": 262148,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 116 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide1_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        262149,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        128,
+        1432778632,
+        262149,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 270534672,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 262149,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 142,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 270534672,
+        "a0": 128,
+        "a1": 1432778632,
+        "a2": 262149,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide2_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        262154,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        128,
+        1432778632,
+        262154,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 805308432,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 262154,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 143,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 805308432,
+        "a0": 128,
+        "a1": 1432778632,
+        "a2": 262154,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide3_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        262155,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        192,
+        1432778632,
+        262155,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 262155,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 144,
+        "clocks": 116,
+        "start": 2624,
+        "end": 2740,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 192,
+        "a1": 1432778632,
+        "a2": 262155,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 116 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide4_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        327684,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        32,
+        1432778632,
+        327684,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 327684,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 145,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 32,
+        "a1": 1432778632,
+        "a2": 327684,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide5_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        327685,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        327685,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1075841040,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 327685,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 146,
+        "clocks": 100,
+        "start": 2608,
+        "end": 2708,
+        "paused": 0,
+        "st": 1075841040,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 327685,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 100 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide6_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        327690,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        327690,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1610614800,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 327690,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 147,
+        "clocks": 100,
+        "start": 2608,
+        "end": 2708,
+        "paused": 0,
+        "st": 1610614800,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 327690,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 100 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide7_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        327691,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        64,
+        1432778632,
+        327691,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1881147408,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 327691,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 148,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 1881147408,
+        "a0": 64,
+        "a1": 1432778632,
+        "a2": 327691,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide8_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        655364,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        32,
+        1432778632,
+        655364,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2415921168,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 655364,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 149,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 2415921168,
+        "a0": 32,
+        "a1": 1432778632,
+        "a2": 655364,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide9_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        655365,
+        2418018320
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        655365,
+        2418018320
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2149582864,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 655365,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 150,
+        "clocks": 100,
+        "start": 2608,
+        "end": 2708,
+        "paused": 0,
+        "st": 2149582864,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 655365,
+        "a3": 2418018320,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 100 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide10_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        655370,
+        2684356624
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        655370,
+        2684356624
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 655370,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 151,
+        "clocks": 100,
+        "start": 2608,
+        "end": 2708,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 655370,
+        "a3": 2684356624,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 100 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide11_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        655371,
+        2954889232
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        64,
+        1432778632,
+        655371,
+        2954889232
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2954889232,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 655371,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 152,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 2954889232,
+        "a0": 64,
+        "a1": 1432778632,
+        "a2": 655371,
+        "a3": 2954889232,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide12_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        720900,
+        3221227536
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        288,
+        1432778632,
+        720900,
+        3221227536
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3489662992,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 720900,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 153,
+        "clocks": 116,
+        "start": 2624,
+        "end": 2740,
+        "paused": 0,
+        "st": 3489662992,
+        "a0": 288,
+        "a1": 1432778632,
+        "a2": 720900,
+        "a3": 3221227536,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 116 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide13_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        720901,
+        3491760144
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        256,
+        1432778632,
+        720901,
+        3491760144
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3491760144,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 720901,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 154,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 3491760144,
+        "a0": 256,
+        "a1": 1432778632,
+        "a2": 720901,
+        "a3": 3491760144,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide14_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        720906,
+        3758098448
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        256,
+        1432778632,
+        720906,
+        3758098448
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 4026533904,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 720906,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 155,
+        "clocks": 108,
+        "start": 2616,
+        "end": 2724,
+        "paused": 0,
+        "st": 4026533904,
+        "a0": 256,
+        "a1": 1432778632,
+        "a2": 720906,
+        "a3": 3758098448,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 108 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cpw_guide15_r0_2_0_a0_hit",
+      "coverage_id": "CPW_RR",
+      "opcode": 58944,
+      "regs": [
+        287454020,
+        1432778632,
+        720907,
+        4028631056
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        320,
+        1432778632,
+        720907,
+        4028631056
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 4028631056,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 12-57/58",
+      "conditions": {
+        "form": "CPW",
+        "point": 720907,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "test_pc": 5056,
+      "next_pc": 5072,
+      "observed": {
+        "case": 156,
+        "clocks": 116,
+        "start": 2624,
+        "end": 2740,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 320,
+        "a1": 1432778632,
+        "a2": 720907,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 116 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch0_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2147483648,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2147483663,
+        1432778632,
+        65567,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2147483648,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 270534672,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          0
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 158,
+        "clocks": 780,
+        "start": 3720,
+        "end": 4500,
+        "paused": 0,
+        "st": 270534672,
+        "a0": 2147483663,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2147483648,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 780 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch1_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 1073741824,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        3221225520,
+        1432778632,
+        65584,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1073741824,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 536872976,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 1,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          1
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 183,
+        "clocks": 758,
+        "start": 3696,
+        "end": 4454,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 3221225520,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1073741824,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 758 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch2_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        98303,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 536870912,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        842323575,
+        1432778632,
+        98303,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 536870912,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 98303,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 2,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          2
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 208,
+        "clocks": 736,
+        "start": 3672,
+        "end": 4408,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 842323575,
+        "a1": 1432778632,
+        "a2": 98303,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 536870912,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 736 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch3_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65536,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 268435456,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        268435456,
+        1432778632,
+        65536,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 268435456,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1073743888,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65536,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 3,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          3
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 233,
+        "clocks": 714,
+        "start": 3656,
+        "end": 4370,
+        "paused": 0,
+        "st": 1073743888,
+        "a0": 268435456,
+        "a1": 1432778632,
+        "a2": 65536,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 268435456,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 714 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch4_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65537,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 134217728,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        134217713,
+        1432778632,
+        65537,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 134217728,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1344276496,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65537,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 4,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          4
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 258,
+        "clocks": 692,
+        "start": 3632,
+        "end": 4324,
+        "paused": 0,
+        "st": 1344276496,
+        "a0": 134217713,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 134217728,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 692 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch5_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 67108864,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2214592543,
+        1432778632,
+        65567,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 67108864,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1610614800,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 5,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          5
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 283,
+        "clocks": 670,
+        "start": 3608,
+        "end": 4278,
+        "paused": 0,
+        "st": 1610614800,
+        "a0": 2214592543,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 67108864,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 670 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch6_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 33554432,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        338974376,
+        1432778632,
+        65584,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 33554432,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1881147408,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 6,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          6
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 308,
+        "clocks": 648,
+        "start": 3584,
+        "end": 4232,
+        "paused": 0,
+        "st": 1881147408,
+        "a0": 338974376,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 33554432,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 648 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch7_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        98303,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 16777216,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        16809983,
+        1432778632,
+        98303,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 16777216,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 98303,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 7,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          7
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 333,
+        "clocks": 626,
+        "start": 3568,
+        "end": 4194,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 16809983,
+        "a1": 1432778632,
+        "a2": 98303,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 16777216,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 626 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch8_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65536,
+        2418018320
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 8388608,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        8388592,
+        1432778632,
+        65536,
+        2418018320
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 8388608,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2418018320,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65536,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 8,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          8
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 358,
+        "clocks": 604,
+        "start": 3544,
+        "end": 4148,
+        "paused": 0,
+        "st": 2418018320,
+        "a0": 8388592,
+        "a1": 1432778632,
+        "a2": 65536,
+        "a3": 2418018320,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 8388608,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 604 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch9_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65537,
+        2684356624
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 4194304,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2151677953,
+        1432778632,
+        65537,
+        2684356624
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4194304,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65537,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 9,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          9
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 383,
+        "clocks": 582,
+        "start": 3520,
+        "end": 4102,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 2151677953,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 2684356624,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4194304,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 582 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch10_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        2954889232
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2097152,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        307517079,
+        1432778632,
+        65567,
+        2954889232
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2097152,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2954889232,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 10,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          10
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 408,
+        "clocks": 560,
+        "start": 3496,
+        "end": 4056,
+        "paused": 0,
+        "st": 2954889232,
+        "a0": 307517079,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 2954889232,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2097152,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 560 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch11_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        3221227536
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 1048576,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1048624,
+        1432778632,
+        65584,
+        3221227536
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1048576,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3221227536,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 11,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          11
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 433,
+        "clocks": 538,
+        "start": 3480,
+        "end": 4018,
+        "paused": 0,
+        "st": 3221227536,
+        "a0": 1048624,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 3221227536,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1048576,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 538 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch12_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        98303,
+        3491760144
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 524288,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        557039,
+        1432778632,
+        98303,
+        3491760144
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 524288,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3491760144,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 98303,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 12,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          12
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 458,
+        "clocks": 516,
+        "start": 3456,
+        "end": 3972,
+        "paused": 0,
+        "st": 3491760144,
+        "a0": 557039,
+        "a1": 1432778632,
+        "a2": 98303,
+        "a3": 3491760144,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 524288,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 516 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch13_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65536,
+        3758098448
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 262144,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2147745792,
+        1432778632,
+        65536,
+        3758098448
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 262144,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3758098448,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65536,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 13,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          13
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 483,
+        "clocks": 494,
+        "start": 3432,
+        "end": 3926,
+        "paused": 0,
+        "st": 3758098448,
+        "a0": 2147745792,
+        "a1": 1432778632,
+        "a2": 65536,
+        "a3": 3758098448,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 262144,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 494 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch14_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65537,
+        4028631056
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 131072,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        305550969,
+        1432778632,
+        65537,
+        4028631056
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 131072,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 4028631056,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65537,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 14,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          14
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 508,
+        "clocks": 472,
+        "start": 3408,
+        "end": 3880,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 305550969,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 131072,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 472 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch15_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 65536,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65567,
+        1432778632,
+        65567,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 65536,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 15,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          15
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 533,
+        "clocks": 450,
+        "start": 3392,
+        "end": 3842,
+        "paused": 0,
+        "st": 2064,
+        "a0": 65567,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 65536,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 450 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch16_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 32768,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        32800,
+        1432778632,
+        65584,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 32768,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 270534672,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 16,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          16
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 558,
+        "clocks": 428,
+        "start": 3368,
+        "end": 3796,
+        "paused": 0,
+        "st": 270534672,
+        "a0": 32800,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 32768,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 428 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch17_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        98303,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 16384,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2147516415,
+        1432778632,
+        98303,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 16384,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 536872976,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 98303,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 17,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          17
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 583,
+        "clocks": 406,
+        "start": 3344,
+        "end": 3750,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 2147516415,
+        "a1": 1432778632,
+        "a2": 98303,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 16384,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 406 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch18_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65536,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 8192,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        305428088,
+        1432778632,
+        65536,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 8192,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65536,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 18,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          18
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 608,
+        "clocks": 384,
+        "start": 3320,
+        "end": 3704,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 305428088,
+        "a1": 1432778632,
+        "a2": 65536,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 8192,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 384 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch19_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65537,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 4096,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        4097,
+        1432778632,
+        65537,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4096,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1073743888,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65537,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 19,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          19
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 633,
+        "clocks": 362,
+        "start": 3304,
+        "end": 3666,
+        "paused": 0,
+        "st": 1073743888,
+        "a0": 4097,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4096,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 362 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch20_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2063,
+        1432778632,
+        65567,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1344276496,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 658,
+        "clocks": 340,
+        "start": 3280,
+        "end": 3620,
+        "paused": 0,
+        "st": 1344276496,
+        "a0": 2063,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 340 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch21_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 1024,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2147484720,
+        1432778632,
+        65584,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1024,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1610614800,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 21,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          21
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 683,
+        "clocks": 318,
+        "start": 3256,
+        "end": 3574,
+        "paused": 0,
+        "st": 1610614800,
+        "a0": 2147484720,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1024,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 318 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch22_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        98303,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 512,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        305452663,
+        1432778632,
+        98303,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 512,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1881147408,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 98303,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 22,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          22
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 708,
+        "clocks": 296,
+        "start": 3232,
+        "end": 3528,
+        "paused": 0,
+        "st": 1881147408,
+        "a0": 305452663,
+        "a1": 1432778632,
+        "a2": 98303,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 512,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 296 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch23_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65536,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 256,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        256,
+        1432778632,
+        65536,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 256,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65536,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 23,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          23
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 733,
+        "clocks": 274,
+        "start": 3216,
+        "end": 3490,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 256,
+        "a1": 1432778632,
+        "a2": 65536,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 256,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 274 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch24_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65537,
+        2418018320
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 128,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        113,
+        1432778632,
+        65537,
+        2418018320
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 128,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2418018320,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65537,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 24,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          24
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 758,
+        "clocks": 252,
+        "start": 3192,
+        "end": 3444,
+        "paused": 0,
+        "st": 2418018320,
+        "a0": 113,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 2418018320,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 128,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 252 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch25_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        2684356624
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 64,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2147483743,
+        1432778632,
+        65567,
+        2684356624
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 64,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 25,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          25
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 783,
+        "clocks": 230,
+        "start": 3168,
+        "end": 3398,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 2147483743,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 2684356624,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 64,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 230 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch26_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        2954889232
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 32,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        305419944,
+        1432778632,
+        65584,
+        2954889232
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 32,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2954889232,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 26,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          26
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 808,
+        "clocks": 208,
+        "start": 3144,
+        "end": 3352,
+        "paused": 0,
+        "st": 2954889232,
+        "a0": 305419944,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 2954889232,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 32,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 208 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch27_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        98303,
+        3221227536
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 16,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        32767,
+        1432778632,
+        98303,
+        3221227536
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 16,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3221227536,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 98303,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 27,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          27
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 833,
+        "clocks": 186,
+        "start": 3128,
+        "end": 3314,
+        "paused": 0,
+        "st": 3221227536,
+        "a0": 32767,
+        "a1": 1432778632,
+        "a2": 98303,
+        "a3": 3221227536,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 16,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 186 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch28_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65536,
+        3491760144
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 8,
+        "4": 4294967280,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        4294967288,
+        1432778632,
+        65536,
+        3491760144
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 8,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3491760144,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65536,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 4294967280,
+        "pixel_size": 1,
+        "convdp": 28,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          28
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 858,
+        "clocks": 164,
+        "start": 3104,
+        "end": 3268,
+        "paused": 0,
+        "st": 3491760144,
+        "a0": 4294967288,
+        "a1": 1432778632,
+        "a2": 65536,
+        "a3": 3491760144,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 8,
+        "sp": 305418240,
+        "b4": 4294967280,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 164 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch29_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65537,
+        3758098448
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 4,
+        "4": 2147483648,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        2147483653,
+        1432778632,
+        65537,
+        3758098448
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 3758098448,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65537,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 2147483648,
+        "pixel_size": 1,
+        "convdp": 29,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          29
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 883,
+        "clocks": 142,
+        "start": 3080,
+        "end": 3222,
+        "paused": 0,
+        "st": 3758098448,
+        "a0": 2147483653,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 3758098448,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4,
+        "sp": 305418240,
+        "b4": 2147483648,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 142 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch30_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65567,
+        4028631056
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        305419927,
+        1432778632,
+        65567,
+        4028631056
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 4028631056,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65567,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 305419896,
+        "pixel_size": 1,
+        "convdp": 30,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          30
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 908,
+        "clocks": 120,
+        "start": 3056,
+        "end": 3176,
+        "paused": 0,
+        "st": 4028631056,
+        "a0": 305419927,
+        "a1": 1432778632,
+        "a2": 65567,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 120 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_pitch31_size1_point1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        65584,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 1,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        49,
+        1432778632,
+        65584,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 65584,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 31,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          31
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 933,
+        "clocks": 98,
+        "start": 3040,
+        "end": 3138,
+        "paused": 0,
+        "st": 2064,
+        "a0": 49,
+        "a1": 1432778632,
+        "a2": 65584,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 98 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide0_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        131840,
+        1432778632,
+        4194352,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 16,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          16
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 957,
+        "clocks": 428,
+        "start": 3368,
+        "end": 3796,
+        "paused": 0,
+        "st": 2064,
+        "a0": 131840,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 428 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide1_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        131456,
+        1432778632,
+        4194352,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 270534672,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 8,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          8
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 958,
+        "clocks": 406,
+        "start": 3344,
+        "end": 3750,
+        "paused": 0,
+        "st": 270534672,
+        "a0": 131456,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 406 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide2_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        131264,
+        1432778632,
+        4194352,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 536872976,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 4,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          4
+        ]
+      ],
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_conflict_kind": "behavior",
+      "source_values": {
+        "entry_cpu": 3,
+        "entry_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6,
+        "entry_example_result": 131072,
+        "formula_result": 131264
+      },
+      "source_notes": "Timing3/6 agrees. The scanned example on12-60 conflicts with the OR/shift/add formula on4-12 and12-59. Expected result follows the repeated formula; the printed alternative remains explicit and this source policy blocks acceptance. No official erratum is claimed.",
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 959,
+        "clocks": 384,
+        "start": 3320,
+        "end": 3704,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 131264,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 384 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide3_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 32768,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        164032,
+        1432778632,
+        4194352,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 32768,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 32768,
+        "pixel_size": 4,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          4
+        ]
+      ],
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_conflict_kind": "behavior",
+      "source_values": {
+        "entry_cpu": 3,
+        "entry_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6,
+        "entry_example_result": 163840,
+        "formula_result": 164032
+      },
+      "source_notes": "Timing3/6 agrees. The scanned example on12-60 conflicts with the OR/shift/add formula on4-12 and12-59. Expected result follows the repeated formula; the printed alternative remains explicit and this source policy blocks acceptance. No official erratum is claimed.",
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 960,
+        "clocks": 384,
+        "start": 3320,
+        "end": 3704,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 164032,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 32768,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 384 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide4_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 251658240,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        251789504,
+        1432778632,
+        4194352,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 251658240,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1073743888,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 251658240,
+        "pixel_size": 4,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          4
+        ]
+      ],
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_conflict_kind": "behavior",
+      "source_values": {
+        "entry_cpu": 3,
+        "entry_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6,
+        "entry_example_result": 251789312,
+        "formula_result": 251789504
+      },
+      "source_notes": "Timing3/6 agrees. The scanned example on12-60 conflicts with the OR/shift/add formula on4-12 and12-59. Expected result follows the repeated formula; the printed alternative remains explicit and this source policy blocks acceptance. No official erratum is claimed.",
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 961,
+        "clocks": 384,
+        "start": 3320,
+        "end": 3704,
+        "paused": 0,
+        "st": 1073743888,
+        "a0": 251789504,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 251658240,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 384 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide5_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        131168,
+        1432778632,
+        4194352,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1344276496,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 2,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          2
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 962,
+        "clocks": 362,
+        "start": 3304,
+        "end": 3666,
+        "paused": 0,
+        "st": 1344276496,
+        "a0": 131168,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 362 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide6_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        131120,
+        1432778632,
+        4194352,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1610614800,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 20,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 963,
+        "clocks": 340,
+        "start": 3280,
+        "end": 3620,
+        "paused": 0,
+        "st": 1610614800,
+        "a0": 131120,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 340 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide7_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 4096,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        262192,
+        1432778632,
+        4194352,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4096,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 1881147408,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 19,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          19
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 964,
+        "clocks": 362,
+        "start": 3304,
+        "end": 3666,
+        "paused": 0,
+        "st": 1881147408,
+        "a0": 262192,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 4096,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 362 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_cvxyl_guide8_r0_2_0_a0_hit",
+      "coverage_id": "CVXYL_RR",
+      "opcode": 59456,
+      "regs": [
+        287454020,
+        1432778632,
+        4194352,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 1024,
+        "4": 0,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65584,
+        1432778632,
+        4194352,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1024,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "observe_implicit": true,
+      "citation": "SPVU001A 4-12;6-15;12-59/60",
+      "conditions": {
+        "form": "CVXYL",
+        "point": 4194352,
+        "window_start": 327685,
+        "window_end": 655370,
+        "offset": 0,
+        "pixel_size": 1,
+        "convdp": 21,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0
+      },
+      "setup_io": [
+        [
+          3221225792,
+          21
+        ],
+        [
+          3221225808,
+          1
+        ]
+      ],
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_conflict_kind": "behavior",
+      "source_values": {
+        "entry_cpu": 3,
+        "entry_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6,
+        "entry_example_result": 65536,
+        "formula_result": 65584
+      },
+      "source_notes": "Timing3/6 agrees. The scanned example on12-60 conflicts with the OR/shift/add formula on4-12 and12-59. Expected result follows the repeated formula; the printed alternative remains explicit and this source policy blocks acceptance. No official erratum is claimed.",
+      "test_pc": 5312,
+      "next_pc": 5328,
+      "observed": {
+        "case": 965,
+        "clocks": 318,
+        "start": 3256,
+        "end": 3574,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 65584,
+        "a1": 1432778632,
+        "a2": 4194352,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 1024,
+        "sp": 305418240,
+        "b4": 0,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 318 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "coordinate_after_jr_long_cpw_r0",
+      "coverage_id": "JR_LONG",
+      "opcode": 51712,
+      "extensions": [
+        8
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2147516415,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147516415,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-96/97; SPVS002C June1991 p14",
+      "control_flow": {
+        "form": "JR_LONG",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JR_LONG",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CPW",
+        "follow_bank": 0,
+        "test_pc": 5056,
+        "pc_prime": 5088,
+        "target": 5216
+      },
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "SPVS002C June1991 p14 supplies minimum counts. JR_SHORT agrees with its entry; JR_LONG no-jump minimum2 differs from SPVU001A entry4 and summary1. CD5 for that path is inferred as minimum2 plus the following-opcode fetch3; the older sources print CD7/4. No official erratum is claimed.",
+      "target_opcode": 58944,
+      "observe_implicit": true,
+      "setup_io": [],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CPW",
+        "scalar": true,
+        "states": 4,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        192,
+        1432778632,
+        2147516415,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 807405584,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 58944,
+      "follow_pc": 5232,
+      "test_pc": 5056,
+      "next_pc": 5216,
+      "observed": {
+        "case": 0,
+        "clocks": 48,
+        "start": 4032,
+        "end": 4080,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147516415,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 32 INCLK, observed 144",
+        "following coordinate: TI instruction read start: expected clock 4088, observed 4200",
+        "following coordinate: target dispatch outside TI readiness window: 4200 versus 4088..4094"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4032 0 000013d0 0000 0",
+        "BUS_ACCEPT 4035",
+        "BUS_END 4048 0 000013d0 0008",
+        "BUS_BEGIN 4064 0 00001460 0000 1",
+        "BUS_ACCEPT 4067",
+        "BUS_END 4080 0 00001460 e640"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4035 0 000013d0 0000 0",
+        "TARGET_END 4039 0 000013d0 0008",
+        "TARGET_BEGIN 4067 0 00001460 0000 1",
+        "TARGET_END 4071 0 00001460 e640"
+      ],
+      "observed_next_opcodes": [
+        58944
+      ],
+      "observed_follow": {
+        "clock": 4224,
+        "st": 807405584,
+        "a0": 192,
+        "a1": 1432778632,
+        "a2": 2147516415,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 4200 0 00001470 0000 1",
+        "BUS_ACCEPT 4200",
+        "BUS_END 4216 0 00001470 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 4200 0 00001470 0000 1",
+        "TARGET_END 4204 0 00001470 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jr_long_cpw_r1",
+      "coverage_id": "JR_LONG",
+      "opcode": 51712,
+      "extensions": [
+        8
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 327685,
+        "3": 3004574012,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-96/97; SPVS002C June1991 p14",
+      "control_flow": {
+        "form": "JR_LONG",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JR_LONG",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CPW",
+        "follow_bank": 1,
+        "test_pc": 5056,
+        "pc_prime": 5088,
+        "target": 5216
+      },
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "SPVS002C June1991 p14 supplies minimum counts. JR_SHORT agrees with its entry; JR_LONG no-jump minimum2 differs from SPVU001A entry4 and summary1. CD5 for that path is inferred as minimum2 plus the following-opcode fetch3; the older sources print CD7/4. No official erratum is claimed.",
+      "target_opcode": 58960,
+      "observe_implicit": true,
+      "setup_io": [],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CPW",
+        "scalar": true,
+        "states": 4,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 538970128,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 58960,
+      "follow_pc": 5232,
+      "test_pc": 5056,
+      "next_pc": 5216,
+      "observed": {
+        "case": 1,
+        "clocks": 48,
+        "start": 4016,
+        "end": 4064,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 32 INCLK, observed 128",
+        "following coordinate: TI instruction read start: expected clock 4072, observed 4168",
+        "following coordinate: target dispatch outside TI readiness window: 4168 versus 4072..4078"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4016 0 000013d0 0000 0",
+        "BUS_ACCEPT 4019",
+        "BUS_END 4032 0 000013d0 0008",
+        "BUS_BEGIN 4048 0 00001460 0000 1",
+        "BUS_ACCEPT 4051",
+        "BUS_END 4064 0 00001460 e650"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4019 0 000013d0 0000 0",
+        "TARGET_END 4023 0 000013d0 0008",
+        "TARGET_BEGIN 4051 0 00001460 0000 1",
+        "TARGET_END 4055 0 00001460 e650"
+      ],
+      "observed_next_opcodes": [
+        58960
+      ],
+      "observed_follow": {
+        "clock": 4192,
+        "st": 538970128,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 4168 0 00001470 0000 1",
+        "BUS_ACCEPT 4168",
+        "BUS_END 4184 0 00001470 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 4168 0 00001470 0000 1",
+        "TARGET_END 4172 0 00001470 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jr_long_cvxyl_r0",
+      "coverage_id": "JR_LONG",
+      "opcode": 51712,
+      "extensions": [
+        8
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2147483697,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147483697,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-96/97; SPVS002C June1991 p14",
+      "control_flow": {
+        "form": "JR_LONG",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JR_LONG",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CVXYL",
+        "follow_bank": 0,
+        "test_pc": 5312,
+        "pc_prime": 5344,
+        "target": 5472
+      },
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "SPVS002C June1991 p14 supplies minimum counts. JR_SHORT agrees with its entry; JR_LONG no-jump minimum2 differs from SPVU001A entry4 and summary1. CD5 for that path is inferred as minimum2 plus the following-opcode fetch3; the older sources print CD7/4. No official erratum is claimed.",
+      "target_opcode": 59456,
+      "observe_implicit": true,
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          16
+        ]
+      ],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CVXYL",
+        "scalar": true,
+        "states": 6,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        238311816,
+        1432778632,
+        2147483697,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 807405584,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 59456,
+      "follow_pc": 5488,
+      "test_pc": 5312,
+      "next_pc": 5472,
+      "observed": {
+        "case": 2,
+        "clocks": 48,
+        "start": 4872,
+        "end": 4920,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147483697,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 48 INCLK, observed 456",
+        "following coordinate: TI instruction read start: expected clock 4944, observed 5352",
+        "following coordinate: target dispatch outside TI readiness window: 5352 versus 4944..4950"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4872 0 000014d0 0000 0",
+        "BUS_ACCEPT 4875",
+        "BUS_END 4888 0 000014d0 0008",
+        "BUS_BEGIN 4904 0 00001560 0000 1",
+        "BUS_ACCEPT 4907",
+        "BUS_END 4920 0 00001560 e840"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4875 0 000014d0 0000 0",
+        "TARGET_END 4879 0 000014d0 0008",
+        "TARGET_BEGIN 4907 0 00001560 0000 1",
+        "TARGET_END 4911 0 00001560 e840"
+      ],
+      "observed_next_opcodes": [
+        59456
+      ],
+      "observed_follow": {
+        "clock": 5376,
+        "st": 807405584,
+        "a0": 238311816,
+        "a1": 1432778632,
+        "a2": 2147483697,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 5352 0 00001570 0000 1",
+        "BUS_ACCEPT 5352",
+        "BUS_END 5368 0 00001570 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 5352 0 00001570 0000 1",
+        "TARGET_END 5356 0 00001570 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jr_long_cvxyl_r1",
+      "coverage_id": "JR_LONG",
+      "opcode": 51712,
+      "extensions": [
+        8
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147483697,
+        "3": 2048,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-96/97; SPVS002C June1991 p14",
+      "control_flow": {
+        "form": "JR_LONG",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JR_LONG",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CVXYL",
+        "follow_bank": 1,
+        "test_pc": 5312,
+        "pc_prime": 5344,
+        "target": 5472
+      },
+      "source_values": {
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "entry_typical_cpu": 3,
+        "entry_typical_cd": 6,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "primary-summary-consistent",
+      "source_notes": "SPVS002C June1991 p14 supplies minimum counts. JR_SHORT agrees with its entry; JR_LONG no-jump minimum2 differs from SPVU001A entry4 and summary1. CD5 for that path is inferred as minimum2 plus the following-opcode fetch3; the older sources print CD7/4. No official erratum is claimed.",
+      "target_opcode": 59472,
+      "observe_implicit": true,
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          16
+        ]
+      ],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CVXYL",
+        "scalar": true,
+        "states": 6,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 238311816,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 807405584,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 59472,
+      "follow_pc": 5488,
+      "test_pc": 5312,
+      "next_pc": 5472,
+      "observed": {
+        "case": 3,
+        "clocks": 48,
+        "start": 4872,
+        "end": 4920,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 48 INCLK, observed 456",
+        "following coordinate: TI instruction read start: expected clock 4944, observed 5352",
+        "following coordinate: target dispatch outside TI readiness window: 5352 versus 4944..4950"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4872 0 000014d0 0000 0",
+        "BUS_ACCEPT 4875",
+        "BUS_END 4888 0 000014d0 0008",
+        "BUS_BEGIN 4904 0 00001560 0000 1",
+        "BUS_ACCEPT 4907",
+        "BUS_END 4920 0 00001560 e850"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4875 0 000014d0 0000 0",
+        "TARGET_END 4879 0 000014d0 0008",
+        "TARGET_BEGIN 4907 0 00001560 0000 1",
+        "TARGET_END 4911 0 00001560 e850"
+      ],
+      "observed_next_opcodes": [
+        59472
+      ],
+      "observed_follow": {
+        "clock": 5376,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 238311816,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 5352 0 00001570 0000 1",
+        "BUS_ACCEPT 5352",
+        "BUS_END 5368 0 00001570 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 5352 0 00001570 0000 1",
+        "TARGET_END 5356 0 00001570 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jacc_cpw_r0",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        5232,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2147516415,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147516415,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CPW",
+        "follow_bank": 0,
+        "target_operand": 5232,
+        "test_pc": 5056,
+        "pc_prime": 5104,
+        "target": 5232
+      },
+      "target_opcode": 58944,
+      "observe_implicit": true,
+      "setup_io": [],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CPW",
+        "scalar": true,
+        "states": 4,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        192,
+        1432778632,
+        2147516415,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 807405584,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 58944,
+      "follow_pc": 5248,
+      "test_pc": 5056,
+      "next_pc": 5232,
+      "observed": {
+        "case": 4,
+        "clocks": 48,
+        "start": 4032,
+        "end": 4080,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147516415,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 32 INCLK, observed 144",
+        "following coordinate: TI instruction read start: expected clock 4088, observed 4200",
+        "following coordinate: target dispatch outside TI readiness window: 4200 versus 4088..4094"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4032 0 000013d0 0000 0",
+        "BUS_ACCEPT 4035",
+        "BUS_END 4048 0 000013d0 1470",
+        "BUS_BEGIN 4048 0 000013e0 0000 0",
+        "BUS_ACCEPT 4052",
+        "BUS_END 4064 0 000013e0 0000",
+        "BUS_BEGIN 4064 0 00001470 0000 1",
+        "BUS_ACCEPT 4068",
+        "BUS_END 4080 0 00001470 e640"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4035 0 000013d0 0000 0",
+        "TARGET_END 4039 0 000013d0 1470",
+        "TARGET_BEGIN 4052 0 000013e0 0000 0",
+        "TARGET_END 4056 0 000013e0 0000",
+        "TARGET_BEGIN 4068 0 00001470 0000 1",
+        "TARGET_END 4072 0 00001470 e640"
+      ],
+      "observed_next_opcodes": [
+        58944
+      ],
+      "observed_follow": {
+        "clock": 4224,
+        "st": 807405584,
+        "a0": 192,
+        "a1": 1432778632,
+        "a2": 2147516415,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 4200 0 00001480 0000 1",
+        "BUS_ACCEPT 4200",
+        "BUS_END 4216 0 00001480 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 4200 0 00001480 0000 1",
+        "TARGET_END 4204 0 00001480 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jacc_cpw_r1",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        5232,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 327685,
+        "3": 3004574012,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CPW",
+        "follow_bank": 1,
+        "target_operand": 5232,
+        "test_pc": 5056,
+        "pc_prime": 5104,
+        "target": 5232
+      },
+      "target_opcode": 58960,
+      "observe_implicit": true,
+      "setup_io": [],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CPW",
+        "scalar": true,
+        "states": 4,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 538970128,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 58960,
+      "follow_pc": 5248,
+      "test_pc": 5056,
+      "next_pc": 5232,
+      "observed": {
+        "case": 5,
+        "clocks": 48,
+        "start": 4016,
+        "end": 4064,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 32 INCLK, observed 128",
+        "following coordinate: TI instruction read start: expected clock 4072, observed 4168",
+        "following coordinate: target dispatch outside TI readiness window: 4168 versus 4072..4078"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4016 0 000013d0 0000 0",
+        "BUS_ACCEPT 4019",
+        "BUS_END 4032 0 000013d0 1470",
+        "BUS_BEGIN 4032 0 000013e0 0000 0",
+        "BUS_ACCEPT 4036",
+        "BUS_END 4048 0 000013e0 0000",
+        "BUS_BEGIN 4048 0 00001470 0000 1",
+        "BUS_ACCEPT 4052",
+        "BUS_END 4064 0 00001470 e650"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4019 0 000013d0 0000 0",
+        "TARGET_END 4023 0 000013d0 1470",
+        "TARGET_BEGIN 4036 0 000013e0 0000 0",
+        "TARGET_END 4040 0 000013e0 0000",
+        "TARGET_BEGIN 4052 0 00001470 0000 1",
+        "TARGET_END 4056 0 00001470 e650"
+      ],
+      "observed_next_opcodes": [
+        58960
+      ],
+      "observed_follow": {
+        "clock": 4192,
+        "st": 538970128,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 327685,
+        "b3": 3004574012,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 4168 0 00001480 0000 1",
+        "BUS_ACCEPT 4168",
+        "BUS_END 4184 0 00001480 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 4168 0 00001480 0000 1",
+        "TARGET_END 4172 0 00001480 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jacc_cvxyl_r0",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        5488,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2147483697,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 2048,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147483697,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CVXYL",
+        "follow_bank": 0,
+        "target_operand": 5488,
+        "test_pc": 5312,
+        "pc_prime": 5360,
+        "target": 5488
+      },
+      "target_opcode": 59456,
+      "observe_implicit": true,
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          16
+        ]
+      ],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CVXYL",
+        "scalar": true,
+        "states": 6,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        238311816,
+        1432778632,
+        2147483697,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 807405584,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 59456,
+      "follow_pc": 5504,
+      "test_pc": 5312,
+      "next_pc": 5488,
+      "observed": {
+        "case": 6,
+        "clocks": 48,
+        "start": 4872,
+        "end": 4920,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147483697,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 48 INCLK, observed 456",
+        "following coordinate: TI instruction read start: expected clock 4944, observed 5352",
+        "following coordinate: target dispatch outside TI readiness window: 5352 versus 4944..4950"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4872 0 000014d0 0000 0",
+        "BUS_ACCEPT 4875",
+        "BUS_END 4888 0 000014d0 1570",
+        "BUS_BEGIN 4888 0 000014e0 0000 0",
+        "BUS_ACCEPT 4892",
+        "BUS_END 4904 0 000014e0 0000",
+        "BUS_BEGIN 4904 0 00001570 0000 1",
+        "BUS_ACCEPT 4908",
+        "BUS_END 4920 0 00001570 e840"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4875 0 000014d0 0000 0",
+        "TARGET_END 4879 0 000014d0 1570",
+        "TARGET_BEGIN 4892 0 000014e0 0000 0",
+        "TARGET_END 4896 0 000014e0 0000",
+        "TARGET_BEGIN 4908 0 00001570 0000 1",
+        "TARGET_END 4912 0 00001570 e840"
+      ],
+      "observed_next_opcodes": [
+        59456
+      ],
+      "observed_follow": {
+        "clock": 5376,
+        "st": 807405584,
+        "a0": 238311816,
+        "a1": 1432778632,
+        "a2": 2147483697,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 2048,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 5352 0 00001580 0000 1",
+        "BUS_ACCEPT 5352",
+        "BUS_END 5368 0 00001580 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 5352 0 00001580 0000 1",
+        "TARGET_END 5356 0 00001580 0300"
+      ],
+      "observed_memory": []
+    },
+    {
+      "name": "coordinate_after_jacc_cvxyl_r1",
+      "coverage_id": "JACC",
+      "opcode": 51840,
+      "extensions": [
+        5488,
+        0
+      ],
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147483697,
+        "3": 2048,
+        "4": 305419896,
+        "5": 327685,
+        "6": 655370
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_st": 807405584,
+      "cache_disabled": true,
+      "states": 6,
+      "citation": "SPVU001A 12-92/93",
+      "control_flow": {
+        "form": "JACC",
+        "taken": true,
+        "displacement": 8,
+        "bank": 0,
+        "register": 0,
+        "low_bits": 0,
+        "single_pass": false,
+        "test_address": null
+      },
+      "instruction_word_offset": 0,
+      "conditions": {
+        "form": "JACC",
+        "taken": true,
+        "nczv": 3,
+        "condition_code": 10,
+        "bank": null,
+        "register": null,
+        "value": null,
+        "displacement": 8,
+        "low_bits": 0,
+        "follow_form": "CVXYL",
+        "follow_bank": 1,
+        "target_operand": 5488,
+        "test_pc": 5312,
+        "pc_prime": 5360,
+        "target": 5488
+      },
+      "target_opcode": 59472,
+      "observe_implicit": true,
+      "setup_io": [
+        [
+          3221225792,
+          20
+        ],
+        [
+          3221225808,
+          16
+        ]
+      ],
+      "control_follow": {
+        "kind": "coordinate",
+        "form": "CVXYL",
+        "scalar": true,
+        "states": 6,
+        "transfers": 1
+      },
+      "expected_follow_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        807405584
+      ],
+      "expected_follow_extra_regs": {
+        "b0": 238311816,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "expected_follow_st": 807405584,
+      "expected_follow_memory": [],
+      "drain_instructions": 2,
+      "expected_next_opcode": 59472,
+      "follow_pc": 5504,
+      "test_pc": 5312,
+      "next_pc": 5488,
+      "observed": {
+        "case": 7,
+        "clocks": 48,
+        "start": 4872,
+        "end": 4920,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "sp": 305418240,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370
+      },
+      "errors": [
+        "first instruction after branch: expected 48 INCLK, observed 456",
+        "following coordinate: TI instruction read start: expected clock 4944, observed 5352",
+        "following coordinate: target dispatch outside TI readiness window: 5352 versus 4944..4950"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 4872 0 000014d0 0000 0",
+        "BUS_ACCEPT 4875",
+        "BUS_END 4888 0 000014d0 1570",
+        "BUS_BEGIN 4888 0 000014e0 0000 0",
+        "BUS_ACCEPT 4892",
+        "BUS_END 4904 0 000014e0 0000",
+        "BUS_BEGIN 4904 0 00001570 0000 1",
+        "BUS_ACCEPT 4908",
+        "BUS_END 4920 0 00001570 e850"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 4875 0 000014d0 0000 0",
+        "TARGET_END 4879 0 000014d0 1570",
+        "TARGET_BEGIN 4892 0 000014e0 0000 0",
+        "TARGET_END 4896 0 000014e0 0000",
+        "TARGET_BEGIN 4908 0 00001570 0000 1",
+        "TARGET_END 4912 0 00001570 e850"
+      ],
+      "observed_next_opcodes": [
+        59472
+      ],
+      "observed_follow": {
+        "clock": 5376,
+        "st": 807405584,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 807405584,
+        "b0": 238311816,
+        "b1": 2970755892,
+        "b2": 2147483697,
+        "b3": 2048,
+        "b4": 305419896,
+        "b5": 327685,
+        "b6": 655370,
+        "sp": 305418240
+      },
+      "follow_bus_trace": [
+        "BUS_BEGIN 5352 0 00001580 0000 1",
+        "BUS_ACCEPT 5352",
+        "BUS_END 5368 0 00001580 0300"
+      ],
+      "follow_target_trace": [
+        "TARGET_BEGIN 5352 0 00001580 0000 1",
+        "TARGET_END 5356 0 00001580 0300"
+      ],
+      "observed_memory": []
+    }
+  ]
+}

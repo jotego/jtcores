@@ -182,12 +182,24 @@ def inventory(rows):
         published = [count for key,count in values.items()
                      if key.endswith('_'+suffix) and not key.startswith('policy_') and count is not None]
         differs = policy is not None and any(count != policy for count in published)
-        if differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
+        results=[result for key,result in values.items() if key.endswith('_result') and not key.startswith('policy_')]
+        result_differs=False
+        if results:
+            selected=values.get('policy_result')
+            register=case.get('source_result_register','')
+            if selected is None or not register:
+                raise ValueError(f"{case['name']}: missing selected result-source policy")
+            expected=case['expected_regs'][int(register[1:])] if register.startswith('a') else case['expected_extra_regs'][register]
+            if selected!=expected:
+                raise ValueError(f"{case['name']}: source result policy differs from the probe expectation")
+            result_differs=any(value!=selected for value in results)
+        if differs or result_differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
             agreed_gap = len(published)>=2 and len(set(published))==1 and published[0]!=policy
             unresolved.append(dict(
                 name=case['name'], identifier=identifier, citation=case['citation'],
                 clock_unit='machine states', cache_disabled=case['cache_disabled'],
-                kind='agreed-published-target-gap' if agreed_gap else 'unresolved-source-policy',
+                kind='unresolved-behavior-source' if result_differs or case.get('source_conflict_kind')=='behavior' else
+                     'agreed-published-target-gap' if agreed_gap else 'unresolved-source-policy',
                 source_values=values))
     missing = [identifier for identifier, names in probes.items() if not names]
     return dict(
@@ -214,7 +226,7 @@ def main():
         print(f'UNVALIDATED {identifier}: SPVU001A {REQUIRED[identifier]}')
     unresolved = result['unresolved_source_probes']
     agreed = [row for row in unresolved if row['kind']=='agreed-published-target-gap']
-    print(f'TI timing-source acceptance: {len(unresolved)} unresolved probes, including {len(agreed)} probes with agreed published-target gaps')
+    print(f'TI expectation-source acceptance: {len(unresolved)} unresolved probes, including {len(agreed)} probes with agreed published-target gaps')
     for identifier in dict.fromkeys(row['identifier'] for row in unresolved):
         affected = [row for row in unresolved if row['identifier']==identifier]
         print(f'UNRESOLVED {identifier}: {len(affected)} source-policy probes; see source_values in the coverage report')

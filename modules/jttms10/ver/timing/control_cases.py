@@ -157,6 +157,8 @@ def program(case, movi):
                   if 'control_follow' in case else [0x0300,0x016C])
     words=movi(0xC00000B0,14)+movi(0x8018 if case['cache_disabled'] else 0x18,13)
     words += [0x0550,0x81AE]
+    for address,value in case.get('setup_io',[]):
+        words += movi(address,14)+movi(value,13)+[0x0550,0x81AE]
     loop=0x1000+16*len(words)
     words+=movi(loop,12)  # target/fallthrough return, outside watched A0..A3
     positions={}

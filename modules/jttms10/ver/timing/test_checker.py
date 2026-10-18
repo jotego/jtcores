@@ -17,9 +17,55 @@ from scalar_cases import shift_result, TI_SLA_EXAMPLES
 from coverage import inventory, REQUIRED
 from control_cases import condition, decrement, control_states, fixture as control_fixture
 from xy_cases import arithmetic as xy_arithmetic, fixture as xy_fixture, LITERALS as XY_LITERALS
+from coordinate_cases import point_code, linear, fixture as coordinate_fixture, CPW_EXAMPLES, CV_EXAMPLES
+from run import parse_result
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_point_code_literal_examples(self):
+        for point,value in CPW_EXAMPLES:
+            self.assertEqual(point_code(point,0x50005,0xA000A),value)
+
+    def test_point_code_signed_limits(self):
+        self.assertEqual(point_code(0x7FFF8000,0,0x7FFF7FFF),0x20)
+        self.assertEqual(point_code(0x80007FFF,0,0x7FFF7FFF),0x80)
+        with self.assertRaises(ValueError):point_code(0,0x80000000,0x7FFF7FFF)
+
+    def test_conversion_literal_examples_preserve_discrepancies(self):
+        actual=[linear(pt,offset,size,conv) for pt,offset,size,conv,_ in CV_EXAMPLES]
+        self.assertEqual([q for q,(a,row) in enumerate(zip(actual,CV_EXAMPLES)) if a!=row[-1]],[2,3,4,8])
+        self.assertEqual([actual[q] for q in [2,3,4,8]],[0x200C0,0x280C0,0x0F0200C0,0x10030])
+        for q in [0,1,5,6,7]:self.assertEqual(actual[q],CV_EXAMPLES[q][-1])
+
+    def test_conversion_pitch_and_or_before_offset(self):
+        for conv in range(32):self.assertEqual(linear(0x10000,0,1,conv),1<<(31-conv))
+        self.assertEqual(linear(0x10001,0,1,31),1)
+        self.assertEqual(linear(0x10001,0xFFFFFFFF,1,31),0)
+        self.assertEqual(linear(0x80007FFF,0x30,16,28),0x20)
+
+    def test_behavior_source_conflict_blocks_acceptance(self):
+        row=coordinate_fixture('CVXYL',0x400030,size=4)
+        result=inventory([row]);self.assertFalse(result['gate_passed'])
+        self.assertEqual(result['unresolved_source_probes'][0]['kind'],'unresolved-behavior-source')
+        self.assertEqual(row['source_values']['entry_cpu'],row['source_values']['policy_cpu'])
+
+    def test_behavior_source_conflict_cannot_hide_behind_status(self):
+        row=coordinate_fixture('CVXYL',0x400030,size=4)
+        row['timing_source_status']='primary-summary-consistent';del row['source_conflict_kind']
+        self.assertEqual(inventory([row])['unresolved_source_probes'][0]['kind'],'unresolved-behavior-source')
+
+    def test_result_source_policy_must_match_fixture(self):
+        row=coordinate_fixture('CVXYL',0x400030,size=4)
+        row['source_values']['policy_result']=0x1234
+        with self.assertRaisesRegex(ValueError,'source result policy differs'):inventory([row])
+
+    def test_implicit_register_observation_protocol(self):
+        log='RESULT case=0 clocks=8 start=100 end=108 paused=0 st=810 a0=1 a1=2 a2=3 a3=4\n'
+        extra='IMPLICIT b4=12345678 b5=00050005 b6=000a000a\n'
+        result=parse_result(log+extra);self.assertEqual(result['b4'],0x12345678)
+        self.assertEqual(result['b6'],0xA000A)
+        with self.assertRaisesRegex(ValueError,'duplicate implicit-register'):parse_result(log+extra+extra)
+
     def test_xy_literal_outputs_and_flags(self):
         for name,rows in XY_LITERALS.items():
             for source,dest,value,flags in rows:

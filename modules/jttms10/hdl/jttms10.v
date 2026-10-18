@@ -95,7 +95,9 @@ module jttms10 #(
     wire xy_sub = ir[15:9]==7'b1110001;
     wire xy_op = xy_add || xy_sub;
     wire xy_cmp = ir[15:9]==7'b1110010;
-    wire xy_packed = xy_op || xy_cmp;
+    wire cpw_ir = ir[15:9]==7'b1110011;
+    wire cvxyl_ir = ir[15:9]==7'b1110100;
+    wire xy_packed = xy_op || xy_cmp || cpw_ir;
     wire pix_rxy = ir[15:9]==7'b1111000;
     wire drav_ir = ir[15:9]==7'b1111011;
     wire line_ir = ir==16'hdf1a || ir==16'hdf9a;
@@ -118,6 +120,8 @@ module jttms10 #(
     wire [2:0] shift_kind = ir[15:13]==3'b001 ? ir[12:10] : ir[11:9];
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
     wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
+    wire [4:0] factor_index=cvxyl_ir ? ~convdp[4:0] : shift_raw;
+    wire [31:0] shift_factor=32'd1 << factor_index;
     // A one-hot operand shifts into both product halves. Right encodings
     // already contain 32-count, so both directions share this decoder/DSP.
     (* multstyle = "dsp" *) wire [63:0] mul_product = a * tmp;
@@ -246,7 +250,9 @@ module jttms10 #(
     wire decode_xy=decode_opcode[15:9]==7'b1110000 ||
                    decode_opcode[15:9]==7'b1110001 || decode_opcode[15:9]==7'b1110010;
     wire decode_xy_cmp=decode_opcode[15:9]==7'b1110010;
-    wire decode_timed=decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
+    wire decode_cpw=decode_opcode[15:9]==7'b1110011;
+    wire decode_cvxyl=decode_opcode[15:9]==7'b1110100;
+    wire decode_timed=decode_cpw || decode_cvxyl || decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
@@ -260,7 +266,7 @@ module jttms10 #(
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
                             decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
-                            decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long ||
+                            decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
                             decode_btstr || decode_immediate_word ||
                             (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
@@ -426,18 +432,29 @@ module jttms10 #(
                     ir[15:5]==11'h049 || ir[15:5]==11'h04b ||
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
+    // Both window limits are nonnegative. Cross-sign comparisons still
+    // need the original signed operands when the packed difference wraps.
+    wire cpw_low_x=a[15]!=b[15] ? a[15] : !result[15] && result[15:0]!=0;
+    wire cpw_low_y=a[31]!=b[31] ? a[31] : !result[31] && result[31:16]!=0;
+    wire cpw_high_x=a[15]!=b[15] ? !a[15] : result[15];
+    wire cpw_high_y=a[31]!=b[31] ? !a[31] : result[31];
+    wire [31:0] cpw_code=md | (cpw_high_x ? 32'h40 : 32'd0) |
+                             (cpw_high_y ? 32'h100 : 32'd0);
     jttms10_regs u_regs(
         .clk(clk),
         .rs_ext(gfx_active && gfx_rf_sa[5]),
         .rd_ext(gfx_active && gfx_rf_da[5]),
         .wa_ext(gfx_active && gfx_rf_wa[5]),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
-            fetch && (completed || mem_fast) ? {decode_opcode[4],decode_opcode[8:5]} :
+            fetch && (completed || mem_fast || (mem_ack && decode_cpw)) ? {decode_opcode[4],decode_opcode[8:5]} :
             ir==16'h0940 && tmp[25] ? 5'd26 :
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(gfx_active ? gfx_rf_da[4:0] :
+            fetch && (completed || mem_fast || mem_ack) && decode_cpw ? 5'd21 :
+            fetch && (completed || mem_fast) && decode_cvxyl ? 5'd20 :
             fetch && (completed || mem_fast) && (decode_store || decode_control) ? {decode_opcode[4],decode_opcode[3:0]} :
+            cpw_ir ? 5'd22 : cvxyl_ir ? 5'd20 :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
@@ -454,6 +471,7 @@ module jttms10 #(
                     (!div_ir || (!div_early &&
                       (!div_error || (div_mod && div_signed))))) && !rst),
         .wd(gfx_active ? (gfx_mdrf ? md : result) :
+            cpw_ir ? cpw_code :
             shift_finish ? shift_result :
             exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} :
@@ -733,11 +751,12 @@ module jttms10 #(
                 if(ld_ir) begin
                     ir<=fetch ? read_data[15:0] : md[15:0];
                     div_pairread<=0;
+                    if(fetch && decode_cpw) begin a<=rs_data; b<=rd_data; end
                 end
                 if(gfx_active && gfx_dst_ir) ir<=result[15:0];
                 if(shiftkinit || shiftrinit) begin
                     shift_zero<=shift_raw==0;
-                    tmp<=32'd1 << shift_raw;
+                    tmp<=shift_factor;
                 end
                 if(lmoinit) lmo_count<=lmo_code;
                 if(multiinit) begin
@@ -755,18 +774,33 @@ module jttms10 #(
                 end
                 if(mulinit) begin
                     // Capture both operands before either half of a pair write.
-                    a<=rd_data;
-                    b<=0;
-                    md<=field_extended;
-                    tmp<=field_extended;
+                    if(cvxyl_ir) begin
+                        a<={{16{rs_data[31]}},rs_data[31:16]};
+                        tmp<=shift_factor;
+                        mul_count<=0;
+                    end else begin
+                        a<=rd_data;
+                        b<=0;
+                        md<=field_extended;
+                        tmp<=field_extended;
+                    end
                 end
                 if(mulstep) begin
                     // One inferred DSP-backed unsigned product, using the
                     // existing architectural product storage and write path.
-                    b<=mul_product[63:32];
-                    md<=mul_product[31:0];
+                    if(cvxyl_ir) begin
+                        if(mul_count[0]) a<=md | mul_product[31:0];
+                        else md<=mul_product[31:0];
+                    end else begin
+                        b<=mul_product[63:32];
+                        md<=mul_product[31:0];
+                    end
                 end
-                if(mulcorrq && !ir[9] && tmp[31]) b<=result;
+                if(mulcorrq && cvxyl_ir) begin
+                    a<={16'd0,rs_data[15:0]};
+                    tmp<={27'd0,psize[4:0]};
+                    mul_count<=5'd1;
+                end else if(mulcorrq && !ir[9] && tmp[31]) b<=result;
                 if(mulcorrm && !ir[9] && a[31]) b<=result;
                 if(divinit) begin
                     // qs and qd are already primed by the fetch/dispatch
@@ -797,7 +831,10 @@ module jttms10 #(
                     md<={md[30:0],b[31] || !c};
                     mul_count<=mul_count-5'd1;
                 end
-                if(xy_finish) begin
+                if(xy_finish && cpw_ir) begin
+                    if(wr_reg) st[28]<=|cpw_code;
+                    else md<=(cpw_low_x ? 32'h20 : 32'd0) | (cpw_low_y ? 32'h80 : 32'd0);
+                end else if(xy_finish) begin
                     st[31]<=result[15:0]==0;
                     st[28]<=xy_sub ?
                         (a[15]!=b[15] ? !a[15] && b[15] : result[15]) :

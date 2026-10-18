@@ -326,6 +326,18 @@ def main():
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v',old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        cpw_case='coordinate_cpw_phase_r0_2_0_a0_off'
+        cvxyl_case='coordinate_cvxyl_phase_r1_2_0_a0_off'
+        evidence['cpw_control']=run_case(work,'cpw_control',cpw_case,['--wait-states','1','--pause-clocks','6'])
+        evidence['cvxyl_control']=run_case(work,'cvxyl_control',cvxyl_case,['--wait-states','1'])
+        for name,probe,extra,new in (
+            ('slow_cpw',cpw_case,('--wait-states','1','--pause-clocks','6'),
+             "decode_states=decode_cpw ? 6'd2 : decode_control ?"),
+            ('short_cvxyl',cvxyl_case,('--wait-states','1'),
+             "decode_states=decode_cvxyl ? 6'd2 : decode_control ?")):
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/'jttms10.v','decode_states=decode_control ?',new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,
