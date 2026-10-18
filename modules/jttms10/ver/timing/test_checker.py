@@ -26,10 +26,64 @@ from copy_extension_cases import literal_cases as copy_extension_literals, copy_
 from copy_pair_cases import literal_cases as copy_pair_literals, copy_pair_cases
 from emu_cases import emu_cases
 from stack_cases import popst_fixture, stack_cases
+from return_cases import rets_fixture, return_cases
 from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_rets_literal_arguments_and_saved_pc(self):
+        for n,sp in [(0,0x0FF00020),(1,0x0FF00030),(2,0x0FF00040),(16,0x0FF00120),(31,0x0FF00210)]:
+            row=rets_fixture('guide',False,n=n,address=0x0FF00000,target=0x1FFF0)
+            self.assertEqual(row['initial_memory'],[(0x0FF00000,0xFFF0),(0x0FF00010,1)])
+            self.assertEqual(row['expected_extra_regs']['sp'],sp)
+            self.assertEqual(row['stack_control_flow']['target'],0x1FFF0)
+        with self.assertRaises(ValueError):rets_fixture('bad',False,n=32)
+
+    def test_rets_primary_counts_ignore_field_size_and_preserve_status(self):
+        rows=list(return_cases());self.assertEqual(len(rows),1488)
+        self.assertEqual(len({r['name'] for r in rows}),1488)
+        for row in rows:
+            sp=row['initial_sp'];n=row['opcode']&31
+            self.assertEqual(row['states'],7+2*bool(sp&15)+3*row['cache_disabled'])
+            self.assertEqual(row['data_load']['width'],32)
+            self.assertEqual(row['expected_st'],row['regs'][3])
+            self.assertEqual(row['regs'],row['expected_regs'])
+            self.assertEqual(row['expected_extra_regs']['sp'],(sp+32+16*n)&0xFFFFFFFF)
+            pc=extract(row['initial_memory'],sp,32,False)&~15
+            self.assertEqual(row['stack_control_flow']['target'],pc)
+
+    def test_rets_warm_target_and_following_bank_are_real_program_words(self):
+        rows=[r for r in return_cases() if 'control_follow' in r]
+        self.assertEqual(len(rows),48)
+        for row in rows:
+            words,start,target=program(row)
+            self.assertEqual(words[(target-0x1000)//16],row['expected_next_opcode'])
+            self.assertEqual(words[(target-0x1000)//16+2],0x016C)
+            self.assertEqual(words[(start-0x1000)//16],row['opcode'])
+            self.assertEqual(row['follow_pc'],target+16)
+            self.assertEqual(program(row),(words,start,target))
+        sparse=rets_fixture('sparse',False,target=0x80010000)
+        words,start,target=program(sparse)
+        self.assertEqual(dict(sparse['initial_memory'])[target],0x0300)
+        self.assertEqual(dict(sparse['initial_memory'])[target+16],0x016C)
+        self.assertEqual(program(sparse),(words,start,target))
+
+    def test_rets_full_pc_and_sp_wrap_preserve_low_bit_rule(self):
+        for low in range(16):
+            row=rets_fixture('low',False,n=31,target=0xFFFF1800,low=low)
+            self.assertEqual(row['stack_control_flow']['target'],0xFFFF1800)
+        wrapped=rets_fixture('wrap',False,n=31,address=0xFFFFFFF0,target=0x10000)
+        self.assertEqual(wrapped['expected_extra_regs']['sp'],0x200)
+        self.assertEqual(wrapped['stack_control_flow']['target'],0x10000)
+
+    def test_rets_wrong_timing_rejected_with_correct_target_and_state(self):
+        for offset,clocks in [(0,80),(15,104)]:
+            row=rets_fixture('model',False,offset)
+            obs=dict(clocks=clocks,paused=7,st=row['expected_st'],**row['expected_extra_regs'])
+            obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+            self.assertEqual(check(row,obs,1,7),[])
+            obs['clocks']-=8;self.assertTrue(check(row,obs,1,7))
+
     def test_popst_primary_counts_and_full_stack_status(self):
         for off in (False,True):
             aligned=popst_fixture('model',off,loaded=0xC0000010,address=0x0FF00000)

@@ -24,6 +24,7 @@ sys.dont_write_bytecode=True
 sys.path.insert(0,str(HERE.parent/'timing'))
 from load_mode_cases import fixture
 from stack_cases import popst_fixture
+from return_cases import rets_fixture
 from run import program,parse_result,check_bus,check_target
 
 
@@ -81,7 +82,7 @@ def main():
                 str(HERE.parent/'timing/test.sv'),*map(str,sorted(hdl.glob('*.v')))],capture_output=True,text=True)
             if compiled.returncode:raise RuntimeError(compiled.stdout+compiled.stderr)
             result=subprocess.run(['vvp',str(binary),'+PROGRAM=program.mem','+DATA=data.mem',f'+DATA_COUNT={len(case["initial_memory"])}',
-                '+WATCH_EXTRA=1','+CASE_ID=0','+MEASURE_PASS=1',f'+TEST_PC={start:x}',f'+NEXT_PC={following:x}',
+                f'+WATCH_EXTRA={3 if case.get("stack_control_flow") else 1}','+CASE_ID=0','+MEASURE_PASS=1',f'+TEST_PC={start:x}',f'+NEXT_PC={following:x}',
                 '+WAIT=8',f'+PAUSE={case.get("response_pause_clocks",32)}','+PAUSE_AFTER=2','+RESPONSE_PAUSE'],cwd=work,capture_output=True,text=True,timeout=15)
             return evaluate(case,result.stdout+result.stderr,result.returncode)
         probes=[fixture('post',16,0,0,False,False,bank,source,dest,1,
@@ -89,6 +90,10 @@ def main():
                 for bank,source,dest in ((0,15,0),(1,15,0),(1,15,15))]
         for offset in (0,15):
             case=popst_fixture(f'response_pause_o{offset}',False,offset,15)
+            case['response_pause_clocks']=96
+            probes.append(case)
+        for offset in (0,15):
+            case=rets_fixture(f'response_pause_o{offset}',False,offset,n=31)
             case['response_pause_clocks']=96
             probes.append(case)
         for q,case in enumerate(probes):
@@ -108,7 +113,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','store_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','store_cases.py')]]
         args.report.write_text(json.dumps(dict(contract='CPU-only CEN response retention; exact TI base counts are checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0
