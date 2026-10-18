@@ -54,8 +54,8 @@ execution and ROM priming to prevent duplicate transactions.
 The generator groups tokens by underscore suffix, so `add_alu` selects an
 ALU field, but the standalone PC increment control is `pcinc`. Naming it
 `inc_pc` would merge it with the `md_pc`/`reg_pc`/`rel_pc` selector. The
-scalar JSR/RET mechanism has two return levels for one-bit shifts,
-reset-vector loading, and stack transfers. The graphics ROM has its own
+scalar JSR/RET mechanism has two return levels for reset-vector loading,
+register-list/division loops and stack transfers. The graphics ROM has its own
 two-level CALL/RET for conversion, window and pixel helpers. Scalar CALL
 targets and RETI's saved status use TMP, which scalar helpers preserve.
 
@@ -156,15 +156,17 @@ binary source chunks, have focused tests. LINE also has ordinary PC-rewind
 continuation tests;
 see [interrupts.md](interrupts.md) and [stack-isa.md](stack-isa.md).
 
-## Iterative shift loop
+## Shift and leading-bit datapaths
 
-Constant and register-count SLA/SLL/SRA/SRL/RL share a one-bit ALU helper.
-The controller skips its JSR when the captured five-bit count is zero and
-repeats the helper's return until the last bit. C and sticky SLA overflow are
-held separately until final writeback, preserving the other instructions'
-flag masks. No general-purpose register is modified during the loop.
-All ten encoding forms have YAML/reference coverage; see [shifts.md](shifts.md).
-The loop's additional clocks require integrated timing and performance work.
+Constant and register-count SLA/SLL/SRA/SRL/RL reuse the unsigned multiplier
+with a one-hot operand in TMP. Product-half selection, sign filling and
+wraparound supply the complete result without per-bit microcode iterations.
+SLA overflow tests signed representability rather than only the final sign.
+LMO uses a five-level leading-bit encoder, with a separate full-source zero
+test. Both operations take two YAML words, fitting within the one-state
+execution budget; SLA's scheduler retains its specified three-state timing.
+All forms have independent timing/math/flag probes; see [shifts.md](shifts.md)
+and [timing.md](timing.md).
 
 ## Register-list scan
 

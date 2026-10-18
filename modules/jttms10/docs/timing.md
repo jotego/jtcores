@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover five of 133 instruction forms; the other 128 remain unvalidated.
+probes cover 16 of 133 instruction forms; the other 117 remain unvalidated.
 The standard runner's coverage gate deliberately fails until that gap is
 closed. Passing the present probe matrix is not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -62,6 +62,9 @@ duration/read-start must increase by exactly N INCLK. Cache/fabric clocks
 continue during that pause. Pauses overlapping an outstanding bus read or
 its ACK need separate expectations and are not covered by this early-pause
 rule.
+The instruction sequencer's address and prime/execute phase must also hold;
+interrupt acceptance is gated by the CPU enable. This closes an earlier
+prime-phase advance that final writeback padding could otherwise conceal.
 
 Hidden states (§13.1.1, pp.13-2–3) are trailing memory writes that can
 overlap subsequent execution. Future memory/graphics tests must measure
@@ -82,6 +85,7 @@ alter these independent simulator checks.
 python3 modules/jttms10/ver/timing/run.py --report timing.json
 python3 modules/jttms10/ver/timing/run.py --wait-states 1 --report timing-wait.json
 python3 modules/jttms10/ver/timing/run.py --wait-states 1 --pause-clocks 7
+python3 modules/jttms10/ver/timing/run.py --simulator verilator --report timing-verilator.json
 python3 modules/jttms10/ver/timing/run.py --case mpys_fs2_positive_even_hit --traces timing-traces
 python3 modules/jttms10/ver/timing/mutations.py
 python3 modules/jttms10/ver/timing/coverage.py --report timing-coverage.json
@@ -95,6 +99,20 @@ No development `/tmp` paths or external captured programs are inputs.
 nonzero, including when a report is requested. Reports contain conditions,
 expected states, observed INCLK count, architectural values and measured
 bus events. Functional success does not waive timing failures.
+It runs programs in one simulation, resetting the full system and test
+memory between cases; no expected counts enter the HDL. Case identities,
+ordering and the final batch marker are checked so a missing or duplicated
+case cannot borrow another result. `--separate-processes` provides a fresh
+simulator per case for isolation cross-checks. The 1,148-case matrix before
+adding the literal SLA examples matched exactly between both modes,
+including every measured bus trace.
+
+Icarus remains the command-line default. Verilator plus a C++ compiler is
+optional locally and is used for the large matrices in CI; the normal runner
+selects it with `JTTMS10_TIMING_SIMULATOR=verilator`. The same 1,148-case
+matrix matched exactly between Icarus and Verilator. The latter reduced
+compile-and-run time from 91 seconds to about two seconds in this workspace.
+These runtime measurements are harness performance, not emulated CPU timing.
 `--trace-core` adds microaddress and controller/cache/bus handshake clocks
 to retained logs. Reports include source and generated-ROM hashes.
 
@@ -104,6 +122,9 @@ pauses must both fail timing while retaining correct architectural state.
 A separate stimulus mutation omits the requested external wait; both its
 wrong bus duration and instruction timing must be rejected. Compilation or
 functional failures do not count as successful timing-mutation detection.
+A fourth mutation restores that old prime-phase advance and must fail the
+explicit sequencer-hold assertion. It is an event-contract check, separate
+from the three demonstrations that finish with correct architectural results.
 
 ## Coverage ledger
 
@@ -121,8 +142,10 @@ The full #144 checklist remains open.
 | NOP: 1,4 | p.12-170 | Warm hit/cache disabled, full ST/register preservation | Current probes pass |
 | ADD: 1,4 | p.12-36 | Warm hit/cache disabled, arithmetic/flags | Current probes pass |
 | MOVK: 1,4 | p.12-161 | Warm hit/cache disabled, value/flags | Current probes pass |
+| SLA: 3,6; SLL/SRA/SRL/RL: 1,4 | pp.12-234–235, 12-239–246 | 850 programs: both encodings/cache modes, all counts, sign/zero/minimum boundaries, aliases, ignored count bits, flags and literal TI SLA examples | Current probes pass |
+| LMO: 1,4 | p.12-108 | 76 programs: every leading-bit position, zero/dense sources, aliases and source-zero Z | Current probes pass |
 | External wait addition | §13.1.2 p.13-3; LRDY p.2-8 | Target latencies of 16 and 24 INCLK, exact added delay and bus/start/order checks | Current probes pass; other ACK phases unvalidated |
-| Other scalar instructions, immediates, shifts/counts, LMO, divide/modulus exceptions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
+| Other scalar instructions, immediates and divide/modulus exceptions | §12 instruction entries | Not yet covered by timing probes | Unvalidated |
 | Branches, calls/returns/traps, register lists and hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Memory fields/bytes and address/alignment modes | §13.2 Tables 13-1–13-5 | Not yet covered by timing probes | Unvalidated |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
@@ -130,7 +153,7 @@ The full #144 checklist remains open.
 | Early CEN pauses | Wrapper clock-enable contract described above | Seven paused clocks before final writeback; full duration/state/read-start checks | Current directed probes pass |
 | HOLD/restart, interrupts/resumption, host/peripheral contention; ACK during CEN pause | §8; §11; §13.1.2 | Existing functional tests do not prove instruction timing | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | Eight checker tests, two RTL mutations and one stimulus mutation, each with positive controls | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | Eleven checker/model tests, two timing-only RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -158,8 +181,8 @@ response latch gives the synchronous dispatch ROM a full clock to select
 the family before IR/PC commit. This brings a register ADD's work and cached
 fetch within one eight-clock machine state.
 
-A scheduling counter currently applies only to NOP, ADD, MOVK and defined
-even-width MPYS/MPYU. It holds the final architectural writeback until four
+A scheduling counter currently applies to NOP, ADD, MOVK, shifts/rotates,
+LMO and defined even-width MPYS/MPYU. It holds the final architectural writeback until four
 clocks remain for overlapping the next cached fetch. MPYU adds a state from
 the captured source-field sign. With CD, the fetch response completes the
 additional processing state after the physical read. The counter freezes

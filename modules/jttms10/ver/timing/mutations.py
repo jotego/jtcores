@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
 
 
-def run_case(work, name, case, extra=(), mutated=False):
+def run_case(work, name, case, extra=(), mutated=False, event_error=None):
     report = work / (name+'.json')
     command = [sys.executable,str(HERE / 'run.py'),'--case',case,'--report',str(report),*extra]
     result = subprocess.run(command,capture_output=True,text=True,timeout=60)
@@ -29,6 +29,11 @@ def run_case(work, name, case, extra=(), mutated=False):
         raise RuntimeError(f'{name}: expected exactly one probe')
     row = data['cases'][0]
     observed = row['observed']
+    if event_error is not None:
+        if result.returncode!=1 or not row['errors'] or event_error not in result.stdout+result.stderr:
+            raise RuntimeError(f'{name}: expected event contract was not rejected\n{result.stdout}{result.stderr}')
+        print(f'{name}: PASS (sequencer pause event violation rejected)')
+        return data
     if observed is None or observed['st'] != row['expected_st'] or any(
             observed[f'a{q}'] != value for q,value in enumerate(row['expected_regs'])):
         raise RuntimeError(f'{name}: functional failure is not a timing-only mutation\n{result.stdout}{result.stderr}')
@@ -75,6 +80,13 @@ def main():
         replace_once(bench,'delay_clocks=16+extra_wait;','delay_clocks=16;')
         evidence['omitted_target_wait'] = run_case(work,'omitted_target_wait','nop_off',
             ['--bench',str(bench),'--wait-states','1'],mutated=True)
+
+        prime = work / 'primes-while-paused-hdl'
+        shutil.copytree(MODULE / 'hdl',prime)
+        replace_once(prime / 'jttms10_ctrl.v','else if(!cen && enable) begin','else if(!cen) begin')
+        evidence['sequencer_advances_during_pause'] = run_case(work,'sequencer_advances_during_pause',case,
+            ['--rtl-dir',str(prime),'--pause-clocks','7'],mutated=True,
+            event_error='instruction sequencer advanced while CEN paused')
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(evidence,indent=2)+'\n')

@@ -95,13 +95,14 @@ iverilog -g2012 -s test -o "$ver_dir/build/pixel.vvp" \
     "$ver_dir/../hdl/jttms10_alu.v"
 vvp "$ver_dir/build/pixel.vvp"
 python3 -B "$ver_dir/timing/test_checker.py"
-timing_args=()
+timing_simulator=${JTTMS10_TIMING_SIMULATOR:-iverilog}
+timing_args=(--simulator "$timing_simulator")
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
     timing_args+=(--report "$JTTMS10_TIMING_REPORT")
 fi
 python3 "$ver_dir/timing/run.py" "${timing_args[@]}"
-python3 "$ver_dir/timing/run.py" --wait-states 1
-python3 "$ver_dir/timing/run.py" --wait-states 1 --pause-clocks 7
+python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1
+python3 "$ver_dir/timing/run.py" --simulator "$timing_simulator" --wait-states 1 --pause-clocks 7
 python3 "$ver_dir/timing/mutations.py"
 coverage_args=()
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then

@@ -12,8 +12,9 @@ Instruction timing is currently noncompliant. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner fails its coverage gate until the currently unvalidated
-128 instruction forms have timing probes. The initial MPYS/MPYU/NOP/ADD/MOVK
-matrix passes; it is not full ISA signoff. Current #144 development uses a DSP multiply;
+117 instruction forms have timing probes. The current 16-form matrix includes
+MPYS/MPYU, NOP/ADD/MOVK, all shifts/rotates and LMO. It is not full ISA
+signoff. Current #144 development shares DSP multiplication with shifts;
 the final fitted area, FPGA timing and NARC checks must be repeated after
 the instruction timing changes are complete.
 
@@ -76,10 +77,9 @@ reference, requiring coverage of every recognized instruction encoding.
 Stack and trap assertions cover architectural results and physical
 MSW-first writes. RETI graphics resumption has separate focused tests.
 See [stack and unary ISA notes](docs/stack-isa.md).
-SLA/SLL/SRA/SRL/RL support both constant and register counts through a shared
-one-bit loop; [shift notes](docs/shifts.md) describe count encoding, flags,
-and the outstanding timing difference.
-SETF, SEXT/ZEXT, EXGF, BTST, and iterative LMO are also covered; see
+SLA/SLL/SRA/SRL/RL support both constant and register counts through the shared
+DSP; [shift notes](docs/shifts.md) describe count encoding, flags and timing.
+SETF, SEXT/ZEXT, EXGF, BTST, and the hierarchical LMO encoder are also covered; see
 [scalar field and bit notes](docs/field-bits.md).
 
 The [standalone peripheral page](docs/peripherals.md) implements CPU-visible

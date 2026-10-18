@@ -22,12 +22,13 @@ BTST's constant encoding is one's complement: a source-level bit zero uses
 encoded K=31, and bit 31 uses encoded K=0. The register form does not complement
 its index. These distinctions are explicit in the YAML programs.
 
-LMO uses a one-bit left-shift scan through the existing ALU, with a five-bit
-count. It stops when the high bit is set, or immediately when the source is
-zero. A nonzero source with its MSB set returns count zero with Z clear;
-a zero source returns zero with Z set. No priority encoder was added.
-As with iterative shifts, this functional implementation takes more clocks
-than TI's one-machine-state LMO timing.
+LMO uses a hierarchical 16/8/4/2/1-bit encoder. Its first YAML word captures
+the source and count; its second writes the count and source-zero flag.
+A nonzero source with its MSB set returns count zero with Z clear; a zero
+source returns zero with Z set. The scheduler enforces TI's one-state cached
+and four-state cache-disabled timing. Seventy-six permanent timing programs
+cover every leading-bit position, zero/dense sources and aliases, with
+full architectural-state and bus assertions; see [timing.md](timing.md).
 
 Five directed YAML cases check both fields, sizes 1/31/32, FE-independent
 extension, preservation of the other field and flags, EXGF upper-bit clearing

@@ -40,3 +40,20 @@ FIXED = {
 
 def fixed_states(name, *, cache_disabled=False):
     return FIXED[name][int(cache_disabled)]
+
+
+# (K page, register-count page), SPVU001A Machine States and Status Bits.
+SHIFT_PAGES = {
+    'RL': ('12-234', '12-235'),
+    'SLA': ('12-239', '12-240'),
+    'SLL': ('12-241', '12-242'),
+    'SRA': ('12-243', '12-244'),
+    'SRL': ('12-245', '12-246'),
+}
+
+
+def shift_states(name, *, count, cache_disabled=False):
+    """All counts, including zero, have the printed constant timing."""
+    if name not in SHIFT_PAGES or count not in range(32):
+        raise ValueError('undefined shift operation/count')
+    return (3 if name == 'SLA' else 1) + 3 * int(cache_disabled)

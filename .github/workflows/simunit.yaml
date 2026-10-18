@@ -73,10 +73,11 @@ jobs:
       - name: Install CPU simulation dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y iverilog python3-yaml
+          sudo apt-get install -y iverilog verilator g++ python3-yaml
       - name: Check CPU architecture, bus protocols and TI instruction timing
         env:
           JTTMS10_TIMING_REPORT: ${{ github.workspace }}/jttms10-timing.json
+          JTTMS10_TIMING_SIMULATOR: verilator
         run: PATH="/usr/bin:$PATH" bash modules/jttms10/ver/run.sh
       - uses: actions/upload-artifact@v4
         if: always()

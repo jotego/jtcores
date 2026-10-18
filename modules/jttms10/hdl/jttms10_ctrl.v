@@ -2,8 +2,6 @@
 module jttms10_ctrl(
     input             rst, clk, enable, ready,
     input      [15:0]  md,
-    input      [4:0]   shift_count,
-    input              lmo_more,
     input              multi_bit,
     input      [4:0]   multi_steps,
     input              multi_load,
@@ -19,8 +17,8 @@ module jttms10_ctrl(
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
-    output            shiftkinit, shiftrinit, shift_step, shift_finish,
-    output            setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish,
+    output            shiftkinit, shiftrinit, shift_finish,
+    output            setf, exgf, btstfinish, lmoinit, lmofinish,
     output            multiinit, multiadvance, ptrwr, listwr,
     output            mulinit, mulstep, mulcorrq, mulcorrm,
                       mulfinish, mulwrhi, mulwrlo,
@@ -44,7 +42,7 @@ module jttms10_ctrl(
     wire [1:0] multi_sel;
     wire [3:0] mul_sel;
     wire [1:0] lmo_sel;
-    wire [2:0] shift_sel;
+    wire [1:0] shift_sel;
     wire [2:0] misc_sel;
     wire [1:0] bus_sel;
     wire gfx_step;
@@ -60,10 +58,8 @@ module jttms10_ctrl(
     assign emu_step = misc_sel==EMU_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
-    assign shift_step = shift_sel==STEP_SHIFT;
     assign shift_finish = shift_sel==FINISH_SHIFT;
     assign lmoinit = lmo_sel==INIT_LMO;
-    assign lmoscan = lmo_sel==SCAN_LMO;
     assign lmofinish = lmo_sel==FINISH_LMO;
     assign multiinit = multi_sel==INIT_MULTI;
     assign multiskip = multi_sel==SKIP_MULTI;
@@ -96,11 +92,13 @@ module jttms10_ctrl(
     // cen=0 primes the synchronous ROM; cen=1 executes the latched word.
     // A waiting transaction leaves cen and uaddr unchanged. enable may pause
     // execution independently of the memory response capture in the datapath.
+    // enable also freezes the prime/execute phase and interrupt boundary
+    // acceptance; ROM preloading alone must not advance the sequencer.
     assign execute = cen && enable && ready && !halt;
     assign active = cen;
     wire boundary = !cen && uaddr==FETCH_SEQA;
     wire gfx_boundary = !cen && gfx_active && gfx_checkpoint;
-    assign hw_take = (boundary || gfx_boundary) && !rst &&
+    assign hw_take = enable && (boundary || gfx_boundary) && !rst &&
                      !halted && !emu_hold &&
                      (nmi_req || (irq_req && ie));
     assign gfx_family=uaddr[11:4];
@@ -138,9 +136,7 @@ module jttms10_ctrl(
         end
     endfunction
     assign reserved_opcode = is_reserved(md[15:8]);
-    wire loop_repeat = (shift_step && shift_count>5'd1) ||
-                       (lmoscan && lmo_more) ||
-                       (multiadvance && multi_steps>5'd1) ||
+    wire loop_repeat = (multiadvance && multi_steps>5'd1) ||
                        (divstep && mul_count!=5'd1);
     // Dispatch addresses match the six ops' class IDs in ucode/tms10.yaml.
     localparam [11:0] ADDIW_ENTRY = 12'h190,
@@ -358,7 +354,7 @@ module jttms10_ctrl(
             jsr_depth <= 0;
             halted <= 0;
             emu_hold <= 0;
-        end else if(!cen) begin
+        end else if(!cen && enable) begin
             // Host-present reset holds before the first vector fetch until
             // the host releases HLT (TI section 8.8).
             if(uaddr==RESET_SEQA && halt_req) begin
@@ -380,28 +376,19 @@ module jttms10_ctrl(
             if(emu_step && !emu_run) emu_hold <= 1;
             uaddr[3:0] <= uaddr[3:0]+1'b1;
             if(jsr_en) begin
-                // Zero-count shifts skip the helper while retaining C=0.
-                if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
-                   (jsr_sel==LMOLOOP_JSR && !lmo_more))
-                    uaddr <= uaddr+12'd1;
-                else begin
-                    uaddr <= jsr_ua;
-                    if(jsr_sel==RET_JSR) begin
-                        uaddr <= jsr_depth==2 ? jsr_ret2 : jsr_ret;
-                        if(!loop_repeat && jsr_depth!=0)
-                            jsr_depth <= jsr_depth-2'd1;
-                    end else if(jsr_depth==0) begin
-                        jsr_ret <= uaddr+12'd1;
-                        jsr_depth <= 1;
-                    end else begin
-                        jsr_ret2 <= uaddr+12'd1;
-                        jsr_depth <= 2;
-                    end
+                uaddr <= jsr_ua;
+                if(jsr_sel==RET_JSR) begin
+                    uaddr <= jsr_depth==2 ? jsr_ret2 : jsr_ret;
+                    if(!loop_repeat && jsr_depth!=0)
+                        jsr_depth <= jsr_depth-2'd1;
+                end else if(jsr_depth==0) begin
+                    jsr_ret <= uaddr+12'd1;
+                    jsr_depth <= 1;
+                end else begin
+                    jsr_ret2 <= uaddr+12'd1;
+                    jsr_depth <= 2;
                 end
             end
-            // The helper's RET_JSR returns on its final one-bit shift.
-            if(shift_step && shift_count>5'd1) uaddr <= SHIFTLOOP_SEQA;
-            if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
                 uaddr <= multi_load ? MMFMLOOP_SEQA : MMTMLOOP_SEQA;

@@ -4,7 +4,8 @@
 import unittest
 
 from oracle import multiply_states
-from run import cases, check, check_bus
+from run import cases, check, check_bus, split_transcripts
+from scalar_cases import shift_result, TI_SLA_EXAMPLES
 
 
 class TimingCheckerTest(unittest.TestCase):
@@ -63,6 +64,28 @@ class TimingCheckerTest(unittest.TestCase):
         self.assertEqual(check(self.case, self.observed, pause_clocks=7), [])
         self.observed['clocks'] = 48
         self.assertTrue(check(self.case, self.observed, pause_clocks=7))
+
+    def test_batch_case_association(self):
+        log='CASE 0\nRESULT case=0\nCASE 1\nRESULT case=1\nBATCH_DONE cases=2\n'
+        chunks=split_transcripts(log,[0,1],batch=True)
+        self.assertIn('RESULT case=0',chunks[0])
+        self.assertNotIn('RESULT case=1',chunks[0])
+        for bad in (log.replace('CASE 1','CASE 0'), log.replace('CASE 1','CASE 2')):
+            with self.subTest(log=bad), self.assertRaises(ValueError):
+                split_transcripts(bad,[0,1],batch=True)
+
+    def test_batch_must_finish_every_case(self):
+        for log in ('CASE 0\n', 'CASE 0\nBATCH_DONE cases=0\n',
+                    'CASE 0\nBATCH_DONE cases=1\nBATCH_DONE cases=1\n'):
+            with self.subTest(log=log), self.assertRaises(ValueError):
+                split_transcripts(log,[0],batch=True)
+
+    def test_ti_sla_example_vectors(self):
+        # SPVU001A p.12-239: complete result and NCZV examples.
+        for value,count,result,flags in TI_SLA_EXAMPLES:
+            with self.subTest(value=value,count=count):
+                actual,status=shift_result('SLA',value,count,0xF0000810)
+                self.assertEqual((actual,status),(result,(flags<<28)|0x810))
 
 
 if __name__ == '__main__':

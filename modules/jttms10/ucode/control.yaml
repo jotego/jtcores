@@ -162,24 +162,18 @@ ucode:
       - imm_bus, pcinc
       - immhi_a, reg_b
       - xor_alu, wr_reg, z_cc, ni
-  # Both encodings share the same iterative one-bit ALU helper. Right-shift
-  # counts are encoded as their five-bit two's complement in both forms.
+  # A DSP product by a one-hot operand supplies the complete shift/rotate.
+  # Right counts are encoded as their five-bit two's complement in both forms.
   - name: shiftk
     start: 73
     seq:
       - rd_a, kinit_shift
-      - shiftloop_jsr
-      - pass_alu, wr_reg, finish_shift, ni
+      - wr_reg, finish_shift, ni
   - name: shiftr
     start: 74
     seq:
       - rd_a, rinit_shift
-      - shiftloop_jsr
-      - pass_alu, wr_reg, finish_shift, ni
-  - name: shiftloop
-    start: 75
-    seq:
-      - shift_alu, step_shift, ret_jsr
+      - wr_reg, finish_shift, ni
   - name: setf
     start: 76
     seq:
@@ -210,12 +204,7 @@ ucode:
     start: 81
     seq:
       - reg_a, init_lmo
-      - lmoloop_jsr
       - finish_lmo, wr_reg, ni
-  - name: lmoloop
-    start: 82
-    seq:
-      - lmo_alu, scan_lmo, ret_jsr
   # TI pp.12-109..112: both encodings consume the mask MSB first. MMTM's
   # bit15 names R0 and walks upward; MMFM's bit15 names R15 and walks down.
   - name: mmtm

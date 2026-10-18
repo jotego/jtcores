@@ -62,6 +62,41 @@ one committed tree while development continues elsewhere. Its resolved
 `source_commit` and all copied/generated hashes are recorded in the manifest.
 The reference mode continues to use the unchanged pinned old submodule.
 
+## Timing, shared-DSP shifts and LMO development, 2026-10-18
+
+A matched Analysis & Synthesis map of the current #144 development retains
+three DSP blocks while adding constant-latency shifts/rotates and a
+hierarchical LMO encoder. It uses the same Quartus Lite 20.1.1 Build 720,
+`5CSEBA6U23I7`, 20 ns clock, seed 1, high-performance effort and complete
+`jtnarc_gsp` boundary with 158 virtual pins as the earlier comparison.
+
+| Map metric | #141 shift/add baseline | Isolated DSP multiply | Timing + shared-DSP shifts/LMO |
+|---|---:|---:|---:|
+| Estimated ALMs needed | 2,761 | 2,859 | 3,062 |
+| Combinational ALUTs | 3,944 | 4,033 | 4,310 |
+| Dedicated registers | 1,523 | 1,523 | 1,502 |
+| Block-memory bits | 542,720 | 542,720 | 538,624 |
+| DSP blocks | 0 | 3 | 3 |
+
+The final column includes cache/fetch, scheduling, shift and encoder changes;
+its increase cannot be attributed solely to DSP inference. The 4,096-bit
+memory reduction comes from narrowing a scalar control field. Physical M10K
+count is not reported by these maps. These estimates do not replace the
+2,746 fitted-ALM #141 baseline or establish the final 3,500 fitted-ALM ceiling.
+Fitting and FPGA setup/hold closure remain required after the implementation
+is complete, as does full ISA timing acceptance: only 16 of 133 instruction
+forms currently have timing probes.
+
+The immutable snapshot, generated ROMs, manifest and full map report are in
+`/tmp/jttms10-144-shift-lmo-final-map`. Reproduce the measurement with the committed
+snapshot script, then run only Analysis & Synthesis:
+
+```sh
+python3 modules/jttms10/ver/area/run.py --narc --snapshot-only /path/to/new-snapshot
+cd /path/to/new-snapshot
+quartus_map narc --read_settings_files=on --write_settings_files=off
+```
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

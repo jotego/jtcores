@@ -31,39 +31,77 @@ module test;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
     reg [31:0] pause_regs[0:3];
+    reg [11:0] pause_uaddr;
+    reg pause_active;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
-    reg measuring=0;
+    reg measuring=0,case_done=0;
+    integer case_id=0,batch_fd,word_count,loaded=0;
+    reg [15:0] input_word;
     // A combined fetch/dispatch commits IR and increments PC on the same
     // edge. The previous two-word microcode had incremented PC earlier.
     wire [31:0] accepted_pc=dut.u_cpu.u_core.fetch ? pc : pc-32'd16;
     wire [15:0] accepted_ir=dut.u_cpu.u_core.fetch ?
                            dut.u_cpu.u_core.read_data[15:0] : dut.u_cpu.u_core.md[15:0];
-    string program_path;
+    string program_path,batch_path;
     initial begin
-        if (!$value$plusargs("PROGRAM=%s",program_path) ||
-            !$value$plusargs("TEST_PC=%h",test_pc) ||
-            !$value$plusargs("NEXT_PC=%h",next_pc))
-            $fatal(1,"missing PROGRAM/TEST_PC/NEXT_PC");
         rc=$value$plusargs("WAIT=%d",extra_wait);
         rc=$value$plusargs("PAUSE=%d",pause_clocks);
         if(extra_wait<0) $fatal(1,"negative wait");
         delay_clocks=16+extra_wait;
-        for(i=0;i<4096;i=i+1) mem[i]=0;
-        $readmemh(program_path,mem);
-        repeat(5) @(negedge clk);
-        rst=0;
+        if($value$plusargs("BATCH=%s",batch_path)) begin
+            batch_fd=$fopen(batch_path,"r");
+            if(batch_fd==0) $fatal(1,"cannot open batch input");
+            rc=$fscanf(batch_fd,"%d %h %h %d",case_id,test_pc,next_pc,word_count);
+            while(rc==4) begin
+                if(word_count<1 || word_count>3840) $fatal(1,"invalid program length");
+                for(i=0;i<4096;i=i+1) mem[i]=0;
+                for(i=0;i<word_count;i=i+1) begin
+                    rc=$fscanf(batch_fd,"%h",input_word);
+                    if(rc!=1) $fatal(1,"truncated batch program");
+                    mem[256+i]=input_word;
+                end
+                $display("CASE %0d",case_id);
+                repeat(5) @(negedge clk);
+                rst=0;
+                wait(case_done);
+                @(negedge clk); rst=1;
+                loaded=loaded+1;
+                rc=$fscanf(batch_fd,"%d %h %h %d",case_id,test_pc,next_pc,word_count);
+            end
+            if(!$feof(batch_fd)) $fatal(1,"invalid batch record");
+            $fclose(batch_fd);
+            $display("BATCH_DONE cases=%0d",loaded);
+        end else begin
+            if (!$value$plusargs("PROGRAM=%s",program_path) ||
+                !$value$plusargs("TEST_PC=%h",test_pc) ||
+                !$value$plusargs("NEXT_PC=%h",next_pc))
+                $fatal(1,"missing PROGRAM/TEST_PC/NEXT_PC");
+            rc=$value$plusargs("CASE_ID=%d",case_id);
+            for(i=0;i<4096;i=i+1) mem[i]=0;
+            $readmemh(program_path,mem);
+            $display("CASE %0d",case_id);
+            repeat(5) @(negedge clk);
+            rst=0;
+            wait(case_done);
+        end
+        @(negedge clk);
+        $finish;
     end
 
     // Pause during CPU work, before its final writeback/next opcode read.
     // The cache/fabric remain clocked, as in the real system wrapper.
     always @(negedge clk) begin
-        if(!rst && measuring && !pause_done && pause_clocks>0) begin
+        if(rst) begin
+            cen=1; pause_done=0; pause_left=0;
+        end else if(measuring && !pause_done && pause_clocks>0) begin
             cen=0;
             pause_done=1;
             pause_left=pause_clocks;
             pause_pc=pc;
             pause_st=st;
+            pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
+            pause_active=dut.u_cpu.u_core.active;
             for(integer q=0;q<4;q=q+1)
                 pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
         end else if(pause_left>0) begin
@@ -96,7 +134,8 @@ module test;
                 addr_q<=cyc_addr; kind_q<=cyc_kind; data_q<=cyc_wdata;
                 io_q<=cyc_io_rdata; iaq_q<=cyc_iaq;
                 age<=1; bus_state<=BUSY;
-                $display("BUS_BEGIN %0d %0d %08h %04h %0d",now,
+                if(measuring || $test$plusargs("TRACE"))
+                    $display("BUS_BEGIN %0d %0d %08h %04h %0d",now,
                          cyc_kind,cyc_addr,cyc_wdata,cyc_iaq);
             end
             BUSY: begin
@@ -112,7 +151,8 @@ module test;
                     if(addr_q>=32'h10000) $fatal(1,"write outside test RAM");
                     mem[addr_q[15:4]]<=data_q;
                 end
-                $display("BUS_END %0d %0d %08h %04h",now,kind_q,addr_q,cyc_rdata);
+                if(measuring || $test$plusargs("TRACE"))
+                    $display("BUS_END %0d %0d %08h %04h",now,kind_q,addr_q,cyc_rdata);
                 bus_state<=IDLE;
             end
         endcase
@@ -122,13 +162,19 @@ module test;
     // fetch, as required by the cache-disabled timing convention (§13.1).
     // Warm pass excludes reset, cold fills, and setup from the observation.
     always @(posedge clk) begin
-        if(rst) now<=0;
+        if(rst) begin
+            now<=0; seen<=0; start_clock<=0; measuring<=0;
+            paused<=0; case_done<=0;
+        end
         else begin
             now<=now+1;
             if(measuring && !cen) begin
                 paused<=paused+1;
                 if(pc!==pause_pc || st!==pause_st || retire)
                     $fatal(1,"architectural state advanced while CEN paused");
+                if(dut.u_cpu.u_core.u_ctrl.uaddr!==pause_uaddr ||
+                   dut.u_cpu.u_core.active!==pause_active)
+                    $fatal(1,"instruction sequencer advanced while CEN paused");
                 for(integer q=0;q<4;q=q+1)
                     if(dut.u_cpu.u_core.u_regs.ram0[q]!==pause_regs[q])
                         $fatal(1,"A%0d changed while CEN paused",q);
@@ -142,17 +188,19 @@ module test;
                     dut.word_req,dut.word_ack,cyc_req,cyc_ack);
             if(fault) $fatal(1,"CPU fault pc=%h ir=%h",pc,ir);
             if(dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir) begin
-                $display("DECODE %0d %08h %04h",now,accepted_pc,accepted_ir);
+                if(measuring || accepted_pc==test_pc || $test$plusargs("TRACE"))
+                    $display("DECODE %0d %08h %04h",now,accepted_pc,accepted_ir);
                 if(accepted_pc==test_pc) begin
                     seen<=seen+1;
                     if(seen==1) begin start_clock<=now; measuring<=1; end
                 end
                 if(measuring && accepted_pc==next_pc) begin
-                    $display("RESULT clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",
-                        now-start_clock,start_clock,now,paused,st,
+                    $display("RESULT case=%0d clocks=%0d start=%0d end=%0d paused=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",
+                        case_id,now-start_clock,start_clock,now,paused,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
                         dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
-                    $finish;
+                    case_done<=1;
+                    measuring<=0;
                 end
             end
             if(now==200000) $fatal(1,"timing timeout pc=%h ir=%h seen=%0d",pc,ir,seen);

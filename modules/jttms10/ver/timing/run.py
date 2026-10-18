@@ -12,9 +12,11 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 
 sys.dont_write_bytecode = True
 from oracle import INPUT_CLOCKS_PER_STATE, FIXED, fixed_states, multiply_states
+from scalar_cases import shift_cases, lmo_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -83,6 +85,8 @@ def cases():
                        expected_st=expected_st, states=fixed_states(name, cache_disabled=cache_disabled),
                        cache_disabled=cache_disabled, citation="SPVU001A " + FIXED[name][2],
                        conditions={})
+    yield from shift_cases()
+    yield from lmo_cases()
 
 
 def program(case):
@@ -109,8 +113,44 @@ def parse_result(stdout):
     if len(results) != 1:
         raise ValueError(f"expected exactly one RESULT, found {len(results)}")
     fields = dict(item.split('=') for item in results[0].split()[1:])
-    return {key: int(value, 10 if key in ('clocks', 'start', 'end', 'paused') else 16)
+    return {key: int(value, 10 if key in ('case', 'clocks', 'start', 'end', 'paused') else 16)
             for key, value in fields.items()}
+
+
+def split_transcripts(log, identifiers, *, batch):
+    """Validate case association; one case must never inherit another's result."""
+    chunks = {}
+    order = []
+    active = None
+    for line in log.splitlines():
+        if line.startswith('CASE '):
+            active = int(line.split()[1])
+            if active in chunks:
+                raise ValueError(f'duplicate CASE marker {active}')
+            order.append(active)
+            chunks[active] = []
+        elif active is not None:
+            chunks[active].append(line)
+    if order != identifiers:
+        position = next((q for q,(a,b) in enumerate(zip(identifiers,order)) if a!=b),
+                        min(len(identifiers),len(order)))
+        expected = identifiers[position] if position<len(identifiers) else 'end'
+        actual = order[position] if position<len(order) else 'end'
+        raise ValueError(f'CASE order/count mismatch: expected {len(identifiers)} cases, observed {len(order)}; '
+                         f'at position {position}, expected {expected}, observed {actual}')
+    if batch and log.splitlines().count(f'BATCH_DONE cases={len(identifiers)}') != 1:
+        raise ValueError('missing or duplicate BATCH_DONE marker')
+    return {key: '\n'.join(lines) for key, lines in chunks.items()}
+
+
+def simulate(command, work, timeout):
+    try:
+        return subprocess.run(command, cwd=work, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        output = error.stdout or ''
+        if isinstance(output, bytes):
+            output = output.decode(errors='replace')
+        return subprocess.CompletedProcess(command, 124, output, 'simulation timed out\n')
 
 
 def check(case, observed, wait_states=0, pause_clocks=0):
@@ -172,11 +212,16 @@ def main():
                         help='complete alternative HDL directory for regression mutation checks')
     parser.add_argument('--bench', type=Path, default=HERE / 'test.sv',
                         help='alternative testbench for stimulus mutation checks')
+    parser.add_argument('--separate-processes', action='store_true',
+                        help='start a fresh simulator for each case (slower isolation cross-check)')
+    parser.add_argument('--simulator', choices=('iverilog', 'verilator'), default='iverilog',
+                        help='simulation engine (Verilator also requires a C++ compiler)')
     parser.add_argument('--wait-states', type=int, default=0,
                         help='add this many TI machine states to every physical cycle')
     parser.add_argument('--pause-clocks', type=int, default=0,
                         help='pause CEN during measured CPU execution for this many input clocks')
     args = parser.parse_args()
+    started = time.monotonic()
     if args.wait_states < 0 or args.pause_clocks < 0:
         parser.error('wait states and pause clocks must be nonnegative')
     selected = [case for case in cases() if args.case is None or args.case in case['name']]
@@ -190,43 +235,88 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
+    version_command = ['verilator','--version'] if args.simulator=='verilator' else ['iverilog','-V']
+    version = subprocess.run(version_command,capture_output=True,text=True,check=True)
+    provenance['simulator_version'] = version.stdout.splitlines()[0]
     with tempfile.TemporaryDirectory(prefix='jttms10-timing-') as temp:
         work = Path(temp)
         subprocess.run(['bash', str(MODULE / 'ver/build.sh'), str(work)], check=True,
                        stdout=subprocess.DEVNULL)
-        binary = work / 'timing.vvp'
-        subprocess.run(['iverilog', '-g2012', '-s', 'test', '-I', str(work),
-                        '-o', str(binary), str(args.bench.resolve()),
-                        *map(str, sorted(hdl.glob('*.v')))], check=True, cwd=work)
+        rtl_sources = [str(args.bench.resolve()), *map(str, sorted(hdl.glob('*.v')))]
+        if args.simulator == 'iverilog':
+            binary = work / 'timing.vvp'
+            compile_command = ['iverilog', '-g2012', '-s', 'test', '-I', str(work),
+                               '-o', str(binary), *rtl_sources]
+            executable = ['vvp', str(binary)]
+        else:
+            obj = work / 'obj'
+            compile_command = ['verilator', '--binary', '--timing', '--top-module', 'test',
+                '--timescale-override', '1ns/1ps', '-Wno-EOFNEWLINE', '-j', '4',
+                '--Mdir', str(obj), '-I'+str(work), *rtl_sources]
+            executable = [str(obj / 'Vtest')]
+        compiled = subprocess.run(compile_command, cwd=work, capture_output=True, text=True)
+        if args.traces:
+            (args.traces / 'compile.log').write_text(compiled.stdout+compiled.stderr)
+        if compiled.returncode:
+            print(compiled.stdout+compiled.stderr)
+            raise SystemExit(compiled.returncode)
         provenance['generated_sha256'] = {
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(work.iterdir()) if path.suffix in ('.vh', '.uc', '.hex')}
-        for case in selected:
+        prepared = []
+        for identifier, case in enumerate(selected):
             words, test_pc, next_pc = program(case)
             case = dict(case, test_pc=test_pc, next_pc=next_pc)
-            image = [0] * 4096
-            image[0x100:0x100 + len(words)] = words
-            (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
-            result = subprocess.run(['vvp', str(binary), '+PROGRAM=program.mem',
-                                     f'+TEST_PC={test_pc:x}', f'+NEXT_PC={next_pc:x}',
-                                     f'+WAIT={8 * args.wait_states}',
-                                     f'+PAUSE={args.pause_clocks}',
-                                     *(['+TRACE'] if args.trace_core else [])],
-                                    cwd=work, capture_output=True, text=True, timeout=30)
-            log = result.stdout + result.stderr
+            prepared.append((identifier, case, words))
+        base_command = [*executable, f'+WAIT={8 * args.wait_states}',
+                        f'+PAUSE={args.pause_clocks}', *(['+TRACE'] if args.trace_core else [])]
+        executions = []
+        if args.separate_processes:
+            for identifier, case, words in prepared:
+                image = [0] * 4096
+                image[0x100:0x100 + len(words)] = words
+                (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
+                command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
+                    f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
+                executions.append(([identifier], simulate(command, work, 30)))
+        else:
+            (work / 'cases.txt').write_text(''.join(
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {len(words)} " +
+                ' '.join(f'{word:04x}' for word in words) + '\n'
+                for identifier, case, words in prepared))
+            executions.append((list(range(len(prepared))), simulate(
+                base_command+['+BATCH=cases.txt'], work, max(30, 2*len(prepared)))))
+        logs = {}
+        protocol_errors = {}
+        for identifiers, result in executions:
+            output = result.stdout + result.stderr
+            try:
+                chunks = split_transcripts(output, identifiers, batch=not args.separate_processes)
+                logs.update(chunks)
+            except ValueError as error:
+                for identifier in identifiers:
+                    logs[identifier] = output
+                    protocol_errors[identifier] = str(error)
+            if result.returncode:
+                for identifier in identifiers:
+                    protocol_errors[identifier] = f'simulator exit {result.returncode}'
+        for identifier, case, words in prepared:
+            log = logs[identifier]
             if args.traces:
                 (args.traces / (case['name'] + '.log')).write_text(log)
             try:
-                if result.returncode:
-                    raise ValueError(f'simulator exit {result.returncode}')
-                observed = parse_result(result.stdout)
+                observed = parse_result(log)
                 errors = check(case, observed, args.wait_states, args.pause_clocks)
+                if observed['case'] != identifier:
+                    errors.append(f"expected case identifier {identifier}, observed {observed['case']}")
             except ValueError as error:
                 observed, errors = None, [str(error)]
+            if identifier in protocol_errors:
+                errors.insert(0, protocol_errors[identifier])
             row = dict(case, observed=observed, errors=errors)
             # Keep measured bus traffic with the verdict, including expected
             # zero-traffic warm hits. Full launch trace is available separately.
@@ -249,11 +339,14 @@ def main():
                                               external_wait_states=args.wait_states,
                                               cpu_pause_clocks=args.pause_clocks,
                                               full_isa_coverage=False,
+                                              simulation_mode='separate' if args.separate_processes else 'batch',
+                                              simulator=args.simulator,
+                                              elapsed_seconds=round(time.monotonic()-started, 3),
                                               provenance=provenance,
                                               cases=rows), indent=2) + '\n')
     failures = sum(bool(row['errors']) for row in rows)
     print(f'Timing: {len(rows)-failures} passed, {failures} failed, {len(rows)} total')
-    print('Scope: MPYS, MPYU, NOP, ADD, MOVK probes; full ISA timing signoff remains open (#144).')
+    print('Full ISA timing signoff remains open (#144); instruction/condition coverage is checked separately.')
     return int(failures != 0)
 
 
