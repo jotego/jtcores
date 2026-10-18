@@ -25,6 +25,7 @@ sys.path.insert(0,str(HERE.parent/'timing'))
 from load_mode_cases import fixture
 from stack_cases import popst_fixture
 from return_cases import rets_fixture
+from interrupt_return_cases import reti_fixture
 from run import program,parse_result,check_bus,check_target
 
 
@@ -42,7 +43,8 @@ def evaluate(case,log,returncode):
     if observed['paused']!=pause:errors.append(f'expected exactly {pause} CPU-disabled clocks')
     # An overlapping CEN pause may hide CPU wait time. Keep a conservative
     # completion bound; exact TI duration is checked in the normal suite.
-    data=case['data_load'];count=((data['address']&15)+data['width']+15)//16
+    data=case['data_load'];fields=case.get('stack_fields',[data])
+    count=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
     minimum=case['states']*8+count*8  # one wait on every physical read
     if not minimum<=observed['clocks']<=minimum+pause+8:
         errors.append('completion outside base..base+pause+one-state alignment bound')
@@ -96,6 +98,10 @@ def main():
             case=rets_fixture(f'response_pause_o{offset}',False,offset,n=31)
             case['response_pause_clocks']=96
             probes.append(case)
+        for offset in (0,15):
+            case=reti_fixture(f'response_pause_o{offset}',False,offset,15)
+            case['response_pause_clocks']=160
+            probes.append(case)
         for q,case in enumerate(probes):
             row=run_case(case,'control'+str(q),MODULE/'hdl');row['kind']='positive-control';rows.append(row)
             if row['errors']:raise RuntimeError(json.dumps(row,indent=2))
@@ -113,7 +119,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','store_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py')]]
         args.report.write_text(json.dumps(dict(contract='CPU-only CEN response retention; exact TI base counts are checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0

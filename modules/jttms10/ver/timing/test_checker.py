@@ -27,10 +27,52 @@ from copy_pair_cases import literal_cases as copy_pair_literals, copy_pair_cases
 from emu_cases import emu_cases
 from stack_cases import popst_fixture, stack_cases
 from return_cases import rets_fixture, return_cases
+from interrupt_return_cases import reti_fixture, interrupt_return_cases
 from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_reti_literal_stack_status_pc_and_sp(self):
+        row=reti_fixture('guide',False,address=0x0CCC0000,target=0x0044FFF0,restored=0xC0000010)
+        self.assertEqual(row['initial_memory'],[(0x0CCC0000,0x10),(0x0CCC0010,0xC000),(0x0CCC0020,0xFFF0),(0x0CCC0030,0x44)])
+        self.assertEqual(row['expected_st'],0xC0000010)
+        self.assertEqual(row['expected_extra_regs']['sp'],0x0CCC0040)
+        self.assertEqual(row['stack_control_flow']['target'],0x0044FFF0)
+
+    def test_reti_independent_full_width_pops_reread_shared_word(self):
+        row=reti_fixture('unaligned',False,15);program(row)
+        plan=reads(row)
+        self.assertEqual([a for _,a,_,_ in plan],[0x5000,0x5010,0x5020,0x5020,0x5030,0x5040])
+        self.assertEqual(row['states'],15)
+        self.assertEqual(reti_fixture('aligned',True)['states'],14)
+        self.assertEqual(reti_fixture('unaligned',True,15)['states'],18)
+
+    def test_reti_waits_count_each_popped_field_not_unique_words(self):
+        for offset,clocks in [(0,128),(15,176)]:
+            row=reti_fixture('wait',False,offset)
+            obs=dict(clocks=clocks,paused=7,st=row['expected_st'],**row['expected_extra_regs'])
+            obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+            self.assertEqual(check(row,obs,1,7),[])
+            obs['clocks']-=8;self.assertTrue(check(row,obs,1,7))
+
+    def test_reti_reset_vector_and_pbx_exclusions_are_explicit(self):
+        with self.assertRaises(ValueError):reti_fixture('bad',False,address=0xFFFFFFD0,target=0x10000)
+        with self.assertRaises(ValueError):reti_fixture('bad',False,restored=0x02000810)
+        row=reti_fixture('wrap',False,address=0xFFFFFFD0,target=0x10000,restored=0x10000810)
+        self.assertEqual(dict(row['initial_memory'])[0xFFFFFFE0],0x1000)
+        self.assertEqual(dict(row['initial_memory'])[0xFFFFFFF0],0)
+
+    def test_reti_inventory_restores_full_status_and_preserves_registers(self):
+        rows=list(interrupt_return_cases());self.assertEqual(len(rows),1412)
+        self.assertEqual(len({r['name'] for r in rows}),1412)
+        for row in rows:
+            self.assertEqual(row['regs'],row['expected_regs'])
+            self.assertEqual(row['expected_st'],extract(row['initial_memory'],row['initial_sp'],32,False))
+            pc=extract(row['initial_memory'],(row['initial_sp']+32)&0xFFFFFFFF,32,False)&~15
+            self.assertEqual(row['stack_control_flow']['target'],pc)
+            self.assertEqual(row['expected_extra_regs']['sp'],(row['initial_sp']+64)&0xFFFFFFFF)
+            self.assertFalse(row['conditions']['pbx'])
+
     def test_rets_literal_arguments_and_saved_pc(self):
         for n,sp in [(0,0x0FF00020),(1,0x0FF00030),(2,0x0FF00040),(16,0x0FF00120),(31,0x0FF00210)]:
             row=rets_fixture('guide',False,n=n,address=0x0FF00000,target=0x1FFF0)

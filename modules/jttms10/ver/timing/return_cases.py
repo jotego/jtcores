@@ -53,8 +53,9 @@ def program(case,movi):
     code[(target+(32 if 'control_follow' in case else 16))&MASK32]=0x016C
     if 'control_follow' in case:case['follow_pc']=(target+16)&MASK32
     initial=dict(case['initial_memory'])
-    sp=case['initial_sp'];count=((sp&15)+32+15)//16
-    stack_words={((sp&~15)+16*q)&MASK32 for q in range(count)}
+    fields=case.get('stack_fields',[dict(address=case['initial_sp'],width=32)])
+    stack_words={((field['address']&~15)+16*q)&MASK32 for field in fields
+                 for q in range(((field['address']&15)+field['width']+15)//16)}
     if stack_words&set(code):raise ValueError('return target code overlaps its saved PC input')
     # Local code can use the real program image; sparse full-address target
     # words remain input stimulus through the same bench memory interface.

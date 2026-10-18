@@ -212,7 +212,9 @@ module jttms10 #(
     wire load_offset=ir[15:10]==6'b101101 || ir[15:9]==7'b1010111;
     wire stack_pop=ir==16'h01c0;
     wire stack_return=(ir & 16'hffe0)==16'h0960;
-    wire stack_read=stack_pop || stack_return;
+    wire stack_irq=ir==16'h0940;
+    wire stack_read=stack_pop || stack_return || stack_irq;
+    reg reti_second;
     wire load_direct=stack_read || ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
@@ -253,11 +255,12 @@ module jttms10 #(
     wire decode_load_extension=decode_load_offset || decode_load_absolute;
     wire decode_stack_pop=decode_opcode==16'h01c0;
     wire decode_stack_return=(decode_opcode & 16'hffe0)==16'h0960;
-    wire decode_stack_read=decode_stack_pop || decode_stack_return;
+    wire decode_stack_irq=decode_opcode==16'h0940;
+    wire decode_stack_read=decode_stack_pop || decode_stack_return || decode_stack_irq;
     wire decode_load_direct=decode_stack_read || decode_opcode[15:10]==6'b100001 ||
                            decode_opcode[15:9]==7'b1000111 || decode_load_post;
     wire decode_load=decode_load_direct || decode_load_pre || decode_load_extension;
-    wire [5:0] decode_load_states=decode_stack_pop ? 6'd8 : decode_stack_return ? 6'd7 : decode_load_pre ? 6'd4 : decode_load_extension ? 6'd5 : 6'd3;
+    wire [5:0] decode_load_states=decode_stack_pop ? 6'd8 : decode_stack_return ? 6'd7 : decode_stack_irq ? 6'd11 : decode_load_pre ? 6'd4 : decode_load_extension ? 6'd5 : 6'd3;
     wire decode_immediate_word=decode_opcode[15:5]==11'h04e ||
         decode_opcode[15:5]==11'h058 || decode_opcode[15:5]==11'h05a ||
         decode_opcode[15:5]==11'h05f;
@@ -359,7 +362,7 @@ module jttms10 #(
     wire [5:0] copy_source_span={2'd0,ea[3:0]}+field_size;
     wire [5:0] copy_dest_span={2'd0,store_target[3:0]}+field_size;
     wire copy_long_finish=copy_ir && copy_source_span>6'd32 && copy_dest_span>6'd32;
-    wire [15:0] load_finish_clocks=(stack_pop ? 16'd4 : stack_return ? 16'd3 : copy_long_finish ? (copy_post ? 16'd4 : 16'd3) : copy_post ? 16'd2 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
+    wire [15:0] load_finish_clocks=(stack_pop ? 16'd4 : stack_return ? 16'd3 : stack_irq ? 16'd2 : copy_long_finish ? (copy_post ? 16'd4 : 16'd3) : copy_post ? 16'd2 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
                                   16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     // Field extension has three mutually exclusive consumers: memory-load
@@ -375,7 +378,7 @@ module jttms10 #(
     assign mem_post=early_store;
     assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
-    assign mem_addr = early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? rs_data : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
+    assign mem_addr = early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? (stack_irq ? rd_data : rs_data) : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = early_store ? field_size : early_load ? (stack_read ? 6'd32 : field_size) : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
@@ -491,7 +494,7 @@ module jttms10 #(
         .rs(gfx_active ? gfx_rf_sa[4:0] :
             fetch && (completed || mem_fast || mem_ack) && decode_stack_read ? 5'd15 :
             fetch && (completed || mem_fast || (mem_ack && decode_cpw)) ? {decode_opcode[4],decode_opcode[8:5]} :
-            stack_read ? 5'd15 :
+            stack_pop || stack_return ? 5'd15 :
             ir==16'h0940 && tmp[25] ? 5'd26 :
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
@@ -631,7 +634,7 @@ module jttms10 #(
             branch_pending<=0;branch_taken<=0;
             immediate_last<=0; copy_operand_left<=0;
             store_pending<=0;store_started<=0;
-            load_pending<=0; load_started<=0; load_address_ready<=0; load_issue_left<=0;
+            load_pending<=0; reti_second<=0; load_started<=0; load_address_ready<=0; load_issue_left<=0;
             time_left<=0;
             fetch_wait<=0;
         end else begin
@@ -687,6 +690,12 @@ module jttms10 #(
                 load_pending<=0;
                 if(copy_ir) begin store_pending<=1;load_address_ready<=1;end
             end
+            // The second RETI field uses the updated SP. Retain a complete
+            // source-port settling interval before accepting that read.
+            if(step && wr_sp && stack_irq && !reti_second) begin
+                reti_second<=1; load_pending<=1; load_started<=0;
+                load_address_ready<=1; load_issue_left<=1;
+            end
             if(mem_req && mem_ack && early_load && copy_long_finish)
                 load_issue_left<=LOAD_LEAD-LOAD_NEXT_LIMIT;
             if(early_store && !store_started && cen && mem_req) store_started<=1;
@@ -698,7 +707,7 @@ module jttms10 #(
                 branch_pending<=decode_control;
                 immediate_last<=decode_immediate_word;
                 copy_operand_left<=decode_copy_absolute_pair ? 3'd4 : decode_copy_offset_pair ? 3'd2 : 3'd0;
-                load_pending<=decode_load || decode_copy; load_started<=0;
+                load_pending<=decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store;store_started<=0;
                 load_address_ready<=decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_store_pre && !decode_store_extension);
                 load_issue_left<=decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
@@ -771,7 +780,7 @@ module jttms10 #(
             end
             if(push_entry) push_high<=1;
             // Capture the old pointer before postincrement can write Rs.
-            if(early_load && !load_started && cen && mem_req && load_direct) ea<=rs_data;
+            if(early_load && !load_started && cen && mem_req && load_direct) ea<=mem_addr;
             if(early_store && !store_started && cen && mem_req) begin
                 if(store_direct) ea<=store_target;
                 md<=store_source;

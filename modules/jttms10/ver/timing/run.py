@@ -27,6 +27,7 @@ from copy_pair_cases import copy_pair_cases
 from emu_cases import emu_cases
 from stack_cases import stack_cases
 from return_cases import return_cases, program as return_program
+from interrupt_return_cases import interrupt_return_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -121,6 +122,7 @@ def cases():
     yield from emu_cases()
     yield from stack_cases()
     yield from return_cases()
+    yield from interrupt_return_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -250,7 +252,8 @@ def check(case, observed, wait_states=0, pause_clocks=0):
         if observed['st']!=case['expected_st']:errors.append('ST result mismatch')
         return errors
     load=case.get('data_load')
-    data_words=(((load['address']&15)+load['width']+15)//16) if load else 0
+    fields=case.get('stack_fields',[load] if load else [])
+    data_words=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
     words=data_words+(4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled']))
     if 'control_flow' in case:
         words=(1+len(fetch_extensions(case)))*int(case['cache_disabled'])
@@ -292,6 +295,16 @@ def reads(case, wait_states=0):
         # microinstruction edges. Single-word forms retain the fixed slot.
         return [(None,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]+[
             (None if extensions else case['states']-3,case['next_pc'],case['expected_next_opcode'],1)]
+    if 'stack_fields' in case:
+        image=dict(case['initial_memory']);plan=[]
+        for field in case['stack_fields']:
+            a=field['address'];count=((a&15)+field['width']+15)//16
+            for q in range(count):
+                word=((a&~15)+16*q)&MASK32
+                plan.append((None,word,image[word],0))
+        if case['cache_disabled']:
+            plan.append((case['states']-3+len(plan)*wait_states,case['next_pc'],case['expected_next_opcode'],1))
+        return plan
     if 'data_load' in case:
         load=case['data_load'];address=load['address']
         count=((address&15)+load['width']+15)//16
@@ -344,9 +357,14 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
         if 'control_flow' in case and any(int(b[1])<int(e[1]) for b,e in zip(begin[1:],end[:-1])):
             errors.append('control-flow instruction reads overlap or are out of order')
         if case.get('stack_load'):
-            count=((case['data_load']['address']&15)+32+15)//16
-            if any(int(b[1])!=int(e[1]) for b,e in zip(begin[1:count],end[:count-1])):
-                errors.append('stack field word transfers are not consecutive')
+            fields=case.get('stack_fields',[case['data_load']]);index=0
+            for field in fields:
+                count=((field['address']&15)+field['width']+15)//16
+                if any(int(begin[q][1])!=int(end[q-1][1]) for q in range(index+1,index+count)):
+                    errors.append('stack field word transfers are not consecutive')
+                index+=count
+            if any(int(b[1])<int(e[1]) for b,e in zip(begin[1:],end[:-1])):
+                errors.append('stack reads overlap or are out of order')
         if observed['start']%INPUT_CLOCKS_PER_STATE:
             errors.append('external fetch begins from an instruction off the machine-state grid')
         alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE
@@ -512,7 +530,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

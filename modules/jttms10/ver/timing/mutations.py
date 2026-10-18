@@ -452,6 +452,17 @@ def main():
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        for name,probe,old,new in (
+            ('short_reti_work','stack_reti_following_w32_fe1_sp15_o15_r1_hit',
+             "stack_irq ? 16'd2 :","stack_irq ? 16'd1 :"),
+            ('late_reti_second_field','stack_reti_phase_a0_off',
+             'load_address_ready<=1; load_issue_left<=1;',
+             'load_address_ready<=1; load_issue_left<=LOAD_PRE;')):
+            extra=['--wait-states','1','--pause-clocks','7']
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/'jttms10.v',old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,
