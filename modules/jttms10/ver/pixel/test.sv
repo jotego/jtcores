@@ -19,7 +19,7 @@ module test;
         .visible_source(visible_source),.result_pixel(result_pixel),
         .write_mask(write_mask),.write_pixel(write_pixel),.transparent(transparent)
     );
-    jttms10_alu shared_alu(.a(alu_a),.b(alu_b),.op(alu_op),.cin(1'b0),
+    jttms10_alu shared_alu(.a(alu_a),.b(alu_b),.op(alu_op),.cin(1'b0), .split16(1'b0),
         .result(alu_result),.n(alu_n),.z(alu_z),.c(alu_borrow),.v(alu_v));
 
     integer checks=0;

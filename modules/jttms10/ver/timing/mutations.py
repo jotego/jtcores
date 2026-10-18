@@ -312,6 +312,20 @@ def main():
                 row=evidence[name]['cases'][0]
                 if row['observed']['clocks']!=48 or not any('read duration' in e for e in row['errors']):
                     raise RuntimeError('late_relative_fetch must retain the correct total but fail its bus cycle')
+        xy_add_case='xy_addxy_phase_r0_2_0_a0_off'
+        xy_cmp_case='xy_cmpxy_phase_r1_2_0_a0_hit'
+        evidence['xy_add_control']=run_case(work,'xy_add_control',xy_add_case,['--wait-states','1'])
+        evidence['xy_compare_control']=run_case(work,'xy_compare_control',xy_cmp_case)
+        for name,probe,extra,old,new in (
+            ('slow_xy_add',xy_add_case,('--wait-states','1'),
+             'decode_states=decode_control ?',
+             "decode_states=decode_xy && !decode_xy_cmp ? 6'd2 : decode_control ?"),
+            ('short_xy_compare',xy_cmp_case,(),
+             'decode_xy_cmp || decode_ie || decode_putst ||',
+             'decode_ie || decode_putst ||')):
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/'jttms10.v',old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,

@@ -206,6 +206,17 @@ seed1 and effort. All 36 snapshot hashes and 29 copied inputs verify, with
 the same 46 warning classifications. These remain synthesis estimates,
 without current fitted-area, physical M10K count, STA or NARC signoff.
 
+The XY arithmetic stage at `/tmp/jttms10-144-xy-map` reports **3,377
+estimated ALMs, 4,793 combinational ALUTs, 1,653 registers, 538,624
+block-memory bits, five DSP blocks and zero MLAB bits**. Relative to the
+control-flow stage this is +21 estimated ALMs/-15 ALUTs, with unchanged
+registers/RAM/DSP totals. Packed halves share the existing adder through
+a selectable spacer bit; shorter microcode and removed half muxes are
+included in this combined measurement. Same NARC boundary, 158 virtual
+pins, device, clock, seed and effort. All 36 snapshot hashes and 29 copied
+inputs verify; the same 46 warning classifications remain. These are
+synthesis estimates; fitted-area/STA/NARC acceptance remains required.
+
 ## Complete graphics engine, 2026-10-17
 
 | Matched NARC boundary | Fitted ALMs | Registers | Block RAM bits / blocks | DSPs |

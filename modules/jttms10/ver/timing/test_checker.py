@@ -16,9 +16,35 @@ from divide_cases import divide_result, TI_DIV_EXAMPLES
 from scalar_cases import shift_result, TI_SLA_EXAMPLES
 from coverage import inventory, REQUIRED
 from control_cases import condition, decrement, control_states, fixture as control_fixture
+from xy_cases import arithmetic as xy_arithmetic, fixture as xy_fixture, LITERALS as XY_LITERALS
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_xy_literal_outputs_and_flags(self):
+        for name,rows in XY_LITERALS.items():
+            for source,dest,value,flags in rows:
+                with self.subTest(name=name,source=source,dest=dest):
+                    result,status=xy_arithmetic(name,source,dest,0xF020083F)
+                    self.assertEqual((result,status),(value,(flags<<28)|0x0020083F))
+
+    def test_xy_halves_do_not_propagate_carry_or_borrow(self):
+        self.assertEqual(xy_arithmetic('ADDXY',1,0x1234FFFF,0),(0x12340000,0x80000000))
+        self.assertEqual(xy_arithmetic('SUBXY',1,0x12340000,0),(0x1234FFFF,0x10000000))
+
+    def test_xy_subtract_comparison_flags_are_signed(self):
+        # SUBXY reports signed ordering even when the 16-bit difference wraps.
+        self.assertEqual(xy_arithmetic('SUBXY',0x80008000,0x7FFF7FFF,0),(0xFFFFFFFF,0))
+        self.assertEqual(xy_arithmetic('CMPXY',0x80008000,0x7FFF7FFF,0),(0x7FFF7FFF,0x50000000))
+
+    def test_xy_compare_source_conflict_blocks_acceptance(self):
+        row=xy_fixture('CMPXY',1,0)
+        audit=inventory([row]);self.assertEqual(row['states'],3)
+        self.assertFalse(audit['gate_passed'])
+        self.assertEqual(audit['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
+        self.assertEqual(row['source_values']['entry_cpu'],1)
+        self.assertEqual(row['source_values']['summary_cpu'],3)
+        self.assertEqual(row['source_values']['datasheet_cpu'],3)
+
     def setUp(self):
         self.case = next(c for c in cases() if c['name'] == 'mpys_fs2_positive_even_hit')
         self.observed = dict(clocks=48, start=96, end=144, paused=0, st=self.case['expected_st'],

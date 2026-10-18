@@ -11,6 +11,7 @@ module jttms10_alu(
     input      [31:0] b,
     input      [3:0]  op,
     input             cin,
+    input             split16,
     output reg [31:0] result,
     output            n,
     output            z,
@@ -42,12 +43,16 @@ wire [31:0] lhs = neg ? 32'd0 : b;
 wire [31:0] rhs = sub ? ~a : a;
 wire carry_in = sub ? ((op == SUBB) ? ~cin : 1'b1)
                     : ((op == ADDC) ? cin : 1'b0);
-// The low bit injects carry_in into one 34-bit addition. Bits [33:1]
-// contain the 33-bit arithmetic sum; bit 0 is discarded.
+// Bit0 injects carry_in. The spacer between X and Y normally propagates
+// the low-half carry. Packed XY addition absorbs it; packed subtraction
+// injects the independent high-half +1. All modes share this one adder.
+wire spacer_lhs = !split16 || sub;
+wire spacer_rhs = split16 && sub;
 /* verilator lint_off UNUSEDSIGNAL */
-wire [33:0] sum_with_cin = {1'b0, lhs, 1'b1} + {1'b0, rhs, carry_in};
+wire [34:0] sum_with_cin = {1'b0,lhs[31:16],spacer_lhs,lhs[15:0],1'b1} +
+                         {1'b0,rhs[31:16],spacer_rhs,rhs[15:0],carry_in};
 /* verilator lint_on UNUSEDSIGNAL */
-wire [32:0] sum = sum_with_cin[33:1];
+wire [32:0] sum = {sum_with_cin[34:18],sum_with_cin[16:1]};
 wire [31:0] arithmetic_result = sum[31:0];
 
 assign n = result[31];

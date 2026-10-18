@@ -1,0 +1,7157 @@
+{
+  "source_commit": "9edda841e",
+  "note": "Historical unchanged HDL/YAML capture using primary-spec expectations, with the CMPXY entry/summary/data-sheet conflict explicit. Not an oracle, allowlist or official erratum.",
+  "total": 4156,
+  "failed": 4156,
+  "architectural_failures": 0,
+  "verified_hdl_yaml_sha256": {
+    "hdl/jttms10.v": "ddb419b351a263a77f54cd918327bf05e7115d233893047d8f2fe570612d6045",
+    "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+    "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+    "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+    "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+    "hdl/jttms10_ctrl.v": "1c8ace3e1f4b260c1e4b003fccc6b11bf9983a75912f05f61c6fa53b117c5ce2",
+    "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+    "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+    "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+    "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+    "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+    "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+    "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+    "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+    "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+    "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+    "hdl/jttms10_word.v": "7e4c19e84d0f26d197c1e2580b3ac27851032daa52142fd22203511f28c91c52",
+    "ucode/control.yaml": "270ac85212ead77db7edcfa884dbc4a9845ba9f8a2ff570d8b6cf027aa9fb4d7",
+    "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+    "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+    "ucode/memory.yaml": "623e631b2eafbb5b2d0c9563220d53e32bea8787d8ea1d7e9b0bc151858d73df",
+    "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0"
+  },
+  "provenance": {
+    "source_sha256": {
+      "hdl/jttms10.v": "ddb419b351a263a77f54cd918327bf05e7115d233893047d8f2fe570612d6045",
+      "hdl/jttms10_alu.v": "35d4c956a63f1505a6bd0eb5af28ac718b797f8c72378441742a4c2d25c6ca06",
+      "hdl/jttms10_bus.v": "20fd4de088f529ec5feae22827ee6cfd6d8544d3f47a1d289acefd39a70b3016",
+      "hdl/jttms10_bus_timer.v": "d6f8c4a31834b5227a594124e4cf60e3b7b3780f07b506749908c95476a1d728",
+      "hdl/jttms10_cache.v": "0a859b19ea27cd4a4407a19154832c690b21e43edb55593de62020853dff690f",
+      "hdl/jttms10_ctrl.v": "1c8ace3e1f4b260c1e4b003fccc6b11bf9983a75912f05f61c6fa53b117c5ce2",
+      "hdl/jttms10_fabric.v": "15da473a931102d15a7bd49f5b0e24bb8f60d984fa2a1c6fdce60a357ff7cbcf",
+      "hdl/jttms10_field.v": "fc4ae0a991e781e41eb55cbca44a6b393616d93d6df7e4277b9148d23e808c4f",
+      "hdl/jttms10_gfx.v": "fafb506c37eb28f89571b5802efdbc53150d7237be4d5cd7ab90cb438b7bd7e5",
+      "hdl/jttms10_host.v": "98d1f911655eabc6924aae2c960454703ba48b1f11f1334bae64a22faa5723e9",
+      "hdl/jttms10_io.v": "bd8f227d095b46b745b48b688b0706c8ca93998bd6597ac4edb9c1437aff9b60",
+      "hdl/jttms10_pixel.v": "b4a6c5438f9aad01ebd884c0e76de569388f8dac0096fc5f03e0eb2484cbec4c",
+      "hdl/jttms10_refresh.v": "daef41f1a9e7a52943c141a2da7f8582433960cc717f922616b8ed94f2b3819d",
+      "hdl/jttms10_regs.v": "8188311a0e832dfab13a3c8e79ffe9350e2efd0c1ad76ccc45edf9fce9a3048b",
+      "hdl/jttms10_system.v": "714f56015c6b304ccc9e40a74f8e1ed93c19c2e7835832d9a200cb324a1e46b0",
+      "hdl/jttms10_video.v": "00b0f82355a34c68265219cf1ecb35d8561cdca5accdd4015a42cb138fdb419f",
+      "hdl/jttms10_word.v": "7e4c19e84d0f26d197c1e2580b3ac27851032daa52142fd22203511f28c91c52",
+      "ucode/control.yaml": "270ac85212ead77db7edcfa884dbc4a9845ba9f8a2ff570d8b6cf027aa9fb4d7",
+      "ucode/gfx.yaml": "717984020085e67dc968d09532377d3937f840d25e9df6c5e2c066ad2729c045",
+      "ucode/gfx_line.yaml": "6e0697c7a93e43711872a8cf37b7238580814847cfd7d26f2b92b63a513d5802",
+      "ucode/memory.yaml": "623e631b2eafbb5b2d0c9563220d53e32bea8787d8ea1d7e9b0bc151858d73df",
+      "ucode/tms10.yaml": "442b799167296f387d82fad24ba290fd26e50b72e59bc72949b88ed275b09ad0",
+      "ver/timing/oracle.py": "1c30baf78639b70552a6231dd8da75b3cfae3e06c8050baea64ec6fac482f0b3",
+      "ver/timing/run.py": "44077ffb470e5c2ed01b0b2c4ff963517f02b8433721555ada6ccd0534fd4ad1",
+      "ver/timing/scalar_cases.py": "256e131df63adac64f53fc0fd032504910828b4f6e94b61260c056556dcbe80e",
+      "ver/timing/alu_cases.py": "a911e9e1a531f7b07f83700829603204a18fffabc51b432fd389b2353e5a9b54",
+      "ver/timing/divide_cases.py": "7d9d7f6df4a5504776467872badacfaf712a431c33ad921767e894065d0bc9cb",
+      "ver/timing/immediate_cases.py": "d409e5b0a94c50c67528b111b21a1389cd7106ff9896ae90faad741a7350655a",
+      "ver/timing/load_cases.py": "1583378c99744ada5ef696910c3e036be8faee9f2ecdd6a542a69c3d5c3dd2a8",
+      "ver/timing/load_mode_cases.py": "9ff6ae751706b7925d5b97352df99fa3dbd0f0fce0e43de09e6034d3b9aa8b9d",
+      "ver/timing/store_cases.py": "77c06214093c031e9121537d997f2a1d172ba9a339478b8a7292878b8de37bcf",
+      "ver/timing/store_mode_cases.py": "852c930922456823a52808d754408ee2fce3e22a6c5f11b283dc67f40c8e9beb",
+      "ver/timing/control_cases.py": "63c75ce96fe03ad716d81cc185b6237594451def44df5c1c1d334c39ea76326d",
+      "ver/timing/xy_cases.py": "27675e4d4d9f7d3ec2659d9077792a51d53009094a04b1b113e14b1084bf8cd3",
+      "ver/timing/test.sv": "15edefc6f82d3001b45125671d3e7946da5df2958719c92c62ae0e665c8239d2"
+    },
+    "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+    "generated_sha256": {
+      "tms10.uc": "f8efb7bce678ae30ff0c51b67c33673d3b6ce524ab5b8b4e87e96e8f3099a7dd",
+      "tms10.vh": "f109092de14593a17028369c3548ad45b98610fe6d38eac744857e74283af0ad",
+      "tms10_dispatch.hex": "abfdd56903a061a2e3db688802977c5185831db6d48119752bc7c4809ba7aeb3",
+      "tms10_gfx.uc": "710e416a3be7474030f58fb6d0665aca2dfdf6efa47846b940056e061f6aee12",
+      "tms10_gfx.vh": "894ea5164787ac93b3b82cf86c9755462896ee0ac20d61114715886301e33c3a",
+      "tms10_gfx_param.vh": "42b6d5b1d469cf93cec29b5a36aa6a4acd8186b386b02ad9912996e42e00ff72",
+      "tms10_param.vh": "bc694fffa442deaeda16ea684358ce7b730d539a565a4cde59f471c7739cc0af"
+    }
+  },
+  "representatives": [
+    {
+      "name": "xy_addxy_boundary0_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 0,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r0_1_1_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57377,
+      "regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 125,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r0_15_2_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57826,
+      "regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 137,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147549183,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r0_2_15_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57423,
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 143,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r0_15_15_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57839,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 149,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_boundary0_r0_2_0_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 351,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r0_1_1_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57377,
+      "regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 476,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r0_15_2_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57826,
+      "regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 488,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147549183,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r0_2_15_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57423,
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 494,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r0_15_15_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57839,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 500,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_boundary0_r1_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57424,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 0,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 702,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r1_1_1_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57393,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 0,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 827,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r1_15_2_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57842,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147549183,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 839,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r1_2_15_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57439,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 845,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_identity0_r1_15_15_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57855,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 851,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_boundary0_r1_2_0_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57424,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 0,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1053,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r1_1_1_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57393,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 0,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1178,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r1_15_2_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57842,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147549183,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1190,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r1_2_15_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57439,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1196,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_identity0_r1_15_15_a0_off",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57855,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1202,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_boundary0_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1404,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r0_1_1_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57889,
+      "regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1529,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r0_15_2_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58338,
+      "regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1541,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147549183,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r0_2_15_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57935,
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1547,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r0_15_15_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58351,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1553,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_boundary0_r0_2_0_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1748,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r0_1_1_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57889,
+      "regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1873,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r0_15_2_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58338,
+      "regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1885,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147549183,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r0_2_15_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57935,
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1891,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r0_15_15_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58351,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1897,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_boundary0_r1_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57936,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 0,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2092,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r1_1_1_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57905,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 0,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2217,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r1_15_2_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58354,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147549183,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2229,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r1_2_15_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57951,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2235,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_identity0_r1_15_15_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58367,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2241,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_boundary0_r1_2_0_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57936,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 0,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2436,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r1_1_1_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57905,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 0,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2561,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r1_15_2_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58354,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147549183,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2573,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r1_2_15_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57951,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2579,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_subxy_identity0_r1_15_15_a0_off",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 58367,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 4,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2585,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 32 INCLK (4 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3440, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3440..3446"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_boundary0_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2780,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_1_1_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58401,
+      "regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2905,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_15_2_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58850,
+      "regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2917,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147549183,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_2_15_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58447,
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2923,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_15_15_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58863,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2929,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_boundary0_r0_2_0_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3124,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_1_1_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58401,
+      "regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        0,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3249,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 0,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_15_2_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58850,
+      "regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2147549183,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3261,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2147549183,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_2_15_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58447,
+      "regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3267,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r0_15_15_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58863,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3273,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_boundary0_r1_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58448,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 0,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3468,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_1_1_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58417,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 0,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3593,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_15_2_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58866,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147549183,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3605,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_2_15_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58463,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3611,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_15_15_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58879,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3617,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_boundary0_r1_2_0_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58448,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 0,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3812,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 0,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_1_1_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58417,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 0,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 1,
+        "destination_register": 1,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3937,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 0,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_15_2_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58866,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2147549183,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 1342179344,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 2,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3949,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2147549183,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_2_15_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58463,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 0,
+        "3": 3004574012
+      },
+      "initial_sp": 2147549183,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "expected_st": 1342179344,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 2147549183,
+        "bank": 1,
+        "source_register": 2,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3955,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 0,
+        "b3": 3004574012,
+        "sp": 2147549183
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_cmpxy_identity0_r1_15_15_a0_off",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58879,
+      "regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 0,
+      "expected_regs": [
+        287454020,
+        1432778632,
+        2578103244,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "expected_st": 2684356624,
+      "states": 6,
+      "cache_disabled": true,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 1,
+        "source_register": 15,
+        "destination_register": 15,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 3961,
+        "clocks": 40,
+        "start": 3432,
+        "end": 3472,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 287454020,
+        "a1": 1432778632,
+        "a2": 2578103244,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 0
+      },
+      "errors": [
+        "expected 48 INCLK (6 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 40 INCLK",
+        "TI instruction read start: expected clock 3456, observed 3448",
+        "target dispatch outside TI readiness window: 3448 versus 3456..3462"
+      ],
+      "bus_trace": [
+        "BUS_BEGIN 3448 0 00001310 0000 1",
+        "BUS_ACCEPT 3448",
+        "BUS_END 3464 0 00001310 0300"
+      ],
+      "target_trace": [
+        "TARGET_BEGIN 3448 0 00001310 0000 1",
+        "TARGET_END 3452 0 00001310 0300"
+      ]
+    },
+    {
+      "name": "xy_addxy_guide0_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        0,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 0,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 203,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide1_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        1,
+        1432778632,
+        0,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1,
+        1432778632,
+        0,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 538970128,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 1,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 1
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 204,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 538970128,
+        "a0": 1,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide2_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65536,
+        1432778632,
+        0,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65536,
+        1432778632,
+        0,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 65536,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 2
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 205,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 65536,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide3_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65537,
+        1432778632,
+        0,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65537,
+        1432778632,
+        0,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2099216,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 0,
+        "destination": 65537,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 3
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 206,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2099216,
+        "a0": 65537,
+        "a1": 1432778632,
+        "a2": 0,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide4_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        1,
+        1432778632,
+        65535,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        65535,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 65535,
+        "destination": 1,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 4
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 207,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 65535,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide5_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65537,
+        1432778632,
+        65535,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65536,
+        1432778632,
+        65535,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2149582864,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 65535,
+        "destination": 65537,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 5
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 208,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2149582864,
+        "a0": 65536,
+        "a1": 1432778632,
+        "a2": 65535,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide6_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        2,
+        1432778632,
+        65535,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1,
+        1432778632,
+        65535,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 536872976,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 65535,
+        "destination": 2,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 6
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 209,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 536872976,
+        "a0": 1,
+        "a1": 1432778632,
+        "a2": 65535,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide7_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65538,
+        1432778632,
+        65535,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65537,
+        1432778632,
+        65535,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2099216,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 65535,
+        "destination": 65538,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 7
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 210,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2099216,
+        "a0": 65537,
+        "a1": 1432778632,
+        "a2": 65535,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide8_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65536,
+        1432778632,
+        4294901760,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        4294901760,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294901760,
+        "destination": 65536,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 8
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 211,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 4294901760,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide9_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65537,
+        1432778632,
+        4294901760,
+        2418018320
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1,
+        1432778632,
+        4294901760,
+        2418018320
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 538970128,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294901760,
+        "destination": 65537,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 9
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 212,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 538970128,
+        "a0": 1,
+        "a1": 1432778632,
+        "a2": 4294901760,
+        "a3": 2418018320,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide10_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        131072,
+        1432778632,
+        4294901760,
+        2684356624
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65536,
+        1432778632,
+        4294901760,
+        2684356624
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294901760,
+        "destination": 131072,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 10
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 213,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 65536,
+        "a1": 1432778632,
+        "a2": 4294901760,
+        "a3": 2684356624,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide11_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        131073,
+        1432778632,
+        4294901760,
+        2954889232
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65537,
+        1432778632,
+        4294901760,
+        2954889232
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2099216,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294901760,
+        "destination": 131073,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 11
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 214,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2099216,
+        "a0": 65537,
+        "a1": 1432778632,
+        "a2": 4294901760,
+        "a3": 2954889232,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide12_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65537,
+        1432778632,
+        4294967295,
+        3221227536
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        4294967295,
+        3221227536
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2684356624,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294967295,
+        "destination": 65537,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 12
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 215,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2684356624,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3221227536,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide13_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        65538,
+        1432778632,
+        4294967295,
+        3491760144
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1,
+        1432778632,
+        4294967295,
+        3491760144
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 538970128,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294967295,
+        "destination": 65538,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 13
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 216,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 538970128,
+        "a0": 1,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3491760144,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide14_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        131073,
+        1432778632,
+        4294967295,
+        3758098448
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65536,
+        1432778632,
+        4294967295,
+        3758098448
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294967295,
+        "destination": 131073,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 14
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 217,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 65536,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 3758098448,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_addxy_guide15_r0_2_0_a0_hit",
+      "coverage_id": "ADDXY_RR",
+      "opcode": 57408,
+      "regs": [
+        131074,
+        1432778632,
+        4294967295,
+        4028631056
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65537,
+        1432778632,
+        4294967295,
+        4028631056
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2099216,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-41",
+      "conditions": {
+        "form": "ADDXY",
+        "source": 4294967295,
+        "destination": 131074,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 15
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 218,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2099216,
+        "a0": 65537,
+        "a1": 1432778632,
+        "a2": 4294967295,
+        "a3": 4028631056,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide0_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        65537,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        524296,
+        1432778632,
+        65537,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 65537,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1607,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2064,
+        "a0": 524296,
+        "a1": 1432778632,
+        "a2": 65537,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide1_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        589825,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        8,
+        1432778632,
+        589825,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 538970128,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 589825,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 1
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1608,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 538970128,
+        "a0": 8,
+        "a1": 1432778632,
+        "a2": 589825,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide2_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        65545,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        524288,
+        1432778632,
+        65545,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2147485712,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 65545,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 2
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1609,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2147485712,
+        "a0": 524288,
+        "a1": 1432778632,
+        "a2": 65545,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide3_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        589833,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        0,
+        1432778632,
+        589833,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2686453776,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 589833,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 3
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1610,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 2686453776,
+        "a0": 0,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide4_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        16,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        655353,
+        1432778632,
+        16,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 16,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 4
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1611,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 655353,
+        "a1": 1432778632,
+        "a2": 16,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide5_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        589840,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65529,
+        1432778632,
+        589840,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 589840,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 5
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1612,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 65529,
+        "a1": 1432778632,
+        "a2": 589840,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide6_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        1048576,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        4294508553,
+        1432778632,
+        1048576,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1073743888,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 1048576,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 6
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1613,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1073743888,
+        "a0": 4294508553,
+        "a1": 1432778632,
+        "a2": 1048576,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide7_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        1048585,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        4294508544,
+        1432778632,
+        1048585,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3223324688,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 1048585,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 7
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1614,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 3223324688,
+        "a0": 4294508544,
+        "a1": 1432778632,
+        "a2": 1048585,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_subxy_guide8_r0_2_0_a0_hit",
+      "coverage_id": "SUBXY_RR",
+      "opcode": 57920,
+      "regs": [
+        589833,
+        1432778632,
+        1048592,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        4294574073,
+        1432778632,
+        1048592,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1342179344,
+      "states": 1,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-252",
+      "conditions": {
+        "form": "SUBXY",
+        "source": 1048592,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 8
+      },
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 1615,
+        "clocks": 12,
+        "start": 2112,
+        "end": 2124,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 4294574073,
+        "a1": 1432778632,
+        "a2": 1048592,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 8 INCLK (1 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 12 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide0_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        65537,
+        1432778632,
+        589833,
+        2064
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65537,
+        1432778632,
+        589833,
+        2064
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1342179344,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 65537,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 0
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2983,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 1342179344,
+        "a0": 65537,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 2064,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide1_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        589825,
+        1432778632,
+        589833,
+        270534672
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        589825,
+        1432778632,
+        589833,
+        270534672
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 807405584,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 589825,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 1
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2984,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 807405584,
+        "a0": 589825,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 270534672,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide2_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        65545,
+        1432778632,
+        589833,
+        536872976
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        65545,
+        1432778632,
+        589833,
+        536872976
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 3221227536,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 65545,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 2
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2985,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 3221227536,
+        "a0": 65545,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 536872976,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide3_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        589833,
+        1432778632,
+        589833,
+        807405584
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        589833,
+        1432778632,
+        589833,
+        807405584
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2686453776,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 589833,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 3
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2986,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2686453776,
+        "a0": 589833,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 807405584,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide4_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        16,
+        1432778632,
+        589833,
+        1073743888
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        16,
+        1432778632,
+        589833,
+        1073743888
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 1073743888,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 16,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 4
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2987,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 1073743888,
+        "a0": 16,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 1073743888,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide5_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        589840,
+        1432778632,
+        589833,
+        1344276496
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        589840,
+        1432778632,
+        589833,
+        1344276496
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 538970128,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 589840,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 5
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2988,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 538970128,
+        "a0": 589840,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 1344276496,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide6_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        1048576,
+        1432778632,
+        589833,
+        1610614800
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1048576,
+        1432778632,
+        589833,
+        1610614800
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 268437520,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 1048576,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 6
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2989,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 268437520,
+        "a0": 1048576,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 1610614800,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide7_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        1048585,
+        1432778632,
+        589833,
+        1881147408
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1048585,
+        1432778632,
+        589833,
+        1881147408
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2149582864,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 1048585,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 7
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2990,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2149582864,
+        "a0": 1048585,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 1881147408,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    },
+    {
+      "name": "xy_cmpxy_guide8_r0_2_0_a0_hit",
+      "coverage_id": "CMPXY_RR",
+      "opcode": 58432,
+      "regs": [
+        1048592,
+        1432778632,
+        589833,
+        2147485712
+      ],
+      "initial_b_regs": {
+        "0": 2953846832,
+        "1": 2970755892,
+        "2": 2987664952,
+        "3": 3004574012
+      },
+      "initial_sp": 305418240,
+      "expected_regs": [
+        1048592,
+        1432778632,
+        589833,
+        2147485712
+      ],
+      "expected_extra_regs": {
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "expected_st": 2064,
+      "states": 3,
+      "cache_disabled": false,
+      "instruction_word_offset": 0,
+      "citation": "SPVU001A 12-56; summary12-12; SPVS002C June1991 p11",
+      "conditions": {
+        "form": "CMPXY",
+        "source": 589833,
+        "destination": 1048592,
+        "bank": 0,
+        "source_register": 2,
+        "destination_register": 0,
+        "initial_nczv": 8
+      },
+      "source_values": {
+        "entry_cpu": 1,
+        "entry_cd": 4,
+        "summary_cpu": 3,
+        "summary_cd": 6,
+        "datasheet_cpu": 3,
+        "policy_cpu": 3,
+        "policy_cd": 6
+      },
+      "timing_source_status": "inferred-conflict-resolution",
+      "source_notes": "SPVU001A entry12-56 prints1/4; summary12-12 prints3/6, matching SPVS002C June1991 p11 minimum3. Selected3/6 follows summary/data sheet; no official erratum is claimed.",
+      "test_pc": 4864,
+      "next_pc": 4880,
+      "observed": {
+        "case": 2991,
+        "clocks": 10,
+        "start": 2112,
+        "end": 2122,
+        "paused": 0,
+        "st": 2064,
+        "a0": 1048592,
+        "a1": 1432778632,
+        "a2": 589833,
+        "a3": 2147485712,
+        "b0": 2953846832,
+        "b1": 2970755892,
+        "b2": 2987664952,
+        "b3": 3004574012,
+        "sp": 305418240
+      },
+      "errors": [
+        "expected 24 INCLK (3 intrinsic machine states, 0 external wait clocks, 0 CEN pause clocks, 0 bus alignment clocks), observed 10 INCLK"
+      ],
+      "bus_trace": [],
+      "target_trace": []
+    }
+  ]
+}

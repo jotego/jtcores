@@ -34,7 +34,7 @@ module jttms10 #(
     wire multiinit, multiadvance, ptrwr, listwr;
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
-    wire dsjfinish, xyx, xyy;
+    wire dsjfinish, xy_finish;
     wire gfx_active, gfx_checkpoint, gfx_done, gfx_enter, gfx_resume,
          gfx_take, gfx_clip;
     wire [7:0] gfx_family;
@@ -94,6 +94,8 @@ module jttms10 #(
     wire xy_add = ir[15:9]==7'b1110000;
     wire xy_sub = ir[15:9]==7'b1110001;
     wire xy_op = xy_add || xy_sub;
+    wire xy_cmp = ir[15:9]==7'b1110010;
+    wire xy_packed = xy_op || xy_cmp;
     wire pix_rxy = ir[15:9]==7'b1111000;
     wire drav_ir = ir[15:9]==7'b1111011;
     wire line_ir = ir==16'hdf1a || ir==16'hdf9a;
@@ -241,7 +243,10 @@ module jttms10 #(
     wire decode_relative_short=decode_relative && decode_opcode[7:0]!=0 && decode_opcode[7:0]!=8'h80;
     wire decode_control=decode_pc_register || decode_dsjs || decode_dsj || decode_relative;
     wire decode_btstr=decode_opcode[15:9]==7'b0100101;
-    wire decode_timed=decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
+    wire decode_xy=decode_opcode[15:9]==7'b1110000 ||
+                   decode_opcode[15:9]==7'b1110001 || decode_opcode[15:9]==7'b1110010;
+    wire decode_xy_cmp=decode_opcode[15:9]==7'b1110010;
+    wire decode_timed=decode_xy || decode_control || decode_store || decode_opcode==16'h0300 || decode_scalar_rr ||
                       decode_constant || decode_unary || decode_extension ||
                       decode_setf || decode_exgf || decode_getpc || decode_getst ||
                       decode_putst || decode_rev || decode_carry || decode_ie ||
@@ -255,7 +260,7 @@ module jttms10 #(
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
                             decode_store ? (decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
-                            decode_ie || decode_putst || decode_immediate_long ||
+                            decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
                             decode_btstr || decode_immediate_word ||
                             (decode_setf && decode_opcode[9]) ? 6'd2 : 6'd1;
@@ -380,7 +385,7 @@ module jttms10 #(
         .divinit(divinit), .divload(divload), .divnega(divnega),
         .divnegmd(divnegmd), .divnegb(divnegb),
         .divcheck(divcheck), .divstep(divstep),
-        .dsjfinish(dsjfinish), .xyx(xyx), .xyy(xyy),
+        .dsjfinish(dsjfinish), .xy_finish(xy_finish),
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
@@ -453,7 +458,6 @@ module jttms10 #(
             exgf ? {26'd0,old_field} :
             lmofinish ? {27'd0,lmo_count} :
             listwr ? md :
-            xy_op && wr_reg ? md :
             mulwrhi ? (div_ir ? md : b) :
             mulwrlo ? (div_ir && (div_mod || div_pair) ? b : md) : result),
         .qs(rs_data), .qd(rd_data)
@@ -506,13 +510,9 @@ module jttms10 #(
     end
     wire [31:0] div_trial = {b[30:0],md[31]};
     wire [31:0] alu_a =
-        xyx ? {16'd0,a[15:0]} :
-        xyy ? {16'd0,a[31:16]} :
         divnegmd ? md : divnegb ? b :
         mulcorrm ? tmp : a;
     wire [31:0] alu_b =
-        xyy ? {16'd0,b[31:16]} :
-        xyx ? {16'd0,b[15:0]} :
         divstep ? div_trial : divnegb ? 32'd0 : b;
     wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
     wire [31:0] shared_alu_a = gfx_active ?
@@ -520,6 +520,7 @@ module jttms10 #(
     wire [31:0] shared_alu_b = gfx_active ?
         (gfx_pix_process && pixel_alu_req ? pixel_alu_b : b) : alu_b;
     jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
+        .split16(xy_packed && !gfx_active),
         .result(result),.n(n),.z(z),.c(c),.v(v));
     always @* begin
         condition=0;
@@ -796,19 +797,15 @@ module jttms10 #(
                     md<={md[30:0],b[31] || !c};
                     mul_count<=mul_count-5'd1;
                 end
-                if(xyx) begin
-                    md[15:0]<=result[15:0];
+                if(xy_finish) begin
                     st[31]<=result[15:0]==0;
                     st[28]<=xy_sub ?
                         (a[15]!=b[15] ? !a[15] && b[15] : result[15]) :
                         result[15];
-                end
-                if(xyy) begin
-                    md[31:16]<=result[15:0];
-                    st[29]<=result[15:0]==0;
+                    st[29]<=result[31:16]==0;
                     st[30]<=xy_sub ?
-                        (a[31]!=b[31] ? !a[31] && b[31] : result[15]) :
-                        result[15];
+                        (a[31]!=b[31] ? !a[31] && b[31] : result[31]) :
+                        result[31];
                 end
                 if(mulfinish) begin
                     if(div_ir) begin

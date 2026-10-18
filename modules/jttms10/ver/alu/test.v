@@ -4,12 +4,16 @@ module test;
     reg [31:0] a, b;
     reg [3:0] op;
     reg cin;
+    reg split16;
     wire [31:0] result;
     wire n, z, c, v;
     integer checks;
+    integer pair_index;
+    reg [31:0] pair_source, pair_dest;
+    reg [15:0] expected_x, expected_y;
 
     jttms10_alu dut(
-        .a(a), .b(b), .op(op), .cin(cin),
+        .a(a), .b(b), .op(op), .cin(cin), .split16(split16),
         .result(result), .n(n), .z(z), .c(c), .v(v)
     );
 
@@ -36,6 +40,7 @@ module test;
 
     initial begin
         checks = 0;
+        split16 = 0;
         check( 0,32'h12345678,32'hffffffff,32'h12345678,0,0,0);
         check( 1,32'h00000001,32'hffffffff,32'h00000000,0,1,0);
         check( 1,32'h00000001,32'h7fffffff,32'h80000000,0,0,1);
@@ -58,6 +63,22 @@ module test;
         check(13,32'h80000001,32'h00000000,32'h40000000,0,1,0);
         check(14,32'h80000001,32'h00000000,32'hc0000000,0,1,0);
         check(15,32'h80000001,32'h00000000,32'h00000003,0,1,0);
+        split16 = 1;
+        for(pair_index=0;pair_index<256;pair_index=pair_index+1) begin
+            pair_source=$random;
+            pair_dest=$random;
+            a=pair_source; b=pair_dest; cin=0; op=1;
+            expected_x=pair_dest[15:0]+pair_source[15:0];
+            expected_y=pair_dest[31:16]+pair_source[31:16];
+            #1;
+            if(result!=={expected_y,expected_x}) $fatal(1,"XY add propagated X carry into Y");
+            op=3;
+            expected_x=pair_dest[15:0]-pair_source[15:0];
+            expected_y=pair_dest[31:16]-pair_source[31:16];
+            #1;
+            if(result!=={expected_y,expected_x}) $fatal(1,"XY sub propagated X borrow into Y");
+            checks=checks+2;
+        end
         $display("PASS: %0d ALU boundary checks", checks);
         $finish;
     end

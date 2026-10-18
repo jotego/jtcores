@@ -25,7 +25,7 @@ module jttms10_ctrl(
                       mulfinish, mulwrhi, mulwrlo,
     output            divinit, divload, divnega, divnegmd,
                       divnegb, divcheck, divstep,
-    output            dsjfinish, xyx, xyy,
+    output            dsjfinish, xy_finish,
     output     [4:0]  a_sel,
     output     [3:0]  alu_sel,
     output     [1:0]  b_sel, md_sel, stack_sel, tmp_sel, st_sel,
@@ -54,8 +54,7 @@ module jttms10_ctrl(
     assign exgf = misc_sel==EXGF_MISC;
     assign btstfinish = misc_sel==BTSTFINISH_MISC;
     assign dsjfinish = misc_sel==DSJ_MISC;
-    assign xyx = misc_sel==X_MISC;
-    assign xyy = misc_sel==Y_MISC;
+    assign xy_finish = misc_sel==X_MISC;
     assign emu_step = misc_sel==EMU_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;

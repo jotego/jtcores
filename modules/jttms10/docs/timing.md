@@ -189,9 +189,9 @@ it also fails on unresolved timing-source overrides, even if every form has
 probes. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-35,914-case inventory has 2,244 unresolved probe instances: 242 store probes,
-six aligned absolute MOVE load CD probes and 1,996 untaken relative-jump
-probes with conflicting primary counts. Twenty-seven store probe
+40,070-case inventory has 3,620 unresolved probe instances: 242 store probes,
+six aligned absolute MOVE load CD probes, 1,996 untaken relative-jump
+probes and 1,376 CMPXY probes with conflicting primary counts. Twenty-seven store probe
 instances disagree with matching entry/summary counts. The JSON preserves
 each affected name, condition-specific source counts and citation. These
 are counts of probe instances, not distinct timing rules. The audit includes
@@ -230,6 +230,7 @@ The full #144 checklist remains open.
 | I/O fixed duration and ignored ready | p.11-14 | Timer tests with ACK permanently low/high; timed queued-host I/O and system register/IRQ regression | Two-state/ACK-independent contract passes; exact internal I/O latch edge excluded as undocumented |
 | External wait addition | §13.1.2 p.13-3; §11.4.10 p.11-16 | Full CPU raw ready at 4/12 INCLK, logical bus duration 16/24; exact added delay and independent target/start/order checks | Current probes pass |
 | Immediate forms: IW 2,8; IL 3,12 | ADDI pp.12-38–39, CMPI 12-54–55, MOVI 12-159–160, SUBI 12-249–250; ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 | 2,828 programs: source-level encoding/sign/flags, warm word alignments and first/second-extension misses; per-word waits and IAQ | Current probes pass; [immediate-timing.md](immediate-timing.md) records the contract and exclusions |
+| ADDXY/SUBXY/CMPXY | SPVU001A pp.12-41/56/252, summary12-12; SPVS002C June1991 p.11 | 4,156 programs: independent signed halves/flags, literal examples, A/B/SP, aliases, ignored field widths/FE and CEN phases | ADDXY/SUBXY hit/CD1/4; CMPXY summary3/6 conflicts with entry1/4 and remains blocked; see [xy-timing.md](xy-timing.md) |
 | JUMP/EXGPC, DSJ/EQ/NE/S and conditional JR/JAcc | SPVU001A pp.12-70..79,92..98; SPVS002C June1991 p.14 | 15,542 programs: both paths, all conditions/flags, A/B/SP, target alignment, displacement endpoints, literal PCs, CEN phases and immediate target fields | Current selected-count probes; untaken JR source discrepancies and the inferred long-JR CD5 remain explicit in [control-timing.md](control-timing.md) |
 | Calls/returns/traps, register lists and other hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
@@ -384,3 +385,14 @@ timing audit and, where required, faster datapaths and memory/graphics
 overlap. The coverage gate keeps the normal runner/CI failing on those
 missing forms even after all current scalar probes pass. Final fitted area,
 FPGA setup/hold and NARC validation have not been repeated for this state.
+
+The XY arithmetic expansion adds **4,156 programs**, giving **40,070 cases
+per matrix** and **120,560 timing programs** across three matrices, two DIV
+pauses and six 58-case phase unions. ADDXY/SUBXY/CMPXY add three forms
+(94/133; 39 missing). Fifty-six checker/model tests, 34 mutation positive
+controls and 41 rejection checks accompany this inventory (38 timing/
+stimulus, three event contracts). [xy-timing.md](xy-timing.md) records
+the shared packed-half adder, literal flags, independent coordinates and
+CMPXY entry1/4 versus summary3/6/data-sheet minimum3 conflict. Its 1,376
+source-policy instances increase unresolved acceptance probes to 3,620.
+These are documented test contracts; full issue acceptance remains open.

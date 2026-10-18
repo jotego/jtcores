@@ -311,28 +311,23 @@ ucode:
     seq:
       - movy_a
       - pass_alu, wr_reg, ni
-  # Source/destination full words stay in A/B. Each half is sliced onto the
-  # shared ALU in its own step, so X carry cannot enter Y.
+  # The shared adder's spacer isolates the two signed 16-bit coordinates.
+  # CMPXY retains its data-sheet/summary three-state schedule in hardware.
   - name: addxy
     start: 97
     seq:
       - reg_a, reg_b
-      - add_alu, x_misc
-      - add_alu, y_misc
-      - wr_reg, ni
+      - add_alu, x_misc, wr_reg, ni
   - name: subxy
     start: 98
     seq:
       - reg_a, reg_b
-      - sub_alu, x_misc
-      - sub_alu, y_misc
-      - wr_reg, ni
+      - sub_alu, x_misc, wr_reg, ni
   - name: cmpxy
     start: 99
     seq:
       - reg_a, reg_b
-      - sub_alu, x_misc
-      - sub_alu, y_misc, ni
+      - sub_alu, x_misc, ni
   # Boundary interrupt and reserved-opcode entries do not retire an
   # architectural instruction. The datapath suppresses retire for these.
   - name: hwsave
