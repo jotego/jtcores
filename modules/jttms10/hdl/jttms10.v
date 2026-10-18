@@ -332,12 +332,14 @@ module jttms10(
             default:;
         endcase
     end
+    // Unsigned 32x32 product; MPYS retains the shared-ALU high-word corrections.
+    (* multstyle = "dsp" *) wire [63:0] mul_product = a * tmp;
     wire [31:0] div_trial = {b[30:0],md[31]};
     wire [31:0] alu_a =
         xyx ? {16'd0,a[15:0]} :
         xyy ? {16'd0,a[31:16]} :
         divnegmd ? md : divnegb ? b :
-        mulcorrm ? tmp : mulstep && !md[0] ? 32'd0 : a;
+        mulcorrm ? tmp : a;
     wire [31:0] alu_b =
         xyy ? {16'd0,b[31:16]} :
         xyx ? {16'd0,b[15:0]} :
@@ -504,14 +506,12 @@ module jttms10(
                     b<=0;
                     md<=field_extended;
                     tmp<=field_extended;
-                    mul_count<=0; // zero encodes the first of 32 steps
                 end
                 if(mulstep) begin
-                    // Shift the 33-bit sum one bit right into the 64-bit
-                    // partial product; ALU C supplies the top carry bit.
-                    b<={c,result[31:1]};
-                    md<={result[0],md[31:1]};
-                    mul_count<=mul_count-5'd1;
+                    // One inferred DSP-backed unsigned product, using the
+                    // existing architectural product storage and write path.
+                    b<=mul_product[63:32];
+                    md<=mul_product[31:0];
                 end
                 if(mulcorrq && !ir[9] && tmp[31]) b<=result;
                 if(mulcorrm && !ir[9] && a[31]) b<=result;

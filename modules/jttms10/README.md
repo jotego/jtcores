@@ -1,7 +1,7 @@
 # JTTMS10
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
-The complete NARC CPU boundary fits in **2,746 ALMs**, or **19.6%** of the
+The #141 baseline complete NARC CPU boundary fitted in **2,746 ALMs**, or **19.6%** of the
 existing CPU's 14,000 ALMs, meeting the 25% target. It trades block RAM for
 instruction control and registers (69 M10Ks, no DSPs). Final-source NARC
 gameplay/audio simulation, FPGA constrained timing and unmodified-ROM
@@ -12,7 +12,9 @@ Instruction timing is currently noncompliant. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner now fails on those timing mismatches even when its
-architectural programs pass.
+architectural programs pass. Current #144 development uses a DSP multiply;
+the final fitted area, FPGA timing and NARC checks must be repeated after
+the instruction timing changes are complete.
 
 `ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
 JT680X. The scalar and graphics sequencers share one ALU, synchronous
@@ -88,7 +90,7 @@ benches are part of `ver/run.sh`.
 integration bench also runs in the standard suite. MMTM/MMFM use the shared
 register RAM and a mask scan, with [register-list semantics](docs/register-lists.md)
 and an additional documented empty-list reference difference.
-MPYS/MPYU use an iterative shared-adder multiply with even/odd destination
+MPYS/MPYU use an inferred DSP multiply with even/odd destination
 and FS1 handling. See [multiply notes](docs/multiply.md) for the independent
 seeded arithmetic check.
 The [synchronous host engine](docs/host.md) also shares the I/O state and

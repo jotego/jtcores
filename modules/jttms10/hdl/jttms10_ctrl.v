@@ -141,7 +141,6 @@ module jttms10_ctrl(
     wire loop_repeat = (shift_step && shift_count>5'd1) ||
                        (lmoscan && lmo_more) ||
                        (multiadvance && multi_steps>5'd1) ||
-                       (mulstep && mul_count!=5'd1) ||
                        (divstep && mul_count!=5'd1);
     // Dispatch addresses match the six ops' class IDs in ucode/tms10.yaml.
     localparam [11:0] ADDIW_ENTRY = 12'h190,
@@ -406,7 +405,6 @@ module jttms10_ctrl(
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
                 uaddr <= multi_load ? MMFMLOOP_SEQA : MMTMLOOP_SEQA;
-            if(mulstep && mul_count!=5'd1) uaddr <= MULLOOP_SEQA;
             if(divcheck && div_early_cond) uaddr <= DIVFAIL_SEQA;
             if(divstep && mul_count!=5'd1) uaddr <= DIVLOOP_SEQA;
             if(ni) begin

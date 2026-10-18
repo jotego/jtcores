@@ -257,22 +257,18 @@ ucode:
     start: 87
     seq:
       - advance_multi, ret_jsr
-  # The 32 right-shift/add steps use the ordinary 32-bit ALU carry. MPYS
-  # corrects the high word for signed operands after the unsigned loop.
+  # One inferred unsigned 32x32 product. MPYS corrects its high word
+  # for signed operands through the ordinary shared 32-bit ALU.
   - name: mpy
     start: 88
     seq:
       - init_mul
-      - mulloop_jsr
+      - step_mul
       - sub_alu, corrq_mul
       - sub_alu, corrm_mul
       - finish_mul
       - wrhi_mul
       - wrlo_mul, ni
-  - name: mulloop
-    start: 89
-    seq:
-      - add_alu, step_mul, ret_jsr
   # DIV and MOD share a restoring unsigned loop. Signed forms normalize
   # operands first, then correct quotient and remainder after flag evaluation.
   - name: div
