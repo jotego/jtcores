@@ -177,8 +177,8 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. The current suite runs 57
-positive controls and 65 rejection checks. Three rejection checks target
+states and premature first/second address words. The current suite runs 61
+positive controls and 69 rejection checks. Three rejection checks target
 sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs nine controls and one duplicate-read mutation.
@@ -193,7 +193,7 @@ probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-87,510-case inventory has 11,219 discrepancy instances before project choices:
+89,032-case inventory has 11,219 discrepancy instances before project choices:
 242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
 1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
 332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives and 296 EMU alternatives. The normal gate records 10,771 explicit project
@@ -203,7 +203,7 @@ The JSON preserves every affected name, condition-specific value and
 citation. Numeric metadata must match the actual selected expectation;
 status relabeling cannot waive a gap. The stricter source-only audit remains
 available. These are counts of probe instances, not distinct rules.
-There are 122 checker/model tests. Probe presence and resolved or explicitly
+There are 128 checker/model tests. Probe presence and resolved or explicitly
 selected source interpretations remain necessary gates; neither completes
 the condition/bus/interrupt audit.
 The full #144 checklist remains open.
@@ -243,6 +243,7 @@ The full #144 checklist remains open.
 | POPST | SPVU001A3-6/12-227; summary12-17; SPVS002C June1991p14 | 806 full-state/read-only-memory programs, including24 real following loads; aligned/unaligned response pauses |8/11 aligned,10/13 otherwise; remaining stack/call forms and full IRQ/HOLD audits stay open. See[stack-timing.md](stack-timing.md). |
 | RETS | SPVU001A3-6/12-232; summary12-17; SPVS002C June1991p14 |1488 PC/SP/full-ST/read-only probes,48 real A/B target loads, aligned/unaligned response pauses |7/10 aligned,9/12 otherwise. Five-bit N0..31/default0; prose32 excluded. See[return-timing.md](return-timing.md). |
 | RETI | SPVU001A3-6/12-230/231; summary12-17; SPVS002C June1991p14 |1412 PBX=0/no-pending-IRQ probes,48 A/B target loads; two separate32-bit fields |11/14 aligned,15/18 otherwise. Exact PBX resumption and last-state IRQ acceptance stay open. See[interrupt-return-timing.md](interrupt-return-timing.md). |
+| PUSHST | SPVU001A3-6/12-228; SPVS002C June1991p14 |1522 full-state/drained-memory probes,224 real following loads |CPU2; H3/CD8 aligned,H8/CD13 otherwise. Printed example address labels excluded from numeric-semantic probes. See[push-timing.md](push-timing.md). |
 | EMU with RUN asserted | SPVS002C June1991 p14; SPVU001A12-17/77 | 296 full-state/field/position cases, plus eight separate pulse controls and one missing-strobe mutation | Project6/9 follows summary/data sheet; entry8/11 retained. RUN-low hold/resume remains open. See [emu-timing.md](emu-timing.md). |
 | Two-address MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-121/124/151/157 | 13,714 programs: both offsets/absolutes, all widths/byte alignments, signed endpoints, cold operands, double fills and following loads | Entry/summary alternatives remain explicit. See [copy-pair-timing.md](copy-pair-timing.md). |
 | Extended-source postincrement MOVE | Tables13-3/4 pp.13-6/7; entries12-149/150/155/156 | 8,812 programs: offset/absolute source, all widths/indices, aliases, cold operands, following loads and CEN | Entry/summary alternatives remain explicit; full validation is in progress. See [source-copy-timing.md](source-copy-timing.md). |
@@ -523,3 +524,12 @@ across midnight; all functional generated contents match exactly, with raw
 hashes and a same-day rebuild retained. Newer RETS109-form full validation
 is running; RETI110-form validation is targeted. These scope distinctions
 remain necessary, and no full ISA signoff is claimed.
+
+PUSHST adds1522 programs for89,032 per matrix and111/133 forms (22 missing).
+It uses the existing full-width field path and a shared-ALU SP decrement,
+with two CPU states and overlapped writes. A corrected slot permission
+prevents one-clock CEN pauses from being absorbed by aligned writes. The
+224 following loads retain exact residual stalls and full initialized
+register/memory checks. The permanent mutation suite has61 controls and69
+rejections, including the new short-pause regression. Full Icarus/clean and
+standard-runner validation remains pending; see[push-timing.md](push-timing.md).

@@ -28,10 +28,60 @@ from emu_cases import emu_cases
 from stack_cases import popst_fixture, stack_cases
 from return_cases import rets_fixture, return_cases
 from interrupt_return_cases import reti_fixture, interrupt_return_cases
+from push_cases import push_fixture,push_cases
+from store_cases import transactions as store_transfers
 from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_pushst_primary_cpu_hidden_and_cd_counts(self):
+        for offset,hidden,cd in [(0,3,8),(15,8,13)]:
+            for off in (False,True):
+                row=push_fixture('counts',off,offset)
+                self.assertEqual(row['states'],cd if off else 2)
+                self.assertEqual(row['hidden_states'],hidden)
+                self.assertEqual(row['data_store']['write_start']+2*len(store_transfers(row)),2+hidden)
+                self.assertEqual(row['expected_extra_regs']['sp'],row['initial_sp']-32)
+
+    def test_pushst_full_status_ignores_field_definitions(self):
+        rows=list(push_cases());self.assertEqual(len(rows),1522)
+        self.assertEqual(len({r['name'] for r in rows}),1522)
+        for row in rows:
+            self.assertEqual(row['regs'],row['expected_regs'])
+            self.assertEqual(row['expected_st'],row['regs'][3])
+            self.assertEqual(row['data_store']['width'],32)
+            self.assertEqual(row['data_store']['value'],row['expected_st'])
+            self.assertEqual(extract(row['expected_memory'],row['data_store']['address'],32,False),row['expected_st'])
+            self.assertEqual(row['expected_extra_regs']['sp'],(row['initial_sp']-32)&0xFFFFFFFF)
+
+    def test_pushst_numeric_words_follow_explicit_sp_minus32_semantics(self):
+        row=push_fixture('numeric',False,address=0x0FF00000)
+        self.assertEqual(row['initial_sp'],0x0FF00020)
+        self.assertEqual(row['expected_memory'][:2],[(0x0FF00000,0x10),(0x0FF00010,0xC000)])
+
+    def test_pushst_waits_are_hidden_on_hit_and_charged_on_cd(self):
+        for off,offset,clocks in [(False,0,23),(False,15,23),(True,0,96),(True,15,160)]:
+            row=push_fixture('wait',off,offset)
+            obs=dict(clocks=clocks,paused=7,st=row['expected_st'],**row['expected_extra_regs'])
+            obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+            self.assertEqual(check(row,obs,1,7),[])
+            obs['clocks']+=8;self.assertTrue(check(row,obs,1,7))
+
+    def test_pushst_correct_hidden_memory_cannot_hide_early_aligned_writes(self):
+        row=push_fixture('bus',False);row.update(test_pc=0x1000,next_pc=0x1010)
+        obs=dict(start=0,end=16,clocks=16)
+        trace=['BUS_BEGIN 8 1 00006000 0010 0','BUS_END 24 1 00006000 0010',
+               'BUS_BEGIN 24 1 00006010 c000 0','BUS_END 40 1 00006010 c000']
+        self.assertEqual(check_store_bus(row,obs,trace,0),[])
+        bad=[x.replace('BEGIN 8','BEGIN 0').replace('END 24','END 16').replace('BEGIN 24','BEGIN 16').replace('END 40','END 32') for x in trace]
+        self.assertTrue(check_store_bus(row,obs,bad,0))
+
+    def test_pushst_wrapped_input_preserves_reset_before_writes(self):
+        row=push_fixture('wrap',False,address=0xFFFFFFF8)
+        self.assertEqual(dict(row['initial_memory'])[0xFFFFFFF0],0)
+        self.assertEqual(row['initial_sp'],0x18)
+        self.assertNotEqual(dict(row['expected_memory'])[0xFFFFFFF0],0)
+
     def test_reti_literal_stack_status_pc_and_sp(self):
         row=reti_fixture('guide',False,address=0x0CCC0000,target=0x0044FFF0,restored=0xC0000010)
         self.assertEqual(row['initial_memory'],[(0x0CCC0000,0x10),(0x0CCC0010,0xC000),(0x0CCC0020,0xFFF0),(0x0CCC0030,0x44)])
@@ -170,6 +220,11 @@ class TimingCheckerTest(unittest.TestCase):
                  observed_follow=dict(a0=1,a1=9,a2=3,a3=4,st=0x10))
         self.assertTrue(correct_architecture(row))
         row['observed_follow']['a1']=0
+        self.assertFalse(correct_architecture(row))
+        row['observed_follow']['a1']=9
+        row['expected_follow_extra_regs']={'sp':0x5000};row['observed_follow']['sp']=0x5000
+        self.assertTrue(correct_architecture(row))
+        row['observed_follow']['sp']=0x4000
         self.assertFalse(correct_architecture(row))
 
     def test_emu_run_keeps_primary_count_alternatives(self):

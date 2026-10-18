@@ -40,8 +40,8 @@ ucode:
   - name: pushst
     start: 55
     seq:
-      - st_md, push32_jsr
-      - ni
+      - sub_alu, sum_ea, wr_sp, st_md
+      - write_stack, ni
   - name: popst
     start: 56
     seq:

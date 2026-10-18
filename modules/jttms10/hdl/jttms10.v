@@ -182,11 +182,12 @@ module jttms10 #(
     wire copy_post=ir[15:10]==6'b100110;
     wire copy_pre=ir[15:10]==6'b101010;
     wire copy_ir=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 || copy_post || copy_pre || copy_extension;
+    wire stack_push=ir==16'h01e0;
     wire store_absolute=(ir & 16'hfde0)==16'h0580 || (ir & 16'hffe0)==16'h05e0;
     wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
-    wire store_direct=ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
+    wire store_direct=!stack_push && ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
     wire [31:0] store_target=copy_packet ? tmp : rd_data;
-    wire [31:0] store_source=copy_ir ? md : store_absolute ? rd_data : rs_data;
+    wire [31:0] store_source=stack_push ? st : copy_ir ? md : store_absolute ? rd_data : rs_data;
     localparam integer LOAD_IW=$clog2(4*CLKS_PER_STATE+1);
     localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
     localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
@@ -240,8 +241,9 @@ module jttms10 #(
     wire decode_copy_pre=decode_opcode[15:10]==6'b101010;
     wire decode_copy=decode_opcode[15:10]==6'b100010 || decode_opcode[15:9]==7'b1001110 ||
                      decode_copy_post || decode_copy_pre || decode_copy_extension;
+    wire decode_stack_push=decode_opcode==16'h01e0;
     wire decode_store_post=decode_opcode[15:10]==6'b100100;
-    wire decode_store_pre=decode_opcode[15:10]==6'b101000;
+    wire decode_store_pre=decode_stack_push || decode_opcode[15:10]==6'b101000;
     wire decode_store_offset=decode_opcode[15:10]==6'b101100 || decode_opcode[15:9]==7'b1010110;
     wire decode_store_absolute=(decode_opcode & 16'hfde0)==16'h0580 || (decode_opcode & 16'hffe0)==16'h05e0;
     wire decode_store_extension=decode_store_offset || decode_store_absolute;
@@ -341,7 +343,7 @@ module jttms10 #(
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
-                      (active && bus_op && !(load_pending && mem_sel==READ_MEM) && !(store_pending && mem_sel==WRITE_MEM))) &&
+                      (active && bus_op && !(load_pending && mem_sel==READ_MEM) && !(store_pending && (mem_sel==WRITE_MEM || (stack_push && stack_sel==WRITE_STACK))))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
                      !(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
                      !((load_pending || store_pending) && imm && !copy_packet && ((!immediate_last && load_issue_left>LOAD_FIRST_LIMIT) ||
@@ -375,11 +377,13 @@ module jttms10 #(
     wire field_ext_fill = field_ext_signed && field_ext_input[field_msb];
     wire [31:0] field_extended = (field_ext_input & field_mask) |
                                  ({32{field_ext_fill}} & ~field_mask);
-    assign mem_post=early_store;
+    // The post tag can advertise the next eligible clock before address
+    // capture. No field is accepted until mem_req supplies the valid EA.
+    assign mem_post=early_store || (stack_push && store_pending && load_issue_left<=1);
     assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? (stack_irq ? rd_data : rs_data) : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = early_store ? field_size : early_load ? (stack_read ? 6'd32 : field_size) : gfx_active ? gfx_bus_size :
+    assign mem_size = early_store ? (stack_push ? 6'd32 : field_size) : early_load ? (stack_read ? 6'd32 : field_size) : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       field_op ? field_size : 6'd16;
@@ -492,14 +496,14 @@ module jttms10 #(
         .rd_ext(gfx_active && gfx_rf_da[5]),
         .wa_ext(gfx_active && gfx_rf_wa[5]),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
-            fetch && (completed || mem_fast || mem_ack) && decode_stack_read ? 5'd15 :
+            fetch && (completed || mem_fast || mem_ack) && (decode_stack_read || decode_stack_push) ? 5'd15 :
             fetch && (completed || mem_fast || (mem_ack && decode_cpw)) ? {decode_opcode[4],decode_opcode[8:5]} :
             stack_pop || stack_return ? 5'd15 :
             ir==16'h0940 && tmp[25] ? 5'd26 :
             multi_ir ? {ir[4],multi_index} :
             call_rs_ir ? {ir[4],ir[3:0]} : {ir[4],ir[8:5]}),
         .rd(gfx_active ? gfx_rf_da[4:0] :
-            fetch && (completed || mem_fast || mem_ack) && decode_stack_read ? 5'd15 :
+            fetch && (completed || mem_fast || mem_ack) && (decode_stack_read || decode_stack_push) ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && decode_cpw ? 5'd21 :
             fetch && (completed || mem_fast) && decode_cvxyl ? 5'd20 :
             fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control) ? {decode_opcode[4],decode_opcode[3:0]} :
@@ -699,7 +703,7 @@ module jttms10 #(
             if(mem_req && mem_ack && early_load && copy_long_finish)
                 load_issue_left<=LOAD_LEAD-LOAD_NEXT_LIMIT;
             if(early_store && !store_started && cen && mem_req) store_started<=1;
-            if(step && mem_sel==WRITE_MEM) store_pending<=0;
+            if(step && (mem_sel==WRITE_MEM || (stack_push && stack_sel==WRITE_STACK))) store_pending<=0;
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
@@ -710,7 +714,7 @@ module jttms10 #(
                 load_pending<=decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store;store_started<=0;
                 load_address_ready<=decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_store_pre && !decode_store_extension);
-                load_issue_left<=decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_issue_left<=decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin
@@ -823,6 +827,7 @@ module jttms10 #(
                     ir<=fetch ? read_data[15:0] : md[15:0];
                     div_pairread<=0;
                     if(fetch && decode_cpw) begin a<=rs_data; b<=rd_data; end
+                    if(fetch && decode_stack_push) begin a<=32'd32; b<=rd_data; end
                 end
                 if(gfx_active && gfx_dst_ir) ir<=result[15:0];
                 if(shiftkinit || shiftrinit) begin

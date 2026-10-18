@@ -78,21 +78,27 @@ module jttms10_word #(
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
-    reg fast_slot;
+    reg fast_slot, stack_post_slot;
     assign word_early=(early_data_q && data_owner && (slot_eligible || slot_phase==0)) ||
                       (fast_program && !data_owner && (fast_slot || slot_phase==0));
     always @(posedge clk) begin
-        if(rst) begin slot_phase<=0; slot_eligible<=0; fast_slot<=0; copy_source_accepted<=0; end
+        if(rst) begin slot_phase<=0; slot_eligible<=0; fast_slot<=0; stack_post_slot<=0; copy_source_accepted<=0; end
         else begin
             slot_phase<=slot_phase==SLOT_LAST ? {SLOT_PW{1'b0}} : slot_phase+1'b1;
             // Only an accepted source read can carry its slot across the
             // copy handoff. Address preparation after a pause owns no slot.
             if(field_req && program_read && field_iaq && field_ack) copy_source_accepted<=0;
             if(data_accept && indirect_copy && !field_we) copy_source_accepted<=1;
-            if(slot_phase==0) fast_slot<=cen;
+            if(slot_phase==0) begin
+                fast_slot<=cen;
+                stack_post_slot<=cen && field_post;
+            end
             else if(!cen) fast_slot<=0;
             if(!field_req && !data_owner && (!indirect_copy || !copy_source_accepted || !cen)) slot_eligible<=0;
-            else if(slot_phase==0 || (!request_latched && slot_phase==1)) slot_eligible<=1;
+            else if(slot_phase==0 || (!request_latched &&
+                (slot_phase==1 || (ir==16'h01e0 && field_post && fast_slot && slot_phase<=3 &&
+                  (field_addr[3:0]!=0 || stack_post_slot)))))
+                slot_eligible<=1;
         end
     end
 

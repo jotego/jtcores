@@ -28,6 +28,7 @@ from emu_cases import emu_cases
 from stack_cases import stack_cases
 from return_cases import return_cases, program as return_program
 from interrupt_return_cases import interrupt_return_cases
+from push_cases import push_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -123,6 +124,7 @@ def cases():
     yield from stack_cases()
     yield from return_cases()
     yield from interrupt_return_cases()
+    yield from push_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -455,7 +457,7 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     else:
         spec=case['data_store'];data_plan=store_transactions(case);plan=[];starts=[]
         extensions=case.get('extensions',[])
-        lead=spec['cpu']-1
+        lead=spec.get('write_start',spec['cpu']-1)
         first=lead
         if case['cache_disabled']:
             plan=[(0,case['test_pc']+16*(q+1),word,0) for q,word in enumerate(extensions)]
@@ -530,7 +532,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -679,9 +681,15 @@ def main():
                     else:
                         values=dict(x.split('=') for x in follow[0].split()[1:])
                         actual={n:int(v,10 if n=='clock' else 16) for n,v in values.items()};row['observed_follow']=actual
+                        if 'expected_follow_extra_regs' in case:
+                            extra=[x for x in log.splitlines() if x.startswith('FOLLOW_EXTRA ')]
+                            if len(extra)!=1:errors.append('expected exactly one following-load implicit-register observation')
+                            else:actual.update({k:int(v,16) for k,v in (x.split('=') for x in extra[0].split()[1:])})
+                            for k,v in case['expected_follow_extra_regs'].items():
+                                if actual.get(k)!=v:errors.append('following load '+k.upper()+' mismatch')
                         spec=case['data_store'];count=len(store_transactions(case));reads_count=((spec['address']&15)+spec['width']+15)//16
                         source_wait=len(copy_transactions(case)[0])*args.wait_states if 'data_copy' in case else 0
-                        write_start=case.get('data_copy',{}).get('write_start',spec['cpu']-1)
+                        write_start=case.get('data_copy',{}).get('write_start',spec.get('write_start',spec['cpu']-1))
                         begin=(source_wait+max(spec['cpu']+case['follow_delay'],write_start+count*(2+args.wait_states)))*8+args.pause_clocks+(-args.pause_clocks)%8
                         expected=begin+reads_count*(16+8*args.wait_states)+8
                         if actual['clock']-observed['start']!=expected:errors.append(f'following dependent load: expected {expected} INCLK, observed {actual["clock"]-observed["start"]}')

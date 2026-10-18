@@ -463,6 +463,19 @@ def main():
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v',old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        for name,probe,file,old,new in (
+            ('long_pushst_cpu','stack_pushst_following_s15_o15_k0_hit','jttms10.v',
+             "decode_emu ? 6'd6 :","decode_stack_push ? 6'd3 : decode_emu ? 6'd6 :"),
+            ('late_pushst_first_word','stack_pushst_phase_a0_off','jttms10_word.v',
+             "ir==16'h01e0 && field_post && fast_slot && slot_phase<=3","1'b0"),
+            ('early_pushst_aligned_word','stack_pushst_following_s0_o0_k0_hit','jttms10.v',
+             "rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}","1'b0 ? LOAD_PRE : {LOAD_IW{1'b0}}"),
+            ('early_pushst_after_short_pause','stack_pushst_following_s0_o0_k0_hit','jttms10_word.v',
+             'stack_post_slot<=cen && field_post;','stack_post_slot<=cen;')):
+            extra=['--wait-states','1','--pause-clocks','1' if name=='early_pushst_after_short_pause' else '7']
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,
