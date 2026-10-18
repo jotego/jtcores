@@ -52,8 +52,14 @@ All1412 W=1/CEN=7 Verilator programs,122 models,180 architectural programs,
 strict lint,84 short Icarus phase cases and both new timing mutations pass.
 The response-event bench has nine controls/one duplicate-read mutant,
 including RETI responses during160-clock CPU pauses. Its bounded event
-checks do not replace exact unpaused instruction counts. Full1412-case
-Icarus comparison, clean-checkout and full standard-runner outcomes remain
+checks do not replace exact unpaused instruction counts. All1412 stressed
+case objects and source/generated-ROM hashes match Icarus and Verilator
+exactly. A detached clean checkout repeats122 models, all1412 stressed
+programs and nine response controls/one mutant with exact case/event
+objects and provenance. Four separate-process probes match batching apart
+from local case identifiers. All44 timing input hashes match public
+6c7393c8c; its full Git tree equals isolated3520aa037. This clean scope is
+targeted; full standard-runner and full clean-checkout acceptance remain
 pending. All86,098 preceding fixtures/programs/goldens are unchanged.
 
 On the preceding public dc661d409 HDL/YAML, all1412 historical programs
