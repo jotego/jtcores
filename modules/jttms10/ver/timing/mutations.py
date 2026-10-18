@@ -408,10 +408,10 @@ def main():
             ('early_pair_external_word','copy_move_offset_offset_phase_w16_r1_15_0_off',
              ['--wait-states','1','--pause-clocks','1'],'jttms10_word.v',
              'cache_word_req && cache_bus_ready', "cache_word_req && (cache_bus_ready || 1'b1)"),
-            ('late_pair_operand_capture','copy_move_absolute_absolute_phase_w16_r1_15_0_hit',
+            ('short_pair_address_lead','copy_move_absolute_absolute_phase_w16_r1_15_0_hit',
              ['--wait-states','1','--pause-clocks','1'],'jttms10.v',
-             'copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ?',
-             '(fetch || imm) ?')):
+             'decode_copy_absolute_pair ? COPY_FOUR :',
+             'decode_copy_absolute_pair ? COPY_FOUR-LOAD_PRE :')):
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/file,old,new)

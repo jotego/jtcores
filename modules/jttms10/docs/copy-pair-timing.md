@@ -96,7 +96,7 @@ second/third missing absolute operand inherited the later-CD-word gate,
 adding two/one extra states with correct data. A dynamic first-miss threshold
 now follows the current operand's index. The permanent mutation restores
 that error. Another control rejects early external operand requests; a third
-rejects slow operand capture. Their architectural/memory checks stay active.
+rejects shortened absolute-address work. Their architectural/memory checks stay active.
 
 On unchanged public `4b34f984e`, all 13,714 programs fail timing/bus checks
 with zero register/ST, following-state or drained-memory failures. The
