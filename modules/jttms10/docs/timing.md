@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 102 of 133 instruction forms; the other 31 remain unvalidated.
+probes cover 106 of 133 instruction forms; the other 27 remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -177,8 +177,8 @@ Five load mutations delay the first bus slot, consume sign work during a wait,
 charge full-width FE, absorb a sub-state pause or cache data reads. They also
 must fail with correct registers/ST.
 Four further load-mode mutations reject incorrect predecrement/offset lead
-states and premature first/second address words. The current suite runs 47
-positive controls and 55 rejection checks. Three rejection checks target
+states and premature first/second address words. The current suite runs 50
+positive controls and 58 rejection checks. Three rejection checks target
 sequencer/pending-field/late-program-data event contracts; the others retain correct
 architectural results (and drained memory for store mutations). The response-retention
 event bench separately runs three controls and one duplicate-read mutation.
@@ -193,17 +193,17 @@ probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-69,794-case inventory has 6,592 discrepancy instances before project choices:
+83,508-case inventory has 10,923 discrepancy instances before project choices:
 242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
 1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
-332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension alternatives. The normal gate records 6,144 explicit project
+332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives. The normal gate records 10,475 explicit project
 choices and retains 448 unresolved MOVB cases. Forty-five instances have
 matching entry/summary targets, distinguished from source conflicts.
 The JSON preserves every affected name, condition-specific value and
 citation. Numeric metadata must match the actual selected expectation;
 status relabeling cannot waive a gap. The stricter source-only audit remains
 available. These are counts of probe instances, not distinct rules.
-There are 96 checker/model tests. Probe presence and resolved or explicitly
+There are 104 checker/model tests. Probe presence and resolved or explicitly
 selected source interpretations remain necessary gates; neither completes
 the condition/bus/interrupt audit.
 The full #144 checklist remains open.
@@ -240,6 +240,7 @@ The full #144 checklist remains open.
 | Calls/returns/traps, register lists and other hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
 | Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed 5; byte index2 CD9 versus printed7 remains a target gap. See [copy-timing.md](copy-timing.md) |
 | Pointer memory-to-memory MOVE | Tables13-3/4 pp.13-6/7; entries12-141/142/145/146 | 8,936 programs: both pointer modes, widths/alignments, fields/FE, A/B/SP, sequential aliases, literal data/pointers, following loads and CEN | Three alternatives follow the recorded owner choice. Complete validation is in progress; see [pointer-copy-timing.md](pointer-copy-timing.md). |
+| Two-address MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-121/124/151/157 | 13,714 programs: both offsets/absolutes, all widths/byte alignments, signed endpoints, cold operands, double fills and following loads | Entry/summary alternatives remain explicit. See [copy-pair-timing.md](copy-pair-timing.md). |
 | Extended-source postincrement MOVE | Tables13-3/4 pp.13-6/7; entries12-149/150/155/156 | 8,812 programs: offset/absolute source, all widths/indices, aliases, cold operands, following loads and CEN | Entry/summary alternatives remain explicit; full validation is in progress. See [source-copy-timing.md](source-copy-timing.md). |
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
 | MOVE post/pre/offset/absolute and MOVB offset/absolute; load B/SP conditions | Table13-1 p.13-5; pp.12-120,123,139–154; §5.4.7 | 3,200 additional fixtures, A/B/SP aliases/wrap, displacement/ignored-byte-field boundaries, cold address-word fills and six early CEN phases | Current probes pass; absolute MOVE entry conflicts with summary, with explicit oracle policy in [load-timing.md](load-timing.md) |
@@ -460,3 +461,11 @@ The normal gate records 6,144 explicit choices and retains 448 unresolved
 MOVB probes; the strict audit retains all 6,592 discrepancies. Complete
 normal/clean-checkout/resource validation and all final issue gates remain
 open.
+
+The two-address expansion adds **13,714 programs** for **83,508 per matrix**,
+with 106/133 forms present (27 missing). Its 96 cold cases include a
+five-word absolute instruction whose following opcode needs a second fill
+behind the posted writes. There are 32 new warm phase probes, 240 following
+loads and 154 literal programs. All 69,794 previous fixture/program/golden
+hashes are unchanged. Full validation for this stage is in progress; see
+[copy-pair-timing.md](copy-pair-timing.md).

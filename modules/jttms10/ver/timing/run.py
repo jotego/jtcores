@@ -23,6 +23,7 @@ from coordinate_cases import coordinate_cases
 from copy_cases import copy_cases, transactions as copy_transactions
 from pointer_copy_cases import pointer_copy_cases
 from copy_extension_cases import copy_extension_cases
+from copy_pair_cases import copy_pair_cases
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -113,6 +114,7 @@ def cases():
     yield from copy_cases()
     yield from pointer_copy_cases()
     yield from copy_extension_cases()
+    yield from copy_pair_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -226,6 +228,7 @@ def check(case, observed, wait_states=0, pause_clocks=0):
             reads,writes=copy_transactions(case)
             count=len(reads)+(len(writes)+1+len(case.get('extensions',[])))*int(case['cache_disabled'])
             if case.get('cache_miss')=='copy_extension':count+=4
+            if case.get('next_opcode_miss'):count+=len(writes)+4
         else:
             count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
         alignment=(-pause_clocks)%8 if count else 0
@@ -400,6 +403,10 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
         first=spec.get('write_start',spec['cpu']-1)+len(reads)*wait_states+penalty
         starts.extend(first+q*(2+wait_states) for q in range(len(writes)))
         plan.extend(reads+writes)
+        if case.get('next_opcode_miss'):
+            start=first+len(writes)*(2+wait_states)
+            starts.extend(start+q*(2+wait_states) for q in range(4))
+            plan.extend((0,case['next_pc']+16*q,0x0300,1) for q in range(4))
         if case['cache_disabled']:
             starts.append(first+len(writes)*(2+wait_states))
             plan.append((0,case['next_pc'],0x0300,1))
@@ -489,7 +496,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

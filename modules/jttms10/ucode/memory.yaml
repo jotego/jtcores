@@ -94,18 +94,13 @@ ucode:
   - name: moveoff
     start: 46
     seq:
-      - imm_bus, pcinc
-      - immse_a, bsrc
+      - imm_bus, pcinc, immse_a, bsrc
       - add_alu, sum_ea
-      - ea_tmp
-      - imm_bus, pcinc
-      - immse_a, reg_b
+      - imm_bus, pcinc, immse_a, reg_b, ea_tmp
       - add_alu, sum_ea
       - swap_ea
       - read_mem
-      - tmp_ea
-      - write_mem
-      - ni
+      - write_mem, ni
   - name: moveoffpi
     start: 47
     seq:
@@ -125,19 +120,10 @@ ucode:
   - name: moveabs
     start: 49
     seq:
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - a_ea
-      - ea_tmp
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - a_ea
+      - imm_bus, pcinc, immlo_a
+      - imm_bus, pcinc, immhi_a, a_ea
+      - imm_bus, pcinc, immlo_a, ea_tmp
+      - imm_bus, pcinc, immhi_a, a_ea
       - swap_ea
       - read_mem
-      - tmp_ea
-      - write_mem
-      - ni
+      - write_mem, ni

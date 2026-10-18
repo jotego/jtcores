@@ -4,8 +4,8 @@ MOVE `*Rs(offset),*Rd+` and `@SAddress,*Rd+` reuse the existing copy engine.
 TI SPVU001A printed pp.12-149/150 and 12-155/156 describe their semantics;
 Tables13-3/4, pp.13-6/7, supply alignment classes and timing alternatives.
 These two forms add 8,812 permanent programs. The complete probe inventory
-is 102/133 forms, leaving 31 forms unvalidated. The two remaining field-copy
-and two byte-copy forms with two explicit addresses retain their old timing.
+is 102/133 forms, leaving 31 forms unvalidated. The later [two-address expansion](copy-pair-timing.md) covers the other
+two field-copy and two byte-copy forms.
 
 The independent equation adds two intrinsic address states to a plain
 copy, retains its hidden-write count H, and adds three CD states per

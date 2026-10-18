@@ -216,8 +216,8 @@ def main():
 
         pre_mode=work / 'wrong-pre-load-lead-hdl'
         shutil.copytree(MODULE/'hdl',pre_mode)
-        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : (decode_load_extension || decode_store_extension || decode_copy_extension) ?',
-                     'decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_LEAD : (decode_load_extension || decode_store_extension || decode_copy_extension) ?')
+        replace_once(pre_mode/'jttms10.v','decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ?',
+                     'decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_LEAD : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ?')
         evidence['wrong_predecrement_lead']=run_case(work,'wrong_predecrement_lead',pre_case,
             ['--rtl-dir',str(pre_mode),'--wait-states','1'],mutated=True)
 
@@ -397,6 +397,21 @@ def main():
             ('lost_source_copy_slot','copy_move_absolute_post_phase_w16_r1_15_0_hit',
              ['--wait-states','1','--pause-clocks','7'],'jttms10_word.v',
              " ||\n                       ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400",'')):
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+            replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        for name,probe,extra,file,old,new in (
+            ('lost_pair_cached_prefix','copy_move_absolute_absolute_phase_cold2_w32_o15_f0_r0_2_0_hit',
+             ['--wait-states','1','--pause-clocks','1'],'jttms10.v',
+             '(control[15] && !copy_first_operand)', '!copy_first_operand'),
+            ('early_pair_external_word','copy_move_offset_offset_phase_w16_r1_15_0_off',
+             ['--wait-states','1','--pause-clocks','1'],'jttms10_word.v',
+             'cache_word_req && cache_bus_ready', "cache_word_req && (cache_bus_ready || 1'b1)"),
+            ('late_pair_operand_capture','copy_move_absolute_absolute_phase_w16_r1_15_0_hit',
+             ['--wait-states','1','--pause-clocks','1'],'jttms10.v',
+             'copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ?',
+             '(fetch || imm) ?')):
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/file,old,new)

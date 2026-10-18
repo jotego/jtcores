@@ -84,6 +84,24 @@ for printed,formula in [(0x20000,0x200C0),(0x28000,0x280C0),
                 policy_result=formula)
     CHOICES['CVXYL_RR',signature(values)]='xy-conversion-repeated-formula'
 
+# Table13-4 two-address forms and their typical instruction entries disagree.
+# Keep the shared source-read/hidden-write formula, with two/four operand
+# states. Byte offset's entry CD9 and absolute field's entry CD12 are literal.
+for identifier,rows in {
+    'MOVE_OFF_OFF':[(7,16,7,19,7,19),(7,18,7,21,None,None),(7,19,7,23,None,None),
+                    (7,22,7,25,None,None),(7,25,9,25,None,None)],
+    'MOVE_ABS_ABS':[(7,23,7,23,7,12),(9,24,9,27,9,27),(9,26,9,29,None,None),
+                    (9,27,9,31,None,None),(9,30,9,33,None,None),(9,33,11,33,None,None)],
+    'MOVB_OFF_OFF':[(5,7,5,17,5,9),(5,7,5,17,None,None),
+                    (6,13,7,19,None,None),(7,19,7,23,None,None)],
+    'MOVB_ABS_ABS':[(7,7,7,25,7,25),(7,7,7,25,None,None),
+                    (6,12,9,27,None,None),(9,27,9,31,None,None)],
+}.items():
+    for sc,sd,pc,pd,ec,ed in rows:
+        values=dict(summary_cpu=sc,summary_cd=sd,policy_cpu=pc,policy_cd=pd,
+                    entry_typical_cpu=ec,entry_typical_cd=ed)
+        CHOICES[identifier,signature(values)]='two-address-copy-common-equation'
+
 
 def project_choice(identifier,values,kind):
     if kind=='agreed-published-target-gap':return None

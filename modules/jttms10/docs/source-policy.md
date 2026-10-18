@@ -30,7 +30,7 @@ new alternatives, changed selected counts, different instruction forms or
 changed result expectations cannot silently inherit a choice.
 
 The source audit still reports every discrepancy. The normal gate separates
-**6,144 probe instances with project choices** from **448 unresolved MOVB
+**10,475 probe instances with project choices** from **448 unresolved MOVB
 probes**, including 45 matching entry/summary targets. Absolute MOVB has
 116 unresolved instances (27 agreed); plain memory-to-memory MOVB has 332
 (18 agreed). All absolute-MOVB variants remain open, including alignments
@@ -43,7 +43,7 @@ the three source reads and the same table's CD17/H7 contradict printed CPU5.
 
 The normal runner invokes the policy-aware inventory. Calling
 `inventory(rows)` without `accept_project_choices=True` retains the stricter
-source-only audit, including all 6,592 discrepancy instances. Both views
+source-only audit, including all 10,923 discrepancy instances. Both views
 preserve the original numbers and citations. A passed source-policy gate
 would still leave condition/bus/interrupt/hardware audits required;
 `full_isa_signoff` remains false. Missing forms also continue to fail.
@@ -52,7 +52,7 @@ The original policy-only step at `3fcd09f9b` modified no HDL, microcode, encoded
 program, timing/result expectation or simulation observation. Ten additional checker tests cover
 explicit choices, preserved alternatives, exact signatures, actual result
 consistency, agreed-target protection and the full inventory. The complete
-checker/model suite now has 96 tests after the extended-source expansion. Source choices must never be inferred
+checker/model suite now has 104 tests after the two-address-copy expansion. Source choices must never be inferred
 from measured implementation latency.
 
 
@@ -73,3 +73,11 @@ probe retains summary and applicable typical-entry values.
 inconsistent example pointer and address labels; its numeric result words
 anchor the bit model under explicit instruction semantics, not those
 conflicting labels. These are project interpretations, not TI corrections.
+
+Two-address copies add 4,331 exact choices, retaining every applicable
+entry/summary alternative. The shared equation adds two/four intrinsic
+operand states and three CD states per instruction word; inconsistent
+byte/field table columns do not require additional arithmetic or DSPs.
+[copy-pair-timing.md](copy-pair-timing.md) records the literal CD9 offset-byte
+and CD12 absolute-field entry values as well as summary alternatives. These
+choices leave all 448 prior MOVB target instances unresolved.

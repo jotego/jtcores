@@ -23,9 +23,86 @@ from copy_cases import (alignment as copy_alignment,counts as copy_counts,fixtur
     literal_cases as copy_literals,transactions as copy_transactions)
 from pointer_copy_cases import literal_cases as pointer_copy_literals, pointer_copy_cases
 from copy_extension_cases import literal_cases as copy_extension_literals, copy_extension_cases
+from copy_pair_cases import literal_cases as copy_pair_literals, copy_pair_cases
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_two_address_copy_primary_equation_and_printed_alternatives(self):
+        self.assertEqual(copy_counts(0,0,16,mode='offset_offset')[:3],(5,1,15))
+        self.assertEqual(copy_counts(0,0,32,mode='absolute_absolute')[:3],(9,3,27))
+        self.assertEqual(copy_counts(0,0,16,mode='absolute_absolute')[4],dict(
+            summary_cpu=7,summary_cd=23,policy_cpu=7,policy_cd=23,entry_typical_cpu=7,entry_typical_cd=12))
+        self.assertEqual(copy_counts(0,0,8,byte=True,mode='offset_offset')[4],dict(
+            summary_cpu=5,summary_cd=7,policy_cpu=5,policy_cd=17,entry_typical_cpu=5,entry_typical_cd=9))
+        self.assertEqual(copy_counts(0,0,8,byte=True,mode='absolute_absolute')[4],dict(
+            summary_cpu=7,summary_cd=7,policy_cpu=7,policy_cd=25,entry_typical_cpu=7,entry_typical_cd=25))
+
+    def test_two_address_absolute_encoding_changes_no_register(self):
+        for byte,opcode in [(False,0x07C0),(True,0x0340)]:
+            row=copy_fixture(8 if byte else 32,0,0,1,False,0,byte=byte,mode='absolute_absolute',
+                             bank=1,source=15,dest=15,source_address=0xF0005000,destination_address=0xE0006000)
+            self.assertEqual(row['opcode'],opcode)
+            self.assertEqual(row['extensions'],[0x5000,0xF000,0x6000,0xE000])
+            self.assertEqual(row['regs'],row['expected_regs'])
+            self.assertEqual(row['initial_sp'],row['expected_extra_regs']['sp'])
+            for q,v in row['initial_b_regs'].items():self.assertEqual(v,row['expected_extra_regs']['b'+str(q)])
+            self.assertIsNone(row['conditions']['source_register'])
+            self.assertIsNone(row['conditions']['destination_register'])
+
+    def test_two_address_offset_alias_has_two_independent_displacements(self):
+        row=copy_fixture(16,0,0,1,False,0,mode='offset_offset',bank=1,source=15,dest=15,
+                         destination_address=0x8000,displacement=-32768,destination_displacement=32767)
+        self.assertEqual(row['opcode'],0xBBFF)
+        self.assertEqual(row['extensions'],[0x8000,0x7FFF])
+        self.assertEqual(row['data_copy']['source'],0xFFFF8001)
+        self.assertEqual(row['data_copy']['destination'],0x8000)
+        self.assertEqual(row['initial_sp'],row['expected_extra_regs']['sp'])
+
+    def test_two_address_literal_results_anchor_signed_operand_endpoints(self):
+        rows=list(copy_pair_literals());self.assertEqual(len(rows),154)
+        for row in rows:
+            self.assertEqual(row['literal_model_memory'],row['expected_memory'],row['name'])
+        sample=next(r for r in rows if 'guide_byte_so-32768_do32767' in r['name'] and r['conditions']['bank']==0)
+        self.assertEqual(sample['regs'][0],0x18000)
+        self.assertEqual(sample['regs'][1],0x9001)
+        self.assertEqual(sample['extensions'],[0x8000,0x7FFF])
+
+    def test_two_address_copy_waits_charge_every_operand_and_transfer(self):
+        row=copy_fixture(16,0,0,0,True,0,mode='absolute_absolute')
+        obs=dict(clocks=240,paused=0,st=row['expected_st'],**row['expected_extra_regs'])
+        obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+        # 23 states plus seven external waits: four operands/read/write/fetch.
+        self.assertEqual(check(row,obs,1),[])
+        obs['clocks']=232;self.assertTrue(check(row,obs,1))
+
+    def test_two_address_copy_cold_all_four_operand_positions(self):
+        rows=list(copy_pair_cases())
+        self.assertEqual(len({r['name'] for r in rows}),len(rows))
+        cold=[r for r in rows if r.get('cache_miss')=='copy_extension']
+        self.assertEqual({r['miss_word'] for r in cold if r['conditions']['mode']=='absolute_absolute'},{1,2,3,4})
+        for row in cold:
+            self.assertEqual(row['measure_pass'],0)
+            self.assertEqual(row['memory_before_measured'],row['initial_memory'])
+            self.assertEqual(row['states'],row['data_copy']['cpu']+9+(9+row['data_copy']['hidden'] if row.get('next_opcode_miss') else 0))
+
+    def test_two_address_cold_fifth_word_waits_for_hidden_writes(self):
+        row=next(r for r in copy_pair_cases() if r.get('next_opcode_miss') and
+                 r['data_copy']['width']==16 and r['data_copy']['source']&15==0)
+        self.assertEqual(row['states'],7+1+18)
+        obs=dict(clocks=288,paused=0,st=row['expected_st'],**row['expected_extra_regs'])
+        obs.update({'a'+str(q):v for q,v in enumerate(row['expected_regs'])})
+        # Source/write plus eight fill words all charge a wait.
+        self.assertEqual(check(row,obs,1),[])
+        obs['clocks']=280;self.assertTrue(check(row,obs,1))
+
+    def test_two_address_copy_project_choices_keep_known_targets_open(self):
+        audit=inventory(copy_pair_cases(),accept_project_choices=True)
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        self.assertTrue(audit['project_source_choices'])
+        strict=inventory(copy_pair_cases())
+        self.assertEqual(len(strict['unresolved_source_probes']),len(audit['project_source_choices']))
+        self.assertFalse(audit['full_isa_signoff'])
+
     def test_source_extension_copy_entry_counts_and_alternatives(self):
         self.assertEqual(copy_counts(0,0,16,mode='offset_post')[:3],(5,1,12))
         self.assertEqual(copy_counts(0,0,16,mode='absolute_post')[:3],(5,1,15))

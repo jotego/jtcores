@@ -53,7 +53,10 @@ module jttms10_word #(
     // and stacks still use the field adapter, including all RMW/HOLD handling.
     wire program_read=field_program && !field_we && field_size==6'd16 &&
                       field_addr[3:0]==0;
-    wire fast_program=program_read && field_fast;
+    wire packet_copy=ir[15:10]==6'b101110 || ir[15:9]==7'b1011110 ||
+                     (ir & 16'hfdff)==16'h05c0 || ir==16'h0340;
+    wire fast_program=program_read && field_fast && !packet_copy;
+    wire cache_bus_ready=!packet_copy || !program_read || field_iaq || field_fast;
     wire data_request=field_req && !program_read;
     wire data_accept=data_request && !field_busy && !post_ack && !post_busy;
     // Keep one logical operation pending across the cache/field helper's
@@ -70,7 +73,7 @@ module jttms10_word #(
     reg copy_source_accepted;
     wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
                        ir[15:10]==6'b100110 || ir[15:10]==6'b101010 ||
-                       ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400;
+                       ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400 || packet_copy;
     wire indirect_load=indirect_copy ||
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
@@ -95,7 +98,7 @@ module jttms10_word #(
 
     // Program lookup can hit the existing RAM while a data operation owns
     // the external bus. A miss waits for that operation, preserving ordering.
-    assign word_req=data_owner ? field_word_req && !data_word_ack : fast_program ? field_req : cache_word_req;
+    assign word_req=data_owner ? field_word_req && !data_word_ack : fast_program ? field_req : cache_word_req && cache_bus_ready;
     assign word_we=data_owner && field_word_we;
     assign word_addr=data_owner ? field_word_addr : fast_program ? field_addr : cache_word_addr;
     assign word_wdata=data_owner ? field_word_wdata : 16'd0;
