@@ -24,6 +24,9 @@ jtframe:
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
 jt12:
   - get:
     - jt49.yaml

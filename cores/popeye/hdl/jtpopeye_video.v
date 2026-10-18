@@ -140,7 +140,7 @@ jtpopeye_char u_char(
     .dd         ( dd        ),
     .csv        ( csv       ),
     .memwr0     ( memwr0    ),
-    .h          ( h         ),
+    .h_raw      ( h_raw     ),
     .hb         ( hb        ),
     .v          ( v         ),
     .vb         ( vb        ),
