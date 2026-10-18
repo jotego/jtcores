@@ -1,9 +1,12 @@
 # Measurement gap inventory
 
-Work in progress for jtcores #143. Production jt51 remains at
-`985a573dcfc1ff135553a39f7eae21d18ba57cbe`. Collect the measurement set before
-opening combined implementation work, following the user's jt51 #3 instruction.
-No RTL change or candidate patch has been made.
+The bounded Diet Go Go direct-serial campaign for
+[jtcores #143](http://gitea.jotego.es/jotego/jtcores/issues/143) is recorded below.
+Production jt51 remains at `985a573dcfc1ff135553a39f7eae21d18ba57cbe`.
+Six physically supported implementation requirements are consolidated separately
+for review under the user's [jt51 #3 instruction](http://gitea.jotego.es/jotego/jt51/issues/3).
+No RTL change or candidate patch has been made. Broader finite limits and untested
+combinations remain open; this does not close the earlier X-Men rounds.
 
 | Observation | Classification | Evidence and limit |
 |---|---|---|
@@ -36,6 +39,9 @@ No RTL change or candidate patch has been made.
 | Stereo pan controls | Qualified for current wiring; earlier human labels corrected | Primary ACC notes: bit6 left, bit7 right. Actual captures map latch0 to left, latch1 to right. Old left/right artifact names were reversed; latch indices and both-pan results remain intact. |
 | Output-visible pan markers | Scoped physical continuity; reference-only output difference retained | Nine physical captures have three left/latch0 zero pulses and continuous right/latch1 output. Constant right carrier has an unbroken phase fit. Separately qualified local/coherent diagnostics find no PCB disturbance at the observed OPM pan-only error scale. No physical same-clock counterfactual, byte-identity claim, oracle patch or causal diagnosis. |
 | Transient SH framing disturbance | Acquisition anomaly, retained and excluded | Two earlier failed recordings; all accepted pitch/event recordings pass framing and transfer checks. No causal conclusion about probing/wiring. |
+| Selected noise history and LFO/noise coupling | Consistent finite sampled states/supports; no new gap | Four profiles×3 targets with13 entire-zero quiets=25 captures. N0/N1 preserve compatible sampled lattices/levels; N2 has no resolved modulation, not measured period0. N3 retains finite cadence/original±64 support, without sequence/internal-clock inference. |
+| Split manual/automatic CSM coexistence controls | Finite support for the existing confirmed CSM output gap | Three profiles×3 targets with10 whole-zero quiets=19 captures plus9 separate STATUS1 queries. All six C2 manual/null controls qualify; RIGHT zero PCM retains actual raw low bits. C3 manual LEFT stays held; C3 RIGHT/C4 both outputs resolve cadence supporting512. No new mechanism/IRQ/first-load claim. |
+| Low-LFO finite complements | Coarse full-period and partial-only output evidence, with precision limits | Four profiles×3 targets plus14 whole-zero quiets across two stages=26 captures. All six L2 own carriers qualify independently. Six rate60 coarse periods support1024 retained samples; all six original fine screens remain unqualified (about2.34375% propagated bound). Six rate00 partial changes and six held controls retain periodnull; no256-rate/hidden-update extrapolation. |
 
 Detailed methods and evidence locations:
 
@@ -53,9 +59,30 @@ Detailed methods and evidence locations:
 - [Static output mixing measurements](mixing-measurements.md)
 - [Common-held-history output measurements](mixing-history.md)
 
+- [Finite audit complements](audit-complements.md)
+
 Long acquisition is now available (see [qualification](long-acquisition.md)).
 Open coverage includes full EG KS/KC combinations and remaining history
 boundaries, remaining LFO rates, wider isolation/history combinations and further storage cases, wider audio-noise history/coupling,
 remaining algorithm/feedback histories and relative-phase investigation, fast/first-key/mixed-mask CSM histories, and exact output-mixing/
 overload closure beyond the static and held-history observations. These are incomplete measurements, not passing defaults. The
 earlier X-Men planning issues are not marked complete by this direct-serial work.
+
+## Selected EG KS/KC follow-up
+
+The bounded 23 main/two-carrier matrix (152 physical captures, 50 frozen model
+outputs) extends the existing instant-attack and raw-zero/key-scale observations
+at selected KC3E/40/41 settings. It adds no new gap classification. Independent
+carrier calibration, AR0/AR1 controls and live D1R/D2R0/12 controls are retained
+in the [envelope report](envelope-measurements.md#kskc-boundary-and-zero-rate-checkpoint).
+All 48 eligible summed-window comparisons lie within their original bounds;
+44 are withheld, including wrong-level/unfinished plateaus and unresolved short
+attacks. All 24 original model exceptions and four sub-two-window model responses
+remain explicit. Agreement of an eligible duration does not clear the previously
+measured rate12 granularity gap or establish general feature/sample agreement.
+
+The actual 150 same-input frontend and one descriptor-report parity completed with
+terminal 0, preserving all 150 curves and all six scientific documents exactly.
+This validates source-promotion parity, not new chip coverage. Production remains
+unchanged; full EG KS/KC combinations, deferred history and the rest of the audit
+remain outstanding.

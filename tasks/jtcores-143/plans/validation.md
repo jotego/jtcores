@@ -556,3 +556,103 @@ CLI controls, exclusive-report-root refusal, builds/four vet groups and focused
 tests pass. All130 existing model/physical scorer JSONs and curves reproduce
 byte-for-byte, including the known OPM RIGHT carrier failure. No new model or
 capture is part of relocation validation.
+
+## Finite EG KS/KC checkpoint
+
+The 23 main/two-carrier matrix adds 152 physical captures and 50 frozen model outputs,
+including independent new-carrier qualification and intentional silent AR0
+controls with nonzero AR1 positives. The descriptor report preserves 138 physical/
+92 model observations, 46 triplicate cells and 92 comparisons: 48 eligible within the
+original summed-window bounds, 44 withheld and all 24 original model exceptions.
+Four model attack observations remain sub-two-window responses rather than
+resolved durations; existing wrong-level/unfinished states remain ineligible.
+Representative KC/KS, AR0–1 and live zero/nonzero-rate ranges are in the
+[envelope report](envelope-measurements.md#kskc-boundary-and-zero-rate-checkpoint).
+
+The reproducible source tools reproduce 212 legacy and 50 new payloads, preserve
+all numerical bodies/guards, and pass build/vet/focused controls. Actual
+managed handle 83222 returned 0 after 150 retained same-input frontend calls plus
+one descriptor aggregation. All 150 curves and six scientific documents are
+byte-identical; metadata identities are checked separately. The read-only audit
+verifies 493 input/source/protected and 613 output pins. No additional acquisition,
+model run or broad qualification sweep was used. This checkpoint does not close full EG, deferred history or remaining
+subsystem coverage, and assigns no new gap classification.
+
+## Finite noise, split-CSM and low-LFO complements
+
+See [audit-complements.md](audit-complements.md) for all eleven literal profiles,
+clock domains, numerical limitations and portable14-file reproduction commands.
+
+- All70 physical captures are independently reviewed:33 targets and37 whole-zero
+  quiets, including four separate final quiets. Nine additional CSM STATUS queries
+  are separate from target EVENTs. The complete chain is69/1614→218/2061,
+  149 generations/447 marker bytes; no extra profiles count as coverage.
+- Noise25 retains24 original feature reports. N0/N1 preserve two-level sampled
+  histories; N2 is no-resolved energy modulation (default period0 is not measured).
+  N3 retains finite cadence with original±64-native-sample support, not a sequence
+  polynomial/internal-clock or new-gap claim.
+- CSM19 retains18 energy reports, three C2 LEFT whole-record phase guards and
+  all six manual/null controls. All nine separate STATUS replies are1; write-only
+  capture completions are0. Whole-zero C2 RIGHT PCM retains actual3000..3004 low
+  raw bits. C3 RIGHT and C4 both outputs resolve original cadence supporting512.
+- L2 seven-capture stage independently qualifies all six own165888 carriers,
+  actual stride1024 geometry/conditioning and stable pre128 gates before low-main.
+  Its six same-input promoted-source report/curve comparisons are reviewed.
+- Low-main19 retains18 applicable original report/curve pairs: six L0 coarse
+  periods support1024 retained samples, while all six original fine screens stay
+  unqualified at approximately2.34375% propagated bound. Six L1 partial-only
+  changes are about−0.56625..−0.56747dB; six L3 results have no resolved modulation.
+  All L1/L3 periods remain null. No partial-to-fullcycle/hidden-update inference.
+- Original182 numerical configurations and11 CPU/11 virtual lifecycle profiles
+  remain unchanged. Diagnostic-only drift/phase-jump and alias limits remain;
+  these are finite qualifications, not universal anomaly detection.
+- All22 public models/cadences/horizons complete. Both OPM C2/C3 manual phase
+  exit1 results remain conditional. All48 model22 and66 physical outer same-input source comparisons are reviewed,
+  preserving69 physical primitives/36 curves, including the final18 low-main
+  reports/curves and all original fine/partial limitations.
+- The bounded measurement complement set and its source parity are complete;
+  reviewed source tools accompany this checkpoint. The existing six confirmed gaps stay
+  combined. FullCartesian, P128/P1, precise first-load and all256 full LFO periods
+  remain unmeasured, without implying a passing default or a new RTL fix.
+
+## Recorded bounded subsystem coverage
+
+This table records the scoped Diet Go Go direct-serial campaigns. Counts identify
+their own milestone groups; the complements row is separate from the earlier
+baseline campaigns. Production jt51 remains unchanged. This is finite evidence,
+not exhaustive validation or closure of jtcores #143 or the older X-Men rounds.
+
+| Subsystem | Completed direct evidence | Remaining limit |
+|---|---|---|
+| Capture/transport | Independent raw/RTL decode, complete stereo pairing, inversion/pan controls, transfer hashes, framing/exponent checks, CAP04 stride1–1024, finite timeout/ownership checks | Digital observations do not establish analog margins; host timestamps are bounds, not accepted chip-write phase. |
+| Phase/frequency | 243 reset-conditioned KC/KF/DT1/DT2/MUL programs; nonzero bipolar captures and own-fit quality | 114 effective increments differ by8192 in a partial-product pattern. Chip/control cause unclassified; no blanket correction. |
+| Timers | All16 control modes×3,14 state observations,100 guarded period observations at10 preloads | Physical IRQ pin unobserved; first-overflow phase bounded. Seven production flag-control modes disagree. |
+| Attack | AR1–31 at scoped KC/KS, AR0 negatives/AR1 positives, effective30/31 boundary controls | Projection resolution limits fastest attacks; exact key-on latency/full parameter Cartesian product unmeasured. |
+| Decay/sustain/release | All16 D1L, D1R/D2R0–31, RR0–15, configured-key-on companions and selected active/history controls | Some peaks/durations unresolved or phase/window limited; the rate12 step-size gap is scoped. |
+| EG KS/KC extension | 152 physical captures,50 frozen models;23 main profiles plus2 held carriers;48 eligible duration comparisons inside original bounds,44 withheld | Original model exceptions retained. This extends boundaries/zero-rate controls, not exhaustive EG history. |
+| LFO depths/waves | All4 waves,128 AMD/AMS/AME and224 PMD/PMS cases; deterministic period/endpoint screens and scoped combined W2 | Weak W3 PM activity and six deep-AM synthetic corner failures retained; no noise period/seed claim. |
+| LFO routing/history/storage | All32 own-calibrated routes, selected reset/hold/key/free-run controls,8 storage/order fixtures | Wider simultaneous combinations and two-sample changes remain unresolved. |
+| Fast LFO rate selection |12 C0..FF boundary rates,80 physical captures,26 frozen models;all72 physical AM diagnostics qualify | OPM RIGHT carrier exception makes12 model AM results conditional; no all256-rate claim. |
+| Noise | All32 codes,selected NE/operator/TL/envelope controls,45 independent raw-pin records | Highest-rate hidden updates and seed/full sequence unmeasured. Small off-envelope output floor difference remains unclassified. |
+| Algorithms/feedback |229 profiles×3 targets with paired quiets,458 models,2748 comparisons;36 physical joint-key phase controls and192 public timing-grid models | High feedback not forced periodic; synthetic method screens are not chip tolerances. Joint-key relative phase remains unclassified. |
+| CSM |544 physical captures,212 stereo models;all32 routes with192 manual calibrations,48 quiet backgrounds,192 nonzero automatic observations | Production automatic output is quiet at these settings. Exact pulse width, attack shape, hidden simultaneous-key timing and IRQ remain unobserved. |
+| Mixing/stereo |63 static contributor/TL/pan/split profiles,381 captures including recovery,126 models;6 common-held-history profiles,37 captures,12 models | No exact latent sum, individual-phase closure or clipping/wrapping mechanism inferred. |
+| Finite noise/CSM/low-LFO complements | Eleven profiles, 70 physical captures (33 targets/37 quiets), nine separate STATUS reads and 22 frozen models; reviewed physical source parity: 66 outer/69 primitive results/36 curves; separate model parity: 48 analyses | Six L0 coarse periods retain unqualified fine screens (~2.34375% propagated bound); L1/L3 periods remain null. Two OPM manual phase-fit exceptions remain. No partial-to-full-cycle, hidden-update or all256-rate claim. |
+
+The completed complements comprise four noise history/coupling profiles, three
+split manual/automatic CSM controls and four slow-LFO/control profiles. Their
+70 captures, nine separate STATUS commands and exact source parity are reviewed.
+Rate60 permits only the retained coarse-cycle diagnostic; rate00 is partial
+advancement with no period extrapolation. Its roughly 1200-second slowest cycle
+exceeds a single 300-second buffer. P128/P1, precise first-load, full parameter
+Cartesian products and wider histories remain outside these finite observations.
+
+Six physically supported production requirements are consolidated separately:
+timer flag creation enable, non-instant effective AR30/31, configured raw-zero
+rate inhibition after key scaling, D1L15 tail, scoped rate12 D1/D2 granularity
+and automatic CSM public output. Odd-MUL pitch, joint-key phase, high-level
+mixing, the small NE-on floor and reference carrier/pan exceptions retain their
+separate unresolved classifications. No model voting or passing quiet/transport
+control establishes full chip conformance. Implementation review follows the
+user's [jt51 #3 instruction](http://gitea.jotego.es/jotego/jt51/issues/3); the
+[measurement issue](http://gitea.jotego.es/jotego/jtcores/issues/143) remains open.

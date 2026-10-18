@@ -528,3 +528,56 @@ checks independent literal, malformed-input and exclusive-output refusals.
 Original CLI bodies, thresholds and all130 generated catalog files are preserved.
 Full scientific plots,126 model recordings,756 comparisons and capture provenance
 remain local artifacts. Common-held-history controls are a separate next step.
+
+## EG key-scale/key-code checkpoint
+
+The [finite KS/KC envelope checkpoint](plans/envelope-measurements.md#kskc-boundary-and-zero-rate-checkpoint)
+adds 23 main profiles and two held-carrier profiles: 152 physical captures and
+50 frozen model outputs. Its descriptor report retains 138 physical and 92 model
+observations; 48 eligible comparisons lie within the declared bounds and 44 are
+withheld. Original model exceptions and sub-two-window limits remain explicit.
+The source-promotion parity reproduced all 212 legacy and 50 new payloads, all
+150 retained physical feature reports/curves, and the completed descriptor
+report. This adds bounded KS/KC evidence, not full EG or chip completion.
+
+Reproduce the fixed stimuli and whole-trace observer with explicit standalone
+Go groups (new output paths):
+
+```
+python3 scripts/monitor.py emit tone --output NEW_TONE.bin
+go run host/decay_programs.go -base NEW_TONE.bin -matrix ks-kc-main -output NEW_MAIN
+go run host/decay_programs.go -base NEW_TONE.bin -matrix ks-kc-carriers -output NEW_CARRIERS
+go build -o NEW_EG_TOOL host/eg_features.go host/eg_observer.go host/tone.go host/sine_fit.go
+./NEW_EG_TOOL -export-geometries NEW_GEOMETRIES.json
+./NEW_EG_TOOL -geometry native-kc40-mul8 -profile attack -input DECODED.csv -output NEW_FEATURE.json -curve NEW_CURVE.csv
+```
+
+The canonical tone must match SHA256
+`d8f414e301521e4522739c7c845693e16dec01e4a265751f2352dbaab07e4c16`.
+The frontend consumes decoded whole traces; capture/raw/conditioning audits
+remain separate. Format completed descriptors with their actual reviews:
+
+```
+python3 scripts/eg-report.py --catalog NEW_MAIN/cases.json --geometries NEW_GEOMETRIES.json \
+  --physical-audit ACTUAL_MAIN_AUDIT.json --model-audit ACTUAL_MODEL_AUDIT.json \
+  --model-exceptions ACTUAL_MODEL_EXCEPTIONS.json --physical-review ROOT_MAIN_REVIEW.json \
+  --model-review ROOT_MODEL_REVIEW.json --output NEW_DESCRIPTOR_REPORT
+```
+
+Focused source checks use explicit file groups; the existing standalone
+envelope/decay CLIs keep their original interfaces:
+
+```
+go test host/decay_programs.go host/decay_programs_test.go
+go test host/eg_features.go host/eg_observer.go host/tone.go host/sine_fit.go host/eg_features_test.go
+python3 scripts/test_eg_report.py
+```
+
+The [finite audit complements](plans/audit-complements.md) add70 physical
+captures:33 targets and37 entire-zero quiets across eleven selected noise,
+split-CSM and low-LFO profiles. All six long-acquisition carriers qualify;
+rate60 retains six coarse period results with its original fine screen unqualified,
+and rate00 remains partial-only with no period extrapolation. The22 frozen
+model outputs preserve both conditional OPM phase-fit exceptions. All48 model and66 physical outer source-parity comparisons are reviewed,
+preserving69 physical primitives and36 exact physical curves.
+The six confirmed gaps stay in the combined inventory; no new gap is inferred.

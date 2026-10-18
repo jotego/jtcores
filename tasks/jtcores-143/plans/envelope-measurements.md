@@ -302,3 +302,94 @@ and analysis are under `artifacts/envelope-slow-zero` and
 contains 33 main nonzero attacks, three intentional silent controls and one
 additional nonzero positive control; these 37 captures are separate from the
 135-recording native checkpoint and acquisition qualification fixtures.
+
+## KS/KC boundary and zero-rate checkpoint
+
+The fixed matrix contains 23 main profiles and two held-carrier profiles:
+**152 physical captures** (13 carrier-stage and 139 main-stage captures) and
+**50 frozen stereo model outputs**. Six carrier targets independently qualify
+12 latch observations at KC3E/KC41, MUL8; the main stage contributes 138 latch
+observations from 69 triplicate targets. Paired/final quiet captures remain
+separate from intentional silent controls. No production RTL changed.
+
+KC3E/40/41 MUL8 use native increments 39232/41568/44032 and window 64/hop 8
+(1.144 ms). KC40/MUL0 uses native 2598: stride 64/window 32 retains 166272 at
+874.0234375 Hz (36.612 ms), and stride 16/window 64 retains 41568 at
+3496.09375 Hz (18.306 ms). The synthetic observer qualification treats each geometry separately; the
+166272 carrier uses the unchanged free-frequency PCM fit and crossing brackets,
+not inverse-sine phase acceptance. Actual host bounds and stable/silent initial
+support are checked independently; there is no accepted-write timestamp claim.
+
+Representative 10–90% attack features below combine both latches and all three
+physical repetitions. A dash means no eligible duration, not zero duration.
+
+| KC / KS / AR | PCB range, ms | jt51, ms | OPM range, ms |
+|---|---:|---:|---:|
+| 3E / 0 / 14 | 54.397–54.450 | 54.348 | 54.304–54.323 |
+| 40 / 0 / 14 | 44.893–44.953 | — | 45.740–45.757 |
+| 3E / 3 / 7 | 54.316–54.431 | — | 54.304–54.323 |
+| 40 / 3 / 7 | 44.958–45.040 | — | 45.740–45.757 |
+| 41 / 3 / 7 | 44.973–45.766 | — | 45.699–45.732 |
+| 40 / 0 / 1 | 4374.353–4378.500 | 4376.596 | 4375.082–4376.032 |
+| 40 / 3 / 1 | 361.068–363.037 | — | 361.237–361.526 |
+
+At KC40/KS0/AR14, jt51's retained numeric feature is 0.936 ms, below two native
+windows; it is a window response, not a resolved attack duration. KC40/KS1/AR13
+likewise retains 0.922 ms and an incorrect absolute plateau. These four model
+latch observations remain comparison-ineligible. Other jt51 wrong-level or
+unfinished plateaus also remain withheld. This extends observations of the
+existing instant-attack/raw-zero boundaries rather than declaring a new gap.
+
+At AR0, both KS0 and KS3 physical controls stay exactly zero on both latches
+(18.74 s and 1.17 s finite records respectively), as does OPM. jt51 stays zero at
+KS0 but reaches −8176/+8160 at KS3; its invalid plateau is not assigned a duration.
+Matched AR1 positives reach both signs and the expected physical level, with the
+qualified ranges above. These finite zero observations do not claim indefinite
+silence or all reset/history behavior.
+
+Live D1R0 at KS0–3 and D2R0 at KS3 retain physical full-level holds: final-quarter
+projected median 8169.422–8169.583 PCM. OPM remains near full level; jt51 medians
+at KS1/2/3 are 7994.966/7822.665/6580.038 PCM in the D1R0 controls, with the same
+KS3 median in the D2R0 control. Holds receive no forced fall duration. For the
+nonzero live D1R12 controls, physical 80→40 ranges at KS0/1/2/3 are
+145.879–147.578, 109.797–109.886, 54.921–54.989 and 13.723–13.742 ms.
+The D2R12/KS3 range is 13.702–13.746 ms. The corresponding qualified model
+features lie within the frozen summed-window screens. These mean-duration
+observations do not measure or erase the earlier rate12 staircase discrepancy.
+
+The report retains **138 physical observations, 92 model observations, 46
+triplicate cells and 92 comparisons**. All 48 eligible comparisons lie within the
+physical min/max widened by the sum of physical/model window durations; 44 are
+withheld, not passes. All 24 original model exceptions remain. The original
+model audit's 30 attack qualifications are preserved; 4 model observations carry
+sub-two-window/window-response labels, some already ineligible on other grounds.
+No physical observation falls below that attack-resolution boundary. A numeric
+legacy feature or zero default RMS never substitutes for absolute plateau quality.
+
+The [published PNG](http://gitea.jotego.es/attachments/8f654baa-cbb6-49d9-9a9f-ea37e565f301)
+and [PDF](../artifacts/envelope-ks-kc-aggregation-results-v1/figures/keyscale-boundary-v1/keyscale-boundary.pdf)
+show 54 physical and 36 model selected native boundary observations. Hollow
+unqualified legacy features and unresolved annotations remain visible; no phase,
+gain or DC alignment was applied. PNG SHA256 is
+`22137658971d1cb7519c5eeccff205b47bfd46ba08b65753d5569d96cbee2ba5`.
+The PNG is published with its verified hash; the PDF and raw evidence remain
+retained local artifacts.
+
+Reproduction uses the fixed `ks-kc-main`/`ks-kc-carriers` branches of
+`host/decay_programs.go`, the exact five-geometry `host/eg_features.go` frontend
+and the descriptor-only Python `scripts/eg-report.py`.
+The artifact implementation passes build/vet, focused tests, legacy 106 cases/
+212 payloads and new 25 profiles/50 payload reproduction. ROOT-reviewed source bodies
+and guards remain verbatim. Terminal-confirmed handle 83222 then ran exactly 150
+same-input frontend calls and one descriptor report: all non-curve-path report
+fields and all 150 whole curves match, and all six scientific report documents
+are byte-identical. Independent audit rechecks 493 input/source/protected pins
+and 613 output pins. No 970 grid, acquisition or chip model reran for that parity.
+
+Evidence is retained under `artifacts/envelope-ks-kc-preparation-v1`,
+`envelope-ks-kc-physical-{carrier,main}-independent-v1`,
+`envelope-ks-kc-aggregation-results-v1` and
+`envelope-ks-kc-source-promotion-proposal-v1/actual-parity-audit-v1`.
+ROOT main review is 1b218dbd..., aggregate review 200b897f... and completed parity
+handoff `15e47c66…`, with completed ROOT parity review `0072d6b4…`. Full KS/KC combinations and deferred history controls remain
+outside this finite matrix; the broader EG/chip audit is still open.
