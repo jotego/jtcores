@@ -877,7 +877,8 @@ Define `Q = {8M.11, 8M.12, 8M.13, 8M.14, 8L.11, 8L.12, 8L.13, 8L.14}`
 in descending bit order. The confirmed gate function is `X = Q XOR {8{F}}`:
 `F=0` preserves the counter word and `F=1` complements all eight bits.
 The counters' parallel inputs, common clock and control wiring are recorded
-below. The CD source and load-signal generator remain separate checks.
+below. The CD source remains a separate check; the load-signal generator is
+recorded below.
 
 ## RAM address XOR control timing
 
@@ -945,5 +946,33 @@ Thus, on each rising `/MCLK` edge, the combined eight-bit counter word `Q`
 loads CD7–CD0 if `/CDTALD=0`, otherwise it increments modulo 256. Loading
 presets both nibbles on the same edge, independently of the carry value.
 No clear-driven power-up value is established by the P ties; the first valid
-load establishes the programmed count. The `/CDTALD` generator, CD source,
-and their setup/hold relationship to `/MCLK` remain to be traced.
+load establishes the programmed count. The CD source and its setup/hold
+relationship to `/MCLK` remain to be traced.
+
+## Counter load-request generator
+
+The jointly confirmed type 157 mux 4D drives `/CDTALD` from output pin 12:
+
+| Physical pin | Connection |
+| --- | --- |
+| B input 13 | 5D output pin 7, `/CDT3` |
+| A input 14 | P |
+| Select 1 | `/H8`, confirmed by the user |
+| Active-low enable 15 | GND |
+| Output 12 | `/CDTALD` |
+
+The [TI 157-family reference](https://www.ti.com/product/SN74LS157)
+identifies this as a non-inverting selector. With A selected at S=0 and B
+at S=1, this wiring gives:
+
+```text
+/CDTALD = H8 OR /CDT3
+         = NOT(NOT H8 AND H0 AND H1 AND H2 AND NOT H3)
+```
+
+For the physical horizontal sequence 128 through 511, this decode is low at
+135, 151, 167, 183, 199, 215, 231 and 247: eight nominal one-pixel load-request
+windows per line, all in the H8-low horizontal-blank interval. It stays high
+through H8-high active video, permitting counting between those requests.
+These are combinational decode windows. The actual counter sampling edge
+relative to H transitions and CD setup/hold remains a separate timing check.
