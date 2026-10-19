@@ -981,8 +981,8 @@ relative to H transitions and CD setup/hold remains a separate timing check.
 
 CD7–CD0 are driven by 3J/3K. They cross the local bus joining 4M, 4N, 4O
 and 5N without connecting to it. The isolated RAM-side word feeding the
-CD drivers comes from 3I and 2I, as jointly confirmed below. Buffer enables
-and RAM write controls remain separate checks.
+CD drivers comes from 3I and 2I, as jointly confirmed below. The CD buffer enable ties are confirmed below; RAM write controls remain
+a separate check.
 
 For this pin map only, `L[7:0]` denotes that otherwise unnamed local bus:
 
@@ -1025,7 +1025,11 @@ as type 367 non-inverting three-state buffers, with these physical routes:
 | 1 | 2I/13 | 3K | 14 | 13 |
 | 0 | 2I/14 | 3K | 12 | 11 |
 
+The active-low, circled enables 3J pins 1/15 and 3K pin 15 are jointly
+confirmed as grounded. All eight RAM-to-CD buffers are continuously enabled,
+so CD follows the RAM-side word without an enable-controlled read window.
+
 This establishes the byte source for the previously traced 8M/8L parallel
-inputs. It does not establish when the RAM word is valid: buffer enable,
-RAM write control and clock relationships must determine that interval.
+inputs. It does not establish when the RAM word is valid: RAM write control,
+CPU-side buffer enables and clock relationships must determine that interval.
 The RAM-side word, CD and the separate 4M/4N/4O/5N local bus are distinct nets.
