@@ -43,8 +43,60 @@ from pixel_boolean_cases import boolean as boolean_pixel, fixture as boolean_fix
 from pixel_copy_cases import fixture as copy_pixel_fixture
 from pixel_xy_store_cases import fixture as xy_store_fixture,following as xy_store_following
 from draw_cases import fixture as draw_fixture,advance as draw_advance
+from pixel_xy_copy_cases import fixture as xy_copy_fixture
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_xy_copy_primary_count_table(self):
+        for size in (1,2,4,8,16):
+            for off in (False,True):
+                row=xy_copy_fixture(size,0,0,0,off)
+                self.assertEqual(row['states'],(11 if size==16 else 13) if off else 7)
+                self.assertEqual(row['data_copy']['read_lead'],3)
+                self.assertEqual(row['data_copy']['write_start'],6)
+
+    def test_xy_copy_primary_five_literal_results(self):
+        for size,sx,dx,word,want in ((1,0x500,0x508,15,0x10F),(2,0x280,0x284,15,0x30F),
+                (4,0x140,0x142,15,0xF0F),(8,0xA0,0xA1,0xEF,0xEFEF),(16,0x50,0x51,0xCDEF,0xCDEF)):
+            row=xy_copy_fixture(size,0,0,0,False,source_point=0x400000|sx,destination_point=0x400000|dx,
+                offset=0,convsp=20,convdp=20,source_word=word)
+            self.assertEqual(row['data_copy']['source'],0x20500)
+            self.assertEqual(row['data_copy']['destination'],0x20510 if size==16 else 0x20508)
+            self.assertEqual(dict(row['expected_memory'])[0x20510 if size==16 else 0x20500],want)
+
+    def test_xy_copy_source_and_destination_pitch_are_independent(self):
+        row=xy_copy_fixture(16,0,0,0,False,source_point=0x10000,destination_point=0x10000,convsp=20,convdp=22)
+        self.assertEqual(row['data_copy']['source'],0x6800)
+        self.assertEqual(row['data_copy']['destination'],0x6200)
+
+    def test_xy_copy_alias_keeps_coordinates_but_uses_two_pitches(self):
+        row=xy_copy_fixture(16,0,0,1,False,source=15,pointer=15,source_point=0x10000,destination_point=0x20000)
+        self.assertEqual(row['expected_extra_regs']['sp'],0x20000)
+        self.assertEqual(row['data_copy']['source'],0x7000)
+        self.assertEqual(row['data_copy']['destination'],0x6400)
+
+    def test_xy_copy_same_word_reads_original_image(self):
+        row=xy_copy_fixture(4,0,12,0,False,source_point=0x10000,destination_point=0x10003,convdp=20)
+        self.assertEqual(dict(row['expected_memory'])[0x6800],0x6596)
+
+    def test_xy_copy_offset_alias_uses_one_physical_register(self):
+        row=xy_copy_fixture(16,0,0,1,False,pointer=4,destination_point=0x20020)
+        self.assertEqual(row['expected_extra_regs']['b4'],0x20020)
+        self.assertEqual(row['conditions']['offset'],0x20020)
+        self.assertEqual(row['data_copy']['destination'],0x20620)
+
+    def test_xy_copy_w0_preserves_full_status(self):
+        self.assertEqual(xy_copy_fixture(16,0,0,0,False,status=0xF0200810)['expected_st'],0xF0200810)
+
+    def test_xy_copy_following_load_uses_linear_pointer(self):
+        row=xy_store_following(xy_copy_fixture(4,0,12,0,False,status=0xF0200804),0)
+        reg=(row['follow_opcode']>>5)&15
+        self.assertEqual(row['initial_all_regs'][f'a{reg}'],row['data_copy']['destination'])
+        self.assertNotIn(reg,(row['conditions']['source'],row['conditions']['pointer']))
+
+    def test_xy_copy_window_modes_remain_outside_subset(self):
+        for w in (1,2,3):
+            with self.assertRaises(ValueError):xy_copy_fixture(16,0,0,0,False,control=w<<6)
+
     def test_draw_primary_count_table(self):
         for size in (1,2,4,8,16):
             for off in (False,True):

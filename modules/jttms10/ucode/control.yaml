@@ -451,3 +451,19 @@ ucode:
       - reg_a, reg_b
       - add_alu, finish_mul
       - write_mem, pass_alu, wr_reg, ni
+
+  - name: pixt_xyxy_fast
+    start: 154
+    seq:
+      - init_mul, reg_b
+      - step_mul
+      - corrq_mul
+      - step_mul
+      - add_alu, sum_ea
+      - init_mul, reg_b
+      - step_mul
+      - corrq_mul
+      - step_mul
+      - add_alu, finish_mul
+      - read_mem, finish_mul
+      - write_mem, ni

@@ -1000,3 +1000,13 @@ Clean scope stays targeted18,792 programs in three profiles,173 models and
 is historical3,868 ALMs/five DSPs; current123-form code is3,963 map ALMs/five
 DSPs. Newer121/122/123 full runners remain running. Remaining ISA/conditions/
 known targets/fullcleanCI/final fitted area/board STA/NARC/MiSTer gates stay open.
+
+### XY-to-XY replace implementation
+
+Native `PIXT *Rs.XY,*Rd.XY` now selects entry154 for replace/PMASK0/T0/W0,
+with independent source/destination conversion and scalar read/post reuse.
+The inventory becomes124/133 forms,9 bulk graphics forms missing,138,370
+cases and206 models. Probe presence does not imply full condition coverage.
+See [pixel-xy-copy-timing.md](pixel-xy-copy-timing.md) for the primary table,
+transport contract and excluded prototype failures. Targeted verification
+is pending; no completed124-form runner or final signoff is claimed.

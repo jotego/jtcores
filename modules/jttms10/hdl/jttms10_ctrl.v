@@ -406,7 +406,8 @@ module jttms10_ctrl(
                          entry_family_q==8'd110 && pixel_boolean ? PIXT_RLIN_BOOL_SEQA :
                          entry_family_q==8'd112 && pixel_simple ? PIXT_LLIN_FAST_SEQA :
                          entry_family_q==8'd106 && pixel_xy_simple ? PIXT_RXY_FAST_SEQA :
-                         entry_family_q==8'd109 && pixel_xy_simple ? DRAV_FAST_SEQA : entry;
+                         entry_family_q==8'd109 && pixel_xy_simple ? DRAV_FAST_SEQA :
+                         entry_family_q==8'd108 && pixel_xy_simple ? PIXT_XYXY_FAST_SEQA : entry;
                 jsr_depth <= 0;
             end
             if(gfx_enter || gfx_resume) uaddr <= GFXRUN_SEQA;
