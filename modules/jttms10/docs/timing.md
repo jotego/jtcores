@@ -813,6 +813,7 @@ frozen187edd8df. Clean scope stays targeted12,477/11,751 programs in three
 profiles,151/158 models and21/1 or25/1 events; neither is a full clean normal
 runner. These results do not close remaining conditions,known targets,
 full clean/remote CI,final fitted area/board STA or NARC/MiSTer acceptance.
+
 ### Boolean register-to-linear pixel writes
 
 PIXT Rs,*Rd now also covers PPOP1..15 with PMASK0/T0. The6,264 additional
