@@ -876,6 +876,32 @@ board net name has not been identified.
 Define `Q = {8M.11, 8M.12, 8M.13, 8M.14, 8L.11, 8L.12, 8L.13, 8L.14}`
 in descending bit order. The confirmed gate function is `X = Q XOR {8{F}}`:
 `F=0` preserves the counter word and `F=1` complements all eight bits.
-The source of 8F's data input, its clock/clear wiring, and the counters' load,
-clock, enable and clear sequences remain separate checks. The confirmed output
-route alone does not identify `F` as a flip signal.
+The counters' load, clock, enable and clear sequences remain separate checks.
+
+## RAM address XOR control timing
+
+The jointly confirmed 6C gate is type 08, a flat-base AND symbol without
+inversion bubbles on inputs 1/2 or output 3. Pin 1 receives `H8`, without a
+bar, and pin 2 receives `INV`. Its output pin 3 connects to 8F data pin 4.
+8F clock pin 9 receives `H3`; its circled, active-low clear pin 1 is tied to
+P and remains inactive.
+
+On each rising `H3` edge, the type 174 latch therefore updates
+`F = 8F.5 = H8 AND INV`. Between those edges, `F` retains its sampled value.
+The source and software meaning of the board net `INV` remain to be traced.
+
+For stable `INV`, the verified horizontal count sequence 128 through 511
+and this sampling rule imply the following ideal steady-state phases:
+
+| Physical horizontal count | F |
+| --- | --- |
+| 128–135 | INV, retained from the preceding line |
+| 136–263 | 0 |
+| 264–511 | INV |
+
+The two H8 transitions are reflected eight pixel periods later, about 1.302 us
+at 6.144 MHz. This is a derived digital sampling delay, not a measurement of
+analogue propagation. The initial latch value before its first clock is
+unspecified by the inactive clear wiring. For stable `INV`, these phases also
+give `F = INV AND NOT bank_blank` in the ideal model of the previously traced
+6B chain; a changing `INV` must still obey 8F's clocked sampling rule.
