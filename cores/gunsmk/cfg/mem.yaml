@@ -4,6 +4,17 @@ include:
 params:
   - { name: CHAR_OFFSET, value: "(`CHAR_START-`JTFRAME_BA1_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1"  }
+clocks:
+  clk:
+    - name: cpus
+      freq: 3M
+      outputs:
+        - cen3
+        - cen1p5
+    - name: video
+      freq: 8M
+      outputs:
+        - cen8
 sdram:
   banks:
     - buses:

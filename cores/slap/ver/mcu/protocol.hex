@@ -1,0 +1,17 @@
+// Synthetic 68705 test program; no game firmware.
+@0080
+A6 FF B7 01 B7 05
+// Poll PC0 until host full, set PA input, lower PB1 and read PA.
+01 02 FD
+A6 00 B7 04
+13 01 B6 00 B7 10 12 01
+// PA output is complement of command; latch response on PB2 falling.
+A6 FF B7 04 B6 10 A8 FF B7 00 15 01
+// Deliberately hold PB2 low after the host read.
+9D 9D 9D 9D 9D 9D 9D 9D
+9D 9D 9D 9D 9D 9D 9D 9D
+14 01 CC 00 86
+@0784
+00
+@07FE
+00 80

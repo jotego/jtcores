@@ -291,9 +291,6 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    // Same divider chain as the Z80: on the board both CPUs come off the one
-    // 16MHz XTAL, exactly 2:1.
-    // This runs on clk48 and the z80 runs on clk24
     .num        ( 11'd231   ),
     .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),

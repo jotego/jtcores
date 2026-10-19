@@ -63,10 +63,6 @@ module jtthundr_video(
     output reg [ 7:0] st_dout
 );
 
-// Sky Kid Deluxe uses the scr0 path for the title HUD row, which sits 16 pixels
-// above the common System 86 viewport with the current timing model.
-localparam signed [7:0] SKYKIDDX_SCR0_VOS = -8'sd16;
-
 wire [12:1] cus42_1_addr;
 wire [10:0] scr0_pxl, scr1_pxl, pre1_pxl, obj_pxl,
             mxrgb_addr, objpala, scrpala;
@@ -76,9 +72,9 @@ wire [ 7:0] mmr0, mmr1, st0, st1,  obj_mmr, obj_st;
 wire [ 3:0] th_red, th_green, th_blue,
             mx_red, mx_green, mx_blue;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio, pre1_prio;
+wire        scr0_front;
 
 reg         rst_scr1, rst_mx, dec_en;
-reg signed [7:0] scr0_vos;
 
 assign scr0a_addr[16]= bank, scr0b_addr[16]=bank;
 assign vram1_addr  = metrocrs ? {2'd0,mxtxt_addr} : cus42_1_addr;
@@ -89,7 +85,6 @@ always @(posedge clk) begin
     rst_scr1 <=  metrocrs | rst;
     rst_mx   <= ~metrocrs | rst;
     dec_en   <= ~metrocrs;
-    scr0_vos <= scrhflip ? SKYKIDDX_SCR0_VOS : 8'sd0;
     {red,green,blue} <= metrocrs ? {mx_red,mx_green,mx_blue}:
                                    {th_red,th_green,th_blue};
 end
@@ -138,11 +133,11 @@ jtcus42 #(.ID(0)) u_scroll0(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .metrocrs   ( metrocrs      ),
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
     .scrhos     ( scrhos        ),
-    .scrvos     ( scr0_vos      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( dec_en        ),
@@ -172,6 +167,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .ioctl_din  ( mmr0          ),
 
     .prio       ( scr0_prio     ),
+    .frontop    ( scr0_front    ),
     .pxl        ( scr0_pxl      ),
     // debug
     .debug_bus  ( debug_bus     ),
@@ -182,11 +178,11 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .rst        ( rst_scr1      ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .metrocrs   ( 1'b0          ),
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
     .scrhos     ( scrhos        ),
-    .scrvos     ( 8'sd0         ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( 1'b1          ),
@@ -216,6 +212,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .ioctl_din  ( mmr1          ),
 
     .prio       ( pre1_prio     ),
+    .frontop    (               ),
     .pxl        ( pre1_pxl      ),
     // debug
     .debug_bus  ( debug_bus     ),
@@ -230,6 +227,7 @@ jtthundr_obj u_obj(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .flip       ( flip      ),
+    .metrocrs   ( metrocrs  ),
     .hos        ( objhos    ),
     .vos        ( objvos    ),
     .hdump      ( hdump     ),
@@ -320,7 +318,7 @@ jtmetrox_colmix u_metrox_colmix(
 
     .txt_pxl    ( txt_pxl       ),
     .scr0_pxl   ( scr0_pxl      ),
-    .scr0_prio  ( scr0_prio     ),
+    .scr0_front ( scr0_front    ),
     .obj_pxl    ( obj_pxl       ),
     .obj_prio   ( obj_prio      ),
 

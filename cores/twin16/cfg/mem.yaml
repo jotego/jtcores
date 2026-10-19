@@ -39,6 +39,7 @@ sdram:
         - name: main
           addr_width: 18
           data_width: 16
+          cache_size: 1kB
     - buses:
         - name: sram
           #  16kB of work RAM
@@ -53,6 +54,7 @@ sdram:
         - name: sub
           addr_width: 19
           data_width: 16
+          cache_size: 1kB
         # SRAM is mapped after lyro so the first 128 kB of SRAM
         # are accessible from the lyro slot
         - name: lyro

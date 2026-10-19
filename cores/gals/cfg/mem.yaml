@@ -20,7 +20,7 @@ sdram:
         din: cpu_dout
         offset: RAM_OFFSET
         rw: true
-      - { name: main, addr_width: 23, data_width: 16 }
+      - { name: main, addr_width: 23, data_width: 16, cache_size: 1kB }
     - buses:
       - { name: pcm,  addr_width: 20, data_width: 8 }
     - buses:

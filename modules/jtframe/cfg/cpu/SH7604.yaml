@@ -1,6 +1,7 @@
 jtframe:
   - from: cpu
     get:
+      - jtsh7604_cps3_region.v
       - jtsh7604.sv
   - from: cpu/sh7604
     get:

@@ -10,6 +10,7 @@ module jtcps3_scr #(
     input               draw,
     input       [CMDW-1:0] cmd,
     input       [ 8:0]  draw_v,
+    input       [ 9:0]  draw_width,
 
     input       [15:0]  tmap0_scrx,
     input       [15:0]  tmap0_scry,
@@ -86,6 +87,7 @@ jtcps3_scr_fetch #(
     .draw           ( draw            ),
     .cmd            ( cmd             ),
     .draw_v         ( draw_v          ),
+    .draw_width     ( draw_width      ),
     .tmap0_scrx     ( tmap0_scrx      ),
     .tmap0_scry     ( tmap0_scry      ),
     .tmap0_ctrl     ( tmap0_ctrl      ),

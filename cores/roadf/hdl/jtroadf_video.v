@@ -146,6 +146,7 @@ jtroadf_obj u_obj(
     .clk24      ( clk24     ),      // 24 MHz
 
     .pxl_cen    ( pxl_cen   ),
+    .is_hyper   ( is_hyper  ),
 
     // CPU interface
     .cpu_addr   ( cpu_addr[9:0] ),

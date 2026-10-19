@@ -1,0 +1,221 @@
+/* SPDX-FileCopyrightText: 2026 Marc Emmerson
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Twin Cobra / Flying Shark (Toaplan, 1987): main 68000, TMS320C10, sound Z80
+ * with YM3812, and the Wardner video.
+ */
+
+module jtktiger_game(
+    `include "jtframe_game_ports.inc"
+);
+
+wire [15:0] txoffs, bgoffs, fgoffs;
+wire [15:0] dsp_dout, dsp_din;
+wire [13:1] dsp_addr;
+wire [11:0] dsp_rom_addr;
+wire [ 7:0] scr_din, sys;
+wire [ 1:0] dsp_sel;
+wire [ 2:0] scr_cs, scr_addr;
+wire        dsp_on, dsp_rstn, snd_rstn, dsp_br, dsp_ack, dsp_we, tcobr, fast;
+wire        flip, bg_bank, fg_bank, video_on, snd_busrq_n, snd_busak_n;
+
+assign dip_flip    = flip;
+assign pxl_cen     = cen7;
+assign pxl2_cen    = cen14;
+assign dsprom_addr = dsp_rom_addr[10:0];
+assign debug_view  = { 3'd0, dsp_br, dsp_ack, dsp_on, flip, video_on };
+
+jtktiger_header u_header(
+    .clk        ( clk               ),
+    .header     ( header            ),
+    .prog_we    ( prog_we           ),
+    .prog_addr  ( prog_addr[2:0]    ),
+    .prog_data  ( prog_data[7:0]    ),
+    .tcobr      ( tcobr             ),
+    .fast       ( fast              )
+);
+
+/* verilator tracing_off */
+jtktiger_main u_main(
+    .rst        ( rst               ),
+    .clk        ( clk               ),
+    .LVBL       ( LVBL              ),
+    .VS         ( VS                ),
+    .tcobr      ( tcobr             ),
+    .fast       ( fast              ),
+
+    .rom_addr   ( main_addr         ),
+    .rom_data   ( main_data         ),
+    .rom_cs     ( main_cs           ),
+    .rom_ok     ( main_ok           ),
+
+    .dsp_on     ( dsp_on            ),
+    .dsp_rstn   ( dsp_rstn          ),
+    .snd_rstn   ( snd_rstn          ),
+    .dsp_br     ( dsp_br            ),
+    .dsp_ack    ( dsp_ack           ),
+    .dsp_addr   ( dsp_addr          ),
+    .dsp_sel    ( dsp_sel           ),
+    .dsp_dout   ( dsp_dout          ),
+    .dsp_din    ( dsp_din           ),
+    .dsp_we     ( dsp_we            ),
+
+    .sh_addr    ( sh_addr           ),
+    .sh_din     ( sh_din            ),
+    .work_bwe   ( work_bwe          ),
+    .obj_bwe    ( obj_bwe           ),
+    .pal_bwe    ( pal_bwe           ),
+    .work_dout  ( work_dout         ),
+    .objram_dout( objram_dout       ),
+    .palram_dout( palram_dout       ),
+
+    .mshr_addr  ( mshr_addr         ),
+    .mshr_din   ( mshr_din          ),
+    .mshr_we    ( mshr_we           ),
+    .shared_dout( shared_dout       ),
+    .snd_busrq_n( snd_busrq_n       ),
+    .snd_busak_n( snd_busak_n       ),
+
+    .scr_cs     ( scr_cs            ),
+    .scr_addr   ( scr_addr          ),
+    .scr_din    ( scr_din           ),
+    .txoffs     ( txoffs            ),
+    .bgoffs     ( bgoffs            ),
+    .fgoffs     ( fgoffs            ),
+    .flip       ( flip              ),
+    .bg_bank    ( bg_bank           ),
+    .fg_bank    ( fg_bank           ),
+    .video_on   ( video_on          ),
+
+    .tx_a       ( tx_a              ),
+    .bg_a       ( bg_a              ),
+    .fg_a       ( fg_a              ),
+    .tx_bwe     ( tx_bwe            ),
+    .bg_bwe     ( bg_bwe            ),
+    .fg_bwe     ( fg_bwe            ),
+    .txram_dout ( txram_dout        ),
+    .bgram_dout ( bgram_dout        ),
+    .fgram_dout ( fgram_dout        ),
+
+    .cpu_dout   ( cpu_dout          ),
+    .sys        ( sys               ),
+
+    .dipsw      ( dipsw[15:0]       ),
+    .joystick1  ( joystick1[5:0]    ),
+    .joystick2  ( joystick2[5:0]    ),
+    .cab_1p     ( cab_1p[1:0]       ),
+    .coin       ( coin[1:0]         ),
+    .service    ( service           ),
+    .tilt       ( tilt              ),
+    .dip_test   ( dip_test          ),
+    .dip_pause  ( dip_pause         )
+);
+
+/* verilator tracing_off */
+jttoaplan1_dsp #(.TWINCOBR(1)) u_dsp(
+    .rst        ( rst | ~dsp_rstn   ),
+    .clk        ( clk               ),
+    .cen        ( cen14             ),
+    .dsp_on     ( dsp_on            ),
+    .halt_main  (                   ),
+    .bus_req    ( dsp_br            ),
+    .bus_ack    ( dsp_ack           ),
+    .host_addr  ( dsp_addr          ),
+    .host_sel   ( dsp_sel           ),
+    .host_dout  ( dsp_dout          ),
+    .host_din   ( dsp_din           ),
+    .host_we    ( dsp_we            ),
+    .rom_addr   ( dsp_rom_addr      ),
+    .rom_data   ( dsprom_data       )
+);
+
+/* verilator tracing_off */
+jtwardnr_sound #(.TWINCOBR(1)) u_sound(
+    .rst        ( rst | ~snd_rstn   ),
+    .clk        ( clk               ),
+    .cen3p5     ( cen3p5            ),
+
+    .sys        ( sys               ),
+    .dipsw      ( dipsw[15:0]       ),
+    .busrq_n    ( snd_busrq_n       ),
+    .busak_n    ( snd_busak_n       ),
+
+    .rom_addr   ( snd_addr          ),
+    .rom_data   ( snd_data          ),
+    .rom_cs     ( snd_cs            ),
+    .rom_ok     ( snd_ok            ),
+
+    .shr_addr   ( shr_addr          ),
+    .shr_dout   ( shr_dout          ),
+    .shr_din    ( shr_din           ),
+    .shr_we     ( shr_we            ),
+
+    .ram_addr   (                   ),
+    .ram_we     (                   ),
+    .ram_dout   ( 8'd0              ),
+
+    .snd        ( fm                )
+);
+
+/* verilator tracing_on */
+jtwardnr_video #(.HWSCAN(1),.LATCH(1)) u_video(
+    .rst        ( rst               ),
+    .clk        ( clk               ),
+    .pxl_cen    ( pxl_cen           ),
+    .pxl2_cen   ( pxl2_cen          ),
+
+    .scr_cs     ( scr_cs            ),
+    .scr_addr   ( scr_addr          ),
+    .scr_din    ( scr_din           ),
+    .txoffs     ( txoffs            ),
+    .bgoffs     ( bgoffs            ),
+    .fgoffs     ( fgoffs            ),
+    .flip       ( flip              ),
+    .bg_bank    ( bg_bank           ),
+    .fg_bank    ( fg_bank           ),
+    .video_on   ( video_on          ),
+    .tcobr      ( tcobr             ),
+    .gfx_en     ( gfx_en            ),
+
+    .tx_vaddr   ( tx_vaddr          ),
+    .tx_dout    ( tx_dout           ),
+    .bg_vaddr   ( bg_vaddr          ),
+    .bg_dout    ( bg_dout           ),
+    .fg_vaddr   ( fg_vaddr          ),
+    .fg_dout    ( fg_dout           ),
+    .pal_vaddr  ( pal_vaddr         ),
+    .pal_dout   ( pal_dout          ),
+    .obj_vaddr  ( obj_vaddr         ),
+    .obj_dout   ( obj_dout          ),
+    .objcpy_addr( objcpy_addr       ),
+    .objcpy_we  ( objcpy_we         ),
+    .objscan_addr( objscan_addr     ),
+    .objscan_dout( objscan_dout      ),
+
+    .char_addr  ( char_addr         ),
+    .char_data  ( char_data         ),
+    .char_cs    ( char_cs           ),
+    .char_ok    ( char_ok           ),
+    .fg_addr    ( fg_addr           ),
+    .fg_data    ( fg_data           ),
+    .fg_cs      ( fg_cs             ),
+    .fg_ok      ( fg_ok             ),
+    .bg_addr    ( bg_addr           ),
+    .bg_data    ( bg_data           ),
+    .bg_cs      ( bg_cs             ),
+    .bg_ok      ( bg_ok             ),
+    .obj_addr   ( obj_addr          ),
+    .obj_data   ( obj_data          ),
+    .obj_cs     ( obj_cs            ),
+    .obj_ok     ( obj_ok            ),
+
+    .LVBL       ( LVBL              ),
+    .LHBL       ( LHBL              ),
+    .HS         ( HS                ),
+    .VS         ( VS                ),
+    .red        ( red               ),
+    .green      ( green             ),
+    .blue       ( blue              )
+);
+
+endmodule

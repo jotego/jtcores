@@ -6,6 +6,9 @@
     - jt1943_video.v
     - jt1943_security.v
     - jt1943_scroll.yaml
+trojan:
+  - get:
+    - jttrojan_mcu.v
 gng:
   - get:
     - jtgng_video.v
@@ -17,6 +20,10 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
+      - jtframe_8751.yaml
+  - from: clocking
+    get:
+      - jtframe_crossclk_cen.v
   - from: ram
     get:
       - jtframe_ram.v

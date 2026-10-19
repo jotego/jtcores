@@ -1,11 +1,14 @@
 package mra
 
 import(
+	"archive/zip"
+	"crypto/md5"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+	"fmt"
 )
 
 func Test_get_altdir_name(t *testing.T) {
@@ -152,4 +155,65 @@ func clean_test_git_env(env []string) []string {
 		}
 	}
 	return clean
+}
+
+func Test_Convert_skipROM_audit(t *testing.T) {
+	root := t.TempDir()
+	init_test_git(t, root)
+	t.Setenv("JTROOT", root)
+	t.Setenv("CORES", filepath.Join(root, "cores"))
+	t.Setenv("JTFRAME", filepath.Join(root, "modules", "jtframe"))
+	write := func(name, data string) {
+		t.Helper()
+		path := filepath.Join(root, name)
+		if e := os.MkdirAll(filepath.Dir(path), 0775); e != nil { t.Fatal(e) }
+		if e := os.WriteFile(path, []byte(data), 0664); e != nil { t.Fatal(e) }
+	}
+	write("cores/audit/cfg/macros.def", "CORENAME=JTAUDIT\nJTFRAME_WIDTH=320\nJTFRAME_HEIGHT=240\nJTFRAME_LF_HW=9\nJTFRAME_LF_VW=8\n")
+	write("cores/audit/cfg/mame2mra.toml", `[parse]
+sourcefile=["audit.cpp"]
+[cheat]
+disable=true
+[ROM]
+order=["maincpu"]
+regions=[
+ {name="maincpu", setname="badfirst", parts=[{name="code.bin", length=32}]},
+ {name="maincpu", setname="badsecond", singleton=true, width=64}
+]
+`)
+	xml := "<mame build=\"0.280\">"
+	for _, name := range []string{"badfirst", "badsecond", "goodlast"} {
+		xml += fmt.Sprintf(`<machine name="%s" sourcefile="audit.cpp"><description>%s</description><rom name="code.bin" size="16" region="maincpu" offset="0"/><display width="320" height="240" rotate="0"/></machine>`, name, name)
+	}
+	write("doc/mame.xml", xml+"</mame>")
+	args := Args{Core: "audit", Target: "mister", SkipROM: true, SkipPocket: true, Xml_path: filepath.Join(root, "doc/mame.xml"), Rom_path: filepath.Join(root, "no-rom-directory")}
+	e := args.Convert()
+	for _, want := range []string{"badfirst", "length+offset", "badsecond", "singleton"} {
+		if e == nil || !strings.Contains(e.Error(), want) { t.Fatalf("missing %q in %v", want, e) }
+	}
+	mras, e := filepath.Glob(filepath.Join(root, "release/mra/*.mra"))
+	if e != nil || len(mras) != 1 { t.Fatalf("expected only the valid MRA, got %v (%v)", mras, e) }
+	data, e := os.ReadFile(mras[0])
+	if e != nil || !strings.Contains(string(data), "goodlast") { t.Fatalf("later set was not generated: %s (%v)", data, e) }
+	args.Setname = "goodlast"
+	if e := args.Convert(); e != nil { t.Fatal(e) }
+	if _, e := os.Stat(filepath.Join(root, "rom")); !os.IsNotExist(e) { t.Fatalf("ROM output created: %v", e) }
+	args.Md5 = true
+	args.Rom_path = filepath.Join(root, "rom-zips")
+	if e := os.MkdirAll(args.Rom_path, 0775); e != nil { t.Fatal(e) }
+	zip_file, e := os.Create(filepath.Join(args.Rom_path, "goodlast.zip"))
+	if e != nil { t.Fatal(e) }
+	writer := zip.NewWriter(zip_file)
+	part, e := writer.Create("code.bin")
+	if e != nil { t.Fatal(e) }
+	rom_data := []byte("0123456789abcdef")
+	if _, e := part.Write(rom_data); e != nil { t.Fatal(e) }
+	if e := writer.Close(); e != nil { t.Fatal(e) }
+	if e := zip_file.Close(); e != nil { t.Fatal(e) }
+	if e := args.Convert(); e != nil { t.Fatal(e) }
+	data, e = os.ReadFile(mras[0])
+	if e != nil { t.Fatal(e) }
+	want_md5 := fmt.Sprintf(`asm_md5="%x"`, md5.Sum(rom_data))
+	if !strings.Contains(string(data), want_md5) { t.Fatalf("MRA missing ZIP payload checksum %s: %s", want_md5, data) }
+	if _, e := os.Stat(filepath.Join(root, "rom")); !os.IsNotExist(e) { t.Fatalf("--skipROM --md5 created ROM output: %v", e) }
 }

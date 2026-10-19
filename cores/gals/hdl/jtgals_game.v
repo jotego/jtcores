@@ -13,10 +13,12 @@ wire [ 7:0] oki_dout;
 wire        oki_cs, oki_wr, oki_bank_we, irq3_n, irq5_n;
 wire        cpu_rnw;
 wire [ 3:0] oki_bank;
+wire        flip;
+
 reg         prot_wdog = 1'b0;
 
-assign ram_we = ram_cs & ~cpu_rnw;
-assign dip_flip   = 1'b1;
+assign ram_we   = ram_cs & ~cpu_rnw;
+assign dip_flip = ~flip;
 assign debug_view = { 7'd0, fb_keep };
 `ifdef JTFRAME_IOCTL_RD
 assign ioctl_din  = 8'd0;
@@ -76,6 +78,7 @@ jtgals_main u_main(
     .oki_wr         ( oki_wr          ),
     .oki_bank_we    ( oki_bank_we     ),
     .oki_bank       ( oki_bank        ),
+    .flip           ( flip            ),
     .irq3_n         ( irq3_n          ),
     .irq5_n         ( irq5_n          ),
     .fb_keep        ( fb_keep         ),
@@ -109,6 +112,7 @@ jtgals_video u_video(
     .rst                ( rst              ),
     .clk                ( clk              ),
     .pxl_cen            ( pxl_cen          ),
+    .flip               ( flip             ),
     .gfx_en             ( gfx_en           ),
     .game_vrender       ( game_vrender     ),
     .game_hdump         ( game_hdump       ),

@@ -32,6 +32,7 @@ sdram:
       - name: main
         addr_width: 20
         data_width: 16
+        cache_size: 1kB
     - buses:
       - name: snd1
         addr_width: 15
@@ -71,6 +72,5 @@ sdram:
         offset: OBJ_OFFSET
         gfx_sort: hvvvvxx
         cs: vrom_cs
-
 
 

@@ -196,6 +196,38 @@ initial begin
     repeat (12) @(posedge clk);
     check_ok(dut.tl0==1, "timer 0 counter edge at an arbitrary oscillator phase");
 
+    // C/T pins are sampled once per machine cycle.  A pulse entirely between
+    // samples must not count, while high then low samples on consecutive
+    // machine cycles must count once.
+    reset_periph;
+    write_sfr(8'h89, 8'h05);
+    write_sfr(8'h88, 8'h10);
+    while (dut.osc != 4'd0) @(negedge clk);
+    p3_i[4] = 0;
+    repeat (4) @(posedge clk);
+    p3_i[4] = 1;
+    next_tick;
+    check_ok(dut.tl0==0, "counter ignores a pulse between machine-cycle samples");
+    next_tick;
+    p3_i[4] = 0;
+    next_tick;
+    check_ok(dut.tl0==1, "counter counts consecutive high and low samples");
+
+    // INT0 uses the same once-per-machine-cycle sampling: a short edge
+    // between samples does not set IE0, while a sampled falling edge does.
+    reset_periph;
+    write_sfr(8'h88, 8'h01);
+    while (dut.osc != 4'd0) @(negedge clk);
+    int0n = 0;
+    repeat (4) @(posedge clk);
+    int0n = 1;
+    next_tick;
+    check_ok(!dut.tcon[1], "INT0 ignores an edge between machine-cycle samples");
+    next_tick;
+    int0n = 0;
+    next_tick;
+    check_ok(dut.tcon[1], "INT0 records a sampled falling edge");
+
     // Gate mode blocks the timer while INT0 is low.
     reset_periph;
     int0n = 0;
@@ -229,6 +261,22 @@ initial begin
     #1 check_ok(dut.p3_o[1:0]==2'b11, "mode 0 presents bit 0 and idle TxD before its first clock");
     next_tick;
     check_ok(dut.p3_o[1:0]==2'b00, "mode 0 shifts P3.0 data and pulses P3.1 clock");
+
+    // The transmit and receive SBUF registers are independent.  A transmit
+    // write must not overwrite the byte software reads from SBUF.
+    reset_periph;
+    dut.sbuf_rx = 8'h3c;
+    write_sfr(8'h99, 8'ha5);
+    sfr_addr = 8'h99;
+    #1 check_ok(sfr_dout==8'h3c, "SBUF read returns receive data after a transmit write");
+
+    // Reserved baseline-i8751 SFR bits read back as zero after writes.
+    write_sfr(8'h87, 8'hff);
+    write_sfr(8'ha8, 8'hff);
+    write_sfr(8'hb8, 8'hff);
+    sfr_addr = 8'h87; #1 check_ok(sfr_dout==8'h8c, "PCON retains only SMOD and GF bits");
+    sfr_addr = 8'ha8; #1 check_ok(sfr_dout==8'h9f, "IE reserved bits read zero");
+    sfr_addr = 8'hb8; #1 check_ok(sfr_dout==8'h1f, "IP reserved bits read zero");
 
     // A high priority timer interrupt must win over a simultaneous low INT0.
     reset_periph;
@@ -264,6 +312,7 @@ initial begin
     write_sfr(8'ha8, 8'h83);
     write_sfr(8'h88, 8'h21);
     int0n = 0;
+    @(negedge clk); dut.tcon[1] = 1'b1;
     @(negedge clk);
     #1 check_ok(irq && irq_vec==16'h0003, "INT0 wins simultaneous low priority requests");
     take_irq;
@@ -282,6 +331,7 @@ initial begin
     write_sfr(8'ha8, 8'h81);
     write_sfr(8'h88, 8'h01);
     int0n = 0;
+    @(negedge clk); dut.tcon[1] = 1'b1;
     @(negedge clk);
     #1 check_ok(irq && irq_vec==16'h0003, "edge INT0 initially selects its vector");
     take_irq;
@@ -295,6 +345,7 @@ initial begin
     write_sfr(8'ha8, 8'h83);
     write_sfr(8'hb8, 8'h02);
     int0n = 0;
+    next_tick;
     #1 check_ok(irq && irq_vec==16'h0003, "low priority INT0 accepted");
     take_irq;
     write_sfr(8'h88, 8'h20);

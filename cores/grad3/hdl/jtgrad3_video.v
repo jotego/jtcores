@@ -1,14 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version. */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 
 module jtgrad3_video(
     input             rst,
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
+    input             cen24,
     input             prio,
 
     output            lhbl,
@@ -17,7 +15,6 @@ module jtgrad3_video(
     output            vs,
     output            tile_irqn,
     output            tile_nmin,
-    output reg        sub_irq2,
 
     input      [16:1] m_cpu_addr,
     input      [ 1:0] m_cpu_dsn,
@@ -29,7 +26,12 @@ module jtgrad3_video(
     input             s_cpu_we,
     input             m_tilesys_cs,
     input             s_tilesys_cs,
+    input             m_video_req_n,
+    input             s_video_req_n,
+    output            m_video_grant_n,
+    output            s_video_grant_n,
     input             objsys_cs,
+    output            s_obj_dtack,
     output            m_vdtack,
     output            s_vdtack,
     output     [ 7:0] tilesys_dout,
@@ -86,23 +88,28 @@ wire        rst8, e, q, ormrd, obj_irqn, obj_nmin, shadow;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        cpu_weg, obj_cpu_weg, tilesys_cs, vdtack;
 wire        m_tile_req, s_tile_req, m_tile_grant, s_tile_grant;
+wire        m_tile_gnt_n, s_tile_gnt_n;
+reg         p1h, m_sync1, s_sync1, m_sync2, s_sync2, obj_sync;
 wire [ 1:0] tile_cpu_dsn;
 wire [15:0] tile_cpu_dout;
 wire        tile_cpu_we;
 reg  [13:0] ocode_eff;
 reg  [ 7:0] opal_eff;
 
-assign m_tile_req    = m_tilesys_cs && m_cpu_dsn != 2'b11;
-assign s_tile_req    = s_tilesys_cs && s_cpu_dsn != 2'b11;
-assign s_tile_grant  = s_tile_req;
-assign m_tile_grant  = m_tile_req && !s_tile_req;
+assign m_tile_req    = ~m_video_req_n;
+assign s_tile_req    = ~s_video_req_n;
+assign m_video_grant_n = ~m_sync2;
+assign s_video_grant_n = ~s_sync2;
+assign m_tile_grant  = ~m_tile_gnt_n;
+assign s_tile_grant  = ~s_tile_gnt_n;
 assign tile_cpu_addr = s_tile_grant ? s_cpu_addr : m_cpu_addr;
 assign tile_cpu_dsn  = s_tile_grant ? s_cpu_dsn  : m_cpu_dsn;
 assign tile_cpu_dout = s_tile_grant ? s_cpu_dout : m_cpu_dout;
 assign tile_cpu_we   = s_tile_grant ? s_cpu_we   : m_cpu_we;
-assign tilesys_cs    = m_tile_grant | s_tile_grant;
-assign m_vdtack      = vdtack & m_tile_grant;
-assign s_vdtack      = vdtack & s_tile_grant;
+assign tilesys_cs    = (m_sync1 & m_tilesys_cs) | (s_sync1 & s_tilesys_cs);
+assign m_vdtack      = vdtack & m_sync2;
+assign s_vdtack      = vdtack & s_sync2;
+assign s_obj_dtack   = obj_sync;
 assign cpu_saddr     = tile_cpu_addr;
 assign cpu_oaddr     = s_cpu_addr[11:1];
 assign cpu_d8        = tile_cpu_dout[7:0];
@@ -149,14 +156,6 @@ always @* begin
     opal_eff  = { opal[7:1],1'b0 };
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        sub_irq2 <= 0;
-    end else begin
-        sub_irq2 <= pxl_cen && hdump == 9'h020 && vdump == 9'h120;
-    end
-end
-
 always @(*) begin
     if( !ioctl_addr[14] )
         ioctl_din = scroll_din;
@@ -169,6 +168,45 @@ always @(*) begin
     else
         ioctl_din = 8'hff;
 end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        p1h      <= 0;
+        m_sync1  <= 0;
+        s_sync1  <= 0;
+        m_sync2  <= 0;
+        s_sync2  <= 0;
+        obj_sync <= 0;
+    end else begin
+        if( pxl_cen ) p1h <= ~p1h;
+        if( m_video_req_n ) begin
+            m_sync1 <= 0;
+            m_sync2 <= 0;
+        end else if( pxl_cen ) begin
+            if( p1h ) m_sync1 <= m_tile_grant;
+            m_sync2 <= m_sync1;
+        end
+        if( s_video_req_n ) begin
+            s_sync1 <= 0;
+            s_sync2 <= 0;
+        end else if( pxl_cen ) begin
+            if( p1h ) s_sync1 <= s_tile_grant;
+            s_sync2 <= s_sync1;
+        end
+        if( !objsys_cs ) obj_sync <= 0;
+        else if( pxl_cen && p1h ) obj_sync <= 1;
+    end
+end
+
+jtgrad3_arbiter u_tile_arb(
+    .rst        ( rst          ),
+    .clk        ( clk          ),
+    .cen24      ( cen24        ),
+    .a_req_n    ( ~m_tile_req  ),
+    .b_req_n    ( ~s_tile_req  ),
+    .a_grant_n  ( m_tile_gnt_n ),
+    .b_grant_n  ( s_tile_gnt_n )
+);
 
 jtaliens_scroll u_scroll(
     .rst        ( rst              ),
@@ -238,7 +276,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr           )
 );
 
-jtaliens_obj u_obj(
+jtaliens_obj #(.DMA_CEN(1)) u_obj(
     .rst        ( rst              ),
     .clk        ( clk              ),
     .pxl_cen    ( pxl_cen          ),
@@ -250,7 +288,7 @@ jtaliens_obj u_obj(
     .hdump      ( hdump            ),
     .vdump      ( vrender          ),
 
-    .cs         ( objsys_cs        ),
+    .cs         ( obj_sync         ),
     .cpu_addr   ( cpu_oaddr        ),
     .cpu_dout   ( obj_cpu_d8       ),
     .cpu_we     ( obj_cpu_weg      ),

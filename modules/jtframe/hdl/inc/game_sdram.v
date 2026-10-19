@@ -295,6 +295,17 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .st_addr      ( st_addr        ),
     .st_dout      ( st_dout        ),
 `endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .ddr_burstcnt  ( ddr_burstcnt   ),
+    .ddr_addr      ( ddr_addr       ),
+    .ddr_rd        ( ddr_rd         ),
+    .ddr_we        ( ddr_we         ),
+    .ddr_be        ( ddr_be         ),
+    .ddr_din       ( ddr_din        ),
+    .ddr_busy      ( ddr_busy       ),
+    .ddr_dout      ( ddr_dout       ),
+    .ddr_dout_ready( ddr_dout_ready ),
+`endif
 `ifdef JTFRAME_LF_BUFFER
     .game_vrender( game_vrender  ),
     .game_hdump  ( game_hdump    ),
@@ -471,6 +482,7 @@ jtframe_cache_mux #(
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM({{if $.SDRAM.Tag_ram}}1{{else}}0{{end}}),
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}
@@ -483,6 +495,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SLOT{{$index}}_LATCH({{.}}),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
+    {{- if .Cache_large }}
+    .CACHE{{$index}}_LARGE(1),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}
@@ -492,6 +506,15 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     ,.SLOT{{$index}}_DOUBLE(1){{ end }}
 {{- end}}
 `endif
+{{- range $index, $each:=.Buses}}
+{{- if not .Rw}}
+`ifdef JTFRAME_BA{{$bank}}_LEN
+    ,.SLOT{{$index}}_BURSTLEN(`JTFRAME_BA{{$bank}}_LEN)
+`else
+    ,.SLOT{{$index}}_BURSTLEN(32)
+`endif
+{{- end}}
+{{- end}}
 {{- $is_rom := eq .MemType "rom" }}
 ) u_bank{{$bank}}(
 {{- $holdrst_placed := false }}
@@ -501,6 +524,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_addr  ( {{.Addr}} ),{{else}}
     {{- if eq .Data_width 32 }}
     .slot{{$index2}}_addr  ( { {{.Name}}_addr, 1'b0 } ),
+    {{- else if eq .Data_width 64 }}
+    .slot{{$index2}}_addr  ( { {{.Name}}_addr, 2'b0 } ),
     {{- else }}
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}

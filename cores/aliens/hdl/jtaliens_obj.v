@@ -55,6 +55,8 @@ module jtaliens_obj(
     output     [ 7:0] st_dout
 );
 
+parameter DMA_CEN=0;
+
 wire [ 8:0] xpos;
 wire [ 3:0] ysub;
 wire [ 7:0] ram_dout;
@@ -88,7 +90,7 @@ always @* begin
     end
 end
 
-jt051960 u_scan(    // sprite logic
+jt051960 #(.DMA_CEN(DMA_CEN)) u_scan(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

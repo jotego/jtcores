@@ -18,23 +18,29 @@ module jtgaiden_palmux(
 `include "jtgaiden_colmix.vh"
 
 reg [ 4:0] amuxsel=SEL_NONE;
+reg [ 3:0] bank=0;
 
 always @* begin
     case(amuxsel)
-        SEL_TXT:  pal_addr = {TEXT, txt_pxl};
-        SEL_SCR1: pal_addr = {SCR1, scr1_pxl[7:0]};
-        SEL_SCR2: pal_addr = {SCR2, scr2_pxl};
-        SEL_OBJ:  pal_addr = {OBJ,  obj_pxl[7:0]};
+        SEL_TXT:  pal_addr = {TEXT|bank, txt_pxl};
+        SEL_SCR1: pal_addr = {SCR1|bank, scr1_pxl[7:0]};
+        SEL_SCR2: pal_addr = {SCR2|bank, scr2_pxl};
+        SEL_OBJ:  pal_addr = {OBJ |bank, obj_pxl[7:0]};
+        SEL_BGPEN:pal_addr = {SCR1|BLEND_COMP, 8'd0};
         default:  pal_addr = FILL;
     endcase
 end
 
 always @(posedge clk) begin
     case(st)
-        1: amuxsel <= sel;
+        1: begin
+            amuxsel <= sel;
+            bank    <= sel2!=SEL_NONE ? BLEND_SRC : 4'd0;
+        end
         3: begin
             main    <= pal_dout[11:0];
             amuxsel <= sel2;
+            bank    <= BLEND_COMP;
         end
         5: begin
             other <= pal_dout[11:0];

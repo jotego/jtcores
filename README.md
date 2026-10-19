@@ -11,13 +11,19 @@ I hope you will have as much fun with this project as I had while working on it!
 
 ## Wanna play?
 
-You can find the list of supported games in [jtbin/game_list](https://github.com/jotego/jtbin/blob/master/game_list.md). That list is actually an output of the source code of this repository and gets updated every release. There are 1050+ supported titles at the moment ( January 2025 ).
+You can find the list of supported games in [jtbin/game_list](https://github.com/jotego/jtbin/blob/master/game_list.md). That list is actually an output of the source code of this repository and gets updated every release. There are 1250+ supported titles at the moment ( September 2026 ).
 
 The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/jotego/jtbin). Most cores are released early for [patrons](https://patreon.com/jotego) so check it out too. [JTFRAME](modules/jtframe/README.md) supports more FPGA platforms than the ones publised in JTBIN. You are welcome to compile the cores for the other platforms. Distribution of the core binary files together with copyrighted ROM files is not permitted.
 
 # Compilation - JTFRAME
 
 Refer to [JTFRAME](modules/jtframe/README.md) for compilation instructions and general information about how the cores are organized.
+
+## Private Support Files
+
+Set the `JOTEGO` environment variable to the directory used for private JTCORES support files, including core-regression and scene-regression data used by privately run GitHub Actions. Scene data is stored below `$JOTEGO/scenes/<core-name>/<set-name>`.
+
+When `jtsim -s <scene>` is run from a core verification folder such as `cores/rastan/ver/rbisland`, it requires `JOTEGO` and creates `scenes` as a symbolic link to `$JOTEGO/scenes/rastan/rbisland`. Define `JOTEGO` before running scene simulations.
 
 Master branch health:
 [![Compile all MiSTer cores](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml)

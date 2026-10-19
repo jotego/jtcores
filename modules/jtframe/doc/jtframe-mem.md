@@ -104,6 +104,7 @@ audio:
         - { r: 1rout, c: 2.2n }
       dcrm: true
       fir: myfilter.csv
+      # Or use sallen-key: { R1: 5.6k, R2: 10k, R3: 5.6k, C1: 22n, C2: 4.7n }
 
 sdram:
   big_endian: true              # cache-lane mode only
@@ -215,7 +216,13 @@ bram:
   - `banks[].buses[].data_width` supports **8**, **16**, **32**.
   - bus `addr_width` is counted in 16-bit words (LSB is bank address bit 0 for 8-bit, bit 1 for 16/32-bit).
   - `latch` passes a per-slot `SLOTn_LATCH` parameter into the generated SDRAM helper for read-only buses.
-  - `cache_size` selects the request cache mix (`0` for regular ROM request path).
+  - Numeric `cache_size` values select the existing small request-cache path
+    (`0` selects the regular ROM request path). A string `cache_size`, such as
+    `1kB` or `32kB`, selects a direct-mapped BRAM cache for a read-only ROM
+    bus. It must be an exact power of two, at least 1 kB, and no more than one
+    eighth of the bus address space (for example, `addr_width: 20` permits up
+    to 128 kB). Its cache line is the bank burst (16, 32, or 64 bits); read/write
+    buses are rejected.
   - `do_not_erase` is only meaningful for writable SDRAM banks.
   - `gfx_sort` is limited to supported patterns (`hvvv`, `hvvvv`, `hhvvv`, `hhvvvv`, `vhhvvv` and `x` variants).
 - Cache-lane settings:

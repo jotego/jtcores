@@ -15,7 +15,7 @@ volume = [
 
 [buttons]
 Names = [
-    { machine="midres", names="Shot,Jump,Turn left,Turn right"},
+    { machine="midres", names="Shot,Jump,Turn left,Turn right", map="YBLR"},
 ]
 
 [dipsw]
@@ -40,13 +40,11 @@ regions = [
 
     { name="sprites",  start="JTFRAME_BA3_START", width=32, No_offset=true },
 
-    { name="sub",      start="MCU_START" },
-    { name="mcu",      start="MCU_START" },
     { name="proms",    start="JTFRAME_PROM_START" },
     { name="plds",     skip=true         }
 ]
 
 order = [
     "maincpu", "audiocpu", "oki",
-    "char", "tiles1", "tiles2", "sprites", "mcu", "sub", "proms"
+    "char", "tiles1", "tiles2", "sprites", "proms"
 ]

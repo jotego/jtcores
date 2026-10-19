@@ -1,0 +1,58 @@
+moo:
+  - get:
+    - "*.v"
+jt05415x:
+  - get:
+    - jt05415x.v
+    - jt054156_mmr.v
+    - jt054157_mmr.v
+riders:
+  - get:
+    - jt054321.v
+    - jtriders_dump.v
+    - jtriders_tmnt2.v
+    - jtriders_tmnt2_zoom.v
+rungun:
+  - get:
+    - jtk053252.v
+    - jtrungun_sound.v
+simson:
+  - get:
+    - jt053246.sv
+    - jt053246_scan.sv
+    - jt053246_dma.v
+    - jt053246_mmr.v
+    - jtsimson_obj.v
+    - jtcolmix_053251.v
+    - jtk054000.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_counter.v
+    - jtframe_count_ld.v
+    - jtframe_ff_jk.v
+    - jtframe_8bit_reg.v
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_obj.yaml
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - from: ram
+    get:
+      - jtframe_dual_nvram.v
+      - jtframe_dual_nvram16.v
+jt539:
+jteeprom:
+  - get:
+    - jt5911.sv

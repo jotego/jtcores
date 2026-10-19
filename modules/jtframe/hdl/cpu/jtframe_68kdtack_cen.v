@@ -3,35 +3,20 @@
  * Date: 20-5-2021 */
 
 /*
+    Generate DTACK and alternating fx68k enables at num/den CPU clocks per
+    master clock. At an artificial SDRAM wait, hold the S4 DTACK-sampling
+    Phi2 and all following CPU phases until acknowledgement is ready.
+    Recovery replays only divider events physically withheld by that hold.
 
-    Generates the standard /DTACK signal expected by the CPU,
-    i.e. there is an idle cycle for each bus cycle
+    bus_legit and bus_ack keep the CPU phases running at nominal rate and
+    exclude both debt creation and recovery. WAIT1/wait2/wait3 qualification
+    also runs on nominal phases; once armed, DTACK can complete on a master
+    clock without requiring the held CPU to advance.
 
-    If there is a special bus access, marked by bus_cs, and
-    it takes longer to complete than one cycle, the extra time
-    will be recovered for later. If bus_legit is high, the time
-    will not be recovered as it is identified as legitim wait
-    in the original system
-
-    DSn -and not just ASn- must be used so read-modify-write
-    instructions have a second /DTACK signal generated for
-    the write cycle
-
-    Note that if jtframe_ramrq is used, then DSn must also
-    gate the SDRAM requests so you get a cs toggle in the
-    middle of the read-modify-write cycles
-
-    DSn goes low one cycle after ASn under some conditions, so
-    if ASn | DSn is used to set DTACKn, it will take one more
-    cycle than expected on those occasions. Both CPS and S16
-    use only ASn to generate DTACKn.
-
-    The M68K requires one wait cycle for all access. But it's
-    common to have systems where 2 or 3 wait states are used too.
-    The wait2 and wait3 inputs can be set high to use more wait
-    states. Clock cycle recovery does not take effect during
-    extra wait states requested by the system.
-
+    DSn must delimit transfers, including both halves of TAS. SDRAM request
+    selects must also include DSn so the second transfer issues a new request.
+    AS alone is not enough to detect that gap, and gating before S2 setup
+    completes would prevent the CPU from asserting write data strobes.
 */
 
 module jtframe_68kdtack_cen
@@ -43,8 +28,8 @@ module jtframe_68kdtack_cen
 )(
     input         rst,
     input         clk,
-    output   reg  cpu_cen,
-    output   reg  cpu_cenb,
+    output        cpu_cen,
+    output        cpu_cenb,
     input         bus_cs,
     input         bus_busy,
     input         bus_legit,
@@ -60,126 +45,90 @@ module jtframe_68kdtack_cen
     output  [15:0] fave, // average cpu_cen frequency in kHz
     output  [15:0] fworst  // average cpu_cen frequency in kHz
 );
-/* verilator lint_off WIDTH */
-
 localparam CW=W+WD;
 
-reg [CW-1:0] cencnt=0;
-reg  [1:0]   waitsh;
-wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
-wire         recover, delayed, eff_phase, eff_cen;
-wire         over = cencnt>den-num2;
-reg  [CW:0] cencnt_nx=0;
-reg         risefall=0, eff_risefall=0, wait1, ASn_l;
+reg [W:0]    count=0;
+reg [CW-1:0] missing=0;
+reg [1:0]    waitsh;
+reg          phase=0, active_phi1=0, wait1, ack_armed;
+wire [W:0]   step;
+wire         over, hold_cpu, recover, emit, charge, ack_ready, board_wait;
+wire [3:0]   nc1, nc2;
 
-`ifdef SIMULATION
-    // This is needed to prevent X's at the start of simulation
-    reg  rstl=0;
-    always @(posedge clk) rstl <= rst;
-`else
-    // Not needed in synthesis
-    wire rstl=0;
-`endif
+assign step = {1'b0,num,1'b0};
+assign over = count > {1'b0,den}-step;
+assign ack_ready = ack_armed || (WAIT1==0 && waitsh==0);
+assign board_wait = !ASn && !(&DSn) &&
+                    (waitsh!=0 || (WAIT1!=0 && !ack_armed));
+// AS falls on Phi1 entering S2. Allow the next Phi1 to enter S4, then
+// hold its DTACK-sampling Phi2. Do not stop setup, a TAS strobe gap, a
+// legitimate board wait, or the clocks needed by bus-grant handshakes.
+assign hold_cpu = !ASn && !(&DSn) && bus_cs && DTACKn && ack_ready &&
+                  !bus_legit && !bus_ack && active_phi1 && !phase;
+assign recover = RECOVERY!=0 && missing!=0 && !over && !hold_cpu &&
+                 !bus_ack && !bus_legit && !board_wait && !rst;
+assign emit = !rst && !hold_cpu && (over || recover);
+assign charge = RECOVERY!=0 && over && hold_cpu;
+assign cpu_cen = emit && phase;
+assign cpu_cenb = emit && !phase;
 
 always @(posedge clk) begin
-    ASn_l <= ASn;
+    if(rst || ASn) active_phi1 <= 0;
+    else if(cpu_cen) active_phi1 <= 1;
 end
 
-always @(posedge clk) begin : dtack_gen
-    if( rst ) begin
+always @(posedge clk) begin
+    if(rst) begin
+        count <= 0;
+        missing <= 0;
+        phase <= 0;
+    end else begin
+        count <= over ? count+step-{1'b0,den} : count+step;
+        if(emit) phase <= ~phase;
+        if(charge) missing <= missing+1'b1;
+        if(recover) missing <= missing-1'b1;
+    end
+end
+
+always @(posedge clk) begin
+    if(rst) begin
         DTACKn <= 1;
         waitsh <= 0;
-        wait1  <= 0;
+        wait1 <= 0;
+        ack_armed <= 0;
+    end else if(ASn || &DSn) begin
+        DTACKn <= 1;
+        wait1 <= 1;
+        waitsh <= {wait3,wait2};
+        ack_armed <= 0;
     end else begin
-        if( ASn | &DSn ) begin // DSn is needed for read-modify-write cycles
-               // performed on the SDRAM. Just checking the DSn rising edge
-               // is not enough on Rastan
-            DTACKn <= 1;
-            wait1  <= 1; // gives a clock cycle to bus_busy to toggle
-        end else if( !ASn ) begin
-            if(ASn_l) waitsh <= {wait3,wait2};
-            if( cpu_cen || WAIT1==0 ) begin
-                wait1 <= 0;
-                if( cpu_cen ) waitsh <= waitsh>>1;
-                if( waitsh==0 && !wait1 ) begin
-                    DTACKn <= DTACKn && bus_cs && bus_busy;
-                end
+        if(cpu_cen || WAIT1==0) begin
+            wait1 <= 0;
+            if(cpu_cen) waitsh <= waitsh>>1;
+            if(waitsh==0 && !wait1) begin
+                ack_armed <= 1;
+                DTACKn <= DTACKn && bus_cs && bus_busy;
             end
         end
+        if(ack_armed) DTACKn <= DTACKn && bus_cs && bus_busy;
     end
 end
 
-always @* begin
-    cencnt_nx = over ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt}+num2;
-end
-
-generate if (RECOVERY==1) begin
-    reg [CW-1:0] missing;
-    assign recover =  (ASn || !DTACKn) && missing>0 && !over && !bus_ack;
-    assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
-
-    always @(posedge clk) begin
-        if( rst ) begin
-            missing <= 0;
-        end else begin
-            // Charge the phase scheduled on this edge. cpu_cen/cpu_cenb are
-            // registered outputs, so sampling them here would charge the
-            // previous edge after delayed may already have changed.
-            if( delayed && over ) begin
-`ifdef SIMULATION
-                if( &missing && !recover ) begin
-                    $display("FAIL: %m recovery counter overflow (CW=%0d)",CW);
-                    $finish;
-                end
-`endif
-                missing <= missing + 1'b1;
-            end
-            if( recover ) begin
-                missing <= missing - 1'b1;
-            end
-        end
-    end
-end else begin
-    assign recover=0;
-    assign delayed=0;
-end endgenerate
-
-always @(posedge clk) begin
-    cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
-    if( rst ) cencnt <= 0;
-    if( over || rst || recover) begin
-        cpu_cen  <=  risefall;
-        cpu_cenb <= ~risefall;
-        risefall <= ~risefall;
-    end else begin
-        cpu_cen  <= 0;
-        cpu_cenb <= 0;
-    end
-    // aux <= cpu_cen; // forces a blank after cpu_cen,
-    // so the shortest sequence is cpu_cen, blank, cpu_cenb
-    // note that cpu_cen can follow cpu_cenb without a blank
-end
-/* verilator lint_on WIDTH */
-
-// Frequency reporting
-wire [3:0] nc1, nc2;
-assign eff_phase = (over && !delayed) || recover;
-assign eff_cen   = eff_phase && eff_risefall;
-
-always @(posedge clk) begin
-    if( rst ) begin
-        eff_risefall <= 0;
-    end else if( eff_phase ) begin
-        eff_risefall <= ~eff_risefall;
-    end
-end
-
+// Report phases actually delivered to fx68k, including their preserved
+// alternation. Recovery only repays phases that were physically withheld.
 jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
     .rst    ( rst               ),
     .clk    ( clk               ),
-    .pulse  ( eff_cen           ),
+    .pulse  ( cpu_cen           ),
     .fave   ( { fave, nc1 }     ),
     .fworst ( { fworst, nc2 }   )
 );
+
+`ifdef SIMULATION
+always @(posedge clk) if(!rst && charge && &missing) begin
+    $display("FAIL: %m recovery counter overflow (CW=%0d)",CW);
+    $finish;
+end
+`endif
 
 endmodule

@@ -22,7 +22,7 @@ var cmd_args = struct {
 // mraCmd represents the mra command
 var mraCmd = &cobra.Command{
 	Use:   "mra <core-name core-name...> or mra --reduce <path-to-mame.xml>",
-	Short: "Parses the core's TOML file to generate MRA files. Accepts */? in core name",
+	Short: "Parses each core's TOML file to generate MRA files",
 	Long:  man_blurb("jtframe-mra", "Generate MRA files from a core mame2mra.toml configuration."),
 	Run:   runMRA,
 }
@@ -38,7 +38,7 @@ func init() {
 	flag.BoolVarP(&cmd_args.reduce, "reduce", "r", false, "Reduce the size of the XML file by creating a new one with only the entries required by the cores.")
 	flag.BoolVar(&cmd_args.clear_folders, "rm", false, "Deletes the release and rom folders in $JTROOT before proceeding")
 	flag.BoolVarP(&mra_args.SkipMRA, "skipMRA", "s", false, "Do not generate MRA files")
-	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files")
+	flag.BoolVarP(&mra_args.SkipROM, "skipROM", "n", false, "Do not generate .rom files. It still validates mame2mra.toml vs mame.xml")
 	flag.BoolVarP(&mra_args.MainOnly, "mainonly", "o", false, "Only parse the main version of each game")
 	flag.BoolVar(&mra_args.Alt, "alt", false, "Generate only alternative MRA files")
 	flag.BoolVar(&mra_args.Nodbg, "nodbg", false, "Do not parse games in debug phase")
@@ -100,28 +100,24 @@ func clear_folders() {
 func parse_cores(corenames []string) error {
 	mra_args.Xml_path = MakeJTpath("doc", "mame.xml")
 	mra_args.Target = "pocket"
-	entries, e := os.ReadDir(MakeJTpath("cores"))
-	Must(e)
 	if verbose {
 		fmt.Println("Parsing", mra_args.Xml_path)
 	}
 	var all_errors error
-	for _, entry := range entries {
-		if !entry.IsDir() {
+	for _, corename := range corenames {
+		if e := valid_core(corename); e != nil {
+			all_errors = JoinErrors(all_errors, e)
 			continue
 		}
-		for _, pattern := range corenames {
-			if match, _ := filepath.Match(pattern, entry.Name()); !match {
-				continue
-			}
-			mra_args.Core = entry.Name()
-			if !check_files(mra_args.Core) {
-				fmt.Println("Skipping", mra_args.Core, "missing def/toml")
-				continue
-			}
-			core_errors := mra_args.Convert()
-			all_errors = JoinErrors(all_errors, core_errors)
+		core_args := mra_args
+		core_args.Core = corename
+		if !check_files(corename) {
+			all_errors = JoinErrors(all_errors, fmt.Errorf("%s: missing def/toml", corename))
+			continue
 		}
+		core_errors := core_args.Convert()
+		if core_errors != nil { core_errors = fmt.Errorf("%s: %w", corename, core_errors) }
+		all_errors = JoinErrors(all_errors, core_errors)
 	}
 	return all_errors
 }

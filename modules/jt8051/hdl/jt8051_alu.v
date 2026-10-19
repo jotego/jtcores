@@ -35,6 +35,7 @@ always @* begin
     ac      = 1'b0;
     ov      = 1'b0;
     neq     = lhs != rhs;
+    k       = 0; // prevents Quartus warning
     case (alu_sel)
         ADD_ALU: begin
             sum    = {1'b0,lhs}+{1'b0,rhs};

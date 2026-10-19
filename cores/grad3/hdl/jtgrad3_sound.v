@@ -1,8 +1,5 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version. */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 
 module jtgrad3_sound(
     input           rst,

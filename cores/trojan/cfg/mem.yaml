@@ -11,6 +11,13 @@ clocks:
         - cen6
         - cen3
         - cen1p5
+    - freq: 12M
+      gate: [ main, snd, snd2 ]
+      outputs:
+        - cpu_cen12
+        - cpu_cen6
+        - cpu_cen3
+        - cpu_cen1p5
     - freq: 8M
       outputs:
         - cen8
@@ -70,4 +77,3 @@ sdram:
         offset: OBJ_OFFSET
         gfx_sort: hvvvvxx
         cs: 1'b1
-

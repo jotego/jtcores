@@ -30,23 +30,25 @@ Bit    |  Use                      | Set by
 0      | High for vertical games   | mame.xml
 1      | Lightgun game             | mame.xml
 2      | XOR with dip_flip         | mame.xml
-3      | dial input enable         | mame.xml
-4      | reverse the dial          | mame.xml
+3      | Vertical frame bit 0      | mame.xml
+4      | V. frame bit 1            | mame.xml
 5      | Horizontal frame bit 0    | mame.xml
 6      | H. frame bit 1            | mame.xml
 7      | N/A*                      |
 15-8   | sound volume              | mame2mra.toml's audio section
+16     | dial input enable         | mame2mra.toml's buttons section
+17     | reverse the dial          | mame2mra.toml's buttons section
 
-* Bits 7 and above are not supported on MiST derivatives.
+* Bits 7 and above are not supported by MiST-family ARC loading.
 
 If JTFRAME_VERTICAL is defined, bit 0 is set during power up. The contents of core_mod can be set by defining a index=1 rom in the MRA file.
 
-H Frame | Meaning
---------|---------
-00      |  No frame
-01      |  8-pixel frame
-10      | 16-pixel frame
-11      |  reserved
+H/V Frame | Meaning
+----------|---------
+00        | No frame
+01        | 8-pixel or 8-line frame
+10        | Reserved
+11        | 16-pixel or 16-line frame
 
 The volume is defined in the TOML file **Audio** section like this:
 
@@ -196,6 +198,10 @@ The following diagram shows how three _virtual_ multiplexers can be individually
 
 ![Multiplexers around jtframe_dwnld](ioctl_filter.svg)
 
+
+# DDR3 Access from the Game (MiSTer)
+
+Define **JTFRAME_MR_GAME_DDR** to give the game module MiSTer's DDR3 port, for memories that do not fit in the SDRAM or need its bandwidth (NARC keeps its VRAM there). The game gets the Avalon-MM signals `ddr_busy` (wait request), `ddr_burstcnt`, `ddr_addr`, `ddr_dout`, `ddr_dout_ready`, `ddr_rd`, `ddr_din`, `ddr_be` and `ddr_we`, clocked by `clk_rom` (the same as `clk` with JTFRAME_SDRAM96). The game drives the same DDR client that JTFRAME_VERTICAL and the line-frame buffer use, so it cannot be combined with JTFRAME_VERTICAL, JTFRAME_LF_BUFFER or JTFRAME_MR_DDRLOAD, and it is only available on MiSTer. Use addresses in the `{4'd3,...}` window (0x30000000), as JTFRAME's own DDR users do.
 
 # SDRAM Timing
 

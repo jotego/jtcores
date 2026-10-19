@@ -24,7 +24,7 @@ volume = [
 [buttons]
 core=3 # max number of buttons supported by the core
 names=[
-    { names="Left, Centre, Right" }
+    { names="Left, Centre, Right", map="YXA" }
 ]
 
 [dipsw]

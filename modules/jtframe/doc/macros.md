@@ -43,6 +43,7 @@ JTFRAME_JOY_RLUD         |         | Joystick lower 4 bits are:  right, left,  u
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
+JTFRAME_JOY_B2B1B0       |         | Swaps the first three buttons
 JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
 JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
 JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core
@@ -66,6 +67,7 @@ JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude i
 JTFRAME_MOUSE_NOEMU      |         | Disables mouse emulation via joystick
 JTFRAME_MR_DDR           | MiSTer  | Defined internally when MiSTer DDR is used. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
+JTFRAME_MR_GAME_DDR      | MiSTer  | Game module gets the DDR3 port (ddr_* signals on clk_rom, see sdram.md). Not with rotation, LF buffer or DDR load
 JTFRAME_MR_LF_BRAM       | MiSTer  | Use BRAM instead of DDR for JTFRAME_LF_BUFFER. Automatically set when JTFRAME_VERTICAL is also enabled
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
@@ -95,6 +97,7 @@ JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
+JTFRAME_SDRAM_XL         | MiSTer  | Enables 128MB SDRAM
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)

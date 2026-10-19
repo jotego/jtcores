@@ -24,6 +24,11 @@ module jt1943_main #(
     // Sound
     output  reg        sres_b, // sound reset
     output  reg [7:0]  snd_latch,
+    // MCU (1943 only)
+    input       [7:0]  mcu_din,
+    output  reg [7:0]  mcu_dout,
+    output             mcu_wr,
+    output             mcu_rd,
     // Characters
     input              [7:0] char_dout,
     output             [7:0] cpu_dout,
@@ -234,6 +239,14 @@ jt12_rst u_rst(
 
 reg [7:0] cabinet_input;
 wire [7:0] security;
+// 1943 supports three buttons, but its software only uses two. Pressing the
+// third button also presses the first two, making it easier to loop the plane.
+reg [2:0] joy1_btn, joy2_btn;
+
+always @(posedge clk) if( GAME==0 ) begin
+    joy1_btn <= { {3{joystick1[6]}} & joystick1[6:4] };
+    joy2_btn <= { {3{joystick2[6]}} & joystick2[6:4] };
+end
 
 always @(*) begin
     case( A[2:0] )
@@ -243,8 +256,8 @@ always @(*) begin
                      ~LVBL,
                      GAME==1 ? wrerr_n : 1'b1, // /WRERR - palette write error (Side Arms)
                      cab_1p }; // START
-        3'd1: cabinet_input = { 1'b1, joystick1 };
-        3'd2: cabinet_input = { 1'b1, joystick2 };
+        3'd1: cabinet_input = { 1'b1, GAME==0 ? {joy1_btn, joystick1[3:0]} : joystick1 };
+        3'd2: cabinet_input = { 1'b1, GAME==0 ? {joy2_btn, joystick2[3:0]} : joystick2 };
         3'd3: cabinet_input = dipsw_a;
         3'd4: cabinet_input = dipsw_b;
         3'd5: cabinet_input = GAME==1 ? dipsw_c  : 8'hff;
@@ -252,6 +265,9 @@ always @(*) begin
         default: cabinet_input = 8'hff;
     endcase
 end
+
+assign mcu_wr = GAME==0 && SECWR_cs && !wr_n;
+assign mcu_rd = GAME==0 && in_cs && A[2:0]==3'd7 && !rd_n;
 
 
 // RAM, 16kB
@@ -360,18 +376,13 @@ always @(posedge clk or negedge t80_rst_n)
         end
     end
 
-generate
-    if( GAME==0 )
-    jt1943_security u_security(
-        .clk    ( clk      ),
-        .cen    ( cpu_cen  ),
-        .wr_n   ( wr_n     ),
-        .cs     ( SECWR_cs ),
-        .din    ( cpu_dout ),
-        .dout   ( security )
-    );
-    else assign security = 8'd0;
-endgenerate
+assign security = GAME==0 ? mcu_din : 8'd0;
+
+always @(posedge clk, posedge rst)
+    if( rst )
+        mcu_dout <= 8'd0;
+    else if( cpu_cen && mcu_wr )
+        mcu_dout <= cpu_dout;
 
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
@@ -403,6 +414,7 @@ jtframe_z80 u_cpu(
     initial flip        = 0;
     initial sres_b      = 0;
     initial snd_latch   = 0;
+    initial mcu_dout    = 0;
     initial char_cs     = 0;
     initial CHON        = 0;
     initial scrposv     = 0;

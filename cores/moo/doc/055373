@@ -1,0 +1,99 @@
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
+
+Outputs:
+
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, Output feedback output, Active low)
+16 (Combinatorial, Output feedback output, Active low)
+17 (Combinatorial, Output feedback output, Active low)
+18 (Combinatorial, Output feedback output, Active low)
+19 (Combinatorial, Output feedback output, Active low)
+20 (Combinatorial, Output feedback output, Active low)
+21 (Combinatorial, Output feedback output, Active low)
+22 (Combinatorial, Output feedback output, Active low)
+23 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+/o14 = /i1 & /i3 & /i4 & /i5 & /i6 & /i13
+o14.oe = vcc
+
+/o15 = /i1 & /i3 & /i4 & i5 & /i6 & /i13
+o15.oe = vcc
+
+/o16 = /i1 & /i3 & /i4 & i5 & i6 & /i7 & /i8 & /i9 & /i13
+o16.oe = vcc
+
+/o17 = /i1 & /i3 & /i4 & i5 & i6 & /i7 & i8 & /i9 & /i10 & /i11 & /i13
+o17.oe = vcc
+
+/o18 = /i1 & /i3 & /i4 & i5 & i6 & /i7 & i8 & i9 & /i10 & /i11 & /i13
+o18.oe = vcc
+
+/o19 = /i1 & /i3 & /i4 & i5 & i6 & /i7 & /i8 & i9 & /i13
+o19.oe = vcc
+
+/o20 = /i1 & i13
+o20.oe = vcc
+
+/o21 = /i1 & /i3 & /i4 & i5 & i6 & i7 & /i8 & /i9 & /i10 & /i11 & /i13
+o21.oe = vcc
+
+/o22 = /i1 & /i3 & /i4 & /i5 & i6 & i7 & /i8 & /i13
+o22.oe = vcc
+
+/o23 = /i1 & /i3 & /i4 & /i5 & /i13 +
+       /i1 & /i3 & /i4 & /i6 & /i13 +
+       /i1 & /i3 & /i4 & /i7 & /i8 & /i13
+o23.oe = vcc
+
+o14 - OE1
+o15 - OE2
+o17 - LYR_PRIO  - PRI
+o18 - PRE_DTACK - PDTAK
+o19 - ORAMWE
+o20 - VPA
+o21 - RAMCS
+o22 - PALE
+
+i1  - /AS
+i2  - R/W
+i3  - MAIN_A22  - MA22
+i4  - MAIN_A21  - MA21
+i5  - MAIN_A20  - MA20
+i6  - MAIN_A19  - MA19
+i7  - MAIN_A18  - MA18
+i8  - MAIN_A17  - MA17
+i9  - MAIN_A16  - MA16
+i10 - MAIN_A15  - MA15
+i11 - MAIN_A14  - MA14
+i13 - MAIN_A23  - MA23
+
+/VPA    = /AS &  MA23
+/OE1    = /AS & /MA23 & /MA22 & /MA21 & /MA20 & /MA19
+/OE2    = /AS & /MA23 & /MA22 & /MA21 &  MA20 & /MA19
+/o16    = /AS & /MA23 & /MA22 & /MA21 &  MA20 &  MA19 & /MA18 & /MA17 & /MA16
+/PRI    = /AS & /MA23 & /MA22 & /MA21 &  MA20 &  MA19 & /MA18 &  MA17 & /MA16 & /MA15 & /MA14
+/PDTAK  = /AS & /MA23 & /MA22 & /MA21 &  MA20 &  MA19 & /MA18 &  MA17 &  MA16 & /MA15 & /MA14
+/ORAMWE = /AS & /MA23 & /MA22 & /MA21 &  MA20 &  MA19 & /MA18 & /MA17 &  MA16
+/RAMCS  = /AS & /MA23 & /MA22 & /MA21 &  MA20 &  MA19 &  MA18 & /MA17 & /MA16 & /MA15 & /MA14
+/PALE   = /AS & /MA23 & /MA22 & /MA21 & /MA20 &  MA19 &  MA18 & /MA17
+/o23    = /AS & /MA23 & /MA22 & /MA21 & /MA20                         +
+          /AS & /MA23 & /MA22 & /MA21 &         /MA19                 +
+          /AS & /MA23 & /MA22 & /MA21 &                 /MA18 & /MA17
+
+
+/VPA    = /AS & MA[23:14]==10'b1?_????_????
+/OE1    = /AS & MA[23:14]==10'b00_000?_????
+/OE2    = /AS & MA[23:14]==10'b00_010?_????
+/o16    = /AS & MA[23:14]==10'b00_0110_00??
+/PRI    = /AS & MA[23:14]==10'b00_0110_1000
+/PDTAK  = /AS & MA[23:14]==10'b00_0110_1100
+/ORAMWE = /AS & MA[23:14]==10'b00_0110_01??
+/RAMCS  = /AS & MA[23:14]==10'b00_0111_0000
+/PALE   = /AS & MA[23:14]==10'b00_0011_0???
+/o23    = /AS & MA[23:14]==10'b00_00??_????
+          /AS & MA[23:14]==10'b00_0?0?_????
+          /AS & MA[23:14]==10'b00_0??0_0???

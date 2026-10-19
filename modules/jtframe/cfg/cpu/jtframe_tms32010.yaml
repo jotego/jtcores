@@ -1,0 +1,9 @@
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_tms32010.v
+  # IKA32010.sv includes IKA32010_mnemonics.sv and IKA32010_disasm.sv
+  - from: cpu/ika32010
+    get:
+      - IKA32010.sv
+      - timing.sdc

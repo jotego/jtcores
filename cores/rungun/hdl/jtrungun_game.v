@@ -174,8 +174,8 @@ jtrungun_video u_video(
     .hs             ( HS            ),
     .vs             ( VS            ),
     .hdump          ( game_hdump    ),
-    .vdump          ( game_vrender  ),
-    .vrender        (               ),
+    .vdump          (               ),
+    .vrender        ( game_vrender  ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
     .psac_cs        ( psac_cs       ),

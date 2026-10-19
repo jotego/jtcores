@@ -77,7 +77,6 @@ module jtbiocom_main(
 );
 
 parameter GAME=0; // 0 for Bionic Commando, 1 for Tiger Road/F1Dream
-parameter SAME_CLK=0;
 `ifndef NOMAIN
 wire [19:1] A;
 wire [3:0] ncA;
@@ -104,23 +103,7 @@ assign col_uw  = col_cs & ~UDSWn;
 assign col_lw  = col_cs & ~LDSWn;
 
 wire CPUbus = !blcnten && mcu_DMAn; // main CPU in control of the bus
-wire [16:1] mcu_addr_s;
-wire [ 7:0] mcu_dout_s;
-wire        mcu_wr_s;
-wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
-
-generate
-    if( SAME_CLK ) begin : g_same_clk
-        assign {mcu_addr_s, mcu_dout_s, mcu_wr_s} = {mcu_addr, mcu_dout, mcu_wr};
-    end else begin : g_cross_clk
-        jtframe_sync #(.W(16+8+1)) u_mcus(
-            .clk_in ( 1'b0      ),
-            .clk_out( clk       ),
-            .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
-            .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
-        );
-    end
-endgenerate
+wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr;
 
 always @(*) begin
     ram_cs        = 1'b0;
@@ -272,7 +255,7 @@ end
 /////////////////////////////////////////////////////
 // Work RAM, 16kB
 wire [1:0] wram_dsn = {2{ram_cs}} & ~{UDSWn, LDSWn};
-wire       wmcu_wr  = mcu_wr_s & ram_cs;
+wire       wmcu_wr  = mcu_wr & ram_cs;
 
 jtframe_dual_ram16 #(.AW(13)) u_work_ram (
     .clk0   ( clk            ),
@@ -283,8 +266,8 @@ jtframe_dual_ram16 #(.AW(13)) u_work_ram (
     .we0    ( wram_dsn       ),
     .q0     ( wram_dout      ),
     // Port 1: MCU
-    .data1  ( { 8'hff, mcu_dout_s} ) ,
-    .addr1  ( mcu_addr_s[13:1] ),
+    .data1  ( { 8'hff, mcu_dout} ) ,
+    .addr1  ( mcu_addr[13:1] ),
     .we1    ( {1'b0,wmcu_wr} ),
     .q1     (                )
 );
@@ -295,7 +278,7 @@ assign cpu_AB = Aeff[13:1];
 
 wire [10:0] oram_addr = blcnten ? obj_AB[11:1] : Aeff[11:1];
 wire [ 1:0] oram_dsn = {2{obj_cs}} & ~{UDSWn, LDSWn};
-wire        omcu_wr  = mcu_wr_s & obj_cs;
+wire        omcu_wr  = mcu_wr & obj_cs;
 
 jtframe_dual_ram16 #(.AW(11)) u_obj_ram (
     .clk0   ( clk            ),
@@ -306,8 +289,8 @@ jtframe_dual_ram16 #(.AW(11)) u_obj_ram (
     .we0    ( oram_dsn       ),
     .q0     ( oram_dout      ),
     // Port 1: MCU
-    .data1  ( { 8'hff, mcu_dout_s} ) ,
-    .addr1  ( mcu_addr_s[11:1] ),
+    .data1  ( { 8'hff, mcu_dout} ) ,
+    .addr1  ( mcu_addr[11:1] ),
     .we1    ( {1'b0,omcu_wr} ),
     .q1     (                )
 );
@@ -396,28 +379,33 @@ wire [2:0] FC;
 assign inta_n = ~&{ FC[2], FC[1], FC[0], ~ASn }; // interrupt ack.
 
 always @(posedge clk, posedge rst) begin : int_gen
-    reg last_LVBL, last_V256;
+    reg last_LVBL, last_V128;
     if( rst ) begin
-        int1 <= 1'b1;
-        int2 <= 1'b1;
+        int1      <= 1'b1;
+        int2      <= 1'b1;
+        last_LVBL <= 1'b1;
+        last_V128 <= 1'b0;
     end else begin
         last_LVBL <= LVBL;
-        last_V256 <= V[8];
+        last_V128 <= V[7];
 
         if( !inta_n ) begin
             int1 <= 1'b1;
             int2 <= 1'b1;
         end
         else if(dip_pause) begin
-            if( V[8] && !last_V256 ) int2 <= 1'b0;
+            // IRQ4 processes inputs/protection at scanline 128. Matches
+            // measurement of F1-Dream PCB, although the Bionic Commando
+            // schematics point to V256, that must be a typo or an old version
+            // using V256 prevents the game from registering coin inputs
+            if( V[7] && !last_V128 ) int2 <= 1'b0;
             if( !LVBL && last_LVBL ) int1 <= 1'b0;
         end
     end
 end
 
-// Original design uses HALT signal instead of BR/BG/BGACK triad
-// but fx68k does not support it, so HALT operation is implemented
-// through regular bus arbitrion
+// The original design uses HALT for the MCU DMA pause.  fx68k keeps HALTn
+// inactive here; bus ownership is handled through the BR/BG/BGACK arbiter.
 
 wire [1:0] dev_br = { ~mcu_brn, obj_br };
 assign bus_ack = ~BGACKn;
