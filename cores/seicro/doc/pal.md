@@ -579,16 +579,19 @@ common latch model uses the normal-operation assumptions above.
 ## Palette latch and PROM bank/address inputs
 
 On the reviewed Frisky Tom video drawing, the four palette outputs of mux 8D
-feed latch 9D, a 74LS273. All pin numbers below are physical package pins.
-The data routes and three PROM address destinations are jointly confirmed;
-9D's D-to-Q pairing agrees with the shared `jt74:74LS273` symbol.
+and two selected-pixel outputs of 7C feed latch 9D, a 74LS273. All pin numbers
+below are physical package pins. These data routes and PROM destinations are
+jointly confirmed; 9D's D-to-Q pairing agrees with the shared `jt74:74LS273`
+symbol. No inversion bubbles occur on the two 7C-to-PROM data routes.
 
-| 8D output | 9D input | 9D output | Destination |
+| Source output | 9D input | 9D output | Destination |
 | --- | --- | --- | --- |
-| 12 | 17 | 16 | PROM bank selection through 7D/7E. |
-| 9 | 14 | 15 | Both PROMs, pin 14 (`A4`). |
-| 7 | 7 | 6 | Both PROMs, pin 13 (`A3`). |
-| 4 | 4 | 5 | Both PROMs, pin 12 (`A2`). |
+| 8D pin 12 | 17 | 16 | PROM bank selection through 7D/7E. |
+| 8D pin 9 | 14 | 15 | Both PROMs, pin 14 (`A4`). |
+| 8D pin 7 | 7 | 6 | Both PROMs, pin 13 (`A3`). |
+| 8D pin 4 | 4 | 5 | Both PROMs, pin 12 (`A2`). |
+| 7C pin 3 | 13 | 12 | Both PROMs, pin 11 (`A1`). |
+| 7C pin 6 | 8 | 9 | Both PROMs, pin 10 (`A0`). |
 
 9D output 16 reaches 7D input 12 directly. It also reaches inverter 7E
 input 1; 7E output 2 feeds the other 7D gate's input 1. The already confirmed
@@ -603,12 +606,13 @@ With `B = 9D.Q16` and `Q = 9D.Q2 & 9D.Q19`, the enabled conditions are:
 
 Thus the four latched palette outputs select a PROM bank and its three high
 address bits. The corresponding flattened six-bit address has the bank at
-bit 5 and these address bits at bits 4 through 2. This agrees with the stable
-palette packing in `jtseicro_colmix`. `ver/hdl/colmix_tb.v` checks both banks,
+bit 5 and these address bits at bits 4 through 2. The latched 7C pin 3 and pin 6
+signals supply bits 1 and 0, respectively, without inversion. This agrees
+with the stable palette/pixel packing in `jtseicro_colmix`. `ver/hdl/colmix_tb.v` checks both banks,
 all eight palette rows and all three nonzero pixel codes through each layer,
 plus zero-pixel suppression with every palette value.
 
-This chain establishes palette routing from the outputs of 8D to the PROMs.
-Upstream mux input/layer assignments, the two pixel-data routes into the lower
-PROM address bits, and physical 9D capture ordering remain separate checks.
-The renderer does not yet reproduce the complete schematic latch timing.
+These chains establish all palette and pixel routes from the outputs of 8D
+and 7C to the PROM bank/address inputs. Upstream mux input/layer assignments
+and physical 9D capture ordering remain separate checks. The renderer does
+not yet reproduce the complete schematic latch timing.
