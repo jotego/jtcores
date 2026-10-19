@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Generic LINE0/LINE1 microprogram. The parent graphics ROM includes this
 # leaf. B0, B2 and full-width B10 are committed before every CHECK boundary.
-# Scratch 36/37 hold 2b and 2b-2a across XY conversion; 52 holds the
-# selected XY increment after the converter has returned.
+# Scratch 36/37 hold 2b and 2b-2a across XY conversion. The two read ports
+# capture the chosen increment and B2 together after the decision writeback.
 constants:
   TARGET_GLINEEMPTY: t4 t6 t10 t11
   TARGET_GLINECONVERT: t6 t10 t11
@@ -15,10 +15,7 @@ constants:
   TARGET_GLINEADVANCE: t5 t6 t7 t9 t10
   TARGET_GLINEDIAG: t4 t5 t6 t7 t9 t10
   TARGET_GLINELATERAL: t8 t9 t10
-  TARGET_GLINEXY: t4 t8 t9 t10
   TARGET_GLINECOUNT: t5 t8 t9 t10
-  TARGET_GLINEAFTERW1: t4 t5 t8 t9 t10
-  TARGET_GLINEAFTERW2: t6 t8 t9 t10
   TARGET_GLINEFINISH: t4 t6 t8 t9 t10
   TARGET_GLINEWVP: t5 t6 t8 t9 t10
 ucode:
@@ -27,21 +24,17 @@ ucode:
   seq:
   - sa1 sa3 sa4 # B10 COUNT
   - qs_gas, sa1 sa3 sa4
-  - z_gcond, jump_gflow, ${TARGET_GLINEEMPTY}
-  - sa0 sa1 sa2 sa4 # B7 b:a
+  - z_gcond, jump_gflow, ${TARGET_GLINEEMPTY}, sa0 sa1 sa2 sa4 # prime B7 b:a
   - qs_gas, m4_gam, sa0 sa1 sa2 sa4 # unsigned b
+  - shl_galu, a_gdst, sa0 sa1 sa2 sa4
+  - rf_gdst, da2 da5, sa0 sa1 sa2 sa4 # scratch36 = 2b
+  - b_gdst, qs_gas, m2_gam, sa0 sa1 sa2 sa4 # retain 2b and capture unsigned a
   - shl_galu, a_gdst
-  - rf_gdst, da2 da5 # scratch36 = 2b
-  - b_gdst
-  - sa0 sa1 sa2 sa4
-  - qs_gas, m2_gam, sa0 sa1 sa2 sa4 # unsigned a
-  - shl_galu, a_gdst
-  - sub_galu, rf_gdst, da0 da2 da5 # scratch37 = 2b-2a
-  - jump_gflow, ${TARGET_GLINELOOP}
+  - sub_galu, rf_gdst, da0 da2 da5, jump_gflow, ${TARGET_GLINELOOP} # scratch37 = 2b-2a
 - name: glineloop
   start: 105
   seq:
-  - sa1 sa4 # B2 XY pointer
+  - w0_gcond, jump_gflow, ${TARGET_GLINEDRAW}, sa1 sa4 # W0 has no window operation
   - qs_gas, sa1 sa4
   - rf_gdst, da0 da5 # scratch33 for window and converter
   - call_gflow, ${TARGET_GWINCHECK}
@@ -71,11 +64,11 @@ ucode:
   start: 109
   seq:
   - call_gflow, ${TARGET_GLINECONVERT}
-  - sa0 sa3 sa4 # B9 COLOR1; register source bypasses source PMASK
-  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4
+  - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4 # B9 COLOR1; bypass source PMASK
   - sa0 sa3 sa4
   - process_gpix, sa0 sa3 sa4
-  - transparent_gcond, jump_gflow, ${TARGET_GLINEADVANCE}
+  # The shared bus suppresses a transparent pixel and acknowledges its
+  # microstep without launching a field; no separate branch is needed.
   - wrpx_gbus
   - jump_gflow, ${TARGET_GLINEADVANCE}
 - name: glineadvance
@@ -91,47 +84,23 @@ ucode:
   - sa0 sa2 sa5, da4 # scratch37 and B0
   - qs_gas, qd_gbs, sa0 sa2 sa5, da4
   - add_galu, rf_gdst, sa0 sa1 sa3 sa4, da4 # B0 += 2b-2a; prime B11
-  - qs_gas, sa0 sa1 sa3 sa4
-  - rf_gdst, da2 da4 da5 # scratch52 = B11 packed XY increment
-  - jump_gflow, ${TARGET_GLINEXY}
+  - sa0 sa1 sa3 sa4, da1 da4 # B11 and B2
+  - qs_gas, qd_gbs, sa0 sa1 sa3 sa4, da1 da4
+  - add_galu, packed_gmath, rf_gdst, da1 da4, sa1 sa3 sa4, jump_gflow, ${TARGET_GLINECOUNT}
 - name: glinelateral
   start: 112
   seq:
   - sa2 sa5, da4 # scratch36 and B0
   - qs_gas, qd_gbs, sa2 sa5, da4
   - add_galu, rf_gdst, sa2 sa3 sa4, da4 # B0 += 2b; prime B12
-  - qs_gas, sa2 sa3 sa4
-  - rf_gdst, da2 da4 da5 # scratch52 = B12 packed XY increment
-  - jump_gflow, ${TARGET_GLINEXY}
-- name: glinexy
-  start: 113
-  seq:
-  - sa2 sa4 sa5, da1 da4 # scratch52 and B2
-  - qs_gas, qd_gbs, sa2 sa4 sa5, da1 da4
-  - add_galu, packed_gmath, rf_gdst, da1 da4
-  - jump_gflow, ${TARGET_GLINECOUNT}
+  - sa2 sa3 sa4, da1 da4 # B12 and B2
+  - qs_gas, qd_gbs, sa2 sa3 sa4, da1 da4
+  - add_galu, packed_gmath, rf_gdst, da1 da4, sa1 sa3 sa4, jump_gflow, ${TARGET_GLINECOUNT}
 - name: glinecount
   start: 114
   seq:
-  - sa1 sa3 sa4 # B10 full 32-bit count
-  - qs_gbs, sa1 sa3 sa4
-  - k_gas, m1_gam
-  - sub_galu, rf_gdst, da1 da3 da4 # --B10
-  - sub_galu, z_gcond, jump_gflow, ${TARGET_GLINEFINISH}
-  - w1_gcond, jump_gflow, ${TARGET_GLINEAFTERW1}
-  - w2_gcond, jump_gflow, ${TARGET_GLINEAFTERW2}
-  - check_gflow
-  - jump_gflow, ${TARGET_GLINELOOP}
-- name: glineafterw1
-  start: 115
-  seq:
-  - nclip_gcond, jump_gflow, ${TARGET_GLINEFINISH}
-  - check_gflow
-  - jump_gflow, ${TARGET_GLINELOOP}
-- name: glineafterw2
-  start: 116
-  seq:
-  - clip_gcond, jump_gflow, ${TARGET_GLINEFINISH}
+  - qs_gbs, k_gas, m1_gam, sa1 sa3 sa4 # B10 full 32-bit count
+  - sub_galu, rf_gdst, da1 da3 da4, lineend_gcond, jump_gflow, ${TARGET_GLINEFINISH}
   - check_gflow
   - jump_gflow, ${TARGET_GLINELOOP}
 - name: glinefinish
@@ -156,8 +125,7 @@ ucode:
   - sa1 sa4, da2 da4 # B2 and B4 OFFSET
   - qs_gas, m3_gam, yproduct_gmath, b_gdst, sa1 sa4, da2 da4
   - qs_gas, m2_gam, xproduct_gmath, or_galu, a_gdst, qd_gbs, sa1 sa4, da2 da4
-  - add_galu, ea_gdst
-  - ret_gflow
+  - add_galu, ea_gdst, ret_gflow, sa0 sa3 sa4 # prime COLOR1 for the caller
 # Table12-10 has four setup states even when COUNT is zero. There are
 # no pixel or bus events to overlap; keep the remaining setup clocks here.
 - name: glineempty

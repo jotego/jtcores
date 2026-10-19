@@ -62,7 +62,6 @@ module jttms10_word #(
     // Keep one logical operation pending across the cache/field helper's
     // short deassertions between physical words. Unrelated CPU requests
     // release this flag before starting another operation.
-    assign word_pending=(field_req && !data_accept) || data_owner;
     // Timed loads/stores allocate data in their assigned intrinsic state.
     // Registered field/cache/bus handoffs may use that state's row phase.
     // A CEN-delayed launch qualifies only at/after its next state boundary.
@@ -80,6 +79,11 @@ module jttms10_word #(
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
+    wire fresh_load_slot=data_accept && indirect_load && !indirect_copy &&
+                         ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot;
+    // A field waiting across a state boundary retains its queued bus
+    // ownership. Only a fresh late load releases an unrelated posted slot.
+    assign word_pending=(field_req && !fresh_load_slot) || data_owner;
     reg fast_slot, stack_post_slot;
     assign word_early=(early_data_q && data_owner && (slot_eligible || slot_phase==0)) ||
                       (fast_program && !data_owner && (fast_slot || slot_phase==0));
@@ -87,7 +91,10 @@ module jttms10_word #(
         if(rst) begin launch_slot<=0;slot_phase<=0; slot_eligible<=0; fast_slot<=0; stack_post_slot<=0; copy_source_accepted<=0; end
         else begin
             slot_phase<=slot_phase==SLOT_LAST ? {SLOT_PW{1'b0}} : slot_phase+1'b1;
-            if(slot_phase==0) launch_slot<=data_request && cen;
+            // Boundary decode presents its data request in the row phase.
+            // A later request has missed that slot, even if a preceding
+            // posted operation kept the arbiter's pending flag asserted.
+            if(slot_phase<=1) launch_slot<=data_request && cen;
             else if(!data_request || !cen) launch_slot<=0;
             // Only an accepted source read can carry its slot across the
             // copy handoff. Address preparation after a pause owns no slot.
@@ -110,8 +117,7 @@ module jttms10_word #(
             // slot. Registered handoffs may use a slot only if this request
             // was present at its boundary. Copy/list continuation retains
             // its separately tracked source ownership.
-            if(data_accept && indirect_load && !indirect_copy &&
-               ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot)
+            if(fresh_load_slot)
                 slot_eligible<=0;
         end
     end

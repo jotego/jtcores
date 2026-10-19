@@ -75,3 +75,21 @@ architecture, memory and WVP. Nonempty cases remain timing failures: the
 single PS16 pixel improves from 572 to 168 INCLK against a target of 72.
 All 626 base/stress cases retain the defined architectural and ordered bus
 checks. This is an intermediate schedule, not LINE timing signoff.
+
+The next scheduling stage bypasses the window routine in W0, keeps the
+two synchronous RF reads occupied across decision/pointer updates, and
+captures the chosen increment and B2 together. Scratch52 is no longer
+needed by LINE. COUNT decrement and terminal/abort decisions share one
+microinstruction; B0, B2 and B10 still commit before every interrupt
+checkpoint. Setup/conversion also overlap register reads with shared-ALU
+writebacks. Transparent writes use the existing bus suppression path.
+No arithmetic unit or register bank is added.
+
+This stage observes 98 INCLK for the single PS16 hit case against 72.
+All 626 probes in each of base, W1 and W1/P7 retain correct checked
+architecture, memory, WVP and ordered bus events: 20 empty cases pass and
+606 nonempty cases fail duration only in each profile. The base capture
+uses an additional observational microaddress/phase display; wait/stress
+use the unchanged standard bench. The duration failures remain active in
+the standard runner. The remaining work includes a native pixel schedule,
+bus/interrupt checkpoint timing and the unprobed processing conditions.

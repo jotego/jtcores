@@ -257,7 +257,7 @@ def posted_load_slot_mutations(work,evidence):
     """A new dependent load cannot borrow an old posted field's bus slot."""
     mutant=work/'stale-posted-slot';shutil.copytree(MODULE/'hdl',mutant)
     replace_once(mutant/'jttms10_word.v',
-        'assign word_pending=(field_req && !data_accept) || data_owner;',
+        'assign word_pending=(field_req && !fresh_load_slot) || data_owner;',
         'assign word_pending=field_req || data_owner;')
     for mode in ('offset','absolute'):
         name='stale_posted_slot_'+mode
@@ -267,11 +267,23 @@ def posted_load_slot_mutations(work,evidence):
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
     launch=work/'lost-launch-slot';shutil.copytree(MODULE/'hdl',launch)
     replace_once(launch/'jttms10_word.v',
-        "ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot)",
-        "ir[15:6]!=10'h026 && slot_phase>1 && 1'b0)")
+        "ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot;",
+        "ir[15:6]!=10'h026 && slot_phase>1 && 1'b0;")
     evidence['lost_launch_slot']=run_case(work,'lost_launch_slot',
         'storemode_move_absolute_dependency3_w16_o0_hit',
         ['--rtl-dir',str(launch),*extra],mutated=True)
+    reset=work/'lost-queued-slot';shutil.copytree(MODULE/'hdl',reset)
+    replace_once(reset/'jttms10_word.v',
+        'assign word_pending=(field_req && !fresh_load_slot) || data_owner;',
+        'assign word_pending=(field_req && !data_accept) || data_owner;')
+    replace_once(reset/'jttms10_word.v',
+        'if(slot_phase<=1) launch_slot<=data_request && cen;',
+        'if(slot_phase==0) launch_slot<=data_request && cen;')
+    for name,probe in (
+        ('lost_dependent_load_queue','store_move_indirect_w1_o0_f0_r0_2_0_q32_dependency3_hit'),
+        ('lost_copy_queue','copy_move_dependency3_w1_s0_d0_r0_2_0_hit')):
+        evidence[name+'_control']=run_case(work,name+'_control',probe)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(reset)],mutated=True)
 
 
 def line_mutations(work,evidence):
@@ -485,7 +497,7 @@ def main():
         for name,old,new in (
             ('blocking_store',"if(field_post) begin post_busy<=1;post_ack<=1;end", "if(1'b0) begin post_busy<=1;post_ack<=1;end"),
             ('no_cached_write_overlap','.c_req(field_req && program_read && !fast_program)', '.c_req(field_req && program_read && !fast_program && !data_owner)'),
-            ('lost_hidden_pending','assign word_pending=(field_req && !data_accept) || data_owner;', 'assign word_pending=field_req;')):
+            ('lost_hidden_pending','assign word_pending=(field_req && !fresh_load_slot) || data_owner;', 'assign word_pending=field_req;')):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10_word.v',old,new)
             if name=='blocking_store':

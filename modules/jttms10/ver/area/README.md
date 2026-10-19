@@ -42,6 +42,9 @@ follows those includes. The flow checker audits reachable graphics words and
 the two-entry return stack against the snapshotted engine. `--snapshot-only`
 performs those checks and writes
 the source manifest without launching Quartus; it produces no area result.
+Decoder preparation also snapshots its Verilator build helper when the
+selected generator imports it, so a new output directory can regenerate
+and verify the checked-in dispatch ROM without importing live helper code.
 
 The `--scalar` top is the CPU including its graphics engine. The `--word` top
 adds the physical 16-bit field adapter and instruction cache. Both exclude
@@ -601,3 +604,34 @@ These are synthesis estimates, not fitted ALMs or board STA. The final
 <=3,500 fitted-ALM target, constrained FPGA timing and NARC/gameplay gates
 remain required. This virtual-pin NARC comparison is not a DataStorm runner
 fit or a physical-board timing result.
+
+
+Matched synthesis of LINE/DSP and deterministic-ROM checkpoint
+`c546692f751fd8d68eb87bcf0fae5a5fb3eac6f9` uses the same NARC boundary,
+normalized QSF, SDC and 49 warning classifications as the XY FILL map.
+All 37 source/generated hashes verify; the additional captured file is the
+Verilator decoder build helper. The corrected snapshot script is required
+for decoder generation after the Verilator migration.
+
+| Map metric | 130a1d4ca XY FILL | c546692f7 LINE/DSP checkpoint |
+|---|---:|---:|
+| Estimated ALMs | 3,951 | 3,986 |
+| Combinational ALUTs | 5,791 | 5,763 |
+| Dedicated registers | 1,707 | 1,724 |
+| Block RAM bits | 538,624 | 530,432 |
+| DSP blocks | 5 | 5 |
+| MLAB bits | 0 | 0 |
+
+Both register-file mirrors remain inferred RAM, and both control ROMs are
+4,096 by 62 bits. The 8,192-bit reduction is the graphics ROM narrowing from
+64 to 62 bits. LINE reuses the scalar multiplier; the DSP count is unchanged.
+The measured Quartus map command exits zero after 126.324 seconds. This
+fresh synthesis is not an incremental/Rapid comparison. Snapshot and full
+report: `/tmp/jtcores-144-line-map-v2`; durable verification and timings:
+`/nobackup/tasks/jtcores-144/artifacts/line-source/map-*.json`.
+
+Reproduce with the corrected snapshot script and `--source-ref c546692f7`,
+then `/opt/quartus_free/quartus_map narc --read_settings_files=on
+--write_settings_files=off`. This source is an intermediate checkpoint:
+LINE duration and dependent-load queue corrections continue after it. No
+fitted-area, board-STA or full instruction-timing acceptance is established.

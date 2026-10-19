@@ -212,6 +212,7 @@ module jttms10_gfx(
             NEED_GCOND: condition=need_dest;
             TRANSPARENT_GCOND: condition=transparent;
             W1_GCOND: condition=control[7:6]==2'd1;
+            W0_GCOND: condition=control[7:6]==2'd0;
             W2_GCOND: condition=control[7:6]==2'd2;
             W3_GCOND: condition=control[7:6]==2'd3;
             LT_GCOND: condition=signed_lt;
@@ -233,6 +234,9 @@ module jttms10_gfx(
                 condition=rf_qs[31:4]!=last_pixel_addr[31:4];
             LINEDIAG_GCOND:
                 condition=!alu_n && (!alu_z || ir[7]);
+            LINEEND_GCOND:
+                condition=alu_z || (control[7:6]==2'd1 && !clip) ||
+                                  (control[7:6]==2'd2 && clip);
             default: condition=1'b1;
         endcase
     end

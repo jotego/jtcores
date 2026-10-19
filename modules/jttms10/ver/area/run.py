@@ -201,6 +201,10 @@ def main():
                 snapshot(MODULE / relative,
                          out / "src/modules/jttms10" / relative, hashes, source_ref)
             generator = out / "src/modules/jttms10/ver/decoder/generate.py"
+            if "from verilator_build import" in generator.read_text():
+                snapshot(MODULE / "ver/verilator_build.py",
+                         out / "src/modules/jttms10/ver/verilator_build.py",
+                         hashes, source_ref)
             image = out / "src/modules/jttms10/hdl/tms10_dispatch.hex"
             call(["python3", str(generator), str(controller), str(out),
                   "--check", str(image)],
