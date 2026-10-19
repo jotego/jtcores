@@ -1,0 +1,531 @@
+<!-- SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+     SPDX-License-Identifier: GPL-3.0-or-later
+     Date: 18-10-2026 -->
+
+# PAL equations and physical connections
+
+Three decoded programs are available: **Radical Radial**, **Seicross/Sector
+Zone** and **Tecfri Sector Zone**. They have different equations. The user
+confirmed that PAL 2C has identical input/output wiring in the supplied
+**Seicross, Frisky Tom and Radical Radial** schematics. These drawings share
+the pin map below; Frisky Tom's program remains unavailable. The standalone
+[jtseicro_pal](../hdl/jtseicro_pal.v) implements the decoded physical-pin
+equations. [jtseicro_wait](../hdl/jtseicro_wait.v) connects them to the external
+latch model and the actual Z80 `/WAIT` pin in `jtseicro_main`.
+
+## Dump identity
+
+The local MAME reference is
+[seicross.cpp](mame/src/mame/nichibutsu/seicross.cpp).
+
+| Sets in the reference | Dump member | CRC32 | SHA1 | Availability and qualification |
+| --- | --- | --- | --- | --- |
+| `radrad`, `radradj` | `pal16h2.2b` | `a356803a` | `a324d3cbe2de5bf54be9aa07c984054149ac3eb0` | Available in local `radrad.zip`; `radradj` borrows it as `BAD_DUMP`. |
+| `seicross`, `seicrossa`, `sectrzon`, `sectrzona` | `pal16h2.3b` | `e1a6a86d` | `740a5c2ef8a992f6a794c0fc4c81eb50cfcedc32` | Available at the root of the original merged `~/.mame/roms-local/seicross.zip`; `seicrossa` and `sectrzon` borrow it as `BAD_DUMP`. |
+| `sectrzont` | `czt_pal16h2cn.bin` | `7edec1ed` | `1b28cb250875f14a76d84bfc0b23ee02b1862c2c` | Available in the NAS's original `sectrzont.zip` and under `sectrzont/` in the original merged `seicross.zip`. |
+| `friskyt`, `friskyta`, `friskytb` | No PAL entry | — | — | No PAL dump declared in this driver snapshot. |
+
+All three available dumps are 68-byte MAME binary fuse maps with 512 fuses;
+their sizes, CRC32 and SHA1 match the driver. The prepared
+`cores/seicro/ver/game/roms/` Seicross-family ZIPs omit their PALs; these ZIPs
+alone do not establish dump availability. The user authorized a recovered
+program as a fallback for Frisky Tom. The selected provisional fallback is the
+Radical Radial program; this does not establish Frisky Tom's original contents.
+The existing Frisky game selector selects this fallback without another header
+field or OSD option.
+
+## Reproduce the MAME decode
+
+Run from the repository root, using the existing MAME `jedutil` executable:
+
+```sh
+mkdir -p cores/seicro/ver/checks/schematic/pal
+unzip -p cores/seicro/ver/game/roms/radrad.zip pal16h2.2b > cores/seicro/ver/checks/schematic/pal/radrad-pal16h2.2b.bin
+shasum -a 1 cores/seicro/ver/checks/schematic/pal/radrad-pal16h2.2b.bin
+/Users/andreabogazzi/develop/mame/jedutil -view cores/seicro/ver/checks/schematic/pal/radrad-pal16h2.2b.bin PAL16H2 > cores/seicro/ver/checks/schematic/pal/radrad-pal16h2-equations.txt
+unzip -p "$HOME/.mame/roms-local/seicross.zip" pal16h2.3b > cores/seicro/ver/checks/schematic/pal/seicross-pal16h2.3b.bin
+shasum -a 1 cores/seicro/ver/checks/schematic/pal/seicross-pal16h2.3b.bin
+/Users/andreabogazzi/develop/mame/jedutil -view cores/seicro/ver/checks/schematic/pal/seicross-pal16h2.3b.bin PAL16H2 > cores/seicro/ver/checks/schematic/pal/seicross-pal16h2-equations.txt
+unzip -p '/Volumes/home/roms/MAME 0.270 ROMs (split)/sectrzont.zip' czt_pal16h2cn.bin > cores/seicro/ver/checks/schematic/pal/sectrzont-czt_pal16h2cn.bin
+shasum -a 1 cores/seicro/ver/checks/schematic/pal/sectrzont-czt_pal16h2cn.bin
+/Users/andreabogazzi/develop/mame/jedutil -view cores/seicro/ver/checks/schematic/pal/sectrzont-czt_pal16h2cn.bin PAL16H2 > cores/seicro/ver/checks/schematic/pal/sectrzont-pal16h2-equations.txt
+```
+
+The extracted dump and raw output stay in ignored verification storage. Decoding
+uses MAME `jedutil` directly, without a custom decoder or helper.
+
+## Radical Radial equations
+
+`iN` and `oN` refer to physical pin N, `/` means NOT, `&` means AND, and `+`
+means OR. `vcc` is logical one. MAME reports these device modes:
+
+```text
+Inputs: 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19
+Output 15: combinatorial, no output feedback, active high
+Output 16: combinatorial, no output feedback, active high
+```
+
+Complete equations printed by `jedutil`, preserving repeated product terms:
+
+```text
+o15 = i4 +
+      i4 +
+      /i3 & i4 +
+      /i3 & i4 & i5 & /i11 +
+      i1 & i2 & i3 & i4
+o15.oe = vcc
+
+o16 = i6 & i7 & i8 & i9 +
+      /i2 & i19 +
+      /i2 & i6 & i7 & i8 & i9 & /i11 & i19 +
+      /i3 +
+      /i3 & i6 & i7 & i8 & i9 & i11 & i12 & i13 & i14 & i17 & /i18 & /i19
+o16.oe = vcc
+```
+
+By Boolean absorption, these reduce to physical output levels:
+
+```text
+o15 = i4
+o16 = (i6 & i7 & i8 & i9) + (/i2 & i19) + /i3
+o15.oe = vcc
+o16.oe = vcc
+```
+
+Every omitted term contains an already retained term. Comparison over all
+65,536 combinations of the 16 inputs also matched the original product terms.
+Both physical outputs are always driven. These equations do not establish the
+board net names, external latch sequencing or propagation delays.
+
+## Seicross/Sector Zone equations
+
+MAME reports the same input/output pin roles, active-high combinational mode,
+no output feedback and always-enabled outputs as for the Radical Radial device.
+Complete `jedutil` equations:
+
+```text
+o15 = i4 +
+      i4 +
+      /i3 & i4 +
+      /i3 & i4 & i5 & /i11 +
+      i1 & i2 & i3 & i4
+o15.oe = vcc
+
+o16 = i19 +
+      i6 & i7 & i8 & i9 +
+      i6 & i7 & i8 & i9 +
+      /i3 +
+      /i3 & i6 & i7 & i8 & i9 & i11 & i12 & i13 & i14 & i17 & /i18 & /i19 +
+      /i3 +
+      /i3 & i6 & i7 & i8 & i9 & i11 & i12 & i13 & i14 & i17 & /i18 & /i19
+o16.oe = vcc
+```
+
+Boolean absorption yields:
+
+```text
+o15 = i4
+o16 = i19 + (i6 & i7 & i8 & i9) + /i3
+o15.oe = vcc
+o16.oe = vcc
+```
+
+Unlike Radical Radial, the `i19` term does not require `/i2`.
+
+## Tecfri Sector Zone equations
+
+MAME reports the same pin roles and output modes. Complete `jedutil` equations:
+
+```text
+o15 = i4 +
+      i4 +
+      i4 +
+      i1 & i3 & i4
+o15.oe = vcc
+
+o16 = i19 +
+      /i3 & i19 +
+      i3 & i19 +
+      /i2 & i3 & i11 & i19
+o16.oe = vcc
+```
+
+Boolean absorption yields:
+
+```text
+o15 = i4
+o16 = i19
+o15.oe = vcc
+o16.oe = vcc
+```
+
+The different output-16 logic requires a separate timing derivation for each
+program using the established pin map; the programs are not interchangeable.
+
+## Schematic coverage
+
+Supplied originals cover Seicross (`Seicross.pdf`, SZ-1 video and SZ-2 CPU/audio
+drawings across PDF pages 8–11), Frisky Tom (`Frisky Tom Schematics.pdf`, video
+and CPU/audio sheets) and Radical Radial (`Radical Radial.pdf`, pages 6–7).
+Keep these copyrighted originals outside tracked core files. The schematics
+do not by themselves provide the internal fuse program. The user compared
+PAL 2C across all three drawings and confirmed identical input/output
+connections. This confirms pin-map equivalence; it does not establish an
+identical fuse program or independently verify every upstream circuit.
+
+## Shared PAL 2C connections and request clocks
+
+Detailed source: Radical Radial PDF page 7, PAL 2C and adjacent 2D. The pin 19
+route and three `/MQ` labels were jointly verified. The user subsequently
+confirmed the same PAL input/output wiring on the Seicross and Frisky Tom
+drawings. Evidence for a net's identity remains distinct from this confirmed
+equivalence; remaining scan-derived labels retain their qualifications.
+
+| PAL 2C pin | Connection | Evidence |
+| --- | --- | --- |
+| 1 | `/MQ1` | User read the label; upstream decoder still being traced. |
+| 2 | `/MQ2` | User read the label; upstream decoder still being traced. |
+| 3 | `/MQ3` | User read the label; upstream decoder still being traced. |
+| 4 | `H2`, without inversion | User reads H2 without a bar or input bubble; adopted common mapping. |
+| 6 | `H4` | Legible scan trace. |
+| 7 | `H5` | Legible scan trace. |
+| 8 | `H6` | Legible scan trace. |
+| 9 | `H7` | Legible scan trace. |
+| 15 | Lower 2D CK pin 3, with drawn 1000 pF branch to GND | Scan trace. |
+| 16 | Upper 2D CK pin 11 | Scan trace. |
+| 19 | `/VBLK`, the lower of the two VBLK-labelled lines | User confirmed route and bar. |
+
+Define `MQ2 = NOT(/MQ2)` and `MQ3 = NOT(/MQ3)`, the asserted forms of the
+physical active-low inputs, and `T = H4 & H5 & H6 & H7`. Applying the shared
+pin map gives:
+
+| Program | PAL15 | PAL16 |
+| --- | --- | --- |
+| Radical Radial | `H2` | `T + MQ3 + (MQ2 & /VBLK)` |
+| Seicross/Sector Zone | `H2` | `T + MQ3 + /VBLK` |
+| Tecfri Sector Zone, using this pin map | `H2` | `/VBLK` |
+| Frisky Tom provisional Radical fallback | `H2` | `T + MQ3 + (MQ2 & /VBLK)` |
+
+The wiring confirmation covers the three supplied schematic boards; the Tecfri
+expression is the result of applying this same map to its separate dump, not
+independent evidence from a Tecfri drawing.
+
+The common PAL routes are reviewed once, with each available program evaluated
+against the same input waveforms. Input source qualifications and the digital
+policy for coincident edges are recorded below.
+
+### Raster phase
+
+The horizontal counters run from 128 through 511 and reload 128. Their H8
+falling edge advances the vertical counter. The existing renderer's normalized
+H runs from 0 through 383, with horizontal blank beginning after H255. The
+physical counter supplied by `jtseicro_video.video_h` is therefore:
+
+```text
+physical_H = normalized_H < 256 ? normalized_H + 256 : normalized_H - 128
+```
+
+Thus normalized H255->256 is physical H511->128. The raw `VBLK` source is
+5F `/Q8`, and `/VBLK` is 5F Q9. The jointly reviewed V4-clocked flip-flop
+and NAND of V5/V6/V7 make raw blanking assert at V240 and release at V16.
+The existing `cpu_lvbl` has the required `/VBLK` polarity and transition phase.
+It must remain separate from the delayed PROM and RGB blanking paths.
+
+`ver/hdl/pal_phase_tb.v` checks the actual video module against an independent
+128..511 horizontal counter and 264-line vertical counter for four frames:
+405,504 pixels, with all eight blanking edges at physical H128 / V16 or V240.
+This establishes the digital raster mapping, not analogue PAL/latch delays.
+
+### Equation implementation and verification
+
+`jtseicro_pal.mode` selects 0=Seicross, 1=Radical Radial, 2=Tecfri. Its `pin`
+indices and `q[16:15]` are physical PAL pin numbers. `jtseicro_wait` supplies
+unbarred H2 on pin 4, H3..H7 on pins 5..9, `/VBLK` on pin 19, and the
+active-low `/MQ1`..`/MQ3` levels on pins 1..3. Other input slots are tied zero
+because they do not affect any simplified output; these HDL ties do not assert
+that the corresponding physical pins are grounded on the PCB.
+The regression `ver/hdl/pal_tb.v` compares both outputs against all original
+`jedutil` product terms over all 65,536 input combinations for each program:
+196,608 checked cases. Output enables are always asserted for all three dumps.
+
+### Source decoder 2F
+
+Radical Radial CPU sheet, PDF page 6. The user recognizes the `/ZRB` and
+`/ZMR` labels and reads the AB15 inverter reference as **4K**. The selector
+digits remain difficult to read; the proposed AB13/AB12/AB11 assignment is
+provisional, not user-confirmed.
+
+| 2F pin | 74LS138 role | Apparent connection | Evidence |
+| --- | --- | --- | --- |
+| 1 | A, least significant selector | AB11 | Provisional digits. |
+| 2 | B | AB12 | Provisional digits. |
+| 3 | C, most significant selector | AB13 | Provisional digits. |
+| 4 | `/G2A`, active low, bubble | 4K pin 8, inverted AB15 from pin 9 | AB15 and 4K supported by user reading; route legible. |
+| 5 | `/G2B`, active low, bubble | `/ZMR` | Label supported by user reading; pin route legible. |
+| 6 | G1, active high, no bubble | `/ZRB` | Label supported by user reading; pin route legible. |
+| 14 | `/Y1` | `/MQ1` | Legible scan trace. |
+| 13 | `/Y2` | `/MQ2` | Legible scan trace. |
+| 12 | `/Y3` | `/MQ3` | Legible scan trace. |
+
+Device pin roles are established by the
+[TI SN74LS138 datasheet](https://www.ti.com/lit/ds/symlink/sn74ls138.pdf)
+and shared `jt74:74LS138` symbol. The slash in a source net's name is
+independent of the destination pin's bubble. With the apparent enable wiring,
+`enabled = /ZRB AND NOT(/ZMR) AND AB15`. If the selector digits are confirmed,
+the asserted outputs select whole 0x0800-byte windows, with A14 ignored:
+
+| Output | Primary window | A14 mirror |
+| --- | --- | --- |
+| MQ1 | 0x8800–0x8fff | 0xc800–0xcfff |
+| MQ2 | 0x9000–0x97ff | 0xd000–0xd7ff |
+| MQ3 | 0x9800–0x9fff | 0xd800–0xdfff |
+
+These physical qualifiers must not be replaced by the HDL's narrower tile/color
+RAM selects. `jtseicro_wait` uses this address model and `!mreq_n & rfsh_n`
+as its bus qualifier: `/ZMR` is buffered `/MREQ`, while the ambiguous `/ZRB`
+association with buffered `/RFSH` remains the previously recorded working
+assumption. The selector digits retain their qualified reading. The decoder
+tests cover all 65,536 addresses and all four MREQ/RFSH combinations, including
+refresh suppression and the A14 mirrors.
+
+## External WAIT latch sequence
+
+The Frisky Tom feedback and D ties in the next section are jointly confirmed;
+the Radical Radial and Seicross scans show the same arrangement. On Radical
+Radial the user also confirmed both D inputs and both presets share `P`:
+
+| Source | Radical Radial 2D destination | Evidence |
+| --- | --- | --- |
+| `P` | Upper D pin 12 and `/PRE` pin 10 | User confirmed. |
+| `P` | Lower D pin 2 and `/PRE` pin 4 | User confirmed. |
+
+The following normal-operation derivation assumes `P` is high, making the
+presets inactive and the D inputs logical one.
+
+Let `A` be upper 2D Q9 and `B` lower 2D Q5. Upper `/CLR13 = NOT B`,
+lower `/CLR1 = A`, both D inputs are `P`, and `/WAIT = NOT A`.
+
+| Event | Result |
+| --- | --- |
+| Idle `A=0` | Lower clear is asserted, holding `B=0`; upper clear is released. |
+| Rising PAL16 | Upper Q becomes 1, asserting `/WAIT` low and releasing lower clear. |
+| Next rising PAL15 (`H2`) | Lower Q becomes 1 and clears upper Q. Upper Q returning to 0 clears lower Q, restoring the idle state. |
+
+PAL16 is therefore a request **clock**, not the `/WAIT` level. A continuously
+high PAL16 does not repeatedly assert wait. The two-edge sequence and the 1000 pF
+branch on PAL15 matter when request and release edges coincide; the physical
+capacitor delay has not been measured. The HDL uses the master clock with edge
+enables, without generated clocks or asynchronous feedback. A request edge sets
+`pending`; an H2 rising edge clears it, including when both edges occur on the
+same master-clock tick. This release-priority tie policy is a digital modeling
+choice, not a measured subcycle propagation result. No numeric capacitor delay
+is invented. Framework reset chooses the idle state and samples current PAL
+levels; CPU/watchdog reset does not restart this independently clocked circuit.
+
+### Measuring the loaded clock path
+
+The drawn 1000 pF shunt capacitor loads PAL15 and can change edge arrival and
+shape. It does not prescribe a lower clock frequency or a known RC delay:
+there is no specified series resistor, and the PAL's transient output drive and
+the receiving flip-flop's switching behavior matter. An electrical estimate
+requires the actual PAL vendor/speed suffix, the exact 2D logic family and a
+driver/load model. Static output-current limits alone do not establish this
+dynamic delay.
+
+For a working original board, capture these signals with low-capacitance probes
+and short ground connections:
+
+| Capture | Probe points | Purpose |
+| --- | --- | --- |
+| Clock path | H2 at 2C pin 4, loaded PAL15 at 2C pin 15 / lower 2D pin 3 | Measure total input-to-loaded-clock delay and edge shape with the capacitor fitted. |
+| Latch ordering | PAL16 at 2C pin 16 / upper 2D pin 11, loaded lower clock at 2D pin 3, `/WAIT` at upper 2D pin 8 | Establish request/release order and resulting WAIT pulse width. |
+
+PAL15 and lower 2D clock pin 3 are the same electrical node; measuring between
+those points does not isolate the capacitor's effect. Compare the clock path
+against upstream H2, then observe actual latch behavior during memory activity
+and around blanking. Record waveforms and the range of observed delays rather
+than one guessed time. The guaranteed input-high/low levels in a datasheet are
+not a measured switching threshold for that specific chip.
+
+References: [TI 74-family flip-flop datasheet](https://www.ti.com/lit/ds/symlink/sn74ls74a.pdf)
+for clocked behavior and family specifications, and
+[Tektronix probe-loading guidance](https://www.tek.com/en/documents/application-note/how-oscilloscope-probes-affect-your-measurement).
+The exact fitted 2D suffix and physical clock-path delay remain unmeasured.
+
+`jtseicro_main` composes the existing `jtframe_z80wait` ROM recovery logic with
+`jtframe_z80.wait_n`. Board waits leave CPU enables and raster clocks running;
+SDRAM ROM stalls retain their separate recovery path. Game selection is
+Seicross=mode0, Radical=mode1, Tecfri=mode2 and Frisky=mode1 fallback. The
+existing ISA/game header bits identify these modes without enlarging the header.
+
+`ver/hdl/wait_tb.v` checks decoder windows, each program, H2 rising versus
+falling, held clock levels, reset, periodic requests and the coincident-edge
+policy. `ver/hdl/main_wait_tb.v` runs a Z80 program in all four game modes:
+it holds an active write through ten live CPU-enable steps, releases it on H2,
+then checks video/scroll writes, RAM/ROM reads and independent ROM stalls.
+
+## MCU memory-ready circuit
+
+The adjacent `/MR` circuit arbitrates MCU high-address accesses against the
+Z80 bus. The following routes were jointly checked on Radical Radial CPU sheet
+6. The shared PAL pin-map confirmation does not independently establish that
+every upstream MCU gate is identical on the other boards.
+
+| Source | Destination | Evidence |
+| --- | --- | --- |
+| MCU 4F E pin 37 | Buffer 5H input 4, output 5, net `ME` | User confirmed; 5H marked 367. |
+| MCU 4F VMA pin 5 | Buffer 5H input 14, output 13, net `MVMA` | User corrected the buffer channel and confirmed. |
+| `ME`, `MVMA` | 4I inputs 12, 13; output 11 | Jointly traced request qualifier. |
+| 4I output 11 | Upper 4I input 4 and lower 4I input 10 | User confirmed both branches. |
+| MCU A15 pin 25 | 4J input 11/output 10, then input 13/output 12, then lower 4I input 9 | User confirmed both inversions. |
+| Lower 4I output 8 | Upper 5I clock pin 11 | User confirmed. |
+| Upper 5I Q9 | Both lower 5J and 5I `/PRE4` | User confirmed, including bubbles. |
+| Lower 5I Q5 | Upper 5I `/CLR13` | User confirmed, including bubble. |
+| GND | Lower 5J D2 | User confirmed. |
+| Lower 5J Q5 | Lower 5I D2 | User confirmed. |
+| `P` | Both lower `/CLR1` inputs | User confirmed. |
+| 5L output 6 | Lower 5J clock pin 3 and inverter 4J input 5 | User confirmed. |
+| Inverter 4J output 6 | Lower 5I clock pin 3 | User confirmed. |
+| Upper 5I `/Q8` | MCU 4F `/MR3` | Legible scan trace. |
+| `P` | Upper 5I D12 and `/PRE10` | Legible scan trace. |
+
+The request clock is `ME & MVMA & A15`. Let `C` be physical 5L output 6.
+The user confirmed `/ZMR` through inverter 4K input 5/output 6 to 5L input 4,
+and 5L is marked 00 with inverted output 6. Its other input, pin 5, is retained
+as `X`: the user's best label reading is `/ZRB`. Associating that net with
+buffered Z80 `/RFSH` remains an explicit working assumption. Thus:
+
+```text
+C = /ZMR | !X
+if X is buffered /RFSH: C = MREQ_n | !RFSH_n
+```
+
+| Event | Latch result |
+| --- | --- |
+| Idle upper Q9=0 | `/MR` is high; both lower presets hold their Q outputs at 1. |
+| Rising `ME & MVMA & A15` | Upper Q9 becomes 1, asserting `/MR` low and releasing both lower presets. |
+| Next rising `C` | Lower 5J loads 0. `/MR` remains asserted. |
+| Following falling `C` | Inverted `C` clocks that 0 into lower 5I, clearing the upper latch. Its Q9 returning to 0 presets both lower latches, restoring idle. |
+
+An initial falling `C` cannot release a request before lower 5J has seen a
+rising edge. A request held high does not retrigger after release. Release
+latency therefore depends on Z80 bus activity; the circuit is not a fixed
+number of MCU clock enables.
+
+[jtseicro_mr](../hdl/jtseicro_mr.v) models this latch sequence with master-clock
+edge enables. Its standalone test compares against three event-driven physical
+flip-flops over request qualifiers, held levels, reset and eight relative clock
+phases. For an initial request coinciding with a rising `C`, the model ignores
+that release edge while the lower presets are active. This is an explicit
+digital tie policy, not a measured propagation delay.
+
+The M6802 path uses [jtseicro_m6802](../hdl/jtseicro_m6802.v), whose cycle
+controller drives [jtseicro_m6802_bus](../hdl/jtseicro_m6802_bus.v). Each normal
+E period has four external crystal enables: two low and two high. Address,
+VMA, R/W and write data are registered during E low and remain stable through
+E high. MR low extends the high phase in two-crystal-enable increments. Each
+valid write commits once at the completing E falling edge. SDRAM readiness
+is a separate input and cannot manufacture another write or MR request.
+All logic runs on the master clock with enables; E is not a generated FPGA
+clock. Digital MR sampling uses the sequencer's eligible completion edges;
+analogue setup-window and chip propagation effects have not been measured.
+
+`jtseicro_mcu` connects the physical E/VMA/A15 outputs to the request latch,
+and `jtseicro_main.mcu_release_clk` supplies the Z80-derived release level.
+The implementation adopts the qualified `/ZRB` = buffered `/RFSH` association
+above. Ordinary MCU reset/release and watchdog reset do not reset the
+independently clocked MR latch; FPGA reset initializes its digital model to idle.
+The bus reset model aborts a transfer, suppresses VMA and keeps the E divider
+advancing. A complete new bus cycle is required before another completion can
+reach the instruction controller. Electrical reset/MR overlap timing has not
+been separately measured.
+
+| Header CPU selector | Sets | MCU path |
+| --- | --- | --- |
+| M6802 | `sectrzont`, `friskytb` | Explicit cycle controller and connected MR latch. |
+| NSC8105 | Remaining eight sets | Existing microcoded CPU, instruction padding and fixed high-address stalls. |
+
+Frisky Tom set 3 executes `FC FF 62` at MCU address `D9E1` during gameplay.
+A local MAME 0.288 run with coin at frame 720 and start at frame 752 logs the
+same illegal three-byte opcode there. MAME's `m6800_insn` maps `FC` to
+`illegl3`, which skips two operand bytes, preserves registers/flags, and uses
+its four-cycle unknown-opcode fallback in `cycles_6800`. The cycle controller
+matches that compatibility behavior rather than the old engine's NSC `ADDX`
+semantics. Its provisional bus sequence reads the opcode and two operand bytes,
+then has one VMA-low cycle; neither Motorola Table 8 nor the supplied schematics
+establish the actual HD46802 bus sequence for this undefined opcode.
+`ver/hdl/m6802_compat_tb.v` checks the skip, unchanged state, absence of writes
+and the selected four-cycle sequence. Other unsupported opcodes still fail
+simulation. The known-case skip is not evidence for an HD46802 extension.
+
+The NSC8105 path has no physical E/VMA interface yet. Its `fetch` loads operands
+as well as opcodes, and sustained `wr` can span several microoperations per
+physical byte. The instruction engine, padding and fixed stalls are retained
+for that path; M6802 bus timing does not independently establish derivative
+instruction timing or NSC8105 electrical behavior.
+
+`ver/hdl/m6802_compare_tb.v` checks 198 opcodes across 64 initial flag patterns,
+including their Table 8 read/write/idle patterns, and compares architectural
+results with the existing engine. Undefined DAA V is excluded from comparison.
+WAI's stacked CC and SWI's stacked CC/return PC are checked independently
+against their specified values rather than accepting the existing engine's
+different stack bytes. `ver/hdl/m6802_bus_tb.v` checks exact BSR/RTS addresses,
+single writes, E-high bus stability, pause, eight release phases and independent
+host stalls. `ver/hdl/mcu_mr_tb.v` connects executing Z80 and MCU programs: a
+Z80 held in WAIT must keep the MCU's request pending until the Z80 resumes
+and completes the release-clock sequence.
+
+The [Motorola MC6802 datasheet](https://datasheets.pl/elementy_czynne/IC/MC/MC6802-2.pdf)
+specifies external EXTAL at four times the normal E frequency and memory-ready
+stretching of E high in integral half-periods. The cycle-controller checks use
+that contract; the latch test alone does not establish CPU bus timing or
+independently certify NSC8105 electrical timing.
+
+The [Motorola MC6802 data manual scan](MC6802.pdf)
+([download source](https://www.retrodocs.fr/wp-content/uploads/pdf/TexasInstrument-MC6802.pdf))
+provides the required bus reference directly: Table 8, PDF pages 18–21 (printed
+3-196 through 3-199), lists address, data, VMA and R/W for each instruction
+cycle. Figure 15 on PDF page 11 specifies MR setup and E stretching; the EXTAL,
+MR and E descriptions are on PDF page 12. For BSR, Table 8 specifies VMA high
+on cycles 1, 2, 4 and 5: opcode, displacement, low return-address write and high
+return-address write. Cycles 3 and 6–8 have VMA low. These explicit cycle slots
+provide an independent target for the local cycle controller; aggregate
+instruction counts alone do not specify the bus waveform. NSC8105-specific
+instructions still require separate evidence.
+
+## Additional shared PAL pin inventory
+
+The Frisky Tom drawing supplies the remaining scan traces below. Shared PAL
+wiring is user-confirmed; an unresolved label remains unresolved even when
+its connection is the same on all three boards. These extra inputs do not
+survive simplification of any of the three available programs.
+
+| PAL 2C pin | Device role | Schematic net or destination | Evidence |
+| --- | --- | --- | --- |
+| 5 | Input | `H3` | Legible scan trace. |
+| 10 | GND for PAL16H2 | Board supply connection not traced | Device role only. |
+| 11 | Input | Appears `/H0` | Label and bar need confirmation. |
+| 12 | Input | `V0` | Legible scan trace. |
+| 13 | Input | `V1` | Legible scan trace. |
+| 14 | Input | `V2` | Legible scan trace. |
+| 17 | Input | `V3` | Legible scan trace. |
+| 18 | Input | `V4` | Legible scan trace. |
+| 20 | VCC for PAL16H2 | Board supply connection not traced | Device role only. |
+
+The following surrounding Frisky Tom 2D connections were jointly confirmed. `/CLR` names
+the active-low clear inputs, drawn with bubbles; `/Q` is the inverted output.
+`P` is the schematic's named tie net.
+
+| Source | Destination | Evidence |
+| --- | --- | --- |
+| `P` | Upper 2D D pin 12 | User confirmed. |
+| `P` | Lower 2D D pin 2 | User confirmed. |
+| Upper 2D Q pin 9 | Lower 2D `/CLR` pin 1 | User confirmed, including clear-input bubble. |
+| Lower 2D `/Q` pin 6 | Upper 2D `/CLR` pin 13 | User confirmed, including clear-input bubble. |
+
+Upper 2D `/Q` pin 8 is labelled `/WAIT` on the scan. The CPU-sheet `/WAIT`
+route appears to enter 1M pin 13, with pin 12 grounded and output pin 11 feeding
+Z80 `/WAIT` pin 24. These CPU-sheet route traces are separate from the confirmed
+PAL pin-map equivalence. Both presets were explicitly confirmed tied to `P` on
+Radical Radial; their Frisky Tom ties remain scan-derived. The implemented
+common latch model uses the normal-operation assumptions above.

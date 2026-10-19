@@ -6,6 +6,7 @@ module mcu_tb;
 reg rst=1, clk=0, run=0, reset_req=0, dip_pause=1;
 reg [5:0] cnt=0;
 wire cen=cnt[3:0]==0;
+wire release_clk=cnt[5];
 wire [14:0] rom_addr;
 wire rom_cs, shared_we;
 wire [10:0] shared_addr;
@@ -17,6 +18,8 @@ wire [3:0] dac;
 wire [7:0] nvram_addr, nvram_din;
 wire nvram_we;
 integer i,steps=0;
+integer reset_e_edges=0;
+reg previous_e=0;
 always #5 clk=~clk;
 always @(posedge clk) begin
     cnt<=cnt+6'd1;
@@ -24,9 +27,15 @@ always @(posedge clk) begin
     shared_dout<=ram[shared_addr];
     if(shared_we) ram[shared_addr]<=shared_din;
     if(dut.step && !dut.core_rst) steps<=steps+1;
+    if(!rst && !run) begin
+        if(previous_e!=dut.base_e) reset_e_edges<=reset_e_edges+1;
+        if(dut.base_vma || dut.base_done) $fatal(1,"MCU bus active while reset is held");
+    end
+    previous_e<=dut.base_e;
 end
 jtseicro_mcu dut(
     .*,
+    .cpu_rst    ( rst        ),
     .nsc8105    ( 1'b0       ),
     .nvram_en   ( 1'b0       ),
     .nvram_dout ( 8'hff      ),
@@ -104,6 +113,7 @@ initial begin
     repeat(20) @(negedge clk); rst=0;
     repeat(100) @(negedge clk);
     if(steps || shared_we || rom_cs) $fatal(1,"MCU ran before AY release");
+    if(reset_e_edges<2) $fatal(1,"MCU E divider stopped while reset was held");
     run=1;
     wait(ram[6]==8'hc3);
     if(ram[0]!==8'h5a || ram[1]!==5 || ram[2]!==3 || ram[3]!==10 || dac!==10)

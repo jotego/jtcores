@@ -19,6 +19,7 @@ jtseicro_game dut(
 );
 
 integer mode;
+reg [1:0] expected_pal;
 initial begin
     for(mode=0;mode<8;mode=mode+1) begin
         @(negedge clk); header=1; prog_we=1; prog_addr=0; prog_data=8'ha0+mode;
@@ -27,6 +28,14 @@ initial begin
         rst=0;
         if({dut.radial,dut.frisky,dut.nsc8105}!==mode[2:0])
             $fatal(1,"Game mode not loaded/retained: %0d",mode);
+        case(mode)
+            0: expected_pal=2;
+            1: expected_pal=0;
+            default: expected_pal=1;
+        endcase
+        if(dut.u_main.pal_mode!==expected_pal)
+            $fatal(1,"PAL/header mode=%0d actual=%0d expected=%0d",
+                mode,dut.u_main.pal_mode,expected_pal);
         if(dut.psg_snd_rcen!==!(mode[1]|mode[2]) ||
            dut.dac_snd_rcen!==!(mode[1]|mode[2]))
             $fatal(1,"Schematic filters enabled for an unverified board: %0d",mode);
@@ -37,7 +46,7 @@ initial begin
         if({dut.radial,dut.frisky,dut.nsc8105}!==mode[2:0])
             $fatal(1,"Game mode changed outside selector byte: %0d",mode);
     end
-    $display("PASS header: CPU/game selectors, byte isolation and reset retention");
+    $display("PASS header: CPU/game/PAL selectors, Frisky fallback, byte isolation and reset retention");
     $finish;
 end
 endmodule

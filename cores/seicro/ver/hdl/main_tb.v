@@ -5,6 +5,7 @@
 module main_tb;
 reg rst=1, clk=0, LVBL=1;
 reg [5:0] count=0;
+reg [8:0] video_h=128;
 wire cpu_cen=count[3:0]==0, audio_cen=count[4:0]==0;
 wire [15:0] cpu_addr;
 wire [7:0] cpu_dout, ay_data;
@@ -33,6 +34,7 @@ always @(negedge clk) begin
 end
 always @(posedge clk) begin
     count<=count+6'd1;
+    if(count[2:0]==0) video_h<=video_h==511 ? 9'd128 : video_h+9'd1;
     rom_data<=rom[rom_addr];
     sharedram_dout<=ram[cpu_addr[10:0]];
     videoram_dout<=vram[cpu_addr[9:0]];
@@ -59,6 +61,8 @@ jtseicro_main dut(
     .irq_en          ( irq_en          ),
     .frisky          ( 1'b0            ),
     .radial          ( 1'b0            ),
+    .tecfri          ( 1'b0            ),
+    .video_h         ( video_h         ),
     .cab_1p          ( 2'b10           ),
     .coin            ( 2'b01           ),
     .joystick1       ( 6'b101110       ),
@@ -312,7 +316,7 @@ initial begin
     rom[277]=8'h4d;
     repeat(20) @(negedge clk);
     rst=0;
-    wait(dut.u_cpu.u_z80_devwait.u_cpu.u_cpu.HALT_n===1'b0);
+    wait(dut.u_cpu.u_cpu.HALT_n===1'b0);
     repeat(16) @(negedge clk);
     if(ram[0]!==8'ha5 || ram[1]!==8'h68 || ram[2]!==8'h51 || ram[3]!==8'h03 ||
        ram[4]!==8'hff || ram[5]!==8'he7 || ram[7]!==8'h99)
@@ -328,7 +332,7 @@ initial begin
     repeat(2) @(negedge clk);
     if(dut.irq_pending) $fatal(1,"AY B0 low did not clear IRQ");
     wait(irq_en);
-    wait(dut.u_cpu.u_z80_devwait.u_cpu.u_cpu.HALT_n===1'b0);
+    wait(dut.u_cpu.u_cpu.HALT_n===1'b0);
     repeat(1000) @(negedge clk);
     if(ram[6]!=1 || dut.irq_pending || irq_acks!=1) $fatal(1,"IRQ acknowledge failed");
     LVBL=1;
@@ -337,7 +341,7 @@ initial begin
     wait(ram[6]==2);
     wait(!irq_en);
     wait(irq_en);
-    wait(dut.u_cpu.u_z80_devwait.u_cpu.u_cpu.HALT_n===1'b0);
+    wait(dut.u_cpu.u_cpu.HALT_n===1'b0);
     repeat(1000) @(negedge clk);
     if(ram[6]!=2 || dut.irq_pending || irq_acks!=2) $fatal(1,"IRQ rearm failed");
     $display("PASS Z80 program: stalled ROM, six RAMs, inputs, color alias, AY GPIO, held IRQ and software acknowledge/rearm");

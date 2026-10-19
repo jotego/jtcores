@@ -7,11 +7,14 @@ module jtseicro_game(
 );
 
 wire [15:0] cpu_addr;
+wire [8:0] video_h;
 wire [7:0] cpu_dout, ay_data, main_debug, mcu_debug;
 wire ay_bdir, ay_bc1, irq_en, flip, mcu_run, cpu_lvbl;
 wire watchdog_clr, watchdog_rst;
+wire mcu_release_clk;
 wire board_rst = rst | watchdog_rst;
 reg nsc8105, frisky, radial;
+wire tecfri=!(nsc8105 | frisky | radial);
 wire video_flip=flip ^ dip_flip ^ (frisky | radial);
 wire [7:0] ay_debug=(frisky | radial) ? 8'd0 : dipsw[31:24];
 wire [9:0] psg;
@@ -87,6 +90,8 @@ jtseicro_main u_main(
     .irq_en          ( irq_en          ),
     .frisky          ( frisky          ),
     .radial          ( radial          ),
+    .tecfri          ( tecfri          ),
+    .video_h         ( video_h         ),
     .cab_1p          ( cab_1p[1:0]     ),
     .coin            ( coin[1:0]       ),
     .joystick1       ( joystick1       ),
@@ -115,14 +120,17 @@ jtseicro_main u_main(
     .ay_bc1          ( ay_bc1          ),
     .ay_data         ( ay_data         ),
     .watchdog_clr    ( watchdog_clr    ),
+    .mcu_release_clk ( mcu_release_clk ),
     .debug_view      ( main_debug      )
 );
 
 `ifndef NOSOUND
 jtseicro_mcu u_mcu(
-    .rst         ( board_rst          ),
+    .rst         ( rst                ),
+    .cpu_rst     ( board_rst          ),
     .clk         ( clk                ),
     .cen         ( cpu_cen            ),
+    .release_clk ( mcu_release_clk    ),
     .run         ( mcu_run            ),
     .reset_req   ( 1'b0               ),
     .dip_pause   ( dip_pause          ),
@@ -184,6 +192,7 @@ jtseicro_video u_video(
     .LHBL              ( LHBL              ),
     .LVBL              ( LVBL              ),
     .cpu_lvbl          ( cpu_lvbl          ),
+    .video_h           ( video_h           ),
     .tile_vram_addr    ( tile_vram_addr    ),
     .tile_color_addr   ( tile_color_addr   ),
     .tile_vram_data    ( tile_vram_data    ),

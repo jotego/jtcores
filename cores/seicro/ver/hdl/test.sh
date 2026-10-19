@@ -60,10 +60,26 @@ iverilog -g2012 -DSIMULATION -DIVERILOG -DNOSOUND -s audio_mix_tb \
     -I. -I"$JTFRAME/hdl/inc" -o audio_nosound_test -f definitions.txt -c rtl.f \
     seicro_mixer.v "$CORES/seicro/ver/hdl/audio_mix_tb.v"
 vvp audio_nosound_test
-for top in blanking_tb colmix_tb reset_tb decode_tb cab_tb main_tb mcu_tb nsc8105_tb nvram_tb nvram_io_tb; do
+for top in pal_tb pal_phase_tb wait_tb mr_tb m6802_bus_tb m6802_compare_tb m6802_compat_tb mcu_mr_tb blanking_tb colmix_tb reset_tb decode_tb cab_tb main_tb mcu_tb nsc8105_tb nvram_tb nvram_io_tb; do
     iverilog -g2012 -DSIMULATION -DIVERILOG -s "$top" -I. -I"$JTFRAME/hdl/inc" \
         -o test -f definitions.txt -c rtl.f "$CORES/seicro/ver/hdl/$top.v"
     vvp test
+done
+for host_stall in 0 1; do
+    for phase in 0 1 2 3 4 5 6 7; do
+        iverilog -g2012 -DSIMULATION -DIVERILOG -s m6802_bus_tb \
+            -Pm6802_bus_tb.WITH_MR=1 -Pm6802_bus_tb.PHASE="$phase" \
+            -Pm6802_bus_tb.HOST_STALL="$host_stall" -I. -I"$JTFRAME/hdl/inc" \
+            -o m6802_bus_test -f definitions.txt -c rtl.f \
+            "$CORES/seicro/ver/hdl/m6802_bus_tb.v"
+        vvp m6802_bus_test
+    done
+done
+for mode in 0 1 2 3; do
+    iverilog -g2012 -DSIMULATION -DIVERILOG -s main_wait_tb -Pmain_wait_tb.MODE="$mode" \
+        -I. -I"$JTFRAME/hdl/inc" -o main_wait_test -f definitions.txt -c rtl.f \
+        "$CORES/seicro/ver/hdl/main_wait_tb.v"
+    vvp main_wait_test
 done
 iverilog -g2012 -DSIMULATION -DIVERILOG -s nvram_tb -Pnvram_tb.NSC=1 \
     -I. -I"$JTFRAME/hdl/inc" -o nvram_nsc_test -f definitions.txt -c rtl.f \

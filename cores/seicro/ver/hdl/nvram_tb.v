@@ -32,8 +32,10 @@ end
 
 jtseicro_mcu dut(
     .rst         ( rst         ),
+    .cpu_rst     ( rst         ),
     .clk         ( clk         ),
     .cen         ( cen         ),
+    .release_clk ( cnt[5]      ),
     .run         ( run         ),
     .reset_req   ( reset_req   ),
     .dip_pause   ( dip_pause   ),

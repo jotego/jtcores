@@ -4,7 +4,8 @@
 
 module jtseicro_main(
     input              rst, cpu_rst, clk, cpu_cen, dip_pause,
-    input              LVBL, irq_en, frisky, radial,
+    input              LVBL, irq_en, frisky, radial, tecfri,
+    input       [8:0]  video_h,
     input       [1:0]  cab_1p, coin,
     input       [5:0]  joystick1, joystick2,
     input              service, dip_test,
@@ -22,10 +23,13 @@ module jtseicro_main(
     output             ay_bdir, ay_bc1,
     input       [7:0]  ay_data,
     output             watchdog_clr,
+    output             mcu_release_clk,
     output      [7:0]  debug_view
 );
 
-wire mreq_n, iorq_n, m1_n, rd_n, wr_n, rfsh_n, cpu_step;
+wire mreq_n, iorq_n, m1_n, rd_n, wr_n, rfsh_n, cpu_step, busak_n;
+wire wait_n;
+wire [1:0] pal_mode = (frisky || radial) ? 2'd1 : tecfri ? 2'd2 : 2'd0;
 wire shared_cs, vram_cs, color_cs, obj0_cs, obj1_cs, scroll_cs;
 wire in0_cs, in1_cs, test_cs;
 wire [7:0] in0, in1, test_in;
@@ -40,6 +44,8 @@ assign spriteram0_we = obj0_cs & ~wr_n & cpu_step;
 assign spriteram1_we = obj1_cs & ~wr_n & cpu_step;
 assign row_scroll_we = scroll_cs & ~wr_n & cpu_step;
 assign debug_view = cpu_addr[15:8];
+// 5L6 uses /ZRB as buffered /RFSH; source qualification: ../doc/pal.md.
+assign mcu_release_clk = mreq_n | ~rfsh_n;
 
 jtseicro_cab u_cab(
     .frisky    ( frisky    ),
@@ -108,11 +114,39 @@ jtseicro_decode u_decode(
 );
 
 `ifndef NOMAIN
-jtframe_z80_romwait u_cpu(
+jtseicro_wait u_board_wait(
+    .rst      ( rst       ),
+    .clk      ( clk       ),
+    .mode     ( pal_mode  ),
+    .h        ( video_h   ),
+    .vblank_n ( LVBL      ),
+    .addr     ( cpu_addr  ),
+    .mreq_n   ( mreq_n    ),
+    .rfsh_n   ( rfsh_n    ),
+    .wait_n   ( wait_n    )
+);
+
+jtframe_z80wait #(
+    .DEVCNT   ( 1 )
+) u_rom_wait(
+    .rst_n    ( ~cpu_rst            ),
+    .clk      ( clk                 ),
+    .cen_in   ( cpu_cen & dip_pause ),
+    .cen_out  ( cpu_step            ),
+    .gate     (                     ),
+    .mreq_n   ( mreq_n              ),
+    .iorq_n   ( iorq_n              ),
+    .busak_n  ( busak_n             ),
+    .dev_busy ( 1'b0                ),
+    .rom_cs   ( rom_cs              ),
+    .rom_ok   ( rom_ok              )
+);
+
+jtframe_z80 u_cpu(
     .rst_n   ( ~cpu_rst            ),
     .clk     ( clk                 ),
-    .cen     ( cpu_cen & dip_pause ),
-    .cpu_cen ( cpu_step            ),
+    .cen     ( cpu_step            ),
+    .wait_n  ( wait_n              ),
     .int_n   ( ~irq_pending        ),
     .nmi_n   ( 1'b1                ),
     .busrq_n ( 1'b1                ),
@@ -123,12 +157,10 @@ jtframe_z80_romwait u_cpu(
     .wr_n    ( wr_n                ),
     .rfsh_n  ( rfsh_n              ),
     .halt_n  (                     ),
-    .busak_n (                     ),
+    .busak_n ( busak_n             ),
     .A       ( cpu_addr            ),
     .din     ( cpu_din             ),
-    .dout    ( cpu_dout            ),
-    .rom_cs  ( rom_cs              ),
-    .rom_ok  ( rom_ok              )
+    .dout    ( cpu_dout            )
 );
 `else
 assign cpu_addr = 0;
@@ -140,6 +172,8 @@ assign m1_n = 1;
 assign rd_n = 1;
 assign wr_n = 1;
 assign rfsh_n = 1;
+assign busak_n = 1;
+assign wait_n = 1;
 `endif
 
 endmodule

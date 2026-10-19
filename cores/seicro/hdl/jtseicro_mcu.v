@@ -3,7 +3,8 @@
  * Date: 15-10-2026 */
 
 module jtseicro_mcu(
-    input             rst, clk, cen, run, reset_req, dip_pause, nsc8105,
+    input             rst, cpu_rst, clk, cen, run, reset_req, dip_pause, nsc8105,
+    input             release_clk,
     input      [23:0] dipsw,
     input             nvram_en,
     output      [7:0] nvram_addr, nvram_din,
@@ -25,23 +26,34 @@ wire [15:0] addr;
 wire [7:0] dout, internal_data;
 wire wr, fetch, step, instruction_end;
 wire [7:0] next_op;
+wire [15:0] legacy_addr, base_addr;
+wire [7:0] legacy_dout, base_dout;
+wire legacy_wr, legacy_fetch, legacy_step;
+wire base_wr, base_e, base_vma, base_done, mr_n;
+wire write_cycle=wr && (nsc8105 || base_vma);
 reg [7:0] opcode;
 wire internal_cs=addr<16'h0080;
 wire shared_cs=addr>=16'hf800;
 wire nvram_cs=nvram_en && addr[15:8]==8'h10;
 reg [7:0] din;
 reg [4:0] stall_count;
-wire core_rst=rst | reset_req | ~run;
+wire core_rst=rst | cpu_rst | reset_req | ~run;
 
 assign rom_addr=addr[14:0];
-assign rom_cs=!core_rst && !wr && addr>=16'h8000 && addr<16'hf800;
-assign step=cen && dip_pause && stall_count==0 && (!rom_cs || rom_ok);
+assign addr=nsc8105 ? legacy_addr : base_addr;
+assign dout=nsc8105 ? legacy_dout : base_dout;
+assign wr=nsc8105 ? legacy_wr : base_wr;
+assign fetch=nsc8105 ? legacy_fetch : base_vma && !base_wr;
+assign rom_cs=!core_rst && !wr && addr>=16'h8000 && addr<16'hf800 &&
+              (nsc8105 || base_vma);
+assign legacy_step=nsc8105 && cen && dip_pause && stall_count==0 && (!rom_cs || rom_ok);
+assign step=nsc8105 ? legacy_step : base_done;
 assign shared_addr=addr[10:0];
 assign shared_din=dout;
-assign shared_we=shared_cs && wr && step && !core_rst;
+assign shared_we=shared_cs && write_cycle && step && !core_rst;
 assign nvram_addr=addr[7:0];
 assign nvram_din=dout;
-assign nvram_we=nvram_cs && wr && step && !core_rst;
+assign nvram_we=nvram_cs && write_cycle && step && !core_rst;
 assign debug_view=addr[15:8];
 
 always @* begin
@@ -65,12 +77,12 @@ always @(posedge clk) begin
         dac<=0;
     end else begin
         if(cen && dip_pause && stall_count!=0) stall_count<=stall_count-5'd1;
-        if(step) begin
+        if(legacy_step) begin
             stall_count <= (addr[15] && (fetch || wr) ? 5'd4 : 5'd0) +
                            (instruction_end ? {1'b0,padding(next_op,nsc8105)} : 5'd0);
             if(instruction_end) opcode<=next_op;
         end
-        if(step && wr && addr==16'h2000) dac<=dout[7:4];
+        if(step && write_cycle && addr==16'h2000) dac<=dout[7:4];
     end
 end
 
@@ -99,36 +111,64 @@ endfunction
 jtframe_ram #(
     .AW ( 7 )
 ) u_internal(
-    .clk  ( clk                                    ),
-    .cen  ( 1'b1                                   ),
-    .addr ( addr[6:0]                              ),
-    .data ( dout                                   ),
-    .we   ( internal_cs && wr && step && !core_rst ),
-    .q    ( internal_data                          )
+    .clk  ( clk                                             ),
+    .cen  ( 1'b1                                            ),
+    .addr ( addr[6:0]                                       ),
+    .data ( dout                                            ),
+    .we   ( internal_cs && write_cycle && step && !core_rst ),
+    .q    ( internal_data                                   )
 );
 
 jtseicro_m6802_cpu u_cpu(
-    .rst             ( core_rst        ),
-    .clk             ( clk             ),
-    .cen             ( step            ),
-    .nsc8105         ( nsc8105         ),
-    .wr              ( wr              ),
-    .fetch           ( fetch           ),
-    .instruction_end ( instruction_end ),
-    .next_op         ( next_op         ),
-    .addr            ( addr            ),
-    .din             ( din             ),
-    .dout            ( dout            ),
-    .ext_halt        ( 1'b0            ),
-    .ba              (                 ),
-    .irq             ( 1'b0            ),
-    .nmi             ( 1'b0            ),
-    .irq_icf         ( 1'b0            ),
-    .irq_ocf         ( 1'b0            ),
-    .irq_tof         ( 1'b0            ),
-    .irq_sci         ( 1'b0            ),
-    .irq_cmf         ( 1'b0            ),
-    .irq2            ( 1'b0            )
+    .rst             ( core_rst || !nsc8105 ),
+    .clk             ( clk                  ),
+    .cen             ( legacy_step          ),
+    .nsc8105         ( nsc8105              ),
+    .wr              ( legacy_wr            ),
+    .fetch           ( legacy_fetch         ),
+    .instruction_end ( instruction_end      ),
+    .next_op         ( next_op              ),
+    .addr            ( legacy_addr          ),
+    .din             ( din                  ),
+    .dout            ( legacy_dout          ),
+    .ext_halt        ( 1'b0                 ),
+    .ba              (                      ),
+    .irq             ( 1'b0                 ),
+    .nmi             ( 1'b0                 ),
+    .irq_icf         ( 1'b0                 ),
+    .irq_ocf         ( 1'b0                 ),
+    .irq_tof         ( 1'b0                 ),
+    .irq_sci         ( 1'b0                 ),
+    .irq_cmf         ( 1'b0                 ),
+    .irq2            ( 1'b0                 )
+);
+
+jtseicro_m6802 u_base(
+    .rst             ( rst                 ),
+    .cpu_rst         ( core_rst || nsc8105 ),
+    .clk             ( clk                 ),
+    .cen             ( cen                 ),
+    .enable          ( dip_pause           ),
+    .ready           ( !rom_cs || rom_ok   ),
+    .mr_n            ( mr_n                ),
+    .din             ( din                 ),
+    .addr            ( base_addr           ),
+    .dout            ( base_dout           ),
+    .e               ( base_e              ),
+    .vma             ( base_vma            ),
+    .wr              ( base_wr             ),
+    .done            ( base_done           ),
+    .instruction_end (                     )
+);
+
+jtseicro_mr u_mr(
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .e           ( base_e        ),
+    .vma         ( base_vma      ),
+    .a15         ( base_addr[15] ),
+    .release_clk ( release_clk   ),
+    .mr_n        ( mr_n          )
 );
 
 endmodule

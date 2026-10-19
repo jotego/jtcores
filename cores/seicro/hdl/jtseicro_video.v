@@ -6,6 +6,7 @@ module jtseicro_video(
     input             rst, clk, pxl_cen, flip,
     output            HS, VS, LHBL, LVBL,
     output            cpu_lvbl,
+    output      [8:0] video_h,
     output      [9:0] tile_vram_addr,
     output      [8:0] tile_color_addr,
     input       [7:0] tile_vram_data, tile_color_data,
@@ -32,6 +33,7 @@ wire [31:0] scr_planes;
 wire [7:0] scr_pxl, obj_pxl;
 wire hblankn;
 
+assign video_h = hdump[8] ? hdump-9'd128 : hdump+9'd256;
 assign tile_color_addr = {tile_vram_addr[9:6],tile_vram_addr[4:0]};
 assign scroll_video_addr = scroll_prefetch[7:3]^{5{flip}};
 assign scr_addr = {1'b0,tile_addr};
