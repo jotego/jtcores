@@ -53,12 +53,20 @@ module jttms10_pixel(
             5'd16: field_mask=16'hffff;
             default: field_mask=16'd0;
         endcase
+    end
+
+    // ALU selection depends only on the operation and masked operands.
+    // Keep it separate from result selection, which consumes ALU feedback.
+    always @* begin
         valid=(field_mask!=0) &&
               ((ppop<5'd16) || ((ppop<=5'd21) && psize>=5'd4));
         alu_a={16'd0,s};
         alu_b={16'd0,d};
         alu_op=(ppop==5'd16 || ppop==5'd17) ? ALU_ADD :
                ((ppop>=5'd18 && ppop<=5'd21) ? ALU_SUB : 4'd0);
+    end
+
+    always @* begin
         result_pixel=16'd0;
         if(!ppop[4]) result_pixel=boolean_result;
         else case (ppop)
