@@ -13,6 +13,22 @@ This audit supplies requirements for the next implementation. Neither FILL
 form has a timing probe yet. Architectural FILL tests and the scalar PIXT
 timing paths do not establish these word-oriented transfer timings.
 
+`ver/timing/fill_oracle.py` independently implements the positive,
+already-clipped,constant-alignment table domain. It reads no RTL or measured
+counts. `test_fill_oracle.py` checks all alignment/length columns, every PPOP
+class, setup/CD costs, reused edge reads, maximum dimensions and the three
+literal examples. The standard runner executes these model tests alongside
+the existing checker tests. Run them alone with:
+
+```sh
+python3 -B modules/jttms10/ver/timing/test_fill_oracle.py
+```
+
+The oracle raises `UnresolvedFillTiming` for empty dimensions, varying row
+alignment, hit/miss setup and the masked/transparency single-word D case.
+The latter preserves both numeric alternatives on the exception object.
+These model tests add no CPU timing probes or covered instruction forms.
+
 ## Total and setup
 
 Section13.3 defines total machine states as setup plus transfer minus an

@@ -100,6 +100,7 @@ iverilog -g2012 -s test -o "$ver_dir/build/pixel.vvp" \
     "$ver_dir/../hdl/jttms10_alu.v"
 vvp "$ver_dir/build/pixel.vvp"
 python3 -B "$ver_dir/timing/test_checker.py"
+python3 -B "$ver_dir/timing/test_fill_oracle.py"
 python3 "$ver_dir/bus_timing/check.py"
 python3 "$ver_dir/load_pause/check.py"
 python3 "$ver_dir/emu/check.py"
