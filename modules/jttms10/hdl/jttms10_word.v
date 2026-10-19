@@ -149,6 +149,7 @@ module jttms10_word #(
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
+        .mem_busy(field_busy || post_busy || data_owner),
         .mem_slot(slot_eligible || slot_phase<=1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );

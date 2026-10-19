@@ -10,7 +10,7 @@ module jttms10_gfx(
     input [31:0] rf_qs, rf_qd,
     input [15:0] psize, convsp, convdp, control,
     input alu_n, alu_z, alu_v,
-    input need_dest, word_fill,
+    input need_dest, word_fill, irq_pending,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -21,7 +21,7 @@ module jttms10_gfx(
     output reg [3:0] alu_op,
     output dst_a, dst_b, dst_md, dst_ea, dst_tmp, dst_rf, dst_ir,
     output md_to_rf,
-    output bus_read, bus_write, bus_pixel,
+    output bus_read, bus_write, bus_pixel, bus_sync,
     output [5:0] bus_size,
     output pix_source, pix_visible, pix_process, pix_test, pix_word,
     output flag_z, flag_nz, flag_nvzc, flag_vclip,
@@ -168,6 +168,7 @@ module jttms10_gfx(
         (gbus==RD_GBUS || gbus==RDPX_GBUS);
     assign bus_write=active &&
         (gbus==WR_GBUS || gbus==WRPX_GBUS);
+    assign bus_sync=active && gbus==SYNC_GBUS;
     assign bus_pixel=active &&
         (gbus==RDPX_GBUS || gbus==WRPX_GBUS);
     assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
@@ -191,6 +192,9 @@ module jttms10_gfx(
     reg condition;
     always @* begin
         case(gcond)
+            WORD_GCOND: condition=word_fill;
+            SHORTWORD_GCOND: condition=!word_fill || need_dest || control[5] || rf_qd<fill_pixels;
+            IRQ_GCOND: condition=irq_pending;
             Z_GCOND: condition=alu_z;
             NZ_GCOND: condition=!alu_z;
             N_GCOND: condition=alu_n;

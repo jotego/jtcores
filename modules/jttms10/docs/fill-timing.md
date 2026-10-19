@@ -232,3 +232,40 @@ classifications verify against b6's matched configuration. Delta:+55 map
 ALMs,+90 ALUTs,+one register,no DSP/RAM change. No fitter or board-STA result
 is implied; the<=3500 fitted-ALM gate remains open. The preceding pixel/DRAV
 timing sweep and Icarus FILL repeat are still running on immutable837 inputs.
+
+## Posted word-loop checkpoint
+
+A compact full-word loop now overlaps its remaining-pixel decrement and
+next-address preparation with the physical write, using the same ALU and
+register RAM. COLOR1 is loaded once per run of complete words. A short
+remaining field returns to the existing edge path. Context is serialized
+when an IRQ/NMI is pending, while the existing row path still handles row
+changes. Ordinary consecutive words allocate two machine states each before
+external waits; this does not establish complete-array timing.
+
+The word wrapper now supplies `mem_busy` to the CPU while a field, posted
+write or data-owner handoff remains pending. A graphics `sync_gbus` operation
+waits for it before FILL retirement or a context checkpoint. Post acceptance
+captures address/data; it is not physical completion. Direct scalar clients
+with `TIMED_PROGRAM=0` retain their ordinary completion ACK contract and tie
+this metadata input low. The existing direct CPU benches and scalar area
+boundary were updated accordingly.
+
+The120-case base and120-case W1/P7 profiles preserve all defined state,
+memory and ordered bus/transport checks, but still fail overall timing.
+Single-word FILL L cache hit is95 INCLK versus TI72; the three-word row issues
+writes at offsets72/88/104. Setup, row handling, machine-state completion
+alignment, cache-disabled timing and exact added-stall counts remain open.
+No target is changed to match this intermediate schedule.
+
+Strict lint,180 architecture programs,124 boundary programs and five-size
+architectural IRQ/NMI resumption pass. The first prototype selected A0 instead
+of COLOR1 through an unprimed synchronous read port; its failing captures
+are excluded. The corrected conditional branch retains the COLOR1 read
+selection through the handoff.
+
+The corrected120-case Icarus W1/P7 observations match Verilator exactly,
+removing only simulator-local case IDs. All58 source/seven generated hashes
+match across the base, W1/P7, W3 and Icarus reports. The W3 profile also passes
+all defined-state, memory and ordered bus checks with prolonged outstanding
+writes; its overall timing remains failing. Existing160 array programs pass.

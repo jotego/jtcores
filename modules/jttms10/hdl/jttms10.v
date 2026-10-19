@@ -18,7 +18,7 @@ module jttms10 #(
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
-    input             mem_ack, mem_cached, mem_slot,
+    input             mem_ack, mem_cached, mem_slot, mem_busy,
     input      [$clog2(CLKS_PER_STATE)-1:0] mem_phase,
     output reg [31:0] pc, st,
     output reg [15:0] ir,
@@ -42,7 +42,7 @@ module jttms10 #(
     wire [5:0] gfx_rf_sa, gfx_rf_da, gfx_rf_wa, gfx_bus_size;
     wire gfx_load_a,gfx_load_b,gfx_dst_a,gfx_dst_b,gfx_dst_md,
          gfx_dst_ea,gfx_dst_tmp,gfx_dst_rf,gfx_dst_ir,gfx_mdrf;
-    wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel;
+    wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel,gfx_bus_sync;
     wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test,gfx_pix_word;
     reg fill_word;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
@@ -393,7 +393,7 @@ module jttms10 #(
                           gfx_bus_pixel && pix_transparent;
     // Fetch uses the response latch so the synchronous dispatch ROM has a
     // full clock to decode the returned opcode before fetch/dispatch commits.
-    wire operation_ready=multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
+    wire operation_ready=gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ? !mem_busy : multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
                          (fetch && mem_fast && mem_ack) :
                          !bus_op || completed || mem_ack || gfx_skip_write;
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
@@ -441,7 +441,7 @@ module jttms10 #(
                                  ({32{field_ext_fill}} & ~field_mask);
     // The post tag can advertise the next eligible clock before address
     // capture. No field is accepted until mem_req supplies the valid EA.
-    assign mem_post=early_store || (stack_push && store_pending && load_issue_left<=1);
+    assign mem_post=(gfx_active && fill_word && gfx_bus_write) || early_store || (stack_push && store_pending && load_issue_left<=1);
     assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? (trap_zero ? 32'hffffffe0 : (stack_irq || pixel_process) ? rd_data : rs_data) : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
@@ -463,7 +463,7 @@ module jttms10 #(
     assign mem_fast=TIMED_PROGRAM!=0 && control[15] && branch_relative &&
                     !branch_short && condition && mem_program ||
                     (copy_packet && imm && mem_program && copy_miss_ready) ||
-                    (pixel_store && (early_load || early_store));
+                    (pixel_store && (early_load || early_store)) || (gfx_active && fill_word && gfx_bus_write);
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = (pixel_store && (early_store || early_load)) || (pixel_load && early_load) || (gfx_active && gfx_bus_pixel);
@@ -518,7 +518,8 @@ module jttms10 #(
         .psize(psize), .convsp(convsp), .convdp(convdp),
         .control(control), .last_pixel_addr(ea),
         .alu_n(n), .alu_z(z), .alu_v(v),
-        .need_dest(gfx_need_dest), .word_fill(fill_word), .transparent(pix_transparent),
+        .need_dest(gfx_need_dest), .word_fill(fill_word),
+        .irq_pending(nmi_req || (irq_req && st[21])), .transparent(pix_transparent),
         .active(gfx_active), .checkpoint(gfx_checkpoint),
         .done(gfx_done),
         .rf_sa(gfx_rf_sa), .rf_da(gfx_rf_da), .rf_wa(gfx_rf_wa),
@@ -529,7 +530,7 @@ module jttms10 #(
         .dst_ir(gfx_dst_ir),
         .md_to_rf(gfx_mdrf),
         .bus_read(gfx_bus_read), .bus_write(gfx_bus_write),
-        .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size),
+        .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size), .bus_sync(gfx_bus_sync),
         .pix_source(gfx_pix_source), .pix_visible(gfx_pix_visible),
         .pix_process(gfx_pix_process), .pix_test(gfx_pix_test), .pix_word(gfx_pix_word),
         .flag_z(gfx_flag_z), .flag_nz(gfx_flag_nz),

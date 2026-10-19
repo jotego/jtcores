@@ -44,6 +44,8 @@ constants:
   TARGET_GDRAVWVP: t7 t9
   TARGET_GDRAVDRAW: t4 t7 t9
   TARGET_GDRAVADVANCE: t5 t7 t9
+  TARGET_GFILLWORDINIT: t5 t6 t7 t8 t9 t11
+  TARGET_GFILLWORDLOOP: t4 t5 t6 t7 t8 t9 t11
   TARGET_GFILLDISPATCH: t4 t5 t7 t9
   TARGET_GFILLL: t6 t7 t9
   TARGET_GFILLHEIGHT: t4 t6 t7 t9
@@ -531,7 +533,8 @@ ucode:
   - sa0 sa5, da0 da2 da3 da5
   - qs_gas, sa0 sa5, da0 da2 da3 da5
   - ea_gdst, word_gpix
-  - sa0 sa3 sa4, da0 da3 da4
+  - sa0 sa3 sa4, da0 da2 da3 da5
+  - word_gcond, jump_gflow, ${TARGET_GFILLWORDINIT}, sa0 sa3 sa4, da0 da2 da3 da5
   - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4, da0 da3 da4
   - sa0 sa3 sa4, da0 da3 da4
   - process_gpix, sa0 sa3 sa4, da0 da3 da4
@@ -575,7 +578,7 @@ ucode:
   - sa0 sa5, da0 da5
   - qs_gas, sa0 sa5, da0 da5
   - rf_gdst, sa0 sa5, da1 da4
-  - end_gflow
+  - sync_gbus, end_gflow
 - name: gfillxy
   start: 50
   seq:
@@ -1050,7 +1053,7 @@ ucode:
   - sa5, da5
   - qs_gas, sa5, da5
   - rf_gdst, sa5, da1 da2 da3 da4
-  - check_gflow
+  - sync_gbus, check_gflow
   - jump_gflow, ${TARGET_GFILLLOOP}
 - name: grebaseheight
   start: 171
@@ -1716,6 +1719,29 @@ ucode:
   - qs_gas, qd_gbs, sa1 sa4 sa5, da2 da4
   - add_galu, rf_gdst, sa0 sa1 sa4 sa5, da0 da1 da4 da5
   - ret_gflow
+# Word replacement loop. Count/address work overlaps the posted transfer.
+- name: gfillwordinit
+  start: 190
+  seq:
+  - qs_gas, sa0 sa3 sa4, da0 da2 da3 da5
+  - md_gdst, sa0 sa5, da0 da2 da3 da5
+  - qs_gas, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
+  - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
+  - wrpx_gbus, stride_gpix
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLROW}, da0 da2 da3 da5
+  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
+  - jump_gflow, ${TARGET_GFILLWORDLOOP}
+- name: gfillwordloop
+  start: 191
+  seq:
+  - sa0 sa5, da0 da2 da3 da5
+  - qs_gas, k_gbs, m2_gbm, shortword_gcond, jump_gflow, ${TARGET_GFILLLOOP}, sa0 sa5, da0 da2 da3 da5
+  - ea_gdst, sa0 sa5, da0 da2 da3 da5
+  - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
+  - wrpx_gbus, stride_gpix
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLROW}, da0 da2 da3 da5
+  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
+  - jump_gflow, ${TARGET_GFILLWORDLOOP}
 - name: gschema0
   start: 126
   seq:
@@ -1731,7 +1757,7 @@ ucode:
   - m6_gam, m6_gbm, andn_galu, rf_gdst, vclear_gflg, nclip_gcond
   - m7_gam, m7_gbm, or_galu, ir_gdst, wvp_gflg, need_gcond
   - xor_galu, transparent_gcond, word_gpix, stride_gpix
-  - not_galu, w1_gcond
+  - not_galu, w1_gcond, sync_gbus
   - neg_galu, w2_gcond
   - abs_galu, w3_gcond
   - shl_galu, lt_gcond

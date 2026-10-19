@@ -66,3 +66,11 @@ changes unprotected bits, and reset during a read. The complete CPU also
 has specification-based indirect MOVE/MOVB load probes; see
 [load-timing.md](load-timing.md). Other memory/graphics timings and final
 fitted area/STA/NARC validation remain required under #144.
+
+
+The CPU's `mem_busy` input reports outstanding physical work after a posted
+field ACK. `jttms10_word` holds it for its field helper, posted-write state
+and data ownership. Graphics synchronization waits for this work before
+retirement or an interrupt checkpoint; a post ACK alone means that the
+field address and data have been captured. Direct untimed CPU integrations
+keep their completion ACK contract and connect `mem_busy` low.

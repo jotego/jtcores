@@ -249,8 +249,9 @@ def main():
             if metadata in (out/"src/modules/jttms10/hdl"/module_name).read_text():
                 ports.append(metadata)
     elif args.scalar:
-        if "mem_cached" in (out/"src/modules/jttms10/hdl/jttms10.v").read_text():
-            ports.append("mem_cached")
+        for metadata in ("mem_cached", "mem_busy"):
+            if metadata in (out/"src/modules/jttms10/hdl/jttms10.v").read_text():
+                ports.append(metadata)
 
     qsf += [f"set_global_assignment -name TOP_LEVEL_ENTITY {top}",
             f"set_global_assignment -name SDC_FILE {project}.sdc"]
