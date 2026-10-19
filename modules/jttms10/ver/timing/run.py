@@ -31,6 +31,7 @@ from interrupt_return_cases import interrupt_return_cases
 from push_cases import push_cases
 from call_cases import call_cases, program as call_program
 from pixel_read_cases import pixel_read_cases, program as pixel_read_program
+from pixel_xy_read_cases import pixel_xy_read_cases
 from list_cases import list_cases, program as list_program, transfers as list_transfers, check_bus as check_list_bus, wait_count as list_wait_count
 from trap_cases import trap_cases, program as trap_program, transactions as trap_transactions
 from divide_cases import divide_cases
@@ -133,6 +134,7 @@ def cases():
     yield from trap_cases()
     yield from list_cases()
     yield from pixel_read_cases()
+    yield from pixel_xy_read_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -333,7 +335,7 @@ def reads(case, wait_states=0):
         plan=[]
         if case['cache_disabled']:
             plan=[(1+i*(4+wait_states),case['test_pc']+16*(i+1),word,0) for i,word in enumerate(extensions)]
-        lead=1 if mode in ('pre','pixel') else 2 if mode in ('offset','absolute') else 0
+        lead=3 if mode=='pixel_xy' else 1 if mode in ('pre','pixel') else 2 if mode in ('offset','absolute') else 0
         first=lead+(3+wait_states)*len(extensions)*int(case['cache_disabled'])
         if case.get('cache_miss')=='load_extension':
             missing=case['miss_word'];fill_words=extensions[missing-1:]+[0x0300]*4
@@ -346,7 +348,7 @@ def reads(case, wait_states=0):
             # not a particular internal first-read microinstruction edge.
             plan=[(None,address,data,iaq) for _,address,data,iaq in plan]
         if case.get('cache_miss')=='pixel_next':
-            plan += [(4+count*wait_states+i*(2+wait_states),case['next_pc']+16*i,0x0300,1) for i in range(4)]
+            plan += [(case['states']-9+count*wait_states+i*(2+wait_states),case['next_pc']+16*i,0x0300,1) for i in range(4)]
         if case['cache_disabled']:
             plan.append((case['states']-3+(count+len(extensions))*wait_states,case['next_pc'],0x0300,1))
         return plan
@@ -563,7 +565,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

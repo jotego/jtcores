@@ -97,15 +97,28 @@ def pixel_read_mutations(work,evidence):
         ('long_pixel_read_tail','pixel_read_ps16_o0_r0_base_hit','jttms10.v',
          "load_finish_clocks=(pixel_load ? 16'd1", "load_finish_clocks=(pixel_load ? 16'd2"),
         ('late_pixel_first_slot','pixel_read_ps16_o0_r0_base_hit','jttms10.v',
-         'load_issue_left<=decode_pixel_load ? LOAD_PRE',
-         'load_issue_left<=decode_pixel_load ? LOAD_LEAD'),
+         'decode_pixel_load ? LOAD_PRE : decode_multi',
+         'decode_pixel_load ? LOAD_LEAD : decode_multi'),
         ('late_pixel_bus_credit','pixel_read_ps16_o0_r0_base_hit','jttms10_word.v',
-         "(!field_pixel || ir[15:9]==7'b1111101)", '!field_pixel')):
+         "(!field_pixel || ir[15:9]==7'b1111101 || ir[15:9]==7'b1111001)", "(!field_pixel || ir[15:9]==7'b1111001)")):
         extra=[] if name=='late_pixel_bus_credit' else ['--wait-states','1','--pause-clocks','1']
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
+
+
+def pixel_xy_read_mutations(work,evidence):
+    for name,probe,old,new in (
+        ('late_xy_pixel_address','pixel_xy_read_ps16_o0_r0_base_hit',
+         'decode_pixel_xy_load ? LOAD_LEAD+LOAD_PRE',
+         'decode_pixel_xy_load ? LOAD_LEAD+LOAD_LEAD'),
+        ('long_xy_pixel_tail','pixel_xy_read_ps16_o0_r0_base_hit',
+         "load_finish_clocks=(pixel_load ? 16'd1", "load_finish_clocks=(pixel_xy_load ? 16'd2 : pixel_load ? 16'd1")):
+        extra=['--wait-states','1','--pause-clocks','1']
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/'jttms10.v',old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -593,6 +606,7 @@ def main():
             event_error='instruction sequencer advanced while CEN paused')
         list_mutations(work,evidence)
         pixel_read_mutations(work,evidence)
+        pixel_xy_read_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(evidence,indent=2)+'\n')

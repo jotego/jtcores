@@ -65,7 +65,7 @@ def program(case,movi):
     for name,value in case.get('register_overrides',{}).items():
         words+=movi(value,int(name[1:])+(16 if name.startswith('b') else 0))
     reg=case['source_register']+(16 if case['bank'] and case['source_register']!=15 else 0)
-    words+=movi(case['data_load']['address'],reg)+movi(case['initial_all_regs'][f'a{case["status_holder"]}'],case['status_holder'])
+    words+=movi(case.get('source_value',case['data_load']['address']),reg)+movi(case['initial_all_regs'][f'a{case["status_holder"]}'],case['status_holder'])
     words+=[0x01A0|case['status_holder']]+[0x0300]*12
     if 'instruction_word_offset' in case:
         while len(words)%4!=case['instruction_word_offset']:words.append(0x0300)

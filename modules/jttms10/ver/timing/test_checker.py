@@ -35,9 +35,56 @@ from list_cases import fixture as list_fixture,list_cases,transfers as list_tran
 from store_cases import transactions as store_transfers
 from mutations import correct_architecture
 from pixel_read_cases import pixel_value, fixture as pixel_fixture, pixel_read_cases
+from pixel_xy_read_cases import fixture as xy_pixel_fixture, pixel_xy_read_cases
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_xy_pixel_primary_numeric_addresses(self):
+        # TI12-223: all ten source/size/mask examples address word20500.
+        rows=[c for c in pixel_xy_read_cases() if '_literal' in c['name']]
+        self.assertEqual(len(rows),20)
+        for row in rows:self.assertEqual(row['data_load']['address'],0x20500)
+
+    def test_xy_pixel_source_pitch_is_independent_of_destination_pitch(self):
+        row=xy_pixel_fixture(16,0,0,False)
+        self.assertEqual(row['data_load']['address'],0x6800)
+        io=dict(row['setup_io'])
+        self.assertEqual(io[0xC0000130],20)
+        self.assertEqual(io[0xC0000140],27)
+
+    def test_xy_pixel_or_precedes_offset_add(self):
+        row=xy_pixel_fixture(16,0,0,False,point=0x00100001,conv=31)
+        self.assertEqual(row['data_load']['address'],0x6010)
+        self.assertNotEqual(row['data_load']['address'],0x6020)
+
+    def test_xy_pixel_signed_y_wrap(self):
+        row=xy_pixel_fixture(16,0,0,False,point=0xFFF00000)
+        self.assertEqual(row['data_load']['address'],0xFFFFE000)
+        self.assertEqual(row['source_value'],0xFFF00000)
+
+    def test_xy_pixel_implied_offset_alias(self):
+        row=xy_pixel_fixture(16,0,1,False,point=0x10010,source=4)
+        self.assertEqual(row['initial_all_regs']['b4'],0x10010)
+        self.assertEqual(row['data_load']['address'],0x10910)
+        row=xy_pixel_fixture(16,0,1,False,destination=4)
+        self.assertEqual(row['initial_all_regs']['b4'],0x6000)
+        self.assertEqual(row['expected_extra_regs']['b4'],0xA596)
+
+    def test_xy_pixel_alignment_excludes_invalid_conversions(self):
+        with self.assertRaises(ValueError):xy_pixel_fixture(16,0,0,False,point=0x10001,conv=31)
+        with self.assertRaises(ValueError):xy_pixel_fixture(16,0,0,False,point=0x8000)
+
+    def test_xy_pixel_exact_counts_waits_and_next_fill(self):
+        for off,cold,states,transfers in ((False,False,6,1),(True,False,9,2),(False,True,15,5)):
+            row=xy_pixel_fixture(16,0,0,off,cold=cold);_,row['test_pc'],row['next_pc']=program(row)
+            actual=dict(clocks=8*(states+transfers),paused=0,st=row['expected_st'],
+                **{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+            self.assertEqual(check(row,actual,1),[])
+            self.assertEqual(reads(row,1)[0][:2],(3,0x6800))
+            self.assertEqual(len(reads(row,1)),transfers)
+            actual['clocks']-=8
+            self.assertTrue(check(row,actual,1))
+
     def test_pixel_primary_literal_vectors(self):
         # SPVU001A12-219, independent numeric anchors for plane masking.
         for word,size,mask,value in ((0xFFFF,1,0,1),(0xFFFF,1,0xFFFF,0),
