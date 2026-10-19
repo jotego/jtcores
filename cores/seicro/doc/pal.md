@@ -758,11 +758,39 @@ RAM pins. `A` and `B` denote the six-bit source words in the tables above;
 
 Thus the readout bank receives A when T is high and zero when T is low;
 the other bank receives B. This is a derived data-input truth table, not a
-verified RAM write/clear schedule. RAM write-enable, chip-select, address
-multiplexing and source-layer identities remain separate checks.
+verified RAM write/clear schedule. RAM address multiplexing and source-layer
+identities remain separate checks; the confirmed write controls are below.
 
 The standalone `jtseicro_blanking` represents S/T and both mux enable equations.
 `ver/hdl/blanking_tb.v` checks all four S/T combinations and their control timing
 over 405,504 pixel samples; `ver/hdl/colmix_tb.v` checks 172 selection/palette
 cases. The generic game buffer has not been equated with this physical RAM
 network, and these tests do not establish its write phases or address mapping.
+
+## RAM write/read control
+
+Both RAM groups, upper 10D–10I and lower 10J–10O, have physical W pin 8
+connected to `/MCLK` and CS pin 10 tied to ground. Both routes and the bar
+over `/MCLK` are jointly confirmed. Latch 9D clock pin 11 also receives
+`/MCLK`, as confirmed separately.
+
+The [Fujitsu MBM2147H datasheet, page 1](https://www.citylan.it/images/1/1a/Mbm2147.pdf)
+is the functional family reference for these control/data pins: `/WE8`,
+`/CS10`, DIN11 and DOUT7. Its function table specifies write mode for
+`/CS=0, /WE=0` and read mode for `/CS=0, /WE=1`; DOUT is high impedance
+in write mode. This is a family reference, rather than identification of the
+schematic's exact MB8147E variant or speed grade.
+
+With the confirmed wiring and this family function, both banks write while
+`/MCLK` is low (MCLK high) and read while `/MCLK` is high (MCLK low).
+The digital model of the jointly confirmed 3C wiring divides 18.432 MHz
+by three, with MCLK high for one input-clock period and low for two. Ignoring propagation,
+the nominal write interval is therefore about 54.3 ns and the read interval
+about 108.5 ns. These are logic-level intervals, not measured SRAM margins.
+9D's rising `/MCLK` edge coincides logically with the transition from write
+to read; the board's propagation and data-capture ordering remain unmeasured.
+
+The data-input table above identifies a zero input word on the readout bank
+when `6B.Q9` is low. Actual cleared locations require the RAM address paths
+and their phase relationship to this write interval. No physical RAM schedule
+has yet been substituted for the game's generic object buffer.
