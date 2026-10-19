@@ -224,3 +224,11 @@ and HLT variants still pass. On unchanged baseline HDL, its new PS1 contract
 rejects the first one-bit write. This demonstrates detection of lost word
 grouping, not an exact TI interrupt-latency proof. The standard runner now
 includes the124 boundary programs and all five interrupt-bench pixel sizes.
+
+Matched synthesis on committed837ac14d1 reports3903 estimated ALMs,5734
+ALUTs,1723 registers,538624 RAM bits,five DSPs,zero MLAB and158 virtual pins.
+All36 snapshot hashes,29 committed inputs,normalized QSF,SDC and49 warning
+classifications verify against b6's matched configuration. Delta:+55 map
+ALMs,+90 ALUTs,+one register,no DSP/RAM change. No fitter or board-STA result
+is implied; the<=3500 fitted-ALM gate remains open. The preceding pixel/DRAV
+timing sweep and Icarus FILL repeat are still running on immutable837 inputs.
