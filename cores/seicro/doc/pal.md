@@ -857,8 +857,10 @@ as a sprite address.
 8M and 8L are jointly confirmed as type 163 counters. Their outputs feed
 9L and 9K respectively, both confirmed type 86 XOR gates with no inversion
 bubbles on the traced inputs or outputs. The other input of every gate joins
-one shared wire, named `F` here only to express the equations; its source and
-board net name remain untraced.
+one shared wire driven by 8F output pin 5, a type 174 latch. This route passes
+the 8M output pin 11 wire without an electrical junction. Both the driver and
+the crossing are jointly confirmed. `F` below denotes `8F.5`; the original
+board net name has not been identified.
 
 | X bit | Counter/output pin | XOR chip | Counter input pin | Shared F input pin | Output pin |
 | --- | --- | --- | --- | --- | --- |
@@ -874,5 +876,6 @@ board net name remain untraced.
 Define `Q = {8M.11, 8M.12, 8M.13, 8M.14, 8L.11, 8L.12, 8L.13, 8L.14}`
 in descending bit order. The confirmed gate function is `X = Q XOR {8{F}}`:
 `F=0` preserves the counter word and `F=1` complements all eight bits.
-This does not identify `F` as a flip signal or establish the counters' load,
-clock, enable or clear sequences.
+The source of 8F's data input, its clock/clear wiring, and the counters' load,
+clock, enable and clear sequences remain separate checks. The confirmed output
+route alone does not identify `F` as a flip signal.
