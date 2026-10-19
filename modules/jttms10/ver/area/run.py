@@ -47,6 +47,15 @@ def source_files(folder, pattern, source_ref):
                   if (ROOT / name).parent == folder and Path(name).match(pattern))
 
 
+def reference_revisions(source_ref=None):
+    pin = call(["git", "rev-parse", f"{source_ref or 'HEAD'}:modules/tms34010"], cwd=ROOT)
+    # An uninitialized submodule is still inside the parent repository.
+    # Running git there without checking its own marker reports the parent's
+    # HEAD, which is not evidence of an old-CPU checkout.
+    checkout = call(["git", "rev-parse", "HEAD"], cwd=REFERENCE) if (REFERENCE / ".git").exists() else None
+    return pin, checkout
+
+
 def qsf_path(path):
     # Quartus QSF's Tcl-like parser does not strip brace quoting for file assignments.
     return str(path)
@@ -71,6 +80,9 @@ def main():
         parser.error("--source-ref applies to new CPU modes; reference uses the pinned old submodule")
     source_ref = (call(["git", "rev-parse", args.source_ref + "^{commit}"], cwd=ROOT)
                   if args.source_ref else None)
+    reference_pin, reference_commit = reference_revisions(source_ref)
+    if args.reference and reference_commit is None:
+        parser.error("reference CPU submodule is not initialized; run git submodule update --init modules/tms34010")
     out = args.output.resolve()
     if any(ch.isspace() for ch in str(out)):
         parser.error("output path must not contain whitespace (Quartus QSF file assignments)")
@@ -253,7 +265,8 @@ def main():
         "tool_version": version, "tool_bin": str(tool),
         "repo_commit": call(["git", "rev-parse", "HEAD"], cwd=ROOT),
         "source_commit": source_ref,
-        "old_module_commit": call(["git", "-C", str(REFERENCE), "rev-parse", "HEAD"]),
+        "old_module_pin": reference_pin,
+        "old_module_commit": reference_commit,
         "source_sha256": hashes,
         "scope": ("old NARC GSP with tied-off host/HOLD and VCLK enable"
                   if args.reference else

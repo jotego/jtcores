@@ -24,6 +24,15 @@ from the exact YAML recorded in the manifest. The script runs Analysis &
 Synthesis and Fitter; compare **fitted
 ALMs** from `*.fit.rpt`. The map report additionally confirms whether the
 generated control and graphics ROMs and two 64×32 register-file mirrors become RAM.
+
+`old_module_pin` records the reference CPU gitlink in the selected committed
+source tree. `old_module_commit` records the actual initialized reference
+checkout, or null if that submodule is uninitialized. Reference builds require
+an initialized submodule. Earlier manifests could accidentally report the
+parent repository's HEAD as `old_module_commit` when run in an uninitialized
+submodule directory. That field in those captures is not reference-revision
+evidence; retain the original capture and inspect the recorded parent tree's
+gitlink. This metadata defect does not change the hashed new-CPU inputs.
 When `ucode/gfx.yaml` is present, the snapshot also generates and hashes the
 separate 4096-word `tms10_gfx` ROM and checks its named branch targets against the
 generated entry addresses. Any YAML included by `gfx.yaml` (including
