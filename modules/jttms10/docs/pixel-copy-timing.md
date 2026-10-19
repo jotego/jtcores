@@ -81,4 +81,11 @@ All 112,874 preceding fixture contracts remain unchanged. The initial wrong
 family dispatch aborted its first batch case; that prototype is excluded.
 Matched map estimates 3,909 ALMs, 5,643 ALUTs, 1,722 registers and five DSPs;
 all 36 snapshot/29 committed physical inputs verify. No new fit/STA is claimed.
-Clean scope remains targeted; the full runner is running frozen cabaf7c8b.
+The full runner frozen cabaf7c8b is complete:361,988 exact timing programs
+(3x118,730+2DIV+6x966phase),179 models,180 architecture,699 bus,93 mutation
+controls/101 rejections,response37/1,EMU8/1 and the original MSW-first assertion.
+All53 source/seven generated hashes match the commit/map,with unchanged whole
+private Git tree. Supervisor exit1 is solely12 missing forms/448 unresolved
+MOVB probes,including45 agreed targets. Clean scope remains targeted17,568
+programs/models/events,not a full361,988-program clean normal runner. Full
+clean/remote CI and final hardware/game acceptance remain open.
