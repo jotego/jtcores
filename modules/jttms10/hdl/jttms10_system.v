@@ -7,6 +7,20 @@ module jttms10_system #(
     parameter integer CLKS_PER_STATE=8,
     parameter integer RESET_REFRESH=1
 )(
+`ifdef JTTMS10_REGRESSION
+    output            obs_decode, obs_rf_we,
+    output     [31:0] obs_decode_pc, obs_rf_data,
+    output     [15:0] obs_decode_ir,
+    output     [ 5:0] obs_rf_addr,
+    output    [169:0] obs_work,
+`endif
+`ifdef JTTMS10_REGRESSION
+    output            obs_bus_start, obs_bus_complete,
+    output     [15:0] obs_bus_rdata,
+`endif
+`ifdef JTTMS10_REGRESSION
+    output obs_field_pending_fault,
+`endif
     input clk, rst, cen, vclk_cen,
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
     input hold_req, emu_run,
@@ -45,6 +59,18 @@ module jttms10_system #(
     wire unused_hstctlh = &{hstctlh[15],hstctlh[13:0]};
 
     jttms10_word #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(1)) u_cpu(
+`ifdef JTTMS10_REGRESSION
+        .obs_decode              ( obs_decode              ),
+        .obs_decode_pc           ( obs_decode_pc           ),
+        .obs_decode_ir           ( obs_decode_ir           ),
+        .obs_rf_we               ( obs_rf_we               ),
+        .obs_rf_addr             ( obs_rf_addr             ),
+        .obs_rf_data             ( obs_rf_data             ),
+        .obs_work                ( obs_work                ),
+`endif
+`ifdef JTTMS10_REGRESSION
+        .obs_field_pending_fault ( obs_field_pending_fault ),
+`endif
         .rst(rst),.clk(clk),.cen(cen),
         .irq_req(irq_pending),.irq_vector(irq_vector),
         .nmi_req(nmi_pending),.nmi_nostack(nmi_nmim),
@@ -64,6 +90,11 @@ module jttms10_system #(
     /* verilator lint_off PINCONNECTEMPTY */
     jttms10_fabric #(.CLKS_PER_STATE(CLKS_PER_STATE),
                      .RESET_REFRESH(RESET_REFRESH)) u_fabric(
+`ifdef JTTMS10_REGRESSION
+        .obs_bus_start           ( obs_bus_start           ),
+        .obs_bus_complete        ( obs_bus_complete        ),
+        .obs_bus_rdata           ( obs_bus_rdata           ),
+`endif
         .clk(clk),.rst(rst),.vclk_cen(vclk_cen),
         .hcs_n(hcs_n),.hsync_n(hsync_n),.vsync_n(vsync_n),
         .lint1_n(lint1_n),.lint2_n(lint2_n),

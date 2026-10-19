@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 module jttms10_ctrl(
+`ifdef JTTMS10_REGRESSION
+    output [11:0] obs_uaddr,
+`endif
     input             rst, clk, enable, ready,
     input             pixel_simple, pixel_boolean, pixel_xy_simple,
     input      [15:0]  md,
@@ -46,6 +49,9 @@ module jttms10_ctrl(
     wire [2:0] misc_sel;
     wire [1:0] bus_sel;
     wire gfx_step;
+`ifdef JTTMS10_REGRESSION
+    assign obs_uaddr = uaddr;
+`endif
     assign fetch = bus_sel==FETCH_BUS;
     assign imm = bus_sel==IMM_BUS;
     assign vector = bus_sel==VECTOR_BUS;

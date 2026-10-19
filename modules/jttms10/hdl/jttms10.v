@@ -7,6 +7,14 @@ module jttms10 #(
     // the dispatch ROM to decode a branch's following opcode before ACK.
     parameter integer TIMED_PROGRAM=0
 )(
+`ifdef JTTMS10_REGRESSION
+    // Synthesizable observation only; sampled before this clock's writes.
+    output            obs_decode, obs_rf_we,
+    output     [31:0] obs_decode_pc, obs_rf_data,
+    output     [15:0] obs_decode_ir,
+    output     [ 5:0] obs_rf_addr,
+    output    [169:0] obs_work,
+`endif
     input             rst, clk, cen,
     input             irq_req,
     input      [31:0] irq_vector,
@@ -497,7 +505,19 @@ module jttms10 #(
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = (pixel_store && (early_store || early_load)) || (pixel_load && early_load) || (gfx_active && gfx_bus_pixel);
 
+`ifdef JTTMS10_REGRESSION
+    wire [11:0] obs_uaddr;
+    assign obs_decode    = step && ld_ir;
+    assign obs_decode_pc = fetch ? pc : pc-32'd16;
+    assign obs_decode_ir = fetch ? read_data[15:0] : md[15:0];
+    assign obs_work      = {obs_uaddr,active,a,b,md,tmp,mul_count,
+                            multi_mask,multi_index,multi_steps};
+`endif
+
     jttms10_ctrl u_ctrl(
+`ifdef JTTMS10_REGRESSION
+        .obs_uaddr ( obs_uaddr ),
+`endif
         .rst(rst), .clk(clk), .enable(cen), .ready(ready),
         .md(fetch ? read_data[15:0] : md[15:0]),
         .pixel_simple(pixel_simple), .pixel_boolean(pixel_boolean), .pixel_xy_simple(pixel_xy_simple),
@@ -588,6 +608,11 @@ module jttms10 #(
     wire [31:0] cpw_code=md | (cpw_high_x ? 32'h40 : 32'd0) |
                              (cpw_high_y ? 32'h100 : 32'd0);
     jttms10_regs u_regs(
+`ifdef JTTMS10_REGRESSION
+        .obs_rf_we   ( obs_rf_we   ),
+        .obs_rf_addr ( obs_rf_addr ),
+        .obs_rf_data ( obs_rf_data ),
+`endif
         .clk(clk),
         .rs_ext(gfx_active && gfx_rf_sa[5]),
         .rd_ext(gfx_active && gfx_rf_da[5]),

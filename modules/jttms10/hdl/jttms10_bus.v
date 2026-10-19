@@ -7,6 +7,10 @@ module jttms10_bus #(
     parameter integer CLKS_PER_STATE=8,
     parameter integer TIMING=0
 )(
+`ifdef JTTMS10_REGRESSION
+    output            obs_bus_start, obs_bus_complete,
+    output     [15:0] obs_bus_rdata,
+`endif
     input clk, rst,
     input hold_req,
     output hold_ack,
@@ -84,8 +88,15 @@ module jttms10_bus #(
     wire [15:0] cycle_rdata;
     wire cycle_req=state==ACTIVE;
     wire complete=cycle_req && cycle_ack;
+`ifdef JTTMS10_REGRESSION
+    assign obs_bus_complete = complete;
+    assign obs_bus_rdata    = cycle_rdata;
+`endif
     generate if(TIMING!=0) begin : g_timing
         jttms10_bus_timer #(.CLKS_PER_STATE(CLKS_PER_STATE)) u_timer(
+`ifdef JTTMS10_REGRESSION
+            .obs_bus_start           ( obs_bus_start           ),
+`endif
             .clk(clk),.rst(rst),.req(cycle_req),.queued(cycle_queued),
             .blocked(hold_ack),
             .io_cycle(cyc_kind==4'd5 || cyc_kind==4'd6),
@@ -94,6 +105,10 @@ module jttms10_bus #(
             .ext_req(cyc_req),.ext_ack(cyc_ack),.ext_rdata(cyc_rdata)
         );
     end else begin : g_raw
+`ifdef JTTMS10_REGRESSION
+        // Pin timing is meaningful only for the timed physical bus.
+        assign obs_bus_start = 1'b0;
+`endif
         wire unused_queued=cycle_queued;
         assign cyc_req=cycle_req;
         assign cycle_ack=cyc_ack;

@@ -7,6 +7,9 @@
 module jttms10_bus_timer #(
     parameter integer CLKS_PER_STATE=8
 )(
+`ifdef JTTMS10_REGRESSION
+    output obs_bus_start,
+`endif
     input clk, rst,
     input req, queued, blocked, io_cycle,
     input [15:0] io_rdata,
@@ -39,10 +42,13 @@ module jttms10_bus_timer #(
     wire start=req && !active && !served && !blocked && (!draining || io_cycle) &&
                (phase==0 || credit);
     wire ready=external_done || (ext_req && ext_ack);
-    wire extend=active && left==SAMPLE_LEFT && !io && !ready;
+wire extend=active && left==SAMPLE_LEFT && !io && !ready;
     // Preparation overlapped with this cycle must stop for every added
     // state, including the clock which first samples LRDY low.
     assign wait_active=extend || wait_left!=0;
+`ifdef JTTMS10_REGRESSION
+    assign obs_bus_start = start;
+`endif
     assign ext_req=!rst && ((start && !io_cycle) || (active && !io && !external_done));
     assign ack=active && left==0 && (io || external_done);
     assign rdata=data;

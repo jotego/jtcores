@@ -6,6 +6,16 @@ module jttms10_word #(
     parameter integer CLKS_PER_STATE=8,
     parameter integer TIMED_PROGRAM=0
 )(
+`ifdef JTTMS10_REGRESSION
+    output            obs_decode, obs_rf_we,
+    output     [31:0] obs_decode_pc, obs_rf_data,
+    output     [15:0] obs_decode_ir,
+    output     [ 5:0] obs_rf_addr,
+    output    [169:0] obs_work,
+`endif
+`ifdef JTTMS10_REGRESSION
+    output obs_field_pending_fault,
+`endif
     input             rst,
     input             clk,
     input             cen,
@@ -153,7 +163,21 @@ module jttms10_word #(
         end
     end
 
+`ifdef JTTMS10_REGRESSION
+    assign obs_field_pending_fault = !field_req &&
+        (field_word_req || field_word_lock) && !word_pending;
+`endif
+
     jttms10 #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(TIMED_PROGRAM)) u_core(
+`ifdef JTTMS10_REGRESSION
+        .obs_decode              ( obs_decode              ),
+        .obs_decode_pc           ( obs_decode_pc           ),
+        .obs_decode_ir           ( obs_decode_ir           ),
+        .obs_rf_we               ( obs_rf_we               ),
+        .obs_rf_addr             ( obs_rf_addr             ),
+        .obs_rf_data             ( obs_rf_data             ),
+        .obs_work                ( obs_work                ),
+`endif
         .rst(rst), .clk(clk), .cen(core_cen),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
