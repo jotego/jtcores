@@ -1027,14 +1027,19 @@ with independent source/destination conversion and scalar read/post reuse.
 The inventory becomes124/133 forms,9 bulk graphics forms missing,138,370
 cases and206 models. Probe presence does not imply full condition coverage.
 See [pixel-xy-copy-timing.md](pixel-xy-copy-timing.md) for the primary table,
-transport contract and excluded prototype failures. Targeted verification
-is pending; no completed124-form runner or final signoff is claimed.
+transport contract and excluded prototype failures. Corrected-source targeted verification passes 26,634 clean timing programs,
+206 models, response49/1, 180 architecture programs, 632 cross-simulator
+comparisons, 198 short pause cases, two fresh processes and 24 pixel mutation
+controls/24 timing rejections. Source/generated hashes and full case objects
+verify as detailed in that report. No completed 124-form runner or final
+signoff is claimed.
 
 ### Remaining FILL timing audit
 
 [fill-timing.md](fill-timing.md) transcribes the primary setup, per-word
 processing, alignment and row-length rules and checks the three literal
 483/1113/1293-state examples. It records the short-D mask-adjustment and
-non-word-multiple-pitch ambiguities explicitly. Both FILL forms remain
-without timing probes; this source audit changes neither coverage nor
-the acceptance gate.
+non-word-multiple-pitch ambiguities explicitly. The independent FILL oracle now has eight passing model tests, integrated
+into the standard runner. Both FILL forms remain without CPU timing probes;
+this changes neither coverage nor the acceptance gate. These tests were
+added after the still-running full runner was frozen at 4f3b7d9ac.

@@ -18,7 +18,8 @@ memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timin
 [hidden-write/dependency checks](docs/store-timing.md), scalar coordinate and
 register-list operations, pixel reads, linear Boolean writes and aligned
 replace-only linear/XY pixel copies and DRAV. The newest
-[XY-to-XY copy subset](docs/pixel-xy-copy-timing.md) is still being validated.
+[XY-to-XY copy subset](docs/pixel-xy-copy-timing.md) passes its targeted clean,
+cross-simulator, pause and mutation checks; its full normal runner is ongoing.
 Probe presence is
 only a necessary gate; conflicting printed store counts have explicitly
 labeled inferred policies and remain excluded from unqualified signoff.
