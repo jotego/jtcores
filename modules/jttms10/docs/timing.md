@@ -790,3 +790,26 @@ runner is running frozen187edd8df;118/119 remain separate. Latest accepted
 complete invocation remains117-form lists289,568 programs. The same12,625
 project choices/448 unresolved MOVB instances,including45 agreed targets,
 remain without waivers. All final acceptance gates stay open.
+
+### Completed linear and XY pixel-read standard runners
+
+The uninterrupted118-form runner frozen2d260be9f passes302,525 exact timing
+programs (3×99,869, two DIV pauses, six486-case phase unions),151 models,
+180 architecture programs,699 bus scenarios,82 mutation controls/90
+rejections,response21/1,EMU8/1 and the original MSW-first assertion. All49
+source/seven generated hashes match the implementation/map. Exit1 is solely
+15 missing forms/448 unresolved source probes,including45 agreed targets.
+
+The uninterrupted119-form runner frozenadac0fbbd passes314,756 exact timing
+programs (3×103,786, two DIV pauses, six566-case phase unions),158 models,
+180 architecture programs,699 bus scenarios,84 controls/92 rejections,
+response25/1,EMU8/1 and the original MSW-first assertion. All50 source/seven
+generated hashes match. Exit1 is solely14 missing forms/the same448 source
+probes. Its private whole Git tree remains identical toadac0fbbd.
+
+The119-form invocation supersedes117-form lists as the latest accepted
+complete development runner. The current120-form runner remains running
+frozen187edd8df. Clean scope stays targeted12,477/11,751 programs in three
+profiles,151/158 models and21/1 or25/1 events; neither is a full clean normal
+runner. These results do not close remaining conditions,known targets,
+full clean/remote CI,final fitted area/board STA or NARC/MiSTer acceptance.
