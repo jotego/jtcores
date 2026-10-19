@@ -1,4 +1,37 @@
-# Issue144 handoff — paused at owner's request
+# Issue144 handoff and resumed validation
+
+## Resumed on 2026-10-19
+
+The owner resumed this task on the second computer. Work continues on
+`jtcores-144-resume`, based on the experimental XY-copy branch and merged
+with the stable branch's accepted121-runner history. The issue remains open.
+
+This machine uses Verilator5.039. The checkpoint pixel helper's grouped
+combinational block produces fatal UNOPTFLAT warnings here. Commit53e352578
+separates mask/ALU/result dependencies without suppressing warnings. Its
+26,634 XY-copy programs pass all three profiles, and206 checker tests pass,
+but the independent pixel unit exposed an Icarus time-zero initialization
+problem in that first split. Those results are intermediate evidence, not
+final validation. Commitb6bb7e6ed makes the mask a continuous decode; all
+174,689 existing pixel-unit cases and strict lint then pass. The corrected
+source requires its own timing/clean/cross-simulator repeats.
+
+Task records now live in `/nobackup/tasks/jtcores-144/`. The initial clean
+repeat on53e352578 was cancelled specifically because of the demonstrated
+pixel-unit failure; its command, process group and reason are recorded.
+The corrected clean repeat and stressed profile were started onb6bb7e6ed.
+Neither is claimed complete here. The full mutation run and initial632-case
+Icarus comparison retain their original checkpoint sources. A map snapshot
+with all36 verified hashes belongs to53e352578, not the corrected source.
+No new map/fit/STA or complete normal-runner acceptance is claimed.
+
+The repository pre-commit Go checks pass, but its all-core macro scan fails
+on the pre-existing, undocumented `JTFRAME_NO_REGISTER_RETIMING` macro in
+NARC's baseline. The two helper fixes and documentation merge used a
+per-command hooks override after confirming this unrelated baseline failure;
+no persistent git configuration was changed.
+
+## Original pause record
 
 The owner requested stopping here to resume on another computer. Issue144
 remains open; all nine full-scope tasks remain unchecked. Do not interpret
