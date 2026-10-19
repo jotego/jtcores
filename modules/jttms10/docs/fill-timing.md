@@ -374,3 +374,54 @@ fixture/program contracts remain byte-identical; inventory is now138,690
 fixtures across126/133 forms. Seven forms still lack probes. Other
 transparency/mask/processing histories, XY timing, precise first-write/IRQ
 events and all final issue acceptance remain open.
+
+
+## Aligned opaque XY FILL conversion and timing
+
+The scalar sequencer now converts the initial XY B2 through the existing
+shared DSP/ALU and saves the linear address in scratch RF51. A fused graphics
+prologue consumes it; architectural B2 changes at completion. Dispatch uses
+the resolved instruction family because the exact 0FE0 opcode overrides the
+decoder table family. Eligibility requires PPOP0/PMASK0/T0/W0; other modes
+retain their existing conversion/window path. No arithmetic unit or register
+bank is added. The existing first-word issue counter retains the six XY
+setup states and two transfer-prefix states across CEN pauses. Subsequent
+word and row cadence checks remain active.
+
+There are 2,240 FILL fixtures: 260 linear and 1,980 XY, adding 1,920 fixtures
+to the preceding inventory. They cover all five sizes, all 32 CONVDP shift
+encodings and ignored upper bits, signed Y endpoints, nonnegative X,
+OFFSET, overlapping pitches, N=1/2/3/4/8, multiple rows, hit/CD and transparent
+PIXT history. Address arithmetic follows SPVU001A pp.4-12 and 6-15; broad
+conversion probes independently anchor the destination at 0x6100. The oracle
+initializes all canaries before applying the union of writes, including when
+successive rows overlap. The preceding 138,690 fixture/program contracts are
+unchanged (SHA-256 397d3a06b068d86d1574a36f0429f317d4047fb3210bc81e10a9e75f3cfe45b7).
+
+All 2,240 cases pass Verilator in base, W1/P7, W3 and W1/P1 profiles.
+Twenty selected P2..6 probes and two independent simulator processes pass.
+A fresh resumed W1/P7 run passes all 2,240 in 29.914 seconds including build
+and checking, with every complete case object identical to the saved stressed
+run and all 58 source/seven generated hashes verified. Seven controls pass;
+seven actual RTL timing mutants fail while retaining correct defined
+architecture and memory, including disabled XY dispatch and shortened XY
+setup. Fifteen independent oracle/fixture/checker model tests pass. The
+cancelled Icarus run remains incomplete and was not resumed; no current-source
+cross-simulator completion is claimed.
+
+Run an exact mutation/control fixture without accidentally selecting its
+conversion/history suffix variants with the permanent selector:
+
+```sh
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+  --exact-case fill_xy_ps16_n1_rows1_hit --wait-states 1 --pause-clocks 7
+```
+
+Native XY IRQ/NMI continuation tests use nonzero Y and OFFSET at all five
+pixel sizes, alongside the linear variants. These exercise the direct
+architectural interface with TIMED_PROGRAM=0; they do not establish IRQ
+acceptance timing through the real posted wrapper. The fixture scope remains
+aligned full-word replacement. Partial edges, other processing/mask/window
+rules, exact first-write/IRQ/HOLD timing and final physical/game acceptance
+remain open. Inventory is 140,610 fixtures across 126/133 forms; seven forms
+still have no timing probes.

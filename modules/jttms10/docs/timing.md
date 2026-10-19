@@ -1075,3 +1075,20 @@ preceding138,630 fixture/program contracts are unchanged; current inventory
 is138,690 across126/133 forms. The60 XY timing failures and all broader
 conditions/events and final acceptance gates remain open. See
 [the history audit](fill-timing.md#opaque-fill-after-transparent-pixt).
+
+
+### Aligned XY FILL timing checkpoint
+
+The shared scalar conversion path and fused graphics prologue now meet the
+aligned PPOP0/PMASK0/T0/W0 XY FILL setup and transfer contracts. The 2,240
+FILL fixtures (260 linear, 1,980 XY) pass Verilator base, W1/P7, W3 and W1/P1,
+with exact resumed stressed-case equality, short-pause/isolation probes and
+seven controls/seven timing-mutant rejections. The inventory is 140,610 cases
+and 126/133 forms; the preceding 138,690 contracts are unchanged. Fifteen
+FILL models pass. Native XY interrupt continuation covers all sizes through
+the direct architectural interface, not posted-wrapper acceptance timing.
+The cancelled Icarus run remains incomplete; resumed work uses Verilator.
+See [the XY audit](fill-timing.md#aligned-opaque-xy-fill-conversion-and-timing).
+Broader conditions/events, seven missing forms, 448 MOVB source/target gaps
+(including 45 agreed targets), full clean/CI and final area/STA/game gates
+remain open.

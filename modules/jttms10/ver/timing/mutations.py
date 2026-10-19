@@ -227,7 +227,7 @@ def fill_mutations(work,evidence):
     """Reject FILL scheduling changes while retaining defined state/memory."""
     for name,probe,file,old,new,extra in (
         ('absorbed_fill_setup_pause','fill_l_ps1_n1_rows1_hit','jttms10.v',
-         "!(TIMED_PROGRAM!=0 && ir==16'h0fc0 && fill_word && gfx_bus_write &&\n                       !store_started && (load_issue_left!=0 || mem_phase!=0))",
+         "!(TIMED_PROGRAM!=0 && array_fill && fill_word && gfx_bus_write &&\n                       !store_started && (load_issue_left!=0 || mem_phase!=0))",
          "1'b1",('--wait-states','1','--pause-clocks','1')),
         ('wrong_fill_end_phase','fill_l_ps1_n1_rows1_hit','jttms10.v',
          "GFX_END_PHASE=CLKS_PER_STATE-32'd4;", "GFX_END_PHASE=CLKS_PER_STATE-32'd5;",()),
@@ -237,7 +237,16 @@ def fill_mutations(work,evidence):
          '!mem_busy && (!gfx_end_pending ||', '(!gfx_end_pending || !mem_busy) && (!gfx_end_pending ||',()),
         ('absorbed_fill_row_wait','fill_l_ps1_n3_rows4_hit','jttms10.v',
          '!mem_busy && (!gfx_end_pending ||', '(!gfx_end_pending || !mem_busy) && (!gfx_end_pending ||',
-         ('--wait-states','1','--pause-clocks','7'))):
+         ('--wait-states','1','--pause-clocks','7')),
+        ('ignored_fill_xy_dispatch','fill_xy_ps1_n1_rows1_hit','jttms10_ctrl.v',
+         "entry_family==8'd141 && pixel_xy_simple ? FILL_XY_FAST_SEQA : entry;",
+         "1'b0 ? FILL_XY_FAST_SEQA : entry;",()),
+        ('short_fill_xy_setup','fill_xy_ps1_n1_rows1_hit','jttms10.v',
+         'FILL_XY_LEAD_I=8*CLKS_PER_STATE-1;', 'FILL_XY_LEAD_I=7*CLKS_PER_STATE-1;',
+         ('--wait-states','1','--pause-clocks','1'))):
+        # History and conversion fixtures deliberately extend base names.
+        # Mutations require one exact control, not every substring match.
+        extra=('--exact-case',probe,*extra)
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)

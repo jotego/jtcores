@@ -9,8 +9,8 @@ from run import check, program
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 320)
-        self.assertEqual(len({r['name'] for r in cases}), 320)
+        self.assertEqual(len(cases), 2240)
+        self.assertEqual(len({r['name'] for r in cases}), 2240)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
@@ -31,6 +31,19 @@ class FillCasesTest(unittest.TestCase):
                     self.assertEqual(case['states'],states+3*off)
                     self.assertEqual(len(transfers(case)),words*rows)
                     self.assertEqual(case['expected_extra_regs']['b2'],0x6100+(rows-1)*0x100+16*words)
+
+    def test_xy_conversion_and_overlapping_row_union(self):
+        # Guide12-60 literal PS16 example; signed-Y/modulo32 calculation.
+        guide=fixture(16,1,1,True,False,point=0x00400030,offset=0,convdp=20,pitch=0x800)
+        self.assertEqual(guide['data_fill']['address'],0x20300)
+        negative=fixture(16,1,1,True,False,point=0xFFFF0030,offset=0x1000,convdp=20,pitch=0x800)
+        self.assertEqual(negative['data_fill']['address'],0xB00)
+        # Rows overlap at6110/6120. A later row's canary must not undo a
+        # pixel written by the preceding row in the final memory oracle.
+        overlap=fixture(16,3,2,True,False,point=0,offset=0x6100,convdp=27,pitch=16)
+        before,after=map(dict,(overlap['initial_memory'],overlap['expected_memory']))
+        self.assertEqual(after,{0x60F0:before[0x60F0],0x6100:0xAA55,0x6110:0xAA55,
+                                0x6120:0xAA55,0x6130:0xAA55,0x6140:before[0x6140]})
 
     def test_pattern_canaries_and_defined_registers(self):
         row = fixture(1,3,2,True,False)

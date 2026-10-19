@@ -10,8 +10,17 @@ from fill_oracle import fill_timing
 from pixel_boolean_cases import program as prefilled_program
 
 
-def fixture(size, words, rows, xy, off):
-    address, pitch, color = 0x6100, 0x100, 0x5CC3AA55
+def fixture(size, words, rows, xy, off, *, point=0x10000, offset=0x6000,
+            convdp=23, pitch=0x100):
+    address, color = 0x6100, 0x5CC3AA55
+    if xy:
+        # SPVU001A4-12,6-15: signed Y, nonnegative X; OR before OFFSET.
+        if point & 0x8000:
+            raise ValueError('negative X is outside the defined conversion domain')
+        y = point >> 16
+        y -= 0x10000 if y & 0x8000 else 0
+        address = ((((y * (1 << (31-(convdp & 31)))) & 0xFFFFFFFF)
+                    | ((point & 65535) * size)) + offset) & 0xFFFFFFFF
     width = words * 16 // size
     timing = fill_timing(pixel_size=size, width=width, rows=rows,
                          address=address, pitch=pitch, xy=xy, cache_disabled=off)
@@ -20,21 +29,23 @@ def fixture(size, words, rows, xy, off):
     registers.update({f'b{q}': seed+16+q for q in range(15)})
     registers['sp'] = seed+15
     registers['a3'] = status
-    overrides = dict(b2=0x10000 if xy else address, b3=pitch,
+    overrides = dict(b2=point if xy else address, b3=pitch,
                      b7=(rows << 16) | width, b9=color)
     if xy:
-        overrides['b4'] = 0x6000
+        overrides['b4'] = offset
     registers.update(overrides)
     expected = dict(registers, b2=address+(rows-1)*pitch+width*size)
     for q in range(10, 15):
         del expected[f'b{q}']
     memory = {}
-    result = {}
     for row in range(rows):
         for word in range(-1, words+1):
             addr = address+row*pitch+16*word
             memory[addr] = (0xA596 ^ (row*0x1111) ^ ((word+1)*0x0101)) & 65535
-            result[addr] = color & 65535 if word in range(words) else memory[addr]
+    result = memory.copy()
+    for row in range(rows):
+        for word in range(words):
+            result[address+row*pitch+16*word] = color & 65535
     return dict(name=f'fill_{"xy" if xy else "l"}_ps{size}_n{words}_rows{rows}_{"off" if off else "hit"}',
         coverage_id='FILL_XY' if xy else 'FILL_L', opcode=0x0FE0 if xy else 0x0FC0,
         data_fill=dict(address=address, pitch=pitch, words=words, rows=rows, color=color & 65535),
@@ -42,7 +53,7 @@ def fixture(size, words, rows, xy, off):
         expected_extra_regs={k:v for k,v in expected.items() if k not in ('a0','a1','a2','a3')},
         initial_all_regs=registers, register_overrides=overrides, observe_all=True,
         seed=seed, status_holder=3, source_register=7, source_value=registers['a7'], bank=0,
-        control=0, setup_io=[(0xC0000150,size),(0xC0000160,0),(0xC0000140,23)],
+        control=0, setup_io=[(0xC0000150,size),(0xC0000160,0),(0xC0000140,convdp)],
         expected_st=status, states=timing['states'], cache_disabled=off, measure_pass=0,
         initial_memory=sorted(memory.items()), expected_memory=sorted(result.items()), drain_instructions=-1,
         citation='SPVU001A12-80..86;13-10..14 Tables13-5/6/7',
@@ -138,4 +149,37 @@ def fill_cases():
         case.update(name=case['name']+'_transparent_history',transparent_history=True)
         case['initial_memory'].append((0x6500,0xBEEF))
         case['expected_memory'].append((0x6500,0xBEEF))
+        yield case
+    for size,words,rows,off in product((1,2,4,8,16),(1,2,3,4,8),(1,2,3,4),(False,True)):
+        if words<=3 and rows<=2:
+            continue
+        yield fixture(size,words,rows,True,off)
+    for size,words,rows,off in product((1,2,4,8,16),(1,2,3),(1,3),(False,True)):
+        case = fixture(size,words,rows,True,off)
+        case.update(name=case['name']+'_transparent_history',transparent_history=True)
+        case['initial_memory'].append((0x6500,0xBEEF))
+        case['expected_memory'].append((0x6500,0xBEEF))
+        yield case
+    for size,conv,q,off in product((1,2,4,8,16),range(32),range(5),(False,True)):
+        x,y = ((0,0),(1,1),(31,-1),(48,32767),(32767,-32768))[q]
+        # Keep the physical array in a safe data island while varying every
+        # conversion encoding, signed-Y boundary, X and OFFSET. The expected
+        # physical island is fixed independently of the conversion above.
+        raw = (((y * (1 << (31-conv))) & 0xFFFFFFFF) | (x*size))
+        offset = (0x6100-raw) & 0xFFFFFFFF
+        case = fixture(size,1+q%3,1,True,off,point=((y&65535)<<16)|x,
+                       offset=offset,convdp=conv|(0xFFE0 if q&1 else 0),pitch=1<<(31-conv))
+        case['name'] += f'_convert_c{conv}_p{q}'
+        case['conditions'].update(point=((y&65535)<<16)|x,offset=offset,convdp=conv)
+        assert case['data_fill']['address']==0x6100
+        yield case
+    for size,conv,words,rows,off in product((1,2,4,8,16),(16,23,27),(1,3),(2,4),(False,True)):
+        x,y = 31,-1
+        raw = (((y * (1 << (31-conv))) & 0xFFFFFFFF) | (x*size))
+        offset = (0x6100-raw) & 0xFFFFFFFF
+        case = fixture(size,words,rows,True,off,point=0xFFFF001F,offset=offset,
+                       convdp=conv,pitch=1<<(31-conv))
+        case['name'] += f'_pitch_c{conv}'
+        case['conditions'].update(point=0xFFFF001F,offset=offset,convdp=conv)
+        assert case['data_fill']['address']==0x6100
         yield case

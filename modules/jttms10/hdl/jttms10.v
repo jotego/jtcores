@@ -117,7 +117,9 @@ module jttms10 #(
     reg reti_second;
     wire pixel_xy_copy=ir[15:9]==7'b1111010 && gfx_family==8'd154;
     wire pixel_load=pixel_linear_load || pixel_xy_load;
-    wire convert_ir=cvxyl_ir || pixel_xy_load || pixel_xy_address_store || pixel_xy_copy;
+    wire fill_xy_convert;
+    assign fill_xy_convert=ir==16'h0fe0 && gfx_family==8'd155;
+    wire convert_ir=cvxyl_ir || pixel_xy_load || pixel_xy_address_store || pixel_xy_copy || fill_xy_convert;
     wire pix_rlin = ir[15:9]==7'b1111100;
     wire pixel_simple=control[14:10]==0 && !control[5] && pmask==0;
     wire pixel_xy_simple=pixel_simple && control[7:6]==0;
@@ -236,9 +238,12 @@ module jttms10 #(
     localparam [LOAD_IW-1:0] LOAD_FIRST_LIMIT=LOAD_FIRST_LIMIT_I[LOAD_IW-1:0];
     localparam [LOAD_IW-1:0] LOAD_NEXT_LIMIT=3;
     // FILL L retains its four setup and two transfer-prefix states before
-    // the first word. Reuse the existing issue counter across CEN pauses.
+    // the first word. XY retains two more conversion setup states in the
+    // same issue counter; both paths preserve that work across CEN pauses.
     localparam integer FILL_LEAD_I=6*CLKS_PER_STATE-1;
     localparam [LOAD_IW-1:0] FILL_LEAD=FILL_LEAD_I[LOAD_IW-1:0];
+    localparam integer FILL_XY_LEAD_I=8*CLKS_PER_STATE-1;
+    localparam [LOAD_IW-1:0] FILL_XY_LEAD=FILL_XY_LEAD_I[LOAD_IW-1:0];
     localparam integer COPY_FOUR_I=4*CLKS_PER_STATE;
     localparam [LOAD_IW-1:0] COPY_FOUR=COPY_FOUR_I[LOAD_IW-1:0];
     reg [LOAD_IW-1:0] load_issue_left;
@@ -300,6 +305,7 @@ module jttms10 #(
     wire decode_pixel_xy_store=decode_opcode[15:9]==7'b1111000 && pixel_xy_simple;
     wire decode_pixel_draw_store=decode_opcode[15:9]==7'b1111011 && pixel_xy_simple;
     wire decode_pixel_xy_address_store=decode_pixel_xy_store || decode_pixel_draw_store;
+    wire decode_fill_xy=decode_opcode==16'h0fe0 && pixel_xy_simple;
     wire decode_pixel_xy_copy=decode_opcode[15:9]==7'b1111010 && pixel_xy_simple;
     wire decode_pixel_copy=decode_opcode[15:9]==7'b1111110 && pixel_simple;
     wire decode_pixel_process=decode_opcode[15:9]==7'b1111100 && pixel_boolean;
@@ -413,7 +419,7 @@ module jttms10 #(
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
                       (active && bus_op && !(load_pending && (mem_sel==READ_MEM || (multi_load && stack_sel==READ_STACK))) && !(store_pending && (mem_sel==WRITE_MEM || ((stack_push || multi_ir) && stack_sel==WRITE_STACK))))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
-                     !(TIMED_PROGRAM!=0 && ir==16'h0fc0 && fill_word && gfx_bus_write &&
+                     !(TIMED_PROGRAM!=0 && array_fill && fill_word && gfx_bus_write &&
                        !store_started && (load_issue_left!=0 || mem_phase!=0)) &&
                      !(multi_ir && imm && load_issue_left>multi_first_lead-LOAD_PRE+LOAD_NEXT_LIMIT) &&
                      !(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
@@ -548,6 +554,8 @@ module jttms10 #(
         .flag_vpix(gfx_flag_vpix), .flag_vclear(gfx_flag_vclear),
         .flag_wvp(gfx_flag_wvp), .clip(gfx_clip)
     );
+    wire rf_write_ext;
+    assign rf_write_ext=(gfx_active && gfx_rf_wa[5]) || fill_xy_convert;
     wire cross_move = ir[15:10]==6'b010011 && ir[9];
     wire [4:0] dst = {ir[4]^cross_move,ir[3:0]};
     // Stack instructions continuously select SP on the synchronous read
@@ -569,8 +577,10 @@ module jttms10 #(
         .clk(clk),
         .rs_ext(gfx_active && gfx_rf_sa[5]),
         .rd_ext(gfx_active && gfx_rf_da[5]),
-        .wa_ext(gfx_active && gfx_rf_wa[5]),
+        .wa_ext(rf_write_ext),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
+            fetch && (completed || mem_fast || mem_ack) && decode_fill_xy ? 5'd18 :
+            fill_xy_convert ? 5'd18 :
             fetch && (completed || mem_fast || mem_ack) && decode_pixel_xy_address_store ? {decode_opcode[4],decode_opcode[3:0]} :
             pixel_xy_copy && reti_second ? {ir[4],ir[3:0]} :
             pixel_xy_address_store && !load_address_ready ? {ir[4],ir[3:0]} :
@@ -587,7 +597,7 @@ module jttms10 #(
             fetch && (completed || mem_fast || mem_ack) && (decode_stack_read || decode_stack_push) ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && (decode_call || decode_trap) ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && decode_cpw ? 5'd21 :
-            fetch && (completed || mem_fast) && (decode_cvxyl || decode_pixel_xy_load || decode_pixel_xy_address_store || decode_pixel_xy_copy) ? 5'd20 :
+            fetch && (completed || mem_fast) && (decode_cvxyl || decode_pixel_xy_load || decode_pixel_xy_address_store || decode_pixel_xy_copy || decode_fill_xy) ? 5'd20 :
             fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control || decode_multi) ? {decode_opcode[4],decode_opcode[3:0]} :
             pixel_draw_store && load_address_ready ? {ir[4],ir[3:0]} :
             cpw_ir ? 5'd22 : convert_ir ? 5'd20 :
@@ -595,6 +605,7 @@ module jttms10 #(
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
         .wa(gfx_active ? gfx_rf_wa[4:0] :
+            fill_xy_convert ? 5'd19 :
             wr_sp ? 5'd15 : ptrwr ? {ir[4],ir[3:0]} :
             listwr ? {ir[4],multi_index} :
             mulwrlo && (div_ir ? div_pair : !ir[0]) ?
@@ -807,10 +818,10 @@ module jttms10 #(
                 load_issue_left<=(ir[5] ? 2 : 4)*CLKS_PER_STATE[LOAD_IW-1:0]-2;
                 if(immediate_word==0) time_left<=(ir[5] ? (rd_data[3:0]==0 ? 16'd5 : 16'd7) : 16'd4)*CLKS_PER_STATE[15:0]-16'd2;
             end
-            if(TIMED_PROGRAM!=0 && ir==16'h0fc0 && !store_started &&
+            if(TIMED_PROGRAM!=0 && array_fill && !store_started &&
                step && gfx_pix_word && fill_word_eligible && rd_data=={fill_pixels[30:0],1'b0})
                 load_issue_left<=load_issue_left+CLKS_PER_STATE[LOAD_IW-1:0]-1'b1;
-            if(ir==16'h0fc0 && gfx_active && fill_word && gfx_bus_write && mem_req && mem_ack)
+            if(array_fill && gfx_active && fill_word && gfx_bus_write && mem_req && mem_ack)
                 store_started<=1;
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
@@ -822,7 +833,7 @@ module jttms10 #(
                 load_pending<=decode_pixel_readpost || decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
                 load_address_ready<=!decode_pixel_xy_copy && !decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension));
-                load_issue_left<=TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_issue_left<=TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : TIMED_PROGRAM!=0 && decode_fill_xy ? FILL_XY_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin

@@ -264,6 +264,7 @@ module jttms10_gfx(
                 8'd139: uaddr<=GARRAY_SEQA;
                 8'd140: uaddr<=GARRAY_SEQA;
                 8'd141: uaddr<=GARRAY_SEQA;
+                8'd155: uaddr<=GFILLXYFAST_SEQA;
                 8'd142: uaddr<=GARRAY_SEQA;
                 8'd143,8'd144,8'd145,8'd146: uaddr<=GARRAY_SEQA;
                 8'd131: uaddr<=GLINE_SEQA;

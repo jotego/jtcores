@@ -57,6 +57,7 @@ iverilog -g2012 -s test -I"$ver_dir/build" \
     cd "$ver_dir/build"
     for fill_size in 1 2 4 8 16; do
         vvp arrayirq.vvp +FILL_PSIZE="$fill_size"
+        vvp arrayirq.vvp +FILL_PSIZE="$fill_size" +FILL_XY=1
     done
 )
 iverilog -g2012 -s test -I"$ver_dir/build" \

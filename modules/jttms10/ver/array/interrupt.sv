@@ -25,7 +25,7 @@ module test;
     integer nmi_clears=0, stack_writes=0, halt_cycles=0;
     integer source_reads=0, baseline_source_reads=0;
     integer run_mode=0, variant=0, requests=0, delay_left=0, i;
-    integer fill_size=16;
+    integer fill_size=16, fill_xy=0;
     reg [15:0] fill_width=4, nested_fill_expected=16'h5678;
     reg busy=0, irq_sent=0, handler_seen=0, pbx_seen=0;
     wire nmi_clear;
@@ -42,7 +42,7 @@ module test;
         .emu_run(1'b1), .nmi_clear(nmi_clear), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
-        .mem_program(), .mem_fast(), .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
+        .mem_program(), .mem_post(), .mem_fast(), .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 
@@ -57,7 +57,7 @@ module test;
             else if (size==32 && addr==32'hfffffee0)
                 read_field=variant>=6 ? 32'h1400 : 32'h1200;
             else begin
-                if (size<1 || size>32 || addr+size>32'd16384)
+                if (size<1 || size>32 || addr+{26'd0,size}>32'd16384)
                     $fatal(1,"invalid read @%h/%0d",addr,size);
                 for (bit_index=0;bit_index<size;bit_index=bit_index+1) begin
                     physical=addr+bit_index;
@@ -72,7 +72,7 @@ module test;
         integer bit_index;
         reg [31:0] physical;
         begin
-            if (size<1 || size>32 || addr+size>32'd16384)
+            if (size<1 || size>32 || addr+{26'd0,size}>32'd16384)
                 $fatal(1,"invalid write @%h/%0d",addr,size);
             for (bit_index=0;bit_index<size;bit_index=bit_index+1) begin
                 physical=addr+bit_index;
@@ -84,7 +84,7 @@ module test;
     task automatic put_movi(input integer at_word, input [3:0] regno,
                             input [31:0] value);
         begin
-            words[at_word]=16'h09f0 | regno;
+            words[at_word]=16'h09f0 | {12'd0,regno};
             words[at_word+1]=value[15:0];
             words[at_word+2]=value[31:16];
         end
@@ -98,17 +98,20 @@ module test;
                                     variant==2 ? 32'h0214 :
                                     variant>=3 ? 32'h020d : 32'h0204); // B0
             put_movi('h106,4'd1,variant>=3 ? 32'h00a0 : 32'h0080); // B1
-            put_movi('h109,4'd2,variant==0 ? 32'h0600 :
+            put_movi('h109,4'd2,variant==0 ? ((fill_xy!=0) ? 32'h00010000 : 32'h0600) :
                                     variant==2 ? 32'h0614 : 32'h0604); // B2
             put_movi('h10c,4'd3,variant>=3 ? 32'h0200 : 32'h0080); // B3
             put_movi('h10f,4'd7,variant>=3 ?
                 ((32'd2 << 16) | (variant==3 ? 32'd32 :
                                  variant==4 ? 32'd33 : 32'd65)) :
                 variant==0 ? {16'd2,fill_width} : 32'h00020005);
-            put_movi('h112,4'd8,32'h33333333); // binary COLOR0
+            // Native XY starts at Y=1 with OFFSET580 and pitch80 ->600.
+            // FILL does not use binary COLOR0, so retain the program length.
+            put_movi('h112,(variant==0 && fill_xy!=0) ? 4'd4 : 4'd8,
+                     (variant==0 && fill_xy!=0) ? 32'h0580 : 32'h33333333);
             put_movi('h115,4'd9,variant>=3 ? 32'haaaaaaaa : 32'h55aa55aa);
             words['h118]=16'h0d60; // EINT
-            words['h119]=variant==0 ? 16'h0fc0 :
+            words['h119]=variant==0 ? ((fill_xy!=0) ? 16'h0fe0 : 16'h0fc0) :
                          variant>=3 ? 16'h0f80 : 16'h0f00;
             words['h11a]=16'h0300; // next instruction after array
             words['h120]=16'h099f; words['h121]=16'hfffe; // MMTM B15, B0..B14
@@ -143,7 +146,7 @@ module test;
                 words['h14e]=16'h0940;
             end
             for (i='h60;i<='h9f;i=i+1) words[i]=16'hc33c;
-            for (i='h20;i<='h3f;i=i+1) words[i]=16'h1357 ^ (i*16'h0111);
+            for (i='h20;i<='h3f;i=i+1) words[i]=16'h1357 ^ (i[15:0]*16'h0111);
             words['hc0]=16'hbeef;
         end
     endtask
@@ -366,7 +369,7 @@ module test;
                         expected_size=remaining>32 ? 32 : remaining;
                         if (baseline_source_addr[index] !==
                                 32'h020d+row*32'h00a0+segment*32 ||
-                            baseline_source_size[index] !== expected_size)
+                            baseline_source_size[index] !== expected_size[5:0])
                             $fatal(1,"binary source segment[%0d] @%h/%0d expected @%h/%0d",
                                 index,baseline_source_addr[index],
                                 baseline_source_size[index],
@@ -380,6 +383,8 @@ module test;
 
     initial begin
         if ($value$plusargs("FILL_PSIZE=%d",fill_size)) begin end
+        if ($value$plusargs("FILL_XY=%d",fill_xy)) begin end
+        if (fill_xy!=0 && fill_xy!=1) $fatal(1,"invalid FILL_XY mode");
         case (fill_size)
             1: begin fill_width=64; nested_fill_expected=16'hbeee; end
             2: begin fill_width=32; nested_fill_expected=16'hbeec; end
@@ -389,7 +394,7 @@ module test;
             default: $fatal(1,"invalid FILL_PSIZE=%0d",fill_size);
         endcase
         $display("FILL checkpoint pixel size: %0d",fill_size);
-        for (variant=0;variant<(fill_size==16 ? 8 : 1);variant=variant+1) begin
+        for (variant=0;variant<(fill_size==16 && fill_xy==0 ? 8 : 1);variant=variant+1) begin
             execute(0);
             baseline_count=drawn;
             baseline_b0=u_cpu.u_regs.ram0[16];
@@ -417,7 +422,10 @@ module test;
                 for (i=0;i<80;i=i+1)
                     if (words['h60+i]!==baseline_mem[i])
                         $fatal(1,"FILL NMI PS%0d destination word %0d differs",fill_size,i);
-                $display("PASS: FILL PS%0d IRQ/NMI resumes eight full-word writes",fill_size);
+                if (fill_xy!=0)
+                    $display("PASS: FILL XY PS%0d IRQ/NMI resumes eight full-word writes",fill_size);
+                else
+                    $display("PASS: FILL PS%0d IRQ/NMI resumes eight full-word writes",fill_size);
             end
             if (variant==4) begin
                 execute(2); // NMI uses the same word checkpoint without IE gating.

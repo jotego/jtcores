@@ -552,6 +552,7 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--case', action='append', help='case name or substring; repeat for a union of probes')
+    parser.add_argument('--exact-case', action='append', help='select only these complete case names')
     parser.add_argument('--report', type=Path, help='write all observations and verdicts as JSON')
     parser.add_argument('--traces', type=Path, help='retain full logs in this directory')
     parser.add_argument('--trace-core', action='store_true',
@@ -574,7 +575,9 @@ def main():
     started = time.monotonic()
     if args.wait_states < 0 or args.pause_clocks < 0 or args.pause_after_clocks < 0:
         parser.error('wait states and pause clocks must be nonnegative')
-    selected = [case for case in cases() if args.case is None or any(term in case['name'] for term in args.case)]
+    selected = [case for case in cases()
+                if (args.case is None or any(term in case['name'] for term in args.case))
+                and (args.exact_case is None or case['name'] in args.exact_case)]
     if not selected:
         parser.error('no matching cases')
     hdl = args.rtl_dir.resolve()

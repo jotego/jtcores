@@ -467,3 +467,15 @@ ucode:
       - add_alu, finish_mul
       - read_mem, finish_mul
       - write_mem, ni
+
+  # Convert B2 through the scalar DSP, preserving architectural B2 until
+  # FILL completion. The scalar write selects existing scratch RF51.
+  - name: fill_xy_fast
+    start: 155
+    seq:
+      - init_mul, reg_b
+      - step_mul
+      - corrq_mul
+      - step_mul
+      - add_alu, wr_reg
+      - gfx_mul

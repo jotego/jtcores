@@ -1782,6 +1782,17 @@ ucode:
   - sa5, da5
   - sa5, da5
   - ret_gflow, sa5, da5
+- name: gfillxyfast
+  start: 195
+  seq:
+  - sa0 sa1 sa4 sa5, da1 da4
+  - qs_gas, sa0 sa1 sa2 sa4, da0 da5
+  - rf_gdst, sa0 sa1 sa2 sa4, da0 da5
+  - rf_gdst, qs_gas, m2_gam, sa0 sa1 sa2 sa4, da5
+  - rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa2 sa4, da2 da3 da5
+  - rf_gdst, qs_gas, m4_gam, sa0 sa1 sa2 sa4, da0 da2 da3 da5
+  - rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa5, da1 da2 da3 da5
+  - jump_gflow, ${TARGET_GFILLLOOP}, sa0 sa5, da0 da2 da3 da5
 - name: gschema0
   start: 126
   seq:
