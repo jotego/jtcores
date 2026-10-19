@@ -981,8 +981,8 @@ relative to H transitions and CD setup/hold remains a separate timing check.
 
 CD7–CD0 are driven by 3J/3K. They cross the local bus joining 4M, 4N, 4O
 and 5N without connecting to it. The isolated RAM-side word feeding the
-CD drivers comes from 3I and 2I, as jointly confirmed below. The CD buffer enable ties are confirmed below; RAM write controls remain
-a separate check.
+CD drivers comes from 3I and 2I, as jointly confirmed below. The CD buffer
+enable ties and shared RAM-write/CPU-buffer control are recorded below.
 
 For this pin map only, `L[7:0]` denotes that otherwise unnamed local bus:
 
@@ -1030,6 +1030,27 @@ confirmed as grounded. All eight RAM-to-CD buffers are continuously enabled,
 so CD follows the RAM-side word without an enable-controlled read window.
 
 This establishes the byte source for the previously traced 8M/8L parallel
-inputs. It does not establish when the RAM word is valid: RAM write control,
-CPU-side buffer enables and clock relationships must determine that interval.
+inputs. The shared RAM-write/CPU-buffer control is recorded below; its
+clock relationship and RAM settling time still determine data validity.
 The RAM-side word, CD and the separate 4M/4N/4O/5N local bus are distinct nets.
+
+## CD RAM write and CPU-buffer control
+
+The following Frisky Tom sheet routes and polarities are jointly confirmed:
+
+| Source | Destinations | Destination polarity |
+| --- | --- | --- |
+| 3F output 12 | 3I and 2I WR pin 10 | Circled, active low |
+| Same 3F output 12 net | 2J enable pins 1/15; 2K enable pin 15 | Circled, active low |
+| GND | 3I and 2I CS pin 8 | Circled, active low |
+
+3F output pin 12 has no inversion circle. Its shared control net asserts
+both RAM write and the CPU-to-RAM buffer enables when low. When high, RAM
+write is inactive and those CPU buffers are disabled. Both RAM chip selects
+remain asserted, while the separately grounded 3J/3K enables keep the
+RAM-to-CD path continuously enabled. There is no additional inversion
+between the confirmed 3F output and these write/enable inputs.
+
+This establishes shared logical write ownership. The source decode feeding
+3F, propagation around write transitions and CD setup/hold at the receiving
+counters remain outside this confirmed control chain.
