@@ -701,5 +701,68 @@ This is a functional double-buffer implementation; its reset bank labels,
 RAM addressing and write/read/clear phases have not been equated with the
 physical banks and controls above. `jtseicro_blanking` remains separate from
 that buffer. The sprite-enabled `ver/hdl/video_tb.v` checks rendered pixels
-and both flips, rather than the physical bank-control timing. Write-data paths
-and phase alignment therefore remain separate schematic checks.
+and both flips, rather than the physical bank-control timing. The write-data
+routes below establish the available input words; RAM addressing and phase
+alignment remain separate schematic checks.
+
+## RAM write data and bank controls
+
+Both banks receive the same six-bit word on their write muxes' A inputs.
+The sources are taken before latch 9D. The routes below, including every
+RAM data-input pin 11, are jointly confirmed.
+
+| Bit | Source | Upper mux A input | Upper mux output → RAM input | Lower mux A input | Lower mux output → RAM input |
+| --- | --- | --- | --- | --- | --- |
+| 5 | 8D pin 12 | 9E pin 14 | 9E pin 12 → 10D pin 11 | 9F pin 14 | 9F pin 12 → 10J pin 11 |
+| 4 | 8D pin 9 | 9E pin 11 | 9E pin 9 → 10E pin 11 | 9F pin 11 | 9F pin 9 → 10K pin 11 |
+| 3 | 8D pin 7 | 9E pin 5 | 9E pin 7 → 10F pin 11 | 9F pin 5 | 9F pin 7 → 10L pin 11 |
+| 2 | 8D pin 4 | 9E pin 2 | 9E pin 4 → 10G pin 11 | 9F pin 2 | 9F pin 4 → 10M pin 11 |
+| 1 | 7C pin 3 | 9G pin 14 | 9G pin 12 → 10H pin 11 | 9H pin 14 | 9H pin 12 → 10N pin 11 |
+| 0 | 7C pin 6 | 9G pin 11 | 9G pin 9 → 10I pin 11 | 9H pin 11 | 9H pin 9 → 10O pin 11 |
+
+Both banks also receive the same B word. These source routes and their fanout
+are jointly confirmed:
+
+| Bit | Source | Upper mux B input | Lower mux B input |
+| --- | --- | --- | --- |
+| 5 | 8E pin 12 | 9E pin 13 | 9F pin 13 |
+| 4 | 8E pin 9 | 9E pin 10 | 9F pin 10 |
+| 3 | 8E pin 7 | 9E pin 6 | 9F pin 6 |
+| 2 | 8E pin 4 | 9E pin 3 | 9F pin 3 |
+| 1 | Lower 7C pin 11 | 9G pin 13 | 9H pin 13 |
+| 0 | Lower 7C pin 8 | 9G pin 10 | 9H pin 10 |
+
+The write muxes are type 157. A high level on their active-low enable pin 15
+forces all outputs low, as specified in the
+[TI SN74LS157 function table, page 1](https://www.ti.com/lit/ds/symlink/sn74ls157.pdf).
+The confirmed select and enable connections give these physical-level equations,
+where `S = 6B./Q6` (`bank_sel`) and `T = 6B.Q9` (`bank_blank`):
+
+```text
+9E/9G.S1   = NOT(S)              6B.Q5
+9F/9H.S1   = S                   6B./Q6
+9E/9G./G15 = NOT(T OR NOT(S))    7B.Y4
+9F/9H./G15 = NOT(T OR S)         7B.Y1
+```
+
+Applying the 157 select/enable function yields the following input words at the
+RAM pins. `A` and `B` denote the six-bit source words in the tables above;
+`0` denotes six low data inputs.
+
+| T | S | Readout bank | Upper 10D–10I DIN | Lower 10J–10O DIN |
+| --- | --- | --- | --- | --- |
+| 0 | 0 | Lower | B | 0 |
+| 0 | 1 | Upper | 0 | B |
+| 1 | 0 | Lower | B | A |
+| 1 | 1 | Upper | A | B |
+
+Thus the readout bank receives A when T is high and zero when T is low;
+the other bank receives B. This is a derived data-input truth table, not a
+verified RAM write/clear schedule. RAM write-enable, chip-select, address
+multiplexing and source-layer identities remain separate checks.
+
+The standalone `jtseicro_blanking` represents S/T and both mux enable equations.
+`ver/hdl/blanking_tb.v` checks all four S/T combinations and their control timing
+over 405,504 pixel samples; `ver/hdl/colmix_tb.v` checks 172 selection/palette
+cases. The generic game buffer has not been equated with this physical RAM
+network, and these tests do not establish its write phases or address mapping.
