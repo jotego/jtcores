@@ -876,8 +876,8 @@ board net name has not been identified.
 Define `Q = {8M.11, 8M.12, 8M.13, 8M.14, 8L.11, 8L.12, 8L.13, 8L.14}`
 in descending bit order. The confirmed gate function is `X = Q XOR {8{F}}`:
 `F=0` preserves the counter word and `F=1` complements all eight bits.
-The counters' load, enable and clear sequences remain separate checks; their
-parallel inputs and common clock are recorded below.
+The counters' parallel inputs, common clock and control wiring are recorded
+below. The CD source and load-signal generator remain separate checks.
 
 ## RAM address XOR control timing
 
@@ -923,4 +923,27 @@ net name is jointly confirmed. Their parallel-data inputs form the CD byte:
 | 8L | 3, 2, 1, 0 | 6, 5, 4, 3 |
 
 These routes establish the parallel-data word and clock polarity. The source
-of CD and the load, cascade-enable and clear wiring remain separate checks.
+of CD remains a separate check.
+
+## 8M/8L counter load and cascade controls
+
+The following physical routes are jointly confirmed:
+
+| Source | Destinations |
+| --- | --- |
+| `/CDTALD`, with a bar | Both counters' load pin 9 |
+| P | Both counters' clear pin 1; 8L enable pins 7 and 10 |
+| 8L carry output pin 15 | Both 8M enable pins, 7 and 10 |
+
+The [TI 163-family reference](https://www.ti.com/product/SN74LS163A)
+specifies rising-edge clocking, synchronous active-low clear and load,
+load priority over count enables, and counting when both enables are high.
+The tied-high clears stay inactive. The lower nibble counts continuously
+between loads; its carry enables the upper nibble when the lower value is 15.
+
+Thus, on each rising `/MCLK` edge, the combined eight-bit counter word `Q`
+loads CD7–CD0 if `/CDTALD=0`, otherwise it increments modulo 256. Loading
+presets both nibbles on the same edge, independently of the carry value.
+No clear-driven power-up value is established by the P ties; the first valid
+load establishes the programmed count. The `/CDTALD` generator, CD source,
+and their setup/hold relationship to `/MCLK` remain to be traced.
