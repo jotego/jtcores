@@ -998,5 +998,24 @@ latest accepted complete development invocation.
 Clean scope stays targeted18,792 programs in three profiles,173 models and
 33/1 response events,not a full343,940-program clean normal runner. Its map
 is historical3,868 ALMs/five DSPs; current123-form code is3,963 map ALMs/five
-DSPs. Newer121/122/123 full runners remain running. Remaining ISA/conditions/
+DSPs. The121-copy runner has subsequently completed; see below. Newer122/123 full runners remain running. Remaining ISA/conditions/
 known targets/fullcleanCI/final fitted area/board STA/NARC/MiSTer gates stay open.
+
+### Complete121-form linear pixel-copy runner
+
+Frozen cabaf7c8b completes361,988 exact timing programs: three118,730-case
+matrices,two DIV pauses and six966-case short-phase unions. All179 models,
+180 architecture programs,699 bus scenarios,93 mutation controls/101
+rejections,response37/1,EMU8/1 and the original MSW-first assertion pass.
+All53 timing-source/seven generated hashes match the committed implementation
+and map; the whole private Git tree remains identical. The final supervisor
+returns1 solely for12 missing forms and448 unresolved MOVB probes,including45
+agreed published-target gaps. No known target is waived.
+
+This supersedes Boolean120/343,940 as the latest accepted complete development
+invocation. Clean scope remains targeted17,568 programs/179 models/response37/1,
+not a complete361,988-program clean normal runner. Its historical map is3909
+ALMs/five DSPs; the newer123-form DRAV source maps3963/five. Newer122/123 full
+runners remain running. Full clean/remote CI,remaining ISA/conditions/known
+targets,fitted<=3500 ALMs,positive board STA,NARC simulation/MiSTer gameplay
+remain required. All nine issue tasks remain unchecked.
