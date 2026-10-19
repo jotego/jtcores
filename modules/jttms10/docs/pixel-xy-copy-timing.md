@@ -90,6 +90,13 @@ controls and reject 24 actual timing mutations with all defined state and
 memory correct. Only the intended top-level or word-adapter RTL file differs
 in each mutant; generated inputs remain identical.
 
+[Download the corrected targeted reports and verification](http://gitea.jotego.es/attachments/8993fa76-ffb2-4c0d-9d90-f45a765635b7)
+SHA256:118e0059f488cb446496b676ba98bfcd2e7cf933af5f2f410212fc0334a865e5.
+The archive includes all three clean matrices, independent stress and Icarus
+reports, short phases, fresh processes, affected mutations, response/model/
+architecture evidence and a manifest with individual file hashes. Archive
+contents, CRC, public download MIME and SHA-256 verify.
+
 The corrected-source full standard runner is frozen at4f3b7d9ac, whose
 HDL/timing inputs equalb6bb7e6ed. It has passed180 architecture programs,
 the existing unit/system benches,206 checker tests,699 bus scenarios,
