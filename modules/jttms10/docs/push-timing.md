@@ -84,9 +84,14 @@ MSW-first assertion before its timing matrices: a whole-field ascending
 write preserved architectural results but regressed the documented bus
 order. The new descending field path corrects that production bug without
 weakening the original assertion. That failed run is historical evidence,
-not full-runner acceptance. The fresh corrected-source standard runner is
-running; its architecture/unit prefix passes180 programs and13 functional
-IRQ/resume scenarios. Its complete outcome remains pending.
+not full-runner acceptance. The fresh corrected-source standard runner completes268,910 exact programs
+(three89,032-case matrices,two DIV pauses,six302-case phase unions),128
+models,180 architectural programs,699 bus scenarios,62 mutation controls
+and70 rejections (67 timing/bus/stimulus plus three event contracts).
+Response9/1 and EMU8/1 benches also pass. Exit1 is solely22 missing forms
+and448 unresolved sources. All45 timing-source and seven generated hashes
+match the implementation and map. Clean scope remains targeted; full clean
+and remote CI acceptance remain required.
 
 All1522 historical programs fail timing/bus checks on the old public
 f059cb000 HDL and microcode, with correct full main/following state and

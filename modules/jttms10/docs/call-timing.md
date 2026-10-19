@@ -107,5 +107,7 @@ All1,306 Icarus/Verilator/clean case objects and46 timing source/generated
 hashes match exactly. Four fresh-process probes match batching except the
 local case identifier. Clean validation repeats133 models,1,306 stressed
 programs and response9/1 events; it is targeted, not a full standard runner.
-The uninterrupted114-form runner remains pending at this step. The preceding completed full
-runner is109-form RETS; corrected111-form PUSHST is still running.
+The uninterrupted114-form runner remains pending at this step. The preceding111-form PUSHST full runner completes268,910 exact programs,
+128 models,180 architecture,699 bus scenarios,62 controls and70 rejections,
+then exits1 solely at22 missing/448 unresolved sources. The newer114-form
+CALL runner remains pending. Full clean/remote CI acceptance stays open.

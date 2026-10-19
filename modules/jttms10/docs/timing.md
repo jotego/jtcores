@@ -551,7 +551,9 @@ and448 unresolved source probes. All43 source and seven generated hashes
 match. Clean validation remains targeted. CurrentPUSHST111-form targeted
 validation passes1522 exact I/V/clean cases,128 models,66 short phases,
 five new mutants,1024 field vectors and the unchanged MSW-first regression.
-Its fresh corrected full runner is running; the earlier failed111-form run
+Its fresh corrected full runner completes268,910 exact programs,128 models,
+180 architecture,699 bus scenarios,62 controls and70 rejections, with exit1
+solely at22 missing/448 unresolved sources. The earlier failed111-form run
 is not accepted. Final full clean/remote CI and hardware acceptance remain
 open.
 
@@ -578,3 +580,12 @@ checks with correct main/following state and drained memory;20 verified
 representatives are committed. See[call-timing.md](call-timing.md) for
 primary counts, explicit example-label exclusions, fixture guards and
 remaining conditions. No source exception or known MOVB waiver is added.
+
+
+The uninterrupted corrected111-form PUSHST runner is verified at1cd86d712
+(isolatedf25d09e05):268,910 exact programs,128 models,180 architecture,
+699 bus scenarios,62 mutation controls/70 rejections, response9/1 and EMU8/1.
+All45 timing-source and seven generated hashes match the implementation/map.
+Exit1 is solely22 missing/448 unresolved sources. This is a development
+standard runner; clean scope remains targeted. The current114-form CALL
+full runner remains pending, and all final issue gates stay open.
