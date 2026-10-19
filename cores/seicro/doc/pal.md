@@ -847,7 +847,32 @@ With `S = 6B./Q6` and all four address-mux selects driven by
 | 1 | X | C | Upper |
 
 Thus the readout bank is addressed by `X` for either value of `S`, while the
-other bank is addressed by `C`. This records digital routing only. The internal
-logic meaning of the 9K/9L outputs, counter input meanings and timing, and the
-physical read/write capture phases remain unverified; `X` is not identified as
-a scan address and `C` is not identified as a sprite address.
+other bank is addressed by `C`. This records digital routing only. Counter
+input meanings and timing, and the physical read/write capture phases remain
+unverified; `X` is not identified as a scan address and `C` is not identified
+as a sprite address.
+
+## RAM address XOR inputs
+
+8M and 8L are jointly confirmed as type 163 counters. Their outputs feed
+9L and 9K respectively, both confirmed type 86 XOR gates with no inversion
+bubbles on the traced inputs or outputs. The other input of every gate joins
+one shared wire, named `F` here only to express the equations; its source and
+board net name remain untraced.
+
+| X bit | Counter/output pin | XOR chip | Counter input pin | Shared F input pin | Output pin |
+| --- | --- | --- | --- | --- | --- |
+| 7 | 8M/11 | 9L | 4 | 5 | 6 |
+| 6 | 8M/12 | 9L | 1 | 2 | 3 |
+| 5 | 8M/13 | 9L | 12 | 13 | 11 |
+| 4 | 8M/14 | 9L | 9 | 10 | 8 |
+| 3 | 8L/11 | 9K | 4 | 5 | 6 |
+| 2 | 8L/12 | 9K | 1 | 2 | 3 |
+| 1 | 8L/13 | 9K | 12 | 13 | 11 |
+| 0 | 8L/14 | 9K | 9 | 10 | 8 |
+
+Define `Q = {8M.11, 8M.12, 8M.13, 8M.14, 8L.11, 8L.12, 8L.13, 8L.14}`
+in descending bit order. The confirmed gate function is `X = Q XOR {8{F}}`:
+`F=0` preserves the counter word and `F=1` complements all eight bits.
+This does not identify `F` as a flip signal or establish the counters' load,
+clock, enable or clear sequences.
