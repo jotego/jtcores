@@ -1,11 +1,15 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 123 of 133 instruction forms; the other 10 remain unvalidated.
+probes cover 127 of 133 instruction forms; the six PIXBLT forms have no timing
+probes. Probe presence does not establish complete condition coverage.
 PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
 arithmetic,masking,transparency and other conditions remain unvalidated.
 Linear memory-to-memory PIXT covers replace/PMASK0/T0; register-to-XY
 PIXT and DRAV cover replace/PMASK0/T0/W0. Other conditions remain unvalidated.
+Aligned opaque W0 FILL L/XY and bounded replace-only LINE have independent
+timing probes; their supported conditions and remaining exclusions are in
+[FILL timing](fill-timing.md) and [LINE timing](line-timing.md).
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -18,6 +22,18 @@ applied explicitly. Passing the present probe matrix is
 not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
 separate checks.
+
+The current [DataStorm runner](../ver/fpga/README.md) passes all 141,236
+existing fixtures in each of base, W1/P7-after0 and W3 profiles: 423,708 FPGA
+executions on one image, including all 2,240 FILL and 626 LINE cases per
+profile. Every raw capture was replayed with the unchanged independent Python
+oracle. Twenty-nine focused physical observations match the original
+Verilator bench, including architectural state, memory, instruction clocks
+and checked bus events. These results supersede the pre-native-LINE broad
+matrix's 606 duration failures for this scope. They do not complete the normal
+runner, clean-checkout/CI, missing-form/condition audit or final physical/game
+acceptance. The coverage/source gate still fails on the six PIXBLT forms and
+448 unresolved MOVB probes, including 45 agreed published-target gaps.
 
 The primary specification is TI's June 1988 *TMS34010 User's Guide*,
 SPVU001A, including its device data sheet in Appendix A. Citations below

@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Prepare FPGA batches and check observations using the independent timing suite.
 
-This module performs no SSH, device access or FPGA programming. Protocol v2
-adds sparse read-only memory, deterministic waits and early CEN pauses.
+This module performs no SSH, device access or FPGA programming. Protocol v3
+adds stores, following state and original-bench drain observations to v2.
 Unsupported fixture requirements fail explicitly rather than losing checks.
 """
 import argparse
@@ -21,8 +21,10 @@ MAX_WORDS = 4096
 RESULT_WORDS = 202
 FORMAT_V1 = 'jttms10-fpga-batch-v1'
 FORMAT = 'jttms10-fpga-batch-v2'
-RESULT_SIZES = {1: 72, 2: RESULT_WORDS}
-EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384)}
+FORMAT_V3 = 'jttms10-fpga-batch-v3'
+FORMATS = {1: FORMAT_V1, 2: FORMAT, 3: FORMAT_V3}
+RESULT_SIZES = {1: 72, 2: RESULT_WORDS, 3: 288}
+EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384), 3: (512, 16384)}
 MASK32 = (1 << 32) - 1
 # Explicit fixture-family selection, not a verdict allowlist. Every selected
 # fixture still passes require_supported and every existing oracle assertion.
@@ -53,20 +55,45 @@ def require_supported(case, protocol_version=1):
                  'pc_result_register', 'test_pc', 'next_pc', 'citation', 'conditions',
                  'coverage_id', 'source_conflict_kind', 'source_notes',
                  'source_result_register', 'source_values', 'timing_source_status'}
-    if protocol_version == 2:
+    if protocol_version in (2, 3):
         supported |= {'initial_memory', 'expected_memory', 'data_load', 'stack_load', 'pixel_load',
                       'stack_fields', 'data_list', 'hidden_states', 'initial_all_regs',
                       'observe_all', 'register_overrides', 'seed', 'source_register',
                       'source_value', 'bank', 'control', 'status_holder',
                       'expected_next_opcode', 'stack_control_flow', 'literal_return_pc',
                       'control_flow', 'drain_instructions'}
-        if case.get('drain_instructions', 0) not in (0, -1):
+        if protocol_version == 3:
+            supported |= {
+                'data_store', 'data_copy', 'tail_instructions', 'follow_delay',
+                'following_words', 'expected_follow_regs', 'expected_follow_st',
+                'expected_follow_extra_regs', 'expected_follow_memory', 'follow_pc',
+                'control_follow', 'list_follow', 'memory_before_measured',
+                'literal_model_memory', 'literal_citation', 'literal_source_notes',
+                'target_opcode', 'next_opcode_miss', 'call_flow', 'trap_flow',
+                'data_trap', 'following_bank', 'pixel_store', 'follow_opcode',
+                'pixel_processing', 'pixel_copy', 'pixel_xy_store', 'pixel_draw',
+                'pixel_xy_copy', 'data_fill', 'fill_timing', 'transparent_history',
+                'data_line', 'line_timing', 'expected_st_mask', 'expected_wvp',
+            }
+            drain = case.get('drain_instructions', 0)
+            if type(drain) is not int or not -2 <= drain <= 0x7fffffff:
+                raise ValueError(f"{case['name']}: invalid FPGA drain mode")
+            follow_pc = u32(case.get('follow_pc', 0))
+            if follow_pc & 15:
+                raise ValueError(f"{case['name']}: unaligned FPGA following PC")
+            if ('expected_follow_regs' in case or 'expected_follow_extra_regs' in case) and not any(
+                    key in case for key in ('control_follow', 'follow_delay', 'list_follow')):
+                raise ValueError(f"{case['name']}: unhandled following-register expectation")
+        elif case.get('drain_instructions', 0) not in (0, -1):
             raise ValueError(f"{case['name']}: unsupported FPGA drain/follow requirement")
-        if 'data_list' in case and not case['data_list']['load']:
+        if protocol_version == 2 and 'data_list' in case and not case['data_list']['load']:
             raise ValueError(f"{case['name']}: unsupported FPGA memory write")
-        if ('expected_memory' in case and not
+        if (protocol_version == 2 and 'expected_memory' in case and not
                 ('data_list' in case or case.get('stack_load') or case.get('pixel_load'))):
             raise ValueError(f"{case['name']}: unsupported FPGA memory expectation")
+        if protocol_version == 3 and 'expected_memory' in case and not any(
+                key in case for key in ('data_store', 'data_list', 'stack_load', 'pixel_load', 'data_fill', 'data_line')):
+            raise ValueError(f"{case['name']}: unhandled FPGA memory expectation")
     elif protocol_version != 1:
         raise ValueError('unsupported FPGA protocol version')
     found = sorted(set(case) - supported)
@@ -111,6 +138,10 @@ def prepare_cases(terms, limit=None, protocol_version=2, stimulus=None,
                 and not (test_pc | next_pc) & 15):
             raise ValueError(f"{case['name']}: unsupported program measurement interval")
         case.update(test_pc=test_pc, next_pc=next_pc)
+        # The original runner derives this after program(), not in the builder.
+        if 'follow_delay' in case:
+            case['follow_pc'] = next_pc + 16 * (case['follow_delay'] + 1)
+        require_supported(case, protocol_version)
         entry = dict(id=len(entries), name=case['name'], fixture=case,
                      program_words=words, test_pc=test_pc, next_pc=next_pc)
         if stimulus:
@@ -179,7 +210,7 @@ def make_batches(entries, protocol_version=2):
         if not words or len(words) > 3840 or any(type(v) is not int or not 0 <= v <= 0xffff for v in words):
             raise ValueError(f"{entry['name']}: invalid program length")
         require_supported(entry['fixture'], protocol_version)
-        memory = initial_words(entry['fixture']) if protocol_version == 2 else []
+        memory = initial_words(entry['fixture']) if protocol_version >= 2 else []
         stimulus = stimulus_for(entry)
         if protocol_version == 1 and any(stimulus.values()):
             raise ValueError('v1 does not support configurable stimulus')
@@ -193,7 +224,10 @@ def make_batches(entries, protocol_version=2):
                       entry['fixture'].get('measure_pass', 1)]
         descriptor += ([base + len(words), len(memory) // 3, stimulus['wait_states'],
                         stimulus['pause_clocks'], stimulus['pause_after_clocks'], 0]
-                       if protocol_version == 2 else [0, 0])
+                       if protocol_version >= 2 else [0, 0])
+        if protocol_version == 3:
+            descriptor += [entry['fixture'].get('drain_instructions', 0) & MASK32,
+                           entry['fixture'].get('follow_pc', 0), 0, 0]
         batch['descriptors'].append(descriptor)
         batch['cases'].append(entry)
         batch['program_words'].extend(words + memory)
@@ -210,7 +244,7 @@ def u32(value):
 
 def validate_manifest(manifest):
     """Keep the envelope and every batch on the same wire contract."""
-    formats = {FORMAT_V1: 1, FORMAT: 2}
+    formats = {name: version for version, name in FORMATS.items()}
     version = formats.get(manifest.get('format'))
     if version is None or manifest.get('protocol_version', 1) != version:
         raise ValueError('unsupported manifest format or protocol version')
@@ -260,6 +294,68 @@ def decode_events(raw, case_count, protocol_version=1):
     return lines
 
 
+def register_slot(name):
+    if name == 'sp':
+        return 15
+    if len(name) > 1 and name[0] in 'ab' and name[1:].isdigit() and int(name[1:]) < 16:
+        logical = int(name[1:])
+        return 15 if logical == 15 else logical + (16 if name[0] == 'b' else 0)
+    raise ValueError(f'unsupported architectural observation {name!r}')
+
+
+def read_register(result, base, name, valid, errors, context='', required=True):
+    slot = register_slot(name)
+    value = result[base + slot]
+    missing = value == 0xdead0000 + slot if valid is None else not (valid >> slot) & 1
+    if missing and required:
+        errors.append(f'{context}{name.upper()}: RF shadow slot was not initialized')
+    return value
+
+
+def v3_observation_lines(case, result, observed, errors):
+    """Reconstruct original-bench labels only from actual FPGA observations."""
+    if result[202] > 0xffff:
+        errors.append('primary INTPEND observation exceeds 16 bits')
+    if 'data_line' in case:
+        observed['wvp'] = (result[202] >> 11) & 1
+    if result[273] or any(result[278:]):
+        errors.append('reserved v3 result words are nonzero')
+    drain = case.get('drain_instructions', 0)
+    if drain > 0 or drain == -2:
+        if result[272] <= observed['end']:
+            errors.append('missing or invalid final drain boundary')
+        final = result[272]
+    else:
+        if result[272]:
+            errors.append('unexpected final drain boundary')
+        final = observed['end']
+    count, follow_pc = result[203], case.get('follow_pc', 0)
+    if count != int(bool(follow_pc)):
+        errors.append(f'following capture count: expected {int(bool(follow_pc))}, observed {count}')
+    if not count:
+        if any(result[204:272]) or any(result[276:278]):
+            errors.append('unused following observation words are nonzero')
+        return []
+    if result[206] != follow_pc:
+        errors.append('following capture PC association mismatch')
+    if result[207] > 0xffff:
+        errors.append('following accepted opcode exceeds 16 bits')
+    if not observed['start'] < result[204] <= final:
+        errors.append('following capture clock is outside the measured/drained interval')
+    valid = result[276] | (result[277] << 32)
+    required = {f'a{q}' for q in range(len(case.get('expected_follow_regs', [])))}
+    required.update(case.get('expected_follow_extra_regs', {}))
+    def values(names):
+        return ' '.join(f'{name}={read_register(result, 208, name, valid, errors, "following ", name in required):08x}'
+                        for name in names)
+    lines = [f'FOLLOW clock={result[204]} st={result[205]:08x} ' + values([f'a{q}' for q in range(4)])]
+    if case.get('observe_all'):
+        lines.append('FOLLOW_ALL ' + values([name for q in range(4, 15) for name in (f'a{q}', f'b{q}')]))
+    if case.get('observe_implicit') or case.get('observe_all'):
+        lines.append('FOLLOW_EXTRA ' + values([*[f'b{q}' for q in range(7)], 'sp']))
+    return lines
+
+
 def check_batch(batch, capture):
     version = batch.get('protocol_version', 1)
     if version not in RESULT_SIZES or capture.get('protocol_version', 1) != version:
@@ -291,7 +387,7 @@ def check_batch(batch, capture):
         case = copy.deepcopy(entry['fixture'])
         require_supported(case, version)
         # Restore Python tuple pairs lost at the JSON transport boundary.
-        for key in ('initial_memory', 'expected_memory'):
+        for key in ('initial_memory', 'expected_memory', 'expected_follow_memory'):
             if key in case:
                 case[key] = [tuple(pair) for pair in case[key]]
         if not isinstance(result, list) or len(result) != RESULT_SIZES[version]:
@@ -307,23 +403,14 @@ def check_batch(batch, capture):
         if result[7] + result[2] > MASK32 or result[2] == 0:
             errors.append('invalid or wrapped measurement clocks')
         observed = dict(case=result[0], clocks=result[2], start=result[7],
-                        end=result[7] + result[2], paused=result[72] if version == 2 else 0, st=result[6])
+                        end=result[7] + result[2], paused=result[72] if version >= 2 else 0, st=result[6])
         if observed['paused'] > observed['clocks']:
             errors.append('paused clocks exceed the measurement interval')
-        required = {f'a{q}': q for q in range(len(case['expected_regs']))}
-        for name in case.get('expected_extra_regs', {}):
-            if name == 'sp':
-                required[name] = 15
-            elif len(name) > 1 and name[0] in 'ab' and name[1:].isdigit() and int(name[1:]) < 16:
-                logical = int(name[1:])
-                required[name] = 15 if logical == 15 else logical + (16 if name[0] == 'b' else 0)
-            else:
-                raise ValueError(f'unsupported architectural observation {name!r}')
-        for name, slot in required.items():
-            value = result[8 + slot]
-            if value == 0xdead0000 + slot:
-                errors.append(f'{name.upper()}: RF shadow slot was not initialized')
-            observed[name] = value
+        required = [f'a{q}' for q in range(len(case['expected_regs']))]
+        required.extend(case.get('expected_extra_regs', {}))
+        valid = (result[274] | (result[275] << 32)) if version == 3 else None
+        for name in required:
+            observed[name] = read_register(result, 8, name, valid, errors)
         word = (entry['next_pc'] - 0x1000) // 16
         expected_opcode = (entry['program_words'][word]
                            if 0 <= word < len(entry['program_words']) else 0)
@@ -332,9 +419,11 @@ def check_batch(batch, capture):
         if result[5] != expected_opcode:
             errors.append('next accepted opcode differs from the fixture program')
         stimulus = stimulus_for(entry)
-        errors.extend(oracle.check(case, observed, stimulus['wait_states'], stimulus['pause_clocks']))
         lines = list(traces[index])
-        if version == 2:
+        if version == 3:
+            lines.extend(v3_observation_lines(case, result, observed, errors))
+        errors.extend(oracle.check(case, observed, stimulus['wait_states'], stimulus['pause_clocks']))
+        if version >= 2:
             initial_words(case)
             memory = case.get('initial_memory', [])
             if result[73] != len(memory):
@@ -344,9 +433,9 @@ def check_batch(batch, capture):
                 if actual_address != address or value > 0xffff:
                     errors.append('memory snapshot association or value is invalid')
                 lines.append(f'MEMORY {actual_address:08x} {value:04x}')
-            if any(result[74+2*len(memory):]):
+            if any(result[74+2*len(memory):202]):
                 errors.append('unused memory snapshot words are nonzero')
-        if 'control_flow' in case or 'stack_control_flow' in case:
+        if any(key in case for key in ('control_flow', 'stack_control_flow', 'call_flow', 'trap_flow')):
             lines.append(f'NEXT_OPCODE {result[5]:04x}')
         log = '\n'.join(lines)
         rows.append(oracle.check_observation(case, observed, errors, log,
@@ -373,7 +462,11 @@ def compare_reference(rows, reference_rows):
                     'cache_disabled', 'extensions', 'expected_extra_regs', 'test_pc', 'next_pc',
                     'initial_memory', 'expected_memory', 'data_load', 'data_list',
                     'stack_load', 'pixel_load', 'control_flow', 'stack_control_flow',
-                    'initial_all_regs', 'register_overrides'):
+                    'initial_all_regs', 'register_overrides', 'data_store', 'data_copy',
+                    'data_trap', 'data_fill', 'data_line', 'drain_instructions', 'follow_pc',
+                    'expected_follow_regs', 'expected_follow_st', 'expected_follow_extra_regs',
+                    'expected_follow_memory', 'control_follow', 'list_follow', 'follow_delay',
+                    'expected_st_mask', 'expected_wvp', 'observe_all', 'observe_implicit'):
             if json.loads(json.dumps(row.get(key))) != json.loads(json.dumps(other.get(key))):
                 errors.append(name+': fixture '+key+' differs')
         observed, golden = row['observed'], other['observed']
@@ -382,14 +475,26 @@ def compare_reference(rows, reference_rows):
         for key in fields:
             if observed.get(key) != golden.get(key):
                 errors.append(name+': observed '+key+' differs')
+        if 'data_line' in row and observed.get('wvp') != golden.get('wvp'):
+            errors.append(name+': observed WVP differs')
+        if 'observed_follow' in row or 'observed_follow' in other:
+            actual_follow, golden_follow = row.get('observed_follow', {}), other.get('observed_follow', {})
+            follow_fields = ['st', *[f'a{q}' for q in range(len(row.get('expected_follow_regs', [])))],
+                             *row.get('expected_follow_extra_regs', {})]
+            for key in follow_fields:
+                if actual_follow.get(key) != golden_follow.get(key):
+                    errors.append(name+': following '+key+' differs')
+            if (actual_follow.get('clock', -1) - observed['end'] !=
+                    golden_follow.get('clock', -1) - golden['end']):
+                errors.append(name+': following relative clock differs')
         for key in ('observed_memory', 'observed_next_opcodes'):
             if json.loads(json.dumps(row.get(key))) != json.loads(json.dumps(other.get(key))):
                 errors.append(name+': '+key+' differs')
-        for key in ('bus_trace', 'target_trace'):
+        for key in ('bus_trace', 'target_trace', 'follow_bus_trace', 'follow_target_trace'):
             normalized = []
             for item in (row, other):
                 lines = []
-                for line in item[key]:
+                for line in item.get(key, []):
                     parts = line.split()
                     parts[1] = str(int(parts[1]) - item['observed']['start'])
                     lines.append(' '.join(parts))
@@ -404,10 +509,10 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     prepare = sub.add_parser('prepare')
     prepare.add_argument('--case', action='append', default=[])
-    prepare.add_argument('--read-only-matrix', action='store_true',
+    prepare.add_argument('--matrix', '--read-only-matrix', dest='read_only_matrix', action='store_true',
                          help='select all fixtures supported by the chosen protocol; record exclusions')
     prepare.add_argument('--limit', type=int)
-    prepare.add_argument('--protocol-version', type=int, choices=(1, 2), default=2)
+    prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3), default=3)
     prepare.add_argument('--wait-states', type=int, default=0)
     prepare.add_argument('--pause-clocks', type=int, default=0)
     prepare.add_argument('--pause-after-clocks', type=int, default=0)
@@ -433,7 +538,7 @@ def main():
                                     dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
                                          pause_after_clocks=args.pause_after_clocks),
                                     read_only_matrix=args.read_only_matrix, audit=audit)
-            data = dict(format=FORMAT if args.protocol_version == 2 else FORMAT_V1,
+            data = dict(format=FORMATS[args.protocol_version],
                         protocol_version=args.protocol_version,
                         batches=make_batches(entries, args.protocol_version),
                         fixture_selection_audit=audit,

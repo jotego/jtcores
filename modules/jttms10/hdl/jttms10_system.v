@@ -20,6 +20,7 @@ module jttms10_system #(
 `endif
 `ifdef JTTMS10_REGRESSION
     output obs_field_pending_fault,
+    output obs_word_req, obs_word_pending,
 `endif
     input clk, rst, cen, vclk_cen,
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
@@ -56,6 +57,10 @@ module jttms10_system #(
     wire nmi_nmim;
     wire [15:0] psize, convsp, convdp, control, pmask, hstctlh;
     wire pixel_srt;
+`ifdef JTTMS10_REGRESSION
+    assign obs_word_req=word_req;
+    assign obs_word_pending=word_pending;
+`endif
     wire unused_hstctlh = &{hstctlh[15],hstctlh[13:0]};
 
     jttms10_word #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(1)) u_cpu(

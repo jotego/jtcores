@@ -14,24 +14,30 @@ import check_results as checker
 HERE = Path(__file__).resolve().parent
 
 
-def recovery_manifest(kind):
+def recovery_manifest(kind, protocol_version=3):
+    if kind == 'descriptor' and protocol_version != 3:
+        raise ValueError('extended descriptor recovery requires protocol version 3')
     terms = ['nop_off', 'nop_hit'] if kind == 'overflow' else ['mpys_fs2_positive_even_hit', 'nop_hit']
-    entries = checker.prepare_cases(terms)
+    entries = checker.prepare_cases(terms, protocol_version=protocol_version)
     entries.sort(key=lambda entry: entry['name'] == 'nop_hit')
     if len(entries) != 2 or entries[1]['name'] != 'nop_hit':
         raise ValueError('recovery test requires exactly one negative and one clean fixture')
     for identifier, entry in enumerate(entries):
         entry['id'] = identifier
-    batch = checker.make_batches(entries)[0]
-    if kind == 'overflow':
+    batch = checker.make_batches(entries, protocol_version=protocol_version)[0]
+    if kind == 'descriptor':
+        field, old, new = 'reserved15', batch['descriptors'][0][15], 1
+        batch['descriptors'][0][15] = new
+    elif kind == 'overflow':
         field, old, new = 'next_pc', batch['descriptors'][0][4], 0xff00
         batch['descriptors'][0][4] = new
     else:
         field, old, new = 'test_pc', batch['descriptors'][0][3], 0x1000
         batch['descriptors'][0][3] = new
         batch['descriptors'][0][5] = 1
-    return dict(format=checker.FORMAT, protocol_version=2,
-                batches=[batch, checker.make_batches([copy.deepcopy(entries[1])])[0]],
+    return dict(format=checker.FORMATS[protocol_version], protocol_version=protocol_version,
+                batches=[batch, checker.make_batches([copy.deepcopy(entries[1])],
+                                                     protocol_version=protocol_version)[0]],
                 deliberate_injection=dict(case_id=0, field='descriptor.'+field,
                                           original=old, mutated=new, timeout_cycles=10000))
 
@@ -42,7 +48,8 @@ def verify_recovery(kind, manifest, capture, report):
         raise ValueError('negative batch did not return two identified failing-batch results')
     if [row[0] for row in capture['results']] != [entry['id'] for entry in batch['cases']]:
         raise ValueError('negative batch lost case identification')
-    if capture['results'][0][1] != 0x80000002 or capture['results'][1][1] != 2:
+    expected_failure = 0x80000003 if kind == 'descriptor' else 0x80000002
+    if capture['results'][0][1] != expected_failure or capture['results'][1][1] != 2:
         raise ValueError('timeout or subsequent-case status is incorrect')
     overflow = bool(capture['event_count'] & 0x80000000)
     count = capture['event_count'] & 0x7fffffff
@@ -73,8 +80,8 @@ def verify_recovery(kind, manifest, capture, report):
                 trace_records=count, overflow=overflow)
 
 
-def run_negative(kind, output):
-    manifest = recovery_manifest(kind)
+def run_negative(kind, output, protocol_version):
+    manifest = recovery_manifest(kind, protocol_version)
     path = output / (kind+'-manifest.json')
     path.write_text(json.dumps(manifest, indent=2)+'\n')
     artifacts = output / kind
@@ -98,10 +105,14 @@ def run_negative(kind, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path, help='new evidence directory')
+    parser.add_argument('--protocol-version', type=int, choices=(3,), default=3)
+    parser.add_argument('--kind', action='append', choices=('timeout', 'overflow', 'descriptor'),
+                        help='repeat to select negatives; default: timeout and overflow')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        results = list(pool.map(lambda kind: run_negative(kind, args.output), ['timeout', 'overflow']))
+        results = list(pool.map(lambda kind: run_negative(kind, args.output, args.protocol_version),
+                                args.kind or ['timeout', 'overflow']))
     (args.output/'summary.json').write_text(json.dumps(results, indent=2)+'\n')
     for result in results:
         print(f"{result['kind']}: PASS (negative exit 1, next case and clean rearm pass)")

@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -25,8 +26,8 @@ DEFAULT_IP = '192.168.68.72'
 DEFAULT_CC = Path('/opt/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc')
 REMOTE_TRANSPORT = '/tmp/jttms10-fpga-transport'
 REMOTE_BATCH = '/tmp/jttms10-fpga-batch.bin'
-PROTOCOL_VERSION = 2
-DESCRIPTOR_WORDS = 12
+PROTOCOL_VERSION = 3
+DESCRIPTOR_WORDS = 16
 
 
 def find_source_root(explicit=None):
@@ -235,12 +236,14 @@ def compile_transport(cc, out):
 
 
 def input_payload(batches, timeout):
-    if not 1 <= len(batches) <= 4096:
+    if type(timeout) is not int or not 1 <= timeout <= 0xffffffff:
+        raise ValueError('timeout cycles must be an integer in 1..4294967295')
+    if not 1 <= len(batches) <= 8192:
         raise ValueError('invalid number of FPGA batches')
-    out = bytearray(struct.pack('<4sI', b'JTR3', len(batches)))
+    out = bytearray(struct.pack('<4sI', b'JTR4', len(batches)))
     for batch in batches:
         if batch.get('protocol_version') != PROTOCOL_VERSION:
-            raise ValueError('batch is missing protocol_version 2')
+            raise ValueError('batch is missing protocol_version 3')
         cases, words, desc = batch['cases'], batch['program_words'], batch['descriptors']
         batch_flags = batch.get('batch_flags', 0)
         if not 1 <= len(cases) <= 32 or len(desc) != len(cases) or not 1 <= len(words) <= 4096:
@@ -253,14 +256,17 @@ def input_payload(batches, timeout):
         for row in desc:
             if (not isinstance(row, (list, tuple)) or len(row) != DESCRIPTOR_WORDS or
                     any(type(word) is not int or not 0 <= word <= 0xffffffff for word in row)):
-                raise ValueError('descriptor must contain exactly 12 uint32 words')
+                raise ValueError('descriptor must contain exactly 16 uint32 words')
             if (len(row) != DESCRIPTOR_WORDS or row[2] == 0 or row[1] >= len(words) or
                     row[2] > len(words) - row[1] or row[2] > 3840 or
                     row[6] > len(words) or row[7] > 64 or row[7] > (len(words) - row[6]) // 3 or
                     row[3] & 15 or row[4] & 15 or
                     row[5] > 255 or row[8] > 0x1fffffff or row[9] > timeout or
-                    row[10] > timeout or row[11] != 0):
+                    row[10] > timeout or row[11] != 0 or row[14] != 0 or row[15] != 0):
                 raise ValueError('invalid descriptor program range')
+            drain = row[12] if row[12] < 0x80000000 else row[12] - 0x100000000
+            if drain < -2 or row[13] & 15:
+                raise ValueError('invalid signed drain mode or follow PC')
             intervals.append((row[1], row[1] + row[2]))
             if row[7]:
                 intervals.append((row[6], row[6] + 3 * row[7]))
@@ -303,9 +309,13 @@ def main():
     ap.add_argument('--parent-receipt', type=Path,
                     help='required full-fit parent receipt when --receipt is a ROM-update variant')
     ap.add_argument('--timeout-cycles', type=int, default=4_000_000)
+    ap.add_argument('--transport-timeout', type=float, default=1200.0,
+                    help='maximum wall-clock seconds for the remote FPGA batch stream (default: 1200)')
     ap.add_argument('--run-name')
     ap.add_argument('--compile', action='store_true', help='compile static ARM transport before use')
     args = ap.parse_args()
+    if not math.isfinite(args.transport_timeout) or args.transport_timeout <= 0:
+        ap.error('--transport-timeout must be a finite positive number of seconds')
     source_root = find_source_root(args.source_root)
     hardware_source_root = find_source_root(args.hardware_source_root or source_root)
     source_fpga = source_root / 'modules/jttms10/ver/fpga'
@@ -320,9 +330,9 @@ def main():
     if receipt.get('runner_source_sha256') != current_runner_hash:
         raise SystemExit('runner RTL differs from the image recorded in the programming receipt')
     manifest = json.loads(args.manifest.read_text())
-    if (manifest.get('format') != 'jttms10-fpga-batch-v2' or
+    if (manifest.get('format') != 'jttms10-fpga-batch-v3' or
             manifest.get('protocol_version') != PROTOCOL_VERSION):
-        raise SystemExit('unsupported manifest format')
+        raise SystemExit('unsupported manifest format; the V3 runner requires protocol version 3')
     batches = manifest['batches']
     if any(batch.get('protocol_version') != PROTOCOL_VERSION for batch in batches):
         raise SystemExit('one or more manifest batches use an unsupported protocol version')
@@ -388,19 +398,38 @@ def main():
     subprocess.run(['scp', '-O', *remote[:-1], str(input_file), f'{remote[-1]}:{REMOTE_BATCH}'], check=True)
     timings['transfer_seconds'] = time.monotonic() - transfer_start
     exec_start = time.monotonic()
-    result = subprocess.run(['ssh', *remote,
-                             f'chmod 755 {REMOTE_TRANSPORT} && {REMOTE_TRANSPORT} {REMOTE_BATCH} {receipt["sysid"]} {receipt["sysid_timestamp"]}'],
-                            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=240)
-    timings['execution_seconds'] = time.monotonic() - exec_start
-    if result.stderr:
-        (outdir / 'remote_stderr.txt').write_text(result.stderr)
-    (outdir / 'timings.json').write_text(json.dumps(timings, indent=2) + '\n')
+    partial_capture_path = outdir / 'capture.stdout.partial'
     capture_path = outdir / 'capture.json'
-    if result.stdout.strip():
-        capture_path.write_text(result.stdout)
-    if result.returncode and not result.stdout.strip():
-        raise RuntimeError(f'FPGA transport failed ({result.returncode}): {result.stderr.strip()}')
-    capture = json.loads(result.stdout)
+    stderr_path = outdir / 'remote_stderr.txt'
+    timed_out = False
+    command = ['ssh', *remote,
+               f'chmod 755 {REMOTE_TRANSPORT} && {REMOTE_TRANSPORT} {REMOTE_BATCH} {receipt["sysid"]} {receipt["sysid_timestamp"]}']
+    with partial_capture_path.open('wb') as stdout_file, stderr_path.open('wb') as stderr_file:
+        process = subprocess.Popen(command, stdout=stdout_file, stderr=stderr_file)
+        try:
+            process.wait(timeout=args.transport_timeout)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            process.kill()
+            process.wait()
+    timings['execution_seconds'] = time.monotonic() - exec_start
+    timings['transport_timeout_seconds'] = args.transport_timeout
+    timings['transport_timed_out'] = timed_out
+    timings['transport_exit_code'] = process.returncode
+    result_stderr = stderr_path.read_text(errors='replace')
+    if not result_stderr:
+        stderr_path.unlink()
+    if timed_out:
+        timings['partial_capture_path'] = str(partial_capture_path)
+        timings['total_seconds'] = time.monotonic() - overall_start
+        (outdir / 'timings.json').write_text(json.dumps(timings, indent=2) + '\n')
+        raise RuntimeError(f'FPGA transport exceeded {args.transport_timeout:g}s; partial stdout and timings were retained in {outdir}')
+    partial_capture_path.replace(capture_path)
+    result_stdout = capture_path.read_text()
+    (outdir / 'timings.json').write_text(json.dumps(timings, indent=2) + '\n')
+    if process.returncode and not result_stdout.strip():
+        raise RuntimeError(f'FPGA transport failed ({process.returncode}): {result_stderr.strip()}')
+    capture = json.loads(result_stdout)
     if capture.get('protocol_version') != PROTOCOL_VERSION:
         raise RuntimeError('transport returned an unsupported protocol version')
     captures = capture.get('batches')
@@ -432,10 +461,12 @@ def main():
     (outdir / 'timings.json').write_text(json.dumps(timings, indent=2) + '\n')
     failures = sum(report['failed'] for report in reports)
     aggregate = {'batches': reports, 'passed': sum(x['passed'] for x in reports), 'failed': failures}
-    (outdir / 'report.json').write_text(json.dumps(aggregate, indent=2) + '\n')
+    # Large full-matrix reports repeat extensive per-case observations. Keep
+    # the JSON data unchanged while avoiding whitespace-only NAS I/O.
+    (outdir / 'report.json').write_text(json.dumps(aggregate, separators=(',', ':')) + '\n')
     (outdir / 'timings.json').write_text(json.dumps(timings, indent=2) + '\n')
-    if result.returncode:
-        print(result.stderr, file=sys.stderr, end='')
+    if process.returncode:
+        print(result_stderr, file=sys.stderr, end='')
     for batch, report in zip(batches, reports):
         for row in report['cases']:
             print(f"{row['name']}: {'FAIL' if row['errors'] else 'PASS'} ({row['observed']['clocks']} clocks)")
@@ -446,7 +477,7 @@ def main():
         if not report['cases'] and report.get('protocol_errors'):
             print('failed cases: ' + ', '.join(x['name'] for x in batch['cases']), file=sys.stderr)
     print(f"capture: {capture_path}")
-    return int(bool(failures) or bool(result.returncode))
+    return int(bool(failures) or bool(process.returncode))
 
 
 if __name__ == '__main__':

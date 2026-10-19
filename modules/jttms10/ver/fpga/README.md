@@ -2,7 +2,85 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## FPGA batch validation (2026-10-19)
+## Version 3 FPGA validation
+
+The current RTL and SSH transport use protocol version 3. It adds external
+stores, independently frozen primary/following register observations, WVP and
+the original bench's positive and posted-write drain boundaries. Synchronous
+RAMs and FPGA-side target timing remain in use. The fixture definitions and
+Python expectations are unchanged. HOLD, external interrupt scheduling and
+EMU RUN-low scheduling still require separate extensions.
+
+Version 3 has matched the original Verilator bench for 29 physical observations,
+including unaligned/high-address stores, dependent following instructions,
+register-list stores, FILL and LINE: 17 base cases and six each at W1/P7-after0
+and W3. A separate intentionally failing diagnostic matches the original
+memory snapshot and errors when its final boundary coincides with a write ACK.
+Physical timeout, 512-record overflow and malformed-descriptor probes fail,
+while subsequent independent cases and clean rearm pass.
+An additional timeout interrupts an active write during the posted drain;
+the next register-list/following case reinitializes overlapping memory and
+passes, as does a clean rearmed batch.
+
+The complete matrix passes all 141,236 fixtures across 127 forms in each of
+base, W1/P7-after0 and W3: 423,708 FPGA executions on one configuration.
+All 5,151 batches per profile pass. Every raw result was replayed with the
+original Python oracle; the largest case needs 231 of 512 event records.
+Full external host wall is 284.86/296.71/299.87 seconds respectively, exit 0,
+including transfer, execution, checking and report generation. These are
+observed runs, not a controlled comparison of the profile time differences.
+This validates current fixture contracts: six PIXBLT forms have no timing
+probes and 448 MOVB source/target cases remain unresolved. It is not full
+#144 acceptance.
+
+The image SHA-256 is
+`0cdfad2e3f943514cf7d0196962dc915d6363e8f7284f27777fb1b8ba258e9a8`;
+runner RTL SHA-256 is
+`fe9b22038a06ec17610d9763052605538f1a8733cd1c65d5a6d3a3d8624e7ee7`.
+The retained-IP Quartus flow took 820.91 seconds (823.82 s outer helper),
+with all 35 source and 171 packaged inputs unchanged. All eight runner RAMs
+and both CPU RF mirrors infer `altsyncram`. The appliance fits in 7,284 ALMs
+and 348/397 RAM blocks. All four analyzed timing corners have positive slack
+and zero negative TNS; runner setup is at least +5.019 ns. This includes the
+test infrastructure and is not CPU-only area or final NARC/MiSTer board closure.
+
+| Profile | Full host wall (s) | Batch transfer (s) | FPGA staging (s) | FPGA run (s) | FPGA result drain (s) | Python checking (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Base | 284.86 | 10.487 | 11.684 | 52.732 | 113.274 | 51.954 |
+| W1/P7-after0 | 296.71 | 13.196 | 11.747 | 58.907 | 113.398 | 52.252 |
+| W3 | 299.87 | 10.913 | 11.706 | 69.908 | 111.930 | 51.803 |
+
+The target phases nest inside the SSH execution time; do not add them twice.
+Full wall includes final serialization/stdout/cleanup omitted from the driver's
+internal timer. A short local verification briefly overlapped the start of W3;
+these wall measurements do not isolate the cost of each stimulus setting.
+
+The complete 2,240-case base FILL subset also matches the original Verilator
+bench exactly through the copied DataStorm skill driver. Its FPGA command
+took 9.39 seconds; preparing its manifest took another 8.187 seconds. The
+ordinary Verilator command took 26.571 seconds including generation, model
+compilation, simulation, checking and reporting. Thus the observed loaded-image
+workflow was 17.577 versus 26.571 seconds, about 1.51 times faster including
+manifest preparation. This is one matched pair, not a full-matrix software
+comparison. The initial FPGA build above and 1.16-second programming SSH command
+(0.340538 seconds on the target, image already staged) are separate upfront
+costs. It does not establish a fresh-image or changed-RTL iteration speedup.
+
+Preparation and RTL smoke checks default to version 3. The source checker
+retains archived V1/V2 captures; the current transport rejects older wire
+layouts. Pin the protocol explicitly in reproduction commands:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --protocol-version 3 --matrix --output /path/to/v3-manifest.json
+```
+
+The driver supports up to 8,192 batches, streams returned captures to host
+storage and preserves partial
+output if its configurable transport timeout expires. Consult the version 3
+section of [PROTOCOL.md](PROTOCOL.md) for the exact descriptor/result contract.
+
+## Physical version 2 checkpoint (2026-10-19)
 
 The v2 autonomous runner has executed 154,626 cases on the physical TEI0022:
 51,542 supported read-only fixtures each at base timing, W1/P7-after0, and W3.

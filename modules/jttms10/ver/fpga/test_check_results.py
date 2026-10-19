@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Protocol negatives: corrupted captures must not become passing fixtures."""
 import copy
+import json
 import unittest
 
 import check_results as checker
@@ -220,6 +221,105 @@ class ResultChecks(unittest.TestCase):
         entry['fixture']['expected_memory'] = []
         with self.assertRaisesRegex(ValueError, 'memory expectation'):
             checker.make_batches([entry])
+
+    def packet_v3(self, follow=False):
+        old, capture = self.packet_v2()
+        entry = old['cases'][0]
+        if follow:
+            case = entry['fixture']
+            case.update(control_follow=dict(states=1, transfers=0),
+                        expected_follow_regs=list(case['expected_regs']),
+                        expected_follow_st=case['expected_st'],
+                        expected_follow_memory=[],
+                        follow_pc=case['next_pc'] + 16, drain_instructions=1)
+        batch = checker.make_batches([entry], protocol_version=3)[0]
+        capture['protocol_version'] = 3
+        result = capture['results'][0]
+        result.extend([0] * (288 - len(result)))
+        result[274] = 0xf
+        if follow:
+            result[203:208] = [1, 80, case['expected_follow_st'], case['follow_pc'], 0x0300]
+            result[208:212] = case['expected_follow_regs']
+            result[272] = 80
+            result[276] = 0xf
+        return batch, capture
+
+    def test_v3_descriptor_drain_and_follow_layout(self):
+        batch, capture = self.packet_v3(follow=True)
+        desc = batch['descriptors'][0]
+        self.assertEqual(len(desc), 16)
+        self.assertEqual(desc[12:], [1, batch['cases'][0]['fixture']['follow_pc'], 0, 0])
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        entry = batch['cases'][0]
+        entry['fixture']['drain_instructions'] = -2
+        self.assertEqual(checker.make_batches([entry], protocol_version=3)[0]['descriptors'][0][12],
+                         0xfffffffe)
+        for drain in (-3, 0x80000000, True):
+            entry['fixture']['drain_instructions'] = drain
+            with self.assertRaisesRegex(ValueError, 'drain mode'):
+                checker.make_batches([entry], protocol_version=3)
+
+    def test_v3_valid_sentinel_register_and_missing_validity(self):
+        batch, capture = self.packet_v3()
+        batch['cases'][0]['fixture']['expected_regs'][0] = 0xdead0000
+        capture['results'][0][8] = 0xdead0000
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        capture['results'][0][274] &= ~1
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+
+    def test_v3_following_state_clocks_association_and_validity(self):
+        for slot in (203, 204, 205, 206, 207, 208, 272, 276):
+            batch, capture = self.packet_v3(follow=True)
+            if slot == 207:
+                capture['results'][0][slot] = 0x10000
+            elif slot == 272:
+                capture['results'][0][slot] = 72
+            else:
+                capture['results'][0][slot] ^= 1
+            self.assertEqual(checker.check_batch(batch, capture)['failed'], 1, slot)
+        batch, capture = self.packet_v3(follow=True)
+        capture['results'][0][203] = 2
+        self.assertIn('following capture count', '\n'.join(checker.check_batch(batch, capture)['cases'][0]['errors']))
+
+    def test_v3_following_memory_and_extra_registers(self):
+        batch, capture = self.packet_v3(follow=True)
+        case, result = batch['cases'][0]['fixture'], capture['results'][0]
+        case.update(observe_implicit=True, expected_follow_extra_regs={'b4': 0x1234},
+                    initial_memory=[(0x4000, 0x1111)], expected_follow_memory=[(0x4000, 0x2222)])
+        result[73:76] = [1, 0x4000, 0x2222]
+        result[228] = 0x1234
+        result[276] |= 1 << 20
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        # Fixture pairs become arrays across the manifest JSON boundary.
+        reloaded = json.loads(json.dumps(batch))
+        self.assertEqual(checker.check_batch(reloaded, capture)['failed'], 0)
+        result[228] ^= 1
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+        result[228] ^= 1
+        result[75] ^= 1
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+
+    def test_v3_padding_and_unrequested_follow_are_checked(self):
+        for slot in (202, 203, 204, 208, 272, 273, 276, 278, 287):
+            batch, capture = self.packet_v3()
+            capture['results'][0][slot] = 0x10000 if slot == 202 else 1
+            self.assertEqual(checker.check_batch(batch, capture)['failed'], 1, slot)
+        batch, _ = self.packet_v3()
+        entry = batch['cases'][0]
+        for field in ('expected_memory', 'expected_follow_regs'):
+            entry['fixture'][field] = []
+            with self.assertRaisesRegex(ValueError, 'unhandled'):
+                checker.make_batches([entry], protocol_version=3)
+            del entry['fixture'][field]
+
+    def test_v3_following_cross_backend_comparison(self):
+        batch, capture = self.packet_v3(follow=True)
+        rows = checker.check_batch(batch, capture)['cases']
+        self.assertEqual(checker.compare_reference(rows, copy.deepcopy(rows)), [])
+        for field in ('clock', 'a0', 'st'):
+            reference = copy.deepcopy(rows)
+            reference[0]['observed_follow'][field] += 1
+            self.assertTrue(checker.compare_reference(rows, reference), field)
 
 
 if __name__ == '__main__':

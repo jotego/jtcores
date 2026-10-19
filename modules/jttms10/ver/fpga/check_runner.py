@@ -61,6 +61,8 @@ def main():
     parser.add_argument('--limit', type=int)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--timeout-cycles', type=int, default=4_000_000)
+    parser.add_argument('--protocol-version', type=int, choices=(3,), default=3,
+                        help='active RTL protocol (V3; V1/V2 are archived capture formats)')
     parser.add_argument('--wait-states', type=int, default=0)
     parser.add_argument('--pause-clocks', type=int, default=0)
     parser.add_argument('--pause-after-clocks', type=int, default=0)
@@ -71,23 +73,31 @@ def main():
         parser.error('batch size must be 1..32')
     if not 1000 <= args.timeout_cycles <= 0xffffffff:
         parser.error('timeout must be 1000..4294967295 input clocks')
-    output = args.output.resolve()
-    if output.exists():
-        parser.error('output directory must be new')
-    output.mkdir(parents=True)
     if args.manifest:
         manifest = json.loads(args.manifest.read_text())
-        if manifest.get('format') != checker.FORMAT or not manifest.get('batches'):
-            parser.error('unsupported or empty manifest')
+        try:
+            version = checker.validate_manifest(manifest)
+        except (KeyError, TypeError, ValueError) as error:
+            parser.error(f'unsupported or malformed manifest: {error}')
+        if version != 3:
+            parser.error(f'protocol V{version} manifests are archived capture formats; '
+                         'the active Verilator RTL accepts only V3')
+        if args.protocol_version is not None and args.protocol_version != version:
+            parser.error('requested protocol version differs from manifest')
         batches = manifest['batches']
     else:
-        entries = checker.prepare_cases(args.case, args.limit, 2,
+        version = 3
+        entries = checker.prepare_cases(args.case, args.limit, version,
                                        dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
                                             pause_after_clocks=args.pause_after_clocks))
         batches = []
         for q in range(0, len(entries), args.batch_size):
-            batches.extend(checker.make_batches(entries[q:q+args.batch_size]))
-        manifest = dict(format=checker.FORMAT, protocol_version=2, batches=batches)
+            batches.extend(checker.make_batches(entries[q:q+args.batch_size], protocol_version=version))
+        manifest = dict(format=checker.FORMATS[version], protocol_version=version, batches=batches)
+    output = args.output.resolve()
+    if output.exists():
+        parser.error('output directory must be new')
+    output.mkdir(parents=True)
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
     started = time.monotonic()
     with tempfile.TemporaryDirectory(prefix='jttms10-fpga-verify-') as temp:
@@ -99,9 +109,9 @@ def main():
             desc = [word for entry in batch['descriptors'] for word in entry]
             program = batch['program_words']
             desc_file, program_file = work/f'desc-{q}.hex', work/f'program-{q}.hex'
-            desc_file.write_text(''.join(f'{v:08x}\n' for v in desc+[0]*(384-len(desc))))
+            desc_file.write_text(''.join(f'{v:08x}\n' for v in desc+[0]*(512-len(desc))))
             program_file.write_text(''.join(f'{v:08x}\n' for v in program+[0]*(4096-len(program))))
-            batch_lines.append(f"{len(batch['cases'])} {len(program)} {desc_file} {program_file}\n")
+            batch_lines.append(f"{len(batch['cases'])} {len(program)} {batch['protocol_version']} {desc_file} {program_file}\n")
         (work/'batches.txt').write_text(''.join(batch_lines))
         sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', *sorted((MODULE/'hdl').glob('*.v'))]
         command = ['verilator', '--binary', '--timing', '--top-module', 'test',
@@ -144,7 +154,7 @@ def main():
         except ValueError as error:
             reports.append(dict(cases=[], passed=0, failed=len(batch['cases']),
                                 protocol_errors=[str(error)]))
-    report = dict(batches=reports, elapsed_seconds=time.monotonic()-started,
+        report = dict(protocol_version=version, batches=reports, elapsed_seconds=time.monotonic()-started,
                   source_sha256=provenance, generated_sha256=generated,
                   toolchain=toolchain, backend='Verilator Avalon runner')
     reference_errors = []
@@ -153,7 +163,10 @@ def main():
         reference_errors = checker.compare_reference(
             [row for batch in reports for row in batch['cases']], reference['cases'])
         report['reference_comparison_errors'] = reference_errors
-    (output/'report.json').write_text(json.dumps(report, indent=2)+'\n')
+    # The aggregate report may contain all per-case observations for a large
+    # matrix. Keep its JSON schema and values unchanged while avoiding a large
+    # whitespace-only artifact on the board's shared storage.
+    (output/'report.json').write_text(json.dumps(report, separators=(',', ':'))+'\n')
     for batch in reports:
         for error in batch.get('protocol_errors', []):
             print('Protocol failure: '+error)

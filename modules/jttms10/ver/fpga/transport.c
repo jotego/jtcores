@@ -18,10 +18,10 @@
 #define MAP_BYTES 0x1000u
 #define MAX_CASES 32u
 #define MAX_PROGRAM_WORDS 4096u
-#define DESCRIPTOR_WORDS 12u
-#define RESULT_WORDS 202u
+#define DESCRIPTOR_WORDS 16u
+#define RESULT_WORDS 288u
 #define MAX_EVENTS 16384u
-#define MAX_BATCHES 4096u
+#define MAX_BATCHES 8192u
 #define DEFAULT_TIMEOUT_MS 180000u
 
 static volatile uint32_t *regs;
@@ -68,8 +68,10 @@ static int run_batch(FILE *in, uint32_t batch_index, uint32_t *previous_status) 
             (d[3]&15u) || (d[4]&15u) || d[5]>255u) {
             fail("descriptor program/initializer bounds or measurement target invalid"); free(desc); free(prog); return 2;
         }
-        if (d[8]>0x1fffffffu || d[9]>timeout || d[10]>timeout || d[11]) {
-            fail("unsupported per-case timing or descriptor flags"); free(desc); free(prog); return 2;
+        if (d[8]>0x1fffffffu || d[9]>timeout || d[10]>timeout || d[11] ||
+            ((d[12]&0x80000000u) && d[12]!=0xfffffffeu && d[12]!=0xffffffffu) ||
+            (d[13]&15u) || d[14] || d[15]) {
+            fail("unsupported per-case timing, drain/follow field or descriptor flags"); free(desc); free(prog); return 2;
         }
         begin[ninterval]=d[1]; end[ninterval++]=d[1]+d[2];
         if(d[7]) { begin[ninterval]=d[6]; end[ninterval++]=d[6]+3u*d[7]; }
@@ -125,7 +127,7 @@ static int run_batch(FILE *in, uint32_t batch_index, uint32_t *previous_status) 
     uint32_t event_word=rd(7), nevent=event_word&0x7fffffffu;
     if(nevent>MAX_EVENTS) { fail("event count exceeds output bound"); free(desc); free(prog); return 5; }
     if(batch_index) putchar(',');
-    printf("{\"protocol_version\":2,\"status\":%" PRIu32 ",\"event_count\":%" PRIu32
+    printf("{\"protocol_version\":3,\"status\":%" PRIu32 ",\"event_count\":%" PRIu32
            ",\"stage_ms\":%" PRIu64 ",\"run_ms\":%" PRIu64
            ",\"results\":[",status,event_word,stage_end-stage_start,run_end-start);
     for(uint32_t c=0;c<ncase;c++) {
@@ -159,7 +161,7 @@ int main(int argc,char **argv) {
     FILE *in=fopen(argv[1],"rb");
     if(!in){perror("fopen batch");return 2;}
     uint8_t magic[4]; uint32_t nbatch;
-    if(!read_exact(in,magic,4)||memcmp(magic,"JTR3",4)||!read_exact(in,&nbatch,sizeof nbatch)||!nbatch||nbatch>MAX_BATCHES){
+    if(!read_exact(in,magic,4)||memcmp(magic,"JTR4",4)||!read_exact(in,&nbatch,sizeof nbatch)||!nbatch||nbatch>MAX_BATCHES){
         fail("bad stream header");fclose(in);return 2;
     }
     int fd=open("/dev/mem",O_RDWR|O_SYNC);
@@ -174,9 +176,9 @@ int main(int argc,char **argv) {
         munmap(map,MAP_BYTES);close(fd);fclose(in);return 3;
     }
     regs=(volatile uint32_t *)((volatile char *)map+RUNNER_OFFSET);
-    if(rd(0)!=0x4a545232u){fail("runner magic mismatch at 0xff210840");munmap(map,MAP_BYTES);close(fd);fclose(in);return 3;}
+    if(rd(0)!=0x4a545233u){fail("runner magic mismatch at 0xff210840");munmap(map,MAP_BYTES);close(fd);fclose(in);return 3;}
     uint32_t previous_status=rd(1); int overall=0;
-    printf("{\"protocol_version\":2,\"batches\":[");
+    printf("{\"protocol_version\":3,\"batches\":[");
     for(uint32_t b=0;b<nbatch;b++) {
         int rc=run_batch(in,b,&previous_status);
         if(rc && !overall)overall=rc;

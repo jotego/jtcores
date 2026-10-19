@@ -1,4 +1,32 @@
-# Autonomous runner protocol, version 2
+# Autonomous runner protocol
+
+The current RTL and transport use [version 3](#version-3-contract). Its CSR
+magic is `0x4a545233` (JTR3); the input stream begins with `JTR4`, followed by
+the little-endian batch count. Do not confuse this stream with V2's `JTR3`
+stream or pair an older image with the current driver. The source checker
+retains archived capture support.
+
+Prepare and execute the current matrix with a matching image receipt:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --protocol-version 3 --matrix --output /path/to/v3-manifest.json
+python3 modules/jttms10/ver/fpga/run_batch.py /path/to/v3-manifest.json \
+    --source-root /path/to/selected-checkout \
+    --receipt /path/to/v3-source-bound-receipt.json \
+    --artifacts /path/to/results --run-name matrix-1
+```
+
+The complete matrix passes all 141,236 current fixtures in 5,151 batches for
+each of base, W1/P7-after0 and W3 (423,708 FPGA executions on one image);
+29 focused physical observations across base/W1-P7/W3 match the original
+Verilator bench. See [README.md](README.md) for measured scope, build identity
+and limitations. These are current fixture contracts, not full #144 timing
+signoff. The historical V1/V2 contract and measurements below require their
+matching image/transport for hardware reproduction; V3 extends the CSR and
+payload geometry as detailed in its section.
+
+## Historical version 2 checkpoint and base contract
 
 This interface is under development for jtcores #145. Version 2 adds sparse
 read-only memory, deterministic waits and early CEN pauses. The fitted v2 image
@@ -373,3 +401,67 @@ firmware/overlay identity. Variants inherit SYSID/timestamp, so these IDs alone
 cannot identify changed ROM contents. Program each distinct image through its
 own verified firmware/overlay and restore baseline controls after negative
 runs. This path adds no descriptor/result words or per-case host intervention.
+
+## Version 3 contract
+
+Version 3 is the default for new fixture preparation and current RTL smoke
+checks; pin it explicitly with `prepare --protocol-version 3` when reproducing
+a run. The source checker retains archived V1/V2 captures. Host schema support
+alone is not execution evidence; the validated physical scope is recorded in
+the README. The independent timing fixture generator and oracle are unchanged.
+
+The descriptor grows from 12 to 16 little-endian u32 words. Words 0–11 keep
+V2 meanings. Word 12 is the signed 32-bit drain mode (-2, -1, 0 or a positive
+count), encoded in two's complement. Word 13 is the following accepted PC,
+zero when no capture is requested; words 14–15 are reserved zero. The host
+uses the original runner's complete preparation sequence: `program(case)`,
+then test/next PC association, then `follow_pc` derived from `follow_delay`.
+Several builders also mutate memory and drain fields during preparation.
+
+Results grow to 288 u32 words. Positions 0–201 retain V2 meanings, except that
+register initialization is established by the explicit validity maps below.
+A valid register may equal the old sentinel `0xdead0000 + slot`.
+
+| Words | Observation |
+| --- | --- |
+| 202 | Primary INTPEND, low 16 bits; WVP is bit 11 |
+| 203 | Number of following PC acceptances during measurement/drain |
+| 204–207 | Following absolute case clock, ST, accepted PC, accepted IR (low 16) |
+| 208–271 | Following physical RF shadow, 64 words |
+| 272 | Final drain boundary clock; zero for immediate 0/-1 modes |
+| 273 | Reserved zero |
+| 274–275 | Primary RF validity bitmap, low then high 32 bits |
+| 276–277 | Following RF validity bitmap, low then high 32 bits |
+| 278–287 | Reserved zero |
+
+Primary registers/status/pause count freeze at the next accepted decode,
+excluding writeback on that edge. Following state freezes independently at
+its accepted PC, which may be before, at or after the primary boundary.
+Duplicate following acceptances fail explicitly. With no following capture,
+words 204–271 and 276–277 must be zero. The host checks validity for registers
+consumed by the original oracle. Following IR is retained for diagnosis;
+no program-only expectation is invented for potentially self-modified code.
+Primary control-flow target-opcode checks remain active.
+
+Drain 0/-1 ends execution at the primary boundary; -1 is the original immediate
+memory-dump mode. A positive count executes that many additional accepted
+decodes and samples memory at the final boundary. Drain -2 freezes CPU CEN on
+the following falling edge while keeping the fabric/target clocked until the
+word request/pending interface and target are idle. The primary pause count
+excludes these later drain clocks. Memory observations match the original
+bench's pre-edge dump, including an ACK coinciding with the final boundary.
+
+Writes commit at the physical target ACK edge. Local-memory writes update any
+initialized sparse alias; high addresses require the exact initialized sparse
+word, not merely a matching region tag. Sparse reads override local/IO/vector
+fallbacks. CPU register memories retain their original ports; RF observation
+uses independent synchronous shadow banks and serial result readout after the
+case. FPGA timing never depends on Linux response latency.
+
+The current event limits remain 512 records per case and 16,384 per batch, with
+explicit overflow. They must be validated over complete drain/follow intervals.
+All 141,236 prepared fixtures fit the initializer/program dimensions (maximum
+40 initial halfwords, 14 regions and 1,308 program halfwords). Current packing
+requires 5,151 batches and 42,863,524 binary payload bytes. These host-only
+measurements do not establish trace capacity, FPGA fit or physical agreement.
+HOLD, IRQ/NMI and EMU RUN-low schedules remain separate work.
