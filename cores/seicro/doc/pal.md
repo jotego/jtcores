@@ -815,6 +815,39 @@ With four address pins grounded, the qualified 2147-family reference gives
 256 address combinations per chip. Six one-bit RAMs provide 256 six-bit
 locations per bank (1,536 bits, equivalent to 192 bytes of capacity). The
 same physical pin permutation is used on the read and write paths, so it needs no address-bit
-shuffle by itself. The address-source and phase mapping for actual reads and
-writes remains open; this does not establish phase equivalence with the game's
-generic object buffer.
+shuffle by itself. The address-source routing is recorded below; its physical
+read/write capture phases remain open. This does not establish phase
+equivalence with the game's generic object buffer.
+
+## RAM address-source selection
+
+The jointly confirmed source words cross between the banks' A/B inputs.
+Define `C` as the two 161-counter output word and `X` as the combined 9L/9K
+output word. Each row lists pins in descending bit order.
+
+| Bits | C source/output pins | X source/output pins |
+| --- | --- | --- |
+| 7–4 | 8H / 11, 12, 13, 14 | 9L / 6, 3, 11, 8 |
+| 3–0 | Lower 161 beside 8J / 11, 12, 13, 14 | 9K / 6, 3, 11, 8 |
+
+The lower counter's designator is not confirmed. All four mux active-low enable
+pins 15 are grounded; the input bubbles are confirmed.
+
+| RAM bank | Muxes (high/low nibble) | A inputs 14, 11, 5, 2 | B inputs 13, 10, 6, 3 |
+| --- | --- | --- | --- |
+| Upper | 8I / 8J | X | C |
+| Lower | 9I / 9J | C | X |
+
+With `S = 6B./Q6` and all four address-mux selects driven by
+`6B.Q5 = NOT S`, the mux truth table and confirmed readout-bank selection give:
+
+| S | Upper RAM address | Lower RAM address | Readout bank |
+| --- | --- | --- | --- |
+| 0 | C | X | Lower |
+| 1 | X | C | Upper |
+
+Thus the readout bank is addressed by `X` for either value of `S`, while the
+other bank is addressed by `C`. This records digital routing only. The internal
+logic meaning of the 9K/9L outputs, counter input meanings and timing, and the
+physical read/write capture phases remain unverified; `X` is not identified as
+a scan address and `C` is not identified as a sprite address.
