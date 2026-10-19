@@ -876,7 +876,8 @@ board net name has not been identified.
 Define `Q = {8M.11, 8M.12, 8M.13, 8M.14, 8L.11, 8L.12, 8L.13, 8L.14}`
 in descending bit order. The confirmed gate function is `X = Q XOR {8{F}}`:
 `F=0` preserves the counter word and `F=1` complements all eight bits.
-The counters' load, clock, enable and clear sequences remain separate checks.
+The counters' load, enable and clear sequences remain separate checks; their
+parallel inputs and common clock are recorded below.
 
 ## RAM address XOR control timing
 
@@ -888,7 +889,12 @@ P and remains inactive.
 
 On each rising `H3` edge, the type 174 latch therefore updates
 `F = 8F.5 = H8 AND INV`. Between those edges, `F` retains its sampled value.
-The source and software meaning of the board net `INV` remain to be traced.
+The confirmed source path is AY 1D pin 12 (`H.V.INV`, port B bit 1) through
+5H input pin 2 and output pin 3 to video `INV`. 5H is a type 367 non-inverting
+buffer; the two net names denote its input and output sides. Both active-low
+enable pins, 1 and 15, are circled, joined and tied to ground, so this buffer
+is continuously enabled. These ties are jointly confirmed. The existing core's
+`flip = portb[1]` agrees with this source bit and polarity.
 
 For stable `INV`, the verified horizontal count sequence 128 through 511
 and this sampling rule imply the following ideal steady-state phases:
@@ -905,3 +911,16 @@ analogue propagation. The initial latch value before its first clock is
 unspecified by the inactive clear wiring. For stable `INV`, these phases also
 give `F = INV AND NOT bank_blank` in the ideal model of the previously traced
 6B chain; a changing `INV` must still obey 8F's clocked sampling rule.
+
+## 8M/8L counter parallel inputs and clock
+
+Both type 163 counter clock inputs, pin 2, receive `/MCLK`; the bar on this
+net name is jointly confirmed. Their parallel-data inputs form the CD byte:
+
+| Counter | CD bits, descending | Physical input pins, in the same order |
+| --- | --- | --- |
+| 8M | 7, 6, 5, 4 | 6, 5, 4, 3 |
+| 8L | 3, 2, 1, 0 | 6, 5, 4, 3 |
+
+These routes establish the parallel-data word and clock polarity. The source
+of CD and the load, cascade-enable and clear wiring remain separate checks.
