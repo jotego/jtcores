@@ -65,7 +65,9 @@ match the final capture; an earlier fixture differs only by a subsequent
 four-line vector-overlap/input-size guard. The unchanged38-request
 MSW-first stack regression and strict lint pass. The existing180-program
 architecture suite also passes before the final TRAP0 read-path change;
-the fresh full runner must repeat it on the final source. All1,800 baseline
+the fresh full runner repeats all180 architectural programs and13 functional
+IRQ/LINE scenarios successfully on the final source; its full outcome is
+pending. All1,800 baseline
 programs on2b4fb7683 fail timing/bus checks with correct architectural,
 following and memory results; ten representatives retain verified old
 HDL/YAML hashes. Historical captures are never an oracle or allowlist.
@@ -78,7 +80,11 @@ complete during96/160-clock CPU pauses. Working state stays held, memory
 and the target opcode are checked, and resume preserves transaction order.
 These bounded events do not replace the exact unpaused TI counts.
 All1,800 Icarus/Verilator case objects and47 timing-source/generated hashes
-match exactly. Clean and full-runner evidence is still being collected.
+match exactly. A detached clean checkout repeats138 models, all1,800 stressed programs
+and13 controls/one response-retention mutant with exact observations and
+source/generated hashes. Four fresh-process probes match batching except
+the local case identifier. This is targeted clean validation, not a full
+standard runner. The fresh115-form full runner remains pending.
 All90,338 preceding fixture/program/golden hashes remain unchanged.
 
 This adds one form (115/133;18 missing), with92,138 cases. The source gate

@@ -603,5 +603,8 @@ correct full architectural/following state and memory; ten representatives
 retain verified old HDL/YAML hashes. See[trap-timing.md](trap-timing.md) for
 source interpretation, event scope and current exclusions. All1,800 Icarus/Verilator case objects and47 timing-source/generated hashes
 match exactly;90,338 previous fixture/program/golden hashes remain unchanged.
-Clean and full-runner outcomes remain pending. The current map estimates
+A detached clean checkout repeats138 models, all1,800 stressed cases and
+response13/1 events with exact source/generated hashes and observations.
+Four fresh-process probes match batching except local identifiers. Clean
+scope is targeted; the115-form full runner remains pending. The current map estimates
 3,719 ALMs/five DSPs; final fitted area and hardware acceptance remain open.
