@@ -76,3 +76,17 @@ The new cases, mutation controls, response cases and word-phase probes are
 part of the standard repository runner. Full ISA/condition acceptance, full
 clean/remote CI, final fitted area/board STA and NARC/MiSTer checks remain
 open under#144. The complete CPU still uses five DSP blocks.
+
+Verified targeted results: all18,792 programs in three profiles repeat exactly
+in a detached clean checkout,alongside173 models and33/1 response events.
+Every case object,52 source/seven generated hashes and response result match.
+All586 representative Icarus stress cases match Verilator except batch-local
+ID,with102 short phase programs and two fresh processes. The first complete
+586-case capture had wrapper143/no final child status and is excluded from
+completed invocations; its detached rerun returns0 and reproduces every case
+object. Three new/eight affected timing mutation controls/rejections,
+180 architecture programs,strict lint and the original38-request MSW-first
+assertion pass. All32,700 checks of preceding pixel paths also pass.
+Matched map is3,868 ALMs,5,585 ALUTs,1,722 registers and five DSPs;36 snapshot/
+29 committed physical inputs verify. No new fit/STA is claimed. Clean scope
+remains targeted; the full normal runner is still running frozen5a74e596e.

@@ -825,3 +825,28 @@ model,literal TI examples,non-idempotent prefill measurement,exact bus/following
 contracts,representative condition axes and remaining exclusions. All106,610
 preceding fixture contracts remain unchanged. All154 historical representative
 probes fail timing/bus with correct architecture/memory on187edd8df.
+
+Boolean verification is complete: three6,264-case profiles (18,792 programs)
+W0/P0,W1/P0,W1/P7 pass. Detached clean5a74e596e repeats all18,792,173 models
+and33 response controls/one mutant. Every case object,52 timing-source/seven
+generated hashes and response object matches development exactly. All586
+representative Icarus stress cases match Verilator except batch-local ID;
+102 short Icarus phases,two fresh-process cases,180 architecture programs,
+strict lint and the original38-request MSW-first assertion pass. Three new
+actual timing mutations and eight affected pixel controls/rejections retain
+correct architecture/memory. All10,900 preceding pixel programs pass all
+three profiles (32,700 checks). All106,610 preceding fixture contracts remain
+unchanged. The initial586-case capture has wrapper143/no supervisor status;
+it is excluded from completed-invocation claims. The detached rerun completes
+with status0 and reproduces every case object exactly.
+
+Matched map estimates3,868 ALMs,5,585 ALUTs,1,722 registers,538,624 RAM bits,
+five DSPs and zero MLAB bits. All36 snapshot/29 committed physical inputs,
+normalized QSF,SDC and49 warning classifications verify. Original live-capture
+source_commit:null metadata is retained. This is synthesis only; no new
+fit/STA acceptance is claimed. The final fitted ceiling remains3,500 ALMs.
+Boolean full runner is running frozen5a74e596e; replace-only120 full runner
+remains separate at187edd8df. Latest accepted complete invocation stays119
+forms/adac0fbbd/314,756 programs. Clean proof is targeted,not a full normal
+runner. The12,625 choices/448 unresolved MOVB probes/45 agreed targets and
+all final acceptance gates remain open,without waivers.
