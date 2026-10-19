@@ -863,3 +863,44 @@ measurement,bus/following contracts and remaining conditions. The inconsistent
 PS16/20508 example is explicitly excluded under the owner's alignment-rule
 interpretation. All136 historical representative probes fail timing/bus with
 correct architecture/memory on3cdbdd220. No known MOVB target is waived.
+
+Linear-copy targeted verification is complete: three5,856-case profiles
+(17,568 programs) W0/P0,W1/P0,W1/P7 pass. Detached clean cabaf7c8b repeats
+all17,568,179 models and37 response controls/one mutant. Every case object,
+53 source/seven generated hashes and response result matches exactly.
+All394 representative Icarus stress cases match Verilator except batch-local
+ID,alongside102 short phases,two fresh-process cases,180 architecture programs,
+strict lint and the original38-request MSW-first assertion. Three new actual
+timing mutants and11 affected pixel controls/rejections retain correct full
+architecture/memory. All112,874 preceding fixture contracts remain unchanged.
+All136 old-core representative probes fail timing/bus with correct state/
+memory;22 old HDL/YAML hashes verify. The wrong-dispatch-family prototype
+failed its first batch program and is excluded; its repeated transcript is
+not1364 independent failures.
+
+Matched map estimates3,909 ALMs,5,643 ALUTs,1,722 registers,538,624 RAM bits,
+five DSPs and zero MLAB bits. All36 snapshot/29 committed physical inputs,
+normalized QSF,SDC and49 warning classifications verify. Original live-capture
+source_commit:null metadata remains. This is synthesis only; final≤3,500
+fitted ALMs/positive board STA remain required. Fresh121-form full runner is
+running frozen cabaf7c8b; Boolean120 at5a74e596e remains separate. Clean scope
+is targeted,not a full normal runner. No source target or final gate is waived.
+
+### Completed120-form replace-write standard runner
+
+The uninterrupted runner frozen187edd8df passes323,708 exact timing programs:
+three106,610-case matrices,two DIV pauses and six646-case phase unions.
+All165 models,180 architecture programs,699 bus scenarios,87 mutation controls/
+95 rejections,response29/1,EMU8/1 and the original MSW-first assertion pass.
+All51 timing-source/seven generated hashes match the committed implementation/
+map,and its private whole Git tree remains identical to187edd8df. Final
+supervisor exit1 is solely13 missing forms and448 unresolved source probes,
+including45 agreed published-target gaps. This supersedes119/adac314,756 as
+the latest accepted complete development invocation.
+
+Its clean scope remains targeted8,472 programs in three profiles,165 models
+and29/1 response events,not a full323,708-program clean normal runner. Its
+historical map is3,817 ALMs/five DSPs; current121-form code is newer at3,909
+map ALMs/five DSPs. Boolean120 and121-copy full invocations remain running;
+no completed result for either is claimed. Full ISA/conditions/known targets/
+cleanCI/final fitted area/board STA/NARC/MiSTer gates stay open.
