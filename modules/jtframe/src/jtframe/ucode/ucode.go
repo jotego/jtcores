@@ -7,7 +7,7 @@ package ucode
 import (
 	"bytes"
 	"fmt"
-	"html/template"
+	"text/template"
 	"math"
 	"os"
 	"path/filepath"
@@ -15,8 +15,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-
-	// "text/template"
 
 	// "github.com/Masterminds/sprig/v3"
 	"github.com/Masterminds/sprig"
@@ -68,6 +66,8 @@ type UcDesc struct {
 		Implicit bool `yaml:"implicit"`
 		BusError string `yaml:"bus_error"`
 		Latch    bool	`yaml:"latch_ucode"`
+		// Opt in to deterministic edge sampling; legacy modules retain blocking reads.
+		LatchNonblocking bool `yaml:"latch_nonblocking"`
 		IgnoreCycles bool `yaml:"ignore_cycles"`		// use to indicate that cycle information is still not ready and should not be used
 		Auto struct { // Automatic assignment of start address to procedures
 			Min int   // base address at which assignment starts
@@ -651,12 +651,13 @@ func dump_ucode(fname string, params []UcParam, code []string) {
 	}
 }
 
-func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcParam, chunks []UcChunk) (e error){
+func dump_ucrom_vh(fname string, latch, nonblocking bool, lenentry, lenuc int, params []UcParam, chunks []UcChunk) (e error){
 	context := struct {
 		Dw, Aw int
 		EntryLen int
 		Rom	   string
 		Latch  bool
+		Nonblocking bool
 		Ss     []UcParam
 		Jsr    []UcChunk
 	}{
@@ -665,6 +666,7 @@ func dump_ucrom_vh(fname string, latch bool, lenentry, lenuc int, params []UcPar
 		EntryLen: lenentry,
 		Rom: fname+".uc",
 		Latch: latch,
+		Nonblocking: nonblocking,
 		Ss: params,
 		Jsr: make([]UcChunk,0,len(chunks)),
 	}
@@ -944,7 +946,7 @@ func Make(modname, fname string) (e error) {
 		dump_gtkwave(params)
 	}
 	dump_ucode(Args.Output, params, code)
-	e = dump_ucrom_vh(Args.Output, desc.Cfg.Latch, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
+	e = dump_ucrom_vh(Args.Output, desc.Cfg.Latch, desc.Cfg.LatchNonblocking, desc.Cfg.EntryLen, len(code), params, desc.Chunks)
 	if e != nil { return e}
 	e = dump_param_vh(Args.Output, params, desc.Cfg.EntryLen, desc.Cfg.Entries, desc.Chunks )
 	if e != nil { return e}

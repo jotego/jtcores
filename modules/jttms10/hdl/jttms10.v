@@ -44,6 +44,7 @@ module jttms10 #(
          gfx_dst_ea,gfx_dst_tmp,gfx_dst_rf,gfx_dst_ir,gfx_mdrf;
     wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel,gfx_bus_sync;
     wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test,gfx_pix_word;
+    wire gfx_product,gfx_product_y,gfx_packed_xy;
     reg fill_word;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
          gfx_flag_vpix,gfx_flag_vclear,gfx_flag_wvp;
@@ -155,11 +156,13 @@ module jttms10 #(
     wire [2:0] shift_kind = ir[15:13]==3'b001 ? ir[12:10] : ir[11:9];
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
     wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
-    wire [4:0] factor_index=convert_ir ? ~((pixel_xy_load || (pixel_xy_copy && !reti_second)) ? convsp[4:0] : convdp[4:0]) : shift_raw;
+    wire [4:0] factor_index=gfx_product_y ? ~convdp[4:0] : convert_ir ? ~((pixel_xy_load || (pixel_xy_copy && !reti_second)) ? convsp[4:0] : convdp[4:0]) : shift_raw;
     wire [31:0] shift_factor=32'd1 << factor_index;
     // A one-hot operand shifts into both product halves. Right encodings
     // already contain 32-count, so both directions share this decoder/DSP.
-    (* multstyle = "dsp" *) wire [63:0] mul_product = a * tmp;
+    wire [31:0] product_a=gfx_product ? gfx_a_data : a;
+    wire [31:0] product_b=gfx_product ? (gfx_product_y ? shift_factor : {16'd0,psize}) : tmp;
+    (* multstyle = "dsp" *) wire [63:0] mul_product = product_a * product_b;
     wire [31:0] shift_mask=tmp-32'd1;
     wire [31:0] shift_result=shift_zero ? a :
         shift_kind==3'd4 ? mul_product[31:0] | mul_product[63:32] :
@@ -549,6 +552,7 @@ module jttms10 #(
         .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size), .bus_sync(gfx_bus_sync),
         .pix_source(gfx_pix_source), .pix_visible(gfx_pix_visible),
         .pix_process(gfx_pix_process), .pix_test(gfx_pix_test), .pix_word(gfx_pix_word),
+        .product(gfx_product), .product_y(gfx_product_y), .packed_xy(gfx_packed_xy),
         .flag_z(gfx_flag_z), .flag_nz(gfx_flag_nz),
         .flag_nvzc(gfx_flag_nvzc), .flag_vclip(gfx_flag_vclip),
         .flag_vpix(gfx_flag_vpix), .flag_vclear(gfx_flag_vclear),
@@ -681,11 +685,13 @@ module jttms10 #(
         divstep ? div_trial : divnegb ? 32'd0 : b;
     wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
     wire [31:0] shared_alu_a = gfx_active ?
-        (gfx_pix_process && pixel_alu_req ? pixel_alu_a : a) : alu_a;
+        (gfx_pix_process && pixel_alu_req ? pixel_alu_a : gfx_product ? mul_product[31:0] : a) : alu_a;
     wire [31:0] shared_alu_b = gfx_active ?
         (gfx_pix_process && pixel_alu_req ? pixel_alu_b : b) : alu_b;
+    wire shared_alu_packed;
+    assign shared_alu_packed=(xy_packed && !gfx_active) || gfx_packed_xy;
     jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
-        .split16(xy_packed && !gfx_active),
+        .split16(shared_alu_packed),
         .result(result),.n(n),.z(z),.c(c),.v(v));
     always @* begin
         condition=0;

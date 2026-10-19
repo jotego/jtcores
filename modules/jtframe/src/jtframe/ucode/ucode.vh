@@ -14,7 +14,7 @@ initial begin
     $readmemb("{{.Rom}}",ucode_rom);
 end
 
-{{ if .Latch }}always @(posedge clk) if(!cen) ucode_data = ucode_rom[uaddr];{{- else -}}
+{{ if .Latch }}always @(posedge clk) if(!cen) {{if .Nonblocking}}ucode_data <= ucode_rom[uaddr];{{else}}ucode_data = ucode_rom[uaddr];{{end}}{{- else -}}
                assign ucode_data = ucode_rom[uaddr];{{ end }}
 
 {{ range .Ss }}{{ if (eq .Bw 1) }}assign {{ lower .Name | printf "%-11s" }}= ucode_data[{{ printf "%2d" .Pos }}+:{{ .Bw }}];

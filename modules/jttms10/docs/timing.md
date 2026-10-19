@@ -1165,3 +1165,21 @@ python3 modules/jttms10/ver/load_pause/check.py --report response.json
 python3 modules/jttms10/ver/emu/check.py --report emu.json
 JTTMS10_TIMING_REPORT=/path/to/timing.json bash modules/jttms10/ver/run.sh
 ```
+
+
+## Deterministic control-ROM sampling
+
+The CPU and graphics YAML opt in to JTFRAME's `latch_nonblocking: true`
+with `latch_ucode: true`. This emits a synchronous nonblocking ROM read:
+clocked consumers see the previous control word on the prime edge and the
+primed word on the execute edge. The old blocking read could make a data ACK
+appear to overlap an extension microinstruction differently between simulators.
+Verilator consequently missed the original `data_ack_as_extension` mutant.
+The permanent nonblocking build preserves the cold-fill positive control
+(136 INCLK with W1/P1) and rejects that same mutant at 144 INCLK with correct
+architecture. An ineffectual mutation is never counted as a passing rejection. Other modules retain the generator's blocking default.
+Generated HDL uses a text template so the `<=` operator is emitted literally.
+
+The latest [LINE audit](line-timing.md) adds 626 independent probes to the
+normal runner. Their failing baseline establishes 127/133 forms and 141,236
+fixtures, without claiming that LINE timing is compliant.

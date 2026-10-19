@@ -24,6 +24,7 @@ module jttms10_gfx(
     output bus_read, bus_write, bus_pixel, bus_sync,
     output [5:0] bus_size,
     output pix_source, pix_visible, pix_process, pix_test, pix_word,
+    output product, product_y, packed_xy,
     output flag_z, flag_nz, flag_nvzc, flag_vclip,
            flag_vpix, flag_vclear, flag_wvp,
     output reg clip
@@ -36,8 +37,8 @@ module jttms10_gfx(
     // while cen=0, matching the main sequencer's prime/execute cadence.
     wire sa0,sa1,sa2,sa3,sa4,sa5;
     wire da0,da1,da2,da3,da4,da5;
-    wire t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11;
-    wire [1:0] gas_sel,gbs_sel,gsize_sel;
+    wire t4,t5,t6,t7,t8,t9,t10,t11;
+    wire [1:0] gas_sel,gbs_sel,gsize_sel,gmath_sel;
     wire [2:0] gam_sel,gbm_sel,gdst_sel,gbus_sel,gpix_sel,
                gflg_sel,gflow_sel,gclip_sel;
     wire [3:0] galu_sel;
@@ -60,7 +61,7 @@ module jttms10_gfx(
     wire unused_control_nonwindow = &{1'b0,control[15:10],
                                       control[5:0]};
     wire [5:0] next_da={da5,da4,da3,da2,da1,da0};
-    wire [11:0] target={t11,t10,t9,t8,t7,t6,t5,t4,t3,t2,t1,t0};
+    wire [11:0] target={t11,t10,t9,t8,t7,t6,t5,t4,4'd0};
     reg [5:0] sa_q, da_q;
     // 60..63 are the only dynamic RF addresses. 32..52 are independent
     // whole-word scratch locations; B0..B14 stay at architectural 16..30.
@@ -180,6 +181,11 @@ module jttms10_gfx(
     assign pix_process=active && gpix==PROCESS_GPIX;
     assign pix_test=active && gpix==TEST_GPIX;
     assign pix_word=active && gpix==WORD_GPIX;
+    // All branch targets are 16-word aligned. Reclaiming their four
+    // constant-zero low bits keeps these shared arithmetic controls in BRAM.
+    assign product=active && (gmath_sel==YPRODUCT_GMATH || gmath_sel==XPRODUCT_GMATH);
+    assign product_y=active && gmath_sel==YPRODUCT_GMATH;
+    assign packed_xy=active && gmath_sel==PACKED_GMATH;
     assign flag_z=active && gflg==Z_GFLG;
     assign flag_nz=active && gflg==NZ_GFLG;
     assign flag_nvzc=active && gflg==NVZC_GFLG;

@@ -4,6 +4,7 @@ config:
   entries: 256
   entry_len: 16
   latch_ucode: true
+  latch_nonblocking: true
   ignore_cycles: true
 include:
 - gfx_line.yaml
@@ -1797,7 +1798,7 @@ ucode:
   start: 126
   seq:
   - qs_gas, qs_gbs, m1_gam, m1_gbm, add_galu, a_gdst, rd_gbus, word_gsize, source_gpix, z_gflg, jump_gflow,
-    z_gcond, clear_gclip, sa0, sa1, sa2, sa3, sa4, sa5, da0, da1, da2, da3, da4, da5, t0, t1, t2, t3,
+    z_gcond, clear_gclip, sa0, sa1, sa2, sa3, sa4, sa5, da0, da1, da2, da3, da4, da5,
     t4, t5, t6, t7, t8, t9, t10, t11
   - qd_gas, qd_gbs, m2_gam, m2_gbm, adc_galu, b_gdst, wr_gbus, half_gsize, visible_gpix, nz_gflg, call_gflow,
     nz_gcond, lt_gclip, mdrf
@@ -1823,10 +1824,10 @@ ucode:
   - pbh_gcond
   - pbv_gcond
   - wordboundary_gcond
+  - yproduct_gmath
+  - xproduct_gmath
+  - packed_gmath
   - twoword_gcond
-  - end_gflow
-  - end_gflow
-  - end_gflow
   - end_gflow
   - end_gflow
   - end_gflow

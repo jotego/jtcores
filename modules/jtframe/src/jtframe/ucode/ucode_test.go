@@ -19,14 +19,15 @@ func Test_dump_ucrom_without_subroutines(t *testing.T) {
 	output := filepath.Join(t.TempDir(), "graphics")
 	params := []UcParam{{Name: "DONE", Pos: 0, Bw: 1}}
 	chunks := []UcChunk{{Name: "finish", Start: 0, Seq: []string{"DONE"}}}
-	if err := dump_ucrom_vh(output, true, 16, 32, params, chunks); err != nil {
+	if err := dump_ucrom_vh(output, true, false, 16, 32, params, chunks); err != nil {
 		t.Fatal(err)
 	}
 	generated, err := os.ReadFile(output + ".vh")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(generated), "assign done") || strings.Contains(string(generated), "jsr_ua") {
+	if !strings.Contains(string(generated), "ucode_data = ucode_rom[uaddr]") ||
+		!strings.Contains(string(generated), "assign done") || strings.Contains(string(generated), "jsr_ua") {
 		t.Fatalf("expected ROM controls without subroutine logic:\n%s", generated)
 	}
 }
@@ -48,6 +49,7 @@ func Test_compile_constants_from_nested_includes(t *testing.T) {
   entries: 4
   entry_len: 1
   latch_ucode: true
+  latch_nonblocking: true
   ignore_cycles: true
 include: [middle.yaml]
 constants: {SELECTED: parent}
@@ -84,7 +86,8 @@ ucode:
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(header), "assign inherited") ||
+	if !strings.Contains(string(header), "ucode_data <= ucode_rom[uaddr]") ||
+		!strings.Contains(string(header), "assign inherited") ||
 		!strings.Contains(string(header), "assign parent") ||
 		strings.Contains(string(header), "assign child") || strings.Contains(string(header), "assign middle") {
 		t.Fatalf("included constants did not preserve the parent override:\n%s", header)

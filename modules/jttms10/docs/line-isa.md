@@ -53,9 +53,9 @@ separate first-pixel checkpoint starts COUNT at `00010001` and requires
 65,537-pixel simulation.
 
 The implementation uses the graphics ROM and upper register-RAM scratch for
-the two decision deltas and current XY update. Each X/Y half passes through
-the shared 32-bit ALU separately; no private LINE arithmetic state or
-parallel half-word adders are required.
+the two decision deltas and current XY update. The existing packed mode of the shared ALU updates X/Y with independent
+half-word carry. XY conversion uses the scalar shared DSP and ALU; no private
+LINE arithmetic unit or register bank is added.
 
 The independent [LINE timing audit](line-timing.md) retains source ambiguities,
 a failing baseline and permanent instruction/bus probes. Architectural LINE

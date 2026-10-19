@@ -57,3 +57,21 @@ These probes join the normal runner. Inventory is now 127/133 forms and
 Six PIXBLT forms, other LINE processing/window/interrupt rules, broader ISA
 conditions and known MOVB gaps remain open under #144. The frozen b7ac902c1
 normal run excludes these newer probes and cannot validate their source.
+
+
+## Current implementation work
+
+LINE XY conversion now selects the existing scalar DSP operands for signed
+Y times pitch and unsigned X times PSIZE. The shared ALU ORs those products
+and adds OFFSET; the existing packed ALU updates X/Y independently. The
+microcode's aligned branch targets omit four constant-zero low bits, leaving
+room for the arithmetic selectors in a 4,096-by-62-bit graphics ROM. There is
+one shared scalar multiply expression and no additional register-file bank;
+resource inference and final timing closure still require Quartus evidence.
+
+The empty W0 path now retains the four setup states. All 20 count-zero cases
+pass base, W1 and W1/P7; a deliberate one-state-short setup fails with correct
+architecture, memory and WVP. Nonempty cases remain timing failures: the
+single PS16 pixel improves from 572 to 168 INCLK against a target of 72.
+All 626 base/stress cases retain the defined architectural and ordered bus
+checks. This is an intermediate schedule, not LINE timing signoff.

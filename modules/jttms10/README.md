@@ -11,19 +11,20 @@ MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
-The standard runner retains seven forms without probes, partial [FILL
-timing coverage](docs/fill-timing.md), and unresolved MOVB targets.
-Aligned replace-only FILL L has260 passing hit/CD timing cases, including
-60 histories after a transparent PIXT; FILL XY
-and the remaining graphics modes still require timing implementation. Its 126-form
-fixture inventory includes
+The standard runner retains six PIXBLT forms without probes, partial [FILL
+timing coverage](docs/fill-timing.md), [LINE timing failures](docs/line-timing.md),
+and unresolved MOVB targets.
+Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
+(260 linear and 1,980 XY). Other processing/window/mask/edge conditions
+still require timing implementation. The 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
 [hidden-write/dependency checks](docs/store-timing.md), scalar coordinate and
 register-list operations, pixel reads, linear Boolean writes and aligned
 replace-only linear/XY pixel copies and DRAV. The newest
 [XY-to-XY copy subset](docs/pixel-xy-copy-timing.md) passes its targeted clean,
-cross-simulator, pause and mutation checks; its full normal runner is ongoing.
+cross-simulator, pause and mutation checks. Full current-source normal/clean/CI
+validation remains required.
 Probe presence is
 only a necessary gate; conflicting printed store counts have explicitly
 labeled inferred policies and remain excluded from unqualified signoff.
@@ -72,7 +73,7 @@ use standalone Quartus projects with recorded source hashes.
 
 Validation passes 180 architectural programs, the unit/system suite, 160
 independent array programs, 44 all-PPOP PIXT programs, 20 LINE programs and
-strict lint. The final NARC simulation completes its 1,310-input-frame
+strict lint. At the #141 checkpoint, the NARC simulation completed its 1,310-input-frame
 script with exit status zero, over 36.7 million reported retirements and
 captured gameplay/audio. It uses the directed POST skip; unmodified startup
 is independently verified on MiSTer. The normal quick build is compiled

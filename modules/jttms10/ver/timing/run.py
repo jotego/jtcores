@@ -600,6 +600,8 @@ def main():
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
     sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py', 'pixel_copy_cases.py', 'pixel_xy_store_cases.py', 'draw_cases.py', 'pixel_xy_copy_cases.py', 'fill_cases.py', 'fill_oracle.py', 'line_cases.py', 'line_oracle.py')]
+    sources += [(f'jtframe/ucode/{name}', MODULE.parent / 'jtframe/src/jtframe/ucode' / name)
+                for name in ('ucode.go','ucode.vh')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

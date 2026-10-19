@@ -84,3 +84,15 @@ vvp /tmp/jttms10bus-test.vvp
 verilator --lint-only -Wall --top-module jttms10_bus \
     modules/jttms10/hdl/jttms10_bus.v
 ```
+
+
+A posted field's arbiter queue ownership ends before accepting a new logical
+data operation. `word_pending` retains ownership across the field helper's
+physical words, then releases the old queue epoch on a fresh data acceptance.
+A new direct load that arrives after the machine-state boundary must qualify
+its own launch slot; copies and register lists retain their explicit source
+continuation rules. Otherwise a store followed by three cached NOPs and a
+dependent load can borrow the old store's queued slot and start a state early.
+Offset and absolute store regressions preserve that case under W1/P1, including
+memory, ordered physical bus events and the following load's 88-INCLK target.
+An actual stale-queue mutation must fail while preserving architecture.

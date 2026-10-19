@@ -62,14 +62,14 @@ module jttms10_word #(
     // Keep one logical operation pending across the cache/field helper's
     // short deassertions between physical words. Unrelated CPU requests
     // release this flag before starting another operation.
-    assign word_pending=field_req || data_owner;
+    assign word_pending=(field_req && !data_accept) || data_owner;
     // Timed loads/stores allocate data in their assigned intrinsic state.
     // Registered field/cache/bus handoffs may use that state's row phase.
     // A CEN-delayed launch qualifies only at/after its next state boundary.
     localparam integer SLOT_PW=$clog2(CLKS_PER_STATE);
     localparam [SLOT_PW-1:0] SLOT_LAST=CLKS_PER_STATE[SLOT_PW-1:0]-1'b1;
     reg [SLOT_PW-1:0] slot_phase;
-    reg slot_eligible;
+    reg slot_eligible,launch_slot;
     reg copy_source_accepted;
     wire call_stack=ir[15:5]==11'h049 || ir==16'h0d5f || ir==16'h0d3f;
     wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
@@ -84,9 +84,11 @@ module jttms10_word #(
     assign word_early=(early_data_q && data_owner && (slot_eligible || slot_phase==0)) ||
                       (fast_program && !data_owner && (fast_slot || slot_phase==0));
     always @(posedge clk) begin
-        if(rst) begin slot_phase<=0; slot_eligible<=0; fast_slot<=0; stack_post_slot<=0; copy_source_accepted<=0; end
+        if(rst) begin launch_slot<=0;slot_phase<=0; slot_eligible<=0; fast_slot<=0; stack_post_slot<=0; copy_source_accepted<=0; end
         else begin
             slot_phase<=slot_phase==SLOT_LAST ? {SLOT_PW{1'b0}} : slot_phase+1'b1;
+            if(slot_phase==0) launch_slot<=data_request && cen;
+            else if(!data_request || !cen) launch_slot<=0;
             // Only an accepted source read can carry its slot across the
             // copy handoff. Address preparation after a pause owns no slot.
             if(field_req && program_read && field_iaq && field_ack) copy_source_accepted<=0;
@@ -104,6 +106,13 @@ module jttms10_word #(
                 (slot_phase==1 || ((ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3 &&
                   ((!call_stack && field_addr[3:0]!=0) || stack_post_slot)))))
                 slot_eligible<=1;
+            // A new logical load cannot inherit an earlier posted field's
+            // slot. Registered handoffs may use a slot only if this request
+            // was present at its boundary. Copy/list continuation retains
+            // its separately tracked source ownership.
+            if(data_accept && indirect_load && !indirect_copy &&
+               ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot)
+                slot_eligible<=0;
         end
     end
 

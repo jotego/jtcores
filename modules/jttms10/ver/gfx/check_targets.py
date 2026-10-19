@@ -89,7 +89,7 @@ def main():
         target = 0
         for bit in bits:
             match = re.fullmatch(r"t(\d+)", bit)
-            if not match or int(match.group(1)) > 11:
+            if not match or not 4 <= int(match.group(1)) <= 11:
                 raise SystemExit(f"{key} contains invalid target bit {bit!r}")
             target |= 1 << int(match.group(1))
         match = re.search(rf"\b{re.escape(label)}_SEQA\s*=\s*\d+'h([0-9a-fA-F]+)", header)

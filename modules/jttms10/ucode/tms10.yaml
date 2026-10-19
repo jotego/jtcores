@@ -4,6 +4,7 @@ config:
   entries: 256
   entry_len: 16
   latch_ucode: true
+  latch_nonblocking: true
   ignore_cycles: true
   bus_error: illegal
 include:

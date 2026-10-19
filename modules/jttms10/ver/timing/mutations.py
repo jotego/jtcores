@@ -253,6 +253,43 @@ def fill_mutations(work,evidence):
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
 
+def posted_load_slot_mutations(work,evidence):
+    """A new dependent load cannot borrow an old posted field's bus slot."""
+    mutant=work/'stale-posted-slot';shutil.copytree(MODULE/'hdl',mutant)
+    replace_once(mutant/'jttms10_word.v',
+        'assign word_pending=(field_req && !data_accept) || data_owner;',
+        'assign word_pending=field_req || data_owner;')
+    for mode in ('offset','absolute'):
+        name='stale_posted_slot_'+mode
+        probe=f'storemode_move_{mode}_dependency3_w16_o0_hit'
+        extra=['--wait-states','1','--pause-clocks','1']
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+    launch=work/'lost-launch-slot';shutil.copytree(MODULE/'hdl',launch)
+    replace_once(launch/'jttms10_word.v',
+        "ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot)",
+        "ir[15:6]!=10'h026 && slot_phase>1 && 1'b0)")
+    evidence['lost_launch_slot']=run_case(work,'lost_launch_slot',
+        'storemode_move_absolute_dependency3_w16_o0_hit',
+        ['--rtl-dir',str(launch),*extra],mutated=True)
+
+
+def line_mutations(work,evidence):
+    """Four-state zero-count setup must survive waits and CEN pauses."""
+    probe='line_ps4_z0_n0_w0_base_hit'
+    extra=['--wait-states','1','--pause-clocks','7']
+    evidence['line_empty_control']=run_case(work,'line_empty_control',probe,extra)
+    mutant=work/'line-empty-short';shutil.copytree(MODULE/'hdl',mutant)
+    replace_once(mutant/'jttms10_gfx.v',
+        'assign end_pending=active && gflow==END_GFLOW;',
+        "assign end_pending=active && (gflow==END_GFLOW || uaddr==GLINEEMPTY_SEQA+12'd4);")
+    replace_once(mutant/'jttms10_gfx.v',
+        'if(gflow==END_GFLOW) active<=0;',
+        'if(end_pending) active<=0;')
+    evidence['line_empty_short']=run_case(work,'line_empty_short',probe,
+        ['--rtl-dir',str(mutant),*extra],mutated=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
@@ -448,7 +485,7 @@ def main():
         for name,old,new in (
             ('blocking_store',"if(field_post) begin post_busy<=1;post_ack<=1;end", "if(1'b0) begin post_busy<=1;post_ack<=1;end"),
             ('no_cached_write_overlap','.c_req(field_req && program_read && !fast_program)', '.c_req(field_req && program_read && !fast_program && !data_owner)'),
-            ('lost_hidden_pending','assign word_pending=field_req || data_owner;', 'assign word_pending=field_req;')):
+            ('lost_hidden_pending','assign word_pending=(field_req && !data_accept) || data_owner;', 'assign word_pending=field_req;')):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10_word.v',old,new)
             if name=='blocking_store':
@@ -747,6 +784,8 @@ def main():
         draw_mutations(work,evidence)
         pixel_xy_copy_mutations(work,evidence)
         fill_mutations(work,evidence)
+        line_mutations(work,evidence)
+        posted_load_slot_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(evidence,indent=2)+'\n')
