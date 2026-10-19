@@ -41,8 +41,52 @@ from pixel_store_cases import fixture as pixel_store_fixture, following as pixel
 
 from pixel_boolean_cases import boolean as boolean_pixel, fixture as boolean_fixture
 from pixel_copy_cases import fixture as copy_pixel_fixture
+from pixel_xy_store_cases import fixture as xy_store_fixture,following as xy_store_following
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_xy_pixel_replace_primary_counts(self):
+        for size in (1,2,4,8,16):
+            for off in (False,True):
+                row=xy_store_fixture(size,0,0,off)
+                self.assertEqual(row['states'],(8 if size==16 else 10) if off else 4)
+                self.assertEqual(row['data_store']['write_start'],3)
+
+    def test_xy_pixel_replace_primary_literal_addresses(self):
+        for size,x in ((1,0x500),(2,0x280),(4,0x140),(8,0xA0),(16,0x50)):
+            row=xy_store_fixture(size,0,0,False,point=0x400000|x,offset=0)
+            self.assertEqual(row['data_store']['address'],0x20500)
+        row=xy_store_fixture(4,0,0,False,point=0x400142,offset=0,value=6)
+        self.assertEqual(row['data_store']['address'],0x20508)
+
+    def test_xy_pixel_replace_destination_pitch_is_independent_of_source(self):
+        row=xy_store_fixture(16,0,0,False,conv=20)
+        io=dict(row['setup_io']);self.assertEqual(io[0xC0000140],20);self.assertEqual(io[0xC0000130],27)
+        self.assertEqual(row['data_store']['address'],0x6800)
+
+    def test_xy_pixel_replace_alias_uses_coordinate_as_color(self):
+        row=xy_store_fixture(4,0,0,False,source=15,pointer=15,point=0x10010)
+        self.assertEqual(row['expected_extra_regs']['sp'],0x10010)
+        self.assertEqual(row['data_store']['value'],0x10010)
+
+    def test_xy_pixel_replace_offset_alias_is_one_register(self):
+        row=xy_store_fixture(16,0,1,False,pointer=4,point=0x10010,offset=0x6000)
+        self.assertEqual(row['expected_extra_regs']['b4'],0x10010)
+        self.assertEqual(row['data_store']['address'],0x10910)
+
+    def test_xy_pixel_replace_following_load_has_linear_pointer(self):
+        row=xy_store_following(xy_store_fixture(4,0,0,False,status=0xF0200804),0)
+        reg=(row['follow_opcode']>>5)&15
+        self.assertEqual(row['initial_all_regs'][f'a{reg}'],row['data_store']['address'])
+        self.assertNotEqual(reg,row['conditions']['pointer'])
+
+    def test_xy_pixel_replace_window_modes_are_not_silently_included(self):
+        for w in (1,2,3):
+            with self.assertRaises(ValueError):xy_store_fixture(16,0,0,False,control=w<<6)
+
+    def test_xy_pixel_replace_nonzero_v_is_preserved_in_w0(self):
+        row=xy_store_fixture(16,0,0,False,status=0xF0200810)
+        self.assertEqual(row['expected_st'],0xF0200810)
+
     def test_linear_pixel_copy_primary_counts(self):
         for size in (1,2,4,8,16):
             for off in (False,True):

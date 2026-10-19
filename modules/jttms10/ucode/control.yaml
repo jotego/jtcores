@@ -429,3 +429,13 @@ ucode:
     seq:
       - read_mem, finish_mul
       - write_mem, ni
+
+  - name: pixt_rxy_fast
+    start: 152
+    seq:
+      - init_mul, reg_b
+      - step_mul
+      - corrq_mul
+      - step_mul
+      - add_alu, sum_ea
+      - write_mem, ni

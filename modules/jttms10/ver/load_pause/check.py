@@ -33,6 +33,7 @@ from pixel_xy_read_cases import fixture as xy_pixel_fixture
 from pixel_store_cases import fixture as pixel_store_fixture
 from pixel_boolean_cases import fixture as boolean_fixture
 from pixel_copy_cases import fixture as copy_pixel_fixture
+from pixel_xy_store_cases import fixture as xy_store_fixture
 from copy_cases import transactions as copy_transactions
 from run import program,parse_result,check_bus,check_target
 
@@ -54,7 +55,7 @@ def evaluate(case,log,returncode):
     if 'data_list' in case:count=list_wait_count(case)
     elif 'data_trap' in case:count=len(trap_transactions(case))
     elif 'data_copy' in case:count=len(copy_transactions(case)[0])
-    elif case.get('pixel_store'):count=0  # Cached posted CPU work does not charge data waits.
+    elif (case.get('pixel_store') or case.get('pixel_xy_store')):count=0  # Cached posted CPU work does not charge data waits.
     else:
         data=case['data_load'];fields=case.get('stack_fields',[data])
         count=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
@@ -73,7 +74,7 @@ def evaluate(case,log,returncode):
     # The field was accepted before pausing; every word retains its TI
     # two-state+wait timing. No opcode read occurs in these cached probes.
     bus_case=case
-    if case.get('pixel_processing') and all(len(v)==1 for v in records.values()):
+    if 'data_copy' in case and all(len(v)==1 for v in records.values()):
         # This CPU-only pause overlaps the destination read. Its response
         # is retained while disabled; processing/posting waits for resume.
         # The first available bus boundary after resume owns the write.
@@ -90,7 +91,7 @@ def evaluate(case,log,returncode):
     if 'expected_memory' in case:
         memory=[(int(s.split()[1],16),int(s.split()[2],16)) for s in log.splitlines() if s.startswith('MEMORY ')]
         if sorted(memory)!=sorted(case['expected_memory']):errors.append('memory after response resume mismatch')
-    return dict(name=case['name'],event_kind='posted-memory-response' if case.get('pixel_store') else 'logical-field-response',observed=observed,events=records,bus_trace=bus,
+    return dict(name=case['name'],event_kind='posted-memory-response' if (case.get('pixel_store') or case.get('pixel_xy_store')) else 'logical-field-response',observed=observed,events=records,bus_trace=bus,
                 target_trace=target,functional_errors=functional,errors=errors)
 
 
@@ -110,7 +111,7 @@ def main():
             (work/'program.mem').write_text(''.join(f'{x:04x}\n' for x in image))
             (work/'data.mem').write_text(''.join(f'{a:08x} {v:04x}\n' for a,v in case['initial_memory']))
             binary=work/(name+'.vvp')
-            posted=bool(case.get('pixel_store'))
+            posted=bool((case.get('pixel_store') or case.get('pixel_xy_store')))
             top='posted_response' if posted else 'test'
             observers=[str(HERE/'posted.sv')] if posted else []
             compiled=subprocess.run(['iverilog','-g2012','-s',top,'-I',str(work),'-o',str(binary),
@@ -178,6 +179,12 @@ def main():
                 case['response_pause_clocks']=96
                 case['response_pause_after']=12
                 probes.append(case)
+        for size in (1,16):
+            for bank in (0,1):
+                case=xy_store_fixture(size,16-size,bank,False,tag='response_pause')
+                case['response_pause_clocks']=96
+                case['response_pause_after']=25
+                probes.append(case)
         if args.case:
             selected=[case for case in probes if args.case in case['name']]
             if not selected:parser.error('no matching response-pause controls')
@@ -199,7 +206,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',HERE/'posted.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','pixel_copy_cases.py','copy_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','pixel_copy_cases.py','pixel_xy_store_cases.py','copy_cases.py')]]
         args.report.write_text(json.dumps(dict(contract='CPU-only CEN: logical field response or posted memory response; exact TI base counts checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0

@@ -3,7 +3,7 @@ module test;
     reg [15:0] opcode;
     integer fd, i;
     string path;
-    jttms10_ctrl u_ctrl(.rst(1'b1), .clk(1'b0), .md(opcode), .pixel_simple(1'b0), .pixel_boolean(1'b0));
+    jttms10_ctrl u_ctrl(.rst(1'b1), .clk(1'b0), .md(opcode), .pixel_simple(1'b0), .pixel_boolean(1'b0), .pixel_xy_simple(1'b0));
     initial begin
         if(!$value$plusargs("output=%s", path)) $fatal(1,"missing output path");
         fd=$fopen(path,"w");

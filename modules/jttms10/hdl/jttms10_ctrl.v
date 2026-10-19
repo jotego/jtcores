@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 module jttms10_ctrl(
     input             rst, clk, enable, ready,
-    input             pixel_simple, pixel_boolean,
+    input             pixel_simple, pixel_boolean, pixel_xy_simple,
     input      [15:0]  md,
     input      [4:0]   multi_steps,
     input              multi_load, multi_done,
@@ -404,7 +404,8 @@ module jttms10_ctrl(
             if(dispatch) begin
                 uaddr <= entry_family_q==8'd110 && pixel_simple ? PIXT_RLIN_FAST_SEQA :
                          entry_family_q==8'd110 && pixel_boolean ? PIXT_RLIN_BOOL_SEQA :
-                         entry_family_q==8'd112 && pixel_simple ? PIXT_LLIN_FAST_SEQA : entry;
+                         entry_family_q==8'd112 && pixel_simple ? PIXT_LLIN_FAST_SEQA :
+                         entry_family_q==8'd106 && pixel_xy_simple ? PIXT_RXY_FAST_SEQA : entry;
                 jsr_depth <= 0;
             end
             if(gfx_enter || gfx_resume) uaddr <= GFXRUN_SEQA;

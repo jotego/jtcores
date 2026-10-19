@@ -1,10 +1,11 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 121 of 133 instruction forms; the other 12 remain unvalidated.
+probes cover 122 of 133 instruction forms; the other 11 remain unvalidated.
 PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
 arithmetic,masking,transparency and other conditions remain unvalidated.
-Linear memory-to-memory PIXT currently covers replace/PMASK0/T0 only.
+Linear memory-to-memory PIXT covers replace/PMASK0/T0; register-to-XY
+PIXT covers replace/PMASK0/T0/W0. Other conditions remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -904,3 +905,16 @@ historical map is3,817 ALMs/five DSPs; current121-form code is newer at3,909
 map ALMs/five DSPs. Boolean120 and121-copy full invocations remain running;
 no completed result for either is claimed. Full ISA/conditions/known targets/
 cleanCI/final fitted area/board STA/NARC/MiSTer gates stay open.
+
+### Register-to-XY pixel replace
+
+PIXT Rs,*Rd.XY adds4,636 fixtures for123,366 cases and122/133 forms (11 missing).
+Only replace/PMASK0/T0/W0 is timed. Shared CVXYL DSP products/ALU compute the
+signed-Y destination-pitch conversion,then the scalar field engine posts the
+color; no DSP/register bank/arithmetic unit is added. All31 GPRs,full ST and
+memory checks remain active. [XY pixel-store timing](pixel-xy-store-timing.md)
+records the literal TI counts/examples,independent equation,port sequencing,
+alias/extent/exclusion rules,first-execution measurement and bus/following
+contracts. All118,730 preceding fixture contracts remain unchanged. All136
+representative old-core probes fail timing/bus with correct state/memory and
+22 verified old HDL/YAML hashes. No known MOVB target or final gate is waived.
