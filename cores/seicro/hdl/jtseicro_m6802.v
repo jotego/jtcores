@@ -463,6 +463,7 @@ always @(posedge clk) begin
                     end
                 end else begin
                     case(op)
+                        // FC compatibility only; absent from MC6802 manual, real-chip behavior/timing unknown.
                         8'hfc: if(cycle<=2) pc <= pc+16'd1;
                         8'h01:;
                         8'h06,8'h0a,8'h0b,8'h0c,8'h0d,8'h0e,8'h0f: cc <= next_cc;
