@@ -44,6 +44,8 @@ constants:
   TARGET_GDRAVWVP: t7 t9
   TARGET_GDRAVDRAW: t4 t7 t9
   TARGET_GDRAVADVANCE: t5 t7 t9
+  TARGET_GFILLWORDEMIT: t4 t10 t11
+  TARGET_GFILLROWSTATE: t5 t10 t11
   TARGET_GFILLWORDROW: t10 t11
   TARGET_GFILLWORDINIT: t5 t6 t7 t8 t9 t11
   TARGET_GFILLWORDLOOP: t4 t5 t6 t7 t8 t9 t11
@@ -513,14 +515,19 @@ ucode:
   seq:
   - dstxy_gcond, jump_gflow, ${TARGET_GFILLXY}
   - jump_gflow, ${TARGET_GFILLL}
+# Copy the pointer while the other RF port primes dimensions. Zero dimensions
+# still terminate before entering either pixel or word transfer paths.
 - name: gfilll
   start: 44
   seq:
   - sa1 sa4, da1 da4
-  - qs_gas, sa1 sa4, da1 da4
-  - rf_gdst, sa1 sa4, da0 da5
-  - rf_gdst, sa1 sa4, da5
-  - jump_gflow, ${TARGET_GFILLDIMS}
+  - qs_gas, sa0 sa1 sa2 sa4, da0 da5
+  - rf_gdst, sa0 sa1 sa2 sa4, da0 da5
+  - rf_gdst, qs_gas, m2_gam, sa0 sa1 sa2 sa4, da5
+  - rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa2 sa4, da2 da3 da5
+  - rf_gdst, qs_gas, m4_gam, sa0 sa1 sa2 sa4, da0 da2 da3 da5
+  - rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa5, da1 da2 da3 da5
+  - jump_gflow, ${TARGET_GFILLLOOP}, sa0 sa5, da0 da2 da3 da5
 - name: gfillheight
   start: 45
   seq:
@@ -1724,7 +1731,7 @@ ucode:
 - name: gfillwordinit
   start: 190
   seq:
-  - qs_gas, sa0 sa3 sa4, da0 da2 da3 da5
+  - qs_gas, twoword_gcond, call_gflow, ${TARGET_GFILLROWSTATE}, sa0 sa3 sa4, da0 da2 da3 da5
   - md_gdst, sa0 sa5, da0 da2 da3 da5
   - qs_gas, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
   - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
@@ -1748,14 +1755,33 @@ ucode:
 - name: gfillwordrow
   start: 192
   seq:
-  - qs_gbs, k_gas, m1_gam, sa1 sa2 sa3 sa5, da1 da2 da3 da5
-  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLDONE}, sa5, da1 da2 da3 da5
-  - sa5, da0 da1 da4
-  - qs_gas, qd_gbs, sa5, da2 da3 da5
-  - add_galu, rf_gdst, qd_gas, sa5, da5
+  - qs_gbs, k_gas, m1_gam, sa5, da0 da1 da4
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLDONE}, qd_gbs, sa5, da1 da2 da3 da5
+  - qs_gas, sa2 sa3 sa5, da5
+  - add_galu, rf_gdst, qs_gas, sa5, da5
   - rf_gdst, qs_gas, sa5, da0 da2 da3 da5
-  - rf_gdst, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da5
-  - jump_gflow, ${TARGET_GFILLWORDLOOP}, sa0 sa5, da0 da2 da3 da5
+  - rf_gdst, word_gpix, k_gbs, m2_gbm, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da5
+  - ea_gdst, sync_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GFILLLOOP}
+# Row preparation already holds the pointer in A and word increment in B.
+- name: gfillwordemit
+  start: 193
+  seq:
+  - add_galu, rf_gdst, qd_gbs, twoword_gcond, call_gflow, ${TARGET_GFILLROWSTATE}, sa0 sa5, da0 da5
+  - wrpx_gbus, stride_gpix
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
+  - jump_gflow, ${TARGET_GFILLWORDLOOP}
+# Table13-6 A/G2: a two-word row has one more processing state than
+# N1 or N>=3. The row drain precedes this state, so an external wait
+# cannot be hidden by the row processing work.
+- name: gfillrowstate
+  start: 194
+  seq:
+  - sa5, da5
+  - sa5, da5
+  - sa5, da5
+  - ret_gflow, sa5, da5
 - name: gschema0
   start: 126
   seq:
@@ -1786,7 +1812,7 @@ ucode:
   - pbh_gcond
   - pbv_gcond
   - wordboundary_gcond
-  - end_gflow
+  - twoword_gcond
   - end_gflow
   - end_gflow
   - end_gflow

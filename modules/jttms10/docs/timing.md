@@ -1049,3 +1049,17 @@ forms failing. The permanent standard runner includes the tests/probes.
 The still-running full runner frozen at 4f3b7d9ac predates these additions;
 it remains a separate 124-form invocation. See that audit for scope,
 reproduction commands and excluded domains.
+
+
+The next linear FILL schedule adds140 longer cases while preserving the
+original120 fixtures. Current inventory is126/133 forms and138,630 fixtures.
+The200 aligned replace-only FILL L cases cover all five pixel sizes,
+N=1/2/3/4/8, one through four rows, hit/CD, base, W1/P7 and W3.
+These linear cases pass; the60 XY cases still fail overall timing.
+There are now14 FILL oracle/fixture/checker model tests. Repeated-row and
+within-row bus cadence are explicit constraints from the Table13-6 row
+coefficient and G=2; the first-write phase and exact IRQ acceptance are
+not claimed. Five positive controls reject five actual timing mutants,
+including a row-drain removal that hides external wait time while retaining
+correct defined state and memory. Wider conditions, full normal/clean/CI,
+other graphics forms and final physical/game acceptance remain open.

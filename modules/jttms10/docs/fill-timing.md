@@ -298,3 +298,49 @@ For PS1 linear FILL, two rows of one word improve183 to119 INCLK (TI96),
 and two rows of three words improve259 to191 (TI160). Setup, exact row
 scheduling, machine-state completion alignment, added-stall compliance,
 XY conversion and broader modes remain unfinished. No oracle is changed.
+
+
+## Linear replacement timing checkpoint
+
+The linear prologue overlaps the synchronous RF pointer and dimension
+reads/writes in eight microinstructions, retaining zero-dimension exits.
+The word-row schedule overlaps metadata preparation with the pending last
+write, then drains that physical transfer before starting the next row's
+processing. This prevents an external wait from disappearing inside the
+row work. Two-word rows retain the additional processing state from
+Table13-6 A/G2 before their first word. Completion drains writes and hands
+off at the phase required by the existing four-clock cached fetch overlap.
+These changes use the shared ALU, RF and field adapter; no new multiplier,
+register bank or arithmetic unit is added.
+
+The original120 fixtures are unchanged. Another140 linear fixtures extend
+N to4/8 and row counts to3/4. All200 linear cases pass the base, W1/P7 and
+W3 profiles, including defined GPRs/full ST, destination/neighbor words,
+logical/raw transport and transaction ordering. The60 original XY cases
+still fail overall timing. Inventory is126/133 forms and138,630 fixtures;
+probe presence does not establish completion of either form's full audit.
+
+The bus checker also constrains within-row writes to G=2 plus external
+waits, and repeated identical rows to the Table13-6 linear row coefficient
+plus their word waits. This is an explicit schedule constraint derived
+from the table, not a printed TI first-write waveform. A checker model
+rejects early next-row traffic even when the overall interval, data,
+transaction order and bus durations remain correct. Exact first-write
+placement and IRQ latency still need source-backed event audits.
+
+Five actual timing mutations change the completion phase, omit the
+two-word processing state or remove the row drain with/without waits.
+Controls pass and all mutations fail with correct defined state/memory.
+The wider row tests exposed both phase drift and hidden waits in earlier
+prototypes; those captures are excluded from this checkpoint. Partial
+words, other PPOP/masks/transparency, history/interference, window/SRT,
+HOLD/IRQ timing, XY conversion and all final acceptance gates remain open.
+
+
+Early CEN pauses retain the linear setup/transfer-prefix work in the existing
+issue counter. The two-word path extends that budget by its extra state.
+The first posted word waits for the retained work and a fresh physical
+state boundary; later words retain their back-to-back slots. This prevents
+a short pause from disappearing into setup's bus-alignment slack. A fifth
+mutation removes this first-word guard and restores the absorbed-pause
+failure. Its golden pause and alignment costs are unchanged.

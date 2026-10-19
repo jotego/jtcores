@@ -14,7 +14,7 @@ module jttms10_gfx(
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
-    output done,
+    output done, end_pending,
     output [5:0] rf_sa, rf_da, rf_wa,
     output load_a, load_b,
     output reg [31:0] a_data, b_data,
@@ -195,6 +195,7 @@ module jttms10_gfx(
             WORD_GCOND: condition=word_fill;
             SHORTWORD_GCOND: condition=!word_fill || need_dest || control[5] ||
                                        rf_qs[3:0]!=0 || rf_qd<fill_pixels;
+            TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};
             IRQ_GCOND: condition=irq_pending;
             Z_GCOND: condition=alu_z;
             NZ_GCOND: condition=!alu_z;
@@ -229,7 +230,8 @@ module jttms10_gfx(
             default: condition=1'b1;
         endcase
     end
-    assign done=step && active && gflow==END_GFLOW;
+    assign end_pending=active && gflow==END_GFLOW;
+    assign done=step && end_pending;
     reg [11:0] ret1,ret2;
     reg [1:0] depth;
     always @(posedge clk) begin

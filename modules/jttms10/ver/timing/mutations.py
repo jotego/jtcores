@@ -223,6 +223,26 @@ def pixel_xy_copy_mutations(work,evidence):
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
 
+def fill_mutations(work,evidence):
+    """Reject FILL scheduling changes while retaining defined state/memory."""
+    for name,probe,file,old,new,extra in (
+        ('absorbed_fill_setup_pause','fill_l_ps1_n1_rows1_hit','jttms10.v',
+         "!(TIMED_PROGRAM!=0 && ir==16'h0fc0 && fill_word && gfx_bus_write &&\n                       !store_started && (load_issue_left!=0 || mem_phase!=0))",
+         "1'b1",('--wait-states','1','--pause-clocks','1')),
+        ('wrong_fill_end_phase','fill_l_ps1_n1_rows1_hit','jttms10.v',
+         "GFX_END_PHASE=CLKS_PER_STATE-32'd4;", "GFX_END_PHASE=CLKS_PER_STATE-32'd5;",()),
+        ('omitted_fill_two_word_state','fill_l_ps1_n2_rows4_hit','jttms10_gfx.v',
+         "TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};", "TWOWORD_GCOND: condition=1'b0;",()),
+        ('omitted_fill_row_drain','fill_l_ps1_n1_rows4_hit','jttms10.v',
+         '!mem_busy && (!gfx_end_pending ||', '(!gfx_end_pending || !mem_busy) && (!gfx_end_pending ||',()),
+        ('absorbed_fill_row_wait','fill_l_ps1_n3_rows4_hit','jttms10.v',
+         '!mem_busy && (!gfx_end_pending ||', '(!gfx_end_pending || !mem_busy) && (!gfx_end_pending ||',
+         ('--wait-states','1','--pause-clocks','7'))):
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
@@ -716,6 +736,7 @@ def main():
         pixel_xy_store_mutations(work,evidence)
         draw_mutations(work,evidence)
         pixel_xy_copy_mutations(work,evidence)
+        fill_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(evidence,indent=2)+'\n')

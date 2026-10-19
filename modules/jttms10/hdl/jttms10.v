@@ -37,7 +37,7 @@ module jttms10 #(
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
     wire dsjfinish, xy_finish;
     wire gfx_active, gfx_checkpoint, gfx_done, gfx_enter, gfx_resume,
-         gfx_take, gfx_clip;
+         gfx_take, gfx_clip, gfx_end_pending;
     wire [7:0] gfx_family;
     wire [5:0] gfx_rf_sa, gfx_rf_da, gfx_rf_wa, gfx_bus_size;
     wire gfx_load_a,gfx_load_b,gfx_dst_a,gfx_dst_b,gfx_dst_md,
@@ -235,6 +235,10 @@ module jttms10 #(
     localparam [LOAD_IW-1:0] LOAD_PRE=CLKS_PER_STATE[LOAD_IW-1:0];
     localparam [LOAD_IW-1:0] LOAD_FIRST_LIMIT=LOAD_FIRST_LIMIT_I[LOAD_IW-1:0];
     localparam [LOAD_IW-1:0] LOAD_NEXT_LIMIT=3;
+    // FILL L retains its four setup and two transfer-prefix states before
+    // the first word. Reuse the existing issue counter across CEN pauses.
+    localparam integer FILL_LEAD_I=6*CLKS_PER_STATE-1;
+    localparam [LOAD_IW-1:0] FILL_LEAD=FILL_LEAD_I[LOAD_IW-1:0];
     localparam integer COPY_FOUR_I=4*CLKS_PER_STATE;
     localparam [LOAD_IW-1:0] COPY_FOUR=COPY_FOUR_I[LOAD_IW-1:0];
     reg [LOAD_IW-1:0] load_issue_left;
@@ -386,6 +390,7 @@ module jttms10 #(
     // and the fetch/dispatch response latch. Execution finishes early enough
     // for that fetch to overlap its last TI machine state (UG §5.4.3/§5.5).
     localparam [15:0] FETCH_OVERLAP=16'd4;
+    localparam [31:0] GFX_END_PHASE=CLKS_PER_STATE-32'd4;
     wire field_op = mem_sel!=0 || stack_sel!=0 ||
                     gfx_bus_read || gfx_bus_write;
     wire bus_op = vector || fetch || imm || field_op;
@@ -393,7 +398,10 @@ module jttms10 #(
                           gfx_bus_pixel && pix_transparent;
     // Fetch uses the response latch so the synchronous dispatch ROM has a
     // full clock to decode the returned opcode before fetch/dispatch commits.
-    wire operation_ready=gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ? !mem_busy : multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
+    // The completed graphics state hands off four clocks before the next
+    // state boundary, matching the existing cached fetch/dispatch overlap.
+    wire operation_ready=gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
+                         !mem_busy && (!gfx_end_pending || mem_phase==GFX_END_PHASE[$clog2(CLKS_PER_STATE)-1:0]) : multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
                          (fetch && mem_fast && mem_ack) :
                          !bus_op || completed || mem_ack || gfx_skip_write;
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
@@ -405,6 +413,8 @@ module jttms10 #(
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
                       (active && bus_op && !(load_pending && (mem_sel==READ_MEM || (multi_load && stack_sel==READ_STACK))) && !(store_pending && (mem_sel==WRITE_MEM || ((stack_push || multi_ir) && stack_sel==WRITE_STACK))))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
+                     !(TIMED_PROGRAM!=0 && ir==16'h0fc0 && fill_word && gfx_bus_write &&
+                       !store_started && (load_issue_left!=0 || mem_phase!=0)) &&
                      !(multi_ir && imm && load_issue_left>multi_first_lead-LOAD_PRE+LOAD_NEXT_LIMIT) &&
                      !(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
                      !(call_relative && control[15] && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
@@ -521,7 +531,7 @@ module jttms10 #(
         .need_dest(gfx_need_dest), .word_fill(fill_word),
         .irq_pending(nmi_req || (irq_req && st[21])), .transparent(pix_transparent),
         .active(gfx_active), .checkpoint(gfx_checkpoint),
-        .done(gfx_done),
+        .done(gfx_done), .end_pending(gfx_end_pending),
         .rf_sa(gfx_rf_sa), .rf_da(gfx_rf_da), .rf_wa(gfx_rf_wa),
         .load_a(gfx_load_a), .load_b(gfx_load_b),
         .a_data(gfx_a_data), .b_data(gfx_b_data), .alu_op(gfx_alu_op),
@@ -797,6 +807,11 @@ module jttms10 #(
                 load_issue_left<=(ir[5] ? 2 : 4)*CLKS_PER_STATE[LOAD_IW-1:0]-2;
                 if(immediate_word==0) time_left<=(ir[5] ? (rd_data[3:0]==0 ? 16'd5 : 16'd7) : 16'd4)*CLKS_PER_STATE[15:0]-16'd2;
             end
+            if(TIMED_PROGRAM!=0 && ir==16'h0fc0 && !store_started &&
+               step && gfx_pix_word && fill_word_eligible && rd_data=={fill_pixels[30:0],1'b0})
+                load_issue_left<=load_issue_left+CLKS_PER_STATE[LOAD_IW-1:0]-1'b1;
+            if(ir==16'h0fc0 && gfx_active && fill_word && gfx_bus_write && mem_req && mem_ack)
+                store_started<=1;
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
@@ -807,7 +822,7 @@ module jttms10 #(
                 load_pending<=decode_pixel_readpost || decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
                 load_address_ready<=!decode_pixel_xy_copy && !decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension));
-                load_issue_left<=decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_issue_left<=TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin

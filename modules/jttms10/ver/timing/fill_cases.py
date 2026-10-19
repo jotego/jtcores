@@ -66,8 +66,11 @@ def transfers(case):
 def check_bus(case, observed, lines, wait_states, *, raw=False):
     """Word order, payload, interval and transport; no invented first-slot timing.
 
-    Table13-6 implies word transfers, while §11 defines bus durations. Exact
-    row/IRQ checkpoint placement still needs a separate source-backed contract.
+    Table13-6 implies word transfers, while §11 defines bus durations.
+    The repeated row cadence uses Table13-6's linear row coefficient;
+    within-row replacement words use G=2. This is an explicit schedule
+    constraint, not a claim about TI's undocumented first-write phase.
+    Exact IRQ checkpoint placement still needs a separate source audit.
     """
     prefix = 'TARGET' if raw else 'BUS'
     begin = [x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
@@ -96,6 +99,15 @@ def check_bus(case, observed, lines, wait_states, *, raw=False):
             errors.append(f'{prefix} FILL write data mismatch at transfer {q}')
         if e[2:4]!=b[2:4] or (not kind and int(e[4],16)!=data):
             errors.append(f'{prefix} FILL response mismatch at transfer {q}')
+        if kind and not raw:
+            words,rows = case['data_fill']['words'],case['data_fill']['rows']
+            if q % words:
+                if start-int(begin[q-1][1]) != 16+8*wait_states:
+                    errors.append('FILL replacement word cadence differs from G=2 plus external waits')
+            elif q:
+                row_states = (case['fill_timing']['transfer_states']-2)//rows
+                if start-int(begin[q-words][1]) != 8*(row_states+words*wait_states):
+                    errors.append('FILL repeated row cadence differs from Table13-6 coefficient plus external waits')
         duration = (4 if raw else 16)+8*wait_states
         if finish-start != duration:
             errors.append(f'{prefix} FILL duration: expected {duration}, observed {finish-start}')
@@ -105,3 +117,10 @@ def check_bus(case, observed, lines, wait_states, *, raw=False):
 def fill_cases():
     for size, words, rows, xy, off in product((1,2,4,8,16),(1,2,3),(1,2),(False,True),(False,True)):
         yield fixture(size, words, rows, xy, off)
+    # Longer linear transfers exercise the per-row equations beyond the
+    # original one/two/three-word, one/two-row failing baseline. Keep those
+    # original120 contracts and their ordering unchanged.
+    for size,words,rows,off in product((1,2,4,8,16),(1,2,3,4,8),(1,2,3,4),(False,True)):
+        if words<=3 and rows<=2:
+            continue
+        yield fixture(size,words,rows,False,off)

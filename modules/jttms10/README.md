@@ -11,8 +11,10 @@ MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
-The standard runner retains seven forms without probes, failing [FILL
-baselines](docs/fill-timing.md), and unresolved MOVB targets. Its 126-form
+The standard runner retains seven forms without probes, partial [FILL
+timing coverage](docs/fill-timing.md), and unresolved MOVB targets.
+Aligned replace-only FILL L has200 passing hit/CD timing cases; FILL XY
+and the remaining graphics modes still require timing implementation. Its 126-form
 fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

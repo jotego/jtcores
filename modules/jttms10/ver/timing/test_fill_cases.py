@@ -9,8 +9,8 @@ from run import check, program
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 120)
-        self.assertEqual(len({r['name'] for r in cases}), 120)
+        self.assertEqual(len(cases), 260)
+        self.assertEqual(len({r['name'] for r in cases}), 260)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
@@ -21,6 +21,16 @@ class FillCasesTest(unittest.TestCase):
                     code,pc,nxt = program(row)
                     self.assertEqual(code[(pc-0x1000)//16], 0x0FE0 if xy else 0x0FC0)
                     self.assertEqual(nxt, pc+16)
+
+    def test_longer_linear_row_targets(self):
+        # Literal substitutions into Table13-6, independent of any CPU trace.
+        for words,rows,states in ((1,4,18),(2,3,24),(2,4,30),(3,3,27),(4,3,33),(8,4,74)):
+            for size in (1,2,4,8,16):
+                for off in (False,True):
+                    case=fixture(size,words,rows,False,off)
+                    self.assertEqual(case['states'],states+3*off)
+                    self.assertEqual(len(transfers(case)),words*rows)
+                    self.assertEqual(case['expected_extra_regs']['b2'],0x6100+(rows-1)*0x100+16*words)
 
     def test_pattern_canaries_and_defined_registers(self):
         row = fixture(1,3,2,True,False)
@@ -46,6 +56,18 @@ class FillCasesTest(unittest.TestCase):
         for off,wait,pause,clocks in ((False,1,7,88),(True,1,7,120)):
             row=fixture(16,1,1,False,off)
             self.assertEqual(check(row,dict(observed,clocks=clocks,paused=pause),wait,pause),[])
+
+    def test_row_cadence_rejects_compensated_total(self):
+        row=fixture(16,1,2,False,False)
+        observed=dict(start=0,end=96)
+        bus=['BUS_BEGIN 32 1 00006100 aa55 0','BUS_END 48 1 00006100 aaaa',
+             'BUS_BEGIN 56 1 00006200 aa55 0','BUS_END 72 1 00006200 bbbb']
+        self.assertEqual(check_bus(row,observed,bus,0),[])
+        # Keep the overall interval, order, data and16-clock bus durations.
+        # Early next-row traffic cannot be hidden by later retirement padding.
+        bad=bus[:2]+['BUS_BEGIN 48 1 00006200 aa55 0','BUS_END 64 1 00006200 bbbb']
+        errors=check_bus(row,observed,bad,0)
+        self.assertTrue(any('row cadence' in e for e in errors))
 
     def test_bus_rejections(self):
         row=fixture(16,2,1,False,True)
