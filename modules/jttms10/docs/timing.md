@@ -731,3 +731,30 @@ acceptance is claimed. Fresh119-form runner is running frozenadac0fbbd;
 older117/118 runs remain separate. No completed119 invocation is claimed.
 The same12,625 project choices/448 unresolved MOVB instances,including45
 agreed targets,remain without a waiver. All final acceptance gates stay open.
+
+
+## Completed corrected list runner and full linear-read crosscheck
+
+The uninterrupted117-form standard runner at299d97666 is complete: all
+289,568 exact timing programs pass (three95,710-case matrices,two DIV pauses,
+six406-case phase unions). All144 models,180 architecture programs,699 bus
+scenarios,79 mutation controls and87 rejections pass,alongside response17/1,
+EMU8/1 and the original MSW-first stack assertion. All48 timing-source and
+seven generated hashes match the committed implementation/synthesis snapshot;
+the private whole tree remains identical to299d97666. Final supervisor status
+is exit1 solely16 missing forms/448 unresolved source probes,including45
+agreed targets. This supersedes114-form CALL as the latest accepted complete
+development invocation; it does not establish full timing compliance.
+Clean scope remains targeted144 models/10,716 new programs/response17/1,
+not a full289,568-program clean checkout. The earlier117 base bug and its
+cancelled runner remain excluded; the115 capture retains its wrapper143
+limitation. No runtime was repeated for this documentation-only update.
+
+The full4,159-case linear-pixel-read Icarus comparison also completed at
+2d260be9f. Every stressed case object,49 timing-source hashes and seven
+generated hashes matches Verilator exactly. This extends the earlier two
+fresh-process comparison claim to the entire new linear-read matrix. Its
+three-profile clean proof remains12,477 exact programs,151 models and
+response21/1. The current branch has119 forms; its118/119 full runners remain
+running frozen2d260be9f/adac0fbbd. All remaining ISA/conditions,known MOVB,
+full clean/CI,final fitted area/board STA/NARC/MiSTer requirements remain open.

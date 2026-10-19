@@ -77,9 +77,9 @@ all three profiles,151 models and21 response controls/one mutant. Case
 objects,49 timing-source hashes and seven generated hashes match exactly.
 All102 short Icarus phase programs,180 architectural programs,the original
 38-request MSW-first assertion,strict lint and three new actual mutation
-controls/rejections pass. Two fresh-process stressed Icarus observations
-match Verilator apart from batch-local case ID; the full4,159-case Icarus
-comparison remains running and is not yet claimed. Clean scope is targeted,
+controls/rejections pass. All4,159 stressed Icarus observations match Verilator exactly,including
+source/generated hashes. Two additional fresh-process stressed comparisons
+match apart from batch-local case ID. Clean scope is targeted,
 not a complete standard runner.
 
 All4,159 historical probes on unchanged299d97666 fail timing/bus checks
@@ -94,7 +94,9 @@ live-capture manifest retains its original metadata and source_commit:null.
 This is synthesis only,without current fit/STA acceptance.
 
 A fresh118-form standard runner is running frozen at2d260be9f; no completed
-118 invocation is claimed. The older117-form runner remains separate.
+118 invocation is claimed. The corrected117-form runner has completed all289,568 programs; exit1 is
+solely16 missing forms/448 unresolved source probes. Its acceptance is
+recorded in the later standard-runner milestone in timing.md.
 Current inventory is99,869 cases,118/133 forms,15 missing,12,625 explicit
 project choices and448 unresolved MOVB instances including45 agreed targets.
 No known target is waived. Partial or failed prototypes are excluded from
