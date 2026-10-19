@@ -619,3 +619,13 @@ TRAP branch. All47 runtime timing inputs and generated ROMs are unchanged;
 no targeted runtime is repeated for this helper/documentation-only fix.
 A fresh uninterrupted standard runner is required; the failed invocation
 is not accepted as a completed full-runner milestone.
+
+
+The uninterrupted114-form CALL development runner is verified at7b7b40ffc:
+272,972 exact programs,133 models,180 architecture,699 bus scenarios,
+67 mutation controls/75 rejections,response9/1 and EMU8/1. All46 timing-source
+and seven generated hashes match its implementation/map; exit1 is solely
+19 missing/448 unresolved sources. The branch is newer with115 forms.
+Its initial full runner failed a stale mutation anchor before matrices;
+the helper-only correction's fresh full runner remains running. Final full
+clean/CI, ISA/conditions and hardware/game acceptance remain required.

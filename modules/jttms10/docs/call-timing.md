@@ -111,3 +111,14 @@ The uninterrupted114-form runner remains pending at this step. The preceding111-
 128 models,180 architecture,699 bus scenarios,62 controls and70 rejections,
 then exits1 solely at22 missing/448 unresolved sources. The newer114-form
 CALL runner remains pending. Full clean/remote CI acceptance stays open.
+
+
+The uninterrupted114-form development standard runner at7b7b40ffc now
+completes272,972 exact programs: three90,338-case matrices,two DIV pauses
+and six326-case phase unions. All133 models,180 architecture,699 bus
+scenarios,67 mutation controls and75 rejections pass (72 timing/bus/stimulus
+plus three event contracts), alongside response9/1 and EMU8/1. Exit1 is
+solely19 missing forms/448 unresolved source probes. All46 timing-source
+and seven generated hashes match the implementation/map. This establishes
+the full development runner at this revision; clean scope remains targeted,
+and final full clean/remote CI and hardware acceptance remain open.
