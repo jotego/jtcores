@@ -28,7 +28,7 @@ module test;
         .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
-        .mem_program(), .mem_fast(),
+        .mem_program(), .mem_post(), .mem_fast(),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
@@ -69,7 +69,8 @@ module test;
         end
         $fclose(vector_fd);
         repeat (5) @(posedge clk);
-        rst <= 0;
+        @(negedge clk);
+        rst = 0;
     end
 
     function automatic [31:0] read_field(input [31:0] address, input [5:0] size);
@@ -86,7 +87,7 @@ module test;
                     read_field = vector_target[vector_index];
                 else $fatal(1, "uninitialized trap vector %0d", vector_index);
             end else begin
-                if (size < 1 || size > 32 || address + size > 32'd16384)
+                if (size < 1 || size > 32 || address + {26'd0, size} > 32'd16384)
                     $fatal(1, "invalid read size %0d at bit address %h", size, address);
                 for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
                     if (bit_index < size) begin
@@ -103,7 +104,7 @@ module test;
         integer bit_index;
         reg [31:0] physical;
         begin
-            if (size < 1 || size > 32 || address + size > 32'd16384)
+            if (size < 1 || size > 32 || address + {26'd0, size} > 32'd16384)
                 $fatal(1, "invalid write size %0d at bit address %h", size, address);
             for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
                 if (bit_index < size) begin

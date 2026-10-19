@@ -563,7 +563,7 @@ def main():
                         help='alternative testbench for stimulus mutation checks')
     parser.add_argument('--separate-processes', action='store_true',
                         help='start a fresh simulator for each case (slower isolation cross-check)')
-    parser.add_argument('--simulator', choices=('iverilog', 'verilator'), default='iverilog',
+    parser.add_argument('--simulator', choices=('iverilog', 'verilator'), default='verilator',
                         help='simulation engine (Verilator also requires a C++ compiler)')
     parser.add_argument('--wait-states', type=int, default=0,
                         help='add this many TI machine states to every physical cycle')

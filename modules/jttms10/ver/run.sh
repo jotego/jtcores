@@ -114,7 +114,7 @@ python3 "$ver_dir/load_pause/check.py"
 python3 "$ver_dir/emu/check.py"
 # Validate mutation injection sites before starting the larger timing matrices.
 python3 "$ver_dir/timing/mutations.py"
-timing_simulator=${JTTMS10_TIMING_SIMULATOR:-iverilog}
+timing_simulator=${JTTMS10_TIMING_SIMULATOR:-verilator}
 timing_args=(--simulator "$timing_simulator")
 if [ -n "${JTTMS10_TIMING_REPORT:-}" ]; then
     timing_args+=(--report "$JTTMS10_TIMING_REPORT")

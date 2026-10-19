@@ -71,7 +71,7 @@ def main():
     mode.add_argument("--system", action="store_true", help="integrated CPU, field adapter and synchronous fabric")
     mode.add_argument("--narc", action="store_true", help="new CPU at the same tied-off NARC GSP boundary as reference")
     parser.add_argument("output", type=Path, help="new, empty output directory, preferably under /tmp")
-    parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/intelFPGA_lite/20.1/quartus/bin"))
+    parser.add_argument("--quartus-bin", type=Path, default=Path("/opt/quartus_free"))
     parser.add_argument("--source-ref", help="copy new CPU/NARC inputs from this git commit instead of live files")
     parser.add_argument("--snapshot-only", action="store_true",
                         help="capture and generate sources without starting Quartus")

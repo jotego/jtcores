@@ -146,9 +146,10 @@ simulator per case for isolation cross-checks. The 1,148-case matrix before
 adding the literal SLA examples matched exactly between both modes,
 including every measured bus trace.
 
-Icarus remains the command-line default. Verilator plus a C++ compiler is
-optional locally and is used for the large matrices in CI; the normal runner
-selects it with `JTTMS10_TIMING_SIMULATOR=verilator`. The same 1,148-case
+Verilator plus a C++ compiler is the command-line default. Icarus is
+available through an explicit `--simulator iverilog` selection. The normal
+timing runner and CI use Verilator unless `JTTMS10_TIMING_SIMULATOR`
+explicitly overrides it. The same 1,148-case
 matrix matched exactly between Icarus and Verilator. The latter reduced
 compile-and-run time from 91 seconds to about two seconds in this workspace.
 These runtime measurements are harness performance, not emulated CPU timing.
@@ -1092,3 +1093,25 @@ See [the XY audit](fill-timing.md#aligned-opaque-xy-fill-conversion-and-timing).
 Broader conditions/events, seven missing forms, 448 MOVB source/target gaps
 (including 45 agreed targets), full clean/CI and final area/STA/game gates
 remain open.
+
+
+### Verilator defaults on resumed development
+
+The architectural YAML runner, timing runner, timing mutations (through that
+runner) and bus-timing checker now default to Verilator. The normal shell
+runner selects Verilator for its timing matrices by default. Architectural
+vectors retain the original generated assertions and configuration values;
+one model is compiled per invocation and each case runs in a separate
+process selected by `+VECTOR`, preserving independent initialization.
+Reset deasserts on the falling clock edge to avoid initial-block scheduling
+ambiguity. An explicit `--simulator iverilog` remains available in those
+Python runners. Legacy unit and response/EMU event benches in `ver/run.sh`
+still invoke Icarus and have not yet been migrated; this change is not a
+claim that the entire shell runner uses Verilator.
+
+Fresh default-engine verification passes all 180 architectural programs,
+699 bus scenarios and seven FILL positive controls/seven timing rejections.
+A deliberately wrong expected PC in a copied YAML fixture returns nonzero
+with the original case/step/PC diagnostic. Fixture definitions and independent
+expectations are unchanged. Area snapshots now default to `/opt/quartus_free`.
+No new full normal-runner, clean-checkout or remote-CI result is claimed.

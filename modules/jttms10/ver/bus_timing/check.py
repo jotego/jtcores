@@ -76,7 +76,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rtl',type=Path,default=RTL)
     parser.add_argument('--report',type=Path)
-    parser.add_argument('--simulator',choices=('iverilog','verilator'),default='iverilog')
+    parser.add_argument('--simulator',choices=('iverilog','verilator'),default='verilator')
     args=parser.parse_args()
     rows=[]
     with tempfile.TemporaryDirectory(prefix='jttms10-bus-timing-') as temp:

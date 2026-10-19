@@ -1,6 +1,7 @@
 # Cyclone V area measurement
 
-Use Quartus Prime Lite 20.1.1 (or pass `--quartus-bin`) and a fresh output
+Use Quartus Prime Lite 20.1.1 through `/opt/quartus_free` (the default;
+explicit overrides use `--quartus-bin`) and a fresh output
 directory:
 
 ```sh
