@@ -70,8 +70,25 @@ representatives and22 verified old HDL/YAML hashes are committed. Typical
 cached XY read changes454 to48 INCLK. Historical captures are not goldens
 or allowlists.
 
-Short-phase, cross-simulator, clean-checkout and current synthesis validation
-remain in progress; no completed119-form normal runner is claimed. The
+A detached clean checkout ofadac0fbbd repeats all three3,917-case profiles,
+158 models and25 response controls/one mutant. All11,751 case objects,
+50 timing-source/seven generated hashes and response objects match development
+exactly. All519 representative stressed Icarus programs match Verilator
+except batch-local case ID; this is not all3,917. All102 short Icarus phase
+programs and two fresh-process comparisons pass. Clean scope is targeted,
+not a full standard runner.
+
+Matched NARC GSP quartus_map estimates3,798 ALMs,5,504 ALUTs,1,722 registers,
+538,624 RAM bits,five DSPs,zero MLAB bits: -27 ALMs/-three ALUTs versus the
+linear-read map,unchanged registers/RAM/DSPs. These combined synthesis totals
+do not isolate one cause. Same158 virtual pins/device/tool/20ns/seed/effort;
+all36 snapshot hashes/29 committed physical inputs,QSF path normalization,
+SDC and the same49 warning classifications verify. Live-capture metadata
+source_commit:null and repo_commit2d260be9f are retained; content matches
+adac0fbbd. No current fit/STA acceptance is claimed.
+
+A fresh119-form standard runner is running frozenadac0fbbd,alongside the
+older117/118 frozen runs. No completed119-form invocation is claimed. The
 inventory becomes103,786 cases and119/133 forms,14 missing. The12,625
 project choices and448 unresolved MOVB instances including45 agreed targets
 remain, without waivers. Pixel stores/copies, LINE/FILL/PIXBLT, broader

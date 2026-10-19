@@ -257,7 +257,7 @@ The full #144 checklist remains open.
 | ACK while CPU CEN is paused | Wrapper extension; TI bus counts still apply | Nine A/B/SP and aligned/unaligned stack-response controls plus duplicate-read mutation | Functional response retention only; overlapping-pause exact instruction timing not claimed |
 | Remaining memory/hidden-write conditions | §13.2 Tables13-1–13-4 | Form probes exist; consecutive writes and full cache/dependency/contention audits remain | Incomplete condition audit |
 | PIXT linear memory to register | SPVU001A pp.4-6,12-218/219; §7.3 | 4,159 full-GPR/state/read-only-memory programs,20 following loads, legal size/lane/plane-mask boundaries and cold next fills | 4/7 states; NCZ preservation and multibit V interpretation explicit in [pixel-read-timing.md](pixel-read-timing.md). Other pixel forms remain open |
-| PIXT XY memory to register | SPVU001A pp.4-12/13,12-222/223; §7.3 | 3,917 full-GPR/state/read-only-memory programs,source pitches/planes/aliases and20 following loads | 6/9 states; see [pixel-xy-read-timing.md](pixel-xy-read-timing.md). Broader validation in progress |
+| PIXT XY memory to register | SPVU001A pp.4-12/13,12-222/223; §7.3 | 3,917 full-GPR/state/read-only-memory programs,source pitches/planes/aliases and20 following loads | 6/9 states; targeted three-profile/clean/cross-simulator proof in [pixel-xy-read-timing.md](pixel-xy-read-timing.md). Full acceptance remains open |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | The two scalar read forms above have probes | Other graphics timing unvalidated |
 | Sequential subsegment miss | §5.4.7 p.5-24 | First-pass NOP probes, four ordered two-state reads plus processing; 80 INCLK without waits | Current directed probes pass |
 | Cache replacement/prefetch and other overlap | §5.4; §13.1 | Functional cache tests; full timing conditions still incomplete | Unvalidated |
@@ -706,3 +706,28 @@ acceptance is claimed. Fresh118-form standard runner is running frozen2d260be9f;
 older117-form runner remains separate. No completed118 invocation is claimed.
 The same12,625 project choices/448 unresolved MOVB instances,including45 agreed
 targets,remain; no waiver is introduced. All final acceptance gates stay open.
+
+
+## XY pixel-read milestone
+
+PIXT *Rs.XY,Rd adds3,917 fixtures for103,786 cases and119/133 forms
+(14 missing). Implementationadac0fbbd reuses the shared scalar DSP and ALU
+for source-pitch conversion,then the scalar pixel path at6/9 states. All
+11,751 programs in three separate profiles,158 models,180 architecture,
+102 short Icarus phases,two new timing mutants/three affected linear mutants,
+25 response controls/one mutant and strict lint pass. A detached clean
+checkout repeats all three profiles,models and events with exact case
+objects,50 source/seven generated hashes and response objects. All519
+representative Icarus stress cases match Verilator except case ID; this is
+not all3,917. Two fresh-process comparisons pass. Clean scope is targeted,
+not a full normal runner. See[pixel-xy-read-timing.md](pixel-xy-read-timing.md).
+
+The99,869 preceding fixture/program/golden contracts are unchanged.
+All3,917 old probes fail timing/bus checks with correct architecture/memory;
+85 representatives and22 old HDL/YAML hashes are committed. Matched map
+estimates3,798 ALMs,5,504 ALUTs,1,722 registers,538,624 RAM bits,five DSPs,
+zero MLAB bits; all36 snapshot hashes/29 committed inputs verify. No fit/STA
+acceptance is claimed. Fresh119-form runner is running frozenadac0fbbd;
+older117/118 runs remain separate. No completed119 invocation is claimed.
+The same12,625 project choices/448 unresolved MOVB instances,including45
+agreed targets,remain without a waiver. All final acceptance gates stay open.
