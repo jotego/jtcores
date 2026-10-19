@@ -108,6 +108,22 @@ CHOICES['EMU',signature(dict(summary_cpu=6,summary_cd=9,entry_cpu=8,entry_cd=11,
     datasheet_cpu=6,policy_cpu=6,policy_cd=9))]='emu-run-summary-and-datasheet'
 
 
+# MMFM's read-only operation conflicts with parenthesized hidden writes;
+# preserve both figures and literal CPU/CD, following the owner's fallback.
+# Empty lists perform no data access while retaining the printed equations.
+for n in range(16):
+    for unaligned in (False,True):
+        cpu=3+(6 if unaligned else 4)*n
+        cd=(13+6*n) if unaligned else (11+4*n)
+        values=dict(entry_cpu=cpu,entry_cd=cd,policy_cpu=cpu,policy_cd=cd,
+                    entry_hidden=4 if unaligned else 2,policy_hidden=0)
+        CHOICES['MMFM',signature(values)]='register-list-read-only-hidden-states'
+for hidden in (2,8):
+    values=dict(entry_cpu=2,entry_cd=10,policy_cpu=2,policy_cd=10,
+                entry_hidden=hidden,policy_hidden=0)
+    CHOICES['MMTM',signature(values)]='empty-register-list-no-data-work'
+
+
 def project_choice(identifier,values,kind):
     if kind=='agreed-published-target-gap':return None
     decision=CHOICES.get((identifier,signature(values)))

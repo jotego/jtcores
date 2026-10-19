@@ -31,11 +31,82 @@ from interrupt_return_cases import reti_fixture, interrupt_return_cases
 from push_cases import push_fixture,push_cases
 from call_cases import call_fixture,call_cases
 from trap_cases import fixture as trap_fixture,trap_cases,transactions as trap_transfers
+from list_cases import fixture as list_fixture,list_cases,transfers as list_transfers,check_bus as list_check_bus
 from store_cases import transactions as store_transfers
 from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_list_primary_counts_and_hidden_waits(self):
+        for load,offset,cpu,cd in [(True,0,19,27),(True,15,27,37),(False,0,18,26),(False,15,42,50)]:
+            for off in (False,True):
+                row=list_fixture(load,off,offset,(0,2,14,15));program(row)
+                self.assertEqual(row['states'],cd if off else cpu)
+                count=(12 if offset else 8) if load else (20 if offset else 8)
+                if not load and not off:count-=5 if offset else 2
+                count+=2*off
+                actual=dict(clocks=(row['states']+count)*8,paused=0,st=row['expected_st'],
+                    **{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+                self.assertEqual(check(row,actual,1),[])
+                actual['clocks']-=8
+                self.assertTrue(check(row,actual,1))
+
+    def test_list_all_lengths_positions_and_undefined_pointer_alias(self):
+        rows=list(list_cases());self.assertEqual(len({c['name'] for c in rows}),len(rows))
+        self.assertEqual({len(c['data_list']['selected']) for c in rows},set(range(16)))
+        self.assertEqual({c['data_list']['address']&15 for c in rows},set(range(16)))
+        for load in (False,True):
+            with self.assertRaises(ValueError):list_fixture(load,False,0,(3,))
+            for q in range(16):
+                row=list_fixture(load,False,0,(q,),pointer=1 if q==3 else 3)
+                self.assertEqual(row['extensions'],[1<<(q if load else 15-q)])
+
+    def test_mmfm_primary_numeric_example_and_label_conflict(self):
+        # TI12-110: numeric LSW/MSW pairs, B3/B7 from the actual list.
+        # Printed After labels B4/B8 conflict with that list, so not asserted.
+        numbers=[0xFFFFBFBF,0xEEEEBEBE,0xDDDDBDBD,0xCCCCBCBC,0x7777B7B7,0x3333B3B3,0x2222B2B2,0x1111B1B1]
+        memory={0x10000+16*q:(value>>(16*(q&1)))&0xFFFF for q in range(16) for value in [numbers[q//2]]}
+        row=list_fixture(True,False,0,(1,2,3,7,12,13,14,15),bank=1,pointer=0,address=0x10000,initial_words=memory)
+        self.assertEqual(row['extensions'],[0xF08E])
+        for q,value in zip((15,14,13,12,7,3,2,1),numbers):self.assertEqual(row['expected_extra_regs']['sp' if q==15 else f'b{q}'],value)
+        self.assertEqual(row['expected_extra_regs']['b0'],0x10100)
+        self.assertEqual(row['expected_st'],row['initial_all_regs']['a3'])
+
+    def test_mmtm_lsw_first_and_literal_before_after_conflict(self):
+        # TI12-112's Before A2=2220A2A2 conflicts with After MSW2222.
+        # Preserve that difference; the operation stores the supplied2220.
+        row=list_fixture(False,False,0,(0,2,4,8,12,13,14,15),pointer=1,address=0x100000,
+            initial_values=dict(a0=0xA0A0,a2=0x2220A2A2,a4=0x4444A4A4,a8=0x8888A8A8,a12=0xCCCCACAC,a13=0xDDDDADAD,a14=0xEEEEAEAE,sp=0xFFFFAFAF))
+        plan=list_transfers(row);self.assertEqual(plan[:4],[(1,0xFFFE0,0xA0A0,0),(1,0xFFFF0,0,0),(1,0xFFFC0,0xA2A2,0),(1,0xFFFD0,0x2220,0)])
+        self.assertNotEqual(dict(row['expected_memory'])[0xFFFD0],0x2222)
+        self.assertEqual(row['expected_regs'][1],0xFFF00)
+        for pointer,negative in [(0,1),(0x80000000,0),(0xFFFFFFFF,0),(1,1)]:
+            r=list_fixture(False,False,0,(),address=pointer)
+            self.assertEqual(r['expected_st']>>31,negative)
+            self.assertEqual(r['expected_st']&0x7FFFFFFF,r['initial_all_regs'][f'a{r["status_holder"]}']&0x7FFFFFFF)
+            self.assertEqual(list_transfers(r),[])
+
+    def test_list_hidden_source_choice_is_explicit_and_exact(self):
+        row=list_fixture(True,False,15,(0,2));strict=inventory([row]);selected=inventory([row],accept_project_choices=True)
+        self.assertEqual(len(strict['unresolved_source_probes']),1)
+        self.assertEqual(strict['unresolved_source_probes'][0]['kind'],'unresolved-hidden-state-source')
+        self.assertEqual(row['source_values']['entry_hidden'],4)
+        self.assertEqual(row['source_values']['policy_hidden'],0)
+        self.assertEqual(len(selected['project_source_choices']),1)
+        row['timing_source_status']='primary-summary-consistent'
+        self.assertEqual(len(inventory([row])['unresolved_source_probes']),1)
+        row['hidden_states']=1
+        with self.assertRaises(ValueError):inventory([row],accept_project_choices=True)
+
+    def test_list_bus_rejects_wrong_order_even_when_totals_match(self):
+        row=list_fixture(False,False,0,(0,));program(row);observed=dict(start=0,end=48,clocks=48)
+        plan=list_transfers(row);lines=[]
+        for q,(kind,address,data,iaq) in enumerate(plan):
+            t=32+16*q;lines += [f'BUS_BEGIN {t} {kind} {address:08x} {data:04x} {iaq}',f'BUS_END {t+16} {kind} {address:08x} {data:04x}']
+        self.assertEqual(list_check_bus(row,observed,lines,0,0),[])
+        lines[0],lines[2]=lines[2],lines[0]
+        self.assertTrue(list_check_bus(row,observed,lines,0,0))
+
     def test_trap_primary_counts_and_all_serial_bus_waits(self):
         for n in (0,1,31):
             for offset,cpu,transfers in [(0,16,6),(15,30,12)]:
@@ -709,7 +780,7 @@ class TimingCheckerTest(unittest.TestCase):
     def test_project_choice_inventory_leaves_absolute_byte_open(self):
         # Preserve the independently audited coordinate-stage inventory;
         # later families have their own source-policy checks below.
-        audit=inventory((row for row in cases() if 'data_copy' not in row and row['coverage_id']!='EMU'),accept_project_choices=True)
+        audit=inventory((row for row in cases() if 'data_copy' not in row and row['coverage_id'] not in ('EMU','MMFM','MMTM')),accept_project_choices=True)
         self.assertEqual(len(audit['project_source_choices']),3520)
         self.assertEqual(len(audit['unresolved_source_probes']),116)
         self.assertEqual({r['identifier'] for r in audit['unresolved_source_probes']},{'MOVB_R_ABS'})

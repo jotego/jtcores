@@ -27,6 +27,7 @@ from stack_cases import popst_fixture
 from return_cases import rets_fixture
 from interrupt_return_cases import reti_fixture
 from trap_cases import fixture as trap_fixture,transactions as trap_transactions
+from list_cases import fixture as list_fixture,transfers as list_transfers,wait_count as list_wait_count
 from run import program,parse_result,check_bus,check_target
 
 
@@ -44,7 +45,8 @@ def evaluate(case,log,returncode):
     if observed['paused']!=pause:errors.append(f'expected exactly {pause} CPU-disabled clocks')
     # An overlapping CEN pause may hide CPU wait time. Keep a conservative
     # completion bound; exact TI duration is checked in the normal suite.
-    if 'data_trap' in case:count=len(trap_transactions(case))
+    if 'data_list' in case:count=list_wait_count(case)
+    elif 'data_trap' in case:count=len(trap_transactions(case))
     else:
         data=case['data_load'];fields=case.get('stack_fields',[data])
         count=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
@@ -63,7 +65,7 @@ def evaluate(case,log,returncode):
     # The field was accepted before pausing; every word retains its TI
     # two-state+wait timing. No opcode read occurs in these cached probes.
     errors+=check_bus(case,observed,bus,1,0)
-    errors+=check_target(case,observed,target+(bus if case.get('stack_load') or 'data_trap' in case else []),1,0)
+    errors+=check_target(case,observed,target+(bus if case.get('stack_load') or 'data_trap' in case or 'data_list' in case else []),1,0)
     if case.get('stack_control_flow') or case.get('trap_flow'):
         opcodes=[int(s.split()[1],16) for s in log.splitlines() if s.startswith('NEXT_OPCODE ')]
         if opcodes!=[case['expected_next_opcode']]:errors.append('response-resume target opcode mismatch')
@@ -93,7 +95,7 @@ def main():
                 str(HERE.parent/'timing/test.sv'),*map(str,sorted(hdl.glob('*.v')))],capture_output=True,text=True)
             if compiled.returncode:raise RuntimeError(compiled.stdout+compiled.stderr)
             result=subprocess.run(['vvp',str(binary),'+PROGRAM=program.mem','+DATA=data.mem',f'+DATA_COUNT={len(case["initial_memory"])}',
-                f'+WATCH_EXTRA={3 if case.get("stack_control_flow") or case.get("trap_flow") else 1}','+CASE_ID=0','+MEASURE_PASS=1',f'+TEST_PC={start:x}',f'+NEXT_PC={following:x}',
+                f'+WATCH_EXTRA={13 if case.get("observe_all") else 3 if case.get("stack_control_flow") or case.get("trap_flow") else 1}','+CASE_ID=0','+MEASURE_PASS=1',f'+TEST_PC={start:x}',f'+NEXT_PC={following:x}',
                 '+WAIT=8',f'+PAUSE={case.get("response_pause_clocks",32)}',f'+PAUSE_AFTER={case.get("response_pause_after",2)}',f'+DRAIN_INSTRUCTIONS={case.get("drain_instructions",0)}','+RESPONSE_PAUSE'],cwd=work,capture_output=True,text=True,timeout=15)
             return evaluate(case,result.stdout+result.stderr,result.returncode)
         probes=[fixture('post',16,0,0,False,False,bank,source,dest,1,
@@ -117,6 +119,12 @@ def main():
                 case['response_pause_clocks']=96 if not n else 160
                 case['response_pause_after']=2 if not n else 12
                 probes.append(case)
+        for load in (False,True):
+            for offset in (0,15):
+                case=list_fixture(load,False,offset,(0,2,14,15),bank=int(bool(offset)),tag='response_pause')
+                case['response_pause_clocks']=256
+                case['response_pause_after']=20 if load else 92 if offset else 44
+                probes.append(case)
         for q,case in enumerate(probes):
             row=run_case(case,'control'+str(q),MODULE/'hdl');row['kind']='positive-control';rows.append(row)
             if row['errors']:raise RuntimeError(json.dumps(row,indent=2))
@@ -134,7 +142,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py')]]
         args.report.write_text(json.dumps(dict(contract='CPU-only CEN response retention; exact TI base counts are checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0

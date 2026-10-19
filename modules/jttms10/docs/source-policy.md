@@ -30,7 +30,7 @@ new alternatives, changed selected counts, different instruction forms or
 changed result expectations cannot silently inherit a choice.
 
 The source audit still reports every discrepancy. The normal gate separates
-**10,771 probe instances with project choices** from **448 unresolved MOVB
+**12,625 probe instances with project choices** from **448 unresolved MOVB
 probes**, including 45 matching entry/summary targets. Absolute MOVB has
 116 unresolved instances (27 agreed); plain memory-to-memory MOVB has 332
 (18 agreed). All absolute-MOVB variants remain open, including alignments
@@ -43,7 +43,7 @@ the three source reads and the same table's CD17/H7 contradict printed CPU5.
 
 The normal runner invokes the policy-aware inventory. Calling
 `inventory(rows)` without `accept_project_choices=True` retains the stricter
-source-only audit, including all 11,219 discrepancy instances. Both views
+source-only audit, including all 13,073 discrepancy instances. Both views
 preserve the original numbers and citations. A passed source-policy gate
 would still leave condition/bus/interrupt/hardware audits required;
 `full_isa_signoff` remains false. Missing forms also continue to fail.
@@ -87,3 +87,12 @@ data-sheetp.14 minimum6, retaining entryp.12-77's8/11. Full ST preservation
 follows the later data sheet and is allowed by the entry's indeterminate
 NCZV. The296 new exact project choices and the separate pulse contract are
 documented in [emu-timing.md](emu-timing.md); RUN-low hold/resume remains open.
+
+
+Register lists add1,854 exact hidden-state/applicability choices. MMFM's
+operation is read-only but its table prints parenthesized2/4, while §13.1.1
+defines hidden work as writes. Select H=0 with the literal CPU/CD equations;
+empty MMTM also performs no hidden data operation. Every printed alternative
+is retained and numeric hidden-state policy is audited independently of
+status labels. [list-timing.md](list-timing.md) records n/zero-mask choices
+and the worked-example discrepancies. No known MOVB target is waived.

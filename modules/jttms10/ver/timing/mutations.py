@@ -62,6 +62,32 @@ def replace_once(path, old, new):
     path.write_text(source.replace(old,new))
 
 
+def list_mutations(work,evidence):
+    """Actual list regressions, retaining all initialized GPRs and memory."""
+    for name,probe,file,old,new in (
+        ('short_mmfm_unaligned_tail','mmfm_phase_b0_p3_mc005_o15_a0_off','jttms10.v',
+         "multi_load ? (control[15] ? (rd_data[3:0]==0 ? 16'd3 : 16'd5)",
+         "multi_load ? (control[15] ? (rd_data[3:0]==0 ? 16'd3 : 16'd4)"),
+        ('absorbed_list_operand_pause','mmfm_phase_b0_p3_mc005_o0_a0_off','jttms10.v',
+         '!(multi_ir && imm && load_issue_left>multi_first_lead-LOAD_PRE+LOAD_NEXT_LIMIT)',
+         "1'b1"),
+        ('late_mmfm_between_fields','mmfm_phase_b0_p3_mc005_o0_a0_hit','jttms10.v',
+         'load_started<=0;load_address_ready<=multi_steps>1;load_issue_left<=0;',
+         'load_started<=0;load_address_ready<=0;load_issue_left<=0;'),
+        ('wrong_mmtm_word_order','mmtm_phase_b0_p3_ma003_o15_a0_hit','jttms10_word.v',
+         ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we))",
+         ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we) || (ir[15:5]==11'h04c && field_we))"),
+        ('absorbed_mmtm_single_slot','mmtm_boundary_phase_n1_b0_p3_m8000_o15_a0_hit','jttms10_word.v',
+         '.mem_slot(slot_eligible || slot_phase==0)', ".mem_slot(1'b1)"),
+        ('short_mmtm_post_tail','mmtm_follow_n15_k0_b0_p3_mefff_o15_a0_hit','jttms10.v',
+         "time_left<=(mem_slot ? 16'd2 : 16'd3)*CLKS_PER_STATE[15:0]-{{(16-$clog2(CLKS_PER_STATE)){1'b0}},mem_phase}-16'd1;",
+         "time_left<=16'd1*CLKS_PER_STATE[15:0]-{{(16-$clog2(CLKS_PER_STATE)){1'b0}},mem_phase}-16'd1;")):
+        extra=['--wait-states','1','--pause-clocks','1']
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
@@ -546,6 +572,7 @@ def main():
         evidence['sequencer_advances_during_pause'] = run_case(work,'sequencer_advances_during_pause',case,
             ['--rtl-dir',str(prime),'--pause-clocks','7'],mutated=True,
             event_error='instruction sequencer advanced while CEN paused')
+        list_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(evidence,indent=2)+'\n')

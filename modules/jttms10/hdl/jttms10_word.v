@@ -75,7 +75,7 @@ module jttms10_word #(
     wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
                        ir[15:10]==6'b100110 || ir[15:10]==6'b101010 ||
                        ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400 || packet_copy;
-    wire indirect_load=indirect_copy || ir==16'h0900 || ir==16'h01c0 || ir==16'h0940 || (ir & 16'hffe0)==16'h0960 ||
+    wire indirect_load=ir[15:5]==11'h04d || ir[15:5]==11'h04c || indirect_copy || ir==16'h0900 || ir==16'h01c0 || ir==16'h0940 || (ir & 16'hffe0)==16'h0960 ||
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
@@ -89,18 +89,18 @@ module jttms10_word #(
             // Only an accepted source read can carry its slot across the
             // copy handoff. Address preparation after a pause owns no slot.
             if(field_req && program_read && field_iaq && field_ack) copy_source_accepted<=0;
-            if(data_accept && indirect_copy && !field_we) copy_source_accepted<=1;
+            if(data_accept && ((indirect_copy && !field_we) || ir[15:6]==10'h026)) copy_source_accepted<=1;
             if(slot_phase==0) begin
                 fast_slot<=cen;
                 stack_post_slot<=cen && field_post;
             end
             else if(!cen) fast_slot<=0;
-            if(!field_req && !data_owner && (!indirect_copy || !copy_source_accepted || !cen)) slot_eligible<=0;
+            if(!field_req && !data_owner && (!(indirect_copy || ir[15:6]==10'h026) || !copy_source_accepted || !cen)) slot_eligible<=0;
             // CALL owns a delayed stack slot; unaligned address bits alone
             // cannot carry that slot across an early CEN pause. PUSHST can
             // start its unaligned field in its initial intrinsic state.
             else if(slot_phase==0 || (!request_latched &&
-                (slot_phase==1 || ((ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3 &&
+                ((slot_phase==1 && (ir[15:6]!=10'h026 || copy_source_accepted)) || ((ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3 &&
                   ((!call_stack && field_addr[3:0]!=0) || stack_post_slot)))))
                 slot_eligible<=1;
         end
@@ -147,7 +147,8 @@ module jttms10_word #(
         .mem_pixel(field_pixel), .mem_post(field_post), .mem_fast(field_fast),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
-        .mem_cached(program_read && cache_hit),
+        .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
+        .mem_slot(slot_eligible || slot_phase==0),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 

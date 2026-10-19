@@ -30,17 +30,19 @@ module test;
     integer pause_clocks=0,pause_after=0,pause_left=0,paused=0;
     reg pause_done=0;
     reg [31:0] pause_pc,pause_st;
+    reg [31:0] pause_all[0:30];
     reg [31:0] pause_regs[0:3], pause_bregs[0:4], pause_implicit[0:2];
     reg [11:0] pause_uaddr;
     reg pause_active;
     reg [132:0] pause_work;
+    reg [23:0] pause_multi;
     integer now=0,seen=0,start_clock=0;
     reg [31:0] test_pc,next_pc;
     reg measuring=0,case_done=0,response_request_seen=0;
     integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0,watch_extra=0,drain_instructions=0,drain_left=0;
     reg draining=0,drain_pause_started=0;
-    reg [31:0] data_address[0:15];
-    reg [15:0] data_value[0:15];
+    reg [31:0] data_address[0:63];
+    reg [15:0] data_value[0:63];
     reg [15:0] input_word;
     // A combined fetch/dispatch commits IR and increments PC on the same
     // edge. The previous two-word microcode had incremented PC earlier.
@@ -67,7 +69,7 @@ module test;
                     if(rc!=1) $fatal(1,"truncated batch program");
                     mem[256+i]=input_word;
                 end
-                if(memory_count<0 || memory_count>16) $fatal(1,"invalid sparse memory count");
+                if(memory_count<0 || memory_count>64) $fatal(1,"invalid sparse memory count");
                 for(i=0;i<memory_count;i=i+1) begin
                     rc=$fscanf(batch_fd,"%h %h",data_address[i],data_value[i]);
                     if(rc!=2 || data_address[i][3:0]!=0) $fatal(1,"invalid sparse memory word");
@@ -96,7 +98,7 @@ module test;
             for(i=0;i<4096;i=i+1) mem[i]=0;
             $readmemh(program_path,mem);
             rc=$value$plusargs("DATA_COUNT=%d",memory_count);
-            if(memory_count<0 || memory_count>16) $fatal(1,"invalid sparse memory count");
+            if(memory_count<0 || memory_count>64) $fatal(1,"invalid sparse memory count");
             if(memory_count>0) begin
                 if(!$value$plusargs("DATA=%s",data_path)) $fatal(1,"missing sparse memory input");
                 data_fd=$fopen(data_path,"r");
@@ -130,9 +132,15 @@ module test;
                 pause_pc=pc;pause_st=st;
                 pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
                 pause_active=dut.u_cpu.u_core.active;
+                pause_multi={dut.u_cpu.u_core.multi_mask,dut.u_cpu.u_core.multi_index,dut.u_cpu.u_core.multi_steps};
                 pause_work={dut.u_cpu.u_core.a,dut.u_cpu.u_core.b,dut.u_cpu.u_core.md,
                             dut.u_cpu.u_core.tmp,dut.u_cpu.u_core.mul_count};
                 for(integer q=0;q<4;q=q+1) pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
+                if((watch_extra & 8)!=0) for(integer q=0;q<31;q=q+1) pause_all[q]=dut.u_cpu.u_core.u_regs.ram0[q];
+                if((watch_extra & 8)!=0) for(integer q=0;q<31;q=q+1)
+                    if(dut.u_cpu.u_core.u_regs.ram0[q]!==pause_all[q]) $fatal(1,"GPR %0d changed while CEN paused",q);
+                if((watch_extra & 8)!=0 && {dut.u_cpu.u_core.multi_mask,dut.u_cpu.u_core.multi_index,dut.u_cpu.u_core.multi_steps}!==pause_multi)
+                    $fatal(1,"register-list working state advanced while CEN paused");
                 if(watch_extra!=0) begin
                     for(integer q=0;q<4;q=q+1)pause_bregs[q]=dut.u_cpu.u_core.u_regs.ram0[16+q];
                     pause_bregs[4]=dut.u_cpu.u_core.u_regs.ram0[15];
@@ -148,11 +156,13 @@ module test;
             pause_st=st;
             pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
             pause_active=dut.u_cpu.u_core.active;
+                pause_multi={dut.u_cpu.u_core.multi_mask,dut.u_cpu.u_core.multi_index,dut.u_cpu.u_core.multi_steps};
             pause_work={dut.u_cpu.u_core.a,dut.u_cpu.u_core.b,dut.u_cpu.u_core.md,
                         dut.u_cpu.u_core.tmp,dut.u_cpu.u_core.mul_count};
             for(integer q=0;q<4;q=q+1)
                 pause_regs[q]=dut.u_cpu.u_core.u_regs.ram0[q];
-            if(watch_extra!=0) begin
+            if((watch_extra & 8)!=0) for(integer q=0;q<31;q=q+1) pause_all[q]=dut.u_cpu.u_core.u_regs.ram0[q];
+                if(watch_extra!=0) begin
                 for(integer q=0;q<4;q=q+1)pause_bregs[q]=dut.u_cpu.u_core.u_regs.ram0[16+q];
                 pause_bregs[4]=dut.u_cpu.u_core.u_regs.ram0[15];
                     if((watch_extra & 4)!=0) for(integer q=0;q<3;q=q+1)pause_implicit[q]=dut.u_cpu.u_core.u_regs.ram0[20+q];
@@ -300,6 +310,11 @@ module test;
                     $display("FOLLOW clock=%0d st=%08h a0=%08h a1=%08h a2=%08h a3=%08h",now,st,
                         dut.u_cpu.u_core.u_regs.ram0[0],dut.u_cpu.u_core.u_regs.ram0[1],
                         dut.u_cpu.u_core.u_regs.ram0[2],dut.u_cpu.u_core.u_regs.ram0[3]);
+                    if((watch_extra & 8)!=0) begin
+                        $write("FOLLOW_ALL");
+                        for(integer q=4;q<15;q=q+1) $write(" a%0d=%08h b%0d=%08h",q,dut.u_cpu.u_core.u_regs.ram0[q],q,dut.u_cpu.u_core.u_regs.ram0[16+q]);
+                        $write("\n");
+                    end
                     if((watch_extra & 4)!=0) $display("FOLLOW_EXTRA b0=%08h b1=%08h b2=%08h b3=%08h b4=%08h b5=%08h b6=%08h sp=%08h",
                         dut.u_cpu.u_core.u_regs.ram0[16],dut.u_cpu.u_core.u_regs.ram0[17],
                         dut.u_cpu.u_core.u_regs.ram0[18],dut.u_cpu.u_core.u_regs.ram0[19],
@@ -311,6 +326,11 @@ module test;
                     if(seen==measure_pass) begin start_clock<=now; measuring<=1; end
                 end
                 if(measuring && !draining && accepted_pc==next_pc) begin
+                    if((watch_extra & 8)!=0) begin
+                        $write("ALL_REGS");
+                        for(integer q=4;q<15;q=q+1) $write(" a%0d=%08h b%0d=%08h",q,dut.u_cpu.u_core.u_regs.ram0[q],q,dut.u_cpu.u_core.u_regs.ram0[16+q]);
+                        $write("\n");
+                    end
                     if((watch_extra & 2)!=0) $display("NEXT_OPCODE %04h",accepted_ir);
                     if((watch_extra & 4)!=0) $display("IMPLICIT b4=%08h b5=%08h b6=%08h",
                         dut.u_cpu.u_core.u_regs.ram0[20],dut.u_cpu.u_core.u_regs.ram0[21],

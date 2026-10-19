@@ -30,6 +30,7 @@ from return_cases import return_cases, program as return_program
 from interrupt_return_cases import interrupt_return_cases
 from push_cases import push_cases
 from call_cases import call_cases, program as call_program
+from list_cases import list_cases, program as list_program, transfers as list_transfers, check_bus as check_list_bus, wait_count as list_wait_count
 from trap_cases import trap_cases, program as trap_program, transactions as trap_transactions
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
@@ -129,6 +130,7 @@ def cases():
     yield from push_cases()
     yield from call_cases()
     yield from trap_cases()
+    yield from list_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -138,6 +140,7 @@ def cases():
 
 
 def program(case):
+    if 'data_list' in case:return list_program(case,movi)
     if 'trap_flow' in case:return trap_program(case,movi)
     if 'call_flow' in case:return call_program(case,movi)
     if 'stack_control_flow' in case:return return_program(case,movi)
@@ -180,6 +183,9 @@ def parse_result(stdout):
     implicit=[line for line in stdout.splitlines() if line.startswith('IMPLICIT ')]
     if len(implicit)>1:raise ValueError('duplicate implicit-register observation')
     if implicit:fields.update(item.split('=') for item in implicit[0].split()[1:])
+    all_regs=[line for line in stdout.splitlines() if line.startswith('ALL_REGS ')]
+    if len(all_regs)>1:raise ValueError('duplicate all-register observation')
+    if all_regs:fields.update(item.split('=') for item in all_regs[0].split()[1:])
     return {key: int(value, 10 if key in ('case', 'clocks', 'start', 'end', 'paused') else 16)
             for key, value in fields.items()}
 
@@ -264,11 +270,12 @@ def check(case, observed, wait_states=0, pause_clocks=0):
     load=case.get('data_load')
     fields=case.get('stack_fields',[load] if load else [])
     data_words=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
+    data_words=list_wait_count(case) if 'data_list' in case else data_words
     words=data_words+(4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled']))
     if 'control_flow' in case:
         words=(1+len(fetch_extensions(case)))*int(case['cache_disabled'])
     added_clocks = words * wait_states * INPUT_CLOCKS_PER_STATE
-    alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE if words else 0
+    alignment=(-pause_clocks)%INPUT_CLOCKS_PER_STATE if words or ('data_list' in case and list_transfers(case)) else 0
     expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks + alignment
     if observed['paused'] != pause_clocks:
         errors.append(f"expected {pause_clocks} paused clocks, observed {observed['paused']}")
@@ -359,6 +366,7 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     errors = []
     begin = [line.split() for line in lines if line.startswith('BUS_BEGIN ')]
     end = [line.split() for line in lines if line.startswith('BUS_END ')]
+    if 'data_list' in case:return check_list_bus(case,observed,lines,wait_states,pause_clocks)
     if 'data_store' in case:return check_store_bus(case,observed,lines,wait_states,pause_clocks)
     plan=reads(case,wait_states)
     if len(begin) != len(plan) or len(end) != len(plan):
@@ -399,6 +407,7 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
 
 def check_target(case,observed,lines,wait_states,pause_clocks=0):
     """Check actual transport requests/ACKs separately from logical states."""
+    if 'data_list' in case:return check_list_bus(case,observed,lines,wait_states,pause_clocks,raw=True)
     if 'data_store' in case:return check_store_bus(case,observed,lines,wait_states,pause_clocks,raw=True)
     plan=reads(case,wait_states)
     begin=[line.split() for line in lines if line.startswith('TARGET_BEGIN ')]
@@ -549,7 +558,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -598,12 +607,12 @@ def main():
                 (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case or "stack_control_flow" in case or "call_flow" in case or "trap_flow" in case else 0) | (4 if case.get("observe_implicit") else 0)}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case or "stack_control_flow" in case or "call_flow" in case or "trap_flow" in case else 0) | (4 if case.get("observe_implicit") or case.get("observe_all") else 0) | (8 if case.get("observe_all") else 0)}',
                     f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions',0)}", f"+FOLLOW_PC={case.get('follow_pc',0):x}", f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case else 0) | (4 if case.get('observe_implicit') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case else 0) | (4 if case.get('observe_implicit') or case.get('observe_all') else 0) | (8 if case.get('observe_all') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
@@ -639,11 +648,11 @@ def main():
             row = dict(case, observed=observed, errors=errors)
             # Keep measured bus traffic with the verdict, including expected
             # zero-traffic warm hits. Full launch trace is available separately.
-            row['bus_trace'] = measured_trace(log,'BUS',observed,trailing='data_store' in case and 'data_trap' not in case)
-            row['target_trace'] = measured_trace(log,'TARGET',observed,trailing='data_store' in case and 'data_trap' not in case)
+            row['bus_trace'] = measured_trace(log,'BUS',observed,trailing=('data_store' in case and 'data_trap' not in case) or ('data_list' in case and (not case['data_list']['load'] or 'list_follow' in case)))
+            row['target_trace'] = measured_trace(log,'TARGET',observed,trailing=('data_store' in case and 'data_trap' not in case) or ('data_list' in case and (not case['data_list']['load'] or 'list_follow' in case)))
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
-                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case else []),args.wait_states,args.pause_clocks))
+                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case or 'data_list' in case else []),args.wait_states,args.pause_clocks))
             if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case:
                 next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
                 row['observed_next_opcodes']=next_opcodes
@@ -714,6 +723,28 @@ def main():
                             if actual[f'a{q}']!=value:errors.append(f'following load A{q} mismatch')
                         if actual['st']!=case['expected_follow_st']:errors.append('following load ST mismatch')
                 if sorted(memory)!=sorted(case['expected_memory']):errors.append('memory after write drain differs from expected preserved field')
+            if 'list_follow' in case:
+                follow=[x for x in log.splitlines() if x.startswith('FOLLOW ')]
+                extra=[x for x in log.splitlines() if x.startswith('FOLLOW_ALL ') or x.startswith('FOLLOW_EXTRA ')]
+                if len(follow)!=1 or len(extra)!=2:errors.append('missing full register-list following observation')
+                else:
+                    actual={key:int(value,10 if key=='clock' else 16) for key,value in (part.split('=') for line in follow+extra for part in line.split()[1:])}
+                    row['observed_follow']=actual
+                    spec=case['data_list'];f=case['list_follow'];unaligned=bool(spec['address']&15);n=len(spec['fields'])
+                    last_end=(10 if unaligned else 4)+len(list_transfers(case))*(2+args.wait_states) if n else 0
+                    if spec['load']:last_end=0
+                    begin=max(spec['cpu']+list_wait_count(case)*args.wait_states+f['delay'],last_end)
+                    expected=(begin+f['states']+f['transfers']*args.wait_states)*8+args.pause_clocks+((-args.pause_clocks)%8 if list_transfers(case) else 0)
+                    if observed is not None and actual['clock']-observed['start']!=expected:errors.append(f'list following interval: expected {expected} INCLK, observed {actual["clock"]-observed["start"]}')
+                    for q,value in enumerate(case['expected_follow_regs']):
+                        if actual.get(f'a{q}')!=value:errors.append(f'list following A{q} mismatch')
+                    for key,value in case['expected_follow_extra_regs'].items():
+                        if actual.get(key)!=value:errors.append('list following '+key.upper()+' mismatch')
+                    if actual['st']!=case['expected_follow_st']:errors.append('list following ST mismatch')
+            if 'data_list' in case:
+                memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
+                row['observed_memory']=memory
+                if sorted(memory)!=sorted(case['expected_memory']):errors.append('register-list memory mismatch')
             if case.get('stack_load'):
                 memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
                 row['observed_memory']=memory

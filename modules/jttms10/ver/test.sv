@@ -29,7 +29,7 @@ module test;
         .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_program(), .mem_fast(),
-        .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0),
+        .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 
@@ -147,7 +147,7 @@ module test;
                         mem_size !== held_size || mem_we !== held_we ||
                         mem_iaq !== held_iaq || mem_pixel !== held_pixel ||
                         (held_we && mem_wdata !== held_wdata))
-                        $fatal(1, "memory request changed before ack");
+                        $fatal(1, "memory request changed before ack: ir=%04h ua=%03h held=%08h/%0d/%0d/%08h current=%0d:%08h/%0d/%0d/%08h", ir,u_cpu.u_ctrl.uaddr,held_addr,held_size,held_we,held_wdata,mem_req,mem_addr,mem_size,mem_we,mem_wdata);
                     if (wait_left == 0) bus_state <= BUS_ACK;
                     else wait_left <= wait_left - 1;
                 end

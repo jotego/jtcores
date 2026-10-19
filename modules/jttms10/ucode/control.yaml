@@ -207,47 +207,33 @@ ucode:
     seq:
       - reg_a, init_lmo
       - finish_lmo, wr_reg, ni
-  # TI pp.12-109..112: both encodings consume the mask MSB first. MMTM's
-  # bit15 names R0 and walks upward; MMFM's bit15 names R15 and walks down.
+  # TI pp.12-109..112: the shared leading-bit encoder skips empty
+  # positions. Each full-width field completes before the next starts.
   - name: mmtm
     start: 83
     seq:
-      - imm_bus, pcinc
-      - init_multi
+      - imm_bus, pcinc, init_multi, word_a, reg_b
       - mmtmloop_jsr
-      - ni
   - name: mmfm
     start: 84
     seq:
-      - imm_bus, pcinc
-      - init_multi
+      - imm_bus, pcinc, init_multi, word_a, reg_b
       - mmfmloop_jsr
-      - ni
   - name: mmtmloop
     start: 85
     seq:
-      - skip_multi
-      - word_a, reg_b
-      - sub_alu, sum_ea, ptrwr
-      - reg_a
+      - sub_alu, sum_ea, ptrwr, reg_a
       - a_md
-      - write_stack
-      - advance_multi, ret_jsr
+      - write_stack, advance_multi, word_a, reg_b, ret_jsr
   - name: mmfmloop
     start: 86
     seq:
-      - skip_multi
-      - reg_b
-      - b_ea
-      - read_stack
-      - listwr
-      - word_a, reg_b
-      - add_alu, ptrwr
-      - advance_multi, ret_jsr
+      - b_ea, add_alu, ptrwr
+      - read_stack, listwr, advance_multi, reg_b, ret_jsr
+  # Reserved helper ID retained for stable family numbering.
   - name: multinext
     start: 87
-    seq:
-      - advance_multi, ret_jsr
+    seq: [ni]
   # One inferred unsigned 32x32 product. MPYS corrects its high word
   # for signed operands through the ordinary shared 32-bit ALU.
   - name: mpy

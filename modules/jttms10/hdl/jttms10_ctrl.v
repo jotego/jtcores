@@ -2,9 +2,8 @@
 module jttms10_ctrl(
     input             rst, clk, enable, ready,
     input      [15:0]  md,
-    input              multi_bit,
     input      [4:0]   multi_steps,
-    input              multi_load,
+    input              multi_load, multi_done,
     input      [4:0]   mul_count,
     input              div_early_cond,
     input              reti_pbx,
@@ -39,7 +38,6 @@ module jttms10_ctrl(
     /* verilator lint_on UNUSEDPARAM */
     localparam [11:0] ILLEGAL_SEQA = DIAGFAULT_SEQA;
     wire dispatch;
-    wire multiskip;
     wire [1:0] multi_sel;
     wire [3:0] mul_sel;
     wire [1:0] lmo_sel;
@@ -62,7 +60,6 @@ module jttms10_ctrl(
     assign lmoinit = lmo_sel==INIT_LMO;
     assign lmofinish = lmo_sel==FINISH_LMO;
     assign multiinit = multi_sel==INIT_MULTI;
-    assign multiskip = multi_sel==SKIP_MULTI;
     assign multiadvance = multi_sel==ADVANCE_MULTI;
     assign mulinit = mul_sel==INIT_MUL;
     assign mulstep = mul_sel==STEP_MUL;
@@ -395,12 +392,11 @@ module jttms10_ctrl(
                     jsr_depth <= 2;
                 end
             end
-            if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
                 uaddr <= multi_load ? MMFMLOOP_SEQA : MMTMLOOP_SEQA;
             if(divcheck && div_early_cond) uaddr <= DIVFAIL_SEQA;
             if(divstep && mul_count!=5'd1) uaddr <= DIVLOOP_SEQA;
-            if(ni) begin
+            if(ni || multi_done) begin
                 uaddr <= FETCH_SEQA;
                 jsr_depth <= 0;
             end

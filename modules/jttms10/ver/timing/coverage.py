@@ -198,12 +198,17 @@ def inventory(rows, *, accept_project_choices=False):
             if selected!=expected:
                 raise ValueError(f"{case['name']}: source result policy differs from the probe expectation")
             result_differs=any(value!=selected for value in results)
-        if differs or result_differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
+        hidden=values.get('policy_hidden')
+        if hidden is not None and hidden!=case.get('hidden_states'):
+            raise ValueError(f"{case['name']}: source hidden-state policy differs from the probe expectation")
+        hidden_differs=hidden is not None and any(value!=hidden for key,value in values.items()
+            if key.endswith('_hidden') and not key.startswith('policy_') and value is not None)
+        if differs or result_differs or hidden_differs or case.get('timing_source_status') == 'inferred-conflict-resolution':
             agreed_gap = len(published)>=2 and len(set(published))==1 and published[0]!=policy
             discrepancy=dict(
                 name=case['name'], identifier=identifier, citation=case['citation'],
                 clock_unit='machine states', cache_disabled=case['cache_disabled'],
-                kind='unresolved-behavior-source' if result_differs or case.get('source_conflict_kind')=='behavior' else
+                kind='unresolved-hidden-state-source' if hidden_differs else 'unresolved-behavior-source' if result_differs or case.get('source_conflict_kind')=='behavior' else
                      'agreed-published-target-gap' if agreed_gap else 'unresolved-source-policy',
                 source_values=values)
             choice=project_choice(identifier,values,discrepancy['kind']) if accept_project_choices else None
