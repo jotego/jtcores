@@ -76,3 +76,17 @@ python3 modules/jttms10/ver/timing/mutations.py
 Fixtures, phase probes, events and mutants are included in the normal runner.
 Remaining ISA/conditions, known MOVB targets, full clean/remote CI, final fitted
 area/board STA and NARC/MiSTer acceptance stay open under #144.
+
+Targeted validation passes all 13,908 programs in three profiles. A detached
+clean checkout repeats them, 187 models and 41/1 response events with exact
+case objects, 54 source/seven generated hashes and response objects. All 606
+representative Icarus stress cases match Verilator except batch-local ID,
+alongside 102 short phases, two fresh processes, 180 architecture programs,
+strict lint and the original 38-request MSW-first assertion. Three new and
+14 affected timing mutation controls/rejections retain correct state/memory.
+A malformed mutation helper was cancelled for its demonstrated missing main
+declaration and corrected; it is excluded, and live runtime matrices were
+preserved. Matched map estimates 3,944 ALMs, 5,677 ALUTs, 1,722 registers and
+five DSPs, with 36 snapshot/29 committed input hashes verified. No new fit/
+STA is claimed. Clean scope is targeted; the full runner is still running
+frozen f99e1baa6. No known source target is waived.

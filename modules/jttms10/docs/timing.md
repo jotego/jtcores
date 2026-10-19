@@ -918,3 +918,27 @@ alias/extent/exclusion rules,first-execution measurement and bus/following
 contracts. All118,730 preceding fixture contracts remain unchanged. All136
 representative old-core probes fail timing/bus with correct state/memory and
 22 verified old HDL/YAML hashes. No known MOVB target or final gate is waived.
+
+XY-store targeted verification passes all13,908 programs in three4,636-case
+profiles W0/P0,W1/P0,W1/P7. Detached clean f99e1baa6 repeats all13,908,
+187 models and41 response controls/one mutant; every case object,54 source/
+seven generated hashes and response object matches development exactly.
+All606 representative Icarus stress cases match Verilator except batch-local
+ID,alongside102 short phases,two fresh processes,180 architecture programs,
+strict lint and the original38-request MSW-first assertion. Three new timing
+mutants and14 affected pixel controls/rejections retain correct architecture/
+memory. All118,730 preceding fixture contracts remain unchanged. All136
+historical old-core probes fail timing/bus with correct state/memory and22
+verified old HDL/YAML hashes. The color/coordinate-port prototype and a
+cancelled malformed mutation helper remain excluded; runtime simulations
+were preserved when that helper was corrected.
+
+Matched map estimates3,944 ALMs,5,677 ALUTs,1,722 registers,538,624 RAM bits,
+five DSPs and zero MLAB bits. All36 snapshot/29 committed physical inputs,
+normalized QSF,SDC and49 warning classifications verify. Original live-capture
+source_commit:null metadata is retained. This is synthesis only; final≤3,500
+fitted ALMs/positive board STA remain required. Fresh122-form full runner is
+running frozen f99e1baa6;121-copy cabaf7c8b and Boolean1205a74e596e remain
+separate. Latest accepted complete invocation stays120/187/323,708 programs.
+Clean scope is targeted,not a full normal runner. All known source targets,
+remaining ISA/conditions/fullcleanCI/finalhardware/game gates remain open.
