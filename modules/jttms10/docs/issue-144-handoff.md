@@ -65,7 +65,11 @@ no persistent git configuration was changed.
 The isolated `jtcores-144-fill` branch adds 120 permanent CPU probes and
 four fixture/checker tests after the independent eight-test FILL oracle.
 All three Verilator profiles (360 programs) fail timing on unchanged b6 HDL
-with correct defined architecture and memory. This is a test-first baseline;
+with correct defined architecture and memory. All 120 Icarus stressed case
+objects match Verilator except simulator-local case IDs, with 58 source/seven
+generated hashes verified. The preceding 138,370 fixture/program/golden
+contracts are unchanged. Existing 206 checker tests plus eight FILL oracle
+and four fixture/checker tests pass. This is a test-first baseline;
 both FILL forms remain noncompliant. Inventory here is 126/133 forms and
 138,490 fixtures, distinct from the frozen 124-form full runner. No missing
 form or known target is waived. See [FILL scope and reproduction](fill-timing.md).

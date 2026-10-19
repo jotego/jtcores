@@ -51,6 +51,12 @@ The single-word/one-row PS16 FILL L hit expects nine TI states (72 INCLK)
 but observes 132 INCLK. Smaller pixels also expose the current per-pixel
 read/modify/write traffic instead of one full-word replacement. Reports have
 58 source/seven generated hashes verified against the baseline inputs.
+All 120 Icarus W=1/P=7 case objects match Verilator exactly after removing
+only simulator-local case IDs, including the timing failures, state, memory
+and bus traces. All 58 source/seven generated hashes match across simulators.
+The preceding 138,370 fixture/program/golden contracts have identical SHA-256
+before and after adding FILL. The existing 206 checker tests, eight FILL
+oracle tests and four new fixture/checker tests pass separately.
 These are intentional failing regressions, not a timing-compliant FILL path.
 Fixture inventory becomes 126/133 forms and 138,490 cases; seven forms still
 have no probes, and both newly probed FILL forms remain failing.
