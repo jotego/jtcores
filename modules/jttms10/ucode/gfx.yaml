@@ -44,6 +44,7 @@ constants:
   TARGET_GDRAVWVP: t7 t9
   TARGET_GDRAVDRAW: t4 t7 t9
   TARGET_GDRAVADVANCE: t5 t7 t9
+  TARGET_GFILLWORDROW: t10 t11
   TARGET_GFILLWORDINIT: t5 t6 t7 t8 t9 t11
   TARGET_GFILLWORDLOOP: t4 t5 t6 t7 t8 t9 t11
   TARGET_GFILLDISPATCH: t4 t5 t7 t9
@@ -1728,7 +1729,7 @@ ucode:
   - qs_gas, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
   - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
   - wrpx_gbus, stride_gpix
-  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLROW}, da0 da2 da3 da5
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
   - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
   - jump_gflow, ${TARGET_GFILLWORDLOOP}
 - name: gfillwordloop
@@ -1739,9 +1740,22 @@ ucode:
   - ea_gdst, sa0 sa5, da0 da2 da3 da5
   - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
   - wrpx_gbus, stride_gpix
-  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLROW}, da0 da2 da3 da5
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
   - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
   - jump_gflow, ${TARGET_GFILLWORDLOOP}
+# Posted final-word completion overlaps the row counter and pitch preparation.
+# S46 is primed by the final word's counter write; S32 is the row start.
+- name: gfillwordrow
+  start: 192
+  seq:
+  - qs_gbs, k_gas, m1_gam, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLDONE}, sa5, da1 da2 da3 da5
+  - sa5, da0 da1 da4
+  - qs_gas, qd_gbs, sa5, da2 da3 da5
+  - add_galu, rf_gdst, qd_gas, sa5, da5
+  - rf_gdst, qs_gas, sa5, da0 da2 da3 da5
+  - rf_gdst, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da5
+  - jump_gflow, ${TARGET_GFILLWORDLOOP}, sa0 sa5, da0 da2 da3 da5
 - name: gschema0
   start: 126
   seq:

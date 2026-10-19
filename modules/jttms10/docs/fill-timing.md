@@ -269,3 +269,32 @@ removing only simulator-local case IDs. All58 source/seven generated hashes
 match across the base, W1/P7, W3 and Icarus reports. The W3 profile also passes
 all defined-state, memory and ordered bus checks with prolonged outstanding
 writes; its overall timing remains failing. Existing160 array programs pass.
+
+
+## Replacement-word row schedule
+
+The word path preselects its row counter through the existing RF read port.
+An eight-microinstruction row sequence decrements height, advances the row
+start by B3, restores the pixel width and initializes the next row pointer.
+These operations overlap the pending last-word transfer. A pending IRQ still
+saves the existing PBX context and drains writes before its checkpoint;
+completion retains the same drain fence. The scalar ALU and RF are reused.
+
+The next row can start inside a physical word when pitch is not a multiple
+of sixteen bits. The fast loop rechecks the pointer's word alignment before
+issuing a full-word write, returning to the existing pixel path for edges.
+`array/programs.py --fill-rows` adds56 independent three-row programs across
+all five pixel sizes, one/two/three full words and mixed edges, changing
+pixel lanes and overlapping rows. They check memory, neighboring words,
+final B2 and preserved initialized registers. The normal runner includes
+them alongside the124 existing boundary programs. Removing the alignment
+guard fails a new PS1/pitch129 memory assertion; the passing control uses
+identical fixtures. These functional cases do not establish exact timing
+for the non-word-multiple-pitch domain excluded by the timing oracle.
+
+The120-case base and120-case W1/P7 profiles retain correct defined state,
+memory and ordered bus checks, with all overall TI duration checks failing.
+For PS1 linear FILL, two rows of one word improve183 to119 INCLK (TI96),
+and two rows of three words improve259 to191 (TI160). Setup, exact row
+scheduling, machine-state completion alignment, added-stall compliance,
+XY conversion and broader modes remain unfinished. No oracle is changed.

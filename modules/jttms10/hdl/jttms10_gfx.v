@@ -193,7 +193,8 @@ module jttms10_gfx(
     always @* begin
         case(gcond)
             WORD_GCOND: condition=word_fill;
-            SHORTWORD_GCOND: condition=!word_fill || need_dest || control[5] || rf_qd<fill_pixels;
+            SHORTWORD_GCOND: condition=!word_fill || need_dest || control[5] ||
+                                       rf_qs[3:0]!=0 || rf_qd<fill_pixels;
             IRQ_GCOND: condition=irq_pending;
             Z_GCOND: condition=alu_z;
             NZ_GCOND: condition=!alu_z;

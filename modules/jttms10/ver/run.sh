@@ -5,6 +5,8 @@ bash "$ver_dir/build.sh"
 python3 "$ver_dir/run.py" "$@"
 python3 "$ver_dir/array/programs.py" --fill-boundaries --out "$ver_dir/build/fill-boundaries.yaml"
 python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-boundaries.yaml"
+python3 "$ver_dir/array/programs.py" --fill-rows --out "$ver_dir/build/fill-rows.yaml"
+python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-rows.yaml"
 for unit in alu field; do
     if [ "$unit" = alu ]; then
         bench="$ver_dir/$unit/test.v"

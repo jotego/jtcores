@@ -76,11 +76,15 @@ def blocks(words):
     return output
 
 
-def make_case(form_index, width, sample, rng, *, fill_layout=None):
+def make_case(form_index, width, sample, rng, *, fill_layout=None, fill_pitch=None):
     label, opcode, source_kind, dest_kind = FORMS[form_index]
     columns = 2 + ((form_index + sample) & 1)
     rows = 1 + ((form_index + width + sample) % 3)
     pitch = (0x80, 0x100)[sample & 1]
+    if fill_pitch is not None:
+        if fill_layout is None or source_kind is not None or dest_kind != "linear":
+            raise ValueError("fill pitch requires a linear FILL layout")
+        pitch = fill_pitch
     conv = 31 - (pitch.bit_length() - 1)
     src_x = 1 + (sample & 1)
     dst_x = 1 + ((form_index + sample) & 1)
@@ -193,14 +197,26 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=34010)
     parser.add_argument("--samples", type=int, default=4)
-    parser.add_argument('--fill-boundaries', action='store_true',
+    fill_group = parser.add_mutually_exclusive_group()
+    fill_group.add_argument('--fill-rows', action='store_true',
+                            help='replace FILL L: three rows, changing lanes and overlapping pitches')
+    fill_group.add_argument('--fill-boundaries', action='store_true',
                         help='replace FILL: all pixel lanes, short edges and multiword mixed edges')
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.samples < 1:
         parser.error("--samples must be positive")
     rng = random.Random(args.seed)
-    if args.fill_boundaries:
+    if args.fill_rows:
+        cases = []
+        for width in SIZES:
+            pixels = 16 // width
+            for pitch in sorted({0x10,0x80+width,0x90}):
+                for columns in (pixels,2*pixels,3*pixels,3*pixels+1):
+                    case = make_case(0,width,0,rng,fill_layout=(columns,3,0),fill_pitch=pitch)
+                    case['name'] = f'fill_rows_ps{width}_pitch{pitch}_dx{columns}'
+                    cases.append(case)
+    elif args.fill_boundaries:
         cases = []
         for form in (0,1):
             for width in SIZES:
