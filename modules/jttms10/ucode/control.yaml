@@ -417,3 +417,9 @@ ucode:
     start: 149
     seq:
       - write_mem, ni
+
+  - name: pixt_rlin_bool
+    start: 150
+    seq:
+      - read_mem, finish_mul
+      - write_mem, ni

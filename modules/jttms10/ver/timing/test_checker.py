@@ -39,7 +39,62 @@ from pixel_xy_read_cases import fixture as xy_pixel_fixture, pixel_xy_read_cases
 from pixel_store_cases import fixture as pixel_store_fixture, following as pixel_store_following
 
 
+from pixel_boolean_cases import boolean as boolean_pixel, fixture as boolean_fixture
+
 class TimingCheckerTest(unittest.TestCase):
+    def test_boolean_pixel_primary_truth_expressions(self):
+        # Table7-1 evaluated at S=6,D=3: all16 literal four-bit results.
+        self.assertEqual([boolean_pixel(pp,6,3,4) for pp in range(16)],
+            [6,2,4,0,14,10,12,8,7,3,5,1,15,11,13,9])
+
+    def test_boolean_pixel_primary_timing_table(self):
+        for size in (1,2,4,8,16):
+            for pp in range(1,16):
+                for off in (False,True):
+                    row=boolean_fixture(size,0,0,off,ppop=pp)
+                    self.assertEqual(row['data_store']['cpu'],4)
+                    self.assertEqual(row['hidden_states'],1 if size==16 else 3)
+                    self.assertEqual(row['states'],(8 if size==16 else 10) if off else 4)
+
+    def test_boolean_pixel_literal_xor_and_zero_and(self):
+        for pp,old,want in ((10,0x300,0x500),(1,0x100,0)):
+            row=boolean_fixture(4,8,0,False,ppop=pp,value=6,destination_word=old,address=0x20508)
+            self.assertEqual(dict(row['expected_memory'])[0x20500],want)
+
+    def test_boolean_pixel_first_execution_uses_original_destination(self):
+        row=boolean_fixture(16,0,0,False,ppop=10,value=0xFFFF,destination_word=0)
+        self.assertEqual(row['measure_pass'],0)
+        self.assertEqual(copy_transactions(row),([(0,0x6000,0,0)],[(1,0x6000,0xFFFF,0)]))
+        words,pc,next_pc=program(row);q=(pc-0x1000)//16
+        self.assertEqual(words[q-4:q+1],[0xC080,next_pc&65535,next_pc>>16,0x0300,row['opcode']])
+        self.assertEqual(words[-3:],[0xC080,(pc-16)&65535,(pc-16)>>16])
+
+    def test_boolean_pixel_source_alias_and_ignored_upper_bits(self):
+        for bank in (0,1):
+            row=boolean_fixture(4,12,bank,False,ppop=15,source=15,pointer=15)
+            self.assertEqual(row['expected_extra_regs']['sp'],0x600C)
+            self.assertEqual(dict(row['expected_memory'])[0x6000],0x3596)
+
+    def test_boolean_pixel_wrong_count_rejected_with_correct_state(self):
+        row=boolean_fixture(16,0,0,False)
+        actual=dict(clocks=32,paused=0,st=row['expected_st'],**{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+        self.assertEqual(check(row,actual),[])
+        actual['clocks']=40
+        self.assertTrue(check(row,actual))
+
+    def test_boolean_pixel_prefill_route_at_every_word_phase(self):
+        for off in (False,True):
+            for align in range(4):
+                row=boolean_fixture(4,8,0,off,alignment=align)
+                words,pc,next_pc=program(row)
+                self.assertEqual((pc//16)%4,align)
+                # Either the JA operands or the skipped-to tail warm this subsegment.
+                self.assertTrue(any(a//64==pc//64 for a in (pc-32,pc-48,next_pc)))
+
+    def test_boolean_pixel_domain(self):
+        for pp in (0,16,31):
+            with self.assertRaises(ValueError):boolean_fixture(16,0,0,False,ppop=pp)
+
     def test_pixel_replace_primary_count_table(self):
         # SPVU001A12-214: replace is2+(3),8 for small pixels;2+(1),6 at16.
         for size in (1,2,4,8,16):

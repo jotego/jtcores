@@ -8,7 +8,8 @@ to their1/2/4/8/16-bit size. The complete ST and all registers are preserved.
 Register sources supply their low PSIZE bits,including the old pointer value
 when Rs=Rd. FS/FE,window modes and array corner flags do not affect this form.
 
-Boolean/arithmetic PPOP,nonzero PMASK,transparency,SRT and the remaining
+[Boolean PPOP1..15](pixel-boolean-timing.md) now has a separate timed subset.
+Arithmetic PPOP,nonzero PMASK,transparency,SRT and the remaining
 interference/cache/interrupt conditions still require timing implementation
 and validation. They retain the existing functional graphics path. Probe
 presence for this form does not validate those conditions; this is not full

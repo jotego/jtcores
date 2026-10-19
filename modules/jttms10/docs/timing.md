@@ -2,8 +2,8 @@
 
 The CPU is **not fully instruction timing compliant**. The current timing
 probes cover 120 of 133 instruction forms; the other 13 remain unvalidated.
-PIXT register-to-linear currently covers replace/PMASK0/T0 only; its other
-conditions remain unvalidated.
+PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
+arithmetic,masking,transparency and other conditions remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -813,3 +813,14 @@ frozen187edd8df. Clean scope stays targeted12,477/11,751 programs in three
 profiles,151/158 models and21/1 or25/1 events; neither is a full clean normal
 runner. These results do not close remaining conditions,known targets,
 full clean/remote CI,final fitted area/board STA or NARC/MiSTer acceptance.
+### Boolean register-to-linear pixel writes
+
+PIXT Rs,*Rd now also covers PPOP1..15 with PMASK0/T0. The6,264 additional
+probes bring the inventory to112,874 cases,still120/133 forms with13 missing.
+The native path reads the destination,processes through the existing pixel
+network,then posts the result. No DSP/register bank/arithmetic unit is added.
+[Pixel Boolean timing](pixel-boolean-timing.md) records the independent truth
+model,literal TI examples,non-idempotent prefill measurement,exact bus/following
+contracts,representative condition axes and remaining exclusions. All106,610
+preceding fixture contracts remain unchanged. All154 historical representative
+probes fail timing/bus with correct architecture/memory on187edd8df.
