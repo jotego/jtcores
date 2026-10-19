@@ -1,6 +1,16 @@
 # Reproduction and admission
 
-Use production JT51 `fe6cad32067277418483c0694a781ff9ef78fb8b`. Extract the verified calibration archive into a fresh directory, preserving its paths; do not edit sealed cases or reuse a mutable monitor state as authorization to run hardware. The archive contains the exact public frontend source/build commands, literal calibration programs, raw CAP/PCM, observers, synthetic checks, readiness snapshots and failed/successful attempts.
+Use runner JT51 `dca9207097cd2fed458755c39c424e52c5763ef0`, whose production HDL remains identical to `fe6cad32067277418483c0694a781ff9ef78fb8b`. Extract the verified calibration archive into a fresh directory, preserving its paths; do not edit sealed cases or reuse a mutable monitor state as authorization to run hardware. The archive contains the exact public frontend source/build commands, literal calibration programs, raw CAP/PCM, observers, synthetic checks, readiness snapshots and failed/successful attempts.
+
+## FPGA execution
+
+Run the full comparison corpus on Chameleon96, using the permanent runner in `ver/chameleon96`. Use Verilator for its small directed/controller/parity checks. Source the project root `setprj.sh` before building. `board/build.sh NEW_BUILD_DIRECTORY` creates an independently identified bitstream; require positive post-fit timing and no unconstrained paths before loading. The qualified source signature is `ca3b8b552556ff2e10e7e3a653a2ac41803f16a391b936d8f9301a01ed412b85`, at 50 MHz. Preserve the HPS/USB baseline and use the runtime loader's configfs path method.
+
+The tape compiler converts the literal INIT and each matching EVENT to immutable public bus actions. Each lane uses `idle_clocks=64*d` and `event_shift=(KEY_residue-(512+idle_clocks+first_event_KEY_offset)) mod64`, exactly reconstructing the saved frontend schedule. Upload/read back each tape, execute all 640 matching jobs per EVENT, and retain all 1,920 IDs. No CPU-model fallback, subset admission or LEFT-based selection is allowed. The old stopped CPU directories are historical evidence only.
+
+Results bind source/run/lane/generation, actual logical clocks, status, tape completion and sample mode. Export native mode0 with 16,384 frames and stride1, then use the qualified Go decoder. Pin both binary and decoded output hashes against the actual board files. Boot identity must remain constant. Before admitting a new image, require the 16-job equivalence suite against saved nonzero Verilator output.
+
+The FPGA admission adapter checks the complete immutable manifest, every raw header and RIGHT/clock/status sample, decoder full-output binding, all three successful 640-job batch proofs, and actual RIGHT phase coverage for every rep/KEY coordinate. The initial process-per-file qualification attempt was stopped for runtime overhead and remains unadmitted. The replacement wrapper may memoize the unchanged pure RIGHT calculation only after digest grouping and exact complete-vector equality; every ID still receives full acquisition/source/clock/status checks and its complete reference phase set. It must never cache or select LEFT descriptors. The full target comparison uses a separate explicit ROOT analysis binding after admission. Neither hardware success nor a partially completed observer run admits a residual claim. The 4,096-record replay capacity does not accommodate the full retained-history prefix; that needs a separately validated extension.
 
 ## Timing method
 
