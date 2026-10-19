@@ -71,5 +71,31 @@ Only this linear read form is covered here. XY reads, pixel stores/copies,
 LINE/FILL/PIXBLT timing, broader cache/peripheral/HOLD/IRQ/resumption
 conditions, remaining MOVB targets and final area/STA/NARC/MiSTer acceptance
 remain open under issue144. Probe presence does not establish full timing
-compliance. Validation results will be recorded after all active profiles
-finish; partial or failed prototypes are excluded from acceptance.
+compliance. Implementation2d260be9f passes all4,159 fixtures in three distinct profiles
+(W0/P0,W1/P0,W1/P7),12,477 programs total. A detached clean checkout repeats
+all three profiles,151 models and21 response controls/one mutant. Case
+objects,49 timing-source hashes and seven generated hashes match exactly.
+All102 short Icarus phase programs,180 architectural programs,the original
+38-request MSW-first assertion,strict lint and three new actual mutation
+controls/rejections pass. Two fresh-process stressed Icarus observations
+match Verilator apart from batch-local case ID; the full4,159-case Icarus
+comparison remains running and is not yet claimed. Clean scope is targeted,
+not a complete standard runner.
+
+All4,159 historical probes on unchanged299d97666 fail timing/bus checks
+with correct main/following state and memory;191 representatives and22
+verified old HDL/YAML hashes are committed. Typical hit/CD durations change
+46/72 to32/56 INCLK. The95,710 earlier fixture/program/golden contracts are
+unchanged. The matched map estimates3,825 ALMs,5,507 ALUTs,1,722 registers,
+538,624 RAM bits,five DSPs and zero MLAB bits: +one ALM/+12 ALUTs versus the
+corrected list map,unchanged registers/RAM/DSPs. All36 snapshot hashes/29
+committed inputs verify, with the same49 warning classifications. The
+live-capture manifest retains its original metadata and source_commit:null.
+This is synthesis only,without current fit/STA acceptance.
+
+A fresh118-form standard runner is running frozen at2d260be9f; no completed
+118 invocation is claimed. The older117-form runner remains separate.
+Current inventory is99,869 cases,118/133 forms,15 missing,12,625 explicit
+project choices and448 unresolved MOVB instances including45 agreed targets.
+No known target is waived. Partial or failed prototypes are excluded from
+acceptance; all issue144 checklist tasks remain open.

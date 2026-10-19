@@ -684,3 +684,24 @@ and seven correct-state/memory mutants pass. Corrected matched map3824ALM/
 This is targeted clean evidence, not a full standard runner. A fresh full
 invocation runs on frozen299d97666; no completed117-form claim is made.
 No HDL/runtime/test expectation changes are made for this evidence update.
+
+
+## Linear pixel-read milestone
+
+PIXT *Rs,Rd adds4,159 fixtures for99,869 cases and118/133 forms (15 missing).
+Implementation2d260be9f passes all three new profiles (12,477 programs),
+151 models,180 architecture,102 short Icarus phases,three mutation controls/
+rejections,21 response controls/one mutant and strict lint. A detached clean
+checkout matches all three profiles,source/ROM provenance and response data
+exactly. Two fresh-process stressed Icarus comparisons match Verilator;
+full4,159-case Icarus comparison remains pending. Clean scope is targeted,
+not a complete standard runner. [pixel-read-timing.md](pixel-read-timing.md)
+records primary citations,undefined/ambiguous behavior,baseline and limits.
+
+The corrected parent95,710 fixture/program/golden contracts are unchanged.
+Matched map estimates3,825 ALMs,5,507 ALUTs,1,722 registers,538,624 RAM bits,
+five DSPs,zero MLAB bits; all36 hashes/29 committed inputs verify. No fit/STA
+acceptance is claimed. Fresh118-form standard runner is running frozen2d260be9f;
+older117-form runner remains separate. No completed118 invocation is claimed.
+The same12,625 project choices/448 unresolved MOVB instances,including45 agreed
+targets,remain; no waiver is introduced. All final acceptance gates stay open.
