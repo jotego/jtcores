@@ -8,10 +8,15 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import time
+from write_programming_receipt import (cpu_source_fingerprints,
+                                       cpu_source_fingerprint_digest,
+                                       generate_cpu_artifacts, parse_mif)
 
 HERE = Path(__file__).resolve().parent
 TASK = Path('/nobackup/tasks/jtcores-145')
@@ -45,6 +50,170 @@ def sha256(path):
         for block in iter(lambda: f.read(1024 * 1024), b''):
             h.update(block)
     return h.hexdigest()
+
+
+def load_and_validate_receipt(receipt_path, source_root, hardware_source_root,
+                              parent_receipt_path=None):
+    receipt_path = Path(receipt_path).resolve(strict=True)
+    receipt = json.loads(receipt_path.read_text())
+    source_root = Path(source_root).resolve(strict=True)
+    hardware_source_root = Path(hardware_source_root).resolve(strict=True)
+    oracle_sources = cpu_source_fingerprints(source_root)
+    hardware_sources = cpu_source_fingerprints(hardware_source_root)
+    for root in {source_root, hardware_source_root}:
+        if sha256(root / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v') != receipt.get('runner_source_sha256'):
+            raise SystemExit('runner RTL checkout differs from the image recorded in the receipt')
+    if receipt.get('format') == 'jttms10-fpga-programming-receipt-v1':
+        expected = receipt.get('cpu_source_fingerprints')
+        if not isinstance(expected, dict):
+            raise SystemExit('programming receipt lacks CPU source fingerprints; refresh it from the compiled image')
+        if receipt.get('cpu_source_fingerprint_sha256') != cpu_source_fingerprint_digest(expected):
+            raise SystemExit('programming receipt CPU source fingerprint digest is invalid')
+        if expected != oracle_sources:
+            raise SystemExit('oracle/source checkout differs from the source-bound programming receipt')
+        if hardware_sources != expected:
+            raise SystemExit('CPU implementation checkout differs from the source-bound programming receipt')
+        image_path = Path(receipt.get('image_path', '')).resolve(strict=True)
+        if sha256(image_path) != receipt.get('image_sha256'):
+            raise SystemExit('baseline image file differs from its programming receipt')
+        if parent_receipt_path is not None:
+            raise SystemExit('--parent-receipt is valid only for an explicit ROM-update variant receipt')
+    elif receipt.get('format') == 'jttms10-fpga-rom-update-receipt-v1':
+        if parent_receipt_path is None:
+            raise SystemExit('ROM-update receipt requires --parent-receipt for baseline chain validation')
+        parent_path = Path(parent_receipt_path).resolve(strict=True)
+        parent = json.loads(parent_path.read_text())
+        if parent.get('format') != 'jttms10-fpga-programming-receipt-v1':
+            raise SystemExit('ROM-update parent is not a full-fit programming receipt')
+        if receipt.get('parent_receipt_sha256') != sha256(parent_path):
+            raise SystemExit('ROM-update receipt does not match the supplied parent receipt')
+        if receipt.get('parent_receipt_path') != str(parent_path):
+            raise SystemExit('ROM-update receipt names a different parent receipt path')
+        evidence_paths = {
+            'parent_build_inputs_path': 'parent_build_manifest_sha256',
+            'parent_build_result_path': 'parent_build_result_sha256',
+            'parent_sta_summary_path': 'parent_sta_summary_sha256',
+            'parent_compile_log_path': 'parent_compile_log_sha256',
+        }
+        evidence = {}
+        for path_key, digest_key in evidence_paths.items():
+            path_value, digest_value = receipt.get(path_key), receipt.get(digest_key)
+            if not path_value or not re.fullmatch(r'[0-9a-f]{64}', str(digest_value or '')):
+                raise SystemExit(f'ROM-update receipt lacks parent evidence: {path_key}')
+            evidence[path_key] = Path(path_value).resolve(strict=True)
+            if sha256(evidence[path_key]) != digest_value:
+                raise SystemExit(f'ROM-update parent evidence changed: {path_key}')
+        parent_result = json.loads(evidence['parent_build_result_path'].read_text())
+        if (parent_result.get('format') != 'jttms10-incremental-build-result-v1' or
+                parent_result.get('flow_exit_code') != 0 or
+                parent_result.get('full_flow_only') is not True or
+                parent_result.get('input_manifest_sha256') != receipt.get('parent_build_manifest_sha256') or
+                parent_result.get('flow_log_sha256') != receipt.get('parent_compile_log_sha256') or
+                parent_result.get('rbf_sha256') != receipt.get('parent_image_sha256') or
+                not parent_result.get('terminal_marker') or
+                parent_result.get('inputs_unchanged') is not True):
+            raise SystemExit('ROM-update parent evidence does not certify a successful full fit')
+        parent_build_dir = Path(receipt.get('parent_build_dir', '')).resolve(strict=True)
+        if (evidence['parent_build_inputs_path'] != parent_build_dir / 'v2-build-inputs.json' or
+                evidence['parent_build_result_path'] != parent_build_dir / 'v2-build-result.json' or
+                evidence['parent_sta_summary_path'] != parent_build_dir / 'output_files/test_board.sta.summary' or
+                evidence['parent_compile_log_path'] != parent_build_dir / 'logs/v2-compile.log'):
+            raise SystemExit('ROM-update parent evidence paths are not bound to the declared build directory')
+        parent_image = Path(parent.get('image_path', '')).resolve(strict=True)
+        if sha256(parent_image) != parent.get('image_sha256'):
+            raise SystemExit('full-fit parent image file differs from its receipt')
+        parent_sources = parent.get('cpu_source_fingerprints')
+        variant_sources = receipt.get('cpu_source_fingerprints')
+        if not isinstance(parent_sources, dict) or not isinstance(variant_sources, dict):
+            raise SystemExit('ROM-update chain lacks complete baseline/variant source fingerprints')
+        if parent.get('cpu_source_fingerprint_sha256') != cpu_source_fingerprint_digest(parent_sources):
+            raise SystemExit('parent receipt CPU source fingerprint digest is invalid')
+        if receipt.get('cpu_source_fingerprint_sha256') != cpu_source_fingerprint_digest(variant_sources):
+            raise SystemExit('ROM-update CPU source fingerprint digest is invalid')
+        if oracle_sources != parent_sources:
+            raise SystemExit('oracle checkout differs from the full-fit parent receipt source')
+        if hardware_sources != variant_sources:
+            raise SystemExit('ROM-update CPU checkout differs from its variant certificate')
+        delta = receipt.get('source_delta', {})
+        changed = sorted(name for name in set(parent_sources) | set(variant_sources)
+                         if parent_sources.get(name) != variant_sources.get(name))
+        if (changed != ['modules/jttms10/ucode/tms10.yaml'] or
+                delta.get('path') != changed[0] or
+                delta.get('baseline_sha256') != parent_sources[changed[0]] or
+                delta.get('variant_sha256') != variant_sources[changed[0]]):
+            raise SystemExit('ROM-update source delta is missing, ambiguous or differs beyond the microcode YAML')
+        for key in ('image_sha256', 'runner_source_sha256', 'sysid', 'sysid_timestamp'):
+            parent_key = 'image_sha256' if key == 'image_sha256' else key
+            if receipt.get('parent_image_sha256' if key == 'image_sha256' else key) != parent.get(parent_key):
+                raise SystemExit(f'ROM-update receipt parent {key} identity mismatch')
+        if receipt.get('runner_source_sha256') != sha256(
+                source_root / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v'):
+            raise SystemExit('ROM-update runner RTL differs from the inherited fitted image')
+        if receipt.get('inherited_fit_only') is not True or receipt.get('full_compile_claim') is not False:
+            raise SystemExit('ROM-update receipt does not explicitly declare inherited-fit provenance')
+        if receipt.get('fit_unchanged_file_count', 0) <= 0 or not re.fullmatch(
+                r'[0-9a-f]{64}', receipt.get('fit_unchanged_files_sha256', '')):
+            raise SystemExit('ROM-update receipt lacks an unchanged-fit file proof')
+        changed_words = receipt.get('changed_mif_words')
+        if (not isinstance(changed_words, list) or not changed_words or
+                any(type(index) is not int or not 0 <= index < 4096 for index in changed_words) or
+                changed_words != sorted(set(changed_words))):
+            raise SystemExit('ROM-update receipt has an invalid MIF change footprint')
+        generated = receipt.get('source_generated_files', {})
+        if not isinstance(generated, dict) or 'tms10.uc' not in generated:
+            raise SystemExit('ROM-update certificate lacks generated ROM/template hashes')
+        generated_now, temp_generated = generate_cpu_artifacts(hardware_source_root)
+        try:
+            if generated_now != generated:
+                raise SystemExit('current hardware source does not regenerate the certified ROM/template set')
+            baseline_generated, baseline_temp = generate_cpu_artifacts(source_root)
+            try:
+                base_uc = (baseline_temp / 'tms10.uc').read_text().splitlines()
+                variant_uc = (temp_generated / 'tms10.uc').read_text().splitlines()
+                mif_path = Path(receipt.get('variant_mif_path', '')).resolve(strict=True)
+                width, mif_words = parse_mif(mif_path)
+                if width != 62 or mif_words != variant_uc:
+                    raise SystemExit('variant MIF does not exactly encode the current generated main-control ROM')
+                actual_changed = [i for i, (base, variant) in enumerate(zip(base_uc, variant_uc))
+                                  if base != variant]
+                if len(base_uc) != 4096 or actual_changed != changed_words:
+                    raise SystemExit('certified MIF changed-word list differs from source-generated ROM delta')
+                if sha256(mif_path) != receipt.get('changed_mif_sha256'):
+                    raise SystemExit('variant MIF file differs from its certificate hash')
+            finally:
+                shutil.rmtree(baseline_temp, ignore_errors=True)
+        finally:
+            shutil.rmtree(temp_generated, ignore_errors=True)
+        image_path = Path(receipt.get('image_path', '')).resolve(strict=True)
+        if sha256(image_path) != receipt.get('image_sha256'):
+            raise SystemExit('ROM-update image file differs from its certificate hash')
+        if receipt.get('firmware_name') != f"jtcores-rom-{receipt.get('variant_name')}-{receipt.get('image_sha256','')[:12]}.rbf":
+            raise SystemExit('ROM-update firmware path is not uniquely bound to the image hash')
+        for phase_name in ('cdb', 'assembler'):
+            phase = receipt.get(phase_name)
+            if (not isinstance(phase, dict) or phase.get('exit_code') != 0 or
+                    not isinstance(phase.get('seconds'), (int, float)) or phase['seconds'] < 0):
+                raise SystemExit(f'ROM-update receipt lacks a successful {phase_name} phase record')
+            log_path = Path(phase.get('log_path', '')).resolve(strict=True)
+            timing_path = Path(phase.get('timing_path', '')).resolve(strict=True)
+            if (sha256(log_path) != phase.get('log_sha256') or
+                    sha256(timing_path) != phase.get('timing_sha256')):
+                raise SystemExit(f'ROM-update {phase_name} log/timing evidence changed')
+        if not re.fullmatch(r'[A-Za-z0-9_.-]+', receipt.get('variant_name', '')):
+            raise SystemExit('ROM-update receipt has an invalid variant name')
+        if not re.fullmatch(r'[A-Za-z0-9_.-]+', receipt.get('overlay', '')):
+            raise SystemExit('ROM-update receipt has an invalid overlay name')
+    else:
+        raise SystemExit('unsupported or malformed FPGA programming receipt')
+    if receipt.get('sysid') != 22 or not isinstance(receipt.get('sysid_timestamp'), int):
+        raise SystemExit('receipt lacks the expected compiled SYSID identity')
+    if not re.fullmatch(r'[0-9a-fA-F-]{36}', receipt.get('board_boot_id', '')):
+        raise SystemExit('receipt lacks a valid board boot ID')
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+', receipt.get('overlay', '')):
+        raise SystemExit('receipt has an invalid FPGA overlay name')
+    if not re.fullmatch(r'[0-9a-f]{64}', receipt.get('image_sha256', '')):
+        raise SystemExit('receipt lacks the expected image SHA256')
+    return receipt, oracle_sources, hardware_sources
 
 
 def ssh_options(ip):
@@ -123,32 +292,30 @@ def main():
     ap.add_argument('manifest', type=Path)
     ap.add_argument('--source-root', type=Path,
                     help='JTCORES checkout containing modules/jttms10 (defaults to JTROOT or inferred checkout)')
+    ap.add_argument('--hardware-source-root', type=Path,
+                    help='CPU implementation checkout; defaults to --source-root')
     ap.add_argument('--batch', type=int, help='run only this batch index')
     ap.add_argument('--ip', default=DEFAULT_IP)
     ap.add_argument('--transport-bin', type=Path)
     ap.add_argument('--cc', type=Path, default=DEFAULT_CC)
     ap.add_argument('--artifacts', type=Path, default=TASK / 'artifacts/fpga-runs')
     ap.add_argument('--receipt', type=Path, default=TASK / 'artifacts/fpga-runs/programming-receipt.json')
+    ap.add_argument('--parent-receipt', type=Path,
+                    help='required full-fit parent receipt when --receipt is a ROM-update variant')
     ap.add_argument('--timeout-cycles', type=int, default=4_000_000)
     ap.add_argument('--run-name')
     ap.add_argument('--compile', action='store_true', help='compile static ARM transport before use')
     args = ap.parse_args()
     source_root = find_source_root(args.source_root)
+    hardware_source_root = find_source_root(args.hardware_source_root or source_root)
     source_fpga = source_root / 'modules/jttms10/ver/fpga'
     if not KNOWN_HOSTS.is_file():
         raise SystemExit(f'pinned SSH host keys are missing: {KNOWN_HOSTS}')
     if not args.receipt.is_file():
         raise SystemExit(f'programming receipt is missing: {args.receipt}')
-    receipt = json.loads(args.receipt.read_text())
-    if receipt.get('format') != 'jttms10-fpga-programming-receipt-v1':
-        raise SystemExit('unsupported or malformed FPGA programming receipt')
-    if receipt.get('sysid') != 22 or not isinstance(receipt.get('sysid_timestamp'), int):
-        raise SystemExit('receipt lacks the expected compiled SYSID identity')
-    if not re.fullmatch(r'[0-9a-fA-F-]{36}', receipt.get('board_boot_id', '')):
-        raise SystemExit('receipt lacks a valid board boot ID')
-    overlay = receipt.get('overlay', '')
-    if not re.fullmatch(r'[A-Za-z0-9_.-]+', overlay):
-        raise SystemExit('receipt has an invalid FPGA overlay name')
+    receipt, oracle_sources, hardware_sources = load_and_validate_receipt(
+        args.receipt, source_root, hardware_source_root, args.parent_receipt)
+    overlay = receipt['overlay']
     current_runner_hash = sha256(source_fpga / 'jttms10_fpga_runner.v')
     if receipt.get('runner_source_sha256') != current_runner_hash:
         raise SystemExit('runner RTL differs from the image recorded in the programming receipt')
@@ -179,6 +346,9 @@ def main():
     timings['manifest_sha256'] = sha256(args.manifest)
     timings['runner_rtl_sha256'] = current_runner_hash
     timings['source_root'] = str(source_root)
+    timings['hardware_source_root'] = str(hardware_source_root)
+    timings['oracle_cpu_source_fingerprint_sha256'] = cpu_source_fingerprint_digest(oracle_sources)
+    timings['hardware_cpu_source_fingerprint_sha256'] = cpu_source_fingerprint_digest(hardware_sources)
     timings['programming_receipt_sha256'] = sha256(args.receipt)
     timings['image_sha256'] = receipt['image_sha256']
     timings['expected_sysid'] = receipt['sysid']

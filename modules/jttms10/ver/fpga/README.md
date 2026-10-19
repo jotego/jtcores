@@ -272,3 +272,91 @@ Quartus Analysis & Synthesis on the TEI0022 device with the macro enabled
 retains both synchronous 64x32 register RAM mirrors as `altsyncram` and reports
 538,624 total block-memory bits. This is an inference check, without a fitted
 CPU runner or hardware timing-equivalence claim.
+
+## Source-bound runs and ROM-only updates
+
+Current `run_batch.py` requires a receipt binding the CPU implementation and
+its generators to the compiled image. Refresh historical receipts lacking
+CPU fingerprints into a new file with `write_programming_receipt.py`, using
+the original fitted build and matching checkout; preserve published receipts.
+Fixture programs and the independent Python oracle are excluded from this
+implementation fingerprint. They can change without recompiling the FPGA.
+The same receipt can be used from another checkout with identical inputs.
+
+For changes to `ucode/tms10.yaml` that regenerate only `tms10.uc` among the
+synthesized artifacts, reuse the fitted database with this limited update:
+
+```sh
+fpga_baseline=/path/to/baseline-checkout
+fpga_variant=/path/to/changed-cpu-checkout
+bash modules/jttms10/ver/fpga/build-rom-update.sh \
+    --base-build /path/to/original-fitted-build \
+    --source-root "$fpga_baseline" --hardware-source-root "$fpga_variant" \
+    --parent-receipt /path/to/source-bound-baseline-receipt.json \
+    --build-dir /path/to/new-fit-clone --evidence-dir /path/to/new-evidence \
+    --variant my-rom-change --overlay my-unique-overlay \
+    --boot-id "$fpga_boot_id"
+```
+
+Set `fpga_boot_id` from `/proc/sys/kernel/random/boot_id` on the board. The new build directory must not exist; build/evidence paths must be
+separate from the immutable base. The helper does not program the board.
+It regenerates the variant, rejects source/template/geometry changes outside
+this contract, verifies the fitted main-control MIF against the baseline ROM,
+then updates its complete 4096-by-62-bit contents and all three source-ROM
+copies. It runs `/opt/quartus_free/quartus_cdb --update_mif` followed by
+`quartus_asm --read_settings_files=off --write_settings_files=off`. Default
+assembly after CDB failed with error 132003 in this project; retain these flags.
+
+The output receipt declares an inherited fit, not a new compilation or STA.
+Ordinary RTL/interface/geometry changes use the full compilation flows above.
+Keep the original fitted database, parent receipt and evidence files: runtime
+validation needs them. The helper hashes the unchanged fitted-file set and
+checks that the only changed generated ROM is the declared main-control ROM.
+It imports the adjacent receipt writer so a copy in the DataStorm skill can
+operate against an explicitly selected baseline checkout.
+
+Program the uniquely named output RBF with a matching, uniquely named overlay
+using the proven explicit-close loader and programming procedure above.
+These variants inherit SYSID 22 and the parent's timestamp; those values alone
+do not distinguish ROM contents. After verifying image hash, overlay, boot ID,
+bridges and SYSID, execute with baseline expectations and variant source:
+
+```sh
+python3 modules/jttms10/ver/fpga/run_batch.py /path/to/manifest.json \
+    --source-root "$fpga_baseline" --hardware-source-root "$fpga_variant" \
+    --receipt /path/to/new-evidence/rom-update-receipt.json \
+    --parent-receipt /path/to/source-bound-baseline-receipt.json \
+    --artifacts /path/to/results --run-name my-rom-change
+python3 -m unittest discover -s modules/jttms10/ver/fpga -p 'test_*.py'
+```
+
+The source-bound driver rejects a baseline receipt paired with changed CPU
+source, and requires explicit parent/source/image evidence for a ROM variant.
+It retains the original oracle and fixture expectations. After negative tests,
+restore the original image/overlay and run baseline controls.
+
+Physical checks demonstrate both functional and timing regression detection.
+Changing ADDK add to subtract at ROM word 0xc1 makes the selected case return
+A0=ffffffff instead of 00000001 and wrong ST at the correct 8 INCLK; NOP and ADD
+controls pass. A four-microinstruction NOP at words 0x20..0x23 preserves state
+but takes 12 instead of 8 INCLK; ADD passes. Both host commands exit 1. All five
+mutant/control observations and expected errors match short original Verilator
+runs. Eight baseline executions before/between/after the mutants pass and match
+Verilator. The final board state is the restored baseline `datastorm-runtime`.
+Evidence is under `/nobackup/tasks/jtcores-145/artifacts/v3-rom-update/`.
+
+The reusable helper reproduced exactly the physical functional-mutant RBF in
+61.77 seconds external wall, including generation, fit cloning, CDB, assembly
+and receipt checks. Generation/clone/CDB/assembly were 2.03/0.16/27.79/28.38
+seconds. It preserved 2,577 fitted-file hashes. Original physical variant host
+commands took 6.37/6.39 seconds. These are distinct measurement scopes: the
+helper excludes programming and test execution, and the earlier 771.34-second
+full fit is not a matched recompilation benchmark. A software speedup and
+ordinary changed-RTL Rapid Recompile benefit remain unmeasured.
+
+The copied DataStorm skill driver, using the new source-bound baseline receipt,
+also passed all 51,542 supported base cases in 1,665 batches after both mutant
+restores, with exit 0 and no reprogramming. Full external host wall was 112.05
+seconds; the driver sampled 74.963 seconds before report serialization/stdout
+and cleanup. Keep these measurement scopes separate. Evidence is in
+`v3-rom-update/skill-bundle-full-matrix/`.

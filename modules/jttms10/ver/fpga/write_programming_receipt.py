@@ -22,11 +22,321 @@ def file_set(paths):
     return {str(path): sha256(path) for path in sorted(paths) if path.is_file()}
 
 
+def cpu_source_fingerprints(source_root):
+    """Hash the CPU implementation and every source/tool input that builds it.
+
+    Timing fixtures and the Python oracle are deliberately excluded: changing
+    expected observations must not require recompiling or re-certifying the
+    FPGA image.
+    """
+    root = Path(source_root).resolve()
+    cpu_hdl = root / 'modules/jttms10/hdl'
+    cpu_ucode = root / 'modules/jttms10/ucode'
+    decoder = root / 'modules/jttms10/ver/decoder'
+    gfx = root / 'modules/jttms10/ver/gfx'
+    shared_ucode = root / 'modules/jtframe/src/jtframe/ucode'
+    groups = (cpu_hdl, cpu_ucode, decoder, gfx, shared_ucode)
+    paths = set()
+    paths.update((root / 'modules/jttms10/ver/build.sh',))
+    paths.update((root / 'modules/jttms10/ver/verilator_build.py',))
+    paths.update((root / 'modules/jtframe/bin/jtframe',))
+    for directory in groups:
+        if not directory.is_dir():
+            raise SystemExit(f'CPU source fingerprint directory is missing: {directory}')
+        for path in directory.rglob('*'):
+            if not path.is_file() or '__pycache__' in path.parts or path.suffix == '.pyc':
+                continue
+            if directory == cpu_hdl and path.suffix not in {'.v', '.vh', '.hex'}:
+                continue
+            if directory == cpu_ucode and path.suffix not in {'.yaml', '.yml'}:
+                continue
+            if directory == decoder and path.suffix not in {'.py', '.sv', '.v', '.vh'}:
+                continue
+            if directory == gfx and path.suffix != '.py':
+                continue
+            if directory == shared_ucode and path.suffix not in {'.go', '.vh'}:
+                continue
+            paths.add(path)
+    missing = [path for path in paths if not path.is_file()]
+    if missing:
+        raise SystemExit(f'CPU source fingerprint input is missing: {missing[0]}')
+    return {path.relative_to(root).as_posix(): sha256(path)
+            for path in sorted(paths)}
+
+
+def cpu_source_fingerprint_digest(fingerprints):
+    encoded = json.dumps(fingerprints, sort_keys=True, separators=(',', ':')).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def tree_hashes(root):
+    root = Path(root).resolve(strict=True)
+    return {path.relative_to(root).as_posix(): sha256(path)
+            for path in sorted(root.rglob('*')) if path.is_file()}
+
+
+def artifact_hashes(root):
+    root = Path(root).resolve(strict=True)
+    return {path.name: sha256(path) for path in sorted(root.iterdir())
+            if path.is_file() and path.suffix in {'.uc', '.vh', '.hex'}}
+
+
+def parse_mif(path):
+    text = Path(path).read_text()
+    header = re.search(r'WIDTH=(\d+);\s*DEPTH=(\d+);', text)
+    if not header:
+        raise SystemExit(f'could not parse MIF dimensions: {path}')
+    width, depth = map(int, header.groups())
+    values = [None] * depth
+    for address, value in re.findall(r'\s*(\d+)\s*:\s*([01]+)\s*;', text):
+        address = int(address)
+        if address >= depth or values[address] is not None or len(value) != width:
+            raise SystemExit(f'invalid or duplicate MIF word at {address}: {path}')
+        values[address] = value
+    if any(value is None for value in values):
+        raise SystemExit(f'MIF is incomplete: {path}')
+    return width, values
+
+
+def phase_record(path, phase):
+    path = Path(path).resolve(strict=True)
+    text = path.read_text(errors='replace')
+    seconds = re.search(r'seconds=([0-9]+(?:\.[0-9]+)?)', text)
+    exit_code = re.search(r'exit=(\d+)', text)
+    if not seconds or not exit_code or int(exit_code.group(1)) != 0:
+        raise SystemExit(f'{phase} timing record does not certify exit 0: {path}')
+    return {'seconds': float(seconds.group(1)), 'exit_code': 0,
+            'timing_path': str(path), 'timing_sha256': sha256(path)}
+
+
+def file_deltas(base, variant):
+    before = tree_hashes(base)
+    after = tree_hashes(variant)
+    return {
+        name: {'base_sha256': before.get(name), 'variant_sha256': after.get(name)}
+        for name in sorted(before.keys() | after.keys()) if before.get(name) != after.get(name)
+    }, before, after
+
+
+ROM_UPDATE_DELTA_ALLOWLIST = {
+    'tms10.uc',
+    'ip/jttms10_fpga_runner/tms10.uc',
+    'jttms10-generated/tms10.uc',
+    'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif',
+    'db/test_board.asm.qmsg', 'db/test_board.asm.rdb',
+    'db/test_board.cmp.cdb', 'db/test_board.cmp.hdb', 'db/test_board.cmp.rdb',
+    'db/test_board.map.cdb', 'db/test_board.mif_update.qmsg',
+    'output_files/test_board.asm.rpt', 'output_files/test_board.flow.rpt',
+    'output_files/test_board.mif_update.rpt', 'output_files/test_board.rbf',
+    'output_files/test_board.sof',
+}
+
+
+def generate_cpu_artifacts(source):
+    generated = Path(tempfile.mkdtemp(prefix='jttms10-rom-variant-source-'))
+    try:
+        subprocess.run(['bash', str(Path(source) / 'modules/jttms10/ver/build.sh'), str(generated)],
+                       check=True, stdout=subprocess.DEVNULL)
+        return {path.name: sha256(path) for path in sorted(generated.iterdir())
+                if path.is_file() and path.suffix in {'.uc', '.vh', '.hex'}}, generated
+    except BaseException:
+        import shutil
+        shutil.rmtree(generated, ignore_errors=True)
+        raise
+
+
+def write_rom_update_receipt(*, image, build, base_build, baseline_source,
+                             hardware_source, parent_receipt_path, boot_id,
+                             overlay, variant_name, cdb_log, asm_log,
+                             cdb_time, asm_time, source_generation_time, output):
+    """Certify a CDB/ASM ROM update as an inherited-fit variant, never as a compile."""
+    if not re.fullmatch(r'[0-9a-fA-F-]{36}', boot_id):
+        raise SystemExit('invalid board boot ID')
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+', overlay):
+        raise SystemExit('invalid overlay name')
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+', variant_name):
+        raise SystemExit('invalid ROM-update variant name')
+    source_phase = phase_record(source_generation_time, 'source generation')
+    cdb_phase = phase_record(cdb_time, 'quartus_cdb')
+    asm_phase = phase_record(asm_time, 'quartus_asm')
+    image = Path(image).resolve(strict=True)
+    build = Path(build).resolve(strict=True)
+    base_build = Path(base_build).resolve(strict=True)
+    baseline_source = Path(baseline_source).resolve(strict=True)
+    hardware_source = Path(hardware_source).resolve(strict=True)
+    parent_receipt_path = Path(parent_receipt_path).resolve(strict=True)
+    parent = json.loads(parent_receipt_path.read_text())
+    if parent.get('format') != 'jttms10-fpga-programming-receipt-v1':
+        raise SystemExit('parent must be the canonical full-fit programming receipt')
+    baseline_fingerprints = cpu_source_fingerprints(baseline_source)
+    if parent.get('cpu_source_fingerprints') != baseline_fingerprints:
+        raise SystemExit('parent receipt is not source-bound to the baseline checkout')
+    variant_fingerprints = cpu_source_fingerprints(hardware_source)
+    changed_source = sorted(set(baseline_fingerprints) | set(variant_fingerprints))
+    changed_source = [name for name in changed_source
+                      if baseline_fingerprints.get(name) != variant_fingerprints.get(name)]
+    source_delta = 'modules/jttms10/ucode/tms10.yaml'
+    if changed_source != [source_delta]:
+        raise SystemExit(f'ROM variant must change only {source_delta}; found {changed_source}')
+    parent_build_result = base_build / 'v2-build-result.json'
+    parent_inputs = base_build / 'v2-build-inputs.json'
+    parent_sta = base_build / 'output_files/test_board.sta.summary'
+    if not parent_build_result.is_file() or not parent_inputs.is_file() or not parent_sta.is_file():
+        raise SystemExit('parent fitted build is missing result/input/STA evidence')
+    result = json.loads(parent_build_result.read_text())
+    if (result.get('format') != 'jttms10-incremental-build-result-v1' or
+            result.get('flow_exit_code') != 0 or result.get('full_flow_only') is not True or
+            result.get('rbf_sha256') != parent.get('image_sha256') or
+            result.get('input_manifest_sha256') != sha256(parent_inputs) or
+            parent.get('build_result_sha256') != sha256(parent_build_result)):
+        raise SystemExit('parent receipt/build result do not certify the inherited full fit')
+    if not (build / 'v2-build-result.json').is_file() or \
+       sha256(build / 'v2-build-result.json') != sha256(parent_build_result):
+        raise SystemExit('variant build clone changed the inherited successful-fit certificate')
+    compiled_base = base_build / 'output_files/test_board.rbf'
+    compiled_variant = build / 'output_files/test_board.rbf'
+    if sha256(compiled_base) != parent.get('image_sha256'):
+        raise SystemExit('base fit image does not match the parent programming receipt')
+    if sha256(image) != sha256(compiled_variant):
+        raise SystemExit('variant image does not match the assembler-produced RBF')
+    deltas, before_files, after_files = file_deltas(base_build, build)
+    unexpected = sorted(set(deltas) - ROM_UPDATE_DELTA_ALLOWLIST)
+    if unexpected:
+        raise SystemExit(f'ROM update changed files outside ROM/ASM allowlist: {unexpected}')
+    required_changes = {
+        'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif',
+        'output_files/test_board.rbf',
+        'output_files/test_board.sof',
+    }
+    if not required_changes <= set(deltas):
+        raise SystemExit('ROM update did not produce the required MIF/SOF/RBF changes')
+    unchanged_before = {key: value for key, value in before_files.items()
+                        if key not in ROM_UPDATE_DELTA_ALLOWLIST}
+    unchanged_after = {key: value for key, value in after_files.items()
+                       if key not in ROM_UPDATE_DELTA_ALLOWLIST}
+    if unchanged_before != unchanged_after:
+        raise SystemExit('fitted netlist, constraints, generated IP, or fit database changed')
+    if parent_sta.is_file() and sha256(parent_sta) != sha256(build / 'output_files/test_board.sta.summary'):
+        raise SystemExit('post-fit STA report changed in the ROM-only variant')
+    cdb_log, asm_log = Path(cdb_log).resolve(strict=True), Path(asm_log).resolve(strict=True)
+    cdb_text, asm_text = cdb_log.read_text(errors='replace'), asm_log.read_text(errors='replace')
+    if 'MIF/HEX Update was successful' not in cdb_text or '0 errors' not in cdb_text:
+        raise SystemExit('CDB log does not record a successful MIF update')
+    if 'Assembler was successful' not in asm_text or '0 errors' not in asm_text:
+        raise SystemExit('Assembler log does not record a successful image build')
+    generated, temp_generated = generate_cpu_artifacts(hardware_source)
+    try:
+        package = build / 'ip/jttms10_fpga_runner'
+        package_hashes = artifact_hashes(package)
+        root_hashes = artifact_hashes(build)
+        generated_hashes = artifact_hashes(build / 'jttms10-generated')
+        if generated != package_hashes or generated != root_hashes or generated != generated_hashes:
+            raise SystemExit('variant generated ROM/template inputs do not match packaged build inputs')
+        baseline_generated = {
+            name: digest for name, digest in parent.get('current_source_generated_files', {}).items()
+            if Path(name).suffix in {'.uc', '.vh', '.hex'}
+        }
+        changed_generated = sorted(name for name in set(generated) | set(baseline_generated)
+                                   if generated.get(name) != baseline_generated.get(name))
+        if changed_generated != ['tms10.uc']:
+            raise SystemExit(f'generated ROM update changed unexpected files: {changed_generated}')
+        uc_path = temp_generated / 'tms10.uc'
+        uc_rows = uc_path.read_text().splitlines()
+        mif_path = build / 'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif'
+        width, mif_words = parse_mif(mif_path)
+        if width != 62 or len(uc_rows) != 4096 or mif_words != uc_rows:
+            raise SystemExit('updated main-control MIF is not an exact encoding of the generated tms10.uc')
+    finally:
+        import shutil
+        shutil.rmtree(temp_generated, ignore_errors=True)
+    qsf = build / 'test_board.qsf'
+    qsf_text = qsf.read_text()
+    qip_match = re.search(r'^set_global_assignment\s+-name\s+QIP_FILE\s+(.+?)\s*$',
+                          qsf_text, re.MULTILINE)
+    if not qip_match:
+        raise SystemExit('inherited-fit variant requires the preserved QIP-bound project')
+    qip = (build / qip_match.group(1).strip('"{}')).resolve()
+    sysid_path = qip.parent / 'submodules/QSYS_test_board_sysid.v'
+    text = sysid_path.read_text()
+    match = re.search(r'assign\s+readdata\s*=\s*address\s*\?\s*(\d+)\s*:\s*(\d+)\s*;', text)
+    if not match:
+        raise SystemExit('could not parse the inherited SYSID source')
+    timestamp, sysid = map(int, match.groups())
+    if sysid != parent.get('sysid') or timestamp != parent.get('sysid_timestamp'):
+        raise SystemExit('variant SYSID differs from its fitted parent')
+    source_path = hardware_source / source_delta
+    baseline_mif_words = parse_mif(base_build / 'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif')[1]
+    receipt = {
+        'format': 'jttms10-fpga-rom-update-receipt-v1',
+        'variant_name': variant_name,
+        'parent_receipt_path': str(parent_receipt_path),
+        'parent_receipt_sha256': sha256(parent_receipt_path),
+        'parent_image_sha256': parent['image_sha256'],
+        'parent_build_result_sha256': parent['build_result_sha256'],
+        'parent_build_manifest_sha256': parent['build_manifest_sha256'],
+        'parent_sta_summary_sha256': sha256(parent_sta),
+        'parent_build_dir': str(base_build),
+        'parent_build_inputs_path': str(parent_inputs),
+        'parent_build_result_path': str(parent_build_result),
+        'parent_sta_summary_path': str(parent_sta),
+        'parent_compile_log_path': str(base_build / 'logs/v2-compile.log'),
+        'parent_compile_log_sha256': result.get('flow_log_sha256'),
+        'inherited_fit_only': True,
+        'full_compile_claim': False,
+        'fit_unchanged_file_count': len(unchanged_before),
+        'fit_unchanged_files_sha256': cpu_source_fingerprint_digest(unchanged_before),
+        'changed_build_files': deltas,
+        'cpu_source_fingerprints': variant_fingerprints,
+        'cpu_source_fingerprint_sha256': cpu_source_fingerprint_digest(variant_fingerprints),
+        'baseline_cpu_source_fingerprint_sha256': cpu_source_fingerprint_digest(baseline_fingerprints),
+        'source_delta': {
+            'path': source_delta,
+            'baseline_sha256': baseline_fingerprints[source_delta],
+            'variant_sha256': variant_fingerprints[source_delta],
+        },
+        'source_generated_files': generated,
+        'changed_mif_path': 'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif',
+        'variant_mif_path': str(build / 'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif'),
+        'changed_mif_sha256': sha256(build / 'db/test_board.ram0_jttms10_ctrl_cc30e43c.hdl.mif'),
+        'changed_mif_words': [index for index, value in enumerate(mif_words)
+                              if value != baseline_mif_words[index]],
+        'source_generation': source_phase,
+        'cdb': {**cdb_phase, 'log_path': str(cdb_log), 'log_sha256': sha256(cdb_log)},
+        'assembler': {**asm_phase, 'log_path': str(asm_log), 'log_sha256': sha256(asm_log)},
+        'image_path': str(image),
+        'image_sha256': sha256(image),
+        'runner_source_sha256': parent['runner_source_sha256'],
+        'sysid': sysid,
+        'sysid_timestamp': timestamp,
+        'sysid_source_sha256': sha256(sysid_path),
+        'board_boot_id': boot_id.lower(),
+        'overlay': overlay,
+        'firmware_name': f'jtcores-rom-{variant_name}-{sha256(image)[:12]}.rbf',
+    }
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+    print(output)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--image', required=True, type=Path)
     parser.add_argument('--build-dir', required=True, type=Path)
     parser.add_argument('--source-root', required=True, type=Path)
+    parser.add_argument('--hardware-source-root', type=Path,
+                        help='CPU implementation checkout for ROM-update variants')
+    parser.add_argument('--rom-update-parent-receipt', type=Path,
+                        help='write an inherited-fit ROM-update certificate instead of a full-build receipt')
+    parser.add_argument('--base-build-dir', type=Path,
+                        help='successful fitted build that the ROM-only variant inherits')
+    parser.add_argument('--variant-name', help='short unique ROM variant name')
+    parser.add_argument('--cdb-log', type=Path, help='successful quartus_cdb --update_mif log')
+    parser.add_argument('--asm-log', type=Path, help='successful quartus_asm log')
+    parser.add_argument('--cdb-time', type=Path, help='monotonic quartus_cdb timing record')
+    parser.add_argument('--asm-time', type=Path, help='monotonic quartus_asm timing record')
+    parser.add_argument('--source-generation-time', type=Path,
+                        help='monotonic CPU ROM generation timing record')
     parser.add_argument('--boot-id', required=True)
     parser.add_argument('--overlay', required=True)
     parser.add_argument('--output', required=True, type=Path)
@@ -35,9 +345,34 @@ def main():
         raise SystemExit('invalid board boot ID')
     if not re.fullmatch(r'[A-Za-z0-9_.-]+', args.overlay):
         raise SystemExit('invalid overlay name')
+    if args.rom_update_parent_receipt:
+        required = {
+            '--base-build-dir': args.base_build_dir,
+            '--hardware-source-root': args.hardware_source_root,
+            '--variant-name': args.variant_name,
+            '--cdb-log': args.cdb_log,
+            '--asm-log': args.asm_log,
+            '--cdb-time': args.cdb_time,
+            '--asm-time': args.asm_time,
+            '--source-generation-time': args.source_generation_time,
+        }
+        missing = [name for name, value in required.items() if value is None]
+        if missing:
+            raise SystemExit(f'ROM-update receipt is missing required options: {", ".join(missing)}')
+        write_rom_update_receipt(
+            image=args.image, build=args.build_dir, base_build=args.base_build_dir,
+            baseline_source=args.source_root,
+            hardware_source=args.hardware_source_root,
+            parent_receipt_path=args.rom_update_parent_receipt,
+            boot_id=args.boot_id, overlay=args.overlay, variant_name=args.variant_name,
+            cdb_log=args.cdb_log, asm_log=args.asm_log,
+            cdb_time=args.cdb_time, asm_time=args.asm_time,
+            source_generation_time=args.source_generation_time, output=args.output)
+        return
     image = args.image.resolve(strict=True)
     build = args.build_dir.resolve(strict=True)
     source = args.source_root.resolve(strict=True)
+    source_fingerprints = cpu_source_fingerprints(source)
     inputs_path = build / 'v2-build-inputs.json'
     result_path = build / 'v2-build-result.json'
     if inputs_path.exists():
@@ -207,6 +542,8 @@ def main():
         'source_revision': revision,
         'source_status': status,
         'runner_source_sha256': sha256(source_runner),
+        'cpu_source_fingerprints': source_fingerprints,
+        'cpu_source_fingerprint_sha256': cpu_source_fingerprint_digest(source_fingerprints),
         'image_path': str(image),
         'image_sha256': sha256(image),
         'build_manifest_sha256': sha256(certificate_path),

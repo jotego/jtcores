@@ -301,7 +301,7 @@ python3 modules/jttms10/ver/fpga/check_runner.py --case nop_hit --case nop_off \
     --batch-size 1 --reference "$fpga_evidence/reference.json" \
     --output "$fpga_evidence/avalon"
 python3 modules/jttms10/ver/fpga/check_recovery.py --output "$fpga_evidence/recovery"
-python3 -m unittest discover -s modules/jttms10/ver/fpga -p test_check_results.py
+python3 -m unittest discover -s modules/jttms10/ver/fpga -p 'test_*.py'
 ```
 
 Evidence directories created by the Verilator helpers must be new. The recovery
@@ -347,3 +347,29 @@ includes polling and MMIO overhead. Instruction clocks come from the FPGA
 result counters, not this wall-time measurement. Use `run_ms` for end-to-end
 benchmarks and coarse clock calibration; do not reinterpret Linux polling
 latency as added instruction wait states. Use one transport process per board.
+
+
+## Image/source binding and inherited-fit ROM variants
+
+The wire protocol is unchanged by source-bound receipts. Before SSH access,
+`run_batch.py` checks CPU implementation/generator fingerprints, runner RTL,
+image hash and receipt identity. Timing fixtures/oracle expectations are not
+hardware inputs and can change without another FPGA compilation. A historical
+receipt lacking CPU fingerprints fails explicitly; refresh to a new file using
+the original fitted build and matching sources.
+
+`build-rom-update.sh` supports only main-control YAML changes regenerating
+`tms10.uc` with unchanged synthesized templates, other ROMs and geometry.
+It verifies and updates the fitted main-control MIF, runs CDB/assembly with
+`/opt/quartus_free`, and certifies inherited placement/routing/STA separately
+from a full compile. See the [README reproduction commands](README.md#source-bound-runs-and-rom-only-updates).
+
+Use `--source-root` for the baseline oracle checkout and an explicit
+`--hardware-source-root` for changed CPU microcode. A
+`jttms10-fpga-rom-update-receipt-v1` additionally requires `--parent-receipt`
+with the original source-bound full-fit certificate. Runtime validates source,
+parent evidence, generated ROM/MIF delta, image, phase records and unique
+firmware/overlay identity. Variants inherit SYSID/timestamp, so these IDs alone
+cannot identify changed ROM contents. Program each distinct image through its
+own verified firmware/overlay and restore baseline controls after negative
+runs. This path adds no descriptor/result words or per-case host intervention.
