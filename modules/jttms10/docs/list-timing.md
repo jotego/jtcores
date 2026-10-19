@@ -81,12 +81,31 @@ within four warm cache segments; the sparse input limit is64 words.
 All 3,572 W=1/P=7 Verilator programs, 144 model/checker tests, strict lint,
 342 short Icarus phase programs and six new mutation controls/rejections
 pass. The mutants shorten MMFM/MMTM work, remove operand-slot qualification,
-delay inter-field issue reverse MMTM word order or discard the first posted field's slot qualification. All retain correct
+delay inter-field issue, reverse MMTM word order or discard the first
+posted field's slot qualification. All retain correct
 main/following state and drained memory. The architectural suite passes
 180 programs; its original unaligned list roundtrip caught the raw request
-retention bug. Failed prototypes are not accepted evidence. A 588-case
-Icarus comparison, clean validation, full runner and matched map are being
-completed; no result is claimed for a pending job.
+retention bug. Failed prototypes are not accepted evidence.
+
+At implementation 27b0d4e44, all 588 representative Icarus case objects
+match batched Verilator exactly, removing only the batch-local case ID.
+A detached clean checkout repeats all 144 models, all 3,572 stressed cases
+and all 17 response controls/one mutant. Every stressed case and all 48
+source/seven generated hashes match development exactly. Four fresh-process
+Icarus cases also match batching. Clean scope is targeted; the complete
+117-form standard runner remains running on the frozen implementation.
+
+The matched NARC GSP quartus_map succeeds with 3,824 estimated ALMs,
+5,496 ALUTs, 1,722 registers, 538,624 RAM bits, five DSPs and zero MLAB bits.
+Compared with TRAP: +105 ALMs/+161 ALUTs/-3 registers, unchanged RAM/DSPs.
+All 36 snapshot hashes and 29 committed inputs verify. Device/tool/158
+virtual pins/20ns/seed1/effort match; QSF differs only in snapshot paths.
+There are 49 warning classifications, three more intentional 32-to-7-bit
+constant-sized lead assignments (largest selected value80). The previous
+46 warnings are otherwise unchanged. This is synthesis, without a current
+fit/STA claim; the final ceiling remains 3,500 fitted ALMs. The preceding
+RETS fit of3,649 fails that ceiling. Final board timing and game validation
+remain separate requirements.
 
 The response bench passes17 controls/one mutant, adding MMFM and queued
 MMTM responses captured during256-clock pauses, aligned and unaligned in

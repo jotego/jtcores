@@ -625,18 +625,24 @@ The uninterrupted114-form CALL development runner is verified at7b7b40ffc:
 272,972 exact programs,133 models,180 architecture,699 bus scenarios,
 67 mutation controls/75 rejections,response9/1 and EMU8/1. All46 timing-source
 and seven generated hashes match its implementation/map; exit1 is solely
-19 missing/448 unresolved sources. The branch is newer with115 forms.
-Its initial full runner failed a stale mutation anchor before matrices;
-the helper-only correction's fresh full runner remains running. Final full
-clean/CI, ISA/conditions and hardware/game acceptance remain required.
+19 missing/448 unresolved sources. That report predates the115-form TRAP
+captured phases and current117-form list implementation described below.
+Final full clean/CI, ISA/conditions and hardware/game acceptance remain required.
 
 
 MMFM/MMTM add3,572 programs, for95,710 per matrix and117/133 forms
 (16 missing). [list-timing.md](list-timing.md) records the literal count
 ledger, read-only MMFM/empty-list project choices, examples and selected
 bus allocation. All3,572 Verilator stress programs,144 models,342 short
-Icarus phases, six new mutants and response17/1 events pass. Targeted
-Icarus/clean validation and full runner/map results remain pending.
+Icarus phases, six new mutants and response17/1 events pass. All588
+representative Icarus case objects and48 source/seven generated hashes
+match Verilator. A detached clean checkout repeats144 models, all3,572
+stress cases and17/1 response events. Stressed case objects and48 source/
+seven generated hashes match development; the clean event report's hashes
+match the implementation. Its scope is targeted, not a complete standard runner. The matched map
+estimates3,824 ALMs/1,722 registers/five DSPs; all36 snapshot hashes and29
+inputs verify. No current fit/STA is claimed. The117-form full runner is
+running on frozen27b0d4e44.
 All31 distinct GPRs, full ST, sparse memory and120 following loads are
 checked. No known MOVB target is waived; final fitted area/board STA/NARC
 and remaining ISA/condition acceptance remain required.
