@@ -608,11 +608,66 @@ Thus the four latched palette outputs select a PROM bank and its three high
 address bits. The corresponding flattened six-bit address has the bank at
 bit 5 and these address bits at bits 4 through 2. The latched 7C pin 3 and pin 6
 signals supply bits 1 and 0, respectively, without inversion. This agrees
-with the stable palette/pixel packing in `jtseicro_colmix`. `ver/hdl/colmix_tb.v` checks both banks,
-all eight palette rows and all three nonzero pixel codes through each layer,
+with the stable palette/pixel packing in `jtseicro_colmix`.
+`ver/hdl/colmix_tb.v` checks both banks, all eight palette rows and all three
+nonzero pixel codes through each layer,
 plus zero-pixel suppression with every palette value.
 
 These chains establish all palette and pixel routes from the outputs of 8D
-and 7C to the PROM bank/address inputs. Upstream mux input/layer assignments
-and physical 9D capture ordering remain separate checks. The renderer does
-not yet reproduce the complete schematic latch timing.
+and 7C to the PROM bank/address inputs. Upstream source/layer identities and
+physical 9D capture ordering remain separate checks. The renderer does not
+yet reproduce the complete schematic latch timing.
+
+## Pixel and palette selection
+
+The following 7A/7C and 8D connections are jointly confirmed on the reviewed
+video drawings. `a1` and `a0` are readout-bus bits 1 and 0; `n9` and `n12`
+are the physical levels at 9O outputs 9 and 12. These names do not assign an
+upstream layer identity.
+
+| Source | Destination |
+| --- | --- |
+| Readout bus bit 1 | 7A input 11, 7A input 6, 7C input 2. |
+| Readout bus bit 0 | 7A input 12, 7A input 3, 7C input 4. |
+| 9O output 9 | 7A input 2. |
+| 9O output 12 | 7A input 5. |
+| 7A output 13 | 8D select pin 1. |
+| 7A output 1 | 7C input 1. |
+| 7A output 4 | 7C input 5. |
+
+7A is type 02. Its top gate has an output bubble and unbubbled inputs 11/12.
+The other two gates use AND bodies with bubbles on inputs 2/3 and 5/6, and
+unbubbled outputs 1/4: the same NOR function of physical input levels. Both
+7C gates are type 32 OR gates without input or output bubbles. Consequently:
+
+```text
+8D.S1 = NOT(a1 OR a0)
+7A.Y1 = NOT(n9 OR a0)
+7A.Y4 = NOT(n12 OR a1)
+7C.Y3 = a1 OR 7A.Y1
+7C.Y6 = a0 OR 7A.Y4
+```
+
+8D is a non-inverting 74LS157 with active-low enable pin 15 tied to ground.
+Select 0 chooses its A inputs; select 1 chooses B. Its palette channels are:
+
+| 8D output | A input pin / readout bit | B input pin / upper-bundle bit | B source |
+| --- | --- | --- | --- |
+| 12 | 14 / bit 5 | 13 / bit 3 | 8N output 2. |
+| 9 | 11 / bit 4 | 10 / bit 2 | 8N output 5. |
+| 7 | 5 / bit 3 | 6 / bit 1 | 8N output 12. |
+| 4 | 2 / bit 2 | 3 / bit 0 | 8N output 15. |
+
+For any nonzero readout pixel `a1:a0`, the selected pixel is `a1:a0` and
+8D supplies that bus's palette bits 5 through 2. For readout pixel `00`,
+the selected pixel is `NOT(n9):NOT(n12)` and 8D selects the palette from 8N.
+Pixel and palette therefore switch together. The downstream 9D latch and
+PROM enables described above suppress RGB when the selected pixel is zero.
+
+The current `jtseicro_colmix` implements this relative nonzero-pixel priority.
+The focused test drives the readout role through `obj_pxl` and the fallback
+role through `scr_pxl`, comparing their result with these physical gate
+expressions for all 16 pixel combinations and two contrasting palette pairs.
+Together with the palette/address cases, `ver/hdl/colmix_tb.v` checks 172 cases.
+This validates the selection function; the upstream source identities and
+physical latch/sample timing require their own traces.

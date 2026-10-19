@@ -15,6 +15,10 @@ integer checked=0;
 integer bank, row, pixel;
 reg [7:0] palette;
 reg [5:0] expected_addr;
+integer a_pixel, b_pixel, swap_palette;
+reg [3:0] a_palette, b_palette, selected_palette;
+reg [1:0] selected_pixel;
+reg select_b, c3, c6, a1, a0;
 
 always #5 clk=~clk;
 always @(posedge clk) pal_data <= pal_addr==6'h16 ? 8'h49 : 8'hff;
@@ -92,6 +96,27 @@ initial begin
             palette={bank[0],row[2:0],4'b0000};
             draw(8'h00,palette,4'h8,1,1,6'h00,12'h000);
             draw(palette,8'h00,4'h1,1,1,6'h00,12'h000);
+        end
+    end
+    for(a_pixel=0;a_pixel<4;a_pixel=a_pixel+1) begin
+        for(b_pixel=0;b_pixel<4;b_pixel=b_pixel+1) begin
+            for(swap_palette=0;swap_palette<2;swap_palette=swap_palette+1) begin
+                a_palette=swap_palette ? 4'h5 : 4'ha;
+                b_palette=swap_palette ? 4'ha : 4'h5;
+                a1=a_pixel[1];
+                a0=a_pixel[0];
+                c3=a1 | ~(~b_pixel[1] | a0);
+                c6=a0 | ~(~b_pixel[0] | a1);
+                select_b=~(a1 | a0);
+                selected_palette=select_b ? b_palette : a_palette;
+                selected_pixel={c3,c6};
+                expected_addr=(selected_palette*4)+selected_pixel;
+                if(selected_pixel==0) expected_addr=0;
+                draw({b_palette,2'b00,b_pixel[1:0]},
+                    {a_palette,2'b00,a_pixel[1:0]},4'hf,1,1,expected_addr,
+                    selected_pixel==0 ? 12'h000 :
+                    expected_addr==6'h16 ? 12'h225 : 12'hfff);
+            end
         end
     end
     $display("PASS colmix: %0d cases, nonblack palette zero, transparent pixels, layer masks, priority, blanking and recovery",checked);
