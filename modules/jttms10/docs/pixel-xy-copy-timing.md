@@ -80,17 +80,21 @@ All56 timing-source hashes match the committed source; all seven generated
 hashes and complete case objects match the corresponding intermediate
 timing captures. A separate corrected-source8,878-case stressed run also
 matches the clean stressed run exactly. No assertion or timing target was
-relaxed. The clean model/event/architecture tail is still running.
+relaxed. The clean tail also passes 206 checker models, 49 response controls/
+one rejection and 180 architecture programs; the clean supervisor exits zero.
+The corrected 632-case Icarus comparison matches every Verilator case object
+except simulator-local case IDs. Six W=1 pause profiles (P=1..6) pass 198 cases;
+two fresh-process W=1/P=7 cases match the stressed batch. All 56 source/seven
+generated hashes verify. Eight affected pixel mutation groups pass 24 positive
+controls and reject 24 actual timing mutations with all defined state and
+memory correct. Only the intended top-level or word-adapter RTL file differs
+in each mutant; generated inputs remain identical.
 
 The corrected-source full standard runner is frozen at4f3b7d9ac, whose
 HDL/timing inputs equalb6bb7e6ed. It has passed180 architecture programs,
 the existing unit/system benches,206 checker tests,699 bus scenarios,
 49 response controls/one rejection and8 EMU controls/one rejection. It is
 still running; no completed124-form normal-runner result is claimed.
-The corrected632-case Icarus comparison and corrected pixel mutants remain
-pending. The completed intermediate632-case comparison matches every
-Verilator case object except simulator-local case IDs, but does not replace
-the corrected-source comparison.
 
 The matched b6bb7e6ed NARC-boundary synthesis snapshot reports3848 estimated
 ALMs,5644 ALUTs,1722 registers,538624 RAM bits,five DSPs and zero MLAB bits,
