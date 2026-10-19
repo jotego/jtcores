@@ -93,7 +93,12 @@ A detached clean checkout repeats all 144 models, all 3,572 stressed cases
 and all 17 response controls/one mutant. Every stressed case and all 48
 source/seven generated hashes match development exactly. Four fresh-process
 Icarus cases also match batching. Clean scope is targeted; the complete
-117-form standard runner remains running on the frozen implementation.
+117-form initial runner passed180 architectural programs,144 models,699
+bus scenarios and the response/EMU event benches, then stopped before matrices at a stale branch-counter mutation anchor.
+The copy-slot mutation also retained an old pattern. Correcting both helper
+patterns preserves all48 runtime inputs and ROMs; both affected controls and
+mutants are checked separately. Fresh complete validation remains pending.
+The failed invocation is retained and not accepted as a complete run.
 
 The matched NARC GSP quartus_map succeeds with 3,824 estimated ALMs,
 5,496 ALUTs, 1,722 registers, 538,624 RAM bits, five DSPs and zero MLAB bits.

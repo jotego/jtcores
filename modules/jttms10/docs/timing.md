@@ -641,8 +641,11 @@ stress cases and17/1 response events. Stressed case objects and48 source/
 seven generated hashes match development; the clean event report's hashes
 match the implementation. Its scope is targeted, not a complete standard runner. The matched map
 estimates3,824 ALMs/1,722 registers/five DSPs; all36 snapshot hashes and29
-inputs verify. No current fit/STA is claimed. The117-form full runner is
-running on frozen27b0d4e44.
+inputs verify. No current fit/STA is claimed. The117-form initial full runner passed its architecture/unit/model/bus/event
+prefix, then failed a stale mutation anchor before matrices. The branch and
+copy helper anchors are corrected with all48 runtime inputs/ROMs unchanged;
+fresh complete validation remains pending. The failed invocation is excluded
+from completed-runner acceptance.
 All31 distinct GPRs, full ST, sparse memory and120 following loads are
 checked. No known MOVB target is waived; final fitted area/board STA/NARC
 and remaining ISA/condition acceptance remain required.
