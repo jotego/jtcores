@@ -68,6 +68,44 @@ python3 modules/jttms10/ver/timing/mutations.py
 ```
 
 Fixtures,phase probes,events and mutants are included in the normal runner.
-Targeted development/clean verification is pending. Remaining ISA/conditions,
-known MOVB targets,full clean/remote CI,final fitted area/board STA and NARC/
-MiSTer acceptance remain open under #144.
+
+## Corrected-source validation on the second computer
+
+The Verilator5.039 helper refactor in53e352578 exposed an independent Icarus
+time-zero mask problem. Its timing captures are intermediate evidence.
+Correctionb6bb7e6ed uses a continuous mask decode and passes174,689 existing
+pixel-unit cases plus strict lint. On that corrected source, a detached clean
+checkout passes all26,634 XY-copy timing programs across the three profiles.
+All56 timing-source hashes match the committed source; all seven generated
+hashes and complete case objects match the corresponding intermediate
+timing captures. A separate corrected-source8,878-case stressed run also
+matches the clean stressed run exactly. No assertion or timing target was
+relaxed. The clean model/event/architecture tail is still running.
+
+The corrected-source full standard runner is frozen at4f3b7d9ac, whose
+HDL/timing inputs equalb6bb7e6ed. It has passed180 architecture programs,
+the existing unit/system benches,206 checker tests,699 bus scenarios,
+49 response controls/one rejection and8 EMU controls/one rejection. It is
+still running; no completed124-form normal-runner result is claimed.
+The corrected632-case Icarus comparison and corrected pixel mutants remain
+pending. The completed intermediate632-case comparison matches every
+Verilator case object except simulator-local case IDs, but does not replace
+the corrected-source comparison.
+
+The matched b6bb7e6ed NARC-boundary synthesis snapshot reports3848 estimated
+ALMs,5644 ALUTs,1722 registers,538624 RAM bits,five DSPs and zero MLAB bits,
+with158 virtual pins,20ns clock,seed1 and the same Quartus20.1.1 settings.
+All36 snapshot hashes,normalized QSF,SDC and49 warning classifications verify.
+This is synthesis only. Its original manifest's old_module_commit field
+incorrectly resolves the parent checkout because the reference submodule is
+uninitialized; that field is not reference-revision evidence. The actual
+gitlink is29bcb384ec3d. Metadata fixec3be7b9d records the pin separately and
+null for the absent checkout. A new snapshot has identical36 source/generated
+hashes,QSF and SDC. Original captures remain unchanged, with the correction
+recorded separately.
+
+[Download synthesis sources,reports and verification](http://gitea.jotego.es/attachments/bde299b2-06f1-4274-895e-7fa5325ae8e1)
+SHA256:320456cad9de3bed9a9f69e5d9b8308f5b99c1c07f80679fb22bb595483860b2.
+
+Remaining ISA/conditions,known MOVB targets,full clean/remote CI,final fitted
+area/board STA and NARC/MiSTer acceptance remain open under #144.

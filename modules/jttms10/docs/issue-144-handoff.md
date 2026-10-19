@@ -6,6 +6,23 @@ The owner resumed this task on the second computer. Work continues on
 `jtcores-144-resume`, based on the experimental XY-copy branch and merged
 with the stable branch's accepted121-runner history. The issue remains open.
 
+Latest progress: correctedb6bb7e6ed passes all26,634 clean XY-copy timing
+programs with56 committed-source/seven generated hashes and exact full case
+objects verified; a separate stressed8,878-case run matches exactly. The
+clean tail,corrected632-case Icarus repeat and full124 normal runner remain
+unfinished. The latter has passed180 architecture,unit/system benches,
+206 models,699 bus scenarios,response49/1 andEMU8/1 so far. The original
+checkpoint mutation run remains separate; corrected affected pixel mutants
+are queued after the clean tail, reusing its simulation slot.
+
+Current b6 synthesis-only result is3848 estimated ALMs,5644 ALUTs,1722
+registers,538624 RAM bits,five DSPs,zero MLAB,158 virtual pins and49 warnings.
+All36 snapshot hashes and matched settings verify. Fixec3be7b9d corrects
+legacy reference metadata without changing any hashed synthesis input;
+see [current XY-copy evidence](pixel-xy-copy-timing.md). No fit/STA acceptance
+is claimed. The [FILL source audit](fill-timing.md) records the next timing
+requirements and unresolved qualifications; it adds no covered forms.
+
 This machine uses Verilator5.039. The checkpoint pixel helper's grouped
 combinational block produces fatal UNOPTFLAT warnings here. Commit53e352578
 separates mask/ALU/result dependencies without suppressing warnings. Its
@@ -13,17 +30,16 @@ separates mask/ALU/result dependencies without suppressing warnings. Its
 but the independent pixel unit exposed an Icarus time-zero initialization
 problem in that first split. Those results are intermediate evidence, not
 final validation. Commitb6bb7e6ed makes the mask a continuous decode; all
-174,689 existing pixel-unit cases and strict lint then pass. The corrected
-source requires its own timing/clean/cross-simulator repeats.
+174,689 existing pixel-unit cases and strict lint then pass. Corrected-source
+repeat status is recorded above; intermediate captures never replace it.
 
 Task records now live in `/nobackup/tasks/jtcores-144/`. The initial clean
 repeat on53e352578 was cancelled specifically because of the demonstrated
 pixel-unit failure; its command, process group and reason are recorded.
-The corrected clean repeat and stressed profile were started onb6bb7e6ed.
-Neither is claimed complete here. The full mutation run and initial632-case
-Icarus comparison retain their original checkpoint sources. A map snapshot
-with all36 verified hashes belongs to53e352578, not the corrected source.
-No new map/fit/STA or complete normal-runner acceptance is claimed.
+The original full mutation run and initial632-case Icarus comparison retain
+their checkpoint sources. The earlier36-hash map belongs to53e352578;
+the corrected b6 map above supersedes it. No fit/STA or complete normal-runner
+acceptance is claimed.
 
 The repository pre-commit Go checks pass, but its all-core macro scan fails
 on the pre-existing, undocumented `JTFRAME_NO_REGISTER_RETIMING` macro in
