@@ -980,8 +980,9 @@ relative to H transitions and CD setup/hold remains a separate timing check.
 ## Separate video data buses
 
 CD7–CD0 are driven by 3J/3K. They cross the local bus joining 4M, 4N, 4O
-and 5N without connecting to it. The CD driver pins, their input bus and
-enable wiring remain separate checks.
+and 5N without connecting to it. The isolated RAM-side word feeding the
+CD drivers comes from 3I and 2I, as jointly confirmed below. Buffer enables
+and RAM write controls remain separate checks.
 
 For this pin map only, `L[7:0]` denotes that otherwise unnamed local bus:
 
@@ -1007,3 +1008,24 @@ A-side wires join `L[7:0]`. Their physical port order is interleaved:
 5N also connects to `L[7:0]`; its individual data pins and capture timing
 remain to be checked. The 4O direction/enable controls and RAM write controls
 must establish bus ownership before assigning a data-transfer phase.
+
+## CD RAM-to-buffer pin map
+
+3I and 2I feed one isolated RAM-side byte. 3J and 3K are jointly confirmed
+as type 367 non-inverting three-state buffers, with these physical routes:
+
+| CD bit | RAM output pin | Buffer | Input pin | Output pin |
+| --- | --- | --- | --- | --- |
+| 7 | 3I/11 | 3J | 10 | 9 |
+| 6 | 3I/12 | 3J | 6 | 7 |
+| 5 | 3I/13 | 3J | 12 | 11 |
+| 4 | 3I/14 | 3J | 4 | 5 |
+| 3 | 2I/11 | 3J | 14 | 13 |
+| 2 | 2I/12 | 3J | 2 | 3 |
+| 1 | 2I/13 | 3K | 14 | 13 |
+| 0 | 2I/14 | 3K | 12 | 11 |
+
+This establishes the byte source for the previously traced 8M/8L parallel
+inputs. It does not establish when the RAM word is valid: buffer enable,
+RAM write control and clock relationships must determine that interval.
+The RAM-side word, CD and the separate 4M/4N/4O/5N local bus are distinct nets.
