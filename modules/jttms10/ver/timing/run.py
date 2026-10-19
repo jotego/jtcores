@@ -30,6 +30,7 @@ from return_cases import return_cases, program as return_program
 from interrupt_return_cases import interrupt_return_cases
 from push_cases import push_cases
 from call_cases import call_cases, program as call_program
+from trap_cases import trap_cases, program as trap_program, transactions as trap_transactions
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -127,6 +128,7 @@ def cases():
     yield from interrupt_return_cases()
     yield from push_cases()
     yield from call_cases()
+    yield from trap_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -136,6 +138,7 @@ def cases():
 
 
 def program(case):
+    if 'trap_flow' in case:return trap_program(case,movi)
     if 'call_flow' in case:return call_program(case,movi)
     if 'stack_control_flow' in case:return return_program(case,movi)
     if 'control_flow' in case:
@@ -239,7 +242,9 @@ def measured_trace(log, prefix, observed, *, trailing=False):
 def check(case, observed, wait_states=0, pause_clocks=0):
     errors = []
     if 'data_store' in case:
-        if 'data_copy' in case:
+        if 'data_trap' in case:
+            count=len(trap_transactions(case))+int(case['cache_disabled'])
+        elif 'data_copy' in case:
             reads,writes=copy_transactions(case)
             count=len(reads)+(len(writes)+1+len(case.get('extensions',[])))*int(case['cache_disabled'])
             if case.get('cache_miss')=='copy_extension':count+=4
@@ -425,7 +430,12 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     prefix='TARGET' if raw else 'BUS'
     begin=[x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
     end=[x.split() for x in lines if x.startswith(prefix+'_END ')]
-    if 'data_copy' in case:
+    if 'data_trap' in case:
+        plan=trap_transactions(case);starts=[None]*len(plan)
+        if case['cache_disabled']:
+            starts.append(case['states']-3+len(plan)*wait_states)
+            plan.append((0,case['next_pc'],case['expected_next_opcode'],1))
+    elif 'data_copy' in case:
         reads,writes=copy_transactions(case);plan=[];starts=[]
         spec=case['data_copy'];extensions=case.get('extensions',[])
         lead=spec.get('read_lead',0);penalty=0
@@ -487,8 +497,12 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     if len(begin)!=len(plan) or len(end)!=len(plan):
         return [f'expected {len(plan)} {prefix} store/fetch transfers, observed {len(begin)} starts/{len(end)} completions']
     for offset,(kind,addr,data,iaq),b,e in zip(starts,plan,begin,end):
-        start=observed['start']+8*offset+pause_clocks+(-pause_clocks)%8
         clock=int(b[1]);duration=int(e[1])-clock
+        if offset is None:
+            logical=[x.split() for x in lines if x.startswith('BUS_BEGIN ')]
+            start=int(logical[begin.index(b)][1]) if raw else clock
+            if start<observed['start'] or start>=observed['end'] or (start-observed['start']-pause_clocks-(-pause_clocks)%8)%8:errors.append('TRAP transfer outside interval/state grid')
+        else:start=observed['start']+8*offset+pause_clocks+(-pause_clocks)%8
         if (not raw and clock!=start) or (raw and not start<=clock<=start+6):
             errors.append(f'{prefix} transfer start: expected {start}'+('..'+str(start+6) if raw else '')+f', observed {clock}')
         if (int(b[2]),int(b[3],16),int(b[5]))!=(kind,addr,iaq):errors.append(f'{prefix} request kind/address/IAQ mismatch: {b}')
@@ -535,7 +549,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -584,12 +598,12 @@ def main():
                 (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case or "stack_control_flow" in case or "call_flow" in case else 0) | (4 if case.get("observe_implicit") else 0)}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case or "stack_control_flow" in case or "call_flow" in case or "trap_flow" in case else 0) | (4 if case.get("observe_implicit") else 0)}',
                     f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions',0)}", f"+FOLLOW_PC={case.get('follow_pc',0):x}", f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case else 0) | (4 if case.get('observe_implicit') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case else 0) | (4 if case.get('observe_implicit') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
@@ -625,12 +639,12 @@ def main():
             row = dict(case, observed=observed, errors=errors)
             # Keep measured bus traffic with the verdict, including expected
             # zero-traffic warm hits. Full launch trace is available separately.
-            row['bus_trace'] = measured_trace(log,'BUS',observed,trailing='data_store' in case)
-            row['target_trace'] = measured_trace(log,'TARGET',observed,trailing='data_store' in case)
+            row['bus_trace'] = measured_trace(log,'BUS',observed,trailing='data_store' in case and 'data_trap' not in case)
+            row['target_trace'] = measured_trace(log,'TARGET',observed,trailing='data_store' in case and 'data_trap' not in case)
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
-                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') else []),args.wait_states,args.pause_clocks))
-            if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case:
+                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case else []),args.wait_states,args.pause_clocks))
+            if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case:
                 next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
                 row['observed_next_opcodes']=next_opcodes
                 if next_opcodes != [case['expected_next_opcode']]:errors.append('control-flow target opcode mismatch')

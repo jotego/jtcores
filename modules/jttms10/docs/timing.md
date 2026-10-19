@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 114 of 133 instruction forms; the other 19 remain unvalidated.
+probes cover 115 of 133 instruction forms; the other 18 remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -194,7 +194,7 @@ probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-90,338-case inventory has 11,219 discrepancy instances before project choices:
+92,138-case inventory has 11,219 discrepancy instances before project choices:
 242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
 1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
 332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives and 296 EMU alternatives. The normal gate records 10,771 explicit project
@@ -204,7 +204,7 @@ The JSON preserves every affected name, condition-specific value and
 citation. Numeric metadata must match the actual selected expectation;
 status relabeling cannot waive a gap. The stricter source-only audit remains
 available. These are counts of probe instances, not distinct rules.
-There are 133 checker/model tests. Probe presence and resolved or explicitly
+There are 138 checker/model tests. Probe presence and resolved or explicitly
 selected source interpretations remain necessary gates; neither completes
 the condition/bus/interrupt audit.
 The full #144 checklist remains open.
@@ -238,7 +238,8 @@ The full #144 checklist remains open.
 | ADDXY/SUBXY/CMPXY | SPVU001A pp.12-41/56/252, summary12-12; SPVS002C June1991 p.11 | 4,156 programs: independent signed halves/flags, literal examples, A/B/SP, aliases, ignored field widths/FE and CEN phases | ADDXY/SUBXY hit/CD1/4; CMPXY summary3/6 conflicts with entry1/4 and remains blocked; see [xy-timing.md](xy-timing.md) |
 | CPW/CVXYL:1/4 and3/6 | SPVU001A pp.4-12,6-15,12-57..60; SPVS002C June1991 p.11 | 5,116 programs: signed/window boundaries, all pitch/pixel sizes, implicit B registers, aliases, OR/offset wrap, flags/fields, CEN and immediate branch targets | Count probes pass; four printed CVXYL result examples conflict with the formula. See [coordinate-timing.md](coordinate-timing.md) and the documented project choice |
 | JUMP/EXGPC, DSJ/EQ/NE/S and conditional JR/JAcc | SPVU001A pp.12-70..79,92..98; SPVS002C June1991 p.14 | 15,542 programs: both paths, all conditions/flags, A/B/SP, target alignment, displacement endpoints, literal PCs, CEN phases and immediate target fields | Current selected-count probes; untaken JR source discrepancies and the inferred long-JR CD5 remain explicit in [control-timing.md](control-timing.md) |
-| TRAP and register lists | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
+| Register lists MMFM/MMTM | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
+| TRAP | SPVU001A8.6 p8-9;12-253/254 |1,800 full-state/memory/vector programs,16 following loads,150 short-phase programs |16/19 aligned,30/33 otherwise; literal timing-table applicability chosen for TRAP0. See[trap-timing.md](trap-timing.md). |
 | CALL/CALLA/CALLR | SPVU001A12-48/49/50; stack order12-253 |1,306 programs,84 following A/B loads, ordered posted writes and short pauses |Entry counts pass targeted probes; cold/cache/IRQ conditions remain open. See[call-timing.md](call-timing.md). |
 | Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed 5; byte index2 CD9 versus printed7 remains a target gap. See [copy-timing.md](copy-timing.md) |
 | Pointer memory-to-memory MOVE | Tables13-3/4 pp.13-6/7; entries12-141/142/145/146 | 8,936 programs: both pointer modes, widths/alignments, fields/FE, A/B/SP, sequential aliases, literal data/pointers, following loads and CEN | Three alternatives follow the recorded owner choice. Complete validation is in progress; see [pointer-copy-timing.md](pointer-copy-timing.md). |
@@ -262,7 +263,7 @@ The full #144 checklist remains open.
 | Timed arbiter HOLD/RMW/host interference | §11.3 p.11-4 | Pre-dispatch HOLD, stale-write cancellation, reread, reserved write and queued two-state host I/O | Directed word-client contract passes |
 | CPU HOLD/restart, interrupts/resumption and contention; ACK during CEN pause | §8; §11; §13.1.2 | Full CPU timing conditions still incomplete | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | 133 checker/model tests; actual RTL/stimulus/event mutations integrated in the runner | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | 138 checker/model tests; actual RTL/stimulus/event mutations integrated in the runner | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -589,3 +590,18 @@ All45 timing-source and seven generated hashes match the implementation/map.
 Exit1 is solely22 missing/448 unresolved sources. This is a development
 standard runner; clean scope remains targeted. The current114-form CALL
 full runner remains pending, and all final issue gates stay open.
+
+
+TRAP adds1,800 programs for92,138 per matrix and115/133 forms (18 missing).
+All138 models, strict lint, unchanged MSW-first regression,150 short Icarus
+phase programs and1,800 W=1/CEN=7 Verilator programs pass. Five new timing/bus
+mutants are rejected with correct state/memory, including the actual TRAP0
+short-pause prototype. The separate response bench passes13 controls/one
+mutation, including TRAP vector-read and stack-write responses during CPU
+pauses. All1,800 historical probes on2b4fb7683 fail timing/bus checks with
+correct full architectural/following state and memory; ten representatives
+retain verified old HDL/YAML hashes. See[trap-timing.md](trap-timing.md) for
+source interpretation, event scope and current exclusions. All1,800 Icarus/Verilator case objects and47 timing-source/generated hashes
+match exactly;90,338 previous fixture/program/golden hashes remain unchanged.
+Clean and full-runner outcomes remain pending. The current map estimates
+3,719 ALMs/five DSPs; final fitted area and hardware acceptance remain open.

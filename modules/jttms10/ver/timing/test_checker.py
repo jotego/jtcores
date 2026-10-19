@@ -30,11 +30,66 @@ from return_cases import rets_fixture, return_cases
 from interrupt_return_cases import reti_fixture, interrupt_return_cases
 from push_cases import push_fixture,push_cases
 from call_cases import call_fixture,call_cases
+from trap_cases import fixture as trap_fixture,trap_cases,transactions as trap_transfers
 from store_cases import transactions as store_transfers
 from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_trap_primary_counts_and_all_serial_bus_waits(self):
+        for n in (0,1,31):
+            for offset,cpu,transfers in [(0,16,6),(15,30,12)]:
+                for off in (False,True):
+                    row=trap_fixture(n,off,offset);program(row)
+                    count=2 if not n else transfers
+                    self.assertEqual(row['states'],cpu+3*off)
+                    self.assertEqual(len(trap_transfers(row)),count)
+                    actual=dict(clocks=8*(row['states']+count+int(off)),paused=0,st=0x10,
+                                **{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+                    self.assertEqual(check(row,actual,wait_states=1),[])
+                    actual['clocks']-=8
+                    self.assertTrue(check(row,actual,wait_states=1))
+
+    def test_trap_saves_pc_then_status_msw_first_and_reads_vector(self):
+        row=trap_fixture(31,False,status=0xF0200810,target=0x80010000)
+        _,start,target=program(row);pc=start+16
+        self.assertEqual(trap_transfers(row),[(1,0x5030,pc>>16,0),(1,0x5020,pc&0xFFFF,0),
+            (1,0x5010,0xF020,0),(1,0x5000,0x0810,0),(0,0xFFFFFC00,0,0),(0,0xFFFFFC10,0x8001,0)])
+        self.assertEqual(row['expected_extra_regs']['sp'],0x5000)
+        self.assertEqual(row['expected_st'],0x10)
+        self.assertEqual(target,0x80010000)
+
+    def test_trap_zero_does_not_touch_even_a_corrupted_sp(self):
+        for sp in (0,8,0x80000000,0xFFFFFFF0,0xFFFFFFFF):
+            row=trap_fixture(0,False,address=sp);_,_,target=program(row)
+            self.assertEqual(target,0x1000)
+            self.assertEqual(row['expected_extra_regs']['sp'],sp)
+            self.assertEqual(row['data_trap']['fields'],[])
+            self.assertEqual(row['expected_memory'],row['initial_memory'])
+            self.assertEqual(trap_transfers(row),[(0,0xFFFFFFE0,0x1000,0),(0,0xFFFFFFF0,0,0)])
+
+    def test_trap_stimuli_vectors_and_sparse_guards(self):
+        rows=list(trap_cases());self.assertEqual(len(rows),1800)
+        self.assertEqual(len({r['name'] for r in rows}),1800)
+        for row in rows:
+            program(row)
+            self.assertEqual(row['data_trap']['vector'],0xFFFFFFE0-32*row['conditions']['n'])
+            self.assertLessEqual(len(row['initial_memory']),16)
+        with self.assertRaises(ValueError):program(trap_fixture(31,False,address=0xFFFFFC40))
+
+    def test_trap_following_load_uses_reset_field_and_preserves_registers(self):
+        for row in trap_cases():
+            if 'control_follow' not in row:continue
+            program(row)
+            self.assertEqual(row['control_follow']['data_load']['width'],16)
+            self.assertEqual(row['expected_follow_st']&0xFFFF,0x10)
+            report=dict(row,observed=dict(st=row['expected_st'],**{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs']),
+                        observed_follow=dict(st=row['expected_follow_st'],**{f'a{q}':v for q,v in enumerate(row['expected_follow_regs'])},**row['expected_follow_extra_regs']),
+                        observed_memory=row['expected_memory'])
+            self.assertTrue(correct_architecture(report))
+            report['observed_follow']['b4']^=1
+            self.assertFalse(correct_architecture(report))
+
     def test_call_primary_cpu_hidden_and_cd_counts(self):
         # Literal entry counts12-48/49/50, aligned then nonaligned.
         for form,cpu,hidden,cd in [('CALL_R',3,(3,9),(9,15)),('CALLA',4,(2,8),(15,21)),('CALLR',3,(2,8),(11,17))]:

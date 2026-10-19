@@ -75,7 +75,7 @@ module jttms10_word #(
     wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
                        ir[15:10]==6'b100110 || ir[15:10]==6'b101010 ||
                        ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400 || packet_copy;
-    wire indirect_load=indirect_copy || ir==16'h01c0 || ir==16'h0940 || (ir & 16'hffe0)==16'h0960 ||
+    wire indirect_load=indirect_copy || ir==16'h0900 || ir==16'h01c0 || ir==16'h0940 || (ir & 16'hffe0)==16'h0960 ||
         ir[15:10]==6'b100001 || ir[15:9]==7'b1000111 ||
         ir[15:10]==6'b100101 || ir[15:10]==6'b101001 || ir[15:10]==6'b101101 ||
         ir[15:9]==7'b1010111 || (ir & 16'hfde0)==16'h05a0 || (ir & 16'hffe0)==16'h07e0;
@@ -154,7 +154,7 @@ module jttms10_word #(
     jttms10_field u_field(
         .clk(clk), .rst(rst), .req(data_request && !post_busy && !post_ack), .we(field_we),
         .addr(field_addr), .wdata(field_wdata), .size(field_size),
-        .reverse(field_post && (ir==16'h01e0 || call_stack)),
+        .reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we)),
         .ack(data_ack), .busy(field_busy), .rdata(data_rdata),
         .word_req(field_word_req), .word_we(field_word_we), .word_addr(field_word_addr),
         .word_wdata(field_word_wdata), .word_lock(field_word_lock),

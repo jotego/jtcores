@@ -85,9 +85,11 @@ ucode:
   - name: trap
     start: 62
     seq:
-      - pc_md, push32_jsr
-      - st_md, push32_jsr
-      - trap_ea
+      - pc_md, word_a, reg_b
+      - sub_alu, sum_ea, wr_sp
+      - write_stack, st_md, word_a, reg_b
+      - sub_alu, sum_ea, wr_sp
+      - write_stack, trap_ea
       - read_stack
       - init_st, md_pc, ni
   - name: trap0

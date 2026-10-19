@@ -473,7 +473,7 @@ def main():
             ('early_pushst_after_short_pause','stack_pushst_following_s0_o0_k0_hit','jttms10_word.v',
              'stack_post_slot<=cen && field_post;','stack_post_slot<=cen;'),
             ('wrong_pushst_word_order','stack_pushst_following_s15_o0_k0_hit','jttms10_word.v',
-             ".reverse(field_post && (ir==16'h01e0 || call_stack))",".reverse(1'b0)")):
+             ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we))",".reverse(1'b0)")):
             extra=['--wait-states','1','--pause-clocks','1' if name=='early_pushst_after_short_pause' else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
@@ -484,7 +484,7 @@ def main():
             ('late_callr_first_word','call_callr_follow_b1_k0_o15_r1_2_a0_hit','jttms10.v',
              'decode_call_relative ? LOAD_PRE : LOAD_LEAD','decode_call_relative ? LOAD_LEAD : LOAD_LEAD'),
             ('wrong_calla_word_order','call_calla_flags0_o15_r0_0_a0_off','jttms10_word.v',
-             ".reverse(field_post && (ir==16'h01e0 || call_stack))",".reverse(field_post && ir==16'h01e0)"),
+             ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we))",".reverse(field_post && ir==16'h01e0)"),
             ('early_call_data_after_short_pause','call_call_r_phase_o15_r0_0_a0_hit','jttms10_word.v',
              '(!call_stack && field_addr[3:0]!=0)','field_addr[3:0]!=0'),
             ('early_callr_operand_after_short_pause','call_callr_phase_o15_r0_0_a0_off','jttms10.v',
@@ -494,6 +494,34 @@ def main():
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        for name,probe,file,old,new in (
+            ('wrong_trap_word_order','trap_n31_base_o15_a0_off','jttms10_word.v',
+             ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we))",
+             ".reverse(field_post && (ir==16'h01e0 || call_stack))"),
+            ('short_trap_unaligned_tail','trap_n31_base_o15_a0_off','jttms10.v',
+             "time_left<=(rd_data[3:0]==0 ? 16'd1 : 16'd3)*CLKS_PER_STATE[15:0]-16'd3;",
+             "time_left<=16'd1*CLKS_PER_STATE[15:0]-16'd3;"),
+            ('short_trap_zero_work','trap_n0_sp_ffffffff_o15_a0_hit','jttms10.v',
+             "trap_zero ? (rd_data[3:0]==0 ? 16'd12 : 16'd26)",
+             "trap_zero ? (rd_data[3:0]==0 ? 16'd10 : 16'd24)"),
+            ('late_trap_zero_first_slot','trap_n0_phase_o15_a0_off','jttms10_word.v',
+             "indirect_copy || ir==16'h0900 || ir==16'h01c0", "indirect_copy || ir==16'h01c0")):
+            extra=['--wait-states','1','--pause-clocks','7']
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        zero_pause_probe='trap_n0_phase_o15_a0_off'
+        zero_pause_extra=['--wait-states','1','--pause-clocks','1']
+        evidence['absorbed_trap_zero_pause_control']=run_case(work,'absorbed_trap_zero_pause_control',zero_pause_probe,zero_pause_extra)
+        zero_pause_mutant=work/'absorbed-trap-zero-pause';shutil.copytree(MODULE/'hdl',zero_pause_mutant)
+        replace_once(zero_pause_mutant/'jttms10.v',"decode_stack_irq || decode_opcode==16'h0900;",'decode_stack_irq;')
+        replace_once(zero_pause_mutant/'jttms10_word.v',"indirect_copy || ir==16'h0900 || ir==16'h01c0","indirect_copy || ir==16'h01c0")
+        replace_once(zero_pause_mutant/'jttms10.v','mem_ack && trap_ir && !trap_zero && stack_sel==READ_STACK && timing_active)',
+                     'mem_ack && trap_ir && stack_sel==READ_STACK && timing_active)')
+        replace_once(zero_pause_mutant/'jttms10.v',"time_left<=(rd_data[3:0]==0 ? 16'd1 : 16'd3)*CLKS_PER_STATE[15:0]-16'd3;",
+                     "time_left<=(trap_zero ? (rd_data[3:0]==0 ? 16'd11 : 16'd25) : (rd_data[3:0]==0 ? 16'd1 : 16'd3))*CLKS_PER_STATE[15:0]-16'd3;")
+        evidence['absorbed_trap_zero_pause']=run_case(work,'absorbed_trap_zero_pause',zero_pause_probe,
+            ['--rtl-dir',str(zero_pause_mutant),*zero_pause_extra],mutated=True)
         late_data=work/'late-program-data';shutil.copytree(MODULE/'hdl',late_data)
         replace_once(late_data/'jttms10_bus_timer.v','assign rdata=data;',"assign rdata=ack ? data : 16'd0;")
         evidence['late_program_data']=run_case(work,'late_program_data',absolute_case,
