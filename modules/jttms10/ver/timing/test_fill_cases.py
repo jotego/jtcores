@@ -9,8 +9,8 @@ from run import check, program
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 260)
-        self.assertEqual(len({r['name'] for r in cases}), 260)
+        self.assertEqual(len(cases), 320)
+        self.assertEqual(len({r['name'] for r in cases}), 320)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):

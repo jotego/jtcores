@@ -1063,3 +1063,15 @@ not claimed. Five positive controls reject five actual timing mutants,
 including a row-drain removal that hides external wait time while retaining
 correct defined state and memory. Wider conditions, full normal/clean/CI,
 other graphics forms and final physical/game acceptance remain open.
+
+An additional60 FILL L histories expose stale transparency after a real
+zero-source transparent PIXT and subsequent CONTROL change to T0. The
+full-word path now ignores the pixel transparency latch, as word grouping
+requires PPOP0/PMASK0/T0. All60 fail against5edc71ed9 HDL by omitting
+writes despite correct defined registers/ST; the current260 linear cases
+pass base, W1/P7 and W3. Icarus matches all60 stressed history case objects,
+W1/P1 passes60 histories and two fresh processes match the batch. The
+preceding138,630 fixture/program contracts are unchanged; current inventory
+is138,690 across126/133 forms. The60 XY timing failures and all broader
+conditions/events and final acceptance gates remain open. See
+[the history audit](fill-timing.md#opaque-fill-after-transparent-pixt).

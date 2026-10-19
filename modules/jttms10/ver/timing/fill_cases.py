@@ -54,6 +54,13 @@ def fixture(size, words, rows, xy, off):
 def program(case, movi):
     # Reuse cache warming and real register/I/O initialization, not expectations.
     proxy = dict(case, data_store=dict(address=case['data_fill']['address']))
+    if case.get('transparent_history'):
+        # Exercise the prior graphics instruction through the public ISA and
+        # real CONTROL writes. The initializer then restores every GPR/ST.
+        control = 0x8018 if case['cache_disabled'] else 0x18
+        proxy['setup_words'] = (movi(0xC00000B0,14)+movi(control|0x20,13)+[0x0550,0x81AE]
+            +movi(0,0)+movi(0x6500,1)+[0xF801]
+            +movi(0xC00000B0,14)+movi(control,13)+[0x0550,0x81AE])
     return prefilled_program(proxy, movi)
 
 
@@ -124,3 +131,11 @@ def fill_cases():
         if words<=3 and rows<=2:
             continue
         yield fixture(size,words,rows,False,off)
+    # A transparent zero PIXT must not suppress a following opaque FILL.
+    # Preserve all earlier fixtures; these histories run before warm-up.
+    for size,words,rows,off in product((1,2,4,8,16),(1,2,3),(1,3),(False,True)):
+        case = fixture(size,words,rows,False,off)
+        case.update(name=case['name']+'_transparent_history',transparent_history=True)
+        case['initial_memory'].append((0x6500,0xBEEF))
+        case['expected_memory'].append((0x6500,0xBEEF))
+        yield case

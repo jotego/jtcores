@@ -344,3 +344,33 @@ state boundary; later words retain their back-to-back slots. This prevents
 a short pause from disappearing into setup's bus-alignment slack. A fifth
 mutation removes this first-word guard and restores the absorbed-pause
 failure. Its golden pause and alignment costs are unchanged.
+
+## Opaque FILL after transparent PIXT
+
+A transparent zero-source PIXT followed by a CONTROL change to T0 exposed
+a functional history bug in the full-word path. That path deliberately
+bypasses pixel processing, so its write-suppression decision could inherit
+the preceding PIXT's transparency flag. B2 advanced correctly while every
+destination write disappeared. Word replacement is eligible only with
+PPOP0/PMASK0/T0; its writes now ignore the pixel transparency latch. Pixel
+writes continue to use the latch. This adds no state or arithmetic resource.
+
+Sixty permanent history fixtures execute real PIXT and CONTROL-write
+instructions before register/status initialization and cache warm-up.
+The zero-source transparent PIXT must preserve a separate sentinel word.
+The following opaque FILL checks all destination/neighbor words, defined
+GPRs/full ST and the existing timing/bus contracts. All five pixel sizes,
+N=1/2/3, one/three rows and hit/CD are covered. These fixtures fail against
+unchanged5edc71ed9 HDL: defined registers/ST and the transparent sentinel
+remain correct, but all sixty cases omit the FILL writes. This is a
+functional baseline rejection, not a timing-only mutation result.
+
+The corrected source passes all260 linear cases in base, W1/P7 and W3;
+the60 XY cases retain only their known overall-duration failure. All60
+history case objects match Icarus W1/P7 after removing batch-local IDs.
+W1/P1 passes60 histories, and two fresh processes match the stressed batch.
+Each report records58 source/seven generated hashes. All preceding138,630
+fixture/program contracts remain byte-identical; inventory is now138,690
+fixtures across126/133 forms. Seven forms still lack probes. Other
+transparency/mask/processing histories, XY timing, precise first-write/IRQ
+events and all final issue acceptance remain open.

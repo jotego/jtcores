@@ -57,6 +57,7 @@ def fixture(size,offset,bank,off,*,pmask=0,status=0xF0200810,address=None,tag='b
 def program(case,movi):
     words=movi(0xC00000B0,14)+movi((0x8018 if case['cache_disabled'] else 0x18)|case['control'],13)+[0x0550,0x81AE]
     for a,v in case['setup_io']:words+=movi(a,14)+movi(v,13)+[0x0550,0x81AE]
+    words += case.get('setup_words', [])
     while len(words)%32:words.append(0x0300)
     loop_index=len(words);loop=0x1000+16*loop_index
     words+=movi(case['seed'],0)

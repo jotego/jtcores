@@ -395,7 +395,7 @@ module jttms10 #(
                     gfx_bus_read || gfx_bus_write;
     wire bus_op = vector || fetch || imm || field_op;
     wire gfx_skip_write = gfx_active && gfx_bus_write &&
-                          gfx_bus_pixel && pix_transparent;
+                          gfx_bus_pixel && !fill_word && pix_transparent;
     // Fetch uses the response latch so the synchronous dispatch ROM has a
     // full clock to decode the returned opcode before fetch/dispatch commits.
     // The completed graphics state hands off four clocks before the next

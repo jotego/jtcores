@@ -13,7 +13,8 @@ Full instruction timing compliance remains unproven. The independent
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner retains seven forms without probes, partial [FILL
 timing coverage](docs/fill-timing.md), and unresolved MOVB targets.
-Aligned replace-only FILL L has200 passing hit/CD timing cases; FILL XY
+Aligned replace-only FILL L has260 passing hit/CD timing cases, including
+60 histories after a transparent PIXT; FILL XY
 and the remaining graphics modes still require timing implementation. Its 126-form
 fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
