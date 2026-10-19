@@ -419,16 +419,38 @@ phases. For an initial request coinciding with a rising `C`, the model ignores
 that release edge while the lower presets are active. This is an explicit
 digital tie policy, not a measured propagation delay.
 
-The M6802 path uses [jtseicro_m6802](../hdl/jtseicro_m6802.v), whose cycle
-controller drives [jtseicro_m6802_bus](../hdl/jtseicro_m6802_bus.v). Each normal
-E period has four external crystal enables: two low and two high. Address,
-VMA, R/W and write data are registered during E low and remain stable through
-E high. MR low extends the high phase in two-crystal-enable increments. Each
-valid write commits once at the completing E falling edge. SDRAM readiness
-is a separate input and cannot manufacture another write or MR request.
-All logic runs on the master clock with enables; E is not a generated FPGA
-clock. Digital MR sampling uses the sequencer's eligible completion edges;
-analogue setup-window and chip propagation effects have not been measured.
+Both CPU variants use [jtseicro_m6802](../hdl/jtseicro_m6802.v), the shared
+[jtseicro_m6802_ctrl](../hdl/jtseicro_m6802_ctrl.v), register datapath and
+`jt680x_alu`. Instruction definitions, dispatch eligibility, addressing helpers,
+ALU controls and physical bus barriers are defined in
+[6802.yaml](../ucode/6802.yaml). The generator retains the output prefix `6801`
+because the shared ALU includes `6801_param.vh`; this filename does not select
+a 6801 instruction set.
+
+Internal microsteps run on the master clock between external transfers. A YAML
+`bus` microinstruction holds the controller until the physical transfer completes;
+`valid`, `wr` and address controls describe its VMA, R/W and address. Internal
+microsteps therefore do not create extra byte writes or act as extra E cycles.
+The generator's microstep-count timing report is disabled because its fixed
+microsteps-per-cycle model does not describe these barriers. Nominal `cycles`
+metadata and the actual E/transfer sequence are checked independently by tests.
+
+[jtseicro_m6802_bus](../hdl/jtseicro_m6802_bus.v) registers each requested bus
+cycle. Each normal E period has four external crystal enables: two low and two
+high. Address, VMA, R/W and write data remain stable through E high. MR low
+extends the high phase in two-crystal-enable increments. Each valid write
+commits once at the completing E falling edge. SDRAM readiness is a separate
+input and cannot manufacture another write or MR request. E is not a generated
+FPGA clock. Digital MR sampling uses eligible completion edges; analogue
+setup-window and chip propagation effects have not been measured.
+
+The traced MCU schematic is for NSC8105. Reusing its functional board interface
+for M6802 variants is supported by MAME's explicit HD46802 substitutions and
+patched Tecfri MCU program, plus matching E37, VMA5 and MR3 functions in the
+Motorola pinout. The exact surrounding logic on those M6802 board variants has
+not been independently checked against a separate diagram. Applying documented
+M6802 bus phases to ordinary NSC8105 operations is a compatibility model; the
+supplied schematics alone do not establish identical silicon or every NSC cycle.
 
 `jtseicro_mcu` connects the physical E/VMA/A15 outputs to the request latch,
 and `jtseicro_main.mcu_release_clk` supplies the Z80-derived release level.
@@ -442,38 +464,62 @@ been separately measured.
 
 | Header CPU selector | Sets | MCU path |
 | --- | --- | --- |
-| M6802 | `sectrzont`, `friskytb` | Explicit cycle controller and connected MR latch. |
-| NSC8105 | Remaining eight sets | Existing microcoded CPU, instruction padding and fixed high-address stalls. |
+| M6802 | `sectrzont`, `friskytb` | Shared YAML engine, direct opcode dispatch and connected MR latch. |
+| NSC8105 | Remaining eight sets | Same engine and MR latch, with NSC opcode translation and extension microcode. |
+
+[jtseicro_nsc8105_decode](../hdl/jtseicro_nsc8105_decode.v) swaps opcode bits
+7/6 and 1/0. The decoded byte is used at instruction dispatch and to latch the
+branch condition. Operand, address and data bytes remain unchanged. YAML's
+`entry` flag marks legal instruction starts; helper procedures placed in unused
+opcode slots cannot be entered by fetching those bytes. `nscop` restricts the
+four extension entries below to NSC mode. Other retained family definitions
+without `entry` are not executable board instructions.
+
+| Raw NSC opcode | Internal opcode | Operation | Selected bus cycles |
+| --- | --- | --- | --- |
+| `B2` | `71` | `STIM`: write the immediate byte to X plus the following byte offset. | 6 |
+| `BB` | `7B` | `BTST`: test the immediate mask against X plus the following byte offset. | 6 |
+| `EC` | `EC` | `ADCX`: add an immediate byte to X, using the existing MAME-derived flag interpretation. | 5 |
+| `FC` | `FC` | `ADDX`: add an extended-addressed word to X. | 5, provisional |
+
+The NSC `ADDX` sequence reads opcode, address high/low and operand high/low:
+five transfers under the selected M6802 bus contract. MAME's aggregate cycle
+table specifies four cycles and its flags are marked as guesses; that table
+does not provide the external waveform needed to reconcile this discrepancy.
+The selected extension bus placements, including the idle slots in the other
+three extension sequences, remain provisional pending hardware evidence.
+No fixed high-address delay or instruction padding is added by the board wrapper.
 
 Frisky Tom set 3 executes `FC FF 62` at MCU address `D9E1` during gameplay.
 A local MAME 0.288 run with coin at frame 720 and start at frame 752 logs the
 same illegal three-byte opcode there. MAME's `m6800_insn` maps `FC` to
 `illegl3`, which skips two operand bytes, preserves registers/flags, and uses
-its four-cycle unknown-opcode fallback in `cycles_6800`. The cycle controller
-matches that compatibility behavior rather than the old engine's NSC `ADDX`
-semantics. Its provisional bus sequence reads the opcode and two operand bytes,
-then has one VMA-low cycle; neither Motorola Table 8 nor the supplied schematics
-establish the actual HD46802 bus sequence for this undefined opcode.
-`ver/hdl/m6802_compat_tb.v` checks the skip, unchanged state, absence of writes
-and the selected four-cycle sequence. Other unsupported opcodes still fail
-simulation. The known-case skip is not evidence for an HD46802 extension.
+its four-cycle unknown-opcode fallback in `cycles_6800`. M6802 mode routes this
+known byte to YAML's internal `03` `FCCOMPAT` entry; `fccompat` additionally
+requires the fetched byte to be `FC` and NSC mode to be inactive. Fetching a
+literal `03` cannot invoke the fallback. Its provisional bus sequence reads
+the opcode and two operand bytes, then has one VMA-low cycle. Neither Motorola
+Table 8 nor the supplied schematics establish the actual HD46802 behavior or
+bus sequence for this undefined opcode. Other unsupported bytes fail simulation.
 
-The NSC8105 path has no physical E/VMA interface yet. Its `fetch` loads operands
-as well as opcodes, and sustained `wr` can span several microoperations per
-physical byte. The instruction engine, padding and fixed stalls are retained
-for that path; M6802 bus timing does not independently establish derivative
-instruction timing or NSC8105 electrical behavior.
+`ver/hdl/m6802_reference.v` preserves the hardware-build checkpoint's manual-cycle
+controller as a test-only oracle; it is excluded from the production file list.
+`ver/hdl/m6802_compare_tb.v` checks 199 baseline operations over 64 initial flag
+patterns for each CPU mode: 25,472 register, flags, memory and transfer-pattern
+comparisons. Every completed unstalled E cycle must take four crystal enables,
+including instruction boundaries. Undefined DAA V is excluded. Stacked WAI/SWI
+CC and SWI return PC retain independent expected-value checks.
 
-`ver/hdl/m6802_compare_tb.v` checks 198 opcodes across 64 initial flag patterns,
-including their Table 8 read/write/idle patterns, and compares architectural
-results with the existing engine. Undefined DAA V is excluded from comparison.
-WAI's stacked CC and SWI's stacked CC/return PC are checked independently
-against their specified values rather than accepting the existing engine's
-different stack bytes. `ver/hdl/m6802_bus_tb.v` checks exact BSR/RTS addresses,
-single writes, E-high bus stability, pause, eight release phases and independent
-host stalls. `ver/hdl/mcu_mr_tb.v` connects executing Z80 and MCU programs: a
-Z80 held in WAIT must keep the MCU's request pending until the Z80 resumes
-and completes the release-clock sequence.
+`ver/hdl/m6802_decode_tb.v` checks all 512 raw-byte/mode combinations against
+baseline ISA eligibility and the four NSC extensions, including procedure-slot
+rejection and FC compatibility isolation. `ver/hdl/m6802_compat_tb.v` checks
+FC's skipped operands, unchanged state, absence of writes and provisional bus
+sequence. `ver/hdl/nsc8105_tb.v` exercises the four NSC extensions, their flags,
+unchanged operands and all 256 branch-condition combinations. The independent
+M6802 bus fixture checks exact BSR/RTS addresses, single writes, E-high stability,
+pause, eight release phases and host stalls. `ver/hdl/mcu_mr_tb.v` connects a
+running Z80 to each MCU mode: Z80 WAIT holds the MCU's request pending, and MCU
+reset preserves the MR latch while E continues and transfers are suppressed.
 
 The [Motorola MC6802 datasheet](https://datasheets.pl/elementy_czynne/IC/MC/MC6802-2.pdf)
 specifies external EXTAL at four times the normal E frequency and memory-ready

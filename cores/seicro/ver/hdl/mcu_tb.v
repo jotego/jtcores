@@ -28,10 +28,10 @@ always @(posedge clk) begin
     if(shared_we) ram[shared_addr]<=shared_din;
     if(dut.step && !dut.core_rst) steps<=steps+1;
     if(!rst && !run) begin
-        if(previous_e!=dut.base_e) reset_e_edges<=reset_e_edges+1;
-        if(dut.base_vma || dut.base_done) $fatal(1,"MCU bus active while reset is held");
+        if(previous_e!=dut.mcu_e) reset_e_edges<=reset_e_edges+1;
+        if(dut.mcu_vma || dut.step) $fatal(1,"MCU bus active while reset is held");
     end
-    previous_e<=dut.base_e;
+    previous_e<=dut.mcu_e;
 end
 jtseicro_mcu dut(
     .*,

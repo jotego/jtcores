@@ -4,6 +4,7 @@
 
 `timescale 1ns/1ps
 module mcu_mr_tb;
+parameter NSC=0;
 reg clk=0, rst=1, run=0, lvbl=0, rom_hold=1, mcu_reset=0;
 reg [5:0] divider=0;
 wire cen=divider[3:0]==0;
@@ -73,26 +74,26 @@ jtseicro_main u_main(
 );
 
 jtseicro_mcu u_mcu(
-    .rst         ( rst           ),
-    .cpu_rst     ( mcu_reset     ),
-    .clk         ( clk           ),
-    .cen         ( cen           ),
-    .release_clk ( release_clk   ),
-    .run         ( run           ),
-    .reset_req   ( 1'b0          ),
-    .dip_pause   ( 1'b1          ),
-    .nsc8105     ( 1'b0          ),
-    .dipsw       ( 24'hffffff    ),
-    .nvram_en    ( 1'b0          ),
-    .nvram_dout  ( 8'hff         ),
-    .rom_addr    ( mcu_rom_addr  ),
-    .rom_cs      ( mcu_rom_cs    ),
-    .rom_data    ( mcu_rom_data  ),
-    .rom_ok      ( !rom_hold     ),
-    .shared_addr ( shared_addr   ),
-    .shared_din  ( shared_din    ),
-    .shared_we   ( shared_we     ),
-    .shared_dout ( shared_data   )
+    .rst         ( rst          ),
+    .cpu_rst     ( mcu_reset    ),
+    .clk         ( clk          ),
+    .cen         ( cen          ),
+    .release_clk ( release_clk  ),
+    .run         ( run          ),
+    .reset_req   ( 1'b0         ),
+    .dip_pause   ( 1'b1         ),
+    .nsc8105     ( NSC!=0       ),
+    .dipsw       ( 24'hffffff   ),
+    .nvram_en    ( 1'b0         ),
+    .nvram_dout  ( 8'hff        ),
+    .rom_addr    ( mcu_rom_addr ),
+    .rom_cs      ( mcu_rom_cs   ),
+    .rom_data    ( mcu_rom_data ),
+    .rom_ok      ( !rom_hold    ),
+    .shared_addr ( shared_addr  ),
+    .shared_din  ( shared_din   ),
+    .shared_we   ( shared_we    ),
+    .shared_dout ( shared_data  )
 );
 
 initial begin
@@ -104,6 +105,10 @@ initial begin
     rom[5]=8'hb7; rom[6]=8'hf8; rom[7]=0;
     rom[8]=8'h20; rom[9]=8'hfe;
     rom[10]=8'h86; rom[11]=8'h5a; rom[12]=8'h39;
+    if(NSC) begin
+        rom[0]=8'h4d; rom[3]=8'h4e; rom[5]=8'h77;
+        rom[8]=8'h20; rom[10]=8'h45; rom[12]=8'h3a;
+    end
     repeat(32) @(negedge clk);
     rst=0;
     wait(!u_main.mreq_n && !u_main.wr_n && main_addr==16'h9000);
@@ -114,23 +119,23 @@ initial begin
     wait(!u_mcu.mr_n);
     repeat(320) begin
         @(negedge clk);
-        if(!u_mcu.base_e || u_mcu.base_addr!==16'hfffe || u_mcu.base_done ||
+        if(!u_mcu.mcu_e || u_mcu.addr!==16'hfffe || u_mcu.step ||
             release_clk!==0 || u_main.wait_n!==0)
             $fatal(1,"MCU did not hold its E-high request while Z80 was waiting");
         if(cen) held=held+1;
     end
     mcu_reset=1;
-    previous_e=u_mcu.base_e;
+    previous_e=u_mcu.mcu_e;
     repeat(96) begin
         @(negedge clk);
-        if(u_mcu.mr_n || u_mcu.base_vma || u_mcu.base_done || shared_we)
+        if(u_mcu.mr_n || u_mcu.mcu_vma || u_mcu.step || shared_we)
             $fatal(1,"MCU reset changed the MR latch or allowed a transfer");
-        if(previous_e!=u_mcu.base_e) reset_edges=reset_edges+1;
-        previous_e=u_mcu.base_e;
+        if(previous_e!=u_mcu.mcu_e) reset_edges=reset_edges+1;
+        previous_e=u_mcu.mcu_e;
     end
     if(reset_edges<2) $fatal(1,"MCU reset stopped the E divider");
     mcu_reset=0;
-    wait(u_mcu.base_e && u_mcu.base_vma && u_mcu.base_addr==16'hfffe);
+    wait(u_mcu.mcu_e && u_mcu.mcu_vma && u_mcu.addr==16'hfffe);
     h=132; lvbl=0;
     wait(mcu_rom_cs);
     repeat(160) @(negedge clk);
@@ -138,9 +143,9 @@ initial begin
     wait(ram[0]==8'h5a);
     @(negedge clk);
     if(writes!=3 || ram[127]!==8'h05 || ram[126]!==8'h80 ||
-        u_mcu.u_base.s!==16'hf87f || held!=20 || z80_writes<2)
+        u_mcu.u_cpu.u_regs.s!==16'hf87f || held!=20 || z80_writes<2)
         $fatal(1,"Connected Z80/MCU result or write count failed");
-    $display("PASS connected WAIT/MR: 20 live Z80 enables hold MCU; reset preserves MR and free E; bus release, ROM wait, BSR/RTS and 3 MCU writes");
+    $display("PASS connected WAIT/MR NSC=%0d: 20 live Z80 enables hold MCU; reset preserves MR and free E; bus release, ROM wait, BSR/RTS and 3 MCU writes",NSC);
     $finish;
 end
 

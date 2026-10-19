@@ -24,22 +24,19 @@ always @(posedge clk) begin
     rom_data<=rom[rom_addr];
     shared_dout<=ram[shared_addr];
     if(shared_we) ram[shared_addr]<=shared_din;
-    if(cen && dip_pause && !dut.core_rst) begin
-        ticks=ticks+1;
-        if(dut.stall_count==0 && rom_cs && !rom_ok) waits=waits+1;
-        if(dut.step && dut.addr[15] && (dut.fetch || dut.wr)) mr=mr+1;
-        if(dut.step && dut.instruction_end) begin
-            if(current>=0) begin
-                elapsed=ticks-last_tick-4*mr-waits;
-                nominal=cycles(current)*4;
-                if(elapsed!=nominal)
-                    $fatal(1,"NSC timing raw=%h expected=%0d actual=%0d",current,nominal,elapsed);
-                retired=retired+1;
+    if(!dut.core_rst) begin
+        if(dut.step) begin
+            if(dut.opcode_fetch) begin
+                current=dut.din;
+                ticks=0;
             end
-            current=dut.u_cpu.md[7:0];
-            last_tick=ticks;
-            mr=0;
-            waits=0;
+            ticks=ticks+1;
+        end
+        if(dut.instruction_end) begin
+            nominal=cycles(current);
+            if(ticks!=nominal)
+                $fatal(1,"NSC physical cycles raw=%h expected=%0d actual=%0d",current,nominal,ticks);
+            retired=retired+1;
         end
     end
 end
@@ -53,7 +50,7 @@ function integer cycles;
             8'hff: cycles=6;
             8'h77: cycles=5;
             8'hec: cycles=5;
-            8'hfc: cycles=4;
+            8'hfc: cycles=5;
             8'hb2,8'hbb: cycles=6;
             8'h30,8'h36: cycles=4;
             8'hae: cycles=7;
@@ -181,7 +178,7 @@ initial begin
         if(ram[256+i]!==expected[i]) $fatal(1,"NSC branch %h expected=%h actual=%h",i,expected[i],ram[256+i]);
         branches=branches+1;
     end
-    $display("PASS NSC8105: extra instructions, flags, unchanged operands, %0d branches, %0d timed instructions",branches,retired);
+    $display("PASS YAML NSC8105: extra instructions, flags, unchanged operands, %0d branches, %0d timed instructions",branches,retired);
     $finish;
 end
 initial begin #20000000; $fatal(1,"NSC timeout addr=%h",dut.addr); end

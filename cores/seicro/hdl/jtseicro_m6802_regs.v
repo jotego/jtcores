@@ -7,7 +7,8 @@ module jtseicro_m6802_regs(
     input             rst,
     input             clk,
     input             cen,
-    input             nsc8105,
+    input      [7:0]  opcode,
+    input             ni,
     // CONTROL
     input             alt,
     input             branch,
@@ -16,7 +17,7 @@ module jtseicro_m6802_regs(
     input             inc_pc,
     input             md_shift,
     input             op0inv,
-    input      [ 1:0] ea_sel,
+    input      [ 2:0] ea_sel,
     input      [ 1:0] opnd_sel,
     input      [ 3:0] ld_sel,
     input      [ 3:0] rmux_sel,
@@ -38,7 +39,7 @@ module jtseicro_m6802_regs(
 `include "6801_param.vh"
 
 reg  [ 7:0] a, b, md_alt;
-reg  [15:0] x, s, rmux, ea, pc;
+reg  [15:0] x, s, rmux, ea, pc, op_pc;
 reg         n,z,v; // other condition codes
 reg         brok;
 
@@ -62,6 +63,11 @@ always @* begin
           default: rmux = { md[15:8], alt ? md_alt : md[7:0] };
     endcase
     case( ea_sel )
+            X_EA: addr = x;
+            P_EA: addr = {x[15:8],ea[7:0]};
+            T_EA: addr = {op_pc[15:8],ea[7:0]};
+            B_EA: addr = brok ? ea : pc;
+            O_EA: addr = pc-16'd1;
         S_EA: addr = s;
         M_EA: addr = ea;
         default: addr = pc;
@@ -80,9 +86,11 @@ always @( posedge clk, posedge rst ) begin
         md  <= 0;
         ea  <= 0;
         pc  <= 0;
+        op_pc <= 0;
         {h,n,z,v,c} <= 0;
         i    <= 1;
     end else if( cen ) begin
+        if(ni) op_pc <= pc;
         if( fetch  ) begin
             if( alt )
                 md_alt <= din;
@@ -136,7 +144,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         brok <= 0;
     end else if(cen) begin
-        if( brlatch ) case(nsc8105 ? {md[3:2],md[0],md[1]} : md[3:0])
+        if( brlatch ) case(opcode[3:0])
             4'b0000: brok <= 1; // bra
             4'b0001: brok <= 0; // brn
             4'b0010: brok <= !(c | z); // bhi

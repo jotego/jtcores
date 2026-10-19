@@ -5,7 +5,7 @@
 module jtseicro_m6802_bus(
     input             rst, abort, clk, cen, enable,
     input             ready, mr_n,
-    input             cycle_vma, cycle_wr,
+    input             cycle_active, cycle_vma, cycle_wr,
     input      [15:0] cycle_addr,
     input      [ 7:0] cycle_dout,
     output reg        e, vma, wr,
@@ -39,9 +39,9 @@ always @(posedge clk) begin
                 0: begin
                     addr <= cycle_addr;
                     dout <= cycle_dout;
-                    wr <= cycle_wr && !abort;
-                    vma <= cycle_vma && !abort;
-                    active <= !abort;
+                    wr <= cycle_wr && !abort && cycle_active;
+                    vma <= cycle_vma && !abort && cycle_active;
+                    active <= !abort && cycle_active;
                     phase <= 1;
                 end
                 1: begin
