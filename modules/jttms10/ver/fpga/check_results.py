@@ -208,12 +208,7 @@ def check_batch(batch, capture):
             errors.append('next accepted opcode differs from the fixture program')
         errors.extend(oracle.check(case, observed, 0, 0))
         log = '\n'.join(traces[index])
-        bus = oracle.measured_trace(log, 'BUS', observed)
-        target = oracle.measured_trace(log, 'TARGET', observed)
-        errors.extend(oracle.check_bus(case, observed, bus, 0, 0))
-        errors.extend(oracle.check_target(case, observed, target, 0, 0))
-        rows.append(dict(case, observed=observed, errors=errors,
-                         bus_trace=bus, target_trace=target))
+        rows.append(oracle.check_observation(case, observed, errors, log, 0, 0))
     failures = sum(bool(row['errors']) for row in rows)
     return dict(cases=rows, passed=len(rows) - failures, failed=failures)
 
