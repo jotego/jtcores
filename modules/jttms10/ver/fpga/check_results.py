@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Prepare FPGA batches and check observations using the independent timing suite.
 
-This module performs no SSH, device access or FPGA programming. Protocol v1
-initially supports read-only scalar programs with zero waits and no CEN pause.
+This module performs no SSH, device access or FPGA programming. Protocol v2
+adds sparse read-only memory, deterministic waits and early CEN pauses.
 Unsupported fixture requirements fail explicitly rather than losing checks.
 """
 import argparse
@@ -18,8 +18,11 @@ HERE = Path(__file__).resolve().parent
 TIMING = HERE.parent / 'timing'
 MAX_CASES = 32
 MAX_WORDS = 4096
-RESULT_WORDS = 72
-FORMAT = 'jttms10-fpga-batch-v1'
+RESULT_WORDS = 202
+FORMAT_V1 = 'jttms10-fpga-batch-v1'
+FORMAT = 'jttms10-fpga-batch-v2'
+RESULT_SIZES = {1: 72, 2: RESULT_WORDS}
+EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384)}
 MASK32 = (1 << 32) - 1
 # Explicit fixture-family selection, not a verdict allowlist. Every selected
 # fixture still passes require_supported and every existing oracle assertion.
@@ -40,7 +43,7 @@ def oracle_module():
     return module
 
 
-def require_supported(case):
+def require_supported(case, protocol_version=1):
     # Fail closed when fixtures gain a new observation or stimulus requirement.
     # A blacklist would silently discard checks added to the software backend.
     supported = {'name', 'opcode', 'regs', 'expected_regs', 'expected_st', 'states',
@@ -50,39 +53,122 @@ def require_supported(case):
                  'pc_result_register', 'test_pc', 'next_pc', 'citation', 'conditions',
                  'coverage_id', 'source_conflict_kind', 'source_notes',
                  'source_result_register', 'source_values', 'timing_source_status'}
+    if protocol_version == 2:
+        supported |= {'initial_memory', 'expected_memory', 'data_load', 'stack_load', 'pixel_load',
+                      'stack_fields', 'data_list', 'hidden_states', 'initial_all_regs',
+                      'observe_all', 'register_overrides', 'seed', 'source_register',
+                      'source_value', 'bank', 'control', 'status_holder',
+                      'expected_next_opcode', 'stack_control_flow', 'literal_return_pc',
+                      'control_flow', 'drain_instructions'}
+        if case.get('drain_instructions', 0) not in (0, -1):
+            raise ValueError(f"{case['name']}: unsupported FPGA drain/follow requirement")
+        if 'data_list' in case and not case['data_list']['load']:
+            raise ValueError(f"{case['name']}: unsupported FPGA memory write")
+        if ('expected_memory' in case and not
+                ('data_list' in case or case.get('stack_load') or case.get('pixel_load'))):
+            raise ValueError(f"{case['name']}: unsupported FPGA memory expectation")
+    elif protocol_version != 1:
+        raise ValueError('unsupported FPGA protocol version')
     found = sorted(set(case) - supported)
     if found:
         raise ValueError(f"{case['name']}: unsupported FPGA fixture requirements: {', '.join(found)}")
 
 
-def prepare_cases(terms, limit=None):
-    if not terms:
+def prepare_cases(terms, limit=None, protocol_version=2, stimulus=None,
+                  read_only_matrix=False, audit=None):
+    if not terms and not read_only_matrix:
         raise ValueError('select cases explicitly with at least one --case')
     oracle = oracle_module()
     entries = []
+    inventory_hash, selected_hash = hashlib.sha256(), hashlib.sha256()
+    if audit is not None:
+        audit.update(inventory_count=0, excluded_count=0, exclusions={}, complete_inventory=True)
     for original in oracle.cases():
-        if not any(term in original['name'] for term in terms):
+        if audit is not None:
+            audit['inventory_count'] += 1
+        inventory_hash.update((original['name']+'\n').encode())
+        explicit = any(term in original['name'] for term in terms)
+        if not explicit and not read_only_matrix:
             continue
-        require_supported(original)
+        try:
+            require_supported(original, protocol_version)
+        except ValueError as error:
+            if explicit or not read_only_matrix:
+                raise
+            if audit is not None:
+                reason = str(error).split(': ', 1)[-1]
+                group = audit['exclusions'].setdefault(reason, dict(count=0, examples=[]))
+                group['count'] += 1
+                audit['excluded_count'] += 1
+                if len(group['examples']) < 3:
+                    group['examples'].append(original['name'])
+            continue
         case = copy.deepcopy(original)
         words, test_pc, next_pc = oracle.program(case)
         if not 0 < len(words) <= 3840:
             raise ValueError(f"{case['name']}: program does not fit the FPGA target")
-        if not 0x1000 <= test_pc < next_pc < 0x10000:
+        if not (0 <= test_pc <= MASK32 and 0 <= next_pc <= MASK32
+                and not (test_pc | next_pc) & 15):
             raise ValueError(f"{case['name']}: unsupported program measurement interval")
         case.update(test_pc=test_pc, next_pc=next_pc)
-        entries.append(dict(id=len(entries), name=case['name'], fixture=case,
-                            program_words=words, test_pc=test_pc, next_pc=next_pc))
+        entry = dict(id=len(entries), name=case['name'], fixture=case,
+                     program_words=words, test_pc=test_pc, next_pc=next_pc)
+        if stimulus:
+            entry['stimulus'] = dict(stimulus)
+        entries.append(entry)
+        selected_hash.update((entry['name']+'\n').encode())
         if limit is not None and len(entries) >= limit:
+            if audit is not None:
+                audit['complete_inventory'] = False
             break
     if not entries:
         raise ValueError('no matching timing fixtures')
+    if audit is not None:
+        audit.update(selected_count=len(entries), inventory_names_sha256=inventory_hash.hexdigest(),
+                     selected_names_sha256=selected_hash.hexdigest())
     return entries
 
 
-def make_batches(entries):
+def stimulus_for(entry):
+    settings = entry.get('stimulus', {})
+    if set(settings) - {'wait_states', 'pause_clocks', 'pause_after_clocks'}:
+        raise ValueError('unknown FPGA stimulus setting')
+    result = {key: u32(settings.get(key, 0))
+              for key in ('wait_states', 'pause_clocks', 'pause_after_clocks')}
+    if result['wait_states'] > 0x1fffffff:
+        raise ValueError('FPGA wait latency exceeds its 32-bit counter')
+    return result
+
+
+def initial_words(case):
+    memory = case.get('initial_memory', [])
+    if not isinstance(memory, list) or len(memory) > 64:
+        raise ValueError('invalid sparse initializer count')
+    addresses, regions, result = set(), set(), []
+    for pair in memory:
+        if not isinstance(pair, (list, tuple)) or len(pair) != 2:
+            raise ValueError('invalid sparse initializer record')
+        address, value = pair
+        u32(address)
+        if address & 15 or address in addresses:
+            raise ValueError('unaligned or duplicate sparse initializer address')
+        if type(value) is not int or not 0 <= value <= 0xffff:
+            raise ValueError('invalid sparse initializer value')
+        addresses.add(address)
+        regions.add(address >> 10)
+        result.extend([address & 0xffff, address >> 16, value])
+    if len(regions) > 16:
+        raise ValueError('too many sparse memory regions')
+    return result
+
+
+def make_batches(entries, protocol_version=2):
+    if protocol_version not in RESULT_SIZES:
+        raise ValueError('unsupported FPGA protocol version')
     batches = []
-    batch = dict(cases=[], program_words=[], descriptors=[])
+    def empty():
+        return dict(cases=[], program_words=[], descriptors=[], protocol_version=protocol_version)
+    batch = empty()
     identifiers = set()
     for entry in entries:
         words = entry['program_words']
@@ -92,14 +178,25 @@ def make_batches(entries):
         identifiers.add(identifier)
         if not words or len(words) > 3840 or any(type(v) is not int or not 0 <= v <= 0xffff for v in words):
             raise ValueError(f"{entry['name']}: invalid program length")
-        if len(batch['cases']) == MAX_CASES or len(batch['program_words']) + len(words) > MAX_WORDS:
+        require_supported(entry['fixture'], protocol_version)
+        memory = initial_words(entry['fixture']) if protocol_version == 2 else []
+        stimulus = stimulus_for(entry)
+        if protocol_version == 1 and any(stimulus.values()):
+            raise ValueError('v1 does not support configurable stimulus')
+        if len(words) + len(memory) > MAX_WORDS:
+            raise ValueError('case program and initial memory exceed the staging pool')
+        if len(batch['cases']) == MAX_CASES or len(batch['program_words']) + len(words) + len(memory) > MAX_WORDS:
             batches.append(batch)
-            batch = dict(cases=[], program_words=[], descriptors=[])
-        batch['descriptors'].append([entry['id'], len(batch['program_words']), len(words),
-                                     entry['test_pc'], entry['next_pc'],
-                                     entry['fixture'].get('measure_pass', 1), 0, 0])
+            batch = empty()
+        base = len(batch['program_words'])
+        descriptor = [entry['id'], base, len(words), entry['test_pc'], entry['next_pc'],
+                      entry['fixture'].get('measure_pass', 1)]
+        descriptor += ([base + len(words), len(memory) // 3, stimulus['wait_states'],
+                        stimulus['pause_clocks'], stimulus['pause_after_clocks'], 0]
+                       if protocol_version == 2 else [0, 0])
+        batch['descriptors'].append(descriptor)
         batch['cases'].append(entry)
-        batch['program_words'].extend(words)
+        batch['program_words'].extend(words + memory)
     if batch['cases']:
         batches.append(batch)
     return batches
@@ -111,8 +208,23 @@ def u32(value):
     return value
 
 
-def decode_events(raw, case_count):
-    if not isinstance(raw, list) or len(raw) > 4096:
+def validate_manifest(manifest):
+    """Keep the envelope and every batch on the same wire contract."""
+    formats = {FORMAT_V1: 1, FORMAT: 2}
+    version = formats.get(manifest.get('format'))
+    if version is None or manifest.get('protocol_version', 1) != version:
+        raise ValueError('unsupported manifest format or protocol version')
+    batches = manifest['batches']
+    if not isinstance(batches, list) or not batches:
+        raise ValueError('manifest has no batches')
+    if any(batch.get('protocol_version', 1) != version for batch in batches):
+        raise ValueError('batch protocol version differs from the manifest')
+    return version
+
+
+def decode_events(raw, case_count, protocol_version=1):
+    per_case, per_batch = EVENT_LIMITS[protocol_version]
+    if not isinstance(raw, list) or len(raw) > per_batch:
         raise ValueError('invalid event buffer length')
     lines = [[] for _ in range(case_count)]
     previous_case = -1
@@ -129,7 +241,7 @@ def decode_events(raw, case_count):
             raise ValueError('event order is not chronological within the case sequence')
         previous_case, previous_clock = index, clock
         counts[index] += 1
-        if counts[index] > 128:
+        if counts[index] > per_case:
             raise ValueError('event buffer exceeds its per-case bound')
         kind, iaq = (flags >> 1) & 15, flags & 1
         for bit, prefix, complete in ((6, 'BUS', False), (5, 'BUS', True),
@@ -149,6 +261,9 @@ def decode_events(raw, case_count):
 
 
 def check_batch(batch, capture):
+    version = batch.get('protocol_version', 1)
+    if version not in RESULT_SIZES or capture.get('protocol_version', 1) != version:
+        raise ValueError('capture protocol version differs from the manifest')
     entries = batch['cases']
     if not 0 < len(entries) <= MAX_CASES:
         raise ValueError('invalid batch case count')
@@ -169,13 +284,17 @@ def check_batch(batch, capture):
     results = capture['results']
     if not isinstance(results, list) or len(results) != len(entries):
         raise ValueError('result count differs from the requested case count')
-    traces = decode_events(capture['events'], len(entries))
+    traces = decode_events(capture['events'], len(entries), version)
     oracle = oracle_module()
     rows = []
     for index, (entry, result) in enumerate(zip(entries, results)):
-        case = entry['fixture']
-        require_supported(case)
-        if not isinstance(result, list) or len(result) != RESULT_WORDS:
+        case = copy.deepcopy(entry['fixture'])
+        require_supported(case, version)
+        # Restore Python tuple pairs lost at the JSON transport boundary.
+        for key in ('initial_memory', 'expected_memory'):
+            if key in case:
+                case[key] = [tuple(pair) for pair in case[key]]
+        if not isinstance(result, list) or len(result) != RESULT_SIZES[version]:
             raise ValueError(f"{entry['name']}: malformed result length")
         result = list(map(u32, result))
         errors = []
@@ -188,7 +307,9 @@ def check_batch(batch, capture):
         if result[7] + result[2] > MASK32 or result[2] == 0:
             errors.append('invalid or wrapped measurement clocks')
         observed = dict(case=result[0], clocks=result[2], start=result[7],
-                        end=result[7] + result[2], paused=0, st=result[6])
+                        end=result[7] + result[2], paused=result[72] if version == 2 else 0, st=result[6])
+        if observed['paused'] > observed['clocks']:
+            errors.append('paused clocks exceed the measurement interval')
         required = {f'a{q}': q for q in range(len(case['expected_regs']))}
         for name in case.get('expected_extra_regs', {}):
             if name == 'sp':
@@ -204,11 +325,32 @@ def check_batch(batch, capture):
                 errors.append(f'{name.upper()}: RF shadow slot was not initialized')
             observed[name] = value
         word = (entry['next_pc'] - 0x1000) // 16
-        if word >= len(entry['program_words']) or result[5] != entry['program_words'][word]:
+        expected_opcode = (entry['program_words'][word]
+                           if 0 <= word < len(entry['program_words']) else 0)
+        expected_opcode = dict(case.get('initial_memory', [])).get(entry['next_pc'], expected_opcode)
+        expected_opcode = case.get('expected_next_opcode', expected_opcode)
+        if result[5] != expected_opcode:
             errors.append('next accepted opcode differs from the fixture program')
-        errors.extend(oracle.check(case, observed, 0, 0))
-        log = '\n'.join(traces[index])
-        rows.append(oracle.check_observation(case, observed, errors, log, 0, 0))
+        stimulus = stimulus_for(entry)
+        errors.extend(oracle.check(case, observed, stimulus['wait_states'], stimulus['pause_clocks']))
+        lines = list(traces[index])
+        if version == 2:
+            initial_words(case)
+            memory = case.get('initial_memory', [])
+            if result[73] != len(memory):
+                errors.append('memory snapshot count differs from the initialized word count')
+            for q, (address, _) in enumerate(memory):
+                actual_address, value = result[74+2*q:76+2*q]
+                if actual_address != address or value > 0xffff:
+                    errors.append('memory snapshot association or value is invalid')
+                lines.append(f'MEMORY {actual_address:08x} {value:04x}')
+            if any(result[74+2*len(memory):]):
+                errors.append('unused memory snapshot words are nonzero')
+        if 'control_flow' in case or 'stack_control_flow' in case:
+            lines.append(f'NEXT_OPCODE {result[5]:04x}')
+        log = '\n'.join(lines)
+        rows.append(oracle.check_observation(case, observed, errors, log,
+                                            stimulus['wait_states'], stimulus['pause_clocks']))
     failures = sum(bool(row['errors']) for row in rows)
     return dict(cases=rows, passed=len(rows) - failures, failed=failures)
 
@@ -228,8 +370,11 @@ def compare_reference(rows, reference_rows):
             errors.append(name+': failing input capture cannot establish equivalence')
             continue
         for key in ('opcode', 'regs', 'expected_regs', 'expected_st', 'states',
-                    'cache_disabled', 'extensions', 'expected_extra_regs', 'test_pc', 'next_pc'):
-            if row.get(key) != other.get(key):
+                    'cache_disabled', 'extensions', 'expected_extra_regs', 'test_pc', 'next_pc',
+                    'initial_memory', 'expected_memory', 'data_load', 'data_list',
+                    'stack_load', 'pixel_load', 'control_flow', 'stack_control_flow',
+                    'initial_all_regs', 'register_overrides'):
+            if json.loads(json.dumps(row.get(key))) != json.loads(json.dumps(other.get(key))):
                 errors.append(name+': fixture '+key+' differs')
         observed, golden = row['observed'], other['observed']
         fields = ['clocks', 'st', 'paused', *[f'a{q}' for q in range(len(row['expected_regs']))],
@@ -237,6 +382,9 @@ def compare_reference(rows, reference_rows):
         for key in fields:
             if observed.get(key) != golden.get(key):
                 errors.append(name+': observed '+key+' differs')
+        for key in ('observed_memory', 'observed_next_opcodes'):
+            if json.loads(json.dumps(row.get(key))) != json.loads(json.dumps(other.get(key))):
+                errors.append(name+': '+key+' differs')
         for key in ('bus_trace', 'target_trace'):
             normalized = []
             for item in (row, other):
@@ -257,8 +405,12 @@ def main():
     prepare = sub.add_parser('prepare')
     prepare.add_argument('--case', action='append', default=[])
     prepare.add_argument('--read-only-matrix', action='store_true',
-                         help='select the documented scalar/XY/coordinate/EMU RUN-high families')
+                         help='select all fixtures supported by the chosen protocol; record exclusions')
     prepare.add_argument('--limit', type=int)
+    prepare.add_argument('--protocol-version', type=int, choices=(1, 2), default=2)
+    prepare.add_argument('--wait-states', type=int, default=0)
+    prepare.add_argument('--pause-clocks', type=int, default=0)
+    prepare.add_argument('--pause-after-clocks', type=int, default=0)
     prepare.add_argument('--output', type=Path, required=True)
     check = sub.add_parser('check')
     check.add_argument('manifest', type=Path)
@@ -275,16 +427,22 @@ def main():
         if args.command == 'prepare':
             if args.limit is not None and args.limit < 1:
                 raise ValueError('--limit must be positive')
-            terms = args.case + (READ_ONLY_TERMS if args.read_only_matrix else [])
-            entries = prepare_cases(terms, args.limit)
-            data = dict(format=FORMAT, batches=make_batches(entries),
+            terms = args.case
+            audit = {}
+            entries = prepare_cases(terms, args.limit, args.protocol_version,
+                                    dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
+                                         pause_after_clocks=args.pause_after_clocks),
+                                    read_only_matrix=args.read_only_matrix, audit=audit)
+            data = dict(format=FORMAT if args.protocol_version == 2 else FORMAT_V1,
+                        protocol_version=args.protocol_version,
+                        batches=make_batches(entries, args.protocol_version),
+                        fixture_selection_audit=audit,
                         oracle_sha256=hashlib.sha256((TIMING / 'run.py').read_bytes()).hexdigest())
             args.output.write_text(json.dumps(data, indent=2) + '\n')
             print(f"Prepared {len(entries)} cases in {len(data['batches'])} batches")
             return 0
         manifest = json.loads(args.manifest.read_text())
-        if manifest['format'] != FORMAT:
-            raise ValueError('unsupported manifest format')
+        validate_manifest(manifest)
         if args.command == 'compare':
             captures = json.loads(args.capture.read_text())['batches']
             if not isinstance(captures, list) or not captures or len(captures) != len(manifest['batches']):

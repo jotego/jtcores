@@ -30,7 +30,8 @@ def recovery_manifest(kind):
         field, old, new = 'test_pc', batch['descriptors'][0][3], 0x1000
         batch['descriptors'][0][3] = new
         batch['descriptors'][0][5] = 1
-    return dict(format=checker.FORMAT, batches=[batch, checker.make_batches([copy.deepcopy(entries[1])])[0]],
+    return dict(format=checker.FORMAT, protocol_version=2,
+                batches=[batch, checker.make_batches([copy.deepcopy(entries[1])])[0]],
                 deliberate_injection=dict(case_id=0, field='descriptor.'+field,
                                           original=old, mutated=new, timeout_cycles=10000))
 
@@ -47,9 +48,10 @@ def verify_recovery(kind, manifest, capture, report):
     count = capture['event_count'] & 0x7fffffff
     if count != len(capture['events']) or overflow != (kind == 'overflow'):
         raise ValueError('incorrect trace overflow/count reporting')
-    if count != (128 if overflow else 0):
+    version = batch.get('protocol_version', 1)
+    if count != (checker.EVENT_LIMITS[version][0] if overflow else 0):
         raise ValueError('diagnostic trace did not respect the expected bound')
-    checker.decode_events(capture['events'], 2)
+    checker.decode_events(capture['events'], 2, version)
     trace = []
     for row in capture['events']:
         if ((row[3] >> 9) & 31) == 1:
@@ -58,7 +60,8 @@ def verify_recovery(kind, manifest, capture, report):
             trace.append(row)
     # The original failed batch remains failed. Isolate only the later result
     # for an additional oracle check; never relabel the whole capture success.
-    isolated = dict(status=2, event_count=len(trace), events=trace, results=[capture['results'][1]])
+    isolated = dict(status=2, protocol_version=version, event_count=len(trace), events=trace,
+                    results=[capture['results'][1]])
     independent = checker.check_batch(clean, isolated)
     rearmed = report['batches'][1]
     if independent['failed'] or independent['passed'] != 1 or rearmed['failed'] or rearmed['passed'] != 1:

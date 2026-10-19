@@ -19,7 +19,7 @@ class ResultChecks(unittest.TestCase):
         case.update(test_pc=test_pc, next_pc=next_pc)
         entry = dict(id=81, name=name, fixture=case, program_words=words,
                      test_pc=test_pc, next_pc=next_pc)
-        batch = checker.make_batches([entry])[0]
+        batch = checker.make_batches([entry], protocol_version=1)[0]
         result = [81, 2, case['states'] * 8, test_pc, next_pc, 0x0300, case['expected_st'], 64]
         result.extend(0xdead0000 + q for q in range(64))
         result[8:12] = case['expected_regs']
@@ -142,6 +142,84 @@ class ResultChecks(unittest.TestCase):
         other = copy.deepcopy(rows)
         other[0]['bus_trace'].pop()
         self.assertTrue(checker.compare_reference(rows, other))
+
+    def packet_v2(self):
+        old, capture = self.packet()
+        batch = checker.make_batches(old['cases'])[0]
+        capture['protocol_version'] = 2
+        capture['results'][0].extend([0] * (202 - 72))
+        return batch, capture
+
+    def test_v2_controls_and_actual_pause_count(self):
+        batch, capture = self.packet_v2()
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        batch['cases'][0]['stimulus'] = dict(pause_clocks=7)
+        capture['results'][0][2] += 7
+        capture['results'][0][72] = 7
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        capture['results'][0][72] = 6
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+
+    def test_v2_version_memory_count_and_stale_padding(self):
+        batch, capture = self.packet_v2()
+        capture['protocol_version'] = 1
+        with self.assertRaisesRegex(ValueError, 'protocol version'):
+            checker.check_batch(batch, capture)
+        for word in (73, 75, 201):
+            batch, capture = self.packet_v2()
+            capture['results'][0][word] = 1
+            self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+
+    def test_v2_sparse_staging_bounds_and_record_layout(self):
+        batch, _ = self.packet_v2()
+        entry = batch['cases'][0]
+        entry['fixture']['initial_memory'] = [(0xff001230, 0x1234)]
+        prepared = checker.make_batches([entry])[0]
+        desc = prepared['descriptors'][0]
+        self.assertEqual(desc[6:8], [len(entry['program_words']), 1])
+        self.assertEqual(prepared['program_words'][desc[6]:], [0x1230, 0xff00, 0x1234])
+        for memory in ([(1, 0)], [(0x1000, 1), (0x1000, 2)],
+                       [(q << 10, 0) for q in range(17)], [(0x1000, 0x10000)]):
+            entry['fixture']['initial_memory'] = memory
+            with self.assertRaises(ValueError):
+                checker.make_batches([entry])
+
+    def test_v2_unsupported_drain_store_and_stimulus(self):
+        batch, _ = self.packet_v2()
+        entry = batch['cases'][0]
+        for drain in (1, -2):
+            entry['fixture']['drain_instructions'] = drain
+            with self.assertRaisesRegex(ValueError, 'drain/follow'):
+                checker.make_batches([entry])
+        del entry['fixture']['drain_instructions']
+        for settings in (dict(wait_states=0x20000000), dict(pause_clocks=-1), dict(hold=1)):
+            entry['stimulus'] = settings
+            with self.assertRaises(ValueError):
+                checker.make_batches([entry])
+
+    def test_manifest_protocol_envelope_is_checked(self):
+        batch, _ = self.packet_v2()
+        manifest = dict(format=checker.FORMAT, protocol_version=2, batches=[batch])
+        self.assertEqual(checker.validate_manifest(manifest), 2)
+        for mutation in ('format', 'version', 'batch', 'empty'):
+            other = copy.deepcopy(manifest)
+            if mutation == 'format':
+                other['format'] = checker.FORMAT_V1
+            elif mutation == 'version':
+                del other['protocol_version']
+            elif mutation == 'batch':
+                del other['batches'][0]['protocol_version']
+            else:
+                other['batches'] = []
+            with self.assertRaises(ValueError):
+                checker.validate_manifest(other)
+
+    def test_unhandled_memory_expectation_is_rejected(self):
+        batch, _ = self.packet_v2()
+        entry = batch['cases'][0]
+        entry['fixture']['expected_memory'] = []
+        with self.assertRaisesRegex(ValueError, 'memory expectation'):
+            checker.make_batches([entry])
 
 
 if __name__ == '__main__':

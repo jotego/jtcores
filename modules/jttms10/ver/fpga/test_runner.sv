@@ -9,7 +9,7 @@ module test;
     wire [31:0] avs_readdata;
     reg [31:0] avs_writedata=0;
     wire avs_waitrequest;
-    reg [31:0] descriptor [0:255];
+    reg [31:0] descriptor [0:383];
     reg [31:0] program_words [0:4095];
     string list_path, descriptor_path, program_path;
     integer file_handle, parsed, case_count, word_count, batch_index=0;
@@ -44,7 +44,7 @@ module test;
         repeat(4) @(negedge clk);
         reset_n=1;
         read_register(0,value);
-        if(value!=32'h4a545231) $fatal(1,"incorrect runner protocol identifier");
+        if(value!=32'h4a545232) $fatal(1,"incorrect runner protocol identifier");
         while(!$feof(file_handle)) begin
             parsed=$fscanf(file_handle,"%d %d %s %s\n",case_count,word_count,descriptor_path,program_path);
             if(parsed!=4) $fatal(1,"malformed batch list");
@@ -56,7 +56,7 @@ module test;
             write_register(1,0);
             write_register(2,32'(case_count));
             write_register(3,0);
-            for(integer q=0;q<case_count*8;q=q+1) write_register(4,descriptor[q]);
+            for(integer q=0;q<case_count*12;q=q+1) write_register(4,descriptor[q]);
             write_register(5,0);
             for(integer q=0;q<word_count;q=q+1) write_register(6,program_words[q]);
             write_register(15,timeout_clocks);
@@ -68,11 +68,11 @@ module test;
                 polls=polls+1;
             end
             if(status[0] && !status[31]) $fatal(1,"host wall-clock polling timeout");
-            $display("CAPTURE_BEGIN %0d %08h",batch_index,status);
+            $display("CAPTURE_BEGIN %0d %08h 2",batch_index,status);
             for(integer q=0;q<case_count;q=q+1) begin
                 $write("CAPTURE_RESULT %0d",q);
-                for(integer r=0;r<72;r=r+1) begin
-                    write_register(8,32'(q*72+r));
+                for(integer r=0;r<202;r=r+1) begin
+                    write_register(8,32'(q*202+r));
                     read_register(9,value);
                     $write(" %08h",value);
                 end
@@ -81,7 +81,7 @@ module test;
             read_register(7,value);
             $display("CAPTURE_COUNT %08h",value);
             event_count=int'(value & 32'h7fffffff);
-            if(event_count>4096) $fatal(1,"invalid hardware event count");
+            if(event_count>16384) $fatal(1,"invalid hardware event count");
             for(integer q=0;q<event_count;q=q+1) begin
                 write_register(10,32'(q));
                 $write("CAPTURE_EVENT");

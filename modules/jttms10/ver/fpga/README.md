@@ -4,51 +4,68 @@ Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
 ## FPGA batch validation (2026-10-19)
 
-The autonomous controller and host transport have been exercised on the
-physical TEI0022 using a dedicated regression image. The image keeps HPS Linux,
-Ethernet, SYSID and the runner, removes unused HDMI/DMA infrastructure, and
-runs the JTTMS10 CPU and Avalon interface from a real 25 MHz PLL output behind
-Platform Designer's HPS-to-runner clock crossing. HPS user1 remains at 100 MHz.
-The fitted runner-clock setup slack is +8.408 ns; the final constrained corners
-have no negative TNS. This is a test appliance build, not a replacement for
-the vendor video design.
+The v2 autonomous runner has executed 154,626 cases on the physical TEI0022:
+51,542 supported read-only fixtures each at base timing, W1/P7-after0, and W3.
+All 1665 batches per profile passed. Independent raw-capture verification found
+no mismatches; the largest individual trace used 141 of 512 records. Full host
+command times were 86.28 s, 98.26 s, and 100.75 s, including staging, return
+transfer, oracle checking, and report generation. These measurements do not
+establish a matched software speedup.
 
-Physical validation used image SHA-256
-`e6760ab82419ff776ff42ac716c8850f775832d50f958a46611cdea88693007b` and runner
-RTL SHA-256 `2aea2f7e2c3b03a97f9cdcf472bccf78a75f4f6ef82604dd2b99ec3f7b084beb`.
-Ten focused fixtures across five batches matched the original timing bench
-exactly. Timeout and trace-overflow negatives failed as expected, preserved
-their bounded diagnostics, then recovered for a later valid batch without
-reset. A 25,000,000-cycle timeout measured 1.000 s at the 25 MHz runner clock.
-The 3,360-case scalar matrix passed in 105 batches and the supported 17,840-case
-read-only matrix passed in 558 batches, all on the same programmed image and
-with no FPGA reset. External host command times were 5.83 s and 19.79 s
-respectively, including transfer and checking. These results establish FPGA
-execution and oracle compliance for the declared scope; they do not establish
-a speedup over a matched full software regression.
+The physical image uses the dedicated no-video test-appliance build: HPS Linux,
+Ethernet, and SYSID remain enabled; unused HDMI/DMA logic is removed; the CPU
+runner uses a generated 25 MHz PLL output behind Platform Designer's HPS-to-runner
+clock crossing, while HPS user1 remains at 100 MHz. The image SHA-256 is
+`5c7e6b9a8fc11a6164c12800eaf61eaf31383ad9adc50e88d8b577712c156f2e`; the runner
+RTL SHA-256 is
+`0a681b94a6b6b0aaa71437975d398508f1294de2f6dbc97ab1ae940e58c709fc`. The
+whole appliance uses 6,837 ALMs, 343 of 397 memory blocks, six DSP blocks and
+one PLL. All four analyzed timing corners have zero negative TNS; the minimum
+setup slack is +1.352 ns on HPS and the runner's worst setup slack is +5.857 ns.
+The full Quartus flow took 771.34 s. The programmed SYSID is 22 with timestamp
+1792433033, matching the QIP-bound compiled source.
 
-The supported v1 inventory is deliberately read-only and rejects fixtures
-requiring initialized memory, stores/follow flow, waits, pause stimulus or other
-unsupported inputs. The host checker fails closed on unknown fixture fields.
-See [PROTOCOL.md](PROTOCOL.md) for the exact fixture boundary, wire format,
-reproduction commands and retained evidence paths.
+Twenty-one representative fixture executions matched the original timing bench,
+including sparse-memory loads, high branch targets, self-jumps, maximum-length
+register lists, wraparound stack reads, pixel reads and W1/P7-after0 timing.
+Timeout and 512-record trace-overflow negatives returned failure, preserved
+their diagnostics, then passed a later independent case and a clean batch
+without FPGA reset. A 25,000,000-cycle timeout took 1001 ms on the board's
+monotonic clock, consistent with 25 MHz. A separate after7 early-pause negative
+records an outstanding request during CEN pause and fails as required by the
+original bench; after7 is not an in-flight-response pause mode.
 
-Reproduce the dedicated no-video image from the pinned vendor ZIP with:
+The supported inventory contains 51,542 cases across 93 forms. V2 supports
+read-only sparse initialized memory, local memory loads, register-list loads,
+pixel reads, control flow, configured target waits, and early CEN pauses.
+External writes, following-instruction checks, positive and -2 drain modes,
+HOLD, interrupts and EMU RUN-low scheduling remain unsupported and are rejected.
+The host checker fails closed on unknown fixture fields. See
+[PROTOCOL.md](PROTOCOL.md) for exact fixture boundaries, wire format, commands,
+negative tests and immutable evidence paths.
+
+For a changed runner/CPU image, use a preserved generated build as the base and
+run one full Quartus flow (no mandatory separate map pass):
 
 ```sh
-bash modules/jttms10/ver/fpga/build-runner.sh \
-    /path/to/TEI0022-test_board-quartus_20.1.1-20220426153922.zip \
-    /nobackup/tasks/jtcores-145/rebuild-no-video
+bash modules/jttms10/ver/fpga/build-runner-incremental.sh \
+    /path/to/preserved-v2-build \
+    /nobackup/tasks/jtcores-145/rebuild-v2 full
 ```
 
-The helper generates Platform Designer IP and runs the full Quartus flow using
-`/opt/quartus_free`; it retains the Qsys output, Quartus database, STA reports,
-and pre/post input manifests. Quartus refreshes `QSYS_test_board.sopcinfo`
-during compile. The post manifest records that generated-metadata change
-separately while requiring authoritative source inputs to remain unchanged.
-The verified build used 536.26 s for the Quartus flow; first-time Qsys setup
-and the complete helper command add their own elapsed time. Physical load and
-batch reproduction are documented in the protocol and DataStorm skill.
+The helper clones the build database and generated Platform Designer system,
+regenerates CPU payload files from the source generators, freezes the recursive
+QIP synthesis subtree and other compile inputs, removes any cloned RBF, and
+runs `/opt/quartus_free/quartus_sh --flow compile`. It retains logs, timing,
+source/input hashes, map/flow certificates, and STA reports. The physical v2-7
+image was built from its preserved base in a single full flow. Its original
+input snapshot omitted the QIP child files; a separate post-compilation audit
+verified all 97 synthesis-subtree files unchanged from the base. The recursive
+freeze is a later helper correction; it does not rewrite that build's original
+certificate. The earlier v1
+image and reports are historical and have narrower coverage; the currently
+validated image and evidence are recorded in `PROTOCOL.md` and under
+`/nobackup/tasks/jtcores-145/artifacts/v2-7-physical/`.
 
 ## Board boot baseline
 

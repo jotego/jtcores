@@ -27,7 +27,8 @@ def parse_captures(log):
         if fields[0] == 'CAPTURE_BEGIN':
             if active is not None or int(fields[1]) != len(captures):
                 raise ValueError('invalid capture batch association')
-            active = dict(status=int(fields[2], 16), results=[], events=[])
+            active = dict(status=int(fields[2], 16), protocol_version=int(fields[3]) if len(fields) == 4 else 1,
+                          results=[], events=[])
         elif active is None:
             raise ValueError('capture data outside a batch')
         elif fields[0] == 'CAPTURE_RESULT':
@@ -60,6 +61,9 @@ def main():
     parser.add_argument('--limit', type=int)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--timeout-cycles', type=int, default=4_000_000)
+    parser.add_argument('--wait-states', type=int, default=0)
+    parser.add_argument('--pause-clocks', type=int, default=0)
+    parser.add_argument('--pause-after-clocks', type=int, default=0)
     parser.add_argument('--reference', type=Path, help='original timing/run.py JSON for these exact cases')
     parser.add_argument('--output', type=Path, required=True, help='new evidence directory')
     args = parser.parse_args()
@@ -77,11 +81,13 @@ def main():
             parser.error('unsupported or empty manifest')
         batches = manifest['batches']
     else:
-        entries = checker.prepare_cases(args.case, args.limit)
+        entries = checker.prepare_cases(args.case, args.limit, 2,
+                                       dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
+                                            pause_after_clocks=args.pause_after_clocks))
         batches = []
         for q in range(0, len(entries), args.batch_size):
             batches.extend(checker.make_batches(entries[q:q+args.batch_size]))
-        manifest = dict(format=checker.FORMAT, batches=batches)
+        manifest = dict(format=checker.FORMAT, protocol_version=2, batches=batches)
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
     started = time.monotonic()
     with tempfile.TemporaryDirectory(prefix='jttms10-fpga-verify-') as temp:
@@ -93,7 +99,7 @@ def main():
             desc = [word for entry in batch['descriptors'] for word in entry]
             program = batch['program_words']
             desc_file, program_file = work/f'desc-{q}.hex', work/f'program-{q}.hex'
-            desc_file.write_text(''.join(f'{v:08x}\n' for v in desc+[0]*(256-len(desc))))
+            desc_file.write_text(''.join(f'{v:08x}\n' for v in desc+[0]*(384-len(desc))))
             program_file.write_text(''.join(f'{v:08x}\n' for v in program+[0]*(4096-len(program))))
             batch_lines.append(f"{len(batch['cases'])} {len(program)} {desc_file} {program_file}\n")
         (work/'batches.txt').write_text(''.join(batch_lines))

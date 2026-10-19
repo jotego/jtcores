@@ -14,26 +14,44 @@ module jttms10_fpga_runner(
 );
     localparam integer MAX_CASES=32;
     localparam integer MAX_PROGRAM_WORDS=4096;
-    localparam integer RESULT_WORDS=72;
-    localparam integer EVENTS_PER_CASE=128;
-    localparam [3:0] S_IDLE=0,S_CLEAR=1,S_COPY_READ=2,S_RESET=3,S_RUN=4,S_DONE=5,
+    localparam integer RESULT_WORDS=202;
+    localparam integer EVENTS_PER_CASE=512;
+    localparam integer MAX_EVENTS=16384;
+    localparam [4:0] S_IDLE=0,S_CLEAR=1,S_COPY_READ=2,S_RESET=3,S_RUN=4,S_DONE=5,
                      S_SNAPSHOT_READ=6,S_DESC=7,S_VALIDATE=8,S_DESC_LATCH=9,
-                     S_COPY_WRITE=10,S_SNAPSHOT_WRITE=11;
+                     S_COPY_WRITE=10,S_SNAPSHOT_WRITE=11,S_INIT_LO=12,
+                     S_INIT_HI=13,S_INIT_DATA=14,S_INIT_LATCH=15,S_INIT_TAG=16,
+                     S_INIT_WRITE=17,S_SNAPSHOT_PAUSE=18,S_SNAPSHOT_MEMCOUNT=19,
+                     S_MEM_LO=20,S_MEM_HI=21,S_MEM_DATA=22,S_MEM_LOOKUP=23,
+                     S_MEM_WRITE_ADDR=24,S_MEM_WRITE_DATA=25,S_MEM_ZERO=26;
 
-    reg [31:0] desc [0:MAX_CASES*8-1];
+    reg [31:0] desc [0:MAX_CASES*12-1];
     reg [15:0] program_store [0:MAX_PROGRAM_WORDS-1];
     reg [15:0] memory [0:4095];
+    // Sparse, initialized external memory: 16 tagged regions x 64 words.
+    // The single 1024x17 synchronous RAM stores {valid,data}; region tags
+    // remain in registers and are compared in parallel.
+    reg [16:0] sparse_mem [0:1023];
+    reg [21:0] sparse_tag [0:15];
+    reg [15:0] sparse_tag_valid=0;
     reg [31:0] results [0:MAX_CASES*RESULT_WORDS-1];
     reg [31:0] timeout_limit=32'd4000000;
     reg [31:0] case_count=0, desc_ptr=0, program_ptr=0, result_index=0;
     reg [31:0] status=0;
     reg [31:0] case_index=0, word_index=0, case_clock=0, start_clock=0;
     reg [31:0] test_pc=0, next_pc=0, case_id=0, program_base=0, program_length=0;
+    reg [31:0] pool_word_count=0, init_base=0, init_count=0, init_index=0;
+    wire [8:0] init_span = {2'b0,init_count[6:0]} + {1'b0,init_count[6:0],1'b0};
+    wire [31:0] init_span_wide = {23'b0,init_span};
+    reg [31:0] wait_states=0, pause_clocks=0, pause_after_clocks=0, descriptor_flags=0;
+    reg [31:0] pool_ptr=0, init_addr=0;
+    reg [15:0] init_data=0;
+    reg [31:0] target_latency=4;
+    reg [31:0] paused_count=0, pause_remaining=0;
     reg [31:0] measure_pass=1, measure_seen=0;
-    reg [2:0] desc_index=0;
+    reg [3:0] desc_index=0;
     reg measuring=0;
-    reg found_test=0;
-    reg [3:0] state=S_IDLE;
+    reg [4:0] state=S_IDLE;
     reg cpu_reset=1;
 
     reg [31:0] rf_shadow [0:63];
@@ -44,18 +62,19 @@ module jttms10_fpga_runner(
     reg target_iaq_q=0;
     reg [15:0] target_io_data_q=0;
     reg [3:0] target_kind_q=0;
-    reg [2:0] target_age=0;
+    reg [31:0] target_age=0;
     reg [1:0] target_state=0;
     localparam [1:0] T_IDLE=0,T_WAIT=1,T_ACK=2;
     reg [31:0] event_count=0;
     reg [127:0] events [0:MAX_CASES*EVENTS_PER_CASE-1];
-    reg [7:0] case_event_count [0:MAX_CASES-1];
+    reg [9:0] case_event_count [0:MAX_CASES-1];
     reg event_overflow=0;
     reg [31:0] event_index=0;
     reg [31:0] cycle_counter=0;
     reg [6:0] snapshot_index=0;
     reg [31:0] desc_q=0;
-    reg [15:0] program_q=0;
+    reg [15:0] program_read_q=0;
+    reg [31:0] program_read_address=0;
     reg [31:0] snapshot_q=0;
     reg [31:0] csr_read_q=0;
     reg [31:0] results_read_q;
@@ -66,29 +85,105 @@ module jttms10_fpga_runner(
     reg [31:0] rf_read_q;
     reg rf_valid_read_q;
     reg [31:0] result_meta [0:7];
+    reg [16:0] sparse_read_q;
+    reg [16:0] target_sparse_data_q;
+    reg [16:0] sparse_snapshot_data_q;
+    reg [9:0] sparse_read_address=0;
+    reg sparse_lookup_valid_q;
+    reg [3:0] target_tag_slot, init_tag_search_slot, init_free_tag_slot;
+    reg target_tag_hit, init_tag_hit, init_free_tag_found;
+    integer tag_scan;
+    reg [6:0] snapshot_mem_index=0;
+    reg [15:0] init_addr_lo_q=0;
+    reg [3:0] init_tag_slot=0;
+    reg [31:0] pause_pc_q, pause_st_q;
+    reg [169:0] pause_work_q;
+    reg pause_active=0, pause_done=0;
     wire [5:0] rf_snapshot_index=snapshot_index[5:0]-6'd8;
     reg case_error=0, batch_error=0;
 
+    // A single registered read address shares the program-store BRAM port
+    // across instruction copy and initializer serialization phases.
+    always @* begin
+        case(state)
+            S_COPY_READ: program_read_address=program_base+word_index;
+            S_INIT_LO: program_read_address=pool_ptr;
+            S_INIT_HI: program_read_address=pool_ptr+1'b1;
+            S_INIT_DATA: program_read_address=pool_ptr+32'd2;
+            S_MEM_LO: program_read_address=pool_ptr+{25'b0,snapshot_mem_index}*3;
+            S_MEM_HI: program_read_address=pool_ptr+{25'b0,snapshot_mem_index}*3+1'b1;
+            S_MEM_DATA: program_read_address=pool_ptr+{25'b0,snapshot_mem_index}*3+32'd2;
+            default: program_read_address=0;
+        endcase
+    end
+
+    // The sparse BRAM has one registered read address shared by the CPU
+    // target and the post-case memory snapshot serializer.
+    always @* begin
+        if(state==S_MEM_LOOKUP && init_tag_hit)
+            sparse_read_address={init_tag_search_slot,init_addr[9:4]};
+        else if(target_state==T_IDLE && cyc_req && !cpu_reset && target_tag_hit)
+            sparse_read_address={target_tag_slot,cyc_addr[9:4]};
+        else
+            sparse_read_address=0;
+    end
+
     wire obs_decode, obs_rf_we, obs_bus_start, obs_bus_complete;
     wire [31:0] obs_decode_pc, obs_rf_data, pc, st;
-    wire [15:0] obs_decode_ir, obs_bus_rdata, ir;
+    wire [15:0] obs_decode_ir, obs_bus_rdata;
     wire [5:0] obs_rf_addr;
     wire [169:0] obs_work;
     wire obs_field_pending_fault;
-    wire cyc_req, cyc_ack, cyc_iaq, retire, fault;
+    wire cyc_req, cyc_ack, cyc_iaq, fault;
     wire [3:0] cyc_kind;
     wire [31:0] cyc_addr;
     wire [15:0] cyc_wdata, cyc_io_rdata;
     wire trace_event_now = !cpu_reset && state==S_RUN && measuring &&
                            (obs_bus_start || obs_bus_complete ||
-                            (target_state==T_IDLE && cyc_req) || target_state==T_ACK);
+                            (target_state==T_IDLE && cyc_req) ||
+                            (target_state==T_ACK));
     wire trace_overflow_now = trace_event_now &&
-                              (case_event_count[case_index]>=8'd128 || event_count>=32'd4096);
+                              (case_event_count[case_index]>=10'd512 || event_count>=MAX_EVENTS);
     reg [15:0] cyc_rdata;
-    wire [15:0] cpu_memory_data = mem_read_q;
-    wire cpu_cen = !cpu_reset && state==S_RUN;
+    wire cpu_cen = !cpu_reset && state==S_RUN && !pause_active;
     assign avs_waitrequest=1'b0;
     assign cyc_ack=target_state==T_ACK;
+
+    always @* begin
+        target_tag_slot=0; target_tag_hit=0;
+        init_tag_search_slot=0; init_tag_hit=0;
+        init_free_tag_slot=0; init_free_tag_found=0;
+        for(tag_scan=0;tag_scan<16;tag_scan=tag_scan+1) begin
+            if(sparse_tag_valid[tag_scan] && sparse_tag[tag_scan]==cyc_addr[31:10]) begin
+                target_tag_slot=tag_scan[3:0]; target_tag_hit=1;
+            end
+            if(sparse_tag_valid[tag_scan] && sparse_tag[tag_scan]==init_addr[31:10]) begin
+                init_tag_search_slot=tag_scan[3:0]; init_tag_hit=1;
+            end
+            if(!sparse_tag_valid[tag_scan] && !init_free_tag_found) begin
+                init_free_tag_slot=tag_scan[3:0]; init_free_tag_found=1;
+            end
+        end
+    end
+
+    // Match timing/test.sv's falling-edge CEN stimulus. The CPU is held on
+    // exactly pause_clocks rising edges; the external target and fabric keep
+    // running. Capture the stopped architectural/working state at the same
+    // falling edge that first disables CEN.
+    always @(negedge clk) begin
+        if(!reset_n || cpu_reset || state!=S_RUN) begin
+            pause_active<=0; pause_done<=0; pause_remaining<=0;
+        end else if(measuring && !pause_done && pause_clocks!=0 &&
+                    case_clock>=start_clock &&
+                    (case_clock-start_clock-1)>=pause_after_clocks) begin
+            pause_active<=1; pause_done<=1; pause_remaining<=pause_clocks;
+            pause_pc_q<=pc; pause_st_q<=st; pause_work_q<=obs_work;
+        end else if(pause_active) begin
+            if(pause_remaining<=1) begin
+                pause_remaining<=0; pause_active<=0;
+            end else pause_remaining<=pause_remaining-1'b1;
+        end
+    end
     // Keep RAM output registers independent of the CSR/event selection muxes.
     // This preserves synchronous block-RAM inference while retaining the
     // one-cycle Avalon read latency.
@@ -117,14 +212,15 @@ module jttms10_fpga_runner(
         .cyc_req(cyc_req),.cyc_kind(cyc_kind),.cyc_addr(cyc_addr),.cyc_wdata(cyc_wdata),
         .cyc_io_rdata(cyc_io_rdata),.cyc_iaq(cyc_iaq),.cyc_srfaddr(),.cyc_dpytap(),.cyc_org(),
         .cyc_dram_row(),.cyc_rdata(cyc_rdata),.cyc_ack(cyc_ack),
-        .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault),
+        .pc(pc),.st(st),.ir(),.retire(),.fault(fault),
         .intenb(),.intpend(),.irq_pending(),.nmi_pending(),.halt()
     );
 
     // The target captures the complete request at allocation. Its synchronous
     // memory read overlaps the fixed four-clock readiness interval.
     always @* begin
-        if(target_kind_q==5) cyc_rdata=cyc_io_rdata;
+        if(sparse_lookup_valid_q && target_sparse_data_q[16]) cyc_rdata=target_sparse_data_q[15:0];
+        else if(target_kind_q==5) cyc_rdata=cyc_io_rdata;
         else if(target_addr_q==32'hffffffe0) cyc_rdata=16'h1000;
         else if(target_addr_q==32'hfffffff0) cyc_rdata=16'h0000;
         else if(target_addr_q<32'h00010000) cyc_rdata=mem_read_q;
@@ -133,36 +229,45 @@ module jttms10_fpga_runner(
 
     // Avalon-MM registers are word addressed. Descriptor/program writes are
     // accepted only while idle, preventing host timing from affecting RUN.
-    integer q;
-    reg [31:0] base;
-    reg [31:0] descriptor;
     always @(posedge clk) begin
         if(!reset_n) begin
             state<=S_IDLE; cpu_reset<=1; status<=0; case_index<=0;
             case_clock<=0; cycle_counter<=0; target_state<=T_IDLE;
             target_age<=0; event_count<=0; event_overflow<=0;
-            found_test<=0; measuring<=0; measure_seen<=0; desc_index<=0; rf_valid<=0; word_index<=0; case_count<=0;
+            measuring<=0; measure_seen<=0; desc_index<=0; rf_valid<=0; word_index<=0; case_count<=0;
             desc_ptr<=0; program_ptr<=0; result_index<=0; event_index<=0;
             timeout_limit<=32'd4000000; snapshot_index<=0;
-            case_error<=0; batch_error<=0;
+            case_error<=0; batch_error<=0; sparse_tag_valid<=0;
+            paused_count<=0; pool_word_count<=0; init_index<=0;
+            sparse_lookup_valid_q<=0;
             csr_read_q<=0; read_address_q<=0;
         end else begin
+            program_read_q<=program_store[program_read_address[11:0]];
             // Keep all test-memory writes on one synchronous port so Quartus
             // can infer block RAM instead of expanding the 64K-bit array into
             // logic cells. These phases are mutually exclusive by design.
             if(state==S_CLEAR) memory[word_index[11:0]]<=16'b0;
             else if(state==S_COPY_WRITE)
-                memory[12'd256+word_index[11:0]]<=program_q;
-            else if(target_state==T_ACK && target_kind_q==1 &&
-                    target_addr_q<32'h00010000)
-                memory[target_addr_q[15:4]]<=target_wdata_q[15:0];
+                memory[12'd256+word_index[11:0]]<=program_read_q;
+
+            // One synchronous port for the sparse valid/data block RAM.
+            // Clear and initializer writes are disjoint from RUN-time reads.
+            if(state==S_CLEAR && word_index<1024)
+                sparse_mem[word_index[9:0]]<=17'b0;
+            else if(state==S_INIT_WRITE)
+                sparse_mem[{init_tag_slot,init_addr[9:4]}]<={1'b1,init_data[15:0]};
+            sparse_read_q<=sparse_mem[sparse_read_address];
+            if(target_state==T_WAIT && target_age==1)
+                target_sparse_data_q<=sparse_read_q;
+            if(state==S_MEM_WRITE_ADDR)
+                sparse_snapshot_data_q<=sparse_read_q;
 
             // One-cycle Avalon read latency keeps result/event memories on
             // synchronous read ports instead of wide asynchronous muxes.
             if(avs_read) begin
                 read_address_q<=avs_address;
                 case(avs_address)
-                    0: csr_read_q<=32'h4a545231;
+                    0: csr_read_q<=32'h4a545232;
                     1: csr_read_q<=status;
                     2: csr_read_q<=case_count;
                     3: csr_read_q<=desc_ptr;
@@ -175,14 +280,14 @@ module jttms10_fpga_runner(
                         csr_read_q<=0;
                         results_read_error_q<=result_index>=MAX_CASES*RESULT_WORDS;
                         if(result_index<MAX_CASES*RESULT_WORDS)
-                            results_read_q<=results[result_index[11:0]];
+                            results_read_q<=results[result_index[12:0]];
                     end
                     10: csr_read_q<=event_index;
                     11,12,13,14: begin
                         csr_read_q<=0;
-                        events_read_error_q<=event_index>=MAX_CASES*EVENTS_PER_CASE;
+                        events_read_error_q<=event_index>=MAX_EVENTS;
                         if(event_index<MAX_CASES*EVENTS_PER_CASE)
-                            events_read_q<=events[event_index[11:0]];
+                            events_read_q<=events[event_index[13:0]];
                     end
                     15: csr_read_q<=timeout_limit;
                     default: csr_read_q<=0;
@@ -195,14 +300,15 @@ module jttms10_fpga_runner(
             if(avs_write && state==S_IDLE) begin
                 case(avs_address)
                     1: if(avs_writedata[0]) begin
-                        if(case_count==0 || case_count>MAX_CASES) status<=32'h80000001;
+                        if(case_count==0 || case_count>MAX_CASES || program_ptr>MAX_PROGRAM_WORDS) status<=32'h80000001;
                         else begin status<=32'h1; case_index<=0; event_count<=0;
-                                   event_overflow<=0; batch_error<=0; state<=S_CLEAR; end
+                                   event_overflow<=0; batch_error<=0; pool_word_count<=program_ptr;
+                                   state<=S_CLEAR; end
                     end
                     2: case_count<=avs_writedata;
                     3: desc_ptr<=avs_writedata;
                     4: begin
-                        if(desc_ptr<MAX_CASES*8) desc[desc_ptr]<=avs_writedata;
+                        if(desc_ptr<MAX_CASES*12) desc[desc_ptr]<=avs_writedata;
                         desc_ptr<=desc_ptr+1'b1;
                     end
                     5: program_ptr<=avs_writedata;
@@ -224,13 +330,15 @@ module jttms10_fpga_runner(
                 target_addr_q<=cyc_addr; target_kind_q<=cyc_kind;
                 target_wdata_q<=cyc_wdata; target_iaq_q<=cyc_iaq;
                 target_io_data_q<=cyc_io_rdata; target_age<=1; target_state<=T_WAIT;
+                target_latency<=32'd4+(wait_states<<3);
+                sparse_lookup_valid_q<=target_tag_hit;
                 if(cyc_addr<32'h00010000) mem_read_q<=memory[cyc_addr[15:4]];
             end else if(target_state==T_WAIT) begin
                 if(!cyc_req || cyc_addr!=target_addr_q || cyc_kind!=target_kind_q ||
                    cyc_wdata!=target_wdata_q || cyc_iaq!=target_iaq_q ||
                    cyc_io_rdata!=target_io_data_q)
                     begin status[8]<=1'b1; case_error<=1; batch_error<=1; end
-                if(target_age==3'd3) target_state<=T_ACK;
+                if(target_age>=target_latency-1'b1) target_state<=T_ACK;
                 else target_age<=target_age+1'b1;
             end else if(target_state==T_ACK) begin
                 if(!cyc_req || cyc_addr!=target_addr_q || cyc_kind!=target_kind_q ||
@@ -238,12 +346,15 @@ module jttms10_fpga_runner(
                    cyc_io_rdata!=target_io_data_q)
                     begin status[8]<=1'b1; case_error<=1; batch_error<=1; end
                 target_state<=T_IDLE;
+                if(cyc_req && target_kind_q==1) begin
+                    status[8]<=1'b1; case_error<=1; batch_error<=1;
+                end
             end
 
             // A row can represent simultaneous timer and physical-target
             // events without losing either when they occur on one clock.
             if(trace_event_now) begin
-                if(case_event_count[case_index]<8'd128 && event_count<32'd4096) begin
+                if(case_event_count[case_index]<10'd512 && event_count<MAX_EVENTS) begin
                     events[event_count] <= {18'b0,case_index[4:0],
                         (target_state==T_IDLE && cyc_req), (target_state==T_ACK),
                         obs_bus_start, obs_bus_complete, cyc_kind, cyc_iaq,
@@ -262,10 +373,18 @@ module jttms10_fpga_runner(
             if(state==S_RUN) begin
                 cycle_counter<=cycle_counter+1'b1;
                 case_clock<=case_clock+1'b1;
-                if(obs_field_pending_fault || fault) begin case_error<=1; batch_error<=1; end
+                if(pause_active) paused_count<=paused_count+1'b1;
+                if(obs_field_pending_fault || fault ||
+                   (pause_active && (pc!==pause_pc_q || st!==pause_st_q ||
+                                     obs_work!==pause_work_q || obs_rf_we))) begin
+                    case_error<=1; batch_error<=1;
+                end
+                if(pause_active && cyc_req) begin
+                    status[8]<=1'b1; case_error<=1; batch_error<=1;
+                end
                 if(obs_decode && obs_decode_pc==test_pc && !measuring) begin
                     if(measure_seen==measure_pass) begin
-                        found_test<=1'b1; measuring<=1'b1; start_clock<=case_clock;
+                        measuring<=1'b1; start_clock<=case_clock;
                     end else measure_seen<=measure_seen+1'b1;
                 end else if(obs_decode && measuring && obs_decode_pc==next_pc) begin
                     result_meta[0]<=case_id;
@@ -287,14 +406,15 @@ module jttms10_fpga_runner(
             case(state)
                 S_IDLE: cpu_reset<=1;
                 S_CLEAR: begin
-                    cpu_reset<=1; rf_valid<=0; found_test<=0; measuring<=0; target_state<=T_IDLE;
+                    cpu_reset<=1; rf_valid<=0; measuring<=0; target_state<=T_IDLE;
                     if(word_index==4095) begin
                         word_index<=0; desc_index<=0; case_event_count[case_index]<=0; case_error<=0;
+                        sparse_tag_valid<=0; init_index<=0; paused_count<=0;
                         state<=S_DESC;
                     end else word_index<=word_index+1'b1;
                 end
                 S_DESC: begin
-                    desc_q<=desc[case_index*8+{29'd0,desc_index}];
+                    desc_q<=desc[case_index*12+{28'd0,desc_index}];
                     state<=S_DESC_LATCH;
                 end
                 S_DESC_LATCH: begin
@@ -305,28 +425,85 @@ module jttms10_fpga_runner(
                         3: test_pc<=desc_q;
                         4: next_pc<=desc_q;
                         5: measure_pass<=desc_q;
+                        6: init_base<=desc_q;
+                        7: init_count<=desc_q;
+                        8: wait_states<=desc_q;
+                        9: pause_clocks<=desc_q;
+                        10: pause_after_clocks<=desc_q;
+                        11: descriptor_flags<=desc_q;
                     endcase
-                    if(desc_index==5) state<=S_VALIDATE;
+                    if(desc_index==11) state<=S_VALIDATE;
                     else begin desc_index<=desc_index+1'b1; state<=S_DESC; end
                 end
                 S_VALIDATE: begin
                     if(program_length==0 || program_length>3840 || program_base>=MAX_PROGRAM_WORDS ||
-                           program_length>MAX_PROGRAM_WORDS-program_base ||
+                           program_base>pool_word_count || program_length>pool_word_count-program_base ||
+                           init_count>64 || init_base>pool_word_count ||
+                           init_span_wide>pool_word_count-init_base ||
+                           (program_base < init_base+init_span_wide && init_base < program_base+program_length) ||
+                           wait_states>32'h1fffffff || pause_clocks>timeout_limit || pause_after_clocks>timeout_limit ||
+                           descriptor_flags!=0 ||
                            test_pc[3:0]!=0 || next_pc[3:0]!=0 || measure_pass>255) begin
                             result_meta[0]<=case_id; result_meta[1]<=32'h80000003;
                             result_meta[2]<=0; result_meta[3]<=test_pc; result_meta[4]<=next_pc;
                             result_meta[5]<=0; result_meta[6]<=0; result_meta[7]<=0;
-                            batch_error<=1; snapshot_index<=0; state<=S_SNAPSHOT_READ;
-                        end else begin word_index<=0; state<=S_COPY_READ; end
+                            batch_error<=1; case_error<=1; init_count<=0;
+                            paused_count<=0; snapshot_index<=0; state<=S_SNAPSHOT_READ;
+                        end else begin word_index<=0; pool_ptr<=init_base; state<=S_COPY_READ; end
                 end
                 S_COPY_READ: begin
-                    program_q<=program_store[program_base+word_index];
                     state<=S_COPY_WRITE;
                 end
                 S_COPY_WRITE: begin
                     if(word_index+1>=program_length) begin
-                        word_index<=0; case_clock<=0; cycle_counter<=0; measure_seen<=0; measuring<=0; state<=S_RESET;
+                        word_index<=0; init_index<=0; pool_ptr<=init_base;
+                        if(init_count==0) begin
+                            case_clock<=0; cycle_counter<=0; measure_seen<=0; measuring<=0; state<=S_RESET;
+                        end else state<=S_INIT_LO;
                     end else begin word_index<=word_index+1'b1; state<=S_COPY_READ; end
+                end
+                S_INIT_LO: begin
+                    state<=S_INIT_HI;
+                end
+                S_INIT_HI: begin
+                    init_addr_lo_q<=program_read_q;
+                    state<=S_INIT_DATA;
+                end
+                S_INIT_DATA: begin
+                    init_addr[15:0]<=init_addr_lo_q; init_addr[31:16]<=program_read_q;
+                    state<=S_INIT_LATCH;
+                end
+                S_INIT_LATCH: begin
+                    init_data<=program_read_q; state<=S_INIT_TAG;
+                end
+                S_INIT_TAG: begin
+                    if(init_addr[3:0]!=0) begin
+                        result_meta[0]<=case_id; result_meta[1]<=32'h80000003;
+                        result_meta[2]<=0; result_meta[3]<=test_pc; result_meta[4]<=next_pc;
+                        result_meta[5]<=0; result_meta[6]<=0; result_meta[7]<=0;
+                        batch_error<=1; case_error<=1; init_count<=0;
+                        snapshot_index<=0; cpu_reset<=1; state<=S_SNAPSHOT_READ;
+                    end else if(init_tag_hit) begin
+                        init_tag_slot<=init_tag_search_slot; state<=S_INIT_WRITE;
+                    end else if(init_free_tag_found) begin
+                        init_tag_slot<=init_free_tag_slot;
+                        sparse_tag[init_free_tag_slot]<=init_addr[31:10];
+                        sparse_tag_valid[init_free_tag_slot]<=1'b1; state<=S_INIT_WRITE;
+                    end else begin
+                        result_meta[0]<=case_id; result_meta[1]<=32'h80000003;
+                        result_meta[2]<=0; result_meta[3]<=test_pc; result_meta[4]<=next_pc;
+                        result_meta[5]<=0; result_meta[6]<=0; result_meta[7]<=0;
+                        batch_error<=1; case_error<=1; init_count<=0;
+                        snapshot_index<=0; cpu_reset<=1; state<=S_SNAPSHOT_READ;
+                    end
+                end
+                S_INIT_WRITE: begin
+                    if(init_index+1>=init_count) begin
+                        word_index<=0; case_clock<=0; cycle_counter<=0; measure_seen<=0; measuring<=0; state<=S_RESET;
+                    end else begin
+                        init_index<=init_index+1'b1; pool_ptr<=pool_ptr+3;
+                        state<=S_INIT_LO;
+                    end
                 end
                 S_RESET: begin
                     if(word_index==4) begin
@@ -342,13 +519,66 @@ module jttms10_fpga_runner(
                         snapshot_index<8 ? snapshot_q : (rf_valid_read_q ? rf_read_q :
                         32'hdead0000+{26'd0,rf_snapshot_index});
                     if(snapshot_index==71) begin
+                        state<=S_SNAPSHOT_PAUSE;
+                    end else begin snapshot_index<=snapshot_index+1'b1; state<=S_SNAPSHOT_READ; end
+                end
+                S_SNAPSHOT_PAUSE: begin
+                    results[case_index*RESULT_WORDS+72]<=paused_count;
+                    state<=S_SNAPSHOT_MEMCOUNT;
+                end
+                S_SNAPSHOT_MEMCOUNT: begin
+                    results[case_index*RESULT_WORDS+73]<=init_count;
+                    snapshot_mem_index<=0;
+                    state<=S_MEM_ZERO;
+                end
+                S_MEM_ZERO: begin
+                    // Clear address/value snapshot slots serially so results
+                    // remains a single-write-port synchronous RAM.
+                    results[case_index*RESULT_WORDS+74+{25'b0,snapshot_mem_index}]<=0;
+                    if(snapshot_mem_index==127) begin
+                      if(init_count==0) begin
                         if(case_index+1>=case_count) begin
                             status<=batch_error || case_error ? 32'h80000002 : 32'h2;
                             state<=S_DONE;
                         end else begin
                             case_index<=case_index+1'b1; state<=S_CLEAR; word_index<=0;
                         end
-                    end else begin snapshot_index<=snapshot_index+1'b1; state<=S_SNAPSHOT_READ; end
+                      end else begin snapshot_mem_index<=0; pool_ptr<=init_base; state<=S_MEM_LO; end
+                    end else snapshot_mem_index<=snapshot_mem_index+1'b1;
+                end
+                S_MEM_LO: begin
+                    state<=S_MEM_HI;
+                end
+                S_MEM_HI: begin
+                    init_addr_lo_q<=program_read_q;
+                    state<=S_MEM_DATA;
+                end
+                S_MEM_DATA: begin
+                    init_addr[15:0]<=init_addr_lo_q; init_addr[31:16]<=program_read_q;
+                    state<=S_MEM_LOOKUP;
+                end
+                S_MEM_LOOKUP: begin
+                    sparse_lookup_valid_q<=init_tag_hit;
+                    state<=S_MEM_WRITE_ADDR;
+                end
+                S_MEM_WRITE_ADDR: begin
+                    results[case_index*RESULT_WORDS+74+({25'b0,snapshot_mem_index}<<1)]<=init_addr;
+                    state<=S_MEM_WRITE_DATA;
+                end
+                S_MEM_WRITE_DATA: begin
+                    results[case_index*RESULT_WORDS+75+({25'b0,snapshot_mem_index}<<1)]<=
+                        sparse_lookup_valid_q && sparse_snapshot_data_q[16] ? {16'b0,sparse_snapshot_data_q[15:0]} : 32'h80000004;
+                    if(!sparse_lookup_valid_q || !sparse_snapshot_data_q[16]) begin
+                        case_error<=1; batch_error<=1;
+                    end
+                    if({25'b0,snapshot_mem_index}+32'd1>=init_count) begin
+                        if(case_index+1>=case_count) begin
+                            status<=batch_error || case_error || !sparse_lookup_valid_q || !sparse_snapshot_data_q[16] ? 32'h80000002 : 32'h2;
+                            state<=S_DONE;
+                        end else begin
+                            case_index<=case_index+1'b1; state<=S_CLEAR; word_index<=0;
+                        end
+                    end else begin snapshot_mem_index<=snapshot_mem_index+1'b1; state<=S_MEM_LO; end
                 end
                 S_DONE: cpu_reset<=1;
                 default: ;

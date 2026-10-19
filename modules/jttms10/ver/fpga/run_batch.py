@@ -20,6 +20,8 @@ DEFAULT_IP = '192.168.68.72'
 DEFAULT_CC = Path('/opt/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc')
 REMOTE_TRANSPORT = '/tmp/jttms10-fpga-transport'
 REMOTE_BATCH = '/tmp/jttms10-fpga-batch.bin'
+PROTOCOL_VERSION = 2
+DESCRIPTOR_WORDS = 12
 
 
 def find_source_root(explicit=None):
@@ -66,23 +68,51 @@ def compile_transport(cc, out):
 def input_payload(batches, timeout):
     if not 1 <= len(batches) <= 4096:
         raise ValueError('invalid number of FPGA batches')
-    out = bytearray(struct.pack('<4sI', b'JTR2', len(batches)))
+    out = bytearray(struct.pack('<4sI', b'JTR3', len(batches)))
     for batch in batches:
+        if batch.get('protocol_version') != PROTOCOL_VERSION:
+            raise ValueError('batch is missing protocol_version 2')
         cases, words, desc = batch['cases'], batch['program_words'], batch['descriptors']
+        batch_flags = batch.get('batch_flags', 0)
         if not 1 <= len(cases) <= 32 or len(desc) != len(cases) or not 1 <= len(words) <= 4096:
             raise ValueError('batch exceeds the FPGA protocol capacity')
+        if batch_flags != 0:
+            raise ValueError('unsupported batch flags')
+        if any(type(word) is not int or not 0 <= word <= 0xffff for word in words):
+            raise ValueError('program/init pool word is outside uint16 range')
+        intervals = []
         for row in desc:
-            if (len(row) != 8 or row[2] == 0 or row[1] >= len(words) or
+            if (not isinstance(row, (list, tuple)) or len(row) != DESCRIPTOR_WORDS or
+                    any(type(word) is not int or not 0 <= word <= 0xffffffff for word in row)):
+                raise ValueError('descriptor must contain exactly 12 uint32 words')
+            if (len(row) != DESCRIPTOR_WORDS or row[2] == 0 or row[1] >= len(words) or
                     row[2] > len(words) - row[1] or row[2] > 3840 or
-                    row[3] < 0x1000 or row[3] >= 0x10000 or row[3] & 15 or
-                    row[4] < 0x1000 or row[4] >= 0x10000 or row[4] & 15 or
-                    row[5] > 255):
+                    row[6] > len(words) or row[7] > 64 or row[7] > (len(words) - row[6]) // 3 or
+                    row[3] & 15 or row[4] & 15 or
+                    row[5] > 255 or row[8] > 0x1fffffff or row[9] > timeout or
+                    row[10] > timeout or row[11] != 0):
                 raise ValueError('invalid descriptor program range')
-        if any(not 0 <= word <= 0xffff for word in words):
-            raise ValueError('program word is outside uint16 range')
-        out += struct.pack('<III', len(cases), len(words), timeout)
+            intervals.append((row[1], row[1] + row[2]))
+            if row[7]:
+                intervals.append((row[6], row[6] + 3 * row[7]))
+            initialized = []
+            regions = set()
+            for i in range(row[7]):
+                p = row[6] + 3 * i
+                address = words[p] | (words[p + 1] << 16)
+                if address & 15 or address in initialized:
+                    raise ValueError('sparse initializers must be unique, word-aligned addresses')
+                initialized.append(address)
+                regions.add(address >> 10)
+            if len(regions) > 16:
+                raise ValueError('sparse initializer set exceeds 16 tagged regions')
+        intervals.sort()
+        for left, right in zip(intervals, intervals[1:]):
+            if left[1] > right[0]:
+                raise ValueError('program/initializer pool ranges overlap')
+        out += struct.pack('<IIII', len(cases), len(words), timeout, batch_flags)
         for row in desc:
-            out += struct.pack('<8I', *row)
+            out += struct.pack(f'<{DESCRIPTOR_WORDS}I', *row)
         out += struct.pack(f'<{len(words)}H', *words)
     return bytes(out)
 
@@ -123,9 +153,12 @@ def main():
     if receipt.get('runner_source_sha256') != current_runner_hash:
         raise SystemExit('runner RTL differs from the image recorded in the programming receipt')
     manifest = json.loads(args.manifest.read_text())
-    if manifest.get('format') != 'jttms10-fpga-batch-v1':
+    if (manifest.get('format') != 'jttms10-fpga-batch-v2' or
+            manifest.get('protocol_version') != PROTOCOL_VERSION):
         raise SystemExit('unsupported manifest format')
     batches = manifest['batches']
+    if any(batch.get('protocol_version') != PROTOCOL_VERSION for batch in batches):
+        raise SystemExit('one or more manifest batches use an unsupported protocol version')
     if args.batch is not None:
         batches = [batches[args.batch]]
     if not batches:
@@ -198,6 +231,8 @@ def main():
     if result.returncode and not result.stdout.strip():
         raise RuntimeError(f'FPGA transport failed ({result.returncode}): {result.stderr.strip()}')
     capture = json.loads(result.stdout)
+    if capture.get('protocol_version') != PROTOCOL_VERSION:
+        raise RuntimeError('transport returned an unsupported protocol version')
     captures = capture.get('batches')
     if not isinstance(captures, list) or len(captures) != len(batches):
         raise RuntimeError(f"transport returned {0 if not isinstance(captures, list) else len(captures)} of {len(batches)} batch captures")
