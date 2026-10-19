@@ -97,15 +97,19 @@ the original38-request MSW-order assertion and17 response controls/one mutant
 pass after the correction. CPU/list state holds across256-clock response
 pauses; these are bounded wrapper-event checks, not original TI pause counts.
 
-The previous588-case Icarus/targeted-clean results and their source hashes
-remain historical evidence for the older word RTL. New representative
-cross-simulator and clean-checkout validation is pending for this correction;
-it will include all three targeted profiles. No full clean-runner acceptance
-is claimed. All92,138 preceding fixture/program/golden contracts are unchanged.
+At corrected implementation299d97666, all588 representative Icarus stress
+case objects match Verilator exactly after removing only the batch-local case
+ID. Four fresh Icarus processes match batching, split between unpaused base
+and stressed profiles. A detached clean checkout repeats all144 models, all
+three3,572-case matrices (10,716 programs) and17 response controls/one mutant.
+Every case object, all48 source hashes and seven generated hashes match the
+development profiles exactly; development/clean event records also match.
+This is targeted clean validation, not a full standard runner. The old
+27/e633 stressed evidence and failed unpaused capture remain historical.
 
 The corrected matched NARC GSP quartus_map estimates3,824 ALMs,5,495 ALUTs,
-1,722 registers,538,624 RAM bits,five DSPs and zero MLAB bits. Full snapshot
-verification remains part of the evidence update. Same158 virtual pins,
+1,722 registers,538,624 RAM bits,five DSPs and zero MLAB bits. All36 snapshot
+hashes and29 committed inputs match299d97666 exactly. Same158 virtual pins,
 device/tool/20ns/seed1/effort; no new arithmetic unit or register bank. This
 is synthesis without current fit/STA. The final ceiling remains3,500 fitted
 ALMs; preceding RETS fit3,649 fails it. Board timing and game validation remain
@@ -115,7 +119,8 @@ The initial117-form invocation failed stale helper anchors before matrices;
 e633074cc corrects those helper patterns without changing runtime inputs.
 Its fresh invocation was then cancelled for the demonstrated unpaused RTL
 bug, with reason/status retained. Neither is accepted as a complete run.
-Fresh complete validation on the corrected tree remains required, alongside
+A fresh full invocation is running on frozen299d97666; its completed outcome
+remains required, alongside
 remaining ISA/conditions/cache/HOLD/IRQ/peripheral/graphics resumption and
 final NARC/MiSTer/area/STA/full-clean/CI acceptance.
 

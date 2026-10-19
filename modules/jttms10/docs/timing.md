@@ -671,3 +671,15 @@ and17/1 response events. All48 runtime-source/seven ROM hashes match those
 profiles. New representative Icarus/clean validation and a fresh full runner
 remain pending. The corrected map estimates3,824 ALMs/5,495 ALUTs/1,722
 registers/five DSPs, without current fitting/STA. No source targets are waived.
+
+
+Corrected299d97666 validation is verified: a clean checkout repeats144 models,
+all10,716 targeted programs across separate base/wait/stress profiles and17/1
+response events, with exact development case objects,48 source/seven ROM
+hashes and event records. All588 representative Icarus stress cases and four
+fresh-process base/stress comparisons match batching. All342 short phases
+and seven correct-state/memory mutants pass. Corrected matched map3824ALM/
+5495ALUT/1722registers/fiveDSPs has all36 snapshot hashes/29 inputs verified.
+This is targeted clean evidence, not a full standard runner. A fresh full
+invocation runs on frozen299d97666; no completed117-form claim is made.
+No HDL/runtime/test expectation changes are made for this evidence update.
