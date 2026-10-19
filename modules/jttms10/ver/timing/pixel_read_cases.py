@@ -63,7 +63,7 @@ def program(case,movi):
     for q in range(1,16):words += [0x4C00|q,0x1000|(q<<5)|q]
     for q in range(15):words += [0x4E00|q,0x1000|((16+q)<<5)|0x10|q]
     for name,value in case.get('register_overrides',{}).items():
-        words+=movi(value,int(name[1:])+(16 if name.startswith('b') else 0))
+        words+=movi(value,15 if name=='sp' else int(name[1:])+(16 if name.startswith('b') else 0))
     reg=case['source_register']+(16 if case['bank'] and case['source_register']!=15 else 0)
     words+=movi(case.get('source_value',case['data_load']['address']),reg)+movi(case['initial_all_regs'][f'a{case["status_holder"]}'],case['status_holder'])
     words+=[0x01A0|case['status_holder']]+[0x0300]*12

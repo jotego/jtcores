@@ -30,6 +30,7 @@ from trap_cases import fixture as trap_fixture,transactions as trap_transactions
 from list_cases import fixture as list_fixture,transfers as list_transfers,wait_count as list_wait_count
 from pixel_read_cases import fixture as pixel_fixture
 from pixel_xy_read_cases import fixture as xy_pixel_fixture
+from pixel_store_cases import fixture as pixel_store_fixture
 from run import program,parse_result,check_bus,check_target
 
 
@@ -49,6 +50,7 @@ def evaluate(case,log,returncode):
     # completion bound; exact TI duration is checked in the normal suite.
     if 'data_list' in case:count=list_wait_count(case)
     elif 'data_trap' in case:count=len(trap_transactions(case))
+    elif case.get('pixel_store'):count=0  # Cached posted CPU work does not charge data waits.
     else:
         data=case['data_load'];fields=case.get('stack_fields',[data])
         count=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
@@ -74,13 +76,14 @@ def evaluate(case,log,returncode):
     if 'expected_memory' in case:
         memory=[(int(s.split()[1],16),int(s.split()[2],16)) for s in log.splitlines() if s.startswith('MEMORY ')]
         if sorted(memory)!=sorted(case['expected_memory']):errors.append('memory after response resume mismatch')
-    return dict(name=case['name'],observed=observed,events=records,bus_trace=bus,
+    return dict(name=case['name'],event_kind='posted-memory-response' if case.get('pixel_store') else 'logical-field-response',observed=observed,events=records,bus_trace=bus,
                 target_trace=target,functional_errors=functional,errors=errors)
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
+    parser.add_argument('--case',help='run matching controls plus the duplicate-response positive control')
     args=parser.parse_args()
     rows=[]
     with tempfile.TemporaryDirectory(prefix='jttms10-response-pause-') as temp:
@@ -93,8 +96,11 @@ def main():
             (work/'program.mem').write_text(''.join(f'{x:04x}\n' for x in image))
             (work/'data.mem').write_text(''.join(f'{a:08x} {v:04x}\n' for a,v in case['initial_memory']))
             binary=work/(name+'.vvp')
-            compiled=subprocess.run(['iverilog','-g2012','-s','test','-I',str(work),'-o',str(binary),
-                str(HERE.parent/'timing/test.sv'),*map(str,sorted(hdl.glob('*.v')))],capture_output=True,text=True)
+            posted=bool(case.get('pixel_store'))
+            top='posted_response' if posted else 'test'
+            observers=[str(HERE/'posted.sv')] if posted else []
+            compiled=subprocess.run(['iverilog','-g2012','-s',top,'-I',str(work),'-o',str(binary),
+                str(HERE.parent/'timing/test.sv'),*observers,*map(str,sorted(hdl.glob('*.v')))],capture_output=True,text=True)
             if compiled.returncode:raise RuntimeError(compiled.stdout+compiled.stderr)
             result=subprocess.run(['vvp',str(binary),'+PROGRAM=program.mem','+DATA=data.mem',f'+DATA_COUNT={len(case["initial_memory"])}',
                 f'+WATCH_EXTRA={13 if case.get("observe_all") else 3 if case.get("stack_control_flow") or case.get("trap_flow") else 1}','+CASE_ID=0','+MEASURE_PASS=1',f'+TEST_PC={start:x}',f'+NEXT_PC={following:x}',
@@ -140,6 +146,16 @@ def main():
                 case['response_pause_clocks']=96
                 case['response_pause_after']=28
                 probes.append(case)
+        for size in (1,16):
+            for bank in (0,1):
+                case=pixel_store_fixture(size,16-size,bank,False,tag='response_pause')
+                case['response_pause_clocks']=96
+                case['response_pause_after']=9
+                probes.append(case)
+        if args.case:
+            selected=[case for case in probes if args.case in case['name']]
+            if not selected:parser.error('no matching response-pause controls')
+            probes=selected if probes[0] in selected else [probes[0],*selected]
         for q,case in enumerate(probes):
             row=run_case(case,'control'+str(q),MODULE/'hdl');row['kind']='positive-control';rows.append(row)
             if row['errors']:raise RuntimeError(json.dumps(row,indent=2))
@@ -156,9 +172,9 @@ def main():
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
-               HERE.parent/'timing/test.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py')]]
-        args.report.write_text(json.dumps(dict(contract='CPU-only CEN response retention; exact TI base counts are checked separately',
+               HERE.parent/'timing/test.sv',HERE/'posted.sv',Path(__file__).resolve(),
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py')]]
+        args.report.write_text(json.dumps(dict(contract='CPU-only CEN: logical field response or posted memory response; exact TI base counts checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0
 

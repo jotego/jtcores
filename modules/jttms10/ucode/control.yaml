@@ -412,3 +412,8 @@ ucode:
   - name: blt_bxy
     start: 146
     seq: [gfx_mul]
+
+  - name: pixt_rlin_fast
+    start: 149
+    seq:
+      - write_mem, ni

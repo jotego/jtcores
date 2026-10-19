@@ -36,9 +36,59 @@ from store_cases import transactions as store_transfers
 from mutations import correct_architecture
 from pixel_read_cases import pixel_value, fixture as pixel_fixture, pixel_read_cases
 from pixel_xy_read_cases import fixture as xy_pixel_fixture, pixel_xy_read_cases
+from pixel_store_cases import fixture as pixel_store_fixture, following as pixel_store_following
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_pixel_replace_primary_count_table(self):
+        # SPVU001A12-214: replace is2+(3),8 for small pixels;2+(1),6 at16.
+        for size in (1,2,4,8,16):
+            for off in (False,True):
+                row=pixel_store_fixture(size,0,0,off)
+                self.assertEqual(row['data_store']['cpu'],2)
+                self.assertEqual(row['hidden_states'],1 if size==16 else 3)
+                self.assertEqual(row['states'],(6 if size==16 else 8) if off else 2)
+
+    def test_pixel_replace_primary_numeric_examples(self):
+        # All six unmasked replace examples on12-214, literal old/new words.
+        for size,want in ((1,1),(2,3),(4,15),(8,255),(16,65535)):
+            self.assertEqual(store_insert([(0x20500,0)],0x20500,size,65535),[(0x20500,want)])
+        self.assertEqual(store_insert([(0x20500,0)],0x20508,4,6),[(0x20500,0x600)])
+
+    def test_pixel_replace_preserves_bits_outside_the_pixel(self):
+        row=pixel_store_fixture(8,8,0,False,value=0x12345678)
+        self.assertEqual(dict(row['expected_memory'])[0x6000],0x7896)
+        row=pixel_store_fixture(4,12,0,False,value=0)
+        self.assertEqual(dict(row['expected_memory'])[0x6000],0x596)
+
+    def test_pixel_replace_subset_and_alignment_guards(self):
+        for control in (0x20,0x400,0x5400):
+            with self.assertRaises(ValueError):pixel_store_fixture(16,0,0,False,control=control)
+        with self.assertRaises(ValueError):pixel_store_fixture(4,1,0,False)
+        with self.assertRaises(ValueError):pixel_store_fixture(6,0,0,False)
+
+    def test_pixel_replace_shared_sp_alias_stores_old_pointer(self):
+        for bank in (0,1):
+            row=pixel_store_fixture(16,0,bank,False,source=15,pointer=15)
+            self.assertEqual(row['expected_extra_regs']['sp'],0x6000)
+            self.assertEqual(dict(row['expected_memory'])[0x6000],0x6000)
+            # Program construction must handle the shared-SP override.
+            words,_,_=program(row)
+            self.assertIn(0x09EF,words)
+
+    def test_pixel_replace_wrong_cpu_count_fails_with_correct_state(self):
+        row=pixel_store_fixture(16,0,0,False)
+        actual=dict(clocks=16,paused=0,st=row['expected_st'],
+            **{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+        self.assertEqual(check(row,actual),[])
+        actual['clocks']=24
+        self.assertTrue(check(row,actual))
+
+    def test_pixel_replace_following_field_uses_written_value(self):
+        row=pixel_store_following(pixel_store_fixture(8,8,0,False,status=0xF0200808),0)
+        self.assertEqual(row['expected_follow_regs'][1],0x6D)
+        self.assertEqual(row['expected_follow_st']&0xF0000000,0x40000000)
+
     def test_xy_pixel_primary_numeric_addresses(self):
         # TI12-223: all ten source/size/mask examples address word20500.
         rows=[c for c in pixel_xy_read_cases() if '_literal' in c['name']]

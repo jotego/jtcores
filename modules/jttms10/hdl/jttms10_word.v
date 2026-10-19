@@ -199,7 +199,7 @@ module jttms10_word #(
             else request_latched<=1;
             if(data_accept) begin
                 iaq_q<=field_iaq;pixel_q<=field_pixel;srt_q<=pixel_srt;data_owner<=1;
-                early_data_q<=(indirect_load || field_post) && (!field_pixel || ir[15:9]==7'b1111101 || ir[15:9]==7'b1111001);
+                early_data_q<=(indirect_load || field_post) && (!field_pixel || ir[15:9]==7'b1111101 || ir[15:9]==7'b1111001 || (field_post && ir[15:9]==7'b1111100));
                 if(field_post) begin post_busy<=1;post_ack<=1;end
             end
             if(data_ack) begin data_owner<=0;post_busy<=0;end
