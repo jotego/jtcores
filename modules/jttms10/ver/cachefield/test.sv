@@ -54,7 +54,7 @@ module test;
         .word_lock(m_lock),.word_pixel(m_pixel),.word_addr(m_addr),
         .word_wdata(m_wdata),.is_io(1'b0),.pixel_srt(1'b0),
         .io_rdata(16'd0),.word_rdata(m_rdata),.word_ack(m_ack),
-        .word_restart(m_restart),.cyc_req(cyc_req),
+        .word_restart(m_restart),.word_wait(),.cyc_req(cyc_req),
         .cyc_kind(cyc_kind),.cyc_addr(cyc_addr),
         .cyc_wdata(cyc_wdata),.cyc_io_rdata(cyc_io_rdata),
         .cyc_iaq(cyc_iaq),.cyc_srfaddr(cyc_srfaddr),

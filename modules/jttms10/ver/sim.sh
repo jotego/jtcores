@@ -21,6 +21,12 @@ main() {
         for mode in 1 2 3 4 5 6 7 8; do
             "$model_dir/Vtest" +mode="$mode"
         done
+    elif [ "$unit" = lineirq-timed ]; then
+        for waits in 0 1; do
+            for after in 1 2 3; do
+                "$model_dir/Vtest" +WAIT_STATES="$waits" +IRQ_AFTER="$after"
+            done
+        done
     elif [ "$unit" = arrayirq ]; then
         for size in 1 2 4 8 16; do
             "$model_dir/Vtest" +FILL_PSIZE="$size"
@@ -52,6 +58,7 @@ select_sources() {
         word|arch|system|pixelbus) ;;
         arrayirq) bench=array/interrupt.sv ;;
         lineirq) bench=line/interrupt.sv ;;
+        lineirq-timed) bench=line/timed_interrupt.sv ;;
         *) echo "Unknown unit: $unit" >&2; return 2 ;;
     esac
     sources=("$ver_dir/$bench")

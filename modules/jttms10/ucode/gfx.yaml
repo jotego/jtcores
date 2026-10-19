@@ -1800,18 +1800,18 @@ ucode:
   - qs_gas, qs_gbs, m1_gam, m1_gbm, add_galu, a_gdst, rd_gbus, word_gsize, source_gpix, z_gflg, jump_gflow,
     z_gcond, clear_gclip, sa0, sa1, sa2, sa3, sa4, sa5, da0, da1, da2, da3, da4, da5,
     t4, t5, t6, t7, t8, t9, t10, t11
-  - qd_gas, qd_gbs, m2_gam, m2_gbm, adc_galu, b_gdst, wr_gbus, half_gsize, visible_gpix, nz_gflg, call_gflow,
+  - qd_gas, qd_gbs, m2_gam, m2_gbm, addnow_galu, b_gdst, wr_gbus, half_gsize, visible_gpix, nz_gflg, call_gflow,
     nz_gcond, lt_gclip, mdrf
   - k_gas, k_gbs, m3_gam, m3_gbm, sub_galu, md_gdst, rdpx_gbus, chunk_gsize, process_gpix, nvzc_gflg,
     ret_gflow, n_gcond, le_gclip
-  - m4_gam, m4_gbm, sbc_galu, ea_gdst, wrpx_gbus, test_gpix, vclip_gflg, end_gflow, nn_gcond, gt_gclip
+  - m4_gam, m4_gbm, subnow_galu, ea_gdst, wrpx_gbus, test_gpix, vclip_gflg, end_gflow, nn_gcond, gt_gclip
   - m5_gam, m5_gbm, and_galu, tmp_gdst, vpix_gflg, check_gflow, clip_gcond, ge_gclip
   - m6_gam, m6_gbm, andn_galu, rf_gdst, vclear_gflg, nclip_gcond
   - m7_gam, m7_gbm, or_galu, ir_gdst, wvp_gflg, need_gcond
   - xor_galu, transparent_gcond, word_gpix, stride_gpix
   - not_galu, w1_gcond, sync_gbus
   - neg_galu, w2_gcond
-  - abs_galu, w3_gcond
+  - passnow_galu, w3_gcond
   - shl_galu, lt_gcond
   - shr_galu, gt_gcond
   - sar_galu, fill_gcond

@@ -8,7 +8,8 @@ module test;
     integer target_begin=-1,ready_tick=-1,release_tick=-1;
     reg responding=0,finished=0,second=0;
     reg [15:0] io_data=16'h1111;
-    wire ack,ext_req;
+    wire ack,ext_req,wait_active;
+    integer waited=0;
     wire [15:0] data;
     wire blocked=now<block_until;
     wire ext_ack=io_cycle ? latency==0 : (responding && now<release_tick) ||
@@ -16,13 +17,14 @@ module test;
     wire [15:0] ext_data=ext_req ? 16'ha000+16'(sequence_id) : 16'hdead;
     jttms10_bus_timer dut(
         .clk(clk),.rst(rst),.req(req),.queued(queued),.blocked(blocked),
-        .io_cycle(io_cycle),.io_rdata(io_data),.ack(ack),.rdata(data),
+        .io_cycle(io_cycle),.io_rdata(io_data),.ack(ack),.wait_active(wait_active),.rdata(data),
         .ext_req(ext_req),.ext_ack(ext_ack),.ext_rdata(ext_data)
     );
     always @(posedge clk) begin
         if(rst) now<=0;
         else begin
             now<=now+1;
+            if(wait_active) waited=waited+1;
             if(dut.start) begin
                 accept_tick=now;
                 $display("ACCEPT %0d",now);
@@ -43,7 +45,7 @@ module test;
             if(io_cycle && ext_req) $fatal(1,"I/O attempted an external transaction");
             if(ack) begin
                 ack_count=ack_count+1;
-                $display("RESULT sequence=%0d accept=%0d end=%0d data=%04h targets=%0d",sequence_id,accept_tick,now,data,targets);
+                $display("RESULT sequence=%0d accept=%0d end=%0d data=%04h targets=%0d waited=%0d",sequence_id,accept_tick,now,data,targets,waited);
                 if(ack_count>sequence_id+1) $fatal(1,"duplicate completion while req held");
                 finished=1;
             end
@@ -74,7 +76,7 @@ module test;
         wait(finished);
         if(second) begin
             @(negedge clk);req=0;
-            @(negedge clk);sequence_id=1;queued=0;finished=0;req=1;
+            @(negedge clk);sequence_id=1;queued=0;finished=0;waited=0;req=1;
             wait(finished);
         end
         // Held request/ACK may not duplicate an acknowledged transfer.

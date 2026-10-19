@@ -27,7 +27,7 @@ module test;
         .word_req(cpu_req && !word_restart),.word_pending(cpu_req),.word_early(1'b0),.word_we(word_we),.word_iaq(1'b0),
         .word_lock(word_lock),.word_pixel(1'b0),.word_addr(32'h200),
         .word_wdata(word_wdata),.is_io(1'b0),.pixel_srt(1'b0),.io_rdata(16'd0),
-        .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),
+        .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),.word_wait(),
         .cyc_req(cyc_req),.cyc_kind(cyc_kind),.cyc_addr(cyc_addr),
         .cyc_wdata(cyc_wdata),.cyc_io_rdata(),.cyc_iaq(),.cyc_srfaddr(),
         .cyc_dpytap(),.cyc_org(),.cyc_dram_row(),.cyc_rdata(memory),.cyc_ack(cyc_ack)

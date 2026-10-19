@@ -31,7 +31,7 @@ module jttms10_bus #(
     input is_io, pixel_srt,
     input [15:0] io_rdata,
     output [15:0] word_rdata,
-    output word_ack, word_restart,
+    output word_ack, word_restart, word_wait,
     output cyc_req,
     output reg [3:0] cyc_kind,
     output reg [31:0] cyc_addr,
@@ -80,6 +80,7 @@ module jttms10_bus #(
         !(screen_req && !screen_served) && !dram_pending && !refresh_req &&
         host_mem_req && !host_served;
     wire cycle_ack;
+    wire cycle_wait;
     wire [15:0] cycle_rdata;
     wire cycle_req=state==ACTIVE;
     wire complete=cycle_req && cycle_ack;
@@ -89,17 +90,19 @@ module jttms10_bus #(
             .blocked(hold_ack),
             .io_cycle(cyc_kind==4'd5 || cyc_kind==4'd6),
             .io_rdata(owner==HOST ? host_mem_io_rdata : io_rdata),
-            .ack(cycle_ack),.rdata(cycle_rdata),
+            .ack(cycle_ack),.wait_active(cycle_wait),.rdata(cycle_rdata),
             .ext_req(cyc_req),.ext_ack(cyc_ack),.ext_rdata(cyc_rdata)
         );
     end else begin : g_raw
         wire unused_queued=cycle_queued;
         assign cyc_req=cycle_req;
         assign cycle_ack=cyc_ack;
+        assign cycle_wait=1'b0;
         assign cycle_rdata=cyc_rdata;
     end endgenerate
     assign hold_ack=state==HOLD;
     assign word_ack=complete && owner==CPU;
+    assign word_wait=cycle_wait && owner==CPU;
     assign screen_ack=complete && owner==SCREEN;
     assign host_mem_ack=complete && owner==HOST;
     assign host_mem_rdata=cycle_rdata;

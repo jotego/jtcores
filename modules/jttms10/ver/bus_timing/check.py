@@ -57,6 +57,8 @@ def verify(case,lines):
     expected=completion(boundary,accept+case['latency'],io=case['io'])
     errors=[]
     first=rows[0]
+    if first['waited'] != expected-boundary-16:
+        errors.append(f'wait indication expected {expected-boundary-16} INCLK, observed {first["waited"]}')
     if (first['accept'],first['end'])!=(accept,expected):
         errors.append(f'expected accept/completion {accept}/{expected} INCLK, observed {first["accept"]}/{first["end"]}')
     for i,row in enumerate(rows):
@@ -68,6 +70,8 @@ def verify(case,lines):
             if row['accept']<release or row['accept']%8:
                 errors.append('next request accepted before old ACK drained/state boundary')
             end=completion(row['accept'],row['accept']+case['latency'])
+            if row['waited']!=end-row['accept']-16:
+                errors.append('second wait indication lost or repeated clocks')
             if row['end']!=end:errors.append(f'second completion expected {end}, observed {row["end"]}')
     return errors,rows
 

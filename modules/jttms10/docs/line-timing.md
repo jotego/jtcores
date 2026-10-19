@@ -61,35 +61,55 @@ normal run excludes these newer probes and cannot validate their source.
 
 ## Current implementation work
 
-LINE XY conversion now selects the existing scalar DSP operands for signed
-Y times pitch and unsigned X times PSIZE. The shared ALU ORs those products
-and adds OFFSET; the existing packed ALU updates X/Y independently. The
-microcode's aligned branch targets omit four constant-zero low bits, leaving
-room for the arithmetic selectors in a 4,096-by-62-bit graphics ROM. There is
-one shared scalar multiply expression and no additional register-file bank;
-resource inference and final timing closure still require Quartus evidence.
+The timed replace-only W0/W2/W3 path now runs a native four-state setup and
+five-state pixel schedule. It overlaps the next pixel's RF reads, shared
+ALU/DSP coordinate conversion and window test with the posted physical
+transfer. The next pixel issues only after its budget expires; each
+interrupt checkpoint also waits for the previous field to drain. B0, B2
+and B10 commit before the checkpoint. Preparing a later clipped pixel does
+not change V or WVP before that pixel issues. A wholly clipped or empty
+line retains exact CEN-pause timing without introducing a bus-alignment
+penalty for a transaction it never starts.
 
-The empty W0 path now retains the four setup states. All 20 count-zero cases
-pass base, W1 and W1/P7; a deliberate one-state-short setup fails with correct
-architecture, memory and WVP. Nonempty cases remain timing failures: the
-single PS16 pixel improves from 572 to 168 INCLK against a target of 72.
-All 626 base/stress cases retain the defined architectural and ordered bus
-checks. This is an intermediate schedule, not LINE timing signoff.
+Each external low-LRDY extension freezes overlapped preparation and its
+intrinsic budget for exactly one eight-clock state. The bus timer continues
+independently. Its focused bench checks the extension span as well as
+completion. Neither Linux latency nor a host-serviced memory request belongs
+in this timing contract.
 
-The next scheduling stage bypasses the window routine in W0, keeps the
-two synchronous RF reads occupied across decision/pointer updates, and
-captures the chosen increment and B2 together. Scratch52 is no longer
-needed by LINE. COUNT decrement and terminal/abort decisions share one
-microinstruction; B0, B2 and B10 still commit before every interrupt
-checkpoint. Setup/conversion also overlap register reads with shared-ALU
-writebacks. Transparent writes use the existing bus suppression path.
-No arithmetic unit or register bank is added.
+The existing scalar DSP computes Y times pitch and X times PSIZE; the shared
+ALU combines these with OFFSET and updates packed coordinates. New graphics
+controls capture formatted RF operands directly into the existing ALU and
+write the previously selected RF destination while priming the next reads.
+Aligned microcode branch targets omit four zero low bits, keeping the
+expanded graphics ROM at 4,096 by 63 bits. No arithmetic unit or register
+bank is added; final resource inference and timing closure still require
+Quartus evidence.
 
-This stage observes 98 INCLK for the single PS16 hit case against 72.
-All 626 probes in each of base, W1 and W1/P7 retain correct checked
-architecture, memory, WVP and ordered bus events: 20 empty cases pass and
-606 nonempty cases fail duration only in each profile. The base capture
-uses an additional observational microaddress/phase display; wait/stress
-use the unchanged standard bench. The duration failures remain active in
-the standard runner. The remaining work includes a native pixel schedule,
-bus/interrupt checkpoint timing and the unprobed processing conditions.
+All 626 cases pass targeted Verilator base, one-wait, one-wait/one-clock
+pause and one-wait/seven-clock pause profiles. The single PS16 hit now
+observes the required 72 INCLK. The timed IRQ bench interrupts after pixels
+1, 2 and 3 with zero/one external wait state, nests ISR FILL under
+MMTM/MMFM, resumes via RETI, and checks PC rewind, B0/B2/B10, physical
+writes, memory and a 0x10000 COUNT checkpoint. These are bounded directed
+checks, not a full timing audit of IRQ entry or all processing modes.
+
+Three positive controls and three actual RTL mutations pass: shortening
+setup, shortening the pixel budget and absorbing an external wait each
+produce a timing failure with checked architecture/memory preserved.
+The short-pixel probe uses PS16 with no external waits so its transfer
+latency does not mask the intrinsic-budget regression.
+
+Reproduce native negative controls and timed IRQ checks with:
+
+```sh
+python3 -B modules/jttms10/ver/timing/mutations.py --group line --report line-mutations.json
+bash modules/jttms10/ver/sim.sh lineirq-timed
+```
+
+W1 and non-replace PPOP, masks and transparency retain the generic path.
+The independent oracle/fixture goldens are unchanged. Full current-source
+normal/clean/CI, wider signed/wrapping geometry, original bus-pin phase
+and final fitted area/STA/NARC acceptance remain open. Long regression
+matrices are moving to the autonomous DataStorm runner under #145; no FPGA
+instruction-test equivalence is claimed before physical validation.

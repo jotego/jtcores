@@ -18,6 +18,16 @@ constants:
   TARGET_GLINECOUNT: t5 t8 t9 t10
   TARGET_GLINEFINISH: t4 t6 t8 t9 t10
   TARGET_GLINEWVP: t5 t6 t8 t9 t10
+  TARGET_GLINEFASTINIT: t5 t6 t10 t11
+  TARGET_GLINEFASTCONVERT: t4 t5 t6 t10 t11
+  TARGET_GLINEFASTPOST: t7 t10 t11
+  TARGET_GLINEFASTDIAG: t4 t7 t10 t11
+  TARGET_GLINEFASTLATERAL: t5 t7 t10 t11
+  TARGET_GLINEFASTCOUNT: t4 t5 t7 t10 t11
+  TARGET_GLINEFASTFINISH: t6 t7 t10 t11
+  TARGET_GLINEFASTWINPREP: t4 t6 t7 t10 t11
+  TARGET_GLINEFASTNEXT0: t5 t6 t7 t10 t11
+  TARGET_GLINEFASTWININIT: t4 t5 t6 t7 t10 t11
 ucode:
 - name: glineinit
   start: 104
@@ -140,3 +150,78 @@ ucode:
   - sa1 sa3 sa4
   - sa1 sa3 sa4
   - end_gflow
+
+# Native replace/W0/W2/W3 schedule: prepare the following pixel during the posted
+# physical write. SYNC checkpoints and END share the pixel's intrinsic
+# five-state budget; external bus wait states freeze preparation and budget.
+- name: glinefastinit
+  start: 198
+  seq:
+  - sa1 sa3 sa4, da1 da3 da4 # COUNT
+  - passnow_galu, qs_gas, z_gcond, jump_gflow, ${TARGET_GLINEFASTFINISH}, sa0 sa1 sa2 sa4, da2 da5
+  - addnow_galu, qs_gas, m4_gam, qs_gbs, m4_gbm, rf_gdst, wprev, sa0 sa1 sa2 sa4, da0 da2 da5 # scratch36=2b
+  - addnow_galu, qs_gas, m4_gam, qs_gbs, m4_gbm, b_gdst, sa0 sa1 sa2 sa4, da0 da2 da5
+  - addnow_galu, qs_gas, m2_gam, qs_gbs, m2_gbm, a_gdst, sa0 sa1 sa2 sa4, da0 da2 da5 # A=2a
+  - sub_galu, rf_gdst, wprev, call_gflow, ${TARGET_GLINEFASTCONVERT}, sa1 sa4, da2 da4 # scratch37=2b-2a
+  - jump_gflow, ${TARGET_GLINEFASTPOST}, sa4, da4
+- name: glinefastconvert
+  start: 199
+  seq:
+  - qs_gas, m3_gam, yproduct_gmath, b_gdst, sa1 sa4, da2 da4
+  - qs_gas, m2_gam, xproduct_gmath, or_galu, a_gdst, qd_gbs, sa1 sa4, da2 da4
+  - add_galu, ea_gdst, sa0 sa3 sa4, da4
+  - process_gpix, ret_gflow, sa4, da4
+- name: glinefastpost
+  start: 200
+  seq:
+  - postpx_gbus, sa4, da4
+  - passnow_galu, qs_gas, linediag_gcond, jump_gflow, ${TARGET_GLINEFASTDIAG}, sa0 sa2 sa5, da4
+  - jump_gflow, ${TARGET_GLINEFASTLATERAL}, sa2 sa5, da4
+- name: glinefastdiag
+  start: 201
+  seq:
+  - addnow_galu, qs_gas, qd_gbs, rf_gdst, wprev, sa0 sa1 sa3 sa4, da1 da4
+  - addnow_galu, qs_gas, qd_gbs, packed_gmath, rf_gdst, wprev, jump_gflow, ${TARGET_GLINEFASTCOUNT}, sa1 sa3 sa4, da1 da3 da4
+- name: glinefastlateral
+  start: 202
+  seq:
+  - addnow_galu, qs_gas, qd_gbs, rf_gdst, wprev, sa2 sa3 sa4, da1 da4
+  - addnow_galu, qs_gas, qd_gbs, packed_gmath, rf_gdst, wprev, jump_gflow, ${TARGET_GLINEFASTCOUNT}, sa1 sa3 sa4, da1 da3 da4
+- name: glinefastcount
+  start: 203
+  seq:
+  - subnow_galu, k_gas, m1_gam, qd_gbs, rf_gdst, wprev, lineend_gcond, jump_gflow, ${TARGET_GLINEFASTFINISH}, sa1 sa4, da2 da4
+  - w0_gcond, jump_gflow, ${TARGET_GLINEFASTNEXT0}, sa1 sa4, da0 da2 da4
+  - call_gflow, ${TARGET_GLINEFASTWINPREP}, sa1 sa4, da0 da2 da4
+  - sync_gbus, check_gflow, sa4, da4
+  - jump_gflow, ${TARGET_GLINEFASTPOST}, sa4, da4
+- name: glinefastfinish
+  start: 204
+  seq:
+  - sync_gbus, end_gflow
+
+# Packed SUB shares the scalar ALU. Sign correction covers a half-word
+# subtraction overflowing when point and limit signs differ.
+- name: glinefastwinprep
+  start: 205
+  seq:
+  - subnow_galu, qs_gas, qd_gbs, packed_gmath, xylow_gclip, sa1 sa4, da1 da2 da4
+  - subnow_galu, qs_gas, qd_gbs, packed_gmath, xyhigh_gclip, sa1 sa4, da2 da4
+  - nclip_gcond, jump_gflow, ${TARGET_GLINEFASTCONVERT}, sa1 sa4, da2 da4
+  - ret_gflow, sa4, da4
+- name: glinefastnext0
+  start: 206
+  seq:
+  - call_gflow, ${TARGET_GLINEFASTCONVERT}, sa1 sa4, da2 da4
+  - sync_gbus, check_gflow, sa4, da4
+  - jump_gflow, ${TARGET_GLINEFASTPOST}, sa4, da4
+- name: glinefastwininit
+  start: 207
+  seq:
+  - sa1 sa3 sa4, da1 da3 da4
+  - passnow_galu, qs_gas, z_gcond, jump_gflow, ${TARGET_GLINEFASTFINISH}, sa0 sa1 sa2 sa4, da2 da5
+  - addnow_galu, qs_gas, m4_gam, qs_gbs, m4_gbm, rf_gdst, wprev, sa0 sa1 sa2 sa4, da0 da2 da5
+  - addnow_galu, qs_gas, m4_gam, qs_gbs, m4_gbm, b_gdst, sa0 sa1 sa2 sa4, da0 da2 da5
+  - addnow_galu, qs_gas, m2_gam, qs_gbs, m2_gbm, a_gdst, sa0 sa1 sa2 sa4, da0 da2 da5
+  - sub_galu, rf_gdst, wprev, call_gflow, ${TARGET_GLINEFASTWINPREP}, sa1 sa4, da0 da2 da4
+  - jump_gflow, ${TARGET_GLINEFASTPOST}, sa4, da4

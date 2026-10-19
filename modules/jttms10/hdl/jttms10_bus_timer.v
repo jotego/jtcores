@@ -10,7 +10,7 @@ module jttms10_bus_timer #(
     input clk, rst,
     input req, queued, blocked, io_cycle,
     input [15:0] io_rdata,
-    output ack,
+    output ack, wait_active,
     output [15:0] rdata,
     output ext_req,
     input ext_ack,
@@ -26,6 +26,7 @@ module jttms10_bus_timer #(
     localparam [CW-1:0] SAMPLE_LEFT=SAMPLE_LEFT_I[CW-1:0];
     localparam [CW-1:0] STATE_CLKS=CLKS_PER_STATE[CW-1:0];
     reg [PW-1:0] phase, idle;
+    reg [PW-1:0] wait_left;
     reg [CW-1:0] left;
     reg active, served, external_done, draining, io;
     reg [15:0] data;
@@ -38,6 +39,10 @@ module jttms10_bus_timer #(
     wire start=req && !active && !served && !blocked && (!draining || io_cycle) &&
                (phase==0 || credit);
     wire ready=external_done || (ext_req && ext_ack);
+    wire extend=active && left==SAMPLE_LEFT && !io && !ready;
+    // Preparation overlapped with this cycle must stop for every added
+    // state, including the clock which first samples LRDY low.
+    assign wait_active=extend || wait_left!=0;
     assign ext_req=!rst && ((start && !io_cycle) || (active && !io && !external_done));
     assign ack=active && left==0 && (io || external_done);
     assign rdata=data;
@@ -49,11 +54,13 @@ module jttms10_bus_timer #(
 
     always @(posedge clk) begin
         if(rst) begin
-            phase<=0; idle<=0; left<=0;
+            phase<=0; idle<=0; left<=0; wait_left<=0;
             active<=0; served<=0; external_done<=0; draining<=1; io<=0;
             data<=0;
         end else begin
             phase<=phase==PHASE_LAST ? {PW{1'b0}} : phase+1'b1;
+            if(extend) wait_left<=PHASE_LAST;
+            else if(wait_left!=0) wait_left<=wait_left-1'b1;
             if(blocked || active || start) idle<=0;
             else if(idle!=PHASE_LAST) idle<=idle+1'b1;
             if(!req) served<=0;
@@ -64,7 +71,7 @@ module jttms10_bus_timer #(
                 external_done<=0;
                 if(io_cycle) data<=io_rdata;
             end else if(active) begin
-                if(left==SAMPLE_LEFT && !io && !ready)
+                if(extend)
                     left<=left+STATE_CLKS-1'b1;
                 else if(left!=0) left<=left-1'b1;
                 // External data is retained through completion. On-chip I/O

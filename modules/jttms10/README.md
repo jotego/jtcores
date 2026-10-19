@@ -12,7 +12,7 @@ Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner retains six PIXBLT forms without probes, partial [FILL
-timing coverage](docs/fill-timing.md), [LINE timing failures](docs/line-timing.md),
+timing coverage](docs/fill-timing.md), [bounded LINE timing coverage](docs/line-timing.md),
 and unresolved MOVB targets.
 Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 (260 linear and 1,980 XY). Other processing/window/mask/edge conditions
@@ -38,7 +38,7 @@ the instruction timing changes are complete.
 `ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
 JT680X. The scalar and graphics sequencers share one ALU, synchronous
 register RAM, operand registers and field bus. Graphics control uses a
-separate 4,096-by-64-bit block-ROM image; YAML selects ALU operands, register
+separate 4,096-by-63-bit block-ROM image; YAML selects ALU operands, register
 addresses, memory/pixel actions, flag masks and flow. See
 [the architecture](docs/architecture.md).
 

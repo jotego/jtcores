@@ -37,7 +37,7 @@ module jttms10_system #(
     wire word_req, word_pending, word_early, word_we, word_iaq, word_lock, word_pixel;
     wire [31:0] word_addr;
     wire [15:0] word_wdata, word_rdata;
-    wire word_ack, word_restart, nmi_clear, wvp_set;
+    wire word_ack, word_restart, word_wait, nmi_clear, wvp_set;
     wire [31:0] irq_vector;
     wire nmi_nmim;
     wire [15:0] psize, convsp, convdp, control, pmask, hstctlh;
@@ -56,7 +56,7 @@ module jttms10_system #(
         .word_req(word_req),.word_pending(word_pending),.word_early(word_early),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
-        .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),
+        .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),.word_wait(word_wait),
         .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault)
     );
 
@@ -75,7 +75,7 @@ module jttms10_system #(
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),
-        .word_restart(word_restart),
+        .word_restart(word_restart),.word_wait(word_wait),
         .nmi_clear(nmi_clear),.wvp_set(wvp_set),
         .psize(psize),.convsp(convsp),.convdp(convdp),
         .control(control),.pmask(pmask),

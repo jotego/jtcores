@@ -48,7 +48,7 @@ module test;
         .word_lock(word_lock),.word_pixel(1'b0),
         .word_addr(word_addr),.word_wdata(word_wdata),
         .word_rdata(word_rdata),.word_ack(word_ack),
-        .word_restart(word_restart),
+        .word_restart(word_restart),.word_wait(),
         .nmi_clear(1'b0),.wvp_set(1'b0),
         .psize(psize),.convsp(convsp),.convdp(convdp),
         .control(control),.pmask(pmask),.pixel_srt(pixel_srt),

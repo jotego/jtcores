@@ -14,7 +14,7 @@ module jttms10 #(
     input      [15:0] psize, convsp, convdp, control, pmask,
     output reg        nmi_clear, emu_ack,
     output reg        wvp_set,
-    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post, mem_fast,
+    output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post, mem_fast, mem_overlap,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
@@ -42,9 +42,9 @@ module jttms10 #(
     wire [5:0] gfx_rf_sa, gfx_rf_da, gfx_rf_wa, gfx_bus_size;
     wire gfx_load_a,gfx_load_b,gfx_dst_a,gfx_dst_b,gfx_dst_md,
          gfx_dst_ea,gfx_dst_tmp,gfx_dst_rf,gfx_dst_ir,gfx_mdrf;
-    wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel,gfx_bus_sync;
+    wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel,gfx_bus_sync,gfx_bus_post,gfx_bus_skip;
     wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test,gfx_pix_word;
-    wire gfx_product,gfx_product_y,gfx_packed_xy;
+    wire gfx_product,gfx_product_y,gfx_packed_xy,gfx_alu_capture;
     reg fill_word;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
          gfx_flag_vpix,gfx_flag_vclear,gfx_flag_wvp;
@@ -124,6 +124,8 @@ module jttms10 #(
     wire pix_rlin = ir[15:9]==7'b1111100;
     wire pixel_simple=control[14:10]==0 && !control[5] && pmask==0;
     wire pixel_xy_simple=pixel_simple && control[7:6]==0;
+    wire line_native=TIMED_PROGRAM!=0 && line_ir && pixel_simple && control[7:6]!=2'd1;
+    assign mem_overlap=line_native && gfx_active;
     wire pixel_boolean=!control[14] && control[13:10]!=0 && !control[5] && pmask==0;
     // The selected native microprogram owns the mode until retirement.
     wire pixel_process=pix_rlin && gfx_family==8'd150;
@@ -271,6 +273,7 @@ module jttms10 #(
     wire load_direct=pixel_linear_copy || pixel_process || pixel_linear_load || (stack_read && !multi_ir) || ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
+    wire decode_native_line=TIMED_PROGRAM!=0 && (decode_opcode==16'hdf1a || decode_opcode==16'hdf9a) && pixel_simple && control[7:6]!=2'd1;
     wire decode_multiply=decode_opcode[15:10]==6'b010111;
     wire decode_shiftk=decode_opcode[15:13]==3'b001 && decode_opcode[12:10]<=3'd4;
     wire decode_shiftr=decode_opcode[15:12]==4'h6 && decode_opcode[11:9]<=3'd4;
@@ -399,6 +402,10 @@ module jttms10 #(
     // and the fetch/dispatch response latch. Execution finishes early enough
     // for that fetch to overlap its last TI machine state (UG §5.4.3/§5.5).
     localparam [15:0] FETCH_OVERLAP=16'd4;
+    localparam integer LINE_SETUP_I=4*CLKS_PER_STATE-1;
+    localparam integer LINE_PIXEL_I=5*CLKS_PER_STATE-1;
+    localparam [15:0] LINE_SETUP_CLKS=LINE_SETUP_I[15:0];
+    localparam [15:0] LINE_PIXEL_CLKS=LINE_PIXEL_I[15:0];
     localparam [31:0] GFX_END_PHASE=CLKS_PER_STATE-32'd4;
     wire field_op = mem_sel!=0 || stack_sel!=0 ||
                     gfx_bus_read || gfx_bus_write;
@@ -409,8 +416,10 @@ module jttms10 #(
     // full clock to decode the returned opcode before fetch/dispatch commits.
     // The completed graphics state hands off four clocks before the next
     // state boundary, matching the existing cached fetch/dispatch overlap.
-    wire operation_ready=gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
-                         !mem_busy && (!gfx_end_pending || mem_phase==GFX_END_PHASE[$clog2(CLKS_PER_STATE)-1:0]) : multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
+    wire operation_ready=line_native && gfx_bus_skip ? time_left==0 :
+                         gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
+                         !mem_busy && (!line_native || time_left<=FETCH_OVERLAP) &&
+                         (!(gfx_end_pending || line_native) || (line_native && !store_started) || mem_phase==GFX_END_PHASE[$clog2(CLKS_PER_STATE)-1:0]) : multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
                          (fetch && mem_fast && mem_ack) :
                          !bus_op || completed || mem_ack || gfx_skip_write;
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
@@ -422,6 +431,7 @@ module jttms10 #(
     assign mem_req = ((early_load && (cen || load_started)) || (early_store && (cen || store_started)) ||
                       (active && bus_op && !(load_pending && (mem_sel==READ_MEM || (multi_load && stack_sel==READ_STACK))) && !(store_pending && (mem_sel==WRITE_MEM || ((stack_push || multi_ir) && stack_sel==WRITE_STACK))))) &&
                      !completed && !rst && !fault && !gfx_skip_write &&
+                     !(line_native && gfx_bus_post && (time_left!=0 || mem_phase!=0)) &&
                      !(TIMED_PROGRAM!=0 && array_fill && fill_word && gfx_bus_write &&
                        !store_started && (load_issue_left!=0 || mem_phase!=0)) &&
                      !(multi_ir && imm && load_issue_left>multi_first_lead-LOAD_PRE+LOAD_NEXT_LIMIT) &&
@@ -460,7 +470,7 @@ module jttms10 #(
                                  ({32{field_ext_fill}} & ~field_mask);
     // The post tag can advertise the next eligible clock before address
     // capture. No field is accepted until mem_req supplies the valid EA.
-    assign mem_post=(gfx_active && fill_word && gfx_bus_write) || early_store || (stack_push && store_pending && load_issue_left<=1);
+    assign mem_post=gfx_bus_post || (gfx_active && fill_word && gfx_bus_write) || early_store || (stack_push && store_pending && load_issue_left<=1);
     assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? (trap_zero ? 32'hffffffe0 : (stack_irq || pixel_process) ? rd_data : rs_data) : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
@@ -482,7 +492,7 @@ module jttms10 #(
     assign mem_fast=TIMED_PROGRAM!=0 && control[15] && branch_relative &&
                     !branch_short && condition && mem_program ||
                     (copy_packet && imm && mem_program && copy_miss_ready) ||
-                    (pixel_store && (early_load || early_store)) || (gfx_active && fill_word && gfx_bus_write);
+                    (pixel_store && (early_load || early_store)) || (gfx_active && fill_word && gfx_bus_write) || gfx_bus_post;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = (pixel_store && (early_store || early_load)) || (pixel_load && early_load) || (gfx_active && gfx_bus_pixel);
@@ -536,8 +546,8 @@ module jttms10 #(
         .rf_qs(rs_data), .rf_qd(rd_data),
         .psize(psize), .convsp(convsp), .convdp(convdp),
         .control(control), .last_pixel_addr(ea),
-        .alu_n(n), .alu_z(z), .alu_v(v),
-        .need_dest(gfx_need_dest), .word_fill(fill_word),
+        .alu_n(n), .alu_z(z), .alu_v(v),.alu_result(result),
+        .need_dest(gfx_need_dest), .word_fill(fill_word),.native_line(line_native),
         .irq_pending(nmi_req || (irq_req && st[21])), .transparent(pix_transparent),
         .active(gfx_active), .checkpoint(gfx_checkpoint),
         .done(gfx_done), .end_pending(gfx_end_pending),
@@ -549,10 +559,10 @@ module jttms10 #(
         .dst_ir(gfx_dst_ir),
         .md_to_rf(gfx_mdrf),
         .bus_read(gfx_bus_read), .bus_write(gfx_bus_write),
-        .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size), .bus_sync(gfx_bus_sync),
+        .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size), .bus_sync(gfx_bus_sync),.bus_post(gfx_bus_post),.bus_skip(gfx_bus_skip),
         .pix_source(gfx_pix_source), .pix_visible(gfx_pix_visible),
         .pix_process(gfx_pix_process), .pix_test(gfx_pix_test), .pix_word(gfx_pix_word),
-        .product(gfx_product), .product_y(gfx_product_y), .packed_xy(gfx_packed_xy),
+        .product(gfx_product), .product_y(gfx_product_y), .packed_xy(gfx_packed_xy),.alu_capture(gfx_alu_capture),
         .flag_z(gfx_flag_z), .flag_nz(gfx_flag_nz),
         .flag_nvzc(gfx_flag_nvzc), .flag_vclip(gfx_flag_vclip),
         .flag_vpix(gfx_flag_vpix), .flag_vclear(gfx_flag_vclear),
@@ -685,9 +695,9 @@ module jttms10 #(
         divstep ? div_trial : divnegb ? 32'd0 : b;
     wire alu_cin = divnegb && !div_phase ? !div_lowzero : st[30];
     wire [31:0] shared_alu_a = gfx_active ?
-        (gfx_pix_process && pixel_alu_req ? pixel_alu_a : gfx_product ? mul_product[31:0] : a) : alu_a;
+        (gfx_pix_process && pixel_alu_req ? pixel_alu_a : gfx_product ? mul_product[31:0] : gfx_alu_capture ? gfx_a_data : a) : alu_a;
     wire [31:0] shared_alu_b = gfx_active ?
-        (gfx_pix_process && pixel_alu_req ? pixel_alu_b : b) : alu_b;
+        (gfx_pix_process && pixel_alu_req ? pixel_alu_b : gfx_alu_capture ? gfx_b_data : b) : alu_b;
     wire shared_alu_packed;
     assign shared_alu_packed=(xy_packed && !gfx_active) || gfx_packed_xy;
     jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
@@ -829,10 +839,14 @@ module jttms10 #(
                 load_issue_left<=load_issue_left+CLKS_PER_STATE[LOAD_IW-1:0]-1'b1;
             if(array_fill && gfx_active && fill_word && gfx_bus_write && mem_req && mem_ack)
                 store_started<=1;
+            if((gfx_bus_post && mem_req && mem_ack) || (gfx_bus_skip && step)) begin
+                time_left<=LINE_PIXEL_CLKS;
+                if(gfx_bus_post) store_started<=1;
+            end
             if(step && imm) immediate_last<=1;
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
-                timing_active<=decode_timed;
+                timing_active<=decode_timed || decode_native_line;
                 branch_pending<=decode_control;
                 immediate_last<=decode_immediate_word;
                 copy_operand_left<=decode_copy_absolute_pair ? 3'd4 : decode_copy_offset_pair ? 3'd2 : 3'd0;
@@ -840,7 +854,7 @@ module jttms10 #(
                 store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
                 load_address_ready<=!decode_pixel_xy_copy && !decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension));
                 load_issue_left<=TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : TIMED_PROGRAM!=0 && decode_fill_xy ? FILL_XY_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
-                time_left<=decode_clocks-16'd1;
+                time_left<=decode_native_line ? LINE_SETUP_CLKS : decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin
                 branch_pending<=0;

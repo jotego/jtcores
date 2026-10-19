@@ -28,7 +28,7 @@ module test;
         .word_req(word_req),.word_pending(),.word_early(),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_iaq(word_iaq),.word_pixel(word_pixel),
         .word_lock(word_lock),.word_rdata(word_rdata),.word_ack(word_ack),
-        .word_restart(word_restart),.pc(pc),.st(st),.ir(ir),
+        .word_restart(word_restart),.word_wait(1'b0),.pc(pc),.st(st),.ir(ir),
         .retire(retire),.fault(fault)
     );
     // Override only the logical CPU request in this focused word-boundary
@@ -59,7 +59,7 @@ module test;
         .word_addr(word_addr),.word_wdata(word_wdata),
         .is_io(1'b0),.pixel_srt(pixel_srt),.io_rdata(16'd0),
         .word_rdata(word_rdata),.word_ack(word_ack),
-        .word_restart(word_restart),
+        .word_restart(word_restart),.word_wait(),
         .cyc_req(cyc_req),.cyc_kind(cyc_kind),.cyc_addr(cyc_addr),
         .cyc_wdata(cyc_wdata),.cyc_io_rdata(cyc_io_rdata),
         .cyc_iaq(cyc_iaq),.cyc_srfaddr(cyc_srfaddr),

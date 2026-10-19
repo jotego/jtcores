@@ -130,7 +130,7 @@ def pixel_store_mutations(work,evidence):
          'decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi',
          'decode_pixel_store ? LOAD_LEAD : decode_pixel_load ? LOAD_PRE : decode_multi'),
         ('serialized_pixel_replace','pixel_store_ps1_o15_r1_follow_k0_hit',
-         'assign mem_post=early_store ||', 'assign mem_post=(early_store && !pixel_store) ||')):
+         '|| early_store ||', '|| (early_store && !pixel_store) ||')):
         extra=['--wait-states','1','--pause-clocks','1']
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/'jttms10.v',old,new)
@@ -287,26 +287,35 @@ def posted_load_slot_mutations(work,evidence):
 
 
 def line_mutations(work,evidence):
-    """Four-state zero-count setup must survive waits and CEN pauses."""
-    probe='line_ps4_z0_n0_w0_base_hit'
-    extra=['--wait-states','1','--pause-clocks','7']
-    evidence['line_empty_control']=run_case(work,'line_empty_control',probe,extra)
-    mutant=work/'line-empty-short';shutil.copytree(MODULE/'hdl',mutant)
-    replace_once(mutant/'jttms10_gfx.v',
-        'assign end_pending=active && gflow==END_GFLOW;',
-        "assign end_pending=active && (gflow==END_GFLOW || uaddr==GLINEEMPTY_SEQA+12'd4);")
-    replace_once(mutant/'jttms10_gfx.v',
-        'if(gflow==END_GFLOW) active<=0;',
-        'if(end_pending) active<=0;')
-    evidence['line_empty_short']=run_case(work,'line_empty_short',probe,
-        ['--rtl-dir',str(mutant),*extra],mutated=True)
+    """Reject shortened native setup/pixels and lost external-wait overlap."""
+    for name,probe,file,old,new in (
+        ('line_empty_short','line_ps4_z0_n0_w0_base_hit','jttms10.v',
+         'LINE_SETUP_I=4*CLKS_PER_STATE-1;', 'LINE_SETUP_I=3*CLKS_PER_STATE-1;'),
+        ('line_pixel_short','line_ps16_z0_n1_w0_base_hit','jttms10.v',
+         'LINE_PIXEL_I=5*CLKS_PER_STATE-1;', 'LINE_PIXEL_I=4*CLKS_PER_STATE-1;'),
+        ('line_absorbed_wait','line_ps16_z0_n1_w0_base_hit','jttms10_word.v',
+         'assign core_cen=cen && !(core_overlap && word_wait);', 'assign core_cen=cen;')):
+        extra=[] if name=='line_pixel_short' else ['--wait-states','1','--pause-clocks','7']
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+        replace_once(mutant/file,old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
+    parser.add_argument('--group',choices=('all','line'),default='all',
+                        help='run all mutations or only native LINE controls/mutations')
     args = parser.parse_args()
     evidence = {}
+    if args.group=='line':
+        with tempfile.TemporaryDirectory(prefix='jttms10-line-mutations-') as temp:
+            line_mutations(Path(temp),evidence)
+        if args.report:
+            args.report.parent.mkdir(parents=True,exist_ok=True)
+            args.report.write_text(json.dumps(evidence,indent=2)+'\n')
+        return 0
     with tempfile.TemporaryDirectory(prefix='jttms10-timing-mutations-') as temp:
         work = Path(temp)
         case = 'mpys_fs2_positive_even_hit'

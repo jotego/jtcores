@@ -10,7 +10,8 @@ module jttms10_gfx(
     input [31:0] rf_qs, rf_qd,
     input [15:0] psize, convsp, convdp, control,
     input alu_n, alu_z, alu_v,
-    input need_dest, word_fill, irq_pending,
+    input [31:0] alu_result,
+    input need_dest, word_fill, irq_pending, native_line,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -21,10 +22,10 @@ module jttms10_gfx(
     output reg [3:0] alu_op,
     output dst_a, dst_b, dst_md, dst_ea, dst_tmp, dst_rf, dst_ir,
     output md_to_rf,
-    output bus_read, bus_write, bus_pixel, bus_sync,
+    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip,
     output [5:0] bus_size,
     output pix_source, pix_visible, pix_process, pix_test, pix_word,
-    output product, product_y, packed_xy,
+    output product, product_y, packed_xy, alu_capture,
     output flag_z, flag_nz, flag_nvzc, flag_vclip,
            flag_vpix, flag_vclear, flag_wvp,
     output reg clip
@@ -43,7 +44,7 @@ module jttms10_gfx(
                gflg_sel,gflow_sel,gclip_sel;
     wire [3:0] galu_sel;
     wire [4:0] gcond_sel;
-    wire mdrf;
+    wire mdrf, wprev;
     reg [11:0] uaddr;
     /* verilator lint_off BLKSEQ */
     `include "tms10_gfx.vh"
@@ -80,7 +81,7 @@ module jttms10_gfx(
     endfunction
     assign rf_sa=physical_addr(sa_q,ir[8:0]);
     assign rf_da=physical_addr(da_q,ir[8:0]);
-    assign rf_wa=physical_addr(next_da,ir[8:0]);
+    assign rf_wa=physical_addr(wprev ? da_q : next_da,ir[8:0]);
 
     wire [5:0] source_chunk_size = rf_qs>=32'd32 ? 6'd32 :
                                    {1'b0,rf_qs[4:0]};
@@ -120,8 +121,8 @@ module jttms10_gfx(
             endcase
         end
     endfunction
-    assign load_a=active && (gas!=0 || gpix==STRIDE_GPIX);
-    assign load_b=active && gbs!=0;
+    assign load_a=active && !alu_capture && (gas!=0 || gpix==STRIDE_GPIX);
+    assign load_b=active && !alu_capture && gbs!=0;
     always @* begin
         case(gas)
             QS_GAS: a_data=format_rf(rf_qs,gam);
@@ -140,16 +141,16 @@ module jttms10_gfx(
     always @* begin
         case(galu)
             ADD_GALU: alu_op=4'd1;
-            ADC_GALU: alu_op=4'd2;
+            ADDNOW_GALU: alu_op=4'd1;
             SUB_GALU: alu_op=4'd3;
-            SBC_GALU: alu_op=4'd4;
+            SUBNOW_GALU: alu_op=4'd3;
             AND_GALU: alu_op=4'd5;
             ANDN_GALU: alu_op=4'd6;
             OR_GALU:  alu_op=4'd7;
             XOR_GALU: alu_op=4'd8;
             NOT_GALU: alu_op=4'd9;
             NEG_GALU: alu_op=4'd10;
-            ABS_GALU: alu_op=4'd11;
+            PASSNOW_GALU: alu_op=4'd0;
             SHL_GALU: alu_op=4'd12;
             SHR_GALU: alu_op=4'd13;
             SAR_GALU: alu_op=4'd14;
@@ -157,6 +158,7 @@ module jttms10_gfx(
             default: alu_op=4'd0;
         endcase
     end
+    assign alu_capture=active && (galu==ADDNOW_GALU || galu==SUBNOW_GALU || galu==PASSNOW_GALU);
     assign dst_a=active && gdst==A_GDST;
     assign dst_b=active && gdst==B_GDST;
     assign dst_md=active && gdst==MD_GDST;
@@ -168,10 +170,12 @@ module jttms10_gfx(
     assign bus_read=active &&
         (gbus==RD_GBUS || gbus==RDPX_GBUS);
     assign bus_write=active &&
-        (gbus==WR_GBUS || gbus==WRPX_GBUS);
+        (gbus==WR_GBUS || gbus==WRPX_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
+    assign bus_skip=active && gbus==POSTPX_GBUS && control[7:6]!=0 && clip;
+    assign bus_post=active && gbus==POSTPX_GBUS && !bus_skip;
     assign bus_sync=active && gbus==SYNC_GBUS;
     assign bus_pixel=active &&
-        (gbus==RDPX_GBUS || gbus==WRPX_GBUS);
+        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS);
     assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
                     gsize==CHUNK_GSIZE ? source_chunk_size :
@@ -189,12 +193,18 @@ module jttms10_gfx(
     assign flag_z=active && gflg==Z_GFLG;
     assign flag_nz=active && gflg==NZ_GFLG;
     assign flag_nvzc=active && gflg==NVZC_GFLG;
-    assign flag_vclip=active && gflg==VCLIP_GFLG;
+    assign flag_vclip=active && (gflg==VCLIP_GFLG ||
+                     (gbus==POSTPX_GBUS && control[7:6]!=0));
     assign flag_vpix=active && gflg==VPIX_GFLG;
     assign flag_vclear=active && gflg==VCLEAR_GFLG;
-    assign flag_wvp=active && gflg==WVP_GFLG;
+    assign flag_wvp=active && (gflg==WVP_GFLG ||
+                   (gbus==POSTPX_GBUS && control[7:6]==2'd2 && clip));
 
     wire signed_lt=alu_n ^ alu_v;
+    wire xy_low_x=a_data[15]!=b_data[15] ? a_data[15] : !alu_result[15] && alu_result[15:0]!=0;
+    wire xy_low_y=a_data[31]!=b_data[31] ? a_data[31] : !alu_result[31] && alu_result[31:16]!=0;
+    wire xy_high_x=a_data[15]!=b_data[15] ? !a_data[15] : alu_result[15];
+    wire xy_high_y=a_data[31]!=b_data[31] ? !a_data[31] : alu_result[31];
     reg condition;
     always @* begin
         case(gcond)
@@ -277,7 +287,13 @@ module jttms10_gfx(
                 8'd155: uaddr<=GFILLXYFAST_SEQA;
                 8'd142: uaddr<=GARRAY_SEQA;
                 8'd143,8'd144,8'd145,8'd146: uaddr<=GARRAY_SEQA;
-                8'd131: uaddr<=GLINE_SEQA;
+                8'd131: begin
+                    uaddr<=GLINE_SEQA;
+                    if(native_line) begin
+                        uaddr<=GLINEFASTINIT_SEQA;
+                        if(control[7:6]!=0) uaddr<=GLINEFASTWININIT_SEQA;
+                    end
+                end
                 default: uaddr<=GFXIDLE_SEQA;
             endcase
             if(resume) uaddr<=GARRAYREBASE_SEQA;
@@ -294,6 +310,8 @@ module jttms10_gfx(
                 LE_GCLIP: clip<=clip || signed_lt || alu_z;
                 GT_GCLIP: clip<=clip || (!signed_lt && !alu_z);
                 GE_GCLIP: clip<=clip || !signed_lt;
+                XYLOW_GCLIP: clip<=xy_low_x || xy_low_y;
+                XYHIGH_GCLIP: clip<=clip || xy_high_x || xy_high_y;
                 default:;
             endcase
             uaddr<=uaddr+12'd1;

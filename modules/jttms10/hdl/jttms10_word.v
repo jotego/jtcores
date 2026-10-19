@@ -27,6 +27,7 @@ module jttms10_word #(
     input      [15:0] word_rdata,
     input             word_ack,
     input             word_restart,
+    input             word_wait,
     output     [31:0] pc,
     output     [31:0] st,
     output     [15:0] ir,
@@ -48,6 +49,8 @@ module jttms10_word #(
     reg iaq_q, pixel_q, srt_q, request_latched, data_owner, post_busy, post_ack, early_data_q;
     reg data_word_ack;
     reg [15:0] data_word_rdata;
+    wire core_overlap, core_cen;
+    assign core_cen=cen && !(core_overlap && word_wait);
     // Instruction and extension fetches are already aligned physical words.
     // They need no field extraction or RESPONSE/ALIGN clocks. Data, vectors
     // and stacks still use the field adapter, including all RMW/HOLD handling.
@@ -151,7 +154,7 @@ module jttms10_word #(
     end
 
     jttms10 #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(TIMED_PROGRAM)) u_core(
-        .rst(rst), .clk(clk), .cen(cen),
+        .rst(rst), .clk(clk), .cen(core_cen),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
         .halt_req(halt_req), .emu_run(emu_run),
@@ -160,7 +163,7 @@ module jttms10_word #(
         .nmi_clear(nmi_clear), .emu_ack(emu_ack), .wvp_set(wvp_set),
         .mem_req(field_req), .mem_we(field_we), .mem_iaq(field_iaq),
         .mem_program(field_program),
-        .mem_pixel(field_pixel), .mem_post(field_post), .mem_fast(field_fast),
+        .mem_pixel(field_pixel), .mem_post(field_post), .mem_fast(field_fast),.mem_overlap(core_overlap),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
