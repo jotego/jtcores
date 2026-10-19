@@ -105,3 +105,14 @@ does not isolate one cause. Same158 virtual pins, device/tool/20ns/seed/effort;
 all36 source/ROM snapshot hashes and29 copied inputs verify. The live capture
 retains source_commit:null, with content checked against the implementation.
 No current fit/STA claim is made; the final fitted limit remains3,500 ALMs.
+
+
+The initial115-form standard runner passes the architecture/unit/model,
+bus and response/event prefix, then stops before the large matrices at an
+outdated XY/coordinate mutation injection anchor. The TRAP scheduler added
+a prefix before decode_control. The helper now inserts each deliberate
+regression at the unique decode_states assignment, preserving the new
+TRAP branch. All47 runtime timing inputs and generated ROMs are unchanged;
+no targeted runtime is repeated for this helper/documentation-only fix.
+A fresh uninterrupted standard runner is required; the failed invocation
+is not accepted as a completed full-runner milestone.

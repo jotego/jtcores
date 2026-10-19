@@ -338,8 +338,8 @@ def main():
         evidence['xy_compare_control']=run_case(work,'xy_compare_control',xy_cmp_case)
         for name,probe,extra,old,new in (
             ('slow_xy_add',xy_add_case,('--wait-states','1'),
-             'decode_states=decode_control ?',
-             "decode_states=decode_xy && !decode_xy_cmp ? 6'd2 : decode_control ?"),
+             'decode_states=',
+             "decode_states=decode_xy && !decode_xy_cmp ? 6'd2 :"),
             ('short_xy_compare',xy_cmp_case,(),
              'decode_xy_cmp || decode_ie || decode_putst ||',
              'decode_ie || decode_putst ||')):
@@ -352,11 +352,11 @@ def main():
         evidence['cvxyl_control']=run_case(work,'cvxyl_control',cvxyl_case,['--wait-states','1'])
         for name,probe,extra,new in (
             ('slow_cpw',cpw_case,('--wait-states','1','--pause-clocks','6'),
-             "decode_states=decode_cpw ? 6'd2 : decode_control ?"),
+             "decode_states=decode_cpw ? 6'd2 :"),
             ('short_cvxyl',cvxyl_case,('--wait-states','1'),
-             "decode_states=decode_cvxyl ? 6'd2 : decode_control ?")):
+             "decode_states=decode_cvxyl ? 6'd2 :")):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
-            replace_once(mutant/'jttms10.v','decode_states=decode_control ?',new)
+            replace_once(mutant/'jttms10.v','decode_states=',new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
         copy_hit='copy_move_w16_s0_d0_f0_fe0_r1_2_0_hit'
         copy_off='copy_move_w16_s0_d0_f0_fe0_r1_2_0_off'

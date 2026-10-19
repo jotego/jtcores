@@ -608,3 +608,14 @@ response13/1 events with exact source/generated hashes and observations.
 Four fresh-process probes match batching except local identifiers. Clean
 scope is targeted; the115-form full runner remains pending. The current map estimates
 3,719 ALMs/five DSPs; final fitted area and hardware acceptance remain open.
+
+
+The initial115-form standard runner passes the architecture/unit/model,
+bus and response/event prefix, then stops before the large matrices at an
+outdated XY/coordinate mutation injection anchor. The TRAP scheduler added
+a prefix before decode_control. The helper now inserts each deliberate
+regression at the unique decode_states assignment, preserving the new
+TRAP branch. All47 runtime timing inputs and generated ROMs are unchanged;
+no targeted runtime is repeated for this helper/documentation-only fix.
+A fresh uninterrupted standard runner is required; the failed invocation
+is not accepted as a completed full-runner milestone.
