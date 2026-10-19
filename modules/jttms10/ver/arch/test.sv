@@ -34,7 +34,7 @@ module test;
         .nmi_clear(nmi_clear), .emu_ack(emu_ack),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
-        .mem_program(), .mem_fast(),
+        .mem_program(), .mem_post(), .mem_fast(),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
@@ -48,7 +48,7 @@ module test;
             else if (size==32 && address==32'hfffffec0) read_field=32'h1100;
             else if (size==32 && address==32'hfffffee0) read_field=32'h1200;
             else begin
-                if (size<1 || size>32 || address+size>32'd16384)
+                if (size<1 || size>32 || address+{26'd0,size}>32'd16384)
                     $fatal(1,"invalid read @%h/%0d",address,size);
                 for (bit_index=0;bit_index<32;bit_index=bit_index+1)
                     if (bit_index<size) begin
@@ -64,7 +64,7 @@ module test;
         integer bit_index;
         reg [31:0] physical;
         begin
-            if (size<1 || size>32 || address+size>32'd16384)
+            if (size<1 || size>32 || address+{26'd0,size}>32'd16384)
                 $fatal(1,"invalid write @%h/%0d",address,size);
             for (bit_index=0;bit_index<32;bit_index=bit_index+1)
                 if (bit_index<size) begin

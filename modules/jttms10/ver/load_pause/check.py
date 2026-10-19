@@ -21,6 +21,8 @@ import tempfile
 HERE=Path(__file__).resolve().parent
 MODULE=HERE.parents[1]
 sys.dont_write_bytecode=True
+sys.path.insert(0,str(HERE.parent))
+from verilator_build import build_model
 sys.path.insert(0,str(HERE.parent/'timing'))
 from load_mode_cases import fixture
 from stack_cases import popst_fixture
@@ -103,6 +105,7 @@ def main():
     parser.add_argument('--case',help='run matching controls plus the duplicate-response positive control')
     args=parser.parse_args()
     rows=[]
+    models={}
     with tempfile.TemporaryDirectory(prefix='jttms10-response-pause-') as temp:
         work=Path(temp)
         subprocess.run(['bash',str(MODULE/'ver/build.sh'),str(work)],check=True,stdout=subprocess.DEVNULL)
@@ -112,14 +115,15 @@ def main():
             image=[0]*4096;image[0x100:0x100+len(words)]=words
             (work/'program.mem').write_text(''.join(f'{x:04x}\n' for x in image))
             (work/'data.mem').write_text(''.join(f'{a:08x} {v:04x}\n' for a,v in case['initial_memory']))
-            binary=work/(name+'.vvp')
             posted=bool((case.get('pixel_store') or (case.get('pixel_xy_store') or case.get('pixel_draw'))))
             top='posted_response' if posted else 'test'
             observers=[str(HERE/'posted.sv')] if posted else []
-            compiled=subprocess.run(['iverilog','-g2012','-s',top,'-I',str(work),'-o',str(binary),
-                str(HERE.parent/'timing/test.sv'),*observers,*map(str,sorted(hdl.glob('*.v')))],capture_output=True,text=True)
-            if compiled.returncode:raise RuntimeError(compiled.stdout+compiled.stderr)
-            result=subprocess.run(['vvp',str(binary),'+PROGRAM=program.mem','+DATA=data.mem',f'+DATA_COUNT={len(case["initial_memory"])}',
+            key=(hdl.resolve(),top)
+            if key not in models:
+                models[key]=build_model(work/('model'+str(len(models))),
+                    [HERE.parent/'timing/test.sv',*map(Path,observers),*sorted(hdl.glob('*.v'))],
+                    top=top,includes=[work])
+            result=subprocess.run([str(models[key]),'+PROGRAM=program.mem','+DATA=data.mem',f'+DATA_COUNT={len(case["initial_memory"])}',
                 f'+WATCH_EXTRA={13 if case.get("observe_all") else 3 if case.get("stack_control_flow") or case.get("trap_flow") else 1}','+CASE_ID=0',f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+TEST_PC={start:x}',f'+NEXT_PC={following:x}',
                 '+WAIT=8',f'+PAUSE={case.get("response_pause_clocks",32)}',f'+PAUSE_AFTER={case.get("response_pause_after",2)}',f'+DRAIN_INSTRUCTIONS={case.get("drain_instructions",0)}','+RESPONSE_PAUSE'],cwd=work,capture_output=True,text=True,timeout=15)
             return evaluate(case,result.stdout+result.stderr,result.returncode)
@@ -219,9 +223,9 @@ def main():
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
-               HERE.parent/'timing/test.sv',HERE/'posted.sv',Path(__file__).resolve(),
+               HERE.parent/'timing/test.sv',HERE/'posted.sv',Path(__file__).resolve(),HERE.parent/'verilator_build.py',
                *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','pixel_copy_cases.py','pixel_xy_store_cases.py','draw_cases.py','pixel_xy_copy_cases.py','copy_cases.py')]]
-        args.report.write_text(json.dumps(dict(contract='CPU-only CEN: logical field response or posted memory response; exact TI base counts checked separately',
+        args.report.write_text(json.dumps(dict(simulator='verilator',compiled_models=len(models),contract='CPU-only CEN: logical field response or posted memory response; exact TI base counts checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0
 

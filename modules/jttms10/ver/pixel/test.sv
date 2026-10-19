@@ -23,17 +23,18 @@ module test;
         .result(alu_result),.n(alu_n),.z(alu_z),.c(alu_borrow),.v(alu_v));
 
     integer checks=0;
-    integer mask,sp,dp,s,d,r,w,wm,trans,good;
+    integer mask,sp,dp,s,d,r,w,wm;
+    reg trans,good;
     task check;
     begin
         mask=(1<<psize)-1;
-        if (psize==16) mask=16'hffff;
+        if (psize==16) mask=32'hffff;
         if (!(psize==1 || psize==2 || psize==4 || psize==8 || psize==16)) mask=0;
         good=(mask!=0) && (ppop<16 || (ppop<=21 && psize>=4));
-        sp=(pmask >> src_addr_lo) & mask;
-        dp=(pmask >> dst_addr_lo) & mask;
-        s=(source_pixel & mask) & (source_is_register ? mask : ~sp);
-        d=(dest_pixel & mask) & ~dp;
+        sp=({16'd0,pmask} >> src_addr_lo) & mask;
+        dp=({16'd0,pmask} >> dst_addr_lo) & mask;
+        s=({16'd0,source_pixel} & mask) & (source_is_register ? mask : ~sp);
+        d=({16'd0,dest_pixel} & mask) & ~dp;
         r=0;
         case (ppop)
             0:r=s;
@@ -63,7 +64,7 @@ module test;
         r=r & mask;
         trans=good && transparency && ((r & ~dp)==0);
         wm=(good && !trans) ? (mask & ~dp) : 0;
-        w=(dest_pixel & ~wm) | (r & wm);
+        w=({16'd0,dest_pixel} & ~wm) | (r & wm);
         #1;
         if (valid !== (good!=0) || alu_req !== ((good!=0) && ppop>=16) ||
             visible_source !== s[15:0] ||
@@ -92,24 +93,24 @@ module test;
                 3:psize=8; default:psize=16;
             endcase
             for (op=0;op<32;op=op+1) begin
-                ppop=op;
+                ppop=op[4:0];
                 for (regsrc=0;regsrc<2;regsrc=regsrc+1) begin
-                    source_is_register=regsrc;
+                    source_is_register=regsrc[0];
                     for (t=0;t<2;t=t+1) begin
-                        transparency=t;
-                        for (sa=0;sa<16;sa=sa+psize) begin
-                            src_addr_lo=sa;
-                            for (da=0;da<16;da=da+psize) begin
-                                dst_addr_lo=da;
+                        transparency=t[0];
+                        for (sa=0;sa<16;sa=sa+{27'd0,psize}) begin
+                            src_addr_lo=sa[3:0];
+                            for (da=0;da<16;da=da+{27'd0,psize}) begin
+                                dst_addr_lo=da[3:0];
                                 for (k=0;k<4;k=k+1) begin
                                     case (k)
                                         0:pmask=0;
                                         1:pmask=16'h5aa5;
                                         2:pmask=16'hffff;
-                                        default:pmask=$random;
+                                        default:pmask=16'($random);
                                     endcase
-                                    source_pixel=$random;
-                                    dest_pixel=$random;
+                                    source_pixel=16'($random);
+                                    dest_pixel=16'($random);
                                     check();
                                 end
                             end
@@ -121,7 +122,7 @@ module test;
             pmask=0; src_addr_lo=0; dst_addr_lo=0;
             source_is_register=1; transparency=0;
             for (op=16;op<=21;op=op+1) begin
-                ppop=op; source_pixel=(1<<psize)-1;
+                ppop=op[4:0]; source_pixel=(1<<psize)-1;
                 dest_pixel=1; check();
                 source_pixel=1; dest_pixel=0; check();
                 source_pixel=(1<<psize)-1;

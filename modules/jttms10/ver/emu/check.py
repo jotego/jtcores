@@ -12,6 +12,8 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 MODULE=HERE.parents[1]
 sys.dont_write_bytecode=True
+sys.path.insert(0,str(HERE.parent))
+from verilator_build import build_model
 sys.path.insert(0,str(HERE.parent/'timing'))
 from emu_cases import fixture
 from run import program,parse_result,measured_trace,check,check_bus,check_target
@@ -19,7 +21,7 @@ from run import program,parse_result,measured_trace,check,check_bus,check_target
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--report',type=Path)
-    args=parser.parse_args();rows=[]
+    args=parser.parse_args();rows=[];models={}
     with tempfile.TemporaryDirectory(prefix='jttms10-emu-events-') as temp:
         work=Path(temp)
         subprocess.run(['bash',str(MODULE/'ver/build.sh'),str(work)],check=True,stdout=subprocess.DEVNULL)
@@ -28,10 +30,12 @@ def main():
             case=fixture(name,0xF0200FFF,off);words,start,end=program(case);case.update(test_pc=start,next_pc=end)
             image=[0]*4096;image[0x100:0x100+len(words)]=words
             (work/'program.mem').write_text(''.join(f'{w:04x}\n' for w in image))
-            binary=work/(name+'.vvp')
-            compile_cmd=['iverilog','-g2012','-s','test','-s','emu_events','-I',str(work),'-o',str(binary),str(bench),str(HERE/'monitor.sv'),*map(str,sorted(hdl.glob('*.v')))]
-            subprocess.run(compile_cmd,cwd=work,check=True,capture_output=True,text=True)
-            result=subprocess.run(['vvp',str(binary),'+PROGRAM=program.mem',f'+TEST_PC={start:x}',f'+NEXT_PC={end:x}','+MEASURE_PASS=1','+WATCH_EXTRA=1','+WAIT=8',f'+PAUSE={pause}'],cwd=work,capture_output=True,text=True,timeout=20)
+            key=hdl.resolve()
+            if key not in models:
+                models[key]=build_model(work/('model'+str(len(models))),
+                    [bench,HERE/'monitor.sv',*sorted(hdl.glob('*.v'))],
+                    top='emu_events',includes=[work])
+            result=subprocess.run([str(models[key]),'+PROGRAM=program.mem',f'+TEST_PC={start:x}',f'+NEXT_PC={end:x}','+MEASURE_PASS=1','+WATCH_EXTRA=1','+WAIT=8',f'+PAUSE={pause}'],cwd=work,capture_output=True,text=True,timeout=20)
             log=result.stdout+result.stderr;observed=parse_result(log)
             functional=[]
             for q,v in enumerate(case['expected_regs']):
@@ -62,8 +66,8 @@ def main():
         row=capture('missing_emu_ack',False,1,mutant);rows.append(row)
         if row['functional_errors'] or row['timing_bus_errors'] or row['event_errors']!=['expected one one-clock EMU acknowledgement']:raise RuntimeError(json.dumps(row,indent=2))
         print('missing_emu_ack: PASS (missing event rejected with correct timing and architectural state)')
-        sources=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),bench,HERE/'monitor.sv',HERE/'check.py',HERE.parent/'timing/emu_cases.py',HERE.parent/'timing/run.py',HERE.parent/'timing/oracle.py',HERE.parent/'timing/alu_cases.py',HERE.parent/'timing/scalar_cases.py']
-        report=dict(contract='EMU RUN-high pulse; original EMUA pin phase and RUN-low hold/resume excluded',source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},generated_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in work.iterdir() if p.suffix in ('.uc','.vh','.hex')},cases=rows)
+        sources=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),bench,HERE/'monitor.sv',HERE/'check.py',HERE.parent/'verilator_build.py',HERE.parent/'timing/emu_cases.py',HERE.parent/'timing/run.py',HERE.parent/'timing/oracle.py',HERE.parent/'timing/alu_cases.py',HERE.parent/'timing/scalar_cases.py']
+        report=dict(simulator='verilator',compiled_models=len(models),contract='EMU RUN-high pulse; original EMUA pin phase and RUN-low hold/resume excluded',source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},generated_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in work.iterdir() if p.suffix in ('.uc','.vh','.hex')},cases=rows)
         if args.report:args.report.write_text(json.dumps(report,indent=2)+'\n')
     return 0
 

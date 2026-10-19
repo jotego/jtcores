@@ -61,7 +61,7 @@ module test;
       // Both synchronous read ports traverse every logical address in opposite
       // directions; this also checks mirroring and retention after writes.
       for(i=0;i<64;i=i+1)
-        cycle(i>=32,i[4:0],(63-i)>=32,(63-i)&31,
+        cycle(i>=32,i[4:0],(63-i)>=32,5'(63-i),
               1'b0,1'b0,5'd0,32'd0);
       // Directed aliases and same-cycle read/write must return OLD data.
       cycle(0,5'd15,0,5'd31,0,1,5'd31,32'h15153131);

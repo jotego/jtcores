@@ -30,7 +30,7 @@ module test;
     reg cyc_ack=0;
     jttms10_field u_field(
         .clk(clk),.rst(rst),.req(req),.we(we),.addr(addr),
-        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),
+        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),.busy(),
         .word_req(word_req),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_lock(word_lock),
         .word_rdata(word_rdata),.word_ack(word_ack),
@@ -111,6 +111,7 @@ module test;
                         4'd0: if (cyc_addr==32'h00000000)
                                   rmw_reads<=rmw_reads+1;
                         4'd1: word_writes<=word_writes+1;
+                        default: $fatal(1,"invalid NARC cycle kind");
                     endcase
                 end
                 T_WAIT: begin
@@ -134,6 +135,7 @@ module test;
                     cyc_ack<=0;
                     tstate<=T_IDLE;
                 end
+                default: $fatal(1,"invalid target state");
             endcase
         end
     end

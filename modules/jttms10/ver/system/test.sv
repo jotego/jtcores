@@ -140,6 +140,7 @@ module test;
                 end
             end
             ACK: if(!cyc_req) begin cyc_ack<=0; state<=IDLE; end
+            default: $fatal(1,"invalid target state");
         endcase
         end
     end

@@ -20,7 +20,7 @@ module test;
 
     jttms10_field dut(
         .clk(clk), .rst(rst), .req(req), .we(we), .addr(addr),
-        .wdata(wdata), .size(size),.reverse(reverse), .ack(ack), .rdata(rdata),
+        .wdata(wdata), .size(size),.reverse(reverse), .ack(ack), .rdata(rdata), .busy(),
         .word_req(word_req), .word_we(word_we), .word_lock(word_lock),
         .word_addr(word_addr),
         .word_wdata(word_wdata), .word_rdata(word_rdata), .word_ack(word_ack),
@@ -130,7 +130,7 @@ module test;
             expected_descend=reverse && do_write;
             requested_addr=bit_addr;requested_size=bit_size;
             expected_word_addr={bit_addr[31:4],4'b0};
-            if(expected_descend) expected_word_addr=expected_word_addr+((((bit_addr&15)+bit_size-1)>>4)<<4);
+            if(expected_descend) expected_word_addr=expected_word_addr+((((bit_addr&15)+{26'd0,bit_size}-1)>>4)<<4);
             req = 1;
             we = do_write;
             addr = bit_addr;
@@ -166,7 +166,7 @@ module test;
 
     initial begin
         for (i = 0; i < 16; i = i + 1) begin
-            mem[i] = 16'h4a39 ^ (16'h1257 * i);
+            mem[i] = 16'h4a39 ^ (16'h1257 * i[15:0]);
             for (j = 0; j < 16; j = j + 1)
                 reference_bits[16*i+j] = mem[i][j];
         end
@@ -233,9 +233,9 @@ module test;
         reverse=1;restart_addr=160;restart_reads=0;restart_writes=0;
         mem[8]=16'ha0a0;mem[9]=16'hb0b0;mem[10]=16'hc0c0;
         for(j=0;j<16;j=j+1) begin
-            reference_bits[128+j]=(16'ha0a0>>j)&1;
-            reference_bits[144+j]=(16'hb0b0>>j)&1;
-            reference_bits[160+j]=(16'hc0c0>>j)&1;
+            reference_bits[128+j]=((16'ha0a0>>j)&16'd1)!=0;
+            reference_bits[144+j]=((16'hb0b0>>j)&16'd1)!=0;
+            reference_bits[160+j]=((16'hc0c0>>j)&16'd1)!=0;
         end
         req=1;we=1;addr=131;wdata=32'hd36c9b6d;size=32;watchdog=0;
         while(!(dut.state==dut.WRITE && word_req && word_we && word_lock && word_addr==160) && watchdog<100) begin
@@ -243,7 +243,7 @@ module test;
         end
         if(watchdog==100) $fatal(1,"descending RMW did not reach high partial write");
         word_restart=1;mem[10]=16'h5f5f;
-        for(j=0;j<16;j=j+1) reference_bits[160+j]=(16'h5f5f>>j)&1;
+        for(j=0;j<16;j=j+1) reference_bits[160+j]=((16'h5f5f>>j)&16'd1)!=0;
         for(j=0;j<32;j=j+1) reference_bits[131+j]=wdata[j];
         #1;if(word_req || word_we || word_lock) $fatal(1,"descending stale write survived restart");
         @(negedge clk);word_restart=0;watchdog=0;

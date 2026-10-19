@@ -16,7 +16,7 @@ module test;
 
     jttms10_word u_cpu(
         .rst(rst), .clk(clk), .cen(cen),
-        .psize(16'd16), .convdp(16'h14), .control(16'h8000),
+        .convsp(16'd0),.pmask(16'd0),.wvp_set(),.psize(16'd16), .convdp(16'h14), .control(16'h8000),
         .cache_flush(1'b0),
         .irq_req(1'b0), .irq_vector(32'd0),
         .nmi_req(1'b0), .nmi_nostack(1'b0),

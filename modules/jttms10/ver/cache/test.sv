@@ -10,7 +10,7 @@ module test;
     wire [31:0] m_addr;
     reg [15:0] m_rdata=0;
     reg m_ack=0,stall=0;
-    jttms10_cache dut(
+    jttms10_cache dut(.c_hit(),
         .clk(clk),.rst(rst),.cache_disable(cache_disable),
         .cache_flush(cache_flush),
         .c_req(c_req),.c_we(c_we),.c_iaq(c_iaq),.c_program(c_program),
@@ -23,7 +23,7 @@ module test;
     );
     reg [15:0] mem [0:4095];
     integer i;
-    initial for(i=0;i<4096;i=i+1) mem[i]=16'h6000 ^ i;
+    initial for(i=0;i<4096;i=i+1) mem[i]=16'h6000 ^ i[15:0];
     localparam [1:0] IDLE=0,WAIT=1,ACK=2;
     reg [1:0] state=IDLE;
     reg held_we,held_iaq,held_pixel,held_lock;
@@ -66,6 +66,7 @@ module test;
                 end
             end
             ACK: begin m_ack<=0; state<=IDLE; end
+            default: $fatal(1,"invalid target state");
         endcase
     end
     task tick; begin @(posedge clk); #1; end endtask

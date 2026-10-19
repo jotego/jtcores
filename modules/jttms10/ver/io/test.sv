@@ -30,7 +30,7 @@ module test;
     task write_io(input [4:0] regno,input [15:0] data);
         begin
             @(negedge clk);
-            word_addr=32'hc0000000 | (regno<<4);
+            word_addr=32'hc0000000 | {23'd0,regno,4'd0};
             word_wdata=data; word_req=1; word_we=1; word_ack=1;
             tick();
             @(negedge clk); word_req=0; word_we=0; word_ack=0;
@@ -38,7 +38,7 @@ module test;
     endtask
     task read_check(input [4:0] regno,input [15:0] expected);
         begin
-            word_addr=32'hc0000000 | (regno<<4);
+            word_addr=32'hc0000000 | {23'd0,regno,4'd0};
             #1;
             if (io_rdata!==expected)
                 $fatal(1,"I/O %02x: expected %04x got %04x",regno,expected,io_rdata);

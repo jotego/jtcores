@@ -15,7 +15,7 @@ module test;
     wire [15:0] f_wdata,f_rdata;
     jttms10_field field_u(
         .clk(clk),.rst(rst),.req(req),.we(we),.addr(addr),
-        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),
+        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),.busy(),
         .word_req(f_req),.word_we(f_we),.word_lock(f_lock),
         .word_addr(f_addr),.word_wdata(f_wdata),
         .word_rdata(f_rdata),.word_ack(f_ack),.word_restart(f_restart)
@@ -23,7 +23,7 @@ module test;
     wire m_req,m_we,m_iaq,m_pixel,m_lock,m_ack,m_restart;
     wire [31:0] m_addr;
     wire [15:0] m_wdata,m_rdata;
-    jttms10_cache cache_u(
+    jttms10_cache cache_u(.c_hit(),
         .clk(clk),.rst(rst),.cache_disable(1'b0),.cache_flush(1'b0),
         .c_req(f_req),.c_we(f_we),.c_iaq(1'b0),.c_program(1'b0),
         .c_pixel(1'b0),.c_lock(f_lock),.c_addr(f_addr),

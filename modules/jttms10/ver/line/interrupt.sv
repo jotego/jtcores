@@ -32,7 +32,7 @@ module test;
         .emu_run(1'b1), .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
-        .mem_program(), .mem_fast(), .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
+        .mem_program(), .mem_post(), .mem_fast(), .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 
@@ -44,7 +44,7 @@ module test;
             if (size==32 && addr==32'hffffffe0) read_field=32'h1000;
             else if (size==32 && addr==32'hfffffec0) read_field=32'h1300;
             else begin
-                if (size<1 || size>32 || addr+size>32'd16384)
+                if (size<1 || size>32 || addr+{26'd0,size}>32'd16384)
                     $fatal(1,"invalid read @%h/%0d",addr,size);
                 for (bit_index=0;bit_index<size;bit_index=bit_index+1) begin
                     physical=addr+bit_index;
@@ -59,7 +59,7 @@ module test;
         integer bit_index;
         reg [31:0] physical;
         begin
-            if (size<1 || size>32 || addr+size>32'd16384)
+            if (size<1 || size>32 || addr+{26'd0,size}>32'd16384)
                 $fatal(1,"invalid write @%h/%0d",addr,size);
             for (bit_index=0;bit_index<size;bit_index=bit_index+1) begin
                 physical=addr+bit_index;
@@ -71,7 +71,7 @@ module test;
     task automatic put_movi(input integer at_word, input [3:0] register,
                             input [31:0] value);
         begin
-            words[at_word]=16'h09f0 | register;
+            words[at_word]=16'h09f0 | {12'd0,register};
             words[at_word+1]=value[15:0];
             words[at_word+2]=value[31:16];
         end

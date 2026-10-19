@@ -48,9 +48,9 @@ modules/jttms10/ver/run.sh
 ```
 
 This requires the repository's `jtframe` binary, Python/PyYAML, Verilator
-and a C++ compiler. Legacy unit/event benches in the normal shell runner
-still require Icarus Verilog and `vvp`; the architectural vector, timing
-and bus-timing runners default to Verilator. Generated files stay in `ver/build`. `ver/tests.yaml` documents
+and a C++ compiler. The complete normal runner uses Verilator for unit,
+architectural, bus, response, EMU and timing checks. The Python architectural
+and timing runners retain an explicit Icarus option for independent debugging. Generated files stay in `ver/build`. `ver/tests.yaml` documents
 program words and expected architectural state at retirement. The command
 also runs the ALU boundary and complete field-offset/width sweeps.
 The word-bus smoke test additionally runs the CPU and field adapter together

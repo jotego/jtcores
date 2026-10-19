@@ -1105,9 +1105,8 @@ one model is compiled per invocation and each case runs in a separate
 process selected by `+VECTOR`, preserving independent initialization.
 Reset deasserts on the falling clock edge to avoid initial-block scheduling
 ambiguity. An explicit `--simulator iverilog` remains available in those
-Python runners. Legacy unit and response/EMU event benches in `ver/run.sh`
-still invoke Icarus and have not yet been migrated; this change is not a
-claim that the entire shell runner uses Verilator.
+Python runners. At checkpoint `7adec50e5`, legacy unit and response/EMU event benches in
+`ver/run.sh` still invoked Icarus; the migration below completes that work.
 
 Fresh default-engine verification passes all 180 architectural programs,
 699 bus scenarios and seven FILL positive controls/seven timing rejections.
@@ -1115,3 +1114,45 @@ A deliberately wrong expected PC in a copied YAML fixture returns nonzero
 with the original case/step/PC diagnostic. Fixture definitions and independent
 expectations are unchanged. Area snapshots now default to `/opt/quartus_free`.
 No new full normal-runner, clean-checkout or remote-CI result is claimed.
+
+
+### Complete Verilator regression runner
+
+`ver/run.sh` now executes all unit, architectural, response, EMU and timing
+checks with Verilator by default. `ver/sim.sh UNIT` builds and runs the
+existing unit benches, including both cache-field timing modes, all eight
+system-control modes and linear/XY FILL IRQ/NMI at all five pixel sizes.
+Generate microcode with `ver/build.sh` before invoking that helper alone.
+The shared `ver/verilator_build.py` preserves fatal compiler warnings;
+`--quiet` is enabled only on versions that support it, retaining compatibility
+with the older Verilator installed by CI. Test benches now explicitly size
+arithmetic and unused connections; invalid target FSM states fail. No CPU
+RTL, fixture definition or timing oracle changes in this migration.
+
+The response suite caches three compiled models (normal, posted and mutant),
+then uses a fresh process for each independent case. All 49 controls and
+the deliberate duplicate-read rejection pass. Their 50 complete result
+objects exactly match the saved Icarus clean response report. The EMU monitor
+wraps the original bench under one top module; eight positive controls and
+one missing-acknowledgement mutant pass with two compiled models. All 18
+unit configurations pass, including 174,689 pixel cases, 1,024 field vectors,
+646 RF cycles and the original 38-request MSW-first write assertion.
+These are targeted results, not a completed full normal/clean/CI invocation.
+
+When `JTTMS10_TIMING_REPORT` is set, its original filename holds the base
+matrix. The runner now also retains full JSON observations for wait, stress,
+DIV pause and six short-pause profiles, with suffixes `.wait.json`,
+`.stress.json`, `.div-hit.json`, `.div-off.json` and `.phase-N.json`.
+Bus, response, EMU, mutation and coverage reports use matching suffixes.
+The CI artifact glob retains these reports. A failing check still stops the
+runner and returns nonzero; the coverage/source gate still rejects the seven
+missing instruction forms and unresolved MOVB targets.
+
+```sh
+bash modules/jttms10/ver/build.sh
+bash modules/jttms10/ver/sim.sh word
+bash modules/jttms10/ver/sim.sh arrayirq +FILL_PSIZE=16 +FILL_XY=1
+python3 modules/jttms10/ver/load_pause/check.py --report response.json
+python3 modules/jttms10/ver/emu/check.py --report emu.json
+JTTMS10_TIMING_REPORT=/path/to/timing.json bash modules/jttms10/ver/run.sh
+```

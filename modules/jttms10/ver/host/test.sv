@@ -89,6 +89,7 @@ module test;
                 end
             end
             T_ACK: if (!cyc_req) begin cyc_ack<=0; tstate<=T_IDLE; end
+            default: $fatal(1,"invalid target state");
         endcase
     end
     task tick; begin @(posedge clk); #1; end endtask
