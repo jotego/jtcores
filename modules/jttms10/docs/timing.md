@@ -565,8 +565,10 @@ word regression and all1,306 W=1/CEN=7 Verilator programs pass. Five new
 actual RTL mutants fail with correct main/following state and memory,
 including the two short-pause guards and ordered writes. Six short Icarus
 profiles pass28 programs each (168); their source hashes match the final
-inputs. Full Icarus comparison and clean targeted validation are pending at this
-implementation step. The matched map estimates3,689 ALMs,5,258 ALUTs,1,725
+inputs. All1,306 case objects and46 source/generated provenance hashes match
+Icarus/Verilator and a detached clean checkout exactly. The clean scope is
+133 models,1,306 stressed programs and response9/1 events, not a full standard
+runner. Four fresh-process probes match batching except local identifiers. The matched map estimates3,689 ALMs,5,258 ALUTs,1,725
 registers,538,624 RAM bits,five DSPs and zero MLAB bits. All36 snapshot hashes
 and29 committed physical inputs verify; the same46 warning classifications
 remain. These are synthesis estimates, without a current fit/STA claim. The full114-form standard

@@ -103,6 +103,9 @@ Quartus Lite20.1.1 Build720,5CSEBA6U23I7,20ns,seed1 and effort; all36 snapshot
 hashes/29 copied physical inputs and46 warning classifications verify.
 The manifest retains source_commit:null for the live-source capture, with
 content checked against the implementation. No current fit or STA is claimed.
-Full Icarus comparison, clean targeted validation and the uninterrupted
-114-form runner remain pending at this step. The preceding completed full
+All1,306 Icarus/Verilator/clean case objects and46 timing source/generated
+hashes match exactly. Four fresh-process probes match batching except the
+local case identifier. Clean validation repeats133 models,1,306 stressed
+programs and response9/1 events; it is targeted, not a full standard runner.
+The uninterrupted114-form runner remains pending at this step. The preceding completed full
 runner is109-form RETS; corrected111-form PUSHST is still running.
