@@ -42,8 +42,60 @@ from pixel_store_cases import fixture as pixel_store_fixture, following as pixel
 from pixel_boolean_cases import boolean as boolean_pixel, fixture as boolean_fixture
 from pixel_copy_cases import fixture as copy_pixel_fixture
 from pixel_xy_store_cases import fixture as xy_store_fixture,following as xy_store_following
+from draw_cases import fixture as draw_fixture,advance as draw_advance
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_draw_primary_count_table(self):
+        for size in (1,2,4,8,16):
+            for off in (False,True):
+                row=draw_fixture(size,0,0,off)
+                self.assertEqual(row['states'],(8 if size==16 else 10) if off else 4)
+
+    def test_draw_primary_literal_pointer_updates(self):
+        for point,want in ((0x400040,0x500050),(0x400020,0x500030),(0x400010,0x500020),(0x400008,0x500018),(0x400004,0x500014)):
+            self.assertEqual(draw_advance(point,0x100010),want)
+
+    def test_draw_x_carry_never_advances_y(self):
+        self.assertEqual(draw_advance(0x0000FFFF,1),0)
+        self.assertEqual(draw_advance(0x1234FFFF,1),0x12340000)
+        self.assertEqual(draw_advance(0xFFFF0000,0x10000),0)
+
+    def test_draw_pattern_selects_physical_lane(self):
+        row=draw_fixture(4,8,0,False,color=0xABCD1234)
+        self.assertEqual(row['data_store']['value'],2)
+        self.assertEqual(dict(row['expected_memory'])[row['data_store']['address']&~15],0xA296)
+
+    def test_draw_uses_color1_low_word(self):
+        row=draw_fixture(16,0,0,False,color=0x80000000)
+        self.assertEqual(row['data_store']['value'],0)
+        self.assertEqual(row['expected_extra_regs']['b9'],0x80000000)
+
+    def test_draw_pointer_color1_alias_uses_old_color(self):
+        row=draw_fixture(16,0,1,False,pointer=9,point=0x10010,delta=1,color=0xFFFFFFFF)
+        self.assertEqual(row['data_store']['value'],0x10)
+        self.assertEqual(row['expected_extra_regs']['b9'],0x10011)
+
+    def test_draw_source_color1_alias_uses_one_register(self):
+        row=draw_fixture(16,0,1,False,source=9,point=0x10010,delta=1,color=0x10001)
+        self.assertEqual(row['conditions']['delta'],0x10001)
+        self.assertEqual(row['expected_extra_regs']['b0'],0x20011)
+
+    def test_draw_shared_sp_alias_in_both_banks(self):
+        for bank in (0,1):
+            row=draw_fixture(16,0,bank,False,source=15,pointer=15,point=0x10010)
+            self.assertEqual(row['expected_extra_regs']['sp'],0x20020)
+
+    def test_draw_w0_preserves_every_status_bit(self):
+        row=draw_fixture(16,0,0,False,delta=0xFFFFFFFF,status=0xF0200810)
+        self.assertEqual(row['expected_st'],0xF0200810)
+
+    def test_draw_stray_unsigned_multiply_state_is_rejected(self):
+        row=draw_fixture(1,1,0,False)
+        actual=dict(clocks=32,paused=0,st=row['expected_st'],**{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+        self.assertEqual(check(row,actual),[])
+        actual['clocks']=40
+        self.assertTrue(check(row,actual))
+
     def test_xy_pixel_replace_primary_counts(self):
         for size in (1,2,4,8,16):
             for off in (False,True):

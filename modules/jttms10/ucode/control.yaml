@@ -439,3 +439,15 @@ ucode:
       - step_mul
       - add_alu, sum_ea
       - write_mem, ni
+
+  - name: drav_fast
+    start: 153
+    seq:
+      - init_mul, reg_b
+      - step_mul
+      - corrq_mul
+      - step_mul
+      - add_alu, sum_ea
+      - reg_a, reg_b
+      - add_alu, finish_mul
+      - write_mem, pass_alu, wr_reg, ni

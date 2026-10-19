@@ -104,15 +104,17 @@ module jttms10 #(
     wire xy_cmp = ir[15:9]==7'b1110010;
     wire cpw_ir = ir[15:9]==7'b1110011;
     wire cvxyl_ir = ir[15:9]==7'b1110100;
-    wire xy_packed = xy_op || xy_cmp || cpw_ir;
     wire pix_rxy = ir[15:9]==7'b1111000;
     wire pixel_xy_store=pix_rxy && gfx_family==8'd152;
     wire drav_ir = ir[15:9]==7'b1111011;
+    wire pixel_draw_store=drav_ir && gfx_family==8'd153;
+    wire pixel_xy_address_store=pixel_xy_store || pixel_draw_store;
+    wire xy_packed = xy_op || xy_cmp || cpw_ir || (pixel_draw_store && mulfinish);
     wire line_ir = ir==16'hdf1a || ir==16'hdf9a;
     wire pixel_linear_load=ir[15:9]==7'b1111101;
     wire pixel_xy_load=ir[15:9]==7'b1111001;
     wire pixel_load=pixel_linear_load || pixel_xy_load;
-    wire convert_ir=cvxyl_ir || pixel_xy_load || pixel_xy_store;
+    wire convert_ir=cvxyl_ir || pixel_xy_load || pixel_xy_address_store;
     wire pix_rlin = ir[15:9]==7'b1111100;
     wire pixel_simple=control[14:10]==0 && !control[5] && pmask==0;
     wire pixel_xy_simple=pixel_simple && control[7:6]==0;
@@ -120,7 +122,7 @@ module jttms10 #(
     // The selected native microprogram owns the mode until retirement.
     wire pixel_process=pix_rlin && gfx_family==8'd150;
     wire pixel_copy=ir[15:9]==7'b1111110 && gfx_family==8'd151;
-    wire pixel_store=(pix_rlin && (gfx_family==8'd149 || gfx_family==8'd150)) || pixel_copy || pixel_xy_store;
+    wire pixel_store=(pix_rlin && (gfx_family==8'd149 || gfx_family==8'd150)) || pixel_copy || pixel_xy_address_store;
     wire array_ir = ir==16'h0f00 || ir==16'h0f20 ||
                     ir==16'h0f40 || ir==16'h0f60 ||
                     ir==16'h0f80 || ir==16'h0fa0 ||
@@ -211,9 +213,9 @@ module jttms10 #(
     wire stack_push=ir==16'h01e0 || call_ir;
     wire store_absolute=(ir & 16'hfde0)==16'h0580 || (ir & 16'hffe0)==16'h05e0;
     wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
-    wire store_direct=!pixel_xy_store && !multi_ir && !stack_push && ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
+    wire store_direct=!pixel_xy_address_store && !multi_ir && !stack_push && ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
     wire [31:0] store_target=copy_packet ? tmp : rd_data;
-    wire [31:0] store_source=multi_ir ? md : call_ir ? md : stack_push ? st : (copy_ir || pixel_process || pixel_copy) ? md : store_absolute ? rd_data : rs_data;
+    wire [31:0] store_source=pixel_draw_store ? {16'd0,(rs_data[15:0] >> ea[3:0])} : multi_ir ? md : call_ir ? md : stack_push ? st : (copy_ir || pixel_process || pixel_copy) ? md : store_absolute ? rd_data : rs_data;
     localparam integer LOAD_IW=$clog2(11*CLKS_PER_STATE+1);
     localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
     localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
@@ -281,10 +283,12 @@ module jttms10 #(
     wire decode_store_absolute=(decode_opcode & 16'hfde0)==16'h0580 || (decode_opcode & 16'hffe0)==16'h05e0;
     wire decode_store_extension=decode_store_offset || decode_store_absolute;
     wire decode_pixel_xy_store=decode_opcode[15:9]==7'b1111000 && pixel_xy_simple;
+    wire decode_pixel_draw_store=decode_opcode[15:9]==7'b1111011 && pixel_xy_simple;
+    wire decode_pixel_xy_address_store=decode_pixel_xy_store || decode_pixel_draw_store;
     wire decode_pixel_copy=decode_opcode[15:9]==7'b1111110 && pixel_simple;
     wire decode_pixel_process=decode_opcode[15:9]==7'b1111100 && pixel_boolean;
     wire decode_pixel_readpost=decode_pixel_process || decode_pixel_copy;
-    wire decode_pixel_store=decode_pixel_xy_store || decode_pixel_copy || (decode_opcode[15:9]==7'b1111100 && (pixel_simple || pixel_boolean));
+    wire decode_pixel_store=decode_pixel_xy_address_store || decode_pixel_copy || (decode_opcode[15:9]==7'b1111100 && (pixel_simple || pixel_boolean));
     wire decode_store=decode_pixel_store || decode_call || decode_store_extension || decode_opcode[15:10]==6'b100000 ||
         decode_opcode[15:9]==7'b1000110 || decode_store_post || decode_store_pre;
     wire decode_load_post=decode_opcode[15:10]==6'b100101;
@@ -350,7 +354,7 @@ module jttms10 #(
     // destination read select its shorter path during the first ROM prime.
     wire [5:0] decode_states=decode_multi ? (decode_opcode[5] ? 6'd3 : 6'd2) : decode_trap ? (rd_data[3:0]==0 ? 6'd16 : 6'd30) : decode_control ?
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
-                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_call ? (decode_call_absolute ? 6'd4 : 6'd3) : decode_pixel_store ? ((decode_pixel_readpost || decode_pixel_xy_store) ? 6'd4 : 6'd2) : decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_call ? (decode_call_absolute ? 6'd4 : 6'd3) : decode_pixel_store ? ((decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd2) : decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -544,8 +548,9 @@ module jttms10 #(
         .rd_ext(gfx_active && gfx_rf_da[5]),
         .wa_ext(gfx_active && gfx_rf_wa[5]),
         .rs(gfx_active ? gfx_rf_sa[4:0] :
-            fetch && (completed || mem_fast || mem_ack) && decode_pixel_xy_store ? {decode_opcode[4],decode_opcode[3:0]} :
-            pixel_xy_store && !load_address_ready ? {ir[4],ir[3:0]} :
+            fetch && (completed || mem_fast || mem_ack) && decode_pixel_xy_address_store ? {decode_opcode[4],decode_opcode[3:0]} :
+            pixel_xy_address_store && !load_address_ready ? {ir[4],ir[3:0]} :
+            pixel_draw_store && mem_sel==WRITE_MEM ? 5'd25 :
             fetch && (completed || mem_fast || mem_ack) && (decode_stack_read || decode_stack_push) ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && decode_call_register ? {decode_opcode[4],decode_opcode[3:0]} :
             fetch && (completed || mem_fast || (mem_ack && decode_cpw)) ? {decode_opcode[4],decode_opcode[8:5]} :
@@ -558,8 +563,9 @@ module jttms10 #(
             fetch && (completed || mem_fast || mem_ack) && (decode_stack_read || decode_stack_push) ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && (decode_call || decode_trap) ? 5'd15 :
             fetch && (completed || mem_fast || mem_ack) && decode_cpw ? 5'd21 :
-            fetch && (completed || mem_fast) && (decode_cvxyl || decode_pixel_xy_load || decode_pixel_xy_store) ? 5'd20 :
+            fetch && (completed || mem_fast) && (decode_cvxyl || decode_pixel_xy_load || decode_pixel_xy_address_store) ? 5'd20 :
             fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control || decode_multi) ? {decode_opcode[4],decode_opcode[3:0]} :
+            pixel_draw_store && load_address_ready ? {ir[4],ir[3:0]} :
             cpw_ir ? 5'd22 : convert_ir ? 5'd20 :
             stack_ir || push_active ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
@@ -784,8 +790,8 @@ module jttms10 #(
                 copy_operand_left<=decode_copy_absolute_pair ? 3'd4 : decode_copy_offset_pair ? 3'd2 : 3'd0;
                 load_pending<=decode_pixel_readpost || decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
-                load_address_ready<=!decode_pixel_xy_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension));
-                load_issue_left<=(decode_pixel_xy_load || decode_pixel_xy_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_address_ready<=!decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension));
+                load_issue_left<=(decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin
@@ -798,7 +804,7 @@ module jttms10 #(
             end
             // MPYU's extra state depends on the selected field's sign bit,
             // which is available once synchronous register reads complete.
-            if(step && mulinit && timing_active && ir[9] && field_ext_input[field_msb])
+            if(step && mulinit && timing_active && mul_ir && ir[9] && field_ext_input[field_msb])
                 time_left<=time_left+CLKS_PER_STATE[15:0]-16'd1;
             if(step && divcheck && timing_active && (a==0 || !c))
                 time_left<=time_left-div_cut_clocks-16'd1;
@@ -991,7 +997,8 @@ module jttms10 #(
                         result[31];
                 end
                 if(mulfinish) begin
-                    if(pixel_process || pixel_copy) md<={16'd0,pixel_copy ? pixel_visible_source : pixel_write_pixel};
+                    if(pixel_draw_store) a<=result;
+                    else if(pixel_process || pixel_copy) md<={16'd0,pixel_copy ? pixel_visible_source : pixel_write_pixel};
                     else if(div_ir) begin
                         div_phase<=1;
                         div_error<=div_early || div_range;

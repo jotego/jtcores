@@ -111,8 +111,8 @@ def pixel_read_mutations(work,evidence):
 def pixel_xy_read_mutations(work,evidence):
     for name,probe,old,new in (
         ('late_xy_pixel_address','pixel_xy_read_ps16_o0_r0_base_hit',
-         '(decode_pixel_xy_load || decode_pixel_xy_store) ? LOAD_LEAD+LOAD_PRE',
-         '(decode_pixel_xy_load || decode_pixel_xy_store) ? LOAD_LEAD+LOAD_LEAD'),
+         '(decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE',
+         '(decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_LEAD'),
         ('long_xy_pixel_tail','pixel_xy_read_ps16_o0_r0_base_hit',
          "load_finish_clocks=((pixel_load || pixel_process || pixel_copy) ? 16'd1", "load_finish_clocks=(pixel_xy_load ? 16'd2 : (pixel_load || pixel_process) ? 16'd1")):
         extra=['--wait-states','1','--pause-clocks','1']
@@ -124,7 +124,7 @@ def pixel_xy_read_mutations(work,evidence):
 def pixel_store_mutations(work,evidence):
     for name,probe,old,new in (
         ('long_pixel_replace_cpu','pixel_store_ps16_o0_r0_base_hit',
-         "(decode_pixel_readpost || decode_pixel_xy_store) ? 6'd4 : 6'd2", "(decode_pixel_readpost || decode_pixel_xy_store) ? 6'd4 : 6'd3"),
+         "(decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd2", "(decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd3"),
         ('late_pixel_replace_slot','pixel_store_ps1_o0_r0_base_hit',
          'decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi',
          'decode_pixel_store ? LOAD_LEAD : decode_pixel_load ? LOAD_PRE : decode_multi'),
@@ -172,15 +172,35 @@ def pixel_copy_mutations(work,evidence):
 def pixel_xy_store_mutations(work,evidence):
     for name,probe,file,old,new,extra in (
         ('long_xy_replace_cpu','pixel_xy_store_ps16_o0_r0_base_hit','jttms10.v',
-         "(decode_pixel_readpost || decode_pixel_xy_store) ? 6'd4 : 6'd2",
+         "(decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd2",
          "decode_pixel_xy_store ? 6'd5 : decode_pixel_readpost ? 6'd4 : 6'd2",[]),
         ('late_xy_replace_slot','pixel_xy_store_ps16_o0_r0_base_hit','jttms10.v',
-         '(decode_pixel_xy_load || decode_pixel_xy_store) ? LOAD_LEAD+LOAD_PRE',
+         '(decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE',
          'decode_pixel_xy_store ? LOAD_LEAD+LOAD_LEAD : decode_pixel_xy_load ? LOAD_LEAD+LOAD_PRE',
          ['--wait-states','1','--pause-clocks','1']),
         ('lost_xy_replace_credit','pixel_xy_store_ps1_o15_r1_follow_k0_hit','jttms10_word.v',
          '(!field_pixel || field_fast ||',
          "(!field_pixel || (field_fast && ir[15:9]!=7'b1111000) ||",[])):
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+
+
+def draw_mutations(work,evidence):
+    for name,probe,file,old,new,extra in (
+        ('long_draw_cpu','draw_ps16_o0_r0_base_hit','jttms10.v',
+         "(decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd2",
+         "decode_pixel_draw_store ? 6'd5 : (decode_pixel_readpost || decode_pixel_xy_store) ? 6'd4 : 6'd2",[]),
+        ('late_draw_slot','draw_ps16_o0_r0_base_hit','jttms10.v',
+         '(decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE',
+         'decode_pixel_draw_store ? LOAD_LEAD+LOAD_LEAD : (decode_pixel_xy_load || decode_pixel_xy_store) ? LOAD_LEAD+LOAD_PRE',
+         ['--wait-states','1','--pause-clocks','1']),
+        ('stray_draw_unsigned_state','draw_ps1_o1_r0_base_hit','jttms10.v',
+         'mulinit && timing_active && mul_ir && ir[9]',
+         'mulinit && timing_active && ir[9]',[]),
+        ('lost_draw_post_credit','draw_ps1_o15_r1_follow_k0_hit','jttms10_word.v',
+         '(!field_pixel || field_fast ||',
+         "(!field_pixel || (field_fast && ir[15:9]!=7'b1111011) ||",[])):
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
@@ -677,6 +697,7 @@ def main():
         pixel_boolean_mutations(work,evidence)
         pixel_copy_mutations(work,evidence)
         pixel_xy_store_mutations(work,evidence)
+        draw_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(evidence,indent=2)+'\n')

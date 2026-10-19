@@ -1,11 +1,11 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 122 of 133 instruction forms; the other 11 remain unvalidated.
+probes cover 123 of 133 instruction forms; the other 10 remain unvalidated.
 PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
 arithmetic,masking,transparency and other conditions remain unvalidated.
 Linear memory-to-memory PIXT covers replace/PMASK0/T0; register-to-XY
-PIXT covers replace/PMASK0/T0/W0. Other conditions remain unvalidated.
+PIXT and DRAV cover replace/PMASK0/T0/W0. Other conditions remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -942,3 +942,19 @@ running frozen f99e1baa6;121-copy cabaf7c8b and Boolean1205a74e596e remain
 separate. Latest accepted complete invocation stays120/187/323,708 programs.
 Clean scope is targeted,not a full normal runner. All known source targets,
 remaining ISA/conditions/fullcleanCI/finalhardware/game gates remain open.
+
+### Draw-and-advance replace
+
+DRAV adds6,126 fixtures for129,492 cases and123/133 forms (10 missing),only
+replace/PMASK0/T0/W0. Shared scalar DSP products/ALU and existing registers/
+field engine convert the old destination,select COLOR1's physical pixel,
+post it and add X/Y halves separately for Rd. No DSP/register bank/ALU is
+added. [Draw timing](draw-timing.md) records TI's4/10 or4/8 counts,all five
+literal W0 replace examples,independent pointer/pattern model,aliases,
+first-execution measurement,bus/following contracts and remaining exclusions.
+The unsigned-multiply surcharge now requires a real multiply opcode; an
+actual DRAV regression mutant restores the old one-state failure with correct
+state/memory. All768 existing multiply timing programs pass three profiles.
+All123,366 preceding fixture contracts remain unchanged;134 old-core probes
+fail timing/bus with correct state/memory and22 verified old HDL/YAML hashes.
+No known source target or final acceptance gate is waived.
