@@ -1123,6 +1123,15 @@ checks with Verilator by default. `ver/sim.sh UNIT` builds and runs the
 existing unit benches, including both cache-field timing modes, all eight
 system-control modes and linear/XY FILL IRQ/NMI at all five pixel sizes.
 Generate microcode with `ver/build.sh` before invoking that helper alone.
+Decoder-table preparation also uses this helper with
+`TMS10_DISPATCH_GENERATE`: the original controller function generates the
+2,048-entry image, which must still match the checked-in ROM. A clean-run
+guard caught the old Icarus dependency in that preparation step after the
+initial unit-bench migration; that initial frozen invocation failed before
+running regressions. The corrected bootstrap and targeted suites run with
+Icarus/vvp guard commands that fail immediately if invoked. All seven
+generated images remain byte-identical to the preceding checkpoint.
+
 The shared `ver/verilator_build.py` preserves fatal compiler warnings;
 `--quiet` is enabled only on versions that support it, retaining compatibility
 with the older Verilator installed by CI. Test benches now explicitly size

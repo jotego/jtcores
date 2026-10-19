@@ -7,7 +7,7 @@ import re
 import subprocess
 
 
-def build_model(output, sources, *, top="test", includes=(), parameters=()):
+def build_model(output, sources, *, top="test", includes=(), parameters=(), defines=()):
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     version = subprocess.run(["verilator", "--version"], check=True,
@@ -19,6 +19,7 @@ def build_model(output, sources, *, top="test", includes=(), parameters=()):
                "--Mdir", str(output),
                *["-I"+str(Path(p).resolve()) for p in includes],
                *["-G"+p for p in parameters],
+               *["-D"+p for p in defines],
                *[str(Path(p).resolve()) for p in sources]]
     result = subprocess.run(command, capture_output=True, text=True)
     (output / "build.log").write_text(version + result.stdout + result.stderr)
@@ -33,10 +34,11 @@ def main():
     parser.add_argument("--top", default="test")
     parser.add_argument("--include", type=Path, action="append", default=[])
     parser.add_argument("--parameter", action="append", default=[])
+    parser.add_argument("--define", action="append", default=[])
     parser.add_argument("sources", type=Path, nargs="+")
     args = parser.parse_args()
     build_model(args.output, args.sources, top=args.top,
-                includes=args.include, parameters=args.parameter)
+                includes=args.include, parameters=args.parameter, defines=args.define)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,12 @@
 """Emit or verify the coarse dispatch ROM from the controller decode function."""
 import argparse
 import subprocess
+import sys
 from pathlib import Path
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from verilator_build import build_model
 
 
 def main():
@@ -15,12 +20,9 @@ def main():
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
     bench = Path(__file__).with_name("dump.sv")
-    binary = out / "dispatch_dump.vvp"
-    subprocess.run([
-        "iverilog", "-g2012", "-DTMS10_DISPATCH_GENERATE", "-s", "test", "-I" + str(out),
-        "-o", str(binary), str(args.controller.resolve()), str(bench)
-    ], check=True)
-    subprocess.run(["vvp", str(binary), "+output=" + str(out / "tms10_dispatch.hex")],
+    binary = build_model(out / "dispatch-model", [args.controller, bench],
+                         includes=[out], defines=["TMS10_DISPATCH_GENERATE"])
+    subprocess.run([str(binary), "+output=" + str(out / "tms10_dispatch.hex")],
                    cwd=out, check=True, stdout=subprocess.DEVNULL)
     words = (out / "tms10_dispatch.hex").read_text().splitlines()
     if len(words) != 2048 or any(len(word) != 2 for word in words):
