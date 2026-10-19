@@ -658,3 +658,16 @@ final child-status record. This is captured-phase evidence, not a cleanly
 completed-invocation claim; the latest verified invocation remains114-form
 CALL. The cause of that termination is not inferred. Source/coverage
 still reports18 missing forms448 unresolved probes for that older tree.
+
+
+The117-form stressed proof at27b0d4e44/e633074cc did not cover the later
+unpaused first-slot failure:1,778 cached list probes were one state late with
+correct architecture/memory. The e633 full invocation was cancelled for that
+demonstrated RTL bug before its matrices, not for an observation timeout.
+The first-field phase1/phase2 correction now passes three separate3,572-case
+base/wait/stress matrices (10,716 programs),342 short Icarus phases, seven
+mutants,180 architecture, the original38-request MSW assertion, strict lint
+and17/1 response events. All48 runtime-source/seven ROM hashes match those
+profiles. New representative Icarus/clean validation and a fresh full runner
+remain pending. The corrected map estimates3,824 ALMs/5,495 ALUTs/1,722
+registers/five DSPs, without current fitting/STA. No source targets are waived.

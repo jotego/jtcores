@@ -77,12 +77,15 @@ def list_mutations(work,evidence):
         ('wrong_mmtm_word_order','mmtm_phase_b0_p3_ma003_o15_a0_hit','jttms10_word.v',
          ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we))",
          ".reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we) || (ir[15:5]==11'h04c && field_we))"),
+        ('late_list_unpaused_credit','mmfm_boundary_phase_n1_b0_p3_m0001_o0_a0_hit','jttms10_word.v',
+         "slot_phase==1 || ((ir==16'h01e0",
+         "(slot_phase==1 && (ir[15:6]!=10'h026 || copy_source_accepted)) || ((ir==16'h01e0"),
         ('absorbed_mmtm_single_slot','mmtm_boundary_phase_n1_b0_p3_m8000_o15_a0_hit','jttms10_word.v',
-         '.mem_slot(slot_eligible || slot_phase==0)', ".mem_slot(1'b1)"),
+         '.mem_slot(slot_eligible || slot_phase<=1)', ".mem_slot(1'b1)"),
         ('short_mmtm_post_tail','mmtm_follow_n15_k0_b0_p3_mefff_o15_a0_hit','jttms10.v',
          "time_left<=(mem_slot ? 16'd2 : 16'd3)*CLKS_PER_STATE[15:0]-{{(16-$clog2(CLKS_PER_STATE)){1'b0}},mem_phase}-16'd1;",
          "time_left<=16'd1*CLKS_PER_STATE[15:0]-{{(16-$clog2(CLKS_PER_STATE)){1'b0}},mem_phase}-16'd1;")):
-        extra=['--wait-states','1','--pause-clocks','1']
+        extra=[] if name=='late_list_unpaused_credit' else ['--wait-states','1','--pause-clocks','1']
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)

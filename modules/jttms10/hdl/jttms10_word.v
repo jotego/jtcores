@@ -100,7 +100,7 @@ module jttms10_word #(
             // cannot carry that slot across an early CEN pause. PUSHST can
             // start its unaligned field in its initial intrinsic state.
             else if(slot_phase==0 || (!request_latched &&
-                ((slot_phase==1 && (ir[15:6]!=10'h026 || copy_source_accepted)) || ((ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3 &&
+                (slot_phase==1 || ((ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3 &&
                   ((!call_stack && field_addr[3:0]!=0) || stack_post_slot)))))
                 slot_eligible<=1;
         end
@@ -148,7 +148,7 @@ module jttms10_word #(
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
-        .mem_slot(slot_eligible || slot_phase==0),
+        .mem_slot(slot_eligible || slot_phase<=1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 

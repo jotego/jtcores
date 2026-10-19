@@ -78,47 +78,46 @@ addresses, 32 opcode-phase cases,24 empty/one/maximum boundary-phase cases and 1
 the updated pointer after0/1/3/7/20 cached NOPs. Fixture programs remain
 within four warm cache segments; the sparse input limit is64 words.
 
-All 3,572 W=1/P=7 Verilator programs, 144 model/checker tests, strict lint,
-342 short Icarus phase programs and six new mutation controls/rejections
-pass. The mutants shorten MMFM/MMTM work, remove operand-slot qualification,
-delay inter-field issue, reverse MMTM word order or discard the first
-posted field's slot qualification. All retain correct
-main/following state and drained memory. The architectural suite passes
-180 programs; its original unaligned list roundtrip caught the raw request
-retention bug. Failed prototypes are not accepted evidence.
+The earlier27b0d4e44/e633074cc stressed and short-pause profiles passed,
+but an added unpaused zero-wait run exposed1,778 cached failures (889 each
+MMFM/MMTM), one state late with correct architecture/memory. A first field
+accepted at phase1 must retain the current slot; phase2 after a one-clock
+pause must wait for the next boundary. The list-specific phase1 restriction
+incorrectly delayed the base path. The correction permits phase1 and carries
+that same qualification into the final posted CPU-work budget.
 
-At implementation 27b0d4e44, all 588 representative Icarus case objects
-match batched Verilator exactly, removing only the batch-local case ID.
-A detached clean checkout repeats all 144 models, all 3,572 stressed cases
-and all 17 response controls/one mutant. Every stressed case and all 48
-source/seven generated hashes match development exactly. Four fresh-process
-Icarus cases also match batching. Clean scope is targeted; the complete
-117-form initial runner passed180 architectural programs,144 models,699
-bus scenarios and the response/EMU event benches, then stopped before matrices at a stale branch-counter mutation anchor.
-The copy-slot mutation also retained an old pattern. Correcting both helper
-patterns preserves all48 runtime inputs and ROMs; both affected controls and
-mutants are checked separately. Fresh complete validation remains pending.
-The failed invocation is retained and not accepted as a complete run.
+The corrected implementation passes all three separate3,572-case matrices:
+zero waits/unpaused, one wait/unpaused, and one wait/seven-clock CPU pause,
+for10,716 exact programs. All342 short Icarus phases and seven new mutation
+controls/rejections pass with all48 source/seven generated hashes exact.
+The new unpaused mutant deliberately restores the rejected first-slot rule.
+All mutants preserve full main/following state and drained memory. The144
+model/checker tests are unchanged. Strict lint,180 architectural programs,
+the original38-request MSW-order assertion and17 response controls/one mutant
+pass after the correction. CPU/list state holds across256-clock response
+pauses; these are bounded wrapper-event checks, not original TI pause counts.
 
-The matched NARC GSP quartus_map succeeds with 3,824 estimated ALMs,
-5,496 ALUTs, 1,722 registers, 538,624 RAM bits, five DSPs and zero MLAB bits.
-Compared with TRAP: +105 ALMs/+161 ALUTs/-3 registers, unchanged RAM/DSPs.
-All 36 snapshot hashes and 29 committed inputs verify. Device/tool/158
-virtual pins/20ns/seed1/effort match; QSF differs only in snapshot paths.
-There are 49 warning classifications, three more intentional 32-to-7-bit
-constant-sized lead assignments (largest selected value80). The previous
-46 warnings are otherwise unchanged. This is synthesis, without a current
-fit/STA claim; the final ceiling remains 3,500 fitted ALMs. The preceding
-RETS fit of3,649 fails that ceiling. Final board timing and game validation
-remain separate requirements.
+The previous588-case Icarus/targeted-clean results and their source hashes
+remain historical evidence for the older word RTL. New representative
+cross-simulator and clean-checkout validation is pending for this correction;
+it will include all three targeted profiles. No full clean-runner acceptance
+is claimed. All92,138 preceding fixture/program/golden contracts are unchanged.
 
-The response bench passes17 controls/one mutant, adding MMFM and queued
-MMTM responses captured during256-clock pauses, aligned and unaligned in
-both banks. All initialized GPRs, list state and CPU work hold while paused;
-bus order, field consecutiveness, bounded completion and final memory are
-checked. These are wrapper CEN event contracts, not original TI pause counts.
-Broader cache/HOLD/IRQ/peripheral interference and final fitted area, board
-STA and NARC simulation/MiSTer acceptance remain required.
+The corrected matched NARC GSP quartus_map estimates3,824 ALMs,5,495 ALUTs,
+1,722 registers,538,624 RAM bits,five DSPs and zero MLAB bits. Full snapshot
+verification remains part of the evidence update. Same158 virtual pins,
+device/tool/20ns/seed1/effort; no new arithmetic unit or register bank. This
+is synthesis without current fit/STA. The final ceiling remains3,500 fitted
+ALMs; preceding RETS fit3,649 fails it. Board timing and game validation remain
+separate requirements.
+
+The initial117-form invocation failed stale helper anchors before matrices;
+e633074cc corrects those helper patterns without changing runtime inputs.
+Its fresh invocation was then cancelled for the demonstrated unpaused RTL
+bug, with reason/status retained. Neither is accepted as a complete run.
+Fresh complete validation on the corrected tree remains required, alongside
+remaining ISA/conditions/cache/HOLD/IRQ/peripheral/graphics resumption and
+final NARC/MiSTer/area/STA/full-clean/CI acceptance.
 
 Reproduce through `bash modules/jttms10/ver/run.sh`; the normal runner and
 CI include the list fixtures, models, events, mutations and all six short
