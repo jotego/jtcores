@@ -976,3 +976,34 @@ windows per line, all in the H8-low horizontal-blank interval. It stays high
 through H8-high active video, permitting counting between those requests.
 These are combinational decode windows. The actual counter sampling edge
 relative to H transitions and CD setup/hold remains a separate timing check.
+
+## Separate video data buses
+
+CD7–CD0 are driven by 3J/3K. They cross the local bus joining 4M, 4N, 4O
+and 5N without connecting to it. The CD driver pins, their input bus and
+enable wiring remain separate checks.
+
+For this pin map only, `L[7:0]` denotes that otherwise unnamed local bus:
+
+| Source | Physical pins, in order | Local bits, in the same order |
+| --- | --- | --- |
+| 4M RAM | 11, 12, 13, 14 | L7, L6, L5, L4 |
+| 4N RAM | 11, 12, 13, 14 | L3, L2, L1, L0 |
+
+4O is jointly confirmed as type 245. Its B-side wires are DB7–DB0, and its
+A-side wires join `L[7:0]`. Their physical port order is interleaved:
+
+| Bit | DB-side pin | L-side pin |
+| --- | --- | --- |
+| 7 | 11 | 9 |
+| 6 | 13 | 7 |
+| 5 | 15 | 5 |
+| 4 | 17 | 3 |
+| 3 | 12 | 8 |
+| 2 | 14 | 6 |
+| 1 | 16 | 4 |
+| 0 | 18 | 2 |
+
+5N also connects to `L[7:0]`; its individual data pins and capture timing
+remain to be checked. The 4O direction/enable controls and RAM write controls
+must establish bus ownership before assigning a data-transfer phase.
