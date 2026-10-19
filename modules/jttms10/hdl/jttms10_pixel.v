@@ -23,7 +23,7 @@ module jttms10_pixel(
     output transparent
 );
     localparam [3:0] ALU_ADD=4'd1, ALU_SUB=4'd3;
-    reg [15:0] field_mask;
+    wire [15:0] field_mask;
     wire [15:0] source_pmask=(pmask >> src_addr_lo) & field_mask;
     wire [15:0] dest_pmask=(pmask >> dst_addr_lo) & field_mask;
     wire [15:0] s=visible_source;
@@ -44,16 +44,11 @@ module jttms10_pixel(
     assign write_mask=(valid && !transparent) ? (field_mask & ~dest_pmask) : 16'd0;
     assign write_pixel=(dest_pixel & ~write_mask) | (masked_result & write_mask);
 
-    always @* begin
-        case (psize)
-            5'd1: field_mask=16'h0001;
-            5'd2: field_mask=16'h0003;
-            5'd4: field_mask=16'h000f;
-            5'd8: field_mask=16'h00ff;
-            5'd16: field_mask=16'hffff;
-            default: field_mask=16'd0;
-        endcase
-    end
+    assign field_mask = psize==5'd1  ? 16'h0001 :
+                        psize==5'd2  ? 16'h0003 :
+                        psize==5'd4  ? 16'h000f :
+                        psize==5'd8  ? 16'h00ff :
+                        psize==5'd16 ? 16'hffff : 16'd0;
 
     // ALU selection depends only on the operation and masked operands.
     // Keep it separate from result selection, which consumes ALU feedback.
