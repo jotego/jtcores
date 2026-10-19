@@ -74,9 +74,20 @@ on unchangedeaa864ff2 fail timing/bus with correct state/memory;130
 representatives and22 verified old HDL/YAML hashes are committed.
 
 Matched NARC GSP quartus_map estimates3,817 ALMs,5,517 ALUTs,1,722 registers,
-538,624 RAM bits,five DSPs and zero MLAB bits. Current source/ROM verification
-and a detached clean-checkout run remain in progress; no new full-runner,
-fitted-area or board-STA acceptance is claimed. Inventory is106,610 cases,
+538,624 RAM bits,five DSPs and zero MLAB bits. A detached clean checkout of187edd8df repeats all three2,824-case profiles,
+165 models and29 response controls/one mutant. All8,472 case objects,
+51 timing-source/seven generated hashes and response objects match development
+exactly. Clean scope is targeted,not a full standard runner. All36 synthesis
+snapshot hashes/29 committed inputs,QSF path normalization,SDC and the same49
+warning classifications verify. Original live-capture source_commit:null and
+repo_commiteaa864ff2 are retained; content matches187edd8df. This is +19 ALMs/
++13 ALUTs versus the XY-read map,unchanged registers/RAM/DSPs; the combined
+synthesis change does not isolate one cause. No current fitted-area or
+board-STA acceptance is claimed.
+
+A fresh120-form standard runner is running frozen187edd8df,alongside older
+118/119 frozen runs. No completed120 invocation is claimed. Latest accepted
+complete invocation is corrected117-form lists/289,568 exact programs. Inventory is106,610 cases,
 120/133 forms,13 missing plus the condition exclusions above. The same
 12,625 project choices/448 unresolved MOVB instances,including45 agreed
 targets,remain without waivers. Full clean/CI,remaining ISA/conditions and

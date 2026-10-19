@@ -761,3 +761,32 @@ three-profile clean proof remains12,477 exact programs,151 models and
 response21/1. The current branch has119 forms; its118/119 full runners remain
 running frozen2d260be9f/adac0fbbd. All remaining ISA/conditions,known MOVB,
 full clean/CI,final fitted area/board STA/NARC/MiSTer requirements remain open.
+
+
+## Pixel replace-write subset milestone
+
+PIXT Rs,*Rd adds2,824 fixtures for106,610 cases and120/133 forms (13 missing).
+This covers **replace,PMASK0,T0 only**; other processing/masking/transparency/
+SRT conditions remain unvalidated. Implementation187edd8df shares the scalar
+posted field engine atCPU2,H3/CD8 for small pixels,H1/CD6 at16 bits. All8,472
+programs in three profiles,165 models,180 architecture,102 short Icarus phases,
+three new timing mutants/three affected linear mutants,29 response controls/
+one mutant and strict lint pass. A detached clean checkout repeats all three
+profiles,models and events with every case object,51 timing-source/seven
+generated hashes and response object exact. All522 representative Icarus
+stress cases match Verilator except case ID; this is not all2,824. Two fresh
+process comparisons pass. Clean scope is targeted,not a complete normal runner.
+See[pixel-store-timing.md](pixel-store-timing.md).
+
+The posted event observes a real memory response during96 disabled CPU
+clocks; CPU acceptance is acknowledged immediately. The original normal
+timing bench remains unchanged. Failed pre-acceptance/logical-ACK probes
+are excluded. All103,786 preceding fixture/program/golden contracts are
+unchanged. All2,824 old probes fail timing/bus with correct architecture/
+following state/memory;130 representatives and22 old HDL/YAML hashes are
+committed. Map3817ALM5517ALUT1722registers538624RAM5DSP0MLAB,36hashes/
+29inputs verify. No current fit/STA acceptance is claimed. New120-form
+runner is running frozen187edd8df;118/119 remain separate. Latest accepted
+complete invocation remains117-form lists289,568 programs. The same12,625
+project choices/448 unresolved MOVB instances,including45 agreed targets,
+remain without waivers. All final acceptance gates stay open.
