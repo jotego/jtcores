@@ -56,3 +56,7 @@ The implementation uses the graphics ROM and upper register-RAM scratch for
 the two decision deltas and current XY update. Each X/Y half passes through
 the shared 32-bit ALU separately; no private LINE arithmetic state or
 parallel half-word adders are required.
+
+The independent [LINE timing audit](line-timing.md) retains source ambiguities,
+a failing baseline and permanent instruction/bus probes. Architectural LINE
+coverage does not imply timing compliance.

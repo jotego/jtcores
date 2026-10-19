@@ -23,9 +23,10 @@ def correct_architecture(row):
     for prefix,key in [('', 'observed'),('follow_','observed_follow')]:
         if 'expected_'+prefix+'regs' not in row:continue
         observed=row.get(key)
-        if observed is None or observed['st']!=row['expected_'+prefix+'st']:return False
+        if observed is None or (observed['st']^row['expected_'+prefix+'st']) & row.get('expected_'+prefix+'st_mask',0xFFFFFFFF):return False
         if any(observed[f'a{q}']!=v for q,v in enumerate(row['expected_'+prefix+'regs'])):return False
         if any(observed.get(n)!=v for n,v in row.get('expected_'+prefix+'extra_regs',{}).items()):return False
+    if 'expected_wvp' in row and row.get('observed',{}).get('wvp')!=row['expected_wvp']:return False
     if 'expected_memory' in row and sorted(row.get('observed_memory',[]))!=sorted(row['expected_memory']):return False
     if 'expected_follow_memory' in row and sorted(row.get('observed_memory',[]))!=sorted(row['expected_follow_memory']):return False
     return True

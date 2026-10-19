@@ -8,7 +8,7 @@ module test;
     wire cyc_req,cyc_ack,cyc_iaq,retire,fault;
     wire [3:0] cyc_kind;
     wire [31:0] cyc_addr,pc,st;
-    wire [15:0] cyc_wdata,cyc_io_rdata,ir;
+    wire [15:0] cyc_wdata,cyc_io_rdata,ir,intpend;
     reg [15:0] cyc_rdata;
     jttms10_system #(.CLKS_PER_STATE(8),.RESET_REFRESH(0)) dut(
         .clk(clk),.rst(rst),.cen(cen),.vclk_cen(1'b0),
@@ -23,7 +23,7 @@ module test;
         .cyc_srfaddr(),.cyc_dpytap(),.cyc_org(),.cyc_dram_row(),
         .cyc_rdata(cyc_rdata),.cyc_ack(cyc_ack),
         .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault),
-        .intenb(),.intpend(),.irq_pending(),.nmi_pending(),.halt()
+        .intenb(),.intpend(intpend),.irq_pending(),.nmi_pending(),.halt()
     );
     reg [15:0] mem[0:4095];
     integer i,rc,delay_clocks=4,extra_wait=0,mapped_sparse;
@@ -331,6 +331,7 @@ module test;
                         for(integer q=4;q<15;q=q+1) $write(" a%0d=%08h b%0d=%08h",q,dut.u_cpu.u_core.u_regs.ram0[q],q,dut.u_cpu.u_core.u_regs.ram0[16+q]);
                         $write("\n");
                     end
+                    if((watch_extra & 16)!=0) $display("LINE_IO wvp=%h",intpend[11]);
                     if((watch_extra & 2)!=0) $display("NEXT_OPCODE %04h",accepted_ir);
                     if((watch_extra & 4)!=0) $display("IMPLICIT b4=%08h b5=%08h b6=%08h",
                         dut.u_cpu.u_core.u_regs.ram0[20],dut.u_cpu.u_core.u_regs.ram0[21],
