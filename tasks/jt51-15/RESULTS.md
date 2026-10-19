@@ -16,11 +16,27 @@ The public CPU timing adapter uses exact monitor instruction-cycle costs, intege
 
 Three independently initialized marked AR12 targets and their three paired quiets have now been recorded. All six pass raw/input audits; all three RIGHT references qualify. The target records are bipolar and nonzero; the quiet records are zero. No reset, ROM/FPGA reload, additional wiring or repeated clock measurement was needed for these physical acquisitions. The measured 3.57–3.58 MHz clock and existing inverted SO/SH1/SH2 interface are sufficient.
 
-## Comparison in progress
+## Completed selected-case comparison
 
 Three matching public-model baselines pass their full RIGHT-only probe. Before LEFT descriptor analysis, the complete phase catalog was frozen: three matching EVENTs × ten reference-derived idle seeds × 64 KEY residues = 1,920 candidates. Catalog SHA256: `493a5e967fe5cba311cb813d0dbd207274f50c84823d3acb17f2f40224bdc301`.
 
-All eight declared marker epochs and five fixed windows remain admitted. Target onset, gain and phase are never fitted. The frozen observer accepts all three target descriptors and all three quiet descriptors. All 1,920 candidates have now executed on the FPGA; full RIGHT qualification and comparison are in progress; no model discrepancy, Rastan fix or new RTL change is claimed by this checkpoint. Retained-history and physical one-change controls remain outstanding.
+All 1,920 FPGA results pass full raw/decoded/source/timing integrity checks and RIGHT qualification. Actual coverage passes every one of the 192 repetition/KEY groups: the ten seeds collectively cover all eight required physical-relative timing points. All extra phase candidates remain retained. The final admitted catalog is SHA256 `7926e65f06259e54afae56a3c3a82d45e812b429b7f4072cce563355a64a4280`; admission SHA256 `e33fa7925605cebfefdcbfefe91b41551dcd4817d0c26d4ea63949f73ce12472`.
+
+Every original model ID receives its own LEFT descriptor using all eight marker epochs and all five fixed windows. All 1,920 descriptors qualify as nonzero, bipolar and uncensored. The numerical observer/comparator files remain unchanged. Exact full-RIGHT byte memoization produces 1,650 cache hits and 270 original observer calls across three workers; all RIGHT digests independently match the raw FPGA records. LEFT descriptors and features are always recomputed independently. Aggregation exits zero in 292.729 seconds; post-run numerical source checks pass.
+
+The result is **inconclusive**, with zero directional flags. All three physical intervals must lie beyond the same side of the entire model interval union to confirm a finite counterexample. The last window has one physical repetition above every model interval, while the other two overlap the model union; it does not meet that rule.
+
+| Fixed native window | Model union segments | Physical intervals disjoint from union | Directional flag |
+|---|---:|---:|---|
+| [128,384) | 1 | 0/3 | No |
+| [384,640) | 1 | 0/3 | No |
+| [640,1152) | 1 | 0/3 | No |
+| [1152,2176) | 2 | 0/3 | No |
+| [2176,4224) | 2 | 1/3 | No |
+
+Exact comparison JSON SHA256: `ab3f77db40d4329f3842e950501053209a2c658d68edb3db9f7e9a170b96f71e`. The archived five-panel PNG/SVG shows every model union segment and all three physical intervals, preserving gaps. No target onset, gain or phase is fitted. The compound Rastan effect remains unresolved; same-EVENT retained-history and physical one-change controls are still outstanding. This result establishes no additional production RTL requirement.
+
+The bounded epoch/phase statement is conditional on the declared public calibration and canonical write waveform. Accepted internal write clocks and the physical electrical pulse shape remain unmeasured; all 64 KEY residues and the declared cross-channel allowance are admitted. The finite isolated fixture does not establish a joint waveform match, a universal shared-counter proof, or which earlier correction explains the compound effect.
 
 ## FPGA regression execution
 
@@ -34,7 +50,7 @@ All three 640-job cohorts completed on the FPGA, preserving every original candi
 
 The first four-copy qualification batch took 0.481329 seconds including upload, versus 2.184685 seconds for each saved matching Verilator run: about 18 times faster than four sequential runs. The first 640-case FPGA cohort took 69.9955 seconds including upload. Its matching saved CPU cases total 2,949.1886 job-wall seconds; dividing by the earlier three-worker concurrency estimates 983.0629 seconds, about 14 times the FPGA cohort. This is a throughput estimate from existing concurrent runs, not a new controlled CPU benchmark. FPGA compilation is a one-time cost: the successful 50 MHz build took 10 minutes 59 seconds. The full reference/target analysis remains a separate host operation and is not included in these speedups.
 
-The closed execution manifest is `fpga-corpus-v1/corpus-manifest.json`, SHA256 `df62b5e620b80fd197c9633001520cd8b3889342df7aec6ca943c9fb2cf99291`. The full raw audit passes all actual headers, source/clock, tape/job identities, boot, generations, decoder output and all original IDs. The first host RIGHT-qualification attempt was stopped for runtime overhead before complete admission; its partial outputs remain explicitly incomplete. Exact byte inventory finds 90 distinct RIGHT vectors across all 1,920 cases. The replacement execution adapter memoizes only the pure reference calculation for byte-identical inputs, with complete-vector collision guards and independent per-ID acquisition/source bindings; it retains every ID and phase candidate. Complete actual RIGHT coverage must still pass before target comparison. Hardware execution success alone is not a Rastan result.
+The closed execution manifest is `fpga-corpus-v1/corpus-manifest.json`, SHA256 `df62b5e620b80fd197c9633001520cd8b3889342df7aec6ca943c9fb2cf99291`. The full raw audit passes all actual headers, source/clock, tape/job identities, boot, generations, decoder output and all original IDs. The first host RIGHT-qualification attempt was stopped for runtime overhead before complete admission; its partial outputs remain explicitly incomplete. Exact byte inventory finds 90 distinct RIGHT vectors across all 1,920 cases. The replacement execution adapter memoizes only the pure reference calculation for byte-identical inputs, with complete-vector collision guards and independent per-ID acquisition/source bindings. All 90 unique computations and 1,920 derived per-ID results complete. A finalizer corrects only the physical-report JSON wrapper loader, rechecks every derivation/input/source pin and full coverage, and publishes admission after an actual successful process exit. Earlier stopped/schema-failed attempts remain preserved and unadmitted. Hardware execution and finite comparison remain distinct from a compound Rastan result.
 
 ## Archive
 
@@ -46,4 +62,6 @@ Task work: `/nobackup/tasks/jt51-15/round1-20261019-integration/`. See [reproduc
 
 Stopped CPU evidence archive: `stopped-cpu-sweep.tar.gz`, SHA256 `9cd1ae8200ee7d53bf1bc9f445743654bdcba73ca2fad2255bf275107fd096d3`. All 8,121 members plus the embedded manifest were reread and sources rechecked. It is explicitly incomplete and not admitted.
 
-Verified FPGA execution archive: `fpga-regression.tar.gz`, SHA256 `7d7ed09c31a94f402bddf21ee814f9ebebd7126ae8e03189610e6bce3f1a140f`. All 6,041 data members plus the embedded manifest were reread from both local and Drive copies, and all source members were rechecked. It includes all 1,920 raw binaries, CSVs and decoder proofs, exact source/tool/build closure and hardware qualification goldens. It excludes ongoing admission/comparison work.
+Verified FPGA execution archive: `fpga-regression.tar.gz`, SHA256 `7d7ed09c31a94f402bddf21ee814f9ebebd7126ae8e03189610e6bce3f1a140f`. All 6,041 data members plus the embedded manifest were reread from both local and Drive copies, and all source members were rechecked. It includes all 1,920 raw binaries, CSVs and decoder proofs, exact source/tool/build closure and hardware qualification goldens. Admission/comparison evidence is preserved separately below.
+
+Verified analysis archive: `fpga-comparison-analysis.tar.gz`, SHA256 `8ec7064a9d8022c59e0140ada6cbb3846bca581f46371f25ce2bbd7d944156ae`. All 6,641 data members plus the embedded manifest were fully reread from local and Drive copies, and source hashes rechecked. It preserves complete admission/coverage, all per-ID descriptors, the inconclusive comparison and PNG/SVG, numerical source freezes, operational provenance and explicitly incomplete prior attempts. Archive size is 7,700,000 bytes. The enclosing case and issue remain open.
