@@ -117,7 +117,8 @@ module jttms10 #(
     wire pixel_boolean=!control[14] && control[13:10]!=0 && !control[5] && pmask==0;
     // The selected native microprogram owns the mode until retirement.
     wire pixel_process=pix_rlin && gfx_family==8'd150;
-    wire pixel_store=pix_rlin && (gfx_family==8'd149 || gfx_family==8'd150);
+    wire pixel_copy=ir[15:9]==7'b1111110 && gfx_family==8'd151;
+    wire pixel_store=(pix_rlin && (gfx_family==8'd149 || gfx_family==8'd150)) || pixel_copy;
     wire array_ir = ir==16'h0f00 || ir==16'h0f20 ||
                     ir==16'h0f40 || ir==16'h0f60 ||
                     ir==16'h0f80 || ir==16'h0fa0 ||
@@ -210,7 +211,7 @@ module jttms10 #(
     wire store_offset=ir[15:10]==6'b101100 || ir[15:9]==7'b1010110;
     wire store_direct=!multi_ir && !stack_push && ir[15:10]!=6'b101000 && !store_absolute && !store_offset;
     wire [31:0] store_target=copy_packet ? tmp : rd_data;
-    wire [31:0] store_source=multi_ir ? md : call_ir ? md : stack_push ? st : (copy_ir || pixel_process) ? md : store_absolute ? rd_data : rs_data;
+    wire [31:0] store_source=multi_ir ? md : call_ir ? md : stack_push ? st : (copy_ir || pixel_process || pixel_copy) ? md : store_absolute ? rd_data : rs_data;
     localparam integer LOAD_IW=$clog2(11*CLKS_PER_STATE+1);
     localparam integer LOAD_LEAD_I=2*CLKS_PER_STATE;
     localparam integer LOAD_FIRST_LIMIT_I=CLKS_PER_STATE+3;
@@ -231,7 +232,7 @@ module jttms10 #(
 
     wire [LOAD_IW-1:0] multi_first_lead=(ir[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*LOAD_PRE;
     wire early_store=store_pending && load_address_ready && load_issue_left==0 &&
-                     (!(copy_ir || pixel_process) || active) && (!multi_ir || stack_sel==WRITE_STACK);
+                     (!(copy_ir || pixel_process || pixel_copy) || active) && (!multi_ir || stack_sel==WRITE_STACK);
     wire early_load=load_pending && load_address_ready && load_issue_left==0 &&
                     (!copy_packet || copy_operand_left==0) && (!multi_ir || active || load_started);
     wire load_offset=ir[15:10]==6'b101101 || ir[15:9]==7'b1010111;
@@ -240,7 +241,7 @@ module jttms10 #(
     wire stack_irq=ir==16'h0940;
     wire stack_read=stack_pop || stack_return || stack_irq || trap_zero || multi_load;
     reg reti_second;
-    wire load_direct=pixel_process || pixel_linear_load || (stack_read && !multi_ir) || ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
+    wire load_direct=pixel_copy || pixel_process || pixel_linear_load || (stack_read && !multi_ir) || ir[15:13]==3'b100; // Plain/post forms within the timed-load set.
     reg [15:0] time_left, fetch_wait;
     wire [15:0] decode_opcode=read_data[15:0];
     wire decode_multiply=decode_opcode[15:10]==6'b010111;
@@ -277,8 +278,10 @@ module jttms10 #(
     wire decode_store_offset=decode_opcode[15:10]==6'b101100 || decode_opcode[15:9]==7'b1010110;
     wire decode_store_absolute=(decode_opcode & 16'hfde0)==16'h0580 || (decode_opcode & 16'hffe0)==16'h05e0;
     wire decode_store_extension=decode_store_offset || decode_store_absolute;
+    wire decode_pixel_copy=decode_opcode[15:9]==7'b1111110 && pixel_simple;
     wire decode_pixel_process=decode_opcode[15:9]==7'b1111100 && pixel_boolean;
-    wire decode_pixel_store=decode_opcode[15:9]==7'b1111100 && (pixel_simple || pixel_boolean);
+    wire decode_pixel_readpost=decode_pixel_process || decode_pixel_copy;
+    wire decode_pixel_store=decode_pixel_copy || (decode_opcode[15:9]==7'b1111100 && (pixel_simple || pixel_boolean));
     wire decode_store=decode_pixel_store || decode_call || decode_store_extension || decode_opcode[15:10]==6'b100000 ||
         decode_opcode[15:9]==7'b1000110 || decode_store_post || decode_store_pre;
     wire decode_load_post=decode_opcode[15:10]==6'b100101;
@@ -344,7 +347,7 @@ module jttms10 #(
     // destination read select its shorter path during the first ROM prime.
     wire [5:0] decode_states=decode_multi ? (decode_opcode[5] ? 6'd3 : 6'd2) : decode_trap ? (rd_data[3:0]==0 ? 6'd16 : 6'd30) : decode_control ?
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
-                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_call ? (decode_call_absolute ? 6'd4 : 6'd3) : decode_pixel_store ? (decode_pixel_process ? 6'd4 : 6'd2) : decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_call ? (decode_call_absolute ? 6'd4 : 6'd3) : decode_pixel_store ? (decode_pixel_readpost ? 6'd4 : 6'd2) : decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -404,7 +407,7 @@ module jttms10 #(
     wire [5:0] copy_source_span={2'd0,ea[3:0]}+field_size;
     wire [5:0] copy_dest_span={2'd0,store_target[3:0]}+field_size;
     wire copy_long_finish=copy_ir && copy_source_span>6'd32 && copy_dest_span>6'd32;
-    wire [15:0] load_finish_clocks=((pixel_load || pixel_process) ? 16'd1 : multi_load ? (control[15] ? (rd_data[3:0]==0 ? 16'd3 : 16'd5) : 16'd1) : trap_zero ? (rd_data[3:0]==0 ? 16'd12 : 16'd26) : stack_pop ? 16'd4 : stack_return ? 16'd3 : stack_irq ? 16'd2 : copy_long_finish ? (copy_post ? 16'd4 : 16'd3) : copy_post ? 16'd2 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
+    wire [15:0] load_finish_clocks=((pixel_load || pixel_process || pixel_copy) ? 16'd1 : multi_load ? (control[15] ? (rd_data[3:0]==0 ? 16'd3 : 16'd5) : 16'd1) : trap_zero ? (rd_data[3:0]==0 ? 16'd12 : 16'd26) : stack_pop ? 16'd4 : stack_return ? 16'd3 : stack_irq ? 16'd2 : copy_long_finish ? (copy_post ? 16'd4 : 16'd3) : copy_post ? 16'd2 : !copy_ir && field_signed && !byte_op && field_size!=6'd32 ?
                                   16'd2 : 16'd1)*CLKS_PER_STATE[15:0];
     wire [4:0] field_msb = field_size[4:0]-5'd1;
     // Field extension has three mutually exclusive consumers: memory-load
@@ -586,13 +589,13 @@ module jttms10 #(
     wire [15:0] unused_pixel_result, unused_pixel_mask;
     wire gfx_color_lane = drav_ir || line_ir ||
                           (array_ir && (array_fill || array_binary));
-    wire [15:0] pixel_source = pixel_load ? read_data[15:0] : gfx_color_lane ?
+    wire [15:0] pixel_source = (pixel_load || pixel_copy) ? read_data[15:0] : gfx_color_lane ?
                                rs_data[15:0] >> ea[3:0] : rs_data[15:0];
     jttms10_pixel u_pixel(
         .psize(psize[4:0]), .ppop(control[14:10]),
         .transparency(control[5]), .pmask(pmask),
         .source_is_register(pix_register_source),
-        .src_addr_lo((pixel_load || array_binary) ? ea[3:0] : pix_src_addr),
+        .src_addr_lo((pixel_load || pixel_copy || array_binary) ? ea[3:0] : pix_src_addr),
         .dst_addr_lo(ea[3:0]),
         .source_pixel(pixel_source),
         .dest_pixel(pixel_process ? read_data[15:0] : gfx_need_dest ? md[15:0] : 16'd0),
@@ -740,7 +743,7 @@ module jttms10 #(
             if(step && (mem_sel==READ_MEM || (stack_read && stack_sel==READ_STACK))) begin
                 load_pending<=multi_load && multi_steps>1;
                 if(multi_load) begin load_started<=0;load_address_ready<=multi_steps>1;load_issue_left<=0;end
-                if(copy_ir || pixel_process) begin store_pending<=1;load_address_ready<=1;end
+                if(copy_ir || pixel_process || pixel_copy) begin store_pending<=1;load_address_ready<=1;end
             end
             // The second RETI field uses the updated SP. Retain a complete
             // source-port settling interval before accepting that read.
@@ -774,8 +777,8 @@ module jttms10 #(
                 branch_pending<=decode_control;
                 immediate_last<=decode_immediate_word;
                 copy_operand_left<=decode_copy_absolute_pair ? 3'd4 : decode_copy_offset_pair ? 3'd2 : 3'd0;
-                load_pending<=decode_pixel_process || decode_load || decode_copy; load_started<=0; reti_second<=0;
-                store_pending<=decode_store && !decode_pixel_process;store_started<=0;
+                load_pending<=decode_pixel_readpost || decode_load || decode_copy; load_started<=0; reti_second<=0;
+                store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
                 load_address_ready<=decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension);
                 load_issue_left<=decode_pixel_xy_load ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_clocks-16'd1;
@@ -983,7 +986,7 @@ module jttms10 #(
                         result[31];
                 end
                 if(mulfinish) begin
-                    if(pixel_process) md<={16'd0,pixel_write_pixel};
+                    if(pixel_process || pixel_copy) md<={16'd0,pixel_copy ? pixel_visible_source : pixel_write_pixel};
                     else if(div_ir) begin
                         div_phase<=1;
                         div_error<=div_early || div_range;

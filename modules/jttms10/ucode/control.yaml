@@ -423,3 +423,9 @@ ucode:
     seq:
       - read_mem, finish_mul
       - write_mem, ni
+
+  - name: pixt_llin_fast
+    start: 151
+    seq:
+      - read_mem, finish_mul
+      - write_mem, ni

@@ -32,6 +32,7 @@ from pixel_read_cases import fixture as pixel_fixture
 from pixel_xy_read_cases import fixture as xy_pixel_fixture
 from pixel_store_cases import fixture as pixel_store_fixture
 from pixel_boolean_cases import fixture as boolean_fixture
+from pixel_copy_cases import fixture as copy_pixel_fixture
 from copy_cases import transactions as copy_transactions
 from run import program,parse_result,check_bus,check_target
 
@@ -171,6 +172,12 @@ def main():
                 case['response_pause_clocks']=96
                 case['response_pause_after']=12
                 probes.append(case)
+        for size in (1,16):
+            for bank in (0,1):
+                case=copy_pixel_fixture(size,0,16-size,bank,False,tag='response_pause')
+                case['response_pause_clocks']=96
+                case['response_pause_after']=12
+                probes.append(case)
         if args.case:
             selected=[case for case in probes if args.case in case['name']]
             if not selected:parser.error('no matching response-pause controls')
@@ -192,7 +199,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',HERE/'posted.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','copy_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','pixel_copy_cases.py','copy_cases.py')]]
         args.report.write_text(json.dumps(dict(contract='CPU-only CEN: logical field response or posted memory response; exact TI base counts checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0

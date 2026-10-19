@@ -34,6 +34,7 @@ from pixel_read_cases import pixel_read_cases, program as pixel_read_program
 from pixel_xy_read_cases import pixel_xy_read_cases
 from pixel_store_cases import pixel_store_cases, program as pixel_store_program
 from pixel_boolean_cases import pixel_boolean_cases, program as pixel_boolean_program
+from pixel_copy_cases import pixel_copy_cases
 from list_cases import list_cases, program as list_program, transfers as list_transfers, check_bus as check_list_bus, wait_count as list_wait_count
 from trap_cases import trap_cases, program as trap_program, transactions as trap_transactions
 from divide_cases import divide_cases
@@ -139,6 +140,7 @@ def cases():
     yield from pixel_xy_read_cases()
     yield from pixel_store_cases()
     yield from pixel_boolean_cases()
+    yield from pixel_copy_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -571,7 +573,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py', 'pixel_copy_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})

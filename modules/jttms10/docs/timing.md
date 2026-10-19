@@ -1,9 +1,10 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 120 of 133 instruction forms; the other 13 remain unvalidated.
+probes cover 121 of 133 instruction forms; the other 12 remain unvalidated.
 PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
 arithmetic,masking,transparency and other conditions remain unvalidated.
+Linear memory-to-memory PIXT currently covers replace/PMASK0/T0 only.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -850,3 +851,15 @@ remains separate at187edd8df. Latest accepted complete invocation stays119
 forms/adac0fbbd/314,756 programs. Clean proof is targeted,not a full normal
 runner. The12,625 choices/448 unresolved MOVB probes/45 agreed targets and
 all final acceptance gates remain open,without waivers.
+
+### Linear memory-to-memory pixel replace
+
+PIXT *Rs,*Rd adds5,856 fixtures for118,730 cases and121/133 forms (12 missing).
+The source-read/scalar-posted path shares existing MD/EA/field/pixel machinery
+and retains all31 GPR/full ST/memory checks. No DSP,register bank or ALU is
+added. [Pixel copy timing](pixel-copy-timing.md) records TI's4/10 or4/8 counts,
+all aligned literal examples,source/destination overlap,first-execution
+measurement,bus/following contracts and remaining conditions. The inconsistent
+PS16/20508 example is explicitly excluded under the owner's alignment-rule
+interpretation. All136 historical representative probes fail timing/bus with
+correct architecture/memory on3cdbdd220. No known MOVB target is waived.

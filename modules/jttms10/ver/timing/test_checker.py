@@ -40,8 +40,46 @@ from pixel_store_cases import fixture as pixel_store_fixture, following as pixel
 
 
 from pixel_boolean_cases import boolean as boolean_pixel, fixture as boolean_fixture
+from pixel_copy_cases import fixture as copy_pixel_fixture
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_linear_pixel_copy_primary_counts(self):
+        for size in (1,2,4,8,16):
+            for off in (False,True):
+                row=copy_pixel_fixture(size,0,0,0,off)
+                self.assertEqual(row['states'],(8 if size==16 else 10) if off else 4)
+                self.assertEqual(row['hidden_states'],1 if size==16 else 3)
+
+    def test_linear_pixel_copy_primary_numeric_examples(self):
+        for size,word,want in ((1,15,0x10F),(2,15,0x30F),(4,15,0xF0F),(8,0xEF,0xEFEF)):
+            row=copy_pixel_fixture(size,0,8,0,False,source_address=0x20500,destination_address=0x20508,source_word=word)
+            self.assertEqual(dict(row['expected_memory'])[0x20500],want)
+
+    def test_linear_pixel_copy_shared_sp_alias_reads_old_memory(self):
+        for bank in (0,1):
+            row=copy_pixel_fixture(16,0,0,bank,False,source=15,pointer=15,source_word=0x1234)
+            self.assertEqual(copy_transactions(row),([(0,0x6000,0x1234,0)],[(1,0x6000,0x1234,0)]))
+            self.assertEqual(row['expected_extra_regs']['sp'],0x6000)
+            self.assertEqual(row['measure_pass'],0)
+
+    def test_linear_pixel_copy_different_lanes_preserve_other_bits(self):
+        row=copy_pixel_fixture(4,0,12,0,False,source_address=0x5000,destination_address=0x500C,source_word=0xA596)
+        self.assertEqual(dict(row['expected_memory'])[0x5000],0x6596)
+        self.assertEqual(copy_transactions(row)[1],[(0,0x5000,0xA596,0),(1,0x5000,0x6596,0)])
+
+    def test_linear_pixel_copy_alignment_conflict_is_not_silently_tested(self):
+        with self.assertRaises(ValueError):copy_pixel_fixture(16,0,8,0,False)
+        with self.assertRaises(ValueError):copy_pixel_fixture(4,1,0,0,False)
+
+    def test_linear_pixel_copy_wrong_bus_read_is_rejected(self):
+        row=copy_pixel_fixture(16,0,0,0,False)
+        words,pc,next_pc=program(row);row.update(test_pc=pc,next_pc=next_pc)
+        observed=dict(start=100)
+        # Wrong source address despite correct write data and cycle lengths.
+        lines=['BUS_BEGIN 108 0 00005010 0000 0','BUS_END 124 0 00005010 a596',
+               'BUS_BEGIN 124 1 00006000 a596 0','BUS_END 140 1 00006000 a596']
+        self.assertTrue(check_store_bus(row,observed,lines,0))
+
     def test_boolean_pixel_primary_truth_expressions(self):
         # Table7-1 evaluated at S=6,D=3: all16 literal four-bit results.
         self.assertEqual([boolean_pixel(pp,6,3,4) for pp in range(16)],

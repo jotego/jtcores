@@ -403,7 +403,8 @@ module jttms10_ctrl(
             end
             if(dispatch) begin
                 uaddr <= entry_family_q==8'd110 && pixel_simple ? PIXT_RLIN_FAST_SEQA :
-                         entry_family_q==8'd110 && pixel_boolean ? PIXT_RLIN_BOOL_SEQA : entry;
+                         entry_family_q==8'd110 && pixel_boolean ? PIXT_RLIN_BOOL_SEQA :
+                         entry_family_q==8'd112 && pixel_simple ? PIXT_LLIN_FAST_SEQA : entry;
                 jsr_depth <= 0;
             end
             if(gfx_enter || gfx_resume) uaddr <= GFXRUN_SEQA;
