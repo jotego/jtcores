@@ -1,0 +1,120 @@
+# FILL timing audit — implementation and probes pending
+
+Primary authority: TI *TMS34010 User's Guide*, June 1988, SPVU001A,
+printed pp.12-80..88 and13-10..17. The pinned reference documentation is
+`modules/tms34010/third_party/TMS34010_Info` at
+`0f5094bf8d177d753ea7e18012827d26a5013371`, file
+`docs/ti-official/1988_TI_TMS34010_Users_Guide.pdf`, SHA-256
+`e5f9f50c609ce44deb9dbe4ac79c591e03ff2d0ee2d71d571d0d7f150753ed64`.
+The tables and Figure13-5 were inspected directly; OCR is not the authority
+for alignment labels or inequalities.
+
+This audit supplies requirements for the next implementation. Neither FILL
+form has a timing probe yet. Architectural FILL tests and the scalar PIXT
+timing paths do not establish these word-oriented transfer timings.
+
+## Total and setup
+
+Section13.3 defines total machine states as setup plus transfer minus an
+alignment/graphics adjustment. These are complete array-transfer counts;
+they are not the scalar PIXT CPU/hidden-write split. Table13-5 adds three
+states to setup for cache-disabled execution, once per instruction.
+
+| Form | W=0 | Array fits | Start adjusted | Dimensions adjusted | Both adjusted |
+|---|---:|---:|---:|---:|---:|
+| FILL L | 4 | — | — | — | — |
+| FILL XY | 6 | 9 | 16 | 12 | 20 |
+
+Window hit and miss columns contain dashes, not zero-state results. Their
+timing requires further source audit. FILL L ignores window controls.
+Corner-direction controls add no setup cost; FILL proceeds in increasing X
+and Y regardless of PBH/PBV (§13.3.2.4). No exact empty-array total is assigned
+by this audit.
+
+## Transfer and alignment
+
+Let L be the positive number of rows after clipping and N the positive
+number of physical 16-bit destination words touched by each row. For a
+pixel-aligned linear row with starting lane `o`, width `DX`, and pixel size
+`PS`, `N = ceil((o + DX*PS)/16)`. This is a bit-addressed span, not
+`ceil(DX/PS)`. Aligned row boundaries can coexist with several pixels per
+physical word.
+
+Figure13-5 (p.13-12) distinguishes:
+
+| Alignment | Leading edge | Trailing edge |
+|---|---|---|
+| A | Word boundary | Word boundary |
+| B | Word boundary | Inside word |
+| C | Inside word | Word boundary |
+| D | Inside word | Inside word |
+
+Table13-6 (p.13-11) gives the following transfer counts before adjustment:
+
+| Row length | A | B | C | D |
+|---|---|---|---|---|
+| N=1 | `(1+G)L+2` | `(2+G)L+2` | `(2+G)L+1` | `(2+G)L+1` |
+| N=2 | `(2+2G)L+2` | `(3+2G)L+2` | `(3+2G)L+2` | `(4+2G)L+1` |
+| N>=3 | `(1+NG)L+2` | `(2+NG)L+5` | `(3+NG)L+2` | `(4+NG)L+1` |
+
+The long-B tail is literally five states. The text on p.13-12 includes
+N=3 in the long case. Neither value should be inferred from a smoother
+equation or the current graphics microcode.
+
+Table13-7 (p.13-13) gives G per destination word:
+
+| Processing | No plane masking/transparency | With plane masking/transparency |
+|---|---:|---:|
+| Replace | 2 | 4 |
+| Other Booleans or ADD | 4 | 6 |
+| ADDS, SUB, MAX or MIN | 5 | 7 |
+| SUBS | 6 | 8 |
+
+Arithmetic PPOP is undefined for one- and two-bit pixels (p.12-81). The
+memory controller handles insertion, masking and transparency; CPU pixel
+processing contributes separately (§13.3.2.5). A future implementation must
+check actual word transactions, edge preservation and processing results,
+not merely delay retirement to match the table.
+
+## Source qualifications still requiring resolution
+
+Section13.3.2.6 says that, when masking or transparency is enabled, the
+already-required edge reads remove two states per row for B/C and four
+for D; A needs no adjustment. The rule does not qualify the short case.
+For N=1,D, both partial edges share one physical word. Applying the printed
+four-state subtraction literally makes masking/transparency *reduce* the
+replace transfer from `4L+1` to `2L+1`, despite the text saying that the
+existing RMW removes an additional read. For L=1 and FILL L these alternatives
+are nine versus seven total states. The single-word adjustment needs a
+traceable interpretation before exact goldens or a compliance claim are
+assigned; this audit does not silently replace the printed rule.
+
+Page12-81 describes the exceptional non-word-multiple pitch as a
+single-pixel-width line but prints `DY=1`. Page13-12 instead describes an
+array one pixel wide, with each row contained in one word. It says changing
+alignment with a non-word-multiple DPTCH can be estimated using C on average
+and D for worst case. Those estimates are not exact per-instruction goldens.
+Initial exact probes must distinguish constant-alignment pitches from this
+still-unresolved domain. Empty dimensions, clipped-away arrays, SRT, refresh,
+peripheral contention and resumption timing also remain to audit.
+
+## Literal examples and interrupt requirements
+
+The example on pp.13-14..17 uses start-adjusted FILL XY, L=15,N=14,C:
+
+| Example | G | Adjustment | Total states |
+|---|---:|---:|---:|
+| Replace, no mask/transparency | 2 | 0 | `16+(3+14*2)*15+2 = 483` |
+| MAX, no mask/transparency | 5 | 0 | `16+(3+14*5)*15+2 = 1113` |
+| XNOR, mask and transparency | 6 | 30 | `16+(3+14*6)*15+2-30 = 1293` |
+
+Example13-3's setup enables masking and transparency although its copied
+bullets say neither is enabled. Its G=6 and subtraction explicitly use the
+enabled case; both printed descriptions must remain visible in the audit.
+
+Section13.3.4 permits interrupts at destination-word and row boundaries,
+with worst-case recognition latency of20 states plus the context switch.
+PBX and the reserved context registers must retain a resumable word
+boundary (pp.12-81,12-86). Matching only a completed array's total cannot
+establish these requirements. Existing architectural interrupt tests must
+remain active when the transfer engine changes.

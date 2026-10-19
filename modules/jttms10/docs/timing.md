@@ -1029,3 +1029,12 @@ cases and206 models. Probe presence does not imply full condition coverage.
 See [pixel-xy-copy-timing.md](pixel-xy-copy-timing.md) for the primary table,
 transport contract and excluded prototype failures. Targeted verification
 is pending; no completed124-form runner or final signoff is claimed.
+
+### Remaining FILL timing audit
+
+[fill-timing.md](fill-timing.md) transcribes the primary setup, per-word
+processing, alignment and row-length rules and checks the three literal
+483/1113/1293-state examples. It records the short-D mask-adjustment and
+non-word-multiple-pitch ambiguities explicitly. Both FILL forms remain
+without timing probes; this source audit changes neither coverage nor
+the acceptance gate.
