@@ -671,3 +671,35 @@ expressions for all 16 pixel combinations and two contrasting palette pairs.
 Together with the palette/address cases, `ver/hdl/colmix_tb.v` checks 172 cases.
 This validates the selection function; the upstream source identities and
 physical latch/sample timing require their own traces.
+
+## RAM readout bank selection
+
+The two RAM banks and their readout mux connections below are jointly confirmed.
+Every listed RAM supplies its bit on physical output pin 7. The six mux outputs
+form the same readout bus used by 7A/7C and the A inputs of 8D above.
+
+| Readout bit | Lower RAM | Mux A input | Upper RAM | Mux B input | Mux output |
+| --- | --- | --- | --- | --- | --- |
+| 5 | 10J | 8A pin 14 | 10D | 8A pin 13 | 8A pin 12. |
+| 4 | 10K | 8A pin 11 | 10E | 8A pin 10 | 8A pin 9. |
+| 3 | 10L | 8A pin 5 | 10F | 8A pin 6 | 8A pin 7. |
+| 2 | 10M | 8A pin 2 | 10G | 8A pin 3 | 8A pin 4. |
+| 1 | 10N | 8B pin 14 | 10H | 8B pin 13 | 8B pin 12. |
+| 0 | 10O | 8B pin 11 | 10I | 8B pin 10 | 8B pin 9. |
+
+Both active-low enable inputs, 8A/8B pin 15, are grounded. Their select pin 1
+is the previously confirmed 6B `/Q6` net, represented as `bank_sel` by the
+standalone `jtseicro_blanking` model. Select 0 reads the lower 10J–10O bank;
+select 1 reads the upper 10D–10I bank. Readout bits 5 through 2 supply palette
+selection, while bits 1 and 0 supply the nonzero-pixel priority network.
+
+`jtseicro_obj` uses `jtframe_obj_buffer` to store, read and clear rendered
+pixels. The object-list RAM selector in `jtseicro_obj` is a separate state
+from the buffer's alternating line banks. The generic buffer swaps those line
+banks at its horizontal-blank input edge and clears the read bank after reads.
+This is a functional double-buffer implementation; its reset bank labels,
+RAM addressing and write/read/clear phases have not been equated with the
+physical banks and controls above. `jtseicro_blanking` remains separate from
+that buffer. The sprite-enabled `ver/hdl/video_tb.v` checks rendered pixels
+and both flips, rather than the physical bank-control timing. Write-data paths
+and phase alignment therefore remain separate schematic checks.
