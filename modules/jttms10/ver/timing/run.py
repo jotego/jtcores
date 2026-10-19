@@ -38,6 +38,7 @@ from pixel_copy_cases import pixel_copy_cases
 from pixel_xy_store_cases import pixel_xy_store_cases
 from draw_cases import draw_cases
 from pixel_xy_copy_cases import pixel_xy_copy_cases
+from fill_cases import fill_cases, program as fill_program, transfers as fill_transfers, check_bus as check_fill_bus
 from list_cases import list_cases, program as list_program, transfers as list_transfers, check_bus as check_list_bus, wait_count as list_wait_count
 from trap_cases import trap_cases, program as trap_program, transactions as trap_transactions
 from divide_cases import divide_cases
@@ -147,6 +148,7 @@ def cases():
     yield from pixel_xy_store_cases()
     yield from draw_cases()
     yield from pixel_xy_copy_cases()
+    yield from fill_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -156,6 +158,7 @@ def cases():
 
 
 def program(case):
+    if "data_fill" in case:return fill_program(case,movi)
     if case.get('pixel_processing'):return pixel_boolean_program(case,movi)
     if case.get('pixel_store'):return pixel_store_program(case,movi)
     if case.get('pixel_load'):return pixel_read_program(case,movi)
@@ -290,6 +293,7 @@ def check(case, observed, wait_states=0, pause_clocks=0):
     fields=case.get('stack_fields',[load] if load else [])
     data_words=sum(((f['address']&15)+f['width']+15)//16 for f in fields)
     data_words=list_wait_count(case) if 'data_list' in case else data_words
+    if 'data_fill' in case:data_words=len(fill_transfers(case))
     words=data_words+(4 if case.get('cache_miss') else (1+len(case.get('extensions',[])))*int(case['cache_disabled']))
     if 'control_flow' in case:
         words=(1+len(fetch_extensions(case)))*int(case['cache_disabled'])
@@ -387,6 +391,7 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
     errors = []
     begin = [line.split() for line in lines if line.startswith('BUS_BEGIN ')]
     end = [line.split() for line in lines if line.startswith('BUS_END ')]
+    if 'data_fill' in case:return check_fill_bus(case,observed,lines,wait_states)
     if 'data_list' in case:return check_list_bus(case,observed,lines,wait_states,pause_clocks)
     if 'data_store' in case:return check_store_bus(case,observed,lines,wait_states,pause_clocks)
     plan=reads(case,wait_states)
@@ -428,6 +433,7 @@ def check_bus(case, observed, lines, wait_states, pause_clocks=0):
 
 def check_target(case,observed,lines,wait_states,pause_clocks=0):
     """Check actual transport requests/ACKs separately from logical states."""
+    if 'data_fill' in case:return check_fill_bus(case,observed,lines,wait_states,raw=True)
     if 'data_list' in case:return check_list_bus(case,observed,lines,wait_states,pause_clocks,raw=True)
     if 'data_store' in case:return check_store_bus(case,observed,lines,wait_states,pause_clocks,raw=True)
     plan=reads(case,wait_states)
@@ -579,7 +585,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py', 'pixel_copy_cases.py', 'pixel_xy_store_cases.py', 'draw_cases.py', 'pixel_xy_copy_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py', 'pixel_copy_cases.py', 'pixel_xy_store_cases.py', 'draw_cases.py', 'pixel_xy_copy_cases.py', 'fill_cases.py', 'fill_oracle.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -673,7 +679,7 @@ def main():
             row['target_trace'] = measured_trace(log,'TARGET',observed,trailing=('data_store' in case and 'data_trap' not in case) or ('data_list' in case and (not case['data_list']['load'] or 'list_follow' in case)))
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
-                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case or 'data_list' in case else []),args.wait_states,args.pause_clocks))
+                errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case or 'data_list' in case or 'data_fill' in case else []),args.wait_states,args.pause_clocks))
             if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case:
                 next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
                 row['observed_next_opcodes']=next_opcodes
@@ -774,6 +780,10 @@ def main():
                 memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
                 row['observed_memory']=memory
                 if sorted(memory)!=sorted(case['expected_memory']):errors.append('register-list memory mismatch')
+            if 'data_fill' in case:
+                memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
+                row['observed_memory']=memory
+                if sorted(memory)!=sorted(case['expected_memory']):errors.append('FILL destination or neighboring memory mismatch')
             if case.get('stack_load') or case.get('pixel_load'):
                 memory=[(int(x.split()[1],16),int(x.split()[2],16)) for x in log.splitlines() if x.startswith('MEMORY ')]
                 row['observed_memory']=memory

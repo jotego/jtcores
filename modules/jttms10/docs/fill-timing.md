@@ -1,4 +1,4 @@
-# FILL timing audit — implementation and probes pending
+# FILL timing audit and failing CPU baseline
 
 Primary authority: TI *TMS34010 User's Guide*, June 1988, SPVU001A,
 printed pp.12-80..88 and13-10..17. The pinned reference documentation is
@@ -9,9 +9,12 @@ printed pp.12-80..88 and13-10..17. The pinned reference documentation is
 The tables and Figure13-5 were inspected directly; OCR is not the authority
 for alignment labels or inequalities.
 
-This audit supplies requirements for the next implementation. Neither FILL
-form has a timing probe yet. Architectural FILL tests and the scalar PIXT
-timing paths do not establish these word-oriented transfer timings.
+This audit supplies requirements for the next implementation. The permanent
+CPU suite now includes 120 failing baseline probes for FILL L and FILL XY:
+1/2/4/8/16-bit pixels, one/two/three full words per row, one/two rows and both
+cache modes. All use replace/PPOP0/PMASK0/T0/W0 and aligned, nonempty rows.
+Architectural FILL tests and the scalar PIXT timing paths do not establish
+these word-oriented transfer timings.
 
 `ver/timing/fill_oracle.py` independently implements the positive,
 already-clipped,constant-alignment table domain. It reads no RTL or measured
@@ -27,7 +30,44 @@ python3 -B modules/jttms10/ver/timing/test_fill_oracle.py
 The oracle raises `UnresolvedFillTiming` for empty dimensions, varying row
 alignment, hit/miss setup and the masked/transparency single-word D case.
 The latter preserves both numeric alternatives on the exception object.
-These model tests add no CPU timing probes or covered instruction forms.
+The model tests themselves establish no CPU timing compliance. The separate
+`fill_cases.py` fixtures use the equations as CPU timing goldens and verify
+all defined registers/full ST, destination words and untouched neighboring
+words. B10..B14 are reserved scratch registers marked changed on pp.12-80/84;
+no undefined final values are asserted. Final B2 is the linear address just
+after the last pixel, including for XY (pp.12-81/85).
+
+The bus checker asserts ordered full-word writes, data/address/IAQ, transfer
+counts, logical/transport durations, nonoverlap and completion within the
+instruction interval. Cache-disabled execution also checks the following
+opcode fetch. No exact first-write, row-boundary or interrupt-checkpoint
+position is claimed by these probes. Deterministic target waits add one
+state per word transfer and uncached opcode fetch under the existing isolated
+bus contract; the early CEN pause retains its bus-grid alignment cost.
+
+On unchanged b6bb7e6ed HDL, all three 120-case Verilator profiles fail timing
+with correct defined architecture and memory: baseline, W=1 and W=1/P=7.
+The single-word/one-row PS16 FILL L hit expects nine TI states (72 INCLK)
+but observes 132 INCLK. Smaller pixels also expose the current per-pixel
+read/modify/write traffic instead of one full-word replacement. Reports have
+58 source/seven generated hashes verified against the baseline inputs.
+These are intentional failing regressions, not a timing-compliant FILL path.
+Fixture inventory becomes 126/133 forms and 138,490 cases; seven forms still
+have no probes, and both newly probed FILL forms remain failing.
+
+Run the fixture/checker tests and CPU baseline separately with:
+
+```sh
+python3 -B modules/jttms10/ver/timing/test_fill_cases.py
+python3 modules/jttms10/ver/timing/run.py --case fill_ --simulator verilator
+python3 modules/jttms10/ver/timing/run.py --case fill_ --simulator verilator --wait-states 1
+python3 modules/jttms10/ver/timing/run.py --case fill_ --simulator verilator --wait-states 1 --pause-clocks 7
+```
+
+The CPU commands currently return nonzero for the documented timing gaps.
+The standard runner includes both the independent oracle tests and the FILL
+fixture/checker tests. The separate frozen 124-form runner predates these
+probes and must retain its original source/inventory labels.
 
 ## Total and setup
 

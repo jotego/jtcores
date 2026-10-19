@@ -6,14 +6,24 @@ The owner resumed this task on the second computer. Work continues on
 `jtcores-144-resume`, based on the experimental XY-copy branch and merged
 with the stable branch's accepted121-runner history. The issue remains open.
 
-Latest progress: correctedb6bb7e6ed passes all26,634 clean XY-copy timing
-programs with56 committed-source/seven generated hashes and exact full case
-objects verified; a separate stressed8,878-case run matches exactly. The
-clean tail,corrected632-case Icarus repeat and full124 normal runner remain
-unfinished. The latter has passed180 architecture,unit/system benches,
-206 models,699 bus scenarios,response49/1 andEMU8/1 so far. The original
-checkpoint mutation run remains separate; corrected affected pixel mutants
-are queued after the clean tail, reusing its simulation slot.
+Latest progress: corrected b6bb7e6ed passes all 26,634 clean XY-copy timing
+programs with 56 committed-source/seven generated hashes and exact full case
+objects verified; a separate stressed 8,878-case run matches exactly. The
+clean tail also passes 206 models, 49 response controls/one rejection and
+180 architecture programs. All 632 corrected Icarus cases match Verilator
+except simulator-local case IDs. Six short pause profiles pass 198 cases;
+two fresh-process cases match the stressed batch. The eight affected pixel
+mutation groups pass 24 positive controls and reject 24 timing mutations
+while preserving all defined architectural state and memory. Each report's
+56 source/seven generated hashes verify, with only the intended RTL file
+changed in each mutant.
+
+The full 124-form normal runner remains unfinished. It has passed 180
+architecture programs, unit/system benches, 206 models, 699 bus scenarios,
+response49/1 and EMU8/1 so far. Its frozen source is 4f3b7d9ac; the separate
+original checkpoint mutation run is historical evidence. The latest accepted
+complete normal runner remains 121/cabaf7c8b/361,988 programs. Targeted XY-copy
+verification does not replace the full runner or any final acceptance gate.
 
 Current b6 synthesis-only result is3848 estimated ALMs,5644 ALUTs,1722
 registers,538624 RAM bits,five DSPs,zero MLAB,158 virtual pins and49 warnings.
@@ -21,7 +31,10 @@ All36 snapshot hashes and matched settings verify. Fixec3be7b9d corrects
 legacy reference metadata without changing any hashed synthesis input;
 see [current XY-copy evidence](pixel-xy-copy-timing.md). No fit/STA acceptance
 is claimed. The [FILL source audit](fill-timing.md) records the next timing
-requirements and unresolved qualifications; it adds no covered forms.
+requirements and unresolved qualifications. Commit c84957906 adds its independent
+FILL oracle and eight model tests to the normal runner, without adding CPU
+probes or covered forms. These eight tests pass separately; the already
+running frozen 4f3b7d9ac invocation does not include them.
 
 This machine uses Verilator5.039. The checkpoint pixel helper's grouped
 combinational block produces fatal UNOPTFLAT warnings here. Commit53e352578
@@ -46,6 +59,16 @@ on the pre-existing, undocumented `JTFRAME_NO_REGISTER_RETIMING` macro in
 NARC's baseline. The two helper fixes and documentation merge used a
 per-command hooks override after confirming this unrelated baseline failure;
 no persistent git configuration was changed.
+
+## FILL baseline continuation
+
+The isolated `jtcores-144-fill` branch adds 120 permanent CPU probes and
+four fixture/checker tests after the independent eight-test FILL oracle.
+All three Verilator profiles (360 programs) fail timing on unchanged b6 HDL
+with correct defined architecture and memory. This is a test-first baseline;
+both FILL forms remain noncompliant. Inventory here is 126/133 forms and
+138,490 fixtures, distinct from the frozen 124-form full runner. No missing
+form or known target is waived. See [FILL scope and reproduction](fill-timing.md).
 
 ## Original pause record
 
