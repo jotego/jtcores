@@ -29,11 +29,63 @@ from stack_cases import popst_fixture, stack_cases
 from return_cases import rets_fixture, return_cases
 from interrupt_return_cases import reti_fixture, interrupt_return_cases
 from push_cases import push_fixture,push_cases
+from call_cases import call_fixture,call_cases
 from store_cases import transactions as store_transfers
 from mutations import correct_architecture
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_call_primary_cpu_hidden_and_cd_counts(self):
+        # Literal entry counts12-48/49/50, aligned then nonaligned.
+        for form,cpu,hidden,cd in [('CALL_R',3,(3,9),(9,15)),('CALLA',4,(2,8),(15,21)),('CALLR',3,(2,8),(11,17))]:
+            for index,offset in enumerate((0,15)):
+                for off in (False,True):
+                    row=call_fixture(form,off,offset)
+                    self.assertEqual(row['states'],cd[index] if off else cpu)
+                    self.assertEqual(row['hidden_states'],hidden[index])
+                    self.assertEqual(row['data_store']['write_start']+2*len(store_transfers(row)),cpu+hidden[index])
+
+    def test_call_return_pc_width_alignment_and_msw_first(self):
+        for form,length in [('CALL_R',1),('CALLA',3),('CALLR',2)]:
+            row=call_fixture(form,False,0,low=15)
+            _,start,target=program(row);saved=start+16*length
+            self.assertEqual(target,0x3000)
+            self.assertEqual(extract(row['expected_memory'],0x6000,32,False),saved)
+            self.assertEqual(store_transfers(row),[(1,0x6010,saved>>16,0),(1,0x6000,saved&0xFFFF,0)])
+            self.assertEqual(row['expected_st'],row['regs'][3])
+            self.assertEqual(row['expected_extra_regs']['sp'],0x6000)
+
+    def test_call_sp_target_uses_original_sp(self):
+        for bank in (0,1):
+            row=call_fixture('CALL_R',False,bank=bank,reg=15)
+            _,_,target=program(row)
+            self.assertEqual(target,0x6020)
+            self.assertEqual(row['expected_extra_regs']['sp'],0x6000)
+
+    def test_callr_signed_displacement_endpoints(self):
+        for displacement,encoded in [(-32768,0x8000),(-1,0xFFFF),(32767,0x7FFF)]:
+            # -1 targets the offset word itself, so use it only to check the
+            # independent word encoding here; executable fixtures avoid it.
+            row=call_fixture('CALLR',False,displacement=displacement)
+            if displacement==-1:
+                with self.assertRaises(ValueError):program(row)
+                self.assertEqual(row['extensions'],[encoded])
+            else:
+                _,start,target=program(row)
+                self.assertEqual(row['extensions'],[encoded])
+                self.assertEqual(target,(start+32+16*displacement)&0xFFFFFFFF)
+
+    def test_call_stimuli_fit_sparse_memory_and_warm_cache(self):
+        rows=list(call_cases());self.assertEqual(len(rows),1306)
+        self.assertEqual(len({row['name'] for row in rows}),1306)
+        for row in rows:
+            program(row)  # Includes explicit sparse-limit/cache-tag guards.
+            self.assertLessEqual(len(row['initial_memory']),16)
+            self.assertEqual(row['data_store']['width'],32)
+            self.assertEqual(row['expected_st'],row['regs'][3])
+        row=call_fixture('CALL_R',False,offset=15,target=0x6010)
+        with self.assertRaises(ValueError):program(row)
+
     def test_pushst_primary_cpu_hidden_and_cd_counts(self):
         for offset,hidden,cd in [(0,3,8),(15,8,13)]:
             for off in (False,True):

@@ -50,28 +50,23 @@ ucode:
   - name: callrs
     start: 57
     seq:
-      - reg_a
-      - a_tmp
-      - pc_md, push32_jsr
-      - tmp_pc, ni
+      - reg_a, reg_b
+      - a_tmp, word_a
+      - sub_alu, sum_ea, wr_sp, pc_md
+      - write_stack, tmp_pc, ni
   - name: calla
     start: 58
     seq:
-      - imm_bus, pcinc
-      - immlo_a
-      - imm_bus, pcinc
-      - immhi_a
-      - a_tmp
-      - pc_md, push32_jsr
-      - tmp_pc, ni
+      - imm_bus, pcinc, immlo_a
+      - imm_bus, pcinc, a_tmp, word_a, reg_b
+      - sub_alu, sum_ea, wr_sp, pc_md
+      - write_stack, tmp_pc, ni
   - name: callr
     start: 59
     seq:
-      - imm_bus, pcinc
-      - immse_a
-      - a_tmp
-      - pc_md, push32_jsr
-      - tmprel_pc, ni
+      - imm_bus, pcinc, a_tmp, word_a, reg_b
+      - sub_alu, sum_ea, wr_sp, pc_md
+      - write_stack, tmprel_pc, ni
   - name: rets
     start: 60
     seq:

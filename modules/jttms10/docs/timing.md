@@ -1,7 +1,7 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 108 of 133 instruction forms; the other 25 remain unvalidated.
+probes cover 114 of 133 instruction forms; the other 19 remain unvalidated.
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
@@ -38,8 +38,9 @@ are already resident. A cold miss includes a four-word subsegment fill
 disabled timing includes physical instruction/extension fetches.
 
 The current probes measure the interval from accepting the opcode into IR
-to accepting the following opcode. Warm programs run twice, using only
-two cache segments, and measure the second pass. Twelve NOPs separate
+to accepting the following opcode. Initial scalar warm programs run twice, using only
+two cache segments, and measure the second pass. Later control-flow fixtures
+also warm their targets and check their segment-capacity assumptions. Twelve NOPs separate
 setup from the measured instruction and follow it. These first probes are
 register-only instructions with no hidden data writes. The suite asserts
 that a warm hit causes zero external cycles and that the cache-disabled
@@ -193,7 +194,7 @@ probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
 policy is reported separately from conflicting TI sources. The current
-89,032-case inventory has 11,219 discrepancy instances before project choices:
+90,338-case inventory has 11,219 discrepancy instances before project choices:
 242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
 1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
 332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives and 296 EMU alternatives. The normal gate records 10,771 explicit project
@@ -203,7 +204,7 @@ The JSON preserves every affected name, condition-specific value and
 citation. Numeric metadata must match the actual selected expectation;
 status relabeling cannot waive a gap. The stricter source-only audit remains
 available. These are counts of probe instances, not distinct rules.
-There are 128 checker/model tests. Probe presence and resolved or explicitly
+There are 133 checker/model tests. Probe presence and resolved or explicitly
 selected source interpretations remain necessary gates; neither completes
 the condition/bus/interrupt audit.
 The full #144 checklist remains open.
@@ -237,7 +238,8 @@ The full #144 checklist remains open.
 | ADDXY/SUBXY/CMPXY | SPVU001A pp.12-41/56/252, summary12-12; SPVS002C June1991 p.11 | 4,156 programs: independent signed halves/flags, literal examples, A/B/SP, aliases, ignored field widths/FE and CEN phases | ADDXY/SUBXY hit/CD1/4; CMPXY summary3/6 conflicts with entry1/4 and remains blocked; see [xy-timing.md](xy-timing.md) |
 | CPW/CVXYL:1/4 and3/6 | SPVU001A pp.4-12,6-15,12-57..60; SPVS002C June1991 p.11 | 5,116 programs: signed/window boundaries, all pitch/pixel sizes, implicit B registers, aliases, OR/offset wrap, flags/fields, CEN and immediate branch targets | Count probes pass; four printed CVXYL result examples conflict with the formula. See [coordinate-timing.md](coordinate-timing.md) and the documented project choice |
 | JUMP/EXGPC, DSJ/EQ/NE/S and conditional JR/JAcc | SPVU001A pp.12-70..79,92..98; SPVS002C June1991 p.14 | 15,542 programs: both paths, all conditions/flags, A/B/SP, target alignment, displacement endpoints, literal PCs, CEN phases and immediate target fields | Current selected-count probes; untaken JR source discrepancies and the inferred long-JR CD5 remain explicit in [control-timing.md](control-timing.md) |
-| Calls/returns/traps, register lists and other hidden writes | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
+| TRAP and register lists | §12 entries; §13.1.1 | Not yet covered by timing probes | Unvalidated |
+| CALL/CALLA/CALLR | SPVU001A12-48/49/50; stack order12-253 |1,306 programs,84 following A/B loads, ordered posted writes and short pauses |Entry counts pass targeted probes; cold/cache/IRQ conditions remain open. See[call-timing.md](call-timing.md). |
 | Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed 5; byte index2 CD9 versus printed7 remains a target gap. See [copy-timing.md](copy-timing.md) |
 | Pointer memory-to-memory MOVE | Tables13-3/4 pp.13-6/7; entries12-141/142/145/146 | 8,936 programs: both pointer modes, widths/alignments, fields/FE, A/B/SP, sequential aliases, literal data/pointers, following loads and CEN | Three alternatives follow the recorded owner choice. Complete validation is in progress; see [pointer-copy-timing.md](pointer-copy-timing.md). |
 | POPST | SPVU001A3-6/12-227; summary12-17; SPVS002C June1991p14 | 806 full-state/read-only-memory programs, including24 real following loads; aligned/unaligned response pauses |8/11 aligned,10/13 otherwise; remaining stack/call forms and full IRQ/HOLD audits stay open. See[stack-timing.md](stack-timing.md). |
@@ -251,8 +253,8 @@ The full #144 checklist remains open.
 | MOVE post/pre/offset/absolute and MOVB offset/absolute; load B/SP conditions | Table13-1 p.13-5; pp.12-120,123,139–154; §5.4.7 | 3,200 additional fixtures, A/B/SP aliases/wrap, displacement/ignored-byte-field boundaries, cold address-word fills and six early CEN phases | Current probes pass; absolute MOVE entry conflicts with summary, with explicit oracle policy in [load-timing.md](load-timing.md) |
 | MOVE register to indirect/post/pre and MOVB register to indirect | Table13-2 p.13-6; pp.12-115,127–131; hidden states pp.13-2/3 | 3,344 store cases plus 70 following-load dependency probes, preserved memory, ordered RMW/writes beyond the next decode, file B/SP/aliases and waits/CEN | Current probes pass; [store-timing.md](store-timing.md) records the contract and source conflicts for other modes |
 | MOVE/MOVB register to offset/absolute | Table13-2 p.13-6; pp.12-116/117,132–134; §5.4.7 | 1,054 additional probes: literals, high/wrapped addresses, first/second-extension misses, both FE values and dependent loads | Probes pass under the documented policy; 242 explicitly inferred conflict-resolution cases are excluded from unqualified TI-count signoff |
-| ACK while CPU CEN is paused | Wrapper extension; TI bus counts still apply | Three postincrement A/B/SP event probes plus duplicate-read mutation | Functional response retention only; overlapping-pause exact instruction timing not claimed |
-| Other memory addressing modes, writes/hidden writes and memory-to-memory | §13.2 Tables13-1–13-4 | Functional tests; timing probes still required | Unvalidated |
+| ACK while CPU CEN is paused | Wrapper extension; TI bus counts still apply | Nine A/B/SP and aligned/unaligned stack-response controls plus duplicate-read mutation | Functional response retention only; overlapping-pause exact instruction timing not claimed |
+| Remaining memory/hidden-write conditions | §13.2 Tables13-1–13-4 | Form probes exist; consecutive writes and full cache/dependency/contention audits remain | Incomplete condition audit |
 | Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Not yet covered by timing probes | Unvalidated |
 | Sequential subsegment miss | §5.4.7 p.5-24 | First-pass NOP probes, four ordered two-state reads plus processing; 80 INCLK without waits | Current directed probes pass |
 | Cache replacement/prefetch and other overlap | §5.4; §13.1 | Functional cache tests; full timing conditions still incomplete | Unvalidated |
@@ -260,7 +262,7 @@ The full #144 checklist remains open.
 | Timed arbiter HOLD/RMW/host interference | §11.3 p.11-4 | Pre-dispatch HOLD, stale-write cancellation, reread, reserved write and queued two-state host I/O | Directed word-client contract passes |
 | CPU HOLD/restart, interrupts/resumption and contention; ACK during CEN pause | §8; §11; §13.1.2 | Full CPU timing conditions still incomplete | Unvalidated |
 | Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
-| Checker regression detection | #144 acceptance criteria | Thirty-one checker/model tests, seventeen timing/bus RTL mutations, one wait-stimulus mutation and one sequencer-hold event mutation | Current demonstrations pass |
+| Checker regression detection | #144 acceptance criteria | 133 checker/model tests; actual RTL/stimulus/event mutations integrated in the runner | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
 Odd or out-of-range multiplication field sizes are not defined by TI's
@@ -552,3 +554,25 @@ five new mutants,1024 field vectors and the unchanged MSW-first regression.
 Its fresh corrected full runner is running; the earlier failed111-form run
 is not accepted. Final full clean/remote CI and hardware acceptance remain
 open.
+
+
+CALL/CALLA/CALLR add1,306 programs for90,338 per matrix and114/133 forms
+(19 missing), using the existing ALU/TMP/MD and descending posted field
+writes. The independent counts are3+(3)/9 or3+(9)/15 for CALL,
+4+(2)/15 or4+(8)/21 for CALLA, and3+(2)/11 or3+(8)/17 for CALLR
+(aligned/unaligned). All133 models, strict lint, the original MSW-first
+word regression and all1,306 W=1/CEN=7 Verilator programs pass. Five new
+actual RTL mutants fail with correct main/following state and memory,
+including the two short-pause guards and ordered writes. Six short Icarus
+profiles pass28 programs each (168); their source hashes match the final
+inputs. Full Icarus comparison and clean targeted validation are pending at this
+implementation step. The matched map estimates3,689 ALMs,5,258 ALUTs,1,725
+registers,538,624 RAM bits,five DSPs and zero MLAB bits. All36 snapshot hashes
+and29 committed physical inputs verify; the same46 warning classifications
+remain. These are synthesis estimates, without a current fit/STA claim. The full114-form standard
+runner has not completed. All89,032 prior fixture/program/golden hashes
+remain unchanged. All1,306 baseline programs on1a771f905 fail timing/bus
+checks with correct main/following state and drained memory;20 verified
+representatives are committed. See[call-timing.md](call-timing.md) for
+primary counts, explicit example-label exclusions, fixture guards and
+remaining conditions. No source exception or known MOVB waiver is added.

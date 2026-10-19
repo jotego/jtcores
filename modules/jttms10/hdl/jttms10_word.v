@@ -71,6 +71,7 @@ module jttms10_word #(
     reg [SLOT_PW-1:0] slot_phase;
     reg slot_eligible;
     reg copy_source_accepted;
+    wire call_stack=ir[15:5]==11'h049 || ir==16'h0d5f || ir==16'h0d3f;
     wire indirect_copy=ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
                        ir[15:10]==6'b100110 || ir[15:10]==6'b101010 ||
                        ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400 || packet_copy;
@@ -95,9 +96,12 @@ module jttms10_word #(
             end
             else if(!cen) fast_slot<=0;
             if(!field_req && !data_owner && (!indirect_copy || !copy_source_accepted || !cen)) slot_eligible<=0;
+            // CALL owns a delayed stack slot; unaligned address bits alone
+            // cannot carry that slot across an early CEN pause. PUSHST can
+            // start its unaligned field in its initial intrinsic state.
             else if(slot_phase==0 || (!request_latched &&
-                (slot_phase==1 || (ir==16'h01e0 && field_post && fast_slot && slot_phase<=3 &&
-                  (field_addr[3:0]!=0 || stack_post_slot)))))
+                (slot_phase==1 || ((ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3 &&
+                  ((!call_stack && field_addr[3:0]!=0) || stack_post_slot)))))
                 slot_eligible<=1;
         end
     end
@@ -150,7 +154,7 @@ module jttms10_word #(
     jttms10_field u_field(
         .clk(clk), .rst(rst), .req(data_request && !post_busy && !post_ack), .we(field_we),
         .addr(field_addr), .wdata(field_wdata), .size(field_size),
-        .reverse(field_post && ir==16'h01e0),
+        .reverse(field_post && (ir==16'h01e0 || call_stack)),
         .ack(data_ack), .busy(field_busy), .rdata(data_rdata),
         .word_req(field_word_req), .word_we(field_word_we), .word_addr(field_word_addr),
         .word_wdata(field_word_wdata), .word_lock(field_word_lock),

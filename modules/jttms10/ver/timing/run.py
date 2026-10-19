@@ -29,6 +29,7 @@ from stack_cases import stack_cases
 from return_cases import return_cases, program as return_program
 from interrupt_return_cases import interrupt_return_cases
 from push_cases import push_cases
+from call_cases import call_cases, program as call_program
 from divide_cases import divide_cases
 from immediate_cases import immediate_cases
 from load_cases import load_cases
@@ -125,6 +126,7 @@ def cases():
     yield from return_cases()
     yield from interrupt_return_cases()
     yield from push_cases()
+    yield from call_cases()
     for flags in (0x00000810,0xF0000810):
         regs=[0x11223344,0xAABBCCDD,0x55667788,flags]
         yield dict(name=f'nop_next_subsegment_miss_{flags:08x}',coverage_id='NOP',opcode=0x0300,
@@ -134,6 +136,7 @@ def cases():
 
 
 def program(case):
+    if 'call_flow' in case:return call_program(case,movi)
     if 'stack_control_flow' in case:return return_program(case,movi)
     if 'control_flow' in case:
         return control_program(case,movi)
@@ -445,7 +448,7 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
             plan.extend((0,case['next_pc']+16*q,0x0300,1) for q in range(4))
         if case['cache_disabled']:
             starts.append(first+len(writes)*(2+wait_states))
-            plan.append((0,case['next_pc'],0x0300,1))
+            plan.append((0,case['next_pc'],case.get('expected_next_opcode',0x0300),1))
         if 'follow_delay' in case:
             start=max(case['data_copy']['cpu']+len(reads)*wait_states+case['follow_delay'],
                       first+len(writes)*(2+wait_states))
@@ -472,7 +475,7 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
         plan.extend(data_plan)
         if case['cache_disabled']:
             starts.append(first+len(data_plan)*(2+wait_states))
-            plan.append((0,case['next_pc'],0x0300,1))
+            plan.append((0,case['next_pc'],case.get('expected_next_opcode',0x0300),1))
         if 'follow_delay' in case:
             start=max(spec['cpu']+case['follow_delay'],lead+len(plan)*(2+wait_states))
             image=dict(case['expected_memory']);address=spec['address']
@@ -532,7 +535,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py')]
     sources += [('ver/timing/test.sv',args.bench)]
     provenance = dict(source_sha256={name: hashlib.sha256(path.read_bytes()).hexdigest()
                                      for name,path in sources})
@@ -581,12 +584,12 @@ def main():
                 (work / 'data.mem').write_text(''.join(f'{addr:08x} {value:04x}\n' for addr,value in memory))
                 (work / 'program.mem').write_text(''.join(f'{word:04x}\n' for word in image))
                 command = base_command + ['+PROGRAM=program.mem', f'+CASE_ID={identifier}',
-                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case or "stack_control_flow" in case else 0) | (4 if case.get("observe_implicit") else 0)}',
+                    f'+MEASURE_PASS={case.get("measure_pass",1)}',f'+DATA_COUNT={len(memory)}','+DATA=data.mem',f'+WATCH_EXTRA={int(bool(case.get("expected_extra_regs"))) | (2 if "control_flow" in case or "stack_control_flow" in case or "call_flow" in case else 0) | (4 if case.get("observe_implicit") else 0)}',
                     f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions',0)}", f"+FOLLOW_PC={case.get('follow_pc',0):x}", f"+TEST_PC={case['test_pc']:x}", f"+NEXT_PC={case['next_pc']:x}"]
                 executions.append(([identifier], simulate(command, work, 30)))
         else:
             (work / 'cases.txt').write_text(''.join(
-                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case or 'stack_control_flow' in case else 0) | (4 if case.get('observe_implicit') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
+                f"{identifier} {case['test_pc']:x} {case['next_pc']:x} {case.get('measure_pass',1)} {len(words)} {len(case.get('initial_memory',[]))} {int(bool(case.get('expected_extra_regs'))) | (2 if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case else 0) | (4 if case.get('observe_implicit') else 0)} {case.get('drain_instructions',0)} {case.get('follow_pc',0):x} " +
                 ' '.join(f'{word:04x}' for word in words) + ' ' +
                 ' '.join(f'{addr:08x} {value:04x}' for addr,value in case.get('initial_memory',[]))+'\n'
                 for identifier, case, words in prepared))
@@ -627,7 +630,7 @@ def main():
             if observed is not None:
                 errors.extend(check_bus(case, observed, row['bus_trace'], args.wait_states, args.pause_clocks))
                 errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') else []),args.wait_states,args.pause_clocks))
-            if 'control_flow' in case or 'stack_control_flow' in case:
+            if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case:
                 next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
                 row['observed_next_opcodes']=next_opcodes
                 if next_opcodes != [case['expected_next_opcode']]:errors.append('control-flow target opcode mismatch')

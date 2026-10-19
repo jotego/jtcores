@@ -371,7 +371,7 @@ def main():
              'state <= we ? SELECT : READ;'),
             ('registered_copy_post_response',copy_hit,'jttms10_word.v',
              '(data_accept && field_post) || ','')):
-            extra=['--wait-states','1','--pause-clocks','7']
+            extra=['--wait-states','1','--pause-clocks','1' if name.endswith('_after_short_pause') else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/file,old,new)
@@ -384,7 +384,7 @@ def main():
              'decode_copy_pre || decode_dsj ? (decode_copy_pre ? LOAD_LEAD : LOAD_PRE) :'),
             ('changed_copy_source_span','copy_move_post_w18_s15_d15_f0_fe0_r0_2_0_hit',
              "copy_source_span={2'd0,ea[3:0]}", "copy_source_span={2'd0,rs_data[3:0]}")):
-            extra=['--wait-states','1','--pause-clocks','7']
+            extra=['--wait-states','1','--pause-clocks','1' if name.endswith('_after_short_pause') else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v',old,new)
@@ -448,7 +448,7 @@ def main():
              'jttms10.v',"stack_return ? 16'd3 :","stack_return ? 16'd2 :"),
             ('late_rets_first_slot','stack_rets_phase_a0_off',
              'jttms10_word.v'," || (ir & 16'hffe0)==16'h0960",'')):
-            extra=['--wait-states','1','--pause-clocks','7']
+            extra=['--wait-states','1','--pause-clocks','1' if name.endswith('_after_short_pause') else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
@@ -458,7 +458,7 @@ def main():
             ('late_reti_second_field','stack_reti_phase_a0_off',
              'load_address_ready<=1; load_issue_left<=1;',
              'load_address_ready<=1; load_issue_left<=LOAD_PRE;')):
-            extra=['--wait-states','1','--pause-clocks','7']
+            extra=['--wait-states','1','--pause-clocks','1' if name.endswith('_after_short_pause') else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10.v',old,new)
@@ -467,14 +467,30 @@ def main():
             ('long_pushst_cpu','stack_pushst_following_s15_o15_k0_hit','jttms10.v',
              "decode_emu ? 6'd6 :","decode_stack_push ? 6'd3 : decode_emu ? 6'd6 :"),
             ('late_pushst_first_word','stack_pushst_phase_a0_off','jttms10_word.v',
-             "ir==16'h01e0 && field_post && fast_slot && slot_phase<=3","1'b0"),
+             "(ir==16'h01e0 || call_stack) && field_post && fast_slot && slot_phase<=3","1'b0"),
             ('early_pushst_aligned_word','stack_pushst_following_s0_o0_k0_hit','jttms10.v',
              "rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}","1'b0 ? LOAD_PRE : {LOAD_IW{1'b0}}"),
             ('early_pushst_after_short_pause','stack_pushst_following_s0_o0_k0_hit','jttms10_word.v',
              'stack_post_slot<=cen && field_post;','stack_post_slot<=cen;'),
             ('wrong_pushst_word_order','stack_pushst_following_s15_o0_k0_hit','jttms10_word.v',
-             ".reverse(field_post && ir==16'h01e0)",".reverse(1'b0)")):
+             ".reverse(field_post && (ir==16'h01e0 || call_stack))",".reverse(1'b0)")):
             extra=['--wait-states','1','--pause-clocks','1' if name=='early_pushst_after_short_pause' else '7']
+            evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+            mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
+            evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+        for name,probe,file,old,new in (
+            ('long_call_cpu','call_call_r_follow_b0_k20_o0_r0_2_a0_hit','jttms10.v',
+             "decode_call_absolute ? 6'd4 : 6'd3","decode_call_absolute ? 6'd4 : 6'd4"),
+            ('late_callr_first_word','call_callr_follow_b1_k0_o15_r1_2_a0_hit','jttms10.v',
+             'decode_call_relative ? LOAD_PRE : LOAD_LEAD','decode_call_relative ? LOAD_LEAD : LOAD_LEAD'),
+            ('wrong_calla_word_order','call_calla_flags0_o15_r0_0_a0_off','jttms10_word.v',
+             ".reverse(field_post && (ir==16'h01e0 || call_stack))",".reverse(field_post && ir==16'h01e0)"),
+            ('early_call_data_after_short_pause','call_call_r_phase_o15_r0_0_a0_hit','jttms10_word.v',
+             '(!call_stack && field_addr[3:0]!=0)','field_addr[3:0]!=0'),
+            ('early_callr_operand_after_short_pause','call_callr_phase_o15_r0_0_a0_off','jttms10.v',
+             '!(call_relative && control[15] && imm && load_issue_left>LOAD_NEXT_LIMIT)',
+             "1'b1")):
+            extra=['--wait-states','1','--pause-clocks','1' if name.endswith('_after_short_pause') else '7']
             evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
             evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
