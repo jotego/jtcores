@@ -84,6 +84,17 @@ def store_mode_cases():
         yield named(row)
 
     yield from literal_cases()
+    # Resident operands can straddle a four-word subsegment or a complete
+    # 32-word cache segment. Table13-2's cached byte count is unchanged.
+    for bank in (0,1):
+        for source in (0,1,2,15):
+            for position in (0,1,2,3,30,31):
+                for offset in (0,1,8,9):
+                    row=fixture('absolute',8,offset,0,False,position+offset,byte=True,
+                        bank=bank,source=source,base=0x80006000 if bank else 0x6000,
+                        tag=f'packet_r{bank}_s{source}_pc{position}_o{offset}')
+                    row.update(instruction_alignment_words=32,instruction_word_offset=position)
+                    yield named(row)
 
 
 # TI p12-133: width, F, pointer, signed offset, three printed output words.

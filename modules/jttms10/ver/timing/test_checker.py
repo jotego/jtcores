@@ -1123,7 +1123,7 @@ class TimingCheckerTest(unittest.TestCase):
         self.assertEqual(len(audit['project_source_choices']),1)
 
     def test_project_choices_do_not_waive_agreed_targets(self):
-        row=store_fixture('absolute',8,0,0,False,0,byte=True)
+        row=store_fixture('absolute',8,0,0,True,0,byte=True)
         audit=inventory([row],accept_project_choices=True)
         self.assertEqual(audit['project_source_choices'],[])
         self.assertEqual(audit['unresolved_source_probes'][0]['kind'],'agreed-published-target-gap')
@@ -1174,9 +1174,9 @@ class TimingCheckerTest(unittest.TestCase):
         # later families have their own source-policy checks below.
         audit=inventory((row for row in cases() if 'data_copy' not in row and row['coverage_id'] not in ('EMU','MMFM','MMTM')),accept_project_choices=True)
         self.assertEqual(len(audit['project_source_choices']),3520)
-        self.assertEqual(len(audit['unresolved_source_probes']),116)
+        self.assertEqual(len(audit['unresolved_source_probes']),69)
         self.assertEqual({r['identifier'] for r in audit['unresolved_source_probes']},{'MOVB_R_ABS'})
-        self.assertEqual(sum(r['kind']=='agreed-published-target-gap' for r in audit['unresolved_source_probes']),27)
+        self.assertEqual(sum(r['kind']=='agreed-published-target-gap' for r in audit['unresolved_source_probes']),9)
         self.assertFalse(audit['gate_passed'])
 
     def test_point_code_literal_examples(self):
@@ -1425,7 +1425,7 @@ class TimingCheckerTest(unittest.TestCase):
         absolute=store_fixture('absolute',16,0,0,True,0)
         self.assertEqual((offset['states'],offset['source_values']['summary_cd'],offset['source_values']['entry_typical_cd']),(10,9,7))
         self.assertEqual((absolute['states'],absolute['source_values']['summary_cd'],absolute['source_values']['entry_typical_cd']),(13,13,7))
-        for row in (offset,absolute,store_fixture('absolute',8,0,0,False,0,byte=True)):
+        for row in (offset,absolute,store_fixture('absolute',8,0,0,True,0,byte=True)):
             self.assertEqual(row['timing_source_status'],'inferred-conflict-resolution')
         self.assertEqual(store_fixture('absolute',8,15,0,False,0,byte=True)['timing_source_status'],'primary-summary-consistent')
         with self.assertRaises(ValueError):store_fixture('post',8,0,0,False,0,byte=True)
@@ -1442,18 +1442,18 @@ class TimingCheckerTest(unittest.TestCase):
         self.assertEqual(result['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
 
     def test_agreeing_ti_counts_are_a_published_target_gap(self):
-        case=store_fixture('absolute',8,0,0,False,0,byte=True)
+        case=store_fixture('absolute',8,0,0,True,0,byte=True)
         # Relabeling a policy cannot bypass the independent numeric audit.
         case['timing_source_status']='primary-summary-consistent'
         result=inventory([case])
         gap=result['unresolved_source_probes'][0]
         self.assertEqual(gap['kind'],'agreed-published-target-gap')
-        self.assertEqual((gap['source_values']['entry_typical_cpu'],gap['source_values']['summary_cpu'],gap['source_values']['policy_cpu']),(1,1,3))
-        case['source_values']['datasheet_cpu']=2
+        self.assertEqual((gap['source_values']['entry_typical_cd'],gap['source_values']['summary_cd'],gap['source_values']['policy_cd']),(7,7,15))
+        case['source_values']['datasheet_cd']=8
         self.assertEqual(inventory([case])['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
         # An unaligned byte uses Table13-2, not the byte-aligned entry.
-        unaligned=store_fixture('absolute',8,1,0,False,0,byte=True)
-        self.assertIsNone(unaligned['source_values']['entry_typical_cpu'])
+        unaligned=store_fixture('absolute',8,1,0,True,0,byte=True)
+        self.assertIsNone(unaligned['source_values']['entry_typical_cd'])
         self.assertEqual(inventory([unaligned])['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
         case['states']=1
         with self.assertRaisesRegex(ValueError,'source policy differs from the probe expectation'):

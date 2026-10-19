@@ -52,6 +52,7 @@ def require_supported(case, protocol_version=1):
                  'cache_disabled', 'cache_miss', 'extensions', 'expected_extra_regs',
                  'expected_masks', 'initial_b_regs', 'initial_sp', 'observe_implicit',
                  'instruction_word_offset', 'measure_pass', 'miss_word', 'setup_io',
+                 'instruction_alignment_words',
                  'pc_result_register', 'test_pc', 'next_pc', 'citation', 'conditions',
                  'coverage_id', 'source_conflict_kind', 'source_notes',
                  'source_result_register', 'source_values', 'timing_source_status'}

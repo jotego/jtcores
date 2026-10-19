@@ -23,7 +23,7 @@ module test;
     wire m_req,m_we,m_iaq,m_pixel,m_lock,m_ack,m_restart;
     wire [31:0] m_addr;
     wire [15:0] m_wdata,m_rdata;
-    jttms10_cache cache_u(.c_hit(),
+    jttms10_cache cache_u(.c_hit(), .c_next_data(), .c_next_valid(), .c_next_first_valid(),
         .clk(clk),.rst(rst),.cache_disable(1'b0),.cache_flush(1'b0),
         .c_req(f_req),.c_we(f_we),.c_iaq(1'b0),.c_program(1'b0),
         .c_pixel(1'b0),.c_lock(f_lock),.c_addr(f_addr),

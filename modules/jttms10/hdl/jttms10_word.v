@@ -53,6 +53,8 @@ module jttms10_word #(
     wire cache_word_req, cache_word_ack, cache_word_iaq;
     wire [31:0] cache_word_addr;
     wire [15:0] cache_rdata;
+    wire [31:0] cache_next_data;
+    wire cache_next_valid, cache_next_first_valid;
     wire field_word_req, field_word_we, field_word_lock, data_ack;
     wire [31:0] field_word_addr, data_rdata;
     wire [15:0] field_word_wdata;
@@ -191,6 +193,8 @@ module jttms10_word #(
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
+        .mem_next_data(cache_next_data), .mem_next_valid(cache_next_valid),
+        .mem_next_first_valid(cache_next_first_valid),
         .mem_busy(field_busy || post_busy || data_owner),
         .mem_slot(slot_eligible || slot_phase<=1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
@@ -214,6 +218,8 @@ module jttms10_word #(
         .c_program(1'b1), .c_pixel(1'b0), .c_lock(1'b0),
         .c_addr(field_addr), .c_wdata(16'd0),
         .c_rdata(cache_rdata), .c_ack(cache_ack), .c_hit(cache_hit), .c_restart(unused_cache_restart),
+        .c_next_data(cache_next_data), .c_next_valid(cache_next_valid),
+        .c_next_first_valid(cache_next_first_valid),
         .m_req(cache_word_req), .m_we(unused_cache_we), .m_iaq(cache_word_iaq), .m_pixel(unused_cache_pixel), .m_lock(unused_cache_lock),
         .m_addr(cache_word_addr), .m_wdata(unused_cache_wdata),
         .m_rdata(word_rdata), .m_ack(cache_word_ack), .m_restart(word_restart && !data_owner)

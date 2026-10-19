@@ -9,8 +9,10 @@ module test;
     wire c_ack,c_restart,m_req,m_we,m_iaq,m_pixel,m_lock;
     wire [31:0] m_addr;
     reg [15:0] m_rdata=0;
-    reg m_ack=0,stall=0;
-    jttms10_cache dut(.c_hit(),
+    reg m_ack=0,stall=0,m_restart=0;
+    wire [31:0] next_data;
+    wire next_valid,next_first_valid;
+    jttms10_cache dut(.c_hit(), .c_next_data(next_data), .c_next_valid(next_valid), .c_next_first_valid(next_first_valid),
         .clk(clk),.rst(rst),.cache_disable(cache_disable),
         .cache_flush(cache_flush),
         .c_req(c_req),.c_we(c_we),.c_iaq(c_iaq),.c_program(c_program),
@@ -19,7 +21,7 @@ module test;
         .c_restart(c_restart),
         .m_req(m_req),.m_we(m_we),.m_iaq(m_iaq),.m_pixel(m_pixel),
         .m_lock(m_lock),.m_addr(m_addr),.m_wdata(m_wdata),
-        .m_rdata(m_rdata),.m_ack(m_ack),.m_restart(1'b0)
+        .m_rdata(m_rdata),.m_ack(m_ack),.m_restart(m_restart)
     );
     reg [15:0] mem [0:4095];
     integer i;
@@ -182,6 +184,45 @@ module test;
         before_count=requests;
         access(1,1,0,0,0,32'h1000,0,16'hbeef);
         if(requests!=before_count+4) $fatal(1,"reset did not invalidate cache");
+        // Operand reads use resident words only; speculation never fills.
+        access(1,1,0,0,0,32'h1000,0,16'hbeef);
+        if(!next_valid || next_data!=={mem['h102],mem['h101]})
+            $fatal(1,"same-subsegment operand pair wrong");
+        before_count=requests;
+        access(1,1,0,0,0,32'h1020,0,mem['h102]);
+        if(next_valid || !next_first_valid || next_data[15:0]!==mem['h103] || requests!=before_count)
+            $fatal(1,"missing next subsegment was treated as present");
+        access(1,1,0,0,0,32'h1040,0,mem['h104]);
+        before_count=requests;
+        access(1,1,0,0,0,32'h1020,0,mem['h102]);
+        if(!next_valid || next_data!=={mem['h104],mem['h103]} || requests!=before_count)
+            $fatal(1,"cross-subsegment operand pair wrong");
+        access(1,1,0,0,0,32'h1030,0,mem['h103]);
+        if(!next_valid || next_data!=={mem['h105],mem['h104]})
+            $fatal(1,"next-subsegment operand pair wrong");
+        @(negedge clk); cache_disable=1;
+        #1;if(next_valid || next_first_valid) $fatal(1,"CD did not revoke operands");
+        tick(); @(negedge clk); cache_disable=0;
+        if(next_valid || next_first_valid) $fatal(1,"CD revived stale operands");
+        access(1,1,0,0,0,32'h1030,0,mem['h103]);
+        @(negedge clk); cache_flush=1;
+        #1;if(next_valid || next_first_valid) $fatal(1,"CF did not revoke operands");
+        tick(); @(negedge clk); cache_flush=0;
+        access(1,1,0,0,0,32'h11f0,0,mem['h11f]);
+        access(1,1,0,0,0,32'h1200,0,mem['h120]);
+        before_count=requests;
+        access(1,1,0,0,0,32'h11f0,0,mem['h11f]);
+        if(!next_valid || next_data!=={mem['h121],mem['h120]} || requests!=before_count)
+            $fatal(1,"cross-segment operand pair wrong");
+        @(negedge clk); m_restart=1;
+        tick(); @(negedge clk); m_restart=0;
+        if(next_valid || next_first_valid) $fatal(1,"restart retained operands");
+        access(1,1,0,0,0,32'hfffffff0,0,mem['hfff]);
+        access(1,1,0,0,0,32'h00000000,0,mem[0]);
+        before_count=requests;
+        access(1,1,0,0,0,32'hfffffff0,0,mem['hfff]);
+        if(!next_valid || next_data!=={mem[1],mem[0]} || requests!=before_count)
+            $fatal(1,"wrapped operand pair wrong");
         $display("jttms10_cache PASS (%0d physical requests)",requests); $finish;
     end
     initial begin #1000000; $fatal(1,"cache test timeout"); end

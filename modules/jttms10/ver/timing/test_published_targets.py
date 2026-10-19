@@ -17,7 +17,7 @@ class PublishedTargets(unittest.TestCase):
             original = fixture('absolute', 8, 0, 0, off, 0, byte=True)
             row = published_duration_case(original)
             self.assertEqual(row['states'], states)  # SPVU001A12-117/13-6.
-            observed = dict(clocks=original['states']*8, paused=0,
+            observed = dict(clocks=(15 if off else 3)*8, paused=0,
                             st=original['expected_st'], **original['expected_extra_regs'])
             observed.update({f'a{q}': value for q,value in enumerate(original['expected_regs'])})
             self.assertEqual(len(check(row, observed)), 1)
@@ -36,11 +36,15 @@ class PublishedTargets(unittest.TestCase):
                 continue
             counts[original['coverage_id'], original['cache_disabled']] += 1
             self.assertEqual(program(copy.deepcopy(original)), program(copy.deepcopy(row)))
+            if 'instruction_alignment_words' in original:
+                _,pc,_=program(copy.deepcopy(original))
+                self.assertEqual((pc//16)%original['instruction_alignment_words'],
+                                 original['instruction_word_offset'])
             for key in ('expected_regs','expected_st','expected_extra_regs','initial_memory',
                         'expected_memory','data_store','data_copy','expected_follow_regs'):
                 self.assertEqual(row.get(key), original.get(key))
-        self.assertEqual(counts, {('MOVB_R_ABS',False):18, ('MOVB_R_ABS',True):9,
-                                  ('MOVB_IND_IND',True):18})
+        self.assertEqual(counts, {('MOVB_R_ABS',False):114, ('MOVB_R_ABS',True):9,
+                                  ('MOVB_IND_IND',True):18, ('MOVB_IND_IND',False):23})
 
     def test_conflicting_or_inapplicable_entries_stay_unselected(self):
         row = fixture('absolute', 8, 9, 0, False, 0, byte=True)

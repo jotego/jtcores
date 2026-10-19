@@ -27,6 +27,9 @@ module jttms10 #(
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
     input             mem_ack, mem_cached, mem_slot, mem_busy,
+    input      [31:0] mem_next_data,
+    input             mem_next_valid,
+    input             mem_next_first_valid,
     input      [$clog2(CLKS_PER_STATE)-1:0] mem_phase,
     output reg [31:0] pc, st,
     output reg [15:0] ir,
@@ -316,6 +319,14 @@ module jttms10 #(
     wire decode_store_offset=decode_opcode[15:10]==6'b101100 || decode_opcode[15:9]==7'b1010110;
     wire decode_store_absolute=(decode_opcode & 16'hfde0)==16'h0580 || (decode_opcode & 16'hffe0)==16'h05e0;
     wire decode_store_extension=decode_store_offset || decode_store_absolute;
+    wire decode_byte_packet=(decode_opcode & 16'hffe0)==16'h05e0 &&
+                            !control[15] && mem_next_valid && mem_next_data[3:0]<=4'd8;
+    wire decode_byte_first=(decode_opcode & 16'hffe0)==16'h05e0 &&
+                           !control[15] && mem_next_first_valid && !mem_next_valid &&
+                           mem_next_data[3:0]<=4'd8;
+    wire byte_abs=(ir & 16'hffe0)==16'h05e0 && !control[15];
+    wire byte_finish=byte_abs && imm &&
+                     (immediate_last ? a[3:0]<=4'd8 : mem_next_valid && read_data[3:0]<=4'd8);
     wire decode_pixel_xy_store=decode_opcode[15:9]==7'b1111000 && pixel_xy_simple;
     wire decode_pixel_draw_store=decode_opcode[15:9]==7'b1111011 && pixel_xy_simple;
     wire decode_pixel_xy_address_store=decode_pixel_xy_store || decode_pixel_draw_store;
@@ -390,7 +401,7 @@ module jttms10 #(
     // destination read select its shorter path during the first ROM prime.
     wire [5:0] decode_states=decode_multi ? (decode_opcode[5] ? 6'd3 : 6'd2) : decode_trap ? (rd_data[3:0]==0 ? 6'd16 : 6'd30) : decode_control ?
                             (decode_dsj || decode_dsjs ? 6'd3 : decode_relative && !decode_relative_short ? 6'd4 : 6'd2) :
-                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_call ? (decode_call_absolute ? 6'd4 : 6'd3) : decode_pixel_store ? (decode_pixel_xy_copy ? 6'd7 : (decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd2) : decode_store_extension ? 6'd3 : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
+                            decode_emu ? 6'd6 : decode_copy ? (decode_copy_absolute_pair ? 6'd7 : decode_copy_extension ? 6'd5 : decode_copy_post || decode_copy_pre ? 6'd4 : 6'd3) : decode_store ? (decode_call ? (decode_call_absolute ? 6'd4 : 6'd3) : decode_pixel_store ? (decode_pixel_xy_copy ? 6'd7 : (decode_pixel_readpost || decode_pixel_xy_address_store) ? 6'd4 : 6'd2) : decode_store_extension ? (decode_byte_packet ? 6'd1 : 6'd3) : decode_store_pre ? 6'd2 : 6'd1) : decode_divide ? decode_div_states : decode_load ? decode_load_states : decode_multiply ? 6'd5+multiply_half :
                             (decode_shift && decode_shift_kind==0) ||
                             decode_xy_cmp || decode_ie || decode_putst || decode_immediate_long || decode_cvxyl ||
                             (decode_extension && !decode_opcode[5]) ? 6'd3 :
@@ -427,7 +438,7 @@ module jttms10 #(
     wire operation_ready=line_native && gfx_bus_skip ? time_left==0 :
                          gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
                          !mem_busy && (!line_native || time_left<=FETCH_OVERLAP) &&
-                         (!(gfx_end_pending || line_native) || (line_native && !store_started) || mem_phase==GFX_END_PHASE[$clog2(CLKS_PER_STATE)-1:0]) : multiadvance && multi_steps==1 ? completed : copy_packet && imm ? (completed || mem_ack) : (fetch || imm) ? (completed && fetch_wait==0) ||
+                         (!(gfx_end_pending || line_native) || (line_native && !store_started) || mem_phase==GFX_END_PHASE[$clog2(CLKS_PER_STATE)-1:0]) : multiadvance && multi_steps==1 ? completed : (copy_packet || byte_finish) && imm ? (completed || (mem_ack && (copy_packet || TIMED_PROGRAM!=0 || mem_cached))) : (fetch || imm) ? (completed && fetch_wait==0) ||
                          (fetch && mem_fast && mem_ack) :
                          !bus_op || completed || mem_ack || gfx_skip_write;
     wire ready=operation_ready && (!ni || !timing_active || time_left<=FETCH_OVERLAP);
@@ -519,6 +530,9 @@ module jttms10 #(
         .obs_uaddr ( obs_uaddr ),
 `endif
         .rst(rst), .clk(clk), .enable(cen), .ready(ready),
+        .byte_packet(decode_byte_packet),
+        .byte_finish(byte_finish),
+        .byte_first(decode_byte_first),
         .md(fetch ? read_data[15:0] : md[15:0]),
         .pixel_simple(pixel_simple), .pixel_boolean(pixel_boolean), .pixel_xy_simple(pixel_xy_simple),
         .multi_steps(multi_steps),
@@ -759,7 +773,9 @@ module jttms10 #(
     wire pc_tmp_add = pc_sel==TMPREL_PC;
     wire pc_add = pcinc || pc_dsj_add || pc_short_add ||
                   pc_long_add || pc_tmp_add;
-    wire [31:0] pc_delta = pc_tmp_add ? {tmp[27:0],4'd0} :
+    wire [31:0] pc_delta = pcinc && ld_ir && decode_byte_packet ? 32'd48 :
+                           pcinc && ld_ir && decode_byte_first ? 32'd32 :
+                           pcinc && byte_finish && !immediate_last ? 32'd32 : pc_tmp_add ? {tmp[27:0],4'd0} :
                            pc_long_add ? {{12{md[15]}},md[15:0],4'd0} :
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
@@ -869,16 +885,21 @@ module jttms10 #(
                 if(gfx_bus_post) store_started<=1;
             end
             if(step && imm) immediate_last<=1;
+            if(step && byte_finish) begin
+                load_address_ready<=1;
+                load_issue_left<=0;
+                time_left<=CLKS_PER_STATE[15:0]-16'd2;
+            end
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed || decode_native_line;
                 branch_pending<=decode_control;
-                immediate_last<=decode_immediate_word;
+                immediate_last<=decode_immediate_word || decode_byte_first;
                 copy_operand_left<=decode_copy_absolute_pair ? 3'd4 : decode_copy_offset_pair ? 3'd2 : 3'd0;
                 load_pending<=decode_pixel_readpost || decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
-                load_address_ready<=!decode_pixel_xy_copy && !decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && !decode_store_extension));
-                load_issue_left<=TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : TIMED_PROGRAM!=0 && decode_fill_xy ? FILL_XY_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : (decode_load_extension || decode_store_extension || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_address_ready<=!decode_pixel_xy_copy && !decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && (!decode_store_extension || decode_byte_packet)));
+                load_issue_left<=TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : TIMED_PROGRAM!=0 && decode_fill_xy ? FILL_XY_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : decode_byte_first ? LOAD_PRE : (decode_load_extension || (decode_store_extension && !decode_byte_packet) || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_native_line ? LINE_SETUP_CLKS : decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin
@@ -970,6 +991,8 @@ module jttms10 #(
                 if(emu_step) emu_ack<=1;
                 if(push_active && stack_sel==WRITE_STACK)
                     push_high<=~push_high;
+                if(ld_ir && decode_byte_packet) ea<=mem_next_data;
+                if(ld_ir && decode_byte_first) a<={16'd0,mem_next_data[15:0]};
                 if(ld_ir && reserved_opcode) begin
                     vector_latched<=32'hfffffc20;
                 end
@@ -1149,6 +1172,9 @@ module jttms10 #(
                     HWVECTOR_EA: ea<=vector_latched;
                     default:;
                 endcase
+                if(byte_finish)
+                    ea<=immediate_last ? {read_data[15:0],a[15:0]} :
+                                        {mem_next_data[15:0],read_data[15:0]};
                 if(multi_load && multiadvance && multi_steps>1) ea<=rd_data;
                 case(pc_sel)
                     MD_PC: pc<={md[31:4],4'd0};

@@ -302,16 +302,34 @@ def line_mutations(work,evidence):
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
 
+def movb_mutations(work,evidence):
+    """Reject real cached operand, cold-tail and CEN timing regressions."""
+    for name,probe,old,new,extra in (
+        ('lost_abs_operand_packet','storemode_movb_absolute_packet_r1_s15_pc31_o0_hit',
+         "wire decode_byte_packet=(decode_opcode & 16'hffe0)==16'h05e0 &&",
+         "wire decode_byte_packet=1'b0 && (decode_opcode & 16'hffe0)==16'h05e0 &&", []),
+        ('late_abs_cold_tail','storemode_movb_absolute_cold2_w8_o0_r0_hit',
+         "time_left<=CLKS_PER_STATE[15:0]-16'd2;",
+         "time_left<=2*CLKS_PER_STATE[15:0]-16'd2;", ['--wait-states','1','--pause-clocks','7']),
+        ('absorbed_abs_pause','storemode_movb_absolute_packet_r0_s0_pc2_o1_hit',
+         'if(cen) begin\n                if(timing_active && time_left!=0)',
+         "if(1'b1) begin\n                if(timing_active && time_left!=0)", ['--pause-clocks','7'])):
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+        replace_once(mutant/'jttms10.v',old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
-    parser.add_argument('--group',choices=('all','line'),default='all',
-                        help='run all mutations or only native LINE controls/mutations')
+    parser.add_argument('--group',choices=('all','line','movb'),default='all',
+                        help='run all mutations or a focused native instruction group')
     args = parser.parse_args()
     evidence = {}
-    if args.group=='line':
-        with tempfile.TemporaryDirectory(prefix='jttms10-line-mutations-') as temp:
-            line_mutations(Path(temp),evidence)
+    if args.group in ('line','movb'):
+        with tempfile.TemporaryDirectory(prefix='jttms10-'+args.group+'-mutations-') as temp:
+            (line_mutations if args.group=='line' else movb_mutations)(Path(temp),evidence)
         if args.report:
             args.report.parent.mkdir(parents=True,exist_ok=True)
             args.report.write_text(json.dumps(evidence,indent=2)+'\n')
@@ -806,6 +824,7 @@ def main():
         pixel_xy_copy_mutations(work,evidence)
         fill_mutations(work,evidence)
         line_mutations(work,evidence)
+        movb_mutations(work,evidence)
         posted_load_slot_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)

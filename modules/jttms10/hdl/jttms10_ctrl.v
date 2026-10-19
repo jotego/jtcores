@@ -5,6 +5,9 @@ module jttms10_ctrl(
 `endif
     input             rst, clk, enable, ready,
     input             pixel_simple, pixel_boolean, pixel_xy_simple,
+    input             byte_packet,
+    input             byte_finish,
+    input             byte_first,
     input      [15:0]  md,
     input      [4:0]   multi_steps,
     input              multi_load, multi_done,
@@ -407,8 +410,10 @@ module jttms10_ctrl(
                 uaddr <= FETCH_SEQA;
                 jsr_depth <= 0;
             end
+            if(byte_finish) uaddr <= STORE_SEQA;
             if(dispatch) begin
-                uaddr <= entry_family_q==8'd110 && pixel_simple ? PIXT_RLIN_FAST_SEQA :
+                uaddr <= byte_packet ? STORE_SEQA : byte_first ? STOREABS_SEQA+12'd1 :
+                         entry_family_q==8'd110 && pixel_simple ? PIXT_RLIN_FAST_SEQA :
                          entry_family_q==8'd110 && pixel_boolean ? PIXT_RLIN_BOOL_SEQA :
                          entry_family_q==8'd112 && pixel_simple ? PIXT_LLIN_FAST_SEQA :
                          entry_family_q==8'd106 && pixel_xy_simple ? PIXT_RXY_FAST_SEQA :

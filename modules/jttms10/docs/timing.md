@@ -13,9 +13,10 @@ timing probes; their supported conditions and remaining exclusions are in
 Some printed counts conflict. The owner authorizes the simpler implementation
 where reliable clarification cannot be found; explicit project choices keep
 all alternatives visible. See [source-policy.md](source-policy.md).
-Single-word absolute MOVB also has a known gap against counts on which
-both TI tables agree: cached CPU 1 state/CD 7 versus the present policy's
-3/15. Plain byte-copy index2 also has a CD7 versus current CD9 gap.
+Cached single-word absolute MOVB uses the one-state intrinsic count on which
+both TI tables agree, including resident operands across cache subsegment
+and segment boundaries. Its CD7 target remains a gap against the shared
+CD15 schedule. Plain byte-copy index2 also has a CD7 versus current CD9 gap.
 The standard runner's acceptance gate fails on missing forms and
 unresolved source/policy differences, with the recorded project choices
 applied explicitly. Passing the present probe matrix is
@@ -23,7 +24,7 @@ not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
 separate checks.
 
-The current [DataStorm runner](../ver/fpga/README.md) passes all 141,236
+The historical native-LINE [DataStorm image](../ver/fpga/README.md) passes all 141,236
 existing fixtures in each of base, W1/P7-after0 and W3 profiles: 423,708 FPGA
 executions on one image, including all 2,240 FILL and 626 LINE cases per
 profile. Every raw capture was replayed with the unchanged independent Python
@@ -32,8 +33,24 @@ Verilator bench, including architectural state, memory, instruction clocks
 and checked bus events. These results supersede the pre-native-LINE broad
 matrix's 606 duration failures for this scope. They do not complete the normal
 runner, clean-checkout/CI, missing-form/condition audit or final physical/game
-acceptance. The coverage/source gate still fails on the six PIXBLT forms and
-448 unresolved MOVB probes, including 45 agreed published-target gaps.
+acceptance. That image predates the cached absolute-byte change. The current
+inventory contains 141,428 cases, including 192 additional cached byte boundaries.
+Its coverage/source gate still fails on the six PIXBLT forms and 401 unresolved
+MOVB probes, including 27 agreed published-target gaps.
+
+The newly fitted cached-MOVB image passes all 141,428 cases in each of the same
+three profiles (424,284 physical executions), with 5,157 batches per profile.
+Root independently replayed every raw result with the original Python checker.
+All 69 focused positive observations match short original Verilator runs.
+The separate 164-case published-target run returns exit 1: 137 pass and 27 CD
+cases fail solely on duration. Full architectural/memory/bus observations and
+error lists agree with Verilator even for those failures. Timeout and explicit
+512-record overflow preserve the next independent case and clean rearm.
+External full-command walls are 286.508/289.787/301.359 seconds. The single
+retained-IP full Quartus flow takes 853.19 seconds (859.14 s outer helper);
+all final constrained summaries and calibrated DDR margins pass. This is an
+FPGA test appliance, not the CPU-only area or final NARC/MiSTer acceptance.
+See [FPGA reproduction and measurements](../ver/fpga/README.md).
 
 The primary specification is TI's June 1988 *TMS34010 User's Guide*,
 SPVU001A, including its device data sheet in Appendix A. Citations below
@@ -214,14 +231,16 @@ it also fails on unresolved source overrides, even if every form has
 probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
-policy is reported separately from conflicting TI sources. The current
+policy is reported separately from conflicting TI sources. The historical
 106,610-case inventory has 13,073 discrepancy instances before project choices:
 242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
 1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
 332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives and 296 EMU alternatives and 1,854 register-list hidden/applicability alternatives. The normal gate records 12,625 explicit project
-choices and retains 448 unresolved MOVB cases. Forty-five instances have
+choices and retained 448 unresolved MOVB cases. Forty-five instances had
 matching entry/summary targets, distinguished from source conflicts.
-The JSON preserves every affected name, condition-specific value and
+The cached absolute-byte change resolves 47 of these source-policy instances;
+the current normal gate retains 401 unresolved instances, including 27 agreed
+CD targets. The JSON preserves every affected name, condition-specific value and
 citation. Numeric metadata must match the actual selected expectation;
 status relabeling cannot waive a gap. The stricter source-only audit remains
 available. These are counts of probe instances, not distinct rules.

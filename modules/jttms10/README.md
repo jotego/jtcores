@@ -28,8 +28,13 @@ validation remains required.
 Probe presence is
 only a necessary gate; conflicting printed store counts have explicitly
 labeled inferred policies and remain excluded from unqualified signoff.
-Single-word absolute MOVB still differs from the cached one-state target
-printed in both TI tables. Complete condition, bus and interrupt audits remain
+Cached single-word absolute MOVB consumes resident address operands with
+the opcode to meet the one-state target printed in both TI tables. Its
+cache-disabled seven-state target remains open. The source-bound DataStorm image
+passes 141,428 cases each at base/W1-P7/W3; 69 focused observations match
+Verilator. The directed published-target command retains 27 CD duration failures.
+See [FPGA evidence and reproduction](ver/fpga/README.md).
+Complete condition, bus and interrupt audits remain
 required. Current #144 development shares DSP multiplication with shifts
 and uses a second shared product for field alignment;
 the final fitted area, FPGA timing and NARC checks must be repeated after

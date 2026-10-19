@@ -6,7 +6,8 @@ addresses, with bits 3:0 zero for a physical word. It has no dependency on the
 old TMS34010 RTL. `jttms10_word` connects it between the field adapter and
 the peripheral fabric; `jttms10_system` supplies the cache controls.
 
-The cache contains 128 words in a synchronous 128×16 data RAM: four 32-word
+The cache contains 128 words in a synchronous 32×64 data array, implemented
+as four parallel 32×16 lane RAMs: four 32-word
 segments, each with eight four-word subsegments. `tag[slot]` holds address
 bits 31:9, `present[slot][subsegment]` records filled subsegments, and
 `lru[0:3]` lists segment slots from most to least recently used. Reset and
@@ -33,6 +34,28 @@ physical reads as instruction acquisitions (`m_iaq=1`), matching the old core's
 bus behavior; the guide names IAQ as instruction acquisition status but does
 not specify the per-word pin value during a four-word fill. Hits generate no
 external memory request.
+
+Each logical row holds one four-word subsegment. A fill writes one 16-bit
+lane; a hit reads all four banks through their synchronous read ports. Separate
+banks give each RAM a complete word write and preserve Quartus inference.
+Opcode hits also expose the following two resident words to the CPU. If they cross
+a subsegment boundary, the next row is read during the existing ACK-to-decode
+interval, including segment boundaries and 32-bit address wrap. This lookup
+does not initiate an external fill or alter replacement order. A separate
+first-word-valid signal permits consumption of a resident low address when
+the high address word is missing. CD, CF, restart and a new request revoke
+this metadata; a paused CPU retains the captured pair.
+
+The CPU uses this path for cached register-to-absolute MOVB when the complete
+byte fits one physical word (bit offsets 0..8). It consumes the address with
+the opcode and posts the ordinary field-adapter read/modify/write. Bytes
+crossing a word boundary retain the general extension path. See
+[store timing](store-timing.md) for the independent duration targets.
+The fitted DataStorm implementation infers four 32-by-16-bit `altsyncram`
+banks (2,048 data bits), rather than a register mux. Variable partial writes
+and fixed-slice writes into one wide array failed the Quartus inference probe;
+complete-word writes to separate synchronous banks preserved RAM inference.
+The appliance uses three more M10Ks than its preceding narrow-cache image.
 
 `cache_disable` connects to CONTROL.CD. While CD=1, each requested word goes
 directly to memory, and cached contents and replacement order are preserved.
@@ -73,9 +96,7 @@ follows the latter.
 Standalone verification:
 
 ```sh
-iverilog -g2005 -s test -o /tmp/jttms10-cache-test \
-    modules/jttms10/ver/cache/test.sv modules/jttms10/hdl/jttms10_cache.v
-vvp /tmp/jttms10-cache-test
+bash modules/jttms10/ver/sim.sh cache
 verilator --lint-only -Wall --top-module jttms10_cache \
     modules/jttms10/hdl/jttms10_cache.v
 ```
@@ -83,7 +104,9 @@ verilator --lint-only -Wall --top-module jttms10_cache \
 The bench checks fill order, PC-extension hits, subsegment and segment misses,
 replacement LRU, waits and stable held payload, stale self-modifying reads,
 CD preservation, held CF behavior, IAQ/pixel/data bypass, one acknowledgment
-per held request, and reset during a stalled fill. Integrated cache and
+per held request, reset during a stalled fill, resident operand pairs across
+subsegment/segment/wrap boundaries, partial validity without an external fill,
+and immediate metadata revocation on CD/CF/restart. Integrated cache and
 system fits are recorded in [the area measurements](../ver/area/README.md).
 
 The direct program path removes unnecessary field-processing clocks. The

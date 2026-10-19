@@ -38,7 +38,9 @@ MOVB forces eight bits and ignores FS/FE. Stores preserve the complete ST.
 | MOVE register to predecrement | 2 | `2+(H)` | `2+H+3` |
 | MOVB register to indirect | 1 | `1+(H)` | `1+H+3` |
 | MOVE/MOVB offset | 3 | `3+(H)` | `3+H+6`, policy where sources conflict |
-| MOVE/MOVB absolute | 3 | `3+(H)`, policy for single-word MOVB | `3+H+9`, policy where sources conflict |
+| MOVE absolute | 3 | `3+(H)` | `3+H+9`, policy where sources conflict |
+| MOVB absolute, one physical word | 1 cached; 3 CD policy | `1+(3)` | 15 policy; agreed target7 remains open |
+| MOVB absolute, two physical words | 3 | `3+(7)` | 19 policy where sources conflict |
 
 The first transfer starts after C-1 intrinsic states. The transfers are
 ordered, uncached and IAQ-low. Each takes two machine states plus its requested
@@ -170,16 +172,30 @@ have further inconsistent CPU/CD counts. The printed values include:
 | MOVE absolute, aligned 32 bits | `3+(3),9` p.12-134 | `3+(3),15` | `3+(3),15` |
 | MOVB offset, one word | `3+(3),9` p.12-116, byte aligned | `3+(3),7` | `3+(3),12` |
 | MOVB offset, two words | Refers to summary | `3+(7),13` | `3+(7),16` |
-| MOVB absolute, one word | `1+(3),7` p.12-117, byte aligned | `1+(3),7` | `3+(3),15` |
+| MOVB absolute, one word | `1+(3),7` p.12-117, byte aligned | `1+(3),7` | `1+(3)` cached; CD15 remains a gap |
 | MOVB absolute, two words | Refers to summary | `3+(7),13` | `3+(7),19` |
 
 Single-word absolute MOVB needs particular care: its instruction entry and
-summary **agree** on `1+(3),7`. The present implementation/policy uses
-`3+(3),15`. This is an unresolved mismatch against an agreed published
-target, not a disagreement between those two TI tables. The current
-three-state address schedule does not prove that the printed one-state
-cached path is impossible or erroneous. Both the cached and CD targets
-remain open; these policy probes cannot establish their compliance.
+summary **agree** on `1+(3),7`. Cached bytes at bit offsets 0..8 now use the
+published one-state intrinsic duration. The synchronous instruction cache
+supplies resident address operands alongside the opcode; missing operands
+retain the nine-state subsegment-fill penalty. The field adapter still performs
+the actual external read/modify/write. The cache-disabled path still uses
+15 states rather than the published seven and remains an agreed-target gap.
+Two-word bytes retain the general three-state path and its unresolved CD
+source differences. No CD target is waived.
+
+The additional 192 cached cases cover A/B source registers 0/1/2/SP, opcode
+positions 0/1/2/3/30/31 within a cache segment and bit offsets 0/1/8/9. Position 31
+crosses a segment boundary; offset 9 checks the two-word fallback. All 347
+absolute-byte probes pass the short original Verilator base run, with 18
+wait/pause representatives also passing. The newly fitted DataStorm image passes
+all 141,428 fixtures in each of base/W1-P7/W3; 23 focused cases per profile
+match the original Verilator bench. All 164 published-target observations,
+including their errors, also match: 137 pass and the 27 CD duration gaps fail.
+The standard equivalence command refuses failing captures, so this latter
+comparison is diagnostic evidence and does not turn failures into passes.
+See the [source-bound FPGA checkpoint](../ver/fpga/README.md).
 
 An undated separate TI chapter copy at
 [Whtech](https://www.whtech.com/ftp/datasheets%20and%20manuals/Datasheets%20-%20TI/TMS34010/TMS34010-13-Instruction%20Timings.pdf)

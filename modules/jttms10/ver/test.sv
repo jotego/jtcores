@@ -29,6 +29,7 @@ module test;
         .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_program(), .mem_post(), .mem_fast(), .mem_overlap(),
+        .mem_next_data(32'd0), .mem_next_valid(1'b0), .mem_next_first_valid(1'b0),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );

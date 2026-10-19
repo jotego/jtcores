@@ -63,6 +63,9 @@ def fixture(mode,width,offset,field,off,index,*,byte=False,bank=0,source=2,dest=
         elif bank:eb[f'b{dest}']=pointer
         else:ea[dest]=pointer
     cpu=2 if mode=='pre' else 3 if mode in ('offset','absolute') else 1
+    # Table13-2: a cached absolute byte contained in one physical word
+    # has one visible state, independently of its ignored field definition.
+    if byte and mode=='absolute' and not off and (address&15)<=8:cpu=1
     row=dict(name=f'store_{"movb" if byte else "move"}_{mode}_w{width}_o{offset}_f{field}_r{bank}_{source}_{dest}_q{index}_{"off" if off else "hit"}',
         opcode=(({'indirect':0x8C00,'offset':0xAC00,'absolute':0x05E0}[mode] if byte else {'indirect':0x8000,'post':0x9000,'pre':0xA000,'offset':0xB000,'absolute':0x0580}[mode] | field<<9) | (source if mode=='absolute' else (source<<5)|dest) | bank<<4),
         coverage_id={'indirect':'MOVB_R_IND','offset':'MOVB_R_OFF','absolute':'MOVB_R_ABS'}[mode] if byte else {'indirect':'MOVE_R_IND','post':'MOVE_R_POST','pre':'MOVE_R_PRE','offset':'MOVE_R_OFF','absolute':'MOVE_R_ABS'}[mode],
@@ -79,11 +82,14 @@ def fixture(mode,width,offset,field,off,index,*,byte=False,bank=0,source=2,dest=
         row['extensions']=[displacement&0xFFFF] if mode=='offset' else [address&0xFFFF,address>>16]
         row['conditions'].update(displacement=displacement if mode=='offset' else None,fe=(st>>(6*field+5))&1)
         row['source_notes']='Policy: intrinsic C=3, alignment hidden states from Table13-2 and +3 per instruction word with CD (§5.4.7). Source/policy differences are retained in source_values; this is not an official erratum. Single-word absolute MOVB still disagrees with the cached C=1 printed in both TI tables.'
+        if byte and mode=='absolute' and not off and cpu==1:
+            row['source_notes']='Table13-2 and p.12-117 agree on cached single-word absolute MOVB C=1. Hidden read/modify/write states remain from Table13-2. The separate CD7 target is unresolved; policy_cd retains the shared CD schedule.'
         hidden=row['hidden_states']
         summary_cpu=1 if byte and mode=='absolute' and hidden==3 else 3
         summary_cd=({3:7,7:13}[hidden] if byte else
                     {1:9,3:12,5:14,7:13,9:18}[hidden] if mode=='offset' else 3+hidden+9)
-        row['source_values']=dict(summary_cpu=summary_cpu,summary_hidden=hidden,summary_cd=summary_cd,policy_cpu=cpu,policy_cd=cpu+hidden+3*words)
+        cd_cpu=3 if mode=='absolute' else cpu
+        row['source_values']=dict(summary_cpu=summary_cpu,summary_hidden=hidden,summary_cd=summary_cd,policy_cpu=cpu,policy_cd=cd_cpu+hidden+3*words)
         entry_cpu=1 if byte and mode=='absolute' else cpu
         entry_cd=(7 if mode=='absolute' else 9) if byte else 7 if width==16 and offset==0 else 9 if width==32 and offset==0 else None
         if byte and offset%8:entry_cd=None

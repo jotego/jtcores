@@ -71,7 +71,7 @@ def published_duration_case(case):
     target = values.get('summary_' + suffix)
     entry = values.get('entry_typical_' + suffix)
     policy = values.get('policy_' + suffix)
-    if target is None or entry != target or policy is None or target == policy:
+    if target is None or entry != target or policy is None:
         return None
     # The existing cold-extension fixture adds the independently specified
     # nine-state fill penalty. Unknown timing adjustments must fail closed.
@@ -215,7 +215,10 @@ def program(case):
     words += [0x01A3] + [0x0300] * 12  # PUTST A3, then drain previous writes
     offset=case.get('instruction_word_offset',3 if case.get('cache_miss') else None)
     if offset is not None:
-        while len(words)%4!=offset:words.append(0x0300)
+        alignment=case.get('instruction_alignment_words',4)
+        if alignment not in (4,32) or not 0<=offset<alignment:
+            raise ValueError('unsupported instruction alignment')
+        while len(words)%alignment!=offset:words.append(0x0300)
     test_pc = 0x1000 + 16 * len(words)
     words += [case['opcode'],*case.get('extensions',[])]
     next_pc = 0x1000 + 16 * len(words)
@@ -556,7 +559,10 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
         if case.get('cache_miss')=='store_extension':
             missing=case['miss_word'];fill=extensions[missing-1:]+[0x0300]*4
             plan=[(0,case['test_pc']+16*(missing+q),fill[q],1) for q in range(4)]
-            starts=[missing+q*(2+wait_states) for q in range(4)]
+            # A cached low address word is available with the opcode's
+            # subsegment. Either missing address word starts in state one.
+            native_byte=case['coverage_id']=='MOVB_R_ABS' and spec['cpu']==1
+            starts=[(1 if native_byte else missing)+q*(2+wait_states) for q in range(4)]
             first+=9+4*wait_states
         starts.extend(first+q*(2+wait_states) for q in range(len(data_plan)))
         plan.extend(data_plan)

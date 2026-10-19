@@ -2,7 +2,88 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Version 3 FPGA validation
+## Current version 3 validation: cached absolute MOVB
+
+The cached one-word absolute byte path consumes resident operands with the
+opcode: 8 INCLK instead of 24; a cold extension uses 80 instead of 96.
+The independent TI target and all architectural/memory/bus checks stay active.
+There are 192 new A/B/SP, subsegment/segment and byte-boundary fixtures.
+
+All **141,428 cases / 127 forms / 5,157 batches** pass each of base,
+W1/P7-after0 and W3 on one configuration: **424,284 FPGA executions**.
+Every raw result was independently replayed through the shared Python checker,
+reproducing the saved reports exactly. IDs and names are unique; each profile
+has 2,060 following-state captures and 1,717,104 event records, with at most
+231 of 512 records per case. Transport and checking commands exit 0.
+These are current fixture contracts, not complete instruction timing compliance:
+six PIXBLT forms and 401 unresolved MOVB probes, including 27 agreed CD targets,
+remain open.
+
+| Profile | Full host wall (s) | Transfer (s) | FPGA staging (s) | FPGA run (s) | FPGA draining (s) | Python checking (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Base | 286.508 | 10.872 | 11.820 | 52.764 | 114.701 | 52.002 |
+| W1/P7-after0 | 289.787 | 10.031 | 11.807 | 58.927 | 114.198 | 52.358 |
+| W3 | 301.359 | 11.311 | 11.702 | 70.029 | 113.478 | 51.942 |
+
+The commands ran sequentially with no other board transport or heavy local job.
+Target phases nest inside SSH time; full external wall includes serialization
+and cleanup omitted by the driver's internal timer. These are observed command
+walls, not a matched full-matrix software comparison or stimulus-cost study.
+
+Twenty-three focused cases per profile (69 total) match the original Verilator
+bench in architecture, instruction clocks, memory and checked bus events.
+The separate 164-case published-target command exits 1: 137 pass and 27 CD
+cases fail solely on duration. Absolute CD observes 120 against 56 INCLK;
+indirect byte-copy CD observes 72 against 56. All 164 diagnostic observations
+and error lists match Verilator. Standard equivalence intentionally refuses
+failing captures; this diagnostic match does not waive their timing failures.
+Timeout and explicit 512-record overflow commands exit 1, while the subsequent
+independent case and clean rearm pass. Three short cached-MOVB timing mutations
+also fail with correct architectural results and memory.
+
+RBF SHA-256:
+`65d2c2f15e18009f46e2a512af976419de2ff411e11954e330e718cf06881ee5`.
+The runner remains protocol 3, SHA-256
+`fe9b22038a06ec17610d9763052605538f1a8733cd1c65d5a6d3a3d8624e7ee7`.
+Overlay/firmware is `jtcores-144-movb-65d2c2f1`; the actual QIP-bound SYSID is
+22 / 1792433033. Use these together with the source-bound programming receipt,
+boot identity and CPU fingerprint; SYSID alone is inherited and insufficient.
+Evidence is under `/nobackup/tasks/jtcores-144/artifacts/movb-packet-program/`.
+Preserve the receipt's original precommit HEAD and dirty-file hashes; a later
+commit-content audit supplements that receipt without relabeling it.
+
+The retained-IP `/opt/quartus_free` full flow takes 853.19 seconds
+(859.14 s outer helper), exit 0, with 35 source and 171 packaged inputs stable.
+The appliance fits in 7,584 ALMs, 7,077 registers, 351/397 M10Ks, five DSPs,
+one PLL and one DLL. Four separate 32-by-16 cache banks infer `altsyncram`,
+as do eight runner RAMs and both CPU register mirrors. All 88 timing-summary
+rows across four corners are positive with zero TNS; minimum setup/hold is
++0.678/+0.077 ns and runner setup is at least +5.843 ns. All 32 final calibrated
+DDR margins are positive and unchanged from the parent image. The 17 negative
+DDR diagnostic panels explicitly precede vendor calibration or extra common
+clock pessimism removal; they are not final margins. No constraints changed.
+Vendor unconstrained HPS I/O warnings remain. This appliance fit does not
+establish CPU-only area or final NARC/MiSTer timing closure.
+
+The matched 2,240-case FILL subset agrees exactly with the original Verilator
+bench. Verilator's ordinary full command takes 26.993 seconds; FPGA manifest
+preparation takes 8.344 seconds and the copied skill driver takes 8.531
+seconds, or 16.876 combined. This one loaded-image pair is 1.60 times
+faster including preparation. FPGA transfer/staging/run/draining/checking are
+1.876/0.265/0.914/1.534/0.989 seconds; target phases nest inside SSH time.
+Initial compilation/programming are separate upfront costs. No full-matrix,
+fresh-image or changed-RTL speedup is inferred. Exact commands and observations
+are in `artifacts/movb-packet-fill-benchmark/` under the #144 task.
+
+Programming took 0.335451 seconds on the target, 1.291464 seconds for the full
+SSH command, with the RBF already staged. Retain this upfront cost separately
+from batch execution. The first wide partial-write cache candidate failed RAM
+inference and was cancelled after 880.75 seconds, exit 130; it is not a
+successful fit. A fixed-slice probe also failed inference before the four-bank
+implementation passed. These development costs and the successful full flow
+are not a demonstrated changed-RTL Rapid Recompile speedup.
+
+## Historical version 3 validation: native-LINE checkpoint
 
 The current RTL and SSH transport use protocol version 3. It adds external
 stores, independently frozen primary/following register observations, WVP and
@@ -22,7 +103,7 @@ An additional timeout interrupts an active write during the posted drain;
 the next register-list/following case reinitializes overlapping memory and
 passes, as does a clean rearmed batch.
 
-The complete matrix passes all 141,236 fixtures across 127 forms in each of
+That checkpoint's complete matrix passes all 141,236 fixtures across 127 forms in each of
 base, W1/P7-after0 and W3: 423,708 FPGA executions on one configuration.
 All 5,151 batches per profile pass. Every raw result was replayed with the
 original Python oracle; the largest case needs 231 of 512 event records.
@@ -75,12 +156,18 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare \
     --protocol-version 3 --matrix --output /path/to/v3-manifest.json
 ```
 
-To expose the 45 known agreeing TI MOVB duration targets, use
+The native-LINE image above predates the cached absolute-byte CPU change;
+the current image is documented below. Do not bind an older image to changed
+CPU source.
+
+To check the 164 agreeing TI MOVB duration targets, use
 `prepare --protocol-version 3 --published-targets --output /path/to/targets.json`
 instead. These fixtures deliberately select the printed duration while
-preserving programs and every other check; they fail the baseline CPU and
-must return a nonzero host command. See [source-policy.md](../../docs/source-policy.md).
-The ordinary passing 141,236-case matrix does not establish those targets.
+preserving programs and every other check. Passing targets remain selected;
+the remaining CD gaps produce a nonzero host command. The published failing
+native-LINE baseline selected 45 then-differing targets. See
+[source-policy.md](../../docs/source-policy.md).
+The ordinary passing fixture matrix does not establish those targets.
 
 The driver supports up to 8,192 batches, streams returned captures to host
 storage and preserves partial

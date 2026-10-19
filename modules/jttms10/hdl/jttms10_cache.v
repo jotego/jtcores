@@ -12,6 +12,9 @@ module jttms10_cache(
     output [15:0] c_rdata,
     output c_ack,
     output c_hit,
+    output [31:0] c_next_data,
+    output c_next_valid,
+    output c_next_first_valid,
     output c_restart,
     output m_req, m_we, m_iaq, m_pixel, m_lock,
     output [31:0] m_addr,
@@ -55,18 +58,17 @@ module jttms10_cache(
     reg response_ack;
     reg [15:0] response_data;
 
-    // Exactly 128 x 16 bits. A registered read and separate write port infer
-    // one small synchronous block RAM; P flags and tags have reset, data does not.
-    reg [15:0] ram [0:127];
-    reg [15:0] ram_q;
+    // Each subsegment is four words. Read the complete subsegment through
+    // one synchronous port; fills update one 16-bit lane through the write
+    // port. Tags/present flags reset, instruction data does not.
+    wire [63:0] ram_q;
     // The synchronous RAM output is valid throughout HIT, beginning just
     // after the acceptance edge. Do not register an additional response
     // cycle after that RAM read. Mode changes may still revoke this hit.
     wire hit_ack=state==HIT && !cache_disable && !cache_flush;
     assign c_ack=hit_ack || response_ack;
     assign c_hit=hit_ack;
-    assign c_rdata=hit_ack ? ram_q : response_data;
-    wire [6:0] ram_read_addr={use_slot,c_addr[8:4]};
+    assign c_rdata=hit_ack ? ram_q[16*word_q+:16] : response_data;
     reg [1:0] slot_q, word_q, fill_index;
     reg [2:0] sub_q;
     reg [31:0] addr_q;
@@ -75,11 +77,78 @@ module jttms10_cache(
     reg we_q, iaq_q, pixel_q, lock_q, fill_store, fill_poison;
     wire ram_write=state==FILL && m_ack && fill_store &&
                    !fill_poison && !cache_flush && !cache_disable;
-    wire [6:0] ram_write_addr={slot_q,sub_q,fill_index};
-    always @(posedge clk) begin
-        ram_q<=ram[ram_read_addr];
-        if (ram_write) ram[ram_write_addr]<=m_rdata;
+    wire [4:0] ram_write_addr={slot_q,sub_q};
+    wire [25:0] next_block=addr_q[31:6]+26'd1;
+    reg next_hit;
+    reg [1:0] next_slot;
+    integer look;
+    always @* begin
+        next_hit=0;
+        next_slot=0;
+        for(look=0;look<4;look=look+1)
+            if(tag[look]==next_block[25:3] && present[look][next_block[2:0]]) begin
+                next_hit=1;
+                next_slot=look[1:0];
+            end
     end
+    wire look_next=state==HIT && iaq_q && word_q[1] && next_hit;
+    wire [4:0] ram_read_addr=state==FILL ? {slot_q,sub_q} :
+                           look_next ? {next_slot,next_block[2:0]} : {use_slot,c_addr[8:6]};
+    reg [31:0] next_data_q;
+    reg [15:0] next_tail;
+    reg next_pending, next_valid_q, next_first_valid_q, next_upper;
+    wire [31:0] pending_pair=next_upper ? ram_q[31:0] : {ram_q[15:0],next_tail};
+    wire next_allowed=c_program && !c_we && c_addr==addr_q &&
+                      !cache_flush && !cache_disable && !m_restart;
+    assign c_next_valid=(next_pending || next_valid_q) && next_allowed;
+    assign c_next_first_valid=(next_pending || next_first_valid_q) && next_allowed;
+    assign c_next_data=next_pending ? pending_pair : next_data_q;
+    always @(posedge clk) begin
+        if(rst) begin
+            next_pending<=0;
+            next_valid_q<=0;
+            next_first_valid_q<=0;
+            next_data_q<=0;
+            next_tail<=0;
+            next_upper<=0;
+        end else if(cache_flush || cache_disable || m_restart || accept) begin
+            next_pending<=0;
+            next_valid_q<=0;
+            next_first_valid_q<=0;
+        end else if(hit_ack && iaq_q) begin
+            next_pending<=look_next;
+            next_valid_q<=!word_q[1];
+            next_first_valid_q<=word_q!=2'd3;
+            next_upper<=word_q[0];
+            next_tail<=ram_q[63:48];
+            next_data_q<=word_q[1] ? {16'd0,ram_q[63:48]} :
+                                    word_q[0] ? ram_q[63:32] : ram_q[47:16];
+        end else if(state==FILL && m_ack && fill_index==2'd3 &&
+                    fill_store && !fill_poison && word_q<2'd2) begin
+            // A missing first address word refills the whole subsegment.
+            // Its following word is ready with this response as well.
+            next_pending<=0;
+            next_valid_q<=1;
+            next_first_valid_q<=1;
+            next_data_q<=word_q[0] ? {m_rdata,ram_q[47:32]} : ram_q[47:16];
+        end else if(next_pending) begin
+            next_data_q<=pending_pair;
+            next_pending<=0;
+            next_valid_q<=1;
+            next_first_valid_q<=1;
+        end
+    end
+    genvar lane;
+    generate for(lane=0;lane<4;lane=lane+1) begin : g_lane
+        reg [15:0] ram [0:31];
+        reg [15:0] read_q;
+        assign ram_q[16*lane+:16]=read_q;
+        always @(posedge clk) begin
+            read_q<=ram[ram_read_addr];
+            if(ram_write && fill_index==lane[1:0])
+                ram[ram_write_addr]<=m_rdata;
+        end
+    end endgenerate
 
     // HOLD can revoke an unaccepted partial RMW write even after this helper
     // captured it. Drop m_req combinationally on the restart edge so the bus

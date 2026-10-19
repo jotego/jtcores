@@ -30,21 +30,28 @@ new alternatives, changed selected counts, different instruction forms or
 changed result expectations cannot silently inherit a choice.
 
 The source audit still reports every discrepancy. The normal gate separates
-**12,625 probe instances with project choices** from **448 unresolved MOVB
-probes**, including 45 matching entry/summary targets. Absolute MOVB has
-116 unresolved instances (27 agreed); plain memory-to-memory MOVB has 332
-(18 agreed). All absolute-MOVB variants remain open, including alignments
-for which the entry refers to the summary. Its single-word byte-aligned
-published `1+(3),7` remains distinct from current `3+(3),15`. Plain byte-copy
+**12,625 probe instances with project choices** from **401 unresolved MOVB
+probes**, including 27 matching entry/summary targets. Absolute MOVB has
+69 unresolved instances (nine agreed); plain memory-to-memory MOVB has 332
+(18 agreed). Cached absolute bytes that fit one physical word use the
+published `1+(3)` duration. Their cache-disabled seven-state target remains
+distinct from the shared 15-state schedule. Plain byte-copy
 index2 prints CPU3/CD7, while the current shared transport gives CPU3/CD9.
 These agreed-target mismatches are outside the ambiguity fallback; status
 labels cannot waive them. The 100 copy G-to-F CPU choices are separate:
 the three source reads and the same table's CD17/H7 contradict printed CPU5.
 
 The directed `--published-targets` mode checks the agreeing entry/summary
-duration rather than the current shared-schedule duration. It selects 45
-probes: 18 cached absolute MOVBs (including four cold-extension probes),
-nine cache-disabled absolute MOVBs and 18 cache-disabled indirect MOVBs.
+duration rather than accepting a differing shared-schedule duration. It
+selects 164 probes: 114 cached absolute MOVBs (including cold-extension and
+new boundary probes),23 cached indirect MOVBs, nine cache-disabled absolute
+MOVBs and 18 cache-disabled indirect MOVBs. Agreeing targets stay selected
+after an implementation fix; this mode retains passing targets when the
+ordinary fixture uses the same count. On the fitted cached-MOVB image, 137
+pass and 27 CD cases fail solely on duration: absolute expected 56/observed
+120 INCLK, indirect expected 56/observed 72. All 164 diagnostic observations
+and error lists agree with the original Verilator bench. Failing inputs still
+fail the standard equivalence command and do not establish compliance.
 Programs, initial state, architectural/memory expectations and existing bus
 checks are preserved. Cold extensions retain the independent nine-state fill
 penalty. This mode checks the printed instruction duration; it does not
@@ -59,10 +66,11 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare \
 These commands expose known failures, with a nonzero checking command; they
 are not an acceptance allowlist. The FPGA runs the same selected programs
 and checker through the normal batch transport. The ordinary fixture matrix
-and coverage gate retain their existing contracts and unresolved-source
-classification. A matrix pass cannot replace the published-target check.
+retains architectural and bus checks while using the independently specified
+cached one-state target. A matrix pass cannot replace the published-target
+check for the remaining CD gaps.
 
-The unchanged native-LINE CPU on DataStorm reproduces all 45 duration gaps,
+The historical unchanged native-LINE CPU on DataStorm reproduced all 45 duration gaps,
 with correct architecture, memory and checked bus events. Two surrounding
 NOP controls pass. Four short original Verilator observations match the FPGA
 exactly. Cached absolute byte takes 24 INCLK versus eight; cold extension
