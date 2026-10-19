@@ -12,6 +12,9 @@ wire [5:0] pal_addr;
 wire [3:0] red, green, blue;
 wire LHBL, LVBL;
 integer checked=0;
+integer bank, row, pixel;
+reg [7:0] palette;
+reg [5:0] expected_addr;
 
 always #5 clk=~clk;
 always @(posedge clk) pal_data <= pal_addr==6'h16 ? 8'h49 : 8'hff;
@@ -72,12 +75,31 @@ initial begin
     draw(8'h31,8'h52,4'hf,1,0,6'h16,12'h000);
     draw(8'h31,8'h52,4'hf,1,1,6'h16,12'h225);
     draw(8'hf0,8'h70,4'hf,1,1,6'h00,12'h000);
+    for(bank=0;bank<2;bank=bank+1) begin
+        for(row=0;row<8;row=row+1) begin
+            palette={bank[0],row[2:0],4'b0000};
+            for(pixel=1;pixel<4;pixel=pixel+1) begin
+                expected_addr=bank*32+row*4+pixel;
+                draw(8'h00,{palette[7:2],pixel[1:0]},4'h8,1,1,
+                    expected_addr,expected_addr==6'h16 ? 12'h225 : 12'hfff);
+                draw({palette[7:2],pixel[1:0]},8'h00,4'h1,1,1,
+                    expected_addr,expected_addr==6'h16 ? 12'h225 : 12'hfff);
+            end
+        end
+    end
+    for(bank=0;bank<2;bank=bank+1) begin
+        for(row=0;row<8;row=row+1) begin
+            palette={bank[0],row[2:0],4'b0000};
+            draw(8'h00,palette,4'h8,1,1,6'h00,12'h000);
+            draw(palette,8'h00,4'h1,1,1,6'h00,12'h000);
+        end
+    end
     $display("PASS colmix: %0d cases, nonblack palette zero, transparent pixels, layer masks, priority, blanking and recovery",checked);
     $finish;
 end
 
 initial begin
-    #10000;
+    #100000;
     $fatal(1,"Colmix test timeout");
 end
 
