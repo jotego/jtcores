@@ -34,9 +34,63 @@ from trap_cases import fixture as trap_fixture,trap_cases,transactions as trap_t
 from list_cases import fixture as list_fixture,list_cases,transfers as list_transfers,check_bus as list_check_bus
 from store_cases import transactions as store_transfers
 from mutations import correct_architecture
+from pixel_read_cases import pixel_value, fixture as pixel_fixture, pixel_read_cases
 
 
 class TimingCheckerTest(unittest.TestCase):
+    def test_pixel_primary_literal_vectors(self):
+        # SPVU001A12-219, independent numeric anchors for plane masking.
+        for word,size,mask,value in ((0xFFFF,1,0,1),(0xFFFF,1,0xFFFF,0),
+                (0xFFFF,2,0,3),(0xFFFF,2,0x5555,2),(0xFFFF,4,0,15),
+                (0x3333,4,0x9999,2),(0xFFFF,8,0,255),(0x3333,8,0x5454,0x23),
+                (0xFFFF,16,0,65535),(0xFFFF,16,0xBA98,0x4567),(0x3333,16,0xBA98,0x123)):
+            self.assertEqual(pixel_value(word,size,0,mask),value)
+
+    def test_pixel_defined_alignment_and_sizes(self):
+        # §4.2.1p4-6 and §7.3 require pixel-aligned linear addresses.
+        for size in (1,2,4,8,16):
+            for offset in range(0,16,size):
+                self.assertEqual(pixel_value(65535,size,offset,0),(1<<size)-1)
+            if size>1:
+                with self.assertRaises(ValueError):pixel_fixture(size,1,0,False)
+        for size in (0,3,6,32):
+            with self.assertRaises(ValueError):pixel_fixture(size,0,0,False)
+
+    def test_pixel_mask_uses_physical_plane_position(self):
+        # A plane outside the selected pixel cannot suppress an inside bit.
+        self.assertEqual(pixel_value(0xF000,4,12,0x000F),15)
+        self.assertEqual(pixel_value(0xF000,4,12,0xA000),5)
+
+    def test_pixel_zero_extension_and_alias(self):
+        for bank in (0,1):
+            row=pixel_fixture(8,8,bank,False,source=15,destination=15,source_word=0x8000)
+            self.assertEqual(row['opcode'],0xFBFF if bank else 0xFBEF)
+            self.assertEqual(row['expected_extra_regs']['sp'],0x80)
+            self.assertTrue(row['expected_st']&0x10000000)
+
+    def test_pixel_undefined_ncz_preservation_is_project_policy(self):
+        for flags in range(16):
+            for word in (0,2):
+                row=pixel_fixture(4,0,0,False,source_word=word,status=(flags<<28)|0x810)
+                self.assertEqual(row['expected_st']&0xEFFFFFFF,((flags<<28)|0x810)&0xEFFFFFFF)
+                self.assertEqual(bool(row['expected_st']&0x10000000),bool(word))
+
+    def test_pixel_counts_waits_and_cold_next_fill(self):
+        for off,cold,states,transfers in ((False,False,4,1),(True,False,7,2),(False,True,13,5)):
+            row=pixel_fixture(16,0,0,off,cold=cold);_,row['test_pc'],row['next_pc']=program(row)
+            actual=dict(clocks=8*(states+transfers),paused=0,st=row['expected_st'],
+                **{f'a{q}':v for q,v in enumerate(row['expected_regs'])},**row['expected_extra_regs'])
+            self.assertEqual(check(row,actual,1),[])
+            self.assertEqual(len(reads(row,1)),transfers)
+            actual['clocks']-=8
+            self.assertTrue(check(row,actual,1))
+
+    def test_pixel_bus_checker_rejects_cached_data(self):
+        row=pixel_fixture(16,0,0,False);program(row)
+        observed=dict(start=80,end=112)
+        self.assertTrue(check_bus(row,observed,[],0))
+        self.assertEqual(reads(row),[(1,0x6000,0xA596,0)])
+
     def test_list_primary_counts_and_hidden_waits(self):
         for load,offset,cpu,cd in [(True,0,19,27),(True,15,27,37),(False,0,18,26),(False,15,42,50)]:
             for off in (False,True):

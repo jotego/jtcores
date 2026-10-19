@@ -28,6 +28,7 @@ from return_cases import rets_fixture
 from interrupt_return_cases import reti_fixture
 from trap_cases import fixture as trap_fixture,transactions as trap_transactions
 from list_cases import fixture as list_fixture,transfers as list_transfers,wait_count as list_wait_count
+from pixel_read_cases import fixture as pixel_fixture
 from run import program,parse_result,check_bus,check_target
 
 
@@ -125,6 +126,12 @@ def main():
                 case['response_pause_clocks']=256
                 case['response_pause_after']=20 if load else 92 if offset else 44
                 probes.append(case)
+        for size in (1,16):
+            for bank in (0,1):
+                case=pixel_fixture(size,16-size,bank,False,pmask=0x5555,tag='response_pause')
+                case['response_pause_clocks']=96
+                case['response_pause_after']=12
+                probes.append(case)
         for q,case in enumerate(probes):
             row=run_case(case,'control'+str(q),MODULE/'hdl');row['kind']='positive-control';rows.append(row)
             if row['errors']:raise RuntimeError(json.dumps(row,indent=2))
@@ -142,7 +149,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',Path(__file__).resolve(),
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py')]]
         args.report.write_text(json.dumps(dict(contract='CPU-only CEN response retention; exact TI base counts are checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0

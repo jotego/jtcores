@@ -365,7 +365,9 @@ ucode:
     seq: [gfx_mul]
   - name: pixt_linreg
     start: 111
-    seq: [gfx_mul]
+    seq:
+      - read_mem, ext_a
+      - pass_alu, wr_reg, ni
   - name: pixt_linlin
     start: 112
     seq: [gfx_mul]
