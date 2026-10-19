@@ -563,3 +563,41 @@ physical word sequencing and latency are retained. The integrated HDL has
 only a comment/indentation cleanup after that snapshot. A first consumed-
 window-only variant grew to 3,883 ALMs and was discarded. This result is
 still **314 ALMs above** the complete replacement ceiling.
+
+
+## Aligned XY FILL checkpoint, 2026-10-19
+
+Matched NARC-boundary synthesis of `130a1d4ca4b1b4cfff02b75e215c785054f3314f`
+uses `/opt/quartus_free` Quartus 20.1.1 and the same device, 20 ns clock,
+seed 1, effort and 158 virtual pins. All 36 snapshot/generated hashes and
+29 committed inputs verify. The CPU inputs also match `7adec50e5`, which
+only changes regression runners/documentation. Normalized QSF, SDC and all
+49 warning classifications match the preceding `de631aadc` map.
+
+| Metric | de631aadc opaque-history fix | 130a1d4ca XY FILL |
+|---|---:|---:|
+| Estimated ALMs | 3,935 | 3,951 |
+| Combinational ALUTs | 5,768 | 5,791 |
+| Dedicated registers | 1,675 | 1,707 |
+| Block RAM bits | 538,624 | 538,624 |
+| DSP blocks | 5 | 5 |
+| MLAB bits | 0 | 0 |
+
+The explicit XY conversion adds 16 estimated ALMs and 32 registers. No DSP
+or register bank is added. The timed `quartus_map` invocation took 332.90 s,
+including observed filesystem waits;
+this is not an incremental/Rapid or instruction-execution benchmark.
+Snapshot: `/tmp/jtcores-144-fill-xy-map`, durable verification/reports under
+`/nobackup/tasks/jtcores-144/artifacts/fill-xy-map*`. Reproduce with:
+
+```sh
+python3 modules/jttms10/ver/area/run.py --narc --snapshot-only \
+  --source-ref 130a1d4ca4b1b4cfff02b75e215c785054f3314f /tmp/new-xy-fill-map
+cd /tmp/new-xy-fill-map
+/opt/quartus_free/quartus_map narc --read_settings_files=on --write_settings_files=off
+```
+
+These are synthesis estimates, not fitted ALMs or board STA. The final
+<=3,500 fitted-ALM target, constrained FPGA timing and NARC/gameplay gates
+remain required. This virtual-pin NARC comparison is not a DataStorm runner
+fit or a physical-board timing result.
