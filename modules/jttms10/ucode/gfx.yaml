@@ -528,9 +528,9 @@ ucode:
 - name: gfillloop
   start: 46
   seq:
-  - sa0 sa5, da0 da5
-  - qs_gas, sa0 sa5, da0 da5
-  - ea_gdst
+  - sa0 sa5, da0 da2 da3 da5
+  - qs_gas, sa0 sa5, da0 da2 da3 da5
+  - ea_gdst, word_gpix
   - sa0 sa3 sa4, da0 da3 da4
   - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4, da0 da3 da4
   - sa0 sa3 sa4, da0 da3 da4
@@ -547,7 +547,7 @@ ucode:
   - add_galu, rf_gdst, sa0 sa5, da0 da5
   - sa0 sa2 sa3 sa5, da0 da2 da3 da5
   - qs_gbs, sa0 sa2 sa3 sa5, da0 da2 da3 da5
-  - k_gas, m1_gam
+  - stride_gpix
   - sub_galu, rf_gdst, sa0 sa2 sa3 sa5, da0 da2 da3 da5
   - sub_galu, z_gcond, jump_gflow, ${TARGET_GFILLROW}
   - jump_gflow, ${TARGET_GFILLCHK}
@@ -1730,7 +1730,7 @@ ucode:
   - m5_gam, m5_gbm, and_galu, tmp_gdst, vpix_gflg, check_gflow, clip_gcond, ge_gclip
   - m6_gam, m6_gbm, andn_galu, rf_gdst, vclear_gflg, nclip_gcond
   - m7_gam, m7_gbm, or_galu, ir_gdst, wvp_gflg, need_gcond
-  - xor_galu, transparent_gcond
+  - xor_galu, transparent_gcond, word_gpix, stride_gpix
   - not_galu, w1_gcond
   - neg_galu, w2_gcond
   - abs_galu, w3_gcond

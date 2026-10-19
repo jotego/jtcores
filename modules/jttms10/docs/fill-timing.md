@@ -180,3 +180,47 @@ PBX and the reserved context registers must retain a resumable word
 boundary (pp.12-81,12-86). Matching only a completed array's total cannot
 establish these requirements. Existing architectural interrupt tests must
 remain active when the transfer engine changes.
+
+## Word grouping checkpoint
+
+The next implementation groups complete aligned replacement words. At the
+FILL loop's address capture, the synchronous second read port supplies the
+remaining pixel count from scratch register45. For PPOP0/PMASK0/T0, an aligned
+address with enough remaining pixels selects a 16-bit transfer. XY uses this
+path only with windowing disabled. COLOR1 supplies the complete word pattern;
+the address advances16 bits and the remaining count decreases by the number
+of pixels in that word. Partial leading/trailing fields and other processing
+modes retain their existing pixel path.
+
+The implementation uses the existing graphics ROM, field adapter, shared ALU
+and scratch registers. Two graphics control values select eligibility and
+pixel-count stride; the ROM remains4096x64. The mode clears on graphics entry
+and RETI resumption and is recomputed from restored state, so nested graphics
+do not inherit it. Reserved interrupt-context dimensions remain in pixels.
+
+Both120-case base/stressed runs retain correct defined state and memory and
+now pass every ordered bus/transport assertion. All120 still fail the
+intrinsic duration target: this is word grouping, not compliant scheduling.
+For PS1, one-word/one-row FILL L hit drops from1468 to132 INCLK; TI requires72.
+Setup/conversion, word cadence, row overhead and cache-disabled scheduling
+remain to be implemented without hiding bus/IRQ timing behind retirement
+padding. Broader modes, SRT and exact IRQ-acceptance timing remain open.
+
+Validation passes180 architecture programs, the unchanged160 array programs,
+124 new bit-model FILL boundary programs, and strict lint. The new boundary
+mode covers every pixel lane for all five sizes, short partial fields and
+mixed leading/full/trailing words over two rows, in both address forms:
+
+```sh
+python3 modules/jttms10/ver/array/programs.py --fill-boundaries --out /tmp/fill-boundaries.yaml
+python3 modules/jttms10/ver/run.py --vectors /tmp/fill-boundaries.yaml
+```
+
+The array interrupt bench additionally checks eight full-word writes across
+two rows for each pixel size1/2/4/8/16, comparing uninterrupted, IRQ and NMI
+runs, nested FILL, restored pointers/context, destination order/data and
+neighboring memory. Its existing masked/Boolean, binary, window, no-stack NMI
+and HLT variants still pass. On unchanged baseline HDL, its new PS1 contract
+rejects the first one-bit write. This demonstrates detection of lost word
+grouping, not an exact TI interrupt-latency proof. The standard runner now
+includes the124 boundary programs and all five interrupt-bench pixel sizes.

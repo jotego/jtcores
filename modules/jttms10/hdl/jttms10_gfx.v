@@ -10,7 +10,7 @@ module jttms10_gfx(
     input [31:0] rf_qs, rf_qd,
     input [15:0] psize, convsp, convdp, control,
     input alu_n, alu_z, alu_v,
-    input need_dest,
+    input need_dest, word_fill,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -23,7 +23,7 @@ module jttms10_gfx(
     output md_to_rf,
     output bus_read, bus_write, bus_pixel,
     output [5:0] bus_size,
-    output pix_source, pix_visible, pix_process, pix_test,
+    output pix_source, pix_visible, pix_process, pix_test, pix_word,
     output flag_z, flag_nz, flag_nvzc, flag_vclip,
            flag_vpix, flag_vclear, flag_wvp,
     output reg clip
@@ -84,6 +84,11 @@ module jttms10_gfx(
     wire [5:0] source_chunk_size = rf_qs>=32'd32 ? 6'd32 :
                                    {1'b0,rf_qs[4:0]};
 
+    // Number of pixels in an aligned physical word. No divider or new ALU.
+    wire [31:0] fill_pixels = psize==16'd1 ? 32'd16 :
+                              psize==16'd2 ? 32'd8 :
+                              psize==16'd4 ? 32'd4 :
+                              psize==16'd8 ? 32'd2 : 32'd1;
     wire [31:0] ka = gam==M1_GAM ? 32'd1 :
                      gam==M2_GAM ? {16'd0,psize} :
                      gam==M3_GAM ? 32'd32 :
@@ -92,7 +97,7 @@ module jttms10_gfx(
                      gam==M6_GAM ? {26'd0,source_chunk_size} :
                      gam==M7_GAM ? {16'd0,ir} : 32'd0;
     wire [31:0] kb = gbm==M1_GBM ? 32'd1 :
-                     gbm==M2_GBM ? {16'd0,psize} :
+                     gbm==M2_GBM ? (word_fill ? 32'd16 : {16'd0,psize}) :
                      gbm==M3_GBM ? 32'd32 :
                      gbm==M4_GBM ? {27'd0,convsp[4:0]} :
                      gbm==M5_GBM ? {27'd0,convdp[4:0]} :
@@ -114,7 +119,7 @@ module jttms10_gfx(
             endcase
         end
     endfunction
-    assign load_a=active && gas!=0;
+    assign load_a=active && (gas!=0 || gpix==STRIDE_GPIX);
     assign load_b=active && gbs!=0;
     always @* begin
         case(gas)
@@ -123,6 +128,7 @@ module jttms10_gfx(
             K_GAS: a_data=ka;
             default: a_data=32'd0;
         endcase
+        if(gpix==STRIDE_GPIX) a_data=word_fill ? fill_pixels : 32'd1;
         case(gbs)
             QS_GBS: b_data=format_rf(rf_qs,gbm);
             QD_GBS: b_data=format_rf(rf_qd,gbm);
@@ -164,7 +170,7 @@ module jttms10_gfx(
         (gbus==WR_GBUS || gbus==WRPX_GBUS);
     assign bus_pixel=active &&
         (gbus==RDPX_GBUS || gbus==WRPX_GBUS);
-    assign bus_size=gsize==WORD_GSIZE ? 6'd32 :
+    assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
                     gsize==CHUNK_GSIZE ? source_chunk_size :
                     {1'b0,psize[4:0]};
@@ -172,6 +178,7 @@ module jttms10_gfx(
     assign pix_visible=active && gpix==VISIBLE_GPIX;
     assign pix_process=active && gpix==PROCESS_GPIX;
     assign pix_test=active && gpix==TEST_GPIX;
+    assign pix_word=active && gpix==WORD_GPIX;
     assign flag_z=active && gflg==Z_GFLG;
     assign flag_nz=active && gflg==NZ_GFLG;
     assign flag_nvzc=active && gflg==NVZC_GFLG;

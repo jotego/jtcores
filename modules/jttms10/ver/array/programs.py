@@ -76,7 +76,7 @@ def blocks(words):
     return output
 
 
-def make_case(form_index, width, sample, rng):
+def make_case(form_index, width, sample, rng, *, fill_layout=None):
     label, opcode, source_kind, dest_kind = FORMS[form_index]
     columns = 2 + ((form_index + sample) & 1)
     rows = 1 + ((form_index + width + sample) % 3)
@@ -84,6 +84,10 @@ def make_case(form_index, width, sample, rng):
     conv = 31 - (pitch.bit_length() - 1)
     src_x = 1 + (sample & 1)
     dst_x = 1 + ((form_index + sample) & 1)
+    if fill_layout is not None:
+        if source_kind is not None:
+            raise ValueError('fill layout requires a FILL opcode')
+        columns, rows, dst_x = fill_layout
     source_start = 0x200 + (14 if source_kind == "binary" and sample & 1
                             else 3 if source_kind == "binary" else src_x * width)
     dest_start = 0x600 + dst_x * width
@@ -98,6 +102,8 @@ def make_case(form_index, width, sample, rng):
     # TI FILL and binary PIXBLT transfer forward and ignore PBH/PBV.
     if source_kind in (None, "binary"):
         control |= (sample & 3) << 8
+    if fill_layout is not None:
+        code, pmask, transparent, control = 0, 0, False, 0
     mask = (1 << width) - 1
 
     initial = {}
@@ -168,6 +174,8 @@ def make_case(form_index, width, sample, rng):
     final_regs = {"B2": dest_start + rows * pitch if source_kind is not None
                   else dest_start + (rows - 1) * pitch + columns * width,
                   "B7": bregs[7]}
+    if fill_layout is not None:
+        final_regs.update({f'B{q}': value for q,value in bregs.items() if q!=2})
     if source_kind is not None:
         final_regs["B0"] = source_start + rows * pitch
     checks.append({"after": pc, "pc": pc + 0x10,
@@ -185,15 +193,28 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=34010)
     parser.add_argument("--samples", type=int, default=4)
+    parser.add_argument('--fill-boundaries', action='store_true',
+                        help='replace FILL: all pixel lanes, short edges and multiword mixed edges')
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.samples < 1:
         parser.error("--samples must be positive")
     rng = random.Random(args.seed)
-    cases = [make_case(form, width, sample, rng)
-             for form in range(len(FORMS))
-             for width in SIZES
-             for sample in range(args.samples)]
+    if args.fill_boundaries:
+        cases = []
+        for form in (0,1):
+            for width in SIZES:
+                pixels = 16 // width
+                for lane in range(pixels):
+                    for columns in sorted({max(1,pixels-1),2*pixels+1}):
+                        case = make_case(form,width,0,rng,fill_layout=(columns,2,lane))
+                        case['name'] = f'fill_boundary_{form}_ps{width}_lane{lane}_dx{columns}'
+                        cases.append(case)
+    else:
+        cases = [make_case(form, width, sample, rng)
+                 for form in range(len(FORMS))
+                 for width in SIZES
+                 for sample in range(args.samples)]
     args.out.write_text(yaml.safe_dump({"array_seed": args.seed, "cases": cases},
                                        sort_keys=False))
     print(f"wrote {len(cases)} array programs (seed {args.seed}) to {args.out}")

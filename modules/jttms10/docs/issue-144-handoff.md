@@ -227,3 +227,20 @@ their interrupted results as complete.
 
 [Issue144](http://gitea.jotego.es/jotego/jtcores/issues/144) remains the shared
 progress record. This pause is a checkpoint,not completion.
+
+## FILL word grouping work
+
+`jtcores-144-fill-native` groups complete aligned replace words using the
+existing ALU/field/graphics engine, with pixel-count context preserved across
+nested IRQ/NMI. Source and golden timing equations remain independent.
+Base/stressed FILL reports pass all120 bus contracts and full defined state/
+memory checks each, but all240 still fail intrinsic timing. PS1 one-word L
+hit improves1468 to132 INCLK versus TI72; no FILL timing compliance is claimed.
+Architecture180, existing arrays160, new boundary programs124, strict lint and
+five-size architectural IRQ/NMI resumption pass. Original PS1 HDL is rejected
+by the new full-word transaction assertion. The normal runner includes these
+new functional regressions; its full invocation is not yet complete.
+
+The historical f91680d29 full mutation invocation finished with exit0,
+103 positive controls and111 rejections. It is separate from corrected-source
+validation and from the still-running frozen4f3b7d9ac full124 runner.

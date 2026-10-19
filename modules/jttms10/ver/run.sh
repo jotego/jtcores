@@ -3,6 +3,8 @@ set -euo pipefail
 ver_dir=$(cd -- "$(dirname -- "$0")" && pwd)
 bash "$ver_dir/build.sh"
 python3 "$ver_dir/run.py" "$@"
+python3 "$ver_dir/array/programs.py" --fill-boundaries --out "$ver_dir/build/fill-boundaries.yaml"
+python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-boundaries.yaml"
 for unit in alu field; do
     if [ "$unit" = alu ]; then
         bench="$ver_dir/$unit/test.v"
@@ -51,7 +53,9 @@ iverilog -g2012 -s test -I"$ver_dir/build" \
     "$ver_dir"/../hdl/*.v
 (
     cd "$ver_dir/build"
-    vvp arrayirq.vvp
+    for fill_size in 1 2 4 8 16; do
+        vvp arrayirq.vvp +FILL_PSIZE="$fill_size"
+    done
 )
 iverilog -g2012 -s test -I"$ver_dir/build" \
     -o "$ver_dir/build/lineirq.vvp" "$ver_dir/line/interrupt.sv" \

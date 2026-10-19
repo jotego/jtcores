@@ -25,6 +25,8 @@ module test;
     integer nmi_clears=0, stack_writes=0, halt_cycles=0;
     integer source_reads=0, baseline_source_reads=0;
     integer run_mode=0, variant=0, requests=0, delay_left=0, i;
+    integer fill_size=16;
+    reg [15:0] fill_width=4, nested_fill_expected=16'h5678;
     reg busy=0, irq_sent=0, handler_seen=0, pbx_seen=0;
     wire nmi_clear;
     reg [31:0] held_addr=0, held_data=0;
@@ -102,7 +104,7 @@ module test;
             put_movi('h10f,4'd7,variant>=3 ?
                 ((32'd2 << 16) | (variant==3 ? 32'd32 :
                                  variant==4 ? 32'd33 : 32'd65)) :
-                variant==0 ? 32'h00020004 : 32'h00020005);
+                variant==0 ? {16'd2,fill_width} : 32'h00020005);
             put_movi('h112,4'd8,32'h33333333); // binary COLOR0
             put_movi('h115,4'd9,variant>=3 ? 32'haaaaaaaa : 32'h55aa55aa);
             words['h118]=16'h0d60; // EINT
@@ -193,6 +195,8 @@ module test;
                     if (held_addr>=32'h2d00 && held_addr<32'h3000)
                         stack_writes<=stack_writes+1;
                     if (held_addr>=32'h0600 && held_addr<32'h0a00) begin
+                        if (variant==0 && held_size!==6'd16)
+                            $fatal(1,"FILL PS%0d expected full-word write, observed %0d bits",fill_size,held_size);
                         if (drawn>=256) $fatal(1,"too many array writes");
                         if (run_mode==0) begin
                             baseline_addr[drawn]=held_addr;
@@ -282,7 +286,7 @@ module test;
         integer timeout, row, segment, index, width, remaining, expected_size;
         begin
             run_mode=mode;
-            pixel_size=variant==0 ? 16'd16 : 16'd4;
+            pixel_size=variant==0 ? fill_size[15:0] : 16'd4;
             plane_mask=(variant==0 || variant>=3) ? 16'd0 : 16'h2222;
             control=variant==6 ? 16'h00c0 :
                     variant==7 ? 16'h03c0 :
@@ -336,7 +340,7 @@ module test;
                     mode,drawn,array_fetches,u_cpu.u_regs.ram0[18]);
             if (mode!=0 && (!irq_sent || !handler_seen || !pbx_seen ||
                             u_cpu.u_regs.ram0[15]!==32'h3000 ||
-                            words['hc0] !== (variant==0 ? 16'h5678 :
+                            words['hc0] !== (variant==0 ? nested_fill_expected :
                                              variant>=3 ? 16'hbee8 : 16'hbee7)))
                 $fatal(1,"IRQ/ISR result SP=%h nested=%h",u_cpu.u_regs.ram0[15],words['hc0]);
             if ((variant==0 || variant==6) &&
@@ -375,7 +379,17 @@ module test;
     endtask
 
     initial begin
-        for (variant=0;variant<8;variant=variant+1) begin
+        if ($value$plusargs("FILL_PSIZE=%d",fill_size)) begin end
+        case (fill_size)
+            1: begin fill_width=64; nested_fill_expected=16'hbeee; end
+            2: begin fill_width=32; nested_fill_expected=16'hbeec; end
+            4: begin fill_width=16; nested_fill_expected=16'hbee8; end
+            8: begin fill_width=8; nested_fill_expected=16'hbe78; end
+            16: begin fill_width=4; nested_fill_expected=16'h5678; end
+            default: $fatal(1,"invalid FILL_PSIZE=%0d",fill_size);
+        endcase
+        $display("FILL checkpoint pixel size: %0d",fill_size);
+        for (variant=0;variant<(fill_size==16 ? 8 : 1);variant=variant+1) begin
             execute(0);
             baseline_count=drawn;
             baseline_b0=u_cpu.u_regs.ram0[16];
@@ -398,6 +412,13 @@ module test;
                         variant,i,words['h60+i],baseline_mem[i]);
             $display("PASS: PBX variant %0d resumes %0d destination writes",
                      variant,drawn);
+            if (variant==0) begin
+                execute(2);
+                for (i=0;i<80;i=i+1)
+                    if (words['h60+i]!==baseline_mem[i])
+                        $fatal(1,"FILL NMI PS%0d destination word %0d differs",fill_size,i);
+                $display("PASS: FILL PS%0d IRQ/NMI resumes eight full-word writes",fill_size);
+            end
             if (variant==4) begin
                 execute(2); // NMI uses the same word checkpoint without IE gating.
                 if (source_reads!=baseline_source_reads)

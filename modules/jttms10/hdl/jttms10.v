@@ -43,7 +43,8 @@ module jttms10 #(
     wire gfx_load_a,gfx_load_b,gfx_dst_a,gfx_dst_b,gfx_dst_md,
          gfx_dst_ea,gfx_dst_tmp,gfx_dst_rf,gfx_dst_ir,gfx_mdrf;
     wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel;
-    wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test;
+    wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test,gfx_pix_word;
+    reg fill_word;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
          gfx_flag_vpix,gfx_flag_vclear,gfx_flag_wvp;
     wire [31:0] gfx_a_data,gfx_b_data;
@@ -131,6 +132,14 @@ module jttms10 #(
                     ir==16'h0f80 || ir==16'h0fa0 ||
                     ir==16'h0fc0 || ir==16'h0fe0;
     wire array_fill = ir==16'h0fc0 || ir==16'h0fe0;
+    wire [31:0] fill_pixels = psize==16'd1 ? 32'd16 :
+                              psize==16'd2 ? 32'd8 :
+                              psize==16'd4 ? 32'd4 :
+                              psize==16'd8 ? 32'd2 : 32'd1;
+    wire fill_word_eligible = array_fill && pixel_simple &&
+        (!ir[5] || control[7:6]==0) && result[3:0]==0 &&
+        (psize==16'd1 || psize==16'd2 || psize==16'd4 ||
+         psize==16'd8 || psize==16'd16) && rd_data>=fill_pixels;
     wire array_binary = ir==16'h0f80 || ir==16'h0fa0;
     wire reti_pbx = ir==16'h0940 && tmp[25];
     wire pix_register_source = pix_rxy || pix_rlin || drav_ir || line_ir ||
@@ -509,7 +518,7 @@ module jttms10 #(
         .psize(psize), .convsp(convsp), .convdp(convdp),
         .control(control), .last_pixel_addr(ea),
         .alu_n(n), .alu_z(z), .alu_v(v),
-        .need_dest(gfx_need_dest), .transparent(pix_transparent),
+        .need_dest(gfx_need_dest), .word_fill(fill_word), .transparent(pix_transparent),
         .active(gfx_active), .checkpoint(gfx_checkpoint),
         .done(gfx_done),
         .rf_sa(gfx_rf_sa), .rf_da(gfx_rf_da), .rf_wa(gfx_rf_wa),
@@ -522,7 +531,7 @@ module jttms10 #(
         .bus_read(gfx_bus_read), .bus_write(gfx_bus_write),
         .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size),
         .pix_source(gfx_pix_source), .pix_visible(gfx_pix_visible),
-        .pix_process(gfx_pix_process), .pix_test(gfx_pix_test),
+        .pix_process(gfx_pix_process), .pix_test(gfx_pix_test), .pix_word(gfx_pix_word),
         .flag_z(gfx_flag_z), .flag_nz(gfx_flag_nz),
         .flag_nvzc(gfx_flag_nvzc), .flag_vclip(gfx_flag_vclip),
         .flag_vpix(gfx_flag_vpix), .flag_vclear(gfx_flag_vclear),
@@ -852,10 +861,12 @@ module jttms10 #(
             push_high<=0;
             hw_entry<=0;
             pix_src_addr<=0;
+            fill_word<=0;
             pix_transparent<=0;
             pbx_push<=0;
             line_hw_push<=0;
         end else begin
+            if(gfx_enter || gfx_resume) fill_word<=0;
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
                 nmi_clear<=nmi_req;
@@ -1122,10 +1133,11 @@ module jttms10 #(
                     if(gfx_dst_md) md<=result;
                     if(gfx_dst_ea) ea<=result;
                     if(gfx_dst_tmp) tmp<=result;
+                    if(gfx_pix_word) fill_word<=fill_word_eligible;
                     if(gfx_pix_source) pix_src_addr<=ea[3:0];
                     if(gfx_pix_visible) md<={16'd0,pixel_visible_source};
                     if(gfx_pix_process) begin
-                        md<={16'd0,pixel_write_pixel};
+                        md<={16'd0,fill_word ? rs_data[15:0] : pixel_write_pixel};
                         pix_transparent<=pixel_transparent;
                     end
                     if(gfx_pix_test) pix_transparent<=pixel_transparent;
