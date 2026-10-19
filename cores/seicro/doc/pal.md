@@ -794,3 +794,27 @@ The data-input table above identifies a zero input word on the readout bank
 when `6B.Q9` is low. Actual cleared locations require the RAM address paths
 and their phase relationship to this write interval. No physical RAM schedule
 has yet been substituted for the game's generic object buffer.
+
+## RAM address outputs and depth
+
+Confirmed mux outputs connect to the RAM address bus as follows. Physical RAM
+address pins 12–15 are grounded on both banks.
+
+| Bus bit | Upper mux/output | Lower mux/output | RAM pin |
+| --- | --- | --- | --- |
+| 7 | 8I/12 | 9I/12 | 16 |
+| 6 | 8I/9 | 9I/9 | 17 |
+| 5 | 8I/7 | 9I/7 | 1 |
+| 4 | 8I/4 | 9I/4 | 2 |
+| 3 | 8J/12 | 9J/12 | 3 |
+| 2 | 8J/9 | 9J/9 | 4 |
+| 1 | 8J/7 | 9J/7 | 5 |
+| 0 | 8J/4 | 9J/4 | 6 |
+
+With four address pins grounded, the qualified 2147-family reference gives
+256 address combinations per chip. Six one-bit RAMs provide 256 six-bit
+locations per bank (1,536 bits, equivalent to 192 bytes of capacity). The
+same physical pin permutation is used on the read and write paths, so it needs no address-bit
+shuffle by itself. The address-source and phase mapping for actual reads and
+writes remains open; this does not establish phase equivalence with the game's
+generic object buffer.
