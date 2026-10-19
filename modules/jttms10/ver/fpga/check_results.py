@@ -102,8 +102,8 @@ def require_supported(case, protocol_version=1):
 
 
 def prepare_cases(terms, limit=None, protocol_version=2, stimulus=None,
-                  read_only_matrix=False, audit=None):
-    if not terms and not read_only_matrix:
+                  read_only_matrix=False, audit=None, published_targets=False):
+    if not terms and not read_only_matrix and not published_targets:
         raise ValueError('select cases explicitly with at least one --case')
     oracle = oracle_module()
     entries = []
@@ -114,8 +114,12 @@ def prepare_cases(terms, limit=None, protocol_version=2, stimulus=None,
         if audit is not None:
             audit['inventory_count'] += 1
         inventory_hash.update((original['name']+'\n').encode())
+        if published_targets:
+            original = oracle.published_duration_case(original)
+            if original is None:
+                continue
         explicit = any(term in original['name'] for term in terms)
-        if not explicit and not read_only_matrix:
+        if not explicit and not read_only_matrix and not (published_targets and not terms):
             continue
         try:
             require_supported(original, protocol_version)
@@ -512,6 +516,8 @@ def main():
     prepare.add_argument('--matrix', '--read-only-matrix', dest='read_only_matrix', action='store_true',
                          help='select all fixtures supported by the chosen protocol; record exclusions')
     prepare.add_argument('--limit', type=int)
+    prepare.add_argument('--published-targets', action='store_true',
+                         help='select agreeing TI MOVB duration targets; known failures on the baseline CPU')
     prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3), default=3)
     prepare.add_argument('--wait-states', type=int, default=0)
     prepare.add_argument('--pause-clocks', type=int, default=0)
@@ -537,7 +543,8 @@ def main():
             entries = prepare_cases(terms, args.limit, args.protocol_version,
                                     dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
                                          pause_after_clocks=args.pause_after_clocks),
-                                    read_only_matrix=args.read_only_matrix, audit=audit)
+                                    read_only_matrix=args.read_only_matrix, audit=audit,
+                                    published_targets=args.published_targets)
             data = dict(format=FORMATS[args.protocol_version],
                         protocol_version=args.protocol_version,
                         batches=make_batches(entries, args.protocol_version),

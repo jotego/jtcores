@@ -15,6 +15,7 @@ main() {
         bash "$ver_dir/sim.sh" "$unit"
     done
     python3 -B "$ver_dir/timing/test_checker.py"
+    python3 -B "$ver_dir/timing/test_published_targets.py"
     python3 -B "$ver_dir/timing/test_fill_oracle.py"
     python3 -B "$ver_dir/timing/test_fill_cases.py"
     python3 -B "$ver_dir/timing/test_line_oracle.py"

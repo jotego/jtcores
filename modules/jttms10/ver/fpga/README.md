@@ -75,6 +75,13 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare \
     --protocol-version 3 --matrix --output /path/to/v3-manifest.json
 ```
 
+To expose the 45 known agreeing TI MOVB duration targets, use
+`prepare --protocol-version 3 --published-targets --output /path/to/targets.json`
+instead. These fixtures deliberately select the printed duration while
+preserving programs and every other check; they fail the baseline CPU and
+must return a nonzero host command. See [source-policy.md](../../docs/source-policy.md).
+The ordinary passing 141,236-case matrix does not establish those targets.
+
 The driver supports up to 8,192 batches, streams returned captures to host
 storage and preserves partial
 output if its configurable transport timeout expires. Consult the version 3

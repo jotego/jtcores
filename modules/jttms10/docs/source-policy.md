@@ -41,6 +41,35 @@ These agreed-target mismatches are outside the ambiguity fallback; status
 labels cannot waive them. The 100 copy G-to-F CPU choices are separate:
 the three source reads and the same table's CD17/H7 contradict printed CPU5.
 
+The directed `--published-targets` mode checks the agreeing entry/summary
+duration rather than the current shared-schedule duration. It selects 45
+probes: 18 cached absolute MOVBs (including four cold-extension probes),
+nine cache-disabled absolute MOVBs and 18 cache-disabled indirect MOVBs.
+Programs, initial state, architectural/memory expectations and existing bus
+checks are preserved. Cold extensions retain the independent nine-state fill
+penalty. This mode checks the printed instruction duration; it does not
+establish a replacement TI bus schedule or resolve conflicting sources.
+
+```sh
+python3 modules/jttms10/ver/timing/run.py --published-targets --simulator verilator
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --protocol-version 3 --published-targets --output /path/to/movb-targets.json
+```
+
+These commands expose known failures, with a nonzero checking command; they
+are not an acceptance allowlist. The FPGA runs the same selected programs
+and checker through the normal batch transport. The ordinary fixture matrix
+and coverage gate retain their existing contracts and unresolved-source
+classification. A matrix pass cannot replace the published-target check.
+
+The unchanged native-LINE CPU on DataStorm reproduces all 45 duration gaps,
+with correct architecture, memory and checked bus events. Two surrounding
+NOP controls pass. Four short original Verilator observations match the FPGA
+exactly. Cached absolute byte takes 24 INCLK versus eight; cold extension
+variants take 96 versus 80. Absolute CD takes 120 versus 56 and indirect
+byte-copy CD takes 72 versus 56. These are failing baselines, not compliant
+timings. Evidence is tracked in #144.
+
 The normal runner invokes the policy-aware inventory. Calling
 `inventory(rows)` without `accept_project_choices=True` retains the stricter
 source-only audit, including all 13,073 discrepancy instances. Both views

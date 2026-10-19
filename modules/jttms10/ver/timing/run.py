@@ -6,6 +6,7 @@ Every mismatch fails (including when --report is requested). No baseline
 allowlist, microcode cycle annotation, or functional result can waive timing.
 """
 import argparse
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -53,6 +54,35 @@ from control_cases import control_cases, program as control_program, fetch_exten
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
 MASK32 = (1 << 32) - 1
+
+
+def published_duration_case(case):
+    """Select agreeing MOVB entry/summary counts, independently of RTL.
+
+    SPVU001A pp.12-117/119 and Tables13-2/4 agree on targets which
+    the shared transport currently misses. Preserve all other checks and
+    programs. This directed mode proves duration gaps; it does not invent
+    a replacement bus schedule for those instructions.
+    """
+    if case['coverage_id'] not in ('MOVB_R_ABS', 'MOVB_IND_IND'):
+        return None
+    suffix = 'cd' if case['cache_disabled'] else 'cpu'
+    values = case.get('source_values', {})
+    target = values.get('summary_' + suffix)
+    entry = values.get('entry_typical_' + suffix)
+    policy = values.get('policy_' + suffix)
+    if target is None or entry != target or policy is None or target == policy:
+        return None
+    # The existing cold-extension fixture adds the independently specified
+    # nine-state fill penalty. Unknown timing adjustments must fail closed.
+    extra = 9 if case.get('cache_miss') == 'store_extension' else 0
+    if case['states'] != policy + extra or case.get('next_opcode_miss'):
+        raise ValueError(f"{case['name']}: unhandled published-target duration adjustment")
+    row = copy.deepcopy(case)
+    row['name'] += '_published_duration'
+    row['states'] = target + extra
+    row['source_values']['policy_' + suffix] = target
+    return row
 
 
 def movi(value, register):
@@ -689,6 +719,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--case', action='append', help='case name or substring; repeat for a union of probes')
     parser.add_argument('--exact-case', action='append', help='select only these complete case names')
+    parser.add_argument('--published-targets', action='store_true',
+                        help='check agreeing TI MOVB duration targets (known failures); preserve other checks')
     parser.add_argument('--report', type=Path, help='write all observations and verdicts as JSON')
     parser.add_argument('--traces', type=Path, help='retain full logs in this directory')
     parser.add_argument('--trace-core', action='store_true',
@@ -714,6 +746,8 @@ def main():
     selected = [case for case in cases()
                 if (args.case is None or any(term in case['name'] for term in args.case))
                 and (args.exact_case is None or case['name'] in args.exact_case)]
+    if args.published_targets:
+        selected = [row for case in selected if (row := published_duration_case(case)) is not None]
     if not selected:
         parser.error('no matching cases')
     hdl = args.rtl_dir.resolve()
@@ -838,6 +872,7 @@ def main():
                                               simulator=args.simulator,
                                               elapsed_seconds=round(time.monotonic()-started, 3),
                                               provenance=provenance,
+                                              published_targets=args.published_targets,
                                               cases=rows), indent=2) + '\n')
     failures = sum(bool(row['errors']) for row in rows)
     print(f'Timing: {len(rows)-failures} passed, {failures} failed, {len(rows)} total')
