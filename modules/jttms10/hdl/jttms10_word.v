@@ -170,6 +170,8 @@ module jttms10_word #(
         (field_word_req || field_word_lock) && !word_pending;
 `endif
 
+    wire field_reverse;
+
     jttms10 #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(TIMED_PROGRAM)) u_core(
 `ifdef JTTMS10_REGRESSION
         .obs_decode              ( obs_decode              ),
@@ -190,6 +192,7 @@ module jttms10_word #(
         .mem_req(field_req), .mem_we(field_we), .mem_iaq(field_iaq),
         .mem_program(field_program),
         .mem_pixel(field_pixel), .mem_post(field_post), .mem_fast(field_fast),.mem_overlap(core_overlap),
+        .mem_reverse(field_reverse),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
@@ -203,7 +206,7 @@ module jttms10_word #(
     jttms10_field u_field(
         .clk(clk), .rst(rst), .req(data_request && !post_busy && !post_ack), .we(field_we),
         .addr(field_addr), .wdata(field_wdata), .size(field_size),
-        .reverse((field_post && (ir==16'h01e0 || call_stack)) || (ir[15:5]==11'h048 && field_we)),
+        .reverse(field_reverse),
         .ack(data_ack), .busy(field_busy), .rdata(data_rdata),
         .word_req(field_word_req), .word_we(field_word_we), .word_addr(field_word_addr),
         .word_wdata(field_word_wdata), .word_lock(field_word_lock),

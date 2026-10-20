@@ -479,3 +479,17 @@ ucode:
       - step_mul
       - add_alu, wr_reg
       - gfx_mul
+
+  # Timed hardware entry uses complete 32-bit PC/ST fields through the same
+  # MSW-first adapter as TRAP. Halfword helper calls introduce extra physical
+  # bus slots between the two halves and exceed Table8-4's aligned16 states.
+  - name: hwsave_timed
+    start: 156
+    seq:
+      - pc_md, word_a, reg_b
+      - sub_alu, sum_ea, wr_sp
+      - write_stack, st_md, word_a, reg_b
+      - sub_alu, sum_ea, wr_sp
+      - write_stack, hwvector_ea
+      - read_stack
+      - init_st, md_pc, ni

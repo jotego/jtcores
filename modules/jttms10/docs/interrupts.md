@@ -75,7 +75,8 @@ source/canary memory. The native frame uses a private B10 low-bit tag and
 B10..B14 layout described in [blit-timing.md](blit-timing.md). Generic frames
 retain their existing format. Temporary RTL mutations demonstrate rejection
 of missed checkpoints, cancelling accepted writes and failing to resume timing.
-These are local Verilator checks; the FPGA runner has no IRQ scheduler yet.
+These are local Verilator checks. The V4 FPGA runner can drive LINT pins, but
+these graphics continuation cases are not yet validated physically.
 
 The native regular path has a separate `copyirq-timed` physical-word sweep
 for all four encodings. It withdraws an unaccepted next source read before
@@ -115,11 +116,40 @@ INCLK on either edge for comparing the recorded falling pin transition with
 the rising handler decode. Its expected W0/W1/W3 bounds are135..145,
 183..193 and279..289 INCLK.
 
-The current CPU observes183/231/327 INCLK respectively and fails all six warm
-cases. Both Verilator backends return exit1 with matching diagnostics; the
-other44 external-event cases pass. Architectural state, memory, bus order and
-individual transfer waits pass in the failing cases. These failures expose an
-entry-scheduling requirement; correct return state does not satisfy it.
+Baseline CPU source `d668c39968cc946dac20883f32f573bd1112a9c6` observes
+183/231/327 INCLK respectively and fails all six warm cases. Physical V4 and
+both Verilator backends agree on the complete50 observations;44 pass.
+Architectural state, memory, bus order and individual transfer waits pass in
+the failing cases. These failures expose an entry-scheduling requirement;
+correct return state does not satisfy it. Frozen host source `48dba0aae`
+retains the baseline fixture/checker, and the raw physical evidence is in
+`/nobackup/tasks/jtcores-144/artifacts/v4-events-baseline-1/`.
+
+The timed controller now pushes complete32-bit PC/ST fields through the
+existing field adapter, instead of issuing each half through the generic
+helper. The CPU explicitly requests MSW-first order during hardware entry,
+independently of the interrupted opcode; PUSHST/CALL/TRAP keep their existing
+order. Entry reads SP from the existing synchronous RF and reuses the shared
+ALU for both decrements. No delay padding, register mirror, arithmetic block
+or alternate interrupt bus is introduced. `TIMED_PROGRAM=0` retains the raw
+entry sequence and its original MSW-first architectural assertion.
+
+Both short Verilator backends now pass all50 cases with warm latencies
+143/191/287 INCLK. The checker also requires exactly128/176/272 INCLK for the
+aligned context: handler decode minus measured NOP completion minus one state
+for each completed ADDK. The saved return PC determines that ADDK count, and
+the independently checked A2 value verifies it. Thus the acceptance boundary
+does not depend on an internal IRQ-take signal. Table8-4 supplies16 states,
+and six physical entry words supply the configured waits. Baseline context
+is168/216/312 INCLK, so the stronger check still rejects it. Pin recognition
+and context duration are separate assertions.
+
+`ver/fpga/check_irq_mutations.py` proves rejection of slow halfword entry with
+correct final state, low-word-first entry with correct final values, and a
+skipped continuation instruction. All return ordinary identified case results;
+compiler errors and timeouts do not qualify. The new CPU entry schedule is
+locally validated only until a new fitted image and physical results are
+recorded. This is not full interrupt or instruction-timing compliance.
 
 Reproduce with `python3 modules/jttms10/ver/fpga/check_external_reference.py
 --output /path/to/new-evidence` after sourcing `setprj.sh`. Raw logs and checked
@@ -128,6 +158,6 @@ separate Avalon failing baseline, run `check_runner.py --manifest
 /path/to/new-evidence/manifest.json --output /path/to/new-avalon-evidence`.
 `check_external_reference.py --prepare-only --output /path/to/new-fixtures`
 writes the same runtime manifest for FPGA execution without compiling a local
-model. The baseline is not physical V4 proof. Pin-phase sweeps, interrupt
+model. Pin-phase sweeps, interrupt
 priority, unaligned frames, NMI/HLT and graphics checkpoint/entry/resume timing
 remain required.

@@ -33,6 +33,7 @@ main() {
     run_checker fpga-stimulus-mutations "$ver_dir/fpga/check_stimulus.py"
     run_checker fpga-external-recovery "$ver_dir/fpga/check_external_recovery.py"
     run_checker fpga-external-reference "$ver_dir/fpga/check_external_reference.py"
+    run_checker fpga-irq-mutations "$ver_dir/fpga/check_irq_mutations.py"
     run_checker fpga-event-mutations "$ver_dir/fpga/check_event_mutations.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"

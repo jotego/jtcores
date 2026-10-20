@@ -2,12 +2,13 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Version 4 integration under development
+## Version 4 and scalar interrupt entry
 
 This checkout's RTL, transport and receipt writer now use protocol 4. The
 V3 physical checkpoints below retain their original source/image identities;
-use the corresponding V3 checkout and driver to reproduce them. No V4 build
-or physical validation is claimed yet.
+use the corresponding V3 checkout and driver to reproduce them. Physical V4
+source `d668c39968cc946dac20883f32f573bd1112a9c6` has been fitted and programmed;
+its scalar IRQ timing failures below remain the baseline for this CPU change.
 
 V4 stages up to 16 events per case before CPU release. The sequencer drives
 the normal LINT1/2, HOLD, EMU, CEN and HSTCTL interfaces from deterministic
@@ -48,13 +49,31 @@ Six IRQ cases prefill the actual handler by executing it before measurement.
 With an aligned stack, no refresh/host traffic, a warm handler and one-state
 ADDKs, SPVU001A 8.5.1/Table8-4 requires recognition1..2 plus context16 states.
 Six entry-word waits add six wait states per configured wait. The checker
-allows one INCLK for the recorded falling/rising edge difference. The current
-CPU **fails** all six warm-entry bounds: W0 observes183 versus135..145 INCLK;
-W1 observes231 versus183..193; W3 observes327 versus279..289. Architecture,
-memory, request order and individual transfer durations pass. The other44
-cases pass. Both Verilator backends reproduce these timing failures and return
-exit1; these are retained requirements, not a timing waiver. See
+allows one INCLK for the recorded falling/rising edge difference. The baseline
+CPU in `d668c3996` **fails** all six warm-entry bounds: W0 observes183
+versus135..145 INCLK; W1 observes231 versus183..193; W3 observes327
+versus279..289. Physical V4 and both Verilator backends agree on all50
+observations:44 pass and six fail solely on entry timing. These failures remain
+requirements. See
 [interrupt notes](../../docs/interrupts.md#external-pin-entry-timing-baseline).
+
+The timed CPU now submits complete 32-bit PC/ST fields to the existing adapter,
+which preserves MSW-first writes and avoids extra halfword bus slots. The raw
+CPU retains its original helper sequence. Both short Verilator backends pass
+all50 cases with warm pin-entry latencies143/191/287 INCLK. An additional exact
+check uses the architecturally verified ADDK counter and saved return PC to
+identify the acceptance boundary: context must be exactly16 states plus the
+six configured word waits (128/176/272 INCLK). It does not infer a golden count
+from the implementation. This CPU change still requires fitting, STA and FPGA
+validation; the loaded physical baseline does not contain it.
+
+`check_irq_mutations.py` rejects actual CPU changes that restore the slow entry,
+reverse the frame word order, or skip an instruction on return. Ordinary NOP
+controls must pass and timeout/compiler failures do not count as detections.
+The slow-entry mutation preserves final architecture and memory but fails the
+exact context count. The order mutation preserves final values but fails the
+bus plan. Run it with `--output /path/to/new-irq-mutation-evidence` to retain
+raw captures and the altered source. It also runs from `ver/run.sh`.
 
 To prepare the same50 runtime cases for an already validated FPGA image without
 building a simulator, use `check_external_reference.py --prepare-only --output
@@ -67,6 +86,39 @@ wrong HSTCTL data injects an unintended NMI. Both fail with unaffected controls.
 Graphics IRQ/NMI continuation and outstanding-work HOLD/EMU/CEN contracts remain
 pending. The scalar entry baseline does not establish those contracts or full
 instruction timing compliance.
+
+### Physical V4 baseline and build measurements
+
+RBF SHA-256: `a354a9db3777812d435e234bf68dac048439a7b185c6c201df8bb2391dd7ad00`;
+overlay `jtcores-144-v4-a354a9db`; SYSID22/1792433033. Hardware source is
+`d668c3996`, with independent host fixtures from clean `48dba0aae`. The50
+external cases take4.508 s enclosing driver wall, with all raw observations
+matching Verilator, including the six identified timing failures. Programming
+takes0.324 s on the target,1.463 s enclosing SSH. Evidence is under
+`/nobackup/tasks/jtcores-144/artifacts/v4-events-baseline-1/` and
+`artifacts/fpga-stimulus/v4-program-1/`.
+
+On that same image, the ordinary base matrix passes all141,972 cases /133 forms
+in5190 batches without exclusions; every raw verdict independently replays.
+Enclosing driver wall is293.539 s, including transfer10.865 s and Python
+checking54.684 s. Target staging/run/draining total11.749/53.067/113.891 s
+and nest within the remote-execution phase. Preparation was observed at about
+62.8 s from tool wait intervals, without an exact enclosing monotonic timer.
+Short candidate debugging jobs overlapped this development measurement, so it
+is not a matched software speedup benchmark. Full evidence and source/receipt
+bindings are in `artifacts/v4-full-base-1/`. This ordinary matrix does not waive
+the six separate warm IRQ failures or validate the new CPU entry schedule.
+
+The V4 build uses `/opt/quartus_free/quartus_sh --flow recompile test_board`
+with preserved parent IP/database. The actual command takes1153.940 s
+(1159.694 s enclosing helper). All88 reported STA rows have positive slack
+and zero TNS; all32 calibrated DDR rows match the positive parent. The appliance
+fits9342 ALMs,370 M10Ks and five DSPs, retaining inferred CPU/runner RAMs.
+Quartus reports that the main partition change is too large for Rapid Recompile
+and performs full compilation there: only0.88% placement and0% routing survive.
+This demonstrates use of the flow, not an incremental speedup or final NARC
+area/timing acceptance. Preserve this limitation in comparisons; stable HPS
+and CPU partition reuse still needs improvement.
 
 From a checkout with `setprj.sh` sourced, run the host preflight/capture checks
 and short Avalon recovery tests with:

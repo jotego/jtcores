@@ -11,7 +11,7 @@ module test;
     tms34010_decode u_reference(.instr(opcode), .decoded(decoded));
     jttms10_ctrl u_new(.byte_packet(1'b0), .byte_finish(1'b0), .byte_first(1'b0),.rst(1'b1), .clk(clk), .md(opcode), .pixel_simple(1'b0), .pixel_boolean(1'b0), .pixel_xy_simple(1'b0),
                        .reserved_opcode(reserved));
-    jttms10_ctrl_old u_old(.rst(1'b1), .clk(clk), .md(opcode), .pixel_simple(1'b0), .pixel_boolean(1'b0), .pixel_xy_simple(1'b0));
+    jttms10_ctrl_old u_old(.rst(1'b1), .clk(clk), .md(opcode));
     wire [11:0] expected_entry = opcode==16'h0fc0 ? u_new.FILL_L_SEQA :
                                  opcode==16'h0f00 ? u_new.BLT_LL_SEQA :
                                  opcode==16'h0fe0 ? u_new.FILL_XY_SEQA :

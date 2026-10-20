@@ -116,11 +116,14 @@ The exact two-entry event schedule asserts LINT atCLOCK16 and releases it on
 WRITE4. Other fields, initialization or schedules fail closed. This contract
 adds zero to the measured NOP duration. It independently checks the following
 register/status/stack/vector state and complete ordered bus plan; warm variants
-also enforce the cited entry-latency bound. It never obtains expected delay
-from applied counters. `irq_observation` in checked reports records normalized
+also enforce the cited entry-latency bound and exactly16 context states plus
+six configured word waits. The saved PC and matching ADDK counter identify the
+acceptance boundary; the handler must be warm and emit no cache-fill reads.
+The check never obtains expected delay from applied counters or microcode.
+`irq_observation` in checked reports records normalized
 following state, memory and complete BUS/TARGET traces for backend comparison.
 These expectations live in the selected source's `irq_contract.py`, separately
-from the FPGA transport and image identity. Current warm-entry failures are
+from the FPGA transport and image identity. The baseline failures and local fix are
 documented in [the runner README](README.md).
 
 The full-system behavioral reference independently drives semantic event fields

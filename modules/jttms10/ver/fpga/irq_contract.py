@@ -139,6 +139,16 @@ def check(entry, observed, lines):
             if not lower <= clocks <= upper:
                 reject(f'warm LINT{lint} entry latency: expected {lower}..{upper} INCLK '
                        f'(17..18 states + six word waits), observed {clocks}')
+            # Saved PC and A2 identify how many one-state ADDKs completed.
+            # They fix the acceptance boundary from the measured NOP end,
+            # without depending on a private IRQ-take signal or RTL schedule.
+            # Table8-4 then requires exactly16 aligned context states.
+            completed_addks = (return_pc-c['next_pc'])//16
+            context_clocks = follow['clock']-observed['end']-8*completed_addks
+            expected_context = 8*(16+6*waits)
+            if context_clocks != expected_context:
+                reject(f'aligned context switch: expected {expected_context} INCLK '
+                       f'(16 states + six word waits), observed {context_clocks}')
     # Uninitialized B registers have no architectural expectation in this
     # fixture. Compare only explicitly initialized/observed state.
     follow = {k: v for k, v in follow.items() if k in wanted or k == 'clock'}

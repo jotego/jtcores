@@ -129,6 +129,12 @@ class InterruptContract(unittest.TestCase):
         self.assertTrue(any('entry latency' in s and 'observed 183' in s for s in errors), errors)
         self.assertFalse(any('expected 0x' in s for s in errors), errors)
 
+    def test_exact_context_count_is_checked_inside_recognition_envelope(self):
+        entry, observed, lines = self.sample(True)
+        errors, _ = irq_contract.check(entry, observed, [s.replace('clock=1160', 'clock=1159') for s in lines])
+        self.assertTrue(any('context switch' in s and 'observed 127' in s for s in errors), errors)
+        self.assertFalse(any('entry latency' in s for s in errors), errors)
+
     def test_warm_context_counter_matches_saved_resume_pc(self):
         entry, observed, lines = self.sample(True)
         errors, _ = irq_contract.check(entry, observed, [s.replace('a2=00000005', 'a2=00000004') for s in lines])

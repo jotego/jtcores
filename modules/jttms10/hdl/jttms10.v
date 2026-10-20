@@ -23,6 +23,7 @@ module jttms10 #(
     output reg        nmi_clear, emu_ack,
     output reg        wvp_set,
     output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post, mem_fast, mem_overlap,
+    output            mem_reverse,
     output     [31:0] mem_addr, mem_wdata,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
@@ -519,6 +520,10 @@ module jttms10 #(
     // The post tag can advertise the next eligible clock before address
     // capture. No field is accepted until mem_req supplies the valid EA.
     assign mem_post=gfx_bus_post || (gfx_active && fill_word && gfx_bus_write) || early_store || (stack_push && store_pending && load_issue_left<=1);
+    // The physical field adapter owns MSW-first order for a complete saved
+    // PC/ST field. Hardware entry is independent of the interrupted opcode.
+    assign mem_reverse=(mem_post && stack_push) || (trap_ir && mem_we) ||
+                       (TIMED_PROGRAM!=0 && hw_entry && stack_sel==WRITE_STACK);
     assign mem_we = early_store ? 1'b1 : early_load ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
     assign mem_addr = binary_native && fill_word && gfx_bus_write ? rs_data : gfx_active && gfx_bus_post && gfx_bus_read ? gfx_a_data : early_store ? (store_direct && !store_started ? store_target : ea) : early_load ? (load_direct && !load_started ? (trap_zero ? 32'hffffffe0 : (stack_irq || pixel_process) ? rd_data : rs_data) : ea) : field_op ? ea : vector ? 32'hffffffe0 : pc;
@@ -554,7 +559,7 @@ module jttms10 #(
                             multi_mask,multi_index,multi_steps};
 `endif
 
-    jttms10_ctrl u_ctrl(
+    jttms10_ctrl #(.TIMED_PROGRAM(TIMED_PROGRAM)) u_ctrl(
 `ifdef JTTMS10_REGRESSION
         .obs_uaddr ( obs_uaddr ),
 `endif
@@ -685,7 +690,7 @@ module jttms10 #(
             fetch && (completed || mem_fast) && (decode_copy || decode_store || decode_control || decode_multi) ? {decode_opcode[4],decode_opcode[3:0]} :
             pixel_draw_store && load_address_ready ? {ir[4],ir[3:0]} :
             cpw_ir ? 5'd22 : convert_ir ? 5'd20 :
-            stack_ir || push_active ? 5'd15 :
+            stack_ir || push_active || hw_entry ? 5'd15 :
             div_ir && div_pairread ? {ir[4],ir[3:0]+4'd1} :
             {ir[4],ir[3:0]}),
         .wa(gfx_active ? gfx_rf_wa[4:0] :

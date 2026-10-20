@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-module jttms10_ctrl(
+module jttms10_ctrl #(
+    parameter integer TIMED_PROGRAM=0
+)(
 `ifdef JTTMS10_REGRESSION
     output [11:0] obs_uaddr,
 `endif
@@ -373,7 +375,7 @@ module jttms10_ctrl(
                 if(emu_run) emu_hold <= 0;
             end else if(hw_take) begin
                 uaddr <= nmi_req && nmi_nostack ? HWNOSAVE_SEQA :
-                         HWSAVE_SEQA;
+                         TIMED_PROGRAM!=0 ? HWSAVE_TIMED_SEQA : HWSAVE_SEQA;
             end else if(boundary && halt_req) begin
                 halted <= 1;
             end else if(uaddr==JRL_SEQA && !branch_condition) begin

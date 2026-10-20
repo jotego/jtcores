@@ -51,7 +51,7 @@ def main():
         )) + '\n'
         (work / 'jttms10_ctrl_old.v').write_text(legacy)
         subprocess.run([
-            'verilator', '--binary', '--timing', '--quiet-build', '-Wno-fatal',
+            'verilator', '--binary', '--timing', '-Wno-fatal',
             '-Wno-PINMISSING', '-Wno-TIMESCALEMOD', '--top-module', 'test',
             '-I' + str(work), '--Mdir', str(work / 'obj'),
             str(REFERENCE / 'rtl/tms34010_pkg.sv'),

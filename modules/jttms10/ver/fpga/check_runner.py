@@ -69,6 +69,8 @@ def main():
     parser.add_argument('--reference', type=Path, help='original timing/run.py JSON for these exact cases')
     parser.add_argument('--stimulus-rtl', type=Path, default=HERE/'jttms10_fpga_stimulus.v',
                         help='local mutation-test override; never changes the hardware build source')
+    parser.add_argument('--cpu-rtl-dir', type=Path, default=MODULE/'hdl',
+                        help='local mutation-test HDL directory; never used for hardware programming')
     parser.add_argument('--output', type=Path, required=True, help='new evidence directory')
     args = parser.parse_args()
     if not 1 <= args.batch_size <= 32:
@@ -116,7 +118,11 @@ def main():
             batch_lines.append(f"{len(batch['cases'])} {len(program)} {batch['protocol_version']} {desc_file} {program_file}\n")
         (work/'batches.txt').write_text(''.join(batch_lines))
         stimulus_rtl = args.stimulus_rtl.resolve(strict=True)
-        sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', stimulus_rtl, *sorted((MODULE/'hdl').glob('*.v'))]
+        cpu_hdl = args.cpu_rtl_dir.resolve(strict=True)
+        cpu_sources = sorted(cpu_hdl.glob('*.v'))
+        if {p.name for p in cpu_sources} != {p.name for p in (MODULE/'hdl').glob('*.v')}:
+            raise ValueError('CPU mutation directory must contain the complete canonical HDL file set')
+        sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', stimulus_rtl, *cpu_sources]
         command = ['verilator', '--binary', '--timing', '--top-module', 'test',
                    '--timescale-override', '1ns/1ps', '-Wno-EOFNEWLINE',
                    '-DJTTMS10_REGRESSION', '-j', '4', '--Mdir', str(work/'obj'),
