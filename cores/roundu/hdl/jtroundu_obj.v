@@ -31,7 +31,11 @@ localparam IDLE=0, CLUT_L=1, CLUT_L_DONE=2, CLUT_H=3, CLUT_H_DONE=4,
     WALK_LOAD=21, WALK_FETCH=22, WALK_HEADER=23, WALK_DESC=24,
     WALK_STORE=25, WALK_NEXT=26, FAST=27, FAST_DONE=28,
     PREP_COORD=29, FAST_MUL=30, FAST_CHECK=31, FAST_MOD_MUL=32,
-    FAST_MOD_CHECK=33, FAST_MOD_END=34;
+    FAST_MOD_CHECK=33, FAST_MOD_END=34, HEADER_MUL=35, HEADER_CHECK=36,
+    HEADER_DONE=37, FAST_REM=38, BOUNDS_ROT=39, BOUNDS_FINAL=40,
+    COORD_MIX=41, COORD_FINAL=42, PIXEL_MUL=43, PIXEL_CHECK=44,
+    PIXEL_LOOKUP=45, PIXEL_WRAP_MUL=46, PIXEL_WRAP_CHECK=47,
+    PIXEL_TILE=48, BOUNDS_REDUCE=49, COORD_TILT=50, PIXEL_WRAP_END=51;
 reg [5:0] state, return_state;
 reg [17:0] request_addr;
 reg request_bank;
@@ -78,6 +82,21 @@ reg [32:0] prep_inverse;
 reg [59:0] prep_col_product, prep_step_product;
 reg [31:0] prep_col, prep_delta;
 reg [26:0] prep_col_quotient, prep_step_quotient;
+reg [26:0] prep_raw_col, prep_raw_step;
+reg bounds_walk;
+reg signed [31:0] bound_left, bound_right, bound_top, bound_bottom, bound_width;
+reg signed [31:0] bound_rx [0:3], bound_ry [0:3];
+reg signed [31:0] bound_minx [0:1], bound_maxx [0:1];
+reg signed [31:0] bound_miny [0:1], bound_maxy [0:1];
+reg signed [33:0] coord_dx, coord_dy, coord_mixed_x, coord_mixed_y;
+reg signed [43:0] coord_tilt_x, coord_tilt_y;
+reg [19:0] pixel_dist_x, pixel_dist_y;
+reg [31:0] pixel_y_min, pixel_y_max;
+reg [26:0] pixel_line, pixel_col;
+reg [17:0] pixel_base;
+reg [8:0] pixel_count;
+reg [32:0] pixel_inverse;
+reg [26:0] pixel_delta, pixel_quotient, pixel_wrapped;
 reg [8:0] fast_rem, fast_next_rem, fast_step, fast_step_rem;
 reg [12:0] fast_span;
 reg [2:0] fast_line;
@@ -118,33 +137,10 @@ wire [8:0] next_y = v == 271 ? 9'd0 : v + 9'd1;
 integer i, dy, source_line, source_col, source_row, dist_x, dist_y;
 integer left_edge, right_edge, first_x, end_x, tile_number, tile_count, tile_delta;
 integer st, sb, sr, cx, cy, rx, ry, minx, maxx, miny, maxy;
-reg signed [33:0] dx_fixed, dy_fixed, mixed_x, mixed_y;
-reg signed [43:0] tilt_x, tilt_y;
+reg signed [33:0] dx_fixed, dy_fixed;
 reg signed [35:0] slope_scale;
 reg [40:0] init_shrink;
 reg [26:0] quotient;
-
-function [26:0] divide;
-    input [26:0] numerator;
-    input [8:0] denominator;
-    input [32:0] reciprocal;
-    reg [59:0] product;
-    reg [26:0] candidate;
-    reg [35:0] checked;
-    begin
-        product = numerator * reciprocal;
-        candidate = product[58:32];
-        checked = candidate * denominator;
-        divide = checked > {9'd0,numerator} ? candidate - 1'b1 : candidate;
-    end
-endfunction
-
-function [31:0] unscale;
-    input [19:0] distance;
-    begin
-        unscale = {5'd0,divide({distance,7'd0},scale,scale_inverse)};
-    end
-endfunction
 
 function [17:0] graphics_addr;
     input [17:0] tile;
@@ -425,21 +421,35 @@ always @(posedge clk) begin
                 bottom_line <= sb[9:0];
                 rows <= sr[6:0];
                 repeat_line <= fetched[31];
-                dy = line_y - origin_y;
-                if (flip_y) dy = -dy - 1;
-                source_line = unscale(dy[19:0]);
-                source_row = (source_line - st) >>> 3;
                 if (sr <= 0 || sr > 64) state <= NEXT;
                 else if (rotation == 0) begin
-                    if (source_line < st || source_line >= st + sr*8) state <= NEXT;
-                    else begin
-                        row <= source_row[5:0];
-                        fast_line <= source_line[2:0];
-                        request(!source_row[0],{2'd0,attr[0]} + {12'd0,source_row[6:1]} + {17'd0,source_row[0]},DESC);
-                    end
+                    dy = line_y - origin_y;
+                    if (flip_y) dy = -dy - 1;
+                    prep_dist <= dy[19:0];
+                    state <= HEADER_MUL;
                 end else begin
                     row <= 0;
                     request(1,{2'd0,attr[0]},DESC);
+                end
+            end
+            HEADER_MUL: begin
+                prep_col_product <= {prep_dist,7'd0} * scale_inverse;
+                state <= HEADER_CHECK;
+            end
+            HEADER_CHECK: begin
+                quotient = prep_col_product[58:32];
+                if (quotient * scale > {9'd0,prep_dist,7'd0}) quotient = quotient - 1'b1;
+                prep_raw_col <= quotient;
+                state <= HEADER_DONE;
+            end
+            HEADER_DONE: begin
+                source_line = {5'd0,prep_raw_col};
+                source_row = (source_line - {23'd0,top_line}) >>> 3;
+                if (source_line < top_line || source_line >= bottom_line) state <= NEXT;
+                else begin
+                    row <= source_row[5:0];
+                    fast_line <= source_line[2:0];
+                    request(!source_row[0],{2'd0,attr[0]} + {12'd0,source_row[6:1]} + {17'd0,source_row[0]},DESC);
                 end
             end
             DESC: begin
@@ -455,50 +465,83 @@ always @(posedge clk) begin
                 end
             end
             PREP: begin
-                first_x = 0;
-                end_x = 319;
-                if (rotation == 0) begin
-                    left_edge = (run_left[row]*scale + 127) >> 7;
-                    right_edge = (run_right[row]*scale + 127) >> 7;
-                    if (flip_x) begin
-                        first_x = repeat_line ? 0 : origin_x - right_edge;
-                        end_x = origin_x - left_edge - 1;
-                    end else begin
-                        first_x = origin_x + left_edge;
-                        end_x = repeat_line ? 319 : origin_x + right_edge - 1;
-                    end
-                end else if (!repeat_line) begin
-                    st = (top_line*scale) >> 7;
-                    sb = (bottom_line*scale + 127) >> 7;
-                    sr = (object_width*scale + 127) >> 7;
-                    minx = 32'h7fffffff;
-                    maxx = -32'h7fffffff;
-                    miny = 32'h7fffffff;
-                    maxy = -32'h7fffffff;
-                    for (i=0;i<4;i=i+1) begin
-                        cx = i[0] ? sr : 0;
-                        cy = i[1] ? sb : st;
-                        if (flip_x) cx = -cx;
-                        if (flip_y) cy = -cy;
-                        rx = (cx <<< 8) - $signed(slope)*cy;
-                        ry = $signed(slope)*cx + (cy <<< 8);
-                        if (rx < minx) minx = rx;
-                        if (rx > maxx) maxx = rx;
-                        if (ry < miny) miny = ry;
-                        if (ry > maxy) maxy = ry;
-                    end
-                    first_x = origin_x + (minx >>> 8) - 1;
-                    end_x = origin_x - ((-maxx) >>> 8) + 1;
-                    if (line_y < origin_y + (miny >>> 8) - 1
-                     || line_y > origin_y - ((-maxy) >>> 8) + 1) end_x = -1;
+                bounds_walk <= 0;
+                bound_left <= (run_left[row]*scale + 127) >> 7;
+                bound_right <= (run_right[row]*scale + 127) >> 7;
+                bound_top <= (top_line*scale) >> 7;
+                bound_bottom <= (bottom_line*scale + 127) >> 7;
+                bound_width <= (object_width*scale + 127) >> 7;
+                pixel_y_min <= (top_line*scale + 127) >> 7;
+                pixel_y_max <= (bottom_line*scale + 127) >> 7;
+                state <= rotation == 0 || repeat_line ? BOUNDS_FINAL : BOUNDS_ROT;
+            end
+            BOUNDS_ROT: begin
+                for (i=0;i<4;i=i+1) begin
+                    cx = i[0] ? bound_width : 0;
+                    cy = i[1] ? bound_bottom : bound_top;
+                    if (flip_x) cx = -cx;
+                    if (flip_y) cy = -cy;
+                    bound_rx[i] <= (cx <<< 8) - $signed(slope)*cy;
+                    bound_ry[i] <= $signed(slope)*cx + (cy <<< 8);
                 end
-                if (first_x < 0) first_x = 0;
-                if (end_x > 319) end_x = 319;
-                if (first_x > end_x || end_x < 0 || first_x > 319) state <= NEXT;
-                else begin
-                    draw_x <= first_x[8:0];
-                    last_x <= end_x[8:0];
-                    state <= PREP_COORD;
+                state <= BOUNDS_REDUCE;
+            end
+            BOUNDS_REDUCE: begin
+                for (i=0;i<2;i=i+1) begin
+                    bound_minx[i] <= bound_rx[i*2] < bound_rx[i*2+1] ? bound_rx[i*2] : bound_rx[i*2+1];
+                    bound_maxx[i] <= bound_rx[i*2] > bound_rx[i*2+1] ? bound_rx[i*2] : bound_rx[i*2+1];
+                    bound_miny[i] <= bound_ry[i*2] < bound_ry[i*2+1] ? bound_ry[i*2] : bound_ry[i*2+1];
+                    bound_maxy[i] <= bound_ry[i*2] > bound_ry[i*2+1] ? bound_ry[i*2] : bound_ry[i*2+1];
+                end
+                state <= BOUNDS_FINAL;
+            end
+            BOUNDS_FINAL: begin
+                minx = bound_minx[0] < bound_minx[1] ? bound_minx[0] : bound_minx[1];
+                maxx = bound_maxx[0] > bound_maxx[1] ? bound_maxx[0] : bound_maxx[1];
+                miny = bound_miny[0] < bound_miny[1] ? bound_miny[0] : bound_miny[1];
+                maxy = bound_maxy[0] > bound_maxy[1] ? bound_maxy[0] : bound_maxy[1];
+                if (bounds_walk) begin
+                    if (!walk_valid) begin miny = 0; maxy = 0; end
+                    else if (rotation == 0) begin
+                        miny = flip_y ? origin_y - bound_bottom : origin_y + bound_top;
+                        maxy = flip_y ? origin_y - bound_top : origin_y + bound_bottom;
+                    end else if (repeat_line) begin miny = 0; maxy = 240; end
+                    else begin
+                        miny = origin_y + (miny >>> 8) - 1;
+                        maxy = origin_y - ((-maxy) >>> 8) + 2;
+                    end
+                    if (miny < 0) miny = 0;
+                    if (maxy > 240) maxy = 240;
+                    if (miny >= maxy || miny >= 240 || maxy <= 0) begin miny = 0; maxy = 0; end
+                    frame_we <= 1;
+                    frame_wr_addr <= walk_index;
+                    frame_wr_data <= {3'd0,object_width,maxy[7:0],miny[7:0],frame_header,frame_data[95:0]};
+                    state <= WALK_NEXT;
+                end else begin
+                    first_x = 0;
+                    end_x = 319;
+                    if (rotation == 0) begin
+                        if (flip_x) begin
+                            first_x = repeat_line ? 0 : origin_x - bound_right;
+                            end_x = origin_x - bound_left - 1;
+                        end else begin
+                            first_x = origin_x + bound_left;
+                            end_x = repeat_line ? 319 : origin_x + bound_right - 1;
+                        end
+                    end else if (!repeat_line) begin
+                        first_x = origin_x + (minx >>> 8) - 1;
+                        end_x = origin_x - ((-maxx) >>> 8) + 1;
+                        if (line_y < origin_y + (miny >>> 8) - 1
+                         || line_y > origin_y - ((-maxy) >>> 8) + 1) end_x = -1;
+                    end
+                    if (first_x < 0) first_x = 0;
+                    if (end_x > 319) end_x = 319;
+                    if (first_x > end_x || end_x < 0 || first_x > 319) state <= NEXT;
+                    else begin
+                        draw_x <= first_x[8:0];
+                        last_x <= end_x[8:0];
+                        state <= PREP_COORD;
+                    end
                 end
             end
             PREP_COORD: begin
@@ -507,16 +550,9 @@ always @(posedge clk) begin
                     dx_fixed = (dx_fixed <<< 16) + 34'sh8000;
                     dy_fixed = $signed({25'd0,target_y}) - $signed({{2{origin_y[31]}},origin_y});
                     dy_fixed = (dy_fixed <<< 16) + 34'sh8000;
-                    tilt_x = $signed(slope)*dy_fixed;
-                    tilt_y = $signed(slope)*dx_fixed;
-                    mixed_x = dx_fixed + $signed(tilt_x[41:8]);
-                    mixed_y = dy_fixed - $signed(tilt_y[41:8]);
-                    source_x <= mixed_x * $signed({1'b0,shrink});
-                    source_y <= mixed_y * $signed({1'b0,shrink});
-                    step_x <= $signed({19'd0,shrink,16'd0});
-                    slope_scale = $signed(slope)*$signed({1'b0,shrink});
-                    step_y <= -$signed({{16{slope_scale[35]}},slope_scale,8'd0});
-                    state <= PIXEL;
+                    coord_dx <= dx_fixed;
+                    coord_dy <= dy_fixed;
+                    state <= COORD_TILT;
                 end else begin
                     dist_x = flip_x ? origin_x - {23'd0,draw_x} - 1 : {23'd0,draw_x} - origin_x;
                     prep_dist <= dist_x[19:0];
@@ -526,6 +562,24 @@ always @(posedge clk) begin
                     fast_span <= run_right[row] - {1'b0,run_left[row]};
                     state <= FAST_MUL;
                 end
+            end
+            COORD_TILT: begin
+                coord_tilt_x <= $signed(slope)*coord_dy;
+                coord_tilt_y <= $signed(slope)*coord_dx;
+                state <= COORD_MIX;
+            end
+            COORD_MIX: begin
+                coord_mixed_x <= coord_dx + $signed(coord_tilt_x[41:8]);
+                coord_mixed_y <= coord_dy - $signed(coord_tilt_y[41:8]);
+                slope_scale = $signed(slope)*$signed({1'b0,shrink});
+                step_y <= -$signed({{16{slope_scale[35]}},slope_scale,8'd0});
+                step_x <= $signed({19'd0,shrink,16'd0});
+                state <= COORD_FINAL;
+            end
+            COORD_FINAL: begin
+                source_x <= coord_mixed_x * $signed({1'b0,shrink});
+                source_y <= coord_mixed_y * $signed({1'b0,shrink});
+                state <= PIXEL;
             end
             FAST_MUL: begin
                 prep_col_product <= {prep_dist,7'd0} * scale_inverse;
@@ -539,11 +593,16 @@ always @(posedge clk) begin
                 quotient = prep_step_product[58:32];
                 if (quotient * scale > 36'd128) quotient = quotient - 1'b1;
                 tile_delta = {5'd0,quotient};
+                prep_raw_col <= source_col[26:0];
+                prep_raw_step <= tile_delta[26:0];
                 prep_col <= source_col - {20'd0,run_left[row]};
                 prep_delta <= tile_delta;
-                cx = {12'd0,prep_dist}*128 - source_col*scale;
+                state <= FAST_REM;
+            end
+            FAST_REM: begin
+                cx = {12'd0,prep_dist}*128 - {5'd0,prep_raw_col}*scale;
                 fast_rem <= cx[8:0];
-                cx = 128 - tile_delta*scale;
+                cx = 128 - {5'd0,prep_raw_step}*scale;
                 fast_step_rem <= cx[8:0];
                 state <= FAST_MOD_MUL;
             end
@@ -603,27 +662,68 @@ always @(posedge clk) begin
                 dist_y = {{12{source_y[59]}},source_y[59:40]};
                 if (flip_x) dist_x = -dist_x - 1;
                 if (flip_y) dist_y = -dist_y - 1;
-                source_line = unscale(dist_y[19:0]);
-                source_col = unscale(dist_x[19:0]);
-                source_row = (source_line - {23'd0,top_line}) >>> 3;
-                if (dist_x < 0 || dist_y < 0 || source_line < top_line || source_line >= bottom_line) advance_pixel;
-                else if (source_col < run_left[source_row] || (!repeat_line && source_col >= run_right[source_row])) advance_pixel;
+                if (dist_x < 0 || dist_y < 0 || dist_y < $signed(pixel_y_min) || dist_y >= $signed(pixel_y_max)) advance_pixel;
+                else begin
+                    pixel_dist_x <= dist_x[19:0];
+                    pixel_dist_y <= dist_y[19:0];
+                    state <= PIXEL_MUL;
+                end
+            end
+            PIXEL_MUL: begin
+                prep_col_product <= {pixel_dist_x,7'd0} * scale_inverse;
+                prep_step_product <= {pixel_dist_y,7'd0} * scale_inverse;
+                state <= PIXEL_CHECK;
+            end
+            PIXEL_CHECK: begin
+                quotient = prep_col_product[58:32];
+                if (quotient * scale > {9'd0,pixel_dist_x,7'd0}) quotient = quotient - 1'b1;
+                pixel_col <= quotient;
+                quotient = prep_step_product[58:32];
+                if (quotient * scale > {9'd0,pixel_dist_y,7'd0}) quotient = quotient - 1'b1;
+                pixel_line <= quotient;
+                state <= PIXEL_LOOKUP;
+            end
+            PIXEL_LOOKUP: begin
+                source_row = ({5'd0,pixel_line} - {23'd0,top_line}) >>> 3;
+                if (pixel_line < {18'd0,top_line} || pixel_line >= {17'd0,bottom_line}) advance_pixel;
+                else if (pixel_col < {15'd0,run_left[source_row]} || (!repeat_line && pixel_col >= {14'd0,run_right[source_row]})) advance_pixel;
                 else begin
                     tile_count = ({19'd0,run_right[source_row]} - {20'd0,run_left[source_row]}) >> 3;
-                    tile_delta = (source_col - {20'd0,run_left[source_row]}) >> 3;
-                    if (repeat_line && tile_delta >= tile_count) begin
-                        quotient = divide(tile_delta[26:0],tile_count[8:0],inverse[tile_count]);
-                        tile_delta = tile_delta - quotient*tile_count;
+                    tile_delta = ({5'd0,pixel_col} - {20'd0,run_left[source_row]}) >> 3;
+                    pixel_count <= tile_count[8:0];
+                    pixel_inverse <= inverse[tile_count];
+                    pixel_delta <= tile_delta[26:0];
+                    pixel_base <= run_base[source_row];
+                    if (repeat_line && tile_delta >= tile_count) state <= PIXEL_WRAP_MUL;
+                    else begin
+                        pixel_wrapped <= tile_delta[26:0];
+                        state <= PIXEL_TILE;
                     end
-                    tile_number = {14'd0,run_base[source_row]} + tile_delta;
-                    tile_bank <= tile_number[0];
-                    tile_number = tile_number >> 1;
-                    if (tile_number >= 49152) tile_number = tile_number - 49152;
-                    else if (tile_number >= 24576) tile_number = tile_number - 24576;
-                    tile_addr <= {tile_number[14:0],source_line[2:0]};
-                    nibble <= source_col[2:0] ^ 3'd3;
-                    state <= TILE;
                 end
+            end
+            PIXEL_WRAP_MUL: begin
+                prep_col_product <= pixel_delta * pixel_inverse;
+                state <= PIXEL_WRAP_CHECK;
+            end
+            PIXEL_WRAP_CHECK: begin
+                quotient = prep_col_product[58:32];
+                pixel_quotient <= quotient * pixel_count > {9'd0,pixel_delta} ? quotient - 1'b1 : quotient;
+                state <= PIXEL_WRAP_END;
+            end
+            PIXEL_WRAP_END: begin
+                tile_delta = {5'd0,pixel_delta} - pixel_quotient*pixel_count;
+                pixel_wrapped <= tile_delta[26:0];
+                state <= PIXEL_TILE;
+            end
+            PIXEL_TILE: begin
+                tile_number = {14'd0,pixel_base} + {5'd0,pixel_wrapped};
+                tile_bank <= tile_number[0];
+                tile_number = tile_number >> 1;
+                if (tile_number >= 49152) tile_number = tile_number - 49152;
+                else if (tile_number >= 24576) tile_number = tile_number - 24576;
+                tile_addr <= {tile_number[14:0],pixel_line[2:0]};
+                nibble <= pixel_col[2:0] ^ 3'd3;
+                state <= TILE;
             end
             TILE: begin
                 if (cache_valid && cached_addr == tile_addr && cached_bank == tile_bank) begin
@@ -719,42 +819,13 @@ always @(posedge clk) begin
                 end
             end
             WALK_STORE: begin
-                miny = 0;
-                maxy = 240;
-                if (!walk_valid) maxy = 0;
-                else if (rotation == 0) begin
-                    st = (top_line*scale + 127) >> 7;
-                    sb = (bottom_line*scale + 127) >> 7;
-                    miny = flip_y ? origin_y - sb : origin_y + st;
-                    maxy = flip_y ? origin_y - st : origin_y + sb;
-                end else if (!repeat_line) begin
-                    st = (top_line*scale) >> 7;
-                    sb = (bottom_line*scale + 127) >> 7;
-                    sr = (object_width*scale + 127) >> 7;
-                    miny = 32'h7fffffff;
-                    maxy = -32'h7fffffff;
-                    for (i=0;i<4;i=i+1) begin
-                        cx = i[0] ? sr : 0;
-                        cy = i[1] ? sb : st;
-                        if (flip_x) cx = -cx;
-                        if (flip_y) cy = -cy;
-                        ry = $signed(slope)*cx + (cy <<< 8);
-                        if (ry < miny) miny = ry;
-                        if (ry > maxy) maxy = ry;
-                    end
-                    miny = origin_y + (miny >>> 8) - 1;
-                    maxy = origin_y - ((-maxy) >>> 8) + 2;
-                end
-                if (miny < 0) miny = 0;
-                if (maxy > 240) maxy = 240;
-                if (miny >= maxy || miny >= 240 || maxy <= 0) begin
-                    miny = 0;
-                    maxy = 0;
-                end
-                frame_we <= 1;
-                frame_wr_addr <= walk_index;
-                frame_wr_data <= {3'd0,object_width,maxy[7:0],miny[7:0],frame_header,frame_data[95:0]};
-                state <= WALK_NEXT;
+                bounds_walk <= 1;
+                bound_left <= 0;
+                bound_right <= 0;
+                bound_top <= (top_line*scale + (rotation == 0 ? 127 : 0)) >> 7;
+                bound_bottom <= (bottom_line*scale + 127) >> 7;
+                bound_width <= (object_width*scale + 127) >> 7;
+                state <= !walk_valid || rotation == 0 || repeat_line ? BOUNDS_FINAL : BOUNDS_ROT;
             end
             WALK_NEXT: begin
                 if (walk_index + 9'd1 == object_count) begin
