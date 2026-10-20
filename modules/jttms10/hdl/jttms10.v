@@ -61,7 +61,7 @@ module jttms10 #(
     reg binary_aligned, binary_last_row;
     wire [15:0] binary_mask;
     wire gfx_product,gfx_product_y,gfx_packed_xy,gfx_alu_capture;
-    reg fill_word, copy_row_short, fill_long_b, fill_last_row, fill_row_drain;
+    reg fill_word, copy_row_short, fill_long_b, fill_last_row, fill_row_drain, fill_short_b, fill_short_c;
     reg [4:0] fill_edge_bits;
     reg copy_read_pending;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
@@ -1065,14 +1065,14 @@ module jttms10 #(
             push_high<=0;
             hw_entry<=0;
             pix_src_addr<=0;
-            fill_word<=0; fill_edge_bits<=0; fill_long_b<=0; fill_row_drain<=0;
+            fill_word<=0; fill_edge_bits<=0; fill_long_b<=0; fill_row_drain<=0; fill_short_b<=0; fill_short_c<=0;
             copy_row_short<=0;
             binary_aligned<=0;
             pix_transparent<=0;
             pbx_push<=0;
             line_hw_push<=0;
         end else begin
-            if(gfx_enter || gfx_resume) begin fill_word<=0; fill_edge_bits<=0; fill_long_b<=0; binary_aligned<=1; end
+            if(gfx_enter || gfx_resume) begin fill_word<=0; fill_edge_bits<=0; fill_long_b<=0; fill_short_b<=0; fill_short_c<=0; binary_aligned<=1; end
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
                 nmi_clear<=nmi_req;
@@ -1352,10 +1352,22 @@ module jttms10 #(
                     if(gfx_pix_binary) md<={16'd0,(a[15:0] & ~binary_mask) | (b[15:0] & binary_mask)};
                     if(gfx_pix_word) begin
                         if(array_fill) ea<=result;
-                        if(array_fill) fill_row_drain<=fill_tail_bits==fill_word_bits[3:0];
+                        // Table13-6 C/N1 overlaps row metadata with its one
+                        // RMW; B/N2 drains that RMW before the next row.
+                        // Capture these row classes before the first posted
+                        // word changes the remaining-width RF operand.
+                        if(array_fill) fill_row_drain<=(fill_tail_bits==fill_word_bits[3:0] && !fill_short_c) || fill_short_b;
+                        if(array_fill && !store_started)
+                            fill_short_b<=pixel_simple && (!ir[5] || control[7:6]==0) &&
+                                result[3:0]==0 && rd_data>=fill_pixels &&
+                                rd_data<{fill_pixels[30:0],1'b0} && fill_tail_bits!=0;
                         if(array_fill && !store_started)
                             fill_long_b<=pixel_simple && (!ir[5] || control[7:6]==0) &&
                                 result[3:0]==0 && rd_data>={fill_pixels[30:0],1'b0} && fill_tail_bits!=0;
+                        if(array_fill && !store_started)
+                            fill_short_c<=pixel_simple && (!ir[5] || control[7:6]==0) &&
+                                result[3:0]!=0 && rd_data<fill_pixels &&
+                                fill_tail_bits==fill_word_bits[3:0];
                         fill_word<=fill_word_eligible;
                         fill_edge_bits<=fill_edge_eligible ? fill_edge_next : 5'd0;
                         if(copy_native) copy_row_short<=rd_data<={fill_pixels[30:0],1'b0};

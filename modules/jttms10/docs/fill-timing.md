@@ -685,8 +685,11 @@ observes480 versus88, and PS1 XOR1824 versus88. The latter two perform12/48
 physical transfers instead of two. XY PS8 complement-source observes616
 versus104 with six transfers; XY PS16 zero/CD observes536 versus128. These
 are permanent failing requirements, not compliant Boolean FILL support.
-The complete new family must run on the FPGA after the matching source65e8
-image and receipt are validated; long local matrices are unnecessary.
+The complete 300-case family subsequently ran on the matching source65e8
+image in BASE/W1P7/W3: all 900 cases fail duration, with 240 per profile also
+failing BUS and TARGET word-transaction counts. Checked architecture/memory
+pass; every raw verdict independently replays, and the 18 original diagnostic
+observations match without clearing errors. Long local matrices are unnecessary.
 
 For one short reproducer:
 
@@ -706,3 +709,40 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare --protocol-version 5 \
 Use the source-bound `run_batch.py` flow documented in the FPGA README.
 All expected counts and bus transactions remain active, so these baseline
 commands must fail until the native word-processing schedule is implemented.
+
+
+## Short C/B row cadence development
+
+Physical source65e8/RBF56696c4e runs the complete 2,660 replacement FILL
+fixtures in BASE/W1P7/W3. Each profile passes 2,596 and fails 64 durations;
+checked architecture, memory and bus traffic pass. The remaining cases are
+C/N1 and B/N2 at two/four rows, all PS1/2/4/8, L/XY and hit/CD. C/N1 is one
+machine state slow per row handoff; B/N2 is one state fast. Two rows differ
+by eight INCLK, four rows by 24. All 7,980 raw verdicts independently replay.
+The original 32 focused probes passed but omitted these two geometries.
+Four additional failing representatives match short Verilator observations,
+including architecture, memory, relative BUS/TARGET traces and errors.
+The 300 appended Boolean probes also retain their separate physical failing
+baseline: all 300 fail per profile, with correct checked architecture/memory.
+
+Table13-6 C/N1 overlaps row metadata with its single partial-word RMW.
+B/N2 retains that work after the trailing RMW before accepting the next row.
+The development correction captures these two row classes before the first
+posted word changes the remaining-width RF operand. Two scalar flags select
+the existing row synchronization condition; no RAM port, wide arithmetic,
+extra transfer or retirement delay is added. The ordinary C/N2+ drain still
+preserves its external waits: deriving C/N1 from a later RF value incorrectly
+absorbed one wait state in an intermediate prototype.
+
+Forty directed cases include the preceding 32 controls and eight additional
+C/N1, B/N2 and neighboring cases. BASE/W1P7/W3/W1P1 each pass all 40 in
+Verilator, with architecture, flags, memory and bus checks active. Two
+permanent mutants disable the short-C overlap or short-B drain and fail
+duration while retaining correct architecture/memory. The complete FILL
+mutation group passes 17 controls, rejects 14 timing mutations with correct
+architecture/memory and rejects three functional/protocol mutations. The
+160 array and 124 boundary architectural programs, 112 timed row/HOLD
+executions, ten L/XY/PSIZE IRQ/NMI modes, 266 model tests and strict lint pass. Complete replacement
+FILL and ordinary matrices must run on the FPGA after this correction is
+compiled, source-bound and programmed. Boolean processing, masks, windowing,
+changing-alignment timing and full #144 acceptance remain unqualified.

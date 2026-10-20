@@ -52,11 +52,15 @@ profiles: 32 pass and 248 fail duration per profile, with checked state,
 memory and bus traffic correct. A row-handoff development schedule passes
 128 directed Verilator executions, 112 timed row/HOLD checks and the
 existing architecture/resumption suites; its complete FPGA validation
-remains required.
+remains required. Its full FPGA matrix now retains 64 duration failures per
+profile (2,596/2,660 pass), confined to short-C and two-word-B row handoffs.
+A row-cadence development correction passes 160 directed Verilator executions;
+its full physical validation remains required.
 Another 300 independent probes cover full-word Boolean FILL PPOP1..15 at
 all five pixel sizes, L/XY and hit/CD. Directed Verilator probes retain
 correct architecture/memory but fail timing and, for smaller pixels,
-word-transaction counts. The full new family awaits FPGA validation; see
+word-transaction counts. FPGA validation confirms all 300 timing failures per profile with correct
+checked architecture/memory and 18 matching diagnostic observations; see
 the [Boolean baseline](docs/fill-timing.md#non-replace-boolean-word-baseline).
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
