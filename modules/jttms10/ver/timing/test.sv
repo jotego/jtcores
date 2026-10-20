@@ -58,6 +58,7 @@ module test;
     reg measuring=0,case_done=0,response_request_seen=0;
     integer case_id=0,batch_fd,data_fd,word_count,loaded=0,measure_pass=1,memory_count=0,watch_extra=0,drain_instructions=0,drain_left=0;
     reg draining=0,drain_pause_started=0;
+    reg pause_retire=0;
     reg [31:0] data_address[0:63];
     reg [15:0] data_value[0:63];
     reg [15:0] input_word;
@@ -147,6 +148,7 @@ module test;
             if(!drain_pause_started) begin
                 drain_pause_started=1;
                 pause_pc=pc;pause_st=st;
+                pause_retire=retire;
                 pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
                 pause_active=dut.u_cpu.u_core.active;
                 pause_multi={dut.u_cpu.u_core.multi_mask,dut.u_cpu.u_core.multi_index,dut.u_cpu.u_core.multi_steps};
@@ -171,6 +173,7 @@ module test;
             pause_left=pause_clocks;
             pause_pc=pc;
             pause_st=st;
+            pause_retire=retire;
             pause_uaddr=dut.u_cpu.u_core.u_ctrl.uaddr;
             pause_active=dut.u_cpu.u_core.active;
                 pause_multi={dut.u_cpu.u_core.multi_mask,dut.u_cpu.u_core.multi_index,dut.u_cpu.u_core.multi_steps};
@@ -327,8 +330,12 @@ module test;
             end
             if(measuring && !cen) begin
                 paused<=paused+1;
-                if(pc!==pause_pc || st!==pause_st || retire)
+                // A retirement raised at the last enabled edge can remain
+                // visible at the first disabled edge. Permit that old pulse
+                // once while rejecting any new pulse during the pause.
+                if(pc!==pause_pc || st!==pause_st || (retire && !pause_retire))
                     $fatal(1,"architectural state advanced while CEN paused");
+                pause_retire=0;
                 if(dut.u_cpu.u_core.u_ctrl.uaddr!==pause_uaddr ||
                    dut.u_cpu.u_core.active!==pause_active)
                     $fatal(1,"instruction sequencer advanced while CEN paused");

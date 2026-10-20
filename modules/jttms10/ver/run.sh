@@ -56,6 +56,7 @@ main() {
     run_checker fpga-graphics-fill-irq-mutations "$ver_dir/fpga/check_graphics_fill_irq_mutations.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
+    run_checker cd-store-dependency "$ver_dir/store_dependency/check.py"
     run_checker emu "$ver_dir/emu/check.py"
     # Validate actual mutation detection before starting the larger matrices.
     run_checker mutations "$ver_dir/timing/mutations.py"

@@ -111,6 +111,9 @@ passes 141,952 cases across all 133 forms each at base/W1-P7/W3 without
 fixture exclusions (425,856 FPGA executions). The directed published-target
 command retains 27 CD duration failures.
 See [FPGA evidence and reproduction](ver/fpga/README.md).
+The short [CD store/fetch dependency regression](ver/store_dependency/README.md)
+checks byte writes to instruction words, including straddled RMW pairs,
+waits and CEN pauses. It retains separate architectural and timing verdicts.
 The runtime [no-stack NMI fixtures](ver/fpga/README.md#no-stack-nmi-runtime-fixtures)
 cover the documented NMIM=1 state and bus behavior through the same FPGA
 interface. Its total context duration remains explicitly unqualified because
