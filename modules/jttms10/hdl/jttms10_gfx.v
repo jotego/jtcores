@@ -232,7 +232,9 @@ module jttms10_gfx(
             WORD_GCOND: condition=word_fill || (fill_edge_bits!=0 && gbus!=SYNC_GBUS);
             SHORTWORD_GCOND: condition=!word_fill || (!word_copy && need_dest) || control[5] ||
                                        rf_qs[3:0]!=0 || rf_qd<fill_pixels;
-            TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};
+            // The extra A/G2 processing state counts complete physical words.
+            // A PS8 D span with four pixels instead touches three words.
+            TWOWORD_GCOND: condition=word_fill && rf_qd=={fill_pixels[30:0],1'b0};
             IRQ_GCOND: condition=irq_pending;
             Z_GCOND: condition=alu_z;
             NZ_GCOND: condition=!alu_z;

@@ -566,3 +566,29 @@ tail interval, an incorrect partial-word pattern, and a stale posted ACK.
 Timing mutants must preserve checked architecture/memory; functional and
 transaction failures have separate required diagnostics. A syntax failure
 is never accepted as detection.
+
+## PS8 three-word edge qualification
+
+The native one-row FPGA image from source6dae passes all 78 focused comparisons,
+but its complete BASE FILL command returns two duration failures among 2,380
+cases. Linear PS8/N3/D hit/CD expect 120/144 INCLK and observe 128/152. All 2,380
+raw verdicts independently replay; the 2,240 aligned cases also match their
+original Verilator references. Both failures reproduce in short Verilator
+runs with matching defined architecture, memory and complete relative BUS and
+TARGET traces. W1/P7 and W3 FPGA commands stop after the BASE failure; they
+are not counted as completed.
+
+A PS8 type-D span has four pixels here, but its partial edges touch three
+physical words. Comparing its pixel count with twice the pixels per word
+incorrectly calls the aligned two-word processing routine. That routine is
+now qualified by full-word mode. The correction changes the scheduling
+condition, adds no state or arithmetic resource, and preserves all fixture
+definitions and independent timing equations.
+
+Six directed linear/XY hit/CD and aligned controls pass each BASE, W1/P7,
+W3 and W1/P1 (24 short Verilator executions), with strict lint passing.
+The permanent FILL mutation group restores the unqualified predicate to
+require timing-only rejection of this bug; omitting the real aligned
+two-word state must still be rejected. A new source-bound FPGA build and
+complete FILL runs remain required. Multirow partial and broader conditions
+remain separate timing gaps.

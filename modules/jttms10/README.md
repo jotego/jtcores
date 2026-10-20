@@ -38,6 +38,10 @@ A native partial-word development path passes 26 focused timing programs
 in three profiles and the existing array/boundary/row architectural checks.
 Its full partial/aligned FPGA matrices remain pending; see the
 [development scope](docs/fill-timing.md#native-partial-word-development-path).
+The full BASE FPGA FILL run exposes two PS8 three-word partial-edge duration
+failures among 2,380 cases. A full-word qualification fixes the directed local
+checks; its new FPGA validation remains required. See the
+[PS8 qualification](docs/fill-timing.md#ps8-three-word-edge-qualification).
 Another 280 partial-word probes cover two/four rows at constant alignment.
 Directed probes expose remaining duration failures with checked architecture,
 memory and bus traffic correct; see the
