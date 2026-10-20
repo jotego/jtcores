@@ -8,8 +8,9 @@ each physical RMW is indivisible. These are architectural/bus expectations,
 not an instruction-duration interpretation or cached self-modifying policy.
 """
 from copy_cases import fixture as copy_fixture
-from store_cases import fixture as store_fixture, insert, transactions
+from store_cases import fixture as store_fixture, insert
 from run import program
+from store_dependency_oracle import transfers
 
 
 def cases():
@@ -52,12 +53,3 @@ def cases():
                     preceding_word=preceding, offset=offset,
                     next_opcode_modified=any((address+b) & ~15 == following for b in range(8)))
                 yield case, words
-
-
-def transfers(case):
-    prefix=[(0, case['test_pc']+16*(q+1), value, 0)
-            for q,value in enumerate(case.get('extensions', []))]
-    if 'data_copy' in case:
-        address=case['data_copy']['source']
-        prefix.append((0, address, dict(case['initial_memory'])[address], 0))
-    return prefix, transactions(case), (0, case['next_pc'], case['expected_next_opcode'], 1)

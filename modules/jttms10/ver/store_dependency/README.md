@@ -73,3 +73,27 @@ not a matched simulation speedup benchmark.
 
 The native CD MOVB timing candidate is separate and is not loaded on the
 board. The 27 nominal CD timing targets and full #144 acceptance remain open.
+
+## Native byte-store following loads and HOLD
+
+`check_byte_events.py` adds permanent, first-pass data dependencies alongside
+the instruction-word tests above. It runs 80 following-load executions across
+BASE/W1/W3/W1P1/W1P7 and 40 HOLD executions across W0/W1 and request phases
+0/8/24/40/52. `--kind following` or `--kind hold` selects either subset.
+Use `--report result.json --traces traces/` to retain the complete observations.
+
+The following cases keep both the primary nominal count and a separately
+derived dependent-load count. They check all initialized registers, full ST,
+sign extension, preserved memory and complete physical transaction ordering.
+HOLD cases check grant ownership and the fresh RMW read required after an
+interruption; total HOLD-adjusted instruction duration remains unqualified.
+See the [CD byte-store timing contract](../../docs/movb-cd-timing.md) for
+citations, exact equations and the explicit hidden-write observation policy.
+Both families reuse the existing Python insertion/extraction expectations.
+
+The normal runner includes these checks and `check_byte_event_mutations.py`.
+The latter runs positive controls and actual lost-HOLD-restart and delayed-
+byte-load RTL mutations in temporary copies. It requires rejection with
+architectural state and memory still correct; compile errors or missing
+results cannot count as successful detection. These new native event checks
+have local Verilator evidence only until a new image is built and validated.

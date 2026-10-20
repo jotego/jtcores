@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Check CD store/fetch dependencies through the timed system in Verilator."""
 import argparse
-from collections import Counter
 import hashlib
 import json
 from pathlib import Path
@@ -18,44 +17,7 @@ from verilator_build import build_model
 sys.path.insert(0, str(HERE.parent/'timing'))
 import run
 from cases import cases, transfers
-
-
-def check_trace(case, lines, wait, *, raw=False):
-    prefix='TARGET' if raw else 'BUS'
-    begin=[s.split() for s in lines if s.startswith(prefix+'_BEGIN ')]
-    end=[s.split() for s in lines if s.startswith(prefix+'_END ')]
-    leading, stores, opcode=transfers(case)
-    expected=leading+stores+[opcode]
-    if len(begin)!=len(expected) or len(end)!=len(expected):
-        return [f'{prefix}: expected {len(expected)} transfers, got {len(begin)} starts/{len(end)} ends']
-    actual=[]
-    errors=[]
-    for q,(b,e) in enumerate(zip(begin,end)):
-        kind,address,iaq=int(b[2]),int(b[3],16),int(b[5])
-        value=int(b[4] if kind else e[4],16)
-        actual.append((kind,address,value,iaq))
-        if e[2:4]!=b[2:4]:errors.append(prefix+': response ownership mismatch')
-        if int(e[1])-int(b[1])!=(4 if raw else 16)+8*wait:
-            errors.append(prefix+': incorrect physical cycle duration')
-        if q and int(b[1])<int(end[q-1][1]):errors.append(prefix+': overlapping transfers')
-    if actual[:len(leading)]!=leading:errors.append(prefix+': operand/source read order or data mismatch')
-    if Counter(actual)!=Counter(expected):errors.append(prefix+': transaction address/data/kind/IAQ inventory mismatch')
-    writes=[]
-    for q,item in enumerate(actual):
-        kind,address,value,iaq=item
-        if kind:
-            writes.append(item)
-            if not q or actual[q-1][:2]!=(0,address) or actual[q-1][3]!=0:
-                errors.append(prefix+': interrupted or missing RMW read')
-    if writes!=[item for item in stores if item[0]]:
-        errors.append(prefix+': field write order or payload mismatch')
-    fetches=[q for q,item in enumerate(actual) if item[3]]
-    if len(fetches)!=1:errors.append(prefix+': expected one opcode fetch')
-    elif case['dependency_conditions']['next_opcode_modified']:
-        modified=[q for q,item in enumerate(actual) if item[0] and item[1]==case['next_pc']]
-        if len(modified)!=1 or modified[0]>=fetches[0]:
-            errors.append(prefix+': opcode fetch preceded its modifying write')
-    return errors
+from store_dependency_oracle import check_trace, check_bus
 
 
 def main():
@@ -108,13 +70,8 @@ def main():
                     if opcodes!=[case['expected_next_opcode']]:errors.append('modified opcode observation mismatch')
                     bus=run.measured_trace(text,'BUS',observed,trailing=True)
                     target=run.measured_trace(text,'TARGET',observed,trailing=True)
-                    errors+=check_trace(case,bus,wait)+check_trace(case,target,wait,raw=True)
-                    logical=[s.split() for s in bus if s.startswith('BUS_BEGIN ')]
-                    physical=[s.split() for s in target if s.startswith('TARGET_BEGIN ')]
-                    if len(logical)==len(physical):
-                        for b,t in zip(logical,physical):
-                            if not int(b[1])<=int(t[1])<=int(b[1])+6:
-                                errors.append('target dispatch outside physical cycle readiness window')
+                    errors+=check_bus(case,observed,bus,wait,pause)
+                    errors+=check_bus(case,observed,target+bus,wait,pause,raw=True)
                     if result.returncode:errors.append(f'simulator exit {result.returncode}')
                     rows.append(dict(name=case['name'],profile=profile,wait_states=wait,
                         pause_clocks=pause,fixture=case,observed=observed,

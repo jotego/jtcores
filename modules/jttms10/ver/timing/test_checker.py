@@ -1096,14 +1096,12 @@ class TimingCheckerTest(unittest.TestCase):
         trace[4]=trace[4].replace('56','48',1);trace[5]=trace[5].replace('80','72',1)
         self.assertTrue(any('start' in e for e in check_store_bus(row,observed,trace,1,7)))
 
-    def test_copy_project_source_policy_keeps_byte_targets_open(self):
+    def test_copy_literal_byte_targets_need_no_project_exception(self):
         from copy_cases import copy_cases
         audit=inventory(copy_cases(),accept_project_choices=True)
         self.assertEqual(len(audit['project_source_choices']),100)
-        self.assertEqual(len(audit['unresolved_source_probes']),332)
-        self.assertEqual(sum(row['kind']=='agreed-published-target-gap'
-            for row in audit['unresolved_source_probes']),18)
-        self.assertEqual({row['identifier'] for row in audit['unresolved_source_probes']},{'MOVB_IND_IND'})
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        self.assertFalse(audit['full_isa_signoff'])
 
     def test_project_choice_is_explicit_and_keeps_all_sources(self):
         row=xy_fixture('CMPXY',1,2)
@@ -1124,12 +1122,14 @@ class TimingCheckerTest(unittest.TestCase):
 
     def test_project_choices_do_not_waive_agreed_targets(self):
         row=store_fixture('absolute',8,0,0,True,0,byte=True)
+        row['states']=row['source_values']['policy_cd']=15
         audit=inventory([row],accept_project_choices=True)
         self.assertEqual(audit['project_source_choices'],[])
         self.assertEqual(audit['unresolved_source_probes'][0]['kind'],'agreed-published-target-gap')
 
     def test_project_choices_do_not_waive_absolute_byte_extrapolations(self):
         row=store_fixture('absolute',8,1,0,True,0,byte=True)
+        row['states']=row['source_values']['policy_cd']=15
         audit=inventory([row],accept_project_choices=True)
         self.assertEqual(audit['project_source_choices'],[])
         self.assertEqual(len(audit['unresolved_source_probes']),1)
@@ -1169,15 +1169,13 @@ class TimingCheckerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'source result policy differs'):
             inventory([row],accept_project_choices=True)
 
-    def test_project_choice_inventory_leaves_absolute_byte_open(self):
+    def test_literal_absolute_byte_counts_clear_only_the_source_gate(self):
         # Preserve the independently audited coordinate-stage inventory;
         # later families have their own source-policy checks below.
         audit=inventory((row for row in cases() if 'data_copy' not in row and row['coverage_id'] not in ('EMU','MMFM','MMTM')),accept_project_choices=True)
         self.assertEqual(len(audit['project_source_choices']),3520)
-        self.assertEqual(len(audit['unresolved_source_probes']),69)
-        self.assertEqual({r['identifier'] for r in audit['unresolved_source_probes']},{'MOVB_R_ABS'})
-        self.assertEqual(sum(r['kind']=='agreed-published-target-gap' for r in audit['unresolved_source_probes']),9)
-        self.assertFalse(audit['gate_passed'])
+        self.assertEqual(audit['unresolved_source_probes'],[])
+        self.assertFalse(audit['full_isa_signoff'])
 
     def test_point_code_literal_examples(self):
         for point,value in CPW_EXAMPLES:
@@ -1425,7 +1423,7 @@ class TimingCheckerTest(unittest.TestCase):
         absolute=store_fixture('absolute',16,0,0,True,0)
         self.assertEqual((offset['states'],offset['source_values']['summary_cd'],offset['source_values']['entry_typical_cd']),(10,9,7))
         self.assertEqual((absolute['states'],absolute['source_values']['summary_cd'],absolute['source_values']['entry_typical_cd']),(13,13,7))
-        for row in (offset,absolute,store_fixture('absolute',8,0,0,True,0,byte=True)):
+        for row in (offset,absolute):
             self.assertEqual(row['timing_source_status'],'inferred-conflict-resolution')
         self.assertEqual(store_fixture('absolute',8,15,0,False,0,byte=True)['timing_source_status'],'primary-summary-consistent')
         with self.assertRaises(ValueError):store_fixture('post',8,0,0,False,0,byte=True)
@@ -1443,7 +1441,8 @@ class TimingCheckerTest(unittest.TestCase):
 
     def test_agreeing_ti_counts_are_a_published_target_gap(self):
         case=store_fixture('absolute',8,0,0,True,0,byte=True)
-        # Relabeling a policy cannot bypass the independent numeric audit.
+        # A regression to the old generic count cannot inherit an exception.
+        case['states']=case['source_values']['policy_cd']=15
         case['timing_source_status']='primary-summary-consistent'
         result=inventory([case])
         gap=result['unresolved_source_probes'][0]
@@ -1454,6 +1453,9 @@ class TimingCheckerTest(unittest.TestCase):
         # An unaligned byte uses Table13-2, not the byte-aligned entry.
         unaligned=store_fixture('absolute',8,1,0,True,0,byte=True)
         self.assertIsNone(unaligned['source_values']['entry_typical_cd'])
+        self.assertEqual(unaligned['states'],7)
+        self.assertEqual(inventory([unaligned])['unresolved_source_probes'],[])
+        unaligned['states']=unaligned['source_values']['policy_cd']=15
         self.assertEqual(inventory([unaligned])['unresolved_source_probes'][0]['kind'],'unresolved-source-policy')
         case['states']=1
         with self.assertRaisesRegex(ValueError,'source policy differs from the probe expectation'):

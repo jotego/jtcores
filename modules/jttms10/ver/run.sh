@@ -18,13 +18,16 @@ main() {
     done
     python3 -B "$ver_dir/timing/test_checker.py"
     python3 -B "$ver_dir/timing/test_published_targets.py"
+    python3 -B "$ver_dir/timing/test_byte_store_oracle.py"
+    python3 -B "$ver_dir/timing/test_store_dependency_oracle.py"
+    python3 -B "$ver_dir/timing/test_byte_store_event_oracle.py"
     python3 -B "$ver_dir/timing/test_fill_oracle.py"
     python3 -B "$ver_dir/timing/test_fill_cases.py"
     python3 -B "$ver_dir/timing/test_line_oracle.py"
     python3 -B "$ver_dir/timing/test_line_cases.py"
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
-    for suite in test_check_results test_store_dependency_fpga test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_nmi_nostack_contract test_nmi_nostack_io_contract test_graphics_irq_contract test_graphics_fill_irq_contract test_transport_payload test_transport_stream \
+    for suite in test_check_results test_store_dependency_fpga test_byte_store_events_fpga test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_nmi_nostack_contract test_nmi_nostack_io_contract test_graphics_irq_contract test_graphics_fill_irq_contract test_transport_payload test_transport_stream \
                  test_transport_schema test_programming_receipt test_incremental_build test_partition_build; do
         python3 -B "$ver_dir/fpga/$suite.py"
     done
@@ -57,6 +60,8 @@ main() {
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
     run_checker cd-store-dependency "$ver_dir/store_dependency/check.py"
+    # The mutation gate includes the complete 120-case positive event suite.
+    run_checker cd-byte-store-event-mutations "$ver_dir/store_dependency/check_byte_event_mutations.py"
     run_checker emu "$ver_dir/emu/check.py"
     # Validate actual mutation detection before starting the larger matrices.
     run_checker mutations "$ver_dir/timing/mutations.py"

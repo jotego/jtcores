@@ -14,6 +14,8 @@ import subprocess
 import sys
 import tempfile
 import time
+import byte_store_oracle
+import store_dependency_oracle
 
 sys.dont_write_bytecode = True
 from oracle import INPUT_CLOCKS_PER_STATE, FIXED, fixed_states, multiply_states
@@ -321,6 +323,7 @@ def check(case, observed, wait_states=0, pause_clocks=0, *, check_duration=True)
             if case.get('next_opcode_miss'):count+=len(writes)+4
         else:
             count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
+        if byte_store_oracle.supported(case):count=byte_store_oracle.wait_count(case)
         alignment=(-pause_clocks)%8 if count else 0
         clocks=case['states']*8+count*wait_states*8+pause_clocks+alignment
         if check_duration and observed['clocks']!=clocks:errors.append(f"{case['name']}: expected {clocks} INCLK, observed {observed['clocks']} INCLK")
@@ -513,6 +516,10 @@ def check_target(case,observed,lines,wait_states,pause_clocks=0):
 
 
 def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
+    if 'dependency_conditions' in case:
+        return store_dependency_oracle.check_bus(case,observed,lines,wait_states,pause_clocks,raw=raw)
+    if byte_store_oracle.supported(case):
+        return byte_store_oracle.check_bus(case,observed,lines,wait_states,pause_clocks,raw=raw)
     prefix='TARGET' if raw else 'BUS'
     begin=[x.split() for x in lines if x.startswith(prefix+'_BEGIN ')]
     end=[x.split() for x in lines if x.startswith(prefix+'_END ')]
@@ -615,7 +622,7 @@ def check_observation(case, observed, errors, log, wait_states=0, pause_clocks=0
     row['target_trace'] = measured_trace(log,'TARGET',observed,trailing=('data_store' in case and 'data_trap' not in case) or ('data_list' in case and (not case['data_list']['load'] or 'list_follow' in case)))
     if observed is not None and check_transfer_observation:
         errors.extend(check_bus(case, observed, row['bus_trace'], wait_states, pause_clocks))
-        errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case or 'data_list' in case or 'data_fill' in case or 'data_line' in case or 'data_blit' in case else []),wait_states,pause_clocks))
+        errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case or 'data_list' in case or 'data_fill' in case or 'data_line' in case or 'data_blit' in case or byte_store_oracle.supported(case) or 'dependency_conditions' in case else []),wait_states,pause_clocks))
     if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case:
         next_opcodes=[int(line.split()[1],16) for line in log.splitlines() if line.startswith('NEXT_OPCODE ')]
         row['observed_next_opcodes']=next_opcodes
@@ -770,7 +777,7 @@ def main():
     rows = []
     sources = [(f'hdl/{path.name}',path) for path in sorted(hdl.glob('*.v'))]
     sources += [(f'ucode/{path.name}',path) for path in sorted((MODULE / 'ucode').glob('*.yaml'))]
-    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py', 'pixel_copy_cases.py', 'pixel_xy_store_cases.py', 'draw_cases.py', 'pixel_xy_copy_cases.py', 'fill_cases.py', 'fill_oracle.py', 'line_cases.py', 'line_oracle.py', 'blit_cases.py', 'blit_oracle.py')]
+    sources += [(f'ver/timing/{name}',HERE / name) for name in ('oracle.py', 'byte_store_oracle.py', 'store_dependency_oracle.py', 'run.py', 'scalar_cases.py', 'alu_cases.py', 'divide_cases.py', 'immediate_cases.py', 'load_cases.py', 'load_mode_cases.py', 'store_cases.py', 'store_mode_cases.py', 'control_cases.py', 'xy_cases.py', 'coordinate_cases.py', 'copy_cases.py', 'pointer_copy_cases.py', 'copy_extension_cases.py', 'copy_pair_cases.py', 'emu_cases.py', 'stack_cases.py', 'return_cases.py', 'interrupt_return_cases.py', 'push_cases.py', 'call_cases.py', 'trap_cases.py', 'list_cases.py', 'pixel_read_cases.py', 'pixel_xy_read_cases.py', 'pixel_store_cases.py', 'pixel_boolean_cases.py', 'pixel_copy_cases.py', 'pixel_xy_store_cases.py', 'draw_cases.py', 'pixel_xy_copy_cases.py', 'fill_cases.py', 'fill_oracle.py', 'line_cases.py', 'line_oracle.py', 'blit_cases.py', 'blit_oracle.py')]
     sources += [(f'jtframe/ucode/{name}', MODULE.parent / 'jtframe/src/jtframe/ucode' / name)
                 for name in ('ucode.go','ucode.vh')]
     sources += [('ver/timing/test.sv',args.bench)]

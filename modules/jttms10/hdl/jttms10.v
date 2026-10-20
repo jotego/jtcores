@@ -381,7 +381,11 @@ module jttms10 #(
     wire decode_byte_first=(decode_opcode & 16'hffe0)==16'h05e0 &&
                            !control[15] && mem_next_first_valid && !mem_next_valid &&
                            mem_next_data[3:0]<=4'd8;
-    wire byte_abs=(ir & 16'hffe0)==16'h05e0 && !control[15];
+    wire decode_byte_stream=TIMED_PROGRAM!=0 && control[15] &&
+                            (decode_opcode & 16'hffe0)==16'h05e0;
+    wire decode_byte_copy_word=TIMED_PROGRAM!=0 && control[15] &&
+        decode_opcode[15:9]==7'b1001110 && rs_data[3:0]<=4'd8 && rd_data[3:0]<=4'd8;
+    wire byte_abs=(ir & 16'hffe0)==16'h05e0 && (!control[15] || TIMED_PROGRAM!=0);
     wire byte_finish=byte_abs && imm &&
                      (immediate_last ? a[3:0]<=4'd8 : mem_next_valid && read_data[3:0]<=4'd8);
     wire decode_pixel_xy_store=decode_opcode[15:9]==7'b1111000 && pixel_xy_simple;
@@ -592,6 +596,7 @@ module jttms10 #(
     // TIMED_PROGRAM disabled and need no pre-ACK data-valid guarantee.
     assign mem_fast=TIMED_PROGRAM!=0 && control[15] && branch_relative &&
                     !branch_short && condition && mem_program ||
+                    (TIMED_PROGRAM!=0 && control[15] && byte_abs && imm && mem_program) ||
                     (copy_packet && imm && mem_program && copy_miss_ready) ||
                      (pixel_store && (early_load || early_store)) || (gfx_active && (fill_word || fill_edge) && gfx_bus_write) ||
                      (gfx_active && array_fill && fill_word && gfx_bus_read) || gfx_bus_post;
@@ -929,6 +934,8 @@ module jttms10 #(
                 fetch_wait<=mem_cached ? 16'd0 : CLKS_PER_STATE[15:0]-16'd2;
             if(mem_req && mem_ack && mem_program && mem_fast && branch_relative && (fetch || ir[7:0]==8'h80))
                 fetch_wait<=0;
+            if(mem_req && mem_ack && mem_program && imm && mem_fast && byte_abs)
+                fetch_wait<=0;
             // A cache-fill penalty must leave the following intrinsic word
             // states intact. CD already supplies a separate processing state
             // for each external word. With the cache enabled, rebase from
@@ -947,6 +954,8 @@ module jttms10 #(
             // extension response. Its cache bridge has consumed one clock.
             if((load_pending || store_pending) && imm && mem_req && mem_ack && mem_program && !mem_cached)
                 load_issue_left<=(call_ir ? (call_absolute && !immediate_last ? LOAD_LEAD : LOAD_PRE) : load_offset || store_offset || !immediate_last ? LOAD_LEAD : LOAD_PRE)-1'b1;
+            if(mem_req && mem_ack && mem_program && imm && mem_fast && byte_abs)
+                load_issue_left<=0;
             // Cache hits can supply packet operands early; external words
             // retain their state grid and the remaining address work.
             if(copy_packet && imm && mem_req && mem_ack && mem_program && !mem_cached)
@@ -1057,7 +1066,7 @@ module jttms10 #(
                 load_pending<=decode_pixel_readpost || decode_load || decode_copy; load_started<=0; reti_second<=0;
                 store_pending<=decode_store && !decode_pixel_readpost;store_started<=0;
                 load_address_ready<=!decode_pixel_xy_copy && !decode_pixel_xy_address_store && (decode_load_direct || (decode_copy && !decode_copy_pre && !decode_copy_extension) || (decode_store && !decode_call && !decode_store_pre && (!decode_store_extension || decode_byte_packet)));
-                load_issue_left<=decode_native_binary ? ((decode_opcode[5] ? 6 : 4)*LOAD_PRE-1'b1) : decode_native_copy ? (decode_opcode[6:5]==2'b11 ? BLIT_XYXY_LEAD : decode_opcode[6:5]!=0 ? BLIT_XY_LEAD : BLIT_LEAD) : TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : TIMED_PROGRAM!=0 && decode_fill_xy ? FILL_XY_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : decode_byte_first ? LOAD_PRE : (decode_load_extension || (decode_store_extension && !decode_byte_packet) || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
+                load_issue_left<=decode_byte_stream ? {LOAD_IW{1'b0}} : decode_byte_copy_word ? LOAD_PRE : decode_native_binary ? ((decode_opcode[5] ? 6 : 4)*LOAD_PRE-1'b1) : decode_native_copy ? (decode_opcode[6:5]==2'b11 ? BLIT_XYXY_LEAD : decode_opcode[6:5]!=0 ? BLIT_XY_LEAD : BLIT_LEAD) : TIMED_PROGRAM!=0 && decode_opcode==16'h0fc0 ? FILL_LEAD : TIMED_PROGRAM!=0 && decode_fill_xy ? FILL_XY_LEAD : decode_pixel_xy_copy ? LOAD_LEAD+LOAD_PRE : (decode_pixel_xy_load || decode_pixel_xy_address_store) ? LOAD_LEAD+LOAD_PRE : decode_pixel_load || decode_pixel_store ? LOAD_PRE : decode_multi ? ((decode_opcode[5] ? 2 : control[15] ? 7 : rd_data[3:0]==0 ? 4 : 10)*CLKS_PER_STATE[LOAD_IW-1:0]) : decode_call ? (decode_call_relative ? LOAD_PRE : LOAD_LEAD) : decode_stack_push ? (rd_data[3:0]==0 ? LOAD_PRE : {LOAD_IW{1'b0}}) : decode_load_pre || decode_store_pre || decode_copy_pre || decode_dsj ? LOAD_PRE : decode_copy_absolute_pair ? COPY_FOUR : decode_byte_first ? LOAD_PRE : (decode_load_extension || (decode_store_extension && !decode_byte_packet) || decode_copy_extension) ? LOAD_LEAD : {LOAD_IW{1'b0}};
                 time_left<=decode_native_copy ? 16'd0 : decode_native_line ? LINE_SETUP_CLKS : decode_clocks-16'd1;
             end
             if(cen && branch_pending) begin

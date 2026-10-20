@@ -175,14 +175,10 @@ class StoreDependencyFPGA(unittest.TestCase):
         raw_events = []
         if events:
             leading, stores, opcode = self.dependency.transfers(case)
-            data_store = case.get('data_store', {})
-            extension_count = len(case.get('extensions', []))
-            lead = data_store.get('write_start', data_store.get('cpu', 1) - 1)
-            first = lead + (3 + 0) * extension_count
-            starts = [1 + q * 4 for q in range(extension_count)]
-            starts.extend(first + q * 2 for q in range(len(stores)))
-            starts.append(first + len(stores) * 2)
             transactions = leading + stores + [opcode]
+            # This family specifies dependency order and physical durations,
+            # not the generic unrelated-opcode store's fixed CPU phases.
+            starts = [1 + 2*q for q in range(len(transactions))]
             for index, ((kind, address, value, iaq), offset) in enumerate(zip(transactions, starts)):
                 start = result[7] + offset * 8
                 common = (kind << 1) | iaq

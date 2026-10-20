@@ -8,6 +8,7 @@ source-backed policy; those inferences are not official TI errata.
 """
 from alu_cases import initial_status
 from scalar_cases import MASK32
+from byte_store_oracle import apply as apply_byte_contract
 
 
 def insert(memory,address,width,value):
@@ -63,9 +64,9 @@ def fixture(mode,width,offset,field,off,index,*,byte=False,bank=0,source=2,dest=
         elif bank:eb[f'b{dest}']=pointer
         else:ea[dest]=pointer
     cpu=2 if mode=='pre' else 3 if mode in ('offset','absolute') else 1
-    # Table13-2: a cached absolute byte contained in one physical word
-    # has one visible state, independently of its ignored field definition.
-    if byte and mode=='absolute' and not off and (address&15)<=8:cpu=1
+    # Table13-2: an absolute byte contained in one physical word has
+    # one intrinsic CPU state, independently of its ignored field definition.
+    if byte and mode=='absolute' and (address&15)<=8:cpu=1
     row=dict(name=f'store_{"movb" if byte else "move"}_{mode}_w{width}_o{offset}_f{field}_r{bank}_{source}_{dest}_q{index}_{"off" if off else "hit"}',
         opcode=(({'indirect':0x8C00,'offset':0xAC00,'absolute':0x05E0}[mode] if byte else {'indirect':0x8000,'post':0x9000,'pre':0xA000,'offset':0xB000,'absolute':0x0580}[mode] | field<<9) | (source if mode=='absolute' else (source<<5)|dest) | bank<<4),
         coverage_id={'indirect':'MOVB_R_IND','offset':'MOVB_R_OFF','absolute':'MOVB_R_ABS'}[mode] if byte else {'indirect':'MOVE_R_IND','post':'MOVE_R_POST','pre':'MOVE_R_PRE','offset':'MOVE_R_OFF','absolute':'MOVE_R_ABS'}[mode],
@@ -98,7 +99,7 @@ def fixture(mode,width,offset,field,off,index,*,byte=False,bank=0,source=2,dest=
         row['timing_source_status']='inferred-conflict-resolution' if (summary_cpu!=cpu or off and (summary_cd!=row['states'] or entry_cd is not None and entry_cd!=row['states'])) else 'primary-summary-consistent'
         if mode=='absolute':row['conditions'].update(destination=None,alias=False)
     if tag:row['name']='store_'+('movb' if byte else 'move')+'_'+mode+'_'+tag+'_'+('off' if off else 'hit')
-    return row
+    return apply_byte_contract(row)
 
 
 def store_cases():

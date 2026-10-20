@@ -61,6 +61,44 @@ profiles have direct complete comparisons with the corrected host.
 See [dependency commands, evidence and limits](../store_dependency/README.md#physical-qualification).
 This does not qualify the separate native MOVB timing candidate or full #144.
 
+## Native byte-store event preparation
+
+The native MOVB candidate adds explicit host selections for following-load
+and HOLD/restart programs. These reuse the transport and the separate
+[independent Python event oracle](../../docs/movb-cd-timing.md#following-loads-and-hold):
+
+```sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --byte-store-events following --protocol-version 5 \
+    --wait-states 1 --pause-clocks 7 --output following.json
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --byte-store-events hold --protocol-version 5 \
+    --wait-states 1 --hold-phase 52 --output hold.json
+```
+
+Each selection is standalone and complete:16 following programs or4 HOLD
+programs. Following supports BASE/W1/W3/W1P1/W1P7, with pause-after zero;
+HOLD supports waits0/1, no CEN pause, and request phases0/8/24/40/52. The
+HOLD table releases after three acknowledged clocks. Invalid profiles,
+protocols, altered fixture metadata/programs and mixed selections fail before
+serialization. Programs, initial memory and expected results are not FPGA
+compilation inputs.
+
+Following checks keep both the primary nominal duration and the independent
+dependent-load count. HOLD cases have no total HOLD-adjusted duration target;
+they retain full architectural, memory, physical-cycle timing, grant ownership
+and fresh-read-after-HOLD checks. Ordinary/published duration targets stay
+mandatory. Actual registers, memory, opcodes, following snapshots, event
+counters/clocks, HOLD edges and full BUS/TARGET traces are compared with
+Verilator. Decode and snapshots cannot precede the work they observe.
+
+The source-local host tests and short Verilator tests exercise these paths;
+host-only encoding/replay of120 actual Verilator observations also passes the
+normal checker/comparer. Those encoded observations are not FPGA captures.
+The new native CPU still needs a source-bound incremental build and physical
+qualification. The loaded source744 image and its known27 nominal CD failures
+above remain the physical baseline. Full #144 acceptance remains open.
+
 ## Historical physical NMI checkpoint
 
 This is the earlier `a59` NMI checkpoint, not the current loaded image.

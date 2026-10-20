@@ -9,6 +9,7 @@ overlapping warm-up and measured copies are modeled separately.
 from itertools import product
 from alu_cases import initial_status
 from scalar_cases import MASK32
+from byte_store_oracle import apply as apply_byte_contract
 from load_cases import extract
 from store_cases import insert, transactions as store_transactions
 
@@ -110,9 +111,9 @@ def counts(source,destination,width,*,byte=False,mode='indirect'):
         cpu=7
         values=dict(summary_cpu=5,summary_cd=17,policy_cpu=7,policy_cd=17)
     if byte and index==2:
-        # MOVB entry/summary both print CD7; the field/bus equation gives9.
-        # Retain this as an agreed published-target gap, never a silent fix.
-        values=dict(summary_cpu=3,summary_cd=7,policy_cpu=3,policy_cd=9,
+        # MOVB entry/summary both print CD7. Select that literal byte
+        # target, with the final whole RMW posted after the opcode.
+        values=dict(summary_cpu=3,summary_cd=7,policy_cpu=3,policy_cd=7,
                     entry_typical_cpu=3 if not(source&7 or destination&7) else None,
                     entry_typical_cd=7 if not(source&7 or destination&7) else None)
     return cpu,hidden,cd,index,values
@@ -199,11 +200,11 @@ def fixture(width,source_offset,destination_offset,field,off,index,*,
     if values:
         differs=values['policy_cd' if off else 'policy_cpu']!=values['summary_cd' if off else 'summary_cpu']
         row.update(source_values=values,timing_source_status='inferred-conflict-resolution' if differs else 'primary-summary-consistent',
-            source_notes=('MOVE index12 prints CPU5/CD17/H7 despite its three source reads. The common read/hidden-write equation selects CPU7/CD17. MOVB index2 prints CPU3/CD7, while the same field equation selects CPU3/CD9; that agreed entry/summary target remains a known gap. Printed alternatives are retained; no official erratum is claimed.' if mode=='indirect' else
+            source_notes=('MOVE index12 prints CPU5/CD17/H7 despite its three source reads. The common read/hidden-write equation selects CPU7/CD17. MOVB index2 uses its explicit CPU3/CD7 byte entry; the generic field equation would give CD9. Printed alternatives are retained; no official erratum is claimed.' if mode=='indirect' else
                           'Two-address copies use the common source-read/hidden-write equation plus two/four operand states and three CD states per instruction word. Inconsistent summary/entry counts remain explicit project interpretations under the owner direction, not official TI corrections.' if mode in ('offset_offset','absolute_absolute') else
                           'Extended copies use two intrinsic address states, the common source-read/hidden-write equation and three CD states per instruction word. Table13-4 index12 CPU and several CD columns differ; the typical aligned 32-bit entries support the common equation. Printed alternatives remain explicit under the owner direction, not an official TI correction.' if mode.endswith('_post') else
                           'Table13-4 pointer copies add one CPU state to the plain copy. Postincrement overlaps one further hidden state; predecrement retains its hidden states. The project selects this common equation for index12 CPU and predecrement index8 CD, retaining the printed alternatives under the owner direction. This is not an official TI correction.'))
-    return row
+    return apply_byte_contract(row)
 
 
 def transactions(case):

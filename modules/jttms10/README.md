@@ -246,3 +246,6 @@ The reference runner separately reports documented old-CPU differences for
 three same-register auto-update cases, empty register lists, and a maximum-extent
 window query. Primary assertions retain the TI results; see
 [the memory ISA notes](docs/memory-isa.md) and [array notes](docs/array-isa.md).
+
+The [native CD byte-store contract](docs/movb-cd-timing.md) documents the
+MOVB timing candidate, its posted-write observation policy and open validation.

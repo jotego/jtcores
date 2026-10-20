@@ -6,8 +6,8 @@ Owner direction, 2026-10-18: "If you cannot find a reliable conclusion,
 implement the easier one". Retain the existing simple shared datapath and
 documented counts/formula. This registry reads no RTL or observations.
 Exact source signatures prevent new discrepancies inheriting an exception.
-MOVB absolute is deliberately absent: cached single-word cases use the
-agreeing published one-state target; the agreed cache-disabled target is open.
+MOVB absolute is deliberately absent: literal byte entries use the published
+CPU/CD targets, with no project exception for a generic field equation.
 """
 
 

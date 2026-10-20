@@ -326,8 +326,8 @@ def posted_load_slot_mutations(work,evidence):
     """A new dependent load cannot borrow an old posted field's bus slot."""
     mutant=work/'stale-posted-slot';shutil.copytree(MODULE/'hdl',mutant)
     replace_once(mutant/'jttms10_word.v',
-        'assign word_pending=(field_req && !fresh_load_slot) || data_owner;',
-        'assign word_pending=field_req || data_owner;')
+        'assign word_pending=((field_req && !fresh_load_slot) || data_owner) && !defer_program_hazard;',
+        'assign word_pending=(field_req || data_owner) && !defer_program_hazard;')
     for mode in ('offset','absolute'):
         name='stale_posted_slot_'+mode
         probe=f'storemode_move_{mode}_dependency3_w16_o0_hit'
@@ -343,8 +343,8 @@ def posted_load_slot_mutations(work,evidence):
         ['--rtl-dir',str(launch),*extra],mutated=True)
     reset=work/'lost-queued-slot';shutil.copytree(MODULE/'hdl',reset)
     replace_once(reset/'jttms10_word.v',
-        'assign word_pending=(field_req && !fresh_load_slot) || data_owner;',
-        'assign word_pending=(field_req && !data_accept) || data_owner;')
+        'assign word_pending=((field_req && !fresh_load_slot) || data_owner) && !defer_program_hazard;',
+        'assign word_pending=((field_req && !data_accept) || data_owner) && !defer_program_hazard;')
     replace_once(reset/'jttms10_word.v',
         'if(slot_phase<=1) launch_slot<=data_request && cen;',
         'if(slot_phase==0) launch_slot<=data_request && cen;')
@@ -372,7 +372,7 @@ def line_mutations(work,evidence):
 
 
 def movb_mutations(work,evidence):
-    """Reject real cached operand, cold-tail and CEN timing regressions."""
+    """Reject cached/CD operand, source-slot and CEN timing regressions."""
     for name,probe,old,new,extra in (
         ('lost_abs_operand_packet','storemode_movb_absolute_packet_r1_s15_pc31_o0_hit',
          "wire decode_byte_packet=(decode_opcode & 16'hffe0)==16'h05e0 &&",
@@ -380,6 +380,13 @@ def movb_mutations(work,evidence):
         ('late_abs_cold_tail','storemode_movb_absolute_cold2_w8_o0_r0_hit',
          "time_left<=CLKS_PER_STATE[15:0]-16'd2;",
          "time_left<=2*CLKS_PER_STATE[15:0]-16'd2;", ['--wait-states','1','--pause-clocks','7']),
+        ('late_cd_absolute_operand','storemode_movb_absolute_byte_o0_ignored001_r0_off',
+         '(TIMED_PROGRAM!=0 && control[15] && byte_abs && imm && mem_program)',
+         "(1'b0 && TIMED_PROGRAM!=0 && control[15] && byte_abs && imm && mem_program)",
+         ['--wait-states','1','--pause-clocks','7']),
+        ('early_cd_copy_source','copy_movb_guide_byte0_r0_0_1_off',
+         'decode_byte_copy_word ? LOAD_PRE :',
+         "decode_byte_copy_word ? {LOAD_IW{1'b0}} :", []),
         ('absorbed_abs_pause','storemode_movb_absolute_packet_r0_s0_pc2_o1_hit',
          'if(cen) begin\n                if(timing_active && time_left!=0)',
          "if(1'b1) begin\n                if(timing_active && time_left!=0)", ['--pause-clocks','7'])):
@@ -406,14 +413,15 @@ def binary_blit_mutations(work,evidence):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
-    parser.add_argument('--group',choices=('all','line','movb','binary','fill'),default='all',
+    parser.add_argument('--group',choices=('all','line','movb','binary','fill','posted'),default='all',
                         help='run all mutations or a focused native instruction group')
     args = parser.parse_args()
     evidence = {}
-    if args.group in ('line','movb','binary','fill'):
+    if args.group in ('line','movb','binary','fill','posted'):
         with tempfile.TemporaryDirectory(prefix='jttms10-'+args.group+'-mutations-') as temp:
             dict(line=line_mutations,movb=movb_mutations,
-                 binary=binary_blit_mutations,fill=fill_mutations)[args.group](Path(temp),evidence)
+                 binary=binary_blit_mutations,fill=fill_mutations,
+                 posted=posted_load_slot_mutations)[args.group](Path(temp),evidence)
         if args.report:
             args.report.parent.mkdir(parents=True,exist_ok=True)
             args.report.write_text(json.dumps(evidence,indent=2)+'\n')
@@ -608,7 +616,7 @@ def main():
         for name,old,new in (
             ('blocking_store',"if(field_post) begin post_busy<=1;post_ack<=1;end", "if(1'b0) begin post_busy<=1;post_ack<=1;end"),
             ('no_cached_write_overlap','.c_req(field_req && program_read && !fast_program)', '.c_req(field_req && program_read && !fast_program && !data_owner)'),
-            ('lost_hidden_pending','assign word_pending=(field_req && !fresh_load_slot) || data_owner;', 'assign word_pending=field_req;')):
+            ('lost_hidden_pending','assign word_pending=((field_req && !fresh_load_slot) || data_owner) && !defer_program_hazard;', 'assign word_pending=field_req;')):
             mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
             replace_once(mutant/'jttms10_word.v',old,new)
             if name=='blocking_store':

@@ -70,7 +70,8 @@ module jttms10_word #(
                       field_addr[3:0]==0;
     wire packet_copy=ir[15:10]==6'b101110 || ir[15:9]==7'b1011110 ||
                      (ir & 16'hfdff)==16'h05c0 || ir==16'h0340;
-    wire fast_program=program_read && field_fast && !packet_copy;
+    wire fast_program=program_read && (field_fast ||
+        (control[15] && !defer_cached && (byte_write_defer || deferred_opcode_done) && field_iaq)) && !packet_copy;
     wire cache_bus_ready=!packet_copy || !program_read || field_iaq || field_fast;
     wire data_request=field_req && !program_read;
     wire data_accept=data_request && !field_busy && !post_ack && !post_busy;
@@ -101,10 +102,10 @@ module jttms10_word #(
                          ir[15:6]!=10'h026 && slot_phase>1 && !launch_slot;
     // A field waiting across a state boundary retains its queued bus
     // ownership. Only a fresh late load releases an unrelated posted slot.
-    assign word_pending=(field_req && !fresh_load_slot) || data_owner;
+    assign word_pending=((field_req && !fresh_load_slot) || data_owner) && !defer_program_hazard;
     reg fast_slot, stack_post_slot;
-    assign word_early=(early_data_q && data_owner && (slot_eligible || slot_phase==0)) ||
-                      (fast_program && !data_owner && (fast_slot || slot_phase==0));
+    assign word_early=(early_data_q && bus_data_owner && (slot_eligible || slot_phase==0)) ||
+                      (fast_program && !bus_data_owner && (fast_slot || slot_phase==0));
     always @(posedge clk) begin
         if(rst) begin launch_slot<=0;slot_phase<=0; slot_eligible<=0; fast_slot<=0; stack_post_slot<=0; copy_source_accepted<=0; end
         else begin
@@ -137,23 +138,93 @@ module jttms10_word #(
             // its separately tracked source ownership.
             if(fresh_load_slot)
                 slot_eligible<=0;
+            // A dependent opcode revokes the speculative program grant.
+            // Its delayed data handoff owns a fresh state, not the old
+            // program slot's row-phase credit.
+            if(defer_program_hazard) slot_eligible<=0;
+        end
+    end
+
+    // A single-word posted CD byte store can leave its whole RMW queued
+    // while the next opcode is fetched. Once granted, its read/write remain
+    // indivisible; a stall or non-program dependency releases the queue.
+    reg byte_write_defer;
+    reg defer_copy, defer_fetch_slot, defer_cached;
+    reg byte_copy_word, byte_second_defer;
+    wire defer_program_ready=!defer_copy || defer_fetch_slot || slot_phase==0;
+    // A CD opcode read of the queued destination is a real dependency.
+    // Drain its complete RMW before fetching the modified instruction.
+    wire defer_program_hazard=byte_write_defer && program_read && field_iaq &&
+                              field_addr[31:4]==field_word_addr[31:4];
+    always @(posedge clk) begin
+        if(rst) begin defer_copy<=0;defer_fetch_slot<=0;defer_cached<=0;byte_copy_word<=0;byte_second_defer<=0;end
+        else begin
+            if(!byte_write_defer) defer_fetch_slot<=0;
+            else if(slot_phase==0) defer_fetch_slot<=1;
+            if(data_accept) begin defer_copy<=ir[15:10]==6'b100111;defer_cached<=0;end
+            // This opcode was requested while the first pair owned the bus.
+            // Its existing cache bypass already owns the response; do not
+            // issue a second direct read of that same request.
+            if(data_word_ack && field_word_we && byte_second_defer) begin
+                defer_copy<=1;defer_cached<=1;
+            end
+            if(field_req && program_read && field_iaq && field_ack) byte_copy_word<=0;
+            if(data_accept && !field_we && ir[15:9]==7'b1001110)
+                byte_copy_word<=field_addr[3:0]<=4'd8;
+            if(data_accept)
+                byte_second_defer<=TIMED_PROGRAM!=0 && control[15] && field_post &&
+                    field_we && field_size==6'd8 && field_addr[3:0]>4'd8 &&
+                    (ir & 16'hffe0)==16'h05e0;
+            if(data_word_ack && field_word_we) byte_second_defer<=0;
+        end
+    end
+    reg deferred_opcode_ack, deferred_opcode_done;
+    always @(posedge clk) begin
+        if(rst) begin deferred_opcode_ack<=0;deferred_opcode_done<=0;end
+        else begin
+            deferred_opcode_ack<=fast_program && byte_write_defer && field_iaq && word_ack;
+            if(field_req && program_read && field_iaq && deferred_opcode_ack)
+                deferred_opcode_done<=1;
+            // Keep the completed bypass out of the cache request path until
+            // its CPU request drops; otherwise a slow consumer fetches twice.
+            if(!field_req || !program_read || !field_iaq) deferred_opcode_done<=0;
+        end
+    end
+    wire byte_defer_accept=TIMED_PROGRAM!=0 && control[15] && field_post && field_we &&
+                           field_size==6'd8 && field_addr[3:0]<=4'd8 &&
+                           ((ir & 16'hffe0)==16'h05e0 ||
+                            (ir[15:9]==7'b1001110 && byte_copy_word));
+    wire bus_data_owner=data_owner && !byte_write_defer;
+    always @(posedge clk) begin
+        if(rst) byte_write_defer<=0;
+        else begin
+            if(data_accept) byte_write_defer<=byte_defer_accept;
+            // A straddled byte drains its first complete RMW. The next
+            // opcode can then precede the second pair, never split a pair.
+            if(data_word_ack && field_word_we && byte_second_defer)
+                byte_write_defer<=1;
+            if(defer_program_hazard) byte_write_defer<=0;
+            if(field_req && program_read && field_iaq && field_ack) byte_write_defer<=0;
+            if((!cen || halted || fault || halt_req ||
+               (data_request && !post_ack && !data_accept)) &&
+               !(field_req && program_read)) byte_write_defer<=0;
         end
     end
 
     // Program lookup can hit the existing RAM while a data operation owns
     // the external bus. A miss waits for that operation, preserving ordering.
-    assign word_req=data_owner ? field_word_req && !data_word_ack : fast_program ? field_req : cache_word_req && cache_bus_ready;
-    assign word_we=data_owner && field_word_we;
-    assign word_addr=data_owner ? field_word_addr : fast_program ? field_addr : cache_word_addr;
-    assign word_wdata=data_owner ? field_word_wdata : 16'd0;
-    assign word_iaq=data_owner ? iaq_q : fast_program ? field_iaq : cache_word_iaq;
-    assign word_pixel=data_owner && pixel_q;
-    assign word_lock=data_owner && field_word_lock;
-    assign cache_word_ack=word_ack && !data_owner && !fast_program;
+    assign word_req=bus_data_owner ? field_word_req && !data_word_ack : fast_program ? field_req && !deferred_opcode_done && !defer_program_hazard && (!byte_write_defer || defer_program_ready) : cache_word_req && cache_bus_ready && !defer_program_hazard && (!byte_write_defer || defer_program_ready);
+    assign word_we=bus_data_owner && field_word_we;
+    assign word_addr=bus_data_owner ? field_word_addr : fast_program ? field_addr : cache_word_addr;
+    assign word_wdata=bus_data_owner ? field_word_wdata : 16'd0;
+    assign word_iaq=bus_data_owner ? iaq_q : fast_program ? field_iaq : cache_word_iaq;
+    assign word_pixel=bus_data_owner && pixel_q;
+    assign word_lock=bus_data_owner && field_word_lock;
+    assign cache_word_ack=word_ack && !bus_data_owner && !fast_program;
     // A posted operation may finish its CPU microinstruction on the edge
     // which captures the field, with the response register retaining ACK
     // if CEN is low. Copy read/write requests retain a separating low clock.
-    assign field_ack=fast_program ? word_ack && !data_owner : program_read ? cache_ack :
+    assign field_ack=fast_program ? (((byte_write_defer || deferred_opcode_done) && field_iaq) ? deferred_opcode_ack : word_ack && !bus_data_owner) : program_read ? cache_ack :
                      (data_accept && field_post) || post_ack || ((!post_busy || !data_request) && data_ack);
     assign field_rdata=program_read ? {16'd0,fast_program ? word_rdata : cache_rdata} : data_rdata;
     wire [15:0] field_word_rdata=pixel_q && srt_q && !field_word_we ?
@@ -163,8 +234,8 @@ module jttms10_word #(
     always @(posedge clk) begin
         if(rst) begin data_word_ack<=0;data_word_rdata<=0;end
         else begin
-            data_word_ack<=word_ack && data_owner;
-            if(word_ack && data_owner) data_word_rdata<=word_rdata;
+            data_word_ack<=word_ack && bus_data_owner;
+            if(word_ack && bus_data_owner) data_word_rdata<=word_rdata;
         end
     end
 
