@@ -35,6 +35,8 @@ assert the HD illegal/divide-by-zero MD bits and actual `$FFF0/$FFF1` vector
 bus reads. They include a page-11 illegal opcode, an invalid TFM selector, and
 DIVD/DIVQ divide-by-zero. Immediate and memory forms assert the saved CC,
 preserved dividend, MD.DZ, and original-device stack/vector/handler phases.
+Reserved illegal and divide-zero traps preserve the prior I/F mask bits in the
+stacked CC and live handler CC, as observed by the original-device decoder.
 A TFM interrupt restart check verifies that the interrupted transfer resumes
 after RTI without an early destination write and sets Z on completion.
 Immediate DIVD/DIVQ divide-by-zero checks now cover both MD modes. They assert
@@ -51,7 +53,7 @@ Saved CC is `$85` for DIVD and `$8D` for DIVQ, with D/W preserved.
 MULD, DIVD and DIVQ have integrated CPU checks for immediate and direct,
 indexed and extended addressing in both MD modes, with published cycle counts,
 signed results, and hard-overflow destination preservation. MULD also checks
-V preservation and C clearing. DIVD and DIVQ check signed minimum/just-outside
+V and C preservation. DIVD and DIVQ check signed minimum/just-outside
 quotient bounds, including truncated results and N/Z/V/C behavior.
 The signed timing matrix covers all four dividend/divisor sign pairs for
 DIVD and DIVQ (+1 E per negative operand) and MULD (+2 E if either operand is
@@ -60,6 +62,16 @@ Negative-dividend divide-by-zero cases assert that the physical-device
 zero-divisor path receives no sign correction. These operand-dependent timing
 rules follow the original-device measurements in
 [Hoglet's 6809Decoder behavior notes](https://github.com/hoglet67/6809Decoder/wiki/Undocumented-6309-Behaviours#divd).
+Additional divider boundary cases cover |DIVD quotient|=127/128/255/256 and
+|DIVQ quotient|=32767/32768/65535/65536 for positive and negative dividends,
+in immediate/direct/indexed/extended forms and both MD modes. They assert that
+soft overflow returns the quotient magnitude, uses the physical-device N/V/C
+rules, and applies the documented timing correction; hard overflow returns
+the absolute dividend magnitude and derives N from the original dividend.
+Hard overflow cases above the exact boundaries also test nonzero remainders.
+MULD checks preserve both V and C while updating N/Z. The original-device
+decoder and Atkinson's individual MULD entry preserve C; Atkinson's consolidated
+table says C=0, so the individual entry and physical-device result are used.
 
 Memory-immediate operations use the published 6/7/7 E-cycle counts for
 direct/indexed/extended forms in both modes. AIM/OIM/EIM verify the resulting

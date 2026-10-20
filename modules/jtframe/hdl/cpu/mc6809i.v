@@ -5270,15 +5270,11 @@ begin
             INTTYPE_HD_ILLEGAL:
             begin
                 addr_nxt = `Reserved_VECTOR+16'H1;
-                cc_nxt[CC_I_BIT] = 1'b1;
-                cc_nxt[CC_F_BIT] = 1'b1;
                 rLIC = 1'b1;
             end
             INTTYPE_HD_DIVZERO:
             begin
                 addr_nxt = `Reserved_VECTOR+16'H1;
-                cc_nxt[CC_I_BIT] = 1'b1;
-                cc_nxt[CC_F_BIT] = 1'b1;
                 rLIC = 1'b1;
             end
             default:
@@ -5581,12 +5577,15 @@ begin
                 {e_nxt,f_nxt} = HDArithResult[15:0];
                 cc_nxt[CC_N_BIT] = HDArithFlags[3];
                 cc_nxt[CC_Z_BIT] = HDArithFlags[2];
-                cc_nxt[CC_C_BIT] = 1'b0;
+                // The 6309 decoder and individual MULD entry preserve C;
+                // Atkinson's consolidated table's C=0 cell conflicts here.
             end else if (HDArithRangeOverflow) begin
-                cc_nxt[CC_N_BIT] = 1'b0;
-                cc_nxt[CC_Z_BIT] = 1'b0;
-                cc_nxt[CC_V_BIT] = 1'b1;
-                cc_nxt[CC_C_BIT] = 1'b0;
+                cc_nxt[CC_N_BIT] = HDArithFlags[3];
+                cc_nxt[CC_Z_BIT] = HDArithFlags[2];
+                cc_nxt[CC_V_BIT] = HDArithFlags[1];
+                cc_nxt[CC_C_BIT] = HDArithFlags[0];
+                if (IsHD6309DivD) {a_nxt,b_nxt} = HDArithResult[15:0];
+                else {a_nxt,b_nxt,e_nxt,f_nxt} = HDArithResult;
             end else begin
                 cc_nxt[CC_N_BIT] = HDArithFlags[3];
                 cc_nxt[CC_Z_BIT] = HDArithFlags[2];

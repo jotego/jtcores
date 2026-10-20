@@ -1115,6 +1115,12 @@ task run_invalid_tfm_selector;
             $sformatf("invalid TFM selector must set MD.IL, MD=%02x",regs6309[55:48]));
         assert_msg(stack_mem[18][2]==1'b0,
             $sformatf("invalid TFM selector stacked CC.Z=%0d expected clear",stack_mem[18][2]));
+        assert_msg(stack_mem[18][6]==1'b0 && stack_mem[18][4]==1'b0,
+            $sformatf("invalid TFM selector stacked CC I/F=%0d/%0d expected 0/0",
+                      stack_mem[18][4],stack_mem[18][6]));
+        assert_msg((regs[87:80]&8'h50)==8'h00,
+            $sformatf("invalid TFM selector handler CC I/F=%0d/%0d expected 0/0",
+                      regs[84],regs[86]));
     end
 endtask
 
@@ -1139,6 +1145,12 @@ task run_hd_illegal_opcode(input [7:0] page_opcode);
         assert_msg(illegal_vector_reads>=2,
             $sformatf("HD6309 opcode $11%02x vector reads=%0d expected FFF0/FFF1",
                       page_opcode,illegal_vector_reads));
+        assert_msg(stack_mem[18][6]==1'b0 && stack_mem[18][4]==1'b0,
+            $sformatf("HD6309 opcode $11%02x stacked CC I/F=%0d/%0d expected 0/0",
+                      page_opcode,stack_mem[18][4],stack_mem[18][6]));
+        assert_msg((regs[87:80]&8'h50)==8'h00,
+            $sformatf("HD6309 opcode $11%02x handler CC I/F=%0d/%0d expected 0/0",
+                      page_opcode,regs[84],regs[86]));
     end
 endtask
 
@@ -1213,6 +1225,9 @@ task run_divzero_trap(input [7:0] mode, input reg is_divq);
         assert_msg(stack_mem[(mode[0] ? 18 : 20)]== (is_divq ? 8'h8d : 8'h85),
             $sformatf("%s zero mode=%0d stacked CC=%02x expected %02x",
                       opname,mode[0],stack_mem[(mode[0] ? 18 : 20)],is_divq ? 8'h8d : 8'h85));
+        assert_msg((regs[87:80]&8'h50)==8'h00,
+            $sformatf("%s zero mode=%0d handler CC I/F=%0d/%0d expected 0/0",
+                      opname,mode[0],regs[84],regs[86]));
         assert_msg({regs[7:0],regs[15:8]}==(is_divq ? 16'hffff : 16'hfff9),
             $sformatf("%s zero mode=%0d changed D=%04x",
                       opname,mode[0],{regs[7:0],regs[15:8]}));
@@ -1320,6 +1335,9 @@ task run_divzero_memory_trap(input [7:0] mode, input reg is_divq,
         assert_msg(stack_mem[(mode[0] ? 18 : 20)]== (is_divq ? 8'h8d : 8'h85),
             $sformatf("%s zero form=%0d stacked CC=%02x expected %02x",
                       opname,form,stack_mem[(mode[0] ? 18 : 20)],is_divq ? 8'h8d : 8'h85));
+        assert_msg((regs[87:80]&8'h50)==8'h00,
+            $sformatf("%s zero form=%0d handler CC I/F=%0d/%0d expected 0/0",
+                      opname,form,regs[84],regs[86]));
         assert_msg({regs[7:0],regs[15:8]}==(is_divq ? 16'hffff : 16'hfff9),
             $sformatf("%s zero form=%0d changed D=%04x",opname,form,{regs[7:0],regs[15:8]}));
         if(is_divq) assert_msg({regs6309[7:0],regs6309[15:8]}==16'hfff9,
@@ -1388,7 +1406,13 @@ task run_signed_math_case(input integer op_kind, input [7:0] mode,
         initial_f=(op_kind==1) ? (sign_combo[1] ? 8'hf9 : 8'h07) : 8'h00;
         load_program(mode,8'h11,opcode,first_operand);
         preload_d(dividend);
-        if(form==2) preload_dx(dividend,16'h0040);
+        if(form==2) begin
+            preload_dx(dividend,16'h0040);
+            // Recreate the I/F mask, V/C seed, and branch after LDX.
+            put(16'h0113,8'h1c); put(16'h0114,8'haf);
+            put(16'h0115,8'h1a); put(16'h0116,8'h03);
+            put(16'h0117,8'h7e); put(16'h0118,8'h01); put(16'h0119,8'h20);
+        end else put(16'h0113,8'h03); // Seed V and C to verify MULD preserves both.
         if(form==3) begin
             put(16'h0122,8'h00); put(16'h0123,8'h40);
         end else if(form==0 && op_kind!=0) begin
@@ -1425,6 +1449,63 @@ task run_signed_math_case(input integer op_kind, input [7:0] mode,
                 $sformatf("%s result Q=%04x:%04x expected %08x",label,
                           regs[15:0],regs6309[31:16],expected_q));
         endcase
+        if(op_kind==2)
+            assert_msg(regs[80]==cc_before_target[0],
+                $sformatf("%s MULD changed C from %0d to %0d",label,
+                          cc_before_target[0],regs[80]));
+    end
+endtask
+
+task run_division_overflow_case(input reg is_divq, input [7:0] mode,
+                               input integer form, input [31:0] dividend,
+                               input [15:0] divisor, input [31:0] expected_result,
+                               input [3:0] expected_flags,
+                               input integer overflow_kind);
+    integer base_cycles, correction, expected_cycles;
+    reg [7:0] opcode, operand_hi;
+    reg [15:0] expected_pc;
+    reg [31:0] observed_result;
+    string opname, formname, label;
+    begin
+        case(form)
+            0: begin formname="immediate"; base_cycles=is_divq?34:25; end
+            1: begin formname="direct"; base_cycles=is_divq?(mode[0]?35:36):(mode[0]?26:27); end
+            2: begin formname="indexed"; base_cycles=is_divq?36:27; end
+            default: begin formname="extended"; base_cycles=is_divq?(mode[0]?36:37):(mode[0]?27:28); end
+        endcase
+        correction=(overflow_kind==2)?(is_divq?21:13):
+                   ((overflow_kind==1 && !is_divq)?1:0);
+        expected_cycles=base_cycles+((is_divq?dividend[31]:dividend[15])?1:0)+
+                        ((is_divq?divisor[15]:divisor[7])?1:0)-correction;
+        opname=is_divq?"DIVQ":"DIVD";
+        opcode=is_divq ? ((form==0)?8'h8e:(form==1)?8'h9e:(form==2)?8'hae:8'hbe) :
+                         ((form==0)?8'h8d:(form==1)?8'h9d:(form==2)?8'had:8'hbd);
+        operand_hi=(form==0 && is_divq)?divisor[15:8]:
+                   (form==0)?divisor[7:0]:
+                   (form==2)?8'h84:(form==1)?8'h40:8'h00;
+        initial_e=is_divq?dividend[15:8]:8'h00;
+        initial_f=is_divq?dividend[7:0]:8'h00;
+        load_program(mode,8'h11,opcode,operand_hi);
+        preload_d(is_divq?dividend[31:16]:dividend[15:0]);
+        if(form==2) preload_dx(is_divq?dividend[31:16]:dividend[15:0],16'h0040);
+        if(form==0 && is_divq) put(16'h0123,divisor[7:0]);
+        if(form==3) put(16'h0123,8'h40);
+        if(form!=0) begin
+            if(is_divq) begin
+                direct_mem[8'h40]=divisor[15:8];
+                direct_mem[8'h41]=divisor[7:0];
+            end else direct_mem[8'h40]=divisor[7:0];
+        end
+        expected_pc=(form==3 || (form==0 && is_divq))?16'h0124:16'h0123;
+        label=$sformatf("%s overflow kind=%0d %s mode=%0d dividend=%08x divisor=%04x",
+                        opname,overflow_kind,formname,mode[0],dividend,divisor);
+        measure_case(expected_cycles,expected_pc,label);
+        if(is_divq) observed_result={regs[7:0],regs[15:8],regs6309[31:16]};
+        else observed_result={16'h0000,regs[7:0],regs[15:8]};
+        assert_msg(observed_result==expected_result,
+            $sformatf("%s result=%08x expected=%08x",label,observed_result,expected_result));
+        assert_msg((regs[87:80]&8'h0f)==expected_flags,
+            $sformatf("%s CC=%02x expected low flags=%01x",label,regs[87:80],expected_flags));
     end
 endtask
 
@@ -2155,8 +2236,8 @@ initial begin
         $sformatf("MULD V-preservation precondition CC=%02x expected V=1",cc_before_target));
     assert_msg(regs[15:0]==16'h0000 && regs6309[31:16]==16'h0001,
         $sformatf("MULD 1*1 Q=%04x:%04x expected 0000:0001",regs[15:0],regs6309[31:16]));
-    assert_msg(regs[81] && regs[82] && !regs[80],
-        $sformatf("MULD CC=%02x pre-CC=%02x expected V preserved, Z set, C cleared",
+    assert_msg(regs[81] && regs[82] && regs[80] && cc_before_target[0],
+        $sformatf("MULD CC=%02x pre-CC=%02x expected V/C preserved and Z set",
                   regs[87:80],cc_before_target));
 
     initial_e=0; initial_f=0;
@@ -2183,11 +2264,11 @@ initial begin
     load_program(1'b0,8'h11,8'h8d,8'h03); // Hard quotient range overflow.
     preload_d(16'hfc7c); // -900 / 3 cannot fit the signed 8-bit quotient.
     measure_case(13,16'h0123,"DIVD hard range overflow");
-    assert_msg({regs[7:0],regs[15:8]}==16'hfc7c,
-        $sformatf("DIVD hard overflow changed D to %04x; expected original fc7c",
+    assert_msg({regs[7:0],regs[15:8]}==16'h0384,
+        $sformatf("DIVD hard overflow D=%04x expected dividend magnitude 0384",
                   {regs[7:0],regs[15:8]}));
-    assert_msg(!regs[83] && !regs[82] && regs[81] && !regs[80],
-        $sformatf("DIVD hard overflow CC=%02x expected V only",regs[87:80]));
+    assert_msg(regs[83] && !regs[82] && regs[81] && !regs[80],
+        $sformatf("DIVD hard overflow CC=%02x expected N,V",regs[87:80]));
 
     initial_e=8'hff; initial_f=8'hf9; // W={E,F}=FFF9
     load_program(1'b0,8'h11,8'h8e,8'h00); // DIVQ #$0003
@@ -2203,40 +2284,40 @@ initial begin
     load_program(1'b0,8'h11,8'h8e,8'h00); // DIVQ #$0003, hard range overflow.
     preload_d(16'hfffc); put(16'h0123,8'h03); // Q = -210000
     measure_case(14,16'h0124,"DIVQ hard range overflow");
-    assert_msg({regs[7:0],regs[15:8]}==16'hfffc && regs6309[31:16]==16'hcbb0,
-        $sformatf("DIVQ hard overflow changed Q to %04x:%04x",
+    assert_msg({regs[7:0],regs[15:8]}==16'h0003 && regs6309[31:16]==16'h3450,
+        $sformatf("DIVQ hard overflow Q=%04x:%04x expected magnitude 0003:3450",
                   {regs[7:0],regs[15:8]},regs6309[31:16]));
-    assert_msg(!regs[83] && !regs[82] && regs[81] && !regs[80],
-        $sformatf("DIVQ hard overflow CC=%02x expected V only",regs[87:80]));
+    assert_msg(regs[83] && !regs[82] && regs[81] && !regs[80],
+        $sformatf("DIVQ hard overflow CC=%02x expected N,V",regs[87:80]));
 
-    // Signed overflow boundaries from Atkinson's divide notes. Quotients are
-    // truncated to the destination width; N follows the truncated quotient.
+    // Original-device signed overflow boundaries use unsigned quotient
+    // magnitude and dividend-sign/remainder conventions.
     load_program(1'b0,8'h11,8'h8d,8'h01); preload_d(16'hff80);
-    measure_case(26,16'h0123,"DIVD -128/1 boundary");
+    measure_case(25,16'h0123,"DIVD -128/1 soft overflow");
     assert_msg({regs[7:0],regs[15:8]}==16'h0080 &&
-               (regs[87:80]&8'h0f)==8'h08,
-        $sformatf("DIVD -128/1 D=%04x CC=%02x expected 0080/08",
+               (regs[87:80]&8'h0f)==8'h0a,
+        $sformatf("DIVD -128/1 D=%04x CC=%02x expected magnitude 0080/NV",
                   {regs[7:0],regs[15:8]},regs[87:80]));
     load_program(1'b0,8'h11,8'h8d,8'h01); preload_d(16'hff7f);
     measure_case(25,16'h0123,"DIVD -129/1 boundary");
-    assert_msg({regs[7:0],regs[15:8]}==16'h007f &&
-               (regs[87:80]&8'h0f)==8'h03,
-        $sformatf("DIVD -129/1 D=%04x CC=%02x expected 007f/03",
+    assert_msg({regs[7:0],regs[15:8]}==16'h0081 &&
+               (regs[87:80]&8'h0f)==8'h0b,
+        $sformatf("DIVD -129/1 D=%04x CC=%02x expected magnitude 0081/NVC",
                   {regs[7:0],regs[15:8]},regs[87:80]));
 
     initial_e=8'h80; initial_f=8'h00;
     load_program(1'b0,8'h11,8'h8e,8'hff); preload_d(16'hffff); put(16'h0123,8'hff);
     measure_case(36,16'h0124,"DIVQ -32768/-1 boundary");
     assert_msg({regs[7:0],regs[15:8]}==16'h0000 && regs6309[31:16]==16'h8000 &&
-               (regs[87:80]&8'h0f)==8'h0a,
-        $sformatf("DIVQ -32768/-1 Q=%04x:%04x CC=%02x expected 0000:8000/0a",
+               (regs[87:80]&8'h0f)==8'h02,
+        $sformatf("DIVQ -32768/-1 Q=%04x:%04x CC=%02x expected magnitude 0000:8000/02",
                   {regs[7:0],regs[15:8]},regs6309[31:16],regs[87:80]));
     initial_e=8'h7f; initial_f=8'hff;
     load_program(1'b0,8'h11,8'h8e,8'h00); preload_d(16'hffff); put(16'h0123,8'h01);
     measure_case(35,16'h0124,"DIVQ -32769/1 boundary");
-    assert_msg({regs[7:0],regs[15:8]}==16'h0000 && regs6309[31:16]==16'h7fff &&
+    assert_msg({regs[7:0],regs[15:8]}==16'h0000 && regs6309[31:16]==16'h8001 &&
                (regs[87:80]&8'h0f)==8'h03,
-        $sformatf("DIVQ -32769/1 Q=%04x:%04x CC=%02x expected 0000:7fff/03",
+        $sformatf("DIVQ -32769/1 Q=%04x:%04x CC=%02x expected magnitude 0000:8001/03",
                   {regs[7:0],regs[15:8]},regs6309[31:16],regs[87:80]));
 
     // Memory addressing classes use the same signed operands with data at
@@ -2336,6 +2417,39 @@ initial begin
     for(signed_mode=0;signed_mode<2;signed_mode=signed_mode+1)
     for(signed_combo=0;signed_combo<4;signed_combo=signed_combo+1)
         run_signed_math_case(signed_op,signed_mode,signed_form,signed_combo);
+
+    // Original-device divider boundary behavior, across every addressing form
+    // and both MD modes. DIVD soft overflow starts at |quotient|=128 and hard
+    // overflow at 256; DIVQ soft overflow starts at 32768 and hard at 65536.
+    for(signed_form=0;signed_form<4;signed_form=signed_form+1)
+    for(signed_mode=0;signed_mode<2;signed_mode=signed_mode+1) begin
+        run_division_overflow_case(0,signed_mode,signed_form,32'h0000007f,16'h0001,32'h0000007f,4'h1,0);
+        run_division_overflow_case(0,signed_mode,signed_form,32'hffffff81,16'h0001,32'h00000081,4'h9,0);
+        run_division_overflow_case(0,signed_mode,signed_form,32'h00000080,16'h0001,32'h00000080,4'ha,1);
+        run_division_overflow_case(0,signed_mode,signed_form,32'hffffff80,16'h0001,32'h00000080,4'ha,1);
+        run_division_overflow_case(0,signed_mode,signed_form,32'h000000ff,16'h0001,32'h000000ff,4'hb,1);
+        run_division_overflow_case(0,signed_mode,signed_form,32'hffffff01,16'h0001,32'h000000ff,4'hb,1);
+        run_division_overflow_case(0,signed_mode,signed_form,32'h00000100,16'h0001,32'h00000100,4'h2,2);
+        run_division_overflow_case(0,signed_mode,signed_form,32'hffffff00,16'h0001,32'h00000100,4'ha,2);
+
+        run_division_overflow_case(1,signed_mode,signed_form,32'h00007fff,16'h0001,32'h00007fff,4'h1,0);
+        run_division_overflow_case(1,signed_mode,signed_form,32'hffff8001,16'h0001,32'h00008001,4'h9,0);
+        run_division_overflow_case(1,signed_mode,signed_form,32'h00008000,16'h0001,32'h00008000,4'h2,1);
+        run_division_overflow_case(1,signed_mode,signed_form,32'hffff8000,16'h0001,32'h00008000,4'h2,1);
+        run_division_overflow_case(1,signed_mode,signed_form,32'h0000ffff,16'h0001,32'h0000ffff,4'h3,1);
+        run_division_overflow_case(1,signed_mode,signed_form,32'hffff0001,16'h0001,32'h0000ffff,4'h3,1);
+        run_division_overflow_case(1,signed_mode,signed_form,32'h00010000,16'h0001,32'h00010000,4'h2,2);
+        run_division_overflow_case(1,signed_mode,signed_form,32'hffff0000,16'h0001,32'h00010000,4'ha,2);
+    end
+    // Non-boundary hard-overflow cases also verify preservation of the full
+    // dividend magnitude and its sign in N across both modes and all forms.
+    for(signed_form=0;signed_form<4;signed_form=signed_form+1)
+    for(signed_mode=0;signed_mode<2;signed_mode=signed_mode+1) begin
+        run_division_overflow_case(0,signed_mode,signed_form,32'h00000385,16'h0003,32'h00000385,4'h2,2);
+        run_division_overflow_case(0,signed_mode,signed_form,32'hfffffc7b,16'h0003,32'h00000385,4'ha,2);
+        run_division_overflow_case(1,signed_mode,signed_form,32'h00033451,16'h0003,32'h00033451,4'h2,2);
+        run_division_overflow_case(1,signed_mode,signed_form,32'hfffc_cbaf,16'h0003,32'h00033451,4'ha,2);
+    end
     initial_e=8'h12; initial_f=8'h34;
 
     // Memory-immediate operations share the documented 6/7/7 cycle counts

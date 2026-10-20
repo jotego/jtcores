@@ -86,21 +86,29 @@ always @(posedge clk) begin
                                                remainder_step[15:0];
 
             if (divd_mode) begin
-                signed_overflow = quotient_negative ?
-                                  (quotient_step > 16'd128) :
-                                  (quotient_step > 16'd127);
-                result <= {16'h0000, remainder_code[7:0], quotient_code[7:0]};
-                cc_flags <= {4'b0000, quotient_code[7],
-                             (quotient_code[7:0] == 8'h00), signed_overflow,
-                             quotient_code[0]};
+                signed_overflow = quotient_step > 16'd127;
+                if (signed_overflow) begin
+                    // The original 6309 reports the quotient magnitude on
+                    // two's-complement overflow. Remainder keeps dividend sign.
+                    result <= {16'h0000, remainder_code[7:0], quotient_step[7:0]};
+                    cc_flags <= {4'b0000, 1'b1, 1'b0, 1'b1, quotient_step[0]};
+                end else begin
+                    result <= {16'h0000, remainder_code[7:0], quotient_code[7:0]};
+                    cc_flags <= {4'b0000, quotient_code[7],
+                                 (quotient_code[7:0] == 8'h00), 1'b0,
+                                 quotient_code[0]};
+                end
             end else begin
-                signed_overflow = quotient_negative ?
-                                  (quotient_step > 16'd32768) :
-                                  (quotient_step > 16'd32767);
-                result <= {remainder_code[15:0], quotient_code[15:0]};
-                cc_flags <= {4'b0000, quotient_code[15],
-                             (quotient_code[15:0] == 16'h0000), signed_overflow,
-                             quotient_code[0]};
+                signed_overflow = quotient_step > 16'd32767;
+                if (signed_overflow) begin
+                    result <= {remainder_code[15:0], quotient_step[15:0]};
+                    cc_flags <= {4'b0000, 1'b0, 1'b0, 1'b1, quotient_step[0]};
+                end else begin
+                    result <= {remainder_code[15:0], quotient_code[15:0]};
+                    cc_flags <= {4'b0000, quotient_code[15],
+                                 (quotient_code[15:0] == 16'h0000), 1'b0,
+                                 quotient_code[0]};
+                end
             end
 
             busy <= 1'b0;
@@ -118,7 +126,7 @@ always @(posedge clk) begin
             result <= product_start;
             cc_flags[3] <= product_start[31];
             cc_flags[2] <= (product_start[31:16] == 16'h0000);
-            // MULD clears C; the CPU must preserve V while writing N/Z/C.
+            // MULD reports N/Z only; the CPU preserves V and C.
             cc_flags[0] <= 1'b0;
             busy <= 1'b0;
             done <= 1'b1;
@@ -150,7 +158,11 @@ always @(posedge clk) begin
                 done <= 1'b1;
             end else if (lhs_magnitude_start >= hard_limit_start) begin
                 range_overflow <= 1'b1;
+                result <= lhs_magnitude_start;
+                cc_flags[3] <= lhs_negative_start;
+                cc_flags[2] <= 1'b0;
                 cc_flags[1] <= 1'b1;
+                cc_flags[0] <= 1'b0;
                 busy <= 1'b0;
                 done <= 1'b1;
             end else begin
