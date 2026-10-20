@@ -481,3 +481,54 @@ standard runner already includes the fixture tests and all generated cases;
 there is no failure allowlist or change to the independent timing equations.
 Plane mask, transparency, Boolean/arithmetic processing, multiple partial rows,
 window preclipping and partial-edge interrupt timing remain separate work.
+
+
+## Native partial-word development path
+
+The replacement path now groups each pixel-aligned PSIZE 1/2/4/8 edge into
+one physical-word read/modify/write through the existing field adapter.
+Whole words still use one write. The five-bit span records the smaller of
+the remaining row and physical word; fixed PSIZE selectors convert that span
+back to a pixel stride. COLOR1 remains a physical-word pattern, shifted for
+the destination lane. This adds one span register and one long-B mode bit;
+it adds no arithmetic unit, DSP, register bank or asynchronous RAM access.
+
+The native loop primes the next pointer before entering the next word,
+loads COLOR1 while capturing the edge, and overlaps the pointer/count work
+with the posted transfer. A new partial row reloads its lane-shifted pattern;
+a new full row reloads its word stride before the row emit. This preserves
+changing-pitch and overlapping-row architectural behavior. The independent
+oracle and fixture expectations are unchanged.
+
+Initial B/C/D read reservations follow Table13-6; a C row spanning several
+words keeps the full setup reservation. Long B rows drain the preceding
+word before the additional tail processing interval. The field response
+latch accounts for four clocks of that interval. A reserved bus operation
+also waits for its own request before accepting completion, so completion of
+the preceding posted word cannot silently discard the delayed tail write.
+These are bus scheduling changes; retirement padding does not establish the
+edge traffic or compensate for missing transactions.
+
+Local development checks cover 26 focused timing programs in BASE, W1/P7
+and W3: 20 partial-edge cases and six preceding aligned controls. Separate
+architectural checks pass 160 array programs, 124 FILL boundary programs and
+56 changing-pitch row programs; the existing five-size linear/XY FILL
+IRQ/NMI continuation bench and strict lint also pass. These checks do not
+establish the full 140-case partial timing matrix or the preceding 2,240
+aligned matrix on the changed FPGA implementation. The physically loaded
+partition image contains the earlier graphics-Y factoring only; the partial
+edge changes still require a new source-bound build and FPGA validation.
+Exact multirow partial timing, additional processing/window/mask/transparency
+conditions, and posted-wrapper partial-edge interrupt timing remain open.
+
+Run the focused permanent mutation group with:
+
+```sh
+python3 modules/jttms10/ver/timing/mutations.py --group fill --report fill-mutations.json
+```
+
+The group includes the prior FILL scheduling mutations, a shortened long-B
+tail interval, an incorrect partial-word pattern, and a stale posted ACK.
+Timing mutants must preserve checked architecture/memory; functional and
+transaction failures have separate required diagnostics. A syntax failure
+is never accepted as detection.

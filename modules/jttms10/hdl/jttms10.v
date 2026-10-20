@@ -61,7 +61,8 @@ module jttms10 #(
     reg binary_aligned, binary_last_row;
     wire [15:0] binary_mask;
     wire gfx_product,gfx_product_y,gfx_packed_xy,gfx_alu_capture;
-    reg fill_word, copy_row_short;
+    reg fill_word, copy_row_short, fill_long_b;
+    reg [4:0] fill_edge_bits;
     reg copy_read_pending;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
          gfx_flag_vpix,gfx_flag_vclear,gfx_flag_wvp;
@@ -167,6 +168,28 @@ module jttms10 #(
         (!ir[5] || control[7:6]==0) && result[3:0]==0 &&
         (psize==16'd1 || psize==16'd2 || psize==16'd4 ||
          psize==16'd8 || psize==16'd16) && rd_data>=fill_pixels;
+    // Group a replacement edge into the existing field adapter's single
+    // physical-word RMW. Dimensions remain pixel counts; no new wide ALU.
+    wire [3:0] fill_align_mask=psize[3:0]-4'd1;
+    wire [4:0] fill_row_bits=rd_data>=fill_pixels ? 5'd16 :
+        psize==16'd1 ? {1'b0,rd_data[3:0]} :
+        psize==16'd2 ? {1'b0,rd_data[2:0],1'b0} :
+        psize==16'd4 ? {1'b0,rd_data[1:0],2'b0} :
+        psize==16'd8 ? {1'b0,rd_data[0],3'b0} : 5'd0;
+    wire [3:0] fill_tail_bits=psize==16'd1 ? rd_data[3:0] :
+        psize==16'd2 ? {rd_data[2:0],1'b0} :
+        psize==16'd4 ? {rd_data[1:0],2'b0} :
+        psize==16'd8 ? {rd_data[0],3'b0} : 4'd0;
+    wire [4:0] fill_word_bits=5'd16-{1'b0,result[3:0]};
+    wire [4:0] fill_edge_next=fill_row_bits<fill_word_bits ? fill_row_bits : fill_word_bits;
+    wire fill_edge_eligible=array_fill && pixel_simple && (!ir[5] || control[7:6]==0) &&
+        (psize==16'd1 || psize==16'd2 || psize==16'd4 || psize==16'd8) &&
+        (result[3:0] & fill_align_mask)==0 && rd_data!=0 && !fill_word_eligible;
+    wire fill_edge=|fill_edge_bits;
+    wire [4:0] fill_edge_pixels=psize==16'd1 ? fill_edge_bits :
+        psize==16'd2 ? {1'b0,fill_edge_bits[4:1]} :
+        psize==16'd4 ? {2'b0,fill_edge_bits[4:2]} :
+        psize==16'd8 ? {3'b0,fill_edge_bits[4:3]} : 5'd0;
     wire array_binary = ir==16'h0f80 || ir==16'h0fa0;
     wire reti_pbx = ir==16'h0940 && tmp[25];
     wire pix_register_source = pix_rxy || pix_rlin || drav_ir || line_ir ||
@@ -276,6 +299,8 @@ module jttms10 #(
     // the first word. XY retains two more conversion setup states in the
     // same issue counter; both paths preserve that work across CEN pauses.
     localparam integer FILL_LEAD_I=6*CLKS_PER_STATE-1;
+    localparam integer FILL_TAIL_I=2*CLKS_PER_STATE-4;
+    localparam [LOAD_IW-1:0] FILL_TAIL=FILL_TAIL_I[LOAD_IW-1:0];
     localparam [LOAD_IW-1:0] FILL_LEAD=FILL_LEAD_I[LOAD_IW-1:0];
     localparam integer FILL_XY_LEAD_I=8*CLKS_PER_STATE-1;
     localparam [LOAD_IW-1:0] FILL_XY_LEAD=FILL_XY_LEAD_I[LOAD_IW-1:0];
@@ -462,7 +487,9 @@ module jttms10 #(
     // full clock to decode the returned opcode before fetch/dispatch commits.
     // The completed graphics state hands off four clocks before the next
     // state boundary, matching the existing cached fetch/dispatch overlap.
-    wire operation_ready=copy_scheduled ? (completed || (mem_req && mem_ack)) :
+    wire fill_bus_wait=TIMED_PROGRAM!=0 && array_fill && (fill_word || fill_edge) && gfx_bus_write &&
+        (!store_started || (fill_long_b && fill_edge)) && (load_issue_left!=0 || mem_phase!=0);
+    wire operation_ready=fill_bus_wait ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
                          gfx_bus_collect ? (mem_ack || !mem_busy) :
                          line_native && gfx_bus_skip ? time_left==0 :
                          gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
@@ -482,8 +509,7 @@ module jttms10 #(
                      !(line_native && gfx_bus_post && (time_left!=0 || mem_phase!=0)) &&
                      !(copy_scheduled && !copy_read_pending &&
                        ((!gfx_bus_second && time_left!=0) || mem_phase!=0 || (!store_started && load_issue_left!=0))) &&
-                     !(TIMED_PROGRAM!=0 && array_fill && fill_word && gfx_bus_write &&
-                       !store_started && (load_issue_left!=0 || mem_phase!=0)) &&
+                     !fill_bus_wait &&
                      !(multi_ir && imm && load_issue_left>multi_first_lead-LOAD_PRE+LOAD_NEXT_LIMIT) &&
                      !(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
                      !(call_relative && control[15] && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
@@ -520,7 +546,7 @@ module jttms10 #(
                                  ({32{field_ext_fill}} & ~field_mask);
     // The post tag can advertise the next eligible clock before address
     // capture. No field is accepted until mem_req supplies the valid EA.
-    assign mem_post=gfx_bus_post || (gfx_active && fill_word && gfx_bus_write) || early_store || (stack_push && store_pending && load_issue_left<=1);
+    assign mem_post=gfx_bus_post || (gfx_active && (fill_word || fill_edge) && gfx_bus_write) || early_store || (stack_push && store_pending && load_issue_left<=1);
     // The physical field adapter owns MSW-first order for a complete saved
     // PC/ST field. Hardware entry is independent of the interrupted opcode.
     assign mem_reverse=(mem_post && stack_push) || (trap_ir && mem_we) ||
@@ -546,7 +572,7 @@ module jttms10 #(
     assign mem_fast=TIMED_PROGRAM!=0 && control[15] && branch_relative &&
                     !branch_short && condition && mem_program ||
                     (copy_packet && imm && mem_program && copy_miss_ready) ||
-                    (pixel_store && (early_load || early_store)) || (gfx_active && fill_word && gfx_bus_write) || gfx_bus_post;
+                     (pixel_store && (early_load || early_store)) || (gfx_active && (fill_word || fill_edge) && gfx_bus_write) || gfx_bus_post;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = (pixel_store && (early_store || early_load)) || (pixel_load && early_load) || (gfx_active && gfx_bus_pixel);
@@ -620,6 +646,7 @@ module jttms10 #(
         .control(control), .last_pixel_addr(ea),
         .alu_n(n), .alu_z(z), .alu_v(v),.alu_result(result),
         .need_dest(gfx_need_dest), .word_fill(fill_word), .word_copy(copy_regular_native),.word_binary(binary_native),.native_line(line_native),
+        .fill_edge_bits(fill_edge_bits), .fill_edge_pixels(fill_edge_pixels),
         .bus_accepted(completed),
         .irq_pending(nmi_req || (irq_req && st[21])), .transparent(pix_transparent),
         .active(gfx_active), .checkpoint(gfx_checkpoint),
@@ -841,7 +868,8 @@ module jttms10 #(
             if(cen) begin
                 if(timing_active && time_left!=0) time_left<=time_left-16'd1;
                 if(fetch_wait!=0) fetch_wait<=fetch_wait-16'd1;
-                if(load_issue_left!=0) load_issue_left<=load_issue_left-1'b1;
+                if(load_issue_left!=0 && !(gfx_active && array_fill && fill_long_b && fill_edge && store_started && mem_busy))
+                    load_issue_left<=load_issue_left-1'b1;
             end
             // ACK capture is independent of CEN, like the response data.
             // External fetches (CD or a cache fill) need the additional
@@ -923,7 +951,20 @@ module jttms10 #(
             if(TIMED_PROGRAM!=0 && array_fill && !store_started &&
                step && gfx_pix_word && fill_word_eligible && rd_data=={fill_pixels[30:0],1'b0})
                 load_issue_left<=load_issue_left+CLKS_PER_STATE[LOAD_IW-1:0]-1'b1;
-            if(array_fill && gfx_active && fill_word && gfx_bus_write && mem_req && mem_ack)
+            // Table13-6 B/C/D reserve an early edge read, except for C rows
+            // spanning several words. Preserve this clock's normal decrement.
+            if(TIMED_PROGRAM!=0 && array_fill && !store_started &&
+               step && gfx_pix_word && fill_edge_eligible)
+                load_issue_left<=load_issue_left-(result[3:0]==0 ? CLKS_PER_STATE[LOAD_IW-1:0] :
+                    fill_row_bits>fill_word_bits && fill_tail_bits==fill_word_bits[3:0] ?
+                    {LOAD_IW{1'b0}} : {CLKS_PER_STATE[LOAD_IW-2:0],1'b0})-1'b1;
+            // Table13-6 long-B tail processing follows the preceding full
+            // word drain. Its response latch occupies four clocks of this
+            // interval. External waits must not consume the processing work.
+            if(TIMED_PROGRAM!=0 && array_fill && store_started && fill_long_b &&
+               step && gfx_pix_word && fill_edge_eligible)
+                load_issue_left<=FILL_TAIL;
+            if(array_fill && gfx_active && (fill_word || fill_edge) && gfx_bus_write && mem_req && mem_ack)
                 store_started<=1;
             if(line_native && ((gfx_bus_post && mem_req && mem_ack) || (gfx_bus_skip && step))) begin
                 time_left<=LINE_PIXEL_CLKS;
@@ -1021,14 +1062,14 @@ module jttms10 #(
             push_high<=0;
             hw_entry<=0;
             pix_src_addr<=0;
-            fill_word<=0;
+            fill_word<=0; fill_edge_bits<=0; fill_long_b<=0;
             copy_row_short<=0;
             binary_aligned<=0;
             pix_transparent<=0;
             pbx_push<=0;
             line_hw_push<=0;
         end else begin
-            if(gfx_enter || gfx_resume) begin fill_word<=0; binary_aligned<=1; end
+            if(gfx_enter || gfx_resume) begin fill_word<=0; fill_edge_bits<=0; fill_long_b<=0; binary_aligned<=1; end
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
                 nmi_clear<=nmi_req;
@@ -1307,14 +1348,18 @@ module jttms10 #(
                     if(gfx_bus_resume) fill_word<=1;
                     if(gfx_pix_binary) md<={16'd0,(a[15:0] & ~binary_mask) | (b[15:0] & binary_mask)};
                     if(gfx_pix_word) begin
+                        if(array_fill && !store_started)
+                            fill_long_b<=pixel_simple && (!ir[5] || control[7:6]==0) &&
+                                result[3:0]==0 && rd_data>={fill_pixels[30:0],1'b0} && fill_tail_bits!=0;
                         fill_word<=fill_word_eligible;
+                        fill_edge_bits<=fill_edge_eligible ? fill_edge_next : 5'd0;
                         if(copy_native) copy_row_short<=rd_data<={fill_pixels[30:0],1'b0};
                     end
                     if(gfx_pix_source) pix_src_addr<=ea[3:0];
                     if(gfx_pix_visible) md<={16'd0,pixel_visible_source};
                     if(gfx_pix_process) begin
-                        md<={16'd0,fill_word ? rs_data[15:0] : pixel_write_pixel};
-                        pix_transparent<=pixel_transparent;
+                        md<={16'd0,fill_word ? rs_data[15:0] : fill_edge ? pixel_source : pixel_write_pixel};
+                        pix_transparent<=!fill_edge && pixel_transparent;
                     end
                     if(gfx_pix_test) pix_transparent<=pixel_transparent;
                     if(gfx_flag_z) st[29]<=z;

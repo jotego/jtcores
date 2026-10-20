@@ -568,9 +568,8 @@ ucode:
   seq:
   - sa0 sa5, da0 da2 da3 da5
   - qs_gas, sa0 sa5, da0 da2 da3 da5
-  - ea_gdst, word_gpix
-  - sa0 sa3 sa4, da0 da2 da3 da5
-  - word_gcond, jump_gflow, ${TARGET_GFILLWORDINIT}, sa0 sa3 sa4, da0 da2 da3 da5
+  - ea_gdst, word_gpix, sa0 sa3 sa4, da0 da2 da3 da5
+  - process_gpix, word_gcond, jump_gflow, ${TARGET_GFILLWORDINIT}, sa0 sa5, da0 da2 da3 da5
   - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4, da0 da3 da4
   - sa0 sa3 sa4, da0 da3 da4
   - process_gpix, sa0 sa3 sa4, da0 da3 da4
@@ -1763,25 +1762,20 @@ ucode:
 - name: gfillwordinit
   start: 190
   seq:
-  - qs_gas, twoword_gcond, call_gflow, ${TARGET_GFILLROWSTATE}, sa0 sa3 sa4, da0 da2 da3 da5
-  - md_gdst, sa0 sa5, da0 da2 da3 da5
-  - qs_gas, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
-  - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
-  - wrpx_gbus, stride_gpix
+  - qs_gas, k_gbs, m2_gbm, twoword_gcond, call_gflow, ${TARGET_GFILLROWSTATE}, sa0 sa5, da0 da2 da3 da5
+  - add_galu, rf_gdst, wrpx_gbus, stride_gpix, qd_gbs, sa0 sa5, da0 da5
   - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
-  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
-  - jump_gflow, ${TARGET_GFILLWORDLOOP}
+  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da2 da3 da5
+  - qs_gas, jump_gflow, ${TARGET_GFILLWORDLOOP}, sa0 sa5, da0 da2 da3 da5
 - name: gfillwordloop
   start: 191
   seq:
-  - sa0 sa5, da0 da2 da3 da5
-  - qs_gas, k_gbs, m2_gbm, shortword_gcond, jump_gflow, ${TARGET_GFILLLOOP}, sa0 sa5, da0 da2 da3 da5
-  - ea_gdst, sa0 sa5, da0 da2 da3 da5
-  - add_galu, rf_gdst, qd_gbs, sa0 sa5, da0 da5
-  - wrpx_gbus, stride_gpix
+  - ea_gdst, word_gpix, sa0 sa3 sa4, da0 da2 da3 da5
+  - process_gpix, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
+  - add_galu, rf_gdst, wrpx_gbus, stride_gpix, qd_gbs, sa0 sa5, da0 da5
   - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
-  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
-  - jump_gflow, ${TARGET_GFILLWORDLOOP}
+  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da2 da3 da5
+  - qs_gas, jump_gflow, ${TARGET_GFILLWORDLOOP}, sa0 sa5, da0 da2 da3 da5
 # Posted final-word completion overlaps the row counter and pitch preparation.
 # S46 is primed by the final word's counter write; S32 is the row start.
 - name: gfillwordrow
@@ -1793,7 +1787,7 @@ ucode:
   - add_galu, rf_gdst, qs_gas, sa5, da5
   - rf_gdst, qs_gas, sa5, da0 da2 da3 da5
   - rf_gdst, word_gpix, k_gbs, m2_gbm, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da5
-  - ea_gdst, sync_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
+  - ea_gdst, k_gbs, m2_gbm, sync_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
   - jump_gflow, ${TARGET_GFILLLOOP}
 # Row preparation already holds the pointer in A and word increment in B.
 - name: gfillwordemit
@@ -1802,8 +1796,8 @@ ucode:
   - add_galu, rf_gdst, qd_gbs, twoword_gcond, call_gflow, ${TARGET_GFILLROWSTATE}, sa0 sa5, da0 da5
   - wrpx_gbus, stride_gpix
   - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
-  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}
-  - jump_gflow, ${TARGET_GFILLWORDLOOP}
+  - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da2 da3 da5
+  - qs_gas, jump_gflow, ${TARGET_GFILLWORDLOOP}, sa0 sa5, da0 da2 da3 da5
 # Table13-6 A/G2: a two-word row has one more processing state than
 # N1 or N>=3. The row drain precedes this state, so an external wait
 # cannot be hidden by the row processing work.
@@ -1813,7 +1807,7 @@ ucode:
   - sa5, da5
   - sa5, da5
   - sa5, da5
-  - ret_gflow, sa5, da5
+  - ret_gflow, sa0 sa5, da0 da2 da3 da5
 - name: gfillxyfast
   start: 195
   seq:

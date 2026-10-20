@@ -12,6 +12,7 @@ module jttms10_gfx(
     input alu_n, alu_z, alu_v,
     input [31:0] alu_result,
     input need_dest, word_fill, word_copy, word_binary, irq_pending, native_line, bus_accepted,
+    input [4:0] fill_edge_bits, fill_edge_pixels,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -101,7 +102,7 @@ module jttms10_gfx(
                      gam==M6_GAM ? {26'd0,source_chunk_size} :
                      gam==M7_GAM ? {16'd0,ir} : 32'd0;
     wire [31:0] kb = gbm==M1_GBM ? 32'd1 :
-                     gbm==M2_GBM ? (word_fill ? 32'd16 : {16'd0,psize}) :
+                     gbm==M2_GBM ? (word_fill ? 32'd16 : fill_edge_bits!=0 ? {27'd0,fill_edge_bits} : {16'd0,psize}) :
                      gbm==M3_GBM ? 32'd32 :
                      gbm==M4_GBM ? {27'd0,convsp[4:0]} :
                      gbm==M5_GBM ? {27'd0,convdp[4:0]} :
@@ -132,7 +133,7 @@ module jttms10_gfx(
             K_GAS: a_data=ka;
             default: a_data=32'd0;
         endcase
-        if(gpix==STRIDE_GPIX) a_data=word_fill ? fill_pixels : 32'd1;
+        if(gpix==STRIDE_GPIX) a_data=word_fill ? fill_pixels : fill_edge_bits!=0 ? {27'd0,fill_edge_pixels} : 32'd1;
         case(gbs)
             QS_GBS: b_data=format_rf(rf_qs,gbm);
             QD_GBS: b_data=format_rf(rf_qd,gbm);
@@ -189,7 +190,7 @@ module jttms10_gfx(
     assign bus_pixel=active &&
         (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS ||
          gbus==POSTROW_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
-    assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
+    assign bus_size=word_fill ? 6'd16 : fill_edge_bits!=0 ? {1'b0,fill_edge_bits} : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
                     gsize==CHUNK_GSIZE ? source_chunk_size :
                     {1'b0,psize[4:0]};
@@ -226,7 +227,9 @@ module jttms10_gfx(
             SECOND_GCOND: condition=rf_qs>32'd16;
             LASTWORD_GCOND: condition=rf_qd==fill_pixels;
             UNALIGNED_GCOND: condition=|{rf_qs[3:0],rf_qd[3:0]};
-            WORD_GCOND: condition=word_fill;
+            // A new partial row must reload the lane-shifted COLOR1 pattern.
+            // The row drain may reuse MD only for a complete physical word.
+            WORD_GCOND: condition=word_fill || (fill_edge_bits!=0 && gbus!=SYNC_GBUS);
             SHORTWORD_GCOND: condition=!word_fill || (!word_copy && need_dest) || control[5] ||
                                        rf_qs[3:0]!=0 || rf_qd<fill_pixels;
             TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};
@@ -299,7 +302,7 @@ module jttms10_gfx(
                 8'd111: uaddr<=GPIXT_LINREG_SEQA;
                 8'd112: uaddr<=GPIXT_LINLIN_SEQA;
                 8'd117: uaddr<=GARRAY_SEQA;
-                8'd139: uaddr<=GARRAY_SEQA;
+                8'd139: uaddr<=GFILLL_SEQA;
                 8'd140: begin
                     uaddr<=GARRAY_SEQA;
                     if(word_copy) uaddr<=GBLTFASTINIT_SEQA;

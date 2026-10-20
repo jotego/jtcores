@@ -228,20 +228,22 @@ def fill_mutations(work,evidence):
     """Reject FILL scheduling changes while retaining defined state/memory."""
     for name,probe,file,old,new,extra in (
         ('absorbed_fill_setup_pause','fill_l_ps1_n1_rows1_hit','jttms10.v',
-         "!(TIMED_PROGRAM!=0 && array_fill && fill_word && gfx_bus_write &&\n                       !store_started && (load_issue_left!=0 || mem_phase!=0))",
-         "1'b1",('--wait-states','1','--pause-clocks','1')),
+         "fill_bus_wait=TIMED_PROGRAM!=0 &&", "fill_bus_wait=1'b0 &&",('--wait-states','1','--pause-clocks','1')),
         ('wrong_fill_end_phase','fill_l_ps1_n1_rows1_hit','jttms10.v',
          "GFX_END_PHASE=CLKS_PER_STATE-32'd4;", "GFX_END_PHASE=CLKS_PER_STATE-32'd5;",()),
         ('omitted_fill_two_word_state','fill_l_ps1_n2_rows4_hit','jttms10_gfx.v',
          "TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};", "TWOWORD_GCOND: condition=1'b0;",()),
         ('omitted_fill_row_drain','fill_l_ps1_n1_rows4_hit','jttms10.v',
-         '!mem_busy && (!gfx_end_pending ||', '(!gfx_end_pending || !mem_busy) && (!gfx_end_pending ||',()),
+         '!mem_busy && (!(line_native ||', '(!gfx_end_pending || !mem_busy) && (!(line_native ||',()),
         ('absorbed_fill_row_wait','fill_l_ps1_n3_rows4_hit','jttms10.v',
-         '!mem_busy && (!gfx_end_pending ||', '(!gfx_end_pending || !mem_busy) && (!gfx_end_pending ||',
+         '!mem_busy && (!(line_native ||', '(!gfx_end_pending || !mem_busy) && (!(line_native ||',
          ('--wait-states','1','--pause-clocks','7')),
         ('ignored_fill_xy_dispatch','fill_xy_ps1_n1_rows1_hit','jttms10_ctrl.v',
          "entry_family==8'd141 && pixel_xy_simple ? FILL_XY_FAST_SEQA : entry;",
          "1'b0 ? FILL_XY_FAST_SEQA : entry;",()),
+        ('short_fill_long_b_tail','fill_partial_l_ps1_n3_B_hit','jttms10.v',
+         'FILL_TAIL_I=2*CLKS_PER_STATE-4;', 'FILL_TAIL_I=2*CLKS_PER_STATE-12;',
+         ('--wait-states','1','--pause-clocks','7')),
         ('short_fill_xy_setup','fill_xy_ps1_n1_rows1_hit','jttms10.v',
          'FILL_XY_LEAD_I=8*CLKS_PER_STATE-1;', 'FILL_XY_LEAD_I=7*CLKS_PER_STATE-1;',
          ('--wait-states','1','--pause-clocks','1'))):
@@ -251,6 +253,23 @@ def fill_mutations(work,evidence):
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant);replace_once(mutant/file,old,new)
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+
+    # These are functional/protocol failures, distinct from timing-only mutants.
+    for name,probe,old,new,diagnostic in (
+        ('partial_fill_pattern','fill_partial_l_ps4_n1_D_hit',
+         'fill_edge ? pixel_source : pixel_write_pixel',
+         "fill_edge ? (pixel_source ^ 16'h0001) : pixel_write_pixel",
+         'graphics destination or neighboring memory mismatch'),
+        ('partial_fill_stale_ack','fill_partial_l_ps1_n3_B_hit',
+         "operation_ready=fill_bus_wait ? 1'b0 : copy_scheduled ?",
+         'operation_ready=copy_scheduled ?',
+         'FILL expected 4 BUS transfers')):
+        extra=('--exact-case',probe)
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+        replace_once(mutant/'jttms10.v',old,new)
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],
+                                mutated=True,event_error=diagnostic)
 
 
 def posted_load_slot_mutations(work,evidence):
@@ -337,14 +356,14 @@ def binary_blit_mutations(work,evidence):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
-    parser.add_argument('--group',choices=('all','line','movb','binary'),default='all',
+    parser.add_argument('--group',choices=('all','line','movb','binary','fill'),default='all',
                         help='run all mutations or a focused native instruction group')
     args = parser.parse_args()
     evidence = {}
-    if args.group in ('line','movb','binary'):
+    if args.group in ('line','movb','binary','fill'):
         with tempfile.TemporaryDirectory(prefix='jttms10-'+args.group+'-mutations-') as temp:
             dict(line=line_mutations,movb=movb_mutations,
-                 binary=binary_blit_mutations)[args.group](Path(temp),evidence)
+                 binary=binary_blit_mutations,fill=fill_mutations)[args.group](Path(temp),evidence)
         if args.report:
             args.report.parent.mkdir(parents=True,exist_ok=True)
             args.report.write_text(json.dumps(evidence,indent=2)+'\n')

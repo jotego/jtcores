@@ -34,6 +34,10 @@ adds 140 one-row B/C/D edge probes. Ten CPU77 Verilator representatives fail
 timing while preserving checked architecture and memory. The full subset also fails all140 duration targets in each BASE/W1P7/W3
 FPGA profile, while both NOP controls pass and30 diagnostic observations
 match Verilator. The earlier aligned FILL passing scope remains distinct.
+A native partial-word development path passes 26 focused timing programs
+in three profiles and the existing array/boundary/row architectural checks.
+Its full partial/aligned FPGA matrices remain pending; see the
+[development scope](docs/fill-timing.md#native-partial-word-development-path).
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
