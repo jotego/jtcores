@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 18-10-2026
+
+set nuv30_dir [file normalize [file join $::quartus(qip_path) ../../hdl/cpu/nuv30]]
+set_global_assignment -name SEARCH_PATH $nuv30_dir
+set_global_assignment -name MISC_FILE [file join $nuv30_dir ucrom.hex]
+set_global_assignment -name MISC_FILE [file join $nuv30_dir ucdecode.hex]

@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 20-10-2026
+
+- name: crtc
+  size: 64
+  dw: 8
+  regs:
+    - { name: text_base, dw: 10, at: "12[5:0],13[7:4]" }
+    - { name: text_low, dw: 8, at: 29 }
+
+- name: main
+  size: 32
+  dw: 16
+  regs:
+    - { name: control, dw: 16, at: "1,0" }
+    - { name: vreg0, dw: 16, at: "3,2" }
+    - { name: vreg1, dw: 16, at: "5,4" }
+    - { name: vreg2, dw: 16, at: "7,6" }
+    - { name: vreg3, dw: 16, at: "9,8" }
+    - { name: vreg4, dw: 16, at: "11,10" }
+    - { name: vreg5, dw: 16, at: "13,12" }
+    - { name: vreg6, dw: 16, at: "15,14" }
+    - { name: vreg7, dw: 16, at: "17,16" }
+    - { name: scroll_x, dw: 16, at: "19,18" }
+    - { name: scroll_y, dw: 16, at: "21,20" }
+
+- name: road
+  size: 4
+  dw: 16
+  regs:
+    - { name: yclip, dw: 16, at: "1,0" }
+    - { name: control, dw: 16, at: "3,2" }
+
+- name: object
+  size: 512
+  dw: 16
+  regs:
+    - { name: control, dw: 16, at: "449,448" }

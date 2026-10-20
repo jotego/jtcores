@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 18-10-2026
+
+[global]
+author=["Andrea Bogazzi"]
+
+[parse]
+sourcefile=["roundup5.cpp"]
+main_setnames=["roundup5"]
+
+[parse.mustbe]
+machines=["roundup5"]
+
+[parse.debug]
+machines=["roundup5"]
+
+[buttons]
+names=[{ names="Accelerator,Brake,Shift,Turbo" }]
+
+[dipsw]
+bitcnt=24
+offset=[
+    { name="DSW", value=0 },
+    { name="IN1", value=16 },
+]
+
+[ROM]
+regions=[
+    { name="master_rom", width=16, len=0x80000 },
+    { name="slave_rom", start="SLAVE_START", width=16, len=0x80000 },
+    { name="sprites:sprites_l", start="JTFRAME_BA1_START", width=32, len=0xc0000 },
+    { name="sprites:sprites_h", start="JTFRAME_BA2_START", width=32, len=0xc0000 },
+    { name="audiocpu", start="JTFRAME_BA3_START", width=8, len=0x10000 },
+    { name="oki", start="OKI_START", width=8, len=0x40000 },
+]
+order=["master_rom","slave_rom","sprites:sprites_l","sprites:sprites_h","audiocpu","oki"]

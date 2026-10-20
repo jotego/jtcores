@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 18-10-2026
+
+jtframe:
+  - from: cpu/nuv30
+    get:
+      - v30u_ss_pkg.sv
+      - v30u_ucrom.sv
+      - v30u_biu.sv
+      - v30u_eu.sv
+      - v30_core.sv
+  - from: cpu
+    get:
+      - jtframe_v30.sv
+  - from: cpu
+    unless: [SIMULATION]
+    get:
+      - nuv30.qip
