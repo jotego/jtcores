@@ -59,6 +59,16 @@ constants:
   TARGET_GFILLDONE: t4 t8 t9
   TARGET_GFILLXY: t5 t8 t9
   TARGET_GFILLDIMS: t4 t5 t6 t7 t8 t9
+  TARGET_GBLTWORDPROBE: t6 t7 t8 t10 t11
+  TARGET_GBLTWORDLOOP: t4 t6 t7 t8 t10 t11
+  TARGET_GBLTWORDROW: t5 t6 t7 t8 t10 t11
+  TARGET_GBLTWORDLAST: t4 t9 t10 t11
+  TARGET_GBLTWORDSELECT: t5 t9 t10 t11
+  TARGET_GBLTFASTDST: t4 t5 t9 t10 t11
+  TARGET_GBLTFASTSRCXY: t6 t9 t10 t11
+  TARGET_GBLTFASTDSTXY: t4 t6 t9 t10 t11
+  TARGET_GBLTFASTDIMS: t5 t6 t9 t10 t11
+  TARGET_GBLTWORDDONE: t4 t5 t6 t7 t8 t10 t11
   TARGET_GBLTLL: t4 t5 t8 t9
   TARGET_GBLTHT: t6 t8 t9
   TARGET_GBLTLOOP: t4 t6 t8 t9
@@ -635,6 +645,7 @@ ucode:
   - qs_gas, sa1 sa2 sa3 sa5, da1 da2 da3 da5
   - z_gcond, jump_gflow, ${TARGET_GPIXEND}
   - binary_gcond, jump_gflow, ${TARGET_GBINLOOP}
+  - copy_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
   - jump_gflow, ${TARGET_GBLTLOOP}
 - name: gbltloop
   start: 53
@@ -767,6 +778,7 @@ ucode:
   - sa2 sa3 sa5, da2 da3 da5
   - qs_gas, sa2 sa3 sa5, da2 da3 da5
   - z_gcond, jump_gflow, ${TARGET_GPIXEND}
+  - copy_gcond, jump_gflow, ${TARGET_GBLTHT}
   - jump_gflow, ${TARGET_GBLTSTART}
 - name: gbltsrclin
   start: 65
@@ -975,6 +987,7 @@ ucode:
   - rf_gdst, sa0 sa5, da1 da2 da3 da4
   - check_gflow
   - binary_gcond, jump_gflow, ${TARGET_GBINLOOP}
+  - copy_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
   - jump_gflow, ${TARGET_GBLTLOOP}
 - name: gbltrowforward
   start: 143
@@ -1794,6 +1807,111 @@ ucode:
   - rf_gdst, qs_gas, m4_gam, sa0 sa1 sa2 sa4, da0 da2 da3 da5
   - rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa5, da1 da2 da3 da5
   - jump_gflow, ${TARGET_GFILLLOOP}, sa0 sa5, da0 da2 da3 da5
+# Posted source read and result collection share the field adapter with FILL.
+- name: gbltwordprobe
+  start: 220
+  seq:
+  - qs_gas, sa1 sa5, da0 da2 da3 da5 # A=destination; prime S34 source and S45 width
+  - ea_gdst, word_gpix, sa1 sa5, da0 da2 da3 da5
+  - word_gcond, jump_gflow, ${TARGET_GBLTWORDSELECT}, sa1 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTLOOP}
+- name: gbltwordloop
+  start: 221
+  seq:
+  - postrd_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa0 sa1 sa5, da1 da5 # read S34, then S34+=16
+  - qs_gas, k_gbs, m2_gbm, sa0 sa1 sa5, da0 da1 da5
+  - ea_gdst, sa0 sa1 sa5, da0 da1 da5
+  - add_galu, rf_gdst, wprev, sa0 sa2 sa3 sa5, da0 da2 da3 da5 # S35+=16
+  - qs_gbs, stride_gpix, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, rf_gdst, sa0 sa1 sa5, da0 da2 da3 da5
+  - collect_gbus, sa0 sa1 sa5, da0 da2 da3 da5
+  - wrpx_gbus, sa0 sa1 sa5, da0 da2 da3 da5
+  - irq_gcond, jump_gflow, ${TARGET_GCTXBLT}, sa0 sa1 sa5, da0 da2 da3 da5
+  - shortword_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
+  - lastword_gcond, jump_gflow, ${TARGET_GBLTWORDLAST}, sa1 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTWORDLOOP}, sa1 sa5, da1 da5
+- name: gbltwordrow
+  start: 222
+  seq:
+  - sync_gbus
+  - jump_gflow, ${TARGET_GBLTROW}
+- name: gbltworddone
+  start: 223
+  seq:
+  - sa5, da4
+  - passnow_galu, qs_gas, rf_gdst, sa0 sa5, da4 # B0 = S32
+  - passnow_galu, qs_gas, rf_gdst, sa0 sa5, da1 da4 # B2 = S33
+  - sync_gbus, end_gflow
+- name: gbltfastinit
+  start: 224
+  seq:
+  - sa4, da2 da4 # B0 source, B4 offset
+  - srcxy_gcond, jump_gflow, ${TARGET_GBLTFASTSRCXY}, sa4, da2 da4
+  - passnow_galu, qs_gas, rf_gdst, sa4, da1 da5 # S34=source
+  - passnow_galu, qs_gas, rf_gdst, jump_gflow, ${TARGET_GBLTFASTDST}, sa1 sa4, da5 # S32=source; prime B2
+- name: gbltfastdst
+  start: 227
+  seq:
+  - dstxy_gcond, jump_gflow, ${TARGET_GBLTFASTDSTXY}, sa1 sa4, da2 da4
+  - passnow_galu, qs_gas, rf_gdst, sa1 sa4, da0 da5 # S33=destination
+  - passnow_galu, qs_gas, rf_gdst, jump_gflow, ${TARGET_GBLTFASTDIMS}, sa0 sa1 sa2 sa4, da0 da1 da5
+- name: gbltfastsrcxy
+  start: 228
+  seq:
+  - qs_gas, m3_gam, yproduct_gmath, source_gpix, b_gdst, sa4, da2 da4
+  - qs_gas, m2_gam, xproduct_gmath, or_galu, a_gdst, qd_gbs, sa4, da2 da4
+  - add_galu, rf_gdst, sa4, da1 da5 # S34=source linear
+  - add_galu, rf_gdst, jump_gflow, ${TARGET_GBLTFASTDST}, sa1 sa4, da5
+- name: gbltfastdstxy
+  start: 229
+  seq:
+  - qs_gas, m3_gam, yproduct_gmath, b_gdst, sa1 sa4, da2 da4
+  - qs_gas, m2_gam, xproduct_gmath, or_galu, a_gdst, qd_gbs, sa1 sa4, da2 da4
+  - add_galu, rf_gdst, sa1 sa4, da0 da5 # S33=destination linear
+  - add_galu, rf_gdst, jump_gflow, ${TARGET_GBLTFASTDIMS}, sa0 sa1 sa2 sa4, da0 da1 da5
+- name: gbltfastdims
+  start: 230
+  seq:
+  - passnow_galu, qs_gas, m2_gam, rf_gdst, sa0 sa1 sa2 sa4, da2 da3 da5 # S44=width
+  - passnow_galu, qs_gas, m2_gam, rf_gdst, sa0 sa1 sa2 sa4, da0 da2 da3 da5 # S45=width
+  - passnow_galu, qs_gas, m4_gam, rf_gdst, sa0 sa1 sa2 sa4, da1 da2 da3 da5 # S46=height
+  - passnow_galu, qs_gas, m2_gam, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - passnow_galu, qs_gas, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
+- name: gbltwordlast
+  start: 225
+  seq:
+  - qd_gas, sa1 sa5, da1 da5 # save final destination before preparing next row
+  - ea_gdst, sa1 sa5, da1 da5
+  - postrd_gbus, half_gsize, passnow_galu, qs_gas, sa5, da0 da4
+  - addnow_galu, qs_gas, qd_gbs, a_gdst, sa0 sa5, da5 # A=next source row
+  - rf_gdst, wprev, sa0 sa5, da0 da1 da4 # S32=next source row
+  - addnow_galu, qs_gas, qd_gbs, rf_gdst, sa5, da0 da5 # S33=next destination row
+  - passnow_galu, qs_gas, rf_gdst, sa0 sa5, da1 da5 # S34=S32
+  - passnow_galu, qs_gas, rf_gdst, sa1 sa2 sa3 sa5, da0 da1 da5 # S35=S33
+  - row_gbus, subnow_galu, k_gas, m1_gam, qs_gbs, rf_gdst, sa1 sa2 sa3 sa5, da1 da2 da3 da5 # --S46, short-row processing and final tail
+  - collect_gbus, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - wrpx_gbus, sa1 sa2 sa3 sa5, da1 da2 da3 da5
+  - passnow_galu, qs_gas, z_gcond, jump_gflow, ${TARGET_GBLTWORDDONE}, sa2 sa3 sa5, da0 da2 da3 da5
+  - passnow_galu, qs_gas, rf_gdst, wprev, jump_gflow, ${TARGET_GBLTWORDSELECT}, sa1 sa5, da0 da1 da5 # S45=S44
+- name: gbltwordselect
+  start: 226
+  seq:
+  - unaligned_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa1 sa5, da0 da2 da3 da5
+  - irq_gcond, jump_gflow, ${TARGET_GCTXBLT}, sa1 sa5, da0 da2 da3 da5
+  - lastword_gcond, jump_gflow, ${TARGET_GBLTWORDLAST}, sa1 sa5, da0 da1 da5
+  - postrd_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa0 sa1 sa5, da1 da5 # read S34, then S34+=16
+  - qs_gas, k_gbs, m2_gbm, sa0 sa1 sa5, da0 da1 da5
+  - ea_gdst, sa0 sa1 sa5, da0 da1 da5
+  - add_galu, rf_gdst, wprev, sa0 sa2 sa3 sa5, da0 da2 da3 da5 # S35+=16
+  - qs_gbs, stride_gpix, sa0 sa2 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, rf_gdst, sa0 sa1 sa5, da0 da2 da3 da5
+  - collect_gbus, sa0 sa1 sa5, da0 da2 da3 da5
+  - wrpx_gbus, sa0 sa1 sa5, da0 da2 da3 da5
+  - irq_gcond, jump_gflow, ${TARGET_GCTXBLT}, sa0 sa1 sa5, da0 da2 da3 da5
+  - shortword_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
+  - lastword_gcond, jump_gflow, ${TARGET_GBLTWORDLAST}, sa1 sa5, da0 da1 da5
+  - jump_gflow, ${TARGET_GBLTWORDLOOP}, sa1 sa5, da1 da5
 - name: gschema0
   start: 126
   seq:
@@ -1828,11 +1946,11 @@ ucode:
   - xproduct_gmath
   - packed_gmath
   - twoword_gcond
-  - end_gflow
-  - end_gflow
-  - end_gflow
-  - end_gflow
-  - end_gflow
+  - postrd_gbus
+  - collect_gbus
+  - copy_gcond, row_gbus
+  - lastword_gcond
+  - unaligned_gcond
   - end_gflow
   - end_gflow
   - end_gflow

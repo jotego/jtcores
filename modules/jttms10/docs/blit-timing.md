@@ -1,9 +1,9 @@
 # PIXBLT timing baseline (#144)
 
-All six PIXBLT encodings now have independent timing probes. Their timing is
-**not compliant**: the current implementation still transfers individual pixels
-through its general graphics microcode. Adding probes does not close the timing
-or condition-coverage requirements.
+All six PIXBLT encodings have independent timing probes. Aligned opaque regular
+copies now have a native word schedule with targeted Verilator validation.
+Binary expansion still transfers through the general graphics microcode and
+fails timing. Full timing compliance and condition coverage remain open.
 
 The authority is TI's June 1988 SPVU001A [TMS34010 User's Guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf).
 The regular setup/transfer/graphics tables are 13-8/9/10, printed
@@ -49,7 +49,7 @@ a first-write phase or require one particular read/write interleaving.
 
 ## Physical failing baseline
 
-There are 464 new fixtures. All 141,428 predecessor fixture/program contracts
+The published baseline contains 464 new fixtures. All 141,428 predecessor fixture/program contracts
 are unchanged, giving 141,892 fixtures with probe presence for 133/133 forms.
 These counts do not establish timing compliance or complete condition coverage.
 
@@ -87,8 +87,38 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare \
     --protocol-version 3 --case blit_ --output blit-manifest.json
 ```
 
-The simulation and FPGA checking commands intentionally fail until the CPU
-implements these contracts. The normal runner includes the model tests and
-fixtures. Native word transfers, empty arrays, partial alignments, long binary rows, other
+The complete simulation and FPGA commands retain failing binary cases. The
+normal runner includes the model tests and fixtures. Empty arrays, partial alignments, long binary rows, other
 graphics/window/mask/transparency operations, overlap/reverse traversal,
 HOLD/IRQ/context resumption and full clean/CI acceptance still require work.
+
+## Native regular word schedule in development
+
+The regular L,L / L,XY / XY,L / XY,XY paths reuse the synchronous register RAM,
+scalar ALU/DSP, operand registers and field adapter. A posted source read lets
+pointer and count work overlap memory. Collection waits for the real field
+response before loading MD; an older posted write cannot acknowledge a newly
+scheduled read while its request is inhibited. A queued source remains pending
+across the preceding write's drain. No new register bank or arithmetic unit is
+introduced. The graphics control ROM grows from 63 to 64 bits per word.
+
+The controller retains separate setup, four-state word work, two extra states
+for one/two-word rows, and the five-state completion tail. External waits stop
+overlapped CPU work; early CEN pauses retain state-grid alignment. Word bus
+duration, target readiness and row cadence are checked independently of total
+instruction clocks. Source and destination XY conversions share the existing
+DSP and use their separate CONVSP/CONVDP values.
+
+Nineteen representatives pass each of base, W1/P7 and W3. Another nine address
+representatives pass each profile with nonzero X/Y, OFFSET, different conversion
+factors and unequal row pitches. All checked registers, defined status, source,
+destination, canaries, bus events and durations remain active. Forty permanent
+address fixtures are appended after the original 464 cases. Every preceding
+141,892 fixture/program contract remains unchanged; inventory is 141,932.
+These targeted simulations do not establish complete graphics condition or
+native interrupt-resumption coverage.
+
+The DataStorm image and physical results above predate this RTL. A fresh
+retained-IP `/opt/quartus_free` fit, final STA and source-bound programming
+receipt are required before native physical equivalence and long matrices.
+Do not relabel the old cached-MOVB receipt with this implementation.

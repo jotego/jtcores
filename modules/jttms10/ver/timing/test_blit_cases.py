@@ -12,8 +12,8 @@ from run import program, check, check_observation
 class BlitCasesTest(unittest.TestCase):
     def test_complete_encoding_inventory_and_programs(self):
         rows=list(blit_cases())
-        self.assertEqual(len(rows),464)
-        self.assertEqual(len({r['name'] for r in rows}),464)
+        self.assertEqual(len(rows),504)
+        self.assertEqual(len({r['name'] for r in rows}),504)
         self.assertEqual({r['coverage_id'] for r in rows},
                          {'PIXBLT_'+m.upper() for m in MODES})
         for row in rows:
@@ -49,6 +49,25 @@ class BlitCasesTest(unittest.TestCase):
             self.assertEqual(row['expected_extra_regs']['b3'],0x100)
             self.assertEqual(row['expected_extra_regs']['b7'],0x20001)
             self.assertTrue(all('b'+str(q) not in row['expected_extra_regs'] for q in range(10,15)))
+
+    def test_nonzero_xy_offset_and_unequal_pitch_geometry(self):
+        for mode in ('ll','lxy','xyl','xyxy'):
+            for size in (1,2,4,8,16):
+                row=fixture(mode,size,3,2,False,offset_geometry=True)
+                spec=row['data_blit']
+                self.assertEqual((spec['source'],spec['destination']),(0x4520,0x5230))
+                self.assertEqual((spec['source_pitch'],spec['destination_pitch']),(0x180,0x140))
+                self.assertEqual(row['expected_extra_regs']['b0'],0x4820)
+                self.assertEqual(row['expected_extra_regs']['b2'],0x54B0)
+                self.assertEqual(row['initial_all_regs']['b4'],0x4000)
+                self.assertIn((0xC0000130,23),row['setup_io'])
+                self.assertIn((0xC0000140,22),row['setup_io'])
+                before,after=map(dict,(row['initial_memory'],row['expected_memory']))
+                for line in range(2):
+                    for word in range(3):
+                        self.assertEqual(after[0x5230+0x140*line+16*word],
+                                         before[0x4520+0x180*line+16*word])
+                self.assertEqual(row['states'],fixture(mode,size,3,2,False)['states'])
 
     def test_waits_pauses_and_only_defined_status_bits(self):
         for mode,off,wait,pause in (('ll',False,0,0),('bxy',True,1,7)):

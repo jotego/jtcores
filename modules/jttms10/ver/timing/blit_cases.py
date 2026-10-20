@@ -14,50 +14,63 @@ MODES = dict(ll=0x0F00, lxy=0x0F20, xyl=0x0F40, xyxy=0x0F60,
              bl=0x0F80, bxy=0x0FA0)
 
 
-def fixture(mode, size, words, rows, off):
+def fixture(mode, size, words, rows, off, *, offset_geometry=False):
     timing = blit_timing(mode, size, words, rows, cache_disabled=off)
-    source, destination, pitch = 0x5000, 0x6000, 0x100
+    source, destination = 0x5000, 0x6000
+    source_pitch = destination_pitch = 0x100
+    source_xy, destination_xy = 0x00500000, 0x00600000
+    convsp = convdp = 23
+    offset = 0
+    if offset_geometry:
+        # Nonzero X/Y and OFFSET, different SP/DP conversions and pitches.
+        # Choose aligned physical words independently of implementation.
+        pixels_per_word = 16 // size
+        source_xy, destination_xy = (5 << 16) | (2*pixels_per_word), (9 << 16) | (3*pixels_per_word)
+        convsp, convdp, offset = 23, 22, 0x4000
+        source = offset + 5*(1 << (31-convsp)) + 2*pixels_per_word*size
+        destination = offset + 9*(1 << (31-convdp)) + 3*pixels_per_word*size
+        source_pitch, destination_pitch = 0x180, 0x140
     width = timing['width']
     binary = mode in ('bl', 'bxy')
     seed, status = 0x13579B00, 0xF0000810
     registers = {f'a{q}': seed+q for q in range(15)}
     registers.update({f'b{q}': seed+16+q for q in range(15)})
     registers.update(sp=seed+15, a3=status)
-    overrides = dict(b0=0x00500000 if mode in ('xyl', 'xyxy') else source,
-                     b1=pitch,
-                     b2=0x00600000 if mode in ('lxy', 'xyxy', 'bxy') else destination,
-                     b3=pitch, b4=0, b7=(rows << 16) | width,
+    overrides = dict(b0=source_xy if mode in ('xyl', 'xyxy') else source,
+                     b1=source_pitch,
+                     b2=destination_xy if mode in ('lxy', 'xyxy', 'bxy') else destination,
+                     b3=destination_pitch, b4=offset, b7=(rows << 16) | width,
                      b8=0x13572468, b9=0x2468ACE1)
     registers.update(overrides)
-    expected = dict(registers, b0=source+rows*pitch, b2=destination+rows*pitch)
+    expected = dict(registers, b0=source+rows*source_pitch, b2=destination+rows*destination_pitch)
     for q in range(10, 15):
         del expected[f'b{q}']
     memory = {}
     for row in range(rows):
         for word in range(-1, timing['source_words_per_row']+1):
-            memory[source+row*pitch+16*word] = (0x96A5 ^ (row*0x3179) ^ ((word+1)*0x1273)) & 65535
+            memory[source+row*source_pitch+16*word] = (0x96A5 ^ (row*0x3179) ^ ((word+1)*0x1273)) & 65535
         for word in range(-1, words+1):
-            memory[destination+row*pitch+16*word] = (0xA596 ^ (row*0x1111) ^ ((word+1)*0x0101)) & 65535
+            memory[destination+row*destination_pitch+16*word] = (0xA596 ^ (row*0x1111) ^ ((word+1)*0x0101)) & 65535
     result = dict(memory)
     for row, pixel in product(range(rows), range(width)):
-        at = source+row*pitch+pixel*(1 if binary else size)
+        at = source+row*source_pitch+pixel*(1 if binary else size)
         if binary:
             bit = (memory[at & ~15] >> (at & 15)) & 1
             # SPVU001A12-175/180: select the COLOR pixel aligned with its
             # destination lane, rather than broadcasting the lowest pixel.
-            lane = (destination+row*pitch+pixel*size) & 15
+            lane = (destination+row*destination_pitch+pixel*size) & 15
             value = registers['b9' if bit else 'b8'] >> lane
         else:
             value = sum(((memory[(at+bit) & ~15] >> ((at+bit) & 15)) & 1) << bit
                         for bit in range(size))
         for bit in range(size):
-            target = destination+row*pitch+pixel*size+bit
+            target = destination+row*destination_pitch+pixel*size+bit
             mask = 1 << (target & 15)
             result[target & ~15] = (result[target & ~15] & ~mask) | (((value >> bit) & 1) * mask)
-    return dict(name=f'blit_{mode}_ps{size}_n{words}_rows{rows}_{"off" if off else "hit"}',
+    return dict(name=f'blit_{mode}_ps{size}_n{words}_rows{rows}_{"off" if off else "hit"}'+("_offset_pitches" if offset_geometry else ""),
         coverage_id='PIXBLT_'+mode.upper(), opcode=MODES[mode],
         data_blit=dict(mode=mode, source=source, destination=destination,
-                       source_pitch=pitch, destination_pitch=pitch, rows=rows,
+                       source_pitch=source_pitch, destination_pitch=destination_pitch, rows=rows,
                        words=words, binary=binary), blit_timing=timing,
         regs=[registers[f'a{q}'] for q in range(4)],
         expected_regs=[expected[f'a{q}'] for q in range(4)],
@@ -65,7 +78,7 @@ def fixture(mode, size, words, rows, off):
         initial_all_regs=registers, register_overrides=overrides, observe_all=True,
         seed=seed, status_holder=3, source_register=7, source_value=registers['a7'], bank=0,
         control=0, setup_io=[(0xC0000150,size),(0xC0000160,0),
-                            (0xC0000130,23),(0xC0000140,23)],
+                            (0xC0000130,convsp),(0xC0000140,convdp)],
         expected_st=status, expected_st_mask=0x0FFFFFFF,
         states=timing['states'], cache_disabled=off, measure_pass=0,
         initial_memory=sorted(memory.items()), expected_memory=sorted(result.items()),
@@ -186,3 +199,7 @@ def blit_cases():
         if mode in ('bl','bxy') and words*16//size > 32:
             continue
         yield fixture(mode,size,words,rows,off)
+
+    # Append new address geometry without changing the published 464 cases.
+    for mode,size,off in product(('ll','lxy','xyl','xyxy'),(1,2,4,8,16),(False,True)):
+        yield fixture(mode,size,3,2,off,offset_geometry=True)

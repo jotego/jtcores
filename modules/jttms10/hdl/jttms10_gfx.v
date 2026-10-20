@@ -11,7 +11,7 @@ module jttms10_gfx(
     input [15:0] psize, convsp, convdp, control,
     input alu_n, alu_z, alu_v,
     input [31:0] alu_result,
-    input need_dest, word_fill, irq_pending, native_line,
+    input need_dest, word_fill, word_copy, irq_pending, native_line,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -22,7 +22,7 @@ module jttms10_gfx(
     output reg [3:0] alu_op,
     output dst_a, dst_b, dst_md, dst_ea, dst_tmp, dst_rf, dst_ir,
     output md_to_rf,
-    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip,
+    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip, bus_collect, bus_row,
     output [5:0] bus_size,
     output pix_source, pix_visible, pix_process, pix_test, pix_word,
     output product, product_y, packed_xy, alu_capture,
@@ -40,7 +40,8 @@ module jttms10_gfx(
     wire da0,da1,da2,da3,da4,da5;
     wire t4,t5,t6,t7,t8,t9,t10,t11;
     wire [1:0] gas_sel,gbs_sel,gsize_sel,gmath_sel;
-    wire [2:0] gam_sel,gbm_sel,gdst_sel,gbus_sel,gpix_sel,
+    wire [3:0] gbus_sel;
+    wire [2:0] gam_sel,gbm_sel,gdst_sel,gpix_sel,
                gflg_sel,gflow_sel,gclip_sel;
     wire [3:0] galu_sel;
     wire [4:0] gcond_sel;
@@ -51,9 +52,9 @@ module jttms10_gfx(
     /* verilator lint_on BLKSEQ */
     wire [1:0] gas=gas_sel, gbs=gbs_sel, gsize=gsize_sel;
     wire [2:0] gam=gam_sel, gbm=gbm_sel, gdst=gdst_sel,
-               gbus=gbus_sel, gpix=gpix_sel, gflg=gflg_sel,
+               gpix=gpix_sel, gflg=gflg_sel,
                gflow=gflow_sel, gclip=gclip_sel;
-    wire [3:0] galu=galu_sel;
+    wire [3:0] galu=galu_sel, gbus=gbus_sel;
     wire [4:0] gcond=gcond_sel;
 
     wire [5:0] next_sa={sa5,sa4,sa3,sa2,sa1,sa0};
@@ -168,14 +169,16 @@ module jttms10_gfx(
     assign dst_ir=active && gdst==IR_GDST;
     assign md_to_rf=active && mdrf;
     assign bus_read=active &&
-        (gbus==RD_GBUS || gbus==RDPX_GBUS);
+        (gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS);
     assign bus_write=active &&
         (gbus==WR_GBUS || gbus==WRPX_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
     assign bus_skip=active && gbus==POSTPX_GBUS && control[7:6]!=0 && clip;
-    assign bus_post=active && gbus==POSTPX_GBUS && !bus_skip;
-    assign bus_sync=active && gbus==SYNC_GBUS;
+    assign bus_post=active && (gbus==POSTRD_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
+    assign bus_sync=active && (gbus==SYNC_GBUS || gbus==COLLECT_GBUS);
+    assign bus_collect=active && gbus==COLLECT_GBUS;
+    assign bus_row=active && gbus==ROW_GBUS;
     assign bus_pixel=active &&
-        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS);
+        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTRD_GBUS);
     assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
                     gsize==CHUNK_GSIZE ? source_chunk_size :
@@ -208,8 +211,11 @@ module jttms10_gfx(
     reg condition;
     always @* begin
         case(gcond)
+            COPY_GCOND: condition=word_copy;
+            LASTWORD_GCOND: condition=rf_qd==fill_pixels;
+            UNALIGNED_GCOND: condition=|{rf_qs[3:0],rf_qd[3:0]};
             WORD_GCOND: condition=word_fill;
-            SHORTWORD_GCOND: condition=!word_fill || need_dest || control[5] ||
+            SHORTWORD_GCOND: condition=!word_fill || (!word_copy && need_dest) || control[5] ||
                                        rf_qs[3:0]!=0 || rf_qd<fill_pixels;
             TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};
             IRQ_GCOND: condition=irq_pending;
@@ -282,11 +288,18 @@ module jttms10_gfx(
                 8'd112: uaddr<=GPIXT_LINLIN_SEQA;
                 8'd117: uaddr<=GARRAY_SEQA;
                 8'd139: uaddr<=GARRAY_SEQA;
-                8'd140: uaddr<=GARRAY_SEQA;
+                8'd140: begin
+                    uaddr<=GARRAY_SEQA;
+                    if(word_copy) uaddr<=GBLTFASTINIT_SEQA;
+                end
                 8'd141: uaddr<=GARRAY_SEQA;
                 8'd155: uaddr<=GFILLXYFAST_SEQA;
                 8'd142: uaddr<=GARRAY_SEQA;
-                8'd143,8'd144,8'd145,8'd146: uaddr<=GARRAY_SEQA;
+                8'd143,8'd144,8'd145: begin
+                    uaddr<=GARRAY_SEQA;
+                    if(word_copy) uaddr<=GBLTFASTINIT_SEQA;
+                end
+                8'd146: uaddr<=GARRAY_SEQA;
                 8'd131: begin
                     uaddr<=GLINE_SEQA;
                     if(native_line) begin
