@@ -196,6 +196,41 @@ DataStorm with zero independent Verilator differences. The later decode remains
 in the raw observations; the explicit context/retirement checks own these
 latency bounds. Broader IRQ/NMI/HOLD/graphics conditions remain open.
 
+## Host NMI recognition
+
+SPVU001A8-7/8 measures NMI recognition from completion of the host write to
+HSTCTL, with one to two machine states before context switching. The retained
+[b73a17c23 baseline](http://gitea.jotego.es/jotego/jtcores/commit/b73a17c23526afac771afdaeafc077fb2a9dce30)
+passes context, architecture and bus checks but begins aligned context only two
+INCLK after host completion. All twelve aligned probes reproduce this timing
+failure on the physical V5 image; the host command fails while transport and NOP
+controls pass. No count is waived.
+
+Recognition now belongs to `jttms10_system`, between the peripheral pending bit
+and the CPU's synchronous request input. A saturating counter qualifies the
+request after one machine state; the next instruction/checkpoint supplies the
+remaining phase delay. The counter runs independently of CPU CEN and resets on
+reset, a cleared request or the CPU's NMI-clear pulse. The raw pending bit remains
+visible to host software, with the I/O producer-versus-clear rule unchanged.
+
+Maskable IRQ acceptance waits during NMI recognition. Simultaneous NMI/HLT
+completes NMI entry before halting, while an already halted processor continues
+waiting for the host to clear HLT. This distinction uses the controller's
+existing halted state, exported as a synthesizable status wire through CPU/word.
+The raw CPU interface still accepts a recognized request at its next boundary;
+its eight original architectural tests pass unchanged apart from unused output
+connections. Entry microcode, register RAM and retirement timing are unchanged.
+
+The independent contract covers192 stacked NMI cases: IE0/1 with INTENB0,
+all SP bit offsets0..15, W0/W1/W3 and cold/warm handlers. All pass both local
+backends, as do48 aligned warm phase probes. Six actual entry/timing mutations
+include an early-recognition bypass. Six additional host integration controls
+and three actual RTL mutants check IRQ/NMI priority, simultaneous HLT, an already
+halted CPU, repeated requests, host-visible NMI-bit clear, CEN pauses and RETI.
+Fit/STA/FPGA validation is pending. These bounded results do not establish
+NMIM=1 timing, electrical host-pin phases, general graphics interruption or full
+instruction-timing compliance. See [reproduction](../ver/fpga/README.md#stacked-nmi-recognition-and-retained-baseline).
+
 ## Unaligned scalar context contract
 
 The permanent V5 fixture generator also covers all fifteen nonzero SP bit

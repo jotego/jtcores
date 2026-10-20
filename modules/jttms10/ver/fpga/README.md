@@ -92,7 +92,7 @@ differences (5.083s full host command). This uses the newer host fixture/oracle
 source with the immutable hardware source and its original receipt; no FPGA
 recompile or reprogramming is needed.
 
-## Stacked NMI latency baseline
+## Stacked NMI recognition and retained baseline
 
 `check_external_reference.py --nmi` adds 192 runtime fixtures: NMIM=0, IE clear
 and set with INTENB=0, all SP bit offsets0..15, waits0/1/3 and cold/warm handlers.
@@ -103,7 +103,7 @@ SPVU001A6-32/33 and8-5..8 require NMI regardless of interrupt masks; Table8-4
 measures recognition from completion of the host write, rather than its strobe.
 
 ```sh
-# Small diagnostic baseline; a failing contract returns nonzero.
+# Short independent reference and Avalon equivalence check.
 python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi \
     --stack-offset 0 --output /path/to/new-nmi-reference
 # Full runtime inventory for the FPGA, without a long local simulation.
@@ -111,19 +111,45 @@ python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi \
     --prepare-only --output /path/to/new-nmi-manifest
 ```
 
-All twelve aligned cases currently fail the declared request-recognition bound
-in the independent full-system and Avalon Verilator models: observed130 INCLK
-versus135..145 at W0, with exactly six configured word waits added at W1/W3.
-The aligned16-state context, separate first MOVI, masks, saved architecture,
-memory and checked bus events pass. This is a retained timing baseline, not a
-passing NMI result. The abstract host-write completion boundary still requires
-physical cross-checking before a CPU timing fix. The existing positive-only
-comparison correctly rejects these captures as equivalence evidence.
+The [b73a17c23 baseline](http://gitea.jotego.es/jotego/jtcores/commit/b73a17c23526afac771afdaeafc077fb2a9dce30)
+retains twelve aligned recognition failures in both Verilator models and the
+physical V5 image: observed130 INCLK versus135..145 at W0, plus exactly six
+word waits at W1/W3. Its context, first MOVI, saved architecture, memory and bus
+checks pass. The normal physical command exits1 while raw transport exits0 and
+two surrounding NOP controls pass. The failing captures remain archived;
+positive-only reference comparison correctly rejects them as equivalence proof.
 
-The192-case inventory is generated and schema-checked, not a completed timing
-matrix. NMIM=1, host-pin electrical synchronization, direct observation of NMI
-bit clear, phase sweeps, refresh/contention and graphics interruption remain
-outside this baseline. No old fixture, expectation or CPU RTL is changed.
+The current recognition path ages HSTCTL.NMI for one machine state in
+`jttms10_system` before presenting it to the CPU's synchronous boundary input.
+Lower IRQs wait while that higher-priority request is being recognized. A new
+simultaneous HLT also waits; an already halted CPU stays halted until HLT clears.
+The controller's existing halted state is exported through CPU/word as a wire,
+so the original raw-CPU IRQ/NMI/HLT/EMU behavior and all eight architectural
+checks stay intact. No retirement padding, register RAM or microcode change is
+used. The HSTCTL pending bit and producer/automatic-clear priority stay intact.
+
+All192 cases pass both Verilator backends in short groups, with zero differences.
+`--nmi-phase-sweep` adds48 aligned warm cases across all eight INCLK assertion
+phases, both IE settings and all three waits; these also pass both backends.
+The original fixture/program expectations and declared timing bounds are kept.
+All112 host tests pass. Six actual entry/timing RTL mutations are rejected,
+including bypassing NMI recognition with otherwise valid architecture. A separate
+six-control/three-mutant host integration check rejects lower IRQ priority,
+premature HLT and waking an already halted CPU. It also checks NMI-bit clear
+through a real host read, repeated requests, CEN pauses and RETI/frame state.
+
+```sh
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-phase-sweep
+python3 modules/jttms10/ver/fpga/check_irq_mutations.py --nmi
+python3 modules/jttms10/ver/fpga/check_nmi_priority.py
+bash modules/jttms10/ver/sim.sh nmi-system
+```
+
+Fit/STA and physical validation of this recognition change remain required.
+NMIM=1 timing, host-pin electrical synchronization, direct FPGA observation of
+NMI-bit clear, refresh/contention and graphics interruption remain outside this
+bounded contract. The normal runner includes short NMI, phase and mutation checks;
+the full192-case inventory is prepared for FPGA execution without recompilation.
 
 ## Historical version 4 and scalar interrupt entry
 

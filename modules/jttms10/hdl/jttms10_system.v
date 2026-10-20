@@ -49,6 +49,10 @@ module jttms10_system #(
     output [15:0] intenb, intpend,
     output irq_pending, nmi_pending, halt
 );
+    localparam integer NMI_PW=$clog2(CLKS_PER_STATE+1);
+    localparam [NMI_PW-1:0] NMI_LAST=CLKS_PER_STATE[NMI_PW-1:0];
+    reg [NMI_PW-1:0] nmi_age;
+    wire nmi_ready, irq_ready, halt_ready, cpu_halted;
     wire word_req, word_pending, word_early, word_we, word_iaq, word_lock, word_pixel;
     wire [31:0] word_addr;
     wire [15:0] word_wdata, word_rdata;
@@ -62,6 +66,19 @@ module jttms10_system #(
     assign obs_word_pending=word_pending;
 `endif
     wire unused_hstctlh = &{hstctlh[15],hstctlh[13:0]};
+
+    // UG8-7/8: recognition takes one to two machine states from completion
+    // of the host write. Age the peripheral request for one state, then
+    // present it to the CPU's synchronous next-boundary interface.
+    assign nmi_ready = nmi_pending && nmi_age==NMI_LAST;
+    assign irq_ready = irq_pending && (!nmi_pending || nmi_ready);
+    // A simultaneous NMI/HLT must take NMI first. An already halted CPU
+    // must remain halted until the host actually clears HLT (UG10-19).
+    assign halt_ready = halt && (cpu_halted || !nmi_pending || nmi_ready);
+    always @(posedge clk) begin
+        if(rst || !nmi_pending || nmi_clear) nmi_age<=0;
+        else if(nmi_age!=NMI_LAST) nmi_age<=nmi_age+1'b1;
+    end
 
     jttms10_word #(.CLKS_PER_STATE(CLKS_PER_STATE),.TIMED_PROGRAM(1)) u_cpu(
 `ifdef JTTMS10_REGRESSION
@@ -78,9 +95,9 @@ module jttms10_system #(
         .obs_field_pending_fault ( obs_field_pending_fault ),
 `endif
         .rst(rst),.clk(clk),.cen(cen),
-        .irq_req(irq_pending),.irq_vector(irq_vector),
-        .nmi_req(nmi_pending),.nmi_nostack(nmi_nmim),
-        .halt_req(halt),.emu_run(emu_run),
+        .irq_req(irq_ready),.irq_vector(irq_vector),
+        .nmi_req(nmi_ready),.nmi_nostack(nmi_nmim),
+        .halt_req(halt_ready),.emu_run(emu_run),
         .psize(psize),.convsp(convsp),.convdp(convdp),
         .control(control),.pmask(pmask),.pixel_srt(pixel_srt),
         .cache_flush(hstctlh[14]),
@@ -89,7 +106,7 @@ module jttms10_system #(
         .word_wdata(word_wdata),.word_iaq(word_iaq),
         .word_lock(word_lock),.word_pixel(word_pixel),
         .word_rdata(word_rdata),.word_ack(word_ack),.word_restart(word_restart),.word_wait(word_wait),
-        .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault)
+        .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault),.halted(cpu_halted)
     );
 
     // CVXYL consumes the pixel size and destination conversion pitch.

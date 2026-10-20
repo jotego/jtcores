@@ -42,7 +42,7 @@ module jttms10_word #(
     output     [31:0] st,
     output     [15:0] ir,
     output            retire,
-    output            fault
+    output            fault, halted
 );
     wire        field_req, field_we, field_iaq, field_program, field_pixel, field_ack, field_post, field_fast;
     wire [31:0] field_addr, field_wdata, field_rdata;
@@ -201,7 +201,7 @@ module jttms10_word #(
         .mem_next_first_valid(cache_next_first_valid),
         .mem_busy(field_busy || post_busy || data_owner),
         .mem_slot(slot_eligible || slot_phase<=1),
-        .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
+        .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault), .halted(halted)
     );
 
     jttms10_field u_field(

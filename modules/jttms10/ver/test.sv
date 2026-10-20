@@ -26,7 +26,7 @@ module test;
         .convsp(CONVSP), .control(CONTROL), .pmask(PMASK),
         .wvp_set(wvp_set),
         .irq_req(1'b0), .irq_vector(32'd0),
-        .nmi_req(1'b0), .nmi_nostack(1'b0),
+        .halted(), .nmi_req(1'b0), .nmi_nostack(1'b0),
         .halt_req(1'b0), .emu_run(1'b1),
         .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),

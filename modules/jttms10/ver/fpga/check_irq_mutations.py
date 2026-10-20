@@ -21,7 +21,9 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(output, irq_unaligned=False):
+def run(output, irq_unaligned=False, nmi=False):
+    if irq_unaligned and nmi:
+        raise ValueError('select IRQ unaligned or NMI mutation controls')
     output.mkdir(parents=True, exist_ok=False)
     frozen = {p.name: sha(p) for p in HDL.glob('*.v')}
     entries = [entry for batch in reference.fixture_manifest()['batches'] for entry in batch['cases']]
@@ -32,6 +34,13 @@ def run(output, irq_unaligned=False):
             irq_unaligned=True, stack_offsets=[1])['batches'] for entry in batch['cases']]
         entries[2:] = [next(entry for entry in extra if entry['name'] == name+'_sp1')
                        for name in wanted[2:]]
+        for identifier, entry in enumerate(entries):
+            entry['id'] = identifier
+    if nmi:
+        extra = [entry for batch in reference.fixture_manifest(
+            nmi=True, stack_offsets=[0])['batches'] for entry in batch['cases']]
+        entries[2:] = [next(entry for entry in extra if entry['name'] == name)
+                       for name in ('nmi_scalar_ie0_w0_cold_sp0', 'nmi_scalar_ie0_w0_warm_sp0')]
         for identifier, entry in enumerate(entries):
             entry['id'] = identifier
     manifest = dict(format=checker.FORMAT_V5, protocol_version=5,
@@ -56,6 +65,10 @@ def run(output, irq_unaligned=False):
         variants += (('lost_surrounding_bits', 'jttms10_field.v',
             '(old_word & ~word_mask)',
             "(old_word & ~word_mask & (base_addr==32'h3000 ? 16'd0 : 16'hffff))"),)
+    if nmi:
+        variants += (('early_nmi_recognition', 'jttms10_system.v',
+            'assign nmi_ready = nmi_pending && nmi_age==NMI_LAST;',
+            'assign nmi_ready = nmi_pending;'),)
     records = []
     with tempfile.TemporaryDirectory(prefix='jttms10-entry-mutations-') as temp:
         for name, filename, before, after in variants:
@@ -90,6 +103,13 @@ def run(output, irq_unaligned=False):
                         raise ValueError(name+': mutant corrupted the preceding measured NOP')
             if name != 'skip_resume_instruction':
                 for row, control in zip(rows[2:], controls[2:]):
+                    if name == 'early_nmi_recognition':
+                        # Earlier acceptance may save a different valid PC/A2.
+                        # The independent per-case frame/continuation oracle
+                        # must still pass; only recognition latency may fail.
+                        if len(row['errors']) != 1 or 'NMI entry latency' not in row['errors'][0]:
+                            raise ValueError(name+': expected solely a recognition timing error')
+                        continue
                     actual = dict(row['irq_observation']['follow'])
                     golden = dict(control['irq_observation']['follow'])
                     actual.pop('clock');golden.pop('clock')
@@ -104,6 +124,7 @@ def run(output, irq_unaligned=False):
                 diagnostic = dict(slow_halfword_entry=('unaligned' if irq_unaligned else 'aligned')+' context switch',
                     low_word_first='request/order/data mismatch', slow_first_isr='first ISR MOVI',
                     missing_context_observer='explicit IRQ boundaries',
+                    early_nmi_recognition='NMI entry latency',
                     lost_surrounding_bits='surrounding preserved bits')[name]
             else:
                 diagnostic = 'A2:'
@@ -127,14 +148,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path)
     parser.add_argument('--report', type=Path)
-    parser.add_argument('--irq-unaligned', action='store_true',
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument('--irq-unaligned', action='store_true',
                         help='use unaligned IRQ controls and also corrupt surrounding stack bits')
+    selection.add_argument('--nmi', action='store_true',
+                           help='use stacked NMI controls and also bypass host recognition qualification')
     args = parser.parse_args()
     if args.output:
-        result = run(args.output.resolve(), args.irq_unaligned)
+        result = run(args.output.resolve(), args.irq_unaligned, args.nmi)
     else:
         with tempfile.TemporaryDirectory(prefix='jttms10-entry-mutation-check-') as temp:
-            result = run(Path(temp)/'evidence', args.irq_unaligned)
+            result = run(Path(temp)/'evidence', args.irq_unaligned, args.nmi)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(result, indent=2)+'\n')

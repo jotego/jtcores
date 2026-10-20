@@ -19,7 +19,7 @@ module test;
         .convsp(16'd0),.pmask(16'd0),.wvp_set(),.psize(16'd16), .convdp(16'h14), .control(16'h8000),
         .cache_flush(1'b0),
         .irq_req(1'b0), .irq_vector(32'd0),
-        .nmi_req(1'b0), .nmi_nostack(1'b0),
+        .halted(), .nmi_req(1'b0), .nmi_nostack(1'b0),
         .halt_req(1'b0), .emu_run(1'b1),
         .nmi_clear(), .emu_ack(),
         .word_req(word_req), .word_pending(),.word_early(), .word_we(word_we), .word_addr(word_addr),

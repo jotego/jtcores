@@ -50,3 +50,19 @@ def entries(base, oracle, offsets=None):
                                      dict(trigger=5, argument=1, control=0)])
                 rows.append(row)
     return rows
+
+
+def phase_entries(base, oracle):
+    rows = []
+    for original in entries(base, oracle, [0]):
+        if not original['external_contract']['handler_warm']:
+            continue
+        for clock in range(16, 24):
+            row = copy.deepcopy(original)
+            row['name'] += f'_assert{clock}'
+            row['fixture']['name'] = row['name']
+            row['fixture']['conditions']['assert_clock'] = clock
+            row['external_contract'].update(kind='scalar_nmi_phase', assert_clock=clock)
+            row['external_events'][0]['argument'] = clock
+            rows.append(row)
+    return rows

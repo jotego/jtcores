@@ -28,7 +28,7 @@ module test;
         .psize(16'd4), .convdp(16'd24), .convsp(16'd24),
         .control(16'd0), .pmask(16'd0), .wvp_set(), .mem_pixel(),
         .irq_req(irq_req), .irq_vector(32'hfffffec0),
-        .nmi_req(1'b0), .nmi_nostack(1'b0), .halt_req(1'b0),
+        .halted(), .nmi_req(1'b0), .nmi_nostack(1'b0), .halt_req(1'b0),
         .emu_run(1'b1), .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),

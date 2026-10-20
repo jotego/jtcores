@@ -39,7 +39,7 @@ module test;
         .psize(16'd4), .convdp(16'd24), .convsp(16'd24),
         .control(16'd0), .pmask(16'd0), .wvp_set(),
         .irq_req(irq_req), .irq_vector(32'hfffffec0),
-        .nmi_req(1'b0), .nmi_nostack(1'b0), .halt_req(1'b0),
+        .halted(), .nmi_req(1'b0), .nmi_nostack(1'b0), .halt_req(1'b0),
         .emu_run(1'b1), .nmi_clear(), .emu_ack(),
         .word_req(word_req),.word_pending(word_pending),.word_early(word_early),
         .word_we(word_we),.word_addr(word_addr),.word_wdata(word_wdata),

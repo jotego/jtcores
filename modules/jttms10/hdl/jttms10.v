@@ -34,7 +34,8 @@ module jttms10 #(
     input      [$clog2(CLKS_PER_STATE)-1:0] mem_phase,
     output reg [31:0] pc, st,
     output reg [15:0] ir,
-    output reg        retire, fault
+    output reg        retire, fault,
+    output            halted
 );
     // The shared generated header also contains the sequencer's constants.
     /* verilator lint_off UNUSEDPARAM */
@@ -585,7 +586,7 @@ module jttms10 #(
         .emu_run(emu_run), .ie(st[21]), .branch_condition(condition),
         .hw_take(hw_take), .reserved_opcode(reserved_opcode),
         .push_entry(push_entry), .push_active(push_active), .emu_step(emu_step),
-        .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
+        .execute(step), .active(active), .halted(halted), .vector(vector), .fetch(fetch), .imm(imm),
         .gfx_enter(gfx_enter), .gfx_resume(gfx_resume),
         .gfx_take(gfx_take), .gfx_family(gfx_family),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni_word), .halt(halt),

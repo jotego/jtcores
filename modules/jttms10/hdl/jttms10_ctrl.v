@@ -21,6 +21,7 @@ module jttms10_ctrl #(
     input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
     input              branch_condition,
     output            execute, active,
+    output reg        halted,
     output            gfx_enter, gfx_resume, gfx_take,
     output     [7:0]  gfx_family,
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
@@ -92,7 +93,7 @@ module jttms10_ctrl #(
     reg cen;
     reg [11:0] jsr_ret2;
     reg [1:0] jsr_depth;
-    reg halted, emu_hold;
+    reg emu_hold;
     // JTFRAME's existing latch_ucode template uses a blocking ROM read.
     /* verilator lint_off BLKSEQ */
     `include "tms10.vh"

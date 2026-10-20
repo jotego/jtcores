@@ -20,7 +20,7 @@ module test;
     reg cyc_ack=0,stall=0;
     jttms10_word dut(
         .rst(rst),.clk(clk),.cen(cen),
-        .irq_req(1'b0),.irq_vector(32'd0),.nmi_req(1'b0),
+        .irq_req(1'b0),.irq_vector(32'd0),.halted(), .nmi_req(1'b0),
         .nmi_nostack(1'b0),.halt_req(1'b0),.emu_run(1'b1),
         .convsp(16'd0),.control(16'd0),.pmask(16'd0),.wvp_set(),.psize(16'd4),.convdp(16'd0),.pixel_srt(pixel_srt),
         .cache_flush(1'b0),

@@ -12,7 +12,7 @@ main() {
     python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-rows.yaml"
     python3 "$ver_dir/array/binary_programs.py" --out "$ver_dir/build/binary-boundaries.yaml"
     python3 "$ver_dir/run.py" --timed-word --hold-after-write --vectors "$ver_dir/build/binary-boundaries.yaml"
-    for unit in alu field regs word arch system pixelbus arrayirq binaryirq-timed copyirq-timed fpga-stimulus lineirq lineirq-timed io bus startup \
+    for unit in alu field regs word arch system nmi-system pixelbus arrayirq binaryirq-timed copyirq-timed fpga-stimulus lineirq lineirq-timed io bus startup \
                 cache cachefield cachefield-timed fabric host pixel; do
         bash "$ver_dir/sim.sh" "$unit"
     done
@@ -38,6 +38,11 @@ main() {
         --stack-offset 1 --stack-offset 8 --stack-offset 15
     run_checker fpga-irq-mutations "$ver_dir/fpga/check_irq_mutations.py"
     run_checker fpga-irq-unaligned-mutations "$ver_dir/fpga/check_irq_mutations.py" --irq-unaligned
+    run_checker fpga-nmi "$ver_dir/fpga/check_external_reference.py" --nmi \
+        --stack-offset 0 --stack-offset 1 --stack-offset 15
+    run_checker fpga-nmi-phases "$ver_dir/fpga/check_external_reference.py" --nmi-phase-sweep
+    run_checker fpga-nmi-mutations "$ver_dir/fpga/check_irq_mutations.py" --nmi
+    run_checker fpga-nmi-priority "$ver_dir/fpga/check_nmi_priority.py"
     run_checker fpga-event-mutations "$ver_dir/fpga/check_event_mutations.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"

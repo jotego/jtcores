@@ -7,7 +7,7 @@ No expected value comes from the RTL, microcode, or another backend's trace.
 """
 
 PREFIXES = ('BUS_BEGIN', 'BUS_ACCEPT', 'BUS_END', 'TARGET_BEGIN', 'TARGET_END')
-KINDS = ('scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi')
+KINDS = ('scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase')
 
 
 def read_field(memory, address):
@@ -54,9 +54,9 @@ def validate(entry):
     contract = entry['external_contract']
     if not isinstance(contract, dict):
         raise ValueError('unsupported independent scalar IRQ contract')
-    phase = contract.get('kind') == 'scalar_irq_phase'
+    phase = contract.get('kind') in ('scalar_irq_phase', 'scalar_nmi_phase')
     unaligned = contract.get('kind') == 'scalar_irq_unaligned'
-    nmi = contract.get('kind') == 'scalar_nmi'
+    nmi = contract.get('kind') in ('scalar_nmi', 'scalar_nmi_phase')
     keys = ({'kind', 'handler_warm'} | ({'sp_offset', 'interrupt_enable'} if nmi else {'lint'}) |
             ({'assert_clock'} if phase else set()) | ({'sp_offset'} if unaligned else set()))
     if (set(contract) != keys or contract['kind'] not in KINDS or
@@ -76,7 +76,7 @@ def validate(entry):
         raise ValueError('scalar IRQ phase contract requires a warm handler and assertion clock16..23')
     wanted = [dict(trigger=0, argument=assertion, control=1 << (lint-1)),
               dict(trigger=1, argument=6 if unaligned else 4, control=0)] if not nmi else [
-              dict(trigger=0, argument=16, control=0x110), dict(trigger=5, argument=1, control=0)]
+              dict(trigger=0, argument=assertion, control=0x110), dict(trigger=5, argument=1, control=0)]
     if entry.get('external_events') != wanted:
         raise ValueError('scalar IRQ stimulus differs from its independent contract')
     stimulus = entry.get('stimulus', {})
@@ -113,7 +113,7 @@ def validate(entry):
 
 def check(entry, observed, lines):
     lint, warm, vector = validate(entry)
-    nmi = entry['external_contract']['kind'] == 'scalar_nmi'
+    nmi = entry['external_contract']['kind'] in ('scalar_nmi', 'scalar_nmi_phase')
     status = 0x00000810 | (0x00200000 if not nmi or entry['external_contract']['interrupt_enable'] else 0)
     source = 'NMI' if nmi else f'LINT{lint}'
     errors = []

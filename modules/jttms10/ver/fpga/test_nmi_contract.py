@@ -110,6 +110,19 @@ class NMIContract(unittest.TestCase):
         for offsets in ([], [1, 1], [False], [-1], [16]):
             with self.assertRaises(ValueError): nmi_cases.entries(self.base, self.oracle, offsets)
 
+    def test_warm_phase_sweep_preserves_literal_masks_and_host_origin(self):
+        rows = nmi_cases.phase_entries(self.base, self.oracle)
+        self.assertEqual(len(rows), 48)
+        combinations = set()
+        for row in rows:
+            irq_contract.validate(row)
+            contract = row['external_contract']
+            combinations.add((contract['interrupt_enable'], row['stimulus']['wait_states'],
+                              contract['assert_clock']))
+            self.assertEqual(row['external_events'][0]['argument'], contract['assert_clock'])
+        self.assertEqual(combinations, {(enabled, waits, clock) for enabled in (False, True)
+                         for waits in (0, 1, 3) for clock in range(16, 24)})
+
 
 if __name__ == '__main__':
     unittest.main()

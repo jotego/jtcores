@@ -29,7 +29,7 @@ module test;
         .convsp(16'h14), .control(16'd0), .pmask(16'd0),
         .wvp_set(), .mem_pixel(),
         .irq_req(irq_req), .irq_vector(irq_vector),
-        .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
+        .halted(), .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
         .halt_req(halt_req), .emu_run(emu_run),
         .nmi_clear(nmi_clear), .emu_ack(emu_ack),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),

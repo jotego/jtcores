@@ -3,7 +3,7 @@ module test;
     reg [15:0] opcode;
     integer fd, i;
     string path;
-    jttms10_ctrl u_ctrl(.byte_packet(1'b0), .byte_finish(1'b0), .byte_first(1'b0),
+    jttms10_ctrl u_ctrl(.halted(), .byte_packet(1'b0), .byte_finish(1'b0), .byte_first(1'b0),
         .rst(1'b1),
         .clk(1'b0),
         .enable('0),

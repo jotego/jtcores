@@ -25,6 +25,10 @@ main() {
         for mode in 1 2 3 4 5 6 7 8; do
             "$model_dir/Vtest" +mode="$mode"
         done
+    elif [ "$unit" = nmi-system ]; then
+        for mode in 1 2 3 4 5; do
+            "$model_dir/Vtest" +MODE="$mode"
+        done
     elif [ "$unit" = lineirq-timed ]; then
         for waits in 0 1; do
             for after in 1 2 3; do
@@ -90,6 +94,7 @@ select_sources() {
         fabric) hdl_names=(fabric field bus io video refresh host) ;;
         host) hdl_names=(fabric bus io video refresh host) ;;
         word|arch|system|pixelbus) ;;
+        nmi-system) bench=nmi/test.sv ;;
         arrayirq) bench=array/interrupt.sv ;;
         binaryirq-timed) bench=array/timed_interrupt.sv ;;
         copyirq-timed) bench=array/timed_copy_interrupt.sv ;;
