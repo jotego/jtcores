@@ -9,6 +9,7 @@ config:
 include:
 - gfx_line.yaml
 constants:
+  TARGET_GCOPYREBASE: t4 t5 t6 t8 t9 t10 t11
   TARGET_GBINCHECKWRITE: t6 t8 t9 t10 t11
   TARGET_GBINABORT: t4 t6 t8 t9 t10 t11
   TARGET_GBINROWREAD: t5 t6 t8 t9 t10 t11
@@ -1099,6 +1100,7 @@ ucode:
   - sa2 sa3 sa4, da2 da3 da4
   - qs_gas, m4_gam, sa2 sa3 sa4, da2 da3 da4
   - rf_gdst, sa2 sa3 sa4, da0 da1 da2 da3 da5
+  - copy_gcond, jump_gflow, ${TARGET_GCOPYREBASE}
   - jump_gflow, ${TARGET_GBLTLOOP}
 - name: gfwsetup
   start: 70
@@ -1834,7 +1836,7 @@ ucode:
 - name: gbltwordloop
   start: 221
   seq:
-  - postrd_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa0 sa1 sa5, da1 da5 # read S34, then S34+=16
+  - postrow_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa0 sa1 sa5, da1 da5 # checkpoint before accepting the next source; then S34+=16
   - qs_gas, k_gbs, m2_gbm, sa0 sa1 sa5, da0 da1 da5
   - ea_gdst, sa0 sa1 sa5, da0 da1 da5
   - add_galu, rf_gdst, wprev, sa0 sa2 sa3 sa5, da0 da2 da3 da5 # S35+=16
@@ -1899,7 +1901,7 @@ ucode:
   seq:
   - qd_gas, sa1 sa5, da1 da5 # save final destination before preparing next row
   - ea_gdst, sa1 sa5, da1 da5
-  - postrd_gbus, half_gsize, passnow_galu, qs_gas, sa5, da0 da4
+  - postrow_gbus, half_gsize, passnow_galu, qs_gas, sa5, da0 da4
   - addnow_galu, qs_gas, qd_gbs, a_gdst, sa0 sa5, da5 # A=next source row
   - rf_gdst, wprev, sa0 sa5, da0 da1 da4 # S32=next source row
   - addnow_galu, qs_gas, qd_gbs, rf_gdst, sa5, da0 da5 # S33=next destination row
@@ -1916,7 +1918,7 @@ ucode:
   - unaligned_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa1 sa5, da0 da2 da3 da5
   - irq_gcond, jump_gflow, ${TARGET_GCTXBLT}, sa1 sa5, da0 da2 da3 da5
   - lastword_gcond, jump_gflow, ${TARGET_GBLTWORDLAST}, sa1 sa5, da0 da1 da5
-  - postrd_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa0 sa1 sa5, da1 da5 # read S34, then S34+=16
+  - postrow_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa0 sa1 sa5, da1 da5 # checkpoint before accepting the next source; then S34+=16
   - qs_gas, k_gbs, m2_gbm, sa0 sa1 sa5, da0 da1 da5
   - ea_gdst, sa0 sa1 sa5, da0 da1 da5
   - add_galu, rf_gdst, wprev, sa0 sa2 sa3 sa5, da0 da2 da3 da5 # S35+=16
@@ -2090,6 +2092,11 @@ ucode:
   - collect_gbus, sa1 sa5, da4 da5
   - mdrf, sa1 sa5, da4 da5 # S48=first source bits
   - jump_gflow, ${TARGET_GBINEMIT}, sa3 sa4, da0 da3 da4
+- name: gcopyrebase
+  start: 247
+  seq:
+  - resume_gbus, sa0 sa1 sa5, da0 da2 da3 da5 # discard the ISR budget and resume the native word schedule
+  - jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
 - name: gschema0
   start: 126
   seq:

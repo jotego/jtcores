@@ -3,7 +3,7 @@
 All six PIXBLT encodings have independent timing probes. Aligned opaque regular
 copies now have a native word schedule validated on DataStorm and Verilator.
 Aligned opaque binary expansion also has a native short-row schedule,
-validated on DataStorm. Native interrupt continuation and 20 additional wide
+validated on DataStorm. Native regular/binary interrupt continuation and 20 additional wide
 row fixtures now pass local Verilator checks; their new FPGA image is pending.
 Full timing compliance and condition coverage remain open.
 
@@ -266,6 +266,50 @@ The current FPGA V3 runner cannot inject IRQ/NMI/HOLD. A new FPGA image and
 ordinary matrices can validate the new RTL's uninterrupted timing and results;
 they cannot establish physical interrupt continuation. That stimulus path,
 silicon interrupt latency and full condition compliance remain open.
+
+## Native regular interrupt continuation
+
+The native regular path had a separate checkpoint defect: at PS4/DX16 with
+zero external waits, an IRQ raised by the first destination write entered
+after the second write. The uninterrupted control passed. Its source reads
+now use the existing interrupt-aware reservation action. Only an unaccepted
+read is withdrawn, and the preceding physical field drains before regular
+context is published. Accepted responses retain the common protection already
+checked by the binary bench.
+
+RETI restores the regular context and returns through a native rebase entry,
+reinstating the word path and clearing the ISR timing budget. The existing
+regular restart frame, shared ALU, synchronous register RAM and DSP count are
+preserved. The graphics ROM remains 4096x64. Ordinary uninterrupted transfer
+counts and expectations are unchanged.
+
+`ver/array/timed_copy_interrupt.sv` checks all four regular encodings with
+independent source words, nonzero XY/OFFSET and unequal source/destination
+pitches. The `copyirq-timed` sweep covers PS1/2/4/8/16, DX16/32, two rows,
+first-word/row/penultimate/final checkpoints, waits0/1 and CEN pauses0/7/31.
+Its 3,280 mode executions check IRQ, stacked/no-stack NMI, HLT, nested ISR FILL,
+PBX/PC/defined ST, B0/B2, preserved dimensions/pitches/colors, exact source and
+destination traffic, canaries and physical-field drain. The source-read count
+at interrupt entry must match the completed destination-word count. No private
+scratch-register encoding is used as an expectation.
+
+The current-source binary sweep also passes all 1,640 executions. Forty-four
+ordinary regular/geometry/binary controls pass each base, W1/P7 and W3 through
+the unchanged Python timing oracle (132 observations). These are local
+Verilator checks. They do not measure silicon interrupt latency or total
+instruction duration across an ISR, and the current FPGA image predates this
+regular fix.
+
+Permanent mutation checks require a passing control and reject disabled
+reservation checkpoints, a binary frame selected for a regular abort, and
+lost timing state on RETI. The zero-wait first-word probe is necessary for
+the disabled-checkpoint mutation; a wait-state probe alone did not expose it.
+
+```sh
+bash modules/jttms10/ver/sim.sh copyirq-timed
+python3 modules/jttms10/ver/array/check_timed_interrupt.py --kind regular \
+    --report regular-irq-mutations.json
+```
 
 Run the complete regular domain through the ordinary FPGA fixture builder:
 

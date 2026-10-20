@@ -32,22 +32,27 @@ main() {
             "$model_dir/Vtest" +FILL_PSIZE="$size"
             "$model_dir/Vtest" +FILL_PSIZE="$size" +FILL_XY=1
         done
-    elif [ "$unit" = binaryirq-timed ]; then
+    elif [ "$unit" = binaryirq-timed ] || [ "$unit" = copyirq-timed ]; then
+        local formats=(0 1) mode_arg=XY
+        if [ "$unit" = copyirq-timed ]; then
+            formats=(0 1 2 3)
+            mode_arg=COPY_MODE
+        fi
         for size in 1 2 4 8 16; do
             for width in 16 32; do
                 local row_words=$((width*size/16))
-                for xy in 0 1; do
+                for xy in "${formats[@]}"; do
                     for waits in 0 1; do
                         local seen=" "
                         for after in 1 "$row_words" "$((2*row_words-1))" "$((2*row_words))"; do
                             [[ $seen == *" $after "* ]] && continue
                             seen+="$after "
                             for pause in 0 31; do
-                                "$model_dir/Vtest" +PSIZE="$size" +WIDTH="$width" +XY="$xy" \
+                                "$model_dir/Vtest" +PSIZE="$size" +WIDTH="$width" "+$mode_arg=$xy" \
                                     +WAIT_STATES="$waits" +IRQ_AFTER="$after" +PAUSE_CLOCKS="$pause"
                             done
                         done
-                        "$model_dir/Vtest" +PSIZE="$size" +WIDTH="$width" +XY="$xy" \
+                        "$model_dir/Vtest" +PSIZE="$size" +WIDTH="$width" "+$mode_arg=$xy" \
                             +WAIT_STATES="$waits" +IRQ_AFTER=1 +PAUSE_CLOCKS=7
                     done
                 done
@@ -79,6 +84,7 @@ select_sources() {
         word|arch|system|pixelbus) ;;
         arrayirq) bench=array/interrupt.sv ;;
         binaryirq-timed) bench=array/timed_interrupt.sv ;;
+        copyirq-timed) bench=array/timed_copy_interrupt.sv ;;
         lineirq) bench=line/interrupt.sv ;;
         lineirq-timed) bench=line/timed_interrupt.sv ;;
         *) echo "Unknown unit: $unit" >&2; return 2 ;;

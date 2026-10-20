@@ -76,3 +76,12 @@ B10..B14 layout described in [blit-timing.md](blit-timing.md). Generic frames
 retain their existing format. Temporary RTL mutations demonstrate rejection
 of missed checkpoints, cancelling accepted writes and failing to resume timing.
 These are local Verilator checks; the FPGA runner has no IRQ scheduler yet.
+
+The native regular path has a separate `copyirq-timed` physical-word sweep
+for all four encodings. It withdraws an unaccepted next source read before
+publishing regular context, and RETI restores the native word/timing state.
+All 3,280 local mode executions pass, including nested ISR drawing, waits and
+posted-ACK CEN pauses. Source reads must match completed writes at each tested
+checkpoint. The original first-word IRQ defect and reproduction commands are
+documented in [PIXBLT timing](blit-timing.md). FPGA interrupt injection and
+instruction duration across the ISR remain unvalidated.

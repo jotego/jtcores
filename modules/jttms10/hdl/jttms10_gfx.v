@@ -358,7 +358,10 @@ module jttms10_gfx(
                 if(depth!=0) depth<=depth-2'd1;
             end
             if(gflow==END_GFLOW) active<=0;
-            if(bus_abort && gbus==POSTROW_GBUS) uaddr<=GCTXBINROW_SEQA;
+            if(bus_abort && gbus==POSTROW_GBUS) begin
+                if(ir[7]) uaddr<=GCTXBINROW_SEQA;
+                else uaddr<=GCTXBLT_SEQA;
+            end
             if(bus_abort && gbus==POSTCHECK_GBUS) uaddr<=GBINABORT_SEQA;
         end
     end

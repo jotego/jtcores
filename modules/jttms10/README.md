@@ -163,6 +163,9 @@ pointers; see [array ISA notes](docs/array-isa.md). Generic binary transfers fet
 aligned short-row path uses one or two 16-bit reads. Its native IRQ/NMI
 continuation passes a physical-word Verilator sweep with nested ISR graphics,
 waits and CEN pauses; physical FPGA interrupt injection remains unvalidated.
+The native regular path also passes all four encodings through a separate
+3,280-mode timed-word IRQ/NMI sweep. Its next-source reservation checkpoint and
+RETI native timing restoration fix remain pending FPGA validation.
 [LINE](docs/line-isa.md) shares the pixel/window/ALU paths and has independent
 octant/tie/window cases plus a PC-rewind interrupt test. Array and LINE
 continuation benches nest ISR graphics under MMTM/MMFM and compare resumed
