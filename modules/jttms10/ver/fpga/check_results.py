@@ -216,6 +216,10 @@ def external_event_words(entry, protocol_version):
         raise ValueError('external events require FPGA protocol 4')
     if entry.get('external_contract') is not None and protocol_version < 4:
         raise ValueError('external event expectations require FPGA protocol 4')
+    contract = entry.get('external_contract')
+    if (isinstance(contract, dict) and contract.get('kind') == 'scalar_irq_unaligned' and
+            protocol_version < 5):
+        raise ValueError('unaligned IRQ requires FPGA protocol 5')
     expected_external_pause(entry)
     words = []
     for event in events:
@@ -506,7 +510,7 @@ def check_batch(batch, capture):
         if any(key in case for key in ('control_flow', 'stack_control_flow', 'call_flow', 'trap_flow')):
             lines.append(f'NEXT_OPCODE {result[5]:04x}')
         if version >= 4:
-            errors.extend(check_external_events(entry, result, traces[index]))
+            errors.extend(check_external_events(entry, result, traces[index], version))
         log = '\n'.join(lines)
         row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause)
         follow_errors, irq_observation = _event_contract.check_followup(entry, observed, lines)
@@ -521,10 +525,10 @@ def check_batch(batch, capture):
     return dict(cases=rows, passed=len(rows) - failures, failed=failures)
 
 
-def check_external_events(entry, result, traces):
+def check_external_events(entry, result, traces, protocol_version=4):
     """Check transport/event observations; keep ISA timing expectations separate."""
     expected = entry.get('external_events', [])
-    external_event_words(entry, 4)
+    external_event_words(entry, protocol_version)
     errors, applied, writes, hosts, hold_edges = [], [], [], [], []
     for line in traces:
         fields = line.split()

@@ -192,3 +192,22 @@ states plus four word waits, using the existing nine-state line-fill contract.
 Missing/duplicate boundaries and a delayed first ISR fail independently of final
 state. The original programs, ISA oracle and archived V4 verdicts are preserved.
 V5 still requires local cross-backend and source-bound physical validation.
+
+## Unaligned scalar context contract
+
+The permanent V5 fixture generator also covers all fifteen nonzero SP bit
+offsets, both LINT pins, W0/W1/W3 waits and cold/warm handlers (180 cases).
+SPVU001A printed8-8, Table8-4 note3 gives an exact 28-state context for an
+unaligned SP. Each PC/ST push spans three words, with read/modify/write at both
+partial edges (printed13-4 caseG). Ten stack transfers and two vector reads
+therefore add twelve configured word waits. Recognition plus context is
+29..30 states, independent of the first ISR instruction's separate duration.
+
+The expected frame is inserted as two 32-bit bit fields into sentinel-filled
+memory. Checks preserve all bits outside those fields and verify actual MSW-first
+write/RMW order, data, per-word waits, RETI read order, SP and initialized state.
+A deliberate partial-write mutation clears only surrounding bits and must fail
+even when all architectural registers and timing agree. The original aligned
+and phase fixtures retain their existing program and observation contracts.
+These conditions use the same V5 image; programs, initial memory and settings
+are runtime payloads. See [commands and validation scope](../ver/fpga/README.md#unaligned-scalar-interrupt-frames).

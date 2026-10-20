@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """External LINT entry/RETI fixtures; ordinary NOP timing remains independent."""
 import copy
+import irq_contract
 
 
 def entries(base, oracle):
@@ -59,5 +60,45 @@ def phase_entries(base, oracle):
             row['fixture']['conditions']['assert_clock'] = clock
             row['external_contract'].update(kind='scalar_irq_phase', assert_clock=clock)
             row['external_events'][0]['argument'] = clock
+            rows.append(row)
+    return rows
+
+
+def unaligned_entries(base, oracle, offsets=None):
+    """TI8-8 note3: every nonzero SP bit offset, both pins and cache conditions."""
+    offsets = list(range(1, 16)) if offsets is None else list(offsets)
+    if (not offsets or any(type(offset) is not int or not 1 <= offset <= 15 for offset in offsets)
+            or len(offsets) != len(set(offsets))):
+        raise ValueError('select unique unaligned SP offsets1..15')
+    rows = []
+    for offset in sorted(offsets):
+        sp = 0x3000+offset
+        for original in entries(base, oracle):
+            row = copy.deepcopy(original)
+            case = row['fixture']
+            warm = row['external_contract']['handler_warm']
+            vector = 0xffffffc0 if row['external_contract']['lint'] == 1 else 0xffffffa0
+            row['name'] += f'_sp{offset}'
+            case.update(name=row['name'], initial_sp=sp, expected_extra_regs=dict(sp=sp),
+                        citation='SPVU001A 8-8 Table8-4 note3;12-170;12-230/231;13-4')
+            case['conditions']['sp_alignment'] = offset
+            memory = irq_contract.initial_stack(sp, warm)
+            memory.update({vector: 0x4000, vector+16: 0})
+            case['initial_memory'] = sorted(memory.items())
+            words, start, end = oracle.program(case)
+            if warm:
+                # RETI from a real unaligned reset-time frame warms the ISR.
+                prologue = oracle.movi(sp-64, 15)+oracle.movi(0x4000, 14)+[0x016e]
+                words = prologue+words
+                start += 16*len(prologue)
+                end += 16*len(prologue)
+            case.update(test_pc=start, next_pc=end, follow_pc=0x4000 if warm else end+16*7)
+            while len(words) < (0x4000-0x1000)//16:
+                words.append(0x0300)
+            words += oracle.movi(0x12345678, 0)+[0x0940]+[0x0300]*12
+            row.update(program_words=words, test_pc=start, next_pc=end)
+            row['external_contract'].update(kind='scalar_irq_unaligned', sp_offset=offset)
+            # Each unaligned 32-bit push writes three physical words.
+            row['external_events'][1]['argument'] = 6
             rows.append(row)
     return rows

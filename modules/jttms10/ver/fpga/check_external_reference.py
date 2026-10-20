@@ -27,7 +27,9 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def fixture_manifest(irq_phase_sweep=False):
+def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=None):
+    if (irq_phase_sweep and irq_unaligned) or (stack_offsets is not None and not irq_unaligned):
+        raise ValueError('stack offsets require the unaligned IRQ selection')
     specs = specifications()
     bases = {entry['name']: entry for entry in checker.prepare_cases(
         sorted({row['base'] for row in specs}), protocol_version=5)}
@@ -52,6 +54,10 @@ def fixture_manifest(irq_phase_sweep=False):
         entries.append(entry)
     if irq_phase_sweep:
         entries = irq_cases.phase_entries(bases['nop_hit'], checker.oracle_module())
+        for identifier, entry in enumerate(entries):
+            entry['id'] = identifier
+    if irq_unaligned:
+        entries = irq_cases.unaligned_entries(bases['nop_hit'], checker.oracle_module(), stack_offsets)
         for identifier, entry in enumerate(entries):
             entry['id'] = identifier
     return dict(format=checker.FORMAT_V5, protocol_version=5,
@@ -86,7 +92,8 @@ def reference_case(entry, executable, work, output, oracle):
         f'+WATCH_EXTRA={watch_flags(case)}', f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions', 0)}",
         f"+FOLLOW_PC={case.get('follow_pc', 0):x}", f"+WAIT={8*settings['wait_states']}",
         f"+PAUSE={settings['pause_clocks']}", f"+PAUSE_AFTER={settings['pause_after_clocks']}"]
-    if entry.get('external_contract', {}).get('kind') in ('scalar_irq', 'scalar_irq_phase'):
+    if entry.get('external_contract', {}).get('kind') in (
+            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned'):
         command.append('+ENTRY_HANDLER=4000')
     result = subprocess.run(command, cwd=work, capture_output=True, text=True, timeout=30)
     log = result.stdout+result.stderr
@@ -118,7 +125,7 @@ def reference_case(entry, executable, work, output, oracle):
             words[203], words[204], words[206] = 1, int(line.split()[1].split('=')[1]), case['follow_pc']
     lines = [line for line in log.splitlines() if line.startswith(
         ('BUS_', 'TARGET_', 'STIMULUS ', 'HOLD_ACK ', 'HOST_ACK '))]
-    errors.extend(checker.check_external_events(entry, words, lines))
+    errors.extend(checker.check_external_events(entry, words, lines, 5))
     row = oracle.check_observation(case, observed, errors, log, settings['wait_states'], pause)
     follow_errors, irq_observation = event_contract.check_followup(entry, observed, log.splitlines())
     errors.extend(follow_errors)
@@ -200,14 +207,20 @@ def main():
     selection.add_argument('--manifest', type=Path)
     selection.add_argument('--irq-phase-sweep', action='store_true',
                            help='48 warm LINT1/LINT2 W0/W1/W3 cases across all eight INCLK phases')
+    selection.add_argument('--irq-unaligned', action='store_true',
+                           help='180 cases across SP offsets1..15; prepare for FPGA or select a short subset')
+    parser.add_argument('--stack-offset', type=int, choices=range(1, 16), action='append',
+                        help='repeat to select unaligned SP bit offsets; local reference limit is64 cases')
     parser.add_argument('--output', type=Path, help='new directory retaining raw reference and Avalon evidence')
     parser.add_argument('--report', type=Path)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
     modes.add_argument('--prepare-only', action='store_true', help='write runtime fixtures without building a local model')
     args = parser.parse_args()
+    if args.stack_offset is not None and not args.irq_unaligned:
+        parser.error('--stack-offset requires --irq-unaligned')
     manifest = (json.loads(args.manifest.read_text()) if args.manifest else
-                fixture_manifest(args.irq_phase_sweep))
+                fixture_manifest(args.irq_phase_sweep, args.irq_unaligned, args.stack_offset))
     if args.prepare_only:
         if args.output is None or args.report is not None:
             parser.error('--prepare-only requires --output and does not produce a validation --report')

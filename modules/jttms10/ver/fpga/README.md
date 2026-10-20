@@ -27,6 +27,49 @@ Nine event-failure scenarios plus generic timeout/overflow checks reject the
 failed batch while preserving the next case and clean rearm. These are local
 proofs; V5 fit/STA, FPGA equivalence and full matrices remain required.
 
+## Unaligned scalar interrupt frames
+
+`--irq-unaligned` defines 180 cases: every SP bit offset from 1 through 15,
+LINT1/LINT2, W0/W1/W3 waits and cold/warm handlers. TI SPVU001A printed8-8,
+Table8-4 note3 requires 28 context states when SP is not word aligned. Two
+32-bit pushes each require three writes and two partial-word reads, followed
+by two vector reads: twelve physical transfers add twelve configured word
+waits. Pin-to-context completion must therefore take 29..30 states plus those
+waits, retaining the existing one-INCLK edge-recording allowance.
+
+Independent checks reconstruct the saved PC/ST as bit fields and preserve the
+sentinel bits outside the frame. They require descending physical word order
+for each push, partial read/modify/write data, ascending RETI reads, restored SP,
+registers/status and the first ISR instruction duration. All original aligned
+fixtures and expectations remain intact. Unaligned contracts require V5;
+transport, CPU, observer and microcode are unchanged.
+
+Prepare all runtime cases for a source-bound V5 FPGA image:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_external_reference.py --irq-unaligned \
+    --prepare-only --output /path/to/unaligned-fixtures
+```
+
+For a short independent Verilator comparison, select at most five offsets
+(60 cases), for example:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_external_reference.py --irq-unaligned \
+    --stack-offset 1 --stack-offset 8 --stack-offset 15 \
+    --output /path/to/unaligned-reference
+```
+
+The normal runner includes these three boundary offsets and actual unaligned
+RTL mutation checks. The additional partial-write mutation corrupts only bits
+outside the frame: restored registers, PC/ST and timing remain correct while
+memory and bus checks fail. All 180 cases pass both local backends, split into
+three 60-case reference groups, with zero differences. All 104 host tests pass;
+six actual RTL mutations are rejected while the NOP controls pass. The previous
+50 event and 48 phase fixtures and complete result objects remain identical.
+Physical validation of the new fixture set remains required before claiming
+FPGA coverage.
+
 ## Historical version 4 and scalar interrupt entry
 
 The V4 checkout's RTL, transport and receipt writer use protocol4. The
