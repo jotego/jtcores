@@ -198,6 +198,27 @@ PARTITION_METADATA_INPUTS = {
     "v2-partition-query.tcl",
 }
 
+# These exact files are generated while building the CPU's Verilator dispatch
+# model. They are captured in both build-input manifests for auditability, but
+# are not Quartus compile inputs. Keep this an exact-path allowlist: HDL, ROM,
+# QIP, SDC, cache source, and new model files remain authoritative inputs.
+TRANSIENT_DISPATCH_MODEL_OUTPUTS = frozenset({
+    "Vtest",
+    "Vtest__ALL.a",
+    "Vtest__ALL.o",
+    "Vtest___024root__DepSet_h9b2d61ff__0__Slow.cpp",
+    "Vtest___024root__DepSet_hc07518e4__0.cpp",
+    "Vtest__ver.d",
+    "Vtest__verFiles.dat",
+    "build.log",
+})
+
+
+def _is_transient_dispatch_model_output(relative: str) -> bool:
+    path = Path(relative)
+    return (path.parts[:-1] == ("jttms10-generated", "dispatch-model") and
+            path.name in TRANSIENT_DISPATCH_MODEL_OUTPUTS)
+
 
 def _normalized_qsf(build: Path, relative_name: str, expected_hash: str) -> tuple[str, ...]:
     path = build / relative_name
@@ -214,9 +235,17 @@ def _normalized_qsf(build: Path, relative_name: str, expected_hash: str) -> tupl
     return tuple(lines)
 
 
-def validate_compiled_input_delta(parent_build: Path, candidate_build: Path,
-                                  source_delta: list[str]) -> dict[str, dict[str, str | None]]:
-    """Require update compile inputs to match the seed except partition QSF and CPU HDL."""
+def validate_compiled_input_deltas(
+        parent_build: Path, candidate_build: Path, source_delta: list[str]
+        ) -> tuple[dict[str, dict[str, str | None]],
+                   dict[str, dict[str, str | None]]]:
+    """Validate stable inputs and separately report known simulator cache churn.
+
+    The raw input manifests remain complete. Only the exact transient outputs
+    listed in TRANSIENT_DISPATCH_MODEL_OUTPUTS are removed from the stable
+    compile-input comparison, and their before/after hashes are returned for
+    the partition certificate.
+    """
     parent_build = Path(parent_build).resolve(strict=True)
     candidate_build = Path(candidate_build).resolve(strict=True)
 
@@ -240,6 +269,8 @@ def validate_compiled_input_delta(parent_build: Path, candidate_build: Path,
                if before.get(name) != after.get(name)}
     ignored_metadata = changed & PARTITION_METADATA_INPUTS
     changed -= ignored_metadata
+    transient = {name for name in changed if _is_transient_dispatch_model_output(name)}
+    changed -= transient
     qsf_name = "test_board.qsf"
     qsf_changed = qsf_name in changed
     if not qsf_changed:
@@ -261,8 +292,22 @@ def validate_compiled_input_delta(parent_build: Path, candidate_build: Path,
     if any(Path(name).suffix != ".v" or
            not name.startswith("ip/jttms10_fpga_runner/") for name in changed):
         raise ValueError(f"partition update changed a non-CPU packaged input: {sorted(changed)}")
-    return {name: {"parent_sha256": before.get(name), "candidate_sha256": after.get(name)}
-            for name in sorted(changed)}
+    stable_delta = {
+        name: {"parent_sha256": before.get(name), "candidate_sha256": after.get(name)}
+        for name in sorted(changed)
+    }
+    transient_delta = {
+        name: {"parent_sha256": before.get(name), "candidate_sha256": after.get(name)}
+        for name in sorted(transient)
+    }
+    return stable_delta, transient_delta
+
+
+def validate_compiled_input_delta(parent_build: Path, candidate_build: Path,
+                                  source_delta: list[str]) -> dict[str, dict[str, str | None]]:
+    """Compatibility wrapper returning only changed stable Quartus inputs."""
+    stable_delta, _ = validate_compiled_input_deltas(parent_build, candidate_build, source_delta)
+    return stable_delta
 
 
 def extract_partition_observations(build: Path) -> dict[str, list[dict[str, str | int]]]:
@@ -344,6 +389,9 @@ def validate_partition_result(build: Path, result: dict) -> dict:
         raise ValueError("partition source-delta record differs from the stage certificate")
     if cert.get("compiled_input_delta") != delta_record.get("compiled_input_delta"):
         raise ValueError("partition compiled-input delta differs from the stage certificate")
+    if (cert.get("transient_compiled_input_delta", {}) !=
+            delta_record.get("transient_compiled_input_delta", {})):
+        raise ValueError("partition transient-input delta differs from the stage certificate")
     if cert.get("partition_query_log_sha256") != sha256(build / "logs/v2-partition-query.log"):
         raise ValueError("partition query log is missing or changed")
     query = (build / "logs/v2-partition-query.log").read_text(errors="replace")
@@ -396,6 +444,7 @@ def validate_partition_result(build: Path, result: dict) -> dict:
     if mode == "seed":
         if (cert.get("parent_partition_stage_sha256") is not None or
                 cert.get("source_delta") != [] or cert.get("compiled_input_delta") != {} or
+                cert.get("transient_compiled_input_delta", {}) != {} or
                 delta_record.get("parent_source_hashes") != {}):
             raise ValueError("partition seed must not claim a prior partition seed or source delta")
     else:
@@ -424,10 +473,12 @@ def validate_partition_result(build: Path, result: dict) -> dict:
         if any(not name.startswith("modules/jttms10/hdl/") or
                Path(name).suffix != ".v" for name in delta):
             raise ValueError(f"partition update changed non-CPU-RTL inputs: {delta}")
-        observed_input_delta = validate_compiled_input_delta(
+        observed_input_delta, observed_transient_delta = validate_compiled_input_deltas(
             parent_dir, build, cert.get("source_delta", []))
         if cert.get("compiled_input_delta") != observed_input_delta:
             raise ValueError("partition update compiled-input delta differs from the seed")
+        if cert.get("transient_compiled_input_delta", {}) != observed_transient_delta:
+            raise ValueError("partition update transient-input delta differs from the seed")
     if cert.get("partition_observations") != extract_partition_observations(build):
         raise ValueError("partition handling observations differ from fresh map/fit/flow reports")
     return cert

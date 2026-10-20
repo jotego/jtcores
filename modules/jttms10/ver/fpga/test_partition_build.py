@@ -130,6 +130,7 @@ class PartitionAssignments(unittest.TestCase):
             (root / "QSYS_test_board/synthesis").mkdir(parents=True)
             (root / "QSYS_test_board/synthesis/QSYS_test_board.qip").write_text("qip\n")
             (root / "test_board.qsf").write_text("\n".join([
+                "set_global_assignment -name DEVICE 5CSEMA5F31C8",
                 "set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top",
                 "set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id CPU",
                 "set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top",
@@ -152,6 +153,125 @@ class PartitionAssignments(unittest.TestCase):
         self._manifest(update)
         with self.assertRaisesRegex(ValueError, "stable compiled inputs"):
             partitions.validate_compiled_input_delta(parent, update, source_delta)
+
+    def _partition_input_pair(self, parent, update, changed_cpu=True):
+        for root in (parent, update):
+            (root / "ip/jttms10_fpga_runner").mkdir(parents=True)
+            (root / "ip/jttms10_fpga_runner/jttms10.v").write_text("cpu-old\n")
+            (root / "ip/jttms10_fpga_runner/jttms10_fpga_runner.v").write_text("runner\n")
+            (root / "QSYS_test_board/synthesis/submodules").mkdir(parents=True)
+            (root / "QSYS_test_board/synthesis/QSYS_test_board.qip").write_text("qip\n")
+            (root / "QSYS_test_board/synthesis/submodules/runner.sdc").write_text("sdc\n")
+            (root / "ip/jttms10_fpga_runner/memory.v").write_text("ram\n")
+            (root / "tms10_gfx.hex").write_text("0123\n")
+            (root / "test_board.qsf").write_text("\n".join([
+                "set_global_assignment -name DEVICE 5CSEMA5F31C8",
+                "set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top",
+                "set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id CPU",
+                "set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top",
+                f'set_instance_assignment -name PARTITION_HIERARCHY {partitions.PARTITION_FILE} -to "{partitions.CPU_ROOT}" -section_id "CPU"',
+                "set_global_assignment -name QIP_FILE QSYS_test_board/synthesis/QSYS_test_board.qip",
+                f"set_global_assignment -library QSYS_test_board -name VERILOG_FILE {root}/ip/jttms10_fpga_runner/jttms10.v",
+                ""]) + "\n")
+        update_qsf = update / "test_board.qsf"
+        update_qsf.write_text(update_qsf.read_text().replace(
+            "PARTITION_NETLIST_TYPE SOURCE -section_id Top",
+            "PARTITION_NETLIST_TYPE POST_FIT -section_id Top"))
+        if changed_cpu:
+            (update / "ip/jttms10_fpga_runner/jttms10.v").write_text("cpu-new\n")
+
+    def test_dispatch_model_cache_churn_is_recorded_separately(self):
+        parent = Path(self.temp.name) / "cache-seed"
+        update = Path(self.temp.name) / "cache-update"
+        self._partition_input_pair(parent, update)
+        for root, content in ((parent, "seed cache\n"), (update, "rebuilt cache\n")):
+            model = root / "jttms10-generated/dispatch-model"
+            model.mkdir(parents=True)
+            for name in partitions.TRANSIENT_DISPATCH_MODEL_OUTPUTS:
+                (model / name).write_text(content + name + "\n")
+        self._manifest(parent)
+        self._manifest(update)
+
+        stable, transient = partitions.validate_compiled_input_deltas(
+            parent, update, ["modules/jttms10/hdl/jttms10.v"])
+        self.assertEqual(set(stable), {"ip/jttms10_fpga_runner/jttms10.v"})
+        self.assertEqual(set(transient), {
+            f"jttms10-generated/dispatch-model/{name}"
+            for name in partitions.TRANSIENT_DISPATCH_MODEL_OUTPUTS
+        })
+        for name, hashes in transient.items():
+            self.assertEqual(hashes["parent_sha256"], hashlib.sha256(
+                (parent / name).read_bytes()).hexdigest())
+            self.assertEqual(hashes["candidate_sha256"], hashlib.sha256(
+                (update / name).read_bytes()).hexdigest())
+
+    def test_dispatch_model_hdl_and_new_outputs_remain_stable_inputs(self):
+        for index, relpath in enumerate((
+                "jttms10-generated/dispatch-model/Vtest_new",
+                "jttms10-generated/dispatch-model/Vtest_extra.v",
+                "jttms10-generated/dispatch-model/nested/Vtest__ALL.o",
+                "jttms10-generated/other-model/Vtest__ALL.o")):
+            with self.subTest(relpath=relpath):
+                parent = Path(self.temp.name) / f"strict-seed-{index}"
+                update = Path(self.temp.name) / f"strict-update-{index}"
+                self._partition_input_pair(parent, update)
+                for root, content in ((parent, "old"), (update, "new")):
+                    path = root / relpath
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(content + "\n")
+                self._manifest(parent)
+                self._manifest(update)
+                with self.assertRaisesRegex(ValueError, "stable compiled inputs"):
+                    partitions.validate_compiled_input_deltas(
+                        parent, update, ["modules/jttms10/hdl/jttms10.v"])
+                self.addCleanup(lambda p=parent: __import__("shutil").rmtree(p, ignore_errors=True))
+                self.addCleanup(lambda p=update: __import__("shutil").rmtree(p, ignore_errors=True))
+
+    def test_dispatch_cache_churn_does_not_replace_required_cpu_package_delta(self):
+        parent = Path(self.temp.name) / "no-cpu-seed"
+        update = Path(self.temp.name) / "no-cpu-update"
+        self._partition_input_pair(parent, update, changed_cpu=False)
+        for root, content in ((parent, "seed"), (update, "updated")):
+            model = root / "jttms10-generated/dispatch-model"
+            model.mkdir(parents=True)
+            (model / "Vtest").write_text(content + "\n")
+        self._manifest(parent)
+        self._manifest(update)
+        with self.assertRaisesRegex(ValueError, "did not compile every changed CPU module"):
+            partitions.validate_compiled_input_deltas(
+                parent, update, ["modules/jttms10/hdl/jttms10.v"])
+
+    def test_update_rejects_qip_sdc_ram_rom_and_device_changes(self):
+        changes = (
+            ("QSYS_test_board/synthesis/QSYS_test_board.qip", "new qip\n"),
+            ("QSYS_test_board/synthesis/submodules/runner.sdc", "new sdc\n"),
+            ("ip/jttms10_fpga_runner/memory.v", "new ram\n"),
+            ("tms10_gfx.hex", "abcd\n"),
+        )
+        for index, (relpath, content) in enumerate(changes):
+            with self.subTest(relpath=relpath):
+                parent = Path(self.temp.name) / f"input-seed-{index}"
+                update = Path(self.temp.name) / f"input-update-{index}"
+                self._partition_input_pair(parent, update)
+                (update / relpath).write_text(content)
+                self._manifest(parent)
+                self._manifest(update)
+                with self.assertRaisesRegex(ValueError, "stable compiled inputs"):
+                    partitions.validate_compiled_input_deltas(
+                        parent, update, ["modules/jttms10/hdl/jttms10.v"])
+                self.addCleanup(lambda p=parent: __import__("shutil").rmtree(p, ignore_errors=True))
+                self.addCleanup(lambda p=update: __import__("shutil").rmtree(p, ignore_errors=True))
+
+        parent = Path(self.temp.name) / "device-seed"
+        update = Path(self.temp.name) / "device-update"
+        self._partition_input_pair(parent, update)
+        qsf = update / "test_board.qsf"
+        qsf.write_text(qsf.read_text().replace("5CSEMA5F31C8", "5CSEMA5F31C6"))
+        self._manifest(parent)
+        self._manifest(update)
+        with self.assertRaisesRegex(ValueError, "outside the partition configuration"):
+            partitions.validate_compiled_input_deltas(
+                parent, update, ["modules/jttms10/hdl/jttms10.v"])
 
     def test_update_compile_inputs_reject_qsf_drift_outside_partition_assignments(self):
         parent = Path(self.temp.name) / "seed-qsf"

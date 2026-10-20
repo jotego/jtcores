@@ -177,18 +177,19 @@ import partition_build
 current=json.loads((build/'v2-build-inputs.json').read_text())
 now=partition_build.source_hashes_relative(current)
 if mode=='seed':
-    delta=[]; before={}; input_delta={}
+    delta=[]; before={}; input_delta={}; transient_input_delta={}
 else:
     old_manifest=json.loads((base/'v2-build-inputs.json').read_text())
     before=partition_build.source_hashes_relative(old_manifest)
     try:
         delta=partition_build.compute_cpu_source_delta(old_manifest,current)
-        input_delta=partition_build.validate_compiled_input_delta(
+        input_delta,transient_input_delta=partition_build.validate_compiled_input_deltas(
             base,build,delta)
     except ValueError as error:
         raise SystemExit(str(error)) from error
 row={'mode':mode,'source_delta':delta,'parent_source_hashes':before,'source_hashes':now,
-     'compiled_input_delta':input_delta}
+     'compiled_input_delta':input_delta,
+     'transient_compiled_input_delta':transient_input_delta}
 (build/'v2-partition-source-delta.json').write_text(json.dumps(row,indent=2,sort_keys=True)+'\n')
 PY
 }
@@ -234,6 +235,7 @@ cert={
  'partition_query_log_sha256':sha(b/'logs/v2-partition-query.log'),
  'source_delta_sha256':sha(b/'v2-partition-source-delta.json'),
  'compiled_input_delta':delta['compiled_input_delta'],
+ 'transient_compiled_input_delta':delta.get('transient_compiled_input_delta',{}),
  'partition_observations':partition_build.extract_partition_observations(b),
  'qsf_sha256':sha(b/'test_board.qsf'),'rbf_sha256':sha(b/'output_files/test_board.rbf'),
  'stage_reports':{name:sha(path) for name,path in reports.items()},
