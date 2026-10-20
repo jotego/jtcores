@@ -474,8 +474,42 @@ The host checker fails closed on unknown fixture fields. See
 [PROTOCOL.md](PROTOCOL.md) for exact fixture boundaries, wire format, commands,
 negative tests and immutable evidence paths.
 
-For a changed runner/CPU image, use a preserved generated build as the base and
-run one full Quartus flow (no mandatory separate map pass):
+For a changed runner/CPU image, reuse a successful fitted build and its generated
+Platform Designer system. The permanent helper supports Rapid Recompile:
+
+```sh
+bash modules/jttms10/ver/fpga/build-runner-incremental.sh \
+    /path/to/preserved-positive-build \
+    /nobackup/tasks/jtcores-144/runner-rapid rapid
+```
+
+`rapid` requires a new destination outside the parent directory, a retained
+Quartus database, a successful full/Rapid build certificate, unchanged parent
+compile inputs, the certified parent RBF and positive final STA with zero TNS.
+It clones the parent, updates CPU/runner sources and generated payload without
+regenerating Platform Designer, freezes source/build inputs and deletes the
+inherited RBF. It invokes exactly
+`/opt/quartus_free/quartus_sh --flow recompile test_board` and records monotonic
+command wall time and its actual exit code. Preparation time is additional;
+measure the enclosing helper command when comparing end-to-end build costs.
+
+The result binds the immutable parent image/input/result/STA hashes and the
+new map, fit, assembly and STA reports. Reports, final STA and the RBF must be
+newer than the pre-flow snapshot; inputs must remain unchanged, final STA must
+be positive and the real Rapid success marker must be present. A failed flow
+leaves diagnostics without a successful result certificate. The receipt writer
+accepts this explicit `recompile` certificate; it is never labeled a full build.
+An unchanged-source run that skips stages does not satisfy these fresh-report
+requirements. This flow uses Rapid's preservation; explicit CPU/infrastructure
+partitions and a general speedup remain unproven. The source-changing checkpoint
+above records the measured preservation and cost.
+
+`python3 -B modules/jttms10/ver/fpga/test_incremental_build.py` exercises parent
+binding, cloning, stale-product rejection, changed inputs, failed/wrong commands
+and negative STA with synthetic files, without invoking Quartus. These checks
+also run through `ver/run.sh`; they are not hardware or compile evidence.
+
+Use `full` for a complete Quartus flow (no mandatory separate map pass):
 
 ```sh
 bash modules/jttms10/ver/fpga/build-runner-incremental.sh \

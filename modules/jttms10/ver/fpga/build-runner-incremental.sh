@@ -4,7 +4,19 @@ set -euo pipefail
 main() {
     parse_args "$@"
     validate_paths
-    if [[ $stage == map ]]; then
+    if [[ $stage == rapid ]]; then
+        snapshot_rapid_parent
+        prepare_build
+        printf '%s\n' "$rapid_parent_json" > "$build_dir/v2-rapid-parent.json"
+        regenerate_payload
+        freeze_inputs
+        verify_frozen_inputs
+        remove_stale_compile_outputs
+        capture_compile_inputs
+        run_rapid
+        verify_frozen_inputs
+        write_rapid_result
+    elif [[ $stage == map ]]; then
         prepare_build
         regenerate_payload
         freeze_inputs
@@ -33,7 +45,7 @@ main() {
 
 parse_args() {
     if [[ $# -lt 2 || $# -gt 3 ]]; then
-        echo "Usage: $0 BASE_BUILD_DIR NEW_BUILD_DIR [full|map|certify-map|compile]" >&2
+        echo "Usage: $0 BASE_BUILD_DIR NEW_BUILD_DIR [rapid|full|map|certify-map|compile]" >&2
         exit 2
     fi
     source_dir=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -41,22 +53,68 @@ parse_args() {
     base_dir=$(realpath -- "$1")
     build_dir=$(realpath -m -- "$2")
     stage=${3:-compile}
-    [[ $stage == map || $stage == full || $stage == compile || $stage == certify-map ]] || {
-        echo "stage must be full, map, certify-map, or compile" >&2; exit 2;
+    [[ $stage == rapid || $stage == map || $stage == full || $stage == compile || $stage == certify-map ]] || {
+        echo "stage must be rapid, full, map, certify-map, or compile" >&2; exit 2;
     }
 }
 
 validate_paths() {
+    case "$build_dir/" in
+        "$base_dir/"*) echo "candidate must be outside its immutable parent" >&2; exit 1;;
+    esac
     [[ -s $base_dir/QSYS_test_board/synthesis/QSYS_test_board.qip ]] || {
         echo "base build lacks generated QIP" >&2; exit 1;
     }
-    if [[ $stage == map || $stage == full ]]; then
+    if [[ $stage == rapid || $stage == map || $stage == full ]]; then
         [[ ! -e $build_dir ]] || { echo "new build directory must not exist: $build_dir" >&2; exit 1; }
     else
         [[ -s $build_dir/test_board.qsf && -s $build_dir/v2-build-inputs.json ]] || {
             echo "prepared map-stage build/manifest not found: $build_dir" >&2; exit 1;
         }
     fi
+}
+
+snapshot_rapid_parent() {
+    rapid_parent_json=$(python3 - "$base_dir" "$source_dir" <<'PY'
+from pathlib import Path
+import json,sys
+parent,source=map(Path,sys.argv[1:])
+sys.path.insert(0,str(source))
+from write_programming_receipt import RAPID_RESULT_FORMAT,sha256,validate_positive_sta,validate_rapid_result
+paths={'parent_build_result_sha256':parent/'v2-build-result.json',
+       'parent_inputs_sha256':parent/'v2-build-inputs.json',
+       'parent_image_sha256':parent/'output_files/test_board.rbf',
+       'parent_sta_summary_sha256':parent/'output_files/test_board.sta.summary'}
+if any(not p.is_file() for p in paths.values()):
+    raise SystemExit('Rapid parent lacks its successful build/input/image/STA evidence')
+r=json.loads(paths['parent_build_result_sha256'].read_text())
+m=json.loads(paths['parent_inputs_sha256'].read_text())
+c=parent/'v2-compile-inputs.json'
+if not c.is_file(): raise SystemExit('Rapid parent lacks its compile-input snapshot')
+inputs=json.loads(c.read_text())
+hashes={k:sha256(p) for k,p in paths.items()}
+if (r.get('format') not in ('jttms10-incremental-build-result-v1',RAPID_RESULT_FORMAT) or
+    r.get('flow_exit_code')!=0 or r.get('inputs_unchanged') is not True or
+    r.get('input_manifest_sha256')!=hashes['parent_inputs_sha256'] or
+    r.get('rbf_sha256')!=hashes['parent_image_sha256'] or
+    r.get('compile_inputs_sha256')!=sha256(c) or
+    inputs.get('map_manifest_sha256')!=hashes['parent_inputs_sha256'] or
+    not inputs.get('files') or not m.get('files')):
+    raise SystemExit('Rapid parent result does not certify its frozen inputs/image')
+for name,digest in inputs['files'].items():
+    p=Path(name)
+    if not p.is_file() or sha256(p)!=digest:
+        raise SystemExit(f'Rapid parent compile input is missing or changed: {name}')
+if r['format']==RAPID_RESULT_FORMAT:
+    validate_rapid_result(parent,r)
+elif r.get('full_flow_only') is not True:
+    raise SystemExit('Rapid parent must be a certified full or Rapid build')
+validate_positive_sta(paths['parent_sta_summary_sha256'])
+if not (parent/'db').is_dir() or not any((parent/'db').iterdir()):
+    raise SystemExit('Rapid parent lacks its retained Quartus database')
+print(json.dumps(dict(format='jttms10-rapid-parent-v1',parent_build_dir=str(parent),**hashes)))
+PY
+)
 }
 
 prepare_build() {
@@ -82,7 +140,8 @@ else:
 qsf.write_text(s)
 
 for stale in ('v2-build-inputs.json','v2-build-result.json','v2-map-result.json',
-              'v2-compile-inputs.json','build-input-manifest.post.json'):
+              'v2-compile-inputs.json','build-input-manifest.post.json',
+              'v2-rapid-parent.json','v2-rapid-time.json','v2-rapid-command.json'):
     (build/stale).unlink(missing_ok=True)
 
 ip = build / 'ip/jttms10_fpga_runner'
@@ -161,7 +220,8 @@ def digest(path):
 source_roots=(repo/'modules/jttms10/ucode',repo/'modules/jttms10/ver/decoder',
               repo/'modules/jttms10/ver/gfx',repo/'modules/jttms10/hdl',
               repo/'modules/jtframe/src/jtframe/ucode')
-source_files={repo/'modules/jttms10/ver/build.sh', repo/'modules/jtframe/bin/jtframe'}
+source_files={repo/'modules/jttms10/ver/build.sh', repo/'modules/jtframe/bin/jtframe',
+              source/'build-runner-incremental.sh',source/'write_programming_receipt.py'}
 source_files.update((repo/'modules/jttms10/ver/fpga').glob('*.v'))
 for root in source_roots:
     source_files.update(p for p in root.rglob('*') if p.is_file())
@@ -175,6 +235,7 @@ inputs += [p for root in (build/'ip/jttms10_fpga_runner',build/'jttms10-generate
            for p in root.rglob('*') if p.is_file() and p.suffix.lower() in ('.v','.vh','.hex','.uc')]
 inputs += [p for p in (build/'jttms10-generated').rglob('*') if p.is_file()]
 inputs += [p for p in (build/'QSYS_test_board/synthesis').rglob('*') if p.is_file()]
+if (build/'v2-rapid-parent.json').is_file(): inputs.append(build/'v2-rapid-parent.json')
 inputs=sorted(set(p for p in inputs if p.is_file()))
 quartus='/opt/quartus_free/quartus_sh'
 version=subprocess.run([quartus,'--version'],capture_output=True,text=True)
@@ -273,6 +334,76 @@ run_compile() {
         /opt/quartus_free/quartus_sh --flow compile test_board > logs/v2-compile.log 2>&1
 }
 
+run_rapid() {
+    python3 - "$build_dir" <<'PY'
+from pathlib import Path
+import json,subprocess,sys,time
+b=Path(sys.argv[1])
+command=['/opt/quartus_free/quartus_sh','--flow','recompile','test_board']
+record=dict(command=command,cwd=str(b),start_monotonic_ns=time.monotonic_ns())
+(b/'v2-rapid-command.json').write_text(json.dumps(record,indent=2)+'\n')
+with (b/'logs/v2-compile.log').open('w') as log:
+    result=subprocess.run(command,cwd=b,stdout=log,stderr=subprocess.STDOUT)
+record.update(end_monotonic_ns=time.monotonic_ns(),exit_code=result.returncode)
+record['seconds']=(record['end_monotonic_ns']-record['start_monotonic_ns'])/1e9
+(b/'v2-rapid-time.json').write_text(json.dumps(record,indent=2)+'\n')
+(b/'logs/v2-compile.time').write_text(f"seconds={record['seconds']:.9f}\nexit_code={result.returncode}\n")
+raise SystemExit(result.returncode)
+PY
+}
+
+write_rapid_result() {
+    python3 - "$build_dir" "$source_dir" <<'PY'
+from pathlib import Path
+import json,math,re,sys
+b,source=map(Path,sys.argv[1:])
+sys.path.insert(0,str(source))
+from write_programming_receipt import RAPID_RESULT_FORMAT,sha256,validate_rapid_result
+inputs=json.loads((b/'v2-compile-inputs.json').read_text())
+for name,expected in inputs['files'].items():
+    p=Path(name)
+    if not p.is_file() or sha256(p)!=expected:
+        raise SystemExit(f'input changed during Rapid Recompile: {name}')
+timing=json.loads((b/'v2-rapid-time.json').read_text())
+command=['/opt/quartus_free/quartus_sh','--flow','recompile','test_board']
+command_record=json.loads((b/'v2-rapid-command.json').read_text())
+if (timing.get('exit_code')!=0 or timing.get('command')!=command or
+    timing.get('cwd')!=str(b) or timing.get('seconds',0)<=0 or
+    timing.get('end_monotonic_ns',0)<=timing.get('start_monotonic_ns',0) or
+    command_record!={k:timing[k] for k in ('command','cwd','start_monotonic_ns')} or
+    not math.isclose(timing['seconds'],
+        (timing['end_monotonic_ns']-timing['start_monotonic_ns'])/1e9,rel_tol=0,abs_tol=1e-9)):
+    raise SystemExit('Rapid Recompile did not finish successfully with measured wall time')
+rbf=b/'output_files/test_board.rbf'
+if not rbf.is_file() or rbf.stat().st_mtime_ns <= (b/'v2-compile-inputs.json').stat().st_mtime_ns:
+    raise SystemExit('Rapid Recompile image is missing or stale')
+log=b/'logs/v2-compile.log'
+text=log.read_text(errors='replace')
+marker='Quartus Prime Rapid Recompile was successful'
+reports={s:b/f'output_files/test_board.{s}.rpt' for s in ('map','fit','asm','sta')}
+if any(not p.is_file() for p in reports.values()):
+    raise SystemExit('Rapid Recompile lacks map/fit/assembly/STA reports')
+parent=json.loads((b/'v2-rapid-parent.json').read_text())
+parent.pop('format')
+result=dict(format=RAPID_RESULT_FORMAT,flow_kind='recompile',command=command,
+    working_directory=str(b),full_flow_only=False,flow_exit_code=0,
+    flow_seconds=timing['seconds'],flow_wrapper_wall_seconds=timing['seconds'],
+    rapid_time_sha256=sha256(b/'v2-rapid-time.json'),
+    rapid_command_sha256=sha256(b/'v2-rapid-command.json'),
+    flow_log_sha256=sha256(log),terminal_marker=marker,inputs_unchanged=True,
+    input_manifest_sha256=sha256(b/'v2-build-inputs.json'),
+    compile_inputs_sha256=sha256(b/'v2-compile-inputs.json'),
+    pre_map_metadata_deltas=inputs['pre_map_metadata_deltas'],
+    rbf_sha256=sha256(rbf),stage_reports={s:sha256(p) for s,p in reports.items()},
+    sta_summary_sha256=sha256(b/'output_files/test_board.sta.summary'),**parent)
+elapsed=re.findall(r'Elapsed time: (\d+):(\d+):(\d+)',text)
+if elapsed:
+    h,m,s=map(int,elapsed[-1]);result['flow_log_elapsed_seconds']=h*3600+m*60+s
+validate_rapid_result(b,result)
+(b/'v2-build-result.json').write_text(json.dumps(result,indent=2)+'\n')
+PY
+}
+
 write_result() {
     python3 - "$build_dir" <<'PY'
 from pathlib import Path
@@ -310,4 +441,6 @@ post={'format':'jttms10-incremental-build-result-v1',
 PY
 }
 
-main "$@"
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+    main "$@"
+fi
