@@ -167,6 +167,10 @@ def validate_case(case):
         raise ValueError(f"{name}: ACK pause filters require pause_on_ack")
     if "expected_requests" in case:
         check_uint(case["expected_requests"], 16, f"{name}.expected_requests")
+    if "watchdog_clocks" in case:
+        check_uint(case["watchdog_clocks"], 31, f"{name}.watchdog_clocks")
+        if case["watchdog_clocks"] == 0:
+            raise ValueError(f"{name}.watchdog_clocks must be positive")
     if "pixel_size" in case:
         if isinstance(case["pixel_size"], bool) or case["pixel_size"] not in (1, 2, 4, 8, 16):
             raise ValueError(f"{name}.pixel_size must be 1, 2, 4, 8 or 16")
@@ -192,10 +196,11 @@ def validate_case(case):
         validate_case(reference_case)
 
 
-def sv_checks(case):
+def sv_checks(case, core="u_cpu"):
     """Generate only assertions; the bench owns bus timing and reset."""
     lines = [f"localparam logic [31:0] ENTRY = 32'h{case['entry']:08x};",
              f"localparam int EXPECTED_RETIRES = {len(case['checks'])};",
+             f"localparam int WATCHDOG_CLOCKS = {case.get('watchdog_clocks', 5000+512*len(case['checks']))};",
              f"localparam bit EXPECT_FAULT = 1'b{int(bool(case.get('expect_fault')))};",
              f"localparam logic [15:0] FAULT_IR = 16'h{case.get('fault_ir', 0):04x};",
              f"localparam bit PAUSE_ON_ACK = 1'b{int(bool(case.get('pause_on_ack')))};",
@@ -221,8 +226,8 @@ def sv_checks(case):
             index = int(reg[1:])
             physical = 15 if index == 15 else (16 if reg[0] == "B" else 0) + index
             lines.append(
-                f"      if (u_cpu.u_regs.ram0[{physical}] !== 32'h{value:08x}) "
-                f"$fatal(1, \"{tag}: {reg} %h\", u_cpu.u_regs.ram0[{physical}]);"
+                f"      if ({core}.u_regs.ram0[{physical}] !== 32'h{value:08x}) "
+                f"$fatal(1, \"{tag}: {reg} %h\", {core}.u_regs.ram0[{physical}]);"
             )
         for flag, value in check.get("flags", {}).items():
             bit = {"N": 31, "C": 30, "Z": 29, "V": 28}[flag]
@@ -241,11 +246,17 @@ def sv_checks(case):
                 f"$fatal(1, \"{tag}: WVP %b\", wvp_seen);"
             )
         for field in check.get("mem", []):
+            # Avoid expanding a 32-bit read loop for every whole-word
+            # canary. Both vector benches store the same physical words;
+            # unaligned and other-width assertions still use bit reads.
+            observed = (f"{{16'd0,words[{field['addr']//16}]}}"
+                        if field['size'] == 16 and field['addr'] % 16 == 0
+                        else f"read_field(32'h{field['addr']:08x}, 6'd{field['size']})")
             lines.append(
-                f"      if (read_field(32'h{field['addr']:08x}, 6'd{field['size']}) "
+                f"      if ({observed} "
                 f"!== 32'h{field['value']:08x}) "
                 f"$fatal(1, \"{tag}: memory @{field['addr']:08x} size {field['size']} %h\", "
-                f"read_field(32'h{field['addr']:08x}, 6'd{field['size']}));"
+                f"{observed});"
             )
         lines.append("    end")
     lines.extend(["    default: $fatal(1, \"unexpected retire step %0d\", step);",

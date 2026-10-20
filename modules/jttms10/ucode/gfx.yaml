@@ -9,6 +9,13 @@ config:
 include:
 - gfx_line.yaml
 constants:
+  TARGET_GBINFASTLIN: t4 t5 t6 t9 t10 t11
+  TARGET_GBINFASTXY: t7 t9 t10 t11
+  TARGET_GBINREAD: t4 t7 t9 t10 t11
+  TARGET_GBINSECOND: t5 t7 t9 t10 t11
+  TARGET_GBINEMIT: t4 t5 t7 t9 t10 t11
+  TARGET_GBINWRITE: t6 t7 t9 t10 t11
+  TARGET_GBINROW: t4 t6 t7 t9 t10 t11
   TARGET_GFXIDLE: ''
   TARGET_GCPW: t4
   TARGET_GCVXYL: t5
@@ -1912,6 +1919,88 @@ ucode:
   - shortword_gcond, jump_gflow, ${TARGET_GBLTWORDPROBE}, sa0 sa1 sa5, da0 da2 da3 da5
   - lastword_gcond, jump_gflow, ${TARGET_GBLTWORDLAST}, sa1 sa5, da0 da1 da5
   - jump_gflow, ${TARGET_GBLTWORDLOOP}, sa1 sa5, da1 da5
+- name: gbinfastlin
+  start: 231
+  seq:
+  - sa4, da1 da4 # B0 source, B2 destination
+  - pitch_gbus, qs_gas, qd_gbs, sa4, da1 da5 # A=source, B=destination
+  - rf_gdst, qs_gas, sa0 sa4, da1 da5 # S34=source; retain A
+  - pitch_gbus, rf_gdst, k_gas, sa0 sa1 sa4, da5 # S32=source; A=0; check B1
+  - pitch_gbus, or_galu, rf_gdst, sa0 sa1 sa2 sa4, da0 da5 # S33=destination; check B3
+  - or_galu, rf_gdst, sa0 sa1 sa2 sa4, da0 da1 da5 # S35=destination
+  - passnow_galu, qs_gas, m2_gam, rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa2 sa4, da2 da3 da5
+  - passnow_galu, qs_gas, m4_gam, rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa2 sa4, da1 da2 da3 da5
+  - passnow_galu, qs_gas, m2_gam, rf_gdst, sa0 sa1 sa5, da0 da2 da3 da5
+  - passnow_galu, qs_gas, ea_gdst, word_gpix, sa1 sa5, da2 da3 da5
+  - word_gcond, jump_gflow, ${TARGET_GBINREAD}, sa1 sa5, da2 da3 da5
+  - jump_gflow, ${TARGET_GARRAY}
+- name: gbinfastxy
+  start: 232
+  seq:
+  - sa4, da1 da4
+  - pitch_gbus, passnow_galu, qs_gas, rf_gdst, sa4, da1 da5 # S34=source
+  - passnow_galu, qs_gas, rf_gdst, sa0 sa4, da5 # S32=source
+  - pitch_gbus, sa0 sa1 sa4, da2 da4 # check B1; prime B3 pitch and OFFSET
+  - pitch_gbus, sa1 sa4, da2 da4 # check B3; prime packed B2
+  - qs_gas, m3_gam, yproduct_gmath, b_gdst, sa1 sa4, da2 da4
+  - qs_gas, m2_gam, xproduct_gmath, or_galu, a_gdst, qd_gbs, sa1 sa4, da2 da4
+  - add_galu, rf_gdst, sa0 sa1 sa2 sa4, da0 da5 # S33=linear destination
+  - add_galu, rf_gdst, sa0 sa1 sa2 sa4, da0 da1 da5 # S35=linear destination
+  - passnow_galu, qs_gas, m2_gam, rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa2 sa4, da2 da3 da5
+  - passnow_galu, qs_gas, m4_gam, rf_gdst, z_gcond, jump_gflow, ${TARGET_GPIXEND}, sa0 sa1 sa2 sa4, da1 da2 da3 da5
+  - passnow_galu, qs_gas, m2_gam, rf_gdst, sa0 sa1 sa5, da0 da2 da3 da5
+  - passnow_galu, qs_gas, ea_gdst, word_gpix, sa1 sa5, da2 da3 da5
+  - word_gcond, jump_gflow, ${TARGET_GBINREAD}, sa1 sa5, da2 da3 da5
+  - jump_gflow, ${TARGET_GARRAY}
+- name: gbinread
+  start: 233
+  seq:
+  - postrd_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa5, da1 da5 # read S34 and advance its next source word
+  - sa5, da0 da4
+  - addnow_galu, qs_gas, qd_gbs, a_gdst, sa0 sa5, da0 da1 da4 # next source row
+  - rf_gdst, qs_gas, qd_gbs, sa1 sa2 sa3 sa5, da5 # S32=next source row; A/B=current destination/pitch
+  - add_galu, rf_gdst, sa1 sa2 sa3 sa5, da0 da5 # S33=next destination row
+  - row_gbus, subnow_galu, k_gas, m1_gam, qs_gbs, rf_gdst, sa2 sa3 sa5, da1 da2 da3 da5 # --height; latch final row
+  - second_gcond, jump_gflow, ${TARGET_GBINSECOND}, sa1 sa5, da4 da5 # read exactly ceil(DX/16) source words
+  - collect_gbus, sa1 sa5, da4 da5
+  - mdrf, sa1 sa5, da4 da5 # S48=first source bits
+  - jump_gflow, ${TARGET_GBINEMIT}, sa3 sa4, da0 da3 da4
+- name: gbinsecond
+  start: 234
+  seq:
+  - collect_gbus, sa1 sa5, da4 da5
+  - mdrf, sa1 sa5, da4 da5
+  - postrd2_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa4 sa5, da1 da5
+  - sa4 sa5, da0 da4 da5
+  - collect_gbus, sa4 sa5, da0 da4 da5
+  - mdrf, sa4 sa5, da0 da4 da5 # S49=second source word
+  - qs_gas, m2_gam, qd_gbs, m6_gbm, sa3 sa4, da0 da3 da4
+  - or_galu, rf_gdst, qs_gas, qd_gbs, sa4 sa5, da4 da5 # combine S48 while loading COLOR0/1
+  - qs_gas, yproduct_gmath, binary_gpix, rf_gdst, wprev, sa0 sa1 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GBINWRITE}, sa0 sa1 sa5, da0 da2 da3 da5
+- name: gbinemit
+  start: 235
+  seq:
+  - qs_gas, qd_gbs, sa4 sa5, da4 da5 # A/B=COLOR0/COLOR1
+  - qs_gas, yproduct_gmath, binary_gpix, rf_gdst, wprev, sa0 sa1 sa5, da0 da2 da3 da5 # MD=expanded lanes; shift S48 with shared DSP
+  - jump_gflow, ${TARGET_GBINWRITE}, sa0 sa1 sa5, da0 da2 da3 da5
+- name: gbinwrite
+  start: 236
+  seq:
+  - postpx_gbus, stride_gpix, subnow_galu, qd_gbs, rf_gdst, lastword_gcond, jump_gflow, ${TARGET_GBINROW}, sa0 sa1 sa5, da0 da2 da3 da5 # write S35; decrement S45 and branch on its old last-word count
+  - addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa3 sa4, da0 da1 da5 # S35 += 16
+  - sa3 sa4, da0 da3 da4 # prime COLOR0/1
+  - qs_gas, qd_gbs, sa4 sa5, da4 da5
+  - qs_gas, yproduct_gmath, binary_gpix, rf_gdst, wprev, sa0 sa1 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GBINWRITE}, sa0 sa1 sa5, da0 da2 da3 da5
+- name: gbinrow
+  start: 237
+  seq:
+  - sa1 sa2 sa3 sa5, da1 da5 # prime remaining height
+  - passnow_galu, qs_gas, z_gcond, jump_gflow, ${TARGET_GBLTWORDDONE}, sa0 sa5, da0 da1 da5
+  - passnow_galu, qs_gas, rf_gdst, sa2 sa3 sa5, da0 da1 da5 # S35=next destination row
+  - passnow_galu, qs_gas, rf_gdst, sa5, da0 da2 da3 da5 # S45=original width; prime S32
+  - jump_gflow, ${TARGET_GBINREAD}, sa5, da2 da3 da5
 - name: gschema0
   start: 126
   seq:

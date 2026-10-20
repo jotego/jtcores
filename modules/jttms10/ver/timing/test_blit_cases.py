@@ -12,8 +12,8 @@ from run import program, check, check_observation
 class BlitCasesTest(unittest.TestCase):
     def test_complete_encoding_inventory_and_programs(self):
         rows=list(blit_cases())
-        self.assertEqual(len(rows),504)
-        self.assertEqual(len({r['name'] for r in rows}),504)
+        self.assertEqual(len(rows),524)
+        self.assertEqual(len({r['name'] for r in rows}),524)
         self.assertEqual({r['coverage_id'] for r in rows},
                          {'PIXBLT_'+m.upper() for m in MODES})
         for row in rows:
@@ -80,6 +80,26 @@ class BlitCasesTest(unittest.TestCase):
             self.assertEqual(check(row,dict(seen,st=seen['st']^0xF0000000),wait,pause),[])
             for field,value in (('clocks',clocks+8),('st',seen['st']^0x20),('b0',0),('b2',0),('sp',0)):
                 self.assertTrue(check(row,dict(seen,**{field:value}),wait,pause))
+
+    def test_binary_offset_pitch_and_literal_color_lanes(self):
+        for mode in ('bl','bxy'):
+            for size in (1,2,4,8,16):
+                words = 2 if size==1 else 3 if size==2 else 4
+                row=fixture(mode,size,words,2,False,offset_geometry=True)
+                self.assertEqual(row['data_blit']['source'],0x4520)
+                self.assertEqual(row['data_blit']['destination'],0x5230)
+                self.assertEqual(row['blit_timing']['source_words_per_row'],2 if size<=2 else 1)
+                self.assertEqual(row['expected_extra_regs']['b0'],0x4820)
+                self.assertEqual(row['expected_extra_regs']['b2'],0x54B0)
+                before,after=map(dict,(row['initial_memory'],row['expected_memory']))
+                for at,value in before.items():
+                    if at<0x5230 or at in (0x5220,0x5230+16*words,0x5360,0x5370+16*words):
+                        self.assertEqual(after[at],value)
+            # Source bits 84D6 select independently aligned nibbles from
+            # COLOR0=2468 and COLOR1=ACE1 (SPVU001A12-175/180).
+            memory=dict(fixture(mode,4,4,2,False,offset_geometry=True)['expected_memory'])
+            self.assertEqual([memory[0x5230+16*q] for q in range(4)],
+                             [0x2CE8,0xAC61,0x2C68,0xA468])
 
     def test_word_sequence_and_compensated_row_delay_rejected(self):
         row=fixture('ll',16,1,2,False)

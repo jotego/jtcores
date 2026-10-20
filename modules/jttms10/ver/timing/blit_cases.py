@@ -203,3 +203,9 @@ def blit_cases():
     # Append new address geometry without changing the published 464 cases.
     for mode,size,off in product(('ll','lxy','xyl','xyxy'),(1,2,4,8,16),(False,True)):
         yield fixture(mode,size,3,2,off,offset_geometry=True)
+
+    # Binary rows exercise both source-word counts with the same independent
+    # nonzero OFFSET/coordinate and unequal-pitch geometry.
+    for mode,size,off in product(('bl','bxy'),(1,2,4,8,16),(False,True)):
+        words = 2 if size==1 else 3 if size==2 else 4
+        yield fixture(mode,size,words,2,off,offset_geometry=True)

@@ -14,11 +14,14 @@ under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner includes an [independent PIXBLT timing suite](docs/blit-timing.md)
 for all six encodings, partial [FILL timing coverage](docs/fill-timing.md),
 [bounded LINE timing coverage](docs/line-timing.md), and unresolved MOVB targets.
-Probe presence reaches 133/133 forms. PIXBLT has 504 fixtures: the published
-464-case failing baseline plus 40 nonzero-coordinate/offset/pitch probes.
+Probe presence reaches 133/133 forms. PIXBLT has 524 fixtures: the published
+464-case failing baseline plus 60 nonzero-coordinate/offset/pitch probes.
 Aligned opaque regular PIXBLT uses a native word schedule: all 360 fixtures pass
 on DataStorm in base/W1-P7/W3, and 84 focused observations match Verilator.
-Binary expansion still uses the slower general microcode and fails timing.
+Aligned opaque binary PIXBLT now has a native word schedule for rows of at
+most 32 source bits. It passes 102 focused Verilator observations, including
+nonzero coordinates, offsets and unequal pitches. Its new FPGA image and
+complete matrices remain pending; the physical checkpoint below predates it.
 Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 (260 linear and 1,980 XY). Other processing/window/mask/edge conditions
 still require timing implementation. The preceding validated 127-form fixture inventory includes

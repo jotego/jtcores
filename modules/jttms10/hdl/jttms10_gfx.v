@@ -11,7 +11,7 @@ module jttms10_gfx(
     input [15:0] psize, convsp, convdp, control,
     input alu_n, alu_z, alu_v,
     input [31:0] alu_result,
-    input need_dest, word_fill, word_copy, irq_pending, native_line,
+    input need_dest, word_fill, word_copy, word_binary, irq_pending, native_line,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -22,9 +22,9 @@ module jttms10_gfx(
     output reg [3:0] alu_op,
     output dst_a, dst_b, dst_md, dst_ea, dst_tmp, dst_rf, dst_ir,
     output md_to_rf,
-    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip, bus_collect, bus_row,
+    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip, bus_collect, bus_row, bus_second, bus_pitch,
     output [5:0] bus_size,
-    output pix_source, pix_visible, pix_process, pix_test, pix_word,
+    output pix_source, pix_visible, pix_process, pix_test, pix_word, pix_binary,
     output product, product_y, packed_xy, alu_capture,
     output flag_z, flag_nz, flag_nvzc, flag_vclip,
            flag_vpix, flag_vclear, flag_wvp,
@@ -169,16 +169,18 @@ module jttms10_gfx(
     assign dst_ir=active && gdst==IR_GDST;
     assign md_to_rf=active && mdrf;
     assign bus_read=active &&
-        (gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS);
+        (gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
     assign bus_write=active &&
         (gbus==WR_GBUS || gbus==WRPX_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
     assign bus_skip=active && gbus==POSTPX_GBUS && control[7:6]!=0 && clip;
-    assign bus_post=active && (gbus==POSTRD_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
+    assign bus_post=active && (gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
     assign bus_sync=active && (gbus==SYNC_GBUS || gbus==COLLECT_GBUS);
     assign bus_collect=active && gbus==COLLECT_GBUS;
     assign bus_row=active && gbus==ROW_GBUS;
+    assign bus_second=active && gbus==POSTRD2_GBUS;
+    assign bus_pitch=active && gbus==PITCH_GBUS;
     assign bus_pixel=active &&
-        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTRD_GBUS);
+        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
     assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
                     gsize==CHUNK_GSIZE ? source_chunk_size :
@@ -188,6 +190,7 @@ module jttms10_gfx(
     assign pix_process=active && gpix==PROCESS_GPIX;
     assign pix_test=active && gpix==TEST_GPIX;
     assign pix_word=active && gpix==WORD_GPIX;
+    assign pix_binary=active && gpix==BINARY_GPIX;
     // All branch targets are 16-word aligned. Reclaiming their four
     // constant-zero low bits keeps these shared arithmetic controls in BRAM.
     assign product=active && (gmath_sel==YPRODUCT_GMATH || gmath_sel==XPRODUCT_GMATH);
@@ -212,6 +215,7 @@ module jttms10_gfx(
     always @* begin
         case(gcond)
             COPY_GCOND: condition=word_copy;
+            SECOND_GCOND: condition=rf_qs>32'd16;
             LASTWORD_GCOND: condition=rf_qd==fill_pixels;
             UNALIGNED_GCOND: condition=|{rf_qs[3:0],rf_qd[3:0]};
             WORD_GCOND: condition=word_fill;
@@ -294,12 +298,18 @@ module jttms10_gfx(
                 end
                 8'd141: uaddr<=GARRAY_SEQA;
                 8'd155: uaddr<=GFILLXYFAST_SEQA;
-                8'd142: uaddr<=GARRAY_SEQA;
+                8'd142: begin
+                    uaddr<=GARRAY_SEQA;
+                    if(word_binary) uaddr<=GBINFASTLIN_SEQA;
+                end
                 8'd143,8'd144,8'd145: begin
                     uaddr<=GARRAY_SEQA;
                     if(word_copy) uaddr<=GBLTFASTINIT_SEQA;
                 end
-                8'd146: uaddr<=GARRAY_SEQA;
+                8'd146: begin
+                    uaddr<=GARRAY_SEQA;
+                    if(word_binary) uaddr<=GBINFASTXY_SEQA;
+                end
                 8'd131: begin
                     uaddr<=GLINE_SEQA;
                     if(native_line) begin

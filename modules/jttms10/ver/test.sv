@@ -17,6 +17,9 @@ module test;
 
     `include "expected.svh"
 
+`ifdef JTTMS10_TIMED_WORD
+    `include "word_arch.svh"
+`else
     jttms10 u_cpu (
         .rst(rst), .clk(clk), .cen(cen),
         .psize(PIXEL_SIZE), .convdp(CONVDP),
@@ -33,6 +36,7 @@ module test;
         .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
+`endif
 
     // Backing store has 1024 physical 16-bit words. All public addresses
     // are bit addresses; the reset vector is handled at its high address.
@@ -80,13 +84,16 @@ module test;
         reg [31:0] physical;
         begin
             read_field = 0;
-            if (size == 6'd32 && address >= 32'hfffffc00 &&
-                address <= 32'hffffffe0 && address[4:0] == 0) begin
-                vector_index = (32'hffffffe0 - address) >> 5;
+            if (((size == 6'd32 && address[4:0] == 0) ||
+                 (size == 6'd16 && address[3:0] == 0)) &&
+                address >= 32'hfffffc00 && address <= 32'hfffffff0) begin
+                vector_index = (32'hffffffe0 - (address & ~32'd31)) >> 5;
                 if (vector_index == 0) read_field = ENTRY;
                 else if (vector_valid[vector_index])
                     read_field = vector_target[vector_index];
                 else $fatal(1, "uninitialized trap vector %0d", vector_index);
+                if (size == 6'd16)
+                    read_field = address[4] ? read_field >> 16 : read_field & 32'hffff;
             end else begin
                 if (size < 1 || size > 32 || address + {26'd0, size} > 32'd16384)
                     $fatal(1, "invalid read size %0d at bit address %h", size, address);
@@ -149,7 +156,7 @@ module test;
                         mem_size !== held_size || mem_we !== held_we ||
                         mem_iaq !== held_iaq || mem_pixel !== held_pixel ||
                         (held_we && mem_wdata !== held_wdata))
-                        $fatal(1, "memory request changed before ack: ir=%04h ua=%03h held=%08h/%0d/%0d/%08h current=%0d:%08h/%0d/%0d/%08h", ir,u_cpu.u_ctrl.uaddr,held_addr,held_size,held_we,held_wdata,mem_req,mem_addr,mem_size,mem_we,mem_wdata);
+                        $fatal(1, "memory request changed before ack: ir=%04h held=%08h/%0d/%0d/%08h current=%0d:%08h/%0d/%0d/%08h", ir,held_addr,held_size,held_we,held_wdata,mem_req,mem_addr,mem_size,mem_we,mem_wdata);
                     if (wait_left == 0) bus_state <= BUS_ACK;
                     else wait_left <= wait_left - 1;
                 end
@@ -180,6 +187,10 @@ module test;
         check_retire(retired);
         retired = retired + 1;
         if (retired == EXPECTED_RETIRES && !EXPECT_FAULT) begin
+`ifdef JTTMS10_TIMED_WORD
+            if (hold_enabled!=0 && (!hold_sent || !hold_seen || hold_req))
+                $fatal(1,"HOLD injection was not granted and released");
+`endif
             if (PAUSE_ON_ACK && (!pause_done || !ack_while_paused))
                 $fatal(1, "memory ack was not observed while enable was low");
             if (EXPECTED_REQUESTS >= 0 && request_count != EXPECTED_REQUESTS)
@@ -227,8 +238,9 @@ module test;
         // Liveness budget scales with program length now that multiply uses
         // TI machine-state timing. Exact latency is checked in ver/timing;
         // this generous architectural watchdog must not truncate long tests.
-        repeat (5000 + 512*EXPECTED_RETIRES) @(posedge clk);
-        $fatal(1, "timeout after %0d retired instructions", retired);
+        repeat (WATCHDOG_CLOCKS) @(posedge clk);
+        $fatal(1, "timeout after %0d clocks, %0d retired instructions PC=%h IR=%h",
+               WATCHDOG_CLOCKS, retired, pc, ir);
     end
 endmodule
 

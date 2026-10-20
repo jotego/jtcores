@@ -21,12 +21,12 @@ sys.dont_write_bytecode = True
 from vectors import HERE, load_cases, memory_init, sv_checks, validate_case, vector_init
 
 
-def suite_checks(cases):
+def suite_checks(cases, core="u_cpu"):
     """Select unchanged per-vector assertions/configuration at process startup."""
     configs = {}
     tasks = []
     for identifier, case in enumerate(cases):
-        header, task = sv_checks(case).split("task automatic check_retire", 1)
+        header, task = sv_checks(case, core).split("task automatic check_retire", 1)
         for line in header.splitlines():
             match = re.fullmatch(r"localparam (.+?) (\w+) = (.+);", line)
             if match is None:
@@ -67,6 +67,10 @@ def main():
                         help="YAML/JSON vector file (default: ver/tests.yaml)")
     parser.add_argument("--rtl", action="append", type=Path, default=[],
                         help="extra generated RTL source (repeatable)")
+    parser.add_argument("--timed-word", action="store_true",
+                        help="use TIMED_PROGRAM=1 and the physical word/bus wrapper")
+    parser.add_argument("--hold-after-write", action="store_true",
+                        help="also repeat each timed word case with HOLD after a pixel write")
     parser.add_argument("--simulator", choices=("verilator", "iverilog"), default="verilator",
                         help="simulation engine (default: verilator)")
     args = parser.parse_args()
@@ -76,6 +80,12 @@ def main():
     selected = [case for case in cases if args.case in (None, case["name"])]
     if not selected:
         parser.error(f"unknown case {args.case!r}")
+    if args.timed_word and any(case.get("expected_requests", -1) >= 0 for case in selected):
+        parser.error("expected_requests counts raw fields; it cannot check physical word cycles")
+    if args.hold_after_write and not args.timed_word:
+        parser.error("--hold-after-write requires --timed-word")
+    core = "u_cpu.u_core" if args.timed_word else "u_cpu"
+    defines = ["-DJTTMS10_TIMED_WORD"] if args.timed_word else []
     hdl = HERE.parent / "hdl"
     build = HERE / "build"
     if not (build / "tms10_param.vh").exists() or not (build / "tms10.vh").exists():
@@ -93,11 +103,11 @@ def main():
                 shutil.copyfile(build / name, work / name)
         executable = None
         if args.simulator == "verilator":
-            (work / "expected.svh").write_text(suite_checks(selected))
+            (work / "expected.svh").write_text(suite_checks(selected, core))
             command = ["verilator", "--binary", "--timing", "--top-module", "test",
                        "--timescale-override", "1ns/1ps", "-Wno-EOFNEWLINE", "-j", "4",
                        "--Mdir", str(work / "obj"), "-I"+str(work),
-                       "-I"+str(hdl), "-I"+str(build), str(HERE / "test.sv"),
+                       "-I"+str(hdl), "-I"+str(build), "-I"+str(HERE), *defines, str(HERE / "test.sv"),
                        *[str(source.resolve()) for source in sources]]
             result = subprocess.run(command, cwd=work, capture_output=True, text=True)
             if result.returncode:
@@ -109,20 +119,23 @@ def main():
             (work / "memory_init.txt").write_text(memory_init(case))
             (work / "vector_init.txt").write_text(vector_init(case))
             if args.simulator == "iverilog":
-                (work / "expected.svh").write_text(sv_checks(case))
+                (work / "expected.svh").write_text(sv_checks(case, core))
                 binary = work / "sim.vvp"
                 compile_cmd = ["iverilog", "-g2012", "-s", "test", "-I", str(work),
-                               "-I", str(hdl), "-I", str(build),
-                               "-o", str(binary), str(HERE / "test.sv")]
+                               "-I", str(hdl), "-I", str(build), "-I", str(HERE),
+                               *defines, "-o", str(binary), str(HERE / "test.sv")]
                 compile_cmd.extend(str(source.resolve()) for source in sources)
                 subprocess.run(compile_cmd, check=True, cwd=work)
                 executable = ["vvp", str(binary)]
-            result = subprocess.run([*executable, f"+VECTOR={identifier}"], cwd=work,
-                                    capture_output=True, text=True, timeout=30)
-            if result.returncode or "TEST_RESULT: PASS" not in result.stdout:
-                print(f"{case['name']}: FAIL\n{result.stdout}{result.stderr}")
-                raise SystemExit(1)
-            print(f"{case['name']}: PASS", flush=True)
+            for hold in ((False, True) if args.hold_after_write else (False,)):
+                hold_args = ["+HOLD_AFTER_WRITE=1"] if hold else []
+                tag = case['name'] + (' HOLD' if hold else '')
+                result = subprocess.run([*executable, f"+VECTOR={identifier}", *hold_args], cwd=work,
+                                        capture_output=True, text=True, timeout=30)
+                if result.returncode or "TEST_RESULT: PASS" not in result.stdout:
+                    print(f"{tag}: FAIL\n{result.stdout}{result.stderr}")
+                    raise SystemExit(1)
+                print(f"{tag}: PASS", flush=True)
 
 
 

@@ -10,6 +10,8 @@ main() {
     python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-boundaries.yaml"
     python3 "$ver_dir/array/programs.py" --fill-rows --out "$ver_dir/build/fill-rows.yaml"
     python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-rows.yaml"
+    python3 "$ver_dir/array/binary_programs.py" --out "$ver_dir/build/binary-boundaries.yaml"
+    python3 "$ver_dir/run.py" --timed-word --hold-after-write --vectors "$ver_dir/build/binary-boundaries.yaml"
     for unit in alu field regs word arch system pixelbus arrayirq lineirq lineirq-timed io bus startup \
                 cache cachefield cachefield-timed fabric host pixel; do
         bash "$ver_dir/sim.sh" "$unit"

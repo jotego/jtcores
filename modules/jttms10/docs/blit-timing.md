@@ -2,8 +2,9 @@
 
 All six PIXBLT encodings have independent timing probes. Aligned opaque regular
 copies now have a native word schedule validated on DataStorm and Verilator.
-Binary expansion still transfers through the general graphics microcode and
-fails timing. Full timing compliance and condition coverage remain open.
+Aligned opaque binary expansion now also has a native short-row schedule,
+with focused Verilator validation. Its new physical image remains pending.
+Full timing compliance and condition coverage remain open.
 
 The authority is TI's June 1988 SPVU001A [TMS34010 User's Guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf).
 The regular setup/transfer/graphics tables are 13-8/9/10, printed
@@ -87,7 +88,7 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare \
     --protocol-version 3 --case blit_ --output blit-manifest.json
 ```
 
-The complete simulation and FPGA commands retain failing binary cases. The
+The complete simulation and FPGA commands retain all binary cases. The
 normal runner includes the model tests and fixtures. Empty arrays, partial alignments, long binary rows, other
 graphics/window/mask/transparency operations, overlap/reverse traversal,
 HOLD/IRQ/context resumption and full clean/CI acceptance still require work.
@@ -137,6 +138,60 @@ Fresh short Verilator runs reproduce those clocks and all checked events and
 diagnostics exactly. The additional delay remains an open binary timing
 regression; no expectation was changed. Standard equivalence refuses failing
 inputs. The published MOVB-target command separately retains 27 CD failures.
+
+## Native binary short-row schedule
+
+The new B,L / B,XY microprogram supports nonempty opaque replacement with
+PPOP0, PMASK0, T0, W0, PBH0/PBV0, aligned source/destination rows and pitches,
+complete destination words, and DX<=32. It reads exactly one or two source
+words per row before emitting the expanded words. Unsupported alignments,
+pitches and widths return to the generic microprogram before any source
+read or architectural pointer update. Other processing modes retain the
+generic path.
+
+S48 stores the bitmap and S49 the second source word. A 16-bit selector
+repeats each bitmap bit according to PS and selects destination-aligned lanes
+from the existing COLOR0/1 operand registers. The existing scalar DSP shifts
+the bitmap for the next output word; no additional register bank, multiplier
+or ALU is introduced. Graphics ROM remains 4096x64. Source responses establish
+the two-state read plus processing schedule, each output word has two states,
+and the final row carries the three-state completion tail. Posted requests
+remain pending until their own response; external waits and CEN pauses freeze
+the corresponding work.
+
+Twenty-four representatives, including two regular controls, pass each of
+base, W1/P7 and W3. Ten geometry representatives pass each profile, giving
+102 focused observations. Every raw trace replays against the unchanged
+independent oracle. Twenty new geometry fixtures are appended; all 141,932
+predecessor fixture/program contracts remain unchanged. Current inventory is
+141,952, including 164 binary and 360 regular PIXBLT fixtures. Deliberately
+flipping an expanded output bit fails memory/bus checks; adding one source
+processing state fails duration/row cadence with correct final memory. NOP
+controls pass in both mutant runs.
+
+The architectural runner also supports `--timed-word`, applying its existing
+independent values and memory checks through TIMED_PROGRAM=1 and the physical
+word/bus wrappers. All 70 binary boundary vectors pass normally and with HOLD,
+140 architectural executions. They cover native aligned rows and
+generic source/destination misalignment, unequal or unaligned pitches, partial
+words and DX=33. These are architectural checks, not timing goldens for those
+fallback conditions. `--hold-after-write` injects a real bus HOLD after a pixel
+write and requires a grant and release. This proves architectural continuation
+for this local wrapper test, not a HOLD timing equation or physical FPGA HOLD
+scheduler. The normal runner includes both boundary profiles.
+
+```sh
+python3 modules/jttms10/ver/array/binary_programs.py --out binary-boundaries.yaml
+python3 modules/jttms10/ver/run.py --timed-word --vectors binary-boundaries.yaml
+python3 modules/jttms10/ver/run.py --timed-word --hold-after-write \
+    --vectors binary-boundaries.yaml --case binary_bl_ps1_aligned
+```
+
+The physical measurements above belong to the preceding regular-copy image.
+New binary FPGA compilation, STA, source-bound programming, representative
+equivalence and complete matrices remain pending. Native binary mid-instruction
+IRQ/NMI checkpoints and context resumption remain unimplemented; no interrupt
+timing or full condition-compliance claim is made for this path.
 
 Run the complete regular domain through the ordinary FPGA fixture builder:
 
