@@ -81,7 +81,7 @@ module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1 mode
-    HD6309   = 0,   // Enable Hitachi 6309 instructions and native mode
+    HD6309   = 0,
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
     CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(

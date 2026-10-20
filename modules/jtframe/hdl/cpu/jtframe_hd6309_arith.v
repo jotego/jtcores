@@ -1,8 +1,5 @@
-// Clocked arithmetic for the HD6309 MULD, DIVD and DIVQ instructions.
-// Divider work is performed one quotient bit per clock. Instruction timing is
-// controlled by the CPU sequencer, which can run this block during E-cycle wait
-// phases. `done` stays asserted until the next accepted `start` so the CPU can
-// sample completion on its slower E-cycle enable.
+// The divider runs at the system clock; done stays high until the next start
+// so the CPU can sample it on its slower E-cycle enable.
 module jtframe_hd6309_arith(
     input             clk,
     input             rst,

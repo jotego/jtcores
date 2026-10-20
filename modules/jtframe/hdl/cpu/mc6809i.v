@@ -4122,7 +4122,6 @@ begin
         end
         else if (HD6309 && ((Inst2 == 8'h8f) || (Inst2 == 8'h90)))
         begin
-            // The two encodings represent ,W and [,W].
             ea_nxt = w;
             if (Inst2[4]) begin
                 rAVMA = 1'b1;
@@ -4795,7 +4794,7 @@ begin
             RnWOut = 1'b0; // write
             tmp_nxt[3] = 1'b0;
         end
-        else if (tmp[11])                               // HD6309 W register, after DP
+        else if (tmp[11])
         begin
             addr_nxt = (tmp[14]) ? u_m1 : s_m1;
             if (tmp[14]) u_nxt = u_m1;
@@ -4913,7 +4912,7 @@ begin
             b_nxt = D[7:0];
             tmp_nxt[2] = 1'b0;
         end
-        else if (tmp[11])                               // HD6309 W register, after B
+        else if (tmp[11])
         begin
             addr_nxt = (tmp[14]) ? u : s;
             if (tmp[14]) u_nxt = u_p1;
@@ -5051,9 +5050,8 @@ begin
     begin
         NMIClear_nxt = 1'b1;
         addr_nxt = pc;
-        // tmp stands as the bits to push to the stack
-        tmp_nxt = 16'H20FF; // Save the emulation register set.
-        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1; // Native mode also stacks W.
+        tmp_nxt = 16'H20FF;
+        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1;
         NextState_nxt = CPUSTATE_IRQ_DONTCARE2;
         rAVMA = 1'b0;
         CpuState_nxt = CPUSTATE_IRQ_DONTCARE;
@@ -5064,8 +5062,8 @@ begin
     CPUSTATE_IRQ_START:
     begin
         addr_nxt = pc;
-        tmp_nxt = 16'H20FF; // IRQ always stacks the full emulation frame.
-        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1; // Native mode also stacks W.
+        tmp_nxt = 16'H20FF;
+        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1;
         NextState_nxt = CPUSTATE_IRQ_DONTCARE2;
         rAVMA = 1'b1;
         CpuState_nxt = CPUSTATE_IRQ_DONTCARE;
@@ -5077,13 +5075,12 @@ begin
     begin
         addr_nxt = pc;
         if (HD6309 && md[1]) begin
-            tmp_nxt = 16'H20FF; // FM makes FIRQ use the full IRQ frame.
+            tmp_nxt = 16'H20FF;
             cc_nxt[CC_E_BIT] = 1'b1;
         end else begin
-            tmp_nxt = 16'H2081; // Classic FIRQ frame: PC and CC.
+            tmp_nxt = 16'H2081;
             cc_nxt[CC_E_BIT] = 1'b0;
         end
-        // NM adds W to native full frames; FM=0 keeps the short PC/CC frame.
         if (HD6309 && md[0] && md[1]) tmp_nxt[11] = 1'b1;
         NextState_nxt = CPUSTATE_IRQ_DONTCARE2;
         rAVMA = 1'b1;
@@ -5117,7 +5114,6 @@ begin
 
     CPUSTATE_6309_DIVZERO_PAD2:
     begin
-        // Second post-sample idle E cycle before the full-frame stack write.
         addr_nxt = pc;
         rAVMA = 1'b0;
         CpuState_nxt = CPUSTATE_6309_DIVZERO_START;
@@ -5141,7 +5137,7 @@ begin
     begin
         addr_nxt = pc;
         tmp_nxt = 16'H00FF; // Save to the S stack, PC, U, Y, X, DP, B, A, CC
-        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1; // Native full frame also saves W.
+        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1;
 
         NextState_nxt = CPUSTATE_IRQ_DONTCARE2;
         rAVMA = 1'b1;
@@ -5358,7 +5354,7 @@ begin
         if (tmp[7:6] == 2'b11) begin
             CpuState_nxt = IllegalInstructionState;
             rLIC = 1'b1;
-        end else if (Inst1 == 8'h37) begin // STBT: register source bit to memory destination bit
+        end else if (Inst1 == 8'h37) begin
             tmp_nxt[15:8] = (D & ~(8'h01 << tmp[2:0])) |
                             (HDBitRegSrc ? (8'h01 << tmp[2:0]) : 8'h00);
             rAVMA = 1'b1;
@@ -5449,7 +5445,6 @@ begin
                 default: begin end
             endcase
         end else begin
-        // Source updates for +/+, -/-, and +/fixed forms.
         if ((Inst1 == 8'h38) || (Inst1 == 8'h3A)) begin
             case (tmp[7:4])
                 4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
@@ -5469,7 +5464,6 @@ begin
                 default: begin end
             endcase
         end
-        // Destination updates for +/+, -/-, and fixed-source/+ forms.
         if ((Inst1 == 8'h38) || (Inst1 == 8'h3B)) begin
             case (tmp[3:0])
                 4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
@@ -5874,7 +5868,7 @@ begin
         addr_nxt = pc;
         cc_nxt = {1'b1, (cc[6:0] & Inst2[6:0])}; // Set E flag, AND CC with CWAI argument
         tmp_nxt = 16'H00FF; // Save to the S stack, PC, U, Y, X, DP, B, A, CC
-        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1; // CWAI always stacks a full native frame.
+        if (HD6309 && md[0]) tmp_nxt[11] = 1'b1;
 
         NextState_nxt = CPUSTATE_CWAI_PAD1;
         rAVMA = 1'b0;
