@@ -43,6 +43,121 @@ READ_ONLY_TERMS = ['mpys_', 'mpyu_', 'nop_hit', 'nop_off', 'nop_next_subsegment_
                    'immediate_', 'xy_addxy_', 'xy_subxy_', 'xy_cmpxy_',
                    'coordinate_cpw_', 'coordinate_cvxyl_', 'emu_run_']
 
+_store_dependency_checker = None
+
+
+def is_store_dependency(case):
+    name = case.get('name', '')
+    return 'dependency_conditions' in case or (isinstance(name, str) and 'cd_dependency_' in name)
+
+
+def instruction_duration_required(case, entry):
+    """The dependency family specifies bus timing but no total duration."""
+    if is_store_dependency(case):
+        validate_store_dependency(case, 5)
+        return False
+    return _event_contract.check_duration(entry)
+
+
+def validate_store_dependency(case, protocol_version):
+    """Validate the complete CD dependency contract before any scoped policy."""
+    if protocol_version != 5:
+        raise ValueError(f"{case['name']}: CD dependency fixtures require FPGA protocol 5")
+    conditions = case.get('dependency_conditions')
+    required = {'destination', 'preceding_word', 'offset', 'next_opcode_modified'}
+    if not isinstance(conditions, dict) or set(conditions) != required:
+        raise ValueError(f"{case['name']}: malformed dependency_conditions keys")
+    destination = conditions['destination']
+    offset = conditions['offset']
+    preceding = conditions['preceding_word']
+    modified = conditions['next_opcode_modified']
+    if type(destination) is not int or not 0 <= destination <= MASK32:
+        raise ValueError(f"{case['name']}: invalid dependency destination")
+    if type(offset) is not int or not 0 <= offset < 16 or (destination & 15) != offset:
+        raise ValueError(f"{case['name']}: invalid dependency byte offset")
+    if type(preceding) is not bool or type(modified) is not bool:
+        raise ValueError(f"{case['name']}: dependency flags must be booleans")
+    if not isinstance(case.get('name'), str) or 'cd_dependency_' not in case['name']:
+        raise ValueError(f"{case['name']}: dependency metadata on an unrelated fixture")
+    if case.get('measure_pass') != 0 or type(case.get('measure_pass')) is not int:
+        raise ValueError(f"{case['name']}: dependency fixture must measure first pass")
+    if case.get('drain_instructions') != -2 or type(case.get('drain_instructions')) is not int:
+        raise ValueError(f"{case['name']}: dependency fixture requires posted-write drain")
+    if case.get('cache_disabled') is not True:
+        raise ValueError(f"{case['name']}: dependency fixture requires cache-disabled operation")
+    if 'data_copy' in case:
+        spec = case['data_copy']
+        if not isinstance(spec, dict) or spec.get('width') != 8 or type(spec.get('width')) is not int:
+            raise ValueError(f"{case['name']}: dependency copy must be one byte")
+        if spec.get('byte') is not True:
+            raise ValueError(f"{case['name']}: dependency copy must use byte mode")
+        actual_destination = spec.get('destination')
+        store_spec = case.get('data_store')
+        if (not isinstance(store_spec, dict) or store_spec.get('width') != 8 or
+                store_spec.get('address') != actual_destination):
+            raise ValueError(f"{case['name']}: dependency copy/store descriptions disagree")
+    elif 'data_store' in case:
+        spec = case['data_store']
+        if not isinstance(spec, dict) or spec.get('width') != 8 or type(spec.get('width')) is not int:
+            raise ValueError(f"{case['name']}: dependency store must be one byte")
+        actual_destination = spec.get('address')
+    else:
+        raise ValueError(f"{case['name']}: dependency fixture has no byte-store operation")
+    if type(actual_destination) is not int or actual_destination != destination:
+        raise ValueError(f"{case['name']}: dependency destination disagrees with operation")
+    next_pc = case.get('next_pc')
+    if type(next_pc) is not int or not 0 <= next_pc <= MASK32:
+        raise ValueError(f"{case['name']}: invalid dependency next PC")
+    expected_destination = u32(next_pc - 16 * int(preceding) + offset)
+    if destination != expected_destination:
+        raise ValueError(f"{case['name']}: dependency destination disagrees with next-PC geometry")
+    expected_modified = any(((destination + bit) & ~15) == next_pc for bit in range(8))
+    if modified != expected_modified:
+        raise ValueError(f"{case['name']}: dependency next-opcode flag disagrees with geometry")
+    if 'expected_memory' not in case or 'initial_memory' not in case:
+        raise ValueError(f"{case['name']}: dependency fixture needs complete sparse memory")
+
+
+def store_dependency_checker():
+    """Load the independent checker from the selected source checkout."""
+    global _store_dependency_checker
+    if _store_dependency_checker is not None:
+        return _store_dependency_checker
+    oracle = oracle_module()
+    dependency_dir = HERE.parent / 'store_dependency'
+    if not (dependency_dir / 'check.py').is_file():
+        raise ValueError('CD dependency metadata requires store_dependency/check.py')
+    # The independent check module imports its own fixture module and the
+    # selected checkout's timing.run helpers. Bind those imports explicitly.
+    for path in (TIMING, dependency_dir):
+        if str(path) in sys.path:
+            sys.path.remove(str(path))
+        sys.path.insert(0, str(path))
+    prior_run = sys.modules.get('run')
+    prior_cases = sys.modules.get('cases')
+    sys.modules['run'] = oracle
+    try:
+        cases_spec = importlib.util.spec_from_file_location(
+            'jttms10_store_dependency_cases', dependency_dir / 'cases.py')
+        cases_module = importlib.util.module_from_spec(cases_spec)
+        cases_spec.loader.exec_module(cases_module)
+        sys.modules['cases'] = cases_module
+        check_spec = importlib.util.spec_from_file_location(
+            'jttms10_store_dependency_check', dependency_dir / 'check.py')
+        check_module = importlib.util.module_from_spec(check_spec)
+        check_spec.loader.exec_module(check_module)
+    finally:
+        if prior_run is None:
+            sys.modules.pop('run', None)
+        else:
+            sys.modules['run'] = prior_run
+        if prior_cases is None:
+            sys.modules.pop('cases', None)
+        else:
+            sys.modules['cases'] = prior_cases
+    _store_dependency_checker = check_module
+    return check_module
+
 
 def oracle_module():
     # The fixture generator and all expectations remain owned by timing/run.py.
@@ -95,7 +210,10 @@ def require_supported(case, protocol_version=1):
             if ('expected_follow_regs' in case or 'expected_follow_extra_regs' in case) and not any(
                     key in case for key in ('control_follow', 'follow_delay', 'list_follow')):
                 raise ValueError(f"{case['name']}: unhandled following-register expectation")
-        elif case.get('drain_instructions', 0) not in (0, -1):
+        if is_store_dependency(case):
+            supported.add('dependency_conditions')
+            validate_store_dependency(case, protocol_version)
+        if protocol_version < 3 and case.get('drain_instructions', 0) not in (0, -1):
             raise ValueError(f"{case['name']}: unsupported FPGA drain/follow requirement")
         if protocol_version == 2 and 'data_list' in case and not case['data_list']['load']:
             raise ValueError(f"{case['name']}: unsupported FPGA memory write")
@@ -110,6 +228,49 @@ def require_supported(case, protocol_version=1):
     found = sorted(set(case) - supported)
     if found:
         raise ValueError(f"{case['name']}: unsupported FPGA fixture requirements: {', '.join(found)}")
+
+
+def prepare_store_dependency_cases(protocol_version, stimulus=None):
+    """Prepare only the explicit cache-disabled CD dependency inventory."""
+    if protocol_version != 5:
+        raise ValueError('--store-dependency requires --protocol-version 5')
+    dependency_dir = HERE.parent / 'store_dependency'
+    if str(TIMING) in sys.path:
+        sys.path.remove(str(TIMING))
+    if str(dependency_dir) in sys.path:
+        sys.path.remove(str(dependency_dir))
+    sys.path[:0] = [str(dependency_dir), str(TIMING)]
+    oracle = oracle_module()
+    prior_run = sys.modules.get('run')
+    sys.modules['run'] = oracle
+    try:
+        spec = importlib.util.spec_from_file_location(
+            'jttms10_store_dependency_cases_prepare', dependency_dir / 'cases.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    finally:
+        if prior_run is None:
+            sys.modules.pop('run', None)
+        else:
+            sys.modules['run'] = prior_run
+    prepared = list(module.cases())
+    if len(prepared) != 16:
+        raise ValueError(f'CD dependency inventory changed: expected 16 cases, got {len(prepared)}')
+    entries = []
+    names = set()
+    for identifier, (fixture, words) in enumerate(prepared):
+        name = fixture['name']
+        if name in names:
+            raise ValueError(f'duplicate CD dependency fixture name: {name}')
+        names.add(name)
+        require_supported(fixture, protocol_version)
+        test_pc, next_pc = fixture['test_pc'], fixture['next_pc']
+        entry = dict(id=identifier, name=name, fixture=fixture,
+                     program_words=words, test_pc=test_pc, next_pc=next_pc)
+        if stimulus:
+            entry['stimulus'] = dict(stimulus)
+        entries.append(entry)
+    return entries
 
 
 def prepare_cases(terms, limit=None, protocol_version=2, stimulus=None,
@@ -495,8 +656,9 @@ def check_batch(batch, capture):
                              observed['start'] <= previous < complete < first <= result[272]):
                 errors.append('missing, unordered or out-of-range IRQ boundary clocks')
             lines.append(f'IRQ_BOUNDARY count={count} previous={previous} complete={complete} first={first}')
+        dependency_case = is_store_dependency(case)
         errors.extend(oracle.check(case, observed, stimulus['wait_states'], expected_pause,
-                                   check_duration=_event_contract.check_duration(entry)))
+                                   check_duration=instruction_duration_required(case, entry)))
         if version >= 2:
             initial_words(case)
             memory = case.get('initial_memory', [])
@@ -516,6 +678,15 @@ def check_batch(batch, capture):
         log = '\n'.join(lines)
         row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause,
                                           check_transfer_observation=_event_contract.check_transfer_observation(entry))
+        if dependency_case:
+            dependency = store_dependency_checker()
+            bus_errors = dependency.check_trace(case, row['bus_trace'], stimulus['wait_states'])
+            target_errors = dependency.check_trace(case, row['target_trace'], stimulus['wait_states'], raw=True)
+            errors.extend(bus_errors)
+            errors.extend(target_errors)
+            row['dependency_observation'] = dict(conditions=copy.deepcopy(case['dependency_conditions']),
+                                                 bus_errors=bus_errors,
+                                                 target_errors=target_errors)
         follow_errors, irq_observation = _event_contract.check_followup(entry, observed, lines)
         errors.extend(follow_errors)
         if irq_observation is not None:
@@ -647,6 +818,7 @@ def compare_reference(rows, reference_rows):
         for key in ('external_contract', 'external_observation', 'irq_observation'):
             if row.get(key) != other.get(key):
                 errors.append(name+': '+key+' differs')
+        reference_fixture = other.get('fixture', other)
         for key in ('opcode', 'regs', 'expected_regs', 'expected_st', 'states',
                     'cache_disabled', 'extensions', 'expected_extra_regs', 'test_pc', 'next_pc',
                     'initial_memory', 'expected_memory', 'data_load', 'data_list',
@@ -655,8 +827,9 @@ def compare_reference(rows, reference_rows):
                     'data_trap', 'data_fill', 'data_line', 'data_blit', 'blit_timing', 'drain_instructions', 'follow_pc',
                     'expected_follow_regs', 'expected_follow_st', 'expected_follow_extra_regs',
                     'expected_follow_memory', 'control_follow', 'list_follow', 'follow_delay',
-                    'expected_st_mask', 'expected_wvp', 'observe_all', 'observe_implicit'):
-            if json.loads(json.dumps(row.get(key))) != json.loads(json.dumps(other.get(key))):
+                    'expected_st_mask', 'expected_wvp', 'observe_all', 'observe_implicit',
+                    'dependency_conditions'):
+            if json.loads(json.dumps(row.get(key))) != json.loads(json.dumps(reference_fixture.get(key))):
                 errors.append(name+': fixture '+key+' differs')
         observed, golden = row['observed'], other['observed']
         fields = ['clocks', 'st', 'paused', *[f'a{q}' for q in range(len(row['expected_regs']))],
@@ -703,6 +876,8 @@ def main():
     prepare.add_argument('--limit', type=int)
     prepare.add_argument('--published-targets', action='store_true',
                          help='select agreeing TI MOVB duration targets; known failures on the baseline CPU')
+    prepare.add_argument('--store-dependency', action='store_true',
+                         help='select only the explicit cache-disabled CD byte-store dependency fixtures')
     prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3, 4, 5), default=5)
     prepare.add_argument('--wait-states', type=int, default=0)
     prepare.add_argument('--pause-clocks', type=int, default=0)
@@ -723,18 +898,44 @@ def main():
         if args.command == 'prepare':
             if args.limit is not None and args.limit < 1:
                 raise ValueError('--limit must be positive')
-            terms = args.case
-            audit = {}
-            entries = prepare_cases(terms, args.limit, args.protocol_version,
-                                    dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
-                                         pause_after_clocks=args.pause_after_clocks),
-                                    read_only_matrix=args.read_only_matrix, audit=audit,
-                                    published_targets=args.published_targets)
+            if args.store_dependency:
+                if args.case or args.read_only_matrix or args.published_targets or args.limit is not None:
+                    raise ValueError('--store-dependency is an explicit standalone fixture selection')
+                stimulus = dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
+                                pause_after_clocks=args.pause_after_clocks)
+                entries = prepare_store_dependency_cases(args.protocol_version, stimulus)
+                audit = dict(inventory_count=16, selected_count=16, excluded_count=0,
+                             exclusions={}, complete_inventory=True,
+                             inventory_names_sha256=hashlib.sha256(
+                                 ''.join(entry['name']+'\n' for entry in entries).encode()).hexdigest(),
+                             selected_names_sha256=hashlib.sha256(
+                                 ''.join(entry['name']+'\n' for entry in entries).encode()).hexdigest())
+                dependency_dir = HERE.parent / 'store_dependency'
+                dependency_hashes = {
+                    str(path.relative_to(HERE.parent)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in (dependency_dir / 'cases.py', dependency_dir / 'check.py',
+                                 TIMING / 'copy_cases.py', TIMING / 'store_cases.py')
+                }
+            else:
+                terms = args.case
+                audit = {}
+                entries = prepare_cases(terms, args.limit, args.protocol_version,
+                                        dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
+                                             pause_after_clocks=args.pause_after_clocks),
+                                        read_only_matrix=args.read_only_matrix, audit=audit,
+                                        published_targets=args.published_targets)
+                dependency_hashes = None
             data = dict(format=FORMATS[args.protocol_version],
                         protocol_version=args.protocol_version,
                         batches=make_batches(entries, args.protocol_version),
                         fixture_selection_audit=audit,
                         oracle_sha256=hashlib.sha256((TIMING / 'run.py').read_bytes()).hexdigest())
+            if dependency_hashes is not None:
+                data['dependency_sources_sha256'] = dependency_hashes
+                data['dependency_profile'] = dict(wait_states=args.wait_states,
+                    pause_clocks=args.pause_clocks,
+                    pause_after_clocks=args.pause_after_clocks,
+                    response_pause=True)
             args.output.write_text(json.dumps(data, indent=2) + '\n')
             print(f"Prepared {len(entries)} cases in {len(data['batches'])} batches")
             return 0

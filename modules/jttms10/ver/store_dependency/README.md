@@ -26,7 +26,18 @@ which §5.4.4 warns can be unpredictable. It does not assign a new TI duration
 to the dependency cases: published nominal duration targets remain mandatory
 in the separate timing suite. The FPGA transport is not part of the oracle.
 Writable instruction-word transport is not yet qualified on the FPGA; these
-new dependency cases currently run only in Verilator.
+new dependency cases currently run only in Verilator. The protocol-v5 host
+adapter can prepare them explicitly:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare --store-dependency --protocol-version 5 --wait-states N --pause-clocks P --output manifest.json
+```
+
+It keeps `dependency_conditions` in each fixture, checks both logical BUS and
+physical TARGET traces, and does not apply a total instruction-duration target
+to this family. Published duration fixtures remain strict. The pause profiles
+use `pause_after_clocks=0`, matching the timing bench's default `PAUSE_AFTER=0`;
+the target continues independently while CPU CEN is low.
 
 The timing bench accepts a retirement pulse from the last enabled edge at the
 first paused edge, then clears that allowance. PC, ST, GPR and working-state
