@@ -950,6 +950,7 @@ task run_tfm_xy(input [7:0] mode, input [7:0] opcode, input [7:0] postbyte,
             $sformatf("%s Y=%04x expected %04x",label,regs[47:32],expected_y));
         assert_msg(regs6309[31:16]==0,
             $sformatf("%s W=%04x expected 0000",label,regs6309[31:16]));
+        assert_msg(regs[82],$sformatf("%s completion must set CC.Z",label));
         assert_msg(direct_mem[8'h60]==expected_y0 && direct_mem[8'h61]==expected_y1,
             $sformatf("%s destination bytes=%02x/%02x expected %02x/%02x",label,
                       direct_mem[8'h60],direct_mem[8'h61],expected_y0,expected_y1));
@@ -992,18 +993,26 @@ task run_tfm_same(input [7:0] opcode, input [15:0] x_start,
         put(16'h0119,8'h10); put(16'h011a,8'h8e); put(16'h011b,8'h00); put(16'h011c,8'h60);
         put(16'h011d,8'h7e); put(16'h011e,8'h01); put(16'h011f,8'h20);
         direct_mem[8'h40]=8'haa; direct_mem[8'h41]=8'hbb;
+        direct_mem[8'h42]=8'hcc; direct_mem[8'h43]=8'hdd;
         measure_case(6+3*transfers,16'h0123,label);
         assert_msg(regs[31:16]==expected_x,
             $sformatf("%s X=%04x expected %04x",label,regs[31:16],expected_x));
         assert_msg(regs6309[31:16]==0,
             $sformatf("%s W=%04x expected 0000",label,regs6309[31:16]));
-        // Same-register transfer destination address is unresolved in the
-        // reference: Atkinson specifies both updates after transfer, while
-        // MAME's serial read/update/write order writes through the updated X.
-        assert_msg((direct_mem[8'h40]==expected_at40 && direct_mem[8'h41]==expected_at41) ||
-                   (direct_mem[8'h40]==8'haa && direct_mem[8'h41]==8'hbb),
-            $sformatf("%s memory[40:41]=%02x/%02x, expected either original-X or serial-update order",
-                      label,direct_mem[8'h40],direct_mem[8'h41]));
+        // Hoglet's original-device capture documents X+,X+ as a read at X,
+        // write at incremented X, then repeat. The measured X+/X+ case checks
+        // the serial destination address directly; X-/X- remains permissive.
+        if(opcode==8'h38)
+            assert_msg(direct_mem[8'h40]==expected_at40 && direct_mem[8'h41]==expected_at41 &&
+                       direct_mem[8'h42]==8'hcc && direct_mem[8'h43]==8'hcc,
+                $sformatf("%s memory[40:43]=%02x/%02x/%02x/%02x expected %02x/%02x/cc/cc",
+                          label,direct_mem[8'h40],direct_mem[8'h41],
+                          direct_mem[8'h42],direct_mem[8'h43],expected_at40,expected_at41));
+        else
+            assert_msg((direct_mem[8'h40]==expected_at40 && direct_mem[8'h41]==expected_at41) ||
+                       (direct_mem[8'h40]==8'haa && direct_mem[8'h41]==8'hbb),
+                $sformatf("%s memory[40:41]=%02x/%02x unexpected data",
+                          label,direct_mem[8'h40],direct_mem[8'h41]));
     end
 endtask
 
@@ -1088,6 +1097,7 @@ task run_invalid_tfm_selector;
     reg handler_seen;
     begin
         load_program(8'h01,8'h11,8'h38,8'h52); // Invalid source selector 5, destination Y.
+        put(16'h0113,8'h06); // Seed Z=1; illegal TFM must clear it before stacking.
         put(16'hfff0,8'h01); put(16'hfff1,8'h60); // Illegal-instruction vector, distinct from FIRQ/IRQ.
         put(16'h0160,8'h12);
         watchdog=0; handler_seen=0; illegal_vector_reads=0;
@@ -1102,6 +1112,8 @@ task run_invalid_tfm_selector;
                       illegal_vector_reads));
         assert_msg(regs6309[54],
             $sformatf("invalid TFM selector must set MD.IL, MD=%02x",regs6309[55:48]));
+        assert_msg(stack_mem[18][2]==1'b0,
+            $sformatf("invalid TFM selector stacked CC.Z=%0d expected clear",stack_mem[18][2]));
     end
 endtask
 
@@ -1129,25 +1141,182 @@ task run_hd_illegal_opcode(input [7:0] page_opcode);
     end
 endtask
 
-task run_divd_zero_trap;
-    integer watchdog;
-    reg handler_seen;
+task run_divzero_trap(input [7:0] mode, input reg is_divq);
+    integer watchdog, ecycle, handler_cycle, stack_cycle, vector_cycle;
+    reg started, handler_seen;
+    reg [15:0] closing_pc;
+    integer expected_handler, expected_stack, expected_vector;
+    reg [7:0] opcode;
+    reg [7:0] extra;
+    reg [7:0] low_operand;
+    reg [31:0] opname;
     begin
-        load_program(8'h01,8'h11,8'h8d,8'h00); // DIVD #$0000
-        put(16'h0123,8'h00);
+        opcode=is_divq ? 8'h8e : 8'h8d;
+        extra=8'h00;
+        low_operand=8'h00;
+        closing_pc=is_divq ? 16'h0124 : 16'h0123;
+        opname=is_divq ? "DIVQ" : "DIVD";
+        initial_e=8'h56; initial_f=8'h78;
+        load_program(mode,8'h11,opcode,extra);
+        put(16'h010d,8'hcc); put(16'h010e,8'h12); put(16'h010f,8'h34);
+        put(16'h0110,8'h12); put(16'h0111,8'h12);
+        put(16'h0113,8'h0b); // Seed N/V/C; zero exception should update NZV only.
+        if(is_divq) put(16'h0123,low_operand);
+        put(closing_pc,8'h12);
         put(16'hfff0,8'h01); put(16'hfff1,8'h60);
         put(16'h0160,8'h12);
-        watchdog=0; handler_seen=0; illegal_vector_reads=0;
-        while(!handler_seen && watchdog<500) begin
+        watchdog=0; started=0; handler_seen=0; illegal_vector_reads=0;
+        ecycle=-1; handler_cycle=-1; stack_cycle=-1; vector_cycle=-1;
+        while(!handler_seen && watchdog<1000) begin
             @(posedge clk);
-            if(cen_E && op && addr==16'h0160) handler_seen=1;
+            if(cen_E) begin
+                if(!started && op && addr==16'h0120) begin
+                    started=1;
+                    ecycle=0;
+                end else if(started) begin
+                    ecycle=ecycle+1;
+                    if(op && addr==16'h0160) begin
+                        handler_seen=1;
+                        handler_cycle=ecycle;
+                    end
+                end
+            end
+            if(started && cen_Q && !rnw && stack_cycle<0 &&
+               ((addr>=16'h2fe0 && addr<=16'h2fff) ||
+                (addr>=16'h3fe0 && addr<=16'h3fff)))
+                stack_cycle=ecycle;
+            if(started && cen_Q && rnw && avma && addr==16'hfff0 && vector_cycle<0)
+                vector_cycle=ecycle;
             watchdog=watchdog+1;
         end
-        assert_msg(handler_seen,"DIVD by zero did not reach $fff0 handler");
+        expected_handler=(is_divq ? 24 : 23) + (mode[0] ? 2 : 0);
+        expected_stack=(is_divq ? 8 : 7);
+        expected_vector=(is_divq ? 21 : 20) + (mode[0] ? 2 : 0);
+        assert_msg(handler_seen,$sformatf("%s by zero did not reach $fff0 handler",opname));
+        assert_msg(handler_cycle==expected_handler,
+            $sformatf("%s zero mode=%0d handler at %0d E, expected %0d",
+                      opname,mode[0],handler_cycle,expected_handler));
+        assert_msg(stack_cycle==expected_stack,
+            $sformatf("%s zero mode=%0d first stack write at %0d E, expected %0d",
+                      opname,mode[0],stack_cycle,expected_stack));
+        assert_msg(vector_cycle==expected_vector,
+            $sformatf("%s zero mode=%0d vector high read at %0d E, expected %0d",
+                      opname,mode[0],vector_cycle,expected_vector));
         assert_msg(regs6309[55],
-            $sformatf("DIVD by zero did not set MD.DZ: MD=%02x",regs6309[55:48]));
+            $sformatf("%s by zero did not set MD.DZ: MD=%02x",opname,regs6309[55:48]));
         assert_msg(illegal_vector_reads>=2,
-            $sformatf("DIVD zero vector reads=%0d expected FFF0/FFF1",illegal_vector_reads));
+            $sformatf("%s zero vector reads=%0d expected FFF0/FFF1",opname,illegal_vector_reads));
+        assert_msg(stack_mem[(mode[0] ? 18 : 20)]== (is_divq ? 8'h8d : 8'h85),
+            $sformatf("%s zero mode=%0d stacked CC=%02x expected %02x",
+                      opname,mode[0],stack_mem[(mode[0] ? 18 : 20)],is_divq ? 8'h8d : 8'h85));
+        assert_msg({regs[7:0],regs[15:8]}==16'h1234,
+            $sformatf("%s zero mode=%0d changed D=%04x",
+                      opname,mode[0],{regs[7:0],regs[15:8]}));
+        if(is_divq) assert_msg({regs6309[7:0],regs6309[15:8]}==16'h5678,
+            $sformatf("DIVQ zero mode=%0d changed W=%04x",
+                      mode[0],{regs6309[7:0],regs6309[15:8]}));
+    end
+endtask
+
+task run_divzero_memory_trap(input [7:0] mode, input reg is_divq,
+                            input integer form);
+    integer watchdog, ecycle, handler_cycle, stack_cycle, vector_cycle, divisor_cycle;
+    reg started, handler_seen, divisor_seen;
+    reg [15:0] divisor_addr;
+    integer expected_handler, expected_stack, expected_vector;
+    reg [7:0] opcode;
+    reg [8*11-1:0] opname;
+    begin
+        // form: 0=direct, 1=extended, 2=indexed ,X. The source decoder's
+        // original-device samples specify these handler intervals and phase
+        // offsets for the zero-divisor exception.
+        case(form)
+            0: opcode=is_divq ? 8'h9e : 8'h9d;
+            1: opcode=is_divq ? 8'hbe : 8'hbd;
+            default: opcode=is_divq ? 8'hae : 8'had;
+        endcase
+        divisor_addr=16'h0040;
+        opname=is_divq ? "DIVQ memory" : "DIVD memory";
+        initial_e=8'h56; initial_f=8'h78;
+        load_program(mode,8'h11,opcode,8'h00);
+        // Install a nonzero dividend and seed N/V/C so the trap frame proves
+        // the hardware-defined zero-divisor flags, including C preservation.
+        put(16'h010d,8'hcc); put(16'h010e,8'h12); put(16'h010f,8'h34);
+        put(16'h0110,8'h12); put(16'h0111,8'h12);
+        put(16'h0113,8'h0b); // ORCC #$0b
+        if(form==0) begin
+            put(16'h0122,8'h40); // direct address
+        end else if(form==1) begin
+            put(16'h0122,8'h00); put(16'h0123,8'h40); // extended address
+        end else begin
+            // LDX #$0040; JMP $0120, using the prelude space before the test.
+            put(16'h0116,8'h8e); put(16'h0117,8'h00); put(16'h0118,8'h40);
+            put(16'h0119,8'h7e); put(16'h011a,8'h01); put(16'h011b,8'h20);
+            put(16'h0122,8'h84); // ,X
+        end
+        if(is_divq) begin
+            put(divisor_addr,8'h00); put(divisor_addr+1,8'h00);
+        end else put(divisor_addr,8'h00);
+        put(16'hfff0,8'h01); put(16'hfff1,8'h60);
+        put(16'h0160,8'h12);
+        watchdog=0; started=0; handler_seen=0; divisor_seen=0;
+        illegal_vector_reads=0;
+        ecycle=-1; handler_cycle=-1; stack_cycle=-1; vector_cycle=-1; divisor_cycle=-1;
+        while(!handler_seen && watchdog<1400) begin
+            @(posedge clk);
+            if(cen_E) begin
+                if(!started && op && addr==16'h0120) begin
+                    started=1;
+                    ecycle=0;
+                end else if(started) begin
+                    ecycle=ecycle+1;
+                    if(op && addr==16'h0160) begin
+                        handler_seen=1;
+                        handler_cycle=ecycle;
+                    end
+                end
+                if(started && rnw && avma &&
+                   addr==divisor_addr+(is_divq ? 1 : 0)) begin
+                    divisor_seen=1;
+                    divisor_cycle=ecycle;
+                end
+            end
+            if(started && cen_Q && !rnw && stack_cycle<0 &&
+               ((addr>=16'h2fe0 && addr<=16'h2fff) ||
+                (addr>=16'h3fe0 && addr<=16'h3fff)))
+                stack_cycle=ecycle;
+            if(started && cen_Q && rnw && avma && addr==16'hfff0 && vector_cycle<0)
+                vector_cycle=ecycle;
+            watchdog=watchdog+1;
+        end
+        case(form)
+            0: expected_handler=is_divq ? (mode[0] ? 27 : 26) : (mode[0] ? 26 : 25);
+            1: expected_handler=is_divq ? (mode[0] ? 28 : 27) : (mode[0] ? 27 : 26);
+            default: expected_handler=is_divq ? (mode[0] ? 28 : 26) : (mode[0] ? 27 : 25);
+        endcase
+        expected_stack=expected_handler-(mode[0] ? 18 : 16);
+        expected_vector=expected_handler-3;
+        assert_msg(handler_seen,$sformatf("%s zero form=%0d did not reach handler",opname,form));
+        assert_msg(divisor_seen,$sformatf("%s zero form=%0d missed final divisor read at %04x",opname,form,divisor_addr));
+        assert_msg(divisor_cycle<stack_cycle,
+            $sformatf("%s zero form=%0d last operand read E%0d must precede stack E%0d",
+                      opname,form,divisor_cycle,stack_cycle));
+        assert_msg(handler_cycle==expected_handler,
+            $sformatf("%s zero form=%0d mode=%0d handler=%0d E expected %0d",
+                      opname,form,mode[0],handler_cycle,expected_handler));
+        assert_msg(stack_cycle==expected_stack,
+            $sformatf("%s zero form=%0d mode=%0d first stack=%0d E expected %0d",
+                      opname,form,mode[0],stack_cycle,expected_stack));
+        assert_msg(vector_cycle==expected_vector,
+            $sformatf("%s zero form=%0d mode=%0d vector=%0d E expected %0d",
+                      opname,form,mode[0],vector_cycle,expected_vector));
+        assert_msg(stack_mem[(mode[0] ? 18 : 20)]== (is_divq ? 8'h8d : 8'h85),
+            $sformatf("%s zero form=%0d stacked CC=%02x expected %02x",
+                      opname,form,stack_mem[(mode[0] ? 18 : 20)],is_divq ? 8'h8d : 8'h85));
+        assert_msg({regs[7:0],regs[15:8]}==16'h1234,
+            $sformatf("%s zero form=%0d changed D=%04x",opname,form,{regs[7:0],regs[15:8]}));
+        if(is_divq) assert_msg({regs6309[7:0],regs6309[15:8]}==16'h5678,
+            $sformatf("DIVQ zero form=%0d changed W=%04x",form,{regs6309[7:0],regs6309[15:8]}));
     end
 endtask
 
@@ -1175,9 +1344,12 @@ task run_tfm_irq_restart;
     begin
         initial_e=0; initial_f=2;
         load_program(8'h00,8'h11,8'h38,8'h12); // TFM X+,Y+; W=2
-        // Insert X/Y setup in the unused prelude slots and return to TFM.
-        put(16'h010d,8'h8e); put(16'h010e,8'h00); put(16'h010f,8'h10);
-        put(16'h0110,8'h10); put(16'h0111,8'h8e); put(16'h0112,8'h00); put(16'h0113,8'h20);
+        // Set up X/Y, then seed Z immediately before TFM. LDX/LDY update Z.
+        put(16'h010d,8'h1c); put(16'h010e,8'haf); // ANDCC #$af unmasks IRQ/FIRQ.
+        put(16'h010f,8'h8e); put(16'h0110,8'h00); put(16'h0111,8'h10);
+        put(16'h0112,8'h10); put(16'h0113,8'h8e); put(16'h0114,8'h00); put(16'h0115,8'h20);
+        put(16'h0116,8'h1a); put(16'h0117,8'h04); // ORCC #$04 seeds Z.
+        put(16'h0118,8'h7e); put(16'h0119,8'h01); put(16'h011a,8'h20);
         put(16'h0150,8'h3b); // RTI
         direct_mem[8'h10]=8'ha5; direct_mem[8'h11]=8'hb6;
         direct_mem[8'h20]=8'h5a; direct_mem[8'h21]=8'h6b;
@@ -1205,6 +1377,8 @@ task run_tfm_irq_restart;
         assert_msg(tfm_source_reads==1 && tfm_dest_writes==0,
             $sformatf("TFM pre-interrupt reads/writes=%0d/%0d expected 1/0",
                       tfm_source_reads,tfm_dest_writes));
+        assert_msg(stack_mem[20][2]==1'b0,
+            $sformatf("interrupted TFM stacked CC.Z=%0d expected clear",stack_mem[20][2]));
         @(negedge clk); irq_n=1;
         watchdog=0; seen=0;
         while(!seen && watchdog<2000) begin
@@ -1218,6 +1392,7 @@ task run_tfm_irq_restart;
         assert_msg(tfm_source_reads==3 && tfm_dest_writes==2,
             $sformatf("TFM restart reads/writes=%0d/%0d expected 3/2",
                       tfm_source_reads,tfm_dest_writes));
+        assert_msg(regs[82],"TFM restart completion must set CC.Z");
     end
 endtask
 
@@ -1825,14 +2000,29 @@ initial begin
                16'h0041,16'h0061,1,8'haa,8'h00,"TFM X+/Y+ n=1 native");
     run_tfm_du(8'h01,16'h0002,16'h0040,8'h38,8'h03,2,"TFM D+/U+ n=2 native");
     run_tfm_su(16'h0002,2,"TFM S+/U+ n=2 native");
-    run_tfm_same(8'h38,16'h0040,16'h0042,16'h0001,1,8'haa,8'haa,"TFM X+/X+ same register");
+    run_divzero_trap(8'h00,1'b0); // DIVD #0 emulation
+    run_divzero_trap(8'h01,1'b0); // DIVD #0 native
+    run_divzero_trap(8'h00,1'b1); // DIVQ #0 emulation
+    run_divzero_trap(8'h01,1'b1); // DIVQ #0 native
+    run_divzero_memory_trap(8'h00,1'b0,0); // DIVD direct emulation
+    run_divzero_memory_trap(8'h01,1'b0,0); // DIVD direct native
+    run_divzero_memory_trap(8'h00,1'b0,1); // DIVD extended emulation
+    run_divzero_memory_trap(8'h01,1'b0,1); // DIVD extended native
+    run_divzero_memory_trap(8'h00,1'b0,2); // DIVD indexed emulation
+    run_divzero_memory_trap(8'h01,1'b0,2); // DIVD indexed native
+    run_divzero_memory_trap(8'h00,1'b1,0); // DIVQ direct emulation
+    run_divzero_memory_trap(8'h01,1'b1,0); // DIVQ direct native
+    run_divzero_memory_trap(8'h00,1'b1,1); // DIVQ extended emulation
+    run_divzero_memory_trap(8'h01,1'b1,1); // DIVQ extended native
+    run_divzero_memory_trap(8'h00,1'b1,2); // DIVQ indexed emulation
+    run_divzero_memory_trap(8'h01,1'b1,2); // DIVQ indexed native
+    run_tfm_same(8'h38,16'h0040,16'h0044,16'h0002,2,8'haa,8'haa,"TFM X+/X+ same register");
     run_tfm_same(8'h39,16'h0041,16'h003f,16'h0001,1,8'hbb,8'hbb,"TFM X-/X- same register");
     run_tfm_irq_restart();
     run_hd_illegal_opcode(8'h15);
     run_hd_illegal_opcode(8'h87);
     run_hd_illegal_opcode(8'hc7);
     run_invalid_tfm_selector();
-    run_divd_zero_trap();
 
     // Arithmetic instruction checks use Atkinson's page-149 timing rows and
     // signed boundary notes; register results are checked independently of

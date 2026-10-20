@@ -22,15 +22,32 @@ three register selectors, source/destination bit positions, and both memory
 bit values. TFM
 checks all four address update forms, W=0/1/2, X/Y/D/U/S selectors, cycles
 `6+3n`, pointer updates, W depletion, and transferred bytes. For same-register
-TFM pairs, the allowed write-address alternatives remain documented as
-unresolved: Atkinson specifies both updates after the transfer, while MAME's
-serial micro-ops use the updated address for the destination. The tracked [coverage manifest](coverage.md) maps each opcode, addressing
-form, and mode to the timing source and current validation status.
+`TFM X+,X+`, the test asserts that two transfers read `$40` and `$42`, write the
+source bytes at `$41` and `$43`, and advance X to `$44`. This follows the original-device
+bus capture in [Hoglet's 6809Decoder HD6309 behavior notes](https://github.com/hoglet67/6809Decoder/wiki/Undocumented-6309-Behaviours#tfm).
+The decrementing same-register case remains a functional check without a
+strict write-address oracle. Normal TFM completion sets CC.Z; interrupted
+transfers and invalid TFM selectors clear it before stacking. The tracked [coverage manifest](coverage.md) maps
+each opcode, addressing form, and mode to the timing source and current
+validation status.
 The exception checks use the production `GHOST` illegal-opcode policy and
 assert the HD illegal/divide-by-zero MD bits and actual `$FFF0/$FFF1` vector
 bus reads. They include a page-11 illegal opcode, an invalid TFM selector, and
-DIVD by zero. A TFM interrupt restart check verifies that the interrupted
-transfer resumes after RTI without an early destination write.
+DIVD/DIVQ divide-by-zero. Immediate and memory forms assert the saved CC,
+preserved dividend, MD.DZ, and original-device stack/vector/handler phases.
+A TFM interrupt restart check verifies that the interrupted transfer resumes
+after RTI without an early destination write and sets Z on completion.
+Immediate DIVD/DIVQ divide-by-zero checks now cover both MD modes. They assert
+the 6809Decoder schedule from opcode fetch: handler at 23/24 E in emulation
+and 25/26 E in native, first stack write at 7/8 E, and reserved-vector high
+read at 20/21 E in emulation or 22/23 E in native. The schedule comes from
+the original-device bus samples modeled by
+[6809Decoder's `interrupt_helper`](https://github.com/hoglet67/6809Decoder/blob/master/src/em_6809.c).
+Memory DIVD/DIVQ zero traps are checked for direct, extended, and indexed `,X`
+forms in both modes, including the final divisor-byte read. Their handler
+totals are DIVD 25/26, 26/27, and 25/27 E (emulation/native) for direct,
+extended, and indexed forms; DIVQ totals are 26/27, 27/28, and 26/28 E.
+Saved CC is `$85` for DIVD and `$8D` for DIVQ, with D/W preserved.
 MULD, DIVD and DIVQ have integrated CPU checks for immediate and direct,
 indexed and extended addressing in both MD modes, with published cycle counts,
 signed results, and hard-overflow destination preservation. MULD also checks

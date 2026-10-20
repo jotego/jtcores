@@ -246,6 +246,7 @@ localparam INTTYPE_SWI      = 3'H3 ;
 localparam INTTYPE_SWI2     = 3'H4 ;
 localparam INTTYPE_SWI3     = 3'H5 ;
 localparam INTTYPE_HD_ILLEGAL = 3'H6;
+localparam INTTYPE_HD_DIVZERO = 3'H7;
 
 reg [2:0] IntType;
 reg [2:0] IntType_nxt;
@@ -418,6 +419,9 @@ localparam CPUSTATE_6309_IMM_WRITE      =   8'd162;
 localparam CPUSTATE_6309_WOFF_LO        =   8'd163;
 localparam CPUSTATE_6309_CWAI_PAD5      =   8'd164;
 localparam CPUSTATE_6309_CWAI_PAD6      =   8'd165;
+localparam CPUSTATE_6309_DIVZERO_PAD1   =   8'd166;
+localparam CPUSTATE_6309_DIVZERO_PAD2   =   8'd167;
+localparam CPUSTATE_6309_DIVZERO_START  =   8'd168;
 
 localparam CPUSTATE_HALTED              =  8'd100;
 
@@ -2813,6 +2817,7 @@ begin
                     begin
                         if ((D[7:4] > 4'h4) || (D[3:0] > 4'h4)) begin
                             md_nxt[6] = 1'b1;
+                            cc_nxt[CC_Z_BIT] = 1'b0;
                             CpuState_nxt = CPUSTATE_6309_TRAP_START;
                             rLIC = 1'b1;
                         end else begin
@@ -5094,6 +5099,37 @@ begin
         CpuState_nxt = CPUSTATE_PSH_ACTION;
     end
 
+    CPUSTATE_6309_DIVZERO_PAD1:
+    begin
+        // First post-sample idle E cycle for divide-zero paths whose measured
+        // schedule needs two; native direct/extended paths enter at PAD2.
+        addr_nxt = pc;
+        rAVMA = 1'b0;
+        CpuState_nxt = CPUSTATE_6309_DIVZERO_PAD2;
+    end
+
+    CPUSTATE_6309_DIVZERO_PAD2:
+    begin
+        // Second post-sample idle E cycle before the full-frame stack write.
+        addr_nxt = pc;
+        rAVMA = 1'b0;
+        CpuState_nxt = CPUSTATE_6309_DIVZERO_START;
+    end
+
+    CPUSTATE_6309_DIVZERO_START:
+    begin
+        // Divide-by-zero shares the reserved vector but has one fewer
+        // post-vector dead cycle than the generic illegal-opcode trap.
+        addr_nxt = pc;
+        tmp_nxt = 16'h00ff;
+        if (md[0]) tmp_nxt[11] = 1'b1;
+        cc_nxt[CC_E_BIT] = 1'b1;
+        IntType_nxt = INTTYPE_HD_DIVZERO;
+        NextState_nxt = CPUSTATE_IRQ_DONTCARE2;
+        rAVMA = 1'b1;
+        CpuState_nxt = CPUSTATE_PSH_ACTION;
+    end
+
     CPUSTATE_SWI_START:
     begin
         addr_nxt = pc;
@@ -5164,6 +5200,10 @@ begin
             begin
                 addr_nxt = `Reserved_VECTOR;
             end
+            INTTYPE_HD_DIVZERO:
+            begin
+                addr_nxt = `Reserved_VECTOR;
+            end
             default: // make the default an IRQ, even though it really should never happen
             begin
                 addr_nxt = `IRQ_VECTOR;
@@ -5227,6 +5267,13 @@ begin
                 cc_nxt[CC_F_BIT] = 1'b1;
                 rLIC = 1'b1;
             end
+            INTTYPE_HD_DIVZERO:
+            begin
+                addr_nxt = `Reserved_VECTOR+16'H1;
+                cc_nxt[CC_I_BIT] = 1'b1;
+                cc_nxt[CC_F_BIT] = 1'b1;
+                rLIC = 1'b1;
+            end
             default:
             begin
             end
@@ -5235,7 +5282,8 @@ begin
         pc_nxt[7:0] = D[7:0];
         rAVMA = 1'b1;
         rLIC = 1'b1;
-        CpuState_nxt = CPUSTATE_INT_DONTCARE;
+        CpuState_nxt = (IntType == INTTYPE_HD_DIVZERO) ?
+                       CPUSTATE_FETCH_I1 : CPUSTATE_INT_DONTCARE;
     end
 
     CPUSTATE_INT_DONTCARE:
@@ -5365,14 +5413,18 @@ begin
             ((IRQLatched == 1'b0) && !cc[CC_I_BIT])) begin
             // TFM may be interrupted after the source read but before the
             // destination write or address-register updates. Re-fetch it on RTI.
+            cc_nxt[CC_Z_BIT] = 1'b0;
             pc_nxt = pc - 16'd3;
             addr_nxt = pc - 16'd3;
             rAVMA = 1'b1;
             CpuState_nxt = CPUSTATE_FETCH_I1;
         end else begin
-            // Atkinson describes both pointer updates after the byte transfer;
-            // this leaves same-register aliases writing the original address.
-            addr_nxt = HDTFMDest;
+            // The original-device X+/X+ capture writes at incremented X after
+            // the source read. Other TFM forms use the normal destination EA.
+            if ((Inst1 == 8'h38) && (tmp[7:4] == 4'h1) && (tmp[3:0] == 4'h1))
+                addr_nxt = x + 16'd1;
+            else
+                addr_nxt = HDTFMDest;
             DOutput = tmp[15:8];
             RnWOut = 1'b0;
             rAVMA = 1'b1;
@@ -5461,6 +5513,7 @@ begin
         addr_nxt = pc;
         rAVMA = 1'b1;
         rLIC = 1'b1;
+        cc_nxt[CC_Z_BIT] = 1'b1;
         CpuState_nxt = CPUSTATE_FETCH_I1;
     end
 
@@ -5501,7 +5554,15 @@ begin
         rAVMA = 1'b0;
         if (HDArithComplete && (IsHD6309DivD || IsHD6309DivQ) && HDArithDivideByZero) begin
             md_nxt[7] = 1'b1;
-            CpuState_nxt = CPUSTATE_6309_TRAP_START;
+            // The original-device stack/vector schedule uses mode- and
+            // addressing-dependent idle E cycles after the final divisor
+            // sample; select the measured pad count below.
+            cc_nxt[CC_N_BIT] = IsHD6309DivQ;
+            cc_nxt[CC_Z_BIT] = 1'b1;
+            cc_nxt[CC_V_BIT] = 1'b0;
+            CpuState_nxt = (md[0] && (Inst1[7:4] != 4'h8) &&
+                            (Inst1[7:4] != 4'ha)) ?
+                           CPUSTATE_6309_DIVZERO_PAD2 : CPUSTATE_6309_DIVZERO_PAD1;
             rAVMA = 1'b1;
         end else if (!HDArithComplete) begin
             CpuState_nxt = CPUSTATE_6309_ARITH_WAIT;
