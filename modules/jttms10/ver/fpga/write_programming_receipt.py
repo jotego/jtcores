@@ -487,6 +487,12 @@ def main():
                map_result.get('flow_exit_code') != 0 or not map_result.get('terminal_marker') or \
                not map_log.is_file() or map_result.get('flow_log_sha256') != sha256(map_log):
                 raise SystemExit('incremental map certificate does not certify frozen inputs')
+        if build_result.get('partition_stage_sha256') is not None:
+            try:
+                from partition_build import validate_partition_result
+                validate_partition_result(build, build_result)
+            except (ImportError, ValueError, KeyError, OSError) as error:
+                raise SystemExit(f'explicit CPU partition certificate is invalid: {error}') from error
         if build_result.get('compile_inputs_sha256') != sha256(compile_inputs_path):
             raise SystemExit('successful flow certificate does not match compile-time inputs')
         for path, expected in compile_inputs.get('files', {}).items():
@@ -522,6 +528,12 @@ def main():
            not compile_log.is_file() or build_result.get('flow_log_sha256') != sha256(compile_log) or \
            not build_result.get('terminal_marker'):
             raise SystemExit('v2 build result does not certify successful flow for this RBF/input manifest')
+        if build_result.get('partition_stage_sha256') is not None:
+            try:
+                from partition_build import validate_partition_result
+                validate_partition_result(build, build_result)
+            except (ImportError, ValueError, KeyError, OSError) as error:
+                raise SystemExit(f'explicit CPU partition certificate is invalid: {error}') from error
         for path, expected in inputs_manifest.get('files', {}).items():
             p = Path(path)
             if p.name.endswith('.sopcinfo'):

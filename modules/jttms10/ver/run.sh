@@ -25,7 +25,7 @@ main() {
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
     for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_nmi_nostack_contract test_nmi_nostack_io_contract test_graphics_irq_contract test_transport_payload test_transport_stream \
-                 test_transport_schema test_programming_receipt test_incremental_build; do
+                 test_transport_schema test_programming_receipt test_incremental_build test_partition_build; do
         python3 -B "$ver_dir/fpga/$suite.py"
     done
     run_checker binary-irq-mutations "$ver_dir/array/check_timed_interrupt.py"
