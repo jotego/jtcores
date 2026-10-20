@@ -28,7 +28,7 @@
         .word_rdata(word_rdata),.word_ack(word_ack),
         .word_restart(word_restart),.word_wait(word_wait),
         .pixel_srt(1'b0),.cache_flush(1'b0),
-        .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault)
+        .pc(pc),.st(st),.ir(ir),.retire(retire),.fault(fault),.halted()
     );
 
     jttms10_bus #(.TIMING(1)) u_bus (

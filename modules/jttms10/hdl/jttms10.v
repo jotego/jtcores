@@ -61,7 +61,7 @@ module jttms10 #(
     reg binary_aligned, binary_last_row;
     wire [15:0] binary_mask;
     wire gfx_product,gfx_product_y,gfx_packed_xy,gfx_alu_capture;
-    reg fill_word, copy_row_short, fill_long_b;
+    reg fill_word, copy_row_short, fill_long_b, fill_last_row, fill_row_drain;
     reg [4:0] fill_edge_bits;
     reg copy_read_pending;
     wire gfx_flag_z,gfx_flag_nz,gfx_flag_nvzc,gfx_flag_vclip,
@@ -488,12 +488,12 @@ module jttms10 #(
     // The completed graphics state hands off four clocks before the next
     // state boundary, matching the existing cached fetch/dispatch overlap.
     wire fill_bus_wait=TIMED_PROGRAM!=0 && array_fill && (fill_word || fill_edge) && gfx_bus_write &&
-        (!store_started || (fill_long_b && fill_edge)) && (load_issue_left!=0 || mem_phase!=0);
+        (!store_started || (fill_long_b && fill_last_row && fill_edge)) && (load_issue_left!=0 || mem_phase!=0);
     wire operation_ready=fill_bus_wait ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
                          gfx_bus_collect ? (mem_ack || !mem_busy) :
                          line_native && gfx_bus_skip ? time_left==0 :
                          gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
-                         !mem_busy && (!(line_native || (copy_native && gfx_end_pending)) || time_left<=FETCH_OVERLAP) &&
+                         (!mem_busy || (array_fill && !fill_row_drain && gfx_pix_process)) && (!(line_native || (copy_native && gfx_end_pending)) || time_left<=FETCH_OVERLAP) &&
                          (!(gfx_end_pending || line_native) || (line_native && !store_started) || mem_phase==GFX_END_PHASE[$clog2(CLKS_PER_STATE)-1:0]) : multiadvance && multi_steps==1 ? completed : (copy_packet || byte_finish) && imm ? (completed || (mem_ack && (copy_packet || TIMED_PROGRAM!=0 || mem_cached))) : (fetch || imm) ? (completed && fetch_wait==0) ||
                          (fetch && mem_fast && mem_ack) :
                          !bus_op || completed || mem_ack || gfx_skip_write;
@@ -862,13 +862,14 @@ module jttms10 #(
             load_pending<=0; reti_second<=0; load_started<=0; load_address_ready<=0; load_issue_left<=0;
             copy_read_pending<=0;
             binary_last_row<=0;
+            fill_last_row<=0;
             time_left<=0;
             fetch_wait<=0;
         end else begin
             if(cen) begin
                 if(timing_active && time_left!=0) time_left<=time_left-16'd1;
                 if(fetch_wait!=0) fetch_wait<=fetch_wait-16'd1;
-                if(load_issue_left!=0 && !(gfx_active && array_fill && fill_long_b && fill_edge && store_started && mem_busy))
+                if(load_issue_left!=0 && !(gfx_active && array_fill && fill_long_b && fill_last_row && fill_edge && store_started && mem_busy))
                     load_issue_left<=load_issue_left-1'b1;
             end
             // ACK capture is independent of CEN, like the response data.
@@ -961,9 +962,11 @@ module jttms10 #(
             // Table13-6 long-B tail processing follows the preceding full
             // word drain. Its response latch occupies four clocks of this
             // interval. External waits must not consume the processing work.
-            if(TIMED_PROGRAM!=0 && array_fill && store_started && fill_long_b &&
+            if(TIMED_PROGRAM!=0 && array_fill && store_started && fill_long_b && fill_last_row &&
                step && gfx_pix_word && fill_edge_eligible)
                 load_issue_left<=FILL_TAIL;
+            if(step && gfx_active && array_fill && gfx_dst_rf && gfx_rf_wa==6'd46)
+                fill_last_row<=result==32'd1;
             if(array_fill && gfx_active && (fill_word || fill_edge) && gfx_bus_write && mem_req && mem_ack)
                 store_started<=1;
             if(line_native && ((gfx_bus_post && mem_req && mem_ack) || (gfx_bus_skip && step))) begin
@@ -1062,7 +1065,7 @@ module jttms10 #(
             push_high<=0;
             hw_entry<=0;
             pix_src_addr<=0;
-            fill_word<=0; fill_edge_bits<=0; fill_long_b<=0;
+            fill_word<=0; fill_edge_bits<=0; fill_long_b<=0; fill_row_drain<=0;
             copy_row_short<=0;
             binary_aligned<=0;
             pix_transparent<=0;
@@ -1348,6 +1351,8 @@ module jttms10 #(
                     if(gfx_bus_resume) fill_word<=1;
                     if(gfx_pix_binary) md<={16'd0,(a[15:0] & ~binary_mask) | (b[15:0] & binary_mask)};
                     if(gfx_pix_word) begin
+                        if(array_fill) ea<=result;
+                        if(array_fill) fill_row_drain<=fill_tail_bits==fill_word_bits[3:0];
                         if(array_fill && !store_started)
                             fill_long_b<=pixel_simple && (!ir[5] || control[7:6]==0) &&
                                 result[3:0]==0 && rd_data>={fill_pixels[30:0],1'b0} && fill_tail_bits!=0;

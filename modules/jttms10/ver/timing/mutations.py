@@ -237,10 +237,20 @@ def fill_mutations(work,evidence):
          "TWOWORD_GCOND: condition=word_fill && rf_qd=={fill_pixels[30:0],1'b0};",
          "TWOWORD_GCOND: condition=rf_qd=={fill_pixels[30:0],1'b0};",()),
         ('omitted_fill_row_drain','fill_l_ps1_n1_rows4_hit','jttms10.v',
-         '!mem_busy && (!(line_native ||', '(!gfx_end_pending || !mem_busy) && (!(line_native ||',()),
+         '(!mem_busy || (array_fill && !fill_row_drain && gfx_pix_process)) && (!(line_native ||',
+         '(!gfx_end_pending || !mem_busy) && (!(line_native ||',()),
         ('absorbed_fill_row_wait','fill_l_ps1_n3_rows4_hit','jttms10.v',
-         '!mem_busy && (!(line_native ||', '(!gfx_end_pending || !mem_busy) && (!(line_native ||',
+         '(!mem_busy || (array_fill && !fill_row_drain && gfx_pix_process)) && (!(line_native ||',
+         '(!gfx_end_pending || !mem_busy) && (!(line_native ||',
          ('--wait-states','1','--pause-clocks','7')),
+        ('absorbed_partial_fill_row_wait','fill_partial_l_ps4_n3_C_rows2_hit','jttms10.v',
+         '!fill_row_drain && gfx_pix_process', 'gfx_pix_process',
+         ('--wait-states','1','--pause-clocks','7')),
+        ('drained_partial_fill_row_overlap','fill_partial_l_ps4_n3_D_rows2_hit','jttms10.v',
+         'array_fill && !fill_row_drain && gfx_pix_process',
+         "1'b0 && !fill_row_drain && gfx_pix_process",()),
+        ('repeated_fill_long_b_tail','fill_partial_l_ps4_n3_B_rows2_hit','jttms10.v',
+         "fill_last_row<=result==32'd1;", "fill_last_row<=1'b1;",()),
         ('ignored_fill_xy_dispatch','fill_xy_ps1_n1_rows1_hit','jttms10_ctrl.v',
          "entry_family==8'd141 && pixel_xy_simple ? FILL_XY_FAST_SEQA : entry;",
          "1'b0 ? FILL_XY_FAST_SEQA : entry;",()),
@@ -266,7 +276,10 @@ def fill_mutations(work,evidence):
         ('partial_fill_stale_ack','fill_partial_l_ps1_n3_B_hit',
          "operation_ready=fill_bus_wait ? 1'b0 : copy_scheduled ?",
          'operation_ready=copy_scheduled ?',
-         'FILL expected 4 BUS transfers')):
+         'FILL expected 4 BUS transfers'),
+        ('partial_fill_stale_row_lane','fill_partial_l_ps4_n3_C_rows2_hit',
+         'if(array_fill) ea<=result;', "if(1'b0) ea<=result;",
+         'graphics destination or neighboring memory mismatch')):
         extra=('--exact-case',probe)
         evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
         mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)

@@ -552,6 +552,45 @@ python3 modules/jttms10/ver/timing/run.py --simulator verilator \
     --exact-case fill_partial_l_ps4_n3_B_rows2_hit
 ```
 
+The source6dae / RBF383bf physical baseline now covers all 280 new cases
+in BASE, W1/P7 and W3. Each profile returns 32 passing partial cases and
+248 duration-only failures; four surrounding NOP controls pass. All 852
+raw verdicts replay exactly, including checked architectural state, memory
+and ordered bus traffic. Seven failing representatives per profile match
+the original Verilator diagnostic observations without clearing their
+errors. Enclosing host commands take 4.490/5.844/5.080 seconds. These are
+failing-baseline measurements, not a multirow compliance claim.
+
+The row-handoff development schedule combines the row decrement with
+loading the next row base, captures EA with the existing WORD action,
+and reloads the appropriately shifted COLOR1 before the next write.
+B/D rows overlap that preparation with the preceding posted field;
+A/C rows retain their drain so external waits cannot disappear inside
+row processing. Two scalar flags record the row end alignment and final
+row, using the existing synchronous RF write to S46 rather than another
+RAM read. The long-B extra tail reservation applies only to the final
+row. No field-adapter state, memory port, DSP or wide arithmetic unit is
+added, and the independent equations and fixtures are unchanged.
+
+Thirty-two directed cases pass each of BASE, W1/P7, W3 and W1/P1 in
+Verilator (128 executions), including all four partial-edge pixel sizes,
+L/XY, hit/CD, two/four-row boundaries, aligned controls and the prior
+PS8 three-word qualification. This is bounded development evidence;
+the complete 2,660-case FILL matrix and ordinary regressions on a matching
+new FPGA image remain required.
+
+The local gate also passes all 263 timing model/checker tests, strict lint,
+160 array, 124 boundary and 56 changing-pitch/overlapping-row architectural
+programs, and the existing ten linear/XY FILL pixel-size IRQ/NMI modes.
+Repeating the 56 row programs through the timed word wrapper with and
+without HOLD passes 112 executions. The architectural wrapper explicitly
+leaves its unused `halted` output open, avoiding a fatal Verilator missing-pin
+warning. Fifteen mutation controls pass; twelve timing mutants retain
+correct architectural state/memory and fail, and three functional/protocol
+mutants fail their specific checks. New mutations remove the C-row wait
+drain, serialize the D-row handoff, repeat the long-B tail per row, or omit
+the row's lane-address capture.
+
 Use the FPGA batch backend for the expanded matrices after the matching
 image and host checking path have been validated.
 
@@ -589,6 +628,27 @@ Six directed linear/XY hit/CD and aligned controls pass each BASE, W1/P7,
 W3 and W1/P1 (24 short Verilator executions), with strict lint passing.
 The permanent FILL mutation group restores the unqualified predicate to
 require timing-only rejection of this bug; omitting the real aligned
-two-word state must still be rejected. A new source-bound FPGA build and
-complete FILL runs remain required. Multirow partial and broader conditions
-remain separate timing gaps.
+two-word state must still be rejected.
+
+Source27eda832's physical RBF is
+`c05a249871c2479a1a96e104fd594764cfd160e1c3f1ceae209766a85f4c9649`.
+Its six focused cases pass in each BASE/W1-P7/W3 and match Verilator.
+All 2,380 aligned/one-row partial cases pass per profile (7,140 executions),
+every raw verdict field independently replayed. The 2,240 aligned cases per
+profile also match their original profile-specific Verilator observations.
+The separate 280 multirow cases are explicitly excluded from this passing
+scope and retain the physical baseline above. Complete ordinary/inventory
+regressions and the row-handoff candidate's physical validation remain open.
+
+This `/opt/quartus_free` build takes 904.06 seconds in Quartus and
+908.711 seconds enclosing the command. Top infrastructure placement and
+internal routing preservation are both 100%, with CPU rebuilt from SOURCE
+and no partition fallback. All 88 final STA rows have positive slack; the
+21 RAM geometries/modes/counts and 32 DDR margin rows are preserved.
+The entire 25MHz appliance uses 11,782 ALMs, 8,062 registers, 373 M10Ks and
+six DSPs; this is separate from the CPU-only 20ns/3,500-ALM acceptance gate.
+Loader time is 0.328929 seconds; enclosing programming SSH takes 1.400381
+seconds. The scoped FILL commands take 9.500/9.080/9.351 seconds per profile.
+Concurrent host work prevents a controlled compile-speedup claim. Rapid
+Recompile previously hit a Quartus CDB error; this successful command uses
+the regular compile flow with fitted partition reuse.

@@ -1782,12 +1782,11 @@ ucode:
   start: 192
   seq:
   - qs_gbs, k_gas, m1_gam, sa5, da0 da1 da4
-  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLDONE}, qd_gbs, sa5, da1 da2 da3 da5
-  - qs_gas, sa2 sa3 sa5, da5
+  - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLDONE}, qs_gas, qd_gbs, sa2 sa3 sa5, da1 da2 da3 da5
   - add_galu, rf_gdst, qs_gas, sa5, da5
   - rf_gdst, qs_gas, sa5, da0 da2 da3 da5
-  - rf_gdst, word_gpix, k_gbs, m2_gbm, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da5
-  - ea_gdst, k_gbs, m2_gbm, sync_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
+  - rf_gdst, word_gpix, k_gbs, m2_gbm, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa3 sa4, da0 da5
+  - ea_gdst, process_gpix, k_gbs, m2_gbm, sync_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
   - jump_gflow, ${TARGET_GFILLLOOP}
 # Row preparation already holds the pointer in A and word increment in B.
 - name: gfillwordemit

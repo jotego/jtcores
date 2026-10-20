@@ -229,7 +229,7 @@ module jttms10_gfx(
             UNALIGNED_GCOND: condition=|{rf_qs[3:0],rf_qd[3:0]};
             // A new partial row must reload the lane-shifted COLOR1 pattern.
             // The row drain may reuse MD only for a complete physical word.
-            WORD_GCOND: condition=word_fill || (fill_edge_bits!=0 && gbus!=SYNC_GBUS);
+            WORD_GCOND: condition=word_fill || fill_edge_bits!=0;
             SHORTWORD_GCOND: condition=!word_fill || (!word_copy && need_dest) || control[5] ||
                                        rf_qs[3:0]!=0 || rf_qd<fill_pixels;
             // The extra A/G2 processing state counts complete physical words.

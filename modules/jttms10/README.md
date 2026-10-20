@@ -34,18 +34,25 @@ adds 140 one-row B/C/D edge probes. Ten CPU77 Verilator representatives fail
 timing while preserving checked architecture and memory. The full subset also fails all140 duration targets in each BASE/W1P7/W3
 FPGA profile, while both NOP controls pass and30 diagnostic observations
 match Verilator. The earlier aligned FILL passing scope remains distinct.
-A native partial-word development path passes 26 focused timing programs
+A native partial-word path passes 26 focused timing programs
 in three profiles and the existing array/boundary/row architectural checks.
-Its full partial/aligned FPGA matrices remain pending; see the
+The qualified PS8 image passes all 2,380 aligned/one-row partial FILL cases
+in each of three FPGA profiles; see the
 [development scope](docs/fill-timing.md#native-partial-word-development-path).
 The full BASE FPGA FILL run exposes two PS8 three-word partial-edge duration
-failures among 2,380 cases. A full-word qualification fixes the directed local
-checks; its new FPGA validation remains required. See the
+failures among 2,380 cases. A full-word qualification fixes these failures
+in Verilator and on the FPGA. See the
 [PS8 qualification](docs/fill-timing.md#ps8-three-word-edge-qualification).
 Another 280 partial-word probes cover two/four rows at constant alignment.
 Directed probes expose remaining duration failures with checked architecture,
 memory and bus traffic correct; see the
 [multirow baseline](docs/fill-timing.md#multirow-partial-word-timing-baseline).
+All 280 new multirow probes now have a physical failing baseline in three
+profiles: 32 pass and 248 fail duration per profile, with checked state,
+memory and bus traffic correct. A row-handoff development schedule passes
+128 directed Verilator executions, 112 timed row/HOLD checks and the
+existing architecture/resumption suites; its complete FPGA validation
+remains required.
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
