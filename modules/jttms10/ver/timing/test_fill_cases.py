@@ -9,8 +9,8 @@ from run import check, program
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 2960)
-        self.assertEqual(len({r['name'] for r in cases}), 2960)
+        self.assertEqual(len(cases), 4460)
+        self.assertEqual(len({r['name'] for r in cases}), 4460)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
@@ -189,7 +189,7 @@ class FillCasesTest(unittest.TestCase):
 
     def test_boolean_literal_states_and_inventory(self):
         rows=[r for r in fill_cases() if r['name'].startswith('fill_boolean_')]
-        self.assertEqual(len(rows),300)
+        self.assertEqual(len(rows),1800)
         for size in (1,2,4,8,16):
             for ppop in range(1,16):
                 for xy,off in ((False,False),(False,True),(True,False),(True,True)):
@@ -218,6 +218,28 @@ class FillCasesTest(unittest.TestCase):
                 self.assertEqual(after[0x60F0],before[0x60F0])
                 self.assertEqual(after[0x6110],before[0x6110])
                 self.assertEqual(transfers(case),[(0,0x6100,0xA497,0),(1,0x6100,want,0)])
+
+    def test_boolean_multiword_row_boundaries(self):
+        # Literal Table13-6 A coefficients: N1=5, N2=10, N3=13;
+        # each has a two-state final tail, plus linear setup4 / XY6.
+        for words,rows,states in ((2,1,16),(3,1,19),(1,2,16),(2,2,26),(3,3,45)):
+            for size in (1,2,4,8,16):
+                for xy in (False,True):
+                    case=boolean_fixture(size,10,xy,False,words=words,rows=rows)
+                    self.assertEqual(case['states'],states+2*xy)
+                    self.assertEqual(case['expected_extra_regs']['b2'],0x6100+(rows-1)*0x100+words*16)
+                    before,after=map(dict,(case['initial_memory'],case['expected_memory']))
+                    plan=transfers(case)
+                    self.assertEqual(len(plan),2*words*rows)
+                    for row in range(rows):
+                        for word in range(words):
+                            address=0x6100+row*0x100+word*16
+                            # PPOP10 XOR; independent literal whole-word result.
+                            self.assertEqual(after[address],before[address]^0xAA55)
+                            q=2*(row*words+word)
+                            self.assertEqual(plan[q:q+2],[(0,address,before[address],0),(1,address,after[address],0)])
+                        for address in (0x60F0+row*0x100,0x6100+row*0x100+words*16):
+                            self.assertEqual(after[address],before[address])
 
     def test_boolean_word_bus_and_timing_rejections(self):
         case=boolean_fixture(4,10,False,False)

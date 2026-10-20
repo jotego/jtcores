@@ -126,8 +126,8 @@ def partial_fixture(size, words, alignment, xy, off, *, rows=1):
     return case
 
 
-def boolean_fixture(size, ppop, xy, off):
-    """One full destination word, Table7-1 and Table13-6 A/N1/G4.
+def boolean_fixture(size, ppop, xy, off, *, words=1, rows=1):
+    """Complete destination words, Table7-1 and Table13-6 A/G4.
 
     Section13.3.2.3 requires one word RMW, irrespective of pixel size;
     13.3.2.5 assigns G4 to each non-replace Boolean. No measured RTL
@@ -135,18 +135,21 @@ def boolean_fixture(size, ppop, xy, off):
     """
     if ppop not in range(1,16):
         raise ValueError('non-replace Boolean PPOP required')
-    case=fixture(size,1,1,xy,off)
-    case['name']=f'fill_boolean_pp{ppop}_{"xy" if xy else "l"}_ps{size}_n1_rows1_{"off" if off else "hit"}'
+    case=fixture(size,words,rows,xy,off)
+    case['name']=f'fill_boolean_pp{ppop}_{"xy" if xy else "l"}_ps{size}_n{words}_rows{rows}_{"off" if off else "hit"}'
     case['control']=ppop<<10
     case['conditions']['ppop']=ppop
     case['data_fill'].update(processing=True,ppop=ppop)
-    timing=fill_timing(pixel_size=size,width=case['conditions']['width'],rows=1,
+    timing=fill_timing(pixel_size=size,width=case['conditions']['width'],rows=rows,
         address=case['data_fill']['address'],pitch=case['data_fill']['pitch'],
         xy=xy,ppop=ppop,cache_disabled=off)
     case.update(states=timing['states'],fill_timing=timing)
     before=dict(case['initial_memory'])
     address=case['data_fill']['address']
-    before[address]=boolean(ppop,case['data_fill']['color'],before[address],16)
+    for row in range(rows):
+        for word in range(words):
+            dest=address+row*case['data_fill']['pitch']+16*word
+            before[dest]=boolean(ppop,case['data_fill']['color'],before[dest],16)
     case['expected_memory']=sorted(before.items())
     case['citation']='SPVU001A7-15 Table7-1;12-80..86;13-10..14 Tables13-5/6/7'
     return case
@@ -157,8 +160,12 @@ def transfers(case):
     if spec.get('processing'):
         # One physical-word read and write, not repeated pixel RMWs.
         before,after=map(dict,(case['initial_memory'],case['expected_memory']))
-        address=spec['address']
-        return [(0,address,before[address],0),(1,address,after[address],0)]
+        plan=[]
+        for row in range(spec['rows']):
+            for word in range(spec['words']):
+                address=spec['address']+row*spec['pitch']+16*word
+                plan.extend([(0,address,before[address],0),(1,address,after[address],0)])
+        return plan
     if spec.get('partial'):
         before,after=map(dict,(case['initial_memory'],case['expected_memory']))
         plan=[]
@@ -295,3 +302,9 @@ def fill_cases():
     # 2,660 fixture/program contracts unchanged, including their order.
     for ppop,size,xy,off in product(range(1,16),(1,2,4,8,16),(False,True),(False,True)):
         yield boolean_fixture(size,ppop,xy,off)
+
+    # Preserve the original 2,960 contracts and append the Table13-6 N2,
+    # N>=3 and repeated-row boundaries for every Boolean operation/size.
+    for (words,rows),ppop,size,xy,off in product(((2,1),(3,1),(1,2),(2,2),(3,3)),
+            range(1,16),(1,2,4,8,16),(False,True),(False,True)):
+        yield boolean_fixture(size,ppop,xy,off,words=words,rows=rows)

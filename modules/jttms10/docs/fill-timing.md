@@ -746,3 +746,41 @@ executions, ten L/XY/PSIZE IRQ/NMI modes, 266 model tests and strict lint pass. 
 FILL and ordinary matrices must run on the FPGA after this correction is
 compiled, source-bound and programmed. Boolean processing, masks, windowing,
 changing-alignment timing and full #144 acceptance remain unqualified.
+
+
+## Boolean word and row boundaries
+
+The Boolean family now appends 1,500 independent probes for N2/row1,
+N3/row1, N1/row2, N2/row2 and N3/row3. Each geometry covers PPOP1..15,
+PSIZE1/2/4/8/16, L/XY and cached/CD. All preceding 2,960 FILL fixture and
+program contracts remain unchanged. The total FILL inventory is 4,460,
+including 1,800 Boolean cases; this adds requirements rather than compliance.
+
+Table13-6 alignment A supplies row coefficients 5 for N1, 10 for N2 and
+13 for N3 when Table13-7 gives G4. With the final two-state tail and linear
+setup4, the five new geometries require 16, 19, 16, 26 and 45 states.
+XY adds two states and CD adds three. Every destination word must have one
+ordered read/write pair, irrespective of pixel size. The memory oracle
+applies Table7-1 independently to each original word and preserves both
+neighboring canaries on every row. No first-read phase is inferred from RTL.
+
+The source175 replacement image passes all 2,660 replacement FILL fixtures
+in BASE/W1P7/W3 (7,980 executions), and all 120 focused observations match
+profile-specific Verilator references. All raw verdict fields independently
+replay, including architectural state, memory, duration and checked bus events.
+Full inventory validation remains pending. The Boolean fixtures are separate
+failing requirements: the loaded source175 has no native Boolean word schedule.
+
+A short boundary reproducer uses the ordinary Verilator runner:
+
+```sh
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case fill_boolean_pp10_l_ps4_n2_rows1_hit
+```
+
+Use the existing `--case fill_boolean_` FPGA preparation command for the
+complete 1,800-case Boolean family. Programs, expectations and supported
+stimulus settings require no FPGA recompile. Arithmetic operations, partial
+Boolean words, masks, transparency, window rules, changing alignment and
+exact graphics interrupt timing remain outside this bounded family and
+remain requirements of #144.

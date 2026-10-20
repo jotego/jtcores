@@ -54,10 +54,12 @@ memory and bus traffic correct. A row-handoff development schedule passes
 existing architecture/resumption suites; its complete FPGA validation
 remains required. Its full FPGA matrix now retains 64 duration failures per
 profile (2,596/2,660 pass), confined to short-C and two-word-B row handoffs.
-A row-cadence development correction passes 160 directed Verilator executions;
-its full physical validation remains required.
-Another 300 independent probes cover full-word Boolean FILL PPOP1..15 at
-all five pixel sizes, L/XY and hit/CD. Directed Verilator probes retain
+A row-cadence correction passes 160 directed Verilator executions and all
+2,660 replacement FILL fixtures in each of three FPGA profiles, with every
+raw verdict independently replayed and 120 focused Verilator matches.
+Another 1,800 independent probes cover full-word Boolean FILL PPOP1..15 at
+all five pixel sizes, L/XY and hit/CD, including N2/N3 and repeated rows.
+The original 300 single-word contracts are unchanged. Directed Verilator probes retain
 correct architecture/memory but fail timing and, for smaller pixels,
 word-transaction counts. FPGA validation confirms all 300 timing failures per profile with correct
 checked architecture/memory and 18 matching diagnostic observations; see
