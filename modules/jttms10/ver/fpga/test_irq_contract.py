@@ -170,6 +170,49 @@ class InterruptContract(unittest.TestCase):
         entry, observed, lines = self.sample()
         self.assertEqual(irq_contract.check(entry, observed, lines)[0], [])
 
+    def test_all_eight_phase_conditions_preserve_original_cases(self):
+        before = copy.deepcopy(self.entries)
+        phases = irq_cases.phase_entries(self.base, checker.oracle_module())
+        self.assertEqual(self.entries, before)
+        self.assertEqual(len(phases), 48)
+        self.assertEqual(len({row['name'] for row in phases}), 48)
+        combinations = set()
+        for row in phases:
+            self.assertEqual(event_contract.expected_pause(row), 0)
+            lint, warm, _ = irq_contract.validate(row)
+            self.assertTrue(warm)
+            combinations.add((lint, row['stimulus']['wait_states'],
+                              row['external_contract']['assert_clock']))
+            original = next(e for e in self.entries if row['name'].startswith(e['name']+'_assert'))
+            self.assertEqual(row['program_words'], original['program_words'])
+            self.assertEqual(row['fixture']['regs'], original['fixture']['regs'])
+        self.assertEqual(combinations, {(lint, waits, clock) for lint in (1, 2)
+                                       for waits in (0, 1, 3) for clock in range(16, 24)})
+
+    def test_phase_changes_recognition_clock_but_not_exact_context_count(self):
+        for clock in range(16, 24):
+            entry, observed, lines = self.sample(True)
+            entry['external_contract'].update(kind='scalar_irq_phase', assert_clock=clock)
+            entry['external_events'][0]['argument'] = clock
+            lines = [s.replace('STIMULUS 1017 0 0 00000010',
+                               f'STIMULUS {1001+clock} 0 0 {clock:08x}') for s in lines]
+            self.assertEqual(irq_contract.check(entry, observed, lines)[0], [])
+            late = [s.replace('clock=1160', 'clock=1168') for s in lines]
+            self.assertTrue(any('context switch' in error
+                                for error in irq_contract.check(entry, observed, late)[0]))
+
+    def test_phase_contract_rejects_unsupported_conditions_and_table_mismatch(self):
+        for field, value in [('assert_clock', False), ('assert_clock', 15),
+                             ('assert_clock', 24), ('handler_warm', False)]:
+            entry, _, _ = self.sample(True)
+            entry['external_contract'].update(kind='scalar_irq_phase', assert_clock=16)
+            entry['external_contract'][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                event_contract.expected_pause(entry)
+        entry['external_contract'].update(handler_warm=True, assert_clock=17)
+        with self.assertRaisesRegex(ValueError, 'stimulus differs'):
+            event_contract.expected_pause(entry)
+
 
 if __name__ == '__main__':
     unittest.main()

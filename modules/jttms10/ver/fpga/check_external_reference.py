@@ -27,7 +27,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def fixture_manifest():
+def fixture_manifest(irq_phase_sweep=False):
     specs = specifications()
     bases = {entry['name']: entry for entry in checker.prepare_cases(
         sorted({row['base'] for row in specs}), protocol_version=4)}
@@ -50,6 +50,10 @@ def fixture_manifest():
     for entry in irq_cases.entries(bases['nop_hit'], checker.oracle_module()):
         entry['id'] = len(entries)
         entries.append(entry)
+    if irq_phase_sweep:
+        entries = irq_cases.phase_entries(bases['nop_hit'], checker.oracle_module())
+        for identifier, entry in enumerate(entries):
+            entry['id'] = identifier
     return dict(format=checker.FORMAT_V4, protocol_version=4,
                 oracle_sha256=sha(checker.TIMING/'run.py'),
                 batches=checker.make_batches(entries, protocol_version=4))
@@ -188,14 +192,18 @@ def run(manifest, output, reference_only=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--manifest', type=Path)
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument('--manifest', type=Path)
+    selection.add_argument('--irq-phase-sweep', action='store_true',
+                           help='48 warm LINT1/LINT2 W0/W1/W3 cases across all eight INCLK phases')
     parser.add_argument('--output', type=Path, help='new directory retaining raw reference and Avalon evidence')
     parser.add_argument('--report', type=Path)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
     modes.add_argument('--prepare-only', action='store_true', help='write runtime fixtures without building a local model')
     args = parser.parse_args()
-    manifest = json.loads(args.manifest.read_text()) if args.manifest else fixture_manifest()
+    manifest = (json.loads(args.manifest.read_text()) if args.manifest else
+                fixture_manifest(args.irq_phase_sweep))
     if args.prepare_only:
         if args.output is None or args.report is not None:
             parser.error('--prepare-only requires --output and does not produce a validation --report')

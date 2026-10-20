@@ -126,6 +126,13 @@ These expectations live in the selected source's `irq_contract.py`, separately
 from the FPGA transport and image identity. The baseline failures and local fix are
 documented in [the runner README](README.md).
 
+The additional `scalar_irq_phase` kind has the same fields plus `assert_clock`,
+an integer16..23; it requires `handler_warm=true`. Its CLOCK assertion must use
+that exact argument and its release remains WRITE4. It changes only the
+declared pin phase, retaining the same independent recognition/context bounds,
+initialized state, continuation counter and complete bus plan. This is runtime
+host contract metadata, so the sweep uses one FPGA configuration.
+
 The full-system behavioral reference independently drives semantic event fields
 and compares all six triggers, HOLD/host observations and fixed early-CEN
 conditions with Avalon execution. General IRQ/NMI continuation and outstanding

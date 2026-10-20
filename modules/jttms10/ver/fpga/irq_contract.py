@@ -11,12 +11,19 @@ PREFIXES = ('BUS_BEGIN', 'BUS_ACCEPT', 'BUS_END', 'TARGET_BEGIN', 'TARGET_END')
 
 def validate(entry):
     contract = entry['external_contract']
-    if (not isinstance(contract, dict) or set(contract) != {'kind', 'lint', 'handler_warm'} or
-            contract['kind'] != 'scalar_irq' or type(contract['lint']) is not int or
+    if not isinstance(contract, dict):
+        raise ValueError('unsupported independent scalar IRQ contract')
+    phase = contract.get('kind') == 'scalar_irq_phase'
+    keys = {'kind', 'lint', 'handler_warm'} | ({'assert_clock'} if phase else set())
+    if (set(contract) != keys or contract['kind'] not in ('scalar_irq', 'scalar_irq_phase') or
+            type(contract['lint']) is not int or
             contract['lint'] not in (1, 2) or type(contract['handler_warm']) is not bool):
         raise ValueError('unsupported independent scalar IRQ contract')
     lint, warm = contract['lint'], contract['handler_warm']
-    wanted = [dict(trigger=0, argument=16, control=1 << (lint-1)),
+    assertion = contract.get('assert_clock', 16)
+    if phase and (not warm or type(assertion) is not int or not 16 <= assertion <= 23):
+        raise ValueError('scalar IRQ phase contract requires a warm handler and assertion clock16..23')
+    wanted = [dict(trigger=0, argument=assertion, control=1 << (lint-1)),
               dict(trigger=1, argument=4, control=0)]
     if entry.get('external_events') != wanted:
         raise ValueError('scalar IRQ stimulus differs from its independent contract')

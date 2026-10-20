@@ -44,3 +44,20 @@ def entries(base, oracle):
                     external_events=[dict(trigger=0, argument=16, control=1 << (lint-1)),
                                      dict(trigger=1, argument=4, control=0)]))
     return rows
+
+
+def phase_entries(base, oracle):
+    """Sweep one complete eight-INCLK state without changing the base cases."""
+    rows = []
+    for entry in entries(base, oracle):
+        if not entry['external_contract']['handler_warm']:
+            continue
+        for clock in range(16, 24):
+            row = copy.deepcopy(entry)
+            row['name'] += f'_assert{clock}'
+            row['fixture']['name'] = row['name']
+            row['fixture']['conditions']['assert_clock'] = clock
+            row['external_contract'].update(kind='scalar_irq_phase', assert_clock=clock)
+            row['external_events'][0]['argument'] = clock
+            rows.append(row)
+    return rows

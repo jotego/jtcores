@@ -151,6 +151,18 @@ compiler errors and timeouts do not qualify. The new CPU entry schedule is
 locally validated only until a new fitted image and physical results are
 recorded. This is not full interrupt or instruction-timing compliance.
 
+The separate `--irq-phase-sweep` reference mode keeps these exact expectations
+and sweeps all eight assertion clocks16..23 for both LINT pins and W0/W1/W3:
+48 cases. The programs and original50 cases are unchanged. CPU `d4f6b1857`
+passes36 but fails the twelve phase20/21 pin-recognition checks. W0 latency is
+147/146 INCLK versus135..145; W1/W3 add the required48/144 word-wait clocks.
+Exact context remains16 states in every case, and all checked state, memory
+and bus events pass. Both Verilator backends reproduce the timing failures.
+The fixed old phase16 therefore proves the context fix but does not establish
+the complete asynchronous recognition rule. These new failures are retained
+without widening the specification bounds; physical confirmation and a
+recognition-path fix remain required. `ver/run.sh` includes the failing sweep.
+
 Reproduce with `python3 modules/jttms10/ver/fpga/check_external_reference.py
 --output /path/to/new-evidence` after sourcing `setprj.sh`. Raw logs and checked
 reference results are retained even on the expected baseline failure. For a

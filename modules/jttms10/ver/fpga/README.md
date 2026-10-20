@@ -80,6 +80,31 @@ building a simulator, use `check_external_reference.py --prepare-only --output
 /path/to/new-directory`. Its `manifest.json` is an ordinary input to
 `run_batch.py`; fixture/expectation changes do not recompile the FPGA.
 
+`check_external_reference.py --irq-phase-sweep` prepares 48 separately named
+warm-handler conditions: LINT1/LINT2, W0/W1/W3, assertion clocks16..23. They
+span all eight INCLK phases of a machine state and reuse the original programs,
+register initialization, bus plan and independent TI bounds. The default50
+cases and the original ISA fixture definitions remain unchanged. The new
+`scalar_irq_phase` contract requires an explicit assertion clock in this range;
+other schedules, cold handlers and extra fields fail closed.
+
+On CPU `d4f6b1857`, the short full-system reference passes36 of48 cases. The
+twelve phase20/21 cases fail only the pin-recognition bound, with W0 observing
+147/146 INCLK versus135..145 (W1 adds48; W3 adds144). All exact16-state context,
+architectural, memory and word-duration/order checks pass. The actual Avalon
+runner reproduces these diagnostics. This remains a failing baseline, not a
+wider acceptance envelope. The standard runner includes the phase sweep and
+must return nonzero until the recognition path is corrected. Physical phase
+validation is pending; the loaded older V4 image also lacks the context fix.
+
+The reference helper retains raw logs and its manifest before returning1 on
+these failures. To collect the separate Avalon diagnostics, run
+`check_runner.py --manifest /path/to/reference/manifest.json --reference
+/path/to/reference/reference.json --output /path/to/new-avalon-evidence`.
+`--irq-phase-sweep --prepare-only --output /path/to/new-fixtures` produces the
+same runtime inputs without compiling a simulator. It cannot be combined with
+`--manifest` and does not change the FPGA image.
+
 `check_event_mutations.py` changes actual sequencer RTL. Early CEN release
 returns correct registers/status but 14 clocks instead of the declared 15;
 wrong HSTCTL data injects an unintended NMI. Both fail with unaffected controls.
