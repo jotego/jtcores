@@ -2,7 +2,75 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Current version 3 validation: native regular PIXBLT
+## Current version 3 validation: native binary PIXBLT
+
+RTL commit `2a5e4a6d95909c758d3041e0603fc6a8276fed60` adds aligned opaque B,L / B,XY
+expansion through the shared datapath for DX<=32, all five pixel sizes,
+complete destination words and aligned rows/pitches. All **141,952 fixtures /
+133 forms / 5,188 batches** pass each base, W1/P7-after0 and W3 on one
+configuration: **425,856 FPGA executions**, with **no fixture exclusions**.
+Each profile includes all 164 binary and 360 regular PIXBLT fixtures.
+Every raw verdict is independently replayed and reproduces the saved report.
+All 102 focused physical observations match original Verilator for architectural
+state, memory, instruction clocks and checked bus/target events.
+
+| Profile | Enclosing host wall (s) | Driver wall (s) | Transfer (s) | FPGA staging (s) | FPGA run (s) | FPGA draining (s) | Python checking (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Base | 305.330 | 291.986 | 12.023 | 11.981 | 53.009 | 115.800 | 52.615 |
+| W1/P7-after0 | 311.540 | 298.242 | 12.019 | 11.984 | 59.263 | 115.813 | 52.739 |
+| W3 | 323.210 | 309.646 | 12.221 | 11.883 | 70.341 | 115.421 | 52.776 |
+
+These measured command walls include transfer, execution, checking and final
+serialization. The enclosing wrapper also hashes manifests/captures and records
+evidence; its larger wall is distinct from the driver invocation. Target
+staging/run/draining nest within SSH execution; do not
+add them twice. Preparation of all twelve reusable manifests took 372.673 s.
+The full matrix has no matched software benchmark; no new speedup ratio is
+claimed. The historical FILL pair below belongs to its stated older image.
+
+Timeout and explicit 512-record overflow fail the host command and preserve
+the next independent case and clean rearm. The separate 164-case published
+MOVB command retains 137 passes / 27 CD duration failures; all diagnostic
+observations and error lists match original Verilator. These failures remain
+requirements. Short local Verilator runs reject functional/timing binary RTL mutants with unchanged Python
+expectations and passing NOP controls. Seventy architectural boundary vectors
+pass normally and with actual HOLD locally; this is not FPGA HOLD scheduling.
+
+RBF SHA-256: `dab7a6fcee1cf0634d38b725aa5224ccd0d027c26a3ca526e0b613a227877518`.
+Overlay/firmware: `jtcores-144-binary-dab7a6fc`; protocol 3; QIP-bound SYSID 22 /1792433033.
+CPU fingerprint: `3916d604af42d0cc34638eb801e32485c46f9c21e81be5b025e36ea3a142d982`.
+Original clean-source receipt SHA-256:
+`1d38776a4ed7b5236fe308d6290ceb6a73da654b9a8957755840cce2bc723639`.
+Evidence and original receipt: `/nobackup/tasks/jtcores-144/artifacts/binary-native/`.
+Use image, source, receipt, overlay and boot identity together; inherited SYSID
+alone does not distinguish the image. Later documentation/tool commits do not
+relabel this fitted source.
+
+Both build attempts preserve the fitted regular parent's generated IP/database
+and use `/opt/quartus_free`. The full flow exits 0 in 912.02 s (916.67 s outer),
+but its HPS lightweight-AXI-to-LED setup path has -0.106 ns slack; its image is
+rejected. A separate source-identical changed-RTL Rapid Recompile takes 864.03 s
+and runs map/CDB/fit/assembly/STA. Its explicit certificate binds parent,
+frozen inputs, fresh reports and image; it is the programmed result. All 88
+final timing rows are positive with zero TNS: setup min +0.895 ns, hold +0.077 ns,
+runner setup at least +3.491 ns. All 32 calibrated DDR rows are positive and
+identical to the parent; SDC is unchanged. The rejected full attempt is not a
+timing-closed comparison baseline or proof of a general compilation speedup.
+
+The Rapid appliance fits 8,458 ALMs, 7,107 registers, 351 M10Ks, 2,805,760 RAM bits,
+five DSPs, one PLL and one DLL. Eight runner RAMs, two RF mirrors, four 32x16 cache banks
+and the 4096x64 graphics ROM retain inferred RAM. Whole-appliance fit/STA is
+separate from CPU <=3500 ALMs and NARC/MiSTer acceptance. RBF transfer took 1.320 s
+(all programming payloads 4.919 s); programming took 0.329264 s on target and
+1.394727 s for SSH with the image staged (1.50 s outer).
+
+Long supported matrices run on DataStorm; short Verilator runs debug changes.
+Native binary IRQ/NMI checkpoints/context, FPGA HOLD/IRQ schedules, broader
+conditions, remaining MOVB targets, clean/CI and final game validation remain
+open. Probe presence and this passing matrix do not establish full #144
+instruction timing compliance.
+
+## Historical version 3 validation: native regular PIXBLT
 
 RTL commit `cb113446bbf53a4045564cf3b2a070d008502624` implements aligned opaque
 regular L,L / L,XY / XY,L / XY,XY words through the shared CPU datapath. All

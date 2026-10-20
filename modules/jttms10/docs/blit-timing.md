@@ -129,14 +129,15 @@ independently replayed. Full host walls are 291.21/298.16/316.90 seconds;
 these are command measurements rather than a matched software speedup study.
 See the [current FPGA image and timings](../ver/fpga/README.md).
 
-All 144 binary fixtures also return individual verdicts on the new image,
+On that historical regular-copy image, all 144 binary fixtures returned individual verdicts,
 without trace overflow (maximum 399/512 records). They all fail timing;
 generic per-pixel bus counts and row cadence also fail where applicable.
 Architectural and final-memory checks pass. Two B,XY PS2 N1/one-row cases now
 take 1420/1448 INCLK (hit/CD), eight more than the historical baseline.
 Fresh short Verilator runs reproduce those clocks and all checked events and
-diagnostics exactly. The additional delay remains an open binary timing
-regression; no expectation was changed. Standard equivalence refuses failing
+diagnostics exactly. That historical extra delay is superseded within the
+aligned native binary domain below; the failing baseline and its original
+expectations are retained. Standard equivalence refuses failing
 inputs. The published MOVB-target command separately retains 27 CD failures.
 
 ## Native binary short-row schedule
@@ -187,9 +188,14 @@ python3 modules/jttms10/ver/run.py --timed-word --hold-after-write \
     --vectors binary-boundaries.yaml --case binary_bl_ps1_aligned
 ```
 
-The physical measurements above belong to the preceding regular-copy image.
-New binary FPGA compilation, STA, source-bound programming, representative
-equivalence and complete matrices remain pending. Native binary mid-instruction
+The native binary image at RTL `2a5e4a6d9` now passes all 141,952 fixtures /
+133 forms /5,188 batches in each base/W1-P7/W3 without exclusions, including all
+164 binary and 360 regular cases. All 102 focused physical observations match
+original Verilator and every full raw verdict independently replays exactly.
+Enclosing command walls are 305.33/311.54/323.21 s. The Rapid image has positive
+final STA; the separate full attempt failed one HPS setup path and was rejected.
+See [image identity, build costs and phase measurements](../ver/fpga/README.md).
+Native binary mid-instruction
 IRQ/NMI checkpoints and context resumption remain unimplemented; no interrupt
 timing or full condition-compliance claim is made for this path.
 
@@ -201,9 +207,9 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare --protocol-version 3 \
     --output regular-manifest.json
 ```
 
-The ordinary `--matrix` inventory includes the 144 failing binary cases. The
-passing full manifests explicitly record their exclusion and preserve them in
-a separate failing command; this is not full instruction timing compliance.
+The ordinary `--matrix` inventory includes all 164 binary cases; the current
+passing full manifests have no exclusions. The historical failing commands
+remain preserved. This is not full instruction timing compliance.
 Programs, expected results and supported wait/pause settings change without
 another FPGA compilation. Native IRQ/HOLD and broader graphics conditions
 remain unvalidated. The old cached-MOVB receipt and failing-baseline evidence

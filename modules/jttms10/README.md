@@ -20,8 +20,10 @@ Aligned opaque regular PIXBLT uses a native word schedule: all 360 fixtures pass
 on DataStorm in base/W1-P7/W3, and 84 focused observations match Verilator.
 Aligned opaque binary PIXBLT now has a native word schedule for rows of at
 most 32 source bits. It passes 102 focused Verilator observations, including
-nonzero coordinates, offsets and unequal pitches. Its new FPGA image and
-complete matrices remain pending; the physical checkpoint below predates it.
+nonzero coordinates, offsets and unequal pitches. All 102 focused physical
+observations match Verilator. Its source-bound FPGA image
+passes all 141,952 fixtures /133 forms in each base/W1-P7/W3, including every
+binary and regular fixture, with every raw verdict independently replayed.
 Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 (260 linear and 1,980 XY). Other processing/window/mask/edge conditions
 still require timing implementation. The preceding validated 127-form fixture inventory includes
@@ -39,8 +41,8 @@ labeled inferred policies and remain excluded from unqualified signoff.
 Cached single-word absolute MOVB consumes resident address operands with
 the opcode to meet the one-state target printed in both TI tables. Its
 cache-disabled seven-state target remains open. The source-bound DataStorm image
-passes 141,788 cases across 131 forms each at base/W1-P7/W3, with the 144
-failing binary fixtures checked separately. The directed published-target
+passes 141,952 cases across all 133 forms each at base/W1-P7/W3 without
+fixture exclusions (425,856 FPGA executions). The directed published-target
 command retains 27 CD duration failures.
 See [FPGA evidence and reproduction](ver/fpga/README.md).
 Complete condition, bus and interrupt audits remain
@@ -154,8 +156,10 @@ field/HOLD tests and is connected to the CPU. The real system test covers
 opcode/extension fills, loop hits and host-written CD/CF modes.
 FILL L/XY and all six PIXBLT forms run in the graphics ROM and have tests for
 row pitch, direction, windows, overlap, binary expansion and completion
-pointers; see [array ISA notes](docs/array-isa.md). Binary transfers fetch
-32-bit source chunks and save cached bits for PBX continuation.
+pointers; see [array ISA notes](docs/array-isa.md). Generic binary transfers fetch
+32-bit source chunks and save cached bits for PBX continuation. The timed
+aligned short-row path uses one or two 16-bit reads; its native IRQ/NMI
+continuation remains unimplemented.
 [LINE](docs/line-isa.md) shares the pixel/window/ALU paths and has independent
 octant/tie/window cases plus a PC-rewind interrupt test. Array and LINE
 continuation benches nest ISR graphics under MMTM/MMFM and compare resumed
