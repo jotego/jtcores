@@ -13,8 +13,8 @@ CMPU immediate, and LDQ. Interrupt tests cover native FIRQ short/full frames,
 IRQ/RTI, SWI/SWI2/SWI3, and CWAI/IRQ/RTI. Emulation-mode timing gates cover
 SWI/SWI2/SWI3 at 19/20/20 E cycles, CWAI at 22 E cycles, full/short RTI at
 15/6 E cycles, and SYNC's documented minimum of four E cycles; native CWAI
-is 20 E cycles and native SYNC's minimum is three. Native SWI-family tests
-check functional frames and vectors without a cycle assertion. Interrupt
+is 20 E cycles and native SYNC's minimum is three. Native timing gates cover
+SWI/SWI2/SWI3 at 21/22/22 E cycles and full-frame RTI at 17 E cycles. Interrupt
 tests also check frame length, byte order, vector reads, stacked CC.E, saved
 PC, E/F, and restored registers. Page-11 bit operations check
 all eight direct forms in both modes; the emulation-mode matrix covers all

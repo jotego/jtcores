@@ -55,7 +55,7 @@ into an isolated build directory and records hashes for every HDL source.
 
 ```bash
 source setprj.sh
-HARNESS=modules/jtframe/ver/cpu/hd6309_timing/mister
+HARNESS=modules/jtframe/ver/cpu/hd6309_mister
 TARGET_INSTRUCTIONS=99999975 NATIVE_MODE=0 \
   BUILD_DIR=/nobackup/tasks/jtcores-147/hd6309_mister_emu \
   bash "$HARNESS/scripts/build_hd6309_mister.sh"

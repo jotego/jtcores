@@ -368,9 +368,11 @@ endtask
 
 task run_native_software_interrupt(input [7:0] opcode0, input [7:0] opcode1,
                                    input [15:0] vector_addr,
-                                   input [15:0] saved_pc, input string label);
+                                   input [15:0] saved_pc,
+                                   input integer expected_cycles,
+                                   input string label);
     integer watchdog;
-    reg handler_seen, return_seen;
+    reg return_seen;
     begin
         initial_e=8'h12; initial_f=8'h34;
         load_program(8'h01,opcode0,opcode1,8'h12);
@@ -384,14 +386,7 @@ task run_native_software_interrupt(input [7:0] opcode0, input [7:0] opcode1,
         put(16'h0153,8'h11); put(16'h0154,8'hc6); put(16'h0155,8'hbb);
         put(16'h0156,8'h3b);
         swi_vector_reads=0;
-        watchdog=0; handler_seen=0;
-        while(!handler_seen && watchdog<1000) begin
-            @(posedge clk);
-            if(cen_E && op && addr==16'h0150) handler_seen=1;
-            watchdog=watchdog+1;
-        end
-        assert_msg(handler_seen,
-            $sformatf("%s did not reach vector handler",label));
+        measure_case_at(16'h0120,expected_cycles,16'h0150,label);
         check_native_full_frame(saved_pc,label);
         assert_msg(swi_vector_reads>=2,
             $sformatf("%s vector reads=%0d expected >=2",label,swi_vector_reads));
@@ -1763,6 +1758,21 @@ initial begin
     assert_msg(regs[63:48]==16'h3000,
         $sformatf("RTI full emulation S=%04x expected 3000",regs[63:48]));
 
+    // Native full-frame RTI restores fourteen bytes, including E and F.
+    // Seed the frame directly so the measured interval covers RTI alone.
+    initial_e=8'haa; initial_f=8'hbb;
+    load_program(1'b1,8'h3b,8'h12,8'h12);
+    put(16'h010b,8'h2f); put(16'h010c,8'hf2); // LDS #$2ff2
+    stack_mem[18]=8'h80; // stacked CC.E=1
+    stack_mem[21]=8'h12; stack_mem[22]=8'h34; // E/F
+    stack_mem[30]=8'h01; stack_mem[31]=8'h30; // return PC
+    put(16'h0130,8'h12);
+    measure_case(17,16'h0130,"RTI full native CC.E=1");
+    assert_msg(stack_read_count==14 && regs[63:48]==16'h3000,
+        $sformatf("RTI full native reads/S=%0d/%04x expected 14/3000",
+                  stack_read_count,regs[63:48]));
+    check_ef(8'h12,8'h34,8'h01,"RTI full native CC.E=1");
+
     load_program(1'b0,8'h3b,8'h12,8'h12);
     put(16'h010b,8'h2f); put(16'h010c,8'hfe); // LDS #$2ffe
     stack_mem[30]=8'h00; stack_mem[31]=8'h01; stack_mem[32]=8'h30;
@@ -1847,9 +1857,9 @@ initial begin
     run_ldq_immediate();
     run_lda_extended_indirect_native();
     initial_e=8'h12; initial_f=8'h34;
-    run_native_software_interrupt(8'h3f,8'h12,16'hfffa,16'h0121,"native SWI");
-    run_native_software_interrupt(8'h10,8'h3f,16'hfff4,16'h0122,"native SWI2");
-    run_native_software_interrupt(8'h11,8'h3f,16'hfff2,16'h0122,"native SWI3");
+    run_native_software_interrupt(8'h3f,8'h12,16'hfffa,16'h0121,21,"native SWI");
+    run_native_software_interrupt(8'h10,8'h3f,16'hfff4,16'h0122,22,"native SWI2");
+    run_native_software_interrupt(8'h11,8'h3f,16'hfff2,16'h0122,22,"native SWI3");
     run_emulation_software_interrupt(8'h3f,8'h12,16'hfffa,16'h0121,19,"emulation SWI");
     run_emulation_software_interrupt(8'h10,8'h3f,16'hfff4,16'h0122,20,"emulation SWI2");
     run_emulation_software_interrupt(8'h11,8'h3f,16'hfff2,16'h0122,20,"emulation SWI3");

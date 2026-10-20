@@ -4,7 +4,7 @@
 
 This is a row-by-row view of legal MAME opcode/addressing forms and Atkinson timing baselines. The inventory contains 450 instruction/addressing rows over 439 legal opcode bytes: 442 numeric source baselines, one minimum-duration SYNC row, four TFM formula rows, and three legal MAME dispatches with no published Atkinson timing entry (NEGW, ASRW, ASLW). It records directed-test evidence separately from the generated timing sweep.
 
-The latest focused simunit PASS used CPU SHA256 `479ca860fb34bc1003d89ff0c261b0eb73c6c8834b2901c64fbf25c8ee44c8c0`, helper SHA256 `3e52967a1d23980223d2861a53da1da03f4aa74d07314f8b66f5f08794bfb830`, and directed testbench SHA256 `7f3b2b82b71073e67d4d81bce6ecb64bfda325d72f10cfad739415b4b35e42ee`. Across 900 mode cells, the table records 188 directed timing passes (`T`), four functional-only results (`F`), and 708 with no matching directed test. The expanded sweep records 792 passing timing cells and 108 unresolved cells; 16 of those were flow-checked long-branch cells whose native taken timing oracle remains unresolved.
+The latest focused simunit PASS used CPU SHA256 `479ca860fb34bc1003d89ff0c261b0eb73c6c8834b2901c64fbf25c8ee44c8c0`, helper SHA256 `3e52967a1d23980223d2861a53da1da03f4aa74d07314f8b66f5f08794bfb830`, and directed testbench SHA256 `6f5fb98dfcf7ad2b0ca1a7038a78ca16d83fde62f7464500e332661fb8d6f49b`. Across 900 mode cells, the table records 192 directed timing passes (`T`), no functional-only results (`F`), and 708 with no matching directed test. The expanded sweep records 792 passing timing cells and 108 unresolved cells; 16 of those were flow-checked long-branch cells whose native taken timing oracle remains unresolved.
 
 - `T` in E/N test status: functional and timing assertions for this form were exercised in a passing `hd6309_timing` run; that evidence is tied to the exact source hashes below.
 - `X` in E/N test status: the directed simunit ran the form and an assertion failed.
@@ -333,7 +333,7 @@ The expanded sweep snapshot below records its own result and source hashes. Inte
 | `$00/$06` | ROR | direct | 2 | 6 | U | 5 | U | P | P | — | 145-148 summary table | not covered by current gate |
 | `$00/$66` | ROR | indexed | 2+ | 6 | U | 6 | U | P | P | indexed base; add indexed-postbyte increment when cycle token has + | 145-148 summary table | not covered by current gate |
 | `$00/$76` | ROR | extended | 3 | 7 | U | 6 | U | P | P | — | 145-148 summary table | not covered by current gate |
-| `$00/$3B` | RTI (CC.E=1) | inherent | 1 | 15 | T | 17 | F | U | U | full frame restore; CC.E=1 | 145-148 summary table | latest 479ca860 focused simunit; seeded emulation full-frame RTI measured 15 E |
+| `$00/$3B` | RTI (CC.E=1) | inherent | 1 | 15 | T | 17 | T | U | U | full frame restore; CC.E=1 | 145-148 summary table | latest 479ca860 focused simunit; seeded full-frame RTI measured 15/17 E in emulation/native modes |
 | `$00/$3B` | RTI (CC.E=0) | inherent | 1 | 6 | T | 6 | T | U | U | short frame restore; CC.E=0 | 145-148 summary table | latest 479ca860 focused simunit; seeded emulation short-frame RTI measured 6 E |
 | `$00/$39` | RTS | inherent | 1 | 5 | T | 4 | T | U | U | — | 145-148 summary table | hd6309_timing simunit; last reported PASS |
 | `$00/$82` | SBCA | immediate | 2 | 2 | U | 2 | U | P | P | — | 145-148 summary table | not covered by current gate |
@@ -410,9 +410,9 @@ The expanded sweep snapshot below records its own result and source hashes. Inte
 | `$10/$90` | SUBW | direct | 3 | 7 | U | 5 | U | P | P | — | 145-148 summary table | not covered by current gate |
 | `$10/$A0` | SUBW | indexed | 3+ | 7 | U | 6 | U | P | P | indexed base; add indexed-postbyte increment when cycle token has + | 145-148 summary table | not covered by current gate |
 | `$10/$B0` | SUBW | extended | 4 | 8 | U | 6 | U | P | P | — | 145-148 summary table | not covered by current gate |
-| `$00/$3F` | SWI | inherent | 1 | 19 | T | 21 | F | U | U | — | 145-148 summary table | latest 479ca860 focused simunit; emulation SWI 19 E, native full-frame functional check |
-| `$10/$3F` | SWI2 | inherent | 2 | 20 | T | 22 | F | U | U | — | 145-148 summary table | latest 479ca860 focused simunit; emulation SWI2 20 E, native full-frame functional check |
-| `$11/$3F` | SWI3 | inherent | 2 | 20 | T | 22 | F | U | U | — | 145-148 summary table | latest 479ca860 focused simunit; emulation SWI3 20 E, native full-frame functional check |
+| `$00/$3F` | SWI | inherent | 1 | 19 | T | 21 | T | U | U | — | 145-148 summary table | latest 479ca860 focused simunit; SWI measured 19/21 E in emulation/native modes with full-frame checks |
+| `$10/$3F` | SWI2 | inherent | 2 | 20 | T | 22 | T | U | U | — | 145-148 summary table | latest 479ca860 focused simunit; SWI2 measured 20/22 E in emulation/native modes with full-frame checks |
+| `$11/$3F` | SWI3 | inherent | 2 | 20 | T | 22 | T | U | U | — | 145-148 summary table | latest 479ca860 focused simunit; SWI3 measured 20/22 E in emulation/native modes with full-frame checks |
 | `$00/$1F` | r0,r1 | register_postbyte | 2 | 6 | T | 4 | T | U | U | — | 145-148 summary table | hd6309_timing simunit; last reported PASS |
 | `$00/$0B` | TIM | direct | 3 | 6 | T | 6 | T | P | P | — | 145-148 summary table | hd6309_timing simunit; last reported PASS |
 | `$00/$6B` | TIM | indexed | 3+ | 7 | T | 7 | T | P | P | indexed base; add indexed-postbyte increment when cycle token has + | 145-148 summary table | hd6309_timing simunit; last reported PASS |
@@ -536,7 +536,7 @@ The manifest has 900 opcode/form/mode cells. After the expanded sweep and latest
 - **Native taken long conditional branches — 16 cells:** page `$10`, rows `$21`–`$2F` including the `LBHS/LBCC` and `LBLO/LBCS` aliases, native mode. The sweep verified taken/not-taken control flow. Atkinson, MAME and available hardware-derived notes disagree about the native taken-cycle delta, so these timing results remain `U`.
 - **No published timing baseline — 6 cells:** NEGW `$10/$50`, ASRW `$10/$57`, and ASLW `$10/$58`, both modes. These legal MAME dispatches have no timing entry in Atkinson; MAME legality does not establish timing.
 
-The generator reports **92 excluded row/mode entries** because they need special operands, control-flow/stack setup, or conditional timing. **86 of those entries have matching directed `T` or `F` evidence** in the focused simunit. The other six are exactly the legal dispatches without a published timing baseline. This exclusion count is different from the 22 unresolved timing cells: the 16 native long-branch cells are exercised for flow but intentionally have no fixed timing oracle.
+The generator reports **92 excluded row/mode entries** because they need special operands, control-flow/stack setup, or conditional timing. **86 of those entries have matching directed `T` evidence** in the focused simunit. The other six are exactly the legal dispatches without a published timing baseline. This exclusion count is different from the 22 unresolved timing cells: the 16 native long-branch cells are exercised for flow but intentionally have no fixed timing oracle.
 
 The sweep passed 7,146 timing comparisons and left 16 oracle-dependent native long-branch cases as `U`; no sweep case mismatched. It covered all 38 indexed postbytes against each fixed-count indexed instruction/address row in both modes. DIVD/DIVQ indexed cases are excluded from fixed-count comparison because timing depends on operand and overflow conditions; directed tests cover the documented division cases. The 87 indexed inventory rows include those two dynamic divide rows.
 
