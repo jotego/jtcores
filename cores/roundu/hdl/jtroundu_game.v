@@ -20,7 +20,10 @@ wire [15:0] audio_addr;
 wire audio_sel, audio_rd, audio_wr, audio_ok;
 wire [7:0] audio_din, audio_dout;
 wire signed [15:0] mixed_snd;
+wire [7:0] download_data;
 reg shift, shift_last;
+
+always @* post_data = download_data;
 
 assign dip_flip = 1'b0;
 assign debug_view = control[7:0];
@@ -47,10 +50,10 @@ always @(posedge clk) begin
 end
 
 jtroundu_download u_download (
-    .prog_addr ( prog_addr ),
-    .prog_data ( prog_data ),
-    .prog_ba   ( prog_ba   ),
-    .post_data ( post_data )
+    .prog_addr ( prog_addr     ),
+    .prog_data ( prog_data     ),
+    .prog_ba   ( prog_ba       ),
+    .post_data ( download_data )
 );
 
 jtroundu_main u_main (
