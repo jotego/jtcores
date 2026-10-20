@@ -491,10 +491,12 @@ def check_batch(batch, capture):
             count, previous, complete, first = result[288:292]
             if count == 0 and any((previous, complete, first)):
                 errors.append('IRQ boundary clocks without context completion')
-            if count and not (observed['start'] <= previous < complete < first <= result[272]):
+            if count and not ((previous == 0 and _event_contract.check_transfer_observation(entry) is False) or
+                             observed['start'] <= previous < complete < first <= result[272]):
                 errors.append('missing, unordered or out-of-range IRQ boundary clocks')
             lines.append(f'IRQ_BOUNDARY count={count} previous={previous} complete={complete} first={first}')
-        errors.extend(oracle.check(case, observed, stimulus['wait_states'], expected_pause))
+        errors.extend(oracle.check(case, observed, stimulus['wait_states'], expected_pause,
+                                   check_duration=_event_contract.check_duration(entry)))
         if version >= 2:
             initial_words(case)
             memory = case.get('initial_memory', [])
@@ -512,7 +514,8 @@ def check_batch(batch, capture):
         if version >= 4:
             errors.extend(check_external_events(entry, result, traces[index], version))
         log = '\n'.join(lines)
-        row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause)
+        row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause,
+                                          check_transfer_observation=_event_contract.check_transfer_observation(entry))
         follow_errors, irq_observation = _event_contract.check_followup(entry, observed, lines)
         errors.extend(follow_errors)
         if irq_observation is not None:

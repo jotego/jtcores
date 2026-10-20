@@ -19,6 +19,7 @@ import irq_cases
 import nmi_cases
 import nmi_nostack_cases
 import nmi_nostack_io_cases
+import graphics_irq_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -32,9 +33,9 @@ def sha(path):
 
 def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=None, nmi=False,
                      nmi_phase_sweep=False, nmi_nostack=False, nmi_nostack_phases=False,
-                     nmi_nostack_io=False, nmi_nostack_io_phases=False):
+                     nmi_nostack_io=False, nmi_nostack_io_phases=False, graphics_irq=False):
     if (sum((irq_phase_sweep, irq_unaligned, nmi, nmi_phase_sweep, nmi_nostack,
-             nmi_nostack_phases, nmi_nostack_io, nmi_nostack_io_phases)) > 1 or
+             nmi_nostack_phases, nmi_nostack_io, nmi_nostack_io_phases, graphics_irq)) > 1 or
             (stack_offsets is not None and not (irq_unaligned or nmi or nmi_nostack or
              nmi_nostack_phases or nmi_nostack_io or nmi_nostack_io_phases))):
         raise ValueError('stack offsets require the unaligned IRQ or NMI selection')
@@ -86,6 +87,10 @@ def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=N
                                                stack_offsets, nmi_nostack_io_phases)
         for identifier, entry in enumerate(entries):
             entry['id'] = identifier
+    if graphics_irq:
+        entries = graphics_irq_cases.entries(checker.oracle_module())
+        for identifier, entry in enumerate(entries):
+            entry['id'] = identifier
     return dict(format=checker.FORMAT_V5, protocol_version=5,
                 oracle_sha256=sha(checker.TIMING/'run.py'),
                 batches=checker.make_batches(entries, protocol_version=5))
@@ -120,7 +125,7 @@ def reference_case(entry, executable, work, output, oracle):
         f"+PAUSE={settings['pause_clocks']}", f"+PAUSE_AFTER={settings['pause_after_clocks']}"]
     if entry.get('external_contract', {}).get('kind') in (
             'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase',
-            'scalar_nmi_nostack', 'scalar_nmi_nostack_io'):
+            'scalar_nmi_nostack', 'scalar_nmi_nostack_io', 'graphics_line_irq'):
         command.append('+ENTRY_HANDLER=4000')
     result = subprocess.run(command, cwd=work, capture_output=True, text=True, timeout=30)
     log = result.stdout+result.stderr
@@ -132,7 +137,8 @@ def reference_case(entry, executable, work, output, oracle):
     if observed['case'] != entry['id']:
         raise ValueError('reference case association mismatch')
     pause = settings['pause_clocks'] + expected_pause(entry)
-    errors = oracle.check(case, observed, settings['wait_states'], pause)
+    errors = oracle.check(case, observed, settings['wait_states'], pause,
+                          check_duration=event_contract.check_duration(entry))
     # Construct observation metadata from the independent bench's counters,
     # never from an Avalon result or expected instruction duration.
     summaries = [line for line in log.splitlines() if line.startswith('EXTERNAL_RESULT ')]
@@ -153,7 +159,8 @@ def reference_case(entry, executable, work, output, oracle):
     lines = [line for line in log.splitlines() if line.startswith(
         ('BUS_', 'TARGET_', 'STIMULUS ', 'HOLD_ACK ', 'HOST_ACK '))]
     errors.extend(checker.check_external_events(entry, words, lines, 5))
-    row = oracle.check_observation(case, observed, errors, log, settings['wait_states'], pause)
+    row = oracle.check_observation(case, observed, errors, log, settings['wait_states'], pause,
+                                       check_transfer_observation=event_contract.check_transfer_observation(entry))
     follow_errors, irq_observation = event_contract.check_followup(entry, observed, log.splitlines())
     errors.extend(follow_errors)
     if irq_observation is not None:
@@ -164,7 +171,7 @@ def reference_case(entry, executable, work, output, oracle):
     return row
 
 
-def run(manifest, output, reference_only=False):
+def run(manifest, output, reference_only=False, cpu_rtl_dir=None):
     if checker.validate_manifest(manifest) != 5:
         raise ValueError('external reference requires protocol 5')
     entries = [entry for batch in manifest['batches'] for entry in batch['cases']]
@@ -214,6 +221,8 @@ def run(manifest, output, reference_only=False):
     if not reference_only:
         command = [sys.executable, str(HERE/'check_runner.py'), '--manifest', str(output/'manifest.json'),
                    '--reference', str(output/'reference.json'), '--output', str(output/'avalon')]
+        if cpu_rtl_dir is not None:
+            command.extend(['--cpu-rtl-dir', str(cpu_rtl_dir.resolve())])
         result = subprocess.run(command, capture_output=True, text=True)
         (output/'avalon-command.log').write_text(result.stdout+result.stderr)
         if result.returncode:
@@ -248,10 +257,13 @@ def main():
                            help='192 NMIM=1 CPU-visible I/O preservation cases; HSTCTLH readback checks automatic NMI clear')
     selection.add_argument('--nmi-nostack-io-phases', action='store_true',
                            help='48 warm aligned NMIM=1 I/O preservation cases across all eight assertion phases')
+    selection.add_argument('--graphics-irq', action='store_true',
+                           help='two short native LINE continuation cases, LINT1 and NMI after the first pixel write')
     parser.add_argument('--stack-offset', type=int, choices=range(16), action='append',
                         help='repeat to select SP bit offsets (IRQ1..15, NMI0..15); local limit is64 cases')
     parser.add_argument('--output', type=Path, help='new directory retaining raw reference and Avalon evidence')
     parser.add_argument('--report', type=Path)
+    parser.add_argument('--cpu-rtl-dir', type=Path, help='local Avalon mutation HDL override; never used for hardware programming')
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
     modes.add_argument('--prepare-only', action='store_true', help='write runtime fixtures without building a local model')
@@ -263,7 +275,7 @@ def main():
     manifest = (json.loads(args.manifest.read_text()) if args.manifest else
                 fixture_manifest(args.irq_phase_sweep, args.irq_unaligned, args.stack_offset,
                                  args.nmi, args.nmi_phase_sweep, args.nmi_nostack, args.nmi_nostack_phases,
-                                 args.nmi_nostack_io, args.nmi_nostack_io_phases))
+                                 args.nmi_nostack_io, args.nmi_nostack_io_phases, args.graphics_irq))
     if args.prepare_only:
         if args.output is None or args.report is not None:
             parser.error('--prepare-only requires --output and does not produce a validation --report')
@@ -273,10 +285,10 @@ def main():
         (args.output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
         return 0
     if args.output:
-        result = run(manifest, args.output.resolve(), args.reference_only)
+        result = run(manifest, args.output.resolve(), args.reference_only, args.cpu_rtl_dir)
     else:
         with tempfile.TemporaryDirectory(prefix='jttms10-event-check-') as temp:
-            result = run(manifest, Path(temp)/'evidence', args.reference_only)
+            result = run(manifest, Path(temp)/'evidence', args.reference_only, args.cpu_rtl_dir)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(result, indent=2)+'\n')

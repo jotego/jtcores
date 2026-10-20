@@ -62,6 +62,60 @@ large ordinary captures remain in the task folder, with summaries/hashes in
 the archive. Full #144, 27 MOVB CD targets, broader conditions, clean CI,
 matched CPU area and NARC/MiSTer acceptance remain open.
 
+## Native LINE interrupt continuation
+
+`check_external_reference.py --graphics-irq` adds two bounded runtime cases to
+protocol 5: LINT1 and host-triggered NMI arrive after the first acknowledged
+full-word LINE pixel. The fixture checks the literal interrupted program,
+saved LINE PC/ST frame (including PBX clear), the selected vector and handler,
+RETI stack reads, resumed pixel writes, final registers and all initialized
+pixel canaries. Its independent contract classifies every BUS transaction as a
+literal instruction fetch or one declared data access; it checks request/ACK/
+response association, TARGET request data and read data, exact TARGET duration,
+containment in the BUS transaction, event timing and the complete stack/vector/
+pixel transaction order. Instruction-cache fetch placement is only constrained
+to the literal program and handler words; full raw traces and clocks still have
+to match between the original-system and Avalon Verilator backends.
+
+TI SPVU001A §8.5 and §8.5.1, Table 8-4 (printed pages 8-6–8-8; OCR around
+8176–8204), define instruction-interrupt delay as completion or the next
+interruptible point in LINE and give 17 best-case / 22 worst-case machine states
+for the six other interrupt-delay operations, with instruction-completion and
+host-indirect delay added where applicable. Since the scheduled event follows
+the acknowledged first LINE pixel, the contract measures that event clock to
+context completion against 17–22 states. The frame/vector reads must complete
+before context completion. The first ISR instruction is the aligned RETI; its
+measured 20 states are checked as 11 RETI states plus the 9-state cold cache-line
+fill. The whole LINE/interrupt/restart run duration remains observed-only because
+the guide does not publish a compound total.
+
+The `previous` public-retire boundary can be zero only for this strict graphics
+contract: the event interrupts an active LINE operation between ordinary CPU
+retirements. Even then, context completion must lie inside the measurement,
+after both vector reads, and before the first ISR retirement. All other event
+contracts retain the existing nonzero, ordered previous-retirement requirement.
+
+Run the two short local backends and retain full evidence with:
+
+```sh
+python3 -B modules/jttms10/ver/fpga/check_external_reference.py --graphics-irq \
+    --output /path/to/graphics-irq-reference
+python3 -B modules/jttms10/ver/fpga/test_graphics_irq_contract.py
+python3 -B modules/jttms10/ver/fpga/check_graphics_irq_mutations.py \
+    --output /path/to/graphics-irq-mutations
+```
+
+The runtime program is independently rebuilt by a small literal MOVI assembler
+and checked against fixed setup, register, stack, vector and canary inventories.
+Host negatives cover program/setup/event/PC/vector/register/memory changes,
+unknown data traffic, changed target payload, missing ACK, an acceptance shifted
+100,000 clocks outside its BUS interval and context completion before the
+second vector read. Two temporary CPU-RTL mutations prove architectural and
+timing detection: saving the wrong LINE restart PC fails frame/register/memory/
+bus checks, and extending the LINE pixel interval beyond TI's Table 8-4 envelope
+fails the literal event-to-context bound. These are local Verilator checks; no
+physical graphics run is claimed.
+
 ## Version 5 and interrupt measurement boundaries
 
 The original V5 checkpoint uses 292-word results appending actual context completion,

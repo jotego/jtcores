@@ -18,6 +18,9 @@ _nostack_spec.loader.exec_module(_nostack_contract)
 _nostack_io_spec = importlib.util.spec_from_file_location('jttms10_nostack_io_contract', Path(__file__).with_name('nmi_nostack_io_contract.py'))
 _nostack_io_contract = importlib.util.module_from_spec(_nostack_io_spec)
 _nostack_io_spec.loader.exec_module(_nostack_io_contract)
+_graphics_spec = importlib.util.spec_from_file_location('jttms10_graphics_irq_contract', Path(__file__).with_name('graphics_irq_contract.py'))
+_graphics_contract = importlib.util.module_from_spec(_graphics_spec)
+_graphics_spec.loader.exec_module(_graphics_contract)
 
 
 def expected_pause(entry):
@@ -29,6 +32,9 @@ def expected_pause(entry):
         return 0
     if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack_io':
         _nostack_io_contract.validate(entry)
+        return 0
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
+        _graphics_contract.validate(entry)
         return 0
     if isinstance(contract, dict) and contract.get('kind') in (
             'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase'):
@@ -51,6 +57,8 @@ def expected_pause(entry):
 
 def check_followup(entry, observed, lines):
     contract = entry.get('external_contract')
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
+        return _graphics_contract.check(entry, observed, lines)
     if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack':
         return _nostack_contract.check(entry, observed, lines)
     if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack_io':
@@ -59,3 +67,20 @@ def check_followup(entry, observed, lines):
             'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase'):
         return _irq_contract.check(entry, observed, lines)
     return [], None
+
+
+def check_duration(entry):
+    """Only the explicitly validated compound graphics interval is unscored."""
+    contract = entry.get('external_contract')
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
+        _graphics_contract.validate(entry)
+        return False
+    return True
+
+
+def check_transfer_observation(entry):
+    contract = entry.get('external_contract')
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
+        _graphics_contract.validate(entry)
+        return False
+    return True

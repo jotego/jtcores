@@ -309,7 +309,7 @@ def measured_trace(log, prefix, observed, *, trailing=False):
     return result
 
 
-def check(case, observed, wait_states=0, pause_clocks=0):
+def check(case, observed, wait_states=0, pause_clocks=0, *, check_duration=True):
     errors = []
     if 'data_store' in case:
         if 'data_trap' in case:
@@ -323,7 +323,7 @@ def check(case, observed, wait_states=0, pause_clocks=0):
             count=(len(store_transactions(case))+1+len(case.get('extensions',[]))) if case['cache_disabled'] else 4 if case.get('cache_miss')=='store_extension' else 0
         alignment=(-pause_clocks)%8 if count else 0
         clocks=case['states']*8+count*wait_states*8+pause_clocks+alignment
-        if observed['clocks']!=clocks:errors.append(f"{case['name']}: expected {clocks} INCLK, observed {observed['clocks']} INCLK")
+        if check_duration and observed['clocks']!=clocks:errors.append(f"{case['name']}: expected {clocks} INCLK, observed {observed['clocks']} INCLK")
         if observed['paused']!=pause_clocks:errors.append('CPU pause count mismatch')
         for reg,value in enumerate(case['expected_regs']):
             if observed[f'a{reg}']!=value:errors.append(f'A{reg} result mismatch')
@@ -346,7 +346,7 @@ def check(case, observed, wait_states=0, pause_clocks=0):
     expected_clocks = case['states'] * INPUT_CLOCKS_PER_STATE + added_clocks + pause_clocks + alignment
     if observed['paused'] != pause_clocks:
         errors.append(f"expected {pause_clocks} paused clocks, observed {observed['paused']}")
-    if observed['clocks'] != expected_clocks:
+    if check_duration and observed['clocks'] != expected_clocks:
         errors.append(f"expected {expected_clocks} INCLK ({case['states']} intrinsic machine states, "
                       f"{added_clocks} external wait clocks, {pause_clocks} CEN pause clocks, {alignment} bus alignment clocks), "
                       f"observed {observed['clocks']} INCLK")
@@ -602,7 +602,7 @@ def check_store_bus(case,observed,lines,wait_states,pause_clocks=0,*,raw=False):
     return errors
 
 
-def check_observation(case, observed, errors, log, wait_states=0, pause_clocks=0):
+def check_observation(case, observed, errors, log, wait_states=0, pause_clocks=0, *, check_transfer_observation=True):
     """Complete the primary verdict with bus, memory and following checks.
 
     ``errors`` already contains check() and backend protocol failures. ``log``
@@ -613,7 +613,7 @@ def check_observation(case, observed, errors, log, wait_states=0, pause_clocks=0
     # zero-traffic warm hits. Full launch trace is available separately.
     row['bus_trace'] = measured_trace(log,'BUS',observed,trailing=('data_store' in case and 'data_trap' not in case) or ('data_list' in case and (not case['data_list']['load'] or 'list_follow' in case)))
     row['target_trace'] = measured_trace(log,'TARGET',observed,trailing=('data_store' in case and 'data_trap' not in case) or ('data_list' in case and (not case['data_list']['load'] or 'list_follow' in case)))
-    if observed is not None:
+    if observed is not None and check_transfer_observation:
         errors.extend(check_bus(case, observed, row['bus_trace'], wait_states, pause_clocks))
         errors.extend(check_target(case,observed,row['target_trace']+(row['bus_trace'] if 'control_flow' in case or case.get('stack_load') or 'data_trap' in case or 'data_list' in case or 'data_fill' in case or 'data_line' in case or 'data_blit' in case else []),wait_states,pause_clocks))
     if 'control_flow' in case or 'stack_control_flow' in case or 'call_flow' in case or 'trap_flow' in case:
