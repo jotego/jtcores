@@ -2,9 +2,47 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Physical NMI checkpoint
+## Current arithmetic FILL source-qualified image
 
-The current image uses hardware source `a59e15b08cbff20cd1742e78008f7c56d1d8619a`.
+The loaded image was built from source
+`744acd3e9cac22127a9cb2673a494f0c82d4f53b`, with RBF SHA-256
+`5d071fc8031c273489cc4f2f73bb75b56441a1d7d88f330674a0b4500fcfb25d` and
+source-bound receipt SHA-256
+`f4b3e6d2a4b3416e0ea2ea5f589d49527c73284bd312258ae7febbf81eaca753`.
+
+All 6,188 FILL cases pass each BASE/W1P7/W3 profile (18,564 FPGA executions).
+The 279 focused observations match their source-bound Verilator references.
+The full supported ordinary inventory passes all 145,920 cases per profile
+(437,760 executions), covering 133 forms with zero exclusions; every raw
+verdict independently replays. Driver walls were 324.592828061s,
+327.129926624s and 350.657596027s.
+
+The `/opt/quartus_free` build took 978.16s. Top placement and internal routing
+are reused at 100%; the 9,708-node CPU partition is freshly fitted without
+fallback. Final STA is positive for the 25MHz appliance. CPU-only 3,500-ALM/
+20ns timing and NARC remain separate, open acceptance gates. Concurrent host
+work overlapped the build and validation, so its duration is not a controlled
+speedup comparison.
+
+Six supplemental CEN-phase profiles passed 6,190 cases each (37,140 total),
+with 196 declared positive Verilator matches and all raw results replayed. The
+498 published-target cases produced 417 passes and 81 CD-duration failures
+(27 per profile); the three driver commands exited 1 for those retained
+failures, with zero raw transport errors. The two positive and two negative
+diagnostic observations on BASE exactly match Verilator; W1P7 and W3 have no
+Verilator comparison claim. All raw verdict fields were replayed, and the saved
+final-health script passed on the same image without reset. The 27 MOVB CD targets, exact Boolean/arithmetic
+interrupt timing, broader conditions, normal clean CI and full #144 acceptance
+remain open. These results qualify only the tested source, image, inventory
+and conditions. Root replay evidence and receipt are under
+`/nobackup/tasks/jtcores-144/artifacts/fill-arithmetic-native-1/physical-1/`.
+See [FILL timing and qualification scope](../../docs/fill-timing.md#native-arithmetic-fill-physical-qualification).
+
+## Historical physical NMI checkpoint
+
+This is the earlier `a59` NMI checkpoint, not the current loaded image.
+
+That image used hardware source `a59e15b08cbff20cd1742e78008f7c56d1d8619a`.
 Host-only I/O fixtures and the copied-driver import fix are in
 `8851e67a0e22615cd6c56cb9abf1e937a758472b`; CPU/runner RTL and seven generated
 ROMs are identical. Programs, initial memory, expectations and supported event

@@ -958,6 +958,39 @@ programs. The IRQ/NMI bench passes 56 FILL modes, including all 36 arithmetic
 PPOP/size/address-mode combinations with nested ISR graphics. That bench proves
 architectural continuation only; exact arithmetic interrupt timing remains
 unqualified. The independent 270-test FILL model proof carries over because
-all its source files are unchanged. Complete source-bound FPGA/build
-qualification remains required; no arithmetic hardware result is claimed for
-this development implementation yet.
+all its source files are unchanged.
+
+## Native arithmetic FILL physical qualification
+
+The loaded source-bound image uses source commit
+`744acd3e9cac22127a9cb2673a494f0c82d4f53b`, RBF SHA-256
+`5d071fc8031c273489cc4f2f73bb75b56441a1d7d88f330674a0b4500fcfb25d`, and
+receipt SHA-256
+`f4b3e6d2a4b3416e0ea2ea5f589d49527c73284bd312258ae7febbf81eaca753`.
+Across BASE/W1P7/W3, all 6,188 supported FILL cases pass each profile
+(18,564 executions); all 279 focused observations match the exact
+source-bound Verilator references. The complete supported ordinary inventory
+passes all 145,920 cases per profile (437,760 executions), spanning 133 forms
+with zero exclusions. Every raw verdict was independently replayed. Driver
+walls were 324.592828061s, 327.129926624s and 350.657596027s respectively.
+
+The `/opt/quartus_free` build completed in 978.16s. It reused 100% of Top
+placement and internal routing while freshly fitting the 9,708-node CPU
+partition, without fallback. Final STA is positive for the 25MHz appliance.
+Concurrent host work overlapped the build and validation, so this timing is not
+a controlled speedup comparison.
+These measurements do not establish CPU-only 3,500-ALM/20ns or NARC acceptance;
+those remain separate gates.
+
+Six supplemental CEN-phase driver jobs passed 6,190 cases each (37,140
+total), with 196 declared positive Verilator matches. All raw results were
+replayed. The 498 published-target cases produced 417 passes and 81 CD-duration
+failures (27 per profile); each driver exited 1 for those retained failures,
+with zero raw transport errors. The two positive and two negative diagnostic
+observations on BASE exactly match Verilator; W1P7 and W3 have no Verilator
+comparison claim. All raw verdict fields were replayed. The saved final-health
+script passed on the same image without reset. The 27 published MOVB CD targets, exact
+Boolean/arithmetic interrupt timing, broader conditions, normal clean CI and
+full #144 acceptance also remain open. This qualification covers only the
+tested image, fixture inventory and declared conditions. Root evidence is in
+`/nobackup/tasks/jtcores-144/artifacts/fill-arithmetic-native-1/physical-1/`.

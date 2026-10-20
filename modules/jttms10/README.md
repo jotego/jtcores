@@ -75,13 +75,23 @@ The next [arithmetic FILL baseline](docs/fill-timing.md#arithmetic-whole-word-fa
 adds 1,728 independent PPOP16..21 cases at PS4/8/16, preserving all preceding
 contracts. Eighteen short Verilator representatives fail duration, with checked
 architecture/memory correct and excess pixel-level bus traffic at PS4/8.
-All 1,728 arithmetic cases now have failing FPGA baselines in three profiles,
+All 1,728 arithmetic cases have failing FPGA baselines in three profiles,
 with correct checked architecture/memory and no timeouts/overflows. A native
-word arithmetic development path reuses the shared ALU and passes 372 directed
-Verilator executions, 179,297 pixel/ALU unit checks, 27 mutation controls and
-27 rejections, response capture, architectural and IRQ/NMI continuation checks.
-Its complete FPGA/build qualification remains required. Exact Boolean/arithmetic interrupt timing remains
-unqualified.
+word arithmetic schedule reuses the shared ALU and passes 372 directed
+Verilator executions, 179,297 pixel/ALU unit checks, response capture,
+27 mutation controls and 27 rejections, architectural and IRQ/NMI continuation
+checks. See the
+[source-bound physical qualification](docs/fill-timing.md#native-arithmetic-fill-physical-qualification).
+That image passes all 6,188 FILL cases per BASE/W1P7/W3 profile (18,564 executions), and
+279 focused observations exactly match Verilator. The complete 145,920-case
+ordinary inventory passes each profile (437,760 executions), with 133 forms,
+no exclusions and every raw verdict replayed. This qualifies only the tested
+inventory and conditions: 27 MOVB targets, exact Boolean/arithmetic interrupt
+timing, broader conditions, normal clean CI, CPU-only area and NARC remain
+open. Six supplemental CEN-phase profiles pass all 37,140 executions, with 196
+declared positive Verilator matches. The 498 published-target cases retain 81
+CD-duration failures (27 per profile); only the two BASE positive and two
+negative diagnostic observations were compared with Verilator.
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
