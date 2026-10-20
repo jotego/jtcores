@@ -17,6 +17,10 @@ main() {
     cd "$ver_dir/build"
     if [ "$#" != 0 ]; then
         "$model_dir/Vtest" "$@"
+    elif [ "$unit" = fpga-stimulus ]; then
+        for mode in {0..17}; do
+            "$model_dir/Vtest" +MODE="$mode"
+        done
     elif [ "$unit" = arch ]; then
         for mode in 1 2 3 4 5 6 7 8; do
             "$model_dir/Vtest" +mode="$mode"
@@ -68,6 +72,10 @@ select_sources() {
     local bench="$unit/test.sv"
     local hdl_names=()
     case "$unit" in
+        fpga-stimulus)
+            sources=("$ver_dir/fpga/stimulus/test.sv" "$ver_dir/fpga/jttms10_fpga_stimulus.v")
+            return
+            ;;
         alu) bench=alu/test.v; hdl_names=(alu) ;;
         field|regs|bus|cache) hdl_names=("$unit") ;;
         startup) hdl_names=(bus) ;;
