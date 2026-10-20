@@ -3143,8 +3143,21 @@ begin
         addr_nxt       =  16'HFFFF;
         if ( TakeBranch )
         begin
-            rAVMA = 1'b0;
-            CpuState_nxt   =  CPUSTATE_LBRA_DONTCARE2;
+            if (HD6309 && md[0] && InstPage2)
+            begin
+                // Native HD6309 conditional long branches use the same
+                // five-E interval whether taken or not. Apply the target
+                // during this phase instead of entering the extra dummy.
+                pc_nxt = pc + {Inst2[7:0], Inst3[7:0]};
+                rLIC = 1'b1;
+                rAVMA = 1'b1;
+                CpuState_nxt = CPUSTATE_FETCH_I1;
+            end
+            else
+            begin
+                rAVMA = 1'b0;
+                CpuState_nxt = CPUSTATE_LBRA_DONTCARE2;
+            end
         end
         else
         begin

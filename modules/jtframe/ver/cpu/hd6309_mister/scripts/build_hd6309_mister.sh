@@ -7,12 +7,17 @@ BUILD_DIR=${BUILD_DIR:-/nobackup/tasks/jtcores-147/hd6309_mister_build_$(date +%
 MISTER_TEMPLATE=${MISTER_TEMPLATE:-/nobackup/jtmisc/mister/Template_MiSTer}
 JTROOT=${JTROOT:-/home/jtejada/jtcores-3}
 QUARTUS_SH=${QUARTUS_SH:-/nobackup/opt/quartus_free/intelFPGA_lite/bin/quartus_sh}
+PARALLEL_PROCESSORS=${PARALLEL_PROCESSORS:-4}
 SKILL_DIR=${SKILL_DIR:-/home/jtejada/jtcores-skills/skills/mister-module-test}
 if [[ ! "$TARGET_INSTRUCTIONS" =~ ^[0-9]+$ ]] || (( TARGET_INSTRUCTIONS < 25 || TARGET_INSTRUCTIONS > 99999975 || TARGET_INSTRUCTIONS % 25 != 0 )); then
     echo "TARGET_INSTRUCTIONS must be a positive multiple of 25 through 99999975 (32-bit E-cycle counter limit)" >&2
     exit 1
 fi
 if [[ ! "$NATIVE_MODE" =~ ^[01]$ ]]; then echo "NATIVE_MODE must be 0 (emulation) or 1 (native)" >&2; exit 1; fi
+if [[ ! "$PARALLEL_PROCESSORS" =~ ^[0-9]+$ ]] || (( PARALLEL_PROCESSORS < 1 || PARALLEL_PROCESSORS > 16 )); then
+    echo "PARALLEL_PROCESSORS must be between 1 and 16" >&2
+    exit 1
+fi
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 TASK_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
 
@@ -35,6 +40,7 @@ fi
 
 mkdir -p "$BUILD_DIR"
 cp -a "$MISTER_TEMPLATE/." "$BUILD_DIR/"
+sed -i "s/^set_global_assignment -name NUM_PARALLEL_PROCESSORS .*/set_global_assignment -name NUM_PARALLEL_PROCESSORS $PARALLEL_PROCESSORS/" "$BUILD_DIR/Template.qsf"
 
 # MiSTer Template supplies Quartus 17 PLL QIPs. Quartus 20.x requests
 # pll_q20.qip, so alias its compatible generated PLL source list in this
@@ -74,6 +80,7 @@ printf 'set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"\n' >> 
         echo "TARGET_INSTRUCTIONS=$TARGET_INSTRUCTIONS"
         echo "NATIVE_MODE=$NATIVE_MODE"
         echo "QUARTUS_SH=$QUARTUS_SH"
+        echo "PARALLEL_PROCESSORS=$PARALLEL_PROCESSORS"
         echo "MISTER_TEMPLATE=$MISTER_TEMPLATE"
         echo "JTROOT=$JTROOT"
         echo "BUILD_DIR=$BUILD_DIR"

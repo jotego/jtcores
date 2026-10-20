@@ -110,16 +110,13 @@ def branch_cases(row, mode):
     ret = []
     for taken in outcomes:
         flags = 0 if form in special else flags_for(form, taken)
-        # Note 11 adds one E cycle for taken long conditional branches. The
-        # native-mode taken delta remains unresolved against MAME/physical data.
+        # Atkinson note 11 says the taken-only sixth cycle applies to the 6809
+        # only. Native HD6309 taken conditionals therefore use the 5-E base.
         known = True
         expected = base
         if long and taken and form not in ("LBRA", "LBSR"):
             if mode == "E":
                 expected += 1
-            else:
-                expected = -1
-                known = False
         close = TARGET + len(code) + (2 if taken else 0)
         ret.append((code, flags, expected, close, known, "taken" if taken else "not_taken"))
     return ret
