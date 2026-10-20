@@ -71,6 +71,7 @@ reg [15:0] vregs [0:7];
 reg [15:0] scroll_x, scroll_y;
 reg [5:0] crtc_index;
 reg [7:0] crtc [0:63];
+integer i;
 wire [15:0] control_next = (control_reg & ~{{8{lane[1]}},{8{lane[0]}}})
                          | (cpu_dout & {{8{lane[1]}},{8{lane[0]}}});
 wire sub_ram = control_reg[4:0] == 5'h18;
@@ -138,8 +139,8 @@ always @(posedge clk) begin
         crtc_index <= 0;
         scroll_x <= 0;
         scroll_y <= 0;
-        for (integer i=0;i<64;i=i+1) crtc[i] <= 0;
-        for (integer i=0;i<8;i=i+1) vregs[i] <= 0;
+        for (i=0;i<64;i=i+1) crtc[i] <= 0;
+        for (i=0;i<8;i=i+1) vregs[i] <= 0;
     end else begin
         if (write_commit) begin
             if (cs[2] && lane[0]) begin

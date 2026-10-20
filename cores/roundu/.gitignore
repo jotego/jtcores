@@ -9,3 +9,5 @@
 !/ver/game/*.cab
 !/ver/roundup5/
 /ver/roundup5/*
+!/ver/roundup5/mamedump.sh
+!/ver/roundup5/mamedump.lua
