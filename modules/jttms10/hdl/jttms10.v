@@ -9,7 +9,7 @@ module jttms10 #(
 )(
 `ifdef JTTMS10_REGRESSION
     // Synthesizable observation only; sampled before this clock's writes.
-    output            obs_decode, obs_rf_we,
+    output            obs_decode, obs_rf_we, obs_hw_complete,
     output     [31:0] obs_decode_pc, obs_rf_data,
     output     [15:0] obs_decode_ir,
     output     [ 5:0] obs_rf_addr,
@@ -552,6 +552,9 @@ module jttms10 #(
 
 `ifdef JTTMS10_REGRESSION
     wire [11:0] obs_uaddr;
+    // Context completion installs the vector PC and initialized ST on this edge.
+    // Pure observation: does not feed CPU control, RF or inferred memories.
+    assign obs_hw_complete = step && ni && hw_entry;
     assign obs_decode    = step && ld_ir;
     assign obs_decode_pc = fetch ? pc : pc-32'd16;
     assign obs_decode_ir = fetch ? read_data[15:0] : md[15:0];

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Exercise V4 event failures through Avalon, then verify case isolation/rearm."""
+"""Exercise external event failures through Avalon and verify isolation/rearm."""
 import argparse
 import copy
 import json
@@ -20,7 +20,7 @@ def manifests():
     # Deliberate malformed descriptors/tables bypass the ordinary Python/C
     # preflight only in the Avalon simulation. No physical transport is used.
     original = checker.prepare_cases(['nop_hit', 'nop_off', 'add_off',
-                                     'blit_ll_ps4_n4_rows2_hit'], protocol_version=4)
+                                     'blit_ll_ps4_n4_rows2_hit'], protocol_version=5)
     by_name = {entry['name']: entry for entry in original}
     batches, expected = [], []
     for kind in KINDS:
@@ -48,7 +48,7 @@ def manifests():
             status = 0x80000002
         elif kind == 'overflow':
             status = 0x80000002
-        batch = checker.make_batches([failed, clean], protocol_version=4)[0]
+        batch = checker.make_batches([failed, clean], protocol_version=5)[0]
         desc = batch['descriptors'][0]
         if kind == 'count':
             desc[14] = 17
@@ -58,7 +58,7 @@ def manifests():
             desc[14] = 0
         elif kind == 'overflow':
             desc[4] = 0xff00
-        batches.extend([batch, checker.make_batches([clean], protocol_version=4)[0]])
+        batches.extend([batch, checker.make_batches([clean], protocol_version=5)[0]])
         expected.append(dict(kind=kind, status=status, batch=len(batches)-2))
     controls = [copy.deepcopy(by_name[name]) for name in
                 ('nop_hit', 'add_off', 'blit_ll_ps4_n4_rows2_hit')]
@@ -70,9 +70,9 @@ def manifests():
                                    dict(trigger=0, argument=1, control=0),
                                    dict(trigger=0, argument=2, control=16),
                                    dict(trigger=5, argument=1, control=0)]
-    batches.extend(checker.make_batches(controls, protocol_version=4))
-    batches.extend(checker.make_batches([harmless], protocol_version=4))
-    return dict(format=checker.FORMAT_V4, protocol_version=4, batches=batches), expected
+    batches.extend(checker.make_batches(controls, protocol_version=5))
+    batches.extend(checker.make_batches([harmless], protocol_version=5))
+    return dict(format=checker.FORMAT_V5, protocol_version=5, batches=batches), expected
 
 
 def verify(manifest, captures, report, expected):
@@ -91,7 +91,7 @@ def verify(manifest, captures, report, expected):
         count = failed['event_count'] & 0x7fffffff
         if overflow != (kind == 'overflow') or count != len(failed['events']):
             raise ValueError(f'{kind}: incorrect explicit overflow/count')
-        checker.decode_events(failed['events'], 2, 4)
+        checker.decode_events(failed['events'], 2, 5)
         if kind == 'overflow' and count != 512:
             raise ValueError('overflow: case trace exceeded or missed its bound')
         trace = []
@@ -100,7 +100,7 @@ def verify(manifest, captures, report, expected):
                 event = event.copy()
                 event[3] &= ~(31 << 9)
                 trace.append(event)
-        isolated = dict(protocol_version=4, status=2, results=[failed['results'][1]],
+        isolated = dict(protocol_version=5, status=2, results=[failed['results'][1]],
                         events=trace, event_count=len(trace))
         independent = checker.check_batch(clean, isolated)
         rearmed = checker.check_batch(clean, rearm)

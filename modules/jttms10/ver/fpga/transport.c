@@ -19,7 +19,7 @@
 #define MAX_CASES 32u
 #define MAX_PROGRAM_WORDS 4096u
 #define DESCRIPTOR_WORDS 16u
-#define RESULT_WORDS 288u
+#define RESULT_WORDS 292u
 #define MAX_EVENTS 16384u
 #define MAX_BATCHES 8192u
 #define DEFAULT_TIMEOUT_MS 180000u
@@ -139,7 +139,7 @@ static int run_batch(FILE *in, uint32_t batch_index, uint32_t *previous_status) 
     uint32_t event_word=rd(7), nevent=event_word&0x7fffffffu;
     if(nevent>MAX_EVENTS) { fail("event count exceeds output bound"); free(desc); free(prog); return 5; }
     if(batch_index) putchar(',');
-    printf("{\"protocol_version\":4,\"status\":%" PRIu32 ",\"event_count\":%" PRIu32
+    printf("{\"protocol_version\":5,\"status\":%" PRIu32 ",\"event_count\":%" PRIu32
            ",\"stage_ms\":%" PRIu64 ",\"run_ms\":%" PRIu64
            ",\"results\":[",status,event_word,stage_end-stage_start,run_end-start);
     for(uint32_t c=0;c<ncase;c++) {
@@ -173,7 +173,7 @@ int main(int argc,char **argv) {
     FILE *in=fopen(argv[1],"rb");
     if(!in){perror("fopen batch");return 2;}
     uint8_t magic[4]; uint32_t nbatch;
-    if(!read_exact(in,magic,4)||memcmp(magic,"JTR5",4)||!read_exact(in,&nbatch,sizeof nbatch)||!nbatch||nbatch>MAX_BATCHES){
+    if(!read_exact(in,magic,4)||memcmp(magic,"JTR6",4)||!read_exact(in,&nbatch,sizeof nbatch)||!nbatch||nbatch>MAX_BATCHES){
         fail("bad stream header");fclose(in);return 2;
     }
     int fd=open("/dev/mem",O_RDWR|O_SYNC);
@@ -188,9 +188,9 @@ int main(int argc,char **argv) {
         munmap(map,MAP_BYTES);close(fd);fclose(in);return 3;
     }
     regs=(volatile uint32_t *)((volatile char *)map+RUNNER_OFFSET);
-    if(rd(0)!=0x4a545234u){fail("runner magic mismatch at 0xff210840");munmap(map,MAP_BYTES);close(fd);fclose(in);return 3;}
+    if(rd(0)!=0x4a545235u){fail("runner magic mismatch at 0xff210840");munmap(map,MAP_BYTES);close(fd);fclose(in);return 3;}
     uint32_t previous_status=rd(1); int overall=0;
-    printf("{\"protocol_version\":4,\"batches\":[");
+    printf("{\"protocol_version\":5,\"batches\":[");
     for(uint32_t b=0;b<nbatch;b++) {
         int rc=run_batch(in,b,&previous_status);
         if(rc && !overall)overall=rc;

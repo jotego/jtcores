@@ -341,6 +341,28 @@ class ResultChecks(unittest.TestCase):
         capture['event_count'] = len(capture['events'])
         return batch, capture
 
+    def test_v5_footer_is_versioned_and_has_checked_boundary_ranges(self):
+        def packet():
+            batch, capture = self.packet_v4()
+            batch['protocol_version'] = capture['protocol_version'] = 5
+            capture['results'][0].extend([0]*4)
+            return batch, capture
+        batch, capture = packet()
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        capture['results'][0] = capture['results'][0][:-4]
+        with self.assertRaisesRegex(ValueError, 'malformed result length'):
+            checker.check_batch(batch, capture)
+        for footer in ([0, 1, 2, 3], [1, 0, 2, 3], [1, 65, 64, 66], [1, 65, 66, 0]):
+            batch, capture = packet()
+            capture['results'][0][288:292] = footer
+            self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+        # A V4 packet remains readable as V4, and cannot masquerade as V5.
+        batch, capture = self.packet_v4()
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        capture['protocol_version'] = 5
+        with self.assertRaisesRegex(ValueError, 'capture protocol version'):
+            checker.check_batch(batch, capture)
+
     def test_v4_control_and_event_table_staging(self):
         batch, capture = self.packet_v4()
         self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)

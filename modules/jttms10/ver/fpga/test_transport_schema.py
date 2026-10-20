@@ -39,14 +39,14 @@ int main(int argc, char **argv) {
         cls.executable = cls.work/'check'
         subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-O2',str(wrapper),
                         '-o',str(cls.executable)],check=True,capture_output=True)
-        entry = checker.prepare_cases(['nop_hit'], limit=1, protocol_version=4)[0]
+        entry = checker.prepare_cases(['nop_hit'], limit=1, protocol_version=5)[0]
         entry['external_events'] = [dict(trigger=0, argument=0, control=16),
                                     dict(trigger=5, argument=1, control=0)]
-        cls.good = checker.make_batches([entry], protocol_version=4)[0]
+        cls.good = checker.make_batches([entry], protocol_version=5)[0]
 
     def native(self, batch):
         words, rows = batch['program_words'], batch['descriptors']
-        data = bytearray(struct.pack('<4s5I',b'JTR5',1,len(rows),len(words),4000000,0))
+        data = bytearray(struct.pack('<4s5I',b'JTR6',1,len(rows),len(words),4000000,0))
         for row in rows:
             data += struct.pack('<16I',*row)
         data += struct.pack(f'<{len(words)}H',*words)
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 
     def test_valid_event_payload_reaches_busy_guard_without_writes(self):
         payload = run_batch.input_payload([self.good],4000000)
-        self.assertEqual(payload[:4],b'JTR5')
+        self.assertEqual(payload[:4],b'JTR6')
         result = self.native(self.good)
         self.assertEqual(result.returncode,4,result.stdout+result.stderr)
         self.assertIn('still busy',result.stderr)
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
     def test_event_pool_cannot_alias_another_case(self):
         first=copy.deepcopy(self.good['cases'][0]);second=copy.deepcopy(first);second['id']=1
-        batch=checker.make_batches([first,second],protocol_version=4)[0]
+        batch=checker.make_batches([first,second],protocol_version=5)[0]
         batch['descriptors'][1][15]=batch['descriptors'][0][15]
         self.reject(batch)
 

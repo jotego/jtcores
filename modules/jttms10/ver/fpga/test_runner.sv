@@ -46,9 +46,9 @@ module test;
         read_register(0,value);
         while(!$feof(file_handle)) begin
             parsed=$fscanf(file_handle,"%d %d %d %s %s\n",case_count,word_count,protocol_version,descriptor_path,program_path);
-            if(parsed!=5 || protocol_version!=4) $fatal(1,"malformed batch list or unsupported protocol");
+            if(parsed!=5 || protocol_version!=5) $fatal(1,"malformed batch list or unsupported protocol");
             read_register(0,value);
-            if(value!=32'h4a545234) $fatal(1,"incorrect runner protocol identifier");
+            if(value!=32'h4a545235) $fatal(1,"incorrect runner protocol identifier");
             if(case_count<1 || case_count>32 || word_count<1 || word_count>4096)
                 $fatal(1,"invalid staged batch bounds");
             $readmemh(descriptor_path,descriptor);
@@ -69,11 +69,11 @@ module test;
                 polls=polls+1;
             end
             if(status[0] && !status[31]) $fatal(1,"host wall-clock polling timeout");
-            $display("CAPTURE_BEGIN %0d %08h 4",batch_index,status);
+            $display("CAPTURE_BEGIN %0d %08h 5",batch_index,status);
             for(integer q=0;q<case_count;q=q+1) begin
                 $write("CAPTURE_RESULT %0d",q);
-                for(integer r=0;r<288;r=r+1) begin
-                    write_register(8,32'(q*288+r));
+                for(integer r=0;r<292;r=r+1) begin
+                    write_register(8,32'(q*292+r));
                     read_register(9,value);
                     $write(" %08h",value);
                 end

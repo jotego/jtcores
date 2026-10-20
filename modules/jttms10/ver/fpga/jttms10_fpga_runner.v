@@ -15,7 +15,7 @@ module jttms10_fpga_runner(
     localparam integer MAX_CASES=32;
     localparam integer MAX_PROGRAM_WORDS=4096;
     localparam integer DESCRIPTOR_WORDS=16;
-    localparam integer RESULT_WORDS=288;
+    localparam integer RESULT_WORDS=292;
     localparam integer EVENTS_PER_CASE=512;
     localparam integer MAX_EVENTS=16384;
     localparam [5:0] S_IDLE=0,S_CLEAR=1,S_COPY_READ=2,S_RESET=3,S_RUN=4,S_DONE=5,
@@ -67,6 +67,8 @@ module jttms10_fpga_runner(
     reg measuring=0, primary_complete=0, drain_pause_active=0, drain_pause_started=0;
     reg follow_snapshot_done=0;
     reg [31:0] follow_capture_count=0, extra_index=0;
+    reg [31:0] entry_count=0, entry_previous=0, entry_complete=0, entry_first_retire=0;
+    reg [31:0] last_retire_clock=0;
     reg [5:0] state=S_IDLE;
     reg cpu_reset=1;
 
@@ -155,7 +157,7 @@ module jttms10_fpga_runner(
             sparse_read_address=0;
     end
 
-    wire obs_decode, obs_rf_we, obs_bus_start, obs_bus_complete;
+    wire obs_decode, obs_rf_we, obs_hw_complete, cpu_retire, obs_bus_start, obs_bus_complete;
     wire [31:0] obs_decode_pc, obs_rf_data, pc, st;
     wire [15:0] obs_decode_ir, obs_bus_rdata;
     wire [5:0] obs_rf_addr;
@@ -268,7 +270,7 @@ module jttms10_fpga_runner(
     );
 
     jttms10_system #(.CLKS_PER_STATE(8),.RESET_REFRESH(0)) u_cpu(
-        .obs_decode(obs_decode),.obs_rf_we(obs_rf_we),
+        .obs_decode(obs_decode),.obs_rf_we(obs_rf_we),.obs_hw_complete(obs_hw_complete),
         .obs_decode_pc(obs_decode_pc),.obs_rf_data(obs_rf_data),
         .obs_decode_ir(obs_decode_ir),.obs_rf_addr(obs_rf_addr),.obs_work(obs_work),
         .obs_bus_start(obs_bus_start),.obs_bus_complete(obs_bus_complete),
@@ -282,7 +284,7 @@ module jttms10_fpga_runner(
         .cyc_req(cyc_req),.cyc_kind(cyc_kind),.cyc_addr(cyc_addr),.cyc_wdata(cyc_wdata),
         .cyc_io_rdata(cyc_io_rdata),.cyc_iaq(cyc_iaq),.cyc_srfaddr(),.cyc_dpytap(),.cyc_org(),
         .cyc_dram_row(),.cyc_rdata(cyc_rdata),.cyc_ack(cyc_ack),
-        .pc(pc),.st(st),.ir(),.retire(),.fault(fault),
+        .pc(pc),.st(st),.ir(),.retire(cpu_retire),.fault(fault),
         .intenb(),.intpend(intpend),.irq_pending(),.nmi_pending(),.halt()
     );
 
@@ -311,6 +313,8 @@ module jttms10_fpga_runner(
             case_error<=0; batch_error<=0; sparse_tag_valid<=0;
             paused_count<=0; drain_remaining<=0; follow_capture_count<=0;
             extra_index<=0; pool_word_count<=0; init_index<=0;
+            entry_count<=0; entry_previous<=0; entry_complete<=0; entry_first_retire<=0;
+            last_retire_clock<=0;
             sparse_lookup_valid_q<=0;
             stimulus_index<=0; stimulus_word<=0; stimulus_data<=0;
             stimulus_log_index<=0; stimulus_host_issued<=0; stimulus_last_clock<=0;
@@ -349,7 +353,7 @@ module jttms10_fpga_runner(
             if(avs_read) begin
                 read_address_q<=avs_address;
                 case(avs_address)
-                    0: csr_read_q<=32'h4a545234;
+                    0: csr_read_q<=32'h4a545235;
                     1: csr_read_q<=status;
                     2: csr_read_q<=case_count;
                     3: csr_read_q<=desc_ptr;
@@ -502,6 +506,21 @@ module jttms10_fpga_runner(
                 if(pause_active && cyc_req) begin
                     status[8]<=1'b1; case_error<=1; batch_error<=1;
                 end
+                // retire is registered by the CPU: its event happened one fast clock
+                // before this observer sees it. Context completion is combinational
+                // and sampled at the assigning edge, so it needs no adjustment.
+                if(measuring && cpu_retire) begin
+                    last_retire_clock<=case_clock-32'd1;
+                    if(entry_count!=0 && entry_first_retire==0)
+                        entry_first_retire<=case_clock-32'd1;
+                end
+                if(measuring && obs_hw_complete) begin
+                    entry_count<=entry_count+32'd1;
+                    if(entry_count==0) begin
+                        entry_complete<=case_clock;
+                        entry_previous<=cpu_retire ? case_clock-32'd1 : last_retire_clock;
+                    end
+                end
                 if(obs_decode && measuring && follow_pc!=0 && obs_decode_pc==follow_pc) begin
                     if(follow_capture_count==0) begin
                         result_meta[9]<=case_clock;
@@ -583,6 +602,8 @@ module jttms10_fpga_runner(
                 S_CLEAR: begin
                     cpu_reset<=1; rf_valid<=0; follow_rf_valid<=0; measuring<=0;
                     primary_complete<=0; follow_snapshot_done<=0; follow_capture_count<=0;
+                    entry_count<=0; entry_previous<=0; entry_complete<=0; entry_first_retire<=0;
+                    last_retire_clock<=0;
                     stimulus_host_issued<=0; stimulus_last_clock<=0; stimulus_paused<=0;
                     stimulus_pause_latched<=0; previous_hold_ack<=0;
                     drain_remaining<=0; final_store_valid<=0;
@@ -828,9 +849,13 @@ module jttms10_fpga_runner(
                         82: results[case_index*RESULT_WORDS+284]<={31'b0,stimulus_error};
                         83: results[case_index*RESULT_WORDS+285]<=stimulus_last_clock;
                         84: results[case_index*RESULT_WORDS+286]<=stimulus_paused;
+                        86: results[case_index*RESULT_WORDS+288]<=entry_count;
+                        87: results[case_index*RESULT_WORDS+289]<=entry_previous;
+                        88: results[case_index*RESULT_WORDS+290]<=entry_complete;
+                        89: results[case_index*RESULT_WORDS+291]<=entry_first_retire;
                         default: results[case_index*RESULT_WORDS+202+extra_index]<=0;
                     endcase
-                    if(extra_index==85) begin
+                    if(extra_index==89) begin
                         if(result_meta[1]!=32'h2) batch_error<=1;
                         if(case_index+1>=case_count) begin
                             status<=batch_error || case_error || result_meta[1]!=32'h2 ? 32'h80000002 : 32'h2;

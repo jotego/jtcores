@@ -61,8 +61,8 @@ def main():
     parser.add_argument('--limit', type=int)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--timeout-cycles', type=int, default=4_000_000)
-    parser.add_argument('--protocol-version', type=int, choices=(4,), default=4,
-                        help='active RTL protocol (V4; V1/V2/V3 are archived capture formats)')
+    parser.add_argument('--protocol-version', type=int, choices=(5,), default=5,
+                        help='active RTL protocol (V5; V1/V2/V3/V4 are archived capture formats)')
     parser.add_argument('--wait-states', type=int, default=0)
     parser.add_argument('--pause-clocks', type=int, default=0)
     parser.add_argument('--pause-after-clocks', type=int, default=0)
@@ -83,14 +83,14 @@ def main():
             version = checker.validate_manifest(manifest)
         except (KeyError, TypeError, ValueError) as error:
             parser.error(f'unsupported or malformed manifest: {error}')
-        if version != 4:
+        if version != 5:
             parser.error(f'protocol V{version} manifests are archived capture formats; '
-                         'the active Verilator RTL accepts only V4')
+                         'the active Verilator RTL accepts only V5')
         if args.protocol_version is not None and args.protocol_version != version:
             parser.error('requested protocol version differs from manifest')
         batches = manifest['batches']
     else:
-        version = 4
+        version = 5
         entries = checker.prepare_cases(args.case, args.limit, version,
                                        dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
                                             pause_after_clocks=args.pause_after_clocks))

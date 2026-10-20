@@ -27,7 +27,7 @@ DEFAULT_IP = '192.168.68.72'
 DEFAULT_CC = Path('/opt/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc')
 REMOTE_TRANSPORT = '/tmp/jttms10-fpga-transport'
 REMOTE_BATCH = '/tmp/jttms10-fpga-batch.bin'
-PROTOCOL_VERSION = 4
+PROTOCOL_VERSION = 5
 DESCRIPTOR_WORDS = 16
 
 
@@ -60,8 +60,8 @@ def load_and_validate_receipt(receipt_path, source_root, hardware_source_root,
     receipt = json.loads(receipt_path.read_text())
     source_root = Path(source_root).resolve(strict=True)
     hardware_source_root = Path(hardware_source_root).resolve(strict=True)
-    if receipt.get('protocol_version') != 4:
-        raise SystemExit('V4 transport requires a protocol 4 programming receipt')
+    if receipt.get('protocol_version') != 5:
+        raise SystemExit('V5 transport requires a protocol 5 programming receipt')
     for root in {source_root, hardware_source_root}:
         if runner_source_fingerprints(root) != receipt.get('runner_source_fingerprints'):
             raise SystemExit('runner component checkout differs from the fitted image')
@@ -246,10 +246,10 @@ def input_payload(batches, timeout):
         raise ValueError('timeout cycles must be an integer in 1..4294967295')
     if not 1 <= len(batches) <= 8192:
         raise ValueError('invalid number of FPGA batches')
-    out = bytearray(struct.pack('<4sI', b'JTR5', len(batches)))
+    out = bytearray(struct.pack('<4sI', b'JTR6', len(batches)))
     for batch in batches:
         if batch.get('protocol_version') != PROTOCOL_VERSION:
-            raise ValueError('batch is missing protocol_version 4')
+            raise ValueError('batch is missing protocol_version 5')
         cases, words, desc = batch['cases'], batch['program_words'], batch['descriptors']
         batch_flags = batch.get('batch_flags', 0)
         if not 1 <= len(cases) <= 32 or len(desc) != len(cases) or not 1 <= len(words) <= 4096:
@@ -346,9 +346,9 @@ def main():
     if receipt.get('runner_source_sha256') != current_runner_hash:
         raise SystemExit('runner RTL differs from the image recorded in the programming receipt')
     manifest = json.loads(args.manifest.read_text())
-    if (manifest.get('format') != 'jttms10-fpga-batch-v4' or
+    if (manifest.get('format') != 'jttms10-fpga-batch-v5' or
             manifest.get('protocol_version') != PROTOCOL_VERSION):
-        raise SystemExit('unsupported manifest format; the V4 runner requires protocol version 4')
+        raise SystemExit('unsupported manifest format; the V5 runner requires protocol version 5')
     batches = manifest['batches']
     if any(batch.get('protocol_version') != PROTOCOL_VERSION for batch in batches):
         raise SystemExit('one or more manifest batches use an unsupported protocol version')

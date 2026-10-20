@@ -22,8 +22,8 @@ def run(output):
     entries = [next(entry for entry in entries if entry['name'] == name) for name in wanted]
     # Separate batches retain the individual ordinary oracle verdict even if
     # another mutant case times out or encounters an execution protocol error.
-    manifest = dict(format=checker.FORMAT_V4, protocol_version=4,
-                    batches=[checker.make_batches([entry], protocol_version=4)[0] for entry in entries])
+    manifest = dict(format=checker.FORMAT_V5, protocol_version=5,
+                    batches=[checker.make_batches([entry], protocol_version=5)[0] for entry in entries])
     reference.run(manifest, output/'control')
     source = HERE/'jttms10_fpga_stimulus.v'
     original = source.read_text()

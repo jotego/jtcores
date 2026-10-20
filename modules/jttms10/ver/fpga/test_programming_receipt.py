@@ -40,7 +40,7 @@ class SourceBoundReceipts(unittest.TestCase):
         sources = receipts.cpu_source_fingerprints(self.root)
         self.receipt = {
             'format': 'jttms10-fpga-programming-receipt-v1',
-            'protocol_version': 4,
+            'protocol_version': 5,
             'runner_source_fingerprints': receipts.runner_source_fingerprints(self.root),
             'cpu_source_fingerprints': sources,
             'cpu_source_fingerprint_sha256': receipts.cpu_source_fingerprint_digest(sources),
@@ -113,9 +113,10 @@ class SourceBoundReceipts(unittest.TestCase):
         with self.assertRaisesRegex(SystemExit, 'runner component checkout differs'):
             self.validate()
         self.write('modules/jttms10/ver/fpga/jttms10_fpga_stimulus.v', 'stimulus\n')
-        self.receipt['protocol_version'] = 3
-        with self.assertRaisesRegex(SystemExit, 'protocol 4 programming receipt'):
-            self.validate()
+        for old in (1, 2, 3, 4):
+            self.receipt['protocol_version'] = old
+            with self.assertRaisesRegex(SystemExit, 'protocol 5 programming receipt'):
+                self.validate()
 
     def test_old_receipt_and_variant_without_parent_fail_closed(self):
         saved = self.receipt.pop('cpu_source_fingerprints')

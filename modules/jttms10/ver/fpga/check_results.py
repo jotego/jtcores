@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Prepare FPGA batches and check observations using the independent timing suite.
 
-This module performs no SSH, device access or FPGA programming. Protocol v4
-adds preloaded external events to v3's store/follow/drain observations.
+This module performs no SSH, device access or FPGA programming. Protocol v5
+adds actual context-completion and retirement clocks to v4 external events.
 Unsupported fixture requirements fail explicitly rather than losing checks.
 """
 import argparse
@@ -30,9 +30,10 @@ FORMAT_V1 = 'jttms10-fpga-batch-v1'
 FORMAT = 'jttms10-fpga-batch-v2'
 FORMAT_V3 = 'jttms10-fpga-batch-v3'
 FORMAT_V4 = 'jttms10-fpga-batch-v4'
-FORMATS = {1: FORMAT_V1, 2: FORMAT, 3: FORMAT_V3, 4: FORMAT_V4}
-RESULT_SIZES = {1: 72, 2: RESULT_WORDS, 3: 288, 4: 288}
-EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384), 3: (512, 16384), 4: (512, 16384)}
+FORMAT_V5 = 'jttms10-fpga-batch-v5'
+FORMATS = {1: FORMAT_V1, 2: FORMAT, 3: FORMAT_V3, 4: FORMAT_V4, 5: FORMAT_V5}
+RESULT_SIZES = {1: 72, 2: RESULT_WORDS, 3: 288, 4: 288, 5: 292}
+EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384), 3: (512, 16384), 4: (512, 16384), 5: (512, 16384)}
 MASK32 = (1 << 32) - 1
 # Explicit fixture-family selection, not a verdict allowlist. Every selected
 # fixture still passes require_supported and every existing oracle assertion.
@@ -64,7 +65,7 @@ def require_supported(case, protocol_version=1):
                  'pc_result_register', 'test_pc', 'next_pc', 'citation', 'conditions',
                  'coverage_id', 'source_conflict_kind', 'source_notes',
                  'source_result_register', 'source_values', 'timing_source_status'}
-    if protocol_version in (2, 3, 4):
+    if protocol_version in (2, 3, 4, 5):
         supported |= {'initial_memory', 'expected_memory', 'data_load', 'stack_load', 'pixel_load',
                       'stack_fields', 'data_list', 'hidden_states', 'initial_all_regs',
                       'observe_all', 'register_overrides', 'seed', 'source_register',
@@ -211,9 +212,9 @@ def external_event_words(entry, protocol_version):
     events = entry.get('external_events', [])
     if not isinstance(events, list) or len(events) > 16:
         raise ValueError('external event table must contain at most 16 entries')
-    if events and protocol_version != 4:
+    if events and protocol_version < 4:
         raise ValueError('external events require FPGA protocol 4')
-    if entry.get('external_contract') is not None and protocol_version != 4:
+    if entry.get('external_contract') is not None and protocol_version < 4:
         raise ValueError('external event expectations require FPGA protocol 4')
     expected_external_pause(entry)
     words = []
@@ -304,8 +305,8 @@ def decode_events(raw, case_count, protocol_version=1):
             raise ValueError('each event must contain four words')
         clock, data, address, flags = map(u32, words)
         index = (flags >> 9) & 31
-        stimulus_record = protocol_version == 4 and bool(flags & (1 << 14))
-        allowed = 0x7fe00 if stimulus_record else (0x1c3fff if protocol_version == 4 else 0x3fff)
+        stimulus_record = protocol_version >= 4 and bool(flags & (1 << 14))
+        allowed = 0x7fe00 if stimulus_record else (0x1c3fff if protocol_version >= 4 else 0x3fff)
         if flags & ~allowed or index >= case_count or (not stimulus_record and not flags & 0x1801e0):
             raise ValueError('invalid event flags or case association')
         if index < previous_case:
@@ -329,7 +330,7 @@ def decode_events(raw, case_count, protocol_version=1):
         if stimulus_counts[index] or clock < previous_clock:
             raise ValueError('runtime events follow stimulus appendix or run backwards')
         previous_clock = clock
-        if protocol_version == 4:
+        if protocol_version >= 4:
             if flags & (1 << 19):
                 lines[index].append(f'HOLD_ACK {clock} {(flags >> 18) & 1}')
             if flags & (1 << 20):
@@ -461,6 +462,8 @@ def check_batch(batch, capture):
             errors.append('invalid or wrapped measurement clocks')
         observed = dict(case=result[0], clocks=result[2], start=result[7],
                         end=result[7] + result[2], paused=result[72] if version >= 2 else 0, st=result[6])
+        if version >= 5:
+            observed['protocol_version'] = version
         if observed['paused'] > observed['clocks']:
             errors.append('paused clocks exceed the measurement interval')
         required = [f'a{q}' for q in range(len(case['expected_regs']))]
@@ -480,6 +483,13 @@ def check_batch(batch, capture):
         lines = list(traces[index])
         if version >= 3:
             lines.extend(v3_observation_lines(case, result, observed, errors, version))
+        if version >= 5:
+            count, previous, complete, first = result[288:292]
+            if count == 0 and any((previous, complete, first)):
+                errors.append('IRQ boundary clocks without context completion')
+            if count and not (observed['start'] <= previous < complete < first <= result[272]):
+                errors.append('missing, unordered or out-of-range IRQ boundary clocks')
+            lines.append(f'IRQ_BOUNDARY count={count} previous={previous} complete={complete} first={first}')
         errors.extend(oracle.check(case, observed, stimulus['wait_states'], expected_pause))
         if version >= 2:
             initial_words(case)
@@ -495,7 +505,7 @@ def check_batch(batch, capture):
                 errors.append('unused memory snapshot words are nonzero')
         if any(key in case for key in ('control_flow', 'stack_control_flow', 'call_flow', 'trap_flow')):
             lines.append(f'NEXT_OPCODE {result[5]:04x}')
-        if version == 4:
+        if version >= 4:
             errors.extend(check_external_events(entry, result, traces[index]))
         log = '\n'.join(lines)
         row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause)
@@ -686,7 +696,7 @@ def main():
     prepare.add_argument('--limit', type=int)
     prepare.add_argument('--published-targets', action='store_true',
                          help='select agreeing TI MOVB duration targets; known failures on the baseline CPU')
-    prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3, 4), default=4)
+    prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3, 4, 5), default=5)
     prepare.add_argument('--wait-states', type=int, default=0)
     prepare.add_argument('--pause-clocks', type=int, default=0)
     prepare.add_argument('--pause-after-clocks', type=int, default=0)

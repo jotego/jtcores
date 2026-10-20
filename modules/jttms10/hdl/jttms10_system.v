@@ -8,7 +8,7 @@ module jttms10_system #(
     parameter integer RESET_REFRESH=1
 )(
 `ifdef JTTMS10_REGRESSION
-    output            obs_decode, obs_rf_we,
+    output            obs_decode, obs_rf_we, obs_hw_complete,
     output     [31:0] obs_decode_pc, obs_rf_data,
     output     [15:0] obs_decode_ir,
     output     [ 5:0] obs_rf_addr,
@@ -72,6 +72,7 @@ module jttms10_system #(
         .obs_rf_addr             ( obs_rf_addr             ),
         .obs_rf_data             ( obs_rf_data             ),
         .obs_work                ( obs_work                ),
+        .obs_hw_complete         ( obs_hw_complete         ),
 `endif
 `ifdef JTTMS10_REGRESSION
         .obs_field_pending_fault ( obs_field_pending_fault ),

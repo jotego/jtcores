@@ -129,6 +129,42 @@ class InterruptContract(unittest.TestCase):
         self.assertTrue(any('entry latency' in s and 'observed 183' in s for s in errors), errors)
         self.assertFalse(any('expected 0x' in s for s in errors), errors)
 
+    def explicit_sample(self, warm=True):
+        entry, observed, lines = self.sample(warm)
+        observed['protocol_version'] = 5
+        first = 1180 if warm else 1252
+        lines.append(f'IRQ_BOUNDARY count=1 previous=1028 complete=1156 first={first}')
+        return entry, observed, lines
+
+    def test_v5_checks_actual_context_and_first_isr_retirement(self):
+        for warm in (False, True):
+            entry, observed, lines = self.explicit_sample(warm)
+            errors, normalized = irq_contract.check(entry, observed, lines)
+            self.assertEqual(errors, [])
+            self.assertEqual(normalized['boundary']['complete'], 156)
+            # Decoding is a separate recorded observation, not the context
+            # completion edge. The explicit boundary owns absolute latency.
+            lines = [s.replace('clock=1160', 'clock=1164') for s in lines]
+            self.assertEqual(irq_contract.check(entry, observed, lines)[0], [])
+
+    def test_v5_does_not_fall_back_to_decode_when_boundaries_are_missing(self):
+        entry, observed, lines = self.explicit_sample()
+        for rows in (lines[:-1], lines+[lines[-1]],
+                     lines[:-1]+[lines[-1].replace('count=1', 'count=0')],
+                     lines[:-1]+[lines[-1].replace('count=1', 'count=2')],
+                     lines[:-1]+['IRQ_BOUNDARY count=1'],
+                     lines[:-1]+[lines[-1]+' first=1180']):
+            self.assertTrue(any('explicit IRQ boundaries' in e
+                                for e in irq_contract.check(entry, observed, rows)[0]))
+
+    def test_v5_rejects_wrong_context_latency_and_first_isr_even_with_correct_state(self):
+        entry, observed, lines = self.explicit_sample()
+        for a, b, match in [('previous=1028', 'previous=1020', 'context switch'),
+                            ('complete=1156', 'complete=1164', 'entry latency'),
+                            ('first=1180', 'first=1188', 'first ISR MOVI')]:
+            rows = [s.replace(a, b) for s in lines]
+            self.assertTrue(any(match in e for e in irq_contract.check(entry, observed, rows)[0]))
+
     def test_exact_context_count_is_checked_inside_recognition_envelope(self):
         entry, observed, lines = self.sample(True)
         errors, _ = irq_contract.check(entry, observed, [s.replace('clock=1160', 'clock=1159') for s in lines])

@@ -27,8 +27,8 @@ def run(output):
     entries = [entry for batch in reference.fixture_manifest()['batches'] for entry in batch['cases']]
     wanted = ('nop_hit__empty', 'nop_off__empty', 'irq_scalar_lint1_w0_cold', 'irq_scalar_lint1_w0_warm')
     entries = [next(entry for entry in entries if entry['name'] == name) for name in wanted]
-    manifest = dict(format=checker.FORMAT_V4, protocol_version=4,
-                    batches=checker.make_batches(entries, protocol_version=4))
+    manifest = dict(format=checker.FORMAT_V5, protocol_version=5,
+                    batches=checker.make_batches(entries, protocol_version=5))
     reference.run(manifest, output/'control')
     controls = json.loads((output/'control/reference.json').read_text())['cases']
     variants = (
@@ -38,6 +38,12 @@ def run(output):
          '(TIMED_PROGRAM!=0 && hw_entry && stack_sel==WRITE_STACK)', "(1'b0 && hw_entry && stack_sel==WRITE_STACK)"),
         ('skip_resume_instruction', 'jttms10.v',
          "md<=line_hw_push ? pc-32'd16 : pc;", "md<=line_hw_push ? pc-32'd16 : pc+(hw_entry ? 32'd16 : 32'd0);"),
+        ('slow_first_isr', 'jttms10.v',
+         "wire [15:0] decode_clocks={10'd0,decode_states} * CLKS_PER_STATE[15:0];",
+         "wire [15:0] decode_clocks={10'd0,decode_states} * CLKS_PER_STATE[15:0]+(decode_opcode==16'h09e0 ? 16'd8 : 16'd0);"),
+        ('missing_context_observer', 'jttms10.v',
+         'assign obs_hw_complete = step && ni && hw_entry;',
+         "assign obs_hw_complete = step && ni && hw_entry && 1'b0;"),
     )
     records = []
     with tempfile.TemporaryDirectory(prefix='jttms10-entry-mutations-') as temp:
@@ -71,14 +77,16 @@ def run(output):
                 for key in ('clocks', 'st', 'a0', 'a1', 'a2', 'a3'):
                     if row['observed'][key] != control['observed'][key]:
                         raise ValueError(name+': mutant corrupted the preceding measured NOP')
-            if name in ('slow_halfword_entry', 'low_word_first'):
+            if name != 'skip_resume_instruction':
                 for row, control in zip(rows[2:], controls[2:]):
                     actual = dict(row['irq_observation']['follow'])
                     golden = dict(control['irq_observation']['follow'])
                     actual.pop('clock');golden.pop('clock')
                     if actual != golden or row['irq_observation']['memory'] != control['irq_observation']['memory']:
                         raise ValueError(name+': order/timing mutation changed final architecture')
-                diagnostic = 'aligned context switch' if name == 'slow_halfword_entry' else 'request/order/data mismatch'
+                diagnostic = dict(slow_halfword_entry='aligned context switch',
+                    low_word_first='request/order/data mismatch', slow_first_isr='first ISR MOVI',
+                    missing_context_observer='explicit IRQ boundaries')[name]
             else:
                 diagnostic = 'A2:'
             if not any(diagnostic in error for row in rows[2:] for error in row['errors']):
@@ -89,10 +97,10 @@ def run(output):
                 file=filename, before=before, after=after, mutant_sha256=sha(target),
                 unchanged_nop_controls=2, required_diagnostic=diagnostic,
                 failures=[dict(name=row['name'], errors=row['errors']) for row in rows if row['errors']]))
-            print(name+': PASS (actual CPU regression rejected)', flush=True)
+            print(name+': PASS (actual RTL regression rejected)', flush=True)
     if frozen != {p.name: sha(p) for p in HDL.glob('*.v')}:
         raise RuntimeError('canonical CPU changed during mutation validation')
-    result = dict(control_cases=4, mutations_rejected=3, cpu_sha256=frozen, records=records)
+    result = dict(control_cases=4, mutations_rejected=len(variants), cpu_sha256=frozen, records=records)
     (output/'verification.json').write_text(json.dumps(result, indent=2)+'\n')
     return result
 

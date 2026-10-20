@@ -1,27 +1,57 @@
 # Autonomous runner protocol
 
-The RTL and transport in this checkout use [version 4](#version-4-external-events).
-Its CSR magic is `0x4a545234` (JTR4); the input stream begins with `JTR5`,
-followed by the little-endian batch count. The V4 integration is under local
-validation; there is no fitted or physical V4 result yet. The deployed V3
-images require their matching V3 checkout and driver. The source checker
-retains archived V1/V2/V3 capture support.
+The RTL and transport in this checkout use [version 5](#version-5-interrupt-boundaries).
+Its CSR magic is `0x4a545235` (JTR5); the input stream begins with `JTR6`,
+followed by the little-endian batch count. V5 requires a newly built image
+and matching source-bound receipt. V3/V4 physical images require their
+matching checkout and driver; the checker retains archived V1..V4 captures.
 
 Prepare and execute the current matrix with a matching image receipt:
 
 ```sh
 python3 modules/jttms10/ver/fpga/check_results.py prepare \
-    --protocol-version 4 --matrix --output /path/to/v4-manifest.json
-python3 modules/jttms10/ver/fpga/run_batch.py /path/to/v4-manifest.json \
+    --protocol-version 5 --matrix --output /path/to/v5-manifest.json
+python3 modules/jttms10/ver/fpga/run_batch.py /path/to/v5-manifest.json \
     --source-root /path/to/selected-checkout \
-    --receipt /path/to/v4-source-bound-receipt.json \
+    --receipt /path/to/v5-source-bound-receipt.json \
     --artifacts /path/to/results --run-name matrix-1
 ```
 
 See [README.md](README.md) for the separately identified V3 physical checkpoints.
-Their results do not establish V4 integration or full #144 timing signoff.
+Their results do not establish V5 integration or full #144 timing signoff.
 The historical contracts and measurements below require their matching image
 and transport for hardware reproduction.
+
+## Version 5 interrupt boundaries
+
+V5 preserves descriptors, runtime stimulus, memory, trace bounds and words0..287.
+Each result has292 words. Four appended unsigned32 observations record:
+
+| Word | Observation |
+| --- | --- |
+| 288 | Number of hardware context completions during measurement/drain |
+| 289 | Last architectural retirement before the first completion |
+| 290 | First hardware context completion clock |
+| 291 | First architectural retirement after that completion |
+
+The clocks use the existing absolute per-case counter. Zero completions require
+zero clocks. A completion requires ordered clocks within the measured and
+drained interval. Scalar IRQ contracts require exactly one completion. All
+fields reset independently for each case. The observer is synthesizable under
+`JTTMS10_REGRESSION` and reads no RAM asynchronously. Its completion pulse
+samples the CPU edge that installs vector PC and initialized ST. Public retire
+is registered; the runner records its assigning edge one fast clock earlier.
+The generic transport contains no expected handler address or timing constant.
+
+The independent full-system bench uses the fixture's handler address and public
+PC/ST transition to identify context completion, and public retire to identify
+the surrounding instructions. It does not use the CPU completion observer.
+Scalar checks cover exact16-state aligned context plus six word waits, pin to
+context completion17..18 states, and first long MOVI retirement3 states for a
+warm handler or12 plus four word waits for a cold handler. The existing one
+INCLK rising/falling recording allowance is retained. An extra post-context gap
+therefore fails separately. Missing boundaries fail; V5 cannot fall back to the
+later decode endpoint. Legacy V4 replay keeps its historical verdicts.
 
 ## Version 4 external events
 

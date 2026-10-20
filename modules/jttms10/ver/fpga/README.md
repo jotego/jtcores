@@ -2,9 +2,34 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Version 4 and scalar interrupt entry
+## Version 5 and interrupt measurement boundaries
 
-This checkout's RTL, transport and receipt writer now use protocol 4. The
+This checkout uses protocol5:292-word results append actual context completion,
+preceding retirement and first ISR retirement clocks. Programs and event tables
+are unchanged runtime data. A new image and receipt are required; V5 is not yet
+physically validated. See [the wire contract](PROTOCOL.md#version-5-interrupt-boundaries).
+
+A 60-case diagnostic audit of the preceding CPU found that context completes
+when handler PC and initialized ST are installed, before handler decode.
+The old V4 absolute-entry check used decode as its endpoint. This explains the
+twelve reported phase20/21 failures below without changing CPU recognition RTL
+or the TI latency envelope. V5 measures both context and the first ISR instruction
+explicitly, with an independent public-PC/ST/retire reference. Archived V4 reports
+retain their original verdicts and source identities.
+
+Local V5 validation passes all50 original event cases and all48 warm phase
+cases with zero differences between the Avalon runner and independent bench.
+All97 host tests, strict lint and the static ARM transport build pass. Five
+actual RTL mutations are rejected: slow halfword entry, wrong frame word order,
+skipped continuation, delayed first ISR MOVI and a missing completion observer.
+The latter two exercise the newly separated timing and observation checks.
+Nine event-failure scenarios plus generic timeout/overflow checks reject the
+failed batch while preserving the next case and clean rearm. These are local
+proofs; V5 fit/STA, FPGA equivalence and full matrices remain required.
+
+## Historical version 4 and scalar interrupt entry
+
+The V4 checkout's RTL, transport and receipt writer use protocol4. The
 V3 physical checkpoints below retain their original source/image identities;
 use the corresponding V3 checkout and driver to reproduce them. Physical V4
 source `d668c39968cc946dac20883f32f573bd1112a9c6` has been fitted and programmed;

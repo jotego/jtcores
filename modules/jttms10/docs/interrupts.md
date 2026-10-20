@@ -173,3 +173,22 @@ writes the same runtime manifest for FPGA execution without compiling a local
 model. Pin-phase sweeps, interrupt
 priority, unaligned frames, NMI/HLT and graphics checkpoint/entry/resume timing
 remain required.
+
+## Explicit context completion versus decode
+
+Protocol5 adds synthesized observations of the actual hardware context-completion
+edge and the surrounding architectural retirements. The independent bench uses
+public PC/ST installation and public retire, rather than CPU control signals.
+SPVU001A printed8-6 steps1..4 define context installation; step5 resumes the ISR.
+The later handler decode remains recorded but does not define absolute context
+latency. The historical V4 phase20/21 failures above used that later endpoint.
+A 60-case boundary audit found no recognition/context/first-MOVI failure with
+explicit endpoints. This is a measurement correction, not an I/O recognition fix.
+
+The V5 checker preserves TI's16-state aligned context and17..18-state total
+recognition/context envelope with six configured entry-word waits. It separately
+requires first long MOVI retirement after3 warm states (printed12-160), or12 cold
+states plus four word waits, using the existing nine-state line-fill contract.
+Missing/duplicate boundaries and a delayed first ISR fail independently of final
+state. The original programs, ISA oracle and archived V4 verdicts are preserved.
+V5 still requires local cross-backend and source-bound physical validation.

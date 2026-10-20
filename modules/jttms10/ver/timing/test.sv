@@ -203,6 +203,10 @@ module test;
     reg [15:0] data_q,io_q;
     reg iaq_q;
 `ifdef JTTMS10_EXTERNAL_REFERENCE
+    reference_irq reference_entry(
+        .clk(clk),.rst(rst),.measuring(measuring),.finished(case_done),.retire(retire),
+        .absolute_clock(32'(now)),.pc(pc),.st(st)
+    );
     // A behavioral testbench scheduler, independent of the synthesizable
     // runner/sequencer and their packed event-table implementation.
     reference_stimulus reference_events(

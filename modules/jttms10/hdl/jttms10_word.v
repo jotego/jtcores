@@ -7,7 +7,7 @@ module jttms10_word #(
     parameter integer TIMED_PROGRAM=0
 )(
 `ifdef JTTMS10_REGRESSION
-    output            obs_decode, obs_rf_we,
+    output            obs_decode, obs_rf_we, obs_hw_complete,
     output     [31:0] obs_decode_pc, obs_rf_data,
     output     [15:0] obs_decode_ir,
     output     [ 5:0] obs_rf_addr,
@@ -181,6 +181,7 @@ module jttms10_word #(
         .obs_rf_addr             ( obs_rf_addr             ),
         .obs_rf_data             ( obs_rf_data             ),
         .obs_work                ( obs_work                ),
+        .obs_hw_complete         ( obs_hw_complete         ),
 `endif
         .rst(rst), .clk(clk), .cen(core_cen),
         .irq_req(irq_req), .irq_vector(irq_vector),

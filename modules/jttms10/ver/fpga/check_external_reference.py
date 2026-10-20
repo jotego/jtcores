@@ -30,7 +30,7 @@ def sha(path):
 def fixture_manifest(irq_phase_sweep=False):
     specs = specifications()
     bases = {entry['name']: entry for entry in checker.prepare_cases(
-        sorted({row['base'] for row in specs}), protocol_version=4)}
+        sorted({row['base'] for row in specs}), protocol_version=5)}
     entries = []
     for identifier, spec in enumerate(specs):
         if spec['base'] not in bases:
@@ -54,9 +54,9 @@ def fixture_manifest(irq_phase_sweep=False):
         entries = irq_cases.phase_entries(bases['nop_hit'], checker.oracle_module())
         for identifier, entry in enumerate(entries):
             entry['id'] = identifier
-    return dict(format=checker.FORMAT_V4, protocol_version=4,
+    return dict(format=checker.FORMAT_V5, protocol_version=5,
                 oracle_sha256=sha(checker.TIMING/'run.py'),
-                batches=checker.make_batches(entries, protocol_version=4))
+                batches=checker.make_batches(entries, protocol_version=5))
 
 
 def watch_flags(case):
@@ -86,12 +86,15 @@ def reference_case(entry, executable, work, output, oracle):
         f'+WATCH_EXTRA={watch_flags(case)}', f"+DRAIN_INSTRUCTIONS={case.get('drain_instructions', 0)}",
         f"+FOLLOW_PC={case.get('follow_pc', 0):x}", f"+WAIT={8*settings['wait_states']}",
         f"+PAUSE={settings['pause_clocks']}", f"+PAUSE_AFTER={settings['pause_after_clocks']}"]
+    if entry.get('external_contract', {}).get('kind') in ('scalar_irq', 'scalar_irq_phase'):
+        command.append('+ENTRY_HANDLER=4000')
     result = subprocess.run(command, cwd=work, capture_output=True, text=True, timeout=30)
     log = result.stdout+result.stderr
     (output/f"{entry['id']:03d}.log").write_text(log)
     if result.returncode:
         raise RuntimeError(f"{entry['name']}: original-system simulation exit {result.returncode}; see {output}")
     observed = oracle.parse_result(log)
+    observed['protocol_version'] = 5
     if observed['case'] != entry['id']:
         raise ValueError('reference case association mismatch')
     pause = settings['pause_clocks'] + expected_pause(entry)
@@ -105,7 +108,7 @@ def reference_case(entry, executable, work, output, oracle):
     keys = ('configured', 'applied', 'writes', 'holds', 'hosts', 'issued', 'error', 'last', 'paused')
     if set(counters) != set(keys):
         raise ValueError('malformed independent event summary')
-    words = [0]*288
+    words = [0]*292
     words[2], words[7] = observed['clocks'], observed['start']
     words[278:287] = [int(counters[key]) for key in keys]
     for line in log.splitlines():
@@ -128,14 +131,15 @@ def reference_case(entry, executable, work, output, oracle):
 
 
 def run(manifest, output, reference_only=False):
-    if checker.validate_manifest(manifest) != 4:
-        raise ValueError('external reference requires protocol 4')
+    if checker.validate_manifest(manifest) != 5:
+        raise ValueError('external reference requires protocol 5')
     entries = [entry for batch in manifest['batches'] for entry in batch['cases']]
     if not 1 <= len(entries) <= 64:
         raise ValueError('reference accepts 1..64 short cases; run long supported matrices on FPGA')
     output.mkdir(parents=True, exist_ok=False)
     (output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
-    sources = [checker.TIMING/'test.sv', HERE/'reference_stimulus.sv', *sorted((MODULE/'hdl').glob('*.v'))]
+    sources = [checker.TIMING/'test.sv', HERE/'reference_stimulus.sv', HERE/'reference_irq.sv',
+               *sorted((MODULE/'hdl').glob('*.v'))]
     inputs = [*sources, *sorted(checker.TIMING.glob('*.py')), *sorted(HERE.glob('*.py')),
               MODULE/'ver/build.sh', MODULE/'ver/verilator_build.py',
               *sorted((MODULE/'ucode').glob('*.yaml'))]
@@ -207,8 +211,8 @@ def main():
     if args.prepare_only:
         if args.output is None or args.report is not None:
             parser.error('--prepare-only requires --output and does not produce a validation --report')
-        if checker.validate_manifest(manifest) != 4:
-            parser.error('external fixtures require protocol 4')
+        if checker.validate_manifest(manifest) != 5:
+            parser.error('external fixtures require protocol 5')
         args.output.mkdir(parents=True, exist_ok=False)
         (args.output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
         return 0

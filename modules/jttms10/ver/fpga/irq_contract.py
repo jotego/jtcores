@@ -131,7 +131,49 @@ def check(entry, observed, lines):
                 previous_end = until
         except (ValueError, IndexError):
             reject('malformed '+prefix+' transaction')
-    if warm:
+    boundary = None
+    if observed.get('protocol_version', 4) >= 5:
+        rows = [s for s in lines if s.startswith('IRQ_BOUNDARY ')]
+        try:
+            if len(rows) != 1 or len(rows[0].split()) != 5:
+                raise ValueError('missing or duplicate observation')
+            boundary = {k: int(v) for k, v in
+                        (word.split('=') for word in rows[0].split()[1:])}
+            if (set(boundary) != {'count', 'previous', 'complete', 'first'} or
+                    boundary['count'] != 1 or not
+                    observed['start'] <= boundary['previous'] < boundary['complete'] < boundary['first']):
+                raise ValueError('invalid count or unordered boundaries')
+        except (ValueError, KeyError):
+            reject('missing, duplicate or invalid explicit IRQ boundaries')
+            boundary = None
+        if boundary is not None:
+            # UG8-6 steps1..4 complete when initialized ST and the vector PC
+            # are installed; step5 begins the ISR. Do not use its later decode
+            # as the context endpoint. UG8-7/8, Table8-4: recognition1..2,
+            # aligned context16 states plus six external word waits.
+            stimulus = [s.split() for s in lines if s.startswith('STIMULUS ')]
+            if len(stimulus) != 2:
+                reject('missing interrupt assertion clock')
+            else:
+                clocks = boundary['complete']-int(stimulus[0][1])
+                lower, upper = 8*(17+6*waits)-1, 8*(18+6*waits)+1
+                if not lower <= clocks <= upper:
+                    reject(f'LINT{lint} entry latency: expected {lower}..{upper} INCLK '
+                           f'(17..18 states + six word waits), observed {clocks}')
+            clocks = boundary['complete']-boundary['previous']
+            expected = 8*(16+6*waits)
+            if clocks != expected:
+                reject(f'aligned context switch: expected {expected} INCLK '
+                       f'(16 states + six word waits), observed {clocks}')
+            # MOVI long is3 cached states (UG12-160). A cold four-word line
+            # adds9 states and four configured word waits (cache contract).
+            # This separate check prevents an arbitrary gap after context
+            # completion from hiding behind the corrected entry endpoint.
+            clocks = boundary['first']-boundary['complete']
+            expected = 8*(3+(0 if warm else 9+4*waits))
+            if clocks != expected:
+                reject(f'first ISR MOVI: expected {expected} INCLK, observed {clocks}')
+    if warm and observed.get('protocol_version', 4) < 5:
         stimulus = [s.split() for s in lines if s.startswith('STIMULUS ')]
         if len(stimulus) != 2 or 'clock' not in follow:
             reject('missing interrupt assertion or handler-entry clock')
@@ -170,4 +212,8 @@ def check(entry, observed, lines):
         normalized[prefix] = rows
     if 'clock' in follow:
         follow['clock'] -= observed['start']
-    return errors, dict(follow=follow, memory=[list(pair) for pair in sorted(memory.items())], traces=normalized)
+    result = dict(follow=follow, memory=[list(pair) for pair in sorted(memory.items())], traces=normalized)
+    if observed.get('protocol_version', 4) >= 5:
+        result['boundary'] = (None if boundary is None else
+            {k: value if k == 'count' else value-observed['start'] for k, value in boundary.items()})
+    return errors, result

@@ -249,8 +249,8 @@ def write_rom_update_receipt(*, image, build, base_build, baseline_source,
     parent = json.loads(parent_receipt_path.read_text())
     if parent.get('format') != 'jttms10-fpga-programming-receipt-v1':
         raise SystemExit('parent must be the canonical full-fit programming receipt')
-    if parent.get('protocol_version') != 4:
-        raise SystemExit('V4 ROM update requires a protocol 4 parent receipt')
+    if parent.get('protocol_version') != 5:
+        raise SystemExit('V5 ROM update requires a protocol 5 parent receipt')
     for root in {baseline_source, hardware_source}:
         if runner_source_fingerprints(root) != parent.get('runner_source_fingerprints'):
             raise SystemExit('ROM update runner components differ from the fitted parent')
@@ -634,7 +634,7 @@ def main():
         'source_revision': revision,
         'source_status': status,
         'runner_source_sha256': sha256(source_runner),
-        'protocol_version': 4,
+        'protocol_version': 5,
         'runner_source_fingerprints': runner_fingerprints,
         'cpu_source_fingerprints': source_fingerprints,
         'cpu_source_fingerprint_sha256': cpu_source_fingerprint_digest(source_fingerprints),

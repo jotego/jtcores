@@ -21,10 +21,10 @@ class TransportStream(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.directory = Path(self.temp.name)
         self.source = Path(__file__).resolve().parents[4]
-        self.entry = checker.prepare_cases(['nop_hit'], limit=1, protocol_version=4)[0]
+        self.entry = checker.prepare_cases(['nop_hit'], limit=1, protocol_version=5)[0]
         self.manifest = self.directory / 'manifest.json'
-        self.manifest.write_text(json.dumps(dict(format=checker.FORMAT_V4, protocol_version=4,
-            batches=checker.make_batches([self.entry], protocol_version=4))))
+        self.manifest.write_text(json.dumps(dict(format=checker.FORMAT_V5, protocol_version=5,
+            batches=checker.make_batches([self.entry], protocol_version=5))))
         self.receipt_path = self.directory / 'receipt.json'
         self.receipt_path.write_text('{}')
         self.binary = self.directory / 'unused-arm-binary'
@@ -76,12 +76,12 @@ class TransportStream(unittest.TestCase):
 
     def test_nonzero_process_exit_fails_even_with_complete_passing_capture(self):
         case = self.entry['fixture']
-        words = [0] * 288
+        words = [0] * 292
         words[:8] = [self.entry['id'], 2, case['states'] * 8, self.entry['test_pc'],
                      self.entry['next_pc'], 0x0300, case['expected_st'], 64]
         words[8:12] = case['expected_regs']
         words[274] = 0xf
-        capture = dict(protocol_version=4, batches=[dict(protocol_version=4, status=2,
+        capture = dict(protocol_version=5, batches=[dict(protocol_version=5, status=2,
                        event_count=0, results=[words], events=[])])
         child = 'import sys; print(' + repr(json.dumps(capture)) + ',flush=True); sys.exit(7)'
         self.assertEqual(self.execute(child, 5), 1)
