@@ -1,5 +1,13 @@
 # Instruction timing compliance (issue #144, in progress)
 
+The appended [Boolean FILL baseline](fill-timing.md#non-replace-boolean-word-baseline)
+adds 300 PPOP1..15, full-word, one-row probes at all pixel sizes, L/XY and
+hit/CD. Inventory is 142,692 cases across 133 forms, including 2,960 FILL
+cases. All preceding 142,392 fixture contracts remain unchanged. Directed
+probes expose duration and word-traffic failures with correct checked
+architecture and memory; no Boolean FILL timing compliance is claimed.
+The physical and software checkpoints below retain their original scopes.
+
 The CPU is **not fully instruction timing compliant**. Timing probes are
 present for all 133 instruction forms. Hardware `a59e15b08` passes all 141,972
 ordinary fixtures in each base/W1-P7/W3 profile: 425,916 physical executions,

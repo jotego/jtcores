@@ -53,6 +53,11 @@ memory and bus traffic correct. A row-handoff development schedule passes
 128 directed Verilator executions, 112 timed row/HOLD checks and the
 existing architecture/resumption suites; its complete FPGA validation
 remains required.
+Another 300 independent probes cover full-word Boolean FILL PPOP1..15 at
+all five pixel sizes, L/XY and hit/CD. Directed Verilator probes retain
+correct architecture/memory but fail timing and, for smaller pixels,
+word-transaction counts. The full new family awaits FPGA validation; see
+the [Boolean baseline](docs/fill-timing.md#non-replace-boolean-word-baseline).
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

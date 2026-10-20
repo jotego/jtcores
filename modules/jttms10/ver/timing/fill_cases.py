@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Replace FILL probes: SPVU001A12-80..86,13-10..14.
+"""FILL probes: SPVU001A12-80..86,13-10..14.
 
-Nonempty rows; PPOP0/PMASK0/T0/W0 only. Partial rows keep word-aligned pitch. B10..14 are
+Nonempty rows; PMASK0/T0/W0 only. Partial rows keep word-aligned pitch. B10..14 are
 reserved scratch registers marked changed by TI and have no final golden.
 """
 from itertools import product
 from fill_oracle import fill_timing
-from pixel_boolean_cases import program as prefilled_program
+from pixel_boolean_cases import boolean, program as prefilled_program
 
 
 def fixture(size, words, rows, xy, off, *, point=0x10000, offset=0x6000,
@@ -126,8 +126,39 @@ def partial_fixture(size, words, alignment, xy, off, *, rows=1):
     return case
 
 
+def boolean_fixture(size, ppop, xy, off):
+    """One full destination word, Table7-1 and Table13-6 A/N1/G4.
+
+    Section13.3.2.3 requires one word RMW, irrespective of pixel size;
+    13.3.2.5 assigns G4 to each non-replace Boolean. No measured RTL
+    duration or pixel-at-a-time traffic supplies these expectations.
+    """
+    if ppop not in range(1,16):
+        raise ValueError('non-replace Boolean PPOP required')
+    case=fixture(size,1,1,xy,off)
+    case['name']=f'fill_boolean_pp{ppop}_{"xy" if xy else "l"}_ps{size}_n1_rows1_{"off" if off else "hit"}'
+    case['control']=ppop<<10
+    case['conditions']['ppop']=ppop
+    case['data_fill'].update(processing=True,ppop=ppop)
+    timing=fill_timing(pixel_size=size,width=case['conditions']['width'],rows=1,
+        address=case['data_fill']['address'],pitch=case['data_fill']['pitch'],
+        xy=xy,ppop=ppop,cache_disabled=off)
+    case.update(states=timing['states'],fill_timing=timing)
+    before=dict(case['initial_memory'])
+    address=case['data_fill']['address']
+    before[address]=boolean(ppop,case['data_fill']['color'],before[address],16)
+    case['expected_memory']=sorted(before.items())
+    case['citation']='SPVU001A7-15 Table7-1;12-80..86;13-10..14 Tables13-5/6/7'
+    return case
+
+
 def transfers(case):
     spec = case['data_fill']
+    if spec.get('processing'):
+        # One physical-word read and write, not repeated pixel RMWs.
+        before,after=map(dict,(case['initial_memory'],case['expected_memory']))
+        address=spec['address']
+        return [(0,address,before[address],0),(1,address,after[address],0)]
     if spec.get('partial'):
         before,after=map(dict,(case['initial_memory'],case['expected_memory']))
         plan=[]
@@ -179,7 +210,7 @@ def check_bus(case, observed, lines, wait_states, *, raw=False):
             errors.append(f'{prefix} FILL write data mismatch at transfer {q}')
         if e[2:4]!=b[2:4] or (not kind and int(e[4],16)!=data):
             errors.append(f'{prefix} FILL response mismatch at transfer {q}')
-        if kind and not raw and not case['data_fill'].get('partial'):
+        if kind and not raw and not case['data_fill'].get('partial') and not case['data_fill'].get('processing'):
             words,rows = case['data_fill']['words'],case['data_fill']['rows']
             if q % words:
                 if start-int(begin[q-1][1]) != 16+8*wait_states:
@@ -259,3 +290,8 @@ def fill_cases():
         if (size,words,alignment)==(8,1,'D'):
             continue
         yield partial_fixture(size,words,alignment,xy,off,rows=rows)
+
+    # Append independent non-replace Boolean coverage. Keep the preceding
+    # 2,660 fixture/program contracts unchanged, including their order.
+    for ppop,size,xy,off in product(range(1,16),(1,2,4,8,16),(False,True),(False,True)):
+        yield boolean_fixture(size,ppop,xy,off)

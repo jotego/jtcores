@@ -652,3 +652,57 @@ seconds. The scoped FILL commands take 9.500/9.080/9.351 seconds per profile.
 Concurrent host work prevents a controlled compile-speedup claim. Rapid
 Recompile previously hit a Quartus CDB error; this successful command uses
 the regular compile flow with fitted partition reuse.
+
+## Non-replace Boolean word baseline
+
+Three hundred appended fixtures cover every Boolean PPOP1..15 at PS1/2/4/8/16,
+linear/XY and hit/CD, with one full destination word in one row. PMASK, T and
+windowing remain disabled. The preceding 2,660 FILL fixture and program
+contracts, including order, are unchanged. FILL inventory is 2,960 and the
+complete instruction inventory is 142,692 across the same 133 forms.
+
+The expectations reuse the independent Table7-1 Boolean equations already
+used by scalar PIXT. A full word has the same bitwise result for every pixel
+size. COLOR1 is AA55 and the initial word is A497: AND gives A015, XOR gives
+0EC2, and complement-source gives 55AA. Both canaries, all defined GPRs,
+full ST and the final B2 pointer remain checked. The program builder warms
+the cache without executing the measured FILL, so non-idempotent operations
+see the declared initial destination.
+
+SPVU001A §13.3.2.3 (pp.13-12/13) requires one word write or RMW for a short
+row; §13.3.2.4 requires increasing word order. Section13.3.2.5 and Table13-7
+give G4 for non-replace Booleans without masking/transparency. Substitution
+in Table13-6 A/N1 gives linear setup4 + (1+4) +2 =11 states (88 INCLK).
+XY adds two setup states; CD adds three. The bus checker therefore requires
+one destination-word read and write, with ordered data/address/IAQ and
+logical/target durations. It does not prescribe an unprinted first-read
+phase or intra-word processing phase. Duplicate pixel RMWs must fail even
+when the architectural result is correct.
+
+Six directed source65e8 Verilator probes retain correct architecture/memory
+but fail timing. Linear PS16 AND observes128 versus88 INCLK; linear PS4 XOR
+observes480 versus88, and PS1 XOR1824 versus88. The latter two perform12/48
+physical transfers instead of two. XY PS8 complement-source observes616
+versus104 with six transfers; XY PS16 zero/CD observes536 versus128. These
+are permanent failing requirements, not compliant Boolean FILL support.
+The complete new family must run on the FPGA after the matching source65e8
+image and receipt are validated; long local matrices are unnecessary.
+
+For one short reproducer:
+
+```sh
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case fill_boolean_pp10_l_ps4_n1_rows1_hit
+```
+
+Prepare the complete family for the FPGA using the existing transport and
+independent source oracle:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare --protocol-version 5 \
+    --case fill_boolean_ --output /tmp/fill-boolean.json
+```
+
+Use the source-bound `run_batch.py` flow documented in the FPGA README.
+All expected counts and bus transactions remain active, so these baseline
+commands must fail until the native word-processing schedule is implemented.
