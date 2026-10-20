@@ -1255,7 +1255,10 @@ PS1/2/4/8, N1/2/3, L/XY and both cache modes. Inventory grows to 142,112 cases;
 form presence remains 133/133. The preceding 2,240 aligned FILL fixture/program
 contracts are unchanged. Ten short CPU77 Verilator representatives fail TI
 duration targets with correct checked architecture and memory; eight also
-reject extra per-pixel word transactions. The complete new FPGA matrices
-remain pending. See the [partial-word audit](fill-timing.md#partial-word-edge-timing-baseline).
+reject extra per-pixel word transactions. All140 also fail duration in each BASE/W1P7/W3 FPGA profile, with108/profile
+additionally failing word-transaction counts. Six surrounding NOP executions
+pass, all420 failing raw verdicts replay exactly, and30 representative
+diagnostic observations agree with Verilator. These failures remain required
+fixes. See the [partial-word audit](fill-timing.md#partial-word-edge-timing-baseline).
 Known MOVB targets, these FILL gaps and the remaining conditions prevent
 unqualified timing compliance. No task or acceptance gate is waived.

@@ -31,8 +31,9 @@ Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 still require timing implementation.
 The [partial-word FILL baseline](docs/fill-timing.md#partial-word-edge-timing-baseline)
 adds 140 one-row B/C/D edge probes. Ten CPU77 Verilator representatives fail
-timing while preserving checked architecture and memory. The full new FPGA
-matrix is pending; the earlier aligned FILL passing scope remains distinct.
+timing while preserving checked architecture and memory. The full subset also fails all140 duration targets in each BASE/W1P7/W3
+FPGA profile, while both NOP controls pass and30 diagnostic observations
+match Verilator. The earlier aligned FILL passing scope remains distinct.
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

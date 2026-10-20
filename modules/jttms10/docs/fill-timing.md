@@ -454,7 +454,17 @@ Ten representative Verilator probes on unchanged CPU77 all fail duration;
 eight also reject extra per-pixel BUS/TARGET transactions. All ten preserve
 the checked architecture and memory. For example, linear PS4/N1/D expects
 72 INCLK and observes 216, with two required transfers versus four observed.
-The full new matrix and stressed profiles still require physical validation.
+On the unchanged source77/ce9d833b DataStorm image, the full 140-case subset
+fails duration in each BASE/W1P7/W3 profile (420 failing executions), with
+108 per profile also failing BUS/TARGET transaction counts. Both NOP controls
+pass in every profile; all six batches per profile finish with raw transport
+exit0 and no timeout/overflow. Every raw verdict field reproduces exactly.
+The 30 representative observations, errors and complete relative bus traces
+agree diagnostically with Verilator; standard positive equivalence correctly
+refuses these failing inputs. All defined register/status/memory/canary checks
+remain active and pass. Complete host walls are 3.787164771/3.926996138/
+3.806566346 seconds; concurrent Quartus work prevents a controlled speedup
+claim. No FPGA recompilation/programming was needed for these programs.
 These are permanent failing regressions, not a partial-word compliance claim.
 
 ```sh
