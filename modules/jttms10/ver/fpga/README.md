@@ -200,6 +200,49 @@ ordinary NOP controls pass. CPU/runner fingerprints and all seven generated
 ROMs match the recognition RTL source; FPGA execution of the new runtime
 cases remains pending.
 
+## No-stack NMI I/O-register preservation fixtures
+
+`--nmi-nostack-io` is a separately named NMIM=1 follow-up inventory. It keeps
+the same 192 IE0/IE1, SP0..15, W0/W1/W3, cold/warm combinations; the 48-case
+phase selection retains both IE settings and all waits. Before the event, the
+existing runtime fixture setup writes defined values to CONTROL, DPYCTL,
+CONVSP, CONVDP, PSIZE and PMASK. CONTROL keeps video/refresh disabled. After
+the first ISR MOVI, the handler reads each register through CPU instructions
+into A6..A11 and reads HSTCTLH into A12. Literal expected values are checked
+independently, including NMI clear with NMIM retained in the CPU-visible
+HSTCTLH result. These reads preserve the existing first-MOVI boundary and
+the MOVE status result (`ST=0x10`).
+
+The CPU-visible HSTCTLH read is not proof of a physical host-pin read: the
+existing V5 transport has no host-read operation. The contract checks the
+vector/handler fetches, all seven CPU I/O transfers, their values and fixed
+I/O wait duration, stack guards and recognition/first-ISR timing. It does not
+add a golden total context-duration requirement for NMIM=1. Raw BUS/TARGET
+traces, including actual prefetch placement, remain in the cross-backend
+comparison; only ordering and architectural read rules are TI expectations.
+Timing failures report expected and observed clocks in INCLK, including
+recognition, first-MOVI, bus/target, and fixed I/O-read durations.
+Fixture preparation and local simulation require no RTL, ROM, transport or
+protocol change.
+
+```sh
+# Short full-system and Avalon checks at representative stack offsets.
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-nostack-io \
+    --stack-offset 0 --stack-offset 1 --stack-offset 15
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-nostack-io-phases
+python3 modules/jttms10/ver/fpga/check_nmi_nostack_io_mutations.py
+# Prepare the full 192-case runtime inventory for the existing V5 transport.
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-nostack-io \
+    --prepare-only --output /path/to/new-nmi-io-manifest
+```
+
+The standard `ver/run.sh` runner includes the representative offsets, all 48
+phase cases and a functional PMASK read mutation. The mutation must fail the
+I/O data checks while ordinary NOP controls and independent timing values
+remain unchanged. The final host suite passes all 130 tests; 84 short runtime
+cases pass the independent reference and Avalon backend with zero differences.
+Physical host polling remains unsupported.
+
 ## Historical version 4 and scalar interrupt entry
 
 The V4 checkout's RTL, transport and receipt writer use protocol4. The

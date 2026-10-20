@@ -18,6 +18,7 @@ import event_contract
 import irq_cases
 import nmi_cases
 import nmi_nostack_cases
+import nmi_nostack_io_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -30,9 +31,12 @@ def sha(path):
 
 
 def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=None, nmi=False,
-                     nmi_phase_sweep=False, nmi_nostack=False, nmi_nostack_phases=False):
-    if (sum((irq_phase_sweep, irq_unaligned, nmi, nmi_phase_sweep, nmi_nostack, nmi_nostack_phases)) > 1 or
-            (stack_offsets is not None and not (irq_unaligned or nmi or nmi_nostack or nmi_nostack_phases))):
+                     nmi_phase_sweep=False, nmi_nostack=False, nmi_nostack_phases=False,
+                     nmi_nostack_io=False, nmi_nostack_io_phases=False):
+    if (sum((irq_phase_sweep, irq_unaligned, nmi, nmi_phase_sweep, nmi_nostack,
+             nmi_nostack_phases, nmi_nostack_io, nmi_nostack_io_phases)) > 1 or
+            (stack_offsets is not None and not (irq_unaligned or nmi or nmi_nostack or
+             nmi_nostack_phases or nmi_nostack_io or nmi_nostack_io_phases))):
         raise ValueError('stack offsets require the unaligned IRQ or NMI selection')
     specs = specifications()
     bases = {entry['name']: entry for entry in checker.prepare_cases(
@@ -77,6 +81,11 @@ def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=N
                                           stack_offsets, nmi_nostack_phases)
         for identifier, entry in enumerate(entries):
             entry['id'] = identifier
+    if nmi_nostack_io or nmi_nostack_io_phases:
+        entries = nmi_nostack_io_cases.entries(bases['nop_hit'], checker.oracle_module(),
+                                               stack_offsets, nmi_nostack_io_phases)
+        for identifier, entry in enumerate(entries):
+            entry['id'] = identifier
     return dict(format=checker.FORMAT_V5, protocol_version=5,
                 oracle_sha256=sha(checker.TIMING/'run.py'),
                 batches=checker.make_batches(entries, protocol_version=5))
@@ -110,7 +119,8 @@ def reference_case(entry, executable, work, output, oracle):
         f"+FOLLOW_PC={case.get('follow_pc', 0):x}", f"+WAIT={8*settings['wait_states']}",
         f"+PAUSE={settings['pause_clocks']}", f"+PAUSE_AFTER={settings['pause_after_clocks']}"]
     if entry.get('external_contract', {}).get('kind') in (
-            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase', 'scalar_nmi_nostack'):
+            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase',
+            'scalar_nmi_nostack', 'scalar_nmi_nostack_io'):
         command.append('+ENTRY_HANDLER=4000')
     result = subprocess.run(command, cwd=work, capture_output=True, text=True, timeout=30)
     log = result.stdout+result.stderr
@@ -234,6 +244,10 @@ def main():
                            help='192 NMIM=1 state/bus/recognition cases; total context duration is unspecified')
     selection.add_argument('--nmi-nostack-phases', action='store_true',
                            help='48 aligned warm NMIM=1 cases across all eight INCLK phases')
+    selection.add_argument('--nmi-nostack-io', action='store_true',
+                           help='192 NMIM=1 CPU-visible I/O preservation cases; HSTCTLH readback checks automatic NMI clear')
+    selection.add_argument('--nmi-nostack-io-phases', action='store_true',
+                           help='48 warm aligned NMIM=1 I/O preservation cases across all eight assertion phases')
     parser.add_argument('--stack-offset', type=int, choices=range(16), action='append',
                         help='repeat to select SP bit offsets (IRQ1..15, NMI0..15); local limit is64 cases')
     parser.add_argument('--output', type=Path, help='new directory retaining raw reference and Avalon evidence')
@@ -242,11 +256,14 @@ def main():
     modes.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
     modes.add_argument('--prepare-only', action='store_true', help='write runtime fixtures without building a local model')
     args = parser.parse_args()
-    if args.stack_offset is not None and not (args.irq_unaligned or args.nmi or args.nmi_nostack or args.nmi_nostack_phases):
+    if args.stack_offset is not None and not (args.irq_unaligned or args.nmi or args.nmi_nostack or
+                                              args.nmi_nostack_phases or args.nmi_nostack_io or
+                                              args.nmi_nostack_io_phases):
         parser.error('--stack-offset requires an unaligned IRQ, NMI or no-stack NMI selection')
     manifest = (json.loads(args.manifest.read_text()) if args.manifest else
                 fixture_manifest(args.irq_phase_sweep, args.irq_unaligned, args.stack_offset,
-                                 args.nmi, args.nmi_phase_sweep, args.nmi_nostack, args.nmi_nostack_phases))
+                                 args.nmi, args.nmi_phase_sweep, args.nmi_nostack, args.nmi_nostack_phases,
+                                 args.nmi_nostack_io, args.nmi_nostack_io_phases))
     if args.prepare_only:
         if args.output is None or args.report is not None:
             parser.error('--prepare-only requires --output and does not produce a validation --report')
