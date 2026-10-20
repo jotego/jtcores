@@ -18,10 +18,29 @@ are bound into programming receipts; old receipts fail before board access.
 Programs, event tables and Python expectations remain runtime data.
 
 Local checks retain the existing independent ISA oracle. They do not treat
-an observed event count or pause as expected instruction timing. General
-IRQ/HOLD schedules still need independent fixtures and original full-system
-Verilator equivalence before physical use. Harmless pin/host schedules and
-unchanged ordinary cases provide the initial integration controls.
+an observed event count or pause as expected instruction timing.
+`event_cases.py` layers event conditions on unchanged ISA fixtures. The first
+`early_cen` contract declares a fixed 1/7/8-clock pause and requires the exact
+two-entry clock schedule; its declared delay feeds the existing timing oracle.
+Architecture, status, memory, bus order and instruction counts remain checked.
+Unknown event contracts and overlap with the legacy pause setting fail closed.
+
+`check_external_reference.py` compares the Avalon runner with the original
+full-system bench using `reference_stimulus.sv`, a separate behavioral scheduler
+that drives real LINT/HOLD/EMU/CEN/HSTCTL ports. It does not instantiate the
+synthesizable sequencer or its packed event RAM. The default original bench
+is unchanged unless compiled with `JTTMS10_EXTERNAL_REFERENCE`. The local
+38-case scope covers all six trigger types, all 16 table entries, HOLD ACK,
+host NMIM writes, and early CEN with zero/one waits on arithmetic, unaligned
+loads and regular PIXBLT. Both backends compare application clocks, counters,
+HOLD edges, host ACKs and every existing architectural/timing/bus observation.
+This reference is limited to 64 short cases; long supported matrices use FPGA.
+
+`check_event_mutations.py` changes actual sequencer RTL. Early CEN release
+returns correct registers/status but 14 clocks instead of the declared 15;
+wrong HSTCTL data injects an unintended NMI. Both fail with unaffected controls.
+General IRQ/NMI continuation and outstanding-work HOLD/EMU/CEN contracts remain
+pending before physical V4 use; harmless pin checks do not establish them.
 
 From a checkout with `setprj.sh` sourced, run the host preflight/capture checks
 and short Avalon recovery tests with:
@@ -30,6 +49,10 @@ and short Avalon recovery tests with:
 python3 -m unittest discover -s modules/jttms10/ver/fpga -p 'test_*.py'
 python3 modules/jttms10/ver/fpga/check_external_recovery.py \
     --output /path/to/new-v4-recovery-evidence
+python3 modules/jttms10/ver/fpga/check_external_reference.py \
+    --output /path/to/new-v4-reference-evidence
+python3 modules/jttms10/ver/fpga/check_event_mutations.py \
+    --output /path/to/new-v4-event-mutation-evidence
 ```
 
 The recovery suite deliberately supplies malformed tables directly to Avalon,

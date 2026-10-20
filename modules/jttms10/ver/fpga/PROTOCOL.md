@@ -99,10 +99,20 @@ case. Both kinds count against the existing trace bounds; overflow is explicit.
 | 287 | Reserved zero |
 
 The host validates these observations against the table and trace in addition
-to every existing Python ISA check. General IRQ/HOLD execution needs separate
-independent event fixtures and full-system Verilator comparison; ordinary
-fixture timing is not waived when signals affect it. Current V4 local positive
-checks cover unchanged ordinary cases and harmless pin/host schedules only.
+to every existing Python ISA check. The optional entry-level
+`external_contract: {"kind": "early_cen", "clocks": N}` declares the already
+supported early-CEN timing condition through this event table. It requires
+exactly CLOCK0/control32 and CLOCKN/control0, with a positive uint32 N and no
+legacy CEN pause. Its expected pause is N from the fixture, never from a result
+counter; the unchanged ISA timing/bus oracle receives that declared delay.
+Unknown contracts fail closed. This metadata is host expectations, not wire
+data, so changing it does not require FPGA compilation.
+
+The full-system behavioral reference independently drives semantic event fields
+and compares all six triggers, HOLD/host observations and fixed early-CEN
+conditions with Avalon execution. General IRQ/NMI continuation and outstanding
+HOLD/EMU/CEN work still need independent fixtures and reference checks; ordinary
+fixture timing is not waived when signals affect it.
 V4 source receipts bind both runner and sequencer RTL hashes. The active V4
 driver rejects an older receipt before opening an SSH connection.
 

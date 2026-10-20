@@ -67,6 +67,8 @@ def main():
     parser.add_argument('--pause-clocks', type=int, default=0)
     parser.add_argument('--pause-after-clocks', type=int, default=0)
     parser.add_argument('--reference', type=Path, help='original timing/run.py JSON for these exact cases')
+    parser.add_argument('--stimulus-rtl', type=Path, default=HERE/'jttms10_fpga_stimulus.v',
+                        help='local mutation-test override; never changes the hardware build source')
     parser.add_argument('--output', type=Path, required=True, help='new evidence directory')
     args = parser.parse_args()
     if not 1 <= args.batch_size <= 32:
@@ -113,7 +115,8 @@ def main():
             program_file.write_text(''.join(f'{v:08x}\n' for v in program+[0]*(4096-len(program))))
             batch_lines.append(f"{len(batch['cases'])} {len(program)} {batch['protocol_version']} {desc_file} {program_file}\n")
         (work/'batches.txt').write_text(''.join(batch_lines))
-        sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', HERE/'jttms10_fpga_stimulus.v', *sorted((MODULE/'hdl').glob('*.v'))]
+        stimulus_rtl = args.stimulus_rtl.resolve(strict=True)
+        sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', stimulus_rtl, *sorted((MODULE/'hdl').glob('*.v'))]
         command = ['verilator', '--binary', '--timing', '--top-module', 'test',
                    '--timescale-override', '1ns/1ps', '-Wno-EOFNEWLINE',
                    '-DJTTMS10_REGRESSION', '-j', '4', '--Mdir', str(work/'obj'),
@@ -122,8 +125,11 @@ def main():
                   *sorted(checker.TIMING.glob('*.py')), MODULE/'ver/build.sh',
                   MODULE/'ver/decoder/generate.py', HERE/'check_results.py', HERE/'check_runner.py',
                   HERE/'stimulus_schema.py',
+                  HERE/'event_contract.py',
                   MODULE/'ver/gfx/check_targets.py', MODULE/'ver/gfx/check_flow.py']
-        provenance = {str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
+        def source_name(path):
+            return str(path.relative_to(MODULE)) if path.is_relative_to(MODULE) else 'variant/'+path.name
+        provenance = {source_name(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
         generated = {}
         (output/'generated').mkdir()
         for suffix in ('*.uc', '*.hex', '*.vh'):

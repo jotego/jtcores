@@ -10,13 +10,30 @@ module test;
     wire [31:0] cyc_addr,pc,st;
     wire [15:0] cyc_wdata,cyc_io_rdata,ir,intpend;
     reg [15:0] cyc_rdata;
+`ifdef JTTMS10_EXTERNAL_REFERENCE
+    wire reference_lint1_n,reference_lint2_n,reference_hold,reference_emu,reference_cen;
+    wire reference_host_req,reference_host_ack,reference_hold_ack;
+    wire [15:0] reference_host_data;
+`endif
     jttms10_system #(.CLKS_PER_STATE(8),.RESET_REFRESH(0)) dut(
+`ifdef JTTMS10_EXTERNAL_REFERENCE
+        .clk(clk),.rst(rst),.cen(cen && reference_cen),.vclk_cen(1'b0),
+`else
         .clk(clk),.rst(rst),.cen(cen),.vclk_cen(1'b0),
+`endif
         .hcs_n(1'b0),.hsync_n(1'b1),.vsync_n(1'b1),
+`ifdef JTTMS10_EXTERNAL_REFERENCE
+        .lint1_n(reference_lint1_n),.lint2_n(reference_lint2_n),
+        .hold_req(reference_hold),.hold_ack(reference_hold_ack),
+        .emu_run(reference_emu),.emu_ack(),.host_req(reference_host_req),.host_we(1'b1),
+        .host_reg(2'd3),.host_be(2'b10),.host_wdata(reference_host_data),
+        .host_rdata(),.host_ack(reference_host_ack),.host_busy(),.hint_n(),
+`else
         .lint1_n(1'b1),.lint2_n(1'b1),.hold_req(1'b0),.hold_ack(),
         .emu_run(1'b1),.emu_ack(),.host_req(1'b0),.host_we(1'b0),
         .host_reg(2'd0),.host_be(2'd0),.host_wdata(16'd0),
         .host_rdata(),.host_ack(),.host_busy(),.hint_n(),
+`endif
         .hs(),.vs(),.hblank(),.vblank(),.blank(),
         .cyc_req(cyc_req),.cyc_kind(cyc_kind),.cyc_addr(cyc_addr),
         .cyc_wdata(cyc_wdata),.cyc_io_rdata(cyc_io_rdata),.cyc_iaq(cyc_iaq),
@@ -185,6 +202,41 @@ module test;
     reg [3:0] kind_q;
     reg [15:0] data_q,io_q;
     reg iaq_q;
+`ifdef JTTMS10_EXTERNAL_REFERENCE
+    // A behavioral testbench scheduler, independent of the synthesizable
+    // runner/sequencer and their packed event-table implementation.
+    reference_stimulus reference_events(
+        .clk(clk),.rst(rst),.measuring(measuring),.finished(case_done),
+        .absolute_clock(32'(now)),.relative_clock(32'(now-start_clock-1)),
+        .write_complete(cyc_ack && kind_q==1),
+        .decode(dut.u_cpu.u_core.step && dut.u_cpu.u_core.ld_ir),.decode_pc(accepted_pc),
+        .hold_ack(reference_hold_ack),.host_ack(reference_host_ack),
+        .lint1_n(reference_lint1_n),.lint2_n(reference_lint2_n),
+        .hold_req(reference_hold),.emu_run(reference_emu),.cen_enable(reference_cen),
+        .host_req(reference_host_req),.host_wdata(reference_host_data)
+    );
+    reg reference_was_paused=0;
+    reg [31:0] reference_pause_pc,reference_pause_st;
+    reg [31:0] reference_pause_rf[0:63];
+    always @(posedge clk) begin
+        if(rst) reference_was_paused<=0;
+        else begin
+            if(reference_was_paused) begin
+                if(pc!==reference_pause_pc || st!==reference_pause_st)
+                    $fatal(1,"external CEN pause changed PC/status");
+                for(integer q=0;q<64;q=q+1)
+                    if(dut.u_cpu.u_core.u_regs.ram0[q]!==reference_pause_rf[q])
+                        $fatal(1,"external CEN pause changed RF slot %0d",q);
+            end
+            if(measuring && !reference_cen && !reference_was_paused) begin
+                reference_pause_pc<=pc;reference_pause_st<=st;
+                for(integer q=0;q<64;q=q+1)
+                    reference_pause_rf[q]<=dut.u_cpu.u_core.u_regs.ram0[q];
+            end
+            reference_was_paused<=measuring && !reference_cen;
+        end
+    end
+`endif
     assign cyc_ack=bus_state==ACK;
     always @* begin
         if(kind_q==5) cyc_rdata=io_q;
@@ -291,6 +343,9 @@ module test;
                 end
                 if(cyc_req && !$test$plusargs("RESPONSE_PAUSE") && !(draining && drain_instructions==-2)) $fatal(1,"CPU launched a cycle during the early CEN pause");
             end
+`ifdef JTTMS10_EXTERNAL_REFERENCE
+            if(measuring && cen && !reference_cen) paused<=paused+1;
+`endif
             if($test$plusargs("TRACE") && measuring)
                 $display("CORE %0d ua=%03h active=%b step=%b req=%b ack=%b complete=%b cache=%0d word=%b/%b cycle=%b/%b a=%08h b=%08h md=%08h result=%08h qs=%08h qd=%08h",
                     now,dut.u_cpu.u_core.u_ctrl.uaddr,dut.u_cpu.u_core.active,

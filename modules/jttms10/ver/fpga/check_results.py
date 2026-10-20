@@ -17,6 +17,12 @@ from stimulus_schema import validate_event as validate_external_event
 
 HERE = Path(__file__).resolve().parent
 TIMING = HERE.parent / 'timing'
+# A copied transport may select another source checkout. Load its independent
+# event expectations by source path, without relying on the driver's sys.path.
+_event_spec = importlib.util.spec_from_file_location('jttms10_event_contract', HERE/'event_contract.py')
+_event_contract = importlib.util.module_from_spec(_event_spec)
+_event_spec.loader.exec_module(_event_contract)
+expected_external_pause = _event_contract.expected_pause
 MAX_CASES = 32
 MAX_WORDS = 4096
 RESULT_WORDS = 202
@@ -207,6 +213,9 @@ def external_event_words(entry, protocol_version):
         raise ValueError('external event table must contain at most 16 entries')
     if events and protocol_version != 4:
         raise ValueError('external events require FPGA protocol 4')
+    if entry.get('external_contract') is not None and protocol_version != 4:
+        raise ValueError('external event expectations require FPGA protocol 4')
+    expected_external_pause(entry)
     words = []
     for event in events:
         trigger, argument, control = validate_external_event(event)
@@ -467,10 +476,11 @@ def check_batch(batch, capture):
         if result[5] != expected_opcode:
             errors.append('next accepted opcode differs from the fixture program')
         stimulus = stimulus_for(entry)
+        expected_pause = stimulus['pause_clocks'] + expected_external_pause(entry)
         lines = list(traces[index])
         if version >= 3:
             lines.extend(v3_observation_lines(case, result, observed, errors, version))
-        errors.extend(oracle.check(case, observed, stimulus['wait_states'], stimulus['pause_clocks']))
+        errors.extend(oracle.check(case, observed, stimulus['wait_states'], expected_pause))
         if version >= 2:
             initial_words(case)
             memory = case.get('initial_memory', [])
@@ -488,8 +498,11 @@ def check_batch(batch, capture):
         if version == 4:
             errors.extend(check_external_events(entry, result, traces[index]))
         log = '\n'.join(lines)
-        rows.append(oracle.check_observation(case, observed, errors, log,
-                                            stimulus['wait_states'], stimulus['pause_clocks']))
+        row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause)
+        if entry.get('external_events') or entry.get('external_contract') is not None:
+            row['external_observation'] = external_observation(result, traces[index])
+            row['external_contract'] = copy.deepcopy(entry.get('external_contract'))
+        rows.append(row)
     failures = sum(bool(row['errors']) for row in rows)
     return dict(cases=rows, passed=len(rows) - failures, failed=failures)
 
@@ -578,6 +591,24 @@ def check_external_events(entry, result, traces):
     return errors
 
 
+def external_observation(result, traces):
+    """Serialize actual observations for cross-backend comparison, without expectations."""
+    start = result[7]
+    observation = dict(zip(('configured', 'applied', 'writes', 'holds', 'hosts', 'issued',
+                            'error', 'last', 'paused'), result[278:287]))
+    observation.update(events=[], hold_edges=[], host_clocks=[])
+    for line in traces:
+        fields = line.split()
+        if fields[0] == 'STIMULUS':
+            observation['events'].append([int(fields[1])-start, int(fields[2]),
+                int(fields[3]), int(fields[4], 16), int(fields[5], 16)])
+        elif fields[0] == 'HOLD_ACK':
+            observation['hold_edges'].append([int(fields[1])-start, int(fields[2])])
+        elif fields[0] == 'HOST_ACK':
+            observation['host_clocks'].append(int(fields[1])-start)
+    return observation
+
+
 def compare_reference(rows, reference_rows):
     """Compare validated captures with the original bench, relative to decode."""
     actual = {row['name']: row for row in rows}
@@ -592,6 +623,9 @@ def compare_reference(rows, reference_rows):
         if row['errors'] or other['errors']:
             errors.append(name+': failing input capture cannot establish equivalence')
             continue
+        for key in ('external_contract', 'external_observation'):
+            if row.get(key) != other.get(key):
+                errors.append(name+': '+key+' differs')
         for key in ('opcode', 'regs', 'expected_regs', 'expected_st', 'states',
                     'cache_disabled', 'extensions', 'expected_extra_regs', 'test_pc', 'next_pc',
                     'initial_memory', 'expected_memory', 'data_load', 'data_list',

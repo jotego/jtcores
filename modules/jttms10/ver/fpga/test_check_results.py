@@ -420,6 +420,35 @@ class ResultChecks(unittest.TestCase):
         capture['results'][0][2] += 1
         self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
 
+    def test_v4_independent_early_cen_contract_and_corruption(self):
+        for clocks in (1, 7, 8):
+            old, capture = self.packet_v3()
+            entry = old['cases'][0]
+            entry['external_contract'] = dict(kind='early_cen', clocks=clocks)
+            entry['external_events'] = [dict(trigger=0, argument=0, control=32),
+                                        dict(trigger=0, argument=clocks, control=0)]
+            batch = checker.make_batches([entry], protocol_version=4)[0]
+            capture['protocol_version'] = 4
+            result = capture['results'][0]
+            result[2] += clocks
+            result[72] = clocks
+            result[278:287] = [2, 2, 0, 0, 0, 0, 0, clocks, clocks]
+            capture['events'] = [[65, 32, 0, 1 << 14],
+                                 [65+clocks, 0, clocks, 1 << 14 | 1 << 15]]
+            capture['event_count'] = 2
+            rows = checker.check_batch(batch, capture)
+            self.assertEqual(rows['failed'], 0, rows)
+            self.assertEqual(rows['cases'][0]['external_observation']['paused'], clocks)
+            for word in (2, 6, 8, 72, 286):
+                wrong = copy.deepcopy(capture)
+                wrong['results'][0][word] ^= 1
+                self.assertEqual(checker.check_batch(batch, wrong)['failed'], 1, word)
+            # Both the fixed declaration and event observations participate in
+            # cross-backend checks; neither can be dropped from one backend.
+            other = copy.deepcopy(rows['cases'])
+            other[0]['external_observation']['events'][0][0] += 1
+            self.assertTrue(checker.compare_reference(rows['cases'], other))
+
 
 if __name__ == '__main__':
     unittest.main()
