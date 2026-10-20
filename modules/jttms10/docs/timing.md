@@ -1,12 +1,16 @@
 # Instruction timing compliance (issue #144, in progress)
 
-The CPU is **not fully instruction timing compliant**. The current timing
-probes are present for all 133 instruction forms. The current source-bound
-DataStorm image passes all 141,952 fixtures in each base/W1-P7/W3 profile,
-including all 524 [PIXBLT fixtures](blit-timing.md), without exclusions:
-425,856 physical executions, every raw verdict independently replayed.
-All 102 focused physical observations match original Verilator. Probe presence
-and a passing matrix do not establish complete condition coverage.
+The CPU is **not fully instruction timing compliant**. Timing probes are
+present for all 133 instruction forms. Hardware `a59e15b08` passes all 141,972
+ordinary fixtures in each base/W1-P7/W3 profile: 425,916 physical executions,
+independently checked from raw captures. The W3 saved report contains one
+trace-label discrepancy (`BUS_ACCERT` versus raw-derived `BUS_ACCEPT`);
+the original is retained and the full raw audit finds no other field differences.
+All 1,020 focused executions pass, with 702 declared independent reference
+comparisons across overlapping subsets. These include stacked/no-stack NMI
+and CPU-visible I/O preservation/clear checks. NMIM=1 total context duration
+remains observed only. See the [current FPGA checkpoint](../ver/fpga/README.md#physical-nmi-checkpoint).
+Probe presence and a passing matrix do not establish complete condition coverage.
 PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
 arithmetic,masking,transparency and other conditions remain unvalidated.
 Linear memory-to-memory PIXT covers replace/PMASK0/T0; register-to-XY
@@ -28,15 +32,16 @@ not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
 separate checks.
 
-The native binary [DataStorm checkpoint](../ver/fpga/README.md) uses RTL
+The historical native binary [DataStorm checkpoint](../ver/fpga/README.md) uses RTL
 `2a5e4a6d95909c758d3041e0603fc6a8276fed60`. Full command walls are 305.33/311.54/323.21 seconds;
 compilation/programming/preparation and transport phases are separately
 recorded. The separate published-target command retains 27 CD duration failures.
 Timeout and 512-record overflow preserve following cases and clean rearm. Native binary
 IRQ/NMI continuation now passes the separate timed-word Verilator sweep;
 this loaded image predates that change. FPGA HOLD/IRQ scheduling remains open.
-Twenty added wide-row fixtures bring the current inventory to 141,972; all
-preceding contracts are unchanged. Their FPGA validation is pending. Earlier
+Twenty added wide-row fixtures bring the inventory to 141,972; all
+preceding contracts are unchanged. Their FPGA validation is included in the
+current checkpoint above. Earlier
 image results below retain their original identities.
 
 The historical native-LINE [DataStorm image](../ver/fpga/README.md) passes all 141,236

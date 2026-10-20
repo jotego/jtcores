@@ -2,9 +2,69 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
+## Physical NMI checkpoint
+
+The current image uses hardware source `a59e15b08cbff20cd1742e78008f7c56d1d8619a`.
+Host-only I/O fixtures and the copied-driver import fix are in
+`8851e67a0e22615cd6c56cb9abf1e937a758472b`; CPU/runner RTL and seven generated
+ROMs are identical. Programs, initial memory, expectations and supported event
+settings run without another FPGA compilation or programming step.
+
+All 141,972 ordinary cases /133 forms /5,190 batches pass each base, W1/P7 and
+W3 profile on this image (425,916 executions). Full host walls are
+295.037/304.036/314.034 seconds. Independent raw replay checks every case.
+The original W3 report has one text-field difference, `BUS_ACCERT 6243`
+versus raw-derived `BUS_ACCEPT 6243` at batch2725/case4/trace7; every other
+field matches. Original report and failure log remain intact, with a separate
+canonical report/hash. The cause is unestablished; exact original-report
+equality is not claimed for W3.
+
+Smoke 14 plus focused 766 plus I/O 240 give 1,020 positive executions and 702
+declared independent reference comparisons, with overlapping conditions.
+These include stacked NMI, no-stack NMI, IRQ phases and unaligned frames.
+Exact old 14/194/50-case failing-baseline inputs now pass. Their old captures
+retain 252 timing failures and six passing NOP controls. I/O 192 covers SP
+offsets 0..15, IE 0/1, waits 0/1/3 and cold/warm handlers; I/O 48 sweeps warm phases.
+Its 36 representatives and 48 phase observations match full-system Verilator.
+Normal I/O host commands take 5.242/3.952 seconds. Total NMIM=1 context duration
+is observed only. CPU-visible HSTCTL.NMI clear is checked; asynchronous host-pin
+electrical behavior and graphics abandonment remain outside this scope.
+
+All 131 host tests pass. A local actual PMASK-read RTL corruption fails literal
+ISR-register and raw-I/O checks, with unchanged timing and passing NOP controls.
+It is a Verilator mutation, not a programmed mutant image. The first physical
+I/O host command failed after raw transport on an import path dependency;
+its raw capture passes offline, but that failed exit remains preserved.
+The permanent fix uses unchanged literal oracle values and tests isolated
+selected-checker loading with absent/shadowed ambient fixture modules.
+
+RBF SHA256 `f29f6cf45c8e0e0a181c64e0a9e0f5a7298a6907398b3fb7dfd0722b91d02694`;
+overlay `jtcores-144-nmi-recognition-f29f6cf4`, SYSID22/timestamp1792433033.
+Receipt `artifacts/nmi-recognition/physical-program-1/source-bound-programming-receipt.json`
+under `/nobackup/tasks/jtcores-144/`, SHA256
+`669c95d1a54b451617c6d7cf07e68f8d621c8d715ae7fe378782d0a2f1ae17c4`.
+Verify live identity; these are evidence identifiers, not a substitute for preflight.
+
+The `/opt/quartus_free` Rapid attempt took 4,107.857s and failed setup
+(-3.159ns worst); it was never programmed. Same RTL/SDC passed a retained-IP
+full compile in 1,018.72s (1,023.058s outer), all 88 reported STA rows positive/TNS0,
+all 21 inferred RAM geometries unchanged. The appliance uses 9,005 ALMs, 373 RAM blocks and six DSPs; this is not
+CPU-only area acceptance. Programming .327813s target/1.430595s SSH.
+These are development measurements, not matched software/incremental speedups.
+
+Evidence, exact commands, timing phases and Python-only portable replay are
+under `artifacts/nmi-recognition/`, with I/O captures under `artifacts/nmi-io/`.
+See the [published milestone](http://gitea.jotego.es/jotego/jtcores/issues/144#issuecomment-3105)
+and [portable archive](http://gitea.jotego.es/attachments/35a559b5-7e60-46f4-9427-af97af2c10b3).
+The compact `artifacts/nmi-positive-physical-evidence.zip` includes complete
+focused raw captures, reference subsets, failing baselines and local mutant;
+large ordinary captures remain in the task folder, with summaries/hashes in
+the archive. Full #144, 27 MOVB CD targets, broader conditions, clean CI,
+matched CPU area and NARC/MiSTer acceptance remain open.
+
 ## Version 5 and interrupt measurement boundaries
 
-This checkout uses protocol 5: 292-word results append actual context completion,
+The original V5 checkpoint uses 292-word results appending actual context completion,
 preceding retirement and first ISR retirement clocks. Hardware source
 `bb856bf46a6d63f652c4831c2cd06d8c903954dc` is physically validated on DataStorm;
 host-only unaligned fixtures are in `00d7547dae7b62c4d04d599faf7114960b1d64cf`.
@@ -145,8 +205,8 @@ python3 modules/jttms10/ver/fpga/check_nmi_priority.py
 bash modules/jttms10/ver/sim.sh nmi-system
 ```
 
-Fit/STA and physical validation of this recognition change remain required.
-NMIM=1 timing, host-pin electrical synchronization, direct FPGA observation of
+Fit/STA and physical validation of this recognition change are now recorded
+in the current checkpoint above. Full NMIM=1 timing, host-pin electrical synchronization, direct FPGA observation of
 NMI-bit clear, refresh/contention and graphics interruption remain outside this
 bounded contract. The normal runner includes short NMI, phase and mutation checks;
 the full192-case inventory is prepared for FPGA execution without recompilation.
@@ -176,8 +236,8 @@ NMIM=1 total context count. This oracle explicitly records that duration as
 observed only. It does not derive a golden context count from the microcode or
 claim complete no-stack interrupt timing compliance. Physical asynchronous
 host phases, I/O-register preservation and graphics abandonment need separate
-coverage. Local/physical validation of these new runtime cases is recorded
-with the selected source; the full192 cases belong on the FPGA.
+coverage. I/O-register preservation is covered by the separate CPU-visible
+I/O inventory below. The current physical checkpoint includes all192 cases.
 
 ```sh
 # Short independent full-system and Avalon checks.
@@ -197,8 +257,8 @@ All 36 representatives at SP offsets0/1/15 and all48 warm phase cases pass
 both Verilator backends with zero differences. All122 host tests pass, and
 the three actual RTL mutants fail with their intended diagnostics while both
 ordinary NOP controls pass. CPU/runner fingerprints and all seven generated
-ROMs match the recognition RTL source; FPGA execution of the new runtime
-cases remains pending.
+ROMs match the recognition RTL source; FPGA execution of the full runtime
+inventory now passes as recorded above.
 
 ## No-stack NMI I/O-register preservation fixtures
 
