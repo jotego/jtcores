@@ -26,7 +26,10 @@ module jtroundu_obj(
 
 localparam IDLE=0, CLUT_L=1, CLUT_L_DONE=2, CLUT_H=3, CLUT_H_DONE=4,
     WAIT0=5, WAIT1=6, ATTR_WAIT=7, ATTR=8, ATTR_DONE=9, NEXT=10,
-    HEADER=11, DESC=12, PREP=13, PIXEL=14, TILE=15, GFX=16;
+    HEADER=11, DESC=12, PREP=13, PIXEL=14, TILE=15, GFX=16,
+    SNAP_WAIT=17, SNAP_ATTR=18, WALK_INIT=19, WALK_WAIT=20,
+    WALK_LOAD=21, WALK_FETCH=22, WALK_HEADER=23, WALK_DESC=24,
+    WALK_STORE=25, WALK_NEXT=26, FAST=27, FAST_DONE=28;
 reg [4:0] state, return_state;
 reg [17:0] request_addr;
 reg request_bank;
@@ -44,6 +47,13 @@ reg [15:0] attr [0:5];
 reg [2:0] attr_step;
 reg [12:0] list_base;
 reg [10:0] offset;
+reg [8:0] snap_index, walk_index, object_index, object_count;
+reg [8:0] frame_wr_addr, frame_rd_addr;
+reg [159:0] frame_wr_data;
+wire [159:0] frame_data;
+reg frame_we, frame_ready, frame_valid, walk_valid;
+reg [31:0] frame_header;
+reg [7:0] first_line, end_line;
 reg [8:0] target_y;
 reg [6:0] rows;
 reg [8:0] top_line;
@@ -59,6 +69,20 @@ reg signed [59:0] source_x, source_y, step_x, step_y;
 reg [17:0] tile_addr, cached_addr;
 reg tile_bank, cached_bank, cache_valid;
 reg [31:0] cached_data;
+reg [19:0] fast_col, fast_next_col;
+reg [8:0] fast_rem, fast_next_rem, fast_step, fast_step_rem;
+reg [12:0] fast_span;
+reg [2:0] fast_line;
+reg [17:0] fast_addr [0:1];
+reg [31:0] fast_data [0:1];
+reg [1:0] fast_valid;
+reg fast_pending, fast_wait, fast_bank;
+reg [17:0] fast_request;
+reg [17:0] fast_tile_addr, fast_ahead_addr;
+reg fast_tile_bank, fast_ahead_bank;
+integer fast_delta, fast_r, fast_c, fast_tile, fast_ahead;
+wire fast_hit = fast_valid[fast_tile_bank] && fast_addr[fast_tile_bank] == fast_tile_addr;
+wire fast_ahead_hit = fast_valid[fast_ahead_bank] && fast_addr[fast_ahead_bank] == fast_ahead_addr;
 reg [2:0] nibble;
 reg [3:0] pen;
 reg [8:0] read_x, write_x;
@@ -114,6 +138,56 @@ function [31:0] unscale;
     end
 endfunction
 
+function [17:0] graphics_addr;
+    input [17:0] tile;
+    input [2:0] line;
+    reg [16:0] physical;
+    begin
+        physical = tile[17:1];
+        if (physical >= 49152) physical = physical - 17'd49152;
+        else if (physical >= 24576) physical = physical - 17'd24576;
+        graphics_addr = {physical[14:0],line};
+    end
+endfunction
+
+always @* begin
+    fast_delta = {23'd0,fast_step};
+    fast_r = {23'd0,fast_rem};
+    if (flip_x) begin
+        fast_r = fast_r - {23'd0,fast_step_rem};
+        if (fast_r < 0) begin
+            fast_r = fast_r + {23'd0,scale};
+            fast_delta = fast_delta + 1;
+        end
+        fast_c = {12'd0,fast_col} - fast_delta;
+    end else begin
+        fast_r = fast_r + {23'd0,fast_step_rem};
+        if (fast_r >= {23'd0,scale}) begin
+            fast_r = fast_r - {23'd0,scale};
+            fast_delta = fast_delta + 1;
+        end
+        fast_c = {12'd0,fast_col} + fast_delta;
+    end
+    if (repeat_line) begin
+        if (fast_c < 0) fast_c = fast_c + {19'd0,fast_span};
+        else if (fast_c >= {19'd0,fast_span}) fast_c = fast_c - {19'd0,fast_span};
+    end
+    fast_next_col = fast_c[19:0];
+    fast_next_rem = fast_r[8:0];
+    fast_tile = {14'd0,run_base[row]} + ({12'd0,fast_col} >> 3);
+    fast_tile_bank = fast_tile[0];
+    fast_tile_addr = graphics_addr(fast_tile[17:0],fast_line);
+    fast_ahead = flip_x ? ({12'd0,fast_col} & -8) - 8 : ({12'd0,fast_col} & -8) + 8;
+    if (scale < 16) fast_ahead = {12'd0,fast_next_col};
+    if (repeat_line) begin
+        if (fast_ahead < 0) fast_ahead = fast_ahead + {19'd0,fast_span};
+        else if (fast_ahead >= {19'd0,fast_span}) fast_ahead = fast_ahead - {19'd0,fast_span};
+    end
+    fast_tile = {14'd0,run_base[row]} + (fast_ahead >> 3);
+    fast_ahead_bank = fast_tile[0];
+    fast_ahead_addr = graphics_addr(fast_tile[17:0],fast_line);
+end
+
 task request;
     input bank;
     input [17:0] address;
@@ -139,10 +213,10 @@ task advance_pixel;
 endtask
 
 assign ctrl_addr = 8'he0;
-assign rom_l_addr = request_addr;
-assign rom_h_addr = request_addr;
-assign rom_l_cs = (state == WAIT0 || state == WAIT1) && !request_bank;
-assign rom_h_cs = (state == WAIT0 || state == WAIT1) && request_bank;
+assign rom_l_addr = fast_pending ? fast_request : request_addr;
+assign rom_h_addr = fast_pending ? fast_request : request_addr;
+assign rom_l_cs = fast_pending ? !fast_bank : (state == WAIT0 || state == WAIT1) && !request_bank;
+assign rom_h_cs = fast_pending ? fast_bank : (state == WAIT0 || state == WAIT1) && request_bank;
 
 initial begin
     inverse[0] = 0;
@@ -183,7 +257,24 @@ jtframe_obj_buffer #(
     .rd_data ( pxl          )
 );
 
+jtframe_dual_ram #(
+    .AW ( 9   ),
+    .DW ( 160 )
+) u_frame_list (
+    .clk0  ( clk           ),
+    .data0 ( frame_wr_data ),
+    .addr0 ( frame_wr_addr ),
+    .we0   ( frame_we      ),
+    .q0    (               ),
+    .clk1  ( clk           ),
+    .data1 ( 160'd0        ),
+    .addr1 ( frame_rd_addr ),
+    .we1   ( 1'b0          ),
+    .q1    ( frame_data    )
+);
+
 always @(posedge clk) begin
+    frame_we <= 0;
     write_enable <= 0;
     color_valid <= {color_valid[0],1'b0};
     color_x1 <= color_x0;
@@ -203,6 +294,20 @@ always @(posedge clk) begin
         attr_step <= 0;
         list_base <= 0;
         offset <= 0;
+        snap_index <= 0;
+        walk_index <= 0;
+        object_index <= 0;
+        object_count <= 0;
+        frame_wr_addr <= 0;
+        frame_rd_addr <= 0;
+        frame_wr_data <= 0;
+        frame_we <= 0;
+        frame_ready <= 0;
+        frame_valid <= 0;
+        walk_valid <= 0;
+        frame_header <= 0;
+        first_line <= 0;
+        end_line <= 0;
         target_y <= 0;
         rows <= 0;
         top_line <= 0;
@@ -222,6 +327,21 @@ always @(posedge clk) begin
         cached_bank <= 0;
         cached_data <= 0;
         cache_valid <= 0;
+        fast_col <= 0;
+        fast_rem <= 0;
+        fast_step <= 0;
+        fast_step_rem <= 0;
+        fast_span <= 0;
+        fast_line <= 0;
+        fast_valid <= 0;
+        fast_pending <= 0;
+        fast_wait <= 0;
+        fast_bank <= 0;
+        fast_request <= 0;
+        for (i=0;i<2;i=i+1) begin
+            fast_addr[i] <= 0;
+            fast_data[i] <= 0;
+        end
         nibble <= 0;
         pen <= 0;
         color_valid <= 0;
@@ -232,6 +352,15 @@ always @(posedge clk) begin
         overflow <= 0;
         for (i=0;i<6;i=i+1) attr[i] <= 0;
     end else begin
+        if (fast_pending) begin
+            fast_wait <= 1;
+            if (fast_wait && (fast_bank ? rom_h_ok : rom_l_ok)) begin
+                fast_addr[fast_bank] <= fast_request;
+                fast_data[fast_bank] <= fast_bank ? rom_h_data : rom_l_data;
+                fast_valid[fast_bank] <= 1;
+                fast_pending <= 0;
+            end
+        end
         case (state)
             IDLE: ;
             CLUT_L: request(0,18'h2fe00 + {9'd0,clut_load},CLUT_L_DONE);
@@ -254,29 +383,28 @@ always @(posedge clk) begin
                 state <= return_state;
             end
             ATTR_WAIT: begin
-                ram_addr <= list_base + {2'd0,offset} + 1'b1;
-                attr_step <= 0;
                 state <= ATTR;
             end
             ATTR: begin
-                attr[attr_step] <= ram_data;
-                ram_addr <= ram_addr + 1'b1;
-                attr_step <= attr_step + 1'b1;
-                if (attr_step == 5) state <= ATTR_DONE;
+                for (i=0;i<6;i=i+1) attr[i] <= frame_data[i*16+:16];
+                frame_header <= frame_data[127:96];
+                first_line <= frame_data[135:128];
+                end_line <= frame_data[143:136];
+                object_width <= frame_data[156:144];
+                state <= ATTR_DONE;
             end
             ATTR_DONE: begin
-                dy = line_y - origin_y;
-                if (flip_y) dy = -dy - 1;
-                if (attr[0] == 16'hffff || attr[4] == 16'hffff) state <= IDLE;
-                else if (attr[0] >= 16'h4000 || scale == 0) state <= NEXT;
-                else if (rotation == 0 && (dy < 0 || unscale(dy[19:0]) >= 512)) state <= NEXT;
-                else request(0,{2'd0,attr[0]},HEADER);
+                if (target_y < {1'b0,first_line} || target_y >= {1'b0,end_line}) state <= NEXT;
+                else begin
+                    fetched <= frame_header;
+                    state <= HEADER;
+                end
             end
             NEXT: begin
-                if (offset >= 2046) state <= IDLE;
+                if (object_index + 9'd1 >= object_count) state <= IDLE;
                 else begin
-                    offset <= offset + 11'd6;
-                    ram_addr <= list_base + {2'd0,offset} + 13'd6;
+                    object_index <= object_index + 1'b1;
+                    frame_rd_addr <= object_index + 1'b1;
                     state <= ATTR_WAIT;
                 end
             end
@@ -289,7 +417,6 @@ always @(posedge clk) begin
                 bottom_line <= sb[9:0];
                 rows <= sr[6:0];
                 repeat_line <= fetched[31];
-                object_width <= 0;
                 dy = line_y - origin_y;
                 if (flip_y) dy = -dy - 1;
                 source_line = unscale(dy[19:0]);
@@ -299,6 +426,7 @@ always @(posedge clk) begin
                     if (source_line < st || source_line >= st + sr*8) state <= NEXT;
                     else begin
                         row <= source_row[5:0];
+                        fast_line <= source_line[2:0];
                         request(!source_row[0],{2'd0,attr[0]} + {12'd0,source_row[6:1]} + {17'd0,source_row[0]},DESC);
                     end
                 end else begin
@@ -375,9 +503,55 @@ always @(posedge clk) begin
                     step_x <= $signed({19'd0,shrink,16'd0});
                     slope_scale = $signed(slope)*$signed({1'b0,shrink});
                     step_y <= -$signed({{16{slope_scale[35]}},slope_scale,8'd0});
-                    state <= PIXEL;
+                    if (rotation == 0) begin
+                        dist_x = flip_x ? origin_x - first_x - 1 : first_x - origin_x;
+                        source_col = unscale(dist_x[19:0]);
+                        cx = dist_x*128 - source_col*scale;
+                        fast_rem <= cx[8:0];
+                        tile_delta = unscale(20'd1);
+                        cx = 128 - tile_delta*scale;
+                        fast_step_rem <= cx[8:0];
+                        tile_count = ({19'd0,run_right[row]} - {20'd0,run_left[row]}) >> 3;
+                        fast_span <= run_right[row] - {1'b0,run_left[row]};
+                        source_col = source_col - {20'd0,run_left[row]};
+                        if (repeat_line) begin
+                            quotient = divide(source_col[29:3],tile_count[8:0],inverse[tile_count]);
+                            source_col = source_col - ((quotient*tile_count) << 3);
+                            quotient = divide(tile_delta[29:3],tile_count[8:0],inverse[tile_count]);
+                            tile_delta = tile_delta - ((quotient*tile_count) << 3);
+                        end
+                        fast_col <= source_col[19:0];
+                        fast_step <= tile_delta[8:0];
+                        state <= FAST;
+                    end else state <= PIXEL;
                 end
             end
+            FAST: begin
+                if (fast_hit) begin
+                    pen <= fast_data[fast_tile_bank][{fast_col[2:0] ^ 3'd3,2'b00}+:4];
+                    color_valid[0] <= fast_data[fast_tile_bank][{fast_col[2:0] ^ 3'd3,2'b00}+:4] != 0;
+                    color_x0 <= draw_x;
+                    if (draw_x == last_x) state <= FAST_DONE;
+                    else begin
+                        draw_x <= draw_x + 1'b1;
+                        fast_col <= fast_next_col;
+                        fast_rem <= fast_next_rem;
+                        if (!fast_pending && fast_ahead_bank != fast_tile_bank && !fast_ahead_hit
+                         && (repeat_line || (fast_ahead >= 0 && fast_ahead < {19'd0,fast_span}))) begin
+                            fast_bank <= fast_ahead_bank;
+                            fast_request <= fast_ahead_addr;
+                            fast_pending <= 1;
+                            fast_wait <= 0;
+                        end
+                    end
+                end else if (!fast_pending) begin
+                    fast_bank <= fast_tile_bank;
+                    fast_request <= fast_tile_addr;
+                    fast_pending <= 1;
+                    fast_wait <= 0;
+                end
+            end
+            FAST_DONE: if (!fast_pending) state <= NEXT;
             PIXEL: begin
                 dist_x = {{12{source_x[59]}},source_x[59:40]};
                 dist_y = {{12{source_y[59]}},source_y[59:40]};
@@ -423,18 +597,154 @@ always @(posedge clk) begin
                 color_x0 <= draw_x;
                 advance_pixel;
             end
+            SNAP_WAIT: begin
+                ram_addr <= list_base + {2'd0,offset} + 1'b1;
+                attr_step <= 0;
+                state <= SNAP_ATTR;
+            end
+            SNAP_ATTR: begin
+                attr[attr_step] <= ram_data;
+                ram_addr <= ram_addr + 1'b1;
+                attr_step <= attr_step + 1'b1;
+                if (attr_step == 5) begin
+                    frame_we <= 1;
+                    frame_wr_addr <= snap_index;
+                    frame_wr_data <= {64'd0,ram_data,attr[4],attr[3],attr[2],attr[1],attr[0]};
+                    if (attr[0] == 16'hffff || attr[4] == 16'hffff) begin
+                        object_count <= snap_index;
+                        state <= WALK_INIT;
+                    end else if (snap_index == 341) begin
+                        object_count <= 342;
+                        state <= WALK_INIT;
+                    end else begin
+                        snap_index <= snap_index + 1'b1;
+                        offset <= offset + 11'd6;
+                        ram_addr <= list_base + {2'd0,offset} + 13'd6;
+                        state <= SNAP_WAIT;
+                    end
+                end
+            end
+            WALK_INIT: begin
+                walk_index <= 0;
+                frame_rd_addr <= 0;
+                state <= WALK_WAIT;
+            end
+            WALK_WAIT: begin
+                if (object_count == 0) begin
+                    frame_ready <= 1;
+                    state <= IDLE;
+                end else state <= WALK_LOAD;
+            end
+            WALK_LOAD: begin
+                for (i=0;i<6;i=i+1) attr[i] <= frame_data[i*16+:16];
+                frame_header <= 0;
+                object_width <= 0;
+                walk_valid <= 0;
+                state <= WALK_FETCH;
+            end
+            WALK_FETCH: begin
+                if (attr[0] >= 16'h4000 || scale == 0) state <= WALK_STORE;
+                else request(0,{2'd0,attr[0]},WALK_HEADER);
+            end
+            WALK_HEADER: begin
+                st = {24'd0,fetched[7:0]} & 32'hf8;
+                sb = {23'd0,fetched[24],fetched[23:16]};
+                sr = (sb - st + 7) >>> 3;
+                frame_header <= fetched;
+                top_line <= st[8:0];
+                sb = st + sr*8;
+                bottom_line <= sb[9:0];
+                rows <= sr[6:0];
+                repeat_line <= fetched[31];
+                walk_valid <= sr > 0 && sr <= 64;
+                if (sr <= 0 || sr > 64 || rotation == 0) state <= WALK_STORE;
+                else begin
+                    row <= 0;
+                    request(1,{2'd0,attr[0]},WALK_DESC);
+                end
+            end
+            WALK_DESC: begin
+                sr = ({24'd0,fetched[15:8]} + {24'd0,fetched[7:0]} + 1) * 8;
+                if (sr > object_width) object_width <= sr[12:0];
+                if ({1'b0,row} + 1'b1 == rows) state <= WALK_STORE;
+                else begin
+                    row <= row + 1'b1;
+                    request(row[0],{2'd0,attr[0]} + {13'd0,row[5:1]} + 18'd1,WALK_DESC);
+                end
+            end
+            WALK_STORE: begin
+                miny = 0;
+                maxy = 240;
+                if (!walk_valid) maxy = 0;
+                else if (rotation == 0) begin
+                    st = (top_line*scale + 127) >> 7;
+                    sb = (bottom_line*scale + 127) >> 7;
+                    miny = flip_y ? origin_y - sb : origin_y + st;
+                    maxy = flip_y ? origin_y - st : origin_y + sb;
+                end else if (!repeat_line) begin
+                    st = (top_line*scale) >> 7;
+                    sb = (bottom_line*scale + 127) >> 7;
+                    sr = (object_width*scale + 127) >> 7;
+                    miny = 32'h7fffffff;
+                    maxy = -32'h7fffffff;
+                    for (i=0;i<4;i=i+1) begin
+                        cx = i[0] ? sr : 0;
+                        cy = i[1] ? sb : st;
+                        if (flip_x) cx = -cx;
+                        if (flip_y) cy = -cy;
+                        ry = $signed(slope)*cx + (cy <<< 8);
+                        if (ry < miny) miny = ry;
+                        if (ry > maxy) maxy = ry;
+                    end
+                    miny = origin_y + (miny >>> 8) - 1;
+                    maxy = origin_y - ((-maxy) >>> 8) + 2;
+                end
+                if (miny < 0) miny = 0;
+                if (maxy > 240) maxy = 240;
+                if (miny >= maxy || miny >= 240 || maxy <= 0) begin
+                    miny = 0;
+                    maxy = 0;
+                end
+                frame_we <= 1;
+                frame_wr_addr <= walk_index;
+                frame_wr_data <= {3'd0,object_width,maxy[7:0],miny[7:0],frame_header,frame_data[95:0]};
+                state <= WALK_NEXT;
+            end
+            WALK_NEXT: begin
+                if (walk_index + 9'd1 == object_count) begin
+                    frame_ready <= 1;
+                    state <= IDLE;
+                end else begin
+                    walk_index <= walk_index + 1'b1;
+                    frame_rd_addr <= walk_index + 1'b1;
+                    state <= WALK_WAIT;
+                end
+            end
             default: state <= IDLE;
         endcase
         if (line_start && loaded) begin
-            if (v == 0) overflow <= 0;
-            if (state != IDLE || color_valid != 0) overflow <= 1;
-            color_valid <= 0;
-            write_enable <= 0;
-            target_y <= next_y;
-            offset <= 0;
-            list_base <= {ctrl_data[12],12'd0};
-            ram_addr <= {ctrl_data[12],12'd0};
-            state <= next_y < 240 ? ATTR_WAIT : IDLE;
+            fast_pending <= 0;
+            fast_wait <= 0;
+            if (v == 240) begin
+                frame_ready <= 0;
+                frame_valid <= 0;
+                snap_index <= 0;
+                offset <= 0;
+                list_base <= {ctrl_data[12],12'd0};
+                ram_addr <= {ctrl_data[12],12'd0};
+                state <= SNAP_WAIT;
+            end else if (v == 271 || v < 240) begin
+                if (v == 271) begin
+                    frame_valid <= frame_ready;
+                    overflow <= !frame_ready;
+                end else if (frame_valid && (state != IDLE || color_valid != 0)) overflow <= 1;
+                color_valid <= 0;
+                write_enable <= 0;
+                target_y <= next_y;
+                object_index <= 0;
+                frame_rd_addr <= 0;
+                state <= next_y < 240 && object_count != 0 && (v == 271 ? frame_ready : frame_valid) ? ATTR_WAIT : IDLE;
+            end
         end
     end
 end

@@ -158235,6 +158235,164 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+		<machine name="roundup5" sourcefile="tatsumi/roundup5.cpp">
+		<description>Round Up 5 - Super Delta Force</description>
+		<year>1989</year>
+		<manufacturer>Tatsumi</manufacturer>
+		<rom name="ru-23s" size="131072" crc="2dc8c521" sha1="b78de101db3ef00fc4375ae32a7871e0da2dac6c" region="master_rom" offset="0"/>
+		<rom name="ru-26s" size="131072" crc="1e16b531" sha1="d7badef29cf1c4a9bd262933ecd1ca3343ea94bd" region="master_rom" offset="1"/>
+		<rom name="ru-22t" size="131072" crc="9611382e" sha1="c99258782dbad6d69ba7f54115ee3aa218f9b6ee" region="master_rom" offset="40000"/>
+		<rom name="ru-25t" size="131072" crc="b6cd0f2d" sha1="61925c2346d79baaf9bce3d19a7dfc45b8232f92" region="master_rom" offset="40001"/>
+		<rom name="ru-20s" size="131072" crc="c5524558" sha1="a94e7e4548148c83a332524ab4e06607732e13d5" region="slave_rom" offset="0"/>
+		<rom name="ru-18s" size="131072" crc="163ef03d" sha1="099ac2d74164bdc6402b08efb521f49275780858" region="slave_rom" offset="1"/>
+		<rom name="ru-21s" size="131072" crc="b9f91b70" sha1="43c5d9dafb60ed3e5c3eb0e612c2dbc5497f8a6c" region="slave_rom" offset="40000"/>
+		<rom name="ru-19s" size="131072" crc="e3953800" sha1="28fbc6bf154b512fcefeb04fe12db598b1b20cfe" region="slave_rom" offset="40001"/>
+		<rom name="ru-28d" size="65536" crc="df36c6c5" sha1="c046482043f6b54c55696ba3d339ffb11d78f674" region="audiocpu" offset="0"/>
+		<rom name="ru-00b" size="131072" crc="388a0647" sha1="e4ab43832872f44c0fe1aaede4372cc00ca7d32b" region="sprites:sprites_l" offset="0"/>
+		<rom name="ru-02b" size="131072" crc="eff33945" sha1="3f4c3aaa11ccf945c2f898dfdf815705d8539e21" region="sprites:sprites_l" offset="1"/>
+		<rom name="ru-04b" size="131072" crc="40fda247" sha1="f5fbc07fda024baedf35ac209210e94df9f15065" region="sprites:sprites_l" offset="2"/>
+		<rom name="ru-06b" size="131072" crc="cd2484f3" sha1="a23a4d36a8b913104bcc75228317b2979afec888" region="sprites:sprites_l" offset="3"/>
+		<rom name="ru-01b" size="65536" crc="5e91f401" sha1="df976c5ba0f14b14f5642b5ca35b996bca64e369" region="sprites:sprites_l" offset="80000"/>
+		<rom name="ru-03b" size="65536" crc="2fb109de" sha1="098c103e6bae0f52ec66f0cdda2da60bd7108736" region="sprites:sprites_l" offset="80001"/>
+		<rom name="ru-05b" size="65536" crc="23dd10e1" sha1="f30ff1a8c7ed9bc567b901cbdd202028fffb9f80" region="sprites:sprites_l" offset="80002"/>
+		<rom name="ru-07b" size="65536" crc="bb40f46e" sha1="da694e16d19f60a0dee47551f00f3e50b2d5dcaf" region="sprites:sprites_l" offset="80003"/>
+		<rom name="ru-08b" size="131072" crc="01729e3c" sha1="1445287fde0b993d053aab73efafc902a6b7e2cc" region="sprites:sprites_h" offset="0"/>
+		<rom name="ru-10b" size="131072" crc="cd2357a7" sha1="313460a74244325ce2c659816f2b738f3dc5358a" region="sprites:sprites_h" offset="1"/>
+		<rom name="ru-12b" size="131072" crc="ca63b1f8" sha1="a50ef8259745dc166eb0a1b2c812ff620818a755" region="sprites:sprites_h" offset="2"/>
+		<rom name="ru-14b" size="131072" crc="dde79bfc" sha1="2d5888189a6f954801f248a3365e328370fed837" region="sprites:sprites_h" offset="3"/>
+		<rom name="ru-09b" size="65536" crc="629ac0a6" sha1="c3eeccd6c07be7455cf180c9c7d5efcd6d08c0b5" region="sprites:sprites_h" offset="80000"/>
+		<rom name="ru-11b" size="65536" crc="fe3fbf53" sha1="7400c088025ac22e5d9db816792533fc02f2dcf5" region="sprites:sprites_h" offset="80001"/>
+		<rom name="ru-13b" size="65536" crc="d0f6e747" sha1="ef15ed41124b2d37bc6e92254138690dd644e50f" region="sprites:sprites_h" offset="80002"/>
+		<rom name="ru-15b" size="65536" crc="6ee6b22e" sha1="a28edaf23ca6c7231264de962d5ea37bad39f996" region="sprites:sprites_h" offset="80003"/>
+		<rom name="ru-17b" size="131072" crc="82391b47" sha1="6b1977522c6e906503abc50bdd24c4c38cdc9bdb" region="oki" offset="0"/>
+		<rom name="ru-16b" size="65536" crc="374fe170" sha1="5d190a2735698b0384948bfdb1a900f56f0d7ebc" region="oki" offset="20000"/>
+		<device_ref name="v30"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8255"/>
+		<device_ref name="screen"/>
+		<device_ref name="tzb315_sprites"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="NEC V30" clock="8000000"/>
+		<chip type="cpu" tag="sub" name="Motorola MC68000" clock="12500000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="6250000" htotal="400" hbend="0" hbstart="320" vtotal="272" vbend="0" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="stick" buttons="4" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Game Time" tag="DSW" mask="3">
+			<diplocation name="SW-1" number="1"/>
+			<diplocation name="SW-1" number="2"/>
+			<dipvalue name="Shortest" value="3"/>
+			<dipvalue name="Short" value="2"/>
+			<dipvalue name="Medium" value="0" default="yes"/>
+			<dipvalue name="Long" value="1"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="12">
+			<diplocation name="SW-1" number="3"/>
+			<diplocation name="SW-1" number="4"/>
+			<dipvalue name="Easy" value="4"/>
+			<dipvalue name="Medium" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+			<dipvalue name="Hardest" value="12"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW-1" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSW" mask="32">
+			<diplocation name="SW-1" number="6"/>
+			<dipvalue name="Japanese" value="32"/>
+			<dipvalue name="English" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Stage 5 Continue" tag="DSW" mask="64">
+			<diplocation name="SW-1" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Output Mode" tag="DSW" mask="128">
+			<diplocation name="SW-1" number="8"/>
+			<dipvalue name="A (Light)" value="0" default="yes"/>
+			<dipvalue name="B (Vibration)" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW" mask="1792">
+			<diplocation name="SW-2" number="1"/>
+			<diplocation name="SW-2" number="2"/>
+			<diplocation name="SW-2" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="512"/>
+			<dipvalue name="2 Coins/1 Credit" value="256"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="3 Coins/2 Credits" value="1792"/>
+			<dipvalue name="2 Coins/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/2 Credits" value="768"/>
+			<dipvalue name="1 Coin/5 Credits" value="1024"/>
+			<dipvalue name="1 Coin/6 Credits" value="1280"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW" mask="14336">
+			<diplocation name="SW-2" number="4"/>
+			<diplocation name="SW-2" number="5"/>
+			<diplocation name="SW-2" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="12288"/>
+			<dipvalue name="4 Coins/3 Credits" value="14336"/>
+			<dipvalue name="2 Coins/1 Credit" value="2048"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4096"/>
+			<dipvalue name="1 Coin/3 Credits" value="6144"/>
+			<dipvalue name="1 Coin/4 Credits" value="8192"/>
+			<dipvalue name="1 Coin/5 Credits" value="10240"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="16384">
+			<diplocation name="SW-2" number="7"/>
+			<dipvalue name="Off" value="16384"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Hardware Test Mode" tag="DSW" mask="32768">
+			<diplocation name="SW-2" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="IN1" mask="16">
+			<diplocation name="SW-3" number="1"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="IN1" mask="32">
+			<diplocation name="SW-3" number="2"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="IN1" mask="64">
+			<diplocation name="SW-3" number="3"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="IN1" mask="128">
+			<diplocation name="SW-3" number="4"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":STICKX">
+			<analog mask="255"/>
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
 	<machine name="rthunder" sourcefile="namco/namcos86.cpp">
 		<description>Rolling Thunder (rev 3)</description>
 		<year>1986</year>

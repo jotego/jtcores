@@ -1,7 +1,0 @@
-#!/bin/bash
-# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Date: 18-10-2026
-
-set -euo pipefail
-exec "${ROUNDU_VERILATOR:?}" --timing -I"${JTFRAME:?}/hdl/cpu/nuv30" "$@"

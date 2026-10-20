@@ -12,9 +12,6 @@ main_setnames=["roundup5"]
 [parse.mustbe]
 machines=["roundup5"]
 
-[parse.debug]
-machines=["roundup5"]
-
 [buttons]
 names=[{ names="Accelerator,Brake,Shift,Turbo" }]
 
