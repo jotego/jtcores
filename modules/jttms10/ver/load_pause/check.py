@@ -39,7 +39,9 @@ from pixel_xy_store_cases import fixture as xy_store_fixture
 from draw_cases import fixture as draw_fixture
 from pixel_xy_copy_cases import fixture as xy_copy_fixture
 from copy_cases import transactions as copy_transactions
-from fill_cases import boolean_fixture as fill_boolean_fixture,transfers as fill_transfers
+from fill_cases import (boolean_fixture as fill_boolean_fixture,
+                        arithmetic_fixture as fill_arithmetic_fixture,
+                        transfers as fill_transfers)
 from run import program,parse_result,check_bus,check_target
 
 
@@ -215,6 +217,17 @@ def main():
                 case['response_pause_clocks']=96
                 case['response_pause_after']=58 if xy else 42
                 probes.append(case)
+        # The response must also survive while the native word arithmetic
+        # pipeline is CPU-disabled, including subtraction's borrow/clamp.
+        for ppop in range(16,22):
+            for size in (4,16):
+                for xy in (False,True):
+                    case=fill_arithmetic_fixture(size,ppop,xy,False,
+                        words=2,rows=2,sample=1 if ppop<=17 else 2)
+                    case['name']='response_pause_'+case['name']
+                    case['response_pause_clocks']=96
+                    case['response_pause_after']=58 if xy else 42
+                    probes.append(case)
         if args.case:
             selected=[case for case in probes if args.case in case['name']]
             if not selected:parser.error('no matching response-pause controls')

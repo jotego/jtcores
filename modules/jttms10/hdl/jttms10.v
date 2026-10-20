@@ -148,8 +148,12 @@ module jttms10 #(
     wire copy_native=copy_regular_native || binary_native;
     wire copy_scheduled=copy_native && (gfx_bus_post && gfx_bus_read || binary_native && fill_word && gfx_bus_write);
     assign mem_overlap=(line_native || copy_regular_native || (binary_native && fill_word)) && gfx_active;
-    wire fill_simple=(pixel_simple || pixel_boolean) && control[7:6]==0;
+    wire fill_simple=(pixel_simple || pixel_boolean || pixel_arithmetic) && control[7:6]==0;
     wire pixel_boolean=!control[14] && control[13:10]!=0 && !control[5] && pmask==0;
+    wire pixel_arithmetic=control[14:10]>=5'd16 && control[14:10]<=5'd21 &&
+                          !control[5] && pmask==0 &&
+                          (psize==16'd4 || psize==16'd8 || psize==16'd16);
+    wire fill_processing=pixel_boolean || pixel_arithmetic;
     // The selected native microprogram owns the mode until retirement.
     wire pixel_process=pix_rlin && gfx_family==8'd150;
     wire pixel_linear_copy=ir[15:9]==7'b1111110 && gfx_family==8'd151;
@@ -165,7 +169,7 @@ module jttms10 #(
                               psize==16'd4 ? 32'd4 :
                               psize==16'd8 ? 32'd2 : 32'd1;
     wire fill_word_eligible = (array_fill || (copy_regular_native && rs_data[3:0]==0) ||
-        (binary_native && binary_aligned && rd_data<=32 && (rd_data & (fill_pixels-1))==0)) && (pixel_simple || (array_fill && pixel_boolean && (rd_data & (fill_pixels-1))==0)) &&
+        (binary_native && binary_aligned && rd_data<=32 && (rd_data & (fill_pixels-1))==0)) && (pixel_simple || (array_fill && fill_processing && (rd_data & (fill_pixels-1))==0)) &&
         (!ir[5] || control[7:6]==0) && result[3:0]==0 &&
         (psize==16'd1 || psize==16'd2 || psize==16'd4 ||
          psize==16'd8 || psize==16'd16) && rd_data>=fill_pixels;
@@ -492,10 +496,21 @@ module jttms10 #(
         (!store_started || (fill_long_b && fill_last_row && fill_edge)) && (load_issue_left!=0 || mem_phase!=0);
     // Reserve initial row processing before the first Boolean word read.
     // Subsequent RMWs retain their accepted field slot across the handoff.
-    wire fill_read_wait=TIMED_PROGRAM!=0 && array_fill && fill_word && pixel_boolean &&
+    wire fill_read_wait=TIMED_PROGRAM!=0 && array_fill && fill_word && fill_processing &&
         gfx_bus_read && !store_started && !completed && !copy_read_pending &&
         (load_issue_left>CLKS_PER_STATE[LOAD_IW-1:0] || mem_phase!=0);
-    wire operation_ready=(fill_bus_wait || fill_read_wait) ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
+    localparam integer FILL_ARITH_W=$clog2(2*CLKS_PER_STATE+1);
+    localparam integer FILL_ARITH_ONE_I=CLKS_PER_STATE-1;
+    localparam integer FILL_ARITH_TWO_I=2*CLKS_PER_STATE-1;
+    localparam [FILL_ARITH_W-1:0] FILL_ARITH_ONE=FILL_ARITH_ONE_I[FILL_ARITH_W-1:0];
+    localparam [FILL_ARITH_W-1:0] FILL_ARITH_TWO=FILL_ARITH_TWO_I[FILL_ARITH_W-1:0];
+    reg [FILL_ARITH_W-1:0] fill_arith_left;
+    reg [31:0] fill_arith_result;
+    reg fill_arith_valid;
+    wire fill_arith_cycle=TIMED_PROGRAM!=0 && gfx_active && array_fill && fill_word &&
+                          pixel_arithmetic && control[14:10]!=5'd16 && gfx_pix_process && gfx_bus_read;
+    wire fill_arith_wait=fill_arith_cycle && (!fill_arith_valid || fill_arith_left!=0);
+    wire operation_ready=(fill_bus_wait || fill_read_wait || fill_arith_wait) ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
                          gfx_bus_collect ? (mem_ack || !mem_busy) :
                          line_native && gfx_bus_skip ? time_left==0 :
                          gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
@@ -763,10 +778,13 @@ module jttms10 #(
     wire gfx_color_lane = drav_ir || line_ir ||
                           (array_ir && (array_fill || array_binary));
     wire [4:0] pixel_size=fill_word && array_fill && pixel_boolean ? 5'd16 : psize[4:0];
+    wire pixel_word_arithmetic=fill_word && array_fill && pixel_arithmetic;
+    wire [31:0] pixel_alu_feedback=fill_arith_cycle && fill_arith_valid ? fill_arith_result : result;
     wire [15:0] pixel_source = (pixel_load || pixel_copy) ? read_data[15:0] : gfx_color_lane ?
                                rs_data[15:0] >> ea[3:0] : rs_data[15:0];
     jttms10_pixel u_pixel(
         .psize(pixel_size), .ppop(control[14:10]),
+        .word_arithmetic(pixel_word_arithmetic),
         .transparency(control[5]), .pmask(pmask),
         .source_is_register(pix_register_source),
         .src_addr_lo((pixel_load || pixel_copy || array_binary) ? ea[3:0] : pix_src_addr),
@@ -775,7 +793,7 @@ module jttms10 #(
         .dest_pixel((pixel_process || (gfx_active && gfx_pix_process && gfx_bus_read)) ? read_data[15:0] : gfx_need_dest ? md[15:0] : 16'd0),
         .alu_a(pixel_alu_a), .alu_b(pixel_alu_b),
         .alu_op(pixel_alu_op), .alu_req(pixel_alu_req),
-        .alu_result(result), .alu_borrow(c),
+        .alu_result(pixel_alu_feedback), .alu_borrow(c),
         .valid(unused_pixel_valid), .visible_source(pixel_visible_source),
         .result_pixel(unused_pixel_result), .write_mask(unused_pixel_mask),
         .write_pixel(pixel_write_pixel), .transparent(pixel_transparent)
@@ -814,6 +832,26 @@ module jttms10 #(
         (gfx_pix_process && pixel_alu_req ? pixel_alu_b : gfx_alu_capture ? gfx_b_data : b) : alu_b;
     wire shared_alu_packed;
     assign shared_alu_packed=(xy_packed && !gfx_active) || gfx_packed_xy;
+    // The word read supplies the shared ALU operands. ADD overlaps that
+    // read directly. Other arithmetic operations retain the sum/difference
+    // for their word extraction/selection stage; saturating subtraction has
+    // a second borrow/clamp stage. These stages delay each physical write,
+    // not retirement. Response capture is independent of CEN.
+    always @(posedge clk) begin
+        if(rst || gfx_enter || gfx_resume) begin
+            fill_arith_left<=0;
+            fill_arith_valid<=0;
+            fill_arith_result<=0;
+        end else begin
+            if(cen && fill_arith_left!=0) fill_arith_left<=fill_arith_left-1'b1;
+            if(fill_arith_cycle && mem_req && mem_ack) begin
+                fill_arith_result<=result;
+                fill_arith_valid<=1;
+                fill_arith_left<=control[14:10]==5'd19 ? FILL_ARITH_TWO : FILL_ARITH_ONE;
+            end
+            if(step && gfx_pix_process) fill_arith_valid<=0;
+        end
+    end
     jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
         .split16(shared_alu_packed),
         .result(result),.n(n),.z(z),.c(c),.v(v));
@@ -987,7 +1025,7 @@ module jttms10 #(
                 load_issue_left<=0;
                 time_left<=CLKS_PER_STATE[15:0]-16'd2;
             end
-            if((copy_scheduled || (array_fill && fill_word && pixel_boolean && gfx_bus_read)) && mem_req)
+            if((copy_scheduled || (array_fill && fill_word && fill_processing && gfx_bus_read)) && mem_req)
                 copy_read_pending<=!mem_ack;
             if(copy_scheduled && mem_req && mem_ack) begin
                 time_left<=binary_native ?
@@ -1354,7 +1392,10 @@ module jttms10 #(
                     if(gfx_dst_b) b<=result;
                     if(gfx_dst_md) md<=result;
                     if(gfx_bus_collect) md<=mem_rdata;
-                    if(gfx_dst_ea) ea<=result;
+                    // Row PROCESS already holds the prepared word address
+                    // in A. Arithmetic borrows the ALU on this same step;
+                    // its packed pixel result must not replace that address.
+                    if(gfx_dst_ea) ea<=pixel_word_arithmetic && gfx_pix_process ? a : result;
                     if(gfx_dst_tmp) tmp<=result;
                     if(gfx_bus_pitch) binary_aligned<=binary_aligned && rs_data[3:0]==0;
                     if(gfx_bus_resume) fill_word<=1;
@@ -1384,7 +1425,7 @@ module jttms10 #(
                     if(gfx_pix_source) pix_src_addr<=ea[3:0];
                     if(gfx_pix_visible) md<={16'd0,pixel_visible_source};
                     if(gfx_pix_process) begin
-                        md<={16'd0,fill_word && !pixel_boolean ? rs_data[15:0] : fill_edge ? pixel_source : pixel_write_pixel};
+                        md<={16'd0,fill_word && !fill_processing ? rs_data[15:0] : fill_edge ? pixel_source : pixel_write_pixel};
                         pix_transparent<=!fill_edge && pixel_transparent;
                     end
                     if(gfx_pix_test) pix_transparent<=pixel_transparent;

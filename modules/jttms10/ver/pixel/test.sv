@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module test;
     reg [4:0] psize=1,ppop=0;
-    reg transparency=0,source_is_register=0;
+    reg transparency=0,source_is_register=0,word_arithmetic=0;
     reg [15:0] pmask=0,source_pixel=0,dest_pixel=0;
     reg [3:0] src_addr_lo=0,dst_addr_lo=0;
     wire [31:0] alu_a,alu_b,alu_result;
@@ -11,6 +11,7 @@ module test;
     wire [15:0] visible_source,result_pixel,write_mask,write_pixel;
     jttms10_pixel dut(
         .psize(psize),.ppop(ppop),.transparency(transparency),.pmask(pmask),
+        .word_arithmetic(word_arithmetic),
         .source_is_register(source_is_register),.src_addr_lo(src_addr_lo),
         .dst_addr_lo(dst_addr_lo),.source_pixel(source_pixel),
         .dest_pixel(dest_pixel),.alu_a(alu_a),.alu_b(alu_b),.alu_op(alu_op),
@@ -83,6 +84,32 @@ module test;
         checks=checks+1;
     end
     endtask
+    integer lane,word_expected,word_s,word_d,word_r;
+    task check_word;
+    begin
+        word_expected=0;
+        mask=(1<<psize)-1;
+        for(lane=0;lane<16;lane=lane+{27'd0,psize}) begin
+            word_s=({16'd0,source_pixel} >> lane) & mask;
+            word_d=({16'd0,dest_pixel} >> lane) & mask;
+            case(ppop)
+                16:word_r=(word_s+word_d)&mask;
+                17:word_r=(word_s+word_d)>mask ? mask : word_s+word_d;
+                18:word_r=(word_d-word_s)&mask;
+                19:word_r=word_d<word_s ? 0 : word_d-word_s;
+                20:word_r=word_d>word_s ? word_d : word_s;
+                default:word_r=word_d<word_s ? word_d : word_s;
+            endcase
+            word_expected=word_expected | (word_r << lane);
+        end
+        #1;
+        if(!valid || !alu_req || transparent || write_mask!==16'hffff ||
+           visible_source!==source_pixel || result_pixel!==word_expected[15:0] ||
+           write_pixel!==word_expected[15:0] || alu_op!==((ppop<=17) ? 4'd1 : 4'd3))
+            $fatal(1,"word arithmetic size=%0d op=%0d src=%04x dst=%04x got=%04x expected=%04x",psize,ppop,source_pixel,dest_pixel,write_pixel,word_expected[15:0]);
+        checks=checks+1;
+    end
+    endtask
     integer si,op,regsrc,t,sa,da,k;
     initial begin
         // Every defined/reserved PPOP over every legal pixel width, both
@@ -134,6 +161,25 @@ module test;
         // Undefined pixel widths do not silently acquire an operation.
         psize=3; ppop=0; check();
         psize=0; ppop=17; check();
+        word_arithmetic=1;pmask=0;transparency=0;source_is_register=1;
+        src_addr_lo=0;dst_addr_lo=0;
+        for(si=2;si<5;si=si+1) begin
+            psize=si==2 ? 5'd4 : si==3 ? 5'd8 : 5'd16;
+            for(op=16;op<=21;op=op+1) begin
+                ppop=op[4:0];
+                for(k=0;k<256;k=k+1) begin
+                    case(k)
+                        0:begin source_pixel=16'h1111;dest_pixel=16'hffff;end
+                        1:begin source_pixel=16'h1111;dest_pixel=0;end
+                        2:begin source_pixel=16'hff01;dest_pixel=16'h01ff;end
+                        3:begin source_pixel=16'hffff;dest_pixel=16'hffff;end
+                        4:begin source_pixel=16'haa55;dest_pixel=16'h5aa5;end
+                        default:begin source_pixel=16'($random);dest_pixel=16'($random);end
+                    endcase
+                    check_word();
+                end
+            end
+        end
         $display("jttms10_pixel PASS (%0d cases)",checks); $finish;
     end
 endmodule

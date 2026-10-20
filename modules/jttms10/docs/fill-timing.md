@@ -886,10 +886,20 @@ remain active. The arithmetic count model and all CPU RTL are unchanged.
 Eighteen short Verilator representatives all retain duration failures.
 PS4/8 also retain repeated pixel-level read/write traffic instead of the
 required word operations. Their checked architecture and memory agree with
-the independent arithmetic model. Large new matrices have not yet run on the
-FPGA. The generic path's excessive traffic may exceed bounded per-case trace
-capacity on longer rows; overflow must remain an explicit failing diagnostic,
-not an inferred individual architectural verdict.
+the independent arithmetic model. All 1,728 arithmetic cases and two NOP controls now run each BASE/W1P7/W3
+on the unchanged source-caa image: 5,190 executions. Each host command exits1;
+both NOP controls pass and all 1,728 arithmetic cases fail duration, including
+1,152/profile with excess BUS/TARGET transaction counts. Every complete raw
+verdict independently replays, and all 18 declared BASE observations match
+Verilator diagnostically with their errors retained. There are no architectural,
+memory, timeout or overflow failures. Maximum actual event use is 327/512 per
+case and 5,751/16,384 per batch. A conservative count of separate bus/target
+lines overstated capacity use because a runner event can encode several signals.
+Driver walls are 10.277733033/10.298957614/10.453181291 seconds. Final board
+health passes without reprogramming/reset. These results belong to test-only
+source `5a33c9b097468651a1c212e4770a588e88fc3a03`; proof is in
+`artifacts/fill-arithmetic-baseline-1/physical-1/root-all-profiles-review.json`
+under the #144 task. All failures remain requirements.
 
 Reproduce the model and selected failing probes with:
 
@@ -910,3 +920,44 @@ captures and nonzero verdicts. A new test program or oracle fixture does not
 require recompiling an unchanged CPU image. Arithmetic scheduling, partial
 processing words, masks, transparency, window conditions and the full #144
 acceptance remain open.
+
+
+## Native arithmetic word-processing development
+
+A development path extends the aligned full-word PMASK0/T0/W0 FILL schedule
+to all six defined arithmetic operations at PS4/8/16. It packs pixel lanes
+with spacer bits into operands of the existing shared 32-bit ALU. Addition
+absorbs each carry in its spacer; subtraction starts each destination lane
+with a set spacer, preventing inter-pixel borrows and retaining an independent
+D>=S result for saturation/MAX/MIN. Result extraction uses lane muxes. There
+is no additional adder, ALU, DSP or register-file memory port.
+
+ADD overlaps the accepted word read, retaining G4. Other operations capture
+the packed ALU result in a 32-bit response register, then use a word-processing
+stage before the write; SUBS has a second borrow/clamp stage. This produces
+G5/G6 by scheduling each word's read/compute/write, without retirement padding.
+Response capture is independent of CEN; processing advances only when enabled.
+The prepared row address remains in A when arithmetic owns the ALU, and
+must not be replaced with the packed pixel result. Partial words, masks,
+transparency and window conditions retain their generic paths.
+
+The pixel/ALU unit passes 179,297 checks, including 4,608 new packed arithmetic
+random/literal checks. All 93 directed programs pass BASE/W1P7/W3/W1P1
+(372 executions): 72 arithmetic word/row/operand cases and 21 preceding
+replacement/Boolean/NOP controls per profile. The source count oracle,
+fixtures and seven generated ROM payloads are unchanged. These are bounded
+Verilator development checks. All 27 positive FILL mutation controls pass;
+19 deliberate timing regressions retain correct checked architecture/memory
+while failing timing, and eight functional/protocol regressions are rejected.
+The new arithmetic mutations remove a processing stage, remove the SUBS clamp
+stage, collapse packed lanes to scalar arithmetic, or capture a stale sum.
+Response tests pass 79 positive controls, including 24 arithmetic accepted-read
+ACKs during a CEN pause; a lost-response mutant is rejected. Architectural
+regressions pass 180 base, 160 array, 124 boundary and 112 timed row/HOLD
+programs. The IRQ/NMI bench passes 56 FILL modes, including all 36 arithmetic
+PPOP/size/address-mode combinations with nested ISR graphics. That bench proves
+architectural continuation only; exact arithmetic interrupt timing remains
+unqualified. The independent 270-test FILL model proof carries over because
+all its source files are unchanged. Complete source-bound FPGA/build
+qualification remains required; no arithmetic hardware result is claimed for
+this development implementation yet.

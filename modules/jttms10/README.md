@@ -75,8 +75,13 @@ The next [arithmetic FILL baseline](docs/fill-timing.md#arithmetic-whole-word-fa
 adds 1,728 independent PPOP16..21 cases at PS4/8/16, preserving all preceding
 contracts. Eighteen short Verilator representatives fail duration, with checked
 architecture/memory correct and excess pixel-level bus traffic at PS4/8.
-Its expanded FPGA validation and arithmetic schedule remain required.
-Exact Boolean interrupt timing remains unqualified.
+All 1,728 arithmetic cases now have failing FPGA baselines in three profiles,
+with correct checked architecture/memory and no timeouts/overflows. A native
+word arithmetic development path reuses the shared ALU and passes 372 directed
+Verilator executions, 179,297 pixel/ALU unit checks, 27 mutation controls and
+27 rejections, response capture, architectural and IRQ/NMI continuation checks.
+Its complete FPGA/build qualification remains required. Exact Boolean/arithmetic interrupt timing remains
+unqualified.
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

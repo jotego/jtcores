@@ -27,6 +27,7 @@ module test;
     integer run_mode=0, variant=0, requests=0, delay_left=0, i;
     integer fill_size=16, fill_xy=0, fill_ppop=0;
     reg [15:0] fill_width=4, nested_fill_expected=16'h5678;
+    reg [15:0] fill_word_expected=16'h55aa;
     reg busy=0, irq_sent=0, handler_seen=0, pbx_seen=0;
     wire nmi_clear;
     reg [31:0] held_addr=0, held_data=0;
@@ -205,6 +206,8 @@ module test;
                         // Keep a literal check in addition to resumed/baseline equality.
                         if (variant==0 && fill_ppop==10 && held_data!==32'h9696)
                             $fatal(1,"Boolean FILL word=%h expected 00009696",held_data);
+                        if (variant==0 && fill_ppop>=16 && held_data!=={16'd0,fill_word_expected})
+                            $fatal(1,"arithmetic FILL PP%0d PS%0d word=%h expected %h",fill_ppop,fill_size,held_data,fill_word_expected);
                         if (drawn>=256) $fatal(1,"too many array writes");
                         if (run_mode==0) begin
                             baseline_addr[drawn]=held_addr;
@@ -298,7 +301,7 @@ module test;
             plane_mask=(variant==0 || variant>=3) ? 16'd0 : 16'h2222;
             control=variant==6 ? 16'h00c0 :
                     variant==7 ? 16'h03c0 :
-                    variant==0 && fill_ppop==10 ? 16'h2800 :
+                    variant==0 ? {1'b0,fill_ppop[4:0],10'd0} :
                     (variant==0 || variant>=3) ? 16'd0 :
                     variant==2 ? 16'h2900 : 16'h2800; // XOR + optional PBH
             rst=1;
@@ -392,7 +395,10 @@ module test;
         if ($value$plusargs("FILL_XY=%d",fill_xy)) begin end
         if ($value$plusargs("FILL_PPOP=%d",fill_ppop)) begin end
         if (fill_xy!=0 && fill_xy!=1) $fatal(1,"invalid FILL_XY mode");
-        if (fill_ppop!=0 && fill_ppop!=10) $fatal(1,"invalid FILL_PPOP mode");
+        if (fill_ppop!=0 && fill_ppop!=10 && (fill_ppop<16 || fill_ppop>21))
+            $fatal(1,"invalid FILL_PPOP mode");
+        if (fill_ppop>=16 && fill_size!=4 && fill_size!=8 && fill_size!=16)
+            $fatal(1,"arithmetic FILL requires PS4/8/16");
         case (fill_size)
             1: begin fill_width=64; nested_fill_expected=16'hbeee; end
             2: begin fill_width=32; nested_fill_expected=16'hbeec; end
@@ -409,6 +415,41 @@ module test;
                 8: nested_fill_expected=16'hbe97;
                 16: nested_fill_expected=16'he897;
                 default: $fatal(1,"invalid XOR pixel size");
+            endcase
+        end
+        if (fill_ppop>=16) begin
+            // Table7-2 literal lane arithmetic: C33C with COLOR1 55AA.
+            // The nested one-pixel ISR uses BEEF with COLOR1 5678 and
+            // preserves the bits outside that pixel. No RTL result is golden.
+            case(fill_size)
+                4: case(fill_ppop)
+                    16: begin fill_word_expected=16'h18d6; nested_fill_expected=16'hbee7; end
+                    17: begin fill_word_expected=16'hf8df; nested_fill_expected=16'hbeef; end
+                    18: begin fill_word_expected=16'h7e92; nested_fill_expected=16'hbee7; end
+                    19: begin fill_word_expected=16'h7002; nested_fill_expected=16'hbee7; end
+                    20: begin fill_word_expected=16'hc5ac; nested_fill_expected=16'hbeef; end
+                    21: begin fill_word_expected=16'h533a; nested_fill_expected=16'hbee8; end
+                    default: $fatal(1,"invalid arithmetic PPOP");
+                endcase
+                8: case(fill_ppop)
+                    16: begin fill_word_expected=16'h18e6; nested_fill_expected=16'hbe67; end
+                    17: begin fill_word_expected=16'hffe6; nested_fill_expected=16'hbeff; end
+                    18: begin fill_word_expected=16'h6e92; nested_fill_expected=16'hbe77; end
+                    19: begin fill_word_expected=16'h6e00; nested_fill_expected=16'hbe77; end
+                    20: begin fill_word_expected=16'hc3aa; nested_fill_expected=16'hbeef; end
+                    21: begin fill_word_expected=16'h553c; nested_fill_expected=16'hbe78; end
+                    default: $fatal(1,"invalid arithmetic PPOP");
+                endcase
+                16: case(fill_ppop)
+                    16: begin fill_word_expected=16'h18e6; nested_fill_expected=16'h1567; end
+                    17: begin fill_word_expected=16'hffff; nested_fill_expected=16'hffff; end
+                    18: begin fill_word_expected=16'h6d92; nested_fill_expected=16'h6877; end
+                    19: begin fill_word_expected=16'h6d92; nested_fill_expected=16'h6877; end
+                    20: begin fill_word_expected=16'hc33c; nested_fill_expected=16'hbeef; end
+                    21: begin fill_word_expected=16'h55aa; nested_fill_expected=16'h5678; end
+                    default: $fatal(1,"invalid arithmetic PPOP");
+                endcase
+                default: $fatal(1,"invalid arithmetic pixel size");
             endcase
         end
         $display("FILL checkpoint pixel size: %0d",fill_size);
@@ -440,7 +481,9 @@ module test;
                 for (i=0;i<80;i=i+1)
                     if (words['h60+i]!==baseline_mem[i])
                         $fatal(1,"FILL NMI PS%0d destination word %0d differs",fill_size,i);
-                if (fill_ppop==10)
+                if (fill_ppop>=16)
+                    $display("PASS: arithmetic FILL PP%0d XY%0d PS%0d IRQ/NMI resumes eight word writes",fill_ppop,fill_xy,fill_size);
+                else if (fill_ppop==10)
                     $display("PASS: Boolean FILL XY%0d PS%0d IRQ/NMI resumes eight XOR word writes",fill_xy,fill_size);
                 else if (fill_xy!=0)
                     $display("PASS: FILL XY PS%0d IRQ/NMI resumes eight full-word writes",fill_size);
