@@ -24,9 +24,14 @@ main() {
     python3 -B "$ver_dir/timing/test_line_cases.py"
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
+    for suite in test_check_results test_transport_payload test_transport_stream \
+                 test_transport_schema test_programming_receipt; do
+        python3 -B "$ver_dir/fpga/$suite.py"
+    done
     run_checker binary-irq-mutations "$ver_dir/array/check_timed_interrupt.py"
     run_checker regular-irq-mutations "$ver_dir/array/check_timed_interrupt.py" --kind regular
     run_checker fpga-stimulus-mutations "$ver_dir/fpga/check_stimulus.py"
+    run_checker fpga-external-recovery "$ver_dir/fpga/check_external_recovery.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
     run_checker emu "$ver_dir/emu/check.py"

@@ -34,11 +34,14 @@ class SourceBoundReceipts(unittest.TestCase):
         for name in self.inputs:
             self.write(name, name + '\n')
         self.write('modules/jttms10/ver/fpga/jttms10_fpga_runner.v', 'runner\n')
+        self.write('modules/jttms10/ver/fpga/jttms10_fpga_stimulus.v', 'stimulus\n')
         self.image = Path(self.temp.name) / 'baseline.rbf'
         self.image.write_bytes(b'compiled-image')
         sources = receipts.cpu_source_fingerprints(self.root)
         self.receipt = {
             'format': 'jttms10-fpga-programming-receipt-v1',
+            'protocol_version': 4,
+            'runner_source_fingerprints': receipts.runner_source_fingerprints(self.root),
             'cpu_source_fingerprints': sources,
             'cpu_source_fingerprint_sha256': receipts.cpu_source_fingerprint_digest(sources),
             'runner_source_sha256': receipts.sha256(
@@ -102,7 +105,16 @@ class SourceBoundReceipts(unittest.TestCase):
             self.validate()
         self.image.write_bytes(b'compiled-image')
         self.write('modules/jttms10/ver/fpga/jttms10_fpga_runner.v', 'changed runner\n')
-        with self.assertRaisesRegex(SystemExit, 'runner RTL checkout differs'):
+        with self.assertRaisesRegex(SystemExit, 'runner component checkout differs'):
+            self.validate()
+
+    def test_sequencer_and_protocol_are_bound_before_device_access(self):
+        self.write('modules/jttms10/ver/fpga/jttms10_fpga_stimulus.v', 'changed stimulus\n')
+        with self.assertRaisesRegex(SystemExit, 'runner component checkout differs'):
+            self.validate()
+        self.write('modules/jttms10/ver/fpga/jttms10_fpga_stimulus.v', 'stimulus\n')
+        self.receipt['protocol_version'] = 3
+        with self.assertRaisesRegex(SystemExit, 'protocol 4 programming receipt'):
             self.validate()
 
     def test_old_receipt_and_variant_without_parent_fail_closed(self):

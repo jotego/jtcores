@@ -93,6 +93,16 @@ def validate_rapid_result(build, result):
     validate_positive_sta(bindings['parent_sta_summary_sha256'])
 
 
+def runner_source_fingerprints(source_root):
+    """Bind all synthesizable runner components, independently of the oracle."""
+    root = Path(source_root).resolve()
+    names = ('jttms10_fpga_runner.v', 'jttms10_fpga_stimulus.v')
+    paths = [root / 'modules/jttms10/ver/fpga' / name for name in names]
+    if any(not path.is_file() for path in paths):
+        raise SystemExit('runner source fingerprint input is missing')
+    return {str(path.relative_to(root)): sha256(path) for path in paths}
+
+
 def cpu_source_fingerprints(source_root):
     """Hash the CPU implementation and every source/tool input that builds it.
 
@@ -239,6 +249,11 @@ def write_rom_update_receipt(*, image, build, base_build, baseline_source,
     parent = json.loads(parent_receipt_path.read_text())
     if parent.get('format') != 'jttms10-fpga-programming-receipt-v1':
         raise SystemExit('parent must be the canonical full-fit programming receipt')
+    if parent.get('protocol_version') != 4:
+        raise SystemExit('V4 ROM update requires a protocol 4 parent receipt')
+    for root in {baseline_source, hardware_source}:
+        if runner_source_fingerprints(root) != parent.get('runner_source_fingerprints'):
+            raise SystemExit('ROM update runner components differ from the fitted parent')
     baseline_fingerprints = cpu_source_fingerprints(baseline_source)
     if parent.get('cpu_source_fingerprints') != baseline_fingerprints:
         raise SystemExit('parent receipt is not source-bound to the baseline checkout')
@@ -377,6 +392,8 @@ def write_rom_update_receipt(*, image, build, base_build, baseline_source,
         'image_path': str(image),
         'image_sha256': sha256(image),
         'runner_source_sha256': parent['runner_source_sha256'],
+        'protocol_version': parent['protocol_version'],
+        'runner_source_fingerprints': parent['runner_source_fingerprints'],
         'sysid': sysid,
         'sysid_timestamp': timestamp,
         'sysid_source_sha256': sha256(sysid_path),
@@ -555,12 +572,14 @@ def main():
     rtl_package = build / 'ip/jttms10_fpga_runner'
     generated = build / 'jttms10-generated'
     source_runner = source / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v'
-    if sha256(source_runner) != sha256(rtl_package / source_runner.name):
-        raise SystemExit('packaged runner RTL does not match the source used for this receipt')
+    runner_fingerprints = runner_source_fingerprints(source)
+    for relative, digest in runner_fingerprints.items():
+        if sha256(rtl_package / Path(relative).name) != digest:
+            raise SystemExit('packaged runner component differs from source: '+relative)
     source_hdl = source / 'modules/jttms10/hdl'
     source_hdl_files = {path.name: sha256(path) for path in source_hdl.glob('*.v')}
     package_hdl_files = {path.name: sha256(path) for path in rtl_package.glob('*.v')
-                         if path.name != source_runner.name}
+                         if path.name not in {Path(relative).name for relative in runner_fingerprints}}
     if source_hdl_files != package_hdl_files:
         raise SystemExit('packaged CPU RTL does not match the source HDL tree')
     def relative_file_set(root):
@@ -615,6 +634,8 @@ def main():
         'source_revision': revision,
         'source_status': status,
         'runner_source_sha256': sha256(source_runner),
+        'protocol_version': 4,
+        'runner_source_fingerprints': runner_fingerprints,
         'cpu_source_fingerprints': source_fingerprints,
         'cpu_source_fingerprint_sha256': cpu_source_fingerprint_digest(source_fingerprints),
         'image_path': str(image),

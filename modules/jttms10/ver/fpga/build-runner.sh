@@ -17,7 +17,7 @@ cp "$generated"/*.uc "$generated"/*.hex "$build_dir/"
 mkdir -p "$build_dir/ip/jttms10_fpga_runner"
 cp "$source_dir/ip/jttms10_fpga_runner/jttms10_fpga_runner_hw.tcl" \
    "$build_dir/ip/jttms10_fpga_runner/"
-cp "$source_dir/jttms10_fpga_runner.v" "$build_dir/ip/jttms10_fpga_runner/"
+cp "$source_dir/jttms10_fpga_runner.v" "$source_dir/jttms10_fpga_stimulus.v" "$build_dir/ip/jttms10_fpga_runner/"
 cp "$repo_root/modules/jttms10/hdl/"*.v "$build_dir/ip/jttms10_fpga_runner/"
 cp "$generated/"*.vh "$generated/"*.hex "$generated/"*.uc "$build_dir/ip/jttms10_fpga_runner/"
 

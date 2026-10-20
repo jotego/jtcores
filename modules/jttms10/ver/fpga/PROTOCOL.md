@@ -1,30 +1,110 @@
 # Autonomous runner protocol
 
-The current RTL and transport use [version 3](#version-3-contract). Its CSR
-magic is `0x4a545233` (JTR3); the input stream begins with `JTR4`, followed by
-the little-endian batch count. Do not confuse this stream with V2's `JTR3`
-stream or pair an older image with the current driver. The source checker
-retains archived capture support.
+The RTL and transport in this checkout use [version 4](#version-4-external-events).
+Its CSR magic is `0x4a545234` (JTR4); the input stream begins with `JTR5`,
+followed by the little-endian batch count. The V4 integration is under local
+validation; there is no fitted or physical V4 result yet. The deployed V3
+images require their matching V3 checkout and driver. The source checker
+retains archived V1/V2/V3 capture support.
 
 Prepare and execute the current matrix with a matching image receipt:
 
 ```sh
 python3 modules/jttms10/ver/fpga/check_results.py prepare \
-    --protocol-version 3 --matrix --output /path/to/v3-manifest.json
-python3 modules/jttms10/ver/fpga/run_batch.py /path/to/v3-manifest.json \
+    --protocol-version 4 --matrix --output /path/to/v4-manifest.json
+python3 modules/jttms10/ver/fpga/run_batch.py /path/to/v4-manifest.json \
     --source-root /path/to/selected-checkout \
-    --receipt /path/to/v3-source-bound-receipt.json \
+    --receipt /path/to/v4-source-bound-receipt.json \
     --artifacts /path/to/results --run-name matrix-1
 ```
 
-The complete matrix passes all 141,236 current fixtures in 5,151 batches for
-each of base, W1/P7-after0 and W3 (423,708 FPGA executions on one image);
-29 focused physical observations across base/W1-P7/W3 match the original
-Verilator bench. See [README.md](README.md) for measured scope, build identity
-and limitations. These are current fixture contracts, not full #144 timing
-signoff. The historical V1/V2 contract and measurements below require their
-matching image/transport for hardware reproduction; V3 extends the CSR and
-payload geometry as detailed in its section.
+See [README.md](README.md) for the separately identified V3 physical checkpoints.
+Their results do not establish V4 integration or full #144 timing signoff.
+The historical contracts and measurements below require their matching image
+and transport for hardware reproduction.
+
+## Version 4 external events
+
+V4 keeps the V3 16-word descriptors, 288-word results, 4,096-halfword staging
+pool, 512-record per-case trace bound and 16,384-record batch bound. Descriptor
+word 14 is the event count (0..16); word 15 is its base halfword in the shared
+pool. A zero count requires a zero base. An event occupies four little-endian
+halfwords: argument low, argument high, control, trigger. The upper 13 bits
+of the final halfword are reserved zero. Tables cannot overlap programs or
+initializers, including another case's ranges. The controller validates and
+loads the table through the synchronous pool port before releasing the CPU.
+
+The manifest's case entry has an optional `external_events` list, separate
+from its unchanged `fixture`. Each item has exactly three unsigned fields:
+`trigger`, `argument`, `control`. An absent or empty list preserves ordinary
+fixture execution. The schema helper contains only wire validation; it does
+not generate architectural or timing expectations.
+
+| Trigger | Argument and application boundary |
+| ---: | --- |
+| 0 | Exact clock relative to the measured decode; zero is the first following falling edge |
+| 1 | Number of completed physical RAM writes, at least one |
+| 2 | Aligned bit address of an accepted decode |
+| 3 | Elapsed clocks after the preceding event, at least one |
+| 4 | Number of positive edges with HOLD acknowledged, at least one |
+| 5 | Number of registered host acknowledgements, at least one |
+
+Events execute in table order, at most one per falling edge. Pin levels
+persist until another event changes them. Counters start with measurement;
+their trigger uses the completed positive-edge observation. Missed exact
+clock/counter deadlines, bad encodings and host protocol violations fail the
+case. An unmatched PC or acknowledgement trigger reaches the ordinary case
+timeout. Completion before all entries and host writes finish also fails.
+
+Control bits 0/1 assert active-low LINT1/LINT2, bit 2 requests HOLD, bit 3
+drives EMU RUN low, bit 4 pulses a host write, and bit 5 pauses CEN. Bits
+8/9/15 supply HSTCTL NMI/NMIM/HLT data and require bit 4. All other bits are
+reserved. Host writes use the actual HSTCTL high-byte interface (register 3,
+byte enable `10`); IRQ/NMI are not injected at the CPU's internal pending input.
+Two host strobes need an intervening low request cycle and acknowledgement.
+The normal pin synchronizer and peripheral latency apply.
+
+Scheduled CEN pauses allow the memory target to complete a pending response;
+the target and wrapper keep clocking. PC, status and RF write stability are
+checked. The existing `pause_clocks`/`pause_after_clocks` settings retain their
+earlier contract and reject outstanding physical requests during that pause.
+These are different stimulus settings; they must have independent timing
+expectations. Applied event records alone cannot supply expected delay.
+
+Runtime trace words retain V3 bus fields and case association. New flag bits
+18/19 are HOLD-ACK level/edge and bit 20 is a registered host ACK. A level
+without a transition does not allocate a record. Bus events simultaneous
+with either observation share the same record.
+
+After runtime events, the controller appends the applied-event records for
+that case. Their flag bit 14 is one; bits 15..18 hold the event index, bits
+9..13 the case index, and all other flag bits are zero. Word 0 is the actual
+application clock, word 1 is `trigger << 16 | control`, and word 2 is the
+argument. Appendix clocks can precede the last runtime record: decode their
+typed association rather than sorting the entire trace. Indices and appendix
+clocks must increase. Runtime records cannot follow the appendix within a
+case. Both kinds count against the existing trace bounds; overflow is explicit.
+
+| Result word | Meaning |
+| ---: | --- |
+| 278 | Configured event count |
+| 279 | Applied event count |
+| 280 | Completed physical RAM writes while measuring |
+| 281 | Measured clocks with HOLD acknowledged |
+| 282 | Registered host acknowledgements |
+| 283 | Issued host writes |
+| 284 | Sticky sequencer error |
+| 285 | Last applied event's relative clock (zero for an empty table) |
+| 286 | Scheduled CEN-paused clocks |
+| 287 | Reserved zero |
+
+The host validates these observations against the table and trace in addition
+to every existing Python ISA check. General IRQ/HOLD execution needs separate
+independent event fixtures and full-system Verilator comparison; ordinary
+fixture timing is not waived when signals affect it. Current V4 local positive
+checks cover unchanged ordinary cases and harmless pin/host schedules only.
+V4 source receipts bind both runner and sequencer RTL hashes. The active V4
+driver rejects an older receipt before opening an SSH connection.
 
 ## Historical version 2 checkpoint and base contract
 

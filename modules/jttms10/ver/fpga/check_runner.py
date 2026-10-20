@@ -61,8 +61,8 @@ def main():
     parser.add_argument('--limit', type=int)
     parser.add_argument('--batch-size', type=int, default=32)
     parser.add_argument('--timeout-cycles', type=int, default=4_000_000)
-    parser.add_argument('--protocol-version', type=int, choices=(3,), default=3,
-                        help='active RTL protocol (V3; V1/V2 are archived capture formats)')
+    parser.add_argument('--protocol-version', type=int, choices=(4,), default=4,
+                        help='active RTL protocol (V4; V1/V2/V3 are archived capture formats)')
     parser.add_argument('--wait-states', type=int, default=0)
     parser.add_argument('--pause-clocks', type=int, default=0)
     parser.add_argument('--pause-after-clocks', type=int, default=0)
@@ -79,14 +79,14 @@ def main():
             version = checker.validate_manifest(manifest)
         except (KeyError, TypeError, ValueError) as error:
             parser.error(f'unsupported or malformed manifest: {error}')
-        if version != 3:
+        if version != 4:
             parser.error(f'protocol V{version} manifests are archived capture formats; '
-                         'the active Verilator RTL accepts only V3')
+                         'the active Verilator RTL accepts only V4')
         if args.protocol_version is not None and args.protocol_version != version:
             parser.error('requested protocol version differs from manifest')
         batches = manifest['batches']
     else:
-        version = 3
+        version = 4
         entries = checker.prepare_cases(args.case, args.limit, version,
                                        dict(wait_states=args.wait_states, pause_clocks=args.pause_clocks,
                                             pause_after_clocks=args.pause_after_clocks))
@@ -113,7 +113,7 @@ def main():
             program_file.write_text(''.join(f'{v:08x}\n' for v in program+[0]*(4096-len(program))))
             batch_lines.append(f"{len(batch['cases'])} {len(program)} {batch['protocol_version']} {desc_file} {program_file}\n")
         (work/'batches.txt').write_text(''.join(batch_lines))
-        sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', *sorted((MODULE/'hdl').glob('*.v'))]
+        sources = [HERE/'test_runner.sv', HERE/'jttms10_fpga_runner.v', HERE/'jttms10_fpga_stimulus.v', *sorted((MODULE/'hdl').glob('*.v'))]
         command = ['verilator', '--binary', '--timing', '--top-module', 'test',
                    '--timescale-override', '1ns/1ps', '-Wno-EOFNEWLINE',
                    '-DJTTMS10_REGRESSION', '-j', '4', '--Mdir', str(work/'obj'),
@@ -121,6 +121,7 @@ def main():
         inputs = [*sources, *sorted((MODULE/'ucode').glob('*.yaml')),
                   *sorted(checker.TIMING.glob('*.py')), MODULE/'ver/build.sh',
                   MODULE/'ver/decoder/generate.py', HERE/'check_results.py', HERE/'check_runner.py',
+                  HERE/'stimulus_schema.py',
                   MODULE/'ver/gfx/check_targets.py', MODULE/'ver/gfx/check_flow.py']
         provenance = {str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
         generated = {}

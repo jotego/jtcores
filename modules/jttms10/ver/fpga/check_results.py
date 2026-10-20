@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Prepare FPGA batches and check observations using the independent timing suite.
 
-This module performs no SSH, device access or FPGA programming. Protocol v3
-adds stores, following state and original-bench drain observations to v2.
+This module performs no SSH, device access or FPGA programming. Protocol v4
+adds preloaded external events to v3's store/follow/drain observations.
 Unsupported fixture requirements fail explicitly rather than losing checks.
 """
 import argparse
@@ -13,6 +13,7 @@ import importlib.util
 import json
 from pathlib import Path
 import sys
+from stimulus_schema import validate_event as validate_external_event
 
 HERE = Path(__file__).resolve().parent
 TIMING = HERE.parent / 'timing'
@@ -22,9 +23,10 @@ RESULT_WORDS = 202
 FORMAT_V1 = 'jttms10-fpga-batch-v1'
 FORMAT = 'jttms10-fpga-batch-v2'
 FORMAT_V3 = 'jttms10-fpga-batch-v3'
-FORMATS = {1: FORMAT_V1, 2: FORMAT, 3: FORMAT_V3}
-RESULT_SIZES = {1: 72, 2: RESULT_WORDS, 3: 288}
-EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384), 3: (512, 16384)}
+FORMAT_V4 = 'jttms10-fpga-batch-v4'
+FORMATS = {1: FORMAT_V1, 2: FORMAT, 3: FORMAT_V3, 4: FORMAT_V4}
+RESULT_SIZES = {1: 72, 2: RESULT_WORDS, 3: 288, 4: 288}
+EVENT_LIMITS = {1: (128, 4096), 2: (512, 16384), 3: (512, 16384), 4: (512, 16384)}
 MASK32 = (1 << 32) - 1
 # Explicit fixture-family selection, not a verdict allowlist. Every selected
 # fixture still passes require_supported and every existing oracle assertion.
@@ -56,14 +58,14 @@ def require_supported(case, protocol_version=1):
                  'pc_result_register', 'test_pc', 'next_pc', 'citation', 'conditions',
                  'coverage_id', 'source_conflict_kind', 'source_notes',
                  'source_result_register', 'source_values', 'timing_source_status'}
-    if protocol_version in (2, 3):
+    if protocol_version in (2, 3, 4):
         supported |= {'initial_memory', 'expected_memory', 'data_load', 'stack_load', 'pixel_load',
                       'stack_fields', 'data_list', 'hidden_states', 'initial_all_regs',
                       'observe_all', 'register_overrides', 'seed', 'source_register',
                       'source_value', 'bank', 'control', 'status_holder',
                       'expected_next_opcode', 'stack_control_flow', 'literal_return_pc',
                       'control_flow', 'drain_instructions'}
-        if protocol_version == 3:
+        if protocol_version >= 3:
             supported |= {
                 'data_store', 'data_copy', 'tail_instructions', 'follow_delay',
                 'following_words', 'expected_follow_regs', 'expected_follow_st',
@@ -93,7 +95,7 @@ def require_supported(case, protocol_version=1):
         if (protocol_version == 2 and 'expected_memory' in case and not
                 ('data_list' in case or case.get('stack_load') or case.get('pixel_load'))):
             raise ValueError(f"{case['name']}: unsupported FPGA memory expectation")
-        if protocol_version == 3 and 'expected_memory' in case and not any(
+        if protocol_version >= 3 and 'expected_memory' in case and not any(
                 key in case for key in ('data_store', 'data_list', 'stack_load', 'pixel_load', 'data_fill', 'data_line', 'data_blit')):
             raise ValueError(f"{case['name']}: unhandled FPGA memory expectation")
     elif protocol_version != 1:
@@ -199,6 +201,19 @@ def initial_words(case):
     return result
 
 
+def external_event_words(entry, protocol_version):
+    events = entry.get('external_events', [])
+    if not isinstance(events, list) or len(events) > 16:
+        raise ValueError('external event table must contain at most 16 entries')
+    if events and protocol_version != 4:
+        raise ValueError('external events require FPGA protocol 4')
+    words = []
+    for event in events:
+        trigger, argument, control = validate_external_event(event)
+        words.extend((argument & 65535, argument >> 16, control, trigger))
+    return words
+
+
 def make_batches(entries, protocol_version=2):
     if protocol_version not in RESULT_SIZES:
         raise ValueError('unsupported FPGA protocol version')
@@ -220,9 +235,11 @@ def make_batches(entries, protocol_version=2):
         stimulus = stimulus_for(entry)
         if protocol_version == 1 and any(stimulus.values()):
             raise ValueError('v1 does not support configurable stimulus')
-        if len(words) + len(memory) > MAX_WORDS:
-            raise ValueError('case program and initial memory exceed the staging pool')
-        if len(batch['cases']) == MAX_CASES or len(batch['program_words']) + len(words) + len(memory) > MAX_WORDS:
+        external = external_event_words(entry, protocol_version)
+        total_words = len(words) + len(memory) + len(external)
+        if total_words > MAX_WORDS:
+            raise ValueError('case program, initial memory and events exceed the staging pool')
+        if len(batch['cases']) == MAX_CASES or len(batch['program_words']) + total_words > MAX_WORDS:
             batches.append(batch)
             batch = empty()
         base = len(batch['program_words'])
@@ -231,12 +248,13 @@ def make_batches(entries, protocol_version=2):
         descriptor += ([base + len(words), len(memory) // 3, stimulus['wait_states'],
                         stimulus['pause_clocks'], stimulus['pause_after_clocks'], 0]
                        if protocol_version >= 2 else [0, 0])
-        if protocol_version == 3:
+        if protocol_version >= 3:
             descriptor += [entry['fixture'].get('drain_instructions', 0) & MASK32,
-                           entry['fixture'].get('follow_pc', 0), 0, 0]
+                           entry['fixture'].get('follow_pc', 0), len(external) // 4,
+                           base + len(words) + len(memory) if external else 0]
         batch['descriptors'].append(descriptor)
         batch['cases'].append(entry)
-        batch['program_words'].extend(words + memory)
+        batch['program_words'].extend(words + memory + external)
     if batch['cases']:
         batches.append(batch)
     return batches
@@ -270,19 +288,43 @@ def decode_events(raw, case_count, protocol_version=1):
     previous_case = -1
     previous_clock = -1
     counts = [0] * case_count
+    stimulus_counts = [0] * case_count
+    stimulus_clocks = [-1] * case_count
     for words in raw:
         if not isinstance(words, list) or len(words) != 4:
             raise ValueError('each event must contain four words')
         clock, data, address, flags = map(u32, words)
         index = (flags >> 9) & 31
-        if flags >> 14 or index >= case_count or not flags & 0x1e0:
+        stimulus_record = protocol_version == 4 and bool(flags & (1 << 14))
+        allowed = 0x7fe00 if stimulus_record else (0x1c3fff if protocol_version == 4 else 0x3fff)
+        if flags & ~allowed or index >= case_count or (not stimulus_record and not flags & 0x1801e0):
             raise ValueError('invalid event flags or case association')
-        if index < previous_case or (index == previous_case and clock < previous_clock):
-            raise ValueError('event order is not chronological within the case sequence')
-        previous_case, previous_clock = index, clock
+        if index < previous_case:
+            raise ValueError('event case order is not chronological')
+        if index != previous_case:
+            previous_clock = -1
+        previous_case = index
         counts[index] += 1
         if counts[index] > per_case:
             raise ValueError('event buffer exceeds its per-case bound')
+        if stimulus_record:
+            event_index = (flags >> 15) & 15
+            if event_index != stimulus_counts[index] or clock <= stimulus_clocks[index]:
+                raise ValueError('stimulus appendix is missing, duplicate or out of order')
+            trigger, control = data >> 16, data & 0xffff
+            validate_external_event(dict(trigger=trigger, argument=address, control=control))
+            lines[index].append(f'STIMULUS {clock} {event_index} {trigger} {address:08x} {control:04x}')
+            stimulus_counts[index] += 1
+            stimulus_clocks[index] = clock
+            continue
+        if stimulus_counts[index] or clock < previous_clock:
+            raise ValueError('runtime events follow stimulus appendix or run backwards')
+        previous_clock = clock
+        if protocol_version == 4:
+            if flags & (1 << 19):
+                lines[index].append(f'HOLD_ACK {clock} {(flags >> 18) & 1}')
+            if flags & (1 << 20):
+                lines[index].append(f'HOST_ACK {clock}')
         kind, iaq = (flags >> 1) & 15, flags & 1
         for bit, prefix, complete in ((6, 'BUS', False), (5, 'BUS', True),
                                       (8, 'TARGET', False), (7, 'TARGET', True)):
@@ -318,14 +360,14 @@ def read_register(result, base, name, valid, errors, context='', required=True):
     return value
 
 
-def v3_observation_lines(case, result, observed, errors):
+def v3_observation_lines(case, result, observed, errors, protocol_version=3):
     """Reconstruct original-bench labels only from actual FPGA observations."""
     if result[202] > 0xffff:
         errors.append('primary INTPEND observation exceeds 16 bits')
     if 'data_line' in case:
         observed['wvp'] = (result[202] >> 11) & 1
-    if result[273] or any(result[278:]):
-        errors.append('reserved v3 result words are nonzero')
+    if result[273] or (any(result[278:]) if protocol_version == 3 else result[287]):
+        errors.append('reserved result words are nonzero')
     drain = case.get('drain_instructions', 0)
     if drain > 0 or drain == -2:
         if result[272] <= observed['end']:
@@ -414,7 +456,7 @@ def check_batch(batch, capture):
             errors.append('paused clocks exceed the measurement interval')
         required = [f'a{q}' for q in range(len(case['expected_regs']))]
         required.extend(case.get('expected_extra_regs', {}))
-        valid = (result[274] | (result[275] << 32)) if version == 3 else None
+        valid = (result[274] | (result[275] << 32)) if version >= 3 else None
         for name in required:
             observed[name] = read_register(result, 8, name, valid, errors)
         word = (entry['next_pc'] - 0x1000) // 16
@@ -426,8 +468,8 @@ def check_batch(batch, capture):
             errors.append('next accepted opcode differs from the fixture program')
         stimulus = stimulus_for(entry)
         lines = list(traces[index])
-        if version == 3:
-            lines.extend(v3_observation_lines(case, result, observed, errors))
+        if version >= 3:
+            lines.extend(v3_observation_lines(case, result, observed, errors, version))
         errors.extend(oracle.check(case, observed, stimulus['wait_states'], stimulus['pause_clocks']))
         if version >= 2:
             initial_words(case)
@@ -443,11 +485,97 @@ def check_batch(batch, capture):
                 errors.append('unused memory snapshot words are nonzero')
         if any(key in case for key in ('control_flow', 'stack_control_flow', 'call_flow', 'trap_flow')):
             lines.append(f'NEXT_OPCODE {result[5]:04x}')
+        if version == 4:
+            errors.extend(check_external_events(entry, result, traces[index]))
         log = '\n'.join(lines)
         rows.append(oracle.check_observation(case, observed, errors, log,
                                             stimulus['wait_states'], stimulus['pause_clocks']))
     failures = sum(bool(row['errors']) for row in rows)
     return dict(cases=rows, passed=len(rows) - failures, failed=failures)
+
+
+def check_external_events(entry, result, traces):
+    """Check transport/event observations; keep ISA timing expectations separate."""
+    expected = entry.get('external_events', [])
+    external_event_words(entry, 4)
+    errors, applied, writes, hosts, hold_edges = [], [], [], [], []
+    for line in traces:
+        fields = line.split()
+        if fields[0] == 'STIMULUS':
+            applied.append((int(fields[1]), int(fields[3]), int(fields[4], 16), int(fields[5], 16)))
+        elif fields[0] == 'TARGET_END' and fields[2] == '1':
+            writes.append(int(fields[1]))
+        elif fields[0] == 'HOST_ACK':
+            hosts.append(int(fields[1]))
+        elif fields[0] == 'HOLD_ACK':
+            hold_edges.append((int(fields[1]), int(fields[2])))
+    finish = result[272] or result[7] + result[2]
+
+    def held_before(clock):
+        total, start = 0, None
+        for when, level in hold_edges:
+            if when >= clock:
+                break
+            if level:
+                start = when
+            elif start is not None:
+                total += when - start
+                start = None
+        if start is not None:
+            total += clock - start
+        return total
+
+    level = 0
+    for _, following in hold_edges:
+        if following == level:
+            errors.append('HOLD acknowledgement record does not change level')
+        level = following
+    if result[278:280] != [len(expected), len(expected)] or len(applied) != len(expected):
+        errors.append('external event table/applied/trace count mismatch')
+    if result[280] != len(writes) or result[281] != held_before(finish + 1):
+        errors.append('external write/HOLD counter differs from trace')
+    issued = sum(bool(event['control'] & 16) for event in expected)
+    if result[282:284] != [issued, issued] or len(hosts) != issued:
+        errors.append('external host request/acknowledgement count mismatch')
+    if result[284] or result[287]:
+        errors.append('external sequencer failure or reserved result word')
+    previous = result[7] + 1
+    pause_start, paused = None, 0
+    for wanted, observed in zip(expected, applied):
+        trigger, argument, control = validate_external_event(wanted)
+        clock, actual_trigger, actual_argument, actual_control = observed
+        if (actual_trigger, actual_argument, actual_control) != (trigger, argument, control):
+            errors.append('applied external event differs from fixture stimulus')
+        if clock <= result[7] or clock > finish:
+            errors.append('external event lies outside execution interval')
+        if trigger == 0 and clock != result[7] + argument + 1:
+            errors.append('external event clock differs from configured clock')
+        elif trigger == 1 and sum(when < clock for when in writes) != argument:
+            errors.append('external event write checkpoint mismatch')
+        elif trigger == 2:
+            follow = entry['fixture'].get('follow_pc', 0)
+            if argument != follow or not result[203] or clock != result[204] + 1:
+                errors.append('external PC trigger has no matching independent decode observation')
+        elif trigger == 3 and clock - previous != argument:
+            errors.append('external relative-delay trigger mismatch')
+        elif trigger == 4 and held_before(clock) != argument:
+            errors.append('external HOLD acknowledgement trigger mismatch')
+        elif trigger == 5 and sum(when < clock for when in hosts) != argument:
+            errors.append('external host acknowledgement trigger mismatch')
+        if control & 32 and pause_start is None:
+            pause_start = clock
+        elif not control & 32 and pause_start is not None:
+            paused += clock - pause_start
+            pause_start = None
+        previous = clock
+    if pause_start is not None:
+        paused += finish + 1 - pause_start
+    if result[286] != paused:
+        errors.append('external CEN pause count differs from applied controls')
+    last = applied[-1][0] - result[7] - 1 if applied else 0
+    if result[285] != last:
+        errors.append('external last-event clock mismatch')
+    return errors
 
 
 def compare_reference(rows, reference_rows):
@@ -520,7 +648,7 @@ def main():
     prepare.add_argument('--limit', type=int)
     prepare.add_argument('--published-targets', action='store_true',
                          help='select agreeing TI MOVB duration targets; known failures on the baseline CPU')
-    prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3), default=3)
+    prepare.add_argument('--protocol-version', type=int, choices=(1, 2, 3, 4), default=4)
     prepare.add_argument('--wait-states', type=int, default=0)
     prepare.add_argument('--pause-clocks', type=int, default=0)
     prepare.add_argument('--pause-after-clocks', type=int, default=0)

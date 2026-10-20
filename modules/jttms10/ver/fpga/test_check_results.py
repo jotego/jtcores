@@ -321,6 +321,105 @@ class ResultChecks(unittest.TestCase):
             reference[0]['observed_follow'][field] += 1
             self.assertTrue(checker.compare_reference(rows, reference), field)
 
+    def packet_v4(self):
+        old, capture = self.packet_v3()
+        entry = old['cases'][0]
+        entry['external_events'] = [
+            dict(trigger=0, argument=0, control=1),
+            dict(trigger=0, argument=1, control=0),
+            dict(trigger=0, argument=2, control=16),
+            dict(trigger=5, argument=1, control=0),
+        ]
+        batch = checker.make_batches([entry], protocol_version=4)[0]
+        capture['protocol_version'] = 4
+        result = capture['results'][0]
+        result[278:287] = [4, 4, 0, 0, 1, 1, 0, 4, 0]
+        capture['events'] = [[68, 0, 0, 1 << 20]]
+        for index, (clock, event) in enumerate(zip((65, 66, 67, 69), entry['external_events'])):
+            capture['events'].append([clock, event['trigger'] << 16 | event['control'],
+                                      event['argument'], 1 << 14 | index << 15])
+        capture['event_count'] = len(capture['events'])
+        return batch, capture
+
+    def test_v4_control_and_event_table_staging(self):
+        batch, capture = self.packet_v4()
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 0)
+        entry, desc = batch['cases'][0], batch['descriptors'][0]
+        self.assertEqual(desc[14:], [4, len(entry['program_words'])])
+        # Each entry is argument low/high, control, trigger, all little endian.
+        self.assertEqual(batch['program_words'][desc[15]:],
+                         [0, 0, 1, 0, 1, 0, 0, 0, 2, 0, 16, 0, 1, 0, 0, 5])
+        for version in (1, 2, 3):
+            with self.assertRaisesRegex(ValueError, 'external events'):
+                checker.make_batches([entry], protocol_version=version)
+
+    def test_v4_missing_wrong_or_reordered_stimuli_fail(self):
+        for mutation in ('clock', 'trigger', 'argument', 'control', 'drop', 'duplicate', 'order'):
+            with self.subTest(mutation=mutation):
+                batch, capture = self.packet_v4()
+                if mutation in ('clock', 'argument'):
+                    capture['events'][1][0 if mutation == 'clock' else 2] += 1
+                elif mutation == 'trigger':
+                    capture['events'][1][1] |= 3 << 16
+                elif mutation == 'control':
+                    capture['events'][1][1] ^= 2
+                elif mutation == 'drop':
+                    capture['events'].pop()
+                elif mutation == 'duplicate':
+                    capture['events'].append(copy.deepcopy(capture['events'][-1]))
+                else:
+                    capture['events'][1:3] = reversed(capture['events'][1:3])
+                capture['event_count'] = len(capture['events'])
+                try:
+                    report = checker.check_batch(batch, capture)
+                except ValueError:
+                    continue
+                self.assertEqual(report['failed'], 1)
+
+    def test_v4_counters_sticky_error_and_reserved_tail_fail(self):
+        for word in range(278, 288):
+            batch, capture = self.packet_v4()
+            capture['results'][0][word] ^= 1
+            self.assertEqual(checker.check_batch(batch, capture)['failed'], 1, word)
+
+    def test_v4_host_ack_and_appendix_association_fail(self):
+        for mutation in ('missing_ack', 'duplicate_ack', 'runtime_after_appendix',
+                         'wrong_case', 'reserved', 'bad_encoding'):
+            with self.subTest(mutation=mutation):
+                batch, capture = self.packet_v4()
+                if mutation == 'missing_ack':
+                    capture['events'].pop(0)
+                elif mutation == 'duplicate_ack':
+                    capture['events'].insert(0, copy.deepcopy(capture['events'][0]))
+                elif mutation == 'runtime_after_appendix':
+                    capture['events'].append(capture['events'].pop(0))
+                elif mutation == 'wrong_case':
+                    capture['events'][1][3] |= 1 << 9
+                elif mutation == 'reserved':
+                    capture['events'][1][3] |= 1 << 20
+                else:
+                    capture['events'][1][1] = 6 << 16
+                capture['event_count'] = len(capture['events'])
+                try:
+                    report = checker.check_batch(batch, capture)
+                except ValueError:
+                    continue
+                self.assertEqual(report['failed'], 1)
+
+    def test_v4_stimuli_do_not_waive_architecture_or_instruction_timing(self):
+        for word in (2, 6, 8):
+            batch, capture = self.packet_v4()
+            capture['results'][0][word] ^= 1
+            self.assertEqual(checker.check_batch(batch, capture)['failed'], 1, word)
+        batch, capture = self.packet_v4()
+        # A self-consistent event/pause record is not an independent ISA oracle.
+        batch['cases'][0]['external_events'][0]['control'] |= 32
+        capture['events'][1][1] |= 32
+        capture['results'][0][286] = 1
+        capture['results'][0][72] = 1
+        capture['results'][0][2] += 1
+        self.assertEqual(checker.check_batch(batch, capture)['failed'], 1)
+
 
 if __name__ == '__main__':
     unittest.main()

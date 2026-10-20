@@ -2,7 +2,95 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Current version 3 validation: native binary PIXBLT
+## Version 4 integration under development
+
+This checkout's RTL, transport and receipt writer now use protocol 4. The
+V3 physical checkpoints below retain their original source/image identities;
+use the corresponding V3 checkout and driver to reproduce them. No V4 build
+or physical validation is claimed yet.
+
+V4 stages up to 16 events per case before CPU release. The sequencer drives
+the normal LINT1/2, HOLD, EMU, CEN and HSTCTL interfaces from deterministic
+clock, write, decode, delay or acknowledgement triggers. Applied events,
+HOLD edges and host ACKs share the bounded diagnostic contract described in
+[PROTOCOL.md](PROTOCOL.md#version-4-external-events). Both runner components
+are bound into programming receipts; old receipts fail before board access.
+Programs, event tables and Python expectations remain runtime data.
+
+Local checks retain the existing independent ISA oracle. They do not treat
+an observed event count or pause as expected instruction timing. General
+IRQ/HOLD schedules still need independent fixtures and original full-system
+Verilator equivalence before physical use. Harmless pin/host schedules and
+unchanged ordinary cases provide the initial integration controls.
+
+From a checkout with `setprj.sh` sourced, run the host preflight/capture checks
+and short Avalon recovery tests with:
+
+```sh
+python3 -m unittest discover -s modules/jttms10/ver/fpga -p 'test_*.py'
+python3 modules/jttms10/ver/fpga/check_external_recovery.py \
+    --output /path/to/new-v4-recovery-evidence
+```
+
+The recovery suite deliberately supplies malformed tables directly to Avalon,
+then checks unapplied/late events, host protocol violations, CEN/HOLD timeouts
+and trace overflow. Every failure must preserve the next independently checked
+case and a clean rearmed batch. It uses no board access. These checks also
+run through the module's standard `ver/run.sh`.
+
+## Latest version 3 image: binary IRQ source checkpoint
+
+The physical image built from clean CPU source
+`a06dbcf0d4ff5a718714cc02a29b85eb823d71ab` passes all **141,972 fixtures /
+133 forms / 5,190 batches** each base, W1/P7-after0 and W3: **425,916 FPGA
+executions**, no exclusions. Every raw verdict independently replays and
+reproduces its saved report. All 162 focused observations match original
+Verilator. Each full profile includes 184 binary and 360 regular PIXBLT cases.
+The V3 runner cannot inject IRQ/HOLD: these ordinary executions do not prove
+the new native IRQ continuation on physical hardware.
+
+| Profile | Enclosing host wall (s) | Transfer (s) | FPGA staging (s) | FPGA run (s) | FPGA draining (s) | Python checking (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Base | 286.074 | 10.879 | 11.633 | 53.034 | 113.395 | 53.163 |
+| W1/P7-after0 | 292.146 | 10.837 | 11.805 | 59.289 | 116.030 | 52.014 |
+| W3 | 304.370 | 10.601 | 11.845 | 70.327 | 116.109 | 52.093 |
+
+Full walls include transfer, execution, checking and serialization. Target
+phases nest within transport execution; do not add them twice. No heavy local
+job overlapped the measured full commands. Manifest preparation took 765.296 s
+including a recorded NFS stall. There is no matched full software benchmark.
+Timeout and explicit 512-record overflow return failure while the next case
+and clean rearm independently pass. All 164 published MOVB diagnostics match
+Verilator, retaining 27 CD duration failures (137 passes). No target is waived.
+
+RBF SHA-256:
+`7f69384643a0f89cbbfece714b9137fd4699fbd9dc2faa33804f780e57b14ce4`.
+Overlay/firmware: `jtcores-144-binary-irq-7f693846`; protocol 3; SYSID22 /
+1792433033. Original clean-source receipt SHA-256:
+`effe2fd9aa251e2af5d2802a81f5b142fbb29434bd645f41a9d31bf8147e3f39`.
+Evidence: `/nobackup/tasks/jtcores-144/artifacts/binary-irq/`.
+
+`/opt/quartus_free/quartus_sh --flow recompile test_board` reuses the fitted
+parent's generated IP/database. Its enclosing wall is 3913.170 s; Quartus
+reports 3620 s. Terminal preservation is 73.99% placement and 26.30% routing.
+This is slower than the preceding different-source 864.03 s Rapid run; no
+general speedup is inferred. All 88 final STA rows are positive with TNS0;
+minimum setup/hold is +0.583/+0.077 ns. All 32 calibrated DDR rows remain
+positive and identical to the parent; SDC is unchanged. Eight runner RAMs,
+two RF mirrors, four cache banks and the 4096x64 graphics ROM remain RAM.
+The appliance fits 9,108 ALMs, 6,850 registers, 351 M10Ks and five DSPs.
+
+Corrected programming takes 0.327804 s on target /2.237301 s full SSH with
+payloads staged. An initial attempt loaded the same image under a stale
+overlay tag and failed its final identity assertion before tests. Its
+0.324884 s programming time and failure are retained separately. The script
+destination was corrected, and the same RBF was safely reloaded under the
+unique tag before the successful receipt and tests. Final health shows the
+unchanged boot identity, operating manager, enabled bridges and kernel taint0.
+This checkpoint does not establish full timing compliance, CPU-only area,
+clean/CI or NARC/MiSTer acceptance.
+
+## Historical version 3 validation: native binary PIXBLT
 
 RTL commit `2a5e4a6d95909c758d3041e0603fc6a8276fed60` adds aligned opaque B,L / B,XY
 expansion through the shared datapath for DX<=32, all five pixel sizes,

@@ -15,7 +15,8 @@ import subprocess
 import sys
 import tempfile
 import time
-from write_programming_receipt import (cpu_source_fingerprints,
+from stimulus_schema import validate_event as validate_external_event
+from write_programming_receipt import (cpu_source_fingerprints, runner_source_fingerprints,
                                        cpu_source_fingerprint_digest,
                                        generate_cpu_artifacts, parse_mif)
 
@@ -26,7 +27,7 @@ DEFAULT_IP = '192.168.68.72'
 DEFAULT_CC = Path('/opt/gcc-arm-10.2-2020.11-x86_64-arm-none-linux-gnueabihf/bin/arm-none-linux-gnueabihf-gcc')
 REMOTE_TRANSPORT = '/tmp/jttms10-fpga-transport'
 REMOTE_BATCH = '/tmp/jttms10-fpga-batch.bin'
-PROTOCOL_VERSION = 3
+PROTOCOL_VERSION = 4
 DESCRIPTOR_WORDS = 16
 
 
@@ -59,6 +60,11 @@ def load_and_validate_receipt(receipt_path, source_root, hardware_source_root,
     receipt = json.loads(receipt_path.read_text())
     source_root = Path(source_root).resolve(strict=True)
     hardware_source_root = Path(hardware_source_root).resolve(strict=True)
+    if receipt.get('protocol_version') != 4:
+        raise SystemExit('V4 transport requires a protocol 4 programming receipt')
+    for root in {source_root, hardware_source_root}:
+        if runner_source_fingerprints(root) != receipt.get('runner_source_fingerprints'):
+            raise SystemExit('runner component checkout differs from the fitted image')
     oracle_sources = cpu_source_fingerprints(source_root)
     hardware_sources = cpu_source_fingerprints(hardware_source_root)
     for root in {source_root, hardware_source_root}:
@@ -143,7 +149,7 @@ def load_and_validate_receipt(receipt_path, source_root, hardware_source_root,
                 delta.get('baseline_sha256') != parent_sources[changed[0]] or
                 delta.get('variant_sha256') != variant_sources[changed[0]]):
             raise SystemExit('ROM-update source delta is missing, ambiguous or differs beyond the microcode YAML')
-        for key in ('image_sha256', 'runner_source_sha256', 'sysid', 'sysid_timestamp'):
+        for key in ('image_sha256', 'runner_source_sha256', 'runner_source_fingerprints', 'protocol_version', 'sysid', 'sysid_timestamp'):
             parent_key = 'image_sha256' if key == 'image_sha256' else key
             if receipt.get('parent_image_sha256' if key == 'image_sha256' else key) != parent.get(parent_key):
                 raise SystemExit(f'ROM-update receipt parent {key} identity mismatch')
@@ -240,10 +246,10 @@ def input_payload(batches, timeout):
         raise ValueError('timeout cycles must be an integer in 1..4294967295')
     if not 1 <= len(batches) <= 8192:
         raise ValueError('invalid number of FPGA batches')
-    out = bytearray(struct.pack('<4sI', b'JTR4', len(batches)))
+    out = bytearray(struct.pack('<4sI', b'JTR5', len(batches)))
     for batch in batches:
         if batch.get('protocol_version') != PROTOCOL_VERSION:
-            raise ValueError('batch is missing protocol_version 3')
+            raise ValueError('batch is missing protocol_version 4')
         cases, words, desc = batch['cases'], batch['program_words'], batch['descriptors']
         batch_flags = batch.get('batch_flags', 0)
         if not 1 <= len(cases) <= 32 or len(desc) != len(cases) or not 1 <= len(words) <= 4096:
@@ -262,7 +268,9 @@ def input_payload(batches, timeout):
                     row[6] > len(words) or row[7] > 64 or row[7] > (len(words) - row[6]) // 3 or
                     row[3] & 15 or row[4] & 15 or
                     row[5] > 255 or row[8] > 0x1fffffff or row[9] > timeout or
-                    row[10] > timeout or row[11] != 0 or row[14] != 0 or row[15] != 0):
+                    row[10] > timeout or row[11] != 0 or row[14] > 16 or
+                    row[15] > len(words) or row[14] > (len(words) - row[15]) // 4 or
+                    (row[14] == 0 and row[15] != 0)):
                 raise ValueError('invalid descriptor program range')
             drain = row[12] if row[12] < 0x80000000 else row[12] - 0x100000000
             if drain < -2 or row[13] & 15:
@@ -270,6 +278,12 @@ def input_payload(batches, timeout):
             intervals.append((row[1], row[1] + row[2]))
             if row[7]:
                 intervals.append((row[6], row[6] + 3 * row[7]))
+            if row[14]:
+                intervals.append((row[15], row[15] + 4 * row[14]))
+            for index in range(row[14]):
+                offset = row[15] + 4 * index
+                validate_external_event(dict(trigger=words[offset + 3],
+                    argument=words[offset] | (words[offset + 1] << 16), control=words[offset + 2]))
             initialized = []
             regions = set()
             for i in range(row[7]):
@@ -319,6 +333,8 @@ def main():
     source_root = find_source_root(args.source_root)
     hardware_source_root = find_source_root(args.hardware_source_root or source_root)
     source_fpga = source_root / 'modules/jttms10/ver/fpga'
+    if sha256(HERE / 'stimulus_schema.py') != sha256(source_fpga / 'stimulus_schema.py'):
+        raise SystemExit('driver and selected checker external event schemas differ')
     if not KNOWN_HOSTS.is_file():
         raise SystemExit(f'pinned SSH host keys are missing: {KNOWN_HOSTS}')
     if not args.receipt.is_file():
@@ -330,9 +346,9 @@ def main():
     if receipt.get('runner_source_sha256') != current_runner_hash:
         raise SystemExit('runner RTL differs from the image recorded in the programming receipt')
     manifest = json.loads(args.manifest.read_text())
-    if (manifest.get('format') != 'jttms10-fpga-batch-v3' or
+    if (manifest.get('format') != 'jttms10-fpga-batch-v4' or
             manifest.get('protocol_version') != PROTOCOL_VERSION):
-        raise SystemExit('unsupported manifest format; the V3 runner requires protocol version 3')
+        raise SystemExit('unsupported manifest format; the V4 runner requires protocol version 4')
     batches = manifest['batches']
     if any(batch.get('protocol_version') != PROTOCOL_VERSION for batch in batches):
         raise SystemExit('one or more manifest batches use an unsupported protocol version')
@@ -355,6 +371,7 @@ def main():
     timings['transport_sha256'] = sha256(binary)
     timings['manifest_sha256'] = sha256(args.manifest)
     timings['runner_rtl_sha256'] = current_runner_hash
+    timings['runner_component_sha256'] = runner_source_fingerprints(source_root)
     timings['source_root'] = str(source_root)
     timings['hardware_source_root'] = str(hardware_source_root)
     timings['oracle_cpu_source_fingerprint_sha256'] = cpu_source_fingerprint_digest(oracle_sources)
@@ -367,6 +384,9 @@ def main():
     timings['expected_board_boot_id'] = receipt['board_boot_id']
     timings['transport_source_sha256'] = sha256(HERE / 'transport.c')
     timings['checker_source_sha256'] = sha256(source_fpga / 'check_results.py')
+    timings['driver_source_sha256'] = sha256(HERE / 'run_batch.py')
+    timings['driver_schema_source_sha256'] = sha256(HERE / 'stimulus_schema.py')
+    timings['checker_schema_source_sha256'] = sha256(source_fpga / 'stimulus_schema.py')
     timings['oracle_source_sha256'] = sha256(source_root / 'modules/jttms10/ver/timing/run.py')
     timings['start_unix'] = time.time()
     remote = ssh_options(args.ip)

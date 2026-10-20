@@ -88,13 +88,17 @@ for stale in ('v2-build-inputs.json','v2-build-result.json','v2-map-result.json'
 ip = build / 'ip/jttms10_fpga_runner'
 source_hdl = repo / 'modules/jttms10/hdl'
 source_verilog = {p.name for p in source_hdl.glob('*.v')}
-package_verilog = {p.name for p in ip.glob('*.v') if p.name != 'jttms10_fpga_runner.v'}
+package_verilog = {p.name for p in ip.glob('*.v') if p.name not in {'jttms10_fpga_runner.v','jttms10_fpga_stimulus.v'}}
 if source_verilog != package_verilog:
     raise SystemExit(f'CPU HDL file set changed: source={sorted(source_verilog)}, package={sorted(package_verilog)}')
 for path in source_hdl.glob('*.v'):
     (ip / path.name).write_bytes(path.read_bytes())
-(ip / 'jttms10_fpga_runner.v').write_bytes(
-    (repo / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v').read_bytes())
+for name in ('jttms10_fpga_runner.v', 'jttms10_fpga_stimulus.v'):
+    (ip / name).write_bytes((repo / 'modules/jttms10/ver/fpga' / name).read_bytes())
+    line = f'set_global_assignment -library "QSYS_test_board" -name VERILOG_FILE {(ip/name).resolve()}'
+    if line not in qsf.read_text().splitlines():
+        with qsf.open('a') as output:
+            output.write(line+'\n')
 PY
 }
 
@@ -158,6 +162,7 @@ source_roots=(repo/'modules/jttms10/ucode',repo/'modules/jttms10/ver/decoder',
               repo/'modules/jttms10/ver/gfx',repo/'modules/jttms10/hdl',
               repo/'modules/jtframe/src/jtframe/ucode')
 source_files={repo/'modules/jttms10/ver/build.sh', repo/'modules/jtframe/bin/jtframe'}
+source_files.update((repo/'modules/jttms10/ver/fpga').glob('*.v'))
 for root in source_roots:
     source_files.update(p for p in root.rglob('*') if p.is_file())
 source_hashes={str(p):digest(p) for p in sorted(source_files)

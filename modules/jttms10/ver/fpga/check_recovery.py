@@ -14,9 +14,9 @@ import check_results as checker
 HERE = Path(__file__).resolve().parent
 
 
-def recovery_manifest(kind, protocol_version=3):
-    if kind == 'descriptor' and protocol_version != 3:
-        raise ValueError('extended descriptor recovery requires protocol version 3')
+def recovery_manifest(kind, protocol_version=4):
+    if kind == 'descriptor' and protocol_version not in (3, 4):
+        raise ValueError('extended descriptor recovery requires protocol version 3 or 4')
     terms = ['nop_off', 'nop_hit'] if kind == 'overflow' else ['mpys_fs2_positive_even_hit', 'nop_hit']
     entries = checker.prepare_cases(terms, protocol_version=protocol_version)
     entries.sort(key=lambda entry: entry['name'] == 'nop_hit')
@@ -105,7 +105,7 @@ def run_negative(kind, output, protocol_version):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path, help='new evidence directory')
-    parser.add_argument('--protocol-version', type=int, choices=(3,), default=3)
+    parser.add_argument('--protocol-version', type=int, choices=(4,), default=4)
     parser.add_argument('--kind', action='append', choices=('timeout', 'overflow', 'descriptor'),
                         help='repeat to select negatives; default: timeout and overflow')
     args = parser.parse_args()
