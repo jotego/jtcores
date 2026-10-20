@@ -2,6 +2,17 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
+## New PIXBLT failing baseline
+
+The source now adds 464 independent PIXBLT fixtures without changing CPU RTL,
+runner protocol or the loaded cached-MOVB image. All 84 focused diagnostic
+observations across base/W1-P7/W3 agree with original Verilator, including
+memory and exact failure lists. Commands fail; these are not passing equivalence
+results. The full new base run reports 311 individual timing failures and rejects
+153 cases in nine overflow batches; 40 raw cases explicitly reach 512 records.
+See [PIXBLT timing](../../docs/blit-timing.md). The preceding 141,428 fixture
+contracts and their validated physical results below remain unchanged.
+
 ## Current version 3 validation: cached absolute MOVB
 
 The cached one-word absolute byte path consumes resident operands with the
@@ -15,9 +26,9 @@ Every raw result was independently replayed through the shared Python checker,
 reproducing the saved reports exactly. IDs and names are unique; each profile
 has 2,060 following-state captures and 1,717,104 event records, with at most
 231 of 512 records per case. Transport and checking commands exit 0.
-These are current fixture contracts, not complete instruction timing compliance:
-six PIXBLT forms and 401 unresolved MOVB probes, including 27 agreed CD targets,
-remain open.
+These are the preceding fixture contracts, not complete instruction timing
+compliance. The new PIXBLT fixtures above fail, and 401 unresolved MOVB probes,
+including 27 agreed CD targets, remain open.
 
 | Profile | Full host wall (s) | Transfer (s) | FPGA staging (s) | FPGA run (s) | FPGA draining (s) | Python checking (s) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |

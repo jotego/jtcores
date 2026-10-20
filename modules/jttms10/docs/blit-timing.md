@@ -1,0 +1,94 @@
+# PIXBLT timing baseline (#144)
+
+All six PIXBLT encodings now have independent timing probes. Their timing is
+**not compliant**: the current implementation still transfers individual pixels
+through its general graphics microcode. Adding probes does not close the timing
+or condition-coverage requirements.
+
+The authority is TI's June 1988 SPVU001A [TMS34010 User's Guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf).
+The regular setup/transfer/graphics tables are 13-8/9/10, printed
+pp.13-18/20/24; binary expansion uses Tables13-11/12/13 and pp.13-32..35.
+The scanned tables were inspected, rather than relying only on OCR.
+
+## Independent expectations
+
+The first domain is nonempty, opaque replace: PPOP0, PMASK0, T0, W0,
+PBH0/PBV0, with word-aligned source and destination rows. All five pixel sizes
+are exercised. Regular copies span one through four destination words and one
+or two rows. Binary rows contain at most 32 source bits; longer set/remainder
+equations remain outside this initial domain and raise explicitly in the model.
+
+At G=2 and destination alignment A, with D>=S:
+
+| Operation | Setup states | Transfer states |
+| --- | ---: | --- |
+| L,L | 7 | N=1: `6L+5`; N=2: `10L+5`; N>=3: `4NL+5` |
+| L,XY or XY,L | 9 | Same transfer equation |
+| XY,XY | 12 | Same transfer equation |
+| B,L | 4 | `(3+2R+2N)L+3` in the short/medium binary domain |
+| B,XY | 6 | Same binary transfer equation |
+
+N is the destination words per row, L the rows, and R the source words read
+for a binary row. CD adds the separate three-state opcode-fetch cost. Each
+physical transfer adds its own configured waits; early CEN pauses retain the
+shared checker’s measured pause and bus-alignment rules.
+
+Pixels are copied bit by bit in Python. Binary expansion selects the COLOR0
+or COLOR1 pixel aligned with the destination lane, as pp.12-175/180 specify;
+the colors deliberately contain nonuniform patterns. It does not broadcast
+their lowest pixel. Source words and destination canaries are preserved.
+All defined registers, the shared SP and all defined ST bits remain checked.
+TI marks NZCV undefined for these instructions; only those four bits are masked.
+B10..14 are reserved graphics scratch registers and have no final golden.
+
+The bus checker requires the expected forward source reads and destination
+writes, payloads, IAQ, two-state cycles, target readiness and the repeated-row
+coefficient. A destination cannot be written before its required source is
+captured. Buffering multiple source words is allowed; the model does not invent
+a first-write phase or require one particular read/write interleaving.
+
+## Physical failing baseline
+
+There are 464 new fixtures. All 141,428 predecessor fixture/program contracts
+are unchanged, giving 141,892 fixtures with probe presence for 133/133 forms.
+These counts do not establish timing compliance or complete condition coverage.
+
+The unchanged cached-MOVB DataStorm image runs all new programs without a new
+FPGA compilation. Twenty-eight representatives cover all six encodings plus
+patterned binary colors at every pixel size. They repeat at base, W1/P7-after0
+and W3. All 84 observations, memory snapshots and exact diagnostic errors match
+short original Verilator runs. Every command returns 1; all raw transports
+return 0. Standard equivalence continues to refuse failing captures.
+
+The complete 464-case base batch run also returns 1, with transport exit 6.
+Its report contains 311 individual failing verdicts, all failing duration with
+architectural and final-memory checks active. There are 490 additional bus
+trace-count/cadence diagnostics. Nine batches reject another 153 requested
+cases because of trace overflow; they have no individual oracle verdicts.
+The raw results contain 40 actual overflowing cases, each explicitly flagged
+at 512 records. Do not describe the other 113 DONE results inside those failed
+batches as individually validated. Later batches rearm and return ordinary
+verdicts; the last batch contains five cases. Root replay reproduces every
+saved report, including the batch-level failures, without clearing errors.
+
+The three focused host commands take 4.279/3.592/3.468 seconds; the full new
+base batch command takes 5.142 seconds. These are failing-baseline command
+measurements, not a matched software speedup or a CPU timing improvement.
+Raw evidence is under `/nobackup/tasks/jtcores-144/artifacts/pixblt-baseline/`.
+The current RBF/receipt and build measurements are in the
+[FPGA runner documentation](../ver/fpga/README.md).
+
+```sh
+python3 modules/jttms10/ver/timing/test_blit_oracle.py
+python3 modules/jttms10/ver/timing/test_blit_cases.py
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case blit_ll_ps16_n1_rows1_hit --report blit-reference.json
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --protocol-version 3 --case blit_ --output blit-manifest.json
+```
+
+The simulation and FPGA checking commands intentionally fail until the CPU
+implements these contracts. The normal runner includes the model tests and
+fixtures. Native word transfers, empty arrays, partial alignments, long binary rows, other
+graphics/window/mask/transparency operations, overlap/reverse traversal,
+HOLD/IRQ/context resumption and full clean/CI acceptance still require work.

@@ -1,8 +1,10 @@
 # Instruction timing compliance (issue #144, in progress)
 
 The CPU is **not fully instruction timing compliant**. The current timing
-probes cover 127 of 133 instruction forms; the six PIXBLT forms have no timing
-probes. Probe presence does not establish complete condition coverage.
+probes are present for all 133 instruction forms, but the 464 new
+[PIXBLT baseline fixtures](blit-timing.md) fail the current implementation.
+The complete inventory is 141,892 cases. Probe presence does not establish
+passing timing or complete condition coverage.
 PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
 arithmetic,masking,transparency and other conditions remain unvalidated.
 Linear memory-to-memory PIXT covers replace/PMASK0/T0; register-to-XY
@@ -17,8 +19,8 @@ Cached single-word absolute MOVB uses the one-state intrinsic count on which
 both TI tables agree, including resident operands across cache subsegment
 and segment boundaries. Its CD7 target remains a gap against the shared
 CD15 schedule. Plain byte-copy index2 also has a CD7 versus current CD9 gap.
-The standard runner's acceptance gate fails on missing forms and
-unresolved source/policy differences, with the recorded project choices
+The standard runner fails on PIXBLT timing/bus contracts and unresolved
+source/policy differences, with the recorded project choices
 applied explicitly. Passing the present probe matrix is
 not full-ISA acceptance.
 Architectural regression, FPGA setup/hold closure and instruction timing are
@@ -33,10 +35,10 @@ Verilator bench, including architectural state, memory, instruction clocks
 and checked bus events. These results supersede the pre-native-LINE broad
 matrix's 606 duration failures for this scope. They do not complete the normal
 runner, clean-checkout/CI, missing-form/condition audit or final physical/game
-acceptance. That image predates the cached absolute-byte change. The current
+acceptance. That image predates the cached absolute-byte change. That preceding
 inventory contains 141,428 cases, including 192 additional cached byte boundaries.
-Its coverage/source gate still fails on the six PIXBLT forms and 401 unresolved
-MOVB probes, including 27 agreed published-target gaps.
+Its coverage/source gate then failed on six missing PIXBLT forms and 401
+unresolved MOVB probes, including 27 agreed published-target gaps.
 
 The newly fitted cached-MOVB image passes all 141,428 cases in each of the same
 three profiles (424,284 physical executions), with 5,157 batches per profile.
@@ -51,6 +53,14 @@ retained-IP full Quartus flow takes 853.19 seconds (859.14 s outer helper);
 all final constrained summaries and calibrated DDR margins pass. This is an
 FPGA test appliance, not the CPU-only area or final NARC/MiSTer acceptance.
 See [FPGA reproduction and measurements](../ver/fpga/README.md).
+
+The new PIXBLT baseline uses the same physical CPU image with host-only fixtures
+and checker additions. All 84 focused diagnostic observations match original
+Verilator; all commands remain failing. The complete new 464-case base run
+produces 311 individual timing failures plus 153 cases in nine overflow-rejected
+batches. Final memory is actively checked for every individual verdict; 40 raw
+cases explicitly hit the 512-record limit. All predecessor fixture/program
+contracts remain unchanged. See [PIXBLT scope and evidence](blit-timing.md).
 
 The primary specification is TI's June 1988 *TMS34010 User's Guide*,
 SPVU001A, including its device data sheet in Appendix A. Citations below
@@ -281,6 +291,7 @@ The full #144 checklist remains open.
 | Register lists MMFM/MMTM | pp.12-109..112; §13.1.1 |3,572 full-GPR/state/memory probes,120 following loads,342 short phases |Literal CPU/CD equations; explicit hidden-state/empty-list project choices. See[list-timing.md](list-timing.md). |
 | TRAP | SPVU001A8.6 p8-9;12-253/254 |1,800 full-state/memory/vector programs,16 following loads,150 short-phase programs |16/19 aligned,30/33 otherwise; literal timing-table applicability chosen for TRAP0. See[trap-timing.md](trap-timing.md). |
 | CALL/CALLA/CALLR | SPVU001A12-48/49/50; stack order12-253 |1,306 programs,84 following A/B loads, ordered posted writes and short pauses |Entry counts pass targeted probes; cold/cache/IRQ conditions remain open. See[call-timing.md](call-timing.md). |
+| Six PIXBLT forms | SPVU001A12-174..212; Tables13-8..13 pp.13-18..35 | 464 aligned opaque W0/PBH0/PBV0 fixtures, all pixel sizes and both cache modes; regular N1..4/L1..2, binary DX<=32 | Failing baseline only; 84 diagnostic observations match Verilator. Full-word timing, larger trace-bounded execution and remaining conditions stay open. See [blit-timing.md](blit-timing.md). |
 | Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed 5; byte index2 CD9 versus printed7 remains a target gap. See [copy-timing.md](copy-timing.md) |
 | Pointer memory-to-memory MOVE | Tables13-3/4 pp.13-6/7; entries12-141/142/145/146 | 8,936 programs: both pointer modes, widths/alignments, fields/FE, A/B/SP, sequential aliases, literal data/pointers, following loads and CEN | Three alternatives follow the recorded owner choice. Complete validation is in progress; see [pointer-copy-timing.md](pointer-copy-timing.md). |
 | POPST | SPVU001A3-6/12-227; summary12-17; SPVS002C June1991p14 | 806 full-state/read-only-memory programs, including24 real following loads; aligned/unaligned response pauses |8/11 aligned,10/13 otherwise; remaining stack/call forms and full IRQ/HOLD audits stay open. See[stack-timing.md](stack-timing.md). |

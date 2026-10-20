@@ -20,6 +20,8 @@ main() {
     python3 -B "$ver_dir/timing/test_fill_cases.py"
     python3 -B "$ver_dir/timing/test_line_oracle.py"
     python3 -B "$ver_dir/timing/test_line_cases.py"
+    python3 -B "$ver_dir/timing/test_blit_oracle.py"
+    python3 -B "$ver_dir/timing/test_blit_cases.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
     run_checker emu "$ver_dir/emu/check.py"

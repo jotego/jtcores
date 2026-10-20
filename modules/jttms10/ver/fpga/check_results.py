@@ -75,6 +75,7 @@ def require_supported(case, protocol_version=1):
                 'pixel_processing', 'pixel_copy', 'pixel_xy_store', 'pixel_draw',
                 'pixel_xy_copy', 'data_fill', 'fill_timing', 'transparent_history',
                 'data_line', 'line_timing', 'expected_st_mask', 'expected_wvp',
+                'data_blit', 'blit_timing',
             }
             drain = case.get('drain_instructions', 0)
             if type(drain) is not int or not -2 <= drain <= 0x7fffffff:
@@ -93,7 +94,7 @@ def require_supported(case, protocol_version=1):
                 ('data_list' in case or case.get('stack_load') or case.get('pixel_load'))):
             raise ValueError(f"{case['name']}: unsupported FPGA memory expectation")
         if protocol_version == 3 and 'expected_memory' in case and not any(
-                key in case for key in ('data_store', 'data_list', 'stack_load', 'pixel_load', 'data_fill', 'data_line')):
+                key in case for key in ('data_store', 'data_list', 'stack_load', 'pixel_load', 'data_fill', 'data_line', 'data_blit')):
             raise ValueError(f"{case['name']}: unhandled FPGA memory expectation")
     elif protocol_version != 1:
         raise ValueError('unsupported FPGA protocol version')
@@ -468,7 +469,7 @@ def compare_reference(rows, reference_rows):
                     'initial_memory', 'expected_memory', 'data_load', 'data_list',
                     'stack_load', 'pixel_load', 'control_flow', 'stack_control_flow',
                     'initial_all_regs', 'register_overrides', 'data_store', 'data_copy',
-                    'data_trap', 'data_fill', 'data_line', 'drain_instructions', 'follow_pc',
+                    'data_trap', 'data_fill', 'data_line', 'data_blit', 'blit_timing', 'drain_instructions', 'follow_pc',
                     'expected_follow_regs', 'expected_follow_st', 'expected_follow_extra_regs',
                     'expected_follow_memory', 'control_follow', 'list_follow', 'follow_delay',
                     'expected_st_mask', 'expected_wvp', 'observe_all', 'observe_implicit'):

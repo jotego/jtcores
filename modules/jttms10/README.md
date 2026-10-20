@@ -11,12 +11,14 @@ MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
-The standard runner retains six PIXBLT forms without probes, partial [FILL
-timing coverage](docs/fill-timing.md), [bounded LINE timing coverage](docs/line-timing.md),
-and unresolved MOVB targets.
+The standard runner includes a [failing PIXBLT timing baseline](docs/blit-timing.md)
+for all six encodings, partial [FILL timing coverage](docs/fill-timing.md),
+[bounded LINE timing coverage](docs/line-timing.md), and unresolved MOVB targets.
+Probe presence now reaches 133/133 forms; the 464 new PIXBLT fixtures expose
+unimplemented timing and word-transfer contracts.
 Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 (260 linear and 1,980 XY). Other processing/window/mask/edge conditions
-still require timing implementation. The 127-form fixture inventory includes
+still require timing implementation. The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
 [hidden-write/dependency checks](docs/store-timing.md), scalar coordinate and
