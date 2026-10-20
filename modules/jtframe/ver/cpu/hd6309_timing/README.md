@@ -52,7 +52,7 @@ extended, and indexed forms; DIVQ totals are 26/27, 27/28, and 26/28 E.
 Saved CC is `$85` for DIVD and `$8D` for DIVQ, with D/W preserved.
 MULD, DIVD and DIVQ have integrated CPU checks for immediate and direct,
 indexed and extended addressing in both MD modes, with published cycle counts,
-signed results, and hard-overflow destination preservation. MULD also checks
+signed results, and hard-overflow dividend-magnitude results. MULD also checks
 V and C preservation. DIVD and DIVQ check signed minimum/just-outside
 quotient bounds, including truncated results and N/Z/V/C behavior.
 The signed timing matrix covers all four dividend/divisor sign pairs for
