@@ -2,10 +2,74 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## New PIXBLT failing baseline
+## Current version 3 validation: native regular PIXBLT
 
-The source now adds 464 independent PIXBLT fixtures without changing CPU RTL,
-runner protocol or the loaded cached-MOVB image. All 84 focused diagnostic
+RTL commit `cb113446bbf53a4045564cf3b2a070d008502624` implements aligned opaque
+regular L,L / L,XY / XY,L / XY,XY words through the shared CPU datapath. All
+360 regular fixtures pass each base, W1/P7-after0 and W3. Eighty-four focused
+observations match original Verilator for defined architecture, final memory,
+instruction clocks and checked bus/target events.
+
+All **141,788 cases / 131 forms / 5,179 batches** pass each profile on one
+configuration: **425,364 FPGA executions**. Every raw verdict was independently
+replayed and reproduced exactly. Full passing manifests explicitly exclude the
+144 binary fixtures; the separate binary command returns all 144 failing
+individual verdicts, with correct architecture/final memory and no overflow.
+All fixture expectations remain independent and unchanged. Probe presence for
+133 forms and a passing subset do not establish instruction timing compliance.
+
+| Profile | Full host wall (s) | Transfer (s) | FPGA staging (s) | FPGA run (s) | FPGA draining (s) | Python checking (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Base | 291.21 | 12.513 | 11.738 | 53.040 | 115.268 | 52.499 |
+| W1/P7-after0 | 298.16 | 12.693 | 11.620 | 59.197 | 114.435 | 53.116 |
+| W3 | 316.90 | 11.986 | 11.634 | 70.220 | 114.105 | 52.607 |
+
+Commands ran sequentially without another transport or heavy local job. Target
+phases nest inside SSH execution; do not add them again. They are aggregate
+transport/controller phases, not CPU-only runtime. The external wall includes
+final serialization and cleanup. These are not matched software benchmarks.
+Timeout and explicit 512-record overflow fail the host command; the identified
+following case and clean rearm pass independently.
+
+The directed 164-case MOVB command retains 137 passes / 27 CD duration failures,
+with unchanged diagnostic observations/errors against original Verilator.
+Binary fixtures retain duration and bus/cadence failures. Two B,XY PS2 probes
+gain eight clocks versus the historical baseline; current-source short Verilator
+reproduces those changes exactly. See [PIXBLT timing](../../docs/blit-timing.md).
+No failing capture is relabeled as passing equivalence.
+
+RBF SHA-256:
+`0ba7365706fc12699305a09f545f8b18db681aeccbbda5641947b706770a30dd`.
+Overlay/firmware: `jtcores-144-blit-0ba73657`; QIP-bound SYSID:22 /1792433033.
+CPU source fingerprint:
+`1a4be476daf940f32bf41f01e746c21e433ccd654cdab4b2c79b0eb4864036b0`.
+Use the source-bound receipt under
+`/nobackup/tasks/jtcores-144/artifacts/blit-native/program/` with the image hash,
+boot identity and fingerprint; the inherited SYSID alone is insufficient.
+
+Build `/tmp/jtcores-144-blit-native-runner-1` reuses generated IP and databases
+from the fitted MOVB parent. A full `/opt/quartus_free` flow takes 848.51 seconds
+(853.43 s outer), with 35 source and 171 packaged inputs unchanged. The whole
+appliance uses 7,635 ALMs, 7,071 registers, 351/397 M10Ks, five DSPs, one PLL and
+one DLL. All eight runner RAMs, both RF mirrors and four 32x16 cache banks
+remain inferred RAM; the graphics ROM is now 4096x64. All 88 final STA rows
+are positive, TNS0; minimum setup/hold is +1.074/+0.077 ns, runner setup at least
++4.711 ns. The 32 final calibrated DDR rows remain positive and identical to
+the parent; 17 negative vendor panels explicitly precede calibration or common
+clock pessimism correction. No SDC changed. External HPS I/O warnings remain;
+this is not CPU-only area or final NARC/MiSTer acceptance.
+
+Programming takes 0.331 s on target /1.369125 s full SSH with the image staged.
+The new receipt preserves its clean fitted source commit; later documentation
+commits supplement it without rewriting its identity. This changed-RTL full
+flow is not evidence of a Rapid Recompile speedup. Long supported matrices run
+on FPGA; short Verilator runs debug changed paths. Native HOLD/IRQ, broader
+conditions, clean/CI, remaining timing targets and final game validation stay open.
+
+## Historical PIXBLT failing baseline
+
+Checkpoint `034bd0646` added 464 independent PIXBLT fixtures without changing CPU
+RTL, runner protocol or the then-loaded cached-MOVB image. All 84 focused diagnostic
 observations across base/W1-P7/W3 agree with original Verilator, including
 memory and exact failure lists. Commands fail; these are not passing equivalence
 results. The full new base run reports 311 individual timing failures and rejects
@@ -13,7 +77,7 @@ results. The full new base run reports 311 individual timing failures and reject
 See [PIXBLT timing](../../docs/blit-timing.md). The preceding 141,428 fixture
 contracts and their validated physical results below remain unchanged.
 
-## Current version 3 validation: cached absolute MOVB
+## Historical version 3 validation: cached absolute MOVB
 
 The cached one-word absolute byte path consumes resident operands with the
 opcode: 8 INCLK instead of 24; a cold extension uses 80 instead of 96.

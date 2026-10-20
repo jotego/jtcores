@@ -16,9 +16,9 @@ for all six encodings, partial [FILL timing coverage](docs/fill-timing.md),
 [bounded LINE timing coverage](docs/line-timing.md), and unresolved MOVB targets.
 Probe presence reaches 133/133 forms. PIXBLT has 504 fixtures: the published
 464-case failing baseline plus 40 nonzero-coordinate/offset/pitch probes.
-Aligned opaque regular PIXBLT uses a native word schedule and passes targeted
-Verilator checks; binary expansion still uses the slower general microcode.
-The native regular changes have not yet been fitted or tested on DataStorm.
+Aligned opaque regular PIXBLT uses a native word schedule: all 360 fixtures pass
+on DataStorm in base/W1-P7/W3, and 84 focused observations match Verilator.
+Binary expansion still uses the slower general microcode and fails timing.
 Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 (260 linear and 1,980 XY). Other processing/window/mask/edge conditions
 still require timing implementation. The preceding validated 127-form fixture inventory includes
@@ -36,8 +36,9 @@ labeled inferred policies and remain excluded from unqualified signoff.
 Cached single-word absolute MOVB consumes resident address operands with
 the opcode to meet the one-state target printed in both TI tables. Its
 cache-disabled seven-state target remains open. The source-bound DataStorm image
-passes 141,428 cases each at base/W1-P7/W3; 69 focused observations match
-Verilator. The directed published-target command retains 27 CD duration failures.
+passes 141,788 cases across 131 forms each at base/W1-P7/W3, with the 144
+failing binary fixtures checked separately. The directed published-target
+command retains 27 CD duration failures.
 See [FPGA evidence and reproduction](ver/fpga/README.md).
 Complete condition, bus and interrupt audits remain
 required. Current #144 development shares DSP multiplication with shifts
@@ -48,7 +49,7 @@ the instruction timing changes are complete.
 `ucode/tms10.yaml` and `ucode/gfx.yaml` are compiled by `jtframe ucode`, as in
 JT680X. The scalar and graphics sequencers share one ALU, synchronous
 register RAM, operand registers and field bus. Graphics control uses a
-separate 4,096-by-63-bit block-ROM image; YAML selects ALU operands, register
+separate 4,096-by-64-bit block-ROM image; YAML selects ALU operands, register
 addresses, memory/pixel actions, flag masks and flow. See
 [the architecture](docs/architecture.md).
 

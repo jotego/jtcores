@@ -1,7 +1,7 @@
 # PIXBLT timing baseline (#144)
 
 All six PIXBLT encodings have independent timing probes. Aligned opaque regular
-copies now have a native word schedule with targeted Verilator validation.
+copies now have a native word schedule validated on DataStorm and Verilator.
 Binary expansion still transfers through the general graphics microcode and
 fails timing. Full timing compliance and condition coverage remain open.
 
@@ -47,7 +47,7 @@ coefficient. A destination cannot be written before its required source is
 captured. Buffering multiple source words is allowed; the model does not invent
 a first-write phase or require one particular read/write interleaving.
 
-## Physical failing baseline
+## Historical physical failing baseline
 
 The published baseline contains 464 new fixtures. All 141,428 predecessor fixture/program contracts
 are unchanged, giving 141,892 fixtures with probe presence for 133/133 forms.
@@ -75,7 +75,7 @@ The three focused host commands take 4.279/3.592/3.468 seconds; the full new
 base batch command takes 5.142 seconds. These are failing-baseline command
 measurements, not a matched software speedup or a CPU timing improvement.
 Raw evidence is under `/nobackup/tasks/jtcores-144/artifacts/pixblt-baseline/`.
-The current RBF/receipt and build measurements are in the
+The historical image identity and its current replacement are in the
 [FPGA runner documentation](../ver/fpga/README.md).
 
 ```sh
@@ -92,7 +92,7 @@ normal runner includes the model tests and fixtures. Empty arrays, partial align
 graphics/window/mask/transparency operations, overlap/reverse traversal,
 HOLD/IRQ/context resumption and full clean/CI acceptance still require work.
 
-## Native regular word schedule in development
+## Native regular word schedule
 
 The regular L,L / L,XY / XY,L / XY,XY paths reuse the synchronous register RAM,
 scalar ALU/DSP, operand registers and field adapter. A posted source read lets
@@ -118,7 +118,38 @@ address fixtures are appended after the original 464 cases. Every preceding
 These targeted simulations do not establish complete graphics condition or
 native interrupt-resumption coverage.
 
-The DataStorm image and physical results above predate this RTL. A fresh
-retained-IP `/opt/quartus_free` fit, final STA and source-bound programming
-receipt are required before native physical equivalence and long matrices.
-Do not relabel the old cached-MOVB receipt with this implementation.
+The retained-IP `/opt/quartus_free` build of RTL commit `cb113446b` passes final
+STA and runs on DataStorm with a new source-bound receipt. All 84 representatives
+above pass physically and match the original Verilator observations, including
+relative bus/target events. All 360 regular fixtures pass each of base, W1/P7
+and W3. The full passing subset has 141,788 cases / 131 forms / 5,179 batches
+per profile: 425,364 executions on one configuration. Every raw verdict was
+independently replayed. Full host walls are 291.21/298.16/316.90 seconds;
+these are command measurements rather than a matched software speedup study.
+See the [current FPGA image and timings](../ver/fpga/README.md).
+
+All 144 binary fixtures also return individual verdicts on the new image,
+without trace overflow (maximum 399/512 records). They all fail timing;
+generic per-pixel bus counts and row cadence also fail where applicable.
+Architectural and final-memory checks pass. Two B,XY PS2 N1/one-row cases now
+take 1420/1448 INCLK (hit/CD), eight more than the historical baseline.
+Fresh short Verilator runs reproduce those clocks and all checked events and
+diagnostics exactly. The additional delay remains an open binary timing
+regression; no expectation was changed. Standard equivalence refuses failing
+inputs. The published MOVB-target command separately retains 27 CD failures.
+
+Run the complete regular domain through the ordinary FPGA fixture builder:
+
+```sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare --protocol-version 3 \
+    --case blit_ll_ --case blit_lxy_ --case blit_xyl_ --case blit_xyxy_ \
+    --output regular-manifest.json
+```
+
+The ordinary `--matrix` inventory includes the 144 failing binary cases. The
+passing full manifests explicitly record their exclusion and preserve them in
+a separate failing command; this is not full instruction timing compliance.
+Programs, expected results and supported wait/pause settings change without
+another FPGA compilation. Native IRQ/HOLD and broader graphics conditions
+remain unvalidated. The old cached-MOVB receipt and failing-baseline evidence
+retain their original identities.
