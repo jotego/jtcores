@@ -67,7 +67,16 @@ the [Boolean baseline](docs/fill-timing.md#non-replace-boolean-word-baseline).
 A native Boolean word-processing schedule passes 244 directed Verilator
 executions, response/mutation/architecture/resumption/model/lint checks; see its
 [development scope](docs/fill-timing.md#native-boolean-word-processing-development).
-Complete expanded FPGA matrices and exact Boolean interrupt timing remain required.
+Source `caa0d12f` now passes all 4,460 FILL cases and the preceding
+144,192-case ordinary inventory each BASE/W1P7/W3 on DataStorm. Every raw
+verdict independently replays; 183 focused observations match Verilator.
+Six additional early CEN pause widths pass 26,772 FILL/control executions.
+The next [arithmetic FILL baseline](docs/fill-timing.md#arithmetic-whole-word-failing-baseline)
+adds 1,728 independent PPOP16..21 cases at PS4/8/16, preserving all preceding
+contracts. Eighteen short Verilator representatives fail duration, with checked
+architecture/memory correct and excess pixel-level bus traffic at PS4/8.
+Its expanded FPGA validation and arithmetic schedule remain required.
+Exact Boolean interrupt timing remains unqualified.
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

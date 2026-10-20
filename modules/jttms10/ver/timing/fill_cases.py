@@ -155,6 +155,74 @@ def boolean_fixture(size, ppop, xy, off, *, words=1, rows=1):
     return case
 
 
+def arithmetic_word(ppop, source, destination, size):
+    """Unsigned pixel lanes, SPVU001A7-15/16 Table7-2.
+
+    Carry and borrow never cross pixel boundaries. COLOR1 is a 16-bit
+    pattern (5-5,12-80), so each source lane retains its own value.
+    """
+    if ppop not in range(16,22) or size not in (4,8,16):
+        raise ValueError('arithmetic FILL requires PPOP16..21 and PS4/8/16')
+    mask = (1 << size)-1
+    result = 0
+    for lane in range(0,16,size):
+        src, dst = (source >> lane) & mask, (destination >> lane) & mask
+        if ppop == 16:
+            value = (src+dst) & mask
+        elif ppop == 17:
+            value = min(mask,src+dst)
+        elif ppop == 18:
+            value = (dst-src) & mask
+        elif ppop == 19:
+            value = max(0,dst-src)
+        elif ppop == 20:
+            value = max(src,dst)
+        else:
+            value = min(src,dst)
+        result |= value << lane
+    return result
+
+
+def arithmetic_fixture(size, ppop, xy, off, *, words=1, rows=1, sample=0):
+    """Full-word arithmetic: Table13-6 A, G from Table13-7.
+
+    Samples retain a dither pattern and exercise maximum+one, zero-one,
+    and equal maximum pixels. No current CPU trace supplies an expectation.
+    """
+    if ppop not in range(16,22) or size not in (4,8,16) or sample not in range(4):
+        raise ValueError('defined arithmetic operation/size/sample required')
+    case = fixture(size,words,rows,xy,off)
+    case['name'] = f'fill_arithmetic_pp{ppop}_{"xy" if xy else "l"}_ps{size}_n{words}_rows{rows}_s{sample}_{"off" if off else "hit"}'
+    one = sum(1 << lane for lane in range(0,16,size))
+    source = (case['data_fill']['color'],one,one,65535)[sample]
+    color = (source << 16) | source
+    case['initial_all_regs']['b9'] = case['register_overrides']['b9'] = color
+    case['expected_extra_regs']['b9'] = color
+    case['data_fill'].update(color=source,processing=True,ppop=ppop)
+    case['control'] = ppop << 10
+    case['conditions'].update(ppop=ppop,arithmetic_sample=sample)
+    timing = fill_timing(pixel_size=size,width=case['conditions']['width'],rows=rows,
+        address=case['data_fill']['address'],pitch=case['data_fill']['pitch'],
+        xy=xy,ppop=ppop,cache_disabled=off)
+    case.update(states=timing['states'],fill_timing=timing)
+    before = dict(case['initial_memory'])
+    address, pitch = case['data_fill']['address'],case['data_fill']['pitch']
+    for row in range(rows):
+        for word in range(words):
+            dest = address+row*pitch+16*word
+            if sample:
+                before[dest] = (65535,0,65535)[sample-1]
+    case['initial_memory'] = sorted(before.items())
+    after = before.copy()
+    for row in range(rows):
+        for word in range(words):
+            dest = address+row*pitch+16*word
+            after[dest] = arithmetic_word(ppop,source,after[dest],size)
+    case['expected_memory'] = sorted(after.items())
+    case['citation'] = 'SPVU001A5-5 COLOR1;7-15/16 Table7-2;12-80..86;13-10..14 Tables13-5/6/7'
+    return case
+
+
 def transfers(case):
     spec = case['data_fill']
     if spec.get('processing'):
@@ -308,3 +376,10 @@ def fill_cases():
     for (words,rows),ppop,size,xy,off in product(((2,1),(3,1),(1,2),(2,2),(3,3)),
             range(1,16),(1,2,4,8,16),(False,True),(False,True)):
         yield boolean_fixture(size,ppop,xy,off,words=words,rows=rows)
+
+    # Preserve all 4,460 preceding fixture/program contracts. Arithmetic
+    # PPOP is defined only for PS4/8/16; include row/word and operand edges.
+    for (words,rows),ppop,size,xy,off,sample in product(
+            ((1,1),(2,1),(3,1),(1,2),(2,2),(3,3)),range(16,22),
+            (4,8,16),(False,True),(False,True),range(4)):
+        yield arithmetic_fixture(size,ppop,xy,off,words=words,rows=rows,sample=sample)

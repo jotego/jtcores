@@ -836,8 +836,77 @@ The 160 array and 124 boundary architectural programs, 112 timed row/HOLD
 executions, 20 replacement/XOR L/XY/PSIZE IRQ/NMI modes, 267 model tests and
 strict lint pass. The graphics ROM still has 4,096 words of 64 bits.
 
-Complete 4,460-case FILL / 144,192-case ordinary FPGA validation remains
-required before a compliance claim. Short debugging
-uses Verilator; the full matrices must run on the DataStorm after a new
-source-bound build and representative equivalence checks. The current
-source175 FPGA image contains no native Boolean schedule.
+Source `caa0d12f87851e1a8e09686d8e13ab03637b9542` is physically validated
+as RBF `49dccd1e208ca2e333d238ebb51386a4b6f4647f4c2161b1de4ab337fc44e086`.
+All 4,460 FILL cases pass each BASE/W1P7/W3 (13,380 executions), and
+183 focused observations exactly match profile-specific Verilator references.
+The complete preceding 144,192-case ordinary inventory also passes each
+profile (432,576 executions, 133 forms, no exclusions). Every complete raw
+verdict independently replays. Ordinary driver walls are
+338.393/331.735/338.543 seconds; full FILL walls are 15.150/14.332/16.755
+seconds. Six additional early CEN pause widths, 1..6 clocks with one wait
+state, pass all 4,460 FILL cases and two NOP controls each (26,772 executions),
+with 76 declared positive Verilator comparisons. The separate published
+MOVB matrices still fail 27 CD duration targets per profile, as required.
+These ordinary passing counts do not include the arithmetic baseline below.
+
+The `/opt/quartus_free` build takes 893.78 seconds in Quartus,
+899.332 seconds enclosing wall time. Its stable Top partition retains 100%
+placement/internal routing while the CPU SOURCE partition is rebuilt without
+fallback. All 21 fitted RAM geometries/modes/counts and 32 DDR margins are
+preserved; all 88 final reported STA rows are positive with zero TNS.
+This is the 25MHz regression appliance, not CPU-only area/20ns or final NARC
+acceptance. One verified programming operation takes 0.333748 seconds,
+1.314245 seconds including SSH. Exact saved final-health scripts confirm
+the intended active image, unchanged boot/SYSID, healthy bridges/manager,
+taint zero and no remaining FPGA processes. Concurrent development work
+prevents a controlled recompilation or end-to-end speedup claim.
+Evidence is under `/nobackup/tasks/jtcores-144/artifacts/fill-boolean-native-1/`.
+Exact Boolean interrupt timing and all broader unqualified conditions remain
+open. Short debugging uses Verilator; large supported matrices use DataStorm.
+
+## Arithmetic whole-word failing baseline
+
+Another 1,728 independent fixtures cover PPOP16..21 (ADD, ADDS, SUB, SUBS,
+MAX, MIN), PS4/8/16, L/XY and hit/CD. Shapes include N1/N2/N3, single and
+repeated rows. Four operand patterns exercise dithering, maximum plus one,
+zero minus one and equal maxima. All preceding 4,460 FILL fixture/program
+contracts are retained exactly. The new FILL inventory is 6,188; the ordinary
+inventory is 145,920. Probe presence does not establish timing compliance.
+
+SPVU001A 7-15/16 Table7-2 supplies unsigned pixel arithmetic, wrapping or
+saturating independently at each pixel boundary. COLOR1 can hold a dither
+pattern (5-5,12-80), so the memory model evaluates separate source/destination
+lanes; a whole-word add or subtract is not its oracle. Table13-7 gives
+G=4/5/5/6/5/5 respectively, combined with Table13-6's aligned-word row
+equations and Table13-5's setup. There is one destination word read and write
+per complete word. Architecture, flags, canaries, pointers and bus checks
+remain active. The arithmetic count model and all CPU RTL are unchanged.
+
+Eighteen short Verilator representatives all retain duration failures.
+PS4/8 also retain repeated pixel-level read/write traffic instead of the
+required word operations. Their checked architecture and memory agree with
+the independent arithmetic model. Large new matrices have not yet run on the
+FPGA. The generic path's excessive traffic may exceed bounded per-case trace
+capacity on longer rows; overflow must remain an explicit failing diagnostic,
+not an inferred individual architectural verdict.
+
+Reproduce the model and selected failing probes with:
+
+```sh
+python3 -B -m unittest discover -s modules/jttms10/ver/timing -p 'test_fill*.py'
+python3 -B modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case fill_arithmetic_pp16_l_ps4_n1_rows1_s1_hit \
+    --exact-case fill_arithmetic_pp19_xy_ps8_n1_rows1_s3_hit \
+    --report /tmp/fill-arithmetic.json --traces /tmp/fill-arithmetic-traces
+python3 -B modules/jttms10/ver/fpga/check_results.py prepare \
+    --case fill_arithmetic_ --protocol-version 5 --output /tmp/fill-arithmetic-fpga.json
+```
+
+The timing command is expected to exit nonzero on this baseline. Execute the
+prepared FPGA batches using the source-bound driver and current programming
+receipt described in [the FPGA runner](../ver/fpga/README.md), preserving raw
+captures and nonzero verdicts. A new test program or oracle fixture does not
+require recompiling an unchanged CPU image. Arithmetic scheduling, partial
+processing words, masks, transparency, window conditions and the full #144
+acceptance remain open.

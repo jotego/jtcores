@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Check FILL fixture/checker contracts without executing RTL."""
 import unittest
-from fill_cases import fixture, partial_fixture, boolean_fixture, fill_cases, check_bus, transfers
+from fill_cases import (fixture, partial_fixture, boolean_fixture, arithmetic_word,
+                        arithmetic_fixture, fill_cases, check_bus, transfers)
 from run import check, program
 
 
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 4460)
-        self.assertEqual(len({r['name'] for r in cases}), 4460)
+        self.assertEqual(len(cases), 6188)
+        self.assertEqual(len({r['name'] for r in cases}), 6188)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
@@ -257,6 +258,58 @@ class FillCasesTest(unittest.TestCase):
         state.update(case['expected_extra_regs'])
         self.assertEqual(check(case,state),[])
         self.assertTrue(check(case,dict(state,clocks=96,end=96)))
+
+    def test_arithmetic_literals_and_pixel_carry_isolation(self):
+        for ppop,want in ((16,0),(17,0xffff),(18,0xeeee),(19,0xeeee),
+                          (20,0xffff),(21,0x1111)):
+            self.assertEqual(arithmetic_word(ppop,0x1111,0xffff,4),want)
+        for ppop,want in ((16,0x1111),(17,0x1111),(18,0xffff),(19,0),
+                          (20,0x1111),(21,0)):
+            self.assertEqual(arithmetic_word(ppop,0x1111,0,4),want)
+        for ppop,want in ((16,0xf4fa),(17,0xfffa),(18,0xb050),
+                          (19,0x0050),(20,0xaaa5),(21,0x5a55)):
+            self.assertEqual(arithmetic_word(ppop,0xaa55,0x5aa5,4),want)
+        self.assertEqual(arithmetic_word(16,0xff01,0x01ff,8),0)
+        self.assertEqual(arithmetic_word(16,0xff01,0x01ff,16),0x0100)
+        for size,ppop in ((1,16),(2,19),(3,20),(4,15),(16,22)):
+            with self.assertRaises(ValueError):
+                arithmetic_word(ppop,0,0,size)
+
+    def test_arithmetic_table_states_and_inventory(self):
+        rows=[r for r in fill_cases() if r['name'].startswith('fill_arithmetic_')]
+        self.assertEqual(len(rows),1728)
+        self.assertEqual({r['conditions']['ppop'] for r in rows},set(range(16,22)))
+        self.assertEqual({r['conditions']['size'] for r in rows},{4,8,16})
+        # Table13-7 literal G, Table13-6 A/N1,N2,N3 and repeated rows.
+        for ppop,g in ((16,4),(17,5),(18,5),(19,6),(20,5),(21,5)):
+            for words,nrows,states in ((1,1,7+g),(2,1,8+2*g),
+                                      (3,1,7+3*g),(3,3,9+9*g)):
+                for xy,off in ((False,False),(False,True),(True,False),(True,True)):
+                    case=arithmetic_fixture(4,ppop,xy,off,words=words,rows=nrows)
+                    self.assertEqual(case['states'],states+2*xy+3*off)
+                    self.assertEqual(case['fill_timing']['word_states'],g)
+                    self.assertEqual(len(transfers(case)),2*words*nrows)
+                    code,pc,nxt=program(case)
+                    self.assertEqual(code[(pc-0x1000)//16],0x0fe0 if xy else 0x0fc0)
+                    self.assertEqual(nxt,pc+16)
+
+    def test_arithmetic_canaries_and_bus_failures(self):
+        case=arithmetic_fixture(4,16,False,False,sample=1)
+        before,after=map(dict,(case['initial_memory'],case['expected_memory']))
+        self.assertEqual(before[0x6100],0xffff)
+        self.assertEqual(after[0x6100],0)
+        for address in (0x60f0,0x6110):
+            self.assertEqual(after[address],before[address])
+        self.assertEqual(case['initial_all_regs']['b9'],0x11111111)
+        self.assertEqual(case['expected_extra_regs']['b9'],0x11111111)
+        self.assertEqual(transfers(case),[(0,0x6100,0xffff,0),(1,0x6100,0,0)])
+        observed=dict(start=0,end=88)
+        bus=['BUS_BEGIN 32 0 00006100 0000 0','BUS_END 48 0 00006100 ffff',
+             'BUS_BEGIN 48 1 00006100 0000 0','BUS_END 64 1 00006100 ffff']
+        self.assertEqual(check_bus(case,observed,bus,0),[])
+        wrong=bus.copy();wrong[2]='BUS_BEGIN 48 1 00006100 1110 0'
+        self.assertTrue(check_bus(case,observed,wrong,0))
+        self.assertTrue(check_bus(case,observed,bus+bus,0))
 
 
 if __name__ == '__main__':
