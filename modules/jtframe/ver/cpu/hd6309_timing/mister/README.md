@@ -13,6 +13,14 @@ totals of 835,999,791 E cycles in emulation and 819,999,795 in native mode.
 The result window has 96 little-endian 32-bit words: header, 25 `(PC, count,
 cycles)` records, and frozen RAM/register/data snapshots.
 
+The test CPU runs from Template's existing 20 MHz PLL output because its
+decode path does not meet the 50 MHz board clock. The MiSTer HPS transport and
+system-facing `clk_sys` remain at 50 MHz. Reset deassertion and the completion
+flag cross between these domains through two-flop synchronizers; result data
+is frozen before completion is synchronized to the transport. The CPU test
+samples E cycles once per four 20 MHz PLL clocks, so a full batch takes about
+167 seconds, plus the HPS result transfer and board startup time.
+
 | Slot | Operation | PC | Emulation E | Native E |
 | ---: | --- | ---: | ---: | ---: |
 | 0 | INCE | `$0110` | 3 | 2 |
