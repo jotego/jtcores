@@ -22,6 +22,77 @@ def file_set(paths):
     return {str(path): sha256(path) for path in sorted(paths) if path.is_file()}
 
 
+RAPID_RESULT_FORMAT = 'jttms10-rapid-build-result-v1'
+
+
+def validate_positive_sta(path):
+    rows = re.findall(r'Type\s*:\s*[^\n]+\nSlack\s*:\s*([-\d.]+)\nTNS\s*:\s*([-\d.]+)',
+                      path.read_text())
+    if not rows or any(float(slack) <= 0 or float(tns) != 0 for slack, tns in rows):
+        raise SystemExit(f'Rapid build requires positive final STA and zero TNS: {path}')
+
+
+def validate_rapid_result(build, result):
+    """Validate a real source-changing Rapid flow, without relabeling it full.
+
+    Common frozen source/input/RBF checks are also applied by the caller.
+    Fresh reports and the immutable parent bind the recompile's reused fit.
+    """
+    build = build.resolve(strict=True)
+    command = ['/opt/quartus_free/quartus_sh', '--flow', 'recompile', 'test_board']
+    if (result.get('format') != RAPID_RESULT_FORMAT or
+            result.get('flow_kind') != 'recompile' or result.get('command') != command or
+            result.get('working_directory') != str(build) or
+            result.get('full_flow_only') is True or result.get('flow_exit_code') != 0 or
+            result.get('inputs_unchanged') is not True):
+        raise SystemExit('invalid Rapid command/flow certificate')
+    log = build / 'logs/v2-compile.log'
+    marker = result.get('terminal_marker')
+    if (not log.is_file() or result.get('flow_log_sha256') != sha256(log) or
+            not isinstance(marker, str) or not marker or
+            'successful' not in marker.lower() or marker not in log.read_text(errors='replace')):
+        raise SystemExit('Rapid certificate lacks its actual successful flow log')
+    reports = result.get('stage_reports')
+    if not isinstance(reports, dict) or set(reports) != {'map', 'fit', 'asm', 'sta'}:
+        raise SystemExit('Rapid certificate must bind map, fit, assembly and STA reports')
+    freeze = build / 'v2-compile-inputs.json'
+    if not freeze.is_file():
+        raise SystemExit('Rapid build lacks its pre-flow compile-input snapshot')
+    for stage, digest in reports.items():
+        report = build / f'output_files/test_board.{stage}.rpt'
+        if (not report.is_file() or sha256(report) != digest or
+                report.stat().st_mtime_ns <= freeze.stat().st_mtime_ns):
+            raise SystemExit(f'Rapid stage report is missing, stale or changed: {stage}')
+    sta = build / 'output_files/test_board.sta.summary'
+    if (not sta.is_file() or result.get('sta_summary_sha256') != sha256(sta) or
+            sta.stat().st_mtime_ns <= freeze.stat().st_mtime_ns):
+        raise SystemExit('Rapid final STA summary is missing, stale or changed')
+    validate_positive_sta(sta)
+    parent_name = result.get('parent_build_dir')
+    if not isinstance(parent_name, str) or not parent_name:
+        raise SystemExit('Rapid certificate lacks its fitted parent')
+    try:
+        parent = Path(parent_name).resolve(strict=True)
+    except OSError as error:
+        raise SystemExit(f'Rapid fitted parent is unavailable: {parent_name}') from error
+    if parent == build:
+        raise SystemExit('Rapid build cannot certify itself as its parent')
+    bindings = {'parent_build_result_sha256': parent / 'v2-build-result.json',
+                'parent_inputs_sha256': parent / 'v2-build-inputs.json',
+                'parent_image_sha256': parent / 'output_files/test_board.rbf',
+                'parent_sta_summary_sha256': parent / 'output_files/test_board.sta.summary'}
+    for key, path in bindings.items():
+        if not path.is_file() or result.get(key) != sha256(path):
+            raise SystemExit(f'Rapid parent evidence is missing or changed: {key}')
+    parent_result = json.loads(bindings['parent_build_result_sha256'].read_text())
+    if (parent_result.get('format') not in ('jttms10-incremental-build-result-v1', RAPID_RESULT_FORMAT) or
+            parent_result.get('flow_exit_code') != 0 or parent_result.get('inputs_unchanged') is not True or
+            parent_result.get('input_manifest_sha256') != result['parent_inputs_sha256'] or
+            parent_result.get('rbf_sha256') != result['parent_image_sha256']):
+        raise SystemExit('Rapid parent result does not certify its frozen inputs/image')
+    validate_positive_sta(bindings['parent_sta_summary_sha256'])
+
+
 def cpu_source_fingerprints(source_root):
     """Hash the CPU implementation and every source/tool input that builds it.
 
@@ -388,7 +459,9 @@ def main():
         compile_log = build / 'logs/v2-compile.log'
         if compile_inputs.get('map_manifest_sha256') != sha256(inputs_path):
             raise SystemExit('compile-time input snapshot does not name the frozen map manifest')
-        if build_result.get('full_flow_only') is not True:
+        if build_result.get('format') == RAPID_RESULT_FORMAT:
+            validate_rapid_result(build, build_result)
+        elif build_result.get('full_flow_only') is not True:
             if not map_result_path.is_file():
                 raise SystemExit('incremental build lacks its successful map certificate')
             map_result = json.loads(map_result_path.read_text())
@@ -424,7 +497,7 @@ def main():
     if not compiled_image.is_file() or sha256(image) != sha256(compiled_image):
         raise SystemExit('programmed image does not match the RBF emitted by this Quartus build')
     if inputs_path.exists():
-        if build_result.get('format') != 'jttms10-incremental-build-result-v1' or \
+        if build_result.get('format') not in ('jttms10-incremental-build-result-v1', RAPID_RESULT_FORMAT) or \
            build_result.get('input_manifest_sha256') != sha256(inputs_path) or \
            build_result.get('flow_exit_code') != 0 or \
            build_result.get('inputs_unchanged') is not True or \
@@ -551,6 +624,7 @@ def main():
         'map_result_sha256': sha256(build/'v2-map-result.json') if (build/'v2-map-result.json').is_file() else None,
         'quartus_flow_seconds': flow_seconds,
         'quartus_flow_exit': flow_exit,
+        'quartus_flow_kind': build_result.get('flow_kind', 'compile') if inputs_path.exists() else 'compile',
         'sysid': sysid,
         'sysid_timestamp': timestamp,
         'sysid_source': str(sysid_path),

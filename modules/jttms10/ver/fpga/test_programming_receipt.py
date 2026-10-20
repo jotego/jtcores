@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Keep stale CPU images out of runs without binding fixture expectations."""
+import copy
 import json
+import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -128,6 +130,115 @@ class SourceBoundReceipts(unittest.TestCase):
                 mif.write_text(header + rows + '\nEND;\n')
                 with self.assertRaises(SystemExit):
                     receipts.parse_mif(mif)
+
+
+class RapidBuildReceipts(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.build = Path(self.temp.name) / 'rapid'
+        self.parent = Path(self.temp.name) / 'parent'
+        for root in (self.build, self.parent):
+            (root / 'output_files').mkdir(parents=True)
+        (self.build / 'logs').mkdir()
+        self.freeze = self.build / 'v2-compile-inputs.json'
+        self.freeze.write_text('{}\n')
+        os.utime(self.freeze, ns=(1, 1))
+        marker = 'Quartus Prime Rapid Recompile was successful'
+        (self.build / 'logs/v2-compile.log').write_text(marker+'\n')
+        self.sta_text = "Type : Slow Model Setup 'clock'\nSlack : 0.500\nTNS : 0.000\n"
+        for root in (self.build, self.parent):
+            (root / 'output_files/test_board.sta.summary').write_text(self.sta_text)
+        for stage in ('map', 'fit', 'asm', 'sta'):
+            (self.build / f'output_files/test_board.{stage}.rpt').write_text(stage+' report\n')
+        (self.parent / 'v2-build-inputs.json').write_text('{"source":"frozen"}\n')
+        (self.parent / 'output_files/test_board.rbf').write_bytes(b'parent-image')
+        parent_result = dict(format='jttms10-incremental-build-result-v1',
+                             full_flow_only=True, flow_exit_code=0, inputs_unchanged=True,
+                             input_manifest_sha256=receipts.sha256(self.parent/'v2-build-inputs.json'),
+                             rbf_sha256=receipts.sha256(self.parent/'output_files/test_board.rbf'))
+        (self.parent / 'v2-build-result.json').write_text(json.dumps(parent_result))
+        self.result = dict(format=receipts.RAPID_RESULT_FORMAT, flow_kind='recompile',
+            command=['/opt/quartus_free/quartus_sh','--flow','recompile','test_board'],
+            working_directory=str(self.build), full_flow_only=False,
+            flow_exit_code=0, inputs_unchanged=True, terminal_marker=marker,
+            flow_log_sha256=receipts.sha256(self.build/'logs/v2-compile.log'),
+            stage_reports={s:receipts.sha256(self.build/f'output_files/test_board.{s}.rpt')
+                           for s in ('map','fit','asm','sta')},
+            sta_summary_sha256=receipts.sha256(self.build/'output_files/test_board.sta.summary'),
+            parent_build_dir=str(self.parent),
+            parent_build_result_sha256=receipts.sha256(self.parent/'v2-build-result.json'),
+            parent_inputs_sha256=receipts.sha256(self.parent/'v2-build-inputs.json'),
+            parent_image_sha256=receipts.sha256(self.parent/'output_files/test_board.rbf'),
+            parent_sta_summary_sha256=receipts.sha256(self.parent/'output_files/test_board.sta.summary'))
+
+    def test_successful_actual_recompile(self):
+        receipts.validate_rapid_result(self.build, self.result)
+
+    def test_recompile_command_and_kind_are_explicit(self):
+        for field, value in (('flow_kind','compile'), ('full_flow_only',True),
+                             ('command',['quartus_sh','--flow','recompile','test_board']),
+                             ('working_directory',str(self.parent)), ('flow_exit_code',1),
+                             ('inputs_unchanged',False)):
+            with self.subTest(field=field):
+                row = dict(self.result, **{field:value})
+                with self.assertRaisesRegex(SystemExit, 'command/flow'):
+                    receipts.validate_rapid_result(self.build,row)
+
+    def test_actual_flow_log_and_terminal_are_required(self):
+        for changes in ({'flow_log_sha256':'0'*64}, {'terminal_marker':'successful but absent'},
+                        {'terminal_marker':''}):
+            with self.subTest(changes=changes), self.assertRaisesRegex(SystemExit,'flow log'):
+                receipts.validate_rapid_result(self.build,dict(self.result,**changes))
+
+    def test_all_stage_reports_are_required(self):
+        for stage in ('map','fit','asm','sta'):
+            row=copy.deepcopy(self.result)
+            del row['stage_reports'][stage]
+            with self.subTest(stage=stage), self.assertRaisesRegex(SystemExit,'must bind'):
+                receipts.validate_rapid_result(self.build,row)
+
+    def test_stale_report_and_changed_report_are_rejected(self):
+        report=self.build/'output_files/test_board.fit.rpt'
+        os.utime(report,ns=(1,1))
+        with self.assertRaisesRegex(SystemExit,'stale or changed: fit'):
+            receipts.validate_rapid_result(self.build,self.result)
+        report.write_text('different fit report\n')
+        with self.assertRaisesRegex(SystemExit,'stale or changed: fit'):
+            receipts.validate_rapid_result(self.build,self.result)
+
+    def test_negative_final_sta_is_rejected_even_with_correct_hash(self):
+        sta=self.build/'output_files/test_board.sta.summary'
+        sta.write_text(self.sta_text.replace('0.500','-0.106').replace('0.000','-0.106'))
+        self.result['sta_summary_sha256']=receipts.sha256(sta)
+        with self.assertRaisesRegex(SystemExit,'positive final STA'):
+            receipts.validate_rapid_result(self.build,self.result)
+
+    def test_parent_image_and_result_bindings_are_required(self):
+        for field in ('parent_build_result_sha256','parent_inputs_sha256','parent_image_sha256',
+                      'parent_sta_summary_sha256'):
+            with self.subTest(field=field), self.assertRaisesRegex(SystemExit,'parent evidence'):
+                receipts.validate_rapid_result(self.build,dict(self.result,**{field:'0'*64}))
+        path=self.parent/'v2-build-result.json'
+        row=json.loads(path.read_text());row['rbf_sha256']='0'*64
+        path.write_text(json.dumps(row))
+        self.result['parent_build_result_sha256']=receipts.sha256(path)
+        with self.assertRaisesRegex(SystemExit,'parent result'):
+            receipts.validate_rapid_result(self.build,self.result)
+
+    def test_parent_must_exist_and_cannot_be_the_candidate(self):
+        for parent, message in ((self.build, 'cannot certify itself'),
+                                (self.build/'missing', 'parent is unavailable')):
+            with self.subTest(parent=parent), self.assertRaisesRegex(SystemExit,message):
+                receipts.validate_rapid_result(self.build,dict(self.result,parent_build_dir=str(parent)))
+
+    def test_empty_or_negative_parent_sta_is_rejected(self):
+        sta=self.parent/'output_files/test_board.sta.summary'
+        for text in ('', self.sta_text.replace('0.500','-0.100')):
+            sta.write_text(text)
+            self.result['parent_sta_summary_sha256']=receipts.sha256(sta)
+            with self.subTest(text=text), self.assertRaisesRegex(SystemExit,'positive final STA'):
+                receipts.validate_rapid_result(self.build,self.result)
 
 
 if __name__ == '__main__':

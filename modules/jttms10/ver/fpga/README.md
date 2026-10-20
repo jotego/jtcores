@@ -530,6 +530,23 @@ Fixture programs and the independent Python oracle are excluded from this
 implementation fingerprint. They can change without recompiling the FPGA.
 The same receipt can be used from another checkout with identical inputs.
 
+The writer also accepts an explicit `jttms10-rapid-build-result-v1` certificate
+for `/opt/quartus_free/quartus_sh --flow recompile test_board`. It binds the
+actual command, whole-flow log and success marker; fresh map, fit, assembly and
+STA reports; and the retained parent's result, frozen inputs, image and timing
+summary. Both parent and candidate must have positive final STA with zero TNS.
+All ordinary source, generated-payload, input-snapshot and image checks remain
+active. The runtime receipt records `quartus_flow_kind=recompile`; it does not
+relabel the experiment as a full compilation. An elapsed-time comparison alone
+does not establish timing closure or a recompilation benefit.
+
+Run the receipt rejection tests with:
+
+```sh
+python3 -B modules/jttms10/ver/fpga/test_programming_receipt.py
+```
+
+The ROM-only helper below still requires a full-flow parent certificate.
 For changes to `ucode/tms10.yaml` that regenerate only `tms10.uc` among the
 synthesized artifacts, reuse the fitted database with this limited update:
 
