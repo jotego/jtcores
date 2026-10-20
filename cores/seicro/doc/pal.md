@@ -1054,3 +1054,62 @@ between the confirmed 3F output and these write/enable inputs.
 This establishes shared logical write ownership. The source decode feeding
 3F, propagation around write transitions and CD setup/hold at the receiving
 counters remain outside this confirmed control chain.
+
+## CD RAM write-control selector
+
+The 3F type 157 mux selects the shared write-control signal described above.
+The following inputs and polarity were jointly confirmed on the Frisky Tom
+video sheet:
+
+| 3F pin | Connection |
+| --- | --- |
+| 13, B input | P |
+| 14, A input | `/WR3`, with a bar |
+| 1, select | `RAM3S`, without a bar or input circle |
+| 15, active-low enable | GND, with a circle |
+| 12, output | Shared RAM write and CPU-buffer enable control |
+
+`RAM3S` also connects to select pin 1 of 3H and 2H, with no circles; their
+circled enable pins 15 are grounded. With P high and the non-inverting 157
+selecting A when select is low, the write-control output is
+`RAM3S OR /WR3`. It can therefore go low only when both `RAM3S` and `/WR3`
+are low. The user identifies 3E on the same sheet as the source of the
+RAM1S/RAM2S/RAM3S signals; the RAM3S connections are recorded below.
+The timing of both selector inputs remains to be traced.
+
+## /WR3 decoder source
+
+On the Frisky Tom CPU sheet, 2E is marked 138 and its circled Y3 output is
+labelled `/WR3`; the user confirms the label and circle. The drawing indicates
+physical output pin 12, as expected for a 138 Y3 output. The user tentatively
+reads selector pins 3/2/1 as AB13/AB12/AB11, without circles. The enable
+labels top-to-bottom appear AB15, `/ZMA` and `/ZWR`; the middle label is
+uncertain and the last is more legible. Comparing 2E pin 5 with the separately
+reviewed 2F pin 5, the user reads both as `/ZM(*)`, with the final character
+unresolved. Similar lettering alone does not prove net identity. These input
+readings are not yet confirmed, so they do not establish an address window
+or enable equation.
+
+## RAM3S gate inputs
+
+The upper 3E gate drives `RAM3S` at output pin 11. The user confirmed
+its inputs: pin 12 receives 4D output 1Y, pin 4; pin 13 receives `/VBLK`
+from 5F Q pin 9. Both inputs and the output have circles; the user confirms an OR-shaped
+gate with a curved input side. Therefore `RAM3S = 4D.4 AND /VBLK`.
+
+4D is a 157 with select `/H8` and its active-low enable grounded, as
+previously confirmed. The user confirms 4D B input pin 3 receives 4E
+output pin 3, which is circled; 4D A input pin 2 receives `/H2`. Thus
+`4D.4 = H8 ? /H2 : 4E.3`. 4E is a flat-base AND gate with no input circles, output pin 3 circled,
+and inputs H3 at pin 1 and H2 at pin 2. The user confirms these connections
+and polarities, giving:
+
+```text
+4E.3   = NOT(H3 AND H2)
+4D.4   = H8 ? NOT(H2) : NOT(H3 AND H2)
+RAM3S  = /VBLK AND (NOT(H2) OR (NOT(H8) AND NOT(H3)))
+write_control_n = RAM3S OR /WR3
+```
+
+These equations describe ideal logic levels. They do not establish physical
+propagation delay, counter-transition ordering or RAM setup and hold times.
