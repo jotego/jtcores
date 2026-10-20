@@ -209,3 +209,11 @@ def blit_cases():
     for mode,size,off in product(('bl','bxy'),(1,2,4,8,16),(False,True)):
         words = 2 if size==1 else 3 if size==2 else 4
         yield fixture(mode,size,words,2,off,offset_geometry=True)
+
+    # DX=32 also reaches 8/16/32 destination words at the larger pixel
+    # sizes. Keep two rows where the existing pitches do not overlap;
+    # PS16 uses one row so the FPGA's bounded memory inventory fits.
+    # The independent short/medium-row equation is unchanged.
+    for mode,size,off in product(('bl','bxy'),(4,8,16),(False,True)):
+        for rows in ((1,) if size==16 else (1,2)):
+            yield fixture(mode,size,2*size,rows,off)

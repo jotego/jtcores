@@ -65,3 +65,14 @@ bench checks refetch, nested drawing, exact destination writes and a wide
 COUNT checkpoint. See [line-isa.md](line-isa.md). Complete instruction/bus
 cycle parity still needs validation. Cache behavior has
 separate tests documented in [cache.md](cache.md).
+
+The aligned native binary schedule has a separate real timed-word/bus bench,
+`ver/array/timed_interrupt.sv`. Its standard `binaryirq-timed` sweep covers all
+five pixel sizes, both binary encodings, DX16/32, word/row/final checkpoints,
+waits and pauses during posted acceptance. It checks independent output values,
+stacked defined status, context pointers, nested ISR drawing and preserved
+source/canary memory. The native frame uses a private B10 low-bit tag and
+B10..B14 layout described in [blit-timing.md](blit-timing.md). Generic frames
+retain their existing format. Temporary RTL mutations demonstrate rejection
+of missed checkpoints, cancelling accepted writes and failing to resume timing.
+These are local Verilator checks; the FPGA runner has no IRQ scheduler yet.

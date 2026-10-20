@@ -11,7 +11,7 @@ module jttms10_gfx(
     input [15:0] psize, convsp, convdp, control,
     input alu_n, alu_z, alu_v,
     input [31:0] alu_result,
-    input need_dest, word_fill, word_copy, word_binary, irq_pending, native_line,
+    input need_dest, word_fill, word_copy, word_binary, irq_pending, native_line, bus_accepted,
     input transparent,
     input [31:0] last_pixel_addr,
     output reg active, checkpoint,
@@ -22,7 +22,7 @@ module jttms10_gfx(
     output reg [3:0] alu_op,
     output dst_a, dst_b, dst_md, dst_ea, dst_tmp, dst_rf, dst_ir,
     output md_to_rf,
-    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip, bus_collect, bus_row, bus_second, bus_pitch,
+    output bus_read, bus_write, bus_pixel, bus_sync, bus_post, bus_skip, bus_collect, bus_row, bus_second, bus_pitch, bus_resume,
     output [5:0] bus_size,
     output pix_source, pix_visible, pix_process, pix_test, pix_word, pix_binary,
     output product, product_y, packed_xy, alu_capture,
@@ -58,6 +58,7 @@ module jttms10_gfx(
     wire [4:0] gcond=gcond_sel;
 
     wire [5:0] next_sa={sa5,sa4,sa3,sa2,sa1,sa0};
+    wire bus_abort;
     wire unused_conv_upper = &{1'b0,convsp[15:5],convdp[15:5]};
     wire unused_pixel_addr_low = &{1'b0,last_pixel_addr[3:0]};
     wire unused_control_nonwindow = &{1'b0,control[15:10],
@@ -165,22 +166,29 @@ module jttms10_gfx(
     assign dst_md=active && gdst==MD_GDST;
     assign dst_ea=active && gdst==EA_GDST;
     assign dst_tmp=active && gdst==TMP_GDST;
-    assign dst_rf=active && gdst==RF_GDST;
+    assign dst_rf=active && gdst==RF_GDST && !bus_abort;
     assign dst_ir=active && gdst==IR_GDST;
     assign md_to_rf=active && mdrf;
-    assign bus_read=active &&
-        (gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
-    assign bus_write=active &&
-        (gbus==WR_GBUS || gbus==WRPX_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
+    // Withdraw only an unaccepted reservation. A posted field acknowledged
+    // during a CEN pause must finish before the following checkpoint.
+    assign bus_abort=active && irq_pending && !bus_accepted &&
+                     (gbus==POSTCHECK_GBUS || gbus==POSTROW_GBUS);
+    assign bus_read=active && !bus_abort &&
+        (gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || gbus==POSTROW_GBUS);
+    assign bus_write=active && !bus_abort &&
+        (gbus==WR_GBUS || gbus==WRPX_GBUS || ((gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS) && !bus_skip));
     assign bus_skip=active && gbus==POSTPX_GBUS && control[7:6]!=0 && clip;
-    assign bus_post=active && (gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || (gbus==POSTPX_GBUS && !bus_skip));
-    assign bus_sync=active && (gbus==SYNC_GBUS || gbus==COLLECT_GBUS);
+    assign bus_post=active && !bus_abort && (gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || gbus==POSTROW_GBUS ||
+                     ((gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS) && !bus_skip));
+    assign bus_sync=active && (gbus==SYNC_GBUS || gbus==COLLECT_GBUS || bus_abort);
     assign bus_collect=active && gbus==COLLECT_GBUS;
     assign bus_row=active && gbus==ROW_GBUS;
     assign bus_second=active && gbus==POSTRD2_GBUS;
     assign bus_pitch=active && gbus==PITCH_GBUS;
+    assign bus_resume=active && gbus==RESUME_GBUS;
     assign bus_pixel=active &&
-        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
+        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS ||
+         gbus==POSTROW_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
     assign bus_size=word_fill ? 6'd16 : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
                     gsize==CHUNK_GSIZE ? source_chunk_size :
@@ -350,6 +358,8 @@ module jttms10_gfx(
                 if(depth!=0) depth<=depth-2'd1;
             end
             if(gflow==END_GFLOW) active<=0;
+            if(bus_abort && gbus==POSTROW_GBUS) uaddr<=GCTXBINROW_SEQA;
+            if(bus_abort && gbus==POSTCHECK_GBUS) uaddr<=GBINABORT_SEQA;
         end
     end
 endmodule

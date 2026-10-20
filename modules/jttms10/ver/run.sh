@@ -12,7 +12,7 @@ main() {
     python3 "$ver_dir/run.py" --vectors "$ver_dir/build/fill-rows.yaml"
     python3 "$ver_dir/array/binary_programs.py" --out "$ver_dir/build/binary-boundaries.yaml"
     python3 "$ver_dir/run.py" --timed-word --hold-after-write --vectors "$ver_dir/build/binary-boundaries.yaml"
-    for unit in alu field regs word arch system pixelbus arrayirq lineirq lineirq-timed io bus startup \
+    for unit in alu field regs word arch system pixelbus arrayirq binaryirq-timed lineirq lineirq-timed io bus startup \
                 cache cachefield cachefield-timed fabric host pixel; do
         bash "$ver_dir/sim.sh" "$unit"
     done
@@ -24,6 +24,7 @@ main() {
     python3 -B "$ver_dir/timing/test_line_cases.py"
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
+    run_checker binary-irq-mutations "$ver_dir/array/check_timed_interrupt.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
     run_checker emu "$ver_dir/emu/check.py"

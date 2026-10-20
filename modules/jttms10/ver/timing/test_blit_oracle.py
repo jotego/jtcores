@@ -25,7 +25,8 @@ class BlitOracleTest(unittest.TestCase):
         for mode, extra in (('bl',0),('bxy',2)):
             for size,words,rows,source_words,states in ((16,1,1,1,14),
                     (16,2,1,1,16),(4,3,2,1,29),(1,1,1,1,14),
-                    (1,2,1,2,18),(2,4,2,2,37)):
+                    (1,2,1,2,18),(2,4,2,2,37),(4,8,2,2,53),
+                    (8,16,2,2,85),(16,32,1,2,78)):
                 row=blit_timing(mode,size,words,rows)
                 self.assertEqual(row['source_words_per_row'],source_words)
                 self.assertEqual(row['states'],states+extra)

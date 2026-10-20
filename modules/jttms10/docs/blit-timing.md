@@ -2,8 +2,9 @@
 
 All six PIXBLT encodings have independent timing probes. Aligned opaque regular
 copies now have a native word schedule validated on DataStorm and Verilator.
-Aligned opaque binary expansion now also has a native short-row schedule,
-with focused Verilator validation. Its new physical image remains pending.
+Aligned opaque binary expansion also has a native short-row schedule,
+validated on DataStorm. Native interrupt continuation and 20 additional wide
+row fixtures now pass local Verilator checks; their new FPGA image is pending.
 Full timing compliance and condition coverage remain open.
 
 The authority is TI's June 1988 SPVU001A [TMS34010 User's Guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf).
@@ -195,9 +196,76 @@ original Verilator and every full raw verdict independently replays exactly.
 Enclosing command walls are 305.33/311.54/323.21 s. The Rapid image has positive
 final STA; the separate full attempt failed one HPS setup path and was rejected.
 See [image identity, build costs and phase measurements](../ver/fpga/README.md).
-Native binary mid-instruction
-IRQ/NMI checkpoints and context resumption remain unimplemented; no interrupt
-timing or full condition-compliance claim is made for this path.
+That historical image predates the native IRQ/NMI continuation below.
+
+## Native binary interrupt continuation
+
+TI SPVU001A pp.7-8/9 and 12-175/176/180/182 require word/row checkpoints,
+PBX context preservation and RETI continuation. The native path now cancels
+an unaccepted next-word write or next-row read when an interrupt is pending,
+then drains the preceding physical field before taking the interrupt. A posted
+operation accepted during a CEN pause must finish. Normal uninterrupted words
+retain the existing two-state schedule; there is no unconditional drain added
+to each word. S49 snapshots the bitmap before speculative next-word expansion
+so cancellation cannot discard unconsumed source bits.
+
+The ISR-visible B0 points to the next 32-pixel source group, or the next row
+at a row boundary; B2 points to the next destination word/row. TI reserves
+B10..B14 for graphics continuation, but does not specify their bit layout.
+This implementation's private native frame is:
+
+| Register | Project restart value |
+| --- | --- |
+| B10 | Original width in the high half; original opcode with bit 0 set in the low half |
+| B11 | Rows after the current row in the high half; remaining pixels in the low half |
+| B12 | Unconsumed bitmap |
+| B13/B14 | Next source/destination row bases |
+
+The tag distinguishes this frame from generic binary continuation. RETI
+restores the shared synchronous RF and ALU state, clears the private opcode
+tag, restores the native word/final-row flags and starts a fresh timing budget.
+An ISR may use graphics when it preserves B0..B14. No extra RF bank or DSP is
+added; the graphics ROM remains 4096x64. This private frame is not a claim to
+match undocumented TI intermediate register values.
+
+`ver/array/timed_interrupt.sv` uses the real TIMED_PROGRAM=1 word adapter and
+TIMING=1 bus, independent bitmap/color values and literal physical addresses.
+The standard `binaryirq-timed` sweep passes 1,640 mode executions over PS1/2/4/8/16,
+DX16/32, B,L/B,XY, first-word/row/penultimate/final-word interrupts, waits0/1,
+and CEN pauses0/7/31. It checks IRQ, stacked NMI, no-stack NMI abandonment,
+NMI+HLT, nested FILL under MMTM/MMFM, PBX/PC/ST, defined pointers/colors,
+source/canary preservation, exact source and destination traffic, one original
+opcode fetch and physical-field drain. It asserts that pauses actually cover
+posted acceptance and, at 31 clocks, a pending IRQ with an accepted response.
+This proves checkpoint/event ordering and architecture, not silicon interrupt
+entry latency or instruction duration across an ISR.
+
+Twenty added DX32 fixtures exercise N8/N16/N32 at PS4/8/16 through the unchanged
+TI timing equation and Python pixel oracle. N8/N16 include one and two rows;
+N32 uses one row to fit the bounded FPGA memory inventory. All 141,952 preceding
+fixture/program contracts are unchanged. Inventory is 141,972, with 184 binary
+and 360 regular fixtures. All 162 focused/geometry/wide observations pass base,
+W1/P7 and W3 Verilator. The wider two-row N32 case is covered architecturally
+by the interrupt bench, with its larger memory, rather than the ordinary runner.
+
+The permanent mutation checks reject a missed word checkpoint, cancellation
+of an already accepted write and lost timing state on resume. Separate timing
+mutations add one native source-processing state: both cases must fail timing
+with correct architecture and final memory. These checks change temporary RTL
+copies, preserving the independent oracle.
+
+```sh
+bash modules/jttms10/ver/sim.sh binaryirq-timed
+python3 modules/jttms10/ver/array/check_timed_interrupt.py --report irq-mutations.json
+python3 modules/jttms10/ver/timing/mutations.py --group binary --report binary-mutations.json
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case blit_bl_ps16_n32_rows1_hit --report wide-reference.json
+```
+
+The current FPGA V3 runner cannot inject IRQ/NMI/HOLD. A new FPGA image and
+ordinary matrices can validate the new RTL's uninterrupted timing and results;
+they cannot establish physical interrupt continuation. That stimulus path,
+silicon interrupt latency and full condition compliance remain open.
 
 Run the complete regular domain through the ordinary FPGA fixture builder:
 
@@ -207,10 +275,10 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare --protocol-version 3 \
     --output regular-manifest.json
 ```
 
-The ordinary `--matrix` inventory includes all 164 binary cases; the current
-passing full manifests have no exclusions. The historical failing commands
+The ordinary `--matrix` inventory includes all 184 binary cases; the historical
+passing 141,952-case full manifests have no exclusions. The historical failing commands
 remain preserved. This is not full instruction timing compliance.
 Programs, expected results and supported wait/pause settings change without
-another FPGA compilation. Native IRQ/HOLD and broader graphics conditions
+another FPGA compilation. Physical IRQ/HOLD and broader graphics conditions
 remain unvalidated. The old cached-MOVB receipt and failing-baseline evidence
 retain their original identities.

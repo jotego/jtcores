@@ -121,7 +121,8 @@ module jttms10_ctrl(
         (gfx_pbx_ir==16'h0fc0 || gfx_pbx_ir==16'h0fe0 ||
          gfx_pbx_ir==16'h0f00 || gfx_pbx_ir==16'h0f80 ||
          gfx_pbx_ir==16'h0f20 || gfx_pbx_ir==16'h0f40 ||
-         gfx_pbx_ir==16'h0f60 || gfx_pbx_ir==16'h0fa0);
+         gfx_pbx_ir==16'h0f60 || gfx_pbx_ir==16'h0fa0 ||
+         gfx_pbx_ir==16'h0f81 || gfx_pbx_ir==16'h0fa1);
     assign gfx_take=hw_take && gfx_active;
     assign push_entry = execute && jsr_en && jsr_sel==PUSH32_JSR;
     assign push_active = uaddr[11:4]==PUSH32_SEQA[11:4];

@@ -320,16 +320,31 @@ def movb_mutations(work,evidence):
         evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
 
 
+def binary_blit_mutations(work,evidence):
+    # Wrong machine-state work must fail with architectural state, memory
+    # and the following instruction still correct. Include the widest row.
+    for probe in ('blit_bl_ps16_n32_rows1_hit','blit_bxy_ps4_n8_rows2_off'):
+        name='long_binary_work_'+probe
+        extra=['--wait-states','1','--pause-clocks','7']
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name
+        shutil.copytree(MODULE/'hdl',mutant)
+        replace_once(mutant/'jttms10.v',"gfx_bus_read ? 16'd5 : 16'd2",
+                     "gfx_bus_read ? 16'd6 : 16'd2")
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],mutated=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--report',type=Path)
-    parser.add_argument('--group',choices=('all','line','movb'),default='all',
+    parser.add_argument('--group',choices=('all','line','movb','binary'),default='all',
                         help='run all mutations or a focused native instruction group')
     args = parser.parse_args()
     evidence = {}
-    if args.group in ('line','movb'):
+    if args.group in ('line','movb','binary'):
         with tempfile.TemporaryDirectory(prefix='jttms10-'+args.group+'-mutations-') as temp:
-            (line_mutations if args.group=='line' else movb_mutations)(Path(temp),evidence)
+            dict(line=line_mutations,movb=movb_mutations,
+                 binary=binary_blit_mutations)[args.group](Path(temp),evidence)
         if args.report:
             args.report.parent.mkdir(parents=True,exist_ok=True)
             args.report.write_text(json.dumps(evidence,indent=2)+'\n')
@@ -825,6 +840,7 @@ def main():
         fill_mutations(work,evidence)
         line_mutations(work,evidence)
         movb_mutations(work,evidence)
+        binary_blit_mutations(work,evidence)
         posted_load_slot_mutations(work,evidence)
     if args.report:
         args.report.parent.mkdir(parents=True,exist_ok=True)

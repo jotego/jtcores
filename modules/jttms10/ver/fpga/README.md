@@ -65,7 +65,11 @@ separate from CPU <=3500 ALMs and NARC/MiSTer acceptance. RBF transfer took 1.32
 1.394727 s for SSH with the image staged (1.50 s outer).
 
 Long supported matrices run on DataStorm; short Verilator runs debug changes.
-Native binary IRQ/NMI checkpoints/context, FPGA HOLD/IRQ schedules, broader
+Native binary IRQ/NMI checkpoints/context now pass local timed-word Verilator
+checks described in [PIXBLT timing](../../docs/blit-timing.md). The loaded image
+above predates those edits. Twenty additional wide-row fixtures also pass local
+timing checks; their new image and physical regression remain pending.
+FPGA HOLD/IRQ schedules, broader
 conditions, remaining MOVB targets, clean/CI and final game validation remain
 open. Probe presence and this passing matrix do not establish full #144
 instruction timing compliance.

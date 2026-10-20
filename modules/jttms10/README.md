@@ -14,8 +14,10 @@ under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
 The standard runner includes an [independent PIXBLT timing suite](docs/blit-timing.md)
 for all six encodings, partial [FILL timing coverage](docs/fill-timing.md),
 [bounded LINE timing coverage](docs/line-timing.md), and unresolved MOVB targets.
-Probe presence reaches 133/133 forms. PIXBLT has 524 fixtures: the published
-464-case failing baseline plus 60 nonzero-coordinate/offset/pitch probes.
+Probe presence reaches 133/133 forms. PIXBLT has 544 fixtures: the published
+464-case failing baseline, 60 nonzero-coordinate/offset/pitch probes and
+20 wider binary-row probes. The last 20 pass short Verilator checks in three
+profiles; their FPGA validation is pending.
 Aligned opaque regular PIXBLT uses a native word schedule: all 360 fixtures pass
 on DataStorm in base/W1-P7/W3, and 84 focused observations match Verilator.
 Aligned opaque binary PIXBLT now has a native word schedule for rows of at
@@ -158,8 +160,9 @@ FILL L/XY and all six PIXBLT forms run in the graphics ROM and have tests for
 row pitch, direction, windows, overlap, binary expansion and completion
 pointers; see [array ISA notes](docs/array-isa.md). Generic binary transfers fetch
 32-bit source chunks and save cached bits for PBX continuation. The timed
-aligned short-row path uses one or two 16-bit reads; its native IRQ/NMI
-continuation remains unimplemented.
+aligned short-row path uses one or two 16-bit reads. Its native IRQ/NMI
+continuation passes a physical-word Verilator sweep with nested ISR graphics,
+waits and CEN pauses; physical FPGA interrupt injection remains unvalidated.
 [LINE](docs/line-isa.md) shares the pixel/window/ALU paths and has independent
 octant/tie/window cases plus a PC-rewind interrupt test. Array and LINE
 continuation benches nest ISR graphics under MMTM/MMFM and compare resumed

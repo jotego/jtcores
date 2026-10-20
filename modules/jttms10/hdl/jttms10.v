@@ -55,7 +55,7 @@ module jttms10 #(
          gfx_dst_ea,gfx_dst_tmp,gfx_dst_rf,gfx_dst_ir,gfx_mdrf;
     wire gfx_bus_read,gfx_bus_write,gfx_bus_pixel,gfx_bus_sync,gfx_bus_post,gfx_bus_skip,gfx_bus_collect,gfx_bus_row;
     wire gfx_pix_source,gfx_pix_visible,gfx_pix_process,gfx_pix_test,gfx_pix_word,gfx_pix_binary;
-    wire gfx_bus_second,gfx_bus_pitch;
+    wire gfx_bus_second,gfx_bus_pitch,gfx_bus_resume;
     reg binary_aligned, binary_last_row;
     wire [15:0] binary_mask;
     wire gfx_product,gfx_product_y,gfx_packed_xy,gfx_alu_capture;
@@ -611,6 +611,7 @@ module jttms10 #(
         .control(control), .last_pixel_addr(ea),
         .alu_n(n), .alu_z(z), .alu_v(v),.alu_result(result),
         .need_dest(gfx_need_dest), .word_fill(fill_word), .word_copy(copy_regular_native),.word_binary(binary_native),.native_line(line_native),
+        .bus_accepted(completed),
         .irq_pending(nmi_req || (irq_req && st[21])), .transparent(pix_transparent),
         .active(gfx_active), .checkpoint(gfx_checkpoint),
         .done(gfx_done), .end_pending(gfx_end_pending),
@@ -623,7 +624,7 @@ module jttms10 #(
         .md_to_rf(gfx_mdrf),
         .bus_read(gfx_bus_read), .bus_write(gfx_bus_write),
         .bus_pixel(gfx_bus_pixel), .bus_size(gfx_bus_size), .bus_sync(gfx_bus_sync),.bus_post(gfx_bus_post),.bus_skip(gfx_bus_skip),.bus_collect(gfx_bus_collect),.bus_row(gfx_bus_row),
-        .bus_second(gfx_bus_second),.bus_pitch(gfx_bus_pitch),
+        .bus_second(gfx_bus_second),.bus_pitch(gfx_bus_pitch),.bus_resume(gfx_bus_resume),
         .pix_source(gfx_pix_source), .pix_visible(gfx_pix_visible),
         .pix_process(gfx_pix_process), .pix_test(gfx_pix_test), .pix_word(gfx_pix_word),.pix_binary(gfx_pix_binary),
         .product(gfx_product), .product_y(gfx_product_y), .packed_xy(gfx_packed_xy),.alu_capture(gfx_alu_capture),
@@ -935,6 +936,14 @@ module jttms10 #(
                 time_left<=time_left+(copy_row_short ? 2*CLKS_PER_STATE[15:0] : 16'd0)+
                     (rs_data==32'd1 ? 5*CLKS_PER_STATE[15:0] : 16'd0)-16'd1;
             if(binary_native && gfx_bus_row && step) binary_last_row<=rs_data==32'd1;
+            if(step && gfx_bus_resume) begin
+                binary_last_row<=rs_data==0;
+                timing_active<=1;
+                time_left<=0;
+                load_issue_left<=0;
+                store_started<=1;
+                copy_read_pending<=0;
+            end
             if(step && ni) timing_active<=0;
             if(step && ld_ir) begin
                 timing_active<=decode_timed || decode_native_line || decode_native_copy;
@@ -1069,7 +1078,9 @@ module jttms10 #(
                     if(fetch && decode_cpw) begin a<=rs_data; b<=rd_data; end
                     if(fetch && decode_stack_push) begin a<=32'd32; b<=rd_data; end
                 end
-                if(gfx_active && gfx_dst_ir) ir<=result[15:0];
+                // B10 bit 0 tags the native binary restart frame. Array
+                // opcodes have this bit clear; it is not an opcode bit.
+                if(gfx_active && gfx_dst_ir) ir<={result[15:1],1'b0};
                 if(shiftkinit || shiftrinit) begin
                     shift_zero<=shift_raw==0;
                     tmp<=shift_factor;
@@ -1281,6 +1292,7 @@ module jttms10 #(
                     if(gfx_dst_ea) ea<=result;
                     if(gfx_dst_tmp) tmp<=result;
                     if(gfx_bus_pitch) binary_aligned<=binary_aligned && rs_data[3:0]==0;
+                    if(gfx_bus_resume) fill_word<=1;
                     if(gfx_pix_binary) md<={16'd0,(a[15:0] & ~binary_mask) | (b[15:0] & binary_mask)};
                     if(gfx_pix_word) begin
                         fill_word<=fill_word_eligible;

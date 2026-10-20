@@ -12,8 +12,8 @@ from run import program, check, check_observation
 class BlitCasesTest(unittest.TestCase):
     def test_complete_encoding_inventory_and_programs(self):
         rows=list(blit_cases())
-        self.assertEqual(len(rows),524)
-        self.assertEqual(len({r['name'] for r in rows}),524)
+        self.assertEqual(len(rows),544)
+        self.assertEqual(len({r['name'] for r in rows}),544)
         self.assertEqual({r['coverage_id'] for r in rows},
                          {'PIXBLT_'+m.upper() for m in MODES})
         for row in rows:
@@ -100,6 +100,23 @@ class BlitCasesTest(unittest.TestCase):
             memory=dict(fixture(mode,4,4,2,False,offset_geometry=True)['expected_memory'])
             self.assertEqual([memory[0x5230+16*q] for q in range(4)],
                              [0x2CE8,0xAC61,0x2C68,0xA468])
+
+    def test_full_bitmap_wide_destination_rows(self):
+        for mode in ('bl','bxy'):
+            for size,words,rows,states in ((4,8,2,53),(8,16,2,85),(16,32,1,78)):
+                row=fixture(mode,size,words,rows,False)
+                self.assertEqual(row['conditions']['width'],32)
+                self.assertEqual(row['states'],states+2*(mode=='bxy'))
+                self.assertEqual(row['blit_timing']['source_words_per_row'],2)
+                self.assertEqual(len(transfers(row)),rows*(words+2))
+                self.assertLessEqual(len(row['initial_memory']),64)
+                # First-row source words are 84D6/B243: both its lowest
+                # and highest two bitmap bits select COLOR0 then COLOR1.
+                # At PS16 each pixel is a complete color word.
+                if size==16:
+                    after=dict(row['expected_memory'])
+                    self.assertEqual([after[0x6000+16*q] for q in (0,1,30,31)],
+                                     [0x2468,0xACE1,0x2468,0xACE1])
 
     def test_word_sequence_and_compensated_row_delay_rejected(self):
         row=fixture('ll',16,1,2,False)

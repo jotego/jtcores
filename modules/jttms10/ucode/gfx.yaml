@@ -9,6 +9,15 @@ config:
 include:
 - gfx_line.yaml
 constants:
+  TARGET_GBINCHECKWRITE: t6 t8 t9 t10 t11
+  TARGET_GBINABORT: t4 t6 t8 t9 t10 t11
+  TARGET_GBINROWREAD: t5 t6 t8 t9 t10 t11
+  TARGET_GCTXBINWORD: t5 t6 t7 t9 t10 t11
+  TARGET_GCTXBINROW: t4 t5 t6 t7 t9 t10 t11
+  TARGET_GCTXBINCOMMON: t8 t9 t10 t11
+  TARGET_GCTXBINTAIL: t4 t8 t9 t10 t11
+  TARGET_GBINREBASE: t5 t8 t9 t10 t11
+  TARGET_GBINRESUME: t4 t5 t8 t9 t10 t11
   TARGET_GBINFASTLIN: t4 t5 t6 t9 t10 t11
   TARGET_GBINFASTXY: t7 t9 t10 t11
   TARGET_GBINREAD: t4 t7 t9 t10 t11
@@ -1041,7 +1050,7 @@ ucode:
   - qs_gas, sa1 sa4, da1 da4
   - rf_gdst, sa1 sa4, da0 da1 da5
   - fill_gcond, jump_gflow, ${TARGET_GREBASEFILL}
-  - binary_gcond, jump_gflow, ${TARGET_GBINLOOP}
+  - binary_gcond, jump_gflow, ${TARGET_GBINREBASE}
   - jump_gflow, ${TARGET_GREBASEHEIGHT}
 - name: grebasefill
   start: 146
@@ -1987,20 +1996,100 @@ ucode:
 - name: gbinwrite
   start: 236
   seq:
-  - postpx_gbus, stride_gpix, subnow_galu, qd_gbs, rf_gdst, lastword_gcond, jump_gflow, ${TARGET_GBINROW}, sa0 sa1 sa5, da0 da2 da3 da5 # write S35; decrement S45 and branch on its old last-word count
-  - addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa3 sa4, da0 da1 da5 # S35 += 16
-  - sa3 sa4, da0 da3 da4 # prime COLOR0/1
-  - qs_gas, qd_gbs, sa4 sa5, da4 da5
-  - qs_gas, yproduct_gmath, binary_gpix, rf_gdst, wprev, sa0 sa1 sa5, da0 da2 da3 da5
-  - jump_gflow, ${TARGET_GBINWRITE}, sa0 sa1 sa5, da0 da2 da3 da5
+  - postpx_gbus, stride_gpix, subnow_galu, qd_gbs, rf_gdst, lastword_gcond, jump_gflow, ${TARGET_GBINROW}, sa0 sa1 sa5, da0 da2 da3 da5
+  - addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa3 sa4, da0 da1 da5
+  - sa3 sa4, da0 da3 da4
+  - qs_gas, qd_gbs, sa4 sa5, da0 da4 da5
+  - passnow_galu, qs_gas, rf_gdst, wprev, sa4 sa5, da4 da5 # S49 snapshots the bitmap before preparing the next word
+  - qs_gas, yproduct_gmath, binary_gpix, rf_gdst, wprev, jump_gflow, ${TARGET_GBINCHECKWRITE}, sa0 sa1 sa5, da0 da2 da3 da5
 - name: gbinrow
   start: 237
   seq:
   - sa1 sa2 sa3 sa5, da1 da5 # prime remaining height
   - passnow_galu, qs_gas, z_gcond, jump_gflow, ${TARGET_GBLTWORDDONE}, sa0 sa5, da0 da1 da5
   - passnow_galu, qs_gas, rf_gdst, sa2 sa3 sa5, da0 da1 da5 # S35=next destination row
-  - passnow_galu, qs_gas, rf_gdst, sa5, da0 da2 da3 da5 # S45=original width; prime S32
-  - jump_gflow, ${TARGET_GBINREAD}, sa5, da2 da3 da5
+  - passnow_galu, qs_gas, rf_gdst, irq_gcond, jump_gflow, ${TARGET_GCTXBINROW}, sa5, da0 da2 da3 da5 # S45=original width; prime S32
+  - jump_gflow, ${TARGET_GBINROWREAD}, sa5, da2 da3 da5
+# Native binary PBX frame: B10=width:(opcode|1), B11=rows-after-current:remaining-width,
+# B12=bitmap, B13/B14=next row bases. The public B0/B2 meanings follow TI.
+- name: gctxbinword
+  start: 238
+  seq:
+  - sync_gbus, sa5, da0 da4
+  - qd_gas, qs_gbs, sa5, da0 da4
+  - sub_galu, a_gdst, sa5, da0 da4 # current source row = next row - SPTCH
+  - k_gbs, m3_gbm, sa5, da0 da4
+  - add_galu, rf_gdst, sa0 sa1 sa5, da4 # publish next 32-bit source group in B0
+  - jump_gflow, ${TARGET_GCTXBINCOMMON}, sa0 sa1 sa5, da1 da4
+- name: gctxbinrow
+  start: 239
+  seq:
+  - sync_gbus, sa5, da4
+  - passnow_galu, qs_gas, rf_gdst, sa0 sa1 sa5, da4 # B0 is the next row, not a padded source chunk
+  - jump_gflow, ${TARGET_GCTXBINCOMMON}, sa0 sa1 sa5, da1 da4
+- name: gctxbincommon
+  start: 240
+  seq:
+  - passnow_galu, qs_gas, rf_gdst, sa2 sa3 sa5, da1 da4 # B2 = next destination word/row
+  - k_gas, m7_gam, k_gbs, m1_gbm, sa2 sa3 sa5, da1 da4
+  - or_galu, a_gdst, sa2 sa3 sa5, da1 da4 # reserve B10 bit 0 as native binary restart tag
+  - qs_gbs, m6_gbm, sa1 sa2 sa3 sa5, da1 da4
+  - or_galu, rf_gdst, sa1 sa2 sa3 sa5, da1 da3 da4 # B10 = width:tagged opcode
+  - sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - qs_gas, m6_gam, qd_gbs, m2_gbm, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - or_galu, rf_gdst, sa4 sa5, da0 da1 da3 da4 # B11 = remaining rows after this row:remaining pixels
+  - jump_gflow, ${TARGET_GCTXBINTAIL}, sa4 sa5, da2 da3 da4
+- name: gctxbintail
+  start: 241
+  seq:
+  - passnow_galu, qs_gas, rf_gdst, sa5, da2 da3 da4 # B12 = unconsumed source bitmap
+  - passnow_galu, qs_gas, rf_gdst, sa0 sa5, da0 da2 da3 da4 # B13 = next source row
+  - passnow_galu, qs_gas, rf_gdst, sa1 sa2 sa3 sa5, da1 da2 da3 da4 # B14 = next destination row
+  - check_gflow, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GBINRESUME}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+- name: gbinrebase
+  start: 242
+  seq:
+  - sa1 sa3 sa4, da1 da3 da4
+  - qs_gas, k_gbs, m1_gbm, sa1 sa3 sa4, da1 da3 da4
+  - and_galu, nz_gcond, jump_gflow, ${TARGET_GBINRESUME}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - jump_gflow, ${TARGET_GBINLOOP}
+- name: gbinresume
+  start: 243
+  seq:
+  - sa1 sa2 sa3 sa5, da0 da2 da3 da5
+  - resume_gbus, sa2 sa3 sa5, da0 da2 da3 da5 # recover final-row flag and discard ISR timing budget
+  - qs_gas, qd_gbs, sa2 sa3 sa5, da0 da2 da3 da5
+  - sub_galu, z_gcond, jump_gflow, ${TARGET_GBINREAD}, sa5, da2 da3 da5 # unchanged width means a fresh row
+  - jump_gflow, ${TARGET_GBINEMIT}, sa3 sa4, da0 da3 da4
+- name: gbincheckwrite
+  start: 244
+  seq:
+  - postcheck_gbus, stride_gpix, subnow_galu, qd_gbs, rf_gdst, lastword_gcond, jump_gflow, ${TARGET_GBINROW}, sa0 sa1 sa5, da0 da2 da3 da5
+  - addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa3 sa4, da0 da1 da5
+  - sa3 sa4, da0 da3 da4
+  - qs_gas, qd_gbs, sa4 sa5, da0 da4 da5
+  - passnow_galu, qs_gas, rf_gdst, wprev, sa4 sa5, da4 da5 # S49 snapshots the bitmap before preparing the next word
+  - qs_gas, yproduct_gmath, binary_gpix, rf_gdst, wprev, jump_gflow, ${TARGET_GBINCHECKWRITE}, sa0 sa1 sa5, da0 da2 da3 da5
+- name: gbinabort
+  start: 245
+  seq:
+  - sa0 sa4 sa5, da4 da5
+  - passnow_galu, qs_gas, rf_gdst, sa5, da4 da5 # restore S48 from the speculative expansion snapshot in S49
+  - jump_gflow, ${TARGET_GCTXBINWORD}, sa5, da0 da4
+- name: gbinrowread
+  start: 246
+  seq:
+  - postrow_gbus, half_gsize, addnow_galu, qs_gas, k_gbs, m2_gbm, rf_gdst, sa5, da1 da5 # read S34 and advance its next source word
+  - sa5, da0 da4
+  - addnow_galu, qs_gas, qd_gbs, a_gdst, sa0 sa5, da0 da1 da4 # next source row
+  - rf_gdst, qs_gas, qd_gbs, sa1 sa2 sa3 sa5, da5 # S32=next source row; A/B=current destination/pitch
+  - add_galu, rf_gdst, sa1 sa2 sa3 sa5, da0 da5 # S33=next destination row
+  - row_gbus, subnow_galu, k_gas, m1_gam, qs_gbs, rf_gdst, sa2 sa3 sa5, da1 da2 da3 da5 # --height; latch final row
+  - second_gcond, jump_gflow, ${TARGET_GBINSECOND}, sa1 sa5, da4 da5 # read exactly ceil(DX/16) source words
+  - collect_gbus, sa1 sa5, da4 da5
+  - mdrf, sa1 sa5, da4 da5 # S48=first source bits
+  - jump_gflow, ${TARGET_GBINEMIT}, sa3 sa4, da0 da3 da4
 - name: gschema0
   start: 126
   seq:
