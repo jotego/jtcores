@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Check FILL fixture/checker contracts without executing RTL."""
 import unittest
-from fill_cases import fixture, fill_cases, check_bus, transfers
+from fill_cases import fixture, partial_fixture, fill_cases, check_bus, transfers
 from run import check, program
 
 
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 2240)
-        self.assertEqual(len({r['name'] for r in cases}), 2240)
+        self.assertEqual(len(cases), 2380)
+        self.assertEqual(len({r['name'] for r in cases}), 2380)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
@@ -107,6 +107,45 @@ class FillCasesTest(unittest.TestCase):
         self.assertTrue(check_bus(row,dict(start=0,end=110),bus,0))
         bad=list(target);bad[0]='TARGET_BEGIN 39 1 00006100 aa55 0';bad[1]='TARGET_END 43 1 00006100 aaaa'
         self.assertTrue(check_bus(row,observed,bad+bus,0,raw=True))
+
+    def test_partial_literal_counts_and_edge_memory(self):
+        # Table13-6 B/C/D, G2, L1, plus linear setup4. N3 B has
+        # the printed five-state tail; C/D have different row overhead.
+        for words,alignment,states in ((1,'B',10),(1,'C',9),(1,'D',9),
+                (2,'B',13),(2,'C',13),(2,'D',13),
+                (3,'B',17),(3,'C',15),(3,'D',15)):
+            for xy,off in ((False,False),(False,True),(True,False),(True,True)):
+                case=partial_fixture(4,words,alignment,xy,off)
+                self.assertEqual(case['states'],states+2*xy+3*off)
+                code,pc,nxt=program(case)
+                self.assertEqual(code[(pc-0x1000)//16],0x0FE0 if xy else 0x0FC0)
+                self.assertEqual(nxt,pc+16)
+        for alignment,expected in (
+                ('B',[(1,0x6100,0xAA55,0),(0,0x6110,0x55AA,0),(1,0x6110,0x5A55,0)]),
+                ('C',[(0,0x6100,0x55AA,0),(1,0x6100,0xAA5A,0),(1,0x6110,0xAA55,0)]),
+                ('D',[(0,0x6100,0x55AA,0),(1,0x6100,0xAA5A,0),
+                      (0,0x6110,0x55AA,0),(1,0x6110,0x5A55,0)])):
+            case=partial_fixture(4,2,alignment,False,False)
+            self.assertEqual(transfers(case),expected)
+            before,after=map(dict,(case['initial_memory'],case['expected_memory']))
+            for address in (0x60F0,0x6120):
+                self.assertEqual(after[address],before[address])
+        short=partial_fixture(4,1,'D',False,False)
+        self.assertEqual(transfers(short),[(0,0x6100,0x55AA,0),(1,0x6100,0x5A5A,0)])
+        with self.assertRaises(ValueError):
+            partial_fixture(8,1,'D',False,False)
+
+    def test_partial_bus_rejects_lost_edges_and_extra_pixel_transfers(self):
+        case=partial_fixture(4,1,'D',False,False)
+        observed=dict(start=0,end=72)
+        bus=['BUS_BEGIN 24 0 00006100 0000 0','BUS_END 40 0 00006100 55aa',
+             'BUS_BEGIN 40 1 00006100 5a5a 0','BUS_END 56 1 00006100 55aa']
+        self.assertEqual(check_bus(case,observed,bus,0),[])
+        bad=list(bus);bad[2]='BUS_BEGIN 40 1 00006100 aa55 0'
+        self.assertTrue(check_bus(case,observed,bad,0))
+        bad=list(bus);bad[1]='BUS_END 40 0 00006100 55ab'
+        self.assertTrue(check_bus(case,observed,bad,0))
+        self.assertTrue(check_bus(case,observed,bus+bus,0))
 
 
 if __name__ == '__main__':

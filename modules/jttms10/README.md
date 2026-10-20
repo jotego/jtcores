@@ -28,7 +28,12 @@ passes all 141,952 fixtures /133 forms in each base/W1-P7/W3, including every
 binary and regular fixture, with every raw verdict independently replayed.
 Aligned replace-only W0 FILL has 2,240 passing hit/CD timing cases
 (260 linear and 1,980 XY). Other processing/window/mask/edge conditions
-still require timing implementation. The preceding validated 127-form fixture inventory includes
+still require timing implementation.
+The [partial-word FILL baseline](docs/fill-timing.md#partial-word-edge-timing-baseline)
+adds 140 one-row B/C/D edge probes. Ten CPU77 Verilator representatives fail
+timing while preserving checked architecture and memory. The full new FPGA
+matrix is pending; the earlier aligned FILL passing scope remains distinct.
+The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with
 [hidden-write/dependency checks](docs/store-timing.md), scalar coordinate and

@@ -425,3 +425,49 @@ aligned full-word replacement. Partial edges, other processing/mask/window
 rules, exact first-write/IRQ/HOLD timing and final physical/game acceptance
 remain open. Inventory is 140,610 fixtures across 126/133 forms; seven forms
 still have no timing probes.
+
+## Partial-word edge timing baseline
+
+`fill_partial_` adds 140 independent probes for one-row, replace-only FILL
+L/XY with B/C/D alignment, one/two/three affected words, PS1/2/4/8 and
+resident/disabled cache. PS8 cannot have a nonempty type-D span contained
+inside one word, so that geometry is excluded. Every preceding 2,240 aligned
+fixture and generated program remains unchanged, including order.
+
+Counts come from the existing Table13-5/6/7 model with no plane mask,
+transparency or clipping. Table13-6 gives linear single-row B/C/D counts
+10/9/9 states for N1, 13/13/13 for N2, and 17/15/15 for N3; XY adds two
+setup states and disabled cache adds three. The N3 B five-state tail is
+preserved. Section13.3.2.3 requires one write or read-modify-write for the
+single-word row; §13.3.2.4 requires increasing word order. The bus plan reads
+each partial edge once, writes each affected word once, and transfers center
+words as complete 16-bit words. There is no new exact first-write or edge
+phase assumption. Existing aligned row/word cadence assertions remain active.
+
+COLOR1 is a 16-bit pattern, as specified on p.12-80. The memory golden inserts
+its bits at matching physical word lanes and preserves every bit outside the
+rectangle. Initial affected words contain the inverse pattern, so overwriting
+an untouched edge changes a checked bit. Both neighboring words, all defined
+GPRs and full ST remain checked; reserved B10..B14 values remain unspecified.
+
+Ten representative Verilator probes on unchanged CPU77 all fail duration;
+eight also reject extra per-pixel BUS/TARGET transactions. All ten preserve
+the checked architecture and memory. For example, linear PS4/N1/D expects
+72 INCLK and observes 216, with two required transfers versus four observed.
+The full new matrix and stressed profiles still require physical validation.
+These are permanent failing regressions, not a partial-word compliance claim.
+
+```sh
+source setprj.sh
+python3 -B modules/jttms10/ver/timing/test_fill_cases.py
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --case fill_partial_ --report /tmp/fill-partial.json
+python3 modules/jttms10/ver/fpga/check_results.py prepare \
+    --protocol-version 5 --case fill_partial_ --output /tmp/fill-partial-manifest.json
+```
+
+The timing command must return nonzero while these mismatches remain. The
+standard runner already includes the fixture tests and all generated cases;
+there is no failure allowlist or change to the independent timing equations.
+Plane mask, transparency, Boolean/arithmetic processing, multiple partial rows,
+window preclipping and partial-edge interrupt timing remain separate work.
