@@ -12,11 +12,17 @@ from pathlib import Path
 _irq_spec = importlib.util.spec_from_file_location('jttms10_irq_contract', Path(__file__).with_name('irq_contract.py'))
 _irq_contract = importlib.util.module_from_spec(_irq_spec)
 _irq_spec.loader.exec_module(_irq_contract)
+_nostack_spec = importlib.util.spec_from_file_location('jttms10_nostack_contract', Path(__file__).with_name('nmi_nostack_contract.py'))
+_nostack_contract = importlib.util.module_from_spec(_nostack_spec)
+_nostack_spec.loader.exec_module(_nostack_contract)
 
 
 def expected_pause(entry):
     contract = entry.get('external_contract')
     if contract is None:
+        return 0
+    if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack':
+        _nostack_contract.validate(entry)
         return 0
     if isinstance(contract, dict) and contract.get('kind') in (
             'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase'):
@@ -39,6 +45,8 @@ def expected_pause(entry):
 
 def check_followup(entry, observed, lines):
     contract = entry.get('external_contract')
+    if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack':
+        return _nostack_contract.check(entry, observed, lines)
     if isinstance(contract, dict) and contract.get('kind') in (
             'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase'):
         return _irq_contract.check(entry, observed, lines)

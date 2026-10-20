@@ -227,9 +227,15 @@ backends, as do48 aligned warm phase probes. Six actual entry/timing mutations
 include an early-recognition bypass. Six additional host integration controls
 and three actual RTL mutants check IRQ/NMI priority, simultaneous HLT, an already
 halted CPU, repeated requests, host-visible NMI-bit clear, CEN pauses and RETI.
-Fit/STA/FPGA validation is pending. These bounded results do not establish
-NMIM=1 timing, electrical host-pin phases, general graphics interruption or full
-instruction-timing compliance. See [reproduction](../ver/fpga/README.md#stacked-nmi-recognition-and-retained-baseline).
+Fit/STA/FPGA validation of the recognition RTL is pending.
+
+The separate [NMIM=1 runtime contract](../ver/fpga/README.md#no-stack-nmi-runtime-fixtures)
+uses guard memory and register-only handler entry/exit to check context discard
+without a stack save or RETI. It covers the declared recognition guard and
+first-handler duration, while retaining the total context duration as an
+observed quantity: TI's Table8-4 has no separate no-stack count.
+Electrical host-pin phases, general graphics interruption and full
+instruction-timing compliance remain open. See [reproduction](../ver/fpga/README.md#stacked-nmi-recognition-and-retained-baseline).
 
 ## Unaligned scalar context contract
 

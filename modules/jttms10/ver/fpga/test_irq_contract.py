@@ -198,11 +198,17 @@ class InterruptContract(unittest.TestCase):
             (root/'irq_contract.py').write_text(
                 'def validate(entry):\n    assert entry["selected"] == 123\n'
                 'def check(entry, observed, lines):\n    return [], {"selected": entry["selected"]}\n')
+            (root/'nmi_nostack_contract.py').write_text(
+                'def validate(entry):\n    assert entry["selected"] == 456\n'
+                'def check(entry, observed, lines):\n    return [], {"selected_nostack": entry["selected"]}\n')
             spec = importlib.util.spec_from_file_location('selected_event_contract', root/'event_contract.py')
             module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
             entry = dict(external_contract=dict(kind='scalar_irq'), selected=123)
             self.assertEqual(module.expected_pause(entry), 0)
             self.assertEqual(module.check_followup(entry, {}, []), ([], dict(selected=123)))
+            entry = dict(external_contract=dict(kind='scalar_nmi_nostack'), selected=456)
+            self.assertEqual(module.expected_pause(entry), 0)
+            self.assertEqual(module.check_followup(entry, {}, []), ([], dict(selected_nostack=456)))
         entry, observed, lines = self.sample()
         self.assertEqual(irq_contract.check(entry, observed, lines)[0], [])
 

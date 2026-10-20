@@ -151,6 +151,55 @@ NMI-bit clear, refresh/contention and graphics interruption remain outside this
 bounded contract. The normal runner includes short NMI, phase and mutation checks;
 the full192-case inventory is prepared for FPGA execution without recompilation.
 
+## No-stack NMI runtime fixtures
+
+`--nmi-nostack` prepares 192 NMIM=1 cases: both IE settings with INTENB=0,
+SP bit offsets0..15, waits0/1/3 and cold/warm handlers. Its programs initialize
+nonzero stack guards and use register JUMPs to warm and leave the handler.
+They preserve a suspect SP and never execute RETI against an unsaved frame.
+`--nmi-nostack-phases` adds 48 warm aligned cases across all eight assertion
+phases. Both selections use the existing V5 event/observation contract;
+CPU RTL, generated ROMs and transport are unchanged.
+
+The independent oracle checks initialized registers, initialized handler ST,
+SP and unchanged guard/vector memory; exactly two vector reads; handler fetch
+order and configured word waits; one host acknowledgement; explicit context
+and first-ISR boundaries; and the first MOVI's cached/cold duration. It also
+checks a 7..17-INCLK host-ACK-to-preceding-retirement recognition guard under
+the declared one-state NOP stream, using Table 8-4's 1..2-state recognition
+rule and one clock of sampling tolerance. The complete raw observations are
+retained for independent backend comparison.
+
+SPVU001A6-32/33 and8-5 specify context discard with NMIM=1. Section8.5.1 and
+Table 8-4 on 8-7/8 describe 16/28-state context saves but provide no separate
+NMIM=1 total context count. This oracle explicitly records that duration as
+observed only. It does not derive a golden context count from the microcode or
+claim complete no-stack interrupt timing compliance. Physical asynchronous
+host phases, I/O-register preservation and graphics abandonment need separate
+coverage. Local/physical validation of these new runtime cases is recorded
+with the selected source; the full192 cases belong on the FPGA.
+
+```sh
+# Short independent full-system and Avalon checks.
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-nostack \
+    --stack-offset 0 --stack-offset 1 --stack-offset 15
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-nostack-phases
+python3 modules/jttms10/ver/fpga/check_nmi_nostack_mutations.py
+# Prepare the large runtime inventory without a long local simulation.
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi-nostack \
+    --prepare-only --output /path/to/new-nostack-fixtures
+```
+
+The standard runner includes the short representative/phase checks, literal
+oracle tests and actual RTL mutations for unwanted stacking, early recognition
+and a slow first ISR. These keep NOP controls and architectural checks active.
+All 36 representatives at SP offsets0/1/15 and all48 warm phase cases pass
+both Verilator backends with zero differences. All122 host tests pass, and
+the three actual RTL mutants fail with their intended diagnostics while both
+ordinary NOP controls pass. CPU/runner fingerprints and all seven generated
+ROMs match the recognition RTL source; FPGA execution of the new runtime
+cases remains pending.
+
 ## Historical version 4 and scalar interrupt entry
 
 The V4 checkout's RTL, transport and receipt writer use protocol4. The

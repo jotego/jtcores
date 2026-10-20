@@ -24,7 +24,7 @@ main() {
     python3 -B "$ver_dir/timing/test_line_cases.py"
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
-    for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_transport_payload test_transport_stream \
+    for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_nmi_nostack_contract test_transport_payload test_transport_stream \
                  test_transport_schema test_programming_receipt test_incremental_build; do
         python3 -B "$ver_dir/fpga/$suite.py"
     done
@@ -43,6 +43,10 @@ main() {
     run_checker fpga-nmi-phases "$ver_dir/fpga/check_external_reference.py" --nmi-phase-sweep
     run_checker fpga-nmi-mutations "$ver_dir/fpga/check_irq_mutations.py" --nmi
     run_checker fpga-nmi-priority "$ver_dir/fpga/check_nmi_priority.py"
+    run_checker fpga-nmi-nostack "$ver_dir/fpga/check_external_reference.py" --nmi-nostack \
+        --stack-offset 0 --stack-offset 1 --stack-offset 15
+    run_checker fpga-nmi-nostack-phases "$ver_dir/fpga/check_external_reference.py" --nmi-nostack-phases
+    run_checker fpga-nmi-nostack-mutations "$ver_dir/fpga/check_nmi_nostack_mutations.py"
     run_checker fpga-event-mutations "$ver_dir/fpga/check_event_mutations.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
