@@ -53,6 +53,13 @@ indexed and extended addressing in both MD modes, with published cycle counts,
 signed results, and hard-overflow destination preservation. MULD also checks
 V preservation and C clearing. DIVD and DIVQ check signed minimum/just-outside
 quotient bounds, including truncated results and N/Z/V/C behavior.
+The signed timing matrix covers all four dividend/divisor sign pairs for
+DIVD and DIVQ (+1 E per negative operand) and MULD (+2 E if either operand is
+negative), across all four addressing forms and both MD modes: 96 cases total.
+Negative-dividend divide-by-zero cases assert that the physical-device
+zero-divisor path receives no sign correction. These operand-dependent timing
+rules follow the original-device measurements in
+[Hoglet's 6809Decoder behavior notes](https://github.com/hoglet67/6809Decoder/wiki/Undocumented-6309-Behaviours#divd).
 
 Memory-immediate operations use the published 6/7/7 E-cycle counts for
 direct/indexed/extended forms in both modes. AIM/OIM/EIM verify the resulting

@@ -2029,6 +2029,13 @@ wire [5:0] HDArithConsumed = (Inst1[7:4] == 4'h8) ? (IsHD6309DivD ? 6'd4 : 6'd5)
                              (Inst1[7:4] == 4'h9 || Inst1[7:4] == 4'ha) ?
                                  (IsHD6309DivD ? 6'd6 : 6'd7) :
                                  (IsHD6309DivD ? 6'd7 : 6'd8);
+wire HDArithDivisorNegative = IsHD6309DivD ? tmp[7] : tmp[15];
+wire HDArithDivisorZero = HDArithRHS == 16'd0;
+wire [5:0] HDArithSignCycles = IsHD6309Muld ?
+    ((a[7] || tmp[15]) ? 6'd2 : 6'd0) :
+    ((IsHD6309DivD || IsHD6309DivQ) && !HDArithDivisorZero ?
+        (a[7] ? 6'd1 : 6'd0) +
+        (HDArithDivisorNegative ? 6'd1 : 6'd0) : 6'd0);
 jtframe_hd6309_arith hd6309_arith(
     .clk(clk), .rst(!nRESET), .start(HDArithStart),
     .op(HDArithOp), .lhs(HDArithLHS), .rhs(HDArithRHS),
@@ -5542,7 +5549,7 @@ begin
             rAVMA = 1'b0;
         end else begin
             tmp_nxt[15] = 1'b0; // One-time DIVD signed-overflow timing adjustment marker.
-            tmp_nxt[5:0] = HDArithBaseCycles - HDArithConsumed;
+            tmp_nxt[5:0] = HDArithBaseCycles + HDArithSignCycles - HDArithConsumed;
             CpuState_nxt = CPUSTATE_6309_ARITH_WAIT;
             rAVMA = 1'b0;
         end
