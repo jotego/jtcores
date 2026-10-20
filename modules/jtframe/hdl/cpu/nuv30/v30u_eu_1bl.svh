@@ -13,7 +13,7 @@ if (!(poste_n &&
       ((pla3_xop(ld_pla_n) == PLA3_BL1_SET_CY) ||
        (pla3_xop(ld_pla_n) == PLA3_BL1_CLR_CY) ||
        (pla3_xop(ld_pla_n) == PLA3_BL1_NOT_CY)))) begin
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
     trc_1bl_pre = psw_n; trc_1bl_hit = 1'b1;
 `endif
     case (pla3_xop(ld_pla_n))
@@ -27,7 +27,7 @@ if (!(poste_n &&
         default: ;
     endcase
     psw_n = (psw_n & PSW_WRITABLE) | PSW_FORCED;
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
     trc_1bl_post = psw_n;
 `endif
 end

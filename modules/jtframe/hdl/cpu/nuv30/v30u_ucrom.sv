@@ -1,3 +1,9 @@
+`ifdef SYNTHESIS
+`define JTV30_SYNTHESIS
+`elsif ALTERA_RESERVED_QIS
+`define JTV30_SYNTHESIS
+`endif
+
 //============================================================================
 //
 //  v30u_ucrom - the two build-time microcode tables (U0 finding F1).
@@ -47,7 +53,7 @@ module v30u_ucrom #(
     // warnings, an all-zero ROM, and a run that completed normally).
     //   simulation  cwd = the repo ROOT   (sw/check_core.py, sw/ulockstep.py)
     //   Quartus     cwd = hdl/            (hdl/nec_test.qpf)
-`ifdef SYNTHESIS
+`ifdef JTV30_SYNTHESIS
     parameter string HEXDIR = "rtl/ucore/"
 `else
     parameter string HEXDIR = "hdl/rtl/ucore/"
@@ -78,7 +84,7 @@ initial begin
     $readmemh({HEXDIR, "ucrom.hex"}, ucrom);
 end
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 //----------------------------------------------------------------------------
 // F44 -- THE SILENT-EMPTY FAILURE MODE, CLOSED.
 //

@@ -1,3 +1,9 @@
+`ifdef SYNTHESIS
+`define JTV30_SYNTHESIS
+`elsif ALTERA_RESERVED_QIS
+`define JTV30_SYNTHESIS
+`endif
+
 // SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 // Date: 18-10-2026
 //============================================================================
@@ -63,7 +69,7 @@
 //============================================================================
 
 module v30u_eu #(
-`ifdef SYNTHESIS
+`ifdef JTV30_SYNTHESIS
     parameter string HEXDIR = "rtl/ucore/"
 `else
     parameter string HEXDIR = "hdl/rtl/ucore/"
@@ -3239,7 +3245,7 @@ reg      [2:0] poll_pipe_n;
 //============================================================================
 // THE CLOCK
 //============================================================================
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 reg eutrace = 0;
 initial if ($test$plusargs("eutrace")) eutrace = 1;
 // §86 -- THE ARM'S OWN INSTRUMENT, and it is the one the model already has
@@ -3662,7 +3668,7 @@ always @* begin
         //====================================================================
         // (a) the BIU's completion pulses, sampled on the clock they ride
         //====================================================================
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
         trc_1bl_hit = 1'b0; trc_pe_hit = 1'b0; trc_1bld_hit = 1'b0;
 `endif
         // ...and the IE the gate's own pipeline is about to take, frozen HERE
@@ -3836,14 +3842,14 @@ always @* begin
         //====================================================================
         if (poste_n) begin
             poste_n = 1'b0;
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
             trc_pe_hit = 1'b1; trc_pe_pre = psw_n;
             trc_pe_upc = {upc_opc_n, upc_loc_n};
 `endif
             `include "v30u_eu_poste.svh"
             if (tmpa_n != tmpa) ea_residue_n = tmpa_n;
             if (tmpb_n != tmpb) ea_pair_valid_n = 1'b0;
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
             trc_pe_post = psw_n;
 `endif
         end
@@ -3853,7 +3859,7 @@ always @* begin
             `include "v30u_eu_iend_late.svh"
         end
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
         //-- the eutrace SNAPSHOT (the $display is in the clocked observer)
         trc_st = st_n;
         trc_upc_page = upc_page_n;
@@ -3990,7 +3996,7 @@ always @* begin
         q_ripe_lead_n = qripe_pop ? q_ripe_lead_n1 : q_ripe_lead_n0;
 
         stop = 1'b0;
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
         chain_used = 4'd0;
         chain_first = st_n;
 `ifdef CHAIN_PROBE
@@ -4099,7 +4105,7 @@ always @* begin
             `include "v30u_eu_arm_enter.svh"
         end
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
         // The pass is over.  Anything still running has left the declared
         // graph; the observer turns that into the CHAIN OVERFLOW $fatal.
         chain_open = !stop;
@@ -4261,7 +4267,7 @@ always @(posedge clk) begin
     if (ss_we || srst || ce_half) s1q <= s1_bus;
 end
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 // THE FALSIFIER FOR THE THEOREM, ON EVERY CLOCK OF EVERY GATE LEG.  At a `ce`
 // the live stage 1 and the shadow must agree: that IS the phase-stability
 // premise, and if any pin or mid-cycle signal ever reaches stage 1 this fires
@@ -4462,7 +4468,7 @@ always @(posedge clk) begin
     end
 end
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 //--------------------------------------------------------------------------
 // THE CLOCKED OBSERVER -- everything that must happen ONCE PER CE CLOCK.
 //--------------------------------------------------------------------------

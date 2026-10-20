@@ -71,7 +71,7 @@
             // both paths owe.  MEASURED, `FA idx 4`: the golden's status
             // nibble is already 2 (IE=0) on clock 1 and `S_1BL_LEAD` was
             // standing there, so the write landed on the edge ENDING clock 1.
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
             // wrfuzz W3.5's decode probe (see `trc_1bld_*` in v30u_eu.sv).
             trc_1bld_hit = 1'b1; trc_1bld_ripe = q_ripe_lead_n;
             trc_1bld_seen = brk_seen; trc_1bld_arm = brk_arm;

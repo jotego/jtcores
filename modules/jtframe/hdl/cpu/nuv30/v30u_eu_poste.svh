@@ -92,7 +92,7 @@ begin
             default: ;
         endcase
     end
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
     if (row_bus)
         $error("v30u_eu: a post-E row carries a bus cycle (upc %0d.%02X.%0d)",
                upc_page_n, upc_opc_n, upc_loc_n);

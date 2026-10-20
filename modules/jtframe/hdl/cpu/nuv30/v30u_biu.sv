@@ -1,3 +1,9 @@
+`ifdef SYNTHESIS
+`define JTV30_SYNTHESIS
+`elsif ALTERA_RESERVED_QIS
+`define JTV30_SYNTHESIS
+`endif
+
 // SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 // Date: 19-10-2026
 //============================================================================
@@ -956,7 +962,7 @@ assign q_ripe_lead_n0 = (poppable_n0 != 4'd0) ||
 assign q_ripe_lead_n1 = (poppable_n1 != 4'd0) ||
                         ((grn_ttl == 2'd1) && (q_cnt_np1 != 4'd0));
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 //--------------------------------------------------------------------------
 // THE FALSIFIER.  The ORIGINAL expression is kept VERBATIM as a reference and
 // compared every clock the EU samples -- the `V30_MUXED_AD` precedent, where
@@ -1327,7 +1333,7 @@ always @(posedge clk)
     else if (ce_half) t1_half2 <= (r_run && (r_ts == TS_T1)) ||
                                   vector_follow_preview;
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 //----------------------------------------------------------------------------
 // THE `bus_half` EQUIVALENCE.  The de-muxed configuration has no `ce_half` and
 // no `t1_half2`; it reads the phase off the registers the flop is loaded from.
@@ -2770,7 +2776,7 @@ always_ff @(posedge clk) if (ss_we || srst || ce) begin
     r_g_row_q <= (srst && !ss_we) ? g_row_q_rst : g_row_q;
 end
 
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 // The module's contracts, checked on the REGISTERED state -- the always_comb
 // above settles more than once per clock, so an immediate assertion inside it
 // would report transients (campaign risk #2 kept, instrument fixed).
@@ -3028,7 +3034,7 @@ end
 // V30SIM_EVALTRACE `ET` / `QT` lines.  Guarded out of synthesis, and gated on
 // the plusarg so a normal run is byte-identical without it.
 //----------------------------------------------------------------------------
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 logic utrace_en;
 integer utrace_clk;
 initial begin

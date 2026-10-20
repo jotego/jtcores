@@ -14,7 +14,7 @@
 //  what re-keys WAVE 6's census off the running count now that there is no
 //  loop variable to read.
 //==========================================================================
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 chain_used = chain_used + 4'd1;
 `ifdef CHAIN_PROBE
 // sec.51.2's (position, state) pair census

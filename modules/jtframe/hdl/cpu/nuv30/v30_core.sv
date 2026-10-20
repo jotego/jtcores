@@ -1,3 +1,9 @@
+`ifdef SYNTHESIS
+`define JTV30_SYNTHESIS
+`elsif ALTERA_RESERVED_QIS
+`define JTV30_SYNTHESIS
+`endif
+
 // SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 // Date: 18-10-2026
 //============================================================================
@@ -87,7 +93,7 @@
 //============================================================================
 
 module v30_core #(
-`ifdef SYNTHESIS
+`ifdef JTV30_SYNTHESIS
     parameter string HEXDIR = "rtl/ucore/"
 `else
     parameter string HEXDIR = "hdl/rtl/ucore/"
@@ -276,7 +282,7 @@ assign SS_BUS_QUIET = ss_biu_bus_quiet;
 // alone: without a `CE_HALF` between two `CE`s the EU consumes a STALE STAGE 1
 // and the core computes the wrong next state.  It was "no stronger than the
 // core works"; it still is, and it now says so about the EU as well.
-`ifndef SYNTHESIS
+`ifndef JTV30_SYNTHESIS
 // has a CE_HALF been seen since the last CE?  Starts asserted so a run's FIRST
 // CE is never reported -- there is no preceding CE for it to be too close to.
 // ⚠ AND THAT IS EXACTLY WHY THE PHASE-SPLIT SHADOW MAY NOT DEPEND ON HAVING
