@@ -807,7 +807,10 @@ module jttms10 #(
     // All relative PC updates share one adder. Select only an enabled
     // update so a false conditional branch cannot mask a simultaneous DSJ
     // or ordinary increment; direct PC writes retain their later priority.
-    wire pc_dsj_add = dsjfinish && dsj_allow && result!=0;
+    // DSJ/DSJS capture the original counter in b and one in a before
+    // subtracting. Test b directly to avoid routing the graphics/DSP ALU
+    // result through this scalar PC decision: (b - 1) != 0 iff b != 1.
+    wire pc_dsj_add = dsjfinish && dsj_allow && b!=32'd1;
     wire pc_short_add = pc_sel==REL_PC && condition;
     wire pc_long_add = pc_sel==LONGREL_PC && condition;
     wire pc_tmp_add = pc_sel==TMPREL_PC;
