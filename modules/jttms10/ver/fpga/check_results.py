@@ -684,6 +684,12 @@ def check_batch(batch, capture):
             target_errors = dependency.check_trace(case, row['target_trace'], stimulus['wait_states'], raw=True)
             errors.extend(bus_errors)
             errors.extend(target_errors)
+            # Keep the captured opcode in the normalized row so the ordinary
+            # cross-backend comparator can compare it with the archived bench.
+            # The preceding result[5] check still rejects a wrong opcode; this
+            # field records what the FPGA actually returned, not the fixture's
+            # expected value.
+            row['observed_next_opcodes'] = [result[5]]
             row['dependency_observation'] = dict(conditions=copy.deepcopy(case['dependency_conditions']),
                                                  bus_errors=bus_errors,
                                                  target_errors=target_errors)

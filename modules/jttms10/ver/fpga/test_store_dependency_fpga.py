@@ -204,6 +204,27 @@ class StoreDependencyFPGA(unittest.TestCase):
         capture = self.make_raw_capture(entry)
         rows = checker.check_batch(batch, capture)
         self.assertEqual(rows['failed'], 0, rows)
+        expected_opcode = entry['fixture']['expected_next_opcode']
+        self.assertEqual(rows['cases'][0]['observed_next_opcodes'], [expected_opcode])
+        reference = dict(name=entry['name'], fixture=copy.deepcopy(entry['fixture']),
+                         observed=copy.deepcopy(rows['cases'][0]['observed']),
+                         observed_memory=copy.deepcopy(rows['cases'][0]['observed_memory']),
+                         observed_next_opcodes=[expected_opcode],
+                         bus_trace=copy.deepcopy(rows['cases'][0]['bus_trace']),
+                         target_trace=copy.deepcopy(rows['cases'][0]['target_trace']),
+                         errors=[])
+        self.assertEqual(checker.compare_reference(rows['cases'], [reference]), [])
+
+        wrong_opcode = copy.deepcopy(capture)
+        wrong_opcode['results'][0][5] ^= 1
+        wrong_rows = checker.check_batch(batch, wrong_opcode)['cases']
+        self.assertEqual(wrong_rows[0]['observed_next_opcodes'], [expected_opcode ^ 1])
+        self.assertTrue(any('next accepted opcode differs' in error for error in wrong_rows[0]['errors']))
+        changed_observation = copy.deepcopy(rows['cases'])
+        changed_observation[0]['observed_next_opcodes'][0] ^= 1
+        self.assertIn('observed_next_opcodes differs',
+                      checker.compare_reference(changed_observation, [reference])[0])
+
         # Total clocks are deliberately outside the dependency fixture's
         # instruction-duration contract; all other observations stay checked.
         slower = copy.deepcopy(capture)
