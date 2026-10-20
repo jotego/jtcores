@@ -14,6 +14,8 @@ import tempfile
 import check_results as checker
 from event_cases import specifications
 from event_contract import expected_pause
+import event_contract
+import irq_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -44,6 +46,9 @@ def fixture_manifest():
         if 'contract' in spec:
             entry['external_contract'] = spec['contract']
         entry['stimulus'] = dict(wait_states=spec.get('wait_states', 0))
+        entries.append(entry)
+    for entry in irq_cases.entries(bases['nop_hit'], checker.oracle_module()):
+        entry['id'] = len(entries)
         entries.append(entry)
     return dict(format=checker.FORMAT_V4, protocol_version=4,
                 oracle_sha256=sha(checker.TIMING/'run.py'),
@@ -108,6 +113,10 @@ def reference_case(entry, executable, work, output, oracle):
         ('BUS_', 'TARGET_', 'STIMULUS ', 'HOLD_ACK ', 'HOST_ACK '))]
     errors.extend(checker.check_external_events(entry, words, lines))
     row = oracle.check_observation(case, observed, errors, log, settings['wait_states'], pause)
+    follow_errors, irq_observation = event_contract.check_followup(entry, observed, log.splitlines())
+    errors.extend(follow_errors)
+    if irq_observation is not None:
+        row['irq_observation'] = irq_observation
     if events or entry.get('external_contract') is not None:
         row['external_observation'] = checker.external_observation(words, lines)
         row['external_contract'] = copy.deepcopy(entry.get('external_contract'))
@@ -182,9 +191,19 @@ def main():
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--output', type=Path, help='new directory retaining raw reference and Avalon evidence')
     parser.add_argument('--report', type=Path)
-    parser.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
+    modes.add_argument('--prepare-only', action='store_true', help='write runtime fixtures without building a local model')
     args = parser.parse_args()
     manifest = json.loads(args.manifest.read_text()) if args.manifest else fixture_manifest()
+    if args.prepare_only:
+        if args.output is None or args.report is not None:
+            parser.error('--prepare-only requires --output and does not produce a validation --report')
+        if checker.validate_manifest(manifest) != 4:
+            parser.error('external fixtures require protocol 4')
+        args.output.mkdir(parents=True, exist_ok=False)
+        (args.output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
+        return 0
     if args.output:
         result = run(manifest, args.output.resolve(), args.reference_only)
     else:

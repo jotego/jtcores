@@ -30,17 +30,43 @@ full-system bench using `reference_stimulus.sv`, a separate behavioral scheduler
 that drives real LINT/HOLD/EMU/CEN/HSTCTL ports. It does not instantiate the
 synthesizable sequencer or its packed event RAM. The default original bench
 is unchanged unless compiled with `JTTMS10_EXTERNAL_REFERENCE`. The local
-38-case scope covers all six trigger types, all 16 table entries, HOLD ACK,
+38 ordinary event cases cover all six trigger types, all 16 table entries, HOLD ACK,
 host NMIM writes, and early CEN with zero/one waits on arithmetic, unaligned
 loads and regular PIXBLT. Both backends compare application clocks, counters,
 HOLD edges, host ACKs and every existing architectural/timing/bus observation.
 This reference is limited to 64 short cases; long supported matrices use FPGA.
 
+Twelve additional `irq_scalar_*` cases drive real LINT1/LINT2 through the I/O
+fabric, with W0/W1/W3 memory waits. They keep a measured one-state NOP and use
+a following ADDK counter to check continuation across an ISR/RETI. Independent
+checks cover initialized registers/ST/SP, the saved frame and vector, MSW-first
+entry writes, ordered vector/handler/RETI reads, and every raw/logical transfer
+duration. The complete post-measurement trace is retained and compared between
+backends. The existing ISA oracle and its fixture definitions are unchanged.
+
+Six IRQ cases prefill the actual handler by executing it before measurement.
+With an aligned stack, no refresh/host traffic, a warm handler and one-state
+ADDKs, SPVU001A 8.5.1/Table8-4 requires recognition1..2 plus context16 states.
+Six entry-word waits add six wait states per configured wait. The checker
+allows one INCLK for the recorded falling/rising edge difference. The current
+CPU **fails** all six warm-entry bounds: W0 observes183 versus135..145 INCLK;
+W1 observes231 versus183..193; W3 observes327 versus279..289. Architecture,
+memory, request order and individual transfer durations pass. The other44
+cases pass. Both Verilator backends reproduce these timing failures and return
+exit1; these are retained requirements, not a timing waiver. See
+[interrupt notes](../../docs/interrupts.md#external-pin-entry-timing-baseline).
+
+To prepare the same50 runtime cases for an already validated FPGA image without
+building a simulator, use `check_external_reference.py --prepare-only --output
+/path/to/new-directory`. Its `manifest.json` is an ordinary input to
+`run_batch.py`; fixture/expectation changes do not recompile the FPGA.
+
 `check_event_mutations.py` changes actual sequencer RTL. Early CEN release
 returns correct registers/status but 14 clocks instead of the declared 15;
 wrong HSTCTL data injects an unintended NMI. Both fail with unaffected controls.
-General IRQ/NMI continuation and outstanding-work HOLD/EMU/CEN contracts remain
-pending before physical V4 use; harmless pin checks do not establish them.
+Graphics IRQ/NMI continuation and outstanding-work HOLD/EMU/CEN contracts remain
+pending. The scalar entry baseline does not establish those contracts or full
+instruction timing compliance.
 
 From a checkout with `setprj.sh` sourced, run the host preflight/capture checks
 and short Avalon recovery tests with:

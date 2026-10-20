@@ -85,3 +85,49 @@ posted-ACK CEN pauses. Source reads must match completed writes at each tested
 checkpoint. The original first-word IRQ defect and reproduction commands are
 documented in [PIXBLT timing](blit-timing.md). FPGA interrupt injection and
 instruction duration across the ISR remain unvalidated.
+
+## External-pin entry timing baseline
+
+`ver/fpga/irq_cases.py` defines twelve scalar LINT1/LINT2 cases with W0/W1/W3.
+They drive the real pins and I/O synchronization rather than internal `irq_req`.
+A measured warm NOP retains its independent eight-INCLK requirement. A
+following ADDK counter checks resumption through a MOVI/RETI handler. The host
+oracle in `irq_contract.py` checks registers/ST/SP, the frame and vector, all
+MSW-first stack writes, vector/fetch/RETI reads and each physical/logical word
+duration. Both the original full-system behavioral-stimulus bench and actual
+Avalon runner use these same independent expectations; neither supplies golden
+counts to the other.
+
+Six cases execute the handler once through a synthetic initial RETI frame,
+then initialize the test normally. The measured interrupt therefore enters a
+warm handler and has no handler-fetch transactions. The frame still contains
+the completed ADDK state, and the handler entry snapshot must show reset
+ST=`00000010`, the decremented SP and the counter corresponding to saved PC.
+Six cold controls observe final continuation instead and check all four
+handler-cache-fill reads as well.
+
+TI SPVU001A (1988) section8.5.1, printed8-7/8, Table8-4 gives recognition1..2
+states and an aligned interrupt context switch of16 states. Table8-5 note1
+gives instruction interrupt time as execution time less one state: these
+one-state ADDKs add zero. Refresh and host traffic are disabled. Six entry
+word transfers add `6*wait_states` states. The permanent warm check allows one
+INCLK on either edge for comparing the recorded falling pin transition with
+the rising handler decode. Its expected W0/W1/W3 bounds are135..145,
+183..193 and279..289 INCLK.
+
+The current CPU observes183/231/327 INCLK respectively and fails all six warm
+cases. Both Verilator backends return exit1 with matching diagnostics; the
+other44 external-event cases pass. Architectural state, memory, bus order and
+individual transfer waits pass in the failing cases. These failures expose an
+entry-scheduling requirement; correct return state does not satisfy it.
+
+Reproduce with `python3 modules/jttms10/ver/fpga/check_external_reference.py
+--output /path/to/new-evidence` after sourcing `setprj.sh`. Raw logs and checked
+reference results are retained even on the expected baseline failure. For a
+separate Avalon failing baseline, run `check_runner.py --manifest
+/path/to/new-evidence/manifest.json --output /path/to/new-avalon-evidence`.
+`check_external_reference.py --prepare-only --output /path/to/new-fixtures`
+writes the same runtime manifest for FPGA execution without compiling a local
+model. The baseline is not physical V4 proof. Pin-phase sweeps, interrupt
+priority, unaligned frames, NMI/HLT and graphics checkpoint/entry/resume timing
+remain required.

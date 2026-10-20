@@ -388,6 +388,7 @@ def main():
     timings['driver_schema_source_sha256'] = sha256(HERE / 'stimulus_schema.py')
     timings['checker_schema_source_sha256'] = sha256(source_fpga / 'stimulus_schema.py')
     timings['event_contract_source_sha256'] = sha256(source_fpga / 'event_contract.py')
+    timings['irq_contract_source_sha256'] = sha256(source_fpga / 'irq_contract.py')
     timings['oracle_source_sha256'] = sha256(source_root / 'modules/jttms10/ver/timing/run.py')
     timings['start_unix'] = time.time()
     remote = ssh_options(args.ip)

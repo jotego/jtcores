@@ -499,6 +499,10 @@ def check_batch(batch, capture):
             errors.extend(check_external_events(entry, result, traces[index]))
         log = '\n'.join(lines)
         row = oracle.check_observation(case, observed, errors, log, stimulus['wait_states'], expected_pause)
+        follow_errors, irq_observation = _event_contract.check_followup(entry, observed, lines)
+        errors.extend(follow_errors)
+        if irq_observation is not None:
+            row['irq_observation'] = irq_observation
         if entry.get('external_events') or entry.get('external_contract') is not None:
             row['external_observation'] = external_observation(result, traces[index])
             row['external_contract'] = copy.deepcopy(entry.get('external_contract'))
@@ -623,7 +627,7 @@ def compare_reference(rows, reference_rows):
         if row['errors'] or other['errors']:
             errors.append(name+': failing input capture cannot establish equivalence')
             continue
-        for key in ('external_contract', 'external_observation'):
+        for key in ('external_contract', 'external_observation', 'irq_observation'):
             if row.get(key) != other.get(key):
                 errors.append(name+': '+key+' differs')
         for key in ('opcode', 'regs', 'expected_regs', 'expected_st', 'states',

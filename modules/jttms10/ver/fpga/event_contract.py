@@ -5,11 +5,21 @@ The initial contract is the existing early-CEN timing condition applied by the
 external scheduler. Its fixed pause is declared by the fixture and checked
 against the exact two-event stimulus, never inferred from an FPGA observation.
 """
+import importlib.util
+from pathlib import Path
+
+
+_irq_spec = importlib.util.spec_from_file_location('jttms10_irq_contract', Path(__file__).with_name('irq_contract.py'))
+_irq_contract = importlib.util.module_from_spec(_irq_spec)
+_irq_spec.loader.exec_module(_irq_contract)
 
 
 def expected_pause(entry):
     contract = entry.get('external_contract')
     if contract is None:
+        return 0
+    if isinstance(contract, dict) and contract.get('kind') == 'scalar_irq':
+        _irq_contract.validate(entry)
         return 0
     if (not isinstance(contract, dict) or set(contract) != {'kind', 'clocks'} or
             contract['kind'] != 'early_cen'):
@@ -24,3 +34,10 @@ def expected_pause(entry):
     if entry.get('external_events') != wanted:
         raise ValueError('early-CEN stimulus differs from its independent contract')
     return clocks
+
+
+def check_followup(entry, observed, lines):
+    contract = entry.get('external_contract')
+    if isinstance(contract, dict) and contract.get('kind') == 'scalar_irq':
+        return _irq_contract.check(entry, observed, lines)
+    return [], None

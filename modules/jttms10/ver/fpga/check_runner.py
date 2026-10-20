@@ -126,6 +126,7 @@ def main():
                   MODULE/'ver/decoder/generate.py', HERE/'check_results.py', HERE/'check_runner.py',
                   HERE/'stimulus_schema.py',
                   HERE/'event_contract.py',
+                  HERE/'irq_contract.py', HERE/'irq_cases.py',
                   MODULE/'ver/gfx/check_targets.py', MODULE/'ver/gfx/check_flow.py']
         def source_name(path):
             return str(path.relative_to(MODULE)) if path.is_relative_to(MODULE) else 'variant/'+path.name

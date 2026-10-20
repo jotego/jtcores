@@ -108,6 +108,21 @@ counter; the unchanged ISA timing/bus oracle receives that declared delay.
 Unknown contracts fail closed. This metadata is host expectations, not wire
 data, so changing it does not require FPGA compilation.
 
+`external_contract: {"kind": "scalar_irq", "lint": 1, "handler_warm": true}`
+selects the independent scalar LINT entry/RETI checks. `lint` is1 or2;
+`handler_warm` is boolean. The fixture has a measured warm NOP, explicitly
+initialized IE/INTENB/SP, twelve following ADDKs, and a fixed ISR/RETI program.
+The exact two-entry event schedule asserts LINT atCLOCK16 and releases it on
+WRITE4. Other fields, initialization or schedules fail closed. This contract
+adds zero to the measured NOP duration. It independently checks the following
+register/status/stack/vector state and complete ordered bus plan; warm variants
+also enforce the cited entry-latency bound. It never obtains expected delay
+from applied counters. `irq_observation` in checked reports records normalized
+following state, memory and complete BUS/TARGET traces for backend comparison.
+These expectations live in the selected source's `irq_contract.py`, separately
+from the FPGA transport and image identity. Current warm-entry failures are
+documented in [the runner README](README.md).
+
 The full-system behavioral reference independently drives semantic event fields
 and compares all six triggers, HOLD/host observations and fixed early-CEN
 conditions with Avalon execution. General IRQ/NMI continuation and outstanding
