@@ -25,9 +25,7 @@ cache-disabled operation. It makes no promise about cached self-modifying code,
 which §5.4.4 warns can be unpredictable. It does not assign a new TI duration
 to the dependency cases: published nominal duration targets remain mandatory
 in the separate timing suite. The FPGA transport is not part of the oracle.
-Writable instruction-word transport is not yet qualified on the FPGA; these
-new dependency cases currently run only in Verilator. The protocol-v5 host
-adapter can prepare them explicitly:
+The protocol-v5 host adapter prepares this family explicitly:
 
 ```sh
 python3 modules/jttms10/ver/fpga/check_results.py prepare --store-dependency --protocol-version 5 --wait-states N --pause-clocks P --output manifest.json
@@ -42,3 +40,36 @@ the target continues independently while CPU CEN is low.
 The timing bench accepts a retirement pulse from the last enabled edge at the
 first paused edge, then clears that allowance. PC, ST, GPR and working-state
 hold assertions remain active, and a new pulse during a pause still fails.
+
+## Physical qualification
+
+Host source `c8e4dbc6b0269453f0b23115966481a381927674` and hardware source
+`744acd3e9cac22127a9cb2673a494f0c82d4f53b` qualify all 16 cases each BASE,
+W1, W3, W1/P1 and W1/P7: 80 physical executions and 80 profile-specific
+Verilator comparisons. The unchanged image is RBF `5d071fc8`, overlay
+`jtcores-144-arithmetic-5d071fc8`; the complete image and receipt identities
+are in the [FPGA runner documentation](../fpga/README.md). Every original raw
+verdict independently replays. These results establish the tested instruction
+word initialization, write visibility, RMW and observation paths; this family
+still assigns no TI total instruction-duration target.
+
+BASE used parent host `a57918c1`. Its checker verified raw result word 5 but
+omitted `observed_next_opcodes` from the report, causing 16 reference-comparer
+errors. The original capture/report and errors remain intact. The committed
+`c8e4dbc6` fix exposes the actual raw opcode, with rejection tests for wrong
+values. Offline replay of that same capture differs only by the added field
+and passes all 16 normal comparisons; BASE was not rerun. The other four
+profiles used `c8e4dbc6` directly and have exact saved-report/raw replay and
+normal reference comparisons.
+
+Full host walls in BASE/W1/W3/W1P1/W1P7 order were
+3.164707733/2.809657260/2.793721601/2.762628856/2.993547024 seconds. No FPGA
+compile or programming was needed. Final health confirms the same boot, image,
+SYSID, enabled bridges, taint zero, seven clients unbound and no runner process.
+Evidence is under `/nobackup/tasks/jtcores-144/artifacts/movb-cd-native-1/`:
+`fpga-host-adaptation-1/root-physical-complete-review.json` binds all five raw
+reviews, references, timings and final health. These are development timings,
+not a matched simulation speedup benchmark.
+
+The native CD MOVB timing candidate is separate and is not loaded on the
+board. The 27 nominal CD timing targets and full #144 acceptance remain open.

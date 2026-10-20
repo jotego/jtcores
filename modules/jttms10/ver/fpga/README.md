@@ -38,6 +38,29 @@ and conditions. Root replay evidence and receipt are under
 `/nobackup/tasks/jtcores-144/artifacts/fill-arithmetic-native-1/physical-1/`.
 See [FILL timing and qualification scope](../../docs/fill-timing.md#native-arithmetic-fill-physical-qualification).
 
+## CD byte-store instruction-word dependencies
+
+The same source744 / RBF5d071fc8 image passes 16 first-pass byte-store
+instruction-word dependencies each BASE/W1/W3/W1P1/W1P7 (80 executions),
+with 80 Verilator comparisons and every complete raw verdict independently
+replayed. Host support is committed through
+`c8e4dbc6b0269453f0b23115966481a381927674`; no RTL, transport, FPGA compile
+or programming changed. Use `check_results.py prepare --store-dependency
+--protocol-version 5` with the selected wait/pause profile. Keep the host
+checkout and unchanged hardware checkout separate through the driver's
+`--source-root` and `--hardware-source-root` arguments.
+
+These fixtures test writable instruction words, full initialization, captured
+next opcodes and indivisible RMW ordering with complete posted-write drain.
+They intentionally have no total instruction-duration target; ordinary and
+published timing fixtures retain theirs. The host commands take 2.76–3.17s
+per 16-case batch on the already loaded image. BASE retains an original report
+field omission and its 16 comparison failures, with a separately verified
+raw-derived opcode-field correction; no transport was repeated. The other
+profiles have direct complete comparisons with the corrected host.
+See [dependency commands, evidence and limits](../store_dependency/README.md#physical-qualification).
+This does not qualify the separate native MOVB timing candidate or full #144.
+
 ## Historical physical NMI checkpoint
 
 This is the earlier `a59` NMI checkpoint, not the current loaded image.
