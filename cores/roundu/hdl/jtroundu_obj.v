@@ -29,8 +29,10 @@ localparam IDLE=0, CLUT_L=1, CLUT_L_DONE=2, CLUT_H=3, CLUT_H_DONE=4,
     HEADER=11, DESC=12, PREP=13, PIXEL=14, TILE=15, GFX=16,
     SNAP_WAIT=17, SNAP_ATTR=18, WALK_INIT=19, WALK_WAIT=20,
     WALK_LOAD=21, WALK_FETCH=22, WALK_HEADER=23, WALK_DESC=24,
-    WALK_STORE=25, WALK_NEXT=26, FAST=27, FAST_DONE=28;
-reg [4:0] state, return_state;
+    WALK_STORE=25, WALK_NEXT=26, FAST=27, FAST_DONE=28,
+    PREP_COORD=29, FAST_MUL=30, FAST_CHECK=31, FAST_MOD_MUL=32,
+    FAST_MOD_CHECK=33, FAST_MOD_END=34;
+reg [5:0] state, return_state;
 reg [17:0] request_addr;
 reg request_bank;
 reg [31:0] fetched;
@@ -70,6 +72,12 @@ reg [17:0] tile_addr, cached_addr;
 reg tile_bank, cached_bank, cache_valid;
 reg [31:0] cached_data;
 reg [19:0] fast_col, fast_next_col;
+reg [19:0] prep_dist;
+reg [8:0] prep_count;
+reg [32:0] prep_inverse;
+reg [59:0] prep_col_product, prep_step_product;
+reg [31:0] prep_col, prep_delta;
+reg [26:0] prep_col_quotient, prep_step_quotient;
 reg [8:0] fast_rem, fast_next_rem, fast_step, fast_step_rem;
 reg [12:0] fast_span;
 reg [2:0] fast_line;
@@ -191,7 +199,7 @@ end
 task request;
     input bank;
     input [17:0] address;
-    input [4:0] destination;
+    input [5:0] destination;
     begin
         request_bank <= bank;
         request_addr <= address;
@@ -490,7 +498,12 @@ always @(posedge clk) begin
                 else begin
                     draw_x <= first_x[8:0];
                     last_x <= end_x[8:0];
-                    dx_fixed = $signed({2'd0,first_x[31:0]}) - $signed({{2{origin_x[31]}},origin_x});
+                    state <= PREP_COORD;
+                end
+            end
+            PREP_COORD: begin
+                if (rotation != 0) begin
+                    dx_fixed = $signed({25'd0,draw_x}) - $signed({{2{origin_x[31]}},origin_x});
                     dx_fixed = (dx_fixed <<< 16) + 34'sh8000;
                     dy_fixed = $signed({25'd0,target_y}) - $signed({{2{origin_y[31]}},origin_y});
                     dy_fixed = (dy_fixed <<< 16) + 34'sh8000;
@@ -503,28 +516,61 @@ always @(posedge clk) begin
                     step_x <= $signed({19'd0,shrink,16'd0});
                     slope_scale = $signed(slope)*$signed({1'b0,shrink});
                     step_y <= -$signed({{16{slope_scale[35]}},slope_scale,8'd0});
-                    if (rotation == 0) begin
-                        dist_x = flip_x ? origin_x - first_x - 1 : first_x - origin_x;
-                        source_col = unscale(dist_x[19:0]);
-                        cx = dist_x*128 - source_col*scale;
-                        fast_rem <= cx[8:0];
-                        tile_delta = unscale(20'd1);
-                        cx = 128 - tile_delta*scale;
-                        fast_step_rem <= cx[8:0];
-                        tile_count = ({19'd0,run_right[row]} - {20'd0,run_left[row]}) >> 3;
-                        fast_span <= run_right[row] - {1'b0,run_left[row]};
-                        source_col = source_col - {20'd0,run_left[row]};
-                        if (repeat_line) begin
-                            quotient = divide(source_col[29:3],tile_count[8:0],inverse[tile_count]);
-                            source_col = source_col - ((quotient*tile_count) << 3);
-                            quotient = divide(tile_delta[29:3],tile_count[8:0],inverse[tile_count]);
-                            tile_delta = tile_delta - ((quotient*tile_count) << 3);
-                        end
-                        fast_col <= source_col[19:0];
-                        fast_step <= tile_delta[8:0];
-                        state <= FAST;
-                    end else state <= PIXEL;
+                    state <= PIXEL;
+                end else begin
+                    dist_x = flip_x ? origin_x - {23'd0,draw_x} - 1 : {23'd0,draw_x} - origin_x;
+                    prep_dist <= dist_x[19:0];
+                    tile_count = ({19'd0,run_right[row]} - {20'd0,run_left[row]}) >> 3;
+                    prep_count <= tile_count[8:0];
+                    prep_inverse <= inverse[tile_count];
+                    fast_span <= run_right[row] - {1'b0,run_left[row]};
+                    state <= FAST_MUL;
                 end
+            end
+            FAST_MUL: begin
+                prep_col_product <= {prep_dist,7'd0} * scale_inverse;
+                prep_step_product <= 27'd128 * scale_inverse;
+                state <= FAST_CHECK;
+            end
+            FAST_CHECK: begin
+                quotient = prep_col_product[58:32];
+                if (quotient * scale > {9'd0,prep_dist,7'd0}) quotient = quotient - 1'b1;
+                source_col = {5'd0,quotient};
+                quotient = prep_step_product[58:32];
+                if (quotient * scale > 36'd128) quotient = quotient - 1'b1;
+                tile_delta = {5'd0,quotient};
+                prep_col <= source_col - {20'd0,run_left[row]};
+                prep_delta <= tile_delta;
+                cx = {12'd0,prep_dist}*128 - source_col*scale;
+                fast_rem <= cx[8:0];
+                cx = 128 - tile_delta*scale;
+                fast_step_rem <= cx[8:0];
+                state <= FAST_MOD_MUL;
+            end
+            FAST_MOD_MUL: begin
+                if (repeat_line) begin
+                    prep_col_product <= prep_col[29:3] * prep_inverse;
+                    prep_step_product <= prep_delta[29:3] * prep_inverse;
+                    state <= FAST_MOD_CHECK;
+                end else begin
+                    fast_col <= prep_col[19:0];
+                    fast_step <= prep_delta[8:0];
+                    state <= FAST;
+                end
+            end
+            FAST_MOD_CHECK: begin
+                quotient = prep_col_product[58:32];
+                prep_col_quotient <= quotient * prep_count > {9'd0,prep_col[29:3]} ? quotient - 1'b1 : quotient;
+                quotient = prep_step_product[58:32];
+                prep_step_quotient <= quotient * prep_count > {9'd0,prep_delta[29:3]} ? quotient - 1'b1 : quotient;
+                state <= FAST_MOD_END;
+            end
+            FAST_MOD_END: begin
+                source_col = prep_col - ((prep_col_quotient * prep_count) << 3);
+                tile_delta = prep_delta - ((prep_step_quotient * prep_count) << 3);
+                fast_col <= source_col[19:0];
+                fast_step <= tile_delta[8:0];
+                state <= FAST;
             end
             FAST: begin
                 if (fast_hit) begin
