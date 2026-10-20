@@ -38,6 +38,10 @@ A native partial-word development path passes 26 focused timing programs
 in three profiles and the existing array/boundary/row architectural checks.
 Its full partial/aligned FPGA matrices remain pending; see the
 [development scope](docs/fill-timing.md#native-partial-word-development-path).
+Another 280 partial-word probes cover two/four rows at constant alignment.
+Directed probes expose remaining duration failures with checked architecture,
+memory and bus traffic correct; see the
+[multirow baseline](docs/fill-timing.md#multirow-partial-word-timing-baseline).
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

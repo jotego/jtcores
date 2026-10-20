@@ -9,8 +9,8 @@ from run import check, program
 class FillCasesTest(unittest.TestCase):
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 2380)
-        self.assertEqual(len({r['name'] for r in cases}), 2380)
+        self.assertEqual(len(cases), 2660)
+        self.assertEqual(len({r['name'] for r in cases}), 2660)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
@@ -146,6 +146,46 @@ class FillCasesTest(unittest.TestCase):
         bad=list(bus);bad[1]='BUS_END 40 0 00006100 55ab'
         self.assertTrue(check_bus(case,observed,bad,0))
         self.assertTrue(check_bus(case,observed,bus+bus,0))
+
+    def test_multirow_partial_literal_states_and_registers(self):
+        # Literal L=2/4 substitutions in Table13-6 with G=2, linear setup4.
+        # The N>=3 B five-state tail occurs once for the whole rectangle.
+        for words,alignment,l2,l4 in ((1,'B',14,22),(1,'C',13,21),(1,'D',13,21),
+                (2,'B',20,34),(2,'C',20,34),(2,'D',21,37),
+                (3,'B',25,41),(3,'C',24,42),(3,'D',25,45)):
+            for rows,states in ((2,l2),(4,l4)):
+                for xy,off in ((False,False),(False,True),(True,False),(True,True)):
+                    case=partial_fixture(4,words,alignment,xy,off,rows=rows)
+                    self.assertEqual(case['states'],states+2*xy+3*off)
+                    self.assertEqual(case['initial_all_regs']['b7'],(rows<<16)|case['conditions']['width'])
+                    self.assertEqual(case['expected_extra_regs']['b2'],
+                        case['data_fill']['address']+(rows-1)*0x100+case['conditions']['width']*4)
+                    code,pc,nxt=program(case)
+                    self.assertEqual(code[(pc-0x1000)//16],0x0FE0 if xy else 0x0FC0)
+                    self.assertEqual(nxt,pc+16)
+
+    def test_multirow_partial_memory_and_ordered_rmw(self):
+        case=partial_fixture(4,2,'D',False,False,rows=2)
+        before,after=map(dict,(case['initial_memory'],case['expected_memory']))
+        self.assertEqual(case['expected_extra_regs']['b2'],0x621c)
+        self.assertEqual(transfers(case),[
+            (0,0x6100,0x55aa,0),(1,0x6100,0xaa5a,0),
+            (0,0x6110,0x55aa,0),(1,0x6110,0x5a55,0),
+            (0,0x6200,0x55aa,0),(1,0x6200,0xaa5a,0),
+            (0,0x6210,0x55aa,0),(1,0x6210,0x5a55,0)])
+        self.assertEqual({a:v for a,v in after.items() if a in (0x6100,0x6110,0x6200,0x6210)},
+                         {0x6100:0xaa5a,0x6110:0x5a55,0x6200:0xaa5a,0x6210:0x5a55})
+        for address in (0x60f0,0x6120,0x61f0,0x6220):
+            self.assertEqual(after[address],before[address])
+        bus=[]
+        for q,(kind,address,data,iaq) in enumerate(transfers(case)):
+            clock=24+q*16
+            bus.extend((f'BUS_BEGIN {clock} {kind} {address:08x} {data if kind else 0:04x} {iaq}',
+                        f'BUS_END {clock+16} {kind} {address:08x} {data:04x}'))
+        observed=dict(start=0,end=168)
+        self.assertEqual(check_bus(case,observed,bus,0),[])
+        self.assertTrue(check_bus(case,observed,bus[:8],0))
+        self.assertTrue(check_bus(case,observed,bus[8:]+bus[:8],0))
 
 
 if __name__ == '__main__':

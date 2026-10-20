@@ -521,6 +521,40 @@ edge changes still require a new source-bound build and FPGA validation.
 Exact multirow partial timing, additional processing/window/mask/transparency
 conditions, and posted-wrapper partial-edge interrupt timing remain open.
 
+## Multirow partial-word timing baseline
+
+An additional 280 probes append two- and four-row B/C/D rectangles to the
+one-row cases. They retain PS1/2/4/8, N1/2/3, linear/XY, both cache modes,
+and a constant word-aligned 0x100-bit pitch. The preceding 2,380 FILL fixture
+and program contracts remain unchanged, including order. The FILL inventory
+is now 2,660; the complete timing inventory is 142,392 cases. This expands
+required coverage without establishing compliance for the new cases.
+
+The unchanged Table13-6 equations apply to the whole rectangle. In particular,
+the long-B five-state tail occurs once, rather than once per row. Literal
+linear counts for L=2/4 are 14/22 for N1 B, 13/21 for N1 C/D, 20/34 for
+N2 B/C, 21/37 for N2 D, and 25/41, 24/42, 25/45 for N3 B, C, D respectively.
+XY adds two setup states and disabled cache adds three once. Per-row ordered
+edge reads and writes, every defined register, full ST, all affected memory
+and both canary words per row remain checked.
+
+On the preceding native one-row RTL, seven directed multirow probes fail
+duration while an aligned N3/two-row control passes in each of BASE, W1/P7
+and W3. Checked architectural state, memory and bus transactions pass for
+all 24 executions. Linear PS4 N3 B with
+two rows expects 200 INCLK and observes 224; four rows expect 328 and observe
+400. Linear N3 C/D with two rows expect 192/200 and observe 200/216.
+These are retained timing gaps. No multirow partial FPGA or full-matrix
+pass is claimed. Run a short reproducer with:
+
+```sh
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case fill_partial_l_ps4_n3_B_rows2_hit
+```
+
+Use the FPGA batch backend for the expanded matrices after the matching
+image and host checking path have been validated.
+
 Run the focused permanent mutation group with:
 
 ```sh

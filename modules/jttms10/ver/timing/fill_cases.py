@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Replace FILL probes: SPVU001A12-80..86,13-10..14.
 
-Nonempty rows; PPOP0/PMASK0/T0/W0 only. Partial-edge probes use one row. B10..14 are
+Nonempty rows; PPOP0/PMASK0/T0/W0 only. Partial rows keep word-aligned pitch. B10..14 are
 reserved scratch registers marked changed by TI and have no final golden.
 """
 from itertools import product
@@ -75,8 +75,8 @@ def program(case, movi):
     return prefilled_program(proxy, movi)
 
 
-def partial_fixture(size, words, alignment, xy, off):
-    """One row with B/C/D edges, using TI's word-oriented RMW contract.
+def partial_fixture(size, words, alignment, xy, off, *, rows=1):
+    """Constant-alignment B/C/D rows using TI's word-oriented RMW contract.
 
     COLOR1 supplies a 16-bit pattern (12-80), indexed by destination lane.
     Section13.3.2.3 requires one write/RMW for the single-word case;
@@ -89,33 +89,39 @@ def partial_fixture(size, words, alignment, xy, off):
     width = (words*16-lane-end_lane)//size
     if width<=0:
         raise ValueError('partial FILL requires a nonempty pixel span')
-    case=fixture(size,words,1,xy,off)
+    case=fixture(size,words,rows,xy,off)
     address=case['data_fill']['address']+lane
-    case['name']=f'fill_partial_{"xy" if xy else "l"}_ps{size}_n{words}_{alignment}_{"off" if off else "hit"}'
+    row_suffix=f'_rows{rows}' if rows!=1 else ''
+    case['name']=f'fill_partial_{"xy" if xy else "l"}_ps{size}_n{words}_{alignment}{row_suffix}_{"off" if off else "hit"}'
     case['data_fill'].update(address=address,partial=True,width=width)
-    case['initial_all_regs']['b7']=case['register_overrides']['b7']=(1<<16)|width
+    case['initial_all_regs']['b7']=case['register_overrides']['b7']=(rows<<16)|width
     if xy:
         case['initial_all_regs']['b4']+=lane
         case['register_overrides']['b4']+=lane
         case['expected_extra_regs']['b4']+=lane
     else:
         case['initial_all_regs']['b2']=case['register_overrides']['b2']=address
-    case['expected_extra_regs'].update(b2=address+width*size,b7=(1<<16)|width)
+    pitch=case['data_fill']['pitch']
+    case['expected_extra_regs'].update(b2=address+(rows-1)*pitch+width*size,b7=(rows<<16)|width)
     case['conditions'].update(width=width,alignment=alignment,lane=lane)
-    timing=fill_timing(pixel_size=size,width=width,rows=1,address=address,
-                       pitch=0x100,xy=xy,cache_disabled=off)
+    timing=fill_timing(pixel_size=size,width=width,rows=rows,address=address,
+                       pitch=pitch,xy=xy,cache_disabled=off)
     case.update(states=timing['states'],fill_timing=timing)
     # Preserve every bit outside the rectangle, including both canary words.
     # Enumerate destination bits independently of the timing decomposition.
     memory=dict(case['initial_memory'])
     color=case['data_fill']['color']
-    for word in range(address & ~15,(address+width*size+15) & ~15,16):
-        memory[word]=color ^ 65535
+    for row in range(rows):
+        start=address+row*pitch
+        for word in range(start & ~15,(start+width*size+15) & ~15,16):
+            memory[word]=color ^ 65535
     case['initial_memory']=sorted(memory.items())
-    for bit in range(address,address+width*size):
-        word=bit & ~15
-        mask=1<<(bit & 15)
-        memory[word]=(memory[word] & ~mask) | (color & mask)
+    for row in range(rows):
+        start=address+row*pitch
+        for bit in range(start,start+width*size):
+            word=bit & ~15
+            mask=1<<(bit & 15)
+            memory[word]=(memory[word] & ~mask) | (color & mask)
     case['expected_memory']=sorted(memory.items())
     return case
 
@@ -124,12 +130,14 @@ def transfers(case):
     spec = case['data_fill']
     if spec.get('partial'):
         before,after=map(dict,(case['initial_memory'],case['expected_memory']))
-        start=spec['address']; stop=start+spec['width']*case['conditions']['size']
         plan=[]
-        for word in range(start & ~15,(stop+15) & ~15,16):
-            if max(start,word)!=word or min(stop,word+16)!=word+16:
-                plan.append((0,word,before[word],0))
-            plan.append((1,word,after[word],0))
+        for row in range(spec['rows']):
+            start=spec['address']+row*spec['pitch']
+            stop=start+spec['width']*case['conditions']['size']
+            for word in range(start & ~15,(stop+15) & ~15,16):
+                if max(start,word)!=word or min(stop,word+16)!=word+16:
+                    plan.append((0,word,before[word],0))
+                plan.append((1,word,after[word],0))
         return plan
     return [(1, spec['address']+row*spec['pitch']+16*word, spec['color'], 0)
             for row in range(spec['rows']) for word in range(spec['words'])]
@@ -245,3 +253,9 @@ def fill_cases():
         if (size,words,alignment)==(8,1,'D'):
             continue  # No nonempty PS8 span can have both edges inside one word.
         yield partial_fixture(size,words,alignment,xy,off)
+
+    # Append multirow contracts without changing preceding fixture/program order.
+    for rows,size,words,alignment,xy,off in product((2,4),(1,2,4,8),(1,2,3),'BCD',(False,True),(False,True)):
+        if (size,words,alignment)==(8,1,'D'):
+            continue
+        yield partial_fixture(size,words,alignment,xy,off,rows=rows)

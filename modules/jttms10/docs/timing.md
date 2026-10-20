@@ -1260,5 +1260,12 @@ additionally failing word-transaction counts. Six surrounding NOP executions
 pass, all420 failing raw verdicts replay exactly, and30 representative
 diagnostic observations agree with Verilator. These failures remain required
 fixes. See the [partial-word audit](fill-timing.md#partial-word-edge-timing-baseline).
+The [multirow partial baseline](fill-timing.md#multirow-partial-word-timing-baseline)
+appends 280 two/four-row constant-alignment probes without changing the
+preceding 2,380 FILL fixture/program contracts. Inventory is now 142,392 cases
+across the same 133 forms. Seven directed multirow cases fail duration on the
+native one-row implementation while an aligned control passes; architecture,
+memory and checked transactions remain correct. Expanded FPGA runs remain
+required; these probes do not establish multirow timing compliance.
 Known MOVB targets, these FILL gaps and the remaining conditions prevent
 unqualified timing compliance. No task or acceptance gate is waived.
