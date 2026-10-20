@@ -19,7 +19,7 @@ def expected_pause(entry):
     if contract is None:
         return 0
     if isinstance(contract, dict) and contract.get('kind') in (
-            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned'):
+            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi'):
         _irq_contract.validate(entry)
         return 0
     if (not isinstance(contract, dict) or set(contract) != {'kind', 'clocks'} or
@@ -40,6 +40,6 @@ def expected_pause(entry):
 def check_followup(entry, observed, lines):
     contract = entry.get('external_contract')
     if isinstance(contract, dict) and contract.get('kind') in (
-            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned'):
+            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi'):
         return _irq_contract.check(entry, observed, lines)
     return [], None

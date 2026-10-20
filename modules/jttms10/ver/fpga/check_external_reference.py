@@ -16,6 +16,7 @@ from event_cases import specifications
 from event_contract import expected_pause
 import event_contract
 import irq_cases
+import nmi_cases
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE.parents[1]
@@ -27,9 +28,10 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=None):
-    if (irq_phase_sweep and irq_unaligned) or (stack_offsets is not None and not irq_unaligned):
-        raise ValueError('stack offsets require the unaligned IRQ selection')
+def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=None, nmi=False):
+    if (sum((irq_phase_sweep, irq_unaligned, nmi)) > 1 or
+            (stack_offsets is not None and not (irq_unaligned or nmi))):
+        raise ValueError('stack offsets require the unaligned IRQ or NMI selection')
     specs = specifications()
     bases = {entry['name']: entry for entry in checker.prepare_cases(
         sorted({row['base'] for row in specs}), protocol_version=5)}
@@ -58,6 +60,10 @@ def fixture_manifest(irq_phase_sweep=False, irq_unaligned=False, stack_offsets=N
             entry['id'] = identifier
     if irq_unaligned:
         entries = irq_cases.unaligned_entries(bases['nop_hit'], checker.oracle_module(), stack_offsets)
+        for identifier, entry in enumerate(entries):
+            entry['id'] = identifier
+    if nmi:
+        entries = nmi_cases.entries(bases['nop_hit'], checker.oracle_module(), stack_offsets)
         for identifier, entry in enumerate(entries):
             entry['id'] = identifier
     return dict(format=checker.FORMAT_V5, protocol_version=5,
@@ -93,7 +99,7 @@ def reference_case(entry, executable, work, output, oracle):
         f"+FOLLOW_PC={case.get('follow_pc', 0):x}", f"+WAIT={8*settings['wait_states']}",
         f"+PAUSE={settings['pause_clocks']}", f"+PAUSE_AFTER={settings['pause_after_clocks']}"]
     if entry.get('external_contract', {}).get('kind') in (
-            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned'):
+            'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi'):
         command.append('+ENTRY_HANDLER=4000')
     result = subprocess.run(command, cwd=work, capture_output=True, text=True, timeout=30)
     log = result.stdout+result.stderr
@@ -209,18 +215,20 @@ def main():
                            help='48 warm LINT1/LINT2 W0/W1/W3 cases across all eight INCLK phases')
     selection.add_argument('--irq-unaligned', action='store_true',
                            help='180 cases across SP offsets1..15; prepare for FPGA or select a short subset')
-    parser.add_argument('--stack-offset', type=int, choices=range(1, 16), action='append',
-                        help='repeat to select unaligned SP bit offsets; local reference limit is64 cases')
+    selection.add_argument('--nmi', action='store_true',
+                           help='192 stacked NMI cases: IE0/1, SP offsets0..15, cold/warm, W0/W1/W3')
+    parser.add_argument('--stack-offset', type=int, choices=range(16), action='append',
+                        help='repeat to select SP bit offsets (IRQ1..15, NMI0..15); local limit is64 cases')
     parser.add_argument('--output', type=Path, help='new directory retaining raw reference and Avalon evidence')
     parser.add_argument('--report', type=Path)
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument('--reference-only', action='store_true', help='prepare references for later physical comparison')
     modes.add_argument('--prepare-only', action='store_true', help='write runtime fixtures without building a local model')
     args = parser.parse_args()
-    if args.stack_offset is not None and not args.irq_unaligned:
-        parser.error('--stack-offset requires --irq-unaligned')
+    if args.stack_offset is not None and not (args.irq_unaligned or args.nmi):
+        parser.error('--stack-offset requires --irq-unaligned or --nmi')
     manifest = (json.loads(args.manifest.read_text()) if args.manifest else
-                fixture_manifest(args.irq_phase_sweep, args.irq_unaligned, args.stack_offset))
+                fixture_manifest(args.irq_phase_sweep, args.irq_unaligned, args.stack_offset, args.nmi))
     if args.prepare_only:
         if args.output is None or args.report is not None:
             parser.error('--prepare-only requires --output and does not produce a validation --report')

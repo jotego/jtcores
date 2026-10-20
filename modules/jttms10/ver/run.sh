@@ -24,7 +24,7 @@ main() {
     python3 -B "$ver_dir/timing/test_line_cases.py"
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
-    for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_transport_payload test_transport_stream \
+    for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_transport_payload test_transport_stream \
                  test_transport_schema test_programming_receipt test_incremental_build; do
         python3 -B "$ver_dir/fpga/$suite.py"
     done

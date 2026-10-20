@@ -217,9 +217,9 @@ def external_event_words(entry, protocol_version):
     if entry.get('external_contract') is not None and protocol_version < 4:
         raise ValueError('external event expectations require FPGA protocol 4')
     contract = entry.get('external_contract')
-    if (isinstance(contract, dict) and contract.get('kind') == 'scalar_irq_unaligned' and
+    if (isinstance(contract, dict) and contract.get('kind') in ('scalar_irq_unaligned', 'scalar_nmi') and
             protocol_version < 5):
-        raise ValueError('unaligned IRQ requires FPGA protocol 5')
+        raise ValueError('unaligned IRQ/NMI requires FPGA protocol 5')
     expected_external_pause(entry)
     words = []
     for event in events:

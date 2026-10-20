@@ -92,6 +92,39 @@ differences (5.083s full host command). This uses the newer host fixture/oracle
 source with the immutable hardware source and its original receipt; no FPGA
 recompile or reprogramming is needed.
 
+## Stacked NMI latency baseline
+
+`check_external_reference.py --nmi` adds 192 runtime fixtures: NMIM=0, IE clear
+and set with INTENB=0, all SP bit offsets0..15, waits0/1/3 and cold/warm handlers.
+The host writes NMI through the existing preloaded event interface. The oracle
+checks the NMI vector `0xfffffee0`, PC/ST frame, surrounding bits, handler state,
+RETI continuation, physical bus order and context/first-ISR durations. TI
+SPVU001A6-32/33 and8-5..8 require NMI regardless of interrupt masks; Table8-4
+measures recognition from completion of the host write, rather than its strobe.
+
+```sh
+# Small diagnostic baseline; a failing contract returns nonzero.
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi \
+    --stack-offset 0 --output /path/to/new-nmi-reference
+# Full runtime inventory for the FPGA, without a long local simulation.
+python3 modules/jttms10/ver/fpga/check_external_reference.py --nmi \
+    --prepare-only --output /path/to/new-nmi-manifest
+```
+
+All twelve aligned cases currently fail the declared request-recognition bound
+in the independent full-system and Avalon Verilator models: observed130 INCLK
+versus135..145 at W0, with exactly six configured word waits added at W1/W3.
+The aligned16-state context, separate first MOVI, masks, saved architecture,
+memory and checked bus events pass. This is a retained timing baseline, not a
+passing NMI result. The abstract host-write completion boundary still requires
+physical cross-checking before a CPU timing fix. The existing positive-only
+comparison correctly rejects these captures as equivalence evidence.
+
+The192-case inventory is generated and schema-checked, not a completed timing
+matrix. NMIM=1, host-pin electrical synchronization, direct observation of NMI
+bit clear, phase sweeps, refresh/contention and graphics interruption remain
+outside this baseline. No old fixture, expectation or CPU RTL is changed.
+
 ## Historical version 4 and scalar interrupt entry
 
 The V4 checkout's RTL, transport and receipt writer use protocol4. The
