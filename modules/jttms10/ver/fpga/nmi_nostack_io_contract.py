@@ -1,6 +1,17 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Strict CPU-visible I/O preservation contract for NMIM=1 runtime cases."""
-from nmi_nostack_io_cases import IO_READS
+# Literal CPU-visible register/readback contract. Keep these expectations local
+# to the oracle: a copied driver loads this file by path without putting the
+# selected fixture producer on Python's import path.
+IO_READS = (
+    (0xC00000B0, 0x0018, 6),
+    (0xC0000080, 0x0001, 7),
+    (0xC0000130, 0x001B, 8),
+    (0xC0000140, 0x0014, 9),
+    (0xC0000150, 0x0010, 10),
+    (0xC0000160, 0x2A5A, 11),
+    (0xC0000100, None, 12),
+)
 
 KEYS={'kind','handler_warm','sp_offset','interrupt_enable','assert_clock'}
 STATIC_SETUP=[[a,v] for a,v,_ in IO_READS[:6]]

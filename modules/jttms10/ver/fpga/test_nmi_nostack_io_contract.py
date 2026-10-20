@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 import copy
+from pathlib import Path
+import subprocess
+import sys
 import unittest
 
 import check_external_reference as reference
@@ -10,6 +13,37 @@ import nmi_nostack_io_contract as contract
 
 
 class NoStackNMIIOContract(unittest.TestCase):
+    def test_checker_loads_without_selected_checkout_on_import_path(self):
+        # A copied transport supplies its schema but loads the selected checker
+        # by filename. A same-named ambient fixture must not supply its oracle.
+        script = '''
+import importlib.util
+from pathlib import Path
+import sys
+import types
+root = Path(sys.argv[1])
+schema = importlib.util.spec_from_file_location('stimulus_schema', root/'stimulus_schema.py')
+module = importlib.util.module_from_spec(schema)
+sys.modules[schema.name] = module
+schema.loader.exec_module(module)
+if sys.argv[2] == 'shadow':
+    poison = types.ModuleType('nmi_nostack_io_cases')
+    poison.IO_READS = ()
+    sys.modules[poison.__name__] = poison
+spec = importlib.util.spec_from_file_location('selected_checker', root/'check_results.py')
+checker = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(checker)
+contract = checker._event_contract._nostack_io_contract
+assert len(contract.IO_READS) == 7
+assert contract.IO_READS[5] == (0xc0000160, 0x2a5a, 11)
+'''
+        for mode in ('absent', 'shadow'):
+            with self.subTest(mode=mode):
+                result = subprocess.run([sys.executable, '-I', '-c', script,
+                                         str(Path(checker.__file__).resolve().parent), mode],
+                                        cwd='/', capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
     @classmethod
     def setUpClass(cls):
         oracle=checker.oracle_module()
