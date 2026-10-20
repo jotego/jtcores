@@ -23,6 +23,7 @@ jtframe:
   - from: cpu
     get:
       - mc6809i.v
+      - jtframe_hd6309_arith.v
       - jtframe_63701v.yaml
   - from: clocking
     get:

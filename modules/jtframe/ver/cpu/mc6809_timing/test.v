@@ -15,6 +15,7 @@ reg [7:0] code_mem[0:255];
 reg [7:0] stack_mem[0:31];
 reg [7:0] vector_mem[0:15];
 integer i;
+integer stack_write_count;
 
 `include "test_tasks.vh"
 
@@ -35,7 +36,10 @@ endfunction
 assign dout = read_byte(addr);
 always @(posedge clk) if(nreset && cen_Q && !rnw) begin
     if(addr >= 16'h0100 && addr <= 16'h01ff) code_mem[addr-16'h0100] <= cpu_dout;
-    else if(addr >= 16'h2fe0 && addr <= 16'h301f) stack_mem[addr-16'h2fe0] <= cpu_dout;
+    else if(addr >= 16'h2fe0 && addr <= 16'h301f) begin
+        stack_mem[addr-16'h2fe0] <= cpu_dout;
+        stack_write_count=stack_write_count+1;
+    end
     else if(addr >= 16'hfff0) vector_mem[addr-16'hfff0] <= cpu_dout;
 end
 
@@ -43,7 +47,8 @@ mc6809i #(.ILLEGAL_INSTRUCTIONS("STOP")) uut(
     .D(dout), .DOut(cpu_dout), .ADDR(addr), .RnW(rnw),
     .clk(clk), .cen_E(cen_E), .cen_Q(cen_Q), .BS(bs), .BA(ba),
     .nIRQ(irq_n), .nFIRQ(1'b1), .nNMI(1'b1), .AVMA(avma), .BUSY(busy), .LIC(lic),
-    .nHALT(1'b1), .nRESET(nreset), .nDMABREQ(1'b1), .OP(op), .RegData(regs)
+    .nHALT(1'b1), .nRESET(nreset), .nDMABREQ(1'b1), .OP(op), .RegData(regs),
+    .RegData6309()
 );
 
 task put(input [15:0] a, input [7:0] value);
@@ -59,6 +64,7 @@ task load_test_program(input [7:0] b0, input [7:0] b1);
     begin
         cpu_reset_n = 0;
         irq_n = 1;
+        stack_write_count=0;
         // Only the setup stream, target, and vectors are read before checks stop.
         for(k=0;k<32;k=k+1) stack_mem[k]=8'h00;
         // Establish S/U/X/Y, A/B, DP, and unmasked interrupt state.
@@ -80,6 +86,46 @@ task load_test_program(input [7:0] b0, input [7:0] b1);
         put(16'hfffe,8'h01); put(16'hffff,8'h00);
         repeat(8) @(posedge clk);
         @(negedge clk); cpu_reset_n=1;
+    end
+endtask
+
+task check_irq_full_frame;
+    integer watchdog;
+    reg target_seen, handler_seen;
+    begin
+        load_test_program(8'h12,8'h12);
+        watchdog=0; target_seen=0;
+        while(!target_seen && watchdog<1000) begin
+            @(posedge clk);
+            if(cen_E && op && addr==16'h0120) target_seen=1;
+            watchdog=watchdog+1;
+        end
+        assert_msg(target_seen,"MC6809 IRQ frame did not reach target");
+        @(negedge clk); irq_n=0;
+        watchdog=0; handler_seen=0;
+        while(!handler_seen && watchdog<1000) begin
+            @(posedge clk);
+            if(cen_E && op && addr==16'h0150) handler_seen=1;
+            watchdog=watchdog+1;
+        end
+        @(negedge clk); irq_n=1;
+        assert_msg(handler_seen,"MC6809 IRQ frame did not vector");
+        assert_msg(stack_write_count==12,
+            $sformatf("MC6809 IRQ stack writes=%0d expected 12",stack_write_count));
+        assert_msg(regs[63:48]==16'h2ff4,
+            $sformatf("MC6809 IRQ S=%04x expected 2ff4",regs[63:48]));
+        assert_msg(stack_mem[8'h14][7] && stack_mem[8'h15]==8'h11 &&
+                   stack_mem[8'h16]==8'h22 && stack_mem[8'h17]==8'h11,
+            $sformatf("MC6809 IRQ CC/A/B/DP=%02x/%02x/%02x/%02x",
+                      stack_mem[8'h14],stack_mem[8'h15],stack_mem[8'h16],stack_mem[8'h17]));
+        assert_msg(stack_mem[8'h18]==8'h20 && stack_mem[8'h19]==8'h00 &&
+                   stack_mem[8'h1a]==8'h21 && stack_mem[8'h1b]==8'h00 &&
+                   stack_mem[8'h1c]==8'h40 && stack_mem[8'h1d]==8'h00,
+            $sformatf("MC6809 IRQ X/Y/U frame=%02x%02x/%02x%02x/%02x%02x",
+                      stack_mem[8'h18],stack_mem[8'h19],stack_mem[8'h1a],stack_mem[8'h1b],
+                      stack_mem[8'h1c],stack_mem[8'h1d]));
+        assert_msg(stack_mem[8'h1e]==8'h01 && stack_mem[8'h1f]==8'h22,
+            $sformatf("MC6809 IRQ PC frame=%02x%02x expected 0122",stack_mem[8'h1e],stack_mem[8'h1f]));
     end
 endtask
 
@@ -168,6 +214,7 @@ initial begin
     load_test_program(8'h11,8'h3f); measure_case(20,16'h0170,500,"SWI3 vector $FFF2");
     load_test_program(8'h13,8'h12); measure_wait_and_wake(7'd113,4,16'h0150,"SYNC IRQ wake");
     load_test_program(8'h3c,8'h00); measure_wait_and_wake(7'd110,20,16'h0150,"CWAI entry and IRQ wake");
+    check_irq_full_frame();
     pass();
 end
 

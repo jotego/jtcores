@@ -146,7 +146,8 @@ mc6809i u_cpu(
     .LIC        (           ),
     .nDMABREQ   ( 1'b1      ),
     .OP         (           ),
-    .RegData    (           )
+    .RegData    (           ),
+    .RegData6309 ( )
 );
 `else
     assign srst=0,

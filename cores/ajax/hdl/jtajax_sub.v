@@ -97,7 +97,7 @@ jtframe_dual_ram #(.AW(13)) u_com(
     .q1         ( mcom_dout )
 );
 
-jtframe_sys6809 #(.RAM_AW(0),.CENDIV(0),.IRQFF(0)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(0),.CENDIV(0),.IRQFF(0),.HD6309(1)) u_cpu(
     .rstn       ( rstn      ),
     .clk        ( clk       ),
     .cen        ( cen3      ),   // This is normally the input clock to the CPU
@@ -123,4 +123,4 @@ jtframe_sys6809 #(.RAM_AW(0),.CENDIV(0),.IRQFF(0)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
-endmodule 
+endmodule

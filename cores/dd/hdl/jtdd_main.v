@@ -254,7 +254,7 @@ jtframe_ff #(.W(3)) u_irq(
 );
 
 // RECOVERY does not seem to have an effect on DD2 hanging up
-jtframe_sys6809 #(.RAM_AW(13),.CENDIV(0),.RECOVERY(0)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(13),.CENDIV(0),.RECOVERY(0),.HD6309(1)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cpu_cen   ),   // This is normally the input clock to the CPU
