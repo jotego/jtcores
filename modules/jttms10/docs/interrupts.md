@@ -191,7 +191,10 @@ requires first long MOVI retirement after3 warm states (printed12-160), or12 col
 states plus four word waits, using the existing nine-state line-fill contract.
 Missing/duplicate boundaries and a delayed first ISR fail independently of final
 state. The original programs, ISA oracle and archived V4 verdicts are preserved.
-V5 still requires local cross-backend and source-bound physical validation.
+The source-bound V5 image now passes all 50 original and 48 phase cases on
+DataStorm with zero independent Verilator differences. The later decode remains
+in the raw observations; the explicit context/retirement checks own these
+latency bounds. Broader IRQ/NMI/HOLD/graphics conditions remain open.
 
 ## Unaligned scalar context contract
 
@@ -211,3 +214,13 @@ even when all architectural registers and timing agree. The original aligned
 and phase fixtures retain their existing program and observation contracts.
 These conditions use the same V5 image; programs, initial memory and settings
 are runtime payloads. See [commands and validation scope](../ver/fpga/README.md#unaligned-scalar-interrupt-frames).
+
+All 180 unaligned fixtures pass both local backends and the same physical V5
+image, with zero differences and every complete raw report independently replayed.
+The host command takes 5.083s; programs and initial memory change at runtime,
+without recompiling or reprogramming the FPGA. Host source is
+`00d7547dae7b62c4d04d599faf7114960b1d64cf`, hardware source is
+`bb856bf46a6d63f652c4831c2cd06d8c903954dc`. The normal runner includes the boundary
+offsets 1/8/15 and six actual RTL mutation checks; the complete fixture matrix
+covers all fifteen offsets. This proves the declared scalar LINT conditions,
+not general interrupt or instruction-timing compliance.

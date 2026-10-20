@@ -4,10 +4,13 @@ Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
 ## Version 5 and interrupt measurement boundaries
 
-This checkout uses protocol5:292-word results append actual context completion,
-preceding retirement and first ISR retirement clocks. Programs and event tables
-are unchanged runtime data. A new image and receipt are required; V5 is not yet
-physically validated. See [the wire contract](PROTOCOL.md#version-5-interrupt-boundaries).
+This checkout uses protocol 5: 292-word results append actual context completion,
+preceding retirement and first ISR retirement clocks. Hardware source
+`bb856bf46a6d63f652c4831c2cd06d8c903954dc` is physically validated on DataStorm;
+host-only unaligned fixtures are in `00d7547dae7b62c4d04d599faf7114960b1d64cf`.
+Programs, initial memory and event tables are runtime data. All 50 original
+event cases, 48 phase cases and 180 unaligned cases match their independent
+Verilator references on one image. See [the wire contract](PROTOCOL.md#version-5-interrupt-boundaries).
 
 A 60-case diagnostic audit of the preceding CPU found that context completes
 when handler PC and initialized ST are installed, before handler decode.
@@ -23,9 +26,26 @@ All97 host tests, strict lint and the static ARM transport build pass. Five
 actual RTL mutations are rejected: slow halfword entry, wrong frame word order,
 skipped continuation, delayed first ISR MOVI and a missing completion observer.
 The latter two exercise the newly separated timing and observation checks.
-Nine event-failure scenarios plus generic timeout/overflow checks reject the
-failed batch while preserving the next case and clean rearm. These are local
-proofs; V5 fit/STA, FPGA equivalence and full matrices remain required.
+Nine event-failure scenarios plus generic timeout/overflow checks also fail on
+the physical FPGA while preserving the next case and clean rearm. Three malformed
+table/descriptor cases use a reviewed task-only injection after normal transport
+preflight; production validation remains intact. All raw reports independently
+replay. The ordinary base matrix passes 141,972 cases across 133 forms and 5,190
+batches. Full #144 compliance, broader conditions and final area/NARC gates remain
+open; ordinary fixture agreement does not waive the 27 known MOVB CD targets.
+
+The V5 RBF SHA-256 is
+`f3e6e03ce3e04d866694fb2714e6eca571272ddfb9614a5efd0424616546f5e3`.
+The source-bound receipt and raw evidence live under
+`/nobackup/tasks/jtcores-144/artifacts/irq-recognition/`. Rapid Recompile through
+`/opt/quartus_free` took 951.839s (955.414s enclosing helper), but the main
+partition fell back to full compilation. All 88 reported STA checks have positive
+slack and zero TNS; all 21 RAM geometries remain inferred, with only result depth
+changed. This is an appliance fit, not the CPU area/NARC signoff or an incremental
+speedup proof. Programming took 0.324s on target /1.534s with SSH. Base manifest
+preparation took 98.936s; the full host command then took 295.667s, including
+transfer, execution and checking. These separate development measurements are
+not a matched software comparison.
 
 ## Unaligned scalar interrupt frames
 
@@ -67,8 +87,10 @@ memory and bus checks fail. All 180 cases pass both local backends, split into
 three 60-case reference groups, with zero differences. All 104 host tests pass;
 six actual RTL mutations are rejected while the NOP controls pass. The previous
 50 event and 48 phase fixtures and complete result objects remain identical.
-Physical validation of the new fixture set remains required before claiming
-FPGA coverage.
+All 180 cases also pass on the same physical V5 image with zero reference
+differences (5.083s full host command). This uses the newer host fixture/oracle
+source with the immutable hardware source and its original receipt; no FPGA
+recompile or reprogramming is needed.
 
 ## Historical version 4 and scalar interrupt entry
 
