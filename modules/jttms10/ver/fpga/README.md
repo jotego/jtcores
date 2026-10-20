@@ -116,6 +116,70 @@ bus checks, and extending the LINE pixel interval beyond TI's Table 8-4 envelope
 fails the literal event-to-context bound. These are local Verilator checks; no
 physical graphics run is claimed.
 
+## Native FILL interrupt continuation
+
+`check_external_reference.py --graphics-fill-irq` adds four protocol 5 runtime
+cases: FILL L and FILL XY, each interrupted by LINT1 or NMI. Each case uses
+PSIZE16, two aligned full words per row, eight rows, PPOP0, PMASK0, T0 and W0.
+LINT1 is asserted after FILL L's first completed destination word; XY is asserted
+after its first row (two 16-bit destination words). In these Verilator reference
+runs, FILL L is serviced at the row end and FILL XY at a later destination-word
+boundary. TI permits interrupts at destination-word boundaries and row ends, so
+the contract accepts legal pre-context word/row choices after the event within
+its timing bounds; the observed cadence is not an exclusive rule. The eight-row
+extent also keeps the operation in flight long enough to require a mid-FILL
+checkpoint: TI §13.3.2.5 (printed page 13-13) gives a minimum of two machine
+states per opaque, unmasked word, leaving at least 30 states after the L trigger
+and 28 after the XY trigger, beyond §13.3.4's 20-state recognition limit. The
+fixture initializes the aligned SP and all GPRs, writes graphics registers
+before the event, warms a RETI-only handler, and
+checks final registers, restored ST, each fill word, stack guards, saved PC/ST
+(including pushed PBX), vector and RETI stack-read order.
+
+The independent contract rebuilds the literal program and sparse memory image,
+then classifies every BUS request as a fetch from the literal program/handler or
+one exact fill, interrupt-stack, vector or RETI data transaction. It checks
+transaction order, payload/read data, BUS request/ACK/response association,
+every TARGET request/response, four-clock TARGET duration and containment in its
+BUS interval, the selected word/row checkpoint and vector/context ordering. TI
+SPVU001A §13.3.4 gives a worst-case 20-state FILL interrupt-recognition delay;
+the checker bounds the scheduled request to the selected legal word/row completion by that
+limit. §8.5.1 Table 8-4 gives 17–22 states for interrupt recognition and context
+switch absent instruction completion. Together, the source-backed request-to-
+context envelope for this in-flight FILL is 17–42 states; the checker retains
+the measured event-to-row and event-to-context intervals separately.
+The first ISR RETI interval is checked as 11 RETI states plus a 9-state cold
+instruction-cache-line fill. The complete FILL/interrupt/RETI/resume duration is
+observed-only; the guide specifies no compound total. Full event and raw BUS
+observations still have to match between original-system and Avalon Verilator.
+The mutation helper delays the registered FILL checkpoint for 200 INCLK ticks
+(25 machine states) in a temporary Avalon HDL copy. The NMI cases fail the
+literal event-to-word/row bound; the unchanged NOP control passes.
+
+TI SPVU001A §7.2.3 (printed page 7-8; OCR around 6724–6760) defines in-flight
+FILL interruption, PBX restart and preserved array context. §8.5 (printed pages 8-6–8-8; OCR around 8100–8204) defines the
+interruptible point during FILL, the PC/ST push, PBX set for external/host/NMI
+interrupts, and the 17–22-state bound. §13.3.4 (printed page 13-17; OCR around
+24916–24923) states FILL interrupts at word boundaries and row ends, saves its
+context in reserved registers, and adds context-switch time to its recognition
+latency. RETI §12-230 (OCR around 22907–22952) says the saved PBX bit is cleared
+as FILL resumes and gives 11/14 states for an aligned stack. The cases claim
+only the selected word/row checkpoint, saved architectural frame, exact
+observed transfer sequence and cited timing subintervals.
+
+The NMI cases use the existing host-write event path. Physical execution still
+requires source/receipt identity preflight; no physical graphics result is
+claimed by these local checks. Run the short reference, host test and actual
+mutation checks with:
+
+```sh
+python3 -B modules/jttms10/ver/fpga/check_external_reference.py --graphics-fill-irq \
+    --output /path/to/graphics-fill-irq-reference
+python3 -B modules/jttms10/ver/fpga/test_graphics_fill_irq_contract.py
+python3 -B modules/jttms10/ver/fpga/check_graphics_fill_irq_mutations.py \
+    --output /path/to/graphics-fill-irq-mutations
+```
+
 ## Version 5 and interrupt measurement boundaries
 
 The original V5 checkpoint uses 292-word results appending actual context completion,

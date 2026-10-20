@@ -24,7 +24,7 @@ main() {
     python3 -B "$ver_dir/timing/test_line_cases.py"
     python3 -B "$ver_dir/timing/test_blit_oracle.py"
     python3 -B "$ver_dir/timing/test_blit_cases.py"
-    for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_nmi_nostack_contract test_nmi_nostack_io_contract test_graphics_irq_contract test_transport_payload test_transport_stream \
+    for suite in test_check_results test_event_contract test_irq_contract test_irq_unaligned test_nmi_contract test_nmi_nostack_contract test_nmi_nostack_io_contract test_graphics_irq_contract test_graphics_fill_irq_contract test_transport_payload test_transport_stream \
                  test_transport_schema test_programming_receipt test_incremental_build; do
         python3 -B "$ver_dir/fpga/$suite.py"
     done
@@ -53,6 +53,7 @@ main() {
     run_checker fpga-nmi-nostack-io-mutations "$ver_dir/fpga/check_nmi_nostack_io_mutations.py"
     run_checker fpga-event-mutations "$ver_dir/fpga/check_event_mutations.py"
     run_checker fpga-graphics-irq-mutations "$ver_dir/fpga/check_graphics_irq_mutations.py"
+    run_checker fpga-graphics-fill-irq-mutations "$ver_dir/fpga/check_graphics_fill_irq_mutations.py"
     run_checker bus "$ver_dir/bus_timing/check.py"
     run_checker response "$ver_dir/load_pause/check.py"
     run_checker emu "$ver_dir/emu/check.py"

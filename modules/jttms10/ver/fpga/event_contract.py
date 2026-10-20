@@ -21,6 +21,9 @@ _nostack_io_spec.loader.exec_module(_nostack_io_contract)
 _graphics_spec = importlib.util.spec_from_file_location('jttms10_graphics_irq_contract', Path(__file__).with_name('graphics_irq_contract.py'))
 _graphics_contract = importlib.util.module_from_spec(_graphics_spec)
 _graphics_spec.loader.exec_module(_graphics_contract)
+_graphics_fill_spec = importlib.util.spec_from_file_location('jttms10_graphics_fill_irq_contract', Path(__file__).with_name('graphics_fill_irq_contract.py'))
+_graphics_fill_contract = importlib.util.module_from_spec(_graphics_fill_spec)
+_graphics_fill_spec.loader.exec_module(_graphics_fill_contract)
 
 
 def expected_pause(entry):
@@ -35,6 +38,9 @@ def expected_pause(entry):
         return 0
     if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
         _graphics_contract.validate(entry)
+        return 0
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_fill_irq':
+        _graphics_fill_contract.validate(entry)
         return 0
     if isinstance(contract, dict) and contract.get('kind') in (
             'scalar_irq', 'scalar_irq_phase', 'scalar_irq_unaligned', 'scalar_nmi', 'scalar_nmi_phase'):
@@ -59,6 +65,8 @@ def check_followup(entry, observed, lines):
     contract = entry.get('external_contract')
     if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
         return _graphics_contract.check(entry, observed, lines)
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_fill_irq':
+        return _graphics_fill_contract.check(entry, observed, lines)
     if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack':
         return _nostack_contract.check(entry, observed, lines)
     if isinstance(contract, dict) and contract.get('kind') == 'scalar_nmi_nostack_io':
@@ -75,6 +83,9 @@ def check_duration(entry):
     if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
         _graphics_contract.validate(entry)
         return False
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_fill_irq':
+        _graphics_fill_contract.validate(entry)
+        return False
     return True
 
 
@@ -82,5 +93,8 @@ def check_transfer_observation(entry):
     contract = entry.get('external_contract')
     if isinstance(contract, dict) and contract.get('kind') == 'graphics_line_irq':
         _graphics_contract.validate(entry)
+        return False
+    if isinstance(contract, dict) and contract.get('kind') == 'graphics_fill_irq':
+        _graphics_fill_contract.validate(entry)
         return False
     return True

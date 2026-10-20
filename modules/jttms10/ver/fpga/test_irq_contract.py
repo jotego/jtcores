@@ -207,6 +207,9 @@ class InterruptContract(unittest.TestCase):
             (root/'graphics_irq_contract.py').write_text(
                 'def validate(entry):\n    assert entry["selected"] == 321\n'
                 'def check(entry, observed, lines):\n    return [], {"selected_graphics": entry["selected"]}\n')
+            (root/'graphics_fill_irq_contract.py').write_text(
+                'def validate(entry):\n    assert entry["selected"] == 654\n'
+                'def check(entry, observed, lines):\n    return [], {"selected_fill": entry["selected"]}\n')
             spec = importlib.util.spec_from_file_location('selected_event_contract', root/'event_contract.py')
             module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
             entry = dict(external_contract=dict(kind='scalar_irq'), selected=123)
@@ -221,6 +224,9 @@ class InterruptContract(unittest.TestCase):
             entry = dict(external_contract=dict(kind='graphics_line_irq'), selected=321)
             self.assertEqual(module.expected_pause(entry), 0)
             self.assertEqual(module.check_followup(entry, {}, []), ([], dict(selected_graphics=321)))
+            entry = dict(external_contract=dict(kind='graphics_fill_irq'), selected=654)
+            self.assertEqual(module.expected_pause(entry), 0)
+            self.assertEqual(module.check_followup(entry, {}, []), ([], dict(selected_fill=654)))
         entry, observed, lines = self.sample()
         self.assertEqual(irq_contract.check(entry, observed, lines)[0], [])
 
