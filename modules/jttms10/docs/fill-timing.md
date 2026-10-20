@@ -784,3 +784,60 @@ stimulus settings require no FPGA recompile. Arithmetic operations, partial
 Boolean words, masks, transparency, window rules, changing alignment and
 exact graphics interrupt timing remain outside this bounded family and
 remain requirements of #144.
+
+
+## Native Boolean word-processing development
+
+The development path admits aligned complete-word Boolean FILL PPOP1..15
+with PMASK0/T0/W0 at all five pixel sizes. It reads each destination word
+once, applies the existing 16-bit pixel Boolean helper to COLOR1 and that
+word, then posts one full-word write. The initial and repeated PROCESS
+microinstructions select this read dynamically; replacement uses its
+existing schedule. The graphics ROM remains 4,096 by 64 bits, and no
+register-RAM port, Boolean datapath, DSP or asynchronous memory is added.
+Arithmetic PPOP, partial Boolean words, masks, transparency and windowed
+conditions retain the generic path and have no new timing claim.
+
+The accepted full-word read retains the field adapter's existing RMW slot
+through its following write, as scalar pixel processing already does.
+Unrelated operations and CEN pauses release slot credit under the existing
+rules. The initial read reserves the row's processing work and launches on
+a machine-state boundary; an accepted pending read or captured response
+must not be withdrawn when that phase changes. N2 replacement's separate
+initial write budget is not charged again to Boolean read processing.
+These are transfer/setup rules; no retirement padding changes the measured
+boundary or hides a bus/interrupt mismatch.
+
+Boundary development exposed two distinct failures: releasing the RMW slot
+added machine states between words; allowing a newly ready first read to
+claim a preceding boundary absorbed a one-clock CEN pause. The dedicated
+CPU-only response test must pause after the accepted read, rather than
+before its reserved launch. It still requires request < pause <= captured
+response < resume, exact paused clocks, correct architecture/memory and
+ordered physical transactions. Its overlapping-pause completion bound is
+separate from the normal suite's exact TI counts and early-pause alignment.
+
+The permanent array IRQ bench additionally exercises XOR at PSIZE1/2/4/8/16,
+L/XY. It checks eight whole-word writes against literal C33C XOR 55AA =9696,
+compares uninterrupted/IRQ/NMI destination order and memory, verifies PBX,
+restored pointers and SP, and checks the nested one-pixel XOR result from
+BEEF/COLOR1 5678. The standard `sim.sh arrayirq` includes these cases.
+This is architectural continuation coverage; exact Boolean interrupt
+recognition/context timing still requires a separate specification audit.
+
+All 61 directed programs pass BASE/W1P7/W3/W1P1 in Verilator (244 executions),
+with the independent architecture, status, memory, bus and exact-duration
+checks active. The 23 mutation controls pass; 17 actual timing mutations
+are rejected while retaining correct architecture/memory, and six functional
+or protocol mutations are rejected. New timing controls specifically cover
+lost RMW-slot ownership and absorption of short CEN pauses. The complete
+response suite passes 55 controls and rejects the lost-response mutation.
+The 160 array and 124 boundary architectural programs, 112 timed row/HOLD
+executions, 20 replacement/XOR L/XY/PSIZE IRQ/NMI modes, 267 model tests and
+strict lint pass. The graphics ROM still has 4,096 words of 64 bits.
+
+Complete 4,460-case FILL / 144,192-case ordinary FPGA validation remains
+required before a compliance claim. Short debugging
+uses Verilator; the full matrices must run on the DataStorm after a new
+source-bound build and representative equivalence checks. The current
+source175 FPGA image contains no native Boolean schedule.

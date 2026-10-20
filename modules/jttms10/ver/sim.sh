@@ -39,6 +39,8 @@ main() {
         for size in 1 2 4 8 16; do
             "$model_dir/Vtest" +FILL_PSIZE="$size"
             "$model_dir/Vtest" +FILL_PSIZE="$size" +FILL_XY=1
+            "$model_dir/Vtest" +FILL_PSIZE="$size" +FILL_PPOP=10
+            "$model_dir/Vtest" +FILL_PSIZE="$size" +FILL_XY=1 +FILL_PPOP=10
         done
     elif [ "$unit" = binaryirq-timed ] || [ "$unit" = copyirq-timed ]; then
         local formats=(0 1) mode_arg=XY

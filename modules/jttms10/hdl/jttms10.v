@@ -148,6 +148,7 @@ module jttms10 #(
     wire copy_native=copy_regular_native || binary_native;
     wire copy_scheduled=copy_native && (gfx_bus_post && gfx_bus_read || binary_native && fill_word && gfx_bus_write);
     assign mem_overlap=(line_native || copy_regular_native || (binary_native && fill_word)) && gfx_active;
+    wire fill_simple=(pixel_simple || pixel_boolean) && control[7:6]==0;
     wire pixel_boolean=!control[14] && control[13:10]!=0 && !control[5] && pmask==0;
     // The selected native microprogram owns the mode until retirement.
     wire pixel_process=pix_rlin && gfx_family==8'd150;
@@ -164,7 +165,7 @@ module jttms10 #(
                               psize==16'd4 ? 32'd4 :
                               psize==16'd8 ? 32'd2 : 32'd1;
     wire fill_word_eligible = (array_fill || (copy_regular_native && rs_data[3:0]==0) ||
-        (binary_native && binary_aligned && rd_data<=32 && (rd_data & (fill_pixels-1))==0)) && pixel_simple &&
+        (binary_native && binary_aligned && rd_data<=32 && (rd_data & (fill_pixels-1))==0)) && (pixel_simple || (array_fill && pixel_boolean && (rd_data & (fill_pixels-1))==0)) &&
         (!ir[5] || control[7:6]==0) && result[3:0]==0 &&
         (psize==16'd1 || psize==16'd2 || psize==16'd4 ||
          psize==16'd8 || psize==16'd16) && rd_data>=fill_pixels;
@@ -382,7 +383,7 @@ module jttms10 #(
     wire decode_pixel_xy_store=decode_opcode[15:9]==7'b1111000 && pixel_xy_simple;
     wire decode_pixel_draw_store=decode_opcode[15:9]==7'b1111011 && pixel_xy_simple;
     wire decode_pixel_xy_address_store=decode_pixel_xy_store || decode_pixel_draw_store;
-    wire decode_fill_xy=decode_opcode==16'h0fe0 && pixel_xy_simple;
+    wire decode_fill_xy=decode_opcode==16'h0fe0 && fill_simple;
     wire decode_pixel_xy_copy=decode_opcode[15:9]==7'b1111010 && pixel_xy_simple;
     wire decode_pixel_copy=decode_opcode[15:9]==7'b1111110 && pixel_simple;
     wire decode_pixel_process=decode_opcode[15:9]==7'b1111100 && pixel_boolean;
@@ -489,7 +490,12 @@ module jttms10 #(
     // state boundary, matching the existing cached fetch/dispatch overlap.
     wire fill_bus_wait=TIMED_PROGRAM!=0 && array_fill && (fill_word || fill_edge) && gfx_bus_write &&
         (!store_started || (fill_long_b && fill_last_row && fill_edge)) && (load_issue_left!=0 || mem_phase!=0);
-    wire operation_ready=fill_bus_wait ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
+    // Reserve initial row processing before the first Boolean word read.
+    // Subsequent RMWs retain their accepted field slot across the handoff.
+    wire fill_read_wait=TIMED_PROGRAM!=0 && array_fill && fill_word && pixel_boolean &&
+        gfx_bus_read && !store_started && !completed && !copy_read_pending &&
+        (load_issue_left>CLKS_PER_STATE[LOAD_IW-1:0] || mem_phase!=0);
+    wire operation_ready=(fill_bus_wait || fill_read_wait) ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
                          gfx_bus_collect ? (mem_ack || !mem_busy) :
                          line_native && gfx_bus_skip ? time_left==0 :
                          gfx_active && gfx_bus_sync && TIMED_PROGRAM!=0 ?
@@ -509,7 +515,7 @@ module jttms10 #(
                      !(line_native && gfx_bus_post && (time_left!=0 || mem_phase!=0)) &&
                      !(copy_scheduled && !copy_read_pending &&
                        ((!gfx_bus_second && time_left!=0) || mem_phase!=0 || (!store_started && load_issue_left!=0))) &&
-                     !fill_bus_wait &&
+                     !fill_bus_wait && !fill_read_wait &&
                      !(multi_ir && imm && load_issue_left>multi_first_lead-LOAD_PRE+LOAD_NEXT_LIMIT) &&
                      !(dsj_ir && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
                      !(call_relative && control[15] && imm && load_issue_left>LOAD_NEXT_LIMIT) &&
@@ -572,7 +578,8 @@ module jttms10 #(
     assign mem_fast=TIMED_PROGRAM!=0 && control[15] && branch_relative &&
                     !branch_short && condition && mem_program ||
                     (copy_packet && imm && mem_program && copy_miss_ready) ||
-                     (pixel_store && (early_load || early_store)) || (gfx_active && (fill_word || fill_edge) && gfx_bus_write) || gfx_bus_post;
+                     (pixel_store && (early_load || early_store)) || (gfx_active && (fill_word || fill_edge) && gfx_bus_write) ||
+                     (gfx_active && array_fill && fill_word && gfx_bus_read) || gfx_bus_post;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = (pixel_store && (early_store || early_load)) || (pixel_load && early_load) || (gfx_active && gfx_bus_pixel);
@@ -598,7 +605,7 @@ module jttms10 #(
         .byte_finish(byte_finish),
         .byte_first(decode_byte_first),
         .md(fetch ? read_data[15:0] : md[15:0]),
-        .pixel_simple(pixel_simple), .pixel_boolean(pixel_boolean), .pixel_xy_simple(pixel_xy_simple),
+        .pixel_simple(pixel_simple), .pixel_boolean(pixel_boolean), .pixel_xy_simple(pixel_xy_simple), .fill_simple(fill_simple),
         .multi_steps(multi_steps),
         .multi_load(ir[5]), .multi_done(multi_done),
         .mul_count(mul_count),
@@ -755,16 +762,17 @@ module jttms10 #(
     wire [15:0] unused_pixel_result, unused_pixel_mask;
     wire gfx_color_lane = drav_ir || line_ir ||
                           (array_ir && (array_fill || array_binary));
+    wire [4:0] pixel_size=fill_word && array_fill && pixel_boolean ? 5'd16 : psize[4:0];
     wire [15:0] pixel_source = (pixel_load || pixel_copy) ? read_data[15:0] : gfx_color_lane ?
                                rs_data[15:0] >> ea[3:0] : rs_data[15:0];
     jttms10_pixel u_pixel(
-        .psize(psize[4:0]), .ppop(control[14:10]),
+        .psize(pixel_size), .ppop(control[14:10]),
         .transparency(control[5]), .pmask(pmask),
         .source_is_register(pix_register_source),
         .src_addr_lo((pixel_load || pixel_copy || array_binary) ? ea[3:0] : pix_src_addr),
         .dst_addr_lo(ea[3:0]),
         .source_pixel(pixel_source),
-        .dest_pixel(pixel_process ? read_data[15:0] : gfx_need_dest ? md[15:0] : 16'd0),
+        .dest_pixel((pixel_process || (gfx_active && gfx_pix_process && gfx_bus_read)) ? read_data[15:0] : gfx_need_dest ? md[15:0] : 16'd0),
         .alu_a(pixel_alu_a), .alu_b(pixel_alu_b),
         .alu_op(pixel_alu_op), .alu_req(pixel_alu_req),
         .alu_result(result), .alu_borrow(c),
@@ -950,7 +958,7 @@ module jttms10 #(
                 if(immediate_word==0) time_left<=(ir[5] ? (rd_data[3:0]==0 ? 16'd5 : 16'd7) : 16'd4)*CLKS_PER_STATE[15:0]-16'd2;
             end
             if(TIMED_PROGRAM!=0 && array_fill && !store_started &&
-               step && gfx_pix_word && fill_word_eligible && rd_data=={fill_pixels[30:0],1'b0})
+               step && gfx_pix_word && fill_word_eligible && pixel_simple && rd_data=={fill_pixels[30:0],1'b0})
                 load_issue_left<=load_issue_left+CLKS_PER_STATE[LOAD_IW-1:0]-1'b1;
             // Table13-6 B/C/D reserve an early edge read, except for C rows
             // spanning several words. Preserve this clock's normal decrement.
@@ -979,7 +987,8 @@ module jttms10 #(
                 load_issue_left<=0;
                 time_left<=CLKS_PER_STATE[15:0]-16'd2;
             end
-            if(copy_scheduled && mem_req) copy_read_pending<=!mem_ack;
+            if((copy_scheduled || (array_fill && fill_word && pixel_boolean && gfx_bus_read)) && mem_req)
+                copy_read_pending<=!mem_ack;
             if(copy_scheduled && mem_req && mem_ack) begin
                 time_left<=binary_native ?
                     (gfx_bus_second ? time_left+2*CLKS_PER_STATE[15:0]-16'd1 :
@@ -1375,7 +1384,7 @@ module jttms10 #(
                     if(gfx_pix_source) pix_src_addr<=ea[3:0];
                     if(gfx_pix_visible) md<={16'd0,pixel_visible_source};
                     if(gfx_pix_process) begin
-                        md<={16'd0,fill_word ? rs_data[15:0] : fill_edge ? pixel_source : pixel_write_pixel};
+                        md<={16'd0,fill_word && !pixel_boolean ? rs_data[15:0] : fill_edge ? pixel_source : pixel_write_pixel};
                         pix_transparent<=!fill_edge && pixel_transparent;
                     end
                     if(gfx_pix_test) pix_transparent<=pixel_transparent;

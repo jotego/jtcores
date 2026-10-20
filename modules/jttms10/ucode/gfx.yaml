@@ -569,7 +569,7 @@ ucode:
   - sa0 sa5, da0 da2 da3 da5
   - qs_gas, sa0 sa5, da0 da2 da3 da5
   - ea_gdst, word_gpix, sa0 sa3 sa4, da0 da2 da3 da5
-  - process_gpix, word_gcond, jump_gflow, ${TARGET_GFILLWORDINIT}, sa0 sa5, da0 da2 da3 da5
+  - process_gpix, process_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDINIT}, sa0 sa5, da0 da2 da3 da5
   - need_gcond, call_gflow, ${TARGET_GPXDREAD}, sa0 sa3 sa4, da0 da3 da4
   - sa0 sa3 sa4, da0 da3 da4
   - process_gpix, sa0 sa3 sa4, da0 da3 da4
@@ -1771,7 +1771,7 @@ ucode:
   start: 191
   seq:
   - ea_gdst, word_gpix, sa0 sa3 sa4, da0 da2 da3 da5
-  - process_gpix, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
+  - process_gpix, process_gbus, k_gbs, m2_gbm, sa0 sa5, da0 da2 da3 da5
   - add_galu, rf_gdst, wrpx_gbus, stride_gpix, qd_gbs, sa0 sa5, da0 da5
   - sub_galu, rf_gdst, z_gcond, jump_gflow, ${TARGET_GFILLWORDROW}, sa1 sa2 sa3 sa5, da0 da2 da3 da5
   - irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa5, da0 da2 da3 da5
@@ -1786,7 +1786,7 @@ ucode:
   - add_galu, rf_gdst, qs_gas, sa5, da5
   - rf_gdst, qs_gas, sa5, da0 da2 da3 da5
   - rf_gdst, word_gpix, k_gbs, m2_gbm, irq_gcond, jump_gflow, ${TARGET_GCTXFILL}, sa0 sa3 sa4, da0 da5
-  - ea_gdst, process_gpix, k_gbs, m2_gbm, sync_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
+  - ea_gdst, process_gpix, k_gbs, m2_gbm, process_gbus, word_gcond, jump_gflow, ${TARGET_GFILLWORDEMIT}, sa0 sa5, da0 da2 da3 da5
   - jump_gflow, ${TARGET_GFILLLOOP}
 # Row preparation already holds the pointer in A and word increment in B.
 - name: gfillwordemit
@@ -2128,7 +2128,7 @@ ucode:
   - collect_gbus
   - copy_gcond, row_gbus
   - lastword_gcond
-  - unaligned_gcond
+  - unaligned_gcond, process_gbus
   - end_gflow
   - end_gflow
   - end_gflow

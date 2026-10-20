@@ -39,6 +39,7 @@ from pixel_xy_store_cases import fixture as xy_store_fixture
 from draw_cases import fixture as draw_fixture
 from pixel_xy_copy_cases import fixture as xy_copy_fixture
 from copy_cases import transactions as copy_transactions
+from fill_cases import boolean_fixture as fill_boolean_fixture,transfers as fill_transfers
 from run import program,parse_result,check_bus,check_target
 
 
@@ -56,7 +57,8 @@ def evaluate(case,log,returncode):
     if observed['paused']!=pause:errors.append(f'expected exactly {pause} CPU-disabled clocks')
     # An overlapping CEN pause may hide CPU wait time. Keep a conservative
     # completion bound; exact TI duration is checked in the normal suite.
-    if 'data_list' in case:count=list_wait_count(case)
+    if 'data_fill' in case:count=len(fill_transfers(case))
+    elif 'data_list' in case:count=list_wait_count(case)
     elif 'data_trap' in case:count=len(trap_transactions(case))
     elif 'data_copy' in case:count=len(copy_transactions(case)[0])
     elif (case.get('pixel_store') or (case.get('pixel_xy_store') or case.get('pixel_draw'))):count=0  # Cached posted CPU work does not charge data waits.
@@ -88,7 +90,7 @@ def evaluate(case,log,returncode):
         first_write=max(case['data_copy']['write_start']+read_waits,(resume+7)//8)
         bus_case=dict(case,data_copy=dict(case['data_copy'],write_start=first_write-read_waits))
     errors+=check_bus(bus_case,observed,bus,1,0)
-    errors+=check_target(bus_case,observed,target+(bus if case.get('stack_load') or 'data_trap' in case or 'data_list' in case else []),1,0)
+    errors+=check_target(bus_case,observed,target+(bus if case.get('stack_load') or 'data_trap' in case or 'data_list' in case or 'data_fill' in case else []),1,0)
     if case.get('stack_control_flow') or case.get('trap_flow'):
         opcodes=[int(s.split()[1],16) for s in log.splitlines() if s.startswith('NEXT_OPCODE ')]
         if opcodes!=[case['expected_next_opcode']]:errors.append('response-resume target opcode mismatch')
@@ -203,6 +205,16 @@ def main():
                 case['response_pause_clocks']=96
                 case['response_pause_after']=28
                 probes.append(case)
+        # Overlap a CPU-only pause with an accepted native Boolean word read.
+        # Exact TI duration remains in the independent timing suite; here the
+        # bus must finish and its response survive until CPU execution resumes.
+        for size in (1,4,16):
+            for xy in (False,True):
+                case=fill_boolean_fixture(size,1 if size==16 else 10,xy,False)
+                case['name']='response_pause_'+case['name']
+                case['response_pause_clocks']=96
+                case['response_pause_after']=58 if xy else 42
+                probes.append(case)
         if args.case:
             selected=[case for case in probes if args.case in case['name']]
             if not selected:parser.error('no matching response-pause controls')
@@ -224,7 +236,7 @@ def main():
         args.report.parent.mkdir(parents=True,exist_ok=True)
         paths=[*sorted((MODULE/'hdl').glob('*.v')),*sorted((MODULE/'ucode').glob('*.yaml')),
                HERE.parent/'timing/test.sv',HERE/'posted.sv',Path(__file__).resolve(),HERE.parent/'verilator_build.py',
-               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','pixel_copy_cases.py','pixel_xy_store_cases.py','draw_cases.py','pixel_xy_copy_cases.py','copy_cases.py')]]
+               *[HERE.parent/'timing'/name for name in ('oracle.py','run.py','load_mode_cases.py','load_cases.py','alu_cases.py','scalar_cases.py','stack_cases.py','return_cases.py','interrupt_return_cases.py','store_cases.py','trap_cases.py','list_cases.py','pixel_read_cases.py','pixel_xy_read_cases.py','pixel_store_cases.py','pixel_boolean_cases.py','pixel_copy_cases.py','pixel_xy_store_cases.py','draw_cases.py','pixel_xy_copy_cases.py','copy_cases.py','fill_cases.py','fill_oracle.py')]]
         args.report.write_text(json.dumps(dict(simulator='verilator',compiled_models=len(models),contract='CPU-only CEN: logical field response or posted memory response; exact TI base counts checked separately',
             generated_sha256=generated,source_sha256={str(p.relative_to(MODULE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},cases=rows),indent=2)+'\n')
     return 0

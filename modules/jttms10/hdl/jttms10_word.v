@@ -86,7 +86,10 @@ module jttms10_word #(
     reg slot_eligible,launch_slot;
     reg copy_source_accepted;
     wire call_stack=ir[15:5]==11'h049 || ir==16'h0d5f || ir==16'h0d3f;
-    wire indirect_copy=((field_fast || copy_source_accepted) && ((ir & 16'hff80)==16'h0f00 || (ir & 16'hffdf)==16'h0f80)) || ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
+    // Full-word Boolean FILL carries the same accepted RMW slot as PIXT
+    // processing. The field_fast read tag selects this path; replacement
+    // writes do not acquire read ownership, and a CEN pause releases credit.
+    wire indirect_copy=((field_fast || copy_source_accepted) && ((ir & 16'hff80)==16'h0f00 || (ir & 16'hffdf)==16'h0f80 || (ir & 16'hffdf)==16'h0fc0)) || ir[15:10]==6'b100010 || ir[15:9]==7'b1001110 ||
                        ir[15:10]==6'b100110 || ir[15:10]==6'b101010 ||
                        ir[15:10]==6'b110100 || (ir & 16'hfde0)==16'hd400 || packet_copy ||
                        ((field_fast || copy_source_accepted) && (ir[15:9]==7'b1111100 || ir[15:9]==7'b1111110 || ir[15:9]==7'b1111010));

@@ -10,7 +10,7 @@ module test;
         .ready('0),
         .pixel_simple('0),
         .pixel_boolean('0),
-        .pixel_xy_simple('0),
+        .fill_simple(1'b0), .pixel_xy_simple('0),
         .md(opcode),
         .multi_steps('0),
         .multi_load('0),

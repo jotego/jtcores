@@ -64,6 +64,10 @@ correct architecture/memory but fail timing and, for smaller pixels,
 word-transaction counts. FPGA validation confirms all 300 timing failures per profile with correct
 checked architecture/memory and 18 matching diagnostic observations; see
 the [Boolean baseline](docs/fill-timing.md#non-replace-boolean-word-baseline).
+A native Boolean word-processing schedule passes 244 directed Verilator
+executions, response/mutation/architecture/resumption/model/lint checks; see its
+[development scope](docs/fill-timing.md#native-boolean-word-processing-development).
+Complete expanded FPGA matrices and exact Boolean interrupt timing remain required.
 The preceding validated 127-form fixture inventory includes
 scalar/immediate operations, MPYS/MPYU, shifts/rotates, DIV/MOD, all
 memory-to-register MOVE/MOVB modes, nine [control-flow forms](docs/control-timing.md), and register-to-memory stores with

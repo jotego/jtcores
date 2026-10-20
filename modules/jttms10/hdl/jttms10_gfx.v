@@ -60,6 +60,7 @@ module jttms10_gfx(
 
     wire [5:0] next_sa={sa5,sa4,sa3,sa2,sa1,sa0};
     wire bus_abort;
+    wire process_read;
     wire unused_conv_upper = &{1'b0,convsp[15:5],convdp[15:5]};
     wire unused_pixel_addr_low = &{1'b0,last_pixel_addr[3:0]};
     wire unused_control_nonwindow = &{1'b0,control[15:10],
@@ -174,21 +175,23 @@ module jttms10_gfx(
     // during a CEN pause must finish before the following checkpoint.
     assign bus_abort=active && irq_pending && !bus_accepted &&
                      (gbus==POSTCHECK_GBUS || gbus==POSTROW_GBUS);
+    assign process_read=active && gbus==PROCESS_GBUS && word_fill && need_dest;
     assign bus_read=active && !bus_abort &&
-        (gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || gbus==POSTROW_GBUS);
+        (process_read || gbus==RD_GBUS || gbus==RDPX_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || gbus==POSTROW_GBUS);
     assign bus_write=active && !bus_abort &&
         (gbus==WR_GBUS || gbus==WRPX_GBUS || ((gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS) && !bus_skip));
     assign bus_skip=active && gbus==POSTPX_GBUS && control[7:6]!=0 && clip;
     assign bus_post=active && !bus_abort && (gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS || gbus==POSTROW_GBUS ||
                      ((gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS) && !bus_skip));
-    assign bus_sync=active && (gbus==SYNC_GBUS || gbus==COLLECT_GBUS || bus_abort);
+    assign bus_sync=active && (gbus==SYNC_GBUS || gbus==COLLECT_GBUS || bus_abort ||
+                     (gbus==PROCESS_GBUS && !process_read && gdst==EA_GDST));
     assign bus_collect=active && gbus==COLLECT_GBUS;
     assign bus_row=active && gbus==ROW_GBUS;
     assign bus_second=active && gbus==POSTRD2_GBUS;
     assign bus_pitch=active && gbus==PITCH_GBUS;
     assign bus_resume=active && gbus==RESUME_GBUS;
     assign bus_pixel=active &&
-        (gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS ||
+        (process_read || gbus==RDPX_GBUS || gbus==WRPX_GBUS || gbus==POSTPX_GBUS || gbus==POSTCHECK_GBUS ||
          gbus==POSTROW_GBUS || gbus==POSTRD_GBUS || gbus==POSTRD2_GBUS);
     assign bus_size=word_fill ? 6'd16 : fill_edge_bits!=0 ? {1'b0,fill_edge_bits} : gsize==WORD_GSIZE ? 6'd32 :
                     gsize==HALF_GSIZE ? 6'd16 :
