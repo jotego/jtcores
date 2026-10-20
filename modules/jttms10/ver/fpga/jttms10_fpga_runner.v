@@ -322,6 +322,13 @@ module jttms10_fpga_runner(
             csr_read_q<=0; read_address_q<=0;
         end else begin
             program_read_q<=program_store[program_read_address[11:0]];
+            // Keep the test RAM read port enabled every cycle. The address
+            // is sampled at the same edge as request allocation; the target
+            // stability checks hold it through ACK, and high-address reads
+            // are ignored by the response mux. This keeps the RAM's
+            // registered output inside the memory inference pattern even
+            // when CPU signals cross a Quartus partition boundary.
+            mem_read_q<=memory[cyc_addr[15:4]];
             stimulus_record_q<=stimulus_records[stimulus_log_index[3:0]];
             // Keep all test-memory writes on one synchronous port so Quartus
             // can infer block RAM instead of expanding the 64K-bit array into
@@ -424,7 +431,6 @@ module jttms10_fpga_runner(
                 sparse_lookup_valid_q<=target_tag_hit;
                 target_tag_hit_q<=target_tag_hit;
                 target_sparse_addr_q<={target_tag_slot,cyc_addr[9:4]};
-                if(cyc_addr<32'h00010000) mem_read_q<=memory[cyc_addr[15:4]];
             end else if(target_state==T_WAIT) begin
                 if(!cyc_req || cyc_addr!=target_addr_q || cyc_kind!=target_kind_q ||
                    cyc_wdata!=target_wdata_q || cyc_iaq!=target_iaq_q ||

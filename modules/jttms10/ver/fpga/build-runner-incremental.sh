@@ -16,6 +16,39 @@ main() {
         run_rapid
         verify_frozen_inputs
         write_rapid_result
+    elif [[ $stage == partition-seed ]]; then
+        snapshot_rapid_parent
+        prepare_build
+        printf '%s\n' "$rapid_parent_json" > "$build_dir/v2-partition-parent.json"
+        configure_partition seed
+        regenerate_payload
+        run_partition_query seed
+        freeze_inputs
+        write_partition_source_delta seed
+        verify_frozen_inputs
+        remove_stale_compile_outputs
+        capture_compile_inputs
+        run_compile
+        verify_frozen_inputs
+        write_result
+        write_partition_result seed
+    elif [[ $stage == partition-update ]]; then
+        snapshot_rapid_parent
+        validate_partition_seed_parent
+        prepare_build
+        printf '%s\n' "$rapid_parent_json" > "$build_dir/v2-partition-parent.json"
+        configure_partition update
+        regenerate_payload
+        run_partition_query update
+        freeze_inputs
+        write_partition_source_delta update
+        verify_frozen_inputs
+        remove_stale_compile_outputs
+        capture_compile_inputs
+        run_compile
+        verify_frozen_inputs
+        write_result
+        write_partition_result update
     elif [[ $stage == map ]]; then
         prepare_build
         regenerate_payload
@@ -45,7 +78,7 @@ main() {
 
 parse_args() {
     if [[ $# -lt 2 || $# -gt 3 ]]; then
-        echo "Usage: $0 BASE_BUILD_DIR NEW_BUILD_DIR [rapid|full|map|certify-map|compile]" >&2
+        echo "Usage: $0 BASE_BUILD_DIR NEW_BUILD_DIR [rapid|full|map|certify-map|compile|partition-seed|partition-update]" >&2
         exit 2
     fi
     source_dir=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -53,8 +86,8 @@ parse_args() {
     base_dir=$(realpath -- "$1")
     build_dir=$(realpath -m -- "$2")
     stage=${3:-compile}
-    [[ $stage == rapid || $stage == map || $stage == full || $stage == compile || $stage == certify-map ]] || {
-        echo "stage must be rapid, full, map, certify-map, or compile" >&2; exit 2;
+    [[ $stage == rapid || $stage == map || $stage == full || $stage == compile || $stage == certify-map || $stage == partition-seed || $stage == partition-update ]] || {
+        echo "stage must be rapid, full, map, certify-map, compile, partition-seed, or partition-update" >&2; exit 2;
     }
 }
 
@@ -65,13 +98,168 @@ validate_paths() {
     [[ -s $base_dir/QSYS_test_board/synthesis/QSYS_test_board.qip ]] || {
         echo "base build lacks generated QIP" >&2; exit 1;
     }
-    if [[ $stage == rapid || $stage == map || $stage == full ]]; then
+    if [[ $stage == rapid || $stage == map || $stage == full || $stage == partition-seed || $stage == partition-update ]]; then
         [[ ! -e $build_dir ]] || { echo "new build directory must not exist: $build_dir" >&2; exit 1; }
     else
         [[ -s $build_dir/test_board.qsf && -s $build_dir/v2-build-inputs.json ]] || {
             echo "prepared map-stage build/manifest not found: $build_dir" >&2; exit 1;
         }
     fi
+}
+
+configure_partition() {
+    local mode=$1
+    python3 "$source_dir/partition_build.py" configure \
+        --qsf "$build_dir/test_board.qsf" --mode "$mode" \
+        --metadata "$build_dir/v2-partition-stage-precompile.json"
+    python3 "$source_dir/partition_build.py" write-query --mode "$mode" \
+        --output "$build_dir/v2-partition-query.tcl"
+    python3 - "$build_dir" "$mode" "$base_dir" <<'PY'
+from pathlib import Path
+import hashlib,json,re,sys
+b=Path(sys.argv[1]); mode=sys.argv[2]; parent=Path(sys.argv[3]).resolve()
+config_path=b/'v2-partition-stage-precompile.json'
+config=json.loads(config_path.read_text())
+parent_result=parent/'v2-build-result.json'
+config.update(parent_build_dir=str(parent),
+    parent_build_result_sha256=hashlib.sha256(parent_result.read_bytes()).hexdigest(),
+    parent_inputs_sha256=hashlib.sha256((parent/'v2-build-inputs.json').read_bytes()).hexdigest(),
+    parent_image_sha256=hashlib.sha256((parent/'output_files/test_board.rbf').read_bytes()).hexdigest(),
+    parent_sta_summary_sha256=hashlib.sha256((parent/'output_files/test_board.sta.summary').read_bytes()).hexdigest())
+if mode == 'update':
+    p=parent/'v2-partition-stage-result.json'
+    if not p.is_file(): raise SystemExit('partition update parent certificate disappeared')
+    config['parent_partition_stage_sha256']=hashlib.sha256(p.read_bytes()).hexdigest()
+config_path.write_text(json.dumps(config,indent=2,sort_keys=True)+'\n')
+PY
+}
+
+validate_partition_seed_parent() {
+    # Run the complete common receipt checks and then require an intact seed certificate.
+    python3 - "$base_dir" "$source_dir" <<'PY'
+from pathlib import Path
+import json,sys
+b,source=map(Path,sys.argv[1:]); sys.path.insert(0,str(source))
+import partition_build
+from write_programming_receipt import validate_positive_sta
+result=json.loads((b/'v2-build-result.json').read_text())
+try: cert=partition_build.validate_partition_result(b,result)
+except (ValueError,KeyError,OSError) as error: raise SystemExit(str(error))
+if cert.get('mode')!='seed': raise SystemExit('partition update parent must be a seed result')
+validate_positive_sta(b/'output_files/test_board.sta.summary')
+parent=json.loads((b/'v2-partition-stage-precompile.json').read_text())
+if parent.get('cpu_netlist')!='SOURCE' or parent.get('top_netlist')!='SOURCE':
+    raise SystemExit('partition seed was not compiled SOURCE/SOURCE')
+PY
+}
+
+run_partition_query() {
+    local mode=$1
+    mkdir -p "$build_dir/logs"
+    (cd "$build_dir" && /opt/quartus_free/quartus_sh -t v2-partition-query.tcl) \
+        > "$build_dir/logs/v2-partition-query.log" 2>&1 || {
+            cat "$build_dir/logs/v2-partition-query.log" >&2
+            echo "Quartus did not recognize the requested $mode CPU partition" >&2
+            exit 1
+        }
+    python3 "$source_dir/partition_build.py" validate-query \
+        --mode "$mode" --log "$build_dir/logs/v2-partition-query.log"
+}
+
+write_partition_source_delta() {
+    local mode=$1
+    python3 - "$base_dir" "$build_dir" "$mode" "$source_dir" <<'PY'
+from pathlib import Path
+import json,sys
+base,build=map(Path,sys.argv[1:3]); mode=sys.argv[3]; source_dir=Path(sys.argv[4])
+sys.path.insert(0,str(source_dir))
+import partition_build
+current=json.loads((build/'v2-build-inputs.json').read_text())
+now=partition_build.source_hashes_relative(current)
+if mode=='seed':
+    delta=[]; before={}; input_delta={}; transient_input_delta={}
+else:
+    old_manifest=json.loads((base/'v2-build-inputs.json').read_text())
+    before=partition_build.source_hashes_relative(old_manifest)
+    try:
+        delta=partition_build.compute_cpu_source_delta(old_manifest,current)
+        input_delta,transient_input_delta=partition_build.validate_compiled_input_deltas(
+            base,build,delta)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+row={'mode':mode,'source_delta':delta,'parent_source_hashes':before,'source_hashes':now,
+     'compiled_input_delta':input_delta,
+     'transient_compiled_input_delta':transient_input_delta}
+(build/'v2-partition-source-delta.json').write_text(json.dumps(row,indent=2,sort_keys=True)+'\n')
+PY
+}
+
+write_partition_result() {
+    local mode=$1
+    python3 - "$build_dir" "$source_dir" "$mode" <<'PY'
+from pathlib import Path
+import hashlib,json,re,sys
+b,source=map(Path,sys.argv[1:3]); mode=sys.argv[3]
+sys.path.insert(0,str(source))
+import partition_build
+def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+result_path=b/'v2-build-result.json'; result=json.loads(result_path.read_text())
+if result.get('flow_exit_code')!=0 or result.get('full_flow_only') is not True:
+    raise SystemExit('explicit partition experiment requires successful full compile flow')
+log=b/'logs/v2-compile.log'; marker=result.get('terminal_marker')
+if not marker or 'Full Compilation' not in marker:
+    raise SystemExit('partition stage did not use a successful full Compilation terminal')
+reports={name:b/f'output_files/test_board.{name}.rpt' for name in ('map','fit','asm','sta')}
+if any(not path.is_file() for path in reports.values()):
+    raise SystemExit('partition compile lacks fresh map/fit/asm/sta reports')
+compile_time=b/'logs/v2-compile.time'
+time_text=compile_time.read_text()
+time_match=re.search(r'seconds=([0-9.]+)',time_text)
+exit_match=re.search(r'exit_code=(\d+)',time_text)
+if not time_match or not exit_match or int(exit_match.group(1)) != 0:
+    raise SystemExit('partition compile timing record does not show exit 0')
+cfg=json.loads((b/'v2-partition-stage-precompile.json').read_text())
+delta=json.loads((b/'v2-partition-source-delta.json').read_text())
+if result.get('flow_seconds') != float(time_match.group(1)):
+    raise SystemExit('common build certificate flow time differs from compile timing record')
+cert={
+ 'format':partition_build.RESULT_FORMAT,'mode':mode,
+ 'command':['/opt/quartus_free/quartus_sh','--flow','compile','test_board'],
+ 'working_directory':str(b),'flow_exit_code':0,'inputs_unchanged':True,
+ 'flow_log_sha256':sha(log),'terminal_marker':marker,
+ 'compile_time_sha256':sha(compile_time),
+ 'flow_seconds':float(time_match.group(1)),
+ 'input_manifest_sha256':sha(b/'v2-build-inputs.json'),
+ 'compile_inputs_sha256':sha(b/'v2-compile-inputs.json'),
+ 'partition_config_sha256':sha(b/'v2-partition-stage-precompile.json'),
+ 'partition_query_log_sha256':sha(b/'logs/v2-partition-query.log'),
+ 'source_delta_sha256':sha(b/'v2-partition-source-delta.json'),
+ 'compiled_input_delta':delta['compiled_input_delta'],
+ 'transient_compiled_input_delta':delta.get('transient_compiled_input_delta',{}),
+ 'partition_observations':partition_build.extract_partition_observations(b),
+ 'qsf_sha256':sha(b/'test_board.qsf'),'rbf_sha256':sha(b/'output_files/test_board.rbf'),
+ 'stage_reports':{name:sha(path) for name,path in reports.items()},
+ 'partitions':{'Top':{'root':'|','netlist':'Source File' if mode=='seed' else 'Post-Fit',
+                      'preservation':'Placement and Routing'},
+               'CPU':{'root':partition_build.CPU_ROOT,'netlist':'Source File',
+                      'preservation':'Placement and Routing'}},
+ 'parent_build_dir':cfg['parent_build_dir'],
+ 'parent_build_result_sha256':cfg['parent_build_result_sha256'],
+ 'parent_inputs_sha256':cfg['parent_inputs_sha256'],
+ 'parent_image_sha256':cfg['parent_image_sha256'],
+ 'parent_sta_summary_sha256':cfg['parent_sta_summary_sha256'],
+ 'parent_partition_stage_sha256':cfg.get('parent_partition_stage_sha256'),
+ 'source_hashes':delta['source_hashes'],'source_delta':delta['source_delta'],
+ 'quartus_preflight':{'query_tcl_sha256':sha(b/'v2-partition-query.tcl'),
+                      'query_log_sha256':sha(b/'logs/v2-partition-query.log')}}
+cert_path=b/'v2-partition-stage-result.json'
+cert_path.write_text(json.dumps(cert,indent=2,sort_keys=True)+'\n')
+result.update(partition_mode=mode,partition_stage_sha256=sha(cert_path),
+              flow_kind='explicit-cpu-partition-'+mode)
+result_path.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+try: partition_build.validate_partition_result(b,result)
+except (ValueError,KeyError,OSError) as error: raise SystemExit(str(error))
+PY
 }
 
 snapshot_rapid_parent() {
@@ -141,7 +329,10 @@ qsf.write_text(s)
 
 for stale in ('v2-build-inputs.json','v2-build-result.json','v2-map-result.json',
               'v2-compile-inputs.json','build-input-manifest.post.json',
-              'v2-rapid-parent.json','v2-rapid-time.json','v2-rapid-command.json'):
+              'v2-rapid-parent.json','v2-rapid-time.json','v2-rapid-command.json',
+              'v2-partition-stage-precompile.json','v2-partition-stage-result.json',
+              'v2-partition-query.tcl','v2-partition-source-delta.json',
+              'v2-partition-parent.json'):
     (build/stale).unlink(missing_ok=True)
 
 ip = build / 'ip/jttms10_fpga_runner'
@@ -221,7 +412,8 @@ source_roots=(repo/'modules/jttms10/ucode',repo/'modules/jttms10/ver/decoder',
               repo/'modules/jttms10/ver/gfx',repo/'modules/jttms10/hdl',
               repo/'modules/jtframe/src/jtframe/ucode')
 source_files={repo/'modules/jttms10/ver/build.sh', repo/'modules/jtframe/bin/jtframe',
-              source/'build-runner-incremental.sh',source/'write_programming_receipt.py'}
+              source/'build-runner-incremental.sh',source/'write_programming_receipt.py',
+              source/'partition_build.py'}
 source_files.update((repo/'modules/jttms10/ver/fpga').glob('*.v'))
 for root in source_roots:
     source_files.update(p for p in root.rglob('*') if p.is_file())
@@ -235,11 +427,14 @@ inputs += [p for root in (build/'ip/jttms10_fpga_runner',build/'jttms10-generate
            for p in root.rglob('*') if p.is_file() and p.suffix.lower() in ('.v','.vh','.hex','.uc')]
 inputs += [p for p in (build/'jttms10-generated').rglob('*') if p.is_file()]
 inputs += [p for p in (build/'QSYS_test_board/synthesis').rglob('*') if p.is_file()]
+inputs += [build/name for name in ('v2-partition-parent.json',
+    'v2-partition-stage-precompile.json','v2-partition-query.tcl') if (build/name).is_file()]
 if (build/'v2-rapid-parent.json').is_file(): inputs.append(build/'v2-rapid-parent.json')
 inputs=sorted(set(p for p in inputs if p.is_file()))
 quartus='/opt/quartus_free/quartus_sh'
 version=subprocess.run([quartus,'--version'],capture_output=True,text=True)
 manifest={'format':'jttms10-incremental-build-inputs-v2','base_build':str(base),
+          'source_root':str(repo.resolve()),
           'source_hashes':source_hashes,'files':{str(p):digest(p) for p in inputs},
           'quartus_version':(version.stdout+version.stderr).strip()}
 (build/'v2-build-inputs.json').write_text(json.dumps(manifest,indent=2)+'\n')
