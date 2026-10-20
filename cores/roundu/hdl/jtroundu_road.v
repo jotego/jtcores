@@ -25,20 +25,34 @@ module jtroundu_road(
 reg [3:0] fetch;
 reg [2:0] phase;
 reg [15:0] shift1, step, shift2;
-reg signed [31:0] start1, start2;
+reg signed [24:0] start1, start2;
+reg signed [26:0] pos1, pos2, origin1, origin2;
+reg signed [24:0] div_num1, div_num2;
+reg [23:0] div_q1, div_q2;
+reg [16:0] div_rem1, div_rem2;
+reg [4:0] div_count;
+reg div_finish;
 reg line_valid, line_palette, pixel_bank;
 reg [2:0] color_bit;
 wire [8:0] next_y = v == 271 ? 9'd0 : v+9'd1;
 wire signed [17:0] first_y = 18'sd256 - $signed({10'd0,top}) - $signed({2'd0,yclip});
 wire signed [17:0] local_y = $signed({9'd0,next_y}) - first_y;
 wire [15:0] shift_sum = shift1+shift2;
-wire signed [31:0] numerator1 = -($signed({{16{shift1[15]}},shift1}) * 32'sd256) + 32'sd128;
-wire signed [31:0] numerator2 = -($signed({{16{shift_sum[15]}},shift_sum}) * 32'sd256) + 32'sd128;
-wire signed [31:0] x = $signed({23'd0,h});
-wire signed [31:0] delta1 = x-start1;
-wire signed [31:0] delta2 = x-start2;
-wire signed [63:0] pos1 = delta1 * $signed({1'b0,step});
-wire signed [63:0] pos2 = delta2 * $signed({1'b0,step});
+wire signed [24:0] numerator1 = -$signed({shift1[15],shift1,8'd0}) + 25'sd128;
+wire signed [24:0] numerator2 = -$signed({shift_sum[15],shift_sum,8'd0}) + 25'sd128;
+wire [24:0] magnitude1 = numerator1 < 0 ? -numerator1 : numerator1;
+wire [24:0] magnitude2 = numerator2 < 0 ? -numerator2 : numerator2;
+wire signed [24:0] x = $signed({16'd0,h});
+wire [16:0] div_trial1 = {div_rem1[15:0],div_q1[23]};
+wire [16:0] div_trial2 = {div_rem2[15:0],div_q2[23]};
+wire [17:0] div_diff1 = {1'b0,div_trial1} - {2'b0,step};
+wire [17:0] div_diff2 = {1'b0,div_trial2} - {2'b0,step};
+wire div_take1 = !div_diff1[17];
+wire div_take2 = !div_diff2[17];
+wire [16:0] div_next_rem1 = div_take1 ? div_diff1[16:0] : div_trial1;
+wire [16:0] div_next_rem2 = div_take2 ? div_diff2[16:0] : div_trial2;
+wire [23:0] div_next_q1 = {div_q1[22:0],div_take1};
+wire [23:0] div_next_q2 = {div_q2[22:0],div_take2};
 reg [10:0] next_pixel;
 reg next_bank;
 
@@ -71,6 +85,18 @@ always @(posedge clk) begin
         step <= 0;
         start1 <= 65536;
         start2 <= 65536;
+        pos1 <= 0;
+        pos2 <= 0;
+        origin1 <= 0;
+        origin2 <= 0;
+        div_count <= 0;
+        div_finish <= 0;
+        div_num1 <= 0;
+        div_num2 <= 0;
+        div_q1 <= 0;
+        div_q2 <= 0;
+        div_rem1 <= 0;
+        div_rem2 <= 0;
         line_valid <= 0;
         line_palette <= 0;
         color_bit <= 0;
@@ -98,14 +124,49 @@ always @(posedge clk) begin
                 end
                 6: shift2 <= ctrl_data;
                 7: begin
-                    start1 <= step == 0 ? 32'sd65536 : numerator1 / $signed({16'd0,step});
-                    start2 <= step == 0 ? 32'sd65536 : numerator2 / $signed({16'd0,step});
+                    if (step == 0) begin
+                        start1 <= 25'sd65536;
+                        start2 <= 25'sd65536;
+                        origin1 <= 0;
+                        origin2 <= 0;
+                        div_count <= 0;
+                    end else begin
+                        div_num1 <= numerator1;
+                        div_num2 <= numerator2;
+                        div_q1 <= magnitude1[23:0];
+                        div_q2 <= magnitude2[23:0];
+                        div_rem1 <= 0;
+                        div_rem2 <= 0;
+                        div_count <= 24;
+                    end
                     fetch <= 0;
                 end
                 default: ;
             endcase
         end
+        if (div_count != 0) begin
+            div_q1 <= div_next_q1;
+            div_q2 <= div_next_q2;
+            div_rem1 <= div_next_rem1;
+            div_rem2 <= div_next_rem2;
+            div_count <= div_count-1'd1;
+            if (div_count == 1) div_finish <= 1;
+        end
+        if (div_finish) begin
+            div_finish <= 0;
+            start1 <= div_num1 < 0 ? -$signed({1'b0,div_q1}) : $signed({1'b0,div_q1});
+            start2 <= div_num2 < 0 ? -$signed({1'b0,div_q2}) : $signed({1'b0,div_q2});
+            origin1 <= (div_num1 < 0 ? -$signed({10'd0,div_rem1}) : $signed({10'd0,div_rem1})) - $signed({{2{div_num1[24]}},div_num1});
+            origin2 <= (div_num2 < 0 ? -$signed({10'd0,div_rem2}) : $signed({10'd0,div_rem2})) - $signed({{2{div_num2[24]}},div_num2});
+        end
         if (pxl_cen) begin
+            if (h == 399) begin
+                pos1 <= origin1;
+                pos2 <= origin2;
+            end else begin
+                pos1 <= pos1 + $signed({11'd0,step});
+                pos2 <= pos2 + $signed({11'd0,step});
+            end
             pixel_addr <= next_pixel;
             pixel_bank <= next_bank;
             solid <= line_valid;
