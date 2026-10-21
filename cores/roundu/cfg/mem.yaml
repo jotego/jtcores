@@ -20,7 +20,11 @@ clocks:
       outputs: [oki_cen]
 
 audio:
-  channels: []
+  rsum: 10k
+  channels:
+    # provisional MAME balance (FM 0.45, PCM 0.75 per side); board values on ATC011 sheet 04 pending
+    - { name: fm,  module: jt51,   rsum: 5.1k }
+    - { name: pcm, module: jt6295, rsum: 6.2k }
 
 download:
   post_data: true

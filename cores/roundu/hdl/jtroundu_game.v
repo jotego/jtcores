@@ -19,29 +19,31 @@ wire [15:0] road_yclip, road_vregs;
 wire [15:0] audio_addr;
 wire audio_sel, audio_rd, audio_wr, audio_ok;
 wire [7:0] audio_din, audio_dout;
-wire signed [15:0] mixed_snd;
 wire [7:0] download_data;
-reg shift, shift_last;
+wire shift_pulse;
+reg shift;
+wire [7:0] stick = !joystick1[0] ? 8'hff :
+                   !joystick1[1] ? 8'h00 :
+                   joyana_l1[7:0] == 8'h80 ? 8'h00 : 8'h7f+joyana_l1[7:0];
 
 always @* post_data = download_data;
 
 assign dip_flip = 1'b0;
 assign debug_view = control[7:0];
-`ifdef JTFRAME_STEREO
-assign snd_left = mixed_snd;
-assign snd_right = mixed_snd;
-`else
-assign snd = mixed_snd;
-`endif
+
+jtframe_edge_pulse #(
+    .NEGEDGE ( 1 )
+) u_shift (
+    .rst   ( game_rst     ),
+    .clk   ( clk          ),
+    .cen   ( 1'b1         ),
+    .sigin ( joystick1[6] ),
+    .pulse ( shift_pulse  )
+);
 
 always @(posedge clk) begin
-    if (game_rst) begin
-        shift <= 1;
-        shift_last <= 1;
-    end else begin
-        shift_last <= joystick1[6];
-        if (shift_last && !joystick1[6]) shift <= ~shift;
-    end
+    if (game_rst) shift <= 1;
+    else if (shift_pulse) shift <= ~shift;
 end
 
 always @(posedge clk) begin
@@ -158,7 +160,7 @@ jtroundu_snd u_snd (
     .halt               ( control[2]                                                           ),
     .in0                ( {2'b11,cab_1p[0],joystick1[7],shift,joystick1[5],1'b1,joystick1[4]}  ),
     .in1                ( {dipsw[23:20],service,coin[1:0],dip_test}                            ),
-    .stick              ( !joystick1[0] ? 8'hff : !joystick1[1] ? 8'h00 : 8'h7f+joyana_l1[7:0] ),
+    .stick              ( stick                                                                ),
     .v30_addr           ( audio_addr                                                           ),
     .v30_sel            ( audio_sel                                                            ),
     .v30_rd             ( audio_rd                                                             ),
@@ -166,8 +168,9 @@ jtroundu_snd u_snd (
     .v30_din            ( audio_din                                                            ),
     .v30_dout           ( audio_dout                                                           ),
     .v30_ok             ( audio_ok                                                             ),
-    .snd                ( mixed_snd                                                            ),
-    .sample             ( sample                                                               ),
+    .fm_l               ( fm_l                                                                 ),
+    .fm_r               ( fm_r                                                                 ),
+    .pcm                ( pcm                                                                  ),
     .audiocpu_addr      ( audiocpu_addr                                                        ),
     .audiocpu_cs        ( audiocpu_cs                                                          ),
     .audiocpu_data      ( audiocpu_data                                                        ),

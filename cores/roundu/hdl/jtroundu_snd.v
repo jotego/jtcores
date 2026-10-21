@@ -19,8 +19,9 @@ module jtroundu_snd(
     input [7:0] v30_din,
     output [7:0] v30_dout,
     output v30_ok,
-    output signed [15:0] snd,
-    output sample,
+    output signed [15:0] fm_l,
+    output signed [15:0] fm_r,
+    output signed [13:0] pcm,
     output [15:0] audiocpu_addr,
     output audiocpu_cs,
     input [7:0] audiocpu_data,
@@ -62,8 +63,6 @@ wire [7:0] fm_dout, pcm_dout, ppi_dout;
 reg [7:0] io_dout;
 wire fm_irq_n;
 reg fm_half;
-wire signed [15:0] fm_left, fm_right;
-wire signed [13:0] pcm_snd;
 assign audiocpu_addr = cpu_addr;
 assign audiocpu_cs = cpu_mem && !rd_n && cpu_addr <= 16'hdfff;
 assign v30_audio_rom_addr = v30_addr;
@@ -77,13 +76,6 @@ assign v30_soundram_addr = v30_addr[12:0];
 assign v30_soundram_din = v30_din;
 assign v30_soundram_we = v30_wr && v30_ram;
 assign oki_cs = 1'b1;
-
-jtroundu_mix u_mix (
-    .fm_left  ( fm_left  ),
-    .fm_right ( fm_right ),
-    .pcm      ( pcm_snd  ),
-    .snd      ( snd      )
-);
 
 always @* begin
     io_dout = 8'hff;
@@ -155,11 +147,11 @@ jt51 u_fm (
     .ct1    (                   ),
     .ct2    (                   ),
     .irq_n  ( fm_irq_n          ),
-    .sample ( sample            ),
+    .sample (                   ),
     .left   (                   ),
     .right  (                   ),
-    .xleft  ( fm_left           ),
-    .xright ( fm_right          )
+    .xleft  ( fm_l              ),
+    .xright ( fm_r              )
 );
 
 jt6295 u_pcm (
@@ -173,7 +165,7 @@ jt6295 u_pcm (
     .rom_addr ( oki_addr           ),
     .rom_data ( oki_data           ),
     .rom_ok   ( oki_ok             ),
-    .sound    ( pcm_snd            ),
+    .sound    ( pcm                ),
     .sample   (                    )
 );
 
