@@ -53,9 +53,35 @@ module jtroundu_video #(
     output reg VS
 );
 
-reg [8:0] h, v;
+wire [8:0] h, v;
 wire [6:0] text_pxl;
-reg next_hbl, next_vbl, next_hs, next_vs;
+wire vt_lhbl, vt_lvbl, vt_hs, vt_vs;
+reg blank_sh;
+
+jtframe_vtimer #(
+    .VB_START ( 9'd239 ),
+    .VB_END   ( 9'd271 ),
+    .VS_START ( 9'd244 ),
+    .VS_END   ( 9'd248 ),
+    .HB_START ( 9'd319 ),
+    .HB_END   ( 9'd399 ),
+    .HS_START ( 9'd336 ),
+    .HS_END   ( 9'd367 ),
+    .H_VNEXT  ( 9'd399 )
+) u_vtimer (
+    .clk      ( clk     ),
+    .pxl_cen  ( pxl_cen ),
+    .vdump    ( v       ),
+    .vrender  (         ),
+    .vrender1 (         ),
+    .H        ( h       ),
+    .Hinit    (         ),
+    .Vinit    (         ),
+    .LHBL     ( vt_lhbl ),
+    .LVBL     ( vt_lvbl ),
+    .HS       ( vt_hs   ),
+    .VS       ( vt_vs   )
+);
 
 jtroundu_text u_text (
     .rst      ( rst           ),
@@ -163,7 +189,7 @@ jtroundu_colmix u_colmix (
     .rst                ( rst                 ),
     .clk                ( clk                 ),
     .pxl_cen            ( pxl_cen             ),
-    .blank_n            ( next_hbl & next_vbl ),
+    .blank_n            ( blank_sh            ),
     .obj_top            ( control[7]          ),
     .text_pxl           ( text_pxl            ),
     .obj_pxl            ( obj_pxl             ),
@@ -180,29 +206,17 @@ jtroundu_colmix u_colmix (
 
 always @(posedge clk) begin
     if (rst) begin
-        h <= 0;
-        v <= 0;
+        blank_sh <= 0;
         LHBL <= 0;
         LVBL <= 0;
-        HS <= 1;
-        VS <= 1;
-        next_hbl <= 0;
-        next_vbl <= 0;
-        next_hs <= 1;
-        next_vs <= 1;
-    end else begin
-        if (pxl_cen) begin
-            h <= h == 399 ? 0 : h+1'd1;
-            if (h == 399) v <= v == 271 ? 0 : v+1'd1;
-            next_hbl <= h < 320;
-            next_vbl <= v < 240;
-            next_hs <= !(h >= 336 && h < 368);
-            next_vs <= !(v >= 244 && v < 248);
-            LHBL <= next_hbl;
-            LVBL <= next_vbl;
-            HS <= next_hs;
-            VS <= next_vs;
-        end
+        HS <= 0;
+        VS <= 0;
+    end else if (pxl_cen) begin
+        blank_sh <= vt_lhbl & vt_lvbl;
+        LHBL <= vt_lhbl;
+        LVBL <= vt_lvbl;
+        HS <= vt_hs;
+        VS <= vt_vs;
     end
 end
 
