@@ -116,11 +116,7 @@ wire fast_ahead_hit = fast_valid[fast_ahead_bank] && fast_addr[fast_ahead_bank] 
 reg [319:0] covmap, shaded;
 reg [8:0] cover_cnt;
 wire line_full = cover_cnt == 9'd320;
-wire [39:0] chunk_full;
-genvar gc;
-generate for (gc=0; gc<40; gc=gc+1) begin : g_chunk
-    assign chunk_full[gc] = &covmap[gc*8+:8];
-end endgenerate
+reg [7:0] cov_chunk;
 reg [19:0] d_col;
 reg [8:0] d_rem, d_step, d_step_rem, d_scale;
 reg [12:0] d_span;
@@ -432,6 +428,7 @@ always @(posedge clk) begin
         covmap <= 0;
         shaded <= 0;
         cover_cnt <= 0;
+        cov_chunk <= 0;
         dr_state <= DR_IDLE;
         dr_cnt <= 0;
         d_col <= 0; d_rem <= 0; d_step <= 0; d_step_rem <= 0; d_scale <= 0;
@@ -453,19 +450,21 @@ always @(posedge clk) begin
                 if (line_full) begin
                     dr_cnt <= 0;
                     dr_state <= DR_DRAIN;
-                end else if (covmap[d_x]) begin
+                end else if (cov_chunk[d_x[2:0]]) begin
                     if (d_x == d_lastx) begin
                         dr_cnt <= 0;
                         dr_state <= DR_DRAIN;
-                    end else if (chunk_full[d_x[8:3]] && !d_repeat
+                    end else if ((&cov_chunk) && !d_repeat
                               && {1'b0,d_x} + {6'd0,jump_k} <= {1'b0,d_lastx}) begin
                         d_x <= d_x + {5'd0,jump_k};
                         d_col <= jump_col;
                         d_rem <= jump_rem;
+                        cov_chunk <= covmap[{d_x[8:3]+5'd1,3'd0}+:8];
                     end else begin
                         d_x <= d_x + 1'b1;
                         d_col <= fast_next_col;
                         d_rem <= fast_next_rem;
+                        if (d_x[2:0] == 3'd7) cov_chunk <= covmap[{d_x[8:3]+5'd1,3'd0}+:8];
                     end
                 end else if (fast_hit) begin
                     pen <= fast_data[fast_tile_bank][{d_col[2:0] ^ 3'd3,2'b00}+:4];
@@ -478,6 +477,7 @@ always @(posedge clk) begin
                         d_x <= d_x + 1'b1;
                         d_col <= fast_next_col;
                         d_rem <= fast_next_rem;
+                        if (d_x[2:0] == 3'd7) cov_chunk <= covmap[{d_x[8:3]+5'd1,3'd0}+:8];
                         if (!fast_pending && fast_ahead_bank != fast_tile_bank && !fast_ahead_hit
                          && (d_repeat || (fast_ahead >= 0 && fast_ahead < {19'd0,d_span}))) begin
                             fast_bank <= fast_ahead_bank;
@@ -781,6 +781,7 @@ always @(posedge clk) begin
                 d_repeat <= repeat_line;
                 d_base <= run_base[row];
                 d_color <= attr[1][10:3];
+                cov_chunk <= covmap[{draw_x[8:3],3'd0}+:8];
                 dr_state <= DR_RUN;
                 state <= NEXT;
             end
