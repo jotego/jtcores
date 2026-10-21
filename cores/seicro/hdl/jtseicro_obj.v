@@ -138,6 +138,7 @@ jtframe_obj_buffer #(
     .wr_addr ( buf_addr[7:0]                              ),
     .we      ( buf_we                                     ),
     .rd_addr ( hdump[7:0]                                 ),
+    // the read lands on hdump+1: terms 0..254 read cells 1..255, the 383 term reads cell 0 past the wrap
     .rd      ( pxl_cen && (hdump<9'd255 || hdump==9'd383) ),
     .rd_data ( pxl                                        )
 );
