@@ -41,7 +41,21 @@ The timing bench accepts a retirement pulse from the last enabled edge at the
 first paused edge, then clears that allowance. PC, ST, GPR and working-state
 hold assertions remain active, and a new pulse during a pause still fails.
 
-## Physical qualification
+## Native CD MOVB image qualification
+
+Source `54ab1116` / RBF `8b3d79b7` now passes all 16 cases each
+BASE/W1/W3/W1P1/W1P7, with 80 exact Verilator comparisons and every raw
+verdict independently replayed. The same image also passes 80 following-load,
+40 HOLD and 492 published-target observations. The 27 preceding nominal CD
+failures per profile are resolved under the unchanged published counts.
+See [current image and source-bound evidence](../fpga/README.md#native-cd-movb-source-qualified-image).
+The original first 16 BASE observations have no recorded outer exit/time
+after a wrapper error; they remain preserved separately. A fresh 16-case
+confirmation supplies the recorded BASE result in these 80 qualified checks.
+This does not assign total duration to instruction-word dependencies or
+qualify broader HOLD/IRQ behavior. Full #144 acceptance remains open.
+
+## Preceding image qualification
 
 Host source `c8e4dbc6b0269453f0b23115966481a381927674` and hardware source
 `744acd3e9cac22127a9cb2673a494f0c82d4f53b` qualify all 16 cases each BASE,
@@ -71,8 +85,8 @@ Evidence is under `/nobackup/tasks/jtcores-144/artifacts/movb-cd-native-1/`:
 reviews, references, timings and final health. These are development timings,
 not a matched simulation speedup benchmark.
 
-The native CD MOVB timing candidate is separate and is not loaded on the
-board. The 27 nominal CD timing targets and full #144 acceptance remain open.
+This source `744acd3e` checkpoint predates the native CD MOVB image above. Its 27
+nominal CD timing failures remain archived as the earlier failing baseline.
 
 ## Native byte-store following loads and HOLD
 

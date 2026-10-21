@@ -29,17 +29,14 @@ alternatives. The source registry contains exact source/count signatures;
 new alternatives, changed selected counts, different instruction forms or
 changed result expectations cannot silently inherit a choice.
 
-The source audit still reports every discrepancy. The normal gate separates
-**12,625 probe instances with project choices** from **401 unresolved MOVB
-probes**, including 27 matching entry/summary targets. Absolute MOVB has
-69 unresolved instances (nine agreed); plain memory-to-memory MOVB has 332
-(18 agreed). Cached absolute bytes that fit one physical word use the
-published `1+(3)` duration. Their cache-disabled seven-state target remains
-distinct from the shared 15-state schedule. Plain byte-copy
-index2 prints CPU3/CD7, while the current shared transport gives CPU3/CD9.
-These agreed-target mismatches are outside the ambiguity fallback; status
-labels cannot waive them. The 100 copy G-to-F CPU choices are separate:
-the three source reads and the same table's CD17/H7 contradict printed CPU5.
+The current source audit reports **12,625 probe instances with project
+choices**, zero unresolved probes and zero agreed published-target gaps.
+Source `54ab1116` selects literal absolute-byte CD7/CD13 and plain byte-copy CD7
+rather than the previous generic CD15/19 and CD9 equations. All 401 previously
+unresolved instances are resolved without a new ambiguity fallback. Cached
+absolute bytes retain their published one-state intrinsic duration. These
+counts are independent Python expectations, never measured RTL timings;
+see [native byte contracts](movb-cd-timing.md).
 
 The directed `--published-targets` mode checks the agreeing entry/summary
 duration rather than accepting a differing shared-schedule duration. It
@@ -47,28 +44,31 @@ selects 164 probes: 114 cached absolute MOVBs (including cold-extension and
 new boundary probes),23 cached indirect MOVBs, nine cache-disabled absolute
 MOVBs and 18 cache-disabled indirect MOVBs. Agreeing targets stay selected
 after an implementation fix; this mode retains passing targets when the
-ordinary fixture uses the same count. On the fitted cached-MOVB image, 137
+ordinary fixture uses the same count. On the historical cached-MOVB image, 137
 pass and 27 CD cases fail solely on duration: absolute expected 56/observed
 120 INCLK, indirect expected 56/observed 72. All 164 diagnostic observations
 and error lists agree with the original Verilator bench. Failing inputs still
 fail the standard equivalence command and do not establish compliance.
 Programs, initial state, architectural/memory expectations and existing bus
 checks are preserved. Cold extensions retain the independent nine-state fill
-penalty. This mode checks the printed instruction duration; it does not
-establish a replacement TI bus schedule or resolve conflicting sources.
+penalty. Source `54ab1116` passes all 164 each BASE/W1P7/W3 on DataStorm, with all 492
+exact Verilator comparisons. The complete physical bus inventory, ordering and
+cycle lengths remain checked; the internal posted-write placement is an
+explicit project observation policy, not a claim about TI pin waveforms.
 
 ```sh
 python3 modules/jttms10/ver/timing/run.py --published-targets --simulator verilator
 python3 modules/jttms10/ver/fpga/check_results.py prepare \
-    --protocol-version 3 --published-targets --output /path/to/movb-targets.json
+    --protocol-version 5 --published-targets --output /path/to/movb-targets.json
 ```
 
-These commands expose known failures, with a nonzero checking command; they
-are not an acceptance allowlist. The FPGA runs the same selected programs
+These commands remain mandatory regressions after an implementation fix. Any
+duration or other checked mismatch still produces a nonzero checking command.
+The FPGA runs the same selected programs
 and checker through the normal batch transport. The ordinary fixture matrix
 retains architectural and bus checks while using the independently specified
 cached one-state target. A matrix pass cannot replace the published-target
-check for the remaining CD gaps.
+check. The earlier failing baselines remain archived.
 
 The historical unchanged native-LINE CPU on DataStorm reproduced all 45 duration gaps,
 with correct architecture, memory and checked bus events. Two surrounding
@@ -80,9 +80,9 @@ timings. Evidence is tracked in #144.
 
 The normal runner invokes the policy-aware inventory. Calling
 `inventory(rows)` without `accept_project_choices=True` retains the stricter
-source-only audit, including all 13,073 discrepancy instances. Both views
-preserve the original numbers and citations. A passed source-policy gate
-would still leave condition/bus/interrupt/hardware audits required;
+source-only audit, including all 12,625 current discrepancy instances. Both views
+preserve the original numbers and citations. The passed source-policy gate
+still leaves condition/bus/interrupt/hardware audits required;
 `full_isa_signoff` remains false. Missing forms also continue to fail.
 
 The original policy-only step at `3fcd09f9b` modified no HDL, microcode, encoded
@@ -99,8 +99,9 @@ shared three-read schedule selects CPU8 with the same respective CD
 counts. Predecrement index8 prints CPU6/H7/CD15; the common fetch/hidden
 state equation selects CD16. [pointer-copy-timing.md](pointer-copy-timing.md)
 records these conditions and all alternatives. They are explicit owner
-choices, not official TI corrections. The 448 agreed/source-target MOVB
-instances remain open.
+choices, not official TI corrections. At that historical checkpoint,448
+MOVB instances remained unresolved. The current totals above supersede that
+checkpoint after the cached and native CD byte fixes.
 
 The offset/absolute-source postincrement copies add 1,882 exact choices.
 Their entries support the common CPU+hidden+three-CD-states-per-word
@@ -117,7 +118,8 @@ operand states and three CD states per instruction word; inconsistent
 byte/field table columns do not require additional arithmetic or DSPs.
 [copy-pair-timing.md](copy-pair-timing.md) records the literal CD9 offset-byte
 and CD12 absolute-field entry values as well as summary alternatives. These
-choices leave all 448 prior MOVB target instances unresolved.
+choices did not resolve the448 MOVB target instances at that historical
+checkpoint; the later byte implementations resolve them.
 
 EMU with RUN asserted selects6/9 from summaryp.12-17 and the June1991
 data-sheetp.14 minimum6, retaining entryp.12-77's8/11. Full ST preservation

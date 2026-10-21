@@ -11,9 +11,22 @@ MiSTer gameplay pass. See the [NARC validation](docs/narc.md) and matched
 Full instruction timing compliance remains unproven. The independent
 [timing suite and coverage ledger](docs/timing.md) expose the known failures
 under [issue #144](http://gitea.jotego.es/jotego/jtcores/issues/144).
+Current source `54ab1116` passes 692 focused FPGA observations with 692 exact
+Verilator comparisons, including all 164 published MOVB targets in three
+profiles. Its native CD byte schedule resolves the preceding 27 failures per
+profile. The source gate has 133/133 forms, zero unresolved probes and 12,625
+explicit project choices; this is not full instruction-condition signoff.
+See [current FPGA qualification](docs/movb-cd-timing.md#source-bound-fpga-qualification)
+and [remaining conditions](docs/condition-coverage.md). The current image also
+passes all 145,920 ordinary fixtures in each BASE/W1P7/W3 profile (437,760
+executions, no exclusions); every raw verdict independently replays. The
+ordinary matrix has no per-case Verilator comparison; the 692 focused cases
+above do. The earlier checkpoints below retain their own source identities
+and bounded scopes.
 The standard runner includes an [independent PIXBLT timing suite](docs/blit-timing.md)
 for all six encodings, partial [FILL timing coverage](docs/fill-timing.md),
-[bounded LINE timing coverage](docs/line-timing.md), and unresolved MOVB targets.
+[bounded LINE timing coverage](docs/line-timing.md), and the published MOVB
+target regressions.
 Probe presence reaches 133/133 forms. PIXBLT has 544 fixtures: the published
 464-case failing baseline, 60 nonzero-coordinate/offset/pitch probes and
 20 wider binary-row probes. The last 20 pass short Verilator checks in three
@@ -105,11 +118,12 @@ Probe presence is
 only a necessary gate; conflicting printed store counts have explicitly
 labeled inferred policies and remain excluded from unqualified signoff.
 Cached single-word absolute MOVB consumes resident address operands with
-the opcode to meet the one-state target printed in both TI tables. Its
-cache-disabled seven-state target remains open. The source-bound DataStorm image
-passes 141,952 cases across all 133 forms each at base/W1-P7/W3 without
-fixture exclusions (425,856 FPGA executions). The directed published-target
-command retains 27 CD duration failures.
+the opcode to meet the one-state target printed in both TI tables. The current
+source-bound image passes the cached and cache-disabled published targets.
+The preceding 744 image passed 141,952 cases across all 133 forms each at
+base/W1-P7/W3 without fixture exclusions (425,856 FPGA executions), but its
+directed published-target command retained 27 CD duration failures per
+profile. That historical result is superseded by source `54ab1116` above.
 See [FPGA evidence and reproduction](ver/fpga/README.md).
 The short [CD store/fetch dependency regression](ver/store_dependency/README.md)
 checks byte writes to instruction words, including straddled RMW pairs,

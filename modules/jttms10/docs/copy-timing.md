@@ -4,8 +4,8 @@ Plain indirect MOVE and MOVB now use the shared field engine, including
 posted writes. The permanent suite adds **6,860 programs** for these two
 forms. [Pointer copies](pointer-copy-timing.md) cover the two postincrement/
 predecrement forms separately. [Source-extension copies](source-copy-timing.md) cover two further forms.
-The four two-address copy forms retain their previous schedule and remain
-unvalidated for timing.
+The four [two-address copy forms](copy-pair-timing.md) have their own
+independent fixtures and documented source interpretations.
 
 ## Primary rules and explicit choices
 
@@ -31,17 +31,19 @@ Two discrepancies stay explicit:
   implementation direction, retaining the printed CPU5. One hundred
   cached probe instances carry this exact project choice. No official TI
   erratum is claimed.
-- Byte index2 prints CPU3/CD7. The typical byte-aligned instruction entry
-  agrees with that CD7; the shared source-read/RMW/fetch equation gives
-  CD9. The implementation currently uses CPU3/CD9. All 332 affected CD
-  probes remain unresolved, including 18 agreed entry/summary target gaps.
-  A cached three-state match does not resolve the CD discrepancy.
+- Byte index2 prints CPU3/CD7, and the typical byte-aligned instruction entry
+  agrees. The native CD implementation now selects that literal CD7, with a
+  whole trailing RMW queued after the unrelated opcode. The earlier shared
+  field equation gave CD9; all 332 affected CD probes now use the explicit
+  byte count. The [byte contract](movb-cd-timing.md) preserves bus contents,
+  indivisible pairs, physical lengths, ordering and bounded hidden drain.
 
-Together with the earlier absolute-MOVB gap, the normal source gate retains
-448 unresolved probes, including 45 agreed published-target instances. It
-records 3,620 project choices and keeps all 4,068 discrepancies available
-through the stricter source-only audit. See [source-policy.md](source-policy.md).
-These are probe-instance counts, not distinct rules.
+The current normal source gate has zero unresolved probes and retains 12,625
+explicit choices elsewhere. The historical CD9 failing baseline and 18
+agreeing byte-copy target failures remain archived; all published targets
+now pass on source `54ab1116` in three FPGA profiles with exact Verilator matches.
+See [source-policy.md](source-policy.md). Counts refer to probe instances,
+not distinct rules or full condition coverage.
 
 ## Data, overlap and following consumers
 

@@ -133,8 +133,45 @@ python3 modules/jttms10/ver/store_dependency/check_byte_events.py --report event
 python3 modules/jttms10/ver/store_dependency/check_byte_event_mutations.py --report mutations.json
 ```
 
-This candidate remains under development. Local directed results do not
-establish current-image FPGA agreement, complete HOLD/IRQ behavior, other
-following-instruction timings, full ISA compliance, CPU area, board STA or
-NARC gameplay acceptance. A new source-bound build and physical validation
-are required before claiming a qualified implementation.
+## Source-bound FPGA qualification
+
+Source `54ab11169a451bfaa1a77da8d7208fc3002fb4ef` is loaded on the DataStorm
+as RBF `8b3d79b7adcd8c014374a03c9f9cc39dcac97652c67f04a7792fea402b6a219e`.
+All 692 focused observations pass and exactly match profile-specific
+Verilator references: 164 published targets each BASE/W1P7/W3 (492),
+16 instruction-word dependencies each BASE/W1/W3/W1P1/W1P7 (80),
+16 following-load programs each same five profiles (80), and four HOLD
+programs each W0/W1 at request phases 0/8/24/40/52 (40). Every complete raw
+verdict independently replays. The preceding 27 published CD failures per
+profile are resolved without changing their printed target counts.
+
+The first 16 dependency BASE observations also pass raw replay and reference
+comparison, but their outer command exit/time were lost after a host wrapper
+hashing error. The original capture is preserved. A separately recorded
+16-case confirmation supplies the BASE command evidence in the 692 total.
+No FPGA programming was repeated because of that observation error.
+
+The single `/opt/quartus_free` incremental build takes 914.74s Quartus and
+918.803923882s enclosing helper. Top POST_FIT preserves all 14,556 placements
+and 86,098 internal routes; CPU SOURCE has 9,867 fresh nodes, with no fallback.
+All 21 RAM geometries/modes/counts and three compiled ROM contents are
+preserved; eight CPU RAM locations move. Five generated payloads are
+byte-identical, while two parameter headers change exactly their generated
+date comment 20->21 Oct 2026. All 32 final DDR margins are positive/unchanged,
+and all 88 final STA rows have positive slack/TNS0. The 25 MHz appliance fit
+uses 12,037 ALMs, 8,102 registers, 373 M10Ks and six DSPs. This is separate from
+the final CPU-only 3,500 ALM/20 ns and NARC gates.
+
+One explicit-close load takes 0.330154s/1.114485557s enclosing SSH. A staged
+SYSID-helper mode correction requires only chmod and the same saved read-only
+health check; no reload. Final short-suite health verifies unchanged boot,
+expected overlay/firmware hash/SYSID, healthy manager/bridges, taint0, seven
+legacy clients unbound and no FPGA transport process. Root proof is
+`/nobackup/tasks/jtcores-144/artifacts/movb-cd-native-2/physical-1/root-short-complete-review.json`;
+its SHA256 is `2d544f226ebc16985e703705da711d2a164a1be6fb97c435efd11c73cfe7110e`.
+See [FPGA identity, reproduction and matrix results](../ver/fpga/README.md#native-cd-movb-source-qualified-image).
+
+This qualifies the declared fixtures and profiles. Complete HOLD/IRQ behavior,
+other following instructions, broader legal conditions, the normal runner in
+a clean checkout/CI, CPU area/20ns STA and NARC/MiSTer acceptance remain open.
+Concurrent host work prevents a controlled compile or end-to-end speedup claim.

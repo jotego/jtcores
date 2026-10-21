@@ -1,92 +1,45 @@
 # Instruction timing compliance (issue #144, in progress)
 
-The appended [Boolean FILL baseline](fill-timing.md#non-replace-boolean-word-baseline)
-adds 300 PPOP1..15, full-word, one-row probes at all pixel sizes, L/XY and
-hit/CD. Inventory is 142,692 cases across 133 forms, including 2,960 FILL
-cases. All preceding 142,392 fixture contracts remain unchanged. Directed
-probes expose duration and word-traffic failures with correct checked
-architecture and memory; no Boolean FILL timing compliance is claimed.
-The physical and software checkpoints below retain their original scopes.
+The CPU is **not fully instruction timing compliant**. The current source
+`54ab11169a451bfaa1a77da8d7208fc3002fb4ef` has 145,920 ordinary fixtures
+covering all 133 instruction forms. Its policy-aware coverage gate reports
+zero unresolved source probes and zero agreed published-target gaps, while
+retaining 12,625 explicit project interpretations of conflicting TI sources.
+`full_isa_signoff` remains false: form presence and a passing source gate do
+not establish complete condition, cache, bus or interrupt coverage.
 
-The CPU is **not fully instruction timing compliant**. Timing probes are
-present for all 133 instruction forms. Hardware `a59e15b08` passes all 141,972
-ordinary fixtures in each base/W1-P7/W3 profile: 425,916 physical executions,
-independently checked from raw captures. The W3 saved report contains one
-trace-label discrepancy (`BUS_ACCERT` versus raw-derived `BUS_ACCEPT`);
-the original is retained and the full raw audit finds no other field differences.
-All 1,020 focused executions pass, with 702 declared independent reference
-comparisons across overlapping subsets. These include stacked/no-stack NMI
-and CPU-visible I/O preservation/clear checks. NMIM=1 total context duration
-remains observed only. See the [current FPGA checkpoint](../ver/fpga/README.md#physical-nmi-checkpoint).
-Probe presence and a passing matrix do not establish complete condition coverage.
-PIXT register-to-linear covers replace and Boolean PPOP0..15 with PMASK0/T0;
-arithmetic,masking,transparency and other conditions remain unvalidated.
-Linear memory-to-memory PIXT covers replace/PMASK0/T0; register-to-XY
-PIXT and DRAV cover replace/PMASK0/T0/W0. Other conditions remain unvalidated.
-Aligned opaque W0 FILL L/XY and bounded replace-only LINE have independent
-timing probes; their supported conditions and remaining exclusions are in
-[FILL timing](fill-timing.md) and [LINE timing](line-timing.md).
-Some printed counts conflict. The owner authorizes the simpler implementation
-where reliable clarification cannot be found; explicit project choices keep
-all alternatives visible. See [source-policy.md](source-policy.md).
-Cached single-word absolute MOVB uses the one-state intrinsic count on which
-both TI tables agree, including resident operands across cache subsegment
-and segment boundaries. Its CD7 target remains a gap against the shared
-CD15 schedule. Plain byte-copy index2 also has a CD7 versus current CD9 gap.
-The standard coverage/source gate still fails on unresolved MOVB
-source/policy differences, with the recorded project choices
-applied explicitly. Passing the present probe matrix is
-not full-ISA acceptance.
-Architectural regression, FPGA setup/hold closure and instruction timing are
-separate checks.
+The native cache-disabled MOVB implementation selects the literal absolute
+byte CD7/CD13 and plain B/B copy CD7 counts. All 164 published targets pass
+on DataStorm each BASE/W1P7/W3, with all 492 observations matching Verilator.
+Another 80 instruction-word dependency, 80 following-load and 40 HOLD
+observations also pass and match exact profile-specific references. Every
+raw verdict independently replays. These results eliminate the preceding
+27 MOVB target failures per profile; those failing baselines remain archived.
+See [native byte-store timing](movb-cd-timing.md) and the
+[current image and reproduction commands](../ver/fpga/README.md#native-cd-movb-source-qualified-image).
+The complete 145,920-case ordinary inventory passes in each BASE/W1P7/W3
+profile: 437,760 executions over 133 forms, with no exclusions and every raw
+verdict independently replayed. Those ordinary captures are checked against
+the Python oracle, not compared per case with Verilator; the 692 focused
+observations above have exact Verilator matches. See the profile table and
+wrapper-timing caveat in the current image record.
 
-The historical native binary [DataStorm checkpoint](../ver/fpga/README.md) uses RTL
-`2a5e4a6d95909c758d3041e0603fc6a8276fed60`. Full command walls are 305.33/311.54/323.21 seconds;
-compilation/programming/preparation and transport phases are separately
-recorded. The separate published-target command retains 27 CD duration failures.
-Timeout and 512-record overflow preserve following cases and clean rearm. Native binary
-IRQ/NMI continuation now passes the separate timed-word Verilator sweep;
-this loaded image predates that change. FPGA HOLD/IRQ scheduling remains open.
-Twenty added wide-row fixtures bring the inventory to 141,972; all
-preceding contracts are unchanged. Their FPGA validation is included in the
-current checkpoint above. Earlier
-image results below retain their original identities.
+The preceding native arithmetic FILL image `744acd3e` passes its complete
+145,920-case ordinary inventory each BASE/W1P7/W3: 437,760 executions, all
+raw verdicts replayed. Its 6,188 FILL cases include replacement edges/rows,
+whole-word Boolean PPOP1..15 at all five pixel sizes, and whole-word
+arithmetic PPOP16..21 at PS4/8/16. These results do not cover masks,
+transparency, window preclipping, partial Boolean/arithmetic words or
+arbitrary changes in row alignment. PIXT and PIXBLT likewise retain their
+explicit bounded scopes. The [condition audit](condition-coverage.md)
+identifies these gaps separately from instruction-form presence.
 
-The historical native-LINE [DataStorm image](../ver/fpga/README.md) passes all 141,236
-existing fixtures in each of base, W1/P7-after0 and W3 profiles: 423,708 FPGA
-executions on one image, including all 2,240 FILL and 626 LINE cases per
-profile. Every raw capture was replayed with the unchanged independent Python
-oracle. Twenty-nine focused physical observations match the original
-Verilator bench, including architectural state, memory, instruction clocks
-and checked bus events. These results supersede the pre-native-LINE broad
-matrix's 606 duration failures for this scope. They do not complete the normal
-runner, clean-checkout/CI, missing-form/condition audit or final physical/game
-acceptance. That image predates the cached absolute-byte change. That preceding
-inventory contains 141,428 cases, including 192 additional cached byte boundaries.
-Its coverage/source gate then failed on six missing PIXBLT forms and 401
-unresolved MOVB probes, including 27 agreed published-target gaps.
-
-The newly fitted cached-MOVB image passes all 141,428 cases in each of the same
-three profiles (424,284 physical executions), with 5,157 batches per profile.
-Root independently replayed every raw result with the original Python checker.
-All 69 focused positive observations match short original Verilator runs.
-The separate 164-case published-target run returns exit 1: 137 pass and 27 CD
-cases fail solely on duration. Full architectural/memory/bus observations and
-error lists agree with Verilator even for those failures. Timeout and explicit
-512-record overflow preserve the next independent case and clean rearm.
-External full-command walls are 286.508/289.787/301.359 seconds. The single
-retained-IP full Quartus flow takes 853.19 seconds (859.14 s outer helper);
-all final constrained summaries and calibrated DDR margins pass. This is an
-FPGA test appliance, not the CPU-only area or final NARC/MiSTer acceptance.
-See [FPGA reproduction and measurements](../ver/fpga/README.md).
-
-The new PIXBLT baseline uses the same physical CPU image with host-only fixtures
-and checker additions. All 84 focused diagnostic observations match original
-Verilator; all commands remain failing. The complete new 464-case base run
-produces 311 individual timing failures plus 153 cases in nine overflow-rejected
-batches. Final memory is actively checked for every individual verdict; 40 raw
-cases explicitly hit the 512-record limit. All predecessor fixture/program
-contracts remain unchanged. See [PIXBLT scope and evidence](blit-timing.md).
+Architectural results, ISA instruction timing, FPGA setup/hold closure and
+NARC gameplay are separate acceptance checks. Exact Boolean/arithmetic FILL
+interrupt timing, HOLD-adjusted total instruction duration, the full normal
+runner in a clean checkout/CI, final fitted CPU area and NARC/MiSTer
+acceptance remain open. Later sections retain historical source identities
+and bounded development results; they do not supersede this current scope.
 
 The primary specification is TI's June 1988 *TMS34010 User's Guide*,
 SPVU001A, including its device data sheet in Appendix A. Citations below
@@ -267,22 +220,17 @@ it also fails on unresolved source overrides, even if every form has
 probes. The normal gate applies the explicit owner-selected interpretations
 in [source-policy.md](source-policy.md), preserving every alternative. Numeric source alternatives are audited independently of their
 status labels. An agreed published target differing from the selected
-policy is reported separately from conflicting TI sources. The historical
-106,610-case inventory has 13,073 discrepancy instances before project choices:
-242 stores, six aligned absolute MOVE load CD cases, 1,996 untaken JR,
-1,376 CMPXY, 16 CVXYL result differences, 100 copy index12 CPU cases and
-332 byte-copy CD cases, 642 pointer-copy alternatives and 1,882 source-extension and 4,331 two-address-copy alternatives and 296 EMU alternatives and 1,854 register-list hidden/applicability alternatives. The normal gate records 12,625 explicit project
-choices and retained 448 unresolved MOVB cases. Forty-five instances had
-matching entry/summary targets, distinguished from source conflicts.
-The cached absolute-byte change resolves 47 of these source-policy instances;
-the current normal gate retains 401 unresolved instances, including 27 agreed
-CD targets. The JSON preserves every affected name, condition-specific value and
-citation. Numeric metadata must match the actual selected expectation;
-status relabeling cannot waive a gap. The stricter source-only audit remains
-available. These are counts of probe instances, not distinct rules.
-There are 165 checker/model tests. Probe presence and resolved or explicitly
-selected source interpretations remain necessary gates; neither completes
-the condition/bus/interrupt audit.
+policy is reported separately from conflicting TI sources. On source `54ab1116` the
+policy-aware gate has all 133 forms present, zero unresolved probes and zero
+agreed published-target gaps. It retains 12,625 explicit project choices;
+the strict audit without those choices reports the same 12,625 discrepancy
+instances. The earlier 401 MOVB discrepancies are resolved by the literal
+CD byte contracts rather than accepted as project choices. The JSON keeps
+every affected name, condition-specific value and citation. Numeric metadata
+must match the selected expectation; status relabeling cannot waive a gap.
+These are probe-instance counts, not distinct timing rules. Probe presence
+and resolved or explicitly selected interpretations remain necessary gates;
+neither completes the [condition/bus/interrupt audit](condition-coverage.md).
 The full #144 checklist remains open.
 
 | Rule | TI source | Present coverage | Compliance |
@@ -311,14 +259,14 @@ The full #144 checklist remains open.
 | I/O fixed duration and ignored ready | p.11-14 | Timer tests with ACK permanently low/high; timed queued-host I/O and system register/IRQ regression | Two-state/ACK-independent contract passes; exact internal I/O latch edge excluded as undocumented |
 | External wait addition | §13.1.2 p.13-3; §11.4.10 p.11-16 | Full CPU raw ready at 4/12 INCLK, logical bus duration 16/24; exact added delay and independent target/start/order checks | Current probes pass |
 | Immediate forms: IW 2,8; IL 3,12 | ADDI pp.12-38–39, CMPI 12-54–55, MOVI 12-159–160, SUBI 12-249–250; ANDI/ANDNI 12-43/45, ORI 12-173, XORI 12-256 | 2,828 programs: source-level encoding/sign/flags, warm word alignments and first/second-extension misses; per-word waits and IAQ | Current probes pass; [immediate-timing.md](immediate-timing.md) records the contract and exclusions |
-| ADDXY/SUBXY/CMPXY | SPVU001A pp.12-41/56/252, summary12-12; SPVS002C June1991 p.11 | 4,156 programs: independent signed halves/flags, literal examples, A/B/SP, aliases, ignored field widths/FE and CEN phases | ADDXY/SUBXY hit/CD1/4; CMPXY summary3/6 conflicts with entry1/4 and remains blocked; see [xy-timing.md](xy-timing.md) |
+| ADDXY/SUBXY/CMPXY | SPVU001A pp.12-41/56/252, summary12-12; SPVS002C June1991 p.11 | 4,156 programs: independent signed halves/flags, literal examples, A/B/SP, aliases, ignored field widths/FE and CEN phases | ADDXY/SUBXY hit/CD1/4; CMPXY selects summary/data-sheet3/6 under the explicit owner choice; entry1/4 remains visible; see [xy-timing.md](xy-timing.md) |
 | CPW/CVXYL:1/4 and3/6 | SPVU001A pp.4-12,6-15,12-57..60; SPVS002C June1991 p.11 | 5,116 programs: signed/window boundaries, all pitch/pixel sizes, implicit B registers, aliases, OR/offset wrap, flags/fields, CEN and immediate branch targets | Count probes pass; four printed CVXYL result examples conflict with the formula. See [coordinate-timing.md](coordinate-timing.md) and the documented project choice |
 | JUMP/EXGPC, DSJ/EQ/NE/S and conditional JR/JAcc | SPVU001A pp.12-70..79,92..98; SPVS002C June1991 p.14 | 15,542 programs: both paths, all conditions/flags, A/B/SP, target alignment, displacement endpoints, literal PCs, CEN phases and immediate target fields | Current selected-count probes; untaken JR source discrepancies and the inferred long-JR CD5 remain explicit in [control-timing.md](control-timing.md) |
 | Register lists MMFM/MMTM | pp.12-109..112; §13.1.1 |3,572 full-GPR/state/memory probes,120 following loads,342 short phases |Literal CPU/CD equations; explicit hidden-state/empty-list project choices. See[list-timing.md](list-timing.md). |
 | TRAP | SPVU001A8.6 p8-9;12-253/254 |1,800 full-state/memory/vector programs,16 following loads,150 short-phase programs |16/19 aligned,30/33 otherwise; literal timing-table applicability chosen for TRAP0. See[trap-timing.md](trap-timing.md). |
 | CALL/CALLA/CALLR | SPVU001A12-48/49/50; stack order12-253 |1,306 programs,84 following A/B loads, ordered posted writes and short pauses |Entry counts pass targeted probes; cold/cache/IRQ conditions remain open. See[call-timing.md](call-timing.md). |
 | Six PIXBLT forms | SPVU001A12-174..212; Tables13-8..13 pp.13-18..35 | 544 aligned opaque W0/PBH0/PBV0 fixtures, all pixel sizes and both cache modes; regular N1..4/L1..2, binary DX<=32 including N8/16/32 | Preceding 524 pass FPGA base/W1-P7/W3; 102 physical observations match Verilator. Binary IRQ source has 162 focused/geometry/wide Verilator passes. Regular IRQ source has 132 unchanged-oracle timing observations and timed-word sweeps of 3,280 regular /1,640 binary modes. Physical injection, long/partial rows and broader conditions remain open. See [blit-timing.md](blit-timing.md). |
-| Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed 5; byte index2 CD9 versus printed7 remains a target gap. See [copy-timing.md](copy-timing.md) |
+| Plain memory-to-memory MOVE/MOVB | Tables13-3/4 pp.13-6/7; entries12-119/137/138 | 6,860 programs: widths/alignments, fields/FE, A/B/SP, overlap/wrap, literal memory, following consumers and CEN phases | Field index12 selects CPU7 rather than printed5 under the owner choice; byte index2 now uses the literal CD7. See [native byte contracts](movb-cd-timing.md). See [copy-timing.md](copy-timing.md) |
 | Pointer memory-to-memory MOVE | Tables13-3/4 pp.13-6/7; entries12-141/142/145/146 | 8,936 programs: both pointer modes, widths/alignments, fields/FE, A/B/SP, sequential aliases, literal data/pointers, following loads and CEN | Three alternatives follow the recorded owner choice. Complete validation is in progress; see [pointer-copy-timing.md](pointer-copy-timing.md). |
 | POPST | SPVU001A3-6/12-227; summary12-17; SPVS002C June1991p14 | 806 full-state/read-only-memory programs, including24 real following loads; aligned/unaligned response pauses |8/11 aligned,10/13 otherwise; remaining stack/call forms and full IRQ/HOLD audits stay open. See[stack-timing.md](stack-timing.md). |
 | RETS | SPVU001A3-6/12-232; summary12-17; SPVS002C June1991p14 |1488 PC/SP/full-ST/read-only probes,48 real A/B target loads, aligned/unaligned response pauses |7/10 aligned,9/12 otherwise. Five-bit N0..31/default0; prose32 excluded. See[return-timing.md](return-timing.md). |
@@ -330,19 +278,19 @@ The full #144 checklist remains open.
 | Indirect MOVE/MOVB loads | Table13-1 p.13-5; pp.12-118,12-135–136 | 4,424 fixtures: all widths/offsets, both fields/FE/cache, aliases, literal TI examples, ordered uncached data/IAQ, per-word waits and early CEN phases | Current probes pass; [load-timing.md](load-timing.md) records scope/exclusions |
 | MOVE post/pre/offset/absolute and MOVB offset/absolute; load B/SP conditions | Table13-1 p.13-5; pp.12-120,123,139–154; §5.4.7 | 3,200 additional fixtures, A/B/SP aliases/wrap, displacement/ignored-byte-field boundaries, cold address-word fills and six early CEN phases | Current probes pass; absolute MOVE entry conflicts with summary, with explicit oracle policy in [load-timing.md](load-timing.md) |
 | MOVE register to indirect/post/pre and MOVB register to indirect | Table13-2 p.13-6; pp.12-115,127–131; hidden states pp.13-2/3 | 3,344 store cases plus 70 following-load dependency probes, preserved memory, ordered RMW/writes beyond the next decode, file B/SP/aliases and waits/CEN | Current probes pass; [store-timing.md](store-timing.md) records the contract and source conflicts for other modes |
-| MOVE/MOVB register to offset/absolute | Table13-2 p.13-6; pp.12-116/117,132–134; §5.4.7 | 1,054 additional probes: literals, high/wrapped addresses, first/second-extension misses, both FE values and dependent loads | Probes pass under the documented policy; 242 explicitly inferred conflict-resolution cases are excluded from unqualified TI-count signoff |
+| MOVE/MOVB register to offset/absolute | Table13-2 p.13-6; pp.12-116/117,132–134; §5.4.7 | 1,054 additional probes: literals, high/wrapped addresses, first/second-extension misses, both FE values and dependent loads | Probes pass under the documented policy; conflicting field/offset counts retain explicit project interpretations; absolute MOVB uses literal CD7/CD13 |
 | ACK while CPU CEN is paused | Wrapper extension; TI bus counts still apply | Nine A/B/SP and aligned/unaligned stack-response controls plus duplicate-read mutation | Functional response retention only; overlapping-pause exact instruction timing not claimed |
 | Remaining memory/hidden-write conditions | §13.2 Tables13-1–13-4 | Form probes exist; consecutive writes and full cache/dependency/contention audits remain | Incomplete condition audit |
 | PIXT linear memory to register | SPVU001A pp.4-6,12-218/219; §7.3 | 4,159 full-GPR/state/read-only-memory programs,20 following loads, legal size/lane/plane-mask boundaries and cold next fills | 4/7 states; NCZ preservation and multibit V interpretation explicit in [pixel-read-timing.md](pixel-read-timing.md). Other pixel forms remain open |
 | PIXT XY memory to register | SPVU001A pp.4-12/13,12-222/223; §7.3 | 3,917 full-GPR/state/read-only-memory programs,source pitches/planes/aliases and20 following loads | 6/9 states; targeted three-profile/clean/cross-simulator proof in [pixel-xy-read-timing.md](pixel-xy-read-timing.md). Full acceptance remains open |
 | PIXT register to linear memory:replace/PMASK0/T0 | SPVU001A pp.12-213/214; §13.1.1 | 2,824 full-GPR/state/drained-memory programs,70 following loads and posted-response events | CPU2,H3/CD8 small;H1/CD6 at16 bits. Other PPOP/mask/transparency/SRT conditions remain unvalidated. See[pixel-store-timing.md](pixel-store-timing.md). |
-| Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | Two scalar reads and the replace-write subset above have probes | Other graphics timing unvalidated |
+| Pixel/LINE/FILL/PIXBLT timing, windows, word boundaries | §12 entries and §13.3–13.5 | All graphics forms have probes within their documented scopes | Masks, transparency, windows, partial processing and broader conditions remain incomplete; see [condition audit](condition-coverage.md) |
 | Sequential subsegment miss | §5.4.7 p.5-24 | First-pass NOP probes, four ordered two-state reads plus processing; 80 INCLK without waits | Current directed probes pass |
 | Cache replacement/prefetch and other overlap | §5.4; §13.1 | Functional cache tests; full timing conditions still incomplete | Unvalidated |
 | CEN pauses during CPU work | Wrapper clock-enable contract described above | Seven paused clocks before work and 32 clocks into a division loop; architectural/working state, duration and read-start checks | Current directed probes pass |
 | Timed arbiter HOLD/RMW/host interference | §11.3 p.11-4 | Pre-dispatch HOLD, stale-write cancellation, reread, reserved write and queued two-state host I/O | Directed word-client contract passes |
 | CPU HOLD/restart, interrupts/resumption and contention; ACK during CEN pause | §8; §11; §13.1.2 | Full CPU timing conditions still incomplete | Unvalidated |
-| Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and GitHub Unit Simulations job run the strict suite | Gate added; currently red |
+| Standard-runner/CI timing gate | #144 acceptance criteria | `ver/run.sh` and the Unit Simulations job include the strict suite | Coverage/source gate passes; full current-source normal/clean/CI execution is not yet established |
 | Checker regression detection | #144 acceptance criteria | 165 checker/model tests; actual RTL/stimulus/event mutations integrated in the runner | Current demonstrations pass |
 | Post-change area/STA/NARC checks | #144 acceptance criteria | Pending implementation fixes | Pending |
 
@@ -577,7 +525,7 @@ mutation. Full normal-runner, clean-checkout and final hardware gates remain
 pending; see[stack-timing.md](stack-timing.md).
 
 RETS adds1488 programs for86,098 per matrix and109/133 forms (24 missing).
-All32 argument encodings, stack alignments, full return addresses and48 real
+All 32 argument encodings, stack alignments, full return addresses and48 real
 A/B following loads remain checked. The two new timing mutations retain
 correct main/following state and read-only memory. The response-retention
 bench now has seven controls and one duplicate-read mutant. No new timing

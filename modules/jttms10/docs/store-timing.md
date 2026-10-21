@@ -5,7 +5,8 @@ The owner's subsequent ambiguity fallback is recorded in
 under explicit project interpretations and preserves every printed
 alternative. Earlier unresolved-source counts below describe the stricter
 source-only audit; the normal gate now distinguishes those choices from
-remaining published-target gaps. This is not an official TI erratum.
+any remaining published-target gaps. Source `54ab1116` resolves all previously
+known MOVB targets with the [literal CD byte contract](movb-cd-timing.md). This is not an official TI erratum.
 
 The primary source is TI's June 1988 SPVU001A
 [TMS34010 User's Guide](https://bitsavers.trailing-edge.com/components/ti/TMS340xx/1988_TI_TMS34010_Users_Guide.pdf),
@@ -39,12 +40,14 @@ MOVB forces eight bits and ignores FS/FE. Stores preserve the complete ST.
 | MOVB register to indirect | 1 | `1+(H)` | `1+H+3` |
 | MOVE/MOVB offset | 3 | `3+(H)` | `3+H+6`, policy where sources conflict |
 | MOVE absolute | 3 | `3+(H)` | `3+H+9`, policy where sources conflict |
-| MOVB absolute, one physical word | 1 cached; 3 CD policy | `1+(3)` | 15 policy; agreed target7 remains open |
-| MOVB absolute, two physical words | 3 | `3+(7)` | 19 policy where sources conflict |
+| MOVB absolute, one physical word | 1 | `1+(3)` | 7, literal byte entry |
+| MOVB absolute, two physical words | 3 | `3+(7)` | 13, literal byte entry |
 
-The first transfer starts after C-1 intrinsic states. The transfers are
+For the generic field schedule, the first transfer starts after C-1 intrinsic states. The transfers are
 ordered, uncached and IAQ-low. Each takes two machine states plus its requested
-wait states. With CD, the following opcode fetch starts after the data traffic;
+wait states. The native CD absolute-byte contract instead reserves an unrelated opcode
+before its final whole RMW pair; the first pair of a straddled byte completes
+before that opcode. For the generic CD field schedule, the opcode starts after the data traffic;
 its read plus processing state supplies three states. Extension-address
 forms additionally fetch each address word with CD; §5.4.7 supplies the
 three-state increment per instruction word used by the explicit policy. Every
@@ -172,30 +175,33 @@ have further inconsistent CPU/CD counts. The printed values include:
 | MOVE absolute, aligned 32 bits | `3+(3),9` p.12-134 | `3+(3),15` | `3+(3),15` |
 | MOVB offset, one word | `3+(3),9` p.12-116, byte aligned | `3+(3),7` | `3+(3),12` |
 | MOVB offset, two words | Refers to summary | `3+(7),13` | `3+(7),16` |
-| MOVB absolute, one word | `1+(3),7` p.12-117, byte aligned | `1+(3),7` | `1+(3)` cached; CD15 remains a gap |
-| MOVB absolute, two words | Refers to summary | `3+(7),13` | `3+(7),19` |
+| MOVB absolute, one word | `1+(3),7` p.12-117, byte aligned | `1+(3),7` | `1+(3)` cached; literal CD7 |
+| MOVB absolute, two words | Refers to summary | `3+(7),13` | `3+(7),13`, literal byte entry |
 
 Single-word absolute MOVB needs particular care: its instruction entry and
 summary **agree** on `1+(3),7`. Cached bytes at bit offsets 0..8 now use the
 published one-state intrinsic duration. The synchronous instruction cache
 supplies resident address operands alongside the opcode; missing operands
 retain the nine-state subsegment-fill penalty. The field adapter still performs
-the actual external read/modify/write. The cache-disabled path still uses
-15 states rather than the published seven and remains an agreed-target gap.
-Two-word bytes retain the general three-state path and its unresolved CD
-source differences. No CD target is waived.
+the actual external read/modify/write. The native cache-disabled path now
+uses the literal seven-state count; a straddled byte uses CD13. It queues one
+complete final RMW after the unrelated next opcode, with exact contents,
+cycle lengths and a bounded hidden drain checked independently. Instruction-
+word dependencies have separate ordering checks and no unrelated-opcode
+nominal duration assertion. No known CD target is waived.
 
 The additional 192 cached cases cover A/B source registers 0/1/2/SP, opcode
 positions 0/1/2/3/30/31 within a cache segment and bit offsets 0/1/8/9. Position 31
 crosses a segment boundary; offset 9 checks the two-word fallback. All 347
 absolute-byte probes pass the short original Verilator base run, with 18
-wait/pause representatives also passing. The newly fitted DataStorm image passes
+wait/pause representatives also passing. The historical cached-byte DataStorm image passes
 all 141,428 fixtures in each of base/W1-P7/W3; 23 focused cases per profile
 match the original Verilator bench. All 164 published-target observations,
 including their errors, also match: 137 pass and the 27 CD duration gaps fail.
 The standard equivalence command refuses failing captures, so this latter
 comparison is diagnostic evidence and does not turn failures into passes.
-See the [source-bound FPGA checkpoint](../ver/fpga/README.md).
+Source `54ab1116` now passes all 164 published targets each BASE/W1P7/W3, with 492
+exact Verilator comparisons. See the [source-bound FPGA checkpoint](../ver/fpga/README.md).
 
 An undated separate TI chapter copy at
 [Whtech](https://www.whtech.com/ftp/datasheets%20and%20manuals/Datasheets%20-%20TI/TMS34010/TMS34010-13-Instruction%20Timings.pdf)

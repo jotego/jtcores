@@ -2,9 +2,89 @@
 
 Work for [jtcores #145](http://gitea.jotego.es/jotego/jtcores/issues/145).
 
-## Current arithmetic FILL source-qualified image
+## Native CD MOVB source-qualified image
 
-The loaded image was built from source
+The loaded image uses source `54ab11169a451bfaa1a77da8d7208fc3002fb4ef`,
+RBF SHA256 `8b3d79b7adcd8c014374a03c9f9cc39dcac97652c67f04a7792fea402b6a219e`,
+overlay `jtcores-144-movb-cd-8b3d79b7`, SYSID22/timestamp1792433033.
+The source-bound receipt is
+`/nobackup/tasks/jtcores-144/artifacts/movb-cd-native-2/program-plan-1/source-bound-programming-receipt.json`,
+SHA256 `a23876ec2c630f197b13342054fdba408cf9243008ebd24349424c7efaaf15b0`.
+
+| Focused family | Profiles | FPGA passes / exact Verilator matches |
+| --- | --- | ---: |
+| Published MOVB targets | BASE/W1P7/W3 | 492 /492 |
+| Instruction-word dependencies | BASE/W1/W3/W1P1/W1P7 | 80 /80 |
+| Following loads | BASE/W1/W3/W1P1/W1P7 | 80 /80 |
+| HOLD/restart | W0/W1 at request phases 0/8/24/40/52 | 40 /40 |
+
+Every raw verdict independently replays. All preceding 27 published-target
+failures per profile now pass under the unchanged counts. The complete
+145,920-case ordinary inventory also passes each BASE/W1P7/W3 profile across
+all 133 forms, with no exclusions: 437,760 executions, all raw verdicts
+replayed and final health passing. These ordinary runs were checked against
+the Python oracle; they do not have per-case Verilator comparisons. The 692
+focused observations above are separately matched exactly to Verilator. Saved
+post-matrix health confirms unchanged boot/SYSID, intended firmware hash,
+ready manager and bridges, taint0, seven legacy clients unbound and no
+transport process. The original first 16 BASE dependency observations also
+pass replay/comparison, but their outer command
+exit/time are unrecorded after a wrapper error. That capture is preserved;
+a fresh 16-case confirmation supplies the recorded BASE result in the 692 total.
+
+| Ordinary profile | Cases / batches | Passed | Sampled enclosing driver wall | Measured preflight / transfer / execution / check phases |
+| --- | ---: | ---: | ---: | ---: |
+| BASE | 145,920 / 5,364 | 145,920 | 330.012 s | 0.565 / 10.766 / 189.547 / 71.958 s |
+| W1/P7 | 145,920 / 5,364 | 145,920 | 360.014 s | 0.619 / 10.921 / 195.424 / 70.645 s |
+| W3 | 145,920 / 5,364 | 145,920 | 360.021 s | 0.643 / 11.040 / 208.239 / 71.943 s |
+
+The stage-2 wrapper samples its child process with `Popen.poll()` and sleeps
+30 seconds between polls. These enclosing wall values can therefore include
+up to about 30 seconds of exit-observation delay; they are not precise child
+runtimes. The aggregate records measured preflight, transfer, execution and
+check phases separately, but those phases do not exhaust the enclosing wall.
+Concurrent host checks also prevent a controlled speedup comparison.
+
+The `/opt/quartus_free` build takes 914.74s Quartus/918.803923882s outer,
+using inherited Top POST_FIT/CPU SOURCE. All14556 Top placements and 86,098
+internal routes are preserved, with 9,867 fresh CPU nodes and no fallback.
+The 40 source/172 compiled inputs, 97 Qsys files, 21 RAM geometries/modes/counts,
+three ROM contents, 32 unchanged positive DDR margins and 88 positive STA/TNS0
+rows verify. Eight CPU RAM locations move. Five generated payloads are
+byte-identical; two parameter headers differ only in one generated date comment.
+The 25 MHz appliance uses 12,037 ALMs, 8,102 registers, 373 M10Ks, six DSPs;
+CPU-only 3,500 ALM/20 ns and NARC acceptance remain separate.
+
+One load takes 0.330154s/1.114485557s enclosing SSH. Saved final short-suite
+health verifies unchanged boot/SYSID, intended firmware/hash, manager and
+bridges ready, taint0, seven clients unbound and no transport process. A SYSID
+helper permission correction requires only chmod/read-only health, without
+reprogramming. Proofs, raw captures, command records and timings are under
+`/nobackup/tasks/jtcores-144/artifacts/movb-cd-native-2/`.
+See [native byte-store contracts and limits](../../docs/movb-cd-timing.md#source-bound-fpga-qualification).
+No controlled compile or end-to-end speedup is claimed.
+
+Prepare and execute through the existing separate transport/oracle layers:
+
+```sh
+source ./setprj.sh
+python3 modules/jttms10/ver/fpga/check_results.py prepare --matrix \
+    --protocol-version 5 --wait-states 1 --pause-clocks 7 --output matrix.json
+python3 /home/jtejada/jtcores-skills/skills/datastorm/scripts/fpga-regression/run_batch.py \
+    matrix.json --source-root "$JTROOT" --hardware-source-root "$JTROOT" \
+    --receipt /path/to/source-bound-programming-receipt.json \
+    --artifacts /path/to/fresh-captures --run-name matrix
+```
+
+Use the actual reviewed receipt and a matching CPU/runner checkout. Add
+`--transport-bin` to reuse a previously checked transport executable. Programs,
+initial memory and supported stimulus change at runtime; no per-case host
+interaction or recompile is needed. The source checkout's Python expectations
+remain independent of transport. Unsupported requirements fail explicitly.
+
+## Preceding arithmetic FILL source-qualified image
+
+The preceding image was built from source
 `744acd3e9cac22127a9cb2673a494f0c82d4f53b`, with RBF SHA-256
 `5d071fc8031c273489cc4f2f73bb75b56441a1d7d88f330674a0b4500fcfb25d` and
 source-bound receipt SHA-256
@@ -40,7 +120,7 @@ See [FILL timing and qualification scope](../../docs/fill-timing.md#native-arith
 
 ## CD byte-store instruction-word dependencies
 
-The same source744 / RBF5d071fc8 image passes 16 first-pass byte-store
+The same source `744acd3e` / RBF5d071fc8 image passes 16 first-pass byte-store
 instruction-word dependencies each BASE/W1/W3/W1P1/W1P7 (80 executions),
 with 80 Verilator comparisons and every complete raw verdict independently
 replayed. Host support is committed through
@@ -78,7 +158,7 @@ python3 modules/jttms10/ver/fpga/check_results.py prepare \
 
 Each selection is standalone and complete:16 following programs or4 HOLD
 programs. Following supports BASE/W1/W3/W1P1/W1P7, with pause-after zero;
-HOLD supports waits0/1, no CEN pause, and request phases0/8/24/40/52. The
+HOLD supports waits0/1, no CEN pause, and request phases 0/8/24/40/52. The
 HOLD table releases after three acknowledged clocks. Invalid profiles,
 protocols, altered fixture metadata/programs and mixed selections fail before
 serialization. Programs, initial memory and expected results are not FPGA
@@ -95,9 +175,10 @@ Verilator. Decode and snapshots cannot precede the work they observe.
 The source-local host tests and short Verilator tests exercise these paths;
 host-only encoding/replay of120 actual Verilator observations also passes the
 normal checker/comparer. Those encoded observations are not FPGA captures.
-The new native CPU still needs a source-bound incremental build and physical
-qualification. The loaded source744 image and its known27 nominal CD failures
-above remain the physical baseline. Full #144 acceptance remains open.
+The new native CPU's source-bound incremental build and physical qualification
+are recorded in the current section above. The preceding source `744acd3e`
+image and its 27 nominal CD failures per profile remain archived as the failing
+baseline. Full #144 acceptance remains open.
 
 ## Historical physical NMI checkpoint
 
@@ -989,9 +1070,9 @@ original Python oracle; the largest case needs 231 of 512 event records.
 Full external host wall is 284.86/296.71/299.87 seconds respectively, exit 0,
 including transfer, execution, checking and report generation. These are
 observed runs, not a controlled comparison of the profile time differences.
-This validates current fixture contracts: six PIXBLT forms have no timing
-probes and 448 MOVB source/target cases remain unresolved. It is not full
-#144 acceptance.
+For that image, six PIXBLT forms had no timing probes and 448 MOVB
+source/target cases remained unresolved. This historical matrix is not the
+current source's coverage status and is not full #144 acceptance.
 
 The image SHA-256 is
 `0cdfad2e3f943514cf7d0196962dc915d6363e8f7284f27777fb1b8ba258e9a8`;
