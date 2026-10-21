@@ -994,3 +994,52 @@ Boolean/arithmetic interrupt timing, broader conditions, normal clean CI and
 full #144 acceptance also remain open. This qualification covers only the
 tested image, fixture inventory and declared conditions. Root evidence is in
 `/nobackup/tasks/jtcores-144/artifacts/fill-arithmetic-native-1/physical-1/`.
+
+## Plane-masked complete-word baseline
+
+The permanent `fill_plane_` fixtures add 5,184 independent cases for nonzero,
+replicated PMASK at T0/W0 and complete destination words. They cover replace
+and Boolean PPOP0..15 at PS1/2/4/8/16, arithmetic PPOP16..21 at PS4/8/16,
+one protected bit per pixel and fully protected words, one/two words per row,
+one/two rows, L/XY and hit/CD. Two Boolean and four arithmetic operand samples
+exercise protected bits, destination preprocessing and arithmetic lane edges.
+All preceding 145,920 complete fixtures and their generated programs are
+unchanged; the ordinary inventory becomes 151,104, with 11,372 FILL cases.
+
+SPVU001A p.6-43 requires replication of the pixel mask throughout PMASK and
+preservation of protected destination bits. Sections 7.3 and 13.3.2.5/Table13-7
+supply the independent data and timing rules. COLOR1 supplies the source;
+destination reads clear protected bits before processing, then protected old
+bits are merged back into the result. Masking adds two memory-controller
+states per word to G: replace4, Boolean/ADD6, ADDS/SUB/MAX/MIN7, SUBS8.
+For aligned one-word linear replace, Tables13-5/6 give 11 states cached and
+14 with cache disabled. A fully protected word still requires the declared
+read/write sequence; T is disabled. The bus oracle requires one destination
+read and one write per word, with full address/data/order and ready checks.
+
+Before any RTL change from `54ab1116`, 26 short permanent Verilator probes
+produce two passing NOP controls and 24 masked timing failures. Checked full
+registers/status and final destination/canary memory are correct. Smaller
+pixels also fail word-transaction counts: replace PS1 uses 48 transfers for
+one destination word, while the independent contract requires two. Replace
+PS16 has the right transfer count but takes 128 INCLK versus the required 88
+in the cached case. Every complete verdict is replayed from its saved log;
+the ordinary host command returns exit1. Evidence is retained under
+`/nobackup/tasks/jtcores-144/artifacts/fill-mask-baseline-1/permanent-local-1/`.
+
+Reproduce the bounded baseline through the normal timing runner:
+
+```sh
+source ./setprj.sh
+python3 modules/jttms10/ver/timing/run.py --simulator verilator \
+    --exact-case nop_hit --exact-case nop_off \
+    --exact-case fill_plane_pp0_l_ps16_n1_rows1_m0001_s0_hit \
+    --report masked-baseline.json --traces masked-baseline-traces
+```
+
+The 291 timing model/checker tests pass, including literal masked data/count
+checks and invalid-mask rejection. These tests establish the oracle contract,
+not CPU compliance. Full masked FPGA validation and a native word schedule
+remain required. Partial Boolean/arithmetic/masked words, transparency,
+windowing, changing row alignment, broader dimensions and exact interrupt
+checkpoints remain separate required work for #144.

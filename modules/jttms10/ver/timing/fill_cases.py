@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """FILL probes: SPVU001A12-80..86,13-10..14.
 
-Nonempty rows; PMASK0/T0/W0 only. Partial rows keep word-aligned pitch. B10..14 are
+Nonempty rows; T0/W0. Nonzero PMASK probes use complete destination words.
+Partial rows keep word-aligned pitch. B10..14 are
 reserved scratch registers marked changed by TI and have no final golden.
 """
 from itertools import product
@@ -223,6 +224,51 @@ def arithmetic_fixture(size, ppop, xy, off, *, words=1, rows=1, sample=0):
     return case
 
 
+def plane_mask_fixture(size, ppop, xy, off, *, words=1, rows=1, pmask=None, sample=0):
+    """Whole words with replicated PMASK:6-43,7-12..16,13-10..14.
+
+    Masking costs two memory-controller states per word on top of processing
+    G. COLOR1 bypasses source masking; destination data is masked before PPOP,
+    and protected destination bits survive the write. No partial-edge or
+    transparency interpretation supplies these expectations.
+    """
+    if size not in (1,2,4,8,16) or ppop not in range(22) or (ppop>=16 and size<4):
+        raise ValueError('defined FILL pixel size/processing operation required')
+    if words<1 or rows<1 or sample not in range(4):
+        raise ValueError('nonempty geometry and a defined operand sample required')
+    if pmask is None:pmask=sum(1<<lane for lane in range(0,16,size))
+    field=(1<<size)-1
+    if not 0<pmask<=65535 or pmask!=sum((pmask&field)<<lane for lane in range(0,16,size)):
+        raise ValueError('nonzero plane mask must be replicated across all16 bits')
+    source,destination=((0xaa55,0x55aa),(0x3333,0xeeee),
+                        (0xffff,0x1111),(0,0xffff))[sample]
+    case=fixture(size,words,rows,xy,off)
+    case['name']=f'fill_plane_pp{ppop}_{"xy" if xy else "l"}_ps{size}_n{words}_rows{rows}_m{pmask:04x}_s{sample}_{"off" if off else "hit"}'
+    case['control']=ppop<<10
+    for key in ('initial_all_regs','register_overrides','expected_extra_regs'):
+        case[key]['b9']=0x5cc30000|source
+    case['data_fill'].update(color=source,processing=True,ppop=ppop,plane_mask=pmask)
+    case['conditions'].update(ppop=ppop,pmask=pmask,sample=sample)
+    case['setup_io']=[(a,pmask if a==0xc0000160 else value) for a,value in case['setup_io']]
+    before=dict(case['initial_memory']);address=case['data_fill']['address'];pitch=case['data_fill']['pitch']
+    for row in range(rows):
+        for word in range(words):
+            before[address+row*pitch+word*16]=destination ^ ((row*0x1111+word*0x0101)&65535)
+    after=before.copy()
+    for row in range(rows):
+        for word in range(words):
+            addr=address+row*pitch+word*16;old=before[addr]
+            value=(boolean(ppop,source,old&~pmask,16) if ppop<16 else
+                   arithmetic_word(ppop,source,old&~pmask,size))
+            after[addr]=(old&pmask)|(value&~pmask&65535)
+    timing=fill_timing(pixel_size=size,width=case['conditions']['width'],rows=rows,
+        address=address,pitch=pitch,xy=xy,ppop=ppop,plane_mask=True,cache_disabled=off)
+    case.update(states=timing['states'],fill_timing=timing,
+        initial_memory=sorted(before.items()),expected_memory=sorted(after.items()),
+        citation='SPVU001A6-43 PMASK;7-12..16;12-80..86;13-10..14 Tables13-5/6/7')
+    return case
+
+
 def transfers(case):
     spec = case['data_fill']
     if spec.get('processing'):
@@ -383,3 +429,14 @@ def fill_cases():
             ((1,1),(2,1),(3,1),(1,2),(2,2),(3,3)),range(16,22),
             (4,8,16),(False,True),(False,True),range(4)):
         yield arithmetic_fixture(size,ppop,xy,off,words=words,rows=rows,sample=sample)
+
+    # Append 5184 masked whole-word cases; preserve all preceding 6188
+    # contracts. Partial words, transparency and broader geometry remain
+    # required audits, rather than exceptions to their timing requirements.
+    for size in (1,2,4,8,16):
+        masks=sorted({sum(1<<lane for lane in range(0,16,size)),65535})
+        for ppop in range(16 if size<4 else 22):
+            for pmask,sample,(words,rows),xy,off in product(masks,
+                    range(2 if ppop<16 else 4),((1,1),(2,1),(1,2)),(False,True),(False,True)):
+                yield plane_mask_fixture(size,ppop,xy,off,words=words,rows=rows,
+                                         pmask=pmask,sample=sample)

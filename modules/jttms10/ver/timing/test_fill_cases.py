@@ -3,15 +3,54 @@
 """Check FILL fixture/checker contracts without executing RTL."""
 import unittest
 from fill_cases import (fixture, partial_fixture, boolean_fixture, arithmetic_word,
-                        arithmetic_fixture, fill_cases, check_bus, transfers)
+                        arithmetic_fixture, plane_mask_fixture, fill_cases, check_bus, transfers)
 from run import check, program
 
 
 class FillCasesTest(unittest.TestCase):
+    def test_plane_mask_literal_timing_and_inventory(self):
+        rows=[r for r in fill_cases() if r['name'].startswith('fill_plane_')]
+        self.assertEqual(len(rows),5184)
+        # Table13-7 G4/6/7/8, Table13-6 A for N1L1/N2L1/N1L2.
+        for ppop,one,two in ((0,11,16),(10,13,20),(16,13,20),(17,14,22),(19,15,24)):
+            for words,nrows,want in ((1,1,one),(2,1,two),(1,2,two)):
+                for xy,off in ((False,False),(False,True),(True,False),(True,True)):
+                    row=plane_mask_fixture(4,ppop,xy,off,words=words,rows=nrows)
+                    self.assertEqual(row['states'],want+2*xy+3*off)
+                    self.assertEqual(len(transfers(row)),2*words*nrows)
+
+    def test_plane_mask_literal_pixels_and_destination_preprocessing(self):
+        replace=plane_mask_fixture(4,0,False,False)
+        self.assertEqual(dict(replace['initial_memory'])[0x6100],0x55aa)
+        self.assertEqual(dict(replace['expected_memory'])[0x6100],0xbb44)
+        xor=plane_mask_fixture(4,10,False,False)
+        self.assertEqual(dict(xor['expected_memory'])[0x6100],0xffee)
+        add=plane_mask_fixture(4,16,False,False,sample=2)
+        sub=plane_mask_fixture(4,18,False,False,sample=2)
+        # Mask destination1 to0 before adding/subtracting sourceF per lane.
+        self.assertEqual(dict(add['expected_memory'])[0x6100],0xffff)
+        self.assertEqual(dict(sub['expected_memory'])[0x6100],0x1111)
+        full=plane_mask_fixture(8,0,True,True,words=2,rows=2,pmask=65535)
+        self.assertEqual(full['initial_memory'],full['expected_memory'])
+        self.assertEqual(len(transfers(full)),8)  # Mask alone does not skip writes.
+        for row in (replace,xor,add,sub,full):
+            before,after=map(dict,(row['initial_memory'],row['expected_memory']))
+            mask=row['conditions']['pmask']
+            for address,value in before.items():
+                self.assertEqual(after[address]&mask,value&mask)
+            self.assertEqual(after[0x60f0],before[0x60f0])
+            self.assertEqual(row['expected_extra_regs']['b9'],row['register_overrides']['b9'])
+
+    def test_plane_mask_rejects_invalid_domain(self):
+        for size,ppop,mask in ((1,16,65535),(2,21,65535),(4,22,0x1111),
+                               (4,0,1),(8,0,0),(16,0,65536)):
+            with self.assertRaises(ValueError):
+                plane_mask_fixture(size,ppop,False,False,pmask=mask)
+
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 6188)
-        self.assertEqual(len({r['name'] for r in cases}), 6188)
+        self.assertEqual(len(cases), 11372)
+        self.assertEqual(len({r['name'] for r in cases}), 11372)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
