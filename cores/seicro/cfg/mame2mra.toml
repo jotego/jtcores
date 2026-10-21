@@ -23,9 +23,9 @@ data=[
 
 [buttons]
 names=[
-    { machine="seicross", names="Button 1" },
+    { machine="seicross", names="Fire" },
     { machine="friskyt", names="-,-", map="--" },
-    { machine="radrad", names="Button 1,Button 2" },
+    { machine="radrad", names="Fire,Jump" },
 ]
 
 [dipsw]
