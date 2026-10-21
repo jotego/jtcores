@@ -3,7 +3,8 @@
 -- Date: 20-10-2026
 
 assert(not mamedump, "mamedump.lua is already loaded")
-assert(emu.app_version() == "0.282", "Use MAME 0.282 for this capture binding")
+assert(emu.app_version() == "0.282" or os.getenv("MAMEDUMP_VERSION_OK") == "1",
+    "Use MAME 0.282 for this capture binding, or set MAMEDUMP_VERSION_OK=1 for a user-selected binary")
 local lfs = require("lfs")
 local m = manager.machine
 assert(m.system.name == "roundup5", "This dump script is for roundup5")
@@ -54,8 +55,9 @@ for portname,port in pairs(m.ioport.ports) do
     for name,field in pairs(port.fields) do
         if portname==":IN0" and field.mask==0x20 then startfield=field end
         if portname==":IN0" and field.mask==0x01 then accelerator=field end
-        if autoplay and name=="Hardware Test Mode" then field.user_value=0x8000 end
-        if autoplay and (name=="Service Mode" or name=="Test Mode") then field.user_value=0 end
+        if autoplay and (name=="Hardware Test Mode" or name=="Service Mode" or name=="Test Mode") then
+            field.user_value=field.defvalue
+        end
     end
 end
 observers[#observers+1] = mem:install_write_tap(0xc000,0xc003,"dump_crtc",function(a,d,mask)

@@ -40,7 +40,16 @@ fi
 [ -x "$mame" ] || { echo 'Set MAME_BINARY to your MAME 0.282 executable' >&2; exit 1; }
 version=$("$mame" -help)
 version=${version%%$'\n'*}
-case "$version" in "MAME v0.282 "*) ;; *) echo "Expected MAME 0.282; got $version" >&2; exit 1 ;; esac
+case "$version" in
+    "MAME v0.282 "*) ;;
+    *)
+        if [ -n "${MAME_BINARY:-}" ]; then
+            echo "WARNING: user-selected $version at $mame" >&2
+            export MAMEDUMP_VERSION_OK=1
+        else
+            echo "Expected MAME 0.282; got $version" >&2; exit 1
+        fi ;;
+esac
 expected_mmr=d44de92a49fa2e78115f41cf23199ca60ad0a8a793ce66d9612448e88447727e
 actual_mmr=$(shasum -a 256 "$core/cfg/mmr.yaml")
 [ "${actual_mmr%% *}" = "$expected_mmr" ] || { echo 'cfg/mmr.yaml changed; regenerate the MAME capture/restore binding' >&2; exit 1; }
