@@ -22,12 +22,12 @@ module jtroundu_road(
     output reg        solid
 );
 
-reg  [2:0] fetch;
+reg  [3:0] fetch;
 reg  [2:0] phase;
 reg [15:0] shift1, step, shift2;
 // strip accumulators in x.11 fixed point: texel index = pos[17:11], in-strip while 0 <= pos < 'h40000
 reg signed [26:0] pos1, pos2;
-reg        line_valid, line_palette, pixel_bank, set2_left, overlap;
+reg        line_valid, line_palette, pixel_bank, set2_left, overlap, strip2_en;
 reg  [2:0] color_bit;
 reg [10:0] pixel2;
 reg  [3:0] col1;
@@ -36,11 +36,12 @@ wire signed [17:0] first_y = 18'sd256 - $signed({10'd0,top}) - $signed({2'd0,ycl
 wire signed [17:0] local_y = $signed({9'd0,next_y}) - first_y;
 wire [15:0] shift_sum = shift1+shift2;
 wire in1    = pos1[26:18]==0;
-wire in2    = pos2[26:18]==0;
+wire in2    = pos2[26:18]==0 && strip2_en;
 wire left1  = pos1[26];
-wire left2  = pos2[26];
+wire left2  = pos2[26] || !strip2_en;
 wire right1 = !pos1[26] && pos1[25:18]!=0;
-wire right2 = !pos2[26] && pos2[25:18]!=0;
+wire right2 = (!pos2[26] && pos2[25:18]!=0) || !strip2_en;
+wire s2l    = set2_left && strip2_en;
 wire [3:0] col2 = pixel_data[3:0];
 reg [10:0] next_pixel;
 reg next_bank;
@@ -54,11 +55,11 @@ always @* begin
     end else if (in2) begin
         next_pixel = {4'b0100,pos2[17:11]};
     end else if (left1 && left2) begin
-        next_pixel = set2_left ? 11'h200 : 11'h000;
-        next_bank = set2_left;
+        next_pixel = s2l ? 11'h200 : 11'h000;
+        next_bank = s2l;
     end else if (right1 && right2) begin
-        next_pixel = set2_left ? 11'h07f : 11'h27f;
-        next_bank = !set2_left;
+        next_pixel = s2l ? 11'h07f : 11'h27f;
+        next_bank = !s2l && strip2_en;
     end
 end
 
@@ -79,6 +80,7 @@ always @(posedge clk) begin
         color_bit <= 0;
         pixel_bank <= 0;
         set2_left <= 0;
+        strip2_en <= 0;
         overlap <= 0;
         pixel2 <= 0;
         col1 <= 0;
@@ -105,6 +107,10 @@ always @(posedge clk) begin
                 end
                 6: begin
                     shift2 <= ctrl_data;
+                    ctrl_addr <= ctrl_addr+1'd1;
+                end
+                8: begin
+                    strip2_en <= ctrl_data[15];
                     fetch <= 0;
                 end
                 default: ;
