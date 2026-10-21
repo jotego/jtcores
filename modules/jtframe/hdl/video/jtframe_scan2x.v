@@ -60,6 +60,8 @@ module jtframe_scan2x #(parameter COLORW=4, HLEN=512)(
     output        sd_cke
 );
 
+reg sd_hs, sd_vs, sd_HB, sd_VB;
+
 localparam AW=HLEN<=512 ? 9:10;
 localparam DW=COLORW*3;
 
@@ -70,7 +72,6 @@ reg           last_HS, last_VS, last_HB, last_VB;
 reg           vb_rising, vb_falling, vs_rising, vs_falling;
 reg           line=0;
 reg           vchng=0, vwait=0;
-//reg           x2_HB, x2_VB;
 
 wire          HS_posedge     =  x1_hs && !last_HS;
 wire          HS_negedge     = !x1_hs &&  last_HS;
@@ -162,17 +163,17 @@ always @(posedge clk) if(pxl2_cen) begin
         hlen     <= wraddr;
         line     <= ~line;
         scanline <= 0;
-        x2_hs    <= 1;
+        sd_hs    <= 1;
     end else begin
         if(alt_pxl) wraddr <= wraddr + 1'd1;
         if( rdaddr == hlen ) begin
             rdaddr   <= {AW{1'b0}};
-            x2_hs    <= 1;
+            sd_hs    <= 1;
             scanline <= 1;
         end else begin
             rdaddr <= rdaddr+1'd1;
             if( rdaddr == hswidth ) begin
-                x2_hs <= 0;
+                sd_hs <= 0;
             end
         end
     end
@@ -221,14 +222,14 @@ always @(posedge clk) if(pxl2_cen) begin
         vs_falling <= 1;
         vs_rising <= 0;
     end
-    if (rdaddr == hb_rise) x2_HB <= 1;
-    if (rdaddr == hb_fall) x2_HB <= 0;
-    if (vb_rising && rdaddr == vb_rise) x2_VB <= 1;
-    if (vb_falling && rdaddr == vb_fall) x2_VB <= 0;
-    if (vs_rising && rdaddr == vs_rise) x2_vs <= 1;
-    if (vs_falling && rdaddr == vs_fall) x2_vs <= 0;
+    if (rdaddr == hb_rise) sd_HB <= 1;
+    if (rdaddr == hb_fall) sd_HB <= 0;
+    if (vb_rising && rdaddr == vb_rise) sd_VB <= 1;
+    if (vb_falling && rdaddr == vb_fall) sd_VB <= 0;
+    if (vs_rising && rdaddr == vs_rise) sd_vs <= 1;
+    if (vs_falling && rdaddr == vs_fall) sd_vs <= 0;
 
-    if( enb ) {x2_hs,x2_HB,x2_vs,x2_VB} <= {x1_hs,x1_hb,x1_vs,x1_vb};
+    if( enb ) {sd_hs,sd_HB,sd_vs,sd_VB} <= {x1_hs,x1_hb,x1_vs,x1_vb};
 end
 
 assign x2_de = ~(x2_VB | x2_HB);
@@ -240,6 +241,22 @@ assign x2_de = ~(x2_VB | x2_HB);
 `endif
 
 `ifdef JTFRAME_SCAN2X_ROTATE
+// The rotation output has eight pixel enables of latency, including the
+// linebuffer read, both three-stage colour interpolators and output latch.
+// Keep sync and blanking with those pixels, including at fractional enables.
+localparam ROTATE_DELAY=8;
+reg [3:0] rotate_sync[0:ROTATE_DELAY-1];
+integer sync_idx;
+always @(posedge clk) if (pxl2_cen) begin
+    rotate_sync[0] <= {sd_hs, sd_vs, sd_HB, sd_VB};
+    for (sync_idx=1; sync_idx<ROTATE_DELAY; sync_idx=sync_idx+1)
+        rotate_sync[sync_idx] <= rotate_sync[sync_idx-1];
+end
+always @* begin
+    {x2_hs, x2_vs, x2_HB, x2_VB} = (|rotation && !enb) ?
+        rotate_sync[ROTATE_DELAY-1] : {sd_hs, sd_vs, sd_HB, sd_VB};
+end
+
 wire [COLORW-1:0] rotate_r, rotate_g, rotate_b;
 wire        vidin_req;
 wire  [1:0] vidin_frame;
@@ -270,9 +287,9 @@ scandoubler_rotate #(.COLOR_DEPTH(COLORW), .OUT_COLOR_DEPTH(COLORW)) u_rotate(
     .r_in       ( x1_pxl[COLORW*3-1:COLORW*2] ),
     .g_in       ( x1_pxl[COLORW*2-1:COLORW] ),
     .b_in       ( x1_pxl[COLORW-1:0] ),
-    .hb_sd      ( x2_HB    ),
-    .vb_sd      ( x2_VB    ),
-    .vs_sd      ( x2_vs    ),
+    .hb_sd      ( sd_HB    ),
+    .vb_sd      ( sd_VB    ),
+    .vs_sd      ( sd_vs    ),
     .r_out      ( rotate_r ),
     .g_out      ( rotate_g ),
     .b_out      ( rotate_b ),
@@ -335,6 +352,7 @@ scandoubler_sdram u_sdram (
 assign sd_cke = 1;
 assign next = |rotation ? {rotate_r, rotate_g, rotate_b} : linebuf_q;
 `else
+always @* {x2_hs, x2_vs, x2_HB, x2_VB} = {sd_hs, sd_vs, sd_HB, sd_VB};
 assign next = linebuf_q;
 assign sd_data = 16'hZZZZ;
 assign sd_addr = 0;

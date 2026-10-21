@@ -16,9 +16,6 @@
 [submodule "modules/jt6295"]
 	path = modules/jt6295
 	url = https://github.com/jotego/jt6295.git
-[submodule "modules/jteeprom"]
-	path = modules/jteeprom
-	url = https://github.com/jotego/jteeprom.git
 [submodule "modules/jttms"]
 	path = modules/jttms
 	url = https://github.com/jotego/jttms.git

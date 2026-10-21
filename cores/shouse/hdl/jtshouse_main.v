@@ -163,7 +163,8 @@ mc6809i u_mcpu(
     .LIC        (           ),
     .nDMABREQ   ( 1'b1      ),
     .OP         (           ),
-    .RegData    (           )
+    .RegData    (           ),
+    .RegData6309 ( )
 );
 
 mc6809i u_scpu(
@@ -188,7 +189,8 @@ mc6809i u_scpu(
     .LIC        (           ),
     .nDMABREQ   ( 1'b1      ),
     .OP         (           ),
-    .RegData    (           )
+    .RegData    (           ),
+    .RegData6309 ( )
 );
 `else
 assign baddr    = 0;

@@ -1,0 +1,611 @@
+{
+  "state": "literal_specification_not_generated_payloads_ROOT_review_required",
+  "canonical_INIT_recipe": {
+    "first_writes_hex": [
+      [
+        "14",
+        "30"
+      ],
+      [
+        "0F",
+        "00"
+      ]
+    ],
+    "then_all_channel_keyoffs_hex": [
+      [
+        "08",
+        "00"
+      ],
+      [
+        "08",
+        "01"
+      ],
+      [
+        "08",
+        "02"
+      ],
+      [
+        "08",
+        "03"
+      ],
+      [
+        "08",
+        "04"
+      ],
+      [
+        "08",
+        "05"
+      ],
+      [
+        "08",
+        "06"
+      ],
+      [
+        "08",
+        "07"
+      ]
+    ],
+    "then_global_order_hex": [
+      "01",
+      "10",
+      "11",
+      "12",
+      "18",
+      "19:AMD",
+      "19:PMD",
+      "1B"
+    ],
+    "default_globals_hex": {
+      "01": "00",
+      "10": "00",
+      "11": "00",
+      "12": "00",
+      "18": "00",
+      "19:AMD": "00",
+      "19:PMD": "80",
+      "1B": "00"
+    },
+    "then_register_image": {
+      "first_hex": "20",
+      "last_hex": "FF",
+      "order": "ascending; each address exactly once; selected overrides replace default in this image",
+      "defaults": "00 except60..7F=7F andE0..FF=0F"
+    },
+    "then_profile_noise_write": [
+      "0F",
+      "profile_initial_NE_NFRQ"
+    ],
+    "then_write_hex": [
+      "14",
+      "00"
+    ],
+    "then_only_listed_keyons": "profile_keyons_hex; no other key-on",
+    "then_delay_hex": "02 00 20",
+    "then_END_hex": "00",
+    "init_preheat_count": 8192,
+    "encoding": "WR=01 reg value; DELAY=02 low high, count1..65535; END=00; no STATUS in target INIT/EVENT"
+  },
+  "profiles": [
+    {
+      "name": "N0",
+      "batch": "noise",
+      "register_image_overrides_hex": {
+        "27": "C7",
+        "2F": "4A",
+        "37": "00",
+        "3F": "00",
+        "5F": "00",
+        "7F": "00",
+        "9F": "1F",
+        "BF": "00",
+        "DF": "00",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {},
+      "initial_NE_NFRQ_hex": "80",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "47"
+        ]
+      ],
+      "event_hex": "02 00 08 01 0F 80 00",
+      "minimum_actual_post_guard_samples": 4096,
+      "role": "same-rate control"
+    },
+    {
+      "name": "N1",
+      "batch": "noise",
+      "register_image_overrides_hex": {
+        "27": "C7",
+        "2F": "4A",
+        "37": "00",
+        "3F": "00",
+        "5F": "00",
+        "7F": "00",
+        "9F": "1F",
+        "BF": "00",
+        "DF": "00",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {},
+      "initial_NE_NFRQ_hex": "9F",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "47"
+        ]
+      ],
+      "event_hex": "02 00 08 01 0F 80 00",
+      "minimum_actual_post_guard_samples": 4096,
+      "role": "running code31 to code00 history; no new key edge"
+    },
+    {
+      "name": "N2",
+      "batch": "noise",
+      "register_image_overrides_hex": {
+        "27": "C7",
+        "2F": "4A",
+        "37": "00",
+        "3F": "01",
+        "5F": "00",
+        "7F": "00",
+        "9F": "1F",
+        "BF": "00",
+        "DF": "00",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {
+        "01": "02",
+        "18": "FF",
+        "19:AMD": "40",
+        "19:PMD": "80",
+        "1B": "02"
+      },
+      "initial_NE_NFRQ_hex": "80",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "47"
+        ]
+      ],
+      "event_hex": "02 00 08 01 01 00 00",
+      "minimum_actual_post_guard_samples": 6407,
+      "role": "noise LFO AME-off control"
+    },
+    {
+      "name": "N3",
+      "batch": "noise",
+      "register_image_overrides_hex": {
+        "27": "C7",
+        "2F": "4A",
+        "37": "00",
+        "3F": "01",
+        "5F": "00",
+        "7F": "00",
+        "9F": "1F",
+        "BF": "80",
+        "DF": "00",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {
+        "01": "02",
+        "18": "FF",
+        "19:AMD": "40",
+        "19:PMD": "80",
+        "1B": "02"
+      },
+      "initial_NE_NFRQ_hex": "80",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "47"
+        ]
+      ],
+      "event_hex": "02 00 08 01 01 00 00",
+      "minimum_actual_post_guard_samples": 6407,
+      "role": "noise LFO AME-on; no sine dB-depth oracle"
+    },
+    {
+      "name": "C2",
+      "batch": "split-csm",
+      "register_image_overrides_hex": {
+        "20": "47",
+        "27": "87",
+        "28": "4A",
+        "2F": "4A",
+        "30": "00",
+        "37": "00",
+        "38": "00",
+        "3F": "00",
+        "40": "08",
+        "5F": "08",
+        "60": "00",
+        "7F": "00",
+        "80": "1F",
+        "9F": "1F",
+        "A0": "00",
+        "BF": "00",
+        "C0": "00",
+        "DF": "00",
+        "E0": "0F",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {
+        "10": "80",
+        "11": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "08"
+        ]
+      ],
+      "event_hex": "02 00 08 01 14 05 00",
+      "minimum_actual_post_guard_samples": 1024,
+      "timer_A_period_native": 512,
+      "after_capture_separate_STATUS_hex": "03 00",
+      "left": "C0/M1 manual held",
+      "right": "C7/C2 never manually held",
+      "role": "timer running CSMoff split control"
+    },
+    {
+      "name": "C3",
+      "batch": "split-csm",
+      "register_image_overrides_hex": {
+        "20": "47",
+        "27": "87",
+        "28": "4A",
+        "2F": "4A",
+        "30": "00",
+        "37": "00",
+        "38": "00",
+        "3F": "00",
+        "40": "08",
+        "5F": "08",
+        "60": "00",
+        "7F": "00",
+        "80": "1F",
+        "9F": "1F",
+        "A0": "00",
+        "BF": "00",
+        "C0": "00",
+        "DF": "00",
+        "E0": "0F",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {
+        "10": "80",
+        "11": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "08"
+        ]
+      ],
+      "event_hex": "02 00 08 01 14 85 00",
+      "minimum_actual_post_guard_samples": 3136,
+      "timer_A_period_native": 512,
+      "after_capture_separate_STATUS_hex": "03 00",
+      "left": "C0/M1 manual held",
+      "right": "C7/C2 never manually held",
+      "role": "manual coexistence split"
+    },
+    {
+      "name": "C4",
+      "batch": "split-csm",
+      "register_image_overrides_hex": {
+        "20": "47",
+        "27": "87",
+        "28": "4A",
+        "2F": "4A",
+        "30": "00",
+        "37": "00",
+        "38": "00",
+        "3F": "00",
+        "40": "08",
+        "5F": "08",
+        "60": "00",
+        "7F": "00",
+        "80": "1F",
+        "9F": "1F",
+        "A0": "00",
+        "BF": "00",
+        "C0": "00",
+        "DF": "00",
+        "E0": "0F",
+        "FF": "0F"
+      },
+      "global_overrides_hex": {
+        "10": "80",
+        "11": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [],
+      "event_hex": "02 00 08 01 14 85 00",
+      "minimum_actual_post_guard_samples": 3136,
+      "timer_A_period_native": 512,
+      "after_capture_separate_STATUS_hex": "03 00",
+      "left": "C0/M1 never manually held",
+      "right": "C7/C2 never manually held",
+      "role": "automatic split control"
+    },
+    {
+      "name": "L0",
+      "batch": "low-lfo",
+      "register_image_overrides_hex": {
+        "20": "C7",
+        "28": "00",
+        "30": "00",
+        "38": "01",
+        "58": "00",
+        "78": "00",
+        "98": "1F",
+        "B8": "80",
+        "D8": "00",
+        "F8": "0F"
+      },
+      "global_overrides_hex": {
+        "01": "02",
+        "18": "60",
+        "19:AMD": "40",
+        "19:PMD": "80",
+        "1B": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "40"
+        ]
+      ],
+      "event_hex": "02 FF FF 02 FF FF 02 FF FF 02 FF FF 02 04 00 01 01 00 00",
+      "minimum_actual_post_guard_samples": 3112,
+      "native_carrier_increment": 162,
+      "recorded_carrier_increment": 165888,
+      "window": 16,
+      "hop": 4,
+      "pre_end_sample": 128,
+      "period_request": "coarse only; original fine<=1% retained and resolution-limited",
+      "nominal_recorded_period": 1024,
+      "stage": 2
+    },
+    {
+      "name": "L1",
+      "batch": "low-lfo",
+      "register_image_overrides_hex": {
+        "20": "C7",
+        "28": "00",
+        "30": "00",
+        "38": "01",
+        "58": "00",
+        "78": "00",
+        "98": "1F",
+        "B8": "80",
+        "D8": "00",
+        "F8": "0F"
+      },
+      "global_overrides_hex": {
+        "01": "02",
+        "18": "00",
+        "19:AMD": "40",
+        "19:PMD": "80",
+        "1B": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "40"
+        ]
+      ],
+      "event_hex": "02 FF FF 02 FF FF 02 FF FF 02 FF FF 02 04 00 01 01 00 00",
+      "minimum_actual_post_guard_samples": 1536,
+      "native_carrier_increment": 162,
+      "recorded_carrier_increment": 165888,
+      "window": 16,
+      "hop": 4,
+      "pre_end_sample": 128,
+      "period_request": "NOT SCORED; partial/control only",
+      "nominal_recorded_period": 65536,
+      "stage": 2
+    },
+    {
+      "name": "L2",
+      "batch": "low-lfo",
+      "register_image_overrides_hex": {
+        "20": "C7",
+        "28": "00",
+        "30": "00",
+        "38": "01",
+        "58": "00",
+        "78": "00",
+        "98": "1F",
+        "B8": "00",
+        "D8": "00",
+        "F8": "0F"
+      },
+      "global_overrides_hex": {
+        "01": "02",
+        "18": "00",
+        "19:AMD": "40",
+        "19:PMD": "80",
+        "1B": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "40"
+        ]
+      ],
+      "event_hex": "02 FF FF 02 FF FF 02 FF FF 02 FF FF 02 04 00 01 01 00 00",
+      "minimum_actual_post_guard_samples": 1536,
+      "native_carrier_increment": 162,
+      "recorded_carrier_increment": 165888,
+      "window": 16,
+      "hop": 4,
+      "pre_end_sample": 128,
+      "period_request": "NOT SCORED; partial/control only",
+      "nominal_recorded_period": 65536,
+      "stage": 1
+    },
+    {
+      "name": "L3",
+      "batch": "low-lfo",
+      "register_image_overrides_hex": {
+        "20": "C7",
+        "28": "00",
+        "30": "00",
+        "38": "01",
+        "58": "00",
+        "78": "00",
+        "98": "1F",
+        "B8": "80",
+        "D8": "00",
+        "F8": "0F"
+      },
+      "global_overrides_hex": {
+        "01": "02",
+        "18": "00",
+        "19:AMD": "40",
+        "19:PMD": "80",
+        "1B": "00"
+      },
+      "initial_NE_NFRQ_hex": "00",
+      "profile_keyons_hex": [
+        [
+          "08",
+          "40"
+        ]
+      ],
+      "event_hex": "02 FF FF 02 FF FF 02 FF FF 02 FF FF 02 04 00 01 01 02 00",
+      "minimum_actual_post_guard_samples": 1536,
+      "native_carrier_increment": 162,
+      "recorded_carrier_increment": 165888,
+      "window": 16,
+      "hop": 4,
+      "pre_end_sample": 128,
+      "period_request": "NOT SCORED; partial/control only",
+      "nominal_recorded_period": 65536,
+      "stage": 2
+    }
+  ],
+  "geometry": {
+    "noise": {
+      "frames": 16384,
+      "words": 32768,
+      "stride": 1,
+      "guaranteed_prefix_pending_timing_proof": 512
+    },
+    "split-csm": {
+      "frames": 16384,
+      "words": 32768,
+      "stride": 1,
+      "guaranteed_prefix_pending_timing_proof": 512
+    },
+    "low-lfo": {
+      "frames": 4096,
+      "words": 8192,
+      "stride": 1024,
+      "guaranteed_prefix_pending_timing_proof": 128,
+      "model_delay_master_per_count": 32,
+      "physical_delay_master_per_count": "NOT equated; exact assembled-monitor timing proof required"
+    }
+  },
+  "cleanup": {
+    "sha256": "024e6a9a81173c068190eb78346e3e6c16d893da0eb19674209af9c51a5359ea",
+    "ordered_recipe": "WR14=30,WR0F=00; allE0..FF=0F ascending; all08=channel0..7;END",
+    "measured_post_reply_wait_min_seconds": 0.5,
+    "quiet_frames": 4096,
+    "quiet_stride": 1,
+    "quiet_words": 8192,
+    "quiet_event_hex": "03 00",
+    "whole_both_exactzero_required": true
+  },
+  "schedule": [
+    {
+      "profiles": [
+        "N0",
+        "N1",
+        "N2",
+        "N3"
+      ],
+      "repetitions": [
+        0,
+        1,
+        2
+      ],
+      "targets": 12,
+      "paired_quiets": 12,
+      "final_quiets": 1,
+      "captures": 25,
+      "separate_status": 0
+    },
+    {
+      "profiles": [
+        "C2",
+        "C3",
+        "C4"
+      ],
+      "repetitions": [
+        0,
+        1,
+        2
+      ],
+      "targets": 9,
+      "paired_quiets": 9,
+      "final_quiets": 1,
+      "captures": 19,
+      "separate_status": 9
+    },
+    {
+      "profiles": [
+        "L2"
+      ],
+      "repetitions": [
+        0,
+        1,
+        2
+      ],
+      "targets": 3,
+      "paired_quiets": 3,
+      "final_quiets": 1,
+      "captures": 7,
+      "separate_status": 0,
+      "gate_after": "independent all6 carrier/raw75s qualification then ROOT review"
+    },
+    {
+      "profiles": [
+        "L0",
+        "L1",
+        "L3"
+      ],
+      "repetitions": [
+        0,
+        1,
+        2
+      ],
+      "targets": 9,
+      "paired_quiets": 9,
+      "final_quiets": 1,
+      "captures": 19,
+      "separate_status": 0
+    }
+  ],
+  "totals": {
+    "targets": 33,
+    "paired_quiets": 33,
+    "final_quiets": 4,
+    "captures": 70,
+    "separate_STATUS_commands": 9,
+    "generations": 149,
+    "marker_bytes": 447
+  },
+  "future_start_counters": null,
+  "future_capture_IDs": null,
+  "execution_authorized": false
+}

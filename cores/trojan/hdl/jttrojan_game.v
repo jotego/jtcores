@@ -104,7 +104,7 @@ jttrojan_main u_main(
     .dipsw_b    ( dipsw_b       )
 );
 
-jttrojan_mcu u_mcu(
+jttrojan_mcu #(.LATCH_INT0(1)) u_mcu(
     .rst        ( rst_mcu         ),
     .clk        ( clk             ),
     .clk_rom    ( clk             ),

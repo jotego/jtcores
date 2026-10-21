@@ -51,6 +51,45 @@ Compiles Tiger Road core for MiSTer.
 
 Run `jtcore -h` to get help on the commands.
 
+### Reusing compilation results
+
+`jtcore` keeps the target directory and Quartus databases between builds. The
+first build establishes the fitted database. Subsequent builds with matching
+settings attempt Rapid Recompile, which can preserve placement and routing
+after small RTL changes. If Rapid Recompile fails, `jtcore` saves its log as
+`*.rapid.log` and retries the ordinary full compilation flow using the retained
+databases. Unsupported editions or devices are remembered until the compiler
+selection changes or the cache is cleaned.
+
+```bash
+jtcore cps3 -mr --nodbg          # establish the database, then reuse it
+jtcore cps3 -mr --nodbg --clean  # discard the cache and start a full build
+jtcore cps3 -mr --nodbg --incremental # keep explicit design partitions
+```
+
+`--rapid` selects the default automatic Rapid Recompile flow again, for example
+when overriding `--incremental` in `JTCORE_DEFAULT`. Rapid Recompile requires a
+compatible Quartus edition and device. Projects with explicit child partitions
+use ordinary incremental compilation; the framework's default Top partition is
+removed from flat projects prepared for Rapid Recompile. MiST builds use the
+ordinary incremental flow.
+
+Changing the compiler, seed, macros, generated file list, or QSF settings selects
+ordinary full compilation to refresh the database. Shared module and core
+constraint, Tcl, QIP, INI, and IP configuration files are also fingerprinted.
+Reordering the same generated file-list assignments does not invalidate reuse.
+Quartus checks RTL changes as part of its compilation flow. A failed compilation cannot
+mark a database reusable or publish an old bitstream. Timing acceptance is still
+checked on every build, including Rapid Recompile builds.
+Preserved placement can give different timing results from a full build. If a
+Rapid Recompile build fails timing, use `--clean` to rerun full optimization.
+
+The generated `JTFRAME_TIMESTAMP` is kept for the lifetime of the cache so an
+automatically changing macro does not invalidate every build. Explicit command
+line timestamp definitions are respected. Use `--clean` to refresh the timestamp
+and produce a fresh release build. Simulation builds still start from a clean
+directory.
+
 Use `jtcore <core> --signaltap` to enable SignalTap when the core provides
 `cores/<core>/syn/signaltap.qsf`. A core may also opt in by defining
 `JTFRAME_SIGNALTAP` in `cfg/macros.def`. The generated target QSF keeps
