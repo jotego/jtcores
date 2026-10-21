@@ -51,7 +51,10 @@ wire mreq_n, rd_n, wr_n, rfsh_n, busak_n;
 wire cpu_mem = !mreq_n && rfsh_n && busak_n;
 wire cpu_ram = cpu_addr >= 16'he000 && cpu_addr <= 16'hffef;
 wire v30_ram = v30_addr >= 16'he000 && v30_addr <= 16'hffef;
-wire host_io = v30_sel && v30_addr >= 16'hfff0;
+// host io takes the bus through SHLDRQ/BUSRQ/BUSAK as on the board (ATC011 sheet 03)
+wire v30_io_req = v30_sel && v30_addr >= 16'hfff0;
+wire host_io = v30_io_req && !busak_n;
+reg  v30_io_done, grant_cnt;
 wire [15:0] io_addr = host_io ? v30_addr : cpu_addr;
 wire [7:0] io_din = host_io ? v30_din : cpu_dout;
 wire io_rd = host_io ? v30_rd : cpu_mem && !rd_n;
@@ -67,7 +70,7 @@ assign audiocpu_addr = cpu_addr;
 assign audiocpu_cs = cpu_mem && !rd_n && cpu_addr <= 16'hdfff;
 assign v30_audio_rom_addr = v30_addr;
 assign v30_audio_rom_cs = v30_rd && v30_addr <= 16'hdfff;
-assign v30_ok = !v30_audio_rom_cs || v30_audio_rom_ok;
+assign v30_ok = v30_audio_rom_cs ? v30_audio_rom_ok : v30_io_req ? v30_io_done : 1'b1;
 assign v30_dout = v30_audio_rom_cs ? v30_audio_rom_data : v30_ram ? v30_soundram_dout : io_dout;
 assign soundram_addr = cpu_addr[12:0];
 assign soundram_din = cpu_dout;
@@ -94,6 +97,13 @@ end
 always @(posedge clk) begin
     if (rst) fm_half <= 0;
     else if (fm_cen) fm_half <= ~fm_half;
+    if (rst || !v30_io_req || busak_n) begin
+        grant_cnt <= 0;
+        v30_io_done <= 0;
+    end else if (cen && !v30_io_done) begin
+        grant_cnt <= 1;
+        if (grant_cnt) v30_io_done <= 1;
+    end
 end
 
 jtframe_z80 u_cpu (
@@ -103,7 +113,7 @@ jtframe_z80 u_cpu (
     .wait_n  ( !audiocpu_cs || audiocpu_ok ),
     .int_n   ( fm_irq_n                    ),
     .nmi_n   ( 1'b1                        ),
-    .busrq_n ( ~halt                       ),
+    .busrq_n ( ~(halt || v30_io_req)       ),
     .m1_n    (                             ),
     .mreq_n  ( mreq_n                      ),
     .iorq_n  (                             ),
