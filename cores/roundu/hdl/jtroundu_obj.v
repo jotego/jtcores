@@ -37,6 +37,9 @@ localparam IDLE=0, CLUT_L=1, CLUT_L_DONE=2, CLUT_H=3, CLUT_H_DONE=4,
     PIXEL_LOOKUP=45, PIXEL_WRAP_MUL=46, PIXEL_WRAP_CHECK=47,
     PIXEL_TILE=48, BOUNDS_REDUCE=49, COORD_TILT=50, PIXEL_WRAP_END=51;
 reg [5:0] state, return_state;
+localparam DR_IDLE=0, DR_RUN=1, DR_DRAIN=2;
+reg [1:0] dr_state;
+reg dr_cnt;
 reg [17:0] request_addr;
 reg request_bank;
 reg [31:0] fetched;
@@ -110,6 +113,14 @@ reg fast_tile_bank, fast_ahead_bank;
 integer fast_delta, fast_r, fast_c, fast_tile, fast_ahead;
 wire fast_hit = fast_valid[fast_tile_bank] && fast_addr[fast_tile_bank] == fast_tile_addr;
 wire fast_ahead_hit = fast_valid[fast_ahead_bank] && fast_addr[fast_ahead_bank] == fast_ahead_addr;
+reg [19:0] d_col;
+reg [8:0] d_rem, d_step, d_step_rem, d_scale;
+reg [12:0] d_span;
+reg [2:0] d_line;
+reg [8:0] d_x, d_lastx;
+reg d_flip, d_repeat;
+reg [17:0] d_base;
+reg [7:0] d_color;
 reg [2:0] nibble;
 reg [3:0] pen;
 reg [8:0] read_x, write_x;
@@ -128,7 +139,7 @@ wire [8:0] slope_abs = slope_magnitude[8:0];
 wire signed [31:0] origin_x = {{16{attr[2][15]}},attr[2]};
 wire signed [31:0] origin_y = {{16{attr[3][15]}},attr[3]};
 wire signed [31:0] line_y = {23'd0,target_y};
-wire [11:0] color_index = {attr[1][10:3],pen};
+wire [11:0] color_index = {dr_state != DR_IDLE ? d_color : attr[1][10:3],pen};
 wire [31:0] clut_word = color_select[2] ? clut_h_q : clut_l_q;
 wire [4:0] clut_shift = {color_select[1:0] ^ 2'b01,3'b000};
 wire [7:0] clut_color = clut_word[clut_shift+:8];
@@ -156,41 +167,41 @@ function [17:0] graphics_addr;
 endfunction
 
 always @* begin
-    fast_delta = {23'd0,fast_step};
-    fast_r = {23'd0,fast_rem};
-    if (flip_x) begin
-        fast_r = fast_r - {23'd0,fast_step_rem};
+    fast_delta = {23'd0,d_step};
+    fast_r = {23'd0,d_rem};
+    if (d_flip) begin
+        fast_r = fast_r - {23'd0,d_step_rem};
         if (fast_r < 0) begin
-            fast_r = fast_r + {23'd0,scale};
+            fast_r = fast_r + {23'd0,d_scale};
             fast_delta = fast_delta + 1;
         end
-        fast_c = {12'd0,fast_col} - fast_delta;
+        fast_c = {12'd0,d_col} - fast_delta;
     end else begin
-        fast_r = fast_r + {23'd0,fast_step_rem};
-        if (fast_r >= {23'd0,scale}) begin
-            fast_r = fast_r - {23'd0,scale};
+        fast_r = fast_r + {23'd0,d_step_rem};
+        if (fast_r >= {23'd0,d_scale}) begin
+            fast_r = fast_r - {23'd0,d_scale};
             fast_delta = fast_delta + 1;
         end
-        fast_c = {12'd0,fast_col} + fast_delta;
+        fast_c = {12'd0,d_col} + fast_delta;
     end
-    if (repeat_line) begin
-        if (fast_c < 0) fast_c = fast_c + {19'd0,fast_span};
-        else if (fast_c >= {19'd0,fast_span}) fast_c = fast_c - {19'd0,fast_span};
+    if (d_repeat) begin
+        if (fast_c < 0) fast_c = fast_c + {19'd0,d_span};
+        else if (fast_c >= {19'd0,d_span}) fast_c = fast_c - {19'd0,d_span};
     end
     fast_next_col = fast_c[19:0];
     fast_next_rem = fast_r[8:0];
-    fast_tile = {14'd0,run_base[row]} + ({12'd0,fast_col} >> 3);
+    fast_tile = {14'd0,d_base} + ({12'd0,d_col} >> 3);
     fast_tile_bank = fast_tile[0];
-    fast_tile_addr = graphics_addr(fast_tile[17:0],fast_line);
-    fast_ahead = flip_x ? ({12'd0,fast_col} & -8) - 8 : ({12'd0,fast_col} & -8) + 8;
-    if (scale < 16) fast_ahead = {12'd0,fast_next_col};
-    if (repeat_line) begin
-        if (fast_ahead < 0) fast_ahead = fast_ahead + {19'd0,fast_span};
-        else if (fast_ahead >= {19'd0,fast_span}) fast_ahead = fast_ahead - {19'd0,fast_span};
+    fast_tile_addr = graphics_addr(fast_tile[17:0],d_line);
+    fast_ahead = d_flip ? ({12'd0,d_col} & -8) - 8 : ({12'd0,d_col} & -8) + 8;
+    if (d_scale < 16) fast_ahead = {12'd0,fast_next_col};
+    if (d_repeat) begin
+        if (fast_ahead < 0) fast_ahead = fast_ahead + {19'd0,d_span};
+        else if (fast_ahead >= {19'd0,d_span}) fast_ahead = fast_ahead - {19'd0,d_span};
     end
-    fast_tile = {14'd0,run_base[row]} + (fast_ahead >> 3);
+    fast_tile = {14'd0,d_base} + (fast_ahead >> 3);
     fast_ahead_bank = fast_tile[0];
-    fast_ahead_addr = graphics_addr(fast_tile[17:0],fast_line);
+    fast_ahead_addr = graphics_addr(fast_tile[17:0],d_line);
 end
 
 task request;
@@ -355,6 +366,11 @@ always @(posedge clk) begin
         write_x <= 0;
         write_data <= 0;
         overflow <= 0;
+        dr_state <= DR_IDLE;
+        dr_cnt <= 0;
+        d_col <= 0; d_rem <= 0; d_step <= 0; d_step_rem <= 0; d_scale <= 0;
+        d_span <= 0; d_line <= 0; d_x <= 0; d_lastx <= 0;
+        d_flip <= 0; d_repeat <= 0; d_base <= 0; d_color <= 0;
         for (i=0;i<6;i=i+1) attr[i] <= 0;
     end else begin
         if (fast_pending) begin
@@ -366,6 +382,40 @@ always @(posedge clk) begin
                 fast_pending <= 0;
             end
         end
+        case (dr_state)
+            DR_RUN: begin
+                if (fast_hit) begin
+                    pen <= fast_data[fast_tile_bank][{d_col[2:0] ^ 3'd3,2'b00}+:4];
+                    color_valid[0] <= fast_data[fast_tile_bank][{d_col[2:0] ^ 3'd3,2'b00}+:4] != 0;
+                    color_x0 <= d_x;
+                    if (d_x == d_lastx) begin
+                        dr_cnt <= 0;
+                        dr_state <= DR_DRAIN;
+                    end else begin
+                        d_x <= d_x + 1'b1;
+                        d_col <= fast_next_col;
+                        d_rem <= fast_next_rem;
+                        if (!fast_pending && fast_ahead_bank != fast_tile_bank && !fast_ahead_hit
+                         && (d_repeat || (fast_ahead >= 0 && fast_ahead < {19'd0,d_span}))) begin
+                            fast_bank <= fast_ahead_bank;
+                            fast_request <= fast_ahead_addr;
+                            fast_pending <= 1;
+                            fast_wait <= 0;
+                        end
+                    end
+                end else if (!fast_pending) begin
+                    fast_bank <= fast_tile_bank;
+                    fast_request <= fast_tile_addr;
+                    fast_pending <= 1;
+                    fast_wait <= 0;
+                end
+            end
+            DR_DRAIN: begin
+                dr_cnt <= 1;
+                if (dr_cnt) dr_state <= DR_IDLE;
+            end
+            default: ;
+        endcase
         case (state)
             IDLE: ;
             CLUT_L: request(0,18'h2fe00 + {9'd0,clut_load},CLUT_L_DONE);
@@ -383,7 +433,7 @@ always @(posedge clk) begin
                 end else state <= CLUT_L;
             end
             WAIT0: state <= WAIT1;
-            WAIT1: if (request_bank ? rom_h_ok : rom_l_ok) begin
+            WAIT1: if (!fast_pending && (request_bank ? rom_h_ok : rom_l_ok)) begin
                 fetched <= request_bank ? rom_h_data : rom_l_data;
                 state <= return_state;
             end
@@ -546,7 +596,9 @@ always @(posedge clk) begin
                 end
             end
             PREP_COORD: begin
-                if (rotation != 0) begin
+                if (rotation != 0 && dr_state != DR_IDLE) begin
+                    // hold until the drawer releases the pixel pipeline
+                end else if (rotation != 0) begin
                     dx_fixed = $signed({25'd0,draw_x}) - $signed({{2{origin_x[31]}},origin_x});
                     dx_fixed = (dx_fixed <<< 16) + 34'sh8000;
                     dy_fixed = $signed({25'd0,target_y}) - $signed({{2{origin_y[31]}},origin_y});
@@ -632,32 +684,23 @@ always @(posedge clk) begin
                 fast_step <= tile_delta[8:0];
                 state <= FAST;
             end
-            FAST: begin
-                if (fast_hit) begin
-                    pen <= fast_data[fast_tile_bank][{fast_col[2:0] ^ 3'd3,2'b00}+:4];
-                    color_valid[0] <= fast_data[fast_tile_bank][{fast_col[2:0] ^ 3'd3,2'b00}+:4] != 0;
-                    color_x0 <= draw_x;
-                    if (draw_x == last_x) state <= FAST_DONE;
-                    else begin
-                        draw_x <= draw_x + 1'b1;
-                        fast_col <= fast_next_col;
-                        fast_rem <= fast_next_rem;
-                        if (!fast_pending && fast_ahead_bank != fast_tile_bank && !fast_ahead_hit
-                         && (repeat_line || (fast_ahead >= 0 && fast_ahead < {19'd0,fast_span}))) begin
-                            fast_bank <= fast_ahead_bank;
-                            fast_request <= fast_ahead_addr;
-                            fast_pending <= 1;
-                            fast_wait <= 0;
-                        end
-                    end
-                end else if (!fast_pending) begin
-                    fast_bank <= fast_tile_bank;
-                    fast_request <= fast_tile_addr;
-                    fast_pending <= 1;
-                    fast_wait <= 0;
-                end
+            FAST: if (dr_state == DR_IDLE) begin
+                d_col <= fast_col;
+                d_rem <= fast_rem;
+                d_step <= fast_step;
+                d_step_rem <= fast_step_rem;
+                d_span <= fast_span;
+                d_line <= fast_line;
+                d_x <= draw_x;
+                d_lastx <= last_x;
+                d_scale <= scale;
+                d_flip <= flip_x;
+                d_repeat <= repeat_line;
+                d_base <= run_base[row];
+                d_color <= attr[1][10:3];
+                dr_state <= DR_RUN;
+                state <= NEXT;
             end
-            FAST_DONE: if (!fast_pending) state <= NEXT;
             PIXEL: begin
                 dist_x = {{12{source_x[59]}},source_x[59:40]};
                 dist_y = {{12{source_y[59]}},source_y[59:40]};
@@ -840,6 +883,7 @@ always @(posedge clk) begin
         if (line_start && loaded) begin
             fast_pending <= 0;
             fast_wait <= 0;
+            dr_state <= DR_IDLE;
             if (v == 240) begin
                 frame_ready <= 0;
                 frame_valid <= 0;
@@ -852,7 +896,7 @@ always @(posedge clk) begin
                 if (v == 271) begin
                     frame_valid <= frame_ready;
                     overflow <= !frame_ready;
-                end else if (frame_valid && (state != IDLE || color_valid != 0)) overflow <= 1;
+                end else if (frame_valid && (state != IDLE || dr_state != DR_IDLE || color_valid != 0)) overflow <= 1;
                 color_valid <= 0;
                 write_enable <= 0;
                 target_y <= next_y;
