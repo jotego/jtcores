@@ -58,7 +58,7 @@ always @* begin
         next_pixel = s2l ? 11'h200 : 11'h000;
         next_bank = s2l;
     end else if (right1 && right2) begin
-        next_pixel = s2l ? 11'h07f : 11'h27f;
+        next_pixel = s2l || !strip2_en ? 11'h07f : 11'h27f;
         next_bank = !s2l && strip2_en;
     end
 end
