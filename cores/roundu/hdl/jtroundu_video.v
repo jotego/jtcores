@@ -42,11 +42,11 @@ module jtroundu_video #(
     input [15:0] txmap_data,
     output [16:0] tx_gfx_addr,
     input [7:0] tx_gfx_data,
-    output reg [10:1] palette_video_addr,
+    output [10:1] palette_video_addr,
     input [15:0] palette_video_data,
-    output reg [4:0] red,
-    output reg [4:0] green,
-    output reg [4:0] blue,
+    output [4:0] red,
+    output [4:0] green,
+    output [4:0] blue,
     output reg LHBL,
     output reg LVBL,
     output reg HS,
@@ -54,7 +54,6 @@ module jtroundu_video #(
 );
 
 reg [8:0] h, v;
-reg [2:0] phase;
 wire [6:0] text_pxl;
 reg next_hbl, next_vbl, next_hs, next_vs;
 
@@ -77,7 +76,6 @@ wire [8:0] bg_pxl;
 wire bg_solid;
 wire [8:0] road_pxl;
 wire road_solid;
-reg [9:0] color_addr;
 
 generate
     if (ROAD) begin : g_road
@@ -161,24 +159,29 @@ generate
     end
 endgenerate
 
-always @* begin
-    color_addr = bg_solid ? {obj_pxl[9],bg_pxl} : {obj_pxl[9],9'd384};
-    if (road_solid) color_addr = {obj_pxl[9],road_pxl};
-    if (control[7]) begin
-        if (text_pxl[2:0] != 0) color_addr = {3'd0,text_pxl};
-        if (obj_pxl[8]) color_addr = {2'b10,obj_pxl[7:0]};
-    end else begin
-        if (obj_pxl[8]) color_addr = {2'b10,obj_pxl[7:0]};
-        if (text_pxl[2:0] != 0) color_addr = {3'd0,text_pxl};
-    end
-end
+jtroundu_colmix u_colmix (
+    .rst                ( rst                 ),
+    .clk                ( clk                 ),
+    .pxl_cen            ( pxl_cen             ),
+    .blank_n            ( next_hbl & next_vbl ),
+    .obj_top            ( control[7]          ),
+    .text_pxl           ( text_pxl            ),
+    .obj_pxl            ( obj_pxl             ),
+    .bg_pxl             ( bg_pxl              ),
+    .bg_solid           ( bg_solid            ),
+    .road_pxl           ( road_pxl            ),
+    .road_solid         ( road_solid          ),
+    .palette_video_addr ( palette_video_addr  ),
+    .palette_video_data ( palette_video_data  ),
+    .red                ( red                 ),
+    .green              ( green               ),
+    .blue               ( blue                )
+);
 
 always @(posedge clk) begin
     if (rst) begin
         h <= 0;
         v <= 0;
-        phase <= 0;
-        palette_video_addr <= 0;
         LHBL <= 0;
         LVBL <= 0;
         HS <= 1;
@@ -187,9 +190,6 @@ always @(posedge clk) begin
         next_vbl <= 0;
         next_hs <= 1;
         next_vs <= 1;
-        red <= 0;
-        green <= 0;
-        blue <= 0;
     end else begin
         if (pxl_cen) begin
             h <= h == 399 ? 0 : h+1'd1;
@@ -202,13 +202,6 @@ always @(posedge clk) begin
             LVBL <= next_vbl;
             HS <= next_hs;
             VS <= next_vs;
-            red <= next_hbl && next_vbl ? palette_video_data[14:10] : 5'd0;
-            green <= next_hbl && next_vbl ? palette_video_data[9:5] : 5'd0;
-            blue <= next_hbl && next_vbl ? palette_video_data[4:0] : 5'd0;
-            phase <= 1;
-        end else if (phase != 0) begin
-            phase <= phase+1'd1;
-            if (phase == 5) palette_video_addr <= color_addr;
         end
     end
 end
