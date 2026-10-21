@@ -32,6 +32,20 @@ module test(
     output      [3:0]   cache_dsn,
     output      [31:0]  cache_dout,
     output              cache_ok,
+    output              dbg_ibus_req,
+    output              dbg_ibus_wait,
+    output              dbg_cache_busy,
+    output              dbg_bsc_ibus_busy,
+    output              dbg_cache_ibus_write,
+    output              dbg_cache_ibus_write_pend,
+    output              dbg_cache_ibus_read,
+    output              dbg_cache_ibus_read_pend,
+    output              dbg_ccr_write_pend,
+    output              dbg_ccr_req_seen,
+    output              dbg_cache_line_purge,
+    output              dbg_ibus_write_drain,
+    output              dbg_control_ack_hold,
+    output      [6:0]   dbg_control_ack_count,
 
     output reg          ce_r,
     output reg          ce_f,
@@ -53,12 +67,14 @@ localparam integer SDRAMW   = 24;
 localparam integer CACHE_AW = 24;
 localparam integer BURST_AW = SDRAMW - 1;
 localparam [12:0]  REFRESH_LAST = 13'd6399;
+localparam [26:1]  CONTROL_DELAY_ADDR = (27'h0202ab00 >> 1);
+localparam [6:0]   CONTROL_DELAY_CYCLES = 7'd64;
 
 wire [26:0] cpu_a;
 wire [31:0] cpu_do;
 wire [31:0] cache_dout0;
 wire        cache_ok_mux;
-wire        cache_area0 = cpu_a[26:25] == 2'b00;
+wire        cache_modeled = cpu_a[26:26] == 1'b0;
 wire [31:0] dummy_dout1, dummy_dout2, dummy_dout3;
 wire [31:0] dummy_dout4, dummy_dout5, dummy_dout6, dummy_dout7;
 wire        dummy_ok1, dummy_ok2, dummy_ok3;
@@ -78,17 +94,25 @@ wire        ext_dummy_dok;
 wire        ext_dummy_rdy;
 reg  [31:0] cache_dout_latch;
 reg         cache_ok_latch;
+reg         control_ack_armed;
+reg         control_ack_used;
+reg  [6:0]  control_ack_count;
 
 reg         ce_phase;
 reg  [12:0] hcnt;
 
 wire        rfsh = hcnt == 13'd0;
-wire        cache_req_area0 = cache_addr[26:25] == 2'b00;
-wire        cache_rd_area0 = cache_rd & cache_req_area0;
-wire        cache_wr_area0 = cache_wr & cache_req_area0;
-wire        cpu_bus_area0 = cache_cs ? cache_req_area0 : cache_area0;
-wire [31:0] cpu_din_i = cpu_bus_area0 ? cache_dout_latch : cpu_din_ext;
-wire        cpu_cache_ok = cpu_bus_area0 ? cache_ok_latch : 1'b1;
+wire        cache_req_modeled = cache_addr[26] == 1'b0;
+wire        cache_rd_modeled = cache_rd & cache_req_modeled;
+wire        cache_wr_modeled = cache_wr & cache_req_modeled;
+wire        cpu_bus_modeled = cache_cs ? cache_req_modeled : cache_modeled;
+wire [31:0] cpu_din_i = cpu_bus_modeled ? cache_dout_latch : cpu_din_ext;
+wire        cpu_cache_ok = cpu_bus_modeled ? cache_ok_latch : 1'b1;
+wire        control_ack_target = cache_cs && cache_wr && cache_addr == CONTROL_DELAY_ADDR;
+wire        control_ack_start = control_ack_target && !control_ack_used;
+wire        control_ack_release = control_ack_armed && control_ack_count == 7'd1;
+wire        cache_ok_delayed = control_ack_start ? 1'b0 :
+                              control_ack_armed ? (control_ack_release && cache_ok_mux) : cache_ok_mux;
 
 assign cache_dout = cache_dout0;
 
@@ -100,13 +124,29 @@ always @(posedge clk or posedge rst) begin
         hcnt      <= 13'd0;
         cache_dout_latch <= 32'd0;
         cache_ok_latch <= 1'b0;
+        control_ack_armed <= 1'b0;
+        control_ack_used <= 1'b0;
+        control_ack_count <= 7'd0;
     end else begin
         ce_r <= !ce_phase;
         ce_f <=  ce_phase;
         ce_phase <= ~ce_phase;
-        cache_ok_latch <= cache_ok_mux;
+        cache_ok_latch <= cache_ok_delayed;
         if (cache_ok_mux) begin
             cache_dout_latch <= cache_dout0;
+        end
+        if (!control_ack_target) begin
+            control_ack_used <= 1'b0;
+        end
+        if (control_ack_start) begin
+            control_ack_used <= 1'b1;
+            control_ack_armed <= 1'b1;
+            control_ack_count <= CONTROL_DELAY_CYCLES;
+        end else if (control_ack_armed && control_ack_count > 7'd1) begin
+            control_ack_count <= control_ack_count - 7'd1;
+        end else if (control_ack_release) begin
+            control_ack_armed <= 1'b0;
+            control_ack_count <= 7'd0;
         end
         if (hcnt == REFRESH_LAST) begin
             hcnt <= 13'd0;
@@ -126,7 +166,9 @@ jtsh7604 u_cpu(
     .cpu_din    ( cpu_din_i   ),
     .cps3_key1  ( 32'd0       ),
     .cps3_key2  ( 32'd0       ),
-    .cps3_crypt_mode ( 2'd2   ),
+    .cps3_crypt_mode ( 3'b010 ),
+    .cps3_region ( 3'd0       ),
+    .cps3_region_redearth ( 1'b0 ),
     .cache_ok   ( cpu_cache_ok ),
 
     .A          ( cpu_a       ),
@@ -158,6 +200,20 @@ jtsh7604 u_cpu(
 assign A        = cpu_a;
 assign cpu_dout = cpu_do;
 assign cache_ok  = cpu_cache_ok;
+assign dbg_ibus_req = u_cpu.u_cpu.IBUS_REQ;
+assign dbg_ibus_wait = u_cpu.u_cpu.IBUS_WAIT;
+assign dbg_cache_busy = u_cpu.u_cpu.CACHE_BUSY;
+assign dbg_bsc_ibus_busy = u_cpu.u_cpu.BSC_IBUS_BUSY;
+assign dbg_cache_ibus_write = u_cpu.u_cpu.cache.IBUS_WRITE;
+assign dbg_cache_ibus_write_pend = u_cpu.u_cpu.cache.IBUS_WRITE_PEND;
+assign dbg_cache_ibus_read = u_cpu.u_cpu.cache.IBUS_READ;
+assign dbg_cache_ibus_read_pend = u_cpu.u_cpu.cache.IBUS_READ_PEND;
+assign dbg_ccr_write_pend = u_cpu.u_cpu.cache.CCR_WRITE_PEND;
+assign dbg_ccr_req_seen = u_cpu.u_cpu.cache.CCR_REQ_SEEN;
+assign dbg_cache_line_purge = u_cpu.u_cpu.cache.CACHE_LINE_PURGE;
+assign dbg_ibus_write_drain = u_cpu.u_cpu.IBUS_WRITE_DRAIN;
+assign dbg_control_ack_hold = control_ack_armed;
+assign dbg_control_ack_count = control_ack_count;
 
 jtframe_cache_mux #(
     .SDRAM_AW ( SDRAMW ),
@@ -209,8 +265,8 @@ jtframe_cache_mux #(
 
     .addr0  ( cache_addr[23:2] ),
     .dout0  ( cache_dout0  ),
-    .rd0    ( cache_rd_area0 ),
-    .wr0    ( cache_wr_area0 ),
+    .rd0    ( cache_rd_modeled ),
+    .wr0    ( cache_wr_modeled ),
     .din0   ( cache_din    ),
     .wdsn0  ( cache_dsn    ),
     .ok0    ( cache_ok_mux  ),

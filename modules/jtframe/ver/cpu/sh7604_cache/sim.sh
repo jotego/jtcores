@@ -92,6 +92,7 @@ verilator \
     "${trace_args[@]}" \
     test.v \
     "$JTFRAME/hdl/cpu/jtsh7604.sv" \
+    "$JTFRAME/hdl/cpu/jtsh7604_cps3_region.v" \
     "$JTFRAME/hdl/cpu/sh7604/SH_pkg.sv" \
     "$JTFRAME/hdl/cpu/sh7604/SH_core_trace.sv" \
     "$JTFRAME/hdl/cpu/sh7604/SH_core.sv" \

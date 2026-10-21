@@ -100,7 +100,7 @@ package SH7604_PKG;
 		bit         CE;			//R/W
 	} CCR_t;
 	parameter bit [7:0] CCR_WMASK = 8'hDF;
-	parameter bit [7:0] CCR_RMASK = 8'hDF;
+	parameter bit [7:0] CCR_RMASK = 8'hEF;
 	parameter bit [7:0] CCR_INIT = 8'h00;
 	
 	//BSC

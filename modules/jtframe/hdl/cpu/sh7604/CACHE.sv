@@ -27,6 +27,7 @@ module SH7604_CACHE (
 	output            IBUS_BURST,
 	output            IBUS_LOCK,
 	input             IBUS_WAIT,
+	input             IBUS_WRITE_DRAIN,
 
 	input             CPS3_DECRYPT,
 	input             CPS3_ALT_DECRYPT,
@@ -457,6 +458,12 @@ module SH7604_CACHE (
 	
 	
 	wire HIT = WAY_HIT[0] | WAY_HIT[1] | WAY_HIT[2] | WAY_HIT[3];
+	wire CACHE_HIT_READ = CACHE_AREA && CCR.CE && !CBUS_WR && !CBUS_TAS && HIT;
+	wire CCR_FENCE_BLOCK = CCR_WRITE_PEND && CBUS_REQ && !CCR_SEL && !CACHE_HIT_READ;
+	wire CCR_CP_BLOCK = CCR.CP && CBUS_REQ && !CCR_SEL;
+	wire CCR_CP_WRITE_BLOCK = CCR.CP && CCR_SEL && CBUS_WR && CBUS_REQ && !CCR_REQ_SEEN;
+	wire CCR_PURGE_DONE = EN && CE_R && CCR.CP && CCR_PURGE_DIRTY_DONE &&
+						  !CACHE_UPDATE && !CACHE_WRITE && !CACHE_LINE_PURGE && !CACHE_DATA_WRITE && !CACHE_ADDR_WRITE;
 	
 	bit         IBDATA_RDY;
 	bit         IBUS_WRITE;
@@ -464,6 +471,10 @@ module SH7604_CACHE (
 	bit         IBUS_READ;
 	bit         IBUS_READ_PEND;
 	bit         IBUS_READARRAY;
+	bit         CCR_WRITE_PEND;
+	bit         CCR_REQ_SEEN;
+	bit         CCR_PURGE_DIRTY_DONE;
+	bit   [7:0] CCR_WRITE_DATA;
 	always @(posedge CLK or negedge RST_N) begin
 		bit [ 1: 0] ARRAY_POS;
 		bit         IBUS_END;
@@ -506,7 +517,6 @@ module SH7604_CACHE (
 			CACHE_LINE_PURGE <= 0;
 			CACHE_DATA_WRITE <= 0;
 			CACHE_ADDR_WRITE <= 0;
-			
 			IBDATA_RDY <= 0;
 			if (!IBUS_WAIT) begin
 				if (IBUS_WRITE) begin
@@ -538,7 +548,7 @@ module SH7604_CACHE (
 			end
 			IBUS_END = 0;//(IBREQ && IBUS_WRITE && !IBUS_WAIT);
 			
-			if (CBUS_REQ) begin
+			if (CBUS_REQ && !CCR_FENCE_BLOCK && !CCR_CP_BLOCK) begin
 				if (CBUS_WR) begin
 					if ((CACHE_AREA || NOCACHE_AREA || IO_AREA)) begin
 						if (!IBREQ || IBUS_END) begin
@@ -634,18 +644,44 @@ module SH7604_CACHE (
 	always @(posedge CLK or negedge RST_N) begin
 		if (!RST_N) begin
 			CCR <= '0;
+			CCR_WRITE_PEND <= 0;
+			CCR_REQ_SEEN <= 0;
+			CCR_PURGE_DIRTY_DONE <= 0;
+			CCR_WRITE_DATA <= 0;
 			// synopsys translate_off
 			CCR <= 8'h00;
 			// synopsys translate_on
 		end
 		else if (!RES_N) begin
-			CCR <= CCR_INIT;
+			CCR            <= CCR_INIT;
+			CCR_WRITE_PEND <= 0;
+			CCR_REQ_SEEN   <= 0;
+			CCR_PURGE_DIRTY_DONE <= 0;
+			CCR_WRITE_DATA <= 0;
 		end
-		else if (CE_R) begin
-			if (CCR_SEL && CBUS_WR && CBUS_REQ) begin
-				CCR <= CBUS_DI[7:0] & CCR_WMASK;
+		else begin
+			if (EN && !CE_R && CCR.CP) CCR_PURGE_DIRTY_DONE <= 1;
+			else if (!CCR.CP) CCR_PURGE_DIRTY_DONE <= 0;
+
+			if (CE_R) begin
+				if (!CCR_SEL || !CBUS_WR || !CBUS_REQ) CCR_REQ_SEEN <= 0;
+
+				if (CCR_WRITE_PEND) begin
+					if (!IBUS_WRITE && !IBUS_WRITE_PEND && !IBUS_WRITE_DRAIN) begin
+						CCR            <= CCR_WRITE_DATA;
+						CCR_WRITE_PEND <= 0;
+					end
+				end else if (CCR_SEL && CBUS_WR && CBUS_REQ && !CCR_REQ_SEEN && !CCR.CP) begin
+					CCR_REQ_SEEN <= 1;
+					if (IBUS_WRITE || IBUS_WRITE_PEND || IBUS_WRITE_DRAIN) begin
+						CCR_WRITE_DATA <= CBUS_DI[7:0] & CCR_WMASK;
+						CCR_WRITE_PEND <= 1;
+					end else begin
+						CCR <= CBUS_DI[7:0] & CCR_WMASK;
+					end
+				end
+				if (CCR_PURGE_DONE) CCR.CP <= 0;
 			end
-			if (CCR.CP) CCR.CP <= 0;
 		end
 	end
 	
@@ -657,15 +693,17 @@ module SH7604_CACHE (
 	assign CBUS_DO = CCR_SEL ? {4{CCR & CCR_RMASK}}    :
 					 IBDATA_RDY  ? (cps3_alt_dec_en ? cps3_ibus_data_dec : IBUS_DI) :
 					 (cps3_dec_en || cps3_alt_dec_en) ? cps3_cache_data_dec : CACHE_DATA;
-	assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
-						(IBUS_WRITE && !IO_AREA));
+	assign CBUS_BUSY = CBUS_REQ && (CCR_FENCE_BLOCK || CCR_CP_BLOCK || CCR_CP_WRITE_BLOCK || IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
+						(CCR_SEL && CBUS_WR && CCR_WRITE_PEND && !CCR_REQ_SEEN) ||
+						(IBUS_WRITE && !IO_AREA && !CACHE_HIT_READ && !(CCR_SEL && CBUS_WR)));
 
 	assign IBUS_A = IBADDR;
 	assign IBUS_DO = IBDATA;
 	assign IBUS_BA = IBBA;
 	assign IBUS_WE = IBWE;
 	assign IBUS_REQ = IBREQ;
-	assign IBUS_PREREQ = CBUS_REQ && ((!CBUS_WR && ((CACHE_AREA && (!CCR.CE)) || (NOCACHE_AREA && !CBUS_TAS))) || (!CBUS_WR && CACHE_AREA && CCR.CE && !HIT)) && !IBREQ;
+	assign IBUS_PREREQ = CBUS_REQ && !CCR_FENCE_BLOCK && !CCR_CP_BLOCK &&
+						 ((!CBUS_WR && ((CACHE_AREA && (!CCR.CE)) || (NOCACHE_AREA && !CBUS_TAS))) || (!CBUS_WR && CACHE_AREA && CCR.CE && !HIT)) && !IBREQ;
 	assign IBUS_BURST = IBBURST;
 	assign IBUS_LOCK = IBLOCK;
 

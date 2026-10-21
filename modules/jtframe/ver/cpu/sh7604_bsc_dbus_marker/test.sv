@@ -211,6 +211,7 @@ SH7604_BSC uut(
     .CBUS_LOCK    ( cbus_lock    ),
     .CBUS_BUSY    ( cbus_busy    ),
     .CBUS_ACT     ( cbus_act     ),
+    .CBUS_WRITE_PENDING (          ),
     .DBUS_A       ( dbus_a       ),
     .DBUS_DI      ( dbus_di      ),
     .DBUS_DO      ( dbus_do      ),

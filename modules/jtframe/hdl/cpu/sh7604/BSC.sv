@@ -49,6 +49,7 @@ module SH7604_BSC
 	input             CBUS_LOCK,
 	output            CBUS_BUSY,
 	output            CBUS_ACT,
+	output            CBUS_WRITE_PENDING,
 	
 	input      [31:0] DBUS_A,
 	input      [31:0] DBUS_DI,
@@ -204,6 +205,7 @@ module SH7604_BSC
 	bit          BUSY;
 	bit          CBUSY,CBUSY2,DBUSY,VBUSY;
 	bit          CBUS_ACTIVE,DBUS_ACTIVE,VBUS_ACTIVE,REFRESH_ACTIVE;
+	bit          BUS_WE_LATCH;
 	bit          DBUS_RD_ACTIVE;
 	bit  [31: 0] DAT_BUF;
 	bit  [ 7: 0] VEC_BUF;
@@ -217,7 +219,6 @@ module SH7604_BSC
 		bit [ 1: 0] RCD_WAIT_CNT;
 		bit [ 1: 0] NOP_WAIT_CNT;
 		bit [31: 0] BUS_DI_LATCH;
-		bit         BUS_WE_LATCH;
 		bit         IS_SDRAM_LATCH;
 		bit [ 3: 0] NEXT_BA;
 		bit [ 1: 0] AREA_SZ;
@@ -243,6 +244,7 @@ module SH7604_BSC
 			IVECF_N <= 1;
 			CACK <= 0;
 			BUSY <= 0;
+			BUS_WE_LATCH <= 0;
 			CBUS_LOCK_INT <= 0;
 			DBUS_LOCK_INT <= 0;
 			{CBUSY,CBUSY2,DBUSY,VBUSY} <= '0;
@@ -1096,6 +1098,7 @@ module SH7604_BSC
 	assign CBUS_DO = REG_SEL ? REG_DO : CBUS_ACTIVE ? DAT_BUF : '0;
 	assign CBUS_BUSY = CBUSY | CBUSY2 | ((BUS_RLS | (BGR & MASTER) | (~BREQ & ~MASTER)) & CBUS_EXT_REQ) | ((DBUS_ACTIVE | VBUS_ACTIVE | REFRESH_ACTIVE) & ~CBUS_PER_REQ);
 	assign CBUS_ACT = REG_SEL;
+	assign CBUS_WRITE_PENDING = CBUS_ACTIVE && BUS_WE_LATCH && BUSY;
 	
 	assign DBUS_DO = DBUS_ACTIVE ? DAT_BUF : '0;
 	assign DBUS_BUSY = DBUSY | ((BUS_RLS | (BGR & MASTER) | (~BREQ & ~MASTER)) & DBUS_REQ) | CBUS_ACTIVE | VBUS_ACTIVE | REFRESH_ACTIVE;

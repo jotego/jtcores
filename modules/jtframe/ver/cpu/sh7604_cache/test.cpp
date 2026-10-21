@@ -34,6 +34,11 @@ static constexpr uint32_t STATUS_PART   = 0x00000044U;
 static constexpr uint32_t STATUS_SCAN   = 0x00000055U;
 static constexpr uint32_t STATUS_PASS   = 0x00000066U;
 static constexpr uint32_t STATUS_FAIL   = 0xdead0001U;
+static constexpr uint32_t PURGE185_TAG  = 0x18500000U;
+static constexpr uint32_t PURGE186_TAG  = 0x18600000U;
+static constexpr uint32_t CONTROL_START = 0x18700001U;
+static constexpr uint32_t CONTROL_END   = 0x18700002U;
+static constexpr uint32_t PURGE_TAG_MASK = 0xfff00000U;
 
 static constexpr uint32_t SRC_ADDR   = 0x00002000U;
 static constexpr uint32_t DST_ADDR   = 0x00004000U;
@@ -109,11 +114,22 @@ class Sim {
     uint64_t sub_ps_err = 0;
     uint64_t cycles = 0;
     uint32_t seen_phase = 0;
+    uint32_t purge_record_count = 0;
+    uint32_t purge_values[8] = {};
+    bool expect_purge_value = false;
+    bool control_window = false;
+    bool expect_control_value = false;
+    uint32_t control_value = 0;
+    bool control_saw_ibus_write_pend = false;
+    bool control_saw_ibus_write_drain = false;
+    bool control_saw_ccr_write_pend = false;
+    bool control_saw_line_purge = false;
     bool boot_seen = false;
     uint64_t trace_bus_count = 0;
     bool saw_pass = false;
     bool saw_fail = false;
     bool last_status_write = false;
+    bool have_last_status_code = false;
     uint32_t last_status_code = 0;
     uint64_t cache_req_count = 0;
     uint64_t cache_ok_count = 0;
@@ -127,6 +143,8 @@ class Sim {
     bool last_req_launch = false;
     bool last_req_ready = true;
     bool last_wait_n = true;
+    bool last_purge_pending = false;
+    bool bsc_readback_reported = false;
     bool trace_bus = false;
     uint64_t trace_boot_window = TRACE_BOOT_WINDOW_CYCLES;
     uint64_t debug_events = 0;
@@ -173,6 +191,58 @@ class Sim {
     }
 
     void check_cache_protocol() {
+        uint32_t cpu_addr = top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_A;
+        uint32_t cpu_pc = top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__core__DOT__NPC;
+        bool purge_pending = top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__cache__DOT__IBUS_WRITE_PEND;
+        bool purge_addr = (cpu_addr >= 0x0002aa00U && cpu_addr <= 0x0002aa0cU) ||
+                          (cpu_addr >= 0x0202aa00U && cpu_addr <= 0x0202aa0cU) ||
+                          (cpu_addr >= 0x2202aa00U && cpu_addr <= 0x2202aa0cU) ||
+                          (cpu_addr >= 0x0002ab00U && cpu_addr <= 0x0002ab0cU) ||
+                          (cpu_addr >= 0x0202ab00U && cpu_addr <= 0x0202ab0cU) ||
+                          (cpu_addr >= 0x2202ab00U && cpu_addr <= 0x2202ab0cU) ||
+                          cpu_addr == 0xfffffe92U;
+        if( control_window ) {
+            control_saw_ibus_write_pend |= top.dbg_cache_ibus_write_pend;
+            control_saw_ibus_write_drain |= top.dbg_ibus_write_drain;
+            control_saw_ccr_write_pend |= top.dbg_ccr_write_pend;
+            control_saw_line_purge |= top.dbg_cache_line_purge;
+        }
+        if( trace_bus && !bsc_readback_reported && cpu_addr == 0xfffffe92U ) {
+            std::fprintf(stderr, "BSC_READBACK BCR1=%04x BCR2=%04x WCR=%04x (at first CCR access)\n",
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__bsc__DOT__BCR1,
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__bsc__DOT__BCR2,
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__bsc__DOT__WCR);
+            bsc_readback_reported = true;
+        }
+        if( trace_bus && (purge_addr || purge_pending != last_purge_pending) ) {
+            std::fprintf(stderr,
+                "PURGE_BUS cycle=%llu PC=%08x CBUS_A=%08x CBUS_REQ=%d CBUS_WR=%d CBUS_DI=%08x IREQ=%d IWAIT=%d CACHE_BUSY=%d BSC_BUSY=%d IWRITE=%d IWRITE_PEND=%d IREAD=%d IREAD_PEND=%d DRAIN=%d CCR=%02x CCR_PEND=%d CCR_SEEN=%d PURGE=%d WAIT_N=%d CACHE_CS=%d CACHE_OK=%d CACHE_ADDR=%08x CACHE_WR=%d CACHE_DIN=%08x CACHE_DOUT=%08x ACK_HOLD=%d ACK_COUNT=%u\n",
+                static_cast<unsigned long long>(cycles), cpu_pc, cpu_addr,
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_REQ ? 1 : 0,
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_WR ? 1 : 0,
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_DI,
+                top.dbg_ibus_req ? 1 : 0,
+                top.dbg_ibus_wait ? 1 : 0,
+                top.dbg_cache_busy ? 1 : 0,
+                top.dbg_bsc_ibus_busy ? 1 : 0,
+                top.dbg_cache_ibus_write ? 1 : 0,
+                top.dbg_cache_ibus_write_pend ? 1 : 0,
+                top.dbg_cache_ibus_read ? 1 : 0,
+                top.dbg_cache_ibus_read_pend ? 1 : 0,
+                top.dbg_ibus_write_drain ? 1 : 0,
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__cache__DOT__CCR,
+                top.dbg_ccr_write_pend ? 1 : 0,
+                top.dbg_ccr_req_seen ? 1 : 0,
+                top.dbg_cache_line_purge ? 1 : 0,
+                top.WAIT_N ? 1 : 0,
+                top.cache_cs ? 1 : 0, top.cache_ok ? 1 : 0,
+                static_cast<unsigned>(top.cache_addr), top.cache_wr ? 1 : 0,
+                static_cast<unsigned>(top.cache_din), static_cast<unsigned>(top.cache_dout),
+                top.dbg_control_ack_hold ? 1 : 0,
+                static_cast<unsigned>(top.dbg_control_ack_count));
+        }
+        last_purge_pending = purge_pending;
+
         if( top.cache_cs && !last_cache_active ) {
             cache_req_count++;
             last_cache_addr = static_cast<uint32_t>(top.cache_addr);
@@ -244,7 +314,8 @@ class Sim {
                                (boot_seen && (cache_sig_changed || cache_wait_changed ||
                                              cache_just_started || cache_just_finished ||
                                              cache_waited && cache_wait_changed ||
-                                             bus_state_changed || debug_events < 32));
+                                             bus_state_changed || debug_events < 32 ||
+                                             purge_addr));
         if( !boot_seen && trace_bus && trace_boot_window > 0 ) {
             trace_boot_window--;
         }
@@ -302,13 +373,67 @@ class Sim {
         last_status_write = true;
 
         uint32_t code = top.cache_din;
-        if( code == last_status_code ) return;
-        last_status_code = code;
         std::fprintf(stderr, "STATUS_WRITE code=%08x at cycle=%llu\n",
             code, static_cast<unsigned long long>(cycles));
+        if( have_last_status_code && code == last_status_code ) {
+            std::fprintf(stderr,
+                "STATUS_DUPLICATE_IGNORED code=%08x after preceding status write\n",
+                code);
+            return;
+        }
+        last_status_code = code;
+        have_last_status_code = true;
+        if( expect_purge_value ) {
+            uint32_t rec = purge_record_count++;
+            purge_values[rec] = code;
+            std::fprintf(stderr, "PURGE_RESULT test=%s rep=%u value=%08x\n",
+                rec < 4 ? "185" : "186", rec < 4 ? rec : rec - 4, code);
+            expect_purge_value = false;
+            return;
+        }
+        if( expect_control_value ) {
+            control_value = code;
+            expect_control_value = false;
+            std::fprintf(stderr,
+                "CONTROL_RESULT value=%08x IBUS_WRITE_PEND=%d IBUS_WRITE_DRAIN=%d CCR_WRITE_PEND=%d CACHE_LINE_PURGE=%d\n",
+                control_value, control_saw_ibus_write_pend ? 1 : 0,
+                control_saw_ibus_write_drain ? 1 : 0,
+                control_saw_ccr_write_pend ? 1 : 0,
+                control_saw_line_purge ? 1 : 0);
+            return;
+        }
         if( code == STATUS_FAIL ) {
             saw_fail = true;
             fatal("CPU reported failure");
+        }
+
+        uint32_t tag = code & PURGE_TAG_MASK;
+        if( code == CONTROL_START ) {
+            if( control_window || expect_control_value ) fatal("nested control probe marker");
+            control_window = true;
+            control_saw_ibus_write_pend = false;
+            control_saw_ibus_write_drain = false;
+            control_saw_ccr_write_pend = false;
+            control_saw_line_purge = false;
+            return;
+        }
+        if( code == CONTROL_END ) {
+            if( !control_window ) fatal("control probe end marker without start");
+            control_window = false;
+            expect_control_value = true;
+            return;
+        }
+        if( tag == PURGE185_TAG || tag == PURGE186_TAG ) {
+            if( seen_phase != 5 ) fatal("purge result reported before baseline phases completed");
+            uint32_t rep = (code >> 16) & 0xf;
+            uint32_t expected_tag = purge_record_count < 4 ? PURGE185_TAG : PURGE186_TAG;
+            uint32_t expected_rep = purge_record_count < 4 ? purge_record_count : purge_record_count - 4;
+            if( purge_record_count >= 8 || tag != expected_tag || rep != expected_rep ) {
+                fatalf("unexpected purge result order: tag=%03x rep=%u record=%u",
+                    tag >> 20, rep, purge_record_count);
+            }
+            expect_purge_value = true;
+            return;
         }
 
         if( code == STATUS_COPY ) {
@@ -338,6 +463,12 @@ class Sim {
         }
         if( code == STATUS_PASS ) {
             if( seen_phase != 5 ) fatal("pass reported before all phases completed");
+            if( purge_record_count != 8 ) {
+                fatalf("expected 8 purge results, received %u", purge_record_count);
+            }
+            if( expect_control_value || control_window ) {
+                fatal("control probe did not complete before PASS");
+            }
             saw_pass = true;
             return;
         }
@@ -472,6 +603,18 @@ public:
         while( main_time_ps < timeout_ps ) {
             if( saw_pass ) {
                 verify_memory();
+                std::fprintf(stderr, "SDRAM_PURGE_WORDS=%04x,%04x,%04x,%04x\n",
+                    sdram.read_word(0, 0x15500), sdram.read_word(0, 0x15501),
+                    sdram.read_word(0, 0x15502), sdram.read_word(0, 0x15503));
+                std::fprintf(stderr, "PURGE185_VALUES=%08x,%08x,%08x,%08x\n",
+                    purge_values[0], purge_values[1], purge_values[2], purge_values[3]);
+                std::fprintf(stderr, "PURGE186_VALUES=%08x,%08x,%08x,%08x\n",
+                    purge_values[4], purge_values[5], purge_values[6], purge_values[7]);
+                std::fprintf(stderr, "CONTROL_VALUE=%08x IBUS_WRITE_PEND=%d IBUS_WRITE_DRAIN=%d CCR_WRITE_PEND=%d CACHE_LINE_PURGE=%d\n",
+                    control_value, control_saw_ibus_write_pend ? 1 : 0,
+                    control_saw_ibus_write_drain ? 1 : 0,
+                    control_saw_ccr_write_pend ? 1 : 0,
+                    control_saw_line_purge ? 1 : 0);
                 std::fprintf(stderr,
                     "PASS cycles=%llu cache_reqs=%llu cache_oks=%llu\n",
                     static_cast<unsigned long long>(cycles),

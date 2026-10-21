@@ -64,6 +64,89 @@ _start:
     mov #STATUS_SCAN, r2
     mov.l r2, @r14
 
+    mov.l lit_bcr1, r0
+    mov.l lit_bcr1_value, r1
+    mov.l r1, @r0
+    mov.l lit_bcr2, r0
+    mov.l lit_bcr2_value, r1
+    mov.l r1, @r0
+    mov.l lit_wcr, r0
+    mov.l lit_wcr_value, r1
+    mov.l r1, @r0
+
+    mov.l lit_ccr, r2
+    mov #0x11, r0
+    mov.b r0, @r2
+
+    /* Each call follows the note's per-repetition wrapper shape: report a
+       marker, reload A/U aliases, run one body, and immediately store result. */
+    mov.l lit_purge185_0, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge185
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge185_1, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge185
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge185_2, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge185
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge185_3, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge185
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge186_0, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge186
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge186_1, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge186
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge186_2, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge186
+    nop
+    mov.l r0, @r14
+
+    mov.l lit_purge186_3, r0
+    mov.l r0, @r14
+    mov.l lit_purge_cached, r6
+    mov.l lit_purge_through, r7
+    bsr purge186
+    nop
+    mov.l r0, @r14
+
+    bsr control_probe
+    nop
+
     mov #STATUS_PASS, r2
     mov.l r2, @r14
     bra done
@@ -77,6 +160,56 @@ fail:
 
 done:
     bra done
+    nop
+
+purge185:
+    mov #17, r0
+    mov.l r0, @r7
+    mov.l lit_ccr, r2
+    mov #0x11, r0
+    mov.b r0, @r2
+    mov.l @r6, r8
+    mov #34, r0
+    mov.l r0, @r7
+    mov.l @r6, r0
+    shll8 r8
+    or r8, r0
+    rts
+    nop
+
+purge186:
+    mov #17, r0
+    mov.l r0, @r7
+    mov.l lit_ccr, r2
+    mov #0x11, r0
+    mov.b r0, @r2
+    mov.l @r6, r8
+    mov #34, r0
+    mov.l r0, @r7
+    mov #0x11, r0
+    mov.b r0, @r2
+    mov.l @r6, r0
+    shll8 r8
+    or r8, r0
+    rts
+    nop
+
+control_probe:
+    mov.l lit_status, r14
+    mov.l lit_control_start, r0
+    mov.l r0, @r14
+    mov.l lit_control_cached, r6
+    mov.l lit_control_through, r7
+    mov.l lit_ccr, r2
+    mov #17, r0
+    mov.l r0, @r7
+    mov #0x11, r0
+    mov.b r0, @r2
+    mov.l @r6, r0
+    mov.l lit_control_end, r1
+    mov.l r1, @r14
+    mov.l r0, @r14
+    rts
     nop
 
     .align 4
@@ -105,6 +238,48 @@ phase_part:
     .long STATUS_PART
 phase_scan:
     .long STATUS_SCAN
+lit_bcr1:
+    .long 0xFFFFFFE0
+lit_bcr1_value:
+    .long 0xA55A0020
+lit_bcr2:
+    .long 0xFFFFFFE4
+lit_bcr2_value:
+    .long 0xA55A00E8
+lit_wcr:
+    .long 0xFFFFFFE8
+lit_wcr_value:
+    .long 0xA55AAA57
+lit_ccr:
+    .long 0xFFFFFE92
+lit_purge_cached:
+    .long 0x0202AA00
+lit_purge_through:
+    .long 0x2202AA00
+lit_control_cached:
+    .long 0x0202AB00
+lit_control_through:
+    .long 0x2202AB00
+lit_control_start:
+    .long 0x18700001
+lit_control_end:
+    .long 0x18700002
+lit_purge185_0:
+    .long 0x18500000
+lit_purge185_1:
+    .long 0x18510000
+lit_purge185_2:
+    .long 0x18520000
+lit_purge185_3:
+    .long 0x18530000
+lit_purge186_0:
+    .long 0x18600000
+lit_purge186_1:
+    .long 0x18610000
+lit_purge186_2:
+    .long 0x18620000
+lit_purge186_3:
+    .long 0x18630000
 
     .org SRC_ADDR
     .long 0x1357ACE1
