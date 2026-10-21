@@ -12,7 +12,8 @@ module test;
     wire mem_req, mem_we, mem_iaq, retire, fault;
     wire [31:0] mem_addr, mem_wdata, pc, st;
     wire [5:0] mem_size;
-    wire [15:0] ir;
+    wire [15:0] ir, mem_wmask;
+    reg [15:0] held_mask=16'hffff;
     reg [31:0] mem_rdata=0;
     reg mem_ack=0;
     reg [15:0] words [0:1023];
@@ -42,7 +43,7 @@ module test;
         .halted(), .nmi_req(nmi_req), .nmi_nostack(nmi_nostack), .halt_req(halt_req),
         .emu_run(1'b1), .nmi_clear(nmi_clear), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_addr(mem_addr),
-        .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
+        .mem_wdata(mem_wdata), .mem_wmask(mem_wmask), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_program(), .mem_post(), .mem_fast(), .mem_overlap(), .mem_reverse(), .mem_next_data(32'd0), .mem_next_valid(1'b0), .mem_next_first_valid(1'b0),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
@@ -70,7 +71,7 @@ module test;
     endfunction
 
     task automatic write_field(input [31:0] addr, input [5:0] size,
-                               input [31:0] data);
+                               input [31:0] data, input [15:0] mask);
         integer bit_index;
         reg [31:0] physical;
         begin
@@ -78,7 +79,7 @@ module test;
                 $fatal(1,"invalid write @%h/%0d",addr,size);
             for (bit_index=0;bit_index<size;bit_index=bit_index+1) begin
                 physical=addr+bit_index;
-                words[physical>>4][physical[3:0]]=data[bit_index];
+                if(mask[physical[3:0]]) words[physical>>4][physical[3:0]]=data[bit_index];
             end
         end
     endtask
@@ -164,6 +165,7 @@ module test;
         end else if (!busy && mem_req) begin
             held_addr<=mem_addr;
             held_data<=mem_wdata;
+            held_mask<=mem_wmask;
             held_size<=mem_size;
             held_we<=mem_we;
             held_iaq<=mem_iaq;
@@ -191,12 +193,12 @@ module test;
         end else if (busy) begin
             if (!mem_req || mem_addr!==held_addr || mem_size!==held_size ||
                 mem_we!==held_we || mem_iaq!==held_iaq ||
-                (held_we && mem_wdata!==held_data))
+                (held_we && (mem_wdata!==held_data || mem_wmask!==held_mask)))
                 $fatal(1,"held request changed @%h",held_addr);
             if (delay_left!=0) delay_left<=delay_left-1;
             else begin
                 if (held_we) begin
-                    write_field(held_addr,held_size,held_data);
+                    write_field(held_addr,held_size,held_data,held_mask);
                     if (held_addr>=32'h2d00 && held_addr<32'h3000)
                         stack_writes<=stack_writes+1;
                     if (held_addr>=32'h0600 && held_addr<32'h0a00) begin

@@ -30,7 +30,7 @@ module test;
     reg cyc_ack=0;
     jttms10_field u_field(
         .clk(clk),.rst(rst),.req(req),.we(we),.addr(addr),
-        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),.busy(),
+        .wdata(wdata),.wmask(16'hffff),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),.busy(),
         .word_req(word_req),.word_we(word_we),.word_addr(word_addr),
         .word_wdata(word_wdata),.word_lock(word_lock),
         .word_rdata(word_rdata),.word_ack(word_ack),

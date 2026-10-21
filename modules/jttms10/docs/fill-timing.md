@@ -1075,3 +1075,33 @@ and a native word schedule
 remain required. Partial Boolean/arithmetic/masked words, transparency,
 windowing, changing row alignment, broader dimensions and exact interrupt
 checkpoints remain separate required work for #144.
+
+## Memory-controller masked-write implementation
+
+Complete-word masked FILL uses the existing field adapter's physical write
+mask and locked RMW path. Replace posts COLOR1 directly to that path; other
+PPOP operations first read and process the destination, then post the masked
+write. The adapter latches the mask, intersects it with field boundaries and
+rereads after HOLD before merging against the new external value. These are
+real bus accesses with independently charged waits. There is no extra CPU
+mask countdown. Packed arithmetic continues to use the shared ALU; scalar
+PIXT eligibility is unchanged. The two-word replacement setup interval also
+applies when plane masking is active.
+
+The candidate passes 102 directed cases in each BASE/W1P7/W3/W1P1 profile
+(408 executions), all 180 architectural programs, strict lint, and the
+existing array IRQ/NMI continuation bench. The field tests pass 5,120
+write/read combinations, including changed masks after acceptance, zero/full
+masks and an aligned masked-word HOLD restart. The cache/field/arbiter
+integration also checks the masked restart under untimed and timed buses.
+Sixteen masked response-pause controls and the existing duplicate-response
+control pass, with the deliberate lost-response mutant rejected. Replace
+observes the physical MC response after its posted acceptance; processing
+observes the CPU destination response. Both keep request/pause/response/resume
+ordering and all architectural, memory and bus checks active.
+
+This is local Verilator evidence, not FPGA qualification. The source must
+pass the remaining mutation gates, be committed, fitted with preserved
+infrastructure using `/opt/quartus_free`, then be compared on the DataStorm
+before its full masked and ordinary matrices run. The aligned-PS16 bus
+interpretation above remains inferred even if the candidate passes it.

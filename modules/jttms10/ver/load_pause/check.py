@@ -41,8 +41,15 @@ from pixel_xy_copy_cases import fixture as xy_copy_fixture
 from copy_cases import transactions as copy_transactions
 from fill_cases import (boolean_fixture as fill_boolean_fixture,
                         arithmetic_fixture as fill_arithmetic_fixture,
+                        plane_mask_fixture as fill_plane_mask_fixture,
                         transfers as fill_transfers)
 from run import program,parse_result,check_bus,check_target
+
+
+def posted_case(case):
+    fill=case.get('data_fill',{})
+    return bool(case.get('pixel_store') or case.get('pixel_xy_store') or
+                case.get('pixel_draw') or (fill.get('plane_mask') and fill.get('ppop')==0))
 
 
 def evaluate(case,log,returncode):
@@ -99,7 +106,7 @@ def evaluate(case,log,returncode):
     if 'expected_memory' in case:
         memory=[(int(s.split()[1],16),int(s.split()[2],16)) for s in log.splitlines() if s.startswith('MEMORY ')]
         if sorted(memory)!=sorted(case['expected_memory']):errors.append('memory after response resume mismatch')
-    return dict(name=case['name'],event_kind='posted-memory-response' if (case.get('pixel_store') or (case.get('pixel_xy_store') or case.get('pixel_draw'))) else 'logical-field-response',observed=observed,events=records,bus_trace=bus,
+    return dict(name=case['name'],event_kind='posted-memory-response' if posted_case(case) else 'logical-field-response',observed=observed,events=records,bus_trace=bus,
                 target_trace=target,functional_errors=functional,errors=errors)
 
 
@@ -119,7 +126,7 @@ def main():
             image=[0]*4096;image[0x100:0x100+len(words)]=words
             (work/'program.mem').write_text(''.join(f'{x:04x}\n' for x in image))
             (work/'data.mem').write_text(''.join(f'{a:08x} {v:04x}\n' for a,v in case['initial_memory']))
-            posted=bool((case.get('pixel_store') or (case.get('pixel_xy_store') or case.get('pixel_draw'))))
+            posted=posted_case(case)
             top='posted_response' if posted else 'test'
             observers=[str(HERE/'posted.sv')] if posted else []
             key=(hdl.resolve(),top)
@@ -228,6 +235,17 @@ def main():
                     case['response_pause_clocks']=96
                     case['response_pause_after']=58 if xy else 42
                     probes.append(case)
+        # Masked CPU processing and final MC RMW retain responses across CEN pauses.
+        # Exercise replacement, Boolean and every arithmetic processing class.
+        for ppop in (0,10,16,17,18,19,20,21):
+            for xy in (False,True):
+                case=fill_plane_mask_fixture(4,ppop,xy,False,words=2,rows=2,
+                    sample=2 if ppop>=16 else 0)
+                case['name']='response_pause_'+case['name']
+                case['response_pause_clocks']=96
+                # Replace posts the write; pause during its real MC read response.
+                case['response_pause_after']=(74 if xy else 58) if ppop==0 else (58 if xy else 42)
+                probes.append(case)
         if args.case:
             selected=[case for case in probes if args.case in case['name']]
             if not selected:parser.error('no matching response-pause controls')

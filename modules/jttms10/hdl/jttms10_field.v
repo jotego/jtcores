@@ -20,6 +20,7 @@ module jttms10_field(
     input             we,
     input      [31:0] addr,
     input      [31:0] wdata,
+    input      [15:0] wmask,
     input      [5:0]  size,
     input             reverse,
     output reg        ack,
@@ -52,10 +53,12 @@ reg [15:0] old_word;
 reg [1:0] index, last_index;
 reg [3:0] offset;
 reg reverse_q;
+reg [15:0] write_mask;
 wire [5:0] field_span = {2'b00,addr[3:0]} + size;
 wire [1:0] request_last=field_span>6'd32 ? 2'd2 : field_span>6'd16 ? 2'd1 : 2'd0;
 wire [31:0] reverse_displacement={26'd0,request_last,4'd0};
-wire [15:0] word_mask;
+wire [15:0] field_mask, word_mask;
+assign word_mask = field_mask & write_mask;
 reg [15:0] word_data;
 // HOLD may break a partial-word pair only after its read completed and
 // before its write was accepted. Cancel that pending write and reread the
@@ -68,10 +71,10 @@ genvar mask_bit;
 generate for(mask_bit=0;mask_bit<16;mask_bit=mask_bit+1) begin: g_word_mask
     localparam [5:0] UPPER_BIT=mask_bit;
     if(mask_bit==15) begin: g_last
-        assign word_mask[mask_bit] = span_remaining>UPPER_BIT;
+        assign field_mask[mask_bit] = span_remaining>UPPER_BIT;
     end else begin: g_lower
         localparam [3:0] LOWER_BIT=mask_bit;
-        assign word_mask[mask_bit] =
+        assign field_mask[mask_bit] =
             (index!=0 || offset<=LOWER_BIT) && span_remaining>UPPER_BIT;
     end
 end endgenerate
@@ -121,12 +124,16 @@ always @(posedge clk) begin
         last_index  <= 2'd0;
         offset      <= 4'd0;
         reverse_q   <= 0;
+        write_mask  <= 16'hffff;
     end else begin
         case (state)
             IDLE: if (req) begin
                 base_addr <= {addr[31:4],4'b0000} + (we && reverse ? reverse_displacement : 32'd0);
                 span_remaining <= field_span - (we && reverse ? {request_last,4'd0} : 6'd0);
                 reverse_q <= we && reverse;
+                // Physical LAD-position mask: retain it through posted
+                // completion and HOLD restart. Reads use the field bounds.
+                write_mask <= we ? wmask : 16'hffff;
                 if(we && reverse && request_last==2'd2)
                     data_window <= {aligned_product[15:0],aligned_product[31:16],aligned_product[47:32]};
                 else if(we && reverse && request_last==2'd1)
@@ -139,11 +146,11 @@ always @(posedge clk) begin
                 if (size == 6'd0 || size > 6'd32)
                     state <= RESPONSE;
                 else if(we && reverse && request_last!=0)
-                    state <= field_span[3:0]==0 ? WRITE : RMW_READ;
+                    state <= field_span[3:0]==0 && wmask==16'hffff ? WRITE : RMW_READ;
                 else
                     // The first word's coverage is known at acceptance; it needs
                     // no selector clock before its first physical request.
-                    state <= !we ? READ : addr[3:0]==0 && size>=6'd16 ? WRITE : RMW_READ;
+                    state <= !we ? READ : addr[3:0]==0 && size>=6'd16 && wmask==16'hffff ? WRITE : RMW_READ;
             end
             READ: if (word_ack) begin
                 case (index)

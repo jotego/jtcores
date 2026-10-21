@@ -8,6 +8,8 @@ module test;
     reg req = 0;
     reg we = 0, reverse = 0;
     reg [31:0] addr = 0, wdata = 0;
+    reg [15:0] wmask = 16'hffff, requested_mask = 16'hffff;
+    reg mask_latch_probe = 0;
     reg [5:0] size = 0;
     wire ack;
     wire [31:0] rdata;
@@ -20,7 +22,7 @@ module test;
 
     jttms10_field dut(
         .clk(clk), .rst(rst), .req(req), .we(we), .addr(addr),
-        .wdata(wdata), .size(size),.reverse(reverse), .ack(ack), .rdata(rdata), .busy(),
+        .wdata(wdata), .wmask(wmask), .size(size),.reverse(reverse), .ack(ack), .rdata(rdata), .busy(),
         .word_req(word_req), .word_we(word_we), .word_lock(word_lock),
         .word_addr(word_addr),
         .word_wdata(word_wdata), .word_rdata(word_rdata), .word_ack(word_ack),
@@ -39,7 +41,7 @@ module test;
     integer delay_left = 0;
     integer transactions = 0;
     integer restart_reads = 0, restart_writes = 0;
-    integer i, j, offset, width, watchdog, direction, covered_bits, word_bit;
+    integer i, j, offset, width, watchdog, direction, covered_bits, word_bit, mask_mode;
     reg check_order=0, expected_descend=0;
     reg [31:0] expected_word_addr=0, requested_addr=0;
     reg [5:0] requested_size=0;
@@ -76,7 +78,7 @@ module test;
                     for(word_bit=0;word_bit<32;word_bit=word_bit+1)
                         if(word_bit<requested_size && ((requested_addr+word_bit)&32'hfffffff0)==word_addr)
                             covered_bits=covered_bits+1;
-                    if(!word_we && covered_bits==16)
+                    if(!word_we && covered_bits==16 && requested_mask==16'hffff)
                         $fatal(1,"unnecessary RMW read for a complete field word");
                 end
                 if(word_we || !we)
@@ -129,6 +131,7 @@ module test;
             check_order=1;
             expected_descend=reverse && do_write;
             requested_addr=bit_addr;requested_size=bit_size;
+            requested_mask=wmask;
             expected_word_addr={bit_addr[31:4],4'b0};
             if(expected_descend) expected_word_addr=expected_word_addr+((((bit_addr&15)+{26'd0,bit_size}-1)>>4)<<4);
             req = 1;
@@ -140,6 +143,9 @@ module test;
             while (!ack && watchdog < 300) begin
                 @(negedge clk);
                 watchdog = watchdog + 1;
+                // The physical word mask belongs to the accepted request.
+                // Later host/CPU changes must not affect its RMW or reads.
+                if(mask_latch_probe && watchdog==2) wmask=~requested_mask;
             end
             if (!ack) $fatal(1, "field request timed out addr=%d size=%d", bit_addr,bit_size);
             if (!do_write && rdata !== expected_read)
@@ -152,6 +158,7 @@ module test;
             wdata = ~write_data;
             req = 0;
             @(negedge clk);
+            wmask=requested_mask;
         end
     endtask
 
@@ -189,6 +196,30 @@ module test;
 
         end
         reverse=0;
+
+        // Physical mask intersects field boundaries in both directions.
+        // Reads ignore it. Full coverage includes zero/full write masks,
+        // all field offsets/widths and a mask changed after acceptance.
+        mask_latch_probe=1;
+        for(mask_mode=0;mask_mode<4;mask_mode=mask_mode+1) begin
+            wmask=mask_mode==0 ? 16'h0000 : mask_mode==1 ? 16'h0f0f :
+                  mask_mode==2 ? 16'ha55a : 16'hffff;
+            for(direction=0;direction<2;direction=direction+1) begin
+                reverse=direction!=0;
+                for(offset=0;offset<16;offset=offset+1)
+                    for(width=1;width<=32;width=width+1) begin
+                        data=$random;
+                        for(j=0;j<width;j=j+1)
+                            if(wmask[(32+offset+j)&15]) reference_bits[32+offset+j]=data[j];
+                        transact(1,32+offset,data,width[5:0],0);
+                        compare_memory();
+                        expected=0;
+                        for(j=0;j<width;j=j+1) expected[j]=reference_bits[32+offset+j];
+                        transact(0,32+offset,0,width[5:0],expected);
+                    end
+            end
+        end
+        mask_latch_probe=0;wmask=16'hffff;reverse=0;
 
         // HOLD intervenes after the partial read but before its write. An
         // external owner changes the unprotected bits while HOLD is active.
@@ -253,6 +284,27 @@ module test;
         compare_memory();req=0;
         @(negedge clk);reverse=0;
 
+        // A complete aligned word still requires RMW for protected planes.
+        // HOLD must reread foreign changes using the original accepted mask.
+        @(negedge clk);
+        restart_addr=192;restart_reads=0;restart_writes=0;
+        mem[12]=16'ha0a0;
+        req=1;we=1;addr=192;wdata=32'h369c;size=16;wmask=16'h0f0f;
+        watchdog=0;
+        while(!(dut.state==dut.WRITE && word_req && word_we && word_lock) && watchdog<100) begin
+            @(negedge clk);watchdog=watchdog+1;
+        end
+        if(watchdog==100) $fatal(1,"masked complete word did not reach RMW write");
+        word_restart=1;mem[12]=16'h5f5f;wmask=16'hffff;
+        #1;if(word_req || word_we || word_lock) $fatal(1,"masked stale write survived HOLD");
+        @(negedge clk);word_restart=0;watchdog=0;
+        while(!ack && watchdog<100) begin @(negedge clk);watchdog=watchdog+1;end
+        if(!ack || restart_reads!=2 || restart_writes!=1 || mem[12]!==16'h565c)
+            $fatal(1,"masked HOLD read/write/data=%0d/%0d/%h",restart_reads,restart_writes,mem[12]);
+        req=0;
+        for(j=0;j<16;j=j+1) reference_bits[192+j]=mem[12][j];
+        @(negedge clk);
+
         // Reset discards an outstanding read. A new field must still work.
         @(negedge clk);
         req = 1;
@@ -270,7 +322,7 @@ module test;
         for (j = 0; j < 32; j = j + 1)
             expected[j] = reference_bits[47+j];
         transact(0,32'd47,0,6'd32,expected);
-        $display("PASS: 1024 write/read vectors, forward/descending order, both HOLD restarts, waits and reset");
+        $display("PASS: 5120 write/read vectors, physical masks, forward/descending order, three HOLD restarts, waits and reset");
         $finish;
     end
 endmodule

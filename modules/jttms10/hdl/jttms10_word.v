@@ -46,6 +46,7 @@ module jttms10_word #(
 );
     wire        field_req, field_we, field_iaq, field_program, field_pixel, field_ack, field_post, field_fast;
     wire [31:0] field_addr, field_wdata, field_rdata;
+    wire [15:0] field_wmask;
     wire [5:0]  field_size;
     wire cache_ack, cache_hit, field_busy;
     wire unused_cache_restart,unused_cache_we,unused_cache_pixel,unused_cache_lock;
@@ -269,6 +270,7 @@ module jttms10_word #(
         .mem_pixel(field_pixel), .mem_post(field_post), .mem_fast(field_fast),.mem_overlap(core_overlap),
         .mem_reverse(field_reverse),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
+        .mem_wmask(field_wmask),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
         .mem_cached(program_read && cache_hit), .mem_phase(slot_phase),
         .mem_next_data(cache_next_data), .mem_next_valid(cache_next_valid),
@@ -280,7 +282,7 @@ module jttms10_word #(
 
     jttms10_field u_field(
         .clk(clk), .rst(rst), .req(data_request && !post_busy && !post_ack), .we(field_we),
-        .addr(field_addr), .wdata(field_wdata), .size(field_size),
+        .addr(field_addr), .wdata(field_wdata), .wmask(field_wmask), .size(field_size),
         .reverse(field_reverse),
         .ack(data_ack), .busy(field_busy), .rdata(data_rdata),
         .word_req(field_word_req), .word_we(field_word_we), .word_addr(field_word_addr),

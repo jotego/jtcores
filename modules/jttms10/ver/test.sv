@@ -10,7 +10,7 @@ module test;
     wire        mem_req, mem_we, mem_iaq, mem_pixel, wvp_set, retire, fault;
     wire [31:0] mem_addr, mem_wdata, pc, st;
     wire [5:0]  mem_size;
-    wire [15:0] ir;
+    wire [15:0] ir, mem_wmask;
     reg  [31:0] mem_rdata = 0;
     reg         mem_ack = 0;
     reg         wvp_seen = 0;
@@ -30,7 +30,7 @@ module test;
         .halt_req(1'b0), .emu_run(1'b1),
         .nmi_clear(), .emu_ack(),
         .mem_req(mem_req), .mem_we(mem_we), .mem_pixel(mem_pixel), .mem_addr(mem_addr),
-        .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
+        .mem_wdata(mem_wdata), .mem_wmask(mem_wmask), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_program(), .mem_post(), .mem_fast(), .mem_overlap(), .mem_reverse(),
         .mem_next_data(32'd0), .mem_next_valid(1'b0), .mem_next_first_valid(1'b0),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack), .mem_cached(1'b0), .mem_busy(1'b0), .mem_phase(3'd0), .mem_slot(1'b1),
@@ -108,7 +108,7 @@ module test;
     endfunction
 
     task automatic write_field(input [31:0] address, input [5:0] size,
-                               input [31:0] data);
+                               input [31:0] data, input [15:0] mask);
         integer bit_index;
         reg [31:0] physical;
         begin
@@ -117,7 +117,7 @@ module test;
             for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
                 if (bit_index < size) begin
                     physical = address + bit_index;
-                    words[physical >> 4][physical[3:0]] = data[bit_index];
+                    if(mask[physical[3:0]]) words[physical >> 4][physical[3:0]] = data[bit_index];
                 end
             end
         end
@@ -129,6 +129,7 @@ module test;
     reg [1:0] bus_state = BUS_IDLE;
     reg [31:0] held_addr = 0, held_wdata = 0;
     reg [5:0] held_size = 0;
+    reg [15:0] held_wmask = 16'hffff;
     reg held_we = 0, held_iaq = 0, held_pixel = 0;
     integer wait_left = 0;
     integer request_count = 0;
@@ -143,6 +144,7 @@ module test;
                 BUS_IDLE: if (mem_req) begin
                     held_addr <= mem_addr;
                     held_wdata <= mem_wdata;
+                    held_wmask <= mem_wmask;
                     held_size <= mem_size;
                     held_we <= mem_we;
                     held_iaq <= mem_iaq;
@@ -155,13 +157,13 @@ module test;
                     if (!mem_req || mem_addr !== held_addr ||
                         mem_size !== held_size || mem_we !== held_we ||
                         mem_iaq !== held_iaq || mem_pixel !== held_pixel ||
-                        (held_we && mem_wdata !== held_wdata))
+                        (held_we && (mem_wdata !== held_wdata || mem_wmask !== held_wmask)))
                         $fatal(1, "memory request changed before ack: ir=%04h held=%08h/%0d/%0d/%08h current=%0d:%08h/%0d/%0d/%08h", ir,held_addr,held_size,held_we,held_wdata,mem_req,mem_addr,mem_size,mem_we,mem_wdata);
                     if (wait_left == 0) bus_state <= BUS_ACK;
                     else wait_left <= wait_left - 1;
                 end
                 BUS_ACK: begin
-                    if (held_we) write_field(held_addr, held_size, held_wdata);
+                    if (held_we) write_field(held_addr, held_size, held_wdata, held_wmask);
                     else mem_rdata <= read_field(held_addr, held_size);
                     mem_ack <= 1;
                     bus_state <= BUS_DRAIN;

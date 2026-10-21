@@ -17,6 +17,9 @@ main() {
     cd "$ver_dir/build"
     if [ "$#" != 0 ]; then
         "$model_dir/Vtest" "$@"
+    elif [ "$unit" = cachefield ] || [ "$unit" = cachefield-timed ]; then
+        "$model_dir/Vtest"
+        "$model_dir/Vtest" +MASKED
     elif [ "$unit" = fpga-stimulus ]; then
         for mode in {0..17}; do
             "$model_dir/Vtest" +MODE="$mode"

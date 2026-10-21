@@ -25,6 +25,7 @@ module jttms10 #(
     output            mem_req, mem_we, mem_iaq, mem_program, mem_pixel, mem_post, mem_fast, mem_overlap,
     output            mem_reverse,
     output     [31:0] mem_addr, mem_wdata,
+    output     [15:0] mem_wmask,
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
     input             mem_ack, mem_cached, mem_slot, mem_busy,
@@ -148,12 +149,16 @@ module jttms10 #(
     wire copy_native=copy_regular_native || binary_native;
     wire copy_scheduled=copy_native && (gfx_bus_post && gfx_bus_read || binary_native && fill_word && gfx_bus_write);
     assign mem_overlap=(line_native || copy_regular_native || (binary_native && fill_word)) && gfx_active;
-    wire fill_simple=(pixel_simple || pixel_boolean || pixel_arithmetic) && control[7:6]==0;
+    wire fill_simple=(fill_replace || fill_processing) && control[7:6]==0;
     wire pixel_boolean=!control[14] && control[13:10]!=0 && !control[5] && pmask==0;
-    wire pixel_arithmetic=control[14:10]>=5'd16 && control[14:10]<=5'd21 &&
-                          !control[5] && pmask==0 &&
-                          (psize==16'd4 || psize==16'd8 || psize==16'd16);
-    wire fill_processing=pixel_boolean || pixel_arithmetic;
+    // Whole-word FILL uses CPU processing followed by the memory
+    // controller's masked-write RMW. Scalar PIXT eligibility is separate.
+    wire fill_replace=control[14:10]==0 && !control[5];
+    wire fill_boolean=!control[14] && control[13:10]!=0 && !control[5];
+    wire fill_arithmetic=control[14:10]>=5'd16 && control[14:10]<=5'd21 &&
+                         !control[5] &&
+                         (psize==16'd4 || psize==16'd8 || psize==16'd16);
+    wire fill_processing=fill_boolean || fill_arithmetic;
     // The selected native microprogram owns the mode until retirement.
     wire pixel_process=pix_rlin && gfx_family==8'd150;
     wire pixel_linear_copy=ir[15:9]==7'b1111110 && gfx_family==8'd151;
@@ -169,7 +174,7 @@ module jttms10 #(
                               psize==16'd4 ? 32'd4 :
                               psize==16'd8 ? 32'd2 : 32'd1;
     wire fill_word_eligible = (array_fill || (copy_regular_native && rs_data[3:0]==0) ||
-        (binary_native && binary_aligned && rd_data<=32 && (rd_data & (fill_pixels-1))==0)) && (pixel_simple || (array_fill && fill_processing && (rd_data & (fill_pixels-1))==0)) &&
+        (binary_native && binary_aligned && rd_data<=32 && (rd_data & (fill_pixels-1))==0)) && (pixel_simple || (array_fill && (fill_replace || fill_processing) && (rd_data & (fill_pixels-1))==0)) &&
         (!ir[5] || control[7:6]==0) && result[3:0]==0 &&
         (psize==16'd1 || psize==16'd2 || psize==16'd4 ||
          psize==16'd8 || psize==16'd16) && rd_data>=fill_pixels;
@@ -512,7 +517,7 @@ module jttms10 #(
     reg [31:0] fill_arith_result;
     reg fill_arith_valid;
     wire fill_arith_cycle=TIMED_PROGRAM!=0 && gfx_active && array_fill && fill_word &&
-                          pixel_arithmetic && control[14:10]!=5'd16 && gfx_pix_process && gfx_bus_read;
+                          fill_arithmetic && control[14:10]!=5'd16 && gfx_pix_process && gfx_bus_read;
     wire fill_arith_wait=fill_arith_cycle && (!fill_arith_valid || fill_arith_left!=0);
     wire operation_ready=(fill_bus_wait || fill_read_wait || fill_arith_wait) ? 1'b0 : copy_scheduled ? (completed || (mem_req && mem_ack)) :
                          gfx_bus_collect ? (mem_ack || !mem_busy) :
@@ -663,7 +668,10 @@ module jttms10 #(
         .alu_sel(alu_sel), .cc_sel(cc_sel), .pc_sel(pc_sel),
         .mem_sel(mem_sel), .ea_sel(ea_sel)
     );
-    wire gfx_need_dest=(control[14:10]!=0 || pmask!=0);
+    // Replace omits the CPU destination read. Its protected bits are
+    // preserved by the field adapter's final read-modify-write instead.
+    wire gfx_need_dest=control[14:10]!=0 || (pmask!=0 && !(array_fill && fill_word));
+    assign mem_wmask=gfx_active && array_fill && fill_word && gfx_bus_write ? ~pmask : 16'hffff;
     jttms10_gfx u_gfx(
         .clk(clk), .rst(rst), .cen(active), .step(step && gfx_active),
         .enter(gfx_enter), .resume(gfx_resume),
@@ -782,8 +790,8 @@ module jttms10 #(
     wire [15:0] unused_pixel_result, unused_pixel_mask;
     wire gfx_color_lane = drav_ir || line_ir ||
                           (array_ir && (array_fill || array_binary));
-    wire [4:0] pixel_size=fill_word && array_fill && pixel_boolean ? 5'd16 : psize[4:0];
-    wire pixel_word_arithmetic=fill_word && array_fill && pixel_arithmetic;
+    wire [4:0] pixel_size=fill_word && array_fill && fill_boolean ? 5'd16 : psize[4:0];
+    wire pixel_word_arithmetic=fill_word && array_fill && fill_arithmetic;
     wire [31:0] pixel_alu_feedback=fill_arith_cycle && fill_arith_valid ? fill_arith_result : result;
     wire [15:0] pixel_source = (pixel_load || pixel_copy) ? read_data[15:0] : gfx_color_lane ?
                                rs_data[15:0] >> ea[3:0] : rs_data[15:0];
@@ -1005,7 +1013,7 @@ module jttms10 #(
                 if(immediate_word==0) time_left<=(ir[5] ? (rd_data[3:0]==0 ? 16'd5 : 16'd7) : 16'd4)*CLKS_PER_STATE[15:0]-16'd2;
             end
             if(TIMED_PROGRAM!=0 && array_fill && !store_started &&
-               step && gfx_pix_word && fill_word_eligible && pixel_simple && rd_data=={fill_pixels[30:0],1'b0})
+               step && gfx_pix_word && fill_word_eligible && fill_replace && rd_data=={fill_pixels[30:0],1'b0})
                 load_issue_left<=load_issue_left+CLKS_PER_STATE[LOAD_IW-1:0]-1'b1;
             // Table13-6 B/C/D reserve an early edge read, except for C rows
             // spanning several words. Preserve this clock's normal decrement.

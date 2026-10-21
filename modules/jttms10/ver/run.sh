@@ -16,6 +16,7 @@ main() {
                 cache cachefield cachefield-timed fabric host pixel; do
         bash "$ver_dir/sim.sh" "$unit"
     done
+    run_checker field-mask-mutations "$ver_dir/field/check_mutations.py"
     python3 -B "$ver_dir/timing/test_checker.py"
     python3 -B "$ver_dir/timing/test_published_targets.py"
     python3 -B "$ver_dir/timing/test_byte_store_oracle.py"

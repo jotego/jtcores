@@ -8,6 +8,7 @@ module test;
     reg rst=1,req=0,we=1,hold_req=0;
     reg [31:0] addr=32'h1000,wdata=32'h000b;
     reg [5:0] size=6'd4;
+    reg [15:0] wmask=16'hffff;
     wire ack;
     wire [31:0] rdata;
     wire f_req,f_we,f_lock,f_ack,f_restart;
@@ -15,7 +16,7 @@ module test;
     wire [15:0] f_wdata,f_rdata;
     jttms10_field field_u(
         .clk(clk),.rst(rst),.req(req),.we(we),.addr(addr),
-        .wdata(wdata),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),.busy(),
+        .wdata(wdata),.wmask(wmask),.size(size),.reverse(1'b0),.ack(ack),.rdata(rdata),.busy(),
         .word_req(f_req),.word_we(f_we),.word_lock(f_lock),
         .word_addr(f_addr),.word_wdata(f_wdata),
         .word_rdata(f_rdata),.word_ack(f_ack),.word_restart(f_restart)
@@ -125,6 +126,9 @@ module test;
     task tick; begin @(posedge clk); #1; end endtask
     integer guard;
     initial begin
+        // Same protected bits and expected merge as the four-bit field,
+        // now expressed as a complete word with a physical write mask.
+        if($test$plusargs("MASKED")) begin size=6'd16;wmask=16'h000f;end
         repeat(3) @(negedge clk);
         rst=0; req=1;
         // Wait for cache to capture the stale write, before the arbiter can
@@ -160,7 +164,7 @@ module test;
         repeat(4) tick();
         if(writes!=1 || trace_count!=3)
             $fatal(1,"held architectural request reissued");
-        $display("jttms10_cachefield PASS (TIMING=%0d)",TIMING); $finish;
+        $display("jttms10_cachefield PASS (TIMING=%0d MASKED=%0d)",TIMING,$test$plusargs("MASKED")); $finish;
     end
     initial begin #200000; $fatal(1,"cachefield test timeout"); end
 endmodule

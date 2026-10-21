@@ -322,6 +322,23 @@ def fill_mutations(work,evidence):
                                 mutated=True,event_error=diagnostic)
 
 
+def fill_mask_mutations(work,evidence):
+    """Reject a missing final masked-write RMW with independent expectations."""
+    for probe,diagnostic in (
+        ('fill_plane_pp10_xy_ps4_n2_rows1_m1111_s0_hit',None),
+        ('fill_plane_pp0_xy_ps4_n2_rows1_m1111_s0_hit',
+         'graphics destination or neighboring memory mismatch')):
+        name='lost_fill_mask_rmw_'+('processing' if diagnostic is None else 'replace')
+        extra=('--exact-case',probe,'--wait-states','1','--pause-clocks','7')
+        evidence[name+'_control']=run_case(work,name+'_control',probe,extra)
+        mutant=work/name;shutil.copytree(MODULE/'hdl',mutant)
+        replace_once(mutant/'jttms10.v',
+            "assign mem_wmask=gfx_active && array_fill && fill_word && gfx_bus_write ? ~pmask : 16'hffff;",
+            "assign mem_wmask=16'hffff;")
+        evidence[name]=run_case(work,name,probe,['--rtl-dir',str(mutant),*extra],
+                                mutated=True,event_error=diagnostic)
+
+
 def posted_load_slot_mutations(work,evidence):
     """A new dependent load cannot borrow an old posted field's bus slot."""
     mutant=work/'stale-posted-slot';shutil.copytree(MODULE/'hdl',mutant)
@@ -726,7 +743,7 @@ def main():
             ('lost_copy_slot_credit',copy_off,'jttms10_word.v',
              "(!(indirect_copy || ir[15:6]==10'h026) || !copy_source_accepted || !cen)","1'b1"),
             ('late_copy_first_word',copy_off,'jttms10_field.v',
-             "state <= !we ? READ : addr[3:0]==0 && size>=6'd16 ? WRITE : RMW_READ;",
+             "state <= !we ? READ : addr[3:0]==0 && size>=6'd16 && wmask==16'hffff ? WRITE : RMW_READ;",
              'state <= we ? SELECT : READ;'),
             ('registered_copy_post_response',copy_hit,'jttms10_word.v',
              '(data_accept && field_post) || ','')):
@@ -915,6 +932,7 @@ def main():
         draw_mutations(work,evidence)
         pixel_xy_copy_mutations(work,evidence)
         fill_mutations(work,evidence)
+        fill_mask_mutations(work,evidence)
         line_mutations(work,evidence)
         movb_mutations(work,evidence)
         binary_blit_mutations(work,evidence)

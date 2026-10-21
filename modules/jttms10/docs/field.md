@@ -2,9 +2,13 @@
 
 `jttms10_field` accepts one right-justified 1–32-bit field at a 32-bit bit
 address. It reads or writes one to three aligned, ascending 16-bit words.
-Read data is zero-extended in `rdata`. A fully covered word is written
-directly; a partial word is read, merged, and written to preserve bits outside
-the field. `ack` remains high until the architectural `req` goes low. The
+Read data is zero-extended in `rdata`. The 16-bit `wmask` enables writes at
+physical word bit positions and is latched with each request. Tie it to
+`16'hffff` for ordinary field writes. It intersects the field's boundary mask;
+only a fully covered and fully enabled word is written directly. Other words
+are read, merged, and written to preserve disabled bits. A zero write mask
+still performs the reserved read/write pair. Reads ignore `wmask`.
+`ack` remains high until the architectural `req` goes low. The
 caller must hold `req` and its payload through `ack` and lower `req` before
 starting another field.
 
@@ -29,7 +33,7 @@ HOLD restart boundary in the existing TMS34010 arbiter and field sequencer
 (1988 User's Guide §11.3, page 11-4).
 
 `jttms10_word` passes `word_restart` to the adapter, connects the CPU's
-architectural field port, and exports the physical word bus. It captures IAQ
+architectural field port including `mem_wmask`, and exports the physical word bus. It captures IAQ
 with each architectural request and holds `word_iaq` through every physical
 word of that request.
 The CPU captures `ack` even when `cen` is low, then lowers its request while
@@ -45,10 +49,9 @@ Run the smoke test from the repository root with:
 
 ```sh
 bash modules/jttms10/ver/build.sh
-iverilog -g2012 -s test -I modules/jttms10/ver/build \
-  -o /tmp/jttms10_word_test modules/jttms10/hdl/*.v \
-  modules/jttms10/ver/word/test.sv
-(cd modules/jttms10/ver/build && vvp /tmp/jttms10_word_test)
+bash modules/jttms10/ver/sim.sh field
+bash modules/jttms10/ver/sim.sh word
+python3 modules/jttms10/ver/field/check_mutations.py
 ```
 
 A shared 48×17 DSP product by a one-hot factor aligns write data left by
@@ -62,7 +65,12 @@ read/write pair.
 
 Simulation covers every offset 0–15 and size 1–32, with waits, whole-memory
 write-preservation checks, lock pairing, HOLD restart after an external owner
-changes unprotected bits, and reset during a read. The complete CPU also
+changes protected bits, and reset during a read. The write-mask sweep checks
+5,120 offset/width/direction/mask combinations with input masks changed after
+acceptance; it includes an aligned masked-word HOLD restart against changed
+external data. The normal runner also requires detection of four actual RTL
+mutants: ignored write masks, incorrectly masked reads, unlatched masks, and
+lost masked-word HOLD restart. The complete CPU also
 has specification-based indirect MOVE/MOVB load probes; see
 [load-timing.md](load-timing.md). Other memory/graphics timings and final
 fitted area/STA/NARC validation remain required under #144.
