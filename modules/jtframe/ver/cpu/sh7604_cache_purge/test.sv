@@ -127,6 +127,17 @@ module test;
         if (c_bus_busy || c_bus_do !== 32'h44332211)
             $fatal(1,"old cache line was unavailable during posted write");
 
+        // The instruction-side access sees the same stale cached line while
+        // the CCR command is still queued behind the external write.
+        c_bus_req=0;
+        c_bus_id=1;
+        c_bus_req=1;
+        phase(0,1);
+        if (c_bus_busy || c_bus_do !== 32'h44332211 || i_bus_req || dut.IBUS_READARRAY)
+            $fatal(1,"instruction fetch did not hit the stale line during drain");
+        c_bus_req=0;
+        c_bus_id=0;
+
         // The deferred CCR command commits once the BSC reports write drain.
         i_bus_write_drain=0;
         phase(0,1);
@@ -166,7 +177,14 @@ module test;
         if (dut.CCR.CP || dut.WAY0[0][0])
             $fatal(1,"CCR purge did not invalidate the cached line");
 
-        $display("PASS: posted-store/CCR ordering and intervening cache hit");
+        // After purge, the instruction-side access must miss and request a refill.
+        c_bus_id=1;
+        c_bus_req=1;
+        phase(0,1);
+        if (!c_bus_busy || !i_bus_req || !dut.IBUS_READARRAY)
+            $fatal(1,"instruction fetch still hit after purge");
+
+        $display("PASS: posted-store/CCR ordering, data/instruction hits, and purge");
         $finish;
     end
 endmodule
