@@ -3,7 +3,7 @@
 # Date: 18-10-2026
 
 roundu:
-  - get: [ "*.v" ]
+  - get: [ "*.v", timing.sdc ]
 jtframe:
   - from: cpu
     get: [ jtframe_v30.yaml, jtframe_m68k.yaml, jtframe_z80.yaml ]
