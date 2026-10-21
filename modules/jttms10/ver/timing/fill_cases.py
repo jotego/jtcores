@@ -272,13 +272,20 @@ def plane_mask_fixture(size, ppop, xy, off, *, words=1, rows=1, pmask=None, samp
 def transfers(case):
     spec = case['data_fill']
     if spec.get('processing'):
-        # One physical-word read and write, not repeated pixel RMWs.
+        # Full-word processing read and write, plus a masked-write RMW
+        # read for non-replace masked processing; no repeated pixel RMWs.
         before,after=map(dict,(case['initial_memory'],case['expected_memory']))
         plan=[]
         for row in range(spec['rows']):
             for word in range(spec['words']):
                 address=spec['address']+row*spec['pitch']+16*word
-                plan.extend([(0,address,before[address],0),(1,address,after[address],0)])
+                # SPVU001A7-16 Figure7-6 separates the processing read
+                # from the final memory-controller masked-write RMW.
+                # Table13-7 adds two MC states independently of processing.
+                plan.append((0,address,before[address],0))
+                if spec.get('plane_mask') and spec['ppop']!=0:
+                    plan.append((0,address,before[address],0))
+                plan.append((1,address,after[address],0))
         return plan
     if spec.get('partial'):
         before,after=map(dict,(case['initial_memory'],case['expected_memory']))

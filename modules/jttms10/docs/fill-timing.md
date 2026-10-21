@@ -1014,8 +1014,38 @@ bits are merged back into the result. Masking adds two memory-controller
 states per word to G: replace4, Boolean/ADD6, ADDS/SUB/MAX/MIN7, SUBS8.
 For aligned one-word linear replace, Tables13-5/6 give 11 states cached and
 14 with cache disabled. A fully protected word still requires the declared
-read/write sequence; T is disabled. The bus oracle requires one destination
-read and one write per word, with full address/data/order and ready checks.
+read/write sequence; T is disabled. Figure7-6 (printed p.7-16) separates
+CPU destination processing from the final memory-controller read-modify-write.
+Replace omits the CPU processing read and requires one MC read/write pair.
+Other PPOP operations require a CPU processing read followed by the MC
+read/write pair: three physical accesses per complete word. Address, data,
+order and ready checks apply to every access. Each access also contributes
+its independently configured external waits.
+
+Figure7-6's RMW footnote has ambiguous conjunctions around PS16. For this
+plane-mask contract, PMASK applies at PS16 too: section7.6 (pp.7-12/13) and
+the PMASK definition (p.6-43) explicitly preserve each protected destination
+bit at every supported pixel size, while register sources bypass masking.
+An aligned PS16 masked replace must therefore read the old word before
+writing it. Section13.3.2.5/Table13-7 independently adds two MC states per
+word for plane masking at every listed processing operation, without a PS16
+exception. The checker currently interprets PMASK as requiring final RMW independently
+of the transparency/PS16 exception. This is an inferred contract for aligned
+PS16, not an unambiguous published bus rule or a silicon trace measurement.
+The internal write mask shown in Figure7-5 does not by itself prove a
+separate external read. Resolving the Figure7-6 footnote against Table13-7
+or a physical TMS34010 bus capture remains required before claiming PS16
+masked bus compliance. Preserve the stricter checks during implementation;
+a pass establishes agreement with this stated interpretation only.
+
+The initial `063eb938`/`0da84d78` bus checker incorrectly combined CPU
+processing and final MC RMW into one read/write pair for non-replace PPOP.
+Its saved captures and reports remain unchanged. The corrected checker adds
+the distinct MC read; nominal TI state equations, architectural expectations,
+programs and initial memory remain unchanged. The rejected `3a94dc41` CPU
+prototype also used two CPU stages instead of the final MC RMW. Its compile
+was intentionally canceled before programming; its local results do not
+qualify this corrected bus contract.
 
 Before any RTL change from `54ab1116`, 26 short permanent Verilator probes
 produce two passing NOP controls and 24 masked timing failures. Checked full
@@ -1037,9 +1067,11 @@ python3 modules/jttms10/ver/timing/run.py --simulator verilator \
     --report masked-baseline.json --traces masked-baseline-traces
 ```
 
-The 291 timing model/checker tests pass, including literal masked data/count
+The original 291 timing model/checker tests passed, including literal masked data/count
 checks and invalid-mask rejection. These tests establish the oracle contract,
-not CPU compliance. Full masked FPGA validation and a native word schedule
+not CPU compliance. The corrected processing/MC read contract adds a literal
+sequence test; all 292 model/checker tests pass. Full masked FPGA validation
+and a native word schedule
 remain required. Partial Boolean/arithmetic/masked words, transparency,
 windowing, changing row alignment, broader dimensions and exact interrupt
 checkpoints remain separate required work for #144.

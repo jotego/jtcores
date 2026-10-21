@@ -17,7 +17,7 @@ class FillCasesTest(unittest.TestCase):
                 for xy,off in ((False,False),(False,True),(True,False),(True,True)):
                     row=plane_mask_fixture(4,ppop,xy,off,words=words,rows=nrows)
                     self.assertEqual(row['states'],want+2*xy+3*off)
-                    self.assertEqual(len(transfers(row)),2*words*nrows)
+                    self.assertEqual(len(transfers(row)),(2 if ppop==0 else 3)*words*nrows)
 
     def test_plane_mask_literal_pixels_and_destination_preprocessing(self):
         replace=plane_mask_fixture(4,0,False,False)
@@ -40,6 +40,15 @@ class FillCasesTest(unittest.TestCase):
                 self.assertEqual(after[address]&mask,value&mask)
             self.assertEqual(after[0x60f0],before[0x60f0])
             self.assertEqual(row['expected_extra_regs']['b9'],row['register_overrides']['b9'])
+
+    def test_plane_mask_separate_processing_and_final_rmw_reads(self):
+        # Figure7-6: CPU destination read, processing, then final masked RMW.
+        # Replace omits the processing read; Table13-7 G4/6 matches 2/3 cycles.
+        replace=plane_mask_fixture(4,0,False,False)
+        xor=plane_mask_fixture(4,10,False,False)
+        self.assertEqual(transfers(replace),[(0,0x6100,0x55aa,0),(1,0x6100,0xbb44,0)])
+        self.assertEqual(transfers(xor),[(0,0x6100,0x55aa,0),(0,0x6100,0x55aa,0),
+                                         (1,0x6100,0xffee,0)])
 
     def test_plane_mask_rejects_invalid_domain(self):
         for size,ppop,mask in ((1,16,65535),(2,21,65535),(4,22,0x1111),
