@@ -2,7 +2,7 @@
     .global _start
 
     .equ BASE, 0x00000010
-    .equ SIZE, 0x7000
+    .equ SIZE, 0x7240
 
     .equ STATUS_ADDR, 0x06000000
     .equ STATUS_COPY,  0x11
@@ -144,7 +144,7 @@ _start:
     nop
     mov.l r0, @r14
 
-    bsr control_probe
+    bsr code_alias_probe
     nop
 
     mov #STATUS_PASS, r2
@@ -280,6 +280,86 @@ lit_purge186_2:
     .long 0x18620000
 lit_purge186_3:
     .long 0x18630000
+
+code_alias_probe:
+    sts pr, r10
+    mov #0, r0
+    mov.l lit_code_alias_status, r14
+    mov.l lit_code_alias_cached, r6
+    mov.l lit_code_alias_through, r7
+    mov.l lit_code_alias_vbr, r0
+    ldc r0, vbr
+    mov.l lit_code_alias_payload, r0
+    mov.l r0, @r7
+    add #4, r7
+    mov.l lit_code_alias_nop, r0
+    mov.w r0, @r7
+    mov.l lit_code_alias_ccr, r2
+    mov #0x11, r5
+    mov.b r5, @r2
+    jsr @r6
+    nop
+    mov.l lit_code_alias_return, r1
+    mov.l r1, @r14
+    mov.l r0, @r14
+code_alias_done:
+    bsr control_probe
+    nop
+    lds r10, pr
+    rts
+    nop
+
+code_alias_handler:
+    mov.l lit_code_alias_trap, r2
+    bra code_alias_fault_handler
+    nop
+
+code_alias_slot_handler:
+    mov.l lit_code_alias_slot, r2
+    bra code_alias_fault_handler
+    nop
+
+code_alias_address_handler:
+    mov.l lit_code_alias_address, r2
+    bra code_alias_fault_handler
+    nop
+
+code_alias_fault_handler:
+    mov.l @r15, r0
+    mov.l @(4,r15), r1
+    mov.l r2, @r14
+    mov.l r0, @r14
+    mov.l r1, @r14
+    add #8, r15
+    mov.l lit_code_alias_done_addr, r0
+    jmp @r0
+    nop
+
+.align 2
+lit_code_alias_cached:
+    .long 0x0202AA00
+lit_code_alias_through:
+    .long 0x2202AA00
+lit_code_alias_payload:
+    .long 0xE011000B
+lit_code_alias_nop:
+    .long 0x00000009
+lit_code_alias_vbr:
+    .long 0x00007200
+lit_code_alias_return:
+    .long 0x18800001
+lit_code_alias_trap:
+    .long 0x18800002
+lit_code_alias_slot:
+    .long 0x18800003
+lit_code_alias_address:
+    .long 0x18800004
+lit_code_alias_done_addr:
+    .long code_alias_done
+lit_code_alias_status:
+    .long STATUS_ADDR
+lit_code_alias_ccr:
+    .long 0xFFFFFE92
 
     .org SRC_ADDR
     .long 0x1357ACE1
@@ -1372,5 +1452,17 @@ lit_purge186_3:
     .long 0x2865BC18
     .long 0x2866BB15
     .long 0x2867B612
+
+    .org 0x00007200
+    .long 0
+    .long 0
+    .long 0
+    .long 0
+    .long code_alias_handler
+    .long 0
+    .long code_alias_slot_handler
+    .long 0
+    .long 0
+    .long code_alias_address_handler
 
     .org SIZE

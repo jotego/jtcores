@@ -46,6 +46,20 @@ module test(
     output              dbg_ibus_write_drain,
     output              dbg_control_ack_hold,
     output      [6:0]   dbg_control_ack_count,
+    output              dbg_cbus_id,
+    output      [31:0]  dbg_cbus_di,
+    output              dbg_cbus_req,
+    output      [3:0]   dbg_cache_way_tag,
+    output      [3:0]   dbg_cache_way_hit,
+    output      [31:0]  dbg_cache_line_data,
+    output      [25:0]  dbg_alias_tag0,
+    output      [25:0]  dbg_alias_tag1,
+    output      [25:0]  dbg_alias_tag2,
+    output      [25:0]  dbg_alias_tag3,
+    output      [31:0]  dbg_alias_data0,
+    output      [31:0]  dbg_alias_data1,
+    output      [31:0]  dbg_alias_data2,
+    output      [31:0]  dbg_alias_data3,
 
     output reg          ce_r,
     output reg          ce_f,
@@ -106,7 +120,13 @@ wire        cache_req_modeled = cache_addr[26] == 1'b0;
 wire        cache_rd_modeled = cache_rd & cache_req_modeled;
 wire        cache_wr_modeled = cache_wr & cache_req_modeled;
 wire        cpu_bus_modeled = cache_cs ? cache_req_modeled : cache_modeled;
-wire [31:0] cpu_din_i = cpu_bus_modeled ? cache_dout_latch : cpu_din_ext;
+wire        cpu_area1 = cpu_a[26:25] == 2'b01;
+wire [31:0] cache_mux_din = cpu_area1 ?
+    (cache_addr[1] ? {16'd0, cache_din[15:0]} : {cache_din[15:0], 16'd0}) : cache_din;
+wire [3:0]  cache_mux_dsn = cpu_area1 ?
+    (cache_addr[1] ? {2'b11, cache_dsn[1:0]} : {cache_dsn[1:0], 2'b11}) : cache_dsn;
+wire [31:0] cpu_din_i = cpu_bus_modeled ?
+    (cpu_area1 ? {16'd0, (cpu_a[1] ? cache_dout_latch[15:0] : cache_dout_latch[31:16])} : cache_dout_latch) : cpu_din_ext;
 wire        cpu_cache_ok = cpu_bus_modeled ? cache_ok_latch : 1'b1;
 wire        control_ack_target = cache_cs && cache_wr && cache_addr == CONTROL_DELAY_ADDR;
 wire        control_ack_start = control_ack_target && !control_ack_used;
@@ -214,6 +234,24 @@ assign dbg_cache_line_purge = u_cpu.u_cpu.cache.CACHE_LINE_PURGE;
 assign dbg_ibus_write_drain = u_cpu.u_cpu.IBUS_WRITE_DRAIN;
 assign dbg_control_ack_hold = control_ack_armed;
 assign dbg_control_ack_count = control_ack_count;
+assign dbg_cbus_id = u_cpu.u_cpu.CBUS_ID;
+assign dbg_cbus_di = u_cpu.u_cpu.CBUS_DI;
+assign dbg_cbus_req = u_cpu.u_cpu.CBUS_REQ;
+assign dbg_cache_way_tag = u_cpu.u_cpu.cache.WAY_TAG;
+assign dbg_cache_way_hit = u_cpu.u_cpu.cache.WAY_HIT;
+assign dbg_cache_line_data = u_cpu.u_cpu.cache.CACHE_DATA;
+assign dbg_alias_tag0 = u_cpu.u_cpu.cache.WAY0[6'h20];
+assign dbg_alias_tag1 = u_cpu.u_cpu.cache.WAY1[6'h20];
+assign dbg_alias_tag2 = u_cpu.u_cpu.cache.WAY2[6'h20];
+assign dbg_alias_tag3 = u_cpu.u_cpu.cache.WAY3[6'h20];
+assign dbg_alias_data0 = {u_cpu.u_cpu.cache.DATA03[8'h80], u_cpu.u_cpu.cache.DATA02[8'h80],
+                         u_cpu.u_cpu.cache.DATA01[8'h80], u_cpu.u_cpu.cache.DATA00[8'h80]};
+assign dbg_alias_data1 = {u_cpu.u_cpu.cache.DATA13[8'h80], u_cpu.u_cpu.cache.DATA12[8'h80],
+                         u_cpu.u_cpu.cache.DATA11[8'h80], u_cpu.u_cpu.cache.DATA10[8'h80]};
+assign dbg_alias_data2 = {u_cpu.u_cpu.cache.DATA23[8'h80], u_cpu.u_cpu.cache.DATA22[8'h80],
+                         u_cpu.u_cpu.cache.DATA21[8'h80], u_cpu.u_cpu.cache.DATA20[8'h80]};
+assign dbg_alias_data3 = {u_cpu.u_cpu.cache.DATA33[8'h80], u_cpu.u_cpu.cache.DATA32[8'h80],
+                         u_cpu.u_cpu.cache.DATA31[8'h80], u_cpu.u_cpu.cache.DATA30[8'h80]};
 
 jtframe_cache_mux #(
     .SDRAM_AW ( SDRAMW ),
@@ -267,8 +305,8 @@ jtframe_cache_mux #(
     .dout0  ( cache_dout0  ),
     .rd0    ( cache_rd_modeled ),
     .wr0    ( cache_wr_modeled ),
-    .din0   ( cache_din    ),
-    .wdsn0  ( cache_dsn    ),
+    .din0   ( cache_mux_din ),
+    .wdsn0  ( cache_mux_dsn ),
     .ok0    ( cache_ok_mux  ),
 
     .addr1  ( {CACHE_AW{1'b0}} ),

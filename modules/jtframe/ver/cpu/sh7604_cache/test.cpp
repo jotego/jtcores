@@ -38,6 +38,10 @@ static constexpr uint32_t PURGE185_TAG  = 0x18500000U;
 static constexpr uint32_t PURGE186_TAG  = 0x18600000U;
 static constexpr uint32_t CONTROL_START = 0x18700001U;
 static constexpr uint32_t CONTROL_END   = 0x18700002U;
+static constexpr uint32_t CODE_ALIAS_RETURN = 0x18800001U;
+static constexpr uint32_t CODE_ALIAS_TRAP = 0x18800002U;
+static constexpr uint32_t CODE_ALIAS_SLOT = 0x18800003U;
+static constexpr uint32_t CODE_ALIAS_ADDRESS = 0x18800004U;
 static constexpr uint32_t PURGE_TAG_MASK = 0xfff00000U;
 
 static constexpr uint32_t SRC_ADDR   = 0x00002000U;
@@ -120,6 +124,14 @@ class Sim {
     bool control_window = false;
     bool expect_control_value = false;
     uint32_t control_value = 0;
+    bool expect_code_alias_value = false;
+    bool code_alias_reported = false;
+    bool code_alias_trapped = false;
+    uint32_t code_alias_marker = 0;
+    uint32_t code_alias_values_expected = 0;
+    uint32_t code_alias_values_seen = 0;
+    uint32_t code_alias_value = 0;
+    uint32_t code_alias_sr = 0;
     bool control_saw_ibus_write_pend = false;
     bool control_saw_ibus_write_drain = false;
     bool control_saw_ccr_write_pend = false;
@@ -145,6 +157,11 @@ class Sim {
     bool last_wait_n = true;
     bool last_purge_pending = false;
     bool bsc_readback_reported = false;
+    bool code_alias_cache_reported = false;
+    uint32_t last_alias_trace_pc = 0xffffffffU;
+    uint32_t last_alias_trace_addr = 0xffffffffU;
+    uint32_t last_alias_inventory_pc = 0xffffffffU;
+    uint32_t last_alias_inventory_addr = 0xffffffffU;
     bool trace_bus = false;
     uint64_t trace_boot_window = TRACE_BOOT_WINDOW_CYCLES;
     uint64_t debug_events = 0;
@@ -193,6 +210,7 @@ class Sim {
     void check_cache_protocol() {
         uint32_t cpu_addr = top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_A;
         uint32_t cpu_pc = top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__core__DOT__NPC;
+        bool cpu_instruction = top.dbg_cbus_id;
         bool purge_pending = top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__cache__DOT__IBUS_WRITE_PEND;
         bool purge_addr = (cpu_addr >= 0x0002aa00U && cpu_addr <= 0x0002aa0cU) ||
                           (cpu_addr >= 0x0202aa00U && cpu_addr <= 0x0202aa0cU) ||
@@ -214,13 +232,60 @@ class Sim {
                 top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__bsc__DOT__WCR);
             bsc_readback_reported = true;
         }
+        if( trace_bus && cpu_instruction && cpu_addr >= 0x0202aa00U && cpu_addr <= 0x0202aa06U ) {
+            std::fprintf(stderr,
+                "CODE_ALIAS_FETCH cycle=%llu PC=%08x CBUS_A=%08x CBUS_DI=%08x CACHE_DOUT=%08x REQ=%d BUSY=%d CE_R=%d ACCEPT=%d\n",
+                static_cast<unsigned long long>(cycles), cpu_pc, cpu_addr,
+                static_cast<unsigned>(top.dbg_cbus_di),
+                static_cast<unsigned>(top.cache_dout), top.dbg_cbus_req ? 1 : 0,
+                top.dbg_cache_busy ? 1 : 0, top.ce_r ? 1 : 0,
+                top.dbg_cbus_req && !top.dbg_cache_busy && top.ce_r ? 1 : 0);
+        }
+        if( trace_bus && !code_alias_cache_reported && cpu_pc == 0x0202aa00U ) {
+            std::fprintf(stderr,
+                "CODE_ALIAS_CACHE_STATE cycle=%llu CBUS_A=%08x WAY_TAG=%x WAY_HIT=%x DATA=%08x\n",
+                static_cast<unsigned long long>(cycles), cpu_addr,
+                static_cast<unsigned>(top.dbg_cache_way_tag),
+                static_cast<unsigned>(top.dbg_cache_way_hit),
+                static_cast<unsigned>(top.dbg_cache_line_data));
+            code_alias_cache_reported = true;
+        }
+        bool alias_bus_addr = (cpu_addr >= 0x0202aa00U && cpu_addr <= 0x0202aa06U) ||
+                              (cpu_addr >= 0x2202aa00U && cpu_addr <= 0x2202aa06U) ||
+                              cpu_addr == 0xfffffe92U;
+        if( trace_bus && alias_bus_addr &&
+            (cpu_pc != last_alias_trace_pc || cpu_addr != last_alias_trace_addr) ) {
+            std::fprintf(stderr,
+                "CODE_ALIAS_CACHE_STATE cycle=%llu PC=%08x CBUS_A=%08x WAY_TAG=%x WAY_HIT=%x DATA=%08x CCR=%02x\n",
+                static_cast<unsigned long long>(cycles), cpu_pc, cpu_addr,
+                static_cast<unsigned>(top.dbg_cache_way_tag),
+                static_cast<unsigned>(top.dbg_cache_way_hit),
+                static_cast<unsigned>(top.dbg_cache_line_data),
+                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__cache__DOT__CCR);
+            last_alias_trace_pc = cpu_pc;
+            last_alias_trace_addr = cpu_addr;
+        }
+        bool alias_inventory_addr = alias_bus_addr || cpu_addr == STATUS_ADDR;
+        if( trace_bus && purge_record_count >= 7 && alias_inventory_addr &&
+            (cpu_pc != last_alias_inventory_pc || cpu_addr != last_alias_inventory_addr) ) {
+            std::fprintf(stderr,
+                "CODE_ALIAS_WAYS cycle=%llu PC=%08x CBUS_A=%08x "
+                "W0=%06x:%08x W1=%06x:%08x W2=%06x:%08x W3=%06x:%08x\n",
+                static_cast<unsigned long long>(cycles), cpu_pc, cpu_addr,
+                static_cast<unsigned>(top.dbg_alias_tag0), static_cast<unsigned>(top.dbg_alias_data0),
+                static_cast<unsigned>(top.dbg_alias_tag1), static_cast<unsigned>(top.dbg_alias_data1),
+                static_cast<unsigned>(top.dbg_alias_tag2), static_cast<unsigned>(top.dbg_alias_data2),
+                static_cast<unsigned>(top.dbg_alias_tag3), static_cast<unsigned>(top.dbg_alias_data3));
+            last_alias_inventory_pc = cpu_pc;
+            last_alias_inventory_addr = cpu_addr;
+        }
         if( trace_bus && (purge_addr || purge_pending != last_purge_pending) ) {
             std::fprintf(stderr,
                 "PURGE_BUS cycle=%llu PC=%08x CBUS_A=%08x CBUS_REQ=%d CBUS_WR=%d CBUS_DI=%08x IREQ=%d IWAIT=%d CACHE_BUSY=%d BSC_BUSY=%d IWRITE=%d IWRITE_PEND=%d IREAD=%d IREAD_PEND=%d DRAIN=%d CCR=%02x CCR_PEND=%d CCR_SEEN=%d PURGE=%d WAIT_N=%d CACHE_CS=%d CACHE_OK=%d CACHE_ADDR=%08x CACHE_WR=%d CACHE_DIN=%08x CACHE_DOUT=%08x ACK_HOLD=%d ACK_COUNT=%u\n",
                 static_cast<unsigned long long>(cycles), cpu_pc, cpu_addr,
                 top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_REQ ? 1 : 0,
                 top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_WR ? 1 : 0,
-                top.rootp->test__DOT__u_cpu__DOT__u_cpu__DOT__CBUS_DI,
+                top.dbg_cbus_di,
                 top.dbg_ibus_req ? 1 : 0,
                 top.dbg_ibus_wait ? 1 : 0,
                 top.dbg_cache_busy ? 1 : 0,
@@ -402,6 +467,27 @@ class Sim {
                 control_saw_line_purge ? 1 : 0);
             return;
         }
+        if( expect_code_alias_value ) {
+            if( code_alias_values_seen == 0 ) code_alias_value = code;
+            else code_alias_sr = code;
+            code_alias_values_seen++;
+            if( code_alias_values_seen == code_alias_values_expected ) {
+                expect_code_alias_value = false;
+                code_alias_reported = true;
+                if( code_alias_marker != CODE_ALIAS_TRAP || code_alias_value != 0x0202aa00U ) {
+                    fatalf("expected general illegal exception at 0202aa00, got marker=%08x pc/r0=%08x",
+                        code_alias_marker, code_alias_value);
+                }
+                const char* cause = code_alias_marker == CODE_ALIAS_TRAP ? "illegal" :
+                                    code_alias_marker == CODE_ALIAS_SLOT ? "slot_illegal" :
+                                    code_alias_marker == CODE_ALIAS_ADDRESS ? "address_error" : "return";
+                std::fprintf(stderr, "CODE_ALIAS_RESULT cause=%s %s=%08x",
+                    cause, code_alias_trapped ? "pc" : "r0", code_alias_value);
+                if( code_alias_trapped ) std::fprintf(stderr, " sr=%08x", code_alias_sr);
+                std::fprintf(stderr, "\n");
+            }
+            return;
+        }
         if( code == STATUS_FAIL ) {
             saw_fail = true;
             fatal("CPU reported failure");
@@ -421,6 +507,18 @@ class Sim {
             if( !control_window ) fatal("control probe end marker without start");
             control_window = false;
             expect_control_value = true;
+            return;
+        }
+        if( code == CODE_ALIAS_RETURN || code == CODE_ALIAS_TRAP ||
+            code == CODE_ALIAS_SLOT || code == CODE_ALIAS_ADDRESS ) {
+            if( code_alias_reported || expect_code_alias_value ) {
+                fatal("duplicate code alias result marker");
+            }
+            code_alias_trapped = code != CODE_ALIAS_RETURN;
+            code_alias_marker = code;
+            code_alias_values_expected = code == CODE_ALIAS_RETURN ? 1 : 2;
+            code_alias_values_seen = 0;
+            expect_code_alias_value = true;
             return;
         }
         if( tag == PURGE185_TAG || tag == PURGE186_TAG ) {
@@ -468,6 +566,9 @@ class Sim {
             }
             if( expect_control_value || control_window ) {
                 fatal("control probe did not complete before PASS");
+            }
+            if( !code_alias_reported || expect_code_alias_value ) {
+                fatal("code alias probe did not report a return or trap before PASS");
             }
             saw_pass = true;
             return;

@@ -66,6 +66,7 @@ module test;
         // Seed one cache line so a hit can be observed during the posted write.
         dut.CCR.CE=1;
         dut.WAY0[0]=26'h000001;
+        dut.LRU[0]=6'h2d;
         dut.DATA00[0]=8'h11;
         dut.DATA01[0]=8'h22;
         dut.DATA02[0]=8'h33;
@@ -173,9 +174,17 @@ module test;
             $fatal(1,"cache store passed the CP purge edge");
         c_bus_req=0;
         c_bus_wr=0;
+        c_bus_a=32'h00000000;
+        c_bus_id=1;
+        c_bus_req=1;
+        #1;
+        if (c_bus_busy || c_bus_do !== 32'h44332211 || !dut.CCR.CP)
+            $fatal(1,"instruction hit was not accepted on the CP invalidation edge");
         phase(1,0);
-        if (dut.CCR.CP || dut.WAY0[0][0])
+        if (dut.CCR.CP || dut.WAY0[0][0] || dut.LRU[0] != 0)
             $fatal(1,"CCR purge did not invalidate the cached line");
+        c_bus_req=0;
+        c_bus_id=0;
 
         // After purge, the instruction-side access must miss and request a refill.
         c_bus_id=1;

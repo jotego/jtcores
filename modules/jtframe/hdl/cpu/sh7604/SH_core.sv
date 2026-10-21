@@ -84,6 +84,9 @@ module SH_core
 	bit         EX_STALL;
 	bit [31: 0] RD_SAVE;
 	bit [ 2: 0] STATE;
+	bit         EX_DELAY_SLOT;
+	bit         ILI_TRAP_PENDING;
+	bit [31: 0] ILI_TRAP_PC;
 	DecInstr_t  ID_DECI;
 	bit         SLP;
 	bit [31: 0] ALU_RES;
@@ -365,6 +368,7 @@ module SH_core
 			PIPE.EX.RB <= '0;
 			PIPE.EX.R0 <= '0;
 			PIPE.EX.BC <= 0;
+			EX_DELAY_SLOT <= 0;
 			STATE <= '0;
 			IFID_STALL <= 0;
 			SLP <= 1;
@@ -377,6 +381,7 @@ module SH_core
 			PIPE.EX.RB <= '0;
 			PIPE.EX.R0 <= '0;
 			PIPE.EX.BC <= 0;
+			EX_DELAY_SLOT <= 0;
 			STATE <= '0;
 			IFID_STALL <= 0;
 			SLP <= 0;
@@ -390,11 +395,31 @@ module SH_core
 				PIPE.EX.RB <= REGS_RBQ;
 				PIPE.EX.R0 <= REGS_R0Q;
 				PIPE.EX.BC <= BR_COND;
+				EX_DELAY_SLOT <= ID_DELAY_SLOT;
 				STATE <= NEXT_STATE;
 				IFID_STALL <= |NEXT_STATE;
 				
 				if (ID_DECI.SLP) SLP <= 1;
 				if (SLP && INT_REQ) SLP <= 0;
+			end
+		end
+	end
+
+	always @(posedge CLK or negedge RST_N) begin
+		if (!RST_N) begin
+			ILI_TRAP_PENDING <= 0;
+			ILI_TRAP_PC <= '0;
+		end else if (!RES_N) begin
+			ILI_TRAP_PENDING <= 0;
+			ILI_TRAP_PC <= '0;
+		end else if (EN && CE) begin
+			// F204 is the synthetic exception instruction for an illegal opcode.
+			if (PIPE.EX.DI.ILI && DEC_IR == 16'hF204 && !EX_DELAY_SLOT && !ID_STALL) begin
+				ILI_TRAP_PENDING <= 1;
+				ILI_TRAP_PC <= PIPE.EX.PC;
+			end else if (ILI_TRAP_PENDING && PIPE.EX.IR == 16'hF204 &&
+					 STATE == 3'd6 && !ID_STALL) begin
+				ILI_TRAP_PENDING <= 0;
 			end
 		end
 	end
@@ -522,7 +547,8 @@ module SH_core
 			GRX: REG_B = BP_B;
 			BPC: REG_B = {PC[31:2],PC[1:0] & {2{~PIPE.EX.DI.DP.PCM}}};
 			TPC: REG_B = SAVE_ID.PC;
-			IPC: REG_B = PIPE.EX.PC;
+			// General illegal exceptions stack the faulting PC, unlike real TRAPA.
+			IPC: REG_B = ILI_TRAP_PENDING && PIPE.EX.IR == 16'hF204 ? ILI_TRAP_PC : PIPE.EX.PC;
 			SCR: REG_B = SCR_VAL;
 			default: REG_B = 32'h0;
 		endcase

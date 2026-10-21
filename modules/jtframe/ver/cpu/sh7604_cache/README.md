@@ -49,35 +49,50 @@ original area 1 addresses `0x0202aa00` and `0x2202aa00`. The test harness
 routes CPU cache requests from areas 0 and 1 to the same modeled SDRAM cache
 port, stripping the area bits only for the backing memory address. CPU/BSC
 decoding still sees area 1, preserving the programmed area 1 width and wait
-settings. The test performs four consecutive test 185 repetitions followed
-by four test 186 repetitions, with one initial `CCR=0x11` purge to establish
-the invalid starting line before test 185. Each repetition has an explicit
+settings. The fixture maps each 16-bit area 1 bus beat to the selected half
+of the cache mux's 32-bit word using address bit 1, for both reads and writes;
+area 0 retains its 32-bit mapping. The test performs four consecutive test 185
+repetitions followed by four test 186 repetitions, with one initial
+`CCR=0x11` purge to establish the invalid starting line before test 185. Each
+repetition has an explicit
 wrapper: it writes a marker, reloads the cached and through aliases, calls the
 test body, then immediately writes the packed result to the status address.
 The result is captured after the body, so the reporting store does not change
 the value already read by that repetition. The harness reports observed
-values without requiring the board's pattern. A separate whole-CPU reachability control preloads its cached
-and through aliases plus the CCR address, then executes a through-alias store
-immediately followed by an immediate CCR write and cached read. It records
-whether `IBUS_WRITE_PEND`, `CCR_WRITE_PEND`, and `CACHE_LINE_PURGE` assert during
-that control. The control checks that the CPU/BSC path can reach the pending-write
-condition; it is not test 187. Test 187 remains omitted because this bench does
-not yet install a safe exception handler to record the deliberate fetch trap.
+values without requiring the board's pattern. A separate whole-CPU reachability
+control preloads its cached and through aliases plus the CCR address, then
+executes a through-alias store immediately followed by an immediate CCR write
+and cached read. It records whether `IBUS_WRITE_PEND`, `CCR_WRITE_PEND`, and
+`CACHE_LINE_PURGE` assert during that control. The control checks that the
+CPU/BSC path can reach the pending-write condition. The appended code-alias
+probe below is a safe, instrumented test 187 probe with a private exception
+handler that records the fault PC and SR.
 
 The firmware programs `BCR1=0x0020`, `BCR2=0x00e8`, and `WCR=0xaa57`, matching
 the note's reported board setup, and the harness verifies these values by RTL
 readback. It still differs from the board: it uses the simplified SDRAM model
 and runs consecutive `CE_R`/`CE_F` phases at an 85.909090 MHz top-level clock
-rather than a measured 25 MHz board clock with its physical BSC and SDRAM timing.
-The cache mux has a 32-bit return port in this bench and its returned word is
-wired directly to CPU DI; the harness does not model the BSC's 16-bit area 1
-read-lane selection. The BSC write side still decodes area 1 and splits writes
-according to the programmed width, but the observed read values repeat each byte
-across both halves (for example `11111111` and `11221122`). The final SDRAM
-halfwords at the probe line are `0000,0022,0000,0000`. Treat these as raw
-fixture/RTL observations, not normalized 16-bit board values. The read return
-path needs a lane-accurate BSC model before comparing them to the paper's packed
-values.
+rather than a measured 25 MHz board clock with physical BSC and SDRAM timing.
+With the lane mapping above, the final raw values are test 185:
+`00001111,00001122,00002222,00002222`; test 186:
+`00002222` for all four repetitions. The final SDRAM halfwords at the probe
+line are `e011,000b,0009,0000`. These are observations from this fixture and
+RTL, not a claim that the test reproduces the physical P2 wrapper or its exact
+cycle timing.
+
+After the eight data results, an appended code-alias probe writes
+`MOV #17,R0; RTS; NOP` through U=`0x2202aa00`, requests `CCR=0x11`, and calls
+A=`0x0202aa00`. It installs a private VBR table before the sequence. The illegal,
+slot-illegal, and address-error handlers record distinct markers plus stacked
+PC/SR, discard the exception frame, and continue to the existing posted-write
+control. The observed code-alias result is an illegal-instruction exception
+with stacked PC `0x0202aa00` and SR `0x00f0`. The trace confirms the pre-purge
+cache hit at A returns stale `0x00000022`. The SH core selects the high
+halfword at a longword-aligned PC (`PC[1]=0`), so the opcode fetched at A is
+`0x0000`; `0x0022` is the following halfword at A+2. The exception stack PC
+now identifies the faulting opcode at A, as required for a general illegal
+instruction. The payload backing halfwords are `e011,000b,0009,0000`; they do
+not replace the already cached line until the purge takes effect.
 
 This wrapper moves closer to P2 by reloading A/U for every repetition and
 storing each result immediately after its call. The note's timer helper and its
@@ -93,12 +108,9 @@ line at `0x110`, so the second CCR-to-read interval includes a code-line refill.
 These addresses and timing are specific to this fixture and are not board
 measurements.
 
-With this wrapper, the current raw values are test 185:
-`11111111,11221122,22222222,22222222`; test 186:
-`22222222` for all four repetitions. Each marker precedes exactly one packed
-result. The harness suppresses an immediately repeated identical status write
-strobe, while distinct marker/value pairs are still required for all eight
-results.
+Each data marker precedes exactly one packed result. The harness suppresses an
+immediately repeated identical status write strobe, while distinct marker/value
+pairs are still required for all eight results.
 
 ## Running
 

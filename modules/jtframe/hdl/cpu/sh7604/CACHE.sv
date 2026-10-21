@@ -329,7 +329,7 @@ module SH7604_CACHE (
 					2'b11: begin WAY3[CACHE_WR_ADDR[9:4]][`TAG] <= CACHE_WR_ADDR[28:10]; WAY3[CACHE_WR_ADDR[9:4]][`VBIT] <= CACHE_WR_ADDR[2]; end
 				endcase
 			end
-			else if (CCR.CP) begin
+			else if (CCR_PURGE_DONE) begin
 				WAY0 <= '{64{'0}};   
 				WAY1 <= '{64{'0}};   
 				WAY2 <= '{64{'0}};	
@@ -337,7 +337,7 @@ module SH7604_CACHE (
 				LRU <= '{64{'0}};
 			end
 			
-			if (CACHE_UPDATE || CACHE_WRITE || CACHE_READ) begin
+			if ((CACHE_UPDATE || CACHE_WRITE || CACHE_READ) && !CCR.CP) begin
 				LRU[CACHE_WR_ADDR[9:4]] <= LRUSelect(CACHE_WR_WAY, LRU[CACHE_WR_ADDR[9:4]]); 
 			end
 			else if (CACHE_ADDR_WRITE) begin
@@ -383,13 +383,14 @@ module SH7604_CACHE (
 			TAG_DIRTY <= '{'1,'1,'1,'1};
 		end
 		else if (EN && CE_R) begin
-			if (CTAG_WE[0]) TAG_DIRTY[0][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
-			if (CTAG_WE[1]) TAG_DIRTY[1][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
-			if (CTAG_WE[2]) TAG_DIRTY[2][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
-			if (CTAG_WE[3]) TAG_DIRTY[3][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
-		end
-		else if (CCR.CP) begin
-			TAG_DIRTY <= '{'1,'1,'1,'1};
+			if (CCR_PURGE_DONE) begin
+				TAG_DIRTY <= '{'1,'1,'1,'1};
+			end else begin
+				if (CTAG_WE[0]) TAG_DIRTY[0][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
+				if (CTAG_WE[1]) TAG_DIRTY[1][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
+				if (CTAG_WE[2]) TAG_DIRTY[2][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
+				if (CTAG_WE[3]) TAG_DIRTY[3][CACHE_WR_ADDR[9:4]] <= CACHE_LINE_PURGE;
+			end
 		end
 	end
 	
@@ -428,10 +429,8 @@ module SH7604_CACHE (
 			LRU_DIRTY <= '1;
 		end
 		else if (EN && CE_R) begin
-			if (LRU_WE) LRU_DIRTY[LRU_WRADDR] <= 0;
-		end
-		else if (CCR.CP) begin
-			LRU_DIRTY <= '1;
+			if (CCR_PURGE_DONE) LRU_DIRTY <= '1;
+			else if (LRU_WE) LRU_DIRTY[LRU_WRADDR] <= 0;
 		end
 	end
 	
@@ -460,7 +459,7 @@ module SH7604_CACHE (
 	wire HIT = WAY_HIT[0] | WAY_HIT[1] | WAY_HIT[2] | WAY_HIT[3];
 	wire CACHE_HIT_READ = CACHE_AREA && CCR.CE && !CBUS_WR && !CBUS_TAS && HIT;
 	wire CCR_FENCE_BLOCK = CCR_WRITE_PEND && CBUS_REQ && !CCR_SEL && !CACHE_HIT_READ;
-	wire CCR_CP_BLOCK = CCR.CP && CBUS_REQ && !CCR_SEL;
+	wire CCR_CP_BLOCK = CCR.CP && CBUS_REQ && !CCR_SEL && !CACHE_HIT_READ;
 	wire CCR_CP_WRITE_BLOCK = CCR.CP && CCR_SEL && CBUS_WR && CBUS_REQ && !CCR_REQ_SEEN;
 	wire CCR_PURGE_DONE = EN && CE_R && CCR.CP && CCR_PURGE_DIRTY_DONE &&
 						  !CACHE_UPDATE && !CACHE_WRITE && !CACHE_LINE_PURGE && !CACHE_DATA_WRITE && !CACHE_ADDR_WRITE;
