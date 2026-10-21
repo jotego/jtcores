@@ -26,6 +26,11 @@ puts "############################################################"
 report_timing -setup -npaths 30 -detail full_path -stdout
 
 puts "############################################################"
+puts "# SETUP breadth: 300 worst paths, one line each             "
+puts "############################################################"
+report_timing -setup -npaths 300 -detail summary -stdout
+
+puts "############################################################"
 puts "# Worst-case HOLD paths (slow model)                        "
 puts "############################################################"
 report_timing -hold -npaths 10 -detail full_path -stdout
