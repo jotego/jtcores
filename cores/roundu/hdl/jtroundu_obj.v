@@ -148,8 +148,9 @@ function [17:0] graphics_addr;
     reg [16:0] physical;
     begin
         physical = tile[17:1];
+        if (physical >= 98304) physical = physical - 17'd98304;
         if (physical >= 49152) physical = physical - 17'd49152;
-        else if (physical >= 24576) physical = physical - 17'd24576;
+        if (physical >= 24576) physical = physical - 17'd24576;
         graphics_addr = {physical[14:0],line};
     end
 endfunction
@@ -718,10 +719,7 @@ always @(posedge clk) begin
             PIXEL_TILE: begin
                 tile_number = {14'd0,pixel_base} + {5'd0,pixel_wrapped};
                 tile_bank <= tile_number[0];
-                tile_number = tile_number >> 1;
-                if (tile_number >= 49152) tile_number = tile_number - 49152;
-                else if (tile_number >= 24576) tile_number = tile_number - 24576;
-                tile_addr <= {tile_number[14:0],pixel_line[2:0]};
+                tile_addr <= graphics_addr(tile_number[17:0],pixel_line[2:0]);
                 nibble <= pixel_col[2:0] ^ 3'd3;
                 state <= TILE;
             end
