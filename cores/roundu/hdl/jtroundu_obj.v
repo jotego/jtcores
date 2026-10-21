@@ -177,32 +177,47 @@ endfunction
 reg [19:0] jump_col;
 reg [8:0] jump_rem;
 reg [3:0] jump_k;
-integer jc, jr, jj;
+reg [11:0] jump_kstep, jump_krem;
+reg [12:0] jump_m [0:8];
+reg [13:0] jump_tot, jump_u;
+reg [3:0] jump_c;
+integer jm;
+// parallel k-step advance: products by shift select, carries by parallel
+// compares against scale multiples and a popcount, instead of a serial chain
 always @* begin
     jump_k = 4'd8 - {1'b0,d_x[2:0]};
-    jc = {12'd0,d_col};
-    jr = {23'd0,d_rem};
-    for (jj=0; jj<8; jj=jj+1) begin
-        if (jj < jump_k) begin
-            if (d_flip) begin
-                jr = jr - {23'd0,d_step_rem};
-                jc = jc - {23'd0,d_step};
-                if (jr < 0) begin
-                    jr = jr + {23'd0,d_scale};
-                    jc = jc - 1;
-                end
-            end else begin
-                jr = jr + {23'd0,d_step_rem};
-                jc = jc + {23'd0,d_step};
-                if (jr >= {23'd0,d_scale}) begin
-                    jr = jr - {23'd0,d_scale};
-                    jc = jc + 1;
-                end
-            end
-        end
+    jump_kstep = ({3'd0,d_step} & {12{jump_k[0]}})
+               + (({2'd0,d_step} << 1) & {12{jump_k[1]}})
+               + (({1'd0,d_step} << 2) & {12{jump_k[2]}})
+               + (({3'd0,d_step} << 3) & {12{jump_k[3]}});
+    jump_krem  = ({3'd0,d_step_rem} & {12{jump_k[0]}})
+               + (({2'd0,d_step_rem} << 1) & {12{jump_k[1]}})
+               + (({1'd0,d_step_rem} << 2) & {12{jump_k[2]}})
+               + (({3'd0,d_step_rem} << 3) & {12{jump_k[3]}});
+    jump_m[0] = 0;
+    jump_m[1] = {4'd0,d_scale};
+    jump_m[2] = {3'd0,d_scale,1'd0};
+    jump_m[3] = {3'd0,d_scale,1'd0} + {4'd0,d_scale};
+    jump_m[4] = {2'd0,d_scale,2'd0};
+    jump_m[5] = {2'd0,d_scale,2'd0} + {4'd0,d_scale};
+    jump_m[6] = {2'd0,d_scale,2'd0} + {3'd0,d_scale,1'd0};
+    jump_m[7] = {1'd0,d_scale,3'd0} - {4'd0,d_scale};
+    jump_m[8] = {1'd0,d_scale,3'd0};
+    if (d_flip) begin
+        jump_u = {2'd0,jump_krem};
+        jump_c = 0;
+        for (jm=0; jm<8; jm=jm+1)
+            if (jump_u > {1'd0,jump_m[jm]} + {5'd0,d_rem}) jump_c = jump_c + 1'd1;
+        jump_rem = d_rem + jump_m[jump_c][8:0] - jump_krem[8:0];
+        jump_col = d_col - {8'd0,jump_kstep} - {16'd0,jump_c};
+    end else begin
+        jump_tot = {5'd0,d_rem} + {2'd0,jump_krem};
+        jump_c = 0;
+        for (jm=1; jm<9; jm=jm+1)
+            if (jump_tot >= {1'd0,jump_m[jm]}) jump_c = jump_c + 1'd1;
+        jump_rem = jump_tot[8:0] - jump_m[jump_c][8:0];
+        jump_col = d_col + {8'd0,jump_kstep} + {16'd0,jump_c};
     end
-    jump_col = jc[19:0];
-    jump_rem = jr[8:0];
 end
 
 always @* begin
