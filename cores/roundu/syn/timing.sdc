@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Date: 21-10-2026
 
-# The V30 execution unit is a next-state cone feeding ce/ce_half-gated
-# register banks (v30u_eu.sv). jtroundu_main generates cenb three clocks
-# after each 8 MHz cen pulse, so EU registers load at least three clocks
-# apart. The BIU has free-running registers and is excluded on purpose.
-set_multicycle_path -from {*|v30u_eu:u_eu|*} -to {*|v30u_eu:u_eu|*} -setup -end 2
-set_multicycle_path -from {*|v30u_eu:u_eu|*} -to {*|v30u_eu:u_eu|*} -hold -end 2
+# Every V30 register commits in the ce/ce_half-gated banks of v30u_eu.sv and
+# v30u_biu.sv; the remaining free-running always blocks hold only save-state
+# readback (tied off) and simulation trace. jtroundu_main generates cenb three
+# clocks after each 8 MHz cen pulse, so core registers load at least three
+# clocks apart. Paths crossing the core boundary keep single-cycle analysis
+# because one endpoint falls outside the -from/-to scope.
+set_multicycle_path -from {*|v30_core:u_cpu|*} -to {*|v30_core:u_cpu|*} -setup -end 2
+set_multicycle_path -from {*|v30_core:u_cpu|*} -to {*|v30_core:u_cpu|*} -hold -end 2
