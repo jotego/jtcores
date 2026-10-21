@@ -180,6 +180,7 @@ reg [3:0] jump_k;
 reg [11:0] jump_kstep, jump_krem;
 reg [12:0] jump_m [0:8];
 reg [13:0] jump_tot, jump_u;
+reg [7:0] jump_ge;
 reg [3:0] jump_c;
 integer jm;
 // parallel k-step advance: products by shift select, carries by parallel
@@ -205,16 +206,19 @@ always @* begin
     jump_m[8] = {1'd0,d_scale,3'd0};
     if (d_flip) begin
         jump_u = {2'd0,jump_krem};
-        jump_c = 0;
         for (jm=0; jm<8; jm=jm+1)
-            if (jump_u > {1'd0,jump_m[jm]} + {5'd0,d_rem}) jump_c = jump_c + 1'd1;
+            jump_ge[jm] = jump_u > {1'd0,jump_m[jm]} + {5'd0,d_rem};
+    end else begin
+        jump_tot = {5'd0,d_rem} + {2'd0,jump_krem};
+        for (jm=0; jm<8; jm=jm+1)
+            jump_ge[jm] = jump_tot >= {1'd0,jump_m[jm+1]};
+    end
+    jump_c = ({2'd0,jump_ge[0]} + {2'd0,jump_ge[1]} + {2'd0,jump_ge[2]} + {2'd0,jump_ge[3]})
+           + ({2'd0,jump_ge[4]} + {2'd0,jump_ge[5]} + {2'd0,jump_ge[6]} + {2'd0,jump_ge[7]});
+    if (d_flip) begin
         jump_rem = d_rem + jump_m[jump_c][8:0] - jump_krem[8:0];
         jump_col = d_col - {8'd0,jump_kstep} - {16'd0,jump_c};
     end else begin
-        jump_tot = {5'd0,d_rem} + {2'd0,jump_krem};
-        jump_c = 0;
-        for (jm=1; jm<9; jm=jm+1)
-            if (jump_tot >= {1'd0,jump_m[jm]}) jump_c = jump_c + 1'd1;
         jump_rem = jump_tot[8:0] - jump_m[jump_c][8:0];
         jump_col = d_col + {8'd0,jump_kstep} + {16'd0,jump_c};
     end
