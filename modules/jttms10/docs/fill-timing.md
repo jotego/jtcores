@@ -1105,3 +1105,23 @@ pass the remaining mutation gates, be committed, fitted with preserved
 infrastructure using `/opt/quartus_free`, then be compared on the DataStorm
 before its full masked and ordinary matrices run. The aligned-PS16 bus
 interpretation above remains inferred even if the candidate passes it.
+
+
+## Masked medium/long row boundary fixtures
+
+Another 6,912 independent cases extend the original 5,184 masked contracts
+with N2/L2, N3/L1, N3/L3 and N4/L2. They keep every legal PPOP/PSIZE
+combination, both masks, operand samples, L/XY and hit/CD. The same primary
+Table13-6 equations apply: A/N2 is `(2+2G)L+2`, A/N>=3 is `(1+NG)L+2`,
+plus the setup in Table13-5. Literal substitutions cover G4/6/7/8.
+All preceding 151,104 fixtures and programs remain unchanged. The expanded
+inventory has 158,016 ordinary cases, including 18,284 FILL and 12,096
+masked FILL cases. The same aligned-PS16 bus interpretation remains inferred.
+
+These host-only changes pass 293 pure model/checker tests and 290 directed
+Verilator cases in each BASE and W1P7 profile (580 executions): PPOP0/1/10
+and all arithmetic PPOP, PS4/16, each new geometry, L/XY and hit/CD. An
+independent audit preserves every preceding complete fixture and generated
+program word/start/end PC. Full FPGA validation remains required. The CPU
+and ROM sources are identical to `fcd37bc7`; these fixtures do not require
+new CPU logic or a new FPGA configuration beyond that candidate.

@@ -437,13 +437,13 @@ def fill_cases():
             (4,8,16),(False,True),(False,True),range(4)):
         yield arithmetic_fixture(size,ppop,xy,off,words=words,rows=rows,sample=sample)
 
-    # Append 5184 masked whole-word cases; preserve all preceding 6188
-    # contracts. Partial words, transparency and broader geometry remain
-    # required audits, rather than exceptions to their timing requirements.
-    for size in (1,2,4,8,16):
-        masks=sorted({sum(1<<lane for lane in range(0,16,size)),65535})
-        for ppop in range(16 if size<4 else 22):
-            for pmask,sample,(words,rows),xy,off in product(masks,
-                    range(2 if ppop<16 else 4),((1,1),(2,1),(1,2)),(False,True),(False,True)):
-                yield plane_mask_fixture(size,ppop,xy,off,words=words,rows=rows,
-                                         pmask=pmask,sample=sample)
+    # Preserve the original 5184 masked cases, then append medium/long
+    # and multirow boundaries. Partial words and transparency remain audits.
+    for geometries in (((1,1),(2,1),(1,2)),((2,2),(3,1),(3,3),(4,2))):
+        for size in (1,2,4,8,16):
+            masks=sorted({sum(1<<lane for lane in range(0,16,size)),65535})
+            for ppop in range(16 if size<4 else 22):
+                for pmask,sample,(words,rows),xy,off in product(masks,
+                        range(2 if ppop<16 else 4),geometries,(False,True),(False,True)):
+                    yield plane_mask_fixture(size,ppop,xy,off,words=words,rows=rows,
+                                             pmask=pmask,sample=sample)

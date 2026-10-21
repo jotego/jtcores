@@ -10,7 +10,7 @@ from run import check, program
 class FillCasesTest(unittest.TestCase):
     def test_plane_mask_literal_timing_and_inventory(self):
         rows=[r for r in fill_cases() if r['name'].startswith('fill_plane_')]
-        self.assertEqual(len(rows),5184)
+        self.assertEqual(len(rows),12096)
         # Table13-7 G4/6/7/8, Table13-6 A for N1L1/N2L1/N1L2.
         for ppop,one,two in ((0,11,16),(10,13,20),(16,13,20),(17,14,22),(19,15,24)):
             for words,nrows,want in ((1,1,one),(2,1,two),(1,2,two)):
@@ -18,6 +18,20 @@ class FillCasesTest(unittest.TestCase):
                     row=plane_mask_fixture(4,ppop,xy,off,words=words,rows=nrows)
                     self.assertEqual(row['states'],want+2*xy+3*off)
                     self.assertEqual(len(transfers(row)),(2 if ppop==0 else 3)*words*nrows)
+
+    def test_plane_mask_medium_long_and_multirow_literals(self):
+        # Table13-6 A: N2 gives (2+2G)L+2, N>=3 gives (1+NG)L+2.
+        # Linear setup4; XY adds2 and CD adds3, once per instruction.
+        for ppop,counts in ((0,(26,19,45,40)),(10,(34,25,63,56)),
+                            (16,(34,25,63,56)),(17,(38,28,72,64)),
+                            (19,(42,31,81,72))):
+            for (words,rows),states in zip(((2,2),(3,1),(3,3),(4,2)),counts):
+                for xy,off in ((False,False),(False,True),(True,False),(True,True)):
+                    c=plane_mask_fixture(4,ppop,xy,off,words=words,rows=rows)
+                    self.assertEqual(c['states'],states+2*xy+3*off)
+                    self.assertEqual(len(transfers(c)),(2 if ppop==0 else 3)*words*rows)
+                    self.assertEqual(c['expected_extra_regs']['b2'],0x6100+(rows-1)*0x100+16*words)
+                    self.assertEqual(c['expected_extra_regs']['b7']>>16,rows)
 
     def test_plane_mask_literal_pixels_and_destination_preprocessing(self):
         replace=plane_mask_fixture(4,0,False,False)
@@ -58,8 +72,8 @@ class FillCasesTest(unittest.TestCase):
 
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 11372)
-        self.assertEqual(len({r['name'] for r in cases}), 11372)
+        self.assertEqual(len(cases), 18284)
+        self.assertEqual(len({r['name'] for r in cases}), 18284)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):
