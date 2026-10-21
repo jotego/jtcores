@@ -9,15 +9,9 @@ params:
 clocks:
   clk:
     - freq: 8M
-      outputs: [v30_cen]
+      outputs: [v30_8m_cen, z80ym_4m_cen, oki_2m_cen]
     - freq: 12.5M
       outputs: [m68k_cen]
-    - freq: 4M
-      outputs: [z80_cen]
-    - freq: 4M
-      outputs: [ym2151_cen]
-    - freq: 2M
-      outputs: [oki_cen]
 
 audio:
   rsum: 10k

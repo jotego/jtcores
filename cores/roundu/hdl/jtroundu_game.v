@@ -61,7 +61,7 @@ jtroundu_download u_download (
 jtroundu_main u_main (
     .rst                ( game_rst           ),
     .clk                ( clk                ),
-    .cen                ( v30_cen            ),
+    .cen                ( v30_8m_cen         ),
     .vblank             ( ~LVBL              ),
     .dsw                ( dipsw[15:0]        ),
     .control            ( control            ),
@@ -154,9 +154,9 @@ jtroundu_sub u_sub (
 jtroundu_snd u_snd (
     .rst                ( game_rst                                                             ),
     .clk                ( clk                                                                  ),
-    .cen                ( z80_cen                                                              ),
-    .fm_cen             ( ym2151_cen                                                           ),
-    .oki_cen            ( oki_cen                                                              ),
+    .cen                ( z80ym_4m_cen                                                         ),
+    .fm_cen             ( z80ym_4m_cen                                                         ),
+    .oki_cen            ( oki_2m_cen                                                           ),
     .halt               ( control[2]                                                           ),
     .in0                ( {2'b11,cab_1p[0],joystick1[7],shift,joystick1[5],1'b1,joystick1[4]}  ),
     .in1                ( {dipsw[23:20],service,coin[1:0],dip_test}                            ),
