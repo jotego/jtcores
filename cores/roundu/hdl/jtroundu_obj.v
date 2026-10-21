@@ -113,6 +113,14 @@ reg fast_tile_bank, fast_ahead_bank;
 integer fast_delta, fast_r, fast_c, fast_tile, fast_ahead;
 wire fast_hit = fast_valid[fast_tile_bank] && fast_addr[fast_tile_bank] == fast_tile_addr;
 wire fast_ahead_hit = fast_valid[fast_ahead_bank] && fast_addr[fast_ahead_bank] == fast_ahead_addr;
+reg [319:0] covmap, shaded;
+reg [8:0] cover_cnt;
+wire line_full = cover_cnt == 9'd320;
+wire [39:0] chunk_full;
+genvar gc;
+generate for (gc=0; gc<40; gc=gc+1) begin : g_chunk
+    assign chunk_full[gc] = &covmap[gc*8+:8];
+end endgenerate
 reg [19:0] d_col;
 reg [8:0] d_rem, d_step, d_step_rem, d_scale;
 reg [12:0] d_span;
@@ -165,6 +173,37 @@ function [17:0] graphics_addr;
         graphics_addr = {physical[14:0],line};
     end
 endfunction
+
+reg [19:0] jump_col;
+reg [8:0] jump_rem;
+reg [3:0] jump_k;
+integer jc, jr, jj;
+always @* begin
+    jump_k = 4'd8 - {1'b0,d_x[2:0]};
+    jc = {12'd0,d_col};
+    jr = {23'd0,d_rem};
+    for (jj=0; jj<8; jj=jj+1) begin
+        if (jj < jump_k) begin
+            if (d_flip) begin
+                jr = jr - {23'd0,d_step_rem};
+                jc = jc - {23'd0,d_step};
+                if (jr < 0) begin
+                    jr = jr + {23'd0,d_scale};
+                    jc = jc - 1;
+                end
+            end else begin
+                jr = jr + {23'd0,d_step_rem};
+                jc = jc + {23'd0,d_step};
+                if (jr >= {23'd0,d_scale}) begin
+                    jr = jr - {23'd0,d_scale};
+                    jc = jc + 1;
+                end
+            end
+        end
+    end
+    jump_col = jc[19:0];
+    jump_rem = jr[8:0];
+end
 
 always @* begin
     fast_delta = {23'd0,d_step};
@@ -296,8 +335,13 @@ always @(posedge clk) begin
     color_x1 <= color_x0;
     if (color_valid[1]) begin
         write_x <= color_x1;
-        write_data <= {clut_color == 8'hff,1'b1,clut_color};
+        write_data <= {clut_color == 8'hff || shaded[color_x1],1'b1,clut_color};
         write_enable <= 1;
+        if (clut_color == 8'hff) shaded[color_x1] <= 1;
+        else begin
+            covmap[color_x1] <= 1;
+            cover_cnt <= cover_cnt + 1'b1;
+        end
     end
     if (rst) begin
         state <= CLUT_L;
@@ -366,6 +410,9 @@ always @(posedge clk) begin
         write_x <= 0;
         write_data <= 0;
         overflow <= 0;
+        covmap <= 0;
+        shaded <= 0;
+        cover_cnt <= 0;
         dr_state <= DR_IDLE;
         dr_cnt <= 0;
         d_col <= 0; d_rem <= 0; d_step <= 0; d_step_rem <= 0; d_scale <= 0;
@@ -384,7 +431,24 @@ always @(posedge clk) begin
         end
         case (dr_state)
             DR_RUN: begin
-                if (fast_hit) begin
+                if (line_full) begin
+                    dr_cnt <= 0;
+                    dr_state <= DR_DRAIN;
+                end else if (covmap[d_x]) begin
+                    if (d_x == d_lastx) begin
+                        dr_cnt <= 0;
+                        dr_state <= DR_DRAIN;
+                    end else if (chunk_full[d_x[8:3]] && !d_repeat
+                              && {1'b0,d_x} + {6'd0,jump_k} <= {1'b0,d_lastx}) begin
+                        d_x <= d_x + {5'd0,jump_k};
+                        d_col <= jump_col;
+                        d_rem <= jump_rem;
+                    end else begin
+                        d_x <= d_x + 1'b1;
+                        d_col <= fast_next_col;
+                        d_rem <= fast_next_rem;
+                    end
+                end else if (fast_hit) begin
                     pen <= fast_data[fast_tile_bank][{d_col[2:0] ^ 3'd3,2'b00}+:4];
                     color_valid[0] <= fast_data[fast_tile_bank][{d_col[2:0] ^ 3'd3,2'b00}+:4] != 0;
                     color_x0 <= d_x;
@@ -456,10 +520,10 @@ always @(posedge clk) begin
                 end
             end
             NEXT: begin
-                if (object_index + 9'd1 >= object_count) state <= IDLE;
+                if (object_index == 0 || line_full) state <= IDLE;
                 else begin
-                    object_index <= object_index + 1'b1;
-                    frame_rd_addr <= object_index + 1'b1;
+                    object_index <= object_index - 1'b1;
+                    frame_rd_addr <= object_index - 1'b1;
                     state <= ATTR_WAIT;
                 end
             end
@@ -702,6 +766,9 @@ always @(posedge clk) begin
                 state <= NEXT;
             end
             PIXEL: begin
+                if (line_full) state <= NEXT;
+                else if (covmap[draw_x]) advance_pixel;
+                else begin
                 dist_x = {{12{source_x[59]}},source_x[59:40]};
                 dist_y = {{12{source_y[59]}},source_y[59:40]};
                 if (flip_x) dist_x = -dist_x - 1;
@@ -711,6 +778,7 @@ always @(posedge clk) begin
                     pixel_dist_x <= dist_x[19:0];
                     pixel_dist_y <= dist_y[19:0];
                     state <= PIXEL_MUL;
+                end
                 end
             end
             PIXEL_MUL: begin
@@ -899,9 +967,12 @@ always @(posedge clk) begin
                 end else if (frame_valid && (state != IDLE || dr_state != DR_IDLE || color_valid != 0)) overflow <= 1;
                 color_valid <= 0;
                 write_enable <= 0;
+                covmap <= 0;
+                shaded <= 0;
+                cover_cnt <= 0;
                 target_y <= next_y;
-                object_index <= 0;
-                frame_rd_addr <= 0;
+                object_index <= object_count - 1'b1;
+                frame_rd_addr <= object_count - 1'b1;
                 state <= next_y < 240 && object_count != 0 && (v == 271 ? frame_ready : frame_valid) ? ATTR_WAIT : IDLE;
             end
         end
