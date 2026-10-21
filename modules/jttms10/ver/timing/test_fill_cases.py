@@ -2,12 +2,66 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Check FILL fixture/checker contracts without executing RTL."""
 import unittest
-from fill_cases import (fixture, partial_fixture, boolean_fixture, arithmetic_word,
+from fill_cases import (fixture, partial_fixture, partial_boolean_fixture, boolean_fixture, arithmetic_word,
                         arithmetic_fixture, plane_mask_fixture, fill_cases, check_bus, transfers)
 from run import check, program
 
 
 class FillCasesTest(unittest.TestCase):
+    def test_partial_boolean_literal_state_and_word_contracts(self):
+        # Table13-6 G4, linear setup4. B/C/D for N1,N2,N3 respectively.
+        literals={1:dict(B=12,C=11,D=11),2:dict(B=17,C=17,D=17),
+                  3:dict(B=23,C=21,D=21)}
+        for words,targets in literals.items():
+            for alignment,states in targets.items():
+                for xy,off in ((False,False),(False,True),(True,False),(True,True)):
+                    c=partial_boolean_fixture(4,words,alignment,10,xy,off)
+                    self.assertEqual(c['states'],states+2*xy+3*off)
+                    plan=transfers(c)
+                    edges=1 if words==1 else 2 if alignment=='D' else 1
+                    self.assertEqual(len(plan),2*words+edges)
+                    self.assertEqual([p[0] for p in plan].count(1),words)
+                    self.assertEqual([p[1] for p in plan if p[0]],list(range(0x6100,0x6100+16*words,16)))
+        for alignment,value in (('B',0x5fff),('C',0xfffa),('D',0x5ffa)):
+            c=partial_boolean_fixture(4,1,alignment,10,False,False)
+            self.assertEqual(dict(c['expected_memory'])[0x6100],value)
+            self.assertEqual(transfers(c),[(0,0x6100,0x55aa,0),
+                (0,0x6100,0x55aa,0),(1,0x6100,value,0)])
+
+    def test_partial_boolean_missing_processing_or_insertion_read_fails(self):
+        c=partial_boolean_fixture(4,1,'D',10,False,False)
+        observed=dict(c['initial_all_regs'],start=0,end=88,clocks=88,paused=0,st=c['expected_st'])
+        observed.update(c['expected_extra_regs'])
+        self.assertEqual(check(c,observed),[])
+        self.assertTrue(check(c,dict(observed,clocks=96)))
+        bus=['BUS_BEGIN 16 0 00006100 0000 0','BUS_END 32 0 00006100 55aa',
+             'BUS_BEGIN 32 0 00006100 0000 0','BUS_END 48 0 00006100 55aa',
+             'BUS_BEGIN 48 1 00006100 5ffa 0','BUS_END 64 1 00006100 55aa']
+        self.assertEqual(check_bus(c,observed,bus,0),[])
+        self.assertTrue(check_bus(c,observed,bus[2:],0))
+        self.assertTrue(check_bus(c,observed,bus[:2]+bus[4:],0))
+        corrupted=bus.copy();corrupted[4]='BUS_BEGIN 48 1 00006100 ffff 0'
+        self.assertTrue(check_bus(c,observed,corrupted,0))
+
+    def test_partial_boolean_inventory_and_multirow_targets(self):
+        rows=[c for c in fill_cases() if c['name'].startswith('fill_partial_boolean_')]
+        self.assertEqual(len(rows),6300)
+        for c in rows:
+            self.assertFalse(c['conditions']['pmask'])
+            self.assertFalse(c['conditions']['transparency'])
+            before,after=map(dict,(c['initial_memory'],c['expected_memory']))
+            spec=c['data_fill'];size=c['conditions']['size']
+            for address,value in before.items():
+                for bit in range(16):
+                    active=any(spec['address']+r*spec['pitch']<=address+bit<
+                        spec['address']+r*spec['pitch']+spec['width']*size for r in range(spec['rows']))
+                    if not active:self.assertEqual((after[address]>>bit)&1,(value>>bit)&1)
+        # N2/B: (3+2*4)*2+2+setup4 =28. N3/D: (4+3*4)*4+1+4=69.
+        self.assertEqual(partial_boolean_fixture(4,2,'B',10,False,False,rows=2)['states'],28)
+        self.assertEqual(partial_boolean_fixture(4,3,'D',10,False,False,rows=4)['states'],69)
+        for invalid in (0,16,-1):
+            with self.assertRaises(ValueError):partial_boolean_fixture(4,1,'B',invalid,False,False)
+
     def test_plane_mask_literal_timing_and_inventory(self):
         rows=[r for r in fill_cases() if r['name'].startswith('fill_plane_')]
         self.assertEqual(len(rows),12096)
@@ -72,8 +126,8 @@ class FillCasesTest(unittest.TestCase):
 
     def test_inventory_and_literal_states(self):
         cases = list(fill_cases())
-        self.assertEqual(len(cases), 18284)
-        self.assertEqual(len({r['name'] for r in cases}), 18284)
+        self.assertEqual(len(cases), 24584)
+        self.assertEqual(len({r['name'] for r in cases}), 24584)
         # Table13-5 setup4/6, Table13-6 A/G2: N1=3L+2,
         # N2=6L+2, N3=7L+2. CD adds three setup states once.
         for size in (1,2,4,8,16):

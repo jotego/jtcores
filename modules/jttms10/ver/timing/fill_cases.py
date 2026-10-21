@@ -3,7 +3,8 @@
 """FILL probes: SPVU001A12-80..86,13-10..14.
 
 Nonempty rows; T0/W0. Nonzero PMASK probes use complete destination words.
-Partial rows keep word-aligned pitch. B10..14 are
+Partial rows keep word-aligned pitch. Non-replace Boolean edges have separate
+CPU processing reads and memory-controller insertion RMWs. B10..14 are
 reserved scratch registers marked changed by TI and have no final golden.
 """
 from itertools import product
@@ -124,6 +125,38 @@ def partial_fixture(size, words, alignment, xy, off, *, rows=1):
             mask=1<<(bit & 15)
             memory[word]=(memory[word] & ~mask) | (color & mask)
     case['expected_memory']=sorted(memory.items())
+    return case
+
+
+def partial_boolean_fixture(size, words, alignment, ppop, xy, off, *, rows=1):
+    """Non-replace Boolean edges: SPVU001A7-16,13-11..14.
+
+    The CPU reads each destination word for pixel processing (Figure7-6),
+    while the memory controller performs an additional insertion RMW on
+    partial edge words. Table13-6 includes the edge overhead with G4.
+    PMASK and transparency are disabled; single-word D is therefore defined.
+    """
+    if ppop not in range(1,16):
+        raise ValueError('partial Boolean FILL requires non-replace PPOP1..15')
+    case=partial_fixture(size,words,alignment,xy,off,rows=rows)
+    case['name']=case['name'].replace('fill_partial_',f'fill_partial_boolean_pp{ppop}_',1)
+    case['control']=ppop<<10
+    case['conditions']['ppop']=ppop
+    case['data_fill'].update(partial_processing=True,ppop=ppop)
+    spec=case['data_fill'];before=dict(case['initial_memory']);after=before.copy()
+    for row in range(rows):
+        start=spec['address']+row*spec['pitch'];stop=start+spec['width']*size
+        for word in range(start & ~15,(stop+15) & ~15,16):
+            value=boolean(ppop,spec['color'],before[word],16)
+            for bit in range(max(start,word),min(stop,word+16)):
+                mask=1<<(bit-word)
+                after[word]=(after[word]&~mask)|(value&mask)
+    case['expected_memory']=sorted(after.items())
+    timing=fill_timing(pixel_size=size,width=spec['width'],rows=rows,
+        address=spec['address'],pitch=spec['pitch'],xy=xy,ppop=ppop,
+        cache_disabled=off)
+    case.update(states=timing['states'],fill_timing=timing,
+        citation='SPVU001A7-15/16 Table7-1 Figure7-6;12-80..86;13-10..14 Tables13-5/6/7')
     return case
 
 
@@ -294,6 +327,8 @@ def transfers(case):
             start=spec['address']+row*spec['pitch']
             stop=start+spec['width']*case['conditions']['size']
             for word in range(start & ~15,(stop+15) & ~15,16):
+                if spec.get('partial_processing'):
+                    plan.append((0,word,before[word],0))
                 if max(start,word)!=word or min(stop,word+16)!=word+16:
                     plan.append((0,word,before[word],0))
                 plan.append((1,word,after[word],0))
@@ -447,3 +482,11 @@ def fill_cases():
                         range(2 if ppop<16 else 4),geometries,(False,True),(False,True)):
                     yield plane_mask_fixture(size,ppop,xy,off,words=words,rows=rows,
                                              pmask=pmask,sample=sample)
+
+    # Append non-replace Boolean partial-word contracts, preserving all
+    # preceding158016 ordinary fixtures/programs. No masking/transparency.
+    for rows,size,words,alignment,ppop,xy,off in product(
+            (1,2,4),(1,2,4,8),(1,2,3),'BCD',range(1,16),(False,True),(False,True)):
+        if (size,words,alignment)==(8,1,'D'):
+            continue  # A nonempty PS8 span cannot have two edges in one word.
+        yield partial_boolean_fixture(size,words,alignment,ppop,xy,off,rows=rows)

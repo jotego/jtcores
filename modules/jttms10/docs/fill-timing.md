@@ -1125,3 +1125,28 @@ independent audit preserves every preceding complete fixture and generated
 program word/start/end PC. Full FPGA validation remains required. The CPU
 and ROM sources are identical to `fcd37bc7`; these fixtures do not require
 new CPU logic or a new FPGA configuration beyond that candidate.
+
+
+## Non-replace Boolean partial-word baseline
+
+The next independent fixture family adds6,300 B/C/D edge cases for PPOP1..15,
+PS1/2/4/8, one/two/three words, one/two/four rows, linear/XY and cache-hit/CD.
+All preceding158,016 ordinary fixture/program contracts are retained; the new
+inventory is164,316 ordinary cases, including24,584 FILL cases. PMASK and
+transparency are disabled and row pitches preserve alignment.
+
+SPVU001A Figure7-6 (p.7-16) separates the CPU destination processing read
+from the memory-controller insertion RMW. Section13.3.2.3 requires word-oriented
+FILL transfers, §13.3.2.4 specifies increasing word order, and Tables13-6/7
+(pp.13-11/13) supply B/C/D row counts with G4. Each complete word therefore
+has one processing read and one write; each partial edge word has a processing
+read followed by a distinct insertion read/write pair. Two edges in a single
+word still require only one final insertion RMW. The unresolved masked or
+transparent single-word D adjustment is absent from this unmasked T0 scope.
+
+Expected pixel values come from the Boolean truth table and destination bit
+coverage, independently of timing and RTL. Every bit outside the rectangle,
+canary memory, defined registers/status, transaction payload/order and total
+instruction duration remain checked. These fixtures establish an unqualified
+baseline until source-bound Verilator and FPGA results are recorded; they do
+not extend the preceding masked whole-word image's acceptance scope by themselves.
