@@ -150,7 +150,8 @@ no registers and changes no YAML. All twelve short timing controls and five
 cancellation modes pass; raw result/bus captures match cce1555 exactly. The
 full permanent Verilator suite passes all 180 architectural programs and units.
 
-Four matched complete NARC CPU fits measure **3,142.5 mean ALMs /53.875 MHz**,
+Four matched complete NARC CPU fits of checkpoint `3ef4e52d` measure
+**3,142.5 mean ALMs /53.875 MHz**,
 with unchanged 1,641 FF, 546,816 RAM bits, 69 M10Ks and zero DSPs. ALMs by seed
 are 3131/3153/3136/3150; conservative Fmax is 52.71/53.80/53.77/55.22 MHz.
 That recovers 67 ALMs versus cce1555. Versus #141, current mean area is
@@ -178,6 +179,25 @@ values agree. Driver commands exit one for these timing/bus failures, with
 transport DONE, no timeout/overflow and healthy image checks. This is failed
 scope, not additional compliance. Raw traces are under
 `artifacts/first-data-physical-baseline-001/execution-001/`.
+
+## Exact-edge HOLD repair
+
+The integrated field/cache/bus test exposed a functional RMW race: HOLD can
+be granted on the same edge that the field sees its read ACK. Previously only
+WRITE recognized restart, so RMW_READ advanced using a stale old word. An
+external update to `a5c0` during HOLD was overwritten by `123b` instead of the
+required `a5cb`.
+
+The field now gives restart priority over read acknowledgment and repeats the
+read after HOLD. The permanent cachefield test checks both restart positions,
+a real ACK/restart overlap, no physical target activity during HOLD, a fresh
+read and exactly one correct write. The same final test fails on archived
+pre-fix RTL. The full 180-program/unit suite, restart fixture and twelve short
+timing controls pass; all twelve raw captures are unchanged. This is a shared
+functional repair, with no microcode, timing counter, new register or oracle
+change. The fitted measurements above belong to pre-repair `3ef4e52d`; measure
+the repaired source with the next structural experiment before claiming its
+PPA. The DataStorm image remains the independently qualified cce1555 source.
 
 ## Demonstrated scope
 

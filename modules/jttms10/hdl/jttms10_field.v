@@ -145,7 +145,12 @@ always @(posedge clk) begin
                 end
             end
             SELECT: state <= (word_mask == 16'hffff) ? WRITE : RMW_READ;
-            RMW_READ: if (word_ack) begin
+            RMW_READ: if (word_restart) begin
+                // A HOLD grant can coincide with the cache's read ACK. That
+                // read may be stale by the time the partial write is issued,
+                // so discard it and repeat the read after HOLD releases.
+                state <= RMW_READ;
+            end else if (word_ack) begin
                 old_word <= word_rdata;
                 state <= WRITE;
             end

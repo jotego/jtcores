@@ -64,7 +64,10 @@ module test;
 
     reg [15:0] external_word=16'h1234;
     integer reads=0,writes=0,trace_count=0,restart_count=0;
+    integer read_ack_restart_count=0,write_restart_count=0;
     reg [3:0] trace_kind [0:7];
+    reg [31:0] trace_addr [0:7];
+    reg [15:0] trace_data [0:7];
     localparam IDLE=0,WAIT=1,ACK=2;
     reg [1:0] target_state=IDLE;
     integer delay_q=0;
@@ -74,10 +77,17 @@ module test;
     always @(posedge clk) begin
         if(rst) begin
             target_state<=IDLE; cyc_ack<=0; cyc_rdata<=0; restart_count<=0;
+            reads<=0; writes<=0; trace_count<=0;
+            read_ack_restart_count<=0; write_restart_count<=0;
         end else begin
-          if(m_restart) restart_count<=restart_count+1;
-          if(restart_count>0 && hold_ack && m_we)
-              $fatal(1,"cache issued a write during the HOLD interval");
+          if(m_restart) begin
+              restart_count<=restart_count+1;
+              if(field_u.state==3'd5) write_restart_count<=write_restart_count+1;
+          end
+          if(f_ack && m_restart && field_u.state==3'd4)
+              read_ack_restart_count<=read_ack_restart_count+1;
+          if(hold_ack && cyc_req)
+              $fatal(1,"physical target cycle escaped during HOLD");
           case(target_state)
             IDLE: if(cyc_req) begin
                 if(cyc_kind!=4'd0 && cyc_kind!=4'd1)
@@ -87,6 +97,8 @@ module test;
                 held_kind<=cyc_kind; held_addr<=cyc_addr;
                 held_data<=cyc_wdata;
                 trace_kind[trace_count]<=cyc_kind;
+                trace_addr[trace_count]<=cyc_addr;
+                trace_data[trace_count]<=cyc_wdata;
                 trace_count<=trace_count+1;
                 delay_q<=2; target_state<=WAIT;
             end
@@ -112,6 +124,11 @@ module test;
         end
     end
     task tick; begin @(posedge clk); #1; end endtask
+    task reset_dut; begin
+        @(negedge clk); req=0; hold_req=0; rst=1;
+        repeat(3) @(negedge clk);
+        rst=0;
+    end endtask
     integer guard;
     initial begin
         repeat(3) @(negedge clk);
@@ -151,13 +168,54 @@ module test;
         if(!ack) $fatal(1,"field write did not complete after HOLD");
         if(external_word!==16'ha5cb || reads!=2 || writes!=1 ||
            trace_count!=3 || trace_kind[0]!=4'd0 ||
-           trace_kind[1]!=4'd0 || trace_kind[2]!=4'd1)
+           trace_kind[1]!=4'd0 || trace_kind[2]!=4'd1 ||
+           read_ack_restart_count!=0 || write_restart_count!=1 ||
+           trace_addr[0]!=32'h1000 || trace_addr[1]!=32'h1000 ||
+           trace_addr[2]!=32'h1000 || trace_data[2]!=16'ha5cb)
             $fatal(1,"restart trace/merge wrong: value=%04x r=%0d w=%0d cycles=%0d",
                    external_word,reads,writes,trace_count);
         repeat(4) tick();
         if(writes!=1 || trace_count!=3)
             $fatal(1,"held architectural request reissued");
-        $display("jttms10_cachefield PASS"); $finish;
+
+        // Second case: HOLD starts during the actual RMW read so the bus
+        // restart and field read ACK coincide at the grant boundary.
+        reset_dut();
+        @(negedge clk); external_word=16'h1234; req=1;
+        guard=0;
+        while(!(field_u.state==3'd4 && cyc_req && cyc_kind==4'd0) &&
+              guard<100) begin
+            tick(); guard=guard+1;
+        end
+        if(guard>=100) $fatal(1,"did not reach integrated RMW read target cycle");
+        @(negedge clk); hold_req=1;
+        guard=0;
+        while(!hold_ack && guard<100) begin tick(); guard=guard+1; end
+        if(guard>=100 || read_ack_restart_count!=1 || restart_count!=1)
+            $fatal(1,"same-edge read ACK/restart missing: ack_restart=%0d restart=%0d",
+                   read_ack_restart_count,restart_count);
+        @(negedge clk); external_word=16'ha5c0;
+        repeat(3) tick();
+        if(cyc_req || writes!=0 || trace_count!=1 || reads!=1)
+            $fatal(1,"target activity during HOLD: cyc=%b reads=%0d writes=%0d cycles=%0d",
+                   cyc_req,reads,writes,trace_count);
+        @(negedge clk); hold_req=0;
+        guard=0;
+        while(!ack && guard<120) begin tick(); guard=guard+1; end
+        if(!ack) $fatal(1,"same-edge restart field write did not complete");
+        if(external_word!==16'ha5cb || reads!=2 || writes!=1 ||
+           trace_count!=3 || trace_kind[0]!=4'd0 ||
+           trace_kind[1]!=4'd0 || trace_kind[2]!=4'd1 ||
+           trace_addr[0]!=32'h1000 || trace_addr[1]!=32'h1000 ||
+           trace_addr[2]!=32'h1000 || trace_data[2]!=16'ha5cb ||
+           read_ack_restart_count!=1 || write_restart_count!=0)
+            $fatal(1,"same-edge restart trace/merge wrong: value=%04x r=%0d w=%0d cycles=%0d overlap=%0d",
+                   external_word,reads,writes,trace_count,read_ack_restart_count);
+        repeat(4) tick();
+        if(writes!=1 || trace_count!=3)
+            $fatal(1,"same-edge held architectural request reissued");
+        $display("jttms10_cachefield PASS (WRITE restart and simultaneous RMW-read ACK/restart)");
+        $finish;
     end
     initial begin #200000; $fatal(1,"cachefield test timeout"); end
 endmodule

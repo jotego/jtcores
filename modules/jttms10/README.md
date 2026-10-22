@@ -10,10 +10,12 @@ The current loaded #149 image passes 99 exact FPGA/Verilator comparisons and
 The cache-disabled/cold NOP controls now pass; full-condition timing signoff
 remains open for every instruction form.
 
-The latest source fits at a four-seed mean **3,142.5 ALMs /53.875 MHz** with
+The measured registered-owner checkpoint (`3ef4e52d`) fits at a four-seed mean
+**3,142.5 ALMs /53.875 MHz** with
 69 M10Ks and no DSPs. All seeds pass constrained 50 MHz. The loaded DataStorm
 image is the separately identified cce1555 checkpoint; its results do not
-physically qualify the later registered-owner cleanup.
+physically qualify later source changes. A subsequent exact-edge HOLD/RMW
+repair passes the permanent functional/timing suite; its PPA is not yet measured.
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
 The accepted #141 NARC CPU baseline fits in **2,746 ALMs**, or **19.6%** of the
