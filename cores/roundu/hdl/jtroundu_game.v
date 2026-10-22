@@ -22,9 +22,33 @@ wire [7:0] audio_din, audio_dout;
 wire [7:0] download_data;
 wire shift_pulse;
 reg shift;
-wire [7:0] stick = !joystick1[0] ? 8'hff :
-                   !joystick1[1] ? 8'h00 :
-                   joyana_l1[7:0] == 8'h80 ? 8'h00 : 8'h7f+joyana_l1[7:0];
+// digital steering ramps the wheel once per frame with auto-center, like
+// MAME's AD_STICK keydelta; the analog stick sets it directly
+reg  [7:0] stick;
+reg        lvbl_l;
+wire [7:0] ana_stick = joyana_l1[7:0] == 8'h80 ? 8'h00 : 8'h7f+joyana_l1[7:0];
+localparam [7:0] WHEEL_STEP = 8'd15;
+
+always @(posedge clk) begin
+    if (game_rst) begin
+        stick  <= 8'h7f;
+        lvbl_l <= 0;
+    end else begin
+        lvbl_l <= LVBL;
+        if (LVBL && !lvbl_l) begin
+            if (!joystick1[0])
+                stick <= stick > 8'hff-WHEEL_STEP ? 8'hff : stick+WHEEL_STEP;
+            else if (!joystick1[1])
+                stick <= stick < WHEEL_STEP ? 8'h00 : stick-WHEEL_STEP;
+            else if (joyana_l1[7:0] != 0)
+                stick <= ana_stick;
+            else if (stick > 8'h7f)
+                stick <= stick-8'h7f > WHEEL_STEP ? stick-WHEEL_STEP : 8'h7f;
+            else
+                stick <= 8'h7f-stick > WHEEL_STEP ? stick+WHEEL_STEP : 8'h7f;
+        end
+    end
+end
 
 always @* post_data = download_data;
 
