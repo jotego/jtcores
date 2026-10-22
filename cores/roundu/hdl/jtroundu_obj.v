@@ -111,6 +111,10 @@ reg [31:0] fast_data [0:1];
 reg [1:0] fast_valid;
 reg fast_pending, fast_wait, fast_bank;
 reg [17:0] fast_request;
+// registered lookahead column: keeps the per-pixel DDA out of the prefetch
+// address cone, at the cost of posting the prefetch one cycle later
+reg [19:0] r_next_col;
+reg r_next_vld;
 reg [17:0] fast_tile_addr, fast_ahead_addr;
 reg fast_tile_bank, fast_ahead_bank;
 integer fast_delta, fast_r, fast_c, fast_tile, fast_ahead;
@@ -251,7 +255,7 @@ always @* begin
     fast_tile_bank = fast_tile[0];
     fast_tile_addr = graphics_addr(fast_tile[17:0],d_line);
     fast_ahead = d_flip ? ({12'd0,d_col} & -8) - 8 : ({12'd0,d_col} & -8) + 8;
-    if (d_scale < 16) fast_ahead = {12'd0,fast_next_col};
+    if (d_scale < 16) fast_ahead = {12'd0,r_next_col};
     if (d_repeat) begin
         if (fast_ahead < 0) fast_ahead = fast_ahead + {19'd0,d_span};
         else if (fast_ahead >= {19'd0,d_span}) fast_ahead = fast_ahead - {19'd0,d_span};
@@ -429,6 +433,8 @@ always @(posedge clk) begin
         fast_bank <= 0;
         fast_request <= 0;
         rom_owner <= 0;
+        r_next_col <= 0;
+        r_next_vld <= 0;
         for (i=0;i<2;i=i+1) begin
             fast_addr[i] <= 0;
             fast_data[i] <= 0;
@@ -453,6 +459,8 @@ always @(posedge clk) begin
         for (i=0;i<6;i=i+1) attr[i] <= 0;
     end else begin
         rom_owner <= rom_owner ? fast_pending : !fsm_req && fast_pending;
+        r_next_col <= fast_next_col;
+        r_next_vld <= dr_state == DR_RUN;
         if (fast_pending) begin
             fast_wait <= rom_owner;
             if (fast_wait && rom_owner && (fast_bank ? rom_h_ok : rom_l_ok)) begin
@@ -495,7 +503,7 @@ always @(posedge clk) begin
                         d_col <= fast_next_col;
                         d_rem <= fast_next_rem;
                         if (d_x[2:0] == 3'd7) cov_chunk <= covmap[{d_x[8:3]+5'd1,3'd0}+:8];
-                        if (!fast_pending && fast_ahead_bank != fast_tile_bank && !fast_ahead_hit
+                        if (!fast_pending && r_next_vld && fast_ahead_bank != fast_tile_bank && !fast_ahead_hit
                          && (d_repeat || (fast_ahead >= 0 && fast_ahead < {19'd0,d_span}))) begin
                             fast_bank <= fast_ahead_bank;
                             fast_request <= fast_ahead_addr;
