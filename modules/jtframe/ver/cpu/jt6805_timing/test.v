@@ -244,7 +244,8 @@ task assess_one(input [7:0] opcode, input integer length,
             watchdog=0;
             while(!(addr==='h0201 && din===opcode) && watchdog<600) begin @(negedge clk); watchdog=watchdog+1; end
             if(watchdog==600) fail("RTS setup could not reach public opcode bus event");
-            set_bytes('h0040,8'h04); set_bytes('h0041,8'h00);
+            uut.u_regs.s=6'h3d;
+            set_bytes('h007e,8'h04); set_bytes('h007f,8'h00);
             set_bytes('h0400,8'h9d); nextpc='h0400;
         end
         if(opcode==8'h83) begin nextpc='h0300; end

@@ -142,6 +142,10 @@ synchronous-RAM-latched opcode, and calibrates three warmed NOP intervals to
 four enabled CEN edges per E. The independent review reproduced all 237
 endpoints without fractional or ambiguous intervals.
 
+The RTS (`$81`) return-effect fixture starts at P3 SP `$7D` and reads the
+frame at `$7E`–`$7F`, within the part's documented `$60`–`$7F` physical stack
+range.
+
 **65C02.** WDC, [*W65C02S Datasheet*](https://www.wdc65xx.com/wdc/documentation/w65c02s.pdf) (2024-02-16), opcode Table 5-2 (PDF p. 22),
 base timing and page-cross rules Table 4-1 (pp. 19–20), decimal/reserved table
 7-1 (p. 30), plus IRQ/NMI/reset sections. Original PDF SHA-256
@@ -220,7 +224,7 @@ The main reviewed fixture/oracle fingerprints are:
 |---|---|
 | `jt6801_timing/test.v` | `e86c9d2174cf777f33983a9b05b8329b102530f22637e791159c3689be5eab3c` |
 | `jt6301_timing/test.v` | `eb9dde2d4cb482dea5001551d2f00ca508ea0f55c36575943fc0943c30c13fe9` |
-| `jt6805_timing/test.v` | `604adcdc184c2a883cb26d096cf29102e8e77dafb7922aa7cb1a0059ecacea69` |
+| `jt6805_timing/test.v` | `f8e964f0917d0bd470b5148351fab2c61218040d41b02a8a6468e168d824b663` |
 | `jt6805_timing/manual_inventory.py` | `de5b8d7c9933625ef4deb86d93cdb6aab2d23f6706af4c272299fb89e4aa1f28` |
 | `jt6805_timing/known_observations.mem` | `8a75eeb68be54beb6d1bd1b643dd93e30deaebe3c6bdc0442190a6f5efba19a0` |
 | `jt65c02_timing/test.v` | `44dfc1ba10e7b6e310455772738fe9adb8e4293ab83930d693574bf8165dd811` |
