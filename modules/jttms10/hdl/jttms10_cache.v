@@ -11,6 +11,13 @@ module jttms10_cache(
     input [15:0] c_wdata,
     output reg [15:0] c_rdata,
     output reg c_ack,
+    input p_req,
+    input [31:0] p_addr,
+    input p_busy,
+    input p_consume,
+    output reg p_ack,
+    output reg p_hit,
+    output [15:0] p_rdata,
     output c_restart,
     output m_req, m_we, m_iaq, m_pixel, m_lock,
     output [31:0] m_addr,
@@ -28,6 +35,12 @@ module jttms10_cache(
         c_lock==last_lock && c_addr==last_addr && c_wdata==last_wdata;
     wire accept=state==IDLE && c_req && (!seen || !same_request);
     wire cacheable=c_program && !c_we && !c_pixel;
+    wire p_req_valid=p_req===1'b1;
+    wire p_consume_valid=p_consume===1'b1;
+    wire [31:9] lookup_tag=(p_req_valid || p_consume_valid) ?
+                            p_addr[31:9] : c_addr[31:9];
+    wire [8:6] lookup_sub=(p_req_valid || p_consume_valid) ?
+                           p_addr[8:6] : c_addr[8:6];
     reg [22:0] tag [0:3];
     reg [7:0] present [0:3];
     reg [1:0] lru [0:3]; // [0] most recently used, [3] victim
@@ -38,7 +51,7 @@ module jttms10_cache(
     always @* begin
         hit_segment=0; hit_slot=0;
         for (j=0;j<4;j=j+1)
-            if (present[j]!=0 && tag[j]==c_addr[31:9]) begin
+            if (present[j]!=0 && tag[j]==lookup_tag) begin
                 hit_segment=1;
                 hit_slot=j[1:0];
             end
@@ -50,13 +63,21 @@ module jttms10_cache(
         for (n=1;n<4;n=n+1)
             lru_next[n]=(n<=pos) ? lru[n-1] : lru[n];
     end
-    wire hit_word=hit_segment && present[hit_slot][c_addr[8:6]];
+    wire hit_word=hit_segment && present[hit_slot][lookup_sub];
+    wire peek_accept=p_req_valid && state==IDLE && !c_req && !p_busy &&
+                     !cache_disable && !cache_flush &&
+                     p_addr[3:0]==0 && hit_word;
+    wire consume_hit=p_consume_valid && state==IDLE && !c_req && !p_busy &&
+                     !cache_disable && !cache_flush &&
+                     p_addr[3:0]==0 && hit_word;
 
     // Exactly 128 x 16 bits. A registered read and separate write port infer
     // one small synchronous block RAM; P flags and tags have reset, data does not.
     reg [15:0] ram [0:127];
     reg [15:0] ram_q;
-    wire [6:0] ram_read_addr={use_slot,c_addr[8:4]};
+    wire [6:0] ram_read_addr=peek_accept ?
+                             {hit_slot,p_addr[8:4]} :
+                             {use_slot,c_addr[8:4]};
     reg [1:0] slot_q, word_q, fill_index;
     reg [2:0] sub_q;
     reg [31:0] addr_q;
@@ -70,6 +91,7 @@ module jttms10_cache(
         ram_q<=ram[ram_read_addr];
         if (ram_write) ram[ram_write_addr]<=m_rdata;
     end
+    assign p_rdata=ram_q;
 
     // HOLD can revoke an unaccepted partial RMW write even after this helper
     // captured it. Drop m_req combinationally on the restart edge so the bus
@@ -87,6 +109,8 @@ module jttms10_cache(
 
     always @(posedge clk) begin
         c_ack<=0;
+        p_ack<=0;
+        p_hit<=0;
         if (rst) begin
             state<=IDLE; seen<=0; c_rdata<=0;
             slot_q<=0; word_q<=0; fill_index<=0; sub_q<=0;
@@ -103,7 +127,11 @@ module jttms10_cache(
             seen<=0;
             fill_poison<=1;
         end else begin
+            p_ack<=p_req_valid;
+            p_hit<=peek_accept;
             if (!c_req) seen<=0;
+            if(consume_hit)
+                for(i=0;i<4;i=i+1) lru[i]<=lru_next[i];
             if (cache_flush) begin
                 for (i=0;i<4;i=i+1) begin
                     present[i]<=0;
@@ -113,7 +141,7 @@ module jttms10_cache(
             if (state==FILL && (cache_flush || cache_disable))
                 fill_poison<=1;
             case (state)
-                IDLE: if (accept) begin
+                IDLE: if (accept && !p_req_valid && !p_consume_valid) begin
                     seen<=1;
                     last_we<=c_we; last_iaq<=c_iaq;
                     last_program<=c_program; last_pixel<=c_pixel;

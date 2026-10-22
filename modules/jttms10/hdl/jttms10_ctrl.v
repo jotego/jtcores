@@ -10,6 +10,8 @@ module jttms10_ctrl(
     input      [4:0]   mul_count,
     input              div_early_cond,
     input              reti_pbx,
+    input              slot_valid,
+    input      [15:0]  slot_opcode,
     input              gfx_active, gfx_done, gfx_checkpoint,
     input      [15:0]  gfx_pbx_ir,
     input              irq_req, nmi_req, nmi_nostack, halt_req, emu_run, ie,
@@ -18,6 +20,7 @@ module jttms10_ctrl(
     output     [7:0]  gfx_family,
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
+    output            peek, slot_take, halt_accept,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
     output            shiftkinit, shiftrinit, shift_step, shift_finish,
     output            setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish,
@@ -48,9 +51,17 @@ module jttms10_ctrl(
     wire [2:0] misc_sel;
     wire [1:0] bus_sel;
     wire gfx_step;
+    wire slot_lookup, slot_dispatch;
+    assign slot_lookup=dispatch && !ld_ir && !ni;
+    assign slot_dispatch=dispatch && ni;
     assign fetch = bus_sel==FETCH_BUS;
     assign imm = bus_sel==IMM_BUS;
     assign vector = bus_sel==VECTOR_BUS;
+    reg slot_lookup_q;
+    reg [7:0] slot_family_q;
+    reg slot_family_valid;
+    wire [15:0] dispatch_opcode =
+        (slot_lookup_q || slot_dispatch) ? slot_opcode : md;
     assign setf = misc_sel==SETF_MISC;
     assign exgf = misc_sel==EXGF_MISC;
     assign btstfinish = misc_sel==BTSTFINISH_MISC;
@@ -98,11 +109,17 @@ module jttms10_ctrl(
     // execution independently of the memory response capture in the datapath.
     assign execute = cen && enable && ready && !halt;
     assign active = cen;
-    wire boundary = !cen && uaddr==FETCH_SEQA;
+    wire boundary = (!cen && uaddr==FETCH_SEQA) ||
+                    (execute && ni && slot_dispatch);
     wire gfx_boundary = !cen && gfx_active && gfx_checkpoint;
-    assign hw_take = (boundary || gfx_boundary) && !rst &&
+    assign hw_take = (boundary || gfx_boundary) && enable && !rst &&
                      !halted && !emu_hold &&
                      (nmi_req || (irq_req && ie));
+    assign halt_accept = enable && !rst && halt_req && !hw_take &&
+                         ((!cen && uaddr==FETCH_SEQA) ||
+                          (execute && ni && slot_dispatch));
+    assign slot_take = execute && ni && slot_dispatch && slot_valid &&
+                       slot_family_valid && !hw_take && !halt_req;
     assign gfx_family=uaddr[11:4];
     wire gfx_migrated = gfx_family==8'd103 || gfx_family==8'd104 ||
                         (gfx_family>=8'd106 && gfx_family<=8'd109) ||
@@ -137,7 +154,7 @@ module jttms10_ctrl(
         (opcode_hi[7:1]==7'b1111111);
         end
     endfunction
-    assign reserved_opcode = is_reserved(md[15:8]);
+    assign reserved_opcode = is_reserved(slot_take ? slot_opcode[15:8] : md[15:8]);
     wire loop_repeat = (shift_step && shift_count>5'd1) ||
                        (lmoscan && lmo_more) ||
                        (multiadvance && multi_steps>5'd1) ||
@@ -315,11 +332,14 @@ module jttms10_ctrl(
 `endif
 `endif
     reg [7:0] entry_family_q;
-    always @(posedge clk) entry_family_q <= dispatch_rom[md[15:5]];
+    always @(posedge clk)
+        entry_family_q <= dispatch_rom[slot_lookup ?
+                                      slot_opcode[15:5] : md[15:5]];
     reg [7:0] entry_family;
     always @* begin
-        entry_family = entry_family_q;
-        casez(md)
+        entry_family = slot_dispatch && slot_valid && slot_family_valid ?
+                       slot_family_q : entry_family_q;
+        casez(dispatch_opcode)
             16'h0100: entry_family = EMU_SEQA[11:4];
             16'h01c0: entry_family = POPST_SEQA[11:4];
             16'h01e0: entry_family = PUSHST_SEQA[11:4];
@@ -352,6 +372,22 @@ module jttms10_ctrl(
 
     always @(posedge clk) begin
         if(rst) begin
+            slot_lookup_q<=0;
+            slot_family_q<=0;
+            slot_family_valid<=0;
+        end else begin
+            slot_lookup_q<=execute && slot_lookup;
+            if(slot_lookup_q && slot_valid) begin
+                slot_family_q<=entry_family;
+                slot_family_valid<=1;
+            end
+            if(!slot_valid || slot_take || hw_take || halt_accept)
+                slot_family_valid<=0;
+        end
+    end
+
+    always @(posedge clk) begin
+        if(rst) begin
             cen <= 0;
             uaddr <= RESET_SEQA;
             jsr_ret <= 0;
@@ -362,7 +398,9 @@ module jttms10_ctrl(
         end else if(!cen) begin
             // Host-present reset holds before the first vector fetch until
             // the host releases HLT (TI section 8.8).
-            if(uaddr==RESET_SEQA && halt_req) begin
+            if(!enable) begin
+                cen <= 0;
+            end else if(uaddr==RESET_SEQA && halt_req) begin
                 cen <= 0;
             end else if(boundary && halted) begin
                 if(!halt_req && !emu_hold) halted <= 0;
@@ -412,13 +450,17 @@ module jttms10_ctrl(
             if(ni) begin
                 uaddr <= FETCH_SEQA;
                 jsr_depth <= 0;
+                if(slot_take) uaddr <= {slot_family_q,4'b0};
+                if(slot_dispatch && halt_req && !hw_take) halted <= 1;
             end
-            if(dispatch) begin
+            if(dispatch && ld_ir) begin
                 uaddr <= entry;
                 jsr_depth <= 0;
             end
             if(gfx_enter || gfx_resume) uaddr <= GFXRUN_SEQA;
             if(gfx_active) uaddr <= gfx_done ? FETCH_SEQA : GFXRUN_SEQA;
+            if(hw_take)
+                uaddr <= nmi_req && nmi_nostack ? HWNOSAVE_SEQA : HWSAVE_SEQA;
         end
     end
 endmodule

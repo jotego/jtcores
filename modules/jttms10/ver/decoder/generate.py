@@ -15,12 +15,16 @@ def main():
     out = args.output_dir.resolve()
     out.mkdir(parents=True, exist_ok=True)
     bench = Path(__file__).with_name("dump.sv")
-    binary = out / "dispatch_dump.vvp"
-    subprocess.run([
-        "iverilog", "-g2012", "-DTMS10_DISPATCH_GENERATE", "-s", "test", "-I" + str(out),
-        "-o", str(binary), str(args.controller.resolve()), str(bench)
-    ], check=True)
-    subprocess.run(["vvp", str(binary), "+output=" + str(out / "tms10_dispatch.hex")],
+    model_dir = out / "dispatch-model"
+    command = ["verilator", "--binary", "--timing", "--top-module", "test",
+               "-Wno-fatal", "-DTMS10_DISPATCH_GENERATE", "-I" + str(out),
+               "--Mdir", str(model_dir), str(args.controller.resolve()), str(bench)]
+    build = subprocess.run(command, cwd=out, capture_output=True, text=True)
+    (out / "dispatch-build.log").write_text(build.stdout + build.stderr)
+    if build.returncode:
+        raise RuntimeError(f"Verilator dispatch ROM build failed:\n{build.stdout}{build.stderr}")
+    binary = model_dir / "Vtest"
+    subprocess.run([str(binary), "+output=" + str(out / "tms10_dispatch.hex")],
                    cwd=out, check=True, stdout=subprocess.DEVNULL)
     words = (out / "tms10_dispatch.hex").read_text().splitlines()
     if len(words) != 2048 or any(len(word) != 2 for word in words):

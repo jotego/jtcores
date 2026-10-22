@@ -3,6 +3,7 @@
 // requests describe 1..32-bit fields. Peripheral/bus integration is separate.
 module jttms10(
     input             rst, clk, cen,
+    input             cache_flush,
     input             irq_req,
     input      [31:0] irq_vector,
     input             nmi_req, nmi_nostack, halt_req, emu_run,
@@ -14,6 +15,9 @@ module jttms10(
     output     [5:0]  mem_size,
     input      [31:0] mem_rdata,
     input             mem_ack,
+    output            peek_req, peek_consume,
+    input             peek_ack, peek_hit,
+    input      [15:0]  peek_data,
     output reg [31:0] pc, st,
     output reg [15:0] ir,
     output reg        retire, fault
@@ -23,6 +27,7 @@ module jttms10(
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
     wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt;
+    wire peek, slot_take, halt_accept;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
     wire shiftkinit, shiftrinit, shift_step, shift_finish;
     wire setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish;
@@ -111,7 +116,10 @@ module jttms10(
     wire [2:0] shift_kind = ir[15:13]==3'b001 ? ir[12:10] : ir[11:9];
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
     wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
-    reg completed;
+    reg completed, bus_started;
+    reg slot_valid, peek_pending;
+    reg [15:0] slot_opcode;
+    wire slot_ready = slot_valid && !cache_flush && !control[15];
     wire field_op = mem_sel!=0 || stack_sel!=0 ||
                     gfx_bus_read || gfx_bus_write;
     wire bus_op = vector || fetch || imm || field_op;
@@ -122,7 +130,10 @@ module jttms10(
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
+    assign peek_req = step && peek && !slot_valid && !peek_pending;
+    assign peek_consume = slot_take;
     assign mem_req = active && bus_op && !completed && !rst && !fault &&
+                     (cen || bus_started) &&
                      !gfx_skip_write;
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
@@ -175,6 +186,7 @@ module jttms10(
         .mul_count(mul_count),
         .div_early_cond(a==0 || !c),
         .reti_pbx(reti_pbx),
+        .slot_valid(slot_ready), .slot_opcode(slot_opcode),
         .gfx_active(gfx_active), .gfx_done(gfx_done),
         .gfx_checkpoint(gfx_checkpoint),
         .gfx_pbx_ir(rs_data[15:0]),
@@ -184,6 +196,7 @@ module jttms10(
         .hw_take(hw_take), .reserved_opcode(reserved_opcode),
         .push_entry(push_entry), .push_active(push_active), .emu_step(emu_step),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
+        .peek(peek), .slot_take(slot_take), .halt_accept(halt_accept),
         .gfx_enter(gfx_enter), .gfx_resume(gfx_resume),
         .gfx_take(gfx_take), .gfx_family(gfx_family),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
@@ -381,6 +394,8 @@ module jttms10(
     wire pc_tmp_add = pc_sel==TMPREL_PC;
     wire pc_add = pcinc || pc_dsj_add || pc_short_add ||
                   pc_long_add || pc_tmp_add;
+    wire pc_redirect = step && (pc_sel!=0 || pc_dsj_add ||
+                                pc_short_add || pc_long_add || pc_tmp_add);
     wire [31:0] pc_delta = pc_tmp_add ? {tmp[27:0],4'd0} :
                            pc_long_add ? {{12{md[15]}},md[15:0],4'd0} :
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
@@ -417,6 +432,10 @@ module jttms10(
             multi_steps<=0;
             fault<=0;
             completed<=0;
+            bus_started<=0;
+            slot_valid<=0;
+            peek_pending<=0;
+            slot_opcode<=0;
             bus_data<=0;
             vector_latched<=0;
             push_high<=0;
@@ -426,6 +445,8 @@ module jttms10(
             pbx_push<=0;
             line_hw_push<=0;
         end else begin
+            if(step) bus_started<=0;
+            else if(mem_req) bus_started<=1;
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
                 nmi_clear<=nmi_req;
@@ -440,6 +461,14 @@ module jttms10(
                 completed<=1;
                 bus_data<=mem_rdata;
             end
+            if(peek_req) peek_pending<=1;
+            if(peek_pending && peek_ack) begin
+                peek_pending<=0;
+                if(peek_hit) begin
+                    slot_opcode<=peek_data;
+                    slot_valid<=1;
+                end
+            end
             if(active && cen && halt) fault<=1;
             if(step) begin
                 completed<=0;
@@ -449,6 +478,8 @@ module jttms10(
                 if(ld_ir && reserved_opcode) begin
                     vector_latched<=32'hfffffc20;
                 end
+                if(slot_take && reserved_opcode)
+                    vector_latched<=32'hfffffc20;
                 if(bus_op && !mem_we) md<=read_data;
                 case(md_sel)
                     A_MD: md<=a;
@@ -470,6 +501,11 @@ module jttms10(
                 endcase
                 if(ld_ir) begin
                     ir<=md[15:0];
+                    div_pairread<=0;
+                end
+                if(slot_take) begin
+                    ir<=slot_opcode;
+                    pc<=pc+32'd16;
                     div_pairread<=0;
                 end
                 if(gfx_active && gfx_dst_ir) ir<=result[15:0];
@@ -694,6 +730,12 @@ module jttms10(
                 retire<=(ni || gfx_done) && !hw_entry;
                 if(ni) hw_entry<=0;
             end
+            if(slot_take || hw_take || halt_accept || cache_flush || control[15] ||
+               pc_redirect) begin
+                slot_valid<=0;
+                peek_pending<=0;
+            end
+            if(hw_take) hw_entry<=1;
         end
     end
 endmodule

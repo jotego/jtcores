@@ -39,12 +39,18 @@ ucode:
       - halt
   - name: nop
     start: 2
-    seq: [ni]
+    seq:
+      - peek
+      - dispatch
+      -
+      - ni, dispatch
   - name: movk
     start: 3
     seq:
-      - k_a
-      - pass_alu, wr_reg, ni
+      - k_a, peek
+      - pass_alu, wr_reg, dispatch
+      -
+      - ni, dispatch
   - name: moviw
     start: 4
     seq:
@@ -62,13 +68,17 @@ ucode:
   - name: move
     start: 6
     seq:
-      - reg_a
-      - pass_alu, wr_reg, nzv_cc, ni
+      - reg_a, peek
+      - pass_alu, wr_reg, nzv_cc, dispatch
+      -
+      - ni, dispatch
   - name: add
     start: 7
     seq:
-      - reg_a, reg_b
-      - add_alu, wr_reg, nvzc_cc, ni
+      - reg_a, reg_b, peek
+      - add_alu, wr_reg, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: addc
     start: 8
     seq:

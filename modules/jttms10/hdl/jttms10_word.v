@@ -33,8 +33,11 @@ module jttms10_word(
     wire [31:0] field_addr, field_wdata, field_rdata;
     wire [5:0]  field_size;
     wire        cache_req, cache_we, cache_lock, cache_ack, cache_restart;
+    wire        cache_peek_req, cache_peek_consume;
+    wire        cache_peek_ack, cache_peek_hit;
     wire [31:0] cache_addr;
-    wire [15:0] cache_wdata, cache_rdata;
+    wire [31:0] cache_peek_addr;
+    wire [15:0] cache_wdata, cache_rdata, cache_peek_data;
     reg         iaq_q, program_q, pixel_q, srt_q, request_latched;
     // An SRT MTR cycle exchanges no pixel data on LAD. Return a defined
     // zero to architectural pixel loads; partial RMW still retains its
@@ -43,7 +46,7 @@ module jttms10_word(
                                    16'd0 : cache_rdata;
 
     jttms10 u_core(
-        .rst(rst), .clk(clk), .cen(cen),
+        .rst(rst), .clk(clk), .cen(cen), .cache_flush(cache_flush),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
         .halt_req(halt_req), .emu_run(emu_run),
@@ -55,6 +58,9 @@ module jttms10_word(
         .mem_pixel(field_pixel),
         .mem_addr(field_addr), .mem_wdata(field_wdata),
         .mem_size(field_size), .mem_rdata(field_rdata), .mem_ack(field_ack),
+        .peek_req(cache_peek_req), .peek_consume(cache_peek_consume),
+        .peek_ack(cache_peek_ack),
+        .peek_hit(cache_peek_hit), .peek_data(cache_peek_data),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 
@@ -75,6 +81,11 @@ module jttms10_word(
         .c_program(program_q), .c_pixel(pixel_q), .c_lock(cache_lock),
         .c_addr(cache_addr), .c_wdata(cache_wdata),
         .c_rdata(cache_rdata), .c_ack(cache_ack),
+        .p_req(cache_peek_req), .p_addr(cache_peek_addr),
+        .p_busy(field_req),
+        .p_consume(cache_peek_consume),
+        .p_ack(cache_peek_ack), .p_hit(cache_peek_hit),
+        .p_rdata(cache_peek_data),
         .c_restart(cache_restart),
         .m_req(word_req), .m_we(word_we), .m_iaq(word_iaq),
         .m_pixel(word_pixel), .m_lock(word_lock),
@@ -82,6 +93,7 @@ module jttms10_word(
         .m_rdata(word_rdata), .m_ack(word_ack),
         .m_restart(word_restart)
     );
+    assign cache_peek_addr=pc;
 
     // The field adapter captures the CPU request on the same edge. Its first
     // physical word can appear after alignment clocks, so IAQ is captured
