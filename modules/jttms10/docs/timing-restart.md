@@ -21,19 +21,44 @@ next bounded shift/LMO increment adds passing warm-cache examples for SLL,
 SRA, SRL, RL, SLA and LMO. Ten mnemonics therefore have passing examples;
 none has full-condition timing signoff. Instruction timing remains in YAML.
 
-The currently programmed CPU source is `e0883caa36c6a30ccc0b3bd113afaa35dd0e60c6`. Its
-SOURCE/SOURCE DataStorm image was loaded and passed board health. The RBF SHA256
-is `827a0450e97d4f3111d9cbc56c9329c5a3c9092c7bbd5f1242002a56bc036bc5`.
-The complete Quartus flow took 846.97 s; the outer build command took 863.140 s.
-The build makes no Top-reuse claim. Programming took 0.342671 s at the target
-(1.188712 s at the host); six transfers totaled 4.353730 s. Build and program
-evidence is retained under
-`/nobackup/tasks/jtcores-149/artifacts/fpga-seed-002/`.
+The currently programmed CPU source is
+`cce1555c6c54602d0e03493946f874c088c8e7ed`, RBF SHA256
+`525804aadbf1fcf59aac7f7e97fdb25ee436e7edb6294309181c46c35244cc92`.
+Its SOURCE/SOURCE DataStorm build took 789.78 s in Quartus /800.630 s overall,
+using `/opt/quartus_free` and retained generated infrastructure. This was a new
+partition seed; no fitted Top preservation or recompilation speedup is claimed.
+The six asset transfers took 4.797937 s. One programming operation took
+0.326385 s on the target /1.195646 s over SSH. Board health passed.
 
-The exact-Verilator representative comparison remains limited to 90 positive
-cases and three `nop_off` diagnostics; the diagnostics show the known CD-fetch
-timing deficit. It is a different run from the FPGA matrix below, and does not
-mean all 7,530 board cases were compared to Verilator.
+All **99 representative physical cases** pass the unchanged independent Python
+oracle and exactly match Verilator across BASE/W1P7/W3. This includes the
+previously failing cache-disabled NOP and two cold four-word miss controls.
+`measure_pass=0` selects the first/cold execution; it does not disable duration
+checking. All 99 cases have duration scoring. A one-clock mutation in each of
+the six cold-profile captures is rejected by the frozen checker.
+
+The source-bound receipt is
+`/nobackup/tasks/jtcores-149/artifacts/fpga-seed-003/program-001/source-bound-programming-receipt.json`
+(SHA256 `06ae9a405cdf2005878cb756a484799e7aeac71f3a577fc5ec68ab0b483f96a7`).
+The representative raw replay is `fpga-seed-003/representative-99/execution-001/root-review.json`.
+The same image also passes **7,530/7,530 cached matrix executions**, with 657
+scalar +1,853 shift/LMO cases per profile, across 237 batches. All six driver
+and transport commands exit zero; no timeout or trace overflow occurs, and
+before/after health passes. Root independently replayed all 237 raw captures.
+This covers 15 encoding forms across ten mnemonics, with zero forms having
+all-condition timing signoff; 118 forms have no new cached matrix. The 99-case
+Verilator comparison is separate from the large matrix.
+
+Six driver walls total 28.010364 s, including transfer/execution/checking.
+Transfers total 9.778567 s; checking takes 1.510004 s. Target staging/run/drain
+sums are 0.347/2.401/4.659 s, nested in the SSH execution time of 10.365592 s.
+These phases are not additive independent end-to-end durations and establish
+no matched software speedup ratio. Full matrix evidence is
+`fpga-seed-003/scalar-shift-matrix/execution-001/root-review.json`
+(SHA256 `b427c6cf532f312aab85af1352eb6f1596ddd5bebd5f3f0ce8749ab38cbdae91`).
+
+The following table records the earlier scalar and shift increments. The
+current bus/fetch CPU measurements appear in the next section.
 
 | Matched four-fit mean | #141 baseline | Stopped #144 | Scalar increment | Shift/LMO increment |
 | --- | ---: | ---: | ---: | ---: |
@@ -54,15 +79,16 @@ is 3,250 mean ALMs: only 122 ALMs remain below it, and field/posted-write/HOLD
 feasibility is still open. Reassess resource sharing before broader expansion
 if that gate cannot be met; do not accumulate unmeasured family fast paths.
 
-## Current bus/fetch experiment
+## Bus/fetch checkpoint and current local experiment
 
 The NOP bus/fetch increment passes all 12 short protocol-v5 controls with
 the unchanged independent Python checker. Cache-disabled NOP takes 32/48/56
 INCLK in BASE/W1P7/W3; the two cold four-word-fill controls take 80/120/176.
 Warm NOP remains 8 INCLK, plus the seven explicit pause clocks in W1P7.
 Actual logical bus slots and raw target handshakes are checked separately.
-This corrects the earlier local fetch deficit; it has not replaced the loaded
-e088 FPGA image or expanded the 15-form qualified cached matrix scope.
+The same controls now agree on FPGA and Verilator. This extends selected NOP
+conditions; it does not expand the 15-form cached matrix inventory or establish
+full-condition instruction compliance.
 
 Timing selection remains in YAML: a small bus service image schedules real
 allocation/response/release, and NOP explicitly selects an earlier next read.
@@ -99,7 +125,8 @@ seed) remain below the 3,250 planning gate. Field/posted-write feasibility
 must stay within the remaining budget before broad instruction migration.
 The 4,096-by-64 control ROM preserves its width from the earlier bus-only
 experiment, and physical RAM blocks/DSPs remain unchanged. These are fresh
-standalone fits, with no incremental-reuse or new FPGA qualification claim.
+standalone fits, separate from the instrumented DataStorm appliance. Physical
+qualification uses this exact source and its own receipt.
 
 The permanent earlyfetch unit also passes held HLT, CF and CD cancellation.
 CF/CD drain an old NOP response, then fetch a distinct MOVK signature from
@@ -116,6 +143,41 @@ Evidence is under `/nobackup/tasks/jtcores-149/artifacts/`:
 The additional permanent-unit proof is `earlyfetch-permanent-unit-runsh-v1/`.
 Broader conditions, field/posted-write feasibility, clean CI and final
 NARC/MiSTer acceptance remain open.
+
+The latest source removes the combinational early-fetch start from request
+and address selection. It reuses the existing registered owner/address, adds
+no registers and changes no YAML. All twelve short timing controls and five
+cancellation modes pass; raw result/bus captures match cce1555 exactly. The
+full permanent Verilator suite passes all 180 architectural programs and units.
+
+Four matched complete NARC CPU fits measure **3,142.5 mean ALMs /53.875 MHz**,
+with unchanged 1,641 FF, 546,816 RAM bits, 69 M10Ks and zero DSPs. ALMs by seed
+are 3131/3153/3136/3150; conservative Fmax is 52.71/53.80/53.77/55.22 MHz.
+That recovers 67 ALMs versus cce1555. Versus #141, current mean area is
+**+14.19%** and reported Fmax **−4.50%**. All 48 constrained STA groups have
+positive slack and zero TNS; minimum setup improves to +1.028 ns. The small
+mean Fmax change is not a demonstrated speedup. Reserve below the 3,250
+planning gate is now 107.5 mean ALMs (97 in the largest seed).
+
+The actual worst-corner path is control ROM to `pc[28]`, at Slow 1100 mV
+−40°C. Targeted TimeQuest queries find no setup paths from ALU operand
+registers A/B to field `last_index`; registered owner-state paths remain.
+Primary fit reports and constraints are unchanged by the queries. Evidence:
+`artifacts/registered-owner-fit-001/{review-v2.json,source-context.json}` and
+`plans/registered-owner-four-fit-review.md`. The immutable snapshot manifest
+SHA256 is `a6564b60f209fa3c3cc215d0e31e50ea0171255dd0e71ff72681db978f16ab2d`.
+This source change is distinct from the currently programmed cce1555 image;
+no physical qualification of the cleanup is claimed.
+
+A separate FPGA memory baseline retains four failing load/store cases in each
+profile and a passing NOP after them. With BASE timing, aligned 16-bit load is
+40 rather than 24 clocks; offset-15 load is 96 rather than 40. Aligned and
+offset-15 stores take 48/128 clocks rather than the required eight-clock CPU
+interval; external writes have not been posted. All checked data/status/memory
+values agree. Driver commands exit one for these timing/bus failures, with
+transport DONE, no timeout/overflow and healthy image checks. This is failed
+scope, not additional compliance. Raw traces are under
+`artifacts/first-data-physical-baseline-001/execution-001/`.
 
 ## Demonstrated scope
 
@@ -147,7 +209,7 @@ shift/leading-zero operations; it has no instruction timer. The short fixture's
 directed cases do not establish all status/register conditions. See
 [the fixture and baseline](../ver/restart/stageb.md).
 
-The subsequent FPGA cached-positive matrix passed 657 scalar and 1,853
+The historical e088 FPGA cached-positive matrix passed 657 scalar and 1,853
 shift/LMO cases in each of BASE, W1P7 and W3, for 7,530 total expected-positive
 executions. The combined inventory has 15 unique coverage IDs across 10
 mnemonics; NOP is present in both inventories, so each profile has 2,510 case
@@ -155,8 +217,9 @@ executions and 2,509 distinct case names. All six driver commands exited zero;
 237 batches completed with no transport errors or timeouts, and health checks
 passed before and after every matrix. The same healthy loaded image was used
 throughout, with no reprogram or reset. This matrix is not full instruction-
-family signoff: the available exact-Verilator comparison remains the 90
-positives and three `nop_off` diagnostics described above.
+family signoff. Its separate exact-Verilator comparison had 90 positives and
+three failing `nop_off` diagnostics. The current cce1555 image fixes those
+diagnostics and has its own 99 positive comparisons, as described above.
 
 | FPGA profile | Scalar cached cases | Shift/LMO cached cases | Total |
 | --- | ---: | ---: | ---: |
@@ -188,9 +251,10 @@ partition seed. Its receipt initially failed because the build helper hashed
 the last diagnostic output instead of the frozen input manifest. The
 host-only correction is committed as `8f1a668c`; a seed-specific, hash-bound
 recovery validates the complete source/input/diagnostic inventory. The CPU and
-YAML source did not change. The current host suite passes 28 tests with no
-skips, including real saved-seed receipt generation and negative certificate
-cases. Later guarded CPU/YAML updates can request stable Top reuse, which the
+YAML source did not change. The current host suite passes 34 tests with no
+skips, including real saved-seed receipt generation, exact ten-payload schema
+and negative certificate cases. The new cce1555 seed receipt needs no legacy
+snapshot recovery. Later guarded CPU/YAML updates can request stable Top reuse, which the
 build reports must prove. ROM-update receipts remain unsupported. See
 [FPGA setup](../ver/fpga/README.md).
 
@@ -207,11 +271,11 @@ merges are in
 These four resident cases do not qualify CD execution, the full field matrix,
 posted writes, HOLD restart or total TI timing.
 
-General flag and A15/B15 alias matrices, same-edge CF/CD changes and all wider
-instruction conditions remain unqualified. The loaded e088 image's
-cache-disabled `nop_off` CD-fetch intervals are 22 vs 32 INCLK at BASE, 37 vs
-48 at W1P7, and 46 vs 56 at W3. Keep CD instruction totals red until this
-fetch deficit is fixed; a CD MOVB total would conflate fetch and field latency.
+Broader flag/alias conditions and same-edge CF/CD combinations remain open.
+The historical e088 image failed cache-disabled `nop_off`: 22 vs 32 INCLK at
+BASE, 37 vs 48 at W1P7, and 46 vs 56 at W3. Those failures are corrected on
+the current cce1555 image. General CD memory-instruction totals remain
+unqualified because field preparation and throughput are still unresolved.
 ACK capture is demonstrated through one resident CEN pause case, while broader
 pause/HOLD conditions remain unqualified. The selected unchanged architectural vectors
 pass the Verilator adapter; the later local experiment's full 180-program

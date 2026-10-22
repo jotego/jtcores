@@ -5,11 +5,18 @@ Instruction timing development has restarted under
 implementation. #144 is closed **unsolved**. Read the
 [restart status and design rules](docs/timing-restart.md): timing adjustments
 belong in YAML microcode, with measured resource and speed gates before expansion.
-The current loaded #149 image passed 7,530 selected cached scalar and shift/LMO
-cases across BASE, W1P7 and W3; full-family timing signoff remains open.
+The current loaded #149 image passes 99 exact FPGA/Verilator comparisons and
+7,530 selected cached scalar and shift/LMO executions across BASE, W1P7 and W3.
+The cache-disabled/cold NOP controls now pass; full-condition timing signoff
+remains open for every instruction form.
+
+The latest source fits at a four-seed mean **3,142.5 ALMs /53.875 MHz** with
+69 M10Ks and no DSPs. All seeds pass constrained 50 MHz. The loaded DataStorm
+image is the separately identified cce1555 checkpoint; its results do not
+physically qualify the later registered-owner cleanup.
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
-The complete NARC CPU boundary fits in **2,746 ALMs**, or **19.6%** of the
+The accepted #141 NARC CPU baseline fits in **2,746 ALMs**, or **19.6%** of the
 existing CPU's 14,000 ALMs, meeting the 25% target. It trades block RAM for
 instruction control and registers (69 M10Ks, no DSPs). Final-source NARC
 gameplay/audio simulation, FPGA constrained timing and unmodified-ROM

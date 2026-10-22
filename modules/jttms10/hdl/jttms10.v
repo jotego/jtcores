@@ -206,8 +206,8 @@ module jttms10(
                      EARLY_RELEASE=3'd4;
     wire early_fetch_active = early_fetch_state!=EARLY_IDLE;
     wire early_fetch_cancel, early_fetch_start, pc_redirect;
-    wire early_fetch_request = early_fetch_start ||
-        early_fetch_state==EARLY_WAIT || early_fetch_state==EARLY_READY ||
+    wire early_fetch_request = early_fetch_state==EARLY_WAIT ||
+        early_fetch_state==EARLY_READY ||
         early_fetch_state==EARLY_DRAIN;
     assign early_fetch_start = step && start_next_fetch && peek_miss &&
                                !slot_valid && early_fetch_state==EARLY_IDLE &&
@@ -256,8 +256,7 @@ module jttms10(
                                  ({32{field_ext_fill}} & ~field_mask);
     assign mem_we = early_fetch_request ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
-    assign mem_addr = early_fetch_request ?
-                      (early_fetch_start ? pc : early_fetch_addr) :
+    assign mem_addr = early_fetch_request ? early_fetch_addr :
                       field_op ? ea : vector ? 32'hffffffe0 : pc;
     assign mem_size = early_fetch_request ? 6'd16 : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
