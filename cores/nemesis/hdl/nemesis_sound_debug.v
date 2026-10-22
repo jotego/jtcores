@@ -7,13 +7,7 @@ Other FPGA systems may be supported by the time you read this.
 This work is not mantained by the MiSTer project. Please contact the
 core authors for issues and updates.
 
-(c) LMN-san, OScherler, Raki 2020–2023.
-
-Support the authors:
-
-       Raki: https://www.patreon.com/ikamusume
-    LMN-san: https://ko-fi.com/lmnsan
-  OScherler: https://ko-fi.com/oscherler
+(c) LMN-san, OScherler, Raki 2020–2026.
 
 The authors do not endorse or participate in illegal distribution
 of copyrighted material. This work can be used with legally

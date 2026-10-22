@@ -14,7 +14,7 @@
     along with JT49.  If not, see <http://www.gnu.org/licenses/>.
     
     Author: Jose Tejada Gomez. Twitter: @topapate
-    Author: Olivier Scherler.  Twitter: @oscherler
+    Author: Olivier Scherler.  Mastodon: @oscherler@tooting.ch
     Version: 1.0
     Date: 10-Nov-2018
     

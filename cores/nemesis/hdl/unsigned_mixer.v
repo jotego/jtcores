@@ -13,9 +13,9 @@
 	You should have received a copy of the GNU General Public License
 	along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
 
-	Author: Jose Tejada Gomez. Twitter: @topapate
-	Author: LMN-san.           Twitter: @Lmn_Sama
-	Author: Olivier Scherler.  Twitter: @oscherler
+	Author: Jose Tejada Gomez. Twitter:  @topapate
+	Author: LMN-san.           Twitter:  @Lmn_Sama
+	Author: Olivier Scherler.  Mastodon: @oscherler@tooting.ch
 	Version: 1.0
     Date: 24-08-2022
 */
