@@ -325,6 +325,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
                 echo "WARNING: could not generate detailed timing report (see $TIMING_RPT)"
             fi
         fi
+        if [[ -s "$RPTPATH/$corename.fit.rpt" ]]; then
+            cp "$RPTPATH/$corename.fit.rpt" "${LOG%.log}.fit.rpt"
+        fi
         if [[ -s "$STA_LOG" ]] && neg_slack=$(worst_negative_sta_slack "$STA_LOG"); then
             grep --color=auto "Worst-case.*-[0-9.]*" "$STA_LOG" || true
             if [[ -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
