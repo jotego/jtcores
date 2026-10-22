@@ -1,6 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
- * SPDX-License-Identifier: GPL-3.0-or-later
- * Date: {{ now | date "02-01-2006" }} */
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 
 // Control signals
 {{- range .Ss }}{{ if (ne .Bw 1)}}
