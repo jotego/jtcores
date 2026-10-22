@@ -1,0 +1,3 @@
+profile,event,manual_cycles,source
+HD6301/HD63701Y0,IRQ accepted service through first handler opcode,12,"Hitachi HD63701Y0 data sheet, Figure 52, printed p. 787 (PDF p. 70)"
+HD6301/HD63701Y0,NMI accepted service through first handler opcode,12,"Hitachi HD63701Y0 data sheet, Figure 52, printed p. 787 (PDF p. 70)"
