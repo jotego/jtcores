@@ -72,6 +72,7 @@ JTFRAME_MR_LF_BRAM       | MiSTer  | Use BRAM instead of DDR for JTFRAME_LF_BUFF
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
+JTFRAME_NO_REGISTER_RETIMING | MiSTer | Sets Quartus `PHYSICAL_SYNTHESIS_REGISTER_RETIMING` to OFF (ON by default)
 JTFRAME_NOSTA            |         | jtcore will not check STA and will produce a PASS regardless of it
 JTFRAME_EASY_STA         |         | jtcore accepts small negative STA slack down to -0.333 ns
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)

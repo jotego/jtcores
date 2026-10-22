@@ -1,5 +1,11 @@
 # JTTMS10
 
+Instruction timing development has restarted under
+[#149](http://gitea.jotego.es/jotego/jtcores/issues/149) from the accepted #141
+implementation. #144 is closed **unsolved**. Read the
+[restart status and design rules](docs/timing-restart.md): timing adjustments
+belong in YAML microcode, with measured resource and speed gates before expansion.
+
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
 The complete NARC CPU boundary fits in **2,746 ALMs**, or **19.6%** of the
 existing CPU's 14,000 ALMs, meeting the 25% target. It trades block RAM for
