@@ -21,6 +21,10 @@ offset=[
     { name="DSW", value=0 },
     { name="IN1", value=16 },
 ]
+# MAME exports PORT_SERVICE as a plain input, not a dipswitch
+extra = [
+    { machine="roundup5", name="Service Mode", bits="16", Options="Off,On" },
+]
 
 [ROM]
 regions=[

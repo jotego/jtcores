@@ -186,7 +186,7 @@ jtroundu_snd u_snd (
     .oki_cen            ( oki_2m_cen                                                           ),
     .halt               ( control[2]                                                           ),
     .in0                ( {2'b11,cab_1p[0],joystick1[7],shift,joystick1[5],1'b1,joystick1[4]}  ),
-    .in1                ( {dipsw[23:20],service,coin[1:0],dip_test}                            ),
+    .in1                ( {dipsw[23:20],service,coin[1:0],dipsw[16]}                           ),
     .stick              ( stick                                                                ),
     .v30_addr           ( audio_addr                                                           ),
     .v30_sel            ( audio_sel                                                            ),
