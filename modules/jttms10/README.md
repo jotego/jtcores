@@ -5,17 +5,21 @@ Instruction timing development has restarted under
 implementation. #144 is closed **unsolved**. Read the
 [restart status and design rules](docs/timing-restart.md): timing adjustments
 belong in YAML microcode, with measured resource and speed gates before expansion.
-The current loaded #149 image passes 99 exact FPGA/Verilator comparisons and
-7,530 selected cached scalar and shift/LMO executions across BASE, W1P7 and W3.
-The cache-disabled/cold NOP controls now pass; full-condition timing signoff
-remains open for every instruction form.
+The current `7327cd12` image passes **228 exact FPGA/Verilator comparisons**
+across BASE, W1P7 and W3, including ten additional cached ALU schedules
+expressed entirely in YAML. All **13,338 cached FPGA matrix executions** pass
+with the unchanged Python oracle: 28/133 encoding forms have cached coverage;
+105 have no new cached matrix.
+Cache-disabled/cold NOP controls pass; full-condition timing signoff remains
+open for every instruction form.
 
-The measured registered-owner checkpoint (`3ef4e52d`) fits at a four-seed mean
+The new YAML/HOLD checkpoint (`8a6e8f4e`) fits at a four-seed mean
 **3,142.5 ALMs /53.875 MHz** with
-69 M10Ks and no DSPs. All seeds pass constrained 50 MHz. The loaded DataStorm
-image is the separately identified cce1555 checkpoint; its results do not
-physically qualify later source changes. A subsequent exact-edge HOLD/RMW
-repair passes the permanent functional/timing suite; its PPA is not yet measured.
+69 M10Ks and no DSPs, exactly matching the preceding measured checkpoint.
+All seeds pass constrained 50 MHz: the ten additional schedules add no
+measured hardware cost. The later `7327cd12` build fix removes only generated
+date comments. Current strict lint and the inherited decoder audit remain
+open; the #141 validation recorded below is historical.
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
 The accepted #141 NARC CPU baseline fits in **2,746 ALMs**, or **19.6%** of the

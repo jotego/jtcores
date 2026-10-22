@@ -7,7 +7,92 @@ and its implementation exceeded the area and constrained speed limits.
 accepted #141 CPU, with the verification and DataStorm transport considered
 separately.
 
-## Status
+## Current checkpoint
+
+**Instruction timing adjustments belong in YAML microcode.** The new cached
+ADDC, SUB, SUBB, CMP, ADDK, SUBK, AND, ANDN, OR and XOR schedules change only
+microcode; INC/DEC/CLR reuse these sequences. No CPU RTL, timing counter,
+register or queue is added. The existing four-word schedule performs the real
+operand, ALU, flag and dispatch work. Thirty scalar-ROM words change, with
+unchanged 4,096×64 geometry and unchanged dispatch/bus/graphics payloads.
+
+Current hardware is source `7327cd12569af7d731da9584a922b145a4cc3274`, tree
+`7a558225818b58865dca1f774b51d0a96345c828`, RBF SHA256
+`a0a77e207cce5adf0f77ed0c047df8a23e99f0c31bc266a8c312875a24cf92a2`, overlay
+`jtcores-149-scalar-a0a77e20`. Its strict programming receipt is
+`/nobackup/tasks/jtcores-149/artifacts/fpga-scalar-seed-005/program-001/source-bound-programming-receipt.json`
+(SHA256 `3ae1e7867ad2878df740cabe3ef55f1aad57c5d93783500c8cbbc8aaca883db9`).
+The independent oracle remains frozen at `9a17778b941dce89328316ee3e8f7f0a4bd14923`.
+
+All **228 representative FPGA cases** pass and exactly match Verilator:
+129 new ALU and 99 retained scalar/shift/NOP checks across BASE/W1P7/W3.
+New cached ALU durations are 8/15/8 INCLK, versus 16/24/16 before the YAML
+change. Every hardware result word and checked bus event agrees; all overflow
+bits are clear. Both root and Sol independently replayed the raw captures
+with the unchanged Python checker. No reset or reprogramming occurred between
+cases.
+
+The same image passes **13,338/13,338 cached matrix executions** in 420
+batches: 5,808 new cases plus 7,530 retained scalar/shift/LMO cases. Each
+profile contains 1,936 new +657 retained scalar +1,853 shift cases. Root
+and Sol independently replayed all 420 raw batches and reproduced every verdict and
+case diagnostic with the frozen checker. The 228 exact Verilator comparisons
+are a separate scope; the long matrix has no per-case Verilator claim.
+
+**28 of 133 encoding forms have passing cached matrices; 105 have no new
+cached matrix. Zero forms have all-condition timing signoff.** Cache-disabled
+ALU execution, scalar-specific IRQ timing, memory-entry/pause behavior,
+unaligned fields, posted writes, broader graphics conditions, clean CI and
+final NARC/MiSTer acceptance remain open. The memory pipeline is deferred.
+No expectation, supported stimulus or observation timestamp was changed.
+
+| Complete NARC CPU, four-fit mean | Original #141 | Previous 3ef4e52d | Current 8a6e8f4e |
+| --- | ---: | ---: | ---: |
+| ALMs | 2,752 | 3,142.5 | **3,142.5** |
+| Conservative reported Fmax | 56.415 MHz | 53.875 MHz | **53.875 MHz** |
+| Registers | 1,523 | 1,641 | **1,641** |
+| RAM bits | 542,720 | 546,816 | **546,816** |
+| M10K / DSP | 69 / 0 | 69 / 0 | **69 / 0** |
+
+The HOLD repair and ten new schedules exactly reproduce the preceding four
+fitted resource/timing panels. All 48 constrained STA rows are positive/TNS0;
+minimum setup/hold is +1.028/+0.118 ns. Current cost remains +14.19% ALMs and
+−4.50% reported Fmax versus #141, with 107.5 mean ALMs below the 3,250 planning
+gate. Final acceptance remains ≤3,500 ALMs and positive constrained 50 MHz.
+The later `7327cd12` fix removes only generated date comments and preserves
+all hardware declarations and ROM contents.
+
+The DataStorm SOURCE/SOURCE build uses `/opt/quartus_free`: **1,012.05 s
+Quartus /1,046.123 s outer**. Generated IP is retained, but fitted Top reuse is
+0%; no incremental speedup is claimed for this fresh deterministic seed.
+Two CPU PPA jobs overlapped its early stages, so compile times are not a
+controlled comparison. Six asset transfers took 7.699301 s; one programming
+operation took 0.329280 s on target /1.322603 s enclosing host command.
+Nine matrix driver walls sum **44.490965 s**, including transfer/execution/
+checking; the campaign including separate health checks takes 71.959736 s.
+Nested transfer/check phases total 14.417570/2.615639 s. FPGA staging/run/drain
+sum 0.609/4.243/8.237 s inside 17.583736 s of SSH execution. These phases are
+not additive end-to-end times and establish no matched software speedup ratio.
+
+The instrumented test appliance is separate from production CPU PPA:
+8,434 ALMs, 7,953 registers, 371 M10Ks and one DSP. All 88 constrained STA
+rows are positive/TNS0; the worst h2f setup margin is +0.708 ns, smaller than
+the preceding +1.522 ns. All 32 post-calibration DDR margin rows are unchanged.
+This does not establish final whole-core NARC closure.
+
+Evidence: task folder `artifacts/yaml-scalar-fit-002/` and
+`artifacts/fpga-scalar-seed-005/`. Root short replay is
+`physical-short-001/root-replay/root-review.json`; the independent Sol review
+is `plans/fpga-scalar-seed005-short-physical-review.md`. Long raw captures,
+all command receipts, phase measurements and `root-review.json` are under
+`physical-long-001/`. Protocol5 returns 292 hardware result words/case; all
+3,894,696 matrix words are retained, with zero trace events/overflow in these
+cached matrices. The short controls separately check 81 bus-event records.
+
+## Historical milestones
+
+The following records describe earlier checkpoints. Source/image identities
+and measured results belong to their stated checkpoint.
 
 The starting HDL and YAML were exactly the accepted #141 implementation
 `a0d3612799adaa1df556aac8b5f6f2b27ae33b5b`, through its closing documentation
@@ -21,7 +106,7 @@ next bounded shift/LMO increment adds passing warm-cache examples for SLL,
 SRA, SRL, RL, SLA and LMO. Ten mnemonics therefore have passing examples;
 none has full-condition timing signoff. Instruction timing remains in YAML.
 
-The currently programmed CPU source is
+The preceding programmed CPU source was
 `cce1555c6c54602d0e03493946f874c088c8e7ed`, RBF SHA256
 `525804aadbf1fcf59aac7f7e97fdb25ee436e7edb6294309181c46c35244cc92`.
 Its SOURCE/SOURCE DataStorm build took 789.78 s in Quartus /800.630 s overall,
@@ -79,7 +164,7 @@ is 3,250 mean ALMs: only 122 ALMs remain below it, and field/posted-write/HOLD
 feasibility is still open. Reassess resource sharing before broader expansion
 if that gate cannot be met; do not accumulate unmeasured family fast paths.
 
-## Bus/fetch checkpoint and current local experiment
+## Historical bus/fetch checkpoint and registered-owner cleanup
 
 The NOP bus/fetch increment passes all 12 short protocol-v5 controls with
 the unchanged independent Python checker. Cache-disabled NOP takes 32/48/56
@@ -167,8 +252,8 @@ Primary fit reports and constraints are unchanged by the queries. Evidence:
 `artifacts/registered-owner-fit-001/{review-v2.json,source-context.json}` and
 `plans/registered-owner-four-fit-review.md`. The immutable snapshot manifest
 SHA256 is `a6564b60f209fa3c3cc215d0e31e50ea0171255dd0e71ff72681db978f16ab2d`.
-This source change is distinct from the currently programmed cce1555 image;
-no physical qualification of the cleanup is claimed.
+These measurements originally preceded physical qualification. The current
+7327cd12 image includes this cleanup and has its own evidence above.
 
 A separate FPGA memory baseline retains four failing load/store cases in each
 profile and a passing NOP after them. With BASE timing, aligned 16-bit load is
@@ -195,9 +280,8 @@ read and exactly one correct write. The same final test fails on archived
 pre-fix RTL. The full 180-program/unit suite, restart fixture and twelve short
 timing controls pass; all twelve raw captures are unchanged. This is a shared
 functional repair, with no microcode, timing counter, new register or oracle
-change. The fitted measurements above belong to pre-repair `3ef4e52d`; measure
-the repaired source with the next structural experiment before claiming its
-PPA. The DataStorm image remains the independently qualified cce1555 source.
+change. The later 8a6e8f4e fits include this repair, with unchanged resource
+and timing panels; current physical evidence is recorded above.
 
 ## Microcode timing policy and next increment
 
@@ -226,15 +310,34 @@ The 99 retained representatives, twelve NOP controls and full 180-program/unit
 suite pass on the updated source, including the shared NMI/IRQ/HLT/CF/CD
 boundary controls. Scalar-specific interrupt timing is not qualified.
 
-The complete prepared cached inventory contains 1,936 independent cases per
+The additional cached inventory contains 1,936 independent cases per
 profile across 13 coverage forms, including B-bank/SP aliases, arithmetic
-boundaries and all K constants. It has not run on the currently loaded FPGA;
-the earlier 7,530 executions cover none of these additional forms. New YAML
-needs its own source-bound image before additional physical coverage is
-claimed. Cache-disabled execution and broader instruction conditions remain
+boundaries and all K constants. The earlier 7,530 executions cover none of these additional forms. The new
+source-bound image passes representative qualification; long-matrix results
+are recorded separately at the current checkpoint above. Cache-disabled execution and broader instruction conditions remain
 outside this increment's qualification. Evidence is under
 `artifacts/yaml-scalar-expansion-001/` and `yaml-scalar-fpga-matrix-001/` in
-the issue task folder. Fitted measurements above still refer to `3ef4e52d`.
+the issue task folder. Current-source fits are recorded below.
+
+All four matched fits of the new YAML checkpoint `8a6e8f4e` now reproduce
+the preceding resource and timing results exactly: **3,142.5 mean ALMs /
+53.875 MHz**, 1,641 registers, 546,816 RAM bits, 69 M10Ks and zero DSPs.
+Every seed exceeds 50 MHz, with positive slack and zero TNS in all 48
+constrained STA rows. This includes the earlier HOLD repair. There is no
+measured hardware cost for the ten additional microcode schedules. The
+snapshot manifest is `efe576b1778f2d50586e95edd388bd0ae2066e2e185dea388240966cf4987d13`;
+root's primary replay is `artifacts/yaml-scalar-fit-002/root-primary-review.json`
+(SHA256 `9645ca290fb348f484e4baeff65249495196468e7068ccc1c8b4384aec3fff5c`).
+
+The requested incremental FPGA build stopped before Quartus because old
+generated headers carried the previous day's date. Commit `7327cd12` removes
+that generated comment; all ten payloads now reproduce byte-for-byte across
+timezones on different calendar days. The seven non-parameter payloads and
+all parameter declarations remain identical to the fitted source, so no
+hardware timing or area change is inferred from this build metadata fix.
+A fresh SOURCE/SOURCE seed completed for this checkpoint; no fitted Top
+preservation or incremental speedup is claimed for it. Strict
+source checks remain enabled for future updates from the deterministic seed.
 
 ## Demonstrated scope
 
@@ -275,7 +378,7 @@ executions and 2,509 distinct case names. All six driver commands exited zero;
 passed before and after every matrix. The same healthy loaded image was used
 throughout, with no reprogram or reset. This matrix is not full instruction-
 family signoff. Its separate exact-Verilator comparison had 90 positives and
-three failing `nop_off` diagnostics. The current cce1555 image fixes those
+three failing `nop_off` diagnostics. The later cce1555 image fixed those
 diagnostics and has its own 99 positive comparisons, as described above.
 
 | FPGA profile | Scalar cached cases | Shift/LMO cached cases | Total |
@@ -331,7 +434,7 @@ posted writes, HOLD restart or total TI timing.
 Broader flag/alias conditions and same-edge CF/CD combinations remain open.
 The historical e088 image failed cache-disabled `nop_off`: 22 vs 32 INCLK at
 BASE, 37 vs 48 at W1P7, and 46 vs 56 at W3. Those failures are corrected on
-the current cce1555 image. General CD memory-instruction totals remain
+the historical cce1555 image. General CD memory-instruction totals remain
 unqualified because field preparation and throughput are still unresolved.
 ACK capture is demonstrated through one resident CEN pause case, while broader
 pause/HOLD conditions remain unqualified. The selected unchanged architectural vectors
@@ -399,24 +502,23 @@ events must be measured independently of retirement pulses.
 
 ## Next decisions
 
-1. Keep the 7,530-case result bound to its recorded image/oracle evidence, and
-   extend exact-Verilator comparison only with explicit case-by-case reports.
-   Do not count these selected positive matrices as full-family signoff.
-2. Continue field validation from segment events: extend alignment, pair
-   inventory, payload/preservation, response capture, posted-write and HOLD
-   cases while keeping the offset-0 control. Keep CD totals diagnostic until
-   `nop_off` fetch timing is corrected.
-3. Reassess shared resources against the 3,250 mean-ALM Stage B planning gate
-   before broad condition expansion. Timing adjustments remain in YAML; any
-   RTL work must add a justified generic functional/protocol capability.
-4. Preserve original functionality and the final CI/NARC/MiSTer acceptance
-   gates, including full architectural, lint and fitted timing checks.
+1. Keep the 13,338 matrix executions and 228 exact comparisons bound to the
+   current source/image/oracle receipts. Expand timing conditions explicitly;
+   selected passing matrices do not establish full-form compliance.
+2. Resolve the frozen W1P7 first-data allocation/pause contract before any
+   prepared-entry RTL. Retain failing memory timing as diagnostic evidence;
+   extend alignment, pair/payload preservation, posted writes and HOLD from
+   real bus events without moving observation timestamps.
+3. Reassess shared resources against the 3,250 mean-ALM planning gate before
+   structural expansion. Timing adjustments remain in YAML; RTL additions
+   require a justified generic functional/protocol capability and measured cost.
+4. Preserve original functionality and the final CI/NARC/MiSTer gates.
 
 Long supported matrices run on DataStorm through its dedicated operator.
 Short diagnostics use Verilator. Use `/opt/quartus_free` and retain stable
-HPS/test infrastructure for incremental compilation. The loaded `e0883caa`
-image qualifies the recorded representative comparisons and selected cached
-matrices; complete family timing and the final acceptance gates remain open.
+HPS/test infrastructure for guarded incremental compilation. The new
+reproducible seed preserves future compatibility checks; report actual Top
+preservation and measured compile time for each update.
 
 Every milestone reports demonstrated timing scope, remaining conditions,
 original/previous/current area and speed, structural cost and next decision
