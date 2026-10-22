@@ -32,6 +32,23 @@ main() {
         verify_frozen_inputs
         write_result
         write_partition_result seed
+    elif [[ $stage == partition-update-microcode ]]; then
+        snapshot_rapid_parent
+        validate_partition_seed_parent
+        prepare_build
+        printf '%s\n' "$rapid_parent_json" > "$build_dir/v2-partition-parent.json"
+        configure_partition microcode-update
+        regenerate_payload
+        run_partition_query microcode-update
+        freeze_inputs
+        write_partition_source_delta microcode-update
+        verify_frozen_inputs
+        remove_stale_compile_outputs
+        capture_compile_inputs
+        run_compile
+        verify_frozen_inputs
+        write_result
+        write_partition_result microcode-update
     elif [[ $stage == partition-update ]]; then
         snapshot_rapid_parent
         validate_partition_seed_parent
@@ -78,7 +95,7 @@ main() {
 
 parse_args() {
     if [[ $# -lt 2 || $# -gt 3 ]]; then
-        echo "Usage: $0 BASE_BUILD_DIR NEW_BUILD_DIR [rapid|full|map|certify-map|compile|partition-seed|partition-update]" >&2
+        echo "Usage: $0 BASE_BUILD_DIR NEW_BUILD_DIR [rapid|full|map|certify-map|compile|partition-seed|partition-update|partition-update-microcode]" >&2
         exit 2
     fi
     source_dir=$(cd -- "$(dirname -- "$0")" && pwd)
@@ -86,8 +103,8 @@ parse_args() {
     base_dir=$(realpath -- "$1")
     build_dir=$(realpath -m -- "$2")
     stage=${3:-compile}
-    [[ $stage == rapid || $stage == map || $stage == full || $stage == compile || $stage == certify-map || $stage == partition-seed || $stage == partition-update ]] || {
-        echo "stage must be rapid, full, map, certify-map, compile, partition-seed, or partition-update" >&2; exit 2;
+    [[ $stage == rapid || $stage == map || $stage == full || $stage == compile || $stage == certify-map || $stage == partition-seed || $stage == partition-update || $stage == partition-update-microcode ]] || {
+        echo "stage must be rapid, full, map, certify-map, compile, partition-seed, partition-update, or partition-update-microcode" >&2; exit 2;
     }
 }
 
@@ -98,7 +115,7 @@ validate_paths() {
     [[ -s $base_dir/QSYS_test_board/synthesis/QSYS_test_board.qip ]] || {
         echo "base build lacks generated QIP" >&2; exit 1;
     }
-    if [[ $stage == rapid || $stage == map || $stage == full || $stage == partition-seed || $stage == partition-update ]]; then
+    if [[ $stage == rapid || $stage == map || $stage == full || $stage == partition-seed || $stage == partition-update || $stage == partition-update-microcode ]]; then
         [[ ! -e $build_dir ]] || { echo "new build directory must not exist: $build_dir" >&2; exit 1; }
     else
         [[ -s $build_dir/test_board.qsf && -s $build_dir/v2-build-inputs.json ]] || {
@@ -126,7 +143,7 @@ config.update(parent_build_dir=str(parent),
     parent_inputs_sha256=hashlib.sha256((parent/'v2-build-inputs.json').read_bytes()).hexdigest(),
     parent_image_sha256=hashlib.sha256((parent/'output_files/test_board.rbf').read_bytes()).hexdigest(),
     parent_sta_summary_sha256=hashlib.sha256((parent/'output_files/test_board.sta.summary').read_bytes()).hexdigest())
-if mode == 'update':
+if mode in ('update','microcode-update'):
     p=parent/'v2-partition-stage-result.json'
     if not p.is_file(): raise SystemExit('partition update parent certificate disappeared')
     config['parent_partition_stage_sha256']=hashlib.sha256(p.read_bytes()).hexdigest()
@@ -178,18 +195,39 @@ current=json.loads((build/'v2-build-inputs.json').read_text())
 now=partition_build.source_hashes_relative(current)
 if mode=='seed':
     delta=[]; before={}; input_delta={}; transient_input_delta={}
+    payload_delta={}
+    seed_payloads=partition_build.validate_generated_payload_manifest(
+        build, Path(current['source_root']), verify_generation=True)
+    partition_build.validate_dispatch_rom_source(Path(current['source_root']),seed_payloads)
+    diagnostic_output_delta=partition_build.compare_non_compile_generated_outputs(base,build)
 else:
     old_manifest=json.loads((base/'v2-build-inputs.json').read_text())
     before=partition_build.source_hashes_relative(old_manifest)
     try:
-        delta=partition_build.compute_cpu_source_delta(old_manifest,current)
-        input_delta,transient_input_delta=partition_build.validate_compiled_input_deltas(
-            base,build,delta)
+        if mode=='microcode-update':
+            delta=partition_build.compute_cpu_microcode_source_delta(old_manifest,current)
+            parent_root=Path(old_manifest['source_root'])
+            candidate_root=Path(current['source_root'])
+            parent_payloads=partition_build.validate_generated_payload_manifest(
+                base, parent_root, verify_generation=True)
+            candidate_payloads=partition_build.validate_generated_payload_manifest(
+                build, candidate_root, verify_generation=True)
+            partition_build.validate_dispatch_rom_source(parent_root,parent_payloads)
+            partition_build.validate_dispatch_rom_source(candidate_root,candidate_payloads)
+            payload_delta=partition_build.generated_payload_delta(base,build)
+        else:
+            delta=partition_build.compute_cpu_source_delta(old_manifest,current)
+            payload_delta={}
+        input_delta,transient_input_delta,diagnostic_output_delta=partition_build.validate_compiled_input_deltas(
+            base,build,delta,payload_delta if mode=='microcode-update' else None,
+            allow_generated_diagnostic_delta=mode=='microcode-update')
     except ValueError as error:
         raise SystemExit(str(error)) from error
 row={'mode':mode,'source_delta':delta,'parent_source_hashes':before,'source_hashes':now,
      'compiled_input_delta':input_delta,
-     'transient_compiled_input_delta':transient_input_delta}
+     'transient_compiled_input_delta':transient_input_delta,
+     'non_compile_generated_output_delta':diagnostic_output_delta,
+     'generated_payload_delta':payload_delta}
 (build/'v2-partition-source-delta.json').write_text(json.dumps(row,indent=2,sort_keys=True)+'\n')
 PY
 }
@@ -222,8 +260,10 @@ cfg=json.loads((b/'v2-partition-stage-precompile.json').read_text())
 delta=json.loads((b/'v2-partition-source-delta.json').read_text())
 if result.get('flow_seconds') != float(time_match.group(1)):
     raise SystemExit('common build certificate flow time differs from compile timing record')
+format_name = (partition_build.MICROCODE_RESULT_FORMAT
+               if mode == 'microcode-update' else partition_build.RESULT_FORMAT)
 cert={
- 'format':partition_build.RESULT_FORMAT,'mode':mode,
+ 'format':format_name,'mode':mode,
  'command':['/opt/quartus_free/quartus_sh','--flow','compile','test_board'],
  'working_directory':str(b),'flow_exit_code':0,'inputs_unchanged':True,
  'flow_log_sha256':sha(log),'terminal_marker':marker,
@@ -236,6 +276,7 @@ cert={
  'source_delta_sha256':sha(b/'v2-partition-source-delta.json'),
  'compiled_input_delta':delta['compiled_input_delta'],
  'transient_compiled_input_delta':delta.get('transient_compiled_input_delta',{}),
+ 'non_compile_generated_output_delta':delta.get('non_compile_generated_output_delta',{}),
  'partition_observations':partition_build.extract_partition_observations(b),
  'qsf_sha256':sha(b/'test_board.qsf'),'rbf_sha256':sha(b/'output_files/test_board.rbf'),
  'stage_reports':{name:sha(path) for name,path in reports.items()},
@@ -250,6 +291,11 @@ cert={
  'parent_sta_summary_sha256':cfg['parent_sta_summary_sha256'],
  'parent_partition_stage_sha256':cfg.get('parent_partition_stage_sha256'),
  'source_hashes':delta['source_hashes'],'source_delta':delta['source_delta'],
+ 'generated_payload_delta':delta.get('generated_payload_delta',{}),
+ 'generated_payload_manifest_sha256':
+     sha(b/'v2-generated-payloads.json') if (b/'v2-generated-payloads.json').is_file() else None,
+ 'seed_package_reconstruction_sha256':
+     partition_build.seed_package_reconstruction_binding(b, mode),
  'quartus_preflight':{'query_tcl_sha256':sha(b/'v2-partition-query.tcl'),
                       'query_log_sha256':sha(b/'logs/v2-partition-query.log')}}
 cert_path=b/'v2-partition-stage-result.json'
@@ -307,10 +353,13 @@ PY
 
 prepare_build() {
     cp -a --reflink=auto "$base_dir" "$build_dir"
-    python3 - "$base_dir" "$build_dir" "$repo_root" <<'PY'
+    python3 - "$base_dir" "$build_dir" "$repo_root" "$source_dir" "$stage" <<'PY'
 from pathlib import Path
 import sys
-base, build, repo = map(Path, sys.argv[1:])
+base, build, repo, source = map(Path, sys.argv[1:5])
+stage = sys.argv[5]
+sys.path.insert(0, str(source))
+import partition_build
 old, new = str(base), str(build)
 qsf = build / 'test_board.qsf'
 s = qsf.read_text()
@@ -332,15 +381,27 @@ for stale in ('v2-build-inputs.json','v2-build-result.json','v2-map-result.json'
               'v2-rapid-parent.json','v2-rapid-time.json','v2-rapid-command.json',
               'v2-partition-stage-precompile.json','v2-partition-stage-result.json',
               'v2-partition-query.tcl','v2-partition-source-delta.json',
-              'v2-partition-parent.json'):
+              'v2-partition-parent.json','v2-generated-payloads.json'):
     (build/stale).unlink(missing_ok=True)
+partition_build.clear_inherited_seed_package_audit(build)
 
 ip = build / 'ip/jttms10_fpga_runner'
 source_hdl = repo / 'modules/jttms10/hdl'
 source_verilog = {p.name for p in source_hdl.glob('*.v')}
 package_verilog = {p.name for p in ip.glob('*.v') if p.name not in {'jttms10_fpga_runner.v','jttms10_fpga_stimulus.v'}}
-if source_verilog != package_verilog:
+if stage == 'partition-seed':
+    try:
+        audit = partition_build.reconstruct_seed_cpu_package(base, build, repo)
+    except (ValueError, OSError) as error:
+        raise SystemExit(str(error)) from error
+    (build/'v2-partition-seed-package-reconstruction.json').write_text(
+        __import__('json').dumps(audit,indent=2,sort_keys=True)+'\n')
+    package_verilog = {p.name for p in ip.glob('*.v')
+                       if p.name not in {'jttms10_fpga_runner.v','jttms10_fpga_stimulus.v'}}
+elif source_verilog != package_verilog:
     raise SystemExit(f'CPU HDL file set changed: source={sorted(source_verilog)}, package={sorted(package_verilog)}')
+if source_verilog != package_verilog:
+    raise SystemExit(f'CPU HDL file set changed after seed package reconstruction: source={sorted(source_verilog)}, package={sorted(package_verilog)}')
 for path in source_hdl.glob('*.v'):
     (ip / path.name).write_bytes(path.read_bytes())
 for name in ('jttms10_fpga_runner.v', 'jttms10_fpga_stimulus.v'):
@@ -357,19 +418,23 @@ regenerate_payload() {
     generated_tmp=$(mktemp -d "${TMPDIR:-/tmp}/jttms10-runner-generated.XXXXXX")
     trap 'rm -rf -- "$generated_tmp"' RETURN
     bash "$repo_root/modules/jttms10/ver/build.sh" "$generated_tmp"
-    python3 - "$build_dir" "$generated_tmp" <<'PY'
+    python3 - "$build_dir" "$generated_tmp" "$stage" "$repo_root" "$source_dir" <<'PY'
 from pathlib import Path
-import sys
-build, generated = map(Path, sys.argv[1:])
+import hashlib, json, shutil, sys
+build, generated = map(Path, sys.argv[1:3])
+stage = sys.argv[3]
+repo, helper = map(Path, sys.argv[4:6])
+sys.path.insert(0, str(helper))
+import partition_build
 package = build / 'ip/jttms10_fpga_runner'
 generated_root = build/'jttms10-generated'
 roots = (package, build)
 extensions = ('.uc', '.hex', '.vh')
 files = {p.name:p for p in generated.iterdir() if p.is_file() and p.suffix in extensions}
-if not files:
-    raise SystemExit('ucode build produced no payload files')
+if set(files) != partition_build.GENERATED_CPU_PAYLOADS:
+    raise SystemExit('ucode build produced an unexpected CPU payload set: '
+                     f'expected={sorted(partition_build.GENERATED_CPU_PAYLOADS)} actual={sorted(files)}')
 if generated_root.exists():
-    import shutil
     shutil.rmtree(generated_root)
 shutil.copytree(generated, generated_root)
 for root in roots:
@@ -377,13 +442,25 @@ for root in roots:
     for old in root.iterdir():
         generated_name = old.name.startswith('tms10')
         if old.is_file() and old.suffix in extensions and generated_name and old.name not in files:
-            old.unlink()
+            raise SystemExit(f'unclassified stale generated CPU payload remains: {root}/{old.name}')
     for name, source in files.items():
         (root/name).write_bytes(source.read_bytes())
 for name, source in files.items():
     for root in (generated_root, *roots):
         if (root/name).read_bytes() != source.read_bytes():
             raise SystemExit(f'generated payload copy mismatch: {name} in {root}')
+if stage in ('partition-seed','partition-update-microcode'):
+    digest=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+    payloads={name:digest(path) for name,path in sorted(files.items())}
+    copies={}
+    for name in sorted(files):
+        for root in (build,generated_root,package):
+            path=root/name
+            copies[path.relative_to(build).as_posix()]=digest(path)
+    manifest={'format':partition_build.GENERATED_PAYLOAD_FORMAT,
+              'generator_sha256':digest(repo/'modules/jttms10/ver/build.sh'),
+              'payloads':payloads,'copies':copies}
+    (build/'v2-generated-payloads.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
 PY
     rm -rf -- "$generated_tmp"
     trap - RETURN
@@ -403,6 +480,8 @@ freeze_inputs() {
 from pathlib import Path
 import hashlib, json, subprocess, sys
 build, repo, source, base = map(Path, sys.argv[1:])
+sys.path.insert(0, str(source))
+import partition_build
 def digest(path):
     h=hashlib.sha256()
     with path.open('rb') as f:
@@ -423,12 +502,29 @@ inputs=[build/'test_board.qsf',build/'test_board.qpf',build/'test_board.bdf',
         build/'QSYS_test_board.qsys',build/'QSYS_test_board.tcl',build/'QSYS_test_board.sopcinfo',
         build/'runner_clock.sdc',build/'QSYS_test_board/synthesis/QSYS_test_board.qip']
 inputs += [p for p in build.iterdir() if p.is_file() and p.suffix.lower() in ('.v','.vh','.hex','.uc')]
-inputs += [p for root in (build/'ip/jttms10_fpga_runner',build/'jttms10-generated')
+inputs += [p for root in (build/'ip/jttms10_fpga_runner',)
            for p in root.rglob('*') if p.is_file() and p.suffix.lower() in ('.v','.vh','.hex','.uc')]
-inputs += [p for p in (build/'jttms10-generated').rglob('*') if p.is_file()]
+generated_root=build/'jttms10-generated'
+generated_diagnostics={}
+for path in generated_root.rglob('*'):
+    if not path.is_file(): continue
+    relative=(Path('jttms10-generated')/path.relative_to(generated_root)).as_posix()
+    if partition_build.is_non_compile_generated_output(relative):
+        generated_diagnostics[relative]=digest(path)
+    elif relative in partition_build.CPU_GENERATED_COMPILE_INPUTS:
+        inputs.append(path)
+    else:
+        raise SystemExit(f'unclassified generated CPU output: {relative}')
+try:
+    generated_inventory=partition_build.cpu_generated_output_inventory(generated_root)
+except ValueError as error:
+    raise SystemExit(str(error)) from error
+if generated_inventory['diagnostics'] != generated_diagnostics:
+    raise SystemExit('generated diagnostic inventory changed while freezing inputs')
 inputs += [p for p in (build/'QSYS_test_board/synthesis').rglob('*') if p.is_file()]
 inputs += [build/name for name in ('v2-partition-parent.json',
-    'v2-partition-stage-precompile.json','v2-partition-query.tcl') if (build/name).is_file()]
+    'v2-partition-stage-precompile.json','v2-partition-query.tcl')
+    if (build/name).is_file()]
 if (build/'v2-rapid-parent.json').is_file(): inputs.append(build/'v2-rapid-parent.json')
 inputs=sorted(set(p for p in inputs if p.is_file()))
 quartus='/opt/quartus_free/quartus_sh'
@@ -436,6 +532,7 @@ version=subprocess.run([quartus,'--version'],capture_output=True,text=True)
 manifest={'format':'jttms10-incremental-build-inputs-v2','base_build':str(base),
           'source_root':str(repo.resolve()),
           'source_hashes':source_hashes,'files':{str(p):digest(p) for p in inputs},
+          'non_compile_generated_outputs':generated_diagnostics,
           'quartus_version':(version.stdout+version.stderr).strip()}
 (build/'v2-build-inputs.json').write_text(json.dumps(manifest,indent=2)+'\n')
 PY
@@ -458,6 +555,10 @@ for path,expected in manifest['files'].items():
         continue # Platform Designer may rewrite generated metadata during map.
     if not p.is_file() or digest(p)!=expected:
         raise SystemExit(f'build input changed since map stage: {path}')
+for relative,expected in manifest.get('non_compile_generated_outputs',{}).items():
+    p=build/relative
+    if not p.is_file() or digest(p)!=expected:
+        raise SystemExit(f'generated diagnostic output changed since map stage: {relative}')
 PY
 }
 
@@ -470,6 +571,10 @@ m=json.loads(path.read_text())
 def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 files={name:digest(Path(name)) for name in m['files'] if Path(name).is_file()}
 if len(files)!=len(m['files']): raise SystemExit('a build input disappeared before compile')
+for relative,expected in m.get('non_compile_generated_outputs',{}).items():
+    path=b/relative
+    if not path.is_file() or digest(path)!=expected:
+        raise SystemExit(f'generated diagnostic output changed after map: {relative}')
 deltas=[]
 for name,old in m['files'].items():
     if files[name]!=old:

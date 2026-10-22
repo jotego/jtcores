@@ -32,8 +32,9 @@ separate clean checkout carrying the same helper revision used for the seed.
 The helper itself is included in the frozen source fingerprints: changing
 `partition_build.py` or another tracked build helper after creating a seed
 requires a new seed with the updated helper before a CPU update can use it.
-The helper compares frozen source fingerprints and rejects changes outside an existing
-`modules/jttms10/hdl/*.v` file. It also compares the seed/update compile-input
+The original `partition-update` mode compares frozen source fingerprints and
+rejects changes outside an existing `modules/jttms10/hdl/*.v` file. It also
+compares the seed/update compile-input
 trees, allowing only the expected partition settings and changed CPU package
 HDL to differ; QIP, generated system, SDC, microcode, and other packaged inputs
 must remain identical. The raw manifests retain all generated files. The
@@ -58,6 +59,43 @@ compile-time record, allowed compiled-input delta, and exact source delta. It
 also stores the separate transient-output hashes and actual partition-related
 lines from fresh map/fit reports and the flow log. The receipt writer validates
 this sidecar before accepting a partition-built image.
+
+## CPU source-set and microcode changes
+
+The `partition-seed` stage also supports a candidate CPU HDL file set that
+differs from the full parent. It reconstructs only the runner's direct CPU
+Verilog package from the selected source tree, removes parent-only CPU module
+files and their direct QSF rows, and records the exact operation in
+`v2-partition-seed-package-reconstruction.json`. It refuses stale-module
+references in the preserved QIP, Qsys Tcl, Qsys source, or SDC, and requires
+the runner Qsys component Tcl and those infrastructure files to remain byte
+identical. This remains a SOURCE/SOURCE full compile; review the resulting
+image and reports before using it as a seed.
+
+For later CPU microcode changes, use the separate `partition-update-microcode`
+stage from that reviewed seed. It sets Top to POST_FIT and CPU to SOURCE, and
+uses the ordinary Quartus full-compile flow. It accepts CPU HDL plus only the
+explicit allowlist `control.yaml`, `gfx_line.yaml`, `gfx.yaml`, `memory.yaml`,
+and `tms10.yaml` under `modules/jttms10/ucode/`; at least one allowlisted YAML
+must change. It reruns the checked-in `modules/jttms10/ver/build.sh`, verifies
+the current fixed generated CPU payload set (`tms10.uc`, `tms10.vh`,
+`tms10_param.vh`, `tms10_dispatch.hex`, `tms10_gfx.uc`, `tms10_gfx.vh`, and
+`tms10_gfx_param.vh`) and every copy, and compares compiled input deltas
+against those regenerated outputs. The only additional source-file exception
+is `modules/jttms10/hdl/tms10_dispatch.hex`, and its bytes must exactly match
+the independently regenerated `tms10_dispatch.hex` payload. Generated
+listings, dispatch logs, and the exact dispatch-model build outputs are hashed
+as non-compile diagnostics; typed updates record their deltas separately from
+Quartus inputs. New or missing payloads,
+changes to QIP/Qsys/Tcl/SDC, or any other source/input delta fail closed.
+This mode does not use a CDB-only ROM update path and does not derive timing
+expectations from YAML; those remain in the independent TI-derived Python
+fixtures.
+
+Both update modes require the reviewed SOURCE/SOURCE seed. A selected
+partition assignment does not prove actual reuse: the fresh compile logs and
+partition reports still need to show Top POST_FIT reuse, CPU SOURCE synthesis,
+preserved memory inference, and passing all-corner STA.
 
 The first update attempt from the reviewed `8a7d2b0` seed to CPU source
 `92c7eba` stopped before Quartus because the dispatch-model Verilator build
