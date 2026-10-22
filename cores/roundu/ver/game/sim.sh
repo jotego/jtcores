@@ -7,6 +7,7 @@ set -euo pipefail
 roundu_repo=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../../.." && pwd -P)
 roundu_set="$roundu_repo/cores/roundu/ver/roundup5"
 roundu_image=${JTFRAME_SIM_IMAGE:-jotego/simulator:arm64}
+roundu_boot=${ROUNDU_BOOT:-boot}
 roundu_preload=0
 if [ "${1:-}" = --preload ]; then roundu_preload=1; shift; fi
 if [ "$#" -eq 0 ]; then set -- -video 650 -time 13000; fi
@@ -29,12 +30,13 @@ for roundu_i in "${!roundu_args[@]}"; do
 done
 [ -f "$roundu_repo/rom/roundup5.rom" ] || { echo 'Build roundup5.rom with JTFRAME MRA first.' >&2; exit 1; }
 [ "$(wc -c < "$roundu_repo/rom/roundup5.rom" | tr -d ' ')" = 2949120 ]
-mkdir -p "$roundu_set/scratch/bin" "$roundu_set/scratch/boot" "$roundu_set/scratch/logs" "$roundu_set/sim_results"
+mkdir -p "$roundu_set/scratch/bin" "$roundu_set/scratch/$roundu_boot" "$roundu_set/scratch/logs" "$roundu_set/sim_results"
 roundu_log="$roundu_set/sim_results/boot.log"
+if [ "$roundu_boot" != boot ]; then roundu_log="$roundu_set/scratch/logs/$roundu_boot.log"; fi
 if [ "$roundu_lint" = 1 ]; then roundu_log="$roundu_set/scratch/logs/lint.log"; fi
 roundu_cleanup() {
     if [ -f "$roundu_repo/cores/roundu/ver/game/dump2bin.sh" ]; then
-        mv -f "$roundu_repo/cores/roundu/ver/game/dump2bin.sh" "$roundu_set/scratch/boot/dump2bin.sh"
+        mv -f "$roundu_repo/cores/roundu/ver/game/dump2bin.sh" "$roundu_set/scratch/$roundu_boot/dump2bin.sh"
     fi
 }
 trap roundu_cleanup EXIT
@@ -44,7 +46,7 @@ roundu_status=0
 docker run --rm --pull=never --entrypoint /bin/bash \
     -v "$roundu_repo:/jtcores" -v "$roundu_repo/modules:/jtcores/modules:ro" \
     -e ROUNDU_PRELOAD="$roundu_preload" \
-    -w /jtcores/cores/roundu/ver/roundup5/scratch/boot \
+    -w "/jtcores/cores/roundu/ver/roundup5/scratch/$roundu_boot" \
     "$roundu_image" -lc '
         set -euo pipefail
         export JTROOT=/jtcores JTFRAME=/jtcores/modules/jtframe
@@ -78,7 +80,7 @@ WRAPPER
         done
         jtsim -verilator -setname roundup5 -skipROM -mister "${roundu_load[@]}" -batch -fast -fx68k "$@"
     ' roundu-sim "${roundu_args[@]}" > "$roundu_log" 2>&1 || roundu_status=$?
-if [ "$roundu_status" = 0 ] && [ "$roundu_lint" = 0 ] && [ "$roundu_video" = 1 ]; then
+if [ "$roundu_status" = 0 ] && [ "$roundu_lint" = 0 ] && [ "$roundu_video" = 1 ] && [ "$roundu_boot" = boot ]; then
     roundu_last=$(find "$roundu_set/scratch/boot/frames" -name 'frame_*.png' -print 2>/dev/null | sort | tail -1) || true
     if [ -n "$roundu_last" ]; then cp "$roundu_last" "$roundu_set/sim_results/boot.png"; fi
 fi
