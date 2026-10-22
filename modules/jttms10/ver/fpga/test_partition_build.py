@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -60,6 +61,43 @@ def payload_manifest(build: Path, changed: bool = False) -> None:
 
 
 class PartitionBuildTests(unittest.TestCase):
+    def test_compile_snapshot_binds_manifest_not_last_diagnostic(self) -> None:
+        helper = HERE / "build-runner-incremental.sh"
+        with tempfile.TemporaryDirectory(prefix="jttms10-compile-snapshot-") as temporary:
+            build = Path(temporary)
+            input_file = build / "input.v"
+            diagnostic = build / "jttms10-generated/dispatch-model/Vtest.mk"
+            input_file.write_text("compiled source\n")
+            diagnostic.parent.mkdir(parents=True)
+            diagnostic.write_text("diagnostic output\n")
+            manifest_path = build / "v2-build-inputs.json"
+            manifest_path.write_text(json.dumps({
+                "files": {str(input_file): digest(input_file)},
+                "non_compile_generated_outputs": {
+                    "jttms10-generated/dispatch-model/Vtest.mk": digest(diagnostic),
+                },
+            }))
+
+            result = subprocess.run(
+                ["bash", "-c", 'source "$1"; build_dir="$2"; capture_compile_inputs',
+                 "test", str(helper), str(build)],
+                text=True, capture_output=True, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            snapshot = json.loads((build / "v2-compile-inputs.json").read_text())
+            self.assertEqual(snapshot["map_manifest_sha256"], digest(manifest_path))
+            self.assertNotEqual(snapshot["map_manifest_sha256"], digest(diagnostic))
+            self.assertEqual(snapshot["files"], {str(input_file): digest(input_file)})
+
+            diagnostic.write_text("changed diagnostic output\n")
+            rejected = subprocess.run(
+                ["bash", "-c", 'source "$1"; build_dir="$2"; capture_compile_inputs',
+                 "test", str(helper), str(build)],
+                text=True, capture_output=True, check=False,
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("generated diagnostic output changed after map", rejected.stderr)
+
     def test_cpu_package_name_accepts_top_and_rejects_unrelated_verilog(self) -> None:
         self.assertTrue(partition_build._is_cpu_source_filename("jttms10.v"))
         self.assertTrue(partition_build._is_cpu_source_filename("jttms10_cache.v"))

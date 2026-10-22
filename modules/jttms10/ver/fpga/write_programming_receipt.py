@@ -42,6 +42,134 @@ def generated_file_set(root):
 
 RAPID_RESULT_FORMAT = 'jttms10-rapid-build-result-v1'
 
+# One immutable partition-seed build predates the fixed manifest-path
+# shadowing bug in build-runner-incremental.sh:capture_compile_inputs. Its
+# compile snapshot names the final ordered Verilator diagnostic instead of the
+# frozen map manifest. Recovery is deliberately tied to every certificate and
+# source hash of that saved image; do not generalize this signature.
+LEGACY_SEED_SNAPSHOT_RECOVERY = {
+    'input_manifest_sha256': '57bd5041bf1a501b6e218fe55bbed2fb2b4a9dd2494f00fdcfce92ed15358dfd',
+    'compile_inputs_sha256': '1e4a6995cb04e8e4d00844d8054d5ef6335f95a6f7a6d0e5c2f138fc643c261c',
+    'partition_stage_sha256': '2f6d4a3784f88d11977dbb2cb2dd03179a9cf48fcd00b924560f1a601ea185ca',
+    'build_result_sha256': '1965a8243c0b8aa30f6d2db68bbdd13398ab0ace7b61eb3692d27e3522fd07ce',
+    'rbf_sha256': '827a0450e97d4f3111d9cbc56c9329c5a3c9092c7bbd5f1242002a56bc036bc5',
+    'buggy_helper_sha256': 'd4abd28e3b5937a3fb75305335ea92486c83a6757b11672253a18709dfc318fd',
+    'misattributed_diagnostic': 'jttms10-generated/dispatch-model/Vtest.mk',
+    'misattributed_diagnostic_sha256': 'b3820c69ec443c877e3a4cdad9507119a605858bf9340fec731ef330b3bbd7b3',
+    'source_count': 39,
+    'compile_file_count': 146,
+    'diagnostic_count': 28,
+}
+
+
+def validate_compile_input_snapshot(build, inputs_path, inputs_manifest,
+                                     compile_inputs_path, compile_inputs,
+                                     build_result):
+    """Validate compile inputs, including one exact legacy seed recovery.
+
+    Explicit partition certificates are validated before considering the
+    legacy writer bug. The ordinary map-manifest binding remains exact for all
+    other builds. The return value is included in the receipt when the narrow
+    saved-seed recovery applies.
+    """
+    build = Path(build).resolve(strict=True)
+    inputs_path = Path(inputs_path).resolve(strict=True)
+    compile_inputs_path = Path(compile_inputs_path).resolve(strict=True)
+    if json.loads(inputs_path.read_text()) != inputs_manifest:
+        raise SystemExit('loaded frozen input manifest differs from its on-disk certificate')
+    if json.loads(compile_inputs_path.read_text()) != compile_inputs:
+        raise SystemExit('loaded compile-input snapshot differs from its on-disk certificate')
+    if json.loads((build / 'v2-build-result.json').read_text()) != build_result:
+        raise SystemExit('loaded build result differs from its on-disk certificate')
+    partition_digest = build_result.get('partition_stage_sha256')
+    if partition_digest is not None:
+        try:
+            from partition_build import validate_partition_result
+            validate_partition_result(build, build_result)
+        except (ImportError, ValueError, KeyError, OSError) as error:
+            raise SystemExit(f'explicit CPU partition certificate is invalid: {error}') from error
+
+    actual_manifest_sha = sha256(inputs_path)
+    if compile_inputs.get('map_manifest_sha256') == actual_manifest_sha:
+        return None
+    if partition_digest is None:
+        raise SystemExit('compile-time input snapshot does not name the frozen map manifest')
+
+    signature = LEGACY_SEED_SNAPSHOT_RECOVERY
+    stage_path = build / 'v2-partition-stage-result.json'
+    image_path = build / 'output_files/test_board.rbf'
+    actual = {
+        'input_manifest_sha256': actual_manifest_sha,
+        'compile_inputs_sha256': sha256(compile_inputs_path),
+        'partition_stage_sha256': sha256(stage_path),
+        'build_result_sha256': sha256(build / 'v2-build-result.json'),
+        'rbf_sha256': sha256(image_path),
+    }
+    if actual != {key: signature[key] for key in actual}:
+        raise SystemExit('compile-time input snapshot mismatch is not the one certified legacy seed')
+    if (build_result.get('partition_mode') != 'seed' or
+            build_result.get('full_flow_only') is not True or
+            build_result.get('input_manifest_sha256') != actual_manifest_sha or
+            build_result.get('compile_inputs_sha256') != actual['compile_inputs_sha256'] or
+            build_result.get('partition_stage_sha256') != actual['partition_stage_sha256'] or
+            build_result.get('rbf_sha256') != actual['rbf_sha256']):
+        raise SystemExit('legacy compile snapshot is not bound by the exact full seed result')
+
+    source_root = Path(inputs_manifest.get('source_root', '')).resolve(strict=True)
+    source_hashes = inputs_manifest.get('source_hashes')
+    helper_rel = 'modules/jttms10/ver/fpga/build-runner-incremental.sh'
+    helper_path = source_root / helper_rel
+    helper_digest = signature['buggy_helper_sha256']
+    if (not isinstance(source_hashes, dict) or len(source_hashes) != signature['source_count'] or
+            source_hashes.get(str(helper_path.resolve())) != helper_digest):
+        raise SystemExit('legacy seed does not bind the known compile-snapshot helper source')
+    for path_text, expected in source_hashes.items():
+        path = Path(path_text)
+        if not path.is_file() or sha256(path) != expected:
+            raise SystemExit(f'legacy seed frozen source changed: {path}')
+
+    diagnostics = inputs_manifest.get('non_compile_generated_outputs')
+    if not isinstance(diagnostics, dict) or len(diagnostics) != signature['diagnostic_count']:
+        raise SystemExit('legacy seed diagnostic inventory is incomplete')
+    for relative, expected in diagnostics.items():
+        path = build / relative
+        if not path.is_file() or sha256(path) != expected:
+            raise SystemExit(f'legacy seed generated diagnostic changed: {relative}')
+    last_relative, last_expected = next(reversed(diagnostics.items()))
+    wrongly_hashed = build / last_relative
+    if (last_relative != signature['misattributed_diagnostic'] or
+            last_expected != signature['misattributed_diagnostic_sha256'] or
+            sha256(wrongly_hashed) != compile_inputs.get('map_manifest_sha256') or
+            compile_inputs.get('map_manifest_sha256') != signature['misattributed_diagnostic_sha256']):
+        raise SystemExit('legacy compile snapshot does not match the known final-diagnostic hash')
+
+    manifest_files = inputs_manifest.get('files')
+    compile_files = compile_inputs.get('files')
+    if (not isinstance(manifest_files, dict) or not isinstance(compile_files, dict) or
+            len(manifest_files) != signature['compile_file_count'] or
+            compile_files != manifest_files or
+            compile_inputs.get('pre_map_metadata_deltas') != []):
+        raise SystemExit('legacy compile snapshot file inventory differs from the frozen map inputs')
+    for path_text, expected in compile_files.items():
+        path = Path(path_text)
+        if not path.is_file() or sha256(path) != expected:
+            raise SystemExit(f'legacy seed compile input changed: {path}')
+
+    return {
+        'format': 'jttms10-known-compile-input-path-shadow-recovery-v1',
+        'input_manifest_sha256': actual_manifest_sha,
+        'compile_inputs_sha256': actual['compile_inputs_sha256'],
+        'partition_stage_sha256': actual['partition_stage_sha256'],
+        'build_result_sha256': actual['build_result_sha256'],
+        'rbf_sha256': actual['rbf_sha256'],
+        'bound_helper_sha256': helper_digest,
+        'misattributed_diagnostic': last_relative,
+        'misattributed_diagnostic_sha256': last_expected,
+        'source_count_rehashed': len(source_hashes),
+        'compile_file_count_rehashed': len(compile_files),
+        'diagnostic_count_rehashed': len(diagnostics),
+    }
+
 
 def validate_positive_sta(path):
     rows = re.findall(r'Type\s*:\s*[^\n]+\nSlack\s*:\s*([-\d.]+)\nTNS\s*:\s*([-\d.]+)',
@@ -501,8 +629,9 @@ def main():
             raise SystemExit('incremental build lacks its compile-input certificate')
         compile_inputs = json.loads(compile_inputs_path.read_text())
         compile_log = build / 'logs/v2-compile.log'
-        if compile_inputs.get('map_manifest_sha256') != sha256(inputs_path):
-            raise SystemExit('compile-time input snapshot does not name the frozen map manifest')
+        compile_snapshot_recovery = validate_compile_input_snapshot(
+            build, inputs_path, inputs_manifest, compile_inputs_path,
+            compile_inputs, build_result)
         if build_result.get('format') == RAPID_RESULT_FORMAT:
             validate_rapid_result(build, build_result)
         elif build_result.get('full_flow_only') is not True:
@@ -514,12 +643,6 @@ def main():
                map_result.get('flow_exit_code') != 0 or not map_result.get('terminal_marker') or \
                not map_log.is_file() or map_result.get('flow_log_sha256') != sha256(map_log):
                 raise SystemExit('incremental map certificate does not certify frozen inputs')
-        if build_result.get('partition_stage_sha256') is not None:
-            try:
-                from partition_build import validate_partition_result
-                validate_partition_result(build, build_result)
-            except (ImportError, ValueError, KeyError, OSError) as error:
-                raise SystemExit(f'explicit CPU partition certificate is invalid: {error}') from error
         if build_result.get('compile_inputs_sha256') != sha256(compile_inputs_path):
             raise SystemExit('successful flow certificate does not match compile-time inputs')
         for path, expected in compile_inputs.get('files', {}).items():
@@ -555,12 +678,6 @@ def main():
            not compile_log.is_file() or build_result.get('flow_log_sha256') != sha256(compile_log) or \
            not build_result.get('terminal_marker'):
             raise SystemExit('v2 build result does not certify successful flow for this RBF/input manifest')
-        if build_result.get('partition_stage_sha256') is not None:
-            try:
-                from partition_build import validate_partition_result
-                validate_partition_result(build, build_result)
-            except (ImportError, ValueError, KeyError, OSError) as error:
-                raise SystemExit(f'explicit CPU partition certificate is invalid: {error}') from error
         for path, expected in inputs_manifest.get('files', {}).items():
             p = Path(path)
             if p.name.endswith('.sopcinfo'):
@@ -672,6 +789,7 @@ def main():
         'quartus_flow_seconds': flow_seconds,
         'quartus_flow_exit': flow_exit,
         'quartus_flow_kind': build_result.get('flow_kind', 'compile') if inputs_path.exists() else 'compile',
+        'compile_input_snapshot_recovery': compile_snapshot_recovery if inputs_path.exists() else None,
         'sysid': sysid,
         'sysid_timestamp': timestamp,
         'sysid_source': str(sysid_path),

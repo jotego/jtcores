@@ -185,5 +185,112 @@ class GeneratedArtifactIdentity(unittest.TestCase):
             self.assertNotEqual(first, receipts.generated_file_set(outputs[1]))
 
 
+class LegacySeedCompileSnapshotRecovery(unittest.TestCase):
+    """Only the fully bound saved seed may use the manifest-shadow recovery."""
+
+    BUILD = Path('/tmp/jtcores-149-seed-002')
+
+    def setUp(self):
+        if not (self.BUILD / 'v2-build-result.json').is_file():
+            self.skipTest('saved #149 seed build is unavailable')
+        self.inputs_path = self.BUILD / 'v2-build-inputs.json'
+        self.compile_path = self.BUILD / 'v2-compile-inputs.json'
+        self.inputs = json.loads(self.inputs_path.read_text())
+        self.compile_inputs = json.loads(self.compile_path.read_text())
+        self.result = json.loads((self.BUILD / 'v2-build-result.json').read_text())
+
+    def validate(self, inputs=None, compile_inputs=None, build_result=None, build=None):
+        return receipts.validate_compile_input_snapshot(
+            build or self.BUILD, self.inputs_path, self.inputs if inputs is None else inputs,
+            self.compile_path, self.compile_inputs if compile_inputs is None else compile_inputs,
+            self.result if build_result is None else build_result)
+
+    def test_real_saved_partition_seed_recovers_with_full_rehash_evidence(self):
+        recovery = self.validate()
+        self.assertEqual(recovery['format'], 'jttms10-known-compile-input-path-shadow-recovery-v1')
+        self.assertEqual(recovery['misattributed_diagnostic'],
+                         'jttms10-generated/dispatch-model/Vtest.mk')
+        self.assertEqual(recovery['source_count_rehashed'], 39)
+        self.assertEqual(recovery['compile_file_count_rehashed'], 146)
+        self.assertEqual(recovery['diagnostic_count_rehashed'], 28)
+
+    def test_writer_creates_receipt_from_saved_image_without_mutating_build(self):
+        with tempfile.TemporaryDirectory(prefix='jttms10-seed-receipt-') as temporary:
+            output = Path(temporary) / 'receipt.json'
+            command = [
+                sys.executable, str(HERE / 'write_programming_receipt.py'),
+                '--image', str(self.BUILD / 'output_files/test_board.rbf'),
+                '--build-dir', str(self.BUILD),
+                '--source-root', self.inputs['source_root'],
+                '--boot-id', '9f611c5b-2284-4ae0-91f0-8af7510b7a44',
+                '--overlay', 'saved-seed-recovery-test', '--output', str(output),
+            ]
+            result = subprocess.run(command, text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            receipt = json.loads(output.read_text())
+            self.assertEqual(receipt['image_sha256'], self.result['rbf_sha256'])
+            self.assertEqual(receipt['compile_input_snapshot_recovery']['format'],
+                             'jttms10-known-compile-input-path-shadow-recovery-v1')
+
+    def test_rejects_any_mutated_loaded_snapshot_or_partial_inventory(self):
+        altered = dict(self.compile_inputs)
+        altered['map_manifest_sha256'] = '0' * 64
+        with self.assertRaisesRegex(SystemExit, 'differs from its on-disk certificate'):
+            self.validate(compile_inputs=altered)
+
+        altered = dict(self.compile_inputs)
+        altered['files'] = dict(altered['files'])
+        altered['files'].pop(next(iter(altered['files'])))
+        with self.assertRaisesRegex(SystemExit, 'differs from its on-disk certificate'):
+            self.validate(compile_inputs=altered)
+
+        altered = dict(self.inputs)
+        altered['non_compile_generated_outputs'] = dict(altered['non_compile_generated_outputs'])
+        altered['non_compile_generated_outputs']['jttms10-generated/dispatch-model/Vtest.mk'] = '0' * 64
+        with self.assertRaisesRegex(SystemExit, 'differs from its on-disk certificate'):
+            self.validate(inputs=altered)
+
+        altered = dict(self.inputs)
+        altered['source_hashes'] = dict(altered['source_hashes'])
+        key = next(iter(altered['source_hashes']))
+        altered['source_hashes'][key] = '0' * 64
+        with self.assertRaisesRegex(SystemExit, 'differs from its on-disk certificate'):
+            self.validate(inputs=altered)
+
+    def test_rehash_rejects_changed_frozen_source_and_diagnostic(self):
+        original_sha256 = receipts.sha256
+        source_path = Path(next(iter(self.inputs['source_hashes'])))
+
+        def source_mutation(path):
+            return '0' * 64 if Path(path) == source_path else original_sha256(path)
+
+        with patch.object(receipts, 'sha256', side_effect=source_mutation):
+            with self.assertRaisesRegex(SystemExit, 'legacy seed frozen source changed'):
+                self.validate()
+
+        diagnostic_rel = next(iter(self.inputs['non_compile_generated_outputs']))
+        diagnostic_path = self.BUILD / diagnostic_rel
+
+        def diagnostic_mutation(path):
+            return '0' * 64 if Path(path) == diagnostic_path else original_sha256(path)
+
+        with patch.object(receipts, 'sha256', side_effect=diagnostic_mutation):
+            with self.assertRaisesRegex(SystemExit, 'legacy seed generated diagnostic changed'):
+                self.validate()
+
+    def test_invalid_or_missing_partition_validation_cannot_use_recovery(self):
+        with patch('partition_build.validate_partition_result',
+                   side_effect=ValueError('mutated stage certificate')):
+            with self.assertRaisesRegex(SystemExit, 'explicit CPU partition certificate is invalid'):
+                self.validate()
+
+        with tempfile.TemporaryDirectory(prefix='jttms10-missing-partition-cert-') as temporary:
+            empty_build = Path(temporary)
+            (empty_build / 'v2-build-result.json').write_text(
+                json.dumps(self.result))
+            with self.assertRaisesRegex(SystemExit, 'explicit CPU partition certificate is invalid'):
+                self.validate(build=empty_build)
+
+
 if __name__ == '__main__':
     unittest.main()

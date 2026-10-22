@@ -566,14 +566,14 @@ capture_compile_inputs() {
     python3 - "$build_dir" <<'PY'
 from pathlib import Path
 import hashlib,json,sys
-b=Path(sys.argv[1]); path=b/'v2-build-inputs.json'
-m=json.loads(path.read_text())
+b=Path(sys.argv[1]); manifest_path=b/'v2-build-inputs.json'
+m=json.loads(manifest_path.read_text())
 def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 files={name:digest(Path(name)) for name in m['files'] if Path(name).is_file()}
 if len(files)!=len(m['files']): raise SystemExit('a build input disappeared before compile')
 for relative,expected in m.get('non_compile_generated_outputs',{}).items():
-    path=b/relative
-    if not path.is_file() or digest(path)!=expected:
+    diagnostic_path=b/relative
+    if not diagnostic_path.is_file() or digest(diagnostic_path)!=expected:
         raise SystemExit(f'generated diagnostic output changed after map: {relative}')
 deltas=[]
 for name,old in m['files'].items():
@@ -581,7 +581,7 @@ for name,old in m['files'].items():
         if Path(name).name.endswith('.sopcinfo'):
             deltas.append({'path':name,'pre_map_sha256':old,'compile_sha256':files[name]})
         else: raise SystemExit(f'non-generated input changed after map: {name}')
-r={'format':'jttms10-compile-inputs-v1','map_manifest_sha256':digest(path),
+r={'format':'jttms10-compile-inputs-v1','map_manifest_sha256':digest(manifest_path),
    'files':files,'pre_map_metadata_deltas':deltas}
 (b/'v2-compile-inputs.json').write_text(json.dumps(r,indent=2)+'\n')
 PY
