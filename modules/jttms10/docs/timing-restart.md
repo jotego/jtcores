@@ -199,6 +199,43 @@ change. The fitted measurements above belong to pre-repair `3ef4e52d`; measure
 the repaired source with the next structural experiment before claiming its
 PPA. The DataStorm image remains the independently qualified cce1555 source.
 
+## Microcode timing policy and next increment
+
+Instruction schedules, waits and idle words belong in YAML. RTL changes must
+provide a shared execution or protocol capability and pass a measured cost
+gate; instruction-duration counters and opcode-family timing schedulers are
+excluded.
+
+The proposed prepared-entry load pipeline is deferred before implementation.
+Its real cycle-zero bus grant precedes the legacy W1P7 CEN pause, which starts
+on the next edge. That frozen fixture instead requires allocation at +8 and
+rejects raw requests during the pause. The conflict remains unresolved;
+neither expectations nor observation timestamps have been changed. The next
+increment extends ADDC, SUB, SUBB, CMP, ADDK, SUBK, AND, ANDN, OR and XOR using
+the existing four-word peek/dispatch mechanism, without new RTL. INC, DEC and
+CLR aliases use the same schedules. The first 43 frozen-oracle cases per
+profile pass in Verilator: 129 checks at 8/15/8 INCLK for BASE/W1P7/W3,
+including full register/status comparisons. Ten pre-change controls gave
+16/24/16 instead. The scalar ROM changes only 30 words within its existing
+4,096-by-64 layout; dispatch, bus and graphics payloads are unchanged.
+A dependent SUB→ADDC→CMP→SUBB chain through A15/SP also passes at eight clocks
+per instruction with full status, PC and result checks. Separate one-clock
+and register-bit mutations of a saved short capture both make the unchanged
+checker fail.
+The 99 retained representatives, twelve NOP controls and full 180-program/unit
+suite pass on the updated source, including the shared NMI/IRQ/HLT/CF/CD
+boundary controls. Scalar-specific interrupt timing is not qualified.
+
+The complete prepared cached inventory contains 1,936 independent cases per
+profile across 13 coverage forms, including B-bank/SP aliases, arithmetic
+boundaries and all K constants. It has not run on the currently loaded FPGA;
+the earlier 7,530 executions cover none of these additional forms. New YAML
+needs its own source-bound image before additional physical coverage is
+claimed. Cache-disabled execution and broader instruction conditions remain
+outside this increment's qualification. Evidence is under
+`artifacts/yaml-scalar-expansion-001/` and `yaml-scalar-fpga-matrix-001/` in
+the issue task folder. Fitted measurements above still refer to `3ef4e52d`.
+
 ## Demonstrated scope
 
 The independent short integrated Verilator fixture warms the real cache by

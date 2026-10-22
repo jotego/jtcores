@@ -80,55 +80,76 @@ ucode:
       -
       - ni, dispatch
   - name: addc
+    # Cached scalar ALU words 0-3 match ADD's one-state, 8-INCLK schedule.
     start: 8
     seq:
-      - reg_a, reg_b
-      - adc_alu, wr_reg, nvzc_cc, ni
+      - reg_a, reg_b, peek_flow
+      - adc_alu, wr_reg, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: sub
     start: 9
     seq:
-      - reg_a, reg_b
-      - sub_alu, wr_reg, nvzc_cc, ni
+      - reg_a, reg_b, peek_flow
+      - sub_alu, wr_reg, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: subb
     start: 10
     seq:
-      - reg_a, reg_b
-      - sbc_alu, wr_reg, nvzc_cc, ni
+      - reg_a, reg_b, peek_flow
+      - sbc_alu, wr_reg, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: cmp
     start: 11
     seq:
-      - reg_a, reg_b
-      - sub_alu, nvzc_cc, ni
+      - reg_a, reg_b, peek_flow
+      - sub_alu, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: addk
     start: 12
     seq:
-      - k_a, reg_b
-      - add_alu, wr_reg, nvzc_cc, ni
+      - k_a, reg_b, peek_flow
+      - add_alu, wr_reg, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: subk
     start: 13
     seq:
-      - k_a, reg_b
-      - sub_alu, wr_reg, nvzc_cc, ni
+      - k_a, reg_b, peek_flow
+      - sub_alu, wr_reg, nvzc_cc, dispatch
+      -
+      - ni, dispatch
   - name: and
     start: 14
     seq:
-      - reg_a, reg_b
-      - and_alu, wr_reg, z_cc, ni
+      - reg_a, reg_b, peek_flow
+      - and_alu, wr_reg, z_cc, dispatch
+      -
+      - ni, dispatch
   - name: andn
     start: 15
     seq:
-      - reg_a, reg_b
-      - andn_alu, wr_reg, z_cc, ni
+      - reg_a, reg_b, peek_flow
+      - andn_alu, wr_reg, z_cc, dispatch
+      -
+      - ni, dispatch
   - name: or
     start: 16
     seq:
-      - reg_a, reg_b
-      - or_alu, wr_reg, z_cc, ni
+      - reg_a, reg_b, peek_flow
+      - or_alu, wr_reg, z_cc, dispatch
+      -
+      - ni, dispatch
   - name: xor
     start: 17
     seq:
-      - reg_a, reg_b
-      - xor_alu, wr_reg, z_cc, ni
+      - reg_a, reg_b, peek_flow
+      - xor_alu, wr_reg, z_cc, dispatch
+      -
+      - ni, dispatch
   - name: jump
     start: 18
     seq: [reg_pc, ni]
