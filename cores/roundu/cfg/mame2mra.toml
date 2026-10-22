@@ -23,7 +23,7 @@ offset=[
 ]
 # MAME exports PORT_SERVICE as a plain input, not a dipswitch
 extra = [
-    { machine="roundup5", name="Service Mode", bits="16", Options="Off,On" },
+    { machine="roundup5", name="Service Mode", bits="16", Options="On,Off" },
 ]
 
 [ROM]

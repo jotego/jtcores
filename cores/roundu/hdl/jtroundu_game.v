@@ -22,36 +22,21 @@ wire [7:0] audio_din, audio_dout;
 wire [7:0] download_data;
 wire shift_pulse;
 reg shift;
-// steering as in jtsysfl_ctrl: the analog wheel takes over past a deadzone,
-// the digital directions ramp per frame with autocenter (MAME keydelta 15)
-wire [7:0] wheel_a = joyana_l1[7:0] ^ 8'h80;
-wire       wl_act  = joyana_l1[7:4] != 4'h0 && joyana_l1[7:4] != 4'hf;
-wire       w_left  = ~joystick1[1];
-wire       w_right = ~joystick1[0];
-wire       frame;
-reg  [7:0] wheel_d;
-wire [7:0] stick = wl_act ? wheel_a : wheel_d;
+wire [7:0] stick;
+wire       gas_n, brake_n;
 
-jtframe_edge_pulse #(
-    .NEGEDGE ( 1 )
-) u_frame (
-    .rst   ( game_rst ),
-    .clk   ( clk      ),
-    .cen   ( 1'b1     ),
-    .sigin ( LVBL     ),
-    .pulse ( frame    )
+jtroundu_ctrl u_ctrl (
+    .rst       ( game_rst       ),
+    .clk       ( clk            ),
+    .lvbl      ( LVBL           ),
+    .joystick  ( joystick1[7:0] ),
+    .joyana_l  ( joyana_l1      ),
+    .joyana_r  ( joyana_r1      ),
+    .ctrl_type ( status[22:20]  ),
+    .stick     ( stick          ),
+    .gas_n     ( gas_n          ),
+    .brake_n   ( brake_n        )
 );
-
-always @(posedge clk) begin
-    if (game_rst) wheel_d <= 8'h80;
-    else if (frame) begin
-        if (w_right && !w_left)      wheel_d <= wheel_d > 8'd240 ? 8'hff : wheel_d + 8'd15;
-        else if (w_left && !w_right) wheel_d <= wheel_d < 8'd15  ? 8'h00 : wheel_d - 8'd15;
-        else if (wheel_d > 8'h8f)    wheel_d <= wheel_d - 8'd15;
-        else if (wheel_d < 8'h71)    wheel_d <= wheel_d + 8'd15;
-        else                         wheel_d <= 8'h80;
-    end
-end
 
 always @* post_data = download_data;
 
@@ -185,7 +170,7 @@ jtroundu_snd u_snd (
     .fm_cen             ( z80ym_4m_cen                                                         ),
     .oki_cen            ( oki_2m_cen                                                           ),
     .halt               ( control[2]                                                           ),
-    .in0                ( {2'b11,cab_1p[0],joystick1[7],shift,joystick1[5],1'b1,joystick1[4]}  ),
+    .in0                ( {2'b11,cab_1p[0],joystick1[7],shift,brake_n,1'b1,gas_n}              ),
     .in1                ( {dipsw[23:20],service,coin[1:0],dipsw[16]}                           ),
     .stick              ( stick                                                                ),
     .v30_addr           ( audio_addr                                                           ),
