@@ -8,6 +8,7 @@ import sys
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -42,6 +43,41 @@ def find_oracle_root():
             (root / 'modules/jttms10/ver/timing').is_dir()):
         raise unittest.SkipTest(f'{ORACLE_ENV} is missing the frozen #144 checker/timing tree: {root}')
     return root
+
+
+class SourceRootResolution(unittest.TestCase):
+    def test_production_resolvers_accept_current_hardware_and_pinned_oracle(self):
+        hardware = find_hardware_root()
+        oracle = find_oracle_root()
+        self.assertEqual(run_batch.find_hardware_source_root(hardware), hardware)
+        self.assertEqual(run_batch.find_source_root(oracle), oracle)
+        self.assertNotEqual(hardware, oracle)
+
+    def test_environment_defaults_keep_hardware_and_oracle_roots_separate(self):
+        hardware = find_hardware_root()
+        oracle = find_oracle_root()
+        with patch.dict(os.environ, {HARDWARE_ENV: str(hardware), ORACLE_ENV: str(oracle)}):
+            self.assertEqual(run_batch.find_source_root(), oracle)
+            self.assertEqual(run_batch.find_hardware_source_root(source_root=oracle), hardware)
+
+    def test_hardware_resolver_rejects_checkout_without_cpu_sources(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / 'modules/jttms10/ver/restart').mkdir(parents=True)
+            (root / 'modules/jttms10/ver/restart/README.md').write_text('not a CPU checkout')
+            (root / 'modules/jttms10/ver/fpga').mkdir(parents=True)
+            (root / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v').write_text('module runner; endmodule')
+            (root / 'modules/jttms10/ver/fpga/jttms10_fpga_stimulus.v').write_text('module stimulus; endmodule')
+            with self.assertRaisesRegex(SystemExit, 'cannot locate #149 CPU hardware checkout'):
+                run_batch.find_hardware_source_root(root)
+
+    def test_expectation_resolver_rejects_checkout_without_frozen_checker(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / 'modules/jttms10/ver/timing').mkdir(parents=True)
+            (root / 'modules/jttms10/ver/timing/run.py').write_text('# not pinned')
+            with self.assertRaisesRegex(SystemExit, 'cannot locate independent TMS34010 expectation checkout'):
+                run_batch.find_source_root(root)
 
 
 class HardwareOracleIdentity(unittest.TestCase):

@@ -9,11 +9,17 @@ YAML is never an oracle.
 
 `run_batch.py` takes `--source-root` for the frozen expectation checkout and
 `--hardware-source-root` for the #149 checkout whose CPU/runner sources and
-programmed-image receipt must match. Before any remote access, it verifies the
-pinned expectation-source manifest and separately checks the candidate source,
-runner, and image identities.
+programmed-image receipt must match. These roots have independent validation:
+the oracle must contain `ver/timing/run.py` and `ver/fpga/check_results.py`,
+while the hardware root must contain the #149 CPU, generator, restart marker,
+and FPGA runner sources. The hardware checkout does not need a timing oracle.
+Before any remote access, the driver verifies the pinned expectation-source
+manifest and separately checks the candidate source, runner, and image
+identities.
 
-The host-only identity tests need both source roots and use no board access:
+The host-only identity tests exercise production resolution of both roots and
+reject incomplete checkouts. They need both source roots and use no board
+access:
 
 ```sh
 JTROOT=/path/to/jtcores-149 \

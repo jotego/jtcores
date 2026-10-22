@@ -35,19 +35,50 @@ EXPECTATION_MANIFEST_SHA256 = '0ff9ca87d508cfd9a61330f3074d1a3e299e739f21b513498
 EXPECTATION_SOURCE_COMMIT = '9a17778b941dce89328316ee3e8f7f0a4bd14923'
 
 
-def find_source_root(explicit=None):
-    candidates = [explicit] if explicit else []
-    if not explicit:
-        candidates.extend([os.environ.get('JTROOT'), HERE.parents[3]])
+def _resolve_root(candidates, predicate, error):
     for candidate in candidates:
         if not candidate:
             continue
         root = Path(candidate).expanduser().resolve()
-        if ((root / 'modules/jttms10/hdl').is_dir() and
-                (root / 'modules/jttms10/ver/timing/run.py').is_file() and
-                (root / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v').is_file()):
+        if predicate(root):
             return root
-    raise SystemExit('cannot locate JTCORES source; pass --source-root or set JTROOT')
+    raise SystemExit(error)
+
+
+def _is_expectation_root(root):
+    return ((root / 'modules/jttms10/ver/timing/run.py').is_file() and
+            (root / 'modules/jttms10/ver/fpga/check_results.py').is_file())
+
+
+def _is_hardware_root(root):
+    required = (
+        root / 'modules/jttms10/hdl/jttms10.v',
+        root / 'modules/jttms10/ver/build.sh',
+        root / 'modules/jttms10/ver/restart/README.md',
+        root / 'modules/jttms10/ver/fpga/jttms10_fpga_runner.v',
+        root / 'modules/jttms10/ver/fpga/jttms10_fpga_stimulus.v',
+    )
+    return all(path.is_file() for path in required)
+
+
+def find_source_root(explicit=None):
+    """Find the independent expectation checkout, not the candidate hardware."""
+    candidates = ([explicit] if explicit else [
+        os.environ.get('JT_TMS10_ORACLE_ROOT'), os.environ.get('JTROOT'), HERE.parents[3]])
+    return _resolve_root(
+        candidates, _is_expectation_root,
+        'cannot locate independent TMS34010 expectation checkout; '
+        'pass --source-root or set JT_TMS10_ORACLE_ROOT')
+
+
+def find_hardware_source_root(explicit=None, *, source_root=None):
+    """Find a complete #149 CPU/runner checkout without requiring timing sources."""
+    candidates = ([explicit] if explicit else [
+        os.environ.get('JTROOT'), source_root, HERE.parents[3]])
+    return _resolve_root(
+        candidates, _is_hardware_root,
+        'cannot locate #149 CPU hardware checkout; '
+        'pass --hardware-source-root or set JTROOT')
 
 
 def sha256(path):
@@ -387,9 +418,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('manifest', type=Path)
     ap.add_argument('--source-root', type=Path,
-                    help='JTCORES checkout containing modules/jttms10 (defaults to JTROOT or inferred checkout)')
+                    help='Frozen independent timing/checker checkout (defaults to JT_TMS10_ORACLE_ROOT or inferred checkout)')
     ap.add_argument('--hardware-source-root', type=Path,
-                    help='CPU implementation checkout; defaults to --source-root')
+                    help='Current #149 CPU and runner checkout (defaults to JTROOT or inferred checkout)')
     ap.add_argument('--batch', type=int, help='run only this batch index')
     ap.add_argument('--ip', default=DEFAULT_IP)
     ap.add_argument('--transport-bin', type=Path)
@@ -407,7 +438,8 @@ def main():
     if not math.isfinite(args.transport_timeout) or args.transport_timeout <= 0:
         ap.error('--transport-timeout must be a finite positive number of seconds')
     source_root = find_source_root(args.source_root)
-    hardware_source_root = find_source_root(args.hardware_source_root or source_root)
+    hardware_source_root = find_hardware_source_root(
+        args.hardware_source_root, source_root=source_root)
     source_fpga = source_root / 'modules/jttms10/ver/fpga'
     hardware_fpga = hardware_source_root / 'modules/jttms10/ver/fpga'
     expectation_manifest_sha256 = validate_expectation_sources(source_root)
