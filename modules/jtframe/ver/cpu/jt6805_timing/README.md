@@ -131,6 +131,10 @@ latency is deliberately not assigned a cycle oracle here. STOP and WAIT are
 classified as CMOS-only extensions, outside the P3 timing matrix; their halt
 behavior is not dynamically exercised in this P3-focused suite.
 
+The RTS (`$81`) effect fixture starts at P3 SP `$7D` and reads its return
+address from physical `$7E`–`$7F`, within the exact-part sheet's documented
+`$60`–`$7F` stack range.
+
 The final result is 22 HMOS timing matches, including 22 also matching CMOS,
 and 215 CMOS-only timing matches that deviate from HMOS across 185 distinct
 encodings. All 237 intervals are integral in the independently calibrated
