@@ -72,6 +72,9 @@ reg [5:0] row;
 reg [11:0] run_left [0:63];
 reg [12:0] run_right [0:63];
 reg [17:0] run_base [0:63];
+reg [11:0] last_left, row_left;
+reg [12:0] last_right, row_right;
+reg [17:0] last_base, row_base;
 reg [12:0] object_width;
 reg [8:0] draw_x, last_x;
 reg signed [59:0] source_x, source_y, step_x, step_y;
@@ -297,12 +300,20 @@ initial begin
     end
 end
 
+// row descriptor read issued during PIXEL_CHECK, same expression as pixel_line
+wire [26:0] lookup_raw  = prep_step_product[58:32];
+wire [26:0] lookup_line = lookup_raw*scale > {9'd0,pixel_dist_y,7'd0} ? lookup_raw - 1'b1 : lookup_raw;
+wire [31:0] lookup_row  = ({5'd0,lookup_line} - {23'd0,top_line}) >> 3;
+
 always @(posedge clk) begin
     scale_inverse <= inverse[scale];
     shrink <= shrink_table[slope_abs];
     clut_l_q <= clut_l[color_index[11:3]];
     clut_h_q <= clut_h[color_index[11:3]];
     color_select <= color_index[2:0];
+    row_left  <= run_left [lookup_row[5:0]];
+    row_right <= run_right[lookup_row[5:0]];
+    row_base  <= run_base [lookup_row[5:0]];
     if (rst) read_x <= 0;
     else if (pxl_cen) read_x <= h;
 end
@@ -590,6 +601,9 @@ always @(posedge clk) begin
                 run_left[row] <= {1'b0,fetched[15:8],3'd0};
                 run_right[row] <= ({5'd0,fetched[15:8]} + {5'd0,fetched[7:0]} + 13'd1) << 3;
                 run_base[row] <= {1'b0,fetched[31:16],1'b0};
+                last_left <= {1'b0,fetched[15:8],3'd0};
+                last_right <= ({5'd0,fetched[15:8]} + {5'd0,fetched[7:0]} + 13'd1) << 3;
+                last_base <= {1'b0,fetched[31:16],1'b0};
                 sr = ({24'd0,fetched[15:8]} + {24'd0,fetched[7:0]} + 1) * 8;
                 if (sr > object_width) object_width <= sr[12:0];
                 if (rotation == 0 || {1'b0,row} + 1'b1 == rows) state <= PREP;
@@ -600,8 +614,8 @@ always @(posedge clk) begin
             end
             PREP: begin
                 bounds_walk <= 0;
-                bound_left <= (run_left[row]*scale + 127) >> 7;
-                bound_right <= (run_right[row]*scale + 127) >> 7;
+                bound_left <= (last_left*scale + 127) >> 7;
+                bound_right <= (last_right*scale + 127) >> 7;
                 bound_top <= (top_line*scale) >> 7;
                 bound_bottom <= (bottom_line*scale + 127) >> 7;
                 bound_width <= (object_width*scale + 127) >> 7;
@@ -692,10 +706,10 @@ always @(posedge clk) begin
                 end else begin
                     dist_x = flip_x ? origin_x - {23'd0,draw_x} - 1 : {23'd0,draw_x} - origin_x;
                     prep_dist <= dist_x[19:0];
-                    tile_count = ({19'd0,run_right[row]} - {20'd0,run_left[row]}) >> 3;
+                    tile_count = ({19'd0,last_right} - {20'd0,last_left}) >> 3;
                     prep_count <= tile_count[8:0];
                     prep_inverse <= inverse[tile_count];
-                    fast_span <= run_right[row] - {1'b0,run_left[row]};
+                    fast_span <= last_right - {1'b0,last_left};
                     state <= FAST_MUL;
                 end
             end
@@ -731,7 +745,7 @@ always @(posedge clk) begin
                 tile_delta = {5'd0,quotient};
                 prep_raw_col <= source_col[26:0];
                 prep_raw_step <= tile_delta[26:0];
-                prep_col <= source_col - {20'd0,run_left[row]};
+                prep_col <= source_col - {20'd0,last_left};
                 prep_delta <= tile_delta;
                 state <= FAST_REM;
             end
@@ -779,7 +793,7 @@ always @(posedge clk) begin
                 d_scale <= scale;
                 d_flip <= flip_x;
                 d_repeat <= repeat_line;
-                d_base <= run_base[row];
+                d_base <= last_base;
                 d_color <= attr[1][10:3];
                 cov_chunk <= covmap[{draw_x[8:3],3'd0}+:8];
                 dr_state <= DR_RUN;
@@ -816,16 +830,15 @@ always @(posedge clk) begin
                 state <= PIXEL_LOOKUP;
             end
             PIXEL_LOOKUP: begin
-                source_row = ({5'd0,pixel_line} - {23'd0,top_line}) >>> 3;
                 if (pixel_line < {18'd0,top_line} || pixel_line >= {17'd0,bottom_line}) advance_pixel;
-                else if (pixel_col < {15'd0,run_left[source_row]} || (!repeat_line && pixel_col >= {14'd0,run_right[source_row]})) advance_pixel;
+                else if (pixel_col < {15'd0,row_left} || (!repeat_line && pixel_col >= {14'd0,row_right})) advance_pixel;
                 else begin
-                    tile_count = ({19'd0,run_right[source_row]} - {20'd0,run_left[source_row]}) >> 3;
-                    tile_delta = ({5'd0,pixel_col} - {20'd0,run_left[source_row]}) >> 3;
+                    tile_count = ({19'd0,row_right} - {20'd0,row_left}) >> 3;
+                    tile_delta = ({5'd0,pixel_col} - {20'd0,row_left}) >> 3;
                     pixel_count <= tile_count[8:0];
                     pixel_inverse <= inverse[tile_count];
                     pixel_delta <= tile_delta[26:0];
-                    pixel_base <= run_base[source_row];
+                    pixel_base <= row_base;
                     if (repeat_line && tile_delta >= tile_count) state <= PIXEL_WRAP_MUL;
                     else begin
                         pixel_wrapped <= tile_delta[26:0];
