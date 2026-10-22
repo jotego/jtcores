@@ -11,6 +11,11 @@ on:
         description: Comma-separated FPGA targets
         required: true
         type: string
+      trials:
+        description: Seed attempts per core before giving up
+        required: false
+        type: string
+        default: '4'
 
 jobs:
   list_targets:
@@ -94,14 +99,14 @@ jobs:
 
           test -e "cores/${{ matrix.core }}/cfg/macros.def"
 
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${{ matrix.target }}"
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} -e SEED_TRIALS="${{ inputs.trials }}" --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${{ matrix.target }}"
 
-      # On a failed compile, ship the build log for triage. jtframe/bin/jtcore
-      # writes it to log/<target>/<core>.log inside the container, which maps
-      # to ./log/<target>/<core>.log on the runner via the $(pwd) -> /jtcores
+      # Ship the build logs and per-seed timing reports for every outcome.
+      # jtframe/bin/jtcore writes them to log/<target>/ inside the container,
+      # which maps to ./log/<target>/ on the runner via the $(pwd) -> /jtcores
       # bind mount.
       - id: upload-log
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: log-${{ matrix.target }}-${{ matrix.core }}
@@ -109,9 +114,13 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+      # The seed runner copies the best build so far into release/ after each
+      # trial, so ship it even when the job fails or is cancelled.
       - id: upload
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: release-${{ matrix.target }}-${{ matrix.core }}
           path: release
           retention-days: 7
+          if-no-files-found: warn

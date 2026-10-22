@@ -42,7 +42,8 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
         if [ $TARGET != pocket ]; then SKIPPOCKET=--skipPocket; else unset SKIPPOCKET; fi
         jtframe mra $NODBG --skipROM $SKIPPOCKET $CORENAME
         echo "Compiling for $TARGET"
-        jtutil seed --max-trials 4 $CORENAME -$TARGET $NODBG --nolinter
+        if [[ ! "${SEED_TRIALS:-}" =~ ^[0-9]+$ ]] || [ "${SEED_TRIALS:-0}" -lt 1 ]; then SEED_TRIALS=4; fi
+        jtutil seed --max-trials "$SEED_TRIALS" $CORENAME -$TARGET $NODBG --nolinter
         # recover hard disk space
         rm -rf $CORES/$CORENAME/$TARGET
     done
