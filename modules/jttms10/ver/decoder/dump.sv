@@ -4,7 +4,8 @@ module test;
     integer fd, i;
     string path;
     jttms10_ctrl u_ctrl(
-        .rst(1'b1), .clk(1'b0), .enable(1'b0), .ready(1'b0), .md(opcode),
+        .rst(1'b1), .clk(1'b0), .enable(1'b0), .ready(1'b0),
+        .grid_ready(1'b1), .md(opcode),
         .shift_count(5'd0), .lmo_more(1'b0), .multi_bit(1'b0),
         .multi_steps(5'd0), .multi_load(1'b0), .mul_count(5'd0),
         .div_early_cond(1'b0), .reti_pbx(1'b0), .slot_valid(1'b0),

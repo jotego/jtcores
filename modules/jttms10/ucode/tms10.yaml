@@ -26,7 +26,7 @@ ucode:
     start: 1
     seq:
       - fetch_bus, pcinc
-      - ld_ir, dispatch
+      - ld_ir, dispatch, awaitgrid_flow
   - name: illegal
     start: -1
     seq:
@@ -40,14 +40,14 @@ ucode:
   - name: nop
     start: 2
     seq:
-      - peek
-      - dispatch
+      - peek_flow
+      - dispatch, nextfetch_flow
       -
       - ni, dispatch
   - name: movk
     start: 3
     seq:
-      - k_a, peek
+      - k_a, peek_flow
       - pass_alu, wr_reg, dispatch
       -
       - ni, dispatch
@@ -68,14 +68,14 @@ ucode:
   - name: move
     start: 6
     seq:
-      - reg_a, peek
+      - reg_a, peek_flow
       - pass_alu, wr_reg, nzv_cc, dispatch
       -
       - ni, dispatch
   - name: add
     start: 7
     seq:
-      - reg_a, reg_b, peek
+      - reg_a, reg_b, peek_flow
       - add_alu, wr_reg, nvzc_cc, dispatch
       -
       - ni, dispatch

@@ -22,3 +22,6 @@ jttms10:
   - ucode:
       src: gfx.yaml
       output: tms10_gfx
+  - ucode:
+      src: bus_phase.yaml
+      output: tms10_bus_phase

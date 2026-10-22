@@ -16,10 +16,11 @@ module test;
     wire [15:0] cyc_wdata,cyc_io_rdata,cyc_dpytap;
     wire [13:0] cyc_srfaddr;
     wire [7:0] cyc_dram_row;
+    wire fetch_grid_ready;
     reg [15:0] cyc_rdata=0;
     reg cyc_ack=0,stall=0;
     jttms10_word dut(
-        .rst(rst),.clk(clk),.cen(cen),
+        .rst(rst),.clk(clk),.cen(cen),.grid_ready(fetch_grid_ready),
         .irq_req(1'b0),.irq_vector(32'd0),.nmi_req(1'b0),
         .nmi_nostack(1'b0),.halt_req(1'b0),.emu_run(1'b1),
         .psize(16'd4),.convdp(16'd0),.pixel_srt(pixel_srt),
@@ -47,6 +48,7 @@ module test;
     assign logical_rdata=dut.field_rdata;
     jttms10_bus u_bus(
         .clk(clk),.rst(rst),.hold_req(1'b0),.hold_ack(),
+        .fetch_grid_ready(fetch_grid_ready),
         .screen_req(1'b0),.screen_srfaddr(14'd0),
         .screen_dpytap(16'd0),.screen_org(1'b0),.screen_ack(),
         .refresh_req(1'b0),.refresh_row(8'd0),.refresh_cbr(1'b0),

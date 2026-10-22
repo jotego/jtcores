@@ -15,12 +15,24 @@ module test;
     reg         mem_ack = 0;
     reg         wvp_seen = 0;
 
-    `include "expected.svh"
+    integer cfg_fd, cfg_rc, check_fd;
+    integer expected_retires, expected_fault, fault_ir;
+    integer pause_on_ack, pause_addr_filter, pause_write_filter, pause_ack_write;
+    integer expected_requests;
+    reg [15:0] pixel_size, convdp, convsp, control, pmask;
+    reg [31:0] entry, pause_ack_addr;
+    reg [15:0] check_ir;
+    reg [31:0] check_pc, check_st, check_flags_mask, check_flags_value;
+    integer check_st_valid;
+    integer check_wvp_valid, check_wvp, check_regs, check_mem;
+    integer check_index, check_size;
+    reg [31:0] check_reg_value, check_addr, check_data;
 
     jttms10 u_cpu (
-        .rst(rst), .clk(clk), .cen(cen),
-        .psize(PIXEL_SIZE), .convdp(CONVDP),
-        .convsp(CONVSP), .control(CONTROL), .pmask(PMASK),
+        .rst(rst), .clk(clk), .cen(cen), .grid_ready(1'b1),
+        .cache_flush(1'b0),
+        .psize(pixel_size), .convdp(convdp),
+        .convsp(convsp), .control(control), .pmask(pmask),
         .wvp_set(wvp_set),
         .irq_req(1'b0), .irq_vector(32'd0),
         .nmi_req(1'b0), .nmi_nostack(1'b0),
@@ -30,6 +42,8 @@ module test;
         .mem_wdata(mem_wdata), .mem_size(mem_size), .mem_iaq(mem_iaq),
         .mem_program(),
         .mem_rdata(mem_rdata), .mem_ack(mem_ack),
+        .peek_req(), .peek_consume(), .peek_ack(1'b0), .peek_hit(1'b0),
+        .peek_data(16'd0),
         .pc(pc), .st(st), .ir(ir), .retire(retire), .fault(fault)
     );
 
@@ -43,12 +57,33 @@ module test;
     reg [15:0] init_word;
     reg [31:0] init_vector;
     initial begin
+        cfg_fd = $fopen("case.cfg", "r");
+        if (cfg_fd == 0) $fatal(1, "missing case.cfg");
+        cfg_rc = $fscanf(cfg_fd,
+            "%h %d %d %h %d %d %h %d %d %d %h %h %h %h %h",
+            entry, expected_retires, expected_fault, fault_ir,
+            pause_on_ack, pause_addr_filter, pause_ack_addr,
+            pause_write_filter, pause_ack_write, expected_requests,
+            pixel_size, convdp, convsp, control, pmask);
+        if (cfg_rc != 15) $fatal(1, "malformed case.cfg header (%0d fields)", cfg_rc);
+        if (expected_retires < 1 ||
+            expected_fault < 0 || expected_fault > 1 ||
+            pause_on_ack < 0 || pause_on_ack > 1 ||
+            pause_addr_filter < 0 || pause_addr_filter > 1 ||
+            pause_write_filter < 0 || pause_write_filter > 1 ||
+            pause_ack_write < 0 || pause_ack_write > 1 ||
+            expected_requests < -1 || expected_requests > 65535)
+            $fatal(1, "invalid case.cfg control value");
+        if (pixel_size != 1 && pixel_size != 2 && pixel_size != 4 &&
+            pixel_size != 8 && pixel_size != 16)
+            $fatal(1, "invalid pixel size in case.cfg");
+        check_fd = cfg_fd;
         for (i=0; i<1024; i=i+1) words[i] = 16'h0300;
         for (i=0; i<32; i=i+1) begin
             vector_target[i] = 0;
             vector_valid[i] = 0;
         end
-        $readmemh("program.mem", words, ENTRY >> 4);
+        $readmemh("program.mem", words, entry >> 4);
         data_fd = $fopen("memory_init.txt", "r");
         if (data_fd == 0) $fatal(1, "missing memory_init.txt");
         while ($fscanf(data_fd, "%h %d", data_at, data_count) == 2) begin
@@ -69,7 +104,7 @@ module test;
         end
         $fclose(vector_fd);
         repeat (5) @(posedge clk);
-        rst <= 0;
+        @(negedge clk) rst = 0;
     end
 
     function automatic [31:0] read_field(input [31:0] address, input [5:0] size);
@@ -81,12 +116,12 @@ module test;
             if (size == 6'd32 && address >= 32'hfffffc00 &&
                 address <= 32'hffffffe0 && address[4:0] == 0) begin
                 vector_index = (32'hffffffe0 - address) >> 5;
-                if (vector_index == 0) read_field = ENTRY;
+                if (vector_index == 0) read_field = entry;
                 else if (vector_valid[vector_index])
                     read_field = vector_target[vector_index];
                 else $fatal(1, "uninitialized trap vector %0d", vector_index);
             end else begin
-                if (size < 1 || size > 32 || address + size > 32'd16384)
+                if (size < 1 || size > 32 || address + {26'd0, size} > 32'd16384)
                     $fatal(1, "invalid read size %0d at bit address %h", size, address);
                 for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
                     if (bit_index < size) begin
@@ -103,13 +138,61 @@ module test;
         integer bit_index;
         reg [31:0] physical;
         begin
-            if (size < 1 || size > 32 || address + size > 32'd16384)
+            if (size < 1 || size > 32 || address + {26'd0, size} > 32'd16384)
                 $fatal(1, "invalid write size %0d at bit address %h", size, address);
             for (bit_index=0; bit_index<32; bit_index=bit_index+1) begin
                 if (bit_index < size) begin
                     physical = address + bit_index;
                     words[physical >> 4][physical[3:0]] = data[bit_index];
                 end
+            end
+        end
+    endtask
+
+    task automatic check_retire(input integer step);
+        integer rc, reg_i, mem_i;
+        begin
+            rc = $fscanf(check_fd, "%h %h %d %h %h %h %d %d %d %d",
+                check_ir, check_pc, check_st_valid, check_st,
+                check_flags_mask, check_flags_value,
+                check_wvp_valid, check_wvp, check_regs, check_mem);
+            if (rc != 10 || check_st_valid < 0 || check_st_valid > 1 ||
+                check_regs < 0 || check_mem < 0 ||
+                check_wvp_valid < 0 || check_wvp_valid > 1 ||
+                check_wvp < 0 || check_wvp > 1)
+                $fatal(1, "missing/malformed checkpoint %0d", step);
+            if (ir !== check_ir)
+                $fatal(1, "step %0d IR %h expected %h", step, ir, check_ir);
+            if (pc !== check_pc)
+                $fatal(1, "step %0d PC %h expected %h", step, pc, check_pc);
+            if (check_st_valid != 0 && st !== check_st)
+                $fatal(1, "step %0d ST %h expected %h", step, st, check_st);
+            if ((st & check_flags_mask) !== (check_flags_value & check_flags_mask))
+                $fatal(1, "step %0d flags in ST %h mask %h expected %h", step,
+                       st, check_flags_mask, check_flags_value);
+            if (check_wvp_valid != 0 && wvp_seen !== check_wvp[0])
+                $fatal(1, "step %0d WVP %b expected %b", step,
+                       wvp_seen, check_wvp[0]);
+            for (reg_i = 0; reg_i < check_regs; reg_i = reg_i + 1) begin
+                rc = $fscanf(check_fd, "%d %h", check_index, check_reg_value);
+                if (rc != 2 || check_index < 0 || check_index > 31)
+                    $fatal(1, "malformed register checkpoint at step %0d", step);
+                if (u_cpu.u_regs.ram0[check_index] !== check_reg_value)
+                    $fatal(1, "step %0d register %0d %h expected %h", step,
+                           check_index, u_cpu.u_regs.ram0[check_index], check_reg_value);
+            end
+            for (mem_i = 0; mem_i < check_mem; mem_i = mem_i + 1) begin
+                rc = $fscanf(check_fd, "%h %d %h", check_addr, check_size, check_data);
+                if (rc != 3 || check_size < 1 || check_size > 32)
+                    $fatal(1, "malformed memory checkpoint at step %0d", step);
+                if (read_field(check_addr, check_size[5:0]) !== check_data)
+                    $fatal(1, "step %0d memory @%h/%0d %h expected %h", step,
+                           check_addr, check_size, read_field(check_addr, check_size[5:0]),
+                           check_data);
+            end
+            if (step == expected_retires-1) begin
+                rc = $fscanf(check_fd, "%h", check_ir);
+                if (rc != -1) $fatal(1, "extra or malformed checkpoint data in case.cfg");
             end
         end
     endtask
@@ -177,12 +260,12 @@ module test;
         if (fault) $fatal(1, "CPU fault at retire %0d, IR %h", retired, ir);
         check_retire(retired);
         retired = retired + 1;
-        if (retired == EXPECTED_RETIRES && !EXPECT_FAULT) begin
-            if (PAUSE_ON_ACK && (!pause_done || !ack_while_paused))
+        if (retired == expected_retires && expected_fault == 0) begin
+            if (pause_on_ack != 0 && (!pause_done || !ack_while_paused))
                 $fatal(1, "memory ack was not observed while enable was low");
-            if (EXPECTED_REQUESTS >= 0 && request_count != EXPECTED_REQUESTS)
+            if (expected_requests >= 0 && request_count != expected_requests)
                 $fatal(1, "memory request count %0d, expected %0d",
-                       request_count, EXPECTED_REQUESTS);
+                       request_count, expected_requests);
             $display("TEST_RESULT: PASS (%0d instructions, %0d memory requests)",
                      retired, request_count);
             $finish;
@@ -190,11 +273,11 @@ module test;
     end
 
     always @(posedge clk) begin
-        if (!rst && PAUSE_ON_ACK) begin
+        if (!rst && pause_on_ack != 0) begin
             if (mem_ack && !cen) ack_while_paused <= 1;
             if (!pause_done && bus_state == BUS_ACK &&
-                (!PAUSE_ADDR_FILTER || held_addr==PAUSE_ACK_ADDR) &&
-                (!PAUSE_WRITE_FILTER || held_we==PAUSE_ACK_WRITE)) begin
+                (pause_addr_filter == 0 || held_addr==pause_ack_addr) &&
+                (pause_write_filter == 0 || held_we==pause_ack_write[0])) begin
                 cen <= 0;
                 pause_done <= 1;
                 pause_left <= 4;
@@ -210,14 +293,15 @@ module test;
 
     always @(posedge fault) begin
         #1;
-        if (!EXPECT_FAULT || retired != EXPECTED_RETIRES || ir !== FAULT_IR)
+        if (expected_fault == 0 || retired != expected_retires ||
+            ir !== fault_ir[15:0])
             $fatal(1, "unexpected fault: retired=%0d IR=%h PC=%h", retired, ir, pc);
         $display("TEST_RESULT: PASS (expected illegal opcode %h)", ir);
         $finish;
     end
 
     always @(posedge clk) begin
-        if (!rst && fault && !EXPECT_FAULT)
+        if (!rst && fault && expected_fault == 0)
             $fatal(1, "CPU fault, IR %h PC %h", ir, pc);
     end
 

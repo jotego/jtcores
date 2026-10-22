@@ -24,7 +24,7 @@ module test;
     reg held_we=0, held_iaq=0;
 
     jttms10 u_cpu(
-        .rst(rst), .clk(clk), .cen(cen),
+        .rst(rst), .clk(clk), .cen(cen), .grid_ready(1'b1),
         .psize(16'd4), .convdp(16'd24), .convsp(16'd24),
         .control(16'd0), .pmask(16'd0), .wvp_set(), .mem_pixel(),
         .irq_req(irq_req), .irq_vector(32'hfffffec0),

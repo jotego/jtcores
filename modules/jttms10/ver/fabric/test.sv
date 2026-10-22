@@ -26,6 +26,7 @@ module test;
     wire [15:0] cyc_wdata,cyc_io_rdata,cyc_dpytap;
     wire [13:0] cyc_srfaddr;
     wire [7:0] cyc_dram_row;
+    wire logical_screen_ack=dut.screen_ack;
     reg [15:0] cyc_rdata=0;
     reg cyc_ack=0;
     jttms10_field u_field(
@@ -76,17 +77,19 @@ module test;
     reg [15:0] wdata_q,io_q;
     reg [13:0] srf_q;
     reg [2:0] delay_q;
-    integer io_reads=0,io_writes=0,screen_count=0,dram_count=0;
+    integer io_reads=0,io_writes=0,screen_count=0,screen_ack_count=0,dram_count=0;
     integer rmw_reads=0,word_writes=0,restart_count=0;
     reg inject_hold=0;
     reg [15:0] first_screen_dpyadr;
     always @(posedge clk) begin
         if (rst) begin
             tstate<=T_IDLE; cyc_ack<=0; cyc_rdata<=0;
-            io_reads<=0; io_writes<=0; screen_count<=0; dram_count<=0;
+            io_reads<=0; io_writes<=0; screen_count<=0;
+            screen_ack_count<=0; dram_count<=0;
             rmw_reads<=0; word_writes<=0; restart_count<=0;
             inject_hold<=0; hold_req<=0;
         end else begin
+            if(logical_screen_ack) screen_ack_count<=screen_ack_count+1;
             if (word_restart) restart_count<=restart_count+1;
             if (inject_hold && word_ack && word_lock && !word_we) begin
                 hold_req<=1;
@@ -207,10 +210,19 @@ module test;
             $fatal(1,"first integrated screen request missing");
         guard=0;
         while (cyc_req && guard<100) begin tick(); guard=guard+1; end
-        if (cyc_req || dpyadr!==first_screen_dpyadr-16'd4)
-            $fatal(1,"delayed screen ack did not advance DPYADR once");
+        if (guard==100 || cyc_req)
+            $fatal(1,"screen target request did not drop after target ACK");
+        if(screen_ack_count!=0)
+            $fatal(1,"logical screen response overlapped raw target request");
+        guard=0;
+        while(screen_ack_count==0 && guard<100) begin tick(); guard=guard+1; end
+        if(guard==100 || screen_ack_count!=1 ||
+           dpyadr!==first_screen_dpyadr-16'd4)
+            $fatal(1,"logical screen ACK did not advance DPYADR exactly once");
         repeat (12) tick();
-        if (screen_count!=1) $fatal(1,"screen request duplicated");
+        if (screen_count!=1 || screen_ack_count!=1 ||
+            dpyadr!==first_screen_dpyadr-16'd4)
+            $fatal(1,"screen target/response duplicated");
         // REFCNT produces an actual DRAM cycle through the same fabric.
         write_field(32'hc00000b0,6'd16,32'h0018); // RR=11 disabled
         write_field(32'hc00001f0,6'd16,32'h0100);

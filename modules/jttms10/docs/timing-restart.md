@@ -21,7 +21,7 @@ next bounded shift/LMO increment adds passing warm-cache examples for SLL,
 SRA, SRL, RL, SLA and LMO. Ten mnemonics therefore have passing examples;
 none has full-condition timing signoff. Instruction timing remains in YAML.
 
-The fitted CPU source is `e0883caa36c6a30ccc0b3bd113afaa35dd0e60c6`. Its
+The currently programmed CPU source is `e0883caa36c6a30ccc0b3bd113afaa35dd0e60c6`. Its
 SOURCE/SOURCE DataStorm image was loaded and passed board health. The RBF SHA256
 is `827a0450e97d4f3111d9cbc56c9329c5a3c9092c7bbd5f1242002a56bc036bc5`.
 The complete Quartus flow took 846.97 s; the outer build command took 863.140 s.
@@ -53,6 +53,69 @@ cost increase for bounded real shift/LMO work. The full Stage B planning gate
 is 3,250 mean ALMs: only 122 ALMs remain below it, and field/posted-write/HOLD
 feasibility is still open. Reassess resource sharing before broader expansion
 if that gate cannot be met; do not accumulate unmeasured family fast paths.
+
+## Current bus/fetch experiment
+
+The NOP bus/fetch increment passes all 12 short protocol-v5 controls with
+the unchanged independent Python checker. Cache-disabled NOP takes 32/48/56
+INCLK in BASE/W1P7/W3; the two cold four-word-fill controls take 80/120/176.
+Warm NOP remains 8 INCLK, plus the seven explicit pause clocks in W1P7.
+Actual logical bus slots and raw target handshakes are checked separately.
+This corrects the earlier local fetch deficit; it has not replaced the loaded
+e088 FPGA image or expanded the 15-form qualified cached matrix scope.
+
+Timing selection remains in YAML: a small bus service image schedules real
+allocation/response/release, and NOP explicitly selects an earlier next read.
+The generic one-owner RTL preserves the tuple and completion through pauses
+and drains canceled work. It contains no instruction timer or opcode-family
+timing scheduler. The two-bit CPU flow selector keeps the control ROM at
+64 bits. See [the bus contract](bus.md).
+
+The frozen v3 source passes `modules/jttms10/ver/run.sh`: 180 architectural
+programs and every unit, including the permanent NMI/IRQ owner cancellation
+test, in 72.91 seconds including compilation. An archived pre-fix version
+fails the CEN-low new-stack-request assertion. Independent Sol review checks
+both the source and event-based bus bench adaptations. The final lint-only
+include annotation leaves functional tokens and all ten generated payloads
+unchanged; bus/fabric lint passes, while inherited CPU/pixel warnings remain.
+
+Four fresh, matched NARC CPU fits with `/opt/quartus_free` now measure the
+owner/address path:
+
+| Four-fit mean | #141 original | Previous qualified e088 | Bus/fetch experiment |
+| --- | ---: | ---: | ---: |
+| ALMs | 2,752 | 3,128 | 3,209.5 |
+| Reported Fmax | 56.415 MHz | 53.2275 MHz | 53.465 MHz |
+| Registers | 1,523 | 1,596 | 1,641 |
+| RAM bits | 542,720 | 542,720 | 546,816 |
+| M10Ks / DSPs | 69 / 0 | 69 / 0 | 69 / 0 |
+
+This is +2.61% area versus the preceding qualified source, and +16.62% area /
+-5.23% reported Fmax versus #141. The small frequency difference from e088
+does not establish a speed improvement. All 48 constrained STA groups have
+positive slack and zero endpoint TNS. The slowest seed reaches 50.51 MHz
+with +0.202 ns minimum setup slack; only 40.5 mean ALMs (19 in the largest
+seed) remain below the 3,250 planning gate. Field/posted-write feasibility
+must stay within the remaining budget before broad instruction migration.
+The 4,096-by-64 control ROM preserves its width from the earlier bus-only
+experiment, and physical RAM blocks/DSPs remain unchanged. These are fresh
+standalone fits, with no incremental-reuse or new FPGA qualification claim.
+
+The permanent earlyfetch unit also passes held HLT, CF and CD cancellation.
+CF/CD drain an old NOP response, then fetch a distinct MOVK signature from
+the same instruction address, checking decode identity, one register write
+and the corresponding retirement. `modules/jttms10/ver/run.sh --unit earlyfetch`
+runs all five modes; the archived pre-fix CPU still fails the CEN-low request
+guard with this final fixture. These are functional checks, not TI interrupt
+or cache-control timing signoff.
+
+Evidence is under `/nobackup/tasks/jtcores-149/artifacts/`:
+`bus-phase-prototype/early-read-owner-v3-{normal12-run2,full-suite}/` and
+`bus-phase-fit-002/`. The final immutable fit manifest is
+`f7d23a247e8f3fb8e461ac753c4c9374d3ff38ac03b77e1b4c2a157980d11349`.
+The additional permanent-unit proof is `earlyfetch-permanent-unit-runsh-v1/`.
+Broader conditions, field/posted-write feasibility, clean CI and final
+NARC/MiSTer acceptance remain open.
 
 ## Demonstrated scope
 
@@ -144,14 +207,15 @@ merges are in
 These four resident cases do not qualify CD execution, the full field matrix,
 posted writes, HOLD restart or total TI timing.
 
-General flag and A15/B15 alias matrices, same-edge CF/CD changes, nonresident
-fetch timing and all wider instruction conditions remain unqualified. Current
+General flag and A15/B15 alias matrices, same-edge CF/CD changes and all wider
+instruction conditions remain unqualified. The loaded e088 image's
 cache-disabled `nop_off` CD-fetch intervals are 22 vs 32 INCLK at BASE, 37 vs
 48 at W1P7, and 46 vs 56 at W3. Keep CD instruction totals red until this
 fetch deficit is fixed; a CD MOVB total would conflate fetch and field latency.
 ACK capture is demonstrated through one resident CEN pause case, while broader
 pause/HOLD conditions remain unqualified. The selected unchanged architectural vectors
-pass the Verilator adapter; the full 180-program regression remains pending.
+pass the Verilator adapter; the later local experiment's full 180-program
+regression is recorded separately above.
 Current strict lint still reports the original pixel helper's UNOPTFLAT warnings
 under the installed Verilator; the frozen #141 source produces the same warning
 types/counts. The new candidate adds eleven raw -Wall warnings for intentionally unused
@@ -177,7 +241,7 @@ cd /tmp/jttms10-149-seed1
 
 These measurements use Quartus Lite 20.1.1 Build 720, Cyclone V
 5CSEBA6U23I7, high-performance effort, the same 158 virtual pins and 20 ns
-clock as #141. Current ALMs by seed are 3,127 /3,127 /3,134 /3,124; reported worst-corner
+clock as #141. The recorded shift/LMO checkpoint used 3,127 /3,127 /3,134 /3,124 ALMs; reported worst-corner
 Fmax is 52.36 /53.71 /53.54 /53.30 MHz. Internal constrained timing is checked;
 virtual external I/O is unconstrained. Source/ROM hashes, exact commands and
 reports are retained in `/nobackup/tasks/jtcores-149/artifacts/stageb-fit-001/`.

@@ -487,17 +487,8 @@ def digest(path):
     with path.open('rb') as f:
         for block in iter(lambda:f.read(1024*1024), b''): h.update(block)
     return h.hexdigest()
-source_roots=(repo/'modules/jttms10/ucode',repo/'modules/jttms10/ver/decoder',
-              repo/'modules/jttms10/ver/gfx',repo/'modules/jttms10/hdl',
-              repo/'modules/jtframe/src/jtframe/ucode')
-source_files={repo/'modules/jttms10/ver/build.sh', repo/'modules/jtframe/bin/jtframe',
-              source/'build-runner-incremental.sh',source/'write_programming_receipt.py',
-              source/'partition_build.py'}
-source_files.update((repo/'modules/jttms10/ver/fpga').glob('*.v'))
-for root in source_roots:
-    source_files.update(p for p in root.rglob('*') if p.is_file())
-source_hashes={str(p):digest(p) for p in sorted(source_files)
-               if p.is_file() and p.suffix != '.pyc' and '__pycache__' not in p.parts}
+source_files=partition_build.frozen_cpu_source_paths(repo, source)
+source_hashes={str(p):digest(p) for p in source_files}
 inputs=[build/'test_board.qsf',build/'test_board.qpf',build/'test_board.bdf',
         build/'QSYS_test_board.qsys',build/'QSYS_test_board.tcl',build/'QSYS_test_board.sopcinfo',
         build/'runner_clock.sdc',build/'QSYS_test_board/synthesis/QSYS_test_board.qip']

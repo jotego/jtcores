@@ -1,5 +1,10 @@
 # Architecture and development evidence
 
+The timing restart in [#149](timing-restart.md) retains this shared #141
+architecture. Current scope, fitted costs and remaining acceptance gates are
+recorded there; the historical development checkpoints below are not current
+timing-compliance claims.
+
 ## Required end state
 
 Issue 141 requires a new `modules/jttms10` CPU using JTFRAME YAML microcode,
@@ -17,9 +22,11 @@ unfinished synthesized CPU does not prove the area requirement.
   General registers have no architectural reset value and are not reset;
   this permits block RAM inference.
 - One 32-bit ALU supplies arithmetic and logic. A single 33-bit adder is
-  shared by addition, subtraction, negation, and absolute value. Shifts are
-  one bit per operation; wide variable shifters and parallel dividers are
-  excluded from the area-oriented datapath.
+  shared by addition, subtraction, negation, and absolute value. The #149
+  shift/LMO increment replaces serial instruction shifts with two shared
+  bounded stages selected by explicit YAML words; it retains iterative
+  division. Its measured cost is recorded in the restart status and
+  [shift notes](shifts.md).
 - PC is a bit address. Instruction words increment it by 16. Extension words
   are fetched low word first. Branch/jump destinations are word aligned. Relative PC updates select
   one delta before a shared adder; direct PC writes retain priority.
@@ -49,7 +56,18 @@ inactive microcycle reads ROM; the following active microcycle executes it.
 The controller holds its address and controls through a memory wait. An
 acknowledgement received while the external clock enable is low is captured
 once and consumed when execution resumes. Requests are disabled between
-execution and ROM priming to prevent duplicate transactions.
+ordinary execution and ROM priming to prevent duplicate transactions. The
+explicit early-read owner instead holds its accepted tuple across priming
+and CEN pauses until its response has been consumed or drained.
+
+Instruction timing changes belong in YAML. A compact `flow` selector chooses
+cache peek, an earlier next-opcode demand, or waiting for a real bus admission
+boundary. The verification and area build flows run `ver/ucode/check_cpu_flow.py`
+to reject multiple flow selections in one word before generation. NOP currently selects the early demand; ordinary FETCH
+consumes its single owned response. The independent bus service image keeps
+allocation/response/release progressing while the CPU awaits memory. See
+[the bus contract](bus.md) for tuple, ACK, cancellation and supported timing
+profiles. There is no RTL instruction-duration counter or family scheduler.
 
 The generator groups tokens by underscore suffix, so `add_alu` selects an
 ALU field, but the standalone PC increment control is `pcinc`. Naming it

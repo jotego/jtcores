@@ -76,6 +76,8 @@ module test;
             pre_release_local_cycles<=0;
         end else begin
         if(retire && pc==32'h1120) loop_retires<=loop_retires+1;
+        if (!host_released && (pc!==32'd0 || retire))
+            $fatal(1,"CPU changed PC/retired while host HLT was asserted pc=%08x retire=%b",pc,retire);
         if(dut.u_cpu.field_req && dut.u_cpu.field_program &&
            !dut.u_cpu.field_iaq) extension_fetches<=extension_fetches+1;
         case(state)
@@ -184,8 +186,12 @@ module test;
         wait(!rst);
         repeat(20) tick();
         if(!halt) $fatal(1,"host-present reset did not assert HLT");
-        repeat(50) tick(); // refresh/init cycles may continue; CPU must not
-        if(pc!==32'd0 || retire || pre_release_local_cycles!=0 || init_seen!=8)
+        guard=0;
+        while(init_seen<8 && guard<512) begin
+            tick(); guard=guard+1;
+        end
+        if(guard==512 || init_seen!=8 || pc!==32'd0 || retire ||
+           pre_release_local_cycles!=0)
             $fatal(1,"host-present HLT allowed vector fetch/retirement pc=%08x ir=%04x cycles=%0d",
                    pc,ir,pre_release_local_cycles);
         host_release_halt();

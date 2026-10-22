@@ -10,6 +10,7 @@ module jttms10(
     output    [170:0] obs_work,
 `endif
     input             rst, clk, cen,
+    input             grid_ready,
     input             cache_flush,
     input             irq_req,
     input      [31:0] irq_vector,
@@ -37,7 +38,7 @@ module jttms10(
 `ifdef JTTMS10_REGRESSION
     wire [11:0] obs_control;
 `endif
-    wire peek, slot_take, halt_accept;
+    wire peek, start_next_fetch, slot_take, halt_accept;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
     wire shiftkinit, shiftrinit, shift_stage0, shift_stage1, shift_finish;
     wire setf, exgf, btstfinish, lmofinish;
@@ -189,7 +190,10 @@ module jttms10(
     assign c=alu_c;
     assign v=alu_v;
     reg completed, bus_started;
-    reg slot_valid, peek_pending;
+    reg slot_valid, peek_pending, peek_miss, peek_cd;
+    reg [2:0] early_fetch_state;
+    reg early_fetch_cd;
+    reg [31:0] early_fetch_addr;
     reg [15:0] slot_opcode;
     wire slot_ready = slot_valid && !cache_flush && !control[15];
     wire field_op = mem_sel!=0 || stack_sel!=0 ||
@@ -197,16 +201,35 @@ module jttms10(
     wire bus_op = vector || fetch || imm || field_op;
     wire gfx_skip_write = gfx_active && gfx_bus_write &&
                           gfx_bus_pixel && pix_transparent;
-    wire ready = !bus_op || completed || mem_ack || gfx_skip_write;
+    localparam [2:0] EARLY_IDLE=3'd0, EARLY_WAIT=3'd1,
+                     EARLY_READY=3'd2, EARLY_DRAIN=3'd3,
+                     EARLY_RELEASE=3'd4;
+    wire early_fetch_active = early_fetch_state!=EARLY_IDLE;
+    wire early_fetch_cancel, early_fetch_start, pc_redirect;
+    wire early_fetch_request = early_fetch_start ||
+        early_fetch_state==EARLY_WAIT || early_fetch_state==EARLY_READY ||
+        early_fetch_state==EARLY_DRAIN;
+    assign early_fetch_start = step && start_next_fetch && peek_miss &&
+                               !slot_valid && early_fetch_state==EARLY_IDLE &&
+                               !completed && !mem_ack && !cache_flush &&
+                               control[15]==peek_cd &&
+                               !fault && !rst && !hw_take &&
+                               !halt_accept && !pc_redirect;
+    wire early_fetch_wait = early_fetch_state==EARLY_WAIT;
+    wire early_fetch_ready = early_fetch_state==EARLY_READY;
+    wire ready = !bus_op || gfx_skip_write ||
+        (early_fetch_state==EARLY_IDLE && (completed || mem_ack)) ||
+        (early_fetch_ready && fetch && completed);
     wire [31:0] read_data = completed ? bus_data : mem_rdata;
     // Only the execution phase owns the bus; this prevents a completed
     // microinstruction from being presented again while the ROM is primed.
     wire active;
     assign peek_req = step && peek && !slot_valid && !peek_pending;
     assign peek_consume = slot_take;
-    assign mem_req = active && bus_op && !completed && !rst && !fault &&
-                     (cen || bus_started) &&
-                     !gfx_skip_write;
+    assign mem_req = early_fetch_request ||
+                     (active && bus_op && !completed && !rst && !fault &&
+                      (cen || bus_started) && !gfx_skip_write &&
+                      early_fetch_state==EARLY_IDLE);
     // MOVB always uses an 8-bit signed field. Ordinary MOVE selects one of
     // the two independent FS/FE fields; a size encoding of zero means 32.
     wire byte_op = ir[15:10]==6'b100011 || ir[15:10]==6'b101011 ||
@@ -231,24 +254,26 @@ module jttms10(
     wire field_ext_fill = field_ext_signed && field_ext_input[field_msb];
     wire [31:0] field_extended = (field_ext_input & field_mask) |
                                  ({32{field_ext_fill}} & ~field_mask);
-    assign mem_we = gfx_active ? gfx_bus_write :
+    assign mem_we = early_fetch_request ? 1'b0 : gfx_active ? gfx_bus_write :
                     mem_sel==WRITE_MEM || stack_sel==WRITE_STACK;
-    assign mem_addr = field_op ? ea : vector ? 32'hffffffe0 : pc;
-    assign mem_size = gfx_active ? gfx_bus_size :
+    assign mem_addr = early_fetch_request ?
+                      (early_fetch_start ? pc : early_fetch_addr) :
+                      field_op ? ea : vector ? 32'hffffffe0 : pc;
+    assign mem_size = early_fetch_request ? 6'd16 : gfx_active ? gfx_bus_size :
                       push_active && stack_sel==WRITE_STACK ? 6'd16 :
                       (stack_sel!=0 || vector) ? 6'd32 :
                       field_op ? field_size : 6'd16;
-    assign mem_wdata = gfx_active ? md :
+    assign mem_wdata = early_fetch_request ? 32'd0 : gfx_active ? md :
                        push_active && stack_sel==WRITE_STACK ?
                        {16'd0, push_high ? md[31:16] : md[15:0]} :
                        md;
-    assign mem_iaq = fetch;
+    assign mem_iaq = fetch || early_fetch_request;
     // The cache accepts every PC-directed word, including extension words.
     // IAQ remains the separate opcode bus-status signal.
-    assign mem_program = fetch || imm;
+    assign mem_program = fetch || imm || early_fetch_request;
     // PIXT will assert this for its logical pixel field transaction. CPW
     // and CVXYL are register-only operations and never tag memory cycles.
-    assign mem_pixel = gfx_active && gfx_bus_pixel;
+    assign mem_pixel = !early_fetch_request && gfx_active && gfx_bus_pixel;
 
 `ifdef JTTMS10_REGRESSION
     assign obs_hw_complete = step && ni && hw_entry;
@@ -263,7 +288,8 @@ module jttms10(
 `ifdef JTTMS10_REGRESSION
         .obs_control ( obs_control ),
 `endif
-        .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
+        .rst(rst), .clk(clk), .enable(cen), .ready(ready),
+        .grid_ready(grid_ready), .md(md[15:0]),
         .shift_count(shift_count), .lmo_more(ctrl_lmo_more),
         .multi_bit(multi_bit), .multi_steps(multi_steps),
         .multi_load(ir[5]),
@@ -281,6 +307,7 @@ module jttms10(
         .push_entry(push_entry), .push_active(push_active), .emu_step(emu_step),
         .execute(step), .active(active), .vector(vector), .fetch(fetch), .imm(imm),
         .peek(peek), .slot_take(slot_take), .halt_accept(halt_accept),
+        .start_next_fetch(start_next_fetch),
         .gfx_enter(gfx_enter), .gfx_resume(gfx_resume),
         .gfx_take(gfx_take), .gfx_family(gfx_family),
         .pcinc(pcinc), .ld_ir(ld_ir), .ni(ni), .halt(halt),
@@ -475,13 +502,66 @@ module jttms10(
     wire pc_tmp_add = pc_sel==TMPREL_PC;
     wire pc_add = pcinc || pc_dsj_add || pc_short_add ||
                   pc_long_add || pc_tmp_add;
-    wire pc_redirect = step && (pc_sel!=0 || pc_dsj_add ||
-                                pc_short_add || pc_long_add || pc_tmp_add);
+    assign pc_redirect = step && (pc_sel!=0 || pc_dsj_add ||
+                                  pc_short_add || pc_long_add || pc_tmp_add);
+    assign early_fetch_cancel = early_fetch_active &&
+        (hw_take || halt_accept || pc_redirect || cache_flush ||
+         (control[15] != early_fetch_cd));
     wire [31:0] pc_delta = pc_tmp_add ? {tmp[27:0],4'd0} :
                            pc_long_add ? {{12{md[15]}},md[15:0],4'd0} :
                            pc_short_add ? {{20{ir[7]}},ir[7:0],4'd0} :
                            pc_dsj_add ? dsj_delta : 32'd16;
     wire [31:0] pc_plus = pc + pc_delta;
+
+    // A NOP may start one real program read after its resolved negative peek.
+    // The ordinary FETCH microstep remains the only consumer and PC increment.
+    // Cancellation drains the accepted field request and its level ACK before
+    // allowing a vector/redirect transaction to use the shared response path.
+    always @(posedge clk) begin
+        if (rst) begin
+            early_fetch_state<=EARLY_IDLE;
+            early_fetch_cd<=0;
+            early_fetch_addr<=0;
+        end else begin
+            case (early_fetch_state)
+                EARLY_IDLE: if (early_fetch_start) begin
+                    early_fetch_state<=EARLY_WAIT;
+                    early_fetch_cd<=control[15];
+                    early_fetch_addr<=pc;
+                end
+                EARLY_WAIT: begin
+                    if (early_fetch_cancel) begin
+                        if (mem_ack) begin
+                            early_fetch_state<=EARLY_RELEASE;
+                        end else begin
+                            early_fetch_state<=EARLY_DRAIN;
+                        end
+                    end else if (mem_ack) begin
+                        early_fetch_state<=EARLY_READY;
+                    end
+                end
+                EARLY_READY: begin
+                    if (early_fetch_cancel || (step && fetch)) begin
+                        early_fetch_state<=EARLY_RELEASE;
+                    end
+                end
+                EARLY_DRAIN: begin
+                    if (mem_ack) begin
+                        early_fetch_state<=EARLY_RELEASE;
+                    end
+                end
+                EARLY_RELEASE: begin
+                    if (!mem_ack) begin
+                        early_fetch_state<=EARLY_IDLE;
+                    end
+                end
+                default: begin
+                    early_fetch_state<=EARLY_IDLE;
+                end
+            endcase
+        end
+    end
+
     always @(posedge clk) begin
         retire <= 0;
         nmi_clear <= 0;
@@ -515,6 +595,8 @@ module jttms10(
             bus_started<=0;
             slot_valid<=0;
             peek_pending<=0;
+            peek_miss<=0;
+            peek_cd<=0;
             slot_opcode<=0;
             bus_data<=0;
             vector_latched<=0;
@@ -525,8 +607,10 @@ module jttms10(
             pbx_push<=0;
             line_hw_push<=0;
         end else begin
-            if(step) bus_started<=0;
-            else if(mem_req) bus_started<=1;
+            if(step || early_fetch_start || early_fetch_cancel)
+                bus_started<=0;
+            else if(mem_req && !early_fetch_request)
+                bus_started<=1;
             if(hw_take) begin
                 vector_latched<=nmi_req ? 32'hfffffee0 : irq_vector;
                 nmi_clear<=nmi_req;
@@ -537,21 +621,38 @@ module jttms10(
                              !(nmi_req && nmi_nostack);
             end
             if(push_entry) push_high<=1;
-            if(mem_req && mem_ack) begin
+            if(mem_req && mem_ack && !early_fetch_request) begin
                 completed<=1;
                 bus_data<=mem_rdata;
             end
-            if(peek_req) peek_pending<=1;
+            if(early_fetch_wait && mem_ack && !early_fetch_cancel) begin
+                completed<=1;
+                bus_data<=mem_rdata;
+            end
+            if(peek_req) begin
+                peek_pending<=1;
+                peek_miss<=0;
+                peek_cd<=control[15];
+            end
             if(peek_pending && peek_ack) begin
                 peek_pending<=0;
-                if(peek_hit) begin
-                    slot_opcode<=peek_data;
-                    slot_valid<=1;
+                if(control[15]==peek_cd) begin
+                    if(peek_hit) begin
+                        slot_opcode<=peek_data;
+                        slot_valid<=1;
+                        peek_miss<=0;
+                    end else begin
+                        peek_miss<=1;
+                    end
                 end
             end
+            if(early_fetch_start || hw_take || halt_accept || cache_flush ||
+               pc_redirect || early_fetch_cancel)
+                peek_miss<=0;
+            if(early_fetch_cancel) completed<=0;
             if(active && cen && halt) fault<=1;
             if(step) begin
-                completed<=0;
+                if(!early_fetch_active || fetch) completed<=0;
                 if(emu_step) emu_ack<=1;
                 if(push_active && stack_sel==WRITE_STACK)
                     push_high<=~push_high;
@@ -811,11 +912,11 @@ module jttms10(
                 retire<=(ni || gfx_done) && !hw_entry;
                 if(ni) hw_entry<=0;
             end
-            if(slot_take || hw_take || halt_accept || cache_flush || control[15] ||
-               pc_redirect) begin
+            if(slot_take || hw_take || halt_accept || cache_flush || pc_redirect) begin
                 slot_valid<=0;
                 peek_pending<=0;
             end
+            if(control[15]) slot_valid<=0;
             if(hw_take) hw_entry<=1;
         end
     end

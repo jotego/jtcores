@@ -46,7 +46,7 @@ module jttms10_system #(
     wire word_req, word_we, word_iaq, word_lock, word_pixel;
     wire [31:0] word_addr;
     wire [15:0] word_wdata, word_rdata;
-    wire word_ack, word_restart, nmi_clear, wvp_set;
+    wire word_ack, word_restart, nmi_clear, wvp_set, fetch_grid_ready;
     wire [31:0] irq_vector;
     wire nmi_nmim;
     wire [15:0] psize, convsp, convdp, control, pmask, hstctlh;
@@ -62,7 +62,7 @@ module jttms10_system #(
         .obs_work ( obs_work ), .obs_field_pending_fault ( obs_field_pending_fault ),
         .obs_word_req ( obs_word_req ), .obs_word_pending ( obs_word_pending ),
 `endif
-        .rst(rst),.clk(clk),.cen(cen),
+        .rst(rst),.clk(clk),.cen(cen),.grid_ready(fetch_grid_ready),
         .irq_req(irq_pending),.irq_vector(irq_vector),
         .nmi_req(nmi_pending),.nmi_nostack(nmi_nmim),
         .halt_req(halt),.emu_run(emu_run),
@@ -89,6 +89,7 @@ module jttms10_system #(
         .hcs_n(hcs_n),.hsync_n(hsync_n),.vsync_n(vsync_n),
         .lint1_n(lint1_n),.lint2_n(lint2_n),
         .hold_req(hold_req),.hold_ack(hold_ack),
+        .fetch_grid_ready(fetch_grid_ready),
         .host_req(host_req),.host_we(host_we),.host_reg(host_reg),
         .host_be(host_be),.host_wdata(host_wdata),
         .host_rdata(host_rdata),.host_ack(host_ack),.host_busy(host_busy),

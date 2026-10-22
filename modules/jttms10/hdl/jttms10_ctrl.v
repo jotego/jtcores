@@ -3,7 +3,7 @@ module jttms10_ctrl(
 `ifdef JTTMS10_REGRESSION
     output     [11:0] obs_control,
 `endif
-    input             rst, clk, enable, ready,
+    input             rst, clk, enable, ready, grid_ready,
     input      [15:0]  md,
     input      [4:0]   shift_count,
     input              lmo_more,
@@ -23,7 +23,7 @@ module jttms10_ctrl(
     output     [7:0]  gfx_family,
     output            hw_take, reserved_opcode, push_entry, push_active, emu_step,
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
-    output            peek, slot_take, halt_accept,
+    output            peek, start_next_fetch, slot_take, halt_accept,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
     output            shiftkinit, shiftrinit, shift_step, shift_stage0,
                       shift_stage1, shift_finish,
@@ -54,6 +54,11 @@ module jttms10_ctrl(
     wire [2:0] misc_sel;
     wire [1:0] bus_sel;
     wire gfx_step;
+    wire [1:0] flow_sel;
+    wire awaitgrid;
+    assign awaitgrid = flow_sel==AWAITGRID_FLOW;
+    assign peek = flow_sel==PEEK_FLOW;
+    assign start_next_fetch = flow_sel==NEXTFETCH_FLOW;
     wire slot_lookup, slot_dispatch;
     assign slot_lookup=dispatch && !ld_ir && !ni;
     assign slot_dispatch=dispatch && ni;
@@ -111,7 +116,8 @@ module jttms10_ctrl(
     // cen=0 primes the synchronous ROM; cen=1 executes the latched word.
     // A waiting transaction leaves cen and uaddr unchanged. enable may pause
     // execution independently of the memory response capture in the datapath.
-    assign execute = cen && enable && ready && !halt;
+    assign execute = cen && enable && ready && !halt &&
+                     (!awaitgrid || grid_ready);
     assign active = cen;
 `ifdef JTTMS10_REGRESSION
     assign obs_control = uaddr[11:0];

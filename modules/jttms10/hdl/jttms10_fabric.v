@@ -12,6 +12,7 @@ module jttms10_fabric #(
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
     input hold_req,
     output hold_ack,
+    output fetch_grid_ready,
     input host_req, host_we,
     input [1:0] host_reg, host_be,
     input [15:0] host_wdata,
@@ -89,6 +90,7 @@ module jttms10_fabric #(
         .obs_bus_rdata ( obs_bus_rdata ),
 `endif
         .clk(clk),.rst(rst),.hold_req(hold_req),.hold_ack(hold_ack),
+        .fetch_grid_ready(fetch_grid_ready),
         .screen_req(screen_req),.screen_ack(screen_ack),
         .screen_srfaddr(screen_srfaddr),.screen_dpytap(screen_dpytap),
         .screen_org(screen_org),

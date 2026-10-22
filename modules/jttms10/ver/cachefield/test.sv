@@ -63,7 +63,7 @@ module test;
     );
 
     reg [15:0] external_word=16'h1234;
-    integer reads=0,writes=0,trace_count=0;
+    integer reads=0,writes=0,trace_count=0,restart_count=0;
     reg [3:0] trace_kind [0:7];
     localparam IDLE=0,WAIT=1,ACK=2;
     reg [1:0] target_state=IDLE;
@@ -73,8 +73,12 @@ module test;
     reg [15:0] held_data;
     always @(posedge clk) begin
         if(rst) begin
-            target_state<=IDLE; cyc_ack<=0; cyc_rdata<=0;
-        end else case(target_state)
+            target_state<=IDLE; cyc_ack<=0; cyc_rdata<=0; restart_count<=0;
+        end else begin
+          if(m_restart) restart_count<=restart_count+1;
+          if(restart_count>0 && hold_ack && m_we)
+              $fatal(1,"cache issued a write during the HOLD interval");
+          case(target_state)
             IDLE: if(cyc_req) begin
                 if(cyc_kind!=4'd0 && cyc_kind!=4'd1)
                     $fatal(1,"unexpected local cycle kind %0d",cyc_kind);
@@ -104,7 +108,8 @@ module test;
                 end
             end
             ACK: begin cyc_ack<=0; target_state<=IDLE; end
-        endcase
+          endcase
+        end
     end
     task tick; begin @(posedge clk); #1; end endtask
     integer guard;
@@ -120,12 +125,20 @@ module test;
         if(guard>=80 || m_wdata!==16'h123b || trace_count!=1 || writes!=0)
             $fatal(1,"did not reach buffered stale RMW write");
         @(negedge clk); hold_req=1;
-        #1;
-        if(!m_restart || m_req || f_req || cyc_req)
-            $fatal(1,"HOLD restart did not suppress stale write immediately");
+        // HOLD takes effect at the bus's next real grant boundary. Keep
+        // checking that the cached stale write never reaches the target while
+        // the arbiter advances to that boundary and pulses restart.
+        guard=0;
+        while(restart_count==0 && guard<100) begin
+            tick(); guard=guard+1;
+            if((cyc_req && cyc_kind==4'd1) || writes!=0 || trace_count!=1)
+                $fatal(1,"stale physical write escaped before HOLD restart");
+        end
+        if(guard>=100 || restart_count!=1)
+            $fatal(1,"HOLD restart boundary timeout/count=%0d",restart_count);
         tick();
-        if(!hold_ack || m_req || writes!=0)
-            $fatal(1,"stale write escaped during HOLD grant");
+        if(!hold_ack || m_we || writes!=0)
+            $fatal(1,"stale physical write escaped during HOLD grant");
         // External owner changes the bits outside the four-bit field.
         @(negedge clk); external_word=16'ha5c0;
         repeat(3) tick();

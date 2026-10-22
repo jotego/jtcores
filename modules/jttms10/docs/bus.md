@@ -29,14 +29,36 @@ The standard `ver/run.sh` and `ver/lint.sh` include this integration boundary.
 
 `word_addr` is a 32-bit **bit** address. The field adapter holds `word_req`,
 `word_we`, address, and data until `word_ack`, which the arbiter generates for
-one clock when NARC acknowledges the selected cycle. `word_req` may remain
+one clock at the microcoded response phase. The first target `cyc_ack` captures
+`cyc_rdata` and drops `cyc_req`; the later client response uses that captured
+data. Logical bus ownership lasts through the release phase. A held target ACK
+cannot complete another request or permit a new grant. `word_req` may remain
 high as the field adapter advances from a partial-word read to its write or
 to another physical word. The arbiter detects the changed physical request
 tuple at that boundary and will not issue the previous identical tuple again
 while `word_req` is held. A caller that intends a second *identical* physical
 cycle must lower `word_req` for a clock between them. This matches the current
 field adapter's request progression; if that progression changes, revisit this
-boundary contract. `word_rdata` is `cyc_rdata`, valid with `word_ack`.
+boundary contract. `word_rdata` is the captured response, valid with `word_ack`.
+
+The service schedule is `ucode/bus_phase.yaml`, generated through the normal
+JTFRAME microcode path in `cfg/files.yaml`. It supplies idle allocation phases,
+target launch, capture wait, client response and release. The CPU control ROM
+can be stalled on memory while this small service sequencer continues. The
+short #149 timing controls check logical slots of 16/24/40 INCLK and raw
+target intervals of 4/12/28 for BASE/W1P7/W3. Arbitrary ACK latency is covered
+functionally; timing compliance outside these deterministic profiles remains
+open. Instruction schedules and wait selection belong in YAML, with no RTL
+instruction-duration counter or instruction-family scheduler.
+
+`fetch_grid_ready` exposes the actual admission boundary, with held-ACK
+protection, to the CPU's YAML-selected `awaitgrid_flow` operation. NOP's
+`nextfetch_flow` explicitly starts one next-opcode read after a resolved
+negative cache peek. A generic single owner holds its read tuple through ACK,
+captures data independently of CEN, and drains a canceled request before the
+normal fetch/vector path can use the response channel. Ordinary FETCH alone
+consumes the result and increments PC. This early-read schedule currently
+applies only to NOP; other instruction families have not been migrated.
 
 The selected kind and all payload fields are latched before `cyc_req` rises
 and remain stable until `cyc_ack`. Kind 0/1 are normal word read/write; 2 is
@@ -72,9 +94,19 @@ events, I/O and pixel kind selection, IAQ suppression, and HOLD before and
 after the partial-write boundary:
 
 ```sh
-iverilog -g2012 -s test -o /tmp/jttms10bus-test.vvp \
-    modules/jttms10/ver/bus/test.sv modules/jttms10/hdl/jttms10_bus.v
-vvp /tmp/jttms10bus-test.vvp
-verilator --lint-only -Wall --top-module jttms10_bus \
+source setprj.sh
+modules/jttms10/ver/run.sh --unit bus
+modules/jttms10/ver/run.sh --unit startup
+modules/jttms10/ver/run.sh --unit earlyfetch
+verilator --lint-only -Wall -Wno-EOFNEWLINE \
+    -Imodules/jttms10/ver/build --top-module jttms10_bus \
     modules/jttms10/hdl/jttms10_bus.v
 ```
+
+The permanent earlyfetch unit checks NMI and enabled IRQ acceptance with an
+outstanding read, draining four fill words while CEN is low at an active stack
+microinstruction, then vector entry, stack contents and RETI. Held HLT, CF and
+CD modes also check cancellation. CF/CD use distinct old NOP and fresh MOVK
+data at the same address, with paired decode, register write and retirement
+checks. These prove functional cancellation and response identity, not TI
+interrupt/cache-control duration.

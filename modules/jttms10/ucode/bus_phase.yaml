@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Generic one-word service schedule. Each named entry is one INCLK phase.
+config:
+  entries: 32
+  entry_len: 1
+  latch_ucode: true
+  ignore_cycles: true
+ucode:
+  - {name: grid0, start: 0, seq: [grid_phase]}
+  - {name: grid1, start: 1, seq: [grid_phase]}
+  - {name: grid2, start: 2, seq: [grid_phase]}
+  - {name: grid3, start: 3, seq: [grid_phase]}
+  - {name: grid4, start: 4, seq: [grid_phase]}
+  - {name: grid5, start: 5, seq: [grid_phase]}
+  - {name: grid6, start: 6, seq: [grid_phase]}
+  - {name: alloc, start: 7, seq: [alloc_phase]}
+  - {name: delay, start: 8, seq: [delay_phase]}
+  - {name: target, start: 9, seq: [target_phase]}
+  - {name: waitcap, start: 10, seq: [waitcap_phase]}
+  - {name: hold0, start: 11, seq: [hold_phase]}
+  - {name: hold1, start: 12, seq: [hold_phase]}
+  - {name: hold2, start: 13, seq: [hold_phase]}
+  - {name: hold3, start: 14, seq: [hold_phase]}
+  - {name: hold4, start: 15, seq: [hold_phase]}
+  - {name: hold5, start: 16, seq: [hold_phase]}
+  - {name: hold6, start: 17, seq: [hold_phase]}
+  - {name: hold7, start: 18, seq: [hold_phase]}
+  - {name: respond, start: 19, seq: [respond_phase]}
+  - {name: release, start: 20, seq: [release_phase]}

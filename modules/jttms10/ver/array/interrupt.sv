@@ -32,7 +32,7 @@ module test;
     reg held_we=0, held_iaq=0;
 
     jttms10 u_cpu(
-        .rst(rst), .clk(clk), .cen(cen),
+        .rst(rst), .clk(clk), .cen(cen), .grid_ready(1'b1),
         .psize(pixel_size), .convdp(16'd24), .convsp(16'd24),
         .control(control), .pmask(plane_mask), .wvp_set(), .mem_pixel(),
         .irq_req(irq_req), .irq_vector(32'hfffffec0),

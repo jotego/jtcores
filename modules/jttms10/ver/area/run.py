@@ -111,12 +111,20 @@ def main():
             source = MODULE / "hdl" / name
             target = snapshot(source, out / "src" / source.relative_to(ROOT), hashes, source_ref)
             sources.append(("VERILOG_FILE", target))
-        # Record the current instruction YAML snapshot for context even though
-        # this standalone fabric has no CPU or generated microcode.
         for source in source_files(MODULE / "ucode", "*.yaml", source_ref):
             snapshot(source, out / "src" / source.relative_to(ROOT), hashes, source_ref)
+        env = os.environ.copy()
+        env["MODULES"] = str(out / "src/modules")
+        env["JTFRAME"] = str(ROOT / "modules/jtframe")
+        call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
+              "--output", "tms10_bus_phase", "jttms10", "bus_phase"],
+             cwd=out, log=out / "bus_phase_build.log", env=env)
+        for name in ("tms10_bus_phase.uc", "tms10_bus_phase.vh",
+                     "tms10_bus_phase_param.vh"):
+            hashes[f"generated/{name}"] = hashlib.sha256((out / name).read_bytes()).hexdigest()
         ports = ["clk", "rst", "vclk_cen", "hcs_n", "hsync_n", "vsync_n",
                  "lint1_n", "lint2_n", "hold_req", "hold_ack",
+                 "fetch_grid_ready",
                  "host_req", "host_we", "host_reg[*]", "host_be[*]",
                  "host_wdata[*]", "host_rdata[*]", "host_ack", "host_busy",
                  "word_req",
@@ -143,6 +151,13 @@ def main():
             sources.append(("VERILOG_FILE", target))
         for source in source_files(MODULE / "ucode", "*.yaml", source_ref):
             snapshot(source, out / "src" / source.relative_to(ROOT), hashes, source_ref)
+        flow_source = MODULE / "ver/ucode/check_cpu_flow.py"
+        flow = snapshot(flow_source,
+                        out / "src" / flow_source.relative_to(ROOT),
+                        hashes, source_ref)
+        call(["python3", str(flow),
+              str(out / "src/modules/jttms10/ucode/tms10.yaml")],
+             cwd=out, log=out / "cpu_flow_check.log")
         if args.narc:
             for name in ("jtnarc_gsp.sv", "jtnarc_vclk.v"):
                 source = ROOT / "cores/narc/hdl" / name
@@ -157,7 +172,15 @@ def main():
         call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
               "--output", "tms10", "jttms10", "tms10"],
              cwd=out, log=out / "ucode_build.log", env=env)
+        bus_phase_yaml = out / "src/modules/jttms10/ucode/bus_phase.yaml"
+        if bus_phase_yaml.is_file():
+            call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
+                  "--output", "tms10_bus_phase", "jttms10", "bus_phase"],
+                 cwd=out, log=out / "bus_phase_build.log", env=env)
         image_names = ["tms10.uc", "tms10.vh", "tms10_param.vh"]
+        if bus_phase_yaml.is_file():
+            image_names.extend(("tms10_bus_phase.uc", "tms10_bus_phase.vh",
+                                "tms10_bus_phase_param.vh"))
         if (out / "src/modules/jttms10/ucode/gfx.yaml").exists():
             call([str(ROOT / "modules/jtframe/bin/jtframe"), "ucode", "--list",
                   "--output", "tms10_gfx", "jttms10", "gfx"],

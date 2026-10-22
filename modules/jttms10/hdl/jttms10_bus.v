@@ -12,6 +12,7 @@ module jttms10_bus #(
 `endif
     input hold_req,
     output hold_ack,
+    output fetch_grid_ready,
     input screen_req,
     input [13:0] screen_srfaddr,
     input [15:0] screen_dpytap,
@@ -47,8 +48,11 @@ module jttms10_bus #(
     input [15:0] cyc_rdata,
     input cyc_ack
 );
-    localparam [1:0] IDLE=0, ACTIVE=1, DRAIN=2, HOLD=3;
+    localparam [1:0] IDLE=0, ACTIVE=1, HOLD=2;
     localparam [1:0] CPU=0, SCREEN=1, DRAM=2, HOST=3;
+    /* verilator lint_off UNUSEDPARAM */
+    `include "tms10_bus_phase_param.vh"
+    /* verilator lint_on UNUSEDPARAM */
     reg [1:0] state, owner;
     reg reservation;
     reg screen_served;
@@ -62,11 +66,20 @@ module jttms10_bus #(
     reg [15:0] last_wdata;
     reg active_we;
     reg [3:0] init_left;
+    reg [4:0] phase_addr;
+    reg [3:0] phase_data;
+    reg [15:0] response_data;
+    reg target_captured;
+    wire cen=1'b1;
+    wire [4:0] uaddr=phase_addr;
+    wire [3:0] phase_sel;
+    wire unused_phase_sel=&phase_sel;
+    `include "tms10_bus_phase.vh"
 `ifdef JTTMS10_REGRESSION
     reg cyc_req_l;
     assign obs_bus_start = cyc_req && !cyc_req_l;
-    assign obs_bus_complete = complete;
-    assign obs_bus_rdata = cyc_rdata;
+    assign obs_bus_complete = phase_data==RELEASE_PHASE && state==ACTIVE;
+    assign obs_bus_rdata = response_data;
     always @(posedge clk) begin
         if(rst) cyc_req_l<=1'b0;
         else cyc_req_l<=cyc_req;
@@ -77,28 +90,42 @@ module jttms10_bus #(
         word_lock==last_lock && word_pixel==last_pixel &&
         word_addr==last_addr && word_wdata==last_wdata;
     wire cpu_ready=word_req && (!cpu_seen || !same_word);
-    wire grant_hold=state==IDLE && hold_req;
-    wire grant_init=state==IDLE && !hold_req && init_left!=0;
-    wire grant_cpu=state==IDLE && !hold_req && init_left==0 && cpu_ready &&
+    wire complete=state==ACTIVE && phase_data==RELEASE_PHASE;
+    wire idle_alloc=state==IDLE && phase_data==ALLOC_PHASE;
+    // The previous DRAIN state waited for the target ACK to fall before a
+    // new request could launch. Keep that protection at both boundaries.
+    wire grant_boundary=(idle_alloc || complete) && !cyc_ack;
+    assign fetch_grid_ready=grant_boundary;
+    wire init_due=init_left!=0 && !(complete && active_init && init_left==1);
+    wire regular_due=init_left==0 ||
+        (complete && active_init && init_left==1);
+    wire grant_hold=grant_boundary && hold_req;
+    wire grant_init=grant_boundary && !hold_req && init_due;
+    wire grant_cpu=grant_boundary && !hold_req && regular_due && cpu_ready &&
         (reservation || (!screen_req || screen_served) &&
          !dram_pending && !refresh_req &&
          (!host_mem_req || host_served));
-    wire grant_screen=state==IDLE && !hold_req && init_left==0 && !reservation &&
+    wire grant_screen=grant_boundary && !hold_req && regular_due && !reservation &&
         screen_req && !screen_served;
-    wire grant_dram=state==IDLE && !hold_req && init_left==0 && !reservation &&
+    wire grant_dram=grant_boundary && !hold_req && regular_due && !reservation &&
         !(screen_req && !screen_served) && (dram_pending || refresh_req);
-    wire grant_host=state==IDLE && !hold_req && init_left==0 && !reservation &&
+    wire grant_host=grant_boundary && !hold_req && regular_due && !reservation &&
         !(screen_req && !screen_served) && !dram_pending && !refresh_req &&
         host_mem_req && !host_served;
-    wire complete=state==ACTIVE && cyc_ack;
-    assign cyc_req=state==ACTIVE;
+    wire grant_start=grant_init || grant_cpu || grant_screen || grant_dram || grant_host;
+    wire target_req=state==ACTIVE &&
+        (phase_data==TARGET_PHASE ||
+         (phase_data==WAITCAP_PHASE && !target_captured));
+    wire target_capture=target_req && cyc_ack;
+    wire respond=state==ACTIVE && phase_data==RESPOND_PHASE;
+    assign cyc_req=target_req;
     assign hold_ack=state==HOLD;
-    assign word_ack=complete && owner==CPU;
-    assign screen_ack=complete && owner==SCREEN;
-    assign host_mem_ack=complete && owner==HOST;
-    assign host_mem_rdata=cyc_rdata;
+    assign word_ack=respond && owner==CPU;
+    assign screen_ack=respond && owner==SCREEN;
+    assign host_mem_ack=respond && owner==HOST;
+    assign host_mem_rdata=response_data;
     assign word_restart=grant_hold && reservation;
-    assign word_rdata=cyc_rdata;
+    assign word_rdata=response_data;
 
     always @(posedge clk) begin
         if (rst) begin
@@ -110,6 +137,10 @@ module jttms10_bus #(
             active_we<=0;
             init_left<=RESET_REFRESH!=0 ? 4'd8 : 4'd0;
             active_init<=0;
+            phase_addr<=GRID0_SEQA;
+            phase_data<=GRID_PHASE;
+            response_data<=0;
+            target_captured<=0;
             cyc_kind<=0; cyc_addr<=0; cyc_wdata<=0; cyc_io_rdata<=0;
             cyc_iaq<=0; cyc_srfaddr<=0; cyc_dpytap<=0;
             cyc_org<=0; cyc_dram_row<=0;
@@ -133,70 +164,117 @@ module jttms10_bus #(
             case (state)
                 IDLE: begin
                     active_init<=0;
+                    if (phase_data==ALLOC_PHASE) begin
+                        if (!grant_start) begin
+                            phase_data<=ucode_rom[GRID0_SEQA];
+                            phase_addr<=GRID1_SEQA;
+                        end
+                    end else if (phase_data==GRID_PHASE) begin
+                        phase_data<=ucode_rom[phase_addr];
+                        phase_addr<=phase_addr+1'b1;
+                    end else begin
+                        phase_data<=ucode_rom[GRID0_SEQA];
+                        phase_addr<=GRID1_SEQA;
+                    end
                     if (grant_hold) state<=HOLD;
-                    else if (grant_init) begin
-                        // TI 8.8: initialize external DRAM with eight
-                        // RAS-only cycles before ordinary local traffic.
-                        state<=ACTIVE; owner<=DRAM; active_init<=1;
-                        cyc_kind<=4'd3; cyc_addr<=0; cyc_wdata<=0;
-                        cyc_io_rdata<=0; cyc_iaq<=0;
-                        cyc_srfaddr<=0; cyc_dpytap<=0;
-                        cyc_org<=0; cyc_dram_row<=0;
+                    else if (grant_start) state<=ACTIVE;
+                end
+                ACTIVE: begin
+                    if (target_capture) begin
+                        response_data<=cyc_rdata;
+                        target_captured<=1'b1;
                     end
-                    else if (grant_cpu) begin
-                        state<=ACTIVE; owner<=CPU; active_we<=word_we;
-                        cyc_kind<=is_io ? (word_we ? 4'd6 : 4'd5) :
-                            (word_pixel && pixel_srt) ?
-                            (word_we ? 4'd8 : 4'd7) :
-                            (word_we ? 4'd1 : 4'd0);
-                        cyc_addr<=word_addr;
-                        cyc_wdata<=word_wdata;
-                        cyc_io_rdata<=is_io ? io_rdata : 16'd0;
-                        cyc_iaq<=word_iaq && !is_io && !(word_pixel && pixel_srt);
-                        cyc_srfaddr<=0; cyc_dpytap<=0; cyc_org<=0;
-                        cyc_dram_row<=0;
-                        cpu_seen<=1;
-                        last_we<=word_we; last_iaq<=word_iaq;
-                        last_lock<=word_lock; last_pixel<=word_pixel;
-                        last_addr<=word_addr; last_wdata<=word_wdata;
-                        if (word_lock) reservation<=1;
-                    end else if (grant_screen) begin
-                        state<=ACTIVE; owner<=SCREEN;
-                        cyc_kind<=4'd2; cyc_addr<=0; cyc_wdata<=0;
-                        cyc_io_rdata<=0; cyc_iaq<=0;
-                        cyc_srfaddr<=screen_srfaddr;
-                        cyc_dpytap<=screen_dpytap;
-                        cyc_org<=screen_org; cyc_dram_row<=0;
-                    end else if (grant_dram) begin
-                        state<=ACTIVE; owner<=DRAM;
-                        cyc_kind<=(dram_pending ? dram_cbr_pending : refresh_cbr)
-                            ? 4'd4 : 4'd3;
-                        cyc_addr<=0; cyc_wdata<=0; cyc_io_rdata<=0;
-                        cyc_iaq<=0; cyc_srfaddr<=0; cyc_dpytap<=0;
-                        cyc_org<=0;
-                        cyc_dram_row<=dram_pending ? dram_row_pending : refresh_row;
-                    end else if (grant_host) begin
-                        state<=ACTIVE; owner<=HOST;
-                        cyc_kind<=host_mem_is_io ?
-                            (host_mem_we ? 4'd6 : 4'd5) :
-                            (host_mem_we ? 4'd1 : 4'd0);
-                        cyc_addr<=host_mem_addr;
-                        cyc_wdata<=host_mem_wdata;
-                        cyc_io_rdata<=host_mem_is_io ? host_mem_io_rdata : 0;
-                        cyc_iaq<=0; cyc_srfaddr<=0; cyc_dpytap<=0;
-                        cyc_org<=0; cyc_dram_row<=0;
+                    if (phase_data==WAITCAP_PHASE && !target_captured &&
+                        !target_capture) begin
+                        phase_data<=phase_data;
+                    end else if (phase_data==RELEASE_PHASE) begin
+                        if (grant_hold) state<=HOLD;
+                        else if (grant_start) state<=ACTIVE;
+                        else state<=IDLE;
+                        if (!grant_start) begin
+                            phase_data<=ucode_rom[GRID0_SEQA];
+                            phase_addr<=GRID1_SEQA;
+                        end
+                        if (active_init) init_left<=init_left-4'd1;
+                    end else begin
+                        phase_data<=ucode_rom[phase_addr];
+                        phase_addr<=phase_addr+1'b1;
                     end
                 end
-                ACTIVE: if (cyc_ack) begin
-                    state<=DRAIN;
-                    if (active_init) init_left<=init_left-4'd1;
-                    if (owner==CPU && active_we && reservation)
-                        reservation<=0;
+                HOLD: begin
+                    if (phase_data==ALLOC_PHASE) begin
+                        phase_data<=ucode_rom[GRID0_SEQA];
+                        phase_addr<=GRID1_SEQA;
+                    end else if (phase_data==GRID_PHASE) begin
+                        phase_data<=ucode_rom[phase_addr];
+                        phase_addr<=phase_addr+1'b1;
+                    end else begin
+                        phase_data<=ucode_rom[GRID0_SEQA];
+                        phase_addr<=GRID1_SEQA;
+                    end
+                    if (!hold_req) state<=IDLE;
                 end
-                DRAIN: if (!cyc_ack) state<=IDLE;
-                HOLD: if (!hold_req) state<=IDLE;
                 default: state<=IDLE;
             endcase
+
+            if (grant_start) begin
+                state<=ACTIVE;
+                owner<=grant_cpu ? CPU : grant_screen ? SCREEN :
+                       grant_dram || grant_init ? DRAM : HOST;
+                active_init<=grant_init;
+                phase_data<=ucode_rom[ALLOC_SEQA+1'b1];
+                phase_addr<=ALLOC_SEQA+5'd2;
+                target_captured<=1'b0;
+                if (grant_init) begin
+                    // TI 8.8: initialize external DRAM with eight
+                    // RAS-only cycles before ordinary local traffic.
+                    cyc_kind<=4'd3; cyc_addr<=0; cyc_wdata<=0;
+                    cyc_io_rdata<=0; cyc_iaq<=0;
+                    cyc_srfaddr<=0; cyc_dpytap<=0;
+                    cyc_org<=0; cyc_dram_row<=0;
+                end else if (grant_cpu) begin
+                    active_we<=word_we;
+                    cyc_kind<=is_io ? (word_we ? 4'd6 : 4'd5) :
+                        (word_pixel && pixel_srt) ?
+                        (word_we ? 4'd8 : 4'd7) :
+                        (word_we ? 4'd1 : 4'd0);
+                    cyc_addr<=word_addr;
+                    cyc_wdata<=word_wdata;
+                    cyc_io_rdata<=is_io ? io_rdata : 16'd0;
+                    cyc_iaq<=word_iaq && !is_io && !(word_pixel && pixel_srt);
+                    cyc_srfaddr<=0; cyc_dpytap<=0; cyc_org<=0;
+                    cyc_dram_row<=0;
+                    cpu_seen<=1;
+                    last_we<=word_we; last_iaq<=word_iaq;
+                    last_lock<=word_lock; last_pixel<=word_pixel;
+                    last_addr<=word_addr; last_wdata<=word_wdata;
+                    if (word_lock) reservation<=1;
+                end else if (grant_screen) begin
+                    cyc_kind<=4'd2; cyc_addr<=0; cyc_wdata<=0;
+                    cyc_io_rdata<=0; cyc_iaq<=0;
+                    cyc_srfaddr<=screen_srfaddr;
+                    cyc_dpytap<=screen_dpytap;
+                    cyc_org<=screen_org; cyc_dram_row<=0;
+                end else if (grant_dram) begin
+                    cyc_kind<=(dram_pending ? dram_cbr_pending : refresh_cbr)
+                        ? 4'd4 : 4'd3;
+                    cyc_addr<=0; cyc_wdata<=0; cyc_io_rdata<=0;
+                    cyc_iaq<=0; cyc_srfaddr<=0; cyc_dpytap<=0;
+                    cyc_org<=0;
+                    cyc_dram_row<=dram_pending ? dram_row_pending : refresh_row;
+                end else if (grant_host) begin
+                    cyc_kind<=host_mem_is_io ?
+                        (host_mem_we ? 4'd6 : 4'd5) :
+                        (host_mem_we ? 4'd1 : 4'd0);
+                    cyc_addr<=host_mem_addr;
+                    cyc_wdata<=host_mem_wdata;
+                    cyc_io_rdata<=host_mem_is_io ? host_mem_io_rdata : 0;
+                    cyc_iaq<=0; cyc_srfaddr<=0; cyc_dpytap<=0;
+                    cyc_org<=0; cyc_dram_row<=0;
+                end
+            end
+            if (respond && owner==CPU && active_we && reservation)
+                reservation<=0;
         end
     end
 endmodule

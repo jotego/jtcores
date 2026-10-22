@@ -246,9 +246,13 @@ module test;
         if (!host_ack || !host_busy) $fatal(1,"host request not accepted");
         @(negedge clk); host_req=0; host_we=0;
         word_req=1; word_we=0; word_addr=32'h00000400;
-        tick();
-        if (!cyc_req || cyc_kind!==4'd1 || cyc_addr!==32'h00000300)
-            $fatal(1,"host did not beat pending CPU");
+        before_count=0;
+        while(!cyc_req && before_count<64) begin
+            tick(); before_count=before_count+1;
+        end
+        if (!cyc_req || cyc_kind!==4'd1 || cyc_addr!==32'h00000300 ||
+            cyc_wdata!==16'h8ace)
+            $fatal(1,"first local grant was not the pending host write");
         wait_host();
         if (mem[8'h30]!==16'h8ace) $fatal(1,"host priority write lost");
         before_count=0;

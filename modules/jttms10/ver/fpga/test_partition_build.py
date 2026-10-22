@@ -16,6 +16,18 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import partition_build
 
+# The issue-149 seed and candidate4 snapshots predate bus_phase.yaml. Keep
+# their exact seven-file generator format explicit while current-source tests
+# continue to require all ten CPU/GFX/bus payloads.
+HISTORICAL_SEED_PAYLOADS = frozenset({
+    "tms10.uc", "tms10.vh", "tms10_param.vh", "tms10_dispatch.hex",
+    "tms10_gfx.uc", "tms10_gfx.vh", "tms10_gfx_param.vh",
+})
+HISTORICAL_SEED_DIAGNOSTICS = frozenset(
+    path for path in partition_build.REQUIRED_GENERATED_DIAGNOSTICS
+    if path != "jttms10-generated/tms10_bus_phase.lst"
+)
+
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -25,6 +37,7 @@ def source_manifest(root: Path, changes: dict[str, bytes] | None = None) -> dict
     changes = changes or {}
     rows = {
         "modules/jttms10/hdl/jttms10.v": b"rtl-a",
+        "modules/jttms10/cfg/files.yaml": b"cfg-a",
         "modules/jttms10/ucode/tms10.yaml": b"yaml-a",
         "modules/jttms10/ucode/gfx.yaml": b"yaml-gfx",
         "modules/jtframe/src/jtframe/ucode/main.go": b"generator",
@@ -182,11 +195,14 @@ class PartitionBuildTests(unittest.TestCase):
             root = Path(temporary)
             before_root, after_root = root / "before", root / "after"
             before = source_manifest(before_root)
-            after = source_manifest(after_root, {"modules/jttms10/ucode/tms10.yaml": b"yaml-b"})
-            delta = partition_build.compute_cpu_microcode_source_delta(before, after)
-            self.assertEqual(delta, ["modules/jttms10/ucode/tms10.yaml"])
-            with self.assertRaisesRegex(ValueError, "outside CPU HDL"):
-                partition_build.compute_cpu_source_delta(before, after)
+            for changed_path in ("modules/jttms10/ucode/tms10.yaml",
+                                 "modules/jttms10/cfg/files.yaml"):
+                after = source_manifest(after_root / Path(changed_path).stem,
+                                        {changed_path: b"yaml-b"})
+                delta = partition_build.compute_cpu_microcode_source_delta(before, after)
+                self.assertEqual(delta, [changed_path])
+                with self.assertRaisesRegex(ValueError, "outside CPU HDL"):
+                    partition_build.compute_cpu_source_delta(before, after)
             bad = source_manifest(root / "bad", {"modules/jttms10/ucode/unreviewed.yaml": b"yaml-c"})
             with self.assertRaisesRegex(ValueError, "outside CPU HDL/allowlisted YAML"):
                 partition_build.compute_cpu_microcode_source_delta(before, bad)
@@ -195,6 +211,40 @@ class PartitionBuildTests(unittest.TestCase):
                     before,
                     source_manifest(root / "rtl-only", {"modules/jttms10/hdl/jttms10.v": b"rtl-b"}),
                 )
+
+    def test_module_files_yaml_is_in_frozen_build_source_hashes(self) -> None:
+        helper = (HERE / "build-runner-incremental.sh").read_text()
+        freeze_start = helper.index("freeze_inputs() {")
+        freeze_end = helper.index("verify_frozen_inputs() {", freeze_start)
+        freeze_body = helper[freeze_start:freeze_end]
+        self.assertIn("partition_build.frozen_cpu_source_paths(repo, source)", freeze_body)
+        self.assertIn("modules/jttms10/cfg/files.yaml", partition_build.CPU_MICROCODE_YAML)
+        repo = HERE.parents[3]
+        cfg = (repo / "modules/jttms10/cfg/files.yaml").resolve()
+        source_paths = partition_build.frozen_cpu_source_paths(repo, HERE)
+        self.assertIn(cfg, source_paths)
+        source_hashes = {str(path): digest(path) for path in source_paths}
+        self.assertEqual(source_hashes[str(cfg)], digest(cfg))
+
+    def test_missing_module_files_yaml_rejects_frozen_source_inventory(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="jttms10-freeze-required-source-") as temporary:
+            root = Path(temporary)
+            repo, helper_dir = root / "repo", root / "helper"
+            required = (
+                "modules/jttms10/ver/build.sh",
+                "modules/jtframe/bin/jtframe",
+            )
+            helpers = ("build-runner-incremental.sh", "write_programming_receipt.py",
+                       "partition_build.py")
+            for name in required:
+                path = repo / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("fixture\n")
+            helper_dir.mkdir()
+            for name in helpers:
+                (helper_dir / name).write_text("fixture\n")
+            with self.assertRaisesRegex(ValueError, "modules/jttms10/cfg/files.yaml"):
+                partition_build.frozen_cpu_source_paths(repo, helper_dir)
 
     def test_microcode_mode_keeps_top_postfit_and_cpu_source(self) -> None:
         with tempfile.TemporaryDirectory(prefix="jttms10-partition-settings-") as temporary:
@@ -211,8 +261,24 @@ class PartitionBuildTests(unittest.TestCase):
         source = Path("/tmp/jtcores-149-seed-source").resolve()
         if not source.is_dir():
             self.skipTest("frozen #149 source snapshot is unavailable")
-        regenerated = partition_build.regenerate_cpu_payload_hashes(source)
-        self.assertEqual(set(regenerated), partition_build.GENERATED_CPU_PAYLOADS)
+        regenerated = partition_build.regenerate_cpu_generation_inventory(
+            source, HISTORICAL_SEED_PAYLOADS, HISTORICAL_SEED_DIAGNOSTICS)
+        self.assertEqual(set(regenerated["payloads"]), HISTORICAL_SEED_PAYLOADS)
+        self.assertNotIn("tms10_bus_phase.uc", regenerated["payloads"])
+
+    def test_current_generation_rejects_missing_bus_phase_payload(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="jttms10-current-payloads-") as temporary:
+            generated = Path(temporary)
+            for name in partition_build.GENERATED_CPU_PAYLOADS:
+                (generated / name).write_text("payload\n")
+            for relative in partition_build.REQUIRED_GENERATED_DIAGNOSTICS:
+                (generated / Path(relative).name).write_text("listing\n")
+            inventory = partition_build.cpu_generated_output_inventory(generated)
+            self.assertEqual(set(inventory["payloads"]),
+                             partition_build.GENERATED_CPU_PAYLOADS)
+            (generated / "tms10_bus_phase.uc").unlink()
+            with self.assertRaisesRegex(ValueError, "exact supported set"):
+                partition_build.cpu_generated_output_inventory(generated)
 
     def test_payload_delta_requires_exact_names_and_all_copies(self) -> None:
         with tempfile.TemporaryDirectory(prefix="jttms10-payload-delta-") as temporary:
@@ -293,10 +359,12 @@ class PartitionBuildTests(unittest.TestCase):
         if not before_source.is_dir() or not after_source.is_dir():
             self.skipTest("reviewed baseline/candidate4 source snapshots are unavailable")
 
-        before_generated = partition_build.regenerate_cpu_generation_inventory(before_source)
-        after_generated = partition_build.regenerate_cpu_generation_inventory(after_source)
-        self.assertEqual(set(before_generated["payloads"]), partition_build.GENERATED_CPU_PAYLOADS)
-        self.assertEqual(set(after_generated["payloads"]), partition_build.GENERATED_CPU_PAYLOADS)
+        before_generated = partition_build.regenerate_cpu_generation_inventory(
+            before_source, HISTORICAL_SEED_PAYLOADS, HISTORICAL_SEED_DIAGNOSTICS)
+        after_generated = partition_build.regenerate_cpu_generation_inventory(
+            after_source, HISTORICAL_SEED_PAYLOADS, HISTORICAL_SEED_DIAGNOSTICS)
+        self.assertEqual(set(before_generated["payloads"]), HISTORICAL_SEED_PAYLOADS)
+        self.assertEqual(set(after_generated["payloads"]), HISTORICAL_SEED_PAYLOADS)
         self.assertEqual(len(before_generated["diagnostics"]), 28)
         self.assertEqual(set(before_generated["diagnostics"]), set(after_generated["diagnostics"]))
         self.assertNotEqual(
@@ -369,7 +437,7 @@ class PartitionBuildTests(unittest.TestCase):
             payload_delta = {
                 name: {"parent_sha256": before_build_inventory["payloads"][name],
                        "candidate_sha256": after_build_inventory["payloads"][name]}
-                for name in partition_build.GENERATED_CPU_PAYLOADS
+                for name in before_build_inventory["payloads"]
                 if before_build_inventory["payloads"][name] != after_build_inventory["payloads"][name]
             }
             stable, transient, diagnostic_delta = partition_build.validate_compiled_input_deltas(
@@ -411,7 +479,12 @@ class PartitionBuildTests(unittest.TestCase):
         import subprocess
         result = subprocess.run(command, cwd=source, capture_output=True, text=True, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
-        actual = partition_build.cpu_generated_output_inventory(generated)
+        expected_payloads = frozenset(inventory["payloads"])
+        expected_diagnostics = frozenset(
+            partition_build.REQUIRED_GENERATED_DIAGNOSTICS.intersection(
+                inventory["diagnostics"]))
+        actual = partition_build.cpu_generated_output_inventory(
+            generated, expected_payloads, expected_diagnostics)
         self.assertEqual(actual["payloads"], inventory["payloads"])
         for relative in ("test_board.qip", "runner_clock.sdc"):
             (build / relative).write_text("preserved infrastructure\n")

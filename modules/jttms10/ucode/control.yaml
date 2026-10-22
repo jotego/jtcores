@@ -167,21 +167,21 @@ ucode:
   - name: shiftk
     start: 73
     seq:
-      - rd_a, kinit_shift, peek
+      - rd_a, kinit_shift, peek_flow
       - stage0_shift, dispatch
       - stage1_shift, wr_reg, dispatch
       - ni, dispatch
   - name: shiftr
     start: 74
     seq:
-      - rd_a, rinit_shift, peek
+      - rd_a, rinit_shift, peek_flow
       - stage0_shift, dispatch
       - stage1_shift, wr_reg, dispatch
       - ni, dispatch
   - name: slak
     start: 113
     seq:
-      - rd_a, kinit_shift, peek
+      - rd_a, kinit_shift, peek_flow
       - stage0_shift, dispatch
       - stage1_shift, wr_reg, dispatch
       -
@@ -196,7 +196,7 @@ ucode:
   - name: slar
     start: 114
     seq:
-      - rd_a, rinit_shift, peek
+      - rd_a, rinit_shift, peek_flow
       - stage0_shift, dispatch
       - stage1_shift, wr_reg, dispatch
       -
@@ -237,7 +237,7 @@ ucode:
   - name: lmo
     start: 81
     seq:
-      - reg_a, peek
+      - reg_a, peek_flow
       - lmofinish, wr_reg, dispatch
       -
       - ni, dispatch

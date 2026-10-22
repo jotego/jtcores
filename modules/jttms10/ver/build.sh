@@ -8,7 +8,9 @@ out_dir=${1:-"$module_dir/ver/build"}
 mkdir -p "$out_dir"
 out_dir=$(cd -- "$out_dir" && pwd)
 cd "$out_dir"
+python3 "$module_dir/ver/ucode/check_cpu_flow.py" "$module_dir/ucode/tms10.yaml"
 "$JTFRAME/bin/jtframe" ucode --list --output tms10 jttms10 tms10
+"$JTFRAME/bin/jtframe" ucode --list --output tms10_bus_phase jttms10 bus_phase
 if [ -f "$module_dir/ucode/gfx.yaml" ]; then
     "$JTFRAME/bin/jtframe" ucode --list --output tms10_gfx jttms10 gfx
     python3 "$module_dir/ver/gfx/check_targets.py" \

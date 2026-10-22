@@ -24,7 +24,7 @@ module test;
     integer i, mode;
 
     jttms10 u_cpu(
-        .rst(rst), .clk(clk), .cen(cen),
+        .rst(rst), .clk(clk), .cen(cen), .grid_ready(1'b1),
         .psize(16'd16), .convdp(16'h14),
         .convsp(16'h14), .control(16'd0), .pmask(16'd0),
         .wvp_set(), .mem_pixel(),

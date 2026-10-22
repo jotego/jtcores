@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Host-only tests for separate FPGA implementation and oracle identities."""
 import json
+import importlib.util
 import os
 from pathlib import Path
 import shutil
@@ -14,6 +15,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import run_batch
 import write_programming_receipt as receipts
+import partition_build
 
 ORACLE_ENV = 'JT_TMS10_ORACLE_ROOT'
 HARDWARE_ENV = 'JTROOT'
@@ -213,6 +215,75 @@ class LegacySeedCompileSnapshotRecovery(unittest.TestCase):
         self.assertEqual(recovery['source_count_rehashed'], 39)
         self.assertEqual(recovery['compile_file_count_rehashed'], 146)
         self.assertEqual(recovery['diagnostic_count_rehashed'], 28)
+
+    def test_exact_public_partition_result_delegates_only_with_bound_original_helper(self):
+        self.assertEqual(partition_build.validate_partition_result(
+            self.BUILD, self.result)['mode'], 'seed')
+
+        altered = dict(self.result)
+        altered['flow_seconds'] += 0.01
+        with self.assertRaisesRegex(ValueError, 'differs from its on-disk certificate'):
+            partition_build.validate_partition_result(self.BUILD, altered)
+
+        inputs = self.inputs
+        source_root = Path(inputs['source_root']).resolve()
+        helper = source_root / 'modules/jttms10/ver/fpga/partition_build.py'
+        original_sha = partition_build.sha256
+
+        def changed_helper(path):
+            if Path(path).resolve() == helper.resolve():
+                return '0' * 64
+            return original_sha(path)
+
+        with patch.object(partition_build, 'sha256', side_effect=changed_helper):
+            with self.assertRaisesRegex(ValueError, 'validator source hash'):
+                partition_build.validate_partition_result(self.BUILD, self.result)
+
+    def test_changed_legacy_result_and_stage_certificate_reject(self):
+        with tempfile.TemporaryDirectory(prefix='jttms10-legacy-result-') as temporary:
+            build = Path(temporary)
+            result_path = build / 'v2-build-result.json'
+            result_path.write_text(json.dumps({**self.result, 'test_mutation': True}))
+            shutil.copy2(self.BUILD / 'v2-partition-stage-result.json', build)
+            with self.assertRaises((ValueError, OSError)):
+                partition_build.validate_partition_result(
+                    build, json.loads(result_path.read_text()))
+
+        with tempfile.TemporaryDirectory(prefix='jttms10-legacy-cert-') as temporary:
+            build = Path(temporary)
+            shutil.copy2(self.BUILD / 'v2-build-result.json', build)
+            shutil.copy2(self.inputs_path, build)
+            cert = build / 'v2-partition-stage-result.json'
+            shutil.copy2(self.BUILD / cert.name, cert)
+            cert.write_bytes(cert.read_bytes() + b'\nmutation\n')
+            with self.assertRaisesRegex(ValueError, 'certificate'):
+                partition_build.validate_partition_result(build, self.result)
+
+    def test_changed_legacy_payload_copy_is_rejected_without_mutating_saved_seed(self):
+        source_root = Path(self.inputs['source_root']).resolve()
+        helper_path = source_root / 'modules/jttms10/ver/fpga/partition_build.py'
+        self.assertEqual(receipts.sha256(helper_path),
+                         partition_build.LEGACY_SAVED_SEED_HELPER_SHA256)
+        spec = importlib.util.spec_from_file_location('_test_pinned_seed_partition_build',
+                                                       helper_path)
+        self.assertIsNotNone(spec)
+        legacy = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(legacy)
+        original = json.loads((self.BUILD / 'v2-generated-payloads.json').read_text())
+        with tempfile.TemporaryDirectory(prefix='jttms10-legacy-payload-') as temporary:
+            build = Path(temporary)
+            shutil.copy2(self.BUILD / 'v2-generated-payloads.json', build)
+            for name in original['payloads']:
+                for relative in (name, f'jttms10-generated/{name}',
+                                 f'ip/jttms10_fpga_runner/{name}'):
+                    target = build / relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(self.BUILD / relative, target)
+            target = build / 'jttms10-generated/tms10.uc'
+            target.write_bytes(target.read_bytes() + b'\nmutation\n')
+            with self.assertRaisesRegex(ValueError, 'payload copy mismatch'):
+                legacy.validate_generated_payload_manifest(build, verify_generation=False)
 
     def test_writer_creates_receipt_from_saved_image_without_mutating_build(self):
         with tempfile.TemporaryDirectory(prefix='jttms10-seed-receipt-') as temporary:

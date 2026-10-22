@@ -20,9 +20,9 @@ verilator --lint-only -Wall --top-module jttms10_pixel \
     "$ver_dir/../hdl/jttms10_pixel.v"
 verilator --lint-only -Wall --top-module jttms10_cache \
     "$ver_dir/../hdl/jttms10_cache.v"
-verilator --lint-only -Wall --top-module jttms10_bus \
+verilator --lint-only -Wall -Wno-EOFNEWLINE -I"$ver_dir/build" --top-module jttms10_bus \
     "$ver_dir/../hdl/jttms10_bus.v"
-verilator --lint-only -Wall --top-module jttms10_fabric \
+verilator --lint-only -Wall -Wno-EOFNEWLINE -I"$ver_dir/build" --top-module jttms10_fabric \
     "$ver_dir/../hdl/jttms10_fabric.v" "$ver_dir/../hdl/jttms10_bus.v" \
     "$ver_dir/../hdl/jttms10_io.v" "$ver_dir/../hdl/jttms10_video.v" \
     "$ver_dir/../hdl/jttms10_refresh.v" "$ver_dir/../hdl/jttms10_host.v"

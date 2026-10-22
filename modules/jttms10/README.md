@@ -29,10 +29,22 @@ Run the self-checking instruction programs with:
 modules/jttms10/ver/run.sh
 ```
 
-This requires the repository's `jtframe` binary, Python/PyYAML, Icarus Verilog,
-and `vvp`. Generated files stay in `ver/build`. `ver/tests.yaml` documents
-program words and expected architectural state at retirement. The command
-also runs the ALU boundary and complete field-offset/width sweeps.
+This requires the repository's `jtframe` binary, Python/PyYAML, Verilator, and
+a C++ compiler. The architectural runner compiles its SystemVerilog bench once,
+then runs each program from runtime fixture files in `ver/build`. Run one case
+while debugging with `python3 modules/jttms10/ver/run.py --case CASE`, or repeat
+`--case` to select several cases with one compile; the same
+build directory retains the executable, program image, memory/vector inputs,
+and checkpoint file. Run an individual unit bench with
+`modules/jttms10/ver/run.sh --unit NAME` (for example, `--unit field`).
+The runtime serializer checks can be run alone with
+`python3 modules/jttms10/ver/runtime_test.py`.
+`ver/tests.yaml` documents program words and expected
+architectural state at retirement. The full script also builds the ALU boundary
+and complete field-offset/width sweeps, then runs the existing unit benches
+with Verilator `--timing --assert`. Inherited lint warnings are nonfatal during
+these diagnostic builds; assertion failures and simulator timeouts fail the
+command.
 The word-bus smoke test additionally runs the CPU and field adapter together
 against a waiting 16-bit memory, including partial-word write preservation.
 See [the architecture](docs/architecture.md), [field transfers](docs/field.md), and

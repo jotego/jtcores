@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -26,17 +27,20 @@ MICROCODE_RESULT_FORMAT = "jttms10-explicit-cpu-microcode-partition-result-v1"
 SEED_PACKAGE_FORMAT = "jttms10-seed-cpu-package-reconstruction-v1"
 GENERATED_PAYLOAD_FORMAT = "jttms10-generated-cpu-payloads-v1"
 CPU_MICROCODE_YAML = frozenset({
+    "modules/jttms10/cfg/files.yaml",
     "modules/jttms10/ucode/control.yaml",
     "modules/jttms10/ucode/gfx_line.yaml",
     "modules/jttms10/ucode/gfx.yaml",
     "modules/jttms10/ucode/memory.yaml",
     "modules/jttms10/ucode/tms10.yaml",
+    "modules/jttms10/ucode/bus_phase.yaml",
 })
 RUNNER_SOURCES = ("jttms10_fpga_runner.v", "jttms10_fpga_stimulus.v")
 GENERATED_CPU_SUFFIXES = frozenset({".uc", ".vh", ".hex"})
 GENERATED_CPU_PAYLOADS = frozenset({
     "tms10.uc", "tms10.vh", "tms10_param.vh", "tms10_dispatch.hex",
     "tms10_gfx.uc", "tms10_gfx.vh", "tms10_gfx_param.vh",
+    "tms10_bus_phase.uc", "tms10_bus_phase.vh", "tms10_bus_phase_param.vh",
 })
 DISPATCH_MODEL_OUTPUTS = frozenset({
     "build.log", "verilated.d", "verilated.o", "verilated_threads.d",
@@ -52,16 +56,23 @@ DISPATCH_MODEL_OUTPUTS = frozenset({
 NON_COMPILE_GENERATED_OUTPUTS = frozenset({
     "jttms10-generated/tms10.lst",
     "jttms10-generated/tms10_gfx.lst",
+    "jttms10-generated/tms10_bus_phase.lst",
     "jttms10-generated/dispatch-build.log",
     *(f"jttms10-generated/dispatch-model/{name}" for name in DISPATCH_MODEL_OUTPUTS),
 })
 REQUIRED_GENERATED_DIAGNOSTICS = frozenset({
     "jttms10-generated/tms10.lst",
     "jttms10-generated/tms10_gfx.lst",
+    "jttms10-generated/tms10_bus_phase.lst",
     "jttms10-generated/dispatch-build.log",
 })
 CPU_GENERATED_COMPILE_INPUTS = frozenset(
     f"jttms10-generated/{name}" for name in GENERATED_CPU_PAYLOADS)
+LEGACY_SAVED_SEED_RESULT_SHA256 = (
+    "1965a8243c0b8aa30f6d2db68bbdd13398ab0ace7b61eb3692d27e3522fd07ce")
+LEGACY_SAVED_SEED_HELPER_SHA256 = (
+    "0a4c9c5d2ffd5b236467d8ee74639b601dc184d83067b30368875cbc08f527a7")
+LEGACY_SAVED_SEED_HELPER_REL = "modules/jttms10/ver/fpga/partition_build.py"
 
 
 def _assignment_section(line: str, assignment: str) -> str | None:
@@ -506,7 +517,43 @@ def is_classified_cpu_generated_output(relative: str) -> bool:
     return relative in CPU_GENERATED_COMPILE_INPUTS or is_non_compile_generated_output(relative)
 
 
-def cpu_generated_output_inventory(generated_root: Path) -> dict[str, dict[str, str]]:
+def frozen_cpu_source_paths(repo_root: Path, helper_dir: Path) -> list[Path]:
+    """Return every tracked helper, module source, and generator source hashed at freeze."""
+    repo_root = Path(repo_root).resolve(strict=True)
+    helper_dir = Path(helper_dir).resolve(strict=True)
+    source_roots = (
+        repo_root / "modules/jttms10/ucode",
+        repo_root / "modules/jttms10/ver/decoder",
+        repo_root / "modules/jttms10/ver/gfx",
+        repo_root / "modules/jttms10/ver/ucode",
+        repo_root / "modules/jttms10/hdl",
+        repo_root / "modules/jtframe/src/jtframe/ucode",
+    )
+    source_files = {
+        repo_root / "modules/jttms10/ver/build.sh",
+        repo_root / "modules/jttms10/cfg/files.yaml",
+        repo_root / "modules/jtframe/bin/jtframe",
+        helper_dir / "build-runner-incremental.sh",
+        helper_dir / "write_programming_receipt.py",
+        helper_dir / "partition_build.py",
+    }
+    missing = sorted(path for path in source_files if not path.is_file())
+    if missing:
+        names = ", ".join(str(path) for path in missing)
+        raise ValueError(f"required frozen CPU source is missing: {names}")
+    source_files.update((helper_dir).glob("*.v"))
+    for root in source_roots:
+        source_files.update(path for path in root.rglob("*") if path.is_file())
+    return sorted(path.resolve() for path in source_files
+                  if path.is_file() and path.suffix != ".pyc"
+                  and "__pycache__" not in path.parts)
+
+
+def cpu_generated_output_inventory(
+        generated_root: Path,
+        expected_payloads: frozenset[str] = GENERATED_CPU_PAYLOADS,
+        required_diagnostics: frozenset[str] = REQUIRED_GENERATED_DIAGNOSTICS,
+) -> dict[str, dict[str, str]]:
     """Hash exact consumed payloads separately from generated diagnostics."""
     generated_root = Path(generated_root).resolve(strict=True)
     payloads, diagnostics = {}, {}
@@ -518,15 +565,19 @@ def cpu_generated_output_inventory(generated_root: Path) -> dict[str, dict[str, 
             diagnostics[relative] = sha256(path)
         else:
             raise ValueError(f"unclassified generated CPU output: {relative}")
-    if set(payloads) != GENERATED_CPU_PAYLOADS:
+    if set(payloads) != expected_payloads:
         raise ValueError("generated CPU Quartus payload inventory differs from the exact supported set")
-    if not REQUIRED_GENERATED_DIAGNOSTICS <= set(diagnostics):
-        missing = sorted(REQUIRED_GENERATED_DIAGNOSTICS - set(diagnostics))
+    if not required_diagnostics <= set(diagnostics):
+        missing = sorted(required_diagnostics - set(diagnostics))
         raise ValueError(f"generated CPU diagnostic inventory lacks required outputs: {missing}")
     return {"payloads": payloads, "diagnostics": diagnostics}
 
 
-def regenerate_cpu_generation_inventory(source_root: Path) -> dict[str, dict[str, str]]:
+def regenerate_cpu_generation_inventory(
+        source_root: Path,
+        expected_payloads: frozenset[str] = GENERATED_CPU_PAYLOADS,
+        required_diagnostics: frozenset[str] = REQUIRED_GENERATED_DIAGNOSTICS,
+) -> dict[str, dict[str, str]]:
     """Re-run the independent generator and classify every emitted output."""
     source_root = Path(source_root).resolve(strict=True)
     generator = source_root / "modules/jttms10/ver/build.sh"
@@ -539,7 +590,8 @@ def regenerate_cpu_generation_inventory(source_root: Path) -> dict[str, dict[str
         if result.returncode:
             raise ValueError("independent CPU generation failed: " +
                              (result.stderr or result.stdout)[-2000:])
-        return cpu_generated_output_inventory(output)
+        return cpu_generated_output_inventory(output, expected_payloads,
+                                              required_diagnostics)
 
 
 def _normalized_qsf(build: Path, relative_name: str, expected_hash: str) -> tuple[str, ...]:
@@ -853,6 +905,36 @@ def extract_partition_observations(build: Path) -> dict[str, list[dict[str, str 
 def validate_partition_result(build: Path, result: dict) -> dict:
     """Validate the explicit partition provenance bound into a build result."""
     build = Path(build).resolve(strict=True)
+    result_path = build / "v2-build-result.json"
+    if (result_path.is_file() and
+            sha256(result_path) == LEGACY_SAVED_SEED_RESULT_SHA256):
+        disk_result = json.loads(result_path.read_text())
+        if result != disk_result:
+            raise ValueError("legacy saved-seed result differs from its on-disk certificate")
+        if result.get("partition_mode") != "seed":
+            raise ValueError("pinned legacy saved-seed result is not a seed")
+        inputs_path = build / "v2-build-inputs.json"
+        if (not inputs_path.is_file() or
+                result.get("input_manifest_sha256") != sha256(inputs_path)):
+            raise ValueError("legacy saved-seed result does not bind its frozen source manifest")
+        inputs = json.loads(inputs_path.read_text())
+        try:
+            source_root = Path(inputs["source_root"]).resolve(strict=True)
+            legacy_helper = (source_root / LEGACY_SAVED_SEED_HELPER_REL).resolve(strict=True)
+            bound_helper_hash = inputs["source_hashes"][str(legacy_helper)]
+        except (KeyError, OSError, TypeError) as error:
+            raise ValueError("legacy saved-seed manifest lacks its pinned validator source") from error
+        if (bound_helper_hash != LEGACY_SAVED_SEED_HELPER_SHA256 or
+                sha256(legacy_helper) != LEGACY_SAVED_SEED_HELPER_SHA256):
+            raise ValueError("legacy saved-seed validator source hash is not the pinned original")
+        module_name = "_jtcores_149_partition_build_seed_0a4c9c5d"
+        spec = importlib.util.spec_from_file_location(module_name, legacy_helper)
+        if spec is None or spec.loader is None:
+            raise ValueError("cannot load pinned legacy saved-seed validator")
+        legacy = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(legacy)
+        return legacy.validate_partition_result(build, result)
+
     cert_path = build / "v2-partition-stage-result.json"
     if not cert_path.is_file() or result.get("partition_stage_sha256") != sha256(cert_path):
         raise ValueError("build result does not bind the explicit partition-stage certificate")

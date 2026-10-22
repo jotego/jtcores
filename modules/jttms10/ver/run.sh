@@ -1,96 +1,107 @@
 #!/bin/bash
 set -euo pipefail
-ver_dir=$(cd -- "$(dirname -- "$0")" && pwd)
-bash "$ver_dir/build.sh"
-python3 "$ver_dir/run.py" "$@"
-for unit in alu field; do
-    if [ "$unit" = alu ]; then
-        bench="$ver_dir/$unit/test.v"
-    else
-        bench="$ver_dir/$unit/test.sv"
+
+main() {
+    ver_dir=$(cd -- "$(dirname -- "$0")" && pwd)
+    build_dir="$ver_dir/build"
+    local unit_only=""
+    if (($#)) && [[ $1 == --unit ]]; then
+        if (($# < 2)); then
+            echo "usage: $0 --unit NAME" >&2
+            return 2
+        fi
+        unit_only=$2
+        shift 2
+        case "$unit_only" in
+            alu|field|regs|word|arch|system|pixelbus|arrayirq|lineirq|io|bus|startup|cache|cachefield|fabric|host|pixel|earlyfetch) ;;
+            *) echo "unknown unit bench: $unit_only" >&2; return 2 ;;
+        esac
     fi
-    iverilog -g2012 -s test -o "$ver_dir/build/$unit.vvp" \
-        "$bench" "$ver_dir/../hdl/jttms10_$unit.v"
-    vvp "$ver_dir/build/$unit.vvp"
-done
-iverilog -g2012 -s test -o "$ver_dir/build/regs.vvp" \
-    "$ver_dir/regs/test.sv" "$ver_dir/../hdl/jttms10_regs.v"
-vvp "$ver_dir/build/regs.vvp"
-iverilog -g2012 -s test -I"$ver_dir/build" \
-    -o "$ver_dir/build/word.vvp" "$ver_dir/word/test.sv" \
-    "$ver_dir"/../hdl/*.v
-(
-    cd "$ver_dir/build"
-    vvp word.vvp
-)
-iverilog -g2012 -s test -I"$ver_dir/build" \
-    -o "$ver_dir/build/arch.vvp" "$ver_dir/arch/test.sv" \
-    "$ver_dir"/../hdl/*.v
-(
-    cd "$ver_dir/build"
-    for mode in 1 2 3 4 5 6 7 8; do
-        vvp arch.vvp +mode="$mode"
-    done
-)
-iverilog -g2012 -s test -I"$ver_dir/build" \
-    -o "$ver_dir/build/system.vvp" "$ver_dir/system/test.sv" \
-    "$ver_dir"/../hdl/*.v
-(
-    cd "$ver_dir/build"
-    vvp system.vvp
-)
-iverilog -g2012 -s test -I"$ver_dir/build" \
-    -o "$ver_dir/build/pixelbus.vvp" "$ver_dir/pixelbus/test.sv" \
-    "$ver_dir"/../hdl/*.v
-(
-    cd "$ver_dir/build"
-    vvp pixelbus.vvp
-)
-iverilog -g2012 -s test -I"$ver_dir/build" \
-    -o "$ver_dir/build/arrayirq.vvp" "$ver_dir/array/interrupt.sv" \
-    "$ver_dir"/../hdl/*.v
-(
-    cd "$ver_dir/build"
-    vvp arrayirq.vvp
-)
-iverilog -g2012 -s test -I"$ver_dir/build" \
-    -o "$ver_dir/build/lineirq.vvp" "$ver_dir/line/interrupt.sv" \
-    "$ver_dir"/../hdl/*.v
-(
-    cd "$ver_dir/build"
-    vvp lineirq.vvp
-)
-iverilog -g2012 -s test -o "$ver_dir/build/io.vvp" \
-    "$ver_dir/io/test.sv" "$ver_dir/../hdl/jttms10_io.v" \
-    "$ver_dir/../hdl/jttms10_video.v" "$ver_dir/../hdl/jttms10_refresh.v" \
-    "$ver_dir/../hdl/jttms10_host.v"
-vvp "$ver_dir/build/io.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/bus.vvp" \
-    "$ver_dir/bus/test.sv" "$ver_dir/../hdl/jttms10_bus.v"
-vvp "$ver_dir/build/bus.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/startup.vvp" \
-    "$ver_dir/startup/test.sv" "$ver_dir/../hdl/jttms10_bus.v"
-vvp "$ver_dir/build/startup.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/cache.vvp" \
-    "$ver_dir/cache/test.sv" "$ver_dir/../hdl/jttms10_cache.v"
-vvp "$ver_dir/build/cache.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/cachefield.vvp" \
-    "$ver_dir/cachefield/test.sv" "$ver_dir/../hdl/jttms10_field.v" \
-    "$ver_dir/../hdl/jttms10_cache.v" "$ver_dir/../hdl/jttms10_bus.v"
-vvp "$ver_dir/build/cachefield.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/fabric.vvp" \
-    "$ver_dir/fabric/test.sv" "$ver_dir/../hdl/jttms10_fabric.v" \
-    "$ver_dir/../hdl/jttms10_field.v" "$ver_dir/../hdl/jttms10_bus.v" \
-    "$ver_dir/../hdl/jttms10_io.v" "$ver_dir/../hdl/jttms10_video.v" \
-    "$ver_dir/../hdl/jttms10_refresh.v" "$ver_dir/../hdl/jttms10_host.v"
-vvp "$ver_dir/build/fabric.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/host.vvp" \
-    "$ver_dir/host/test.sv" "$ver_dir/../hdl/jttms10_fabric.v" \
-    "$ver_dir/../hdl/jttms10_bus.v" "$ver_dir/../hdl/jttms10_io.v" \
-    "$ver_dir/../hdl/jttms10_video.v" "$ver_dir/../hdl/jttms10_refresh.v" \
-    "$ver_dir/../hdl/jttms10_host.v"
-vvp "$ver_dir/build/host.vvp"
-iverilog -g2012 -s test -o "$ver_dir/build/pixel.vvp" \
-    "$ver_dir/pixel/test.sv" "$ver_dir/../hdl/jttms10_pixel.v" \
-    "$ver_dir/../hdl/jttms10_alu.v"
-vvp "$ver_dir/build/pixel.vvp"
+    if [[ -n $unit_only && $# -ne 0 ]]; then
+        echo "--unit cannot be combined with architectural fixture options" >&2
+        return 2
+    fi
+    python3 "$ver_dir/runtime_test.py"
+    bash "$ver_dir/build.sh"
+    if [[ -z $unit_only ]]; then
+        python3 "$ver_dir/run.py" "$@"
+    fi
+
+    local hdl="$ver_dir/../hdl"
+    run_bench alu alu/test.v "$hdl/jttms10_alu.v"
+    run_bench field field/test.sv "$hdl/jttms10_field.v"
+    run_bench regs regs/test.sv "$hdl/jttms10_regs.v"
+    run_bench word word/test.sv "$hdl"/*.v
+    if [[ -z $unit_only || $unit_only == arch ]]; then
+        compile_bench arch arch/test.sv "$hdl"/*.v
+        for mode in 1 2 3 4 5 6 7 8; do
+            run_binary arch "+mode=$mode"
+        done
+    fi
+    run_bench system system/test.sv "$hdl"/*.v
+    run_bench pixelbus pixelbus/test.sv "$hdl"/*.v
+    run_bench arrayirq array/interrupt.sv "$hdl"/*.v
+    run_bench lineirq line/interrupt.sv "$hdl"/*.v
+    run_bench io io/test.sv \
+        "$hdl/jttms10_io.v" "$hdl/jttms10_video.v" \
+        "$hdl/jttms10_refresh.v" "$hdl/jttms10_host.v"
+    run_bench bus bus/test.sv "$hdl/jttms10_bus.v"
+    run_bench startup startup/test.sv "$hdl/jttms10_bus.v"
+    run_bench cache cache/test.sv "$hdl/jttms10_cache.v"
+    run_bench cachefield cachefield/test.sv \
+        "$hdl/jttms10_field.v" "$hdl/jttms10_cache.v" "$hdl/jttms10_bus.v"
+    run_bench fabric fabric/test.sv \
+        "$hdl/jttms10_fabric.v" "$hdl/jttms10_field.v" "$hdl/jttms10_bus.v" \
+        "$hdl/jttms10_io.v" "$hdl/jttms10_video.v" \
+        "$hdl/jttms10_refresh.v" "$hdl/jttms10_host.v"
+    run_bench host host/test.sv \
+        "$hdl/jttms10_fabric.v" "$hdl/jttms10_bus.v" "$hdl/jttms10_io.v" \
+        "$hdl/jttms10_video.v" "$hdl/jttms10_refresh.v" "$hdl/jttms10_host.v"
+    run_bench pixel pixel/test.sv "$hdl/jttms10_pixel.v" "$hdl/jttms10_alu.v"
+    run_earlyfetch
+}
+
+run_bench() {
+    local name=$1
+    local bench=$2
+    shift 2
+    if [[ -n ${unit_only:-} && $unit_only != "$name" ]]; then
+        return 0
+    fi
+    compile_bench "$name" "$bench" "$@"
+    run_binary "$name"
+}
+
+compile_bench() {
+    local name=$1
+    local bench=$2
+    shift 2
+    local mdir="$build_dir/obj_$name"
+    verilator --quiet --binary --timing --assert --top-module test -Wno-fatal \
+        -I"$build_dir" --Mdir "$mdir" -o Vtest "$ver_dir/$bench" "$@"
+}
+
+run_binary() {
+    local name=$1
+    shift
+    local mdir="$build_dir/obj_$name"
+    (cd "$build_dir" && timeout --foreground "${JTTMS10_UNIT_TIMEOUT:-120s}" \
+        "$mdir/Vtest" "$@")
+}
+
+run_earlyfetch() {
+    if [[ -n ${unit_only:-} && $unit_only != earlyfetch ]]; then
+        return 0
+    fi
+    local mdir="$build_dir/obj_earlyfetch"
+    verilator --quiet --binary --timing --assert --top-module test -Wno-fatal \
+        -DJTTMS10_REGRESSION -I"$build_dir" --Mdir "$mdir" -o Vtest \
+        "$ver_dir/earlyfetch/test.sv" "$ver_dir/../hdl"/*.v
+    run_binary earlyfetch "+MODE=NMI"
+    run_binary earlyfetch "+MODE=IRQ"
+    run_binary earlyfetch "+MODE=HLT"
+    run_binary earlyfetch "+MODE=CF"
+    run_binary earlyfetch "+MODE=CD"
+}
+
+main "$@"

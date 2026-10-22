@@ -15,7 +15,7 @@ module test;
     integer k;
 
     jttms10_word u_cpu(
-        .rst(rst), .clk(clk), .cen(cen),
+        .rst(rst), .clk(clk), .cen(cen), .grid_ready(1'b1),
         .psize(16'd16), .convdp(16'h14), .control(16'h8000),
         .cache_flush(1'b0),
         .irq_req(1'b0), .irq_vector(32'd0),

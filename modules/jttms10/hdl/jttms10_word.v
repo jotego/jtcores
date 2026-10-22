@@ -14,6 +14,7 @@ module jttms10_word(
     input             rst,
     input             clk,
     input             cen,
+    input             grid_ready,
     input             irq_req,
     input      [31:0] irq_vector,
     input             nmi_req, nmi_nostack, halt_req, emu_run,
@@ -60,7 +61,8 @@ module jttms10_word(
         .obs_rf_we ( obs_rf_we ), .obs_rf_addr ( obs_rf_addr ),
         .obs_rf_data ( obs_rf_data ), .obs_work ( obs_work ),
 `endif
-        .rst(rst), .clk(clk), .cen(cen), .cache_flush(cache_flush),
+        .rst(rst), .clk(clk), .cen(cen), .grid_ready(grid_ready),
+        .cache_flush(cache_flush),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
         .halt_req(halt_req), .emu_run(emu_run),
