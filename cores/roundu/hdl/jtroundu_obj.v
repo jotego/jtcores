@@ -286,10 +286,14 @@ task advance_pixel;
 endtask
 
 assign ctrl_addr = 8'he0;
-assign rom_l_addr = fast_pending ? fast_request : request_addr;
-assign rom_h_addr = fast_pending ? fast_request : request_addr;
-assign rom_l_cs = fast_pending ? !fast_bank : (state == WAIT0 || state == WAIT1) && !request_bank;
-assign rom_h_cs = fast_pending ? fast_bank : (state == WAIT0 || state == WAIT1) && request_bank;
+// the ROM address must hold until data_ok, so the bus only changes owner
+// while the previous owner has no request in flight
+wire fsm_req = state == WAIT0 || state == WAIT1;
+reg rom_owner;
+assign rom_l_addr = rom_owner ? fast_request : request_addr;
+assign rom_h_addr = rom_owner ? fast_request : request_addr;
+assign rom_l_cs = rom_owner ? fast_pending && !fast_bank : fsm_req && !request_bank;
+assign rom_h_cs = rom_owner ? fast_pending && fast_bank : fsm_req && request_bank;
 
 initial begin
     inverse[0] = 0;
@@ -424,6 +428,7 @@ always @(posedge clk) begin
         fast_wait <= 0;
         fast_bank <= 0;
         fast_request <= 0;
+        rom_owner <= 0;
         for (i=0;i<2;i=i+1) begin
             fast_addr[i] <= 0;
             fast_data[i] <= 0;
@@ -447,9 +452,10 @@ always @(posedge clk) begin
         d_flip <= 0; d_repeat <= 0; d_base <= 0; d_color <= 0;
         for (i=0;i<6;i=i+1) attr[i] <= 0;
     end else begin
+        rom_owner <= rom_owner ? fast_pending : !fsm_req && fast_pending;
         if (fast_pending) begin
-            fast_wait <= 1;
-            if (fast_wait && (fast_bank ? rom_h_ok : rom_l_ok)) begin
+            fast_wait <= rom_owner;
+            if (fast_wait && rom_owner && (fast_bank ? rom_h_ok : rom_l_ok)) begin
                 fast_addr[fast_bank] <= fast_request;
                 fast_data[fast_bank] <= fast_bank ? rom_h_data : rom_l_data;
                 fast_valid[fast_bank] <= 1;
@@ -527,7 +533,7 @@ always @(posedge clk) begin
                 end else state <= CLUT_L;
             end
             WAIT0: state <= WAIT1;
-            WAIT1: if (!fast_pending && (request_bank ? rom_h_ok : rom_l_ok)) begin
+            WAIT1: if (!rom_owner && (request_bank ? rom_h_ok : rom_l_ok)) begin
                 fetched <= request_bank ? rom_h_data : rom_l_data;
                 state <= return_state;
             end
@@ -982,8 +988,6 @@ always @(posedge clk) begin
             default: state <= IDLE;
         endcase
         if (line_start && loaded) begin
-            fast_pending <= 0;
-            fast_wait <= 0;
             dr_state <= DR_IDLE;
             if (v == 240) begin
                 frame_ready <= 0;
