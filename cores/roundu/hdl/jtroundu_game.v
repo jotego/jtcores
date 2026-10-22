@@ -22,31 +22,34 @@ wire [7:0] audio_din, audio_dout;
 wire [7:0] download_data;
 wire shift_pulse;
 reg shift;
-// digital steering ramps the wheel once per frame with auto-center, like
-// MAME's AD_STICK keydelta; the analog stick sets it directly
-reg  [7:0] stick;
-reg        lvbl_l;
-wire [7:0] ana_stick = joyana_l1[7:0] == 8'h80 ? 8'h00 : 8'h7f+joyana_l1[7:0];
-localparam [7:0] WHEEL_STEP = 8'd15;
+// steering as in jtsysfl_ctrl: the analog wheel takes over past a deadzone,
+// the digital directions ramp per frame with autocenter (MAME keydelta 15)
+wire [7:0] wheel_a = joyana_l1[7:0] ^ 8'h80;
+wire       wl_act  = joyana_l1[7:4] != 4'h0 && joyana_l1[7:4] != 4'hf;
+wire       w_left  = ~joystick1[1];
+wire       w_right = ~joystick1[0];
+wire       frame;
+reg  [7:0] wheel_d;
+wire [7:0] stick = wl_act ? wheel_a : wheel_d;
+
+jtframe_edge_pulse #(
+    .NEGEDGE ( 1 )
+) u_frame (
+    .rst   ( game_rst ),
+    .clk   ( clk      ),
+    .cen   ( 1'b1     ),
+    .sigin ( LVBL     ),
+    .pulse ( frame    )
+);
 
 always @(posedge clk) begin
-    if (game_rst) begin
-        stick  <= 8'h7f;
-        lvbl_l <= 0;
-    end else begin
-        lvbl_l <= LVBL;
-        if (LVBL && !lvbl_l) begin
-            if (!joystick1[0])
-                stick <= stick > 8'hff-WHEEL_STEP ? 8'hff : stick+WHEEL_STEP;
-            else if (!joystick1[1])
-                stick <= stick < WHEEL_STEP ? 8'h00 : stick-WHEEL_STEP;
-            else if (joyana_l1[7:0] != 0)
-                stick <= ana_stick;
-            else if (stick > 8'h7f)
-                stick <= stick-8'h7f > WHEEL_STEP ? stick-WHEEL_STEP : 8'h7f;
-            else
-                stick <= 8'h7f-stick > WHEEL_STEP ? stick+WHEEL_STEP : 8'h7f;
-        end
+    if (game_rst) wheel_d <= 8'h80;
+    else if (frame) begin
+        if (w_right && !w_left)      wheel_d <= wheel_d > 8'd240 ? 8'hff : wheel_d + 8'd15;
+        else if (w_left && !w_right) wheel_d <= wheel_d < 8'd15  ? 8'h00 : wheel_d - 8'd15;
+        else if (wheel_d > 8'h8f)    wheel_d <= wheel_d - 8'd15;
+        else if (wheel_d < 8'h71)    wheel_d <= wheel_d + 8'd15;
+        else                         wheel_d <= 8'h80;
     end
 end
 
