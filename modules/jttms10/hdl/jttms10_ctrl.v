@@ -25,7 +25,8 @@ module jttms10_ctrl(
     output            vector, fetch, imm, pcinc, ld_ir, ni, halt,
     output            peek, slot_take, halt_accept,
     output            wr_reg, bsrc, wrsrc, stld, wr_sp,
-    output            shiftkinit, shiftrinit, shift_step, shift_finish,
+    output            shiftkinit, shiftrinit, shift_step, shift_stage0,
+                      shift_stage1, shift_finish,
     output            setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish,
     output            multiinit, multiadvance, ptrwr, listwr,
     output            mulinit, mulstep, mulcorrq, mulcorrm,
@@ -49,7 +50,6 @@ module jttms10_ctrl(
     wire multiskip;
     wire [1:0] multi_sel;
     wire [3:0] mul_sel;
-    wire [1:0] lmo_sel;
     wire [2:0] shift_sel;
     wire [2:0] misc_sel;
     wire [1:0] bus_sel;
@@ -74,11 +74,12 @@ module jttms10_ctrl(
     assign emu_step = misc_sel==EMU_MISC;
     assign shiftkinit = shift_sel==KINIT_SHIFT;
     assign shiftrinit = shift_sel==RINIT_SHIFT;
-    assign shift_step = shift_sel==STEP_SHIFT;
-    assign shift_finish = shift_sel==FINISH_SHIFT;
-    assign lmoinit = lmo_sel==INIT_LMO;
-    assign lmoscan = lmo_sel==SCAN_LMO;
-    assign lmofinish = lmo_sel==FINISH_LMO;
+    assign shift_step = 1'b0;
+    assign shift_stage0 = shift_sel==STAGE0_SHIFT;
+    assign shift_stage1 = shift_sel==STAGE1_SHIFT;
+    assign shift_finish = shift_stage1;
+    assign lmoinit = 1'b0;
+    assign lmoscan = 1'b0;
     assign multiinit = multi_sel==INIT_MULTI;
     assign multiskip = multi_sel==SKIP_MULTI;
     assign multiadvance = multi_sel==ADVANCE_MULTI;
@@ -161,9 +162,7 @@ module jttms10_ctrl(
         end
     endfunction
     assign reserved_opcode = is_reserved(slot_take ? slot_opcode[15:8] : md[15:8]);
-    wire loop_repeat = (shift_step && shift_count>5'd1) ||
-                       (lmoscan && lmo_more) ||
-                       (multiadvance && multi_steps>5'd1) ||
+    wire loop_repeat = (multiadvance && multi_steps>5'd1) ||
                        (mulstep && mul_count!=5'd1) ||
                        (divstep && mul_count!=5'd1);
     // Dispatch addresses match the six ops' class IDs in ucode/tms10.yaml.
@@ -212,12 +211,12 @@ module jttms10_ctrl(
             16'b00001011100?????: decoded = ANDI_SEQA[11:4];
             16'b00001011101?????: decoded = ORI_SEQA[11:4];
             16'b00001011110?????: decoded = XORI_SEQA[11:4];
-            16'b001000??????????,
+            16'b001000??????????: decoded = SLAK_SEQA[11:4];
             16'b001001??????????,
             16'b001010??????????,
             16'b001011??????????,
             16'b001100??????????: decoded = SHIFTK_SEQA[11:4];
-            16'b0110000?????????,
+            16'b0110000?????????: decoded = SLAR_SEQA[11:4];
             16'b0110001?????????,
             16'b0110010?????????,
             16'b0110011?????????,
@@ -425,28 +424,19 @@ module jttms10_ctrl(
             if(emu_step && !emu_run) emu_hold <= 1;
             uaddr[3:0] <= uaddr[3:0]+1'b1;
             if(jsr_en) begin
-                // Zero-count shifts skip the helper while retaining C=0.
-                if((jsr_sel==SHIFTLOOP_JSR && shift_count==0) ||
-                   (jsr_sel==LMOLOOP_JSR && !lmo_more))
-                    uaddr <= uaddr+12'd1;
-                else begin
-                    uaddr <= jsr_ua;
-                    if(jsr_sel==RET_JSR) begin
-                        uaddr <= jsr_depth==2 ? jsr_ret2 : jsr_ret;
-                        if(!loop_repeat && jsr_depth!=0)
-                            jsr_depth <= jsr_depth-2'd1;
-                    end else if(jsr_depth==0) begin
-                        jsr_ret <= uaddr+12'd1;
-                        jsr_depth <= 1;
-                    end else begin
-                        jsr_ret2 <= uaddr+12'd1;
-                        jsr_depth <= 2;
-                    end
+                uaddr <= jsr_ua;
+                if(jsr_sel==RET_JSR) begin
+                    uaddr <= jsr_depth==2 ? jsr_ret2 : jsr_ret;
+                    if(!loop_repeat && jsr_depth!=0)
+                        jsr_depth <= jsr_depth-2'd1;
+                end else if(jsr_depth==0) begin
+                    jsr_ret <= uaddr+12'd1;
+                    jsr_depth <= 1;
+                end else begin
+                    jsr_ret2 <= uaddr+12'd1;
+                    jsr_depth <= 2;
                 end
             end
-            // The helper's RET_JSR returns on its final one-bit shift.
-            if(shift_step && shift_count>5'd1) uaddr <= SHIFTLOOP_SEQA;
-            if(lmoscan && lmo_more) uaddr <= LMOLOOP_SEQA;
             if(multiskip && !multi_bit) uaddr <= MULTINEXT_SEQA;
             if(multiadvance && multi_steps>5'd1)
                 uaddr <= multi_load ? MMFMLOOP_SEQA : MMTMLOOP_SEQA;

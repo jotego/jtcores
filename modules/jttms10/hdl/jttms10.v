@@ -39,8 +39,8 @@ module jttms10(
 `endif
     wire peek, slot_take, halt_accept;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
-    wire shiftkinit, shiftrinit, shift_step, shift_finish;
-    wire setf, exgf, btstfinish, lmoinit, lmoscan, lmofinish;
+    wire shiftkinit, shiftrinit, shift_stage0, shift_stage1, shift_finish;
+    wire setf, exgf, btstfinish, lmofinish;
     wire multiinit, multiadvance, ptrwr, listwr;
     wire mulinit, mulstep, mulcorrq, mulcorrm, mulfinish, mulwrhi, mulwrlo;
     wire divinit, divload, divnega, divnegmd, divnegb, divcheck, divstep;
@@ -64,10 +64,10 @@ module jttms10(
     wire [2:0] pc_sel;
     wire [1:0] b_sel, md_sel, mem_sel, stack_sel, tmp_sel, st_sel;
     wire [2:0] ea_sel;
-    wire [31:0] rs_data, rd_data, result;
+    wire [31:0] rs_data, rd_data, result, alu_result;
     wire [15:0] pixel_visible_source;
     wire [15:0] pixel_write_pixel;
-    wire n,z,c,v;
+    wire n,z,c,v,alu_n,alu_z,alu_c,alu_v;
     reg [31:0] md, a, b, ea, tmp, bus_data;
     reg [31:0] vector_latched;
     reg push_high, hw_entry;
@@ -79,7 +79,6 @@ module jttms10(
     reg div_pairread, div_dvdneg, div_dvsneg, div_lowzero;
     reg div_phase, div_early, div_error;
     reg shift_c, shift_v;
-    reg [4:0] lmo_count;
     reg [15:0] multi_mask;
     reg [3:0] multi_index;
     reg [4:0] multi_steps;
@@ -119,13 +118,76 @@ module jttms10(
     wire unused_convdp_high = &convdp[15:5];
     wire unused_convsp_high = &convsp[15:5];
     wire unused_control_bits = &{control[15],control[9:8],control[4:0]};
-    wire lmo_more = !a[31] && a!=0 && lmo_count!=5'd31;
     wire [4:0] btst_index = ir[15:10]==6'b000111 ? ~ir[9:5] : b[4:0];
     wire [5:0] old_field = ir[9] ? st[11:6] : st[5:0];
     // The two encoding families use the same five operation numbers.
     wire [2:0] shift_kind = ir[15:13]==3'b001 ? ir[12:10] : ir[11:9];
     wire shift_right = shift_kind==3'd2 || shift_kind==3'd3;
     wire [4:0] shift_raw = shiftkinit ? ir[9:5] : rs_data[4:0];
+    wire shift_left = !shift_right;
+    wire shift_rotate = shift_kind==3'd4;
+    wire [4:0] shift_stage0_amount = {2'd0,shift_count[2:0]};
+    wire [4:0] shift_stage1_amount = {shift_count[4:3],3'b000};
+    wire ctrl_lmo_more = 1'b0;
+    wire [63:0] shift_stage0_rotate = {a,a} << shift_stage0_amount;
+    wire [63:0] shift_stage1_rotate = {a,a} << shift_stage1_amount;
+    wire signed [31:0] shift_signed_a = a;
+    // Keep arithmetic shifts outside the unsigned result mux: Verilog's
+    // conditional operator otherwise propagates unsignedness into `>>>`.
+    wire [31:0] shift_stage0_arithmetic = shift_signed_a >>> shift_stage0_amount;
+    wire [31:0] shift_stage1_arithmetic = shift_signed_a >>> shift_stage1_amount;
+    wire [31:0] shift_stage0_result = shift_rotate ? shift_stage0_rotate[63:32] :
+        shift_left ? a << shift_stage0_amount :
+        shift_kind==3'd2 ? shift_stage0_arithmetic :
+                           a >> shift_stage0_amount;
+    wire [31:0] shift_stage1_result = shift_rotate ? shift_stage1_rotate[63:32] :
+        shift_left ? a << shift_stage1_amount :
+        shift_kind==3'd2 ? shift_stage1_arithmetic :
+                           a >> shift_stage1_amount;
+    wire shift_stage0_c = shift_stage0_amount==0 ? shift_c :
+        shift_rotate ? shift_stage0_result[0] :
+        shift_left ? a[32-shift_stage0_amount] : a[shift_stage0_amount-1'b1];
+    wire shift_stage1_c = shift_stage1_amount==0 ? shift_c :
+        shift_rotate ? shift_stage1_result[0] :
+        shift_left ? a[32-shift_stage1_amount] : a[shift_stage1_amount-1'b1];
+    wire [63:0] sla_stage0_wide = {{32{a[31]}},a} <<< shift_stage0_amount;
+    wire [63:0] sla_stage1_wide = {{32{a[31]}},a} <<< shift_stage1_amount;
+    wire sla_stage0_overflow = shift_stage0_amount!=0 &&
+        sla_stage0_wide[63:32]!={32{shift_stage0_result[31]}};
+    wire sla_stage1_overflow = shift_stage1_amount!=0 &&
+        sla_stage1_wide[63:32]!={32{shift_stage1_result[31]}};
+    reg [31:0] lmo_probe;
+    reg [4:0] lmo_result;
+    always @* begin
+        lmo_probe=a;
+        lmo_result=0;
+        if(a!=0) begin
+            if(lmo_probe[31:16]==0) begin
+                lmo_result=lmo_result+5'd16;
+                lmo_probe=lmo_probe<<16;
+            end
+            if(lmo_probe[31:24]==0) begin
+                lmo_result=lmo_result+5'd8;
+                lmo_probe=lmo_probe<<8;
+            end
+            if(lmo_probe[31:28]==0) begin
+                lmo_result=lmo_result+5'd4;
+                lmo_probe=lmo_probe<<4;
+            end
+            if(lmo_probe[31:30]==0) begin
+                lmo_result=lmo_result+5'd2;
+                lmo_probe=lmo_probe<<2;
+            end
+            if(!lmo_probe[31]) lmo_result=lmo_result+5'd1;
+        end
+    end
+    assign result = shift_stage1 ? shift_stage1_result :
+                    shift_stage0 ? shift_stage0_result :
+                    lmofinish ? {27'd0,lmo_result} : alu_result;
+    assign n=result[31];
+    assign z=result==0;
+    assign c=alu_c;
+    assign v=alu_v;
     reg completed, bus_started;
     reg slot_valid, peek_pending;
     reg [15:0] slot_opcode;
@@ -202,7 +264,7 @@ module jttms10(
         .obs_control ( obs_control ),
 `endif
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
-        .shift_count(shift_count), .lmo_more(lmo_more),
+        .shift_count(shift_count), .lmo_more(ctrl_lmo_more),
         .multi_bit(multi_bit), .multi_steps(multi_steps),
         .multi_load(ir[5]),
         .mul_count(mul_count),
@@ -227,9 +289,10 @@ module jttms10(
         .tmp_sel(tmp_sel), .wr_sp(wr_sp), .stack_sel(stack_sel),
         .st_sel(st_sel),
         .shiftkinit(shiftkinit), .shiftrinit(shiftrinit),
-        .shift_step(shift_step), .shift_finish(shift_finish),
+        .shift_step(), .shift_stage0(shift_stage0), .shift_stage1(shift_stage1),
+        .shift_finish(shift_finish),
         .setf(setf), .exgf(exgf), .btstfinish(btstfinish),
-        .lmoinit(lmoinit), .lmoscan(lmoscan), .lmofinish(lmofinish),
+        .lmoinit(), .lmoscan(), .lmofinish(lmofinish),
         .multiinit(multiinit),
         .multiadvance(multiadvance), .ptrwr(ptrwr), .listwr(listwr),
         .mulinit(mulinit), .mulstep(mulstep),
@@ -311,7 +374,6 @@ module jttms10(
                       (!div_error || (div_mod && div_signed))))) && !rst),
         .wd(gfx_active ? (gfx_mdrf ? md : result) :
             exgf ? {26'd0,old_field} :
-            lmofinish ? {27'd0,lmo_count} :
             listwr ? md :
             xy_op && wr_reg ? md :
             mulwrhi ? (div_ir ? md : b) :
@@ -361,14 +423,6 @@ module jttms10(
             NOT_ALU:  alu_op=9;
             NEG_ALU:  alu_op=10;
             ABS_ALU:  alu_op=11;
-            SHIFT_ALU: case(shift_kind)
-                3'd0,3'd1: alu_op=12;
-                3'd2:      alu_op=14;
-                3'd3:      alu_op=13;
-                3'd4:      alu_op=15;
-                default:;
-            endcase
-            LMO_ALU: alu_op=12;
             default:;
         endcase
     end
@@ -388,7 +442,7 @@ module jttms10(
     wire [31:0] shared_alu_b = gfx_active ?
         (gfx_pix_process && pixel_alu_req ? pixel_alu_b : b) : alu_b;
     jttms10_alu u_alu(.a(shared_alu_a),.b(shared_alu_b),.op(alu_op),.cin(alu_cin),
-        .result(result),.n(n),.z(z),.c(c),.v(v));
+        .result(alu_result),.n(alu_n),.z(alu_z),.c(alu_c),.v(alu_v));
     reg condition;
     always @* begin
         condition=0;
@@ -453,7 +507,6 @@ module jttms10(
             div_error<=0;
             shift_c<=0;
             shift_v<=0;
-            lmo_count<=0;
             multi_mask<=0;
             multi_index<=0;
             multi_steps<=0;
@@ -541,13 +594,17 @@ module jttms10(
                     shift_c<=0;
                     shift_v<=0;
                 end
-                if(shift_step) begin
-                    shift_count<=shift_count-5'd1;
-                    shift_c<=c;
-                    shift_v<=shift_v | (a[31]^result[31]);
-                    a<=result;
+                if(shift_stage0) begin
+                    a<=shift_stage0_result;
+                    if(shift_stage0_amount!=0) shift_c<=shift_stage0_c;
+                    if(shift_kind==3'd0)
+                        shift_v<=shift_v | sla_stage0_overflow;
                 end
-                if(lmoinit) lmo_count<=0;
+                if(shift_stage1) begin
+                    if(shift_stage1_amount!=0) shift_c<=shift_stage1_c;
+                    if(shift_kind==3'd0)
+                        shift_v<=shift_v | sla_stage1_overflow;
+                end
                 if(multiinit) begin
                     multi_mask<=md[15:0];
                     multi_steps<=5'd16;
@@ -642,10 +699,6 @@ module jttms10(
                         st[29]<=ir[0] ? md==0 : b==0 && md==0;
                     end
                 end
-                if(lmoscan && lmo_more) begin
-                    a<=result;
-                    lmo_count<=lmo_count+5'd1;
-                end
                 if(pc_add) pc<=pc_plus;
                 case(b_sel)
                     REG_B: b<=rd_data;
@@ -722,10 +775,11 @@ module jttms10(
                     default:;
                 endcase
                 if(shift_finish) begin
-                    st[30]<=shift_c;
+                    st[30]<=shift_stage1_amount!=0 ? shift_stage1_c : shift_c;
                     st[29]<=z;
                     if(shift_kind==3'd0 || shift_kind==3'd2) st[31]<=n;
-                    if(shift_kind==3'd0) st[28]<=shift_v;
+                    if(shift_kind==3'd0)
+                        st[28]<=shift_v | sla_stage1_overflow;
                 end
                 if(btstfinish) st[29]<=~a[btst_index];
                 if(lmofinish) st[29]<=a==0;

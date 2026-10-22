@@ -146,7 +146,9 @@ def render(repo: Path, out: Path) -> dict:
         entry["retire_pc"] = entry["instruction_pc"] + 0x10
     branch_pc_index = index
     branch_delta = 0x100 - (branch_pc_index + 1)  # JRUC uses post-instruction PC.
-    branch_opcode = 0xCF00 | (branch_delta & 0xFF)
+    # Condition 0 is unconditional JRUC. Do not make the fixture loop depend
+    # on the current N flag produced by the setup sequence.
+    branch_opcode = 0xC000 | (branch_delta & 0xFF)
     emit(branch_opcode)
     stream_start = stream_start_index << 4
 

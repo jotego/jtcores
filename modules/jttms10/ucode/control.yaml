@@ -162,24 +162,52 @@ ucode:
       - imm_bus, pcinc
       - immhi_a, reg_b
       - xor_alu, wr_reg, z_cc, ni
-  # Both encodings share the same iterative one-bit ALU helper. Right-shift
-  # counts are encoded as their five-bit two's complement in both forms.
+  # The YAML schedules each bounded logarithmic shift stage. SLA takes three
+  # TI states; its eight idle microsteps are deliberate timing work.
   - name: shiftk
     start: 73
     seq:
-      - rd_a, kinit_shift
-      - shiftloop_jsr
-      - pass_alu, wr_reg, finish_shift, ni
+      - rd_a, kinit_shift, peek
+      - stage0_shift, dispatch
+      - stage1_shift, wr_reg, dispatch
+      - ni, dispatch
   - name: shiftr
     start: 74
     seq:
-      - rd_a, rinit_shift
-      - shiftloop_jsr
-      - pass_alu, wr_reg, finish_shift, ni
-  - name: shiftloop
-    start: 75
+      - rd_a, rinit_shift, peek
+      - stage0_shift, dispatch
+      - stage1_shift, wr_reg, dispatch
+      - ni, dispatch
+  - name: slak
+    start: 113
     seq:
-      - shift_alu, step_shift, ret_jsr
+      - rd_a, kinit_shift, peek
+      - stage0_shift, dispatch
+      - stage1_shift, wr_reg, dispatch
+      -
+      -
+      -
+      -
+      -
+      -
+      -
+      -
+      - ni, dispatch
+  - name: slar
+    start: 114
+    seq:
+      - rd_a, rinit_shift, peek
+      - stage0_shift, dispatch
+      - stage1_shift, wr_reg, dispatch
+      -
+      -
+      -
+      -
+      -
+      -
+      -
+      -
+      - ni, dispatch
   - name: setf
     start: 76
     seq:
@@ -209,13 +237,10 @@ ucode:
   - name: lmo
     start: 81
     seq:
-      - reg_a, init_lmo
-      - lmoloop_jsr
-      - finish_lmo, wr_reg, ni
-  - name: lmoloop
-    start: 82
-    seq:
-      - lmo_alu, scan_lmo, ret_jsr
+      - reg_a, peek
+      - lmofinish, wr_reg, dispatch
+      -
+      - ni, dispatch
   # TI pp.12-109..112: both encodings consume the mask MSB first. MMTM's
   # bit15 names R0 and walks upward; MMFM's bit15 names R15 and walks down.
   - name: mmtm
