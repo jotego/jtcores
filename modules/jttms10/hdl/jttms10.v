@@ -2,6 +2,13 @@
 // Microcoded TMS34010 execution datapath. Addresses are BIT addresses and
 // requests describe 1..32-bit fields. Peripheral/bus integration is separate.
 module jttms10(
+`ifdef JTTMS10_REGRESSION
+    output            obs_decode, obs_rf_we, obs_hw_complete,
+    output     [31:0] obs_decode_pc, obs_rf_data,
+    output     [15:0] obs_decode_ir,
+    output     [ 5:0] obs_rf_addr,
+    output    [170:0] obs_work,
+`endif
     input             rst, clk, cen,
     input             cache_flush,
     input             irq_req,
@@ -27,6 +34,9 @@ module jttms10(
     `include "tms10_param.vh"
     /* verilator lint_on UNUSEDPARAM */
     wire step, vector, fetch, imm, pcinc, ld_ir, ni, halt;
+`ifdef JTTMS10_REGRESSION
+    wire [11:0] obs_control;
+`endif
     wire peek, slot_take, halt_accept;
     wire wr_reg, bsrc, wrsrc, stld, wr_sp;
     wire shiftkinit, shiftrinit, shift_step, shift_finish;
@@ -178,7 +188,19 @@ module jttms10(
     // and CVXYL are register-only operations and never tag memory cycles.
     assign mem_pixel = gfx_active && gfx_bus_pixel;
 
+`ifdef JTTMS10_REGRESSION
+    assign obs_hw_complete = step && ni && hw_entry;
+    assign obs_decode     = step && (ld_ir || slot_take);
+    assign obs_decode_pc  = slot_take ? pc : fetch ? pc : pc-32'd16;
+    assign obs_decode_ir  = slot_take ? slot_opcode : fetch ? read_data[15:0] : md[15:0];
+    assign obs_work       = {obs_control, active, a, b, md, tmp, mul_count,
+                             multi_mask, multi_index, multi_steps};
+`endif
+
     jttms10_ctrl u_ctrl(
+`ifdef JTTMS10_REGRESSION
+        .obs_control ( obs_control ),
+`endif
         .rst(rst), .clk(clk), .enable(cen), .ready(ready), .md(md[15:0]),
         .shift_count(shift_count), .lmo_more(lmo_more),
         .multi_bit(multi_bit), .multi_steps(multi_steps),
@@ -258,6 +280,11 @@ module jttms10(
                     ir[15:5]==11'h048;
     wire call_rs_ir = ir[15:5]==11'h049;
     jttms10_regs u_regs(
+`ifdef JTTMS10_REGRESSION
+        .obs_rf_we   ( obs_rf_we   ),
+        .obs_rf_addr ( obs_rf_addr ),
+        .obs_rf_data ( obs_rf_data ),
+`endif
         .clk(clk),
         .rs_ext(gfx_active && gfx_rf_sa[5]),
         .rd_ext(gfx_active && gfx_rf_da[5]),

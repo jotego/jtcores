@@ -5,6 +5,10 @@ module jttms10_fabric #(
     parameter integer RESET_REFRESH=0
 )(
     input clk, rst, vclk_cen,
+`ifdef JTTMS10_REGRESSION
+    output            obs_bus_start, obs_bus_complete,
+    output     [15:0] obs_bus_rdata,
+`endif
     input hcs_n, hsync_n, vsync_n, lint1_n, lint2_n,
     input hold_req,
     output hold_ack,
@@ -79,6 +83,11 @@ module jttms10_fabric #(
         .refresh_cbr(refresh_cbr)
     );
     jttms10_bus #(.RESET_REFRESH(RESET_REFRESH)) u_bus(
+`ifdef JTTMS10_REGRESSION
+        .obs_bus_start ( obs_bus_start ),
+        .obs_bus_complete ( obs_bus_complete ),
+        .obs_bus_rdata ( obs_bus_rdata ),
+`endif
         .clk(clk),.rst(rst),.hold_req(hold_req),.hold_ack(hold_ack),
         .screen_req(screen_req),.screen_ack(screen_ack),
         .screen_srfaddr(screen_srfaddr),.screen_dpytap(screen_dpytap),

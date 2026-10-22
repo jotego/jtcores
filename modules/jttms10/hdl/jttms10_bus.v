@@ -6,6 +6,10 @@ module jttms10_bus #(
     parameter integer RESET_REFRESH=0
 )(
     input clk, rst,
+`ifdef JTTMS10_REGRESSION
+    output            obs_bus_start, obs_bus_complete,
+    output     [15:0] obs_bus_rdata,
+`endif
     input hold_req,
     output hold_ack,
     input screen_req,
@@ -58,6 +62,16 @@ module jttms10_bus #(
     reg [15:0] last_wdata;
     reg active_we;
     reg [3:0] init_left;
+`ifdef JTTMS10_REGRESSION
+    reg cyc_req_l;
+    assign obs_bus_start = cyc_req && !cyc_req_l;
+    assign obs_bus_complete = complete;
+    assign obs_bus_rdata = cyc_rdata;
+    always @(posedge clk) begin
+        if(rst) cyc_req_l<=1'b0;
+        else cyc_req_l<=cyc_req;
+    end
+`endif
     reg active_init;
     wire same_word=word_we==last_we && word_iaq==last_iaq &&
         word_lock==last_lock && word_pixel==last_pixel &&

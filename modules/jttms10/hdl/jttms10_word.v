@@ -3,6 +3,14 @@
 // word_restart is the arbiter's one-clock HOLD pulse between the read and
 // write of a partial-word RMW pair; the field adapter then rereads that word.
 module jttms10_word(
+`ifdef JTTMS10_REGRESSION
+    output            obs_decode, obs_rf_we, obs_hw_complete,
+    output     [31:0] obs_decode_pc, obs_rf_data,
+    output     [15:0] obs_decode_ir,
+    output     [ 5:0] obs_rf_addr,
+    output    [170:0] obs_work,
+    output            obs_field_pending_fault, obs_word_req, obs_word_pending,
+`endif
     input             rst,
     input             clk,
     input             cen,
@@ -46,6 +54,12 @@ module jttms10_word(
                                    16'd0 : cache_rdata;
 
     jttms10 u_core(
+`ifdef JTTMS10_REGRESSION
+        .obs_decode ( obs_decode ), .obs_hw_complete ( obs_hw_complete ),
+        .obs_decode_pc ( obs_decode_pc ), .obs_decode_ir ( obs_decode_ir ),
+        .obs_rf_we ( obs_rf_we ), .obs_rf_addr ( obs_rf_addr ),
+        .obs_rf_data ( obs_rf_data ), .obs_work ( obs_work ),
+`endif
         .rst(rst), .clk(clk), .cen(cen), .cache_flush(cache_flush),
         .irq_req(irq_req), .irq_vector(irq_vector),
         .nmi_req(nmi_req), .nmi_nostack(nmi_nostack),
@@ -94,6 +108,12 @@ module jttms10_word(
         .m_restart(word_restart)
     );
     assign cache_peek_addr=pc;
+`ifdef JTTMS10_REGRESSION
+    // The field adapter has no separate fault output; CPU fault remains public.
+    assign obs_field_pending_fault = !field_req && (cache_req || cache_lock);
+    assign obs_word_req = word_req;
+    assign obs_word_pending = field_req;
+`endif
 
     // The field adapter captures the CPU request on the same edge. Its first
     // physical word can appear after alignment clocks, so IAQ is captured

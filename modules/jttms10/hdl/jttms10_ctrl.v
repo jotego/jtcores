@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 module jttms10_ctrl(
+`ifdef JTTMS10_REGRESSION
+    output     [11:0] obs_control,
+`endif
     input             rst, clk, enable, ready,
     input      [15:0]  md,
     input      [4:0]   shift_count,
@@ -109,6 +112,9 @@ module jttms10_ctrl(
     // execution independently of the memory response capture in the datapath.
     assign execute = cen && enable && ready && !halt;
     assign active = cen;
+`ifdef JTTMS10_REGRESSION
+    assign obs_control = uaddr[11:0];
+`endif
     wire boundary = (!cen && uaddr==FETCH_SEQA) ||
                     (execute && ni && slot_dispatch);
     wire gfx_boundary = !cen && gfx_active && gfx_checkpoint;
