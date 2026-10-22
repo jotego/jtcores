@@ -21,6 +21,20 @@ next bounded shift/LMO increment adds passing warm-cache examples for SLL,
 SRA, SRL, RL, SLA and LMO. Ten mnemonics therefore have passing examples;
 none has full-condition timing signoff. Instruction timing remains in YAML.
 
+The fitted CPU source is `e0883caa36c6a30ccc0b3bd113afaa35dd0e60c6`. Its
+SOURCE/SOURCE DataStorm image was loaded and passed board health. The RBF SHA256
+is `827a0450e97d4f3111d9cbc56c9329c5a3c9092c7bbd5f1242002a56bc036bc5`.
+The complete Quartus flow took 846.97 s; the outer build command took 863.140 s.
+The build makes no Top-reuse claim. Programming took 0.342671 s at the target
+(1.188712 s at the host); six transfers totaled 4.353730 s. Build and program
+evidence is retained under
+`/nobackup/tasks/jtcores-149/artifacts/fpga-seed-002/`.
+
+The exact-Verilator representative comparison remains limited to 90 positive
+cases and three `nop_off` diagnostics; the diagnostics show the known CD-fetch
+timing deficit. It is a different run from the FPGA matrix below, and does not
+mean all 7,530 board cases were compared to Verilator.
+
 | Matched four-fit mean | #141 baseline | Stopped #144 | Scalar increment | Shift/LMO increment |
 | --- | ---: | ---: | ---: | ---: |
 | ALMs | 2,752 | 5,129 | 2,804.5 | 3,128 |
@@ -66,21 +80,77 @@ held-HLT and enabled-IRQ restart checks also pass on the frozen candidate.
 
 One-state shifts and LMO use four explicit YAML words. SLA uses twelve, with
 eight explicit empty words. RTL replaces serial loops with bounded shared
-shift/leading-zero operations; it has no instruction timer. This directed set
-does not establish the complete shift matrix or all status/register conditions.
-See [the fixture and baseline](../ver/restart/stageb.md).
+shift/leading-zero operations; it has no instruction timer. The short fixture's
+directed cases do not establish all status/register conditions. See
+[the fixture and baseline](../ver/restart/stageb.md).
+
+The subsequent FPGA cached-positive matrix passed 657 scalar and 1,853
+shift/LMO cases in each of BASE, W1P7 and W3, for 7,530 total expected-positive
+executions. The combined inventory has 15 unique coverage IDs across 10
+mnemonics; NOP is present in both inventories, so each profile has 2,510 case
+executions and 2,509 distinct case names. All six driver commands exited zero;
+237 batches completed with no transport errors or timeouts, and health checks
+passed before and after every matrix. The same healthy loaded image was used
+throughout, with no reprogram or reset. This matrix is not full instruction-
+family signoff: the available exact-Verilator comparison remains the 90
+positives and three `nop_off` diagnostics described above.
+
+| FPGA profile | Scalar cached cases | Shift/LMO cached cases | Total |
+| --- | ---: | ---: | ---: |
+| BASE | 657 | 1,853 | 2,510 |
+| W1P7 | 657 | 1,853 | 2,510 |
+| W3 | 657 | 1,853 | 2,510 |
+| **Total** | **1,971** | **5,559** | **7,530** |
+
+The execution summary is
+`/nobackup/tasks/jtcores-149/artifacts/fpga-seed-002/scalar-shift-matrix/execution-003/terminal-summary.json`
+(SHA256 `4ef87476b0dd52475a5635834e7e92ce6e3193939095ca957d0f2399cfcbbfea`).
+The independent full-raw replay agrees with the reports and has no failures;
+see `execution-003/root-review.json` (SHA256
+`b8c82674dfbbbb5947216a3d53971b2964c12596596aa40790f46c4cfb8fff0e`).
+
+Observed completion times were 27.038834 s summed driver wall time, 26.446898 s
+inside the driver, 8.825586 s transferring data, and 10.219973 s for SSH
+execution including transport. Driver time includes preflight, transfer,
+execution and checking; transfer and execution run sequentially. Target-side
+stage/run/drain times (0.343 / 2.217 / 4.625 s at millisecond resolution) are
+nested within SSH execution. These phase totals are not independent end-to-end
+durations; no speedup ratio is inferred from them. The checker took 1.589132 s.
 
 The protocol-v5 DataStorm adapter separates a pinned frozen TI expectation tree
 from the current hardware/runner/image receipts. Nine root/identity tests and
-13 build-helper tests pass, including real CPU/YAML/generated-ROM changes.
-The new source has not yet run on the FPGA. The first image needs a new
-SOURCE/SOURCE partition seed; later guarded CPU/YAML updates can request stable
-Top reuse, which actual reports must prove. ROM-update receipts remain
-unsupported. See [FPGA setup](../ver/fpga/README.md).
+13 build-helper tests passed during adapter development, including real
+CPU/YAML/generated-ROM changes. The first image used a new SOURCE/SOURCE
+partition seed. Its receipt initially failed because the build helper hashed
+the last diagnostic output instead of the frozen input manifest. The
+host-only correction is committed as `8f1a668c`; a seed-specific, hash-bound
+recovery validates the complete source/input/diagnostic inventory. The CPU and
+YAML source did not change. The current host suite passes 28 tests with no
+skips, including real saved-seed receipt generation and negative certificate
+cases. Later guarded CPU/YAML updates can request stable Top reuse, which the
+build reports must prove. ROM-update receipts remain unsupported. See
+[FPGA setup](../ver/fpga/README.md).
 
-General flag and A15/B15 alias matrices, CD and same-edge CF/CD changes,
-memory ACK under CEN pause, nonresident fetch timing and all wider instruction
-conditions remain unqualified. The selected unchanged architectural vectors
+The field-path diagnostic uses the candidate `jttms10_system` in Verilator and
+reports physical events independently of any TI instruction-total expectation.
+An offset-0 resident one-pair RMW is the control; offset 8 adds eight serial
+PREP clocks before the same one-pair transaction; offset 9 spans two words and
+requires two pairs. The measured passes preserve adjacent bits and produce one
+field response and one retirement. The CEN case holds CEN low through the final
+write ACK, field response/CPU capture and a sampling edge, then resumes with a
+single completion and no duplicate physical write. Exact traces and expected
+merges are in
+`/nobackup/tasks/jtcores-149/artifacts/field-feasibility/resident-short-e0883caa-qualified/REPORT.md`.
+These four resident cases do not qualify CD execution, the full field matrix,
+posted writes, HOLD restart or total TI timing.
+
+General flag and A15/B15 alias matrices, same-edge CF/CD changes, nonresident
+fetch timing and all wider instruction conditions remain unqualified. Current
+cache-disabled `nop_off` CD-fetch intervals are 22 vs 32 INCLK at BASE, 37 vs
+48 at W1P7, and 46 vs 56 at W3. Keep CD instruction totals red until this
+fetch deficit is fixed; a CD MOVB total would conflate fetch and field latency.
+ACK capture is demonstrated through one resident CEN pause case, while broader
+pause/HOLD conditions remain unqualified. The selected unchanged architectural vectors
 pass the Verilator adapter; the full 180-program regression remains pending.
 Current strict lint still reports the original pixel helper's UNOPTFLAT warnings
 under the installed Verilator; the frozen #141 source produces the same warning
@@ -142,27 +212,26 @@ must be included in the microcode schedule. One TI state is eight INCLK edges;
 NARC supplies the CPU with its 48 MHz clock. Cache/RF responses and physical bus
 events must be measured independently of retirement pulses.
 
-## First decisions
+## Next decisions
 
-1. Prove a real resident-cache NOP/ADD/MOVE/MOVK stream with eight input clocks
-   between instruction boundaries, using explicit YAML microsteps and a bounded,
-   side-effect-free cached-word lookahead. No speculative external miss traffic.
-2. Check dependent registers, both files/SP aliases, pauses and invalidation.
-   Run short Verilator diagnostics and measure the fitted complete CPU before
-   migrating more instructions. An initial planning budget is 3,000 mean ALMs;
-   exceeding it requires another architecture decision.
-3. Immediately prove maximum-count shifts/LMO, unaligned fields and posted
-   writes. The original serial operations cannot meet all published short
-   instruction counts just by changing delays. Any shared hardware replacement
-   needs its own measured area/STA comparison and microcoded schedule.
-4. Prove representative graphics and interrupted/resumed work before broad
-   condition expansion. Preserve all original functionality and the final
-   CI/NARC/MiSTer acceptance gates.
+1. Keep the 7,530-case result bound to its recorded image/oracle evidence, and
+   extend exact-Verilator comparison only with explicit case-by-case reports.
+   Do not count these selected positive matrices as full-family signoff.
+2. Continue field validation from segment events: extend alignment, pair
+   inventory, payload/preservation, response capture, posted-write and HOLD
+   cases while keeping the offset-0 control. Keep CD totals diagnostic until
+   `nop_off` fetch timing is corrected.
+3. Reassess shared resources against the 3,250 mean-ALM Stage B planning gate
+   before broad condition expansion. Timing adjustments remain in YAML; any
+   RTL work must add a justified generic functional/protocol capability.
+4. Preserve original functionality and the final CI/NARC/MiSTer acceptance
+   gates, including full architectural, lint and fitted timing checks.
 
 Long supported matrices run on DataStorm through its dedicated operator.
 Short diagnostics use Verilator. Use `/opt/quartus_free` and retain stable
-HPS/test infrastructure for incremental compilation. The old loaded #144 image
-and its passing scope do not qualify the new CPU.
+HPS/test infrastructure for incremental compilation. The loaded `e0883caa`
+image qualifies the recorded representative comparisons and selected cached
+matrices; complete family timing and the final acceptance gates remain open.
 
 Every milestone reports demonstrated timing scope, remaining conditions,
 original/previous/current area and speed, structural cost and next decision

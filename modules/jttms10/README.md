@@ -5,6 +5,8 @@ Instruction timing development has restarted under
 implementation. #144 is closed **unsolved**. Read the
 [restart status and design rules](docs/timing-restart.md): timing adjustments
 belong in YAML microcode, with measured resource and speed gates before expansion.
+The current loaded #149 image passed 7,530 selected cached scalar and shift/LMO
+cases across BASE, W1P7 and W3; full-family timing signoff remains open.
 
 Microcoded TMS34010 implementation for [jtcores issue 141](http://gitea.jotego.es/jotego/jtcores/issues/141).
 The complete NARC CPU boundary fits in **2,746 ALMs**, or **19.6%** of the
@@ -73,10 +75,10 @@ reference, requiring coverage of every recognized instruction encoding.
 Stack and trap assertions cover architectural results and physical
 MSW-first writes. RETI graphics resumption has separate focused tests.
 See [stack and unary ISA notes](docs/stack-isa.md).
-SLA/SLL/SRA/SRL/RL support both constant and register counts through a shared
-one-bit loop; [shift notes](docs/shifts.md) describe count encoding, flags,
-and the outstanding timing difference.
-SETF, SEXT/ZEXT, EXGF, BTST, and iterative LMO are also covered; see
+SLA/SLL/SRA/SRL/RL support both constant and register counts through shared
+bounded shift logic; [shift notes](docs/shifts.md) describe count encoding,
+flags, the YAML schedules and the remaining timing scope.
+SETF, SEXT/ZEXT, EXGF, BTST, and bounded LMO are also covered; see
 [scalar field and bit notes](docs/field-bits.md).
 
 The [standalone peripheral page](docs/peripherals.md) implements CPU-visible
