@@ -1264,33 +1264,19 @@ wire    IsALU16Opcode  =  (ALU16Opcode != ALUOP16_INVALID);
 function [23:0] ALU16Inst(input   [3:0] operation16, input   [15:0] a_arg, input   [15:0] b_arg, input   [7:0] cc_arg);
 reg     [7:0]    cc_out;
 reg     [15:0]   ALUFn;
-reg     carry1, carry2;
-reg     borrow;
+reg     [17:0]   sum18;
+reg     sub, cin;
 begin
     cc_out =  cc_arg;
     case (operation16)
-        ALUOP16_ADD:
+        ALUOP16_ADD, ALUOP16_ADC, ALUOP16_SUB, ALUOP16_SBC, ALUOP16_CMP:
         begin
-            {cc_out[CC_C_BIT], ALUFn} =  {1'b0, a_arg} + b_arg;
-            cc_out[CC_V_BIT]   =  (a_arg[15] & b_arg[15] & ~ALUFn[15]) | (~a_arg[15] & ~b_arg[15] & ALUFn[15]);
-        end
-
-        ALUOP16_SUB:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} =  {1'b0, a_arg} - {1'b0, b_arg};
-            cc_out[CC_V_BIT]   =  (a_arg[15] & ~b_arg[15] & ~ALUFn[15]) | (~a_arg[15] & b_arg[15] & ALUFn[15]);
-        end
-
-        ALUOP16_ADC:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} = {1'b0,a_arg} + {1'b0,b_arg} + cc_arg[CC_C_BIT];
-            cc_out[CC_V_BIT] = (~(a_arg[15] ^ b_arg[15])) & (ALUFn[15] ^ a_arg[15]);
-        end
-
-        ALUOP16_SBC:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} = {1'b0,a_arg} - {1'b0,b_arg} - cc_arg[CC_C_BIT];
-            cc_out[CC_V_BIT] = (a_arg[15] ^ b_arg[15]) & (ALUFn[15] ^ a_arg[15]);
+            sub = (operation16 == ALUOP16_SUB) || (operation16 == ALUOP16_SBC) || (operation16 == ALUOP16_CMP);
+            cin = sub ? !(operation16 == ALUOP16_SBC && cc_arg[CC_C_BIT]) : (operation16 == ALUOP16_ADC && cc_arg[CC_C_BIT]);
+            sum18 = {1'b0, a_arg, 1'b1} + {1'b0, (b_arg ^ {16{sub}}), cin};
+            ALUFn = sum18[16:1];
+            cc_out[CC_C_BIT] = sum18[17] ^ sub;
+            cc_out[CC_V_BIT] = ~(a_arg[15] ^ b_arg[15] ^ sub) & (a_arg[15] ^ ALUFn[15]);
         end
 
         ALUOP16_AND:
@@ -1321,12 +1307,6 @@ begin
         begin
             ALUFn  =  b_arg;
             cc_out[CC_V_BIT]   =  1'b0;
-        end
-
-        ALUOP16_CMP:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} =  {1'b0, a_arg} - {1'b0, b_arg};
-            cc_out[CC_V_BIT]   =  (a_arg[15] & ~b_arg[15] & ~ALUFn[15]) | (~a_arg[15] & b_arg[15] & ALUFn[15]);
         end
 
         ALUOP16_LEA:
