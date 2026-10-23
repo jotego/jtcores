@@ -131,6 +131,7 @@ jtkiwi_gfx #(
     .vdump      ( vdump_adj ),
     .vrender    ( vrender   ),
     .hdump      ( hdump     ),
+    .obj_hshift ( 9'd0      ),
 
     .cpu_rnw    ( cpu_rnw   ),
     .cpu_dsn    ( cpu_dsn   ),
