@@ -7,8 +7,11 @@
  * Setting the run bit interrupts the DSP and halts the host. The DSP points a
  * window at host RAM through port 0 and reads or writes it through port 1.
  * A zero written to work RAM word 0 or 1 arms the release, and a zero written
- * to port 3 then lets the host run again. TWINCOBR selects the 68000 decode;
- * only the Wardner decode has been tested.
+ * to port 3 then lets the host run again.
+ *
+ * TWINCOBR follows the Kyukyoku Tiger schematics: the DSP runs freely, port 3
+ * bit 15 requests the 68000 bus, BIO reads low until it is granted and host
+ * accesses only happen while it is held.
  */
 module jttoaplan1_dsp #(parameter TWINCOBR=0) (
     input             rst,
@@ -17,6 +20,8 @@ module jttoaplan1_dsp #(parameter TWINCOBR=0) (
 
     input             dsp_on,
     output reg        halt_main,
+    output reg        bus_req,
+    input             bus_ack,
 
     output     [13:1] host_addr,
     output reg [ 1:0] host_sel,
@@ -58,13 +63,14 @@ always @* begin
 end
 
 // the port strobes hold while the DSP is frozen, so they are gated the same way
-wire dsp_step = cen & dsp_on;
+wire dsp_step = cen & (TWINCOBR ? 1'b1 : dsp_on);
+wire host_ok  = TWINCOBR ? bus_ack : 1'b1;
 wire exec_hit = (host_sel == SEL_WORK) && (addr_l[12:1] == 12'd0) && (pdout == 16'd0);
 
 assign host_addr = addr_l;
 assign host_dout = pdout;
-assign host_we   = dsp_step & pwr & (pa == 3'd1) & (host_sel != SEL_NONE);
-assign pdin      = (pa == 3'd1 && host_sel != SEL_NONE) ? host_din : 16'd0;
+assign host_we   = dsp_step & pwr & (pa == 3'd1) & (host_sel != SEL_NONE) & host_ok;
+assign pdin      = (pa == 3'd1 && host_sel != SEL_NONE && host_ok) ? host_din : 16'd0;
 
 // INT_n is a short pulse on each rise of the run bit: IKA32010 samples it on
 // the DSP's clock enable, so a level would still be low when the next
@@ -79,6 +85,7 @@ always @(posedge clk) begin
         bio       <= 1'b0;
         execute   <= 1'b0;
         halt_main <= 1'b0;
+        bus_req   <= 1'b0;
         on_l      <= 1'b0;
         int_cnt   <= 4'd0;
     end else begin
@@ -86,7 +93,7 @@ always @(posedge clk) begin
 
         if( on_rise ) begin
             int_cnt   <= 4'd8;
-            halt_main <= 1'b1;
+            halt_main <= !TWINCOBR;
         end else if( dsp_step && int_cnt != 4'd0 ) begin
             int_cnt   <= int_cnt - 4'd1;
         end
@@ -102,6 +109,7 @@ always @(posedge clk) begin
                     if( exec_hit ) execute <= 1'b1;
                 end
                 3'd3: begin
+                    bus_req <= pdout[15];
                     if( pdout[15] ) bio <= 1'b0;
                     if( pdout == 16'd0 ) begin
                         if( execute ) begin
@@ -122,9 +130,9 @@ jtframe_tms32010 u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
-    .hold       ( ~dsp_on   ),
+    .hold       ( TWINCOBR ? 1'b0 : ~dsp_on ),
     .int_n      ( int_n     ),
-    .bio_n      ( ~bio      ),
+    .bio_n      ( TWINCOBR ? bus_ack : ~bio ),
     .rom_addr   ( rom_addr  ),
     .rom_data   ( rom_data  ),
     .port       ( pa        ),

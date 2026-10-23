@@ -32,6 +32,10 @@
 `define JTFRAME_MR_DDR
 `endif
 
+`ifdef JTFRAME_MR_GAME_DDR
+`define JTFRAME_MR_DDR
+`endif
+
 module emu
 (
     //Master input clock
@@ -441,6 +445,13 @@ wire [`JTFRAME_LF_VW-1:0] game_vrender, ln_v;
 wire        ln_done, ln_hs, ln_vs, ln_lvbl, ln_we, fb_keep;
 wire [15:0] ln_dout, ln_pxl, ln_data;
 
+`ifdef JTFRAME_MR_GAME_DDR
+wire [ 7:0] game_ddr_burstcnt, game_ddr_be;
+wire [28:0] game_ddr_addr;
+wire        game_ddr_rd, game_ddr_we, game_ddr_busy, game_ddr_dout_ready;
+wire [63:0] game_ddr_din, game_ddr_dout;
+`endif
+
 jtframe_mister #(
     .SDRAMW         ( SDRAMW         ),
     .BUTTONS        (`JTFRAME_BUTTONS),
@@ -504,6 +515,17 @@ u_frame(
 `ifdef JTFRAME_LF_ZOOM
     .game_h_step    ( game_h_step    ),
     .game_v_step    ( game_v_step    ),
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .game_ddr_burstcnt  ( game_ddr_burstcnt   ),
+    .game_ddr_addr      ( game_ddr_addr       ),
+    .game_ddr_rd        ( game_ddr_rd         ),
+    .game_ddr_we        ( game_ddr_we         ),
+    .game_ddr_be        ( game_ddr_be         ),
+    .game_ddr_din       ( game_ddr_din        ),
+    .game_ddr_busy      ( game_ddr_busy       ),
+    .game_ddr_dout      ( game_ddr_dout       ),
+    .game_ddr_dout_ready( game_ddr_dout_ready ),
 `endif
 
     `ifdef JTFRAME_VERTICAL

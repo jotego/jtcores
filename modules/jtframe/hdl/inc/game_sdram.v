@@ -295,6 +295,17 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .st_addr      ( st_addr        ),
     .st_dout      ( st_dout        ),
 `endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .ddr_burstcnt  ( ddr_burstcnt   ),
+    .ddr_addr      ( ddr_addr       ),
+    .ddr_rd        ( ddr_rd         ),
+    .ddr_we        ( ddr_we         ),
+    .ddr_be        ( ddr_be         ),
+    .ddr_din       ( ddr_din        ),
+    .ddr_busy      ( ddr_busy       ),
+    .ddr_dout      ( ddr_dout       ),
+    .ddr_dout_ready( ddr_dout_ready ),
+`endif
 `ifdef JTFRAME_LF_BUFFER
     .game_vrender( game_vrender  ),
     .game_hdump  ( game_hdump    ),
@@ -513,6 +524,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_addr  ( {{.Addr}} ),{{else}}
     {{- if eq .Data_width 32 }}
     .slot{{$index2}}_addr  ( { {{.Name}}_addr, 1'b0 } ),
+    {{- else if eq .Data_width 64 }}
+    .slot{{$index2}}_addr  ( { {{.Name}}_addr, 2'b0 } ),
     {{- else }}
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}

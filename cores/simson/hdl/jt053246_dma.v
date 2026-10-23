@@ -46,7 +46,7 @@ assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 assign hs_pos  = hs & ~hsl;
 
 assign sort_673 = dma_data[7:0]^{8{K55673_DESC_SORT[0]}};
-assign sort_24x ={ ~k44_en & dma_data[7], k44_en ? dma_data[6:0] : ~dma_data[6:0]};
+assign sort_24x = k44_en ? {1'b0, dma_data[6:0]} : ~dma_data[7:0];
 
 // DMA logic
 always @(posedge clk, posedge rst) begin

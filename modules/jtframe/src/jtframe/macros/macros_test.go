@@ -3,6 +3,7 @@ package macros
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -263,5 +264,36 @@ func Test_check_macros_rejects_sdram_xl_ba_start(t *testing.T) {
 	})
 	if err := CheckMacros(); err == nil {
 		t.Fatal("Expected JTFRAME_SDRAM_XL with JTFRAME_BA1_START to be rejected")
+	}
+}
+
+func Test_check_macros_game_ddr_mister(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":              "mister",
+		"JTFRAME_MR_GAME_DDR": "1",
+		"JTFRAME_LF_HW":       "9",
+		"JTFRAME_LF_VW":       "9",
+		"JTFRAME_WIDTH":       "512",
+		"JTFRAME_HEIGHT":      "400",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected JTFRAME_MR_GAME_DDR on MiSTer to be accepted: %v", err)
+	}
+}
+
+func Test_check_macros_game_ddr_conflicts(t *testing.T) {
+	for _, name := range []string{"JTFRAME_VERTICAL", "JTFRAME_LF_BUFFER", "JTFRAME_MR_DDRLOAD"} {
+		MakeFromMap(map[string]string{
+			"TARGET":              "mister",
+			"JTFRAME_MR_GAME_DDR": "1",
+			"JTFRAME_LF_HW":       "9",
+			"JTFRAME_LF_VW":       "9",
+			"JTFRAME_WIDTH":       "512",
+			"JTFRAME_HEIGHT":      "400",
+			name:                  "1",
+		})
+		if err := CheckMacros(); err == nil || !strings.Contains(err.Error(), "JTFRAME_MR_GAME_DDR") {
+			t.Fatalf("Expected JTFRAME_MR_GAME_DDR with %s to be rejected", name)
+		}
 	}
 }

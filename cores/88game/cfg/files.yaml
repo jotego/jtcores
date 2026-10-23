@@ -4,7 +4,6 @@
 ajax:
   - get:
     - jt051316.v
-    - jtk051316_mmr.v
 aliens:
   - get:
     - jtaliens_scroll.v
