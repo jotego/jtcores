@@ -27,16 +27,16 @@ bash modules/jtframe/ver/cpu/run_jt680x_timing_assessment.sh
 
 It sources `setprj.sh`, runs all five independent simunits, checks MC6801 and
 HD6301 result/timing/vector negative controls plus strict-spec positive runs,
-then runs the MC6805 inventory/timing/result/vector negative controls. To also print and return the known
-strict HMOS timing failure, use:
+then runs the MC6805 inventory/timing/result/vector negative controls. The
+optional strict HMOS mode compares all 237 measured MC6805 instruction
+intervals with the selected P3 HMOS oracle; the current implementation passes
+all 237 outcomes:
 
 ```sh
 bash modules/jtframe/ver/cpu/run_jt680x_timing_assessment.sh --strict-hmos
 ```
 
-The strict mode exits nonzero because the MC6805/68705 implementation differs
-from the selected HMOS timing oracle. That is a fidelity result, not a failure
-of the default test harness. The profile-specific instructions are in the
+The profile-specific instructions are in the
 [MC6801](../../jtframe/ver/cpu/jt6801_timing/README.md),
 [HD6301](../../jtframe/ver/cpu/jt6301_timing/README.md),
 [MC6805](../../jtframe/ver/cpu/jt6805_timing/README.md),
@@ -61,12 +61,13 @@ selected Rockwell target expectations or its strict zero-finding result.
 There is no WDC-targeted RTL run in the current suite; `--strict-wdc` is
 rejected so it cannot silently run the Rockwell oracle under a WDC label.
 
-The final default five-suite run is preserved at
+An earlier, superseded five-suite snapshot is preserved at
 `tasks/jtcores-151/artifacts/aggregate-final2.log` (SHA-256
-`f94281ea338de99eeb3c0f2515f0663335bab942b99f71ccdc9353ee52cf1c92`). The
-separate strict-HMOS run reports 215/237 timing deviations across 185
-encodings in `tasks/jtcores-151/artifacts/6805-strict-hmos-final.log`; strict
-WDC reports 149 findings in `tasks/jtcores-151/artifacts/65c02-strict-final.log`.
+`f94281ea338de99eeb3c0f2515f0663335bab942b99f71ccdc9353ee52cf1c92`). Its
+strict-HMOS log records the pre-repair result (215/237 timing deviations across
+185 encodings) and is superseded by the current 237/237 pass. Its WDC log
+records 149 historical comparison observations; it is not a current strict
+target run.
 The A-profile reproduction log and source/evidence hashes are listed in
 `tasks/jtcores-151/artifacts/6801-6301-SHA256SUMS`.
 
