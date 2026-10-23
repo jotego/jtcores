@@ -1557,6 +1557,7 @@ reg     [4:0] ALU_OP;
 function [15:0] ALUInst(input   [4:0] operation, input   [7:0] a_arg, input   [7:0] b_arg, input   [7:0] cc_arg);
 reg     [7:0]    cc_out;
 reg     [7:0]    ALUFn;
+reg     [9:0]    wide;
 reg     borrow;
 begin
     cc_out =  cc_arg;
@@ -1647,7 +1648,8 @@ begin
 
         ALUOP_ADC:
         begin
-            {cc_out[CC_C_BIT], ALUFn[7:0]} =  {1'b0, a_arg} + {1'b0, b_arg} + {8'd0,cc_arg[CC_C_BIT]};
+            wide = {1'b0, a_arg, 1'b1} + {1'b0, b_arg, cc_arg[CC_C_BIT]};
+            {cc_out[CC_C_BIT], ALUFn[7:0]} = wide[9:1];
             cc_out[CC_V_BIT]   =  (a_arg[7] & b_arg[7] & ~ALUFn[7]) | (~a_arg[7] & ~b_arg[7] & ALUFn[7]);
             cc_out[CC_H_BIT]   =  a_arg[4] ^ b_arg[4] ^ ALUFn[4];
         end
@@ -1685,7 +1687,8 @@ begin
 
         ALUOP_SBC:
         begin
-            {cc_out[CC_C_BIT], ALUFn[7:0]} = {1'b0, a_arg} - {1'b0, b_arg} - {8'd0,cc_arg[CC_C_BIT]};
+            wide = {1'b0, a_arg, 1'b0} - {1'b0, b_arg, cc_arg[CC_C_BIT]};
+            {cc_out[CC_C_BIT], ALUFn[7:0]} = wide[9:1];
             cc_out[CC_V_BIT]   =   (a_arg[7] & ~b_arg[7] & ~ALUFn[7]) | (~a_arg[7] & b_arg[7] & ALUFn[7]);
         end
 
