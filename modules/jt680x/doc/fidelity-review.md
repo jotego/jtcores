@@ -88,7 +88,7 @@ bus schedules.
 |---|---|---|
 | MC6801/MC6803; Motorola MC6801 reference | All 220 documented opcode bytes; 745 timing assertions and 1,256 runtime dispatches; 218 generic directed cases (a separate counter from unique opcode-byte coverage); 256 relative-branch cases across all N/Z/V/C pre-states; reset, vectors, effects, stack-wrap, CEN pause and interrupt priority | WAI has a 9E no-interrupt hold; directed IRQ/NMI wake cases verify the single pre-stacked frame including exact PC/X/A/B bytes and CCR (`$E6` IRQ, `$F6` NMI), RTI restoration of distinct A/B/X and all CCR flags before the mainline overwrites A, masked IRQ behavior while I=1, and stable state/bus during WAI and service CEN pauses. Its CC_RMUX value is loaded into ALU operand 0 before `md_ld`, fixing the stale-ALU stacked CCR. The pre-edge interrupt-entry U=`C70` to pre-edge first-handler-opcode U=`860` interval measures 48 CEN edges (12 E), matching the MC6801 manual. ICF/OCF/TOF/IRQ vectors and priority are covered; simultaneous eligible IRQ+NMI at an unmasked NI boundary selects NMI. A one-CEN NMI pulse is recognized while I=1 and the interrupt return resumes through CLI; the fixture does not claim storage of the pulse until CLI. |
 | HD6301 family; V0 timing, Y0 vector additions | All 230 V0 opcode bytes; 766 timing assertions and 1,314 runtime dispatches; 233 generic directed cases (a separate counter from unique opcode-byte coverage); 256 branch cases; arithmetic, memory, bit operations, DAA/MUL/XGDX/SLP, vectors, stack-wrap and CEN pause | WAI has a 9E no-interrupt hold and directed IRQ/NMI wake with a single pre-stacked frame including exact PC/X/A/B bytes and CCR (`$E6` IRQ, `$F6` NMI), RTI restoration of distinct A/B/X and all CCR flags before the mainline overwrites A, masked IRQ behavior while I=1, and stable state/bus during WAI and service CEN pauses. Its CC_RMUX value is loaded into ALU operand 0 before `md_ld`, fixing the stale-ALU stacked CCR. SLP advances PC once, holds PC/SP without an interrupt, vectors on IRQ/NMI and resumes after RTI, and releases on a masked IRQ without vectoring or stacking. PULA/PULB/PULX/DAA/XGDX/MUL throughput landmarks match their special table counts. The observed public bus schedule omits documented `$FFFF` restart-LSB reads, and MUL's next-opcode prefetch occurs at the end of its sequence; this is a documented Table 13 schedule difference outside the supported wrapper contract. Required checks remain throughput cycle counts and architectural register/memory effects. The SLP sleep interval is not assigned a cycle result because its observed wait/exit sequence does not expose the manual's timing boundary. The pre-edge interrupt-entry U=`C70` to pre-edge first-handler-opcode U=`860` interval measures 48 CEN edges (12 E), matching the HD63701Y0 figure; IRQ/ICF/OCF/TOF/SCI/CMI/IRQ2 selections are exercised, and simultaneous eligible IRQ+NMI selects NMI. A one-CEN NMI pulse recognized while I=1 returns through CLI; no retention-until-CLI claim is made. |
-| MC6805/68705; HMOS 11-bit P3 timing target | 207 HMOS forms; 237 instruction intervals including alternate branch outcomes; 169 explicit effect assertions plus three focused address probes; all conditional and bit-branch taken/not-taken destinations | 22 cases match both HMOS and CMOS columns; 215 cases match CMOS and differ from HMOS, across 185 encodings. No case matches neither; observer/fixture failures are zero. Independent P3 checks find 8 stacked-PC-high-byte differences, 3 stacked-CCR differences, one legal stack-wrap difference, and one missing latched masked-IRQ request. IRQ/TIRQ service is 44 CEN edges (11 E) each and simultaneous priority is correct. Three added non-timing effects confirm IX1 carry, IX2 high-offset reads, and public `$0800` aliasing to physical `$0000`, using distinct poison bytes. Exact deployed part is not proven for all wrapper users; P3 stack claims are not generalized to P5. |
+| MC6805/68705; P3 HMOS timing target with audited P3/P5 user profiles | 207 HMOS forms; 237 instruction intervals including alternate branch outcomes; 169 explicit effect assertions plus three focused address probes; both outcomes of conditional and bit branches; stack-frame, wrap, masked IRQ, and service fixtures | All 237 outcomes match the independent HMOS manual oracle (22 also match CMOS); zero timing deviations and observer/fixture failures. The 11-bit stack frame and `$60–$7F` stack format are independently supported by the P3 and P5 sheets. IRQ/TIRQ service is 44 CEN edges (11 E) each; simultaneous priority, first-eligible masked request acceptance, CLI/SEI completion behavior, and pulse/rearm cases pass. Three non-timing effects confirm IX1 carry, IX2 high-offset reads, and public `$0800` aliasing to physical `$0000`, with distinct poison bytes. The timing result is specifically the P3 HMOS profile; it does not establish P5 timing equivalence or exact part identity for every wrapper user. |
 | Original Rockwell R65C02 target | All 210 documented opcode encodings; 420 timing/path cases, 46 reserved-opcode NOP effect/progress checks, and five status/control gates. Branch coverage includes forward/backward same-page taken paths, both page-cross directions, BRA, conditional branches, BBR/BBS, and not-taken conditions. Decimal, indexed, indirect-JMP `$XXFF`, reset/IRQ/NMI/BRK/RTI, public writes and CEN behavior are also directed. | Strict Rockwell run passes with zero timing discrepancies and zero semantic/bus errors. The 46 reserved timings are unspecified by the source and are excluded from timing comparison. Absolute-X RMW is checked at seven cycles with two target reads and one write; `$XXFF` JMP adds its documented cycle. The suite is finite directed coverage, not exhaustive operand or pin-phase proof. |
 | Historical WDC W65C02S comparison | The selected 210-opcode profile compared with 212 named WDC forms; prior 393-path comparison snapshot included decimal, indexed crossings, branches, status, reset/interrupt and CEN cases. | The historical inventory retains 149 WDC-relative observations (145 timing plus IRQ B, NMI B, stacked IRQ D, and RTI-restored D). It is not the current target oracle. WAI `$CB` and STP `$DB` are absent from the selected original-Rockwell profile. |
 | DECO222 local profile | 512 opcode-remap comparisons and 19 runtime cases, including decrypted IRQ/NMI handler paths. | The local opcode permutation, opcode/data separation, public bus behavior, extra NOP forms, and encrypted IRQ/NMI paths pass. No original DECO silicon manual or exact vendor part is identified, so extra-NOP timing is checked against local YAML, not claimed as a silicon timing pass. |
@@ -135,13 +135,22 @@ reproduction of the annotated filler-read or prefetch sequence.
 **MC6805/68705.** Motorola, [*M6805 User's Manual*](https://bitsavers.org/components/motorola/6805/6805_Users_Manual_2ed_1983.pdf), second edition (1983),
 instruction-specific timing chapter, cycle tables, Appendix F, and Appendix
 G2; original scan SHA-256
-`f80b78c56a84a4097de597d272828e81322d5b045a3b7aed224daecb7d81f801`. The
-11-bit P3 target is supported by the exact MC68705P3 sheet, including its
-printed p. 3-572 (PDF p. 5) stack figure and description; SHA-256
-`df1625d1419ce38be5c35b276699c5428beec90d5b3ab84f2439fe7df05950b2`. P3
-sets the physical stack prefix to `$60`–`$7F`, stacked CCR high bits to ones,
-and unused stacked PC high bits to ones. Those are P3-specific architectural
-expectations.
+`f80b78c56a84a4097de597d272828e81322d5b045a3b7aed224daecb7d81f801`. The selected 11-bit P3 timing target is anchored by the exact MC68705P3 sheet, SHA-256
+`df1625d1419ce38be5c35b276699c5428beec90d5b3ab84f2439fe7df05950b2`. The
+P3 sheet shows the `$60`–`$7F` physical stack range and fixed stacked CCR/PCH
+bits. The P5 sheet, SHA-256
+`a294850e0b7b396e3b6bf7b10d45236ed7d2510c809347f12457e797406c2cad`,
+independently shows the same 11-bit PC and stack/frame format (Figure 5 and
+stack description, printed pp. 3-855–856). These common frame properties are
+supported by both parts; P3 timing claims below remain P3-specific.
+
+The per-user audit found P5S for Fairy Land Story and Slap Fight, P5 for Get
+Star, and a P3-compatible MCU on Tiger-Heli A47_14. In Kunio, `renegade.cpp`
+labels Renegade's MCU ROM P5 and the original Kuniokun MCU ROM P3; the
+Renegadeb no-MCU bootleg is a separate configuration. The Bubl wrapper path
+uses Tokio's P5 MCU; Bubble Bobble's original MC6801 path is separate. The
+wrapper's default `ROMW=11` and P5 `pc_in` comment do not establish a single
+part for all users.
 
 The independently transcribed timing inventory has 209 documented encodings:
 207 HMOS and two CMOS-only STOP/WAIT extensions. Appendix F conflicts with
@@ -153,8 +162,11 @@ Appendix F's 5/5 (p. 231). G2 does not list CC extended JMP or CE extended LDX;
 their chosen expectations are from their instruction entries only. The
 observer spans accepted opcode `ni` edges, checks public PC plus the
 synchronous-RAM-latched opcode, and calibrates three warmed NOP intervals to
-four enabled CEN edges per E. The independent review reproduced all 237
-endpoints without fractional or ambiguous intervals.
+four enabled CEN edges per E. All 237 runtime outcomes now match the original
+P3 HMOS counts, with no fractional or ambiguous intervals. The old result at
+source revision `35dbb7636` (22 HMOS matches and 215 CMOS-only observations) is
+retained only as historical context; `known_observations.mem` is not an
+acceptance oracle.
 
 The RTS (`$81`) return-effect fixture starts at P3 SP `$7D` and reads the
 frame at `$7E`–`$7F`, within the part's documented `$60`–`$7F` physical stack
@@ -241,10 +253,10 @@ queries, source snapshots, and commit references.
 
 ## Remaining limits
 
-The exact deployed MC6805 part is not identified for every wrapper user, P5
-stack-specific rules were not inferred from P3. The selected 65C02 target is
-the original Rockwell R65C02, but the finite suite does not prove every
-operand combination or all pin/bus phases. Reserved-opcode timing is
+The exact deployed MC6805 part is not identical across every wrapper user.
+P3 timing equivalence is not established for P5; the frame properties used by
+the shared implementation are backed by both part sheets. The finite suite
+does not prove every operand combination or all pin/bus phases. Reserved-opcode timing is
 unspecified by the Rockwell source; WAI/STP are not implemented as modern
 extensions in this profile. The HD special-operation bus-schedule difference is recorded
 as outside the supported wrapper contract; throughput counts and architectural
@@ -260,9 +272,10 @@ The main reviewed fixture/oracle fingerprints are:
 |---|---|
 | `jt6801_timing/test.v` | `509eb810d75f2b694717f6c2753ba8ffcd060b928506e5dcef1e1bd3c2a75cd7` |
 | `jt6301_timing/test.v` | `a3c9602b3982e7fc166d3ca2daef8abd06a71a722d2fdcc0a44f9228ae624359` |
-| `jt6805_timing/test.v` | `f8e964f0917d0bd470b5148351fab2c61218040d41b02a8a6468e168d824b663` |
+| `jt6805_timing/test.v` | `ee59b72c971131007e9a5c5531e5a7e910e93b42efafb35defc9ac2d7e255864` |
+| `jt680x/ucode/6805.yaml` | `6d5fd4890a4fbade24bb8ff7b6dd13e45adcc278e3b051ac7a18210e4cc2eedd` |
 | `jt6805_timing/manual_inventory.py` | `de5b8d7c9933625ef4deb86d93cdb6aab2d23f6706af4c272299fb89e4aa1f28` |
-| `jt6805_timing/known_observations.mem` | `8a75eeb68be54beb6d1bd1b643dd93e30deaebe3c6bdc0442190a6f5efba19a0` |
+| `jt6805_timing/known_observations.mem` | `8a75eeb68be54beb6d1bd1b643dd93e30deaebe3c6bdc0442190a6f5efba19a0` (historical diagnostic, unused by gates) |
 | `jt65c02_timing/test.v` | `860941c3e059deb535236fbc040aa8122091dad622cf9b2ffb3c99cc225ef88d` |
 | `jt65c02_timing/rockwell_oracle.py` | `352f1111ab01e834101d6f9bc8651b265c47dd7e0cbed088548813daf487fca9` |
 | `jt65c02_timing/canonical_rockwell.csv` | `0611228c370c01b9f18a9b11a8b8ece443ac0e5c2cdf4420353a48f9ece2f5e8` |

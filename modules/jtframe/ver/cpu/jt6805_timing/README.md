@@ -20,6 +20,13 @@ Appendix G2 identify P3 as an 11-bit-PC HMOS MCU and say HMOS parts do not
 implement STOP or WAIT. Those instructions are retained as CMOS-only
 extensions and are not included in the 207-instruction HMOS matrix.
 
+The deployed-part audit shows multiple profiles behind this wrapper: Fairy
+Land Story uses P5S; Slap-family records identify Tiger-Heli A47_14 as
+P3-compatible, Slap Fight A77_13 as P5S, and Get Star A68_14 as P5. In Kunio,
+Renegade is P5 while original Kuniokun is P3; Renegadeb removes the MCU. The
+Bubl wrapper route for Tokio uses P5, while Bubble Bobble's original MC6801
+path is separate. ROMW=11 does not identify one part for every user.
+
 The independent encoding/timing inventory is transcribed in
 `manual_inventory.py` from the manual's instruction tables and cycle-by-cycle
 summary. It is reconciled against, but never generated from, JT6805 YAML.
@@ -33,11 +40,12 @@ not list CC JMP extended or CE LDX extended, so those rows rely on the
 instruction-specific table rather than claiming G2 confirmation.
 
 `manual_cases.hex` and `oracle.csv` contain source-derived HMOS/CMOS
-expectations. `known_observations.mem` is a separate baseline of measured
-opcode/path intervals for default-regression stability; it is not a hardware
-oracle and does not convert an observed deviation into a manual match. Each of
-the 237 measured opcode/path/cycle tuples must match this exact baseline. The
-strict HMOS script independently compares every interval to the manual.
+expectations. The runtime gate checks all 237 measured opcode/path outcomes
+against the manual HMOS counts and also requires integral four-CEN-per-E
+intervals. `known_observations.mem` remains an untouched historical diagnostic
+from the earlier implementation; it is not read by the inventory checker or
+timing simulation. `strict_hmos.py` independently checks the generated runtime
+results against the same manually transcribed HMOS inventory.
 
 The timing boundary is opcode acceptance at an enabled edge where the internal
 `ni` control is asserted and the latched opcode in `md` matches the test case.
@@ -82,37 +90,48 @@ error. The service sequence records five stack writes plus vector fetch, then
 verifies RTI restores S and I.
 
 One simultaneous pending-request case confirms the manual's IRQ-before-TIRQ
-priority and that TIRQ remains pending through IRQ service and RTI. A separate
-four-enabled-edge asserted IRQ pulse during a NOP while I is verified set on
-every pulse edge is released before CLI. The manual says requests are latched
-until I clears (printed pp.15, 79), but this DUT does not vector afterward.
-The generic test input uses asserted-high logical IRQ; the physical HMOS pin
-is active-low and edge-triggered per the manual. The fixture explicitly waits
-for CLI to clear I before checking the pending vector.
+priority and that TIRQ remains pending through IRQ service and RTI. Separate
+masked external IRQ tests release a qualifying pulse before CLI and RTI each
+clear I, then require service at the first eligible boundary. For CLI, the
+final I-clear micro-op shares its NI completion edge; a pending request is
+accepted there and returns to the byte after CLI. RTI restores I before its
+final NI boundary. Both fixtures check the full 13-bit return PC at that first
+boundary and the stacked return PCL. The mask check uses the I value written
+on the completion edge: CLI exposes the request as I clears, while SEI keeps it
+masked as I sets. A SEI→NOP→CLI fixture checks that a request remains pending
+through SEI and is accepted on CLI completion. The P5 datasheet
+specifies a synchronized falling-edge-latched INT input and both pulse widths
+`tWL` and `tWH` at least `tcyc + 250 ns` (printed pp. 3-853, 3-861). It says
+the opposite level is required to rearm the input (printed p. 3-862). Four
+CEN edges equal one normalized E cycle here. Masked CLI and RTI tests use 2E
+and 3E asserted pulses; the reset/rearm test uses both a 2E inactive interval
+and 2E asserted pulse. At the P5 maximum oscillator rate of 4.2 MHz, the
+datasheet minimum `tcyc` is 0.950 us, so 2E is about 1.90 us and exceeds
+`tcyc + 250 ns` (about 1.20 us). The testbench clock runs faster than legal
+part clocks, so these durations are normalized E-cycle checks, not literal
+nanosecond simulation. The generic test input uses asserted-high logical IRQ,
+so its rising edge represents the physical active-low INT falling edge. The
+raw input remains available to IRQ polling instructions; only interrupt
+arbitration uses the retained edge request.
 
-The remaining architectural finding is the stacked PC high byte. For the
-selected 11-bit P3 profile, the manual says unused high-PC bits are stacked as
-ones (for example, PC `$0202` becomes `$FA`); the DUT writes `$02`. This is
-observed for SWI, five JSR encodings, IRQ, and TIRQ. The generic CPU has a
-13-bit visible address, but the MCU wrapper only truncates the ROM address;
-that does not change the stacked byte. JSR tests capture writes at the
-pre-NBA RAM acceptance edge in the P3 stack area `$60`–`$7F`. The exact P3
-sheet specifies reset SP `$7F` and a 31-byte maximum stack; out-of-range wrap
-states are not treated as normative part behavior. The P3 sheet also fixes
-stacked CCR bits 7:5 to ones: SWI should stack E8 for these reset flags and
-IRQ/TIRQ E0 after CLI, but the DUT stacks 08 and 00. A directed legal-boundary
-wrap probe starts at P3 SP=$60; the manual expects the next push at $7F, while
-the DUT writes at $5F. These P3-specific PCH, CCR and wrap findings are
-separate from timing and harness status and should not be generalized to P5
-without matching part-specific documentation.
+The architectural frame follows the P3 and P5 11-bit profiles supported by
+the current `jtframe_6805mcu` users. Both sheets show a 5-bit stack address
+with six fixed high SP bits, reset SP `$07F`, a `$60`–`$7F` stack area, and
+PCH/CCR frame bytes whose unused high bits are ones (P3 printed pp. 3-571–572;
+P5 Figure 5 printed p. 3-855 and SP description p. 3-856). The controller now
+keeps the architectural PC at 11 bits, maps SP through `$60`–`$7F`, writes
+`$FA` for return PC `$0202`, and writes CCR `$E8` for SWI or `$E0` for IRQ/TIRQ
+with the tested flags. Pulls mask the stacked format bits and restore the
+target-valid PC. The generic 13-bit public bus remains zero-extended for PC
+addresses; 13-bit effective data addresses remain available for wrapper alias
+tests.
 
-The legal wrap fixture poisons both `$7F` and `$5F`. Correct P3 behavior is
-PCL `$03` at `$60`, PCH `$FA` at `$7F`, no write at `$5F`, and internal S `$3E`
-(physical SP `$7E`). Default regression accepts only the exact current-core
-tuple—PCH `$02` at `$5F`, untouched `$7F` poison, and S `$1E`—as a known
-failure. Other tuples fail. Stack tests likewise check PCL, X, A, and low CCR
-bits against the manual; only the observed PCH and stacked-CCR high-bit values
-are separately retained as known P3 findings.
+Directed frame checks cover SWI, all five JSR forms, IRQ and TIRQ, including
+PCH/CCR bytes. Separate JSR/RTS and IRQ/RTI probes start at stack address
+`$60`: they verify pushes wrap from `$60` to `$7F`, pulls return across the
+same boundary, poison at `$5F` is untouched, and PC/SP are restored exactly.
+The P3 and P5 manuals independently show the same frame layout and stack
+prefix, so this behavior is shared only across those audited profiles.
 
 The matrix's 237 cases contain all 207 documented HMOS forms and both
 outcomes for every BRSET/BRCLR and conditional relative branch. All branch
@@ -131,24 +150,19 @@ latency is deliberately not assigned a cycle oracle here. STOP and WAIT are
 classified as CMOS-only extensions, outside the P3 timing matrix; their halt
 behavior is not dynamically exercised in this P3-focused suite.
 
-The RTS (`$81`) effect fixture starts at P3 SP `$7D` and reads its return
-address from physical `$7E`–`$7F`, within the exact-part sheet's documented
-`$60`–`$7F` stack range.
-
-The final result is 22 HMOS timing matches, including 22 also matching CMOS,
-and 215 CMOS-only timing matches that deviate from HMOS across 185 distinct
-encodings. All 237 intervals are integral in the independently calibrated
-four-CEN-per-E observer; no row matches neither source column, and there are
-zero observer/fixture failures. These DUT/reference deviations are the
-assessment result, not a failing default simunit regression. Run
-`python3 modules/jtframe/ver/cpu/jt6805_timing/strict_hmos.py` after simulation
-for the strict fidelity gate; it exits nonzero and lists the measured
-deviations. The suite separately rejects malformed/incomplete inventory, a
+The current source-derived result is 237 of 237 HMOS timing outcomes,
+including 22 that also match the CMOS column. All intervals are integral in
+the independently calibrated four-CEN-per-E observer; no outcome matches
+neither source column, and there are zero observer or fixture failures. The
+default simunit therefore enforces strict HMOS timing for the audited P3
+profile. The old report at source revision `35dbb7636` recorded 22 HMOS matches
+and 215 CMOS-only observations; that report is retained as historical context,
+not as a passing timing oracle. `known_observations.mem` is not used by tests. The suite separately rejects malformed/incomplete inventory, a
 retimed NOP oracle, a changed immediate operand, a swapped indexed effective
-and poison address, and a corrupted IRQ vector.
-It also rejects changes to the measured timing baseline, service interval,
-interrupt priority, masked-pulse state, or any stack-frame value outside the
-manual result and the explicit reviewed P3 findings.
+and poison address, a corrupted IRQ vector, removal of IRQ edge capture, and
+acceptance delayed past the first eligible boundary. It also rejects changes
+to the measured timing baseline, service interval, interrupt priority,
+masked-pulse state, and P3/P5 stack-frame values.
 
 After the simunit build, run the deliberate empty/truncated/duplicate/malformed
 inventory and altered-NOP-timing checks with:

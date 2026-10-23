@@ -11,11 +11,9 @@ integer case_writes=0, write_edges=0, effects_checked=0;
 integer address_effect_cases=0;
 integer hmos_match=0, cmos_match=0, both_match=0, cmos_only=0;
 integer neither_match=0, failures=0;
-integer service_timing_deviations=0, pch_deviations=0, cc_high_deviations=0;
-integer stack_wrap_deviations=0, pending_irq_deviations=0, priority_deviations=0;
+integer service_timing_deviations=0, pending_irq_deviations=0, priority_deviations=0;
 integer k, timing_path_code;
 reg [31:0] manual_cases[0:208];
-reg [23:0] known_observations[0:236];
 
 always #5 clk=~clk;
 always @(posedge clk) div<=div+1'd1;
@@ -235,17 +233,17 @@ task assess_one(input [7:0] opcode, input integer length,
             watchdog=0;
             while(!(addr==='h0201 && din===opcode) && watchdog<600) begin @(negedge clk); watchdog=watchdog+1; end
             if(watchdog==600) fail("RTI setup could not reach public opcode bus event");
-            uut.u_regs.s=6'h3a;
+            uut.u_regs.s=5'h1a;
             set_bytes('h007b,8'h00); set_bytes('h007c,8'h00);
-            set_bytes('h007d,8'h00); set_bytes('h007e,8'h04); set_bytes('h007f,8'h00);
+            set_bytes('h007d,8'h00); set_bytes('h007e,8'hfc); set_bytes('h007f,8'h00);
             set_bytes('h0400,8'h9d); nextpc='h0400;
         end
         if(opcode==8'h81) begin
             watchdog=0;
             while(!(addr==='h0201 && din===opcode) && watchdog<600) begin @(negedge clk); watchdog=watchdog+1; end
             if(watchdog==600) fail("RTS setup could not reach public opcode bus event");
-            uut.u_regs.s=6'h3d;
-            set_bytes('h007e,8'h04); set_bytes('h007f,8'h00);
+            uut.u_regs.s=5'h1d;
+            set_bytes('h007e,8'hfc); set_bytes('h007f,8'h00);
             set_bytes('h0400,8'h9d); nextpc='h0400;
         end
         if(opcode==8'h83) begin nextpc='h0300; end
@@ -286,9 +284,6 @@ task assess_one(input [7:0] opcode, input integer length,
         executed=executed+1;
         timing_path_code=(requested_path<0) ? 255 : requested_path;
         if(executed>237) fail($sformatf("unexpected extra timing case %0d op=%02x",executed,opcode));
-        else if({opcode,timing_path_code[7:0],cycles[7:0]} !== known_observations[executed-1])
-            fail($sformatf("known timing observation mismatch case=%0d op=%02x path=%0d measured=%0d expected-record=%06x",
-                executed,opcode,requested_path,cycles,known_observations[executed-1]));
         #2; // observe architectural state after the accepted endpoint edge's NBAs
         // Architectural checks are independent of the timing classification.
         if(opcode<=8'h0f) begin
@@ -344,34 +339,22 @@ task assess_one(input [7:0] opcode, input integer length,
                 fail($sformatf("relative branch changed H/N/Z/C op=%02x",opcode));
             effects_checked=effects_checked+1;
         end else if(opcode==8'h83) begin
-            if(uut.u_regs.s!==6'h3a || uut.u_regs.i!==1 || addr!==13'h0300)
+            if(uut.u_regs.s!==5'h1a || uut.u_regs.i!==1 || addr!==13'h0300)
                 fail($sformatf("SWI vector/stack entry mismatch S=%02x I=%0d addr=%04x",uut.u_regs.s,uut.u_regs.i,addr));
             if(u_mem.mem['h7f]!==8'h01 || u_mem.mem['h7d]!==8'h00 || u_mem.mem['h7c]!==8'h00 || u_mem.mem['h7b][4:0]!==5'h08)
                 fail($sformatf("SWI stack PCL/X/A/CCR-low mismatch PCL=%02x X=%02x A=%02x CC=%02x",u_mem.mem['h7f],u_mem.mem['h7d],u_mem.mem['h7c],u_mem.mem['h7b]));
-            if(u_mem.mem['h7e]===8'h02) begin
-                pch_deviations=pch_deviations+1;
-                $display("KNOWN-P3-XFAIL: SWI stacked PCH actual=02; expected FA (unused high-PC bits set for PC 0201)");
-            end else if(u_mem.mem['h7e]!==8'hfa) begin
-                fail($sformatf("unexpected SWI stacked PCH %02x; P3 expects FA, reviewed known observation is 02",u_mem.mem['h7e]));
-            end
-            if(u_mem.mem['h7b][7:5]===3'b000) begin
-                cc_high_deviations=cc_high_deviations+1;
-                $display("KNOWN-P3-XFAIL: SWI stacked CCR high bits actual=000; expected 111 (full byte expected E8)");
-            end else if(u_mem.mem['h7b][7:5]!==3'b111) begin
-                fail($sformatf("unexpected SWI stacked CCR high bits %b; P3 expects 111, reviewed known observation is 000",u_mem.mem['h7b][7:5]));
-            end
+            if(u_mem.mem['h7e]!==8'hfa)
+                fail($sformatf("SWI stacked PCH=%02x expected FA",u_mem.mem['h7e]));
+            if(u_mem.mem['h7b][7:5]!==3'b111 || u_mem.mem['h7b]!==8'he8)
+                fail($sformatf("SWI stacked CCR=%02x expected E8 (unused high bits set)",u_mem.mem['h7b]));
             effects_checked=effects_checked+1;
         end else if(opcode>=8'hb0 && opcode<=8'hff && opcode[3:0]==13) begin
-            if(uut.u_regs.s!==6'h3d || case_writes!=2)
+            if(uut.u_regs.s!==5'h1d || case_writes!=2)
                 fail($sformatf("JSR stack wrap op=%02x S=%02x writes=%0d",opcode,uut.u_regs.s,case_writes));
             if(u_mem.mem['h7f] !== ((target+length)&'hff))
                 fail($sformatf("JSR stack PCL mismatch op=%02x actual=%02x expected=%02x",opcode,u_mem.mem['h7f],(target+length)&'hff));
-            if(u_mem.mem['h7e]===8'h02) begin
-                pch_deviations=pch_deviations+1;
-                $display("KNOWN-P3-XFAIL: JSR stacked PCH op=%02x actual=02; expected FA",opcode);
-            end else if(u_mem.mem['h7e]!==8'hfa) begin
-                fail($sformatf("unexpected JSR stacked PCH op=%02x actual=%02x expected=FA, reviewed known observation is 02",opcode,u_mem.mem['h7e]));
-            end
+            if(u_mem.mem['h7e]!==8'hfa)
+                fail($sformatf("JSR stacked PCH op=%02x actual=%02x expected=FA",opcode,u_mem.mem['h7e]));
             effects_checked=effects_checked+1;
         end
         if(cycles>=0) begin
@@ -415,13 +398,20 @@ task assess_interrupt(input integer timer_source);
         set_bytes(vector_pc+4,8'h80); // RTI
         set_bytes('h0030,8'h00);
         irq=0; tirq=0; begin_reset();
-        // Execute CLI, then request service at an opcode boundary. IRQ is
-        // level-active in this wrapper; TIRQ is the timer request input.
+        // Let CLI complete, then assert while the following NOP is in flight.
+        // This makes both requests eligible at the NOP's 0202 boundary and
+        // keeps the manual's 44-CEN service observer anchored there.
         watchdog=0;
         while(!(cen && uut.u_ctrl.ni && addr==='h0200 && uut.md[7:0]===8'h9a) && watchdog<300) begin
             @(posedge clk); watchdog=watchdog+1;
         end
-        if(watchdog>=300) fail("interrupt setup did not reach NOP after reset");
+        if(watchdog>=300) fail("interrupt setup did not reach CLI after reset");
+        watchdog=0;
+        while(uut.u_regs.i!==0 && watchdog<300) begin
+            @(posedge clk); watchdog=watchdog+1;
+        end
+        if(watchdog>=300) fail("interrupt setup did not complete CLI");
+        @(negedge clk);
         if(timer_source) tirq=1; else irq=1;
         watchdog=0; got_handler=0;
         while(!got_handler && watchdog<600) begin
@@ -441,42 +431,33 @@ task assess_interrupt(input integer timer_source);
         // Wait for handler's RTI to restore the stack and resume mainline.
         if(timer_source) tirq=0; else irq=0;
         return_watchdog=0;
-        while(!(uut.u_regs.s===6'h3f && uut.u_regs.i===0 && u_mem.mem['h30]===8'ha5) && return_watchdog<1200) begin
+        while(!(uut.u_regs.s===5'h1f && uut.u_regs.i===0 && u_mem.mem['h30]===8'ha5) && return_watchdog<1200) begin
             @(posedge clk); return_watchdog=return_watchdog+1;
         end
         if(return_watchdog>=1200) fail($sformatf("%s handler/RTI did not restore stack and marker",timer_source ? "TIRQ" : "IRQ"));
         if(write_edges-writes0<6) fail($sformatf("%s expected five interrupt stack writes plus handler store, observed %0d",timer_source ? "TIRQ" : "IRQ",write_edges-writes0));
         if(u_mem.mem['h7f]!==8'h02 || u_mem.mem['h7d]!==8'h00 || u_mem.mem['h7c]!==8'h00 || u_mem.mem['h7b][4:0]!==5'h00)
             fail($sformatf("%s stack PCL/X/A/CCR-low mismatch PCL=%02x X=%02x A=%02x CC=%02x",timer_source ? "TIRQ" : "IRQ",u_mem.mem['h7f],u_mem.mem['h7d],u_mem.mem['h7c],u_mem.mem['h7b]));
-        if(u_mem.mem['h7e]===8'h02) begin
-            pch_deviations=pch_deviations+1;
-            $display("KNOWN-P3-XFAIL: %s stacked PCH actual=02; expected FA",timer_source ? "TIRQ" : "IRQ");
-        end else if(u_mem.mem['h7e]!==8'hfa) begin
-            fail($sformatf("unexpected %s stacked PCH %02x; P3 expects FA, reviewed known observation is 02",timer_source ? "TIRQ" : "IRQ",u_mem.mem['h7e]));
-        end
-        if(u_mem.mem['h7b][7:5]===3'b000) begin
-            cc_high_deviations=cc_high_deviations+1;
-            $display("KNOWN-P3-XFAIL: %s stacked CCR high bits actual=000; expected 111",timer_source ? "TIRQ" : "IRQ");
-        end else if(u_mem.mem['h7b][7:5]!==3'b111) begin
-            fail($sformatf("unexpected %s stacked CCR high bits %b; P3 expects 111, reviewed known observation is 000",timer_source ? "TIRQ" : "IRQ",u_mem.mem['h7b][7:5]));
-        end
+        if(u_mem.mem['h7e]!==8'hfa)
+            fail($sformatf("%s stacked PCH=%02x expected FA",timer_source ? "TIRQ" : "IRQ",u_mem.mem['h7e]));
+        if(u_mem.mem['h7b]!==8'he0)
+            fail($sformatf("%s stacked CCR=%02x expected E0",timer_source ? "TIRQ" : "IRQ",u_mem.mem['h7b]));
         $fwrite(service_fd,"%s,%04x,11,44,%0d,%0d,1,%02x,%0d,%0d\n",timer_source ? "TIRQ" : "IRQ",vector_pc,edge1-edge0,write_edges-writes0-1,uut.u_regs.s,uut.u_regs.i,got_handler);
         $display("SERVICE: %s vector=%04x entry=%0d CEN edges (manual 44), stack_writes=%0d handler_writes=1, RTI restored S=%02x I=%0d",
             timer_source ? "TIRQ" : "IRQ",vector_pc,edge1-edge0,write_edges-writes0-1,uut.u_regs.s,uut.u_regs.i);
     end
 endtask
 
-// P3 stack pointer fixed bits make the legal stack ring $60-$7F: at $60 the
-// next decrement wraps to $7F. The generic core uses a six-bit SP and misses
-// this P3-specific wrap. Seed internal S=$20, which maps to the legal $60.
+// P3/P5 stack pointers use the five-bit ring $60-$7F. Start at $60, run JSR
+// through the $7F wrap, then RTS back through $60 to prove push and pull.
 task assess_legal_stack_wrap;
     integer watchdog, writes0;
-    reg reached_call, reached_target;
+    reg reached_call, reached_target, returned;
     begin
         for(k=0;k<16;k=k+1) set_bytes('h0200+k,8'h9d);
         set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
         set_bytes('h0201,8'hbd); set_bytes('h0202,8'h30); // JSR direct $30
-        set_bytes('h0030,8'h9d);
+        set_bytes('h0030,8'h81); // RTS
         // Poison both the normative wrapped destination and the old-core
         // underflow destination so either wrong write is observable.
         set_bytes('h0060,8'hc6); set_bytes('h007f,8'hd7); set_bytes('h005f,8'hb5);
@@ -485,7 +466,7 @@ task assess_legal_stack_wrap;
         while(!reached_call && watchdog<400) begin
             @(posedge clk); watchdog=watchdog+1;
             if(cen && uut.u_ctrl.ni && addr==='h0201 && uut.md[7:0]===8'hbd) begin
-                uut.u_regs.s=6'h20;
+                uut.u_regs.s=5'h00;
                 reached_call=1;
             end
         end
@@ -493,26 +474,30 @@ task assess_legal_stack_wrap;
         watchdog=0; reached_target=0;
         while(!reached_target && watchdog<600) begin
             @(posedge clk); watchdog=watchdog+1;
-            if(cen && uut.u_ctrl.ni && addr==='h0030 && uut.md[7:0]===8'h9d)
+            if(cen && uut.u_ctrl.ni && addr==='h0030 && uut.md[7:0]===8'h81)
                 reached_target=1;
         end
+        returned=0; watchdog=0;
+        while(!returned && watchdog<800) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0203 && uut.md[7:0]===8'h9d)
+                returned=1;
+        end
         #2;
-        if(!reached_target) fail("P3 legal-stack-wrap JSR did not reach callee");
+        if(!reached_target) fail("P3/P5 legal-stack-wrap JSR did not reach RTS callee");
+        if(!returned) fail("P3/P5 RTS did not pull through $60 and restore 0203");
         else begin
-            // Return PC is $0203: PCL=$03, PCH=$FA for an 11-bit P3.
-            // Legal behavior writes at $60 then wraps to $7F, ending at SP=$7E.
+            // Return PC is $0203. PCL is written at $60, PCH wraps to $7F,
+            // and RTS pulls PCH/PCL back across $7F->$60.
             if(u_mem.mem['h60]!==8'h03)
-                fail($sformatf("P3 legal-wrap PCL actual=%02x expected=03",u_mem.mem['h60]));
-            if(u_mem.mem['h7f]===8'hfa && u_mem.mem['h5f]===8'hb5 && uut.u_regs.s===6'h3e) begin
-                $display("STACK-WRAP: P3 expected SP=$60 wrap through $7F; final SP=$7E");
-            end else if(u_mem.mem['h7f]===8'hd7 && u_mem.mem['h5f]===8'h02 && uut.u_regs.s===6'h1e) begin
-                stack_wrap_deviations=stack_wrap_deviations+1;
-                $display("KNOWN-P3-XFAIL: legal SP=$60 wrap actual PCL@60=03 PCH@5F=02 7F=poison S=1E; expected PCH@7F=FA 5F=poison S=3E");
-            end else fail($sformatf("unexpected legal P3 wrap tuple 60=%02x 5F=%02x 7F=%02x S=%02x; expected P3 pass or reviewed XFAIL",
-                u_mem.mem['h60],u_mem.mem['h5f],u_mem.mem['h7f],uut.u_regs.s));
-            $fwrite(detail_fd,"legal-stack-wrap,p3-pass-or-known-xfail,60:%02x;5f:%02x;7f:%02x;S:%02x,%s\n",
-                u_mem.mem['h60],u_mem.mem['h5f],u_mem.mem['h7f],uut.u_regs.s,
-                stack_wrap_deviations ? "known-xfail" : "expected-pass");
+                fail($sformatf("P3/P5 legal-wrap PCL actual=%02x expected=03",u_mem.mem['h60]));
+            if(u_mem.mem['h7f]!==8'hfa || u_mem.mem['h5f]!==8'hb5 ||
+           uut.u_regs.s!==5'h00 || uut.u_regs.pc!==11'h203)
+                fail($sformatf("P3/P5 legal wrap tuple PCH@7f=%02x poison@5f=%02x S=%02x PC=%04x",
+                    u_mem.mem['h7f],u_mem.mem['h5f],uut.u_regs.s,uut.u_regs.pc));
+            else $display("STACK-WRAP: P3/P5 JSR/RTS wrapped push and pull across $60-$7F; restored PC=0203 SP=$60");
+            $fwrite(detail_fd,"legal-stack-wrap,p3-p5-pass,60:%02x;5f:%02x;7f:%02x;S:%02x;PC:%04x\n",
+                u_mem.mem['h60],u_mem.mem['h5f],u_mem.mem['h7f],uut.u_regs.s,uut.u_regs.pc);
         end
     end
 endtask
@@ -536,7 +521,7 @@ task assess_interrupt_priority;
             @(posedge clk); watchdog=watchdog+1;
         end
         if(watchdog>=400) fail("IRQ priority fixture did not reach enabled NOP");
-        irq=1; tirq=1; watchdog=0;
+        @(negedge clk); irq=1; tirq=1; watchdog=0;
         while(first_vector===13'h1fff && watchdog<600) begin
             @(posedge clk); watchdog=watchdog+1;
             if(cen && uut.u_ctrl.ni && (addr==='h0300 || addr==='h0310)) first_vector=addr;
@@ -562,26 +547,103 @@ task assess_interrupt_priority;
     end
 endtask
 
+// Interrupt framing uses the same legal stack ring. Seed SP=$60 so PCL is
+// written at $60, PCH wraps to $7F, and RTI pulls back across the boundary.
+task assess_irq_stack_wrap;
+    integer watchdog, pulse_edges, vectors, writes0, idle_edges;
+    reg returned;
+    begin
+        for(k=0;k<16;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h0200,8'h9a); // CLI
+        set_bytes('h0300,8'h80); // RTI
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h005f,8'hb5);
+        irq=0; tirq=0; begin_reset(); watchdog=0;
+        while(!(cen && uut.u_ctrl.ni && addr==='h0200 && uut.md[7:0]===8'h9a) && watchdog<400) begin
+            @(posedge clk); watchdog=watchdog+1;
+        end
+        if(watchdog>=400) fail("IRQ stack-wrap fixture did not reach CLI");
+        watchdog=0;
+        while(uut.u_regs.i!==0 && watchdog<400) begin
+            @(posedge clk); watchdog=watchdog+1;
+        end
+        if(watchdog>=400) fail("IRQ stack-wrap fixture did not complete CLI");
+        @(negedge clk); uut.u_regs.s=5'h00; irq=1;
+        pulse_edges=0; vectors=0; writes0=write_edges;
+        returned=0; watchdog=0;
+        while(!returned && watchdog<1200) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                vectors=vectors+1;
+            if(cen) pulse_edges=pulse_edges+1;
+            if(pulse_edges==8 && irq) begin @(negedge clk); irq=0; end
+            if(cen && uut.u_ctrl.ni && addr==='h0202 && uut.md[7:0]===8'h9d &&
+               uut.u_regs.i===0 && uut.u_regs.s===5'h00)
+                returned=1;
+        end
+        if(!returned) fail("IRQ/RTI stack-wrap fixture did not restore 0202 and SP=$60");
+        #2;
+        if(vectors!=1) fail($sformatf("IRQ/RTI stack-wrap expected one handler entry, got %0d",vectors));
+        if(write_edges-writes0!=5) fail($sformatf("IRQ/RTI stack-wrap expected five frame writes, got %0d",write_edges-writes0));
+        if(u_mem.mem['h60]!==8'h02 || u_mem.mem['h7f]!==8'hfa ||
+           u_mem.mem['h7e]!==8'h00 || u_mem.mem['h7d]!==8'h00 || u_mem.mem['h7c]!==8'he0 ||
+           u_mem.mem['h5f]!==8'hb5)
+            fail($sformatf("IRQ/RTI wrapped frame PCL@60=%02x PCH@7F=%02x X@7E=%02x A@7D=%02x CC@7C=%02x poison@5F=%02x",
+                u_mem.mem['h60],u_mem.mem['h7f],u_mem.mem['h7e],u_mem.mem['h7d],u_mem.mem['h7c],u_mem.mem['h5f]));
+        if(uut.u_regs.pc!==11'h202 || uut.u_regs.s!==5'h00 || uut.u_regs.i!==0)
+            fail($sformatf("IRQ/RTI wrapped return PC=%04x SP=%02x I=%0d",uut.u_regs.pc,uut.u_regs.s,uut.u_regs.i));
+        idle_edges=0;
+        while(idle_edges<80) begin
+            @(posedge clk);
+            if(cen) begin
+                idle_edges=idle_edges+1;
+                if(uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                    fail("IRQ/RTI stack-wrap fixture duplicated service after return");
+            end
+        end
+        $display("STACK-WRAP: P3/P5 IRQ/RTI wrapped frame and return across $60-$7F; restored PC=0202 SP=$60");
+        $fwrite(detail_fd,"irq-rti-stack-wrap,pass,60:%02x;7f:%02x;7e:%02x;7d:%02x;7c:%02x;5f:%02x;PC:%04x;S:%02x\n",
+            u_mem.mem['h60],u_mem.mem['h7f],u_mem.mem['h7e],u_mem.mem['h7d],u_mem.mem['h7c],u_mem.mem['h5f],uut.u_regs.pc,uut.u_regs.s);
+        irq=0;
+    end
+endtask
+
 // The manual says a request arriving while I=1 is internally latched until
-// I clears. Pulse during a NOP while reset I is still set, release IRQ, then
-// execute CLI and require the pending request to vector.
-task assess_masked_irq_latch;
-    integer watchdog, pulse_edges, unmask_watchdog;
+// I clears. Exercise both CLI and RTI unmasking with edge pulses longer than
+// the P5 tcyc+250ns minimum, expressed here as two and three E cycles.
+task assess_masked_irq_latch(input integer via_rti, input integer pulse_cen);
+    integer watchdog, pulse_edges, eligible_boundaries;
+    reg [12:0] expected_boundary;
     reg reached_vector;
-    reg [12:0] observed_vector;
+    reg [12:0] observed_vector, first_eligible_addr, first_eligible_pc;
     begin
         for(k=0;k<24;k=k+1) set_bytes('h0200+k,8'h9d);
         set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
         set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
-        set_bytes('h0200,8'h9d); set_bytes('h0201,8'h9a); set_bytes('h0202,8'h9d);
         set_bytes('h0300,8'h80);
+        if(via_rti) begin
+            set_bytes('h0200,8'h9d); set_bytes('h0201,8'h80); set_bytes('h0202,8'h9d);
+            set_bytes('h007b,8'h00); set_bytes('h007c,8'h00);
+            set_bytes('h007d,8'h00); set_bytes('h007e,8'h02); set_bytes('h007f,8'h02);
+            expected_boundary=13'h0202;
+        end else begin
+            set_bytes('h0200,8'h9d); set_bytes('h0201,8'h9a); set_bytes('h0202,8'h9d);
+            // A pending IRQ is checked as CLI completes. The I0 micro-op and
+            // NI share this edge, so the return PC is the following byte.
+            expected_boundary=13'h0202;
+        end
         irq=0; tirq=0; begin_reset(); watchdog=0;
         while(!(cen && uut.u_ctrl.ni && addr==='h0200 && uut.md[7:0]===8'h9d) && watchdog<400) begin
             @(posedge clk); watchdog=watchdog+1;
         end
         if(watchdog>=400) fail("masked IRQ latch fixture did not reach masked NOP");
+        if(via_rti) begin
+            // Seed the valid return frame after reset has completed.
+            uut.u_regs.s=5'h1a;
+        end
         @(negedge clk); irq=1; pulse_edges=0;
-        while(pulse_edges<4) begin
+        while(pulse_edges<pulse_cen) begin
             @(posedge clk);
             if(cen) begin
                 pulse_edges=pulse_edges+1;
@@ -590,14 +652,23 @@ task assess_masked_irq_latch;
             end
         end
         @(negedge clk); irq=0;
-        unmask_watchdog=0;
-        while(uut.u_regs.i!==0 && unmask_watchdog<400) begin
-            @(posedge clk); unmask_watchdog=unmask_watchdog+1;
-        end
-        if(unmask_watchdog>=400) fail("masked IRQ pulse fixture did not execute CLI and clear I");
+        // Observe the actual completion edge. CLI's final micro-op clears I
+        // on NI; RTI has already restored I before its final NI. In either
+        // case the first eligible boundary must accept this released pulse.
         watchdog=0; reached_vector=0; observed_vector=13'h1fff;
+        eligible_boundaries=0; first_eligible_addr=13'h1fff; first_eligible_pc=13'h1fff;
         while(!reached_vector && watchdog<400) begin
-            @(posedge clk); watchdog=watchdog+1;
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni &&
+               (uut.u_regs.i===0 || uut.u_ctrl.cc_sel==4'd5)) begin
+                eligible_boundaries=eligible_boundaries+1;
+                if(eligible_boundaries==1) begin
+                    first_eligible_addr=addr;
+                    first_eligible_pc=uut.u_regs.pc;
+                end
+                if(addr!==expected_boundary)
+                    fail($sformatf("masked IRQ first unmasked boundary was %04x, expected %04x",addr,expected_boundary));
+            end
             if(cen && uut.u_ctrl.ni && addr>=13'h0300 && addr<13'h0400) begin
                 observed_vector=addr;
                 reached_vector=1;
@@ -607,9 +678,442 @@ task assess_masked_irq_latch;
             fail($sformatf("latched IRQ reached wrong handler boundary %04x, expected 0300",observed_vector));
         else if(!reached_vector) begin
             pending_irq_deviations=pending_irq_deviations+1;
-            $display("KNOWN-P3-XFAIL: IRQ pulse fully masked with I=1 (4 enabled edges), released before CLI; no later vector 0300, but manual pp.15/79 requires latched service");
-        end else $display("MASKED-IRQ: one-E asserted pulse while I=1 remained pending through CLI");
-        $fwrite(detail_fd,"masked-irq-latch,0300,%s,%0d\n",reached_vector ? "match" : "mismatch",pulse_edges);
+            $display("FAIL: IRQ pulse masked with I=1 (%0d enabled edges), released before %s; manual requires latched service",pulse_edges,via_rti ? "RTI" : "CLI");
+            fail("masked IRQ edge was not retained until unmask");
+        end else begin
+            if(eligible_boundaries!=1 || first_eligible_addr!==expected_boundary)
+                fail($sformatf("masked IRQ service missed first eligible boundary; count=%0d first=%04x",eligible_boundaries,first_eligible_addr));
+            if(first_eligible_pc!==expected_boundary)
+                fail($sformatf("masked IRQ full return PC=%04x at first boundary, expected %04x",first_eligible_pc,expected_boundary));
+            if(u_mem.mem['h7f]!==expected_boundary[7:0])
+                fail($sformatf("masked IRQ saved return PCL=%02x, expected %02x at first eligible boundary",u_mem.mem['h7f],expected_boundary[7:0]));
+            $display("MASKED-IRQ: %0d-CEN pulse serviced at first %s boundary %04x; saved PCL=%02x",pulse_edges,via_rti ? "RTI-unmasked" : "CLI-unmasked",expected_boundary,u_mem.mem['h7f]);
+        end
+        $fwrite(detail_fd,"masked-irq-%s,0300,%s,%0d,boundaries=%0d,first=%04x,pcl=%02x\n",via_rti ? "rti" : "cli",reached_vector ? "match" : "mismatch",pulse_edges,eligible_boundaries,first_eligible_addr,u_mem.mem['h7f]);
+        irq=0;
+    end
+endtask
+
+// A request arriving during SEI remains pending but masked on SEI's
+// same-boundary I1 write. A later CLI must release it immediately.
+task assess_sei_edge_mask;
+    integer watchdog, pulse_edges, masked_edges;
+    reg reached_sei, reached_nop, early_vector, reached_vector;
+    begin
+        for(k=0;k<24;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0200,8'h9a); // CLI
+        set_bytes('h0201,8'h9b); // SEI
+        set_bytes('h0202,8'h9d);
+        set_bytes('h0203,8'h9a); // CLI releases the retained request
+        set_bytes('h0204,8'h9d);
+        set_bytes('h0300,8'h80);
+        irq=0; tirq=0; begin_reset(); watchdog=0; reached_sei=0;
+        while(!reached_sei && watchdog<500) begin
+            @(negedge clk); watchdog=watchdog+1;
+            // This is SEI's final fetch, one CEN before its I1+NI write.
+            // The edge is latched before the same-boundary mask decision.
+            if(cen && uut.fetch && addr==='h0202 && din===8'h9d)
+                reached_sei=1;
+        end
+        if(!reached_sei) fail("SEI IRQ-mask fixture did not reach its final fetch");
+        @(negedge clk); irq=1; pulse_edges=0;
+        watchdog=0; early_vector=0; reached_nop=0; masked_edges=0;
+        // Prove the first instruction after SEI executes before service.
+        while(pulse_edges<8) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen) begin
+                pulse_edges=pulse_edges+1;
+                if(uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                    early_vector=1;
+                if(uut.u_ctrl.ni && addr==='h0202 && uut.md[7:0]===8'h9d)
+                    reached_nop=1;
+            end
+        end
+        @(negedge clk); irq=0;
+        while(!reached_nop && !early_vector && watchdog<500) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                early_vector=1;
+            if(cen && uut.u_ctrl.ni && addr==='h0202 && uut.md[7:0]===8'h9d)
+                reached_nop=1;
+        end
+        if(!reached_nop && !early_vector) fail("SEI fixture did not reach the post-SEI NOP boundary");
+        if(early_vector) fail("IRQ accepted at SEI completion after I was set");
+        if(uut.u_regs.i!==1) fail("SEI did not leave I set while IRQ remained masked");
+        watchdog=0; reached_vector=0;
+        while(!reached_vector && watchdog<600) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_vector=1;
+        end
+        if(!reached_vector) fail("IRQ request was lost between SEI masking and later CLI");
+        else if(u_mem.mem['h7f]!==8'h04)
+            fail($sformatf("SEI/CLI retained IRQ saved PCL=%02x, expected 04",u_mem.mem['h7f]));
+        else $display("MASKED-IRQ-SEI: %0d-CEN edge remained masked through SEI and pending until CLI; saved PCL=04",pulse_edges);
+        $fwrite(detail_fd,"masked-irq-sei,0300,%s,%0d,masked=%0d,pcl=%02x\n",reached_vector ? "match" : "mismatch",pulse_edges,masked_edges,u_mem.mem['h7f]);
+        irq=0;
+    end
+endtask
+
+// A held asserted input produces only one edge request. Returning from the
+// first ISR must not retrigger until the pin has gone inactive and active
+// again. This also checks that the latch clears on IRQ acceptance.
+task assess_irq_edge_rearm;
+    integer watchdog, pulse_edges;
+    reg reached_first, returned, reached_second;
+    begin
+        for(k=0;k<20;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0200,8'h9a); // CLI
+        set_bytes('h0201,8'h9d);
+        set_bytes('h0300,8'h80); // RTI
+        irq=0; tirq=0; begin_reset(); watchdog=0;
+        while(!(cen && uut.u_ctrl.ni && addr==='h0201 && uut.md[7:0]===8'h9d) && watchdog<400) begin
+            @(posedge clk); watchdog=watchdog+1;
+        end
+        if(watchdog>=400) fail("IRQ edge-rearm fixture did not reach unmasked NOP");
+        @(negedge clk); irq=1;
+        watchdog=0; reached_first=0;
+        while(!reached_first && watchdog<600) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_first=1;
+        end
+        if(!reached_first) fail("first edge-triggered IRQ did not reach handler");
+        watchdog=0; returned=0; reached_second=0;
+        while(!returned && watchdog<800) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_second=1;
+            if(cen && uut.u_ctrl.ni && addr==='h0202 && uut.md[7:0]===8'h9d && uut.u_regs.i===0)
+                returned=1;
+        end
+        if(reached_second) fail("held IRQ level retriggered without a new edge");
+        if(!returned) fail("edge-triggered IRQ handler did not return while input remained asserted");
+        watchdog=0;
+        while(watchdog<40) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                fail("held IRQ level retriggered after RTI");
+        end
+        @(negedge clk); irq=0; pulse_edges=0;
+        while(pulse_edges<8) begin
+            @(posedge clk);
+            if(cen) pulse_edges=pulse_edges+1;
+        end
+        @(negedge clk); irq=1; pulse_edges=0;
+        while(pulse_edges<8) begin
+            @(posedge clk);
+            if(cen) pulse_edges=pulse_edges+1;
+        end
+        @(negedge clk); irq=0;
+        watchdog=0; reached_second=0;
+        while(!reached_second && watchdog<600) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_second=1;
+        end
+        if(!reached_second) fail("IRQ did not rearm after inactive-to-active transition");
+        else $display("IRQ-EDGE: held level serviced once; inactive-to-active edge serviced again");
+        $fwrite(detail_fd,"irq-edge-rearm,2-service-edges,%s,%0d\n",reached_second ? "match" : "mismatch",pulse_edges);
+        irq=0;
+    end
+endtask
+
+// Reset discards an unaccepted masked request. The next CLI after reset must
+// not service the old edge once the input is inactive.
+task assess_irq_reset_clear;
+    integer watchdog, pulse_edges;
+    reg reached_masked, reached_vector;
+    begin
+        for(k=0;k<16;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0200,8'h9d); set_bytes('h0201,8'h9a); set_bytes('h0202,8'h9d);
+        set_bytes('h0300,8'h9d);
+        irq=0; tirq=0; begin_reset(); watchdog=0; reached_masked=0;
+        while(!reached_masked && watchdog<400) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0200 && uut.md[7:0]===8'h9d)
+                reached_masked=1;
+        end
+        if(!reached_masked) fail("IRQ reset-clear fixture did not reach masked NOP");
+        @(negedge clk); irq=1; pulse_edges=0;
+        while(pulse_edges<8) begin
+            @(posedge clk);
+            if(cen) pulse_edges=pulse_edges+1;
+        end
+        @(negedge clk); irq=0;
+        begin_reset();
+        watchdog=0; reached_vector=0;
+        while(watchdog<600) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h9d)
+                reached_vector=1;
+        end
+        if(reached_vector) fail("masked IRQ pending request survived reset");
+        else $display("IRQ-RESET: reset cleared the unaccepted masked request");
+        $fwrite(detail_fd,"irq-reset-clear,no-post-reset-vector,%s,%0d\n",reached_vector ? "mismatch" : "match",pulse_edges);
+    end
+endtask
+
+// Capture IRQ while CEN is paused, either entirely inside the gap or across
+// resume. The `clk` periods here are normalized to the established 4 CEN/E
+// CPU model; no literal simulation nanoseconds are claimed as part timing.
+task assess_irq_pause_capture(input integer spanning);
+    integer watchdog, pause_edges, resumed_edges, eligible_boundaries, post_edges;
+    integer writes_before;
+    reg reached_pause, reached_vector, second_vector;
+    reg [12:0] pause_addr, expected_boundary, first_eligible_addr, first_eligible_pc;
+    reg [5:0] pause_sp;
+    begin
+        for(k=0;k<24;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0300,8'h80);
+        if(spanning) begin
+            set_bytes('h0200,8'h9d); set_bytes('h0201,8'h9a); set_bytes('h0202,8'h9d);
+            expected_boundary=13'h0202;
+        end else begin
+            set_bytes('h0200,8'h9a); set_bytes('h0201,8'h9d); set_bytes('h0202,8'h9d);
+            expected_boundary=13'h0202;
+        end
+        irq=0; tirq=0; pause_cen=0; begin_reset(); watchdog=0; reached_pause=0;
+        while(!reached_pause && watchdog<500) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr===(spanning ? 13'h0200 : 13'h0201) &&
+               uut.md[7:0]===8'h9d)
+                reached_pause=1;
+        end
+        if(!reached_pause) fail($sformatf("IRQ CEN-pause fixture %0d did not reach its pre-pause NOP",spanning));
+        @(negedge clk); pause_cen=1;
+        pause_addr=addr; pause_sp=uut.u_regs.s; writes_before=write_edges;
+        @(negedge clk); irq=1; pause_edges=0;
+        while(pause_edges<(spanning ? 16 : 32)) begin
+            @(posedge clk); pause_edges=pause_edges+1;
+        end
+        if(!spanning) begin @(negedge clk); irq=0; end
+        repeat(4) @(negedge clk);
+        if(addr!==pause_addr || uut.u_regs.s!==pause_sp || write_edges!=writes_before || wr)
+            fail($sformatf("IRQ CEN-pause fixture %0d advanced CPU/bus during pause",spanning));
+        if(!uut.u_ctrl.irq_pending)
+            fail($sformatf("IRQ CEN-pause fixture %0d lost edge before resume",spanning));
+        @(negedge clk); pause_cen=0;
+        watchdog=0; reached_vector=0; second_vector=0;
+        eligible_boundaries=0; first_eligible_addr=13'h1fff; first_eligible_pc=13'h1fff; resumed_edges=0;
+        // Resuming at a CEN phase where the first eligible edge is imminent
+        // can put that boundary on this same negedge; sample it before the
+        // next posedge instead of skipping to the following negedge.
+        if(cen && uut.u_ctrl.ni &&
+           (uut.u_regs.i===0 || uut.u_ctrl.cc_sel==4'd5)) begin
+            eligible_boundaries=eligible_boundaries+1;
+            first_eligible_addr=addr;
+            first_eligible_pc=uut.u_regs.pc;
+            if(addr!==expected_boundary)
+                fail($sformatf("IRQ pause fixture %0d first eligible boundary %04x expected %04x",spanning,addr,expected_boundary));
+        end
+        while(!reached_vector && watchdog<1000) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && irq) resumed_edges=resumed_edges+1;
+            if(spanning && !uut.u_regs.i && irq) irq=0;
+            if(cen && uut.u_ctrl.ni &&
+               (uut.u_regs.i===0 || uut.u_ctrl.cc_sel==4'd5)) begin
+                eligible_boundaries=eligible_boundaries+1;
+                if(eligible_boundaries==1) begin
+                    first_eligible_addr=addr;
+                    first_eligible_pc=uut.u_regs.pc;
+                end
+                if(addr!==expected_boundary)
+                    fail($sformatf("IRQ pause fixture %0d first eligible boundary %04x expected %04x",spanning,addr,expected_boundary));
+            end
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_vector=1;
+        end
+        if(!reached_vector) fail($sformatf("IRQ CEN-pause fixture %0d did not vector after resume",spanning));
+        if(eligible_boundaries!=1 || first_eligible_addr!==expected_boundary)
+            fail($sformatf("IRQ CEN-pause fixture %0d missed first eligible boundary count=%0d first=%04x",spanning,eligible_boundaries,first_eligible_addr));
+        if(first_eligible_pc!==expected_boundary)
+            fail($sformatf("IRQ CEN-pause fixture %0d full return PC=%04x expected %04x",spanning,first_eligible_pc,expected_boundary));
+        if(u_mem.mem['h7f]!==expected_boundary[7:0])
+            fail($sformatf("IRQ CEN-pause fixture %0d saved PCL=%02x expected %02x",spanning,u_mem.mem['h7f],expected_boundary[7:0]));
+        if(spanning && resumed_edges<8)
+            fail($sformatf("IRQ pause-spanning assertion lasted only %0d resumed CEN edges, expected >=8",resumed_edges));
+        if(!spanning && resumed_edges!=0)
+            fail($sformatf("IRQ pause-only pulse remained active for %0d CEN edges after resume",resumed_edges));
+        post_edges=0;
+        while(post_edges<80) begin
+            @(negedge clk);
+            if(cen) begin
+                post_edges=post_edges+1;
+                if(uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80) begin
+                    second_vector=1;
+                    fail($sformatf("IRQ CEN-pause fixture %0d duplicated service after RTI",spanning));
+                end
+            end
+        end
+        if(!second_vector)
+            $display("IRQ-CEN-PAUSE: %s pulse (%0d paused clk edges) retained, accepted once at %04x after resume; no paused bus writes",
+                spanning ? "pause-spanning" : "pause-contained",pause_edges,expected_boundary);
+        $fwrite(detail_fd,"irq-cen-pause-%s,%04x,%s,pause_clk=%0d,resume_cen=%0d,pcl=%02x\n",
+            spanning ? "span" : "inside",expected_boundary,reached_vector ? "match" : "mismatch",pause_edges,resumed_edges,u_mem.mem['h7f]);
+        irq=0; pause_cen=0;
+    end
+endtask
+
+// An IRQ edge first observed on the same master edge as an eligible NI is
+// captured for the following boundary: arbitration sees the old pending bit.
+// Keep that phase behavior separate from requests captured before NI.
+task assess_irq_ni_phase;
+    integer watchdog, pulse_edges, eligible_boundaries;
+    reg found_target, reached_vector;
+    reg [12:0] first_boundary;
+    begin
+        for(k=0;k<20;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0200,8'h9a); set_bytes('h0201,8'h9d);
+        set_bytes('h0202,8'h9d); set_bytes('h0203,8'h9d);
+        set_bytes('h0300,8'h80);
+        irq=0; tirq=0; begin_reset(); watchdog=0; found_target=0;
+        while(!found_target && watchdog<600) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && uut.u_regs.i===0 &&
+               addr==='h0202 && uut.md[7:0]===8'h9d)
+                found_target=1;
+        end
+        if(!found_target) fail("NI-phase IRQ fixture did not reach eligible NOP 0202");
+        // This rising edge is sampled at the same posedge which consumes the
+        // current NI boundary. The old pending register is still clear here.
+        eligible_boundaries=1; first_boundary=addr; irq=1;
+        pulse_edges=0;
+        watchdog=0; reached_vector=0;
+        while(!reached_vector && watchdog<800) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && uut.u_regs.i===0 && addr<13'h0300) begin
+                eligible_boundaries=eligible_boundaries+1;
+                if(eligible_boundaries==1) first_boundary=addr;
+            end
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_vector=1;
+            if(cen && pulse_edges<8) pulse_edges=pulse_edges+1;
+            if(pulse_edges==8 && irq) irq=0;
+        end
+        if(!reached_vector) fail("NI-phase IRQ edge was not serviced after capture");
+        if(eligible_boundaries!=2 || first_boundary!==13'h0202)
+            fail($sformatf("NI-edge phase expected current boundary 0202 then service boundary 0203; observed count=%0d first=%04x",eligible_boundaries,first_boundary));
+        if(u_mem.mem['h7f]!==8'h03)
+            fail($sformatf("NI-edge phase saved PCL=%02x expected 03 after one same-edge opcode",u_mem.mem['h7f]));
+        else $display("IRQ-NI-PHASE: edge sampled on NI queued for next boundary; one intervening opcode, saved PCL=03");
+        $fwrite(detail_fd,"irq-ni-phase,next-boundary,eligible=%0d,first=%04x,pcl=%02x\n",eligible_boundaries,first_boundary,u_mem.mem['h7f]);
+        irq=0;
+    end
+endtask
+
+// A fresh edge coincident with acknowledgement must survive set-vs-clear
+// priority and produce exactly one later service.
+task assess_irq_edge_at_ack;
+    integer watchdog, pulse_edges, handler_hits, post_edges;
+    reg found_masked, found_ack, third_vector;
+    begin
+        for(k=0;k<24;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0200,8'h9d); set_bytes('h0201,8'h9a);
+        set_bytes('h0202,8'h9d); set_bytes('h0203,8'h9d);
+        set_bytes('h0300,8'h80);
+        irq=0; tirq=0; begin_reset(); watchdog=0; found_masked=0;
+        while(!found_masked && watchdog<500) begin
+            @(posedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0200 && uut.md[7:0]===8'h9d)
+                found_masked=1;
+        end
+        if(!found_masked) fail("IRQ ack-edge fixture did not reach masked NOP");
+        @(negedge clk); irq=1; pulse_edges=0;
+        while(pulse_edges<8) begin
+            @(posedge clk); if(cen) pulse_edges=pulse_edges+1;
+        end
+        @(negedge clk); irq=0;
+        watchdog=0;
+        watchdog=0; found_ack=0;
+        while(!found_ack && watchdog<500) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni &&
+               (uut.u_regs.i===0 || uut.u_ctrl.cc_sel==4'd5) && addr==='h0202)
+                found_ack=1;
+        end
+        if(!found_ack) fail("IRQ ack-edge fixture missed the first eligible boundary");
+        // Existing pending request is accepted on the next posedge while a
+        // second inactive-to-active event is sampled on that same edge.
+        irq=1; handler_hits=0; watchdog=0;
+        while(handler_hits<2 && watchdog<1600) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80) begin
+                handler_hits=handler_hits+1;
+                if(handler_hits==1 && !uut.u_ctrl.irq_pending)
+                    fail("fresh IRQ edge coincident with acknowledgement was not retained");
+            end
+        end
+        if(handler_hits!=2) fail($sformatf("IRQ ack-edge expected two services, observed %0d",handler_hits));
+        if(u_mem.mem['h7f]!==8'h02)
+            fail($sformatf("IRQ ack-edge saved PCL=%02x expected 02",u_mem.mem['h7f]));
+        post_edges=0; third_vector=0;
+        while(post_edges<100) begin
+            @(negedge clk);
+            if(cen) post_edges=post_edges+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                third_vector=1;
+        end
+        if(third_vector) fail("IRQ ack-edge held level duplicated service after the second edge was consumed");
+        else $display("IRQ-ACK-EDGE: simultaneous fresh edge survived first ack; exactly two services");
+        $fwrite(detail_fd,"irq-edge-at-ack,expected-2-services,%s,pulse=%0d\n",third_vector ? "mismatch" : "match",pulse_edges);
+        irq=0;
+    end
+endtask
+
+// A logical IRQ level held active across reset release is not a new edge.
+// A later opposite level held for 2E rearms the input before the next 2E pulse.
+task assess_irq_held_reset;
+    integer watchdog, low_edges, high_edges, post_edges;
+    reg unexpected_vector, reached_vector, second_vector;
+    begin
+        for(k=0;k<24;k=k+1) set_bytes('h0200+k,8'h9d);
+        set_bytes('h1ffe,8'h02); set_bytes('h1fff,8'h00);
+        set_bytes('h1ffa,8'h03); set_bytes('h1ffb,8'h00);
+        set_bytes('h0200,8'h9a); set_bytes('h0201,8'h9d); set_bytes('h0202,8'h9d);
+        set_bytes('h0300,8'h80);
+        irq=1; tirq=0; begin_reset(); watchdog=0; unexpected_vector=0;
+        while(watchdog<600) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                unexpected_vector=1;
+        end
+        if(unexpected_vector) fail("active IRQ held across reset release synthesized a new edge");
+        else $display("IRQ-RESET-LEVEL: active pin through reset release did not create a request");
+        @(negedge clk); irq=0; low_edges=0;
+        while(low_edges<8) begin @(posedge clk); if(cen) low_edges=low_edges+1; end
+        @(negedge clk); irq=1; high_edges=0;
+        while(high_edges<8) begin @(posedge clk); if(cen) high_edges=high_edges+1; end
+        @(negedge clk); irq=0;
+        watchdog=0; reached_vector=0;
+        while(!reached_vector && watchdog<800) begin
+            @(negedge clk); watchdog=watchdog+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                reached_vector=1;
+        end
+        if(!reached_vector) fail("qualified rearm and IRQ pulse after reset did not service");
+        post_edges=0; second_vector=0;
+        while(post_edges<80) begin
+            @(negedge clk);
+            if(cen) post_edges=post_edges+1;
+            if(cen && uut.u_ctrl.ni && addr==='h0300 && uut.md[7:0]===8'h80)
+                second_vector=1;
+        end
+        if(second_vector) fail("reset-level rearm pulse caused duplicate IRQ service");
+        else $display("IRQ-RESET-LEVEL: 2E inactive and active intervals rearmed one service");
+        $fwrite(detail_fd,"irq-held-reset,rearm-2e,unexpected=%0d,served=%0d,low=%0d,high=%0d\n",unexpected_vector,reached_vector,low_edges,high_edges);
         irq=0;
     end
 endtask
@@ -736,7 +1240,6 @@ integer code, length, hmos, cmos_exp, extension;
 integer elapsed, j;
 initial begin
     $readmemh("manual_cases.hex",manual_cases);
-    $readmemh("known_observations.mem",known_observations);
     #1;
     for(i=0;i<2048;i=i+1) u_mem.mem[i]=8'h00;
     trace_fd=$fopen("bus_trace.csv","w");
@@ -783,21 +1286,31 @@ initial begin
     assess_interrupt(0);
     assess_interrupt(1);
     assess_legal_stack_wrap();
+    assess_irq_stack_wrap();
     assess_interrupt_priority();
-    assess_masked_irq_latch();
+    assess_masked_irq_latch(0,8);
+    assess_masked_irq_latch(1,12);
+    assess_sei_edge_mask();
+    assess_irq_edge_rearm();
+    assess_irq_reset_clear();
+    assess_irq_pause_capture(0);
+    assess_irq_pause_capture(1);
+    assess_irq_ni_phase();
+    assess_irq_edge_at_ack();
+    assess_irq_held_reset();
     assess_cen_pause();
     assess_addressing_effects();
     $fclose(trace_fd); $fclose(write_fd); $fclose(result_fd); $fclose(service_fd);
     $fclose(detail_fd);
     $display("RESULTS: cases=%0d rows=%0d HMOS-matches=%0d CMOS-matches=%0d overlap=%0d CMOS-only=%0d effects_checked=%0d neither=%0d harness_failures=%0d",
         executed,inventory_rows,hmos_match,cmos_match,both_match,cmos_only,effects_checked,neither_match,failures);
-    $display("SERVICE-RESULTS: timing deviations=%0d known PCH XFAILs=%0d known CCR-high XFAILs=%0d known legal-wrap XFAILs=%0d known masked-IRQ XFAILs=%0d priority deviations=%0d",service_timing_deviations,pch_deviations,cc_high_deviations,stack_wrap_deviations,pending_irq_deviations,priority_deviations);
+    $display("SERVICE-RESULTS: timing deviations=%0d known masked-IRQ XFAILs=%0d priority deviations=%0d",service_timing_deviations,pending_irq_deviations,priority_deviations);
     $display("ADDRESS-EFFECT-RESULTS: focused indexed/address-alias cases=%0d expected=3 (outside 237 timing baseline)",address_effect_cases);
     if(inventory_rows!=207) fail($sformatf("expected 207 normative encoding rows, exercised %0d",inventory_rows));
     if(executed!=237) fail($sformatf("expected 237 normative instruction/outcome cases, executed %0d",executed));
-    if(failures==0 && executed==237 && inventory_rows==207 && neither_match==0)
-        $display("PASS: observer/fixture completed all cases; HMOS fidelity deviations are retained as assessment findings");
-    else $fatal(1,"assessment harness failure: observer=%0d cases=%0d rows=%0d neither=%0d",failures,executed,inventory_rows,neither_match);
+    if(failures==0 && executed==237 && inventory_rows==207 && hmos_match==237 && neither_match==0)
+        $display("PASS: all 237 runtime outcomes match the independent HMOS manual oracle; fixtures and observer are clean");
+    else $fatal(1,"assessment harness failure: observer=%0d cases=%0d rows=%0d HMOS-matches=%0d expected=237 neither=%0d",failures,executed,inventory_rows,hmos_match,neither_match);
     $finish;
 end
 
