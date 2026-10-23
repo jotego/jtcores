@@ -1112,7 +1112,7 @@ function [2:0] ALU16RegFromInst(input   Page2, input   Page3, input   [7:0] inst
 reg     [2:0] srcreg;
 begin
     srcreg =  3'b111;       // default
-    if (Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
+    if (HD6309 && Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
         case (inst[3:0])
             4'h0,4'h1,4'h6,4'h7,4'hb: srcreg = ALU16_REG_W;
             4'h2,4'h3,4'h4,4'h5,4'h8,4'h9,4'ha: srcreg = ALU16_REG_D;
@@ -1185,7 +1185,7 @@ reg     writeback;
 begin
     aluop  =  ALUOP16_INVALID;
     writeback  =  1'b1;
-    if (Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
+    if (HD6309 && Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
         case (inst[3:0])
             4'h0: aluop = ALUOP16_SUB;
             4'h1: begin aluop = ALUOP16_CMP; writeback = 1'b0; end
