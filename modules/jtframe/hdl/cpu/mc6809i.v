@@ -5400,118 +5400,130 @@ begin
 
     CPUSTATE_6309_TFM_READ:
     begin
-        tmp_nxt[15:8] = D[7:0];
-        addr_nxt = HDTFMSource;
-        rAVMA = 1'b1;
-        CpuState_nxt = CPUSTATE_6309_TFM_WRITE;
+        if (HD6309) begin
+            tmp_nxt[15:8] = D[7:0];
+            addr_nxt = HDTFMSource;
+            rAVMA = 1'b1;
+            CpuState_nxt = CPUSTATE_6309_TFM_WRITE;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_WRITE:
     begin
-        if ((NMILatched == 1'b0) || ((FIRQLatched == 1'b0) && !cc[CC_F_BIT]) ||
-            ((IRQLatched == 1'b0) && !cc[CC_I_BIT])) begin
-            // TFM may be interrupted after the source read but before the
-            // destination write or address-register updates. Re-fetch it on RTI.
-            cc_nxt[CC_Z_BIT] = 1'b0;
-            pc_nxt = pc - 16'd3;
-            addr_nxt = pc - 16'd3;
-            rAVMA = 1'b1;
-            CpuState_nxt = CPUSTATE_FETCH_I1;
-        end else begin
-            // The original-device X+/X+ capture writes at incremented X after
-            // the source read. Other TFM forms use the normal destination EA.
-            if ((Inst1 == 8'h38) && (tmp[7:4] == 4'h1) && (tmp[3:0] == 4'h1))
-                addr_nxt = x + 16'd1;
-            else
-                addr_nxt = HDTFMDest;
-            DOutput = tmp[15:8];
-            RnWOut = 1'b0;
-            rAVMA = 1'b1;
-            CpuState_nxt = CPUSTATE_6309_TFM_UPDATE;
-        end
+        if (HD6309) begin
+            if ((NMILatched == 1'b0) || ((FIRQLatched == 1'b0) && !cc[CC_F_BIT]) ||
+                ((IRQLatched == 1'b0) && !cc[CC_I_BIT])) begin
+                // TFM may be interrupted after the source read but before the
+                // destination write or address-register updates. Re-fetch it on RTI.
+                cc_nxt[CC_Z_BIT] = 1'b0;
+                pc_nxt = pc - 16'd3;
+                addr_nxt = pc - 16'd3;
+                rAVMA = 1'b1;
+                CpuState_nxt = CPUSTATE_FETCH_I1;
+            end else begin
+                // The original-device X+/X+ capture writes at incremented X after
+                // the source read. Other TFM forms use the normal destination EA.
+                if ((Inst1 == 8'h38) && (tmp[7:4] == 4'h1) && (tmp[3:0] == 4'h1))
+                    addr_nxt = x + 16'd1;
+                else
+                    addr_nxt = HDTFMDest;
+                DOutput = tmp[15:8];
+                RnWOut = 1'b0;
+                rAVMA = 1'b1;
+                CpuState_nxt = CPUSTATE_6309_TFM_UPDATE;
+            end
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_UPDATE:
     begin
-        if ((tmp[7:4] == tmp[3:0]) && ((Inst1 == 8'h38) || (Inst1 == 8'h39))) begin
-            // When both operands name the same register, each side's address
-            // update applies, as it does in the reference micro-operations.
-            case (tmp[7:4])
-                4'h0: {a_nxt,b_nxt} = (Inst1 == 8'h38) ? ({a,b} + 16'd2) : ({a,b} - 16'd2);
-                4'h1: x_nxt = (Inst1 == 8'h38) ? (x + 16'd2) : (x - 16'd2);
-                4'h2: y_nxt = (Inst1 == 8'h38) ? (y + 16'd2) : (y - 16'd2);
-                4'h3: u_nxt = (Inst1 == 8'h38) ? (u + 16'd2) : (u - 16'd2);
-                4'h4: s_nxt = (Inst1 == 8'h38) ? (s + 16'd2) : (s - 16'd2);
-                default: begin end
-            endcase
-        end else begin
-        if ((Inst1 == 8'h38) || (Inst1 == 8'h3A)) begin
-            case (tmp[7:4])
-                4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
-                4'h1: x_nxt = x + 16'd1;
-                4'h2: y_nxt = y + 16'd1;
-                4'h3: u_nxt = u + 16'd1;
-                4'h4: s_nxt = s + 16'd1;
-                default: begin end
-            endcase
-        end else if (Inst1 == 8'h39) begin
-            case (tmp[7:4])
-                4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
-                4'h1: x_nxt = x - 16'd1;
-                4'h2: y_nxt = y - 16'd1;
-                4'h3: u_nxt = u - 16'd1;
-                4'h4: s_nxt = s - 16'd1;
-                default: begin end
-            endcase
-        end
-        if ((Inst1 == 8'h38) || (Inst1 == 8'h3B)) begin
-            case (tmp[3:0])
-                4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
-                4'h1: x_nxt = x + 16'd1;
-                4'h2: y_nxt = y + 16'd1;
-                4'h3: u_nxt = u + 16'd1;
-                4'h4: s_nxt = s + 16'd1;
-                default: begin end
-            endcase
-        end else if (Inst1 == 8'h39) begin
-            case (tmp[3:0])
-                4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
-                4'h1: x_nxt = x - 16'd1;
-                4'h2: y_nxt = y - 16'd1;
-                4'h3: u_nxt = u - 16'd1;
-                4'h4: s_nxt = s - 16'd1;
-                default: begin end
-            endcase
-        end
-        end
-        {e_nxt,f_nxt} = w - 16'd1;
-        if (w == 16'd1) CpuState_nxt = CPUSTATE_6309_TFM_FINAL1;
-        else CpuState_nxt = CPUSTATE_6309_TFM_READ;
-        addr_nxt = 16'hffff;
-        rAVMA = 1'b0;
+        if (HD6309) begin
+            if ((tmp[7:4] == tmp[3:0]) && ((Inst1 == 8'h38) || (Inst1 == 8'h39))) begin
+                // When both operands name the same register, each side's address
+                // update applies, as it does in the reference micro-operations.
+                case (tmp[7:4])
+                    4'h0: {a_nxt,b_nxt} = (Inst1 == 8'h38) ? ({a,b} + 16'd2) : ({a,b} - 16'd2);
+                    4'h1: x_nxt = (Inst1 == 8'h38) ? (x + 16'd2) : (x - 16'd2);
+                    4'h2: y_nxt = (Inst1 == 8'h38) ? (y + 16'd2) : (y - 16'd2);
+                    4'h3: u_nxt = (Inst1 == 8'h38) ? (u + 16'd2) : (u - 16'd2);
+                    4'h4: s_nxt = (Inst1 == 8'h38) ? (s + 16'd2) : (s - 16'd2);
+                    default: begin end
+                endcase
+            end else begin
+                if ((Inst1 == 8'h38) || (Inst1 == 8'h3A)) begin
+                    case (tmp[7:4])
+                        4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
+                        4'h1: x_nxt = x + 16'd1;
+                        4'h2: y_nxt = y + 16'd1;
+                        4'h3: u_nxt = u + 16'd1;
+                        4'h4: s_nxt = s + 16'd1;
+                        default: begin end
+                    endcase
+                end else if (Inst1 == 8'h39) begin
+                    case (tmp[7:4])
+                        4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
+                        4'h1: x_nxt = x - 16'd1;
+                        4'h2: y_nxt = y - 16'd1;
+                        4'h3: u_nxt = u - 16'd1;
+                        4'h4: s_nxt = s - 16'd1;
+                        default: begin end
+                    endcase
+                end
+                if ((Inst1 == 8'h38) || (Inst1 == 8'h3B)) begin
+                    case (tmp[3:0])
+                        4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
+                        4'h1: x_nxt = x + 16'd1;
+                        4'h2: y_nxt = y + 16'd1;
+                        4'h3: u_nxt = u + 16'd1;
+                        4'h4: s_nxt = s + 16'd1;
+                        default: begin end
+                    endcase
+                end else if (Inst1 == 8'h39) begin
+                    case (tmp[3:0])
+                        4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
+                        4'h1: x_nxt = x - 16'd1;
+                        4'h2: y_nxt = y - 16'd1;
+                        4'h3: u_nxt = u - 16'd1;
+                        4'h4: s_nxt = s - 16'd1;
+                        default: begin end
+                    endcase
+                end
+            end
+            {e_nxt,f_nxt} = w - 16'd1;
+            if (w == 16'd1) CpuState_nxt = CPUSTATE_6309_TFM_FINAL1;
+            else CpuState_nxt = CPUSTATE_6309_TFM_READ;
+            addr_nxt = 16'hffff;
+            rAVMA = 1'b0;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_FINAL1:
     begin
-        addr_nxt = 16'hffff;
-        rAVMA = 1'b0;
-        CpuState_nxt = CPUSTATE_6309_TFM_FINAL2;
+        if (HD6309) begin
+            addr_nxt = 16'hffff;
+            rAVMA = 1'b0;
+            CpuState_nxt = CPUSTATE_6309_TFM_FINAL2;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_FINAL2:
     begin
-        addr_nxt = 16'hffff;
-        rAVMA = 1'b0;
-        CpuState_nxt = CPUSTATE_6309_TFM_FINAL3;
+        if (HD6309) begin
+            addr_nxt = 16'hffff;
+            rAVMA = 1'b0;
+            CpuState_nxt = CPUSTATE_6309_TFM_FINAL3;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_FINAL3:
     begin
-        addr_nxt = pc;
-        rAVMA = 1'b1;
-        rLIC = 1'b1;
-        cc_nxt[CC_Z_BIT] = 1'b1;
-        CpuState_nxt = CPUSTATE_FETCH_I1;
+        if (HD6309) begin
+            addr_nxt = pc;
+            rAVMA = 1'b1;
+            rLIC = 1'b1;
+            cc_nxt[CC_Z_BIT] = 1'b1;
+            CpuState_nxt = CPUSTATE_FETCH_I1;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_ARITH_IMM_LO:
