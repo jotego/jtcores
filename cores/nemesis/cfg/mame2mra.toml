@@ -1,0 +1,47 @@
+[global]
+author=["LMN-san", "OScherler", "Raki"]
+webpage="https://gx400-friends.github.io/"
+twitter="-"
+
+[parse]
+sourcefile=["nemesis.cpp"]
+skip.bootlegs=true
+skip.setnames=[
+	"blkpnthr",
+	"bubsys",
+	"citybomb",
+	"citybombj",
+	"gradius",
+	"gradiusb",
+	"gwarrior",
+	"hcrash",
+	"hcrashc",
+	"kittenk",
+	"konamigt",
+	"lifefrce",
+	"lifefrcej",
+	"nyanpani",
+	"rf2",
+	"salamand",
+	"salamandj",
+	"salamandt",
+	"twinbee",
+	"twinbeeb",
+]
+
+[buttons]
+names=[
+    { machines=["nemesis", "nemesisuk"], names="Option,Fire,Bomb", map="YBA" },
+]
+
+[ROM]
+# these MAME ROM regions make up the .rom file (index 1 in MiSTer)
+# only specify regions that need parameters
+regions=[
+    { name="maincpu",  width=16, no_offset=true, reverse=true },
+    { name="audiocpu", start="JTFRAME_BA1_START"  },
+    { name="k005289",  start="JTFRAME_PROM_START" },
+]
+
+# this is the order in the MRA file
+order=["maincpu", "audiocpu", "k005289"]

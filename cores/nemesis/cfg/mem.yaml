@@ -1,0 +1,17 @@
+download:
+  pre_addr: false
+  post_addr: false
+  post_data: false
+
+sdram:
+  banks:
+    - buses:
+      - name: main
+        # we have 17 pre-mem.yaml, but if we put 17 it becomes 16 (?)
+        # but in the MRA, it says "length 0x40000 (18 bits)", so OK
+        addr_width: 18
+        data_width: 16
+    - buses:
+      - name: audio
+        addr_width: 14
+        data_width: 8
