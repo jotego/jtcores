@@ -12,8 +12,8 @@ module m6802_reference(
     output            instruction_end
 );
 
-// MC6802 Table 8 and MR timing: ../doc/MC6802.pdf, pages 11, 18-21.
-// Frisky Tom FC compatibility and timing limits: ../doc/pal.md.
+// MC6802 Table 8/MR manual: ../../../../modules/jt680x/doc/complete_6802.md.
+// Frisky Tom FC compatibility: ../../doc/hardware_verification.md.
 reg [15:0] pc, x, s, ea, op_pc;
 reg [7:0] a, b, cc, op, data8, high_byte;
 reg [3:0] cycle;

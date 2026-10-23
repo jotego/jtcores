@@ -44,7 +44,7 @@ assign spriteram0_we = obj0_cs & ~wr_n & cpu_step;
 assign spriteram1_we = obj1_cs & ~wr_n & cpu_step;
 assign row_scroll_we = scroll_cs & ~wr_n & cpu_step;
 assign debug_view = cpu_addr[15:8];
-// 5L6 uses /ZRB as buffered /RFSH; source qualification: ../doc/pal.md.
+// 5L6 uses /ZRB as buffered /RFSH; source qualification: ../doc/hardware_verification.md.
 assign mcu_release_clk = mreq_n | ~rfsh_n;
 
 jtseicro_cab u_cab(
