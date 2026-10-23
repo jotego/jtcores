@@ -1481,8 +1481,10 @@ wire HDRegWide = !HDRegDst8;
 wire [15:0] HDRegSrcValue = HD6309RegValue(HDRegSrc,HDRegWide);
 wire [15:0] HDRegDstValue = HD6309RegValue(HDRegDst,HDRegWide);
 wire [23:0] HDRegResult = HD6309RegALU(Inst1[2:0],HDRegDstValue,HDRegSrcValue,HDRegWide,cc);
-wire [23:0] HDWideUnaryResult = HD6309Unary16(Inst1[3:0],Inst1[7:4] == 4'h4 ? {a,b} : w,cc);
-wire [23:0] FastHDWideUnaryResult = HD6309Unary16(MappedInstruction[3:0],MappedInstruction[7:4] == 4'h4 ? {a,b} : w,cc);
+wire [7:0] HDWideUnaryInst = CpuState == CPUSTATE_FETCH_I1V2 ? MappedInstruction : Inst1;
+wire [23:0] HDWideUnaryResult = HD6309Unary16(HDWideUnaryInst[3:0],
+    HDWideUnaryInst[7:4] == 4'h4 ? {a,b} : w,cc);
+wire [23:0] FastHDWideUnaryResult = HDWideUnaryResult;
 
 reg     [3:0]   ALU16_OP;
 reg     [15:0]  ALU16_A;

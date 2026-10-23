@@ -1580,6 +1580,24 @@ task check_ef(input [7:0] expected_e, input [7:0] expected_f,
     end
 endtask
 
+task run_negd_boundary(input [7:0] mode, input string label);
+    integer expected_cycles;
+    begin
+        initial_e = 8'h12;
+        initial_f = 8'h34;
+        load_program(mode,8'h10,8'h40,8'h12); // NEGD
+        preload_d(16'h8000);
+        expected_cycles = mode[0] ? 2 : 3;
+        measure_case(expected_cycles,16'h0122,label);
+        assert_msg({regs[7:0],regs[15:8]}==16'h8000,
+            $sformatf("%s D=%04x expected 8000",label,{regs[7:0],regs[15:8]}));
+        assert_msg((regs[87:80]&8'h0f)==8'h0b,
+            $sformatf("%s NZVC=%x expected b",label,regs[83:80]));
+        initial_e = 8'h12;
+        initial_f = 8'h34;
+    end
+endtask
+
 // Install X/Y after load_program's LDS setup. The replacement LDY occupies
 // the old LDU/ORCC slots; the remaining ANDCC/JMP sequence still reaches the
 // target opcode at $0120.
@@ -1821,6 +1839,11 @@ initial begin
     load_program(1'b1,8'h10,8'h5a,8'h12);
     measure_case(2,16'h0122,"DECW native");
     check_ef(8'h12,8'h33,8'h01,"DECW native");
+
+    // NEGD at the signed minimum checks D selection and N/Z/V/C flags in
+    // both the emulation and native opcode-fetch paths.
+    run_negd_boundary(1'b0,"NEGD emulation boundary");
+    run_negd_boundary(1'b1,"NEGD native boundary");
 
     load_program(1'b0,8'h10,8'h4c,8'h12); // INCD
     measure_case(3,16'h0122,"INCD emulation");
