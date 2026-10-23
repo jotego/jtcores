@@ -46,6 +46,8 @@ interrupt, WAI, HALT, TSX/TXS bus-address and FC-policy checks plus the 6801/630
 unit-simulation workflow runs this command in its MC6802 job. Generated sources,
 objects and logs remain in `ver/6802/scratch/`.
 
+See [MC6802 completion](doc/complete_6802.md) for remaining work.
+
 ### MC6800
 
 Some games from Taito and Atari in the late 1970's used the MC6800. KONAMI's Whizz Quiz (1985) uses it too.
