@@ -77,7 +77,7 @@ bus schedules.
 | Profile and expectation | Executed scope | Measured result and important limits |
 |---|---|---|
 | MC6801/MC6803; Motorola MC6801 reference | All 220 documented opcode bytes; 738 timing assertions and 1,243 runtime dispatches; 256 relative-branch cases across all N/Z/V/C pre-states; reset, vectors, effects, stack-wrap, CEN pause and interrupt priority | The no-interrupt WAI positive control fails its documented handover: after pre-stacking and halt, the controller dispatches the saved CCR as an opcode instead of waiting. Wake/resume is therefore unassessed. The pre-edge interrupt-entry U=`C70` to pre-edge first-handler-opcode U=`860` interval measures 50 CEN edges (12.5 E), versus the MC6801 manual's 48 edges (12 E). ICF/OCF/TOF/IRQ vectors and priority are covered; simultaneous eligible IRQ+NMI at an unmasked NI boundary selects NMI. A one-CEN NMI pulse is recognized while I=1 and the interrupt return resumes through CLI; the fixture does not claim storage of the pulse until CLI. |
-| HD6301 family; V0 timing, Y0 vector additions | All 230 V0 opcode bytes; 753 timing assertions and 1,296 runtime dispatches; 256 branch cases; arithmetic, memory, bit operations, DAA/MUL/XGDX/SLP, vectors, stack-wrap and CEN pause | WAI has the same handover failure. SLP enters sleep and vectors on IRQ, but RTI returns to SLP instead of continuing after it. PULA/PULB/PULX/DAA/XGDX/MUL throughput landmarks match their special table counts; the public bus schedule omits documented `$FFFF` filler/restart reads, and MUL prefetch differs. The SLP sleep interval is not assigned a cycle result because its observed wait/exit sequence does not expose the manual's timing boundary. The pre-edge interrupt-entry U=`C70` to pre-edge first-handler-opcode U=`860` interval measures the same 50 CEN edges (12.5 E) versus the HD63701 figure's 48 (12 E); IRQ/ICF/OCF/TOF/SCI/CMI/IRQ2 selections are exercised, and simultaneous eligible IRQ+NMI selects NMI. A one-CEN NMI pulse recognized while I=1 returns through CLI; no retention-until-CLI claim is made. |
+| HD6301 family; V0 timing, Y0 vector additions | All 230 V0 opcode bytes; 753 timing assertions and 1,296 runtime dispatches; 256 branch cases; arithmetic, memory, bit operations, DAA/MUL/XGDX/SLP, vectors, stack-wrap and CEN pause | WAI has the same handover failure. SLP enters sleep and vectors on IRQ, but RTI returns to SLP instead of continuing after it. PULA/PULB/PULX/DAA/XGDX/MUL throughput landmarks match their special table counts. The observed public bus schedule omits documented `$FFFF` restart-LSB reads, and MUL's next-opcode prefetch occurs at the end of its sequence; this is a documented Table 13 schedule difference outside the supported wrapper contract. Required checks remain throughput cycle counts and architectural register/memory effects. The SLP sleep interval is not assigned a cycle result because its observed wait/exit sequence does not expose the manual's timing boundary. The pre-edge interrupt-entry U=`C70` to pre-edge first-handler-opcode U=`860` interval measures the same 50 CEN edges (12.5 E) versus the HD63701 figure's 48 (12 E); IRQ/ICF/OCF/TOF/SCI/CMI/IRQ2 selections are exercised, and simultaneous eligible IRQ+NMI selects NMI. A one-CEN NMI pulse recognized while I=1 returns through CLI; no retention-until-CLI claim is made. |
 | MC6805/68705; HMOS 11-bit P3 timing target | 207 HMOS forms; 237 instruction intervals including alternate branch outcomes; 169 explicit effect assertions plus three focused address probes; all conditional and bit-branch taken/not-taken destinations | 22 cases match both HMOS and CMOS columns; 215 cases match CMOS and differ from HMOS, across 185 encodings. No case matches neither; observer/fixture failures are zero. Independent P3 checks find 8 stacked-PC-high-byte differences, 3 stacked-CCR differences, one legal stack-wrap difference, and one missing latched masked-IRQ request. IRQ/TIRQ service is 44 CEN edges (11 E) each and simultaneous priority is correct. Three added non-timing effects confirm IX1 carry, IX2 high-offset reads, and public `$0800` aliasing to physical `$0000`, using distinct poison bytes. Exact deployed part is not proven for all wrapper users; P3 stack claims are not generalized to P5. |
 | Implemented CMOS 65C02 compared with WDC W65C02S | All 210 local opcodes compared against 212 named WDC instructions; 393 measured paths and two status/control fixtures capturing four status observations, including decimal, indexed crossings, branch/bit-branch outcomes, IRQ/NMI/reset and CEN cases | 149 ordered WDC-relative observations are retained (145 timing observations plus IRQ B, NMI B, stacked IRQ D, and RTI-restored D). There are zero unexpected semantic/bus failures. Strict WDC mode fails on those observations. This is a named comparison profile, not an exact vendor declaration for the RTL; WAI `$CB` and STP `$DB` are absent. |
 | DECO222 local profile | 512 opcode-remap comparisons and 19 runtime cases, including decrypted IRQ/NMI handler paths | The local opcode permutation, opcode/data separation, public bus behavior, extra NOP forms, and encrypted IRQ/NMI paths pass. No original DECO silicon manual or exact vendor part is identified, so extra-NOP timing is checked against local YAML, not claimed as a silicon timing pass. |
@@ -115,8 +115,12 @@ printed p. 787 (PDF p. 70); the HD63701V0 sheet independently shows 12 service
 slots in Fig. 10, printed p. 637 (PDF p. 8). The HD special operations use
 equal-phase landmarks from the manual's Table 13 because its pipeline note
 warns that ordinary fetch-to-fetch accounting is exceptional for PULL, DAA,
-MUL, and XGDX. This measures throughput landmarks; it does not claim complete
-public bus-sequence agreement.
+MUL, and XGDX. The observed public schedule omits the documented `$FFFF`
+restart-LSB reads for PULA, PULB, PULX, DAA, XGDX, and MUL; MUL's next-opcode
+prefetch occurs at the end of its sequence. This is a documented bus-schedule
+difference outside the supported wrapper contract. The required checks are
+throughput cycle counts and architectural register/memory effects, not
+reproduction of the annotated filler-read or prefetch sequence.
 
 **MC6805/68705.** Motorola, [*M6805 User's Manual*](https://bitsavers.org/components/motorola/6805/6805_Users_Manual_2ed_1983.pdf), second edition (1983),
 instruction-specific timing chapter, cycle tables, Appendix F, and Appendix
@@ -209,9 +213,11 @@ queries, source snapshots, and commit references.
 
 The exact deployed MC6805 part is not identified for every wrapper user, P5
 stack-specific rules were not inferred from P3, and the 65C02 vendor profile
-is unspecified. MC6801/HD6301 WAI handover, HD SLP resume and special-operation
-public bus traces have the failures described above; their service timing has
-the separately measured 50-vs-48-edge mismatch described above. B reset-entry latency is
+is unspecified. MC6801/HD6301 WAI handover and HD SLP resume have the failures
+described above. The HD special-operation bus-schedule difference is recorded
+as outside the supported wrapper contract; throughput counts and architectural
+effects remain contract checks. Service timing has the separately measured
+50-vs-48-edge mismatch described above. B reset-entry latency is
 not assigned an oracle, and CMOS STOP/WAIT behavior is not dynamically tested
 in the P3-targeted suite. The 65C02 assessment does not implement WAI/STP and
 does not prove all operand combinations. DECO extra-NOP timing has no

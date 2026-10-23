@@ -14,8 +14,13 @@ checked at 10E through the next dispatched opcode and WAI at 9E through its
 first halt. SLP has a nominal 4E entry/wait/exit sequence in Table 13, but its
 unbounded wait interval and failed resume prevent a fixed-cycle assertion.
 PULA, PULB, PULX, DAA, XGDX, and MUL use separate equal-phase Table 13
-landmarks. The intervals match the documented cycle counts, while the raw
-special-operation bus traces omit documented `$FFFF` filler/restart reads.
+landmarks. The intervals match the documented cycle counts. The observed
+public bus schedule omits the documented `$FFFF` restart-LSB reads for these
+operations, and MUL's next-opcode prefetch occurs at the end of its sequence.
+This is a recorded Table 13 bus-schedule difference, not a wrapper-contract
+failure: the required checks are throughput cycle counts and architectural
+register/memory effects. The suite does not require the annotated filler-read
+or prefetch sequence to match.
 
 The no-interrupt WAI positive control exposes the same handover failure as the
 MC6801 profile, so IRQ/NMI wake and pre-stacked WAI resume are unassessed. SLP
