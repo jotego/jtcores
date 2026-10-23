@@ -3,15 +3,21 @@
 # create a file called gather.f with the names of the files to include in the sim
 # not local to the simulation folder
 
+set -o pipefail
+
 RUNFOLDER="."
 ALL_MACROS=
 MACRO=
 FAIL=0
+SIMULATOR=iverilog
+VERILATOR_BUILD=
 
 main() {
-	parse_args $*
+	parse_args "$@"
 	cd_to_run_folder
 	parse_dot_simunit
+	parse_args "$@"
+	trap clean_temp EXIT
 	execute_goscript
 	if [ -z "$ALL_MACROS" ]; then
 		run_one
@@ -28,6 +34,12 @@ parse_args() {
 			--run)    shift; RUNFOLDER="$1";;
 			--skip)   exit_if_running_on_github;;
 			--macros) shift; ALL_MACROS="$1";;
+			--simulator)
+				shift
+				case "${1:-}" in
+					iverilog|verilator) SIMULATOR="$1";;
+					*) echo "Use --simulator iverilog or verilator"; exit 1;;
+				esac;;
 			--help|-h) show_help; exit 0;;
 			*)
 				echo "Unsupported argument $1"
@@ -62,6 +74,7 @@ bash ./clean_up.sh
 
 Arguments:
 
+--simulator     iverilog (default) or verilator
 --keep		do not delete test.lxt after a PASS simulation
 --macros	comma separated list of macros. Each macro will trigger a different
             simulation.
@@ -86,7 +99,7 @@ execute_goscript() {
 
 run_one() {
 	prepare_files
-	lint_uut
+	if [ "$SIMULATOR" = iverilog ]; then lint_uut; fi
 	run_simulation
 	eval_result
 	clean_up
@@ -155,10 +168,14 @@ filter_hex_out() {
 run_simulation() {
 	local macro
 	if [ ! -z "$MACRO" ]; then
-		macro="-D $MACRO"
+		macro="-D$MACRO"
 	fi
 	if [[ $macro != *JTFRAME_MCLK* ]]; then
-		macro="$macro -D JTFRAME_MCLK=48000000"
+		macro="$macro -DJTFRAME_MCLK=48000000"
+	fi
+	if [ "$SIMULATOR" = verilator ]; then
+		run_verilator $macro
+		return
 	fi
 	iverilog -g2012 `find -name "*.v"` `find -name "*.sv"` \
 		-I$JTFRAME/ver/inc \
@@ -167,8 +184,34 @@ run_simulation() {
 	sim -lxt | tee sim.log
 }
 
+run_verilator() {
+	local trace=()
+	if [ -n "$KEEP_LXTFILE" ]; then trace=(--trace); fi
+	mkdir -p obj_dir
+	VERILATOR_BUILD=$(mktemp -d "$PWD/obj_dir/simunit.XXXXXX")
+	verilator --binary --timing -j 2 --top-module test \
+		--Mdir "$VERILATOR_BUILD" -o sim "${trace[@]}" \
+		-Wno-fatal -Wno-TIMESCALEMOD \
+		-DSIMULATION "$@" -f "$GATHER" \
+		`find -name "*.v"` `find -name "*.sv"` \
+		-I. -I"$JTFRAME/ver/inc" \
+		$JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v}
+	"$VERILATOR_BUILD/sim" | tee sim.log
+}
+
+clean_temp() {
+	if [ -n "$GATHER" ]; then
+		rm -f -- "$GATHER"
+		GATHER=
+	fi
+	if [ -n "$VERILATOR_BUILD" ]; then
+		rm -rf -- "$VERILATOR_BUILD"
+		VERILATOR_BUILD=
+	fi
+}
+
 eval_result() {
-	if grep PASS sim.log > /dev/null; then
+	if grep -q PASS sim.log && ! grep -Eq '(^|[[:space:]])FAIL([[:space:]:]|$)|%Fatal|%Error' sim.log; then
 		echo PASS
 	else
 		cat sim.log
@@ -181,7 +224,8 @@ clean_up() {
 	if [ -e clean_up.sh ]; then
 		bash ./clean_up.sh
 	fi
-	rm -f sim $GATHER sim.log
+	rm -f sim sim.log
+	clean_temp
 	if [[ $FAIL = 0 && -z "$KEEP_LXTFILE" ]]; then
 		rm -f test.lxt
 	fi
@@ -195,4 +239,4 @@ exit_with_status() {
 	fi
 }
 
-main $*
+main "$@"
