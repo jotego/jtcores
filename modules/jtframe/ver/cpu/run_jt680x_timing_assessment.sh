@@ -16,7 +16,7 @@ elif [[ $# -ne 0 ]]; then
 fi
 cd "$(dirname "$0")/../../../.."
 set --
-source setprj.sh
+source ./setprj.sh
 cpu_dir="$JTROOT/modules/jtframe/ver/cpu"
 for suite in \
     jt6801_timing \
