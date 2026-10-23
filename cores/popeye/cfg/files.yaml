@@ -1,0 +1,37 @@
+popeye:
+  - get:
+    - jtpopeye_game.v
+    - jtpopeye_header.v
+    - jtpopeye_main.v
+    - jtpopeye_prot.v
+    - jtpopeye_cab.v
+    - jtpopeye_sound.v
+    - jtpopeye_video.v
+    - jtpopeye_timing.v
+    - jtpopeye_dma.v
+    - jtpopeye_char.v
+    - jtpopeye_bg.v
+    - jtpopeye_objbuf.v
+    - jtpopeye_obj.v
+    - jtpopeye_colmix.v
+    - jtpopeye_dbl.v
+    - jtpopeye_ana.v
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+jt12:
+  - get:
+    - jt49.yaml
+jt12/jt49:
+  - from: filter
+    get:
+    - jt49_dly.v
+    - jt49_mave.v
