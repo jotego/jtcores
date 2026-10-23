@@ -18,6 +18,26 @@ Idx addr.      | 8-bit offset      | 8/16-bit offset
 
 ## Device Usage on Arcade Games
 
+### MC6802 profile
+
+Select `cfg/jt6802.yaml` and define `JT680X_6802` to use the 6802 bus profile
+with the shared `jt680x` controller, registers and ALU. This profile exposes
+E, VMA, MR, memory readiness and completed transfers. `cen` is the crystal
+enable, at four times the nominal E frequency; `enable` is a host pause.
+IRQ, NMI and `ext_halt` retain the family's normalized active-high convention.
+An external chip-level wrapper must map physical pin polarity and RAM/RE.
+
+The runtime `nsc8105` input selects opcode translation and the four derivative
+operations. These extension timing/flag interpretations remain provisional.
+`FC_COMPAT` defaults to zero; Seicro opts into its undocumented Frisky Tom
+compatibility handling. Each build selects one microcode profile, using the
+existing `6801` generated-file prefix shared with the ALU.
+
+Run `modules/jt680x/ver/6802/sim.sh` from the repository root for Docker/Verilator
+interrupt, WAI, HALT and FC-policy checks plus the 6801/6301 regressions. The
+unit-simulation workflow runs this command in its MC6802 job. Generated sources,
+objects and logs remain in `ver/6802/scratch/`.
+
 ### MC6800
 
 Some games from Taito and Atari in the late 1970's used the MC6800. KONAMI's Whizz Quiz (1985) uses it too.

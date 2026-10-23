@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 func main() {
@@ -22,27 +21,11 @@ func main() {
 	assertDigest("6801.vh", "0d788b6687e8cd475fab0fdcaa03a1826e345196280bc239141cb51c66592f94")
 	checkOtherProfile("6801", "61bf360b0e0bddb9170594d80735e9f543f4081511afab95a572b270e6f560ca")
 	path := os.Getenv("JTROOT") + "/modules/jt680x/hdl/jt680x_ctrl.v"
+	assertDigest(path, "2417b42c946155ea0080ebc97c8c12e2f5db3ab6e33c87fd96f6549fd337bbab")
 	src, err := os.ReadFile(path)
-	if err != nil {
-		panic(err)
-	}
-	if sum := sha256.Sum256(src); hex.EncodeToString(sum[:]) != "5c6bfeab1f716fc3917d660ef24134d4ecd14e1abfcfe8f2111ab6d72c3befa6" {
-		panic("jt680x_ctrl.v changed; re-audit the Icarus declaration-order adapter")
-	}
-	decl := "wire [4:0] jsr_sel;\nreg  [2:0] iv_sel;\nwire       halt, swi, ni, still;\nreg        nmi_l, pendng;\n"
-	includes := "`include \"6801_param.vh\"\n`include \"6801.vh\"\n"
-	text := string(src)
-	if strings.Count(text, decl) != 1 || strings.Count(text, includes) != 1 {
-		panic("jt680x_ctrl.v adapter anchors must each occur exactly once")
-	}
-	text = strings.Replace(text, decl, "", 1)
-	text = strings.Replace(text, includes, decl+includes, 1)
-	if strings.Replace(text, decl+includes+"\n", includes+"\n"+decl, 1) != string(src) {
-		panic("jt680x_ctrl.v adapter is not a declaration-only relocation")
-	}
-	if err := os.WriteFile("jt680x_ctrl_sim.rtl", []byte(text), 0644); err != nil {
-		panic(err)
-	}
+	if err != nil { panic(err) }
+	if err := os.WriteFile("jt680x_ctrl_sim.rtl", src, 0644); err != nil { panic(err) }
+
 }
 
 func checkOtherProfile(name, uc string) {

@@ -48,6 +48,15 @@ jobs:
       - id: simulation
         run: |
           docker run --network host -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/${{matrix.unitsim}}
+  mc6802:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify shared MC6802 and family regressions
+        run: |
+          docker pull jotego/simulator:latest
+          JTFRAME_SIM_IMAGE=jotego/simulator:latest modules/jt680x/ver/6802/sim.sh
   rotation:
     runs-on: ubuntu-latest
     timeout-minutes: 10

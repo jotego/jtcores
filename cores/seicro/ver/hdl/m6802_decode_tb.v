@@ -72,7 +72,19 @@ initial begin
     $display("PASS YAML opcode eligibility: %0d raw bytes/modes, procedure slots rejected, FC compatibility isolated",checked);
     $finish;
 end
-jtseicro_m6802 cpu(
+jt680x #(
+    .FC_COMPAT       ( 1            )
+) cpu(
+    .irq             ( 1'b0         ),
+    .nmi             ( 1'b0         ),
+    .ext_halt        ( 1'b0         ),
+    .irq_icf         ( 1'b0         ),
+    .irq_ocf         ( 1'b0         ),
+    .irq_tof         ( 1'b0         ),
+    .irq_sci         ( 1'b0         ),
+    .irq_cmf         ( 1'b0         ),
+    .irq2            ( 1'b0         ),
+    .ba              (              ),
     .rst             ( rst          ),
     .cpu_rst         ( rst          ),
     .clk             ( clk          ),

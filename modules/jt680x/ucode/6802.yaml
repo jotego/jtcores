@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 Andrea Bogazzi
+# SPDX-FileCopyrightText: 2023 Jose Tejada Gomez
 # SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Date: 15-10-2026
@@ -254,6 +254,40 @@ ucode:
       - md_rmux, ld0_opnd
       - pc_ld
       - fetchop_jsr
+  - name: isrv
+    start: 0
+    seq:
+      - bus
+      - bus
+      - bus
+      - pc_rmux, ld0_opnd
+      - md_ld
+      - psh16_jsr
+      - x_rmux, ld0_opnd
+      - md_ld
+      - psh16_jsr
+      - a_rmux, ld0_opnd
+      - md_ld
+      - psh8_jsr
+      - b_rmux, ld0_opnd
+      - md_ld
+      - psh8_jsr
+      - cc_rmux, ld0_opnd
+      - md_ld
+      - psh8_jsr
+      - i1_cc
+      - ivrd_jsr
+  - name: iwake
+    start: 0
+    seq:
+      - bus
+      - bus
+      - i1_cc
+      - ivrd_jsr
+  - name: hlt
+    start: 0
+    seq:
+      - halt
   - name: fetchop
     start: 0
     seq:
@@ -534,7 +568,7 @@ ucode:
       - cc_rmux, ld0_opnd
       - md_ld
       - psh8_jsr
-      - retire, halt
+      - retire, alt, halt
   - mnemo: [ SWI ]
     seq:
       - ${entry}?entry, ${nscop}?nscop, ${fccompat}?fccompat, bus, valid

@@ -93,7 +93,7 @@ always @(posedge clk) begin
     held_dout=dout;
     held_vma=vma;
     held_wr=wr;
-    if(dut.illegal) $fatal(1,"Illegal opcode %h at %h",dut.opcode,dut.u_regs.op_pc);
+    if(dut.illegal) $fatal(1,"Illegal opcode %h at %h",dut.raw_opcode,dut.u_regs.op_pc);
 end
 
 jtseicro_mr u_mr(
@@ -106,7 +106,19 @@ jtseicro_mr u_mr(
     .mr_n        ( board_mr_n  )
 );
 
-jtseicro_m6802 dut(
+jt680x #(
+    .FC_COMPAT       ( 1               )
+) dut(
+    .irq             ( 1'b0            ),
+    .nmi             ( 1'b0            ),
+    .ext_halt        ( 1'b0            ),
+    .irq_icf         ( 1'b0            ),
+    .irq_ocf         ( 1'b0            ),
+    .irq_tof         ( 1'b0            ),
+    .irq_sci         ( 1'b0            ),
+    .irq_cmf         ( 1'b0            ),
+    .irq2            ( 1'b0            ),
+    .ba              (                 ),
     .nsc8105         ( 1'b0            ),
     .opcode_fetch    (                 ),
     .rst             ( rst             ),
