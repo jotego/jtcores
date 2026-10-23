@@ -1561,6 +1561,7 @@ reg     [9:0]    wide;
 reg     borrow;
 begin
     cc_out =  cc_arg;
+    wide = 10'd0;
     case (operation)
         ALUOP_NEG:
         begin
