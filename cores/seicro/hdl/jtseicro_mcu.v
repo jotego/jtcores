@@ -22,7 +22,7 @@ module jtseicro_mcu(
     output      [7:0] debug_view
 );
 
-// PAL arbitration and bus assumptions: ../doc/pal.md.
+// PAL arbitration and bus assumptions: ../doc/hardware_verification.md.
 wire [15:0] addr;
 wire [7:0] dout, internal_data;
 wire wr, mcu_e, mcu_vma, step, instruction_end, opcode_fetch, mr_n;

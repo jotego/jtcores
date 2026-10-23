@@ -12,7 +12,7 @@ module jtseicro_wait(
     output            wait_n
 );
 
-// PAL provenance, decoder aliases and latch timing: ../doc/pal.md.
+// PAL provenance, decoder aliases and latch timing: ../doc/hardware_verification.md.
 wire mem = addr[15] && !mreq_n && rfsh_n;
 wire [3:1] mq;
 wire [19:1] pin;

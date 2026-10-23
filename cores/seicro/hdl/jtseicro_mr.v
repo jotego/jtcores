@@ -9,7 +9,7 @@ module jtseicro_mr(
     output      mr_n
 );
 
-// Physical pins, polarity and timing qualifications: ../doc/pal.md.
+// Physical pins, polarity and timing qualifications: ../doc/hardware_verification.md.
 wire request=e & vma & a15;
 reg request_l, release_l;
 reg pending, armed;
