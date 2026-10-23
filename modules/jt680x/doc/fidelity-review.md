@@ -53,17 +53,13 @@ bash modules/jtframe/ver/cpu/run_jt680x_timing_assessment.sh --strict-rockwell
 ```
 
 It requires zero discrepancies against the 210-opcode Rockwell source matrix
-and its directed conditional paths. The strict WDC comparison remains a
-separate historical comparison:
-
-```sh
-bash modules/jtframe/ver/cpu/run_jt680x_timing_assessment.sh --strict-wdc
-```
-
-The original assessment snapshot recorded 149 WDC-relative observations
-(145 timing observations and four stacked-status compatibility observations).
+and its directed conditional paths. The original assessment snapshot recorded
+149 WDC-relative observations (145 timing observations and four stacked-status
+compatibility observations).
 Those are retained as historical WDC comparison data; they do not define the
 selected Rockwell target expectations or its strict zero-finding result.
+There is no WDC-targeted RTL run in the current suite; `--strict-wdc` is
+rejected so it cannot silently run the Rockwell oracle under a WDC label.
 
 The final default five-suite run is preserved at
 `tasks/jtcores-151/artifacts/aggregate-final2.log` (SHA-256

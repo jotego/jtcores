@@ -45,8 +45,9 @@ source setprj.sh && simunit.sh --macros STRICT_ROCKWELL --run modules/jtframe/ve
 
 The strict mode requires zero Rockwell timing discrepancies and rejects
 non-integral CEN intervals. Both modes retain the semantic, bus, reserved-NOP,
-and oracle-negative-control assertions. The WDC historical comparison is
-audited separately by `check_manifest.py` against its own CSV and finding log.
+and oracle-negative-control assertions. `check_manifest.py` validates the
+separate historical WDC CSV and finding inventory; it does not run the current
+RTL against a WDC timing target.
 
 Rockwell Table 4 specifies that D is cleared after reset and interrupts,
 valid decimal-operation flags are correct, and decimal arithmetic takes one
