@@ -39,8 +39,8 @@ case. IRQ/NMI and BRK/PHP status behavior is checked independently from timing.
 Run from the repository root:
 
 ```sh
-source setprj.sh && simunit.sh --run modules/jtframe/ver/cpu/jt65c02_timing
-source setprj.sh && simunit.sh --macros STRICT_ROCKWELL --run modules/jtframe/ver/cpu/jt65c02_timing
+source ./setprj.sh && simunit.sh --run modules/jtframe/ver/cpu/jt65c02_timing
+source ./setprj.sh && simunit.sh --macros STRICT_ROCKWELL --run modules/jtframe/ver/cpu/jt65c02_timing
 ```
 
 The strict mode requires zero Rockwell timing discrepancies and rejects

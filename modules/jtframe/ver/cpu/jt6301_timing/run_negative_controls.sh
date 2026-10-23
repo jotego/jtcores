@@ -3,7 +3,7 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../../../../.." && pwd)"
 cd "$root"
-source setprj.sh
+source ./setprj.sh
 for spec in \
     'NEGATIVE_RESULT|A=bc expected bd' \
     'NEGATIVE_TIMING|used 8 crystal enables, manual expects 3 E cycles' \

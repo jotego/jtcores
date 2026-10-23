@@ -66,7 +66,7 @@ Consequently, the CPU's vector reads at `$1FFE` etc. alias the P3's physical
 Run from the repository root:
 
 ```sh
-source setprj.sh
+source ./setprj.sh
 simunit.sh --run modules/jtframe/ver/cpu/jt6805_timing
 ```
 
