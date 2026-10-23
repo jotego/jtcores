@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 22-11-2023 */
 /* verilator coverage_off */
@@ -6,6 +7,10 @@ module jt680x_regs(
     input             rst,
     input             clk,
     input             cen,
+`ifdef JT680X_6802
+    input      [7:0]  opcode,
+    input             ni,
+`endif
     // CONTROL
     input             alt,
     input             branch,
@@ -14,7 +19,11 @@ module jt680x_regs(
     input             inc_pc,
     input             md_shift,
     input             op0inv,
+`ifdef JT680X_6802
+    input      [ 2:0] ea_sel,
+`else
     input      [ 1:0] ea_sel,
+`endif
     input      [ 1:0] opnd_sel,
     input      [ 3:0] ld_sel,
     input      [ 3:0] rmux_sel,
@@ -37,6 +46,9 @@ module jt680x_regs(
 
 reg  [ 7:0] a, b, md_alt;
 reg  [15:0] x, s, rmux, ea, pc;
+`ifdef JT680X_6802
+reg [15:0] op_pc;
+`endif
 reg         n,z,v; // other condition codes
 reg         brok;
 
@@ -60,6 +72,13 @@ always @* begin
           default: rmux = { md[15:8], alt ? md_alt : md[7:0] };
     endcase
     case( ea_sel )
+`ifdef JT680X_6802
+        X_EA: addr = x;
+        P_EA: addr = {x[15:8],ea[7:0]};
+        T_EA: addr = {op_pc[15:8],ea[7:0]};
+        B_EA: addr = brok ? ea : pc;
+        O_EA: addr = pc-16'd1;
+`endif
         S_EA: addr = s;
         M_EA: addr = ea;
         default: addr = pc;
@@ -78,9 +97,15 @@ always @( posedge clk, posedge rst ) begin
         md  <= 0;
         ea  <= 0;
         pc  <= 0;
+`ifdef JT680X_6802
+        op_pc <= 0;
+`endif
         {h,n,z,v,c} <= 0;
         i    <= 1;
     end else if( cen ) begin
+`ifdef JT680X_6802
+        if(ni) op_pc <= pc;
+`endif
         if( fetch  ) begin
             if( alt )
                 md_alt <= din;
@@ -134,7 +159,11 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         brok <= 0;
     end else if(cen) begin
+`ifdef JT680X_6802
+        if( brlatch ) case(opcode[3:0])
+`else
         if( brlatch ) case(md[3:0])
+`endif
             4'b0000: brok <= 1; // bra
             4'b0001: brok <= 0; // brn
             4'b0010: brok <= !(c | z); // bhi

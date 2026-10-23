@@ -22,6 +22,7 @@ module jtseicro_mcu(
     output      [7:0] debug_view
 );
 
+// PAL arbitration and bus assumptions: ../doc/pal.md.
 wire [15:0] addr;
 wire [7:0] dout, internal_data;
 wire wr, mcu_e, mcu_vma, step, instruction_end, opcode_fetch, mr_n;
@@ -54,7 +55,7 @@ always @* begin
     endcase
 end
 jtframe_ram #(
-    .AW ( 7 )
+    .AW   ( 7                                               )
 ) u_internal(
     .clk  ( clk                                             ),
     .cen  ( 1'b1                                            ),
@@ -68,7 +69,19 @@ always @(posedge clk) begin
     if(core_rst) dac<=0;
     else if(step && write_cycle && addr==16'h2000) dac<=dout[7:4];
 end
-jtseicro_m6802 u_cpu(
+jt680x #(
+    .FC_COMPAT       ( 1                 )
+) u_cpu(
+    .irq             ( 1'b0              ),
+    .nmi             ( 1'b0              ),
+    .ext_halt        ( 1'b0              ),
+    .irq_icf         ( 1'b0              ),
+    .irq_ocf         ( 1'b0              ),
+    .irq_tof         ( 1'b0              ),
+    .irq_sci         ( 1'b0              ),
+    .irq_cmf         ( 1'b0              ),
+    .irq2            ( 1'b0              ),
+    .ba              (                   ),
     .rst             ( rst               ),
     .cpu_rst         ( core_rst          ),
     .clk             ( clk               ),

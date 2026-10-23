@@ -52,7 +52,19 @@ initial begin
     #100000;
     $fatal(1,"FC compatibility timeout");
 end
-jtseicro_m6802 cpu(
+jt680x #(
+    .FC_COMPAT       ( 1               )
+) cpu(
+    .irq             ( 1'b0            ),
+    .nmi             ( 1'b0            ),
+    .ext_halt        ( 1'b0            ),
+    .irq_icf         ( 1'b0            ),
+    .irq_ocf         ( 1'b0            ),
+    .irq_tof         ( 1'b0            ),
+    .irq_sci         ( 1'b0            ),
+    .irq_cmf         ( 1'b0            ),
+    .irq2            ( 1'b0            ),
+    .ba              (                 ),
     .nsc8105         ( 1'b0            ),
     .opcode_fetch    (                 ),
     .rst             ( rst             ),
