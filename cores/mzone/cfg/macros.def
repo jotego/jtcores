@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[*]
+include ../../kicker/cfg/common.def
+
+JTFRAME_WIDTH=288
+JTFRAME_HEIGHT=224
+# Bit D is reserved for screen rotation on MiST/SiDi128.
+CORE_OSD=OE,Video width,288,Original 287;
+
+CORENAME=JTMZONE
+GAMETOP=jtmzone_game_sdram
+
+MAIN_MODULE=jtmzone_main
+SND_MODULE=jtmzone_snd
+
+MAIN_START=0x00000
+SND_START =0x10000
+MCU_ROM_START=0x12000
+OBJ_START =0x13000
+SCR_START =0x1B000
+JTFRAME_PROM_START=0x1F000
+
+# Vertical display.
+JTFRAME_VERTICAL
+JTFRAME_FLIP_RESET
+
+# Development-only SCROLL fetch-miss counters in the JTFRAME debug overlay.
+# Selector 0/2: peak per frame; 1: last frame; 3: affected frames (max 255).
+debug MZONE_FETCH_DIAG

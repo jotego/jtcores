@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+params:
+  - { name: SND_OFFSET, value: "`SND_START >> 1" }
+  - { name: MCU_ROM_OFFSET, value: "`MCU_ROM_START >> 1" }
+  - { name: OBJ_OFFSET, value: "`OBJ_START >> 1" }
+  - { name: OBJ_LEN, value: "(`SCR_START-`OBJ_START) >> 1" }
+  - { name: SCR_OFFSET, value: "`SCR_START >> 1" }
+  - { name: FIX_OFFSET, value: "`SCR_START >> 1" }
+
+clocks:
+  clk24:
+    - mul: 1
+      div: 4
+      outputs:
+        - cpu4
+        - cen_nc
+
+audio:
+  # Common gain normalization leaves headroom for all four sources.
+  rsum: 40k
+  # 190-ohm volume pot at full volume, loaded by the source branches:
+  # 190 || 10k || 11k || 11k || 11k ~= 177 ohms; wiper capacitor = 100nF.
+  rc: { r: 177, c: 100n }
+  channels:
+    # AY: 1k before the capacitor node, then 10k to the summing point.
+    # Approximate loaded full-scale voltages: AY 2.25V, buffered DAC 4.98V.
+    # JTFRAME vpp is relative to 5V: 0.45 / 0.996 ~= 0.452 AY/DAC.
+    # This is a fixed gain approximation, not a model of AY output impedance.
+    # Including pot/source loading gives approximately 911 ohms at each cap.
+    # Each selectable setting is a pair of poles; the second pole is bypassed.
+    - { name: psg0a, data_width: 8, unsigned: true, dcrm: true, vpp: 0.45, rsum: 11k, rc_en: true, rc: [
+        { r: 0,   c: 0    }, { r: 0, c: 0 }, # bypass
+        { r: 911, c: 10n  }, { r: 0, c: 0 }, # ~17.5kHz
+        { r: 911, c: 220n }, { r: 0, c: 0 }, # ~794Hz
+        { r: 911, c: 230n }, { r: 0, c: 0 }, # ~760Hz
+      ] }
+    - { name: psg0b, data_width: 8, unsigned: true, dcrm: true, vpp: 0.45, rsum: 11k, rc_en: true, rc: [
+        { r: 0,   c: 0    }, { r: 0, c: 0 },
+        { r: 911, c: 10n  }, { r: 0, c: 0 },
+        { r: 911, c: 220n }, { r: 0, c: 0 },
+        { r: 911, c: 230n }, { r: 0, c: 0 },
+      ] }
+    - { name: psg0c, data_width: 8, unsigned: true, dcrm: true, vpp: 0.45, rsum: 11k, rc_en: true, rc: [
+        { r: 0,   c: 0    }, { r: 0, c: 0 },
+        { r: 911, c: 10n  }, { r: 0, c: 0 },
+        { r: 911, c: 220n }, { r: 0, c: 0 },
+        { r: 911, c: 230n }, { r: 0, c: 0 },
+      ] }
+    - { name: dac, data_width: 8, unsigned: true, dcrm: true, vpp: 0.996, rsum: 10k }
+
+sdram:
+  banks:
+    -
+      buses:
+        -
+          name: fixrom
+          addr_width: 14
+          data_width: 32
+          offset: FIX_OFFSET
+        -
+          name: scrrom
+          addr_width: 14
+          data_width: 32
+          offset: SCR_OFFSET
+        -
+          name: objrom
+          addr_width: 15
+          data_width: 32
+          offset: OBJ_OFFSET
+          gfx_sort: hvvvx
+          # Limit sorting to the object ROM; character ROM follows it.
+          gfx_sort_en: "(ioctl_addr < `SCR_START)"
+        -
+          name: snd
+          addr_width: 13
+          data_width: 8
+          offset: SND_OFFSET
+        -
+          name: mcu_rom
+          addr_width: 12
+          data_width: 8
+          offset: MCU_ROM_OFFSET
+        -
+          name: main
+          addr_width: 16
+          data_width: 8

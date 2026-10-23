@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+mzone:
+  - get:
+      - jtmzone_game.v
+      - jtmzone_main.v
+      - jtmzone_snd.v
+      - jtmzone_video.v
+      - jtmzone_obj.v
+      - jtmzone_objdraw.v
+      - jtmzone_scroll.v
+      - jtmzone_fix.v
+      - jtmzone_colmix.v
+  -
+    # The sound Z80 also handles cabinet inputs and shared RAM.
+    get:
+      - jtmzone_snd_dev.v
+  - unless: [NOSOUND]
+    get:
+      - jtmzone_mcu.v
+kicker:
+  - get:
+      - common.yaml
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: cpu
+    get:
+      - jtframe_6809.yaml
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: cpu
+    unless: [NOSOUND]
+    get:
+      - t48.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_obj.yaml
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: sound
+    unless: [NOSOUND]
+    get:
+      - jtframe_mixer.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_crossclk_cen.v
+      - jtframe_frac_cen.v
+jt12:
+  - unless: [NOSOUND]
+    get:
+      - jt49.yaml

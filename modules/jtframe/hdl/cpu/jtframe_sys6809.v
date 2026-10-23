@@ -94,6 +94,8 @@ module jtframe_sys6809 #( parameter
     input           nFIRQ,
     input           nNMI,
     output          irq_ack,
+    output          BA,
+    output          BS,
     // Bus sharing
     input           bus_busy,
     // memory interface
@@ -131,6 +133,8 @@ module jtframe_sys6809 #( parameter
         .bus_busy   ( bus_busy  ),
         .breq_n     ( 1'b1      ),
         .bg         (           ),
+        .BA         ( BA        ),
+        .BS         ( BS        ),
         // memory interface
         .A          ( A         ),
         .RnW        ( RnW       ),
@@ -174,6 +178,8 @@ module jtframe_sys6809_dma #( parameter
     input           nFIRQ,
     input           nNMI,
     output          irq_ack,
+    output          BA,
+    output          BS,
     // Bus sharing
     input           bus_busy,
     input           breq_n, // bus request
@@ -198,7 +204,7 @@ module jtframe_sys6809_dma #( parameter
 );
 
     wire    cen_E, cen_Q;
-    wire    BA, BS, AVMA;
+    wire    AVMA;
     wire    OP;
     wire [7:0] din_dec;
     wire    irqn_eff, firqn_eff, nmin_eff;
