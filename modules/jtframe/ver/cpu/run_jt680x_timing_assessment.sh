@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 strict_profile=""
-if [[ "${1:-}" == "--strict-hmos" || "${1:-}" == "--strict-wdc" ]]; then
+if [[ "${1:-}" == "--strict-hmos" || "${1:-}" == "--strict-wdc" || "${1:-}" == "--strict-rockwell" ]]; then
     strict_profile="${1#--strict-}"
 elif [[ $# -ne 0 ]]; then
-    echo "usage: $0 [--strict-hmos | --strict-wdc]" >&2
+    echo "usage: $0 [--strict-hmos | --strict-wdc | --strict-rockwell]" >&2
     exit 2
 fi
 cd "$(dirname "$0")/../../../.."
@@ -35,4 +35,7 @@ if [[ "$strict_profile" == hmos ]]; then
 elif [[ "$strict_profile" == wdc ]]; then
     # STRICT_SPEC intentionally returns nonzero while WDC-relative findings remain.
     "$JTFRAME/bin/simunit.sh" --macros STRICT_SPEC --run "$cpu_dir/jt65c02_timing"
+elif [[ "$strict_profile" == rockwell ]]; then
+    # The selected target is the original Rockwell R65C02, distinct from WDC.
+    "$JTFRAME/bin/simunit.sh" --macros STRICT_ROCKWELL --run "$cpu_dir/jt65c02_timing"
 fi
