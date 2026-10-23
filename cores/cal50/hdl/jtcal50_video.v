@@ -31,6 +31,7 @@ module jtcal50_video #(
     output              VS,
     output              flip,
     input      [15:0]   thoffs,
+    input      [ 8:0]   obj_hshift, // foreground-only horizontal read correction
     output     [ 8:0]   hdump,
     // Palette
     output     [ 9:1]   pal_addr,
@@ -210,6 +211,7 @@ jtkiwi_gfx #(
     .vdump      ( vdump_adj      ),
     .vrender    ( vrender_adj    ),
     .hdump      ( hdump_adj      ),
+    .obj_hshift ( obj_hshift     ),
     // CPU interface
     .vram_cs    ( vram_cs        ),
     .vctrl_cs   ( vctrl_cs       ),
