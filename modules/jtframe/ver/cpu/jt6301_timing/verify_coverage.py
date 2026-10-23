@@ -30,15 +30,14 @@ print(f"RUNTIME COVERAGE VERIFIED: {len(got_exec)}/{len(want_exec)} documented o
       f"{sum(v[0] for v in runtime.values())} dispatches / {sum(v[1] for v in runtime.values())} timing assertions")
 service_oracle = list(csv.DictReader(Path(__file__).with_name("manual-interrupt-timing.csv").open()))
 want_service = {"IRQ": int(service_oracle[0]["manual_cycles"])*4, "NMI": int(service_oracle[1]["manual_cycles"])*4}
-findings = re.findall(r"SERVICE_TIMING_FINDING profile=.*? kind=(IRQ|NMI) observed_CEN=(\d+) manual_12E_expected_CEN=(\d+)", log)
 matches = re.findall(r"CHECKED: (?:MC6801|HD6301) (IRQ|NMI) C70.*?12E", log)
-observed = {kind: (int(value), int(expected)) for kind, value, expected in findings}
-for kind in matches:
-    observed[kind] = (want_service[kind], want_service[kind])
-if set(observed) != set(want_service) or len(findings)+len(matches) != 2:
+if set(matches) != set(want_service) or len(matches) != 2:
+    raise SystemExit(f"interrupt service must match the manual exactly once per kind; matches={matches}")
+observed = {kind: (want_service[kind], want_service[kind]) for kind in matches}
+if set(observed) != set(want_service):
     raise SystemExit(f"interrupt service coverage incomplete/duplicated: {observed}")
 for kind, (measured, expected) in observed.items():
-    if expected != want_service[kind] or measured not in (expected, 50):
-        raise SystemExit(f"{kind} service interval unexpected: measured={measured} manual={expected}; known reviewed baseline=50")
+    if expected != want_service[kind] or measured != expected:
+        raise SystemExit(f"{kind} service interval unexpected: measured={measured} manual={expected}")
 print("INTERRUPT SERVICE VERIFIED: IRQ and NMI measured at calibrated C70-to-U860 boundaries; manual source expects 12E; "
       + ", ".join(f"{kind}={value[0]}CEN" for kind, value in sorted(observed.items())))

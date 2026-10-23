@@ -8,7 +8,7 @@ for spec in \
     'NEGATIVE_RESULT|A=bc expected bd' \
     'NEGATIVE_TIMING|used 8 crystal enables, manual expects 3 E cycles' \
     'NEGATIVE_VECTOR|manual vector target 0201; PC=0200' \
-    'STRICT_SPEC|STRICT_SPEC: HD6301 WAI failed'; do
+    'NEGATIVE_WAI_OMIT_CC_LOAD|stale-ALU CCR regression: expected old omitted-load value 2b'; do
     macro="${spec%%|*}"
     expected="${spec#*|}"
     log="$(mktemp)"
@@ -26,3 +26,13 @@ for spec in \
     echo "NEGATIVE CONTROL VERIFIED: $macro rejected the mutated expectation / strict fidelity failure"
     rm -f "$log"
 done
+log="$(mktemp)"
+if "$JTFRAME/bin/simunit.sh" --macros STRICT_SPEC --run "$here" >"$log" 2>&1 && grep -Fq 'PASS: HD6301 full directed assessment sequence completed' "$log"; then
+    echo "STRICT SPEC VERIFIED: HD6301 timing and effect assertions match the selected manual profile"
+else
+    cat "$log" >&2
+    rm -f "$log"
+    echo "FAIL: strict HD6301 specification run did not complete" >&2
+    exit 1
+fi
+rm -f "$log"
