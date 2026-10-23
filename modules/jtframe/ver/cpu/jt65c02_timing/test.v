@@ -13,6 +13,8 @@ wire [15:0] addr;
 wire [7:0] din,dout;
 integer cen_count=0;
 integer cases=0, control_cases=0, mismatches=0, bus_writes=0;
+integer reserved_cases=0;
+integer watched_reads=0, watched_writes=0;
 integer known_findings=0;
 reg [31:0] finding_hash=32'h811c9dc5;
 localparam CEN_PER_PHI2=4;
@@ -28,6 +30,13 @@ always @(posedge clk) begin
         bus_writes<=bus_writes+1;
         last_write_addr<=addr;
         last_write_data<=dout;
+    end
+    if(rst) begin
+        watched_reads<=0;
+        watched_writes<=0;
+    end else if(cen && addr==16'h2100) begin
+        if(wr) watched_writes<=watched_writes+1;
+        else if(rd) watched_reads<=watched_reads+1;
     end
 end
 always @(posedge clk) if(trace_branch && cen) begin
@@ -93,6 +102,19 @@ function [15:0] endpoint(input [7:0] opcode, input [3:0] bytes);
     end
 endfunction
 
+function reserved_opcode(input [7:0] opcode);
+    begin
+        case(opcode)
+            8'h02,8'h03,8'h0b,8'h13,8'h1b,8'h22,8'h23,8'h2b,8'h33,8'h3b,
+            8'h42,8'h43,8'h44,8'h4b,8'h53,8'h54,8'h5b,8'h5c,8'h62,8'h63,
+            8'h6b,8'h73,8'h7b,8'h82,8'h83,8'h8b,8'h93,8'h9b,8'ha3,8'hab,
+            8'hb3,8'hbb,8'hc2,8'hc3,8'hcb,8'hd3,8'hd4,8'hdb,8'hdc,8'he2,
+            8'he3,8'heb,8'hf3,8'hf4,8'hfb,8'hfc: reserved_opcode=1'b1;
+            default: reserved_opcode=1'b0;
+        endcase
+    end
+endfunction
+
 task run_case(input [7:0] opcode, input [7:0] expected,
               input [3:0] bytes, input integer index);
     integer first,last,delta,actual,basewrites;
@@ -123,7 +145,9 @@ task run_case(input [7:0] opcode, input [7:0] expected,
         mem.mem[16'h01fe]=8'hff; mem.mem[16'h01ff]=8'h1f;
         mem.mem[16'h0100]=8'h20;
         if(opcode==8'h6c) begin
-            mem.mem[16'h100a]=8'hff; mem.mem[16'h100b]=8'h12;
+            // Non-page-wrap base case; XXFF is covered by its own Rockwell path.
+            mem.mem[16'h100a]=8'hfe; mem.mem[16'h100b]=8'h12;
+            mem.mem[16'h12fe]=8'h00; mem.mem[16'h12ff]=8'h20;
         end
         if(opcode==8'h10 || opcode==8'h30 || opcode==8'h50 || opcode==8'h70 ||
            opcode==8'h80 || opcode==8'h90 || opcode==8'hb0 || opcode==8'hd0 || opcode==8'hf0)
@@ -161,9 +185,9 @@ task run_case(input [7:0] opcode, input [7:0] expected,
             $display("TIMING mismatch op=%02x: partial PHI2 raw CEN delta=%0d",opcode,delta);
             record_known_finding({24'h0,opcode},delta,actual,expected);
         end
-        $display("BASE row op=%02x rawCEN=%0d actualPHI2=%0d expectedWDC=%0d",opcode,delta,actual,expected);
+        $display("BASE row op=%02x rawCEN=%0d actualPHI2=%0d expectedRockwell=%0d",opcode,delta,actual,expected);
         if(actual!=expected) begin
-            $display("TIMING mismatch op=%02x interval=%04x->%04x raw=%0d actual=%0d WDC=%0d",
+            $display("TIMING mismatch op=%02x interval=%04x->%04x raw=%0d actual=%0d Rockwell=%0d",
                      opcode,16'h1009,endpc,delta,actual,expected);
             record_known_finding({24'h0,opcode},delta,actual,expected);
         end
@@ -207,7 +231,7 @@ task run_case(input [7:0] opcode, input [7:0] expected,
             8'h48: if(mem.mem[16'h01fd]!==8'h55) begin $display("PHA stack data=%02x expected=55",mem.mem[16'h01fd]); mismatches=mismatches+1; end
             8'hda: if(mem.mem[16'h01fd]!==8'h01) begin $display("PHX stack data=%02x expected=01",mem.mem[16'h01fd]); mismatches=mismatches+1; end
             8'h5a: if(mem.mem[16'h01fd]!==8'h01) begin $display("PHY stack data=%02x expected=01",mem.mem[16'h01fd]); mismatches=mismatches+1; end
-            8'h08: if(mem.mem[16'h01fd]!==8'h24) begin $display("PHP stack data=%02x expected=24",mem.mem[16'h01fd]); mismatches=mismatches+1; end
+            8'h08: if((mem.mem[16'h01fd]&8'hef)!==8'h24) begin $display("PHP stack real flags=%02x expected=24; B=%0b is observed separately",mem.mem[16'h01fd]&8'hef,mem.mem[16'h01fd][4]); mismatches=mismatches+1; end
             8'h68: if(uut.u_regs.a!==8'hff) begin $display("PLA result=%02x expected=ff",uut.u_regs.a); mismatches=mismatches+1; end
             8'hfa: if(uut.u_regs.x!==8'hff) begin $display("PLX result=%02x expected=ff",uut.u_regs.x); mismatches=mismatches+1; end
             8'h7a: if(uut.u_regs.y!==8'hff) begin $display("PLY result=%02x expected=ff",uut.u_regs.y); mismatches=mismatches+1; end
@@ -215,6 +239,47 @@ task run_case(input [7:0] opcode, input [7:0] expected,
         endcase
         cases=cases+1;
         if((index%25)==24) $display("65C02 progress: %0d/210 opcode encodings",cases);
+    end
+endtask
+
+task run_reserved_nop(input [7:0] opcode);
+    integer k,first,marker,basewrites;
+    reg [7:0] gotop,saved_a,saved_x,saved_y,saved_s;
+    reg [5:0] saved_flags;
+    begin
+        mem.mem[16'h1000]=8'ha9; mem.mem[16'h1001]=8'ha5; // A
+        mem.mem[16'h1002]=8'ha2; mem.mem[16'h1003]=8'h34; // X
+        mem.mem[16'h1004]=8'ha0; mem.mem[16'h1005]=8'h42; // Y
+        mem.mem[16'h1006]=8'hf8; // D
+        mem.mem[16'h1007]=8'h38; // C
+        mem.mem[16'h1008]=8'hb8; // V=0
+        mem.mem[16'h1009]=opcode;
+        for(k=16'h100a;k<=16'h1020;k=k+1) mem.mem[k]=8'hea;
+        mem.mem[16'h0042]=8'h96;
+        mem.mem[16'hfffc]=8'h00; mem.mem[16'hfffd]=8'h10;
+        irq=0; nmi=0; cen_hold=0; basewrites=bus_writes;
+        @(negedge clk); rst=1;
+        repeat(8) @(negedge clk);
+        rst=0;
+        accepted(16'h1009,2000,first,gotop);
+        if(gotop!==opcode) begin
+            $display("reserved opcode decode mismatch got=%02x expected=%02x",gotop,opcode);
+            mismatches=mismatches+1;
+        end
+        saved_a=uut.u_regs.a; saved_x=uut.u_regs.x;
+        saved_y=uut.u_regs.y; saved_s=uut.u_regs.s;
+        saved_flags={uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c};
+        accepted(16'h1020,3000,marker,gotop);
+        if(gotop!==8'hea || uut.u_regs.a!==saved_a || uut.u_regs.x!==saved_x ||
+           uut.u_regs.y!==saved_y || uut.u_regs.s!==saved_s ||
+           {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c}!==saved_flags ||
+           bus_writes!=basewrites || mem.mem[16'h0042]!==8'h96) begin
+            $display("reserved opcode %02x changed state or failed to continue: A/X/Y/S=%02x/%02x/%02x/%02x -> %02x/%02x/%02x/%02x P=%b -> %b writes=%0d",
+                     opcode,saved_a,saved_x,saved_y,saved_s,uut.u_regs.a,uut.u_regs.x,uut.u_regs.y,uut.u_regs.s,
+                     saved_flags,{uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c},bus_writes-basewrites);
+            mismatches=mismatches+1;
+        end
+        reserved_cases=reserved_cases+1;
     end
 endtask
 
@@ -237,6 +302,13 @@ task run_branch_variant(input [7:0] opcode, input integer take, input integer di
             2: begin
                 startpc=16'h1100; base=startpc-9;
                 targetpc=16'h10fe; fallthrough=startpc+(bitbranch?3:2);
+            end
+            3: begin
+                // Negative displacement with target still on the same page.
+                // Keep the setup sequence below targetpc so the branch can
+                // revisit its marker without overwriting its own preamble.
+                startpc=16'h1018; base=startpc-12;
+                targetpc=startpc-2; fallthrough=startpc+(bitbranch?3:2);
             end
             default: begin
                 startpc=16'h1009; base=16'h1000;
@@ -275,6 +347,7 @@ task run_branch_variant(input [7:0] opcode, input integer take, input integer di
         if(direction==0) mem.mem[startpc+(bitbranch?2:1)]=8'h01;
         if(direction==1) mem.mem[startpc+(bitbranch?2:1)]=8'h01;
         if(direction==2) mem.mem[startpc+(bitbranch?2:1)]=bitbranch?8'hfb:8'hfc;
+        if(direction==3) mem.mem[startpc+(bitbranch?2:1)]=bitbranch?8'hfb:8'hfc;
         mem.mem[targetpc]=8'hea;
         mem.mem[fallthrough]=8'ha9;
         mem.mem[16'h01fe]=pvalue;
@@ -297,8 +370,8 @@ task run_branch_variant(input [7:0] opcode, input integer take, input integer di
             mismatches=mismatches+1;
         end
         delta=last-first;
-        if(bitbranch) cycles=take?(direction==0?6:7):5;
-        else cycles=take?(direction==0?3:4):2;
+        if(bitbranch) cycles=take?((direction==0 || direction==3)?6:7):5;
+        else cycles=take?((direction==0 || direction==3)?3:4):2;
         actual=delta/CEN_PER_PHI2;
         if(delta%CEN_PER_PHI2!=0 || actual!=cycles) begin
             $display("BRANCH timing op=%02x take=%0d direction=%0d raw=%0d actual=%0d expected=%0d",
@@ -306,7 +379,7 @@ task run_branch_variant(input [7:0] opcode, input integer take, input integer di
             if(opcode==8'h90) $display("BRANCH state acceptedFlags C/Z/N/V=%b start=%04x end=%04x",observed_flags,startpc,endpc);
             record_known_finding(32'h10000000 | (opcode<<8) | (take<<4) | direction,delta,actual,cycles);
         end
-        $display("BRANCH row op=%02x taken=%0d path=%0d rawCEN=%0d actualPHI2=%0d expectedWDC=%0d target=%04x flags=%b",opcode,take,direction,delta,actual,cycles,endpc,observed_flags);
+        $display("BRANCH row op=%02x taken=%0d path=%0d rawCEN=%0d actualPHI2=%0d expectedRockwell=%0d target=%04x flags=%b",opcode,take,direction,delta,actual,cycles,endpc,observed_flags);
         cases=cases+1;
     end
 endtask
@@ -360,10 +433,10 @@ task run_decimal_case(input [7:0] opcode, input [7:0] binary_cycles,
         expected_cycles=binary_cycles+1;
         actual=delta/CEN_PER_PHI2;
         if(delta%CEN_PER_PHI2!=0 || actual!=expected_cycles) begin
-            $display("DECIMAL timing op=%02x raw=%0d actual=%0d WDC=%0d",opcode,delta,actual,expected_cycles);
+            $display("DECIMAL timing op=%02x raw=%0d actual=%0d Rockwell=%0d",opcode,delta,actual,expected_cycles);
             record_known_finding(32'h20000000 | opcode,delta,actual,expected_cycles);
         end
-        $display("DECIMAL row op=%02x rawCEN=%0d actualPHI2=%0d expectedWDC=%0d A=%02x C/V/N/Z=%b%b%b%b",opcode,delta,actual,expected_cycles,uut.u_regs.a,uut.u_regs.c,uut.u_regs.v,uut.u_regs.n,uut.u_regs.z);
+        $display("DECIMAL row op=%02x rawCEN=%0d actualPHI2=%0d expectedRockwell=%0d A=%02x C/V/N/Z=%b%b%b%b",opcode,delta,actual,expected_cycles,uut.u_regs.a,uut.u_regs.c,uut.u_regs.v,uut.u_regs.n,uut.u_regs.z);
         if(is_sbc) expected_a=is_imm?8'h15:8'h00;
         else expected_a=is_imm?8'h95:8'h10;
         #1;
@@ -428,6 +501,36 @@ function [7:0] manual_cycles(input [7:0] opcode);
     end
 endfunction
 
+task run_jmp_indirect_ff;
+    integer first,last,delta,actual,expected,basewrites;
+    reg [7:0] gotop;
+    begin
+        mem.mem[16'h1000]=8'h6c; mem.mem[16'h1001]=8'hff; mem.mem[16'h1002]=8'h12;
+        mem.mem[16'h2000]=8'hea;
+        mem.mem[16'h12ff]=8'h00; mem.mem[16'h1300]=8'h20;
+        mem.mem[16'hfffc]=8'h00; mem.mem[16'hfffd]=8'h10;
+        irq=0; nmi=0; basewrites=bus_writes;
+        @(negedge clk); rst=1;
+        repeat(8) @(negedge clk);
+        rst=0;
+        accepted(16'h1000,2000,first,gotop);
+        if(gotop!==8'h6c) begin $display("JMP ($xxFF) opcode boundary=%02x",gotop); mismatches=mismatches+1; end
+        accepted(16'h2000,3000,last,gotop);
+        delta=last-first; actual=delta/CEN_PER_PHI2;
+        expected=manual_cycles(8'h6c)+1; // Rockwell Table 4: XXFF adds one cycle
+        if(gotop!==8'hea || delta%CEN_PER_PHI2!=0 || actual!=expected ||
+           bus_writes!=basewrites || mem.mem[16'h12ff]!==8'h00 || mem.mem[16'h1300]!==8'h20) begin
+            $display("Rockwell JMP ($xxFF) mismatch target/op=%04x/%02x raw=%0d actual=%0d expected=%0d",
+                     addr,gotop,delta,actual,expected);
+            record_known_finding(32'h6000006c,delta,actual,expected);
+            if(gotop!==8'hea || bus_writes!=basewrites || mem.mem[16'h12ff]!==8'h00 || mem.mem[16'h1300]!==8'h20)
+                mismatches=mismatches+1;
+        end
+        $display("JMP ($xxFF) path rawCEN=%0d PHI2=%0d expectedRockwell=%0d target=%04x",delta,actual,expected,addr);
+        cases=cases+1;
+    end
+endtask
+
 function timing_match(input integer raw_ticks, input integer expected_cycles);
     begin
         timing_match=(raw_ticks%CEN_PER_PHI2==0) &&
@@ -478,15 +581,14 @@ task run_indexed_cross(input [7:0] opcode, input integer mode,
         if(accepted_op!==opcode) begin $display("indexed opcode boundary mismatch %02x",opcode); $fatal(1); end
         accepted(16'h1009+bytes,3000,last,accepted_op);
         delta=last-first; actual=delta/CEN_PER_PHI2;
-        // WDC's page-cross increment applies to indexed reads only. Indexed
-        // stores have a fixed write cycle. RMW has the base RMW increment plus
-        // the separate Table 4-1 page-cross increment (6 same-page, 7 crossed).
-        expected=manual_cycles(opcode)+(!is_store?1:0);
+        // Rockwell marks indexed reads with a crossing footnote. Stores and
+        // fixed-length read/modify/write instructions do not add a cycle here.
+        expected=manual_cycles(opcode)+((!is_store && !is_rmw)?1:0);
         if(delta%CEN_PER_PHI2!=0 || actual!=expected) begin
-            $display("INDEX CROSS op=%02x mode=%0d raw=%0d actual=%0d WDC=%0d",opcode,mode,delta,actual,expected);
+            $display("INDEX CROSS op=%02x mode=%0d raw=%0d actual=%0d Rockwell=%0d",opcode,mode,delta,actual,expected);
             record_known_finding(32'h40000000 | (opcode<<8) | mode,delta,actual,expected);
         end
-        $display("INDEX row op=%02x mode=%0d cross=1 rawCEN=%0d actualPHI2=%0d expectedWDC=%0d",opcode,mode,delta,actual,expected);
+        $display("INDEX row op=%02x mode=%0d cross=1 rawCEN=%0d actualPHI2=%0d expectedRockwell=%0d",opcode,mode,delta,actual,expected);
         #1;
         if(is_store) begin
             if(bus_writes==basewrites || last_write_addr!==16'h2100 ||
@@ -495,8 +597,10 @@ task run_indexed_cross(input [7:0] opcode, input integer mode,
                 mismatches=mismatches+1;
             end
         end
-        if(is_rmw && (last_write_addr!==16'h2100 || last_write_data!==rmw_result || mem.mem[16'h2100]!==rmw_result)) begin
-            $display("INDEXED RMW bus op=%02x last=%04x:%02x mem=%02x",opcode,last_write_addr,last_write_data,mem.mem[16'h2100]);
+        if(is_rmw && (watched_reads!=2 || watched_writes!=1 ||
+           last_write_addr!==16'h2100 || last_write_data!==rmw_result || mem.mem[16'h2100]!==rmw_result)) begin
+            $display("INDEXED RMW bus op=%02x reads=%0d writes=%0d last=%04x:%02x mem=%02x",
+                     opcode,watched_reads,watched_writes,last_write_addr,last_write_data,mem.mem[16'h2100]);
             mismatches=mismatches+1;
         end
         cases=cases+1;
@@ -537,10 +641,15 @@ task run_irq_service;
             $display("IRQ stacked PC expected 1002 got %02x%02x",mem.mem[16'h01fd],mem.mem[16'h01fc]);
             mismatches=mismatches+1;
         end
-        $display("IRQ stacked P capture=%02x at 01fb; MOS MCS6500 manual §9.11 specifies B=0 for hardware IRQ",mem.mem[16'h01fb]);
+        $display("Rockwell hardware IRQ stacked P=%02x (B=0, D=0 expected)",mem.mem[16'h01fb]);
         if(mem.mem[16'h01fb][4]!==1'b0) begin
-            $display("IRQ compatibility mismatch: MOS manual §9.11 expects stacked B=0; observed P=%02x",mem.mem[16'h01fb]);
-            record_known_finding(32'h50000001,mem.mem[16'h01fb],mem.mem[16'h01fb][4],0);
+            $display("IRQ status mismatch: hardware IRQ B must be 0; observed P=%02x",mem.mem[16'h01fb]);
+            mismatches=mismatches+1;
+        end
+        if(mem.mem[16'h01fb][3]!==1'b0 || uut.u_regs.d!==1'b0 || uut.u_regs.i!==1'b1) begin
+            $display("IRQ D/I mismatch: stacked D=%b handler D/I=%b/%b expected 0 and 0/1",
+                     mem.mem[16'h01fb][3],uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
         end
         accepted(16'h1002,3000,return_count,gotop);
         if(gotop!==8'hea) begin $display("RTI did not return to 1002, opcode=%02x",gotop); mismatches=mismatches+1; end
@@ -654,21 +763,182 @@ task run_nmi_priority;
         delta=handler_count-nop_count;
         actual=delta/CEN_PER_PHI2;
         if(delta%CEN_PER_PHI2!=0 || actual!=7) begin
-            $display("NMI accepted-boundary to vector raw=%0d actual=%0d WDC service=7",delta,actual);
+            $display("NMI accepted-boundary to vector raw=%0d actual=%0d Rockwell service=7",delta,actual);
             mismatches=mismatches+1;
         end
         if(mem.mem[16'h01fd]!==8'h10 || mem.mem[16'h01fc]!==8'h01) begin
             $display("NMI stacked PC expected 1001 got %02x%02x",mem.mem[16'h01fd],mem.mem[16'h01fc]);
             mismatches=mismatches+1;
         end
-        if(mem.mem[16'h01fb][4]!==1'b0) begin
-            $display("NMI compatibility mismatch: hardware interrupt stacked B expected 0; P=%02x",mem.mem[16'h01fb]);
-            record_known_finding(32'h50000002,mem.mem[16'h01fb],mem.mem[16'h01fb][4],0);
+        if(mem.mem[16'h01fb][4]!==1'b0 || mem.mem[16'h01fb][3]!==1'b0) begin
+            $display("NMI status mismatch: hardware NMI must save B=0,D=0; P=%02x",mem.mem[16'h01fb]);
+            mismatches=mismatches+1;
         end
+        $display("NMI status P=%02x: B=0,D=0 before interrupt",mem.mem[16'h01fb]);
         irq=0; nmi=0;
         accepted(16'h1002,3000,return_count,gotop);
-        if(gotop!==8'hea) begin $display("NMI RTI did not return to 1002, opcode=%02x",gotop); mismatches=mismatches+1; end
+        if(gotop!==8'hea || uut.u_regs.d!==1'b0 || uut.u_regs.i!==1'b0) begin
+            $display("NMI RTI did not restore D/I/PC at 1002, opcode=%02x D/I=%b/%b",gotop,uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
+        end
+
+        // Repeat with D=1 before NMI. The stack must retain that pre-interrupt
+        // status even though the handler starts with decimal mode cleared.
+        mem.mem[16'h1000]=8'hf8; // SED while I is still set
+        mem.mem[16'h1001]=8'h58; // CLI
+        mem.mem[16'h1002]=8'hea; // interrupted NOP, resume at $1003
+        mem.mem[16'h1003]=8'hea;
+        mem.mem[16'h2100]=8'h40;
+        irq=0; nmi=0;
+        @(negedge clk); rst=1;
+        repeat(8) @(negedge clk);
+        rst=0;
+        accepted(16'h1000,2000,cli_count,gotop);
+        if(gotop!==8'hf8 || uut.u_regs.d!==1'b0) begin
+            $display("NMI D=1 setup SED boundary/state op=%02x D=%b",gotop,uut.u_regs.d);
+            mismatches=mismatches+1;
+        end
+        accepted(16'h1001,2000,cli_count,gotop);
+        if(gotop!==8'h58 || uut.u_regs.i!==1'b1 || uut.u_regs.d!==1'b1) begin
+            $display("NMI D=1 setup CLI boundary/state op=%02x D/I=%b/%b",gotop,uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
+        end
+        #1; nmi=1;
+        accepted(16'h1002,2000,nop_count,gotop);
+        accepted(16'h2100,3000,handler_count,gotop);
+        #1;
+        if(gotop!==8'h40 || mem.mem[16'h01fb][4]!==1'b0 || mem.mem[16'h01fb][3]!==1'b1 ||
+           mem.mem[16'h01fb][2]!==1'b0 || uut.u_regs.d!==1'b0 || uut.u_regs.i!==1'b1) begin
+            $display("NMI D=1 status mismatch handler=%02x frameP=%02x handlerD/I=%b/%b expected B/D=0/1 and 0/1",
+                     gotop,mem.mem[16'h01fb],uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
+        end
+        $display("NMI D=1 status P=%02x handlerD/I=%b/%b",mem.mem[16'h01fb],uut.u_regs.d,uut.u_regs.i);
+        nmi=0;
+        accepted(16'h1003,3000,return_count,gotop);
+        if(gotop!==8'hea || uut.u_regs.d!==1'b1 || uut.u_regs.i!==1'b0) begin
+            $display("NMI RTI failed to restore D=1/I=0/PC=$1003 op=%02x D/I=%b/%b",gotop,uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
+        end
         cases=cases+1;
+    end
+endtask
+
+task run_brk_decimal_status;
+    integer cli_count,handler_count,return_count;
+    reg [7:0] gotop;
+    begin
+        mem.mem[16'h1000]=8'h58; // CLI: return I must be zero
+        mem.mem[16'h1001]=8'hf8; // SED: stack D=1, handler D=0
+        mem.mem[16'h1002]=8'h00; mem.mem[16'h1003]=8'hea; // BRK and padding
+        mem.mem[16'h1004]=8'hea; // RTI return marker
+        mem.mem[16'h2000]=8'h40;
+        mem.mem[16'hfffe]=8'h00; mem.mem[16'hffff]=8'h20;
+        irq=0; nmi=0;
+        @(negedge clk); rst=1;
+        repeat(8) @(negedge clk);
+        rst=0;
+        accepted(16'h1000,2000,cli_count,gotop);
+        accepted(16'h1002,2000,cli_count,gotop);
+        accepted(16'h2000,3000,handler_count,gotop);
+        #1;
+        if(gotop!==8'h40 || mem.mem[16'h01fd]!==8'h10 || mem.mem[16'h01fc]!==8'h04 ||
+           mem.mem[16'h01fb][4]!==1'b1 || mem.mem[16'h01fb][3]!==1'b1 || mem.mem[16'h01fb][2]!==1'b0 ||
+           uut.u_regs.d!==1'b0 || uut.u_regs.i!==1'b1) begin
+            $display("BRK status mismatch handler=%02x frame=%02x%02x P=%02x handlerD/I=%b/%b",
+                     gotop,mem.mem[16'h01fd],mem.mem[16'h01fc],mem.mem[16'h01fb],uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
+        end
+        $display("BRK status P=%02x: B=1,D=1 pushed; handlerD/I=%b/%b",mem.mem[16'h01fb],uut.u_regs.d,uut.u_regs.i);
+        accepted(16'h1004,3000,return_count,gotop);
+        if(gotop!==8'hea || uut.u_regs.d!==1'b1 || uut.u_regs.i!==1'b0) begin
+            $display("BRK RTI failed to restore D=1/I=0/PC=$1004 op=%02x D/I=%b/%b",gotop,uut.u_regs.d,uut.u_regs.i);
+            mismatches=mismatches+1;
+        end
+        control_cases=control_cases+1;
+    end
+endtask
+
+task run_irq_all_status_flags;
+    integer plp_count,irq_count,handler_count,return_count;
+    reg [7:0] gotop,frame_p;
+    begin
+        mem.mem[16'h1000]=8'h28; // PLP restores N,V,D,I,Z,C from $01FE
+        mem.mem[16'h1001]=8'hea; // IRQ is accepted at this boundary
+        mem.mem[16'h1002]=8'hea; // RTI return marker
+        mem.mem[16'h2000]=8'h40; // RTI handler
+        mem.mem[16'hfffe]=8'h00; mem.mem[16'hffff]=8'h20;
+        mem.mem[16'h01fe]=8'he9; // N=V=D=C=1, I=Z=0, unused bit 5=1
+        irq=0; nmi=0;
+        @(negedge clk); rst=1;
+        repeat(8) @(negedge clk);
+        rst=0;
+        accepted(16'h1000,2000,plp_count,gotop);
+        #1; irq=1;
+        accepted(16'h1001,2000,irq_count,gotop);
+        accepted(16'h2000,3000,handler_count,gotop);
+        frame_p=mem.mem[16'h01fc];
+        if(gotop!==8'h40 || frame_p!==8'he9 ||
+           {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c}!==6'b110101) begin
+            $display("IRQ saved-flags mismatch P=%02x handler N/V/D/I/Z/C=%b expected frame E9, handler 110101",
+                     frame_p,{uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c});
+            mismatches=mismatches+1;
+        end
+        irq=0;
+        accepted(16'h1002,3000,return_count,gotop);
+        if(gotop!==8'hea || {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c}!==6'b111001) begin
+            $display("IRQ RTI did not restore every status flag/PC, op=%02x N/V/D/I/Z/C=%b",
+                     gotop,{uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c});
+            mismatches=mismatches+1;
+        end
+        $display("IRQ full-status P=%02x -> handler flags 110101 -> RTI flags 111001",frame_p);
+        control_cases=control_cases+1;
+    end
+endtask
+
+task run_php_plp_convention;
+    integer start_count,php_count,cld_count,clc_count,plp_count,return_count;
+    reg [7:0] gotop,pushed;
+    reg [5:0] flags_before;
+    begin
+        // Establish Z=1,C=1,D=1, then prove PHP preserves all physical flags.
+        // B is logged as a family-level observation, not a Rockwell target
+        // requirement. CLD/CLC perturb flags before PLP restores them.
+        mem.mem[16'h1000]=8'ha9; mem.mem[16'h1001]=8'h00; // LDA #0
+        mem.mem[16'h1002]=8'h38;                         // SEC
+        mem.mem[16'h1003]=8'hf8;                         // SED
+        mem.mem[16'h1004]=8'h08;                         // PHP
+        mem.mem[16'h1005]=8'hd8;                         // CLD
+        mem.mem[16'h1006]=8'h18;                         // CLC
+        mem.mem[16'h1007]=8'h28;                         // PLP
+        mem.mem[16'h1008]=8'hea;
+        irq=0; nmi=0;
+        @(negedge clk); rst=1;
+        repeat(8) @(negedge clk);
+        rst=0;
+        accepted(16'h1000,2000,start_count,gotop);
+        accepted(16'h1004,3000,php_count,gotop);
+        flags_before={uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,
+                      uut.u_regs.i,uut.u_regs.z,uut.u_regs.c};
+        accepted(16'h1005,2000,cld_count,gotop);
+        pushed=mem.mem[16'h01fd];
+        if(gotop!==8'hd8 || (pushed&8'hef)!==8'h2f ||
+           {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c}!==flags_before) begin
+            $display("PHP status mismatch opcode=%02x stack=%02x flags=%b expected real stack bits=2f preserved=%b",gotop,pushed,
+                     {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c},flags_before);
+            mismatches=mismatches+1;
+        end
+        accepted(16'h1006,2000,clc_count,gotop);
+        accepted(16'h1007,2000,plp_count,gotop);
+        accepted(16'h1008,2000,return_count,gotop);
+        if(gotop!==8'hea ||
+           {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c}!==6'b001111) begin
+            $display("PLP restore mismatch opcode=%02x flags=%b expected N/V/D/I/Z/C=001111",gotop,
+                     {uut.u_regs.n,uut.u_regs.v,uut.u_regs.d,uut.u_regs.i,uut.u_regs.z,uut.u_regs.c});
+            mismatches=mismatches+1;
+        end
+        $display("PHP/PLP status P=%02x (B=%0b observed, not normative): PHP preserves flags; PLP restores D/C",pushed,pushed[4]);
+        control_cases=control_cases+1;
     end
 endtask
 
@@ -748,14 +1018,14 @@ task run_sei_decimal_irq;
             mismatches=mismatches+1;
         end
         if(mem.mem[16'h01fb][3]!==1'b1) begin
-            $display("WDC Table 7-1 IRQ frame must retain D=1; stacked P=%02x",mem.mem[16'h01fb]);
-            record_known_finding(32'h60000001,mem.mem[16'h01fb][3],mem.mem[16'h01fb][3],1);
+            $display("Rockwell IRQ frame must retain pre-interrupt D=1; stacked P=%02x",mem.mem[16'h01fb]);
+            mismatches=mismatches+1;
         end
         frame_p=mem.mem[16'h01fb];
         if(uut.u_regs.i!==1'b1) begin $display("IRQ entry did not set I"); mismatches=mismatches+1; end
         if(uut.u_regs.d!==1'b0) begin
-            $display("WDC Table 7-1 IRQ entry must clear D; observed D=1");
-            record_known_finding(32'h60000001,uut.u_regs.d,uut.u_regs.d,0);
+            $display("Rockwell IRQ entry must clear D; observed D=1");
+            mismatches=mismatches+1;
         end
         handler_d=uut.u_regs.d; handler_i=uut.u_regs.i;
         accepted(16'h2002,2000,handler_lda_end,op);
@@ -785,7 +1055,7 @@ task run_sei_decimal_irq;
         end
         if(uut.u_regs.d!==1'b1) begin
             $display("RTI failed to restore saved D=1; resumed state D=%b",uut.u_regs.d);
-            record_known_finding(32'h60000003,uut.u_regs.d,uut.u_regs.d,1);
+            mismatches=mismatches+1;
         end
         return_d=uut.u_regs.d; return_i=uut.u_regs.i;
         accepted(16'h1008,3000,store_end,op);
@@ -907,6 +1177,8 @@ initial begin
         bytes=manifest[i][3:0];
         run_case(opcode,expected,bytes,i);
     end
+    run_jmp_indirect_ff();
+    for(i=0;i<256;i=i+1) if(reserved_opcode(i[7:0])) run_reserved_nop(i[7:0]);
     // Explicit BCD boundary vectors include low-digit correction, carry in/out,
     // borrow, zero result, sign and binary overflow behavior.
     run_decimal_boundary(8'h69,8'h45,8'h55,0,8'h00,4'b1011,4'b1001); // V detail not specified by table
@@ -925,7 +1197,7 @@ initial begin
             run_decimal_case(opcode,manifest[i][15:8],manifest[i][3:0]);
     end
     // Both outcomes for every conditional branch and every BBR/BBS encoding;
-    // taken branches also cross forward and backward page boundaries.
+    // taken paths include forward/backward same-page and page-cross targets.
     for(i=0;i<8;i=i+1) begin
         case(i)
             0: opcode=8'h90; 1: opcode=8'hb0; 2: opcode=8'hd0; 3: opcode=8'hf0;
@@ -934,12 +1206,15 @@ initial begin
         run_branch_variant(opcode,1,0);
         run_branch_variant(opcode,1,1);
         run_branch_variant(opcode,1,2);
+        run_branch_variant(opcode,1,3);
         run_branch_variant(opcode,0,0);
         run_branch_variant(opcode,0,1);
         run_branch_variant(opcode,0,2);
     end
+    run_branch_variant(8'h80,1,0);
     run_branch_variant(8'h80,1,1);
     run_branch_variant(8'h80,1,2);
+    run_branch_variant(8'h80,1,3);
     for(i=0;i<16;i=i+1) begin
         opcode={i[3:0],4'hf};
         if(i<8) opcode={i[3:0],4'hf};
@@ -947,6 +1222,7 @@ initial begin
         run_branch_variant(opcode,1,0);
         run_branch_variant(opcode,1,1);
         run_branch_variant(opcode,1,2);
+        run_branch_variant(opcode,1,3);
         run_branch_variant(opcode,0,0);
     end
     // Page-cross paths for every implemented indexed read form, indexed store
@@ -973,8 +1249,11 @@ initial begin
     run_irq_service();
     run_masked_irq();
     run_nmi_priority();
+    run_irq_all_status_flags();
+    run_php_plp_convention();
     run_sei_decimal_irq();
     run_bit_flags();
+    run_brk_decimal_status();
     run_cen_pause();
     // Zero-page indexing and all three indirect addressing forms wrap the
     // pointer high-byte fetch at $00FF->$0000; indirect,Y then applies Y.
@@ -982,17 +1261,20 @@ initial begin
     run_wrap_semantic(8'ha1,8'hfe,16'h2000,8'h46);
     run_wrap_semantic(8'hb2,8'hff,16'h2000,8'h59);
     run_wrap_semantic(8'hb1,8'hff,16'h2001,8'h6a);
-    $display("65C02 profile timing: %0d opcode/path cases, %0d added status/control gates, %0d unexpected errors, %0d WDC-relative findings hash=%08x",cases,control_cases,mismatches,known_findings,finding_hash);
-    if(cases!=393) $fatal(1,"opcode/branch/decimal-boundary/page-cross/IRQ-mask/NMI/CEN/wrap case count incomplete");
-    if(control_cases!=2) $fatal(1,"SEI/decimal IRQ and BIT semantic gates incomplete");
+    $display("65C02 profile timing: %0d opcode/path cases, %0d reserved NOP checks, %0d status/control gates, %0d unexpected errors, %0d Rockwell timing discrepancies hash=%08x",cases,reserved_cases,control_cases,mismatches,known_findings,finding_hash);
+    if(cases!=420) $fatal(1,"opcode/branch/decimal-boundary/page-cross/JMP-FF/IRQ-mask/NMI/CEN/wrap case count incomplete");
+    if(reserved_cases!=46) $fatal(1,"Rockwell reserved-opcode NOP coverage incomplete: %0d/46",reserved_cases);
+    if(control_cases!=5) $fatal(1,"IRQ saved-status, BRK decimal-status, PHP/PLP and BIT semantic gates incomplete");
     if(mismatches!=0) $fatal(1,"unexpected semantic/bus errors=%0d",mismatches);
-    if(known_findings!=149) $fatal(1,"known finding inventory incomplete: expected 149, observed %0d",known_findings);
-`ifdef STRICT_SPEC
-    $fatal(1,"strict WDC-relative mode: %0d recorded compatibility/timing findings",known_findings);
+    if(known_findings!=0) begin
+`ifdef STRICT_ROCKWELL
+        $fatal(1,"strict Rockwell R65C02 timing mismatch count=%0d fingerprint=%08x",known_findings,finding_hash);
 `else
-    if(finding_hash!=32'h5580b0e4) $fatal(1,"known-finding fingerprint differs: %08x",finding_hash);
-    $display("PASS: measured profile matches exact recorded WDC-relative finding fingerprint; use STRICT_SPEC to require manual timing");
+        $fatal(1,"Rockwell R65C02 target timing mismatch count=%0d fingerprint=%08x",known_findings,finding_hash);
 `endif
+    end else begin
+        $display("PASS: all documented Rockwell R65C02 timing paths match the independent source oracle");
+    end
     $finish;
 end
 

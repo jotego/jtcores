@@ -10,22 +10,23 @@ import (
 )
 
 func main() {
-	assertDigest(os.Getenv("JTROOT")+"/modules/jt680x/ucode/6301.yaml", "e3a56911234092896fe1ab39516288922a50cc9c6b6d0e581dbb219f3e3a9904")
+	assertDigest(os.Getenv("JTROOT")+"/modules/jt680x/ucode/6301.yaml", "d699f62696058286b28531d08896b921fcf92ee6251a9e3e7085a7f8259260e3")
+	assertDigest(os.Getenv("JTROOT")+"/modules/jt680x/ucode/680x.yaml", "257e2b05d3d6ee89137a799d84c0f5587f38dbee98f598ffb4de1f08b95f8e63")
 	cmd := exec.Command("jtframe", "ucode", "jt680x", "6301", "--output", "6801")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		panic(err)
 	}
-	assertDigest("6801.uc", "980c638131cd1e14ac90ed16a042555f967677d27877481778d372b558f87c68")
+	assertDigest("6801.uc", "445163a157db81389aa36da928bde9615943305547283ab64bd47614eafa83db")
 	assertDigest("6801.vh", "0d788b6687e8cd475fab0fdcaa03a1826e345196280bc239141cb51c66592f94")
-	checkOtherProfile("6801", "283b2bb595411833d8326a9163226c9384f56deee0db6a7e25aa521a16efe019")
+	checkOtherProfile("6801", "61bf360b0e0bddb9170594d80735e9f543f4081511afab95a572b270e6f560ca")
 	path := os.Getenv("JTROOT") + "/modules/jt680x/hdl/jt680x_ctrl.v"
 	src, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
-	if sum := sha256.Sum256(src); hex.EncodeToString(sum[:]) != "7f25784b672af47571e4ccf53a211c55b38eed69d479702a575428e9ea11b6fa" {
+	if sum := sha256.Sum256(src); hex.EncodeToString(sum[:]) != "5c6bfeab1f716fc3917d660ef24134d4ecd14e1abfcfe8f2111ab6d72c3befa6" {
 		panic("jt680x_ctrl.v changed; re-audit the Icarus declaration-order adapter")
 	}
 	decl := "wire [4:0] jsr_sel;\nreg  [2:0] iv_sel;\nwire       halt, swi, ni, still;\nreg        nmi_l, pendng;\n"

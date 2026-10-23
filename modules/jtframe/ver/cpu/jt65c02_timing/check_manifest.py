@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the independent WDC opcode/timing oracle and emit expected.mem.
+"""Validate the historical WDC opcode/timing comparison data.
 
 Source transcription: WDC W65C02S datasheet, 2024-02-16, Table 5-2 p.22;
 base cycles Table 4-1 pp.19-20 and Table 7-1 p.30. The 16x16 matrix below
@@ -13,9 +13,9 @@ HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[4]
 CANON=HERE/'canonical_wdc.csv'
 EXPECTED=HERE/'expected.mem'
-FINDINGS=HERE/'known_findings.csv'
-KNOWN_FINDING_COUNT=149
-KNOWN_FINDING_HASH=0x5580b0e4
+FINDINGS=HERE/'known_wdc_findings.csv'
+KNOWN_FINDING_COUNT=145
+KNOWN_FINDING_HASH=0x02a64215
 YAML=ROOT/'modules/jt680x/ucode/65c02.yaml'
 
 GRID=[
@@ -93,9 +93,10 @@ def load_and_validate():
         return True
     text=YAML.read_text()
     implemented={int(x,16) for x in re.findall(r'\bop:\s*0x([0-9a-fA-F]{2})\b',text)}
-    if len(implemented)!=210: raise ValueError(f'expected 210 distinct local encodings; found {len(implemented)}')
-    if set(expected)-implemented!={0xCB,0xDB} or implemented-set(expected):
-        raise ValueError('local opcode set differs from WDC named set outside CB/WAI and DB/STP')
+    target_opcodes=set(expected)-{0xCB,0xDB}
+    if len(implemented)!=210: raise ValueError(f'expected 210 Rockwell opcode encodings; found {len(implemented)}')
+    if implemented!=target_opcodes:
+        raise ValueError('local instruction set differs from Rockwell matrix outside omitted WAI/STP')
     # Independently inventory the exact observed WDC-relative deviations. The RTL
     # repeats this ordered fingerprint after measuring every path; both gates must
     # agree so CI tolerates only this reviewed compatibility baseline.
@@ -131,7 +132,6 @@ def load_and_validate():
     return packed
 
 def main():
-    lines=load_and_validate()
-    EXPECTED.write_text('\n'.join(lines)+'\n')
-    print(f'WDC canonical oracle verified: 212 rows; local set 210; 44 WDC blank cells; expected.mem rows={len(lines)}; known findings={KNOWN_FINDING_COUNT} hash={KNOWN_FINDING_HASH:08x}')
+    load_and_validate()
+    print(f'WDC historical comparison oracle verified: 212 named rows; local profile implements 210; historical finding rows={KNOWN_FINDING_COUNT} hash={KNOWN_FINDING_HASH:08x}')
 if __name__=='__main__': main()

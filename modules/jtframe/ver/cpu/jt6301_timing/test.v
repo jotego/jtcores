@@ -638,6 +638,10 @@ endtask
 task run_wai_case;
     integer n, wai_cen, wai_timing_started, wai_timing_done, wait_i;
     reg [15:0] pc_after;
+    reg [11:0] sleep_uaddr;
+    reg [15:0] sleep_addr;
+    reg [7:0] sleep_dout;
+    reg sleep_wr;
     begin
         matrix_running=0; irq=0; nmi=0; wai_ffff_reads=0; wai_seen=0; wai_trace_started=0; wai_trace_remaining=0; wai_observing=1;
         mem.mem[16'hfffe]=8'h01; mem.mem[16'hffff]=8'h00;
@@ -666,6 +670,16 @@ task run_wai_case;
                 if(uut.u_ctrl.halt && uut.u_ctrl.uaddr==12'h3ee) wai_timing_done=1;
             end
         end
+        sleep_uaddr=uut.u_ctrl.uaddr; sleep_addr=addr; sleep_dout=dout; sleep_wr=wr;
+        @(negedge clk); cen_pause=1;
+        repeat(24) @(posedge clk);
+        #1;
+        if(uut.u_regs.pc!==pc_after || uut.u_regs.s!==16'h0029 || uut.u_ctrl.uaddr!==sleep_uaddr ||
+           addr!==sleep_addr || dout!==sleep_dout || wr!==sleep_wr || !uut.u_ctrl.halt) begin
+            $display("FAIL: HD6301 WAI CEN pause changed held PC/uaddr/bus/stack"); $fatal(1);
+        end
+        $display("CHECKED: HD6301 WAI held PC/uaddr/bus/stack stable through 24 master edges with CEN paused");
+        @(negedge clk); cen_pause=0;
         wai_observing=0;
         if(!wai_timing_done || wai_cen+1!=36) begin $display("FAIL: HD6301 WAI entry-to-handover measured %0d CEN samples including opcode-entry sample; expected36 (9E)",wai_cen+1); $fatal(1); end
         timed_by_opcode[8'h3e]=timed_by_opcode[8'h3e]+1; timing_assertions=timing_assertions+1;
@@ -673,17 +687,94 @@ task run_wai_case;
         $display("WAI_TABLE13_OBSERVATION: profile=%s seen=%b FFFF_READS=%0d PC_AT_SP29=%04x PC_AFTER_NO_IRQ=%04x U=%03x S=%04x CCR.I=%b", "HD6301",wai_seen,wai_ffff_reads,pc_after,uut.u_regs.pc,uut.u_ctrl.uaddr,uut.u_regs.s,uut.u_regs.i);
         if(!wai_seen || uut.u_regs.s!==16'h0029) begin
             $display("FAIL: HD6301 WAI did not reach documented stack/handover boundary: seen=%b S=%04x",wai_seen,uut.u_regs.s); $fatal(1);
-        end else if(wai_ffff_reads>0 && uut.u_regs.pc===pc_after) begin
-            $display("CHECKED: HD6301 WAI held at the documented no-interrupt handover");
-        end else if(pc_after===16'h0102 && uut.u_regs.pc===16'h0104 && uut.u_ctrl.uaddr===12'h2b8 &&
-                    uut.u_regs.i===1'b0 && wai_ffff_reads===0) begin
-            $display("KNOWN_FIDELITY_FAILURE: HD6301 WAI no-IRQ handover dispatched saved CCR opcode 2B; PC 0102->0104, S=0029, I=0; no IRQ/NMI wake claim");
-`ifdef STRICT_SPEC
-            $fatal(1,"STRICT_SPEC: HD6301 WAI failed the documented no-interrupt hold");
-`endif
+        end else if(pc_after===16'h0102 && uut.u_regs.pc===pc_after && uut.u_regs.s===16'h0029 &&
+                    uut.u_ctrl.uaddr===12'h3ee && uut.u_ctrl.halt && uut.u_regs.i===1'b0) begin
+            $display("CHECKED: HD6301 WAI held PC=%04x, S=%04x and halt for 40 master edges; observed FFFF reads=%0d",pc_after,uut.u_regs.s,wai_ffff_reads);
         end else begin
-            $display("FAIL: HD6301 WAI differs from documented hold and calibrated known-failure signature: ffff=%0d PC0=%04x PC1=%04x U=%03x S=%04x I=%b",wai_ffff_reads,pc_after,uut.u_regs.pc,uut.u_ctrl.uaddr,uut.u_regs.s,uut.u_regs.i); $fatal(1);
+            $display("FAIL: HD6301 WAI no-interrupt hold state PC0=%04x PC1=%04x U=%03x HALT=%b S=%04x I=%b",pc_after,uut.u_regs.pc,uut.u_ctrl.uaddr,uut.u_ctrl.halt,uut.u_regs.s,uut.u_regs.i); $fatal(1);
         end
+        generic_count=generic_count+1; rst=1; irq=0; nmi=0; matrix_running=1;
+    end
+endtask
+
+task run_wai_wake_case;
+    input use_nmi;
+    integer n, handler_wait, return_wait, restored_seen;
+    reg [15:0] saved_pc;
+    begin
+        matrix_running=0; irq=0; nmi=0; wai_ffff_reads=0; wai_seen=0; wai_trace_started=0; wai_trace_remaining=0; wai_observing=1;
+        mem.mem[16'hfffe]=8'h01; mem.mem[16'hffff]=8'h00;
+        mem.mem[16'hfff8]=8'h02; mem.mem[16'hfff9]=8'h00;
+        mem.mem[16'hfffc]=8'h02; mem.mem[16'hfffd]=8'h00;
+        mem.mem[16'h0100]=use_nmi ? 8'h01 : 8'h0e; mem.mem[16'h0101]=8'h3e;
+        mem.mem[16'h0102]=8'h86; mem.mem[16'h0103]=8'h5a;
+        mem.mem[16'h0104]=8'h97; mem.mem[16'h0105]=8'h23;
+        mem.mem[16'h0106]=8'h20; mem.mem[16'h0107]=8'hfe;
+        mem.mem[16'h0200]=8'h86; mem.mem[16'h0201]=8'ha5;
+        mem.mem[16'h0202]=8'h97; mem.mem[16'h0203]=8'h22; mem.mem[16'h0204]=8'h3b;
+        mem.mem[16'h0022]=0; mem.mem[16'h0023]=0;
+        rst=1; repeat(8) @(negedge clk); uut.u_regs.a=8'h12; uut.u_regs.b=8'h34; uut.u_regs.x=16'h5678; uut.u_regs.s=16'h30; {uut.u_regs.h,uut.u_regs.n,uut.u_regs.z,uut.u_regs.v,uut.u_regs.c}=5'b10110; rst=0;
+        n=0;
+        while(!(uut.u_ctrl.halt && uut.u_ctrl.uaddr==12'h3ee) && n<400) begin
+            @(posedge clk); n=n+1;
+        end
+        saved_pc=uut.u_regs.pc;
+        if(n>=400 || !wai_seen || saved_pc!==16'h0102 || uut.u_regs.s!==16'h0029 ||
+           uut.u_regs.i!==use_nmi) begin
+            $display("FAIL: HD6301 WAI %s entry PC=%04x S=%04x I=%b seen=%b",use_nmi?"NMI":"IRQ",saved_pc,uut.u_regs.s,uut.u_regs.i,wai_seen); $fatal(1);
+        end
+        repeat(8) @(posedge clk);
+        if(uut.u_regs.pc!==saved_pc || uut.u_regs.s!==16'h0029 || uut.u_ctrl.uaddr!==12'h3ee || !uut.u_ctrl.halt) begin
+            $display("FAIL: HD6301 WAI did not hold before %s wake",use_nmi?"NMI":"IRQ"); $fatal(1);
+        end
+        if(use_nmi) begin
+            @(negedge clk); irq=1;
+            repeat(8) @(posedge clk);
+            if(uut.u_regs.pc!==saved_pc || uut.u_regs.s!==16'h0029 || uut.u_ctrl.uaddr!==12'h3ee || !uut.u_ctrl.halt) begin
+                $display("FAIL: HD6301 masked IRQ woke WAI while I=1"); $fatal(1);
+            end
+            $display("CHECKED: HD6301 masked IRQ did not wake WAI while I=1; NMI remains able to wake it");
+            @(negedge clk); nmi=1;
+        end else begin
+            @(negedge clk); irq=1;
+        end
+        handler_wait=0;
+        while(mem.mem[16'h0022]!==8'ha5 && handler_wait<500) begin @(posedge clk); handler_wait=handler_wait+1; end
+        if(handler_wait>=500 || uut.u_regs.s!==16'h0029) begin
+            $display("FAIL: HD6301 WAI %s wake handler=%02x S=%04x",use_nmi?"NMI":"IRQ",mem.mem[16'h0022],uut.u_regs.s); $fatal(1);
+        end
+`ifdef NEGATIVE_WAI_OMIT_CC_LOAD
+        if(mem.mem[16'h002a]!==8'h2b) begin
+            $display("FAIL: HD6301 WAI stale-ALU CCR regression: expected old omitted-load value 2b, got %02x",mem.mem[16'h002a]); $fatal(1);
+        end
+`else
+        if(mem.mem[16'h002a] !== (use_nmi ? 8'hf6 : 8'he6)) begin
+            $display("FAIL: HD6301 WAI saved CCR expected %02x, got %02x",use_nmi?8'hf6:8'he6,mem.mem[16'h002a]); $fatal(1);
+        end
+`endif
+        if(mem.mem[16'h002f]!==8'h01 || mem.mem[16'h0030]!==8'h02 ||
+           mem.mem[16'h002d]!==8'h56 || mem.mem[16'h002e]!==8'h78 ||
+           mem.mem[16'h002c]!==8'h12 || mem.mem[16'h002b]!==8'h34) begin
+            $display("FAIL: HD6301 WAI pre-stacked PC/X/A/B frame is incorrect"); $fatal(1);
+        end
+        $display("WAI_FRAME HD6301 %s PC=%02x%02x X=%02x%02x A=%02x B=%02x CCR=%02x",use_nmi?"NMI":"IRQ",mem.mem[16'h002f],mem.mem[16'h0030],mem.mem[16'h002d],mem.mem[16'h002e],mem.mem[16'h002c],mem.mem[16'h002b],mem.mem[16'h002a]);
+        irq=0; nmi=0; return_wait=0; restored_seen=0;
+        while(mem.mem[16'h0023]!==8'h5a && return_wait<700) begin
+            @(negedge clk); return_wait=return_wait+1;
+            if(cen && uut.u_ctrl.uaddr==12'h860 && uut.u_regs.pc==16'h0102) begin
+                restored_seen=1;
+                if(uut.u_regs.a!==8'h12 || uut.u_regs.b!==8'h34 || uut.u_regs.x!==16'h5678 ||
+                   {uut.u_regs.h,uut.u_regs.i,uut.u_regs.n,uut.u_regs.z,uut.u_regs.v,uut.u_regs.c} !== {1'b1,use_nmi,4'b0110})
+                    $fatal(1,"independent WAI full context restoration failed");
+            end
+        end
+        if(!restored_seen) $fatal(1,"independent WAI restore observer did not run");
+        $display("INDEPENDENT: WAI distinct A12/B34/X5678/CCR restored before next LDA");
+        wai_observing=0;
+        if(return_wait>=700 || uut.u_regs.s!==16'h0030 || uut.u_regs.pc!==16'h0106) begin
+            $display("FAIL: HD6301 WAI %s RTI resume marker=%02x PC=%04x S=%04x",use_nmi?"NMI":"IRQ",mem.mem[16'h0023],uut.u_regs.pc,uut.u_regs.s); $fatal(1);
+        end
+        $display("CHECKED: HD6301 WAI %s wake used one pre-stacked frame, RTI restored S, and mainline resumed",use_nmi?"NMI":"IRQ");
         generic_count=generic_count+1; rst=1; irq=0; nmi=0; matrix_running=1;
     end
 endtask
@@ -742,44 +833,100 @@ task run_bitop_case;
 endtask
 
 task run_slp_case;
-    integer n;
+    input use_nmi;
+    integer n, handler_wait, return_wait, restored_seen;
     reg [15:0] sleep_pc;
     reg [11:0] sleep_uaddr;
+    reg [7:0] expected_ccr;
     begin
         generic_mode=0; matrix_running=1; irq=0; nmi=0;
-        mem.mem[16'hfffe]=8'h01; mem.mem[16'hffff]=8'h00; mem.mem[16'hfff8]=8'h02; mem.mem[16'hfff9]=8'h00;
-        mem.mem[16'h0100]=8'h0e; mem.mem[16'h0101]=8'h1a; mem.mem[16'h0102]=8'h86; mem.mem[16'h0103]=8'h5a;
+        mem.mem[16'hfffe]=8'h01; mem.mem[16'hffff]=8'h00;
+        mem.mem[16'hfff8]=8'h02; mem.mem[16'hfff9]=8'h00; mem.mem[16'hfffc]=8'h02; mem.mem[16'hfffd]=8'h00;
+        mem.mem[16'h0100]=use_nmi ? 8'h01 : 8'h0e; mem.mem[16'h0101]=8'h1a; mem.mem[16'h0102]=8'h86; mem.mem[16'h0103]=8'h5a;
         mem.mem[16'h0104]=8'h97; mem.mem[16'h0105]=8'h23; mem.mem[16'h0106]=8'h20; mem.mem[16'h0107]=8'hfe;
         mem.mem[16'h0200]=8'h86; mem.mem[16'h0201]=8'ha5; mem.mem[16'h0202]=8'h97; mem.mem[16'h0203]=8'h22; mem.mem[16'h0204]=8'h3b;
         mem.mem[16'h0022]=0; mem.mem[16'h0023]=0;
-        rst=1; repeat(8) @(negedge clk); uut.u_regs.a=0; uut.u_regs.b=0; uut.u_regs.x=16'h20; uut.u_regs.s=16'h30; rst=0;
-        n=0; while(uut.u_ctrl.uaddr!==12'h420 && n<200) begin @(posedge clk); n=n+1; end
+        rst=1; repeat(8) @(negedge clk);
+        uut.u_regs.a=8'h12; uut.u_regs.b=8'h34; uut.u_regs.x=16'h5678; uut.u_regs.s=16'h0030;
+        {uut.u_regs.h,uut.u_regs.n,uut.u_regs.z,uut.u_regs.v,uut.u_regs.c}=5'b10110;
+        rst=0;
+        n=0; while(!(uut.u_ctrl.halt && uut.u_ctrl.uaddr==12'h1a3) && n<200) begin @(posedge clk); n=n+1; end
         sleep_pc=uut.u_regs.pc; sleep_uaddr=uut.u_ctrl.uaddr;
         repeat(60) @(posedge clk);
-        if(n>=200 || sleep_pc!==16'h0101 || sleep_uaddr!==12'h420 || uut.u_regs.pc!==sleep_pc || uut.u_regs.s!==16'h0030) begin
+        if(n>=200 || sleep_pc!==16'h0102 || sleep_uaddr!==12'h1a3 || uut.u_regs.pc!==sleep_pc || uut.u_regs.s!==16'h0030 || !uut.u_ctrl.halt) begin
             $display("FAIL: HD6301 SLP no-interrupt hold differed from calibrated pass state entry=%04x/%03x now=%04x/%03x S=%04x",sleep_pc,sleep_uaddr,uut.u_regs.pc,uut.u_ctrl.uaddr,uut.u_regs.s); $fatal(1);
         end else $display("CHECKED: HD6301 SLP held PC=%04x and S=%04x for 60 master edges with no interrupt",sleep_pc,uut.u_regs.s);
-        @(negedge clk); irq=1; n=0;
-        while(mem.mem[16'h0022]!==8'ha5 && n<500) begin @(posedge clk); n=n+1; end
-        if(n>=500) begin $display("FAIL: HD6301 SLP did not reach IRQ handler; PC=%04x U=%03x",uut.u_regs.pc,uut.u_ctrl.uaddr); $fatal(1); end
-        else begin
-            irq=0; n=0;
-            while((mem.mem[16'h0023]!==8'h5a || uut.u_regs.s!==16'h0030) && n<500) begin @(posedge clk); n=n+1; end
-            if(n>=500 && mem.mem[16'h0022]===8'ha5 && mem.mem[16'h0023]===0 && uut.u_regs.s===16'h0030 && uut.u_regs.pc===16'h0101) begin
-                $display("KNOWN_FIDELITY_FAILURE: HD6301 SLP IRQ/RTI returned to SLP; ISR marker=A5 mainline marker=00 PC=0101 S=0030");
-`ifdef STRICT_SPEC
-                $fatal(1,"STRICT_SPEC: HD6301 SLP RTI did not resume mainline");
-`endif
-            end else if(n>=500) begin $display("FAIL: HD6301 SLP resume differs from calibrated signature; ISR=%02x main=%02x S=%04x PC=%04x",mem.mem[16'h0022],mem.mem[16'h0023],uut.u_regs.s,uut.u_regs.pc); $fatal(1); end
-            else $display("CHECKED: HD6301 SLP IRQ wake, ISR marker, RTI stack restore, and mainline resume");
+        @(negedge clk); if(use_nmi) nmi=1; else irq=1;
+        handler_wait=0;
+        while(mem.mem[16'h0022]!==8'ha5 && handler_wait<500) begin @(posedge clk); handler_wait=handler_wait+1; end
+        if(handler_wait>=500 || uut.u_regs.s!==16'h0029) begin
+            $display("FAIL: HD6301 SLP %s wake handler=%02x S=%04x",use_nmi?"NMI":"IRQ",mem.mem[16'h0022],uut.u_regs.s); $fatal(1);
         end
+        expected_ccr=use_nmi ? 8'hf6 : 8'he6;
+        if(mem.mem[16'h002f]!==8'h01 || mem.mem[16'h0030]!==8'h02 ||
+           mem.mem[16'h002d]!==8'h56 || mem.mem[16'h002e]!==8'h78 ||
+           mem.mem[16'h002c]!==8'h12 || mem.mem[16'h002b]!==8'h34 ||
+           mem.mem[16'h002a]!==expected_ccr) begin
+            $display("FAIL: HD6301 SLP %s pre-stacked frame PC=%02x%02x X=%02x%02x A=%02x B=%02x CCR=%02x expected CCR=%02x",use_nmi?"NMI":"IRQ",mem.mem[16'h002f],mem.mem[16'h0030],mem.mem[16'h002d],mem.mem[16'h002e],mem.mem[16'h002c],mem.mem[16'h002b],mem.mem[16'h002a],expected_ccr); $fatal(1);
+        end
+        $display("SLP_FRAME HD6301 %s PC=%02x%02x X=%02x%02x A=%02x B=%02x CCR=%02x",use_nmi?"NMI":"IRQ",mem.mem[16'h002f],mem.mem[16'h0030],mem.mem[16'h002d],mem.mem[16'h002e],mem.mem[16'h002c],mem.mem[16'h002b],mem.mem[16'h002a]);
+        irq=0; nmi=0; return_wait=0; restored_seen=0;
+        while((mem.mem[16'h0023]!==8'h5a || uut.u_regs.s!==16'h0030) && return_wait<500) begin
+            @(negedge clk); return_wait=return_wait+1;
+            if(cen && uut.u_ctrl.uaddr==12'h860 && uut.u_regs.pc==16'h0102) begin
+                restored_seen=1;
+                if(uut.u_regs.a!==8'h12 || uut.u_regs.b!==8'h34 || uut.u_regs.x!==16'h5678 ||
+                   {uut.u_regs.h,uut.u_regs.i,uut.u_regs.n,uut.u_regs.z,uut.u_regs.v,uut.u_regs.c} !== {1'b1,use_nmi,4'b0110})
+                    $fatal(1,"HD6301 SLP %s RTI did not restore distinct A/B/X/CCR before next LDA",use_nmi?"NMI":"IRQ");
+            end
+        end
+        if(!restored_seen) $fatal(1,"HD6301 SLP %s RTI restore observer did not run",use_nmi?"NMI":"IRQ");
+        if(return_wait>=500 || mem.mem[16'h0023]!==8'h5a || uut.u_regs.s!==16'h0030 || uut.u_regs.pc!==16'h0106) begin
+            $display("FAIL: HD6301 SLP %s RTI resume marker=%02x PC=%04x S=%04x",use_nmi?"NMI":"IRQ",mem.mem[16'h0023],uut.u_regs.pc,uut.u_regs.s); $fatal(1);
+        end
+        $display("INDEPENDENT: SLP distinct A12/B34/X5678/CCR restored before next LDA");
+        $display("CHECKED: HD6301 SLP %s wake used one exact frame, RTI restored context/SP, and mainline resumed",use_nmi?"NMI":"IRQ");
         irq=0; generic_count=generic_count+1; rst=1; matrix_running=0;
+    end
+endtask
+
+task run_slp_masked_irq_case;
+    integer n;
+    begin
+        generic_mode=0; matrix_running=1; irq=0; nmi=0;
+        mem.mem[16'hfffe]=8'h01; mem.mem[16'hffff]=8'h00;
+        mem.mem[16'hfff8]=8'h02; mem.mem[16'hfff9]=8'h00;
+        mem.mem[16'h0100]=8'h1a; mem.mem[16'h0101]=8'h86; mem.mem[16'h0102]=8'h5a;
+        mem.mem[16'h0103]=8'h97; mem.mem[16'h0104]=8'h23; mem.mem[16'h0105]=8'h20; mem.mem[16'h0106]=8'hfe;
+        mem.mem[16'h0200]=8'h86; mem.mem[16'h0201]=8'ha5; mem.mem[16'h0202]=8'h97; mem.mem[16'h0203]=8'h22; mem.mem[16'h0204]=8'h3b;
+        mem.mem[16'h0022]=0; mem.mem[16'h0023]=0;
+        rst=1; repeat(8) @(negedge clk); uut.u_regs.a=0; uut.u_regs.b=0; uut.u_regs.x=16'h20; uut.u_regs.s=16'h30; rst=0;
+        n=0; while(!(uut.u_ctrl.halt && uut.u_ctrl.uaddr==12'h1a3) && n<200) begin @(posedge clk); n=n+1; end
+        if(n>=200 || uut.u_regs.pc!==16'h0101 || uut.u_regs.s!==16'h0030 || uut.u_regs.i!==1'b1) begin
+            $display("FAIL: HD6301 masked-IRQ SLP entry PC=%04x S=%04x I=%b U=%03x",uut.u_regs.pc,uut.u_regs.s,uut.u_regs.i,uut.u_ctrl.uaddr); $fatal(1);
+        end
+        repeat(12) @(posedge clk);
+        if(uut.u_regs.pc!==16'h0101 || uut.u_regs.s!==16'h0030 || !uut.u_ctrl.halt) begin
+            $display("FAIL: HD6301 masked-IRQ SLP did not hold before wake"); $fatal(1);
+        end
+        @(negedge clk); irq=1; n=0;
+        while(mem.mem[16'h0023]!==8'h5a && n<600) begin @(posedge clk); n=n+1; end
+        irq=0;
+        if(n>=600 || mem.mem[16'h0022]!==0 || uut.u_regs.s!==16'h0030 || uut.u_regs.i!==1'b1) begin
+            $display("FAIL: HD6301 masked IRQ should release SLP without vectoring; main=%02x ISR=%02x S=%04x I=%b",mem.mem[16'h0023],mem.mem[16'h0022],uut.u_regs.s,uut.u_regs.i); $fatal(1);
+        end
+        $display("CHECKED: HD6301 masked IRQ released SLP and resumed next instruction without vectoring or stacking");
+        generic_count=generic_count+1; rst=1; matrix_running=0;
     end
 endtask
 
 task run_irq_rti_case;
     input use_nmi;
     integer service_wait, return_wait, service_cen, service_started, service_entry_seen;
+    reg [15:0] pause_pc, pause_sp, pause_addr;
+    reg [11:0] pause_uaddr;
+    reg [7:0] pause_dout;
+    reg pause_wr;
     begin
         matrix_running=1;
         irq=use_nmi ? 0 : 1; nmi=0;
@@ -813,6 +960,17 @@ task run_irq_rti_case;
                     $display("IRQ_SERVICE_START kind=%s PC=%04x U=%03x A=%04x W=%b",use_nmi ? "NMI" : "IRQ",uut.u_regs.pc,uut.u_ctrl.uaddr,addr,wr);
                 end else if(service_started && !service_entry_seen) begin
                     service_cen=service_cen+1;
+                    if(service_cen==10) begin
+                        @(negedge clk); cen_pause=1;
+                        pause_pc=uut.u_regs.pc; pause_sp=uut.u_regs.s; pause_uaddr=uut.u_ctrl.uaddr;
+                        pause_addr=addr; pause_dout=dout; pause_wr=wr;
+                        repeat(24) @(posedge clk); #1;
+                        if(uut.u_regs.pc!==pause_pc || uut.u_regs.s!==pause_sp || uut.u_ctrl.uaddr!==pause_uaddr ||
+                           addr!==pause_addr || dout!==pause_dout || wr!==pause_wr)
+                            $fatal(1,"independent paused service state/bus changed");
+                        @(negedge clk); cen_pause=0;
+                        $display("INDEPENDENT: paused IRQ/NMI service held state/bus for 24 master clocks");
+                    end
                     if(uut.u_ctrl.uaddr==12'h860 && uut.u_regs.pc==(use_nmi ? 16'h0210 : 16'h0200) && !uut.u_ctrl.stack_busy) begin
                         service_entry_seen=1;
                         $display("IRQ_SERVICE_HANDLER kind=%s PC=%04x U=%03x A=%04x W=%b INTERVAL_CEN=%0d",use_nmi ? "NMI" : "IRQ",uut.u_regs.pc,uut.u_ctrl.uaddr,addr,wr,service_cen);
@@ -823,12 +981,7 @@ task run_irq_rti_case;
         if(service_wait>=500) begin $display("FAIL: %s service did not reach opcode-entry boundary",use_nmi ? "NMI" : "IRQ"); $fatal(1); end
         if(!service_entry_seen) begin $display("FAIL: HD6301 %s calibrated handler opcode boundary not observed",use_nmi ? "NMI" : "IRQ"); $fatal(1); end
         if(service_cen==48) $display("CHECKED: HD6301 %s C70→U860 service interval matches HD63701Y0 Figure 52 12E",use_nmi ? "NMI" : "IRQ");
-        else if(service_cen==50) begin
-            $display("SERVICE_TIMING_FINDING profile=HD6301 kind=%s observed_CEN=50 manual_12E_expected_CEN=48",use_nmi ? "NMI" : "IRQ");
-`ifdef STRICT_SPEC
-            $fatal(1,"STRICT_SPEC: HD6301 interrupt service is 50 CEN intervals, manual expects 48");
-`endif
-        end else begin $display("FAIL: HD6301 %s service measured unexpected %0d CEN intervals (manual=48, known baseline=50)",use_nmi ? "NMI" : "IRQ",service_cen); $fatal(1); end
+        else begin $display("FAIL: HD6301 %s service measured %0d CEN intervals; manual expects 48 (12E)",use_nmi ? "NMI" : "IRQ",service_cen); $fatal(1); end
         irq=0; nmi=0;
         return_wait=0;
         while(mem.mem[16'h0023]!==8'h5a && return_wait<700) begin @(posedge clk); return_wait=return_wait+1; end
@@ -1268,7 +1421,7 @@ initial begin
             run_xgdx_case();
             run_bitop_case(8'h61); run_bitop_case(8'h62); run_bitop_case(8'h65); run_bitop_case(8'h6b);
             run_bitop_case(8'h71); run_bitop_case(8'h72); run_bitop_case(8'h75); run_bitop_case(8'h7b);
-            run_slp_case();
+            run_slp_case(0); run_slp_case(1); run_slp_masked_irq_case();
             run_cen_pause_case();
             run_mul_case();
             run_ba_ext_halt_case();
@@ -1276,6 +1429,7 @@ initial begin
             run_signed_pc_wrap_case();
             run_stack_wrap_case();
             run_indexed_ea_wrap_case();
+            run_wai_wake_case(0); run_wai_wake_case(1);
             run_irq_rti_case(0);
             run_irq_rti_case(1);
             run_irq_ocf_priority_case();
@@ -1287,8 +1441,8 @@ initial begin
             run_manual_irq_vector_case(5,16'h0250);
             run_manual_irq_vector_case(6,16'h0260);
             run_nmi_over_irq_case();
-            if(generic_count!=229 || timing_assertions!=753) begin
-                $display("FAIL: HD6301 case/assertion count cases=%0d timing=%0d expected=229/753",generic_count,timing_assertions); $fatal(1);
+            if(generic_count!=233 || timing_assertions!=766) begin
+                $display("FAIL: HD6301 case/assertion count cases=%0d timing=%0d expected=233/766",generic_count,timing_assertions); $fatal(1);
             end
             $display("PASS: HD6301 full directed assessment sequence completed; generic cases=%0d timing assertions=%0d",generic_count,timing_assertions);
             for(cov_i=0;cov_i<256;cov_i=cov_i+1) begin

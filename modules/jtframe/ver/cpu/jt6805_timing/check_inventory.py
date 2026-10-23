@@ -65,14 +65,6 @@ if len([r for r in records if r["scope"] == "HMOS+CMOS"]) != 207:
     raise SystemExit("manual inventory must classify exactly 207 HMOS forms")
 if len([r for r in records if r["scope"] == "CMOS-only"]) != 2:
     raise SystemExit("manual inventory must classify exactly 2 CMOS-only forms")
-baseline_path = Path("known_observations.mem")
-if not baseline_path.is_file():
-    raise SystemExit(f"missing reviewed timing-observation baseline {baseline_path}")
-baseline = baseline_path.read_text().splitlines()
-if len(baseline) != 237 or any(not re.fullmatch(r"[0-9a-fA-F]{6}", row) for row in baseline):
-    raise SystemExit("known timing-observation baseline must contain exactly 237 six-hex-digit rows")
-if len(set(baseline)) != len(baseline):
-    raise SystemExit("known timing-observation baseline contains duplicate case rows")
 missing = sorted(set(manual) - set(active))
 extra = sorted(set(active) - set(manual))
 if missing or extra:

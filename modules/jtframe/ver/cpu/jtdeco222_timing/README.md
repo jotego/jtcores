@@ -29,7 +29,7 @@ separate; no original DECO-specific NOP manual is claimed.
 Run from the repository root:
 
 ```sh
-source setprj.sh && simunit.sh --run modules/jtframe/ver/cpu/jtdeco222_timing
+source ./setprj.sh && simunit.sh --run modules/jtframe/ver/cpu/jtdeco222_timing
 ```
 
 Evidence and scope limits are recorded in `tasks/jtcores-151/artifacts/deco222-result.md`.
