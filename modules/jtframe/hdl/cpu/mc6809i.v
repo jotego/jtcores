@@ -5893,9 +5893,14 @@ begin
             CpuState_nxt = CPUSTATE_CWAI_POST;
         else if (HD6309 && !md[0] && (CpuState == CPUSTATE_CWAI_PAD4))
             CpuState_nxt = CPUSTATE_6309_CWAI_PAD5;
-        else
-            CpuState_nxt = (CpuState == CPUSTATE_CWAI_PAD4)
-                         ? CPUSTATE_CWAI_POST : CpuState + 1'b1;
+        else begin
+            case (CpuState)
+                CPUSTATE_CWAI_PAD1: CpuState_nxt = CPUSTATE_CWAI_PAD2;
+                CPUSTATE_CWAI_PAD2: CpuState_nxt = CPUSTATE_CWAI_PAD3;
+                CPUSTATE_CWAI_PAD3: CpuState_nxt = CPUSTATE_CWAI_PAD4;
+                default:            CpuState_nxt = CPUSTATE_CWAI_POST;
+            endcase
+        end
     end
 
     CPUSTATE_6309_CWAI_PAD5, CPUSTATE_6309_CWAI_PAD6:
