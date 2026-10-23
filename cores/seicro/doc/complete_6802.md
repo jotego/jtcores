@@ -11,22 +11,35 @@ digital model; required digital interfaces and timing remain in scope.
 
 ## Architecture and integration order
 
-Use the existing `modules/jt680x` controller, registers and ALU. The shared
-`jt6802.yaml` manifest supplies the MC6802 profile; define `JT680X_6802` when
-using it. The profile adds E/VMA/MR bus handling, opcode eligibility, the CPX
-flag difference, NSC8105 translation/extensions and interrupt entry sequencing.
-Existing 6801/6301 profiles retain their original generated microcode and timing.
-There is no separate Seicro CPU, controller or register file.
+Use the existing `modules/jt680x` controller, registers and ALU, with the
+family's fixed-rate microcode scheduler. Select `jt6802.yaml` and define
+`JT680X_6802`; instantiate `jt6802` for the external E/VMA/MR interface.
+`6802.yaml` includes `680x.yaml`, retaining its shared arithmetic sequences and
+providing bus-phase-specific addressing, stack and interrupt procedures. Cycle
+checking remains enabled in the generator. Thirty-two microsteps per ROM entry
+accommodate the longer procedures; dispatch and return use the profile's matching step width.
 
-The 6802 microcode uses explicit bus barriers: internal microsteps run between
-crystal-paced external cycles. Its shared controller uses the family's interrupt
-priority and state machinery, with profile-specific dispatch and vector-entry
-sequences. Do not interpret internal microstep counts as physical bus cycles.
+Each accepted crystal enable advances one microstep. The `jt6802` wrapper
+supplies two-low/two-high E timing and holds that same scheduler during MR or
+host memory stalls. There are no master-clock execution bursts, bus barriers or
+separate instruction-retirement scheduler. The existing family controller handles
+IRQ/NMI priority, WAI, HALT and BA; the profile supplies its vector/wake sequences.
+The shared datapath adds the MC6800 CPX flags and the NSC ADCX compatibility flags.
+`jt6802_decode` translates only instruction dispatch and branch decoding; operands
+and data remain unchanged. Existing 6801/6301 generated microcode is unchanged.
+
+Instruction completion overlaps prefetch of the following opcode. Tests account
+for that boundary: the next opcode transfer is the first cycle of the next
+instruction, and its legality is separate from the instruction just completed.
+The microcode cycle count includes that prefetch. WAI has no following prefetch:
+its eight post-dispatch cycles plus the already-fetched opcode make nine external
+cycles. Interrupt service and WAI wake procedures include a final prefetch beyond
+their respective twelve and four external cycles through vector loading.
 
 The board wrapper remains `../hdl/jtseicro_mcu.v`, with Seicro's ROM, shared
 RAM, internal RAM, DIP, DAC and PAL connections. It selects NSC8105 at runtime,
 keeps unused interrupt/halt inputs inactive and enables `FC_COMPAT`. The
-shared CPU's default `FC_COMPAT=0` rejects this undocumented compatibility
+shared wrapper's default `FC_COMPAT=0` rejects this undocumented compatibility
 operation. NSC8105 timing and flags remain a distinct compatibility claim.
 See [pal.md](pal.md) for existing bus, NSC8105 and FC evidence.
 
@@ -40,11 +53,11 @@ shared family's tests. Preserve base-family behavior whenever shared code change
 | Area | Current implementation | Remaining work |
 | --- | --- | --- |
 | Instructions | Shared YAML profile and ALU; 199 baseline operations compared with the previous implementation in each mode, plus opcode eligibility tests. | Independently check every documented opcode, result, flag and cycle; the legacy comparison can preserve the same mistake. |
-| Interrupts | Shared IRQ/NMI priority and pending-NMI machinery; 12-cycle entry and exact stack/RTI checks. | Complete edge, masking, reset, simultaneous-event and stalled-bus corner cases against independent sources. |
+| Interrupts | Shared IRQ/NMI priority and pending-NMI machinery; 12-cycle entry and exact stack/RTI checks. | Complete edge, masking, reset, simultaneous-event and stalled-bus corner cases against independent sources, including short IRQ/NMI pulses while the scheduler is stalled. |
 | WAI | IRQ and NMI wake, mask handling, four-cycle entry without restacking, BA and RTI are tested. | Complete boundary/phase and reset interactions; resolve the manual inconsistency below. |
 | HALT and BA | Instruction-boundary hold, bus release, next-instruction address and pending-NMI priority are tested. | Complete single-instruction operation, IRQ pulse retention and reset/phase combinations. Host pause remains distinct from physical HALT. |
 | Reset | Restart-vector sequence and board reset/MR regression retained. | Independently verify all startup timing, output and interrupted-state cases. |
-| Bus, E and MR | Shared bus helper preserves E/VMA/R/W timing; BSR/RTS and all eight release phases with and without host stalls pass. | Check all Table 8 addresses/data, MR sampling/limits and electrical-timing assumptions. |
+| Bus, E and MR | Fixed-rate wrapper preserves E/VMA/R/W timing; BSR/RTS and all eight release phases with and without host stalls pass. | Complete Table 8 addresses/data checks, MR sampling/limits and electrical-timing assumptions. TSX/TXS source/destination addresses have a directed test. |
 | Internal RAM and RE | Seicro wrapper supplies 128 bytes at `$0000–$007F`; RE is not exposed by a generic chip wrapper. | Add and test the reusable RAM/RE/retention wrapper and external data-bus ownership model. |
 | Tests | Docker/Verilator entrypoints for shared MCU/family checks and Seicro regressions. The shared entrypoint is configured in the unit-simulation workflow. | Verify the configured GitHub job after publication; complete independent manual-based coverage. |
 
@@ -52,12 +65,9 @@ This is an implementation and coverage audit, not a claim that every existing
 instruction or bus cycle is wrong. Each unverified behavior below needs an
 independent check before it can be marked complete.
 
-One specific bus discrepancy is visible in the microcode: TSX and TXS use the
-source register for both final VMA-low cycles, while Table 8 on PDF page 20
-lists the new destination register as the address for the fourth cycle. Add a
-directed address-level test and correct the sequence if it confirms the code
-reading. VMA is low for that cycle, but the address pins are still driven.
-The existing comparison checks the cycle's VMA/R/W pattern, not this address.
+The directed TSX/TXS test checks Table 8's VMA-low cycles: the third cycle
+addresses the source register and the fourth addresses the updated destination.
+The instruction/flag comparisons additionally check the resulting registers.
 The YAML also enables `BRN` (`$21`) and direct `JSR` (`$9D`), which are not
 listed in the supplied manual's instruction tables. Treat these as a variant
 and compatibility question, not documented MC6802 instructions; preserve
@@ -100,8 +110,8 @@ The shared command is:
 modules/jt680x/ver/6802/sim.sh
 ```
 
-It checks MC6802 interrupt/WAI/HALT behavior and the default FC policy, then
-runs the existing 6801 and 6301 assessments using Verilator. Their generated
+It checks MC6802 interrupt/WAI/HALT behavior, TSX/TXS bus addresses and the
+default FC policy, then runs the existing 6801 and 6301 assessments using Verilator. Their generated
 microcode digests are checked, including all 220/230 documented opcode bytes;
 the 6301 assessment retains its existing SLP timing exclusion. All generated
 files and logs stay under the shared suite's ignored `scratch/` directory.

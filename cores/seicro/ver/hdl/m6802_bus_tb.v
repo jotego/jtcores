@@ -51,7 +51,7 @@ always @(posedge clk) begin
             memory[addr]<=dout;
             writes=writes+1;
         end
-        if(dut.u_regs.op_pc==16'h8003 && !dut.opcode_fetch) begin
+        if(dut.u_cpu.u_regs.op_pc==16'h8003 && !dut.opcode_fetch) begin
             bsr_cycle=bsr_cycle+1;
             expected_wr=0;
             expected_vma=0;
@@ -68,7 +68,7 @@ always @(posedge clk) begin
             if({addr,vma,wr}!={expected_addr,expected_vma,expected_wr})
                 $fatal(1,"BSR cycle%0d addr=%h vma=%b wr=%b",bsr_cycle+1,addr,vma,wr);
         end
-        if(dut.u_regs.op_pc==16'h800c && !dut.opcode_fetch) begin
+        if(dut.u_cpu.u_regs.op_pc==16'h800c && !dut.opcode_fetch) begin
             rts_cycle=rts_cycle+1;
             expected_vma=1;
             case(rts_cycle)
@@ -93,7 +93,7 @@ always @(posedge clk) begin
     held_dout=dout;
     held_vma=vma;
     held_wr=wr;
-    if(dut.illegal) $fatal(1,"Illegal opcode %h at %h",dut.raw_opcode,dut.u_regs.op_pc);
+    if(dut.illegal) $fatal(1,"Illegal opcode %h at %h",dut.raw_opcode,dut.u_cpu.u_regs.op_pc);
 end
 
 jtseicro_mr u_mr(
@@ -106,18 +106,12 @@ jtseicro_mr u_mr(
     .mr_n        ( board_mr_n  )
 );
 
-jt680x #(
+jt6802 #(
     .FC_COMPAT       ( 1               )
 ) dut(
     .irq             ( 1'b0            ),
     .nmi             ( 1'b0            ),
     .ext_halt        ( 1'b0            ),
-    .irq_icf         ( 1'b0            ),
-    .irq_ocf         ( 1'b0            ),
-    .irq_tof         ( 1'b0            ),
-    .irq_sci         ( 1'b0            ),
-    .irq_cmf         ( 1'b0            ),
-    .irq2            ( 1'b0            ),
     .ba              (                 ),
     .nsc8105         ( 1'b0            ),
     .opcode_fetch    (                 ),
@@ -156,7 +150,7 @@ initial begin
     wait(memory[16'hf800]==8'h5a);
     @(negedge clk);
     if(bsr_cycle!=7 || rts_cycle!=4 || writes!=3 ||
-       memory[16'hf87f]!==8'h05 || memory[16'hf87e]!==8'h80 || dut.u_regs.s!==16'hf87f)
+       memory[16'hf87f]!==8'h05 || memory[16'hf87e]!==8'h80 || dut.u_cpu.u_regs.s!==16'hf87f)
         $fatal(1,"BSR/RTS result or transfer count incorrect");
     if(WITH_MR && extended==0) $fatal(1,"No MR stretch exercised");
     if(HOST_STALL && host_waits==0) $fatal(1,"No independent host stall exercised");
@@ -179,5 +173,5 @@ initial begin
     first_host_hold=0;
 end
 
-initial begin #1000000; $fatal(1,"M6802 bus timeout PC=%h",dut.u_regs.pc); end
+initial begin #1000000; $fatal(1,"M6802 bus timeout PC=%h",dut.u_cpu.u_regs.pc); end
 endmodule

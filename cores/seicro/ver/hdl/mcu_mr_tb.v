@@ -135,15 +135,15 @@ initial begin
     end
     if(reset_edges<2) $fatal(1,"MCU reset stopped the E divider");
     mcu_reset=0;
-    wait(u_mcu.mcu_e && u_mcu.mcu_vma && u_mcu.addr==16'hfffe);
     h=132; lvbl=0;
+    wait(u_mcu.mcu_e && u_mcu.mcu_vma && u_mcu.addr==16'hfffe);
     wait(mcu_rom_cs);
     repeat(160) @(negedge clk);
     rom_hold=0;
     wait(ram[0]==8'h5a);
     @(negedge clk);
     if(writes!=3 || ram[127]!==8'h05 || ram[126]!==8'h80 ||
-        u_mcu.u_cpu.u_regs.s!==16'hf87f || held!=20 || z80_writes<2)
+        u_mcu.u_cpu.u_cpu.u_regs.s!==16'hf87f || held!=20 || z80_writes<2)
         $fatal(1,"Connected Z80/MCU result or write count failed");
     $display("PASS connected WAIT/MR NSC=%0d: 20 live Z80 enables hold MCU; reset preserves MR and free E; bus release, ROM wait, BSR/RTS and 3 MCU writes",NSC);
     $finish;

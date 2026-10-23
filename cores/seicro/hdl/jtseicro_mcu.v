@@ -69,18 +69,12 @@ always @(posedge clk) begin
     if(core_rst) dac<=0;
     else if(step && write_cycle && addr==16'h2000) dac<=dout[7:4];
 end
-jt680x #(
+jt6802 #(
     .FC_COMPAT       ( 1                 )
 ) u_cpu(
     .irq             ( 1'b0              ),
     .nmi             ( 1'b0              ),
     .ext_halt        ( 1'b0              ),
-    .irq_icf         ( 1'b0              ),
-    .irq_ocf         ( 1'b0              ),
-    .irq_tof         ( 1'b0              ),
-    .irq_sci         ( 1'b0              ),
-    .irq_cmf         ( 1'b0              ),
-    .irq2            ( 1'b0              ),
     .ba              (                   ),
     .rst             ( rst               ),
     .cpu_rst         ( core_rst          ),

@@ -35,7 +35,7 @@ always @(posedge clk) begin
     end
 end
 
-jt680x cpu(
+jt6802 cpu(
     .rst             ( rst             ),
     .cpu_rst         ( rst             ),
     .clk             ( clk             ),
@@ -56,13 +56,7 @@ jt680x cpu(
     .ext_halt        ( ext_halt        ),
     .ba              ( ba              ),
     .irq             ( irq             ),
-    .nmi             ( nmi             ),
-    .irq_icf         ( 1'b0            ),
-    .irq_ocf         ( 1'b0            ),
-    .irq_tof         ( 1'b0            ),
-    .irq_sci         ( 1'b0            ),
-    .irq_cmf         ( 1'b0            ),
-    .irq2            ( 1'b0            )
+    .nmi             ( nmi             )
 );
 
 task prepare;
@@ -104,9 +98,20 @@ endtask
 task check_restored;
     input [7:0] cc;
     begin
-        if({cpu.u_regs.a,cpu.u_regs.b,cpu.u_regs.x,cpu.u_regs.s,cpu.u_regs.cc}!==
+        if({cpu.u_cpu.u_regs.a,cpu.u_cpu.u_regs.b,cpu.u_cpu.u_regs.x,cpu.u_cpu.u_regs.s,cpu.u_cpu.u_regs.cc}!==
             {8'h12,8'h34,16'h5678,16'hf87f,cc})
             $fatal(1,"RTI did not restore A/B/X/SP/CC");
+    end
+endtask
+
+task check_bus;
+    input [15:0] expected_addr;
+    input expected_vma;
+    begin
+        @(posedge clk);
+        while(!done) @(posedge clk);
+        if({addr,vma,wr}!=={expected_addr,expected_vma,1'b0})
+            $fatal(1,"Bus expected %h VMA=%b, got %h VMA=%b WR=%b",expected_addr,expected_vma,addr,vma,wr);
     end
 endtask
 
@@ -120,7 +125,7 @@ initial begin
     irq=1;
     wait(irq_reads==2);
     @(negedge clk);
-    if(transfers-wake_start!=4 || stack_writes!=7 || !cpu.i)
+    if(transfers-wake_start!=4 || stack_writes!=7 || !cpu.u_cpu.i)
         $fatal(1,"WAI IRQ entry must take four bus cycles without restacking");
     irq=0;
     wait(memory[16'hf800]==8'h12);
@@ -151,9 +156,10 @@ initial begin
 
     prepare(0,0);
     wait(opcode_fetch && done && addr==16'h800b);
+    @(posedge clk);
     @(negedge clk);
     irq=1;
-    wait(cpu.u_ctrl.uaddr==cpu.u_ctrl.ISRV_SEQA);
+    wait(cpu.u_cpu.u_ctrl.uaddr==cpu.u_cpu.u_ctrl.ISRV_SEQA);
     wake_start=transfers;
     wait(irq_reads==2);
     @(negedge clk);
@@ -167,17 +173,17 @@ initial begin
     $display("PASS MC6802 ordinary IRQ: instruction boundary, 12-cycle entry and exact RTI restore");
 
     prepare(0,0);
-    wait(instruction_end && cpu.u_regs.op_pc==16'h800b);
+    wait(instruction_end && cpu.u_cpu.u_regs.op_pc==16'h800b);
     @(negedge clk);
     ext_halt=1;
     wait(ba);
     @(negedge clk);
-    saved_pc=cpu.u_regs.pc;
-    saved_cc=cpu.u_regs.cc;
+    saved_pc=cpu.u_cpu.u_regs.pc;
+    saved_cc=cpu.u_cpu.u_regs.cc;
     if(vma || wr || addr!=saved_pc) $fatal(1,"HALT did not release the bus at the next instruction address");
     irq=1; nmi=1;
     repeat(256) @(negedge clk);
-    if(!ba || irq_reads || nmi_reads || stack_writes || cpu.u_regs.pc!=saved_pc)
+    if(!ba || irq_reads || nmi_reads || stack_writes || cpu.u_cpu.u_regs.pc!=saved_pc)
         $fatal(1,"HALT did not retain pending interrupts");
     irq_start=irq_reads; nmi_start=nmi_reads;
     wake_start=transfers;
@@ -188,26 +194,47 @@ initial begin
         $fatal(1,"NMI entry must precede IRQ and take 12 bus cycles");
     check_frame(saved_pc,saved_cc);
     irq=0; nmi=0;
-    wait(cpu.u_regs.s==16'hf87f && cpu.u_regs.pc==saved_pc);
+    wait(cpu.u_cpu.u_regs.s==16'hf87f && cpu.u_cpu.u_regs.pc==saved_pc);
     @(negedge clk);
     check_restored(saved_cc);
     $display("PASS MC6802 HALT: instruction boundary, pending NMI priority, 12-cycle entry and RTI");
 
     prepare(0,0);
     wait(opcode_fetch && done && addr==16'h800c);
+    @(posedge clk);
     @(negedge clk);
     ext_halt=1;
     wait(ba);
     @(negedge clk);
-    if(memory[16'hf800]!=8'h12 || cpu.u_regs.pc!=16'h800f || addr!=16'h800f || vma || wr)
+    if(memory[16'hf800]!=8'h12 || cpu.u_cpu.u_regs.pc!=16'h800f || addr!=16'h800f || vma || wr)
         $fatal(1,"HALT suppressed the current instruction's store or granted the bus early");
     ext_halt=0;
     wait(!ba);
     $display("PASS MC6802 HALT asserted during opcode fetch completes the current instruction");
 
     prepare(0,0);
+    memory[16'h800b]=8'h30;
+    memory[16'h800c]=8'h35;
+    memory[16'h800d]=8'h20;
+    memory[16'h800e]=8'hfe;
+    wait(opcode_fetch && addr==16'h800b);
+    check_bus(16'h800b,1);
+    check_bus(16'h800c,1);
+    check_bus(16'hf87f,0);
+    check_bus(16'hf880,0);
+    check_bus(16'h800c,1);
+    check_bus(16'h800d,1);
+    check_bus(16'hf880,0);
+    check_bus(16'hf87f,0);
+    check_bus(16'h800d,1);
+    @(negedge clk);
+    if(cpu.u_cpu.u_regs.x!==16'hf880 || cpu.u_cpu.u_regs.s!==16'hf87f)
+        $fatal(1,"TSX/TXS result mismatch");
+    $display("PASS MC6802 TSX/TXS: Table 8 source and destination addresses in both VMA-low cycles");
+
+    prepare(0,0);
     memory[16'h8000]=8'hfc;
-    wait(cpu.invalid_entry);
+    wait(cpu.illegal);
     @(negedge clk);
     if(cpu.raw_opcode!=8'hfc) $fatal(1,"Unexpected opcode in FC eligibility check");
     rst=1;
@@ -217,6 +244,6 @@ end
 
 initial begin
     #1000000;
-    $fatal(1,"MC6802 interrupt timeout PC=%h uaddr=%h",cpu.u_regs.pc,cpu.u_ctrl.uaddr);
+    $fatal(1,"MC6802 interrupt timeout PC=%h uaddr=%h",cpu.u_cpu.u_regs.pc,cpu.u_cpu.u_ctrl.uaddr);
 end
 endmodule

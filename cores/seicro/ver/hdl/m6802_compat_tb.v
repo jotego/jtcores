@@ -26,7 +26,7 @@ always @(posedge clk) begin
     endcase
     if(!rst && done) begin
         if(wr) $fatal(1,"FC compatibility wrote memory");
-        if(cpu.opcode_fetch || cycles!=0) begin
+        if((cpu.opcode_fetch || cycles!=0) && (!instruction_end || cycles==0)) begin
             if(cycles<3 && (!vma || addr!==16'h8000+cycles))
                 $fatal(1,"FC compatibility operand fetch %0d at %h VMA=%b",cycles,addr,vma);
             if(cycles==3 && vma) $fatal(1,"FC compatibility final cycle was valid");
@@ -39,11 +39,13 @@ end
 initial begin
     repeat(4) @(negedge clk);
     rst=0;
-    cpu.u_regs.a=8'h58; cpu.u_regs.b=8'ha3; cpu.u_regs.x=16'hefe0; cpu.u_regs.s=16'hf87f; {cpu.u_regs.h,cpu.u_regs.i,cpu.u_regs.n,cpu.u_regs.z,cpu.u_regs.v,cpu.u_regs.c}=6'h39;
+    wait(!cpu.engine_rst);
+    @(negedge clk);
+    cpu.u_cpu.u_regs.a=8'h58; cpu.u_cpu.u_regs.b=8'ha3; cpu.u_cpu.u_regs.x=16'hefe0; cpu.u_cpu.u_regs.s=16'hf87f; {cpu.u_cpu.u_regs.h,cpu.u_cpu.u_regs.i,cpu.u_cpu.u_regs.n,cpu.u_cpu.u_regs.z,cpu.u_cpu.u_regs.v,cpu.u_cpu.u_regs.c}=6'h39;
     wait(finished);
     @(negedge clk);
     if(cycles!=4 || transfers!=3 ||
-       {cpu.u_regs.a,cpu.u_regs.b,cpu.u_regs.x,cpu.u_regs.s,cpu.u_regs.pc,cpu.u_regs.cc}!==72'h58a3efe0f87f8003f9)
+       {cpu.u_cpu.u_regs.a,cpu.u_cpu.u_regs.b,cpu.u_cpu.u_regs.x,cpu.u_cpu.u_regs.s,cpu.u_cpu.u_regs.pc,cpu.u_cpu.u_regs.cc}!==72'h58a3efe0f87f8003f9)
         $fatal(1,"FC compatibility state/cycle mismatch");
     $display("PASS Frisky Tom FC compatibility: skip two operands; preserve registers/flags; four provisional cycles");
     $finish;
@@ -52,18 +54,12 @@ initial begin
     #100000;
     $fatal(1,"FC compatibility timeout");
 end
-jt680x #(
+jt6802 #(
     .FC_COMPAT       ( 1               )
 ) cpu(
     .irq             ( 1'b0            ),
     .nmi             ( 1'b0            ),
     .ext_halt        ( 1'b0            ),
-    .irq_icf         ( 1'b0            ),
-    .irq_ocf         ( 1'b0            ),
-    .irq_tof         ( 1'b0            ),
-    .irq_sci         ( 1'b0            ),
-    .irq_cmf         ( 1'b0            ),
-    .irq2            ( 1'b0            ),
     .ba              (                 ),
     .nsc8105         ( 1'b0            ),
     .opcode_fetch    (                 ),

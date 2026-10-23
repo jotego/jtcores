@@ -41,7 +41,7 @@ always @(posedge clk) begin
             if(old_ni) old_finished=1;
         end
         if(new_done && new_vma && new_wr) new_memory[new_addr]<=new_dout;
-        if(new_done && (started || cpu.opcode_fetch) && !new_finished) begin
+        if(new_done && (!cpu.opcode_fetch || !started) && (started || cpu.opcode_fetch) && !new_finished) begin
             started=1;
             expected_transfer=expected_pattern[observed_cycles];
             if(observed_cycles>=expected_pattern.len() ||
@@ -51,7 +51,7 @@ always @(posedge clk) begin
                     opcode,observed_cycles+1,expected_transfer,new_vma,new_wr);
             observed_cycles=observed_cycles+1;
         end
-        if(new_ni) new_finished=1;
+        if(new_ni) new_finished<=1;
     end
 end
 
@@ -173,27 +173,33 @@ task run_case;
         initial_cc={2'b11,seed[5:0]};
         seed_cc=initial_cc[5:0];
         rst=0;
-        legacy.a=initial_a; cpu.u_regs.a=initial_a;
-        legacy.b=initial_b; cpu.u_regs.b=initial_b;
-        legacy.x=16'h9000; cpu.u_regs.x=16'h9000;
-        legacy.s=16'hf87f; cpu.u_regs.s=16'hf87f;
+        legacy.a=initial_a;
+        wait(!cpu.engine_rst);
+        @(negedge clk);
+        cpu.u_cpu.u_regs.a=initial_a;
+        legacy.b=initial_b; cpu.u_cpu.u_regs.b=initial_b;
+        legacy.x=16'h9000; cpu.u_cpu.u_regs.x=16'h9000;
+        legacy.s=16'hf87f; cpu.u_cpu.u_regs.s=16'hf87f;
         legacy.cc=initial_cc;
-        {cpu.u_regs.h,cpu.u_regs.i,cpu.u_regs.n,cpu.u_regs.z,cpu.u_regs.v,cpu.u_regs.c}=initial_cc[5:0];
+        {cpu.u_cpu.u_regs.h,cpu.u_cpu.u_regs.i,cpu.u_cpu.u_regs.n,cpu.u_cpu.u_regs.z,cpu.u_cpu.u_regs.v,cpu.u_cpu.u_regs.c}=initial_cc[5:0];
+        wait(cpu.opcode_fetch);
+        @(negedge clk);
+        {cpu.u_cpu.u_regs.h,cpu.u_cpu.u_regs.i,cpu.u_cpu.u_regs.n,cpu.u_cpu.u_regs.z,cpu.u_cpu.u_regs.v,cpu.u_cpu.u_regs.c}=initial_cc[5:0];
         timer=0;
         while(!(old_finished && new_finished) && timer<20000) begin
             @(negedge clk);
             timer=timer+1;
         end
-        if(timer==20000 || cpu.illegal)
+        if(timer==20000 || (cpu.illegal && !new_finished))
             $fatal(1,"Opcode %h seed%0d timeout old=%b new=%b illegal=%b",code,seed,old_finished,new_finished,cpu.illegal);
         if(observed_cycles!=expected_pattern.len())
             $fatal(1,"Opcode %h cycle count expected=%0d actual=%0d",code,expected_pattern.len(),observed_cycles);
         flags_mask=code==8'h19 ? 8'hfd : 8'hff;
-        if({cpu.u_regs.a,cpu.u_regs.b,cpu.u_regs.x,cpu.u_regs.s,cpu.u_regs.pc}!={legacy.a,legacy.b,
+        if({cpu.u_cpu.u_regs.a,cpu.u_cpu.u_regs.b,cpu.u_cpu.u_regs.x,cpu.u_cpu.u_regs.s,cpu.u_cpu.u_regs.pc}!={legacy.a,legacy.b,
             legacy.x,legacy.s,legacy.pc} ||
-            (cpu.u_regs.cc & flags_mask)!==(legacy.cc & flags_mask))
+            (cpu.u_cpu.u_regs.cc & flags_mask)!==(legacy.cc & flags_mask))
             $fatal(1,"Opcode %h seed%0d new A/B/X/S/PC/CC=%h/%h/%h/%h/%h/%h old=%h/%h/%h/%h/%h/%h",
-                code,seed,cpu.u_regs.a,cpu.u_regs.b,cpu.u_regs.x,cpu.u_regs.s,cpu.u_regs.pc,cpu.u_regs.cc,
+                code,seed,cpu.u_cpu.u_regs.a,cpu.u_cpu.u_regs.b,cpu.u_cpu.u_regs.x,cpu.u_cpu.u_regs.s,cpu.u_cpu.u_regs.pc,cpu.u_cpu.u_regs.cc,
                 legacy.a,legacy.b,legacy.x,legacy.s,legacy.pc,
                 legacy.cc);
         for(k=0;k<2;k=k+1) begin
@@ -214,18 +220,12 @@ task run_case;
     end
 endtask
 
-jt680x #(
+jt6802 #(
     .FC_COMPAT       ( 1             )
 ) cpu(
     .irq             ( 1'b0          ),
     .nmi             ( 1'b0          ),
     .ext_halt        ( 1'b0          ),
-    .irq_icf         ( 1'b0          ),
-    .irq_ocf         ( 1'b0          ),
-    .irq_tof         ( 1'b0          ),
-    .irq_sci         ( 1'b0          ),
-    .irq_cmf         ( 1'b0          ),
-    .irq2            ( 1'b0          ),
     .ba              (               ),
     .nsc8105         ( NSC!=0        ),
     .opcode_fetch    (               ),
