@@ -834,9 +834,10 @@ endtask
 
 task run_slp_case;
     input use_nmi;
-    integer n;
+    integer n, handler_wait, return_wait, restored_seen;
     reg [15:0] sleep_pc;
     reg [11:0] sleep_uaddr;
+    reg [7:0] expected_ccr;
     begin
         generic_mode=0; matrix_running=1; irq=0; nmi=0;
         mem.mem[16'hfffe]=8'h01; mem.mem[16'hffff]=8'h00;
@@ -845,22 +846,46 @@ task run_slp_case;
         mem.mem[16'h0104]=8'h97; mem.mem[16'h0105]=8'h23; mem.mem[16'h0106]=8'h20; mem.mem[16'h0107]=8'hfe;
         mem.mem[16'h0200]=8'h86; mem.mem[16'h0201]=8'ha5; mem.mem[16'h0202]=8'h97; mem.mem[16'h0203]=8'h22; mem.mem[16'h0204]=8'h3b;
         mem.mem[16'h0022]=0; mem.mem[16'h0023]=0;
-        rst=1; repeat(8) @(negedge clk); uut.u_regs.a=0; uut.u_regs.b=0; uut.u_regs.x=16'h20; uut.u_regs.s=16'h30; rst=0;
+        rst=1; repeat(8) @(negedge clk);
+        uut.u_regs.a=8'h12; uut.u_regs.b=8'h34; uut.u_regs.x=16'h5678; uut.u_regs.s=16'h0030;
+        {uut.u_regs.h,uut.u_regs.n,uut.u_regs.z,uut.u_regs.v,uut.u_regs.c}=5'b10110;
+        rst=0;
         n=0; while(!(uut.u_ctrl.halt && uut.u_ctrl.uaddr==12'h1a3) && n<200) begin @(posedge clk); n=n+1; end
         sleep_pc=uut.u_regs.pc; sleep_uaddr=uut.u_ctrl.uaddr;
         repeat(60) @(posedge clk);
         if(n>=200 || sleep_pc!==16'h0102 || sleep_uaddr!==12'h1a3 || uut.u_regs.pc!==sleep_pc || uut.u_regs.s!==16'h0030 || !uut.u_ctrl.halt) begin
             $display("FAIL: HD6301 SLP no-interrupt hold differed from calibrated pass state entry=%04x/%03x now=%04x/%03x S=%04x",sleep_pc,sleep_uaddr,uut.u_regs.pc,uut.u_ctrl.uaddr,uut.u_regs.s); $fatal(1);
         end else $display("CHECKED: HD6301 SLP held PC=%04x and S=%04x for 60 master edges with no interrupt",sleep_pc,uut.u_regs.s);
-        @(negedge clk); if(use_nmi) nmi=1; else irq=1; n=0;
-        while(mem.mem[16'h0022]!==8'ha5 && n<500) begin @(posedge clk); n=n+1; end
-        if(n>=500) begin $display("FAIL: HD6301 SLP did not reach %s handler; PC=%04x U=%03x",use_nmi?"NMI":"IRQ",uut.u_regs.pc,uut.u_ctrl.uaddr); $fatal(1); end
-        else begin
-            irq=0; nmi=0; n=0;
-            while((mem.mem[16'h0023]!==8'h5a || uut.u_regs.s!==16'h0030) && n<500) begin @(posedge clk); n=n+1; end
-            if(n>=500) begin $display("FAIL: HD6301 SLP resume failed; ISR=%02x main=%02x S=%04x PC=%04x",mem.mem[16'h0022],mem.mem[16'h0023],uut.u_regs.s,uut.u_regs.pc); $fatal(1); end
-            else $display("CHECKED: HD6301 SLP %s wake, ISR marker, RTI stack restore, and mainline resume",use_nmi?"NMI":"IRQ");
+        @(negedge clk); if(use_nmi) nmi=1; else irq=1;
+        handler_wait=0;
+        while(mem.mem[16'h0022]!==8'ha5 && handler_wait<500) begin @(posedge clk); handler_wait=handler_wait+1; end
+        if(handler_wait>=500 || uut.u_regs.s!==16'h0029) begin
+            $display("FAIL: HD6301 SLP %s wake handler=%02x S=%04x",use_nmi?"NMI":"IRQ",mem.mem[16'h0022],uut.u_regs.s); $fatal(1);
         end
+        expected_ccr=use_nmi ? 8'hf6 : 8'he6;
+        if(mem.mem[16'h002f]!==8'h01 || mem.mem[16'h0030]!==8'h02 ||
+           mem.mem[16'h002d]!==8'h56 || mem.mem[16'h002e]!==8'h78 ||
+           mem.mem[16'h002c]!==8'h12 || mem.mem[16'h002b]!==8'h34 ||
+           mem.mem[16'h002a]!==expected_ccr) begin
+            $display("FAIL: HD6301 SLP %s pre-stacked frame PC=%02x%02x X=%02x%02x A=%02x B=%02x CCR=%02x expected CCR=%02x",use_nmi?"NMI":"IRQ",mem.mem[16'h002f],mem.mem[16'h0030],mem.mem[16'h002d],mem.mem[16'h002e],mem.mem[16'h002c],mem.mem[16'h002b],mem.mem[16'h002a],expected_ccr); $fatal(1);
+        end
+        $display("SLP_FRAME HD6301 %s PC=%02x%02x X=%02x%02x A=%02x B=%02x CCR=%02x",use_nmi?"NMI":"IRQ",mem.mem[16'h002f],mem.mem[16'h0030],mem.mem[16'h002d],mem.mem[16'h002e],mem.mem[16'h002c],mem.mem[16'h002b],mem.mem[16'h002a]);
+        irq=0; nmi=0; return_wait=0; restored_seen=0;
+        while((mem.mem[16'h0023]!==8'h5a || uut.u_regs.s!==16'h0030) && return_wait<500) begin
+            @(negedge clk); return_wait=return_wait+1;
+            if(cen && uut.u_ctrl.uaddr==12'h860 && uut.u_regs.pc==16'h0102) begin
+                restored_seen=1;
+                if(uut.u_regs.a!==8'h12 || uut.u_regs.b!==8'h34 || uut.u_regs.x!==16'h5678 ||
+                   {uut.u_regs.h,uut.u_regs.i,uut.u_regs.n,uut.u_regs.z,uut.u_regs.v,uut.u_regs.c} !== {1'b1,use_nmi,4'b0110})
+                    $fatal(1,"HD6301 SLP %s RTI did not restore distinct A/B/X/CCR before next LDA",use_nmi?"NMI":"IRQ");
+            end
+        end
+        if(!restored_seen) $fatal(1,"HD6301 SLP %s RTI restore observer did not run",use_nmi?"NMI":"IRQ");
+        if(return_wait>=500 || mem.mem[16'h0023]!==8'h5a || uut.u_regs.s!==16'h0030 || uut.u_regs.pc!==16'h0106) begin
+            $display("FAIL: HD6301 SLP %s RTI resume marker=%02x PC=%04x S=%04x",use_nmi?"NMI":"IRQ",mem.mem[16'h0023],uut.u_regs.pc,uut.u_regs.s); $fatal(1);
+        end
+        $display("INDEPENDENT: SLP distinct A12/B34/X5678/CCR restored before next LDA");
+        $display("CHECKED: HD6301 SLP %s wake used one exact frame, RTI restored context/SP, and mainline resumed",use_nmi?"NMI":"IRQ");
         irq=0; generic_count=generic_count+1; rst=1; matrix_running=0;
     end
 endtask

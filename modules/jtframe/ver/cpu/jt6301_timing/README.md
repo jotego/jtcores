@@ -20,8 +20,11 @@ are restored before mainline code overwrites A. The WAI microcode moves CC_RMUX
 into ALU operand 0 before `md_ld`, so the stacked CCR reflects live flags
 instead of a stale ALU result. SLP increments PC once,
 holds PC/SP without an interrupt, vectors on IRQ/NMI and resumes after RTI, and
-releases on a masked IRQ without vectoring or stacking. Its unbounded wait
-interval prevents a fixed-cycle assertion.
+releases on a masked IRQ without vectoring or stacking. The IRQ/NMI wake cases
+seed distinct A/B/X/CCR values and check the single stacked PC/X/A/B/CCR frame
+(CCR `$E6` for IRQ and `$F6` for NMI), then verify RTI restores A/B/X/all CCR
+flags at the next-instruction handoff before LDA overwrites A. Its unbounded
+wait interval prevents a fixed-cycle assertion.
 PULA, PULB, PULX, DAA, XGDX, and MUL use separate equal-phase Table 13
 landmarks. The intervals match the documented cycle counts. The observed
 public bus schedule omits the documented `$FFFF` restart-LSB reads for these

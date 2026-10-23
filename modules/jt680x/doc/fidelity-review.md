@@ -268,7 +268,7 @@ The main reviewed fixture/oracle fingerprints are:
 | Source | SHA-256 |
 |---|---|
 | `jt6801_timing/test.v` | `509eb810d75f2b694717f6c2753ba8ffcd060b928506e5dcef1e1bd3c2a75cd7` |
-| `jt6301_timing/test.v` | `a3c9602b3982e7fc166d3ca2daef8abd06a71a722d2fdcc0a44f9228ae624359` |
+| `jt6301_timing/test.v` | `bc1780ca059283613d9a98e0ead7eff94c84025ba5fc31c3053d956c40d0e664` |
 | `jt6805_timing/test.v` | `ee59b72c971131007e9a5c5531e5a7e910e93b42efafb35defc9ac2d7e255864` |
 | `jt680x/ucode/6805.yaml` | `6d5fd4890a4fbade24bb8ff7b6dd13e45adcc278e3b051ac7a18210e4cc2eedd` |
 | `jt6805_timing/manual_inventory.py` | `de5b8d7c9933625ef4deb86d93cdb6aab2d23f6706af4c272299fb89e4aa1f28` |
