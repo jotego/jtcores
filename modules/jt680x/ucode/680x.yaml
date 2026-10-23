@@ -253,8 +253,9 @@ ucode:
     seq:
       - ${addr}_jsr, inc_pc
       - ${op0}_rmux, ld0_opnd, op0inv=${op0inv}
-      - ${op1}_rmux, ld1_opnd, fetch
-      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, ni
+      - ${op1}_rmux, ld1_opnd, ${mc6800}?_:fetch
+      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, ${mc6800}?fetch:ni
+      - ${mc6800}?*, ni
   - mnemo: [ JMP ]
     seq:
       - ${addr}_jsr, inc_pc

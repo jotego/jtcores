@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 19-10-2026 */
 
-module jt680x_bus(
+module m6802_reference_bus(
     input             rst, abort, clk, cen, enable,
     input             ready, mr_n,
     input             cycle_active, cycle_vma, cycle_wr,

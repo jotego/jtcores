@@ -420,29 +420,27 @@ that release edge while the lower presets are active. This is an explicit
 digital tie policy, not a measured propagation delay.
 
 Both CPU variants use the shared [jt680x](../../../modules/jt680x/hdl/jt680x.v)
-engine, controller, register datapath and ALU. Seicro selects the `jt6802.yaml`
-manifest and `JT680X_6802` profile. Instruction definitions, dispatch eligibility,
-addressing helpers, ALU controls and physical bus barriers are defined in the
-shared [6802.yaml](../../../modules/jt680x/ucode/6802.yaml). The generator retains the output prefix `6801`
-because the shared ALU includes `6801_param.vh`; this filename does not select
-a 6801 instruction set.
+engine, controller, register datapath and ALU. Seicro instantiates the
+[jt6802](../../../modules/jt680x/hdl/jt6802.v) bus wrapper, selects the
+`jt6802.yaml` manifest and defines `JT680X_6802`. The profile's
+[6802.yaml](../../../modules/jt680x/ucode/6802.yaml) includes the common
+`680x.yaml` arithmetic sequences and overrides the bus-phase-specific addressing,
+stack and vector sequences. It retains the `6801` generated-file prefix because
+the ALU includes `6801_param.vh`; that filename does not select the instruction set.
 
-Internal microsteps run on the master clock between external transfers. A YAML
-`bus` microinstruction holds the controller until the physical transfer completes;
-`valid`, `wr` and address controls describe its VMA, R/W and address. Internal
-microsteps therefore do not create extra byte writes or act as extra E cycles.
-The generator's microstep-count timing report is disabled because its fixed
-microsteps-per-cycle model does not describe these barriers. Nominal `cycles`
-metadata and the actual E/transfer sequence are checked independently by tests.
+The family scheduler advances once per accepted crystal enable. YAML uses fixed
+microsteps and the generator checks cycle totals. There is no separate execution
+scheduler: the wrapper holds the CPU enable during a physical or host memory
+stall. The CPU prefetches the next opcode while completing the current instruction;
+that transfer belongs to the next instruction in the external cycle tables.
 
-[jt680x_bus](../../../modules/jt680x/hdl/jt680x_bus.v) registers each requested bus
-cycle. Each normal E period has four external crystal enables: two low and two
-high. Address, VMA, R/W and write data remain stable through E high. MR low
-extends the high phase in two-crystal-enable increments. Each valid write
-commits once at the completing E falling edge. SDRAM readiness is a separate
-input and cannot manufacture another write or MR request. E is not a generated
-FPGA clock. Digital MR sampling uses eligible completion edges; analogue
-setup-window and chip propagation effects have not been measured.
+The wrapper supplies four crystal enables per normal E period, two low and two
+high. It holds address, VMA and R/W through E high; write data is valid after E
+rises and is held for completion, consistent with the manual's write-data delay.
+MR extends E high in two-crystal-enable increments. Valid writes commit once at
+the completing E falling edge. Host SDRAM readiness is separate from MR. E is an
+output level, never an FPGA-generated clock. Analogue setup-window and chip
+propagation effects have not been measured.
 
 The traced MCU schematic is for NSC8105. Reusing its functional board interface
 for M6802 variants is supported by MAME's explicit HD46802 substitutions and
@@ -467,12 +465,11 @@ been separately measured.
 | M6802 | `sectrzont`, `friskytb` | Shared YAML engine, direct opcode dispatch and connected MR latch. |
 | NSC8105 | Remaining eight sets | Same engine and MR latch, with NSC opcode translation and extension microcode. |
 
-The shared engine's NSC8105 adapter swaps opcode bits 7/6 and 1/0. The decoded byte is used at instruction dispatch and to latch the
-branch condition. Operand, address and data bytes remain unchanged. YAML's
-`entry` flag marks legal instruction starts; helper procedures placed in unused
-opcode slots cannot be entered by fetching those bytes. `nscop` restricts the
-four extension entries below to NSC mode. Other retained family definitions
-without `entry` are not executable board instructions.
+The [NSC8105 adapter](../../../modules/jt680x/hdl/jt6802_decode.v) swaps opcode
+bits 7/6 and 1/0 for dispatch and branch-condition decoding. Operand, address and
+data bytes remain unchanged. Its ISA eligibility check rejects unsupported bytes,
+including helper-procedure slots and retained 6801-only family definitions. The
+four extension entries below are enabled only in NSC mode.
 
 | Raw NSC opcode | Internal opcode | Operation | Selected bus cycles |
 | --- | --- | --- | --- |
@@ -493,9 +490,9 @@ Frisky Tom set 3 executes `FC FF 62` at MCU address `D9E1` during gameplay.
 A local MAME 0.288 run with coin at frame 720 and start at frame 752 logs the
 same illegal three-byte opcode there. MAME's `m6800_insn` maps `FC` to
 `illegl3`, which skips two operand bytes, preserves registers/flags, and uses
-its four-cycle unknown-opcode fallback in `cycles_6800`. Seicro enables the shared engine's optional `FC_COMPAT` parameter. M6802
-mode then routes this known byte to YAML's internal `03` `FCCOMPAT` entry; `fccompat` additionally
-requires the fetched byte to be `FC` and NSC mode to be inactive. Fetching a
+its four-cycle unknown-opcode fallback in `cycles_6800`. Seicro enables the shared wrapper's optional `FC_COMPAT` parameter. M6802
+mode then routes this known byte to YAML's internal `03` `FCCOMPAT` entry. The
+adapter accepts it only when the fetched byte is `FC` and NSC mode is inactive. Fetching a
 literal `03` cannot invoke the fallback. The default shared profile does not
 enable this undocumented compatibility behavior. Its provisional bus sequence reads
 the opcode and two operand bytes, then has one VMA-low cycle. Neither Motorola

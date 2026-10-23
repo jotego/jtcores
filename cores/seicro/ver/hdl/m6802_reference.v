@@ -525,7 +525,7 @@ always @(posedge clk) begin
 end
 `endif
 
-jt680x_bus u_bus(
+m6802_reference_bus u_bus(
     .rst          ( rst        ),
     .abort        ( cpu_rst    ),
     .clk          ( clk        ),

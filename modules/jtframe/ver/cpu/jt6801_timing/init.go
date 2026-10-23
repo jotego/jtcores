@@ -10,7 +10,7 @@ import (
 
 func main() {
 	assertDigest(os.Getenv("JTROOT")+"/modules/jt680x/ucode/6801.yaml", "0f95d0bb1328294389cdc4fe3f26b5192e24753d87577785389053eee4b9429f")
-	assertDigest(os.Getenv("JTROOT")+"/modules/jt680x/ucode/680x.yaml", "257e2b05d3d6ee89137a799d84c0f5587f38dbee98f598ffb4de1f08b95f8e63")
+	assertDigest(os.Getenv("JTROOT")+"/modules/jt680x/ucode/680x.yaml", "2acf654e984428e984b1706de02819fd3d0ea99150e6f65f59f16625f1d63d91")
 	cmd := exec.Command("jtframe", "ucode", "jt680x", "6801", "--output", "6801")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -21,7 +21,7 @@ func main() {
 	assertDigest("6801.vh", "093bfc8af68b6faafb754ee876ed5724c8a7974604cd89d5694a9a7c29b1cd7e")
 	checkOtherProfile("6301", "445163a157db81389aa36da928bde9615943305547283ab64bd47614eafa83db")
 	path := os.Getenv("JTROOT") + "/modules/jt680x/hdl/jt680x_ctrl.v"
-	assertDigest(path, "2417b42c946155ea0080ebc97c8c12e2f5db3ab6e33c87fd96f6549fd337bbab")
+	assertDigest(path, "86d41459286e9de845a2125af6239558a37b40ae25994d5c5902470d4568a878")
 	src, err := os.ReadFile(path)
 	if err != nil { panic(err) }
 	if err := os.WriteFile("jt680x_ctrl_sim.rtl", src, 0644); err != nil { panic(err) }

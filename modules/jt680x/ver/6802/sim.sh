@@ -36,7 +36,8 @@ verilator --binary --timing --top-module test --Mdir obj_dir -j 4 \
     "$JTROOT/modules/jt680x/hdl/jt680x_ctrl.v" \
     "$JTROOT/modules/jt680x/hdl/jt680x_regs.v" \
     "$JTROOT/modules/jt680x/hdl/jt680x_alu.v" \
-    "$JTROOT/modules/jt680x/hdl/jt680x_bus.v" > build.log 2>&1 || {
+    "$JTROOT/modules/jt680x/hdl/jt6802.v" \
+    "$JTROOT/modules/jt680x/hdl/jt6802_decode.v" > build.log 2>&1 || {
         tail -n 60 build.log
         exit 1
     }

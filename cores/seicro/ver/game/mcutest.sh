@@ -60,7 +60,7 @@ seicro_run() {
     shift 2
     local seicro_sources=("$CORES/seicro/ver/hdl/$seicro_top.v")
     if [ "$seicro_top" = m6802_compare_tb ]; then
-        seicro_sources+=("$CORES/seicro/ver/hdl/m6802_reference.v")
+        seicro_sources+=("$CORES/seicro/ver/hdl/m6802_reference.v" "$MODULES/jt680x/ver/6802/m6802_reference_bus.v")
     fi
     printf 'MCU %s: build\n' "$seicro_label"
     verilator --binary --timing --top-module "$seicro_top" \

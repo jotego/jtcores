@@ -60,9 +60,9 @@ initial begin
             repeat(4) @(negedge clk);
             rst=0;
             ticks=0;
-            while(!cpu.check_entry && ticks<1000) begin @(negedge clk); ticks=ticks+1; end
+            while(!cpu.ni && ticks<1000) begin @(negedge clk); ticks=ticks+1; end
             if(ticks==1000) $fatal(1,"Opcode eligibility did not reach fetch");
-            while(cpu.check_entry && !cpu.illegal && ticks<2000) begin @(negedge clk); ticks=ticks+1; end
+            while(cpu.ni && !cpu.illegal && ticks<2000) begin @(negedge clk); ticks=ticks+1; end
             if(ticks==2000 || expected===cpu.illegal)
                 $fatal(1,"Opcode eligibility NSC=%0d raw=%h canonical=%h expected=%b illegal=%b",mode,raw,canonical,expected,cpu.illegal);
             rst=1;
@@ -72,18 +72,12 @@ initial begin
     $display("PASS YAML opcode eligibility: %0d raw bytes/modes, procedure slots rejected, FC compatibility isolated",checked);
     $finish;
 end
-jt680x #(
+jt6802 #(
     .FC_COMPAT       ( 1            )
 ) cpu(
     .irq             ( 1'b0         ),
     .nmi             ( 1'b0         ),
     .ext_halt        ( 1'b0         ),
-    .irq_icf         ( 1'b0         ),
-    .irq_ocf         ( 1'b0         ),
-    .irq_tof         ( 1'b0         ),
-    .irq_sci         ( 1'b0         ),
-    .irq_cmf         ( 1'b0         ),
-    .irq2            ( 1'b0         ),
     .ba              (              ),
     .rst             ( rst          ),
     .cpu_rst         ( rst          ),

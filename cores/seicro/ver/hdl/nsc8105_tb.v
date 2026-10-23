@@ -25,18 +25,18 @@ always @(posedge clk) begin
     shared_dout<=ram[shared_addr];
     if(shared_we) ram[shared_addr]<=shared_din;
     if(!dut.core_rst) begin
+        if(dut.instruction_end) begin
+            nominal=cycles(current);
+            if(ticks!=nominal)
+                $fatal(1,"NSC physical cycles raw=%h expected=%0d actual=%0d",current,nominal,ticks);
+            retired=retired+1;
+        end
         if(dut.step) begin
             if(dut.opcode_fetch) begin
                 current=dut.din;
                 ticks=0;
             end
             ticks=ticks+1;
-        end
-        if(dut.instruction_end) begin
-            nominal=cycles(current);
-            if(ticks!=nominal)
-                $fatal(1,"NSC physical cycles raw=%h expected=%0d actual=%0d",current,nominal,ticks);
-            retired=retired+1;
         end
     end
 end
