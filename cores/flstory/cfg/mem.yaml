@@ -31,13 +31,15 @@ audio:
   pcb:
     # must match PCB order in TOML file - not automated check yet
     # psg2 not presents on boards marked with 999kOhm resistor to null the gain
+    # flstory sch: TA7630 outputs -> 75k -> 1M amps (x13.3 each, MSM x2 as jt7630_bal is half scale),
+    # DAC -> 10k/1M divider, all into the 1M output amp
     #                    MSM   PSG  PSG2   DAC
-    - { rfb: 1k, rsums: [   1k,   1k, 999k,   1k ] } # flstory
+    - { rfb: 1M, rsums: [ 1M, 1M, 1M, 4.7k ], pres: [ 26.6, 13.3,    0, 0.0099 ] } # flstory
     - { rfb: 1k, rsums: [   1k,   1k, 999k, 1.5k ] } # onna34ro
     - { rfb: 1k, rsums: [   1k,   4k, 999k,   4k ] } # rumba
     - { rfb: 1k, rsums: [   1k,   4k, 999k,   5k ] } # victnine
-    - { rfb: 1k, rsums: [ 0.5k, 5.0k, 5.0k,   2k ] } # nycaptor
-    - { rfb: 1k, rsums: [ 0.5k, 5.0k, 5.0k,   2k ] } # cyclsht
+    - { rfb: 1M, rsums: [ 1M, 1M, 1M, 4.7k ], pres: [ 26.6, 13.3, 13.3, 0.0099 ] } # nycaptor
+    - { rfb: 1M, rsums: [ 1M, 1M, 1M, 4.7k ], pres: [ 26.6, 13.3, 13.3, 0.0099 ] } # cyclsht
   channels:
 #     # FIR should be 3kHz, not 4kHz
     - { name: msm,   module: jt5232,rsum: 1k, pre: 1.1 }

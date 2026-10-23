@@ -1,6 +1,12 @@
 [global]
 author=["jotego"]
 
+[Audio]
+volume = [
+	{ machine="nycaptor", value=0xFF },
+	{ machine="cyclshtg", value=0xFF },
+]
+
 [buttons]
 names=[
 	{ machine="flstory",  names="Shot,Jump" },
