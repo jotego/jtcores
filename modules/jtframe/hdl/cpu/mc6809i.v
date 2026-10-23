@@ -1385,52 +1385,6 @@ begin
 end
 endfunction
 
-function [23:0] HD6309RegALU(input [2:0] operation, input [15:0] dst,
-                             input [15:0] src, input wide, input [7:0] cc_arg);
-reg [16:0] result17;
-reg [15:0] result;
-reg [7:0] flags;
-reg carry;
-reg overflow;
-reg [15:0] mask;
-begin
-    result17 = 17'h00000;
-    result = 16'h0000;
-    flags = cc_arg;
-    carry = cc_arg[CC_C_BIT];
-    overflow = 1'b0;
-    mask = wide ? 16'hFFFF : 16'h00FF;
-    case (operation)
-        3'd0,3'd1: begin
-            result17 = {1'b0,(dst & mask)} + {1'b0,(src & mask)} +
-                       ((operation == 3'd1 && cc_arg[CC_C_BIT]) ? 17'd1 : 17'd0);
-            result = result17[15:0] & mask;
-            carry = result17[wide ? 16 : 8];
-            overflow = wide ? ((dst[15] == src[15]) && (result[15] != dst[15])) :
-                               ((dst[7] == src[7]) && (result[7] != dst[7]));
-            flags[CC_C_BIT] = carry;
-            flags[CC_V_BIT] = overflow;
-        end
-        3'd2,3'd3,3'd7: begin
-            result17 = {1'b0,(dst & mask)} - {1'b0,(src & mask)} - ((operation == 3'd3 && cc_arg[CC_C_BIT]) ? 17'd1 : 17'd0);
-            result = result17[15:0] & mask;
-            carry = result17[16];
-            overflow = wide ? ((dst[15] != src[15]) && (result[15] != dst[15])) :
-                               ((dst[7] != src[7]) && (result[7] != dst[7]));
-            flags[CC_C_BIT] = carry;
-            flags[CC_V_BIT] = overflow;
-        end
-        3'd4: begin result = (dst & src) & mask; flags[CC_V_BIT] = 1'b0; end
-        3'd5: begin result = (dst | src) & mask; flags[CC_V_BIT] = 1'b0; end
-        3'd6: begin result = (dst ^ src) & mask; flags[CC_V_BIT] = 1'b0; end
-        default: result = 16'h0000;
-    endcase
-    flags[CC_N_BIT] = wide ? result[15] : result[7];
-    flags[CC_Z_BIT] = (result == 16'h0000);
-    HD6309RegALU = {flags,result};
-end
-endfunction
-
 function [23:0] HD6309Unary16(input [3:0] operation, input [15:0] value,
                               input [7:0] cc_arg);
 reg [15:0] result;
@@ -1480,7 +1434,6 @@ wire HDRegDst8 = HDRegDst[3];
 wire HDRegWide = !HDRegDst8;
 wire [15:0] HDRegSrcValue = HD6309RegValue(HDRegSrc,HDRegWide);
 wire [15:0] HDRegDstValue = HD6309RegValue(HDRegDst,HDRegWide);
-wire [23:0] HDRegResult = HD6309RegALU(Inst1[2:0],HDRegDstValue,HDRegSrcValue,HDRegWide,cc);
 wire [7:0] HDWideUnaryInst = CpuState == CPUSTATE_FETCH_I1V2 ? MappedInstruction : Inst1;
 wire [23:0] HDWideUnaryResult = HD6309Unary16(HDWideUnaryInst[3:0],
     HDWideUnaryInst[7:4] == 4'h4 ? {a,b} : w,cc);
@@ -1493,6 +1446,10 @@ reg     [7:0]   ALU16_CC;
 
 // Top 8 bits == CC, bottom 8 bits = output value
 wire    [23:0] ALU16   =  ALU16Inst(ALU16_OP, ALU16_A, ALU16_B, ALU16_CC);
+wire [7:0] HDRegResultCC = HDRegWide ? ALU16[23:16] :
+    {ALU16[23:19],(ALU16[15:8] == 8'h00),ALU16[17:16]};
+wire [15:0] HDRegResultValue = HDRegWide ? ALU16[15:0] : {8'h00,ALU16[15:8]};
+wire [23:0] HDRegResult = {HDRegResultCC,HDRegResultValue};
 
 
 /////////////////////////////////////////////////////////////////
@@ -2905,6 +2862,20 @@ begin
                         end
                         else if (HD6309 && InstPage2 && (Inst1[7:3] == 5'b00110))
                         begin
+                            ALU16_A = HDRegWide ? HDRegDstValue :
+                                {HDRegDstValue[7:0],(Inst1[2:0] == 3'd1) ? 8'hFF : 8'h00};
+                            ALU16_B = HDRegWide ? HDRegSrcValue : {HDRegSrcValue[7:0],8'h00};
+                            ALU16_CC = cc;
+                            case (Inst1[2:0])
+                                3'd0: ALU16_OP = ALUOP16_ADD;
+                                3'd1: ALU16_OP = ALUOP16_ADC;
+                                3'd2: ALU16_OP = ALUOP16_SUB;
+                                3'd3: ALU16_OP = ALUOP16_SBC;
+                                3'd4: ALU16_OP = ALUOP16_AND;
+                                3'd5: ALU16_OP = ALUOP16_OR;
+                                3'd6: ALU16_OP = ALUOP16_EOR;
+                                default: ALU16_OP = ALUOP16_CMP;
+                            endcase
                             cc_nxt = HDRegResult[23:16];
                             pc_nxt = pc_p1;
                             if (Inst1[2:0] != 3'd7) begin
