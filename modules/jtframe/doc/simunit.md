@@ -45,8 +45,6 @@ Optional files:
 1. `init.go` to generate fixtures before the simulation starts
 2. `test.gtkw` or a saved `test.lxt` waveform for local debugging
 3. `.hex` files referenced from `gather.f`
-4. `clean_up.sh` for post-simulation checks or cleanup; it can read `sim.log`
-   before removal, and a nonzero exit fails the suite
 
 ## What `simunit.sh` Does
 
@@ -59,12 +57,9 @@ For each test folder, the runner:
 4. Expands environment variables inside `gather.f` with `envsubst`
 5. Copies any `.hex` files listed in `gather.f` into the run directory and
    removes them from the generated file list
-6. With the default Icarus backend, lints the unit under test with Verilator,
-   then builds with Icarus Verilog and runs `sim -lxt`
-7. With `--simulator verilator`, builds and runs the timed testbench with
-   Verilator; compilation also checks the design and testbench
-8. Requires a successful simulator exit and `PASS` in `sim.log`, without
-   `FAIL`, `%Fatal` or `%Error`
+6. Lints the unit under test with Verilator
+7. Builds the simulation with Icarus Verilog and runs `sim -lxt`
+8. Marks the run as passing only if `sim.log` contains `PASS`
 
 The simulation entry point is always `test`, and the inferred lint top module is
 the basename of the first path listed in `gather.f`.
@@ -137,18 +132,6 @@ Supported options:
 2. `--run <folder>` overrides the folder to run
 3. `--skip` prints `PASS` and exits early when `GITHUB_ACTIONS=true`
 4. `--macros A,B,C` runs the same test once per comma-separated macro token
-5. `--simulator iverilog|verilator` selects the backend; Icarus is the default
-
-Command-line options override defaults from `.simunit`, so `--macros` can
-select a subset of a suite's variants for local checks.
-
-Verilator build files are temporary subdirectories of the test's ignored
-`obj_dir` and are removed on exit. Use `--keep` to enable waveform tracing
-and retain the dump named by the testbench. For example, a `.simunit` can contain:
-
-```text
---simulator verilator
-```
 
 Examples:
 

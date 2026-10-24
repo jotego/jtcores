@@ -44,7 +44,11 @@ wire [15:0] dec_md = {md[15:8],decoded};
 assign opcode_raw = md[7:0];
 wire        op0inv;
 wire [ 1:0] carry_sel;
+`ifdef JT680X_6802
 wire [ 2:0] ea_sel;
+`else
+wire [ 1:0] ea_sel;
+`endif
 wire [ 1:0] opnd_sel;
 wire [ 3:0] iv;
 wire [ 3:0] alu_sel;

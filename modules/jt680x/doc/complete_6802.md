@@ -24,5 +24,4 @@ From the repository root:
 
 ```sh
 modules/jt680x/ver/6802/sim.sh
-cores/seicro/ver/game/mcutest.sh all
 ```

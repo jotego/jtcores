@@ -34,7 +34,11 @@ module jt680x_ctrl(
     output       op0inv,
     output       wr,
     output [1:0] carry_sel,
+`ifdef JT680X_6802
     output [2:0] ea_sel,
+`else
+    output [1:0] ea_sel,
+`endif
     output [1:0] opnd_sel,
     output [3:0] alu_sel,
     output [3:0] ld_sel,
@@ -44,24 +48,26 @@ module jt680x_ctrl(
     output reg   stack_busy
 );
 
-`ifdef JT680X_6802
-wire invalid;
-localparam WAKE_SEQA=IWAKE_SEQA, USTEP_W=5;
-`endif
-
-`include "6801_param.vh"
-`include "6801.vh"
-
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
 wire       swi, still;
+reg        nmi_l, pendng;
+`ifdef JT680X_6802
+wire invalid;
+`endif
+
+`include "6801_param.vh"
+`ifdef JT680X_6802
+localparam WAKE_SEQA=IWAKE_SEQA, USTEP_W=5;
+`endif
+`include "6801.vh"
+
 `ifdef JT680X_6802
 assign vma = !invalid && !ba;
 `else
 localparam WAKE_SEQA=IVRD_SEQA, USTEP_W=4;
 assign vma = fetch || wr;
 `endif
-reg        nmi_l, pendng;
 wire [USTEP_W-1:0] nx_ualo = uaddr[USTEP_W-1:0] + 1'd1;
 
 assign still = ni & ext_halt;

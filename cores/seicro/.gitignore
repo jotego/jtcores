@@ -4,11 +4,12 @@
 /status.md
 /doc/sch/*.pdf
 !/ver/hdl/
-!/ver/hdl/*.v
-!/ver/hdl/*.sh
+!/ver/hdl/*/
+!/ver/hdl/*/.simunit
+!/ver/hdl/*/gather.f
+!/ver/hdl/*/test.v
 !/ver/game/
 !/ver/game/sim.sh
-!/ver/game/mcutest.sh
 !/ver/game/rest2bin.sh
 !/ver/sectrzont/
 !/ver/sectrzont/boot.cab

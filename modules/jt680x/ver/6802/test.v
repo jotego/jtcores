@@ -131,7 +131,7 @@ initial begin
     wait(memory[16'hf800]==8'h12);
     @(negedge clk);
     check_restored(8'hc0);
-    $display("PASS MC6802 WAI IRQ: seven-byte frame, four-cycle wake, RTI and bus availability");
+    $display("CHECK MC6802 WAI IRQ: seven-byte frame, four-cycle wake, RTI and bus availability");
 
     prepare(1,1);
     wait(ba);
@@ -152,11 +152,10 @@ initial begin
     check_restored(8'hd0);
     repeat(256) @(negedge clk);
     if(nmi_reads!=2 || stack_writes!=7) $fatal(1,"Held NMI retriggered");
-    $display("PASS MC6802 masked WAI, NMI wake and held-level edge qualification");
+    $display("CHECK MC6802 masked WAI, NMI wake and held-level edge qualification");
 
     prepare(0,0);
-    wait(opcode_fetch && done && addr==16'h800b);
-    @(posedge clk);
+    wait(cpu.u_cpu.u_regs.op_pc==16'h800b && !cpu.u_cpu.u_ctrl.ni);
     @(negedge clk);
     irq=1;
     wait(cpu.u_cpu.u_ctrl.uaddr==cpu.u_cpu.u_ctrl.ISRV_SEQA);
@@ -170,7 +169,7 @@ initial begin
     wait(memory[16'hf800]==8'h12);
     @(negedge clk);
     check_restored(8'hc0);
-    $display("PASS MC6802 ordinary IRQ: instruction boundary, 12-cycle entry and exact RTI restore");
+    $display("CHECK MC6802 ordinary IRQ: instruction boundary, 12-cycle entry and exact RTI restore");
 
     prepare(0,0);
     wait(instruction_end && cpu.u_cpu.u_regs.op_pc==16'h800b);
@@ -197,11 +196,10 @@ initial begin
     wait(cpu.u_cpu.u_regs.s==16'hf87f && cpu.u_cpu.u_regs.pc==saved_pc);
     @(negedge clk);
     check_restored(saved_cc);
-    $display("PASS MC6802 HALT: instruction boundary, pending NMI priority, 12-cycle entry and RTI");
+    $display("CHECK MC6802 HALT: instruction boundary, pending NMI priority, 12-cycle entry and RTI");
 
     prepare(0,0);
-    wait(opcode_fetch && done && addr==16'h800c);
-    @(posedge clk);
+    wait(cpu.u_cpu.u_regs.op_pc==16'h800c && !cpu.u_cpu.u_ctrl.ni);
     @(negedge clk);
     ext_halt=1;
     wait(ba);
@@ -210,7 +208,7 @@ initial begin
         $fatal(1,"HALT suppressed the current instruction's store or granted the bus early");
     ext_halt=0;
     wait(!ba);
-    $display("PASS MC6802 HALT asserted during opcode fetch completes the current instruction");
+    $display("CHECK MC6802 HALT asserted during a store completes the current instruction");
 
     prepare(0,0);
     memory[16'h800b]=8'h30;
@@ -230,7 +228,7 @@ initial begin
     @(negedge clk);
     if(cpu.u_cpu.u_regs.x!==16'hf880 || cpu.u_cpu.u_regs.s!==16'hf87f)
         $fatal(1,"TSX/TXS result mismatch");
-    $display("PASS MC6802 TSX/TXS: Table 8 source and destination addresses in both VMA-low cycles");
+    $display("CHECK MC6802 TSX/TXS: Table 8 source and destination addresses in both VMA-low cycles");
 
     prepare(0,0);
     memory[16'h8000]=8'hfc;
@@ -238,7 +236,7 @@ initial begin
     @(negedge clk);
     if(cpu.raw_opcode!=8'hfc) $fatal(1,"Unexpected opcode in FC eligibility check");
     rst=1;
-    $display("PASS MC6802 default profile rejects undocumented FC compatibility");
+    $display("PASS MC6802: IRQ, NMI, WAI, HALT, bus cycles and opcode eligibility");
     $finish;
 end
 
