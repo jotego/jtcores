@@ -1,0 +1,3 @@
+profile,event,manual_cycles,source
+MC6801,IRQ accepted service through first handler opcode,12,"Motorola MC6801RM(AD2) §5.3 p. 5-13, Figure 5-12 p. 5-14"
+MC6801,NMI accepted service through first handler opcode,12,"Motorola MC6801RM(AD2) §5.3 p. 5-13, Figure 5-12 p. 5-14"

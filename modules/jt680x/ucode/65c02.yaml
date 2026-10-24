@@ -48,7 +48,7 @@ ops:
   - { name: LDY, op: 0xBC, cycles: 4, ctl: { op0: md, addr: absx, ld: "y", cc: nz }}
 
   - { name: AND, op: 0x21, cycles: 6, ctl: { op0: md, op1: a, addr: indx, ld: a, alu: and, cc: nz }}
-  - { name: AND, op: 0x31, cycles: 6, ctl: { op0: md, op1: a, addr: indy, ld: a, alu: and, cc: nz }}
+  - { name: AND, op: 0x31, cycles: 5, ctl: { op0: md, op1: a, addr: indy, ld: a, alu: and, cc: nz }}
   - { name: AND, op: 0x32, cycles: 5, ctl: { op0: md, op1: a, addr: ind,  ld: a, alu: and, cc: nz }}
   - { name: AND, op: 0x25, cycles: 3, ctl: { op0: md, op1: a, addr: zp,   ld: a, alu: and, cc: nz }}
   - { name: AND, op: 0x35, cycles: 4, ctl: { op0: md, op1: a, addr: zpx,  ld: a, alu: and, cc: nz }}
@@ -57,26 +57,27 @@ ops:
   - { name: AND, op: 0x2D, cycles: 4, ctl: { op0: md, op1: a, addr: abs,  ld: a, alu: and, cc: nz }}
   - { name: AND, op: 0x3D, cycles: 4, ctl: { op0: md, op1: a, addr: absx, ld: a, alu: and, cc: nz }}
 
-  # ADC and SBC contain one extra cycle to cover the case with decimal adjustment
-  - { name: ADC, op: 0x61, cycles: 7, ctl: { op0: md, op1: a, addr: indx, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x71, cycles: 6, ctl: { op0: md, op1: a, addr: indy, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x72, cycles: 6, ctl: { op0: md, op1: a, addr: ind,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x65, cycles: 4, ctl: { op0: md, op1: a, addr: zp,   ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x75, cycles: 5, ctl: { op0: md, op1: a, addr: zpx,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x69, cycles: 3, ctl: { op0: md, op1: a, addr: imm,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x79, cycles: 5, ctl: { op0: md, op1: a, addr: absy, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x6D, cycles: 5, ctl: { op0: md, op1: a, addr: abs,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x7D, cycles: 5, ctl: { op0: md, op1: a, addr: absx, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  # ADC/SBC cycle declarations are the binary base. Decimal mode takes one
+  # additional cycle through the DAA/DAS sequence when D is set.
+  - { name: ADC, op: 0x61, cycles: 6, ctl: { op0: md, op1: a, addr: indx, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x71, cycles: 5, ctl: { op0: md, op1: a, addr: indy, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x72, cycles: 5, ctl: { op0: md, op1: a, addr: ind,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x65, cycles: 3, ctl: { op0: md, op1: a, addr: zpadc,ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x75, cycles: 4, ctl: { op0: md, op1: a, addr: zpx,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x69, cycles: 2, ctl: { op0: md, op1: a, addr: imm,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x79, cycles: 4, ctl: { op0: md, op1: a, addr: absy, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x6D, cycles: 4, ctl: { op0: md, op1: a, addr: abs,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x7D, cycles: 4, ctl: { op0: md, op1: a, addr: absxadc,ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
 
   - { name: SBC, op: 0xE1, cycles: 6, ctl: { op0: a, op1: md, addr: indx, ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xF1, cycles: 6, ctl: { op0: a, op1: md, addr: indy, ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xF2, cycles: 6, ctl: { op0: a, op1: md, addr: ind,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xE5, cycles: 4, ctl: { op0: a, op1: md, addr: zp,   ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xF5, cycles: 5, ctl: { op0: a, op1: md, addr: zpx,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xE9, cycles: 3, ctl: { op0: a, op1: md, addr: imm,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xF9, cycles: 5, ctl: { op0: a, op1: md, addr: absy, ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xED, cycles: 5, ctl: { op0: a, op1: md, addr: abs,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
-  - { name: SBC, op: 0xFD, cycles: 5, ctl: { op0: a, op1: md, addr: absx, ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xF1, cycles: 5, ctl: { op0: a, op1: md, addr: indy, ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xF2, cycles: 5, ctl: { op0: a, op1: md, addr: ind,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xE5, cycles: 3, ctl: { op0: a, op1: md, addr: zpadc,ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xF5, cycles: 4, ctl: { op0: a, op1: md, addr: zpx,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xE9, cycles: 2, ctl: { op0: a, op1: md, addr: imm,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xF9, cycles: 4, ctl: { op0: a, op1: md, addr: absy, ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xED, cycles: 4, ctl: { op0: a, op1: md, addr: abs,  ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
+  - { name: SBC, op: 0xFD, cycles: 4, ctl: { op0: a, op1: md, addr: absxadc,ld: a, alu: sub, carry: cin, cc: nvzc, adj: das }}
 
   - { name: ORA, op: 0x01, cycles: 6, ctl: { op0: md, op1: a, addr: indx, ld: a, alu: or, cc: nz }}
   - { name: ORA, op: 0x11, cycles: 5, ctl: { op0: md, op1: a, addr: indy, ld: a, alu: or, cc: nz }}
@@ -137,25 +138,25 @@ ops:
   - { name: ASL, op: 0x16, cycles: 6, ctl: { op0: md, addr: zpx,        alu: lsl, wr: wr, cc: nzc }}
   - { name: ASLA,op: 0x0A, cycles: 2, ctl: { op0: a,             ld: a, alu: lsl,         cc: nzc }}
   - { name: ASL, op: 0x0E, cycles: 6, ctl: { op0: md, addr: abs,        alu: lsl, wr: wr, cc: nzc }}
-  - { name: ASL, op: 0x1E, cycles: 7, ctl: { op0: md, addr: absx,       alu: lsl, wr: wr, cc: nzc }}
+  - { name: ASL, op: 0x1E, cycles: 7, ctl: { op0: md, addr: absxr,      alu: lsl, wr: wr, cc: nzc }}
 
   - { name: LSR, op: 0x46, cycles: 5, ctl: { op0: md, addr: zp,         alu: lsr, wr: wr, cc: nzc }}
   - { name: LSR, op: 0x56, cycles: 6, ctl: { op0: md, addr: zpx,        alu: lsr, wr: wr, cc: nzc }}
   - { name: LSRA,op: 0x4A, cycles: 2, ctl: { op0: a,             ld: a, alu: lsr,         cc: nzc }}
   - { name: LSR, op: 0x4E, cycles: 6, ctl: { op0: md, addr: abs,        alu: lsr, wr: wr, cc: nzc }}
-  - { name: LSR, op: 0x5E, cycles: 7, ctl: { op0: md, addr: absx,       alu: lsr, wr: wr, cc: nzc }}
+  - { name: LSR, op: 0x5E, cycles: 7, ctl: { op0: md, addr: absxr,      alu: lsr, wr: wr, cc: nzc }}
 
   - { name: ROL, op: 0x26, cycles: 5, ctl: { op0: md, addr: zp,         alu: lsl, wr: wr, carry: cin, cc: nzc }}
   - { name: ROL, op: 0x36, cycles: 6, ctl: { op0: md, addr: zpx,        alu: lsl, wr: wr, carry: cin, cc: nzc }}
   - { name: ROLA,op: 0x2A, cycles: 2, ctl: { op0: a,             ld: a, alu: lsl,         carry: cin, cc: nzc }}
   - { name: ROL, op: 0x2E, cycles: 6, ctl: { op0: md, addr: abs,        alu: lsl, wr: wr, carry: cin, cc: nzc }}
-  - { name: ROL, op: 0x3E, cycles: 7, ctl: { op0: md, addr: absx,       alu: lsl, wr: wr, carry: cin, cc: nzc }}
+  - { name: ROL, op: 0x3E, cycles: 7, ctl: { op0: md, addr: absxr,      alu: lsl, wr: wr, carry: cin, cc: nzc }}
 
   - { name: ROR, op: 0x66, cycles: 5, ctl: { op0: md, addr: zp,         alu: lsr, wr: wr, carry: cin, cc: nzc }}
   - { name: ROR, op: 0x76, cycles: 6, ctl: { op0: md, addr: zpx,        alu: lsr, wr: wr, carry: cin, cc: nzc }}
   - { name: RORA,op: 0x6A, cycles: 2, ctl: { op0: a,             ld: a, alu: lsr,         carry: cin, cc: nzc }}
   - { name: ROR, op: 0x6E, cycles: 6, ctl: { op0: md, addr: abs,        alu: lsr, wr: wr, carry: cin, cc: nzc }}
-  - { name: ROR, op: 0x7E, cycles: 7, ctl: { op0: md, addr: absx,       alu: lsr, wr: wr, carry: cin, cc: nzc }}
+  - { name: ROR, op: 0x7E, cycles: 7, ctl: { op0: md, addr: absxr,      alu: lsr, wr: wr, carry: cin, cc: nzc }}
 
   - { name: SEC, op: 0x38, cycles: 2, ctl: { cc: c1 }}
   - { name: CLC, op: 0x18, cycles: 2, ctl: { cc: c0 }}
@@ -187,13 +188,13 @@ ops:
   - { name: DEC, op: 0xD6, cycles: 6, ctl: { op0: md, op1: zero, addr: zpx,        alu: sub, wr: wr, cc: nz }}
   - { name: DECA,op: 0x3A, cycles: 2, ctl: { op0: a,  op1: zero,            ld: a, alu: sub,         cc: nz }}
   - { name: DEC, op: 0xCE, cycles: 6, ctl: { op0: md, op1: zero, addr: abs,        alu: sub, wr: wr, cc: nz }}
-  - { name: DEC, op: 0xDE, cycles: 7, ctl: { op0: md, op1: zero, addr: absx,       alu: sub, wr: wr, cc: nz }}
+  - { name: DEC, op: 0xDE, cycles: 7, ctl: { op0: md, op1: zero, addr: absxr,      alu: sub, wr: wr, cc: nz }}
 
   - { name: INC, op: 0xE6, cycles: 5, ctl: { op0: md, op1: one, addr: zp,         alu: add, wr: wr, cc: nz }}
   - { name: INC, op: 0xF6, cycles: 6, ctl: { op0: md, op1: one, addr: zpx,        alu: add, wr: wr, cc: nz }}
   - { name: INCA,op: 0x1A, cycles: 2, ctl: { op0: a,  op1: one,            ld: a, alu: add,         cc: nz }}
   - { name: INC, op: 0xEE, cycles: 6, ctl: { op0: md, op1: one, addr: abs,        alu: add, wr: wr, cc: nz }}
-  - { name: INC, op: 0xFE, cycles: 7, ctl: { op0: md, op1: one, addr: absx,       alu: add, wr: wr, cc: nz }}
+  - { name: INC, op: 0xFE, cycles: 7, ctl: { op0: md, op1: one, addr: absxr,      alu: add, wr: wr, cc: nz }}
 
   - { name: STZ, op: 0x64, cycles: 3, ctl: { op0: zero, addr: zpa   }}
   - { name: STZ, op: 0x74, cycles: 4, ctl: { op0: zero, addr: zpxa  }}
@@ -299,12 +300,13 @@ ucode:
     cycles: 7
     seq:
       # push PC
-      - pchi_rmux, ld0_opnd, d0_cc  # 65c02 clears D flag, 6502 doesn't
+      - pchi_rmux, ld0_opnd
       - md_ld, psh8_jsr
       - pclo_rmux, ld0_opnd
       - md_ld, psh8_jsr
-      # push P with B bit set
-      - pb_rmux, ld0_opnd
+      # Hardware IRQ/NMI pushes the pre-interrupt status (B=0, original D).
+      # Decimal mode is cleared on the same edge that captures status.
+      - p_rmux, ld0_opnd, d0_cc
       - md_ld, psh8_jsr
       - ivrd_jsr
   # 2nd cycle of branch instructions that did not branch
@@ -334,6 +336,18 @@ ucode:
       - ld0_opnd
       - zp_ld
       - # idle
+      - # idle
+      - # idle
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  # ADC/SBC zero-page has a three-cycle source count; this specialized address
+  # helper omits one otherwise-unused padding phase from the generic zp path.
+  - name: zpadc
+    start: 0xDB
+    seq:
+      - fetch, inc_pc
+      - ld0_opnd
+      - zp_ld
       - # idle
       - # idle
       - m_ea
@@ -411,7 +425,6 @@ ucode:
       - ld0_opnd
       - x_rmux, ld1_opnd
       - add_alu, ea16_ld, stcy, fetch, inc_pc
-      - wait4cy
       - zero_rmux, ld1_opnd
       - ld0_opnd # from MD again, upper half of base address
       - add_alu, ea16_ld, alt_carry, ret_jsr
@@ -430,6 +443,40 @@ ucode:
       - # idle
       - m_ea
       - m_ea, fetch, ret_jsr
+  # ADC/SBC absolute-X also need the one-cycle indexed-read crossing wait, but
+  # their operand path is shortened to meet Rockwell's four-cycle base count.
+  - name: absxadc
+    start: 0xEB
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea16_ld, stcy, fetch, inc_pc
+      - wait4cy
+      - zero_rmux, ld1_opnd
+      - ld0_opnd # from MD again, upper half of base address
+      - add_alu, ea16_ld, alt_carry
+      - m_ea
+      - m_ea, fetch, ret_jsr
+  # Rockwell's absolute-X read/modify/write forms are always seven cycles;
+  # their timing table has no page-cross increment. Keep their address path
+  # separate from ordinary indexed reads, which conditionally use wait4cy.
+  - name: absxr
+    start: 0xD3
+    seq:
+      - fetch, inc_pc
+      - # mem wait cycle
+      - ld0_opnd
+      - x_rmux, ld1_opnd
+      - add_alu, ea16_ld, stcy, fetch, inc_pc
+      - zero_rmux, ld1_opnd
+      - ld0_opnd # from MD again, upper half of base address
+      - add_alu, ea16_ld, alt_carry
+      - # idle
+      - # extra core phase keeps this fixed-seven-cycle RMW path aligned
+      - m_ea
+      - m_ea, fetch, ret_jsr
   - name: absya
     start: 0x5b
     seq:
@@ -438,7 +485,6 @@ ucode:
       - ld0_opnd
       - y_rmux, ld1_opnd
       - add_alu, ea16_ld, stcy, fetch, inc_pc
-      - wait4cy
       - zero_rmux, ld1_opnd
       - ld0_opnd # from MD again, upper half of base address
       - add_alu, ea16_ld, alt_carry, ret_jsr
@@ -512,7 +558,7 @@ ucode:
       - add_alu, stcy, ea16_ld, ld0_opnd
       - zero_rmux, ld1_opnd
       - add_alu, alt_carry, ea16_ld
-      - m_ea
+      - m_ea, wait4cy
       - m_ea, fetch, ret_jsr
   - name: inda
     start: 0x9b
@@ -597,9 +643,8 @@ ucode:
       - ${addr}_jsr, inc_pc
       - ${op0}_rmux, ld0_opnd
       - ${op1}_rmux, ld1_opnd, fetch
-      - # idle
-      - # idle
-      - # idle
+      # Base cycle counts come from the Rockwell opcode matrix. Decimal mode
+      # takes its extra cycle in the DAA/DAS path rather than fixed padding.
       - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc
       - ${adj}_bcd, ni
   # write 8-bit registers. Data to write in op0
@@ -666,7 +711,7 @@ ucode:
   - mnemo: [ JMPI ]
     seq:
       - ${addr}_jsr, inc_pc
-      - m1_ea, ld0_opnd
+      - m1_ea, ld0_opnd, wait4cy
       - m1_ea, fetch, pc16_ld
       - m1_ea, ld0_opnd
       - m1_ea, pc16_ld
@@ -703,12 +748,13 @@ ucode:
     seq:
       -        inc_pc
       - fetch, inc_pc, brlatch
-      - pclo_rmux, ld1_opnd
-      -            ld0_opnd, nobr   # 1 cycle. nobr used in ctrl module
+      - pclo_rmux, ld1_opnd, nobr   # early exit for the 2-cycle not-taken path
+      -            ld0_opnd
       - pchi_rmux, ld1_opnd, branch, add_alu, stcy, branch_lo
       - sex_rmux,  ld0_opnd
-      -                      branch, add_alu, alt_carry, wait4cy
-      - # idle
+      -                      branch, add_alu, alt_carry
+      # Wait after the high-byte write so pcpage has the newly computed value.
+      -                      wait4cy
       - fetch
       - # wait for the fetch
       - ni    # 3 cycles for branching within page, 4 cycles out of page
@@ -726,8 +772,9 @@ ucode:
       -            ld0_opnd
       - pchi_rmux, ld1_opnd, branch, add_alu, stcy, branch_lo
       - sex_rmux,  ld0_opnd
-      -                      branch, add_alu, alt_carry, wait4cy
-      - fetch
+      -                      branch, add_alu, alt_carry
+      # Check page crossing after the high-byte write updates pcpage.
+      - wait4cy, fetch
       - # wait for the fetch
       - ni
   - mnemo: [ RTI ]
@@ -750,7 +797,7 @@ ucode:
       - md_ld, psh8_jsr
       - pclo_rmux, ld0_opnd
       - md_ld, psh8_jsr
-      # push P with B bit set
-      - pb_rmux, ld0_opnd
+      # BRK is software-generated: stack B=1 and the original D, then clear D.
+      - pb_rmux, ld0_opnd, d0_cc
       - md_ld, psh8_jsr
       - swi, ivrd_jsr

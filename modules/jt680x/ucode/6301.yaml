@@ -316,10 +316,10 @@ ucode:
       - fetch
       - # wait for the fetch
       - ni
-  - mnemo: [ SLP ]  # incomplete implementation. Won't exit this state if bit I was set (but it should exit)
+  - mnemo: [ SLP ]
     seq:
-      - idle6_jsr
-      - idle6_jsr
+      - inc_pc, idle6_jsr
+      - fetch, idle6_jsr
       - halt
   # different from 680x.yaml to make it shorter by removing idle4_jsr
   - mnemo: [ BSR ]
