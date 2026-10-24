@@ -21,11 +21,7 @@ func main() {
 	assertDigest("6801.vh", "0d788b6687e8cd475fab0fdcaa03a1826e345196280bc239141cb51c66592f94")
 	checkOtherProfile("6801", "61bf360b0e0bddb9170594d80735e9f543f4081511afab95a572b270e6f560ca")
 	path := os.Getenv("JTROOT") + "/modules/jt680x/hdl/jt680x_ctrl.v"
-	assertDigest(path, "86d41459286e9de845a2125af6239558a37b40ae25994d5c5902470d4568a878")
-	src, err := os.ReadFile(path)
-	if err != nil { panic(err) }
-	if err := os.WriteFile("jt680x_ctrl_sim.rtl", src, 0644); err != nil { panic(err) }
-
+	assertDigest(path, "689039def08bcbe77efe1a76a5c0e70e4b0f08f3d2ec3b6832f79b91fc1809a0")
 }
 
 func checkOtherProfile(name, uc string) {

@@ -24,10 +24,10 @@ reg held_vma, held_wr;
 wire [15:0] cycle_addr;
 wire [7:0] cycle_dout, raw_opcode, opcode;
 wire cycle_wr, cycle_vma, ni, halt, legal;
+reg illegal;
 wire stalled = phase[1] && (!ready || !mr_n || stretch);
 wire bus_cen = cen && enable && (engine_rst || (!stalled && !illegal));
 wire cpu_cen = !engine_rst && bus_cen && (!(halt || ba) || phase==3);
-reg illegal;
 
 assign e = phase[1];
 assign addr = e ? held_addr : cycle_addr;

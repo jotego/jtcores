@@ -17,7 +17,11 @@ module jt680x_regs(
     input             inc_pc,
     input             md_shift,
     input             op0inv,
+`ifdef JT680X_6802
     input      [ 2:0] ea_sel,
+`else
+    input      [ 1:0] ea_sel,
+`endif
     input      [ 1:0] opnd_sel,
     input      [ 3:0] ld_sel,
     input      [ 3:0] rmux_sel,

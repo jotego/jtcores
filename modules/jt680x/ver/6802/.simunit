@@ -1,1 +1,1 @@
---simulator verilator --macros JT680X_6802
+--macros JT680X_6802
