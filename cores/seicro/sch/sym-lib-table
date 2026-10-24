@@ -1,0 +1,14 @@
+(sym_lib_table
+ (version 7)
+ (lib (name "arcade") (type "KiCad") (uri "${KIPRJMOD}/../../../modules/jtkicad/lib/arcade.kicad_sym") (options "") (descr "JT arcade symbols"))
+ (lib (name "jt74") (type "KiCad") (uri "${KIPRJMOD}/../../../modules/jtkicad/lib/jt74.kicad_sym") (options "") (descr "JT 74-series symbols"))
+ (lib (name "Seicro") (type "KiCad") (uri "${KIPRJMOD}/seicro-audio.kicad_sym") (options "") (descr "LM3900 and assumed MB3712; absent from shared and standard libraries"))
+
+ (lib (name "74xx") (type "KiCad") (uri "${KICAD8_SYMBOL_DIR}/74xx.kicad_sym") (options "") (descr "Standard complete 74LS157 symbol with physical supply pins"))
+
+ (lib (name "jt_cpu") (type "KiCad") (uri "${KIPRJMOD}/../../../modules/jtkicad/lib/jt_cpu.kicad_sym") (options "") (descr "JT CPU symbols"))
+
+ (lib (name "fujitsu") (type "KiCad") (uri "${KIPRJMOD}/../../../modules/jtkicad/lib/fujitsu.kicad_sym") (options "") (descr ""))
+
+ (lib (name "Timer") (type "KiCad") (uri "${KICAD8_SYMBOL_DIR}/Timer.kicad_sym") (options "") (descr ""))
+)

@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 4-1-2025 */
 
@@ -66,6 +67,7 @@ type UcDesc struct {
 		Entries  int `yaml:"entries"`
 		CycleK   int `yaml:"cycle_factor"`
 		Implicit bool `yaml:"implicit"`
+		PartialMnemonics bool `yaml:"partial_mnemonics"`
 		BusError string `yaml:"bus_error"`
 		Latch    bool	`yaml:"latch_ucode"`
 		IgnoreCycles bool `yaml:"ignore_cycles"`		// use to indicate that cycle information is still not ready and should not be used
@@ -885,16 +887,19 @@ func read_yaml( fpath string ) UcDesc {
 		for k, _ := range inc.Chunks {
 			if inc.Chunks[k].Name!="" {
 				cur := desc.find_proc( inc.Chunks[k].Name )
-				if cur<0 {
-					desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
+				if cur>=0 {
 					continue next_chunk
 				}
 			}
-			// Copy it if there is no definition for any of the OPs listed
+			// Keep inherited mnemonics that the profile does not replace.
+			mnemos := []string{}
 			for _,opName := range inc.Chunks[k].Mnemo {
 				cur := find_chunk( opName, &desc )
-				if cur!=-1 { continue next_chunk }
+				if cur!=-1 && !desc.Cfg.PartialMnemonics { continue next_chunk }
+				if cur==-1 { mnemos = append(mnemos,opName) }
 			}
+			if len(inc.Chunks[k].Mnemo)>0 && len(mnemos)==0 { continue next_chunk }
+			inc.Chunks[k].Mnemo = mnemos
 			desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
 		}
 	}

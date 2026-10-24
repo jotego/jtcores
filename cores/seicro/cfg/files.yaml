@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 15-10-2026
+
+seicro:
+  - get: [ "*.v" ]
+jtframe:
+  - from: cpu
+    get: [ jtframe_z80.yaml ]
+  - from: video
+    get: [ jtframe_vtimer.v, jtframe_scroll.yaml, jtframe_obj.yaml ]
+jt12:
+  - get: [ jt49.yaml ]
+jt680x:
+  - get: [ jt6802.yaml ]

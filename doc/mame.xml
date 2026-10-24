@@ -82561,6 +82561,195 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="friskyt" sourcefile="nichibutsu/seicross.cpp">
+		<description>Frisky Tom (set 1)</description>
+		<year>1981</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="ftom.01" size="4096" crc="bce5d486" sha1="b3226d5737490f18092227a663e89ad48f39d82c" region="maincpu" offset="0"/>
+		<rom name="ftom.02" size="4096" crc="63157d6e" sha1="2792f3d918ffee3818eca98f52192a069ab60678" region="maincpu" offset="1000"/>
+		<rom name="ftom.03" size="4096" crc="c8d9ef2c" sha1="43dd6bfd93188004b977b97120df28c028e8582b" region="maincpu" offset="2000"/>
+		<rom name="ftom.04" size="4096" crc="23a01aac" sha1="db514c54c1a089a900abf954035ae4d1093e778d" region="maincpu" offset="3000"/>
+		<rom name="ftom.05" size="4096" crc="bfaf702a" sha1="d42fa3e935bfc5bfbab582343aaafc86ebcbfda2" region="maincpu" offset="4000"/>
+		<rom name="ftom.06" size="4096" crc="bce70b9c" sha1="85d2811f15cba7d0424d5ca024c0c26ee0b2a32a" region="maincpu" offset="5000"/>
+		<rom name="ftom.07" size="4096" crc="b2ef303a" sha1="a7150457b454e15c06fa832d42dd1f0e165fcd6e" region="maincpu" offset="6000"/>
+		<rom name="ft8_8.rom" size="2048" crc="10461a24" sha1="c1f98316a4e90a2a6ef4953708b90c9546caaedd" region="maincpu" offset="7000"/>
+		<rom name="ftom.11" size="4096" crc="1ec6ff65" sha1="aab589c89cd14549b35f4dece5d3c231033c0c1a" region="gfx" offset="0"/>
+		<rom name="ftom.12" size="4096" crc="3b8f40b5" sha1="08e0c1fce11ee6c507c28b0d659c5b010f2f2b6f" region="gfx" offset="1000"/>
+		<rom name="ftom.09" size="4096" crc="60642f25" sha1="2d179a9ea99014065f578bbec4fbfbda5aead98b" region="gfx" offset="2000"/>
+		<rom name="ftom.10" size="4096" crc="07b9dcfc" sha1="0a573065b6b08745b91fb47ce477d76be7a01750" region="gfx" offset="3000"/>
+		<rom name="ft.9c" size="32" crc="0032167e" sha1="9df3c7bbf6b700bfa51b8b82c45b60c10bdcd1a0" region="proms" offset="0"/>
+		<rom name="ft.9b" size="32" crc="6b364e69" sha1="abfcab884e8a50f872f862a421b8e8c5e16ff62c" region="proms" offset="20"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<device_ref tag=":nvram" name="nvram"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" ways="8"/>
+			<control type="joy" player="2" ways="8"/>
+		</input>
+		<dipswitch name="Service Mode" tag="IN1" mask="32">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Counter Check" tag="IN1" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Test Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="friskyta" sourcefile="nichibutsu/seicross.cpp" cloneof="friskyt" romof="friskyt">
+		<description>Frisky Tom (set 2)</description>
+		<year>1981</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="ft.01" size="4096" crc="0ea46e19" sha1="3feb3ee882926c0efa602cf92e6879e84a6050ed" region="maincpu" offset="0"/>
+		<rom name="ft.02" size="4096" crc="4f7b8662" sha1="400c47d7ab5f3a749dbadb2286255b969ec48348" region="maincpu" offset="1000"/>
+		<rom name="ft.03" size="4096" crc="1eb1b77c" sha1="c08d6c1f1bbe2d41b0f6336a0c53ec993556e6b4" region="maincpu" offset="2000"/>
+		<rom name="ft.04" size="4096" crc="b5c5400d" sha1="9fa87dd287457c61599214469aad095ddb5f8742" region="maincpu" offset="3000"/>
+		<rom name="ft.05" size="4096" crc="b465be8a" sha1="0b0da2c83c2362d062b12312285076956d62e4b4" region="maincpu" offset="4000"/>
+		<rom name="ft.06" size="4096" crc="90141317" sha1="d59489e4e35308858e0548d5861b1781acfc3c05" region="maincpu" offset="5000"/>
+		<rom name="ft.07" size="4096" crc="0ba02b2e" sha1="1260c16d589fca37bf58ee28a4795f4b6333d0b9" region="maincpu" offset="6000"/>
+		<rom name="ft8_8.rom" merge="ft8_8.rom" size="2048" crc="10461a24" sha1="c1f98316a4e90a2a6ef4953708b90c9546caaedd" region="maincpu" offset="7000"/>
+		<rom name="ft.11" size="4096" crc="956d924a" sha1="e61bf5f187932c6cb676b4120cd95fe422f6a1a6" region="gfx" offset="0"/>
+		<rom name="ft.12" size="4096" crc="c028d3b8" sha1="9e8768b9658f8b05ade4dd5fb2ecde4a52627bc1" region="gfx" offset="1000"/>
+		<rom name="ftom.09" merge="ftom.09" size="4096" crc="60642f25" sha1="2d179a9ea99014065f578bbec4fbfbda5aead98b" region="gfx" offset="2000"/>
+		<rom name="ftom.10" merge="ftom.10" size="4096" crc="07b9dcfc" sha1="0a573065b6b08745b91fb47ce477d76be7a01750" region="gfx" offset="3000"/>
+		<rom name="ft.9c" merge="ft.9c" size="32" crc="0032167e" sha1="9df3c7bbf6b700bfa51b8b82c45b60c10bdcd1a0" region="proms" offset="0"/>
+		<rom name="ft.9b" merge="ft.9b" size="32" crc="6b364e69" sha1="abfcab884e8a50f872f862a421b8e8c5e16ff62c" region="proms" offset="20"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<device_ref tag=":nvram" name="nvram"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" ways="8"/>
+			<control type="joy" player="2" ways="8"/>
+		</input>
+		<dipswitch name="Service Mode" tag="IN1" mask="32">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Counter Check" tag="IN1" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Test Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="friskytb" sourcefile="nichibutsu/seicross.cpp" cloneof="friskyt" romof="friskyt">
+		<description>Frisky Tom (set 3)</description>
+		<year>1981</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="1.3a" size="4096" crc="554bdb0f" sha1="d56a421329c5191599983009e841cd84d5b7c710" region="maincpu" offset="0"/>
+		<rom name="2.3b" size="4096" crc="0658633a" sha1="3bf09e0d77bd8fcb66563c82c849c0cc45d9cacf" region="maincpu" offset="1000"/>
+		<rom name="3.3d" size="4096" crc="c8de15ff" sha1="1bb2108700e9f8aa9c5416324a2d0bdd05e8ff25" region="maincpu" offset="2000"/>
+		<rom name="4.3e" size="4096" crc="970e5d2b" sha1="8b6f05aaef79dc5fccf1fed7014c99518f598674" region="maincpu" offset="3000"/>
+		<rom name="5.3f" size="4096" crc="45c8bd32" sha1="dca1d76a401995957e325d0d06607df3d4a511e9" region="maincpu" offset="4000"/>
+		<rom name="6.3h" size="4096" crc="2c1b7ecc" sha1="164855c2bc05154a24676313c1307e374b3f8dbe" region="maincpu" offset="5000"/>
+		<rom name="7.3i" size="4096" crc="aa36a6b8" sha1="bf8af71313459a775b07dcfdce455077c4f499bf" region="maincpu" offset="6000"/>
+		<rom name="8.3j" merge="ft8_8.rom" size="2048" crc="10461a24" sha1="c1f98316a4e90a2a6ef4953708b90c9546caaedd" region="maincpu" offset="7000"/>
+		<rom name="11.7l" size="4096" crc="caa93315" sha1="af8fd135c0a9c0278705975c127a91f246341da1" region="gfx" offset="0"/>
+		<rom name="12.7n" size="4096" crc="c028d3b8" sha1="9e8768b9658f8b05ade4dd5fb2ecde4a52627bc1" region="gfx" offset="1000"/>
+		<rom name="9.7h" merge="ftom.09" size="4096" crc="60642f25" sha1="2d179a9ea99014065f578bbec4fbfbda5aead98b" region="gfx" offset="2000"/>
+		<rom name="10.7j" merge="ftom.10" size="4096" crc="07b9dcfc" sha1="0a573065b6b08745b91fb47ce477d76be7a01750" region="gfx" offset="3000"/>
+		<rom name="ft.9c" merge="ft.9c" size="32" crc="0032167e" sha1="9df3c7bbf6b700bfa51b8b82c45b60c10bdcd1a0" region="proms" offset="0"/>
+		<rom name="ft.9b" merge="ft.9b" size="32" crc="6b364e69" sha1="abfcab884e8a50f872f862a421b8e8c5e16ff62c" region="proms" offset="20"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="m6802"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<device_ref tag=":nvram" name="nvram"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="Motorola MC6802" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" ways="8"/>
+			<control type="joy" player="2" ways="8"/>
+		</input>
+		<dipswitch name="Service Mode" tag="IN1" mask="32">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Counter Check" tag="IN1" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Test Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="fround" sourcefile="konami/twin16.cpp">
 		<description>The Final Round (version M)</description>
 		<year>1988</year>
@@ -151126,6 +151315,210 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="radrad" sourcefile="nichibutsu/seicross.cpp">
+		<description>Radical Radial (US)</description>
+		<year>1982</year>
+		<manufacturer>Logitec Corp. (Nichibutsu USA license)</manufacturer>
+		<rom name="1.3a" size="4096" crc="b1e958ca" sha1="3ab5fc3314f202ba527470eacbb76d52fe969bca" region="maincpu" offset="0"/>
+		<rom name="2.3b" size="4096" crc="30ba76b3" sha1="e6af1fc35fdc71d5436f0d29e5722cbcb4409196" region="maincpu" offset="1000"/>
+		<rom name="3.3c" size="4096" crc="1c9f397b" sha1="7f556c5bef5309d5048c3b9671b88ad646a8b648" region="maincpu" offset="2000"/>
+		<rom name="4.3d" size="4096" crc="453966a3" sha1="dd1bfeb8956c4670a5d4a5e981413b47701f6233" region="maincpu" offset="3000"/>
+		<rom name="5.3e" size="4096" crc="c337c4bd" sha1="a5d29e9ba629d23f8c084fdb0ce4a83513648e82" region="maincpu" offset="4000"/>
+		<rom name="6.3f" size="4096" crc="06e15b59" sha1="0c7748abba29362c92724e601d90ad1711b23f86" region="maincpu" offset="5000"/>
+		<rom name="7.3g" size="4096" crc="02b1f9c9" sha1="6b857ae477d3c92a58494140ffa3337dba8e77cc" region="maincpu" offset="6000"/>
+		<rom name="8.3h" size="2048" crc="911c90e8" sha1="94fa91e767ab27a1616f1768f97a44a59a3f3294" region="maincpu" offset="7000"/>
+		<rom name="11.l7" size="4096" crc="4ace7afb" sha1="3c495f106505d5dfed93393db1f1b3842f603448" region="gfx" offset="0"/>
+		<rom name="12.n7" size="4096" crc="b19b8473" sha1="42160f978f8e209a89be097b5cfc7ac0aeec49c5" region="gfx" offset="1000"/>
+		<rom name="9.j7" size="4096" crc="229939a3" sha1="4ee050798871823314952e34938233e2cf9e7341" region="gfx" offset="2000"/>
+		<rom name="10.j7" size="4096" crc="79237913" sha1="b07dd531d06ef01f756169e87a8cccda35ed38d3" region="gfx" offset="3000"/>
+		<rom name="clr.9c" size="32" crc="c9d88422" sha1="626216bac1a6317a32f2a51b89375043f58b5503" region="proms" offset="0"/>
+		<rom name="clr.9b" size="32" crc="ee81af16" sha1="e1bab9738d37dea0473a7184a4303234b75e6cc6" region="proms" offset="20"/>
+		<rom name="pal16h2.2b" size="68" crc="a356803a" sha1="a324d3cbe2de5bf54be9aa07c984054149ac3eb0" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSW1" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="6">
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="6"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="8">
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="15">
+			<dipvalue name="7 Coins/1 Credit" value="7"/>
+			<dipvalue name="6 Coins/1 Credit" value="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="4"/>
+			<dipvalue name="7 Coins/2 Credits" value="15"/>
+			<dipvalue name="6 Coins/2 Credits" value="14"/>
+			<dipvalue name="3 Coins/1 Credit" value="3"/>
+			<dipvalue name="5 Coins/2 Credits" value="13"/>
+			<dipvalue name="4 Coins/2 Credits" value="12"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/2 Credits" value="11"/>
+			<dipvalue name="2 Coins/2 Credits" value="10"/>
+			<dipvalue name="1 Coin/1 Credit" value="1" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="15">
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="2 Coins/2 Credits" value="9"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="10"/>
+			<dipvalue name="2 Coins/4 Credits" value="11"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="2 Coins/5 Credits" value="12"/>
+			<dipvalue name="2 Coins/6 Credits" value="13"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="2 Coins/7 Credits" value="14"/>
+			<dipvalue name="2 Coins/8 Credits" value="15"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+			<dipvalue name="1 Coin/7 Credits" value="6"/>
+			<dipvalue name="1 Coin/8 Credits" value="7"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="radradj" sourcefile="nichibutsu/seicross.cpp" cloneof="radrad" romof="radrad">
+		<description>Radical Radial (Japan)</description>
+		<year>1983</year>
+		<manufacturer>Logitec Corp.</manufacturer>
+		<rom name="1.3a" merge="1.3a" size="4096" crc="b1e958ca" sha1="3ab5fc3314f202ba527470eacbb76d52fe969bca" region="maincpu" offset="0"/>
+		<rom name="2.3b" merge="2.3b" size="4096" crc="30ba76b3" sha1="e6af1fc35fdc71d5436f0d29e5722cbcb4409196" region="maincpu" offset="1000"/>
+		<rom name="3.3d" merge="3.3c" size="4096" crc="1c9f397b" sha1="7f556c5bef5309d5048c3b9671b88ad646a8b648" region="maincpu" offset="2000"/>
+		<rom name="4.3d" merge="4.3d" size="4096" crc="453966a3" sha1="dd1bfeb8956c4670a5d4a5e981413b47701f6233" region="maincpu" offset="3000"/>
+		<rom name="5.3f" merge="5.3e" size="4096" crc="c337c4bd" sha1="a5d29e9ba629d23f8c084fdb0ce4a83513648e82" region="maincpu" offset="4000"/>
+		<rom name="6.3h" merge="6.3f" size="4096" crc="06e15b59" sha1="0c7748abba29362c92724e601d90ad1711b23f86" region="maincpu" offset="5000"/>
+		<rom name="7.3i" merge="7.3g" size="4096" crc="02b1f9c9" sha1="6b857ae477d3c92a58494140ffa3337dba8e77cc" region="maincpu" offset="6000"/>
+		<rom name="8.3j" size="4096" crc="bc9c7fae" sha1="85177d438058a329189b38b89d17616bba9eed3d" region="maincpu" offset="7000"/>
+		<rom name="11.7k" size="4096" crc="c75b96da" sha1="93692f7ae10ec812f641687509624eb7682e3eeb" region="gfx" offset="0"/>
+		<rom name="12.7m" size="4096" crc="83f35c05" sha1="4645eb9995b54d8a0d98d2b2a8c477047aed4519" region="gfx" offset="1000"/>
+		<rom name="9.7h" size="4096" crc="f2da3954" sha1="157ab1fdd289c1132650b5d395219337a6c1f26b" region="gfx" offset="2000"/>
+		<rom name="10.7j" merge="10.j7" size="4096" crc="79237913" sha1="b07dd531d06ef01f756169e87a8cccda35ed38d3" region="gfx" offset="3000"/>
+		<rom name="clr.9c" merge="clr.9c" size="32" crc="c9d88422" sha1="626216bac1a6317a32f2a51b89375043f58b5503" status="baddump" region="proms" offset="0"/>
+		<rom name="clr.9b" merge="clr.9b" size="32" crc="ee81af16" sha1="e1bab9738d37dea0473a7184a4303234b75e6cc6" status="baddump" region="proms" offset="20"/>
+		<rom name="pal16h2.2b" merge="pal16h2.2b" size="68" crc="a356803a" sha1="a324d3cbe2de5bf54be9aa07c984054149ac3eb0" status="baddump" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSW1" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="6">
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="6"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="8">
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="15">
+			<dipvalue name="7 Coins/1 Credit" value="7"/>
+			<dipvalue name="6 Coins/1 Credit" value="6"/>
+			<dipvalue name="5 Coins/1 Credit" value="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="4"/>
+			<dipvalue name="7 Coins/2 Credits" value="15"/>
+			<dipvalue name="6 Coins/2 Credits" value="14"/>
+			<dipvalue name="3 Coins/1 Credit" value="3"/>
+			<dipvalue name="5 Coins/2 Credits" value="13"/>
+			<dipvalue name="4 Coins/2 Credits" value="12"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/2 Credits" value="11"/>
+			<dipvalue name="2 Coins/2 Credits" value="10"/>
+			<dipvalue name="1 Coin/1 Credit" value="1" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="15">
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="2 Coins/2 Credits" value="9"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="10"/>
+			<dipvalue name="2 Coins/4 Credits" value="11"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="2 Coins/5 Credits" value="12"/>
+			<dipvalue name="2 Coins/6 Credits" value="13"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="2 Coins/7 Credits" value="14"/>
+			<dipvalue name="2 Coins/8 Credits" value="15"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+			<dipvalue name="1 Coin/7 Credits" value="6"/>
+			<dipvalue name="1 Coin/8 Credits" value="7"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="raiga" sourcefile="tecmo/gaiden.cpp" cloneof="stratof" romof="stratof">
 		<description>Raiga - Strato Fighter (Japan)</description>
 		<year>1991</year>
@@ -164980,6 +165373,561 @@
 		<port tag=":P2">
 		</port>
 		<port tag=":SERVICE">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="sectrzon" sourcefile="nichibutsu/seicross.cpp" cloneof="seicross" romof="seicross">
+		<description>Sector Zone (set 1)</description>
+		<year>1984</year>
+		<manufacturer>Nichibutsu / Alice</manufacturer>
+		<rom name="sz1.3a" merge="smc1" size="4096" crc="f6c3aeca" sha1="d57019e80f7e3d47ca74f54604e92d40ba9819fc" region="maincpu" offset="0"/>
+		<rom name="sz2.3c" size="4096" crc="f167f10e" sha1="d23043afe0f7a06fbec92b333d6db172523faf27" region="maincpu" offset="1000"/>
+		<rom name="sz3.3d" merge="smc3" size="4096" crc="ceb3c8f4" sha1="e49f834637b4addcf362cd010e31802c3e145cbe" region="maincpu" offset="2000"/>
+		<rom name="sz4.3e" merge="smc4" size="4096" crc="3112af59" sha1="3d4e5a74a13bdeaf07f059f8c3a0d2ca8cbb3d32" region="maincpu" offset="3000"/>
+		<rom name="sz5.3fg" merge="smc5" size="4096" crc="b494a993" sha1="ed60cbaef2ac780c11426d29a612d34e76b29a0e" region="maincpu" offset="4000"/>
+		<rom name="sz6.3h" merge="smc6" size="4096" crc="09d5b9da" sha1="636a8d4717df4ed1fc02fa83782fa8d96b88f969" region="maincpu" offset="5000"/>
+		<rom name="sz7.3i" merge="smc7" size="4096" crc="13052b03" sha1="2866f2533a788f734310a74789f762f3fa17a57a" region="maincpu" offset="6000"/>
+		<rom name="sz8.3j" size="2048" crc="019f9651" sha1="2b030e7823b277fb6e3f37753a4d52d277e0e079" region="maincpu" offset="7000"/>
+		<rom name="sz11.7k" merge="sz11.7k" size="4096" crc="fbd9b91d" sha1="6b3581f4b518c058b970d569ced07dd7dc6a87e6" region="gfx" offset="0"/>
+		<rom name="sz12.7m" size="4096" crc="2bdef9ad" sha1="50fe41e81c1307317b4fb6b47bf0619d141c42ff" region="gfx" offset="1000"/>
+		<rom name="sz9.7j" merge="sz9.7j" size="4096" crc="4819f0cd" sha1="fa8d371efc3198daf76ff1264e22673c5521becf" region="gfx" offset="2000"/>
+		<rom name="sz10.7h" merge="sz10.7h" size="4096" crc="4c268778" sha1="a1444fb3eb397c8167d769aa1f935c5f19df4d6d" region="gfx" offset="3000"/>
+		<rom name="sz73.10c" merge="sz73.10c" size="32" crc="4d218a3c" sha1="26364dfdb7e13080357328a06c3bcf504778defd" status="baddump" region="proms" offset="0"/>
+		<rom name="sz74.10b" merge="sz74.10b" size="32" crc="c550531c" sha1="d564aeb8a99861d29e00cf968242fe6c6cec478b" status="baddump" region="proms" offset="20"/>
+		<rom name="pal16h2.3b" merge="pal16h2.3b" size="68" crc="e1a6a86d" sha1="740a5c2ef8a992f6a794c0fc4c81eb50cfcedc32" status="baddump" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Debug Mode" tag="DEBUG" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability" tag="DEBUG" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<dipvalue name="20000 40000" value="0" default="yes"/>
+			<dipvalue name="30000" value="4"/>
+			<dipvalue name="30000 50000" value="8"/>
+			<dipvalue name="30000 60000 90000" value="12"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="2">
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="2"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="12">
+			<dipvalue name="2" value="8"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="12"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW3" mask="12">
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/6 Credits" value="12"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":DEBUG">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="sectrzona" sourcefile="nichibutsu/seicross.cpp" cloneof="seicross" romof="seicross">
+		<description>Sector Zone (set 2)</description>
+		<year>1984</year>
+		<manufacturer>Nichibutsu / Alice</manufacturer>
+		<rom name="sz1.3a" size="4096" crc="f0a45cb4" sha1="ab3b8d78e25cdbb2fd6a6c0718ae13767364994d" region="maincpu" offset="0"/>
+		<rom name="sz2.3c" size="4096" crc="fea68ddb" sha1="b9ed0cad9a2ded04bcc7042d975b77be63313070" region="maincpu" offset="1000"/>
+		<rom name="sz3.3d" size="4096" crc="baad4294" sha1="e7fc3ccc940de6df8d786c986b602127c9db9ebb" region="maincpu" offset="2000"/>
+		<rom name="sz4.3e" size="4096" crc="75f2ca75" sha1="fbf990edcb7b5a58f8dcee160883fde5e222ca6b" region="maincpu" offset="3000"/>
+		<rom name="sz5.3fg" size="4096" crc="dc14f2c8" sha1="dcda8d6f7be458d0adcddc37bbe0eb636a5b0b06" region="maincpu" offset="4000"/>
+		<rom name="sz6.3h" size="4096" crc="397a38c5" sha1="6189028376c1781aae107c5fe0aec181a1d885e1" region="maincpu" offset="5000"/>
+		<rom name="sz7.3i" size="4096" crc="7b34dc1c" sha1="fb163a908c991cd214e0d2d685e74563a460a929" region="maincpu" offset="6000"/>
+		<rom name="sz8.3j" size="2048" crc="9933526a" sha1="2178ef8653f1d60be28bcaebe1033ef7ae480157" region="maincpu" offset="7000"/>
+		<rom name="sz11.7k" merge="sz11.7k" size="4096" crc="fbd9b91d" sha1="6b3581f4b518c058b970d569ced07dd7dc6a87e6" region="gfx" offset="0"/>
+		<rom name="sz12.7m" size="4096" crc="2bdef9ad" sha1="50fe41e81c1307317b4fb6b47bf0619d141c42ff" region="gfx" offset="1000"/>
+		<rom name="sz9.7j" merge="sz9.7j" size="4096" crc="4819f0cd" sha1="fa8d371efc3198daf76ff1264e22673c5521becf" region="gfx" offset="2000"/>
+		<rom name="sz10.7h" merge="sz10.7h" size="4096" crc="4c268778" sha1="a1444fb3eb397c8167d769aa1f935c5f19df4d6d" region="gfx" offset="3000"/>
+		<rom name="sz73.10c" merge="sz73.10c" size="32" crc="4d218a3c" sha1="26364dfdb7e13080357328a06c3bcf504778defd" region="proms" offset="0"/>
+		<rom name="sz74.10b" merge="sz74.10b" size="32" crc="c550531c" sha1="d564aeb8a99861d29e00cf968242fe6c6cec478b" region="proms" offset="20"/>
+		<rom name="pal16h2.3b" merge="pal16h2.3b" size="68" crc="e1a6a86d" sha1="740a5c2ef8a992f6a794c0fc4c81eb50cfcedc32" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Debug Mode" tag="DEBUG" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability" tag="DEBUG" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<dipvalue name="20000 40000" value="0" default="yes"/>
+			<dipvalue name="30000" value="4"/>
+			<dipvalue name="30000 50000" value="8"/>
+			<dipvalue name="30000 60000 90000" value="12"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="2">
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="2"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="12">
+			<dipvalue name="2" value="8"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="12"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW3" mask="12">
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/6 Credits" value="12"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":DEBUG">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="sectrzont" sourcefile="nichibutsu/seicross.cpp" cloneof="seicross" romof="seicross">
+		<description>Sector Zone (bootleg)</description>
+		<year>1984</year>
+		<manufacturer>bootleg (Tecfri)</manufacturer>
+		<rom name="czt_1.bin" size="4096" crc="f0a45cb4" sha1="ab3b8d78e25cdbb2fd6a6c0718ae13767364994d" region="maincpu" offset="0"/>
+		<rom name="czt_2.bin" size="4096" crc="fea68ddb" sha1="b9ed0cad9a2ded04bcc7042d975b77be63313070" region="maincpu" offset="1000"/>
+		<rom name="czt_3.bin" size="4096" crc="baad4294" sha1="e7fc3ccc940de6df8d786c986b602127c9db9ebb" region="maincpu" offset="2000"/>
+		<rom name="czt_4.bin" size="4096" crc="75f2ca75" sha1="fbf990edcb7b5a58f8dcee160883fde5e222ca6b" region="maincpu" offset="3000"/>
+		<rom name="czt_5.bin" size="4096" crc="dc14f2c8" sha1="dcda8d6f7be458d0adcddc37bbe0eb636a5b0b06" region="maincpu" offset="4000"/>
+		<rom name="czt_6.bin" size="4096" crc="397a38c5" sha1="6189028376c1781aae107c5fe0aec181a1d885e1" region="maincpu" offset="5000"/>
+		<rom name="czt_7.bin" size="4096" crc="7b34dc1c" sha1="fb163a908c991cd214e0d2d685e74563a460a929" region="maincpu" offset="6000"/>
+		<rom name="czt_8.bin" size="4096" crc="673a20e7" sha1="66be7581323dceddb594eed53dd3abc62b450327" region="maincpu" offset="7000"/>
+		<rom name="czt_11.bin" merge="sz11.7k" size="4096" crc="fbd9b91d" sha1="6b3581f4b518c058b970d569ced07dd7dc6a87e6" region="gfx" offset="0"/>
+		<rom name="czt_12.bin" size="4096" crc="2bdef9ad" sha1="50fe41e81c1307317b4fb6b47bf0619d141c42ff" region="gfx" offset="1000"/>
+		<rom name="czt_9.bin" merge="sz9.7j" size="4096" crc="4819f0cd" sha1="fa8d371efc3198daf76ff1264e22673c5521becf" region="gfx" offset="2000"/>
+		<rom name="czt_10.bin" merge="sz10.7h" size="4096" crc="4c268778" sha1="a1444fb3eb397c8167d769aa1f935c5f19df4d6d" region="gfx" offset="3000"/>
+		<rom name="czt_2_82s123.bin" merge="sz73.10c" size="32" crc="4d218a3c" sha1="26364dfdb7e13080357328a06c3bcf504778defd" region="proms" offset="0"/>
+		<rom name="czt_1_82s123.bin" merge="sz74.10b" size="32" crc="c550531c" sha1="d564aeb8a99861d29e00cf968242fe6c6cec478b" region="proms" offset="20"/>
+		<rom name="czt_pal16h2cn.bin" size="68" crc="7edec1ed" sha1="1b28cb250875f14a76d84bfc0b23ee02b1862c2c" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="m6802"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="Motorola MC6802" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Debug Mode" tag="DEBUG" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability" tag="DEBUG" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<dipvalue name="20000 40000" value="0" default="yes"/>
+			<dipvalue name="30000" value="4"/>
+			<dipvalue name="30000 50000" value="8"/>
+			<dipvalue name="30000 60000 90000" value="12"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="2">
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="2"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="12">
+			<dipvalue name="2" value="8"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="12"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW3" mask="12">
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/6 Credits" value="12"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":DEBUG">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="seicross" sourcefile="nichibutsu/seicross.cpp">
+		<description>Seicross (set 1)</description>
+		<year>1984</year>
+		<manufacturer>Nichibutsu / Alice</manufacturer>
+		<rom name="smc1" size="4096" crc="f6c3aeca" sha1="d57019e80f7e3d47ca74f54604e92d40ba9819fc" region="maincpu" offset="0"/>
+		<rom name="smc2" size="4096" crc="0ec6c218" sha1="d8cffea48d8afd229f2008399afe3858c13653e5" region="maincpu" offset="1000"/>
+		<rom name="smc3" size="4096" crc="ceb3c8f4" sha1="e49f834637b4addcf362cd010e31802c3e145cbe" region="maincpu" offset="2000"/>
+		<rom name="smc4" size="4096" crc="3112af59" sha1="3d4e5a74a13bdeaf07f059f8c3a0d2ca8cbb3d32" region="maincpu" offset="3000"/>
+		<rom name="smc5" size="4096" crc="b494a993" sha1="ed60cbaef2ac780c11426d29a612d34e76b29a0e" region="maincpu" offset="4000"/>
+		<rom name="smc6" size="4096" crc="09d5b9da" sha1="636a8d4717df4ed1fc02fa83782fa8d96b88f969" region="maincpu" offset="5000"/>
+		<rom name="smc7" size="4096" crc="13052b03" sha1="2866f2533a788f734310a74789f762f3fa17a57a" region="maincpu" offset="6000"/>
+		<rom name="smc8" size="2048" crc="2093461d" sha1="0d640bc7ee1e9ffe32580e3143677475145b06d2" region="maincpu" offset="7000"/>
+		<rom name="sz11.7k" size="4096" crc="fbd9b91d" sha1="6b3581f4b518c058b970d569ced07dd7dc6a87e6" region="gfx" offset="0"/>
+		<rom name="smcd" size="4096" crc="c3c953c4" sha1="a96937a48b59b7e992e53d279c10a5f3ea7f9a6f" region="gfx" offset="1000"/>
+		<rom name="sz9.7j" size="4096" crc="4819f0cd" sha1="fa8d371efc3198daf76ff1264e22673c5521becf" region="gfx" offset="2000"/>
+		<rom name="sz10.7h" size="4096" crc="4c268778" sha1="a1444fb3eb397c8167d769aa1f935c5f19df4d6d" region="gfx" offset="3000"/>
+		<rom name="sz73.10c" size="32" crc="4d218a3c" sha1="26364dfdb7e13080357328a06c3bcf504778defd" region="proms" offset="0"/>
+		<rom name="sz74.10b" size="32" crc="c550531c" sha1="d564aeb8a99861d29e00cf968242fe6c6cec478b" region="proms" offset="20"/>
+		<rom name="pal16h2.3b" size="68" crc="e1a6a86d" sha1="740a5c2ef8a992f6a794c0fc4c81eb50cfcedc32" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Debug Mode" tag="DEBUG" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability" tag="DEBUG" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<dipvalue name="20000 40000" value="0" default="yes"/>
+			<dipvalue name="30000" value="4"/>
+			<dipvalue name="30000 50000" value="8"/>
+			<dipvalue name="30000 60000 90000" value="12"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="2">
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="2"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="12">
+			<dipvalue name="2" value="8"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="12"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW3" mask="12">
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/6 Credits" value="12"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":DEBUG">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="seicrossa" sourcefile="nichibutsu/seicross.cpp" cloneof="seicross" romof="seicross">
+		<description>Seicross (set 2)</description>
+		<year>1984</year>
+		<manufacturer>Nichibutsu / Alice</manufacturer>
+		<rom name="sr-1.3a" size="4096" crc="f0a45cb4" sha1="ab3b8d78e25cdbb2fd6a6c0718ae13767364994d" region="maincpu" offset="0"/>
+		<rom name="sr-2.3b" size="4096" crc="fea68ddb" sha1="b9ed0cad9a2ded04bcc7042d975b77be63313070" region="maincpu" offset="1000"/>
+		<rom name="sr-3.3d" size="4096" crc="baad4294" sha1="e7fc3ccc940de6df8d786c986b602127c9db9ebb" region="maincpu" offset="2000"/>
+		<rom name="sr-4.3e" size="4096" crc="75f2ca75" sha1="fbf990edcb7b5a58f8dcee160883fde5e222ca6b" region="maincpu" offset="3000"/>
+		<rom name="sr-5.3f" size="4096" crc="dc14f2c8" sha1="dcda8d6f7be458d0adcddc37bbe0eb636a5b0b06" region="maincpu" offset="4000"/>
+		<rom name="sr-6.3g" size="4096" crc="397a38c5" sha1="6189028376c1781aae107c5fe0aec181a1d885e1" region="maincpu" offset="5000"/>
+		<rom name="sr-7.3i" size="4096" crc="220a0919" sha1="86e4c5d60353db17991fc5d6788308ed28bdc795" region="maincpu" offset="6000"/>
+		<rom name="sr-8.3j" size="4096" crc="2a95ad44" sha1="75f5e9ea90f23b4e253d9f5a781a32fa914dee8c" region="maincpu" offset="7000"/>
+		<rom name="sr-11.7l" merge="sz11.7k" size="4096" crc="fbd9b91d" sha1="6b3581f4b518c058b970d569ced07dd7dc6a87e6" region="gfx" offset="0"/>
+		<rom name="sr-12.7n" merge="smcd" size="4096" crc="c3c953c4" sha1="a96937a48b59b7e992e53d279c10a5f3ea7f9a6f" region="gfx" offset="1000"/>
+		<rom name="sr-9.7h" merge="sz9.7j" size="4096" crc="4819f0cd" sha1="fa8d371efc3198daf76ff1264e22673c5521becf" region="gfx" offset="2000"/>
+		<rom name="sr-10.7j" merge="sz10.7h" size="4096" crc="4c268778" sha1="a1444fb3eb397c8167d769aa1f935c5f19df4d6d" region="gfx" offset="3000"/>
+		<rom name="sr-3.9c" merge="sz73.10c" size="32" crc="4d218a3c" sha1="26364dfdb7e13080357328a06c3bcf504778defd" region="proms" offset="0"/>
+		<rom name="sr-4.9b" size="32" crc="969beb4c" sha1="69499d916871bb0529952c89fbd75694124ec0b2" region="proms" offset="20"/>
+		<rom name="pal16h2.3b" merge="pal16h2.3b" size="68" crc="e1a6a86d" sha1="740a5c2ef8a992f6a794c0fc4c81eb50cfcedc32" status="baddump" region="plds" offset="0"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":mcu" name="nsc8105"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":aysnd" name="ay8910"/>
+		<device_ref tag=":dac" name="dac_4bit_r2r"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="mcu" name="NSC8105" clock="3072000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1536000"/>
+		<chip type="audio" tag="dac" name="4-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Debug Mode" tag="DEBUG" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Invulnerability" tag="DEBUG" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<dipvalue name="20000 40000" value="0" default="yes"/>
+			<dipvalue name="30000" value="4"/>
+			<dipvalue name="30000 50000" value="8"/>
+			<dipvalue name="30000 60000 90000" value="12"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<dipvalue name="Upright" value="1" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="2">
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="2"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="12">
+			<dipvalue name="2" value="8"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="4"/>
+			<dipvalue name="5" value="12"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW3" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW3" mask="12">
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/6 Credits" value="12"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Connection Error" tag="TEST" mask="2">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2"/>
+		</dipswitch>
+		<port tag=":DEBUG">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":TEST">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>

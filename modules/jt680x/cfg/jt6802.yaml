@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 23-10-2026
+
+jt680x:
+  - get:
+    - jt680x.v
+    - jt680x_ctrl.v
+    - jt680x_regs.v
+    - jt680x_alu.v
+    - jt6802.v
+    - jt6802_decode.v
+  - ucode:
+      src: 6802.yaml
+      output: 6801
