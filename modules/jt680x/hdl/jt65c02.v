@@ -39,11 +39,11 @@ wire       branch, branch_lo;
 wire       brlatch, brok;
 wire       ni;
 wire       inc_pc;
-wire       swi, pcpage;
+wire       swi, pcpage, ea_ff;
 
 assign opmd = DECO222 && opdec ? { md[7], md[5], md[6], md[4:0] } : md;
 
-jt65c02_ctrl u_ctrl(
+jt65c02_ctrl #(.DECO222(DECO222)) u_ctrl(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -56,6 +56,7 @@ jt65c02_ctrl u_ctrl(
     .iv         ( iv        ),
     // control
     .pcpage     ( pcpage    ),
+    .ea_ff      ( ea_ff     ),
     .d          ( d         ),
     .branch     ( branch    ),
     .branch_lo  ( branch_lo ),
@@ -118,6 +119,7 @@ jt65c02_regs #(.DECO222(DECO222)) u_regs(
     .cc_sel     ( cc_sel    ),
     .rmux_sel   ( rmux_sel  ),
     .pcpage     ( pcpage    ),
+    .ea_ff      ( ea_ff     ),
     // interrupts
     .irq        ( irq       ),
     .opdec      ( opdec     ),
