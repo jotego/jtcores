@@ -41,9 +41,14 @@ registers=[
 ]
 
 [buttons]
-# osman is a Strider-like action game, 3 buttons (EEPROM is fixed to 3-button).
-Names = [ { machine="osman", names="Attack,Jump,Special" },
-          { machine="hvysmsh", names="Shot,Jump,Special" } ]
+Names = [ { machine="osman",    names="Attack,Jump,Special" },
+          { machine="hvysmsh",  names="Shoot & Tackle,Jump,Pass & Shot" },
+          { machine="joemacr",  names="Attack,Jump" },
+          { machine="charlien", names="Shot,Jump" },
+          { machine="chainrec", names="Pull in the balloons,Shoot out the balloons" },
+          { setname="magdrop",  names="Pull in the balloons,Shoot out the balloons" },
+          { setname="magdropp", names="Pull in the balloons,Shoot out the balloons" },
+          { machine="prtytime", names="Dive in,Dive out" } ]
 
 [ROM]
 # These families have no EEPROM ROM region in MAME. Start with an erased
