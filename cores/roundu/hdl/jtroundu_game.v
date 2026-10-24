@@ -23,6 +23,9 @@ wire [7:0] download_data;
 wire shift_pulse;
 reg shift;
 wire [7:0] stick;
+wire [16:0] tx_gfxram_addr, tx_gfx_addr;
+wire [7:0] tx_gfxram_din, tx_gfxram_dout, tx_gfx_data;
+wire tx_gfxram_we, tx_gfxram_cs, tx_gfxram_ok, tx_gfx_cs, tx_gfx_ok;
 wire       gas_n, brake_n;
 
 jtroundu_ctrl u_ctrl (
@@ -111,6 +114,8 @@ jtroundu_main u_main (
     .tx_gfxram_din      ( tx_gfxram_din      ),
     .tx_gfxram_dout     ( tx_gfxram_dout     ),
     .tx_gfxram_we       ( tx_gfxram_we       ),
+    .tx_gfxram_cs       ( tx_gfxram_cs       ),
+    .tx_gfxram_ok       ( tx_gfxram_ok       ),
     .bg_gfxram_addr     ( bg_gfxram_addr     ),
     .bg_gfxram_din      ( bg_gfxram_din      ),
     .bg_gfxram_dout     ( bg_gfxram_dout     ),
@@ -123,6 +128,28 @@ jtroundu_main u_main (
     .v30_slave_rom_cs   ( v30_slave_rom_cs   ),
     .v30_slave_rom_data ( v30_slave_rom_data ),
     .v30_slave_rom_ok   ( v30_slave_rom_ok   )
+);
+
+jtroundu_txram u_txram (
+    .rst       ( game_rst        ),
+    .clk       ( clk             ),
+    .cpu_addr  ( tx_gfxram_addr   ),
+    .cpu_din   ( tx_gfxram_din    ),
+    .cpu_dout  ( tx_gfxram_dout   ),
+    .cpu_cs    ( tx_gfxram_cs     ),
+    .cpu_we    ( tx_gfxram_we     ),
+    .cpu_ok    ( tx_gfxram_ok     ),
+    .gfx_addr  ( tx_gfx_addr      ),
+    .gfx_cs    ( tx_gfx_cs        ),
+    .gfx_data  ( tx_gfx_data      ),
+    .gfx_ok    ( tx_gfx_ok        ),
+    .ram_addr  ( tx_sdram_addr    ),
+    .ram_din   ( tx_sdram_din     ),
+    .ram_data  ( tx_sdram_data    ),
+    .ram_cs    ( tx_sdram_cs      ),
+    .ram_we    ( tx_sdram_we      ),
+    .ram_dsn   ( tx_sdram_dsn     ),
+    .ram_ok    ( tx_sdram_ok      )
 );
 
 jtroundu_sub u_sub (
@@ -239,6 +266,8 @@ jtroundu_video u_video (
     .txmap_data         ( txmap_data         ),
     .tx_gfx_addr        ( tx_gfx_addr        ),
     .tx_gfx_data        ( tx_gfx_data        ),
+    .tx_gfx_cs          ( tx_gfx_cs          ),
+    .tx_gfx_ok          ( tx_gfx_ok          ),
     .palette_video_addr ( palette_video_addr ),
     .palette_video_data ( palette_video_data ),
     .red                ( red                ),

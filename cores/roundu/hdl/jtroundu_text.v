@@ -13,6 +13,8 @@ module jtroundu_text(
     input      [15:0] map_data,
     output reg [16:0] gfx_addr,
     input       [7:0] gfx_data,
+    output reg        gfx_cs,
+    input             gfx_ok,
     output      [6:0] pxl
 );
 
@@ -67,6 +69,7 @@ always @(posedge clk) begin
         fetch_addr <= 0;
         step <= 0;
         gfx_addr <= 0;
+        gfx_cs <= 0;
         plane0 <= 0;
         plane1 <= 0;
         rom_data <= 0;
@@ -76,24 +79,33 @@ always @(posedge clk) begin
             0: if (!rom_ok) begin
                 fetch_addr <= rom_addr;
                 gfx_addr <= {2'b00,rom_addr};
+                gfx_cs <= 1;
                 ready <= 0;
                 step <= 1;
             end
-            1: step <= 2;
-            2: begin
+            1: if (gfx_ok) begin
                 plane0 <= gfx_data;
+                gfx_cs <= 0;
+                step <= 2;
+            end
+            2: begin
                 gfx_addr <= {2'b01,fetch_addr};
+                gfx_cs <= 1;
                 step <= 3;
             end
-            3: step <= 4;
-            4: begin
+            3: if (gfx_ok) begin
                 plane1 <= gfx_data;
+                gfx_cs <= 0;
+                step <= 4;
+            end
+            4: begin
                 gfx_addr <= {2'b10,fetch_addr};
+                gfx_cs <= 1;
                 step <= 5;
             end
-            5: step <= 6;
-            6: begin
+            5: if (gfx_ok) begin
                 rom_data <= {8'd0,gfx_data,plane1,plane0};
+                gfx_cs <= 0;
                 ready <= 1;
                 step <= 0;
             end

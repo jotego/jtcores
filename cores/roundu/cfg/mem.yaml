@@ -42,7 +42,11 @@ sdram:
           addr_width: 21
           data_width: 64
           cache_size: 4kB
-    - buses: []
+    - buses:
+        - name: tx_sdram
+          addr_width: 17
+          data_width: 16
+          rw: true
     - buses:
         - name: audiocpu
           addr_width: 16
@@ -124,12 +128,6 @@ bram:
     data_width: 16
     rw: true
     dual_port: { name: obj_ctrl, dout: obj_ctrl_data }
-
-  - name: tx_gfxram
-    size: 128kB
-    data_width: 8
-    rw: true
-    dual_port: { name: tx_gfx, dout: tx_gfx_data }
 
   - name: bg_gfxram
     size: 128kB

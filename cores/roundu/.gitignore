@@ -7,6 +7,12 @@
 !/ver/game/capture-video.sh
 !/ver/game/rest2bin.sh
 !/ver/game/*.cab
+!/ver/hdl/
+!/ver/hdl/txram/
+!/ver/hdl/txram/.simunit
+!/ver/hdl/txram/gather.f
+!/ver/hdl/txram/test.v
+!/ver/hdl/txram/jtroundu_txram_model.v
 !/ver/roundup5/
 /ver/roundup5/*
 !/ver/roundup5/mamedump.sh

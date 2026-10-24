@@ -38,6 +38,8 @@ module jtroundu_video #(
     input [15:0] txmap_data,
     output [16:0] tx_gfx_addr,
     input [7:0] tx_gfx_data,
+    output tx_gfx_cs,
+    input tx_gfx_ok,
     output [10:1] palette_video_addr,
     input [15:0] palette_video_data,
     output [4:0] red,
@@ -90,6 +92,8 @@ jtroundu_text u_text (
     .map_data ( txmap_data    ),
     .gfx_addr ( tx_gfx_addr   ),
     .gfx_data ( tx_gfx_data   ),
+    .gfx_cs   ( tx_gfx_cs     ),
+    .gfx_ok   ( tx_gfx_ok     ),
     .pxl      ( text_pxl      )
 );
 
