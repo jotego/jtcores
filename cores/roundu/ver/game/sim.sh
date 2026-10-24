@@ -70,8 +70,7 @@ WRAPPER
         if [ "$ROUNDU_PRELOAD" = 1 ]; then
             roundu_load=()
             dd if=rom.bin of=sdram_bank0.bin bs=1024 skip=0 count=1024 conv=swab status=none
-            dd if=rom.bin of=sdram_bank1.bin bs=1024 skip=1024 count=768 conv=swab status=none
-            dd if=rom.bin of=sdram_bank2.bin bs=1024 skip=1792 count=768 conv=swab status=none
+            dd if=rom.bin of=sdram_bank1.bin bs=1024 skip=1024 count=1536 conv=swab status=none
             dd if=rom.bin of=sdram_bank3.bin bs=1024 skip=2560 count=320 conv=swab status=none
             dd if=/dev/zero of=sdram_bank3.bin bs=1024 seek=256 count=64 conv=notrunc status=none
         fi

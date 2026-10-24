@@ -12,14 +12,10 @@ module jtroundu_obj(
     input       [15:0] ram_data,
     output       [8:1] ctrl_addr,
     input       [15:0] ctrl_data,
-    output      [19:2] rom_l_addr,
-    output             rom_l_cs,
-    input       [31:0] rom_l_data,
-    input              rom_l_ok,
-    output      [19:2] rom_h_addr,
-    output             rom_h_cs,
-    input       [31:0] rom_h_data,
-    input              rom_h_ok,
+    output      [20:3] rom_addr,
+    output             rom_cs,
+    input       [63:0] rom_data,
+    input              rom_ok,
     output       [9:0] pxl,
     output reg         overflow
 );
@@ -43,6 +39,9 @@ reg dr_cnt;
 reg [17:0] request_addr;
 reg request_bank;
 reg [31:0] fetched;
+reg [63:0] pair_data;
+reg [17:0] pair_addr;
+reg pair_valid;
 reg [8:0] clut_load;
 reg loaded;
 reg [31:0] clut_l [0:511];
@@ -111,6 +110,7 @@ reg [31:0] fast_data [0:1];
 reg [1:0] fast_valid;
 reg fast_pending, fast_wait, fast_bank;
 reg [17:0] fast_request;
+wire fast_pair_hit = pair_valid && pair_addr == fast_request;
 // registered lookahead column: keeps the per-pixel DDA out of the prefetch
 // address cone, at the cost of posting the prefetch one cycle later
 reg [19:0] r_next_col;
@@ -273,7 +273,10 @@ task request;
         request_bank <= bank;
         request_addr <= address;
         return_state <= destination;
-        state <= WAIT0;
+        if (pair_valid && pair_addr == address) begin
+            fetched <= bank ? pair_data[63:32] : pair_data[31:0];
+            state <= destination;
+        end else state <= WAIT0;
     end
 endtask
 
@@ -294,10 +297,8 @@ assign ctrl_addr = 8'he0;
 // while the previous owner has no request in flight
 wire fsm_req = state == WAIT0 || state == WAIT1;
 reg rom_owner;
-assign rom_l_addr = rom_owner ? fast_request : request_addr;
-assign rom_h_addr = rom_owner ? fast_request : request_addr;
-assign rom_l_cs = rom_owner ? fast_pending && !fast_bank : fsm_req && !request_bank;
-assign rom_h_cs = rom_owner ? fast_pending && fast_bank : fsm_req && request_bank;
+assign rom_addr = rom_owner ? fast_request : request_addr;
+assign rom_cs = rom_owner ? fast_pending && !fast_pair_hit : fsm_req;
 
 initial begin
     inverse[0] = 0;
@@ -382,6 +383,9 @@ always @(posedge clk) begin
         return_state <= IDLE;
         request_addr <= 0;
         request_bank <= 0;
+        pair_data <= 0;
+        pair_addr <= 0;
+        pair_valid <= 0;
         clut_load <= 0;
         loaded <= 0;
         ram_addr <= 0;
@@ -463,11 +467,19 @@ always @(posedge clk) begin
         r_next_vld <= dr_state == DR_RUN;
         if (fast_pending) begin
             fast_wait <= rom_owner;
-            if (fast_wait && rom_owner && (fast_bank ? rom_h_ok : rom_l_ok)) begin
+            if (fast_pair_hit) begin
                 fast_addr[fast_bank] <= fast_request;
-                fast_data[fast_bank] <= fast_bank ? rom_h_data : rom_l_data;
+                fast_data[fast_bank] <= fast_bank ? pair_data[63:32] : pair_data[31:0];
                 fast_valid[fast_bank] <= 1;
                 fast_pending <= 0;
+            end else if (fast_wait && rom_owner && rom_ok) begin
+                fast_addr[fast_bank] <= fast_request;
+                fast_data[fast_bank] <= fast_bank ? rom_data[63:32] : rom_data[31:0];
+                fast_valid[fast_bank] <= 1;
+                fast_pending <= 0;
+                pair_data <= rom_data;
+                pair_addr <= fast_request;
+                pair_valid <= 1;
             end
         end
         case (dr_state)
@@ -541,8 +553,11 @@ always @(posedge clk) begin
                 end else state <= CLUT_L;
             end
             WAIT0: state <= WAIT1;
-            WAIT1: if (!rom_owner && (request_bank ? rom_h_ok : rom_l_ok)) begin
-                fetched <= request_bank ? rom_h_data : rom_l_data;
+            WAIT1: if (!rom_owner && rom_ok) begin
+                fetched <= request_bank ? rom_data[63:32] : rom_data[31:0];
+                pair_data <= rom_data;
+                pair_addr <= request_addr;
+                pair_valid <= 1;
                 state <= return_state;
             end
             ATTR_WAIT: begin

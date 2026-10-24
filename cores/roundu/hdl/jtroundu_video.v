@@ -29,14 +29,10 @@ module jtroundu_video #(
     input [15:0] objram_data,
     output [8:1] obj_ctrl_addr,
     input [15:0] obj_ctrl_data,
-    output [19:2] sprites_l_addr,
-    output sprites_l_cs,
-    input [31:0] sprites_l_data,
-    input sprites_l_ok,
-    output [19:2] sprites_h_addr,
-    output sprites_h_cs,
-    input [31:0] sprites_h_data,
-    input sprites_h_ok,
+    output [20:3] sprites_addr,
+    output sprites_cs,
+    input [63:0] sprites_data,
+    input sprites_ok,
     output obj_overflow,
     output [13:1] txmap_addr,
     input [15:0] txmap_data,
@@ -142,14 +138,10 @@ generate
             .ram_data   ( objram_data    ),
             .ctrl_addr  ( obj_ctrl_addr  ),
             .ctrl_data  ( obj_ctrl_data  ),
-            .rom_l_addr ( sprites_l_addr ),
-            .rom_l_cs   ( sprites_l_cs   ),
-            .rom_l_data ( sprites_l_data ),
-            .rom_l_ok   ( sprites_l_ok   ),
-            .rom_h_addr ( sprites_h_addr ),
-            .rom_h_cs   ( sprites_h_cs   ),
-            .rom_h_data ( sprites_h_data ),
-            .rom_h_ok   ( sprites_h_ok   ),
+            .rom_addr   ( sprites_addr   ),
+            .rom_cs     ( sprites_cs     ),
+            .rom_data   ( sprites_data   ),
+            .rom_ok     ( sprites_ok     ),
             .pxl        ( obj_pxl        ),
             .overflow   ( obj_overflow   )
         );
@@ -158,10 +150,8 @@ generate
         assign obj_overflow = 0;
         assign objram_addr = 0;
         assign obj_ctrl_addr = 0;
-        assign sprites_l_addr = 0;
-        assign sprites_h_addr = 0;
-        assign sprites_l_cs = 0;
-        assign sprites_h_cs = 0;
+        assign sprites_addr = 0;
+        assign sprites_cs = 0;
     end
     if (LANDSCAPE) begin : g_landscape
         jtroundu_bg u_bg (
