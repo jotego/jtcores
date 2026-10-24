@@ -39,7 +39,7 @@ sdram:
         - { name: oki, addr_width: 20, data_width: 8 }
 
     - buses:
-        - { name: snd0, addr_width: 16, data_width: 8 }
+        - { name: snd0, addr_width: 16, data_width: 8, latch: "1" }
 
 bram:
   - name: vram0
