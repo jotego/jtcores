@@ -35538,7 +35538,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "76d46772-c173-4c5b-88a3-6e714f51065c")
-		(property "Reference" "K2"
+		(property "Reference" "K8"
 			(at 299.212 219.202 0)
 			(effects
 				(font
@@ -35626,7 +35626,7 @@
 		(instances
 			(project "moomesa"
 				(path "/45e9fe2d-9112-4e6d-bd21-a45253e31d3f/ca074bfa-b681-46d6-bd0f-c893aacc5720"
-					(reference "K2")
+					(reference "K8")
 					(unit 6)
 				)
 			)
