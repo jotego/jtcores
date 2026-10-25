@@ -28,9 +28,11 @@ assign pal_addr = cpu_addr[10:1];
 assign dip_flip = 0;
 assign st_dout = 0;
 assign debug_view = debug_bus[7] ? {obj_overrun,7'd0} : main_debug;
-assign post_data = ((prog_ba==0 && prog_addr>=22'h18000 && prog_addr<22'h20000) ||
-                    (prog_ba==3 && prog_addr>=22'h20000 && prog_addr<22'h28000)) ?
-                     8'd0 : prog_data;
+always @* begin
+    post_data = ((prog_ba==0 && prog_addr>=22'h18000 && prog_addr<22'h20000) ||
+                 (prog_ba==3 && prog_addr>=22'h20000 && prog_addr<22'h28000)) ?
+                  8'd0 : prog_data;
+end
 
 jtsvolle_main u_main(
     .rst        ( rst           ),
