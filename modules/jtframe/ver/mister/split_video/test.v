@@ -53,17 +53,17 @@ initial begin
   if(SCALER_F1!==0||VGA_SL!==0)$fatal(1,"progressive field/analog scanlines");
 `endif
   if(cfg[10])begin
-   if({hr_out,hg_out,hb_out,ce_hpix,hde_emu,hf1}!=={24'hc17223,3'b011})$fatal(1,"direct video analog select");
+   if({hr_out,hg_out,hb_out,hhs_fix,hvs_fix,ce_hpix,hde_emu,hf1}!=={24'hc17223,5'b10011})$fatal(1,"direct video analog select");
   end else begin
 `ifdef JTFRAME_INTERLACED
-   if({hr_out,hg_out,hb_out,ce_hpix,hde_emu,hf1}!=={24'h123456,3'b111})$fatal(1,"HDMI interlaced select");
+   if({hr_out,hg_out,hb_out,hhs_fix,hvs_fix,ce_hpix,hde_emu,hf1}!=={24'h123456,5'b01111})$fatal(1,"HDMI interlaced select");
 `else
-   if({hr_out,hg_out,hb_out,ce_hpix,hde_emu,hf1}!=={24'h123456,3'b110})$fatal(1,"HDMI progressive select");
+   if({hr_out,hg_out,hb_out,hhs_fix,hvs_fix,ce_hpix,hde_emu,hf1}!=={24'h123456,5'b01110})$fatal(1,"HDMI progressive select");
 `endif
   end
 `else
   if(vga_fb!==(cfg[12]|vga_force_scaler)||vga_scaler!==(cfg[2]|vga_force_scaler))$fatal(1,"legacy config");
-  if({hr_out,hg_out,hb_out,ce_hpix,hde_emu}!=={24'h123456,2'b11})$fatal(1,"legacy video");
+  if({hr_out,hg_out,hb_out,hhs_fix,hvs_fix,ce_hpix,hde_emu}!=={24'h123456,4'b0111})$fatal(1,"legacy video");
 `endif
  end
  cfg=0;repeat(5)@(negedge clk);
