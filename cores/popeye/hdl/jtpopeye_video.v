@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -46,6 +47,18 @@ module jtpopeye_video(
     input      [ 3:0] objpall_data,
     output     [ 7:0] objpalh_addr,
     input      [ 3:0] objpalh_data,
+    output     [ 9:0] text_addr,
+    output     [ 9:0] text_cpu_addr,
+    output            text_we,
+    output            color_we,
+    input      [ 7:0] text_dout,
+    input      [ 7:0] color_dout,
+    output     [11:0] bg_addr,
+    output            bglo_we,
+    output            bghi_we,
+    input      [ 7:0] bglo_dout,
+    input      [ 7:0] bghi_dout,
+
     input      [ 3:0] gfx_en,
     input             nibd7,
     input             boot,
@@ -132,6 +145,12 @@ jtpopeye_timing u_timing(
 );
 
 jtpopeye_char u_char(
+    .text_addr     ( text_addr     ),
+    .text_cpu_addr ( text_cpu_addr ),
+    .text_we       ( text_we       ),
+    .color_we      ( color_we      ),
+    .text_dout     ( text_dout     ),
+    .color_dout    ( color_dout    ),
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen10      ( cen10     ),
@@ -152,6 +171,11 @@ jtpopeye_char u_char(
 );
 
 jtpopeye_bg u_bg(
+    .bg_addr       ( bg_addr       ),
+    .bglo_we       ( bglo_we       ),
+    .bghi_we       ( bghi_we       ),
+    .bglo_dout     ( bglo_dout     ),
+    .bghi_dout     ( bghi_dout     ),
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen5       ( cen5      ),

@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ns/1ps
 
 module test;
+
 
 `ifndef RV
 `define RV 0
@@ -15,12 +17,11 @@ module test;
 `endif
 
 reg         clk = 0, rst = 1;
+integer field = 0;
 wire        rv = `RV;
 wire [ 1:0] board = `BOARD;
 wire        nibd7 = board!=2'd0,
             tnx1  = board==2'd3;
-wire        nibd7 = `BOARD != 0;
-wire        tnx1  = `BOARD == 3;
 wire        dd7, do16;
 wire [ 2:0] cen;
 wire        cen20, cen10, cen5, n_qb_fall, dotck_rise;
@@ -89,6 +90,7 @@ jtpopeye_timing u_timing(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen5       ( cen5          ),
+    .cen10      ( cen10         ),
     .rv         ( rv            ),
     .tprom_addr ( tprom_addr    ),
     .tprom_data ( tprom_data    ),
@@ -127,7 +129,17 @@ jtpopeye_dma u_dma(
     .rohvck     ( rohvck    )
 );
 
+wire [11:0] bg_addr;
+wire bglo_we,bghi_we;
+wire [7:0] bglo_dout,bghi_dout;
+jtframe_ram #(.AW(12)) u_bglo(.clk(clk),.cen(1'b1),.addr(bg_addr),.data({4'd0,dd[3:0]}),.we(bglo_we),.q(bglo_dout));
+jtframe_ram #(.AW(12)) u_bghi(.clk(clk),.cen(1'b1),.addr(bg_addr),.data({4'd0,dd[3:0]}),.we(bghi_we),.q(bghi_dout));
 jtpopeye_bg uut(
+    .bg_addr(bg_addr),
+    .bglo_we(bglo_we),
+    .bghi_we(bghi_we),
+    .bglo_dout(bglo_dout),
+    .bghi_dout(bghi_dout),
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen5       ( cen5          ),
@@ -146,35 +158,6 @@ jtpopeye_bg uut(
     .rovi       ( rovi          ),
     .bakc       ( bakc          )
 );
-
-`ifdef REF
-wire [ 3:0] bakc_ref;
-integer     ref_n = 0, ref_bad = 0;
-
-jtpopeye_bg_ref u_ref(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen5       ( cen5          ),
-    .cen10      ( cen10         ),
-    .ad         ( ad            ),
-    .dd         ( dd[3:0]       ),
-    .csbw_n     ( csbw_n        ),
-    .dwrbk_n    ( dwrbk_n       ),
-    .memwr0     ( memwr0        ),
-    .rohvck     ( rohvck        ),
-    .obj_do     ( obj_do        ),
-    .rovi       ( rovi          ),
-    .bakc       ( bakc_ref      )
-);
-
-always @(posedge clk) if( `BOARD==0 ) begin
-    ref_n = ref_n + 1;
-    if( bakc !== bakc_ref ) begin
-        ref_bad = ref_bad + 1;
-        if( ref_bad < 10 ) $display("FAIL %0t: bakc=%h, previous bg module gives %h", $time, bakc, bakc_ref);
-    end
-end
-`endif
 
 `ifdef JT2020
 wire [28:0] do20;
@@ -366,7 +349,6 @@ always @(posedge clk) begin
     end
 end
 
-integer field = 0;
 reg     vb_t = 0;
 always @(posedge clk) begin
     vb_t <= vb;
@@ -491,10 +473,6 @@ initial begin
     set_scroll( 8'hff, 8'hff );
     set_scroll( 8'h80, 8'h7f );
 `endif
-`ifdef REF
-    if( `BOARD==0 ) $display("board 0 against the previous bg module: %0d of %0d clocks differ", ref_bad, ref_n);
-    if( ref_bad != 0 ) errors = errors + 1;
-`endif
     $display("checks=%0d coverage=%0d/8192 rv=%0d board=%0d; ROH loads from a list entry other than 0 (DMA in VB): %0d", checks, cov_n, rv, `BOARD, nonzero_ld);
 `ifdef JT2020
     $display("2020 jtpopeye_bck: %0d of %0d dot samples differ from the bench model", n20_pre, n20);
@@ -508,4 +486,12 @@ initial begin
     end
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

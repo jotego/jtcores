@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -27,7 +28,7 @@ reg         ai_l, bi_l, vb_l, busak_l, mr_l;
 reg         h1l, busak_d, l1c, r1c;
 wire        ai, bi, dm10;
 wire        ai_rise, ai_fall, bi_fall, vb_rise, h1l_rise;
-wire        d1c, cl1c_n, mr_n, cnt_en, g1;
+wire        d1c, cl1c_n, mr_n, cnt_en;
 
 assign ai       = ~ai_n;
 assign bi       = ~bi_n;
@@ -46,7 +47,6 @@ assign d1c      = ~(~busak_d & hbd_n);
 assign cl1c_n   = ~(~busrq_n & ~busak_d);
 assign mr_n     = ~(~l1c & d1c);
 assign cnt_en   = ~(h1l & busak_d);
-assign g1       = bi_n;
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -85,7 +85,7 @@ always @(posedge clk) begin
             cnt <= 0;
         else if( ai_fall && cnt_en && mr_l )
             cnt <= cnt + 11'd1;
-        dmcs_n <= ( g1 && busak_d && !dm10 ) ? ~(4'b1 << cnt[9:8]) : 4'hf;
+        dmcs_n <= ( bi_n && busak_d && !dm10 ) ? ~(4'b1 << cnt[9:8]) : 4'hf;
         rohvs  <= ~(  r1c & mr_n );
         rohvck <= ~( ~r1c & bi   );
     end

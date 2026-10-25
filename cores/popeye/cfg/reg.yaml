@@ -1,0 +1,12 @@
+popeye:
+  video: 550
+  inputs: reg.cab
+popeyej:
+  video: 550
+  inputs: reg.cab
+popeyebl:
+  video: 550
+  inputs: reg.cab
+skyskipr:
+  video: 550
+  inputs: reg.cab

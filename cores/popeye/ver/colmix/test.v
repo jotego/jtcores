@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ps/1ps
 
 module test;
+
 
 reg         clk=0, rst=1;
 reg         cen20=0, cen10=0, cen5=0;
@@ -288,4 +290,12 @@ initial begin
     else begin $display("FAIL"); $fatal(1); end
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

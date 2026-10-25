@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -48,6 +49,10 @@ module jtpopeye_main(
     output reg [ 7:0] blprot_addr,
     input      [ 7:0] blprot_data,
 
+    output     [11:0] work_addr,
+    output            work_we,
+    input      [ 7:0] work_dout,
+
     output            main_cs,
     output     [14:0] main_addr,
     input      [ 7:0] main_data,
@@ -56,14 +61,14 @@ module jtpopeye_main(
 `ifndef NOMAIN
 wire [15:0] A;
 wire [15:13] ad_hi;
-wire [ 7:0] rom_dd, rom_sw, ram_dout, ram_din, bl_dd, bl_xor;
-wire [11:0] ram_addr;
+wire [ 7:0] rom_dd, rom_sw, bl_dd, bl_xor;
 wire [14:0] tnx_addr;
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n,
             memrq, iorq, wrh, rdh, rfsh, iowr, iord, memwr, memrd,
-            sel8, sela, selc, sele, csb, ram_cs, ram_we, busak,
+            csb, ram_cs, busak,
             ad11, ram_sel, rfst, pe_n, phi_cen, dma_rd, bl_cs;
 wire [ 7:0] cab;
+reg         sel8, sela, selc, sele;
 reg  [ 7:0] din;
 reg  [ 3:0] cnt2l;
 reg         nmi_n, q3kl, q3kr, vb_l, rfst_l, csb_d, wr_d, phi_l;
@@ -87,10 +92,6 @@ assign memrd    = memrq & rdh;
 assign memwr0   = memwr;
 assign rfst     = rfsh & memrq;
 
-assign sel8     = ad_hi==3'b100;
-assign sela     = ad_hi==3'b101;
-assign selc     = ad_hi==3'b110;
-assign sele     = ad_hi==3'b111;
 assign csv      = memrq & sela;
 assign csb      = memrq & selc;
 assign csbw_n   = ~(csb | csb_d);
@@ -101,10 +102,9 @@ assign ram_sel  = tnx1    ? (~ad[11] | ad[10]) :
 assign ad11     = busak | ram_sel;
 assign dma_rd   = dma_cs & busak;
 assign ram_cs   = ad11 & (dma_rd | (memrq & sel8));
-assign ram_we   = ram_cs & memwr;
-assign ram_addr = busak ? { 1'b1, dma_addr } : ad[11:0];
-assign ram_din  = cpu_dout;
-assign dd       = busak ? ram_dout : cpu_dout;
+assign work_we  = ram_cs & memwr;
+assign work_addr= busak ? { 1'b1, dma_addr } : ad[11:0];
+assign dd       = busak ? work_dout : cpu_dout;
 
 assign main_cs  = memrq & rfsh_n & ~ad_hi[15];
 assign main_addr= boot ? A[14:0] : tpp1rom ? tnx_addr : { ad_hi[14:13], ad };
@@ -121,6 +121,21 @@ assign bl_xor   = blprot_addr[7] ? 8'h03 : 8'h0f;
 assign bl_dd    = blprot_data ^ bl_xor;
 
 assign pe_n     = ~(q3kr | q3kl);
+
+always @* begin
+    sel8 = ad_hi==3'b100;
+    sela = ad_hi==3'b101;
+    selc = ad_hi==3'b110;
+    sele = ad_hi==3'b111;
+end
+
+always @* begin
+    din = memrd ? (!ad_hi[15] ? rom_dd :
+                    ram_cs   ? work_dout :
+                    prot_cs  ? prot_dout :
+                    bl_cs    ? bl_dd : 8'hff) :
+          iord  ? (ad[1:0]==2'd0 ? ay_dout : cab) : 8'hff;
+end
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -185,27 +200,6 @@ jtpopeye_cab u_cab(
     .cab        ( cab       )
 );
 
-always @* begin
-    din = 8'hff;
-    if( memrd ) begin
-        if( !ad_hi[15] ) din = rom_dd;
-        else if( ram_cs  ) din = ram_dout;
-        else if( prot_cs ) din = prot_dout;
-        else if( bl_cs   ) din = bl_dd;
-    end else if( iord ) begin
-        din = ad[1:0]==2'd0 ? ay_dout : cab;
-    end
-end
-
-jtframe_ram #(.AW(12)) u_ram(
-    .clk        ( clk       ),
-    .cen        ( 1'b1      ),
-    .data       ( ram_din   ),
-    .addr       ( ram_addr  ),
-    .we         ( ram_we    ),
-    .q          ( ram_dout  )
-);
-
 jtframe_z80_romwait #(.RECOVERY(0)) u_cpu(
     .rst_n      ( reset_n   ),
     .clk        ( clk       ),
@@ -230,14 +224,17 @@ jtframe_z80_romwait #(.RECOVERY(0)) u_cpu(
 );
 `else
 wire _unused = &{1'b0, cpu_cen, psg_cen, vb, initeo, tpp1rom, boot, tpp1ram, tnx1,
-                  cab_1p, coin, service, dip_pause, joystick1, joystick2, busrq_n, dma_cs, dma_addr,
+                  cab_1p, coin, service, dip_pause, joystick1, joystick2, dma_cs,
                   ay_dout, prot_dout, blprot_data,
                   main_data, main_ok};
 always @(posedge clk) reset_n <= ~rst;
 always @(posedge clk) blprot_addr <= 0;
-assign busak_n   = 1;
+// Scene mode leaves the CPU bus available to the ordinary video DMA.
+assign busak_n   = busrq_n;
+assign work_addr = {1'b1,dma_addr};
+assign work_we   = 0;
 assign ad        = 0;
-assign dd        = 0;
+assign dd        = work_dout;
 assign cpu_dout  = 0;
 assign csv       = 0;
 assign csbw_n    = 1;

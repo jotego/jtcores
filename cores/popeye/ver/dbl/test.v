@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ps/1ps
 
 module test;
+
 
 reg         clk=0, rst=1;
 localparam integer HLEXP = 513;
@@ -142,7 +144,7 @@ integer oc_wend[0:3], oc_rend[0:3];
 integer min_pre_clk=1<<30, min_post_clk=1<<30, min_pre_hl=1<<30, min_post_hl=1<<30;
 integer oc_lvbl_rise=0, oc_wend0=0, oc_wend223=0, vs_phase=0;
 integer fpre_hl, fpost_hl;
-integer k;
+integer k, wk, rk, write_row;
 
 always @(posedge clk) if( !rst ) begin
     bvs_l <= vs;
@@ -156,35 +158,33 @@ always @(posedge clk) if( !rst && cen10 ) begin
     blhbl_l <= lhbl;
     blvbl_l <= lvbl;
     bx <= lhbl ? bx + 10'd1 : 10'd0;
-    if( !lvbl )
-        brow <= 0;
-    else if( !lhbl && blhbl_l )
-        brow <= brow + 8'd1;
+    if( !lhbl ) brow <= vlatch - 8'd16;
     if( lvbl && !blvbl_l ) begin
         oc_lvbl_rise = uut.oc;
         fpre_hl  = 1<<30;
         fpost_hl = 1<<30;
     end
-    if( lhbl && lvbl && bx==0 ) begin
-        k = brow % 4;
-        if( measure && read_twice[k]==2 ) begin
-            if( clkcnt - t_rend[k] < min_post_clk ) min_post_clk = clkcnt - t_rend[k];
-            if( uut.oc - oc_rend[k] < fpost_hl ) fpost_hl = uut.oc - oc_rend[k];
+    if( lhbl && brow<224 && bx==0 ) begin
+        write_row = brow;
+        wk = write_row % 4;
+        if( measure && read_twice[wk]==2 ) begin
+            if( clkcnt - t_rend[wk] < min_post_clk ) min_post_clk = clkcnt - t_rend[wk];
+            if( uut.oc - oc_rend[wk] < fpost_hl ) fpost_hl = uut.oc - oc_rend[wk];
         end
-        if( measure && slot_meas[k] && slot_done[k] && read_twice[k]!=2 ) fail("row overwritten before both reads");
-        slot_row[k]   = brow;
-        slot_field[k] = bfield;
-        slot_done[k]  = 0;
-        read_twice[k] = 0;
-        slot_meas[k]  = measure;
+        if( measure && slot_meas[wk] && slot_done[wk] && read_twice[wk]!=2 ) fail("row overwritten before both reads");
+        slot_row[wk]   = brow;
+        slot_field[wk] = bfield;
+        slot_done[wk]  = 0;
+        read_twice[wk] = 0;
+        slot_meas[wk]  = measure;
     end
     if( lhbl && lvbl && bx > 511 ) fail("more than 512 source pixels");
-    if( !lhbl && blhbl_l && lvbl ) begin
-        k = brow % 4;
+    if( !lhbl && blhbl_l && write_row<224 ) begin
+        wk = write_row % 4;
         if( bx != 512 ) fail("source line is not 512 pixels");
-        slot_done[k] = 1;
-        t_wend[k]    = clkcnt;
-        oc_wend[k]   = uut.oc;
+        slot_done[wk] = 1;
+        t_wend[wk]    = clkcnt;
+        oc_wend[wk]   = uut.oc;
         if( brow==0 )   oc_wend0   = uut.oc;
         if( brow==223 ) oc_wend223 = uut.oc;
     end
@@ -260,24 +260,24 @@ always @(posedge clk) if( !rst && cen20 ) begin
             if( gx != opx ) fail("x / pixel alignment");
             if( tag != (es ? 2'b01 : 2'b10) ) fail("obj A/B sub-line");
             if( gf != bfield ) fail("field");
-            k = erow % 4;
-            if( slot_row[k] != erow || slot_field[k] != bfield ) begin
+            rk = erow % 4;
+            if( slot_row[rk] != erow || slot_field[rk] != bfield ) begin
                 fail("read of a row not in the ring");
-                if( errors < 30 ) $display("     row %0d sub %0d field %0d, slot holds row %0d field %0d done %0d", erow, es, bfield, slot_row[k], slot_field[k], slot_done[k]);
+                if( errors < 30 ) $display("     row %0d sub %0d field %0d, slot holds row %0d field %0d done %0d", erow, es, bfield, slot_row[rk], slot_field[rk], slot_done[rk]);
             end
-            if( !slot_done[k] ) fail("read of a row before it is complete");
+            if( !slot_done[rk] ) fail("read of a row before it is complete");
             if( opx==0 ) begin
                 if( es==0 ) begin
-                    if( clkcnt - t_wend[k] < min_pre_clk ) min_pre_clk = clkcnt - t_wend[k];
-                    if( uut.oc - oc_wend[k] < fpre_hl ) fpre_hl = uut.oc - oc_wend[k];
-                    if( uut.oc - oc_wend[k] < min_pre_hl ) min_pre_hl = uut.oc - oc_wend[k];
+                    if( clkcnt - t_wend[rk] < min_pre_clk ) min_pre_clk = clkcnt - t_wend[rk];
+                    if( uut.oc - oc_wend[rk] < fpre_hl ) fpre_hl = uut.oc - oc_wend[rk];
+                    if( uut.oc - oc_wend[rk] < min_pre_hl ) min_pre_hl = uut.oc - oc_wend[rk];
                 end
             end
             if( opx==511 ) begin
-                read_twice[k] = read_twice[k] + 1;
+                read_twice[rk] = read_twice[rk] + 1;
                 if( es==1 ) begin
-                    t_rend[k]  = clkcnt;
-                    oc_rend[k] = uut.oc;
+                    t_rend[rk]  = clkcnt;
+                    oc_rend[rk] = uut.oc;
                 end
             end
         end
@@ -286,7 +286,7 @@ always @(posedge clk) if( !rst && cen20 ) begin
     end
 end
 
-always @(posedge clk) if( measure && cen10 && lhbl && lvbl && bx==0 && read_twice[brow%4]==2 ) begin
+always @(posedge clk) if( measure && cen10 && lhbl && brow<224 && bx==0 && read_twice[brow%4]==2 ) begin
     if( uut.oc - oc_rend[brow%4] < min_post_hl ) min_post_hl = uut.oc - oc_rend[brow%4];
 end
 
@@ -322,4 +322,12 @@ initial begin
     $fatal(1);
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

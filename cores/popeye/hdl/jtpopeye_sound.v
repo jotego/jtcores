@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -79,6 +80,8 @@ jt49_bus u_psg(
     .IOB_oe     ( iob_oe    )
 );
 
+// The AY bus stays alive in NOSOUND: its I/O ports select DIPs and flip.
+`ifndef NOSOUND
 jt49_mave #(.depth(4)) u_mave_a(
     .clk        ( clk       ),
     .cen        ( psg_cen   ),
@@ -102,5 +105,7 @@ jt49_mave #(.depth(4)) u_mave_c(
     .din        ( ay_c      ),
     .dout       ( mave_c    )
 );
+
+`endif
 
 endmodule

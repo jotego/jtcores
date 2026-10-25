@@ -1,8 +1,11 @@
+`include "fixtures.vh"
 `timescale 1ps/1ps
 
 module test;
 
+
 reg         clk=0, rst=1, rv=0;
+integer idx=0;
 localparam integer HLEXP = 513;
 real        rate_exp = 5.04e6/(160.0*HLEXP);
 reg         cen20=0, cen5=0, cen10=0;
@@ -102,7 +105,7 @@ task fail(input [8*64-1:0] msg); begin
     if( errors < 30 ) $display("FAIL %0s at t=%0t idx=%0d h_raw=%h hb=%b vcnt=%h", msg, $time, idx, h_raw, hb, uut.vcnt);
 end endtask
 
-integer idx=0, lines=0, chk=0;
+integer lines=0, chk=0;
 reg     hb_s=0, lvbl_s=0;
 integer vclk_in_line=0, vclk_pos0=-1, vclk_pos1=-1;
 integer half_lines=0, fields=0, vis_lines=0, sy_low=0, hs_len=0, vs_dots=0;
@@ -368,23 +371,12 @@ initial begin
     $fatal(1);
 end
 
-endmodule
-
-module jt2020_prom #(parameter aw=8, dw=4, simfile="")(
-    input               clk,
-    input               cen,
-    input      [dw-1:0] data,
-    input      [aw-1:0] rd_addr,
-    input      [aw-1:0] wr_addr,
-    input               we,
-    output reg [dw-1:0] q
-);
-reg [7:0] mem[0:255];
-integer f, n;
 initial begin
-    f = $fopen(`PROM,"rb");
-    n = $fread(mem, f);
-    $fclose(f);
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
 end
-always @(posedge clk) q <= mem[rd_addr][dw-1:0];
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -32,7 +33,7 @@ wire [ 8:0] sum;
 wire [ 2:0] row, colw;
 wire [ 5:0] scan_addr, adr0, adr1;
 wire [17:0] desc, din0, din1, q0, q1, dji, dout0, dout1;
-wire        v0, cin, oor, dotck, n0, n1, n2, c2, netx, djck;
+wire        v0, cin, oor, dotck, n0, n1, c2, netx, djck;
 wire        ce0_n, ce1_n, we0_n, we1_n, wr0, wr1;
 reg  [17:0] din0_l, din1_l;
 reg         q4b, djck_l, rohvck_l, ce0_l, ce1_l, we0_l, we1_l;
@@ -52,7 +53,6 @@ assign scan_addr = { h[7:3], h20 };
 assign dotck     = cen10 & ~cen5;
 assign n0        = ~( h[0] & q4b );
 assign n1        = ~( n0 & h[1] & ~hb );
-assign n2        = n0;
 assign c2        = ~h[0] & ~q4b;
 assign netx      = rohvs | c2 | oor;
 assign djck      = h[0] & ~q4b & ~h[1];
@@ -61,8 +61,8 @@ assign adr0      = v0 ? obj_do[7:2] : scan_addr;
 assign adr1      = v0 ? scan_addr   : obj_do[7:2];
 assign ce0_n     = v0 & netx;
 assign ce1_n     = ~v0 & netx;
-assign we0_n     = v0 ? n2 : n1;
-assign we1_n     = v0 ? n1 : n2;
+assign we0_n     = v0 ? n0 : n1;
+assign we1_n     = v0 ? n1 : n0;
 assign wr0       = ~ce0_n & ~we0_n;
 assign wr1       = ~ce1_n & ~we1_n;
 

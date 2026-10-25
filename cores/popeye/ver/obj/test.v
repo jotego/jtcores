@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ps/1ps
 
 module test;
+
 
 reg         clk=0, rst=1, rv=0;
 reg         cen5=0, cen10=0, cen20=0;
@@ -66,6 +68,7 @@ jtpopeye_timing u_timing(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen5       ( cen5          ),
+    .cen10      ( cen10         ),
     .rv         ( rv            ),
     .tprom_addr ( tprom_addr    ),
     .tprom_data ( tprom_q[3:0]  ),
@@ -366,4 +369,12 @@ initial begin
     end
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

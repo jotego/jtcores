@@ -1,0 +1,6 @@
+- name: scene
+  size: 4
+  dw: 8
+  read_only: true
+  regs:
+    - { name: rv, dw: 1, at: "0[0]" }
