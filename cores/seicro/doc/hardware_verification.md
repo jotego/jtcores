@@ -133,10 +133,16 @@ A falling edge alone cannot release it. This is Z80-bus-dependent arbitration,
 not a fixed MCU-cycle delay. Coincident request/release ordering is modeled,
 not measured. CPU/watchdog reset does not reset the independent WAIT/MR latches.
 
-The MCU uses the shared [jt680x](../../../modules/jt680x/doc/complete_6802.md)
-engine. Applying M6802 bus timing to NSC8105 and using its board interface for
-M6802 variants are compatibility choices. Undocumented Frisky Tom FC handling
-is also a compatibility layer, unsupported by the Motorola manual or schematics.
+The MCU uses the shared [jt680x MC6802 engine](../../../modules/jt680x/README.md)
+with a Seicro-local opcode adapter and profile. MAME's NSC8105 table and
+handlers are the reference for the four extension operations; no NSC8105
+datasheet or measured silicon timing is available here. The profile preserves
+the prior PR's five-E raw `$FC` ADDX sequence, while MAME lists four E cycles.
+The extra cycle accounts for the two absolute-address reads, two operand reads,
+and following opcode fetch; this is a software compatibility choice, not a
+hardware timing claim. The directed fixture checks the result and flags and
+records the five-E bus sequence. Undocumented Frisky Tom raw `$FC` dispatch is
+also a compatibility layer, unsupported by the Motorola manual or schematics.
 
 ## Video blanking and colour
 

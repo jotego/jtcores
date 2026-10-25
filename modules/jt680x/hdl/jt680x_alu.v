@@ -37,7 +37,9 @@ always @* begin
     case( carry_sel )
         CIN_CARRY: cx = cin;
         SHL_CARRY: cx = op1[7];
+`ifndef JT680X_6802
         SHR_CARRY: cx = op0[0];
+`endif
         default:   cx = 0;
     endcase
 
@@ -63,10 +65,12 @@ always @* begin
         AND_ALU: rslt = op0 & op1;
          OR_ALU: rslt = op0 | op1;
         EOR_ALU: rslt = op0 ^ op1;
+`ifndef JT680X_6802
         MUL_ALU: begin
             rslt = op0[7:0]*op1[7:0];  // Use a hardware multiplier
             c8 = rslt[7];
         end
+`endif
         ASR_ALU, LSR_ALU: begin
             rslt[15:8] = {1'b0, op0[7:1]};
             rslt[ 7:0] = {cx,op1[7:1]};
@@ -87,6 +91,14 @@ always @* begin
             v8  = &{op0[ 7],~op1[ 7],~rslt[ 7]}|&{~op0[ 7],op1[ 7],rslt[ 7]};
             v16 = &{op0[15],~op1[15],~rslt[15]}|&{~op0[15],op1[15],rslt[15]};
         end
+`ifdef JT680X_6802
+        CPX_ALU: begin
+            rslt[ 7:0] = op0[7:0] - op1[7:0];
+            rslt[15:8] = op0[15:8] - op1[15:8];
+            c16 = cin;
+            v16 = &{op0[15],~op1[15],~rslt[15]}|&{~op0[15],op1[15],rslt[15]};
+        end
+`endif
         default: rslt = op0;
     endcase
 

@@ -1,13 +1,11 @@
-# SPDX-FileCopyrightText: 2023 Jose Tejada Gomez
-# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
-# SPDX-License-Identifier: GPL-3.0-or-later
-# Date: 15-10-2026
-
+# MC6802 executes the documented MC6800 instruction set.
 config:
   implicit: true
   partial_mnemonics: true
   entry_len: 32
-  auto: { min: 0, max: 0xff }
+  entries: 256
+  cycle_factor: 4
+  bus_error: berr
 include:
   - 680x.yaml
 ops:
@@ -49,7 +47,6 @@ ops:
   - { name: BITB, op: 0xe5, ctl: { mc6800: 1, alu: AND, op0: b, op1: md, addr: idx, cc: nzv0 }, cycles: 5 }
   - { name: BITB, op: 0xf5, ctl: { mc6800: 1, alu: AND, op0: b, op1: md, addr: ext, cc: nzv0 }, cycles: 4 }
   - { name: BRA, op: 0x20, ctl: { }, cycles: 4 }
-  - { name: BRN, op: 0x21, ctl: { }, cycles: 4 }
   - { name: BHI, op: 0x22, ctl: { }, cycles: 4 }
   - { name: BLS, op: 0x23, ctl: { }, cycles: 4 }
   - { name: BCC, op: 0x24, ctl: { }, cycles: 4 }
@@ -87,12 +84,12 @@ ops:
   - { name: DEC, op: 0x7a, ctl: { alu: SUB, op0: md, op1: one, addr: ext, wr: wr, cc: nzv }, cycles: 6 }
   - { name: DECA, op: 0x4a, ctl: { alu: SUB, op0: a, op1: one, ld: a, cc: nzv }, cycles: 2 }
   - { name: DECB, op: 0x5a, ctl: { alu: SUB, op0: b, op1: one, ld: b, cc: nzv }, cycles: 2 }
-  - { name: DEX, op: 0x09, ctl: { busaddr: x, destaddr: x, alu: SUB, op0: x, op1: one, alu16: 1, ld: x, cc: z }, cycles: 4 }
-  - { name: DES, op: 0x34, ctl: { busaddr: s, destaddr: s, alu: SUB, op0: s, op1: one, ld: s }, cycles: 4 }
-  - { name: CPX, op: 0x8c, ctl: { mc6800: 1, alu: SUB, op0: x, op1: md, addr: imm16, alu16: 1, cc: nzvc }, cycles: 3 }
-  - { name: CPX, op: 0x9c, ctl: { mc6800: 1, alu: SUB, op0: x, op1: md, addr: dir16, alu16: 1, cc: nzvc }, cycles: 4 }
-  - { name: CPX, op: 0xac, ctl: { mc6800: 1, alu: SUB, op0: x, op1: md, addr: idx16, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: CPX, op: 0xbc, ctl: { mc6800: 1, alu: SUB, op0: x, op1: md, addr: ext16, alu16: 1, cc: nzvc }, cycles: 5 }
+  - { name: DEX, op: 0x09, ctl: { alu: SUB, op0: x, op1: one, alu16: 1, ld: x, cc: z }, cycles: 4 }
+  - { name: DES, op: 0x34, ctl: { alu: SUB, op0: s, op1: one, ld: s }, cycles: 4 }
+  - { name: CPX, op: 0x8c, ctl: { mc6800: 1, alu: CPX, op0: x, op1: md, addr: imm16, alu16: 1, cc: nzvc }, cycles: 3 }
+  - { name: CPX, op: 0x9c, ctl: { mc6800: 1, alu: CPX, op0: x, op1: md, addr: dir16, alu16: 1, cc: nzvc }, cycles: 4 }
+  - { name: CPX, op: 0xac, ctl: { mc6800: 1, alu: CPX, op0: x, op1: md, addr: idx16, alu16: 1, cc: nzvc }, cycles: 6 }
+  - { name: CPX, op: 0xbc, ctl: { mc6800: 1, alu: CPX, op0: x, op1: md, addr: ext16, alu16: 1, cc: nzvc }, cycles: 5 }
   - { name: CLC, op: 0x0c, ctl: { cc: c0 }, cycles: 2 }
   - { name: CLI, op: 0x0e, ctl: { cc: i0 }, cycles: 2 }
   - { name: CLV, op: 0x0a, ctl: { cc: v0 }, cycles: 2 }
@@ -108,11 +105,10 @@ ops:
   - { name: INC, op: 0x7c, ctl: { alu: ADD, op0: md, op1: one, addr: ext, wr: wr, cc: nzv }, cycles: 6 }
   - { name: INCA, op: 0x4c, ctl: { alu: ADD, op0: a, op1: one, ld: a, cc: nzv }, cycles: 2 }
   - { name: INCB, op: 0x5c, ctl: { alu: ADD, op0: b, op1: one, ld: b, cc: nzv }, cycles: 2 }
-  - { name: INX, op: 0x08, ctl: { busaddr: x, destaddr: x, alu: ADD, op0: x, op1: one, alu16: 1, ld: x, cc: z }, cycles: 4 }
-  - { name: INS, op: 0x31, ctl: { busaddr: s, destaddr: s, alu: ADD, op0: s, op1: one, ld: s }, cycles: 4 }
+  - { name: INX, op: 0x08, ctl: { alu: ADD, op0: x, op1: one, alu16: 1, ld: x, cc: z }, cycles: 4 }
+  - { name: INS, op: 0x31, ctl: { alu: ADD, op0: s, op1: one, ld: s }, cycles: 4 }
   - { name: JMP, op: 0x6e, ctl: { addr: idxa }, cycles: 4 }
   - { name: JMP, op: 0x7e, ctl: { addr: exta }, cycles: 3 }
-  - { name: JSR1, op: 0x9d, ctl: { }, cycles: 6 }
   - { name: JSR2, op: 0xad, ctl: { }, cycles: 8 }
   - { name: JSR3, op: 0xbd, ctl: { }, cycles: 9 }
   - { name: LDAA, op: 0x86, ctl: { mc6800: 1, op0: md, addr: imm, ld: a, cc: nzv0 }, cycles: 2 }
@@ -201,8 +197,8 @@ ops:
   - { name: TAP, op: 0x06, ctl: { op0: a, ld: cc }, cycles: 2 }
   - { name: TBA, op: 0x17, ctl: { op0: b, ld: a, cc: nzv0 }, cycles: 2 }
   - { name: TPA, op: 0x07, ctl: { op0: cc, ld: a }, cycles: 2 }
-  - { name: TXS, op: 0x35, ctl: { busaddr: x, destaddr: s, alu: SUB, op0: x, op1: one, ld: s }, cycles: 4 }
-  - { name: TSX, op: 0x30, ctl: { busaddr: s, destaddr: x, alu: ADD, op0: s, op1: one, ld: x }, cycles: 4 }
+  - { name: TXS, op: 0x35, ctl: { alu: SUB, op0: x, op1: one, ld: s }, cycles: 4 }
+  - { name: TSX, op: 0x30, ctl: { alu: ADD, op0: s, op1: one, ld: x }, cycles: 4 }
   - { name: TST, op: 0x6d, ctl: { alu: SUB, op0: md, op1: zero, addr: idx, cc: nzv0c0 }, cycles: 7 }
   - { name: TST, op: 0x7d, ctl: { alu: SUB, op0: md, op1: zero, addr: ext, cc: nzv0c0 }, cycles: 6 }
   - { name: TSTA, op: 0x4d, ctl: { alu: SUB, op0: a, op1: zero, cc: nzv0c0 }, cycles: 2 }
@@ -210,34 +206,9 @@ ops:
   - { name: RTI, op: 0x3b, ctl: { }, cycles: 10 }
   - { name: RTS, op: 0x39, ctl: { }, cycles: 5 }
   # No next-opcode prefetch: eight post-dispatch cycles plus its opcode.
-  - { name: WAI, op: 0x3e, ctl: { }, cycles: 8 }
-  - { name: ABX, op: 0x3a, ctl: { alu: ADD, op0: b, op1: x, alu16: 1, ld: x }, cycles: 3 }
-  - { name: ADDD, op: 0xc3, ctl: { mc6800: 1, alu: ADD, op0: d, op1: md, addr: imm16, ld: d, alu16: 1, cc: nzvc }, cycles: 4 }
-  - { name: ADDD, op: 0xd3, ctl: { mc6800: 1, alu: ADD, op0: d, op1: md, addr: dir16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
-  - { name: ADDD, op: 0xe3, ctl: { mc6800: 1, alu: ADD, op0: d, op1: md, addr: idx16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: ADDD, op: 0xf3, ctl: { mc6800: 1, alu: ADD, op0: d, op1: md, addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: LDD, op: 0xdc, ctl: { mc6800: 1, alu16: 1, op0: md, addr: dir16, ld: d, cc: nzv0 }, cycles: 4 }
-  - { name: LDD, op: 0xcc, ctl: { mc6800: 1, alu16: 1, op0: md, addr: imm16, ld: d, cc: nzv0 }, cycles: 3 }
-  - { name: LSLD, op: 0x05, ctl: { alu: LSL, op0: a, op1: b, alu16: 1, ld: d, cc: nzvc }, cycles: 3 }
-  - { name: LSRD, op: 0x04, ctl: { alu: LSR, op0: a, op1: b, alu16: 1, carry: shr, ld: d, cc: n0zvc }, cycles: 3 }
-  - { name: PSHX, op: 0x3c, ctl: { op0: x, addr: psh16 }, cycles: 5 }
-  - { name: PULX, op: 0x38, ctl: { addr: pul16, ld: x }, cycles: 5 }
-  - { name: STD, op: 0xdd, ctl: { ea: ea_ld, op0: d, addr: dira, cc: nzv0 }, cycles: 5 }
-  - { name: STD, op: 0xed, ctl: { op0: d, addr: idxa, cc: nzv0 }, cycles: 7 }
-  - { name: STD, op: 0xfd, ctl: { ea: ea_ld, op0: d, addr: exta, cc: nzv0 }, cycles: 6 }
-  - { name: SUBD, op: 0x93, ctl: { mc6800: 1, alu: SUB, op0: d, op1: md, addr: dir16, ld: d, alu16: 1, cc: nzvc }, cycles: 5 }
-  - { name: SUBD, op: 0xa3, ctl: { mc6800: 1, alu: SUB, op0: d, op1: md, addr: idx16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: SUBD, op: 0xb3, ctl: { mc6800: 1, alu: SUB, op0: d, op1: md, addr: ext16, ld: d, alu16: 1, cc: nzvc }, cycles: 6 }
-  - { name: UNDOC1, op: 0x12, cycles: 3 }
-  - { name: UNDOC2, op: 0x13, cycles: 3 }
-  - { name: JSR, op: 0x83, ctl: { addr: dira }, cycles: 6 }
-  - { name: ADCX, op: 0xec, cycles: 5 }
-  - { name: ADDX, op: 0xfc, cycles: 5 }
-  - { name: STIM, op: 0x71, cycles: 6 }
-  - { name: BTST, op: 0x7b, cycles: 6 }
-  - { name: FCCOMPAT, op: 0x03, cycles: 4 }
+  - { name: WAI, op: 0x3e, ctl: { }, cycles: 9 }
 ucode:
-  - name: ivrd
+  - name: ivrd # interrupt service and reset vector read and jump
     start: 0
     cycles: 4
     seq:
@@ -253,18 +224,88 @@ ucode:
       - m_ea
       - m_ea, fetch, md_shift
       - ld0_opnd
-      - pc_ld
+      -                         pc_ld
       - i1_cc
       - fetch
       - ni
-  - name: imm
-    start: 0x8f
+  - name: isrv
+    start: 0xc7 # referenced in  jt680x_ctrl manually!
+    cycles: 12
+    seq:
+      - invalid
+      - invalid
+      - invalid
+      - invalid, pc_rmux, ld0_opnd, frame_jsr
+  - name: frame
+    start: 0x12
+    seq:
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, md_shift, s_rmux, ld0_opnd
+      - s_ea, wr, md_shift
+      - s_ea, wr, md_shift, sub_alu, s_ld
+      - s_ea, wr, md_shift, x_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, md_shift, s_rmux, ld0_opnd
+      - s_ea, wr, md_shift
+      - s_ea, wr, md_shift, sub_alu, s_ld
+      - s_ea, wr, md_shift, a_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, b_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, cc_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, ivrd_jsr
+  - name: waiframe
+    start: 0x18
+    seq:
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, md_shift, s_rmux, ld0_opnd
+      - s_ea, wr, md_shift
+      - s_ea, wr, md_shift, sub_alu, s_ld
+      - s_ea, wr, md_shift, x_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, md_shift, s_rmux, ld0_opnd
+      - s_ea, wr, md_shift
+      - s_ea, wr, md_shift, sub_alu, s_ld
+      - s_ea, wr, md_shift, a_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, b_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, cc_rmux, ld0_opnd
+      - s_ea, wr, md_ld, s_rmux, ld0_opnd
+      - s_ea, wr, one_rmux, ld1_opnd
+      - s_ea, wr, sub_alu, s_ld
+      - s_ea, wr, alt, halt
+  - name: imm # 1+3 ucode cycles = 1 bus cycle
+    start: 0x8F
     seq:
       -
       - fetch
       - inc_pc, ret_jsr
-  - name: imm16
-    start: 0xcf
+  - name: imm16 # 1+7 ucode cycles = 2 bus cycles
+    start: 0xCF
     seq:
       -
       - fetch
@@ -279,7 +320,7 @@ ucode:
       -
       - fetch
       - inc_pc, ld0_opnd, ret_jsr
-  - name: dir
+  - name: dir # 1+7 ucode cycles = 2 bus cycles
     start: 0x14
     seq:
       -
@@ -289,7 +330,7 @@ ucode:
       - m_ea
       - m_ea, fetch
       - ret_jsr
-  - name: dir16
+  - name: dir16 # 1+7 ucode cycles = 2 bus cycles
     start: 0x15
     seq:
       -
@@ -313,7 +354,7 @@ ucode:
       -
       - fetch, md_shift
       - inc_pc, ld0_opnd, ret_jsr
-  - name: ext
+  - name: ext # 1+11 ucode cycles = 3 bus cycles
     start: 0x1c
     seq:
       -
@@ -327,7 +368,7 @@ ucode:
       - m_ea
       - m_ea, fetch
       - ret_jsr
-  - name: ext16
+  - name: ext16 # 1+15 ucode cycles = 4 bus cycles
     start: 0x1d
     seq:
       -
@@ -359,7 +400,7 @@ ucode:
       - p_ea, invalid
       - p_ea, invalid
       - p_ea, invalid, ea_rmux, ld0_opnd, ret_jsr
-  - name: idx
+  - name: idx # 1+11 ucode cycles = 3 bus cycles
     start: 0x1e
     seq:
       -
@@ -377,7 +418,7 @@ ucode:
       - m_ea
       - m_ea, fetch
       - ret_jsr
-  - name: idx16
+  - name: idx16 # 1+11 ucode cycles = 3 bus cycles
     start: 0x1f
     seq:
       -
@@ -399,41 +440,7 @@ ucode:
       - m_ea
       - m_ea, fetch, md_shift
       - ret_jsr
-  - name: pins
-    start: 0xcd
-    seq:
-      - t_ea
-      - b_ea
-      - o_ea, invalid, halt, mul_alu, c_cc
-  - mnemo: [ ABA, ASRA, ASRB, CBA, CLRA, CLRB, COMA, COMB, DAA, DECA, DECB, INCA, INCB, LSLA, LSLB, LSRA, LSRB, NEGA, NEGB, ROLA, ROLB, RORA, RORB, TAB, TAP, TBA, TPA, TSTA, TSTB, SBA, SEC, SEI, SEV, CLC, CLI, CLV, NOP, ABX, LSLD, LSRD ]
-    seq:
-      - inc_pc, ${op0}_rmux, ld0_opnd, op0inv=${op0inv}
-      - ${op1}_rmux, ld1_opnd
-      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc
-      -
-      -
-      -
-      - fetch
-      - ni
-  - mnemo: [ INX, DEX, INS, DES, TSX, TXS ]
-    seq:
-      - inc_pc, ${op0}_rmux, ld0_opnd
-      - ${op1}_rmux, ld1_opnd
-      -
-      -
-      - ${busaddr}_ea, invalid
-      - ${busaddr}_ea, invalid
-      - ${busaddr}_ea, invalid, ${alu}_alu, ${ld}_ld, ${cc}_cc, alu16=${alu16}
-      - ${busaddr}_ea, invalid
-      - ${destaddr}_ea, invalid
-      - ${destaddr}_ea, invalid
-      - ${destaddr}_ea, invalid
-      - ${destaddr}_ea, invalid
-      -
-      -
-      - fetch
-      - ni
-  - name: psh8
+  - name: psh8 # one bus write, entered at E-high phase 1
     start: 0x4e
     seq:
       - s_ea, wr, s_rmux, ld0_opnd
@@ -449,7 +456,7 @@ ucode:
       - s_ea, wr, md_shift
       - s_ea, wr, md_shift
       - s_ea, wr, md_shift, sub_alu, s_ld, ret_jsr
-  - name: pul8
+  - name: pul8 # 1+11 ucode cycles = 3 bus cycles
     start: 3
     seq:
       - s_ea, invalid, one_rmux, ld1_opnd
@@ -459,7 +466,7 @@ ucode:
       - s_ea
       - s_ea, fetch
       - ld0_opnd, ret_jsr
-  - name: pul16
+  - name: pul16 # 1+15 ucode cycles = 4 bus cycles
     start: 0x41
     seq:
       - s_ea, invalid, one_rmux, ld1_opnd
@@ -509,7 +516,51 @@ ucode:
       - s_ea
       - s_ea, fetch, md_shift
       - ld0_opnd, ret_jsr
-  - mnemo: [ BRA, BRN, BHI, BLS, BCC, BCS, BNE, BEQ, BVC, BVS, BPL, BMI, BGE, BLT, BGT, BLE ]
+  ######### mnemonics
+  - mnemo: [ JMP ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - pc_ld
+      -
+      - fetch
+      - ni
+  # read operand and write result to memory, typ 6 cycles (idx/ext=~3)
+  - mnemo: [ ASR, CLR, COM, DEC, INC, LSL, LSR, NEG, ROL, ROR, TST ]
+    seq:
+      - ${addr}_jsr inc_pc # 3 bus cycles gone
+      - m_ea, invalid, ${op0}_rmux, op0inv=${op0inv}, ld0_opnd
+      - m_ea, invalid, ${op1}_rmux, ld1_opnd
+      - m_ea, invalid, ${alu}_alu, ${carry}_carry, ${cc}_cc, md_ld
+      - m_ea, invalid
+      - m_ea, ${wr}, ${wr}?_:invalid
+      - m_ea, ${wr}, ${wr}?_:invalid
+      - m_ea, ${wr}, ${wr}?_:invalid
+      - m_ea, ${wr}, ${wr}?_:invalid
+      -
+      -
+      - fetch
+      - ni
+  - mnemo: [ # 3 cycles
+      BRA, BHI, BLS, BCC, BCS, BNE, BEQ,
+      BVC, BVS, BPL, BMI, BGE, BLT, BGT, BLE ]
+    seq:
+      - inc_pc, brlatch
+      -
+      - fetch
+      - inc_pc
+      - invalid, pc_rmux, ld1_opnd, branch
+      - invalid, ld0_opnd
+      - invalid, add_alu, branch, pc_ld
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      - invalid
+      -
+      -
+      - fetch
+      - ni
+  - mnemo: [ BSR ]
     seq:
       - inc_pc, brlatch
       -
@@ -518,143 +569,15 @@ ucode:
       - invalid, branch, pc_rmux, ld1_opnd
       - invalid, ld0_opnd
       - invalid, add_alu, ea_ld
-      - invalid
-      - b_ea, invalid
-      - b_ea, invalid
-      - b_ea, invalid, ea_rmux, ld0_opnd
-      - b_ea, invalid, pc_ld, branch
-      -
-      -
-      - fetch
-      - ni
-  - mnemo: [ BSR ]
-    seq:
-      - inc_pc
-      -
-      - fetch
-      - inc_pc
-      - invalid, branch, pc_rmux, ld1_opnd
-      - invalid, ld0_opnd
-      - invalid, add_alu, ea_ld
       - invalid, pc_rmux, ld0_opnd
-      - md_ld, psh16_jsr
-      - s_ea, invalid
-      - s_ea, invalid
-      - s_ea, invalid
-      - s_ea, invalid
-      - invalid
-      - invalid
-      - invalid
-      - invalid
-      - t_ea, invalid
-      - t_ea, invalid
-      - t_ea, invalid, ea_rmux, ld0_opnd
-      - t_ea, invalid, pc_ld
-      -
-      -
-      - fetch
-      - ni
-  - mnemo: [ PSHA, PSHB, PSHX ]
-    seq:
-      - inc_pc
-      -
-      -
-      - ${op0}_rmux, ld0_opnd
-      - md_ld, ${addr}_jsr
-      - s_ea, invalid
-      - s_ea, invalid
-      - s_ea, invalid
-      - s_ea, invalid
-      -
-      -
-      - fetch
-      - ni
-  - mnemo: [ PULA, PULB, PULX ]
-    seq:
-      - inc_pc
-      -
-      -
-      - s_rmux, ld0_opnd
-      - ${addr}_jsr
-      - ${ld}_ld
-      -
-      - fetch
-      - ni
-  - mnemo: [ RTS ]
-    seq:
-      - inc_pc
-      -
-      -
-      - s_rmux, ld0_opnd
-      - pul16_jsr
-      - pc_ld
-      -
-      - fetch
-      - ni
-  - mnemo: [ RTI ]
-    seq:
-      - inc_pc
-      -
-      -
-      - s_rmux, ld0_opnd
-      - rti8_jsr
-      - a_ld, s_rmux, ld0_opnd, rti16_jsr
-      - pc_ld
-      -
-      - fetch
-      - ni
-  - name: pushw
-    start: 0
-    range:
-      - { name: next, values: [x,a] }
-    seq:
+      - md_ld, s_ea, wr
       - s_ea, wr, s_rmux, ld0_opnd
       - s_ea, wr, one_rmux, ld1_opnd
       - s_ea, wr, sub_alu, s_ld
       - s_ea, wr, md_shift, s_rmux, ld0_opnd
       - s_ea, wr, md_shift
+      - s_ea, wr, md_shift
       - s_ea, wr, md_shift, sub_alu, s_ld
-      - s_ea, wr, md_shift, ${next}_rmux, ld0_opnd, ret_jsr
-  - name: pushb
-    start: 0
-    range:
-      - { name: next, values: [b,cc] }
-    seq:
-      - s_ea, wr, s_rmux, ld0_opnd
-      - s_ea, wr, sub_alu, s_ld
-      - s_ea, wr, ${next}_rmux, ld0_opnd, ret_jsr
-  - mnemo: [ WAI ]
-    seq:
-      - inc_pc
-      -
-      -
-      - pc_rmux, ld0_opnd
-      - md_ld, pushw0_jsr
-      - md_ld, pushw1_jsr
-      - md_ld, pushb0_jsr
-      - md_ld, pushb1_jsr
-      - md_ld, s_ea, wr, s_rmux, ld0_opnd
-      - s_ea, wr, one_rmux, ld1_opnd
-      - s_ea, wr, sub_alu, s_ld
-      - s_ea, wr, alt, halt
-  - mnemo: [ SWI ]
-    seq:
-      - inc_pc
-      -
-      -
-      - pc_rmux, ld0_opnd
-      - md_ld, pushw0_jsr
-      - md_ld, pushw1_jsr
-      - md_ld, pushb0_jsr
-      - md_ld, pushb1_jsr
-      - md_ld, s_ea, wr, s_rmux, ld0_opnd
-      - s_ea, wr, one_rmux, ld1_opnd
-      - s_ea, wr, sub_alu, s_ld
-      - s_ea, wr, swi, ivrd_jsr
-  - name: isrv
-    start: 0xc7
-    cycles: 13
-    seq:
       - invalid
       - invalid
       - invalid
@@ -662,38 +585,16 @@ ucode:
       - invalid
       - invalid
       - invalid
-      - invalid, pc_rmux, ld0_opnd
-      - md_ld, pushw0_jsr
-      - md_ld, pushw1_jsr
-      - md_ld, pushb0_jsr
-      - md_ld, pushb1_jsr
-      - md_ld, s_ea, wr, s_rmux, ld0_opnd
-      - s_ea, wr, one_rmux, ld1_opnd
-      - s_ea, wr, sub_alu, s_ld
-      - s_ea, wr, ivrd_jsr
-  - name: iwake
-    start: 0x1a
-    cycles: 5
-    seq:
       - invalid
       - invalid
       - invalid
-      - invalid, ivrd_jsr
-  - mnemo: [ ASR, CLR, COM, DEC, INC, LSL, LSR, NEG, ROL, ROR, TST ]
-    seq:
-      - ${addr}_jsr, inc_pc
-      - m_ea, invalid, ${op0}_rmux, op0inv=${op0inv}, ld0_opnd
-      - m_ea, invalid, ${op1}_rmux, ld1_opnd
-      - m_ea, invalid, ${alu}_alu, ${carry}_carry, ${cc}_cc, md_ld
-      - m_ea, invalid
-      - m_ea, wr, ${wr}?_:invalid
-      - m_ea, wr, ${wr}?_:invalid
-      - m_ea, wr, ${wr}?_:invalid
-      - m_ea, wr, ${wr}?_:invalid
+      - invalid, ea_rmux, ld0_opnd
+      - invalid, pc_ld
       -
       -
       - fetch
       - ni
+  # write 8-bit registers
   - mnemo: [ STAA, STAB ]
     seq:
       - ${addr}_jsr, inc_pc
@@ -709,7 +610,7 @@ ucode:
       -
       - fetch
       - ni
-  - mnemo: [ STD, STS, STX ]
+  - mnemo: [ STX, STS ]
     seq:
       - ${addr}_jsr, inc_pc
       - ${ea}, ${op0}_rmux, ld0_opnd
@@ -728,42 +629,18 @@ ucode:
       -
       - fetch
       - ni
-  - mnemo: [ JMP ]
+  # write 16-bit registers
+  - mnemo: [ PSHA, PSHB ]
     seq:
-      - ${addr}_jsr, inc_pc
-      - pc_ld
+      - inc_pc
       -
-      - fetch
-      - ni
-  - name: jsridx
-    start: 0
-    seq:
       -
-      - fetch
-      - inc_pc, ld0_opnd
-      - x_rmux, ld1_opnd
-      - x_ea, invalid, add_alu, ea_ld
-      - x_ea, invalid
-      - x_ea, invalid, pc_rmux, ld0_opnd, ret_jsr
-  - mnemo: [ JSR1 ]
-    seq:
-      - dira_jsr, inc_pc
-      - ea_ld, pc_rmux, ld0_opnd
-      - s_ea, wr, md_ld, s_rmux, ld0_opnd
-      - s_ea, wr, one_rmux, ld1_opnd
-      - s_ea, wr, sub_alu, s_ld
-      - s_ea, wr, md_shift, s_rmux, ld0_opnd
-      - s_ea, wr, md_shift
-      - s_ea, wr, md_shift
-      - s_ea, wr, md_shift, sub_alu, s_ld
-      - s_ea, invalid
-      - s_ea, invalid
-      - s_ea, invalid
-      - s_ea, invalid
-      - m_ea
-      - m_ea
-      - m_ea, ea_rmux, ld0_opnd
-      - m_ea, pc_ld
+      - ${op0}_rmux, ld0_opnd
+      - md_ld, ${addr}_jsr
+      - invalid
+      - invalid
+      - invalid
+      - invalid
       -
       -
       - fetch
@@ -812,93 +689,63 @@ ucode:
       -
       - fetch
       - ni
-  - mnemo: [ ADCX ]
-    seq:
-      - inc_pc, imm_jsr
-      - x_rmux, ld0_opnd
-      - md_rmux, ld1_opnd
-      - add_alu, x_ld, hnzvc_cc
+  - mnemo: [ PULA, PULB ]
+    seq:  # 4E, stack data is sampled only in the accepted high-E read phase
+      - inc_pc
       -
-      - invalid
-      - invalid
-      - invalid
-      - invalid
-      - invalid
-      - invalid
-      - invalid
-      - invalid
       -
+      - s_rmux, ld0_opnd
+      - ${addr}_jsr
+      - ${ld}_ld
       -
       - fetch
       - ni
-  - mnemo: [ ADDX ]
-    seq:
-      - inc_pc, ext16_jsr
-      - x_rmux, ld0_opnd
-      - md_rmux, ld1_opnd
-      - add_alu, alu16, x_ld, nzvc_cc, fetch
+  - mnemo: [ RTI ]
+    seq:  # 10*4=40 ucycles
+      - inc_pc
+      -
+      -
+      - s_rmux, ld0_opnd
+      - rti8_jsr
+      - a_ld, s_rmux, ld0_opnd, rti16_jsr
+      - pc_ld
+      -
+      - fetch
       - ni
-  - mnemo: [ STIM ]
+  - mnemo: [ RTS ]
+    seq:  # 5*4=20 ucycles
+      - inc_pc
+      -
+      -
+      - s_rmux, ld0_opnd
+      - pul16_jsr
+      - pc_ld
+      -
+      - fetch
+      - ni
+  - mnemo: [ WAI ]
+    seq: # 8 instruction slots + 28 frame slots = 9E
+      - inc_pc
+      -
+      -
+      -
+      -
+      -
+      -
+      - pc_rmux, ld0_opnd, waiframe_jsr
+  - mnemo: [ SWI ]
     seq:
       - inc_pc
       -
-      - fetch, alt
-      - inc_pc
       -
+      - swi, pc_rmux, ld0_opnd, frame_jsr
+  - name: jsridx
+    start: 0x1a
+    seq:
       -
       - fetch
       - inc_pc, ld0_opnd
       - x_rmux, ld1_opnd
       - x_ea, invalid, add_alu, ea_ld
-      - x_ea, invalid, alt, ld0_opnd
-      - x_ea, invalid, md_ld, nzv0_cc
-      - m_ea, wr
-      - m_ea, wr
-      - m_ea, wr
-      - m_ea, wr
-      - m_ea, invalid
-      - m_ea, invalid
-      - m_ea, invalid
-      - m_ea, invalid
-      -
-      -
-      - fetch
-      - ni
-  - mnemo: [ BTST ]
-    seq:
-      - inc_pc
-      -
-      - fetch, alt
-      - inc_pc
-      -
-      -
-      - fetch
-      - inc_pc, ld0_opnd
-      - x_rmux, ld1_opnd
-      - x_ea, invalid, add_alu, ea_ld
-      - x_ea, invalid, alt, ld1_opnd
       - x_ea, invalid
-      - m_ea
-      - m_ea
-      - m_ea, fetch
-      - ld0_opnd
-      - m_ea, invalid, and_alu, nzv0c0_cc
-      - m_ea, invalid
-      - m_ea, invalid
-      - m_ea, invalid
-      -
-      -
-      - fetch
-      - ni
-  # FC compatibility is undocumented; these four cycles are provisional.
-  - mnemo: [ FCCOMPAT ]
-    seq:
-      - inc_pc, imm16_jsr
-      - invalid
-      - invalid
-      - invalid
-      - invalid
-      -
-      -
-      - fetch
-      - ni
+      - x_ea, invalid, pc_rmux, ld0_opnd, ret_jsr

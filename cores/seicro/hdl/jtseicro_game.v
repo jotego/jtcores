@@ -135,6 +135,7 @@ jtseicro_mcu u_mcu(
     .reset_req   ( 1'b0               ),
     .dip_pause   ( dip_pause          ),
     .nsc8105     ( nsc8105            ),
+    .frisky      ( frisky             ),
     .nvram_en    ( frisky             ),
     .nvram_addr  ( nvram_addr         ),
     .nvram_din   ( nvram_din          ),

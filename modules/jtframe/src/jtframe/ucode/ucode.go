@@ -1,5 +1,4 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
- * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 4-1-2025 */
 
@@ -67,10 +66,10 @@ type UcDesc struct {
 		Entries  int `yaml:"entries"`
 		CycleK   int `yaml:"cycle_factor"`
 		Implicit bool `yaml:"implicit"`
-		PartialMnemonics bool `yaml:"partial_mnemonics"`
 		BusError string `yaml:"bus_error"`
 		Latch    bool	`yaml:"latch_ucode"`
 		IgnoreCycles bool `yaml:"ignore_cycles"`		// use to indicate that cycle information is still not ready and should not be used
+		PartialMnemos bool `yaml:"partial_mnemonics"` // allow inherited mnemonic groups to be narrowed to this profile
 		Auto struct { // Automatic assignment of start address to procedures
 			Min int   // base address at which assignment starts
 			Max int   // bits set to 1 can be used for automatic addressing
@@ -739,6 +738,24 @@ func check_mnemos(desc *UcDesc, verbose bool) {
 	check_missing_mnemos(desc)
 }
 
+func check_op_chunks(desc *UcDesc) error {
+	for _, op := range desc.Ops {
+		matches := 0
+		for _, chunk := range desc.Chunks {
+			if slices.Contains(chunk.Mnemo, op.Name) {
+				matches++
+			}
+		}
+		if matches == 0 {
+			return fmt.Errorf("Missing ucode for %s (0x%x)", op.Name, op.Op)
+		}
+		if matches > 1 {
+			return fmt.Errorf("Duplicated ucode template for mnemonic %s", op.Name)
+		}
+	}
+	return nil
+}
+
 func assign_auto( desc *UcDesc, free []int, verbose bool ) {
 	if desc.Cfg.Auto.Max<=desc.Cfg.Auto.Min { return } // automatic addressing is disabled
 	var u int
@@ -843,6 +860,24 @@ func check_missing_mnemos(desc *UcDesc) {
 	if missing { os.Exit(1) }
 }
 
+func partial_mnemo_chunk(chunk UcChunk, op_names, defined map[string]bool) (UcChunk, bool) {
+	if chunk.Name != "" || chunk.Mnemo == nil {
+		return chunk, true
+	}
+	filtered := make([]string, 0, len(chunk.Mnemo))
+	for _, each := range chunk.Mnemo {
+		if op_names[each] && !defined[each] {
+			filtered = append(filtered, each)
+			defined[each] = true
+		}
+	}
+	if len(filtered) == 0 {
+		return chunk, false
+	}
+	chunk.Mnemo = filtered
+	return chunk, true
+}
+
 func read_yaml( fpath string ) UcDesc {
 	var desc UcDesc
 	// This code would detect mispelled fields. It requires yaml/v3, but
@@ -883,23 +918,40 @@ func read_yaml( fpath string ) UcDesc {
 		if desc.Cfg.BusError=="" { desc.Cfg.BusError=inc.Cfg.BusError 	}
 		if !desc.Cfg.Implicit   { desc.Cfg.Implicit=inc.Cfg.Implicit 	}
 		desc.Ops = append(inc.Ops, desc.Ops...)
+		var op_names, defined map[string]bool
+		if desc.Cfg.PartialMnemos {
+			op_names = make(map[string]bool)
+			defined = make(map[string]bool)
+			for _, op := range desc.Ops {
+				op_names[op.Name] = true
+			}
+			for _, chunk := range desc.Chunks {
+				for _, name := range chunk.Mnemo {
+					defined[name] = true
+				}
+			}
+		}
 		next_chunk:
 		for k, _ := range inc.Chunks {
 			if inc.Chunks[k].Name!="" {
 				cur := desc.find_proc( inc.Chunks[k].Name )
-				if cur>=0 {
+				if cur<0 {
+					desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
 					continue next_chunk
 				}
 			}
-			// Keep inherited mnemonics that the profile does not replace.
-			mnemos := []string{}
+			if desc.Cfg.PartialMnemos {
+				filtered, keep := partial_mnemo_chunk(inc.Chunks[k], op_names, defined)
+				if keep {
+					desc.Chunks = append(desc.Chunks, filtered)
+				}
+				continue next_chunk
+			}
+			// Copy it if there is no definition for any of the OPs listed
 			for _,opName := range inc.Chunks[k].Mnemo {
 				cur := find_chunk( opName, &desc )
-				if cur!=-1 && !desc.Cfg.PartialMnemonics { continue next_chunk }
-				if cur==-1 { mnemos = append(mnemos,opName) }
+				if cur!=-1 { continue next_chunk }
 			}
-			if len(inc.Chunks[k].Mnemo)>0 && len(mnemos)==0 { continue next_chunk }
-			inc.Chunks[k].Mnemo = mnemos
 			desc.Chunks = append(desc.Chunks,inc.Chunks[k]) // copy it
 		}
 	}
@@ -926,6 +978,9 @@ func Make(modname, fname string) (e error) {
 	reDig = regexp.MustCompile(`\b[0-9]`)
 
 	check_mnemos(&desc, Args.Verbose)
+	if desc.Cfg.PartialMnemos {
+		if e = check_op_chunks(&desc); e != nil { return e }
+	}
 	code := expand_all(&desc)
 	bad := 0
 	if !desc.Cfg.IgnoreCycles {

@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 JOTEGO
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Seicro-only native MC6802 profile plus NSC8105 and Frisky extensions.
+
+jt680x:
+  - get:
+    - jt6802.v
+    - jt680x_alu.v
+    - jt680x_ctrl.v
+    - jt680x_regs.v
+    - jt680x.v
+  - ucode:
+      src: 6802_seicro.yaml
+      output: 6801

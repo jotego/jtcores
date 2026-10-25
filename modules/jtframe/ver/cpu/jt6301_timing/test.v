@@ -2,7 +2,6 @@
 module test;
 
 reg clk = 0;
-reg assessment_passed = 0;
 always #5 clk = ~clk;
 reg rst = 1;
 reg [1:0] phase = 0;
@@ -1451,13 +1450,10 @@ initial begin
                 if((timed_by_opcode[cov_i]!=0)!==DOC_TIMING_MASK[cov_i]) begin $display("FAIL: runtime timing set mismatch opcode=%02x observed=%0d expected=%b",cov_i[7:0],timed_by_opcode[cov_i],DOC_TIMING_MASK[cov_i]); $fatal(1); end
                 $display("COVERAGE opcode=%02x executed=%0d timed=%0d",cov_i[7:0],executed_by_opcode[cov_i],timed_by_opcode[cov_i]);
             end
-            assessment_passed=1;
             $finish;
         end
     end
-    if(!assessment_passed) begin
-        $display("FAIL: HD6301 smoke program timed out; PC=%04x",uut.u_regs.pc);
-        $fatal(1);
-    end
+    $display("FAIL: HD6301 smoke program timed out; PC=%04x",uut.u_regs.pc);
+    $fatal(1);
 end
 endmodule

@@ -1,9 +1,8 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
- * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 22-11-2023 */
 /* verilator coverage_off */
-module jt680x #(parameter MC6800=0, EXT_DECODE=0)(
+module jt680x #(parameter EXT_DECODE=0)(
     input             rst,
     input             clk,
     input             cen,  // crystal clock freq. = 4x E pin freq.
@@ -13,7 +12,10 @@ module jt680x #(parameter MC6800=0, EXT_DECODE=0)(
     output     [ 7:0] dout,
     input      [ 7:0] opcode,
     output     [ 7:0] opcode_raw,
-    output            ni, halt, vma,
+    output            ni,
+    output            halt,
+    output            vma,
+    output            irq_ack,
     // bus sharing - 6301
     input             ext_halt, // active high
     output            ba,
@@ -29,7 +31,9 @@ module jt680x #(parameter MC6800=0, EXT_DECODE=0)(
 );
 
 wire [15:0] op0, op1, rslt,md;
-wire [ 3:0] rslt_cc, alu_cc;
+wire [7:0] decoded = EXT_DECODE ? opcode : md[7:0];
+wire [15:0] decoded_md = {md[15:8],decoded};
+wire [ 3:0] rslt_cc;
 wire        h, rslt_h, c, i;
 
 wire        alt;
@@ -39,9 +43,6 @@ wire        brlatch;
 wire        fetch;
 wire        inc_pc;
 wire        md_shift;
-wire [7:0] decoded = EXT_DECODE ? opcode : md[7:0];
-wire [15:0] dec_md = {md[15:8],decoded};
-assign opcode_raw = md[7:0];
 wire        op0inv;
 wire [ 1:0] carry_sel;
 `ifdef JT680X_6802
@@ -54,23 +55,23 @@ wire [ 3:0] iv;
 wire [ 3:0] alu_sel;
 wire [ 3:0] ld_sel;
 wire [ 3:0] rmux_sel;
+`ifdef JT680X_6802
+wire [ 3:0] cc_sel;
+`else
 wire [ 4:0] cc_sel;
+`endif
 
-wire [8:0] cmp_hi = {1'b0,op0[15:8]}-{1'b0,op1[15:8]};
-`include "6801_param.vh"
-wire cmpx = MC6800 && alu16 && alu_sel==SUB_ALU && ld_sel!=D_LD && cc_sel==NZVC_CC;
-wire adcx = MC6800 && ld_sel==X_LD && cc_sel==HNZVC_CC;
-assign rslt_cc = cmpx ? {cmp_hi[7],rslt==16'd0,(op0[15]^op1[15])&(op0[15]^cmp_hi[7]),c} :
-                adcx ? {alu_cc[3:1],rslt[8]} : alu_cc;
+assign opcode_raw = md[7:0];
 
 jt680x_ctrl u_ctrl(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
-    .md         ( dec_md    ),
+    .md         ( decoded_md),
     .ni         ( ni        ),
     .halt       ( halt      ),
     .vma        ( vma       ),
+    .irq_ack    ( irq_ack   ),
     // bus sharing - 6301
     .ext_halt   ( ext_halt  ),
     .ba         ( ba        ),
@@ -118,7 +119,7 @@ jt680x_alu u_alu(
     .op1        ( op1       ),
     .ho         ( rslt_h    ),
     .rslt       ( rslt      ),
-    .rslt_cc    ( alu_cc    )
+    .rslt_cc    ( rslt_cc   )
 );
 
 jt680x_regs u_regs(
@@ -126,10 +127,9 @@ jt680x_regs u_regs(
     .clk        ( clk       ),
     .cen        ( cen       ),
     .md         ( md        ),
+    .opcode     ( decoded   ),
     .alt        ( alt       ),
     .brlatch    ( brlatch   ),
-    .opcode     ( decoded   ),
-    .ni         ( ni        ),
     .branch     ( branch    ),
     .cc_sel     ( cc_sel    ),
     .ea_sel     ( ea_sel    ),

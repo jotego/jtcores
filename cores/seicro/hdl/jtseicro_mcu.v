@@ -3,7 +3,7 @@
  * Date: 15-10-2026 */
 
 module jtseicro_mcu(
-    input             rst, cpu_rst, clk, cen, run, reset_req, dip_pause, nsc8105,
+    input             rst, cpu_rst, clk, cen, run, reset_req, dip_pause, nsc8105, frisky,
     input             release_clk,
     input      [23:0] dipsw,
     input             nvram_en,
@@ -26,6 +26,7 @@ module jtseicro_mcu(
 wire [15:0] addr;
 wire [7:0] dout, internal_data;
 wire wr, mcu_e, mcu_vma, step, instruction_end, opcode_fetch, mr_n;
+wire [7:0] opcode_raw, opcode;
 wire core_rst=rst || cpu_rst || reset_req || !run;
 wire internal_cs=addr<16'h0080;
 wire shared_cs=addr>=16'hf800;
@@ -69,8 +70,14 @@ always @(posedge clk) begin
     if(core_rst) dac<=0;
     else if(step && write_cycle && addr==16'h2000) dac<=dout[7:4];
 end
+jtseicro_opcode u_opcode(
+    .nsc8105    ( nsc8105    ),
+    .frisky     ( frisky     ),
+    .opcode_raw ( opcode_raw ),
+    .opcode     ( opcode     )
+);
 jt6802 #(
-    .FC_COMPAT       ( 1                 )
+    .EXT_DECODE      ( 1                 )
 ) u_cpu(
     .irq             ( 1'b0              ),
     .nmi             ( 1'b0              ),
@@ -83,7 +90,8 @@ jt6802 #(
     .enable          ( dip_pause         ),
     .ready           ( !rom_cs || rom_ok ),
     .mr_n            ( mr_n              ),
-    .nsc8105         ( nsc8105           ),
+    .opcode          ( opcode            ),
+    .opcode_raw      ( opcode_raw        ),
     .din             ( din               ),
     .addr            ( addr              ),
     .dout            ( dout              ),

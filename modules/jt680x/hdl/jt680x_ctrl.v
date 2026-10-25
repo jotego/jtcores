@@ -1,5 +1,4 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
- * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 22-11-2023 */
 /* verilator coverage_off */
@@ -8,6 +7,10 @@ module jt680x_ctrl(
     input        clk,
     input        cen,
     input [15:0] md,
+    output       ni,
+    output       halt,
+    output       vma,
+    output reg   irq_ack,
     // interrupts
     input        i,
     input        irq,
@@ -28,7 +31,6 @@ module jt680x_ctrl(
     output       branch,
     output       brlatch,
     output       fetch,
-    output       ni, halt, vma,
     output       inc_pc,
     output       md_shift,
     output       op0inv,
@@ -43,32 +45,35 @@ module jt680x_ctrl(
     output [3:0] alu_sel,
     output [3:0] ld_sel,
     output [3:0] rmux_sel,
+`ifdef JT680X_6802
+    output [3:0] cc_sel,
+`else
     output [4:0] cc_sel,
+`endif
     // info
     output reg   stack_busy
 );
 
 wire [4:0] jsr_sel;
+wire       invalid;
 reg  [2:0] iv_sel;
 wire       swi, still;
 reg        nmi_l, pendng;
-`ifdef JT680X_6802
-wire invalid;
-`endif
-
 `include "6801_param.vh"
-`ifdef JT680X_6802
-localparam WAKE_SEQA=IWAKE_SEQA, USTEP_W=5;
-`endif
 `include "6801.vh"
+
+`ifdef JT680X_6802
+localparam USTEP_W=5, WAKE_SEQA=IVRD_SEQA;
+`else
+localparam USTEP_W=4, WAKE_SEQA=IVRD_SEQA;
+`endif
+wire [USTEP_W-1:0] nx_ualo = uaddr[USTEP_W-1:0] + 1'd1;
 
 `ifdef JT680X_6802
 assign vma = !invalid && !ba;
 `else
-localparam WAKE_SEQA=IVRD_SEQA, USTEP_W=4;
 assign vma = fetch || wr;
 `endif
-wire [USTEP_W-1:0] nx_ualo = uaddr[USTEP_W-1:0] + 1'd1;
 
 assign still = ni & ext_halt;
 
@@ -76,8 +81,12 @@ assign still = ni & ext_halt;
 // integer k;
 
 always @(posedge clk) begin
+`ifdef JT680X_6802
     if(rst) nmi_l <= 0;
     else if(cen) nmi_l <= nmi;
+`else
+    if(cen) nmi_l <= nmi;
+`endif
 end
 
 always @(posedge clk) begin
@@ -88,7 +97,9 @@ always @(posedge clk) begin
         ba         <= 0;
         stack_busy <= 1;
         pendng     <= 0;
+        irq_ack    <= 0;
     end else if(cen) begin
+        irq_ack <= 0;
         if( nmi & ~nmi_l ) pendng <= 1;
         if(!halt && !still) uaddr[USTEP_W-1:0] <= nx_ualo;
         if( swi ) iv <= 4'o15; // lowest priority
@@ -112,6 +123,7 @@ always @(posedge clk) begin
                 // end
             end
             if( ~i & ~ext_halt ) begin // maskable interrupts by priority
+                if(!pendng && (irq | irq_icf | irq_ocf | irq_tof | irq_sci | irq2 | irq_cmf)) irq_ack <= 1;
                 // alt signal used to bypass the register push to the stack (set by WAI instruction)
                 if( irq_sci) begin iv <= 4'o10; uaddr <= alt ? WAKE_SEQA : ISRV_SEQA; stack_busy<=1; end // lowest priority
                 if( irq_cmf) begin iv <= 4'o06; uaddr <= alt ? WAKE_SEQA : ISRV_SEQA; stack_busy<=1; end
@@ -121,7 +133,16 @@ always @(posedge clk) begin
                 if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? WAKE_SEQA : ISRV_SEQA; stack_busy<=1; end
                 if( irq    ) begin iv <= 4'o14; uaddr <= alt ? WAKE_SEQA : ISRV_SEQA; stack_busy<=1; end // highest priority
             end
+`ifdef JT680X_6802
+            // WAI holds BA high. Once an interrupt is accepted, release the
+            // bus on this edge so the vector microcode starts at phase zero.
+            if( halt && !ext_halt && !i &&
+                (irq | irq_icf | irq_ocf | irq_tof | irq_sci | irq2 | irq_cmf) ) ba <= 0;
             if( pendng && !ext_halt ) begin
+                if(halt) ba <= 0;
+`else
+            if( pendng ) begin
+`endif
                 iv <= 4'o16;
                 uaddr <= alt ? WAKE_SEQA : ISRV_SEQA;
                 stack_busy <= 1;

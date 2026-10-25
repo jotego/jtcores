@@ -1,5 +1,4 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
- * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 7-12-2023 */
 
@@ -396,11 +395,12 @@ jt680x u_mcu(
     .addr       ( addr          ),
     .din        ( din           ),
     .dout       ( dout          ),
-    .opcode     ( 8'd0          ),
+    .opcode     ( 8'h00         ),
     .opcode_raw (               ),
     .ni         (               ),
     .halt       (               ),
     .vma        (               ),
+    .irq_ack    (               ),
     .irq        ( irq           ),
     .nmi        ( nmi           ),
     // bus sharing - only used on 6301 mode

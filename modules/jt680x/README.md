@@ -2,6 +2,42 @@
 
 By Jose Tejada (@topapate)
 
+## MC6802 core
+
+Use `modules/jt680x/cfg/jt6802.yaml` and instantiate `jt6802`. The consuming
+core must define `JT680X_6802` in its `cfg/macros.def`; the profile selects the
+6802 microcode, while the macro selects the matching datapath and control
+logic.
+
+`cen` is four times the nominal E clock. `ready` is active high and `mr_n` is
+active low; either can hold a high-E transfer. `enable` pauses the external
+phase clock. `done` marks one accepted transfer, and `opcode_fetch` marks an
+accepted opcode read. `rst` resets the bus phase; `cpu_rst` resets and
+resynchronizes the CPU without resetting the external phase. The CPU wrapper
+does not include the on-chip 128-byte RAM or RE/ROM mapping: the containing
+core owns those parts of the address map and memory interface.
+
+The native profile implements the documented MC6800 instruction set. Behavior
+for other opcode bytes is unspecified. With `EXT_DECODE=1`, the caller supplies
+the decoded opcode on `opcode`; `opcode_raw` exposes the byte read from memory.
+That mode is intended for an explicit derivative decoder, which must decide
+which extension bytes are enabled.
+
+Local checks:
+
+```sh
+source setprj.sh
+jtframe ucode jt680x 6802 --output 6801 --report
+"$JTFRAME/bin/simunit-all.sh" --only jt6802 --jobs 1
+```
+
+The opcode simunit checks all 197 documented opcodes against an independent
+timing inventory and exercises directed architectural effects. The wrapper
+simunit covers reset phase synchronization, ready/MR holds, writes, interrupt
+frames, WAI wake, and RTI.
+These digital bus tests do not model analog standby current or establish full
+manual conformance.
+
 You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)
 * [Paypal](https://paypal.me/topapate)
@@ -17,36 +53,6 @@ X/S            | 16 bits           | 8 bits
 Idx addr.      | 8-bit offset      | 8/16-bit offset
 
 ## Device Usage on Arcade Games
-
-### MC6802 profile
-
-Select `cfg/jt6802.yaml` and define `JT680X_6802` to use the 6802 bus profile
-with the shared `jt680x` controller, registers and ALU. Instantiate `jt6802`
-for the physical bus wrapper. This profile exposes
-E, VMA, MR, memory readiness and completed transfers. `cen` is the crystal
-enable, at four times the nominal E frequency; `enable` is a host pause.
-IRQ, NMI and `ext_halt` retain the family's normalized active-high convention.
-An external chip-level wrapper must map physical pin polarity and RAM/RE.
-
-The profile includes the common `680x.yaml` arithmetic sequences and overrides
-addressing, stack and vector timing in YAML. The ordinary fixed-rate scheduler
-advances once per accepted crystal enable; the bus wrapper holds that enable for
-memory stalls. There is no second dispatch or execution scheduler. Cycle checking
-is enabled, and the existing 6801/6301 generated microcode remains unchanged.
-The 6802 profile uses 32-step entries; the controller uses the matching profile width.
-
-The runtime `nsc8105` input selects opcode translation and the four derivative
-operations. These extension timing/flag interpretations remain provisional.
-`FC_COMPAT` defaults to zero; Seicro opts into its undocumented Frisky Tom
-compatibility handling. Each build selects one microcode profile, using the
-existing `6801` generated-file prefix shared with the ALU.
-
-Run `modules/jt680x/ver/6802/sim.sh` from the repository root for Docker/Verilator
-interrupt, WAI, HALT, TSX/TXS bus-address and FC-policy checks plus the 6801/6301 regressions. The
-unit-simulation workflow runs this command in its MC6802 job. Generated sources,
-objects and logs remain in `ver/6802/scratch/`.
-
-See [MC6802 completion](doc/complete_6802.md) for remaining work.
 
 ### MC6800
 

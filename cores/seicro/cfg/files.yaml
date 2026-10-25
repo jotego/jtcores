@@ -12,4 +12,4 @@ jtframe:
 jt12:
   - get: [ jt49.yaml ]
 jt680x:
-  - get: [ jt6802.yaml ]
+  - get: [ jt6802_seicro.yaml ]
