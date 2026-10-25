@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -28,7 +29,7 @@ module jtpopeye_cab(
     assign coin_os   = coin_cnt!=0;
 
     function [7:0] arrange(input [5:0] joy, input b2); begin
-        arrange = { b2 & ~joy[5], 2'd0, ~joy[4], ~joy[2], ~joy[3], ~joy[1], ~joy[0] };
+        arrange = { b2 & ~joy[5], 2'd0, ~joy[4], ~joy[3:0] };
     end endfunction
 
     always @(posedge clk) begin

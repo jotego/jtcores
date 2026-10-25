@@ -1,8 +1,17 @@
+`include "fixtures.vh"
 `timescale 1ps/1ps
 
 module test;
 
+
 reg         clk=0, rst=1, rv=0;
+reg [7:0] gl_code, gl_v;
+reg [9:0] gl_idx;
+reg [7:0] gl_byte=0, gl_h0=0;
+reg [3:0] gl_col=0;
+reg       gl_arm=0;
+integer   gl_n=0, gl_bad=0;
+
 reg         cen20=0, cen10=0, cen5=0, cpu_cen=0;
 integer     acc=0, cpuc=0;
 reg  [ 1:0] div=0;
@@ -61,6 +70,7 @@ jtpopeye_timing u_timing(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen5       ( cen5          ),
+    .cen10      ( cen10         ),
     .rv         ( rv            ),
     .tprom_addr ( tprom_addr    ),
     .tprom_data ( tprom_data    ),
@@ -81,7 +91,18 @@ jtpopeye_timing u_timing(
     .lvbl       ( lvbl          )
 );
 
+wire [9:0] text_addr,text_cpu_addr;
+wire text_we,color_we;
+wire [7:0] text_dout,color_dout;
+jtframe_dual_ram #(.AW(10)) u_text(.clk0(clk),.addr0(text_cpu_addr),.data0(dd),.we0(text_we),.q0(),.clk1(clk),.addr1(text_addr),.data1(8'd0),.we1(1'b0),.q1(text_dout));
+jtframe_dual_ram #(.AW(10)) u_color(.clk0(clk),.addr0(text_cpu_addr),.data0({4'd0,dd[3:0]}),.we0(color_we),.q0(),.clk1(clk),.addr1(text_addr),.data1(8'd0),.we1(1'b0),.q1(color_dout));
 jtpopeye_char uut(
+    .text_addr     ( text_addr     ),
+    .text_cpu_addr ( text_cpu_addr ),
+    .text_we       ( text_we       ),
+    .color_we      ( color_we      ),
+    .text_dout     ( text_dout     ),
+    .color_dout    ( color_dout    ),
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen10      ( cen10         ),
@@ -286,12 +307,6 @@ task wait_hraw(input [7:0] hv, input hbv); begin
 end endtask
 
 integer i, k, bad_idx, gl_ok;
-reg [7:0] gl_code, gl_v;
-reg [9:0] gl_idx;
-reg [7:0] gl_byte=0, gl_h0=0;
-reg [3:0] gl_col=0;
-reg       gl_arm=0;
-integer   gl_n=0, gl_bad=0;
 
 initial begin
     fd  = $fopen(`CHARROM,"rb");
@@ -393,40 +408,12 @@ initial begin
     $finish;
 end
 
-endmodule
-
-module jt2020_ram #(parameter aw=10, dw=8, synfile="", simfile="")(
-    input               clk,
-    input               cen,
-    input      [dw-1:0] data,
-    input      [aw-1:0] addr,
-    input               we,
-    output reg [dw-1:0] q
-);
-reg [dw-1:0] mem[0:(2**aw)-1];
-integer k;
-initial for( k=0; k<2**aw; k=k+1 ) mem[k] = 0;
-always @(posedge clk) begin
-    q <= mem[addr];
-    if( cen && we ) mem[addr] <= data;
-end
-endmodule
-
-module jt2020_prom #(parameter aw=11, dw=8, simfile="", offset=0)(
-    input               clk,
-    input               cen,
-    input      [dw-1:0] data,
-    input      [aw-1:0] rd_addr,
-    input      [aw-1:0] wr_addr,
-    input               we,
-    output reg [dw-1:0] q
-);
-reg [7:0] file[0:4095];
-integer fd, n;
 initial begin
-    fd = $fopen(`CHARROM,"rb");
-    n  = $fread(file, fd);
-    $fclose(fd);
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
 end
-always @(posedge clk) if( cen ) q <= file[offset+rd_addr];
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

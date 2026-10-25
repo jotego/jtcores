@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2026 */
 
@@ -22,16 +23,22 @@ module jtpopeye_bg(
     input             do16,
     input      [ 8:1] rovi,
 
+    output     [11:0] bg_addr,
+    output            bglo_we,
+    output            bghi_we,
+    input      [ 7:0] bglo_dout,
+    input      [ 7:0] bghi_dout,
+
     output reg [ 3:0] bakc
 );
 
 wire [12:0] adv;
-wire [11:0] at, at_cpu, at_vid;
+wire [11:0] at_cpu, at_vid;
 wire [ 8:0] roh_ld;
-wire [ 7:0] bkd;
+
 wire [ 5:0] rowv;
 wire [ 3:0] bkmux;
-wire        g7s, s8t, cp8u, we_lo, we_hi, wen, wsel, vsel, dotck;
+wire        g7s, s8t, cp8u, wen, wsel, vsel, dotck;
 reg  [ 8:0] roh;
 reg  [ 8:1] rov, rovi_l;
 reg         m8qn, rohvck_l, cp8u_l;
@@ -42,15 +49,15 @@ assign at_cpu     = { adv[11], adv[10], adv[5], adv[9], adv[8], adv[7],
 assign rowv       = nibd7 ? rov[7:2] : rov[6:1];
 assign at_vid     = { rowv, roh[7:2] };
 assign g7s        = csbw_n & rov[8];
-assign at         = g7s ? 12'd0 : csbw_n ? at_vid : at_cpu;
+assign bg_addr    = g7s ? 12'd0 : csbw_n ? at_vid : at_cpu;
 assign vsel       = tnx1 ? roh[8] : nibd7 ? rov[1] : rov[7];
 assign wsel       = nibd7 ? dd7 : adv[12];
 assign s8t        = csbw_n ? vsel : ~wsel;
-assign bkmux      = s8t ? bkd[7:4] : bkd[3:0];
+assign bkmux      = s8t ? bghi_dout[3:0] : bglo_dout[3:0];
 assign cp8u       = csbw_n ? m8qn : memwr0;
 assign wen        = ~dwrbk_n & ~( nibd7 & adv[12] );
-assign we_lo      = wen & ~wsel;
-assign we_hi      = wen &  wsel;
+assign bglo_we      = wen & ~wsel;
+assign bghi_we      = wen &  wsel;
 assign roh_ld     = { tnx1 & do16, obj_do };
 assign dotck      = cen10 & ~cen5;
 
@@ -76,23 +83,5 @@ always @(posedge clk) begin
         if( cp8u && !cp8u_l ) bakc <= bkmux;
     end
 end
-
-jtframe_ram #(.DW(4),.AW(12)) u_lo(
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( dd            ),
-    .addr   ( at            ),
-    .we     ( we_lo         ),
-    .q      ( bkd[3:0]      )
-);
-
-jtframe_ram #(.DW(4),.AW(12)) u_hi(
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( dd            ),
-    .addr   ( at            ),
-    .we     ( we_hi         ),
-    .q      ( bkd[7:4]      )
-);
 
 endmodule

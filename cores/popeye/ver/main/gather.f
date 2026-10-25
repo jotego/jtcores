@@ -1,0 +1,9 @@
+$JTROOT/cores/popeye/hdl/jtpopeye_main.v
+$JTROOT/cores/popeye/hdl/jtpopeye_cab.v
+$JTFRAME/hdl/cpu/jtframe_z80.v
+$JTFRAME/hdl/cpu/jtframe_z80wait.v
+$JTFRAME/hdl/cpu/t80/T80s.v
+$JTFRAME/hdl/ram/jtframe_ram.v
+$JTFRAME/hdl/clocking/jtframe_gated_cen.v
+$JTFRAME/hdl/clocking/jtframe_freqinfo.v
+$JTFRAME/hdl/jtframe_bcd_cnt.v

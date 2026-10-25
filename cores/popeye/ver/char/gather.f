@@ -1,0 +1,11 @@
+$JTROOT/cores/popeye/hdl/jtpopeye_char.v
+$JTROOT/cores/popeye/hdl/jtpopeye_timing.v
+$JTFRAME/hdl/ram/jtframe_prom.v
+$JTFRAME/hdl/ram/jtframe_ram.v
+$JTFRAME/hdl/ram/jtframe_dual_ram.v
+$JTFRAME/hdl/video/tilemap/jtframe_tilemap.v
+$JTROOT/cores/popeye/ver/fixtures/jtpopeye_txt_ref.v
+$JTROOT/cores/popeye/ver/fixtures/jtpopeye_video_dec_ref.v
+$JTROOT/cores/popeye/ver/fixtures/jt2020_shims.v
+$JTFRAME/hdl/jtframe_sh.v
++incdir+$JTROOT/cores/popeye/ver/fixtures

@@ -1,0 +1,10 @@
+$JTROOT/cores/popeye/hdl/jtpopeye_objbuf.v
+$JTROOT/cores/popeye/hdl/jtpopeye_timing.v
+$JTROOT/cores/popeye/hdl/jtpopeye_dma.v
+$JTFRAME/hdl/ram/jtframe_prom.v
+$JTFRAME/hdl/ram/jtframe_ram.v
+$JTROOT/cores/popeye/ver/fixtures/jtpopeye_buf_ref.v
+$JTROOT/cores/popeye/ver/fixtures/jt2020_shims.v
+$JTFRAME/hdl/jtframe_sh.v
++define+JT2020
++incdir+$JTROOT/cores/popeye/ver/fixtures
