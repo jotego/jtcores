@@ -718,6 +718,21 @@ task run_rr_cc_destination(input [7:0] mode, input [7:0] opcode,
     end
 endtask
 
+task run_rr_carry(input [7:0] mode, input [7:0] opcode,
+                  input [7:0] src, input [7:0] dst,
+                  input [7:0] expected_dst, input [3:0] expected_nzvc,
+                  input string label);
+    begin
+        initial_e=src; initial_f=dst;
+        load_program(mode,8'h10,opcode,8'hef);
+        put(16'h0113,8'h03);
+        measure_case(4,16'h0123,label);
+        check_ef(src,expected_dst,mode[0],label);
+        assert_msg(regs[83:80]==expected_nzvc,
+            $sformatf("%s flags NZVC=%x expected %x",label,regs[83:80],expected_nzvc));
+    end
+endtask
+
 task run_rr_mixed_width(input [7:0] mode, input [7:0] opcode,
                         input [7:0] postbyte, input [15:0] expected_d,
                         input [15:0] expected_w, input [7:0] expected_f,
@@ -1580,6 +1595,24 @@ task check_ef(input [7:0] expected_e, input [7:0] expected_f,
     end
 endtask
 
+task run_negd_boundary(input [7:0] mode, input string label);
+    integer expected_cycles;
+    begin
+        initial_e = 8'h12;
+        initial_f = 8'h34;
+        load_program(mode,8'h10,8'h40,8'h12);
+        preload_d(16'h8000);
+        expected_cycles = mode[0] ? 2 : 3;
+        measure_case(expected_cycles,16'h0122,label);
+        assert_msg({regs[7:0],regs[15:8]}==16'h8000,
+            $sformatf("%s D=%04x expected 8000",label,{regs[7:0],regs[15:8]}));
+        assert_msg((regs[87:80]&8'h0f)==8'h0b,
+            $sformatf("%s NZVC=%x expected b",label,regs[83:80]));
+        initial_e = 8'h12;
+        initial_f = 8'h34;
+    end
+endtask
+
 // Install X/Y after load_program's LDS setup. The replacement LDY occupies
 // the old LDU/ORCC slots; the remaining ANDCC/JMP sequence still reaches the
 // target opcode at $0120.
@@ -1733,6 +1766,12 @@ initial begin
     measure_case(4,16'h0123,"ADDR E,F native");
     check_ef(8'h12,8'h46,8'h01,"ADDR E,F native");
 
+    run_rr_carry(0,8'h31,8'h80,8'h7f,8'h00,4'h5,"ADCR E,F emulation");
+    run_rr_carry(1,8'h31,8'h80,8'h7f,8'h00,4'h5,"ADCR E,F native");
+    run_rr_carry(0,8'h33,8'h7f,8'h80,8'h00,4'h6,"SBCR E,F emulation");
+    run_rr_carry(1,8'h33,8'h7f,8'h80,8'h00,4'h6,"SBCR E,F native");
+    initial_e=8'h12; initial_f=8'h34;
+
     // Page-10 register ALU opcodes 34-37 overlap the 6809 PSH/PUL
     // immediate opcodes. The prefix must keep these in the HD6309 register
     // operation path. Postbyte EF selects E as source and F as destination.
@@ -1821,6 +1860,9 @@ initial begin
     load_program(1'b1,8'h10,8'h5a,8'h12);
     measure_case(2,16'h0122,"DECW native");
     check_ef(8'h12,8'h33,8'h01,"DECW native");
+
+    run_negd_boundary(1'b0,"NEGD emulation boundary");
+    run_negd_boundary(1'b1,"NEGD native boundary");
 
     load_program(1'b0,8'h10,8'h4c,8'h12); // INCD
     measure_case(3,16'h0122,"INCD emulation");
