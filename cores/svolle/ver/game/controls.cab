@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 25-10-2026
+
+720
+4 coin
+12
+4 1p
+80
+20 up
+10
+20 down
+10
+20 left
+10
+20 right
+10
+20 b1
+10
+20 b2
+10
+4 2coin
+12
+4 2p
+40
+20 2up
+10
+20 2down
+10
+20 2left
+10
+20 2right
+10
+20 2b1
+10
+20 2b2
+10
+4 service
+10
+4 test
+60

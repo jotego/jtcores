@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 25-10-2026
+
+- name: control
+  size: 32
+  dw: 16
+  read_only: true
+  regs:
+    - {name: scry0, dw: 9, at: "1[0],0"}
+    - {name: scrx0, dw: 9, at: "3[0],2"}
+    - {name: scry1, dw: 9, at: "5[0],4"}
+    - {name: scrx1, dw: 9, at: "7[0],6"}
+    - {name: videoflags, dw: 16, at: "13,12"}
+    - {name: obj_count, dw: 6, at: "16[5:0]"}
+    - {name: obj_pri, dw: 6, at: "18[5:0]"}
+- name: gga
+  size: 16
+  read_only: true
+  regs:
+    - {name: hblank, dw: 8, at: "0"}
+    - {name: hsync_start, dw: 8, at: "1"}
+    - {name: hsync_end, dw: 8, at: "2"}
+    - {name: htotal, dw: 8, at: "3"}
+    - {name: vblank, dw: 8, at: "8"}
+    - {name: vsync_start, dw: 8, at: "9"}
+    - {name: vsync_end, dw: 8, at: "10"}
+    - {name: irq_control, dw: 8, at: "11"}

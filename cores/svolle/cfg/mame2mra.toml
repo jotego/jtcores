@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 25-10-2026
+
+[global]
+author=["Andrea Bogazzi"]
+platform="jtsvolle"
+
+[parse]
+sourcefile=["rpunch.cpp"]
+mustbe.setnames=["svolley"]
+skip.bootlegs=true
+
+[buttons]
+names=[{setname="svolley", names="Button 1,Button 2"}]
+
+[dipsw]
+bitcnt=16
+delete=[{names=["Unused","Unknown"]}]
+rename=[
+  {name="1P Starting Score", to="1P Start Score"},
+  {name="2P Starting Score", to="2P Start Score"},
+]
+
+[ROM]
+regions=[
+  {name="maincpu", width=16, reverse=true, len=0x40000},
+  {name="tiles1", start="JTFRAME_BA1_START", len=0x80000},
+  {name="tiles2", start="SCR1_START", len=0x80000},
+  {name="sprites", start="JTFRAME_BA2_START", width=16, len=0x80000, files=[
+    {name="sps_20.bin", crc="c9e7206d", size=0x10000, offset=0x00000},
+    {name="sps_23.bin", crc="7b15c805", size=0x10000, offset=0x00001},
+    {name="sps_19.bin", crc="8ac2f232", size=0x08000, offset=0x20000},
+    {name="sps_22.bin", crc="fcc754e3", size=0x08000, offset=0x20001},
+    {name="sps_18.bin", crc="4d6c8f0c", size=0x08000, offset=0x30000},
+    {name="sps_21.bin", crc="9dd28b42", size=0x08000, offset=0x30001},
+    {name="sps_18.bin", crc="4d6c8f0c", size=0x08000, offset=0x60000},
+    {name="sps_21.bin", crc="9dd28b42", size=0x08000, offset=0x60001},
+  ]},
+  {name="audiocpu", start="JTFRAME_BA3_START", len=0x10000},
+  {name="upd", start="PCM_START", len=0x40000},
+]
+order=["maincpu","tiles1","tiles2","sprites","audiocpu","upd"]

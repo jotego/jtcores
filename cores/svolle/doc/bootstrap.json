@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "repo": "/Users/andreabogazzi/develop/jtpublicfork",
+  "core": "svolle",
+  "label": "svolley",
+  "game": "svolley",
+  "machine_config": "svolley",
+  "targets": [
+    "mister"
+  ],
+  "available_plls": [
+    "jtframe_pll6000",
+    "jtframe_pll6144",
+    "jtframe_pll6293",
+    "jtframe_pll6671",
+    "jtframe_pll7000",
+    "jtframe_pll7159"
+  ],
+  "mame_root": "/Users/andreabogazzi/develop/mame",
+  "driver": "src/mame/vsystem/rpunch.cpp",
+  "sources": [
+    {
+      "path": "src/mame/vsystem/rpunch.cpp",
+      "sha256": "856dffea9e6c101bbf3a0c8fca20e41ad5913f6a16437212a0c4b79385fd0fce"
+    },
+    {
+      "path": "src/mame/vsystem/vsystem_gga.h",
+      "sha256": "dbfd71276d075f1ceb02aa8d7765e3b925db3d7ada681d469e8b20d1141ae7c1"
+    }
+  ],
+  "uncopied_includes": [
+    "cpu/m68000/m68000.h",
+    "cpu/z80/z80.h",
+    "emu.h",
+    "emupal.h",
+    "machine/gen_latch.h",
+    "machine/input_merger.h",
+    "screen.h",
+    "sound/upd7759.h",
+    "sound/ymopm.h",
+    "speaker.h",
+    "tilemap.h"
+  ],
+  "video_timing": [],
+  "pll": "jtframe_pll6671",
+  "pxlclk": "6",
+  "modules": [
+    "game",
+    "main",
+    "video",
+    "colmix",
+    "snd"
+  ],
+  "author": "Andrea Bogazzi"
+}

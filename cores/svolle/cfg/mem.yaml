@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 25-10-2026
+
+params:
+  - { name: WORK_OFFSET, value: "22'h020000" }
+  - { name: SCR1_OFFSET, value: "(`SCR1_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA3_START)>>1" }
+
+download:
+  post_data: true
+
+clocks:
+  clk48:
+    - mul: 208
+      div: 2775
+      outputs: [snd_cen]
+    - mul: 208
+      div: 2775
+      outputs: [fm_cen, fm2_cen]
+    - mul: 639
+      div: 53282
+      outputs: [pcm_cen]
+
+audio:
+  channels: []
+
+sdram:
+  banks:
+    - buses:
+        - name: work
+          addr_width: 14
+          data_width: 16
+          offset: WORK_OFFSET
+          rw: true
+        - name: main
+          addr_width: 18
+          data_width: 16
+    - buses:
+        - name: scr0
+          addr_width: 19
+          data_width: 32
+        - name: scr1
+          addr_width: 19
+          data_width: 32
+          offset: SCR1_OFFSET
+    - buses:
+        - name: obj
+          addr_width: 19
+          data_width: 32
+    - buses:
+        - name: snd
+          addr_width: 16
+          data_width: 8
+        - name: pcm
+          addr_width: 18
+          data_width: 8
+          offset: PCM_OFFSET
+
+bram:
+  - name: vram0
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: scrv0, dout: scrv0_data }
+  - name: vram1
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: scrv1, dout: scrv1_data }
+  - name: oram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr, dout: objr_data }
+  - name: pal
+    addr_width: 11
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: mix, dout: mix_data }
+  - name: sram
+    addr_width: 11
+    data_width: 8
+    rw: true
