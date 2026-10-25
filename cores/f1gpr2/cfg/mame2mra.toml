@@ -1,0 +1,48 @@
+[global]
+author=["andrea bogazzi"]
+platform="jtf1gpr2"
+
+[parse]
+sourcefile=[ "f1gp.cpp" ]
+mustbe.setnames=[ "f1gp2" ]
+skip.bootlegs=true
+skip.machines=[ "f1gp" ]
+
+[dipsw]
+bitcnt = 32
+offset=[
+    { name="DSW2", value=8  },
+    { name="DSW3", value=24 },
+]
+delete=[{names=["Unused","Unknown","Coinage"]}]
+rename=[
+    { name="Continue Coin", to="Cont. Coin" },
+]
+extra=[]
+defaults=[{ value="ff,ff,fb,01" }]
+
+[buttons]
+Names = [ { machine="f1gp2", names="Accelerate,Brake,Turbo" } ]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, no_offset=true },
+    { name="user1", start="USER1_START", no_offset=true, parts=[
+        { name="rom2", crc="3b0cfa82", offset=0x100000, length=0x100000 },
+        { name="rom2", crc="3b0cfa82", length=0x100000 },
+    ]},
+    { name="fgtiles", rename="fg", start="FG_START", width=32 },
+    { name="sprites1", rename="obj", start="JTFRAME_BA1_START", width=32 },
+    { name="roztiles", rename="roz", start="JTFRAME_BA2_START" },
+    { name="sub", start="SUB_START" },
+    { name="audiocpu", rename="snd", start="SND_START" },
+    { name="ymsnd:adpcma", rename="pcma", start="PCMA_START" },
+    { name="ymsnd:adpcmb", rename="pcmb", start="PCMB_START" },
+]
+
+order = [
+    "maincpu", "user1", "fg",
+    "obj",
+    "roz",
+    "sub", "snd", "pcma", "pcmb"
+]

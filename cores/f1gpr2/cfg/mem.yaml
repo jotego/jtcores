@@ -1,0 +1,118 @@
+params:
+  - { name: FG_OFFSET,   value: "`FG_START>>1" }
+  - { name: SUB_OFFSET,  value: "(`SUB_START  -`JTFRAME_BA3_START)>>1" }
+  - { name: SND_OFFSET,  value: "(`SND_START  -`JTFRAME_BA3_START)>>1" }
+  - { name: PCMA_OFFSET, value: "(`PCMA_START -`JTFRAME_BA3_START)>>1" }
+  - { name: PCMB_OFFSET, value: "(`PCMB_START -`JTFRAME_BA3_START)>>1" }
+
+clocks:
+  clk48:
+    - freq: 8 MHz
+      gate: [ pcma, pcmb ]
+      outputs:
+        - fm_cen
+    - freq: 5 MHz
+      gate: [ snd ]
+      outputs:
+        - snd_cen
+
+audio:
+  rsum: 33k
+  rsum_feedback_res: true
+  channels:
+    - { name: fm,  data_width: 16, rsum: 33k, stereo: true }
+    - { name: psg, data_width: 10, rsum: 33k, pre: 0.75, dcrm: true }
+
+sdram:
+  banks:
+    - buses:
+      - name: fg
+        addr_width: 21
+        data_width: 32
+        offset: FG_OFFSET
+      - name: main
+        addr_width: 22
+        data_width: 16
+    - buses:
+      - name: obj
+        addr_width: 21
+        data_width: 32
+    - buses:
+      - name: roz
+        addr_width: 21
+        data_width: 16
+    - buses:
+      - name: sub
+        addr_width: 17
+        data_width: 16
+        cache_size: 2kB
+        offset: SUB_OFFSET
+      - name: snd
+        addr_width: 17
+        data_width: 8
+        offset: SND_OFFSET
+      - name: pcma
+        addr_width: 20
+        data_width: 8
+        offset: PCMA_OFFSET
+      - name: pcmb
+        addr_width: 19
+        data_width: 8
+        offset: PCMB_OFFSET
+
+bram:
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+  - name: subram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: sub_dout
+  - name: shared
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    dual_port:
+      name: shsub
+      din: sub_dout
+      dout: shsub_dout
+      rw: true
+  - name: fgvram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: fgv, dout: fgv_dout }
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: mix, dout: mix_pal }
+  - name: rozvram
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: rozv, dout: rozv_dout }
+  - name: sprcg
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objl, dout: objl_dout }
+  - name: sprvram
+    addr_width: 11
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr, dout: objr_dout }
