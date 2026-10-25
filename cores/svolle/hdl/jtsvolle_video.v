@@ -43,9 +43,14 @@ wire render_hs = {1'b0,h}>=hss && {1'b0,h}<hse;
 wire [8:0] vb = gga_v[7:0]==0 ? 9'd216 : {gga_v[7:0],1'b0}+9'd2;
 wire [8:0] vss = gga_v[15:8]==0 ? 9'd232 : {gga_v[15:8],1'b0}+9'd2;
 wire [8:0] vse = gga_v[23:16]==0 ? 9'd240 : {gga_v[23:16],1'b0}+9'd2;
-wire [8:0] lead = h>=hss[8:0] ? h-htotal[8:0]+9'd10 : h+9'd10;
-wire [8:0] obj_h = h+9'd9;
+wire line_end = {1'b0,h}==htotal-10'd1;
+wire [8:0] render_h = h>=hss[8:0] ? h-htotal[8:0] : h;
+wire [8:0] lead = render_h+9'd10;
+wire [8:0] obj_h = render_h+9'd9;
 wire [8:0] vrender = {1'b0,v+8'd1};
+wire [8:0] obj_vrender = {1'b0,v+8'd2};
+wire mix_lhbl = line_end || {1'b0,h}+10'd1<hb;
+wire mix_lvbl = line_end ? vrender<vb : LVBL;
 wire [7:0] half_irq = vb[7:0]+8'd128;
 wire [7:0] scr0_pxl, scr1_pxl;
 wire [8:0] obj_pxl;
@@ -78,7 +83,7 @@ jtsvolle_scr u_scr0(
     .hs         ( render_hs     ),
     .en         ( gfx_en[0]     ),
     .hdump      ( lead          ),
-    .vdump      ( {1'b0,v}      ),
+    .vdump      ( vrender       ),
     .scrx       ( scrx0+(rpunch ? 9'd8 : 9'd0) ),
     .scry       ( scry0         ),
     .code_bank  ( videoflags[10] ),
@@ -99,7 +104,7 @@ jtsvolle_scr u_scr1(
     .hs         ( render_hs     ),
     .en         ( gfx_en[1]     ),
     .hdump      ( lead          ),
-    .vdump      ( {1'b0,v}      ),
+    .vdump      ( vrender       ),
     .scrx       ( scrx1+9'd8    ),
     .scry       ( scry1         ),
     .code_bank  ( videoflags[11] ),
@@ -121,7 +126,7 @@ jtsvolle_obj u_obj(
     .en         ( gfx_en[3]     ),
     .rpunch     ( rpunch        ),
     .hdump      ( obj_h         ),
-    .vrender    ( vrender       ),
+    .vrender    ( obj_vrender   ),
     .count      ( obj_count     ),
     .pri        ( obj_pri       ),
     .pal_bank   ( videoflags[6] ),
@@ -139,8 +144,8 @@ jtsvolle_bitmap u_bitmap(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .en         ( rpunch        ),
-    .next_line  ( pxl_cen && {1'b0,h}==htotal-10'd1 ),
-    .h          ( h             ),
+    .next_line  ( pxl_cen && h==hss[8:0] ),
+    .h          ( render_h      ),
     .v          ( v             ),
     .ram_addr   ( bitmap_addr   ),
     .ram_cs     ( bitmap_cs     ),
@@ -154,8 +159,8 @@ jtsvolle_colmix u_colmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
+    .LHBL       ( mix_lhbl      ),
+    .LVBL       ( mix_lvbl      ),
     .rpunch     ( rpunch        ),
     .scr0       ( scr0_pxl      ),
     .scr1       ( scr1_pxl      ),

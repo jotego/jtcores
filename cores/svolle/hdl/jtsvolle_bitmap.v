@@ -21,7 +21,7 @@ reg [7:0] fetch_y;
 reg read_bank, write_bank, ready, valid;
 wire [7:0] display_y = v+8'd1;
 wire line_ready = ready && fetch_y==display_y && state==IDLE;
-wire [8:0] x = h+9'd12;
+wire [8:0] x = h+9'd13;
 wire [31:0] pixels;
 wire [2:0] nibble = {x[2],~x[1:0]};
 wire write_en = state==REQUEST && ram_ok;

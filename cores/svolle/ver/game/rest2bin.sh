@@ -6,6 +6,9 @@
 set -euo pipefail
 if [[ ${1:-} == --delete ]]; then
     rm -f vram0.bin vram1.bin oram.bin pal.bin bitmap.bin mmr.bin
+    if [[ -n ${SVOLLE_SCENE_DUMP:-} ]]; then
+        exec "$0" "$SVOLLE_SCENE_DUMP"
+    fi
     exit
 fi
 dump=${1:-dump.bin}
