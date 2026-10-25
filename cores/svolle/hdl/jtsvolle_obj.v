@@ -3,7 +3,7 @@
  * Date: 25-10-2026 */
 
 module jtsvolle_obj(
-    input             rst, clk, pxl_cen, hs, en,
+    input             rst, clk, pxl_cen, hs, en, rpunch,
     input      [8:0]  hdump, vrender,
     input      [5:0]  count, pri,
     input             pal_bank,
@@ -73,9 +73,9 @@ always @(posedge clk) begin
             end
             WAIT_X: state <= READ_X;
             READ_X: begin
-                xpos <= ram_data[8:0]+9'd4;
+                xpos <= ram_data[8:0]+(rpunch ? 9'd8 : 9'd4);
                 state <= row<9'd32 &&
-                    (ram_data[8:0]<=9'd287 || ram_data[8:0]>=9'd501) ? CHECK : NEXT;
+                    (ram_data[8:0]<=9'd287 || ram_data[8:0]>=(rpunch ? 9'd497 : 9'd501)) ? CHECK : NEXT;
             end
             CHECK: if(!busy) begin
                 draw <= 1;

@@ -3,7 +3,7 @@
  * Date: 25-10-2026 */
 
 module jtsvolle_main(
-    input              rst, clk, dip_pause, irq_event,
+    input              rst, clk, dip_pause, irq_event, rpunch,
     output     [19:1]  addr,
     output     [15:0]  dout,
     output     [ 1:0]  dsn,
@@ -40,7 +40,7 @@ wire p1_cs, p2_cs, dip_cs, pending_cs;
 wire ready;
 wire [7:0] system_bits = {1'b0, !cab_1p[1], !cab_1p[0], !coin[0],
                           !coin[1], 1'b0, !dip_test, !service};
-wire [15:0] cpu_din = rom_cs ? (a[17:16]==2'b11 ? 16'd0 : rom_data) :
+wire [15:0] cpu_din = rom_cs ? ((rpunch ? a[17] : a[17:16]==2'b11) ? 16'd0 : rom_data) :
                      work_cs ? work_data :
                      vram0_cs ? vram0_data :
                      vram1_cs ? vram1_data :
@@ -104,6 +104,7 @@ jtsvolle_decode u_decode(
     .addr       ( a             ),
     .access     ( cpu_access    ),
     .rnw        ( rnw           ),
+    .rpunch     ( rpunch        ),
     .rom_cs     ( rom_cs        ),
     .work_cs    ( work_cs       ),
     .vram0_cs   ( vram0_cs      ),
@@ -142,7 +143,10 @@ always @(posedge clk) begin
     end
 end
 
-jtsvolle_control_mmr u_control(
+jtsvolle_control_mmr #(
+    .SIMFILE    ( "mmr.bin"     ),
+    .SEEK       ( 0             )
+) u_control(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cs         ( control_we    ),
@@ -164,6 +168,8 @@ jtsvolle_control_mmr u_control(
 );
 
 jtsvolle_gga_mmr #(
+    .SIMFILE    ( "mmr.bin"     ),
+    .SEEK       ( 32            ),
     .INIT       ( 128'h0000001f0077736b0000011f6b615747 )
 ) u_gga(
     .rst        ( rst           ),

@@ -6,6 +6,8 @@
 /ver/game/dump2bin.sh
 !/ver/svolley/*.sh
 !/ver/svolley/mamedump.lua
+!/ver/rabiolep/*.sh
+!/ver/rabiolep/mamedump.lua
 !/ver/hdl/**
 /ver/hdl/**/sim
 /ver/hdl/**/sim.log

@@ -3,7 +3,7 @@
  * Date: 25-10-2026 */
 
 module jtsvolle_video(
-    input             rst, clk, pxl_cen,
+    input             rst, clk, pxl_cen, rpunch,
     input      [31:0] gga_h,
     input      [23:0] gga_v,
     input      [7:0]  irq_control,
@@ -20,10 +20,14 @@ module jtsvolle_video(
     output            scr0_cs, scr1_cs, obj_cs,
     input      [31:0] scr0_data, scr1_data, obj_data,
     input             scr0_ok, scr1_ok, obj_ok,
+    output     [15:2] bitmap_addr,
+    output            bitmap_cs,
+    input      [31:0] bitmap_data,
+    input             bitmap_ok,
     input      [3:0]  gfx_en,
     output            LHBL, LVBL, HS, VS, irq_event,
     output     [4:0]  red, green, blue,
-    output            obj_overrun
+    output            obj_overrun, bmp_overrun
 );
 
 reg [8:0] h;
@@ -32,6 +36,10 @@ wire [9:0] htotal = gga_h[31:24]==0 ? 10'd432 : {gga_h[31:24],2'b00}+10'd4;
 wire [9:0] hb = gga_h[7:0]==0 ? 10'd288 : {gga_h[7:0],2'b00}+10'd4;
 wire [9:0] hss = gga_h[15:8]==0 ? 10'd352 : {gga_h[15:8],2'b00}+10'd4;
 wire [9:0] hse = gga_h[23:16]==0 ? 10'd392 : {gga_h[23:16],2'b00}+10'd4;
+wire [9:0] hs_width = hse-hss;
+wire [9:0] output_hss = hb+((htotal-hb-hs_width)>>1);
+wire [9:0] output_hse = output_hss+hs_width;
+wire render_hs = {1'b0,h}>=hss && {1'b0,h}<hse;
 wire [8:0] vb = gga_v[7:0]==0 ? 9'd216 : {gga_v[7:0],1'b0}+9'd2;
 wire [8:0] vss = gga_v[15:8]==0 ? 9'd232 : {gga_v[15:8],1'b0}+9'd2;
 wire [8:0] vse = gga_v[23:16]==0 ? 9'd240 : {gga_v[23:16],1'b0}+9'd2;
@@ -41,10 +49,11 @@ wire [8:0] vrender = {1'b0,v+8'd1};
 wire [7:0] half_irq = vb[7:0]+8'd128;
 wire [7:0] scr0_pxl, scr1_pxl;
 wire [8:0] obj_pxl;
+wire [3:0] bitmap_pxl;
 
 assign LHBL = {1'b0,h}<hb;
 assign LVBL = {1'b0,v}<vb;
-assign HS = {1'b0,h}>=hss && {1'b0,h}<hse;
+assign HS = {1'b0,h}>=output_hss && {1'b0,h}<output_hse;
 assign VS = {1'b0,v}>=vss && {1'b0,v}<vse;
 assign irq_event = pxl_cen && h==0 && irq_control!=0 &&
                    (v==vb[7:0] || (irq_control==8'hc0 && v==half_irq));
@@ -66,11 +75,11 @@ jtsvolle_scr u_scr0(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .hs         ( HS            ),
+    .hs         ( render_hs     ),
     .en         ( gfx_en[0]     ),
     .hdump      ( lead          ),
     .vdump      ( {1'b0,v}      ),
-    .scrx       ( scrx0         ),
+    .scrx       ( scrx0+(rpunch ? 9'd8 : 9'd0) ),
     .scry       ( scry0         ),
     .code_bank  ( videoflags[10] ),
     .pal_bank   ( videoflags[4] ),
@@ -87,7 +96,7 @@ jtsvolle_scr u_scr1(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .hs         ( HS            ),
+    .hs         ( render_hs     ),
     .en         ( gfx_en[1]     ),
     .hdump      ( lead          ),
     .vdump      ( {1'b0,v}      ),
@@ -108,8 +117,9 @@ jtsvolle_obj u_obj(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .hs         ( HS            ),
+    .hs         ( render_hs     ),
     .en         ( gfx_en[3]     ),
+    .rpunch     ( rpunch        ),
     .hdump      ( obj_h         ),
     .vrender    ( vrender       ),
     .count      ( obj_count     ),
@@ -125,15 +135,33 @@ jtsvolle_obj u_obj(
     .overrun    ( obj_overrun   )
 );
 
+jtsvolle_bitmap u_bitmap(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .en         ( rpunch        ),
+    .next_line  ( pxl_cen && {1'b0,h}==htotal-10'd1 ),
+    .h          ( h             ),
+    .v          ( v             ),
+    .ram_addr   ( bitmap_addr   ),
+    .ram_cs     ( bitmap_cs     ),
+    .ram_data   ( bitmap_data   ),
+    .ram_ok     ( bitmap_ok     ),
+    .pxl        ( bitmap_pxl    ),
+    .overrun    ( bmp_overrun   )
+);
+
 jtsvolle_colmix u_colmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
+    .rpunch     ( rpunch        ),
     .scr0       ( scr0_pxl      ),
     .scr1       ( scr1_pxl      ),
     .obj        ( obj_pxl       ),
+    .bitmap     ( bitmap_pxl    ),
+    .bitmap_bank( videoflags[3:0] ),
     .gfx_en     ( gfx_en        ),
     .pal_addr   ( mix_addr      ),
     .pal_data   ( mix_data      ),

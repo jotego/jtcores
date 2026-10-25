@@ -6,24 +6,29 @@
 set -euo pipefail
 core_dir=$(cd "$(dirname "$0")/../.." && pwd)
 repo_dir=$(cd "$core_dir/../.." && pwd)
-run_dir="$core_dir/ver/svolley"
+setname=svolley
+if [[ ${1:-} == --set ]]; then
+    setname=${2:?Missing set name}
+    shift 2
+fi
+case "$setname" in
+    svolley|svolleyk|svolleyu|svolleyua|rabiolep) ;;
+    *) echo "Unsupported set: $setname" >&2; exit 1;;
+esac
+run_dir="$core_dir/ver/$setname"
 image=${SIMULATOR_IMAGE:-jotego/simulator:arm64}
-rom_image="$repo_dir/rom/svolley.rom"
+rom_image="$repo_dir/rom/$setname.rom"
 mkdir -p "$run_dir/scratch/bin"
 docker image inspect "$image" >/dev/null
 if [[ ! -s "$rom_image" || "$core_dir/cfg/mame2mra.toml" -nt "$rom_image" ||
       "$core_dir/cfg/macros.def" -nt "$rom_image" ]]; then
-    export JTROOT="$repo_dir" JTFRAME="$repo_dir/modules/jtframe"
-    export CORES="$repo_dir/cores" JTBIN="$repo_dir/release"
-    rom_dir=${MAME_ROMPATH:-$HOME/.mame/roms-local/svolley}
-    mkdir -p "$run_dir/scratch/roms"
-    (cd "$rom_dir" && zip -q -j "$run_dir/scratch/roms/svolley.zip" ./*.bin)
-    "$JTFRAME/bin/jtframemac" mra svolle --setname svolley --path "$run_dir/scratch/roms" --skipPocket
+    "$core_dir/ver/game/mra.sh"
 fi
 if [[ $# == 0 ]]; then set -- -load -video 180; fi
 docker run --rm --pull=never --entrypoint /bin/bash \
     -v "$repo_dir:/jtcores" \
-    -w /jtcores/cores/svolle/ver/svolley \
+    -w "/jtcores/cores/svolle/ver/$setname" \
+    -e SVOLLE_SET="$setname" \
     -e JTROOT=/jtcores -e JTFRAME=/jtcores/modules/jtframe \
     -e CORES=/jtcores/cores -e MODULES=/jtcores/modules \
     -e JTBIN=/jtcores/release -e ROM=/jtcores/rom \
@@ -34,5 +39,5 @@ docker run --rm --pull=never --entrypoint /bin/bash \
             go build -C "$JTFRAME/src/jtframe" -o "$helper" .
         fi
         export PATH="$PWD/scratch/bin:$JTFRAME/bin:$PATH"
-        exec jtsim -setname svolley -skipROM -mister "$@"
+        exec jtsim -setname "$SVOLLE_SET" -skipROM -mister "$@"
     ' bash "$@"

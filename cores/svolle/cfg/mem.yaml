@@ -4,6 +4,7 @@
 
 params:
   - { name: WORK_OFFSET, value: "22'h020000" }
+  - { name: BITMAP_OFFSET, value: "22'h028000" }
   - { name: SCR1_OFFSET, value: "(`SCR1_START-`JTFRAME_BA1_START)>>1" }
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA3_START)>>1" }
 
@@ -36,6 +37,10 @@ sdram:
         - name: main
           addr_width: 18
           data_width: 16
+        - name: bitmap
+          addr_width: 16
+          data_width: 32
+          offset: BITMAP_OFFSET
     - buses:
         - name: scr0
           addr_width: 19

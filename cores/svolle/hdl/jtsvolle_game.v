@@ -17,18 +17,17 @@ wire [31:0] gga_h;
 wire [23:0] gga_v;
 wire [7:0] irq_control;
 wire rpunch;
+wire cpu_ram_cs, cpu_ram_we, ram_busy, bitmap_overrun;
+wire main_reset = rst || ram_busy;
 
 assign main_addr = cpu_addr[17:1];
-assign work_addr = {3'd0,cpu_addr[13:1]};
-assign work_din = main_dout;
-assign work_dsn = cpu_dsn;
 assign vram0_addr = cpu_addr[12:1];
 assign vram1_addr = cpu_addr[12:1];
 assign oram_addr = cpu_addr[11:1];
 assign pal_addr = cpu_addr[10:1];
 assign dip_flip = 0;
 assign st_dout = 0;
-assign debug_view = debug_bus[7] ? {obj_overrun,7'd0} : main_debug;
+assign debug_view = debug_bus[7] ? {obj_overrun,bitmap_overrun,ram_busy,5'd0} : main_debug;
 always @* begin
     post_data = ((prog_ba==0 && prog_addr>=(rpunch ? 22'h10000 : 22'h18000) && prog_addr<22'h20000) ||
                  (prog_ba==3 && prog_addr>=(rpunch ? 22'h18000 : 22'h20000) && prog_addr<22'h28000)) ?
@@ -45,17 +44,18 @@ jtsvolle_header u_header(
 );
 
 jtsvolle_main u_main(
-    .rst        ( rst           ),
+    .rst        ( main_reset    ),
     .clk        ( clk           ),
     .dip_pause  ( dip_pause     ),
     .irq_event  ( irq_event     ),
+    .rpunch     ( rpunch        ),
     .addr       ( cpu_addr      ),
     .dout       ( main_dout     ),
     .dsn        ( cpu_dsn       ),
     .rnw        ( cpu_rnw       ),
     .rom_cs     ( main_cs       ),
-    .work_cs    ( work_cs       ),
-    .work_we    ( work_we       ),
+    .work_cs    ( cpu_ram_cs    ),
+    .work_we    ( cpu_ram_we    ),
     .rom_data   ( main_data     ),
     .work_data  ( work_data     ),
     .rom_ok     ( main_ok       ),
@@ -92,10 +92,29 @@ jtsvolle_main u_main(
     .debug_view ( main_debug    )
 );
 
-jtsvolle_video u_video(
+jtsvolle_mainram u_mainram(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .rpunch     ( rpunch        ),
+    .cpu_addr   ( cpu_addr      ),
+    .cpu_dout   ( main_dout     ),
+    .cpu_dsn    ( cpu_dsn       ),
+    .cpu_cs     ( cpu_ram_cs    ),
+    .cpu_we     ( cpu_ram_we    ),
+    .ram_addr   ( work_addr     ),
+    .ram_din    ( work_din      ),
+    .ram_dsn    ( work_dsn      ),
+    .ram_cs     ( work_cs       ),
+    .ram_we     ( work_we       ),
+    .ram_ok     ( work_ok       ),
+    .busy       ( ram_busy      )
+);
+
+jtsvolle_video u_video(
+    .rst        ( main_reset    ),
+    .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .rpunch     ( rpunch        ),
     .gga_h      ( gga_h         ),
     .gga_v      ( gga_v         ),
     .irq_control( irq_control   ),
@@ -126,6 +145,10 @@ jtsvolle_video u_video(
     .scr0_ok    ( scr0_ok       ),
     .scr1_ok    ( scr1_ok       ),
     .obj_ok     ( obj_ok        ),
+    .bitmap_addr( bitmap_addr   ),
+    .bitmap_cs  ( bitmap_cs     ),
+    .bitmap_data( bitmap_data   ),
+    .bitmap_ok  ( bitmap_ok     ),
     .gfx_en     ( gfx_en        ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
@@ -135,11 +158,12 @@ jtsvolle_video u_video(
     .red        ( red           ),
     .green      ( green         ),
     .blue       ( blue          ),
-    .obj_overrun( obj_overrun   )
+    .obj_overrun( obj_overrun   ),
+    .bmp_overrun( bitmap_overrun )
 );
 
 jtsvolle_snd u_sound(
-    .rst        ( rst           ),
+    .rst        ( main_reset    ),
     .clk        ( clk           ),
     .snd_cen    ( snd_cen       ),
     .fm_cen     ( fm_cen        ),
