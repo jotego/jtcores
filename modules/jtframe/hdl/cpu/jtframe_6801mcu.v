@@ -395,6 +395,12 @@ jt680x u_mcu(
     .addr       ( addr          ),
     .din        ( din           ),
     .dout       ( dout          ),
+    .opcode     ( 8'h00         ),
+    .opcode_raw (               ),
+    .ni         (               ),
+    .halt       (               ),
+    .vma        (               ),
+    .irq_ack    (               ),
     .irq        ( irq           ),
     .nmi        ( nmi           ),
     // bus sharing - only used on 6301 mode

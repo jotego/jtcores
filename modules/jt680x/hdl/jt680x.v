@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 22-11-2023 */
 /* verilator coverage_off */
-module jt680x(
+module jt680x #(parameter EXT_DECODE=0)(
     input             rst,
     input             clk,
     input             cen,  // crystal clock freq. = 4x E pin freq.
@@ -10,6 +10,12 @@ module jt680x(
     output     [15:0] addr, // always valid
     input      [ 7:0] din,
     output     [ 7:0] dout,
+    input      [ 7:0] opcode,
+    output     [ 7:0] opcode_raw,
+    output            ni,
+    output            halt,
+    output            vma,
+    output            irq_ack,
     // bus sharing - 6301
     input             ext_halt, // active high
     output            ba,
@@ -25,6 +31,8 @@ module jt680x(
 );
 
 wire [15:0] op0, op1, rslt,md;
+wire [7:0] decoded = EXT_DECODE ? opcode : md[7:0];
+wire [15:0] decoded_md = {md[15:8],decoded};
 wire [ 3:0] rslt_cc;
 wire        h, rslt_h, c, i;
 
@@ -35,22 +43,35 @@ wire        brlatch;
 wire        fetch;
 wire        inc_pc;
 wire        md_shift;
-wire        ni;
 wire        op0inv;
 wire [ 1:0] carry_sel;
+`ifdef JT680X_6802
+wire [ 2:0] ea_sel;
+`else
 wire [ 1:0] ea_sel;
+`endif
 wire [ 1:0] opnd_sel;
 wire [ 3:0] iv;
 wire [ 3:0] alu_sel;
 wire [ 3:0] ld_sel;
 wire [ 3:0] rmux_sel;
+`ifdef JT680X_6802
+wire [ 3:0] cc_sel;
+`else
 wire [ 4:0] cc_sel;
+`endif
+
+assign opcode_raw = md[7:0];
 
 jt680x_ctrl u_ctrl(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
-    .md         ( md        ),
+    .md         ( decoded_md),
+    .ni         ( ni        ),
+    .halt       ( halt      ),
+    .vma        ( vma       ),
+    .irq_ack    ( irq_ack   ),
     // bus sharing - 6301
     .ext_halt   ( ext_halt  ),
     .ba         ( ba        ),
@@ -106,6 +127,7 @@ jt680x_regs u_regs(
     .clk        ( clk       ),
     .cen        ( cen       ),
     .md         ( md        ),
+    .opcode     ( decoded   ),
     .alt        ( alt       ),
     .brlatch    ( brlatch   ),
     .branch     ( branch    ),
