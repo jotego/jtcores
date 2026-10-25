@@ -38,7 +38,8 @@ regions = [
     { name="sprpal" },
     { name="proms"  },
     { name="blprot", setname="popeyebl", sequence=[1,0] },
-    { name="blprot" },
+    { name="blprot", setname="popeyeb2" },
+    { name="blprot", skip=true },
 ]
 
 order = [ "maincpu", "gfx1", "gfx2", "timing", "sprpal", "proms", "blprot" ]
