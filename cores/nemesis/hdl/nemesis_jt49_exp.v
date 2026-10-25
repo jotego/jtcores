@@ -34,7 +34,7 @@
 // 2 -> [same]
 // 3 -> [same]
 
-module nemesis_jt49_exp(
+module jt49_exp(
     input            clk,
     input      [1:0] comp,  // compression
     input      [4:0] din,
