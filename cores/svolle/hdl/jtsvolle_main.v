@@ -51,7 +51,7 @@ wire [15:0] cpu_din = rom_cs ? ((rpunch ? a[17] : a[17:16]==2'b11) ? 16'd0 : rom
                      dip_cs ? dipsw :
                      pending_cs ? {15'd0, snd_pending} : 16'hffff;
 wire irq_n;
-reg irq_pending, write_seen;
+reg irq_pending, irq_armed, write_seen;
 reg [3:0] gga_index;
 wire write_once = write_bus && !write_seen;
 wire control_we = write_once && (flags_cs ||
@@ -126,6 +126,7 @@ always @(posedge clk) begin
     if(rst) begin
         write_seen <= 0;
         irq_pending <= 0;
+        irq_armed <= 0;
         snd_latch <= 0;
         snd_wr <= 0;
         gga_index <= 0;
@@ -134,12 +135,13 @@ always @(posedge clk) begin
         if(!write_bus) write_seen <= 0;
         else if(write_once) write_seen <= 1;
         if(!inta_n) irq_pending <= 0;
-        else if(irq_event && dip_pause) irq_pending <= 1;
+        else if(irq_event && irq_armed && dip_pause) irq_pending <= 1;
         if(write_once && sound_cs && !ldsn) begin
             snd_latch <= dout[7:0];
             snd_wr <= 1;
         end
         if(gga_we && a[5]) gga_index <= dout[3:0];
+        if(gga_we && !a[5] && gga_index==4'hb) irq_armed <= 1;
     end
 end
 

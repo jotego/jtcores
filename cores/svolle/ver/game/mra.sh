@@ -15,9 +15,9 @@ for argument in "$@"; do
     if [[ "$argument" == --skipROM ]]; then skip_rom=1; fi
 done
 if [[ "$skip_rom" == 0 ]]; then
-    for game in svolley svolleyk svolleyu svolleyua rabiolep; do
+    for game in svolley svolleyk svolleyu svolleyua rabiolep rpunch; do
         folder=
-        for candidate in "$rom_root/$game" "$rom_root/svolley/$game" "$rom_root/../$game"; do
+        for candidate in "$rom_root/$game" "$rom_root/svolley/$game" "$rom_root/rabiolep/$game" "$rom_root/../$game"; do
             if [[ -d "$candidate" ]]; then folder="$candidate"; break; fi
         done
         if [[ ${rom_root##*/} == "$game" ]]; then folder="$rom_root"; fi

@@ -55,7 +55,7 @@ assign LHBL = {1'b0,h}<hb;
 assign LVBL = {1'b0,v}<vb;
 assign HS = {1'b0,h}>=output_hss && {1'b0,h}<output_hse;
 assign VS = {1'b0,v}>=vss && {1'b0,v}<vse;
-assign irq_event = pxl_cen && h==0 && irq_control!=0 &&
+assign irq_event = pxl_cen && h==0 &&
                    (v==vb[7:0] || (irq_control==8'hc0 && v==half_irq));
 
 // The GGA vertical total is provisional at 256 lines.

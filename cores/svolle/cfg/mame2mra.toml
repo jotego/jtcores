@@ -8,7 +8,7 @@ platform="jtsvolle"
 
 [parse]
 sourcefile=["rpunch.cpp"]
-mustbe.setnames=["svolley","svolleyk","svolleyu","svolleyua","rabiolep"]
+mustbe.setnames=["svolley","svolleyk","svolleyu","svolleyua","rabiolep","rpunch"]
 skip.bootlegs=true
 
 [header]

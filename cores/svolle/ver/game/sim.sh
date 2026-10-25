@@ -12,7 +12,7 @@ if [[ ${1:-} == --set ]]; then
     shift 2
 fi
 case "$setname" in
-    svolley|svolleyk|svolleyu|svolleyua|rabiolep) ;;
+    svolley|svolleyk|svolleyu|svolleyua|rabiolep|rpunch) ;;
     *) echo "Unsupported set: $setname" >&2; exit 1;;
 esac
 run_dir="$core_dir/ver/$setname"
