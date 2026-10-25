@@ -33,6 +33,7 @@ docker run --rm --pull=never --entrypoint /bin/bash \
     -e CORES=/jtcores/cores -e MODULES=/jtcores/modules \
     -e JTBIN=/jtcores/release -e ROM=/jtcores/rom \
     -e RLS=/jtcores/release -e MRA=/jtcores/release/mra \
+    -e JOTEGO=/jtcores \
     "$image" -euo pipefail -c '
         helper="$PWD/scratch/bin/jtframe"
         if [[ ! -x "$helper" ]] || [[ -n $(find "$JTFRAME/src/jtframe" -name "*.go" -newer "$helper" -print -quit) ]]; then

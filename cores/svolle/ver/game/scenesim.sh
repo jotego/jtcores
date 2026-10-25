@@ -73,7 +73,7 @@ for scene in "${scenes[@]}"; do
         build_log=scratch/scene-build.log
         if jtsim -setname "$setname" -skipROM -mister -load -batch \
             -d NOMAIN -d NOSOUND -d SIMSCENE -video 3 -time 200 >"$build_log" 2>&1; then
-            awk '/^MMR / || /^SVOLLE bitmap restore:/ {runtime=1} runtime {print}' "$build_log" >"$log"
+            awk '/^make: Leaving directory / {runtime=1; next} runtime {print}' "$build_log" >"$log"
         else
             result=$?
             echo "Replay failed ($result): $PWD/$build_log" >&2
@@ -91,7 +91,6 @@ for scene in "${scenes[@]}"; do
     shopt -u nullglob
     [[ ${#frames[@]} -gt 0 ]] || { echo "No frame produced: $PWD/$log" >&2; exit 1; }
     cp "${frames[${#frames[@]}-1]}" "sim_results/$scene.png"
-    rm -f "sim_results/diff/$scene.png"
     printf 'REPLAYED %s %s\n' "$setname" "$scene"
 done
 printf 'REPLAY_COMPLETE %s %s\n' "$setname" "$PWD/sim_results"

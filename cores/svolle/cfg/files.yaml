@@ -3,7 +3,7 @@
 # Date: 25-10-2026
 
 svolle:
-  - get: [ "*.v" ]
+  - get: [ "*.v", "timing.sdc" ]
 jtframe:
   - from: ram
     get: [jtframe_ram.v, jtframe_dual_ram.v, jtframe_dual_ram16.v, jtframe_obj_buffer.v]
