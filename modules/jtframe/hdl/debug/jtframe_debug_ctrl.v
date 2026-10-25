@@ -26,7 +26,7 @@ module jtframe_debug_ctrl(
 // Video overlay
 localparam [8:0] JTFRAME_DEBUG_VPOS=`JTFRAME_DEBUG_VPOS;
 // Keep bit 9 until after halving: a 512-pixel picture is centred at 256.
-localparam [9:0] WIDTH=`JTFRAME_WIDTH;
+localparam [9:0] WIDTH=`JTFRAME_WIDTH + 10'd0;
 
 wire [8:0] HBIN={WIDTH[9:3],2'b00}-9'h10,
                  HHEX=HBIN+9'h50,
