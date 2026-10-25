@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ns/1ps
 
 module test;
+
 
 parameter NFIELDS = 9;
 
@@ -63,6 +65,7 @@ jtpopeye_timing u_timing(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen5       ( cen5          ),
+    .cen10      ( cen10         ),
     .rv         ( rv            ),
     .tprom_addr ( tprom_addr    ),
     .tprom_data ( tprom_q[3:0]  ),
@@ -125,7 +128,7 @@ jtpopeye_objbuf uut(
 
 `ifdef JT2020
 wire [ 8:0] rovi20;
-wire        rvn2020 = `RVN2020;
+wire        rvn2020 = ~rv;
 wire [17:0] dj20;
 jtpopeye_buf u_2020(
     .rst_n      ( ~rst          ),
@@ -441,7 +444,7 @@ initial begin
     $display("ROHVCK rises checked (rovi/3U): %0d; DJ latches with the write buffer enabled the clk before: %0d", n_rov, n_ce);
 `ifdef JT2020
     $display("2020 jtpopeye_buf (RV_n=%0s): %0d occupied-slot compares, %0d differ (%0d in the row bits DJ1-3, %0d elsewhere)",
-        `RVN2020S, n20, e20, e20row, e20oth);
+        "~rv", n20, e20, e20row, e20oth);
 `endif
     if( n_ce != 0 ) fail("write buffer drove DJI at a latch edge");
     if( ln_ok < 4 || n_full < 1000 || n_empty < 1000 || (NFIELDS > 5 && n_flip < 1000) || n_tab < 1000 ) fail("coverage too low");
@@ -450,4 +453,12 @@ initial begin
     $finish;
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

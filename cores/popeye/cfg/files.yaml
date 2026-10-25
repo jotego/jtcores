@@ -1,6 +1,7 @@
 popeye:
   - get:
     - jtpopeye_game.v
+    - jtpopeye_scene_mmr.v
     - jtpopeye_header.v
     - jtpopeye_main.v
     - jtpopeye_prot.v

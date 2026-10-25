@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ps/1ps
 
 module test;
+
 
 localparam [1:0] DEFL  = `DEFL;
 localparam       NARROW = `NARROW;
@@ -364,4 +366,12 @@ initial begin
     $fatal(1);
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule

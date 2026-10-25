@@ -13,3 +13,11 @@ CORE_OSD=P1O[14:13],CRT deflicker,Off,Low,Med,High;P1O[18],CRT width,PCB,Narrow;
 CHAR_START=0x8000
 OBJ_START =0x9000
 JTFRAME_PROM_START=0x11000
+
+JTFRAME_IOCTL_RD=16384
+
+JTFRAME_JOY_DULR
+
+# Split analog/scaler integration is currently supported on MiSTer only.
+[mist|sidi|sidi128|pocket|neptuno|mc2|mcp]
+JTFRAME_SKIP

@@ -1,6 +1,8 @@
+`include "fixtures.vh"
 `timescale 1ns/1ps
 
 module test;
+
 
 reg        rst, reset_n, clk, psg_cen, bdir, bc1;
 reg  [7:0] din;
@@ -134,18 +136,18 @@ task measure_half(input integer ch, output integer len);
     integer t0;
     reg [7:0] v0;
 begin
-    v0 = ch==0 ? psga : ch==1 ? psgb : psgc;
-    while( (ch==0 ? psga : ch==1 ? psgb : psgc) == v0 ) @(posedge clk);
-    v0 = ch==0 ? psga : ch==1 ? psgb : psgc;
+    v0 = ch==0 ? uut.ay_a : ch==1 ? uut.ay_b : uut.ay_c;
+    while( (ch==0 ? uut.ay_a : ch==1 ? uut.ay_b : uut.ay_c) == v0 ) @(posedge clk);
+    v0 = ch==0 ? uut.ay_a : ch==1 ? uut.ay_b : uut.ay_c;
     t0 = $time;
-    while( (ch==0 ? psga : ch==1 ? psgb : psgc) == v0 ) @(posedge clk);
+    while( (ch==0 ? uut.ay_a : ch==1 ? uut.ay_b : uut.ay_c) == v0 ) @(posedge clk);
     len = ($time-t0)/20.834;
 end
 endtask
 
 integer hl, pk, other;
 
-jtpopeye_sound u_dut(
+jtpopeye_sound uut(
     .rst    ( rst   ),
     .reset_n( reset_n ),
     .clk    ( clk   ),
@@ -332,4 +334,12 @@ initial begin
     $finish;
 end
 
+initial begin
+    repeat(20000000) @(posedge clk);
+    $fatal(1,"FAIL bounded simulation timeout");
+end
+initial begin
+    $dumpfile("test.lxt"); $dumpvars(1,uut);
+    repeat(2048) @(posedge clk); $dumpoff;
+end
 endmodule
