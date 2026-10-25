@@ -11,6 +11,11 @@ sourcefile=["rpunch.cpp"]
 mustbe.setnames=["svolley"]
 skip.bootlegs=true
 
+[header]
+registers=[
+  {name="rpunch", pos="1[0]", values=[{setnames=["rpunch","rabiolep"], value=1}]},
+]
+
 [buttons]
 names=[{setname="svolley", names="Button 1,Button 2"}]
 
@@ -27,7 +32,8 @@ regions=[
   {name="maincpu", width=16, reverse=true, len=0x40000},
   {name="tiles1", start="JTFRAME_BA1_START", len=0x80000},
   {name="tiles2", start="SCR1_START", len=0x80000},
-  {name="sprites", start="JTFRAME_BA2_START", width=16, len=0x80000, files=[
+  {name="sprites", start="JTFRAME_BA2_START", width=16, len=0x80000},
+  {setname="svolley", name="sprites", start="JTFRAME_BA2_START", width=16, len=0x80000, files=[
     {name="sps_20.bin", crc="c9e7206d", size=0x10000, offset=0x00000},
     {name="sps_23.bin", crc="7b15c805", size=0x10000, offset=0x00001},
     {name="sps_19.bin", crc="8ac2f232", size=0x08000, offset=0x20000},

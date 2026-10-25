@@ -29,7 +29,7 @@ sdram:
   banks:
     - buses:
         - name: work
-          addr_width: 14
+          addr_width: 17
           data_width: 16
           offset: WORK_OFFSET
           rw: true

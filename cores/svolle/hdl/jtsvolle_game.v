@@ -16,9 +16,10 @@ wire [5:0] obj_count, obj_pri;
 wire [31:0] gga_h;
 wire [23:0] gga_v;
 wire [7:0] irq_control;
+wire rpunch;
 
 assign main_addr = cpu_addr[17:1];
-assign work_addr = cpu_addr[13:1];
+assign work_addr = {3'd0,cpu_addr[13:1]};
 assign work_din = main_dout;
 assign work_dsn = cpu_dsn;
 assign vram0_addr = cpu_addr[12:1];
@@ -29,10 +30,19 @@ assign dip_flip = 0;
 assign st_dout = 0;
 assign debug_view = debug_bus[7] ? {obj_overrun,7'd0} : main_debug;
 always @* begin
-    post_data = ((prog_ba==0 && prog_addr>=22'h18000 && prog_addr<22'h20000) ||
-                 (prog_ba==3 && prog_addr>=22'h20000 && prog_addr<22'h28000)) ?
+    post_data = ((prog_ba==0 && prog_addr>=(rpunch ? 22'h10000 : 22'h18000) && prog_addr<22'h20000) ||
+                 (prog_ba==3 && prog_addr>=(rpunch ? 22'h18000 : 22'h20000) && prog_addr<22'h28000)) ?
                   8'd0 : prog_data;
 end
+
+jtsvolle_header u_header(
+    .clk        ( clk           ),
+    .header     ( header        ),
+    .prog_we    ( prog_we       ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data     ),
+    .rpunch     ( rpunch        )
+);
 
 jtsvolle_main u_main(
     .rst        ( rst           ),

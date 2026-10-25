@@ -8,15 +8,17 @@ core_dir=$(cd "$(dirname "$0")/../.." && pwd)
 repo_dir=$(cd "$core_dir/../.." && pwd)
 run_dir="$core_dir/ver/svolley"
 image=${SIMULATOR_IMAGE:-jotego/simulator:arm64}
+rom_image="$repo_dir/rom/svolley.rom"
 mkdir -p "$run_dir/scratch/bin"
 docker image inspect "$image" >/dev/null
-if [[ ! -s "$repo_dir/rom/svolley.rom" ]]; then
+if [[ ! -s "$rom_image" || "$core_dir/cfg/mame2mra.toml" -nt "$rom_image" ||
+      "$core_dir/cfg/macros.def" -nt "$rom_image" ]]; then
     export JTROOT="$repo_dir" JTFRAME="$repo_dir/modules/jtframe"
     export CORES="$repo_dir/cores" JTBIN="$repo_dir/release"
     rom_dir=${MAME_ROMPATH:-$HOME/.mame/roms-local/svolley}
     mkdir -p "$run_dir/scratch/roms"
     (cd "$rom_dir" && zip -q -j "$run_dir/scratch/roms/svolley.zip" ./*.bin)
-    "$JTFRAME/bin/jtframemac" mra svolle --path "$run_dir/scratch/roms" --skipPocket
+    "$JTFRAME/bin/jtframemac" mra svolle --setname svolley --path "$run_dir/scratch/roms" --skipPocket
 fi
 if [[ $# == 0 ]]; then set -- -load -video 180; fi
 docker run --rm --pull=never --entrypoint /bin/bash \
