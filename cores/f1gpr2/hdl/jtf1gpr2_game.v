@@ -25,8 +25,8 @@ assign shared_addr  = main_addr[11:1];
 assign fgvram_addr  = main_addr[11:1];
 assign pal_addr     = main_addr[11:1];
 assign rozvram_addr = main_addr[12:1];
-assign sprcg_addr   = main_addr[13:1];
-assign sprvram_addr = main_addr[10:1];
+assign sprcg_addr   = main_addr[14:1];
+assign sprvram_addr = main_addr[11:1];
 assign subram_addr  = sub_addr[13:1];
 assign shsub_addr   = sub_addr[11:1];
 
@@ -113,6 +113,7 @@ jtf1gpr2_video u_video(
     .roz_we     ( roz_we        ),
     .roz_mmr_addr( roz_mmr      ),
     .roz_din    ( main_dout     ),
+    .roz_dsn    ( main_dsn      ),
     .roz_bank   ( roz_bank      ),
 
     .fgv_addr   ( fgv_addr      ),
@@ -150,7 +151,12 @@ jtf1gpr2_video u_video(
     .blue       ( blue          )
 );
 
-jtpspike_snd #(.BANK_OFF(2'd1),.PCMBW(19)) u_snd(
+jtpspike_snd #(
+    .BANK_OFF   ( 2'd1          ),
+    .BANK_PORT  ( 8'h0c         ),
+    .BANK_MASK  ( 2'd1          ),
+    .PCMBW      ( 19            )
+) u_snd(
     .rst        ( rst48         ),
     .clk        ( clk48         ),
     .snd_cen    ( snd_cen       ),

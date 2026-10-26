@@ -13,15 +13,16 @@ module jtf1gpr2_video(
     input               roz_we,
     input      [ 4:1]   roz_mmr_addr,
     input      [15:0]   roz_din,
+    input      [ 1:0]   roz_dsn,
     input      [ 7:0]   roz_bank,
 
     output     [11:1]   fgv_addr,
     input      [15:0]   fgv_dout,
     output     [12:1]   rozv_addr,
     input      [15:0]   rozv_dout,
-    output     [10:1]   objr_addr,
+    output     [11:1]   objr_addr,
     input      [15:0]   objr_dout,
-    output     [13:1]   objl_addr,
+    output     [14:1]   objl_addr,
     input      [15:0]   objl_dout,
     output     [11:1]   mix_addr,
     input      [15:0]   mix_pal,
@@ -34,7 +35,7 @@ module jtf1gpr2_video(
     output              obj_cs,
     input      [31:0]   obj_data,
     input               obj_ok,
-    output     [20:1]   rozrom_addr,
+    output     [21:1]   rozrom_addr,
     output              rozrom_cs,
     input      [15:0]   rozrom_data,
     input               rozrom_ok,
@@ -52,6 +53,19 @@ wire [ 7:0] roz_pxl;
 wire        roz_on;
 wire [10:0] pxl;
 wire        fg_op, obj_op;
+wire [ 4:0] mix_red, mix_green, mix_blue;
+wire        preLHBL, preLVBL;
+reg  [ 1:0] blank_dly;
+
+assign { LHBL, LVBL } = blank_dly;
+
+always @(posedge clk) if( pxl_cen ) begin
+    blank_dly <= { preLHBL, preLVBL };
+end
+
+assign red   = gfxctrl[2] ? 5'd0 : mix_red;
+assign green = gfxctrl[2] ? 5'd0 : mix_green;
+assign blue  = gfxctrl[2] ? 5'd0 : mix_blue;
 
 localparam [8:0] H_END = 9'd455, V_END = 9'd261;
 localparam [8:0] HB_START = 9'd319, HB_END = H_END;
@@ -81,8 +95,8 @@ jtframe_vtimer #(
     .H          ( hdump     ),
     .Hinit      (           ),
     .Vinit      (           ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
+    .LHBL       ( preLHBL   ),
+    .LVBL       ( preLVBL   ),
     .HS         ( HS        ),
     .VS         ( VS        )
 );
@@ -97,8 +111,8 @@ jtf1grpr_fg u_fg(
     .hsize      ( HB_START  ),
     .vsize      ( VB_START  ),
     .vdump      ( vdump     ),
-    .scrx       ( fg_scrx   ),
-    .scry       ( fg_scry   ),
+    .scrx       ( fg_scrx + (flip ? 9'd161 : 9'd79) ),
+    .scry       ( fg_scry + (flip ? 9'd10 : 9'd18)  ),
 
     .fgv_addr   ( fgv_addr  ),
     .fgv_dout   ( fgv_dout  ),
@@ -136,35 +150,37 @@ jtf1gpr2_obj u_obj(
 );
 
 jtf1gpr2_roz u_roz(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .hs         ( HS        ),
-    .vs         ( VS        ),
-    .flip       ( flip      ),
+    .rst        ( rst          ),
+    .clk        ( clk          ),
+    .pxl_cen    ( pxl_cen      ),
+    .hs         ( HS           ),
+    .vs         ( VS           ),
+    .hdump      ( hdump        ),
+    .vdump      ( vdump        ),
+    .flip       ( flip         ),
 
-    .cs         ( roz_we    ),
+    .cs         ( roz_we       ),
     .addr       ( roz_mmr_addr ),
-    .din        ( roz_din   ),
-    .dsn        ( 2'b00     ),
+    .din        ( roz_din      ),
+    .dsn        ( roz_dsn      ),
 
-    .roz_bank   ( roz_bank  ),
+    .roz_bank   ( roz_bank     ),
 
-    .rozv_addr  ( rozv_addr ),
-    .rozv_dout  ( rozv_dout ),
+    .rozv_addr  ( rozv_addr    ),
+    .rozv_dout  ( rozv_dout    ),
 
-    .rom_addr   ( rozrom_addr ),
-    .rom_cs     ( rozrom_cs   ),
-    .rom_data   ( rozrom_data ),
-    .rom_ok     ( rozrom_ok   ),
+    .rom_addr   ( rozrom_addr  ),
+    .rom_cs     ( rozrom_cs    ),
+    .rom_data   ( rozrom_data  ),
+    .rom_ok     ( rozrom_ok    ),
 
-    .pxl        ( roz_pxl   ),
-    .on         ( roz_on    )
+    .pxl        ( roz_pxl      ),
+    .on         ( roz_on       )
 );
 
-assign fg_op  = fg_pxl != 8'hff;
-assign obj_op = obj_pxl[3:0] != 4'hf;
-wire roz_op   = roz_on && roz_pxl[3:0] != 4'hf;
+assign fg_op  = gfx_en[0] && fg_pxl != 8'hff;
+assign obj_op = gfx_en[3] && obj_pxl[3:0] != 4'hf;
+wire roz_op   = gfx_en[1] && roz_on && roz_pxl[3:0] != 4'hf;
 wire [10:0] roz_out = 11'h100 + { 3'd0, roz_pxl };
 
 reg [10:0] pxl_r;
@@ -174,33 +190,33 @@ always @* begin
     else case( gfxctrl[1:0] )
         2'd0: pxl_r = fg_op  ? { 3'd0, fg_pxl } :
                        obj_op ? obj_pxl           :
-                       roz_op ? roz_out           : 11'd0;
+                       gfx_en[1] && roz_on ? roz_out : 11'd0;
         2'd1: pxl_r = obj_op ? obj_pxl           :
                        fg_op  ? { 3'd0, fg_pxl } :
-                       roz_op ? roz_out           : 11'd0;
+                       gfx_en[1] && roz_on ? roz_out : 11'd0;
         2'd2: pxl_r = obj_op ? obj_pxl           :
                        roz_op ? roz_out           :
-                       fg_op  ? { 3'd0, fg_pxl } : 11'd0;
+                       gfx_en[0] ? { 3'd0, fg_pxl } : 11'd0;
         default: pxl_r = 11'd0;
     endcase
 end
 assign pxl = pxl_r;
 
 jtf1grpr_colmix u_colmix(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
+    .rst        ( rst          ),
+    .clk        ( clk          ),
+    .pxl_cen    ( pxl_cen      ),
+    .LHBL       ( preLHBL      ),
+    .LVBL       ( preLVBL      ),
 
-    .pxl        ( pxl       ),
+    .pxl        ( pxl          ),
 
-    .mix_addr   ( mix_addr  ),
-    .mix_pal    ( mix_pal   ),
+    .mix_addr   ( mix_addr     ),
+    .mix_pal    ( mix_pal      ),
 
-    .red        ( red       ),
-    .green      ( green     ),
-    .blue       ( blue      )
+    .red        ( mix_red      ),
+    .green      ( mix_green    ),
+    .blue       ( mix_blue     )
 );
 
 endmodule

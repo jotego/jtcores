@@ -33,14 +33,17 @@ sdram:
       - name: main
         addr_width: 22
         data_width: 16
+        cache_size: 2kB
     - buses:
       - name: obj
         addr_width: 21
         data_width: 32
+        cache_size: 4kB
     - buses:
       - name: roz
-        addr_width: 21
+        addr_width: 22
         data_width: 16
+        cache_size: 4kB
     - buses:
       - name: sub
         addr_width: 17
@@ -103,14 +106,14 @@ bram:
     simfile: { big_endian: true }
     dual_port: { name: rozv, dout: rozv_dout }
   - name: sprcg
-    addr_width: 14
+    addr_width: 15
     data_width: 16
     rw: true
     din: main_dout
     simfile: { big_endian: true }
     dual_port: { name: objl, dout: objl_dout }
   - name: sprvram
-    addr_width: 11
+    addr_width: 12
     data_width: 16
     rw: true
     din: main_dout

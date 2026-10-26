@@ -37,6 +37,8 @@
 // BANK_OFF shifts the bank window: pspikes/turbofrc bank from 0, f1gp banks
 // two 32kB entries starting at 0x8000
 module jtpspike_snd #(parameter [1:0] BANK_OFF=2'd0,
+                      parameter [7:0] BANK_PORT=8'h00,
+                      parameter [1:0] BANK_MASK=2'b11,
                       parameter       PCMBW   =19      // f1gp has 1MB
 )(
     input                rst,
@@ -91,7 +93,8 @@ assign io_acc   = ~iorq_n & m1_n;
 // 7800-7fff is the only RAM, everything else in memory space is ROM
 assign ram_cs   = mem_acc & A[15:11]==5'b01111;
 assign rom_cs   = mem_acc & ~ram_cs;
-assign bank_cs  = io_acc & (aerofgt ? A[7:0]==8'h04 : A[7:0]==8'h00);
+assign bank_cs  = io_acc & (aerofgt ? A[7:0]==8'h04 :
+                                    A[7:0]==8'h00 || A[7:0]==BANK_PORT);
 assign latch_rd = io_acc & (aerofgt ? A[7:0]==8'h0c : A[7:0]==8'h14);
 assign latch_ack= io_acc & (aerofgt ? A[7:0]==8'h08 : A[7:0]==8'h14);
 assign fm_cs    = io_acc & (aerofgt ? A[7:2]==6'b0000_00     // 00-03
@@ -114,7 +117,7 @@ always @(posedge clk) begin
         bank        <= 0;
         snd_pending <= 0;
     end else begin
-        if( bank_cs && !wr_n ) bank <= cpu_dout[1:0];
+        if( bank_cs && !wr_n ) bank <= cpu_dout[1:0] & BANK_MASK;
         // the 68000 write wins over a simultaneous acknowledge
         if( latch_ack && !wr_n ) snd_pending <= 0;
         if( snd_wr            ) snd_pending <= 1;

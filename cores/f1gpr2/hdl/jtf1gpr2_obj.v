@@ -11,9 +11,9 @@ module jtf1gpr2_obj(
     input      [ 8:0]   hdump, vrender,
     input      [ 8:0]   hsize, vsize,
 
-    output     [10:1]   objr_addr,
+    output     [11:1]   objr_addr,
     input      [15:0]   objr_dout,
-    output     [13:1]   objl_addr,
+    output     [14:1]   objl_addr,
     input      [15:0]   objl_dout,
 
     output     [20:2]   rom_addr,

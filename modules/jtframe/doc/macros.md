@@ -9,7 +9,7 @@ GAMETOP       | Core's game module name | $CORENAME_game(_sdram)
 
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
-JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
+JTFRAME_180SHIFT         | MiSTer  | Use a DDIO cell instead of the PLL for the SDRAM clock; define under `[mister]`. See [clock selection](sdram.md#sdram-clock-selection) for simulation overrides.
 JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
 JTFRAME_AVATARS          |         | Enables avatars on credits screen
@@ -101,7 +101,7 @@ JTFRAME_SDRAM_XL         | MiSTer  | Enables 128MB SDRAM
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)
-JTFRAME_SHIFT            |         | Set to 1 if the SDRAM clock phase has a large positive shift
+JTFRAME_SHIFT            |         | Target-defined SDRAM phase/timing selection. See [clock selection](sdram.md#sdram-clock-selection).
 JTFRAME_SIGNALTAP        |         | Enables SignalTap QSF merge in `jtcore`; set by `jtcore --signaltap` or define in `macros.def`
 JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sound sources
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS

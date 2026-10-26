@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 25-10-2026
+
+- name: control
+  size: 8
+  dw: 16
+  read_only: true
+  regs:
+    - { name: gfxctrl,  dw: 8,  at: "0" }
+    - { name: roz_bank, dw: 8,  at: "1" }
+    - { name: fg_scrx,  dw: 16, at: "3,2" }
+    - { name: fg_scry,  dw: 16, at: "5,4" }
+- name: psac
+  size: 32
+  dw: 16
+  read_only: true
+  regs:
+    - { name: startx,  dw: 16, at: "1,0" }
+    - { name: starty,  dw: 16, at: "3,2" }
+    - { name: incyx,   dw: 16, at: "5,4" }
+    - { name: incyy,   dw: 16, at: "7,6" }
+    - { name: incxx,   dw: 16, at: "9,8" }
+    - { name: incxy,   dw: 16, at: "11,10" }
+    - { name: clip,    dw: 16, at: "13,12" }
+    - { name: control, dw: 16, at: "15,14" }
+    - { name: xmin,    dw: 16, at: "17,16" }
+    - { name: xmax,    dw: 16, at: "19,18" }
+    - { name: ymax,    dw: 16, at: "21,20" }
+    - { name: ymin,    dw: 16, at: "23,22" }
+    - { name: hstart,  dw: 16, at: "25,24" }
+    - { name: vstart,  dw: 16, at: "27,26" }
+    - { name: line,    dw: 16, at: "29,28" }
+    - { name: spare,   dw: 16, at: "31,30" }

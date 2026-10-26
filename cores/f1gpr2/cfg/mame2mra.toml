@@ -26,7 +26,7 @@ Names = [ { machine="f1gp2", names="Accelerate,Brake,Turbo" } ]
 
 [ROM]
 regions = [
-    { name="maincpu", width=16, no_offset=true },
+    { name="maincpu", width=16, reverse=true, no_offset=true },
     { name="user1", start="USER1_START", no_offset=true, parts=[
         { name="rom2", crc="3b0cfa82", offset=0x100000, length=0x100000 },
         { name="rom2", crc="3b0cfa82", length=0x100000 },

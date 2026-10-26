@@ -7,6 +7,7 @@ module jtf1gpr2_roz(
     input             clk,
     input             pxl_cen,
     input             hs, vs,
+    input      [ 8:0] hdump, vdump,
     input             flip,
 
     input             cs,
@@ -16,10 +17,10 @@ module jtf1gpr2_roz(
 
     input      [ 7:0] roz_bank,
 
-    output     [12:1] rozv_addr,
+    output reg [12:1] rozv_addr,
     input      [15:0] rozv_dout,
 
-    output reg [20:1] rom_addr,
+    output reg [21:1] rom_addr,
     output reg        rom_cs,
     input      [15:0] rom_data,
     input             rom_ok,
@@ -37,9 +38,10 @@ always @(posedge clk) begin
     if( hs & ~hs_l ) vs_dly <= vs;
 end
 
-wire xh, yh, ob;
-
-jt053936 #(.XOFFSET(-4),.YOFFSET(-22)) u_xy(
+jt053936 #(
+    .XOFFSET    ( 27        ),
+    .YOFFSET    ( 4         )
+) u_xy(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
@@ -59,69 +61,50 @@ jt053936 #(.XOFFSET(-4),.YOFFSET(-22)) u_xy(
     .la         (           ),
 
     .x          ( x         ),
-    .xh         ( xh        ),
+    .xh         (           ),
     .y          ( y         ),
-    .yh         ( yh        ),
+    .yh         (           ),
     .nx         (           ),
     .ny         (           ),
-    .ob         ( ob        ),
+    .ob         (           ),
 
     .ioctl_addr ( 5'd0      ),
     .ioctl_din  (           )
 );
 
-assign rozv_addr = { y[9:4], x[9:4] };
-
-reg  [18:0] code;
-reg  [ 3:0] col;
+localparam [2:0] S_IDLE=0, S_MAP_WAIT=1, S_MAP=2, S_WAIT=3, S_ROM=4, S_WRITE=5;
+reg  [ 2:0] st;
+reg  [ 3:0] col, col_req;
 reg  [ 3:0] xl, yl, xl2;
-reg         ob_l, ob_l2, ob_l3;
-reg         got_map, got_gfx;
 reg  [15:0] gfx_word;
+reg  [ 3:0] req_bank;
+reg  [ 8:0] req_line, req_h;
 
-always @(posedge clk) begin
-    if( rst ) begin
-        code    <= 0; col <= 0;
-        xl      <= 0; yl  <= 0; xl2 <= 0;
-        ob_l    <= 1; ob_l2 <= 1; ob_l3 <= 1;
-        got_map <= 0; got_gfx <= 0;
-        rom_cs  <= 0; rom_addr <= 0;
-        gfx_word<= 0;
-    end else begin
-        if( pxl_cen ) begin
-            code    <= (rozv_dout[10:0] | ({roz_bank, 3'd0} << 8));
-            col     <= rozv_dout[15:12];
-            xl      <= x[3:0];
-            yl      <= y[3:0];
-            ob_l    <= ob;
-            got_map <= 1;
-            got_gfx <= 0;
-        end
-        if( got_map && !got_gfx ) begin
-            rom_addr <= { code, yl, xl[3:2] };
-            rom_cs   <= ~ob_l;
-            if( ob_l ) begin
-                got_gfx <= 1;
-                got_map <= 0;
-            end
-        end
-        if( rom_cs && rom_ok ) begin
-            gfx_word <= rom_data;
-            rom_cs   <= 0;
-            got_gfx  <= 1;
-            got_map  <= 0;
-            xl2      <= xl;
-            ob_l2    <= ob_l;
-        end
-        if( ob_l && got_map && !got_gfx ) begin
-            ob_l2   <= 1;
-            got_gfx <= 1;
-            got_map <= 0;
-        end
-    end
-end
+(* ramstyle = "MLAB, no_rw_check" *) reg [41:0] requests[0:63];
+reg  [ 5:0] rd_ptr, wr_ptr;
+reg  [ 6:0] queued;
+wire [41:0] head = requests[rd_ptr];
+wire [ 8:0] next_line = vdump==9'd261 ? 9'd0 : vdump+9'd1;
+wire        line_start = pxl_cen && hdump==0;
+wire        capture = pxl_cen && hdump<9'd320 && next_line<9'd224;
+wire        pop = st==S_IDLE && queued!=0;
+wire        push = capture && (queued!=7'd64 || pop);
+wire        overflow = capture && !push;
 
-reg [3:0] pix;
+reg  [ 1:0] ready, failed;
+reg  [ 8:0] tags[0:1];
+reg  [ 8:0] written[0:1];
+reg         display_valid, valid;
+reg  [ 7:0] display_pixel;
+wire        write_bank = req_line[0];
+wire        read_bank = vdump[0];
+wire        write_current = tags[write_bank]==req_line &&
+                            !(line_start && write_bank!=read_bank);
+wire        line_we = st==S_WRITE && write_current;
+wire        display_ready = ready[read_bank] && tags[read_bank]==vdump;
+wire [ 7:0] line_data;
+reg  [ 3:0] pix;
+
 always @* begin
     case( xl2[1:0] )
         2'd0: pix = gfx_word[15:12];
@@ -131,7 +114,151 @@ always @* begin
     endcase
 end
 
-assign on  = ~ob_l2;
-assign pxl = ob_l2 ? 8'd0 : { col, pix };
+jtframe_dual_ram #(
+    .DW         ( 8                         ),
+    .AW         ( 10                        )
+) u_lines(
+    .clk0       ( clk                       ),
+    .data0      ( { col, pix }              ),
+    .addr0      ( { write_bank, req_h }      ),
+    .we0        ( line_we                   ),
+    .q0         (                           ),
+    .clk1       ( clk                       ),
+    .data1      ( 8'd0                      ),
+    .addr1      ( { read_bank, hdump }       ),
+    .we1        ( 1'b0                      ),
+    .q1         ( line_data                 )
+);
+
+always @(posedge clk) begin
+    if( rst ) begin
+        rd_ptr <= 0;
+        wr_ptr <= 0;
+        queued <= 0;
+    end else begin
+        if( push ) begin
+            requests[wr_ptr] <= { roz_bank[3:0], next_line, hdump, y[9:0], x[9:0] };
+            wr_ptr <= wr_ptr+6'd1;
+        end
+        if( pop ) rd_ptr <= rd_ptr+6'd1;
+        case( { push, pop } )
+            2'b10: queued <= queued+7'd1;
+            2'b01: queued <= queued-7'd1;
+            default:;
+        endcase
+    end
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        ready         <= 0;
+        failed        <= 0;
+        tags[0]       <= 9'h1ff;
+        tags[1]       <= 9'h1ff;
+        written[0]    <= 0;
+        written[1]    <= 0;
+        display_valid <= 0;
+        valid         <= 0;
+        display_pixel <= 8'hff;
+    end else begin
+        if( line_start ) begin
+            ready[~read_bank]   <= 0;
+            failed[~read_bank]  <= 0;
+            tags[~read_bank]    <= next_line;
+            written[~read_bank] <= 0;
+        end
+        if( overflow ) failed[~read_bank] <= 1;
+        if( line_we ) begin
+            written[write_bank] <= written[write_bank]+9'd1;
+            if( req_h==9'd319 )
+                ready[write_bank] <= written[write_bank]==9'd319 && !failed[write_bank];
+        end
+        if( hdump==0 ) display_valid <= display_ready;
+        valid         <= display_valid && hdump<9'd320 && vdump<9'd224;
+        display_pixel <= line_data;
+    end
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        st         <= S_IDLE;
+        rozv_addr  <= 0;
+        col        <= 0;
+        col_req    <= 0;
+        xl         <= 0;
+        yl         <= 0;
+        xl2        <= 0;
+        req_bank   <= 0;
+        req_line   <= 0;
+        req_h      <= 0;
+        rom_cs     <= 0;
+        rom_addr   <= 0;
+        gfx_word   <= 0;
+    end else case( st )
+        S_IDLE: if( pop ) begin
+            rozv_addr <= { head[19:14], head[9:4] };
+            xl        <= head[3:0];
+            yl        <= head[13:10];
+            req_h     <= head[28:20];
+            req_line  <= head[37:29];
+            req_bank  <= head[41:38];
+            st        <= S_MAP_WAIT;
+        end
+        S_MAP_WAIT: st <= S_MAP;
+        S_MAP: begin
+            rom_addr <= { req_bank, rozv_dout[10:0], yl, xl[3:2] };
+            col_req  <= rozv_dout[15:12];
+            rom_cs   <= 1;
+            st       <= S_WAIT;
+        end
+        S_WAIT: st <= S_ROM;
+        S_ROM: if( rom_ok ) begin
+            gfx_word <= rom_data;
+            col      <= col_req;
+            xl2      <= xl;
+            rom_cs   <= 0;
+            st       <= S_WRITE;
+        end
+        S_WRITE: st <= S_IDLE;
+        default: st <= S_IDLE;
+    endcase
+end
+
+assign on  = valid;
+assign pxl = valid ? display_pixel : 8'hff;
+
+`ifdef SIMULATION
+integer sim_frame, sim_lines, sim_incomplete, sim_overflow, sim_late, sim_peak;
+reg sim_vs;
+always @(posedge clk) begin
+    if( rst ) begin
+        sim_frame      <= 0;
+        sim_lines      <= 0;
+        sim_incomplete <= 0;
+        sim_overflow   <= 0;
+        sim_late       <= 0;
+        sim_peak       <= 0;
+        sim_vs         <= 0;
+    end else begin
+        sim_vs <= vs;
+        if( line_start && vdump<9'd224 ) begin
+            sim_lines <= sim_lines+1;
+            if( !display_ready ) sim_incomplete <= sim_incomplete+1;
+        end
+        if( overflow ) sim_overflow <= sim_overflow+1;
+        if( st==S_WRITE && !write_current ) sim_late <= sim_late+1;
+        if( {25'd0,queued}>sim_peak ) sim_peak <= {25'd0,queued};
+        if( vs && !sim_vs ) begin
+            $display("ROZ_PREFETCH frame=%0d lines=%0d incomplete=%0d overflow=%0d late=%0d peak_queue=%0d",sim_frame,sim_lines,sim_incomplete,sim_overflow,sim_late,sim_peak);
+            sim_frame      <= sim_frame+1;
+            sim_lines      <= 0;
+            sim_incomplete <= 0;
+            sim_overflow   <= 0;
+            sim_late       <= 0;
+            sim_peak       <= 0;
+        end
+    end
+end
+`endif
 
 endmodule

@@ -1,3 +1,7 @@
+f1gpr2:
+  - when: [ NOMAIN ]
+    get:
+      - jtf1gpr2_control_mmr.v
 f1grpr:
   - get:
     - jtf1grpr_sub.v

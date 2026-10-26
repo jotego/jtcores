@@ -11,9 +11,9 @@ module jtf1gpr2_objscan(
     input      [ 8:0] yoffs,
     input             flip,
 
-    output     [10:1] objr_addr,
+    output     [11:1] objr_addr,
     input      [15:0] objr_dout,
-    output     [13:1] objl_addr,
+    output     [14:1] objl_addr,
     input      [15:0] objl_dout,
 
     output reg        draw,
@@ -37,7 +37,7 @@ reg         iss1, iss2;
 reg  [15:0] w0, w1, w2;
 
 wire        hs_pos  = hs & ~hs_l;
-wire [15:0] w3      = objr_dout;
+reg  [15:0] w3;
 wire [ 8:0] oy      = w0[8:0];
 wire [ 8:0] ox      = w1[8:0];
 wire [ 2:0] xsize   = (w1[11:9]);
@@ -54,7 +54,7 @@ wire [ 9:0] blk_h   = (({6'd0,ysize}+10'd1)*{4'd0,zy}) >> 1;
 wire [ 8:0] dy      = vrender + 9'd16 - (oy + yoffs + 9'd16);
 wire        on_line  = dy < blk_h[8:0];
 
-reg  [ 9:0] rd_addr;
+reg  [10:0] rd_addr;
 assign objr_addr = rd_addr;
 
 reg [8:0] recip;
@@ -85,20 +85,19 @@ wire [RECW-1:0] rec_in     = { ox, map_base, xsize, ysize, src, zx_raw,
 
 // Sort list walk
 localparam [2:0] S_IDLE=0, S_SORT=1, S_SORT_LAT=2, S_CHECK=3,
-                 S_ATTR=4, S_ATTR_LAT=5, S_EVAL=6;
+                 S_ATTR_LAT=5, S_EVAL=6, S_ATTR_DATA=7;
 reg  [ 8:0] sort_idx;
 reg  [ 9:0] sprite_idx;
 reg  [ 1:0] attr_cnt;
 wire        end_of_list = objr_dout[14];
 wire        spr_disable = objr_dout[15];
-wire        spr_present = objr_dout[8];
 wire [ 9:0] spr_index   = {objr_dout[9:0]};
 
 always @(posedge clk) begin
     if( rst ) begin
         st <= S_IDLE; issuing <= 0; hs_l <= 0;
         wptr <= 0; sort_idx <= 0; rd_addr <= 0;
-        w0 <= 0; w1 <= 0; w2 <= 0;
+        w0 <= 0; w1 <= 0; w2 <= 0; w3 <= 0;
         attr_cnt <= 0; sprite_idx <= 0;
     end else begin
         hs_l <= hs;
@@ -110,36 +109,34 @@ always @(posedge clk) begin
         end else case( st )
             S_IDLE: ;
             S_SORT: begin
-                rd_addr <= {1'b0, sort_idx};
+                rd_addr <= {2'b0, sort_idx};
                 st <= S_SORT_LAT;
             end
             S_SORT_LAT: st <= S_CHECK;
             S_CHECK: begin
                 if( end_of_list || sort_idx == 9'd511 ) begin
                     st <= S_IDLE;
-                end else if( !spr_disable && spr_present ) begin
+                end else if( !spr_disable ) begin
                     sprite_idx <= spr_index;
                     attr_cnt <= 0;
-                    rd_addr <= {spr_index, 2'd0};
-                    st <= S_ATTR;
+                    rd_addr <= {spr_index[8:0], 2'd0};
+                    st <= S_ATTR_LAT;
                 end else begin
                     sort_idx <= sort_idx + 9'd1;
                     st <= S_SORT;
                 end
             end
-            S_ATTR: begin
-                rd_addr <= {sprite_idx, attr_cnt + 2'd1};
-                attr_cnt <= attr_cnt + 2'd1;
-                if( attr_cnt == 2'd0 )
-                    st <= S_ATTR_LAT;
-            end
-            S_ATTR_LAT: begin
+            S_ATTR_LAT: st <= S_ATTR_DATA;
+            S_ATTR_DATA: begin
                 case( attr_cnt )
-                    2'd1: begin w0 <= objr_dout; rd_addr <= {sprite_idx, 2'd2}; attr_cnt <= 2'd2; end
-                    2'd2: begin w1 <= objr_dout; rd_addr <= {sprite_idx, 2'd3}; attr_cnt <= 2'd3; end
-                    2'd3: begin w2 <= objr_dout; st <= S_EVAL; end
-                    default: ;
+                    2'd0: w0 <= objr_dout;
+                    2'd1: w1 <= objr_dout;
+                    2'd2: w2 <= objr_dout;
+                    2'd3: w3 <= objr_dout;
                 endcase
+                rd_addr <= {sprite_idx[8:0], attr_cnt + 2'd1};
+                attr_cnt <= attr_cnt + 2'd1;
+                st <= attr_cnt==2'd3 ? S_EVAL : S_ATTR_LAT;
             end
             S_EVAL: begin
                 if( on_line && !fifo_full ) begin
@@ -175,9 +172,9 @@ wire [ 2:0] mapcol = d_fx ? d_xsize - lcol       : lcol;
 wire [ 3:0] stride = {1'b0,d_xsize} + 4'd1;
 wire [16:0] mapidx = d_map + {13'd0,maprow}*{13'd0,stride} + {14'd0,mapcol};
 
-assign objl_addr = mapidx[13:1];
+assign objl_addr = mapidx[13:0];
 wire [14:0] lut_code = objl_dout[14:0];
-assign pal = { 1'b0, d_col };
+assign pal = { 2'b01, d_col[4:0] };
 
 reg [7:0] hz_lut;
 always @* begin

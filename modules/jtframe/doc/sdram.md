@@ -213,6 +213,59 @@ SDRAM clock can be shifted with respect to the internal clock (clk_rom in the di
 
 For small shifts, the synthesizer will be able to align the SDRAM data and clock with the internal core clock (clk_rom). But if the shift is large enough, the SDRAM may be operating at a different state and the SDRAM controller has to adjust the state count to reflect that. This is achieved by defining the macro **JTFRAME_SHIFT**. Ideally, the shift needed should be close to zero. But, some platforms synthesize better using SDRAM shifts. This cannot be changed per-core, but per-target. If the target platform shifts the clock, it will define the macro in its _target.def_ file and set the gamepll settings accordingly.
 
+## SDRAM Clock Selection
+
+`JTFRAME_180SHIFT` selects MiSTer's DDIO output cell, which drives the SDRAM
+clock inverted relative to `clk_rom`. With the macro set to zero, MiSTer uses
+the shifted PLL output instead. SiDi128 uses its own game PLL clock path.
+The choice of clock output and the controller's read timing must agree.
+
+For a core that uses the DDIO clock on MiSTer, put the enable in the core's
+`cfg/macros.def` under the MiSTer target section:
+
+```text
+[mister]
+JTFRAME_180SHIFT
+```
+
+Keep common settings before target-specific sections. A section applies until
+the next section or the end of the file. An enable outside a target-specific
+section also reaches SiDi128 and other targets. `JTFRAME_MR_DDRLOAD`, when used,
+can go in the same `[mister]` section; it controls ROM loading separately from
+the SDRAM clock.
+
+`JTFRAME_SHIFT` comes from the target configuration: MiSTer sets it to one,
+while SiDi128 defaults to zero. For the regular SDRAM path without
+`JTFRAME_SDRAM96`, `jtframe_board_sdram` selects its internal timing using:
+
+```text
+SDRAM_SHIFT = JTFRAME_SHIFT XOR JTFRAME_180SHIFT
+```
+
+For this MiSTer DDIO / SiDi128 PLL configuration, the resolved values are:
+
+| Run | JTFRAME_SHIFT | JTFRAME_180SHIFT | SDRAM_SHIFT |
+| --- | --- | --- | --- |
+| MiSTer FPGA build | 1 | 1 | 0 |
+| SiDi128 FPGA build | 0 | 0 | 0 |
+| MiSTer Verilator simulation, with `-u JTFRAME_180SHIFT` | 0 | 0 | 0 |
+| SiDi128 Verilator simulation | 0 | 0 | 0 |
+
+Verilator uses the game test harness and SDRAM model, without the target's
+physical output-clock generation. `jtsim -mister` changes `JTFRAME_SHIFT` to
+zero for Verilator, but still reads the core's `[mister]` section. When that
+section enables `JTFRAME_180SHIFT`, add `-u JTFRAME_180SHIFT` to the simulation
+command. The missing macro defaults to zero in the HDL. Leaving it enabled
+selects `SDRAM_SHIFT=1` and samples the modeled read burst one cycle early.
+The ROM file and downloaded banks can then be correct while the CPU receives
+incorrect reset vectors.
+
+Target sections match board names even during simulation. Keep the hardware
+enable in `[mister]` and apply the simulation override in the core's simulation
+launcher. See [simulation commands](sim.md#sdram-clock-selection).
+Simulation checks the model; FPGA timing analysis and board testing validate
+the physical clock choice.
+
 # SDRAM Controller
 
 There are three different SDRAM controllers in JTFRAME. They all work and are stable, however only the latest one is connected to jtframe_board. The others are left for reference.

@@ -133,4 +133,8 @@ scenes/
 !/cores/*/ver/**/
 !*.cab
 !sim.sh
+!/cores/f1gpr2/ver/f1gp2/mamedump.sh
+!/cores/f1gpr2/ver/f1gp2/mamedump.lua
+!/cores/f1gpr2/ver/game/scene.sh
+!/cores/f1gpr2/ver/game/bench.sh
 /cores/*/status.md

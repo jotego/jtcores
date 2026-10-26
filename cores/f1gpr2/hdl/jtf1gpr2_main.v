@@ -34,7 +34,7 @@ module jtf1gpr2_main(
     input                snd_pending,
 
     input         [ 3:0] cab_1p, coin,
-    input         [ 5:0] joystick1,
+    input         [ 6:0] joystick1,
     input         [ 7:0] wheel,
     input                service, tilt, dip_test,
     input         [31:0] dipsw
@@ -87,13 +87,13 @@ assign sprvram_we = { sprvram_cs & hi_we, sprvram_cs & lo_we };
 always @* begin
     cab_dout = 16'hffff;
     case( A[7:1] )
-        7'h00: cab_dout = { 1'b1, ~service, 3'b111, cab_1p[0], coin[1:0],
-                            2'b11, joystick1[4], joystick1[5],
+        7'h00: cab_dout = { 1'b1, service, 3'b111, cab_1p[0], coin[1:0],
+                            1'b1, joystick1[6], joystick1[4], joystick1[5],
                             joystick1[0], joystick1[1],
                             joystick1[2], joystick1[3] };
         7'h01: cab_dout = { 8'h0, wheel };
         7'h02: cab_dout = dipsw[15:0];
-        7'h03: cab_dout = { dipsw[23:16], 8'h0 };
+        7'h03: cab_dout = { dipsw[23:17], dipsw[16] & dip_test, 8'h0 };
         7'h04: cab_dout = { 8'hff, {8{snd_pending}} };
         7'h05: cab_dout = { 15'd0, dipsw[24] };
         default:;
@@ -124,8 +124,14 @@ always @(posedge clk) begin
                     end
                 end
                 7'h04: if( lo_we ) begin snd_latch <= main_dout[7:0]; snd_wr <= 1; end
-                7'h22: fg_scrx <= main_dout[8:0];
-                7'h23: fg_scry <= main_dout[8:0];
+                7'h22: begin
+                    if( hi_we ) fg_scrx[8]   <= main_dout[8];
+                    if( lo_we ) fg_scrx[7:0] <= main_dout[7:0];
+                end
+                7'h23: begin
+                    if( hi_we ) fg_scry[8]   <= main_dout[8];
+                    if( lo_we ) fg_scry[7:0] <= main_dout[7:0];
+                end
                 default:;
             endcase
             if( A[7:5]==3'b001 ) begin
@@ -242,10 +248,40 @@ assign rozvram_we = 0;
 assign sprcg_we   = 0;
 assign sprvram_we = 0;
 
+wire [ 7:0] scene_gfxctrl, scene_roz_bank;
+wire [15:0] scene_scrx, scene_scry;
+
+jtf1gpr2_control_mmr #(
+    .SIMFILE    ( "mmr.bin"     ),
+    .SEEK       ( 0             )
+) u_scene(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cs         ( 1'b0          ),
+    .addr       ( 2'd0          ),
+    .rnw        ( 1'b1          ),
+    .din        ( 16'd0         ),
+    .dsn        ( 2'b11         ),
+    .gfxctrl    ( scene_gfxctrl ),
+    .roz_bank   ( scene_roz_bank),
+    .fg_scrx    ( scene_scrx    ),
+    .fg_scry    ( scene_scry    ),
+    .ioctl_addr ( 3'd0          ),
+    .ioctl_din  (               ),
+    .debug_bus  ( 8'd0          ),
+    .st_dout    (               )
+);
+
+always @* begin
+    gfxctrl  = scene_gfxctrl & 8'hdf;
+    flip     = scene_gfxctrl[5];
+    roz_bank = scene_roz_bank;
+    fg_scrx  = scene_scrx[8:0];
+    fg_scry  = scene_scry[8:0];
+end
+
 initial begin
-    gfxctrl = 0; flip = 0; fg_scrx = 0; fg_scry = 0;
     snd_latch = 0; snd_wr = 0; roz_we = 0; roz_addr = 0;
-    roz_bank = 0;
 end
 `endif
 

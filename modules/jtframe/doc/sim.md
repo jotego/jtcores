@@ -58,6 +58,82 @@ The current contents of the SDRAM can be dumped at the beginning of each frame (
 
 To simulate the SDRAM load operation use `jtsim -load`. The normal download speed 1/270ns=3.7MHz. This is faster than the real systems but speeds up simulation. It is possible to slow it down by adding dead clock cycles to each transfer. The macro **JTFRAME_SIM_LOAD_EXTRA** can be defined with the required number of extra cycles.
 
+## SDRAM Clock Selection
+
+For cores that enable `JTFRAME_180SHIFT` in their `[mister]` configuration,
+use `-u JTFRAME_180SHIFT` with MiSTer Verilator simulations. `jtsim` already
+sets `JTFRAME_SHIFT=0` for that simulation path; the DDIO clock selection must
+also be disabled because the harness uses the modeled SDRAM clock.
+The override can also be used with SiDi128, where the macro should already be
+zero. Keep the hardware setting in `cfg/macros.def`; see
+[SDRAM clock selection](sdram.md#sdram-clock-selection) for the target values.
+
+For example, from `cores/f1gpr2/ver/f1gp2`, with the project environment and
+Verilator toolchain configured:
+
+```sh
+jtsim -setname f1gp2 -skipROM -mister -load -u JTFRAME_180SHIFT -video 360
+jtsim -setname f1gp2 -skipROM -sidi128 -load -u JTFRAME_180SHIFT -video 360
+```
+
+Run these serially because both commands use the same set folder. The F1GPR2
+Docker launcher provides the same settings from the repository root:
+
+```sh
+SIM_TARGET=mister cores/f1gpr2/ver/game/sim.sh 360
+SIM_TARGET=sidi128 cores/f1gpr2/ver/game/sim.sh 360
+```
+
+## F1GP2 Frozen Video Scenes
+
+From the repository root, capture selected frames with MAME 0.282:
+
+```sh
+cores/f1gpr2/ver/f1gp2/mamedump.sh 300 1500 2700
+cores/f1gpr2/ver/f1gp2/mamedump.sh
+cores/f1gpr2/ver/f1gp2/mamedump.sh --manual
+```
+
+No frame list selects 300 through 6000 every 300. Manual mode captures on a
+backslash key press, including while paused. The standalone startup script is
+`cores/f1gpr2/ver/f1gp2/mamedump.lua`; load it with `-autoboot_delay 0
+-autoboot_script /absolute/path/mamedump.lua`. It must observe register writes
+from reset. `MAME_BINARY` selects a MAME 0.282 executable, and `MAME_ROMPATH`
+selects the ROM directory. `--replace` replaces a scene while retaining its old
+files in scratch; `--output DIR` selects another capture destination.
+
+Each `cores/f1gpr2/ver/f1gp2/scenes/<frame>/` contains `dump.bin`, `mmr.bin`
+and the native `screen.png`. Captures hold video writes for one frame to obtain
+the matching PNG, then restore the whole machine and its previous pause state.
+Existing scenes are preserved by default. Logs and staging files go in scratch.
+
+The 53248-byte dump stores foreground RAM, ROZ tile RAM, sprite CG RAM, sprite
+attribute RAM and palette RAM, in CPU big-endian byte order. The 40-byte MMR
+file stores the raw graphics/flip and bank bytes, both 16-bit foreground scroll
+registers, two reserved bytes, then all sixteen PSAC2 register words. MMR words
+are little-endian. `cfg/mmr.yaml` defines that layout; `rest2bin.sh` supplies the
+BRAM files, the generated control MMR and the PSAC2 loader.
+
+Replay three frozen video frames using the installed Docker simulator image:
+
+```sh
+cores/f1gpr2/ver/game/scene.sh 2700
+cores/f1gpr2/ver/game/scene.sh --layer roz 2700
+SIM_TARGET=sidi128 cores/f1gpr2/ver/game/scene.sh 2700
+```
+
+Layers are `all`, `fg`, `roz` and `obj`; no frame list replays all captured
+scenes. Images and one runtime log per scene go in `ver/f1gp2/sim_results/`,
+with isolated layers in named subdirectories. Build logs stay in scratch.
+Both target selections apply the SDRAM simulation clock override above.
+The runner reuses downloaded SDRAM banks, or downloads the prepared ROM when
+the bank files are missing. Run simulations serially in this set folder.
+
+These scenes restore video state with CPU writes disabled. They exclude CPU,
+audio and cabinet-link execution state. PSAC2 line mode is rejected because
+F1GP2 has no mapped line-RAM restore binding. Capture definitions are checked
+against the prepared memory layout and splitter before MAME starts capturing.
+
 ## SDRAM Preparation
 
 The core needs to have a SDRAM with the game ROM loaded into it. The most basic way is to have a file named **rom.bin** in the simulation folder. `jtsim -load` will download that file to the core and produce four files called **sdram_bank?.bin** with the SDRAM contents after the download is done.
