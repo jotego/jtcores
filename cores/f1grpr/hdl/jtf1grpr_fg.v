@@ -81,83 +81,31 @@ wire [14:0] code = {{(15-CODEW){1'b0}},fgv_dout[CODEW-1:0]};
 wire        vflip= VFLIP!=0 && fgv_dout[15];
 wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
 
-    localparam [1:0] S_IDLE=0, S_MAP=1, S_ROM=2;
-    reg  [ 1:0] st;
-    reg  [10:0] map_addr;
-    reg  [18:0] fetch_addr;
-    reg         fetch_cs;
-    reg  [ 2:0] fetch_row;
-    reg         fetch_half;
-    reg  [24:0] fetch_tag, cur_tag, nxt_tag;
-    reg  [31:0] cur, nxt;
-    reg         cur_valid, nxt_valid;
-    wire [24:0] target_tag = { vdump, veff, hnx[8:2] };
-    wire [24:0] display_tag = { vdump, veff, heff[8:2] };
-    wire        target_cur = cur_valid && cur_tag==target_tag;
-    wire        target_nxt = nxt_valid && nxt_tag==target_tag;
-    wire        display_cur = cur_valid && cur_tag==display_tag;
-    wire        display_nxt = nxt_valid && nxt_tag==display_tag;
-    wire [31:0] display_word = display_cur ? cur : nxt;
-    wire [ 2:0] tile_row = vflip ? ~fetch_row : fetch_row;
-    reg  [ 7:0] pixel;
+assign fgv_addr = { veff[7:3], hnx[8:3] };
+assign rom_addr = { code, row, hnx[2] };
+assign rom_cs   = 1'b1;
 
-    assign fgv_addr = map_addr;
-    assign rom_addr = fetch_addr;
-    assign rom_cs   = fetch_cs;
-    assign pxl      = display_cur || display_nxt ? pixel : 8'hff;
+reg [31:0] cur, nxt;
 
-    always @* begin
-        case( heff[1:0] )
-            2'd0: pixel = display_word[ 7: 0];
-            2'd1: pixel = display_word[15: 8];
-            2'd2: pixel = display_word[23:16];
-            2'd3: pixel = display_word[31:24];
-        endcase
+always @(posedge clk) begin
+    if( rst ) begin
+        cur <= 0;
+        nxt <= 0;
+    end else if( pxl_cen ) begin
+        if( rom_ok ) nxt <= rom_data;
+        if( heff[1:0]==(flip ? 2'd0 : 2'd3) ) cur <= nxt;
     end
+end
 
-    always @(posedge clk) begin
-        if( rst ) begin
-            st         <= S_IDLE;
-            map_addr   <= 0;
-            fetch_addr <= 0;
-            fetch_cs   <= 0;
-            fetch_row  <= 0;
-            fetch_half <= 0;
-            fetch_tag  <= 0;
-            cur_tag    <= 0;
-            nxt_tag    <= 0;
-            cur        <= 32'hffffffff;
-            nxt        <= 32'hffffffff;
-            cur_valid  <= 0;
-            nxt_valid  <= 0;
-        end else case( st )
-            S_IDLE: if( !target_cur && !target_nxt ) begin
-                map_addr   <= { veff[7:3], hnx[8:3] };
-                fetch_row  <= veff[2:0];
-                fetch_half <= hnx[2];
-                fetch_tag  <= target_tag;
-                st         <= S_MAP;
-            end
-            S_MAP: begin
-                fetch_addr <= { code, tile_row, fetch_half };
-                fetch_cs   <= 1;
-                st         <= S_ROM;
-            end
-            S_ROM: if( rom_ok ) begin
-                nxt       <= cur;
-                nxt_tag   <= cur_tag;
-                nxt_valid <= cur_valid;
-                cur       <= rom_data;
-                cur_tag   <= fetch_tag;
-                cur_valid <= 1;
-                fetch_cs  <= 0;
-                st        <= S_IDLE;
-            end
-            default: begin
-                fetch_cs <= 0;
-                st       <= S_IDLE;
-            end
-        endcase
-    end
+reg [7:0] pxl_r;
+always @* begin
+    case( heff[1:0] )
+        2'd0: pxl_r = cur[ 7: 0];
+        2'd1: pxl_r = cur[15: 8];
+        2'd2: pxl_r = cur[23:16];
+        2'd3: pxl_r = cur[31:24];
+    endcase
+end
+assign pxl = pxl_r;
 
 endmodule
