@@ -676,6 +676,7 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 			}
 			if bus.Transform && total_slots > 2 {
 				return fmt.Errorf("jtframe mem: SDRAM bus %s sets transform, only supported on banks with up to two buses", bus.Name)
+			}
 			if bus.Data_width == 64 {
 				if !bus.Cache_large {
 					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires a string cache_size for the large cache", bus.Name)
