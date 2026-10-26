@@ -81,8 +81,8 @@ wire [14:0] code = {{(15-CODEW){1'b0}},fgv_dout[CODEW-1:0]};
 wire        vflip= VFLIP!=0 && fgv_dout[15];
 wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
 
-    localparam [2:0] S_IDLE=0, S_MAP_WAIT=1, S_MAP=2, S_WAIT=3, S_ROM=4;
-    reg  [ 2:0] st;
+    localparam [1:0] S_IDLE=0, S_MAP=1, S_ROM=2;
+    reg  [ 1:0] st;
     reg  [10:0] map_addr;
     reg  [18:0] fetch_addr;
     reg         fetch_cs;
@@ -136,15 +136,13 @@ wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
                 fetch_row  <= veff[2:0];
                 fetch_half <= hnx[2];
                 fetch_tag  <= target_tag;
-                st         <= S_MAP_WAIT;
+                st         <= S_MAP;
             end
-            S_MAP_WAIT: st <= S_MAP;
             S_MAP: begin
                 fetch_addr <= { code, tile_row, fetch_half };
                 fetch_cs   <= 1;
-                st         <= S_WAIT;
+                st         <= S_ROM;
             end
-            S_WAIT: st <= S_ROM;
             S_ROM: if( rom_ok ) begin
                 nxt       <= cur;
                 nxt_tag   <= cur_tag;
@@ -161,30 +159,5 @@ wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
             end
         endcase
     end
-
-`ifdef SIMULATION
-    integer sim_pixels, sim_missing, sim_requests, sim_wait;
-    always @(posedge clk) begin
-        if( rst ) begin
-            sim_pixels   <= 0;
-            sim_missing  <= 0;
-            sim_requests <= 0;
-            sim_wait     <= 0;
-        end else if( pxl_cen && hdump==0 && vdump==0 ) begin
-            $display("FG_FETCH pixels=%0d missing=%0d requests=%0d wait_cycles=%0d",sim_pixels,sim_missing,sim_requests,sim_wait);
-            sim_pixels   <= 1;
-            sim_missing  <= display_cur || display_nxt ? 0 : 1;
-            sim_requests <= 0;
-            sim_wait     <= 0;
-        end else begin
-            if( pxl_cen && hdump<=hsize && vdump<=vsize ) begin
-                sim_pixels <= sim_pixels+1;
-                if( !display_cur && !display_nxt ) sim_missing <= sim_missing+1;
-            end
-            if( st==S_MAP ) sim_requests <= sim_requests+1;
-            if( st==S_ROM && !rom_ok ) sim_wait <= sim_wait+1;
-        end
-    end
-`endif
 
 endmodule
