@@ -1,0 +1,120 @@
+# Plan: 64-bit large cache, 64-bit sprites, free bank 2, gfx RAMs to SDRAM
+
+## Ground truth (verified in source)
+
+- The "large cache" is jtframe_romrq_lcache (cache_size: <string> in mem.yaml
+  sets Cache_large=1 and jtframe_romrq instantiates it). It already supports
+  BURSTLEN=64 fills (4x16-bit beats, fill_data is 64-bit, tested by the
+  uut_long DW=32/BURSTLEN=64 instance in ver/sdram/romrq_lcache/test.v).
+  Missing: DW=64 on the consumer side; the output mux (gen_long) only
+  produces 32 bits.
+- The SDRAM chain is 64-bit capable end to end: JTFRAME_BA1_LEN=64 in
+  macros.def -> jtframe_board_sdram -> jtframe_sdram64_bank BALEN=64. The
+  game_sdram.v template already handles data_width: 64 slots ({addr,2'b0},
+  SLOTx_BURSTLEN), and addr_range/cache_data_aw0 map 64 -> [20:3]. sysfl
+  runs BL4 on MiSTer hardware, so the controller path is proven.
+- Round Up 5's sprite layout is natively 64-bit: jtroundu_obj computes
+  physical = tile[17:1], bank = tile[0]. Even/odd tiles live at the same
+  word address in sprites_l/sprites_h: the two buses are the two halves of
+  one 64-bit word, matching the PCB (TZB315 reads 8 ROMs in parallel).
+  Merging is a clean 32-bit-wise interleave, no byte reordering.
+- mame2mra accepts any width multiple of 8 and mra2rom parses output="64";
+  the osman toml shows parts= maps for explicit lane assignment.
+- Bank slot wrappers: ram1_1slot..ram1_5slots and ram2_4/5/6slots exist;
+  jtframe_ram2_2slots does not (needed by phase C if both gfx RAMs share
+  bank 2).
+
+## Phase A - jtframe: DW=64 consumer in the large cache (upstream proposal)
+
+All in modules/jtframe, self-contained branch for review on main.
+
+A1. hdl/sdram/jtframe_romrq_lcache.v
+  - Restructure the output generate: explicit DW==32 branch (current
+    gen_long) and a new DW==64 branch requiring BURSTLEN==64:
+    assign dout = pre_dout;
+  - Extend the SIMULATION assertion to DW in {8,16,32,64} (the existing
+    BURSTLEN < DW check already forces 64/64).
+
+A2. Tests: ver/sdram/romrq_lcache/test.v and romrq_lcache_tag_ram/test.v
+  - Add a uut_quad (DW=64, BURSTLEN=64, CACHE_SIZE set) with
+    fill/hit/miss/eviction tasks mirroring uut_long, verifying both 32-bit
+    halves land in the right lanes and that a hit after fill returns
+    without a new req.
+
+A3. src/jtframe/mem/mem.go validation
+  - An SDRAM bus with data_width: 64 must have Cache_large (bcache/xscache
+    do not support 64) and its bank must define JTFRAME_BA<k>_LEN=64
+    (readable via the macros package, same pattern as check_cache_lanes).
+    Clear error messages; cases added to mem_test.go next to the existing
+    Cache_large test (~line 1963).
+
+A4. Rebuild binaries: jtframemac and the container-side linux-arm64
+    jtframe after the Go change.
+
+Verification: both lcache suites + go test ./mem/... Deliverable: one
+clean branch, proposed on main by the user.
+
+## Phase B - roundu: single 64-bit sprite bus, bank 2 freed
+
+B1. cfg/mem.yaml: bank 1 becomes one bus, bank 2 left empty (codegen
+    handles Unused banks):
+
+    - buses:
+        - name: sprites
+          addr_width: 21
+          data_width: 64
+          cache_size: 4kB
+    - buses: []
+
+B2. cfg/macros.def: add JTFRAME_BA1_LEN=64; set JTFRAME_BA2_START=0x280000
+    (equal to BA3_START so the download decode never picks bank 2; sprites
+    span 0x100000-0x27FFFF in bank 1). BA3/OKI untouched, so the
+    master/slave/audio/oki download bytes stay identical.
+
+B3. cfg/mame2mra.toml: one region sprites, width=64, len=0x180000, two
+    interleave blocks via parts=: lanes 0-3 = ru-00b/02b/04b/06b, lanes
+    4-7 = ru-08b/10b/12b/14b (128kB block), then the 64kB block
+    ru-01b/03b/05b/07b + ru-09b/11b/13b/15b likewise. Regenerate MRA and
+    rom.bin for the sim set. MRA-side interleave, not a core download
+    remap, keeps jtsim's rom.bin byte-exact with hardware.
+
+B4. HDL: jtroundu_obj.v, jtroundu_video.v, jtroundu_game.v: replace
+    rom_l_*/rom_h_* with one rom_addr[20:3] / rom_data[63:0] / cs / ok.
+    rom_addr = request_addr (graphics_addr is already the shared 18-bit
+    pair address); on ok, fetched <= request_bank ? rom_data[63:32] :
+    rom_data[31:0]; same for the FAST path. Minimal change first: same
+    fetch count as today, proves correctness and frees the bank.
+
+B5. Optional second stage (measured): pair reuse. Latch the 64-bit word
+    and its address; an even->odd tile step at the same line skips the
+    WAIT0/WAIT1 handshake entirely. Quantify with the profiler counters
+    (drstall/drdraw) on scene 12300 before/after. Only if B4's numbers
+    say it is worth it.
+
+Verification: lint; 4000-frame boot sim (exercises the full download
+path, new MRA, 64-bit bursts); scene replays 9600-12300 plus
+14700/15000/15300 with diffs, user grades; then push for a CI build,
+user decides the dispatch, deploy on green.
+
+## Phase C - tx_gfxram + bg_gfxram to SDRAM bank 2 (~104 M10K win)
+
+Outline; final design after A/B land.
+
+- jtframe side: add jtframe_ram2_2slots (sibling of ram2_4slots) so bank 2
+  can carry two rw buses; JTFRAME_BA2_WEN.
+- Open design decision for the video read path, since each rw slot has a
+  single requester:
+  (a) mux CPU writes + video reads onto the rw slot per RAM (writes are
+      sporadic V30 banked-window stores; reads are line-paced, ~6 MB/s).
+      Recommended: keeps coherency trivial.
+  (b) rw slot for CPU plus a separate read-only bus into the same region,
+      uncached for coherency.
+- Needs a renderer-latency audit (tx/bg fetch slack per line) before
+  committing; measured in sim with the existing scene set.
+
+## Risks
+
+- The equal-BA-start trick for an empty bank is proven by the boot sim.
+- parts= 64-bit syntax verified against the osman toml when writing B3.
+- lcache tags widen by 1 bit (address space doubles); BRAM-neutral, the
+  4kB cache replaces today's 2x2kB.

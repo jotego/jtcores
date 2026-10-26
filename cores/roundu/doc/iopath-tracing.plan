@@ -1,0 +1,104 @@
+# Plan: joint schematic trace of the V30/Z80 io path (ATC011)
+
+Goal: verify on the schematics the arbitration model now in jtroundu_snd, so
+the io path stops being the fragile one (nondeterministic HARDWARE BAD 33 at
+boot, phantom-coin sensitivity to V30 timing). Focused session with the user
+tracing; HDL follows the verified facts only.
+
+## Current model under test (jtroundu_snd, 2026-10-22)
+
+- SHLDRQ = control register bit 2 only (MAME 0x4). No automatic arbitration
+  by address: busrq_n = ~halt.
+- Grant = Z80 BUSAK via T80. While granted, host strobes reach the devices;
+  v30 io completes after the grant plus two cen4 ticks (v30_io_done).
+- Isolation: a host access WITHOUT SHLDRQ completes immediately and reads
+  8'hff (open bus); it reaches no device and writes nothing (soundram we
+  gated on the grant). MRDY only spans the grant-settling window when the
+  hold IS requested.
+- No Z80 WAIT model (pin tied high on the board), no cen gating anywhere,
+  68000 hold = control bit 4 (OHLDRQ) into jtroundu_sub HALTn, no dtack
+  change.
+
+Evidence so far: pure-wait variant froze the boot at frame 262 (baseline
+resumes at 476), ff82 soft flag reads FF even in reference MAME, BAD-33
+reproduced by unarbitrated collisions and eliminated by grant-gated access
+(iotest_tb 936/936 with the old auto-arb model).
+
+## Already read (treated as confirmed, re-check only if doubted)
+
+Sheet 03 (PDF page 5), sound board - crops in ver/roundup5/scratch/sch/:
+- zoom-z80-05.png: WAIT (24) tied high with NMI (17); Z80 stops only by
+  BUSRQ (25) <- IC158 LS240 <- SHLDRQ; BUSAK (23) -> IC107 LS04 pair ->
+  IC196 select.
+- zoom-grant-05.png: IC196 LS157, G (15) grounded; A side = host MRA/MWR,
+  B side = Z80 RD/WR; outputs SRD (4), SWR (7), SHREQ pair (9, 12).
+  IC155 ALS74: D = CLR = buffered Z80 MREQ, Q feeds mux input 4B.
+- zoom-csgate-05.png: SHREQ qualifies every chip select (IC169 LS10 for
+  PRMCS/RAMCS, LS138 IC171 enables for OPM/PCM/PPI/CNT). No host strobe
+  reaches a device unless the owner's request is active.
+
+## Result of the model experiments (2026-10-22, before the trace)
+
+Both faithful variants freeze the attract start: boot pattern bit-identical
+to baseline through frame 261, no resume at 476 (baseline resumes there).
+The firmware does un-held sound accesses in 262-476 that must return real
+data. Working hypothesis now: per-access arbitration (IC196 select from the
+host request, MRDY holding the V30 against the Z80 registered MREQ from
+IC155), with SHLDRQ only for long atomic sequences. jtroundu_snd reverted
+to the committed auto-arb model until the trace decides.
+
+## To verify jointly
+
+0. DECISIVE, sheet 03 (PDF page 5): the driver of IC196 LS157 select
+   (pin 1). It arrives through the IC107 LS04 pair (zoom-grant-05.png,
+   bottom left). BUSAK -> hold-or-nothing models (both falsified by boot);
+   a host-request decode -> per-access arbitration (matches the firmware
+   behavior). Trace the input of the first IC107 inverter.
+
+Sheet 02 (PDF page 4):
+
+Crops ready in ver/roundup5/scratch/sch/:
+
+1. verify-mrdy-cluster.png - MRDY1 = IC135 LS32 (12,13 -> 11); feeders are
+   IC133 LS27 NORs (3,4 + grounded 5; and 9,10,11 -> 8 via IC110 F04).
+   Name the left-bus inputs of both NORs.
+   DECIDES: whether SNDCS stalls MRDY unconditionally (model wrong) or only
+   qualified by SHLDRQ/SHREQ (isolation model right). Also trace MRDY2
+   (IC134 ALS10 and IC9 ALS27, below the crop).
+2. verify-mrdy-cluster.png right side - IC131 ALS74: D (2) and clock (3)
+   sources; Q (6) -> IC134 pin 11. Expected: grant/ready synchronizer
+   clocked by MCLK.
+3. verify-shldrq-latch.png - IC3/IC35 LS374s (HT3WR/HREGCS strobes from
+   IC105 LS32): confirm SHLDRQ = data bit 2 (control 0x4) and OHLDRQ =
+   data bit 4 (control 0x10); note the other outputs (INTRQ, EHCK, OBJPRI,
+   HSA15, HOA19~16) and their bit positions for the record.
+4. verify-71011.png - IC111 uPD71011: MRDY1 (7) and MRDY2 (6) combined into
+   the V30 READY (HREADY out). Confirm pin naming; any other wait source.
+5. Where the sound board's SHREQ/SHREQn arrives on sheet 02 (search the
+   left-edge arrows; likely into the IC133 NOR bus or IC130 LS10 cluster).
+6. SNDCS generation: which address decode on sheet 02 produces it, and
+   whether it covers the whole 64kB sound window or only io.
+
+## Outcomes -> HDL
+
+- Item 1/5 confirm isolation: keep the model, delete nothing.
+- Item 1 shows unconditional SNDCS wait: re-model v30_ok (wait always, FF
+  never), re-run the boot matrix to find how the firmware avoids deadlock.
+- Item 3 mismatch: fix control[] bit indices in jtroundu_game.
+- Item 6 narrower window: tighten v30_sel decode in jtroundu_main.
+
+## Validation battery after any change
+
+- scratch/iotest/iotest_tb.v: port the agents to the halt-bit protocol
+  (set halt, wait grant, access, clear halt), re-run the 936-run matrix.
+- 650-frame boot sim x3 (bit-identical 0-261 pattern, attract resumes at
+  476 like bootruns/base-1424).
+- Hardware: repeated power-on boots on the MiSTer build; HARDWARE GOOD must
+  be deterministic. Coin-up and service-menu io test.
+
+## Open related items (same path, separate tasks)
+
+- jt51 busy-set fix for JT: doc/jt51-busy.md, local branch roundup5-busy-set
+  commit 3d22e53.
+- v30_slave_rom: duplicate the slave ROM into a less busy bank rather than
+  cache it, if profiling shows contention (user preference, 2026-10-22).

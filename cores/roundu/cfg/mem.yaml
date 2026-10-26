@@ -1,0 +1,137 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 18-10-2026
+
+params:
+  - { name: SLAVE_OFFSET, value: "`SLAVE_START >> 1" }
+  - { name: OKI_OFFSET, value: "(`OKI_START-`JTFRAME_BA3_START) >> 1" }
+  - { name: TX_OFFSET, value: "0x60000 >> 1" }
+
+clocks:
+  clk:
+    - freq: 8M
+      outputs: [v30_8m_cen, z80ym_4m_cen, oki_2m_cen]
+    - freq: 12.5M
+      outputs: [m68k_cen]
+
+audio:
+  rsum: 10k
+  channels:
+    # provisional MAME balance (FM 0.45, PCM 0.75 per side); board values on ATC011 sheet 04 pending
+    - { name: fm,  module: jt51,   rsum: 5.1k }
+    - { name: pcm, module: jt6295, rsum: 6.2k }
+
+download:
+  post_data: true
+
+sdram:
+  banks:
+    - buses:
+        - name: master_rom
+          addr_width: 19
+          data_width: 16
+        - name: slave_rom
+          addr_width: 19
+          data_width: 16
+          offset: SLAVE_OFFSET
+        - name: v30_slave_rom
+          addr_width: 19
+          data_width: 16
+          offset: SLAVE_OFFSET
+    - buses:
+        - name: sprites
+          addr_width: 21
+          data_width: 64
+          cache_size: 8kB
+    - buses:
+        - name: bg_sdram
+          addr_width: 17
+          data_width: 16
+          rw: true
+    - buses:
+        - name: tx_sdram
+          addr_width: 17
+          data_width: 16
+          rw: true
+          do_not_erase: true
+          offset: TX_OFFSET
+        - name: audiocpu
+          addr_width: 16
+          data_width: 8
+        - name: v30_audio_rom
+          addr_width: 16
+          data_width: 8
+        - name: oki
+          addr_width: 18
+          data_width: 8
+          offset: OKI_OFFSET
+
+bram:
+  - name: workram
+    size: 32kB
+    data_width: 16
+    rw: true
+
+  - name: videoram
+    size: 16kB
+    data_width: 16
+    rw: true
+    dual_port: { name: txmap, dout: txmap_data }
+
+  - name: sharedram
+    size: 16kB
+    data_width: 16
+    rw: true
+    dual_port:
+      name: v30_shared
+      rw: true
+      din: v30_shared_din
+      dout: v30_shared_dout
+      we: v30_shared_we
+
+  - name: spriteram
+    size: 16kB
+    data_width: 16
+    rw: true
+    dual_port: { name: objram, dout: objram_data }
+
+  - name: road_ctrl_ram
+    size: 4kB
+    data_width: 16
+    rw: true
+    dual_port: { name: road_ctrl, dout: road_ctrl_data }
+
+  - name: road_pixel_ram
+    size: 4kB
+    data_width: 16
+    rw: true
+    dual_port: { name: road_pixel, dout: road_pixel_data }
+
+  - name: road_color_ram
+    size: 4kB
+    data_width: 16
+    rw: true
+    dual_port: { name: road_color, dout: road_color_data }
+
+  - name: palette
+    size: 2kB
+    data_width: 16
+    rw: true
+    dual_port: { name: palette_video, dout: palette_video_data }
+
+  - name: soundram
+    size: 8kB
+    data_width: 8
+    rw: true
+    dual_port:
+      name: v30_soundram
+      rw: true
+      din: v30_soundram_din
+      dout: v30_soundram_dout
+      we: v30_soundram_we
+
+  - name: obj_ctrl_ram
+    size: 512
+    data_width: 16
+    rw: true
+    dual_port: { name: obj_ctrl, dout: obj_ctrl_data }
