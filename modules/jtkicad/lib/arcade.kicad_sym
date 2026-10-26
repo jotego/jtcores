@@ -8272,47 +8272,61 @@
 		)
 	)
 	(symbol "AY-3-8910"
-		(pin_names
-			(offset 1.016)
-		)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "U"
-			(at 7.62 26.67 0)
+			(at 0 31.75 0)
 			(effects
 				(font
-					(size 1.2446 1.2446)
+					(size 1.27 1.27)
 				)
 			)
 		)
 		(property "Value" "AY-3-8910"
-			(at -1.27 0 90)
+			(at 0 29.21 0)
 			(effects
 				(font
-					(size 1.2446 1.2446)
+					(size 1.27 1.27)
 				)
 			)
 		)
 		(property "Footprint" ""
-			(at 0 0 0)
+			(at -25.4 39.37 0)
 			(effects
 				(font
-					(size 1.2446 1.2446)
+					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
-			(at 0 0 0)
+		(property "Datasheet" "https://github.com/nickbild/ay-3-8910/blob/main/docs/AY-3-8910-datasheet.pdf"
+			(at 0 -35.56 0)
 			(effects
 				(font
-					(size 1.2446 1.2446)
+					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Programmable Sound Generator"
+			(at 0 -33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_locked" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "SOUND GENERATOR"
 			(at 0 0 0)
 			(effects
 				(font
@@ -8321,58 +8335,9 @@
 				(hide yes)
 			)
 		)
-		(symbol "AY-3-8910_0_0"
-			(text "PROGRAMMABLE  SOUND GENERATOR"
-				(at 1.27 1.27 900)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-			(text "VCC(+5V)"
-				(at 0 30.48 0)
-				(effects
-					(font
-						(size 0.762 0.762)
-					)
-				)
-			)
-		)
-		(symbol "AY-3-8910_0_1"
-			(rectangle
-				(start -8.89 31.75)
-				(end 8.89 -29.21)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type background)
-				)
-			)
-		)
-		(symbol "AY-3-8910_1_1"
-			(pin power_in line
-				(at 0 -29.21 90)
-				(length 5.08) hide
-				(name "VSS"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
+		(symbol "AY-3-8910_1_0"
 			(pin bidirectional line
-				(at -13.97 1.27 0)
+				(at 11.43 -17.78 180)
 				(length 5.08)
 				(name "IOB3"
 					(effects
@@ -8390,7 +8355,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 3.81 0)
+				(at 11.43 -20.32 180)
 				(length 5.08)
 				(name "IOB2"
 					(effects
@@ -8408,7 +8373,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 6.35 0)
+				(at 11.43 -22.86 180)
 				(length 5.08)
 				(name "IOB1"
 					(effects
@@ -8426,7 +8391,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 8.89 0)
+				(at 11.43 -25.4 180)
 				(length 5.08)
 				(name "IOB0"
 					(effects
@@ -8444,7 +8409,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 11.43 0)
+				(at -11.43 0 0)
 				(length 5.08)
 				(name "IOA7"
 					(effects
@@ -8462,7 +8427,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 13.97 0)
+				(at -11.43 -2.54 0)
 				(length 5.08)
 				(name "IOA6"
 					(effects
@@ -8480,7 +8445,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 16.51 0)
+				(at -11.43 -5.08 0)
 				(length 5.08)
 				(name "IOA5"
 					(effects
@@ -8498,7 +8463,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 19.05 0)
+				(at -11.43 -7.62 0)
 				(length 5.08)
 				(name "IOA4"
 					(effects
@@ -8516,7 +8481,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 21.59 0)
+				(at -11.43 -10.16 0)
 				(length 5.08)
 				(name "IOA3"
 					(effects
@@ -8534,7 +8499,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 24.13 0)
+				(at -11.43 -12.7 0)
 				(length 5.08)
 				(name "IOA2"
 					(effects
@@ -8551,26 +8516,8 @@
 					)
 				)
 			)
-			(pin no_connect line
-				(at 13.97 -26.67 180)
-				(length 5.08)
-				(name "N.C"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin bidirectional line
-				(at -13.97 26.67 0)
+				(at -11.43 -15.24 0)
 				(length 5.08)
 				(name "IOA1"
 					(effects
@@ -8588,7 +8535,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 29.21 0)
+				(at -11.43 -17.78 0)
 				(length 5.08)
 				(name "IOA0"
 					(effects
@@ -8606,7 +8553,7 @@
 				)
 			)
 			(pin input line
-				(at -13.97 -26.67 0)
+				(at -11.43 22.86 0)
 				(length 5.08)
 				(name "CLK"
 					(effects
@@ -8623,8 +8570,8 @@
 					)
 				)
 			)
-			(pin input inverted
-				(at -13.97 -24.13 0)
+			(pin input line
+				(at -11.43 25.4 0)
 				(length 5.08)
 				(name "~{RST}"
 					(effects
@@ -8641,8 +8588,8 @@
 					)
 				)
 			)
-			(pin input inverted
-				(at -13.97 -21.59 0)
+			(pin input line
+				(at -11.43 17.78 0)
 				(length 5.08)
 				(name "~{A9}"
 					(effects
@@ -8660,7 +8607,7 @@
 				)
 			)
 			(pin input line
-				(at -13.97 -19.05 0)
+				(at -11.43 15.24 0)
 				(length 5.08)
 				(name "A8"
 					(effects
@@ -8677,26 +8624,8 @@
 					)
 				)
 			)
-			(pin no_connect line
-				(at 13.97 -21.59 180)
-				(length 5.08)
-				(name "TEST1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "26"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin input line
-				(at -13.97 -16.51 0)
+				(at -11.43 10.16 0)
 				(length 5.08)
 				(name "BDIR"
 					(effects
@@ -8714,7 +8643,7 @@
 				)
 			)
 			(pin input line
-				(at -13.97 -13.97 0)
+				(at -11.43 7.62 0)
 				(length 5.08)
 				(name "BC2"
 					(effects
@@ -8732,7 +8661,7 @@
 				)
 			)
 			(pin input line
-				(at -13.97 -11.43 0)
+				(at -11.43 5.08 0)
 				(length 5.08)
 				(name "BC1"
 					(effects
@@ -8750,7 +8679,7 @@
 				)
 			)
 			(pin output line
-				(at 13.97 -13.97 180)
+				(at 11.43 0 180)
 				(length 5.08)
 				(name "CHB"
 					(effects
@@ -8768,7 +8697,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 -3.81 180)
+				(at 11.43 25.4 180)
 				(length 5.08)
 				(name "DA7"
 					(effects
@@ -8786,7 +8715,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 -1.27 180)
+				(at 11.43 22.86 180)
 				(length 5.08)
 				(name "DA6"
 					(effects
@@ -8804,7 +8733,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 1.27 180)
+				(at 11.43 20.32 180)
 				(length 5.08)
 				(name "DA5"
 					(effects
@@ -8822,7 +8751,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 3.81 180)
+				(at 11.43 17.78 180)
 				(length 5.08)
 				(name "DA4"
 					(effects
@@ -8840,7 +8769,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 6.35 180)
+				(at 11.43 15.24 180)
 				(length 5.08)
 				(name "DA3"
 					(effects
@@ -8858,7 +8787,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 8.89 180)
+				(at 11.43 12.7 180)
 				(length 5.08)
 				(name "DA2"
 					(effects
@@ -8876,7 +8805,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 11.43 180)
+				(at 11.43 10.16 180)
 				(length 5.08)
 				(name "DA1"
 					(effects
@@ -8894,7 +8823,7 @@
 				)
 			)
 			(pin tri_state line
-				(at 13.97 13.97 180)
+				(at 11.43 7.62 180)
 				(length 5.08)
 				(name "DA0"
 					(effects
@@ -8912,7 +8841,7 @@
 				)
 			)
 			(pin output line
-				(at 13.97 -16.51 180)
+				(at 11.43 -2.54 180)
 				(length 5.08)
 				(name "CHC"
 					(effects
@@ -8929,26 +8858,8 @@
 					)
 				)
 			)
-			(pin no_connect line
-				(at 13.97 -19.05 180)
-				(length 5.08)
-				(name "TEST2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "39"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin output line
-				(at 13.97 -11.43 180)
+				(at 11.43 2.54 180)
 				(length 5.08)
 				(name "CHA"
 					(effects
@@ -8965,44 +8876,8 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 0 31.75 270)
-				(length 5.08) hide
-				(name "VCC"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "40"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin no_connect line
-				(at 13.97 -24.13 180)
-				(length 5.08)
-				(name "N.C"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "5"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
 			(pin bidirectional line
-				(at -13.97 -8.89 0)
+				(at 11.43 -7.62 180)
 				(length 5.08)
 				(name "IOB7"
 					(effects
@@ -9020,7 +8895,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 -6.35 0)
+				(at 11.43 -10.16 180)
 				(length 5.08)
 				(name "IOB6"
 					(effects
@@ -9038,7 +8913,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 -3.81 0)
+				(at 11.43 -12.7 180)
 				(length 5.08)
 				(name "IOB5"
 					(effects
@@ -9056,7 +8931,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at -13.97 -1.27 0)
+				(at 11.43 -15.24 180)
 				(length 5.08)
 				(name "IOB4"
 					(effects
@@ -9071,6 +8946,142 @@
 							(size 1.27 1.27)
 						)
 					)
+				)
+			)
+		)
+		(symbol "AY-3-8910_1_1"
+			(rectangle
+				(start -6.35 27.94)
+				(end 6.35 -27.94)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(symbol "AY-3-8910_2_0"
+			(pin power_in line
+				(at 0 -7.62 90)
+				(length 2.54)
+				(name "VSS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 8.89 -1.27 180)
+				(length 2.54)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -11.43 -1.27 0)
+				(length 5.08)
+				(name "TST2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "26"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -11.43 1.27 0)
+				(length 5.08)
+				(name "TST1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "39"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 7.62 270)
+				(length 2.54)
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "40"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 8.89 1.27 180)
+				(length 2.54)
+				(name "NC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(symbol "AY-3-8910_2_1"
+			(rectangle
+				(start -6.35 5.08)
+				(end 6.35 -5.08)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
 				)
 			)
 		)
@@ -39752,14 +39763,11 @@
 		)
 	)
 	(symbol "LA4460"
-		(pin_names
-			(offset 1.016)
-		)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board no)
 		(property "Reference" "U"
-			(at 10.16 -11.43 0)
+			(at 0 12.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39767,7 +39775,7 @@
 			)
 		)
 		(property "Value" "LA4460"
-			(at 10.16 -13.97 0)
+			(at 3.81 -5.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39775,7 +39783,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 0 0 0)
+			(at -11.43 8.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39783,8 +39791,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
-			(at 0 0 0)
+		(property "Datasheet" "https://www.nemethelektronika.hu/sites/default/files/docs/la4460_1.pdf"
+			(at 0 -17.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39792,8 +39800,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 0 0 0)
+		(property "Description" "2 x Power Amplifier 12W"
+			(at -1.27 -15.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39801,10 +39809,18 @@
 				(hide yes)
 			)
 		)
-		(symbol "LA4460_0_1"
+		(property "ki_locked" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "LA4460_1_1"
 			(rectangle
-				(start -10.16 5.08)
-				(end 7.62 -5.08)
+				(start -8.89 11.43)
+				(end 8.89 -11.43)
 				(stroke
 					(width 0)
 					(type default)
@@ -39813,12 +39829,34 @@
 					(type background)
 				)
 			)
-		)
-		(symbol "LA4460_1_1"
-			(pin no_connect line
-				(at -8.89 7.62 270)
-				(length 2.54) hide
-				(name "NC"
+			(polyline
+				(pts
+					(xy -2.54 1.27) (xy -2.54 -6.35) (xy 2.54 -2.54) (xy -2.54 1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.54 8.89) (xy -2.54 1.27) (xy 2.54 5.08) (xy -2.54 8.89)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(pin input line
+				(at -13.97 -8.89 0)
+				(length 5.08)
+				(name "MUTE"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39833,8 +39871,129 @@
 					)
 				)
 			)
+			(pin input line
+				(at -13.97 6.35 0)
+				(length 5.08)
+				(name "IN1+"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -13.97 -1.27 0)
+				(length 5.08)
+				(name "IN2+"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -13.97 3.81 0)
+				(length 5.08)
+				(name "IN1-"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -13.97 -3.81 0)
+				(length 5.08)
+				(name "IN2-"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin output line
-				(at 0 7.62 270)
+				(at 13.97 -2.54 180)
+				(length 5.08)
+				(name "OUT2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 13.97 5.08 180)
+				(length 5.08)
+				(name "OUT1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(symbol "LA4460_2_1"
+			(rectangle
+				(start -3.81 5.08)
+				(end 3.81 -3.81)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type background)
+				)
+			)
+			(pin power_in line
+				(at -1.27 7.62 270)
 				(length 2.54)
 				(name "VCC"
 					(effects
@@ -39851,82 +40010,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -12.7 -1.27 0)
+			(pin power_out line
+				(at 1.27 7.62 270)
 				(length 2.54)
-				(name "INPUT"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -12.7 -3.81 0)
-				(length 2.54)
-				(name "VSS"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 0 -7.62 90)
-				(length 2.54)
-				(name "C1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "4"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 2.54 -7.62 90)
-				(length 2.54)
-				(name "C2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "5"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 6.35 7.62 270)
-				(length 2.54)
-				(name "C3"
+				(name "DC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39941,28 +40028,10 @@
 					)
 				)
 			)
-			(pin output line
-				(at 3.81 7.62 270)
+			(pin power_in line
+				(at 0 -6.35 90)
 				(length 2.54)
-				(name "OUTN"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "7"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at 5.08 -7.62 90)
-				(length 2.54)
-				(name "VSS"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39970,24 +40039,6 @@
 					)
 				)
 				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at -2.54 7.62 270)
-				(length 2.54)
-				(name "OUTP"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "9"
 					(effects
 						(font
 							(size 1.27 1.27)

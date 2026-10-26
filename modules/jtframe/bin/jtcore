@@ -36,6 +36,8 @@ SKIPTIMING=
 SIM=FALSE
 SKIP_COMPILE=FALSE
 UNMACROS=
+BUILD_MODE=auto
+CLEAN_BUILD=0
 
 # use setprj.sh's target function to
 # change the current default target
@@ -164,6 +166,9 @@ case $TARGET in
 esac
 export PATH=$PATH:$JTFRAME/bin
 
+if [[ "$SKIP_COMPILE" = FALSE && "$SIM" = FALSE ]]; then
+    cache_build_timestamp
+fi
 make_macros_env_vars
 # lower case version
 corename=${CORENAME,,}
@@ -198,9 +203,14 @@ if [ $SKIP_COMPILE = FALSE ]; then
         exit 1
     fi
     build_core_firmware "$PRJPATH"
-    rm -rf $BUILDDIR
+    if [[ "$CLEAN_BUILD" = 1 || "$SIM" = TRUE ]]; then
+        rm -rf "$BUILDDIR"
+    fi
     mkdir -p $BUILDDIR
     cd $BUILDDIR || exit 1
+    if [[ "$SIM" = FALSE ]]; then
+        printf '%s\n' "$BUILD_TIMESTAMP" > .jtcore-timestamp
+    fi
     if [ -z "$NOLINTER" ]; then
         lint_core $PRJ
     fi
@@ -234,7 +244,6 @@ if [ $SKIP_COMPILE = FALSE ]; then
 
     ############################################
     # Recompile
-    rm -rf db incremental_db output_files
     mkdir -p $JTROOT/log/$TARGET
     LOG="$JTROOT/log/$TARGET/$corename.log"
     if [ -n "$LOCAL_GEN" ]; then
@@ -254,9 +263,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET $LOCAL_GEN || exit $?
         # Compilation
-        quartus_sh -v
-        quartus_sh --flow compile $corename > "$LOG"
-        if ! grep "Full Compilation was successful" "$LOG"; then
+        if ! compile_quartus; then
             grep -i error "$LOG" -A 2
             echo -e "${rBG}ERROR:${NC}${wBG} while compiling the project. ${red}Aborting${NC}"
             exit 1
@@ -300,9 +307,15 @@ if [ $SKIP_COMPILE = FALSE ]; then
             cat $AUX
         fi
         rm -f $AUX
-        # Report timing
-        if neg_slack=$(worst_negative_sta_slack "$LOG"); then
-            grep --color=auto "Worst-case.*-[0-9.]*" "$LOG" || true
+        # Smart compilation can reuse STA without repeating slack in stdout.
+        # Read the report associated with the fitted database in that case too.
+        STA_LOG="$RPTPATH/$corename.sta.rpt"
+        if [[ ! -s "$STA_LOG" && -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
+            echo "ERROR: missing timing report $STA_LOG"
+            exit 1
+        fi
+        if [[ -s "$STA_LOG" ]] && neg_slack=$(worst_negative_sta_slack "$STA_LOG"); then
+            grep --color=auto "Worst-case.*-[0-9.]*" "$STA_LOG" || true
             # Emit the worst-path detail so a timing failure can be triaged from
             # the CI log artifact alone. Runs only when slack is negative, so it
             # adds no time to cores that already close. Lands next to $LOG, which

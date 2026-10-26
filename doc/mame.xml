@@ -132028,6 +132028,738 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="narc" sourcefile="midway/midyunit.cpp">
+		<description>Narc (rev 7.00)</description>
+		<year>1988</year>
+		<manufacturer>Williams</manufacturer>
+		<rom name="rev2_narc_sound_rom_u4.u4" size="65536" crc="450a591a" sha1="bbda8061262738e5866f2707f69483a0a51d2910" region="narcsnd:cpu0" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u5.u5" size="65536" crc="e551e5e3" sha1="c8b4f53dbd4c534abb77d4dc07c4d12653b79894" region="narcsnd:cpu0" offset="70000"/>
+		<rom name="rev2_narc_sound_rom_u35.u35" size="65536" crc="81295892" sha1="159664e5ee03c88d6e940e70e87e2150dc5b8b25" region="narcsnd:cpu1" offset="10000"/>
+		<rom name="rev2_narc_sound_rom_u36.u36" size="65536" crc="16cdbb13" sha1="2dfd961a5d909c1804f4fda34de33ee2664c4bc6" region="narcsnd:cpu1" offset="30000"/>
+		<rom name="rev2_narc_sound_rom_u37.u37" size="65536" crc="29dbeffd" sha1="4cbdc619db34f9c552de1ed3d034f8c079987e03" region="narcsnd:cpu1" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u38.u38" size="65536" crc="09b03b80" sha1="a45782d29a426fac38299b56af0815e844e35ae4" region="narcsnd:cpu1" offset="70000"/>
+		<rom name="rev7_narc_game_rom_u42.u42" size="131072" crc="d1111b76" sha1="9700261aaba6a1ac0415362874817499f90b142a" region="maindata" offset="80000"/>
+		<rom name="rev7_narc_game_rom_u24.u24" size="131072" crc="aa0d3082" sha1="7da59098319c49842406e7daf06aceae80fbd0ed" region="maindata" offset="80001"/>
+		<rom name="rev7_narc_game_rom_u41.u41" size="131072" crc="3903191f" sha1="1ad89cb03956f6625d9403e98951383fc9219478" region="maindata" offset="c0000"/>
+		<rom name="rev7_narc_game_rom_u23.u23" size="131072" crc="7a316582" sha1="f640966c79bab70b536f2f92d4f46475a021b5b1" region="maindata" offset="c0001"/>
+		<rom name="rev2_narc_image_rom_u94.u94" size="65536" crc="ca3194e4" sha1="d6aa6a09e4353a1dddd502abf85acf48e6e94cef" region="gfx" offset="0"/>
+		<rom name="rev2_narc_image_rom_u93.u93" size="65536" crc="0ed7f7f5" sha1="913d0dc81531adc6a7e6ffabfe681150aa4638a3" region="gfx" offset="10000"/>
+		<rom name="rev2_narc_image_rom_u92.u92" size="65536" crc="40d2fc66" sha1="95b8d90e6abe336ad05dc3746d02b38823d2b8cd" region="gfx" offset="20000"/>
+		<rom name="rev2_narc_image_rom_u91.u91" size="65536" crc="f39325e0" sha1="c1179825c76ed2934dfeff263a9296c2c1a5abe4" region="gfx" offset="30000"/>
+		<rom name="rev2_narc_image_rom_u90.u90" size="65536" crc="0132aefa" sha1="9bf11ebc06f1069ea056427750902c204facbd3d" region="gfx" offset="40000"/>
+		<rom name="rev2_narc_image_rom_u89.u89" size="65536" crc="f7260c9e" sha1="5a3fd88c7c0fa01ec2eb6fdef380ccee9d7da3a8" region="gfx" offset="50000"/>
+		<rom name="rev2_narc_image_rom_u88.u88" size="65536" crc="edc19f42" sha1="b7121b3df743e5744ae72de2216b679fe71a2049" region="gfx" offset="60000"/>
+		<rom name="rev2_narc_image_rom_u87.u87" size="65536" crc="d9b42ff9" sha1="cab05a5f8aadff010fba1107eb2000cc128063ff" region="gfx" offset="70000"/>
+		<rom name="rev2_narc_image_rom_u86.u86" size="65536" crc="af7daad3" sha1="e2635a0acd6a238159ef91c1c3c9dfe8de8ae18f" region="gfx" offset="80000"/>
+		<rom name="rev2_narc_image_rom_u85.u85" size="65536" crc="095fae6b" sha1="94f1df799142990a559e54cd949d9723481806b1" region="gfx" offset="90000"/>
+		<rom name="rev2_narc_image_rom_u84.u84" size="65536" crc="3fdf2057" sha1="25ac6263a4eb962d90a305572fb95b75cb9f4138" region="gfx" offset="a0000"/>
+		<rom name="rev2_narc_image_rom_u83.u83" size="65536" crc="f2d27c9f" sha1="de30c7e0191adf62b11b2f2fbdf80687e653de12" region="gfx" offset="b0000"/>
+		<rom name="rev2_narc_image_rom_u82.u82" size="65536" crc="962ce47c" sha1="ea32f7f58a5ec1d941b372db5378d14fd850a2a7" region="gfx" offset="c0000"/>
+		<rom name="rev2_narc_image_rom_u81.u81" size="65536" crc="00fe59ec" sha1="85efd623b9cd75b249e19b2e97440a47718da728" region="gfx" offset="d0000"/>
+		<rom name="rev2_narc_image_rom_u80.u80" size="65536" crc="147ba8e9" sha1="1065b57082e0198025fe6f0bb3548f37c6a715e4" region="gfx" offset="e0000"/>
+		<rom name="rev2_narc_image_rom_u76.u76" size="65536" crc="1cd897f4" sha1="80414c3718ac6719abcca83f483302fc16fcfef3" region="gfx" offset="200000"/>
+		<rom name="rev2_narc_image_rom_u75.u75" size="65536" crc="78abfa01" sha1="1523f537491b901f2d987d4443077b92e24b969d" region="gfx" offset="210000"/>
+		<rom name="rev2_narc_image_rom_u74.u74" size="65536" crc="66d2a234" sha1="290b3051fa9d35e24a9d00fcc2b72d2751f3e7f1" region="gfx" offset="220000"/>
+		<rom name="rev2_narc_image_rom_u73.u73" size="65536" crc="efa5cd4e" sha1="7aca6058d644a025c6799d55ffa082ba8eb5d76f" region="gfx" offset="230000"/>
+		<rom name="rev2_narc_image_rom_u72.u72" size="65536" crc="70638eb5" sha1="fbafb354fca7c3c402be5073fa03060de569f536" region="gfx" offset="240000"/>
+		<rom name="rev2_narc_image_rom_u71.u71" size="65536" crc="61226883" sha1="09a366df0603cc0afc8c6c5547ec6ae3a02724b2" region="gfx" offset="250000"/>
+		<rom name="rev2_narc_image_rom_u70.u70" size="65536" crc="c808849f" sha1="bd3f69c4641331738e415d6d72fafe0eeeb2e56b" region="gfx" offset="260000"/>
+		<rom name="rev2_narc_image_rom_u69.u69" size="65536" crc="e7f9c34f" sha1="f65aed012f1d575a63690222b8c8f2c56bc196c3" region="gfx" offset="270000"/>
+		<rom name="rev2_narc_image_rom_u68.u68" size="65536" crc="88a634d5" sha1="9ddf86ca8cd91965348bc311cc722151f831db21" region="gfx" offset="280000"/>
+		<rom name="rev2_narc_image_rom_u67.u67" size="65536" crc="4ab8b69e" sha1="4320407c78864edc7876ad3604405414a3e7762d" region="gfx" offset="290000"/>
+		<rom name="rev2_narc_image_rom_u66.u66" size="65536" crc="e1da4b25" sha1="c81ed1ffc0a4bf64e794a1313559453f9455c312" region="gfx" offset="2a0000"/>
+		<rom name="rev2_narc_image_rom_u65.u65" size="65536" crc="6df0d125" sha1="37392cc917e73cfa09970fd24503b45ced399976" region="gfx" offset="2b0000"/>
+		<rom name="rev2_narc_image_rom_u64.u64" size="65536" crc="abab1b16" sha1="2913a94e1fcf8df52e29d0fb6e373aa64d23c019" region="gfx" offset="2c0000"/>
+		<rom name="rev2_narc_image_rom_u63.u63" size="65536" crc="80602f31" sha1="f1c5c4476dbf80382f33c0776c103cff9bed8346" region="gfx" offset="2d0000"/>
+		<rom name="rev2_narc_image_rom_u62.u62" size="65536" crc="c2a476d1" sha1="ffde1784548050d87f1404aaca3689417e6f7a81" region="gfx" offset="2e0000"/>
+		<rom name="rev2_narc_image_rom_u58.u58" size="65536" crc="8a7501e3" sha1="dcd87c464fcb88180cc1c24ec82586440a197a5c" region="gfx" offset="400000"/>
+		<rom name="rev2_narc_image_rom_u57.u57" size="65536" crc="a504735f" sha1="2afe58e576eea2e0326c6b42adb621358a270881" region="gfx" offset="410000"/>
+		<rom name="rev2_narc_image_rom_u56.u56" size="65536" crc="55f8cca7" sha1="0b0a0d50be4401e4ac4e75d8040f18540f9ddc61" region="gfx" offset="420000"/>
+		<rom name="rev2_narc_image_rom_u55.u55" size="65536" crc="d3c932c1" sha1="1a7ffc04e796ba355506bf9037c21aef18fe01a3" region="gfx" offset="430000"/>
+		<rom name="rev2_narc_image_rom_u54.u54" size="65536" crc="c7f4134b" sha1="aea523e17f95c27d1f2c1f69884f626d96c8cb3b" region="gfx" offset="440000"/>
+		<rom name="rev2_narc_image_rom_u53.u53" size="65536" crc="6be4da56" sha1="35a93a259be04a644ca70df4922f6915274c3932" region="gfx" offset="450000"/>
+		<rom name="rev2_narc_image_rom_u52.u52" size="65536" crc="1ea36a4a" sha1="78e5437d46c1ecff5e221bc301925b10f00c5269" region="gfx" offset="460000"/>
+		<rom name="rev2_narc_image_rom_u51.u51" size="65536" crc="9d4b0324" sha1="80fb38a9ac81a0383112df680b9755d7cccbd50b" region="gfx" offset="470000"/>
+		<rom name="rev2_narc_image_rom_u50.u50" size="65536" crc="6f9f0c26" sha1="be77d99fb37fa31c3824725b28ee74206c584b90" region="gfx" offset="480000"/>
+		<rom name="rev2_narc_image_rom_u49.u49" size="65536" crc="80386fce" sha1="f182ed0f1a3753dedc56cb120cb8d10e1556e966" region="gfx" offset="490000"/>
+		<rom name="rev2_narc_image_rom_u48.u48" size="65536" crc="05c16185" sha1="429910c5b1f1fe47fdec6cfcba765ee9f10749f0" region="gfx" offset="4a0000"/>
+		<rom name="rev2_narc_image_rom_u47.u47" size="65536" crc="4c0151f1" sha1="b526066fc594f3ec83bb4866986e3b73cdae3992" region="gfx" offset="4b0000"/>
+		<rom name="rev2_narc_image_rom_u46.u46" size="65536" crc="5670bfcb" sha1="b20829b715c6421894c10c02aebb08d22b5109c9" region="gfx" offset="4c0000"/>
+		<rom name="rev2_narc_image_rom_u45.u45" size="65536" crc="27f10d98" sha1="b027ade2b4a52977d9c40c9549b9067d37fab41c" region="gfx" offset="4d0000"/>
+		<rom name="rev2_narc_image_rom_u44.u44" size="65536" crc="93b8eaa4" sha1="b786f3286c5443cf08e556e9fb030b3444288f3c" region="gfx" offset="4e0000"/>
+		<rom name="rev2_narc_image_rom_u40.u40" size="65536" crc="7fcaebc7" sha1="b951d63c072d693f7dfc7e362a12513eb9bd6bab" region="gfx" offset="600000"/>
+		<rom name="rev2_narc_image_rom_u39.u39" size="65536" crc="7db5cf52" sha1="478aefc1126493378d22c857646e2fce221c7d21" region="gfx" offset="610000"/>
+		<rom name="rev2_narc_image_rom_u38.u38" size="65536" crc="3f9f3ef7" sha1="5315e8c372bb63d95f814d8eafe0f41e4d95ba1a" region="gfx" offset="620000"/>
+		<rom name="rev2_narc_image_rom_u37.u37" size="65536" crc="ed81826c" sha1="afe1c0fc692a802279c1f7f31143d33028d35ce4" region="gfx" offset="630000"/>
+		<rom name="rev2_narc_image_rom_u36.u36" size="65536" crc="e5d855c0" sha1="3fa0f765238ad2a27c0c65805bf56ebfbe50bf05" region="gfx" offset="640000"/>
+		<rom name="rev2_narc_image_rom_u35.u35" size="65536" crc="3a7b1329" sha1="e8b547a3b8f85cd13e12cfe0bf3949acc1486e6b" region="gfx" offset="650000"/>
+		<rom name="rev2_narc_image_rom_u34.u34" size="65536" crc="fe982b0e" sha1="a03e7e348186339fd93ce119f65e8f0ea7b7bb7a" region="gfx" offset="660000"/>
+		<rom name="rev2_narc_image_rom_u33.u33" size="65536" crc="6bc7eb0f" sha1="6964ef63d0daf1bc7fa9585567659cfc198b6cc3" region="gfx" offset="670000"/>
+		<rom name="rev2_narc_image_rom_u32.u32" size="65536" crc="5875a6d3" sha1="ae64aa786239be39c3c99bbe019bdc91003c1691" region="gfx" offset="680000"/>
+		<rom name="rev2_narc_image_rom_u31.u31" size="65536" crc="2fa4b8e5" sha1="8e4e4abd60d20e0ef955ac4b1f300cfd157e50ca" region="gfx" offset="690000"/>
+		<rom name="rev2_narc_image_rom_u30.u30" size="65536" crc="7e4bb8ee" sha1="7166bd56a569329e01ed0c03579a403d659a4a7b" region="gfx" offset="6a0000"/>
+		<rom name="rev2_narc_image_rom_u29.u29" size="65536" crc="45136fd9" sha1="44388e16d02a8c55fed0dbbcd842c941fa4b11b1" region="gfx" offset="6b0000"/>
+		<rom name="rev2_narc_image_rom_u28.u28" size="65536" crc="d6cdac24" sha1="d4bbe3a1be89be7d21769bfe476b50c05cd0c357" region="gfx" offset="6c0000"/>
+		<rom name="rev2_narc_image_rom_u27.u27" size="65536" crc="4d33bbec" sha1="05a3bd66ff91c824e841ca3943585f6aa383c5c2" region="gfx" offset="6d0000"/>
+		<rom name="rev2_narc_image_rom_u26.u26" size="65536" crc="cb19f784" sha1="1e4d85603c940e247fdc45f0366dfb484285e588" region="gfx" offset="6e0000"/>
+		<rom name="a-5346-3036-1_narc_pls153.u28" size="235" crc="4db36615" sha1="781d13af2735ad3da0c7594487e7f4e19b5f459f" region="plds" offset="0"/>
+		<rom name="a-5346-3036-2_narc_pls153.u78" size="235" crc="4b151863" sha1="0740c5fba978b9bb68a50472b57c0801c7591d6f" region="plds" offset="100"/>
+		<rom name="a-5346-3036-3_narc_pls153.u79" size="235" crc="35bd6ed8" sha1="98b4ad4f61d2f2013815fa79c3428a2d610c8a6f" region="plds" offset="200"/>
+		<rom name="a-5346-3036-4_narc_pls153.u80" size="235" crc="9c10e4cf" sha1="77d0a6a6e19e2f5b17e9356459215e5452247be3" region="plds" offset="300"/>
+		<rom name="a-5346-3036-5_narc_pls153.u83" size="235" crc="3a2f21b2" sha1="bafc45b8b0e83d044bc4963abbdbbf4b6da1694b" region="plds" offset="400"/>
+		<device_ref name="tms34010"/>
+		<device_ref name="nvram"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="wmsnarc"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="hc55516"/>
+		<chip type="cpu" tag="maincpu" name="Texas Instruments TMS34010" clock="48000000"/>
+		<chip type="cpu" tag="narcsnd:cpu0" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="cpu" tag="narcsnd:cpu1" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="narcsnd" name="Williams NARC Sound Board"/>
+		<chip type="audio" tag="narcsnd:ym2151" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="narcsnd:dac1" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:dac2" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:cvsd" name="HC-55516"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="400" refresh="54.824186" pixclock="16000000" htotal="674" hbend="122" hbstart="634" vtotal="433" vbend="27" vbstart="427" />
+		<sound channels="1"/>
+		<input players="2" coins="4" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":UNK0">
+		</port>
+		<port tag=":UNK1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="narc1" sourcefile="midway/midyunit.cpp" cloneof="narc" romof="narc">
+		<description>Narc (rev 1.80)</description>
+		<year>1988</year>
+		<manufacturer>Williams</manufacturer>
+		<rom name="rev1_narc_sound_rom_u4.u4" size="65536" crc="345b5b0b" sha1="98918785b2c096ceec14a42199f1ad24149ef936" region="narcsnd:cpu0" offset="50000"/>
+		<rom name="rev1_narc_sound_rom_u5.u5" size="65536" crc="bfa112b7" sha1="2156b52b6ad838e3c9ba33d27da4f753f8a26bef" region="narcsnd:cpu0" offset="70000"/>
+		<rom name="rev1_narc_sound_rom_u35.u35" size="65536" crc="c932e69f" sha1="dca1113c63f997b5a779d6e3ca6c555cb266b8ab" region="narcsnd:cpu1" offset="10000"/>
+		<rom name="rev1_narc_sound_rom_u36.u36" size="65536" crc="974ad9f4" sha1="5646099214d4e29ed529b66a5dedbaeca0ad375e" region="narcsnd:cpu1" offset="30000"/>
+		<rom name="rev1_narc_sound_rom_u37.u37" size="65536" crc="b6469f79" sha1="58b59ac8466813def7f1f0c6d0f7cdd167500889" region="narcsnd:cpu1" offset="50000"/>
+		<rom name="rev1_narc_sound_rom_u38.u38" size="65536" crc="c535d11c" sha1="b7e670669713bbf860c2025b9830bfc4d941651c" region="narcsnd:cpu1" offset="70000"/>
+		<rom name="rev1_narc_game_rom_u42.u42" size="131072" crc="145e1346" sha1="3b6c4d07b9fc5b7ab875d6c9e4d6f1eefaa25412" region="maindata" offset="80000"/>
+		<rom name="rev1_narc_game_rom_u24.u24" size="131072" crc="6ac3ba9a" sha1="3dbe44b6d4638510952fc10dd7b29fe7c6b677cd" region="maindata" offset="80001"/>
+		<rom name="rev1_narc_game_rom_u41.u41" size="131072" crc="68723c97" sha1="0d6315f0ec3c70a3f0347a1fd79594309c4a2628" region="maindata" offset="c0000"/>
+		<rom name="rev1_narc_game_rom_u23.u23" size="131072" crc="78ecc8e5" sha1="51529f53e783fd2ad691aa4f77f0fa5afbf54d9d" region="maindata" offset="c0001"/>
+		<rom name="rev1_narc_image_rom_u94.u94" size="65536" crc="1b4cec52" sha1="9f3e72034f96cfbf48d33be8bb5ca073bad30a97" region="gfx" offset="0"/>
+		<rom name="rev1_narc_image_rom_u93.u93" size="65536" crc="6e69f198" sha1="fdc98bdd90c48058364646783bdaedd98d2a9034" region="gfx" offset="10000"/>
+		<rom name="rev1_narc_image_rom_u92.u92" size="65536" crc="4a0cb243" sha1="6abbd582bfb1f85b771bf82d2d9734e9b411c92d" region="gfx" offset="20000"/>
+		<rom name="rev1_narc_image_rom_u91.u91" size="65536" crc="38759eb9" sha1="b1af4102d8eb9eed7ea1c3fccd8f50bd857b0f8c" region="gfx" offset="30000"/>
+		<rom name="rev1_narc_image_rom_u90.u90" size="65536" crc="33cf4379" sha1="735f2bcb356d1d508d578f157a1c0ee3cca7ba06" region="gfx" offset="40000"/>
+		<rom name="rev1_narc_image_rom_u89.u89" size="65536" crc="3cbd682e" sha1="be512c9490e6ca1fca08c0768647af3f11b8984d" region="gfx" offset="50000"/>
+		<rom name="rev1_narc_image_rom_u88.u88" size="65536" crc="4fcfad66" sha1="540d89ee500984a9ed53968e9c19af0b0370601d" region="gfx" offset="60000"/>
+		<rom name="rev1_narc_image_rom_u87.u87" size="65536" crc="afc56436" sha1="ce5082cb002ee0bdbc072d71ba9dc4599631b8ec" region="gfx" offset="70000"/>
+		<rom name="rev1_narc_image_rom_u86.u86" size="65536" crc="f1d02184" sha1="637115aae9042fc7c12b98afa340350603850c19" region="gfx" offset="80000"/>
+		<rom name="rev1_narc_image_rom_u85.u85" size="65536" crc="dfe851c8" sha1="9058dfbbe995392039a1ce73fac00a162ec7f6a9" region="gfx" offset="90000"/>
+		<rom name="rev1_narc_image_rom_u84.u84" size="65536" crc="8c28c9c4" sha1="a2f2603ca2b319eff3f65704b54b1b8b32a576bd" region="gfx" offset="a0000"/>
+		<rom name="rev1_narc_image_rom_u83.u83" size="65536" crc="f65cf5ac" sha1="77090f343b8a6245826527b96083390dd35d0305" region="gfx" offset="b0000"/>
+		<rom name="rev1_narc_image_rom_u82.u82" size="65536" crc="153cb85f" sha1="e38fde9bf96aa190e970c1dfd79ece0bfaf31772" region="gfx" offset="c0000"/>
+		<rom name="rev1_narc_image_rom_u81.u81" size="65536" crc="61d873fb" sha1="71a48015a82eaf0f902bc393cdb566f3946fea0c" region="gfx" offset="d0000"/>
+		<rom name="rev1_narc_image_rom_u76.u76" size="65536" crc="7b5d553a" sha1="57fbb29a1e84b44abb015e9e99ae90997f49bdf5" region="gfx" offset="200000"/>
+		<rom name="rev1_narc_image_rom_u75.u75" size="65536" crc="b49a3295" sha1="ee8cf8f614ae3ebb7f02890480c6dbecb17f7e5c" region="gfx" offset="210000"/>
+		<rom name="rev1_narc_image_rom_u74.u74" size="65536" crc="4767fbd3" sha1="ead9d599777e4c95efd1967f1b5d1a83ca9d0908" region="gfx" offset="220000"/>
+		<rom name="rev1_narc_image_rom_u73.u73" size="65536" crc="c2c5be8b" sha1="51a3c03d4100e297e3a2361e56f0606bf8152a6f" region="gfx" offset="230000"/>
+		<rom name="rev1_narc_image_rom_u72.u72" size="65536" crc="a4b8e0e4" sha1="389de5f9526cde99b97820c4258abb2b8104eec1" region="gfx" offset="240000"/>
+		<rom name="rev1_narc_image_rom_u71.u71" size="65536" crc="02fde40d" sha1="1dcfcc3d4cc145daaf743aef8539e18b5427c8d0" region="gfx" offset="250000"/>
+		<rom name="rev1_narc_image_rom_u70.u70" size="65536" crc="e53d378e" sha1="0fd23b1c2dbba283c25163564f49726e5eeb1c14" region="gfx" offset="260000"/>
+		<rom name="rev1_narc_image_rom_u69.u69" size="65536" crc="3b00bacc" sha1="aa7f5d2f646380c544509ec0d565a056a2d9ea3f" region="gfx" offset="270000"/>
+		<rom name="rev1_narc_image_rom_u68.u68" size="65536" crc="bd3ccb95" sha1="608731a6aad6a56e728c3180cc04e59a705515e3" region="gfx" offset="280000"/>
+		<rom name="rev1_narc_image_rom_u67.u67" size="65536" crc="2e30c11b" sha1="a8571bc7cfa178fd613bbc2466d070070db7334e" region="gfx" offset="290000"/>
+		<rom name="rev1_narc_image_rom_u66.u66" size="65536" crc="1bb2da9d" sha1="33d3b487573369d0abed74c55b568b3b380d62d8" region="gfx" offset="2a0000"/>
+		<rom name="rev1_narc_image_rom_u65.u65" size="65536" crc="1b928ebb" sha1="aef82be332cf834ddcf8cba6a6dc230457b92cb3" region="gfx" offset="2b0000"/>
+		<rom name="rev1_narc_image_rom_u64.u64" size="65536" crc="69539c8a" sha1="441adad1b7150603c1abe279404e613448b15b2e" region="gfx" offset="2c0000"/>
+		<rom name="rev1_narc_image_rom_u63.u63" size="65536" crc="1254a7f8" sha1="ded2da8438aef45773c33b4f5bfa2541345ffd8a" region="gfx" offset="2d0000"/>
+		<rom name="rev1_narc_image_rom_u58.u58" size="65536" crc="82cb4229" sha1="45ac76778f5b574a51bb91f1c8bb86ec76e77e9d" region="gfx" offset="400000"/>
+		<rom name="rev1_narc_image_rom_u57.u57" size="65536" crc="4309d12f" sha1="b055c876c34a220db6de805199da1244fe188607" region="gfx" offset="410000"/>
+		<rom name="rev1_narc_image_rom_u56.u56" size="65536" crc="6c4b7b3a" sha1="54d78847e9f3fba35db21162d6362b6d3d94abaf" region="gfx" offset="420000"/>
+		<rom name="rev1_narc_image_rom_u55.u55" size="65536" crc="edb40703" sha1="cffde287455e52b7ef50e957c133fc5e1fe2edc5" region="gfx" offset="430000"/>
+		<rom name="rev1_narc_image_rom_u54.u54" size="65536" crc="9643faad" sha1="7964f1ce5187498fe5d182da679176ffea2e2c7b" region="gfx" offset="440000"/>
+		<rom name="rev1_narc_image_rom_u53.u53" size="65536" crc="d6695995" sha1="d77ac3c8bd902a16e24381338007f61fc6a3cfff" region="gfx" offset="450000"/>
+		<rom name="rev1_narc_image_rom_u52.u52" size="65536" crc="59258d8b" sha1="4197377e2e94a5d740e1122e4c4c5648de907113" region="gfx" offset="460000"/>
+		<rom name="rev1_narc_image_rom_u51.u51" size="65536" crc="c0fd44fc" sha1="1dbfd67012b2396cb5ff35a01d651abf8743182a" region="gfx" offset="470000"/>
+		<rom name="rev1_narc_image_rom_u50.u50" size="65536" crc="7cacd767" sha1="57379e0626a6cf300710c2c02b49278a7005bfb8" region="gfx" offset="480000"/>
+		<rom name="rev1_narc_image_rom_u49.u49" size="65536" crc="64440a70" sha1="eed9bde050d735bde6d94b573503f86e4e0bfccc" region="gfx" offset="490000"/>
+		<rom name="rev1_narc_image_rom_u48.u48" size="65536" crc="45162e8a" sha1="6448f8b16ea0f99a8b306e3c1323b3c765a44b69" region="gfx" offset="4a0000"/>
+		<rom name="rev1_narc_image_rom_u47.u47" size="65536" crc="ac5c7f57" sha1="111ecfa4957c6eef84515e0f53706e2b8b684107" region="gfx" offset="4b0000"/>
+		<rom name="rev1_narc_image_rom_u46.u46" size="65536" crc="8bb8d8e1" sha1="7e1c09dafb2b891ef713dd1255a3c0fdeb67af8f" region="gfx" offset="4c0000"/>
+		<rom name="rev1_narc_image_rom_u45.u45" size="65536" crc="b60466c0" sha1="df0a23f78e21169e517689a06d4b5ebe3b9832d6" region="gfx" offset="4d0000"/>
+		<rom name="rev1_narc_image_rom_u40.u40" size="65536" crc="02ce306a" sha1="889cdbdd6cc1ace80c6686e5599627d14363bb41" region="gfx" offset="600000"/>
+		<rom name="rev1_narc_image_rom_u39.u39" size="65536" crc="6d702163" sha1="4d94afbc1901ed63964443280ad1545deb762663" region="gfx" offset="610000"/>
+		<rom name="rev1_narc_image_rom_u38.u38" size="65536" crc="349988cf" sha1="ccb915024df4b60754629546c0d705f5a2544e6c" region="gfx" offset="620000"/>
+		<rom name="rev1_narc_image_rom_u37.u37" size="65536" crc="0f8e6588" sha1="2fc8d6c8d5b75d7018a3570fb6747eea1cca89ac" region="gfx" offset="630000"/>
+		<rom name="rev1_narc_image_rom_u36.u36" size="65536" crc="645723cd" sha1="f0ae22d3b7879f8ab530ef01bff624cf64db2156" region="gfx" offset="640000"/>
+		<rom name="rev1_narc_image_rom_u35.u35" size="65536" crc="00661dec" sha1="19721ae5fa649040aa6cafbb0da4cd9c091c1e75" region="gfx" offset="650000"/>
+		<rom name="rev1_narc_image_rom_u34.u34" size="65536" crc="89dcbf17" sha1="98e98d9ef6adf9f23f6df3bfd0b986d8fa7f7632" region="gfx" offset="660000"/>
+		<rom name="rev1_narc_image_rom_u33.u33" size="65536" crc="ad220197" sha1="f10f3ff526efbf4ab43824693256a2eaf07a6a0f" region="gfx" offset="670000"/>
+		<rom name="rev1_narc_image_rom_u32.u32" size="65536" crc="40aa3f31" sha1="62ecac3aa32c9bb6ed59315c531ee33f30f0f20b" region="gfx" offset="680000"/>
+		<rom name="rev1_narc_image_rom_u31.u31" size="65536" crc="81cf74aa" sha1="9a6cd036077eed30c627e188b3709cda5b1837a1" region="gfx" offset="690000"/>
+		<rom name="rev1_narc_image_rom_u30.u30" size="65536" crc="b3e07443" sha1="c75f63d26209827ce003d21ac8037feb7f5d220c" region="gfx" offset="6a0000"/>
+		<rom name="rev1_narc_image_rom_u29.u29" size="65536" crc="fdaedb84" sha1="5d81d5f2083727f8b9a16ab08a212ceb2bcc76ba" region="gfx" offset="6b0000"/>
+		<rom name="rev1_narc_image_rom_u28.u28" size="65536" crc="3012cd6e" sha1="670ade7b46b3232a0d3c5fea2ab25f8af7664a4e" region="gfx" offset="6c0000"/>
+		<rom name="rev1_narc_image_rom_u27.u27" size="65536" crc="e631fe7d" sha1="e952418f23939e169dd8aa666ad3564e810c9554" region="gfx" offset="6d0000"/>
+		<rom name="a-5346-3036-1_narc_pls153.u28" merge="a-5346-3036-1_narc_pls153.u28" size="235" crc="4db36615" sha1="781d13af2735ad3da0c7594487e7f4e19b5f459f" region="plds" offset="0"/>
+		<rom name="a-5346-3036-2_narc_pls153.u78" merge="a-5346-3036-2_narc_pls153.u78" size="235" crc="4b151863" sha1="0740c5fba978b9bb68a50472b57c0801c7591d6f" region="plds" offset="100"/>
+		<rom name="a-5346-3036-3_narc_pls153.u79" merge="a-5346-3036-3_narc_pls153.u79" size="235" crc="35bd6ed8" sha1="98b4ad4f61d2f2013815fa79c3428a2d610c8a6f" region="plds" offset="200"/>
+		<rom name="a-5346-3036-4_narc_pls153.u80" merge="a-5346-3036-4_narc_pls153.u80" size="235" crc="9c10e4cf" sha1="77d0a6a6e19e2f5b17e9356459215e5452247be3" region="plds" offset="300"/>
+		<rom name="a-5346-3036-5_narc_pls153.u83" merge="a-5346-3036-5_narc_pls153.u83" size="235" crc="3a2f21b2" sha1="bafc45b8b0e83d044bc4963abbdbbf4b6da1694b" region="plds" offset="400"/>
+		<device_ref name="tms34010"/>
+		<device_ref name="nvram"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="wmsnarc"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="hc55516"/>
+		<chip type="cpu" tag="maincpu" name="Texas Instruments TMS34010" clock="48000000"/>
+		<chip type="cpu" tag="narcsnd:cpu0" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="cpu" tag="narcsnd:cpu1" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="narcsnd" name="Williams NARC Sound Board"/>
+		<chip type="audio" tag="narcsnd:ym2151" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="narcsnd:dac1" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:dac2" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:cvsd" name="HC-55516"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="400" refresh="54.824186" pixclock="16000000" htotal="674" hbend="122" hbstart="634" vtotal="433" vbend="27" vbstart="427" />
+		<sound channels="1"/>
+		<input players="2" coins="4" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":UNK0">
+		</port>
+		<port tag=":UNK1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="narc2" sourcefile="midway/midyunit.cpp" cloneof="narc" romof="narc">
+		<description>Narc (rev 2.00)</description>
+		<year>1988</year>
+		<manufacturer>Williams</manufacturer>
+		<rom name="rev2_narc_sound_rom_u4.u4" merge="rev2_narc_sound_rom_u4.u4" size="65536" crc="450a591a" sha1="bbda8061262738e5866f2707f69483a0a51d2910" region="narcsnd:cpu0" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u5.u5" merge="rev2_narc_sound_rom_u5.u5" size="65536" crc="e551e5e3" sha1="c8b4f53dbd4c534abb77d4dc07c4d12653b79894" region="narcsnd:cpu0" offset="70000"/>
+		<rom name="rev2_narc_sound_rom_u35.u35" merge="rev2_narc_sound_rom_u35.u35" size="65536" crc="81295892" sha1="159664e5ee03c88d6e940e70e87e2150dc5b8b25" region="narcsnd:cpu1" offset="10000"/>
+		<rom name="rev2_narc_sound_rom_u36.u36" merge="rev2_narc_sound_rom_u36.u36" size="65536" crc="16cdbb13" sha1="2dfd961a5d909c1804f4fda34de33ee2664c4bc6" region="narcsnd:cpu1" offset="30000"/>
+		<rom name="rev2_narc_sound_rom_u37.u37" merge="rev2_narc_sound_rom_u37.u37" size="65536" crc="29dbeffd" sha1="4cbdc619db34f9c552de1ed3d034f8c079987e03" region="narcsnd:cpu1" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u38.u38" merge="rev2_narc_sound_rom_u38.u38" size="65536" crc="09b03b80" sha1="a45782d29a426fac38299b56af0815e844e35ae4" region="narcsnd:cpu1" offset="70000"/>
+		<rom name="rev2_narc_game_rom_u78.u78" size="65536" crc="150c2dc4" sha1="c7e3f90f5fed08f2a6951779166cbc6d2dbcd380" region="maindata" offset="0"/>
+		<rom name="rev2_narc_game_rom_u60.u60" size="65536" crc="9720ddea" sha1="27f0182799f14c1c7c8dc48f7cf4160768b24662" region="maindata" offset="1"/>
+		<rom name="rev2_narc_game_rom_u77.u77" size="65536" crc="75ba4c74" sha1="8713c22d30107d01612571d3a42aa9edda795fb0" region="maindata" offset="40000"/>
+		<rom name="rev2_narc_game_rom_u59.u59" size="65536" crc="f7c6c104" sha1="1b57a95f2232a9433831b99b689802ef185ff203" region="maindata" offset="40001"/>
+		<rom name="rev2_narc_game_rom_u42.u42" size="65536" crc="3db20bb8" sha1="688844bd573e5d0c5225fccbc12ae91b88b95bd8" region="maindata" offset="80000"/>
+		<rom name="rev2_narc_game_rom_u24.u24" size="65536" crc="91bae451" sha1="549ad5938ae9ae4e320d0c5f8f30f23f5de2c802" region="maindata" offset="80001"/>
+		<rom name="rev2_narc_game_rom_u41.u41" size="65536" crc="b0d463e1" sha1="f6f1a9088aab838f3efe21f71616374ffec35a05" region="maindata" offset="c0000"/>
+		<rom name="rev2_narc_game_rom_u23.u23" size="65536" crc="a9eb4825" sha1="9c0b98451f1a240a3cb7ed4c1aab6c7c4abd27e6" region="maindata" offset="c0001"/>
+		<rom name="rev2_narc_image_rom_u94.u94" merge="rev2_narc_image_rom_u94.u94" size="65536" crc="ca3194e4" sha1="d6aa6a09e4353a1dddd502abf85acf48e6e94cef" region="gfx" offset="0"/>
+		<rom name="rev2_narc_image_rom_u93.u93" merge="rev2_narc_image_rom_u93.u93" size="65536" crc="0ed7f7f5" sha1="913d0dc81531adc6a7e6ffabfe681150aa4638a3" region="gfx" offset="10000"/>
+		<rom name="rev2_narc_image_rom_u92.u92" merge="rev2_narc_image_rom_u92.u92" size="65536" crc="40d2fc66" sha1="95b8d90e6abe336ad05dc3746d02b38823d2b8cd" region="gfx" offset="20000"/>
+		<rom name="rev2_narc_image_rom_u91.u91" merge="rev2_narc_image_rom_u91.u91" size="65536" crc="f39325e0" sha1="c1179825c76ed2934dfeff263a9296c2c1a5abe4" region="gfx" offset="30000"/>
+		<rom name="rev2_narc_image_rom_u90.u90" merge="rev2_narc_image_rom_u90.u90" size="65536" crc="0132aefa" sha1="9bf11ebc06f1069ea056427750902c204facbd3d" region="gfx" offset="40000"/>
+		<rom name="rev2_narc_image_rom_u89.u89" merge="rev2_narc_image_rom_u89.u89" size="65536" crc="f7260c9e" sha1="5a3fd88c7c0fa01ec2eb6fdef380ccee9d7da3a8" region="gfx" offset="50000"/>
+		<rom name="rev2_narc_image_rom_u88.u88" merge="rev2_narc_image_rom_u88.u88" size="65536" crc="edc19f42" sha1="b7121b3df743e5744ae72de2216b679fe71a2049" region="gfx" offset="60000"/>
+		<rom name="rev2_narc_image_rom_u87.u87" merge="rev2_narc_image_rom_u87.u87" size="65536" crc="d9b42ff9" sha1="cab05a5f8aadff010fba1107eb2000cc128063ff" region="gfx" offset="70000"/>
+		<rom name="rev2_narc_image_rom_u86.u86" merge="rev2_narc_image_rom_u86.u86" size="65536" crc="af7daad3" sha1="e2635a0acd6a238159ef91c1c3c9dfe8de8ae18f" region="gfx" offset="80000"/>
+		<rom name="rev2_narc_image_rom_u85.u85" merge="rev2_narc_image_rom_u85.u85" size="65536" crc="095fae6b" sha1="94f1df799142990a559e54cd949d9723481806b1" region="gfx" offset="90000"/>
+		<rom name="rev2_narc_image_rom_u84.u84" merge="rev2_narc_image_rom_u84.u84" size="65536" crc="3fdf2057" sha1="25ac6263a4eb962d90a305572fb95b75cb9f4138" region="gfx" offset="a0000"/>
+		<rom name="rev2_narc_image_rom_u83.u83" merge="rev2_narc_image_rom_u83.u83" size="65536" crc="f2d27c9f" sha1="de30c7e0191adf62b11b2f2fbdf80687e653de12" region="gfx" offset="b0000"/>
+		<rom name="rev2_narc_image_rom_u82.u82" merge="rev2_narc_image_rom_u82.u82" size="65536" crc="962ce47c" sha1="ea32f7f58a5ec1d941b372db5378d14fd850a2a7" region="gfx" offset="c0000"/>
+		<rom name="rev2_narc_image_rom_u81.u81" merge="rev2_narc_image_rom_u81.u81" size="65536" crc="00fe59ec" sha1="85efd623b9cd75b249e19b2e97440a47718da728" region="gfx" offset="d0000"/>
+		<rom name="rev2_narc_image_rom_u80.u80" merge="rev2_narc_image_rom_u80.u80" size="65536" crc="147ba8e9" sha1="1065b57082e0198025fe6f0bb3548f37c6a715e4" region="gfx" offset="e0000"/>
+		<rom name="rev2_narc_image_rom_u76.u76" merge="rev2_narc_image_rom_u76.u76" size="65536" crc="1cd897f4" sha1="80414c3718ac6719abcca83f483302fc16fcfef3" region="gfx" offset="200000"/>
+		<rom name="rev2_narc_image_rom_u75.u75" merge="rev2_narc_image_rom_u75.u75" size="65536" crc="78abfa01" sha1="1523f537491b901f2d987d4443077b92e24b969d" region="gfx" offset="210000"/>
+		<rom name="rev2_narc_image_rom_u74.u74" merge="rev2_narc_image_rom_u74.u74" size="65536" crc="66d2a234" sha1="290b3051fa9d35e24a9d00fcc2b72d2751f3e7f1" region="gfx" offset="220000"/>
+		<rom name="rev2_narc_image_rom_u73.u73" merge="rev2_narc_image_rom_u73.u73" size="65536" crc="efa5cd4e" sha1="7aca6058d644a025c6799d55ffa082ba8eb5d76f" region="gfx" offset="230000"/>
+		<rom name="rev2_narc_image_rom_u72.u72" merge="rev2_narc_image_rom_u72.u72" size="65536" crc="70638eb5" sha1="fbafb354fca7c3c402be5073fa03060de569f536" region="gfx" offset="240000"/>
+		<rom name="rev2_narc_image_rom_u71.u71" merge="rev2_narc_image_rom_u71.u71" size="65536" crc="61226883" sha1="09a366df0603cc0afc8c6c5547ec6ae3a02724b2" region="gfx" offset="250000"/>
+		<rom name="rev2_narc_image_rom_u70.u70" merge="rev2_narc_image_rom_u70.u70" size="65536" crc="c808849f" sha1="bd3f69c4641331738e415d6d72fafe0eeeb2e56b" region="gfx" offset="260000"/>
+		<rom name="rev2_narc_image_rom_u69.u69" merge="rev2_narc_image_rom_u69.u69" size="65536" crc="e7f9c34f" sha1="f65aed012f1d575a63690222b8c8f2c56bc196c3" region="gfx" offset="270000"/>
+		<rom name="rev2_narc_image_rom_u68.u68" merge="rev2_narc_image_rom_u68.u68" size="65536" crc="88a634d5" sha1="9ddf86ca8cd91965348bc311cc722151f831db21" region="gfx" offset="280000"/>
+		<rom name="rev2_narc_image_rom_u67.u67" merge="rev2_narc_image_rom_u67.u67" size="65536" crc="4ab8b69e" sha1="4320407c78864edc7876ad3604405414a3e7762d" region="gfx" offset="290000"/>
+		<rom name="rev2_narc_image_rom_u66.u66" merge="rev2_narc_image_rom_u66.u66" size="65536" crc="e1da4b25" sha1="c81ed1ffc0a4bf64e794a1313559453f9455c312" region="gfx" offset="2a0000"/>
+		<rom name="rev2_narc_image_rom_u65.u65" merge="rev2_narc_image_rom_u65.u65" size="65536" crc="6df0d125" sha1="37392cc917e73cfa09970fd24503b45ced399976" region="gfx" offset="2b0000"/>
+		<rom name="rev2_narc_image_rom_u64.u64" merge="rev2_narc_image_rom_u64.u64" size="65536" crc="abab1b16" sha1="2913a94e1fcf8df52e29d0fb6e373aa64d23c019" region="gfx" offset="2c0000"/>
+		<rom name="rev2_narc_image_rom_u63.u63" merge="rev2_narc_image_rom_u63.u63" size="65536" crc="80602f31" sha1="f1c5c4476dbf80382f33c0776c103cff9bed8346" region="gfx" offset="2d0000"/>
+		<rom name="rev2_narc_image_rom_u62.u62" merge="rev2_narc_image_rom_u62.u62" size="65536" crc="c2a476d1" sha1="ffde1784548050d87f1404aaca3689417e6f7a81" region="gfx" offset="2e0000"/>
+		<rom name="rev2_narc_image_rom_u58.u58" merge="rev2_narc_image_rom_u58.u58" size="65536" crc="8a7501e3" sha1="dcd87c464fcb88180cc1c24ec82586440a197a5c" region="gfx" offset="400000"/>
+		<rom name="rev2_narc_image_rom_u57.u57" merge="rev2_narc_image_rom_u57.u57" size="65536" crc="a504735f" sha1="2afe58e576eea2e0326c6b42adb621358a270881" region="gfx" offset="410000"/>
+		<rom name="rev2_narc_image_rom_u56.u56" merge="rev2_narc_image_rom_u56.u56" size="65536" crc="55f8cca7" sha1="0b0a0d50be4401e4ac4e75d8040f18540f9ddc61" region="gfx" offset="420000"/>
+		<rom name="rev2_narc_image_rom_u55.u55" merge="rev2_narc_image_rom_u55.u55" size="65536" crc="d3c932c1" sha1="1a7ffc04e796ba355506bf9037c21aef18fe01a3" region="gfx" offset="430000"/>
+		<rom name="rev2_narc_image_rom_u54.u54" merge="rev2_narc_image_rom_u54.u54" size="65536" crc="c7f4134b" sha1="aea523e17f95c27d1f2c1f69884f626d96c8cb3b" region="gfx" offset="440000"/>
+		<rom name="rev2_narc_image_rom_u53.u53" merge="rev2_narc_image_rom_u53.u53" size="65536" crc="6be4da56" sha1="35a93a259be04a644ca70df4922f6915274c3932" region="gfx" offset="450000"/>
+		<rom name="rev2_narc_image_rom_u52.u52" merge="rev2_narc_image_rom_u52.u52" size="65536" crc="1ea36a4a" sha1="78e5437d46c1ecff5e221bc301925b10f00c5269" region="gfx" offset="460000"/>
+		<rom name="rev2_narc_image_rom_u51.u51" merge="rev2_narc_image_rom_u51.u51" size="65536" crc="9d4b0324" sha1="80fb38a9ac81a0383112df680b9755d7cccbd50b" region="gfx" offset="470000"/>
+		<rom name="rev2_narc_image_rom_u50.u50" merge="rev2_narc_image_rom_u50.u50" size="65536" crc="6f9f0c26" sha1="be77d99fb37fa31c3824725b28ee74206c584b90" region="gfx" offset="480000"/>
+		<rom name="rev2_narc_image_rom_u49.u49" merge="rev2_narc_image_rom_u49.u49" size="65536" crc="80386fce" sha1="f182ed0f1a3753dedc56cb120cb8d10e1556e966" region="gfx" offset="490000"/>
+		<rom name="rev2_narc_image_rom_u48.u48" merge="rev2_narc_image_rom_u48.u48" size="65536" crc="05c16185" sha1="429910c5b1f1fe47fdec6cfcba765ee9f10749f0" region="gfx" offset="4a0000"/>
+		<rom name="rev2_narc_image_rom_u47.u47" merge="rev2_narc_image_rom_u47.u47" size="65536" crc="4c0151f1" sha1="b526066fc594f3ec83bb4866986e3b73cdae3992" region="gfx" offset="4b0000"/>
+		<rom name="rev2_narc_image_rom_u46.u46" merge="rev2_narc_image_rom_u46.u46" size="65536" crc="5670bfcb" sha1="b20829b715c6421894c10c02aebb08d22b5109c9" region="gfx" offset="4c0000"/>
+		<rom name="rev2_narc_image_rom_u45.u45" merge="rev2_narc_image_rom_u45.u45" size="65536" crc="27f10d98" sha1="b027ade2b4a52977d9c40c9549b9067d37fab41c" region="gfx" offset="4d0000"/>
+		<rom name="rev2_narc_image_rom_u44.u44" merge="rev2_narc_image_rom_u44.u44" size="65536" crc="93b8eaa4" sha1="b786f3286c5443cf08e556e9fb030b3444288f3c" region="gfx" offset="4e0000"/>
+		<rom name="rev2_narc_image_rom_u40.u40" merge="rev2_narc_image_rom_u40.u40" size="65536" crc="7fcaebc7" sha1="b951d63c072d693f7dfc7e362a12513eb9bd6bab" region="gfx" offset="600000"/>
+		<rom name="rev2_narc_image_rom_u39.u39" merge="rev2_narc_image_rom_u39.u39" size="65536" crc="7db5cf52" sha1="478aefc1126493378d22c857646e2fce221c7d21" region="gfx" offset="610000"/>
+		<rom name="rev2_narc_image_rom_u38.u38" merge="rev2_narc_image_rom_u38.u38" size="65536" crc="3f9f3ef7" sha1="5315e8c372bb63d95f814d8eafe0f41e4d95ba1a" region="gfx" offset="620000"/>
+		<rom name="rev2_narc_image_rom_u37.u37" merge="rev2_narc_image_rom_u37.u37" size="65536" crc="ed81826c" sha1="afe1c0fc692a802279c1f7f31143d33028d35ce4" region="gfx" offset="630000"/>
+		<rom name="rev2_narc_image_rom_u36.u36" merge="rev2_narc_image_rom_u36.u36" size="65536" crc="e5d855c0" sha1="3fa0f765238ad2a27c0c65805bf56ebfbe50bf05" region="gfx" offset="640000"/>
+		<rom name="rev2_narc_image_rom_u35.u35" merge="rev2_narc_image_rom_u35.u35" size="65536" crc="3a7b1329" sha1="e8b547a3b8f85cd13e12cfe0bf3949acc1486e6b" region="gfx" offset="650000"/>
+		<rom name="rev2_narc_image_rom_u34.u34" merge="rev2_narc_image_rom_u34.u34" size="65536" crc="fe982b0e" sha1="a03e7e348186339fd93ce119f65e8f0ea7b7bb7a" region="gfx" offset="660000"/>
+		<rom name="rev2_narc_image_rom_u33.u33" merge="rev2_narc_image_rom_u33.u33" size="65536" crc="6bc7eb0f" sha1="6964ef63d0daf1bc7fa9585567659cfc198b6cc3" region="gfx" offset="670000"/>
+		<rom name="rev2_narc_image_rom_u32.u32" merge="rev2_narc_image_rom_u32.u32" size="65536" crc="5875a6d3" sha1="ae64aa786239be39c3c99bbe019bdc91003c1691" region="gfx" offset="680000"/>
+		<rom name="rev2_narc_image_rom_u31.u31" merge="rev2_narc_image_rom_u31.u31" size="65536" crc="2fa4b8e5" sha1="8e4e4abd60d20e0ef955ac4b1f300cfd157e50ca" region="gfx" offset="690000"/>
+		<rom name="rev2_narc_image_rom_u30.u30" merge="rev2_narc_image_rom_u30.u30" size="65536" crc="7e4bb8ee" sha1="7166bd56a569329e01ed0c03579a403d659a4a7b" region="gfx" offset="6a0000"/>
+		<rom name="rev2_narc_image_rom_u29.u29" merge="rev2_narc_image_rom_u29.u29" size="65536" crc="45136fd9" sha1="44388e16d02a8c55fed0dbbcd842c941fa4b11b1" region="gfx" offset="6b0000"/>
+		<rom name="rev2_narc_image_rom_u28.u28" merge="rev2_narc_image_rom_u28.u28" size="65536" crc="d6cdac24" sha1="d4bbe3a1be89be7d21769bfe476b50c05cd0c357" region="gfx" offset="6c0000"/>
+		<rom name="rev2_narc_image_rom_u27.u27" merge="rev2_narc_image_rom_u27.u27" size="65536" crc="4d33bbec" sha1="05a3bd66ff91c824e841ca3943585f6aa383c5c2" region="gfx" offset="6d0000"/>
+		<rom name="rev2_narc_image_rom_u26.u26" merge="rev2_narc_image_rom_u26.u26" size="65536" crc="cb19f784" sha1="1e4d85603c940e247fdc45f0366dfb484285e588" region="gfx" offset="6e0000"/>
+		<rom name="a-5346-3036-1_narc_pls153.u28" merge="a-5346-3036-1_narc_pls153.u28" size="235" crc="4db36615" sha1="781d13af2735ad3da0c7594487e7f4e19b5f459f" region="plds" offset="0"/>
+		<rom name="a-5346-3036-2_narc_pls153.u78" merge="a-5346-3036-2_narc_pls153.u78" size="235" crc="4b151863" sha1="0740c5fba978b9bb68a50472b57c0801c7591d6f" region="plds" offset="100"/>
+		<rom name="a-5346-3036-3_narc_pls153.u79" merge="a-5346-3036-3_narc_pls153.u79" size="235" crc="35bd6ed8" sha1="98b4ad4f61d2f2013815fa79c3428a2d610c8a6f" region="plds" offset="200"/>
+		<rom name="a-5346-3036-4_narc_pls153.u80" merge="a-5346-3036-4_narc_pls153.u80" size="235" crc="9c10e4cf" sha1="77d0a6a6e19e2f5b17e9356459215e5452247be3" region="plds" offset="300"/>
+		<rom name="a-5346-3036-5_narc_pls153.u83" merge="a-5346-3036-5_narc_pls153.u83" size="235" crc="3a2f21b2" sha1="bafc45b8b0e83d044bc4963abbdbbf4b6da1694b" region="plds" offset="400"/>
+		<device_ref name="tms34010"/>
+		<device_ref name="nvram"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="wmsnarc"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="hc55516"/>
+		<chip type="cpu" tag="maincpu" name="Texas Instruments TMS34010" clock="48000000"/>
+		<chip type="cpu" tag="narcsnd:cpu0" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="cpu" tag="narcsnd:cpu1" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="narcsnd" name="Williams NARC Sound Board"/>
+		<chip type="audio" tag="narcsnd:ym2151" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="narcsnd:dac1" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:dac2" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:cvsd" name="HC-55516"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="400" refresh="54.824186" pixclock="16000000" htotal="674" hbend="122" hbstart="634" vtotal="433" vbend="27" vbstart="427" />
+		<sound channels="1"/>
+		<input players="2" coins="4" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":UNK0">
+		</port>
+		<port tag=":UNK1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="narc3" sourcefile="midway/midyunit.cpp" cloneof="narc" romof="narc">
+		<description>Narc (rev 3.20)</description>
+		<year>1988</year>
+		<manufacturer>Williams</manufacturer>
+		<rom name="rev2_narc_sound_rom_u4.u4" merge="rev2_narc_sound_rom_u4.u4" size="65536" crc="450a591a" sha1="bbda8061262738e5866f2707f69483a0a51d2910" region="narcsnd:cpu0" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u5.u5" merge="rev2_narc_sound_rom_u5.u5" size="65536" crc="e551e5e3" sha1="c8b4f53dbd4c534abb77d4dc07c4d12653b79894" region="narcsnd:cpu0" offset="70000"/>
+		<rom name="rev2_narc_sound_rom_u35.u35" merge="rev2_narc_sound_rom_u35.u35" size="65536" crc="81295892" sha1="159664e5ee03c88d6e940e70e87e2150dc5b8b25" region="narcsnd:cpu1" offset="10000"/>
+		<rom name="rev2_narc_sound_rom_u36.u36" merge="rev2_narc_sound_rom_u36.u36" size="65536" crc="16cdbb13" sha1="2dfd961a5d909c1804f4fda34de33ee2664c4bc6" region="narcsnd:cpu1" offset="30000"/>
+		<rom name="rev2_narc_sound_rom_u37.u37" merge="rev2_narc_sound_rom_u37.u37" size="65536" crc="29dbeffd" sha1="4cbdc619db34f9c552de1ed3d034f8c079987e03" region="narcsnd:cpu1" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u38.u38" merge="rev2_narc_sound_rom_u38.u38" size="65536" crc="09b03b80" sha1="a45782d29a426fac38299b56af0815e844e35ae4" region="narcsnd:cpu1" offset="70000"/>
+		<rom name="rev3_narc_game_rom_u78.u78" size="65536" crc="388581b0" sha1="9d3c718c7bee8f3db9b87ae08ec3bcc1bf65084b" region="maindata" offset="0"/>
+		<rom name="rev3_narc_game_rom_u60.u60" size="65536" crc="f273bc04" sha1="d4a75c1d6fa706f582ac8131387042a3c9abd08e" region="maindata" offset="1"/>
+		<rom name="rev3_narc_game_rom_u77.u77" size="65536" crc="bdafaccc" sha1="9e0607d2a2a939847e95489970969df5af1fb708" region="maindata" offset="40000"/>
+		<rom name="rev3_narc_game_rom_u59.u59" size="65536" crc="96314a99" sha1="917cde404b325d0689a2c5848a145eedfd31fc57" region="maindata" offset="40001"/>
+		<rom name="rev3_narc_game_rom_u42.u42" size="65536" crc="56aebc81" sha1="5177ea0121e1b742934ffdcf85795b2c9595b5de" region="maindata" offset="80000"/>
+		<rom name="rev3_narc_game_rom_u24.u24" size="65536" crc="11d7e143" sha1="c58bc9615d480a97443cc5d4fb2f8ce9fba9db63" region="maindata" offset="80001"/>
+		<rom name="rev3_narc_game_rom_u41.u41" size="65536" crc="6142fab7" sha1="e1cc5b088bf2fb9be51d4620b3ff3e50e0fd3117" region="maindata" offset="c0000"/>
+		<rom name="rev3_narc_game_rom_u23.u23" size="65536" crc="98cdd178" sha1="dd46a957462f2a9dc6de89379fe3e21664873a3c" region="maindata" offset="c0001"/>
+		<rom name="rev2_narc_image_rom_u94.u94" merge="rev2_narc_image_rom_u94.u94" size="65536" crc="ca3194e4" sha1="d6aa6a09e4353a1dddd502abf85acf48e6e94cef" region="gfx" offset="0"/>
+		<rom name="rev2_narc_image_rom_u93.u93" merge="rev2_narc_image_rom_u93.u93" size="65536" crc="0ed7f7f5" sha1="913d0dc81531adc6a7e6ffabfe681150aa4638a3" region="gfx" offset="10000"/>
+		<rom name="rev2_narc_image_rom_u92.u92" merge="rev2_narc_image_rom_u92.u92" size="65536" crc="40d2fc66" sha1="95b8d90e6abe336ad05dc3746d02b38823d2b8cd" region="gfx" offset="20000"/>
+		<rom name="rev2_narc_image_rom_u91.u91" merge="rev2_narc_image_rom_u91.u91" size="65536" crc="f39325e0" sha1="c1179825c76ed2934dfeff263a9296c2c1a5abe4" region="gfx" offset="30000"/>
+		<rom name="rev2_narc_image_rom_u90.u90" merge="rev2_narc_image_rom_u90.u90" size="65536" crc="0132aefa" sha1="9bf11ebc06f1069ea056427750902c204facbd3d" region="gfx" offset="40000"/>
+		<rom name="rev2_narc_image_rom_u89.u89" merge="rev2_narc_image_rom_u89.u89" size="65536" crc="f7260c9e" sha1="5a3fd88c7c0fa01ec2eb6fdef380ccee9d7da3a8" region="gfx" offset="50000"/>
+		<rom name="rev2_narc_image_rom_u88.u88" merge="rev2_narc_image_rom_u88.u88" size="65536" crc="edc19f42" sha1="b7121b3df743e5744ae72de2216b679fe71a2049" region="gfx" offset="60000"/>
+		<rom name="rev2_narc_image_rom_u87.u87" merge="rev2_narc_image_rom_u87.u87" size="65536" crc="d9b42ff9" sha1="cab05a5f8aadff010fba1107eb2000cc128063ff" region="gfx" offset="70000"/>
+		<rom name="rev2_narc_image_rom_u86.u86" merge="rev2_narc_image_rom_u86.u86" size="65536" crc="af7daad3" sha1="e2635a0acd6a238159ef91c1c3c9dfe8de8ae18f" region="gfx" offset="80000"/>
+		<rom name="rev2_narc_image_rom_u85.u85" merge="rev2_narc_image_rom_u85.u85" size="65536" crc="095fae6b" sha1="94f1df799142990a559e54cd949d9723481806b1" region="gfx" offset="90000"/>
+		<rom name="rev2_narc_image_rom_u84.u84" merge="rev2_narc_image_rom_u84.u84" size="65536" crc="3fdf2057" sha1="25ac6263a4eb962d90a305572fb95b75cb9f4138" region="gfx" offset="a0000"/>
+		<rom name="rev2_narc_image_rom_u83.u83" merge="rev2_narc_image_rom_u83.u83" size="65536" crc="f2d27c9f" sha1="de30c7e0191adf62b11b2f2fbdf80687e653de12" region="gfx" offset="b0000"/>
+		<rom name="rev2_narc_image_rom_u82.u82" merge="rev2_narc_image_rom_u82.u82" size="65536" crc="962ce47c" sha1="ea32f7f58a5ec1d941b372db5378d14fd850a2a7" region="gfx" offset="c0000"/>
+		<rom name="rev2_narc_image_rom_u81.u81" merge="rev2_narc_image_rom_u81.u81" size="65536" crc="00fe59ec" sha1="85efd623b9cd75b249e19b2e97440a47718da728" region="gfx" offset="d0000"/>
+		<rom name="rev2_narc_image_rom_u80.u80" merge="rev2_narc_image_rom_u80.u80" size="65536" crc="147ba8e9" sha1="1065b57082e0198025fe6f0bb3548f37c6a715e4" region="gfx" offset="e0000"/>
+		<rom name="rev2_narc_image_rom_u76.u76" merge="rev2_narc_image_rom_u76.u76" size="65536" crc="1cd897f4" sha1="80414c3718ac6719abcca83f483302fc16fcfef3" region="gfx" offset="200000"/>
+		<rom name="rev2_narc_image_rom_u75.u75" merge="rev2_narc_image_rom_u75.u75" size="65536" crc="78abfa01" sha1="1523f537491b901f2d987d4443077b92e24b969d" region="gfx" offset="210000"/>
+		<rom name="rev2_narc_image_rom_u74.u74" merge="rev2_narc_image_rom_u74.u74" size="65536" crc="66d2a234" sha1="290b3051fa9d35e24a9d00fcc2b72d2751f3e7f1" region="gfx" offset="220000"/>
+		<rom name="rev2_narc_image_rom_u73.u73" merge="rev2_narc_image_rom_u73.u73" size="65536" crc="efa5cd4e" sha1="7aca6058d644a025c6799d55ffa082ba8eb5d76f" region="gfx" offset="230000"/>
+		<rom name="rev2_narc_image_rom_u72.u72" merge="rev2_narc_image_rom_u72.u72" size="65536" crc="70638eb5" sha1="fbafb354fca7c3c402be5073fa03060de569f536" region="gfx" offset="240000"/>
+		<rom name="rev2_narc_image_rom_u71.u71" merge="rev2_narc_image_rom_u71.u71" size="65536" crc="61226883" sha1="09a366df0603cc0afc8c6c5547ec6ae3a02724b2" region="gfx" offset="250000"/>
+		<rom name="rev2_narc_image_rom_u70.u70" merge="rev2_narc_image_rom_u70.u70" size="65536" crc="c808849f" sha1="bd3f69c4641331738e415d6d72fafe0eeeb2e56b" region="gfx" offset="260000"/>
+		<rom name="rev2_narc_image_rom_u69.u69" merge="rev2_narc_image_rom_u69.u69" size="65536" crc="e7f9c34f" sha1="f65aed012f1d575a63690222b8c8f2c56bc196c3" region="gfx" offset="270000"/>
+		<rom name="rev2_narc_image_rom_u68.u68" merge="rev2_narc_image_rom_u68.u68" size="65536" crc="88a634d5" sha1="9ddf86ca8cd91965348bc311cc722151f831db21" region="gfx" offset="280000"/>
+		<rom name="rev2_narc_image_rom_u67.u67" merge="rev2_narc_image_rom_u67.u67" size="65536" crc="4ab8b69e" sha1="4320407c78864edc7876ad3604405414a3e7762d" region="gfx" offset="290000"/>
+		<rom name="rev2_narc_image_rom_u66.u66" merge="rev2_narc_image_rom_u66.u66" size="65536" crc="e1da4b25" sha1="c81ed1ffc0a4bf64e794a1313559453f9455c312" region="gfx" offset="2a0000"/>
+		<rom name="rev2_narc_image_rom_u65.u65" merge="rev2_narc_image_rom_u65.u65" size="65536" crc="6df0d125" sha1="37392cc917e73cfa09970fd24503b45ced399976" region="gfx" offset="2b0000"/>
+		<rom name="rev2_narc_image_rom_u64.u64" merge="rev2_narc_image_rom_u64.u64" size="65536" crc="abab1b16" sha1="2913a94e1fcf8df52e29d0fb6e373aa64d23c019" region="gfx" offset="2c0000"/>
+		<rom name="rev2_narc_image_rom_u63.u63" merge="rev2_narc_image_rom_u63.u63" size="65536" crc="80602f31" sha1="f1c5c4476dbf80382f33c0776c103cff9bed8346" region="gfx" offset="2d0000"/>
+		<rom name="rev2_narc_image_rom_u62.u62" merge="rev2_narc_image_rom_u62.u62" size="65536" crc="c2a476d1" sha1="ffde1784548050d87f1404aaca3689417e6f7a81" region="gfx" offset="2e0000"/>
+		<rom name="rev2_narc_image_rom_u58.u58" merge="rev2_narc_image_rom_u58.u58" size="65536" crc="8a7501e3" sha1="dcd87c464fcb88180cc1c24ec82586440a197a5c" region="gfx" offset="400000"/>
+		<rom name="rev2_narc_image_rom_u57.u57" merge="rev2_narc_image_rom_u57.u57" size="65536" crc="a504735f" sha1="2afe58e576eea2e0326c6b42adb621358a270881" region="gfx" offset="410000"/>
+		<rom name="rev2_narc_image_rom_u56.u56" merge="rev2_narc_image_rom_u56.u56" size="65536" crc="55f8cca7" sha1="0b0a0d50be4401e4ac4e75d8040f18540f9ddc61" region="gfx" offset="420000"/>
+		<rom name="rev2_narc_image_rom_u55.u55" merge="rev2_narc_image_rom_u55.u55" size="65536" crc="d3c932c1" sha1="1a7ffc04e796ba355506bf9037c21aef18fe01a3" region="gfx" offset="430000"/>
+		<rom name="rev2_narc_image_rom_u54.u54" merge="rev2_narc_image_rom_u54.u54" size="65536" crc="c7f4134b" sha1="aea523e17f95c27d1f2c1f69884f626d96c8cb3b" region="gfx" offset="440000"/>
+		<rom name="rev2_narc_image_rom_u53.u53" merge="rev2_narc_image_rom_u53.u53" size="65536" crc="6be4da56" sha1="35a93a259be04a644ca70df4922f6915274c3932" region="gfx" offset="450000"/>
+		<rom name="rev2_narc_image_rom_u52.u52" merge="rev2_narc_image_rom_u52.u52" size="65536" crc="1ea36a4a" sha1="78e5437d46c1ecff5e221bc301925b10f00c5269" region="gfx" offset="460000"/>
+		<rom name="rev2_narc_image_rom_u51.u51" merge="rev2_narc_image_rom_u51.u51" size="65536" crc="9d4b0324" sha1="80fb38a9ac81a0383112df680b9755d7cccbd50b" region="gfx" offset="470000"/>
+		<rom name="rev2_narc_image_rom_u50.u50" merge="rev2_narc_image_rom_u50.u50" size="65536" crc="6f9f0c26" sha1="be77d99fb37fa31c3824725b28ee74206c584b90" region="gfx" offset="480000"/>
+		<rom name="rev2_narc_image_rom_u49.u49" merge="rev2_narc_image_rom_u49.u49" size="65536" crc="80386fce" sha1="f182ed0f1a3753dedc56cb120cb8d10e1556e966" region="gfx" offset="490000"/>
+		<rom name="rev2_narc_image_rom_u48.u48" merge="rev2_narc_image_rom_u48.u48" size="65536" crc="05c16185" sha1="429910c5b1f1fe47fdec6cfcba765ee9f10749f0" region="gfx" offset="4a0000"/>
+		<rom name="rev2_narc_image_rom_u47.u47" merge="rev2_narc_image_rom_u47.u47" size="65536" crc="4c0151f1" sha1="b526066fc594f3ec83bb4866986e3b73cdae3992" region="gfx" offset="4b0000"/>
+		<rom name="rev2_narc_image_rom_u46.u46" merge="rev2_narc_image_rom_u46.u46" size="65536" crc="5670bfcb" sha1="b20829b715c6421894c10c02aebb08d22b5109c9" region="gfx" offset="4c0000"/>
+		<rom name="rev2_narc_image_rom_u45.u45" merge="rev2_narc_image_rom_u45.u45" size="65536" crc="27f10d98" sha1="b027ade2b4a52977d9c40c9549b9067d37fab41c" region="gfx" offset="4d0000"/>
+		<rom name="rev2_narc_image_rom_u44.u44" merge="rev2_narc_image_rom_u44.u44" size="65536" crc="93b8eaa4" sha1="b786f3286c5443cf08e556e9fb030b3444288f3c" region="gfx" offset="4e0000"/>
+		<rom name="rev2_narc_image_rom_u40.u40" merge="rev2_narc_image_rom_u40.u40" size="65536" crc="7fcaebc7" sha1="b951d63c072d693f7dfc7e362a12513eb9bd6bab" region="gfx" offset="600000"/>
+		<rom name="rev2_narc_image_rom_u39.u39" merge="rev2_narc_image_rom_u39.u39" size="65536" crc="7db5cf52" sha1="478aefc1126493378d22c857646e2fce221c7d21" region="gfx" offset="610000"/>
+		<rom name="rev2_narc_image_rom_u38.u38" merge="rev2_narc_image_rom_u38.u38" size="65536" crc="3f9f3ef7" sha1="5315e8c372bb63d95f814d8eafe0f41e4d95ba1a" region="gfx" offset="620000"/>
+		<rom name="rev2_narc_image_rom_u37.u37" merge="rev2_narc_image_rom_u37.u37" size="65536" crc="ed81826c" sha1="afe1c0fc692a802279c1f7f31143d33028d35ce4" region="gfx" offset="630000"/>
+		<rom name="rev2_narc_image_rom_u36.u36" merge="rev2_narc_image_rom_u36.u36" size="65536" crc="e5d855c0" sha1="3fa0f765238ad2a27c0c65805bf56ebfbe50bf05" region="gfx" offset="640000"/>
+		<rom name="rev2_narc_image_rom_u35.u35" merge="rev2_narc_image_rom_u35.u35" size="65536" crc="3a7b1329" sha1="e8b547a3b8f85cd13e12cfe0bf3949acc1486e6b" region="gfx" offset="650000"/>
+		<rom name="rev2_narc_image_rom_u34.u34" merge="rev2_narc_image_rom_u34.u34" size="65536" crc="fe982b0e" sha1="a03e7e348186339fd93ce119f65e8f0ea7b7bb7a" region="gfx" offset="660000"/>
+		<rom name="rev2_narc_image_rom_u33.u33" merge="rev2_narc_image_rom_u33.u33" size="65536" crc="6bc7eb0f" sha1="6964ef63d0daf1bc7fa9585567659cfc198b6cc3" region="gfx" offset="670000"/>
+		<rom name="rev2_narc_image_rom_u32.u32" merge="rev2_narc_image_rom_u32.u32" size="65536" crc="5875a6d3" sha1="ae64aa786239be39c3c99bbe019bdc91003c1691" region="gfx" offset="680000"/>
+		<rom name="rev2_narc_image_rom_u31.u31" merge="rev2_narc_image_rom_u31.u31" size="65536" crc="2fa4b8e5" sha1="8e4e4abd60d20e0ef955ac4b1f300cfd157e50ca" region="gfx" offset="690000"/>
+		<rom name="rev2_narc_image_rom_u30.u30" merge="rev2_narc_image_rom_u30.u30" size="65536" crc="7e4bb8ee" sha1="7166bd56a569329e01ed0c03579a403d659a4a7b" region="gfx" offset="6a0000"/>
+		<rom name="rev2_narc_image_rom_u29.u29" merge="rev2_narc_image_rom_u29.u29" size="65536" crc="45136fd9" sha1="44388e16d02a8c55fed0dbbcd842c941fa4b11b1" region="gfx" offset="6b0000"/>
+		<rom name="rev2_narc_image_rom_u28.u28" merge="rev2_narc_image_rom_u28.u28" size="65536" crc="d6cdac24" sha1="d4bbe3a1be89be7d21769bfe476b50c05cd0c357" region="gfx" offset="6c0000"/>
+		<rom name="rev2_narc_image_rom_u27.u27" merge="rev2_narc_image_rom_u27.u27" size="65536" crc="4d33bbec" sha1="05a3bd66ff91c824e841ca3943585f6aa383c5c2" region="gfx" offset="6d0000"/>
+		<rom name="rev2_narc_image_rom_u26.u26" merge="rev2_narc_image_rom_u26.u26" size="65536" crc="cb19f784" sha1="1e4d85603c940e247fdc45f0366dfb484285e588" region="gfx" offset="6e0000"/>
+		<rom name="a-5346-3036-1_narc_pls153.u28" merge="a-5346-3036-1_narc_pls153.u28" size="235" crc="4db36615" sha1="781d13af2735ad3da0c7594487e7f4e19b5f459f" region="plds" offset="0"/>
+		<rom name="a-5346-3036-2_narc_pls153.u78" merge="a-5346-3036-2_narc_pls153.u78" size="235" crc="4b151863" sha1="0740c5fba978b9bb68a50472b57c0801c7591d6f" region="plds" offset="100"/>
+		<rom name="a-5346-3036-3_narc_pls153.u79" merge="a-5346-3036-3_narc_pls153.u79" size="235" crc="35bd6ed8" sha1="98b4ad4f61d2f2013815fa79c3428a2d610c8a6f" region="plds" offset="200"/>
+		<rom name="a-5346-3036-4_narc_pls153.u80" merge="a-5346-3036-4_narc_pls153.u80" size="235" crc="9c10e4cf" sha1="77d0a6a6e19e2f5b17e9356459215e5452247be3" region="plds" offset="300"/>
+		<rom name="a-5346-3036-5_narc_pls153.u83" merge="a-5346-3036-5_narc_pls153.u83" size="235" crc="3a2f21b2" sha1="bafc45b8b0e83d044bc4963abbdbbf4b6da1694b" region="plds" offset="400"/>
+		<device_ref name="tms34010"/>
+		<device_ref name="nvram"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="wmsnarc"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="hc55516"/>
+		<chip type="cpu" tag="maincpu" name="Texas Instruments TMS34010" clock="48000000"/>
+		<chip type="cpu" tag="narcsnd:cpu0" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="cpu" tag="narcsnd:cpu1" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="narcsnd" name="Williams NARC Sound Board"/>
+		<chip type="audio" tag="narcsnd:ym2151" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="narcsnd:dac1" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:dac2" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:cvsd" name="HC-55516"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="400" refresh="54.824186" pixclock="16000000" htotal="674" hbend="122" hbstart="634" vtotal="433" vbend="27" vbstart="427" />
+		<sound channels="1"/>
+		<input players="2" coins="4" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":UNK0">
+		</port>
+		<port tag=":UNK1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="narc4" sourcefile="midway/midyunit.cpp" cloneof="narc" romof="narc">
+		<description>Narc (rev 4.00)</description>
+		<year>1988</year>
+		<manufacturer>Williams</manufacturer>
+		<rom name="rev2_narc_sound_rom_u4.u4" merge="rev2_narc_sound_rom_u4.u4" size="65536" crc="450a591a" sha1="bbda8061262738e5866f2707f69483a0a51d2910" region="narcsnd:cpu0" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u5.u5" merge="rev2_narc_sound_rom_u5.u5" size="65536" crc="e551e5e3" sha1="c8b4f53dbd4c534abb77d4dc07c4d12653b79894" region="narcsnd:cpu0" offset="70000"/>
+		<rom name="rev2_narc_sound_rom_u35.u35" merge="rev2_narc_sound_rom_u35.u35" size="65536" crc="81295892" sha1="159664e5ee03c88d6e940e70e87e2150dc5b8b25" region="narcsnd:cpu1" offset="10000"/>
+		<rom name="rev2_narc_sound_rom_u36.u36" merge="rev2_narc_sound_rom_u36.u36" size="65536" crc="16cdbb13" sha1="2dfd961a5d909c1804f4fda34de33ee2664c4bc6" region="narcsnd:cpu1" offset="30000"/>
+		<rom name="rev2_narc_sound_rom_u37.u37" merge="rev2_narc_sound_rom_u37.u37" size="65536" crc="29dbeffd" sha1="4cbdc619db34f9c552de1ed3d034f8c079987e03" region="narcsnd:cpu1" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u38.u38" merge="rev2_narc_sound_rom_u38.u38" size="65536" crc="09b03b80" sha1="a45782d29a426fac38299b56af0815e844e35ae4" region="narcsnd:cpu1" offset="70000"/>
+		<rom name="rev4_narc_game_rom_u78.u78" size="65536" crc="99bbd587" sha1="716c446d1aceacbc608883dde499ef6de23847f2" region="maindata" offset="0"/>
+		<rom name="rev4_narc_game_rom_u60.u60" size="65536" crc="beec5f1a" sha1="aaf900820a1722c19607642ffc2acdedab5cc0da" region="maindata" offset="1"/>
+		<rom name="rev4_narc_game_rom_u77.u77" size="65536" crc="0b9bdd76" sha1="8bcc330e99b0694fe243470123f360185b91e20b" region="maindata" offset="40000"/>
+		<rom name="rev4_narc_game_rom_u59.u59" size="65536" crc="0169e4c3" sha1="859cf38ec982f26bdfe23a7f99f0b0c7f1329171" region="maindata" offset="40001"/>
+		<rom name="rev4_narc_game_rom_u42.u42" size="65536" crc="a7b0347d" sha1="6c7e46003a2925a3b99b77a40f207ed1522b5f65" region="maindata" offset="80000"/>
+		<rom name="rev4_narc_game_rom_u24.u24" size="65536" crc="613c9f54" sha1="e7305b3ad672eef8aeb228cb11ed2b958bdf1d2e" region="maindata" offset="80001"/>
+		<rom name="rev4_narc_game_rom_u41.u41" size="65536" crc="80e83440" sha1="f26f8cddaf82909ef0f73aa568720ec6b44671ac" region="maindata" offset="c0000"/>
+		<rom name="rev4_narc_game_rom_u23.u23" size="65536" crc="425a3f8f" sha1="d884cb40816ae9f0c1b7b536a88d6fa36488a004" region="maindata" offset="c0001"/>
+		<rom name="rev2_narc_image_rom_u94.u94" merge="rev2_narc_image_rom_u94.u94" size="65536" crc="ca3194e4" sha1="d6aa6a09e4353a1dddd502abf85acf48e6e94cef" region="gfx" offset="0"/>
+		<rom name="rev2_narc_image_rom_u93.u93" merge="rev2_narc_image_rom_u93.u93" size="65536" crc="0ed7f7f5" sha1="913d0dc81531adc6a7e6ffabfe681150aa4638a3" region="gfx" offset="10000"/>
+		<rom name="rev2_narc_image_rom_u92.u92" merge="rev2_narc_image_rom_u92.u92" size="65536" crc="40d2fc66" sha1="95b8d90e6abe336ad05dc3746d02b38823d2b8cd" region="gfx" offset="20000"/>
+		<rom name="rev2_narc_image_rom_u91.u91" merge="rev2_narc_image_rom_u91.u91" size="65536" crc="f39325e0" sha1="c1179825c76ed2934dfeff263a9296c2c1a5abe4" region="gfx" offset="30000"/>
+		<rom name="rev2_narc_image_rom_u90.u90" merge="rev2_narc_image_rom_u90.u90" size="65536" crc="0132aefa" sha1="9bf11ebc06f1069ea056427750902c204facbd3d" region="gfx" offset="40000"/>
+		<rom name="rev2_narc_image_rom_u89.u89" merge="rev2_narc_image_rom_u89.u89" size="65536" crc="f7260c9e" sha1="5a3fd88c7c0fa01ec2eb6fdef380ccee9d7da3a8" region="gfx" offset="50000"/>
+		<rom name="rev2_narc_image_rom_u88.u88" merge="rev2_narc_image_rom_u88.u88" size="65536" crc="edc19f42" sha1="b7121b3df743e5744ae72de2216b679fe71a2049" region="gfx" offset="60000"/>
+		<rom name="rev2_narc_image_rom_u87.u87" merge="rev2_narc_image_rom_u87.u87" size="65536" crc="d9b42ff9" sha1="cab05a5f8aadff010fba1107eb2000cc128063ff" region="gfx" offset="70000"/>
+		<rom name="rev2_narc_image_rom_u86.u86" merge="rev2_narc_image_rom_u86.u86" size="65536" crc="af7daad3" sha1="e2635a0acd6a238159ef91c1c3c9dfe8de8ae18f" region="gfx" offset="80000"/>
+		<rom name="rev2_narc_image_rom_u85.u85" merge="rev2_narc_image_rom_u85.u85" size="65536" crc="095fae6b" sha1="94f1df799142990a559e54cd949d9723481806b1" region="gfx" offset="90000"/>
+		<rom name="rev2_narc_image_rom_u84.u84" merge="rev2_narc_image_rom_u84.u84" size="65536" crc="3fdf2057" sha1="25ac6263a4eb962d90a305572fb95b75cb9f4138" region="gfx" offset="a0000"/>
+		<rom name="rev2_narc_image_rom_u83.u83" merge="rev2_narc_image_rom_u83.u83" size="65536" crc="f2d27c9f" sha1="de30c7e0191adf62b11b2f2fbdf80687e653de12" region="gfx" offset="b0000"/>
+		<rom name="rev2_narc_image_rom_u82.u82" merge="rev2_narc_image_rom_u82.u82" size="65536" crc="962ce47c" sha1="ea32f7f58a5ec1d941b372db5378d14fd850a2a7" region="gfx" offset="c0000"/>
+		<rom name="rev2_narc_image_rom_u81.u81" merge="rev2_narc_image_rom_u81.u81" size="65536" crc="00fe59ec" sha1="85efd623b9cd75b249e19b2e97440a47718da728" region="gfx" offset="d0000"/>
+		<rom name="rev2_narc_image_rom_u80.u80" merge="rev2_narc_image_rom_u80.u80" size="65536" crc="147ba8e9" sha1="1065b57082e0198025fe6f0bb3548f37c6a715e4" region="gfx" offset="e0000"/>
+		<rom name="rev2_narc_image_rom_u76.u76" merge="rev2_narc_image_rom_u76.u76" size="65536" crc="1cd897f4" sha1="80414c3718ac6719abcca83f483302fc16fcfef3" region="gfx" offset="200000"/>
+		<rom name="rev2_narc_image_rom_u75.u75" merge="rev2_narc_image_rom_u75.u75" size="65536" crc="78abfa01" sha1="1523f537491b901f2d987d4443077b92e24b969d" region="gfx" offset="210000"/>
+		<rom name="rev2_narc_image_rom_u74.u74" merge="rev2_narc_image_rom_u74.u74" size="65536" crc="66d2a234" sha1="290b3051fa9d35e24a9d00fcc2b72d2751f3e7f1" region="gfx" offset="220000"/>
+		<rom name="rev2_narc_image_rom_u73.u73" merge="rev2_narc_image_rom_u73.u73" size="65536" crc="efa5cd4e" sha1="7aca6058d644a025c6799d55ffa082ba8eb5d76f" region="gfx" offset="230000"/>
+		<rom name="rev2_narc_image_rom_u72.u72" merge="rev2_narc_image_rom_u72.u72" size="65536" crc="70638eb5" sha1="fbafb354fca7c3c402be5073fa03060de569f536" region="gfx" offset="240000"/>
+		<rom name="rev2_narc_image_rom_u71.u71" merge="rev2_narc_image_rom_u71.u71" size="65536" crc="61226883" sha1="09a366df0603cc0afc8c6c5547ec6ae3a02724b2" region="gfx" offset="250000"/>
+		<rom name="rev2_narc_image_rom_u70.u70" merge="rev2_narc_image_rom_u70.u70" size="65536" crc="c808849f" sha1="bd3f69c4641331738e415d6d72fafe0eeeb2e56b" region="gfx" offset="260000"/>
+		<rom name="rev2_narc_image_rom_u69.u69" merge="rev2_narc_image_rom_u69.u69" size="65536" crc="e7f9c34f" sha1="f65aed012f1d575a63690222b8c8f2c56bc196c3" region="gfx" offset="270000"/>
+		<rom name="rev2_narc_image_rom_u68.u68" merge="rev2_narc_image_rom_u68.u68" size="65536" crc="88a634d5" sha1="9ddf86ca8cd91965348bc311cc722151f831db21" region="gfx" offset="280000"/>
+		<rom name="rev2_narc_image_rom_u67.u67" merge="rev2_narc_image_rom_u67.u67" size="65536" crc="4ab8b69e" sha1="4320407c78864edc7876ad3604405414a3e7762d" region="gfx" offset="290000"/>
+		<rom name="rev2_narc_image_rom_u66.u66" merge="rev2_narc_image_rom_u66.u66" size="65536" crc="e1da4b25" sha1="c81ed1ffc0a4bf64e794a1313559453f9455c312" region="gfx" offset="2a0000"/>
+		<rom name="rev2_narc_image_rom_u65.u65" merge="rev2_narc_image_rom_u65.u65" size="65536" crc="6df0d125" sha1="37392cc917e73cfa09970fd24503b45ced399976" region="gfx" offset="2b0000"/>
+		<rom name="rev2_narc_image_rom_u64.u64" merge="rev2_narc_image_rom_u64.u64" size="65536" crc="abab1b16" sha1="2913a94e1fcf8df52e29d0fb6e373aa64d23c019" region="gfx" offset="2c0000"/>
+		<rom name="rev2_narc_image_rom_u63.u63" merge="rev2_narc_image_rom_u63.u63" size="65536" crc="80602f31" sha1="f1c5c4476dbf80382f33c0776c103cff9bed8346" region="gfx" offset="2d0000"/>
+		<rom name="rev2_narc_image_rom_u62.u62" merge="rev2_narc_image_rom_u62.u62" size="65536" crc="c2a476d1" sha1="ffde1784548050d87f1404aaca3689417e6f7a81" region="gfx" offset="2e0000"/>
+		<rom name="rev2_narc_image_rom_u58.u58" merge="rev2_narc_image_rom_u58.u58" size="65536" crc="8a7501e3" sha1="dcd87c464fcb88180cc1c24ec82586440a197a5c" region="gfx" offset="400000"/>
+		<rom name="rev2_narc_image_rom_u57.u57" merge="rev2_narc_image_rom_u57.u57" size="65536" crc="a504735f" sha1="2afe58e576eea2e0326c6b42adb621358a270881" region="gfx" offset="410000"/>
+		<rom name="rev2_narc_image_rom_u56.u56" merge="rev2_narc_image_rom_u56.u56" size="65536" crc="55f8cca7" sha1="0b0a0d50be4401e4ac4e75d8040f18540f9ddc61" region="gfx" offset="420000"/>
+		<rom name="rev2_narc_image_rom_u55.u55" merge="rev2_narc_image_rom_u55.u55" size="65536" crc="d3c932c1" sha1="1a7ffc04e796ba355506bf9037c21aef18fe01a3" region="gfx" offset="430000"/>
+		<rom name="rev2_narc_image_rom_u54.u54" merge="rev2_narc_image_rom_u54.u54" size="65536" crc="c7f4134b" sha1="aea523e17f95c27d1f2c1f69884f626d96c8cb3b" region="gfx" offset="440000"/>
+		<rom name="rev2_narc_image_rom_u53.u53" merge="rev2_narc_image_rom_u53.u53" size="65536" crc="6be4da56" sha1="35a93a259be04a644ca70df4922f6915274c3932" region="gfx" offset="450000"/>
+		<rom name="rev2_narc_image_rom_u52.u52" merge="rev2_narc_image_rom_u52.u52" size="65536" crc="1ea36a4a" sha1="78e5437d46c1ecff5e221bc301925b10f00c5269" region="gfx" offset="460000"/>
+		<rom name="rev2_narc_image_rom_u51.u51" merge="rev2_narc_image_rom_u51.u51" size="65536" crc="9d4b0324" sha1="80fb38a9ac81a0383112df680b9755d7cccbd50b" region="gfx" offset="470000"/>
+		<rom name="rev2_narc_image_rom_u50.u50" merge="rev2_narc_image_rom_u50.u50" size="65536" crc="6f9f0c26" sha1="be77d99fb37fa31c3824725b28ee74206c584b90" region="gfx" offset="480000"/>
+		<rom name="rev2_narc_image_rom_u49.u49" merge="rev2_narc_image_rom_u49.u49" size="65536" crc="80386fce" sha1="f182ed0f1a3753dedc56cb120cb8d10e1556e966" region="gfx" offset="490000"/>
+		<rom name="rev2_narc_image_rom_u48.u48" merge="rev2_narc_image_rom_u48.u48" size="65536" crc="05c16185" sha1="429910c5b1f1fe47fdec6cfcba765ee9f10749f0" region="gfx" offset="4a0000"/>
+		<rom name="rev2_narc_image_rom_u47.u47" merge="rev2_narc_image_rom_u47.u47" size="65536" crc="4c0151f1" sha1="b526066fc594f3ec83bb4866986e3b73cdae3992" region="gfx" offset="4b0000"/>
+		<rom name="rev2_narc_image_rom_u46.u46" merge="rev2_narc_image_rom_u46.u46" size="65536" crc="5670bfcb" sha1="b20829b715c6421894c10c02aebb08d22b5109c9" region="gfx" offset="4c0000"/>
+		<rom name="rev2_narc_image_rom_u45.u45" merge="rev2_narc_image_rom_u45.u45" size="65536" crc="27f10d98" sha1="b027ade2b4a52977d9c40c9549b9067d37fab41c" region="gfx" offset="4d0000"/>
+		<rom name="rev2_narc_image_rom_u44.u44" merge="rev2_narc_image_rom_u44.u44" size="65536" crc="93b8eaa4" sha1="b786f3286c5443cf08e556e9fb030b3444288f3c" region="gfx" offset="4e0000"/>
+		<rom name="rev2_narc_image_rom_u40.u40" merge="rev2_narc_image_rom_u40.u40" size="65536" crc="7fcaebc7" sha1="b951d63c072d693f7dfc7e362a12513eb9bd6bab" region="gfx" offset="600000"/>
+		<rom name="rev2_narc_image_rom_u39.u39" merge="rev2_narc_image_rom_u39.u39" size="65536" crc="7db5cf52" sha1="478aefc1126493378d22c857646e2fce221c7d21" region="gfx" offset="610000"/>
+		<rom name="rev2_narc_image_rom_u38.u38" merge="rev2_narc_image_rom_u38.u38" size="65536" crc="3f9f3ef7" sha1="5315e8c372bb63d95f814d8eafe0f41e4d95ba1a" region="gfx" offset="620000"/>
+		<rom name="rev2_narc_image_rom_u37.u37" merge="rev2_narc_image_rom_u37.u37" size="65536" crc="ed81826c" sha1="afe1c0fc692a802279c1f7f31143d33028d35ce4" region="gfx" offset="630000"/>
+		<rom name="rev2_narc_image_rom_u36.u36" merge="rev2_narc_image_rom_u36.u36" size="65536" crc="e5d855c0" sha1="3fa0f765238ad2a27c0c65805bf56ebfbe50bf05" region="gfx" offset="640000"/>
+		<rom name="rev2_narc_image_rom_u35.u35" merge="rev2_narc_image_rom_u35.u35" size="65536" crc="3a7b1329" sha1="e8b547a3b8f85cd13e12cfe0bf3949acc1486e6b" region="gfx" offset="650000"/>
+		<rom name="rev2_narc_image_rom_u34.u34" merge="rev2_narc_image_rom_u34.u34" size="65536" crc="fe982b0e" sha1="a03e7e348186339fd93ce119f65e8f0ea7b7bb7a" region="gfx" offset="660000"/>
+		<rom name="rev2_narc_image_rom_u33.u33" merge="rev2_narc_image_rom_u33.u33" size="65536" crc="6bc7eb0f" sha1="6964ef63d0daf1bc7fa9585567659cfc198b6cc3" region="gfx" offset="670000"/>
+		<rom name="rev2_narc_image_rom_u32.u32" merge="rev2_narc_image_rom_u32.u32" size="65536" crc="5875a6d3" sha1="ae64aa786239be39c3c99bbe019bdc91003c1691" region="gfx" offset="680000"/>
+		<rom name="rev2_narc_image_rom_u31.u31" merge="rev2_narc_image_rom_u31.u31" size="65536" crc="2fa4b8e5" sha1="8e4e4abd60d20e0ef955ac4b1f300cfd157e50ca" region="gfx" offset="690000"/>
+		<rom name="rev2_narc_image_rom_u30.u30" merge="rev2_narc_image_rom_u30.u30" size="65536" crc="7e4bb8ee" sha1="7166bd56a569329e01ed0c03579a403d659a4a7b" region="gfx" offset="6a0000"/>
+		<rom name="rev2_narc_image_rom_u29.u29" merge="rev2_narc_image_rom_u29.u29" size="65536" crc="45136fd9" sha1="44388e16d02a8c55fed0dbbcd842c941fa4b11b1" region="gfx" offset="6b0000"/>
+		<rom name="rev2_narc_image_rom_u28.u28" merge="rev2_narc_image_rom_u28.u28" size="65536" crc="d6cdac24" sha1="d4bbe3a1be89be7d21769bfe476b50c05cd0c357" region="gfx" offset="6c0000"/>
+		<rom name="rev2_narc_image_rom_u27.u27" merge="rev2_narc_image_rom_u27.u27" size="65536" crc="4d33bbec" sha1="05a3bd66ff91c824e841ca3943585f6aa383c5c2" region="gfx" offset="6d0000"/>
+		<rom name="rev2_narc_image_rom_u26.u26" merge="rev2_narc_image_rom_u26.u26" size="65536" crc="cb19f784" sha1="1e4d85603c940e247fdc45f0366dfb484285e588" region="gfx" offset="6e0000"/>
+		<rom name="a-5346-3036-1_narc_pls153.u28" merge="a-5346-3036-1_narc_pls153.u28" size="235" crc="4db36615" sha1="781d13af2735ad3da0c7594487e7f4e19b5f459f" region="plds" offset="0"/>
+		<rom name="a-5346-3036-2_narc_pls153.u78" merge="a-5346-3036-2_narc_pls153.u78" size="235" crc="4b151863" sha1="0740c5fba978b9bb68a50472b57c0801c7591d6f" region="plds" offset="100"/>
+		<rom name="a-5346-3036-3_narc_pls153.u79" merge="a-5346-3036-3_narc_pls153.u79" size="235" crc="35bd6ed8" sha1="98b4ad4f61d2f2013815fa79c3428a2d610c8a6f" region="plds" offset="200"/>
+		<rom name="a-5346-3036-4_narc_pls153.u80" merge="a-5346-3036-4_narc_pls153.u80" size="235" crc="9c10e4cf" sha1="77d0a6a6e19e2f5b17e9356459215e5452247be3" region="plds" offset="300"/>
+		<rom name="a-5346-3036-5_narc_pls153.u83" merge="a-5346-3036-5_narc_pls153.u83" size="235" crc="3a2f21b2" sha1="bafc45b8b0e83d044bc4963abbdbbf4b6da1694b" region="plds" offset="400"/>
+		<device_ref name="tms34010"/>
+		<device_ref name="nvram"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="wmsnarc"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="hc55516"/>
+		<chip type="cpu" tag="maincpu" name="Texas Instruments TMS34010" clock="48000000"/>
+		<chip type="cpu" tag="narcsnd:cpu0" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="cpu" tag="narcsnd:cpu1" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="narcsnd" name="Williams NARC Sound Board"/>
+		<chip type="audio" tag="narcsnd:ym2151" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="narcsnd:dac1" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:dac2" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:cvsd" name="HC-55516"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="400" refresh="54.824186" pixclock="16000000" htotal="674" hbend="122" hbstart="634" vtotal="433" vbend="27" vbstart="427" />
+		<sound channels="1"/>
+		<input players="2" coins="4" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":UNK0">
+		</port>
+		<port tag=":UNK1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="narc6" sourcefile="midway/midyunit.cpp" cloneof="narc" romof="narc">
+		<description>Narc (rev 6.00)</description>
+		<year>1988</year>
+		<manufacturer>Williams</manufacturer>
+		<rom name="rev2_narc_sound_rom_u4.u4" merge="rev2_narc_sound_rom_u4.u4" size="65536" crc="450a591a" sha1="bbda8061262738e5866f2707f69483a0a51d2910" region="narcsnd:cpu0" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u5.u5" merge="rev2_narc_sound_rom_u5.u5" size="65536" crc="e551e5e3" sha1="c8b4f53dbd4c534abb77d4dc07c4d12653b79894" region="narcsnd:cpu0" offset="70000"/>
+		<rom name="rev2_narc_sound_rom_u35.u35" merge="rev2_narc_sound_rom_u35.u35" size="65536" crc="81295892" sha1="159664e5ee03c88d6e940e70e87e2150dc5b8b25" region="narcsnd:cpu1" offset="10000"/>
+		<rom name="rev2_narc_sound_rom_u36.u36" merge="rev2_narc_sound_rom_u36.u36" size="65536" crc="16cdbb13" sha1="2dfd961a5d909c1804f4fda34de33ee2664c4bc6" region="narcsnd:cpu1" offset="30000"/>
+		<rom name="rev2_narc_sound_rom_u37.u37" merge="rev2_narc_sound_rom_u37.u37" size="65536" crc="29dbeffd" sha1="4cbdc619db34f9c552de1ed3d034f8c079987e03" region="narcsnd:cpu1" offset="50000"/>
+		<rom name="rev2_narc_sound_rom_u38.u38" merge="rev2_narc_sound_rom_u38.u38" size="65536" crc="09b03b80" sha1="a45782d29a426fac38299b56af0815e844e35ae4" region="narcsnd:cpu1" offset="70000"/>
+		<rom name="rev6_narc_game_rom_u78.u78" size="65536" crc="2c9e799b" sha1="28847e5aea08f4d4b12321cd2bfc13280ee8ec4f" region="maindata" offset="0"/>
+		<rom name="rev6_narc_game_rom_u60.u60" size="65536" crc="5f6b0429" sha1="1bda1a7644f2c7939800d64c3e73d589296032d9" region="maindata" offset="1"/>
+		<rom name="rev6_narc_game_rom_u77.u77" size="65536" crc="508cfa38" sha1="9b90d4bc199f9c30c38d986692829fe8ba458090" region="maindata" offset="40000"/>
+		<rom name="rev6_narc_game_rom_u59.u59" size="65536" crc="84bc91fc" sha1="6203f1ac473f095d9a8fa9ed9081777526d7abb9" region="maindata" offset="40001"/>
+		<rom name="rev6_narc_game_rom_u42.u42" size="65536" crc="ee8ae9d4" sha1="52721b40ff63c8e6d96ecb550e540e3d34c5d692" region="maindata" offset="80000"/>
+		<rom name="rev6_narc_game_rom_u24.u24" size="65536" crc="4fbe2ff5" sha1="9396018c095947f361e03196bee3dc598da57181" region="maindata" offset="80001"/>
+		<rom name="rev6_narc_game_rom_u41.u41" size="65536" crc="43a1bbbc" sha1="0afe83e3c9a8a76fcadddf3d37f96f55a29fbb22" region="maindata" offset="c0000"/>
+		<rom name="rev6_narc_game_rom_u23.u23" size="65536" crc="ed0d149d" sha1="02b376cc7584fd26f537ad8122f73211bf0e66b8" region="maindata" offset="c0001"/>
+		<rom name="rev2_narc_image_rom_u94.u94" merge="rev2_narc_image_rom_u94.u94" size="65536" crc="ca3194e4" sha1="d6aa6a09e4353a1dddd502abf85acf48e6e94cef" region="gfx" offset="0"/>
+		<rom name="rev2_narc_image_rom_u93.u93" merge="rev2_narc_image_rom_u93.u93" size="65536" crc="0ed7f7f5" sha1="913d0dc81531adc6a7e6ffabfe681150aa4638a3" region="gfx" offset="10000"/>
+		<rom name="rev2_narc_image_rom_u92.u92" merge="rev2_narc_image_rom_u92.u92" size="65536" crc="40d2fc66" sha1="95b8d90e6abe336ad05dc3746d02b38823d2b8cd" region="gfx" offset="20000"/>
+		<rom name="rev2_narc_image_rom_u91.u91" merge="rev2_narc_image_rom_u91.u91" size="65536" crc="f39325e0" sha1="c1179825c76ed2934dfeff263a9296c2c1a5abe4" region="gfx" offset="30000"/>
+		<rom name="rev2_narc_image_rom_u90.u90" merge="rev2_narc_image_rom_u90.u90" size="65536" crc="0132aefa" sha1="9bf11ebc06f1069ea056427750902c204facbd3d" region="gfx" offset="40000"/>
+		<rom name="rev2_narc_image_rom_u89.u89" merge="rev2_narc_image_rom_u89.u89" size="65536" crc="f7260c9e" sha1="5a3fd88c7c0fa01ec2eb6fdef380ccee9d7da3a8" region="gfx" offset="50000"/>
+		<rom name="rev2_narc_image_rom_u88.u88" merge="rev2_narc_image_rom_u88.u88" size="65536" crc="edc19f42" sha1="b7121b3df743e5744ae72de2216b679fe71a2049" region="gfx" offset="60000"/>
+		<rom name="rev2_narc_image_rom_u87.u87" merge="rev2_narc_image_rom_u87.u87" size="65536" crc="d9b42ff9" sha1="cab05a5f8aadff010fba1107eb2000cc128063ff" region="gfx" offset="70000"/>
+		<rom name="rev2_narc_image_rom_u86.u86" merge="rev2_narc_image_rom_u86.u86" size="65536" crc="af7daad3" sha1="e2635a0acd6a238159ef91c1c3c9dfe8de8ae18f" region="gfx" offset="80000"/>
+		<rom name="rev2_narc_image_rom_u85.u85" merge="rev2_narc_image_rom_u85.u85" size="65536" crc="095fae6b" sha1="94f1df799142990a559e54cd949d9723481806b1" region="gfx" offset="90000"/>
+		<rom name="rev2_narc_image_rom_u84.u84" merge="rev2_narc_image_rom_u84.u84" size="65536" crc="3fdf2057" sha1="25ac6263a4eb962d90a305572fb95b75cb9f4138" region="gfx" offset="a0000"/>
+		<rom name="rev2_narc_image_rom_u83.u83" merge="rev2_narc_image_rom_u83.u83" size="65536" crc="f2d27c9f" sha1="de30c7e0191adf62b11b2f2fbdf80687e653de12" region="gfx" offset="b0000"/>
+		<rom name="rev2_narc_image_rom_u82.u82" merge="rev2_narc_image_rom_u82.u82" size="65536" crc="962ce47c" sha1="ea32f7f58a5ec1d941b372db5378d14fd850a2a7" region="gfx" offset="c0000"/>
+		<rom name="rev2_narc_image_rom_u81.u81" merge="rev2_narc_image_rom_u81.u81" size="65536" crc="00fe59ec" sha1="85efd623b9cd75b249e19b2e97440a47718da728" region="gfx" offset="d0000"/>
+		<rom name="rev2_narc_image_rom_u80.u80" merge="rev2_narc_image_rom_u80.u80" size="65536" crc="147ba8e9" sha1="1065b57082e0198025fe6f0bb3548f37c6a715e4" region="gfx" offset="e0000"/>
+		<rom name="rev2_narc_image_rom_u76.u76" merge="rev2_narc_image_rom_u76.u76" size="65536" crc="1cd897f4" sha1="80414c3718ac6719abcca83f483302fc16fcfef3" region="gfx" offset="200000"/>
+		<rom name="rev2_narc_image_rom_u75.u75" merge="rev2_narc_image_rom_u75.u75" size="65536" crc="78abfa01" sha1="1523f537491b901f2d987d4443077b92e24b969d" region="gfx" offset="210000"/>
+		<rom name="rev2_narc_image_rom_u74.u74" merge="rev2_narc_image_rom_u74.u74" size="65536" crc="66d2a234" sha1="290b3051fa9d35e24a9d00fcc2b72d2751f3e7f1" region="gfx" offset="220000"/>
+		<rom name="rev2_narc_image_rom_u73.u73" merge="rev2_narc_image_rom_u73.u73" size="65536" crc="efa5cd4e" sha1="7aca6058d644a025c6799d55ffa082ba8eb5d76f" region="gfx" offset="230000"/>
+		<rom name="rev2_narc_image_rom_u72.u72" merge="rev2_narc_image_rom_u72.u72" size="65536" crc="70638eb5" sha1="fbafb354fca7c3c402be5073fa03060de569f536" region="gfx" offset="240000"/>
+		<rom name="rev2_narc_image_rom_u71.u71" merge="rev2_narc_image_rom_u71.u71" size="65536" crc="61226883" sha1="09a366df0603cc0afc8c6c5547ec6ae3a02724b2" region="gfx" offset="250000"/>
+		<rom name="rev2_narc_image_rom_u70.u70" merge="rev2_narc_image_rom_u70.u70" size="65536" crc="c808849f" sha1="bd3f69c4641331738e415d6d72fafe0eeeb2e56b" region="gfx" offset="260000"/>
+		<rom name="rev2_narc_image_rom_u69.u69" merge="rev2_narc_image_rom_u69.u69" size="65536" crc="e7f9c34f" sha1="f65aed012f1d575a63690222b8c8f2c56bc196c3" region="gfx" offset="270000"/>
+		<rom name="rev2_narc_image_rom_u68.u68" merge="rev2_narc_image_rom_u68.u68" size="65536" crc="88a634d5" sha1="9ddf86ca8cd91965348bc311cc722151f831db21" region="gfx" offset="280000"/>
+		<rom name="rev2_narc_image_rom_u67.u67" merge="rev2_narc_image_rom_u67.u67" size="65536" crc="4ab8b69e" sha1="4320407c78864edc7876ad3604405414a3e7762d" region="gfx" offset="290000"/>
+		<rom name="rev2_narc_image_rom_u66.u66" merge="rev2_narc_image_rom_u66.u66" size="65536" crc="e1da4b25" sha1="c81ed1ffc0a4bf64e794a1313559453f9455c312" region="gfx" offset="2a0000"/>
+		<rom name="rev2_narc_image_rom_u65.u65" merge="rev2_narc_image_rom_u65.u65" size="65536" crc="6df0d125" sha1="37392cc917e73cfa09970fd24503b45ced399976" region="gfx" offset="2b0000"/>
+		<rom name="rev2_narc_image_rom_u64.u64" merge="rev2_narc_image_rom_u64.u64" size="65536" crc="abab1b16" sha1="2913a94e1fcf8df52e29d0fb6e373aa64d23c019" region="gfx" offset="2c0000"/>
+		<rom name="rev2_narc_image_rom_u63.u63" merge="rev2_narc_image_rom_u63.u63" size="65536" crc="80602f31" sha1="f1c5c4476dbf80382f33c0776c103cff9bed8346" region="gfx" offset="2d0000"/>
+		<rom name="rev2_narc_image_rom_u62.u62" merge="rev2_narc_image_rom_u62.u62" size="65536" crc="c2a476d1" sha1="ffde1784548050d87f1404aaca3689417e6f7a81" region="gfx" offset="2e0000"/>
+		<rom name="rev2_narc_image_rom_u58.u58" merge="rev2_narc_image_rom_u58.u58" size="65536" crc="8a7501e3" sha1="dcd87c464fcb88180cc1c24ec82586440a197a5c" region="gfx" offset="400000"/>
+		<rom name="rev2_narc_image_rom_u57.u57" merge="rev2_narc_image_rom_u57.u57" size="65536" crc="a504735f" sha1="2afe58e576eea2e0326c6b42adb621358a270881" region="gfx" offset="410000"/>
+		<rom name="rev2_narc_image_rom_u56.u56" merge="rev2_narc_image_rom_u56.u56" size="65536" crc="55f8cca7" sha1="0b0a0d50be4401e4ac4e75d8040f18540f9ddc61" region="gfx" offset="420000"/>
+		<rom name="rev2_narc_image_rom_u55.u55" merge="rev2_narc_image_rom_u55.u55" size="65536" crc="d3c932c1" sha1="1a7ffc04e796ba355506bf9037c21aef18fe01a3" region="gfx" offset="430000"/>
+		<rom name="rev2_narc_image_rom_u54.u54" merge="rev2_narc_image_rom_u54.u54" size="65536" crc="c7f4134b" sha1="aea523e17f95c27d1f2c1f69884f626d96c8cb3b" region="gfx" offset="440000"/>
+		<rom name="rev2_narc_image_rom_u53.u53" merge="rev2_narc_image_rom_u53.u53" size="65536" crc="6be4da56" sha1="35a93a259be04a644ca70df4922f6915274c3932" region="gfx" offset="450000"/>
+		<rom name="rev2_narc_image_rom_u52.u52" merge="rev2_narc_image_rom_u52.u52" size="65536" crc="1ea36a4a" sha1="78e5437d46c1ecff5e221bc301925b10f00c5269" region="gfx" offset="460000"/>
+		<rom name="rev2_narc_image_rom_u51.u51" merge="rev2_narc_image_rom_u51.u51" size="65536" crc="9d4b0324" sha1="80fb38a9ac81a0383112df680b9755d7cccbd50b" region="gfx" offset="470000"/>
+		<rom name="rev2_narc_image_rom_u50.u50" merge="rev2_narc_image_rom_u50.u50" size="65536" crc="6f9f0c26" sha1="be77d99fb37fa31c3824725b28ee74206c584b90" region="gfx" offset="480000"/>
+		<rom name="rev2_narc_image_rom_u49.u49" merge="rev2_narc_image_rom_u49.u49" size="65536" crc="80386fce" sha1="f182ed0f1a3753dedc56cb120cb8d10e1556e966" region="gfx" offset="490000"/>
+		<rom name="rev2_narc_image_rom_u48.u48" merge="rev2_narc_image_rom_u48.u48" size="65536" crc="05c16185" sha1="429910c5b1f1fe47fdec6cfcba765ee9f10749f0" region="gfx" offset="4a0000"/>
+		<rom name="rev2_narc_image_rom_u47.u47" merge="rev2_narc_image_rom_u47.u47" size="65536" crc="4c0151f1" sha1="b526066fc594f3ec83bb4866986e3b73cdae3992" region="gfx" offset="4b0000"/>
+		<rom name="rev2_narc_image_rom_u46.u46" merge="rev2_narc_image_rom_u46.u46" size="65536" crc="5670bfcb" sha1="b20829b715c6421894c10c02aebb08d22b5109c9" region="gfx" offset="4c0000"/>
+		<rom name="rev2_narc_image_rom_u45.u45" merge="rev2_narc_image_rom_u45.u45" size="65536" crc="27f10d98" sha1="b027ade2b4a52977d9c40c9549b9067d37fab41c" region="gfx" offset="4d0000"/>
+		<rom name="rev2_narc_image_rom_u44.u44" merge="rev2_narc_image_rom_u44.u44" size="65536" crc="93b8eaa4" sha1="b786f3286c5443cf08e556e9fb030b3444288f3c" region="gfx" offset="4e0000"/>
+		<rom name="rev2_narc_image_rom_u40.u40" merge="rev2_narc_image_rom_u40.u40" size="65536" crc="7fcaebc7" sha1="b951d63c072d693f7dfc7e362a12513eb9bd6bab" region="gfx" offset="600000"/>
+		<rom name="rev2_narc_image_rom_u39.u39" merge="rev2_narc_image_rom_u39.u39" size="65536" crc="7db5cf52" sha1="478aefc1126493378d22c857646e2fce221c7d21" region="gfx" offset="610000"/>
+		<rom name="rev2_narc_image_rom_u38.u38" merge="rev2_narc_image_rom_u38.u38" size="65536" crc="3f9f3ef7" sha1="5315e8c372bb63d95f814d8eafe0f41e4d95ba1a" region="gfx" offset="620000"/>
+		<rom name="rev2_narc_image_rom_u37.u37" merge="rev2_narc_image_rom_u37.u37" size="65536" crc="ed81826c" sha1="afe1c0fc692a802279c1f7f31143d33028d35ce4" region="gfx" offset="630000"/>
+		<rom name="rev2_narc_image_rom_u36.u36" merge="rev2_narc_image_rom_u36.u36" size="65536" crc="e5d855c0" sha1="3fa0f765238ad2a27c0c65805bf56ebfbe50bf05" region="gfx" offset="640000"/>
+		<rom name="rev2_narc_image_rom_u35.u35" merge="rev2_narc_image_rom_u35.u35" size="65536" crc="3a7b1329" sha1="e8b547a3b8f85cd13e12cfe0bf3949acc1486e6b" region="gfx" offset="650000"/>
+		<rom name="rev2_narc_image_rom_u34.u34" merge="rev2_narc_image_rom_u34.u34" size="65536" crc="fe982b0e" sha1="a03e7e348186339fd93ce119f65e8f0ea7b7bb7a" region="gfx" offset="660000"/>
+		<rom name="rev2_narc_image_rom_u33.u33" merge="rev2_narc_image_rom_u33.u33" size="65536" crc="6bc7eb0f" sha1="6964ef63d0daf1bc7fa9585567659cfc198b6cc3" region="gfx" offset="670000"/>
+		<rom name="rev2_narc_image_rom_u32.u32" merge="rev2_narc_image_rom_u32.u32" size="65536" crc="5875a6d3" sha1="ae64aa786239be39c3c99bbe019bdc91003c1691" region="gfx" offset="680000"/>
+		<rom name="rev2_narc_image_rom_u31.u31" merge="rev2_narc_image_rom_u31.u31" size="65536" crc="2fa4b8e5" sha1="8e4e4abd60d20e0ef955ac4b1f300cfd157e50ca" region="gfx" offset="690000"/>
+		<rom name="rev2_narc_image_rom_u30.u30" merge="rev2_narc_image_rom_u30.u30" size="65536" crc="7e4bb8ee" sha1="7166bd56a569329e01ed0c03579a403d659a4a7b" region="gfx" offset="6a0000"/>
+		<rom name="rev2_narc_image_rom_u29.u29" merge="rev2_narc_image_rom_u29.u29" size="65536" crc="45136fd9" sha1="44388e16d02a8c55fed0dbbcd842c941fa4b11b1" region="gfx" offset="6b0000"/>
+		<rom name="rev2_narc_image_rom_u28.u28" merge="rev2_narc_image_rom_u28.u28" size="65536" crc="d6cdac24" sha1="d4bbe3a1be89be7d21769bfe476b50c05cd0c357" region="gfx" offset="6c0000"/>
+		<rom name="rev2_narc_image_rom_u27.u27" merge="rev2_narc_image_rom_u27.u27" size="65536" crc="4d33bbec" sha1="05a3bd66ff91c824e841ca3943585f6aa383c5c2" region="gfx" offset="6d0000"/>
+		<rom name="rev2_narc_image_rom_u26.u26" merge="rev2_narc_image_rom_u26.u26" size="65536" crc="cb19f784" sha1="1e4d85603c940e247fdc45f0366dfb484285e588" region="gfx" offset="6e0000"/>
+		<rom name="a-5346-3036-1_narc_pls153.u28" merge="a-5346-3036-1_narc_pls153.u28" size="235" crc="4db36615" sha1="781d13af2735ad3da0c7594487e7f4e19b5f459f" region="plds" offset="0"/>
+		<rom name="a-5346-3036-2_narc_pls153.u78" merge="a-5346-3036-2_narc_pls153.u78" size="235" crc="4b151863" sha1="0740c5fba978b9bb68a50472b57c0801c7591d6f" region="plds" offset="100"/>
+		<rom name="a-5346-3036-3_narc_pls153.u79" merge="a-5346-3036-3_narc_pls153.u79" size="235" crc="35bd6ed8" sha1="98b4ad4f61d2f2013815fa79c3428a2d610c8a6f" region="plds" offset="200"/>
+		<rom name="a-5346-3036-4_narc_pls153.u80" merge="a-5346-3036-4_narc_pls153.u80" size="235" crc="9c10e4cf" sha1="77d0a6a6e19e2f5b17e9356459215e5452247be3" region="plds" offset="300"/>
+		<rom name="a-5346-3036-5_narc_pls153.u83" merge="a-5346-3036-5_narc_pls153.u83" size="235" crc="3a2f21b2" sha1="bafc45b8b0e83d044bc4963abbdbbf4b6da1694b" region="plds" offset="400"/>
+		<device_ref name="tms34010"/>
+		<device_ref name="nvram"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="wmsnarc"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="mc6809e"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="ad7224"/>
+		<device_ref name="hc55516"/>
+		<chip type="cpu" tag="maincpu" name="Texas Instruments TMS34010" clock="48000000"/>
+		<chip type="cpu" tag="narcsnd:cpu0" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="cpu" tag="narcsnd:cpu1" name="Motorola MC6809E" clock="2000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="narcsnd" name="Williams NARC Sound Board"/>
+		<chip type="audio" tag="narcsnd:ym2151" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="narcsnd:dac1" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:dac2" name="AD7224 DAC"/>
+		<chip type="audio" tag="narcsnd:cvsd" name="HC-55516"/>
+		<display tag="screen" type="raster" rotate="0" width="512" height="400" refresh="54.824186" pixclock="16000000" htotal="674" hbend="122" hbstart="634" vtotal="433" vbend="27" vbstart="427" />
+		<sound channels="1"/>
+		<input players="2" coins="4" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":UNK0">
+		</port>
+		<port tag=":UNK1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="nemo" sourcefile="capcom/cps1.cpp">
 		<description>Nemo (World 901130)</description>
 		<year>1990</year>

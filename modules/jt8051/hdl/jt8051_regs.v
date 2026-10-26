@@ -184,13 +184,15 @@ always @(posedge clk) begin
         op1<=0; op2<=0; md<=0; ea<=0; lhs<=0; rhs<=0;
     end else if (cen) begin
         if ((wr || dst_we) && sfr_sel) begin
+            // Bit destinations carry only a boolean in src. Use the merged
+            // SFR byte for CPU-owned registers too (notably PSW bank bits).
             case (addr8)
-                8'h81: sp          <= src;
-                8'h82: dptr[7:0]   <= src;
-                8'h83: dptr[15:8]  <= src;
-                8'hd0: psw         <= {src[7:1],psw[0]};
-                8'he0: begin a<=src; psw[0]<=^src; end
-                8'hf0: b           <= src;
+                8'h81: sp          <= sfr_din;
+                8'h82: dptr[7:0]   <= sfr_din;
+                8'h83: dptr[15:8]  <= sfr_din;
+                8'hd0: psw         <= {sfr_din[7:1],psw[0]};
+                8'he0: begin a<=sfr_din; psw[0]<=^sfr_din; end
+                8'hf0: b           <= sfr_din;
                 default: ;
             endcase
         end
