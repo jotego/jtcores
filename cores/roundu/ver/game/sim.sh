@@ -30,13 +30,13 @@ for roundu_i in "${!roundu_args[@]}"; do
 done
 [ -f "$roundu_repo/rom/roundup5.rom" ] || { echo 'Build roundup5.rom with JTFRAME MRA first.' >&2; exit 1; }
 [ "$(wc -c < "$roundu_repo/rom/roundup5.rom" | tr -d ' ')" = 2949120 ]
-mkdir -p "$roundu_set/scratch/bin" "$roundu_set/scratch/$roundu_boot" "$roundu_set/scratch/logs" "$roundu_set/sim_results"
+mkdir -p "$roundu_set/bin" "$roundu_set/logs" "$roundu_set/sim_results"
 roundu_log="$roundu_set/sim_results/boot.log"
-if [ "$roundu_boot" != boot ]; then roundu_log="$roundu_set/scratch/logs/$roundu_boot.log"; fi
-if [ "$roundu_lint" = 1 ]; then roundu_log="$roundu_set/scratch/logs/lint.log"; fi
+if [ "$roundu_boot" != boot ]; then roundu_log="$roundu_set/logs/$roundu_boot.log"; fi
+if [ "$roundu_lint" = 1 ]; then roundu_log="$roundu_set/logs/lint.log"; fi
 roundu_cleanup() {
     if [ -f "$roundu_repo/cores/roundu/ver/game/dump2bin.sh" ]; then
-        mv -f "$roundu_repo/cores/roundu/ver/game/dump2bin.sh" "$roundu_set/scratch/$roundu_boot/dump2bin.sh"
+        mv -f "$roundu_repo/cores/roundu/ver/game/dump2bin.sh" "$roundu_set/dump2bin.sh"
     fi
 }
 trap roundu_cleanup EXIT
@@ -46,25 +46,25 @@ roundu_status=0
 docker run --rm --pull=never --entrypoint /bin/bash \
     -v "$roundu_repo:/jtcores" -v "$roundu_repo/modules:/jtcores/modules:ro" \
     -e ROUNDU_PRELOAD="$roundu_preload" \
-    -w "/jtcores/cores/roundu/ver/roundup5/scratch/$roundu_boot" \
+    -w "/jtcores/cores/roundu/ver/roundup5" \
     "$roundu_image" -lc '
         set -euo pipefail
         export JTROOT=/jtcores JTFRAME=/jtcores/modules/jtframe
         export CORES=$JTROOT/cores MODULES=$JTROOT/modules JTBIN=$JTROOT/release
         export ROM=$JTROOT/rom RLS=$JTROOT/release MRA=$JTROOT/release/mra
         export POCKET=$JTFRAME/target/pocket
-        roundu_scratch=$CORES/roundu/ver/roundup5/scratch
+        roundu_runtime=$CORES/roundu/ver/roundup5
         export ROUNDU_VERILATOR=$(command -v verilator)
-        export PATH=$roundu_scratch/bin:$JTFRAME/bin:$PATH
+        export PATH=$roundu_runtime/bin:$JTFRAME/bin:$PATH
         export JTFRAME_REGRESSION=1 MAKEJOBS=-j4
         unset VERILATOR_ROOT
-        go build -C "$JTFRAME/src/jtframe" -o "$roundu_scratch/bin/jtframe" .
-        go build -C "$JTFRAME/src/jtutil" -o "$roundu_scratch/bin/jtutil" .
-        cat > "$roundu_scratch/bin/verilator" <<WRAPPER
+        go build -C "$JTFRAME/src/jtframe" -o "$roundu_runtime/bin/jtframe" .
+        go build -C "$JTFRAME/src/jtutil" -o "$roundu_runtime/bin/jtutil" .
+        cat > "$roundu_runtime/bin/verilator" <<WRAPPER
 #!/bin/bash
 exec "\$ROUNDU_VERILATOR" --timing -I"\$JTFRAME/hdl/cpu/nuv30" "\$@"
 WRAPPER
-        chmod +x "$roundu_scratch/bin/verilator"
+        chmod +x "$roundu_runtime/bin/verilator"
         ln -sfn "$ROM/roundup5.rom" rom.bin
         roundu_load=(-load)
         if [ "$ROUNDU_PRELOAD" = 1 ]; then
@@ -80,7 +80,7 @@ WRAPPER
         jtsim -verilator -setname roundup5 -skipROM -mister "${roundu_load[@]}" -batch -fast -fx68k "$@"
     ' roundu-sim "${roundu_args[@]}" > "$roundu_log" 2>&1 || roundu_status=$?
 if [ "$roundu_status" = 0 ] && [ "$roundu_lint" = 0 ] && [ "$roundu_video" = 1 ] && [ "$roundu_boot" = boot ]; then
-    roundu_last=$(find "$roundu_set/scratch/boot/frames" -name 'frame_*.png' -print 2>/dev/null | sort | tail -1) || true
+    roundu_last=$(find "$roundu_set/frames" -name 'frame_*.png' -print 2>/dev/null | sort | tail -1) || true
     if [ -n "$roundu_last" ]; then cp "$roundu_last" "$roundu_set/sim_results/boot.png"; fi
 fi
 exit "$roundu_status"

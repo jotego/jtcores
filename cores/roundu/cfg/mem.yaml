@@ -5,7 +5,7 @@
 params:
   - { name: SLAVE_OFFSET, value: "`SLAVE_START >> 1" }
   - { name: OKI_OFFSET, value: "(`OKI_START-`JTFRAME_BA3_START) >> 1" }
-  - { name: TX_OFFSET, value: "0x60000 >> 1" }
+  - { name: TX_OFFSET, value: "32'h60000 >> 1" }
 
 clocks:
   clk:
