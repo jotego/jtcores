@@ -81,35 +81,110 @@ wire [14:0] code = {{(15-CODEW){1'b0}},fgv_dout[CODEW-1:0]};
 wire        vflip= VFLIP!=0 && fgv_dout[15];
 wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
 
-assign fgv_addr = { veff[7:3], hnx[8:3] };
-// 64 bytes a tile, 8 a row, 4 a read: word = code*16 + row*2 + half
-assign rom_addr = { code, row, hnx[2] };
-assign rom_cs   = 1'b1;
+    localparam [2:0] S_IDLE=0, S_MAP_WAIT=1, S_MAP=2, S_WAIT=3, S_ROM=4;
+    reg  [ 2:0] st;
+    reg  [10:0] map_addr;
+    reg  [18:0] fetch_addr;
+    reg         fetch_cs;
+    reg  [ 2:0] fetch_row;
+    reg         fetch_half;
+    reg  [24:0] fetch_tag, cur_tag, nxt_tag;
+    reg  [31:0] cur, nxt;
+    reg         cur_valid, nxt_valid;
+    wire [24:0] target_tag = { vdump, veff, hnx[8:2] };
+    wire [24:0] display_tag = { vdump, veff, heff[8:2] };
+    wire        target_cur = cur_valid && cur_tag==target_tag;
+    wire        target_nxt = nxt_valid && nxt_tag==target_tag;
+    wire        display_cur = cur_valid && cur_tag==display_tag;
+    wire        display_nxt = nxt_valid && nxt_tag==display_tag;
+    wire [31:0] display_word = display_cur ? cur : nxt;
+    wire [ 2:0] tile_row = vflip ? ~fetch_row : fetch_row;
+    reg  [ 7:0] pixel;
 
-reg [31:0] cur, nxt;
+    assign fgv_addr = map_addr;
+    assign rom_addr = fetch_addr;
+    assign rom_cs   = fetch_cs;
+    assign pxl      = display_cur || display_nxt ? pixel : 8'hff;
 
-always @(posedge clk) begin
-    if( rst ) begin
-        cur <= 0;
-        nxt <= 0;
-    end else if( pxl_cen ) begin
-        if( rom_ok ) nxt <= rom_data;
-        // swap in the group that was fetched over the previous four pixels
-        if( heff[1:0]==(flip ? 2'd0 : 2'd3) ) cur <= nxt;
+    always @* begin
+        case( heff[1:0] )
+            2'd0: pixel = display_word[ 7: 0];
+            2'd1: pixel = display_word[15: 8];
+            2'd2: pixel = display_word[23:16];
+            2'd3: pixel = display_word[31:24];
+        endcase
     end
-end
 
-// chunky bytes, leftmost pixel in the lowest byte address. jtframe returns a
-// 32-bit read with the lowest address in [7:0]
-reg [7:0] pxl_r;
-always @* begin
-    case( heff[1:0] )
-        2'd0: pxl_r = cur[ 7: 0];
-        2'd1: pxl_r = cur[15: 8];
-        2'd2: pxl_r = cur[23:16];
-        2'd3: pxl_r = cur[31:24];
-    endcase
-end
-assign pxl = pxl_r;
+    always @(posedge clk) begin
+        if( rst ) begin
+            st         <= S_IDLE;
+            map_addr   <= 0;
+            fetch_addr <= 0;
+            fetch_cs   <= 0;
+            fetch_row  <= 0;
+            fetch_half <= 0;
+            fetch_tag  <= 0;
+            cur_tag    <= 0;
+            nxt_tag    <= 0;
+            cur        <= 32'hffffffff;
+            nxt        <= 32'hffffffff;
+            cur_valid  <= 0;
+            nxt_valid  <= 0;
+        end else case( st )
+            S_IDLE: if( !target_cur && !target_nxt ) begin
+                map_addr   <= { veff[7:3], hnx[8:3] };
+                fetch_row  <= veff[2:0];
+                fetch_half <= hnx[2];
+                fetch_tag  <= target_tag;
+                st         <= S_MAP_WAIT;
+            end
+            S_MAP_WAIT: st <= S_MAP;
+            S_MAP: begin
+                fetch_addr <= { code, tile_row, fetch_half };
+                fetch_cs   <= 1;
+                st         <= S_WAIT;
+            end
+            S_WAIT: st <= S_ROM;
+            S_ROM: if( rom_ok ) begin
+                nxt       <= cur;
+                nxt_tag   <= cur_tag;
+                nxt_valid <= cur_valid;
+                cur       <= rom_data;
+                cur_tag   <= fetch_tag;
+                cur_valid <= 1;
+                fetch_cs  <= 0;
+                st        <= S_IDLE;
+            end
+            default: begin
+                fetch_cs <= 0;
+                st       <= S_IDLE;
+            end
+        endcase
+    end
+
+`ifdef SIMULATION
+    integer sim_pixels, sim_missing, sim_requests, sim_wait;
+    always @(posedge clk) begin
+        if( rst ) begin
+            sim_pixels   <= 0;
+            sim_missing  <= 0;
+            sim_requests <= 0;
+            sim_wait     <= 0;
+        end else if( pxl_cen && hdump==0 && vdump==0 ) begin
+            $display("FG_FETCH pixels=%0d missing=%0d requests=%0d wait_cycles=%0d",sim_pixels,sim_missing,sim_requests,sim_wait);
+            sim_pixels   <= 1;
+            sim_missing  <= display_cur || display_nxt ? 0 : 1;
+            sim_requests <= 0;
+            sim_wait     <= 0;
+        end else begin
+            if( pxl_cen && hdump<=hsize && vdump<=vsize ) begin
+                sim_pixels <= sim_pixels+1;
+                if( !display_cur && !display_nxt ) sim_missing <= sim_missing+1;
+            end
+            if( st==S_MAP ) sim_requests <= sim_requests+1;
+            if( st==S_ROM && !rom_ok ) sim_wait <= sim_wait+1;
+        end
+    end
+`endif
 
 endmodule

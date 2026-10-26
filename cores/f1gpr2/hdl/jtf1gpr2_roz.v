@@ -95,7 +95,8 @@ wire        overflow = capture && !push;
 reg  [ 1:0] ready, failed;
 reg  [ 8:0] tags[0:1];
 reg  [ 8:0] written[0:1];
-reg         display_valid, valid;
+reg [319:0] populated[0:1];
+reg         pixel_ready, valid;
 reg  [ 7:0] display_pixel;
 wire        write_bank = req_line[0];
 wire        read_bank = vdump[0];
@@ -158,7 +159,9 @@ always @(posedge clk) begin
         tags[1]       <= 9'h1ff;
         written[0]    <= 0;
         written[1]    <= 0;
-        display_valid <= 0;
+        populated[0]  <= 0;
+        populated[1]  <= 0;
+        pixel_ready   <= 0;
         valid         <= 0;
         display_pixel <= 8'hff;
     end else begin
@@ -167,15 +170,18 @@ always @(posedge clk) begin
             failed[~read_bank]  <= 0;
             tags[~read_bank]    <= next_line;
             written[~read_bank] <= 0;
+            populated[~read_bank] <= 0;
         end
         if( overflow ) failed[~read_bank] <= 1;
         if( line_we ) begin
             written[write_bank] <= written[write_bank]+9'd1;
+            populated[write_bank][req_h] <= 1'b1;
             if( req_h==9'd319 )
                 ready[write_bank] <= written[write_bank]==9'd319 && !failed[write_bank];
         end
-        if( hdump==0 ) display_valid <= display_ready;
-        valid         <= display_valid && hdump<9'd320 && vdump<9'd224;
+        pixel_ready   <= hdump<9'd320 && vdump<9'd224 &&
+                         tags[read_bank]==vdump && populated[read_bank][hdump];
+        valid         <= pixel_ready;
         display_pixel <= line_data;
     end
 end

@@ -139,6 +139,7 @@ jtframe_vtimer #(
 jtf1grpr_fg #(
     .CODEW       ( 14 ),
     .VFLIP       ( 0  ),
+    .HOFFSET     ( 0  ),
     .VOFFSET     ( 0  ),
     .SCROLL_COMP ( 0  )
 ) u_fg(

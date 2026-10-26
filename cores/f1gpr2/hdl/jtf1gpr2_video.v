@@ -101,7 +101,9 @@ jtframe_vtimer #(
     .VS         ( VS        )
 );
 
-jtf1grpr_fg u_fg(
+jtf1grpr_fg #(
+    .HOFFSET    ( 0         )
+) u_fg(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -111,7 +113,7 @@ jtf1grpr_fg u_fg(
     .hsize      ( HB_START  ),
     .vsize      ( VB_START  ),
     .vdump      ( vdump     ),
-    .scrx       ( fg_scrx + (flip ? 9'd161 : 9'd79) ),
+    .scrx       ( fg_scrx + (flip ? 9'd160 : 9'd80) ),
     .scry       ( fg_scry + (flip ? 9'd10 : 9'd18)  ),
 
     .fgv_addr   ( fgv_addr  ),
@@ -149,7 +151,9 @@ jtf1gpr2_obj u_obj(
     .pxl        ( obj_pxl   )
 );
 
-jtf1gpr2_roz u_roz(
+jtf1gpr2_roz #(
+    .PIPELINED  ( 1            )
+) u_roz(
     .rst        ( rst          ),
     .clk        ( clk          ),
     .pxl_cen    ( pxl_cen      ),
