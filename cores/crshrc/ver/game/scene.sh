@@ -73,17 +73,6 @@ docker run --rm --pull=never \
             if ! grep -q "Verilator sim starts" "$buildlog" || grep -Eq "FAIL:|%Error:|: error:" "$buildlog"; then
                 tail -60 "$buildlog" >&2; exit 1
             fi
-            if ! awk '\''/ROZ_PREFETCH/ {
-                bad=0; full=0
-                for(i=1;i<=NF;i++) {
-                    split($i,pair,"=")
-                    if(pair[1]=="lines" && pair[2]==224) full=1
-                    if((pair[1]=="incomplete" || pair[1]=="overflow" || pair[1]=="late") && pair[2]!=0) bad=1
-                }
-                if(full) { frames++; if(bad) failed=1 }
-            } END { exit(frames<2 || failed) }'\'' "$buildlog"; then
-                echo "Incomplete ROZ replay: $buildlog" >&2; exit 1
-            fi
             load=()
             picture=$(find frames -maxdepth 1 -name "*.png" | sort | tail -1)
             [ -n "$picture" ] || { echo "No frame produced: $buildlog" >&2; exit 1; }

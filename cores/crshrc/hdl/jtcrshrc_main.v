@@ -41,8 +41,16 @@ module jtcrshrc_main(
 );
 
 `ifndef NOMAIN
-localparam [7:0] CEN_NUM = 8'd88;
-localparam [8:0] CEN_DEN = 9'd315;
+`ifdef JTFRAME_PLL5369
+localparam CEN_W = 10;
+localparam [CEN_W-2:0] CEN_NUM = 9'd352;
+localparam [CEN_W-1:0] CEN_DEN = 10'd945;
+`else
+localparam CEN_W = 9;
+localparam [CEN_W-2:0] CEN_NUM = 8'd88;
+localparam [CEN_W-1:0] CEN_DEN = 9'd315;
+`endif
+localparam CLK_KHZ = `JTFRAME_MCLK / `ifdef JTFRAME_SDRAM96 2000 `else 1000 `endif;
 
 wire [23:1] A;
 reg  [15:0] cpu_din;
@@ -205,8 +213,8 @@ jtframe_virq u_virq(
 );
 
 jtframe_68kdtack_cen #(
-    .W     ( 9                  ),
-    .MFREQ ( `JTFRAME_MCLK/1000 )
+    .W     ( CEN_W   ),
+    .MFREQ ( CLK_KHZ )
 ) u_dtack(
     .rst       ( rst                                  ),
     .clk       ( clk                                  ),
