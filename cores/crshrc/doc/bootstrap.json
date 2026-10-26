@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "repo": "/Users/andreabogazzi/develop/jtpublicfork",
+  "core": "crshrc",
+  "label": "crshrace",
+  "game": "crshrace",
+  "machine_config": "crshrace",
+  "targets": [
+    "sidi128"
+  ],
+  "available_plls": [
+    "jtframe_pll5369",
+    "jtframe_pll6000",
+    "jtframe_pll6125",
+    "jtframe_pll6144",
+    "jtframe_pll6293",
+    "jtframe_pll6671",
+    "jtframe_pll7159"
+  ],
+  "mame_root": "/Users/andreabogazzi/develop/mame",
+  "driver": "src/mame/vsystem/crshrace.cpp",
+  "sources": [
+    {
+      "path": "src/mame/vsystem/crshrace.cpp",
+      "sha256": "870457e5d93aa077253f6a3e5b8ad7053765c71b2e0c0a32b7ac0bf8fc6b10a7"
+    }
+  ],
+  "uncopied_includes": [
+    "cpu/m68000/m68000.h",
+    "cpu/z80/z80.h",
+    "emu.h",
+    "emupal.h",
+    "logmacro.h",
+    "machine/gen_latch.h",
+    "screen.h",
+    "sound/ymopn.h",
+    "speaker.h",
+    "tilemap.h",
+    "video/bufsprite.h",
+    "video/k053936.h",
+    "vsystem_spr.h"
+  ],
+  "video_timing": [],
+  "pll": "jtframe_pll7159",
+  "pxlclk": "6",
+  "modules": [
+    "game",
+    "main",
+    "video",
+    "colmix",
+    "snd"
+  ],
+  "author": "Andrea Bogazzi",
+  "reference_revision": "mamedev/mame mame0282"
+}

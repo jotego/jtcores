@@ -1,4 +1,7 @@
-/*  This file is part of JTCORES.
+/*  SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+    SPDX-License-Identifier: GPL-3.0-or-later
+
+    This file is part of JTCORES.
     JTCORES program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -27,7 +30,7 @@
 // from byte i, which is the planar layout, and it would want a 64-bit bus
 // for BPP=8 anyway. Here a tile row is 8 bytes = two reads.
 
-module jtf1grpr_fg(
+module jtf1grpr_fg #(parameter CODEW=15, VFLIP=1, HOFFSET=1, VOFFSET=8, SCROLL_COMP=1)(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -52,7 +55,7 @@ module jtf1grpr_fg(
 // 8 lines low without these. The 8 lines are common to every layer and are
 // probably the visarea origin (MAME shows lines 8..247), so they may fold
 // into the video timing later
-localparam [8:0] HOFFSET = 9'd1, VOFFSET = 9'd8;
+
 
 // Screen flip mirrors the raster. HOFFSET is a raster origin so it goes INSIDE
 // the mirror, otherwise it lands on the wrong side and shows up doubled.
@@ -68,14 +71,14 @@ wire [ 8:0] hraw = hwrap + HOFFSET;
 wire [ 8:0] hdm  = flip ? ~hraw  + hsize : hraw;
 wire [ 8:0] vdm  = flip ? ~vdump + vsize : vdump;
 // the game writes its own compensation when flipped, +160/+10; cancel it
-wire [ 8:0] heff = hdm + scrx - (flip ? 9'd160 : 9'd0);
-wire [ 8:0] veff = vdm + scry + VOFFSET - (flip ? 9'd10 : 9'd0);
+wire [ 8:0] heff = hdm + scrx - (flip && SCROLL_COMP!=0 ? 9'd160 : 9'd0);
+wire [ 8:0] veff = vdm + scry + VOFFSET - (flip && SCROLL_COMP!=0 ? 9'd10 : 9'd0);
 // address the tile that owns the NEXT group of four pixels, so the VRAM and
 // the ROM both have a full group of pxl_cen to answer. Flipped, heff runs
 // backwards, so the next group is four LOWER
 wire [ 8:0] hnx  = flip ? heff - 9'd4 : heff + 9'd4;
-wire [14:0] code = fgv_dout[14:0];
-wire        vflip= fgv_dout[15];
+wire [14:0] code = {{(15-CODEW){1'b0}},fgv_dout[CODEW-1:0]};
+wire        vflip= VFLIP!=0 && fgv_dout[15];
 wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
 
 assign fgv_addr = { veff[7:3], hnx[8:3] };

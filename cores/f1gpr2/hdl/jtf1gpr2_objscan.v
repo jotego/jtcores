@@ -2,7 +2,7 @@
     SPDX-License-Identifier: GPL-3.0-or-later
     Date: 25-10-2026 */
 
-module jtf1gpr2_objscan(
+module jtf1gpr2_objscan #(parameter ATTR_AW=11, LUT_AW=14)(
     input             rst,
     input             clk,
     input             hs,
@@ -11,9 +11,9 @@ module jtf1gpr2_objscan(
     input      [ 8:0] yoffs,
     input             flip,
 
-    output     [11:1] objr_addr,
+    output     [ATTR_AW:1] objr_addr,
     input      [15:0] objr_dout,
-    output     [14:1] objl_addr,
+    output     [LUT_AW:1] objl_addr,
     input      [15:0] objl_dout,
 
     output reg        draw,
@@ -54,7 +54,7 @@ wire [ 9:0] blk_h   = (({6'd0,ysize}+10'd1)*{4'd0,zy}) >> 1;
 wire [ 8:0] dy      = vrender + 9'd16 - (oy + yoffs + 9'd16);
 wire        on_line  = dy < blk_h[8:0];
 
-reg  [10:0] rd_addr;
+reg  [ATTR_AW-1:0] rd_addr;
 assign objr_addr = rd_addr;
 
 reg [8:0] recip;
@@ -109,7 +109,7 @@ always @(posedge clk) begin
         end else case( st )
             S_IDLE: ;
             S_SORT: begin
-                rd_addr <= {2'b0, sort_idx};
+                rd_addr <= {{(ATTR_AW-9){1'b0}}, sort_idx};
                 st <= S_SORT_LAT;
             end
             S_SORT_LAT: st <= S_CHECK;
@@ -119,7 +119,7 @@ always @(posedge clk) begin
                 end else if( !spr_disable ) begin
                     sprite_idx <= spr_index;
                     attr_cnt <= 0;
-                    rd_addr <= {spr_index[8:0], 2'd0};
+                    rd_addr <= {spr_index[ATTR_AW-3:0], 2'd0};
                     st <= S_ATTR_LAT;
                 end else begin
                     sort_idx <= sort_idx + 9'd1;
@@ -134,7 +134,7 @@ always @(posedge clk) begin
                     2'd2: w2 <= objr_dout;
                     2'd3: w3 <= objr_dout;
                 endcase
-                rd_addr <= {sprite_idx[8:0], attr_cnt + 2'd1};
+                rd_addr <= {sprite_idx[ATTR_AW-3:0], attr_cnt + 2'd1};
                 attr_cnt <= attr_cnt + 2'd1;
                 st <= attr_cnt==2'd3 ? S_EVAL : S_ATTR_LAT;
             end
@@ -172,7 +172,7 @@ wire [ 2:0] mapcol = d_fx ? d_xsize - lcol       : lcol;
 wire [ 3:0] stride = {1'b0,d_xsize} + 4'd1;
 wire [16:0] mapidx = d_map + {13'd0,maprow}*{13'd0,stride} + {14'd0,mapcol};
 
-assign objl_addr = mapidx[13:0];
+assign objl_addr = mapidx[LUT_AW-1:0];
 wire [14:0] lut_code = objl_dout[14:0];
 assign pal = { 2'b01, d_col[4:0] };
 

@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-10-2026
+
+/status.md
+!/doc/bootstrap.json
+!/cfg/rom_layout*.json
+!/ver/.gitkeep
+!/ver/game/scene.sh
+!/ver/game/rest2bin.sh
+!/ver/crshrace/mamedump.sh
+!/ver/crshrace/mamedump.lua
+!/ver/game/bench.sh

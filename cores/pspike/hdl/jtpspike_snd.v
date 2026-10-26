@@ -1,4 +1,7 @@
-/*  This file is part of JTCORES.
+/*  SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+    SPDX-License-Identifier: GPL-3.0-or-later
+
+    This file is part of JTCORES.
     JTCORES program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -39,6 +42,8 @@
 module jtpspike_snd #(parameter [1:0] BANK_OFF=2'd0,
                       parameter [7:0] BANK_PORT=8'h00,
                       parameter [1:0] BANK_MASK=2'b11,
+                      parameter [7:0] LATCH_PORT=8'h14,
+                      parameter [7:0] FM_BASE=8'h18,
                       parameter       PCMBW   =19      // f1gp has 1MB
 )(
     input                rst,
@@ -95,10 +100,10 @@ assign ram_cs   = mem_acc & A[15:11]==5'b01111;
 assign rom_cs   = mem_acc & ~ram_cs;
 assign bank_cs  = io_acc & (aerofgt ? A[7:0]==8'h04 :
                                     A[7:0]==8'h00 || A[7:0]==BANK_PORT);
-assign latch_rd = io_acc & (aerofgt ? A[7:0]==8'h0c : A[7:0]==8'h14);
-assign latch_ack= io_acc & (aerofgt ? A[7:0]==8'h08 : A[7:0]==8'h14);
+assign latch_rd = io_acc & (aerofgt ? A[7:0]==8'h0c : A[7:0]==LATCH_PORT);
+assign latch_ack= io_acc & (aerofgt ? A[7:0]==8'h08 : A[7:0]==LATCH_PORT);
 assign fm_cs    = io_acc & (aerofgt ? A[7:2]==6'b0000_00     // 00-03
-                                    : A[7:2]==6'b0001_10);   // 18-1b
+                                    : A[7:2]==FM_BASE[7:2]);   // 18-1b
 assign rom_addr = { A[15] ? bank+BANK_OFF : 2'd0, A[14:0] };
 
 always @* begin

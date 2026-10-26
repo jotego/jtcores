@@ -281843,4 +281843,598 @@
 		</port>
 		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
 	</machine>
+	<machine name="crshrace" sourcefile="vsystem/crshrace.cpp">
+		<description>Lethal Crash Race / Bakuretsu Crash Race (set 1)</description>
+		<year>1993</year>
+		<manufacturer>Video System Co.</manufacturer>
+		<rom name="1.ic10" size="524288" crc="21e34fb7" sha1="be47b4a9bce2d6ce0a127dffe032c61547b2a3c0" region="maincpu" offset="0"/>
+		<rom name="w21.ic14" size="1048576" crc="a5df7325" sha1="614095a086164af5b5e73245744411187d81deec" region="user1" offset="0"/>
+		<rom name="w22.ic13" size="1048576" crc="fc9d666d" sha1="45aafcce82b668f93e51b5e4d092b1d0077e5192" region="user2" offset="0"/>
+		<rom name="2.ic58" size="131072" crc="e70a900f" sha1="edfe5df2dab5a7dccebe1a6f978144bcd516ab03" region="audiocpu" offset="0"/>
+		<rom name="h895.ic50" size="1048576" crc="36ad93c3" sha1="f68f229dd1a1f8bfd3b8f73b6627f5f00f809d34" region="chars" offset="0"/>
+		<rom name="w18.rom-a" size="1048576" crc="b15df90d" sha1="56e38e6c40a02553b6b8c5282aa8f16b20779ebf" region="tiles" offset="0"/>
+		<rom name="w19.rom-b" size="1048576" crc="28326b93" sha1="997e9b250b984b012ce1d165add59c741fb18171" region="tiles" offset="100000"/>
+		<rom name="w20.rom-c" size="1048576" crc="d4056ad1" sha1="4b45b14aa0766d7aef72f060e1cd28d67690d5fe" region="tiles" offset="200000"/>
+		<rom name="h897.ic29" size="2097152" crc="e3230128" sha1="758c65f113481cf25bf0359deecd6736a7c9ee7e" region="sprites" offset="0"/>
+		<rom name="h896.ic75" size="2097152" crc="fff60233" sha1="56b4b708883a80761dc5f9184780477d72b80351" region="sprites" offset="200000"/>
+		<rom name="h894.ic73" size="1048576" crc="d53300c1" sha1="4c3ff7d3156791cb960c28845a5f1906605bce55" region="ymsnd:adpcmb" offset="0"/>
+		<rom name="h893.ic69" size="1048576" crc="32513b63" sha1="c4ede4aaa2611cedb53d47448422a1926acf3052" region="ymsnd:adpcma" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="vsystem_spr"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="k053936"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2610"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2610 OPNB" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="270" width="320" height="224" refresh="60.000000" pixclock="7864320" htotal="512" hbend="0" hbstart="320" vtotal="256" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="3" coins="3" tilt="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Flip Screen" tag="DSW0" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW0" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW0" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW0" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW0" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Easy" value="128"/>
+			<dipvalue name="Normal" value="192" default="yes"/>
+			<dipvalue name="Hard" value="64"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot" tag="DSW0" mask="256">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Same" value="256" default="yes"/>
+			<dipvalue name="Individual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW0" mask="3584">
+			<condition tag="DSW0" mask="256" relation="ne" value="256"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="2560"/>
+			<dipvalue name="2 Coins/1 Credit" value="3072"/>
+			<dipvalue name="1 Coin/1 Credit" value="3584" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2048"/>
+			<dipvalue name="1 Coin/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/4 Credits" value="1024"/>
+			<dipvalue name="1 Coin/5 Credits" value="512"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW0" mask="3584">
+			<condition tag="DSW0" mask="256" relation="eq" value="256"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="2560"/>
+			<dipvalue name="2 Coins/1 Credit" value="3072"/>
+			<dipvalue name="1 Coin/1 Credit" value="3584" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2048"/>
+			<dipvalue name="1 Coin/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/4 Credits" value="1024"/>
+			<dipvalue name="1 Coin/5 Credits" value="512"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="28672">
+			<condition tag="DSW0" mask="256" relation="ne" value="256"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="28672" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="28672">
+			<condition tag="DSW0" mask="256" relation="eq" value="256"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="20480"/>
+			<dipvalue name="2 Coins/1 Credit" value="24576"/>
+			<dipvalue name="1 Coin/1 Credit" value="28672" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="16384"/>
+			<dipvalue name="1 Coin/3 Credits" value="12288"/>
+			<dipvalue name="1 Coin/4 Credits" value="8192"/>
+			<dipvalue name="1 Coin/5 Credits" value="4096"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="2 to Start, 1 to Cont." tag="DSW0" mask="32768">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="16">
+			<diplocation name="SW3" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="32">
+			<diplocation name="SW3" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW3" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Reset on P.O.S.T. Error" tag="DSW1" mask="128">
+			<diplocation name="SW3" number="8"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="128" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Region" tag="DSW2" mask="3840">
+			<dipvalue name="World" value="256" default="yes"/>
+			<dipvalue name="USA &amp; Canada" value="2048"/>
+			<dipvalue name="Japan" value="0"/>
+			<dipvalue name="Korea" value="512"/>
+			<dipvalue name="Hong Kong &amp; Taiwan" value="1024"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":P3">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="crshrace2" sourcefile="vsystem/crshrace.cpp" cloneof="crshrace" romof="crshrace">
+		<description>Lethal Crash Race / Bakuretsu Crash Race (set 2)</description>
+		<year>1993</year>
+		<manufacturer>Video System Co.</manufacturer>
+		<rom name="01.ic10" size="524288" crc="b284aacd" sha1="f0ef279cdec30eb32e8aa8cdd51e289b70f2d6f5" region="maincpu" offset="0"/>
+		<rom name="w21.ic14" merge="w21.ic14" size="1048576" crc="a5df7325" sha1="614095a086164af5b5e73245744411187d81deec" region="user1" offset="0"/>
+		<rom name="w22.ic13" merge="w22.ic13" size="1048576" crc="fc9d666d" sha1="45aafcce82b668f93e51b5e4d092b1d0077e5192" region="user2" offset="0"/>
+		<rom name="2.ic58" merge="2.ic58" size="131072" crc="e70a900f" sha1="edfe5df2dab5a7dccebe1a6f978144bcd516ab03" region="audiocpu" offset="0"/>
+		<rom name="h895.ic50" merge="h895.ic50" size="1048576" crc="36ad93c3" sha1="f68f229dd1a1f8bfd3b8f73b6627f5f00f809d34" region="chars" offset="0"/>
+		<rom name="w18.rom-a" merge="w18.rom-a" size="1048576" crc="b15df90d" sha1="56e38e6c40a02553b6b8c5282aa8f16b20779ebf" region="tiles" offset="0"/>
+		<rom name="w19.rom-b" merge="w19.rom-b" size="1048576" crc="28326b93" sha1="997e9b250b984b012ce1d165add59c741fb18171" region="tiles" offset="100000"/>
+		<rom name="w20.rom-c" merge="w20.rom-c" size="1048576" crc="d4056ad1" sha1="4b45b14aa0766d7aef72f060e1cd28d67690d5fe" region="tiles" offset="200000"/>
+		<rom name="h897.ic29" merge="h897.ic29" size="2097152" crc="e3230128" sha1="758c65f113481cf25bf0359deecd6736a7c9ee7e" region="sprites" offset="0"/>
+		<rom name="h896.ic75" merge="h896.ic75" size="2097152" crc="fff60233" sha1="56b4b708883a80761dc5f9184780477d72b80351" region="sprites" offset="200000"/>
+		<rom name="h894.ic73" merge="h894.ic73" size="1048576" crc="d53300c1" sha1="4c3ff7d3156791cb960c28845a5f1906605bce55" region="ymsnd:adpcmb" offset="0"/>
+		<rom name="h893.ic69" merge="h893.ic69" size="1048576" crc="32513b63" sha1="c4ede4aaa2611cedb53d47448422a1926acf3052" region="ymsnd:adpcma" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="vsystem_spr"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="k053936"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2610"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2610 OPNB" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="270" width="320" height="224" refresh="60.000000" pixclock="7864320" htotal="512" hbend="0" hbstart="320" vtotal="256" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="3" coins="3" tilt="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Flip Screen" tag="DSW0" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW0" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW0" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW0" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW0" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW0" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Easy" value="128"/>
+			<dipvalue name="Normal" value="192" default="yes"/>
+			<dipvalue name="Hard" value="64"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot" tag="DSW0" mask="256">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Same" value="256" default="yes"/>
+			<dipvalue name="Individual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW0" mask="3584">
+			<condition tag="DSW0" mask="256" relation="ne" value="256"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="2560"/>
+			<dipvalue name="2 Coins/1 Credit" value="3072"/>
+			<dipvalue name="1 Coin/1 Credit" value="3584" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2048"/>
+			<dipvalue name="1 Coin/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/4 Credits" value="1024"/>
+			<dipvalue name="1 Coin/5 Credits" value="512"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW0" mask="3584">
+			<condition tag="DSW0" mask="256" relation="eq" value="256"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="2560"/>
+			<dipvalue name="2 Coins/1 Credit" value="3072"/>
+			<dipvalue name="1 Coin/1 Credit" value="3584" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2048"/>
+			<dipvalue name="1 Coin/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/4 Credits" value="1024"/>
+			<dipvalue name="1 Coin/5 Credits" value="512"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="28672">
+			<condition tag="DSW0" mask="256" relation="ne" value="256"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="28672" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="28672">
+			<condition tag="DSW0" mask="256" relation="eq" value="256"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="20480"/>
+			<dipvalue name="2 Coins/1 Credit" value="24576"/>
+			<dipvalue name="1 Coin/1 Credit" value="28672" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="16384"/>
+			<dipvalue name="1 Coin/3 Credits" value="12288"/>
+			<dipvalue name="1 Coin/4 Credits" value="8192"/>
+			<dipvalue name="1 Coin/5 Credits" value="4096"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="2 to Start, 1 to Cont." tag="DSW0" mask="32768">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="16">
+			<diplocation name="SW3" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="32">
+			<diplocation name="SW3" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW3" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Reset on P.O.S.T. Error" tag="DSW1" mask="128">
+			<diplocation name="SW3" number="8"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="128" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Region" tag="DSW2" mask="3840">
+			<dipvalue name="World" value="256" default="yes"/>
+			<dipvalue name="USA &amp; Canada" value="2048"/>
+			<dipvalue name="Japan" value="0"/>
+			<dipvalue name="Korea" value="512"/>
+			<dipvalue name="Hong Kong &amp; Taiwan" value="1024"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":P3">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="crshrace2a" sourcefile="vsystem/crshrace.cpp" cloneof="crshrace" romof="crshrace">
+		<description>Lethal Crash Race / Bakuretsu Crash Race (set 2, alternate sound ROM)</description>
+		<year>1993</year>
+		<manufacturer>Video System Co.</manufacturer>
+		<rom name="01.ic10" size="524288" crc="b284aacd" sha1="f0ef279cdec30eb32e8aa8cdd51e289b70f2d6f5" region="maincpu" offset="0"/>
+		<rom name="w21.ic14" merge="w21.ic14" size="1048576" crc="a5df7325" sha1="614095a086164af5b5e73245744411187d81deec" region="user1" offset="0"/>
+		<rom name="w22.ic13" merge="w22.ic13" size="1048576" crc="fc9d666d" sha1="45aafcce82b668f93e51b5e4d092b1d0077e5192" region="user2" offset="0"/>
+		<rom name="2.ic58" size="131072" crc="7ef4f9dc" sha1="cf9cc1cf16349b0b930f4572194b7ed3828c3bd8" region="audiocpu" offset="0"/>
+		<rom name="h895.ic50" merge="h895.ic50" size="1048576" crc="36ad93c3" sha1="f68f229dd1a1f8bfd3b8f73b6627f5f00f809d34" region="chars" offset="0"/>
+		<rom name="w18.rom-a" merge="w18.rom-a" size="1048576" crc="b15df90d" sha1="56e38e6c40a02553b6b8c5282aa8f16b20779ebf" region="tiles" offset="0"/>
+		<rom name="w19.rom-b" merge="w19.rom-b" size="1048576" crc="28326b93" sha1="997e9b250b984b012ce1d165add59c741fb18171" region="tiles" offset="100000"/>
+		<rom name="w20.rom-c" merge="w20.rom-c" size="1048576" crc="d4056ad1" sha1="4b45b14aa0766d7aef72f060e1cd28d67690d5fe" region="tiles" offset="200000"/>
+		<rom name="h897.ic29" merge="h897.ic29" size="2097152" crc="e3230128" sha1="758c65f113481cf25bf0359deecd6736a7c9ee7e" region="sprites" offset="0"/>
+		<rom name="h896.ic75" merge="h896.ic75" size="2097152" crc="fff60233" sha1="56b4b708883a80761dc5f9184780477d72b80351" region="sprites" offset="200000"/>
+		<rom name="h894.ic73" merge="h894.ic73" size="1048576" crc="d53300c1" sha1="4c3ff7d3156791cb960c28845a5f1906605bce55" region="ymsnd:adpcmb" offset="0"/>
+		<rom name="h893.ic69" merge="h893.ic69" size="1048576" crc="32513b63" sha1="c4ede4aaa2611cedb53d47448422a1926acf3052" region="ymsnd:adpcma" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="vsystem_spr"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="buffered_spriteram16"/>
+		<device_ref name="k053936"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2610"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2610 OPNB" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="270" width="320" height="224" refresh="60.000000" pixclock="7864320" htotal="512" hbend="0" hbstart="320" vtotal="256" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="3" coins="3" tilt="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Flip Screen" tag="DSW0" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW0" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW0" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW0" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW0" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW0" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Easy" value="128"/>
+			<dipvalue name="Normal" value="192" default="yes"/>
+			<dipvalue name="Hard" value="64"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot" tag="DSW0" mask="256">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Same" value="256" default="yes"/>
+			<dipvalue name="Individual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW0" mask="3584">
+			<condition tag="DSW0" mask="256" relation="ne" value="256"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="2560"/>
+			<dipvalue name="2 Coins/1 Credit" value="3072"/>
+			<dipvalue name="1 Coin/1 Credit" value="3584" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2048"/>
+			<dipvalue name="1 Coin/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/4 Credits" value="1024"/>
+			<dipvalue name="1 Coin/5 Credits" value="512"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW0" mask="3584">
+			<condition tag="DSW0" mask="256" relation="eq" value="256"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="2560"/>
+			<dipvalue name="2 Coins/1 Credit" value="3072"/>
+			<dipvalue name="1 Coin/1 Credit" value="3584" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2048"/>
+			<dipvalue name="1 Coin/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/4 Credits" value="1024"/>
+			<dipvalue name="1 Coin/5 Credits" value="512"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW0" mask="28672">
+			<condition tag="DSW0" mask="256" relation="ne" value="256"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="28672" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="28672">
+			<condition tag="DSW0" mask="256" relation="eq" value="256"/>
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="20480"/>
+			<dipvalue name="2 Coins/1 Credit" value="24576"/>
+			<dipvalue name="1 Coin/1 Credit" value="28672" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="16384"/>
+			<dipvalue name="1 Coin/3 Credits" value="12288"/>
+			<dipvalue name="1 Coin/4 Credits" value="8192"/>
+			<dipvalue name="1 Coin/5 Credits" value="4096"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="2 to Start, 1 to Cont." tag="DSW0" mask="32768">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="16">
+			<diplocation name="SW3" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="32">
+			<diplocation name="SW3" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW3" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Reset on P.O.S.T. Error" tag="DSW1" mask="128">
+			<diplocation name="SW3" number="8"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="128" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Region" tag="DSW2" mask="3840">
+			<dipvalue name="World" value="256" default="yes"/>
+			<dipvalue name="USA &amp; Canada" value="2048"/>
+			<dipvalue name="Japan" value="0"/>
+			<dipvalue name="Korea" value="512"/>
+			<dipvalue name="Hong Kong &amp; Taiwan" value="1024"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":P3">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
 </mame>

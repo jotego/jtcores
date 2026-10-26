@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-10-2026
+
+[global]
+author=["andrea bogazzi"]
+platform="jtcrshrc"
+
+[parse]
+sourcefile=["crshrace.cpp"]
+mustbe.setnames=["crshrace"]
+debug.machines=["crshrace"]
+
+[dipsw]
+bitcnt=32
+offset=[{name="DSW0",value=0},{name="DSW1",value=16},{name="DSW2",value=16}]
+delete=[{names=["Unused","Unknown"]}]
+
+[buttons]
+names=[{machine="crshrace",names="Accelerate,Brake,Button 3"}]
+
+[ROM]
+regions=[
+    {name="maincpu",width=16},
+    {name="user1",start="USER1_START",width=16},
+    {name="user2",start="USER2_START",width=16},
+    {name="chars",rename="fg",start="FG_START",width=32},
+    {name="sprites",rename="obj",start="JTFRAME_BA1_START",width=32},
+    {name="tiles",rename="roz",start="JTFRAME_BA2_START",width=16,len=0x400000},
+    {name="audiocpu",rename="snd",start="SND_START"},
+    {name="ymsnd:adpcma",rename="pcma",start="PCMA_START"},
+    {name="ymsnd:adpcmb",rename="pcmb",start="PCMB_START"},
+]
+order=["maincpu","user1","user2","fg","obj","roz","snd","pcma","pcmb"]

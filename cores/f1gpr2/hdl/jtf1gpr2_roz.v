@@ -2,7 +2,7 @@
     SPDX-License-Identifier: GPL-3.0-or-later
     Date: 25-10-2026 */
 
-module jtf1gpr2_roz(
+module jtf1gpr2_roz #(parameter CODEW=11, XOFFSET=27, YOFFSET=4, ROM_BYTES=4194304, PIPELINED=0)(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -39,8 +39,8 @@ always @(posedge clk) begin
 end
 
 jt053936 #(
-    .XOFFSET    ( 27        ),
-    .YOFFSET    ( 4         )
+    .XOFFSET    ( XOFFSET   ),
+    .YOFFSET    ( YOFFSET   )
 ) u_xy(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -87,7 +87,8 @@ wire [41:0] head = requests[rd_ptr];
 wire [ 8:0] next_line = vdump==9'd261 ? 9'd0 : vdump+9'd1;
 wire        line_start = pxl_cen && hdump==0;
 wire        capture = pxl_cen && hdump<9'd320 && next_line<9'd224;
-wire        pop = st==S_IDLE && queued!=0;
+wire        pop = queued!=0 && (PIPELINED!=0 ? (st==S_IDLE || st==S_WRITE) && map_age[1] : st==S_IDLE);
+reg  [ 1:0] map_age;
 wire        push = capture && (queued!=7'd64 || pop);
 wire        overflow = capture && !push;
 
@@ -179,6 +180,8 @@ always @(posedge clk) begin
     end
 end
 
+generate if( PIPELINED==0 ) begin : g_serial
+    always @* map_age = 0;
 always @(posedge clk) begin
     if( rst ) begin
         st         <= S_IDLE;
@@ -206,14 +209,14 @@ always @(posedge clk) begin
         end
         S_MAP_WAIT: st <= S_MAP;
         S_MAP: begin
-            rom_addr <= { req_bank, rozv_dout[10:0], yl, xl[3:2] };
+            rom_addr <= { req_bank[14-CODEW:0], rozv_dout[CODEW-1:0], yl, xl[3:2] };
             col_req  <= rozv_dout[15:12];
             rom_cs   <= 1;
             st       <= S_WAIT;
         end
         S_WAIT: st <= S_ROM;
         S_ROM: if( rom_ok ) begin
-            gfx_word <= rom_data;
+            gfx_word <= {rom_addr,1'b0}>=ROM_BYTES ? 16'd0 : rom_data;
             col      <= col_req;
             xl2      <= xl;
             rom_cs   <= 0;
@@ -223,6 +226,54 @@ always @(posedge clk) begin
         default: st <= S_IDLE;
     endcase
 end
+end else begin : g_pipeline
+    always @* rozv_addr = { head[19:14], head[9:4] };
+
+    always @(posedge clk) begin
+        if( rst || queued==0 || pop ) map_age <= 0;
+        else if( !(&map_age) ) map_age <= map_age+2'd1;
+    end
+
+    always @(posedge clk) begin
+        if( rst ) begin
+            st         <= S_IDLE;
+            col        <= 0;
+            col_req    <= 0;
+            xl         <= 0;
+            yl         <= 0;
+            xl2        <= 0;
+            req_bank   <= 0;
+            req_line   <= 0;
+            req_h      <= 0;
+            rom_cs     <= 0;
+            rom_addr   <= 0;
+            gfx_word   <= 0;
+        end else case( st )
+            S_IDLE, S_WRITE: begin
+                if( pop ) begin
+                    rom_addr <= { head[52-CODEW:38], rozv_dout[CODEW-1:0], head[13:10], head[3:2] };
+                    col_req  <= rozv_dout[15:12];
+                    xl2      <= head[3:0];
+                    req_h    <= head[28:20];
+                    req_line <= head[37:29];
+                    rom_cs   <= 1;
+                    st       <= S_WAIT;
+                end else begin
+                    rom_cs <= 0;
+                    st <= S_IDLE;
+                end
+            end
+            S_WAIT: st <= S_ROM;
+            S_ROM: if( rom_ok ) begin
+                gfx_word <= {rom_addr,1'b0}>=ROM_BYTES ? 16'd0 : rom_data;
+                col      <= col_req;
+                rom_cs   <= 0;
+                st       <= S_WRITE;
+            end
+            default: st <= S_IDLE;
+        endcase
+    end
+end endgenerate
 
 assign on  = valid;
 assign pxl = valid ? display_pixel : 8'hff;

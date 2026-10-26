@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 26-10-2026
+
+crshrc:
+  - when: [ NOMAIN ]
+    get:
+      - jtcrshrc_control_mmr.v
+f1gpr2:
+  - get:
+    - jtf1gpr2_roz.v
+    - jtf1gpr2_obj.v
+    - jtf1gpr2_objscan.v
+f1grpr:
+  - get:
+    - jtf1grpr_fg.v
+    - jtf1grpr_colmix.v
+pspike:
+  - get:
+    - jtpspike_snd.v
+rungun:
+  - get:
+    - jt053936.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_virq.v
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_obj.yaml
+jt12:

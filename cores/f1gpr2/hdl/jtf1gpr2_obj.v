@@ -2,7 +2,7 @@
     SPDX-License-Identifier: GPL-3.0-or-later
     Date: 25-10-2026 */
 
-module jtf1gpr2_obj(
+module jtf1gpr2_obj #(parameter ATTR_AW=11, LUT_AW=14, ROM_AW=21)(
     input               rst,
     input               clk,
     input               pxl_cen,
@@ -11,12 +11,12 @@ module jtf1gpr2_obj(
     input      [ 8:0]   hdump, vrender,
     input      [ 8:0]   hsize, vsize,
 
-    output     [11:1]   objr_addr,
+    output     [ATTR_AW:1] objr_addr,
     input      [15:0]   objr_dout,
-    output     [14:1]   objl_addr,
+    output     [LUT_AW:1] objl_addr,
     input      [15:0]   objl_dout,
 
-    output     [20:2]   rom_addr,
+    output     [ROM_AW-1:2] rom_addr,
     output              rom_cs,
     input      [31:0]   rom_data,
     input               rom_ok,
@@ -35,9 +35,12 @@ wire        draw, busy, hz_keep, hflip, vflip;
 wire [ 8:0] hdump_eff = flip ? ~hdump   + hsize : hdump;
 wire [ 8:0] vrend_eff = flip ? ~vrender + vsize  : vrender;
 
-assign rom_addr = { draw_addr[20:7], draw_addr[5:2], draw_addr[6] };
+assign rom_addr = { draw_addr[ROM_AW-1:7], draw_addr[5:2], draw_addr[6] };
 
-jtf1gpr2_objscan u_scan(
+jtf1gpr2_objscan #(
+    .ATTR_AW    ( ATTR_AW   ),
+    .LUT_AW     ( LUT_AW    )
+) u_scan(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .hs         ( hs        ),
