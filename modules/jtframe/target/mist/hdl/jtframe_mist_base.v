@@ -69,6 +69,13 @@ module jtframe_mist_base #(parameter
     output [31:0]   joystick2,
     output [31:0]   joystick3,
     output [31:0]   joystick4,
+`ifdef JTFRAME_CAB_STREAM
+    output          cab_active,
+    output [20:0]   cab_inputs,
+    output          cab_dipsw_valid,
+    output [31:0]   cab_dipsw,
+    output          cab_dump_pause,
+`endif
     output [15:0]   joyana_l1,
     output [15:0]   joyana_r1,
     output [15:0]   joyana_l2,
@@ -275,10 +282,26 @@ wire        i2c_end;
     assign but_coin    = 4'd0;
     assign but_start   = 4'd0;
     wire [63:0] user_io_status;
+`ifdef JTFRAME_CAB_STREAM
+    wire cab_hold_reset;
+    assign status = {user_io_status[63:1],user_io_status[0] | buttons[1] | cab_hold_reset | cab_inputs[12]};
+`else
 	 assign status = {user_io_status[63:1], user_io_status[0] | buttons[1]}; // status[0] | buttons[1] is reset
+`endif
 
-    user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT), .FEATURES(32'h0 /*| (QSPI << 2)*/ | (HDMI << 14))) u_userio(
+    localparam CAB_FEATURE = `ifdef JTFRAME_CAB_STREAM 32'h000e0000 `else 32'h0 `endif;
+    user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT), .FEATURES(CAB_FEATURE /*| (QSPI << 2)*/ | (HDMI << 14))) u_userio(
         .clk_sys        ( clk_sys   ),
+`ifdef JTFRAME_CAB_STREAM
+        .cab_rst        ( rst           ),
+        .cab_lvbl       ( game_lvbl     ),
+        .cab_active     ( cab_active    ),
+        .cab_hold_reset ( cab_hold_reset),
+        .cab_inputs     ( cab_inputs    ),
+        .cab_dipsw_valid( cab_dipsw_valid),
+        .cab_dipsw      ( cab_dipsw     ),
+        .cab_dump_pause ( cab_dump_pause),
+`endif
 
         // config string
         .conf_str       (           ),

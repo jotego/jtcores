@@ -181,6 +181,13 @@ module jtframe_mist #(parameter
 
 // control
 wire [31:0]   joystick1, joystick2, joystick3, joystick4;
+`ifdef JTFRAME_CAB_STREAM
+wire cab_active;
+wire [20:0] cab_inputs;
+wire cab_dipsw_valid;
+wire [31:0] cab_dipsw;
+wire cab_dump_pause;
+`endif
 reg  [63:0]   board_status;
 wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
@@ -204,7 +211,8 @@ wire          base_lhbl, base_lvbl, base_hs, base_vs;
 
 assign paddle_3 = 0;
 assign paddle_4 = 0;
-assign dipsw = `ifdef JTFRAME_SIM_DIPS
+assign dipsw = `ifdef JTFRAME_CAB_STREAM cab_dipsw_valid ? cab_dipsw : `endif
+    `ifdef JTFRAME_SIM_DIPS
     `JTFRAME_SIM_DIPS `else
     status[31+DIPBASE:DIPBASE] `endif;
 assign ioctl_cart = 0; // not supported for now
@@ -286,6 +294,13 @@ jtframe_mist_base #(
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),
     .joystick4      ( joystick4     ),
+`ifdef JTFRAME_CAB_STREAM
+    .cab_active     ( cab_active    ),
+    .cab_inputs     ( cab_inputs    ),
+    .cab_dipsw_valid( cab_dipsw_valid),
+    .cab_dipsw      ( cab_dipsw     ),
+    .cab_dump_pause ( cab_dump_pause),
+`endif
     .but_start      ( but_start     ),
     .but_coin       ( but_coin      ),
     // Analog joystick
@@ -380,6 +395,11 @@ jtframe_board #(
     .ps2_kbd_clk    ( ps2_clk         ),
     .ps2_kbd_data   ( ps2_dout        ),
     .board_joystick1( joystick1[15:0] ),
+`ifdef JTFRAME_CAB_STREAM
+    .cab_active    ( cab_active     ),
+    .cab_inputs    ( cab_inputs     ),
+    .cab_dump_pause( cab_dump_pause ),
+`endif
     .board_joystick2( joystick2[15:0] ),
     .board_joystick3( joystick3[15:0] ),
     .board_joystick4( joystick4[15:0] ),

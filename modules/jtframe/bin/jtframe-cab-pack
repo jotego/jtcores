@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Build/cache the native exporter that shares CabinetScript with jtsim.
+
+main() {
+    if [[ -z ${JTFRAME:-} || ! -f $JTFRAME/verilator/cabinet_export.cpp ]]; then
+        echo 'JTFRAME is not set; source setprj.sh first.' >&2
+        return 2
+    fi
+    local cache=${JTFRAME_CAB_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/jtframe/cab-pack}
+    local source file rebuild=0 temporary
+    source=$JTFRAME/verilator
+    mkdir -p "$cache" || return
+    if [[ ! -x $cache/cabinet_pack ]]; then rebuild=1; fi
+    for file in cabinet_export.cpp cabinet.cpp cabinet.h sim_utils.cpp sim_utils.h; do
+        if [[ $source/$file -nt $cache/cabinet_pack ]]; then rebuild=1; fi
+    done
+    if ((rebuild)); then
+        temporary=$(mktemp "$cache/cabinet_pack.XXXXXX") || return
+        if ! "${CXX:-c++}" -O2 -std=c++17 -Wall -Wextra -pedantic -I"$source" \
+            "$source/cabinet_export.cpp" "$source/cabinet.cpp" "$source/sim_utils.cpp" \
+            -o "$temporary"; then
+            rm -f "$temporary"
+            return 1
+        fi
+        chmod +x "$temporary"
+        mv -f "$temporary" "$cache/cabinet_pack" || return
+    fi
+    "$cache/cabinet_pack" "$@"
+}
+
+main "$@"
