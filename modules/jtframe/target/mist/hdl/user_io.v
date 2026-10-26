@@ -37,6 +37,14 @@ module user_io #( parameter
 
 	input               clk_sys, // clock for system-related messages (kbd, joy, etc...)
 	input               clk_sd,  // clock for SD-card related messages
+`ifdef JTFRAME_CAB_STREAM
+	input               cab_rst, cab_lvbl,
+	output              cab_active, cab_hold_reset,
+	output       [20:0] cab_inputs,
+	output              cab_dipsw_valid,
+	output       [31:0] cab_dipsw,
+	output              cab_dump_pause,
+`endif
 
 	input               SPI_CLK,
 	input               SPI_SS_IO,
@@ -138,6 +146,29 @@ reg [2:0]     stick_idx;
 reg       spi_receiver_strobe_r = 0;
 reg       spi_transfer_end_r = 1;
 reg [7:0] spi_byte_in;
+`ifdef JTFRAME_CAB_STREAM
+reg cab_rx_strobe;
+reg [7:0] cab_rx_cmd, cab_rx_byte;
+reg [4:0] cab_rx_index;
+wire [511:0] cab_snapshot;
+
+jtframe_cab_stream u_cab_stream(
+    .rst        ( cab_rst        ),
+    .clk        ( clk_sys        ),
+    .lvbl       ( cab_lvbl       ),
+    .rx_strobe  ( cab_rx_strobe  ),
+    .rx_cmd     ( cab_rx_cmd     ),
+    .rx_byte    ( cab_rx_byte    ),
+    .rx_index   ( cab_rx_index   ),
+    .active     ( cab_active     ),
+    .hold_reset ( cab_hold_reset ),
+    .inputs     ( cab_inputs     ),
+    .dipsw_valid( cab_dipsw_valid ),
+    .dipsw      ( cab_dipsw       ),
+    .dump_pause ( cab_dump_pause  ),
+    .snapshot   ( cab_snapshot   )
+);
+`endif
 
 assign buttons = but_sw[1:0];
 assign switches = but_sw[3:2];
@@ -349,6 +380,11 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 			8'h80:
 				if (byte_cnt == 0) spi_byte_out <= 8'h80;
 				else spi_byte_out <= FEATURES[(4-byte_cnt)<<3 +:8];
+`ifdef JTFRAME_CAB_STREAM
+			8'h81, 8'h87, 8'h89:
+				if(byte_cnt==0) spi_byte_out <= 8'hca;
+				else if(byte_cnt<(cmd==8'h89 ? 64 : cmd==8'h87 ? 40 : 32)) spi_byte_out <= cab_snapshot[{byte_cnt[5:0],3'b000} +:8];
+`endif
 
 			// i2c
 			8'h31:
@@ -387,7 +423,7 @@ always @(posedge clk_sys) begin : cmd_block
 	reg       spi_receiver_strobeD;
 	reg       spi_transfer_endD;
 	reg [7:0] acmd;
-	reg [3:0] abyte_cnt;   // counts bytes
+	reg [4:0] abyte_cnt;   // counts bytes, including 16-byte CAB packets
 
 	reg [7:0] mouse_flags_r;
 	reg [7:0] mouse_x_r;
@@ -409,6 +445,9 @@ always @(posedge clk_sys) begin : cmd_block
 	ps2_kbd_tx_strobe <= 0;
 	ps2_mouse_tx_strobe <= 0;
 	i2c_start <= 0;
+`ifdef JTFRAME_CAB_STREAM
+	cab_rx_strobe <= 0;
+`endif
 
 	if(ARCHIE == 1) begin
 		if (kbd_out_strobe) kbd_out_data_available <= 1;
@@ -432,6 +471,12 @@ always @(posedge clk_sys) begin : cmd_block
 
 		if(abyte_cnt == 0) begin
 			acmd <= spi_byte_in;
+`ifdef JTFRAME_CAB_STREAM
+			if(spi_byte_in>=8'h81 && spi_byte_in<=8'h89) begin
+				cab_rx_strobe<=1; cab_rx_cmd<=spi_byte_in;
+				cab_rx_index<=0; cab_rx_byte<=0;
+			end
+`endif
 			if (spi_byte_in == 8'h70 || spi_byte_in == 8'h71)
 				// accept the incoming mouse data only if there's place for the full packet
 				mouse_fifo_ok <= ps2_mouse_fifo_ok;
@@ -439,6 +484,12 @@ always @(posedge clk_sys) begin : cmd_block
 				// accept the incoming keyboard data only if there's place for the full packet
 				kbd_fifo_ok <= ps2_kbd_fifo_ok;
 		end else begin
+`ifdef JTFRAME_CAB_STREAM
+			if(acmd>=8'h81 && acmd<=8'h89) begin
+				cab_rx_strobe<=1; cab_rx_cmd<=acmd;
+				cab_rx_index<=abyte_cnt; cab_rx_byte<=spi_byte_in;
+			end
+`endif
 			if (ARCHIE == 1) begin
 				if(acmd == 8'h04) kbd_out_data_available <= 0;
 				if(acmd == 8'h05) begin

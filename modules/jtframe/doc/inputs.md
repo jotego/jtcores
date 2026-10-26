@@ -1,5 +1,8 @@
 # Keyboard controls
 
+For automated SiDi128 cabinet scripts, see [CAB input streaming](cab-stream.md).
+It uses the same CAB parser as simulation and a small MCU-refilled FPGA queue.
+
 JTFRAME maps the traditional MAME keyboard inputs to the game module. Apart from the player controls, the following keys are used:
 
 Key           |   Action

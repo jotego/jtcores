@@ -4,6 +4,9 @@ jtframe/target/sidi128:
     - sidi128.sdc
     - pll.qip
 jtframe:
+  - from: keyboard
+    get:
+      - jtframe_cab_stream.v
   - from: video
     get:
       - jtframe_lfbuf_sdr.v

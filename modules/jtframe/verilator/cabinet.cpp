@@ -179,17 +179,31 @@ const CabinetFrame& CabinetScript::next() {
     if( run_remaining == 0 ) run_remaining = run.count;
     const CabinetFrame& frame = run.frame;
     if( --run_remaining == 0 ) {
-        run_position++;
-        if( run_position == segment.runs.size() ) {
-            run_position = 0;
-            segment_repeat++;
-            if( segment_repeat == segment.repeats ) {
-                segment_repeat = 0;
-                segment_position++;
-            }
-        }
+        advance_run();
     }
     return frame;
+}
+
+void CabinetScript::advance_run() {
+    const Segment& segment = segments[segment_position];
+    run_position++;
+    if( run_position == segment.runs.size() ) {
+        run_position = 0;
+        segment_repeat++;
+        if( segment_repeat == segment.repeats ) {
+            segment_repeat = 0;
+            segment_position++;
+        }
+    }
+}
+
+CabinetRun CabinetScript::next_run() {
+    if( done() ) throw out_of_range("cabinet script has no more runs");
+    const CabinetRun& run = segments[segment_position].runs[run_position];
+    CabinetRun result = {run.frame, run_remaining ? run_remaining : run.count};
+    run_remaining = 0;
+    advance_run();
+    return result;
 }
 
 uint64_t CabinetScript::frame_count() const {

@@ -100,6 +100,24 @@ static void test_cabinet_errors() {
     expect_error([] { frames("coin tracing_on tracing_on\n"); }, "duplicate tracing_on");
 }
 
+static void test_run_iterator_matches_frames() {
+    const string text="2\n=5 coin\nloop\nb1\n2\nrepeat 3\n";
+    const auto expected=frames(text);
+    istringstream input(text);
+    CabinetScript compact(input,"runs.cab");
+    check(compact.next().inputs==expected[0].inputs,"mixed iterator initial frame");
+    size_t position=1;
+    while(!compact.done()) {
+        const auto run=compact.next_run();
+        for(uint64_t n=0;n<run.count;n++,position++)
+            check(run.frame.inputs==expected.at(position).inputs,"compact run must match frame iterator");
+    }
+    check(position==expected.size(),"compact run total");
+    istringstream long_input("1000000000 coin\n");
+    CabinetScript long_run(long_input,"long.cab");
+    check(long_run.next_run().count==1000000000ULL && long_run.done(),"long hold is not expanded");
+}
+
 static void test_cheat_database() {
     const string path = write_fixture(".yaml",
         "cabal:\n"
@@ -140,6 +158,7 @@ int main() {
         test_absolute_and_idle_timing();
         test_loops_and_compact_repeats();
         test_cabinet_errors();
+        test_run_iterator_matches_frames();
         test_cheat_database();
         test_cheat_errors();
         cout << "PASS\n";
