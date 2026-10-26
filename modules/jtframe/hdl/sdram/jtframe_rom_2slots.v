@@ -27,6 +27,8 @@ module jtframe_rom_2slots #(parameter
     CACHE1_SIZE = 0,
     CACHE0_LARGE = 0,
     CACHE1_LARGE = 0,
+    SLOT0_XFORM  = 0,  // large cache only: board transform on the line-fill address
+    SLOT1_XFORM  = 0,
     SLOT0_BURSTLEN = 32,
     SLOT1_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
@@ -44,6 +46,13 @@ module jtframe_rom_2slots #(parameter
     //  output data
     output [SLOT0_DW-1:0] slot0_dout,
     output [SLOT1_DW-1:0] slot1_dout,
+
+    // large-cache fill-address transform (SLOTn_XFORM!=0): the fill address goes
+    // out on slotN_xaddr and the board returns the SDRAM address on slotN_xaddr_in
+    output [SDRAMW-1:0] slot0_xaddr,
+    input  [SDRAMW-1:0] slot0_xaddr_in,
+    output [SDRAMW-1:0] slot1_xaddr,
+    input  [SDRAMW-1:0] slot1_xaddr_in,
 
     input               slot0_cs,
     input               slot1_cs,
@@ -76,9 +85,12 @@ jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),
     .LATCH(SLOT0_LATCH),.DOUBLE(SLOT0_DOUBLE),.OKLATCH(SLOT0_OKLATCH),
     .CACHE_SIZE ( CACHE0_SIZE     ),
     .CACHE_LARGE( CACHE0_LARGE    ),
+    .XFORM      ( SLOT0_XFORM     ),
     .TAG_RAM    ( TAG_RAM         ),
     .BURSTLEN   ( SLOT0_BURSTLEN  ))
 u_slot0(
+    .xaddr     ( slot0_xaddr            ),
+    .xaddr_in  ( slot0_xaddr_in         ),
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .clr       ( 1'b0                   ),
@@ -98,10 +110,13 @@ u_slot0(
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
     .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
     .CACHE_SIZE ( CACHE1_SIZE     ),
+    .XFORM      ( SLOT1_XFORM     ),
     .CACHE_LARGE( CACHE1_LARGE    ),
     .TAG_RAM    ( TAG_RAM         ),
     .BURSTLEN   ( SLOT1_BURSTLEN  ))
 u_slot1(
+    .xaddr     ( slot1_xaddr            ),
+    .xaddr_in  ( slot1_xaddr_in         ),
     .rst       ( rst                    ),
     .clk       ( clk                    ),
     .clr       ( 1'b0                   ),

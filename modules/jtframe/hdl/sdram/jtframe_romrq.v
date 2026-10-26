@@ -19,6 +19,7 @@ module jtframe_romrq #(parameter
     CACHE_SIZE=0,  // Set to !=0 to use jtframe_romrq_xscache, where only served data is cached
                    // Set to ==0 to use jtframe_romrq_bcache, where all data coming from SDRAM is cached
     CACHE_LARGE=0, // Set to 1 for the direct-mapped short-burst cache
+    XFORM   = 0,   // large cache only: board transform on the line-fill address
     BURSTLEN  =32, // 16, 32, or 64 bits; only used by CACHE_LARGE
     TAG_RAM   = 0, // Set to 1 to register large-cache tag reads in block RAM
 
@@ -45,6 +46,8 @@ module jtframe_romrq #(parameter
     input               we,
     output              req,
     output [SDRAMW-1:0] sdram_addr,
+    output [SDRAMW-1:0] xaddr,      // large cache fill address, before the board transform
+    input  [SDRAMW-1:0] xaddr_in,   // transformed fill address (XFORM!=0 only)
 
     // <-> Consumer
     input [AW-1:0]      addr,
@@ -61,7 +64,8 @@ generate
             .DW      ( DW       ),
             .CACHE_SIZE( CACHE_SIZE ),
             .BURSTLEN( BURSTLEN ),
-            .TAG_RAM ( TAG_RAM  )
+            .TAG_RAM ( TAG_RAM  ),
+            .XFORM   ( XFORM    )
         ) u_large_cache(
             .rst        ( rst        ),
             .clk        ( clk        ),
@@ -73,12 +77,16 @@ generate
             .we         ( we         ),
             .req        ( req        ),
             .sdram_addr ( sdram_addr ),
+            .xaddr      ( xaddr      ),
+            .xaddr_in   ( xaddr_in   ),
             .addr       ( addr       ),
             .addr_ok    ( addr_ok    ),
             .data_ok    ( data_ok    ),
             .dout       ( dout       )
         );
+        // xaddr only exists for the large cache
     end else if( CACHE_SIZE==0) begin
+        assign xaddr = {SDRAMW{1'b0}};
         jtframe_romrq_bcache #(
             .SDRAMW ( SDRAMW    ),
             .AW     ( AW        ),
@@ -108,6 +116,7 @@ generate
             .dout       ( dout      )
         );
     end else begin
+        assign xaddr = {SDRAMW{1'b0}};
         jtframe_romrq_xscache #(
             .SDRAMW     ( SDRAMW    ),
             .AW         ( AW        ),

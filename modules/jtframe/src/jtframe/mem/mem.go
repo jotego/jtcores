@@ -674,6 +674,9 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 			if e := check_bank_cache(bus); e != nil {
 				return e
 			}
+			if bus.Transform && total_slots > 2 {
+				return fmt.Errorf("jtframe mem: SDRAM bus %s sets transform, only supported on banks with up to two buses", bus.Name)
+			}
 			if bus.Data_width == 64 {
 				if !bus.Cache_large {
 					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires a string cache_size for the large cache", bus.Name)
@@ -726,8 +729,14 @@ func check_bank_cache(bus *SDRAMBus) error {
 	if bus.Cache_size == nil {
 		return nil
 	}
+	if bus.Transform && bus.Cache_size == nil {
+		return fmt.Errorf("jtframe mem: SDRAM bus %s sets transform but no cache_size (the hook lives in the large cache)", bus.Name)
+	}
 	switch value := bus.Cache_size.(type) {
 	case int:
+		if bus.Transform {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s transform requires a string cache_size (large cache)", bus.Name)
+		}
 		if value < 0 {
 			return fmt.Errorf("jtframe mem: SDRAM bus %s uses an invalid cache_size %d", bus.Name, value)
 		}
@@ -1115,6 +1124,11 @@ func fill_implicit_ports(cfg *MemConfig) {
 	}
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
+			if each.Transform {
+				// large-cache fill-address transform, see SDRAMBus.Transform
+				add(Port{Name: each.Name + "_pre_addr", MSB: 24, Input: true})
+				add(Port{Name: each.Name + "_post_addr", MSB: 24})
+			}
 			if each.Cs != "" {
 				add(Port{Name: each.Cs})
 			}
