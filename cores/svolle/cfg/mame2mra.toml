@@ -17,7 +17,10 @@ registers=[
 ]
 
 [buttons]
-names=[{names="Button 1,Button 2"}]
+names=[
+  {machine="svolley", names="Hit,Block"},
+  {machine="rabiolep", names="Missile,Fire/Punch"},
+]
 
 [dipsw]
 bitcnt=16

@@ -84,7 +84,7 @@ assign sprvram_we = { sprvram_cs & ~spr_busy & hi_we, sprvram_cs & ~spr_busy & l
 function [7:0] player;
     input [6:0] joy;
     begin
-        player = {1'b1,joy[6],joy[4],joy[5],joy[0],joy[1],joy[2],joy[3]};
+        player = {1'b1,joy[6],joy[5],joy[4],joy[0],joy[1],joy[2],joy[3]};
     end
 endfunction
 
@@ -229,14 +229,27 @@ jtframe_68kdtack_cen #(
 
 `ifdef SIMULATION
 reg sim_lvbl;
+reg [15:0] sim_p1, sim_p2;
 integer sim_frame, sim_writes;
 always @(posedge clk) begin
     if( rst ) begin
         sim_lvbl <= 0;
+        sim_p1 <= 16'hffff;
+        sim_p2 <= 16'hffff;
         sim_frame <= 0;
         sim_writes <= 0;
     end else begin
         sim_lvbl <= LVBL;
+        if( io_cs && cpu_rnw && cen16b && !dtack_n ) begin
+            if( A[7:1]==0 && cab_dout!=sim_p1 ) begin
+                sim_p1 <= cab_dout;
+                $display("CRSHRC_INPUT player=1 data=%04x joy=%02x",cab_dout,joystick1);
+            end
+            if( A[7:1]==1 && cab_dout!=sim_p2 ) begin
+                sim_p2 <= cab_dout;
+                $display("CRSHRC_INPUT player=2 data=%04x joy=%02x",cab_dout,joystick2);
+            end
+        end
         if( |fgvram_we ) sim_writes <= sim_writes+1;
         if( sim_lvbl && !LVBL ) begin
             sim_frame <= sim_frame+1;

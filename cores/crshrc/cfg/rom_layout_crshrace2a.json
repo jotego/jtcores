@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "game": "crshrace2a",
+  "source": {
+    "path": "../doc/mame/src/mame/vsystem/crshrace.cpp",
+    "sha256": "870457e5d93aa077253f6a3e5b8ad7053765c71b2e0c0a32b7ac0bf8fc6b10a7"
+  },
+  "reference_stage": "ROM declaration assembly, before region inversion/host endian conversion/driver init",
+  "declaration_complete": true,
+  "build_ready": false,
+  "unresolved": [
+
+  ],
+  "regions": [
+    {
+      "name": "maincpu",
+      "size": 524288,
+      "region_macro": "ROM_REGION",
+      "source_line": 707,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "01.ic10",
+          "group": 2,
+          "stride": 2,
+          "reverse": true,
+          "crc32": "b284aacd",
+          "sha1": "f0ef279cdec30eb32e8aa8cdd51e289b70f2d6f5",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD16_WORD_SWAP",
+          "offset": 0,
+          "length": 524288,
+          "source_offset": 0,
+          "source_line": 708
+        }
+      ]
+    },
+    {
+      "name": "user1",
+      "size": 1048576,
+      "region_macro": "ROM_REGION16_BE",
+      "source_line": 710,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "big",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "w21.ic14",
+          "group": 2,
+          "stride": 2,
+          "reverse": true,
+          "crc32": "a5df7325",
+          "sha1": "614095a086164af5b5e73245744411187d81deec",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD16_WORD_SWAP",
+          "offset": 0,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 711
+        }
+      ]
+    },
+    {
+      "name": "user2",
+      "size": 1048576,
+      "region_macro": "ROM_REGION16_BE",
+      "source_line": 713,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "big",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "w22.ic13",
+          "group": 2,
+          "stride": 2,
+          "reverse": true,
+          "crc32": "fc9d666d",
+          "sha1": "45aafcce82b668f93e51b5e4d092b1d0077e5192",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD16_WORD_SWAP",
+          "offset": 0,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 714
+        }
+      ]
+    },
+    {
+      "name": "audiocpu",
+      "size": 131072,
+      "region_macro": "ROM_REGION",
+      "source_line": 716,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "2.ic58",
+          "group": 1,
+          "stride": 1,
+          "reverse": false,
+          "crc32": "7ef4f9dc",
+          "sha1": "cf9cc1cf16349b0b930f4572194b7ed3828c3bd8",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD",
+          "offset": 0,
+          "length": 131072,
+          "source_offset": 0,
+          "source_line": 717
+        }
+      ]
+    },
+    {
+      "name": "chars",
+      "size": 1048576,
+      "region_macro": "ROM_REGION",
+      "source_line": 719,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "h895.ic50",
+          "group": 1,
+          "stride": 1,
+          "reverse": false,
+          "crc32": "36ad93c3",
+          "sha1": "f68f229dd1a1f8bfd3b8f73b6627f5f00f809d34",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD",
+          "offset": 0,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 720
+        }
+      ]
+    },
+    {
+      "name": "tiles",
+      "size": 4194304,
+      "region_macro": "ROM_REGION",
+      "source_line": 722,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "w18.rom-a",
+          "group": 2,
+          "stride": 2,
+          "reverse": true,
+          "crc32": "b15df90d",
+          "sha1": "56e38e6c40a02553b6b8c5282aa8f16b20779ebf",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD16_WORD_SWAP",
+          "offset": 0,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 723
+        },
+        {
+          "file": "w19.rom-b",
+          "group": 2,
+          "stride": 2,
+          "reverse": true,
+          "crc32": "28326b93",
+          "sha1": "997e9b250b984b012ce1d165add59c741fb18171",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD16_WORD_SWAP",
+          "offset": 1048576,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 724
+        },
+        {
+          "file": "w20.rom-c",
+          "group": 2,
+          "stride": 2,
+          "reverse": true,
+          "crc32": "d4056ad1",
+          "sha1": "4b45b14aa0766d7aef72f060e1cd28d67690d5fe",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD16_WORD_SWAP",
+          "offset": 2097152,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 725
+        }
+      ]
+    },
+    {
+      "name": "sprites",
+      "size": 4194304,
+      "region_macro": "ROM_REGION",
+      "source_line": 728,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "h897.ic29",
+          "group": 1,
+          "stride": 1,
+          "reverse": false,
+          "crc32": "e3230128",
+          "sha1": "758c65f113481cf25bf0359deecd6736a7c9ee7e",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD",
+          "offset": 0,
+          "length": 2097152,
+          "source_offset": 0,
+          "source_line": 729
+        },
+        {
+          "file": "h896.ic75",
+          "group": 1,
+          "stride": 1,
+          "reverse": false,
+          "crc32": "fff60233",
+          "sha1": "56b4b708883a80761dc5f9184780477d72b80351",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD",
+          "offset": 2097152,
+          "length": 2097152,
+          "source_offset": 0,
+          "source_line": 730
+        }
+      ]
+    },
+    {
+      "name": "ymsnd:adpcmb",
+      "size": 1048576,
+      "region_macro": "ROM_REGION",
+      "source_line": 732,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "h894.ic73",
+          "group": 1,
+          "stride": 1,
+          "reverse": false,
+          "crc32": "d53300c1",
+          "sha1": "4c3ff7d3156791cb960c28845a5f1906605bce55",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD",
+          "offset": 0,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 733
+        }
+      ]
+    },
+    {
+      "name": "ymsnd:adpcma",
+      "size": 1048576,
+      "region_macro": "ROM_REGION",
+      "source_line": 735,
+      "flags": "0",
+      "initial_fill": null,
+      "declared_endian": "unspecified",
+      "region_invert": false,
+      "operations": [
+        {
+          "file": "h893.ic69",
+          "group": 1,
+          "stride": 1,
+          "reverse": false,
+          "crc32": "32513b63",
+          "sha1": "c4ede4aaa2611cedb53d47448422a1926acf3052",
+          "bad_dump": false,
+          "kind": "load",
+          "macro": "ROM_LOAD",
+          "offset": 0,
+          "length": 1048576,
+          "source_offset": 0,
+          "source_line": 736
+        }
+      ]
+    }
+  ],
+  "required_review": [
+    "Match source to the MAME binary/database version",
+    "Resolve unwritten-region fill policy",
+    "Review region inversion and device/host endian conversion",
+    "Review GAME init/decryption/bitswap callbacks",
+    "Bind bank starts and FPGA download/read transforms",
+    "Verify each set-specific generated MRA byte layout"
+  ]
+}

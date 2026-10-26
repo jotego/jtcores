@@ -9,7 +9,6 @@ platform="jtcrshrc"
 [parse]
 sourcefile=["crshrace.cpp"]
 mustbe.machines=["crshrace"]
-skip.setnames=["crshrace2","crshrace2a"]
 
 [dipsw]
 bitcnt=32
@@ -17,7 +16,7 @@ offset=[{name="DSW0",value=0},{name="DSW1",value=16},{name="DSW2",value=16}]
 delete=[{names=["Unused","Unknown"]}]
 
 [buttons]
-names=[{machine="crshrace",names="Accelerate,Brake,Button 3"}]
+names=[{machine="crshrace",names="Accelerate,Brake,Horn"}]
 
 [ROM]
 regions=[
