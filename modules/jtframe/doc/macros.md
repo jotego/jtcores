@@ -174,13 +174,17 @@ JTFRAME_NTSC_LEN         | Use as COLORBURST_RANGE for YC module on NTSC mode
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
 JTFRAME_BA0_AUTOPRECH    |         | Enables auto precharge on bank 0
-JTFRAME_BA0_LEN          |         | Sets length of bank 0, valid values 16, 32 or 64
+JTFRAME_BA0_LEN          |         | Sets bank 0 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA1_AUTOPRECH    |         | Enables auto precharge on bank 1
-JTFRAME_BA2_LEN          |         | Sets length of bank 1, valid values 16, 32 or 64
+JTFRAME_BA1_LEN          |         | Sets bank 1 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA2_AUTOPRECH    |         | Enables auto precharge on bank 2
-JTFRAME_BA2_LEN          |         | Sets length of bank 2, valid values 16, 32 or 64
+JTFRAME_BA2_LEN          |         | Sets bank 2 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA3_AUTOPRECH    |         | Enables auto precharge on bank 3
-JTFRAME_BA3_LEN          |         | Sets length of bank 3, valid values 16, 32 or 64
+JTFRAME_BA3_LEN          |         | Sets bank 3 read burst size in bits: 16, 32 or 64 (default 32)
+
+These sizes apply to all clients in the bank. See
+[SDRAM ROM caches and burst sizes](rom-caches.md) for their interaction with
+client data widths and cache settings.
 
 # SDRAM ROM/RAM Modules
 
