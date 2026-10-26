@@ -154,9 +154,9 @@ always @(posedge clk) begin
 end
 
 // Draw: expand one slot into tile columns
-localparam [1:0] D_IDLE=0, D_ISSUE=1, D_UP=2, D_DOWN=3;
+localparam [2:0] D_IDLE=0, D_ISSUE=1, D_UP=2, D_DOWN=3, D_ROW=4;
 
-reg  [ 1:0] dst;
+reg  [ 2:0] dst;
 reg  [ 2:0] dcol, lcol;
 reg  [ 8:0] d_ox;
 reg  [16:0] d_map;
@@ -168,13 +168,15 @@ reg         d_fx, d_fy;
 reg  [14:0] code_nx;
 reg  [ 1:0] lutcnt;
 reg         nx_ok;
+reg [LUT_AW-1:0] d_rowbase;
 
 wire [ 2:0] maprow = d_fy ? d_ysize - d_src[6:4] : d_src[6:4];
 wire [ 2:0] mapcol = d_fx ? d_xsize - lcol       : lcol;
 wire [ 3:0] stride = {1'b0,d_xsize} + 4'd1;
-wire [16:0] mapidx = d_map + {13'd0,maprow}*{13'd0,stride} + {14'd0,mapcol};
+wire [ 5:0] row_offset = maprow * stride;
+wire [LUT_AW-1:0] mapidx = d_rowbase + {{(LUT_AW-3){1'b0}},mapcol};
 
-assign objl_addr = mapidx[LUT_AW-1:0];
+assign objl_addr = mapidx;
 wire [14:0] lut_code = objl_dout[14:0];
 assign pal = { 2'b01, d_col[4:0] };
 
@@ -197,7 +199,7 @@ always @(posedge clk) begin
         dst <= D_IDLE; dcol <= 0; lcol <= 0; rptr <= 0;
         draw <= 0; hz_keep <= 0; xpos <= 0; ysub <= 0; hzoom <= 0;
         hflip <= 0; vflip <= 0; code <= 0; code_nx <= 0;
-        lutcnt <= 0; nx_ok <= 0;
+        lutcnt <= 0; nx_ok <= 0; d_rowbase <= 0;
         d_ox <= 0; d_map <= 0; d_xsize <= 0; d_ysize <= 0; d_src <= 0;
         d_zx <= 0; d_col <= 0; d_fx <= 0; d_fy <= 0;
     end else begin
@@ -215,7 +217,13 @@ always @(posedge clk) begin
                 rptr   <= rptr + 1'd1;
                 dcol   <= 0;    lcol  <= 0;
                 lutcnt <= 0;    nx_ok <= 0;
-                dst    <= D_ISSUE;
+                dst    <= D_ROW;
+            end
+            D_ROW: begin
+                d_rowbase <= d_map[LUT_AW-1:0] + {{(LUT_AW-6){1'b0}},row_offset};
+                lutcnt <= 0;
+                nx_ok <= 0;
+                dst <= D_ISSUE;
             end
             D_ISSUE: if( nx_ok && !busy && !draw ) begin
                 draw    <= 1;

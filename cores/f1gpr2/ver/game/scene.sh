@@ -43,7 +43,7 @@ for frame in "${frames[@]}"; do
     }
 done
 docker image inspect "$image" >/dev/null
-mkdir -p "$run_dir/scratch/bin" "$run_dir/scratch/replay" "$run_dir/$output"
+mkdir -p "$run_dir/bin" "$run_dir/replay_logs" "$run_dir/$output"
 docker run --rm --pull=never \
     -e SIM_TARGET="$target" -e SCENE_LAYER="$layer" -e SCENE_MASK="$mask" -e SCENE_OUTPUT="$output" \
     -v "$task_root:/jtroot" -w /jtroot/cores/f1gpr2/ver/f1gp2 \
@@ -51,19 +51,19 @@ docker run --rm --pull=never \
         set -euo pipefail
         export JTROOT=/jtroot JTFRAME=/jtroot/modules/jtframe MODULES=/jtroot/modules CORES=/jtroot/cores
         export JTBIN=/jtroot/release ROM=/jtroot/rom RLS=/jtroot/release MRA=/jtroot/release/mra
-        export PATH="$PWD/scratch/bin:$JTFRAME/bin:$PATH"
-        if [ ! -x scratch/bin/jtframe ] ||
-           [ -n "$(find "$JTFRAME/src/jtframe" -name "*.go" -newer scratch/bin/jtframe -print -quit)" ]; then
-            (cd "$JTFRAME/src/jtframe" && go build -o "$CORES/f1gpr2/ver/f1gp2/scratch/bin/jtframe" .)
+        export PATH="$PWD/bin:$JTFRAME/bin:$PATH"
+        if [ ! -x bin/jtframe ] ||
+           [ -n "$(find "$JTFRAME/src/jtframe" -name "*.go" -newer bin/jtframe -print -quit)" ]; then
+            (cd "$JTFRAME/src/jtframe" && go build -o "$CORES/f1gpr2/ver/f1gp2/bin/jtframe" .)
         fi
         load=()
         for bank in 0 1 2 3; do
-            if [ ! -s "sdram_bank$bank.bin" ]; then load=(-load); fi
+            if [ ! -s "sdram_bank$bank.bin" ] || [ "$ROM/f1gp2.rom" -nt "sdram_bank$bank.bin" ]; then load=(-load); fi
         done
         for frame in "$@"; do
             export F1GPR2_SCENE_DUMP="$PWD/scenes/$frame/dump.bin"
             "$CORES/f1gpr2/ver/game/rest2bin.sh" "$F1GPR2_SCENE_DUMP"
-            buildlog="scratch/replay/$frame-$SCENE_LAYER.log"
+            buildlog="replay_logs/$frame-$SCENE_LAYER.log"
             echo "Replaying f1gp2 scene $frame ($SCENE_LAYER, $SIM_TARGET)"
             if ! jtsim -skipROM "-$SIM_TARGET" -u JTFRAME_180SHIFT -d NOMAIN -q \
                 -d SIMSCENE -gfx "$SCENE_MASK" -video 3 "${load[@]}" > "$buildlog" 2>&1; then
