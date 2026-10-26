@@ -8,8 +8,8 @@ platform="jtcrshrc"
 
 [parse]
 sourcefile=["crshrace.cpp"]
-mustbe.setnames=["crshrace"]
-debug.machines=["crshrace"]
+mustbe.machines=["crshrace"]
+skip.setnames=["crshrace2","crshrace2a"]
 
 [dipsw]
 bitcnt=32
