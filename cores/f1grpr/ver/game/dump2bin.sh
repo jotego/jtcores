@@ -39,6 +39,7 @@ split_into_parts() {
 delete_parts() {
 	
 	rm -f rest.bin
+	run_core_specific_script --delete
 }
 
 make_rest() {
@@ -50,7 +51,7 @@ run_core_specific_script() {
 	for path in $script_path/. $script_path/..; do
 		if [ -x $path/rest2bin.sh ]; then
 			echo $path/rest2bin.sh
-			$path/rest2bin.sh
+			$path/rest2bin.sh "$@"
 			return
 		fi
 	done
