@@ -21,7 +21,7 @@ module jtroundu_obj(
 );
 
 localparam IDLE=0, CLUT_L=1, CLUT_L_DONE=2, CLUT_H=3, CLUT_H_DONE=4,
-    WAIT0=5, WAIT1=6, ATTR_WAIT=7, ATTR=8, ATTR_DONE=9, NEXT=10,
+    WAIT0=5, WAIT1=6, ATTR_WAIT=7, ATTR=8, NEXT=10,
     HEADER=11, DESC=12, PREP=13, PIXEL=14, TILE=15, GFX=16,
     SNAP_WAIT=17, SNAP_ATTR=18, WALK_INIT=19, WALK_WAIT=20,
     WALK_LOAD=21, WALK_FETCH=22, WALK_HEADER=23, WALK_DESC=24,
@@ -31,7 +31,8 @@ localparam IDLE=0, CLUT_L=1, CLUT_L_DONE=2, CLUT_H=3, CLUT_H_DONE=4,
     HEADER_DONE=37, FAST_REM=38, BOUNDS_ROT=39, BOUNDS_FINAL=40,
     COORD_MIX=41, COORD_FINAL=42, PIXEL_MUL=43, PIXEL_CHECK=44,
     PIXEL_LOOKUP=45, PIXEL_WRAP_MUL=46, PIXEL_WRAP_CHECK=47,
-    PIXEL_TILE=48, BOUNDS_REDUCE=49, COORD_TILT=50, PIXEL_WRAP_END=51;
+    PIXEL_TILE=48, BOUNDS_REDUCE=49, COORD_TILT=50, PIXEL_WRAP_END=51,
+    BOUNDS_SCREEN=52, BOUNDS_CLIP=53, BOUNDS_DONE=54;
 reg [5:0] state, return_state;
 localparam DR_IDLE=0, DR_RUN=1, DR_DRAIN=2;
 reg [1:0] dr_state;
@@ -59,9 +60,10 @@ reg [8:0] snap_index, walk_index, object_index, object_count;
 reg [8:0] frame_wr_addr, frame_rd_addr;
 reg [159:0] frame_wr_data;
 wire [159:0] frame_data;
+wire [7:0] first_line = frame_data[135:128];
+wire [7:0] end_line = frame_data[143:136];
 reg frame_we, frame_ready, frame_valid, walk_valid;
 reg [31:0] frame_header;
-reg [7:0] first_line, end_line;
 reg [8:0] target_y;
 reg [6:0] rows;
 reg [8:0] top_line;
@@ -165,6 +167,7 @@ wire [8:0] next_y = v == 271 ? 9'd0 : v + 9'd1;
 integer i, dy, source_line, source_col, source_row, dist_x, dist_y;
 integer left_edge, right_edge, first_x, end_x, tile_number, tile_count, tile_delta;
 integer st, sb, sr, cx, cy, rx, ry, minx, maxx, miny, maxy;
+wire bounds_empty = miny >= maxy || miny >= 240 || maxy <= 0;
 reg signed [33:0] dx_fixed, dy_fixed;
 reg signed [35:0] slope_scale;
 reg [40:0] init_shrink;
@@ -218,12 +221,12 @@ always @* begin
     jump_m[6] = {2'd0,d_scale,2'd0} + {3'd0,d_scale,1'd0};
     jump_m[7] = {1'd0,d_scale,3'd0} - {4'd0,d_scale};
     jump_m[8] = {1'd0,d_scale,3'd0};
+    jump_u = {2'd0,jump_krem};
+    jump_tot = {5'd0,d_rem} + {2'd0,jump_krem};
     if (d_flip) begin
-        jump_u = {2'd0,jump_krem};
         for (jm=0; jm<8; jm=jm+1)
             jump_ge[jm] = jump_u > {1'd0,jump_m[jm]} + {5'd0,d_rem};
     end else begin
-        jump_tot = {5'd0,d_rem} + {2'd0,jump_krem};
         for (jm=0; jm<8; jm=jm+1)
             jump_ge[jm] = jump_tot >= {1'd0,jump_m[jm+1]};
     end
@@ -417,8 +420,6 @@ always @(posedge clk) begin
         frame_valid <= 0;
         walk_valid <= 0;
         frame_header <= 0;
-        first_line <= 0;
-        end_line <= 0;
         target_y <= 0;
         rows <= 0;
         top_line <= 0;
@@ -580,16 +581,11 @@ always @(posedge clk) begin
             end
             ATTR: begin
                 for (i=0;i<6;i=i+1) attr[i] <= frame_data[i*16+:16];
-                frame_header <= frame_data[127:96];
-                first_line <= frame_data[135:128];
-                end_line <= frame_data[143:136];
                 object_width <= frame_data[156:144];
-                state <= ATTR_DONE;
-            end
-            ATTR_DONE: begin
+                if (object_index != 0) frame_rd_addr <= object_index - 1'b1;
                 if (target_y < {1'b0,first_line} || target_y >= {1'b0,end_line}) state <= NEXT;
                 else begin
-                    fetched <= frame_header;
+                    fetched <= frame_data[127:96];
                     state <= HEADER;
                 end
             end
@@ -597,8 +593,7 @@ always @(posedge clk) begin
                 if (object_index == 0 || line_full) state <= IDLE;
                 else begin
                     object_index <= object_index - 1'b1;
-                    frame_rd_addr <= object_index - 1'b1;
-                    state <= ATTR_WAIT;
+                    state <= ATTR;
                 end
             end
             HEADER: begin
@@ -665,7 +660,7 @@ always @(posedge clk) begin
                 bound_width <= (object_width*scale + 127) >> 7;
                 pixel_y_min <= (top_line*scale + 127) >> 7;
                 pixel_y_max <= (bottom_line*scale + 127) >> 7;
-                state <= rotation == 0 || repeat_line ? BOUNDS_FINAL : BOUNDS_ROT;
+                state <= rotation == 0 || repeat_line ? BOUNDS_SCREEN : BOUNDS_ROT;
             end
             BOUNDS_ROT: begin
                 for (i=0;i<4;i=i+1) begin
@@ -688,46 +683,63 @@ always @(posedge clk) begin
                 state <= BOUNDS_FINAL;
             end
             BOUNDS_FINAL: begin
-                minx = bound_minx[0] < bound_minx[1] ? bound_minx[0] : bound_minx[1];
-                maxx = bound_maxx[0] > bound_maxx[1] ? bound_maxx[0] : bound_maxx[1];
-                miny = bound_miny[0] < bound_miny[1] ? bound_miny[0] : bound_miny[1];
-                maxy = bound_maxy[0] > bound_maxy[1] ? bound_maxy[0] : bound_maxy[1];
+                minx <= bound_minx[0] < bound_minx[1] ? bound_minx[0] : bound_minx[1];
+                maxx <= bound_maxx[0] > bound_maxx[1] ? bound_maxx[0] : bound_maxx[1];
+                miny <= bound_miny[0] < bound_miny[1] ? bound_miny[0] : bound_miny[1];
+                maxy <= bound_maxy[0] > bound_maxy[1] ? bound_maxy[0] : bound_maxy[1];
+                state <= BOUNDS_SCREEN;
+            end
+            BOUNDS_SCREEN: begin
                 if (bounds_walk) begin
-                    if (!walk_valid) begin miny = 0; maxy = 0; end
+                    if (!walk_valid) begin miny <= 0; maxy <= 0; end
                     else if (rotation == 0) begin
-                        miny = flip_y ? origin_y - bound_bottom : origin_y + bound_top;
-                        maxy = flip_y ? origin_y - bound_top : origin_y + bound_bottom;
-                    end else if (repeat_line) begin miny = 0; maxy = 240; end
+                        miny <= flip_y ? origin_y - bound_bottom : origin_y + bound_top;
+                        maxy <= flip_y ? origin_y - bound_top : origin_y + bound_bottom;
+                    end else if (repeat_line) begin miny <= 0; maxy <= 240; end
                     else begin
-                        miny = origin_y + (miny >>> 8) - 1;
-                        maxy = origin_y - ((-maxy) >>> 8) + 2;
+                        miny <= origin_y + (miny >>> 8) - 1;
+                        maxy <= origin_y - ((-maxy) >>> 8) + 2;
                     end
-                    if (miny < 0) miny = 0;
-                    if (maxy > 240) maxy = 240;
-                    if (miny >= maxy || miny >= 240 || maxy <= 0) begin miny = 0; maxy = 0; end
-                    frame_we <= 1;
-                    frame_wr_addr <= walk_index;
-                    frame_wr_data <= {3'd0,object_width,maxy[7:0],miny[7:0],frame_header,frame_data[95:0]};
-                    state <= WALK_NEXT;
                 end else begin
-                    first_x = 0;
-                    end_x = 319;
+                    first_x <= 0;
+                    end_x <= 319;
                     if (rotation == 0) begin
                         if (flip_x) begin
-                            first_x = repeat_line ? 0 : origin_x - bound_right;
-                            end_x = origin_x - bound_left - 1;
+                            first_x <= repeat_line ? 0 : origin_x - bound_right;
+                            end_x <= origin_x - bound_left - 1;
                         end else begin
-                            first_x = origin_x + bound_left;
-                            end_x = repeat_line ? 319 : origin_x + bound_right - 1;
+                            first_x <= origin_x + bound_left;
+                            end_x <= repeat_line ? 319 : origin_x + bound_right - 1;
                         end
                     end else if (!repeat_line) begin
-                        first_x = origin_x + (minx >>> 8) - 1;
-                        end_x = origin_x - ((-maxx) >>> 8) + 1;
-                        if (line_y < origin_y + (miny >>> 8) - 1
-                         || line_y > origin_y - ((-maxy) >>> 8) + 1) end_x = -1;
+                        first_x <= origin_x + (minx >>> 8) - 1;
+                        end_x <= origin_x - ((-maxx) >>> 8) + 1;
+                        miny <= origin_y + (miny >>> 8) - 1;
+                        maxy <= origin_y - ((-maxy) >>> 8) + 1;
                     end
-                    if (first_x < 0) first_x = 0;
-                    if (end_x > 319) end_x = 319;
+                end
+                state <= BOUNDS_CLIP;
+            end
+            BOUNDS_CLIP: begin
+                if (bounds_walk) begin
+                    if (miny < 0) miny <= 0;
+                    if (maxy > 240) maxy <= 240;
+                end else begin
+                    if (first_x < 0) first_x <= 0;
+                    if (rotation != 0 && !repeat_line && (line_y < miny || line_y > maxy)) end_x <= -1;
+                    else if (end_x > 319) end_x <= 319;
+                end
+                state <= BOUNDS_DONE;
+            end
+            BOUNDS_DONE: begin
+                if (bounds_walk) begin
+                    frame_we <= 1;
+                    frame_wr_addr <= walk_index;
+                    frame_wr_data <= {3'd0,object_width,
+                        bounds_empty ? 8'd0 : maxy[7:0],bounds_empty ? 8'd0 : miny[7:0],
+                        frame_header,frame_data[95:0]};
+                    state <= WALK_NEXT;
+                end else begin
                     if (first_x > end_x || end_x < 0 || first_x > 319) state <= NEXT;
                     else begin
                         draw_x <= first_x[8:0];
@@ -1017,7 +1029,7 @@ always @(posedge clk) begin
                 bound_top <= (top_line*scale + (rotation == 0 ? 127 : 0)) >> 7;
                 bound_bottom <= (bottom_line*scale + 127) >> 7;
                 bound_width <= (object_width*scale + 127) >> 7;
-                state <= !walk_valid || rotation == 0 || repeat_line ? BOUNDS_FINAL : BOUNDS_ROT;
+                state <= !walk_valid || rotation == 0 || repeat_line ? BOUNDS_SCREEN : BOUNDS_ROT;
             end
             WALK_NEXT: begin
                 if (walk_index + 9'd1 == object_count) begin
