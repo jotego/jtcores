@@ -246,28 +246,4 @@ always @(posedge clk) begin
     end
 end
 
-`ifdef SIMULATION
-integer sim_stalled, sim_peak, sim_unfinished, sim_tiles;
-wire [FW:0] sim_queued = wptr-rptr;
-always @(posedge clk) begin
-    if( rst ) begin
-        sim_stalled    <= 0;
-        sim_peak       <= 0;
-        sim_unfinished <= 0;
-        sim_tiles      <= 0;
-    end else if( hs_pos && vrender==0 ) begin
-        $display("OBJ_SCAN stalled_cycles=%0d peak_queue=%0d unfinished=%0d tiles=%0d",sim_stalled,sim_peak,sim_unfinished,sim_tiles);
-        sim_stalled    <= 0;
-        sim_peak       <= 0;
-        sim_unfinished <= 0;
-        sim_tiles      <= 0;
-    end else begin
-        if( !hs_pos && st==S_EVAL && on_line && fifo_full ) sim_stalled <= sim_stalled+1;
-        if( {28'd0,sim_queued}>sim_peak ) sim_peak <= {28'd0,sim_queued};
-        if( hs_pos && (st!=S_IDLE || dst!=D_IDLE || !fifo_empty || busy) ) sim_unfinished <= sim_unfinished+1;
-        if( draw ) sim_tiles <= sim_tiles+1;
-    end
-end
-`endif
-
 endmodule

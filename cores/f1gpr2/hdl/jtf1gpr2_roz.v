@@ -284,38 +284,4 @@ end endgenerate
 assign on  = valid;
 assign pxl = valid ? display_pixel : 8'hff;
 
-`ifdef SIMULATION
-integer sim_frame, sim_lines, sim_incomplete, sim_overflow, sim_late, sim_peak;
-reg sim_vs;
-always @(posedge clk) begin
-    if( rst ) begin
-        sim_frame      <= 0;
-        sim_lines      <= 0;
-        sim_incomplete <= 0;
-        sim_overflow   <= 0;
-        sim_late       <= 0;
-        sim_peak       <= 0;
-        sim_vs         <= 0;
-    end else begin
-        sim_vs <= vs;
-        if( line_start && vdump<9'd224 ) begin
-            sim_lines <= sim_lines+1;
-            if( !display_ready ) sim_incomplete <= sim_incomplete+1;
-        end
-        if( overflow ) sim_overflow <= sim_overflow+1;
-        if( st==S_WRITE && !write_current ) sim_late <= sim_late+1;
-        if( {25'd0,queued}>sim_peak ) sim_peak <= {25'd0,queued};
-        if( vs && !sim_vs ) begin
-            $display("ROZ_PREFETCH frame=%0d lines=%0d incomplete=%0d overflow=%0d late=%0d peak_queue=%0d",sim_frame,sim_lines,sim_incomplete,sim_overflow,sim_late,sim_peak);
-            sim_frame      <= sim_frame+1;
-            sim_lines      <= 0;
-            sim_incomplete <= 0;
-            sim_overflow   <= 0;
-            sim_late       <= 0;
-            sim_peak       <= 0;
-        end
-    end
-end
-`endif
-
 endmodule
