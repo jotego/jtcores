@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module test;
 
-reg clk=0, rst=1, lvbl=0, rx_strobe=0;
+reg clk=0, rst=1, lvbl=0, rx_strobe=0, capture_hold=0;
 reg [7:0] rx_cmd=0, rx_byte=0;
 reg [4:0] rx_index=0;
 wire active, hold_reset;
@@ -167,12 +167,22 @@ initial begin
     assert_msg(!active && !dump_pause,"STOP cancels a dump barrier");
     arm(1,1); push(0,1,0); start(); snap();
     assert_msg(snapshot[351:320]==0 && !dump_pause,"new epoch clears dump requests"); frame();
+    // Confirmed capture holds logical duration, never the physical raster.
+    arm(3,2); push(0,2,1); push(1,1,4); start();
+    capture_hold=1; frame(); frame(); snap();
+    assert_msg(snapshot[95:64]==0 && inputs==1,"capture hold preserves frame-zero input duration");
+    capture_hold=0; frame(); snap();
+    assert_msg(snapshot[95:64]==1 && inputs==1,"resume consumes exactly one duration");
+    capture_hold=1; frame(); frame(); capture_hold=0; frame();
+    assert_msg(inputs==4,"pending CAB event applied once after held duration");
+    frame();snap();assert_msg(snapshot[23:16]==3,"held stream completes normally");
     pass();
 end
 
 initial begin #5000000; fail(); end
 
 jtframe_cab_stream uut(
+    .capture_hold(capture_hold), .capture_frame(), .capture_epoch(),
     .rst(rst), .clk(clk), .lvbl(lvbl), .rx_strobe(rx_strobe),
     .rx_cmd(rx_cmd), .rx_byte(rx_byte), .rx_index(rx_index),
     .active(active), .hold_reset(hold_reset), .inputs(inputs),

@@ -168,6 +168,7 @@ jtframe_ff u_irq(
 );
 
 jtframe_sys6809_dma #(.RAM_AW(11),.KONAMI(1)) u_cpu(
+    .irq_n_effective(          ),
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cpu4_cen  ),   // This is normally the input clock to the CPU

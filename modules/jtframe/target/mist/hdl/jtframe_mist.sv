@@ -23,6 +23,9 @@ module jtframe_mist #(parameter
     // interface with microcontroller
     output      [63:0] status,
     output      [31:0] dipsw,
+`ifdef JTFRAME_VIDEO_CAPTURE
+    input game_vblank_irq, game_vblank_taken,
+`endif
     // Base video
     input [COLORW-1:0] game_r, game_g, game_b,
     input              LHBL,
@@ -224,6 +227,49 @@ always @* begin
     board_status[33:32] = status[7:6];
 end
 
+`ifdef JTFRAME_VIDEO_CAPTURE
+wire [1535:0] video_snapshot;
+wire [767:0] video_line_snapshot;
+wire [127:0] video_window_snapshot;
+wire [1023:0] video_window;
+wire video_rx_strobe, video_hold, video_pause;
+wire [7:0] video_rx_cmd, video_rx_byte;
+wire [4:0] video_rx_index;
+wire [31:0] video_cab_frame, video_cab_epoch;
+jtframe_capture #(
+    .WIDTH    ( VIDEO_WIDTH                                      ),
+    .HEIGHT   ( VIDEO_HEIGHT                                     ),
+    .COLORW   ( COLORW                                           ),
+    .CLOCK_HZ ( `JTFRAME_MCLK                                    ),
+    .FEEDBACK ( `ifdef JTFRAME_CAPTURE_FEEDBACK 1 `else 0 `endif )
+) u_capture(
+    .rst              ( rst                   ),
+    .clk              ( clk_sys               ),
+    .game_reset       ( game_rst              ),
+    .pxl_cen          ( pxl_cen               ),
+    .lhbl             ( LHBL                  ),
+    .lvbl             ( LVBL                  ),
+    .red              ( game_r                ),
+    .green            ( game_g                ),
+    .blue             ( game_b                ),
+    .irq_level        ( game_vblank_irq       ),
+    .irq_taken_toggle ( game_vblank_taken     ),
+    .dump_pause       ( cab_dump_pause        ),
+    .cab_frame        ( video_cab_frame       ),
+    .cab_epoch        ( video_cab_epoch       ),
+    .rx_strobe        ( video_rx_strobe       ),
+    .rx_cmd           ( video_rx_cmd          ),
+    .rx_byte          ( video_rx_byte         ),
+    .rx_index         ( video_rx_index        ),
+    .pause_gate       ( video_pause           ),
+    .capture_hold     ( video_hold            ),
+    .snapshot         ( video_snapshot        ),
+    .line_snapshot    ( video_line_snapshot   ),
+    .window_snapshot  ( video_window_snapshot ),
+    .read_window      ( video_window          )
+);
+`endif
+
 jtframe_mist_base #(
     .SIGNED_SND     ( SIGNED_SND    ),
     .COLORW         ( COLORW        ),
@@ -294,6 +340,19 @@ jtframe_mist_base #(
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),
     .joystick4      ( joystick4     ),
+`ifdef JTFRAME_VIDEO_CAPTURE
+    .video_snapshot        ( video_snapshot        ),
+    .video_line_snapshot   ( video_line_snapshot   ),
+    .video_window_snapshot ( video_window_snapshot ),
+    .video_window          ( video_window          ),
+    .video_rx_strobe       ( video_rx_strobe       ),
+    .video_rx_cmd          ( video_rx_cmd          ),
+    .video_rx_byte         ( video_rx_byte         ),
+    .video_rx_index        ( video_rx_index        ),
+    .video_hold            ( video_hold            ),
+    .video_cab_frame       ( video_cab_frame       ),
+    .video_cab_epoch       ( video_cab_epoch       ),
+`endif
 `ifdef JTFRAME_CAB_STREAM
     .cab_active     ( cab_active    ),
     .cab_inputs     ( cab_inputs    ),
@@ -365,6 +424,9 @@ jtframe_board #(
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
+`ifdef JTFRAME_VIDEO_CAPTURE
+    .capture_pause  ( video_pause     ),
+`endif
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),

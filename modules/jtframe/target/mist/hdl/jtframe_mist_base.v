@@ -69,6 +69,17 @@ module jtframe_mist_base #(parameter
     output [31:0]   joystick2,
     output [31:0]   joystick3,
     output [31:0]   joystick4,
+`ifdef JTFRAME_VIDEO_CAPTURE
+    input [1535:0] video_snapshot,
+    input [767:0] video_line_snapshot,
+    input [127:0] video_window_snapshot,
+    input [1023:0] video_window,
+    output video_rx_strobe,
+    output [7:0] video_rx_cmd, video_rx_byte,
+    output [4:0] video_rx_index,
+    input video_hold,
+    output [31:0] video_cab_frame, video_cab_epoch,
+`endif
 `ifdef JTFRAME_CAB_STREAM
     output          cab_active,
     output [20:0]   cab_inputs,
@@ -289,9 +300,26 @@ wire        i2c_end;
 	 assign status = {user_io_status[63:1], user_io_status[0] | buttons[1]}; // status[0] | buttons[1] is reset
 `endif
 
+    localparam VIDEO_FEATURE = `ifdef JTFRAME_VIDEO_CAPTURE 32'h00100000 `else 32'h0 `endif;
     localparam CAB_FEATURE = `ifdef JTFRAME_CAB_STREAM 32'h000e0000 `else 32'h0 `endif;
-    user_io #(.ROM_DIRECT_UPLOAD(`JTFRAME_MIST_DIRECT), .FEATURES(CAB_FEATURE /*| (QSPI << 2)*/ | (HDMI << 14))) u_userio(
+    user_io #(
+        .ROM_DIRECT_UPLOAD ( `JTFRAME_MIST_DIRECT                                         ),
+        .FEATURES          ( VIDEO_FEATURE | CAB_FEATURE /*| (QSPI << 2)*/ | (HDMI << 14) )
+    ) u_userio(
         .clk_sys        ( clk_sys   ),
+`ifdef JTFRAME_VIDEO_CAPTURE
+        .video_snapshot        ( video_snapshot        ),
+        .video_line_snapshot   ( video_line_snapshot   ),
+        .video_window_snapshot ( video_window_snapshot ),
+        .video_window          ( video_window          ),
+        .video_rx_strobe       ( video_rx_strobe       ),
+        .video_rx_cmd          ( video_rx_cmd          ),
+        .video_rx_byte         ( video_rx_byte         ),
+        .video_rx_index        ( video_rx_index        ),
+        .video_hold            ( video_hold            ),
+        .video_cab_frame       ( video_cab_frame       ),
+        .video_cab_epoch       ( video_cab_epoch       ),
+`endif
 `ifdef JTFRAME_CAB_STREAM
         .cab_rst        ( rst           ),
         .cab_lvbl       ( game_lvbl     ),

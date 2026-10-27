@@ -15,6 +15,9 @@ module jtframe_board #(parameter
 )(
     output              rst,
     output              rst_n,
+`ifdef JTFRAME_VIDEO_CAPTURE
+    input               capture_pause,
+`endif
     output              game_rst,
     output              game_rst_n,
     output              sdram_init,
@@ -636,7 +639,7 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
-assign effective_pause = game_pause `ifdef JTFRAME_CAB_STREAM | cab_dump_pause `endif;
+assign effective_pause = game_pause `ifdef JTFRAME_VIDEO_CAPTURE | capture_pause `endif `ifdef JTFRAME_CAB_STREAM | cab_dump_pause `endif;
 
 jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
