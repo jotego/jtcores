@@ -11,6 +11,11 @@ on:
         description: Comma-separated FPGA targets
         required: true
         type: string
+      max_trials:
+        description: Maximum timing attempts per core and target
+        required: false
+        type: number
+        default: 4
       debug:
         description: Keep the debug bus (no JTFRAME_RELEASE)
         required: false
@@ -91,6 +96,8 @@ jobs:
           token: ${{ secrets.PAT }}
 
       - id: compile
+        env:
+          JTFRAME_SEED_TRIALS: ${{ inputs.max_trials }}
         run: |
           docker_image=jotego/jtcore20
           if [[ "${{ matrix.target }}" == "mist" ]]; then
@@ -101,7 +108,7 @@ jobs:
 
           DBG=
           if [[ "${{ inputs.debug }}" == "true" ]]; then DBG=--debug; fi
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" $DBG "${{ matrix.target }}"
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} -e JTFRAME_SEED_TRIALS --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" $DBG "${{ matrix.target }}"
 
       # Ship the build log, timing report and fitter resource summary on every
       # run, pass or fail. jtframe/bin/jtcore writes them to log/<target>/

@@ -3,6 +3,12 @@
 # xjtcore <corename> [--debug] target-names...
 set -e
 
+SEED_TRIALS=${JTFRAME_SEED_TRIALS:-4}
+if [[ ! "$SEED_TRIALS" =~ ^[1-9][0-9]*$ ]]; then
+    echo "JTFRAME_SEED_TRIALS must be a positive integer" >&2
+    exit 1
+fi
+
 git config --global --add safe.directory /jtcores
 cd /jtcores
 export JTROOT=$(pwd)
@@ -46,7 +52,7 @@ if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
         # below. Capture the code and re-raise it AFTER stashing, so a FAILED
         # build still uploads the exact sources fed to Quartus for triage.
         set +e
-        jtutil seed --max-trials 4 $CORENAME -$TARGET $NODBG --nolinter
+        jtutil seed --max-trials "$SEED_TRIALS" $CORENAME -$TARGET $NODBG --nolinter
         SEED_RC=$?
         set -e
         # Stash a self-contained, rebuildable mirror of everything fed to
