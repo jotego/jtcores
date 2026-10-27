@@ -7,6 +7,8 @@ module jtframe_cab_stream #(
 )(
     input              rst, clk,
     input              lvbl,
+    input              capture_hold,
+    output      [31:0] capture_frame, capture_epoch,
     input              rx_strobe,
     input       [ 7:0] rx_cmd, rx_byte,
     input       [ 4:0] rx_index,
@@ -50,6 +52,8 @@ assign dump_pause = state==DUMP_WAIT || state==RESUME_WAIT;
 assign dipsw_valid= active && dipsw_set;
 assign hold_reset = state==ARMED && reset_on_arm;
 assign tick       = lvbl_sync[1] && !lvbl_l;
+assign capture_frame=frames;
+assign capture_epoch=epoch;
 assign packet     = rx_cmd==8'h86 ? {rx_byte,payload[151:0]} : {32'd0,rx_byte,payload[119:0]};
 assign payload_index = rx_index-5'd1;
 assign start_epoch= {rx_byte,payload[23:0]};
@@ -70,8 +74,8 @@ assign push_error = !active                         ? BAD_STATE :
                                                     ? BAD_LENGTH : 8'd0;
 assign enqueue    = push_packet && push_error==0;
 assign start_ok   = start_packet && state==ARMED && start_epoch==epoch && queued!=0;
-assign finish_boundary = state==RUNNING && tick && frames==total_frames-1;
-assign next_boundary   = state==RUNNING && tick && remaining==1 && !finish_boundary;
+assign finish_boundary = state==RUNNING && tick && !capture_hold && frames==total_frames-1;
+assign next_boundary   = state==RUNNING && tick && !capture_hold && remaining==1 && !finish_boundary;
 assign pop        = start_ok || (next_boundary && (queued!=0 || enqueue));
 assign head       = queued!=0 ? queue[rd_ptr] : packet[159:64];
 
@@ -125,7 +129,7 @@ always @(posedge clk) begin
             default: ;
         endcase
         if(start_ok && !head[54]) state <= RUNNING;
-        if(state==RUNNING && tick) begin
+        if(state==RUNNING && tick && !capture_hold) begin
             frames <= frames+1'd1;
             if(finish_boundary) begin
                 state <= accepted==total_events ? DONE : ERROR;

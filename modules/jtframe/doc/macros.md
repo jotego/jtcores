@@ -238,3 +238,18 @@ JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vert
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
 JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
+
+### JTFRAME_CAPTURE_FEEDBACK
+
+Optional game outputs `game_vblank_irq` and `game_vblank_taken` (accepted-event
+toggle) carry the source-qualified main-CPU frame IRQ and its acceptance through
+the game wrapper. Currently used by GNG; absence explicitly disables feedback.
+Capture uses recent acceptance plus a settling interval for IRQ-driven games;
+it does not inspect the CPU PC or require a particular ROM signature. See [video capture](video-capture.md).
+
+### JTFRAME_VIDEO_CAPTURE
+
+SiDi128 target default. Adds native two-line RGB444 capture and feature0x100000,
+independent64-bit progress counters and SPI0x90..0x99, including release builds.
+It requires firmware geometry/ownership checks and validated per-set pause policy.
+Other targets leave it disabled. See [video capture](video-capture.md).

@@ -534,6 +534,10 @@ assign burst_addr=0, burst_ba=0, burst_rd=0, burst_wr=0, burst_din=0,
 //////// GAME MODULE
 `GAMETOP
 u_game(
+`ifdef JTFRAME_CAPTURE_FEEDBACK
+    .game_vblank_irq  (                  ),
+    .game_vblank_taken(                  ),
+`endif
     .rst         ( rst            ),
     // The main clock is always the same one as the SDRAM
     .clk         ( clk_rom        ),

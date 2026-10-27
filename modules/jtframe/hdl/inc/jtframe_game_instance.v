@@ -7,6 +7,11 @@
 
 localparam STARTW=4;
 
+wire game_vblank_irq, game_vblank_taken;
+`ifndef JTFRAME_CAPTURE_FEEDBACK
+assign game_vblank_irq=0, game_vblank_taken=0;
+`endif
+
 wire [16:0]  sram_addr;
 wire [15:0]  sram_din, sram_dout;
 wire [ 1:0]  sram_dsn;
@@ -52,6 +57,10 @@ assign sim_dwnld_busy = dwnld_busy;
 
 `GAMETOP
 u_game(
+`ifdef JTFRAME_CAPTURE_FEEDBACK
+    .game_vblank_irq  ( game_vblank_irq   ),
+    .game_vblank_taken( game_vblank_taken ),
+`endif
     .rst         ( game_rst       ),
     // The main clock is always the same one as the SDRAM
     .clk         ( clk_rom        ),

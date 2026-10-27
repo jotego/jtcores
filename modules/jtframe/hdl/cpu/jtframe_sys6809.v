@@ -117,6 +117,7 @@ module jtframe_sys6809 #( parameter
         .CENDIV     ( CENDIV    ),
         .IRQFF      ( IRQFF     )
     ) u_sys6809(
+        .irq_n_effective(           ),
         .rstn       ( rstn      ),
         .clk        ( clk       ),
         .cen        ( cen       ),   // This is normally the input clock to the CPU
@@ -194,7 +195,8 @@ module jtframe_sys6809_dma #( parameter
     input              dma_we,
     input [RAM_AW==0? 0 : RAM_AW-1:0] dma_addr,
     input        [7:0] dma_din,
-    output       [7:0] dma_dout
+    output       [7:0] dma_dout,
+    output            irq_n_effective
 );
 
     wire    cen_E, cen_Q;
@@ -202,6 +204,8 @@ module jtframe_sys6809_dma #( parameter
     wire    OP;
     wire [7:0] din_dec;
     wire    irqn_eff, firqn_eff, nmin_eff;
+
+    assign irq_n_effective = irqn_eff;
 
     assign irq_ack = {BA,BS}==2'b01;
     assign bg      = {BA,BS}==2'b11; // this will toggle once every 16 cycles when granted

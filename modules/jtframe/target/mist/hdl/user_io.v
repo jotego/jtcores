@@ -37,6 +37,17 @@ module user_io #( parameter
 
 	input               clk_sys, // clock for system-related messages (kbd, joy, etc...)
 	input               clk_sd,  // clock for SD-card related messages
+`ifdef JTFRAME_VIDEO_CAPTURE
+    input [1535:0] video_snapshot,
+    input [767:0] video_line_snapshot,
+    input [127:0] video_window_snapshot,
+    input [1023:0] video_window,
+    output reg video_rx_strobe,
+    output reg [7:0] video_rx_cmd, video_rx_byte,
+    output reg [4:0] video_rx_index,
+    input video_hold,
+    output [31:0] video_cab_frame, video_cab_epoch,
+`endif
 `ifdef JTFRAME_CAB_STREAM
 	input               cab_rst, cab_lvbl,
 	output              cab_active, cab_hold_reset,
@@ -156,6 +167,11 @@ jtframe_cab_stream u_cab_stream(
     .rst        ( cab_rst        ),
     .clk        ( clk_sys        ),
     .lvbl       ( cab_lvbl       ),
+`ifdef JTFRAME_VIDEO_CAPTURE
+    .capture_hold(video_hold), .capture_frame(video_cab_frame), .capture_epoch(video_cab_epoch),
+`else
+    .capture_hold(1'b0), .capture_frame(), .capture_epoch(),
+`endif
     .rx_strobe  ( cab_rx_strobe  ),
     .rx_cmd     ( cab_rx_cmd     ),
     .rx_byte    ( cab_rx_byte    ),
@@ -386,6 +402,15 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 				else if(byte_cnt<(cmd==8'h89 ? 64 : cmd==8'h87 ? 40 : 32)) spi_byte_out <= cab_snapshot[{byte_cnt[5:0],3'b000} +:8];
 `endif
 
+`ifdef JTFRAME_VIDEO_CAPTURE
+            8'h90: if(byte_cnt==0) spi_byte_out<=8'h76;
+                else if(byte_cnt<192) spi_byte_out<=video_snapshot[{byte_cnt[7:0],3'b000} +:8];
+            8'h97: if(byte_cnt==0) spi_byte_out<=8'h56;
+                else if(byte_cnt<96) spi_byte_out<=video_line_snapshot[{byte_cnt[6:0],3'b000} +:8];
+            8'h96: if(byte_cnt==0) spi_byte_out<=8'h77;
+                else if(byte_cnt<16) spi_byte_out<=video_window_snapshot[{byte_cnt[3:0],3'b000} +:8];
+            8'h94: if(byte_cnt==0) spi_byte_out<=0; else spi_byte_out<=video_window[{(byte_cnt[6:0]-7'd1),3'b000} +:8];
+`endif
 			// i2c
 			8'h31:
 				if (byte_cnt == 0) spi_byte_out <= {6'd0, i2c_ack, i2c_end};
@@ -447,6 +472,9 @@ always @(posedge clk_sys) begin : cmd_block
 	i2c_start <= 0;
 `ifdef JTFRAME_CAB_STREAM
 	cab_rx_strobe <= 0;
+`ifdef JTFRAME_VIDEO_CAPTURE
+    video_rx_strobe<=0;
+`endif
 `endif
 
 	if(ARCHIE == 1) begin
@@ -471,6 +499,11 @@ always @(posedge clk_sys) begin : cmd_block
 
 		if(abyte_cnt == 0) begin
 			acmd <= spi_byte_in;
+`ifdef JTFRAME_VIDEO_CAPTURE
+            if(spi_byte_in>=8'h90 && spi_byte_in<=8'h99) begin
+                video_rx_strobe<=1; video_rx_cmd<=spi_byte_in; video_rx_index<=0; video_rx_byte<=0;
+            end
+`endif
 `ifdef JTFRAME_CAB_STREAM
 			if(spi_byte_in>=8'h81 && spi_byte_in<=8'h89) begin
 				cab_rx_strobe<=1; cab_rx_cmd<=spi_byte_in;
@@ -485,6 +518,11 @@ always @(posedge clk_sys) begin : cmd_block
 				kbd_fifo_ok <= ps2_kbd_fifo_ok;
 		end else begin
 `ifdef JTFRAME_CAB_STREAM
+`ifdef JTFRAME_VIDEO_CAPTURE
+            if(acmd>=8'h90 && acmd<=8'h99) begin
+                video_rx_strobe<=1; video_rx_cmd<=acmd; video_rx_index<=abyte_cnt; video_rx_byte<=spi_byte_in;
+            end
+`endif
 			if(acmd>=8'h81 && acmd<=8'h89) begin
 				cab_rx_strobe<=1; cab_rx_cmd<=acmd;
 				cab_rx_index<=abyte_cnt; cab_rx_byte<=spi_byte_in;

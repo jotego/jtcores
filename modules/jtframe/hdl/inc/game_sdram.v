@@ -130,6 +130,10 @@ jtframe_rsthold u_hold(
 );
 /* verilator tracing_on */
 jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
+`ifdef JTFRAME_CAPTURE_FEEDBACK
+    .game_vblank_irq  ( game_vblank_irq   ),
+    .game_vblank_taken( game_vblank_taken ),
+`endif
     .rst        ( rst_h     ),
     .clk        ( clk       ),
     .rst24      ( rst24_h   ),
