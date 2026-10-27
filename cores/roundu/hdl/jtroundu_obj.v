@@ -808,11 +808,11 @@ always @(posedge clk) begin
                 tile_delta = {5'd0,quotient};
                 prep_raw_col <= source_col[26:0];
                 prep_raw_step <= tile_delta[26:0];
-                prep_col <= source_col - {20'd0,last_left};
                 prep_delta <= tile_delta;
                 state <= FAST_REM;
             end
             FAST_REM: begin
+                prep_col <= {5'd0,prep_raw_col} - {20'd0,last_left};
                 cx = {12'd0,prep_dist}*128 - {5'd0,prep_raw_col}*scale;
                 fast_rem <= cx[8:0];
                 cx = 128 - {5'd0,prep_raw_step}*scale;
