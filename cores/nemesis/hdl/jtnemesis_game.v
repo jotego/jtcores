@@ -26,60 +26,6 @@ You can read the whole license file at http://www.gnu.org/licenses/
 `default_nettype none
 
 module jtnemesis_game(
-/*
-	// Clocks
-	input           rst,
-	input           clk,        // 48 MHz
-	output          pxl2_cen,   // 12 MHz
-	                pxl_cen,    // 6 MHz
-	// Video
-	output   [`JTFRAME_COLORW-1:0]  red, green, blue,
-	output          LHBL,       // Horizontal Blank, possibly delayed
-	                LVBL,       // Vertical Blank, possibly delayed
-	                HS,         // Horizontal video sync output
-	                VS,         // Vertical video sync output
-	output          game_led,
-	// Cabinet I/O
-	input   [ 1:0]  cab_1p, coin,
-	input   [`JTFRAME_BUTTONS+3:0] joystick1,
-	                               joystick2, // 4 directions, 3 buttons, MSB unused
-	// Sound control
-	input           enable_fm, enable_psg,
-	// DIP switches
-	input   [31:0]  status, dipsw,
-	// Not DIPs on the original PCB
-	input           dip_pause, dip_test, service, tilt,
-	output          dip_flip,
-	input   [ 1:0]  dip_fxlevel,
-	// Sound output
-	output signed [15:0] snd,
-	output          sample,
-	// Debug
-	input   [3:0]   gfx_en,
-	input   [7:0]   debug_bus,
-	output  [7:0]   debug_view,
-
-	// ROM Download
-	input   [25:0]  ioctl_addr,
-	input   [ 7:0]  ioctl_dout,
-	input           ioctl_wr,
-	// SDRAM Interface
-	input           ioctl_rom,
-	output          dwnld_busy, // needs to be kept to 1 until finished downloading
-	input   [15:0]  data_read,
-	input           ioctl_cart,
-	output          sdram_req,
-	output [21:0]   sdram_addr,
-	input           data_dst,
-	input           data_rdy,
-	input           sdram_ack,
-	// ROM Download
-	output [ 7:0]   prog_data,
-	output          prog_we,
-	output          prog_rd,
-	output  [ 1:0]  prog_mask,
-	                prog_addr   // no comma here, end of port list%
-*/
 	`include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
@@ -100,9 +46,8 @@ wire        main_lds_n, main_uds_n, main_rw_n, sound_on_n, data_n;
 
 wire [10:0] pal_addr;
 wire [ 4:0] red5, green5, blue5, red5_blk, green5_blk, blue5_blk;
-wire [ 7:0] red_lut, green_lut, blue_lut;
 wire [14:0] rgb, rgb_blk;
-wire        preLHBL, preLVBL;
+wire        preLHBL, preLVBL, preLVBL_n;
 
 // joystick indices
 localparam  dir_right  = 0,
@@ -145,9 +90,6 @@ wire [  7:0] wav1_vol_data, wav2_vol_data;
 // ROM address
 wire [ 7:0] wav1_addr, wav1_vol_addr, wav2_addr, wav2_vol_addr;
 
-// PROM signals
-wire		prom_a01_we, prom_a02_we, prom_vol_we;
-
 ///// Download /////
 
 // offsets (in bytes) where each of the PROMs starts
@@ -157,7 +99,6 @@ localparam [21:0] WAV1_OFFSET    = 22'h04_4000,
 
 reg cpu_start;
 
-// TODO: check if needed
 always @(posedge clk, posedge rst) begin
 	if( rst ) begin
 		cpu_start <= 0;
@@ -183,10 +124,8 @@ nemesis_rom_debug u_rom_debug(
 	.i_clk             ( clk                       ),
 	.i_cen             ( cen6                      ),
 
-`ifndef JTFRAME_RELEASE
 	.i_debug_bus       ( debug_bus                 ),
 	.o_debug_view      ( debug_view                ),
-`endif
 
 	.i_z80_cs          ( req_audio_cs | ~cpu_start ),
 	.i_z80_ok          ( audio_ok                  ),
@@ -418,43 +357,14 @@ colour_lut #( .pw(5), .cw(8), .synfile("../firmware/nemesis_colmix.hex") ) u_col
 	.in_red    ( red5_blk   ),
 	.in_green  ( green5_blk ),
 	.in_blue   ( blue5_blk  ),
-	.out_red   ( red_lut    ),
-	.out_green ( green_lut  ),
-	.out_blue  ( blue_lut   )
+	.out_red   ( red        ),
+	.out_green ( green      ),
+	.out_blue  ( blue       )
 );
-
-`ifdef TEST68K
-
-assign red   = joystick1[ btn_option ] ? red_lut   : { red5_blk,   3'b0 };
-assign green = joystick1[ btn_option ] ? green_lut : { green5_blk, 3'b0 };
-assign blue  = joystick1[ btn_option ] ? blue_lut  : { blue5_blk,  3'b0 };
-
-`else // TEST68K
-
-assign red   = red_lut;
-assign green = green_lut;
-assign blue  = blue_lut;
-
-`endif // TEST68K
 
 ///////////////////
 // Video Board
 ///////////////////
-
-wire preLVBL_n;
-
-`ifdef NOVIDEO
-
-jtframe_vtimer vtimer(
-	.clk     ( clk     ),
-	.pxl_cen ( pxl_cen ),
-	.LHBL    ( preLHBL ),
-	.LVBL    ( preLVBL ),
-	.HS      ( HS      ),
-	.VS      ( VS      )
-);
-
-`else // NOVIDEO
 
 assign preLVBL = ~preLVBL_n;
 
@@ -495,13 +405,9 @@ GX400A_VIDEO video(
 	.o_pal_addr ( pal_addr         )
 );
 
-`endif //NOVIDEO
-
 ///////////////////
 // Sound Board
 ///////////////////
-
-`ifndef NOSOUND
 
 wire        prom1_on, prom2_on, ay7_on, ay8_on;
 wire [ 7:0] bal_prom, bal_ay7, bal_ay8;
@@ -537,17 +443,11 @@ nemesis_sound u_sound(
 	.i_cen1p7         ( cen1p7            ),
 	.i_cen_clk_div    ( cen_audio_clk_div ),
 
-`ifdef SOUND_TEST
-	.i_rst            ( ~joystick1[ btn_fire ]  ),
-	.i_main_db        ( m68k_data_bus           ),
-	.i_data_n         ( ~joystick1[ dir_left ]  ),
-	.i_sound_on_n     ( ~joystick1[ dir_right ] ), // sound starts on stick press
-`else
 	.i_rst            ( rst               ),
 	.i_main_db        ( sound_din         ),
 	.i_data_n         ( data_n            ),
 	.i_sound_on_n     ( sound_on_n        ),
-`endif
+
 	.i_cpu_start      ( cpu_start         ),
 	.o_z80_cs         ( req_audio_cs      ),
 	.o_z80_addr       ( req_audio_addr    ),
@@ -573,7 +473,5 @@ nemesis_sound u_sound(
 	.i_vol_ay7        ( `VOLUME_AY2   /* bal_ay7 */  ), // AY2 Music
 	.i_vol_ay8        ( `VOLUME_AY1   /* bal_ay8 */  )  // AY1 SFX
 );
-
-`endif // NOSOUND
 
 endmodule

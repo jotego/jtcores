@@ -16,7 +16,3 @@ jtframe:
   - from: video
     get:
       - jtframe_blank.v
-  - from: video
-    when: [ NOVIDEO ]
-    get:
-      - jtframe_vtimer.v
