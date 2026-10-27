@@ -21,7 +21,7 @@
     Based on sqmusic, by the same author
     LUT modified by Olivier Scherler, Sept-2023
     
-    */
+*/
 
 // Custom LUT for the Nemesis AY-3-8910s, calculated to match the response
 // recorded on an actual Nemesis PCB. The actual response has a slope similar

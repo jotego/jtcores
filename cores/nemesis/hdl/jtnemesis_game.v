@@ -2,11 +2,6 @@
 
 FPGA compatible core of arcade hardware by LMN-san, OScherler, Raki.
 
-This core is available for hardware compatible with MiSTer.
-Other FPGA systems may be supported by the time you read this.
-This work is not mantained by the MiSTer project. Please contact the
-core authors for issues and updates.
-
 (c) LMN-san, OScherler, Raki 2020–2026.
 
 The authors do not endorse or participate in illegal distribution
@@ -29,9 +24,9 @@ module jtnemesis_game(
 	`include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-///////////////////
+// ---------------------------------------------------------------------------
 // Interconnection Signals
-///////////////////
+// ---------------------------------------------------------------------------
 
 wire        cen9, cen6, cen6b, clk6, cen12, cen3p5, cen1p7, cen_audio_clk_div;
 
@@ -49,7 +44,7 @@ wire [ 4:0] red5, green5, blue5, red5_blk, green5_blk, blue5_blk;
 wire [14:0] rgb, rgb_blk;
 wire        preLHBL, preLVBL, preLVBL_n;
 
-// joystick indices
+// joystick indices (jtframe delivers RLDU in [3:0])
 localparam  dir_right  = 0,
             dir_left   = 1,
             dir_down   = 2,
@@ -58,9 +53,11 @@ localparam  dir_right  = 0,
             btn_fire   = 5,
             btn_bomb   = 6;
 
-///////////////////
-// Clock and Clock-Enable Generation
-///////////////////
+// ---------------------------------------------------------------------------
+// Clock enables. gx400_cen derives everything from the 49.152MHz base clock
+// (JTFRAME_PLL=jtframe_pll6144): 9.216MHz 68000, 6.144MHz pixel, 3.579545MHz
+// audio. The "48 MHz" in gx400_cen's comments is the nominal MiSTer clock.
+// ---------------------------------------------------------------------------
 
 assign pxl_cen  = cen6;
 assign pxl2_cen = cen12;
@@ -79,14 +76,11 @@ gx400_cen u_cen(
 	.o_cen_audio_clk_div ( cen_audio_clk_div )
 );
 
-///////////////////
-// ROM Download
-///////////////////
-
 // ---------------------------------------------------------------------------
 // ROM buses. main/snd are declared by mem.yaml; the CPUs are held in reset
 // until the Z80 ROM answers, so neither runs against an empty SDRAM.
 // ---------------------------------------------------------------------------
+
 wire [  3:0] wav1_data, wav2_data;
 wire [  7:0] wav1_vol_data, wav2_vol_data;
 
@@ -103,7 +97,9 @@ always @(posedge clk, posedge rst) begin
 	end
 end
 
-///// SDRAM Data Debugging /////
+// ---------------------------------------------------------------------------
+// SDRAM Data Debugging
+// ---------------------------------------------------------------------------
 
 // Define ROM_DEBUG_Z80 or ROM_DEBUG_MAIN to visualise the first 255 bytes
 // of the respective ROM stored in SDRAM using the debug bus, to check
@@ -111,6 +107,9 @@ end
 // this, as the ROM is disconnected from its address bus.
 // If neither macro is defined, the nemesis_rom_debug module just passes the
 // cs and addr signals through.
+
+// Define ROM_DEBUG_Z80 or ROM_DEBUG_MAIN to dump the first 255 bytes of the
+// respective ROM through debug_view. Otherwise a pass-through.
 
 wire [16:0] req_main_addr;
 wire [13:0] req_audio_addr;
@@ -138,7 +137,9 @@ nemesis_rom_debug u_rom_debug(
 	.o_main_sdram_addr ( main_addr                 )
 );
 
-///// PROMs /////
+// ---------------------------------------------------------------------------
+// PROMs
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // K005289 wave PROMs and the volume table.
@@ -187,9 +188,6 @@ jtframe_prom #( .AW(8), .DW(4) ) u_wav2_rom(
 	.q       ( wav2_data       )
 );
 
-// Volume table loaded from the MRA and that simulates the switched
-// resistor ladders at the output of the 6301 PROMs @ 7A, 7B.
-
 // Volume table: models the switched resistor ladders at the output of the 6301
 // PROMs @ 7A, 7B. Not a PCB ROM -- a computed constant, so it is built in
 // rather than carried by the MRA. Two readers -> two copies.
@@ -216,9 +214,9 @@ jtframe_prom #( .AW(8), .DW(8),
 	.q       ( wav2_vol_data      )
 );
 
-///////////////////
-// Main Board
-///////////////////
+// ---------------------------------------------------------------------------
+// Main board
+// ---------------------------------------------------------------------------
 
 nemesis_main main(
 	.i_clk          ( clk             ), // 48 MHz
@@ -302,6 +300,9 @@ nemesis_main main(
 	.i_pause        ( dip_pause               )  // Pause in OSD
 );
 
+// ---------------------------------------------------------------------------
+// Colour mixing
+// ---------------------------------------------------------------------------
 
 assign rgb = { red5, green5, blue5 };
 assign { red5_blk, green5_blk, blue5_blk } = rgb_blk;
@@ -318,8 +319,8 @@ jtframe_blank #( .DLY(0), .DW(15) ) u_blank(
 	.rgb_out  ( rgb_blk  )  // out
 );
 
-// Lookup table generated by cpp/resnet.cp and that simulates the switched
-// resistor ladders at the output of the 2128-15 RAMs @ 14K, 15K
+// Lookup table generated from MAME’s resnet by firmware/resnet_colmix.cpp, with the Nemesis network values.
+// It simulates the switched resistor ladders at the output of the 2128-15 RAMs @ 14K, 15K
 colour_lut #( .pw(5), .cw(8), .synfile("../firmware/nemesis_colmix.hex") ) u_colour_lut(
 	.clk       ( clk        ),
 	.in_red    ( red5_blk   ),
@@ -330,28 +331,28 @@ colour_lut #( .pw(5), .cw(8), .synfile("../firmware/nemesis_colmix.hex") ) u_col
 	.out_blue  ( blue       )
 );
 
-///////////////////
-// Video Board
-///////////////////
+// ---------------------------------------------------------------------------
+// Video board
+// ---------------------------------------------------------------------------
 
 assign preLVBL = ~preLVBL_n;
 
 GX400A_VIDEO video(
-	.i_MCLK     ( clk              ),     // in             - (Main Clock)  48 MHz
-	.i_RESET    ( rst              ),     // in             - RESET signal
-	.i_HFLIP    ( hflip            ),     // in             - Horizontal Flip
-	.i_VFLIP    ( vflip            ),     // in             - Vertical Flip
-	.i_INTER_NON( 1'b0             ),     // in             - Interlaced/Non-Interlaced
-	.i_288_256  ( 1'b0             ),     // in             - 288 vs. 256 columns
+	.i_MCLK     ( clk              ),     // in  - (Main Clock)  48 MHz
+	.i_RESET    ( rst              ),     // in  - RESET signal
+	.i_HFLIP    ( hflip            ),     // in  - Horizontal Flip
+	.i_VFLIP    ( vflip            ),     // in  - Vertical Flip
+	.i_INTER_NON( 1'b0             ),     // in  - Interlaced/Non-Interlaced
+	.i_288_256  ( 1'b0             ),     // in  - 288 vs. 256 columns
 
-	.i_cen6     ( cen6             ),     // out            - Pixel Clock at 12 MHz
+	.i_cen6     ( cen6             ),     // out - Pixel Clock at 12 MHz
 	.i_cen6b    ( cen6b            ),
-	.i_clk6     ( clk6             ),     // out            - Pixel Clock at  6 MHz
+	.i_clk6     ( clk6             ),     // out - Pixel Clock at  6 MHz
 
-	.o_HS       ( HS               ),     // out            - Horizontal sync (VGA_HS)
-	.o_VS       ( VS               ),     // out            - Vertiacl sync (VGA_VS)
-	.o_HBL      ( preLHBL          ),     // out            - Horizontal BLANK
-	.o_VBL      ( preLVBL_n        ),     // out            - Vertical BLANK
+	.o_HS       ( HS               ),     // out - Horizontal sync (VGA_HS)
+	.o_VS       ( VS               ),     // out - Vertiacl sync (VGA_VS)
+	.o_HBL      ( preLHBL          ),     // out - Horizontal BLANK
+	.o_VBL      ( preLVBL_n        ),     // out - Vertical BLANK
 
 	.o_1h_n     ( video_1h_n       ),
 	.o_2h       ( video_2h         ),
@@ -372,7 +373,6 @@ GX400A_VIDEO video(
 	
 	.o_pal_addr ( pal_addr         )
 );
-
 
 // ---------------------------------------------------------------------------
 // Sound board. Volume constants were tuned by the original authors against a
