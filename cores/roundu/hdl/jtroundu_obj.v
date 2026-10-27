@@ -117,7 +117,9 @@ wire fast_pair_hit = pair_valid && pair_addr == fast_request;
 // address cone, at the cost of posting the prefetch one cycle later
 reg [19:0] r_next_col;
 reg r_next_vld;
-reg [17:0] fast_tile_addr, fast_ahead_addr;
+reg [17:0] fast_tile_addr, fast_ahead_tile;
+wire [17:0] fast_ahead_addr;
+reg fast_ahead_ready;
 reg fast_tile_bank;
 integer fast_delta, fast_r, fast_c, fast_tile, fast_ahead;
 wire fast_hit0 = fast_valid[0] && fast_addr[0] == fast_tile_addr;
@@ -185,6 +187,8 @@ function [17:0] graphics_addr;
         graphics_addr = {physical[14:0],line};
     end
 endfunction
+
+assign fast_ahead_addr = graphics_addr(fast_ahead_tile,d_line);
 
 wire [17:0] fast_start_tile = last_base + {1'b0,fast_col[19:3]};
 wire [17:0] fast_start_addr = graphics_addr(fast_start_tile,fast_line);
@@ -278,7 +282,6 @@ always @* begin
         else if (fast_ahead >= {19'd0,d_span}) fast_ahead = fast_ahead - {19'd0,d_span};
     end
     fast_tile = {14'd0,d_base} + (fast_ahead >> 3);
-    fast_ahead_addr = graphics_addr(fast_tile[17:0],d_line);
 end
 
 task request;
@@ -454,6 +457,8 @@ always @(posedge clk) begin
         rom_owner <= 0;
         r_next_col <= 0;
         r_next_vld <= 0;
+        fast_ahead_tile <= 0;
+        fast_ahead_ready <= 0;
         for (i=0;i<2;i=i+1) begin
             fast_addr[i] <= 0;
             fast_data[i] <= 0;
@@ -480,6 +485,9 @@ always @(posedge clk) begin
         rom_owner <= rom_owner ? fast_pending : !fsm_req && fast_pending;
         r_next_col <= fast_next_col;
         r_next_vld <= dr_state == DR_RUN;
+        fast_ahead_tile <= fast_tile[17:0];
+        fast_ahead_ready <= dr_state == DR_RUN && r_next_vld
+                        && (d_repeat || (fast_ahead >= 0 && fast_ahead < {19'd0,d_span}));
         if (fast_pending) begin
             fast_wait <= rom_owner;
             if (fast_pair_hit) begin
@@ -531,8 +539,7 @@ always @(posedge clk) begin
                         d_col <= fast_next_col;
                         d_rem <= fast_next_rem;
                         if (d_x[2:0] == 3'd7) cov_chunk <= covmap[{d_x[8:3]+5'd1,3'd0}+:8];
-                        if (!fast_pending && r_next_vld && fast_ahead_addr != fast_tile_addr && !fast_ahead_hit
-                         && (d_repeat || (fast_ahead >= 0 && fast_ahead < {19'd0,d_span}))) begin
+                        if (!fast_pending && fast_ahead_ready && fast_ahead_addr != fast_tile_addr && !fast_ahead_hit) begin
                             fast_slot <= !fast_hit1;
                             fast_request <= fast_ahead_addr;
                             fast_pending <= 1;
