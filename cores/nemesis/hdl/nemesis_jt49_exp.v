@@ -34,6 +34,8 @@
 // 2 -> [same]
 // 3 -> [same]
 
+`default_nettype none
+
 module jt49_exp(
     input            clk,
     input      [1:0] comp,  // compression

@@ -32,6 +32,8 @@
 // Specify width of input signals and desired outputs
 // Select gain for each signal
 
+`default_nettype none
+
 module unsigned_mixer #(parameter W0=16,W1=16,W2=16,W3=16,WOUT=16)(
     input             rst,
     input             clk,

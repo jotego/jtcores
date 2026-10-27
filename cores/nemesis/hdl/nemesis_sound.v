@@ -283,7 +283,8 @@ T80s u_audio_cpu(
 	
 	.A       ( cpu_addr     ),
 	.DI      ( cpu_data_in  ),
-	.DOUT    ( cpu_data_out )
+	.DOUT    ( cpu_data_out ),
+	.OUT0    ( 1'b0         )
 );
 
 jtframe_z80wait #(1) u_wait(

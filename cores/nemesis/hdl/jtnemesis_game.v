@@ -53,6 +53,9 @@ localparam  dir_right  = 0,
             btn_fire   = 5,
             btn_bomb   = 6;
 
+// unused (JTFRAME_OSD_FLIP unset,) so just assign it any value
+assign dip_flip = 0;
+
 // ---------------------------------------------------------------------------
 // Clock enables. gx400_cen derives everything from the 49.152MHz base clock
 // (JTFRAME_PLL=jtframe_pll6144): 9.216MHz 68000, 6.144MHz pixel, 3.579545MHz
