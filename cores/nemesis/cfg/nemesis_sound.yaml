@@ -8,9 +8,9 @@ nemesis:
 jtframe:
   - from: cpu
     get:
-      - T80.yaml
-      - jtframe_z80wait.v
+      - jtframe_z80.yaml
 
+# AY-3-8910 x2
 # exclude jt49_exp.v so we can substitute our own
 jt12/jt49:
   - get:

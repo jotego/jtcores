@@ -1,5 +1,6 @@
-[*]
+# [*]
 CORENAME=JTNEMESIS
+
 JTFRAME_BUTTONS=3
 JTFRAME_COLORW=8
 JTFRAME_WIDTH=256
@@ -14,42 +15,28 @@ JTFRAME_CREDITS
 JTFRAME_CREDITS_PAGES=2
 
 # accurate pixel clock
+# 18.432MHz/3 -> 6.144MHz pixel clock, 384x264 total, 60.606Hz
+# (nemesis.cpp gx400_base_state::set_screen_raw_params)
 JTFRAME_PLL=jtframe_pll6144
 
 # unsigned sound
 # TODO: does it still exist?
 JTFRAME_SIGNED_SND=0
 
-JTFRAME_SDRAM_BANKS
-
 JTFRAME_BA1_START=0x40000
-# Determines from which ioctl_addr offset (in bytes) data stops
-# being sent to SDRAM and starts being sent to PROMs (BRAM),
-# using the prog_addr, prog_data, and prom_we signals.
 JTFRAME_PROM_START=0x44000
 
-JT49_EXP=nemesis_jt49_exp
 VOLUME_PROMS=8'd104
 VOLUME_AY1=8'd138
 VOLUME_AY2=8'd102
 
-#ROM_DEBUG_Z80
-#ROM_DEBUG_MAIN
-
+# GX400 custom-chip build options
 # wide address busses in K5295 instead of RAS/CAS
 GX400_UNFOLD_DRAM_ADDR
 
 SDRAM_FIX
 K5291_NO_MUX
 
-#NOMAIN
-#NOSOUND
-#NOVIDEO
-#TEST68K
-#SOUND_TEST
-
 [mister]
 JTFRAME_ARX=5
 JTFRAME_ARY=4
-
-# include debug.def

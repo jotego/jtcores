@@ -8,8 +8,6 @@ jtframe:
   - from: clocking
     get:
       - jtframe_frac_cen.v
-
-fx68k:
-  - get:
-      - files.yaml
-    unless: [ SIMULATION ]
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
