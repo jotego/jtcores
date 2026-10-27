@@ -2,7 +2,6 @@ nemesis:
   - get:
       - jtnemesis_game.v
       - nemesis_rom_debug.v
-      - nemesis_sound_debug.v
       - nemesis_main.yaml
       - nemesis_sound.yaml
       - gx400a_video.yaml

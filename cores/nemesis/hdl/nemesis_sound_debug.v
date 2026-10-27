@@ -23,6 +23,57 @@ You can read the whole license file at http://www.gnu.org/licenses/
 //  Sound Debugging Utility Module (omitted in releases)
 //================================================================================
 
+/*
+
+Usage:
+
+In macros.def:
+
+CORE_OSD+=OPR,Channel Select,All,PROM 1+2+AY2,AY 1,AY 2,PROM 1,PROM 2,PROM 1+2,AY 2+1;
+CORE_OSD+=OKO,Sound Commmand,0x81: Big Core Explode,0x01: Player Shot,0x02: Laser,0x03: Small Laser,0x1A: Catch Option,0x12: Catch Blue Orb,0x08: Zako Death,0x0C: Destroy Ground Enemy,0x24: Bibibiip,0x40: Credit,0x41: Kuuchuusen,0x4B: Level 1,0x42: Level 2,0x44: Level 3,0x45: Level 4,0x43: Level 6,0x46: Hidden Extra Song,0x47: Tutututut,0x48: Game Over,0x49: Boss,0x4A: High Score,0x00: Music Off,0x82: Unknown,0x35: Unknown,0x0A: Unknown;
+
+In jtnemesis_game.v
+
+wire        prom1_on, prom2_on, ay7_on, ay8_on;
+wire [ 7:0] bal_prom, bal_ay7, bal_ay8;
+wire [ 7:0] m68k_data_bus;
+
+nemesis_sound_debug u_sound_debug(
+	.i_command    ( status[24:20] ),
+	.i_channels   ( status[27:25] ),
+
+	// debug mixer
+	.i_vol_prom   ( 4'd0          ),
+	.i_vol_ay7    ( 4'd0          ), // AY2 Music
+	.i_vol_ay8    ( 4'd0          ), // AY1 SFX
+
+	// sound command
+	.o_sound_data ( m68k_data_bus ),
+	
+	// sound channels
+	.o_prom1_on   ( prom1_on      ),
+	.o_prom2_on   ( prom2_on      ),
+	.o_ay7_on     ( ay7_on        ),
+	.o_ay8_on     ( ay8_on        ),
+	
+	// balance
+	.o_bal_prom   ( bal_prom      ),
+	.o_bal_ay7    ( bal_ay7       ),
+	.o_bal_ay8    ( bal_ay8       )
+);
+
+nemesis_sound u_sound(
+	...
+	.i_prom1_on       ( prom1_on  ),
+	.i_prom2_on       ( prom2_on  ),
+	.i_ay7_on         ( ay7_on    ),
+	.i_ay8_on         ( ay8_on    ),
+	.i_vol_prom       ( bal_prom  ),
+	.i_vol_ay7        ( bal_ay7   ), // AY2 Music
+	.i_vol_ay8        ( bal_ay8   )  // AY1 SFX
+	...
+*/
+
 `default_nettype none
 
 module nemesis_sound_debug(

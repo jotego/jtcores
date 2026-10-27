@@ -373,37 +373,15 @@ GX400A_VIDEO video(
 	.o_pal_addr ( pal_addr         )
 );
 
-///////////////////
-// Sound Board
-///////////////////
 
-wire        prom1_on, prom2_on, ay7_on, ay8_on;
-wire [ 7:0] bal_prom, bal_ay7, bal_ay8;
-wire [ 7:0] m68k_data_bus;
+// ---------------------------------------------------------------------------
+// Sound board. Volume constants were tuned by the original authors against a
+// real PCB; nemesis_sound mixes internally and hands jtframe one channel.
+// ---------------------------------------------------------------------------
 
-nemesis_sound_debug u_sound_debug(
-	.i_command    ( status[24:20] ),
-	.i_channels   ( status[27:25] ),
-
-	// debug mixer
-	.i_vol_prom   ( 4'd0          ),
-	.i_vol_ay7    ( 4'd0          ), // AY2 Music
-	.i_vol_ay8    ( 4'd0          ), // AY1 SFX
-
-	// sound command
-	.o_sound_data ( m68k_data_bus ),
-	
-	// sound channels
-	.o_prom1_on   ( prom1_on      ),
-	.o_prom2_on   ( prom2_on      ),
-	.o_ay7_on     ( ay7_on        ),
-	.o_ay8_on     ( ay8_on        ),
-	
-	// balance
-	.o_bal_prom   ( bal_prom      ),
-	.o_bal_ay7    ( bal_ay7       ),
-	.o_bal_ay8    ( bal_ay8       )
-);
+localparam [7:0] VOLUME_PROMS = 8'd104,
+                 VOLUME_AY1   = 8'd138,
+                 VOLUME_AY2   = 8'd102;
 
 nemesis_sound u_sound(
 	.i_clk            ( clk               ),
@@ -437,9 +415,9 @@ nemesis_sound u_sound(
 	.i_prom2_on       ( 1'b1              ),
 	.i_ay7_on         ( 1'b1              ),
 	.i_ay8_on         ( 1'b1              ),
-	.i_vol_prom       ( `VOLUME_PROMS /* bal_prom */ ),
-	.i_vol_ay7        ( `VOLUME_AY2   /* bal_ay7 */  ), // AY2 Music
-	.i_vol_ay8        ( `VOLUME_AY1   /* bal_ay8 */  )  // AY1 SFX
+	.i_vol_prom       ( VOLUME_PROMS      ),
+	.i_vol_ay7        ( VOLUME_AY2        ), // AY2 Music
+	.i_vol_ay8        ( VOLUME_AY1        )  // AY1 SFX
 );
 
 endmodule
