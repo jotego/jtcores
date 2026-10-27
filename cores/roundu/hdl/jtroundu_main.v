@@ -64,7 +64,7 @@ module jtroundu_main(
 reg [2:0] half_delay=0;
 wire cenb = half_delay[2];
 wire [19:0] cpu_addr, addr;
-wire [15:0] cpu_dout;
+wire [15:0] cpu_dout, raw_dout;
 reg  [15:0] cpu_din;
 wire [2:0] bs;
 wire [1:0] lane;
@@ -181,7 +181,7 @@ jtframe_v30 u_cpu (
     .poll_n    ( 1'b1     ),
     .A         ( cpu_addr ),
     .din       ( cpu_din  ),
-    .dout      ( cpu_dout ),
+    .dout      ( raw_dout ),
     .bs        ( bs       ),
     .qs        (          ),
     .rd_n      (          ),
@@ -196,9 +196,11 @@ jtroundu_v30bus u_bus (
     .cenb       ( cenb       ),
     .ready      ( ready      ),
     .cpu_addr   ( cpu_addr   ),
+    .cpu_dout   ( raw_dout   ),
     .bs         ( bs         ),
     .ube_n      ( ube_n      ),
     .addr       ( addr       ),
+    .dout       ( cpu_dout   ),
     .lane       ( lane       ),
     .addr_valid ( addr_valid ),
     .mem_rd     ( rd         ),

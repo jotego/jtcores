@@ -9,9 +9,11 @@ module jtroundu_v30bus(
     input             cenb,
     input             ready,
     input      [19:0] cpu_addr,
+    input      [15:0] cpu_dout,
     input      [ 2:0] bs,
     input             ube_n,
     output reg [19:0] addr,
+    output reg [15:0] dout,
     output reg [ 1:0] lane,
     output            addr_valid,
     output            mem_rd,
@@ -38,9 +40,11 @@ always @(posedge clk) begin
         state      <= TI;
         cycle_type <= 7;
         addr       <= 0;
+        dout       <= 0;
         lane       <= 0;
         t1_latched <= 0;
     end else begin
+        if (cenb) dout <= cpu_dout;
         if (cenb && state == T1) begin
             addr <= cpu_addr;
             lane <= {~ube_n,~cpu_addr[0]};
