@@ -83,19 +83,15 @@ gx400_cen u_cen(
 // ROM Download
 ///////////////////
 
-// ROM data
+// ---------------------------------------------------------------------------
+// ROM buses. main/snd are declared by mem.yaml; the CPUs are held in reset
+// until the Z80 ROM answers, so neither runs against an empty SDRAM.
+// ---------------------------------------------------------------------------
 wire [  3:0] wav1_data, wav2_data;
 wire [  7:0] wav1_vol_data, wav2_vol_data;
 
 // ROM address
 wire [ 7:0] wav1_addr, wav1_vol_addr, wav2_addr, wav2_vol_addr;
-
-///// Download /////
-
-// offsets (in bytes) where each of the PROMs starts
-localparam [21:0] WAV1_OFFSET    = 22'h04_4000,
-                  WAV2_OFFSET    = 22'h04_4100,
-                  WAV_VOL_OFFSET = 22'h04_4200;
 
 reg cpu_start;
 
@@ -144,108 +140,80 @@ nemesis_rom_debug u_rom_debug(
 
 ///// PROMs /////
 
+// ---------------------------------------------------------------------------
+// K005289 wave PROMs and the volume table.
+// prog_addr carries the byte index while prom_we is high, so the per-PROM
+// offsets below are byte offsets into the ROM image.
+// ---------------------------------------------------------------------------
+
+localparam [21:0] WAV1_OFFSET = 22'h04_4000,
+                  WAV2_OFFSET = 22'h04_4100,
+                  PROM_END    = 22'h04_4200;
+
 // create PROM addresses from prog_addr, to start at 0 at the beginning of
 // the PROM. It’s often not needed because the offset is usually larger than
 // the width of the PROM address, but it can become an issue depending on the
 // order of the ROMs, e.g. if you have a 1k ROM followed by a 2k ROM, prog_addr
 // at the beginning of the second ROM will be 0x0400, and prog_addr[10:0] will
 // be 0x0400 instead of 0x0000.
-wire [7:0] prog_addr_wave1    = prog_addr[7:0] - WAV1_OFFSET[7:0],
-           prog_addr_wave2    = prog_addr[7:0] - WAV2_OFFSET[7:0],
-           prog_addr_wave_vol = prog_addr[7:0] - WAV_VOL_OFFSET[7:0];
+wire [7:0] prog_addr_wave1 = prog_addr[7:0] - WAV1_OFFSET[7:0],
+           prog_addr_wave2 = prog_addr[7:0] - WAV2_OFFSET[7:0];
 
 // write-enable signals to select the PROMs to send data to, based on the offsets
-assign prom_a01_we = prom_we && ( prog_addr >= WAV1_OFFSET    ) && ( prog_addr < WAV2_OFFSET    );
-assign prom_a02_we = prom_we && ( prog_addr >= WAV2_OFFSET    ) && ( prog_addr < WAV_VOL_OFFSET );
-assign prom_vol_we = prom_we && ( prog_addr >= WAV_VOL_OFFSET );
+wire prom_a01_we = prom_we && ( prog_addr >= WAV1_OFFSET ) && ( prog_addr < WAV2_OFFSET ),
+     prom_a02_we = prom_we && ( prog_addr >= WAV2_OFFSET ) && ( prog_addr < PROM_END    );
 
 // ** 1K (256 x 4) NiCR PROM **
 // ** [6301] @ 7A            **
-jtframe_prom #(
-	.AW      (  8              ),
-	.DW      (  4              )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav1.hex")
-	`endif
-)
-u_wav1_rom(
+jtframe_prom #( .AW(8), .DW(4) ) u_wav1_rom(
 	.clk     ( clk             ),
 	.cen     ( 1'b1            ),
-	.rd_addr ( wav1_addr[7:0]  ),
+	.rd_addr ( wav1_addr       ),
 	.wr_addr ( prog_addr_wave1 ),
 	.data    ( prog_data[3:0]  ),
 	.we      ( prom_a01_we     ),
 	.q       ( wav1_data       )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom )
-	`endif
 );
 
 // ** 1K (256 x 4) NiCR PROM **
 // ** [6301] @ 7B            **
-jtframe_prom #(
-	.AW      (  8              ),
-	.DW      (  4              )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav2.hex")
-	`endif
-)
-u_wav2_rom(
+jtframe_prom #( .AW(8), .DW(4) ) u_wav2_rom(
 	.clk     ( clk             ),
 	.cen     ( 1'b1            ),
-	.rd_addr ( wav2_addr[7:0]  ),
+	.rd_addr ( wav2_addr       ),
 	.wr_addr ( prog_addr_wave2 ),
 	.data    ( prog_data[3:0]  ),
 	.we      ( prom_a02_we     ),
 	.q       ( wav2_data       )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom      )
-	`endif
 );
 
 // Volume table loaded from the MRA and that simulates the switched
 // resistor ladders at the output of the 6301 PROMs @ 7A, 7B.
 
-jtframe_prom #(
-	.AW      (  8                 ),
-	.DW      (  8                 ),
-	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav1_vol.hex")
-	`endif
-)
-u_wav1_vol_rom(
+// Volume table: models the switched resistor ladders at the output of the 6301
+// PROMs @ 7A, 7B. Not a PCB ROM -- a computed constant, so it is built in
+// rather than carried by the MRA. Two readers -> two copies.
+
+jtframe_prom #( .AW(8), .DW(8),
+	.SIMHEX("../firmware/nemesis_prom_vol.hex"), .SYNHEX("../firmware/nemesis_prom_vol.hex")) u_wav1_vol_rom(
 	.clk     ( clk                ),
 	.cen     ( 1'b1               ),
-	.rd_addr ( wav1_vol_addr[7:0] ),
-	.wr_addr ( prog_addr_wave_vol ),
-	.data    ( prog_data[7:0]     ),
-	.we      ( prom_vol_we        ),
+	.rd_addr ( wav1_vol_addr      ),
+	.wr_addr ( 8'd0               ),
+	.data    ( 8'd0               ),
+	.we      ( 1'b0               ),
 	.q       ( wav1_vol_data      )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom         )
-	`endif
 );
 
-jtframe_prom #(
-	.AW      (  8                 ),
-	.DW      (  8                 ),
-	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav2_vol.hex")
-	`endif
-)
-u_wav2_vol_rom(
+jtframe_prom #( .AW(8), .DW(8),
+	.SIMHEX("../firmware/nemesis_prom_vol.hex"), .SYNHEX("../firmware/nemesis_prom_vol.hex")) u_wav2_vol_rom(
 	.clk     ( clk                ),
 	.cen     ( 1'b1               ),
-	.rd_addr ( wav2_vol_addr[7:0] ),
-	.wr_addr ( prog_addr_wave_vol ),
-	.data    ( prog_data[7:0]     ),
-	.we      ( prom_vol_we        ),
+	.rd_addr ( wav2_vol_addr      ),
+	.wr_addr ( 8'd0               ),
+	.data    ( 8'd0               ),
+	.we      ( 1'b0               ),
 	.q       ( wav2_vol_data      )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom         )
-	`endif
 );
 
 ///////////////////
