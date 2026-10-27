@@ -103,7 +103,7 @@ set_output_delay -clock  HDMI_CLK -max -1.0 \
 # Set Clock Groups
 #**************************************************************
 
-set_clock_groups -asynchronous -group [get_clocks {QSCK}] -group [get_clocks {*|altpll_component|auto_generated|pll1|clk[*]}]
+set_clock_groups -asynchronous -group [get_clocks {QSCK}]
 
 #**************************************************************
 # Set False Path

@@ -50,7 +50,7 @@ reg [31:0] clut_h [0:511];
 reg [31:0] clut_l_q, clut_h_q;
 reg [32:0] inverse [0:511];
 reg [24:0] shrink_table [0:256];
-reg [32:0] scale_inverse;
+reg [32:0] scale_inverse_rom, scale_inverse;
 reg [24:0] shrink;
 reg [15:0] attr [0:5];
 reg [2:0] attr_step;
@@ -199,23 +199,16 @@ reg [19:0] jump_col;
 reg [8:0] jump_rem;
 reg [3:0] jump_k;
 reg [11:0] jump_kstep, jump_krem;
+reg [11:0] jump_steps [0:7], jump_remainders [0:7];
 reg [12:0] jump_m [0:8];
 reg [13:0] jump_tot, jump_u;
 reg [7:0] jump_ge;
 reg [3:0] jump_c;
 integer jm;
-// parallel k-step advance: products by shift select, carries by parallel
-// compares against scale multiples and a popcount, instead of a serial chain
 always @* begin
     jump_k = 4'd8 - {1'b0,d_x[2:0]};
-    jump_kstep = ({3'd0,d_step} & {12{jump_k[0]}})
-               + (({2'd0,d_step} << 1) & {12{jump_k[1]}})
-               + (({1'd0,d_step} << 2) & {12{jump_k[2]}})
-               + (({3'd0,d_step} << 3) & {12{jump_k[3]}});
-    jump_krem  = ({3'd0,d_step_rem} & {12{jump_k[0]}})
-               + (({2'd0,d_step_rem} << 1) & {12{jump_k[1]}})
-               + (({1'd0,d_step_rem} << 2) & {12{jump_k[2]}})
-               + (({3'd0,d_step_rem} << 3) & {12{jump_k[3]}});
+    jump_kstep = jump_steps[d_x[2:0]];
+    jump_krem = jump_remainders[d_x[2:0]];
     jump_m[0] = 0;
     jump_m[1] = {4'd0,d_scale};
     jump_m[2] = {3'd0,d_scale,1'd0};
@@ -334,7 +327,8 @@ wire [26:0] lookup_line = lookup_raw*scale > {9'd0,pixel_dist_y,7'd0} ? lookup_r
 wire [31:0] lookup_row  = ({5'd0,lookup_line} - {23'd0,top_line}) >> 3;
 
 always @(posedge clk) begin
-    scale_inverse <= inverse[scale];
+    if (state == ATTR) scale_inverse_rom <= inverse[frame_data[72:64]];
+    scale_inverse <= scale_inverse_rom;
     shrink <= shrink_table[slope_abs];
     clut_l_q <= clut_l[color_index[11:3]];
     clut_h_q <= clut_h[color_index[11:3]];
@@ -855,6 +849,10 @@ always @(posedge clk) begin
                 d_rem <= fast_rem;
                 d_step <= fast_step;
                 d_step_rem <= fast_step_rem;
+                for (i=0;i<8;i=i+1) begin
+                    jump_steps[i] <= {3'd0,fast_step} * (4'd8 - i[3:0]);
+                    jump_remainders[i] <= {3'd0,fast_step_rem} * (4'd8 - i[3:0]);
+                end
                 d_span <= fast_span;
                 d_line <= fast_line;
                 d_x <= draw_x;
