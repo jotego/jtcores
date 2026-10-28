@@ -23,9 +23,6 @@ module jtframe_mist #(parameter
     // interface with microcontroller
     output      [63:0] status,
     output      [31:0] dipsw,
-`ifdef JTFRAME_VIDEO_CAPTURE
-    input game_vblank_irq, game_vblank_taken,
-`endif
     // Base video
     input [COLORW-1:0] game_r, game_g, game_b,
     input              LHBL,
@@ -184,13 +181,11 @@ module jtframe_mist #(parameter
 
 // control
 wire [31:0]   joystick1, joystick2, joystick3, joystick4;
-`ifdef JTFRAME_CAB_STREAM
 wire cab_active;
 wire [20:0] cab_inputs;
 wire cab_dipsw_valid;
 wire [31:0] cab_dipsw;
 wire cab_dump_pause;
-`endif
 reg  [63:0]   board_status;
 wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
@@ -214,7 +209,7 @@ wire          base_lhbl, base_lvbl, base_hs, base_vs;
 
 assign paddle_3 = 0;
 assign paddle_4 = 0;
-assign dipsw = `ifdef JTFRAME_CAB_STREAM cab_dipsw_valid ? cab_dipsw : `endif
+assign dipsw = cab_dipsw_valid ? cab_dipsw :
     `ifdef JTFRAME_SIM_DIPS
     `JTFRAME_SIM_DIPS `else
     status[31+DIPBASE:DIPBASE] `endif;
@@ -227,24 +222,25 @@ always @* begin
     board_status[33:32] = status[7:6];
 end
 
-`ifdef JTFRAME_VIDEO_CAPTURE
-wire [1535:0] video_snapshot;
-wire [767:0] video_line_snapshot;
-wire [127:0] video_window_snapshot;
-wire [1023:0] video_window;
 wire video_rx_strobe, video_hold, video_pause;
+wire video_read_ready, video_read_bank, video_read_consume, video_cancel_toggle;
 wire [7:0] video_rx_cmd, video_rx_byte;
+wire [7:0] video_read_prefix;
 wire [4:0] video_rx_index;
-wire [31:0] video_cab_frame, video_cab_epoch;
+wire [31:0] video_cab_frame, video_info_frame;
+wire [15:0] video_info_width, video_info_height;
+wire [9:0] video_pixel_addr;
+wire [15:0] video_pixel_data;
+`ifdef JTFRAME_REMOTE
+localparam JTFRAME_REMOTE_SUPPORT = 1'b1;
 jtframe_capture #(
     .WIDTH    ( VIDEO_WIDTH                                      ),
     .HEIGHT   ( VIDEO_HEIGHT                                     ),
-    .COLORW   ( COLORW                                           ),
-    .CLOCK_HZ ( `JTFRAME_MCLK                                    ),
-    .FEEDBACK ( `ifdef JTFRAME_CAPTURE_FEEDBACK 1 `else 0 `endif )
+    .COLORW   ( COLORW                                           )
 ) u_capture(
     .rst              ( rst                   ),
     .clk              ( clk_sys               ),
+    .spi_clk          ( SPI_SCK               ),
     .game_reset       ( game_rst              ),
     .pxl_cen          ( pxl_cen               ),
     .lhbl             ( LHBL                  ),
@@ -252,30 +248,49 @@ jtframe_capture #(
     .red              ( game_r                ),
     .green            ( game_g                ),
     .blue             ( game_b                ),
-    .irq_level        ( game_vblank_irq       ),
-    .irq_taken_toggle ( game_vblank_taken     ),
-    .dump_pause       ( cab_dump_pause        ),
+    .cab_active       ( cab_active            ),
     .cab_frame        ( video_cab_frame       ),
-    .cab_epoch        ( video_cab_epoch       ),
+    .dump_pause       ( cab_dump_pause        ),
     .rx_strobe        ( video_rx_strobe       ),
     .rx_cmd           ( video_rx_cmd          ),
     .rx_byte          ( video_rx_byte         ),
     .rx_index         ( video_rx_index        ),
+    .spi_read_consume ( video_read_consume    ),
+    .spi_pixel_addr   ( video_pixel_addr      ),
+    .spi_pixel_data   ( video_pixel_data      ),
+    .info_width       ( video_info_width      ),
+    .info_height      ( video_info_height     ),
+    .info_frame       ( video_info_frame      ),
+    .spi_read_ready   ( video_read_ready      ),
+    .spi_read_prefix  ( video_read_prefix     ),
+    .spi_read_bank    ( video_read_bank       ),
+    .cancel_toggle    ( video_cancel_toggle   ),
     .pause_gate       ( video_pause           ),
-    .capture_hold     ( video_hold            ),
-    .snapshot         ( video_snapshot        ),
-    .line_snapshot    ( video_line_snapshot   ),
-    .window_snapshot  ( video_window_snapshot ),
-    .read_window      ( video_window          )
+    .capture_hold     ( video_hold            )
 );
+`else
+localparam JTFRAME_REMOTE_SUPPORT = 1'b0;
+assign video_pause = 1'b0;
+assign video_hold = 1'b0;
+assign video_cancel_toggle = 1'b0;
+assign video_info_frame = 32'd0;
+assign video_info_width = 16'd0;
+assign video_info_height = 16'd0;
+assign video_read_ready = 1'b0;
+assign video_read_prefix = 8'd0;
+assign video_read_bank = 1'b0;
+assign video_pixel_data = 16'd0;
 `endif
 
 jtframe_mist_base #(
     .SIGNED_SND     ( SIGNED_SND    ),
     .COLORW         ( COLORW        ),
+    .VIDEO_WIDTH    ( VIDEO_WIDTH   ),
+    .VIDEO_HEIGHT   ( VIDEO_HEIGHT  ),
     .VGA_DW         ( VGA_DW        ),
     .QSPI           ( QSPI          ),
-    .HDMI           ( HDMI          )
+    .HDMI           ( HDMI          ),
+    .REMOTE_SUPPORT ( JTFRAME_REMOTE_SUPPORT )
 ) u_base(
     .rst            ( rst           ),
     .sdram_init     ( sdram_init    ),
@@ -340,26 +355,27 @@ jtframe_mist_base #(
     .joystick2      ( joystick2     ),
     .joystick3      ( joystick3     ),
     .joystick4      ( joystick4     ),
-`ifdef JTFRAME_VIDEO_CAPTURE
-    .video_snapshot        ( video_snapshot        ),
-    .video_line_snapshot   ( video_line_snapshot   ),
-    .video_window_snapshot ( video_window_snapshot ),
-    .video_window          ( video_window          ),
-    .video_rx_strobe       ( video_rx_strobe       ),
-    .video_rx_cmd          ( video_rx_cmd          ),
-    .video_rx_byte         ( video_rx_byte         ),
-    .video_rx_index        ( video_rx_index        ),
-    .video_hold            ( video_hold            ),
-    .video_cab_frame       ( video_cab_frame       ),
-    .video_cab_epoch       ( video_cab_epoch       ),
-`endif
-`ifdef JTFRAME_CAB_STREAM
+    .video_read_ready       ( video_read_ready      ),
+    .video_read_prefix      ( video_read_prefix     ),
+    .video_read_bank        ( video_read_bank       ),
+    .video_read_consume     ( video_read_consume    ),
+    .video_cancel_toggle    ( video_cancel_toggle   ),
+    .video_width            ( video_info_width      ),
+    .video_height           ( video_info_height     ),
+    .video_frame            ( video_info_frame      ),
+    .video_pixel_addr       ( video_pixel_addr      ),
+    .video_pixel_data       ( video_pixel_data      ),
+    .video_rx_strobe        ( video_rx_strobe       ),
+    .video_rx_cmd           ( video_rx_cmd          ),
+    .video_rx_byte          ( video_rx_byte         ),
+    .video_rx_index         ( video_rx_index        ),
+    .video_hold             ( video_hold            ),
+    .video_cab_frame        ( video_cab_frame       ),
     .cab_active     ( cab_active    ),
     .cab_inputs     ( cab_inputs    ),
     .cab_dipsw_valid( cab_dipsw_valid),
     .cab_dipsw      ( cab_dipsw     ),
     .cab_dump_pause ( cab_dump_pause),
-`endif
     .but_start      ( but_start     ),
     .but_coin       ( but_coin      ),
     // Analog joystick
@@ -424,9 +440,7 @@ jtframe_board #(
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
-`ifdef JTFRAME_VIDEO_CAPTURE
     .capture_pause  ( video_pause     ),
-`endif
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
@@ -457,11 +471,9 @@ jtframe_board #(
     .ps2_kbd_clk    ( ps2_clk         ),
     .ps2_kbd_data   ( ps2_dout        ),
     .board_joystick1( joystick1[15:0] ),
-`ifdef JTFRAME_CAB_STREAM
     .cab_active    ( cab_active     ),
     .cab_inputs    ( cab_inputs     ),
     .cab_dump_pause( cab_dump_pause ),
-`endif
     .board_joystick2( joystick2[15:0] ),
     .board_joystick3( joystick3[15:0] ),
     .board_joystick4( joystick4[15:0] ),

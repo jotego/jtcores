@@ -1,7 +1,10 @@
 # SiDi128 CAB input stream
 
-SiDi128 enables `JTFRAME_CAB_STREAM` in its target defaults. Other targets do
-not instantiate this interface. The target advertises `FEAT_CAB_STREAM`
+SiDi128 enables `JTFRAME_REMOTE` in its target defaults. One capture-instance
+boundary selects remote support and passes the existing feature mask into the
+MiST-family user-I/O block. Shared board, input and joystick logic is always
+CAB-aware; unsupported targets supply zero controls, and constant feature gates
+remove the disabled SPI paths and CAB snapshot logic. The target advertises `FEAT_CAB_STREAM`
 (`0x00020000`), `FEAT_CAB_DIPS` (`0x00040000`) and the dump-barrier protocol
 (`0x00080000`) to the MCU. Actual dump support also requires the core's valid
 Save NVRAM `R<length>,...` entry. This is independent

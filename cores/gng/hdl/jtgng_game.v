@@ -68,10 +68,6 @@ jtgng_timer u_timer(
 );
 
 jtgng_main u_main(
-`ifdef JTFRAME_CAPTURE_FEEDBACK
-    .game_vblank_irq  ( game_vblank_irq   ),
-    .game_vblank_taken( game_vblank_taken ),
-`endif
     .rst        ( rst           ),
     .clk        ( clk           ),
     .clk_dma    ( clk           ),

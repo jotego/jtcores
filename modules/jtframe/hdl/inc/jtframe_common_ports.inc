@@ -15,10 +15,6 @@
 `endif
     output   [`JTFRAME_COLORW-1:0]  red, green, blue,
     output          LHBL, LVBL, HS, VS,
-`ifdef JTFRAME_CAPTURE_FEEDBACK
-    // Source-qualified main-CPU frame interrupt request and acceptance.
-    output          game_vblank_irq, game_vblank_taken,
-`endif
     // cabinet I/O
     input   [ 3:0]  cab_1p, coin,
     input   [`JTFRAME_BUTTONS+3:0] joystick1, joystick2, joystick3, joystick4,

@@ -19,10 +19,8 @@ module jtframe_inputs(
     output            game_pause,
 
     input      [15:0] board_joy1, board_joy2, board_joy3, board_joy4, ana1, ana2,
-`ifdef JTFRAME_CAB_STREAM
     input             cab_active,
     input      [20:0] cab_inputs,
-`endif
     input       [3:0] board_coin, board_start,
 
     input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
@@ -108,10 +106,8 @@ wire [3:0] joy_start, joy_coin;
     assign joy_coin  = 0;
 `else
     always @(posedge clk) begin
-`ifdef JTFRAME_CAB_STREAM
         if(cab_active) joy_pause <= 0;
         else
-`endif
         joy_pause <= board_joy1[PAUSE_BIT] | board_joy2[PAUSE_BIT] | board_joy3[PAUSE_BIT] | board_joy4[PAUSE_BIT];
     end
     assign joy_start = { board_joy4[START_BIT], board_joy3[START_BIT], board_joy2[START_BIT], board_joy1[START_BIT]};
@@ -132,10 +128,8 @@ jtframe_joysticks u_joysticks(
     .key_coin   ( key_coin      ),
     .key_start  ( key_start     ),
     .key_service( key_service   ),
-`ifdef JTFRAME_CAB_STREAM
     .cab_active ( cab_active    ),
     .cab_inputs ( cab_inputs    ),
-`endif
     .key_reset  ( key_reset     ),
     .joy_coin   ( joy_coin      ),
     .joy_start  ( joy_start     ),
@@ -194,13 +188,9 @@ jtframe_debug_keys u_debugkeys(
 );
 
 wire pause_key, pause_osd, advance_key;
-`ifdef JTFRAME_CAB_STREAM
 assign pause_key = key_pause && !cab_active;
 assign pause_osd = osd_pause && !cab_active;
 assign advance_key = key_service && !cab_active;
-`else
-assign pause_key=key_pause, pause_osd=osd_pause, advance_key=key_service;
-`endif
 
 jtframe_pause u_pause(
     .rst        ( rst           ),

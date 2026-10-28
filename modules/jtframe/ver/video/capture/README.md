@@ -1,4 +1,6 @@
-Small native-raster acquisition verifies two immutable buffers, out-of-order
-release, missing-line completion, identity/offset checks and repeated read windows.
-Unconfirmed boot keeps logical time advancing; validated pause holds the CAB
-cursor while physical raster counters continue. New sessions cannot steal buffers.
+# Native capture controller test
+
+Verifies the deterministic row counter, two-slot publication and consumption,
+exact row budget, boundary pause release, and liveness when the next BEGIN
+arrives during drain. The final case sends BEGIN on the same edge as the drain
+release boundary.

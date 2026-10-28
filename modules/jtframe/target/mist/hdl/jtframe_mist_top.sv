@@ -286,10 +286,6 @@ jtframe_mist #(
     .XOR_ROT      ( 1'b1           )    // control rotation is on by default for MiST platforms as there is no hardware rotation
 )
 u_frame(
-`ifdef JTFRAME_VIDEO_CAPTURE
-    .game_vblank_irq   ( game_vblank_irq   ),
-    .game_vblank_taken ( game_vblank_taken ),
-`endif
     .clk_sys        ( clk_sys        ),
     .clk_rom        ( clk_rom        ),
     .clk_pico       ( clk_pico       ),
