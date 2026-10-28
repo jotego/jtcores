@@ -15,9 +15,7 @@ module jtframe_board #(parameter
 )(
     output              rst,
     output              rst_n,
-`ifdef JTFRAME_VIDEO_CAPTURE
     input               capture_pause,
-`endif
     output              game_rst,
     output              game_rst_n,
     output              sdram_init,
@@ -91,11 +89,9 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
-`ifdef JTFRAME_CAB_STREAM
     input               cab_active,
     input        [20:0] cab_inputs,
     input               cab_dump_pause,
-`endif
     input        [ 3:0] board_start,     board_coin,
     input        [15:0] joyana_l1,       joyana_r1,       joyana_l2,       joyana_r2,
     output       [ 9:0] game_joystick1,  game_joystick2,  game_joystick3,  game_joystick4,
@@ -547,10 +543,8 @@ jtframe_inputs #(
     .soft_rst       ( soft_rst        ),
 
     .board_joy1     ( board_joystick1 ),
-`ifdef JTFRAME_CAB_STREAM
     .cab_active     ( cab_active     ),
     .cab_inputs     ( cab_inputs     ),
-`endif
     .board_joy2     ( board_joystick2 ),
     .board_joy3     ( board_joystick3 ),
     .board_joy4     ( board_joystick4 ),
@@ -639,7 +633,7 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
-assign effective_pause = game_pause `ifdef JTFRAME_VIDEO_CAPTURE | capture_pause `endif `ifdef JTFRAME_CAB_STREAM | cab_dump_pause `endif;
+assign effective_pause = game_pause | capture_pause | cab_dump_pause;
 
 jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),

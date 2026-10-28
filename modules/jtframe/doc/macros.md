@@ -239,17 +239,14 @@ JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide cred
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
 JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
 
-### JTFRAME_CAPTURE_FEEDBACK
+### JTFRAME_REMOTE
 
-Optional game outputs `game_vblank_irq` and `game_vblank_taken` (accepted-event
-toggle) carry the source-qualified main-CPU frame IRQ and its acceptance through
-the game wrapper. Currently used by GNG; absence explicitly disables feedback.
-Capture uses recent acceptance plus a settling interval for IRQ-driven games;
-it does not inspect the CPU PC or require a particular ROM signature. See [video capture](video-capture.md).
-
-### JTFRAME_VIDEO_CAPTURE
-
-SiDi128 target default. Adds native two-line RGB444 capture and feature0x100000,
-independent64-bit progress counters and SPI0x90..0x99, including release builds.
-It requires firmware geometry/ownership checks and validated per-set pause policy.
-Other targets leave it disabled. See [video capture](video-capture.md).
+Enables the paired remote video-capture and CAB input/dump interfaces on the
+MiST-family user-I/O SPI path. The macro is used once at the capture-instance
+boundary; shared board input and joystick logic remains CAB-aware and receives
+constant-zero controls when remote support is disabled. The boundary passes
+the existing feature mask (`0x001e0000`) into user-I/O, where constant feature
+gates remove the remote SPI handlers when disabled. Capture uses RGB444 for
+`COLORW<=4` and RGB555 for `COLORW>=5`, selected at compile time. SiDi128
+enables this macro by default in both debug and release builds. See
+[video capture](video-capture.md) and [CAB stream](cab-stream.md).

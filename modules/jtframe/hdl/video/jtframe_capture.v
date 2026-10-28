@@ -1,279 +1,322 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Date: 26-10-2026 */
+ * Date: 27-10-2026 */
 
-// Native two-line acquisition and coherent, identity-checked SPI mailbox.
-
+// Small ordered two-slot native-color capture stream.
 module jtframe_capture #(
-    parameter WIDTH=256, HEIGHT=224, COLORW=4, CLOCK_HZ=48000000,
-    parameter FEEDBACK=0
+    parameter WIDTH=256,
+    parameter HEIGHT=224,
+    parameter COLORW=4
 )(
-    input rst, clk, game_reset, pxl_cen, lhbl, lvbl,
-    input [COLORW-1:0] red, green, blue,
-    input irq_level, irq_taken_toggle, dump_pause,
-    input [31:0] cab_frame, cab_epoch,
+    input rst,
+    input clk,
+    input spi_clk,
+    input game_reset,
+    input pxl_cen,
+    input lhbl,
+    input lvbl,
+    input [COLORW-1:0] red,
+    input [COLORW-1:0] green,
+    input [COLORW-1:0] blue,
+    input cab_active,
+    input [31:0] cab_frame,
+    input dump_pause,
     input rx_strobe,
-    input [7:0] rx_cmd, rx_byte,
+    input [7:0] rx_cmd,
+    input [7:0] rx_byte,
     input [4:0] rx_index,
-    output pause_gate, capture_hold,
-    output reg [1535:0] snapshot,
-    output reg [767:0] line_snapshot,
-    output reg [127:0] window_snapshot,
-    output [1023:0] read_window
+    input spi_read_consume,
+    input [9:0] spi_pixel_addr,
+    output [15:0] spi_pixel_data,
+    output [15:0] info_width,
+    output [15:0] info_height,
+    output reg [31:0] info_frame,
+    output spi_read_ready,
+    output [7:0] spi_read_prefix,
+    output spi_read_bank,
+    output reg cancel_toggle,
+    output pause_gate,
+    output reg capture_hold
 );
 
-localparam [7:0] NATIVE_BITS=COLORW;
-localparam [15:0] WIDTH16=WIDTH, HEIGHT16=HEIGHT;
-localparam [31:0] CLOCK32=CLOCK_HZ;
-localparam IDLE=0, WAIT_TARGET=1, CONFIRM=2, ACQUIRE=3, DONE=4, ERROR=5, RESUME=6;
-reg [2:0] state;
-reg [7:0] error;
-reg [191:0] payload;
-reg [63:0] cookie, expected_epoch, capture_seq, requested, achieved,
-           first_raster,last_raster,first_game,last_game, deadline, settled_at;
-reg contract_valid, pause_request, strict_capture, settled, have_source;
-reg [HEIGHT-1:0] missing;
-reg [9:0] remaining, y;
-reg active_l, selected, selected_valid;
-reg [1:0] start_line, finish_line, release_line, read_start, collecting;
-reg [11:0] first_pixel[0:1];
-reg [63:0] end_irq[0:1],end_raster[0:1],end_game[0:1];
-reg [31:0] end_cab[0:1];
-localparam YW=$clog2(HEIGHT);
-reg [9:0] offset;
-reg [7:0] length;
-reg [31:0] next_line_seq;
-reg [735:0] tags[0:1];
-reg [63:0] line_irq[0:1];
-reg [9:0] line_y[0:1];
-reg hold_for_raster;
-wire [1:0] free, ready, read_ready;
-wire [767:0] headers[0:1];
-wire [1023:0] windows[0:1];
-wire [735:0] end_tags[0:1];
-reg [191:0] packet;
-wire [11:0] rgb;
-wire [4*COLORW-1:0] red_repeat,green_repeat,blue_repeat;
-wire [31:0] delivered;
-wire [31:0] flags;
-wire raster_tick, effective, lost, irq_observed, service_observed;
-wire [63:0] epoch,raster,game,irqs,irq_generation,raster_now,game_now,irq_now;
-wire [31:0] raster_period;
-wire native_active, active_start, active_end, context_ok, identity_ok;
-wire [1:0] sample_line;
-wire [9:0] capture_y;
-wire feedback_valid;
-wire no_step;
-wire [11:0] input_rgb[0:1];
-genvar g;
+localparam IDLE=0, WAIT_TARGET=1, SETTLE=2, ACQUIRE=3, DRAIN=4, DONE=5;
+localparam [9:0] WIDTH10=WIDTH;
+localparam [9:0] HEIGHT10=HEIGHT;
 
-assign capture_y=raster_tick ? 10'd0 : y;
-assign feedback_valid=FEEDBACK!=0;
-assign no_step=1'b0;
-assign native_active=lhbl && lvbl;
-assign active_start=pxl_cen && native_active && !active_l;
-assign active_end=pxl_cen && !native_active && active_l;
-always @* begin
-    packet=payload;
-    if(rx_index!=0) packet[{rx_index-5'd1,3'b000} +:8]=rx_byte;
-end
-assign context_ok=cookie!=0 && expected_epoch==epoch;
-assign identity_ok=context_ok && payload[63:0]==cookie && payload[127:64]==capture_seq;
-assign flags={26'd0,strict_capture,effective,service_observed,irq_observed,contract_valid,feedback_valid};
-assign sample_line=start_line | (collecting & {2{pxl_cen && native_active}});
-assign capture_hold=hold_for_raster;
-assign read_window=windows[selected];
-// Narrow components repeat MSBs to fill four bits. >4-bit cores do not advertise
-// this RGB444-only implementation and are rejected by the MCU.
-assign red_repeat={4{red}};
-assign green_repeat={4{green}};
-assign blue_repeat={4{blue}};
-assign rgb={red_repeat[4*COLORW-1-:4],green_repeat[4*COLORW-1-:4],blue_repeat[4*COLORW-1-:4]};
-assign delivered=HEIGHT-{22'd0,remaining};
+reg [2:0] state;
+reg [31:0] local_frame, requested;
+reg [39:0] begin_payload;
+reg [9:0] step, next_y, residue, native_y, rows_remaining;
+reg [1:0] settle_rasters;
+reg begin_pending, info_capture_pending;
+reg [1:0] publish_toggle;
+reg [1:0] consume_meta, consume_sync;
+reg [1:0] consume_toggle;
+reg [1:0] publish_meta, publish_sync;
+reg cancel_meta, cancel_sync, cancel_seen;
+reg consumer_bank, producer_bank, cab_mode, pause_request;
+reg [7:0] bank_prefix0, bank_prefix1;
+reg active_l, lvbl_l, line_collecting;
+reg game_reset_l;
+reg engine_abort;
+wire [14:0] rgb;
+wire [4*COLORW-1:0] red_repeated, green_repeated, blue_repeated;
+wire native_active, active_start, active_end, raster_tick;
+wire [10:0] next_row_sum;
+wire bank_free, engine_busy, engine_committed, engine_bank;
+wire cancel_event, begin_accept, strict_cancel;
+wire drain_release;
+wire line_sample;
+wire line_start;
+wire line_finish;
+wire [7:0] engine_prefix;
+wire [1:0] free_slots;
+wire [31:0] selected_frame;
+wire [31:0] frame_after_boundary;
+wire [15:0] begin_step;
+wire [9:0] active_y;
+
+assign info_width = { (COLORW>=5), 5'd0, WIDTH10 };
+assign info_height = HEIGHT;
+assign pause_gate = pause_request;
+assign native_active = lhbl && lvbl;
+assign active_start = pxl_cen && native_active && !active_l;
+assign active_end = pxl_cen && !native_active && active_l;
+assign raster_tick = pxl_cen && lvbl && !lvbl_l;
+assign red_repeated = {4{red}};
+assign green_repeated = {4{green}};
+assign blue_repeated = {4{blue}};
+generate
+    if(COLORW>=5) begin : gen_rgb555
+        assign rgb = {red_repeated[4*COLORW-1 -: 5],
+                      green_repeated[4*COLORW-1 -: 5],
+                      blue_repeated[4*COLORW-1 -: 5]};
+    end else begin : gen_rgb444
+        assign rgb = {3'd0, red_repeated[4*COLORW-1 -: 4],
+                      green_repeated[4*COLORW-1 -: 4],
+                      blue_repeated[4*COLORW-1 -: 4]};
+    end
+endgenerate
+assign line_start = state==ACQUIRE && active_start && active_y==next_y &&
+                    rows_remaining!=0 && !line_collecting && !engine_busy && bank_free;
+assign line_finish = active_end && line_collecting;
+assign line_sample = line_start || (pxl_cen && native_active && line_collecting);
+assign next_row_sum = {1'b0,next_y}+{1'b0,step};
+assign selected_frame = cab_mode ? cab_frame : local_frame;
+assign frame_after_boundary = selected_frame+1'd1;
+assign begin_step = {rx_byte,begin_payload[39:32]};
+assign active_y = raster_tick ? 10'd0 : native_y;
+assign strict_cancel = game_reset && !game_reset_l &&
+                       (state!=IDLE || pause_request || rows_remaining!=0 ||
+                        publish_toggle!=0 || line_collecting);
+assign cancel_event = strict_cancel || (rx_strobe && rx_cmd==8'h99 && rx_index==0);
+assign begin_accept = rx_strobe && rx_cmd==8'h91 && rx_index==6;
+assign drain_release = state==DRAIN && publish_toggle==consume_sync && !engine_busy && raster_tick;
+assign free_slots = {publish_toggle[1]==consume_sync[1],publish_toggle[0]==consume_sync[0]};
+assign bank_free = producer_bank ? free_slots[1] : free_slots[0];
+assign spi_read_bank = consumer_bank;
+assign spi_read_ready = publish_sync[consumer_bank]!=consume_toggle[consumer_bank];
+assign spi_read_prefix = !spi_read_ready ? 8'd0 : consumer_bank ? bank_prefix1 : bank_prefix0;
 
 always @(posedge clk) begin
-    // CAB consumes the same physical edge two clocks later. Remember whether
-    // *that edge* advanced logical time, rather than an asynchronous change in
-    // effective pause between the native edge and the synchronized CAB tick.
-    if(rst) hold_for_raster<=0;
-    else if(raster_tick) hold_for_raster<=effective;
+    if(rst) begin
+        game_reset_l<=0;
+        consume_meta<=0;
+        consume_sync<=0;
+    end else begin
+        game_reset_l<=game_reset;
+        consume_meta<=consume_toggle;
+        consume_sync<=consume_meta;
+    end
+end
+
+always @(posedge spi_clk or posedge rst) begin
+    if(rst) begin
+        publish_meta<=0;
+        publish_sync<=0;
+        cancel_meta<=0;
+        cancel_sync<=0;
+        cancel_seen<=0;
+        consume_toggle<=0;
+        consumer_bank<=0;
+    end else begin
+        publish_meta<=publish_toggle;
+        publish_sync<=publish_meta;
+        cancel_meta<=cancel_toggle;
+        cancel_sync<=cancel_meta;
+        if(cancel_sync!=cancel_seen) begin
+            cancel_seen<=cancel_sync;
+            consume_toggle<=publish_sync;
+            consumer_bank<=0;
+        end else if(spi_read_consume && spi_read_ready) begin
+            consume_toggle[consumer_bank]<=publish_sync[consumer_bank];
+            consumer_bank<=~consumer_bank;
+        end
+    end
 end
 
 always @(posedge clk) begin
     if(rst) begin
-        payload<=0; snapshot<=0; line_snapshot<=0; window_snapshot<=0;
-        state<=IDLE; error<=0; cookie<=0; expected_epoch<=0; capture_seq<=0;
-        contract_valid<=0; pause_request<=0; strict_capture<=0; settled<=0; have_source<=0;
-        missing<=0; remaining<=0; y<=0; active_l<=0;
-        start_line<=0; finish_line<=0; release_line<=0; read_start<=0; collecting<=0;
-        selected<=0; selected_valid<=0; offset<=0; length<=0; next_line_seq<=0;
-        requested<=0; achieved<=0; first_raster<=0; last_raster<=0; first_game<=0; last_game<=0;
-        deadline<=0; settled_at<=0;
+        state<=IDLE;
+        local_frame<=0;
+        requested<=0;
+        begin_payload<=0;
+        step<=16;
+        next_y<=0;
+        residue<=0;
+        native_y<=0;
+        rows_remaining<=0;
+        settle_rasters<=0;
+        begin_pending<=0;
+        info_capture_pending<=0;
+        publish_toggle<=0;
+        producer_bank<=0;
+        cab_mode<=0;
+        pause_request<=0;
+        capture_hold<=0;
+        bank_prefix0<=0;
+        bank_prefix1<=0;
+        line_collecting<=0;
+        engine_abort<=0;
+        cancel_toggle<=0;
+        info_frame<=0;
+        active_l<=0;
+        lvbl_l<=0;
     end else begin
-        start_line<=0; finish_line<=0; release_line<=0; read_start<=0;
+        engine_abort<=0;
         if(pxl_cen) active_l<=native_active;
-        if(raster_tick) y<=0;
-        else if(active_end) y<=y+1'd1;
-        if(state==WAIT_TARGET && raster_tick && game_now>=requested) begin
-            state<=CONFIRM; achieved<=game_now; pause_request<=1;
-            deadline<=raster_now+64'd2; settled<=0;
+        if(pxl_cen) lvbl_l<=lvbl;
+        if(game_reset) local_frame<=0;
+        if(raster_tick) begin
+            native_y<=0;
+            capture_hold<=pause_request;
+            if(!pause_request && !game_reset) local_frame<=local_frame+1'd1;
+        end else if(active_end) native_y<=native_y+1'd1;
+
+        if(rx_strobe && rx_cmd==8'h90 && rx_index==0) begin
+            if(info_capture_pending) begin
+                info_frame<=requested;
+                info_capture_pending<=0;
+            end else info_frame <= (state!=IDLE && state!=DONE) ? requested : cab_active ? cab_frame : local_frame;
         end
-        if(state==CONFIRM) begin
-            if(!effective) settled<=0;
-            if(effective && !settled) begin settled<=1; settled_at<=raster; end
-            if(raster_tick) begin
-                if(effective && settled && raster_now>=settled_at+64'd2) begin
-                    state<=ACQUIRE; strict_capture<=1;
-                end else if(!effective && raster_now>=deadline) begin
-                    state<=ACQUIRE; strict_capture<=0; pause_request<=0;
+
+        if(rx_strobe && rx_cmd==8'h91) begin
+            if(rx_index==0) begin_payload<=0;
+            else if(rx_index<=5) begin_payload[(rx_index-1'b1)*8 +: 8]<=rx_byte;
+        end
+
+        if(state==WAIT_TARGET && raster_tick && frame_after_boundary>=requested) begin
+            state<=SETTLE;
+            requested<=frame_after_boundary;
+            pause_request<=1;
+            settle_rasters<=0;
+        end else if(state==SETTLE && raster_tick) begin
+            if(settle_rasters==1) begin
+                settle_rasters<=2;
+                state<=ACQUIRE;
+            end else settle_rasters<=settle_rasters+1'd1;
+        end
+
+        if(line_start) line_collecting<=1;
+        if(line_finish) line_collecting<=0;
+
+        if(engine_committed && !cancel_event && state==ACQUIRE && rows_remaining!=0) begin
+            if(rows_remaining==HEIGHT10) info_capture_pending<=1;
+            if(engine_bank) bank_prefix1<=engine_prefix;
+            else bank_prefix0<=engine_prefix;
+            publish_toggle[engine_bank]<=~publish_toggle[engine_bank];
+            producer_bank<=~engine_bank;
+            rows_remaining<=rows_remaining-1'd1;
+            if(rows_remaining>1) begin
+                if(next_row_sum<HEIGHT) next_y<=next_row_sum[9:0];
+                else begin
+                    residue<=residue+1'd1;
+                    next_y<=residue+1'd1;
                 end
-            end
+            end else state<=DRAIN;
         end
-        if(state==ACQUIRE) begin
-            if(active_start && capture_y<HEIGHT && missing[capture_y[YW-1:0]] &&
-                !(collecting[0] && line_y[0]==capture_y) && !(collecting[1] && line_y[1]==capture_y) &&
-                !(ready[0] && line_y[0]==capture_y) && !(ready[1] && line_y[1]==capture_y) &&
-                !( !free[0] && line_y[0]==capture_y) && !( !free[1] && line_y[1]==capture_y)) begin
-                if(free[0] || free[1]) begin
-                    if(free[0]) begin start_line[0]<=1; collecting[0]<=1; end
-                    else begin start_line[1]<=1; collecting[1]<=1; end
-                    next_line_seq<=next_line_seq+1'd1;
-                    line_y[free[0] ? 0 : 1]<=capture_y;
-                    first_pixel[free[0] ? 0 : 1]<=rgb;
-                    line_irq[free[0] ? 0 : 1]<=irq_now;
-                    tags[free[0] ? 0 : 1]<={96'd0,NATIVE_BITS,8'd0,16'd0,flags,32'd0,32'd0,16'd0,6'd0,capture_y,
-                        cab_frame,irq_now,game_now,raster_now,capture_seq,epoch,cookie,next_line_seq,{7'd0,!free[0]},8'd1,16'h4c56};
-                    if(!have_source) begin first_raster<=raster_now; first_game<=game_now; have_source<=1; end
-                end
-            end
-            if(pxl_cen && native_active) begin
-                if(collecting[0]) begin end_irq[0]<=irq_now; end_cab[0]<=cab_frame; end_raster[0]<=raster_now; end_game[0]<=game_now; end
-                if(collecting[1]) begin end_irq[1]<=irq_now; end_cab[1]<=cab_frame; end_raster[1]<=raster_now; end_game[1]<=game_now; end
-            end
-            if(active_end) begin
-                finish_line<=collecting; collecting<=0;
-                if(collecting[0] && (end_raster[0]!=tags[0][319:256] || end_game[0]!=tags[0][383:320])) begin finish_line[0]<=0; release_line[0]<=1; end
-                if(collecting[1] && (end_raster[1]!=tags[1][319:256] || end_game[1]!=tags[1][383:320])) begin finish_line[1]<=0; release_line[1]<=1; end
-                last_raster<=raster_now; last_game<=game_now;
-            end
-            if(strict_capture && (lost || !effective)) begin
-                state<=ERROR; error<=5; pause_request<=0; release_line<=3; collecting<=0;
-            end
+
+        if(drain_release) begin
+            pause_request<=0;
+            if(begin_pending) begin
+                state<=WAIT_TARGET;
+                rows_remaining<=HEIGHT10;
+                next_y<=0;
+                residue<=0;
+                settle_rasters<=0;
+                begin_pending<=0;
+            end else state<=DONE;
         end
-        if(state==RESUME && raster_tick) begin state<=DONE; pause_request<=0; end
-        if(game_reset && state!=IDLE && state!=DONE && state!=ERROR) begin
-            state<=ERROR; error<=6; pause_request<=0; release_line<=3; collecting<=0;
-        end
-        if(rx_strobe) begin
-            if(rx_index==0) payload<=0;
-            else if(rx_index<=24) payload[{rx_index-5'd1,3'b000} +:8]<=rx_byte;
-            if(rx_index==0) case(rx_cmd)
-                8'h90: snapshot<={384'd0,delivered,8'd0,6'd0,ready,6'd0,remaining,
-                    CLOCK32,raster_period,cab_epoch,cab_frame,irq_generation,last_game,first_game,last_raster,first_raster,
-                    achieved,requested,irqs,game,raster,capture_seq,epoch,cookie,flags,{24'd0,NATIVE_BITS},HEIGHT16,WIDTH16,error,5'd0,state,8'd1,8'h76};
-                8'h97: if(selected_valid) line_snapshot<=headers[selected];
-                8'h96: window_snapshot<={32'd0,headers[selected][63:32],16'd0,6'd0,offset,8'd0,length,6'd0,selected,read_ready[selected] && selected_valid,8'h77};
-                default: ;
-            endcase
-            if(rx_cmd==8'h98 && rx_index==17) begin
-                if(state==IDLE || state==DONE || state==ERROR) begin
-                    cookie<=packet[63:0]; expected_epoch<=packet[127:64]; contract_valid<=rx_byte[0]; error<=0;
-                end else error<=1;
-            end
-            if(rx_cmd==8'h91 && rx_index==12) begin
-                if(context_ok && (state==IDLE || state==DONE || state==ERROR) && WIDTH<=512 && HEIGHT<=512 && COLORW<=4 && !dump_pause) begin
-                    capture_seq<=capture_seq+1'd1; requested<=packet[63:0]; state<=WAIT_TARGET;
-                    remaining<=HEIGHT; missing<={HEIGHT{1'b1}}; release_line<=3; collecting<=0;
-                    strict_capture<=0; selected_valid<=0; error<=0; have_source<=0;
-                end else error<=2;
-            end
-            if(rx_cmd==8'h92 && rx_index==17) begin
-                selected_valid<=0;
-                if(identity_ok && rx_byte<2 && ready[rx_byte[0]]) begin
-                    selected<=rx_byte[0]; selected_valid<=1;
-                end else error<=3;
-            end
-            if(rx_cmd==8'h93 && rx_index==24) begin
-                if(identity_ok && payload[135:128]<2 && ready[payload[128]] &&
-                    headers[payload[128]][63:32]==payload[167:136] && rx_byte!=0 && rx_byte<=128 &&
-                    {1'b0,payload[183:168]}+{9'd0,rx_byte}<= {1'b0,headers[payload[128]][623:608]}) begin
-                    selected<=payload[128]; selected_valid<=1;
-                    offset<=payload[177:168]; length<=rx_byte;
-                    read_start[payload[128]]<=1;
-                end else begin error<=4; selected_valid<=0; end
-            end
-            if(rx_cmd==8'h95 && rx_index==21) begin
-                if(identity_ok && payload[135:128]<2 && ready[payload[128]] &&
-                    headers[payload[128]][63:32]==packet[167:136] && state==ACQUIRE) begin
-                    release_line[payload[128]]<=1;
-                    missing[line_y[payload[128]][YW-1:0]]<=0; remaining<=remaining-1'd1;
-                    selected_valid<=0;
-                    if(remaining==1) state<=RESUME;
-                end else error<=3;
-            end
-            if(rx_cmd==8'h99 && rx_index==16) begin
-                if(packet[63:0]==cookie && packet[127:64]==capture_seq) begin
-                    state<=IDLE; pause_request<=0; collecting<=0; release_line<=3; selected_valid<=0;
-                end else error<=3;
+
+        if(cancel_event) begin
+            state<=IDLE;
+            pause_request<=0;
+            line_collecting<=0;
+            engine_abort<=1;
+            rows_remaining<=0;
+            begin_pending<=0;
+            info_capture_pending<=0;
+            publish_toggle<=0;
+            producer_bank<=0;
+            bank_prefix0<=0;
+            bank_prefix1<=0;
+            next_y<=0;
+            residue<=0;
+            settle_rasters<=0;
+            cancel_toggle<=~cancel_toggle;
+        end else if(begin_accept) begin
+            if(state==DRAIN && rows_remaining==0 && publish_toggle==consume_sync && !engine_busy && !begin_pending) begin
+                requested<=begin_payload[31:0];
+                info_capture_pending<=0;
+                step<=begin_step==0 ? 10'd1 : begin_step>HEIGHT ? HEIGHT10 : begin_step[9:0];
+                cab_mode<=cab_active;
+                if(drain_release) begin
+                    state<=WAIT_TARGET;
+                    rows_remaining<=HEIGHT10;
+                    next_y<=0;
+                    residue<=0;
+                    settle_rasters<=0;
+                    begin_pending<=0;
+                end else begin_pending<=1;
+            end else if((state==IDLE || state==DONE) && !dump_pause && WIDTH>0 && WIDTH<=512 && HEIGHT>0 && HEIGHT<=512) begin
+                state<=WAIT_TARGET;
+                requested<=begin_payload[31:0];
+                info_capture_pending<=0;
+                if(begin_step==0) step<=10'd1;
+                else if(begin_step>HEIGHT) step<=HEIGHT10;
+                else step<=begin_step[9:0];
+                cab_mode<=cab_active;
+                pause_request<=0;
+                capture_hold<=0;
+                rows_remaining<=HEIGHT10;
+                next_y<=0;
+                residue<=0;
+                settle_rasters<=0;
+                line_collecting<=0;
             end
         end
     end
 end
 
-generate for(g=0;g<2;g=g+1) begin: lines
-    wire [63:0] irq_delta;
-    assign irq_delta=end_irq[g]-line_irq[g];
-    assign input_rgb[g]=start_line[g] ? first_pixel[g] : rgb;
-    assign end_tags[g]={tags[g][735:576],end_cab[g],irq_delta[31:0],tags[g][511:0]};
-    jtframe_capture_line u_line(
-        .rst          ( rst             ),
-        .clk          ( clk             ),
-        .start        ( start_line[g]   ),
-        .sample       ( sample_line[g]  ),
-        .finish       ( finish_line[g]  ),
-        .release_line ( release_line[g] ),
-        .pixel        ( input_rgb[g]    ),
-        .tag          ( end_tags[g]     ),
-        .read_start   ( read_start[g]   ),
-        .read_offset  ( offset          ),
-        .read_length  ( length          ),
-        .free         ( free[g]         ),
-        .ready        ( ready[g]        ),
-        .header       ( headers[g]      ),
-        .read_ready   ( read_ready[g]   ),
-        .window       ( windows[g]      )
-    );
-end endgenerate
-
-jtframe_capture_progress u_progress(
-    .rst              ( rst              ),
-    .clk              ( clk              ),
-    .game_reset       ( game_reset       ),
-    .pxl_cen          ( pxl_cen          ),
-    .lvbl             ( lvbl             ),
-    .irq_level        ( irq_level        ),
-    .irq_taken_toggle ( irq_taken_toggle ),
-    .feedback_valid   ( feedback_valid   ),
-    .contract_valid   ( contract_valid   ),
-    .pause_request    ( pause_request    ),
-    .step             ( no_step          ),
-    .raster_tick      ( raster_tick      ),
-    .pause_gate       ( pause_gate       ),
-    .pause_effective  ( effective        ),
-    .contract_lost    ( lost             ),
-    .step_done        (                  ),
-    .step_failed      (                  ),
-    .epoch            ( epoch            ),
-    .raster_frame     ( raster           ),
-    .game_frame       ( game             ),
-    .irq_count        ( irqs             ),
-    .irq_generation   ( irq_generation   ),
-    .raster_period    ( raster_period    ),
-    .irq_observed     ( irq_observed     ),
-    .service_observed ( service_observed ),
-    .raster_now       ( raster_now       ),
-    .game_now         ( game_now         ),
-    .irq_now          ( irq_now          )
+jtframe_capture_line #(
+    .WIDTH  ( WIDTH  ),
+    .COLORW ( COLORW )
+) u_line(
+    .rst             ( rst             ),
+    .clk             ( clk             ),
+    .spi_clk         ( spi_clk         ),
+    .start           ( line_start      ),
+    .sample          ( line_sample     ),
+    .finish          ( line_finish     ),
+    .abort_all       ( engine_abort    ),
+    .pixel           ( rgb              ),
+    .bank            ( producer_bank   ),
+    .spi_pixel_addr  ( spi_pixel_addr  ),
+    .spi_pixel_data  ( spi_pixel_data  ),
+    .busy            ( engine_busy     ),
+    .committed       ( engine_committed),
+    .committed_bank  ( engine_bank     ),
+    .prefix          ( engine_prefix   )
 );
 
 endmodule

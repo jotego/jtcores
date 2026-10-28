@@ -182,7 +182,7 @@ end
 initial begin #5000000; fail(); end
 
 jtframe_cab_stream uut(
-    .capture_hold(capture_hold), .capture_frame(), .capture_epoch(),
+    .capture_hold(capture_hold), .capture_frame(),
     .rst(rst), .clk(clk), .lvbl(lvbl), .rx_strobe(rx_strobe),
     .rx_cmd(rx_cmd), .rx_byte(rx_byte), .rx_index(rx_index),
     .active(active), .hold_reset(hold_reset), .inputs(inputs),

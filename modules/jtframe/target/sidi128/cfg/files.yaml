@@ -4,14 +4,10 @@ jtframe/target/sidi128:
     - sidi128.sdc
     - pll.qip
 jtframe:
-  - from: keyboard
-    get:
-      - jtframe_cab_stream.v
   - from: video
     get:
       - jtframe_capture.v
       - jtframe_capture_line.v
-      - jtframe_capture_progress.v
       - jtframe_lfbuf_sdr.v
       - jtframe_lfbuf_sdr_ctrl.v
       - jtframe_lfbuf_line.v

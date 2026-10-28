@@ -29,33 +29,41 @@ module user_io #( parameter
 	SD_IMAGES         = 2,    // number of block-access images (max. 4 supported in current firmware)
 	PS2BIDIR          = 0,    // bi-directional PS2 interface
 	FEATURES          = 0,    // requested features from the firmware
-	ARCHIE            = 0
+	ARCHIE            = 0,
+	parameter [9:0] VIDEO_WIDTH  = 10'd256,
+	parameter [9:0] VIDEO_HEIGHT = 10'd224,
+	parameter COLORW = 4
 )(
+	/* verilator lint_off ASCRANGE */
 	input [(8*STRLEN)-1:0] conf_str,
+	/* verilator lint_on ASCRANGE */
 	output       [9:0]  conf_addr, // RAM address for config string, if STRLEN=0
 	input        [7:0]  conf_chr,
 
 	input               clk_sys, // clock for system-related messages (kbd, joy, etc...)
 	input               clk_sd,  // clock for SD-card related messages
-`ifdef JTFRAME_VIDEO_CAPTURE
-    input [1535:0] video_snapshot,
-    input [767:0] video_line_snapshot,
-    input [127:0] video_window_snapshot,
-    input [1023:0] video_window,
-    output reg video_rx_strobe,
-    output reg [7:0] video_rx_cmd, video_rx_byte,
-    output reg [4:0] video_rx_index,
+    input video_read_ready,
+    input [7:0] video_read_prefix,
+    input video_read_bank,
+    output video_read_consume,
+    input video_cancel_toggle,
+    input [15:0] video_width,
+    input [15:0] video_height,
+    input [31:0] video_frame,
+    output [9:0] video_pixel_addr,
+    input [15:0] video_pixel_data,
+    output video_rx_strobe,
+    output [7:0] video_rx_cmd, video_rx_byte,
+    output [4:0] video_rx_index,
     input video_hold,
-    output [31:0] video_cab_frame, video_cab_epoch,
-`endif
-`ifdef JTFRAME_CAB_STREAM
+    output [31:0] video_cab_frame,
+
 	input               cab_rst, cab_lvbl,
 	output              cab_active, cab_hold_reset,
 	output       [20:0] cab_inputs,
 	output              cab_dipsw_valid,
 	output       [31:0] cab_dipsw,
 	output              cab_dump_pause,
-`endif
 
 	input               SPI_CLK,
 	input               SPI_SS_IO,
@@ -140,6 +148,8 @@ module user_io #( parameter
 	input               serial_strobe
 );
 
+localparam REMOTE_SUPPORT = (FEATURES & 32'h001e0000) != 0;
+
 `ifdef SIMULATION
        localparam W = 1;
 `else
@@ -149,7 +159,7 @@ module user_io #( parameter
 reg [6:0]     sbuf;
 reg [7:0]     cmd;
 reg [2:0]     bit_cnt;    // counts bits 0-7 0-7 ...
-reg [9:0]     byte_cnt;   // counts bytes
+reg [10:0]    byte_cnt;   // counts bytes
 reg [7:0]     but_sw;
 reg [2:0]     stick_idx;
 
@@ -157,34 +167,52 @@ reg [2:0]     stick_idx;
 reg       spi_receiver_strobe_r = 0;
 reg       spi_transfer_end_r = 1;
 reg [7:0] spi_byte_in;
-`ifdef JTFRAME_CAB_STREAM
 reg cab_rx_strobe;
 reg [7:0] cab_rx_cmd, cab_rx_byte;
 reg [4:0] cab_rx_index;
 wire [511:0] cab_snapshot;
+wire cab_active_i, cab_hold_reset_i, cab_dipsw_valid_i, cab_dump_pause_i;
+wire [20:0] cab_inputs_i;
+wire [31:0] cab_dipsw_i, cab_frame_i;
+
+assign cab_active = REMOTE_SUPPORT ? cab_active_i : 1'b0;
+assign cab_hold_reset = REMOTE_SUPPORT ? cab_hold_reset_i : 1'b0;
+assign cab_inputs = REMOTE_SUPPORT ? cab_inputs_i : 21'd0;
+assign cab_dipsw_valid = REMOTE_SUPPORT ? cab_dipsw_valid_i : 1'b0;
+assign cab_dipsw = REMOTE_SUPPORT ? cab_dipsw_i : 32'd0;
+assign cab_dump_pause = REMOTE_SUPPORT ? cab_dump_pause_i : 1'b0;
+assign video_cab_frame = REMOTE_SUPPORT ? cab_frame_i : 32'd0;
+
+reg [9:0] video_pixel_addr_r = 0;
+reg video_rx_strobe_r;
+reg [7:0] video_rx_cmd_r, video_rx_byte_r;
+reg [4:0] video_rx_index_r;
+assign video_pixel_addr = REMOTE_SUPPORT ? video_pixel_addr_r : 10'd0;
+assign video_rx_strobe = REMOTE_SUPPORT ? video_rx_strobe_r : 1'b0;
+assign video_rx_cmd = REMOTE_SUPPORT ? video_rx_cmd_r : 8'd0;
+assign video_rx_byte = REMOTE_SUPPORT ? video_rx_byte_r : 8'd0;
+assign video_rx_index = REMOTE_SUPPORT ? video_rx_index_r : 5'd0;
+
+wire cab_rx_strobe_i = REMOTE_SUPPORT && cab_rx_strobe;
 
 jtframe_cab_stream u_cab_stream(
     .rst        ( cab_rst        ),
     .clk        ( clk_sys        ),
     .lvbl       ( cab_lvbl       ),
-`ifdef JTFRAME_VIDEO_CAPTURE
-    .capture_hold(video_hold), .capture_frame(video_cab_frame), .capture_epoch(video_cab_epoch),
-`else
-    .capture_hold(1'b0), .capture_frame(), .capture_epoch(),
-`endif
-    .rx_strobe  ( cab_rx_strobe  ),
+    .capture_hold(video_hold),
+    .capture_frame(cab_frame_i),
+    .rx_strobe  ( cab_rx_strobe_i  ),
     .rx_cmd     ( cab_rx_cmd     ),
     .rx_byte    ( cab_rx_byte    ),
     .rx_index   ( cab_rx_index   ),
-    .active     ( cab_active     ),
-    .hold_reset ( cab_hold_reset ),
-    .inputs     ( cab_inputs     ),
-    .dipsw_valid( cab_dipsw_valid ),
-    .dipsw      ( cab_dipsw       ),
-    .dump_pause ( cab_dump_pause  ),
+    .active     ( cab_active_i     ),
+    .hold_reset ( cab_hold_reset_i ),
+    .inputs     ( cab_inputs_i     ),
+    .dipsw_valid( cab_dipsw_valid_i ),
+    .dipsw      ( cab_dipsw_i       ),
+    .dump_pause ( cab_dump_pause_i  ),
     .snapshot   ( cab_snapshot   )
 );
-`endif
 
 assign buttons = but_sw[1:0];
 assign switches = but_sw[3:2];
@@ -192,22 +220,37 @@ assign scandoubler_disable = but_sw[4];
 assign ypbpr = but_sw[5];
 assign no_csync = but_sw[6];
 
-assign conf_addr = byte_cnt;
+assign conf_addr = byte_cnt[9:0];
 
 // bit 4 indicates ROM direct upload capability
 wire [7:0] core_type = (ARCHIE == 1) ? 8'ha6 : (ROM_DIRECT_UPLOAD == 1) ? 8'hb4 : 8'ha4;
 
 reg [W:0] drive_sel;
-always begin : b0
+always @* begin : b0
 	integer i;
 	drive_sel = 0;
 	for(i = 0; i < SD_IMAGES; i = i + 1) if(sd_rd[i] | sd_wr[i]) drive_sel = i[W:0];
 end
 
 // command byte read by the io controller
-wire [7:0] sd_cmd = { 4'h6, sd_conf, sd_sdhc, sd_wr[drive_sel], sd_rd[drive_sel] };
+wire [7:0] sd_cmd = { 4'h6, sd_conf, sd_sdhc, sd_wr[drive_sel[W-1:0]], sd_rd[drive_sel[W-1:0]] };
 
 wire spi_sck = SPI_CLK;
+
+reg video_stream_active = 0;
+reg video_stream_bank = 0;
+reg [10:0] video_stream_length = 0;
+reg [10:0] video_payload_sent = 0;
+reg [15:0] video_pixel_word = 0;
+reg [1:0] video_cancel_sync = 0;
+reg video_cancel_seen = 0;
+wire video_consume_now;
+wire [10:0] video_raw_length = COLORW>=5 ? {VIDEO_WIDTH,1'b0} :
+                               ({1'b0,VIDEO_WIDTH} + {VIDEO_WIDTH,1'b0} + 11'd1)>>1;
+wire [10:0] video_next_word = {1'b0,video_payload_sent[10:1]}+11'd2;
+assign video_consume_now = !SPI_SS_IO && video_stream_active && cmd==8'h94 &&
+                           bit_cnt==7 && byte_cnt==video_stream_length+11'd1;
+assign video_read_consume = REMOTE_SUPPORT && video_consume_now;
 
 // ---------------- PS2 ---------------------
 reg ps2_clk;
@@ -303,7 +346,7 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_counter
 		byte_cnt <= 0;
 	end else begin
 		if((bit_cnt == 7)&&(~&byte_cnt)) 
-			byte_cnt <= byte_cnt + 8'd1;
+			byte_cnt <= byte_cnt + 11'd1;
 
 		bit_cnt <= bit_cnt + 1'd1;
 	end
@@ -345,13 +388,72 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 
 	if(SPI_SS_IO == 1) begin
 		spi_byte_out <= core_type;
+        if(REMOTE_SUPPORT) begin
+            video_stream_active <= 0;
+            video_stream_length <= 0;
+            video_payload_sent <= 0;
+        end
 	end else begin
+		if(REMOTE_SUPPORT) video_cancel_sync <= {video_cancel_sync[0],video_cancel_toggle};
+		if(REMOTE_SUPPORT && video_cancel_sync[1]!=video_cancel_seen) begin
+			video_cancel_seen <= video_cancel_sync[1];
+			video_stream_active <= 0;
+			video_stream_length <= 0;
+			video_payload_sent <= 0;
+		end
 		// read the command byte to choose the response
 		if(bit_cnt == 7) begin
-			if(!byte_cnt) cmd <= {sbuf, SPI_MOSI};
+			if(byte_cnt==0) cmd <= {sbuf, SPI_MOSI};
 
 			spi_byte_out <= 0;
-			case({(!byte_cnt) ? {sbuf, SPI_MOSI} : cmd})
+			if(REMOTE_SUPPORT && ((byte_cnt==0 ? {sbuf,SPI_MOSI} : cmd)==8'h90 || (byte_cnt==0 ? {sbuf,SPI_MOSI} : cmd)==8'h94)) begin
+                if(byte_cnt==0) begin
+                    if({sbuf,SPI_MOSI}==8'h90) begin
+                        spi_byte_out<=video_width[7:0];
+                        video_stream_active<=0;
+                        video_pixel_addr_r<={video_read_bank,9'd0};
+                    end else begin
+                        video_stream_active<=video_read_ready && video_read_prefix!=0;
+                        video_stream_bank<=video_read_bank;
+                        video_payload_sent<=0;
+                        video_stream_length<=!video_read_ready || video_read_prefix==0 ? 11'd0 :
+                            video_read_prefix==8'hff ? video_raw_length : {2'b0,video_read_prefix,1'b0};
+                        video_pixel_addr_r<={video_read_bank,9'd0};
+                        spi_byte_out<=video_read_ready ? video_read_prefix : 8'd0;
+                    end
+                end else if(cmd==8'h90) begin
+                    case(byte_cnt)
+                        1: spi_byte_out<=video_width[15:8];
+                        2: spi_byte_out<=video_height[7:0];
+                        3: spi_byte_out<=video_height[15:8];
+                        4: spi_byte_out<=video_frame[7:0];
+                        5: spi_byte_out<=video_frame[15:8];
+                        6: spi_byte_out<=video_frame[23:16];
+                        7: spi_byte_out<=video_frame[31:24];
+                        default: spi_byte_out<=0;
+                    endcase
+                end else if(cmd==8'h94 && video_stream_active) begin
+                    if(byte_cnt==1) begin
+                        video_pixel_word<=video_pixel_data;
+                        video_pixel_addr_r<={video_stream_bank,9'd1};
+                        spi_byte_out<=video_pixel_data[7:0];
+                    end else if(byte_cnt>=2) begin
+                        if(video_payload_sent+1>=video_stream_length) begin
+                            spi_byte_out<=0;
+                            video_stream_active<=0;
+                        end else if(!video_payload_sent[0]) begin
+                            spi_byte_out<=video_pixel_word[15:8];
+                            video_payload_sent<=video_payload_sent+1'd1;
+                        end else begin
+                            spi_byte_out<=video_pixel_data[7:0];
+                            video_pixel_word<=video_pixel_data;
+                            video_pixel_addr_r<={video_stream_bank,video_next_word[8:0]};
+                            video_payload_sent<=video_payload_sent+1'd1;
+                        end
+                    end else spi_byte_out<=0;
+                end else spi_byte_out<=0;
+            end else begin
+			case({(byte_cnt==0) ? {sbuf, SPI_MOSI} : cmd})
 			8'h04: if (ARCHIE == 1) begin
 					if(byte_cnt == 0) spi_byte_out <= kbd_out_status;
 					else              spi_byte_out <= kbd_out_data_r;
@@ -372,8 +474,12 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 				end else spi_byte_out <= ps2_mouse_rx_byte;
 
 			// reading config string
+			/* verilator lint_off SELRANGE */
+			/* verilator lint_off UNSIGNED */
 			8'h14: if (STRLEN == 0) spi_byte_out <= conf_chr; else
 			       if(byte_cnt < STRLEN) spi_byte_out <= conf_str[(STRLEN - byte_cnt - 1)<<3 +:8];
+			/* verilator lint_on SELRANGE */
+			/* verilator lint_on UNSIGNED */
 
 			// reading sd card status
 			8'h16: if(byte_cnt == 0) begin
@@ -381,7 +487,7 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 					sd_lba_r <= sd_lba;
 					drive_sel_r <= drive_sel;
 				end 
-				else if(byte_cnt == 1) spi_byte_out <= drive_sel_r;
+				else if(byte_cnt == 1) spi_byte_out <= {{(8-(W+1)){1'b0}},drive_sel_r};
 				else if(byte_cnt < 6) spi_byte_out <= sd_lba_r[(5-byte_cnt)<<3 +:8];
 
 			// reading sd card write data
@@ -396,27 +502,19 @@ always@(posedge spi_sck or posedge SPI_SS_IO) begin : spi_transmitter
 			8'h80:
 				if (byte_cnt == 0) spi_byte_out <= 8'h80;
 				else spi_byte_out <= FEATURES[(4-byte_cnt)<<3 +:8];
-`ifdef JTFRAME_CAB_STREAM
-			8'h81, 8'h87, 8'h89:
+			8'h81, 8'h87, 8'h89: if(REMOTE_SUPPORT) begin
 				if(byte_cnt==0) spi_byte_out <= 8'hca;
 				else if(byte_cnt<(cmd==8'h89 ? 64 : cmd==8'h87 ? 40 : 32)) spi_byte_out <= cab_snapshot[{byte_cnt[5:0],3'b000} +:8];
-`endif
+            end
 
-`ifdef JTFRAME_VIDEO_CAPTURE
-            8'h90: if(byte_cnt==0) spi_byte_out<=8'h76;
-                else if(byte_cnt<192) spi_byte_out<=video_snapshot[{byte_cnt[7:0],3'b000} +:8];
-            8'h97: if(byte_cnt==0) spi_byte_out<=8'h56;
-                else if(byte_cnt<96) spi_byte_out<=video_line_snapshot[{byte_cnt[6:0],3'b000} +:8];
-            8'h96: if(byte_cnt==0) spi_byte_out<=8'h77;
-                else if(byte_cnt<16) spi_byte_out<=video_window_snapshot[{byte_cnt[3:0],3'b000} +:8];
-            8'h94: if(byte_cnt==0) spi_byte_out<=0; else spi_byte_out<=video_window[{(byte_cnt[6:0]-7'd1),3'b000} +:8];
-`endif
 			// i2c
 			8'h31:
 				if (byte_cnt == 0) spi_byte_out <= {6'd0, i2c_ack, i2c_end};
 				else spi_byte_out <= i2c_din;
 
+			default: ;
 			endcase
+			end
 		end
 	end
 end
@@ -470,12 +568,8 @@ always @(posedge clk_sys) begin : cmd_block
 	ps2_kbd_tx_strobe <= 0;
 	ps2_mouse_tx_strobe <= 0;
 	i2c_start <= 0;
-`ifdef JTFRAME_CAB_STREAM
 	cab_rx_strobe <= 0;
-`ifdef JTFRAME_VIDEO_CAPTURE
-    video_rx_strobe<=0;
-`endif
-`endif
+    video_rx_strobe_r<=0;
 
 	if(ARCHIE == 1) begin
 		if (kbd_out_strobe) kbd_out_data_available <= 1;
@@ -499,17 +593,13 @@ always @(posedge clk_sys) begin : cmd_block
 
 		if(abyte_cnt == 0) begin
 			acmd <= spi_byte_in;
-`ifdef JTFRAME_VIDEO_CAPTURE
-            if(spi_byte_in>=8'h90 && spi_byte_in<=8'h99) begin
-                video_rx_strobe<=1; video_rx_cmd<=spi_byte_in; video_rx_index<=0; video_rx_byte<=0;
+            if(REMOTE_SUPPORT && (spi_byte_in==8'h90 || spi_byte_in==8'h91 || spi_byte_in==8'h99)) begin
+                video_rx_strobe_r<=1; video_rx_cmd_r<=spi_byte_in; video_rx_index_r<=0; video_rx_byte_r<=0;
             end
-`endif
-`ifdef JTFRAME_CAB_STREAM
-			if(spi_byte_in>=8'h81 && spi_byte_in<=8'h89) begin
+			if(REMOTE_SUPPORT && spi_byte_in>=8'h81 && spi_byte_in<=8'h89) begin
 				cab_rx_strobe<=1; cab_rx_cmd<=spi_byte_in;
 				cab_rx_index<=0; cab_rx_byte<=0;
 			end
-`endif
 			if (spi_byte_in == 8'h70 || spi_byte_in == 8'h71)
 				// accept the incoming mouse data only if there's place for the full packet
 				mouse_fifo_ok <= ps2_mouse_fifo_ok;
@@ -517,17 +607,13 @@ always @(posedge clk_sys) begin : cmd_block
 				// accept the incoming keyboard data only if there's place for the full packet
 				kbd_fifo_ok <= ps2_kbd_fifo_ok;
 		end else begin
-`ifdef JTFRAME_CAB_STREAM
-`ifdef JTFRAME_VIDEO_CAPTURE
-            if(acmd>=8'h90 && acmd<=8'h99) begin
-                video_rx_strobe<=1; video_rx_cmd<=acmd; video_rx_index<=abyte_cnt; video_rx_byte<=spi_byte_in;
-            end
-`endif
-			if(acmd>=8'h81 && acmd<=8'h89) begin
+			if(REMOTE_SUPPORT && acmd>=8'h81 && acmd<=8'h89) begin
 				cab_rx_strobe<=1; cab_rx_cmd<=acmd;
 				cab_rx_index<=abyte_cnt; cab_rx_byte<=spi_byte_in;
 			end
-`endif
+            if(REMOTE_SUPPORT && (acmd==8'h91 || acmd==8'h99) && abyte_cnt<7) begin
+                video_rx_strobe_r<=1; video_rx_cmd_r<=acmd; video_rx_index_r<=abyte_cnt; video_rx_byte_r<=spi_byte_in;
+            end
 			if (ARCHIE == 1) begin
 				if(acmd == 8'h04) kbd_out_data_available <= 0;
 				if(acmd == 8'h05) begin
@@ -612,7 +698,7 @@ always @(posedge clk_sys) begin : cmd_block
 					end
 				end
 
-				8'h15: status <= spi_byte_in;
+				8'h15: status <= {56'd0,spi_byte_in};
 
 				// status, 64bit version
 				8'h1e: if(abyte_cnt<9) status[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
@@ -627,7 +713,7 @@ always @(posedge clk_sys) begin : cmd_block
 				8'h30: if(abyte_cnt == 1) {i2c_addr, i2c_read} <= spi_byte_in;
 				       else if (abyte_cnt == 2) i2c_subaddr <= spi_byte_in;
 				       else if (abyte_cnt == 3) begin i2c_dout <= spi_byte_in; i2c_start <= 1; end
-
+				default: ;
 			endcase
 		end
 	end
@@ -710,13 +796,14 @@ always @(posedge clk_sd) begin : sd_block
 					end
 				end
 
-				8'h1c: img_mounted[spi_byte_in[W:0]] <= 1;
+				8'h1c: img_mounted[spi_byte_in[W-1:0]] <= 1;
 
 				// send image info
 				8'h1d: if(abyte_cnt<9) img_size[(abyte_cnt-1)<<3 +:8] <= spi_byte_in;
 				// data transfer ack
 				8'h23: sd_ack_x <= 1'b1 << spi_byte_in;
 
+				default: ;
 			endcase
 		end
 	end
@@ -740,14 +827,15 @@ module user_io_ps2 (
 
 parameter PS2_FIFO_BITS = 4;
 parameter PS2_BIDIR = 0;
+localparam [PS2_FIFO_BITS:0] PS2_FIFO_SIZE = {{PS2_FIFO_BITS{1'b0}},1'b1} << PS2_FIFO_BITS;
 
 reg  [7:0] ps2_fifo [(2**PS2_FIFO_BITS)-1:0];
 reg  [PS2_FIFO_BITS-1:0] ps2_wptr;
 reg  [PS2_FIFO_BITS-1:0] ps2_rptr;
 wire [PS2_FIFO_BITS:0] ps2_used = ps2_wptr >= ps2_rptr ?
                                         ps2_wptr - ps2_rptr :
-                                        ps2_wptr - ps2_rptr + (2'd2**PS2_FIFO_BITS);
-wire [PS2_FIFO_BITS:0] ps2_free = (2'd2**PS2_FIFO_BITS) - ps2_used;
+                                        ps2_wptr - ps2_rptr + PS2_FIFO_SIZE;
+wire [PS2_FIFO_BITS:0] ps2_free = PS2_FIFO_SIZE - ps2_used;
 
 assign ps2_fifo_ready = ps2_free[PS2_FIFO_BITS:2] != 0; // ps2_free > 3
 

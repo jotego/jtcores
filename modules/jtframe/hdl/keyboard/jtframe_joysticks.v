@@ -12,10 +12,8 @@ module jtframe_joysticks(
                       key_coin,   key_start,
                       joy_coin,   joy_start,
     input             key_service,key_tilt,  key_reset,
-`ifdef JTFRAME_CAB_STREAM
     input             cab_active,
     input      [20:0] cab_inputs,
-`endif
 
     input      [15:0] ana1, ana2,
                       board_joy1, board_joy2, board_joy3, board_joy4,
@@ -45,7 +43,6 @@ module jtframe_joysticks(
     wire [1:0] selected_pos;
     wire selected_service, selected_reset, merged_test, merged_tilt;
 
-`ifdef JTFRAME_CAB_STREAM
     // CAB inputs are canonical cabinet controls, independent of display rotation
     // or physical controller remapping. Preserve beta locking and core direction order.
     assign selected_joy1 = cab_active ? {3'b111,~cab_inputs[10:4]} : rot_joy1;
@@ -59,13 +56,6 @@ module jtframe_joysticks(
     assign selected_reset = cab_active ? 1'b0 : key_reset;
     assign game_test = cab_active ? ~cab_inputs[11] : merged_test;
     assign game_tilt = cab_active ? 1'b1 : merged_tilt;
-`else
-    assign selected_joy1=rot_joy1, selected_joy2=rot_joy2;
-    assign selected_joy3=rot_joy3, selected_joy4=rot_joy4;
-    assign selected_coin=merge_coin, selected_start=merge_start;
-    assign selected_service=merge_service, selected_pos=joy1_pos;
-    assign selected_reset=key_reset, game_test=merged_test, game_tilt=merged_tilt;
-`endif
 
     assign recjoy1 = ~merge_joy1[5:0];
 

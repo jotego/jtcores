@@ -1,152 +1,139 @@
-# SiDi128 native RGB444 capture protocol v1
+# Minimal native RGB444/RGB555 capture
 
-SiDi128 target macro `JTFRAME_VIDEO_CAPTURE` advertises feature0x00100000.
-This protocol uses SPI user-I/O0x90..0x99, independent of unchanged CAB0x81..0x89.
-All multibyte integers are little endian. New counters/session identifiers are64bit;
-legacy CAB counters remain32bit and are retained separately. Counters identify
-current logical intervals/completed boundaries, not MCU receive timestamps.
-Native LVBL rising increments physical raster; game time advances there except
-when a separately validated capture pause is effective. CAB START retains its
-frame-zero preload. Main CPU VBL interrupt acceptance never adds another game tick.
-
-`JTFRAME_CAPTURE_FEEDBACK` adds two optional game outputs: the active-high
-post-arbitration CPU VBL request and a source-qualified accepted-event toggle.
-Unsupported cores tie them to zero. Toggles use two-flop synchronization and
-reset transitions are absorbed. The source must toggle slowly enough to sample;
-GNG's CPU acceptance rate is far below the system clock.
-
-GNG has only a latched VBL IRQ; FIRQ/NMI are inactive. Acceptance is the rising
-edge of `irq_ack` (BA/BS=01) with an IRQ-vector read at FFF8. The vector check
-excludes reset acknowledgements. No PC decoding or ROM-signature gate is used.
-The opt-in IRQ-driven pause policy requires an accepted VBL within the last three
-unpaused native raster boundaries, no pending IRQ, and 256 quiet system clocks.
-Once confirmed, pause retains that evidence while logical game/CAB time holds.
-The controller allows two additional rasters for CPU/video settling before pixels
-are acquired. A new pending IRQ or acceptance invalidates the confirmation;
-losing it during a strict acquisition aborts that capture.
-
-This is the practical assumption that the game finishes its current update and
-waits for the next VBL. It does not prove CPU halt or handler completion. During
-boot without recent interrupt acceptance, the bounded confirmation deadline falls
-back to an advancing composite. Raster-sensitive games and software that keeps
-writing video with frame IRQs suppressed need separate qualification.
-
-Two512×16-bit synchronous dual-port BRAMs hold native scanlines. The selected
-RGB444 raw/RLE wire representation is encoded in-place behind consumed pixels.
-No SDRAM or FPGA framebuffer is used. Lines become immutable when READY;
-read-at-offset retries never release them. A missing-line bitmap selects the next
-upcoming missing native y with a free buffer; line order is not prescribed.
-Native RGB and matching pixel/blanking qualifiers enter before any overlays.
-Native component widths1..4 repeat MSBs to four bits; this first implementation
-rejects higher precision and oversized MCU frame/provenance staging requirements.
-
-## Measured FPGA cost
-
-Post-fit GNG SiDi128 release build, 256×224 RGB444, seed 3 (2026-10-27):
-
-| Hierarchy (includes children) | Logic elements | Registers | RAM bits | M9Ks |
-| --- | ---: | ---: | ---: | ---: |
-| `jtframe_capture` | 11,355 | 8,232 | 16,384 | 2 |
-| `jtframe_capture_progress` | 650 | 407 | 0 | 0 |
-| `jtframe_capture_line`, buffer 0 | 2,832 | 1,845 | 8,192 | 1 |
-| `jtframe_capture_line`, buffer 1 | 2,820 | 1,846 | 8,192 | 1 |
-| Complete GNG core | 30,250 | 15,477 | 230,912 | 57 |
-
-Rows overlap and must not be added. Each line RAM stores 8,192 logical bits in
-one physical 9,216-bit M9K. The two-line RAM is small, but the capture subtree
-uses 9.53% of SiDi128's 119,088 logic elements. GNG leaves 88,838 logic elements
-and 375 of 432 M9Ks; that is not a headroom guarantee for larger cores. Capture
-is enabled in ordinary SiDi128 builds, so this shared target cost must be
-budgeted for every core. Geometry, feedback capability and fitter packing affect
-actual cost; qualify large cores separately.
-
-Compared with the previous video-enabled PC/idle-loop policy at the same seed,
-whole GNG changes from 30,306 to 30,250 logic elements and 15,485 to 15,477
-registers, with unchanged RAM. The GNG main block loses eight registers; capture
-subtree changes from 11,392 to 11,355 logic elements, while progress changes from
-645 to 650. These are measured fitted results, including placement/packing, not
-an exact feature-disabled overhead or a source-line-based savings estimate.
-Minimum reported slack is +0.103 ns; all reported setup/hold/recovery/removal
-summaries pass. Reports and comparison data are under the issue task artifacts
-`video/irq-pause-simplification/`.
+`JTFRAME_REMOTE` enables a paired debug recorder on the MiST-family user-I/O
+SPI path, together with the CAB stream interface. It is selected at one
+capture-instantiation boundary; the existing feature mask gates remote SPI
+handlers and CAB snapshot logic when disabled. Shared board/input/joystick
+logic is CAB-aware unconditionally and receives zero controls on unsupported
+targets. SiDi128 enables it in both debug and release builds. The firmware and
+FPGA images must use the same interface.
+There is no compatibility negotiation with the previous experimental ABI.
+CAB input commands `0x81..0x89` are unchanged.
 
 ## SPI commands
 
-| ID | Write payload / read snapshot |
-| --- | --- |
-|90|192-byte coherent progress/capability snapshot|
-|98|cookie64, expected epoch64, flags8 (bit0 enable IRQ-driven pause policy); only idle/done/error|
-|91|requested game frame64, reserved flags32=0; begin, increment capture sequence|
-|92|cookie64, capture64, buffer8; select retained line header|
-|97|96-byte immutable selected line header|
-|93|cookie64, capture64, buffer8, line sequence32, offset16, length8(1..128); prepare read window|
-|96|16-byte coherent window status|
-|94|one guard byte then exactly requested bytes from the fixed read window|
-|95|cookie64, capture64, buffer8, line sequence32; explicit release|
-|99|cookie64, capture64; abort/end, release both buffers and owned pause|
+Multibyte values are little endian. Commands are sent on the existing user-I/O
+SPI chip select.
 
-Read snapshots use the first byte as a fixed guard/magic and then snapshot bytes
-1..N-1, allowing the SPI/sys-domain request to settle. 94 has a separate guard,
-so discard it before payload bytes. Range/identity/epoch errors never release a
-buffer. New context cannot steal an active capture. Epoch changes abort capture.
-Pause release occurs at native LVBL, with the pause decision for that exact edge retained for the synchronized CAB
-tick, preserving the pending input duration even if confirmation changes between
-the native edge and the delayed CAB tick. Unconfirmed pause expires after two
-rasters and proceeds as an advancing composite. Lost confirmed contract is an
-explicit error and releases pause/buffers. Legacy dump barriers cannot overlap.
+| Opcode | Transfer after opcode | Meaning |
+| --- | --- | --- |
+| `0x90 INFO` | Read 8 bytes: tagged-width16, height16, selected frame32 | Read once at run start and after the first row of each capture. |
+| `0x91 BEGIN` | Write target frame32, row step16 | Start a capture. A zero step is treated as one; steps above the image height clamp to the height. |
+| `0x94 READ` | Read one prefix byte and its payload | Reads the ordered head row. A complete payload transfer consumes it. |
+| `0x99 ABORT` | No payload | Cancel and release capture-owned pause. |
 
-Progress90 offsets:0magic76,1version1,2state(0idle,1waiting,2confirm,3acquire,
-4done,5error,6resume),3error;4width16,6height16,8nativebits32,12flags32
-(feedback,contract,IRQ,recent-service,effective,strict bits0..5). 16cookie64,24epoch64,
-32capture64,40raster64,48game64,56acceptedIRQ64,64requested64,72achieved64,
-80firstRaster64,88lastRaster64,96firstGame64,104lastGame64,112IRQgeneration64,
-120CABframe32,124CABepoch32,128rasterPeriodCycles32,132clockHz32,
-136remainingLines16,138readyBufferBits8,139reserved,140releasedLines32.
-Physical raster is monotonic through game reset; game/IRQ reset and epoch increments
-once per reset assertion. Firmware sessions distinguish FPGA reconfiguration.
+`READ` prefix 0 means empty and has no payload. Prefixes 1..254 mean that many
+16-bit RLE words, including any long-run extension words. Prefix `0xff` means
+raw pixels: `(3*width+1)/2` bytes for RGB444 or `2*width` bytes for RGB555.
+INFO width bit 15 tags RGB555; clear means RGB444. Width occupies bits 14..0.
+There are no row IDs, y values,
+headers, status records, ACK command, magic/version fields or checksums. The MCU
+and FPGA independently generate the same row sequence from geometry and step.
 
-Line97:0magic16=4c56,2version8=1,3buffer8,4lineSeq32,8cookie64,16epoch64,
-24capture64,32sourceRaster64,40sourceGame64,48firstIRQ64,56firstCAB32,
-60y16,62width16,64IRQdelta32,68lastCAB32,72flags32,76encodedBytes16,
-78encoding8(1packed,2RLE),79nativeBits8,80..91reserved,92CRC32.
-CRC32 is reflected IEEE over header0..91 followed by encoded payload.
-First/last pixel raster/game/epoch must agree; invalid crossing lines remain missing.
-IRQdelta is bounded by a scanline's possible accepted events and reconstructs its
-last IRQ count exactly. CAB first/last retain the legacy synchronization phase.
+RGB444 keeps the existing packed-nibble raw format and compact RLE words: the
+high nibble is run length minus one (0..14 represents one through fifteen
+pixels; 15 indicates a following 16-bit extension), and the low twelve bits
+are the color. RGB555 is canonical little-endian 16-bit `{0, R5, G5, B5}`.
+Its RLE literals are little-endian `{0,color15}` and repeats are
+`{1,color15}` followed by a little-endian run length minus two. A run of two
+pixels does not save bytes by itself. Both encoders select RLE only when it is
+strictly smaller than raw and no more than 508 bytes; otherwise the row is
+raw. RGB555 is selected at compile time for COLORW>=5, taking each component's
+five most significant bits; COLORW<=4 retains the existing RGB444 expansion.
 
-Window96:0magic77,1flags(bit0ready,bit1buffer),2length,3reserved,4offset16,
-6reserved16,8lineSeq32,12reserved32. 94 must be read only after matching readiness.
+For height H and step S clamped to H, rows are visited residue-major. Start at
+row zero, add S while the sum is below H, then advance the residue and continue
+at residue plus one. For example, H=7 and S=3 yields `0,3,6,1,4,2,5`. Two
+synchronous dual-port BRAM banks hold encoded lines. A row stays immutable until
+the SPI master samples the final payload bit; ending chip select early leaves
+the same row at the head. If both banks are full, acquisition waits without
+overwriting a row.
 
-RGB444 RLE word LE16=CCCCRRRRGGGGBBBB; count nibble0..14 gives1..15 pixels;
-nibble15 is followed by LE16 extension for count16+extension. Raw fallback packs
-A,B as A[11:4],{A[3:0],B[11:8]},B[7:0]; odd last pixel pads low nibble0.
-Decoder must produce exactly the declared width and reject all trailing/truncated
-or overlong runs. A retained line's encoding/CRC never changes between retries.
+## Capture timing and limits
 
-## Files and provenance
+The capture engine samples native color before OSD. It targets a native raster
+boundary, waits two raster intervals, and then acquires the selected rows. It
+pauses the game through the normal combined pause input. In CAB mode the
+existing CAB frame counter supplies the target timeline; otherwise a local
+32-bit counter advances at native raster boundaries and clears on game reset.
+CAB input hold remains boundary-aligned so capture pause does not consume input
+durations. Reset, ABORT, or owner cleanup clears pending rows and releases the
+capture-owned pause.
 
-MCU raw image header128: magic `JTV44401`,8version32=1,12headerBytes32=128,
-16width32,20height32,24encoding32=1,28nativeBits32,32pixelBytes32,
-36pixelCRC32,40capture64,48firstGame64,56firstRaster64,64lastRaster64,
-72epoch64,80cookie64,88canonicalSHA256[32],120headerCRC32(over0..119),124reserved0.
-Payload is normalized packed12-bit RGB444, row padding as above. Canonical SHA256
-covers four LE32 values(format1,width,height,nativeBits) followed by payload.
-Consecutive identical canonical images reuse the prior immutable payload before
-any image SD write; each acquisition still publishes timing/provenance.
+This pause policy assumes the game finishes its current update and waits after
+its frame interrupt is suppressed. The recorder does not inspect CPU interrupt
+acceptance, program counter, ROM identity, or handler completion. A game that
+continues writing video, or depends on raster timing, can produce mixed or
+different images. The frame returned by INFO is the actual paused checkpoint;
+a late target is not relabeled as its requested frame.
 
-Map header128:magic `JTVMAP01`,8headerBytes32=128,12recordBytes32=48,
-16height32,24cookie64,32epoch64,40capture64,48requested64,56payloadCRC32,124headerCRC32(over0..123).
-One record per native y:0y16,2width16,4lineSeq32,8raster64,16game64,24firstIRQ64,
-32firstCAB32,36lastCAB32,40IRQdelta32,44flags32. The run identity supplies epoch,
-cookie and capture to every row without allocating them repeatedly in MCU SRAM.
+The MCU owns two 1,024-byte row buffers; the 8 KiB FatFs sector buffer is only
+temporary SPI scratch. Raw files contain tagged-width16, height16, then
+canonical row-major packed RGB444 or little-endian RGB555 pixels. For a
+possible duplicate, the recorder compares each received row against the prior
+image and opens no output image while rows match. A complete match adds only an
+index reference and performs zero image-file creates or writes. At the first
+difference, the recorder stages an image, replays the verified equal prefix
+one row per poll, then writes the held different row and remaining rows. Each
+unique image row is written once. There are no per-row maps, ROM hashes, image
+hashes, CRC fields or full-frame buffer.
 
-index.jsonl records run identity/ROM SHA, each requested/achieved capture, image/map
-references, canonical digest, duplicate/classification flags, source ranges,
-transfer end and elapsed time. A composite spanning sourceF..L covers [F,L+1);
-overlap is clipped against prior presentation coverage, and gaps are explicit.
-Repeating a composite is a timing approximation, not independent live capture.
-Raw image names resemble jtsim (`frame_nnnnn.raw`); PC exports frame_nnnnn.png.
-Unique run directories prevent overwrite. SD staging is checked write/sync/close
-then rename/index publication, not a power-loss-atomic FAT transaction.
+The implementation accepts widths and heights from 1 through 512. The
+firmware polls empty READs through its normal service loop and writes images
+using exact-seek/read/write, file-size, sync, close and rename checks.
+Owner lease expiry, OSD interruption, reset, disconnect, explicit VIDSTOP and
+SD errors stop the recorder and remove an unpublished temporary file.
 
-See firmware doc/ftp-video.md for authenticated commands, limits and cleanup.
+## COLORW5 measurements and validation
+
+Both tested cores were built for SiDi128 with Quartus 20.1, seed 3, release
+(`--nodbg`), and the same timestamp. The capture hierarchy uses a true dual-port
+1024×16 RAM split into two 512-word banks, or 2 M9Ks. Contra fitted the capture
+hierarchy at 910 logic cells and 395 registers; the full core used 25,128 logic
+elements, 9,454 registers and 65 M9Ks. Shinobi/S16 fitted the capture hierarchy
+at 902 logic cells and 395 registers; its full core used 31,552 logic elements,
+13,495 registers and 92 M9Ks. These are separate core totals, not an estimate of
+the feature's whole-core incremental cost. Full fitter and STA reports are in
+`/nobackup/tasks/jtcores-166/artifacts/video/colorw5/build/`.
+
+Both builds passed 102 reported timing checks at three corners with no negative
+slack, zero TNS, and no unconstrained clocks or I/O paths. Minimum setup slack
+was +0.564 ns for Contra and +1.616 ns for S16; minimum hold slack was +0.120 ns
+and +0.102 ns, respectively. Targeted slow-corner RAM-to-SPI-byteout slacks
+were +32.729 ns and +32.755 ns; byteout-to-MISO were +18.018 ns and +15.106 ns;
+MISO-to-SPI_DO setup were +4.100 ns and +3.644 ns. Per-core reports include the
+RAM-to-high-word path and MISO output hold check.
+
+The paired production firmware and RBFs were installed and verified on SiDi128.
+Each core completed a controlled 2,000-frame CAB run with 35 input events and
+captures requested and received at frames 600, 1200 and 1800. All six images
+were nonblank RGB555 and had native channel values outside the RGB444 lattice.
+Contra images are 280×224; S16 images are 320×224. S16's frame 1800 was an exact
+duplicate of frame 1200 and reused its image. The simplified pause policy can
+select different content from earlier recordings; equality with older captures
+is not required.
+
+A task-only S16 firmware build measured 148,853 video SPI bytes for three
+captures at 600-frame spacing. Encoded pixel payload, including raw fallback,
+was 116,246 bytes (78.09% of the wire total); 646 rows used RLE and 26 used raw
+fallback. There were 16,275 READ commands, including 15,603 empty polls, and 672
+consumed rows. Two unique files accounted for 286,728 bytes and 448 row writes.
+The duplicate frame caused zero image creates, zero image bytes, and zero row
+writes. This measurement uses three checkpoints; its empty-poll ratio should
+not be compared directly with an earlier 20-checkpoint run at 100-frame
+spacing.
+
+Reset and FTP disconnect were tested during row acquisition after two rows had
+been written. Both canceled the current run, removed its temporary image,
+released the input owner, and allowed a fresh nonblank capture. The uninstrumented
+production firmware and S16 RBF were restored and verified afterward; the final
+board had no input owner, all joystick inputs zero, capture inactive, and CAB
+idle.
+
+The production firmware is 283,900 bytes. The linker-map SRAM span from
+`_srelocate` to `__heap_start__` is 250,080 bytes, 96,224 bytes below the earlier
+346,304-byte build; `.bss` is 244,424 bytes. The 96 KiB frame arena was removed
+and replaced by two 1,024-byte row buffers. The 8 KiB heap and 24 KiB stack
+reservations remain; observed stack use was 3,064 bytes. Full reports, image
+fixtures, SWD logs and run manifests are under
+`/nobackup/tasks/jtcores-166/artifacts/video/colorw5/`.

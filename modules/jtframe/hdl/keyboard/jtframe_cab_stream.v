@@ -8,7 +8,7 @@ module jtframe_cab_stream #(
     input              rst, clk,
     input              lvbl,
     input              capture_hold,
-    output      [31:0] capture_frame, capture_epoch,
+    output      [31:0] capture_frame,
     input              rx_strobe,
     input       [ 7:0] rx_cmd, rx_byte,
     input       [ 4:0] rx_index,
@@ -53,7 +53,6 @@ assign dipsw_valid= active && dipsw_set;
 assign hold_reset = state==ARMED && reset_on_arm;
 assign tick       = lvbl_sync[1] && !lvbl_l;
 assign capture_frame=frames;
-assign capture_epoch=epoch;
 assign packet     = rx_cmd==8'h86 ? {rx_byte,payload[151:0]} : {32'd0,rx_byte,payload[119:0]};
 assign payload_index = rx_index-5'd1;
 assign start_epoch= {rx_byte,payload[23:0]};
