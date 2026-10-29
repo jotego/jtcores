@@ -136,3 +136,19 @@ Technical checks establish that a capture is complete and decodable. They
 cannot establish that the game's graphics or behavior are correct. Reports
 must keep that distinction explicit. No images are uploaded by the report
 publisher.
+
+## Continuing after an approved firmware change
+
+A firmware change normally invalidates a resumed test definition. To preserve
+already collected images while continuing pending games, an operator can place
+an explicit `firmware-transition.json` in this campaign's `log/<run-id>/`
+folder. It contains schema `1`, the exact `run_id` and `build` object from the
+manifest, and `from`/`to` objects with `firmware` and `sha256` fields. The `to`
+pair must match the verified installed firmware and current configuration.
+
+With `--retry-errors`, the runner verifies finalized historical results against
+the approved `from` pair and unchanged build, fixtures, profile, capture tools,
+and image hashes. It preserves their original metadata, PNGs and per-game
+identities. Pending and retried games use the `to` pair. This authorization does
+not approve image content or promote any reference; an absent or mismatched
+transition retains the normal firmware-identity rejection.

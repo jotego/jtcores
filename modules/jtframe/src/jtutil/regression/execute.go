@@ -113,6 +113,7 @@ type Batch struct {
 	FirmwareSHA256    string
 	CaptureToolSHA256 string
 	RetryErrors       bool
+	read_only_receipts bool
 }
 
 func (b *Batch) Run() error {
@@ -120,12 +121,18 @@ func (b *Batch) Run() error {
 	if e != nil {
 		return e
 	}
+	transition,e:=b.read_firmware_transition()
+	if e!=nil {return e}
+	historical_games:=make(map[string]bool)
 	specIdentities := make(map[string]string, len(b.Games))
 	for _, game := range b.Games {
 		specID, err := gameSpecIdentity(b, game)
 		if err != nil {
 			return fmt.Errorf("identify %s: %w", game.Setname, err)
 		}
+		specID,historical,err:=b.transitioned_game_identity(transition,game,specID)
+		if err!=nil {return fmt.Errorf("verify firmware transition for %s: %w",game.Setname,err)}
+		historical_games[game.Setname]=historical
 		specIdentities[game.Setname] = specID
 	}
 	if b.State.Core != "" && b.State.Core != b.Core {
@@ -157,9 +164,10 @@ func (b *Batch) Run() error {
 	}
 	for _, game := range b.Games {
 		if old, ok := b.State.Games[game.Setname]; ok && (old.Outcome == Pass || old.Outcome == New || old.Outcome == Fail || old.Outcome == Unsupported || old.Outcome == Error && !b.RetryErrors) {
-			if b.verifyFinalized(game, old) {
-				continue
-			}
+			verifier:=b
+			if historical_games[game.Setname] {verifier=b.historical_firmware_batch(transition)}
+			if verifier.verifyFinalized(game, old) {continue}
+			if historical_games[game.Setname] {return fmt.Errorf("historical firmware capture changed during resume: %s",game.Setname)}
 		}
 		if e := b.Log.Write(Event{Setname: game.Setname, Stage: "game-start", Outcome: Pending, Fields: map[string]any{"run_id": b.RunID, "core": b.Core}}); e != nil {
 			return fmt.Errorf("record start for %s: %w", game.Setname, e)
@@ -1053,6 +1061,7 @@ func (b *Batch) verifyFinalized(game GameSpec, result GameResult) bool {
 	cutoff := 0
 	if result.Outcome == Pass { cutoff = profile.Startup }
 	if !receipt_matches_pngs(hashes, published, cutoff) { return false }
+	if b.read_only_receipts {return true}
 	if legacy { if e = save_capture_receipt(receipt, hashes); e != nil { return false } }
 	return remove_legacy_receipt_pngs(receipt, hashes) == nil
 }
