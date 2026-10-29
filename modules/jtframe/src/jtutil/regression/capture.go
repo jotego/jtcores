@@ -304,7 +304,7 @@ func export_png_frames(source, destination string) error {
 		decoded, e := decode_raw(filepath.Join(source, record.Image)); if e != nil { return e }
 		frame := image.NewRGBA(image.Rect(0, 0, decoded.width, decoded.height))
 		for i, pixel := range decoded.pixels { frame.SetRGBA(i%decoded.width, i/decoded.width, color.RGBA{uint8(pixel>>16), uint8(pixel>>8), uint8(pixel), 255}) }
-		path := filepath.Join(destination, fmt.Sprintf("frame_%08d.png", record.Requested))
+		path := filepath.Join(destination, png_capture_name(record.Requested, record.Actual))
 		out, e := os.Create(path); if e != nil { return e }
 		e = png.Encode(out, frame); close_err := out.Close()
 		if e != nil { return e }; if close_err != nil { return close_err }
@@ -335,14 +335,30 @@ func read_png_capture_set(dir string, frames, startup, cadence int) (CaptureSet,
 	seen := map[int]bool{}
 	for _, path := range files {
 		name := filepath.Base(path)
-		checkpoint, e := strconv.Atoi(strings.TrimSuffix(strings.TrimPrefix(name, "frame_"), ".png"))
-		if e != nil || checkpoint<cadence || checkpoint>frames || checkpoint%cadence!=0 || seen[checkpoint] { return set, fmt.Errorf("invalid PNG checkpoint %s", name) }
+		checkpoint, actual, e := parse_png_capture_name(name)
+		if e != nil || checkpoint<cadence || checkpoint>frames || checkpoint%cadence!=0 || seen[checkpoint] || checkpoint>startup && actual!=checkpoint { return set, fmt.Errorf("invalid PNG checkpoint %s", name) }
 		seen[checkpoint] = true
 		frame, e := decode_capture_image(path); if e != nil { return set, e }
 		if set.Width==0 { set.Width, set.Height = frame.width, frame.height }
 		if set.Width!=frame.width || set.Height!=frame.height { return set, fmt.Errorf("PNG geometry changed") }
-		set.Captures = append(set.Captures, CaptureRecord{Type:"capture", Requested:checkpoint, Actual:checkpoint, Image:name})
+		set.Captures = append(set.Captures, CaptureRecord{Type:"capture", Requested:checkpoint, Actual:actual, Image:name})
 	}
 	sort.Slice(set.Captures, func(i,j int) bool { return set.Captures[i].Requested<set.Captures[j].Requested })
 	return set, nil
+}
+
+func png_capture_name(requested, actual int) string {
+	if requested != actual { return fmt.Sprintf("frame_%08d_actual_%08d.png", requested, actual) }
+	return fmt.Sprintf("frame_%08d.png", requested)
+}
+
+func parse_png_capture_name(name string) (int, int, error) {
+	if !strings.HasPrefix(name, "frame_") || !strings.HasSuffix(name, ".png") { return 0, 0, fmt.Errorf("invalid PNG frame name") }
+	parts := strings.Split(strings.TrimSuffix(strings.TrimPrefix(name, "frame_"), ".png"), "_actual_")
+	if len(parts)>2 { return 0, 0, fmt.Errorf("invalid PNG frame name") }
+	requested, err := strconv.Atoi(parts[0]); if err != nil { return 0, 0, err }
+	actual := requested
+	if len(parts)==2 { actual, err = strconv.Atoi(parts[1]); if err != nil { return 0, 0, err } }
+	if actual<1 { return 0, 0, fmt.Errorf("invalid actual PNG frame") }
+	return requested, actual, nil
 }

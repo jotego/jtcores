@@ -102,6 +102,9 @@ func (h *FTPHardware) Run(game GameSpec, cab, captureDir string) (RunInfo, error
 		"--capture-every", "100", "--video-step", "16", "--report", report, "--video-dir", captureDir, "--cab-packer", h.CabPacker}
 	started := time.Now()
 	out, e := h.run(h.ControlHelper, args, timeout_for_frames(game.Profile.Video, h.Timeout))
+	if record_error := os.WriteFile(filepath.Join(filepath.Dir(captureDir), "helper-progress.log"), []byte(out), 0640); record_error != nil {
+		if e == nil { e = record_error } else { e = fmt.Errorf("%w; record helper output: %v", e, record_error) }
+	}
 	remote, ownershipErr := ownedCABPaths(report)
 	if e != nil {
 		return RunInfo{Report: report, CaptureDir: captureDir, Duration: time.Since(started), RemoteFiles: remote}, fmt.Errorf("CAB/video execution: %w: %s", e, out)
@@ -473,7 +476,7 @@ func (h *FTPHardware) run(program string, args []string, timeout time.Duration) 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, program, args...)
-	cmd.Env = os.Environ()
+	cmd.Env = append(os.Environ(), "PYTHONUNBUFFERED=1")
 	if h.Netrc != "" {
 		cmd.Env = append(cmd.Env, "FTP_NETRC="+h.Netrc)
 	}
@@ -580,18 +583,15 @@ func (h *FTPHardware) Preflight() error {
 }
 
 func timeout_for_frames(frames int, maximum time.Duration) time.Duration {
-	// Estimate 20 frames/second; hard-bound an operation to five minutes.
-	computed := time.Duration(frames) * time.Second / 20
-	if computed < 2*time.Minute {
-		computed = 2 * time.Minute
-	}
-	if maximum > 0 && computed > maximum {
-		return maximum
-	}
-	if computed > 5*time.Minute {
-		return 5 * time.Minute
-	}
-	return computed
+	// The deadline covers upload, recording, and retrieval. Progress watchdogs
+	// inside the helper remain responsible for detecting a stalled operation.
+	if maximum <= 0 { maximum = 15*time.Minute }
+	base := 2*time.Minute
+	if maximum <= base { return maximum }
+	if frames <= 0 { return base }
+	per_frame := time.Second/10
+	if uint64(frames) > uint64((maximum-base)/per_frame) { return maximum }
+	return base + time.Duration(frames)*per_frame
 }
 
 func ParseCaptureReport(filename string) (map[string]any, error) {

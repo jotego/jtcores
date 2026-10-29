@@ -608,7 +608,13 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		return finish()
 	}
 	work := filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname)
-	defer os.RemoveAll(work)
+	defer func() {
+		if err := persist_helper_diagnostics(work, filepath.Join(b.Root,"log",b.RunID,b.Core,game.Setname,"helper")); err != nil {
+			if result.RecordError!="" { result.RecordError += "; " }
+			result.RecordError += fmt.Sprintf("preserve helper diagnostics: %v",err)
+		}
+		_ = os.RemoveAll(work)
+	}()
 	cab := game.CAB
 	if cab == "" && profile.Inputs != "" {
 		cab = profile.Inputs
@@ -913,7 +919,7 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 	ref := filepath.Join(gameRoot, "ref")
 	receipt := b.capture_receipt(game.Setname)
 	if e = os.RemoveAll(receipt); e == nil { e = os.MkdirAll(receipt, 0750) }
-	if e == nil { e = export_png_frames(run.CaptureDir, receipt) }
+	if e == nil { e = write_capture_receipt(receipt, candidate) }
 	if e == nil { e = write_metadata(receipt, metadata) }
 	if e == nil { e = copyFile(filepath.Join(run.CaptureDir, "index.jsonl"), filepath.Join(receipt, "transport-index.jsonl")) }
 	if e != nil { result.Stage = "record"; result.Message = e.Error(); return finish() }
@@ -1021,16 +1027,21 @@ func (b *Batch) verifyFinalized(game GameSpec, result GameResult) bool {
 	if e != nil || meta.TestIdentity == "" || !sameResumeBuild(meta.Build, b.Build) || meta.TestIdentity != result.TestIdentity { return false }
 	profile, e := resolvedGameProfile(b, game)
 	if e != nil { return false }
-	stored, e := ReadCaptureSet(receipt, profile.Video, profile.Startup, 100)
+	hashes, legacy, e := read_capture_receipt(receipt, profile, meta.CaptureFormat)
 	if e != nil { return false }
 	slot := string(result.Outcome)
 	if result.Outcome == Pass { slot = "ref" }
-	published, e := ReadCaptureSet(filepath.Join(b.Root, b.Core, game.Setname, slot), profile.Video, profile.Startup, 100)
+	published_dir := filepath.Join(b.Root, b.Core, game.Setname, slot)
+	if result.Outcome == New {
+		if _, stat_error := os.Stat(published_dir); os.IsNotExist(stat_error) { published_dir = filepath.Join(b.Root, b.Core, game.Setname, "ref") }
+	}
+	published, e := read_png_capture_set(published_dir, profile.Video, profile.Startup, 100)
 	if e != nil { return false }
 	cutoff := 0
 	if result.Outcome == Pass { cutoff = profile.Startup }
-	diffs, e := CompareCaptureSets(stored, published, cutoff)
-	return e == nil && len(diffs) == 0
+	if !receipt_matches_pngs(hashes, published, cutoff) { return false }
+	if legacy { if e = save_capture_receipt(receipt, hashes); e != nil { return false } }
+	return remove_legacy_receipt_pngs(receipt, hashes) == nil
 }
 
 func read_metadata(dir string) (GameMetadata, error) {
@@ -1041,4 +1052,18 @@ func read_metadata(dir string) (GameMetadata, error) {
 	}
 	e = json.Unmarshal(data, &metadata)
 	return metadata, e
+}
+
+// Retain only named helper text/JSON artifacts before transient images and CAB
+// files are discarded, including on failed or timed-out executions.
+func persist_helper_diagnostics(work, destination string) error {
+	for _, name := range []string{"helper-progress.log","ftp-report.json","ftp-report.json.upload.json"} {
+		path := filepath.Join(work,name)
+		info, err := os.Lstat(path)
+		if os.IsNotExist(err) { continue }; if err != nil { return err }
+		if !info.Mode().IsRegular() { return fmt.Errorf("helper diagnostic is not a regular file: %s",name) }
+		if err = os.MkdirAll(destination,0750); err != nil { return err }
+		if err = copyFile(path,filepath.Join(destination,name)); err != nil { return err }
+	}
+	return nil
 }

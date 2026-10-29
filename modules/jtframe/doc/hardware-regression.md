@@ -67,6 +67,11 @@ the input script to the configured frame budget and records the original
 input identity in the run log. Unsupported profile settings become preparation
 errors instead of being silently ignored.
 
+An on-time frame is named `frame_00000100.png`. A startup capture requested
+at frame 100 but taken at frame 112 is named
+`frame_00000100_actual_00000112.png`; both identities are retained. Late
+captures after the startup cutoff are execution errors.
+
 ## Collection and designer approval
 
 ```sh
@@ -96,10 +101,18 @@ are read-only inputs to later exact-pixel comparisons and do not require a
 tool-generated approval marker. A mismatch is retained in `fail/` as PNGs;
 comparison details belong in the run log.
 
-Logs, summaries, capture metadata and resume receipts are stored below
-`$JOTEGO/regression/log/`. RAW capture files are temporary project work files;
+Logs, summaries, capture metadata and JSON resume receipts are stored below
+`$JOTEGO/regression/log/`. Resume receipts contain decoded-pixel hashes,
+geometry and checkpoint identities, without a second set of PNG images.
+RAW capture files are temporary project work files;
 they are not published to the results directory. ROMs, source checkouts,
 executables, build caches and machine configuration do not belong there.
+
+The outer capture deadline allows for execution, capture pauses and retrieval:
+120 seconds plus one tenth of a second per configured frame, capped by
+`timeout-seconds` (900 seconds by default). Independent progress checks still
+bound stalled playback and capture operations. Failed helper text and JSON
+diagnostics are retained in the run log before temporary files are removed.
 
 Technical checks establish that a capture is complete and decodable. They
 cannot establish that the game's graphics or behavior are correct. Reports

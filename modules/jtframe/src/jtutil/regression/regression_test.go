@@ -985,9 +985,14 @@ func jsonNumber(value int) string { return strconv.Itoa(value) }
 func seed_receipt(t *testing.T, batch *Batch, setname, capture string, metadata GameMetadata) {
 	t.Helper()
 	dir := batch.capture_receipt(setname)
-	if err:=os.MkdirAll(dir,0750);err!=nil {t.Fatal(err)}
-	if err:=export_png_frames(capture,dir);err!=nil {t.Fatal(err)}
-	if err:=write_metadata(dir,metadata);err!=nil {t.Fatal(err)}
+	profile, err := ResolveProfile(batch.GlobalProfile, batch.CorePath, batch.Core, setname); if err != nil { t.Fatal(err) }
+	set, err := ReadCaptureSet(capture, profile.Video, profile.Startup, 100); if err != nil { t.Fatal(err) }
+	if metadata.CaptureFormat == "" { metadata.CaptureFormat = set.Format }
+	set.Format = metadata.CaptureFormat
+	if err = os.MkdirAll(dir,0750); err != nil { t.Fatal(err) }
+	if err = write_capture_receipt(dir,set); err != nil { t.Fatal(err) }
+	if err = write_metadata(dir,metadata); err != nil { t.Fatal(err) }
+	if err = copyFile(filepath.Join(capture, "index.jsonl"), filepath.Join(dir, "transport-index.jsonl")); err != nil { t.Fatal(err) }
 }
 
 func TestRGB555PNGExpansionAndComparison(t *testing.T) {
