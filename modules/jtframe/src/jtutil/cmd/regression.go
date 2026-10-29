@@ -137,6 +137,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	hardware := &regression.FTPHardware{Host: config.Host, Netrc: config.Netrc, ControlHelper: config.ControlHelper, CabPacker: config.CabPacker, Curl: config.Curl,
 		JTFrame: filepath.Join(config.Source, "modules", "jtframe"), CabCache: filepath.Join(config.Source, ".cache", "jtutil-regression", "cab-pack", manifest.Build.SHA),
 		PendingUploadDirsPath: filepath.Join(dataRoot, "log", "upload-directories.json")}
+	defer hardware.ReleaseCore()
 	if config.TimeoutSeconds > 0 {
 		hardware.Timeout = time.Duration(config.TimeoutSeconds) * time.Second
 	}
@@ -229,6 +230,10 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			State: state, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: globalProfile, Games: core.Games,
 			Firmware: config.Firmware, FirmwareSHA256: config.FirmwareSHA256, CaptureToolSHA256: config.CaptureToolSHA256, RetryErrors: regressionRetryErrors}
 		err = batch.Run()
+		if release_error:=hardware.ReleaseCore();release_error!=nil {
+			_ = log.Write(regression.Event{Stage:"core-cleanup",Outcome:regression.Error,Message:release_error.Error()})
+			if err==nil { err=release_error } else { err=fmt.Errorf("%w; release core: %v",err,release_error) }
+		}
 		_ = log.Close()
 		all = regression.ReplaceCoreResults(all, core.Core, state.Games)
 		if err != nil {

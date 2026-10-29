@@ -31,60 +31,110 @@ type FTPHardware struct {
 	Netrc                 string
 	Timeout               time.Duration
 	Logger                func(string)
+	core_dir string
+	core_rbf_name string
+	core_rbf_sha string
+	core_rbf_ready bool
+	core_rbf_owned bool
+	core_releasing bool
 }
 
-func (h *FTPHardware) Load(game GameSpec) (LoadInfo, error) {
-	if h.Host == "" {
-		return LoadInfo{}, fmt.Errorf("board host must be configured")
+func (h *FTPHardware) Load(game GameSpec) (info LoadInfo, load_error error) {
+	if h.Host == "" { return info, fmt.Errorf("board host must be configured") }
+	if len(game.ROMs)==0 { return info, fmt.Errorf("game %s needs ARC, RBF and at least one ROM file",game.Setname) }
+	if h.Curl == "" { h.Curl = "curl" }
+	paths := append([]string{game.ARC,game.RBF},game.ROMs...)
+	seen := map[string]bool{}
+	for _, path := range paths {
+		name := filepath.Base(path)
+		file, err := os.Stat(path)
+		if err!=nil || !file.Mode().IsRegular() || file.Size()==0 { return info, fmt.Errorf("upload file is missing or empty: %s",name) }
+		if !safeComponent(name) || seen[name] { return info, fmt.Errorf("unsafe or duplicate upload basename %q",name) }
+		seen[name] = true
 	}
-	paths := append([]string{game.ARC, game.RBF}, game.ROMs...)
-	if len(paths) < 3 {
-		return LoadInfo{}, fmt.Errorf("game %s needs ARC, RBF and at least one ROM file", game.Setname)
+	rbf_name := filepath.Base(game.RBF)
+	if len(rbf_name)>32 { return info, fmt.Errorf("RBF basename exceeds firmware's 32-byte limit") }
+	rbf_sha, err := FileSHA256(game.RBF)
+	if err!=nil { return info, err }
+	if h.core_releasing { return info, fmt.Errorf("previous core release is incomplete") }
+	if h.core_dir!="" && (h.core_rbf_name!=rbf_name || h.core_rbf_sha!=rbf_sha) { return info, fmt.Errorf("active core RBF identity changed; release the core before loading another RBF") }
+	if h.core_dir=="" {
+		var nonce [12]byte
+		if _,err=rand.Read(nonce[:]);err!=nil { return info, err }
+		h.core_dir = "/JTREG_"+hex.EncodeToString(nonce[:])
+		h.core_rbf_name,h.core_rbf_sha = rbf_name,rbf_sha
 	}
-	if h.Curl == "" {
-		h.Curl = "curl"
-	}
-	var nonce [12]byte
-	if _, e := rand.Read(nonce[:]); e != nil {
-		return LoadInfo{}, e
-	}
-	dir := "JTREG_" + hex.EncodeToString(nonce[:])
-	remote := make([]string, 0, len(paths)+1)
-	for _, filename := range paths {
-		base := filepath.Base(filename)
-		remotePath := "/" + dir + "/" + base
-		remote = append(remote, remotePath)
-		args := []string{"--silent", "--show-error", "--fail", "--ftp-create-dirs", "--upload-file", filename}
-		if h.Netrc != "" {
-			args = append(args, "--netrc-file", h.Netrc)
-		} else {
-			args = append(args, "--netrc")
-		}
-		args = append(args, "ftp://"+h.Host+remotePath)
-		out, e := h.run(h.Curl, args, 2*time.Minute)
-		if e != nil {
-			remote = append(remote, "/"+dir)
-			return LoadInfo{RemoteFiles: remote}, fmt.Errorf("FTP upload %s: %w: %s", base, e, out)
-		}
-	}
-	remote = append(remote, "/"+dir)
-	args := []string{"--silent", "--show-error", "--fail", "--quote", "SITE LOAD /" + dir + "/" + filepath.Base(game.ARC)}
-	if h.Netrc != "" {
-		args = append(args, "--netrc-file", h.Netrc)
+	if err=h.queuePendingUploadDir(h.core_dir);err!=nil { return info, fmt.Errorf("record core namespace ownership: %w",err) }
+	if h.core_rbf_ready {
+		info.RBFReused = true
+		info.Transfers = append(info.Transfers,TransferInfo{Name:rbf_name,Role:"rbf",Reused:true})
 	} else {
-		args = append(args, "--netrc")
+		h.core_rbf_owned = true
+		transfer, upload_error := h.upload_core_file(game.RBF,"rbf")
+		info.Transfers = append(info.Transfers,transfer)
+		if upload_error!=nil { return info, upload_error }
+		verified_sha, hash_error := FileSHA256(game.RBF)
+		if hash_error!=nil || verified_sha!=h.core_rbf_sha { return info, fmt.Errorf("RBF source changed during upload") }
+		h.core_rbf_ready = true
 	}
-	args = append(args, "ftp://"+h.Host+"/")
-	out, e := h.run(h.Curl, args, 10*time.Minute)
-	if e != nil {
-		return LoadInfo{RemoteFiles: remote}, fmt.Errorf("FTP core load: %w: %s", e, out)
+	for index,path := range append([]string{game.ARC},game.ROMs...) {
+		role := "rom"; if index==0 { role = "arc" }
+		remote_path := h.core_dir+"/"+filepath.Base(path)
+		info.RemoteFiles = append(info.RemoteFiles,remote_path)
+		transfer, upload_error := h.upload_core_file(path,role)
+		info.Transfers = append(info.Transfers,transfer)
+		if upload_error!=nil { return info, upload_error }
 	}
-	// Firmware sets FatFs' current directory to the just-loaded ARC's parent.
-	// Only after this successful load may older upload namespaces be removed.
-	if err := h.cleanupPendingUploadDirs(); err != nil && h.Logger != nil {
-		h.Logger("deferred upload directory cleanup will retry later: " + err.Error())
+	args := []string{"--silent","--show-error","--fail","--quote","SITE LOAD "+h.core_dir+"/"+filepath.Base(game.ARC)}
+	args = h.ftp_credentials(args)
+	args = append(args,"ftp://"+h.Host+"/")
+	started := time.Now()
+	out, err := h.run(h.Curl,args,10*time.Minute)
+	info.SiteLoadDuration = time.Since(started)
+	if err!=nil { return info, fmt.Errorf("FTP core load: %w: %s",err,out) }
+	// Every game still gets SITE LOAD and a fresh FPGA configuration. Only its
+	// network RBF transfer is shared; ARC and ROM files remain per-game owned.
+	if err = h.cleanupPendingUploadDirs(); err!=nil && h.Logger!=nil { h.Logger("deferred upload cleanup will retry later: "+err.Error()) }
+	return info,nil
+}
+
+func (h *FTPHardware) upload_core_file(path, role string) (TransferInfo,error) {
+	info := TransferInfo{Name:filepath.Base(path),Role:role}
+	file,err := os.Stat(path)
+	if err!=nil { info.Error=err.Error(); return info,err }
+	info.Bytes = file.Size()
+	if err=h.queuePendingUploadDir(h.core_dir+"/"+info.Name);err!=nil { info.Error=err.Error();return info,fmt.Errorf("record upload ownership: %w",err) }
+	args := []string{"--silent","--show-error","--fail","--ftp-create-dirs","--upload-file",path}
+	args = h.ftp_credentials(args)
+	args = append(args,"ftp://"+h.Host+h.core_dir+"/"+info.Name)
+	started := time.Now()
+	out,err := h.run(h.Curl,args,2*time.Minute)
+	info.Duration = time.Since(started)
+	info.Uploaded = err==nil
+	if err!=nil { info.Error=err.Error(); return info,fmt.Errorf("FTP upload %s: %w: %s",info.Name,err,out) }
+	return info,nil
+}
+
+func (h *FTPHardware) ftp_credentials(args []string) []string {
+	if h.Netrc!="" { return append(args,"--netrc-file",h.Netrc) }
+	return append(args,"--netrc")
+}
+
+// ReleaseCore owns the shared RBF's lifetime. Directory removal is deferred
+// until a successful load changes the firmware's current ARC directory.
+func (h *FTPHardware) ReleaseCore() error {
+	if h.core_dir=="" { return nil }
+	h.core_rbf_ready = false
+	h.core_releasing = true
+	var failures []string
+	if h.core_rbf_owned {
+		if err:=h.Cleanup([]string{h.core_dir+"/"+h.core_rbf_name});err!=nil { failures=append(failures,err.Error()) } else { h.core_rbf_owned=false }
 	}
-	return LoadInfo{RemoteFiles: remote}, nil
+	if err:=h.queuePendingUploadDir(h.core_dir);err!=nil { failures=append(failures,err.Error()) }
+	if len(failures)>0 { return fmt.Errorf("release core upload: %s",strings.Join(failures,"; ")) }
+	h.core_dir,h.core_rbf_name,h.core_rbf_sha = "","",""
+	h.core_releasing = false
+	return nil
 }
 
 func (h *FTPHardware) Run(game GameSpec, cab, captureDir string) (RunInfo, error) {
@@ -154,6 +204,7 @@ func (h *FTPHardware) Cleanup(remote []string) error {
 		h.Curl = "curl"
 	}
 	var failures []string
+	listings := map[string][]string{}
 	owned := make([]string, 0, len(remote))
 	for _, name := range remote {
 		if !ownedRemotePath(name) {
@@ -174,8 +225,12 @@ func (h *FTPHardware) Cleanup(remote []string) error {
 		}
 		args = append(args, "ftp://"+h.Host+"/")
 		out, e := h.run(h.Curl, args, 20*time.Second)
+		if e!=nil && ownedLoadFile(name) { if absent,check_error:=h.remote_load_path_absent(name,listings);check_error==nil && absent { e=nil } }
 		if e != nil {
 			failures = append(failures, name+": "+e.Error()+" "+out)
+			if ownedLoadFile(name) {
+				if queue_error:=h.queuePendingUploadDir(name);queue_error!=nil { failures=append(failures,"persist failed file deletion: "+queue_error.Error()) }
+			}
 		}
 	}
 	for _, name := range owned {
@@ -213,8 +268,8 @@ func (h *FTPHardware) Cleanup(remote []string) error {
 }
 
 func (h *FTPHardware) queuePendingUploadDir(name string) error {
-	if !ownedLoadDir(name) {
-		return fmt.Errorf("invalid upload directory ownership path %q", name)
+	if !ownedLoadDir(name) && !ownedLoadFile(name) {
+		return fmt.Errorf("invalid upload cleanup ownership path %q", name)
 	}
 	if h.PendingUploadDirsPath == "" {
 		return fmt.Errorf("pending upload directory ledger is not configured")
@@ -237,48 +292,67 @@ func (h *FTPHardware) queuePendingUploadDir(name string) error {
 }
 
 func (h *FTPHardware) cleanupPendingUploadDirs() error {
-	if h.PendingUploadDirsPath == "" {
-		return nil
-	}
-	data, err := os.ReadFile(h.PendingUploadDirsPath)
-	if os.IsNotExist(err) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
+	if h.PendingUploadDirsPath=="" { return nil }
+	data,err := os.ReadFile(h.PendingUploadDirsPath)
+	if os.IsNotExist(err) { return nil }; if err!=nil { return err }
 	var pending []string
-	if err = json.Unmarshal(data, &pending); err != nil {
-		return fmt.Errorf("invalid pending upload directory ledger: %w", err)
-	}
-	remaining := make([]string, 0, len(pending))
-	var failures []string
-	for _, name := range pending {
-		if !ownedLoadDir(name) {
-			failures = append(failures, "unsafe path "+name)
-			remaining = append(remaining, name)
-			continue
-		}
-		args := []string{"--silent", "--show-error", "--fail", "--quote", "RMD " + name}
-		if h.Netrc != "" {
-			args = append(args, "--netrc-file", h.Netrc)
-		} else {
-			args = append(args, "--netrc")
-		}
-		args = append(args, "ftp://"+h.Host+"/")
-		out, callErr := h.run(h.Curl, args, 20*time.Second)
-		if callErr != nil {
-			failures = append(failures, name+": "+callErr.Error()+" "+out)
-			remaining = append(remaining, name)
+	if err=json.Unmarshal(data,&pending);err!=nil { return fmt.Errorf("invalid pending upload cleanup ledger: %w",err) }
+	failures := map[string]string{}
+	active := map[string]bool{}
+	removed_dirs := map[string]bool{}
+	listings := map[string][]string{}
+	for _,files := range []bool{true,false} {
+		for _,name := range pending {
+			is_file := ownedLoadFile(name)
+			if !is_file && !ownedLoadDir(name) { failures[name]="unsafe path "+name;continue }
+			if is_file!=files { continue }
+			if name==h.core_dir || filepath.Dir(name)==h.core_dir { active[name]=true;continue }
+			verb := "RMD ";if is_file { verb="DELE " }
+			args:=h.ftp_credentials([]string{"--silent","--show-error","--fail","--quote",verb+name})
+			out,call_error:=h.run(h.Curl,append(args,"ftp://"+h.Host+"/"),20*time.Second)
+			if call_error!=nil { if absent,check_error:=h.remote_load_path_absent(name,listings);check_error==nil && absent { call_error=nil } }
+			if call_error!=nil { failures[name]=call_error.Error()+" "+out } else if !is_file { removed_dirs[name]=true }
 		}
 	}
-	if err = writePendingUploadDirs(h.PendingUploadDirsPath, remaining); err != nil {
-		failures = append(failures, "persist ledger: "+err.Error())
+	remaining:=make([]string,0,len(pending))
+	messages:=make([]string,0)
+	for _,name:=range pending {
+		if removed_dirs[filepath.Dir(name)] { continue }
+		if active[name] { remaining=append(remaining,name);continue }
+		if message,failed:=failures[name];failed { remaining=append(remaining,name);messages=append(messages,name+": "+message) }
 	}
-	if len(failures) != 0 {
-		return fmt.Errorf("%s", strings.Join(failures, "; "))
-	}
+	if err=writePendingUploadDirs(h.PendingUploadDirsPath,remaining);err!=nil { messages=append(messages,"persist ledger: "+err.Error()) }
+	if len(messages)>0 { return fmt.Errorf("%s",strings.Join(messages,"; ")) }
 	return nil
+}
+
+// A failed delete is idempotent only when a successful parent listing proves
+// absence. Permission, busy, transport, and listing errors remain failures.
+func (h *FTPHardware) remote_load_path_absent(name string, listings map[string][]string) (bool,error) {
+	parent := filepath.Dir(name)
+	if parent!="/" {
+		parent_missing,err:=h.remote_load_path_absent(parent,listings)
+		if err!=nil || parent_missing { return parent_missing,err }
+	}
+	names,ok:=listings[parent]
+	if !ok {
+		args:=h.ftp_credentials([]string{"--silent","--show-error","--fail","--list-only"})
+		out,err:=h.run(h.Curl,append(args,"ftp://"+h.Host+strings.TrimSuffix(parent,"/")+"/"),20*time.Second)
+		if err!=nil { return false,err }
+		for _,line:=range strings.Split(strings.TrimSuffix(out,"\n"),"\n") {
+			entry:=strings.TrimSuffix(line,"\r")
+			if entry=="" {continue}
+			if filepath.Base(entry)!=entry || strings.ContainsAny(entry,"\\\x00") {return false,fmt.Errorf("invalid FTP name listing")}
+			names=append(names,entry)
+		}
+		listings[parent]=names
+	}
+	for _,entry:=range names {if strings.EqualFold(entry,filepath.Base(name)) {return false,nil}}
+	return true,nil
+}
+
+func ownedLoadFile(name string) bool {
+	return ownedRemotePath(name) && ownedLoadDir(filepath.Dir(name))
 }
 
 func writePendingUploadDirs(filename string, pending []string) error {

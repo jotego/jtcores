@@ -72,6 +72,24 @@ at frame 100 but taken at frame 112 is named
 `frame_00000100_actual_00000112.png`; both identities are retained. Late
 captures after the startup cutoff are execution errors.
 
+## Loading games
+
+Each core uses one unique, run-owned FTP directory. Its RBF is uploaded once
+and reused for the remaining games in that core; each game still uploads its
+ARC and ROM files and performs `SITE LOAD`. That command configures the FPGA
+again, so this change saves network transfer without changing game startup.
+The in-memory cache is bound to the RBF basename and SHA256. A new process
+starts with a fresh directory and upload rather than trusting existing SD files.
+
+Game cleanup removes its ARC and ROM files. At the core boundary the runner
+releases the shared RBF and queues directory removal until a later successful
+load moves the firmware's current directory. Exact owned paths are recorded
+in the log's cleanup ledger before transfer, so an interrupted process can
+clean its files without deleting unrelated SD content. Load events include
+per-file payload bytes, transfer duration, upload/reuse status, and the
+separate `SITE LOAD` duration. Failed transfers retain their attempted payload
+size; reused RBFs report zero transferred bytes.
+
 ## Collection and designer approval
 
 ```sh

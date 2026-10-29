@@ -38,6 +38,19 @@ type BoardHealth interface{ Healthy() error }
 type LoadInfo struct {
 	Firmware    string   `json:"firmware"`
 	RemoteFiles []string `json:"remote_files"`
+	Transfers []TransferInfo `json:"transfers,omitempty"`
+	RBFReused bool `json:"rbf_reused"`
+	SiteLoadDuration time.Duration `json:"site_load_duration_ns"`
+}
+
+type TransferInfo struct {
+	Name string `json:"name"`
+	Role string `json:"role"`
+	Bytes int64 `json:"bytes"`
+	Duration time.Duration `json:"duration_ns"`
+	Uploaded bool `json:"uploaded"`
+	Reused bool `json:"reused,omitempty"`
+	Error string `json:"error,omitempty"`
 }
 type RunInfo struct {
 	Report         string        `json:"report"`
@@ -680,12 +693,12 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		if health, ok := b.Hardware.(BoardHealth); ok && health.Healthy() != nil {
 			result.Stage = "board"
 			result.Message = "board unavailable after load failure: " + e.Error()
-			log(result.Stage, Error, result.Message, nil)
+			log(result.Stage, Error, result.Message, load)
 			return finish()
 		}
 		result.Stage = "load"
 		result.Message = e.Error()
-		log(result.Stage, Error, result.Message, nil)
+		log(result.Stage, Error, result.Message, load)
 		return finish()
 	}
 	remoteFiles := append([]string(nil), load.RemoteFiles...)
