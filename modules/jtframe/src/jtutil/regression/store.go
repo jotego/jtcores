@@ -28,9 +28,9 @@ type State struct {
 }
 
 // AcquireLock holds the regression board lock until the returned file is closed.
-func AcquireLock(root string) (*os.File, error) {
-	if e := os.MkdirAll(filepath.Join(root, "log"), 0750); e != nil {
-		return nil, e
+func AcquireLock(root string, existing ...bool) (*os.File, error) {
+	if len(existing)==0 || !existing[0] {
+		if e:=os.MkdirAll(filepath.Join(root,"log"),0750);e!=nil{return nil,e}
 	}
 	f, e := os.OpenFile(filepath.Join(root, "log", "lock"), os.O_CREATE|os.O_RDWR, 0640)
 	if e != nil {

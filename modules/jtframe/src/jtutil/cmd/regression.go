@@ -64,7 +64,11 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("result root must be JOTEGO/regression (%s)", rootAbs)
 		}
 	}
-	lock, e := regression.AcquireLock(dataRoot)
+	if regressionRetryErrors {
+		info,err:=os.Stat(filepath.Join(dataRoot,"log"))
+		if err!=nil || !info.IsDir() {return fmt.Errorf("resume log root is unavailable; refusing to create it")}
+	}
+	lock, e := regression.AcquireLock(dataRoot,regressionRetryErrors)
 	if e != nil {
 		return e
 	}
@@ -75,22 +79,24 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	}
 	config.Source = project_root()
 	var manifest regression.Manifest
+	resume_journal:=regressionRetryErrors
 	if regressionManifest == "" {
 		manifest, e = regression.Prepare(cmd.Context(), config, dataRoot, regressionRunID)
 		if e != nil {
 			return fmt.Errorf("prepare regression build and inventory: %w", e)
 		}
-		manifestPath := filepath.Join(dataRoot, "log", manifest.RunID, "manifest.json")
-		if e = os.MkdirAll(filepath.Dir(manifestPath), 0750); e != nil {
-			return e
+		resume_journal=regressionRetryErrors || regression.HasResumeState(dataRoot,manifest.RunID)
+		if resume_journal {
+			if err:=regression.RequireResumeJournal(dataRoot,manifest.RunID,manifest.Build);err!=nil {return err}
 		}
+		manifestPath := filepath.Join(dataRoot, "log", manifest.RunID, "manifest.json")
+		if !resume_journal {if e=os.MkdirAll(filepath.Dir(manifestPath),0750);e!=nil{return e}}
 		manifestBytes, marshalErr := json.MarshalIndent(manifest, "", "  ")
 		if marshalErr != nil {
 			return marshalErr
 		}
-		if e = os.WriteFile(manifestPath, append(manifestBytes, '\n'), 0640); e != nil {
-			return e
-		}
+		if resume_journal {e=regression.WriteExistingFile(manifestPath,append(manifestBytes,'\n'),0640)} else {e=os.WriteFile(manifestPath,append(manifestBytes,'\n'),0640)}
+		if e!=nil{return e}
 	} else {
 		manifestBytes, readErr := os.ReadFile(regressionManifest)
 		if readErr != nil {
@@ -112,6 +118,8 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	if manifest.Build.Repository != "jotego/jtcores" || manifest.Build.Workflow != "compile-all.yaml" || manifest.Build.Conclusion != "success" || manifest.Build.Attempt == "" || manifest.Build.SHA == "" || manifest.Build.Artifact == "" || manifest.Build.ArtifactSHA == "" || manifest.Build.ExpectedJobs > 0 && manifest.Build.SucceededJobs != manifest.Build.ExpectedJobs {
 		return fmt.Errorf("manifest build identity is incomplete or not a complete successful compile_all artifact")
 	}
+	resume_journal=regressionRetryErrors || regression.HasResumeState(dataRoot,manifest.RunID)
+	if resume_journal {if err:=regression.RequireResumeJournal(dataRoot,manifest.RunID,manifest.Build);err!=nil {return err}}
 	if _, err := hex.DecodeString(config.FirmwareSHA256); config.FirmwareSHA256 != "" && (err != nil || len(config.FirmwareSHA256) != 64) {
 		return fmt.Errorf("firmware-sha256 must be a 64-character hexadecimal digest")
 	}
@@ -183,32 +191,32 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		return s
 	}
 	writeSummary := func(status string) error {
-		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(status))
+		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(status),resume_journal)
 	}
 	finishReport := func(status string) error {
 		summary := makeSummary(status)
 		if regressionNoPublish {
 			summary.Status = "publication-pending"
-			return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary)
+			return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
 		}
 		url, publication, publishErr := publisher.Publish(summary)
 		if publishErr != nil {
 			summary.Status = "publication-pending"
 			summary.Publication = map[string]any{"status": "error", "message": publishErr.Error()}
-			_ = regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary)
+			_ = regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
 			return publishErr
 		}
 		summary.ReportURL = url
 		summary.Publication = publication
 		pubBytes, _ := json.MarshalIndent(publication, "", "  ")
 		pubPath := filepath.Join(dataRoot, "log", manifest.RunID, "state", "publication.json")
-		if err := os.MkdirAll(filepath.Dir(pubPath), 0750); err != nil {
-			return err
+		if resume_journal {
+			if err:=regression.WriteExistingFile(pubPath,append(pubBytes,'\n'),0640);err!=nil{return err}
+		} else {
+			if err:=os.MkdirAll(filepath.Dir(pubPath),0750);err!=nil{return err}
+			if err:=os.WriteFile(pubPath,append(pubBytes,'\n'),0640);err!=nil{return err}
 		}
-		if err := os.WriteFile(pubPath, append(pubBytes, '\n'), 0640); err != nil {
-			return err
-		}
-		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary)
+		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
 	}
 	for _, core := range manifest.Cores {
 		if !safe_regression_component(core.Core) {
@@ -221,14 +229,16 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		} else if !os.IsNotExist(err) {
 			return err
 		}
-		log, err := regression.NewEventLog(dataRoot, manifest.RunID, core.Core)
+		var resume_build []regression.BuildIdentity
+		if resume_journal {resume_build=append(resume_build,manifest.Build)}
+		log, err := regression.NewEventLog(dataRoot, manifest.RunID, core.Core,resume_build...)
 		if err != nil {
 			operationalError = err.Error()
 			return err
 		}
 		batch := &regression.Batch{Root: dataRoot, CorePath: config.Source, Core: core.Core, RunID: manifest.RunID, Build: manifest.Build, ProjectSHA: manifest.ProjectSHA,
 			State: state, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: globalProfile, Games: core.Games,
-			Firmware: config.Firmware, FirmwareSHA256: config.FirmwareSHA256, CaptureToolSHA256: config.CaptureToolSHA256, RetryErrors: regressionRetryErrors}
+			Firmware: config.Firmware, FirmwareSHA256: config.FirmwareSHA256, CaptureToolSHA256: config.CaptureToolSHA256, RetryErrors: regressionRetryErrors,Resume:resume_journal}
 		err = batch.Run()
 		if release_error:=hardware.ReleaseCore();release_error!=nil {
 			_ = log.Write(regression.Event{Stage:"core-cleanup",Outcome:regression.Error,Message:release_error.Error()})
@@ -254,7 +264,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		}
 		return nil
 	}
-	return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(finalStatus))
+	return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(finalStatus),resume_journal)
 }
 
 func safe_regression_component(value string) bool {

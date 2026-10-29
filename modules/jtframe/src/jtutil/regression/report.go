@@ -96,12 +96,16 @@ type EventLog struct {
 	file             *os.File
 }
 
-func NewEventLog(root, runID, core string) (*EventLog, error) {
+func NewEventLog(root, runID, core string, resume_build ...BuildIdentity) (*EventLog, error) {
 	dir := filepath.Join(root, "log", runID)
-	if e := os.MkdirAll(dir, 0750); e != nil {
-		return nil, e
+	flags:=os.O_APPEND|os.O_WRONLY
+	if len(resume_build)>0 {
+		if err:=RequireResumeJournal(root,runID,resume_build[0]);err!=nil {return nil,err}
+	} else {
+		if e:=os.MkdirAll(dir,0750);e!=nil {return nil,e}
+		flags|=os.O_CREATE
 	}
-	f, e := os.OpenFile(filepath.Join(dir, "events.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0640)
+	f, e := os.OpenFile(filepath.Join(dir, "events.jsonl"), flags, 0640)
 	if e != nil {
 		return nil, e
 	}
@@ -129,18 +133,17 @@ func (l *EventLog) Write(event Event) error {
 
 func (l *EventLog) Close() error { return l.file.Close() }
 
-func WriteSummary(dir string, summary Summary) error {
-	if e := os.MkdirAll(dir, 0750); e != nil {
-		return e
-	}
+func WriteSummary(dir string, summary Summary, existing ...bool) error {
+	writer:=atomic_write
+	if len(existing)>0 && existing[0] {writer=WriteExistingFile} else {if e:=os.MkdirAll(dir,0750);e!=nil{return e}}
 	data, e := json.MarshalIndent(summary, "", "  ")
 	if e != nil {
 		return e
 	}
-	if e = atomic_write(filepath.Join(dir, "summary.json"), append(data, '\n'), 0640); e != nil {
+	if e = writer(filepath.Join(dir, "summary.json"), append(data, '\n'), 0640); e != nil {
 		return e
 	}
-	return WriteJUnit(filepath.Join(dir, "junit.xml"), summary)
+	return WriteJUnit(filepath.Join(dir, "junit.xml"), summary,existing...)
 }
 
 type junitSuite struct {
@@ -166,7 +169,7 @@ type junitDetail struct {
 	Text    string `xml:"chardata"`
 }
 
-func WriteJUnit(filename string, summary Summary) error {
+func WriteJUnit(filename string, summary Summary, existing ...bool) error {
 	suite := junitSuite{Name: "jtutil regression " + summary.Core}
 	for _, game := range summary.Games {
 		if game.Outcome == Pending {
@@ -200,6 +203,7 @@ func WriteJUnit(filename string, summary Summary) error {
 		return e
 	}
 	out = append([]byte(xml.Header), append(out, '\n')...)
+	if len(existing)>0 && existing[0] {return WriteExistingFile(filename,out,0640)}
 	return atomic_write(filename, out, 0640)
 }
 

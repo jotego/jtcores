@@ -113,10 +113,12 @@ type Batch struct {
 	FirmwareSHA256    string
 	CaptureToolSHA256 string
 	RetryErrors       bool
+	Resume bool
 	read_only_receipts bool
 }
 
 func (b *Batch) Run() error {
+	for _,result:=range b.State.Games {if result.RecordError!="" {b.Resume=true;break}}
 	identity, e := batchIdentity(b)
 	if e != nil {
 		return e
@@ -159,14 +161,19 @@ func (b *Batch) Run() error {
 			_ = os.RemoveAll(filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname))
 		}
 	}
-	if e := WriteState(b.StatePath, b.State); e != nil {
+	if e := b.persist_state(); e != nil {
 		return fmt.Errorf("persist initial pending state: %w", e)
 	}
 	for _, game := range b.Games {
 		if old, ok := b.State.Games[game.Setname]; ok && (old.Outcome == Pass || old.Outcome == New || old.Outcome == Fail || old.Outcome == Unsupported || old.Outcome == Error && !b.RetryErrors) {
 			verifier:=b
 			if historical_games[game.Setname] {verifier=b.historical_firmware_batch(transition)}
-			if verifier.verifyFinalized(game, old) {continue}
+			if old.RecordError!="" {copy:=*verifier;copy.read_only_receipts=true;verifier=&copy}
+			if verifier.verifyFinalized(game, old) {
+				if old.RecordError!="" {if err:=b.recover_record_error(game,old);err!=nil {return err}}
+				continue
+			}
+			if old.RecordError!="" {return fmt.Errorf("cannot recover journal for unverified finalized capture %s: %s",game.Setname,old.RecordError)}
 			if historical_games[game.Setname] {return fmt.Errorf("historical firmware capture changed during resume: %s",game.Setname)}
 		}
 		if e := b.Log.Write(Event{Setname: game.Setname, Stage: "game-start", Outcome: Pending, Fields: map[string]any{"run_id": b.RunID, "core": b.Core}}); e != nil {
@@ -179,7 +186,7 @@ func (b *Batch) Run() error {
 			if e := b.Log.Write(Event{Stage: "board", Outcome: Error, Message: result.Message}); e != nil {
 				return e
 			}
-			if e := WriteState(b.StatePath, b.State); e != nil {
+			if e := b.persist_state(); e != nil {
 				return fmt.Errorf("persist interrupted batch: %w", e)
 			}
 			return fmt.Errorf("batch interrupted by board outage: %s", result.Message)
@@ -189,7 +196,7 @@ func (b *Batch) Run() error {
 			result.RecordError = e.Error()
 			b.State.Games[game.Setname] = result
 		}
-		if e := WriteState(b.StatePath, b.State); e != nil {
+		if e := b.persist_state(); e != nil {
 			return fmt.Errorf("persist result for %s: %w", game.Setname, e)
 		}
 		if result.RecordError != "" {
