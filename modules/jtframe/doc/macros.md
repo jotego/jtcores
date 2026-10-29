@@ -242,3 +242,15 @@ JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vert
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
 JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
+
+### JTFRAME_REMOTE
+
+Enables the paired remote video-capture and CAB input/dump interfaces on the
+MiST-family user-I/O SPI path. The macro is used once at the capture-instance
+boundary; shared board input and joystick logic remains CAB-aware and receives
+constant-zero controls when remote support is disabled. The boundary passes
+the existing feature mask (`0x001e0000`) into user-I/O, where constant feature
+gates remove the remote SPI handlers when disabled. Capture uses RGB444 for
+`COLORW<=4` and RGB555 for `COLORW>=5`, selected at compile time. SiDi128
+enables this macro by default in both debug and release builds. See
+[video capture](video-capture.md) and [CAB stream](cab-stream.md).

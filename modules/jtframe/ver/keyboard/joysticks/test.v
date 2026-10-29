@@ -80,6 +80,8 @@ jtframe_joysticks uut(
     .joy_coin   ( joy_coin      ),
     .joy_start  ( joy_start     ),
     .key_service( key_service   ),
+    .cab_active ( 1'b0          ),
+    .cab_inputs ( 21'b0         ),
     .key_tilt   ( key_tilt      ),
     .key_reset  ( key_reset     ),
 
