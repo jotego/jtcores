@@ -218,6 +218,11 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		}
 		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
 	}
+	var resume_build []regression.BuildIdentity
+	if resume_journal {resume_build=append(resume_build,manifest.Build)}
+	campaign_log,e:=regression.NewEventLog(dataRoot,manifest.RunID,"",resume_build...)
+	if e!=nil{return e}
+	defer campaign_log.Close()
 	for _, core := range manifest.Cores {
 		if !safe_regression_component(core.Core) {
 			return fmt.Errorf("manifest contains an unsafe core name")
@@ -229,13 +234,9 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		} else if !os.IsNotExist(err) {
 			return err
 		}
-		var resume_build []regression.BuildIdentity
-		if resume_journal {resume_build=append(resume_build,manifest.Build)}
-		log, err := regression.NewEventLog(dataRoot, manifest.RunID, core.Core,resume_build...)
-		if err != nil {
-			operationalError = err.Error()
-			return err
-		}
+		log:=campaign_log
+		log.SetCore(core.Core)
+		var err error
 		batch := &regression.Batch{Root: dataRoot, CorePath: config.Source, Core: core.Core, RunID: manifest.RunID, Build: manifest.Build, ProjectSHA: manifest.ProjectSHA,
 			State: state, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: globalProfile, Games: core.Games,
 			Firmware: config.Firmware, FirmwareSHA256: config.FirmwareSHA256, CaptureToolSHA256: config.CaptureToolSHA256, RetryErrors: regressionRetryErrors,Resume:resume_journal}
@@ -244,7 +245,6 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			_ = log.Write(regression.Event{Stage:"core-cleanup",Outcome:regression.Error,Message:release_error.Error()})
 			if err==nil { err=release_error } else { err=fmt.Errorf("%w; release core: %v",err,release_error) }
 		}
-		_ = log.Close()
 		all = regression.ReplaceCoreResults(all, core.Core, state.Games)
 		if err != nil {
 			operationalError = err.Error()

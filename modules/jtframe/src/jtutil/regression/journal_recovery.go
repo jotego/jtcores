@@ -4,6 +4,7 @@ package regression
 
 import (
     "bufio"
+    "bytes"
     "crypto/rand"
     "encoding/hex"
     "time"
@@ -59,8 +60,8 @@ func (b *Batch) recover_record_error(game GameSpec,old GameResult) error {
 }
 
 func (b *Batch) has_recovery_event(game GameSpec,old GameResult) (bool,error) {
-    file,err:=os.Open(filepath.Join(b.Log.Dir,"events.jsonl"));if err!=nil {return false,err};defer file.Close()
-    scanner:=bufio.NewScanner(file);scanner.Buffer(make([]byte,4096),1<<20)
+    history,err:=b.Log.journal_history();if err!=nil{return false,err}
+    scanner:=bufio.NewScanner(bytes.NewReader(history));scanner.Buffer(make([]byte,4096),1<<20)
     for scanner.Scan() {
         if strings.TrimSpace(scanner.Text())=="" {continue}
         var event Event
@@ -92,17 +93,22 @@ func write_existing_state_directory(filename string,state *State) error {
 func WriteExistingFile(filename string,data []byte,mode os.FileMode) error {
     parent:=filepath.Dir(filename)
     dir,err:=os.Open(parent);if err!=nil{return err};defer dir.Close()
+    return write_existing_file_at(dir,parent,filepath.Base(filename),data,mode)
+}
+
+func write_existing_file_at(dir *os.File,parent,name string,data []byte,mode os.FileMode,before_replace ...func()error) error {
     original,err:=dir.Stat();if err!=nil{return err};if !original.IsDir(){return fmt.Errorf("parent is not a directory")}
     current,err:=os.Stat(parent);if err!=nil{return err};if !os.SameFile(original,current){return fmt.Errorf("directory changed")}
     var nonce [8]byte;if _,err=rand.Read(nonce[:]);err!=nil{return err}
-    temporary:="."+filepath.Base(filename)+".recovery-"+hex.EncodeToString(nonce[:])
+    temporary:="."+name+".recovery-"+hex.EncodeToString(nonce[:])
     directory_fd:=int(dir.Fd())
     fd,err:=unix.Openat(directory_fd,temporary,unix.O_CREAT|unix.O_EXCL|unix.O_WRONLY|unix.O_NOFOLLOW,uint32(mode.Perm()));if err!=nil{return err}
     defer unix.Unlinkat(directory_fd,temporary,0)
     file:=os.NewFile(uintptr(fd),temporary)
     if _,err=file.Write(data);err!=nil{file.Close();return err}
     if err=file.Sync();err!=nil{file.Close();return err};if err=file.Close();err!=nil{return err}
+    for _,guard:=range before_replace{if err=guard();err!=nil{return err}}
     current,err=os.Stat(parent);if err!=nil{return err};if !os.SameFile(original,current){return fmt.Errorf("directory changed before replacement")}
-    if err=unix.Renameat(directory_fd,temporary,directory_fd,filepath.Base(filename));err!=nil{return err}
+    if err=unix.Renameat(directory_fd,temporary,directory_fd,name);err!=nil{return err}
     return dir.Sync()
 }

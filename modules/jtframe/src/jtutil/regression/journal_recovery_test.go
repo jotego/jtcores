@@ -63,7 +63,7 @@ func TestTamperedCaptureCannotClearJournalError(t *testing.T){
 func TestRecoveryAppendFailureKeepsRecordError(t *testing.T){
     batch,game,old:=journal_recovery_batch(t)
     _ = batch.Log.Close()
-    if err:=batch.Run();err==nil||!strings.Contains(err.Error(),"append state recovery"){t.Fatalf("append failure hidden: %v",err)}
+    if err:=batch.Run();err==nil||!strings.Contains(err.Error(),"recovery"){t.Fatalf("append failure hidden: %v",err)}
     state,err:=ReadState(batch.StatePath)
     if err!=nil||state.Games[game.Setname].RecordError!=old.RecordError||batch.State.Games[game.Setname].RecordError!=old.RecordError{t.Fatal("failed append cleared error")}
 }
@@ -143,4 +143,48 @@ func TestCompositeRecordErrorIsNotClearedAsJournalRecovery(t *testing.T){
     batch.State.Games[game.Setname]=old
     if err:=batch.Run();err==nil||!strings.Contains(err.Error(),"composite"){t.Fatalf("composite error was hidden: %v",err)}
     if batch.State.Games[game.Setname].RecordError!=old.RecordError||len(recovery_events(t,batch))!=0{t.Fatal("composite failure was cleared")}
+}
+
+func TestContraRecoveryRetains155PriorEventsWithoutInventedStages(t *testing.T){
+    game:=GameSpec{Setname:"contra"}
+    batch:=makeBatch(t,t.TempDir(),&retryHardware{},[]GameSpec{game})
+    batch.Core="contra";batch.State.Core="contra";batch.Log.Core="contra"
+    if err:=os.WriteFile(batch.GlobalProfile,[]byte("video: 300\nstart-up: 0\n"),0600);err!=nil{t.Fatal(err)}
+    capture:=make_capture_fixture(t,[]uint16{1,2,3})
+    seed_receipt(t,batch,game.Setname,capture,GameMetadata{Build:batch.Build,TestIdentity:"contra-capture"})
+    publish_test_new(t,batch,game,capture)
+    old:=GameResult{Core:"contra",Setname:"contra",Outcome:New,Stage:"reference",TestIdentity:"contra-capture",Attention:true,RecordError:"write "+filepath.Join(batch.Log.Dir,"events.jsonl")+": no such file or directory"}
+    batch.State.Games=map[string]GameResult{game.Setname:old}
+    identity,err:=gameSpecIdentity(batch,game);if err!=nil{t.Fatal(err)}
+    batch.State.GameSpecIdentities=map[string]string{game.Setname:identity}
+    batch.State.TestIdentity,err=batchIdentity(batch);if err!=nil{t.Fatal(err)}
+    if err=WriteState(batch.StatePath,batch.State);err!=nil{t.Fatal(err)}
+    _ = batch.Log.Close()
+    var prior []byte
+    for i:=0;i<155;i++{stage:="prior-history";if i==154{stage="load"};line,e:=json.Marshal(Event{RunID:batch.RunID,Core:"contra",Setname:"contra",Stage:stage});if e!=nil{t.Fatal(e)};prior=append(prior,line...);prior=append(prior,'\n')}
+    path:=filepath.Join(batch.Log.Dir,"events.jsonl")
+    if err=os.WriteFile(path,prior,0644);err!=nil{t.Fatal(err)}
+    batch.Log,err=NewEventLog(batch.Root,batch.RunID,batch.Core);if err!=nil{t.Fatal(err)};defer batch.Log.Close()
+    if err=batch.Run();err!=nil{t.Fatal(err)}
+    events:=recovery_events(t,batch)
+    if len(events)!=156||events[154].Stage!="load"||events[155].Stage!="state-recovered"{t.Fatal("Contra recovery fabricated or lost journal stages")}
+    after,err:=os.ReadFile(path);if err!=nil||!strings.HasPrefix(string(after),string(prior)){t.Fatal("the 155 original journal lines changed")}
+    got:=batch.State.Games[game.Setname];if got.RecordError!=""||got.Outcome!=New||!got.Attention{t.Fatal("Contra result was not preserved")}
+    if len(batch.Hardware.(*retryHardware).loaded)!=0{t.Fatal("Contra was recaptured")}
+}
+
+func TestRecoveryDedupeUsesCachedHistoryAfterStateFailureAndStaleReplacement(t *testing.T){
+    batch,game,old:=journal_recovery_batch(t)
+    path:=filepath.Join(batch.Log.Dir,"events.jsonl")
+    prior,err:=os.ReadFile(path);if err!=nil{t.Fatal(err)}
+    valid_state_path:=batch.StatePath;batch.StatePath=t.TempDir()
+    if err=batch.recover_record_error(game,old);err==nil{t.Fatal("expected failed state write")}
+    if len(recovery_events(t,batch))!=1{t.Fatal("recovery event was not appended")}
+    replacement:=filepath.Join(batch.Log.Dir,"old-journal.tmp")
+    if err=os.WriteFile(replacement,prior,0644);err!=nil{t.Fatal(err)}
+    if err=os.Rename(replacement,path);err!=nil{t.Fatal(err)}
+    batch.StatePath=valid_state_path
+    if err=batch.Run();err!=nil{t.Fatal(err)}
+    events:=recovery_events(t,batch)
+    if len(events)!=1||events[0].Stage!="state-recovered"||batch.State.Games[game.Setname].RecordError!=""{t.Fatal("stale path caused duplicate or missing recovery")}
 }

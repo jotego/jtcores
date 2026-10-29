@@ -94,6 +94,10 @@ type EventLog struct {
 	mu               sync.Mutex
 	RunID, Core, Dir string
 	file             *os.File
+	directory *os.File
+	history []byte
+	closed bool
+	before_repair_check func()
 }
 
 func NewEventLog(root, runID, core string, resume_build ...BuildIdentity) (*EventLog, error) {
@@ -105,33 +109,21 @@ func NewEventLog(root, runID, core string, resume_build ...BuildIdentity) (*Even
 		if e:=os.MkdirAll(dir,0750);e!=nil {return nil,e}
 		flags|=os.O_CREATE
 	}
-	f, e := os.OpenFile(filepath.Join(dir, "events.jsonl"), flags, 0640)
-	if e != nil {
-		return nil, e
-	}
-	return &EventLog{RunID: runID, Core: core, Dir: dir, file: f}, nil
+	return open_event_log(dir,runID,core,flags)
 }
 
-func (l *EventLog) Write(event Event) error {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if event.Time.IsZero() {
-		event.Time = time.Now().UTC()
-	}
-	if event.RunID == "" {
-		event.RunID = l.RunID
-	}
-	if event.Core == "" {
-		event.Core = l.Core
-	}
-	enc := json.NewEncoder(l.file)
-	if e := enc.Encode(event); e != nil {
-		return e
-	}
-	return l.file.Sync()
-}
+func (l *EventLog) Write(event Event) error {return l.write_event(event)}
 
-func (l *EventLog) Close() error { return l.file.Close() }
+func (l *EventLog) SetCore(core string) {l.mu.Lock();defer l.mu.Unlock();l.Core=core}
+
+func (l *EventLog) Close() error {
+	l.mu.Lock();defer l.mu.Unlock()
+	if l.closed {return nil};l.closed=true
+	var err error
+	if l.file!=nil {err=l.file.Close()}
+	if l.directory!=nil {if close_error:=l.directory.Close();err==nil {err=close_error}}
+	return err
+}
 
 func WriteSummary(dir string, summary Summary, existing ...bool) error {
 	writer:=atomic_write
