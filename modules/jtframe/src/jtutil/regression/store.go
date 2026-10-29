@@ -29,10 +29,10 @@ type State struct {
 
 // AcquireLock holds the regression board lock until the returned file is closed.
 func AcquireLock(root string) (*os.File, error) {
-	if e := os.MkdirAll(filepath.Join(root, "state"), 0750); e != nil {
+	if e := os.MkdirAll(filepath.Join(root, "log"), 0750); e != nil {
 		return nil, e
 	}
-	f, e := os.OpenFile(filepath.Join(root, "state", "lock"), os.O_CREATE|os.O_RDWR, 0640)
+	f, e := os.OpenFile(filepath.Join(root, "log", "lock"), os.O_CREATE|os.O_RDWR, 0640)
 	if e != nil {
 		return nil, e
 	}
@@ -181,20 +181,18 @@ func PublishComplete(gameRoot, sourceDir string, outcome Outcome, metadata any) 
 	if e := recover_dir(filepath.Join(gameRoot, "fail")); e != nil {
 		return e
 	}
-	if e := write_metadata(sourceDir, metadata); e != nil {
-		return e
-	}
-	if e := write_reference_complete(sourceDir); e != nil {
-		return e
-	}
+	png_dir, e := os.MkdirTemp(filepath.Dir(sourceDir), "png-")
+	if e != nil { return e }
+	defer os.RemoveAll(png_dir)
+	if e = export_png_frames(sourceDir, png_dir); e != nil { return e }
 	switch outcome {
 	case New:
 		if _, e := os.Stat(filepath.Join(gameRoot, "ref")); os.IsNotExist(e) {
-			return replace_dir(sourceDir, filepath.Join(gameRoot, "new"))
+			return replace_dir(png_dir, filepath.Join(gameRoot, "new"))
 		}
 		return fmt.Errorf("approved ref exists; refusing to publish new")
 	case Fail:
-		return replace_dir(sourceDir, filepath.Join(gameRoot, "fail"))
+		return replace_dir(png_dir, filepath.Join(gameRoot, "fail"))
 	case Pass:
 		return os.RemoveAll(filepath.Join(gameRoot, "fail"))
 	}

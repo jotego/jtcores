@@ -152,11 +152,16 @@ func TestReadCaptureSetRejectsBareOrNonterminalCompleteMarker(t *testing.T) {
 	}
 }
 
-func TestReadCaptureSetRejectsAllBlankComparableImages(t *testing.T) {
-	dir := make_capture_fixture(t, []uint16{0, 0})
-	if _, e := ReadCaptureSet(dir, 200, 0, 100); e == nil || !strings.Contains(e.Error(), "no meaningful comparable") {
-		t.Fatalf("expected blank output error, got %v", e)
-	}
+func TestCompleteBlackCaptureIsCollectedForDesignerReview(t *testing.T) {
+	capture := make_capture_fixture(t, []uint16{0, 0})
+	if _, err := ReadCaptureSet(capture, 200, 0, 100); err != nil { t.Fatalf("complete black transport rejected: %v", err) }
+	game_root := t.TempDir()
+	if err := PublishComplete(game_root, capture, New, nil); err != nil { t.Fatal(err) }
+	entries, err := os.ReadDir(filepath.Join(game_root, "new")); if err != nil { t.Fatal(err) }
+	if len(entries) != 2 { t.Fatalf("want2 collected black PNGs, got%d", len(entries)) }
+	for _, entry := range entries { if entry.IsDir() || filepath.Ext(entry.Name()) != ".png" { t.Fatalf("non-PNG output %s", entry.Name()) } }
+	if _, err = ReadCaptureSet(filepath.Join(game_root, "new"), 200, 0, 100); err != nil { t.Fatalf("complete black PNGs rejected: %v", err) }
+	if _, err = os.Stat(filepath.Join(game_root, "ref")); !os.IsNotExist(err) { t.Fatal("collector created ref") }
 }
 
 func TestReplaceResultRecoversCrashAfterOldRename(t *testing.T) {
@@ -329,144 +334,25 @@ func TestLoadUploadDirectoryRemovalIsDeferredAndResumable(t *testing.T) {
 	}
 }
 
-func TestInstallReferenceDoesNotReplaceEmptyDirectory(t *testing.T) {
-	root := t.TempDir()
-	source := make_capture_fixture(t, []uint16{0x10, 0x20})
-	ref := filepath.Join(root, "created", "ref")
-	if err := os.MkdirAll(filepath.Dir(ref), 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Mkdir(ref, 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err := install_reference(source, ref); err == nil {
-		t.Fatal("exclusive ref creation must reject an existing empty directory")
-	}
-	entries, err := os.ReadDir(ref)
-	if err != nil || len(entries) != 0 {
-		t.Fatalf("preexisting empty reference was replaced: entries=%v err=%v", entries, err)
-	}
-}
-
-func TestResultStorageTransitionsNeverReplaceReference(t *testing.T) {
+func TestPNGOnlyCollectionAndDesignerPromotion(t *testing.T) {
 	root := t.TempDir()
 	capture := make_capture_fixture(t, []uint16{0x10, 0x20, 0x30})
-	metadata := GameMetadata{TestIdentity: "definition-a"}
-	if e := PublishComplete(root, capture, New, metadata); e != nil {
-		t.Fatal(e)
-	}
-	if _, e := os.Stat(filepath.Join(root, "new", "metadata.json")); e != nil {
-		t.Fatal(e)
-	}
-	if e := install_reference(capture, filepath.Join(root, "ref")); e != nil {
-		t.Fatal(e)
-	}
-	if _, e := read_reference_metadata(filepath.Join(root, "ref")); e != nil {
-		t.Fatalf("completed reference marker was not valid: %v", e)
-	}
-	if e := PublishComplete(root, capture, New, metadata); e == nil {
-		t.Fatal("new publication must refuse once ref exists")
-	}
-	if e := os.MkdirAll(filepath.Join(root, "fail"), 0750); e != nil {
-		t.Fatal(e)
-	}
-	if e := os.WriteFile(filepath.Join(root, "fail", "old"), []byte("old"), 0600); e != nil {
-		t.Fatal(e)
-	}
-	if e := PublishComplete(root, capture, Fail, metadata); e != nil {
-		t.Fatal(e)
-	}
-	if _, e := os.Stat(filepath.Join(root, "fail", "old")); !os.IsNotExist(e) {
-		t.Fatalf("stale failure survived: %v", e)
-	}
-	if e := PublishComplete(root, capture, Pass, metadata); e != nil {
-		t.Fatal(e)
-	}
-	if _, e := os.Stat(filepath.Join(root, "fail")); !os.IsNotExist(e) {
-		t.Fatalf("passing run did not clear fail: %v", e)
-	}
-	if _, e := os.Stat(filepath.Join(root, "ref", "index.jsonl")); e != nil {
-		t.Fatalf("reference was changed: %v", e)
-	}
-}
-
-func TestReadReferenceMetadataRejectsUnfinishedReservation(t *testing.T) {
-	dir := filepath.Join(t.TempDir(), "ref")
-	if err := os.Mkdir(dir, 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "metadata.json"), []byte(`{"test_identity":"partial"}`), 0600); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := read_reference_metadata(dir); err == nil || !strings.Contains(err.Error(), "not fully published") {
-		t.Fatalf("reference without completion marker was accepted: %v", err)
-	}
-}
-
-func TestManualPromotionOfNewToRefNeedsNoMetadataRewrite(t *testing.T) {
-	root := t.TempDir()
-	capture := make_capture_fixture(t, []uint16{0x10, 0x20, 0x30})
-	metadata := GameMetadata{TestIdentity: "approved-test", Build: BuildIdentity{RunID: "run-9"}}
-	gameRoot := filepath.Join(root, "core", "set")
-	if err := PublishComplete(gameRoot, capture, New, metadata); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Rename(filepath.Join(gameRoot, "new"), filepath.Join(gameRoot, "ref")); err != nil {
-		t.Fatal(err)
-	}
-	got, err := read_reference_metadata(filepath.Join(gameRoot, "ref"))
-	if err != nil || got.TestIdentity != metadata.TestIdentity {
-		t.Fatalf("manual new->ref approval was not accepted: %+v %v", got, err)
-	}
-	refSet, err := ReadCaptureSet(filepath.Join(gameRoot, "ref"), 300, 0, 100)
-	if err != nil {
-		t.Fatalf("promoted capture is not comparable: %v", err)
-	}
-	candidateSet, err := ReadCaptureSet(capture, 300, 0, 100)
-	if err != nil {
-		t.Fatal(err)
-	}
-	diffs, err := CompareCaptureSets(refSet, candidateSet, 0)
-	if err != nil || len(diffs) != 0 {
-		t.Fatalf("matching run after manual approval should pass: diffs=%v err=%v", diffs, err)
-	}
-}
-
-func TestReferenceClaimRecoversOwnedInterruptedCopy(t *testing.T) {
-	root := t.TempDir()
-	capture := make_capture_fixture(t, []uint16{0x10, 0x20, 0x30})
-	metadata := GameMetadata{TestIdentity: "owned-test", Build: BuildIdentity{RunID: "run-claim"}}
-	if err := write_metadata(capture, metadata); err != nil {
-		t.Fatal(err)
-	}
-	ref := filepath.Join(root, "ref")
-	injected := errors.New("simulated crash during copy")
-	err := install_reference_claim_hook(capture, ref, "run-claim", "owned-test", func(n int) error {
-		if n == 1 {
-			return injected
-		}
-		return nil
-	})
-	if !errors.Is(err, injected) {
-		t.Fatalf("expected injected copy interruption, got %v", err)
-	}
-	if _, err = read_reference_metadata(ref); err == nil {
-		t.Fatal("partial reference was accepted as complete")
-	}
-	metadata.CaptureReport = json.RawMessage(`{"retried":true}`)
-	if err = write_metadata(capture, metadata); err != nil {
-		t.Fatal(err)
-	}
-	if err = install_reference_claim(capture, ref, "run-claim", "owned-test"); err != nil {
-		t.Fatalf("owned partial claim was not recovered: %v", err)
-	}
-	got, err := read_reference_metadata(ref)
-	if err != nil || got.TestIdentity != "owned-test" {
-		t.Fatalf("recovered reference is not complete: %+v %v", got, err)
-	}
-	if _, err = ReadCaptureSet(ref, 300, 0, 100); err != nil {
-		t.Fatalf("recovered reference capture is invalid: %v", err)
-	}
+	if err := PublishComplete(root, capture, New, GameMetadata{TestIdentity:"collection"}); err != nil { t.Fatal(err) }
+	entries, err := os.ReadDir(filepath.Join(root,"new")); if err != nil { t.Fatal(err) }
+	if len(entries)!=3 { t.Fatalf("got %d images",len(entries)) }
+	for _, entry := range entries { if entry.IsDir() || filepath.Ext(entry.Name())!=".png" { t.Fatalf("non-PNG publication %s",entry.Name()) } }
+	// This rename represents the designer's approval, outside the collector.
+	if err = os.Rename(filepath.Join(root,"new"),filepath.Join(root,"ref")); err != nil { t.Fatal(err) }
+	before, err := HashFiles(map[string]string{"frame":filepath.Join(root,"ref","frame_00000100.png")}); if err!=nil {t.Fatal(err)}
+	if err = PublishComplete(root,capture,New,nil); err == nil { t.Fatal("new must refuse when reference exists") }
+	if err = PublishComplete(root,capture,Fail,nil); err != nil {t.Fatal(err)}
+	if err = PublishComplete(root,capture,Pass,nil); err != nil {t.Fatal(err)}
+	after, _ := HashFiles(map[string]string{"frame":filepath.Join(root,"ref","frame_00000100.png")})
+	if before!=after {t.Fatal("designer reference changed")}
+	if _,err = os.Stat(filepath.Join(root,"fail")); !os.IsNotExist(err) {t.Fatalf("pass did not clear fail: %v",err)}
+	reference,err := ReadCaptureSet(filepath.Join(root,"ref"),300,0,100); if err!=nil {t.Fatal(err)}
+	candidate,err := ReadCaptureSet(capture,300,0,100); if err!=nil {t.Fatal(err)}
+	diffs,err := CompareCaptureSets(reference,candidate,0); if err!=nil || len(diffs)!=0 {t.Fatalf("manual approved PNG comparison: %v %v",diffs,err)}
 }
 
 func TestTestDefinitionIncludesFirmwareAndCaptureToolIdentity(t *testing.T) {
@@ -697,7 +583,9 @@ func TestRetryErrorsRefreshesOnlyErroredGameDefinition(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := PublishComplete(gameRoot, capture, New, GameMetadata{TestIdentity: definition, Build: oldBatch.Build, Profile: profile, FixtureHashes: fixtureHashes, CABSHA256: cabHash, CABSourceSHA256: sourceCABHash, CABClipMode: "prefix", CABFrameBudget: profile.Video, CaptureFormat: "RGB444", Frames: profile.Video, Cadence: 100, Startup: profile.Startup}); err != nil {
+	metadata := GameMetadata{TestIdentity: definition, Build: oldBatch.Build, Profile: profile, FixtureHashes: fixtureHashes, CABSHA256: cabHash, CABSourceSHA256: sourceCABHash, CABClipMode: "prefix", CABFrameBudget: profile.Video, CaptureFormat: "RGB444", Frames: profile.Video, Cadence: 100, Startup: profile.Startup}
+	seed_receipt(t, batch, "passed", capture, metadata)
+	if err := PublishComplete(gameRoot, capture, New, metadata); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Rename(filepath.Join(gameRoot, "new"), filepath.Join(gameRoot, "ref")); err != nil {
@@ -780,7 +668,11 @@ func TestLegacyStateMigrationRejectsChangedPassedFixture(t *testing.T) {
 	}
 	metadata := GameMetadata{Build: batch.Build, TestIdentity: definition, Profile: profile, FixtureHashes: fixtureHashes, CABSHA256: cabHash, CABSourceSHA256: sourceCABHash, CABClipMode: "prefix", CABFrameBudget: profile.Video, CaptureFormat: "RGB444", Frames: profile.Video, Cadence: 100, Startup: profile.Startup}
 	gameRoot := filepath.Join(batch.Root, batch.Core, game.Setname)
-	if err := PublishComplete(gameRoot, make_capture_fixture(t, []uint16{1, 2, 3}), New, metadata); err != nil {
+	capture := make_capture_fixture(t, []uint16{1, 2, 3})
+	receipt_metadata := metadata
+	receipt_metadata.Build = batch.Build
+	seed_receipt(t, batch, game.Setname, capture, receipt_metadata)
+	if err := PublishComplete(gameRoot, capture, New, metadata); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Rename(filepath.Join(gameRoot, "new"), filepath.Join(gameRoot, "ref")); err != nil {
@@ -858,7 +750,11 @@ func TestLegacyPassMayUseOlderApprovedReference(t *testing.T) {
 	oldBuild := BuildIdentity{RunID: "older-run", Attempt: "1", SHA: "old-sha"}
 	metadata := GameMetadata{Build: oldBuild, TestIdentity: definition, Profile: profile, FixtureHashes: fixtureHashes, CABSHA256: cabHash, CABSourceSHA256: sourceCABHash, CABClipMode: "prefix", CABFrameBudget: profile.Video, CaptureFormat: "RGB444", Frames: profile.Video, Cadence: 100, Startup: profile.Startup}
 	gameRoot := filepath.Join(batch.Root, batch.Core, game.Setname)
-	if err := PublishComplete(gameRoot, make_capture_fixture(t, []uint16{1, 2, 3}), New, metadata); err != nil {
+	capture := make_capture_fixture(t, []uint16{1, 2, 3})
+	receipt_metadata := metadata
+	receipt_metadata.Build = batch.Build
+	seed_receipt(t, batch, game.Setname, capture, receipt_metadata)
+	if err := PublishComplete(gameRoot, capture, New, metadata); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Rename(filepath.Join(gameRoot, "new"), filepath.Join(gameRoot, "ref")); err != nil {
@@ -887,7 +783,9 @@ func TestFinalizedNewSurvivesPRProvenanceEnrichment(t *testing.T) {
 	}
 	capture := make_capture_fixture(t, []uint16{1, 2, 3})
 	gameRoot := filepath.Join(batch.Root, batch.Core, "waiting")
-	if err := PublishComplete(gameRoot, capture, New, GameMetadata{TestIdentity: "test-id", Build: BuildIdentity{RunID: batch.Build.RunID, Attempt: batch.Build.Attempt, SHA: batch.Build.SHA}}); err != nil {
+	metadata := GameMetadata{TestIdentity: "test-id", Build: BuildIdentity{RunID: batch.Build.RunID, Attempt: batch.Build.Attempt, SHA: batch.Build.SHA}}
+	seed_receipt(t, batch, "waiting", capture, metadata)
+	if err := PublishComplete(gameRoot, capture, New, metadata); err != nil {
 		t.Fatal(err)
 	}
 	result := GameResult{Core: batch.Core, Setname: "waiting", Outcome: New, TestIdentity: "test-id"}
@@ -975,7 +873,7 @@ func TestRestoreCampaignStartUsesVerifiedLaunchBeforePreparationSummary(t *testi
 	}
 	build := BuildIdentity{Repository: "jotego/jtcores", Workflow: "compile-all.yaml", RunID: "40655576158", Attempt: "1", SHA: "a405f1b955a06f10f75a5aafe2d7080d631e062e"}
 	manifest := Manifest{RunID: runID, Build: build}
-	manifestPath := filepath.Join(dataRoot, "builds", runID, "manifest.json")
+	manifestPath := filepath.Join(dataRoot, "log", runID, "manifest.json")
 	if err := os.MkdirAll(filepath.Dir(manifestPath), 0750); err != nil {
 		t.Fatal(err)
 	}
@@ -1024,7 +922,7 @@ func TestRestoreCampaignStartUsesVerifiedLaunchBeforePreparationSummary(t *testi
 	}
 	enrichedBuild := enrichedManifest.Build
 	fallback := summaryStart.Add(time.Hour)
-	got := RestoreCampaignStart(filepath.Join(logDir, "summary.json"), filepath.Join(dataRoot, "state", runID), enrichedBuild, fallback, launchStarts)
+	got := RestoreCampaignStart(filepath.Join(logDir, "summary.json"), filepath.Join(dataRoot, "log", runID, "state"), enrichedBuild, fallback, launchStarts)
 	if !got.Equal(launchStart) {
 		t.Fatalf("verified launch time should include preparation: got %s want %s", got, launchStart)
 	}
@@ -1036,7 +934,7 @@ func TestRestoreCampaignStartUsesVerifiedLaunchBeforePreparationSummary(t *testi
 	if err == nil {
 		t.Fatal("tampered launch digest should prevent startup snapshot")
 	}
-	got = RestoreCampaignStart(filepath.Join(logDir, "summary.json"), filepath.Join(dataRoot, "state", runID), enrichedBuild, fallback)
+	got = RestoreCampaignStart(filepath.Join(logDir, "summary.json"), filepath.Join(dataRoot, "log", runID, "state"), enrichedBuild, fallback)
 	if !got.Equal(summaryStart) {
 		t.Fatalf("unverified launch record must be ignored: got %s want %s", got, summaryStart)
 	}
@@ -1083,3 +981,69 @@ func make_capture_fixture(t *testing.T, pixels []uint16) string {
 }
 
 func jsonNumber(value int) string { return strconv.Itoa(value) }
+
+func seed_receipt(t *testing.T, batch *Batch, setname, capture string, metadata GameMetadata) {
+	t.Helper()
+	dir := batch.capture_receipt(setname)
+	if err:=os.MkdirAll(dir,0750);err!=nil {t.Fatal(err)}
+	if err:=export_png_frames(capture,dir);err!=nil {t.Fatal(err)}
+	if err:=write_metadata(dir,metadata);err!=nil {t.Fatal(err)}
+}
+
+func TestRGB555PNGExpansionAndComparison(t *testing.T) {
+	dir := t.TempDir()
+	pixels := []uint16{0, (3<<10)|(7<<5)|15, 0x7fff, 1}
+	data := make([]byte,12)
+	binary.LittleEndian.PutUint16(data,0x8002)
+	binary.LittleEndian.PutUint16(data[2:],2)
+	for i,pixel := range pixels {binary.LittleEndian.PutUint16(data[4+i*2:],pixel)}
+	if err:=os.WriteFile(filepath.Join(dir,"frame_00000100.raw"),data,0600);err!=nil {t.Fatal(err)}
+	index := `{"type":"run","count":1,"width":2,"height":2}`+"\n"+`{"type":"capture","requested":100,"actual":100,"image":"frame_00000100.raw"}`+"\n"+`{"type":"complete","captures":1}`+"\n"
+	if err:=os.WriteFile(filepath.Join(dir,"index.jsonl"),[]byte(index),0600);err!=nil {t.Fatal(err)}
+	published := t.TempDir()
+	if err:=export_png_frames(dir,published);err!=nil {t.Fatal(err)}
+	decoded,err:=decode_capture_image(filepath.Join(published,"frame_00000100.png"));if err!=nil {t.Fatal(err)}
+	if decoded.pixels[1] != 0x18397b {t.Fatalf("RGB555 expansion got %06x",decoded.pixels[1])}
+	raw,err:=ReadCaptureSet(dir,100,0,100);if err!=nil {t.Fatal(err)}
+	pngs,err:=ReadCaptureSet(published,100,0,100);if err!=nil {t.Fatal(err)}
+	diffs,err:=CompareCaptureSets(raw,pngs,0);if err!=nil || len(diffs)!=0 {t.Fatalf("RAW/PNG differ: %v %v",diffs,err)}
+}
+
+func TestFinalizedCaptureDetectsChangedPublishedPNG(t *testing.T) {
+	root:=t.TempDir()
+	batch:=makeBatch(t,root,&retryHardware{},[]GameSpec{{Setname:"waiting"}})
+	if err:=os.WriteFile(batch.GlobalProfile,[]byte("video: 300\nstart-up: 0\n"),0600);err!=nil {t.Fatal(err)}
+	capture:=make_capture_fixture(t,[]uint16{1,2,3})
+	metadata:=GameMetadata{TestIdentity:"definition",Build:batch.Build}
+	seed_receipt(t,batch,"waiting",capture,metadata)
+	game_root:=filepath.Join(batch.Root,batch.Core,"waiting")
+	if err:=PublishComplete(game_root,capture,New,metadata);err!=nil {t.Fatal(err)}
+	result:=GameResult{Outcome:New,TestIdentity:"definition"}
+	if !batch.verifyFinalized(batch.Games[0],result) {t.Fatal("complete PNG receipt not accepted")}
+	changed:=make_capture_fixture(t,[]uint16{4,5,6})
+	if err:=PublishComplete(game_root,changed,New,metadata);err!=nil {t.Fatal(err)}
+	if batch.verifyFinalized(batch.Games[0],result) {t.Fatal("changed PNG result incorrectly skipped on resume")}
+}
+
+func TestFinalizedPassKeepsStartupCutoff(t *testing.T) {
+	root:=t.TempDir()
+	batch:=makeBatch(t,root,&retryHardware{},[]GameSpec{{Setname:"passed"}})
+	if err:=os.WriteFile(batch.GlobalProfile,[]byte("video: 300\nstart-up: 100\n"),0600);err!=nil {t.Fatal(err)}
+	metadata:=GameMetadata{TestIdentity:"definition",Build:batch.Build}
+	candidate:=make_capture_fixture(t,[]uint16{1,2,3})
+	seed_receipt(t,batch,"passed",candidate,metadata)
+	approved:=make_capture_fixture(t,[]uint16{4,2,3})
+	game_root:=filepath.Join(batch.Root,batch.Core,"passed")
+	if err:=PublishComplete(game_root,approved,New,metadata);err!=nil {t.Fatal(err)}
+	if err:=os.Rename(filepath.Join(game_root,"new"),filepath.Join(game_root,"ref"));err!=nil {t.Fatal(err)}
+	result:=GameResult{Outcome:Pass,TestIdentity:"definition"}
+	if !batch.verifyFinalized(batch.Games[0],result) {t.Fatal("matching comparable frames must retain finalized pass despite startup differences")}
+}
+
+func TestConfigRejectsRetiredParallelWorkspaceOptions(t *testing.T) {
+	for _, key := range []string{"build-cache","fixture-cache","rom-source-extra"} {
+		path:=filepath.Join(t.TempDir(),"config.yaml")
+		if err:=os.WriteFile(path,[]byte(key+": obsolete\n"),0600);err!=nil {t.Fatal(err)}
+		if _,err:=ReadConfig(path);err==nil {t.Fatalf("obsolete %s configuration was silently accepted",key)}
+	}
+}

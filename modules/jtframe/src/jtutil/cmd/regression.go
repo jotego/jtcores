@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -20,7 +19,6 @@ import (
 var regressionConfig string
 var regressionManifest string
 var regressionRunID string
-var regressionInitialBaseline bool
 var regressionNoPublish bool
 var regressionRetryErrors bool
 
@@ -28,17 +26,16 @@ var regressionCmd = &cobra.Command{
 	Use:   "regression",
 	Short: "Run or resume a SiDi128 video regression batch",
 	Long: `Discovers and prepares a successful compile_all build, then runs or resumes its SiDi128 regression.
-All durable state, logs, and result folders are stored below $JOTEGO/regression.
-Use --initial-baseline only for the explicitly authorized initial baseline run.`,
+Collects PNG frames in $JOTEGO/regression/<core>/<setname>/new for designer review.
+Preparation uses the working project; diagnostics and resume state live under log/.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
 }
 
 func init() {
-	regressionCmd.Flags().StringVar(&regressionConfig, "config", "", "Portable regression config YAML")
+	regressionCmd.Flags().StringVar(&regressionConfig, "config", filepath.Join(project_root(), ".jtutil-regression.yaml"), "Portable regression config YAML")
 	regressionCmd.Flags().StringVar(&regressionManifest, "manifest", "", "Build-specific inventory manifest JSON")
 	regressionCmd.Flags().StringVar(&regressionRunID, "run-id", "", "Pin a GitHub Actions run ID or run number")
-	regressionCmd.Flags().BoolVar(&regressionInitialBaseline, "initial-baseline", false, "Create missing approved refs for initial build #676 only")
 	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish GitHub summary (local pilot only)")
 	regressionCmd.Flags().BoolVar(&regressionRetryErrors, "retry-errors", false, "Rerun terminal per-game errors from a fresh ARC launch")
 	rootCmd.AddCommand(regressionCmd)
@@ -48,9 +45,6 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	root := os.Getenv("JOTEGO")
 	if root == "" {
 		return fmt.Errorf("JOTEGO must name the private regression data directory")
-	}
-	if regressionConfig == "" {
-		regressionConfig = filepath.Join(root, "regression", "config.yaml")
 	}
 	config, e := regression.ReadConfig(regressionConfig)
 	if e != nil {
@@ -67,7 +61,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		if configured != rootAbs {
-			return fmt.Errorf("all persistent data must remain under JOTEGO/regression (%s)", rootAbs)
+			return fmt.Errorf("result root must be JOTEGO/regression (%s)", rootAbs)
 		}
 	}
 	lock, e := regression.AcquireLock(dataRoot)
@@ -79,19 +73,14 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	if e != nil {
 		return fmt.Errorf("verify and preserve prior launch manifest: %w", e)
 	}
-	if config.Source == "" {
-		config.Source = os.Getenv("JTROOT")
-	}
-	if config.Source == "" {
-		return fmt.Errorf("config source or JTROOT is required")
-	}
+	config.Source = project_root()
 	var manifest regression.Manifest
 	if regressionManifest == "" {
 		manifest, e = regression.Prepare(cmd.Context(), config, dataRoot, regressionRunID)
 		if e != nil {
 			return fmt.Errorf("prepare regression build and inventory: %w", e)
 		}
-		manifestPath := filepath.Join(dataRoot, "builds", manifest.Build.RunID, "manifest.json")
+		manifestPath := filepath.Join(dataRoot, "log", manifest.RunID, "manifest.json")
 		if e = os.MkdirAll(filepath.Dir(manifestPath), 0750); e != nil {
 			return e
 		}
@@ -114,9 +103,6 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	if regressionManifest != "" && regressionRunID != "" {
 		manifest.RunID = regressionRunID
 	}
-	if regressionInitialBaseline && regressionManifest != "" {
-		return fmt.Errorf("--initial-baseline requires automatic artifact and complete-inventory verification; supplied manifests are pilot-only")
-	}
 	if manifest.RunID == "" || len(manifest.Cores) == 0 {
 		return fmt.Errorf("manifest must have run_id and at least one core")
 	}
@@ -129,40 +115,28 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	if _, err := hex.DecodeString(config.FirmwareSHA256); config.FirmwareSHA256 != "" && (err != nil || len(config.FirmwareSHA256) != 64) {
 		return fmt.Errorf("firmware-sha256 must be a 64-character hexadecimal digest")
 	}
-	if manifest.Source != "" {
-		config.Source = manifest.Source
+	if manifest.Source != "" && filepath.Clean(manifest.Source) != filepath.Clean(config.Source) {
+		return fmt.Errorf("manifest belongs to project %s; current project is %s", manifest.Source, config.Source)
 	}
-	if manifest.Build.SHA != "" {
-		out, err := exec.Command("git", "-C", config.Source, "rev-parse", "HEAD").Output()
-		if err != nil {
-			return fmt.Errorf("verify source checkout: %w", err)
-		}
-		if strings.TrimSpace(string(out)) != manifest.Build.SHA {
-			return fmt.Errorf("source checkout is %s; manifest requires %s", strings.TrimSpace(string(out)), manifest.Build.SHA)
-		}
-	}
-	publisher := regression.GitHubPublisher{TempDir: filepath.Join(dataRoot, "work", "publication")}
+	publisher := regression.GitHubPublisher{TempDir: filepath.Join(dataRoot, "log", manifest.RunID, "publication")}
 	// Automated preparation means this is a full campaign: validate the GitHub
 	// destination before any board operation, even when report publication is
 	// intentionally deferred for review. Explicit-manifest no-publish remains
 	// available for local pilots.
-	if !regressionNoPublish || regressionManifest == "" || regressionInitialBaseline {
+	if !regressionNoPublish || regressionManifest == "" {
 		if e = publisher.Preflight(manifest.Build); e != nil {
 			return e
 		}
-	}
-	if regressionInitialBaseline && (manifest.Build.RunID != "40655576158" || manifest.Build.SHA != "a405f1b955a06f10f75a5aafe2d7080d631e062e") {
-		return fmt.Errorf("--initial-baseline is authorized only for compile_all #676 at a405f1b")
 	}
 	if config.Host == "" {
 		return fmt.Errorf("config host is required")
 	}
 	if config.CabPacker == "" {
-		config.CabPacker = filepath.Join(dataRoot, "cache", "cab-pack", "cabinet_pack")
+		config.CabPacker = filepath.Join(config.Source, ".cache", "jtutil-regression", "cab-pack", "cabinet_pack")
 	}
-	hardware := &regression.FTPHardware{Host: config.Host, Netrc: config.Netrc, LoadHelper: config.LoadHelper, ControlHelper: config.ControlHelper, CabPacker: config.CabPacker, Curl: config.Curl,
-		JTFrame: filepath.Join(config.Source, "modules", "jtframe"), CabCache: filepath.Join(dataRoot, "cache", "cab-pack", manifest.Build.SHA),
-		PendingUploadDirsPath: filepath.Join(dataRoot, "state", "upload-directories.json")}
+	hardware := &regression.FTPHardware{Host: config.Host, Netrc: config.Netrc, ControlHelper: config.ControlHelper, CabPacker: config.CabPacker, Curl: config.Curl,
+		JTFrame: filepath.Join(config.Source, "modules", "jtframe"), CabCache: filepath.Join(config.Source, ".cache", "jtutil-regression", "cab-pack", manifest.Build.SHA),
+		PendingUploadDirsPath: filepath.Join(dataRoot, "log", "upload-directories.json")}
 	if config.TimeoutSeconds > 0 {
 		hardware.Timeout = time.Duration(config.TimeoutSeconds) * time.Second
 	}
@@ -189,25 +163,17 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	}
 	globalProfile := config.GlobalProfile
 	if globalProfile == "" {
-		globalProfile = filepath.Join(dataRoot, "reg.yaml")
-		if _, err := os.Stat(globalProfile); os.IsNotExist(err) {
-			if err = os.MkdirAll(dataRoot, 0750); err != nil {
-				return err
-			}
-			if err = os.WriteFile(globalProfile, []byte("video: 4000\nstart-up: 500\n"), 0640); err != nil {
-				return err
-			}
-		}
+		globalProfile = filepath.Join(config.Source, "modules", "jtframe", "bin", "reg.yaml")
 	}
 	all := regression.PendingInventory(manifest.Cores)
 	started := regression.RestoreCampaignStart(
 		filepath.Join(dataRoot, "log", manifest.RunID, "summary.json"),
-		filepath.Join(dataRoot, "state", manifest.RunID), manifest.Build, time.Now().UTC(), launchStarts)
+		filepath.Join(dataRoot, "log", manifest.RunID, "state"), manifest.Build, time.Now().UTC(), launchStarts)
 	var operationalError string
 	makeSummary := func(status string) regression.Summary {
 		s := regression.Summary{RunID: manifest.RunID, Build: manifest.Build, Started: started, Finished: time.Now().UTC(), Status: status, Games: all,
 			OperationalError: operationalError,
-			Config:           map[string]any{"source": config.Source, "initial_baseline": regressionInitialBaseline, "no_publish": regressionNoPublish, "board_host": config.Host, "firmware": config.Firmware, "firmware_sha256": config.FirmwareSHA256, "capture_tool_sha256": config.CaptureToolSHA256, "global_profile": globalProfile}, Coverage: map[string]int{},
+			Config:           map[string]any{"source": config.Source, "project_sha": manifest.ProjectSHA, "no_publish": regressionNoPublish, "board_host": config.Host, "firmware": config.Firmware, "firmware_sha256": config.FirmwareSHA256, "capture_tool_sha256": config.CaptureToolSHA256, "global_profile": globalProfile}, Coverage: map[string]int{},
 			Resume: map[string]any{"status": status}, Publication: map[string]any{"status": "not-requested"}}
 		for _, result := range all {
 			s.Coverage[string(result.Outcome)]++
@@ -234,7 +200,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		summary.ReportURL = url
 		summary.Publication = publication
 		pubBytes, _ := json.MarshalIndent(publication, "", "  ")
-		pubPath := filepath.Join(dataRoot, "state", manifest.RunID, "publication.json")
+		pubPath := filepath.Join(dataRoot, "log", manifest.RunID, "state", "publication.json")
 		if err := os.MkdirAll(filepath.Dir(pubPath), 0750); err != nil {
 			return err
 		}
@@ -247,7 +213,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		if !safe_regression_component(core.Core) {
 			return fmt.Errorf("manifest contains an unsafe core name")
 		}
-		statePath := filepath.Join(dataRoot, "state", manifest.RunID, core.Core+".json")
+		statePath := filepath.Join(dataRoot, "log", manifest.RunID, "state", core.Core+".json")
 		state := &regression.State{RunID: manifest.RunID, Build: manifest.Build, Core: core.Core}
 		if previous, err := regression.ReadState(statePath); err == nil {
 			state = previous
@@ -259,8 +225,8 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			operationalError = err.Error()
 			return err
 		}
-		batch := &regression.Batch{Root: dataRoot, CorePath: config.Source, Core: core.Core, RunID: manifest.RunID, Build: manifest.Build,
-			State: state, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: globalProfile, Games: core.Games, Baseline: regressionInitialBaseline,
+		batch := &regression.Batch{Root: dataRoot, CorePath: config.Source, Core: core.Core, RunID: manifest.RunID, Build: manifest.Build, ProjectSHA: manifest.ProjectSHA,
+			State: state, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: globalProfile, Games: core.Games,
 			Firmware: config.Firmware, FirmwareSHA256: config.FirmwareSHA256, CaptureToolSHA256: config.CaptureToolSHA256, RetryErrors: regressionRetryErrors}
 		err = batch.Run()
 		_ = log.Close()
@@ -288,4 +254,11 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 
 func safe_regression_component(value string) bool {
 	return value != "" && value != "." && value != ".." && !strings.ContainsAny(value, "/\\")
+}
+
+func project_root() string {
+	root := os.Getenv("JTROOT")
+	if root == "" { root, _ = os.Getwd() }
+	root, _ = filepath.Abs(root)
+	return root
 }

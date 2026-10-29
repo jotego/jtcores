@@ -16,12 +16,8 @@ type Config struct {
 	Source            string   `yaml:"source"`
 	Repository        string   `yaml:"repository"`
 	ROMSource         string   `yaml:"rom-source"`
-	ROMSourceExtra    []string `yaml:"rom-source-extra"`
-	BuildCache        string   `yaml:"build-cache"`
-	FixtureCache      string   `yaml:"fixture-cache"`
 	Host              string   `yaml:"host"`
 	Netrc             string   `yaml:"netrc"`
-	LoadHelper        string   `yaml:"load-helper"`
 	ControlHelper     string   `yaml:"control-helper"`
 	CabPacker         string   `yaml:"cab-packer"`
 	MRAConverter      string   `yaml:"mra-converter"`
@@ -40,7 +36,7 @@ func ReadConfig(filename string) (Config, error) {
 	if e != nil {
 		return config, e
 	}
-	e = yaml.Unmarshal(data, &config)
+	e = yaml.UnmarshalStrict(data, &config)
 	return config, e
 }
 
@@ -49,6 +45,7 @@ type Manifest struct {
 	RunID  string         `json:"run_id"`
 	Build  BuildIdentity  `json:"build"`
 	Source string         `json:"source"`
+	ProjectSHA string      `json:"project_sha"`
 	Cores  []CoreManifest `json:"cores"`
 }
 

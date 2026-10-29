@@ -12,27 +12,22 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"hash/crc32"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
-var validSHA = regexp.MustCompile(`^[0-9a-fA-F]{40}$`)
-var verifiedROMParts sync.Map // map[archive SHA + entry CRC + size]bool
 
 var jtframeMRACommand = func(ctx context.Context, source, core, roms string, haveROMSource bool) ([]byte, error) {
 	// Inventory selection must not depend on which local ZIPs happen to be
 	// installed. ROM generation is a separate targeted operation below.
-	command := `core_arg=$1; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release" GOCACHE="$PWD/.cache/go-build" GOMODCACHE="$PWD/.cache/go-mod"; mkdir -p "$JTBIN" "$GOCACHE" "$GOMODCACHE"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipROM --skipPocket "$core_arg"`
+	command := `core_arg=$1; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipROM --skipPocket "$core_arg"`
 	cmd := exec.CommandContext(ctx, "bash", "-c", command, "_", core)
 	cmd.Dir = source
 	return cmd.CombinedOutput()
@@ -96,7 +91,7 @@ type InventoryReconciliation struct {
 	SourceSHA                   string            `json:"source_sha"`
 	ArtifactSHA256              string            `json:"artifact_sha256"`
 	ArtifactTuples              []InventoryTuple  `json:"artifact_main_mras"`
-	SourceTuples                []InventoryTuple  `json:"exact_source_mainonly_mras"`
+	SourceTuples                []InventoryTuple  `json:"project_mainonly_mras"`
 	SourceOnly                  []InventoryTuple  `json:"source_only_tuples"`
 	ArtifactOnly                []InventoryTuple  `json:"artifact_only_tuples"`
 	ArtifactFallbacks           []InventoryTuple  `json:"artifact_metadata_fallbacks"`
@@ -110,7 +105,7 @@ type InventoryReconciliation struct {
 }
 
 // Prepare discovers or selects a successful complete compile_all build,
-// downloads its artifact, checks out its exact source SHA, and prepares the
+// downloads its RBF artifact and uses the working project to prepare the
 // main-game ROM/ARC inventory. runID pins one Actions run (for example 40655576158).
 func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest, error) {
 	if ctx == nil {
@@ -124,7 +119,7 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 		return Manifest{}, err
 	}
 	if cfg.Source == "" {
-		return Manifest{}, fmt.Errorf("regression config source is required to check out build %s", identity.SHA)
+		return Manifest{}, fmt.Errorf("working project is required for build %s", identity.SHA)
 	}
 	if dataRoot == "" {
 		return Manifest{}, fmt.Errorf("regression data root is required")
@@ -135,18 +130,11 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 	stageCtx, cancel := context.WithTimeout(ctx, time.Duration(cfg.TimeoutSeconds)*time.Second)
 	defer cancel()
 	buildKey := identity.RunID + "-attempt-" + identity.Attempt
-	buildDir := filepath.Join(dataRoot, "builds", buildKey)
+	buildDir := filepath.Join(cfg.Source, ".cache", "jtutil-regression", "builds", buildKey)
 	if err = os.MkdirAll(buildDir, 0750); err != nil {
 		return Manifest{}, err
 	}
-	if cfg.GlobalProfile == "" {
-		cfg.GlobalProfile = filepath.Join(dataRoot, "reg.yaml")
-		if _, statErr := os.Stat(cfg.GlobalProfile); os.IsNotExist(statErr) {
-			if err = os.WriteFile(cfg.GlobalProfile, []byte("video: 4000\nstart-up: 500\n"), 0640); err != nil {
-				return Manifest{}, err
-			}
-		}
-	}
+	if cfg.GlobalProfile == "" { cfg.GlobalProfile = filepath.Join(cfg.Source, "modules", "jtframe", "bin", "reg.yaml") }
 	artifactPath, rbfRoot, err := prepareArtifact(stageCtx, cfg, buildDir, identity)
 	if err != nil {
 		return Manifest{}, err
@@ -155,10 +143,7 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 	if err != nil {
 		return Manifest{}, err
 	}
-	source, err := exactSource(stageCtx, cfg.Source, filepath.Join(dataRoot, "source"), identity.SHA)
-	if err != nil {
-		return Manifest{}, err
-	}
+	source := cfg.Source
 	cores, rec, err := mainGameInventory(stageCtx, source, rbfRoot, filepath.Join(buildDir, "fixtures"), artifactPath, identity, cfg)
 	if err != nil {
 		return Manifest{}, err
@@ -170,7 +155,8 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 	if len(cores) == 0 {
 		return Manifest{}, fmt.Errorf("build %s produced no main-game inventory", identity.RunID)
 	}
-	return Manifest{RunID: identity.RunID + "-attempt-" + identity.Attempt, Build: identity, Source: source, Cores: cores}, nil
+	project_sha, _ := gitHead(ctx, source)
+	return Manifest{RunID: identity.RunID + "-attempt-" + identity.Attempt, Build: identity, Source: source, ProjectSHA: project_sha, Cores: cores}, nil
 }
 
 func extractArtifactPayload(wrapper, artifactName, destination string) error {
@@ -445,44 +431,6 @@ func extractRBFTree(artifact, cache string, id BuildIdentity, target string, exp
 	return root, nil
 }
 
-func exactSource(ctx context.Context, source, root, sha string) (string, error) {
-	if !validSHA.MatchString(sha) {
-		return "", fmt.Errorf("invalid source SHA %q", sha)
-	}
-	dest := filepath.Join(root, strings.ToLower(sha))
-	if head, e := gitHead(ctx, dest); e == nil && strings.EqualFold(head, sha) {
-		return dest, nil
-	}
-	if e := os.MkdirAll(root, 0750); e != nil {
-		return "", e
-	}
-	if _, e := os.Stat(filepath.Join(dest, ".git")); e == nil {
-		return "", fmt.Errorf("source cache %s exists at a different revision", dest)
-	}
-	if _, e := os.Stat(dest); e == nil {
-		return "", fmt.Errorf("source cache path %s exists but is not the requested checkout", dest)
-	}
-	if _, e := exec.LookPath("git"); e != nil {
-		return "", fmt.Errorf("git is required for exact source checkout: %w", e)
-	}
-	cmd := exec.CommandContext(ctx, "git", "clone", "--no-hardlinks", "--no-checkout", source, dest)
-	if out, e := cmd.CombinedOutput(); e != nil {
-		return "", fmt.Errorf("clone exact source repository: %w: %s", e, strings.TrimSpace(string(out)))
-	}
-	cmd = exec.CommandContext(ctx, "git", "-C", dest, "checkout", "--detach", sha)
-	if out, e := cmd.CombinedOutput(); e != nil {
-		return "", fmt.Errorf("checkout source SHA %s: %w: %s", sha, e, strings.TrimSpace(string(out)))
-	}
-	head, e := gitHead(ctx, dest)
-	if e != nil {
-		return "", e
-	}
-	if !strings.EqualFold(head, sha) {
-		return "", fmt.Errorf("source checkout is %s, expected %s", head, sha)
-	}
-	return dest, nil
-}
-
 func gitHead(ctx context.Context, path string) (string, error) {
 	cmd := exec.CommandContext(ctx, "git", "-C", path, "rev-parse", "HEAD")
 	out, e := cmd.Output()
@@ -509,66 +457,34 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	}
 	sort.Strings(cores)
 	if len(cores) == 0 {
-		return nil, InventoryReconciliation{}, fmt.Errorf("no cores with mame2mra configurations in exact source checkout")
+		return nil, InventoryReconciliation{}, fmt.Errorf("no cores with mame2mra configurations in working project")
 	}
 	roms := cfg.ROMSource
 	if roms == "" {
 		roms = filepath.Join(os.Getenv("HOME"), ".mame", "roms")
 	}
-	// Generate MRA source from this exact commit. Existing output is retained on
-	// resume; the command is deterministic and safely refreshes the same files.
+	// Generate main-game MRAs from the working project. Existing output is
+	// preserved while only this invocation's emissions enter its snapshot.
 	// jtframe writes a flat release/mra directory. Snapshot each core's output
 	// before the next core can overwrite an identically named MRA.
 	mraRoot := filepath.Join(fixtureRoot, "mainonly-mra")
 	if err := os.MkdirAll(mraRoot, 0750); err != nil {
 		return nil, InventoryReconciliation{}, err
 	}
-	roms, haveROMSource, err := stageROMSource(roms, cfg.ROMSourceExtra, filepath.Join(fixtureRoot, "rom-source"))
-	if err != nil {
-		return nil, InventoryReconciliation{}, err
-	}
+	haveROMSource := isDir(roms)
 	mraErrors := map[string]string{}
 	for _, core := range cores {
 		// Use argv through a tiny shell wrapper only for setprj.sh environment;
 		// core names are repository path components and were read from DirEntry.
-		// Clear only the generated MRA output directories owned by this exact
-		// source cache. This prevents a previous core or interrupted pass from
-		// contributing stale files to this core's snapshot.
+		// Refresh only the task-owned snapshot. The live release/mra folder
+		// is preserved by refresh_core_mras, including on command failure.
 		coreMRA := filepath.Join(mraRoot, core)
 		if err := os.RemoveAll(coreMRA); err != nil {
 			return nil, InventoryReconciliation{}, err
 		}
-		if err := os.RemoveAll(filepath.Join(source, "release", "mra")); err != nil {
-			return nil, InventoryReconciliation{}, err
-		}
-		if err := os.MkdirAll(filepath.Join(source, "release", "mra"), 0750); err != nil {
-			return nil, InventoryReconciliation{}, err
-		}
-		if out, e := jtframeMRACommand(ctx, source, core, roms, haveROMSource); e != nil {
-			mraErrors[core] = fmt.Sprintf("exact-source jtframe mra inventory command failed: %v: %s", e, strings.TrimSpace(string(out)))
-		}
-		if err := os.MkdirAll(coreMRA, 0750); err != nil {
-			return nil, InventoryReconciliation{}, err
-		}
-		generated, err := filepath.Glob(filepath.Join(source, "release", "mra", "*.mra"))
-		if err != nil {
-			return nil, InventoryReconciliation{}, err
-		}
-		for _, path := range generated {
-			data, err := os.ReadFile(path)
-			if err != nil {
-				return nil, InventoryReconciliation{}, err
-			}
-			var m mraInventory
-			if err = xml.Unmarshal(data, &m); err != nil {
-				continue
-			}
-			if m.RBF != "jt"+core || strings.TrimSpace(m.Setname) == "" {
-				continue
-			}
-			if err = copyFile(path, filepath.Join(coreMRA, filepath.Base(path))); err != nil {
-				return nil, InventoryReconciliation{}, err
-			}
+		if err := os.MkdirAll(coreMRA, 0750); err != nil { return nil, InventoryReconciliation{}, err }
+		if out, e := refresh_core_mras(ctx, source, core, roms, haveROMSource, coreMRA); e != nil {
+			mraErrors[core] = fmt.Sprintf("project jtframe mra inventory command failed: %v: %s", e, strings.TrimSpace(string(out)))
 		}
 	}
 	var files []string
@@ -603,7 +519,8 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	for _, t := range artifactTuples {
 		artifactTupleSet[tupleKey(t)] = true
 	}
-	rec := InventoryReconciliation{Schema: 1, RunID: identity.RunID, Attempt: identity.Attempt, SourceSHA: identity.SHA, ArtifactSHA256: identity.ArtifactSHA, ArtifactTuples: artifactTuples}
+	project_sha, _ := gitHead(ctx, source)
+	rec := InventoryReconciliation{Schema: 1, RunID: identity.RunID, Attempt: identity.Attempt, SourceSHA: project_sha, ArtifactSHA256: identity.ArtifactSHA, ArtifactTuples: artifactTuples}
 	for _, path := range files {
 		if t, ok := readTuple(path); ok {
 			rec.SourceTuples = append(rec.SourceTuples, t)
@@ -629,7 +546,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	rec.ExactTupleOverlap = len(rec.SourceTuples) - len(rec.SourceOnly)
 	rec.SourceOnlySetnames, rec.SourceOnlyAlternateMappings = classifySourceOnly(rec.SourceOnly, rec.ArtifactTuples)
 	for _, t := range rec.ArtifactOnly {
-		rec.ArtifactOnlyJustifications[tupleKey(t)] = "The selected successful build contains this main MRA tuple but exact-SHA jtframe --mainonly did not emit it; artifact MRA is retained only as an explicit per-title preparation-error fallback."
+		rec.ArtifactOnlyJustifications[tupleKey(t)] = "The selected successful build contains this main MRA tuple but working-project jtframe --mainonly did not emit it; artifact MRA is retained only as an explicit per-title preparation-error fallback."
 	}
 	var fallbackMRAs []string
 	for _, path := range artifactMRAs {
@@ -637,9 +554,9 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 			fallbackMRAs = append(fallbackMRAs, path)
 		}
 	}
-	// Artifact metadata may keep a title visible when an exact-source core
+	// Artifact metadata may keep a title visible when an project core
 	// command failed before writing that MRA. Include it with an explicit error
-	// so it cannot silently masquerade as exact-source metadata.
+	// so it cannot silently masquerade as project metadata.
 	sortTuples(rec.ArtifactTuples)
 	sortTuples(rec.SourceTuples)
 	sortTuples(rec.SourceOnly)
@@ -674,7 +591,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	}
 	if len(missingCore) > 0 {
 		sort.Strings(missingCore)
-		return nil, InventoryReconciliation{}, fmt.Errorf("incomplete mainonly inventory: no exact-source MRA titles were generated for supported RBF cores %s", strings.Join(missingCore, ", "))
+		return nil, InventoryReconciliation{}, fmt.Errorf("incomplete mainonly inventory: no project MRA titles were generated for supported RBF cores %s", strings.Join(missingCore, ", "))
 	}
 	files = append(files, fallbackMRAs...)
 	if len(files) == 0 {
@@ -718,7 +635,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 		spec := GameSpec{Setname: set, RBF: rbfByName[rbf+".rbf"]}
 		tuple := InventoryTuple{Core: core, Setname: set, RBF: rbf}
 		if missingSource[tupleKey(tuple)] {
-			spec.PreparationError = "exact-source mainonly inventory omitted this artifact main MRA tuple; artifact metadata is retained only as an explicit fallback"
+			spec.PreparationError = "project mainonly inventory omitted this artifact main MRA tuple; artifact metadata is retained only as an explicit fallback"
 		}
 		var lintCandidates []PreparationWarning
 		profile, e := ResolveProfile(cfg.GlobalProfile, source, core, set)
@@ -737,7 +654,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 		} else if !spec.Unsupported {
 			if mraErrors[core] != "" {
 				if code, ok := reviewedMRAExit(core, mraErrors[core]); ok {
-					lintCandidates = append(lintCandidates, PreparationWarning{Code: code, Message: "exact-source mainonly inventory completed with reviewed post-emission region/order lint", Command: "jtframe mra --mainonly --skipROM --skipPocket " + core, ExitStatus: commandExitStatus(mraErrors[core]), Diagnostic: mraErrors[core]})
+					lintCandidates = append(lintCandidates, PreparationWarning{Code: code, Message: "project mainonly inventory completed with reviewed post-emission region/order lint", Command: "jtframe mra --mainonly --skipROM --skipPocket " + core, ExitStatus: commandExitStatus(mraErrors[core]), Diagnostic: mraErrors[core]})
 				} else {
 					spec.PreparationError = appendPrepError(spec.PreparationError, mraErrors[core])
 				}
@@ -747,81 +664,23 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 				return nil, InventoryReconciliation{}, e
 			}
 			arc := filepath.Join(folder, set+".arc")
-			rom := filepath.Join(folder, set+".rom")
+			rom := filepath.Join(source, "rom", ".regression", core, set+".rom")
 			mraTool := path
 			var targetMRA string
-			var archiveSources []string
-			var mainROM *mraROM
-			romSourceUsed := roms
 			romExpected := false
-			for i := range m.ROM {
-				if m.ROM[i].Index == "0" {
-					romExpected = true
-					mainROM = &m.ROM[i]
-					break
-				}
-			}
+			for i := range m.ROM { if m.ROM[i].Index == "0" { romExpected = true; break } }
 			if romExpected {
-				generatedROM := filepath.Join(source, "rom", set+".rom")
-				// jtframe's ROM output cache is flat by setname. Rebuild each core
-				// tuple from scratch so equal setnames owned by different cores can
-				// never inherit each other's bytes.
-				_ = os.Remove(generatedROM)
-				if haveROMSource {
-					if mainROM != nil {
-						parts := mainROM.AllParts()
-						zipNames, archiveErr := mraZipNames(mainROM.Zip)
-						romSource := roms
-						if archiveErr == nil && len(zipNames) == 1 {
-							_ = ensureExactArchiveAlias(zipNames[0], parts, roms, filepath.Join(fixtureRoot, "rom-source-aliases.json"))
-						}
-						if archiveErr == nil {
-							archiveSources, archiveErr = verifyMRAArchiveParts(mainROM.Zip, parts, roms)
-						}
-						if archiveErr != nil && len(zipNames) > 0 {
-							overlayDir := filepath.Join(fixtureRoot, "rom-overlays", core, set)
-							if _, overlayErr := buildROMOverlay(zipNames[0], parts, roms, overlayDir); overlayErr == nil {
-								if sources, verifyErr := verifyMRAArchiveParts(zipNames[0], parts, overlayDir); verifyErr == nil {
-									romSource = overlayDir
-									archiveSources = sources
-									archiveErr = nil
-								}
-							}
-						}
-						if archiveErr != nil {
-							spec.PreparationError = appendPrepError(spec.PreparationError, "exact ROM CRC preflight failed: "+archiveErr.Error())
-						} else if generatedROMPath, generatedMRAPth, targetWarning, targetErr := generateExactROM(ctx, source, core, set, rbf, romSource, path); targetErr != nil {
-							spec.PreparationError = appendPrepError(spec.PreparationError, "targeted exact-source ROM generation failed: "+targetErr.Error())
-						} else {
-							generatedROM = generatedROMPath
-							targetMRA = generatedMRAPth
-							romSourceUsed = romSource
-							if targetWarning != nil {
-								lintCandidates = append(lintCandidates, *targetWarning)
-							}
-						}
-					}
-				}
-				if regularNonempty(generatedROM) {
-					if e = copyFile(generatedROM, rom); e != nil {
-						spec.PreparationError = appendPrepError(spec.PreparationError, e.Error())
-					}
+				generated_rom, generated_mra, warning, gen_err := generateExactROM(ctx, source, core, set, rbf, roms, path)
+				if gen_err != nil {
+					spec.PreparationError = appendPrepError(spec.PreparationError, gen_err.Error())
 				} else {
-					reason := fmt.Sprintf("exact-source jtframe mra did not create %s.rom from ROM source %s", set, roms)
-					if !haveROMSource {
-						reason = fmt.Sprintf("MAME ROM source directory is unavailable (%s); %s.rom was not generated", roms, set)
-					}
-					spec.PreparationError = appendPrepError(spec.PreparationError, reason)
+					targetMRA = generated_mra
+					if err = os.MkdirAll(filepath.Dir(rom), 0750); err != nil { return nil, InventoryReconciliation{}, err }
+					if err = copyFile(generated_rom, rom); err != nil { spec.PreparationError = appendPrepError(spec.PreparationError, err.Error()) }
+					if warning != nil { lintCandidates = append(lintCandidates, *warning) }
 				}
 			}
-			if len(lintCandidates) > 0 && targetMRA != "" {
-				persistedTargetMRA := filepath.Join(folder, set+".target.mra")
-				if e = copyFile(targetMRA, persistedTargetMRA); e != nil {
-					spec.PreparationError = appendPrepError(spec.PreparationError, "could not persist targeted MRA used to verify reviewed warning: "+e.Error())
-				} else {
-					targetMRA = persistedTargetMRA
-				}
-			}
+			_ = targetMRA
 			converter := cfg.MRAConverter
 			if converter == "" {
 				converter = "mra"
@@ -850,35 +709,9 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 					spec.PreparationError = appendPrepError(spec.PreparationError, fmt.Sprintf("configured CAB input %q was not found relative to cores/%s/ver/%s", spec.Profile.Inputs, core, set))
 				}
 			}
-			if len(lintCandidates) > 0 {
-				proof, proofErr := prepareWarningProof(identity, tuple, path, targetMRA, artifactMRAByTuple[tupleKey(tuple)], spec.RBF, rom, arc, mainROM, romSourceUsed, archiveSources)
-				if proofErr != nil {
-					for _, candidate := range lintCandidates {
-						spec.PreparationError = appendPrepError(spec.PreparationError, candidate.Diagnostic)
-					}
-					spec.PreparationError = appendPrepError(spec.PreparationError, "reviewed MRA lint could not be downgraded because fixture proof failed: "+proofErr.Error())
-					spec.ARC = ""
-					spec.ROMs = nil
-				} else {
-					for i := range lintCandidates {
-						lintCandidates[i].Proof = proof
-						spec.PreparationWarnings = append(spec.PreparationWarnings, lintCandidates[i])
-					}
-				}
-			}
-			prep := map[string]any{"schema": 1, "source_sha": identity.SHA, "run_id": identity.RunID, "attempt": identity.Attempt, "core": core, "setname": set, "rbf": rbf, "mra_path": path, "preparation_error": spec.PreparationError}
-			if len(spec.PreparationWarnings) > 0 {
-				prep["preparation_warnings"] = spec.PreparationWarnings
-			}
-			if len(archiveSources) > 0 {
-				archiveHashes := map[string]string{}
-				for _, archivePath := range archiveSources {
-					if hash, e := fileSHA256(archivePath); e == nil {
-						archiveHashes[archivePath] = hash
-					}
-				}
-				prep["rom_source_archives"] = archiveHashes
-			}
+			if spec.PreparationError == "" { spec.PreparationWarnings = append(spec.PreparationWarnings, lintCandidates...) }
+			prep := map[string]any{"schema": 1, "source_sha": project_sha, "rbf_source_sha": identity.SHA, "run_id": identity.RunID, "attempt": identity.Attempt, "core": core, "setname": set, "rbf": rbf, "mra_path": path, "preparation_error": spec.PreparationError}
+			if len(spec.PreparationWarnings) > 0 { prep["preparation_warnings"] = spec.PreparationWarnings }
 			if v, e := fileSHA256(path); e == nil {
 				prep["mra_sha256"] = v
 			}
@@ -928,6 +761,47 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	return result, rec, nil
 }
 
+// refresh_core_mras excludes stale current-core output without clearing the
+// live release directory. Originals omitted by this invocation are restored.
+func refresh_core_mras(ctx context.Context, source, core, roms string, have_roms bool, snapshot string) (output []byte, result_error error) {
+	backup, err := os.MkdirTemp(filepath.Dir(snapshot), "mra-backup-")
+	if err != nil { return nil, err }
+	mra_dir := filepath.Join(source, "release", "mra")
+	defer func() {
+		entries, read_error := os.ReadDir(backup)
+		if read_error != nil { result_error = errors.Join(result_error, read_error); return }
+		for _, entry := range entries {
+			target := filepath.Join(mra_dir, entry.Name())
+			if _, stat_error := os.Lstat(target); os.IsNotExist(stat_error) {
+				if restore_error := os.Rename(filepath.Join(backup, entry.Name()), target); restore_error != nil {
+					result_error = errors.Join(result_error, fmt.Errorf("restore generated MRA from %s: %w", backup, restore_error))
+					return
+				}
+			} else if stat_error != nil { result_error = errors.Join(result_error, stat_error); return }
+		}
+		result_error = errors.Join(result_error, os.RemoveAll(backup))
+	}()
+	files, err := filepath.Glob(filepath.Join(mra_dir, "*.mra"))
+	if err != nil { return nil, err }
+	for _, path := range files {
+		if tuple, ok := readTuple(path); ok && tuple.Core == core {
+			info, stat_error := os.Lstat(path)
+			if stat_error != nil { return nil, stat_error }
+			if !info.Mode().IsRegular() { return nil, fmt.Errorf("generated MRA is not a regular file: %s", path) }
+			if err = os.Rename(path, filepath.Join(backup, filepath.Base(path))); err != nil { return nil, err }
+		}
+	}
+	output, result_error = jtframeMRACommand(ctx, source, core, roms, have_roms)
+	files, err = filepath.Glob(filepath.Join(mra_dir, "*.mra"))
+	if err != nil { return output, errors.Join(result_error, err) }
+	for _, path := range files {
+		if tuple, ok := readTuple(path); ok && tuple.Core == core {
+			if err = copyFile(path, filepath.Join(snapshot, filepath.Base(path))); err != nil { return output, errors.Join(result_error, err) }
+		}
+	}
+	return output, result_error
+}
+
 func tupleKey(t InventoryTuple) string { return t.Core + "\x00" + t.Setname + "\x00" + t.RBF }
 func sortTuples(t []InventoryTuple) {
 	sort.Slice(t, func(i, j int) bool {
@@ -954,9 +828,9 @@ func justifySourceOnly(source, artifact []InventoryTuple) map[string]string {
 				mappings = append(mappings, fmt.Sprintf("%s/%s", x.Core, x.RBF))
 			}
 			sort.Strings(mappings)
-			out[key] = fmt.Sprintf("Exact-SHA source --mainonly emits %s/%s; selected artifact MRA maps the same setname to %s. Both core ownership rows are retained because they are distinct source and artifact tuples.", t.Core, t.Setname, strings.Join(mappings, ", "))
+			out[key] = fmt.Sprintf("Working project --mainonly emits %s/%s; selected artifact MRA maps the same setname to %s. Both core ownership rows are retained because they are distinct source and artifact tuples.", t.Core, t.Setname, strings.Join(mappings, ", "))
 		} else {
-			out[key] = fmt.Sprintf("Exact-SHA jtframe --mainonly emits source-only setname %s under core %s; the successful build archive has no main MRA for this title. Retained because source mainonly inventory is authoritative.", t.Setname, t.Core)
+			out[key] = fmt.Sprintf("Working-project jtframe --mainonly emits source-only setname %s under core %s; the successful build archive has no main MRA for this title. Retained because source mainonly inventory is authoritative.", t.Setname, t.Core)
 		}
 	}
 	return out
@@ -1035,10 +909,7 @@ func generateExactROM(ctx context.Context, source, core, set, rbf, roms, expecte
 	if err := os.Remove(rom); err != nil && !os.IsNotExist(err) {
 		return "", "", nil, err
 	}
-	if err := os.RemoveAll(filepath.Join(source, "release", "mra")); err != nil {
-		return "", "", nil, err
-	}
-	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set_arg=$2; rom_path=$3; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release" GOCACHE="$PWD/.cache/go-build" GOMODCACHE="$PWD/.cache/go-mod"; mkdir -p "$JTBIN" "$GOCACHE" "$GOMODCACHE"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipPocket --setname "$set_arg" --path "$rom_path" "$core_arg"`, "_", core, set, roms)
+	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set_arg=$2; rom_path=$3; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipPocket --setname "$set_arg" --path "$rom_path" "$core_arg"`, "_", core, set, roms)
 	cmd.Dir = source
 	output, runErr := cmd.CombinedOutput()
 	var warning *PreparationWarning
@@ -1049,7 +920,7 @@ func generateExactROM(ctx context.Context, source, core, set, rbf, roms, expecte
 		if !reviewed {
 			return "", "", nil, fmt.Errorf("jtframe mra failed: %s", fullDiagnostic)
 		}
-		warning = &PreparationWarning{Code: code, Message: "targeted exact-source ROM generation completed with reviewed post-emission region/order lint", Command: "jtframe mra --mainonly --skipPocket --setname " + set + " --path " + roms + " " + core, ExitStatus: commandErrorStatus(runErr), Diagnostic: fullDiagnostic}
+		warning = &PreparationWarning{Code: code, Message: "targeted project ROM generation completed with reviewed post-emission region/order lint", Command: "jtframe mra --mainonly --skipPocket --setname " + set + " --path " + roms + " " + core, ExitStatus: commandErrorStatus(runErr), Diagnostic: fullDiagnostic}
 	}
 	generatedMRA, err := findGeneratedMRATuple(filepath.Join(source, "release", "mra"), core, set, rbf)
 	if err != nil {
@@ -1149,86 +1020,6 @@ func commandErrorStatus(err error) string {
 	return err.Error()
 }
 
-func prepareWarningProof(identity BuildIdentity, tuple InventoryTuple, sourceMRA, targetMRA, artifactMRA, rbf, rom, arc string, mainROM *mraROM, romSource string, archiveSources []string) (PreparationWarningProof, error) {
-	proof := PreparationWarningProof{RunID: identity.RunID, Attempt: identity.Attempt, SourceSHA: identity.SHA, ArtifactSHA256: identity.ArtifactSHA, Tuple: tuple}
-	if tuple.Core == "" || tuple.Setname == "" || tuple.RBF != "jt"+tuple.Core || mainROM == nil {
-		return proof, fmt.Errorf("missing exact main MRA tuple or index-0 ROM")
-	}
-	artifactTuple, ok := readTuple(artifactMRA)
-	if !ok || artifactTuple != tuple {
-		return proof, fmt.Errorf("selected artifact main MRA does not contain exact tuple %s/%s/%s", tuple.Core, tuple.Setname, tuple.RBF)
-	}
-	sourceTuple, ok := readTuple(sourceMRA)
-	if !ok || sourceTuple != tuple {
-		return proof, fmt.Errorf("exact-source mainonly MRA tuple does not match")
-	}
-	targetTuple, ok := readTuple(targetMRA)
-	if !ok || targetTuple != tuple {
-		return proof, fmt.Errorf("fresh targeted MRA tuple does not match")
-	}
-	if err := sameMainMRAIdentity(sourceMRA, targetMRA); err != nil {
-		return proof, err
-	}
-	if err := sameMainMRAIdentity(sourceMRA, artifactMRA); err != nil {
-		return proof, fmt.Errorf("selected artifact MRA identity differs: %w", err)
-	}
-	if !strings.Contains(filepath.ToSlash(rbf), "/release/sidi128/") || !regularNonempty(rbf) || !regularNonempty(rom) || !regularNonempty(arc) {
-		return proof, fmt.Errorf("SiDi128 RBF, freshly generated ROM, or ARC output is missing")
-	}
-	archives, err := verifyMRAArchiveParts(mainROM.Zip, mainROM.AllParts(), romSource)
-	if err != nil {
-		return proof, fmt.Errorf("recursive ROM archive CRC verification failed: %w", err)
-	}
-	archiveSet := make(map[string]bool, len(archives))
-	for _, path := range archives {
-		archiveSet[filepath.Clean(path)] = true
-	}
-	archiveHashes := make(map[string]string, len(archiveSet))
-	for _, path := range archiveSources {
-		path = filepath.Clean(path)
-		if !archiveSet[path] {
-			continue
-		}
-		hash, hashErr := fileSHA256(path)
-		if hashErr != nil {
-			return proof, hashErr
-		}
-		archiveHashes[path] = hash
-	}
-	if len(archiveHashes) == 0 {
-		return proof, fmt.Errorf("no CRC-verified ROM source archive hashes recorded")
-	}
-	var hashErr error
-	if proof.SourceMRASHA256, hashErr = fileSHA256(sourceMRA); hashErr != nil {
-		return proof, hashErr
-	}
-	if proof.TargetMRASHA256, hashErr = fileSHA256(targetMRA); hashErr != nil {
-		return proof, hashErr
-	}
-	if proof.ArtifactMRASHA256, hashErr = fileSHA256(artifactMRA); hashErr != nil {
-		return proof, hashErr
-	}
-	if proof.RBFSHA256, hashErr = fileSHA256(rbf); hashErr != nil {
-		return proof, hashErr
-	}
-	if proof.ROMSHA256, hashErr = fileSHA256(rom); hashErr != nil {
-		return proof, hashErr
-	}
-	if proof.ARCSHA256, hashErr = fileSHA256(arc); hashErr != nil {
-		return proof, hashErr
-	}
-	proof.PartIdentitySHA256, err = mainROMIdentityDigest(sourceMRA)
-	if err != nil {
-		return proof, err
-	}
-	proof.RBFFile, proof.ROMFile, proof.ARCFile = rbf, rom, arc
-	proof.TargetMRAFile = targetMRA
-	proof.SourceMRAFile = sourceMRA
-	proof.ArtifactMRAFile = artifactMRA
-	proof.ROMPartCount = len(mainROM.AllParts())
-	proof.ROMSourceArchiveSHA256 = archiveHashes
-	return proof, nil
-}
 func sameMainMRAIdentity(expected, generated string) error {
 	read := func(path string) (mraInventory, mraROM, error) {
 		b, e := os.ReadFile(path)
@@ -1358,18 +1149,6 @@ func attrValue(attrs []xml.Attr, name string) string {
 	return ""
 }
 
-func mainROMIdentityDigest(path string) (string, error) {
-	identity, err := canonicalMainROMIdentity(path)
-	if err != nil {
-		return "", err
-	}
-	data, err := json.Marshal(identity)
-	if err != nil {
-		return "", err
-	}
-	sum := sha256.Sum256(data)
-	return hex.EncodeToString(sum[:]), nil
-}
 func readArtifactMainMRAs(artifact, dst string) ([]string, []InventoryTuple, error) {
 	z, e := zip.OpenReader(artifact)
 	if e != nil {
@@ -1416,7 +1195,7 @@ func readArtifactMainMRAs(artifact, dst string) ([]string, []InventoryTuple, err
 }
 
 func coreSkipped(ctx context.Context, source, core string) bool {
-	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release" GOCACHE="$PWD/.cache/go-build" GOMODCACHE="$PWD/.cache/go-mod"; mkdir -p "$JTBIN" "$GOCACHE" "$GOMODCACHE"; source ./setprj.sh >/dev/null && jtframe cfgstr "$core_arg" --target=sidi128 --output bash`, "_", core)
+	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe cfgstr "$core_arg" --target=sidi128 --output bash`, "_", core)
 	cmd.Dir = source
 	out, e := cmd.Output()
 	if e != nil {
@@ -1431,236 +1210,6 @@ func coreSkipped(ctx context.Context, source, core string) bool {
 	return false
 }
 
-func dirHasRBF(path string) bool {
-	f, e := filepath.Glob(filepath.Join(path, "jt*.rbf"))
-	return e == nil && len(f) > 0
-}
-
-// stageROMSource builds a cache-local view over configured, user-owned ROM
-// archives. The archives themselves are not copied or modified.
-func stageROMSource(configured string, extra []string, destination string) (string, bool, error) {
-	var dirs []string
-	configuredDirs := append(filepath.SplitList(configured), extra...)
-	for _, part := range configuredDirs {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			continue
-		}
-		abs, err := filepath.Abs(part)
-		if err != nil {
-			return "", false, err
-		}
-		if isDir(abs) {
-			dirs = append(dirs, abs)
-		}
-	}
-	if len(dirs) == 0 {
-		return configured, false, nil
-	}
-	if err := os.MkdirAll(destination, 0750); err != nil {
-		return "", false, err
-	}
-	for dirIndex, dir := range dirs {
-		files, err := filepath.Glob(filepath.Join(dir, "*.zip"))
-		if err != nil {
-			return "", false, err
-		}
-		for _, src := range files {
-			if filepath.Base(src) == ".zip" {
-				continue
-			}
-			dst := filepath.Join(destination, filepath.Base(src))
-			if _, err := os.Lstat(dst); err == nil {
-				// Preserve duplicate basenames under source-qualified names so an
-				// exact-CRC overlay can inspect every configured archive.
-				dst = filepath.Join(destination, fmt.Sprintf("source%d-%s", dirIndex, filepath.Base(src)))
-				if _, err := os.Lstat(dst); err == nil {
-					resolved, evalErr := filepath.EvalSymlinks(dst)
-					want, wantErr := filepath.EvalSymlinks(src)
-					if evalErr != nil || wantErr != nil || resolved != want {
-						return "", false, fmt.Errorf("ROM pool collision at %s (existing source %s, configured source %s)", dst, resolved, src)
-					}
-					continue
-				}
-			}
-			if err := os.Symlink(src, dst); err != nil {
-				return "", false, err
-			}
-		}
-	}
-	return destination, true, nil
-}
-
-func mraZipNames(value string) ([]string, error) {
-	seen := map[string]bool{}
-	var names []string
-	for _, raw := range strings.Split(value, "|") {
-		name := strings.TrimSpace(raw)
-		if name == "" {
-			continue
-		}
-		if filepath.Base(name) != name || !strings.HasSuffix(strings.ToLower(name), ".zip") {
-			return nil, fmt.Errorf("invalid MRA ZIP identity %q", name)
-		}
-		if !seen[name] {
-			seen[name] = true
-			names = append(names, name)
-		}
-	}
-	if len(names) == 0 {
-		return nil, fmt.Errorf("MRA has no ZIP archive identity")
-	}
-	return names, nil
-}
-
-func verifyMRAArchiveParts(zipValue string, parts []mraPart, sourceDir string) ([]string, error) {
-	names, err := mraZipNames(zipValue)
-	if err != nil {
-		return nil, err
-	}
-	need := map[uint32]bool{}
-	for _, p := range parts {
-		if p.Name == "" {
-			continue
-		}
-		if p.CRC == "" {
-			return nil, fmt.Errorf("MRA ROM part %s has no CRC", p.Name)
-		}
-		n, e := strconv.ParseUint(strings.TrimPrefix(strings.ToLower(p.CRC), "0x"), 16, 32)
-		if e != nil {
-			return nil, fmt.Errorf("invalid CRC %q for MRA part %s", p.CRC, p.Name)
-		}
-		need[uint32(n)] = true
-	}
-	if len(need) == 0 {
-		return nil, fmt.Errorf("MRA %s has no named CRC parts to validate", zipValue)
-	}
-	found := map[uint32]string{}
-	used := map[string]bool{}
-	for _, name := range names {
-		path := filepath.Join(sourceDir, name)
-		z, e := zip.OpenReader(path)
-		if e != nil {
-			continue
-		}
-		archiveSHA, _ := fileSHA256(path)
-		for _, f := range z.File {
-			if !need[f.CRC32] || f.FileInfo().IsDir() {
-				continue
-			}
-			key := fmt.Sprintf("%s:%08x:%d", archiveSHA, f.CRC32, f.UncompressedSize64)
-			if _, ok := verifiedROMParts.Load(key); !ok {
-				data, e := readZipEntry(f)
-				if e != nil || crc32.ChecksumIEEE(data) != f.CRC32 {
-					continue
-				}
-				verifiedROMParts.Store(key, true)
-			}
-			found[f.CRC32] = path
-			used[path] = true
-		}
-		_ = z.Close()
-	}
-	missing := make([]string, 0)
-	for crc := range need {
-		if found[crc] == "" {
-			missing = append(missing, fmt.Sprintf("%08x", crc))
-		}
-	}
-	if len(missing) > 0 {
-		sort.Strings(missing)
-		return nil, fmt.Errorf("MRA ROM part CRCs absent from named local archives %s: %s", strings.Join(names, "|"), strings.Join(missing, ", "))
-	}
-	archives := make([]string, 0, len(used))
-	for path := range used {
-		archives = append(archives, path)
-	}
-	sort.Strings(archives)
-	return archives, nil
-}
-
-func ensureExactArchiveAlias(zipName string, parts []mraPart, sourceDir, manifestPath string) error {
-	if zipName == "" || filepath.Base(zipName) != zipName || !strings.HasSuffix(strings.ToLower(zipName), ".zip") {
-		return fmt.Errorf("invalid MRA archive identity %q", zipName)
-	}
-	target := filepath.Join(sourceDir, zipName)
-	if regularNonempty(target) {
-		_, err := verifyMRAArchiveParts(zipName, parts, sourceDir)
-		return err
-	}
-	archives, err := filepath.Glob(filepath.Join(sourceDir, "*.zip"))
-	if err != nil {
-		return err
-	}
-	need := map[uint32]bool{}
-	for _, p := range parts {
-		if p.Name == "" {
-			continue
-		}
-		if p.CRC == "" {
-			return fmt.Errorf("MRA ROM part %s has no CRC", p.Name)
-		}
-		n, e := strconv.ParseUint(strings.TrimPrefix(strings.ToLower(p.CRC), "0x"), 16, 32)
-		if e != nil {
-			return fmt.Errorf("MRA %s has invalid CRC %q", zipName, p.CRC)
-		}
-		need[uint32(n)] = true
-	}
-	if len(need) == 0 {
-		return fmt.Errorf("MRA %s has no checksummed ROM parts", zipName)
-	}
-	for _, candidate := range archives {
-		if filepath.Base(candidate) == zipName {
-			continue
-		}
-		z, e := zip.OpenReader(candidate)
-		if e != nil {
-			continue
-		}
-		found := map[uint32]bool{}
-		for _, f := range z.File {
-			if f.FileInfo().IsDir() {
-				continue
-			}
-			crc, ok := need[f.CRC32]
-			if ok && crc {
-				data, readErr := readZipEntry(f)
-				if readErr == nil && crc32.ChecksumIEEE(data) == f.CRC32 {
-					found[f.CRC32] = true
-				}
-			}
-		}
-		_ = z.Close()
-		if len(found) != len(need) {
-			continue
-		}
-		if err = os.Symlink(candidate, target); err != nil {
-			return err
-		}
-		digest, e := fileSHA256(candidate)
-		if e != nil {
-			_ = os.Remove(target)
-			return e
-		}
-		entry := map[string]any{"archive": zipName, "symlink_target": candidate, "source_archive_sha256": digest, "required_crc32": need, "all_parts_match": true}
-		var doc map[string]any
-		if raw, readErr := os.ReadFile(manifestPath); readErr == nil {
-			_ = json.Unmarshal(raw, &doc)
-		}
-		if doc == nil {
-			doc = map[string]any{"schema": 1, "aliases": []any{}}
-		}
-		aliases, _ := doc["aliases"].([]any)
-		aliases = append(aliases, entry)
-		doc["aliases"] = aliases
-		b, _ := json.MarshalIndent(doc, "", "  ")
-		if err = os.WriteFile(manifestPath, append(b, '\n'), 0640); err != nil {
-			return err
-		}
-		return nil
-	}
-	return fmt.Errorf("no owned local archive provides every exact CRC required by %s", zipName)
-}
 func regularNonempty(path string) bool {
 	fi, e := os.Stat(path)
 	return e == nil && fi.Mode().IsRegular() && fi.Size() > 0
@@ -1705,156 +1254,12 @@ func copyFile(src, dst string) error {
 	return ce
 }
 
-// buildROMOverlay creates a local alias ZIP only when the MAME set's own ZIP is
-// absent. Every needed entry must be present in an already-owned archive with
-// the exact CRC declared by this build's generated MRA. This safely covers
-// sets such as kchampvs whose complete ROM data is identical to local kchamp.zip.
-func buildROMOverlay(zipName string, parts []mraPart, sourceDir, destination string) (string, error) {
-	if zipName == "" || filepath.Base(zipName) != zipName || !strings.HasSuffix(strings.ToLower(zipName), ".zip") {
-		return "", fmt.Errorf("invalid MRA ZIP identity %q", zipName)
-	}
-	need := map[uint32][]string{}
-	for _, p := range parts {
-		if p.Name == "" {
-			continue
-		}
-		if filepath.Base(p.Name) != p.Name || p.Name == "." || p.Name == ".." {
-			return "", fmt.Errorf("invalid ROM part name %q", p.Name)
-		}
-		if p.CRC == "" {
-			return "", fmt.Errorf("MRA ROM part %s has no CRC; exact ROM provenance cannot be verified", p.Name)
-		}
-		crc, parseErr := strconv.ParseUint(strings.TrimPrefix(strings.ToLower(p.CRC), "0x"), 16, 32)
-		if parseErr != nil {
-			return "", fmt.Errorf("invalid MRA CRC %q for %s", p.CRC, p.Name)
-		}
-		need[uint32(crc)] = append(need[uint32(crc)], p.Name)
-	}
-	if len(need) == 0 {
-		return "", fmt.Errorf("MRA has no named ROM parts")
-	}
-	paths, err := filepath.Glob(filepath.Join(sourceDir, "*.zip"))
-	if err != nil {
-		return "", err
-	}
-	sort.Strings(paths)
-	found := map[string][]byte{}
-	sources := map[string]string{}
-	for _, path := range paths {
-		z, e := zip.OpenReader(path)
-		if e != nil {
-			continue
-		}
-		used := false
-		for _, f := range z.File {
-			names := need[f.CRC32]
-			if len(names) == 0 || f.FileInfo().IsDir() {
-				continue
-			}
-			data, readErr := readZipEntry(f)
-			if readErr != nil || crc32.ChecksumIEEE(data) != f.CRC32 {
-				continue
-			}
-			for _, name := range names {
-				if _, ok := found[name]; !ok {
-					found[name] = data
-					used = true
-				}
-			}
-		}
-		_ = z.Close()
-		if used {
-			digest, e := fileSHA256(path)
-			if e == nil {
-				sources[filepath.Base(path)] = digest
-			}
-		}
-		complete := true
-		for _, names := range need {
-			for _, name := range names {
-				if _, ok := found[name]; !ok {
-					complete = false
-					break
-				}
-			}
-			if !complete {
-				break
-			}
-		}
-		if complete {
-			break
-		}
-	}
-	missing := make([]string, 0)
-	for _, names := range need {
-		for _, name := range names {
-			if _, ok := found[name]; !ok {
-				missing = append(missing, name)
-			}
-		}
-	}
-	if len(missing) > 0 {
-		sort.Strings(missing)
-		return "", fmt.Errorf("local ROM archives do not contain required MAME ROMs: %s", strings.Join(missing, ", "))
-	}
-	if err = os.MkdirAll(destination, 0750); err != nil {
-		return "", err
-	}
-	archivePath := filepath.Join(destination, zipName)
-	file, err := os.Create(archivePath)
-	if err != nil {
-		return "", err
-	}
-	w := zip.NewWriter(file)
-	names := make([]string, 0, len(found))
-	for name := range found {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	for _, name := range names {
-		entry, e := w.Create(name)
-		if e != nil {
-			_ = w.Close()
-			_ = file.Close()
-			return "", e
-		}
-		if _, e = entry.Write(found[name]); e != nil {
-			_ = w.Close()
-			_ = file.Close()
-			return "", e
-		}
-	}
-	if err = w.Close(); err != nil {
-		_ = file.Close()
-		return "", err
-	}
-	if err = file.Close(); err != nil {
-		return "", err
-	}
-	archiveSHA, err := fileSHA256(archivePath)
-	if err != nil {
-		return "", err
-	}
-	manifest, _ := json.MarshalIndent(map[string]any{"zip": zipName, "sha256": archiveSHA, "source_archives": sources, "rom_parts": names}, "", "  ")
-	if err = os.WriteFile(filepath.Join(destination, "overlay-manifest.json"), append(manifest, '\n'), 0640); err != nil {
-		return "", err
-	}
-	return destination, nil
-}
-
 func readZipEntry(f *zip.File) ([]byte, error) {
 	r, e := f.Open()
-	if e != nil {
-		return nil, e
-	}
+	if e != nil { return nil, e }
 	defer r.Close()
-	limit := int64(f.UncompressedSize64) + 1
-	b, e := io.ReadAll(io.LimitReader(r, limit))
-	if e != nil {
-		return nil, e
-	}
-	if uint64(len(b)) != f.UncompressedSize64 {
-		return nil, fmt.Errorf("short ROM archive entry")
-	}
+	b, e := io.ReadAll(io.LimitReader(r, int64(f.UncompressedSize64)+1))
+	if e != nil { return nil, e }
+	if uint64(len(b)) != f.UncompressedSize64 { return nil, fmt.Errorf("short artifact archive entry") }
 	return b, nil
 }

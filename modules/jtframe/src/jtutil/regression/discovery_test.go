@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"hash/crc32"
 	"os"
 	"path/filepath"
 	"strings"
@@ -339,7 +338,7 @@ func TestMainOnlyInventoryFailsClosedWhenSupportedCoreProducesNoMRA(t *testing.T
 	old := jtframeMRACommand
 	defer func() { jtframeMRACommand = old }()
 	jtframeMRACommand = func(context.Context, string, string, string, bool) ([]byte, error) {
-		return []byte("simulated exact-source parse failure"), fmt.Errorf("exit 1")
+		return []byte("simulated project parse failure"), fmt.Errorf("exit 1")
 	}
 	root := t.TempDir()
 	source := filepath.Join(root, "source")
@@ -361,7 +360,7 @@ func TestMainOnlyInventoryFailsClosedWhenSupportedCoreProducesNoMRA(t *testing.T
 		t.Fatal(err)
 	}
 	// An old artifact-fallback MRA must never be mistaken for output from the
-	// current exact-source core command.
+	// current working-project core command.
 	stale := filepath.Join(root, "fixtures", "mainonly-mra", "artifact")
 	if err := os.MkdirAll(stale, 0750); err != nil {
 		t.Fatal(err)
@@ -369,44 +368,23 @@ func TestMainOnlyInventoryFailsClosedWhenSupportedCoreProducesNoMRA(t *testing.T
 	if err := os.WriteFile(filepath.Join(stale, "stale.mra"), []byte(`<misterromdescription><setname>stale</setname><rbf>jtfake</rbf></misterromdescription>`), 0640); err != nil {
 		t.Fatal(err)
 	}
+	// Even a same-core MRA created just before the command is stale unless
+	// that command emits it. The live project's unrelated outputs survive.
+	live_mra := filepath.Join(source, "release", "mra")
+	if err := os.MkdirAll(live_mra, 0750); err != nil { t.Fatal(err) }
+	stale_live := filepath.Join(live_mra, "stale-current-core.mra")
+	unrelated := filepath.Join(live_mra, "other.mra")
+	for path, contents := range map[string]string{stale_live:`<mra><setname>stale</setname><rbf>jtfake</rbf></mra>`, unrelated:`<mra><setname>other</setname><rbf>jtother</rbf></mra>`} {
+		if err := os.WriteFile(path, []byte(contents), 0600); err != nil { t.Fatal(err) }
+	}
 	artifact := filepath.Join(root, "artifact.zip")
 	writeZip(t, artifact, map[string]string{})
 	_, _, err := mainGameInventory(context.Background(), source, rbf, filepath.Join(root, "fixtures"), artifact, BuildIdentity{}, Config{ROMSource: filepath.Join(root, "missing-roms")})
-	if err == nil || !strings.Contains(err.Error(), "no exact-source MRA titles were generated for supported RBF cores fake") {
+	if err == nil || !strings.Contains(err.Error(), "no project MRA titles were generated for supported RBF cores fake") {
 		t.Fatalf("incomplete core inventory must fail closed, got %v", err)
 	}
-}
-
-func TestBuildROMOverlayRequiresExactMRAEntries(t *testing.T) {
-	root := t.TempDir()
-	source := filepath.Join(root, "roms")
-	if err := os.MkdirAll(source, 0750); err != nil {
-		t.Fatal(err)
-	}
-	body := []byte("exact parent ROM data")
-	crc := fmt.Sprintf("%08x", crc32.ChecksumIEEE(body))
-	writeZip(t, filepath.Join(source, "parent.zip"), map[string]string{"parent/rom.bin": string(body)})
-	parts := []mraPart{{Name: "child.rom", CRC: crc}}
-	overlay, err := buildROMOverlay("child.zip", parts, source, filepath.Join(root, "overlay"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	z, err := zip.OpenReader(filepath.Join(overlay, "child.zip"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer z.Close()
-	if len(z.File) != 1 || z.File[0].Name != "child.rom" || z.File[0].CRC32 != crc32.ChecksumIEEE(body) {
-		t.Fatalf("overlay did not retain exact ROM identity: %+v", z.File)
-	}
-	missing := []mraPart{{Name: "bad.rom", CRC: "deadbeef"}}
-	if _, err = buildROMOverlay("bad.zip", missing, source, filepath.Join(root, "bad-overlay")); err == nil || !strings.Contains(err.Error(), "bad.rom") {
-		t.Fatalf("missing CRC source should be explicit, got %v", err)
-	}
-	writeZip(t, filepath.Join(source, "wrongname.zip"), map[string]string{"bad.rom": "wrong bytes"})
-	if _, err = buildROMOverlay("bad.zip", []mraPart{{Name: "bad.rom", CRC: "deadbeef"}}, source, filepath.Join(root, "wrong-name-overlay")); err == nil {
-		t.Fatal("same-name ROM with wrong CRC was accepted")
-	}
+	if _, err := os.Stat(stale_live); err != nil { t.Fatalf("existing same-core MRA removed: %v", err) }
+	if _, err := os.Stat(unrelated); err != nil { t.Fatalf("unrelated MRA removed: %v", err) }
 }
 
 func TestMRAAllPartsIncludesNestedInterleave(t *testing.T) {
@@ -434,61 +412,6 @@ func TestReviewedMRAExitRequiresExactKnownDiagnostics(t *testing.T) {
 	}
 	if _, ok := reviewedMRAExit("s16b", strings.Replace(known, "exit status 1:", "exit status 2:", 1)); ok {
 		t.Fatal("nonstandard command exit must remain an error")
-	}
-}
-
-func TestReviewedLintProofRejectsArtifactPartMismatch(t *testing.T) {
-	root := t.TempDir()
-	romSource := filepath.Join(root, "rom-source")
-	if err := os.MkdirAll(romSource, 0750); err != nil {
-		t.Fatal(err)
-	}
-	romBytes := []byte("validated ROM bytes")
-	archivePath := filepath.Join(romSource, "game.zip")
-	archiveFile, err := os.Create(archivePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	zw := zip.NewWriter(archiveFile)
-	entry, err := zw.Create("main.bin")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err = entry.Write(romBytes); err != nil {
-		t.Fatal(err)
-	}
-	if err = zw.Close(); err != nil {
-		t.Fatal(err)
-	}
-	if err = archiveFile.Close(); err != nil {
-		t.Fatal(err)
-	}
-	crc := fmt.Sprintf("%08x", crc32.ChecksumIEEE(romBytes))
-	validMRA := fmt.Sprintf(`<mra><setname>test</setname><rbf>jttest</rbf><rom index="0" zip="game.zip"><part name="main.bin" crc="%s" map="01"/></rom></mra>`, crc)
-	badArtifactMRA := fmt.Sprintf(`<mra><setname>test</setname><rbf>jttest</rbf><rom index="0" zip="game.zip"><part name="other.bin" crc="%s" map="01"/></rom></mra>`, crc)
-	sourceMRA := filepath.Join(root, "source.mra")
-	targetMRA := filepath.Join(root, "target.mra")
-	artifactMRA := filepath.Join(root, "artifact.mra")
-	for path, data := range map[string]string{sourceMRA: validMRA, targetMRA: validMRA, artifactMRA: badArtifactMRA} {
-		if err = os.WriteFile(path, []byte(data), 0640); err != nil {
-			t.Fatal(err)
-		}
-	}
-	rbf := filepath.Join(root, "release", "sidi128", "jttest.rbf")
-	rom := filepath.Join(root, "test.rom")
-	arc := filepath.Join(root, "test.arc")
-	for path, data := range map[string][]byte{rbf: []byte("rbf"), rom: []byte("rom"), arc: []byte("arc")} {
-		if err = os.MkdirAll(filepath.Dir(path), 0750); err != nil {
-			t.Fatal(err)
-		}
-		if err = os.WriteFile(path, data, 0640); err != nil {
-			t.Fatal(err)
-		}
-	}
-	mainROM := &mraROM{Index: "0", Zip: "game.zip", Parts: []mraPart{{Name: "main.bin", CRC: crc, Map: "01"}}}
-	identity := BuildIdentity{RunID: "run", Attempt: "1", SHA: strings.Repeat("a", 40), ArtifactSHA: strings.Repeat("b", 64)}
-	if _, err = prepareWarningProof(identity, InventoryTuple{Core: "test", Setname: "test", RBF: "jttest"}, sourceMRA, targetMRA, artifactMRA, rbf, rom, arc, mainROM, romSource, []string{archivePath}); err == nil || !strings.Contains(err.Error(), "artifact MRA identity differs") {
-		t.Fatalf("artifact part mismatch must block warning downgrade, got %v", err)
 	}
 }
 
@@ -523,49 +446,6 @@ func TestInventoryReconciliationJustifiesSourceOnlyExtrasAndAlternateMappings(t 
 	names, alternate := classifySourceOnly(source, artifact)
 	if len(names) != 2 || len(alternate) != 2 || uniqueSetnameCount(source) != 4 || uniqueSetnameCount(artifact) != 2 {
 		t.Fatalf("bad reconciliation summary names=%v alternate=%v", names, alternate)
-	}
-}
-
-func TestROMSourcePoolAndCRCVerifiedAlias(t *testing.T) {
-	root := t.TempDir()
-	primary := filepath.Join(root, "primary")
-	secondary := filepath.Join(root, "secondary")
-	if err := os.MkdirAll(primary, 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.MkdirAll(secondary, 0750); err != nil {
-		t.Fatal(err)
-	}
-	rom := []byte("owned exact ROM bytes")
-	writeZip(t, filepath.Join(secondary, "parent.zip"), map[string]string{"parent.bin": string(rom)})
-	writeZip(t, filepath.Join(primary, "parent.zip"), map[string]string{"parent.bin": "wrong bytes"})
-	pool, ok, err := stageROMSource(primary, []string{secondary}, filepath.Join(root, "pool"))
-	if err != nil || !ok {
-		t.Fatalf("stage ROM pool: ok=%v err=%v", ok, err)
-	}
-	if st, err := os.Lstat(filepath.Join(pool, "parent.zip")); err != nil || st.Mode()&os.ModeSymlink == 0 {
-		t.Fatalf("source archive must remain a symlink: %v %v", st, err)
-	}
-	if _, err := os.Stat(filepath.Join(pool, "source1-parent.zip")); err != nil {
-		t.Fatalf("duplicate source archive was not retained: %v", err)
-	}
-	crc := fmt.Sprintf("%08x", crc32.ChecksumIEEE(rom))
-	parts := []mraPart{{Name: "renamed.bin", CRC: crc}}
-	manifest := filepath.Join(root, "aliases.json")
-	if err := ensureExactArchiveAlias("target.zip", parts, pool, manifest); err != nil {
-		t.Fatal(err)
-	}
-	alias := filepath.Join(pool, "target.zip")
-	st, err := os.Lstat(alias)
-	if err != nil || st.Mode()&os.ModeSymlink == 0 {
-		t.Fatalf("alias must be a symlink: %v %v", st, err)
-	}
-	resolved, err := filepath.EvalSymlinks(alias)
-	if err != nil || resolved != filepath.Join(secondary, "parent.zip") {
-		t.Fatalf("alias target %s err=%v", resolved, err)
-	}
-	if !regularNonempty(manifest) {
-		t.Fatal("CRC alias provenance was not persisted")
 	}
 }
 

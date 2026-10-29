@@ -133,3 +133,7 @@ scenes/
 !/cores/*/ver/**/
 !*.cab
 !sim.sh
+
+# Local hardware regression preparation and machine configuration
+/.cache/jtutil-regression/
+/.jtutil-regression.yaml

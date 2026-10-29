@@ -4,11 +4,9 @@
 package regression
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -51,6 +49,7 @@ type RunInfo struct {
 
 type GameMetadata struct {
 	Build               BuildIdentity        `json:"build"`
+	ProjectSHA          string               `json:"project_sha"`
 	TestIdentity        string               `json:"test_identity"`
 	Profile             Profile              `json:"profile"`
 	CABSHA256           string               `json:"cab_sha256,omitempty"`
@@ -82,30 +81,6 @@ type PreparationWarning struct {
 	Command    string                  `json:"command"`
 	ExitStatus string                  `json:"exit_status"`
 	Diagnostic string                  `json:"diagnostic"`
-	Proof      PreparationWarningProof `json:"proof"`
-}
-
-type PreparationWarningProof struct {
-	RunID                  string            `json:"run_id"`
-	Attempt                string            `json:"attempt"`
-	SourceSHA              string            `json:"source_sha"`
-	ArtifactSHA256         string            `json:"artifact_sha256"`
-	Tuple                  InventoryTuple    `json:"tuple"`
-	SourceMRAFile          string            `json:"source_mra_file"`
-	SourceMRASHA256        string            `json:"source_mra_sha256"`
-	TargetMRAFile          string            `json:"target_mra_file"`
-	TargetMRASHA256        string            `json:"target_mra_sha256"`
-	ArtifactMRAFile        string            `json:"artifact_mra_file"`
-	ArtifactMRASHA256      string            `json:"artifact_mra_sha256"`
-	RBFFile                string            `json:"rbf_file"`
-	RBFSHA256              string            `json:"rbf_sha256"`
-	ROMFile                string            `json:"rom_file"`
-	ROMSHA256              string            `json:"rom_sha256"`
-	ARCFile                string            `json:"arc_file"`
-	ARCSHA256              string            `json:"arc_sha256"`
-	ROMPartCount           int               `json:"rom_part_count"`
-	ROMSourceArchiveSHA256 map[string]string `json:"rom_source_archive_sha256"`
-	PartIdentitySHA256     string            `json:"part_identity_sha256"`
 }
 
 type Batch struct {
@@ -114,13 +89,13 @@ type Batch struct {
 	Core              string
 	RunID             string
 	Build             BuildIdentity
+	ProjectSHA        string
 	State             *State
 	StatePath         string
 	Log               *EventLog
 	Hardware          Hardware
 	GlobalProfile     string
 	Games             []GameSpec
-	Baseline          bool
 	Firmware          string
 	FirmwareSHA256    string
 	CaptureToolSHA256 string
@@ -161,7 +136,7 @@ func (b *Batch) Run() error {
 	for _, game := range b.Games {
 		old := b.State.Games[game.Setname]
 		if old.Outcome == Pending || old.Outcome == Error && b.RetryErrors {
-			_ = os.RemoveAll(filepath.Join(b.Root, "work", b.RunID, b.Core, game.Setname))
+			_ = os.RemoveAll(filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname))
 		}
 	}
 	if e := WriteState(b.StatePath, b.State); e != nil {
@@ -289,14 +264,11 @@ func (b *Batch) legacyFinalizedMatches(game GameSpec, result GameResult) bool {
 	if !b.verifyFinalized(game, result) {
 		return false
 	}
-	resultDir := filepath.Join(b.Root, b.Core, game.Setname, string(result.Outcome))
-	if result.Outcome == Pass {
-		resultDir = filepath.Join(b.Root, b.Core, game.Setname, "ref")
-	}
+	resultDir := b.capture_receipt(game.Setname)
 	var metadata GameMetadata
 	var err error
 	if result.Outcome == Pass {
-		metadata, err = read_reference_metadata(resultDir)
+		metadata, err = read_metadata(resultDir)
 	} else {
 		metadata, err = read_metadata(resultDir)
 	}
@@ -346,7 +318,7 @@ func resolvedGameProfile(b *Batch, game GameSpec) (Profile, error) {
 }
 
 func currentReceiptDefinition(b *Batch, game GameSpec, profile Profile, captureFormat string) (string, map[string]string, string, string, error) {
-	workRoot := filepath.Join(b.Root, "work")
+	workRoot := filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID)
 	if err := os.MkdirAll(workRoot, 0750); err != nil {
 		return "", nil, "", "", err
 	}
@@ -629,13 +601,13 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 			return finish()
 		}
 	}
-	if e = os.MkdirAll(filepath.Join(b.Root, "work", b.RunID, b.Core, game.Setname), 0750); e != nil {
+	if e = os.MkdirAll(filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname), 0750); e != nil {
 		result.Stage = "prepare"
 		result.Message = e.Error()
 		log(result.Stage, Error, result.Message, nil)
 		return finish()
 	}
-	work := filepath.Join(b.Root, "work", b.RunID, b.Core, game.Setname)
+	work := filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname)
 	defer os.RemoveAll(work)
 	cab := game.CAB
 	if cab == "" && profile.Inputs != "" {
@@ -911,7 +883,7 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		log(result.Stage, Error, result.Message, nil)
 		return finish()
 	}
-	metadata := GameMetadata{Build: b.Build, TestIdentity: definition, Profile: profile, CABSHA256: cabHash, CABSourceSHA256: sourceCABHash, CABClipMode: "prefix", CABFrameBudget: profile.Video, RBF: game.RBF, ROMs: game.ROMs, ARC: game.ARC, Firmware: firmware, FirmwareSHA256: b.FirmwareSHA256, CaptureToolSHA256: b.CaptureToolSHA256, CaptureFormat: candidate.Format, Frames: profile.Video, Cadence: 100, Startup: profile.Startup, PreparationWarnings: append([]PreparationWarning(nil), game.PreparationWarnings...)}
+	metadata := GameMetadata{Build: b.Build, ProjectSHA: b.ProjectSHA, TestIdentity: definition, Profile: profile, CABSHA256: cabHash, CABSourceSHA256: sourceCABHash, CABClipMode: "prefix", CABFrameBudget: profile.Video, RBF: game.RBF, ROMs: game.ROMs, ARC: game.ARC, Firmware: firmware, FirmwareSHA256: b.FirmwareSHA256, CaptureToolSHA256: b.CaptureToolSHA256, CaptureFormat: candidate.Format, Frames: profile.Video, Cadence: 100, Startup: profile.Startup, PreparationWarnings: append([]PreparationWarning(nil), game.PreparationWarnings...)}
 	metadata.RBFHash, e = file_sha256(game.RBF)
 	if e != nil {
 		result.Stage = "identity"
@@ -939,25 +911,12 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 	}
 	gameRoot := filepath.Join(b.Root, b.Core, game.Setname)
 	ref := filepath.Join(gameRoot, "ref")
-	if b.Baseline {
-		if e = write_metadata(run.CaptureDir, metadata); e == nil {
-			e = install_reference_claim(run.CaptureDir, ref, b.RunID, definition)
-		}
-		if e == nil {
-			result.Outcome = Pass
-			result.Stage = "baseline"
-			result.Message = "initial reference created with explicit baseline authorization"
-			result.Attention = false
-			log(result.Stage, result.Outcome, result.Message, metadata)
-			result.TestIdentity = definition
-			return finish()
-		}
-		if !errors.Is(e, errReferenceExists) {
-			result.Stage = "publish"
-			result.Message = "baseline ref creation: " + e.Error()
-			return finish()
-		}
-	}
+	receipt := b.capture_receipt(game.Setname)
+	if e = os.RemoveAll(receipt); e == nil { e = os.MkdirAll(receipt, 0750) }
+	if e == nil { e = export_png_frames(run.CaptureDir, receipt) }
+	if e == nil { e = write_metadata(receipt, metadata) }
+	if e == nil { e = copyFile(filepath.Join(run.CaptureDir, "index.jsonl"), filepath.Join(receipt, "transport-index.jsonl")) }
+	if e != nil { result.Stage = "record"; result.Message = e.Error(); return finish() }
 	if _, e = os.Stat(ref); os.IsNotExist(e) {
 		if e = PublishComplete(gameRoot, run.CaptureDir, New, metadata); e != nil {
 			result.Stage = "publish"
@@ -977,19 +936,6 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		log(result.Stage, Error, result.Message, nil)
 		return finish()
 	}
-	refMeta, e := read_reference_metadata(ref)
-	if e != nil {
-		result.Stage = "reference"
-		result.Message = "reference metadata missing or invalid: " + e.Error()
-		log(result.Stage, Error, result.Message, nil)
-		return finish()
-	}
-	if refMeta.TestIdentity != definition {
-		result.Stage = "identity"
-		result.Message = "reference test definition differs; review the fixture/profile/firmware/capture schedule before comparing"
-		log(result.Stage, Error, result.Message, map[string]string{"reference": refMeta.TestIdentity, "candidate": definition})
-		return finish()
-	}
 	reference, e := ReadCaptureSet(ref, profile.Video, profile.Startup, 100)
 	if e != nil {
 		result.Stage = "reference"
@@ -1005,8 +951,8 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		return finish()
 	}
 	if len(diffs) > 0 {
-		diffData, _ := json.MarshalIndent(map[string]any{"reference_test_identity": refMeta.TestIdentity, "candidate_test_identity": definition, "frames": diffs}, "", "  ")
-		if e = os.WriteFile(filepath.Join(run.CaptureDir, "comparison.json"), append(diffData, '\n'), 0640); e != nil {
+		diffData, _ := json.MarshalIndent(map[string]any{"candidate_test_identity": definition, "frames": diffs}, "", "  ")
+		if e = os.WriteFile(filepath.Join(receipt, "comparison.json"), append(diffData, '\n'), 0640); e != nil {
 			result.Stage = "publish"
 			result.Message = e.Error()
 			return finish()
@@ -1064,42 +1010,27 @@ func containsString(list []string, value string) bool {
 	return false
 }
 
+func (b *Batch) capture_receipt(setname string) string {
+	return filepath.Join(b.Root, "log", b.RunID, b.Core, setname, "capture")
+}
+
 func (b *Batch) verifyFinalized(game GameSpec, result GameResult) bool {
-	if result.Outcome == Error || result.Outcome == Unsupported {
-		return true
-	}
-	root := filepath.Join(b.Root, b.Core, game.Setname)
-	name := string(result.Outcome)
-	if result.Outcome == Pass {
-		name = "ref"
-	}
-	dir := filepath.Join(root, name)
-	meta, e := read_metadata(dir)
-	if result.Outcome == Pass {
-		meta, e = read_reference_metadata(dir)
-	}
-	if e != nil || meta.TestIdentity == "" {
-		return false
-	}
-	if result.Outcome == New || result.Outcome == Fail {
-		if !sameResumeBuild(meta.Build, b.Build) {
-			return false
-		}
-	}
-	if result.TestIdentity != "" && meta.TestIdentity != result.TestIdentity {
-		return false
-	}
-	if result.Outcome == Fail {
-		if info, err := os.Stat(filepath.Join(dir, "comparison.json")); err != nil || info.Size() == 0 {
-			return false
-		}
-	}
-	profile, e := ResolveProfile(b.GlobalProfile, b.CorePath, b.Core, game.Setname)
-	if e != nil {
-		return false
-	}
-	_, e = ReadCaptureSet(dir, profile.Video, profile.Startup, 100)
-	return e == nil
+	if result.Outcome == Error || result.Outcome == Unsupported { return true }
+	receipt := b.capture_receipt(game.Setname)
+	meta, e := read_metadata(receipt)
+	if e != nil || meta.TestIdentity == "" || !sameResumeBuild(meta.Build, b.Build) || meta.TestIdentity != result.TestIdentity { return false }
+	profile, e := resolvedGameProfile(b, game)
+	if e != nil { return false }
+	stored, e := ReadCaptureSet(receipt, profile.Video, profile.Startup, 100)
+	if e != nil { return false }
+	slot := string(result.Outcome)
+	if result.Outcome == Pass { slot = "ref" }
+	published, e := ReadCaptureSet(filepath.Join(b.Root, b.Core, game.Setname, slot), profile.Video, profile.Startup, 100)
+	if e != nil { return false }
+	cutoff := 0
+	if result.Outcome == Pass { cutoff = profile.Startup }
+	diffs, e := CompareCaptureSets(stored, published, cutoff)
+	return e == nil && len(diffs) == 0
 }
 
 func read_metadata(dir string) (GameMetadata, error) {
@@ -1110,251 +1041,4 @@ func read_metadata(dir string) (GameMetadata, error) {
 	}
 	e = json.Unmarshal(data, &metadata)
 	return metadata, e
-}
-
-const referenceCompleteMarker = ".jtutil-reference-complete"
-const referenceClaimMarker = ".jtutil-reference-reservation.json"
-
-var errReferenceExists = errors.New("ref already exists")
-
-type referenceClaim struct {
-	Nonce          string `json:"nonce"`
-	RunID          string `json:"run_id"`
-	TestIdentity   string `json:"test_identity"`
-	MetadataSHA256 string `json:"metadata_sha256"`
-}
-
-func write_reference_complete(dir string) error {
-	metadataHash, err := file_sha256(filepath.Join(dir, "metadata.json"))
-	if err != nil {
-		return fmt.Errorf("reference has no valid metadata: %w", err)
-	}
-	marker, err := json.Marshal(struct {
-		MetadataSHA256 string `json:"metadata_sha256"`
-	}{metadataHash})
-	if err != nil {
-		return err
-	}
-	return atomic_write(filepath.Join(dir, referenceCompleteMarker), append(marker, '\n'), 0640)
-}
-
-func read_reference_metadata(dir string) (GameMetadata, error) {
-	metadata, err := read_metadata(dir)
-	if err != nil {
-		return metadata, err
-	}
-	var marker struct {
-		MetadataSHA256 string `json:"metadata_sha256"`
-	}
-	data, err := os.ReadFile(filepath.Join(dir, referenceCompleteMarker))
-	if err != nil {
-		return GameMetadata{}, fmt.Errorf("reference is not fully published: %w", err)
-	}
-	if err = json.Unmarshal(data, &marker); err != nil || marker.MetadataSHA256 == "" {
-		return GameMetadata{}, fmt.Errorf("reference completion marker is invalid")
-	}
-	digest, err := file_sha256(filepath.Join(dir, "metadata.json"))
-	if err != nil {
-		return GameMetadata{}, err
-	}
-	if !strings.EqualFold(digest, marker.MetadataSHA256) {
-		return GameMetadata{}, fmt.Errorf("reference completion marker does not match metadata")
-	}
-	return metadata, nil
-}
-
-func install_reference(source, reference string) error {
-	metadata, err := read_metadata(source)
-	if err != nil {
-		return err
-	}
-	runID := metadata.Build.RunID
-	if runID == "" {
-		runID = "manual-reference-test"
-	}
-	return install_reference_claim(source, reference, runID, metadata.TestIdentity)
-}
-
-func install_reference_claim(source, reference, runID, testIdentity string) error {
-	return install_reference_claim_hook(source, reference, runID, testIdentity, nil)
-}
-
-// install_reference_claim uses an exclusive sibling claim and an in-directory
-// reservation. A retry may remove only a reservation whose nonce, run, test
-// identity, and metadata digest all match the current candidate.
-func install_reference_claim_hook(source, reference, runID, testIdentity string, afterFile func(int) error) error {
-	if runID == "" || testIdentity == "" {
-		return fmt.Errorf("reference claim needs run and test identities")
-	}
-	if err := os.MkdirAll(filepath.Dir(reference), 0750); err != nil {
-		return err
-	}
-	if err := write_reference_complete(source); err != nil {
-		return err
-	}
-	metadataHash, err := file_sha256(filepath.Join(source, "metadata.json"))
-	if err != nil {
-		return err
-	}
-	claimPath := reference + ".claim.json"
-	if info, statErr := os.Lstat(reference); statErr == nil {
-		if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
-			return fmt.Errorf("existing ref is not a directory; refusing to replace it")
-		}
-		if _, completeErr := read_reference_metadata(reference); completeErr == nil {
-			return errReferenceExists
-		}
-		if err := recover_reference_claim(reference, claimPath, runID, testIdentity, metadataHash); err != nil {
-			return err
-		}
-	} else if !os.IsNotExist(statErr) {
-		return statErr
-	} else if _, claimErr := os.Lstat(claimPath); claimErr == nil {
-		if err := recover_reference_claim(reference, claimPath, runID, testIdentity, metadataHash); err != nil {
-			return err
-		}
-	} else if !os.IsNotExist(claimErr) {
-		return claimErr
-	}
-
-	nonceBytes := make([]byte, 16)
-	if _, err = rand.Read(nonceBytes); err != nil {
-		return err
-	}
-	claim := referenceClaim{Nonce: hex.EncodeToString(nonceBytes), RunID: runID, TestIdentity: testIdentity, MetadataSHA256: metadataHash}
-	claimData, err := json.Marshal(claim)
-	if err != nil {
-		return err
-	}
-	if err = write_exclusive(claimPath, append(claimData, '\n'), 0640); err != nil {
-		return fmt.Errorf("cannot claim ref publication: %w", err)
-	}
-	if err = os.Mkdir(reference, 0750); err != nil {
-		_ = os.Remove(claimPath)
-		if os.IsExist(err) {
-			return errReferenceExists
-		}
-		return err
-	}
-	if err = write_exclusive(filepath.Join(reference, referenceClaimMarker), append(claimData, '\n'), 0640); err != nil {
-		return fmt.Errorf("reference reserved but reservation marker failed: %w", err)
-	}
-	if err = copy_reference_contents(source, reference, afterFile); err != nil {
-		return fmt.Errorf("reference copy incomplete at %s: %w", reference, err)
-	}
-	if err = write_reference_complete(reference); err != nil {
-		return fmt.Errorf("reference copied but completion marker failed: %w", err)
-	}
-	if err = os.Remove(filepath.Join(reference, referenceClaimMarker)); err != nil {
-		return fmt.Errorf("reference complete but reservation cleanup failed: %w", err)
-	}
-	if err = os.Remove(claimPath); err != nil {
-		return fmt.Errorf("reference complete but claim cleanup failed: %w", err)
-	}
-	return nil
-}
-
-func recover_reference_claim(reference, claimPath, runID, testIdentity, _ string) error {
-	claimData, err := os.ReadFile(claimPath)
-	if err != nil {
-		return fmt.Errorf("existing ref is incomplete and has no recoverable ownership claim: %w", err)
-	}
-	var claim referenceClaim
-	if err = json.Unmarshal(claimData, &claim); err != nil || claim.Nonce == "" || claim.RunID != runID || claim.TestIdentity != testIdentity || len(claim.MetadataSHA256) != 64 {
-		return fmt.Errorf("existing ref has an unknown or mismatched reservation claim; refusing to modify it")
-	}
-	info, statErr := os.Lstat(reference)
-	if os.IsNotExist(statErr) {
-		return os.Remove(claimPath)
-	}
-	if statErr != nil {
-		return statErr
-	}
-	if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
-		return fmt.Errorf("claimed ref path is not a regular directory")
-	}
-	if _, completeErr := read_reference_metadata(reference); completeErr == nil {
-		_ = os.Remove(claimPath)
-		return errReferenceExists
-	}
-	reservation, err := os.ReadFile(filepath.Join(reference, referenceClaimMarker))
-	if err != nil {
-		return fmt.Errorf("existing ref is incomplete but has no matching in-directory reservation; refusing to modify it")
-	}
-	var inDir referenceClaim
-	if err = json.Unmarshal(reservation, &inDir); err != nil || inDir != claim {
-		return fmt.Errorf("existing ref reservation does not match its claim; refusing to modify it")
-	}
-	if err = ensure_owned_claim_tree(reference); err != nil {
-		return err
-	}
-	if err = os.RemoveAll(reference); err != nil {
-		return err
-	}
-	if err = os.Remove(claimPath); err != nil {
-		return err
-	}
-	return nil
-}
-
-func ensure_owned_claim_tree(root string) error {
-	return filepath.Walk(root, func(name string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if name != root && !info.IsDir() && !info.Mode().IsRegular() {
-			return fmt.Errorf("claimed ref contains a non-regular file %s; refusing recovery", name)
-		}
-		return nil
-	})
-}
-
-func copy_reference_contents(source, destination string, afterFile func(int) error) error {
-	count := 0
-	return filepath.Walk(source, func(name string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		rel, err := filepath.Rel(source, name)
-		if err != nil {
-			return err
-		}
-		if rel == "." {
-			return nil
-		}
-		if rel == referenceCompleteMarker || rel == referenceClaimMarker {
-			return nil
-		}
-		target := filepath.Join(destination, rel)
-		if info.IsDir() {
-			return os.MkdirAll(target, 0750)
-		}
-		if !info.Mode().IsRegular() {
-			return fmt.Errorf("unsupported reference file %s", name)
-		}
-		if err = copyFile(name, target); err != nil {
-			return err
-		}
-		count++
-		if afterFile != nil {
-			return afterFile(count)
-		}
-		return nil
-	})
-}
-
-func write_exclusive(filename string, data []byte, mode os.FileMode) error {
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_EXCL|os.O_WRONLY, mode)
-	if err != nil {
-		return err
-	}
-	_, writeErr := f.Write(data)
-	if writeErr == nil {
-		writeErr = f.Sync()
-	}
-	closeErr := f.Close()
-	if writeErr != nil {
-		return writeErr
-	}
-	return closeErr
 }

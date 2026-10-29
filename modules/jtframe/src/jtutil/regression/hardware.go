@@ -22,7 +22,6 @@ import (
 // bounded deadlines; the caller supplies a host/credential file from config.
 type FTPHardware struct {
 	Host                  string
-	LoadHelper            string
 	ControlHelper         string
 	CabPacker             string
 	CabCache              string
@@ -93,7 +92,7 @@ func (h *FTPHardware) Run(game GameSpec, cab, captureDir string) (RunInfo, error
 		return RunInfo{}, fmt.Errorf("board host and ftp-control helper must be configured")
 	}
 	if h.CabPacker == "" {
-		return RunInfo{}, fmt.Errorf("CAB packer must be configured under the regression cache")
+		return RunInfo{}, fmt.Errorf("CAB packer must be configured in the project preparation cache")
 	}
 	if e := os.MkdirAll(captureDir, 0750); e != nil {
 		return RunInfo{}, e
@@ -508,7 +507,7 @@ func (h *FTPHardware) PrepareCabPacker(sourceRoot string) (string, error) {
 	}
 	if filepath.Base(h.CabPacker) == "jtframe-cab-pack" {
 		if h.CabCache == "" || h.JTFrame == "" || sourceRoot == "" {
-			return "", fmt.Errorf("CAB packer source and regression cache are required")
+			return "", fmt.Errorf("CAB packer source and project preparation cache are required")
 		}
 		if err := os.MkdirAll(h.CabCache, 0750); err != nil {
 			return "", err
@@ -553,7 +552,7 @@ func (h *FTPHardware) Preflight() error {
 		return fmt.Errorf("ftp-control helper must be configured")
 	}
 	if h.CabPacker == "" {
-		return fmt.Errorf("CAB packer must be configured under regression cache")
+		return fmt.Errorf("CAB packer must be configured in project preparation cache")
 	}
 	if info, e := os.Stat(h.ControlHelper); e != nil || !info.Mode().IsRegular() {
 		return fmt.Errorf("ftp-control helper is unavailable: %s", h.ControlHelper)
