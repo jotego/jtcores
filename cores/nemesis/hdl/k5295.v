@@ -39,6 +39,8 @@ ce8e0ecb 2022-03-18T02:27:55Z Fix K005295 bug
 431c9d94 2022-03-21T01:40:22Z Update K005295
 de2cbc58 2022-04-15T07:48:23Z fix comb effect
 e7f2b11d 2022-04-24T15:10:00Z Add new_vblank_n test in ATTR_LATCHING_S1 state of K5295.
+0e037e70 2026-07-19T20:56:17Z K005295: clip sprites at ypos ≥ , not just (off-bottom cull) + fix minor typo
+                              (from https://github.com/MiSTer-devel/Arcade-Salamander_MiSTer/)
 */
 
 /*
@@ -554,11 +556,10 @@ end
 wire            evenbuffer_xpos_d7 = evenbuffer_xpos_counter[7]; //not oddbuffer, TODO: check the bootleg PCB again
 
 wire            x_offscreen = ~(~oddbuffer_xpos_counter[7] | oddbuffer_xpos_counter[6]); //0-255 or 384-511
-wire            y_offscreen = (buffer_ypos_counter == 8'd255) ? 1'b1 : 1'b0;
+wire            y_offscreen = (buffer_ypos_counter[7:4] == 4'hF) ? 1'b1 : 1'b0; // Eicar: real hw clip sprites on ypos counter >= 0xf0. This has been confirmed by running test ROM on real hw.
 
-wire            end_of_tileline = tileline0_complete | x_offscreen;
-wire            end_of_hline = hline_complete | x_offscreen;
-//wire            end_of_last_hline_n = ~(~(vtile_complete_n | vzoom_cnt_n) | y_offscreen);
+wire            end_of_tileline = tileline0_complete | x_offscreen | y_offscreen;
+wire            end_of_hline = hline_complete | x_offscreen | y_offscreen;
 wire            end_of_last_hline_n = ~(~(vtile_complete_n) | y_offscreen);
 
 ///////////////////////////////////////////////////////////
