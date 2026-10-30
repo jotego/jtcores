@@ -27,7 +27,7 @@ import (
 var jtframeMRACommand = func(ctx context.Context, source, core, roms string, haveROMSource bool) ([]byte, error) {
 	// Inventory selection must not depend on which local ZIPs happen to be
 	// installed. ROM generation is a separate targeted operation below.
-	command := `core_arg=$1; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipROM --skipPocket "$core_arg"`
+	command := `core_arg=$1; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --nodbg --mainonly --skipROM --skipPocket "$core_arg"`
 	cmd := exec.CommandContext(ctx, "bash", "-c", command, "_", core)
 	cmd.Dir = source
 	return cmd.CombinedOutput()
@@ -95,6 +95,8 @@ type InventoryReconciliation struct {
 	SourceOnly                  []InventoryTuple  `json:"source_only_tuples"`
 	ArtifactOnly                []InventoryTuple  `json:"artifact_only_tuples"`
 	ArtifactFallbacks           []InventoryTuple  `json:"artifact_metadata_fallbacks"`
+	SourceExcluded              []InventoryTuple  `json:"source_excluded_tuples,omitempty"`
+	SourceExclusionReasons      map[string]string `json:"source_exclusion_reasons,omitempty"`
 	SourceOnlyJustifications    map[string]string `json:"source_only_justifications"`
 	ArtifactOnlyJustifications  map[string]string `json:"artifact_only_justifications"`
 	SourceUniqueSetnames        int               `json:"source_unique_setnames"`
@@ -503,6 +505,13 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	if err != nil {
 		return nil, InventoryReconciliation{}, err
 	}
+	allTuples := append([]InventoryTuple(nil), artifactTuples...)
+	for _, path := range files { if tuple, ok := readTuple(path); ok { allTuples = append(allTuples, tuple) } }
+	exclusions, err := sourceExclusions(source, allTuples)
+	if err != nil { return nil, InventoryReconciliation{}, err }
+	eligibleFiles := files[:0]
+	for _, path := range files { if tuple, ok := readTuple(path); !ok || exclusions[tupleKey(tuple)] == "" { eligibleFiles = append(eligibleFiles, path) } }
+	files = eligibleFiles
 	artifactMRAByTuple := make(map[string]string, len(artifactMRAs))
 	for _, artifactMRA := range artifactMRAs {
 		if tuple, ok := readTuple(artifactMRA); ok {
@@ -521,6 +530,10 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	}
 	project_sha, _ := gitHead(ctx, source)
 	rec := InventoryReconciliation{Schema: 1, RunID: identity.RunID, Attempt: identity.Attempt, SourceSHA: project_sha, ArtifactSHA256: identity.ArtifactSHA, ArtifactTuples: artifactTuples}
+	rec.SourceExclusionReasons = exclusions
+	seenExclusions := map[string]bool{}
+	for _, tuple := range allTuples { if exclusions[tupleKey(tuple)] != "" && !seenExclusions[tupleKey(tuple)] { rec.SourceExcluded = append(rec.SourceExcluded, tuple); seenExclusions[tupleKey(tuple)] = true } }
+	sortTuples(rec.SourceExcluded)
 	for _, path := range files {
 		if t, ok := readTuple(path); ok {
 			rec.SourceTuples = append(rec.SourceTuples, t)
@@ -530,8 +543,10 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	for _, t := range artifactTuples {
 		if !sourceTupleSet[tupleKey(t)] {
 			rec.ArtifactOnly = append(rec.ArtifactOnly, t)
-			rec.ArtifactFallbacks = append(rec.ArtifactFallbacks, t)
-			missingSource[tupleKey(t)] = true
+			if exclusions[tupleKey(t)] == "" {
+				rec.ArtifactFallbacks = append(rec.ArtifactFallbacks, t)
+				missingSource[tupleKey(t)] = true
+			}
 		}
 	}
 	for _, t := range rec.SourceTuples {
@@ -546,6 +561,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	rec.ExactTupleOverlap = len(rec.SourceTuples) - len(rec.SourceOnly)
 	rec.SourceOnlySetnames, rec.SourceOnlyAlternateMappings = classifySourceOnly(rec.SourceOnly, rec.ArtifactTuples)
 	for _, t := range rec.ArtifactOnly {
+		if reason := exclusions[tupleKey(t)]; reason != "" { rec.ArtifactOnlyJustifications[tupleKey(t)] = "Excluded from regression: " + reason; continue }
 		rec.ArtifactOnlyJustifications[tupleKey(t)] = "The selected successful build contains this main MRA tuple but working-project jtframe --mainonly did not emit it; artifact MRA is retained only as an explicit per-title preparation-error fallback."
 	}
 	var fallbackMRAs []string
@@ -578,6 +594,8 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	for _, t := range rec.ArtifactFallbacks {
 		fallbackCore[t.Core] = true
 	}
+	artifactEligibleCore, artifactExcludedCore := map[string]int{}, map[string]int{}
+	for _, tuple := range artifactTuples { if exclusions[tupleKey(tuple)] != "" { artifactExcludedCore[tuple.Core]++ } else { artifactEligibleCore[tuple.Core]++ } }
 	missingCore := make([]string, 0)
 	rbfPaths, globErr := filepath.Glob(filepath.Join(rbfRoot, "jt*.rbf"))
 	if globErr != nil {
@@ -585,7 +603,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	}
 	for _, rbf := range rbfPaths {
 		core := strings.TrimSuffix(strings.TrimPrefix(filepath.Base(rbf), "jt"), ".rbf")
-		if generatedCore[core] == 0 && !fallbackCore[core] && regularNonempty(filepath.Join(coreRoot, core, "cfg", "mame2mra.toml")) {
+		if generatedCore[core] == 0 && !fallbackCore[core] && !(artifactExcludedCore[core] > 0 && artifactEligibleCore[core] == 0) && regularNonempty(filepath.Join(coreRoot, core, "cfg", "mame2mra.toml")) {
 			missingCore = append(missingCore, core)
 		}
 	}
@@ -595,7 +613,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	}
 	files = append(files, fallbackMRAs...)
 	if len(files) == 0 {
-		return nil, InventoryReconciliation{}, fmt.Errorf("jtframe mra --mainonly generated no MRA files for any core")
+		return nil, InventoryReconciliation{}, fmt.Errorf("jtframe mra --nodbg --mainonly generated no MRA files for any core")
 	}
 	if err = os.MkdirAll(fixtureRoot, 0750); err != nil {
 		return nil, InventoryReconciliation{}, err
@@ -654,7 +672,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 		} else if !spec.Unsupported {
 			if mraErrors[core] != "" {
 				if code, ok := reviewedMRAExit(core, mraErrors[core]); ok {
-					lintCandidates = append(lintCandidates, PreparationWarning{Code: code, Message: "project mainonly inventory completed with reviewed post-emission region/order lint", Command: "jtframe mra --mainonly --skipROM --skipPocket " + core, ExitStatus: commandExitStatus(mraErrors[core]), Diagnostic: mraErrors[core]})
+					lintCandidates = append(lintCandidates, PreparationWarning{Code: code, Message: "project mainonly inventory completed with reviewed post-emission region/order lint", Command: "jtframe mra --nodbg --mainonly --skipROM --skipPocket " + core, ExitStatus: commandExitStatus(mraErrors[core]), Diagnostic: mraErrors[core]})
 				} else {
 					spec.PreparationError = appendPrepError(spec.PreparationError, mraErrors[core])
 				}
@@ -923,7 +941,7 @@ func generateExactROM(ctx context.Context, source, core, set, rbf, roms, expecte
 			return "", "", nil, err
 		}
 	}
-	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set_arg=$2; rom_path=$3; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipPocket --setname "$set_arg" --path "$rom_path" "$core_arg"`, "_", core, set, roms)
+	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set_arg=$2; rom_path=$3; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --nodbg --mainonly --skipPocket --setname "$set_arg" --path "$rom_path" "$core_arg"`, "_", core, set, roms)
 	cmd.Dir = source
 	output, runErr := cmd.CombinedOutput()
 	var warning *PreparationWarning
@@ -934,7 +952,7 @@ func generateExactROM(ctx context.Context, source, core, set, rbf, roms, expecte
 		if !reviewed {
 			return "", "", nil, fmt.Errorf("jtframe mra failed: %s", fullDiagnostic)
 		}
-		warning = &PreparationWarning{Code: code, Message: "targeted project ROM generation completed with reviewed post-emission region/order lint", Command: "jtframe mra --mainonly --skipPocket --setname " + set + " --path " + roms + " " + core, ExitStatus: commandErrorStatus(runErr), Diagnostic: fullDiagnostic}
+		warning = &PreparationWarning{Code: code, Message: "targeted project ROM generation completed with reviewed post-emission region/order lint", Command: "jtframe mra --nodbg --mainonly --skipPocket --setname " + set + " --path " + roms + " " + core, ExitStatus: commandErrorStatus(runErr), Diagnostic: fullDiagnostic}
 	}
 	generatedMRA, err := findGeneratedMRATuple(filepath.Join(source, "release", "mra"), core, set, rbf)
 	if err != nil {

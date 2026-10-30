@@ -46,6 +46,9 @@ func fakeManualCommands(t *testing.T) (*[]string, *[]string) {
 			return nil, nil
 		}
 		if args[0] == "bash" {
+			if strings.Count(args[2], "jtframe mra --nodbg") != 2 {
+				t.Fatalf("manual generation paths omitted --nodbg: %s", args[2])
+			}
 			core, set, release := args[4], args[5], args[6]
 			parsed = append(parsed, core+":"+set)
 			if set == "" {

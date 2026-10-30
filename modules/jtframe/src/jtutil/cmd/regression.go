@@ -42,7 +42,8 @@ Examples:
   jtutil regression --core shouse --setname splatter --jtbin
 
 By default, manual captures generate MRAs in the working project and use its
-release/sidi128 RBF. --jtbin reads existing MRA/RBF files from $JTBIN.`,
+release/sidi128 RBF. --jtbin reads existing MRA/RBF files from $JTBIN.
+Games marked debug in the working project's mame2mra.toml are excluded.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
 }
@@ -85,6 +86,16 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("result root must be JOTEGO/regression (%s)", rootAbs)
 		}
 	}
+	config.Source = project_root()
+	var manifest regression.Manifest
+	// Reject obsolete debug/skip inventories before locking or touching any
+	// campaign log, launch snapshot, manifest or resume state.
+	if regressionManifest != "" {
+		manifestBytes, readErr := os.ReadFile(regressionManifest)
+		if readErr != nil { return readErr }
+		if e = json.Unmarshal(manifestBytes,&manifest); e != nil { return fmt.Errorf("parse manifest: %w",e) }
+		if e = regression.ValidateManifestEligibility(config.Source,manifest); e != nil { return e }
+	}
 	if regressionRetryErrors {
 		info,err:=os.Stat(filepath.Join(dataRoot,"log"))
 		if err!=nil || !info.IsDir() {return fmt.Errorf("resume log root is unavailable; refusing to create it")}
@@ -99,8 +110,6 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		launchStarts, e = regression.SnapshotLaunchStarts(dataRoot, regressionRunID)
 		if e != nil { return fmt.Errorf("verify and preserve prior launch manifest: %w", e) }
 	}
-	config.Source = project_root()
-	var manifest regression.Manifest
 	resume_journal:=regressionRetryErrors
 	if regressionManifest == "" {
 		if manual { manifest, e = regression.PrepareManual(cmd.Context(), config, dataRoot, regressionCore, regressionSetname, regressionJTBin) } else { manifest, e = regression.Prepare(cmd.Context(), config, dataRoot, regressionRunID) }
@@ -124,14 +133,6 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 			provenance, readErr := os.ReadFile(filepath.Join(config.Source,".cache","jtutil-regression","manual",manifest.RunID,"manual-preparation.json"))
 			if readErr != nil { return fmt.Errorf("read manual preparation provenance: %w",readErr) }
 			if err := os.WriteFile(filepath.Join(filepath.Dir(manifestPath),"manual-preparation.json"),provenance,0640); err != nil { return fmt.Errorf("record manual preparation provenance: %w",err) }
-		}
-	} else {
-		manifestBytes, readErr := os.ReadFile(regressionManifest)
-		if readErr != nil {
-			return readErr
-		}
-		if e = json.Unmarshal(manifestBytes, &manifest); e != nil {
-			return fmt.Errorf("parse manifest: %w", e)
 		}
 	}
 	if regressionManifest != "" && regressionRunID != "" {

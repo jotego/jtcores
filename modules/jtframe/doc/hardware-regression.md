@@ -34,6 +34,14 @@ The default uses the working project's `release/sidi128` RBF and normal
 Profiles and CAB inputs still come from the working project. Each invocation
 creates a fresh local session under `log/`, compares approved `ref` images
 when available, and replaces the game's `new` images when review is needed.
+Inventory and local MRA generation use `jtframe mra --nodbg`: games marked
+as debug in the working project's `mame2mra.toml` are excluded. The same
+selection applies to `--jtbin` inputs and older build artifacts; those inputs
+do not reintroduce intentionally excluded games. Selecting a debug game
+explicitly reports that it is excluded. An explicit `--manifest` containing
+such games is rejected before logs or resume state are changed; regenerate
+its inventory rather than silently removing entries from a historical run.
+
 Manual captures do not need a manifest or run ID and do not publish GitHub
 reports. Existing campaign captures remain resumable through the batch API.
 

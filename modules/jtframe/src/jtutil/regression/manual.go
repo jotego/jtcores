@@ -62,6 +62,16 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	} else if !regularNonempty(filepath.Join(source, "cores", core, "cfg", "mame2mra.toml")) {
 		return Manifest{}, fmt.Errorf("unknown project core %s", core)
 	}
+	if setname != "" {
+		requested := InventoryTuple{Core: core, Setname: setname, RBF: "jt" + core}
+		exclusions, classifyErr := sourceExclusions(source, []InventoryTuple{requested})
+		if classifyErr != nil {
+			return Manifest{}, classifyErr
+		}
+		if reason := exclusions[tupleKey(requested)]; reason != "" {
+			return Manifest{}, fmt.Errorf("%s/%s is not regression eligible: %s", core, setname, reason)
+		}
+	}
 	// Reject unavailable binaries before spending time on MRA or ROM preparation.
 	rbf := filepath.Join(release, "sidi128", "jt"+core+".rbf")
 	if !regularNonempty(rbf) {
@@ -92,7 +102,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		}
 		// --git directs the normal generator to an isolated project-cache release;
 		// only the requested core is parsed, and an explicit set may be a clone.
-		script := `core_arg=$1; set_arg=$2; out_arg=$3; set --; source ./setprj.sh >/dev/null && export JTBIN="$out_arg" && if [ -n "$set_arg" ]; then jtframe mra --git --skipROM --skipPocket --setname "$set_arg" "$core_arg"; else jtframe mra --git --mainonly --skipROM --skipPocket "$core_arg"; fi`
+		script := `core_arg=$1; set_arg=$2; out_arg=$3; set --; source ./setprj.sh >/dev/null && export JTBIN="$out_arg" && if [ -n "$set_arg" ]; then jtframe mra --nodbg --git --skipROM --skipPocket --setname "$set_arg" "$core_arg"; else jtframe mra --nodbg --git --mainonly --skipROM --skipPocket "$core_arg"; fi`
 		output, commandErr := manualCommand(ctx, source, "bash", "-c", script, "_", core, setname, outputRoot)
 		if err = os.WriteFile(filepath.Join(cache, "mra-generation.log"), output, 0640); err != nil {
 			return Manifest{}, err
@@ -109,6 +119,32 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	if err != nil {
 		return Manifest{}, err
 	}
+	manualTuples := make([]InventoryTuple, 0, len(selected))
+	for _, path := range selected {
+		if tuple, ok := readTuple(path); ok {
+			manualTuples = append(manualTuples, tuple)
+		}
+	}
+	exclusions, err := sourceExclusions(source, manualTuples)
+	if err != nil {
+		return Manifest{}, err
+	}
+	eligible := selected[:0]
+	for _, path := range selected {
+		tuple, _ := readTuple(path)
+		reason := exclusions[tupleKey(tuple)]
+		if debugMRADirectory(mraRoot, path) {
+			reason = "MRA is in a debug directory"
+		}
+		if reason != "" {
+			if setname != "" {
+				return Manifest{}, fmt.Errorf("%s/%s is not regression eligible: %s", core, setname, reason)
+			}
+			continue
+		}
+		eligible = append(eligible, path)
+	}
+	selected = eligible
 	if len(selected) == 0 {
 		return Manifest{}, fmt.Errorf("no MRA for manual selection core=%s setname=%s in %s", core, setname, mraRoot)
 	}
