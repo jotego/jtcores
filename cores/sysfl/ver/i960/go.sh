@@ -1,15 +1,8 @@
 #!/bin/bash
-# jt960 smoke test, run inside the simulator container
-cd "$(dirname "$0")"/../../../..
-
-docker run --rm -v "$PWD":/jt -w /jt --entrypoint bash jotego/simulator:arm64 -c "
-iverilog -g2012 -o /tmp/jt960_tb \
-    -I cores/sysfl/hdl -I cores/sysfl/hdl/i960 \
-    cores/sysfl/ver/i960/jt960_tb.v \
-    cores/sysfl/hdl/i960/jt960.sv \
-    cores/sysfl/hdl/i960/jt960_dec.sv \
-    cores/sysfl/hdl/i960/jt960_alu.sv \
-    cores/sysfl/hdl/i960/jt960_muldiv.sv \
-    cores/sysfl/hdl/i960/jt960_rcache.sv \
-    modules/jtframe/hdl/jtframe_edge.v \
-&& vvp /tmp/jt960_tb"
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 18-9-2026
+set -euo pipefail
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+docker run --rm --pull=never -v "$repo":/jtcores --entrypoint bash jotego/simulator:arm64 \
+    -c 'source /jtcores/setprj.sh >/dev/null 2>&1; set -e; for bench in muldiv icache cpu; do simunit.sh --run "/jtcores/cores/sysfl/ver/hdl/$bench"; done'

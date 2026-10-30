@@ -8,14 +8,14 @@ set_multicycle_path -from $cpu_regs -to $cpu_regs -hold  -end 2
 # The instruction cache and register cache RAMs sample their address/data
 # ports every clock (no cen): restore single-cycle timing into them. These
 # paths are shallow and close at 48 MHz.
-set cpu_rams [get_registers {emu|u_game|u_game|u_main|u_cpu|icd* emu|u_game|u_game|u_main|u_cpu|ict* emu|u_game|u_game|u_main|u_cpu|ic_ra* emu|u_game|u_game|u_main|u_cpu|u_rcache|*}]
+set cpu_rams [get_registers {emu|u_game|u_game|u_main|u_cpu|u_icache|* emu|u_game|u_game|u_main|u_cpu|ic_hold* emu|u_game|u_game|u_main|u_cpu|ic_pending emu|u_game|u_game|u_main|u_cpu|bus_owner* emu|u_game|u_game|u_main|u_cpu|u_rcache|*}]
 set_multicycle_path -from $cpu_regs -to $cpu_rams -setup -end 1
 set_multicycle_path -from $cpu_regs -to $cpu_rams -hold  -end 0
 
 # Clock-rate sources inside the CPU: the icache outputs follow the read-ahead
 # every clk, so they get a single cycle to any CPU register despite the
 # blanket budget above.
-set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|icd* emu|u_game|u_game|u_main|u_cpu|ict* emu|u_game|u_game|u_main|u_cpu|ic_ra* emu|u_game|u_game|u_main|u_cpu|swa* emu|u_game|u_game|u_main|u_cpu|sweeping emu|u_game|u_game|u_main|u_cpu|icinv*}]
+set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|u_icache|* emu|u_game|u_game|u_main|u_cpu|ic_hold* emu|u_game|u_game|u_main|u_cpu|ic_pending emu|u_game|u_game|u_main|u_cpu|bus_owner*}]
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -setup -end 1
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -hold  -end 0
 
@@ -36,3 +36,6 @@ set_multicycle_path -from $cpu_regs -to $s1_regs -setup -end 2
 set_multicycle_path -from $cpu_regs -to $s1_regs -hold  -end 1
 set_multicycle_path -from $s1_regs -to $cpu_regs -setup -end 2
 set_multicycle_path -from $s1_regs -to $cpu_regs -hold  -end 1
+
+set_multicycle_path -from $cpu_1clk -to $s1_regs -setup -end 1
+set_multicycle_path -from $cpu_1clk -to $s1_regs -hold -end 0

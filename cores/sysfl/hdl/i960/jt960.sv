@@ -19,7 +19,6 @@
 
 // Intel i960KA integer core (Namco System FL). Behavior follows MAME's i960.cpp
 // multi-cycle sequencer, one 32-bit bus port, direct-mapped instruction cache
-// bus: bus_cs asserts a request, the transaction ends when cen & bus_ok
 // see README.md for the protocol diagram, ISA coverage and simplifications
 
 module jt960 #(parameter
@@ -32,12 +31,12 @@ module jt960 #(parameter
     input             clk,
     input             cen,
     // memory bus
-    output reg [31:2] addr,
+    output     [31:2] addr,
     input      [31:0] din,
-    output reg [31:0] dout,
-    output reg [ 3:0] dsn,      // active-low byte lanes
-    output reg        bus_cs,
-    output reg        bus_wr,
+    output     [31:0] dout,
+    output     [ 3:0] dsn,      // active-low byte lanes
+    output            bus_cs,
+    output            bus_wr,
     output            fetch,     // bus request is an instruction fetch
     input             bus_ok,
     // external interrupts, level sensitive, active low (I960_IRQ0..3)
@@ -82,23 +81,62 @@ reg         msig, wsrc_rc, in_int, iac_mode;
 reg  signed [15:0] rpos;    // frame-cache depth, per MAME rcache_pos
 integer     j2;
 
-// instruction cache: 16B lines, data and {word valid, tag} in block RAM,
-// line valid in flip-flops. A bus write clears the line it indexes, IAC clears all
-localparam ILW = $clog2(ICACHE_BLK*16),     // line index bits
-           ITW = 28-ILW;                    // tag bits
-reg  [31:0]    icd[0:ICACHE_BLK*64-1];
-reg  [ITW+4:0] ict[0:ICACHE_BLK*16-1];  // {valid, word valid, tag}
-reg  [31:0]    icd_q, icw_d;
-reg  [ITW+4:0] ict_q, itw_d;
-reg  [31:2]    ic_ra, icw_a;
-reg            icw, icinv, sweeping, ic_clr;
-reg  [ILW-1:0] icinv_a, swa;
-wire [ILW-1:0] icx    = IP[ILW+3:4];
-wire [ILW-1:0] wcx    = addr[ILW+3:4];
-wire           ic_rdy = ic_ra == IP[31:2];  // RAM outputs belong to IP
-wire           ic_tag = !sweeping && ict_q[ITW+4] && ict_q[ITW-1:0]==IP[31:ILW+4];
-wire           ic_hit = ic_rdy && ic_tag && ict_q[ITW+IP[3:2]];
-wire [3:0]     ic_wv  = (ic_tag ? ict_q[ITW+:4] : 4'd0) | (4'd1<<IP[3:2]);
+localparam ILW = $clog2(ICACHE_BLK*16), ITW = 28-ILW;
+localparam [1:0] BUS_IDLE=0, BUS_CPU=1, BUS_IC=2;
+reg [1:0] bus_owner;
+reg [31:2] cpu_addr;
+reg [31:0] cpu_dout;
+reg [3:0] cpu_dsn;
+reg cpu_cs, cpu_wr;
+wire cpu_ok = bus_owner==BUS_CPU && bus_ok;
+wire ic_ack = bus_owner==BUS_IC && bus_ok;
+wire ic_snoop = cen && cpu_cs && cpu_ok && cpu_wr;
+reg ic_clr, ic_pending, ic_hold_valid;
+reg [31:0] ic_hold_data;
+reg [31:2] ic_hold_addr;
+wire ic_req, ic_valid, ic_busy, ic_bus_req;
+wire [31:0] ic_data, ic_bus_addr;
+wire [31:2] ic_vaddr;
+wire ic_flush = (ic_clr || ic_pending) && bus_owner!=BUS_IC;
+wire [31:0] icd_q = ic_valid ? ic_data : ic_hold_data;
+wire [31:2] ic_ra = ic_valid ? ic_vaddr : ic_hold_addr;
+wire ic_rdy = ic_ra==IP[31:2];
+wire ic_hit = (ic_valid || ic_hold_valid) && ic_rdy && !ic_clr && !ic_pending &&
+    !(ic_snoop && cpu_addr[ILW+3:4]==IP[ILW+3:4]);
+assign addr   = bus_owner==BUS_CPU ? cpu_addr : ic_bus_addr[31:2];
+assign dout   = cpu_dout;
+assign dsn    = bus_owner==BUS_CPU ? cpu_dsn : 4'd0;
+assign bus_cs = bus_owner==BUS_CPU ? cpu_cs : bus_owner==BUS_IC && ic_bus_req;
+assign bus_wr = bus_owner==BUS_CPU && cpu_wr;
+assign fetch  = bus_owner==BUS_IC;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        bus_owner<=BUS_IDLE;
+        ic_pending<=0;
+        ic_hold_valid<=0;
+        ic_hold_data<=0;
+        ic_hold_addr<=0;
+    end else begin
+        case( bus_owner )
+        BUS_IDLE: if( cpu_cs ) bus_owner<=BUS_CPU;
+            else if( ic_bus_req && !ic_clr && !ic_pending ) bus_owner<=BUS_IC;
+        BUS_CPU: if( !cpu_cs ) bus_owner<=BUS_IDLE;
+        BUS_IC: if( bus_ok ) bus_owner<=BUS_IDLE;
+        default: bus_owner<=BUS_IDLE;
+        endcase
+        if( ic_clr ) ic_pending<=1;
+        else if( ic_flush ) ic_pending<=0;
+        if( ic_clr || ic_pending || (ic_snoop &&
+            (cpu_addr[ILW+3:4]==ic_hold_addr[ILW+3:4] ||
+             (ic_valid && cpu_addr[ILW+3:4]==ic_vaddr[ILW+3:4]))) ) ic_hold_valid<=0;
+        else if( ic_valid ) begin
+            ic_hold_valid<=1;
+            ic_hold_data<=ic_data;
+            ic_hold_addr<=ic_vaddr;
+        end
+    end
+end
 
 // mid-cen pipeline stage: sampled every clk, consumed at the next cen edge.
 // cpu_cen has a minimum two-clock spacing, so the sample settles one clock
@@ -116,39 +154,33 @@ wire        eng_rd = st==MOVM || st==MWR1 || st==MWR2 || st==MD_RDH;
 wire [ 4:0] pa_a;
 
 // the FETCH-hit path is taken at this cen edge (stage sample is fresh)
-wire hit_go = st==FETCH && !bus_cs && !s1_irqt && ic_hit && s1_ok;
+wire hit_go = st==FETCH && !cpu_cs && !s1_irqt && ic_hit && s1_ok;
 // on a taken hit the next word is read ahead, so sequential code never waits
 wire [31:0]    ic_nx  = cen && hit_go ? IP+32'd4 : IP;
 
-// line valid lives in ict; ic_clr starts a background sweep (IAC 89/93, rst)
-// and completed bus writes invalidate their line one clock later
-always @(posedge clk) begin
-    icd_q <= icd[ic_nx[ILW+3:2]];
-    ict_q <= ict[ic_nx[ILW+3:4]];
-    ic_ra <= ic_nx[31:2];
-    if( rst ) begin
-        sweeping <= 1;
-        swa      <= 0;
-        icinv    <= 0;
-    end else begin
-        icinv <= cen && bus_cs && bus_ok && bus_wr;
-        if( cen && bus_cs && bus_ok && bus_wr ) icinv_a <= wcx;
-        if( ic_clr ) begin
-            sweeping <= 1;
-            swa      <= 0;
-        end
-        if( icw ) begin
-            icd[icw_a[ILW+3:2]] <= icw_d;
-            ict[icw_a[ILW+3:4]] <= itw_d;
-        end else if( icinv )
-            ict[icinv_a] <= 0;
-        else if( sweeping && !ic_clr ) begin
-            ict[swa] <= 0;
-            swa      <= swa + 1'd1;
-            if( &swa ) sweeping <= 0;
-        end
-    end
-end
+assign ic_req = (st==FETCH || st==XWORD) && !cpu_cs && !rst && !ic_clr && !ic_pending &&
+    !((ic_valid || ic_hold_valid) && ic_ra==ic_nx[31:2]);
+
+jt960_icache #(
+    .LINES ( ICACHE_BLK*16 )
+) u_icache(
+    .clk         ( clk                ),
+    .rst_n       ( !rst               ),
+    .snoop       ( ic_snoop           ),
+    .snoop_addr  ( cpu_addr           ),
+    .inval       ( ic_flush           ),
+    .req         ( ic_req             ),
+    .req_demand  ( !(cen && hit_go)   ),
+    .addr        ( ic_nx[31:2]        ),
+    .data        ( ic_data            ),
+    .vaddr       ( ic_vaddr           ),
+    .valid       ( ic_valid           ),
+    .busy        ( ic_busy            ),
+    .bus_req     ( ic_bus_req         ),
+    .bus_addr    ( ic_bus_addr        ),
+    .bus_rdata   ( din                ),
+    .bus_ack     ( ic_ack             )
+);
 
 // decoder
 wire [ 4:0] dec_cls;
@@ -156,10 +188,8 @@ wire        dec_ndisp, dec_msig, dec_pair;
 wire [ 1:0] dec_msz;
 wire [ 2:0] dec_mcnt, dec_mdop;
 wire [ 4:0] dec_mreg;
-wire        ic_use = st==FETCH && !bus_cs && ic_hit;
+wire        ic_use = st==FETCH && !cpu_cs && ic_hit;
 wire [31:0] dec_in = ic_use ? icd_q : IR;
-// MEMB long-displacement predecode for the bus-return word: din never enters u_dec
-wire        din_ndisp = din[31] && din[12] && (din[13] || din[13:10]==4'b0101);
 // single-word instructions hitting the cache execute in the FETCH cycle
 wire        fuse;
 wire [31:0] IRe    = fuse ? icd_q : IR;
@@ -346,7 +376,7 @@ always @* begin
     if( st==INT_TAB ) irq_clr[int_line] = 1'b1;
 end
 
-assign fuse  = st==FETCH && !bus_cs && !irq_take && ic_hit && !dec_ndisp;
+assign fuse  = st==FETCH && !cpu_cs && !irq_take && ic_hit && !dec_ndisp;
 
 always @(posedge clk) begin
     s1_ir   <= IRe;
@@ -366,15 +396,15 @@ always @(posedge clk) begin
     s1_irqt <= irq_take;
     s1_vec  <= sel_vec;
     s1_line <= sel_line;
-    s1_ok   <= ic_nx[31:2]==ic_ra && !icw && !icinv;
+    s1_ok   <= (ic_valid || ic_hold_valid) && ic_nx[31:2]==ic_ra &&
+        !ic_clr && !ic_pending && !ic_snoop;
 end
-assign fetch = st==FETCH || st==XWORD;
 
 // call helpers
 wire [31:0] newsp  = ctype==3'd7 ? int_stk : r[1];
 wire [31:0] newfp  = (newsp + 32'd63) & 32'hffff_ffc0;
 wire [ 2:0] flush_lim = rpos>=16'sd4 ? 3'd4 : rpos<=16'sd0 ? 3'd0 : {1'b0,rpos[1:0]};
-wire        unused = &{md_busy, rd64s[63:32], 1'b0};
+wire        unused = &{ic_busy, md_busy, rd64s[63:32], 1'b0};
 
 // instruction dispatch, from EXE or fused into an icache-hit FETCH
 task do_exe;
@@ -431,7 +461,7 @@ begin
         seq     <= SEQ_MEM;
         st      <= s1_cls==OC_LD ? MRD1 : MWR1;
         if( s1_cls==OC_LD ) rd32(ea); else wr32(ea, wr64[31:0]);
-        dsn     <= ~lanes_d[3:0];
+        cpu_dsn     <= ~lanes_d[3:0];
         whi     <= wr64[63:32];
     end
     OC_CALL:  begin ctgt <= tgt24; ctype <= 3'd0; st <= CALL_RIP; end
@@ -464,20 +494,20 @@ endtask
 
 task rd32( input [31:0] a );
 begin
-    bus_cs <= 1;
-    bus_wr <= 0;
-    addr   <= a[31:2];
-    dsn    <= 4'd0;
+    cpu_cs <= 1;
+    cpu_wr <= 0;
+    cpu_addr   <= a[31:2];
+    cpu_dsn    <= 4'd0;
 end
 endtask
 
 task wr32( input [31:0] a, input [31:0] d );
 begin
-    bus_cs <= 1;
-    bus_wr <= 1;
-    addr   <= a[31:2];
-    dout   <= d;
-    dsn    <= 4'd0;
+    cpu_cs <= 1;
+    cpu_wr <= 1;
+    cpu_addr   <= a[31:2];
+    cpu_dout   <= d;
+    cpu_dsn    <= 4'd0;
 end
 endtask
 
@@ -503,8 +533,8 @@ endtask
 always @(posedge clk) begin
     if( rst ) begin
         st     <= RST_SAT;
-        bus_cs <= 0;    bus_wr <= 0;
-        addr   <= 30'd0; dout  <= 32'd0; dsn <= 4'hf;
+        cpu_cs <= 0;    cpu_wr <= 0;
+        cpu_addr   <= 30'd0; cpu_dout  <= 32'd0; cpu_dsn <= 4'hf;
         halted <= 0;
         AC     <= 32'd0;
         PCS    <= 32'h001f_2002;       // supervisor, interrupted, priority 31
@@ -518,31 +548,29 @@ always @(posedge clk) begin
         int_tab<=0; int_stk<=0; ctgt<=0; syn_src<=0; syn_dst<=0;
         iac0<=0; iac1<=0; iac2<=0; iac3<=0;
         for( j2=0; j2<32; j2=j2+1 ) r[j2] <= 32'd0;
-        icw    <= 0;
         ic_clr <= 0;
     end else begin
-      icw    <= 0;
       // ic_clr holds through the enable period: the ungated sweep receiver
       // then sees a cen-stable request, as the multicycle constraints assume
       if( cen ) ic_clr <= 0;
       if( cen ) begin
         case( st )
         // reset sequence, per MAME device_reset
-        RST_SAT: if( !bus_cs ) rd32(32'd0);
-            else if( bus_ok ) begin bus_cs<=0; SAT <=din; st<=RST_PRCB; end
-        RST_PRCB: if( !bus_cs ) rd32(32'd4);
-            else if( bus_ok ) begin bus_cs<=0; PRCB<=din; st<=RST_IP;   end
-        RST_IP: if( !bus_cs ) rd32(32'd12);
-            else if( bus_ok ) begin bus_cs<=0; IP  <=din; st<=RST_FP;   end
-        RST_FP: if( !bus_cs ) rd32(PRCB+32'd24);
-            else if( bus_ok ) begin
-                bus_cs <= 0;
+        RST_SAT: if( !cpu_cs ) rd32(32'd0);
+            else if( cpu_ok ) begin cpu_cs<=0; SAT <=din; st<=RST_PRCB; end
+        RST_PRCB: if( !cpu_cs ) rd32(32'd4);
+            else if( cpu_ok ) begin cpu_cs<=0; PRCB<=din; st<=RST_IP;   end
+        RST_IP: if( !cpu_cs ) rd32(32'd12);
+            else if( cpu_ok ) begin cpu_cs<=0; IP  <=din; st<=RST_FP;   end
+        RST_FP: if( !cpu_cs ) rd32(PRCB+32'd24);
+            else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 r[31]  <= din;          // FP = interrupt stack base
                 r[ 1]  <= din+32'd64;   // SP
                 st     <= FETCH;
             end
         // fetch: interrupts checked at instruction boundaries
-        FETCH: if( !bus_cs ) begin
+        FETCH: if( !cpu_cs ) begin
                 if( s1_irqt ) begin
                     int_vec  <= s1_vec;
                     int_line <= s1_line;
@@ -553,33 +581,12 @@ always @(posedge clk) begin
                     PIP <= IP;
                     IP  <= IP + 32'd4;
                     if( s1_fuse ) do_exe; else st <= XWORD;
-                end else if( ic_rdy && !ic_hit ) rd32(IP); // real miss, else wait
-            end else if( bus_ok ) begin
-                bus_cs   <= 0;
-                IR       <= din;
-                PIP      <= IP;
-                IP       <= IP + 32'd4;
-                icw      <= 1;
-                icw_a    <= IP[31:2];
-                icw_d    <= din;
-                itw_d    <= { 1'b1, ic_wv, IP[31:ILW+4] };
-                st       <= din_ndisp ? XWORD : EXE;
+                end
             end
-        XWORD: if( !bus_cs ) begin
-                if( ic_hit ) begin
-                    xdisp <= icd_q;
-                    IP    <= IP + 32'd4;
-                    st    <= EXE;
-                end else if( ic_rdy ) rd32(IP);
-            end else if( bus_ok ) begin
-                bus_cs   <= 0;
-                xdisp    <= din;
-                IP       <= IP + 32'd4;
-                icw      <= 1;
-                icw_a    <= IP[31:2];
-                icw_d    <= din;
-                itw_d    <= { 1'b1, ic_wv, IP[31:ILW+4] };
-                st       <= EXE;
+        XWORD: if( ic_hit ) begin
+                xdisp <= icd_q;
+                IP    <= IP + 32'd4;
+                st    <= EXE;
             end
         // single dispatch cycle
         EXE: do_exe;
@@ -596,9 +603,9 @@ always @(posedge clk) begin
             st <= FETCH;
         end
         // memory engine, low then optional high beat per word
-        MRD1: if( !bus_cs ) begin rd32(mad); dsn <= ~lanes[3:0]; end
-            else if( bus_ok ) begin
-                bus_cs <= 0;
+        MRD1: if( !cpu_cs ) begin rd32(mad); cpu_dsn <= ~lanes[3:0]; end
+            else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 if( mcross ) begin
                     mlo <= din;
                     st  <= MRD2;
@@ -607,26 +614,26 @@ always @(posedge clk) begin
                     mnext(MRD1);
                 end
             end
-        MRD2: if( !bus_cs ) begin rd32(mad+32'd4); dsn <= ~lanes[7:4]; end
-            else if( bus_ok ) begin
-                bus_cs  <= 0;
+        MRD2: if( !cpu_cs ) begin rd32(mad+32'd4); cpu_dsn <= ~lanes[7:4]; end
+            else if( cpu_ok ) begin
+                cpu_cs  <= 0;
                 r[mreg] <= mext(rd64s[31:0]);
                 mnext(MRD1);
             end
-        MWR1: if( !bus_cs ) begin
+        MWR1: if( !cpu_cs ) begin
                 wr32(mad, wr64[31:0]);
-                dsn <= ~lanes[3:0];
+                cpu_dsn <= ~lanes[3:0];
                 whi <= wr64[63:32];
-            end else if( bus_ok ) begin
-                bus_cs <= 0;
+            end else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 if( mcross ) st <= MWR2;
                 else mnext(MWR1);
             end
-        MWR2: if( !bus_cs ) begin
+        MWR2: if( !cpu_cs ) begin
                 wr32(mad+32'd4, whi);
-                dsn <= ~lanes[7:4];
-            end else if( bus_ok ) begin
-                bus_cs <= 0;
+                cpu_dsn <= ~lanes[7:4];
+            end else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 mnext(MWR1);
             end
         // call: save RIP, spill or cache the local frame, allocate a new one
@@ -651,10 +658,10 @@ always @(posedge clk) begin
             st    <= in_int ? INT_WPC : FETCH;
         end
         // ret: type 0 local, type 7 interrupt return
-        RET_RPC: if( !bus_cs ) rd32(r[31]-32'd16);
-            else if( bus_ok ) begin bus_cs<=0; tmp_pc<=din; st<=RET_RAC; end
-        RET_RAC: if( !bus_cs ) rd32(r[31]-32'd12);
-            else if( bus_ok ) begin bus_cs<=0; tmp_ac<=din; st<=RET_POP; end
+        RET_RPC: if( !cpu_cs ) rd32(r[31]-32'd16);
+            else if( cpu_ok ) begin cpu_cs<=0; tmp_pc<=din; st<=RET_RAC; end
+        RET_RAC: if( !cpu_cs ) rd32(r[31]-32'd12);
+            else if( cpu_ok ) begin cpu_cs<=0; tmp_ac<=din; st<=RET_POP; end
         RET_POP: begin
             r[31] <= {r[0][31:6], 6'd0};
             rpos  <= rposm1 < 16'sd0 ? 16'sd0 : rposm1;
@@ -695,13 +702,13 @@ always @(posedge clk) begin
             end
         end
         // interrupt entry, per MAME take_interrupt + do_call(type 7)
-        INT_TAB: if( !bus_cs ) rd32(PRCB+32'd20);
-            else if( bus_ok ) begin bus_cs<=0; int_tab<=din; st<=INT_ISP; end
-        INT_ISP: if( !bus_cs ) rd32(PRCB+32'd24);
-            else if( bus_ok ) begin bus_cs<=0; tmp<=din; st<=INT_VEC; end
-        INT_VEC: if( !bus_cs ) rd32(int_tab + 32'd36 + {22'd0,int_vec-8'd8,2'd0});
-            else if( bus_ok ) begin
-                bus_cs  <= 0;
+        INT_TAB: if( !cpu_cs ) rd32(PRCB+32'd20);
+            else if( cpu_ok ) begin cpu_cs<=0; int_tab<=din; st<=INT_ISP; end
+        INT_ISP: if( !cpu_cs ) rd32(PRCB+32'd24);
+            else if( cpu_ok ) begin cpu_cs<=0; tmp<=din; st<=INT_VEC; end
+        INT_VEC: if( !cpu_cs ) rd32(int_tab + 32'd36 + {22'd0,int_vec-8'd8,2'd0});
+            else if( cpu_ok ) begin
+                cpu_cs  <= 0;
                 ctgt    <= din;
                 ctype   <= 3'd7;
                 // nested interrupts keep the current stack
@@ -709,24 +716,24 @@ always @(posedge clk) begin
                            + 32'd64;
                 st      <= CALL_RIP;
             end
-        INT_WPC: if( !bus_cs ) wr32(r[31]-32'd16, PCS);
-            else if( bus_ok ) begin bus_cs<=0; st<=INT_WAC; end
-        INT_WAC: if( !bus_cs ) wr32(r[31]-32'd12, AC);
-            else if( bus_ok ) begin bus_cs<=0; st<=INT_WVC; end
-        INT_WVC: if( !bus_cs ) wr32(r[31]-32'd8, {24'd0, int_vec-8'd8});
-            else if( bus_ok ) begin
-                bus_cs <= 0;
+        INT_WPC: if( !cpu_cs ) wr32(r[31]-32'd16, PCS);
+            else if( cpu_ok ) begin cpu_cs<=0; st<=INT_WAC; end
+        INT_WAC: if( !cpu_cs ) wr32(r[31]-32'd12, AC);
+            else if( cpu_ok ) begin cpu_cs<=0; st<=INT_WVC; end
+        INT_WVC: if( !cpu_cs ) wr32(r[31]-32'd8, {24'd0, int_vec-8'd8});
+            else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 PCS    <= (PCS & ~32'h001f_0401) | {11'd0,int_vec[7:3],16'd0}
                           | 32'h0000_2002;
                 in_int <= 0;
                 st     <= FETCH;
             end
         // calls through the system procedure table, local entries only
-        CALLS_PT: if( !bus_cs ) rd32(SAT+32'd152);
-            else if( bus_ok ) begin bus_cs<=0; tmp<=din; st<=CALLS_EN; end
-        CALLS_EN: if( !bus_cs ) rd32(tmp + 32'd48 + {t1[29:0],2'd0});
-            else if( bus_ok ) begin
-                bus_cs <= 0;
+        CALLS_PT: if( !cpu_cs ) rd32(SAT+32'd152);
+            else if( cpu_ok ) begin cpu_cs<=0; tmp<=din; st<=CALLS_EN; end
+        CALLS_EN: if( !cpu_cs ) rd32(tmp + 32'd48 + {t1[29:0],2'd0});
+            else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 if( din[1:0]!=2'd0 ) st <= HALT; // supervisor calls unsupported
                 else begin
                     ctgt  <= din;
@@ -735,21 +742,21 @@ always @(posedge clk) begin
                 end
             end
         // synmov/synmovq: ff000004 = ICR, ff000010 = IAC message
-        SYN_RD: if( !bus_cs ) rd32(syn_src);
-            else if( bus_ok ) begin bus_cs<=0; tmp<=din; st<=SYN_WR; end
+        SYN_RD: if( !cpu_cs ) rd32(syn_src);
+            else if( cpu_ok ) begin cpu_cs<=0; tmp<=din; st<=SYN_WR; end
         SYN_WR: if( syn_dst==32'hff00_0004 ) begin
                 ICR      <= tmp;
                 AC[2:0]  <= 3'b010;
                 st       <= FETCH;
-            end else if( !bus_cs ) wr32(syn_dst, tmp);
-            else if( bus_ok ) begin
-                bus_cs  <= 0;
+            end else if( !cpu_cs ) wr32(syn_dst, tmp);
+            else if( cpu_ok ) begin
+                cpu_cs  <= 0;
                 AC[2:0] <= 3'b010;
                 st      <= FETCH;
             end
-        SYNQ_RD: if( !bus_cs ) rd32(syn_src + {27'd0,cnt[2:0],2'd0});
-            else if( bus_ok ) begin
-                bus_cs <= 0;
+        SYNQ_RD: if( !cpu_cs ) rd32(syn_src + {27'd0,cnt[2:0],2'd0});
+            else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 if( iac_mode ) begin
                     case( cnt[1:0] )
                     2'd0: iac0<=din;
@@ -764,9 +771,9 @@ always @(posedge clk) begin
                     st  <= SYNQ_WR;
                 end
             end
-        SYNQ_WR: if( !bus_cs ) wr32(syn_dst + {27'd0,cnt[2:0],2'd0}, tmp);
-            else if( bus_ok ) begin
-                bus_cs <= 0;
+        SYNQ_WR: if( !cpu_cs ) wr32(syn_dst + {27'd0,cnt[2:0],2'd0}, tmp);
+            else if( cpu_ok ) begin
+                cpu_cs <= 0;
                 if( cnt[1:0]==2'd3 ) begin
                     AC[2:0] <= 3'b010;
                     st      <= FETCH;
@@ -785,17 +792,17 @@ always @(posedge clk) begin
             default: ;             // 40/41/8f/91/92 ignored
             endcase
         end
-        IAC_W0: if( !bus_cs ) wr32(iac1, SAT);
-            else if( bus_ok ) begin bus_cs<=0; st<=IAC_W1; end
-        IAC_W1: if( !bus_cs ) wr32(iac1+32'd4, PRCB);
-            else if( bus_ok ) begin bus_cs<=0; st<=FETCH; end
+        IAC_W0: if( !cpu_cs ) wr32(iac1, SAT);
+            else if( cpu_ok ) begin cpu_cs<=0; st<=IAC_W1; end
+        IAC_W1: if( !cpu_cs ) wr32(iac1+32'd4, PRCB);
+            else if( cpu_ok ) begin cpu_cs<=0; st<=FETCH; end
         // atadd/atmod: read-modify-write, non-atomic (single bus master)
-        AT_RD: if( !bus_cs ) rd32(mad);
-            else if( bus_ok ) begin bus_cs<=0; tmp<=din; st<=AT_WR; end
-        AT_WR: if( !bus_cs )
+        AT_RD: if( !cpu_cs ) rd32(mad);
+            else if( cpu_ok ) begin cpu_cs<=0; tmp<=din; st<=AT_WR; end
+        AT_WR: if( !cpu_cs )
                 wr32(mad, s1_cls==OC_ATADD ? tmp+t2 : (t3 & t2)|(tmp & ~t2));
-            else if( bus_ok ) begin
-                bus_cs  <= 0;
+            else if( cpu_ok ) begin
+                cpu_cs  <= 0;
                 r[dstf] <= tmp;
                 st      <= FETCH;
             end
@@ -805,5 +812,10 @@ always @(posedge clk) begin
       end
     end
 end
+
+`ifdef SIMULATION
+always @(posedge clk) if( !rst && cen && hit_go && s1_fuse && s1_ir!==icd_q )
+    $fatal(1,"jt960 stale instruction stage at %08x",IP);
+`endif
 
 endmodule

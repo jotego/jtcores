@@ -17,8 +17,8 @@
     Date: 18-9-2026
 */
 
-// sequential multiply/divide unit, no DSP primitives
-// mul: 16 cycles radix-4 shift-add. div: 64 cycles restoring, 64/32 for ediv
+// sequential multiply/divide unit
+// mul: 16 cycles. div: 32 restoring steps, 64 for ediv
 // division by zero returns zero, matching MAME's divo hack
 
 module jt960_muldiv(
@@ -78,11 +78,11 @@ always @(posedge clk) begin
                 if( s1==0 ) begin done<=1; r0<=0; r1<=0; end
             end
             MD_DIVO, MD_REMO: begin
-                p <= {32'd0, s2}; v <= s1;   busy <= s1!=0;
+                p <= {s2, 32'd0}; v <= s1;   busy <= s1!=0;
                 if( s1==0 ) begin done<=1; r0<=0; r1<=0; end
             end
             default: begin // signed divi/remi/modi
-                p <= {32'd0, abs2}; v <= abs1; busy <= abs1!=0;
+                p <= {abs2, 32'd0}; v <= abs1; busy <= abs1!=0;
                 if( abs1==0 ) begin done<=1; r0<=0; r1<=0; end
             end
             endcase
@@ -115,7 +115,7 @@ always @(posedge clk) begin
                     p   <= {p[62:0], 1'b0};
                 end
                 cntr <= cntr + 7'd1;
-                if( cntr==7'd63 ) fin <= 1;
+                if( cntr==(opl==MD_EDIV ? 7'd63 : 7'd31) ) fin <= 1;
             end
         end
     end

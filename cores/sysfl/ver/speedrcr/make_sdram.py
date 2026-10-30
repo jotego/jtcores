@@ -129,15 +129,21 @@ for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.i
         bank3[o:o+2]   = lo[i:i+2]
         bank3[o+2:o+4] = up[i:i+2]
 
-# prefer a once-booted NVRAM image (MAME first-boot initialized): the game
-# then loads valid settings/calibration and boots straight to attract.
-# Fresh 0xFF NVRAM also works in MAME; our fresh-init path has a remaining
-# divergence in the wheel-calibration defaults (see boot notes) - TODO
 mamenv = os.path.expanduser("~/develop/mame/nvram/speedrcr/nvram")
-nv = open(mamenv,"rb").read() if os.path.exists(mamenv) else bytes([0xff]*0x2000)
+default_nv = files.get("speedrcr.nv")
+if os.path.exists(mamenv):
+    nv = open(mamenv,"rb").read()
+    nv_source = "MAME first-boot image"
+elif default_nv is not None:
+    nv = default_nv
+    nv_source = "ROM-set factory defaults"
+else:
+    nv = bytes([0xff]*0x2000)
+    nv_source = "fresh 0xFF"
+assert len(nv) == 0x2000, "NVRAM must be 8kB"
 open(os.path.join(outdir,"nvram.bin"),"wb").write(nv)  # restored into the nvram BRAM at download
 open(os.path.join(outdir,"backup.bin"),"wb").write(nv)  # SIMFILE image for live sims
-print("nvram.bin written" + (" from MAME first-boot image" if os.path.exists(mamenv) else " fresh 0xFF"))
+print(f"nvram.bin written from {nv_source}")
 
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))

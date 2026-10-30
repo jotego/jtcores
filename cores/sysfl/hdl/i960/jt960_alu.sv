@@ -70,7 +70,8 @@ wire        fstk = |fun[31:0];
 wire [31:0] exmsk;
 genvar gi;
 generate for( gi=0; gi<32; gi=gi+1 ) begin : g_exmsk
-    assign exmsk[gi] = |t2[31:5] || gi[4:0] < t2[4:0];
+    if( gi==31 ) assign exmsk[gi] = |t2[31:5];
+    else assign exmsk[gi] = |t2[31:5] || gi[4:0] < t2[4:0];
 end endgenerate
 
 function [2:0] cmpu(input [31:0] a, input [31:0] b);

@@ -12,9 +12,10 @@ division by zero returning 0).
 | file             | content                                              |
 |------------------|------------------------------------------------------|
 | `jt960.sv`       | sequencer FSM, register file, EA calc, bus engine, interrupt entry |
+| `jt960_icache.sv`| 16-byte line refill, critical word first, hit under fill, write snoops |
 | `jt960_dec.sv`   | instruction class decoder (format, mem size/count, muldiv op) |
 | `jt960_alu.sv`   | single-cycle integer ops + condition codes           |
-| `jt960_muldiv.sv`| sequential radix-4 multiplier (16 cyc) and divider (64 cyc) |
+| `jt960_muldiv.sv`| DSP multiplier (16 cyc) and restoring divider (32 steps, 64 for ediv) |
 | `jt960_rcache.sv`| 4-frame local register cache + frame addresses, whole frame per clock |
 | `jt960.vh`       | shared localparams (op classes, muldiv ops)          |
 
@@ -52,8 +53,10 @@ Hardware-faithful 4-frame on-chip cache, as in MAME (`I960_RCACHE_SIZE=4`):
 
 ## Bus protocol
 
-jtframe DTACK style, all state advances on `cen`, bus transactions complete on
-`cen & bus_ok`:
+jtframe DTACK style. CPU data transactions complete on `cen & bus_ok`;
+instruction-cache refill transactions complete on `clk & bus_ok`. An arbiter
+holds each external request through its acknowledgement and gives data accesses
+priority between refill words. The CPU sequencer advances only on `cen`:
 
 ```
           ___     ___     ___     ___     ___
@@ -69,11 +72,11 @@ din    --------------------<   D   >---------   captured at cen & bus_ok
   reads, informational), `dout`, `bus_wr`, `bus_cs`, `bus_ok`. `fetch` flags
   an instruction/displacement fetch so the system can serve it from a
   different (32-bit, read-only) path than data accesses.
-- Minimum 2 cen/access (issue + completion), matching the 80960KA 2-clock bus.
-  Loads and stores issue their first beat in the dispatch cycle.
-- Instruction fetch shares the port: one word per instruction plus one extra
-  word for MEMB modes with a 32-bit displacement. No prefetch queue: the
-  icache read-ahead covers sequential code on hits.
+- Loads and stores issue their first beat in the dispatch cycle and complete
+  on a subsequent enable after the arbiter grants the port.
+- Instruction fetch shares the port. A miss starts a four-word refill at the
+  requested word, resumes execution when that word arrives, and fills the rest
+  in the background. Cached lines remain readable during the refill.
 - Unaligned accesses: any byte/short/word access is split into 1-2 beats with
   lane masking and merge, so unaligned MAME behavior is preserved. Multi-word
   (ldl/ldt/ldq/stl/stt/stq, spill/fill) issues sequential word transactions,
@@ -134,15 +137,16 @@ Halts (asserts `halted`, `st==HALT`) — all paths MAME `fatalerror`s on too:
 ## Known simplifications
 
 1. Instruction cache: parameter `ICACHE_BLK` (256B blocks, power of 2 up to
-   64; default 64 = 16kB, 16 M10K; the KA has 512B). System FL runs its game
-   code from work RAM (~12kB touched per race frame, MAME trace), so the
-   larger cache stands in for the SDRAM latency the real board never sees.
-   Direct-mapped 16B lines, word fills on miss, hits take one clk after IP
-   changes (registered RAM read), single-word instructions execute in the
-   hit cycle. Any bus write clears the line it indexes; IAC 0x89/0x93 clear
-   all. No prefetch queue and no data cache (the KA has none).
+   64; module default 16 = 4KiB, System FL selects 8 = 2KiB; the KA has 512B).
+   System FL executes from work RAM, so the larger cache compensates for SDRAM
+   latency. Direct-mapped 16B lines use critical-word-first refill and allow
+   hits during refill. The cache is adapted from alphanu1's
+   [Model 2 i960 cache](https://github.com/alphanu1/sega-model2-mister/blob/8dd6129521825e7609ca8a16067e4d2fd01b1ccb/rtl/cpu/i960/i960_icache.sv).
+   CPU writes invalidate the indexed line and cancel a matching refill; IAC
+   0x89/0x93 clear all. Instruction reads also respect posted writes and the
+   SDRAM slot's dirty-word tracking. There is no data cache.
 2. Timing is not cycle-accurate: simple ops take 1 cen on an icache hit,
-   mul 18 (MAME 18), div 66 (MAME 37), cached call/ret 2 each, mov/movl/movt/
+   mul 18 (MAME 18), ordinary div 34 (MAME 37), ediv 66, cached call/ret 2 each, mov/movl/movt/
    movq 1.
 3. IRQ pending state in latches, not in the in-memory pending table (above).
 4. addi/subi/shli/muli/divi etc. do not raise integer-overflow faults (MAME
@@ -152,16 +156,21 @@ Halts (asserts `halted`, `st==HALT`) — all paths MAME `fatalerror`s on too:
 
 ## Verification
 
-`cores/sysfl/ver/i960/jt960_tb.v` (`go.sh` runs iverilog in the docker
-image): hand-assembled program covering reset IMI fetch, ALU ops, MEMA/MEMB
-addressing (32-bit displacement), byte/word/quad load/store, signed loads,
-cmpob branches, call/ret, recursion depth 7 forcing frame spill+fill through
-memory, mulo/divo, modpc priority drop, synmov to ICR and an external IRQ0
-taken through the interrupt table (call type 7, handler, ret type 7). Random
-bus wait states exercise the cen/bus_ok stretch. Result: PASS.
+`cores/sysfl/ver/i960/go.sh` runs the registered Docker simunit benches:
 
-Lint: `verilator --lint-only` clean (see go.sh command with `--top-module
-jt960`; add `modules/jtframe/hdl/jtframe_edge.v` to the file list).
+- `ver/hdl/cpu`: the hand-assembled reset, ALU, memory, frame spill/fill,
+  multiply/divide and interrupt program from `ver/i960/jt960_tb.v`.
+- `ver/hdl/muldiv`: directed and random arithmetic, paused clock enables,
+  division edge cases and completion latency.
+- `ver/hdl/icache`: critical-word-first restart, hit under fill, write
+  invalidation, cancellation of an interrupted refill and fetch transparency.
+
+`ver/speedrcr/cache_boot.sh 8 2001 speed1_fast.cab` runs a complete boot with
+2KiB of instruction cache. It uses the prepared fastboot SDRAM images and
+`nvram.bin`, writes frames directly to `ver/speedrcr/frames/`, and records
+per-frame CPU/cache counters in `cache_boot_2048b.log`. The checker measures
+game-counter increments and changed rendered frames over gameplay frames
+1073 through 2000 inclusive.
 
 ## TODO (next passes)
 
@@ -170,7 +179,7 @@ jt960`; add `modules/jtframe/hdl/jtframe_edge.v` to the file list).
    speedrcr POST passes in RTL simulation; see cores/sysfl/ver/speedrcr/boot.sh
 2. Trace-driven verification against MAME (instruction-level compare on the
    speedrcr boot sequence).
-3. Divider at 2 bits/cycle (64 -> 32 cen) if MDWAIT shows up again in the
+3. Divider at 2 bits/cycle (32 -> 16 steps) if MDWAIT shows up again in the
    per-frame counters (`SYSFL_VSTAT` CPUDET line, 1.7k mul/div per race frame).
 4. Timing pass: real KA cycle counts where the C75 sync window cares.
 5. Integer-overflow faults + a minimal fault-call path (type per PRCB) if the

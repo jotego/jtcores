@@ -113,7 +113,7 @@ wire        is_prog = lowmem && (a[28] != bank_sel);
 wire        is_wram = lowmem && (a[28] == bank_sel);
 wire        is_data = a[31:28]==4'h2;
 wire        is_rom32= (is_prog || is_data) && !cwr;
-wire        is_code = is_wram && !cwr && cfetch;
+wire        is_code = is_wram && !cwr && cfetch && st==IDLE && !sh_dirty;
 wire        is_wdat, is_w32;
 wire        is_sys  = a[31:28]==4'h4;
 // nvram is a BRAM (SD-card save/restore); comram lives in the wram window
@@ -419,8 +419,7 @@ always @(posedge clk) begin
     end
 end
 
-// 8kB at the 48 MHz base; the real KA has 512B but its zero-wait DRAM
-// cannot be matched by the SDRAM
+// The KA has 512B; SDRAM latency requires a larger cache here.
 `ifndef SYSFL_ICACHE_BLK
 `define SYSFL_ICACHE_BLK 8
 `endif
@@ -478,6 +477,49 @@ always @(posedge clk) begin
 end
 reg [20:0] prog_cnt=0;
 reg [31:0] lastacc=0;
+`ifdef SYSFL_CPUSTAT
+integer sf_frame=0, sf_cen=0, sf_ins=0, sf_idle=0, sf_fetch=0, sf_md=0;
+integer sf_hits=0, sf_miss=0, sf_writes=0, sf_other=0, sf_fcnt=0;
+reg sf_lvbl=1;
+reg [31:0] sf_gameframe=0;
+always @(posedge clk) begin
+    sf_lvbl <= lvbl;
+    if( rst ) begin
+        sf_frame<=0; sf_cen<=0; sf_ins<=0; sf_idle<=0; sf_fetch<=0; sf_md<=0;
+        sf_hits<=0; sf_miss<=0; sf_writes<=0; sf_other<=0; sf_fcnt<=0;
+        sf_gameframe<=0;
+    end else if( sf_lvbl && !lvbl ) begin
+        $display("CACHESTAT frame=%0d cen=%0d ins=%0d idle=%0d fetchbus=%0d mdwait=%0d hits=%0d misses=%0d writes=%0d other_tag=%0d fcnt_wr=%0d gameframe=%0d pc=%08x",
+            sf_frame, sf_cen, sf_ins, sf_idle, sf_fetch, sf_md, sf_hits, sf_miss,
+            sf_writes, sf_other, sf_fcnt, sf_gameframe, u_cpu.PIP);
+        sf_frame<=sf_frame+1;
+        sf_cen<=0; sf_ins<=0; sf_idle<=0; sf_fetch<=0; sf_md<=0;
+        sf_hits<=0; sf_miss<=0; sf_writes<=0; sf_other<=0; sf_fcnt<=0;
+    end else begin
+        if( u_cpu.ic_req && u_cpu.u_icache.req_accept && u_cpu.u_icache.hit ) sf_hits <= sf_hits+1;
+        if( u_cpu.u_icache.inv_idle || u_cpu.u_icache.inv_redir ) sf_miss <= sf_miss+1;
+        if( cpu_cen ) begin
+            sf_cen <= sf_cen+1;
+            if( u_cpu.exe_go ) sf_ins <= sf_ins+1;
+            if( u_cpu.PIP>=32'h100004e0 && u_cpu.PIP<=32'h100004f4 ) sf_idle <= sf_idle+1;
+            if( u_cpu.fetch && ccs ) sf_fetch <= sf_fetch+1;
+            if( u_cpu.st==u_cpu.MDWAIT ) sf_md <= sf_md+1;
+            if( ccs && cok && cwr ) begin
+                sf_writes <= sf_writes+1;
+                if( u_cpu.u_icache.ctag[a[u_cpu.ILW+3:4]][u_cpu.ITW] &&
+                    u_cpu.u_icache.ctag[a[u_cpu.ILW+3:4]][u_cpu.ITW-1:0]!=a[31:u_cpu.ILW+4] ) sf_other <= sf_other+1;
+                if( is_wram && a[19:0]==20'hff050 ) begin
+                    sf_fcnt <= sf_fcnt+1;
+                    if( !cdsn[0] ) sf_gameframe[ 7: 0] <= cdout[ 7: 0];
+                    if( !cdsn[1] ) sf_gameframe[15: 8] <= cdout[15: 8];
+                    if( !cdsn[2] ) sf_gameframe[23:16] <= cdout[23:16];
+                    if( !cdsn[3] ) sf_gameframe[31:24] <= cdout[31:24];
+                end
+            end
+        end
+    end
+end
+`endif
 `endif
 
 endmodule

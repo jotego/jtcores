@@ -26,6 +26,7 @@ sysfl:
   - from: i960
     get:
       - jt960.sv
+      - jt960_icache.sv
       - jt960_dec.sv
       - jt960_alu.sv
       - jt960_muldiv.sv

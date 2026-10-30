@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 24-8-2026 */
 
@@ -6,6 +7,7 @@
 // Cache lines are exactly one controller burst: 16, 32, 64, or 128 bits.
 // Latency: 1 clock, or 2 with TAG_RAM, plus SDRAM service time on a miss.
 module jtframe_romrq_lcache #(parameter
+    XFORM    = 0,
     SDRAMW   = 22,
     AW       = 18,
     DW       =  8,
@@ -25,6 +27,8 @@ module jtframe_romrq_lcache #(parameter
     input               we,
     output              req,
     output [SDRAMW-1:0] sdram_addr,
+    output [SDRAMW-1:0] xaddr,
+    input  [SDRAMW-1:0] xaddr_in,
 
     input [AW-1:0]      addr,
     input               addr_ok,
@@ -97,7 +101,8 @@ assign req        = fill2_req ||
 // LINE_AW can be 0 (single-beat bursts); line_lo is then unused (LINE2X=0)
 localparam LAW = LINE_AW==0 ? 1 : LINE_AW;
 wire [LAW-1:0] line_lo = fill_half ? {1'b1,{BURST_AW{1'b0}}} : {LAW{1'b0}};
-assign sdram_addr = (LINE2X==1 && filling) ? { fill_tag, fill_line, line_lo } :
+assign sdram_addr = XFORM!=0 ? xaddr_in : xaddr;
+assign xaddr     = (LINE2X==1 && filling) ? { fill_tag, fill_line, line_lo } :
                     req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
                     TAG_EFF ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
 // the fill fast path must be address-exact: a client may move to another
