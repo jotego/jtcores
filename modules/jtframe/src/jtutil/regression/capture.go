@@ -50,9 +50,12 @@ func json_number(value interface{}) (int, bool) {
 }
 
 // ReadCaptureSet validates the firmware recording index and each referenced RAW.
-func ReadCaptureSet(dir string, expectedFrames, startup, cadence int) (CaptureSet, error) {
+func ReadCaptureSet(dir string, expectedFrames, startup, cadence int, firstFrame ...int) (CaptureSet, error) {
+	first := 0; if len(firstFrame)>0 { first=firstFrame[0] }
+	first, wantCount, scheduleErr := captureSchedule(expectedFrames,cadence,first)
 	set := CaptureSet{Dir: dir}
-	if _, err := os.Stat(filepath.Join(dir, "index.jsonl")); os.IsNotExist(err) { return read_png_capture_set(dir, expectedFrames, startup, cadence) }
+	if scheduleErr != nil { return set, scheduleErr }
+	if _, err := os.Stat(filepath.Join(dir, "index.jsonl")); os.IsNotExist(err) { return read_png_capture_set(dir, expectedFrames, startup, cadence, first) }
 	file, e := os.Open(filepath.Join(dir, "index.jsonl"))
 	if e != nil {
 		return set, e
@@ -108,7 +111,7 @@ func ReadCaptureSet(dir string, expectedFrames, startup, cadence int) (CaptureSe
 	if cadence <= 0 || expectedFrames <= 0 {
 		return set, fmt.Errorf("invalid expected capture schedule")
 	}
-	wantCount := expectedFrames / cadence
+	// wantCount was resolved with the optional first checkpoint above.
 	if wantCount == 0 {
 		return set, fmt.Errorf("video duration %d has no %d-frame checkpoints", expectedFrames, cadence)
 	}
@@ -120,7 +123,7 @@ func ReadCaptureSet(dir string, expectedFrames, startup, cadence int) (CaptureSe
 	}
 	seen := make(map[int]bool)
 	for _, capture := range captures {
-		if capture.Requested < cadence || capture.Requested > expectedFrames || capture.Requested%cadence != 0 || seen[capture.Requested] {
+		if capture.Requested < first || capture.Requested > expectedFrames || capture.Requested%cadence != 0 || seen[capture.Requested] {
 			return set, fmt.Errorf("invalid or duplicate requested checkpoint %d", capture.Requested)
 		}
 		seen[capture.Requested] = true
@@ -327,16 +330,19 @@ func decode_capture_image(path string) (decodedImage, error) {
 	return result, nil
 }
 
-func read_png_capture_set(dir string, frames, startup, cadence int) (CaptureSet, error) {
+func read_png_capture_set(dir string, frames, startup, cadence int, firstFrame ...int) (CaptureSet, error) {
 	set := CaptureSet{Dir: dir, Format: "png"}
+	first := 0; if len(firstFrame)>0 { first=firstFrame[0] }
+	first, wantCount, scheduleErr := captureSchedule(frames,cadence,first)
+	if scheduleErr != nil { return set, scheduleErr }
 	if cadence <= 0 || frames/cadence < 1 { return set, fmt.Errorf("invalid capture schedule") }
 	files, err := filepath.Glob(filepath.Join(dir, "frame_*.png")); if err != nil { return set, err }
-	if len(files) != frames/cadence { return set, fmt.Errorf("PNG set has %d checkpoints; want %d", len(files), frames/cadence) }
+	if len(files) != wantCount { return set, fmt.Errorf("PNG set has %d checkpoints; want %d", len(files), wantCount) }
 	seen := map[int]bool{}
 	for _, path := range files {
 		name := filepath.Base(path)
 		checkpoint, actual, e := parse_png_capture_name(name)
-		if e != nil || checkpoint<cadence || checkpoint>frames || checkpoint%cadence!=0 || seen[checkpoint] || checkpoint>startup && actual!=checkpoint { return set, fmt.Errorf("invalid PNG checkpoint %s", name) }
+		if e != nil || checkpoint<first || checkpoint>frames || checkpoint%cadence!=0 || seen[checkpoint] || checkpoint>startup && actual!=checkpoint { return set, fmt.Errorf("invalid PNG checkpoint %s", name) }
 		seen[checkpoint] = true
 		frame, e := decode_capture_image(path); if e != nil { return set, e }
 		if set.Width==0 { set.Width, set.Height = frame.width, frame.height }
@@ -361,4 +367,12 @@ func parse_png_capture_name(name string) (int, int, error) {
 	if len(parts)==2 { actual, err = strconv.Atoi(parts[1]); if err != nil { return 0, 0, err } }
 	if actual<1 { return 0, 0, fmt.Errorf("invalid actual PNG frame") }
 	return requested, actual, nil
+}
+
+// Historical approved references and finalized receipts can predate delayed
+// first captures. Accept either exact schedule, never an arbitrary subset.
+func readHistoricalCaptureSet(dir string, frames, startup, cadence int) (CaptureSet,error) {
+	set,err:=ReadCaptureSet(dir,frames,startup,cadence,firstCaptureFrame(startup))
+	if err == nil || firstCaptureFrame(startup)==cadence { return set,err }
+	return ReadCaptureSet(dir,frames,startup,cadence)
 }

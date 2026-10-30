@@ -153,6 +153,7 @@ func (h *FTPHardware) Run(game GameSpec, cab, captureDir string) (RunInfo, error
 	report := filepath.Join(filepath.Dir(captureDir), "ftp-report.json")
 	args := []string{h.Host, "cab", cab, "--frames", fmt.Sprint(game.Profile.Video), "--cab-frame-budget", fmt.Sprint(game.Profile.Video), "--source-cab", game.SourceCAB,
 		"--capture-every", "100", "--video-step", "16", "--report", report, "--video-dir", captureDir, "--cab-packer", h.CabPacker}
+	args = append(args,"--first-frame",fmt.Sprint(firstCaptureFrame(game.Profile.Startup)))
 	started := time.Now()
 	out, e := h.run(h.ControlHelper, args, timeout_for_frames(game.Profile.Video, h.Timeout))
 	if record_error := os.WriteFile(filepath.Join(filepath.Dir(captureDir), "helper-progress.log"), []byte(out), 0640); record_error != nil {

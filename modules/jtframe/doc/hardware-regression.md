@@ -51,8 +51,12 @@ start-up: 500
 Entries in the working project's `cores/<core>/cfg/reg.yaml` override those
 defaults. `inputs` selects a CAB relative to the game's `ver` directory;
 without it the runner uses neutral inputs. `video` sets the total number of
-CAB frames. `start-up` excludes checkpoints at or below that frame from
-comparison, while keeping their PNGs for inspection. For example:
+CAB frames. `start-up` selects the first capture checkpoint, rounded up to
+100 frames (zero starts at frame 100). It also excludes checkpoints at or
+below that frame from comparison. Thus `start-up: 300` captures frames 300,
+400, and onward; comparisons begin at frame 400. Historical captures made
+before delayed capture support remain valid for resume and comparison.
+For example:
 
 ```yaml
 1942:

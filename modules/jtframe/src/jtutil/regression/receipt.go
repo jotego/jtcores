@@ -68,7 +68,7 @@ func read_capture_receipt(dir string, profile Profile, native_format string) (ca
 	data, err := os.ReadFile(filepath.Join(dir, "frames.json"))
 	legacy := os.IsNotExist(err)
 	if legacy {
-		set, read_error := read_png_capture_set(dir, profile.Video, profile.Startup, 100)
+		set, read_error := readHistoricalCaptureSet(dir, profile.Video, profile.Startup, 100)
 		if read_error != nil { return receipt, true, read_error }
 		if read_error = restore_transport_timing(dir, &set); read_error != nil { return receipt, true, read_error }
 		set.Format = strings.ToLower(native_format)
@@ -83,10 +83,15 @@ func validate_capture_receipt(receipt capture_receipt_data, profile Profile, nat
 	if receipt.Schema != 1 || receipt.Width<1 || receipt.Width>512 || receipt.Height<1 || receipt.Height>512 || receipt.Format != strings.ToLower(native_format) || receipt.Format != "rgb444" && receipt.Format != "rgb555" {
 		return fmt.Errorf("invalid capture receipt geometry or native format")
 	}
-	if profile.Video<100 || len(receipt.Frames) != profile.Video/100 { return fmt.Errorf("capture receipt checkpoint count differs") }
+	first, wantCount, err := captureSchedule(profile.Video,100,firstCaptureFrame(profile.Startup))
+	if err != nil { return err }
+	// Pre-change receipts contain the complete schedule beginning at 100.
+	// Retain their resume proof, but accept no partial intermediate schedule.
+	if len(receipt.Frames) == profile.Video/100 { first=100; wantCount=profile.Video/100 }
+	if profile.Video<100 || len(receipt.Frames) != wantCount { return fmt.Errorf("capture receipt checkpoint count differs") }
 	seen := map[int]bool{}
 	for _, frame := range receipt.Frames {
-		if frame.Requested<100 || frame.Requested>profile.Video || frame.Requested%100!=0 || seen[frame.Requested] || frame.Actual<1 || frame.Requested>profile.Startup && frame.Actual!=frame.Requested { return fmt.Errorf("invalid capture receipt checkpoint") }
+		if frame.Requested<first || frame.Requested>profile.Video || frame.Requested%100!=0 || seen[frame.Requested] || frame.Actual<1 || frame.Requested>profile.Startup && frame.Actual!=frame.Requested { return fmt.Errorf("invalid capture receipt checkpoint") }
 		seen[frame.Requested] = true
 		if frame.LegacyRequestOnlyName && (frame.Requested>profile.Startup || frame.Actual==frame.Requested) { return fmt.Errorf("invalid legacy startup filename receipt") }
 		hash, err := hex.DecodeString(frame.RGBSHA256)

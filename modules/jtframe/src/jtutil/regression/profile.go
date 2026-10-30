@@ -156,3 +156,31 @@ func yaml_int(value interface{}) (int, bool) {
 	}
 	return 0, false
 }
+
+// A zero first-frame preserves the historic first checkpoint at one cadence.
+func captureSchedule(frames, cadence, first int) (int, int, error) {
+	if cadence <= 0 {
+		return 0, 0, fmt.Errorf("invalid capture cadence")
+	}
+	if first == 0 {
+		first = cadence
+	}
+	if first < cadence || first%cadence != 0 || first > frames/cadence*cadence {
+		return 0, 0, fmt.Errorf("first-frame must be a multiple of %d between %d and the last video checkpoint", cadence, cadence)
+	}
+	return first, (frames/cadence - first/cadence) + 1, nil
+}
+
+// Capture starts at the first cadence checkpoint at or after start-up.
+func firstCaptureFrame(startup int) int {
+	if startup <= 100 {
+		return 100
+	}
+	if startup%100 == 0 {
+		return startup
+	}
+	if startup > int(^uint(0)>>1)-100 {
+		return -1
+	}
+	return startup/100*100 + 100
+}

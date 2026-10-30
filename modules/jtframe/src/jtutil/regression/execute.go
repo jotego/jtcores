@@ -603,7 +603,8 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		}
 	}
 	game.Profile = profile
-	if profile.Video <= 0 || profile.Startup < 0 || profile.Startup >= profile.Video {
+	_, _, scheduleErr := captureSchedule(profile.Video,100,firstCaptureFrame(profile.Startup))
+	if profile.Video <= 0 || profile.Startup < 0 || profile.Startup >= profile.Video || scheduleErr != nil {
 		result.Stage = "profile"
 		result.Message = "invalid frame/start-up profile"
 		log(result.Stage, Error, result.Message, nil)
@@ -757,7 +758,7 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		return finish()
 	}
 	log("capture", "", "capture command completed", run)
-	candidate, e := ReadCaptureSet(run.CaptureDir, profile.Video, profile.Startup, 100)
+	candidate, e := ReadCaptureSet(run.CaptureDir, profile.Video, profile.Startup, 100, firstCaptureFrame(profile.Startup))
 	if e != nil {
 		result.Stage = "validate"
 		result.Message = e.Error()
@@ -853,6 +854,12 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		result.Stage = "capture-report"
 		result.Message = "capture report cadence is not 100 frames"
 		log(result.Stage, Error, result.Message, report)
+		return finish()
+	}
+	if n, ok := report["first_frame"].(float64); !ok || n != float64(firstCaptureFrame(profile.Startup)) {
+		result.Stage="capture-report"
+		result.Message="capture report first frame does not match start-up"
+		log(result.Stage,Error,result.Message,report)
 		return finish()
 	}
 	if report["timebase"] != "native-game-with-validated-video-pauses" {
@@ -970,7 +977,7 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		log(result.Stage, Error, result.Message, nil)
 		return finish()
 	}
-	reference, e := ReadCaptureSet(ref, profile.Video, profile.Startup, 100)
+	reference, e := readHistoricalCaptureSet(ref, profile.Video, profile.Startup, 100)
 	if e != nil {
 		result.Stage = "reference"
 		result.Message = "approved reference invalid: " + e.Error()
@@ -1063,7 +1070,7 @@ func (b *Batch) verifyFinalized(game GameSpec, result GameResult) bool {
 	if result.Outcome == New {
 		if _, stat_error := os.Stat(published_dir); os.IsNotExist(stat_error) { published_dir = filepath.Join(b.Root, b.Core, game.Setname, "ref") }
 	}
-	published, e := read_png_capture_set(published_dir, profile.Video, profile.Startup, 100)
+	published, e := readHistoricalCaptureSet(published_dir, profile.Video, profile.Startup, 100)
 	if e != nil { return false }
 	cutoff := 0
 	if result.Outcome == Pass { cutoff = profile.Startup }
