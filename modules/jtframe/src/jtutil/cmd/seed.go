@@ -31,9 +31,9 @@ type seed_config struct {
 	random      *rand.Rand
 	best_slack  float64
 	best_valid  bool
+	best_pass   bool
 	release     seed_release
 	nosta      bool
-	easy_sta   bool
 	sta_slack  float64
 	sta_valid  bool
 	walltime   time.Duration
@@ -68,7 +68,11 @@ type seed_stats struct {
 	free_bram int
 }
 
-const seed_easy_sta_limit = -0.5
+type seed_timing struct {
+	setup    string
+	hold     string
+	recovery string
+}
 
 var seed_parallel, seed_max_trials int
 var seed_stop, seed_zero bool
@@ -158,6 +162,7 @@ func validate_core_name(args []string) error {
 
 func (cfg *seed_config) run() error {
 	fmt.Println("Create a jtseed.last file at this folder to stop at the next compilation")
+	fmt.Println("Seed timing format: setup/hold/recovery (ns), worst across STA corners; n/a means unavailable")
 	os.Remove("jtseed.last")
 	e := cfg.prepare()
 	if e != nil {
@@ -175,7 +180,6 @@ func (cfg *seed_config) prepare() error {
 	cfg.load_core_macros()
 	cfg.release.rbf = strings.ToLower(macros.Get("CORENAME"))
 	cfg.nosta = macros.IsSet("JTFRAME_NOSTA")
-	cfg.easy_sta = macros.IsSet("JTFRAME_EASY_STA")
 	cfg.append_nosta_undef()
 	return nil
 }
@@ -193,44 +197,35 @@ func (cfg *seed_config) run_trials() error {
 		return e
 	}
 	defer cfg.report_walltime()
-	pass := false
 	for cfg.max_trials > 0 {
 		batch := cfg.parallel
 		if cfg.max_trials < batch {
 			batch = cfg.max_trials
 		}
 		jobs := cfg.start_batch(output_base, batch)
-		batch_pass, e := cfg.wait_batch(jobs, &pass)
+		batch_pass, e := cfg.wait_batch(jobs)
 		if e != nil {
 			return e
 		}
 		if batch_pass && seed_stop {
-			return cfg.finish_trials(pass)
+			return cfg.finish_trials()
 		}
 		if stop_requested() {
-			return cfg.finish_trials(pass)
+			return cfg.finish_trials()
 		}
 	}
-	return cfg.finish_trials(pass)
+	return cfg.finish_trials()
 }
 
-func (cfg *seed_config) finish_trials(pass bool) error {
-	if pass || cfg.nosta {
+func (cfg *seed_config) finish_trials() error {
+	if cfg.best_pass || (cfg.nosta && cfg.best_valid) {
 		fmt.Println("PASS")
-		return nil
-	}
-	if cfg.easy_sta && cfg.sta_passes_easy_limit() {
-		fmt.Printf("PASS: best STA slack %.3f ns is better than %.3f ns\n", cfg.sta_slack, seed_easy_sta_limit)
 		return nil
 	}
 	if cfg.sta_valid {
 		return fmt.Errorf("STA timing was not met by any seed build, best slack %.3f ns", cfg.sta_slack)
 	}
 	return fmt.Errorf("STA timing was not met by any seed build")
-}
-
-func (cfg *seed_config) sta_passes_easy_limit() bool {
-	return cfg.sta_valid && cfg.sta_slack > seed_easy_sta_limit
 }
 
 func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
@@ -250,7 +245,7 @@ func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
 	return jobs
 }
 
-func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
+func (cfg *seed_config) wait_batch(jobs []seed_job) (bool, error) {
 	batch_pass := false
 	var first_error error
 	for _, job := range wait_seed_jobs(jobs) {
@@ -277,24 +272,24 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 			}
 			continue
 		}
-		slack := job.worst_slack()
+		timing := worst_timing_slacks(job.builddir)
+		slack := job.worst_slack(timing)
 		cfg.record_sta_slack(slack)
 		copy_msg, e := cfg.copy_if_best(job, slack)
 		if e != nil {
 			return false, e
 		}
 		if job.pass {
-			fmt.Printf("Seed %5d passed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
-			*pass = true
+			fmt.Printf("Seed %5d passed in %s, STA %s/%s/%s%s\n", job.seed, job.walltime, timing.setup, timing.hold, timing.recovery, copy_msg)
 			batch_pass = true
 		} else {
-			fmt.Printf("Seed %5d failed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
+			fmt.Printf("Seed %5d failed in %s, STA %s/%s/%s%s\n", job.seed, job.walltime, timing.setup, timing.hold, timing.recovery, copy_msg)
 		}
 	}
 	if first_error != nil {
 		return false, first_error
 	}
-	return batch_pass || *pass, nil
+	return batch_pass, nil
 }
 
 func wait_seed_jobs(jobs []seed_job) []seed_job {
@@ -333,25 +328,37 @@ func (cfg *seed_config) record_sta_slack(slack string) {
 }
 
 func (cfg *seed_config) copy_if_best(job seed_job, slack string) (string, error) {
-	value, ok := parse_slack_value(slack)
-	if !ok || (cfg.best_valid && value <= cfg.best_slack) {
+	if !job.pass && !cfg.nosta {
 		return "", nil
+	}
+	value, ok := parse_slack_value(slack)
+	if !ok {
+		return "", fmt.Errorf("cannot select release output for seed %d: invalid setup slack %q", job.seed, slack)
+	}
+	if cfg.best_valid {
+		if cfg.best_pass && !job.pass {
+			return "", nil
+		}
+		if cfg.best_pass == job.pass && value <= cfg.best_slack {
+			return "", nil
+		}
 	}
 	src := cfg.release.source_rbf(job.builddir)
 	if _, e := os.Stat(src); e != nil {
-		return fmt.Sprintf(", release copy skipped: %v", e), nil
+		return "", fmt.Errorf("missing RBF for seed %d: %w", job.seed, e)
 	}
 	dst := cfg.release.release_rbf()
 	e := copy_file(src, dst)
 	if e != nil {
-		return fmt.Sprintf(", release copy failed: %v", e), nil
+		return "", fmt.Errorf("copy RBF for seed %d: %w", job.seed, e)
 	}
 	e = cfg.write_stats(job)
 	if e != nil {
-		return "", e
+		return "", fmt.Errorf("write stats for seed %d: %w", job.seed, e)
 	}
 	cfg.best_slack = value
 	cfg.best_valid = true
+	cfg.best_pass = job.pass
 	return fmt.Sprintf(", RBF and stats copied to release"), nil
 }
 
@@ -403,11 +410,14 @@ func read_seed_stats(builddir string) (seed_stats, error) {
 }
 
 func parse_seed_sta(text string) (float64, bool) {
-	match := seed_sta_re.FindStringSubmatch(text)
-	if match == nil {
-		return 0, false
+	worst, valid := 0.0, false
+	for _, match := range seed_sta_re.FindAllStringSubmatch(text, -1) {
+		value, ok := parse_slack_value(match[1])
+		if ok && (!valid || value < worst) {
+			worst, valid = value, true
+		}
 	}
-	return parse_slack_value(match[1])
+	return worst, valid
 }
 
 func find_seed_report(builddir, extension string) (string, error) {
@@ -465,11 +475,6 @@ func write_seed_stats(fname string, stats seed_stats) error {
 func (cfg *seed_config) core_has_nosta() bool {
 	cfg.load_core_macros()
 	return macros.IsSet("JTFRAME_NOSTA")
-}
-
-func (cfg *seed_config) core_has_easy_sta() bool {
-	cfg.load_core_macros()
-	return macros.IsSet("JTFRAME_EASY_STA")
 }
 
 func (cfg *seed_config) load_core_macros() {
@@ -700,9 +705,9 @@ func (job *seed_job) wait() bool {
 	return e == nil
 }
 
-func (job seed_job) worst_slack() string {
-	if slack := worst_setup_slack(job.builddir); slack != "" {
-		return slack
+func (job seed_job) worst_slack(timing seed_timing) string {
+	if timing.setup != "n/a" {
+		return timing.setup
 	}
 	if slack := worst_sta_slack(job.builddir); slack != "" {
 		return slack
@@ -713,8 +718,8 @@ func (job seed_job) worst_slack() string {
 	return "n/a"
 }
 
-func worst_setup_slack(output string) string {
-	slack := ""
+func worst_timing_slacks(output string) seed_timing {
+	worst := seed_timing{setup: "n/a", hold: "n/a", recovery: "n/a"}
 	walk := func(fname string, d os.DirEntry, e error) error {
 		if e != nil || d.IsDir() || !strings.HasSuffix(fname, ".sta.rpt") {
 			return e
@@ -723,14 +728,38 @@ func worst_setup_slack(output string) string {
 		if e != nil {
 			return e
 		}
-		match := seed_sta_re.FindStringSubmatch(string(data))
-		if match != nil {
-			slack = match[1]
-		}
+		report := parse_seed_timing(string(data))
+		worst.setup = min_seed_slack(worst.setup, report.setup)
+		worst.hold = min_seed_slack(worst.hold, report.hold)
+		worst.recovery = min_seed_slack(worst.recovery, report.recovery)
 		return nil
 	}
 	filepath.WalkDir(output, walk)
-	return slack
+	return worst
+}
+
+func parse_seed_timing(text string) seed_timing {
+	timing := seed_timing{setup: "n/a", hold: "n/a", recovery: "n/a"}
+	for _, match := range seed_timing_re.FindAllStringSubmatch(text, -1) {
+		switch strings.ToLower(match[1]) {
+		case "setup":
+			timing.setup = min_seed_slack(timing.setup, match[2])
+		case "hold":
+			timing.hold = min_seed_slack(timing.hold, match[2])
+		case "recovery":
+			timing.recovery = min_seed_slack(timing.recovery, match[2])
+		}
+	}
+	return timing
+}
+
+func min_seed_slack(current, next string) string {
+	value, ok := parse_slack_value(next)
+	previous, valid := parse_slack_value(current)
+	if ok && (!valid || value < previous) {
+		return fmt.Sprintf("%.3f", value)
+	}
+	return current
 }
 
 type jtcore_log_report struct {
@@ -916,6 +945,7 @@ func parse_jtcore_done(line string) bool {
 var sta_slack_re = regexp.MustCompile(`(?i)^\s*Slack\s*:\s*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var worst_slack_re = regexp.MustCompile(`(?i)worst-case.*slack[^-+0-9]*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var seed_sta_re = regexp.MustCompile(`(?i)worst-case\s+setup\s+slack\s+is\s+([-+]?[0-9]+(?:\.[0-9]+)?)`)
+var seed_timing_re = regexp.MustCompile(`(?i)worst-case\s+(setup|hold|recovery)\s+slack\s+is\s+([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var seed_le_re = regexp.MustCompile(`(?mi)^;\s*(?:Total logic elements|Logic utilization \(in ALMs\))\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
 var seed_bram_re = regexp.MustCompile(`(?mi)^;\s*(?:M[0-9]+Ks|Total RAM Blocks)\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
 var jtcore_quartus_log_re = regexp.MustCompile(`^Log file:\s*(.+)$`)

@@ -32,6 +32,8 @@ module jt053936 #(
     output reg        xh,
     output reg [12:0] y,
     output reg        yh,
+    output     [12:0] nx,
+    output     [12:0] ny,
     output            ob, // out of bonds, original pin: NOB
     // IOCTL dump
     input      [4:0] ioctl_addr,
@@ -71,6 +73,8 @@ module jt053936 #(
     assign hcnt0  = mmr[12][9:0];
     assign vcnt0  = mmr[13][8:0];
     assign ln0    = mmr[14][8:0];
+    assign nx     = xsum[23:11];
+    assign ny     = ysum[23:11];
 
     assign dma_n  = ln_rd || !ln_en;
 

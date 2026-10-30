@@ -50,19 +50,16 @@ regions = [
     { name="tiles2",   start="GFX3_START", width=16, no_offset=true },
 
     { name="sprites",  start="JTFRAME_BA3_START", width=32, no_offset=true, sort_even=true },
-    { name="sub",      start="MCU_START" },
-    { name="mcu",      start="MCU_START" },
     { name="proms",    start="JTFRAME_PROM_START" },
     { name="plds",     skip=true         }
 ]
 
 order = [
     "maincpu", "audiocpu", "oki",
-    "char", "tiles1", "tiles2", "sprites", "mcu", "sub", "proms"
+    "char", "tiles1", "tiles2", "sprites", "proms"
 ]
 
 splits = [
     { machine="secretag", region="char", offset=0x10000 },
     # { machine="birdtry",  region="char", offset=0x4000, min_len=0x10000 }
 ]
-

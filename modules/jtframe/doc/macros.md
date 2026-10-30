@@ -43,6 +43,7 @@ JTFRAME_JOY_RLUD         |         | Joystick lower 4 bits are:  right, left,  u
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
+JTFRAME_JOY_B2B1B0       |         | Swaps the first three buttons
 JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
 JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
 JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core
@@ -66,6 +67,7 @@ JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude i
 JTFRAME_MOUSE_NOEMU      |         | Disables mouse emulation via joystick
 JTFRAME_MR_DDR           | MiSTer  | Defined internally when MiSTer DDR is used. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
+JTFRAME_MR_GAME_DDR      | MiSTer  | Game module gets the DDR3 port (ddr_* signals on clk_rom, see sdram.md). Not with rotation, LF buffer or DDR load
 JTFRAME_MR_LF_BRAM       | MiSTer  | Use BRAM instead of DDR for JTFRAME_LF_BUFFER. Automatically set when JTFRAME_VERTICAL is also enabled
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
@@ -236,3 +238,15 @@ JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vert
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
 JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
+
+### JTFRAME_REMOTE
+
+Enables the paired remote video-capture and CAB input/dump interfaces on the
+MiST-family user-I/O SPI path. The macro is used once at the capture-instance
+boundary; shared board input and joystick logic remains CAB-aware and receives
+constant-zero controls when remote support is disabled. The boundary passes
+the existing feature mask (`0x001e0000`) into user-I/O, where constant feature
+gates remove the remote SPI handlers when disabled. Capture uses RGB444 for
+`COLORW<=4` and RGB555 for `COLORW>=5`, selected at compile time. SiDi128
+enables this macro by default in both debug and release builds. See
+[video capture](video-capture.md) and [CAB stream](cab-stream.md).

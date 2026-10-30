@@ -8,6 +8,7 @@
 /* verilator coverage_off */
 module jtframe_rom_1slot #(parameter
     SDRAMW       = 22,
+    TAG_RAM      =  0,
     SLOT0_DW     = 8,
     SLOT0_AW     = 8,
     SLOT0_LATCH  = 0,
@@ -49,6 +50,7 @@ jtframe_rom_2slots #(
     .SLOT0_OKLATCH( SLOT0_OKLATCH ),
     .CACHE0_SIZE  ( CACHE0_SIZE   ),
     .CACHE0_LARGE ( CACHE0_LARGE  ),
+    .TAG_RAM      ( TAG_RAM       ),
     .SLOT0_BURSTLEN( SLOT0_BURSTLEN )
 ) u_2slots(
     .rst    ( rst       ),

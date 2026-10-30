@@ -14,7 +14,7 @@ export PATH=$PATH:/usr/local/go/bin
 # 1st argument is the core name
 CORENAME=$1
 shift
-# next argument can select debug mode, which is on by default
+# next argument can enable debug mode; release mode (--nodbg) is the default
 NODBG=--nodbg
 if [ $1 = --debug ]; then
     NODBG=

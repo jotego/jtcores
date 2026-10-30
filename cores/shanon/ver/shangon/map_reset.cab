@@ -1,0 +1,8 @@
+# Show the country map, reset while it is visible, then show it again.
+50
+2 coin
+=65
+2 reset
+50
+2 coin
+=135

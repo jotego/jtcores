@@ -54,7 +54,7 @@ func NewMRAcfgFromTOML(toml_file io.Reader) (mra_cfg Mame2MRA, e error) {
 	if e != nil {
 	    return mra_cfg, fmt.Errorf("problem while parsing TOML file after JSON transformation: %w", e)
 	}
-	return mra_cfg,nil
+	return mra_cfg,mra_cfg.validate_button_maps()
 }
 
 func (mra_cfg *Mame2MRA) apply_macros() {

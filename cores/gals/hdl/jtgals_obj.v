@@ -7,6 +7,7 @@ module jtgals_obj(
     input              clk,
     input              pxl_cen,
     input              lvbl,
+    input              flip,
 
     output      [ 8:0] ln_addr,
     output      [15:0] ln_data,
@@ -69,7 +70,7 @@ wire        scan_rel, scan_used, scan_inzone, dr_busy, draw_we, line_start;
 wire        scan_last;
 
 assign pxl              = ln_pxl[7:0];
-assign ln_addr          = draw_addr;
+assign ln_addr          = flip ? 9'd255 - draw_addr : draw_addr;
 assign ln_data          = { 8'd0, draw_pxl };
 assign ln_we            = draw_we && draw_pxl[3:0] != 4'd0;
 assign ram_byte         = ram_dout[7:0];
@@ -82,7 +83,7 @@ assign scan_code_now    = { ram_byte[4:0], b6 };
 assign scan_pal         = b3[7:4];
 assign scan_used        = scan_code_now != 13'd0;
 assign obj_ytop         = scan_next_y - 9'd16;
-assign req_ypos         = 10'd223 - { 2'b0, ln_v };
+assign req_ypos         = flip ? { 2'b0, ln_v } : 10'd223 - { 2'b0, ln_v };
 assign obj_yorg         = { obj_ytop[8], obj_ytop };
 assign scan_ydiff       = req_ypos - obj_yorg;
 assign scan_inzone      = scan_ydiff >= 10'sd0 && scan_ydiff < 10'sd16;

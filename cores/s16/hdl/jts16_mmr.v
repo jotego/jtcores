@@ -50,10 +50,10 @@ reg [15:0]  scr1_pages_flip, scr2_pages_flip,
 
 generate
     if( MODEL==1 ) begin
-        assign rowscr1_en = scr1_hpos[15];
-        assign rowscr2_en = scr2_hpos[15];
-        assign colscr1_en = scr1_vpos[15];
-        assign colscr2_en = scr2_vpos[15];
+        assign rowscr1_en = scr1_hpos_std[15] & ~altscr1_en;
+        assign rowscr2_en = scr2_hpos_std[15] & ~altscr2_en;
+        assign colscr1_en = scr1_vpos_std[15] & ~altscr1_en;
+        assign colscr2_en = scr2_vpos_std[15] & ~altscr2_en;
     end
 endgenerate
 

@@ -5,11 +5,15 @@ wire      rst, clk, pxl_cen, lhbl, lvbl;
 
 localparam HEIGHT = 240, WIDTH=280, CLIP=8;
 
-reg    v_en,h_en, wd, h_rise, v_rise, start, sign=0;
-wire   lhbs, lvbs, hs, hs_edge, vs;
+reg  [1:0] hblack_frame, vblack_frame;
+reg        wd, h_rise, v_rise, start, sign=0;
+wire       lhbs, lvbs, hs, hs_edge, vs, h_en, v_en;
 string hstring, vstring;
 
 integer hcnt=0, vcnt=0, framecnt, hclip, vclip;
+
+assign h_en = hblack_frame[0];
+assign v_en = vblack_frame[0];
 
 always @(posedge clk) begin
     if(rst) {hcnt, vcnt, h_rise, v_rise} <= 0;
@@ -45,15 +49,14 @@ initial begin
     crop_16_pxl();
 
     new_frame(); // 2
-    enable_v_crop();
+    select_vertical();
     crop_8_pxl();
 
     new_frame(); // 3
     crop_16_pxl();
 
     new_frame(); // 4
-    enable_h_crop();
-    disable_v_crop();
+    select_horizontal();
     crop_8_pxl();
 
     new_frame(); // 5
@@ -61,7 +64,7 @@ initial begin
 
 
     new_frame(); // 6
-    enable_v_crop();
+    select_vertical();
     crop_8_pxl();
 
     new_frame(); // 7
@@ -77,33 +80,31 @@ initial begin
 end
 
 task crop_disabled();
-    disable_h_crop();
-    disable_v_crop();
+    hblack_frame[0] = 0;
+    vblack_frame[0] = 0;
 endtask
 
-task disable_v_crop();
-    v_en = 0;
+task select_vertical();
+    hblack_frame[0] = 0;
+    vblack_frame[0] = 1;
 endtask
 
-task disable_h_crop();
-    h_en = 0;
-endtask
-
-task enable_v_crop();
-    v_en = 1;
-endtask
-
-task enable_h_crop();
-    h_en = 1;
+task select_horizontal();
+    hblack_frame[0] = 1;
+    vblack_frame[0] = 0;
 endtask
 
 task crop_8_pxl();
-    wd = 0;
+    wd              = 0;
+    hblack_frame[1] = 0;
+    vblack_frame[1] = 0;
     set_new_clip();
 endtask
 
 task crop_16_pxl();
-    wd = 1;
+    wd              = 1;
+    hblack_frame[1] = 1;
+    vblack_frame[1] = 1;
     set_new_clip();
 endtask
 
@@ -168,14 +169,15 @@ jtframe_edge cnt_pulse(
 jtframe_short_blank #(
     .WIDTH (WIDTH),
     .HEIGHT(HEIGHT)
-) u_short_blank(
+) uut(
     .clk        ( clk     ),
     .pxl_cen    ( pxl_cen ),
     .LHBL       ( lhbl    ),
     .LVBL       ( lvbl    ),
-    .h_en       ( h_en    ),
-    .v_en       ( v_en    ),
-    .wide       ( wd      ),
+    .h_en       ( h_en             ),
+    .v_en       ( v_en             ),
+    .h_wide     ( hblack_frame[1] ),
+    .v_wide     ( vblack_frame[1] ),
     .HS         ( hs      ),
     .hb_out     ( lhbs    ),
     .vb_out     ( lvbs    )

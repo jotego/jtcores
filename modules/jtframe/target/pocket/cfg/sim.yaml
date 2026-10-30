@@ -1,0 +1,13 @@
+jtframe:
+  - from: ver
+    get:
+      - jtframe_romrq_rdy_check.v
+      - fast_pll.v
+      - mt48lc16m16a2.v
+jtframe/target/pocket:
+  - from: ../ver
+    get:
+      - mf_ddio_bidir_12.v
+      - pocket_pll.v
+      - pocket_test.v
+      - test_harness.v

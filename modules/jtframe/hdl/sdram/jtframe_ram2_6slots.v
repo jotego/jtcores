@@ -4,6 +4,7 @@
 
 module jtframe_ram2_6slots #(parameter
     SDRAMW = 22,
+    TAG_RAM = 0,
     SLOT0_ERASE  = 1, // erase memory contents after a reset
     SLOT1_ERASE  = 1, // erase memory contents after a reset
     SLOT0_FASTWR = 0,
@@ -178,7 +179,7 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(0),.ERASE(S
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
     .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
-    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .BURSTLEN( SLOT2_BURSTLEN ))
+    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT2_BURSTLEN ))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -198,7 +199,7 @@ u_slot2(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
     .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
-    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .BURSTLEN( SLOT3_BURSTLEN ))
+    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT3_BURSTLEN ))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -218,7 +219,7 @@ u_slot3(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT4_AW),.DW(SLOT4_DW),
     .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH),
-    .CACHE_SIZE ( CACHE4_SIZE     ), .CACHE_LARGE( CACHE4_LARGE ), .BURSTLEN( SLOT4_BURSTLEN ))
+    .CACHE_SIZE ( CACHE4_SIZE     ), .CACHE_LARGE( CACHE4_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT4_BURSTLEN ))
 u_slot4(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -238,7 +239,7 @@ u_slot4(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT5_AW),.DW(SLOT5_DW),
     .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH),
-    .CACHE_SIZE ( CACHE5_SIZE     ), .CACHE_LARGE( CACHE5_LARGE ), .BURSTLEN( SLOT5_BURSTLEN ))
+    .CACHE_SIZE ( CACHE5_SIZE     ), .CACHE_LARGE( CACHE5_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT5_BURSTLEN ))
 u_slot5(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

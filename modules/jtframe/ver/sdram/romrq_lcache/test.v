@@ -6,18 +6,19 @@ module test;
 
 reg rst, clk;
 reg [7:0]  addr8;
-reg [15:0] addr16, addr32;
-reg cs8, cs16, cs32;
-reg we8, we16, we32;
-reg dst8, dst16, dst32;
-reg rdy8, rdy16, rdy32;
-reg [15:0] din8, din16, din32;
-wire req8, req16, req32;
-wire ok8, ok16, ok32;
+reg [15:0] addr16, addr32, addr64;
+reg cs8, cs16, cs32, cs64;
+reg we8, we16, we32, we64;
+reg dst8, dst16, dst32, dst64;
+reg rdy8, rdy16, rdy32, rdy64;
+reg [15:0] din8, din16, din32, din64;
+wire req8, req16, req32, req64;
+wire ok8, ok16, ok32, ok64;
 wire [7:0] dout8;
 wire [15:0] dout16;
 wire [31:0] dout32;
-wire [21:0] sdram_addr8, sdram_addr16, sdram_addr32;
+wire [63:0] dout64;
+wire [21:0] sdram_addr8, sdram_addr16, sdram_addr32, sdram_addr64;
 
 always #5 clk = ~clk;
 
@@ -37,6 +38,12 @@ jtframe_romrq_lcache #(.SDRAMW(22),.AW(16),.DW(32),.BURSTLEN(64)) uut_long(
     .rst(rst), .clk(clk), .clr(1'b0), .offset(22'd0), .din(din32), .din_ok(rdy32),
     .dst(dst32), .we(we32), .req(req32), .sdram_addr(sdram_addr32), .addr(addr32),
     .addr_ok(cs32), .data_ok(ok32), .dout(dout32)
+);
+
+jtframe_romrq_lcache #(.SDRAMW(22),.AW(16),.DW(64),.CACHE_SIZE(1024),.BURSTLEN(64)) uut_quad(
+    .rst(rst), .clk(clk), .clr(1'b0), .offset(22'd0), .din(din64), .din_ok(rdy64),
+    .dst(dst64), .we(we64), .req(req64), .sdram_addr(sdram_addr64), .addr(addr64),
+    .addr_ok(cs64), .data_ok(ok64), .dout(dout64)
 );
 
 task finish_byte;
@@ -70,14 +77,29 @@ task finish_long;
     end
 endtask
 
+task start_quad;
+    begin
+        @(negedge clk); we64=1; dst64=1; din64=16'h1122;
+        @(negedge clk); dst64=0; din64=16'h3344;
+        @(negedge clk); din64=16'h5566;
+    end
+endtask
+
+task finish_quad;
+    begin
+        @(negedge clk); din64=16'h7788; rdy64=1;
+        @(negedge clk); we64=0; rdy64=0;
+    end
+endtask
+
 initial begin
     clk=0; rst=1;
-    addr8=0; addr16=0; addr32=0;
-    cs8=0; cs16=0; cs32=0;
-    we8=0; we16=0; we32=0;
-    dst8=0; dst16=0; dst32=0;
-    rdy8=0; rdy16=0; rdy32=0;
-    din8=0; din16=0; din32=0;
+    addr8=0; addr16=0; addr32=0; addr64=0;
+    cs8=0; cs16=0; cs32=0; cs64=0;
+    we8=0; we16=0; we32=0; we64=0;
+    dst8=0; dst16=0; dst32=0; dst64=0;
+    rdy8=0; rdy16=0; rdy32=0; rdy64=0;
+    din8=0; din16=0; din32=0; din64=0;
     repeat(3) @(posedge clk);
     rst=0;
 
@@ -119,12 +141,32 @@ initial begin
     @(posedge clk); #1 assert_msg(ok32 && !req32 && dout32==32'h7788_5566, "long second data order is wrong");
     @(negedge clk); cs32=0;
 
+    // 64-bit, four-beat fill. Both 32-bit lanes must be returned together.
+    @(negedge clk); addr64=16'h0080; cs64=1;
+    #1 assert_msg(req64 && sdram_addr64==22'h080, "quad cold request is wrong");
+    start_quad();
+    #1 assert_msg(!ok64, "quad cache hit before final beat");
+    finish_quad();
+    @(posedge clk); #1 assert_msg(ok64 && !req64 && dout64==64'h7788_5566_3344_1122,
+        "quad fill data order is wrong");
+    @(negedge clk); addr64=16'h0280;
+    #1 assert_msg(req64, "quad direct-mapped conflict did not miss");
+    start_quad();
+    finish_quad();
+    @(posedge clk); #1 assert_msg(ok64 && dout64==64'h7788_5566_3344_1122,
+        "quad conflict line data is wrong");
+    @(negedge clk); addr64=16'h0080;
+    #1 assert_msg(req64, "quad evicted line did not refetch");
+    @(negedge clk); cs64=0;
+
     // The controller can select a request after the client has moved on to a
     // new address.  The fill must retain the line captured with req, not the
     // address visible when we first asserts.
     @(negedge clk); addr8=8'h30; cs8=1;
     #1 assert_msg(req8, "delayed byte request missing");
     @(negedge clk); addr8=8'h34;
+    #1 assert_msg(sdram_addr8==22'h18,
+        "delayed request address changed before the fill started");
     finish_byte();
     @(posedge clk); #1 assert_msg(req8 && !ok8,
         "delayed fill was tagged with the changed address");

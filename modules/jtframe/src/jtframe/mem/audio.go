@@ -52,6 +52,7 @@ func Make_audio( cfg *MemConfig, core, outpath string ) error {
 		rout = 0
 		rout = eng2float(ch.Rout)
 		ch.rout = rout
+		if e := make_sallen_key(outpath, ch, fs); e!=nil { return e }
 		make_audio_filters( core, outpath, ch, fs )
 		ch_res := eng2float(ch.Rsum)
 		if cfg.Audio.Rsum_feedback_res {
@@ -141,15 +142,82 @@ func read_modules() map[string]AudioCh {
 	return modules
 }
 
+// The buffer in a unity-gain Sallen-Key stage gives this denominator:
+// 1 + s*C2*(R1+R2) + s*s*R1*R2*C1*C2. R3 replaces R1 with R1||R3
+// and attenuates the input by R3/(R1+R3), which is applied through pre.
+// The FIR is the truncated impulse response of the bilinear equivalent.
+func make_sallen_key(outpath string, ch *AudioCh, fs float64) error {
+	sk := ch.SallenKey
+	if sk==nil { return nil }
+	if ch.Fir!="" || len(ch.RC)!=0 {
+		return fmt.Errorf("audio channel %s: sallen-key cannot be combined with fir or rc",ch.Name)
+	}
+	if sk.R3!="" && ch.Pre!="" {
+		return fmt.Errorf("audio channel %s: cannot set both pre and sallen-key R3; both affect gain",ch.Name)
+	}
+	r1, r2 := eng2float(sk.R1), eng2float(sk.R2)
+	c1, c2 := eng2float(sk.C1), eng2float(sk.C2)
+	if r1<=0 || r2<=0 || c1<=0 || c2<=0 {
+		return fmt.Errorf("audio channel %s: sallen-key R1, R2, C1 and C2 must be positive",ch.Name)
+	}
+	if sk.R3!="" {
+		r3 := eng2float(sk.R3)
+		if r3<=0 { return fmt.Errorf("audio channel %s: sallen-key R3 must be positive",ch.Name) }
+		ch.Pre = strconv.FormatFloat(r3/(r1+r3),'f',-1,64)
+		r1 = r1*r3/(r1+r3)
+	}
+	a2 := r1*r2*c1*c2
+	a1 := c2*(r1+r2)
+	fc := 1/(2*math.Pi*math.Sqrt(a2))
+	if fc<1000 || fc>24000 {
+		fmt.Fprintf(os.Stderr,"WARNING: audio channel %s Sallen-Key cutoff %.0f Hz is outside 1-24 kHz; check component values\n",ch.Name,fc)
+	}
+	const taps=68 // jtframe_fir KMAX; 2*taps clocks fit a 192 kHz sample at 48 MHz
+	coeff := make([]float64,taps)
+	k := 2*fs
+	d0 := a2*k*k+a1*k+1
+	b0, b1, b2 := 1/d0, 2/d0, 1/d0
+	da1 := (2-2*a2*k*k)/d0
+	da2 := (a2*k*k-a1*k+1)/d0
+	for n:=range coeff {
+		x0,x1,x2 := 0.0,0.0,0.0
+		if n==0 { x0=1 }
+		if n==1 { x1=1 }
+		if n==2 { x2=1 }
+		coeff[n] = b0*x0+b1*x1+b2*x2
+		if n>0 { coeff[n]-=da1*coeff[n-1] }
+		if n>1 { coeff[n]-=da2*coeff[n-2] }
+	}
+	sum:=0.0
+	for _,c:=range coeff { sum+=c }
+	if math.IsNaN(sum) || math.IsInf(sum,0) {
+		return fmt.Errorf("audio channel %s: invalid Sallen-Key FIR coefficients",ch.Name)
+	}
+	// Keep the 68-tap DC gain at unity. Spreading the omitted tail across
+	// the taps also preserves the response near the natural frequency when
+	// a high-Q stage has not fully settled within the FIR window.
+	tail:=1-sum
+	weight_sum:=float64(taps*(taps+1))/2
+	for n:=range coeff { coeff[n]+=tail*float64(n+1)/weight_sum }
+	ch.Fir="fir_"+ch.Name+".csv"
+	f,e:=os.Create(filepath.Join(outpath,ch.Fir)); if e!=nil { return e }
+	for _,c:=range coeff {
+		_,e=fmt.Fprintf(f,"%.18g\n",c)
+		if e!=nil { f.Close(); return e }
+	}
+	return f.Close()
+}
+
 func make_fir( core, outpath string, ch *AudioCh, fs float64 ) {
 	const scale = 0x7FFF	// 16 bits, signed
 	if ch.Fir=="" { return }
 	coeff := make([]int,128)
-	fname, e := common.FindFileInFolders( ch.Fir,
-		[]string{
-			common.ConfigFilePath(core, ""),
-			filepath.Join(os.Getenv("JTFRAME"),"hdl","sound"),
-		})
+	folders:=[]string{
+		common.ConfigFilePath(core, ""),
+		filepath.Join(os.Getenv("JTFRAME"),"hdl","sound"),
+	}
+	if ch.SallenKey!=nil { folders=append([]string{outpath},folders...) }
+	fname, e := common.FindFileInFolders( ch.Fir, folders )
 	common.Must(e)
 	f, e := os.Open(fname)
 	common.Must(e)

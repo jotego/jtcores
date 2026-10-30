@@ -41,6 +41,9 @@ parse_args() {
                 TARGET=mister;;
             --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
             --nocopy) NOCOPY=1;;
+            --clean) CLEAN_BUILD=1;;
+            --incremental) BUILD_MODE=incremental;;
+            --rapid) BUILD_MODE=auto;;
             --nolinter) NOLINTER=1;;
             --nosta) SKIPTIMING=1;;
             --output)
@@ -118,6 +121,9 @@ Common options:
     --skip | -s              Skip compilation and run the remaining steps
     --output <folder>        Copy the compiled core under this output folder
     --nocopy                 Skip copying the compiled core to the output folder
+    --clean                  Remove cached results before compiling
+    --incremental            Preserve databases and design partitions; disable Rapid Recompile
+    --rapid                  Prefer Rapid Recompile when compatible (default)
     --signaltap              Merge syn/signaltap.qsf and enable SignalTap
     --help | -h              Show this summary
 
@@ -159,7 +165,11 @@ escape_bars() {
 macros2def() {
     local MM=""
     for i in $MACROS; do
-        MM="$i,$MM"
+        if [ -n "$MM" ]; then
+            MM="$MM,$i"
+        else
+            MM="$i"
+        fi
     done
     if [ ! -z "$MM" ]; then
         MM="--def $MM"
@@ -195,8 +205,8 @@ parse_macros() {
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 copy_templates() {
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf --target=$TARGET `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf --target=$TARGET `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
     MACROS_FILE=$PRJPATH/cfg/macros.def
     QSF=$BUILDDIR/$corename.qsf
     # Add definitions in "macros" files
@@ -326,4 +336,126 @@ worst_negative_sta_slack() {
 easy_sta_accepts() {
     local slack="$1"
     gawk -v slack="$slack" 'BEGIN { exit(slack >= -0.333 ? 0 : 1) }'
+}
+
+# Keep the build timestamp stable for the lifetime of the compilation cache.
+# An automatically changing Verilog macro defeats Quartus settings reuse.
+cache_build_timestamp() {
+    BUILD_TIMESTAMP=$(date +%s)
+    if [[ "$CLEAN_BUILD" != 1 && -r "$BUILDDIR/.jtcore-timestamp" ]]; then
+        local previous
+        read -r previous < "$BUILDDIR/.jtcore-timestamp" || :
+        if [[ "$previous" =~ ^[0-9]+$ ]]; then BUILD_TIMESTAMP=$previous; fi
+    fi
+    case " $MACROS " in
+        *" JTFRAME_TIMESTAMP="*) ;;
+        *) MACROS="$MACROS JTFRAME_TIMESTAMP=$BUILD_TIMESTAMP" ;;
+    esac
+}
+
+# Rapid Recompile uses a flat project. Keep explicit child partitions on the
+# ordinary incremental flow; only remove the framework's default Top partition.
+configure_quartus_reuse() {
+    RAPID_RECOMPILE=1
+    if [[ "$BUILD_MODE" = incremental || "$TARGET" = mist || -f .jtcore-no-rapid ]]; then
+        RAPID_RECOMPILE=0
+    fi
+    if awk '/PARTITION_HIERARCHY/ && !/-to "?\|"?([[:space:]]|$)/ { found=1 }
+        /-name PARTITION_/ && /-section_id/ && !/-section_id "?Top"?([[:space:]]|$)/ { found=1 }
+        END { exit !found }' "$corename.qsf"; then
+        RAPID_RECOMPILE=0
+    fi
+    if [[ "$RAPID_RECOMPILE" = 1 ]]; then
+        awk '!(/-name PARTITION_/ && /-section_id "?Top"?([[:space:]]|$)/)' \
+            "$corename.qsf" > .jtcore-qsf.tmp || return
+        mv .jtcore-qsf.tmp "$corename.qsf" || return
+    fi
+    # Preserve other local Quartus INI settings.
+    if [[ -f quartus.ini ]]; then
+        awk '!/^[[:space:]]*fitter_rapid_recompile[[:space:]]*=/' quartus.ini > .jtcore-ini.tmp || return
+    else
+        : > .jtcore-ini.tmp
+    fi
+    if [[ "$RAPID_RECOMPILE" = 1 ]]; then
+        printf 'fitter_rapid_recompile=on\n' >> .jtcore-ini.tmp
+    else
+        printf 'fitter_rapid_recompile=off\n' >> .jtcore-ini.tmp
+    fi
+    mv .jtcore-ini.tmp quartus.ini
+}
+
+# Constraint and Tcl/QIP changes need the ordinary flow: Rapid Recompile can
+# ignore assignment changes inside those files. Include shared module sources.
+quartus_source_config_key() {
+    local directory
+    local -a roots=()
+    for directory in "$MODULES" "$PRJPATH/cfg" "$PRJPATH/syn" "$PRJPATH/hdl"; do
+        if [[ -d "$directory" ]]; then roots+=("$directory"); fi
+    done
+    [[ ${#roots[@]} -gt 0 ]] || return 1
+    (
+        set -o pipefail
+        find -L "${roots[@]}" -name .git -prune -o -type f \
+            \( -name '*.sdc' -o -name '*.tcl' -o -name '*.qip' -o \
+            -name '*.qsf' -o -name '*.ini' -o -name '*.qsys' -o -name '*.ip' \) -print0 |
+            LC_ALL=C sort -z | xargs -0 -r sha256sum | sha256sum
+    )
+}
+
+compile_quartus() {
+    local version compiler compiler_key config_key settings_key previous_key status
+    compiler=$(command -v quartus_sh) || return
+    version=$(quartus_sh --version) || return
+    printf '%s\n' "$version"
+    compiler_key=$(printf '%s\n%s\n' "$compiler" "$version" | sha256sum)
+    # Retry capabilities when a different compiler is selected.
+    if [[ -f .jtcore-no-rapid && "$(cat .jtcore-no-rapid)" != "$compiler_key" ]]; then
+        rm -f .jtcore-no-rapid
+    fi
+    configure_quartus_reuse || return
+    [[ -r files.qip ]] || return 1
+    config_key=$(quartus_source_config_key) || return
+    settings_key=$({
+        printf '%s\n%s\n%s\n%s\n' "$compiler_key" "$BUILD_MODE" "$SIM" "$config_key"
+        cat "$corename.qsf" quartus.ini
+        # The file generator emits independent source groups in Go map order.
+        # A reordered list of identical assignments is the same configuration.
+        LC_ALL=C sort files.qip
+    } | sha256sum) || return
+    previous_key=$(cat .jtcore-complete 2>/dev/null || :)
+    rm -f .jtcore-complete
+    if [[ "$RAPID_RECOMPILE" = 1 && "$previous_key" = "$settings_key" && -d db && -d incremental_db ]]; then
+        echo 'Reusing fitted database: Rapid Recompile'
+        if quartus_sh --flow recompile "$corename" > "$LOG" 2>&1; then
+            status=0
+        else
+            status=$?
+        fi
+        if [[ "$status" = 0 ]] && grep -q 'Rapid Recompile was successful' "$LOG"; then
+            printf '%s\n' "$settings_key" > .jtcore-complete
+            grep 'Rapid Recompile was successful' "$LOG"
+            return 0
+        fi
+        cp "$LOG" "${LOG%.log}.rapid.log"
+        echo "Rapid Recompile failed; retrying full compilation (details: ${LOG%.log}.rapid.log)"
+        # Cache only an unsupported edition/family result, not RTL errors.
+        if grep -Eqi 'Rapid Recompile.*(not supported|unsupported)|does not support.*Rapid Recompile' "$LOG"; then
+            printf '%s\n' "$compiler_key" > .jtcore-no-rapid
+        fi
+    elif [[ -n "$previous_key" ]]; then
+        echo 'Using incremental compilation; settings changed or Rapid Recompile is disabled'
+    else
+        echo 'Full compilation: establishing reusable database'
+    fi
+    if quartus_sh --flow compile "$corename" > "$LOG" 2>&1; then
+        status=0
+    else
+        status=$?
+    fi
+    if [[ "$status" = 0 ]] && grep -q 'Full Compilation was successful' "$LOG"; then
+        printf '%s\n' "$settings_key" > .jtcore-complete
+        grep 'Full Compilation was successful' "$LOG"
+        return 0
+    fi
+    return 1
 }

@@ -1,0 +1,4 @@
+package main
+import("bytes";"fmt";"testing")
+func structural_csv(rows int)[]byte{var b bytes.Buffer;b.WriteString("sample,linear\n");for i:=0;i<rows;i++{fmt.Fprintf(&b,"%d,0\n",i)};return b.Bytes()}
+func TestStrictPublicCSV(t *testing.T){raw:=structural_csv(4096);if _,e:=strict_public_csv(raw,"linear",4096);e!=nil{t.Fatal(e)};bad:=map[string][]byte{"nan":bytes.Replace(raw,[]byte("0,0\n"),[]byte("0,NaN\n"),1),"range":bytes.Replace(raw,[]byte("0,0\n"),[]byte("0,32768\n"),1),"fraction":bytes.Replace(raw,[]byte("0,0\n"),[]byte("0,0.5\n"),1),"gap":bytes.Replace(raw,[]byte("1,0\n"),[]byte("9,0\n"),1),"duplicate":bytes.Replace(raw,[]byte("1,0\n"),[]byte("0,0\n"),1),"header":bytes.Replace(raw,[]byte("sample,linear"),[]byte("sample,sample"),1),"rows":structural_csv(4095)};for name,data:=range bad{t.Run(name,func(t *testing.T){if _,e:=strict_public_csv(data,"linear",4096);e==nil{t.Fatal("malformed CSV accepted")}})}}

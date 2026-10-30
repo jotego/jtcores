@@ -467,7 +467,7 @@ end
         .p0_i       ( mcu_xdin      ),
         .p1_i       ( mcu_ctrl      ), // feedback the output, need for PUSH p1 to work as expected
         .p2_i       ( 8'hff         ),
-        .p3_i       ( {4'hf, ~ppib_dout[6], ~vint, 2'b11} ), // need for instructions like jb int0,xx
+        .p3_i       ( 8'hff         ),
 
         .p0_o       (               ),
         .p1_o       ( mcu_ctrl      ),

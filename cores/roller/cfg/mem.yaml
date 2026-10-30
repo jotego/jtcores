@@ -1,0 +1,74 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+clocks:
+  clk48:
+    - freq: 24M
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+    - freq: 3579545
+      outputs:
+        - cen_pcm
+      gate: [ pcma, pcmb, pcmc, pcmd ]
+audio:
+  rsum: 1k
+  channels:
+    - { name: fm,  module: jtopl2,   rsum: 1k }
+    - { name: pcm, module: jt053260, rsum: 1k, fir: fir_192k_8k.csv }
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 17
+          data_width: 8
+    - buses:
+        - name: snd
+          addr_width: 15
+          data_width: 8
+        - name: pcma
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmc
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmd
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: psac
+          addr_width: 19
+          data_width: 8
+    - buses:
+        - name: obj
+          addr_width: 21
+          data_width: 32
+bram:
+  - name: ram
+    size: 8192
+    data_width: 8
+    rw: true
+    addr: main_addr[12:0]
+  - name: pal
+    size: 2048
+    data_width: 8
+    addr: main_addr[10:0]
+    din: cpu_dout
+    dout: pal_dout
+    rw: true
+    ioctl:
+      save: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: palrd
+      dout: pal_data

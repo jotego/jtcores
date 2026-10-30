@@ -1,0 +1,8 @@
+focus 0
+trace off
+trace main.csv,maincpu,noloop,{tracelog "%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,",pc,cc,dp,a,b,x,y,u,s,totalcycles,frame}
+tracelog "PC,cc,dp,a,b,x,y,u,s,ticks,frame_cnt\n"
+softreset
+
+gtime 850
+traceflush

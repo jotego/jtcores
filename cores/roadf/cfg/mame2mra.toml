@@ -14,7 +14,7 @@ volume = [
 [buttons]
 names=[
     { machine="roadf", names="Low gear,High gear" },
-    { machine="hyperspt", names="Left button, Centre button, Right button" }
+    { machine="hyperspt", names="Left button, Centre button, Right button", map="YXA" }
 ]
 
 [dipsw]

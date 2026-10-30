@@ -4,6 +4,7 @@
 
 module jtframe_ram1_4slots #(parameter
     SDRAMW = 22,
+    TAG_RAM = 0,
     SLOT0_ERASE  = 1, // erase memory contents after a reset
     SLOT0_DW = 8, SLOT1_DW = 8, SLOT2_DW = 8, SLOT3_DW = 8,
     SLOT0_AW = 8, SLOT1_AW = 8, SLOT2_AW = 8, SLOT3_AW = 8,
@@ -124,7 +125,7 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.ERASE(SLOT0_ERASE)
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
     .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
-    .CACHE_SIZE ( CACHE1_SIZE     ), .CACHE_LARGE( CACHE1_LARGE ), .BURSTLEN( SLOT1_BURSTLEN ))
+    .CACHE_SIZE ( CACHE1_SIZE     ), .CACHE_LARGE( CACHE1_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT1_BURSTLEN ))
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -144,7 +145,7 @@ u_slot1(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
     .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
-    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .BURSTLEN( SLOT2_BURSTLEN ))
+    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT2_BURSTLEN ))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -164,7 +165,7 @@ u_slot2(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
     .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
-    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .BURSTLEN( SLOT3_BURSTLEN ))
+    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT3_BURSTLEN ))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

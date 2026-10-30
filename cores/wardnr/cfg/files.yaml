@@ -1,0 +1,27 @@
+wardnr:
+  - get:
+    - jtwardnr_game.v
+    - jtwardnr_main.v
+    - jtwardnr_scroll_mmr.v
+    - jtwardnr_scroll.v
+    - jtwardnr_sound.v
+    - jtwardnr_video.v
+    - jtwardnr_obj.v
+    - jtwardnr_colmix.v
+    - jttoaplan1_dsp.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+      - jtframe_obj.yaml
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_tms32010.yaml
+jtopl:
+  - get:
+    - jtopl2.yaml

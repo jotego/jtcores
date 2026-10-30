@@ -28,6 +28,7 @@ public:
 
     bool done() const;
     const CabinetFrame& next();
+    CabinetRun next_run(); // Consume the remainder of a compact run, without frame expansion.
     std::uint64_t frame_count() const;
 
 private:
@@ -44,6 +45,7 @@ private:
     std::uint64_t run_remaining = 0;
 
     void parse(std::istream& input, const std::string& source_name);
+    void advance_run();
 };
 
 #endif

@@ -1,0 +1,21 @@
+Layer Priority
+
+Equations:
+
+/o14 = /FIX & PLYCONT0 & /o18 +
+       /FIX & OBJ[0] & OBJ[1] & OBJ[2] & OBJ[3] & PLYCONT0 +
+       /FIX & /SA & /SB & OBJ[0] & OBJ[1] & OBJ[2] & OBJ[3]
+
+/o15 = FIX +
+       /SA & /o18 +
+       /SA & OBJ[0] & OBJ[1] & OBJ[2] & OBJ[3]
+
+/o16 = FIX +
+       SA & /o18 +
+       SA & OBJ[0] & OBJ[1] & OBJ[2] & OBJ[3]
+
+/o18 = /FIX & /OBJ[0] & OBJ[1] & /OBJ[2] & OBJ[3] & OPLYC0 & /OPLYC1
+
+/FIX = ~|FIX[2:0]
+/SA  = ~|SA [2:0]
+/SB  = ~|SB [2:0]

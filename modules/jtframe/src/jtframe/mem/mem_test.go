@@ -1954,7 +1954,9 @@ func Test_check_banks_large_cache(t *testing.T) {
 	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
 		t.Fatal(e)
 	}
-	macros.MakeFromMap(nil)
+	old_macros := macros.CopyToMap()
+	defer macros.MakeFromMap(old_macros)
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM96": ""})
 	if e := cfg.check_sdram(); e != nil {
 		t.Fatal(e)
 	}
@@ -1976,6 +1978,7 @@ func Test_check_banks_large_cache(t *testing.T) {
 	checks := []string{
 		".CACHE0_SIZE(131072)",
 		".CACHE0_LARGE(1)",
+		".TAG_RAM(1)",
 		".SLOT0_BURSTLEN(`JTFRAME_BA0_LEN)",
 		".SLOT0_BURSTLEN(32)",
 	}
@@ -1983,6 +1986,43 @@ func Test_check_banks_large_cache(t *testing.T) {
 		if !strings.Contains(out, each) {
 			t.Fatalf("generated template is missing %q\n%s", each, out)
 		}
+	}
+}
+
+func Test_check_banks_64bit_bus_requires_large_cache_and_burst64(t *testing.T) {
+	make_config := func(cache_size string) MemConfig {
+		sample := "sdram:\n  banks:\n    - buses:\n        - { name: sprites, addr_width: 20, data_width: 64, cache_size: " + cache_size + " }\n"
+		var cfg MemConfig
+		if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+			t.Fatal(e)
+		}
+		return cfg
+	}
+	old_macros := macros.CopyToMap()
+	defer macros.MakeFromMap(old_macros)
+
+	macros.MakeFromMap(map[string]string{"JTFRAME_BA0_LEN": "64"})
+	cfg := make_config("4kB")
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatalf("valid 64-bit SDRAM bus was rejected: %v", e)
+	}
+
+	for _, test := range []struct {
+		name       string
+		cache_size string
+		macros     map[string]string
+	}{
+		{"nonlarge cache", "4", map[string]string{"JTFRAME_BA0_LEN": "64"}},
+		{"missing burst macro", "4kB", nil},
+		{"wrong burst length", "4kB", map[string]string{"JTFRAME_BA0_LEN": "32"}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			macros.MakeFromMap(test.macros)
+			cfg := make_config(test.cache_size)
+			if e := cfg.check_sdram(); e == nil {
+				t.Fatal("invalid 64-bit SDRAM bus was accepted")
+			}
+		})
 	}
 }
 

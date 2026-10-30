@@ -10,6 +10,7 @@ module jtcps3_scr_fetch #(
     input               draw,
     input       [CMDW-1:0] cmd,
     input       [ 8:0]  draw_v,
+    input       [ 9:0]  draw_width,
 
     input       [15:0]  tmap0_scrx,
     input       [15:0]  tmap0_scry,
@@ -106,7 +107,7 @@ assign fetch_screen_x_pos  = fetch_screen_x[9:0];
 assign fetch_xpos          = fetch_screen_x_pos + scrollx - SCR_H_OFFSET;
 assign fetch_seg_base_len  = fetch_xpos[3:0] == 4'd0 ? 5'd16 :
                              (5'd16 - fetch_xpos[3:0]);
-assign fetch_remaining     = 11'd1024 - fetch_screen_x;
+assign fetch_remaining     = { 1'b0, draw_width } - fetch_screen_x;
 assign fetch_seg_len_cur   = fetch_remaining < { 6'd0, fetch_seg_base_len } ?
                              fetch_remaining[4:0] : fetch_seg_base_len;
 assign fetch_eff_line_p16  = eff_line + 10'd16;
@@ -271,7 +272,7 @@ always @(posedge clk) begin
             end
 
             FST_PREP_SEG: begin
-                if( fetch_screen_x >= 11'd1024 ) begin
+                if( fetch_screen_x >= { 1'b0, draw_width } ) begin
                     fetch_done <= 1'b1;
                     fetch_st   <= FST_IDLE;
                 end else begin
@@ -324,7 +325,7 @@ always @(posedge clk) begin
                         seg_row_data2  <= tiles_data[95:64];
                         seg_row_data3  <= tiles_data[127:96];
                         fetch_screen_x <= fetch_screen_x_next;
-                        if( fetch_screen_x_next >= 11'd1024 ) begin
+                        if( fetch_screen_x_next >= { 1'b0, draw_width } ) begin
                             fetch_done <= 1'b1;
                             fetch_st   <= FST_IDLE;
                         end else begin
@@ -355,7 +356,7 @@ always @(posedge clk) begin
                     seg_row_data2  <= fetch_row_data2;
                     seg_row_data3  <= fetch_row_data3;
                     fetch_screen_x <= fetch_screen_x_next;
-                    if( fetch_screen_x_next >= 11'd1024 ) begin
+                    if( fetch_screen_x_next >= { 1'b0, draw_width } ) begin
                         fetch_done <= 1'b1;
                         fetch_st   <= FST_IDLE;
                     end else begin

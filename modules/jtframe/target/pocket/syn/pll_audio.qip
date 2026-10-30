@@ -1,0 +1,13 @@
+set_global_assignment -entity "pll_audio" -library "pll_audio" -name IP_TOOL_NAME "altera_pll"
+set_global_assignment -entity "pll_audio" -library "pll_audio" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "pll_audio" -library "pll_audio" -name IP_TOOL_ENV "mwpim"
+set_global_assignment -library "pll_audio" -name MISC_FILE [file join $::quartus(qip_path) "../hdl/pll_audio.cmp"]
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+
+set_global_assignment -library "pll_audio" -name VERILOG_FILE [file join $::quartus(qip_path) "../hdl/pll_audio.v"]
+set_global_assignment -library "pll_audio" -name VERILOG_FILE [file join $::quartus(qip_path) "../hdl/pll_audio/pll_audio_0002.v"]
+set_global_assignment -library "pll_audio" -name QIP_FILE     [file join $::quartus(qip_path) "../hdl/pll_audio/pll_audio_0002.qip"]
+
+set_global_assignment -entity "pll_audio_0002" -library "pll_audio" -name IP_TOOL_NAME "altera_pll"
+set_global_assignment -entity "pll_audio_0002" -library "pll_audio" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "pll_audio_0002" -library "pll_audio" -name IP_TOOL_ENV "mwpim"

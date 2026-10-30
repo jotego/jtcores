@@ -30,7 +30,7 @@ module jtcps3_scene(
     output      [16:0]  scene_pxl,
 
     input       [ 9:0]  vb_end, vcnt_end,
-    input       [ 8:0]  v_step,
+    input       [ 8:0]  h_step, v_step,
 
     input       [ 9:0]  gscr0x,
     input       [ 9:0]  gscr0y,
@@ -98,9 +98,15 @@ wire [22:4]       obj_tiles_addr, scr_tiles_addr;
 wire [16:0]       scr_wr_pxl, obj_wr_pxl, linebuf_dout;
 wire              scr_wr_en;
 wire [ 9:0]       scr_addr;
+wire [17:0]       render_width_prod, render_width_round;
+wire [ 9:0]       render_width;
 
 assign tiles_rd   = obj_tiles_rd | scr_tiles_rd;
 assign tiles_addr = obj_tiles_rd ? obj_tiles_addr : scr_tiles_addr;
+assign render_width_prod  = { 1'b0, h_step, 8'd0 } +
+                            { 2'b00, h_step, 7'd0 };
+assign render_width_round = render_width_prod + 18'd255;
+assign render_width       = 10'd64 + render_width_round[17:8];
 
 jtcps3_scan #(
     .CMDW( CMDW )
@@ -157,6 +163,7 @@ jtcps3_scr #(
     .draw        ( scr_draw       ),
     .cmd         ( cmd            ),
     .draw_v      ( scan_v         ),
+    .draw_width  ( render_width    ),
     .tmap0_scrx  ( tmap0_scrx     ),
     .tmap0_scry  ( tmap0_scry     ),
     .tmap0_ctrl  ( tmap0_ctrl     ),

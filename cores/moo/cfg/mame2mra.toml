@@ -1,0 +1,35 @@
+[parse]
+sourcefile=[ "moo.cpp" ]
+skip = { bootlegs=true }
+# skip = { bootlegs=true, setnames=[
+    # "xmen6p", "xmen6pu",
+# ]}
+
+# [buttons]
+# names = [
+#     { machine="xmen",     names="Attack,Jump,Mutant Power" },
+# ]
+
+[header]
+info="Offsets for each ROM region. Byte 15 = game selection."
+data = [
+	{ machine="moomesa", offset=15, data="01" },
+    { machine="bucky",   offset=15, data="02" },
+]
+# offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
+# frames = [ { width=8 }, ]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true  },
+
+    { name="soundcpu"  },
+    { name="k054539", rename="pcm" },
+
+    { name="k056832", width=32, rename="tiles" },
+    # sprites
+    { name="k053246", width=64, rename="obj"},
+    { name="eeprom", skip=true }
+]
+
+order=["maincpu","soundcpu","pcm","tiles","obj"]

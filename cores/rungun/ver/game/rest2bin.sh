@@ -1,4 +1,8 @@
 #!/bin/bash -e
+if [ "$1" = --delete ]; then
+	rm -f obj.bin obj_hi.bin obj_lo.bin obj_mmr.bin ccu.bin psac.bin
+	exit 0
+fi
 EXPECTED=$((8192+16+16+32))
 SIZE=$(wc -c < rest.bin)
 if [ $SIZE -ne  $EXPECTED ]; then

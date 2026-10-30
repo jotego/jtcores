@@ -5,7 +5,7 @@
 module jtthundr_obj(
     input             rst,
     input             clk, pxl_cen, hs, lvbl,
-                      flip, dmaon,
+                      flip, dmaon, metrocrs,
     input      [ 8:0] hdump, vdump, hos,
     input      [ 7:0] vos,
     // MMR
@@ -110,6 +110,7 @@ jtthundr_objscan u_scan(
     .hs         ( hs        ),
     .blankn     ( blankn    ),
     .flip       ( flip      ),
+    .metrocrs   ( metrocrs  ),
     .vrender    ( vdump     ),
     .xoffset    ( xos       ),
     .yoffset    ( yos       ),

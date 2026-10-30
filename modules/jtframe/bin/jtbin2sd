@@ -17,12 +17,15 @@ Optionally indicate the setname to be used as the game to load on power up (core
 -a, --all       Regenerate all .rom files (including alternates)
 -g, --git       Uses JTBIN as the target folder
 -r, --rom       Runs "jtframe mra" for each mra file found to get the main .rom files generated
+-u, --update    Does not erase the SD card contents and only copies
+                files that are newer than the ones already in it
 -v, --verbose
 HELP
 }
 
 LOCAL=1
 V=
+CPUPD=
 CNT=0
 SETNAME=
 RUNMRA=
@@ -37,6 +40,8 @@ while [ $# -gt 0 ]; do
         -a|--all)
             RUNMRA=1
             MAINONLY=;;
+        -u|--update)
+            CPUPD=-u;;
         -v|--verbose)
             V=-v;;
         -h|--help)
@@ -67,13 +72,16 @@ fi
 cd $JTBIN/mra
 
 function cp_mist {
-    cp $V $JTBIN/$1/*rbf $DST
+    cp $V $CPUPD $JTBIN/$1/*rbf $DST
     # Get the main MRA as the core's arc for JTAG programming
     for CORE in $JTBIN/$1/*rbf; do
         CORE=`basename $CORE .rbf`
         IFS=$'\n'
         for MRA in `find -name "*mra" -print0 | xargs -0 grep --files-with-matches --ignore-case $CORE`; do
-            mra -z $HOME/.mame/roms -O $DST -A -s "$MRA"
+            ARC="$DST/`basename "$MRA" .mra`.arc"
+            if [ -z "$CPUPD" ] || [ ! -e "$ARC" ] || [ "$MRA" -nt "$ARC" ]; then
+                mra -z $HOME/.mame/roms -O $DST -A -s "$MRA"
+            fi
         done
         unset IFS
     done
@@ -81,12 +89,12 @@ function cp_mist {
     if [ ! -z "$SETNAME" ]; then
         local MAINSET=`grep -iw $SETNAME $DST/*.arc --files-with-matches | head -n 1`
         if [ ! -z "$MAINSET" ]; then
-            cp "$MAINSET" $DST/core.arc
+            cp $CPUPD "$MAINSET" $DST/core.arc
         else
             echo "Cannot find any arc file for $SETNAME"
         fi
     elif [ ! -e $DST/core.arc ]; then
-        cp -v "`ls $DST/*arc|head -n 1`" $DST/core.arc;
+        cp $CPUPD -v "`ls $DST/*arc|head -n 1`" $DST/core.arc;
     fi
 }
 
@@ -101,10 +109,12 @@ for i in SIDI128 SIDI MIST POCKET; do
         continue
     fi
     echo "`basename $DST` found"
-    rm -rf $DST/*
+    if [ -z "$CPUPD" ]; then
+        rm -rf $DST/*
+    fi
     # Copy RBF and ARC/JSON files
     if [ $i = POCKET ]; then
-        cp -r $V $JTBIN/pocket/raw/* $DST
+        cp -r $V $CPUPD $JTBIN/pocket/raw/* $DST
     else
         cp_mist ${i,,} &
     fi
@@ -118,7 +128,7 @@ for i in SIDI128 SIDI MIST POCKET; do
                 if [ ! -z "$V" ]; then
                     echo $k $ROM
                 fi
-                $k $ROM
+                $k $CPUPD $ROM
             done
         else
             # only copy .rom files for which there is an ARC file
@@ -126,9 +136,9 @@ for i in SIDI128 SIDI MIST POCKET; do
             find $DST -name "*.arc" -print0 | xargs -0 grep -ho NAME=".*" | \
                 (while IFS= read -r LINE; do \
                     LINE=${LINE:5}; FN=$ROM/${LINE,,}.rom; \
-                    if [ -e "$FN" ]; then cp "$FN" $DST; fi; \
+                    if [ -e "$FN" ]; then cp $CPUPD "$FN" $DST; fi; \
                     FN=$ROM/${LINE^^}.RAM; \
-                    if [ -e "$FN" ]; then cp "$FN" $DST; fi \
+                    if [ -e "$FN" ]; then cp $CPUPD "$FN" $DST; fi \
                 done)
         fi
     else
@@ -146,7 +156,7 @@ if [[ -d /media/$USER/POCKET && -e $JTUTIL/beta.bin ]]; then
     mkdir -p /media/$USER/POCKET/Assets/jtpatreon/common
     for i in /media/$USER/POCKET/Assets/*; do
         if [ -d $i/common ]; then
-            cp $JTUTIL/beta.bin -d $i/common
+            cp $CPUPD $JTUTIL/beta.bin -d $i/common
         fi
     done
 fi

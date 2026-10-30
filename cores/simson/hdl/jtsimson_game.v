@@ -19,7 +19,7 @@ wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
 wire [15:0] video_dumpa;
 reg  [ 7:0] debug_mux;
-reg         simson, paroda, vendetta, suratk;
+reg         simson, paroda, vendetta, esckids, suratk;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -31,6 +31,7 @@ always @(posedge clk) begin
         simson   <= prog_data[2:0]==0;
         paroda   <= prog_data[2:0]==1;
         vendetta <= prog_data[2:0]==2;
+        esckids  <= prog_data[2:0]==3;
         suratk   <= prog_data[2:0]==4;
     end
     case( debug_bus[7:6] )
@@ -51,6 +52,7 @@ jtsimson_main u_main(
     .simson         ( simson        ),
     .paroda         ( paroda        ),
     .vendetta       ( vendetta      ),
+    .esckids        ( esckids       ),
     .suratk         ( suratk        ),
     // YM2151 (only suratk)
     .fm_cs          ( main_fmcs     ),
@@ -179,6 +181,7 @@ jtsimson_video u_video (
     .simson         ( simson        ),
     .paroda         ( paroda        ),
     .suratk         ( suratk        ),
+    .esckids        ( esckids       ),
 
     // base video
     .pxl_cen        ( pxl_cen       ),

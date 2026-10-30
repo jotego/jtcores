@@ -123,7 +123,7 @@ func (bus AudioCh) Is_nbits(n int) bool        { return bus.Data_width == n }
 func (bus SDRAMCacheLine) Is_nbits(n int) bool { return bus.Data_width == n }
 
 func addr_range(bus Bus) string {
-	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)
+	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, cache_data_aw0(bus.Get_dw()))
 }
 
 func data_range(bus Bus) string {
@@ -609,6 +609,7 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 }
 
 func (cfg *MemConfig) check_sdram() error {
+	cfg.SDRAM.Tag_ram = macros.IsSet("JTFRAME_SDRAM96")
 	if len(cfg.SDRAM.Banks) > 0 && len(cfg.SDRAM.Cache_lanes) > 0 {
 		return fmt.Errorf("jtframe mem: sdram.banks and sdram.cache-lanes cannot be defined at the same time")
 	}
@@ -672,6 +673,15 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 			}
 			if e := check_bank_cache(bus); e != nil {
 				return e
+			}
+			if bus.Data_width == 64 {
+				if !bus.Cache_large {
+					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires a string cache_size for the large cache", bus.Name)
+				}
+				len_macro := fmt.Sprintf("JTFRAME_BA%d_LEN", k)
+				if !macros.IsInt(len_macro) || macros.GetInt(len_macro) != 64 {
+					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires %s=64", bus.Name, len_macro)
+				}
 			}
 			if bus.Rw {
 				total_ram++

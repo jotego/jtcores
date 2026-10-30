@@ -15,6 +15,7 @@ module jtframe_board #(parameter
 )(
     output              rst,
     output              rst_n,
+    input               capture_pause,
     output              game_rst,
     output              game_rst_n,
     output              sdram_init,
@@ -26,7 +27,7 @@ module jtframe_board #(parameter
     input               clk_rom,
     input               clk_pico,
 
-    input        [ 6:0] core_mod,
+    input        [17:0] core_mod,
     output              vertical,
     output       [ 1:0] black_frame,
     // LED
@@ -88,6 +89,9 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input               cab_active,
+    input        [20:0] cab_inputs,
+    input               cab_dump_pause,
     input        [ 3:0] board_start,     board_coin,
     input        [15:0] joyana_l1,       joyana_r1,       joyana_l2,       joyana_r2,
     output       [ 9:0] game_joystick1,  game_joystick2,  game_joystick3,  game_joystick4,
@@ -166,7 +170,7 @@ wire         osd_pause;
 wire         key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
-wire         game_pause, soft_rst, game_test;
+wire         game_pause, soft_rst, game_test, effective_pause;
 wire         cheat_led, pre_pause;
 
 wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
@@ -195,12 +199,18 @@ wire [ 1:0] bax_dsn;
 wire [ 3:0] bax_rdy, bax_dst;
 wire [SDRAMW-1:0] bax_addr;
 
-wire LHBLs;
+wire LHBLs, LVBLs, hshort_en, vshort_en, hshort_wide, vshort_wide;
+wire [ 1:0] hblack_frame, vblack_frame;
 reg  prog_en;
 
-assign sensty    = status[33:32]; // MiST should drive these pins
-assign joy1_pos  = status[19:18];
+assign sensty         = status[33:32]; // MiST should drive these pins
+assign joy1_pos       = status[19:18];
 assign gun_crossh_en = `ifdef JTFRAME_LIGHTGUN_ON 1'b1; `else status[9]; `endif
+assign black_frame    = hblack_frame | vblack_frame;
+assign hshort_en      = hblack_frame[0];
+assign vshort_en      = vblack_frame[0];
+assign hshort_wide    = hblack_frame[1];
+assign vshort_wide    = vblack_frame[1];
 
 always @(posedge clk_rom) begin
     prog_en <= dwnld_busy | ioctl_cart;
@@ -213,7 +223,8 @@ jtframe_coremod u_coremod(
     .dipflip_xor    ( dipflip_xor   ),
     .dial_raw_en    ( dial_raw_en   ),
     .dial_reverse   ( dial_reverse  ),
-    .black_frame    ( black_frame   )
+    .hblack_frame   ( hblack_frame  ),
+    .vblack_frame   ( vblack_frame  )
 );
 
 assign base_rgb  = { cross_r, cross_g, cross_b };
@@ -297,7 +308,7 @@ reg  show_credits;
 
         // input image
         .HB         ( LHBLs          ),
-        .VB         ( LVBL           ),
+        .VB         ( LVBLs          ),
         .HS         ( hs             ),
         .VS         ( vs             ),
         .rgb_in     ( {game_r, game_g, game_b} ),
@@ -339,7 +350,7 @@ reg  show_credits;
     );
 `else
     assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
-    assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBL };
+    assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBLs };
     assign { base_hs,    base_vs       } = { hs,    vs   };
     initial show_credits=0;
 `endif
@@ -433,7 +444,7 @@ jtframe_filter_keyboard u_filter_keyboard(
         .show_credits( show_credits ),
         .game_led   ( led_peak[0]   ),
         .LVBL       ( LVBL          ),
-        .core_mod   ( core_mod      ),
+        .core_mod   ( core_mod[6:0] ),
         .gfx_en     ( gfx_en        ),
         // sound
         .sample     ( snd_sample    ),
@@ -502,12 +513,13 @@ jtframe_short_blank #(
     .pxl_cen    ( pxl_cen         ),
     .LHBL       ( LHBL            ),
     .LVBL       ( LVBL            ),
-    .v_en       ( 1'b0            ),
-    .h_en       ( black_frame[0]  ),
-    .wide       ( black_frame[1]  ),
+    .h_en       ( hshort_en       ),
+    .v_en       ( vshort_en       ),
+    .h_wide     ( hshort_wide     ),
+    .v_wide     ( vshort_wide     ),
     .HS         ( hs              ),
     .hb_out     ( LHBLs           ),
-    .vb_out     (                 )
+    .vb_out     ( LVBLs           )
 );
 
 jtframe_inputs #(
@@ -519,7 +531,7 @@ jtframe_inputs #(
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
     .lhbl           ( LHBLs           ),
-    .lvbl           ( LVBL            ),
+    .lvbl           ( LVBLs           ),
     .ioctl_rom      ( dwnld_busy      ),
     .joy1_pos       ( joy1_pos        ),
     .rot            ( rot_control     ),
@@ -531,6 +543,8 @@ jtframe_inputs #(
     .soft_rst       ( soft_rst        ),
 
     .board_joy1     ( board_joystick1 ),
+    .cab_active     ( cab_active     ),
+    .cab_inputs     ( cab_inputs     ),
     .board_joy2     ( board_joystick2 ),
     .board_joy3     ( board_joystick3 ),
     .board_joy4     ( board_joystick4 ),
@@ -619,12 +633,14 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
+assign effective_pause = game_pause | capture_pause | cab_dump_pause;
+
 jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
     .vertical   ( vertical      ),
     .dipflip_xor( dipflip_xor   ),
-    .game_pause ( game_pause    ),
+    .game_pause ( effective_pause ),
     .hdmi_arx   ( hdmi_arx      ),
     .hdmi_ary   ( hdmi_ary      ),
     .rotate     ( rotate        ),

@@ -9,3 +9,7 @@ jtframe/target/mist:
     - i2s.v
     - spdif.v
     - data_io.v
+jtframe:
+  - from: keyboard
+    get:
+      - jtframe_cab_stream.v

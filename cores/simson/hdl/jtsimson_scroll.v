@@ -8,7 +8,7 @@ module jtsimson_scroll(
     input             pxl_cen,
     input             pxl2_cen,
 
-    input             paroda, simson, suratk,
+    input             paroda, simson, suratk, esckids,
     // Base Video
     output            lhbl,
     output            lvbl,
@@ -85,7 +85,7 @@ always @(posedge clk) begin
 end
 
 function [19:2] sort( input [7:0] col, input [12:0] pre );
-    sort = parsur ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
+    sort = (parsur | esckids) ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
            simson ? { pre[11],    col[5:0],                 pre[10:0] } :
                     { pre[11], col[3:2], col[5:4],col[1:0], pre[10:0] };
 endfunction

@@ -34,4 +34,4 @@ regions=[
     { name="proms",    skip=true },
 ]
 
-order=[ "maincpu", "soundcpu", "adpcm", "gfx1", "gfx2", "gfx3" ]
+order=[ "maincpu", "soundcpu", "gfx1", "gfx2", "gfx3" ]

@@ -1,0 +1,33 @@
+- name: riders_tmnt2
+  no_core_name: true
+  size: 32
+  dw: 16
+  read_only: true
+  regs:
+    - name: dma_on
+      dw: 1
+      event: write
+      at: "0x19"
+    - name: enable
+      dw: 1
+      at: "0x11[1]"
+    - name: src
+      dw: 24
+      at: "2,1,0"
+    - name: dst
+      dw: 24
+      at: "6,5,4"
+    - name: mod
+      dw: 24
+      at: "10,9,8"
+    - name: zlock
+      dw: 1
+      at: "16[0]"
+
+- include:
+    core: simson
+    name: k054000
+
+- include:
+    core: rungun
+    name: k053252

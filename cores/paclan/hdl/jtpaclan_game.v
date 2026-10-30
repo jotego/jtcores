@@ -98,7 +98,6 @@ jtpaclan_sound u_sound(
     .dipsw      (dipsw[15:0]),
     .joystick1  (joystick1[6:0]),
     .joystick2  (joystick2[6:0]),
-    .joyana_r1  ( joyana_r1 ),
     .cab_1p     (cab_1p[1:0]),
     .coin       ( coin[1:0] ),
     .service    ( service   ),

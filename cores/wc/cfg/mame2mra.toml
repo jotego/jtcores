@@ -41,7 +41,7 @@ data = [
 [ROM]
 regions = [
 	{ name="maincpu"                             },
-	{ name="subcpu",   start="SUB_START"         },
+	{ name="sub",      start="SUB_START"         },
 	{ name="audiocpu", start="JTFRAME_BA1_START" },
 	{ name="adpcm",    start="PCM_START"         },
 	{ name="gfx1",     start="JTFRAME_BA2_START" },

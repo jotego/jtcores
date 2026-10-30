@@ -180,13 +180,13 @@ always @(posedge clk) begin
         3: cab_dout <= 16'hffff;
     endcase
 
-    cpu_din <= rom_cs    ? rom_data :
-               ram_cs    ? ram_data :
-               vram_cs   ? vram2main_data :
-               scrram_cs ? scrram2main_data :
-	               objram_cs ? objram2main_data :
-	               secr      ? mcu_dout :
-	               cab_cs    ? cab_dout : 16'h0;
+    cpu_din <= ({16{rom_cs}}    & rom_data)          |
+               ({16{ram_cs}}    & ram_data)          |
+               ({16{vram_cs}}   & vram2main_data)   |
+               ({16{scrram_cs}} & scrram2main_data) |
+               ({16{objram_cs}} & objram2main_data) |
+               ({16{secr}}      & mcu_dout)          |
+               ({16{cab_cs}}    & cab_dout);
 end
 
 jtframe_okdly #(.W(2)) u_okdly(

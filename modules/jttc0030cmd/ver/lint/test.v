@@ -40,7 +40,9 @@ module test;
         .mrom_addr (          ),
         .mrom_data ( 8'd0     ),
         .eprom_addr(          ),
-        .eprom_data( 8'd0     )
+        .eprom_data( 8'd0     ),
+        .rom_addr  (          ),
+        .rom_cs    (          )
     );
 
     initial begin

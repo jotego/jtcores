@@ -1,0 +1,74 @@
+jtframe:
+  - get:
+      - jtframe_serializer.v
+  - from: video
+    unless: [ VERILATOR ]
+    get:
+      - jtframe_logo.v
+      - jtframe_center_logo.v
+      - jtframe_hexdisplay.v
+      # line-based frame buffer
+      - jtframe_lfbuf_cram.v
+      - jtframe_lfbuf_ctrl.v
+      - jtframe_lfbuf_line.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - from: ram
+    get:
+      - jtframe_prom.v
+  - from: clocking
+    when: [ JTFRAME_LF_BUFFER ]
+    get:
+      - jtframe_crossclk_cen.v
+  - from: clocking
+    get:
+      - jtframe_crossclk_strobe.v
+      - jtframe_int_cen.v
+  - from: keyboard
+    get:
+      - jtframe_hid_ps2_translator.v
+  - from: analogizer
+    get:
+      - "*.v"
+jtframe/target/sidi128:
+  # uses zero-shift PLLs as sidi128
+  - get:
+      - pll_game.qip
+jtframe/target/mist:
+  - get:
+    - common.yaml
+jtframe/target/pocket:
+  - when: [JTFRAME_SDRAM96]
+    get:
+      - sdram_clk96.sdc
+  - unless: [JTFRAME_SDRAM96]
+    get:
+      - sdram_clk48.sdc
+  - unless: [ VERILATOR ]
+    get:
+    - jtframe_pocket.v
+    - jtframe_pocket_base.sv
+    - jtframe_pocket_top.v
+    - jtframe_pocket_cfg.v
+    - jtframe_pocket_video.v
+    - jtframe_pocket_audio.v
+    - jtframe_pocket_spi.v
+    - jtframe_pocket_cmd.v
+    - jtframe_pocket_input.v
+    - jtframe_pocket_keyboard.v
+    - jtframe_pocket_keyboard_decoder.v
+    - jtframe_pocket_avmux.v
+    - jtframe_pocket_ctrlmux.v
+    - jtframe_pocket_joystick.v
+    - pocket.sdc
+    - pll_pocket.qip
+    - pll_audio.qip
+    - pocket_id.qip
+    - mf_ddio_bidir_12.qip
+    # Analogue's MIT-licensed IP
+    - io_pad_controller.v
+  - from: ram
+    get:
+    - jtframe_pocket_sram.v
+    - jtframe_pocket_dualram.v

@@ -1,6 +1,4 @@
 #!/bin/bash -e
-POCKET=
-
 if [ -z "$JTFRAME" ]; then
     echo "Missing JTFRAME environment variable definition"
     exit 1
@@ -30,14 +28,9 @@ function run_tests {
 }
 
 if [ $RECOMPILE = TRUE ]; then
-    if [ -e $JTFRAME/target/pocket/pocket.go ]; then
-        ln -sf $JTFRAME/target/pocket/pocket.go $JTFRAME/src/jtframe/mra/pocket.go
-        POCKET="-tags pocket"
-        echo "Compiling jtframe with Pocket support" > /dev/stderr
-    fi
     cd $JTFRAME/src/jtframe > /dev/null
     run_tests
-    go build $POCKET . || exit $?
+    go build . || exit $?
     cd - > /dev/null
 fi
 

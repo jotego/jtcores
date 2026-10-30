@@ -1,0 +1,88 @@
+# NARC clean-up reference: the first boot writes factory settings (CMOS starts empty in sim), reset at 70, then play.cab
+70
+1 reset
+80
+6 coin
+30
+6 1p
+30
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26
+4 b1
+26

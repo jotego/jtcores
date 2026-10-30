@@ -45,6 +45,26 @@ initial begin
         $fatal(1, "PCM writeback overwrote the Z80 channel-8 start command");
     end
     $display("PASS: Z80 channel-8 start command wins the PCM RAM collision");
+
+    // The collision check above only protects the single cycle of the CPU write.
+    // The enable register is a read-modify-write spanning st==0 (read) to st==8
+    // (write-back), about 24 clk cycles at cen 16MHz. A CPU write landing anywhere
+    // else in that window is not a collision, yet an unconditional write-back at
+    // st==8 still restores the stale byte and the voice start is silently lost.
+    // So: the CPU has already written 0x00, no write is in flight, and cfg_en still
+    // holds the 0x01 read at st==0. st==8 must leave RAM alone.
+    cpu_cs = 1'b0;
+    uut.u_ram.u_ram.mem[9'h0c6] = 8'h00;  // the CPU's start command, already stored
+    force uut.st     = 4'd8;              // cfg_addr=5'o16 -> RAM 0x0c6 for channel 8
+    force uut.cur_ch = 4'd8;
+    force uut.cfg_en = 8'h01;             // stale copy, read at st==0 before the CPU wrote
+    @(posedge clk24);                     // the RAM is clocked by clk24, not clk
+    @(posedge clk24);
+    #1;
+    if (uut.u_ram.u_ram.mem[9'h0c6] !== 8'h00) begin
+        $fatal(1, "st==8 write-back restored the stale enable byte and dropped the voice start");
+    end
+    $display("PASS: st==8 does not write back an unchanged enable register");
     $finish;
 end
 
