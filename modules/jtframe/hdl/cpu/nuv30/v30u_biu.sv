@@ -177,6 +177,7 @@ module v30u_biu (
     output      [3:0] status_o,    // {md8080, psw_ie, seg} -- the PS nibble
     output            ube_n,
     output            rd_n,
+    output            wr_n,
     output      [1:0] qs,          // F1: the BIU owns the QS port
     input      [15:0] ad_i,        // read data (from AD[15:0] or from DATA_I)
     input             ready,
@@ -1304,6 +1305,9 @@ assign ad_oe_data = bus_vfp_pub ||
 
 assign rd_n = !(r_run && ((r_ts == TS_T2) || (r_ts == TS_T3) || (r_ts == TS_TW)) &&
                 !r_cur_wr && !r_cur_halt);
+
+assign wr_n = !(r_run && ((r_ts == TS_T2) || (r_ts == TS_T3) || (r_ts == TS_TW)) &&
+                r_cur_wr && !r_cur_halt);
 
 // THE T1 AD HALF.  `negedge` -> `posedge` 2026-08-13: this was the design's
 // LAST negedge-clocked flop, and it is now a plain posedge flop enabled by the
@@ -2805,8 +2809,10 @@ always_ff @(posedge clk) if (!srst) begin
     // (`land_ttl` is 0 for `sev_now >= 2`).
     assert (!(r_run && r_evald && !r_cur_halt && (r_sev > 2'd2)))
         else $error("v30u_biu: sev bound violated (%0d)", r_sev);
-    assert (!(r_cmt_valid && (r_cdage == 3'd7)))
-        else $error("v30u_biu: announcement age saturated");
+    // READY may hold the owning cycle while an announcement saturates.
+    assert (!(r_cmt_valid && (r_cdage == 3'd7) &&
+              !(r_run && ((r_ts == TS_T2) || (r_ts == TS_T3) || (r_ts == TS_TW)))))
+        else $error("v30u_biu: saturated announcement without an owning data phase");
     assert (r_q_cnt <= 4'd6)
         else $error("v30u_biu: queue overflow (%0d)", r_q_cnt);
     assert (!((r_grn_ttl != 2'd0) && ({2'd0, r_grn_n} > r_q_cnt)))

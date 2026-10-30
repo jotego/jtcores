@@ -20,7 +20,8 @@ module jtframe_v30 #(
     output     [ 1:0] qs,
     output            rd_n,
     output            ube_n,
-    output            buslock_n
+    output            buslock_n,
+    output            wr_n
 );
 
 // cenb must occur between consecutive cen pulses, without overlap.
@@ -42,6 +43,7 @@ v30_core #(
     .QS           ( qs                                   ),
     .BS           ( bs                                   ),
     .RD_N         ( rd_n                                 ),
+    .WR_N         ( wr_n                                 ),
     .UBE_N        ( ube_n                                ),
     .BUSLOCK_N    ( buslock_n                            ),
     .SS_ADDR      ( {v30_ss_pkg::SS_ADDR_W{1'b0}}          ),
