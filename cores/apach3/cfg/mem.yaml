@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 29-10-2026
+
+params:
+  - { name: SLAVE_OFFSET, value: "`SLAVE_START >> 1" }
+  - { name: GROUND_OFFSET, value: "32'h20000 >> 1" }
+  - { name: OKI_OFFSET, value: "(`OKI_START-`JTFRAME_BA3_START) >> 1" }
+
+clocks:
+  clk:
+    - { freq: 8M, outputs: [ v30_8m_cen ] }
+    - { freq: 8M, outputs: [ v20_8m_cen ] }
+    - { freq: 6.25M, outputs: [ z80_cen ] }
+    - { freq: 4M, outputs: [ ym_cen ] }
+    - { freq: 2M, outputs: [ oki_cen ] }
+
+audio:
+  rsum: 10k
+  channels:
+    - { name: fm,  module: jt51,   rsum: 5.1k }
+    - { name: pcm, module: jt6295, rsum: 6.2k }
+
+download:
+  post_data: true
+
+sdram:
+  banks:
+    - buses:
+        - { name: master_rom, addr_width: 19, data_width: 16 }
+        - { name: slave_rom, addr_width: 19, data_width: 16, offset: SLAVE_OFFSET }
+        - { name: v30_slave_rom, addr_width: 19, data_width: 16, offset: SLAVE_OFFSET }
+    - buses:
+        - { name: sprites, addr_width: 21, data_width: 64, cache_size: 8kB }
+    - buses:
+        - { name: ground_ram, addr_width: 16, data_width: 16, offset: GROUND_OFFSET, rw: true, do_not_erase: true }
+        - { name: text_rom, addr_width: 17, data_width: 32 }
+    - buses:
+        - { name: sound_rom, addr_width: 16, data_width: 8 }
+        - { name: v30_sound_rom, addr_width: 16, data_width: 8 }
+        - { name: oki, addr_width: 18, data_width: 8, offset: OKI_OFFSET }
+
+bram:
+  - { name: workram, size: 16kB, data_width: 16, rw: true }
+  - name: backup
+    size: 16kB
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+  - { name: videoram, size: 8kB, data_width: 16, rw: true, simfile: {}, dual_port: { name: txmap, dout: txmap_data } }
+  - name: sharedram
+    size: 16kB
+    data_width: 16
+    rw: true
+    dual_port: { name: v30_shared, rw: true, din: v30_shared_din, dout: v30_shared_dout, we: v30_shared_we }
+  - { name: spriteram, size: 16kB, data_width: 16, rw: true, simfile: {}, dual_port: { name: objram, dout: objram_data } }
+  - { name: obj_ctrl_ram, size: 512, data_width: 16, rw: true, simfile: {}, dual_port: { name: obj_ctrl, dout: obj_ctrl_data } }
+  - { name: palette, size: 4kB, data_width: 16, rw: true, simfile: {}, dual_port: { name: palette_video, dout: palette_video_data } }
+  - name: soundram
+    size: 8kB
+    data_width: 8
+    rw: true
+    dual_port: { name: v30_soundram, rw: true, din: v30_soundram_din, dout: v30_soundram_dout, we: v30_soundram_we }
+  - name: z80ram
+    size: 8kB
+    data_width: 8
+    rw: true
+    dual_port: { name: m68k_z80ram, rw: true, din: m68k_z80ram_din, dout: m68k_z80ram_dout, we: m68k_z80ram_we }
+  - { name: road_x_ram, size: 512, data_width: 16, rw: true, simfile: {}, dual_port: { name: road_x_video, dout: road_x_video_data } }
+  - { name: road_prom, size: 512, data_width: 8, prom: true, simfile: {} }

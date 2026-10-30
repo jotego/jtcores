@@ -15289,6 +15289,471 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="apache3" sourcefile="tatsumi/apache3.cpp">
+		<description>Apache 3 (rev F)</description>
+		<year>1988</year>
+		<manufacturer>Tatsumi</manufacturer>
+		<rom name="ap-25f.125" size="65536" crc="3c7530f4" sha1="9f7b58a3abddbdc3081ba9dfc1732406eb8c1752" region="master_rom" offset="20001"/>
+		<rom name="ap-26f.133" size="65536" crc="2955997f" sha1="86e37def923d9cf4eb33e7979118ec6f1ef62678" region="master_rom" offset="20000"/>
+		<rom name="ap-23f.110" size="65536" crc="d7077149" sha1="b08f5a9ee03641c20bdd5e5c9671a22c740150c6" region="master_rom" offset="60001"/>
+		<rom name="ap-24f.118" size="65536" crc="0bdef11b" sha1="ed687600962ed2ca3a8e67cbd84fa5486778eade" region="master_rom" offset="60000"/>
+		<rom name="ap-19c.80" size="65536" crc="0908e468" sha1="a2d725993bd4cd5425468736154fd3dd9dd7b060" region="slave_rom" offset="1"/>
+		<rom name="ap-21c.97" size="65536" crc="38a056fb" sha1="67c8ae58670cebde0771854e1fb5fc2eb2543ecc" region="slave_rom" offset="0"/>
+		<rom name="ap-20a.89" size="131072" crc="92d24b5e" sha1="1ea270d46a607e47b7e0961b532316aa05dc8f4e" region="slave_rom" offset="40001"/>
+		<rom name="ap-22a.105" size="131072" crc="a8458a92" sha1="43674731c2e9962c2bfbb73a85484cf03d6be223" region="slave_rom" offset="40000"/>
+		<rom name="ap-27d.151" size="65536" crc="294b4d79" sha1="2b03418a12a2aaf3919b98161d8d0ce6ae29a2bb" region="sound_rom" offset="0"/>
+		<rom name="ap-00c.15" size="131072" crc="ad1ddc2b" sha1="81f64663c4892ab5fb0e2dc99513dbfee73f15b8" region="sprites:sprites_l" offset="0"/>
+		<rom name="ap-01c.22" size="131072" crc="6286ff00" sha1="920da4a3a441dbf54ad86c0f4fb6f47a867e9cda" region="sprites:sprites_l" offset="1"/>
+		<rom name="ap-04c.58" size="131072" crc="dc6d55e4" sha1="9f48f8d6aa1a329a71913139a8d5a50d95a9b9e5" region="sprites:sprites_l" offset="2"/>
+		<rom name="ap-05c.65" size="131072" crc="2e6e495f" sha1="af610f265da53735b20ddc6df1bda47fc54ee0c3" region="sprites:sprites_l" offset="3"/>
+		<rom name="ap-02c.34" size="131072" crc="af4ee7cb" sha1="4fe2361b7431971b07671f145abf1ea5861d01db" region="sprites:sprites_l" offset="80000"/>
+		<rom name="ap-03c.46" size="131072" crc="60ab495c" sha1="18340d4fba550495b1e52f8023a0a2ec6349dfeb" region="sprites:sprites_l" offset="80001"/>
+		<rom name="ap-06c.71" size="131072" crc="0ea90e55" sha1="b16d6b8be4853797507d3e5c933a9dd1d451308e" region="sprites:sprites_l" offset="80002"/>
+		<rom name="ap-07c.75" size="131072" crc="ba685543" sha1="140a2b708d4e4de4d207fc2c4a96a5cab8639988" region="sprites:sprites_l" offset="80003"/>
+		<rom name="ap-08c.14" size="131072" crc="6437b580" sha1="2b2ba42add18bbec04fbcf53645a8d44b972e26a" region="sprites:sprites_h" offset="0"/>
+		<rom name="ap-09c.21" size="131072" crc="54d18ef9" sha1="40ebc6ea49b2a501fe843d60bec8c32d07f2d25d" region="sprites:sprites_h" offset="1"/>
+		<rom name="ap-12c.57" size="131072" crc="f95cf5cf" sha1="ce373c648cbf3e4863bbc3a1175efe065c75eb13" region="sprites:sprites_h" offset="2"/>
+		<rom name="ap-13c.64" size="131072" crc="67a248c3" sha1="cc945f7cfecaaab5075c1a3d202369b070d4c656" region="sprites:sprites_h" offset="3"/>
+		<rom name="ap-10c.33" size="131072" crc="74418df4" sha1="cc1206b10afc2de919b2fb9899486122d27290a4" region="sprites:sprites_h" offset="80000"/>
+		<rom name="ap-11c.45" size="131072" crc="195bf78e" sha1="c3c472f3c4244545b89491b6ebec4f838a6bbb73" region="sprites:sprites_h" offset="80001"/>
+		<rom name="ap-14c.70" size="131072" crc="58f7fe16" sha1="a5b87b42b85808c226df0d2a7b7cdde12d474a41" region="sprites:sprites_h" offset="80002"/>
+		<rom name="ap-15c.74" size="131072" crc="1ffd5496" sha1="25efb568957fc9441a40a7d64cc6afe1a14b392b" region="sprites:sprites_h" offset="80003"/>
+		<rom name="ap-18d.73" size="32768" crc="55e664bf" sha1="505bec8b5ff3f9fa2c5fb1213d54683347905be1" region="text" offset="0"/>
+		<rom name="ap-17d.68" size="32768" crc="6199afe4" sha1="ad8c0ed6c33d984bb29c89f2e7fc7e5a923cefe3" region="text" offset="8000"/>
+		<rom name="ap-16d.63" size="32768" crc="f115656d" sha1="61798858dc0172192d89e666696b2c7642756899" region="text" offset="10000"/>
+		<rom name="ap-28c.171" size="131072" crc="b349f0c2" sha1="cb1ff1c0e784f669c87ab1eccd3b358950761b74" region="oki" offset="0"/>
+		<rom name="ap-29c.176" size="65536" crc="b38fced3" sha1="72f61a719f393957bcccf14687bfbb2e7a5f7aee" region="oki" offset="20000"/>
+		<rom name="am27s29.ic41" size="512" crc="c981f1e0" sha1="7d8492d9f4033ab3734c09ee23016a0b210648b5" region="proms" offset="0"/>
+		<device_ref name="v30"/>
+		<device_ref name="m68000"/>
+		<device_ref name="v20"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="m58990"/>
+		<device_ref name="i8255"/>
+		<device_ref name="screen"/>
+		<device_ref name="tzb215_sprites"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="NEC V30" clock="8000000"/>
+		<chip type="cpu" tag="sub" name="Motorola MC68000" clock="12500000"/>
+		<chip type="cpu" tag="audiocpu" name="NEC V20" clock="8000000"/>
+		<chip type="cpu" tag="sub2" name="Zilog Z80" clock="6250000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="6250000" htotal="400" hbend="0" hbstart="320" vtotal="272" vbend="0" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="stick" buttons="3" minimum="0" maximum="255" sensitivity="25" keydelta="79"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="2"/>
+			<dipvalue name="6" value="3"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="4"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+			<dipvalue name="Hardest" value="12"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW" mask="1792">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="512"/>
+			<dipvalue name="2 Coins/1 Credit" value="256"/>
+			<dipvalue name="3 Coins/2 Credits" value="1792"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/2 Credits" value="768"/>
+			<dipvalue name="1 Coin/5 Credits" value="1024"/>
+			<dipvalue name="1 Coin/6 Credits" value="1280"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="2048">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="4096">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4096"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="8192">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="16384">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="16384"/>
+		</dipswitch>
+		<dipswitch name="Test" tag="DSW" mask="32768">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":STICK_X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":STICK_Y">
+			<analog mask="255"/>
+		</port>
+		<port tag=":THROTTLE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":VR1">
+		</port>
+		<adjuster name="VR1" default="100"/>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+
+	<machine name="apache3a" sourcefile="tatsumi/apache3.cpp" cloneof="apache3" romof="apache3">
+		<description>Apache 3 (rev E)</description>
+		<year>1988</year>
+		<manufacturer>Tatsumi</manufacturer>
+		<rom name="ap-25c.125" size="65536" crc="7bc496a6" sha1="5491d06181d729407e975b85a8715fdc3b489c67" region="master_rom" offset="20001"/>
+		<rom name="ap-26c.133" size="65536" crc="9393a470" sha1="00376f7a545629a83eb5a90b9d1685a68430e4ce" region="master_rom" offset="20000"/>
+		<rom name="ap-23e.110" size="65536" crc="3e465b8e" sha1="dfd009221974eb43263dd3f4f80f39bb32c30ced" region="master_rom" offset="60001"/>
+		<rom name="ap-24e.118" size="65536" crc="1ef746f2" sha1="31d77bd954ea6cc00cac40a3a514281da371030b" region="master_rom" offset="60000"/>
+		<rom name="ap-19c.80" merge="ap-19c.80" size="65536" crc="0908e468" sha1="a2d725993bd4cd5425468736154fd3dd9dd7b060" region="slave_rom" offset="1"/>
+		<rom name="ap-21c.97" merge="ap-21c.97" size="65536" crc="38a056fb" sha1="67c8ae58670cebde0771854e1fb5fc2eb2543ecc" region="slave_rom" offset="0"/>
+		<rom name="ap-20a.89" merge="ap-20a.89" size="131072" crc="92d24b5e" sha1="1ea270d46a607e47b7e0961b532316aa05dc8f4e" region="slave_rom" offset="40001"/>
+		<rom name="ap-22a.105" merge="ap-22a.105" size="131072" crc="a8458a92" sha1="43674731c2e9962c2bfbb73a85484cf03d6be223" region="slave_rom" offset="40000"/>
+		<rom name="ap-27d.151" merge="ap-27d.151" size="65536" crc="294b4d79" sha1="2b03418a12a2aaf3919b98161d8d0ce6ae29a2bb" region="sound_rom" offset="0"/>
+		<rom name="ap-00c.15" merge="ap-00c.15" size="131072" crc="ad1ddc2b" sha1="81f64663c4892ab5fb0e2dc99513dbfee73f15b8" region="sprites:sprites_l" offset="0"/>
+		<rom name="ap-01c.22" merge="ap-01c.22" size="131072" crc="6286ff00" sha1="920da4a3a441dbf54ad86c0f4fb6f47a867e9cda" region="sprites:sprites_l" offset="1"/>
+		<rom name="ap-04c.58" merge="ap-04c.58" size="131072" crc="dc6d55e4" sha1="9f48f8d6aa1a329a71913139a8d5a50d95a9b9e5" region="sprites:sprites_l" offset="2"/>
+		<rom name="ap-05c.65" merge="ap-05c.65" size="131072" crc="2e6e495f" sha1="af610f265da53735b20ddc6df1bda47fc54ee0c3" region="sprites:sprites_l" offset="3"/>
+		<rom name="ap-02c.34" merge="ap-02c.34" size="131072" crc="af4ee7cb" sha1="4fe2361b7431971b07671f145abf1ea5861d01db" region="sprites:sprites_l" offset="80000"/>
+		<rom name="ap-03c.46" merge="ap-03c.46" size="131072" crc="60ab495c" sha1="18340d4fba550495b1e52f8023a0a2ec6349dfeb" region="sprites:sprites_l" offset="80001"/>
+		<rom name="ap-06c.71" merge="ap-06c.71" size="131072" crc="0ea90e55" sha1="b16d6b8be4853797507d3e5c933a9dd1d451308e" region="sprites:sprites_l" offset="80002"/>
+		<rom name="ap-07c.75" merge="ap-07c.75" size="131072" crc="ba685543" sha1="140a2b708d4e4de4d207fc2c4a96a5cab8639988" region="sprites:sprites_l" offset="80003"/>
+		<rom name="ap-08c.14" merge="ap-08c.14" size="131072" crc="6437b580" sha1="2b2ba42add18bbec04fbcf53645a8d44b972e26a" region="sprites:sprites_h" offset="0"/>
+		<rom name="ap-09c.21" merge="ap-09c.21" size="131072" crc="54d18ef9" sha1="40ebc6ea49b2a501fe843d60bec8c32d07f2d25d" region="sprites:sprites_h" offset="1"/>
+		<rom name="ap-12c.57" merge="ap-12c.57" size="131072" crc="f95cf5cf" sha1="ce373c648cbf3e4863bbc3a1175efe065c75eb13" region="sprites:sprites_h" offset="2"/>
+		<rom name="ap-13c.64" merge="ap-13c.64" size="131072" crc="67a248c3" sha1="cc945f7cfecaaab5075c1a3d202369b070d4c656" region="sprites:sprites_h" offset="3"/>
+		<rom name="ap-10c.33" merge="ap-10c.33" size="131072" crc="74418df4" sha1="cc1206b10afc2de919b2fb9899486122d27290a4" region="sprites:sprites_h" offset="80000"/>
+		<rom name="ap-11c.45" merge="ap-11c.45" size="131072" crc="195bf78e" sha1="c3c472f3c4244545b89491b6ebec4f838a6bbb73" region="sprites:sprites_h" offset="80001"/>
+		<rom name="ap-14c.70" merge="ap-14c.70" size="131072" crc="58f7fe16" sha1="a5b87b42b85808c226df0d2a7b7cdde12d474a41" region="sprites:sprites_h" offset="80002"/>
+		<rom name="ap-15c.74" merge="ap-15c.74" size="131072" crc="1ffd5496" sha1="25efb568957fc9441a40a7d64cc6afe1a14b392b" region="sprites:sprites_h" offset="80003"/>
+		<rom name="ap-18e.73" size="65536" crc="d7861a26" sha1="b1a1e089a293a5536d342c9edafbea303f4f128c" region="text" offset="0"/>
+		<rom name="ap-16e.63" size="65536" crc="d3251965" sha1="aef4f58a6f773060434abda9d7f5f003693577bf" region="text" offset="8000"/>
+		<rom name="ap-17e.68" size="32768" crc="4509c2ed" sha1="97a6a6710e83aca212ce43d06c3f26c35f9782b8" region="text" offset="8000"/>
+		<rom name="ap-28c.171" merge="ap-28c.171" size="131072" crc="b349f0c2" sha1="cb1ff1c0e784f669c87ab1eccd3b358950761b74" region="oki" offset="0"/>
+		<rom name="ap-29c.176" merge="ap-29c.176" size="65536" crc="b38fced3" sha1="72f61a719f393957bcccf14687bfbb2e7a5f7aee" region="oki" offset="20000"/>
+		<rom name="am27s29.ic41" merge="am27s29.ic41" size="512" crc="c981f1e0" sha1="7d8492d9f4033ab3734c09ee23016a0b210648b5" region="proms" offset="0"/>
+		<device_ref name="v30"/>
+		<device_ref name="m68000"/>
+		<device_ref name="v20"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="m58990"/>
+		<device_ref name="i8255"/>
+		<device_ref name="screen"/>
+		<device_ref name="tzb215_sprites"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="NEC V30" clock="8000000"/>
+		<chip type="cpu" tag="sub" name="Motorola MC68000" clock="12500000"/>
+		<chip type="cpu" tag="audiocpu" name="NEC V20" clock="8000000"/>
+		<chip type="cpu" tag="sub2" name="Zilog Z80" clock="6250000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="6250000" htotal="400" hbend="0" hbstart="320" vtotal="272" vbend="0" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="stick" buttons="3" minimum="0" maximum="255" sensitivity="25" keydelta="79"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="2"/>
+			<dipvalue name="6" value="3"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="4"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+			<dipvalue name="Hardest" value="12"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW" mask="1792">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="512"/>
+			<dipvalue name="2 Coins/1 Credit" value="256"/>
+			<dipvalue name="3 Coins/2 Credits" value="1792"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/2 Credits" value="768"/>
+			<dipvalue name="1 Coin/5 Credits" value="1024"/>
+			<dipvalue name="1 Coin/6 Credits" value="1280"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="2048">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="4096">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4096"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="8192">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="16384">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="16384"/>
+		</dipswitch>
+		<dipswitch name="Test" tag="DSW" mask="32768">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":STICK_X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":STICK_Y">
+			<analog mask="255"/>
+		</port>
+		<port tag=":THROTTLE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":VR1">
+		</port>
+		<adjuster name="VR1" default="100"/>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+
+	<machine name="apache3b" sourcefile="tatsumi/apache3.cpp" cloneof="apache3" romof="apache3">
+		<description>Apache 3 (Kana Corporation license, rev G)</description>
+		<year>1988</year>
+		<manufacturer>Tatsumi (Kana Corporation license)</manufacturer>
+		<rom name="ap-25c.125" size="65536" crc="7bc496a6" sha1="5491d06181d729407e975b85a8715fdc3b489c67" region="master_rom" offset="20001"/>
+		<rom name="ap-26c.133" size="65536" crc="9393a470" sha1="00376f7a545629a83eb5a90b9d1685a68430e4ce" region="master_rom" offset="20000"/>
+		<rom name="ap-23g.110" size="65536" crc="0ab485e4" sha1="d8d0695312732c31cedcb1c298810a6793835e80" region="master_rom" offset="60001"/>
+		<rom name="ap-24g.118" size="65536" crc="6348e196" sha1="6be537491a56a28b62981cae6db8dfc4eb2fece2" region="master_rom" offset="60000"/>
+		<rom name="ap-19c.80" merge="ap-19c.80" size="65536" crc="0908e468" sha1="a2d725993bd4cd5425468736154fd3dd9dd7b060" region="slave_rom" offset="1"/>
+		<rom name="ap-21c.97" merge="ap-21c.97" size="65536" crc="38a056fb" sha1="67c8ae58670cebde0771854e1fb5fc2eb2543ecc" region="slave_rom" offset="0"/>
+		<rom name="ap-20a.89" merge="ap-20a.89" size="131072" crc="92d24b5e" sha1="1ea270d46a607e47b7e0961b532316aa05dc8f4e" region="slave_rom" offset="40001"/>
+		<rom name="ap-22a.105" merge="ap-22a.105" size="131072" crc="a8458a92" sha1="43674731c2e9962c2bfbb73a85484cf03d6be223" region="slave_rom" offset="40000"/>
+		<rom name="ap-27d.151" merge="ap-27d.151" size="65536" crc="294b4d79" sha1="2b03418a12a2aaf3919b98161d8d0ce6ae29a2bb" region="sound_rom" offset="0"/>
+		<rom name="ap-00c.15" merge="ap-00c.15" size="131072" crc="ad1ddc2b" sha1="81f64663c4892ab5fb0e2dc99513dbfee73f15b8" region="sprites:sprites_l" offset="0"/>
+		<rom name="ap-01c.22" merge="ap-01c.22" size="131072" crc="6286ff00" sha1="920da4a3a441dbf54ad86c0f4fb6f47a867e9cda" region="sprites:sprites_l" offset="1"/>
+		<rom name="ap-04c.58" merge="ap-04c.58" size="131072" crc="dc6d55e4" sha1="9f48f8d6aa1a329a71913139a8d5a50d95a9b9e5" region="sprites:sprites_l" offset="2"/>
+		<rom name="ap-05c.65" merge="ap-05c.65" size="131072" crc="2e6e495f" sha1="af610f265da53735b20ddc6df1bda47fc54ee0c3" region="sprites:sprites_l" offset="3"/>
+		<rom name="ap-02c.34" merge="ap-02c.34" size="131072" crc="af4ee7cb" sha1="4fe2361b7431971b07671f145abf1ea5861d01db" region="sprites:sprites_l" offset="80000"/>
+		<rom name="ap-03c.46" merge="ap-03c.46" size="131072" crc="60ab495c" sha1="18340d4fba550495b1e52f8023a0a2ec6349dfeb" region="sprites:sprites_l" offset="80001"/>
+		<rom name="ap-06c.71" merge="ap-06c.71" size="131072" crc="0ea90e55" sha1="b16d6b8be4853797507d3e5c933a9dd1d451308e" region="sprites:sprites_l" offset="80002"/>
+		<rom name="ap-07c.75" merge="ap-07c.75" size="131072" crc="ba685543" sha1="140a2b708d4e4de4d207fc2c4a96a5cab8639988" region="sprites:sprites_l" offset="80003"/>
+		<rom name="ap-08c.14" merge="ap-08c.14" size="131072" crc="6437b580" sha1="2b2ba42add18bbec04fbcf53645a8d44b972e26a" region="sprites:sprites_h" offset="0"/>
+		<rom name="ap-09c.21" merge="ap-09c.21" size="131072" crc="54d18ef9" sha1="40ebc6ea49b2a501fe843d60bec8c32d07f2d25d" region="sprites:sprites_h" offset="1"/>
+		<rom name="ap-12c.57" merge="ap-12c.57" size="131072" crc="f95cf5cf" sha1="ce373c648cbf3e4863bbc3a1175efe065c75eb13" region="sprites:sprites_h" offset="2"/>
+		<rom name="ap-13c.64" merge="ap-13c.64" size="131072" crc="67a248c3" sha1="cc945f7cfecaaab5075c1a3d202369b070d4c656" region="sprites:sprites_h" offset="3"/>
+		<rom name="ap-10c.33" merge="ap-10c.33" size="131072" crc="74418df4" sha1="cc1206b10afc2de919b2fb9899486122d27290a4" region="sprites:sprites_h" offset="80000"/>
+		<rom name="ap-11c.45" merge="ap-11c.45" size="131072" crc="195bf78e" sha1="c3c472f3c4244545b89491b6ebec4f838a6bbb73" region="sprites:sprites_h" offset="80001"/>
+		<rom name="ap-14c.70" merge="ap-14c.70" size="131072" crc="58f7fe16" sha1="a5b87b42b85808c226df0d2a7b7cdde12d474a41" region="sprites:sprites_h" offset="80002"/>
+		<rom name="ap-15c.74" merge="ap-15c.74" size="131072" crc="1ffd5496" sha1="25efb568957fc9441a40a7d64cc6afe1a14b392b" region="sprites:sprites_h" offset="80003"/>
+		<rom name="ap-18e.73" size="65536" crc="d7861a26" sha1="b1a1e089a293a5536d342c9edafbea303f4f128c" region="text" offset="0"/>
+		<rom name="ap-16e.63" size="65536" crc="d3251965" sha1="aef4f58a6f773060434abda9d7f5f003693577bf" region="text" offset="8000"/>
+		<rom name="ap-17e.68" size="32768" crc="4509c2ed" sha1="97a6a6710e83aca212ce43d06c3f26c35f9782b8" region="text" offset="8000"/>
+		<rom name="ap-28c.171" merge="ap-28c.171" size="131072" crc="b349f0c2" sha1="cb1ff1c0e784f669c87ab1eccd3b358950761b74" region="oki" offset="0"/>
+		<rom name="ap-29c.176" merge="ap-29c.176" size="65536" crc="b38fced3" sha1="72f61a719f393957bcccf14687bfbb2e7a5f7aee" region="oki" offset="20000"/>
+		<rom name="am27s29.ic41" merge="am27s29.ic41" size="512" crc="c981f1e0" sha1="7d8492d9f4033ab3734c09ee23016a0b210648b5" region="proms" offset="0"/>
+		<device_ref name="v30"/>
+		<device_ref name="m68000"/>
+		<device_ref name="v20"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="m58990"/>
+		<device_ref name="i8255"/>
+		<device_ref name="screen"/>
+		<device_ref name="tzb215_sprites"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="NEC V30" clock="8000000"/>
+		<chip type="cpu" tag="sub" name="Motorola MC68000" clock="12500000"/>
+		<chip type="cpu" tag="audiocpu" name="NEC V20" clock="8000000"/>
+		<chip type="cpu" tag="sub2" name="Zilog Z80" clock="6250000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="6250000" htotal="400" hbend="0" hbstart="320" vtotal="272" vbend="0" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="stick" buttons="3" minimum="0" maximum="255" sensitivity="25" keydelta="79"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="5" value="2"/>
+			<dipvalue name="6" value="3"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="4"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+			<dipvalue name="Hardest" value="12"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW" mask="1792">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="3 Coins/1 Credit" value="512"/>
+			<dipvalue name="2 Coins/1 Credit" value="256"/>
+			<dipvalue name="3 Coins/2 Credits" value="1792"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="1536"/>
+			<dipvalue name="1 Coin/2 Credits" value="768"/>
+			<dipvalue name="1 Coin/5 Credits" value="1024"/>
+			<dipvalue name="1 Coin/6 Credits" value="1280"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="2048">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="4096">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4096"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="8192">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="16384">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="16384"/>
+		</dipswitch>
+		<dipswitch name="Test" tag="DSW" mask="32768">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="32768" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":STICK_X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":STICK_Y">
+			<analog mask="255"/>
+		</port>
+		<port tag=":THROTTLE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":VR1">
+		</port>
+		<adjuster name="VR1" default="100"/>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+
 	<machine name="arbalest" sourcefile="seta/downtown.cpp">
 		<description>Arbalester</description>
 		<year>1989</year>
