@@ -68,6 +68,13 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		if classifyErr != nil {
 			return Manifest{}, classifyErr
 		}
+		profileExclusions, skipErr := profileSkipExclusions(source, []InventoryTuple{requested})
+		if skipErr != nil {
+			return Manifest{}, skipErr
+		}
+		if reason := profileExclusions[tupleKey(requested)]; reason != "" {
+			return Manifest{}, fmt.Errorf("%s/%s is not regression eligible: %s", core, setname, reason)
+		}
 		if reason := exclusions[tupleKey(requested)]; reason != "" {
 			return Manifest{}, fmt.Errorf("%s/%s is not regression eligible: %s", core, setname, reason)
 		}
@@ -128,6 +135,15 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	exclusions, err := sourceExclusions(source, manualTuples)
 	if err != nil {
 		return Manifest{}, err
+	}
+	profileExclusions, err := profileSkipExclusions(source, manualTuples)
+	if err != nil {
+		return Manifest{}, err
+	}
+	for key, reason := range profileExclusions {
+		if exclusions[key] == "" {
+			exclusions[key] = reason
+		}
 	}
 	eligible := selected[:0]
 	for _, path := range selected {

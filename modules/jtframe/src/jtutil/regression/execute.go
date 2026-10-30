@@ -961,7 +961,8 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 	if e == nil { e = write_metadata(receipt, metadata) }
 	if e == nil { e = copyFile(filepath.Join(run.CaptureDir, "index.jsonl"), filepath.Join(receipt, "transport-index.jsonl")) }
 	if e != nil { result.Stage = "record"; result.Message = e.Error(); return finish() }
-	qualityFailure, qualityErr := captureQualityFailure(candidate,profile.Startup)
+	qualityFailure, ocrFailure, qualityWarning, qualityErr := captureQuality(candidate,profile.Startup)
+	if qualityWarning != "" { log("quality_warning", "", qualityWarning, nil) }
 	if qualityErr != nil { result.Stage="quality"; result.Message=qualityErr.Error(); log(result.Stage,Error,result.Message,nil); return finish() }
 	if qualityFailure != "" {
 		if e = PublishComplete(gameRoot,run.CaptureDir,Fail,metadata); e != nil { result.Stage="publish"; result.Message=e.Error(); return finish() }
@@ -970,6 +971,12 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		return finish()
 	}
 	if _, e = os.Stat(ref); os.IsNotExist(e) {
+		if ocrFailure != "" {
+			if e = PublishComplete(gameRoot,run.CaptureDir,Fail,metadata); e != nil { result.Stage="publish"; result.Message=e.Error(); return finish() }
+			result.Outcome=Fail; result.TestIdentity=definition; result.Stage="quality"; result.Message=ocrFailure
+			log(result.Stage,Fail,result.Message,nil)
+			return finish()
+		}
 		if e = PublishComplete(gameRoot, run.CaptureDir, New, metadata); e != nil {
 			result.Stage = "publish"
 			result.Message = e.Error()
@@ -1030,6 +1037,9 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		result.Stage = "compare"
 		result.Attention = false
 		result.Message = "all comparable checkpoints match exactly"
+		if ocrFailure != "" {
+			log("quality_warning", "", ocrFailure+"; approved reference matches, accepting capture", nil)
+		}
 		log(result.Stage, Pass, result.Message, nil)
 	}
 	return finish()

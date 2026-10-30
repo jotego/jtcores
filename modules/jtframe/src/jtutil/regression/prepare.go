@@ -509,6 +509,11 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 	for _, path := range files { if tuple, ok := readTuple(path); ok { allTuples = append(allTuples, tuple) } }
 	exclusions, err := sourceExclusions(source, allTuples)
 	if err != nil { return nil, InventoryReconciliation{}, err }
+	profileExclusions, err := profileSkipExclusions(source, allTuples)
+	if err != nil { return nil, InventoryReconciliation{}, err }
+	for key, reason := range profileExclusions {
+		if exclusions[key] == "" { exclusions[key] = reason }
+	}
 	eligibleFiles := files[:0]
 	for _, path := range files { if tuple, ok := readTuple(path); !ok || exclusions[tupleKey(tuple)] == "" { eligibleFiles = append(eligibleFiles, path) } }
 	files = eligibleFiles

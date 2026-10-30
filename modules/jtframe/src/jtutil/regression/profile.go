@@ -63,6 +63,46 @@ func ResolveProfile(globalPath, corePath, core, setname string) (Profile, error)
 	return profile, nil
 }
 
+// profileSkipExclusions reads the per-core reg.yaml selection flag. This is
+// applied only while preparing a new inventory; frozen manifests remain
+// authoritative so that historical runs and retries are unchanged.
+func profileSkipExclusions(corePath string, tuples []InventoryTuple) (map[string]string, error) {
+	excluded := make(map[string]string)
+	profiles := make(map[string]map[string]interface{})
+	for _, tuple := range tuples {
+		values, ok := profiles[tuple.Core]
+		if !ok {
+			filename := filepath.Join(corePath, "cores", tuple.Core, "cfg", "reg.yaml")
+			loaded, err := load_yaml_map(filename)
+			if err != nil && !os.IsNotExist(err) {
+				return nil, err
+			}
+			values = loaded
+			profiles[tuple.Core] = values
+		}
+		entry, found := lookup_yaml(values, tuple.Setname)
+		if !found || entry == nil {
+			continue
+		}
+		fields, ok := normalize_yaml_map(entry)
+		if !ok {
+			return nil, fmt.Errorf("%s: profile for %s must be a mapping", filepath.Join(corePath, "cores", tuple.Core, "cfg", "reg.yaml"), tuple.Setname)
+		}
+		raw, found := fields["skip"]
+		if !found {
+			continue
+		}
+		skip, ok := raw.(bool)
+		if !ok {
+			return nil, fmt.Errorf("%s/%s: skip must be a boolean", tuple.Core, tuple.Setname)
+		}
+		if skip {
+			excluded[tupleKey(tuple)] = "per-game reg.yaml skip: true"
+		}
+	}
+	return excluded, nil
+}
+
 func load_yaml_map(filename string) (map[string]interface{}, error) {
 	data, e := os.ReadFile(filename)
 	if e != nil {
