@@ -77,11 +77,10 @@ func (h *FTPHardware) Load(game GameSpec) (info LoadInfo, load_error error) {
 		if hash_error!=nil || verified_sha!=h.core_rbf_sha { return info, fmt.Errorf("RBF source changed during upload") }
 		h.core_rbf_ready = true
 	}
-	for index,path := range append([]string{game.ARC},game.ROMs...) {
-		role := "rom"; if index==0 { role = "arc" }
-		remote_path := h.core_dir+"/"+filepath.Base(path)
-		info.RemoteFiles = append(info.RemoteFiles,remote_path)
-		transfer, upload_error := h.upload_core_file(path,role)
+	uploads := h.gameUploadFiles(game)
+	for _, upload := range uploads {
+		info.RemoteFiles = append(info.RemoteFiles, upload.remote)
+		transfer, upload_error := h.upload_file_to(upload.local, upload.role, upload.remote)
 		info.Transfers = append(info.Transfers,transfer)
 		if upload_error!=nil { return info, upload_error }
 	}
@@ -99,14 +98,18 @@ func (h *FTPHardware) Load(game GameSpec) (info LoadInfo, load_error error) {
 }
 
 func (h *FTPHardware) upload_core_file(path, role string) (TransferInfo,error) {
-	info := TransferInfo{Name:filepath.Base(path),Role:role}
+	return h.upload_file_to(path, role, h.core_dir+"/"+filepath.Base(path))
+}
+
+func (h *FTPHardware) upload_file_to(path, role, remote string) (TransferInfo,error) {
+	info := TransferInfo{Name:filepath.Base(remote),Role:role}
 	file,err := os.Stat(path)
 	if err!=nil { info.Error=err.Error(); return info,err }
 	info.Bytes = file.Size()
-	if err=h.queuePendingUploadDir(h.core_dir+"/"+info.Name);err!=nil { info.Error=err.Error();return info,fmt.Errorf("record upload ownership: %w",err) }
+	if err=h.queuePendingUploadDir(remote);err!=nil { info.Error=err.Error();return info,fmt.Errorf("record upload ownership: %w",err) }
 	args := []string{"--silent","--show-error","--fail","--ftp-create-dirs","--upload-file",path}
 	args = h.ftp_credentials(args)
-	args = append(args,"ftp://"+h.Host+h.core_dir+"/"+info.Name)
+	args = append(args,"ftp://"+h.Host+remote)
 	started := time.Now()
 	out,err := h.run(h.Curl,args,2*time.Minute)
 	info.Duration = time.Since(started)
@@ -225,10 +228,10 @@ func (h *FTPHardware) Cleanup(remote []string) error {
 		}
 		args = append(args, "ftp://"+h.Host+"/")
 		out, e := h.run(h.Curl, args, 20*time.Second)
-		if e!=nil && ownedLoadFile(name) { if absent,check_error:=h.remote_load_path_absent(name,listings);check_error==nil && absent { e=nil } }
+		if e!=nil && ownedUploadFile(name) { if absent,check_error:=h.remote_load_path_absent(name,listings);check_error==nil && absent { e=nil } }
 		if e != nil {
 			failures = append(failures, name+": "+e.Error()+" "+out)
-			if ownedLoadFile(name) {
+			if ownedUploadFile(name) {
 				if queue_error:=h.queuePendingUploadDir(name);queue_error!=nil { failures=append(failures,"persist failed file deletion: "+queue_error.Error()) }
 			}
 		}
@@ -268,7 +271,7 @@ func (h *FTPHardware) Cleanup(remote []string) error {
 }
 
 func (h *FTPHardware) queuePendingUploadDir(name string) error {
-	if !ownedLoadDir(name) && !ownedLoadFile(name) {
+	if !ownedLoadDir(name) && !ownedUploadFile(name) {
 		return fmt.Errorf("invalid upload cleanup ownership path %q", name)
 	}
 	if h.PendingUploadDirsPath == "" {
@@ -303,7 +306,7 @@ func (h *FTPHardware) cleanupPendingUploadDirs() error {
 	listings := map[string][]string{}
 	for _,files := range []bool{true,false} {
 		for _,name := range pending {
-			is_file := ownedLoadFile(name)
+			is_file := ownedUploadFile(name)
 			if !is_file && !ownedLoadDir(name) { failures[name]="unsafe path "+name;continue }
 			if is_file!=files { continue }
 			if name==h.core_dir || filepath.Dir(name)==h.core_dir { active[name]=true;continue }
@@ -370,7 +373,7 @@ func ownedRemotePath(name string) bool {
 	if strings.Contains(name, "..") || strings.Contains(name, "\\") || strings.ContainsAny(name, "\r\n\x00") {
 		return false
 	}
-	if ownedRemoteDir(name) || ownedVideoDir(name) {
+	if ownedRemoteDir(name) || ownedVideoDir(name) || ownedRootRAM(name) {
 		return true
 	}
 	parts := strings.Split(name, "/")

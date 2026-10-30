@@ -680,7 +680,6 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 					if warning != nil { lintCandidates = append(lintCandidates, *warning) }
 				}
 			}
-			_ = targetMRA
 			converter := cfg.MRAConverter
 			if converter == "" {
 				converter = "mra"
@@ -698,6 +697,17 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 			if spec.PreparationError == "" {
 				if romExpected {
 					spec.ROMs = []string{rom}
+					ram, ramErr := generatedNVRAM(source, targetMRA, set)
+					if ramErr != nil {
+						spec.PreparationError = appendPrepError(spec.PreparationError, ramErr.Error())
+					} else if ram != "" {
+						fixture := filepath.Join(filepath.Dir(rom), filepath.Base(ram))
+						if err = copyFile(ram, fixture); err != nil {
+							spec.PreparationError = appendPrepError(spec.PreparationError, err.Error())
+						} else {
+							spec.ROMs = append(spec.ROMs, fixture)
+						}
+					}
 				}
 				spec.ARC = arc
 			}
@@ -906,8 +916,12 @@ func generatedROMForTuple(source, core, set, rbf string) (string, error) {
 }
 func generateExactROM(ctx context.Context, source, core, set, rbf, roms, expectedMRA string) (string, string, *PreparationWarning, error) {
 	rom := filepath.Join(source, "rom", set+".rom")
-	if err := os.Remove(rom); err != nil && !os.IsNotExist(err) {
-		return "", "", nil, err
+	// Both files are generated outputs; remove them before invoking jtframe so
+	// an old game's NVRAM can never masquerade as freshly generated defaults.
+	for _, output := range []string{rom, filepath.Join(source, "rom", strings.ToUpper(set)+".RAM")} {
+		if err := os.Remove(output); err != nil && !os.IsNotExist(err) {
+			return "", "", nil, err
+		}
 	}
 	cmd := exec.CommandContext(ctx, "bash", "-c", `core_arg=$1; set_arg=$2; rom_path=$3; set --; export JTROOT="$PWD" JTFRAME="$PWD/modules/jtframe" JTBIN="$PWD/release"; mkdir -p "$JTBIN"; source ./setprj.sh >/dev/null && jtframe mra --mainonly --skipPocket --setname "$set_arg" --path "$rom_path" "$core_arg"`, "_", core, set, roms)
 	cmd.Dir = source
