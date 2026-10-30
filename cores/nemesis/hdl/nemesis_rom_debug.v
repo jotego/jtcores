@@ -25,12 +25,23 @@ You can read the whole license file at http://www.gnu.org/licenses/
 
 `default_nettype none
 
+`ifdef ROM_DEBUG_Z80
+	`define ROM_DEBUG
+`endif
+`ifdef ROM_DEBUG_MAIN
+	`define ROM_DEBUG
+`endif
+
 module nemesis_rom_debug(
 	input             i_clk,
 	input             i_cen,
 
 	input      [ 7:0] i_debug_bus,
+`ifdef ROM_DEBUG
 	output reg [ 7:0] o_debug_view,
+`else
+	output     [ 7:0] o_debug_view,
+`endif
 	
 	input             i_z80_cs, // z80_cs | ~cpu_start
 	input             i_z80_ok,
@@ -46,13 +57,6 @@ module nemesis_rom_debug(
 	output            o_main_sdram_cs,
 	output     [16:0] o_main_sdram_addr
 );
-
-`ifdef ROM_DEBUG_Z80
-	`define ROM_DEBUG
-`endif
-`ifdef ROM_DEBUG_MAIN
-	`define ROM_DEBUG
-`endif
 
 `ifdef ROM_DEBUG
 
@@ -73,6 +77,10 @@ always @( posedge i_clk ) if( i_cen ) begin
 
 	debug_bus_prev <= i_debug_bus;
 end
+
+`else
+
+assign o_debug_view = 8'd0;
 
 `endif
 

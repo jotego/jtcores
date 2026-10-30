@@ -2,11 +2,6 @@
 
 FPGA compatible core of arcade hardware by LMN-san, OScherler, Raki.
 
-This core is available for hardware compatible with MiSTer.
-Other FPGA systems may be supported by the time you read this.
-This work is not mantained by the MiSTer project. Please contact the
-core authors for issues and updates.
-
 (c) LMN-san, OScherler, Raki 2020–2026.
 
 The authors do not endorse or participate in illegal distribution
@@ -26,66 +21,12 @@ You can read the whole license file at http://www.gnu.org/licenses/
 `default_nettype none
 
 module jtnemesis_game(
-/*
-	// Clocks
-	input           rst,
-	input           clk,        // 48 MHz
-	output          pxl2_cen,   // 12 MHz
-	                pxl_cen,    // 6 MHz
-	// Video
-	output   [`JTFRAME_COLORW-1:0]  red, green, blue,
-	output          LHBL,       // Horizontal Blank, possibly delayed
-	                LVBL,       // Vertical Blank, possibly delayed
-	                HS,         // Horizontal video sync output
-	                VS,         // Vertical video sync output
-	output          game_led,
-	// Cabinet I/O
-	input   [ 1:0]  cab_1p, coin,
-	input   [`JTFRAME_BUTTONS+3:0] joystick1,
-	                               joystick2, // 4 directions, 3 buttons, MSB unused
-	// Sound control
-	input           enable_fm, enable_psg,
-	// DIP switches
-	input   [31:0]  status, dipsw,
-	// Not DIPs on the original PCB
-	input           dip_pause, dip_test, service, tilt,
-	output          dip_flip,
-	input   [ 1:0]  dip_fxlevel,
-	// Sound output
-	output signed [15:0] snd,
-	output          sample,
-	// Debug
-	input   [3:0]   gfx_en,
-	input   [7:0]   debug_bus,
-	output  [7:0]   debug_view,
-
-	// ROM Download
-	input   [25:0]  ioctl_addr,
-	input   [ 7:0]  ioctl_dout,
-	input           ioctl_wr,
-	// SDRAM Interface
-	input           ioctl_rom,
-	output          dwnld_busy, // needs to be kept to 1 until finished downloading
-	input   [15:0]  data_read,
-	input           ioctl_cart,
-	output          sdram_req,
-	output [21:0]   sdram_addr,
-	input           data_dst,
-	input           data_rdy,
-	input           sdram_ack,
-	// ROM Download
-	output [ 7:0]   prog_data,
-	output          prog_we,
-	output          prog_rd,
-	output  [ 1:0]  prog_mask,
-	                prog_addr   // no comma here, end of port list%
-*/
 	`include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-///////////////////
+// ---------------------------------------------------------------------------
 // Interconnection Signals
-///////////////////
+// ---------------------------------------------------------------------------
 
 wire        cen9, cen6, cen6b, clk6, cen12, cen3p5, cen1p7, cen_audio_clk_div;
 
@@ -100,11 +41,10 @@ wire        main_lds_n, main_uds_n, main_rw_n, sound_on_n, data_n;
 
 wire [10:0] pal_addr;
 wire [ 4:0] red5, green5, blue5, red5_blk, green5_blk, blue5_blk;
-wire [ 7:0] red_lut, green_lut, blue_lut;
 wire [14:0] rgb, rgb_blk;
-wire        preLHBL, preLVBL;
+wire        preLHBL, preLVBL, preLVBL_n;
 
-// joystick indices
+// joystick indices (jtframe delivers RLDU in [3:0])
 localparam  dir_right  = 0,
             dir_left   = 1,
             dir_down   = 2,
@@ -113,9 +53,14 @@ localparam  dir_right  = 0,
             btn_fire   = 5,
             btn_bomb   = 6;
 
-///////////////////
-// Clock and Clock-Enable Generation
-///////////////////
+// unused (JTFRAME_OSD_FLIP unset,) so just assign it any value
+assign dip_flip = 0;
+
+// ---------------------------------------------------------------------------
+// Clock enables. gx400_cen derives everything from the 49.152MHz base clock
+// (JTFRAME_PLL=jtframe_pll6144): 9.216MHz 68000, 6.144MHz pixel, 3.579545MHz
+// audio. The "48 MHz" in gx400_cen's comments is the nominal MiSTer clock.
+// ---------------------------------------------------------------------------
 
 assign pxl_cen  = cen6;
 assign pxl2_cen = cen12;
@@ -134,30 +79,19 @@ gx400_cen u_cen(
 	.o_cen_audio_clk_div ( cen_audio_clk_div )
 );
 
-///////////////////
-// ROM Download
-///////////////////
+// ---------------------------------------------------------------------------
+// ROM buses. main/snd are declared by mem.yaml; the CPUs are held in reset
+// until the Z80 ROM answers, so neither runs against an empty SDRAM.
+// ---------------------------------------------------------------------------
 
-// ROM data
 wire [  3:0] wav1_data, wav2_data;
 wire [  7:0] wav1_vol_data, wav2_vol_data;
 
 // ROM address
 wire [ 7:0] wav1_addr, wav1_vol_addr, wav2_addr, wav2_vol_addr;
 
-// PROM signals
-wire		prom_a01_we, prom_a02_we, prom_vol_we;
-
-///// Download /////
-
-// offsets (in bytes) where each of the PROMs starts
-localparam [21:0] WAV1_OFFSET    = 22'h04_4000,
-                  WAV2_OFFSET    = 22'h04_4100,
-                  WAV_VOL_OFFSET = 22'h04_4200;
-
 reg cpu_start;
 
-// TODO: check if needed
 always @(posedge clk, posedge rst) begin
 	if( rst ) begin
 		cpu_start <= 0;
@@ -166,7 +100,9 @@ always @(posedge clk, posedge rst) begin
 	end
 end
 
-///// SDRAM Data Debugging /////
+// ---------------------------------------------------------------------------
+// SDRAM Data Debugging
+// ---------------------------------------------------------------------------
 
 // Define ROM_DEBUG_Z80 or ROM_DEBUG_MAIN to visualise the first 255 bytes
 // of the respective ROM stored in SDRAM using the debug bus, to check
@@ -174,6 +110,9 @@ end
 // this, as the ROM is disconnected from its address bus.
 // If neither macro is defined, the nemesis_rom_debug module just passes the
 // cs and addr signals through.
+
+// Define ROM_DEBUG_Z80 or ROM_DEBUG_MAIN to dump the first 255 bytes of the
+// respective ROM through debug_view. Otherwise a pass-through.
 
 wire [16:0] req_main_addr;
 wire [13:0] req_audio_addr;
@@ -183,10 +122,8 @@ nemesis_rom_debug u_rom_debug(
 	.i_clk             ( clk                       ),
 	.i_cen             ( cen6                      ),
 
-`ifndef JTFRAME_RELEASE
 	.i_debug_bus       ( debug_bus                 ),
 	.o_debug_view      ( debug_view                ),
-`endif
 
 	.i_z80_cs          ( req_audio_cs | ~cpu_start ),
 	.i_z80_ok          ( audio_ok                  ),
@@ -203,7 +140,19 @@ nemesis_rom_debug u_rom_debug(
 	.o_main_sdram_addr ( main_addr                 )
 );
 
-///// PROMs /////
+// ---------------------------------------------------------------------------
+// PROMs
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// K005289 wave PROMs and the volume table.
+// prog_addr carries the byte index while prom_we is high, so the per-PROM
+// offsets below are byte offsets into the ROM image.
+// ---------------------------------------------------------------------------
+
+localparam [21:0] WAV1_OFFSET = 22'h04_4000,
+                  WAV2_OFFSET = 22'h04_4100,
+                  PROM_END    = 22'h04_4200;
 
 // create PROM addresses from prog_addr, to start at 0 at the beginning of
 // the PROM. It’s often not needed because the offset is usually larger than
@@ -211,107 +160,66 @@ nemesis_rom_debug u_rom_debug(
 // order of the ROMs, e.g. if you have a 1k ROM followed by a 2k ROM, prog_addr
 // at the beginning of the second ROM will be 0x0400, and prog_addr[10:0] will
 // be 0x0400 instead of 0x0000.
-wire [7:0] prog_addr_wave1    = prog_addr[7:0] - WAV1_OFFSET[7:0],
-           prog_addr_wave2    = prog_addr[7:0] - WAV2_OFFSET[7:0],
-           prog_addr_wave_vol = prog_addr[7:0] - WAV_VOL_OFFSET[7:0];
+wire [7:0] prog_addr_wave1 = prog_addr[7:0] - WAV1_OFFSET[7:0],
+           prog_addr_wave2 = prog_addr[7:0] - WAV2_OFFSET[7:0];
 
 // write-enable signals to select the PROMs to send data to, based on the offsets
-assign prom_a01_we = prom_we && ( prog_addr >= WAV1_OFFSET    ) && ( prog_addr < WAV2_OFFSET    );
-assign prom_a02_we = prom_we && ( prog_addr >= WAV2_OFFSET    ) && ( prog_addr < WAV_VOL_OFFSET );
-assign prom_vol_we = prom_we && ( prog_addr >= WAV_VOL_OFFSET );
+wire prom_a01_we = prom_we && ( prog_addr >= WAV1_OFFSET ) && ( prog_addr < WAV2_OFFSET ),
+     prom_a02_we = prom_we && ( prog_addr >= WAV2_OFFSET ) && ( prog_addr < PROM_END    );
 
 // ** 1K (256 x 4) NiCR PROM **
 // ** [6301] @ 7A            **
-jtframe_prom #(
-	.AW      (  8              ),
-	.DW      (  4              )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav1.hex")
-	`endif
-)
-u_wav1_rom(
+jtframe_prom #( .AW(8), .DW(4) ) u_wav1_rom(
 	.clk     ( clk             ),
 	.cen     ( 1'b1            ),
-	.rd_addr ( wav1_addr[7:0]  ),
+	.rd_addr ( wav1_addr       ),
 	.wr_addr ( prog_addr_wave1 ),
 	.data    ( prog_data[3:0]  ),
 	.we      ( prom_a01_we     ),
 	.q       ( wav1_data       )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom )
-	`endif
 );
 
 // ** 1K (256 x 4) NiCR PROM **
 // ** [6301] @ 7B            **
-jtframe_prom #(
-	.AW      (  8              ),
-	.DW      (  4              )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav2.hex")
-	`endif
-)
-u_wav2_rom(
+jtframe_prom #( .AW(8), .DW(4) ) u_wav2_rom(
 	.clk     ( clk             ),
 	.cen     ( 1'b1            ),
-	.rd_addr ( wav2_addr[7:0]  ),
+	.rd_addr ( wav2_addr       ),
 	.wr_addr ( prog_addr_wave2 ),
 	.data    ( prog_data[3:0]  ),
 	.we      ( prom_a02_we     ),
 	.q       ( wav2_data       )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom      )
-	`endif
 );
 
-// Volume table loaded from the MRA and that simulates the switched
-// resistor ladders at the output of the 6301 PROMs @ 7A, 7B.
+// Volume table: models the switched resistor ladders at the output of the 6301
+// PROMs @ 7A, 7B. Not a PCB ROM -- a computed constant, so it is built in
+// rather than carried by the MRA. Two readers -> two copies.
 
-jtframe_prom #(
-	.AW      (  8                 ),
-	.DW      (  8                 ),
-	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav1_vol.hex")
-	`endif
-)
-u_wav1_vol_rom(
+jtframe_prom #( .AW(8), .DW(8),
+	.SIMHEX("../firmware/nemesis_prom_vol.hex"), .SYNHEX("../firmware/nemesis_prom_vol.hex")) u_wav1_vol_rom(
 	.clk     ( clk                ),
 	.cen     ( 1'b1               ),
-	.rd_addr ( wav1_vol_addr[7:0] ),
-	.wr_addr ( prog_addr_wave_vol ),
-	.data    ( prog_data[7:0]     ),
-	.we      ( prom_vol_we        ),
+	.rd_addr ( wav1_vol_addr      ),
+	.wr_addr ( 8'd0               ),
+	.data    ( 8'd0               ),
+	.we      ( 1'b0               ),
 	.q       ( wav1_vol_data      )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom         )
-	`endif
 );
 
-jtframe_prom #(
-	.AW      (  8                 ),
-	.DW      (  8                 ),
-	.SYNHEX  ("../firmware/nemesis_prom_vol.hex")
-	`ifdef JTFRAME_PROM_DUMP
-	, .dumpfile("dump_wav2_vol.hex")
-	`endif
-)
-u_wav2_vol_rom(
+jtframe_prom #( .AW(8), .DW(8),
+	.SIMHEX("../firmware/nemesis_prom_vol.hex"), .SYNHEX("../firmware/nemesis_prom_vol.hex")) u_wav2_vol_rom(
 	.clk     ( clk                ),
 	.cen     ( 1'b1               ),
-	.rd_addr ( wav2_vol_addr[7:0] ),
-	.wr_addr ( prog_addr_wave_vol ),
-	.data    ( prog_data[7:0]     ),
-	.we      ( prom_vol_we        ),
+	.rd_addr ( wav2_vol_addr      ),
+	.wr_addr ( 8'd0               ),
+	.data    ( 8'd0               ),
+	.we      ( 1'b0               ),
 	.q       ( wav2_vol_data      )
-	`ifdef JTFRAME_PROM_DUMP
-	, .dump  ( ~ioctl_rom         )
-	`endif
 );
 
-///////////////////
-// Main Board
-///////////////////
+// ---------------------------------------------------------------------------
+// Main board
+// ---------------------------------------------------------------------------
 
 nemesis_main main(
 	.i_clk          ( clk             ), // 48 MHz
@@ -395,6 +303,9 @@ nemesis_main main(
 	.i_pause        ( dip_pause               )  // Pause in OSD
 );
 
+// ---------------------------------------------------------------------------
+// Colour mixing
+// ---------------------------------------------------------------------------
 
 assign rgb = { red5, green5, blue5 };
 assign { red5_blk, green5_blk, blue5_blk } = rgb_blk;
@@ -411,69 +322,40 @@ jtframe_blank #( .DLY(0), .DW(15) ) u_blank(
 	.rgb_out  ( rgb_blk  )  // out
 );
 
-// Lookup table generated by cpp/resnet.cp and that simulates the switched
-// resistor ladders at the output of the 2128-15 RAMs @ 14K, 15K
+// Lookup table generated from MAME’s resnet by firmware/resnet_colmix.cpp, with the Nemesis network values.
+// It simulates the switched resistor ladders at the output of the 2128-15 RAMs @ 14K, 15K
 colour_lut #( .pw(5), .cw(8), .synfile("../firmware/nemesis_colmix.hex") ) u_colour_lut(
 	.clk       ( clk        ),
 	.in_red    ( red5_blk   ),
 	.in_green  ( green5_blk ),
 	.in_blue   ( blue5_blk  ),
-	.out_red   ( red_lut    ),
-	.out_green ( green_lut  ),
-	.out_blue  ( blue_lut   )
+	.out_red   ( red        ),
+	.out_green ( green      ),
+	.out_blue  ( blue       )
 );
 
-`ifdef TEST68K
-
-assign red   = joystick1[ btn_option ] ? red_lut   : { red5_blk,   3'b0 };
-assign green = joystick1[ btn_option ] ? green_lut : { green5_blk, 3'b0 };
-assign blue  = joystick1[ btn_option ] ? blue_lut  : { blue5_blk,  3'b0 };
-
-`else // TEST68K
-
-assign red   = red_lut;
-assign green = green_lut;
-assign blue  = blue_lut;
-
-`endif // TEST68K
-
-///////////////////
-// Video Board
-///////////////////
-
-wire preLVBL_n;
-
-`ifdef NOVIDEO
-
-jtframe_vtimer vtimer(
-	.clk     ( clk     ),
-	.pxl_cen ( pxl_cen ),
-	.LHBL    ( preLHBL ),
-	.LVBL    ( preLVBL ),
-	.HS      ( HS      ),
-	.VS      ( VS      )
-);
-
-`else // NOVIDEO
+// ---------------------------------------------------------------------------
+// Video board
+// ---------------------------------------------------------------------------
 
 assign preLVBL = ~preLVBL_n;
 
 GX400A_VIDEO video(
-	.i_MCLK     ( clk              ),     // in             - (Main Clock)  48 MHz
-	.i_RESET    ( rst              ),     // in             - RESET signal
-	.i_HFLIP    ( hflip            ),     // in             - Horizontal Flip
-	.i_VFLIP    ( vflip            ),     // in             - Vertical Flip
-	.i_INTER_NON( 1'b0             ),     // in             - Interlaced/Non-Interlaced
-	.i_288_256  ( 1'b0             ),     // in             - 288 vs. 256 columns
+	.i_MCLK     ( clk              ),     // in  - (Main Clock)  48 MHz
+	.i_RESET    ( rst              ),     // in  - RESET signal
+	.i_HFLIP    ( hflip            ),     // in  - Horizontal Flip
+	.i_VFLIP    ( vflip            ),     // in  - Vertical Flip
+	.i_INTER_NON( 1'b0             ),     // in  - Interlaced/Non-Interlaced
+	.i_288_256  ( 1'b0             ),     // in  - 288 vs. 256 columns
 
-	.i_cen6     ( cen6             ),     // out            - Pixel Clock at 12 MHz
+	.i_cen6     ( cen6             ),     // out - Pixel Clock at 12 MHz
 	.i_cen6b    ( cen6b            ),
-	.i_clk6     ( clk6             ),     // out            - Pixel Clock at  6 MHz
+	.i_clk6     ( clk6             ),     // out - Pixel Clock at  6 MHz
 
-	.o_HS       ( HS               ),     // out            - Horizontal sync (VGA_HS)
-	.o_VS       ( VS               ),     // out            - Vertiacl sync (VGA_VS)
-	.o_HBL      ( preLHBL          ),     // out            - Horizontal BLANK
-	.o_VBL      ( preLVBL_n        ),     // out            - Vertical BLANK
+	.o_HS       ( HS               ),     // out - Horizontal sync (VGA_HS)
+	.o_VS       ( VS               ),     // out - Vertiacl sync (VGA_VS)
+	.o_HBL      ( preLHBL          ),     // out - Horizontal BLANK
+	.o_VBL      ( preLVBL_n        ),     // out - Vertical BLANK
 
 	.o_1h_n     ( video_1h_n       ),
 	.o_2h       ( video_2h         ),
@@ -495,41 +377,14 @@ GX400A_VIDEO video(
 	.o_pal_addr ( pal_addr         )
 );
 
-`endif //NOVIDEO
+// ---------------------------------------------------------------------------
+// Sound board. Volume constants were tuned by the original authors against a
+// real PCB; nemesis_sound mixes internally and hands jtframe one channel.
+// ---------------------------------------------------------------------------
 
-///////////////////
-// Sound Board
-///////////////////
-
-`ifndef NOSOUND
-
-wire        prom1_on, prom2_on, ay7_on, ay8_on;
-wire [ 7:0] bal_prom, bal_ay7, bal_ay8;
-wire [ 7:0] m68k_data_bus;
-
-nemesis_sound_debug u_sound_debug(
-	.i_command    ( status[24:20] ),
-	.i_channels   ( status[27:25] ),
-
-	// debug mixer
-	.i_vol_prom   ( 4'd0          ),
-	.i_vol_ay7    ( 4'd0          ), // AY2 Music
-	.i_vol_ay8    ( 4'd0          ), // AY1 SFX
-
-	// sound command
-	.o_sound_data ( m68k_data_bus ),
-	
-	// sound channels
-	.o_prom1_on   ( prom1_on      ),
-	.o_prom2_on   ( prom2_on      ),
-	.o_ay7_on     ( ay7_on        ),
-	.o_ay8_on     ( ay8_on        ),
-	
-	// balance
-	.o_bal_prom   ( bal_prom      ),
-	.o_bal_ay7    ( bal_ay7       ),
-	.o_bal_ay8    ( bal_ay8       )
-);
+localparam [7:0] VOLUME_PROMS = 8'd104,
+                 VOLUME_AY1   = 8'd138,
+                 VOLUME_AY2   = 8'd102;
 
 nemesis_sound u_sound(
 	.i_clk            ( clk               ),
@@ -537,17 +392,11 @@ nemesis_sound u_sound(
 	.i_cen1p7         ( cen1p7            ),
 	.i_cen_clk_div    ( cen_audio_clk_div ),
 
-`ifdef SOUND_TEST
-	.i_rst            ( ~joystick1[ btn_fire ]  ),
-	.i_main_db        ( m68k_data_bus           ),
-	.i_data_n         ( ~joystick1[ dir_left ]  ),
-	.i_sound_on_n     ( ~joystick1[ dir_right ] ), // sound starts on stick press
-`else
 	.i_rst            ( rst               ),
 	.i_main_db        ( sound_din         ),
 	.i_data_n         ( data_n            ),
 	.i_sound_on_n     ( sound_on_n        ),
-`endif
+
 	.i_cpu_start      ( cpu_start         ),
 	.o_z80_cs         ( req_audio_cs      ),
 	.o_z80_addr       ( req_audio_addr    ),
@@ -569,11 +418,9 @@ nemesis_sound u_sound(
 	.i_prom2_on       ( 1'b1              ),
 	.i_ay7_on         ( 1'b1              ),
 	.i_ay8_on         ( 1'b1              ),
-	.i_vol_prom       ( `VOLUME_PROMS /* bal_prom */ ),
-	.i_vol_ay7        ( `VOLUME_AY2   /* bal_ay7 */  ), // AY2 Music
-	.i_vol_ay8        ( `VOLUME_AY1   /* bal_ay8 */  )  // AY1 SFX
+	.i_vol_prom       ( VOLUME_PROMS      ),
+	.i_vol_ay7        ( VOLUME_AY2        ), // AY2 Music
+	.i_vol_ay8        ( VOLUME_AY1        )  // AY1 SFX
 );
-
-`endif // NOSOUND
 
 endmodule

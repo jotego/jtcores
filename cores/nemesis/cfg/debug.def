@@ -1,3 +1,5 @@
+# include in macros.def to define debugging OSD entries.
+
 # https://github.com/MiSTer-devel/Main_MiSTer/wiki/Core-configuration-string
 # modules/jtframe/README.md
 # modules/jtframe/doc/osd.md
@@ -62,6 +64,3 @@ CORE_OSD+=o03,Vol AY1,118,120,122,124,126,128,130,132,134,136,138,140,142,144,14
 
 CORE_OSD+=OPR,Channel Select,All,PROM 1+2+AY2,AY 1,AY 2,PROM 1,PROM 2,PROM 1+2,AY 2+1;
 #CORE_OSD+=OPR,Channel Select,All,PROM 1+2+AY7,AY 8,AY 7,PROM 1,PROM 2,PROM 1+2,AY 7+8;-;OL,Pause in OSD,No,Yes;
-
-# atrac17 says we should disable that if we want to support multiple games
-# CORE_KEYMAP=J1,Option,Fire,Bomb,Start,Coin;

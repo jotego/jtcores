@@ -1,17 +1,18 @@
-download:
-  pre_addr: false
-  post_addr: false
-  post_data: false
+# GX400 ROM map (byte offsets, single SDRAM bank -- 272kB total)
+#
+#   0x00000  68000 program   256kB   main
+#   0x40000  Z80 program      16kB   snd
+#   0x44000  K005289 wave PROM A  256B  ] loaded to BRAM by the
+#   0x44100  K005289 wave PROM B  256B  ] jtframe_prom instances in
+#   0x44200  volume table         256B  ] jtnemesis_game.v
 
 sdram:
   banks:
     - buses:
-      - name: main
-        # we have 17 pre-mem.yaml, but if we put 17 it becomes 16 (?)
-        # but in the MRA, it says "length 0x40000 (18 bits)", so OK
-        addr_width: 18
+      - name: main        # 68000 program
+        addr_width: 18    # 256kB
         data_width: 16
     - buses:
-      - name: audio
-        addr_width: 14
+      - name: audio       # Z80 program
+        addr_width: 14    # 16kB
         data_width: 8
