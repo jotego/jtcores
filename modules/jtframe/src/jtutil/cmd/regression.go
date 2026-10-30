@@ -21,18 +21,36 @@ var regressionManifest string
 var regressionRunID string
 var regressionNoPublish bool
 var regressionRetryErrors bool
+var regressionCore string
+var regressionSetname string
+var regressionJTBin bool
 
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
-	Short: "Run or resume a SiDi128 video regression batch",
+	Short: "Capture a core or run a SiDi128 video regression batch",
 	Long: `Discovers and prepares a successful compile_all build, then runs or resumes its SiDi128 regression.
 Collects PNG frames in $JOTEGO/regression/<core>/<setname>/new for designer review.
-Preparation uses the working project; diagnostics and resume state live under log/.`,
+Preparation uses the working project; diagnostics and resume state live under log/.
+
+Use --core to capture that core's main games, or add --setname for one game.
+Manual captures run fresh, compare approved refs, and replace new PNGs locally.
+They do not publish GitHub reports or require campaign manifest/run selectors.
+
+Examples:
+  jtutil regression --core shouse
+  jtutil regression --core shouse --setname splatter
+  jtutil regression --core shouse --setname splatter --jtbin
+
+By default, manual captures generate MRAs in the working project and use its
+release/sidi128 RBF. --jtbin reads existing MRA/RBF files from $JTBIN.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
 }
 
 func init() {
+	regressionCmd.Flags().BoolVar(&regressionJTBin,"jtbin",false,"Read manual capture MRA/RBF files from $JTBIN (requires --core)")
+	regressionCmd.Flags().StringVar(&regressionCore, "core", "", "Capture one core locally using the working project's RBF and ROMs")
+	regressionCmd.Flags().StringVar(&regressionSetname, "setname", "", "Capture one game of --core (default: all main games)")
 	regressionCmd.Flags().StringVar(&regressionConfig, "config", filepath.Join(project_root(), ".jtutil-regression.yaml"), "Portable regression config YAML")
 	regressionCmd.Flags().StringVar(&regressionManifest, "manifest", "", "Build-specific inventory manifest JSON")
 	regressionCmd.Flags().StringVar(&regressionRunID, "run-id", "", "Pin a GitHub Actions run ID or run number")
@@ -42,6 +60,9 @@ func init() {
 }
 
 func run_regression_cmd(cmd *cobra.Command, args []string) error {
+	manual, validationErr := validate_regression_selection(regressionCore, regressionSetname, regressionManifest, regressionRunID, regressionRetryErrors, regressionJTBin)
+	if validationErr != nil { return validationErr }
+	noPublish := regressionNoPublish || manual
 	root := os.Getenv("JOTEGO")
 	if root == "" {
 		return fmt.Errorf("JOTEGO must name the private regression data directory")
@@ -73,18 +94,20 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		return e
 	}
 	defer regression.ReleaseLock(lock)
-	launchStarts, e := regression.SnapshotLaunchStarts(dataRoot, regressionRunID)
-	if e != nil {
-		return fmt.Errorf("verify and preserve prior launch manifest: %w", e)
+	var launchStarts map[string]time.Time
+	if !manual {
+		launchStarts, e = regression.SnapshotLaunchStarts(dataRoot, regressionRunID)
+		if e != nil { return fmt.Errorf("verify and preserve prior launch manifest: %w", e) }
 	}
 	config.Source = project_root()
 	var manifest regression.Manifest
 	resume_journal:=regressionRetryErrors
 	if regressionManifest == "" {
-		manifest, e = regression.Prepare(cmd.Context(), config, dataRoot, regressionRunID)
+		if manual { manifest, e = regression.PrepareManual(cmd.Context(), config, dataRoot, regressionCore, regressionSetname, regressionJTBin) } else { manifest, e = regression.Prepare(cmd.Context(), config, dataRoot, regressionRunID) }
 		if e != nil {
 			return fmt.Errorf("prepare regression build and inventory: %w", e)
 		}
+		if manual && regression.HasResumeState(dataRoot,manifest.RunID) { return fmt.Errorf("manual capture session already has state; refusing to resume it") }
 		resume_journal=regressionRetryErrors || regression.HasResumeState(dataRoot,manifest.RunID)
 		if resume_journal {
 			if err:=regression.RequireResumeJournal(dataRoot,manifest.RunID,manifest.Build);err!=nil {return err}
@@ -97,6 +120,11 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		}
 		if resume_journal {e=regression.WriteExistingFile(manifestPath,append(manifestBytes,'\n'),0640)} else {e=os.WriteFile(manifestPath,append(manifestBytes,'\n'),0640)}
 		if e!=nil{return e}
+		if manual {
+			provenance, readErr := os.ReadFile(filepath.Join(config.Source,".cache","jtutil-regression","manual",manifest.RunID,"manual-preparation.json"))
+			if readErr != nil { return fmt.Errorf("read manual preparation provenance: %w",readErr) }
+			if err := os.WriteFile(filepath.Join(filepath.Dir(manifestPath),"manual-preparation.json"),provenance,0640); err != nil { return fmt.Errorf("record manual preparation provenance: %w",err) }
+		}
 	} else {
 		manifestBytes, readErr := os.ReadFile(regressionManifest)
 		if readErr != nil {
@@ -115,7 +143,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	if !safe_regression_component(manifest.RunID) {
 		return fmt.Errorf("manifest contains unsafe run id")
 	}
-	if manifest.Build.Repository != "jotego/jtcores" || manifest.Build.Workflow != "compile-all.yaml" || manifest.Build.Conclusion != "success" || manifest.Build.Attempt == "" || manifest.Build.SHA == "" || manifest.Build.Artifact == "" || manifest.Build.ArtifactSHA == "" || manifest.Build.ExpectedJobs > 0 && manifest.Build.SucceededJobs != manifest.Build.ExpectedJobs {
+	if !manual && (manifest.Build.Repository != "jotego/jtcores" || manifest.Build.Workflow != "compile-all.yaml" || manifest.Build.Conclusion != "success" || manifest.Build.Attempt == "" || manifest.Build.SHA == "" || manifest.Build.Artifact == "" || manifest.Build.ArtifactSHA == "" || manifest.Build.ExpectedJobs > 0 && manifest.Build.SucceededJobs != manifest.Build.ExpectedJobs) {
 		return fmt.Errorf("manifest build identity is incomplete or not a complete successful compile_all artifact")
 	}
 	resume_journal=regressionRetryErrors || regression.HasResumeState(dataRoot,manifest.RunID)
@@ -131,7 +159,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	// destination before any board operation, even when report publication is
 	// intentionally deferred for review. Explicit-manifest no-publish remains
 	// available for local pilots.
-	if !regressionNoPublish || regressionManifest == "" {
+	if !manual && (!noPublish || regressionManifest == "") {
 		if e = publisher.Preflight(manifest.Build); e != nil {
 			return e
 		}
@@ -182,7 +210,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	makeSummary := func(status string) regression.Summary {
 		s := regression.Summary{RunID: manifest.RunID, Build: manifest.Build, Started: started, Finished: time.Now().UTC(), Status: status, Games: all,
 			OperationalError: operationalError,
-			Config:           map[string]any{"source": config.Source, "project_sha": manifest.ProjectSHA, "no_publish": regressionNoPublish, "board_host": config.Host, "firmware": config.Firmware, "firmware_sha256": config.FirmwareSHA256, "capture_tool_sha256": config.CaptureToolSHA256, "global_profile": globalProfile}, Coverage: map[string]int{},
+			Config:           map[string]any{"manual": manual, "jtbin": regressionJTBin, "source": config.Source, "project_sha": manifest.ProjectSHA, "no_publish": noPublish, "board_host": config.Host, "firmware": config.Firmware, "firmware_sha256": config.FirmwareSHA256, "capture_tool_sha256": config.CaptureToolSHA256, "global_profile": globalProfile}, Coverage: map[string]int{},
 			Resume: map[string]any{"status": status}, Publication: map[string]any{"status": "not-requested"}}
 		for _, result := range all {
 			s.Coverage[string(result.Outcome)]++
@@ -195,7 +223,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 	}
 	finishReport := func(status string) error {
 		summary := makeSummary(status)
-		if regressionNoPublish {
+		if noPublish {
 			summary.Status = "publication-pending"
 			return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
 		}
@@ -255,16 +283,40 @@ func run_regression_cmd(cmd *cobra.Command, args []string) error {
 		}
 	}
 	finalStatus := "complete"
-	if regressionNoPublish {
+	if noPublish && !manual {
 		finalStatus = "publication-pending"
 	}
-	if !regressionNoPublish && finalStatus == "complete" {
+	if !noPublish && finalStatus == "complete" {
 		if e = finishReport(finalStatus); e != nil {
 			return fmt.Errorf("GitHub report publication failed (hardware outcomes are saved): %w", e)
 		}
 		return nil
 	}
-	return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(finalStatus),resume_journal)
+	if err := regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(finalStatus),resume_journal); err != nil { return err }
+	if manual {
+		for _, result := range all { fmt.Fprintf(cmd.OutOrStdout(),"%s/%s: %s (%s)\n",result.Core,result.Setname,result.Outcome,result.Message) }
+		fmt.Fprintf(cmd.OutOrStdout(),"Log: %s\n",filepath.Join(dataRoot,"log",manifest.RunID))
+	}
+	return nil
+}
+
+// Manual selection starts a fresh local capture session; campaign selectors
+// deliberately remain exclusive so a manual recapture cannot resume a batch.
+func validate_regression_selection(core, setname, manifest, runID string, retry, useJTBin bool) (bool,error) {
+	if core == "" {
+		if useJTBin { return false,fmt.Errorf("--jtbin requires --core") }
+		if setname != "" { return false, fmt.Errorf("--setname requires --core") }
+		return false,nil
+	}
+	if !safe_manual_regression_name(core) || setname != "" && !safe_manual_regression_name(setname) { return false,fmt.Errorf("--core and --setname must be safe core/game names (letters, digits, underscore or hyphen)") }
+	if manifest != "" || runID != "" || retry { return false,fmt.Errorf("--core starts a fresh manual capture; do not combine it with --manifest, --run-id or --retry-errors") }
+	return true,nil
+}
+
+func safe_manual_regression_name(name string) bool {
+	if name == "" { return false }
+	for _, c := range name { if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-') { return false } }
+	return true
 }
 
 func safe_regression_component(value string) bool {

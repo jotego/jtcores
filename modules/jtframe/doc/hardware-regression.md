@@ -1,7 +1,8 @@
 # SiDi128 video regression
 
 `jtutil regression` collects PNG video frames from a connected SiDi128 using
-the RBF files from a successful GitHub `compile_all` build. Collection does
+local RBF files for manual captures, or a successful GitHub `compile_all`
+build for a full campaign. Collection does
 not approve a game's video content. A designer must inspect and approve the
 images before they become references. Audio is not part of this workflow.
 
@@ -17,6 +18,24 @@ ROM files are produced by the normal `jtframe mra` workflow in
 `$JTROOT/rom`. They are not stored in `$JOTEGO/regression`. Project-local work
 files and downloaded RBF artifacts belong in the project's ignored cache.
 Generated MRAs for unrelated cores must be preserved.
+
+## Manual captures
+
+After host setup, capture one core's main games or select one game:
+
+```sh
+jtutil regression --core shouse
+jtutil regression --core shouse --setname splatter
+jtutil regression --core shouse --setname splatter --jtbin
+```
+
+The default uses the working project's `release/sidi128` RBF and normal
+`jtframe mra` generation. `--jtbin` reads existing MRA/RBF files from `$JTBIN`.
+Profiles and CAB inputs still come from the working project. Each invocation
+creates a fresh local session under `log/`, compares approved `ref` images
+when available, and replaces the game's `new` images when review is needed.
+Manual captures do not need a manifest or run ID and do not publish GitHub
+reports. Existing campaign captures remain resumable through the batch API.
 
 ## Host setup
 
