@@ -1,10 +1,10 @@
-# FPGA Clone of Konami GX400 Arcade System for MiSTer
+# JTNEMESIS — Konami GX400 (Nemesis, 1985)
 
 FPGA compatible core for the Nemesis (1985) arcade hardware for MiSTer FPGA, written by [LMN-san][@LmnSama], [OScherler][@oscherler], and [Raki][@RCAVictorCo]. This core is based on the Nemesis schematics from Konami and has been verified against several different physical PCBs (Konami Bubble System, Salamander, Salamander Bootleg). The game is fully playable and there are no known issues.
 
 Our goal during development was to be as close to the original hardware as possible, and not to rely on superficiality and supposition, which is why, after releasing the first version, we continued improving the reproduction accuracy with more tests and measurements. Great efforts have been made towards accuracy. Raki wrote a custom ROM for the 68000 to test all possible cases of tile/sprite priority bits on original hardware. LmnSan wrote a custom ROM for the Z80 to play test sounds on all channels, at every volume and every frequency, and did a thorough analysis of the results compared to original hardware. OScherler also knows how to write custom ROMs, but the ones he made for this project are less impressive.
 
-This core was developed using the [jtframe][] framework by Jotego ([@topapate][]).
+This core was developed using the [jtframe][] framework by Jotego ([@topapate][]). It was ported to JTCORES with help from Andrea Bogazzi. The port updates jtframe to the latest version, and replaces the hand-written SDRAM/download plumbing with the mem.yaml-generated interface.
 
 <img width="780" height="504" alt="Animation of the progress of the GFX development, with 6 frames from the game evolving over 30 frames from a garbled bunch tiles to perfect renditions of backgrounds and sprites." src="doc/nemesis-mosaic.gif" />
 
@@ -60,6 +60,12 @@ jtframe | FPGA framework     | Jotego         | https://github.com/jotego/jtcore
 jt49    | AY-3-8910 PSG      | Jotego         | https://github.com/jotego/jt49
 fx68k   | Motorola 68000 CPU | Jorge Cwik     | https://github.com/ijor/fx68k
 T80s    | Zilog Z80 CPU      | Daniel Wallner | Included in jtframe
+
+## Switched Resistor Ladders Modeling
+
+The volume table that models the switched resistor ladders at the output of the K0005289 PROMs is calculated in `firmware/prom_volumes.py` and saved as a `.hex` file that is loaded by the `jtframe_prom` modules. It is the combination of the direct calculation of the resistor ladders and a linear adjustment based on the audio recordings from original hardware.
+
+The lookup table that models the switched resistor ladders at the output of the colour RAM is calculated in `firmware/resnet_colmix.cpp`, which is generated from MAME’s `resnet.cpp` with the Nemesis network values.
 
 ## Known Issues
 
