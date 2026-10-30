@@ -58,6 +58,22 @@ capture-tool-sha256: <composite digest of ftp-control.py and cabinet_pack>
 Use a private netrc file readable only by its owner. Credentials are not
 written to configuration examples or logs.
 
+## Capture results
+
+A fresh attempt clears the selected game's previous `new` and `fail` images.
+A completed result uses one slot: `new` when no reference exists, or `fail`
+when comparison or capture quality fails. A passing comparison removes both
+slots. Designer-managed `ref` images are preserved. Resuming a verified
+finalized result keeps its images and does not start another capture.
+
+Quality checks use only checkpoints after `start-up`. A recording fails when
+all those images are fully black, or when at least two images are present and
+every decoded pixel is identical across all of them. These checks apply even
+without an approved reference or when a reference contains the same images.
+A single nonblack image is insufficient to establish a static recording.
+Quality failures retain the captured PNGs in `fail` and their receipts and
+metadata in the session log for review.
+
 ## Profile settings
 
 Global defaults come from `$JTFRAME/bin/reg.yaml`:

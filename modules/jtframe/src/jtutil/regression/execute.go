@@ -556,6 +556,9 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		log(result.Stage, Error, result.Message, nil)
 		return finish()
 	}
+	if err := clearResultSlots(filepath.Join(b.Root,b.Core,game.Setname)); err != nil {
+		result.Stage="publish"; result.Message="clear previous capture slots: "+err.Error(); log(result.Stage,Error,result.Message,nil); return finish()
+	}
 	if game.Unsupported {
 		result.Outcome = Unsupported
 		result.Attention = false
@@ -958,6 +961,14 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 	if e == nil { e = write_metadata(receipt, metadata) }
 	if e == nil { e = copyFile(filepath.Join(run.CaptureDir, "index.jsonl"), filepath.Join(receipt, "transport-index.jsonl")) }
 	if e != nil { result.Stage = "record"; result.Message = e.Error(); return finish() }
+	qualityFailure, qualityErr := captureQualityFailure(candidate,profile.Startup)
+	if qualityErr != nil { result.Stage="quality"; result.Message=qualityErr.Error(); log(result.Stage,Error,result.Message,nil); return finish() }
+	if qualityFailure != "" {
+		if e = PublishComplete(gameRoot,run.CaptureDir,Fail,metadata); e != nil { result.Stage="publish"; result.Message=e.Error(); return finish() }
+		result.Outcome=Fail; result.TestIdentity=definition; result.Stage="quality"; result.Message=qualityFailure
+		log(result.Stage,Fail,result.Message,nil)
+		return finish()
+	}
 	if _, e = os.Stat(ref); os.IsNotExist(e) {
 		if e = PublishComplete(gameRoot, run.CaptureDir, New, metadata); e != nil {
 			result.Stage = "publish"
@@ -1075,6 +1086,10 @@ func (b *Batch) verifyFinalized(game GameSpec, result GameResult) bool {
 	cutoff := 0
 	if result.Outcome == Pass { cutoff = profile.Startup }
 	if !receipt_matches_pngs(hashes, published, cutoff) { return false }
+	if result.Outcome == Fail && result.Stage == "quality" {
+		message, qualityErr := captureQualityFailure(published,profile.Startup)
+		if qualityErr != nil || message == "" || message != result.Message { return false }
+	}
 	if b.read_only_receipts {return true}
 	if legacy { if e = save_capture_receipt(receipt, hashes); e != nil { return false } }
 	return remove_legacy_receipt_pngs(receipt, hashes) == nil

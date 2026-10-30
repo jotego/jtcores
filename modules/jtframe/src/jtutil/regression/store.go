@@ -166,19 +166,13 @@ func TestDefinitionIdentityWithCapture(core, setname string, profile Profile, ro
 	return hex.EncodeToString(sum[:]), nil
 }
 
-// PublishComplete atomically replaces only the result slot owned by this run.
-// A new capture never touches ref; a mismatch replaces only fail.
+// PublishComplete replaces the current result slot and removes stale siblings.
+// Designer-approved ref images are never modified.
 func PublishComplete(gameRoot, sourceDir string, outcome Outcome, metadata any) error {
 	if outcome != New && outcome != Fail && outcome != Pass {
 		return fmt.Errorf("cannot publish incomplete outcome %q", outcome)
 	}
 	if e := os.MkdirAll(gameRoot, 0750); e != nil {
-		return e
-	}
-	if e := recover_dir(filepath.Join(gameRoot, "new")); e != nil {
-		return e
-	}
-	if e := recover_dir(filepath.Join(gameRoot, "fail")); e != nil {
 		return e
 	}
 	png_dir, e := os.MkdirTemp(filepath.Dir(sourceDir), "png-")
@@ -188,13 +182,15 @@ func PublishComplete(gameRoot, sourceDir string, outcome Outcome, metadata any) 
 	switch outcome {
 	case New:
 		if _, e := os.Stat(filepath.Join(gameRoot, "ref")); os.IsNotExist(e) {
+			if e := clearResultSlot(gameRoot,"fail"); e != nil { return e }
 			return replace_dir(png_dir, filepath.Join(gameRoot, "new"))
 		}
 		return fmt.Errorf("approved ref exists; refusing to publish new")
 	case Fail:
+		if e := clearResultSlot(gameRoot,"new"); e != nil { return e }
 		return replace_dir(png_dir, filepath.Join(gameRoot, "fail"))
 	case Pass:
-		return os.RemoveAll(filepath.Join(gameRoot, "fail"))
+		return clearResultSlots(gameRoot)
 	}
 	return nil
 }
