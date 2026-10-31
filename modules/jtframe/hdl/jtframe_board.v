@@ -289,9 +289,6 @@ reg  show_credits;
         `ifdef MISTER
             if( osd_credits_disabled ) show_credits <= 0;
         `endif;
-        `ifdef JTFRAME_CREDITS_HIDEVERT
-            if( vertical ) show_credits <= 0; // hide for vertical games
-        `endif
         `ifdef JTFRAME_CREDITS_AON
             show_credits <= 1;
         `endif
@@ -312,11 +309,7 @@ reg  show_credits;
         .HS         ( hs             ),
         .VS         ( vs             ),
         .rgb_in     ( {game_r, game_g, game_b} ),
-        `ifdef JTFRAME_CREDITS_NOROTATE
-            .rotate ( 2'd0          ),
-        `else
-            .rotate ( locked ? 2'd0 : { rotate[1], vertical }  ),
-        `endif
+        .rotate     ( locked ? 2'd0 : { rotate[1], vertical } ),
         .toggle     ( toggle        ),
         .fast_scroll( fast_scroll   ),
 

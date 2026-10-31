@@ -26,14 +26,24 @@ static uint32_t crc_byte(uint32_t crc, uint8_t byte) {
 
 int main(int argc, char **argv) {
     try {
-        if( argc<3 || argc>4 ) throw runtime_error("usage: jtframe-cab-pack input.cab output.jtcab [frames]");
+        if( argc<3 || argc>5 ) throw runtime_error("usage: jtframe-cab-pack input.cab output.jtcab [frames | --frame-budget frames]");
         CabinetScript script(argv[1]);
         const uint64_t script_frames = script.frame_count();
         size_t end = 0;
-        const uint64_t frames = argc==4 ? stoull(argv[3], &end) : script_frames;
-        if( argc==4 && end!=string(argv[3]).size() ) throw runtime_error("invalid frame limit");
-        if( frames==0 || frames>0x7fffffff || frames<script_frames )
-            throw runtime_error("frame limit must be 1..2147483647 and cover the complete CAB script");
+        bool prefix = false;
+        uint64_t frames = script_frames;
+        if( argc==4 ) {
+            frames = stoull(argv[3], &end);
+            if( end!=string(argv[3]).size() ) throw runtime_error("invalid frame limit");
+        } else if( argc==5 ) {
+            if( string(argv[3])!="--frame-budget" ) throw runtime_error("expected --frame-budget before frame budget");
+            prefix = true;
+            frames = stoull(argv[4], &end);
+            if( end!=string(argv[4]).size() ) throw runtime_error("invalid frame budget");
+        }
+        if( frames==0 || frames>0x7fffffff || (!prefix && frames<script_frames) )
+            throw runtime_error(prefix ? "prefix frame budget must be 1..2147483647" :
+                "frame limit must be 1..2147483647 and cover the complete CAB script");
         vector<Record> records;
         uint32_t dipsw = 0;
         uint32_t dumps = 0;
@@ -47,7 +57,7 @@ int main(int argc, char **argv) {
             if(dump) dumps+=count;
         };
         uint64_t position = 0;
-        while( !script.done() ) {
+        while( !script.done() && position<frames ) {
             const CabinetRun run = script.next_run();
             const auto& frame = run.frame;
             if( !frame.cheats.empty() ) {
@@ -55,10 +65,14 @@ int main(int argc, char **argv) {
             }
             if( frame.tracing_on ) cerr << "CAB tracing_on marker at frame " << position << " (no hardware waveform)\n";
             if( frame.has_dipsw ) { dipsw=frame.dipsw; has_dipsw=true; }
-            append(run.count, frame.inputs, frame.dump);
-            position += run.count;
+            const uint64_t remaining = frames-position;
+            const uint64_t included = run.count < remaining ? run.count : remaining;
+            append(included, frame.inputs, frame.dump);
+            position += included;
         }
-        append(frames-script_frames,0,false);
+        // Budgets longer than the CAB get neutral idle frames, matching the
+        // existing simulation horizon. A prefix budget clips only the tail.
+        if( position<frames ) append(frames-position,0,false);
         const unsigned version=dumps ? 3 : has_dipsw ? 2 : 1;
         uint32_t crc=0xffffffffU;
         for( const auto& record : records ) {
@@ -79,7 +93,7 @@ int main(int argc, char **argv) {
         }
         output.close();
         if( !output ) throw runtime_error("error writing output file");
-        cout << "CAB: " << frames << " raster frames, " << records.size()
+        cout << "CAB: " << frames << " raster frames" << (prefix ? " (profile prefix)" : "") << ", " << records.size()
              << " input runs, " << dumps << " dumps, " << 32+records.size()*(version>1 ? 12 : 8) << " bytes\n";
     } catch( const exception& error ) {
         cerr << "CAB export: " << error.what() << '\n';

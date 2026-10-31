@@ -66,14 +66,15 @@ while preserving beta locking and normal core direction reordering.
 
 Commands use the existing user-I/O chip select and byte transfer conventions.
 MCU commands are serialized outside network callbacks. Payloads are LE32 unless
-specified; ARM/PUSH/START apply only after their complete payload arrives.
+specified; ARM/PUSH/START are accepted only after their complete payload arrives.
+START acceptance schedules a video boundary; it does not immediately change inputs.
 
 | Opcode | Payload | Operation |
 | --- | --- | --- |
 | 0x81 | Clock out 32 response bytes | Read coherent status snapshot |
 | 0x82 | Total frames, total events, one reset-flags byte | ARM new epoch; reset flag bit 0 holds game reset |
 | 0x83 | Epoch, event sequence, duration, logical mask | Append run to FIFO using available credit |
-| 0x84 | Epoch | START, consume first run, preload frame-zero inputs, release ARM reset |
+| 0x84 | Epoch | START request; consume first run and release ARM reset on the next rising native LVBL |
 | 0x85 | One dummy guard byte | STOP, release inputs/reset, empty FIFO |
 | 0x86 | Epoch, sequence, duration, mask/flag, DIP value | Append version-2 run, same credit and boundary rules |
 | 0x87 | Clock out 40 response bytes | Extended coherent status, protocol 2 |
@@ -117,12 +118,27 @@ Sequence starts at zero;
 every accepted PUSH increments it. Counters wrap at 32 bits; compare epochs
 within one MCU/FPGA configuration and acquire fresh status after reloading.
 
-START preloads frame 0 without consuming a raster edge. Each synchronized
-native `LVBL` rising edge completes one script frame and decrements the current
-run. On its last edge the next queued run becomes active, or the script ends
+START remains pending in ARMED with reset held and no inputs/DIPs applied until
+the next synchronized native `LVBL` rising edge not held by capture. That edge
+applies the first entry and releases ARM reset; it starts frame 0 without
+incrementing the completed-frame counter. A duplicate START is rejected; STOP
+and a new ARM cancel the pending request. Each subsequent eligible rising edge
+completes one script frame and decrements the current run. On its last edge the next queued run becomes active, or the script ends
 at exactly total_frames with neutral inputs. The current run is held outside
 the FIFO, so credits describe queued future events. Firmware checks credits
-before refill and polls progress about every 2 ms. Underflow or protocol errors
+before refill and polls progress about every 2 ms. After START it waits up to
+100 ms for RUNNING or a frame-zero DUMP_WAIT, failing explicitly if the raster
+cannot advance while reset is held. Install the updated MCU firmware before
+using an RBF with boundary-aligned START; old firmware expects an immediate
+acknowledgement. New firmware also accepts older, immediate-start RBFs.
+
+This uses the same rising-LVBL boundary as `JTSim::process_sim_inputs`, including
+CAB `reset` assertion and release. Simulation preloads its first CAB entry in
+`SimInputs` before running; the following entries use this boundary. Its initial
+post-download reset release is a separate path, not LVBL-gated. Hardware START
+now aligns the initial reset request release too; the downstream reset circuitry
+still stretches and synchronizes that request before it reaches the game. Aligning CAB start does not itself establish
+CPU quiescence during video capture pauses. Underflow or protocol errors
 release inputs/reset rather than silently delaying a boundary.
 
 DIP updates occur on the same pop/boundary as inputs. A value remains in effect
@@ -166,7 +182,8 @@ simunit-all.sh --only jtframe_cab_stream,jtframe_joysticks
 make -C modules/jtframe/verilator/tests/cabinet test
 ```
 
-Tests cover frame-zero preload, exact duration boundaries, completion, queue
+Tests cover boundary-aligned frame-zero start at different SPI arrival phases,
+pending-start cancellation, scripted reset/DIP timing, exact durations, completion, queue
 wrap/refill, stale/invalid events, overflow/underrun, physical-input exclusion,
 player mapping, beta locking, parser iteration equivalence and export errors.
 Hardware validation includes a 2,000-frame Trojan `reg.cab` run and 1,200

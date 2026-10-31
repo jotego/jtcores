@@ -17,7 +17,6 @@ JTFRAME_BA2_START=0x110000
 JTFRAME_BA3_START=0x190000
 JTFRAME_PROM_START=0x280000
 
-JTFRAME_CREDITS_HSTART=32
 
 # 8 KiB object RAM, 64 KiB tile RAM, 4 KiB palette RAM, 32 bytes of MMR,
 # and the object-palette register

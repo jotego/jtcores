@@ -133,21 +133,6 @@ scenes/
 !/cores/*/ver/**/
 !*.cab
 !sim.sh
-!/cores/f1gpr2/ver/f1gp2/mamedump.sh
-!/cores/f1gpr2/ver/f1gp2/mamedump.lua
-!/cores/f1gpr2/ver/game/scene.sh
-!/cores/f1gpr2/ver/game/bench.sh
-/cores/*/status.md
 
-!/cores/sysfl/ver/hdl/cpu/.simunit
-!/cores/sysfl/ver/hdl/cpu/gather.f
-!/cores/sysfl/ver/hdl/cpu/test.v
-!/cores/sysfl/ver/hdl/muldiv/.simunit
-!/cores/sysfl/ver/hdl/muldiv/gather.f
-!/cores/sysfl/ver/hdl/muldiv/test.v
-!/cores/sysfl/ver/speedrcr/cache_boot.sh
-!/cores/sysfl/ver/hdl/icache/.simunit
-!/cores/sysfl/ver/hdl/icache/gather.f
-!/cores/sysfl/ver/hdl/icache/test.v
-!/cores/sysfl/ver/game/rest2bin.sh
-!/cores/sysfl/ver/speedrcr/check_cache_boot.py
+# Local hardware regression machine configuration
+/.jtutil-regression.yaml

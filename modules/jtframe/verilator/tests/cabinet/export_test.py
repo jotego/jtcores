@@ -66,3 +66,48 @@ with tempfile.TemporaryDirectory() as temporary:
     assert struct.unpack('<8s6I',output.read_bytes()[:32])[4]==2
     assert list(struct.iter_unpack('<III',output.read_bytes()[32:]))==[(2,0x400000,0),(2,0,0)]
 print('PASS: dump frame/count/absolute/loop/padding semantics')
+
+with tempfile.TemporaryDirectory() as temporary:
+    root=Path(temporary); source=root/'prefix.cab'; output=root/'prefix.jtcab'
+    source.write_text('999\n3 dump coin\n2 b1\n')
+    # Full-script mode still rejects a requested horizon shorter than the CAB.
+    sentinel=b'keep existing output'
+    output.write_bytes(sentinel)
+    result=subprocess.run([str(packer),str(source),str(output),'1000'],capture_output=True,text=True)
+    assert result.returncode!=0 and output.read_bytes()==sentinel
+    # Prefix mode clips the boundary-crossing dump run to exactly one frame.
+    result=subprocess.run([str(packer),str(source),str(output),'--frame-budget','1000'],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    data=output.read_bytes(); header=struct.unpack('<8s6I',data[:32])
+    assert header[:3]==(b'JTCAB03\0',3,1000) and header[3]==2 and header[4]==1
+    assert zlib.crc32(data[32:])==header[5]
+    runs=list(struct.iter_unpack('<III',data[32:]))
+    assert runs==[(999,0,0),(1,0x400001,0)],runs
+    assert sum(run[0] for run in runs)==1000
+    # The tail after the budget contributes neither events nor dumps.
+    source.write_text('999\n3\n2 dump\n')
+    result=subprocess.run([str(packer),str(source),str(output),'--frame-budget','1000'],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    data=output.read_bytes(); header=struct.unpack('<8s6I',data[:32])
+    assert header[:3]==(b'JTCAB01\0',1,1000) and header[4]==0
+    assert zlib.crc32(data[32:])==header[5]
+    assert list(struct.iter_unpack('<II',data[32:]))==[(1000,0)]
+    # A repeated loop may cross the profile boundary; only its first five
+    # frames are serialized and all header/count/CRC values describe that clip.
+    source.write_text('loop\nb1\n2\nrepeat 3\n')
+    result=subprocess.run([str(packer),str(source),str(output),'--frame-budget','5'],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    data=output.read_bytes(); header=struct.unpack('<8s6I',data[:32])
+    assert header[:3]==(b'JTCAB01\0',1,5) and zlib.crc32(data[32:])==header[5]
+    runs=list(struct.iter_unpack('<II',data[32:]))
+    frames=[mask for count,mask in runs for _ in range(count)]
+    assert frames==[0x100,0,0,0x100,0],frames
+    assert sum(count for count,_ in runs)==5
+    # A CAB shorter than the profile horizon is padded with neutral release.
+    source.write_text('1 coin\n')
+    result=subprocess.run([str(packer),str(source),str(output),'--frame-budget','3'],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    data=output.read_bytes(); header=struct.unpack('<8s6I',data[:32])
+    assert header[:3]==(b'JTCAB01\0',1,3) and zlib.crc32(data[32:])==header[5]
+    assert list(struct.iter_unpack('<II',data[32:]))==[(1,1),(2,0)]
+print('PASS: opt-in profile-prefix clipping, boundary runs, loop truncation, dropped tail and CRC')
