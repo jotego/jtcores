@@ -23,6 +23,12 @@ wire        snd_irqn, sound_en;
 always #10 clk = ~clk;
 always #20 clk24 = ~clk24;
 
+initial begin
+    $dumpfile("test.lxt");
+    $dumpvars;
+    $dumpon;
+end
+
 `include "test_tasks.vh"
 
 jts16_main uut(
