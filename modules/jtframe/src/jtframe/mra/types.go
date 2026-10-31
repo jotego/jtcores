@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 4-1-2025 */
 
@@ -338,10 +339,12 @@ type DipswCfg struct {
 	Bitcnt   int // Total bit count (including all switches)
 	Defaults []struct {
 		Selectable
-		Value string // used big-endian order, comma separated
+		Altversion string
+		Value      string // used big-endian order, comma separated
 	}
 	Extra []struct {
 		Selectable
+		Altversion string
 		Name, Options, Bits, Target string
 	}
 	Rename []DipswCfgRename
