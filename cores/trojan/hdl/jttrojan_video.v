@@ -75,7 +75,6 @@ module jttrojan_video #(
     output      [3:0]   blue
 );
 
-localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 6;
 
 localparam PXL_CHRW=6;

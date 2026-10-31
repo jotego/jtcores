@@ -143,6 +143,7 @@ endtask
 initial begin
     repeat(5) @(negedge clk); rst=0;
     arm_cab();
+    wait(cab.state==2); @(negedge clk);
     check(cab_active && cab.state==2,"CAB stream enters RUNNING from real command sequence");
     begin_capture();
     waited=0;

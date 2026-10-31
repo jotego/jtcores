@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,6 +16,8 @@ import (
 	"syscall"
 	"time"
 )
+
+var ErrBoardBusy = errors.New("another regression batch holds the board lock")
 
 type State struct {
 	RunID              string                `json:"run_id"`
@@ -38,7 +41,8 @@ func AcquireLock(root string, existing ...bool) (*os.File, error) {
 	}
 	if e = syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); e != nil {
 		f.Close()
-		return nil, fmt.Errorf("another regression batch holds the board lock")
+		if errors.Is(e, syscall.EWOULDBLOCK) { return nil, ErrBoardBusy }
+		return nil, e
 	}
 	return f, nil
 }

@@ -197,3 +197,14 @@ func TestReceiptAcceptsLosslessPNGReencoding(t *testing.T) {
 	after,err:=FileSHA256(path);if err!=nil || before==after {t.Fatal("test did not change PNG encoding")}
 	if !batch.verifyFinalized(game,result) {t.Fatal("losslessly reencoded PNG failed canonical RGB verification")}
 }
+
+func TestPassingReceiptAllowsExtraExcludedStartupFrames(t *testing.T) {
+    path:=make_capture_fixture(t,[]uint16{1,2,3,4})
+    frames,err:=ReadCaptureSet(path,400,200,100);if err!=nil{t.Fatal(err)}
+    receipt,err:=make_capture_receipt(frames);if err!=nil{t.Fatal(err)}
+    receipt.Frames=receipt.Frames[1:] // candidate starts at200; old reference starts100
+    if !receipt_matches_pngs(receipt,frames,200){t.Fatal("excluded startup difference rejected valid pass")}
+    if receipt_matches_pngs(receipt,frames,0){t.Fatal("missing included frame accepted")}
+    receipt.Frames=receipt.Frames[:len(receipt.Frames)-1]
+    if receipt_matches_pngs(receipt,frames,200){t.Fatal("missing comparable frame accepted")}
+}

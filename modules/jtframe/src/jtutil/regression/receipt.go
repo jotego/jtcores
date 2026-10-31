@@ -142,17 +142,19 @@ func restore_transport_timing(dir string, set *CaptureSet) error {
 }
 
 func receipt_matches_pngs(receipt capture_receipt_data, set CaptureSet, startup int) bool {
-	if receipt.Width!=set.Width || receipt.Height!=set.Height || len(receipt.Frames)!=len(set.Captures) { return false }
+	if receipt.Width!=set.Width || receipt.Height!=set.Height { return false }
 	hashes := map[int]capture_frame_receipt{}
-	for _, frame := range receipt.Frames { hashes[frame.Requested] = frame }
+	for _, frame := range receipt.Frames { if frame.Requested>startup { hashes[frame.Requested] = frame } }
+	matched:=0
 	for _, frame := range set.Captures {
 		if frame.Requested<=startup { continue }
-		expected := hashes[frame.Requested]
+		expected,ok := hashes[frame.Requested]
+		if !ok { return false };matched++
 		if frame.Actual!=expected.Actual && !(expected.LegacyRequestOnlyName && frame.Actual==frame.Requested && frame.Image==png_capture_name(frame.Requested,frame.Requested)) { return false }
 		decoded, err := decode_capture_image(filepath.Join(set.Dir, frame.Image))
 		if err!=nil || decoded_rgb_sha256(decoded)!=expected.RGBSHA256 { return false }
 	}
-	return true
+	return matched==len(hashes)
 }
 
 // Delete old duplicate images only after every remaining file is independently

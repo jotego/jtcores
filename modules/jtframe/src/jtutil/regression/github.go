@@ -55,6 +55,7 @@ func (p GitHubPublisher) Preflight(build BuildIdentity) error {
 
 func (p GitHubPublisher) Publish(summary Summary) (string, map[string]any, error) {
 	marker := fmt.Sprintf("<!-- jtutil-regression:%s:%s -->", summary.Build.RunID, summary.Build.Attempt)
+	if valid_commit(summary.RunID) { marker = "<!-- jtutil-regression:"+summary.RunID+" -->" }
 	body := formatGitHubSummary(summary, marker)
 	if buildReportsToPR(summary.Build) {
 		if summary.Build.PR < 1 {
@@ -116,7 +117,9 @@ func (p GitHubPublisher) Publish(summary Summary) (string, map[string]any, error
 	if summary.Build.RunNumber > 0 {
 		label = fmt.Sprint(summary.Build.RunNumber)
 	}
-	out, e := p.run("issue", "create", "--repo", githubRepository, "--title", fmt.Sprintf("SiDi128 regression: compile_all #%s", label), "--body-file", bodyFile)
+	title:=fmt.Sprintf("SiDi128 regression: %s #%s", build_workflow_label(summary.Build), label)
+	if valid_commit(summary.RunID) {title="SiDi128 regression: "+summary.RunID[:12]}
+	out, e := p.run("issue", "create", "--repo", githubRepository, "--title", title, "--body-file", bodyFile)
 	if e != nil {
 		return "", nil, e
 	}
@@ -199,7 +202,9 @@ func formatGitHubSummary(summary Summary, marker string) string {
 	if summary.Build.RunNumber > 0 {
 		label = fmt.Sprint(summary.Build.RunNumber)
 	}
-	fmt.Fprintf(&b, "Build: compile_all #%s (run %s, attempt %s), source `%s`, ref `%s`.\n\n", label, summary.Build.RunID, summary.Build.Attempt, summary.Build.SHA, summary.Build.Ref)
+	if valid_commit(summary.RunID) {fmt.Fprintf(&b,"RBF source commit: `%s`.\n\n",summary.Build.SHA)} else {
+		fmt.Fprintf(&b, "Build: %s #%s (run %s, attempt %s), source `%s`, ref `%s`.\n\n", build_workflow_label(summary.Build), label, summary.Build.RunID, summary.Build.Attempt, summary.Build.SHA, summary.Build.Ref)
+	}
 	fmt.Fprintf(&b, "Duration: %s. Status: **%s**.\n\n", summary.Duration.Round(time.Second), summary.Status)
 	fmt.Fprintln(&b, "## Coverage")
 	fmt.Fprintln(&b)
@@ -233,6 +238,11 @@ func formatGitHubSummary(summary Summary, marker string) string {
 			fmt.Fprintf(&b, "- Batch operation: %s.\n", summary.OperationalError)
 		}
 	}
-	fmt.Fprintf(&b, "\nFull captures, metadata and logs are retained under `$JOTEGO/regression` (run `%s`).\n", summary.RunID)
+	fmt.Fprintf(&b, "\nCaptures and execution records are retained under `$JOTEGO/regression` (run `%s`).\n", summary.RunID)
 	return b.String()
+}
+
+func build_workflow_label(build BuildIdentity) string {
+    if build.Workflow==compileSidi128Workflow { return "compile_sidi128" }
+    return "compile_all"
 }

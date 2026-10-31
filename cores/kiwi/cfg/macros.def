@@ -10,7 +10,6 @@ JTFRAME_NOMULTIWAY
 
 # Extermination, Kageki, etc. are vertical games
 JTFRAME_VERTICAL
-JTFRAME_CREDITS_HIDEVERT
 
 # ROM loading
 BRAM_OFFSET=0x100000

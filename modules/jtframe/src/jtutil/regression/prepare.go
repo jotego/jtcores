@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -116,10 +117,16 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 	if cfg.Repository == "" {
 		cfg.Repository = "jotego/jtcores"
 	}
-	identity, err := discoverBuildIn(ctx, cfg.Repository, runID, dataRoot)
+	identity, err := discover_build(ctx, cfg.Repository, runID, dataRoot, cfg)
 	if err != nil {
 		return Manifest{}, err
 	}
+	return PrepareBuild(ctx, cfg, dataRoot, identity)
+}
+
+// PrepareBuild prepares an already selected build. dataRoot may be a temporary
+// workspace; normal command execution keeps preparation diagnostics in /tmp.
+func PrepareBuild(ctx context.Context, cfg Config, dataRoot string, identity BuildIdentity) (Manifest, error) {
 	if cfg.Source == "" {
 		return Manifest{}, fmt.Errorf("working project is required for build %s", identity.SHA)
 	}
@@ -132,8 +139,8 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 	stageCtx, cancel := context.WithTimeout(ctx, time.Duration(cfg.TimeoutSeconds)*time.Second)
 	defer cancel()
 	buildKey := identity.RunID + "-attempt-" + identity.Attempt
-	buildDir := filepath.Join(cfg.Source, ".cache", "jtutil-regression", "builds", buildKey)
-	if err = os.MkdirAll(buildDir, 0750); err != nil {
+	buildDir := filepath.Join(dataRoot, "log", buildKey, "preparation")
+	if err := os.MkdirAll(buildDir, 0750); err != nil {
 		return Manifest{}, err
 	}
 	if cfg.GlobalProfile == "" { cfg.GlobalProfile = filepath.Join(cfg.Source, "modules", "jtframe", "bin", "reg.yaml") }
@@ -146,7 +153,11 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 		return Manifest{}, err
 	}
 	source := cfg.Source
-	cores, rec, err := mainGameInventory(stageCtx, source, rbfRoot, filepath.Join(buildDir, "fixtures"), artifactPath, identity, cfg)
+	work, err := os.MkdirTemp("/tmp", "jtutil-regression-prepare-")
+	if err != nil { return Manifest{}, err }
+	defer os.RemoveAll(work)
+	cores, rec, err := mainGameInventory(stageCtx, source, rbfRoot, work, artifactPath, identity, cfg)
+	if log_error := persist_preparation_reports(work, buildDir); log_error != nil { return Manifest{}, errors.Join(err,log_error) }
 	if err != nil {
 		return Manifest{}, err
 	}
@@ -159,6 +170,19 @@ func Prepare(ctx context.Context, cfg Config, dataRoot, runID string) (Manifest,
 	}
 	project_sha, _ := gitHead(ctx, source)
 	return Manifest{RunID: identity.RunID + "-attempt-" + identity.Attempt, Build: identity, Source: source, ProjectSHA: project_sha, Cores: cores}, nil
+}
+
+// Preserve preparation diagnostics, not temporary source copies or binaries.
+func persist_preparation_reports(work, destination string) error {
+	return filepath.WalkDir(work, func(name string, entry fs.DirEntry, walk_error error) error {
+		if walk_error != nil { return walk_error }
+		if entry.IsDir() || filepath.Ext(name) != ".json" && filepath.Ext(name) != ".log" { return nil }
+		relative, e := filepath.Rel(work, name)
+		if e != nil { return e }
+		output := filepath.Join(destination, relative)
+		if e = os.MkdirAll(filepath.Dir(output), 0750); e != nil { return e }
+		return copyFile(name, output)
+	})
 }
 
 func extractArtifactPayload(wrapper, artifactName, destination string) error {
@@ -208,229 +232,6 @@ func extractArtifactPayload(wrapper, artifactName, destination string) error {
 		return fmt.Errorf("artifact payload length mismatch: expected %d, got %d", f.UncompressedSize64, n)
 	}
 	return nil
-}
-
-func prepareArtifact(ctx context.Context, cfg Config, buildDir string, id BuildIdentity) (string, string, error) {
-	// Retained artifacts and caches stay under the configured regression root.
-	cache := buildDir
-	if err := os.MkdirAll(cache, 0750); err != nil {
-		return "", "", err
-	}
-	artifact := filepath.Join(cache, filepath.Base(id.Artifact))
-	manifestPath := filepath.Join(cache, "build-manifest.json")
-	if !regularNonempty(artifact) && id.RunNumber > 0 {
-		legacy := filepath.Join(filepath.Dir(cache), strconv.FormatInt(id.RunNumber, 10), filepath.Base(id.Artifact))
-		if regularNonempty(legacy) {
-			if err := copyFile(legacy, artifact); err != nil {
-				return "", "", err
-			}
-			oldManifest := filepath.Join(filepath.Dir(cache), strconv.FormatInt(id.RunNumber, 10), "build-manifest.json")
-			if regularNonempty(oldManifest) {
-				if err := copyFile(oldManifest, filepath.Join(cache, "build-manifest.json")); err != nil {
-					return "", "", err
-				}
-			}
-		}
-	}
-	var cached struct {
-		RunID           string            `json:"run_id"`
-		Attempt         string            `json:"attempt"`
-		SHA             string            `json:"source_sha"`
-		ArtifactID      int64             `json:"artifact_id"`
-		Artifact        string            `json:"artifact"`
-		ArtifactSHA     string            `json:"artifact_sha256"`
-		ArtifactAPIHash string            `json:"artifact_api_sha256"`
-		Target          string            `json:"target_directory"`
-		RBF             map[string]string `json:"rbf_sha256"`
-	}
-	// The initial hardware-prepared #676 cache predates this command and uses
-	// its richer build-manifest schema. Accept it only after every identity and
-	// downloaded bundle digest agrees with the selected run/attempt/artifact.
-	var pilot struct {
-		RunID           int64  `json:"run_id"`
-		Attempt         int    `json:"attempt"`
-		SHA             string `json:"source_sha"`
-		TargetDirectory string `json:"target_directory"`
-		Artifact        struct {
-			ID          int64  `json:"id"`
-			Name        string `json:"name"`
-			APIHash     string `json:"api_digest"`
-			DownloadSHA string `json:"download_sha256"`
-		} `json:"artifact"`
-		RBF map[string]string `json:"rbf_sha256"`
-	}
-	if raw, e := os.ReadFile(manifestPath); e == nil && json.Unmarshal(raw, &pilot) == nil && pilot.RunID != 0 {
-		if strconv.FormatInt(pilot.RunID, 10) != id.RunID || strconv.Itoa(pilot.Attempt) != id.Attempt || !strings.EqualFold(pilot.SHA, id.SHA) || pilot.Artifact.Name != id.Artifact || pilot.Artifact.ID != id.ArtifactID {
-			return "", "", fmt.Errorf("cached build manifest provenance does not match run %s attempt %s", id.RunID, id.Attempt)
-		}
-		pilotAPIHash := strings.TrimPrefix(pilot.Artifact.APIHash, "sha256:")
-		if id.ArtifactAPIHash != "" && pilotAPIHash != "" && !strings.EqualFold(id.ArtifactAPIHash, pilotAPIHash) {
-			return "", "", fmt.Errorf("cached artifact service digest differs for run %s", id.RunID)
-		}
-		if pilot.Artifact.DownloadSHA != "" && regularNonempty(artifact) {
-			digest, e := fileSHA256(artifact)
-			if e != nil {
-				return "", "", e
-			}
-			if !strings.EqualFold(digest, pilot.Artifact.DownloadSHA) {
-				return "", "", fmt.Errorf("cached artifact checksum mismatch for run %s", id.RunID)
-			}
-		}
-		cached.RunID = id.RunID
-		cached.Attempt = id.Attempt
-		cached.SHA = id.SHA
-		cached.ArtifactID = id.ArtifactID
-		cached.Artifact = id.Artifact
-		cached.ArtifactSHA = pilot.Artifact.DownloadSHA
-		cached.ArtifactAPIHash = strings.TrimPrefix(pilot.Artifact.APIHash, "sha256:")
-		cached.Target = pilot.TargetDirectory
-		cached.RBF = pilot.RBF
-		b, _ := json.MarshalIndent(cached, "", "  ")
-		if e := os.WriteFile(manifestPath, append(b, '\n'), 0640); e != nil {
-			return "", "", e
-		}
-	}
-	cachedOK := false
-	if raw, e := os.ReadFile(manifestPath); e == nil && json.Unmarshal(raw, &cached) == nil && cached.RunID == id.RunID && cached.Attempt == id.Attempt && strings.EqualFold(cached.SHA, id.SHA) && cached.ArtifactID == id.ArtifactID && cached.Artifact == id.Artifact && cached.ArtifactSHA != "" && regularNonempty(artifact) {
-		digest, e := fileSHA256(artifact)
-		cachedOK = e == nil && strings.EqualFold(digest, cached.ArtifactSHA)
-		if cached.ArtifactAPIHash != "" && id.ArtifactAPIHash != "" && cached.ArtifactAPIHash != id.ArtifactAPIHash {
-			cachedOK = false
-		}
-	}
-	if !cachedOK {
-		tmp, err := os.MkdirTemp(cache, ".artifact-")
-		if err != nil {
-			return "", "", err
-		}
-		defer os.RemoveAll(tmp)
-		wrapper := filepath.Join(tmp, "service.zip")
-		if err = ghArtifactDownload(ctx, id.Repository, id.ArtifactID, wrapper); err != nil {
-			return "", "", fmt.Errorf("download exact artifact %d from run %s attempt %s: %w", id.ArtifactID, id.RunID, id.Attempt, err)
-		}
-		if !regularNonempty(wrapper) {
-			return "", "", fmt.Errorf("artifact service returned an empty archive for %d", id.ArtifactID)
-		}
-		if id.ArtifactAPIHash != "" {
-			digest, e := fileSHA256(wrapper)
-			if e != nil {
-				return "", "", e
-			}
-			if !strings.EqualFold(digest, id.ArtifactAPIHash) {
-				return "", "", fmt.Errorf("artifact service archive digest mismatch for artifact %d", id.ArtifactID)
-			}
-		}
-		if err = extractArtifactPayload(wrapper, id.Artifact, tmp); err != nil {
-			return "", "", err
-		}
-		if err = copyFile(filepath.Join(tmp, filepath.Base(id.Artifact)), artifact); err != nil {
-			return "", "", err
-		}
-		cached.ArtifactSHA, err = fileSHA256(artifact)
-		if err != nil {
-			return "", "", err
-		}
-		cached.RunID = id.RunID
-		cached.Attempt = id.Attempt
-		cached.SHA = id.SHA
-		cached.ArtifactID = id.ArtifactID
-		cached.Artifact = id.Artifact
-		cached.ArtifactAPIHash = id.ArtifactAPIHash
-		cached.Target = "release/sidi128"
-		manifestBytes, _ := json.MarshalIndent(cached, "", "  ")
-		if err = os.WriteFile(manifestPath, append(manifestBytes, '\n'), 0640); err != nil {
-			return "", "", err
-		}
-	}
-	if _, err := zip.OpenReader(artifact); err != nil {
-		return "", "", fmt.Errorf("artifact %s is not a valid ZIP: %w", artifact, err)
-	}
-	id.ArtifactSHA = cached.ArtifactSHA
-	id.ArtifactAPIHash = cached.ArtifactAPIHash
-	rbfRoot, err := extractRBFTree(artifact, cache, id, cached.Target, cached.RBF)
-	if err != nil {
-		return "", "", err
-	}
-	return artifact, rbfRoot, nil
-}
-
-func extractRBFTree(artifact, cache string, id BuildIdentity, target string, expected map[string]string) (string, error) {
-	if target != "" && target != "release/sidi128" {
-		return "", fmt.Errorf("artifact manifest selects %q; regression requires release/sidi128", target)
-	}
-	root := filepath.Join(cache, "release", "sidi128")
-	z, err := zip.OpenReader(artifact)
-	if err != nil {
-		return "", err
-	}
-	defer z.Close()
-	count := 0
-	seen := map[string]bool{}
-	for _, f := range z.File {
-		name := filepath.ToSlash(f.Name)
-		if strings.Contains(name, "..") {
-			return "", fmt.Errorf("unsafe artifact path %q", name)
-		}
-		if f.FileInfo().IsDir() || !strings.HasSuffix(strings.ToLower(name), ".rbf") {
-			continue
-		}
-		parts := strings.Split(name, "/")
-		if len(parts) != 3 || parts[0] != "release" || parts[1] != "sidi128" || !strings.HasPrefix(parts[2], "jt") {
-			continue
-		}
-		if filepath.Base(parts[2]) != parts[2] {
-			return "", fmt.Errorf("unsafe RBF name %q", parts[2])
-		}
-		if seen[parts[2]] {
-			return "", fmt.Errorf("artifact contains duplicate RBF %s", parts[2])
-		}
-		seen[parts[2]] = true
-		targetDir := filepath.Join(cache, "release", "sidi128")
-		// Keep a single canonical target directory even for historical artifacts
-		// that named this target release/sidi.
-		target := filepath.Join(targetDir, parts[2])
-		if err = os.MkdirAll(targetDir, 0750); err != nil {
-			return "", err
-		}
-		rc, e := f.Open()
-		if e != nil {
-			return "", e
-		}
-		dst, e := os.OpenFile(target, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0640)
-		if e == nil {
-			_, e = io.Copy(dst, rc)
-			ce := dst.Close()
-			if e == nil {
-				e = ce
-			}
-		}
-		_ = rc.Close()
-		if e != nil {
-			return "", e
-		}
-		if expected[parts[2]] != "" {
-			digest, e := fileSHA256(target)
-			if e != nil {
-				return "", e
-			}
-			if !strings.EqualFold(digest, expected[parts[2]]) {
-				return "", fmt.Errorf("RBF %s checksum mismatch in artifact", parts[2])
-			}
-		}
-		count++
-	}
-	if count == 0 {
-		return "", fmt.Errorf("artifact %s has no release/sidi128 SiDi RBFs", id.Artifact)
-	}
-	old, _ := filepath.Glob(filepath.Join(root, "jt*.rbf"))
-	for _, p := range old {
-		if !seen[filepath.Base(p)] {
-			if e := os.Remove(p); e != nil && !os.IsNotExist(e) {
-				return "", e
-			}
-		}
-	}
-	return root, nil
 }
 
 func gitHead(ctx context.Context, path string) (string, error) {
@@ -506,8 +307,10 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 		return nil, InventoryReconciliation{}, err
 	}
 	allTuples := append([]InventoryTuple(nil), artifactTuples...)
-	for _, path := range files { if tuple, ok := readTuple(path); ok { allTuples = append(allTuples, tuple) } }
-	exclusions, err := sourceExclusions(source, allTuples)
+	error_only := map[string]bool{}
+	for _, tuple := range artifactTuples { error_only[tupleKey(tuple)] = true }
+	for _, path := range files { if tuple, ok := readTuple(path); ok { allTuples = append(allTuples, tuple); delete(error_only,tupleKey(tuple)) } }
+	exclusions, err := sourceExclusions(source, allTuples, error_only)
 	if err != nil { return nil, InventoryReconciliation{}, err }
 	profileExclusions, err := profileSkipExclusions(source, allTuples)
 	if err != nil { return nil, InventoryReconciliation{}, err }
@@ -686,9 +489,10 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 			if e = os.MkdirAll(folder, 0750); e != nil {
 				return nil, InventoryReconciliation{}, e
 			}
-			arc := filepath.Join(folder, set+".arc")
-			rom := filepath.Join(source, "rom", ".regression", core, set+".rom")
-			mraTool := path
+			arc := filepath.Join(source, "rom", set+".arc")
+			rom := filepath.Join(source, "rom", set+".rom")
+			mraTool := filepath.Join(source, "release", "mra", filepath.Base(path))
+			if err = os.MkdirAll(filepath.Dir(rom), 0750); err != nil { return nil, InventoryReconciliation{}, err }
 			var targetMRA string
 			romExpected := false
 			for i := range m.ROM { if m.ROM[i].Index == "0" { romExpected = true; break } }
@@ -697,9 +501,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 				if gen_err != nil {
 					spec.PreparationError = appendPrepError(spec.PreparationError, gen_err.Error())
 				} else {
-					targetMRA = generated_mra
-					if err = os.MkdirAll(filepath.Dir(rom), 0750); err != nil { return nil, InventoryReconciliation{}, err }
-					if err = copyFile(generated_rom, rom); err != nil { spec.PreparationError = appendPrepError(spec.PreparationError, err.Error()) }
+					targetMRA, mraTool, rom = generated_mra, generated_mra, generated_rom
 					if warning != nil { lintCandidates = append(lintCandidates, *warning) }
 				}
 			}
@@ -724,12 +526,7 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 					if ramErr != nil {
 						spec.PreparationError = appendPrepError(spec.PreparationError, ramErr.Error())
 					} else if ram != "" {
-						fixture := filepath.Join(filepath.Dir(rom), filepath.Base(ram))
-						if err = copyFile(ram, fixture); err != nil {
-							spec.PreparationError = appendPrepError(spec.PreparationError, err.Error())
-						} else {
-							spec.ROMs = append(spec.ROMs, fixture)
-						}
+						spec.ROMs = append(spec.ROMs, ram)
 					}
 				}
 				spec.ARC = arc
@@ -742,8 +539,17 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 					spec.PreparationError = appendPrepError(spec.PreparationError, fmt.Sprintf("configured CAB input %q was not found relative to cores/%s/ver/%s", spec.Profile.Inputs, core, set))
 				}
 			}
-			if spec.PreparationError == "" { spec.PreparationWarnings = append(spec.PreparationWarnings, lintCandidates...) }
-			prep := map[string]any{"schema": 1, "source_sha": project_sha, "rbf_source_sha": identity.SHA, "run_id": identity.RunID, "attempt": identity.Attempt, "core": core, "setname": set, "rbf": rbf, "mra_path": path, "preparation_error": spec.PreparationError}
+			if spec.PreparationError == "" {
+				spec.PreparationWarnings = append(spec.PreparationWarnings, lintCandidates...)
+				spec.PreparedHashes = make(map[string]string)
+				inputs := append([]string{spec.RBF, spec.ARC, mraTool}, spec.ROMs...)
+				for _, input := range inputs {
+					digest, hash_error := fileSHA256(input)
+					if hash_error != nil { spec.PreparationError = appendPrepError(spec.PreparationError, hash_error.Error()); break }
+					spec.PreparedHashes[input] = digest
+				}
+			}
+			prep := map[string]any{"schema": 1, "source_sha": project_sha, "rbf_source_sha": identity.SHA, "run_id": identity.RunID, "attempt": identity.Attempt, "core": core, "setname": set, "rbf": rbf, "mra_path": mraTool, "preparation_error": spec.PreparationError}
 			if len(spec.PreparationWarnings) > 0 { prep["preparation_warnings"] = spec.PreparationWarnings }
 			if v, e := fileSHA256(path); e == nil {
 				prep["mra_sha256"] = v
@@ -806,7 +612,7 @@ func refresh_core_mras(ctx context.Context, source, core, roms string, have_roms
 		for _, entry := range entries {
 			target := filepath.Join(mra_dir, entry.Name())
 			if _, stat_error := os.Lstat(target); os.IsNotExist(stat_error) {
-				if restore_error := os.Rename(filepath.Join(backup, entry.Name()), target); restore_error != nil {
+				if restore_error := copyFile(filepath.Join(backup, entry.Name()), target); restore_error != nil {
 					result_error = errors.Join(result_error, fmt.Errorf("restore generated MRA from %s: %w", backup, restore_error))
 					return
 				}
@@ -821,7 +627,8 @@ func refresh_core_mras(ctx context.Context, source, core, roms string, have_roms
 			info, stat_error := os.Lstat(path)
 			if stat_error != nil { return nil, stat_error }
 			if !info.Mode().IsRegular() { return nil, fmt.Errorf("generated MRA is not a regular file: %s", path) }
-			if err = os.Rename(path, filepath.Join(backup, filepath.Base(path))); err != nil { return nil, err }
+			if err = copyFile(path, filepath.Join(backup, filepath.Base(path))); err != nil { return nil, err }
+			if err = os.Remove(path); err != nil { return nil, err }
 		}
 	}
 	output, result_error = jtframeMRACommand(ctx, source, core, roms, have_roms)

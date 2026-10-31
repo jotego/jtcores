@@ -24,7 +24,6 @@ type FTPHardware struct {
 	Host                  string
 	ControlHelper         string
 	CabPacker             string
-	CabCache              string
 	JTFrame               string
 	PendingUploadDirsPath string
 	Curl                  string
@@ -145,7 +144,7 @@ func (h *FTPHardware) Run(game GameSpec, cab, captureDir string) (RunInfo, error
 		return RunInfo{}, fmt.Errorf("board host and ftp-control helper must be configured")
 	}
 	if h.CabPacker == "" {
-		return RunInfo{}, fmt.Errorf("CAB packer must be configured in the project preparation cache")
+		return RunInfo{}, fmt.Errorf("CAB packer must be prepared before capture")
 	}
 	if e := os.MkdirAll(captureDir, 0750); e != nil {
 		return RunInfo{}, e
@@ -558,9 +557,6 @@ func (h *FTPHardware) run(program string, args []string, timeout time.Duration) 
 	if h.Netrc != "" {
 		cmd.Env = append(cmd.Env, "FTP_NETRC="+h.Netrc)
 	}
-	if h.CabCache != "" {
-		cmd.Env = append(cmd.Env, "JTFRAME_CAB_CACHE="+h.CabCache)
-	}
 	if h.JTFrame != "" {
 		cmd.Env = append(cmd.Env, "JTFRAME="+h.JTFrame)
 	}
@@ -580,32 +576,19 @@ func (h *FTPHardware) run(program string, args []string, timeout time.Duration) 
 	return output.String(), nil
 }
 
-// PrepareCabPacker builds the source-pinned native exporter into the regression
-// cache and returns its content digest for the test-definition identity.
+// PrepareCabPacker compiles the checkout's core-independent exporter once per
+// invocation. Games subsequently invoke the resulting binary directly.
 func (h *FTPHardware) PrepareCabPacker(sourceRoot string) (string, error) {
-	if h.CabPacker == "" {
-		return "", fmt.Errorf("CAB packer executable must be configured")
+	frame := filepath.Join(sourceRoot, "modules", "jtframe")
+	wrapper := filepath.Join(frame, "bin", "jtframe-cab-pack")
+	exporter := filepath.Join(frame, "bin", "cabinet_pack")
+	if h.CabPacker == "" || h.CabPacker == wrapper || h.CabPacker == exporter {
+		h.JTFrame = frame
+		out, err := h.run(wrapper, []string{"--build"}, 2*time.Minute)
+		if err != nil { return "", fmt.Errorf("build CAB exporter: %w: %s", err, out) }
+		h.CabPacker = exporter
 	}
-	if filepath.Base(h.CabPacker) == "jtframe-cab-pack" {
-		if h.CabCache == "" || h.JTFrame == "" || sourceRoot == "" {
-			return "", fmt.Errorf("CAB packer source and project preparation cache are required")
-		}
-		if err := os.MkdirAll(h.CabCache, 0750); err != nil {
-			return "", err
-		}
-		out, err := h.run(h.CabPacker, nil, 2*time.Minute)
-		if err == nil || !strings.Contains(out, "usage: jtframe-cab-pack") {
-			return "", fmt.Errorf("could not prepare CAB exporter: %v: %s", err, out)
-		}
-		exporter := filepath.Join(h.CabCache, "cabinet_pack")
-		if !regularNonempty(exporter) {
-			return "", fmt.Errorf("CAB exporter was not built at %s", exporter)
-		}
-		h.CabPacker = exporter // invoke the pinned binary directly after its build
-	}
-	if !regularNonempty(h.CabPacker) {
-		return "", fmt.Errorf("CAB exporter is unavailable: %s", h.CabPacker)
-	}
+	if !regularNonempty(h.CabPacker) { return "", fmt.Errorf("CAB exporter is unavailable: %s", h.CabPacker) }
 	return fileSHA256(h.CabPacker)
 }
 
@@ -633,7 +616,7 @@ func (h *FTPHardware) Preflight() error {
 		return fmt.Errorf("ftp-control helper must be configured")
 	}
 	if h.CabPacker == "" {
-		return fmt.Errorf("CAB packer must be configured in project preparation cache")
+		return fmt.Errorf("CAB packer must be prepared before board access")
 	}
 	if info, e := os.Stat(h.ControlHelper); e != nil || !info.Mode().IsRegular() {
 		return fmt.Errorf("ftp-control helper is unavailable: %s", h.ControlHelper)
