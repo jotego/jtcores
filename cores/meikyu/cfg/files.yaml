@@ -1,0 +1,34 @@
+meikyu:
+  - get:
+    - jtmeikyu_game.v
+    - jtmeikyu_main.v
+    - jtmeikyu_video.v
+    - jtmeikyu_scr1.v
+    - jtmeikyu_colmix.v
+vigil:
+  - get:
+    # shared with Vigilante, reused as-is (identical hardware)
+    - jtvigil_snd.v    # YM2151 + Irem M72 PCM sound
+    - jtvigil_pcm.v    # M72 PCM DAC (instantiated by jtvigil_snd)
+    - jtvigil_obj.v    # parametrized: XBASE/VSCORE/CODE_SWAP
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: clocking
+    get:
+      - jtframe_cen24.v
+      - jtframe_cen48.v
+  - from: ram
+    get:
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_linebuf.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - get:
+      - jtframe_sort.v
+jt51:
