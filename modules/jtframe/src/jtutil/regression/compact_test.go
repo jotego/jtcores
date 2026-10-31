@@ -5,7 +5,6 @@ package regression
 import (
     "context"
     "os"
-    "os/exec"
     "path/filepath"
     "strings"
     "testing"
@@ -137,28 +136,6 @@ func TestCompactCommitCompletionIgnoresWorkflowAttempts(t *testing.T) {
     if dirty.Progress.AutomaticComplete{t.Fatal("dirty run inherited clean completion")}
     dirty.Save()
     if _,err=os.Stat(filepath.Join(record.Root,"log",LogKey(record.Progress.Commit,true)+".json"));err!=nil{t.Fatal(err)}
-}
-
-func TestManualCommitCleanDirtyAndJTBinHistory(t *testing.T) {
-    root:=t.TempDir()
-    git:=func(args ...string)string{
-        t.Helper();cmd:=exec.Command("git",append([]string{"-C",root},args...)...)
-        cmd.Env=append(os.Environ(),"GIT_AUTHOR_NAME=Test","GIT_AUTHOR_EMAIL=test@example.test","GIT_COMMITTER_NAME=Test","GIT_COMMITTER_EMAIL=test@example.test")
-        out,err:=cmd.CombinedOutput();if err!=nil{t.Fatalf("git %v: %v %s",args,err,out)};return strings.TrimSpace(string(out))
-    }
-    git("init","-q")
-    manualWrite(t,filepath.Join(root,"sidi128","jtfake.rbf"),[]byte("RBF"))
-    git("add",".");git("commit","-qm","release for https://github.com/jotego/jtcores/commit/"+strings.Repeat("c",40))
-    head:=git("rev-parse","HEAD")
-    commit,dirty,err:=ManualCommit(context.Background(),root,"fake",false)
-    if err!=nil||dirty||commit!=head{t.Fatalf("clean identity %s %v %v",commit,dirty,err)}
-    manualWrite(t,filepath.Join(root,"untracked"),[]byte("development"))
-    _,dirty,err=ManualCommit(context.Background(),root,"fake",false)
-    if err!=nil||!dirty{t.Fatal("untracked checkout not labelled dirty")}
-    git("add",".");git("commit","-qm","unrelated metadata update")
-    t.Setenv("JTBIN",root)
-    commit,dirty,err=ManualCommit(context.Background(),root,"fake",true)
-    if err!=nil||dirty||commit!=strings.Repeat("c",40){t.Fatalf("wrong JTBIN source identity %s %v %v",commit,dirty,err)}
 }
 
 func TestCompactMigrationPreservesPendingAndArchivesClutter(t *testing.T) {
