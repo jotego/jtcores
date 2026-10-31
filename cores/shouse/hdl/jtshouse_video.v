@@ -9,6 +9,7 @@ module jtshouse_video(
     input             pxl_cen,
     input             pxl2_cen,
     output     [ 8:0] hdump,
+    input             dipflip,
     output            flip,
 
     input      [14:0] cpu_addr,
@@ -138,6 +139,7 @@ jtshouse_scr #(.VB_END(VB_END)) u_scroll(
 jtshouse_obj #(.VB_START(VB_START),.VB_END(VB_END)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .dipflip    ( dipflip   ),
 
     .pxl_cen    ( pxl_cen   ),
 

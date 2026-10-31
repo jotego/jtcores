@@ -265,6 +265,7 @@ jtshouse_triram u_triram(
 jtshouse_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .dipflip    ( ~dipsw[9] ),
 
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
