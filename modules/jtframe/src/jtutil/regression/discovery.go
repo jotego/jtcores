@@ -6,6 +6,7 @@ package regression
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,6 +18,8 @@ import (
 )
 
 const compileAllWorkflow = "compile-all.yaml"
+
+var ErrNoEligibleBuild = errors.New("no completed successful compile_all build with a downloadable SiDi128 artifact is available")
 
 type discoveredRun struct {
 	DatabaseID         int64     `json:"databaseId"`
@@ -92,6 +95,16 @@ func discoverBuild(ctx context.Context, repository, runID string) (BuildIdentity
 }
 
 func discoverBuildIn(ctx context.Context, repository, runID, dataRoot string) (BuildIdentity, error) {
+	return discover_build(ctx, repository, runID, dataRoot, Config{})
+}
+
+func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg Config) (BuildIdentity, error) {
+	var since time.Time
+	if cfg.BuildsSince != "" {
+		var err error
+		since, err = time.Parse(time.RFC3339, cfg.BuildsSince)
+		if err != nil { return BuildIdentity{}, fmt.Errorf("builds-since must be an RFC3339 timestamp: %w", err) }
+	}
 	if repository == "" {
 		repository = "jotego/jtcores"
 	}
@@ -125,10 +138,11 @@ func discoverBuildIn(ctx context.Context, repository, runID, dataRoot string) (B
 		return runs[i].CreatedAt.Before(runs[j].CreatedAt)
 	})
 	for _, r := range runs {
+		if r.CreatedAt.Before(since) { continue }
 		if r.DatabaseID == 0 || !strings.EqualFold(r.WorkflowName, "Compile all") || r.Status != "completed" || r.Conclusion != "success" || r.HeadSHA == "" {
 			continue
 		}
-		if buildAlreadyComplete(dataRoot, strconv.FormatInt(r.DatabaseID, 10), strconv.Itoa(r.Attempt)) {
+		if commit_complete(dataRoot, r.HeadSHA, cfg.NoPublish) {
 			continue
 		}
 		id, err := getEligibleRun(ctx, repository, r.DatabaseID)
@@ -138,7 +152,7 @@ func discoverBuildIn(ctx context.Context, repository, runID, dataRoot string) (B
 		// A successful run with no artifact is not processed; keep looking for an
 		// eligible build and leave the candidate for the next polling invocation.
 	}
-	return BuildIdentity{}, fmt.Errorf("no completed successful compile_all build with a downloadable SiDi128 artifact is available")
+	return BuildIdentity{}, ErrNoEligibleBuild
 }
 
 func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildIdentity, error) {
@@ -305,23 +319,29 @@ func listWorkflowRuns(ctx context.Context, repository string) ([]discoveredRun, 
 	return runs, nil
 }
 
-func buildAlreadyComplete(root, runID, attempt string) bool {
+func buildAlreadyComplete(root, runID, attempt string, local_only ...bool) bool {
 	if root == "" {
 		return false
 	}
-	paths, _ := filepath.Glob(filepath.Join(root, "log", "*", "summary.json"))
-	for _, path := range paths {
-		raw, err := os.ReadFile(path)
-		if err != nil {
-			continue
-		}
-		var summary struct {
-			Status string        `json:"status"`
-			Build  BuildIdentity `json:"build"`
-		}
-		if json.Unmarshal(raw, &summary) == nil && summary.Status == "complete" && summary.Build.RunID == runID && summary.Build.Attempt == attempt {
-			return true
+	// Only the canonical full campaign can complete a build; partial pilots and
+	// manual retakes must never suppress the automatic inventory.
+	path := filepath.Join(root, "log", runID+"-attempt-"+attempt, "summary.json")
+	raw, err := os.ReadFile(path)
+	if err != nil { return false }
+	var summary Summary
+	if json.Unmarshal(raw, &summary) != nil || summary.Build.RunID != runID || summary.Build.Attempt != attempt { return false }
+	if summary.Status == "complete" { return true }
+	if len(local_only)==0 || !local_only[0] || summary.Status != "publication-pending" || summary.OperationalError != "" || len(summary.Games)==0 { return false }
+	for _, game := range summary.Games {
+		switch game.Outcome {
+		case Pass, New, Fail, Error, Unsupported:
+		default: return false
 		}
 	}
-	return false
+	return true
+}
+
+// DiscoverBuild selects transport metadata; durable regression identity is SHA.
+func DiscoverBuild(ctx context.Context, cfg Config, root, selector string) (BuildIdentity, error) {
+	return discover_build(ctx, cfg.Repository, selector, root, cfg)
 }

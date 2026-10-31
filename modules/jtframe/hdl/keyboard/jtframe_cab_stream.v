@@ -35,7 +35,7 @@ reg [31:0] epoch, frames, raster, accepted, applied, accepted_frames,
 reg [ 7:0] error;
 reg [ 2:0] state;
 reg [ 1:0] lvbl_sync;
-reg lvbl_l, reset_on_arm, dipsw_set, dump_each_frame;
+reg lvbl_l, reset_on_arm, dipsw_set, dump_each_frame, start_pending;
 
 wire [159:0] packet;
 wire [95:0] head;
@@ -45,7 +45,7 @@ wire [ 7:0] push_error;
 wire [ 4:0] payload_index;
 wire [AW:0] credits;
 wire tick, arm_packet, start_packet, push_packet, stop_packet,
-     enqueue, pop, start_ok, next_boundary, finish_boundary, ack_packet;
+     enqueue, pop, start_ok, start_boundary, next_boundary, finish_boundary, ack_packet;
 
 assign active     = state==ARMED || state==RUNNING || dump_pause;
 assign dump_pause = state==DUMP_WAIT || state==RESUME_WAIT;
@@ -72,10 +72,12 @@ assign push_error = !active                         ? BAD_STATE :
                     (accepted==total_events-1 && frame_sum!={1'b0,total_frames})
                                                     ? BAD_LENGTH : 8'd0;
 assign enqueue    = push_packet && push_error==0;
-assign start_ok   = start_packet && state==ARMED && start_epoch==epoch && queued!=0;
+assign start_ok   = start_packet && state==ARMED && start_epoch==epoch && queued!=0 && !start_pending;
+// Start on the rising-LVBL boundary used for subsequent simulation CAB entries.
+assign start_boundary = state==ARMED && start_pending && tick && !capture_hold;
 assign finish_boundary = state==RUNNING && tick && !capture_hold && frames==total_frames-1;
 assign next_boundary   = state==RUNNING && tick && !capture_hold && remaining==1 && !finish_boundary;
-assign pop        = start_ok || (next_boundary && (queued!=0 || enqueue));
+assign pop        = start_boundary || (next_boundary && (queued!=0 || enqueue));
 assign head       = queued!=0 ? queue[rd_ptr] : packet[159:64];
 
 always @(posedge clk) begin
@@ -100,7 +102,7 @@ always @(posedge clk) begin
         accepted<=0; applied<=0; accepted_frames<=0;
         total_frames<=0; total_events<=0; remaining<=0;
         wr_ptr<=0; rd_ptr<=0; queued<=0; inputs<=0; reset_on_arm<=0;
-        dipsw<=0; dipsw_set<=0;
+        dipsw<=0; dipsw_set<=0; start_pending<=0;
         dump_seq<=0; dump_frame<=0; dump_raster<=0; dump_each_frame<=0;
     end else begin
         if(tick) raster <= raster+1'd1;
@@ -118,7 +120,7 @@ always @(posedge clk) begin
             dump_each_frame <= head[54];
             if(head[54]) begin
                 state<=DUMP_WAIT; dump_seq<=dump_seq+1'd1;
-                dump_frame<=start_ok ? 32'd0 : frames+1'd1;
+                dump_frame<=start_boundary ? 32'd0 : frames+1'd1;
                 dump_raster<=raster+{31'd0,tick};
             end
         end
@@ -127,7 +129,11 @@ always @(posedge clk) begin
             2'b01: queued <= queued-1'd1;
             default: ;
         endcase
-        if(start_ok && !head[54]) state <= RUNNING;
+        if(start_ok) start_pending<=1;
+        if(start_boundary) begin
+            start_pending<=0;
+            if(!head[54]) state<=RUNNING;
+        end
         if(state==RUNNING && tick && !capture_hold) begin
             frames <= frames+1'd1;
             if(finish_boundary) begin
@@ -159,7 +165,7 @@ always @(posedge clk) begin
         // Keep this CAB frame intact; resume its duration on the next raster.
         if(state==RESUME_WAIT && tick) state<=RUNNING;
         if(stop_packet) begin
-            state<=IDLE; inputs<=0; queued<=0; wr_ptr<=0; rd_ptr<=0;
+            state<=IDLE; inputs<=0; queued<=0; wr_ptr<=0; rd_ptr<=0; start_pending<=0;
         end
         if(arm_packet) begin
             epoch<=epoch+1'd1; state<=ARMED; error<=0;
@@ -167,7 +173,7 @@ always @(posedge clk) begin
             total_frames<=payload[31:0]; total_events<=payload[63:32];
             remaining<=0; queued<=0; wr_ptr<=0; rd_ptr<=0; inputs<=0;
             reset_on_arm<=rx_byte[0];
-            dipsw<=0; dipsw_set<=0;
+            dipsw<=0; dipsw_set<=0; start_pending<=0;
             dump_seq<=0; dump_frame<=0; dump_raster<=0; dump_each_frame<=0;
             if(payload[31:0]==0 || payload[63:32]==0 || |rx_byte[7:1]) begin
                 state<=ERROR; error<=BAD_LENGTH;

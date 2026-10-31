@@ -46,7 +46,7 @@ begin
     byte_in('h83,0,0); word_in('h83,1,epoch); word_in('h83,5,seqno);
     word_in('h83,9,duration); word_in('h83,13,mask);
 end endtask
-task start;
+task request_start;
 begin byte_in('h84,0,0); word_in('h84,1,epoch); @(negedge clk); end endtask
 task ack_dump;
 begin
@@ -57,6 +57,14 @@ task frame;
 begin
     lvbl=0; repeat(5) @(negedge clk); lvbl=1;
     repeat(5) @(negedge clk); lvbl=0;
+end endtask
+
+// START is accepted over SPI, but the first entry belongs to a video boundary.
+task start;
+begin
+    request_start();
+    assert_msg(hold_reset && inputs==0,"START arrival must keep reset and inputs unchanged");
+    frame();
 end endtask
 
 initial begin
@@ -99,7 +107,7 @@ initial begin
     assert_msg(snapshot[23:16]==3 && snapshot[127:96]==24 && snapshot[159:128]==24,"all refilled events accepted/applied");
     arm(9,9); for(k=0;k<8;k=k+1) push(k,1,k);
     push(8,1,0); snap(); assert_msg(snapshot[31:24]==4,"overflow must not drop events silently");
-    arm(1,1); push(0,1,1); epoch=epoch-1; start(); snap();
+    arm(1,1); push(0,1,1); epoch=epoch-1; request_start(); snap();
     assert_msg(snapshot[31:24]==2,"stale start epoch rejected");
     arm(1,1); byte_in('h85,0,0); snap();
     assert_msg(!active && !hold_reset,"stop releases an armed game");
@@ -176,6 +184,33 @@ initial begin
     capture_hold=1; frame(); frame(); capture_hold=0; frame();
     assert_msg(inputs==4,"pending CAB event applied once after held duration");
     frame();snap();assert_msg(snapshot[23:16]==3,"held stream completes normally");
+    // Vary arrival within active video; neither arrival nor falling LVBL starts.
+    for(k=0;k<8;k=k+1) begin
+        arm(2,2); push_dip(0,1,'h201001,'h12345678); push(1,1,4);
+        lvbl=1; repeat(5+k) @(negedge clk);
+        request_start(); snap();
+        assert_msg(snapshot[23:16]==1 && snapshot[159:128]==0 && snapshot[95:64]==0,
+                   "pending START remains ARMED with no applied/completed frames");
+        assert_msg(hold_reset && inputs==0 && !dipsw_valid,"pending START changes no game controls");
+        lvbl=0; repeat(5+k) @(negedge clk);
+        assert_msg(hold_reset && inputs==0,"falling LVBL cannot start CAB");
+        frame(); snap();
+        assert_msg(!hold_reset && inputs=='h1001 && dipsw_valid && dipsw=='h12345678,
+                   "first input, scripted reset and DIP apply together on rising LVBL");
+        assert_msg(snapshot[95:64]==0 && snapshot[159:128]==1,"start edge begins, not completes, frame zero");
+        frame(); assert_msg(inputs==4,"scripted reset releases at next rising LVBL");
+        frame(); snap(); assert_msg(snapshot[23:16]==3 && snapshot[95:64]==2,"two full CAB durations complete");
+    end
+    arm(1,1); push(0,1,1); request_start(); byte_in('h85,0,0); frame();
+    assert_msg(!active && !hold_reset && inputs==0,"STOP cancels pending START");
+    arm(1,1); push(0,1,1); request_start(); arm(1,1); push(0,1,4); frame();
+    assert_msg(hold_reset && inputs==0,"ARM clears a previous pending START");
+    start(); assert_msg(inputs==4,"rearmed stream requires its own START"); frame();
+    arm(1,1); push(0,1,1); request_start(); request_start(); snap();
+    assert_msg(snapshot[31:24]==7 && !active && !hold_reset,"duplicate START rejected while pending");
+    arm(1,1); push(0,1,1); request_start(); capture_hold=1; frame();
+    assert_msg(hold_reset && inputs==0,"capture hold cannot consume the starting boundary");
+    capture_hold=0; frame(); assert_msg(inputs==1 && !hold_reset,"start waits for an eligible boundary"); frame();
     pass();
 end
 

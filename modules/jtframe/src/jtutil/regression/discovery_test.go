@@ -198,7 +198,7 @@ func TestDiscoverBuildRejectsFailedOrIncompletePinnedRun(t *testing.T) {
 
 func TestProcessedLedgerIsAttemptSpecific(t *testing.T) {
 	root := t.TempDir()
-	dir := filepath.Join(root, "log", "prior")
+	dir := filepath.Join(root, "log", "406-attempt-1")
 	if err := os.MkdirAll(dir, 0750); err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +246,9 @@ func TestExtractRBFTreeSelectsOnlySiDi128Target(t *testing.T) {
 		t.Fatal(err)
 	}
 	digest := sha256.Sum256([]byte("sidi128"))
-	dir, err := extractRBFTree(archive, filepath.Join(root, "cache"), BuildIdentity{Artifact: "bundle.zip"}, "release/sidi128", map[string]string{"jtfoo.rbf": hex.EncodeToString(digest[:])})
+	source := filepath.Join(root, "project")
+	rbfs, err := extract_build_archive(archive, source)
+	dir := filepath.Join(source, "release", "sidi128")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -254,6 +256,7 @@ func TestExtractRBFTreeSelectsOnlySiDi128Target(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if rbfs["jtfoo.rbf"] != hex.EncodeToString(digest[:]) { t.Fatal("wrong RBF identity") }
 	if string(got) != "sidi128" {
 		t.Fatalf("selected wrong target RBF: %q", got)
 	}
@@ -274,7 +277,7 @@ func TestExtractRBFTreeRejectsSiDiOnlyArtifact(t *testing.T) {
 	_, _ = entry.Write([]byte("wrong target"))
 	_ = w.Close()
 	_ = file.Close()
-	if _, err = extractRBFTree(archive, filepath.Join(root, "cache"), BuildIdentity{Artifact: "bundle.zip"}, "release/sidi128", nil); err == nil || !strings.Contains(err.Error(), "no release/sidi128") {
+	if _, err = extract_build_archive(archive, filepath.Join(root, "project")); err == nil || !strings.Contains(err.Error(), "no release/sidi128") {
 		t.Fatalf("expected strict target rejection, got %v", err)
 	}
 }
@@ -297,9 +300,9 @@ func TestPrepareArtifactDownloadsExactArtifactIDAndChecksBothIdentities(t *testi
 		}
 		return copyFile(wrapper, destination)
 	}
-	id := BuildIdentity{Repository: "jotego/jtcores", RunID: "456", RunNumber: 77, Attempt: "2", SHA: strings.Repeat("a", 40), Artifact: "a405f1b.zip", ArtifactID: 765, ArtifactAPIHash: apiHash}
+	id := BuildIdentity{Repository: "jotego/jtcores", RunID: "456", RunNumber: 77, Attempt: "2", SHA: "a405f1b"+strings.Repeat("a", 33), Artifact: "a405f1b.zip", ArtifactID: 765, ArtifactAPIHash: apiHash}
 	buildDir := filepath.Join(root, "data", "builds", id.RunID)
-	artifact, rbfs, err := prepareArtifact(context.Background(), Config{}, buildDir, id)
+	artifact, rbfs, err := prepareArtifact(context.Background(), Config{Source:filepath.Join(root,"project"),BuildsDir:filepath.Join(root,"store")}, buildDir, id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -471,7 +474,7 @@ func TestGeneratedMRATupleSeparatesSameSetAcrossCores(t *testing.T) {
 	}
 }
 
-func TestFreshROMCacheSeparatesSameSetAcrossCoreMRAIdentity(t *testing.T) {
+func TestStandardROMRejectsSameSetOverwrittenByAnotherCore(t *testing.T) {
 	root := t.TempDir()
 	mraRoot := filepath.Join(root, "release", "mra")
 	if err := os.MkdirAll(mraRoot, 0750); err != nil {
@@ -496,13 +499,9 @@ func TestFreshROMCacheSeparatesSameSetAcrossCoreMRAIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	calFixture := filepath.Join(root, "fixtures", "cal50", "arbalest.rom")
-	if err = os.MkdirAll(filepath.Dir(calFixture), 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err = copyFile(calROM, calFixture); err != nil {
-		t.Fatal(err)
-	}
+	digest, err := fileSHA256(calROM)
+	if err != nil { t.Fatal(err) }
+	game := GameSpec{ROMs: []string{calROM}, PreparedHashes: map[string]string{calROM:digest}}
 	writeTupleMRA("jtarblst")
 	if err = os.WriteFile(romPath, []byte("arblst ROM"), 0640); err != nil {
 		t.Fatal(err)
@@ -514,17 +513,9 @@ func TestFreshROMCacheSeparatesSameSetAcrossCoreMRAIdentity(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	arbFixture := filepath.Join(root, "fixtures", "arblst", "arbalest.rom")
-	if err = os.MkdirAll(filepath.Dir(arbFixture), 0750); err != nil {
-		t.Fatal(err)
-	}
-	if err = copyFile(arbROM, arbFixture); err != nil {
-		t.Fatal(err)
-	}
-	gotCal, _ := os.ReadFile(calFixture)
-	gotArb, _ := os.ReadFile(arbFixture)
-	if string(gotCal) == string(gotArb) {
-		t.Fatal("core-specific fixture ROM cache reused bytes from the other core")
+	if arbROM != romPath { t.Fatalf("nonstandard ROM path: %s", arbROM) }
+	if err = verify_prepared_files(game); err == nil {
+		t.Fatal("accepted prepared ROM overwritten by another core")
 	}
 }
 

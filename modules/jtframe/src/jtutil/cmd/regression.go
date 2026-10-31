@@ -4,10 +4,14 @@
 package cmd
 
 import (
+	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"path/filepath"
 	"strings"
 	"time"
@@ -16,6 +20,9 @@ import (
 	"jtutil/regression"
 )
 
+var regressionImport string
+var regressionMigrate string
+var regressionPoll bool
 var regressionConfig string
 var regressionManifest string
 var regressionRunID string
@@ -49,6 +56,11 @@ Games marked debug in the working project's mame2mra.toml are excluded.`,
 }
 
 func init() {
+	regressionCmd.Flags().StringVar(&regressionImport,"import-progress","","Import verified results from an archived legacy campaign")
+	regressionCmd.Flags().MarkHidden("import-progress")
+	regressionCmd.Flags().StringVar(&regressionMigrate,"migrate-logs","","Convert old logs and archive them outside regression/log")
+	regressionCmd.Flags().MarkHidden("migrate-logs")
+	regressionCmd.Flags().BoolVar(&regressionPoll, "poll", false, "Poll once; an active batch or no eligible build is a successful no-op")
 	regressionCmd.Flags().BoolVar(&regressionJTBin,"jtbin",false,"Read manual capture MRA/RBF files from $JTBIN (requires --core)")
 	regressionCmd.Flags().StringVar(&regressionCore, "core", "", "Capture one core locally using the working project's RBF and ROMs")
 	regressionCmd.Flags().StringVar(&regressionSetname, "setname", "", "Capture one game of --core (default: all main games)")
@@ -60,244 +72,126 @@ func init() {
 	rootCmd.AddCommand(regressionCmd)
 }
 
-func run_regression_cmd(cmd *cobra.Command, args []string) error {
-	manual, validationErr := validate_regression_selection(regressionCore, regressionSetname, regressionManifest, regressionRunID, regressionRetryErrors, regressionJTBin)
-	if validationErr != nil { return validationErr }
-	noPublish := regressionNoPublish || manual
+func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) {
+	parent := cmd.Context()
+	if parent == nil { parent = context.Background() }
+	ctx, stop := signal.NotifyContext(parent, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	manual, err := validate_regression_selection(regressionCore, regressionSetname, regressionManifest, regressionRunID, regressionRetryErrors, regressionJTBin)
+	if err != nil { return err }
+	if regressionPoll && (manual || regressionRunID != "" || regressionManifest != "" || regressionRetryErrors) { return fmt.Errorf("--poll requires automatic discovery") }
 	root := os.Getenv("JOTEGO")
-	if root == "" {
-		return fmt.Errorf("JOTEGO must name the private regression data directory")
+	if root == "" { return fmt.Errorf("JOTEGO must name the private regression data directory") }
+	data_root := filepath.Join(root,"regression")
+	cfg, err := regression.ReadConfig(regressionConfig)
+	if err != nil { return err }
+	cfg.Source = project_root()
+	cfg.NoPublish = regressionNoPublish || manual || regressionManifest!=""
+	if cfg.Root != "" {
+		configured, e := filepath.Abs(cfg.Root); if e != nil { return e }
+		expected, e := filepath.Abs(data_root); if e != nil { return e }
+		if configured != expected { return fmt.Errorf("result root must be JOTEGO/regression (%s)",expected) }
 	}
-	config, e := regression.ReadConfig(regressionConfig)
-	if e != nil {
-		return fmt.Errorf("parse config: %w", e)
-	}
-	dataRoot := filepath.Join(root, "regression")
-	if config.Root != "" {
-		rootAbs, err := filepath.Abs(dataRoot)
-		if err != nil {
-			return err
-		}
-		configured, err := filepath.Abs(config.Root)
-		if err != nil {
-			return err
-		}
-		if configured != rootAbs {
-			return fmt.Errorf("result root must be JOTEGO/regression (%s)", rootAbs)
-		}
-	}
-	config.Source = project_root()
 	var manifest regression.Manifest
-	// Reject obsolete debug/skip inventories before locking or touching any
-	// campaign log, launch snapshot, manifest or resume state.
 	if regressionManifest != "" {
-		manifestBytes, readErr := os.ReadFile(regressionManifest)
-		if readErr != nil { return readErr }
-		if e = json.Unmarshal(manifestBytes,&manifest); e != nil { return fmt.Errorf("parse manifest: %w",e) }
-		if e = regression.ValidateManifestEligibility(config.Source,manifest); e != nil { return e }
+		data,e:=os.ReadFile(regressionManifest);if e!=nil{return e}
+		if e=json.Unmarshal(data,&manifest);e!=nil{return e}
+		if e=regression.ValidateManifestEligibility(cfg.Source,manifest);e!=nil{return e}
+		if len(manifest.Cores)==0{return fmt.Errorf("manifest contains no cores")}
+		for _,core:=range manifest.Cores{if len(core.Games)==0{return fmt.Errorf("manifest core %s contains no games",core.Core)}}
+		b:=manifest.Build
+		if b.Repository!="jotego/jtcores"||b.Workflow!="compile-all.yaml"||b.Conclusion!="success"||b.Artifact==""||b.ArtifactSHA==""||b.ExpectedJobs>0&&b.ExpectedJobs!=b.SucceededJobs{return fmt.Errorf("manifest must identify a complete successful compile_all build")}
 	}
-	if regressionRetryErrors {
-		info,err:=os.Stat(filepath.Join(dataRoot,"log"))
-		if err!=nil || !info.IsDir() {return fmt.Errorf("resume log root is unavailable; refusing to create it")}
+	lock,err:=regression.AcquireLock(data_root)
+	if regressionPoll && errors.Is(err,regression.ErrBoardBusy){fmt.Fprintln(cmd.OutOrStdout(),err);return nil}
+	if err!=nil{return err};defer regression.ReleaseLock(lock)
+	if err=regression.InitializeLog(data_root);err!=nil{return err}
+	if regressionMigrate!="" || regressionImport!="" {
+		if manual||regressionPoll||regressionRunID!=""||regressionManifest!=""{return fmt.Errorf("log migration cannot be combined with capture selection")}
+		if cfg.GlobalProfile==""{cfg.GlobalProfile=filepath.Join(cfg.Source,"modules","jtframe","bin","reg.yaml")}
+		if regressionImport!="" { return regression.ImportProgress(data_root,regressionImport,cfg) }
+		return regression.MigrateLogs(data_root,regressionMigrate,cfg)
 	}
-	lock, e := regression.AcquireLock(dataRoot,regressionRetryErrors)
-	if e != nil {
-		return e
-	}
-	defer regression.ReleaseLock(lock)
-	var launchStarts map[string]time.Time
-	if !manual {
-		launchStarts, e = regression.SnapshotLaunchStarts(dataRoot, regressionRunID)
-		if e != nil { return fmt.Errorf("verify and preserve prior launch manifest: %w", e) }
-	}
-	resume_journal:=regressionRetryErrors
-	if regressionManifest == "" {
-		if manual { manifest, e = regression.PrepareManual(cmd.Context(), config, dataRoot, regressionCore, regressionSetname, regressionJTBin) } else { manifest, e = regression.Prepare(cmd.Context(), config, dataRoot, regressionRunID) }
-		if e != nil {
-			return fmt.Errorf("prepare regression build and inventory: %w", e)
+	var record *regression.CommitLog
+	defer func(){
+		if result_error!=nil {
+			if record!=nil {
+				if record.Progress.Status!="interrupted" || record.Progress.Error!=result_error.Error(){result_error=record.Failed(result_error)}
+			} else {
+				message:=regression.FormatLogEntry(time.Now(),"",-1,"error",result_error.Error())
+				if e:=os.WriteFile(filepath.Join(data_root,"log","poll.log"),[]byte(message),0640);e!=nil{result_error=fmt.Errorf("%w; log error: %v",result_error,e)}
+			}
 		}
-		if manual && regression.HasResumeState(dataRoot,manifest.RunID) { return fmt.Errorf("manual capture session already has state; refusing to resume it") }
-		resume_journal=regressionRetryErrors || regression.HasResumeState(dataRoot,manifest.RunID)
-		if resume_journal {
-			if err:=regression.RequireResumeJournal(dataRoot,manifest.RunID,manifest.Build);err!=nil {return err}
-		}
-		manifestPath := filepath.Join(dataRoot, "log", manifest.RunID, "manifest.json")
-		if !resume_journal {if e=os.MkdirAll(filepath.Dir(manifestPath),0750);e!=nil{return e}}
-		manifestBytes, marshalErr := json.MarshalIndent(manifest, "", "  ")
-		if marshalErr != nil {
-			return marshalErr
-		}
-		if resume_journal {e=regression.WriteExistingFile(manifestPath,append(manifestBytes,'\n'),0640)} else {e=os.WriteFile(manifestPath,append(manifestBytes,'\n'),0640)}
-		if e!=nil{return e}
-		if manual {
-			provenance, readErr := os.ReadFile(filepath.Join(config.Source,".cache","jtutil-regression","manual",manifest.RunID,"manual-preparation.json"))
-			if readErr != nil { return fmt.Errorf("read manual preparation provenance: %w",readErr) }
-			if err := os.WriteFile(filepath.Join(filepath.Dir(manifestPath),"manual-preparation.json"),provenance,0640); err != nil { return fmt.Errorf("record manual preparation provenance: %w",err) }
-		}
-	}
-	if regressionManifest != "" && regressionRunID != "" {
-		manifest.RunID = regressionRunID
-	}
-	if manifest.RunID == "" || len(manifest.Cores) == 0 {
-		return fmt.Errorf("manifest must have run_id and at least one core")
-	}
-	if !safe_regression_component(manifest.RunID) {
-		return fmt.Errorf("manifest contains unsafe run id")
-	}
-	if !manual && (manifest.Build.Repository != "jotego/jtcores" || manifest.Build.Workflow != "compile-all.yaml" || manifest.Build.Conclusion != "success" || manifest.Build.Attempt == "" || manifest.Build.SHA == "" || manifest.Build.Artifact == "" || manifest.Build.ArtifactSHA == "" || manifest.Build.ExpectedJobs > 0 && manifest.Build.SucceededJobs != manifest.Build.ExpectedJobs) {
-		return fmt.Errorf("manifest build identity is incomplete or not a complete successful compile_all artifact")
-	}
-	resume_journal=regressionRetryErrors || regression.HasResumeState(dataRoot,manifest.RunID)
-	if resume_journal {if err:=regression.RequireResumeJournal(dataRoot,manifest.RunID,manifest.Build);err!=nil {return err}}
-	if _, err := hex.DecodeString(config.FirmwareSHA256); config.FirmwareSHA256 != "" && (err != nil || len(config.FirmwareSHA256) != 64) {
-		return fmt.Errorf("firmware-sha256 must be a 64-character hexadecimal digest")
-	}
-	if manifest.Source != "" && filepath.Clean(manifest.Source) != filepath.Clean(config.Source) {
-		return fmt.Errorf("manifest belongs to project %s; current project is %s", manifest.Source, config.Source)
-	}
-	publisher := regression.GitHubPublisher{TempDir: filepath.Join(dataRoot, "log", manifest.RunID, "publication")}
-	// Automated preparation means this is a full campaign: validate the GitHub
-	// destination before any board operation, even when report publication is
-	// intentionally deferred for review. Explicit-manifest no-publish remains
-	// available for local pilots.
-	if !manual && (!noPublish || regressionManifest == "") {
-		if e = publisher.Preflight(manifest.Build); e != nil {
-			return e
-		}
-	}
-	if config.Host == "" {
-		return fmt.Errorf("config host is required")
-	}
-	if config.CabPacker == "" {
-		config.CabPacker = filepath.Join(config.Source, ".cache", "jtutil-regression", "cab-pack", "cabinet_pack")
-	}
-	hardware := &regression.FTPHardware{Host: config.Host, Netrc: config.Netrc, ControlHelper: config.ControlHelper, CabPacker: config.CabPacker, Curl: config.Curl,
-		JTFrame: filepath.Join(config.Source, "modules", "jtframe"), CabCache: filepath.Join(config.Source, ".cache", "jtutil-regression", "cab-pack", manifest.Build.SHA),
-		PendingUploadDirsPath: filepath.Join(dataRoot, "log", "upload-directories.json")}
-	defer hardware.ReleaseCore()
-	if config.TimeoutSeconds > 0 {
-		hardware.Timeout = time.Duration(config.TimeoutSeconds) * time.Second
-	}
-	actualExporterSHA, e := hardware.PrepareCabPacker(config.Source)
-	if e != nil {
-		return fmt.Errorf("prepare frozen CAB exporter: %w", e)
-	}
-	if config.CabExporterSHA256 == "" || !strings.EqualFold(config.CabExporterSHA256, actualExporterSHA) {
-		return fmt.Errorf("CAB exporter SHA256 %s does not match configured frozen identity %s", actualExporterSHA, config.CabExporterSHA256)
-	}
-	toolIdentity, e := regression.HashFiles(map[string]string{"ftp-control.py": config.ControlHelper, "cabinet_pack": hardware.CabPacker})
-	if e != nil {
-		return fmt.Errorf("hash capture helper and CAB exporter: %w", e)
-	}
-	if config.CaptureToolSHA256 != "" && !strings.EqualFold(config.CaptureToolSHA256, toolIdentity) {
-		return fmt.Errorf("capture tool identity %s does not match configured frozen identity %s", toolIdentity, config.CaptureToolSHA256)
-	}
-	config.CaptureToolSHA256 = toolIdentity
-	if config.FirmwareSHA256 == "" {
-		return fmt.Errorf("config firmware-sha256 is required; use the digest of the verified flashed firmware binary")
-	}
-	if e = hardware.Preflight(); e != nil {
-		return fmt.Errorf("SiDi128 preflight failed: %w", e)
-	}
-	globalProfile := config.GlobalProfile
-	if globalProfile == "" {
-		globalProfile = filepath.Join(config.Source, "modules", "jtframe", "bin", "reg.yaml")
-	}
-	all := regression.PendingInventory(manifest.Cores)
-	started := regression.RestoreCampaignStart(
-		filepath.Join(dataRoot, "log", manifest.RunID, "summary.json"),
-		filepath.Join(dataRoot, "log", manifest.RunID, "state"), manifest.Build, time.Now().UTC(), launchStarts)
-	var operationalError string
-	makeSummary := func(status string) regression.Summary {
-		s := regression.Summary{RunID: manifest.RunID, Build: manifest.Build, Started: started, Finished: time.Now().UTC(), Status: status, Games: all,
-			OperationalError: operationalError,
-			Config:           map[string]any{"manual": manual, "jtbin": regressionJTBin, "source": config.Source, "project_sha": manifest.ProjectSHA, "no_publish": noPublish, "board_host": config.Host, "firmware": config.Firmware, "firmware_sha256": config.FirmwareSHA256, "capture_tool_sha256": config.CaptureToolSHA256, "global_profile": globalProfile}, Coverage: map[string]int{},
-			Resume: map[string]any{"status": status}, Publication: map[string]any{"status": "not-requested"}}
-		for _, result := range all {
-			s.Coverage[string(result.Outcome)]++
-		}
-		s.Duration = s.Finished.Sub(s.Started)
-		return s
-	}
-	writeSummary := func(status string) error {
-		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(status),resume_journal)
-	}
-	finishReport := func(status string) error {
-		summary := makeSummary(status)
-		if noPublish {
-			summary.Status = "publication-pending"
-			return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
-		}
-		url, publication, publishErr := publisher.Publish(summary)
-		if publishErr != nil {
-			summary.Status = "publication-pending"
-			summary.Publication = map[string]any{"status": "error", "message": publishErr.Error()}
-			_ = regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
-			return publishErr
-		}
-		summary.ReportURL = url
-		summary.Publication = publication
-		pubBytes, _ := json.MarshalIndent(publication, "", "  ")
-		pubPath := filepath.Join(dataRoot, "log", manifest.RunID, "state", "publication.json")
-		if resume_journal {
-			if err:=regression.WriteExistingFile(pubPath,append(pubBytes,'\n'),0640);err!=nil{return err}
-		} else {
-			if err:=os.MkdirAll(filepath.Dir(pubPath),0750);err!=nil{return err}
-			if err:=os.WriteFile(pubPath,append(pubBytes,'\n'),0640);err!=nil{return err}
-		}
-		return regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), summary,resume_journal)
-	}
-	var resume_build []regression.BuildIdentity
-	if resume_journal {resume_build=append(resume_build,manifest.Build)}
-	campaign_log,e:=regression.NewEventLog(dataRoot,manifest.RunID,"",resume_build...)
-	if e!=nil{return e}
-	defer campaign_log.Close()
-	for _, core := range manifest.Cores {
-		if !safe_regression_component(core.Core) {
-			return fmt.Errorf("manifest contains an unsafe core name")
-		}
-		statePath := filepath.Join(dataRoot, "log", manifest.RunID, "state", core.Core+".json")
-		state := &regression.State{RunID: manifest.RunID, Build: manifest.Build, Core: core.Core}
-		if previous, err := regression.ReadState(statePath); err == nil {
-			state = previous
-		} else if !os.IsNotExist(err) {
-			return err
-		}
-		log:=campaign_log
-		log.SetCore(core.Core)
-		var err error
-		batch := &regression.Batch{Root: dataRoot, CorePath: config.Source, Core: core.Core, RunID: manifest.RunID, Build: manifest.Build, ProjectSHA: manifest.ProjectSHA,
-			State: state, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: globalProfile, Games: core.Games,
-			Firmware: config.Firmware, FirmwareSHA256: config.FirmwareSHA256, CaptureToolSHA256: config.CaptureToolSHA256, RetryErrors: regressionRetryErrors,Resume:resume_journal}
-		err = batch.Run()
-		if release_error:=hardware.ReleaseCore();release_error!=nil {
-			_ = log.Write(regression.Event{Stage:"core-cleanup",Outcome:regression.Error,Message:release_error.Error()})
-			if err==nil { err=release_error } else { err=fmt.Errorf("%w; release core: %v",err,release_error) }
-		}
-		all = regression.ReplaceCoreResults(all, core.Core, state.Games)
-		if err != nil {
-			operationalError = err.Error()
-			_ = writeSummary("interrupted")
-			// Keep interrupted state local. Resume must finish the durable ledger
-			// before a single terminal report is created, avoiding stale GitHub bodies.
-			return err
-		}
-	}
-	finalStatus := "complete"
-	if noPublish && !manual {
-		finalStatus = "publication-pending"
-	}
-	if !noPublish && finalStatus == "complete" {
-		if e = finishReport(finalStatus); e != nil {
-			return fmt.Errorf("GitHub report publication failed (hardware outcomes are saved): %w", e)
-		}
-		return nil
-	}
-	if err := regression.WriteSummary(filepath.Join(dataRoot, "log", manifest.RunID), makeSummary(finalStatus),resume_journal); err != nil { return err }
+		if record!=nil {if e:=record.Close();e!=nil&&result_error==nil{result_error=e}}
+	}()
+	commit,dirty:="",false
 	if manual {
-		for _, result := range all { fmt.Fprintf(cmd.OutOrStdout(),"%s/%s: %s (%s)\n",result.Core,result.Setname,result.Outcome,result.Message) }
-		fmt.Fprintf(cmd.OutOrStdout(),"Log: %s\n",filepath.Join(dataRoot,"log",manifest.RunID))
+		commit,dirty,err=regression.ManualCommit(ctx,cfg.Source,regressionCore,regressionJTBin)
+		if err!=nil{return err}
+		if dirty {fmt.Fprintln(cmd.ErrOrStderr(),"Warning: jtcores checkout is dirty; a clean checkout is recommended. Recording this development run with the dirty label.")}
+	} else {
+		if regressionManifest=="" {manifest.Build,err=regression.DiscoverBuild(ctx,cfg,data_root,regressionRunID)}
+		if regressionPoll && errors.Is(err,regression.ErrNoEligibleBuild){fmt.Fprintln(cmd.OutOrStdout(),err);return nil}
+		if err!=nil{return err}
+		commit=manifest.Build.SHA
 	}
+	record,err=regression.OpenCommitLog(data_root,commit,dirty)
+	if err!=nil{return err}
+	if err=record.Write("Starting regression in "+cfg.Source);err!=nil{return err}
+	if dirty {if err=record.Entry("",-1,"warning","dirty checkout; clean state recommended");err!=nil{return err}}
+	work,err:=os.MkdirTemp("/tmp","jtutil-regression-run-")
+	if err!=nil{return err};defer os.RemoveAll(work)
+	publisher:=regression.GitHubPublisher{TempDir:work}
+	if !manual&&record.Progress.ReportPR==nil {
+		pr:=0
+		if manifest.Build.Event=="pull_request"||manifest.Build.Event=="workflow_dispatch"&&manifest.Build.Ref!="master"{pr=manifest.Build.PR}
+		record.Progress.ReportPR=&pr
+	}
+	report_build:=func()regression.BuildIdentity{
+		build:=regression.BuildIdentity{Repository:"jotego/jtcores",SHA:commit,Ref:"master",Event:"push"}
+		if record.Progress.ReportPR!=nil&&*record.Progress.ReportPR>0{build.PR=*record.Progress.ReportPR;build.Event="pull_request";build.Ref="PR"}
+		return build
+	}
+	publish:=func()error{
+		if cfg.NoPublish || record.Progress.ReportURL!="" {return nil}
+		if e:=publisher.Preflight(report_build());e!=nil{return e}
+		url,_,e:=publisher.Publish(record.Summary(report_build()));if e!=nil{return e}
+		record.Progress.ReportURL=url
+		return record.Save()
+	}
+	if !manual && regressionManifest=="" && record.Progress.AutomaticComplete && !regressionRetryErrors {return publish()}
+	record.Progress.Status="preparing";record.Progress.Error=""
+	if err=record.Save();err!=nil{return err}
+	if manual {
+		manifest,err=regression.PrepareManual(ctx,cfg,work,regressionCore,regressionSetname,regressionJTBin)
+		manifest.Build.SHA=commit
+	} else if regressionManifest=="" {
+		manifest.Build.ArtifactSHA=record.Progress.ArchiveSHA
+		manifest,err=regression.PrepareBuild(ctx,cfg,work,manifest.Build)
+	}
+	if err!=nil{return err}
+	if manifest.Source!="" && filepath.Clean(manifest.Source)!=filepath.Clean(cfg.Source){return fmt.Errorf("manifest belongs to another working project")}
+	if !manual {
+		if manifest.Build.Conclusion!="success" || manifest.Build.Repository!="jotego/jtcores" {return fmt.Errorf("a successful jtcores build is required")}
+		record.Progress.ArchiveSHA=manifest.Build.ArtifactSHA
+		if err=publisher.Preflight(manifest.Build);err!=nil{return err}
+	}
+	if cfg.Host=="" {return fmt.Errorf("config host is required")}
+	if cfg.GlobalProfile=="" {cfg.GlobalProfile=filepath.Join(cfg.Source,"modules","jtframe","bin","reg.yaml")}
+	hardware:=&regression.FTPHardware{Host:cfg.Host,Netrc:cfg.Netrc,ControlHelper:cfg.ControlHelper,CabPacker:cfg.CabPacker,Curl:cfg.Curl,
+		JTFrame:filepath.Join(cfg.Source,"modules","jtframe"),PendingUploadDirsPath:filepath.Join(data_root,"log","upload-directories.json")}
+	defer hardware.ReleaseCore()
+	if cfg.TimeoutSeconds>0 {hardware.Timeout=time.Duration(cfg.TimeoutSeconds)*time.Second}
+	actual_exporter,err:=hardware.PrepareCabPacker(cfg.Source);if err!=nil{return err}
+	if cfg.CabExporterSHA256!=""&&!strings.EqualFold(cfg.CabExporterSHA256,actual_exporter){return fmt.Errorf("CAB exporter does not match configured checksum")}
+	tool_identity,err:=regression.HashFiles(map[string]string{"ftp-control.py":cfg.ControlHelper,"cabinet_pack":hardware.CabPacker});if err!=nil{return err}
+	if cfg.CaptureToolSHA256!=""&&!strings.EqualFold(cfg.CaptureToolSHA256,tool_identity){return fmt.Errorf("capture tools do not match configured checksum")}
+	cfg.CaptureToolSHA256=tool_identity
+	if digest,e:=hex.DecodeString(cfg.FirmwareSHA256);e!=nil||len(digest)!=32{return fmt.Errorf("firmware-sha256 must be a 64-character hexadecimal digest")}
+	if err=hardware.Preflight();err!=nil{return err}
+	if err=regression.RunCommit(ctx,record,manifest,cfg,hardware,manual,regressionRetryErrors,regressionManifest!="");err!=nil{return err}
+	if err=publish();err!=nil{return err}
+	fmt.Fprintf(cmd.OutOrStdout(),"Regression complete. Log: %s\n",filepath.Join(data_root,"log",regression.LogKey(commit,dirty)+".log"))
 	return nil
 }
 

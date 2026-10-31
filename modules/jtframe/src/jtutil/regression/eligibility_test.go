@@ -163,3 +163,48 @@ func TestManifestEligibilityRejectsUnsafeNamesBeforeReadingSource(t *testing.T) 
 		}
 	}
 }
+
+func TestArtifactOnlyUnknownFamilyRemainsPreparationError(t *testing.T) {
+    source,root:=t.TempDir(),t.TempDir()
+    manualWrite(t,filepath.Join(source,"cores","fake","cfg","macros.def"),[]byte("JTFRAME_BUTTONS=2\n"))
+    manualWrite(t,filepath.Join(source,"cores","fake","cfg","mame2mra.toml"),[]byte("[parse]\nskip.bootlegs=true\nskip.machine=\"parent\"\n"))
+    manualWrite(t,filepath.Join(source,"doc","mame.xml"),[]byte(`<mame><machine name="known"/></mame>`))
+    old:=jtframeMRACommand
+    defer func(){jtframeMRACommand=old}()
+    jtframeMRACommand=func(_ context.Context,src,core,roms string,have bool)([]byte,error){
+        manualWrite(t,filepath.Join(src,"release","mra","known.mra"),[]byte(manualMRA("known","fake")))
+        return nil,nil
+    }
+    rbf_root:=filepath.Join(root,"rbf")
+    manualWrite(t,filepath.Join(rbf_root,"jtfake.rbf"),[]byte("rbf"))
+    artifact:=filepath.Join(root,"artifact.zip")
+    writeZip(t,artifact,map[string]string{"release/mra/Known.mra":string(manualMRA("known","fake")),"release/mra/Unknown.mra":string(manualMRA("unknown","fake"))})
+    cores,rec,err:=mainGameInventory(context.Background(),source,rbf_root,filepath.Join(root,"fixtures"),artifact,BuildIdentity{},Config{MRAConverter:"/bin/false"})
+    if err!=nil {t.Fatal(err)}
+    if len(cores)!=1 || len(cores[0].Games)!=2 || len(rec.ArtifactFallbacks)!=1 {t.Fatalf("lost inventory: %+v %+v",cores,rec)}
+    found:=false
+    for _,game:=range cores[0].Games {
+        if game.Setname=="unknown" {
+            found=true
+            if !strings.Contains(game.PreparationError,"project mainonly inventory omitted") {t.Fatalf("unknown title could execute: %+v",game)}
+        }
+    }
+    if !found {t.Fatal("artifact-only title disappeared")}
+    tuple:=InventoryTuple{Core:"fake",Setname:"unknown",RBF:"jtfake"}
+    if _,err=sourceExclusions(source,[]InventoryTuple{tuple});err==nil {t.Fatal("manual unknown classification must still fail")}
+}
+
+func TestEligibilityUsesCustomXMLAndOverrides(t *testing.T) {
+    source:=t.TempDir()
+    manualWrite(t,filepath.Join(source,"cores","fake","cfg","mame2mra.toml"),[]byte("[parse]\nskip.bootlegs=true\ndebug.machine=\"parent\"\n"))
+    manualWrite(t,filepath.Join(source,"doc","mame.xml"),[]byte(`<mame><machine name="overridden" cloneof="parent"/></mame>`))
+    manualWrite(t,filepath.Join(source,"doc","custom.xml"),[]byte(`<mame><machine name="aquario"><description>Clockwork Aquario (prototype)</description></machine><machine name="overridden"/><machine name="custom_clone" cloneof="parent"/><machine name="custom_bootleg"><description>Game (bootleg)</description></machine></mame>`))
+    tuples:=[]InventoryTuple{}
+    for _,set:=range []string{"aquario","overridden","custom_clone","custom_bootleg"} {tuples=append(tuples,InventoryTuple{Core:"fake",Setname:set,RBF:"jtfake"})}
+    excluded,err:=sourceExclusions(source,tuples)
+    if err!=nil{t.Fatal(err)}
+    for _,tuple:=range tuples {
+        want:=tuple.Setname=="custom_clone" || tuple.Setname=="custom_bootleg"
+        if (excluded[tupleKey(tuple)]!="")!=want {t.Fatalf("custom classification mismatch: %+v %v",tuple,excluded)}
+    }
+}

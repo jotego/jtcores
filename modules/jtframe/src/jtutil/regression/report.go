@@ -91,6 +91,7 @@ type Summary struct {
 }
 
 type EventLog struct {
+	Sink func(Event) error
 	mu               sync.Mutex
 	RunID, Core, Dir string
 	file             *os.File
@@ -112,7 +113,10 @@ func NewEventLog(root, runID, core string, resume_build ...BuildIdentity) (*Even
 	return open_event_log(dir,runID,core,flags)
 }
 
-func (l *EventLog) Write(event Event) error {return l.write_event(event)}
+func (l *EventLog) Write(event Event) error {
+	if l.Sink != nil { return l.Sink(event) }
+	return l.write_event(event)
+}
 
 func (l *EventLog) SetCore(core string) {l.mu.Lock();defer l.mu.Unlock();l.Core=core}
 

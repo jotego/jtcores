@@ -89,29 +89,18 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		return Manifest{}, err
 	}
 	runID := "manual-" + mode + "-" + core + "-" + time.Now().UTC().Format("20060102T150405") + "-" + hex.EncodeToString(nonce[:])
-	cache := filepath.Join(source, ".cache", "jtutil-regression", "manual", runID)
-	if err = os.MkdirAll(cache, 0750); err != nil {
-		return Manifest{}, err
-	}
-	inputRBF := rbf
-	rbf = filepath.Join(cache, "rbf", filepath.Base(inputRBF))
-	if err = os.MkdirAll(filepath.Dir(rbf), 0750); err != nil {
-		return Manifest{}, err
-	}
-	if err = copyFile(inputRBF, rbf); err != nil {
-		return Manifest{}, err
-	}
+	log_dir := filepath.Join(dataRoot, "log", runID)
+	if err = os.MkdirAll(log_dir, 0750); err != nil { return Manifest{}, err }
 	mraRoot := filepath.Join(release, "mra")
 	if !useJTBin {
-		outputRoot := filepath.Join(cache, "source-release")
+		outputRoot := release
 		if err = os.MkdirAll(outputRoot, 0750); err != nil {
 			return Manifest{}, err
 		}
-		// --git directs the normal generator to an isolated project-cache release;
-		// only the requested core is parsed, and an explicit set may be a clone.
+		// Generate in the standard release/mra directory. An explicit set may be a clone.
 		script := `core_arg=$1; set_arg=$2; out_arg=$3; set --; source ./setprj.sh >/dev/null && export JTBIN="$out_arg" && if [ -n "$set_arg" ]; then jtframe mra --nodbg --git --skipROM --skipPocket --setname "$set_arg" "$core_arg"; else jtframe mra --nodbg --git --mainonly --skipROM --skipPocket "$core_arg"; fi`
 		output, commandErr := manualCommand(ctx, source, "bash", "-c", script, "_", core, setname, outputRoot)
-		if err = os.WriteFile(filepath.Join(cache, "mra-generation.log"), output, 0640); err != nil {
+		if err = os.WriteFile(filepath.Join(log_dir, "mra-generation.log"), output, 0640); err != nil {
 			return Manifest{}, err
 		}
 		if commandErr != nil {
@@ -190,15 +179,8 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 			return Manifest{}, err
 		}
 		set := strings.TrimSpace(m.Setname)
-		folder := filepath.Join(cache, "fixtures", set)
-		if err = os.MkdirAll(folder, 0750); err != nil {
-			return Manifest{}, err
-		}
-		fixtureMRA := filepath.Join(folder, filepath.Base(path))
-		if err = os.WriteFile(fixtureMRA, raw, 0640); err != nil {
-			return Manifest{}, err
-		}
-		identities["mra/"+set] = fixtureMRA
+		fixtureMRA := path
+		identities["mra/"+set] = path
 		profile, profileErr := ResolveProfile(cfg.GlobalProfile, source, core, set)
 		if profileErr != nil {
 			return Manifest{}, profileErr
@@ -212,7 +194,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 			}
 		}
 		output, commandErr := manualCommand(ctx, source, "bash", "-c", `mra_arg=$1; rom_arg=$2; set --; source ./setprj.sh >/dev/null && jtframe mra2rom --path "$rom_arg" "$mra_arg"`, "_", fixtureMRA, romSource)
-		if err = os.WriteFile(filepath.Join(folder, "rom-generation.log"), output, 0640); err != nil {
+		if err = os.WriteFile(filepath.Join(log_dir, set+"-rom-generation.log"), output, 0640); err != nil {
 			return Manifest{}, err
 		}
 		if commandErr != nil {
@@ -226,31 +208,16 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 			if !regularNonempty(from) {
 				return Manifest{}, fmt.Errorf("manual generation did not produce %s", from)
 			}
-			dest := filepath.Join(source, "rom", ".regression", runID, core, set+".rom")
-			if err = os.MkdirAll(filepath.Dir(dest), 0750); err != nil {
-				return Manifest{}, err
-			}
-			if err = copyFile(from, dest); err != nil {
-				return Manifest{}, err
-			}
-			game.ROMs = append(game.ROMs, dest)
+			game.ROMs = append(game.ROMs, from)
 			break
 		}
 		ram, ramErr := generatedNVRAM(source, fixtureMRA, set)
 		if ramErr != nil {
 			return Manifest{}, ramErr
 		}
-		if ram != "" {
-			dest := filepath.Join(source, "rom", ".regression", runID, core, filepath.Base(ram))
-			if err = os.MkdirAll(filepath.Dir(dest), 0750); err != nil {
-				return Manifest{}, err
-			}
-			if err = copyFile(ram, dest); err != nil {
-				return Manifest{}, err
-			}
-			game.ROMs = append(game.ROMs, dest)
-		}
-		game.ARC = filepath.Join(folder, set+".arc")
+		if ram != "" { game.ROMs = append(game.ROMs, ram) }
+		game.ARC = filepath.Join(source, "rom", set+".arc")
+		if err = os.MkdirAll(filepath.Dir(game.ARC), 0750); err != nil { return Manifest{}, err }
 		output, commandErr = manualCommand(ctx, source, converter, "-s", "-A", "-a", game.ARC, fixtureMRA)
 		if commandErr != nil {
 			return Manifest{}, fmt.Errorf("manual ARC conversion for %s: %w: %s", set, commandErr, strings.TrimSpace(string(output)))
@@ -269,14 +236,16 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 			fixtures[filepath.Base(p)] = p
 		}
 		hashes := map[string]string{}
+		game.PreparedHashes = map[string]string{}
 		for name, p := range fixtures {
 			h, e := FileSHA256(p)
 			if e != nil {
 				return Manifest{}, e
 			}
 			hashes[name] = h
+			game.PreparedHashes[p] = h
 		}
-		records = append(records, map[string]any{"setname": set, "selected_mra": path, "snapshot_mra": fixtureMRA, "fixture_sha256": hashes})
+		records = append(records, map[string]any{"setname": set, "selected_mra": path, "fixture_sha256": hashes})
 		cm.Games = append(cm.Games, game)
 	}
 	identityHash, err := HashFiles(identities)
@@ -285,9 +254,9 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	}
 	build := BuildIdentity{Repository: cfg.Repository, Workflow: "manual", RunID: runID, Attempt: "1", SHA: "", Ref: release, Event: "manual-" + mode, Artifact: release, ArtifactSHA: identityHash, Conclusion: "manual"}
 	manifest := Manifest{RunID: runID, Build: build, Source: source, ProjectSHA: projectSHA, Cores: []CoreManifest{cm}}
-	evidence := map[string]any{"schema": 1, "mode": mode, "run_id": runID, "project_sha": projectSHA, "release_checkout_sha": releaseSHA, "selected_rbf": inputRBF, "snapshot_rbf": rbf, "binary_source_commit": "not inferred; RBF content hash is authoritative", "games": records}
+	evidence := map[string]any{"schema": 1, "mode": mode, "run_id": runID, "project_sha": projectSHA, "release_checkout_sha": releaseSHA, "selected_rbf": rbf, "binary_source_commit": "not inferred; RBF content hash is authoritative", "games": records}
 	data, _ := json.MarshalIndent(evidence, "", "  ")
-	if err = os.WriteFile(filepath.Join(cache, "manual-preparation.json"), append(data, '\n'), 0640); err != nil {
+	if err = os.WriteFile(filepath.Join(log_dir, "manual-preparation.json"), append(data, '\n'), 0640); err != nil {
 		return Manifest{}, err
 	}
 	return manifest, nil

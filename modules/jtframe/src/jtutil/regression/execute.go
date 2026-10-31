@@ -4,6 +4,7 @@
 package regression
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -27,6 +28,7 @@ type GameSpec struct {
 	Profile             Profile              `json:"profile"`
 	CAB                 string               `json:"cab,omitempty"`
 	SourceCAB           string               `json:"-"`
+	PreparedHashes      map[string]string    `json:"prepared_file_sha256,omitempty"`
 }
 
 type Hardware interface {
@@ -97,6 +99,8 @@ type PreparationWarning struct {
 }
 
 type Batch struct {
+	DiagnosticsRoot string
+	Context           context.Context
 	Root              string
 	CorePath          string
 	Core              string
@@ -155,16 +159,11 @@ func (b *Batch) Run() error {
 			b.State.Games[game.Setname] = GameResult{Core: b.Core, Setname: game.Setname, Outcome: Pending}
 		}
 	}
-	for _, game := range b.Games {
-		old := b.State.Games[game.Setname]
-		if old.Outcome == Pending || old.Outcome == Error && b.RetryErrors {
-			_ = os.RemoveAll(filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname))
-		}
-	}
 	if e := b.persist_state(); e != nil {
 		return fmt.Errorf("persist initial pending state: %w", e)
 	}
 	for _, game := range b.Games {
+		if b.Context != nil && b.Context.Err() != nil { return b.Context.Err() }
 		if old, ok := b.State.Games[game.Setname]; ok && (old.Outcome == Pass || old.Outcome == New || old.Outcome == Fail || old.Outcome == Unsupported || old.Outcome == Error && !b.RetryErrors) {
 			verifier:=b
 			if historical_games[game.Setname] {verifier=b.historical_firmware_batch(transition)}
@@ -202,6 +201,7 @@ func (b *Batch) Run() error {
 		if result.RecordError != "" {
 			return fmt.Errorf("persist event for %s: %s", game.Setname, result.RecordError)
 		}
+		if b.Context != nil && b.Context.Err() != nil { return b.Context.Err() }
 	}
 	return nil
 }
@@ -346,11 +346,7 @@ func resolvedGameProfile(b *Batch, game GameSpec) (Profile, error) {
 }
 
 func currentReceiptDefinition(b *Batch, game GameSpec, profile Profile, captureFormat string) (string, map[string]string, string, string, error) {
-	workRoot := filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID)
-	if err := os.MkdirAll(workRoot, 0750); err != nil {
-		return "", nil, "", "", err
-	}
-	tempDir, err := os.MkdirTemp(workRoot, "legacy-receipt-")
+	tempDir, err := os.MkdirTemp("/tmp", "jtutil-regression-receipt-")
 	if err != nil {
 		return "", nil, "", "", err
 	}
@@ -576,6 +572,12 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		log(result.Stage, Error, result.Message, game)
 		return finish()
 	}
+	if e := verify_prepared_files(game); e != nil {
+		result.Stage = "prepare"
+		result.Message = e.Error()
+		log(result.Stage, Error, result.Message, nil)
+		return finish()
+	}
 	for _, warning := range game.PreparationWarnings {
 		log("prepare_warning", "", warning.Message, warning)
 	}
@@ -633,15 +635,15 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 			return finish()
 		}
 	}
-	if e = os.MkdirAll(filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname), 0750); e != nil {
+	work, e := os.MkdirTemp("/tmp", "jtutil-regression-capture-")
+	if e != nil {
 		result.Stage = "prepare"
 		result.Message = e.Error()
 		log(result.Stage, Error, result.Message, nil)
 		return finish()
 	}
-	work := filepath.Join(b.CorePath, ".cache", "jtutil-regression", "work", b.RunID, b.Core, game.Setname)
 	defer func() {
-		if err := persist_helper_diagnostics(work, filepath.Join(b.Root,"log",b.RunID,b.Core,game.Setname,"helper")); err != nil {
+		if err := persist_helper_diagnostics(work, filepath.Join(b.diagnostics_root(),"log",b.RunID,b.Core,game.Setname,"helper")); err != nil {
 			if result.RecordError!="" { result.RecordError += "; " }
 			result.RecordError += fmt.Sprintf("preserve helper diagnostics: %v",err)
 		}
@@ -1024,7 +1026,7 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		result.Outcome = Fail
 		result.TestIdentity = definition
 		result.Stage = "compare"
-		result.Message = fmt.Sprintf("%d comparable checkpoints differ", len(diffs))
+		result.Message = fmt.Sprintf("%d/%d frames differ", len(diffs), len(comparable_captures(candidate, profile.Startup)))
 		log(result.Stage, Fail, result.Message, diffs)
 	} else {
 		if e = PublishComplete(gameRoot, run.CaptureDir, Pass, metadata); e != nil {
@@ -1043,6 +1045,15 @@ func (b *Batch) runGame(game GameSpec) (result GameResult) {
 		log(result.Stage, Pass, result.Message, nil)
 	}
 	return finish()
+}
+
+func verify_prepared_files(game GameSpec) error {
+	for filename, expected := range game.PreparedHashes {
+		actual, e := fileSHA256(filename)
+		if e != nil { return fmt.Errorf("prepared input unavailable: %s: %w", filename, e) }
+		if actual != expected { return fmt.Errorf("prepared input changed: %s; prepare the regression again", filename) }
+	}
+	return nil
 }
 
 func validVideoRemoteDir(path string) bool {
@@ -1073,7 +1084,7 @@ func containsString(list []string, value string) bool {
 }
 
 func (b *Batch) capture_receipt(setname string) string {
-	return filepath.Join(b.Root, "log", b.RunID, b.Core, setname, "capture")
+	return filepath.Join(b.diagnostics_root(), "log", b.RunID, b.Core, setname, "capture")
 }
 
 func (b *Batch) verifyFinalized(game GameSpec, result GameResult) bool {
@@ -1127,4 +1138,9 @@ func persist_helper_diagnostics(work, destination string) error {
 		if err = copyFile(path,filepath.Join(destination,name)); err != nil { return err }
 	}
 	return nil
+}
+
+func (b *Batch) diagnostics_root() string {
+	if b.DiagnosticsRoot != "" { return b.DiagnosticsRoot }
+	return b.Root
 }

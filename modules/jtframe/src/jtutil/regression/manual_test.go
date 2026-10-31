@@ -96,10 +96,8 @@ func TestManualJTBinReadsSelectedSourceWithoutChanges(t *testing.T) {
 		}
 	}
 	manualWrite(t, filepath.Join(release, "sidi128", "jttest.rbf"), []byte("replacement binary"))
-	frozen, e := os.ReadFile(game.RBF)
-	if e != nil || string(frozen) != "binary" {
-		t.Fatal("manual RBF snapshot followed mutable release input")
-	}
+	if game.RBF != filepath.Join(release,"sidi128","jttest.rbf") { t.Fatal("RBF is not read from the selected release directory") }
+	if e := verify_prepared_files(game); e == nil || !strings.Contains(e.Error(),"prepared input changed") { t.Fatalf("changed release input not detected: %v",e) }
 	second, e := PrepareManual(context.Background(), cfg, t.TempDir(), "test", "clone", true)
 	if e != nil {
 		t.Fatal(e)
@@ -146,6 +144,12 @@ func TestManualLocalFiltersCoreAndExplicitCloneBeforeGeneration(t *testing.T) {
 	if !reflect.DeepEqual(*parsed, []string{"test:clone"}) || !reflect.DeepEqual(*generated, []string{"clone"}) {
 		t.Fatalf("unscoped generation parsed%v generated%v", *parsed, *generated)
 	}
+	game := m.Cores[0].Games[0]
+	if game.RBF != filepath.Join(source,"release","sidi128","jttest.rbf") || game.ARC != filepath.Join(source,"rom","clone.arc") { t.Fatalf("nonstandard game paths: %+v",game) }
+	for _, input := range game.ROMs {
+		if filepath.Dir(input) != filepath.Join(source,"rom") { t.Fatalf("ROM/RAM copy: %s",input) }
+	}
+	if _,ok:=game.PreparedHashes[filepath.Join(source,"release","mra","clone.mra")]; !ok { t.Fatal("standard MRA identity not recorded") }
 	if m.Build.SHA != "" || m.Build.Event != "manual-local" {
 		t.Fatalf("bad provenance %+v", m.Build)
 	}

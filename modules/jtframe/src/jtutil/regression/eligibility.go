@@ -16,7 +16,7 @@ import (
 // sourceExclusions uses jtframe's own TOML model and selector matcher. A
 // machine selector also selects its clones, so plain setname matching is not
 // sufficient for artifact or JTBIN MRAs (which do not carry cloneof metadata).
-func sourceExclusions(source string, tuples []InventoryTuple) (map[string]string, error) {
+func sourceExclusions(source string, tuples []InventoryTuple, error_only ...map[string]bool) (map[string]string, error) {
 	configs := map[string]mra.Mame2MRA{}
 	wanted := map[string]bool{}
 	for _, t := range tuples {
@@ -62,6 +62,15 @@ func sourceExclusions(source string, tuples []InventoryTuple) (map[string]string
 	if err != nil {
 		return nil, err
 	}
+	// jtframe mra loads custom.xml after mame.xml, overriding equal names.
+	custom_path := filepath.Join(source, "doc", "custom.xml")
+	if len(wanted)>0 {
+		if _, stat_error := os.Stat(custom_path); stat_error == nil {
+			custom, custom_error := selectedMAMEMachines(custom_path, wanted)
+			if custom_error != nil { return nil, custom_error }
+			for name, machine := range custom { machines[name] = machine }
+		} else if !os.IsNotExist(stat_error) { return nil, stat_error }
+	}
 	for _, t := range tuples {
 		if excluded[tupleKey(t)] != "" {
 			continue
@@ -71,7 +80,11 @@ func sourceExclusions(source string, tuples []InventoryTuple) (map[string]string
 		if wanted[t.Setname] {
 			found, ok := machines[t.Setname]
 			if !ok {
-				return nil, fmt.Errorf("cannot classify regression eligibility for %s/%s: machine metadata missing from doc/mame.xml", t.Core, t.Setname)
+				// Automatic inventory retains artifact-only titles as preparation
+				// errors. They cannot run, so missing family metadata must not
+				// stop unrelated games. Manual/explicit selections stay strict.
+				if len(error_only)>0 && error_only[0][tupleKey(t)] { continue }
+				return nil, fmt.Errorf("cannot classify regression eligibility for %s/%s: machine metadata missing from doc/mame.xml and doc/custom.xml", t.Core, t.Setname)
 			}
 			machine = found
 		}
