@@ -126,7 +126,8 @@ mc6809i u_cpu(
     .LIC        (           ),
     .nDMABREQ   ( 1'b1      ),
     .OP         (           ),
-    .RegData    (           )
+    .RegData    (           ),
+    .RegData6309 ( )
 );
 `else
 initial pri=0, scrx=0, scry=0, flip=0;

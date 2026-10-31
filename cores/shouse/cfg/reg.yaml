@@ -1,33 +1,52 @@
 bakutotu:
+  start-up: 300
 blastoff:
+  start-up: 300
   inputs: reg.cab
 blazer:
+  start-up: 300
   inputs: reg.cab
 boxyboy:
+  start-up: 300
 berabohm:
+  start-up: 300
 dangseed:
+  start-up: 300
   video: 2000
   inputs: reg.cab
 dspirit:
+  start-up: 300
 faceoff:
+  start-up: 300
   video: 2000
   inputs: reg.cab
 galaga88:
+  start-up: 300
   video: 2000
   inputs: reg.cab
 mmaze:
+  start-up: 300
 pacmania:
+  start-up: 300
 pistoldm:
+  start-up: 300
   video: 2000
   inputs: reg.cab
 wldcourt:
+  start-up: 300
   video: 2000
   inputs: reg.cab
 ws:
+  start-up: 300
 quester:
+  start-up: 300
 rompers:
+  start-up: 300
   inputs: reg.cab
 shadowld:
+  start-up: 300
   video: 2000
 splatter:
+  start-up: 300
 tankfrce:
+  start-up: 300

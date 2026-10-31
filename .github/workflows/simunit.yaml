@@ -48,3 +48,14 @@ jobs:
       - id: simulation
         run: |
           docker run --network host -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/${{matrix.unitsim}}
+  rotation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install isolated rotation test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y verilator python3-pil
+      - name: Check rotation across pixel enable cadences
+        run: /usr/bin/python3 modules/jtframe/ver/video/rotation/run.py --suite

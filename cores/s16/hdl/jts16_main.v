@@ -185,7 +185,7 @@ always @(posedge clk, posedge rst) begin
             // process a new request. BUSn will toggle for
             // read-modify-writes
             pre_vram_cs <= !BUSn && A[22] && A[18:16]==0;        // 40
-            pre_ram_cs  <= !BUSn && A[23:22]==3 && A[18:16]==7;  // c7
+            pre_ram_cs  <= (mcu_bus || !BUSn) && A[23:22]==3 && A[18:16]==7; // c7
         end else begin
             rom_cs    <= 0;
             char_cs   <= 0;
@@ -415,6 +415,13 @@ end
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
 
+    wire mcu_rom_read = mcu_acc && !mcu_wr && mcu_ctrl[5:3]>=5;
+    wire mcu_ram_access = mcu_acc && mcu_ctrl[5:3]==0 &&
+                          mcu_addr[15:14]==2'b01;
+    wire mcu_bus_granted = cpu_rst | ~BGACKnl;
+    wire mcu_target_ready = mcu_rom_read ? (rom_cs && rom_ok) :
+                            mcu_ram_access ? (ram_cs && ram_ok) : 1'b1;
+
     always @(*) begin
         case(mcu_ctrl[5:3])
             0: mcu_top = mcu_addr[15:14]==2'b01 ? 8'hc7 : // work RAM
@@ -429,12 +436,11 @@ end
     end
 
     // This is done by IC69 (a 82S153 programmable logic chip)
+    // CPU reset gives the MCU bus ownership, but memory accesses still wait
+    // for their decoded target to become ready before the MCU advances.
     always @(posedge clk) begin
         BGACKnl <= BGACKn;
-        if( !mcu_cen ) mcu_ok <= cpu_rst | (BRn & BGACKn) | (
-            BGACKnl ? 1'b0   :
-            rom_cs  ? rom_ok :
-            ram_cs  ? ram_ok : 1'b1 );
+        if( !mcu_cen ) mcu_ok <= !mcu_acc || (mcu_bus_granted && mcu_target_ready);
     end
 
     assign mcu_gated = mcu_cen & mcu_ok;

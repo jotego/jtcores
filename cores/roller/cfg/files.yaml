@@ -4,7 +4,6 @@ roller:
 ajax:
   - get:
     - jt051316.v
-    - jtk051316_mmr.v
 riders:
   - get:
     - jtriders_obj.v
@@ -17,7 +16,6 @@ simson:
 rungun:
   - get:
     - jtk053252.v
-    - jtk053252_mmr.v
 jtframe:
   - get:
     - jtframe_counter.v

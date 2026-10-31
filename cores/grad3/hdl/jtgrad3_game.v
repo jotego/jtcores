@@ -13,7 +13,7 @@ wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq, main_irq;
 wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
 wire        m_tile_dtack, s_tile_dtack;
 wire        tile_irqn, tile_nmin;
-wire        rmrd, prio;
+wire        rmrd, prio, s_obj_dtack;
 wire        m_video_req_n, s_video_req_n, m_video_gnt_n, s_video_gnt_n;
 wire        turbo;
 
@@ -115,6 +115,7 @@ jtgrad3_sub u_sub(
 
     .obj_cs     ( s_obj_cs     ),
     .obj_dout   ( obj_dout     ),
+    .obj_dtack  ( s_obj_dtack  ),
 
     .gchar_cs   ( s_gchar_cs   ),
     .gchar_we   ( s_gchar_we   ),
@@ -163,6 +164,7 @@ jtgrad3_video u_video(
     .objsys_cs    ( s_obj_cs        ),
     .m_vdtack     ( m_tile_dtack    ),
     .s_vdtack     ( s_tile_dtack    ),
+    .s_obj_dtack  ( s_obj_dtack     ),
     .tilesys_dout ( tile_dout       ),
     .objsys_dout  ( obj_dout        ),
     .pal_rd_addr  ( palrd_addr      ),

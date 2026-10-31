@@ -230,6 +230,7 @@ mc6809i u_cpu (
     .nDMABREQ( 1'b1    ),
     // unused:
     .RegData (         ),
+    .RegData6309 ( ),
     .AVMA    ( AVMA    ),
     .BUSY    (         ),
     .LIC     (         ),

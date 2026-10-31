@@ -73,6 +73,18 @@ module jtframe_mister #(parameter
     input        [ 8:0] game_h_step,
     input        [ 8:0] game_v_step,
 `endif
+`ifdef JTFRAME_MR_GAME_DDR
+    // DDR3 for the game logic, on clk_rom. Not compatible with rotation, the line-frame buffer or DDR loading
+    input        [ 7:0] game_ddr_burstcnt,
+    input        [28:0] game_ddr_addr,
+    input               game_ddr_rd,
+    input               game_ddr_we,
+    input        [ 7:0] game_ddr_be,
+    input        [63:0] game_ddr_din,
+    output              game_ddr_busy,
+    output       [63:0] game_ddr_dout,
+    output              game_ddr_dout_ready,
+`endif
 
     // Signals to rotate the screen
 `ifdef JTFRAME_VERTICAL
@@ -721,6 +733,10 @@ jtframe_board #(
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
+    .capture_pause  ( 1'b0            ),
+    .cab_active     ( 1'b0            ),
+    .cab_inputs     ( 21'b0           ),
+    .cab_dump_pause ( 1'b0            ),
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
@@ -980,7 +996,19 @@ wire rot_clk;
         .DDRAM_DIN      ( rot_din        )
     );
 `else
-    `ifndef JTFRAME_LF_BUFFER
+    `ifdef JTFRAME_MR_GAME_DDR
+    assign rot_clk      = clk_rom;
+    assign rot_burstcnt = game_ddr_burstcnt;
+    assign rot_addr     = game_ddr_addr;
+    assign rot_rd       = game_ddr_rd;
+    assign rot_we       = game_ddr_we;
+    assign rot_be       = game_ddr_be;
+    assign rot_din      = game_ddr_din;
+    assign game_ddr_busy       = rot_busy;
+    assign game_ddr_dout       = DDRAM_DOUT;
+    assign game_ddr_dout_ready = DDRAM_DOUT_READY;
+    `elsif JTFRAME_LF_BUFFER
+    `else
     assign rot_clk      = clk_rom;
     assign rot_burstcnt = 8'd0;
     assign rot_addr     = 29'd0;

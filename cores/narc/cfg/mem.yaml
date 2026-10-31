@@ -1,0 +1,68 @@
+params:
+  - { name: SND_OFFSET,  value: "22'h8_0000" }
+  - { name: SNDS_OFFSET, value: "22'h9_0000" }
+clocks:
+  clk:
+    - freq: 32M
+      outputs:
+        - cen32
+        - cen16
+  clk24:
+    - freq: 8M
+      outputs:
+        - cen8
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 192k
+      outputs:
+        - cen192
+audio:
+  rsum: 10k
+  rsum_feedback_res: true
+  gain: 0.30
+  rc: { r: 10k, c: 3.9n }
+  channels:
+    - { name: fm,   module: jt51, rsum: 165k, pre: 1.5129, rc: [{ r: 1rout, c: 3.3n }] }
+    - { name: ex,   data_width: 16, rsum: 143.5k, pre: 1.5129, vpp: 0.5, rc: [{ r: 6.5k, c: 3.3n }] }
+    - { name: cv,   data_width: 16, rsum: 76.74k, pre: 3.0091, vpp: 0.5 }
+    - { name: dacm, data_width: 16, unsigned: true, dcrm: true, rsum: 165k, pre: 1.2195, vpp: 1.44 }
+    - { name: dacs, data_width: 16, unsigned: true, dcrm: true, rsum: 165k, pre: 2.128, vpp: 1.44 }
+sdram:
+  burst: 512
+  cache-lanes:
+    - name: pgm
+      data_width: 16
+      blocks: { count: 16, size: 256 }
+      at: { bank: 0, length: 1MB }
+    - name: gfx
+      data_width: 32
+      blocks: { count: 8, size: 256 }
+      at: { bank: 2, length: 4MB }
+    - name: snd
+      data_width: 8
+      blocks: { count: 8, size: 256 }
+      at: { bank: 0, offset: SND_OFFSET, length: 128kB }
+    - name: snds
+      data_width: 8
+      blocks: { count: 8, size: 256 }
+      at: { bank: 0, offset: SNDS_OFFSET, length: 256kB }
+bram:
+  - name: scratch
+    size: 128kB
+    data_width: 16
+    rw: true
+  - name: cmos
+    size: 8kB
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+  - name: colram
+    size: 16kB
+    data_width: 16
+    rw: true
+    dual_port:
+      name: colvid
+      addr: colvid_addr
+      dout: colvid_dout

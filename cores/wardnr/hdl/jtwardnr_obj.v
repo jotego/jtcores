@@ -2,21 +2,24 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Sprite scan. The object RAM is copied into objbuf during vertical blanking,
- * one word every fourth pixel. Each line, the copy is scanned from entry 0
+ * one word every fourth pixel (HWSCAN: at the Kyukyoku Tiger board's scan
+ * timing, 42 cycles of 14 MHz per entry from the end of the last line). Each line, the copy is scanned from entry 0
  * up to 511 reading only the y word, and the sprites on the line are handed
  * to jtframe_objdraw, so entry 511 is drawn last and ends on top.
  *
  * Entry words: 0 code; 1 attr = colour[5:0], flipx bit 8, flipy bit 9,
  * prio[11:10]; 2 x<<7; 3 y<<7. y == 0x100 hides a sprite, prio 0 skips it.
  */
-module jtwardnr_obj(
+module jtwardnr_obj #(parameter HWSCAN=0)(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             cen14,
     input             hs,
     input             LVBL,
     input      [ 8:0] hdump,
     input      [ 8:0] vrender,
+    input             tcobr,
 
     output     [11:1] ram_addr,
     input      [15:0] ram_dout,
@@ -40,7 +43,8 @@ localparam SCAN=0, DRAIN=1, FETCH0=2, FETCH1=3, FETCH2=4, FETCH3=5,
 
 reg  [10:0] rd_cnt, wr_cnt, scan_cnt;
 reg  [ 1:0] cdiv;
-reg         copying, LVBL_l, hs_l, busy, draw, v1, v2, we;
+reg         copying, LVBL_l, hs_c, arm, hs_l, busy, draw, v1, v2, we;
+reg  [ 5:0] step;
 reg  [ 3:0] st;
 reg  [ 9:0] entry;
 reg  [ 8:0] hit_e, e1, e2, ly;
@@ -65,7 +69,7 @@ assign ydiff     = ly - (sy - 9'd16);
 assign q_sy      = scan_dout[15:7];
 assign q_diff    = ly - (q_sy - 9'd16);
 assign yhit      = q_sy != 9'h100 && q_diff < 9'd16;
-assign xpos      = sx - 9'd32 - (flipx ? 9'd14 : 9'd0);
+assign xpos      = flipx ? sx - 9'd46 : sx - 9'd32 + {8'd0, tcobr};
 // jtframe_objdraw addresses {code, H, VVVV}; the ROM is {code, VVVV, H}
 assign rom_addr  = { dr_rom[17:7], dr_rom[5:2], dr_rom[6] };
 
@@ -78,11 +82,36 @@ end endgenerate
 
 always @(posedge clk) begin
     LVBL_l <= LVBL;
+    hs_c   <= hs;
     we     <= 0;
     if( rst ) begin
         copying <= 0;
+        arm     <= 0;
         rd_cnt  <= 0;
         cdiv    <= 0;
+        step    <= 0;
+    end else if( HWSCAN ) begin
+        if( LVBL_l && !LVBL ) arm <= 1;
+        if( arm && !hs && hs_c ) begin
+            arm     <= 0;
+            copying <= 1;
+            rd_cnt  <= 0;
+            step    <= 0;
+        end else if( copying && cen14 ) begin
+            step <= step == 6'd41 ? 6'd0 : step + 6'd1;
+            if( step < 6'd8 ) begin
+                if( step[0] ) begin
+                    we     <= 1;
+                    wr_cnt <= rd_cnt;
+                end else begin
+                    rd_cnt[1:0] <= step[2:1];
+                end
+            end
+            if( step == 6'd41 ) begin
+                rd_cnt <= { rd_cnt[10:2] + 9'd1, 2'd0 };
+                if( &rd_cnt[10:2] ) copying <= 0;
+            end
+        end
     end else if( LVBL_l && !LVBL ) begin
         copying <= 1;
         rd_cnt  <= 0;
@@ -167,7 +196,7 @@ always @(posedge clk) begin
             end
             FETCH3: begin
                 w_code <= scan_dout;
-                st     <= prio == 2'd0 ? NEXT : FETCH4;
+                st     <= prio == 2'd0 && !HWSCAN ? NEXT : FETCH4;
             end
             FETCH4: begin
                 w_x <= scan_dout;

@@ -168,7 +168,7 @@ generate
             assign dout = read_addr[1] ? (read_addr[0] ? pre_dout[63:48] : pre_dout[47:32]) :
                                          (read_addr[0] ? pre_dout[31:16] : pre_dout[15: 0]);
         end
-    end else begin : gen_long
+    end else if( DW == 32 ) begin : gen_long
         if( BURSTLEN == 32 ) begin : gen_burst32
             assign dout = pre_dout[31:0];
         end else if( BURSTLEN == 64 ) begin : gen_burst64
@@ -176,6 +176,14 @@ generate
         end else begin : gen_invalid
             assign dout = 0;
         end
+    end else if( DW == 64 ) begin : gen_quad
+        if( BURSTLEN == 64 ) begin : gen_burst64
+            assign dout = pre_dout;
+        end else begin : gen_invalid
+            assign dout = 0;
+        end
+    end else begin : gen_invalid
+        assign dout = 0;
     end
 endgenerate
 
@@ -237,6 +245,8 @@ end
 initial begin
     if( BURSTLEN != 16 && BURSTLEN != 32 && BURSTLEN != 64 )
         $error("%m BURSTLEN must be 16, 32, or 64 bits");
+    if( DW != 8 && DW != 16 && DW != 32 && DW != 64 )
+        $error("%m DW must be 8, 16, 32, or 64 bits");
     if( BURSTLEN < DW )
         $error("%m BURSTLEN must be at least the client data width");
     if( CACHE_SIZE < 1024 || (CACHE_SIZE & (CACHE_SIZE-1)) != 0 )

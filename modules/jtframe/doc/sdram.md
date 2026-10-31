@@ -199,6 +199,10 @@ The following diagram shows how three _virtual_ multiplexers can be individually
 ![Multiplexers around jtframe_dwnld](ioctl_filter.svg)
 
 
+# DDR3 Access from the Game (MiSTer)
+
+Define **JTFRAME_MR_GAME_DDR** to give the game module MiSTer's DDR3 port, for memories that do not fit in the SDRAM or need its bandwidth (NARC keeps its VRAM there). The game gets the Avalon-MM signals `ddr_busy` (wait request), `ddr_burstcnt`, `ddr_addr`, `ddr_dout`, `ddr_dout_ready`, `ddr_rd`, `ddr_din`, `ddr_be` and `ddr_we`, clocked by `clk_rom` (the same as `clk` with JTFRAME_SDRAM96). The game drives the same DDR client that JTFRAME_VERTICAL and the line-frame buffer use, so it cannot be combined with JTFRAME_VERTICAL, JTFRAME_LF_BUFFER or JTFRAME_MR_DDRLOAD, and it is only available on MiSTer. Use addresses in the `{4'd3,...}` window (0x30000000), as JTFRAME's own DDR users do.
+
 # SDRAM Timing
 
 SDRAM clock can be shifted with respect to the internal clock (clk_rom in the diagram).
@@ -212,6 +216,16 @@ For small shifts, the synthesizer will be able to align the SDRAM data and clock
 # SDRAM Controller
 
 There are three different SDRAM controllers in JTFRAME. They all work and are stable, however only the latest one is connected to jtframe_board. The others are left for reference.
+
+## ROM Caches and Bank Burst Sizes
+
+For bank-based ROM clients, `JTFRAME_BAn_LEN` sets the bank's read burst
+size in bits, while `data_width` sets the word width returned to each
+client. `cache_size` selects either the legacy burst buffer, a small cache
+of requested words, or a larger cache of complete bursts.
+
+See [SDRAM ROM caches and burst sizes](rom-caches.md) for supported
+combinations, cache tags, fill behavior and guidance on choosing settings.
 
 ## SDRAM Refresh Rate
 

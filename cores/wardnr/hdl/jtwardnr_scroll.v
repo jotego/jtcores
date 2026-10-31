@@ -3,7 +3,7 @@
  *
  * Wardner tile layer: CPU scroll registers and the matching tile renderer.
  */
-module jtwardnr_scroll #(parameter TEXT=0,
+module jtwardnr_scroll #(parameter TEXT=0, LATCH=0,
     CW     = TEXT ? 11 : 12,
     VA     = TEXT ? 11 : 12,
     PW     = TEXT ?  9 :  8,
@@ -14,6 +14,7 @@ module jtwardnr_scroll #(parameter TEXT=0,
     input                 clk,
     input                 pxl_cen,
     input                 hs,
+    input                 vs,
     input      [ 8:0]     hdump,
     input      [ 8:0]     vdump,
     input                 flip,
@@ -35,7 +36,19 @@ module jtwardnr_scroll #(parameter TEXT=0,
 localparam [MAP_VW-1:0] Y_FLIP_OFF = 29,
                         Y_NORM_OFF = 30;
 
-wire [15:0] scrx, scry;
+wire [15:0] scrx, scry, scrx_mmr, scry_mmr;
+reg  [15:0] scrx_l, scry_l;
+reg         hs_l, vs_l;
+
+assign scrx = LATCH ? scrx_l : scrx_mmr;
+assign scry = LATCH ? scry_l : scry_mmr;
+
+always @(posedge clk) begin
+    hs_l <= hs;
+    vs_l <= vs;
+    if( !hs && hs_l ) scrx_l <= scrx_mmr;
+    if( !vs && vs_l ) scry_l <= scry_mmr;
+end
 wire [ 8:0] scrx_eff;
 wire [MAP_VW-1:0] scry_eff;
 wire [31:0] rom_data_rev;
@@ -54,8 +67,8 @@ jtwardnr_scroll_mmr u_mmr(
     .rnw        ( 1'b0      ),
     .din        ( din       ),
     .dout       (           ),
-    .scrx       ( scrx      ),
-    .scry       ( scry      ),
+    .scrx       ( scrx_mmr  ),
+    .scry       ( scry_mmr  ),
     .offs       ( offs      ),
     .ioctl_addr ( 3'd0      ),
     .ioctl_din  (           ),

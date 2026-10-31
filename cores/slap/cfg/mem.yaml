@@ -1,0 +1,72 @@
+params:
+  - { name: SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1" }
+ports:
+  - { name: cpu_addr, msb: 15 }
+  - { name: cpu_dout, msb: 7 }
+clocks:
+  clk:
+    - freq: 6M
+      gate: [main]
+      outputs: [cpu_cen]
+    - freq: 3M
+      gate: [snd]
+      outputs: [snd_cen]
+    - freq: 3M
+      outputs: [mcu_cen, psg_cen]
+audio:
+  channels:
+    - { name: psg1, module: jt49, rsum: 1k }
+    - { name: psg2, module: jt49, rsum: 1k }
+sdram:
+  banks:
+    - buses:
+        - { name: main, addr_width: 16, data_width: 8 }
+    - buses:
+        - { name: snd, addr_width: 13, data_width: 8 }
+    - buses:
+        - { name: fix, addr_width: 14, data_width: 16 }
+        - { name: scr, addr_width: 17, data_width: 32, offset: SCR_OFFSET }
+    - buses:
+        - { name: obj, addr_width: 17, data_width: 32 }
+bram:
+  - name: ram
+    size: 2k
+    data_width: 8
+    rw: true
+    addr: cpu_addr[10:0]
+    din: cpu_dout
+  - name: sha
+    size: 2k
+    data_width: 8
+    rw: true
+    addr: cpu_addr[10:0]
+    din: cpu_dout
+    dual_port: { name: sndram, rw: true }
+  - name: scrram
+    size: 4k
+    data_width: 16
+    rw: true
+    addr: cpu_addr[10:0]
+    din: "{2{cpu_dout}}"
+    dual_port: { name: scrv }
+    ioctl: { save: true, restore: true, order: 0 }
+  - name: fixram
+    size: 4k
+    data_width: 16
+    rw: true
+    addr: cpu_addr[10:0]
+    din: "{2{cpu_dout}}"
+    dual_port: { name: fixv }
+    ioctl: { save: true, restore: true, order: 1 }
+  - name: objram
+    size: 2k
+    data_width: 8
+    rw: true
+    addr: cpu_addr[10:0]
+    din: cpu_dout
+    dual_port: { name: objv }
+    ioctl: { save: true, restore: true, order: 2 }
+  - { name: mcu, size: 2k, data_width: 8, prom: true }
+  - { name: palr, size: 256, data_width: 4, prom: true }
+  - { name: palg, size: 256, data_width: 4, prom: true }
+  - { name: palb, size: 256, data_width: 4, prom: true }
