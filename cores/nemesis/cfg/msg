@@ -1,0 +1,42 @@
+        Nemesis FPGA core
+https://gx400-friends.github.io/
+
+              * * *
+
+     Based on PCB schematics
+    and our own lab research.
+        Verified against:
+         Bubble System,
+         Salamander, and
+    Salamander bootleg PCBs,
+        original hardware
+        audio recordings,
+    and by frequent 1CC-ing.
+
+              * * *
+
+        Brought to you by
+
+              Raki
+
+             LMN-san
+
+            OScherler
+
+              * * *
+
+        Special thanks to
+
+             Alamone
+         HirofumiIwasaki
+             atrac17
+               Ace
+             asturur
+
+               and
+
+             Jotego
+    for the jtframe framework
+
+            Sorgelig
+     for the MiSTer project

@@ -1,0 +1,18 @@
+nemesis:
+  - get:
+      - gx400a_video.v
+      - gx400_priority_handler.v
+      - k5290.v
+      - k5291.v
+      - k5292.v
+      - k5293.v
+      - k5294.v
+      - k5295.v
+      - colour_lut.v
+      - lmn74194_nbit.v
+      - os_pulse_gen.v
+
+jtframe:
+  - from: video
+    get:
+      - jtframe_blank.v

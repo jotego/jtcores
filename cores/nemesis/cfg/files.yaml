@@ -1,0 +1,17 @@
+nemesis:
+  - get:
+      - jtnemesis_game.v
+      - nemesis_rom_debug.v
+      - nemesis_main.yaml
+      - nemesis_sound.yaml
+      - gx400a_video.yaml
+      - bus_ff.v
+
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_prom.v
