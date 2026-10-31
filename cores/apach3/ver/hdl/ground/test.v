@@ -24,8 +24,8 @@ wire overflow;
 reg pending=0;
 reg [14:0] pending_addr;
 integer delay_count=0;
-integer i, scenario, px, row, hv, mag, pixel, stripe, want;
-integer h_start, g_start, h_dx, h_dy, g_dx, g_dy, r, xoff, b, y, index;
+integer i, scenario, phase, px, row, hv, mag, pixel, stripe, want;
+integer h_start, g_start, h_dx, h_dy, g_dx, g_dy, r, xoff, b, y, index, bank;
 integer restore_file, restore_count;
 reg [7:0] restore_expected [0:31];
 `ifdef WAIT20
@@ -158,6 +158,7 @@ initial begin
             7: begin h_start=0; g_start=54*256; h_dx=0; h_dy=0; g_dx=0; g_dy=0; end
         endcase
         setup();
+        bank=u_ground.u_buffer.line;
         for (i=0;i<3200;i=i+1) begin
             @(negedge clk);
             h=i/8; pxl_cen=(i%8)==0;
@@ -183,9 +184,9 @@ initial begin
                 stripe=((pvalue(r)+road_z)>>5)&3;
                 want=512+(hv<0 ? 16 : 0)+(pixel<<2)+stripe;
             end
-            index=((y&1)*512)+px;
-            if (u_ground.linebuf[index] !== want[10:0])
-                $fatal(1,"scenario=%0d x=%0d got=%h expected=%h",scenario,px,u_ground.linebuf[index],want[10:0]);
+            index=bank*512+px;
+            if (u_ground.u_buffer.u_line.mem[index] !== want[10:0])
+                $fatal(1,"scenario=%0d x=%0d got=%h expected=%h",scenario,px,u_ground.u_buffer.u_line.mem[index],want[10:0]);
             @(negedge clk); h=px==0 ? 399 : px-1; v=px==0 ? (y==0 ? 279 : y-1) : y;
             repeat (2) @(negedge clk);
             if (pxl !== want[10:0]) $fatal(1,"display scenario=%0d x=%0d got=%h expected=%h",scenario,px,pxl,want[10:0]);
@@ -193,6 +194,7 @@ initial begin
         if (scenario==7) begin
             @(negedge clk); alter=1; invalidate=1; road_invalidate=1;
             @(negedge clk); invalidate=0; road_invalidate=0; v=y-1;
+            bank=u_ground.u_buffer.line;
             for (i=0;i<3200;i=i+1) begin
                 @(negedge clk); h=i/8; pxl_cen=(i%8)==0;
             end
@@ -203,12 +205,48 @@ initial begin
             pixel=(b>>((hv&3)*2))&3;
             stripe=((pvalue(54)+road_z)>>5)&3;
             want=512+(pixel<<2)+stripe;
-            index=(y&1)*512;
-            if (u_ground.linebuf[index] !== want[10:0])
-                $fatal(1,"cache invalidation got=%h expected=%h",u_ground.linebuf[index],want[10:0]);
+            index=bank*512;
+            if (u_ground.u_buffer.u_line.mem[index] !== want[10:0])
+                $fatal(1,"cache invalidation got=%h expected=%h",u_ground.u_buffer.u_line.mem[index],want[10:0]);
         end
     end
-    $display("PASS ground wait=%0d, sky, mirrored ground, row clamp, rotation and cache invalidation",WAIT);
+    for (phase=0;phase<3;phase=phase+1) begin
+        @(negedge clk); rst=1; pxl_cen=0; h=397; v=10;
+        repeat (5) @(negedge clk);
+        rst=0;
+        force ram_ok=0;
+        force ram_data=16'hffff;
+        u_ground.state=4;
+        u_ground.target_y=11;
+        u_ground.x=319;
+        u_ground.ram_cs=1;
+        bank=u_ground.u_buffer.line;
+        for (i=0;i<1024;i=i+1) u_ground.u_buffer.u_line.mem[i]=0;
+        u_ground.u_buffer.u_line.mem[bank*512]=11'h135;
+        repeat (3) @(negedge clk);
+        h=398;
+        repeat (2) @(negedge clk);
+        if (phase==0) force ram_ok=1;
+        repeat (6) @(negedge clk);
+        h=399;
+        if (phase==1) force ram_ok=1;
+        repeat (8) @(negedge clk);
+        if (pxl !== 11'h135) $fatal(1,"partial ground line lost at swap");
+        h=0; v=11; pxl_cen=1;
+        @(negedge clk); pxl_cen=0;
+        if (phase==2) begin
+            if (!overflow) $fatal(1,"late ground line did not flag overflow");
+            force ram_ok=1;
+        end
+        repeat (3) @(negedge clk);
+        if (u_ground.u_buffer.u_line.mem[bank*512+319] !== 0 ||
+            u_ground.u_buffer.u_line.mem[(1-bank)*512+319] !== 0)
+            $fatal(1,"late response crossed ground buffer boundary phase=%0d",phase);
+        if (ram_cs) $fatal(1,"late ground response was not drained");
+        release ram_ok;
+        release ram_data;
+    end
+    $display("PASS ground wait=%0d, sky, mirrored ground, row clamp, rotation, cache invalidation and late line responses",WAIT);
     $finish;
 end
 initial begin

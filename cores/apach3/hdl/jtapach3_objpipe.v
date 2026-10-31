@@ -39,10 +39,7 @@ module jtapach3_objpipe(
     output                   ahead_valid,
     output            [17:0] ahead_addr
 );
-reg [11:0] left_ram [0:2047];
-reg [12:0] right_ram [0:2047];
-reg [17:0] base_ram [0:2047];
-reg [32:0] inverse [0:511];
+(* romstyle = "M10K" *) reg [32:0] inverse [0:511];
 reg active, issued;
 reg signed [59:0] sx, sy, dx, dy;
 reg signed [59:0] dx8, dy8, dx32, dy32, dx7, dy7, dx31, dy31;
@@ -63,9 +60,10 @@ reg [26:0] cols [0:7], lines [0:7];
 reg [19:0] distx, disty;
 reg [59:0] productx, producty;
 reg [26:0] numerx1, numery1;
-reg [11:0] left3;
-reg [12:0] right3;
-reg [17:0] base3, base4, base5, base6;
+wire [11:0] left3;
+wire [12:0] right3;
+wire [17:0] base3;
+reg [17:0] base4, base5, base6;
 reg [26:0] delta4, delta5, delta6, quotient6;
 reg [8:0] count4, count5, count6;
 reg [32:0] inverse4;
@@ -80,12 +78,13 @@ wire push = advance && stages[7];
 wire take = pop && valid;
 wire [3:0] ahead = rp + 4'd1;
 wire [26:0] row = (lines[2] - {18'd0,top}) >> 3;
+wire desc_read = !rst && !flush && !start && advance;
 integer i;
 reg signed [31:0] px, py;
 reg [26:0] qx, qy, qw;
-reg [8:0] span;
 reg [17:0] tile;
-reg [12:0] span_pixels;
+wire [12:0] span_pixels = right3-{1'b0,left3};
+wire [8:0] span = span_pixels[11:3];
 reg [26:0] full_tile;
 
 assign busy = active;
@@ -94,16 +93,33 @@ assign pixel = fifo[rp];
 assign ahead_valid = count > 1;
 assign ahead_addr = fifo[ahead][21:4];
 
+jtframe_dual_ram_cen #(
+    .DW ( 43 ),
+    .AW ( 11 )
+) u_desc (
+    .clk0  ( clk                              ),
+    .cen0  ( desc_read                        ),
+    .data0 ( 43'd0                            ),
+    .addr0 ( {page,row[5:0]}                  ),
+    .we0   ( 1'b0                             ),
+    .q0    ( {left3,right3,base3}             ),
+    .clk1  ( clk                              ),
+    .cen1  ( 1'b1                             ),
+    .data1 ( {desc_left,desc_right,desc_base} ),
+    .addr1 ( desc_addr                        ),
+    .we1   ( desc_we                          ),
+    .q1    (                                  )
+);
+
 initial begin
     inverse[0]=0;
     for (i=1;i<512;i=i+1) inverse[i]=(33'h100000000+{1'b0,i[31:0]}-1'b1)/{1'b0,i[31:0]};
 end
 always @(posedge clk) begin
-    if (desc_we) begin
-        left_ram[desc_addr] <= desc_left;
-        right_ram[desc_addr] <= desc_right;
-        base_ram[desc_addr] <= desc_base;
-    end
+    if (desc_read) inverse4 <= inverse[span];
+end
+
+always @(posedge clk) begin
     if (rst || flush) begin
         active <= 0;
         issued <= 1;
@@ -217,15 +233,9 @@ always @(posedge clk) begin
             cols[2] <= qx;
             lines[2] <= qy;
             stages[3] <= stages[2] && lines[2]>={18'd0,top} && lines[2]<{17'd0,bottom};
-            left3 <= left_ram[{page,row[5:0]}];
-            right3 <= right_ram[{page,row[5:0]}];
-            base3 <= base_ram[{page,row[5:0]}];
             stages[4] <= stages[3] && cols[3]>={15'd0,left3} && (repeat_rows || cols[3]<{14'd0,right3});
             delta4 <= (cols[3]-{15'd0,left3})>>3;
-            span_pixels=right3-{1'b0,left3};
-            span=span_pixels[11:3];
             count4 <= span;
-            inverse4 <= inverse[span];
             base4 <= base3;
             wrap_product5 <= delta4*inverse4;
             delta5 <= delta4;

@@ -21,7 +21,7 @@ module jtapach3_ground(
     output reg        ram_cs,
     input      [15:0] ram_data,
     input             ram_ok,
-    output reg [10:0] pxl,
+    output     [10:0] pxl,
     output reg        overflow
 );
 
@@ -40,7 +40,8 @@ reg cache_valid;
 reg [7:0] cached_row, cached_prom;
 reg [15:0] cached_road_x;
 reg row_valid;
-reg [10:0] linebuf [0:1023];
+reg [10:0] write_data;
+reg write_enable;
 wire [8:0] next_y = v == 279 ? 0 : v + 1'b1;
 wire signed [23:0] h_start = {rotate[0][7:0],rotate[4]};
 wire signed [23:0] g_start = {rotate[9],rotate[10][7:0]};
@@ -58,6 +59,10 @@ wire [7:0] stripe_sum = selected_prom + road_z;
 wire [7:0] pixel_byte = cached_addr == pixel_addr ? cached_data : ram_data[7:0];
 wire [1:0] pixel = pixel_byte[{magnitude[1:0],1'b0}+:2];
 wire [1:0] fetched_pixel = ram_data[{1'b0,pixel_shift,1'b0}+:2];
+wire draw_ready = magnitude >= 512 || (cache_valid && cached_addr == pixel_addr && !invalidate);
+wire [10:0] ground_pixel = {2'b01,4'd0,hsum[11],
+    (magnitude >= 512 ? 2'd0 : pixel),stripe_sum[6:5]};
+wire [8:0] read_x = h == 399 ? 9'd0 : h+9'd1;
 integer i;
 `ifdef SIMULATION
 reg [7:0] rotate_init [0:31];
@@ -73,11 +78,42 @@ initial begin
 end
 `endif
 
+jtframe_linebuf #(
+    .DW ( 11 ),
+    .AW ( 9  )
+) u_buffer (
+    .clk      ( clk          ),
+    .LHBL     ( h != 398     ),
+    .wr_addr  ( x            ),
+    .wr_data  ( write_data   ),
+    .we       ( write_enable ),
+    .rd_addr  ( read_x       ),
+    .rd_data  ( pxl          ),
+    .rd_gated (              )
+);
+
+always @* begin
+    write_enable = 0;
+    write_data = ground_pixel;
+    if (!rst && h < 398 && target_y == next_y) case (state)
+        SCAN: begin
+            if (grow < 0) begin
+                write_enable = 1;
+                write_data = 11'h100 + {4'd0,(grow < -128 ? 7'd0 : grow[6:0])};
+            end else write_enable = row_hit && draw_ready;
+        end
+        CALC: write_enable = draw_ready;
+        FETCH: begin
+            write_enable = ram_ok;
+            write_data = {2'b01,4'd0,side,fetched_pixel,stripe};
+        end
+        default: ;
+    endcase
+end
+
 task draw_ground;
     begin
-        if (magnitude >= 512 || (cache_valid && cached_addr == pixel_addr && !invalidate)) begin
-            linebuf[{target_y[0],x}] <= {2'b01,4'd0,hsum[11],
-                (magnitude >= 512 ? 2'd0 : pixel),stripe_sum[6:5]};
+        if (draw_ready) begin
             hacc <= hacc + {{16{h_dx[15]}},h_dx};
             gacc <= gacc + {{16{g_dx[15]}},g_dx};
             x <= x + 1'b1;
@@ -94,7 +130,6 @@ task draw_ground;
 endtask
 
 always @(posedge clk) begin
-    pxl <= linebuf[h == 399 ? {next_y[0],9'd0} : {v[0],h+9'd1}];
     if (rst) begin
         state <= IDLE;
 `ifdef SIMULATION
@@ -146,7 +181,6 @@ always @(posedge clk) begin
             IDLE: begin end
             SCAN: begin
                 if (grow < 0) begin
-                    linebuf[{target_y[0],x}] <= 11'h100 + {4'd0,(grow < -128 ? 7'd0 : grow[6:0])};
                     hacc <= hacc + {{16{h_dx[15]}},h_dx};
                     gacc <= gacc + {{16{g_dx[15]}},g_dx};
                     x <= x + 1'b1;
@@ -173,7 +207,6 @@ always @(posedge clk) begin
                 cached_addr <= ram_addr;
                 cached_data <= ram_data[7:0];
                 cache_valid <= !invalidate;
-                linebuf[{target_y[0],x}] <= {2'b01,4'd0,side,fetched_pixel,stripe};
                 hacc <= hacc + {{16{h_dx[15]}},h_dx};
                 gacc <= gacc + {{16{g_dx[15]}},g_dx};
                 x <= x + 1'b1;

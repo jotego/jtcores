@@ -8,7 +8,9 @@ jtframe:
   - from: cpu
     get: [ jtframe_v20.yaml, jtframe_m68k.yaml, jtframe_z80.yaml ]
   - from: video
-    get: [ jtframe_scroll.yaml, jtframe_obj.yaml, jtframe_vtimer.v ]
+    get: [ jtframe_scroll.yaml, jtframe_obj.yaml, jtframe_vtimer.v, jtframe_linebuf.v ]
+  - from: ram
+    get: [ jtframe_rpwp_ram.v ]
 jt51:
 jt6295:
 jt8255:

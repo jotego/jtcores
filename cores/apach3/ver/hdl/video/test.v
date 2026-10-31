@@ -83,7 +83,8 @@ initial begin
         obj_pxl=layer==1 ? 10'h15d : 0;
         for (scenario=0;scenario<4;scenario=scenario+1) begin
             y=scenario==0 ? 0 : scenario==3 ? 239 : scenario;
-            for (x=0;x<1024;x=x+1) dut.u_ground.linebuf[x]=11'h100+(x&511)+(x>>9)*320;
+            for (x=0;x<1024;x=x+1) dut.u_ground.u_buffer.u_line.mem[x]=11'h100+(x&511)+(x>>9)*320;
+            dut.u_ground.u_buffer.line=y[0];
             dut.u_vtimer.H=397;
             dut.u_vtimer.vdump=y==0 ? 279 : y-1;
             dut.u_vtimer.vrender=y;

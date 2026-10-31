@@ -11,4 +11,6 @@ $JTFRAME/hdl/video/tilemap/jtframe_scroll_offset.v
 $JTFRAME/hdl/video/tilemap/jtframe_tilemap.v
 $JTFRAME/hdl/ram/jtframe_obj_buffer.v
 $JTFRAME/hdl/ram/jtframe_dual_ram.v
+$JTFRAME/hdl/video/jtframe_linebuf.v
+$JTFRAME/hdl/ram/jtframe_rpwp_ram.v
 -y $JTFRAME/hdl/video
