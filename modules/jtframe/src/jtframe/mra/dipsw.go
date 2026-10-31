@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 4-1-2025 */
 
@@ -72,6 +73,7 @@ func make_switches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) 
     }
     // Override the defaults if set so in the TOML
     for _,each := range cfg.Dipsw.Defaults {
+        if each.Altversion != "" && each.Altversion != args.cur_alt_version { continue }
         if each.Match(machine)>0 {
             def_str = each.Value
             if Verbose { fmt.Printf("DIP sw default overriden to %s\n", def_str)}
@@ -232,6 +234,7 @@ func add_extra_dip(n *XMLNode, create_parent bool, machine *MachineXML, cfg Mame
     // Add DIP switches in the extra section, note that these
     // one will always have a default value of 1
     for _, each := range cfg.Dipsw.Extra {
+        if each.Altversion != "" && each.Altversion != args.cur_alt_version { continue }
         if each.Target != "" && each.Target != args.Target { continue }
         if Verbose {
             fmt.Printf("\tChecking extra DIPSW %s for %s/%s (current %s/%s)\n",

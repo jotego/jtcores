@@ -122,6 +122,7 @@ defaults=[
     { value="ff,f4,ff", setnames=[ "qad" ] },
     { value="ff,fd,ff", setnames=[ "ghouls", "ghoulsu", "qadjr", "strider", "striderua", "strideruc" ] },
     { value="ff,ff,fa", setnames=[ "willow", "willowu", "willowuo" ] },
+    { value="ff,fc,ff,fd", altversion="Right stick", setnames=[ "forgottn" ] },
 ]
 delete=[
     {names=[ "Unused", "Unknown", "Coinage", "Coin Slots", "Coin A", "Coin B", "2 Coins to Start, 1 to Continue" ]},
@@ -150,9 +151,16 @@ rename=[
 extra=[
     { machine="pang3", name="Freeze", options="On,Off", bits="23" },
     { name="PCB type", options="88617A,89626A", bits="24" },
+    { setname="forgottn", altversion="Right stick", name="Aim control", options="Dial,Right stick", bits="25" },
 ]
 
 [rom]
+patches=[
+    { setname="forgottn", altversion="Right stick", offset=0x100, data="E7 48 00 FC 39 30 80 00 64 00 40 0C 55 4A 00 66 94 00 39 30 80 00 60 00 28 4A 1F 00 06 67 39 30 80 00 62 00 00 32 80 48 49 E0 81 48 00 38 01 3A 40 4A 02 6A 40 44 41 4A 02 6A 41 44 00 74 00 34 00 76 01 36 41 B0 02 64 43 C5 42 0C 18 00 00 65 4A 00 4B E1 C2 86 00 74 43 0C 19 00 1A 65 42 52 43 0C 4E 00 12 65 42 52 43 0C 89 00 0A 65 42 52 43 0C D2 00 02 65 42 52 41 B0 04 64 42 44 42 50 44 4A 06 6A 42 44 42 06 10 00 45 4A 02 6B 42 44 42 02 1F 00 4A ED 42 31 28 00 DF 4C 3F 00 28 30 28 00 75 4E DF 4C 3F 00 68 D3 28 00 28 30 28 00 75 4E" },
+    { setname="forgottn", altversion="Right stick", offset=0x8b38, data="B9 4E 00 00 00 01 71 4E" },
+    { setname="forgottn", altversion="Right stick", offset=0x8ba2, data="B9 4E 00 00 00 01 71 4E" },
+    { setname="forgottn", altversion="Right stick", offset=0xa1dc, data="B9 4E 00 00 00 01 71 4E" },
+]
 regions=[
     { name="maincpu", width=16, reverse=true, overrules=[
         { names=[
