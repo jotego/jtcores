@@ -41,6 +41,10 @@ func prepareArtifact(ctx context.Context, cfg Config, log_dir string, id BuildId
 		return "", "", fmt.Errorf("unsafe build archive name %q", name)
 	}
 	short_sha := strings.TrimSuffix(name, ".zip")
+    if id.Workflow==compileSidi128Workflow {
+        if !strings.HasSuffix(short_sha,"-sidi128") { return "","",fmt.Errorf("SiDi128-only build requires a -sidi128.zip archive") }
+        short_sha=strings.TrimSuffix(short_sha,"-sidi128")
+    }
 	if len(short_sha) < 7 || !strings.HasPrefix(id.SHA, short_sha) {
 		return "", "", fmt.Errorf("archive %s does not match build commit %s", name, id.SHA)
 	}

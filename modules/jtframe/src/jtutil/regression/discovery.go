@@ -18,8 +18,27 @@ import (
 )
 
 const compileAllWorkflow = "compile-all.yaml"
+const compileSidi128Workflow = "compile-sidi128.yaml"
 
-var ErrNoEligibleBuild = errors.New("no completed successful compile_all build with a downloadable SiDi128 artifact is available")
+func SupportedBuildWorkflow(workflow string) bool {
+    return workflow==compileAllWorkflow || workflow==compileSidi128Workflow
+}
+
+func workflow_file(name string) string {
+    switch {
+    case strings.EqualFold(name,"Compile all"): return compileAllWorkflow
+    case strings.EqualFold(name,"Compile SiDi128"): return compileSidi128Workflow
+    }
+    return ""
+}
+
+func build_archive_name(sha, workflow string) string {
+    suffix:=".zip"
+    if workflow==compileSidi128Workflow { suffix="-sidi128.zip" }
+    return strings.ToLower(sha[:7])+suffix
+}
+
+var ErrNoEligibleBuild = errors.New("no completed successful Compile all or Compile SiDi128 build with a downloadable artifact is available")
 
 type discoveredRun struct {
 	DatabaseID         int64     `json:"databaseId"`
@@ -139,7 +158,7 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 	})
 	for _, r := range runs {
 		if r.CreatedAt.Before(since) { continue }
-		if r.DatabaseID == 0 || !strings.EqualFold(r.WorkflowName, "Compile all") || r.Status != "completed" || r.Conclusion != "success" || r.HeadSHA == "" {
+		if r.DatabaseID == 0 || workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) {
 			continue
 		}
 		if commit_complete(dataRoot, r.HeadSHA, cfg.NoPublish) {
@@ -174,8 +193,8 @@ func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildI
 	if r.DatabaseID != runID {
 		return BuildIdentity{}, fmt.Errorf("workflow run lookup for %d returned database id %d", runID, r.DatabaseID)
 	}
-	if !strings.EqualFold(r.WorkflowName, "Compile all") || r.Status != "completed" || r.Conclusion != "success" || r.HeadSHA == "" || r.Attempt <= 0 {
-		return BuildIdentity{}, fmt.Errorf("workflow run %d is not a completed successful compile_all attempt", runID)
+	if workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) || r.Attempt <= 0 {
+		return BuildIdentity{}, fmt.Errorf("workflow run %d is not a completed successful Compile all or Compile SiDi128 attempt", runID)
 	}
 	if len(run.Jobs) == 0 {
 		return BuildIdentity{}, fmt.Errorf("workflow run %d has no job completion inventory", runID)
@@ -204,7 +223,7 @@ func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildI
 		if a.Expired {
 			continue
 		}
-		expected := strings.ToLower(r.HeadSHA[:7]) + ".zip"
+		expected := build_archive_name(r.HeadSHA,workflow_file(r.WorkflowName))
 		if strings.EqualFold(a.Name, expected) || strings.EqualFold(a.Name, "sidi128") {
 			if selected == nil || strings.EqualFold(a.Name, expected) {
 				selected = a
@@ -241,7 +260,7 @@ func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildI
 			return BuildIdentity{}, fmt.Errorf("resolve originating pull request for dispatched branch %s: %w", r.HeadBranch, associationErr)
 		}
 	}
-	return BuildIdentity{Repository: repository, Workflow: compileAllWorkflow, WorkflowID: r.WorkflowDatabaseID, RunID: strconv.FormatInt(runID, 10), RunNumber: r.RunNumber, Attempt: strconv.Itoa(r.Attempt), SHA: r.HeadSHA, Ref: r.HeadBranch, Event: r.Event, PR: pr, Artifact: selected.Name, ArtifactID: selected.ID, ArtifactAPIHash: strings.TrimPrefix(selected.Digest, "sha256:"), Conclusion: r.Conclusion, ExpectedJobs: len(run.Jobs), SucceededJobs: len(run.Jobs)}, nil
+	return BuildIdentity{Repository: repository, Workflow: workflow_file(r.WorkflowName), WorkflowID: r.WorkflowDatabaseID, RunID: strconv.FormatInt(runID, 10), RunNumber: r.RunNumber, Attempt: strconv.Itoa(r.Attempt), SHA: r.HeadSHA, Ref: r.HeadBranch, Event: r.Event, PR: pr, Artifact: selected.Name, ArtifactID: selected.ID, ArtifactAPIHash: strings.TrimPrefix(selected.Digest, "sha256:"), Conclusion: r.Conclusion, ExpectedJobs: len(run.Jobs), SucceededJobs: len(run.Jobs)}, nil
 }
 
 func pullRequestForCommit(ctx context.Context, repository, sha, branch string) (int, error) {
@@ -286,37 +305,37 @@ func isRunIDNotFound(err error) bool {
 }
 
 func getEligibleRunByNumber(ctx context.Context, repository string, number int64) (BuildIdentity, error) {
-	runs, err := listWorkflowRuns(ctx, repository)
-	if err != nil {
-		return BuildIdentity{}, err
-	}
-	for _, r := range runs {
-		if r.RunNumber == number {
-			return getEligibleRun(ctx, repository, r.DatabaseID)
-		}
-	}
-	return BuildIdentity{}, fmt.Errorf("no compile_all run has run number %d", number)
+    runs, err := listWorkflowRuns(ctx, repository)
+    if err != nil { return BuildIdentity{}, err }
+    var match int64
+    for _, r := range runs {
+        if r.RunNumber != number { continue }
+        if match!=0 && match!=r.DatabaseID {
+            return BuildIdentity{},fmt.Errorf("run number %d occurs in both build workflows; use the GitHub run ID",number)
+        }
+        match=r.DatabaseID
+    }
+    if match!=0 { return getEligibleRun(ctx,repository,match) }
+    return BuildIdentity{},fmt.Errorf("no supported build workflow has run number %d",number)
 }
 
 func listWorkflowRuns(ctx context.Context, repository string) ([]discoveredRun, error) {
-	endpoint := fmt.Sprintf("repos/%s/actions/workflows/%s/runs?per_page=100", repository, compileAllWorkflow)
-	data, err := ghCommand(ctx, "api", "--paginate", "--slurp", endpoint)
-	if err != nil {
-		return nil, fmt.Errorf("list compile_all runs: %w", err)
-	}
-	var pages []struct {
-		WorkflowRuns []apiWorkflowRun `json:"workflow_runs"`
-	}
-	if err = json.Unmarshal(data, &pages); err != nil {
-		return nil, fmt.Errorf("parse paginated compile_all run list: %w", err)
-	}
-	runs := make([]discoveredRun, 0)
-	for _, page := range pages {
-		for _, r := range page.WorkflowRuns {
-			runs = append(runs, discoveredRun{DatabaseID: r.ID, WorkflowName: r.Name, WorkflowDatabaseID: r.WorkflowID, RunNumber: r.RunNumber, Attempt: r.Attempt, Status: r.Status, Conclusion: r.Conclusion, HeadSHA: r.HeadSHA, HeadBranch: r.HeadBranch, Event: r.Event, CreatedAt: r.CreatedAt})
-		}
-	}
-	return runs, nil
+    runs:=make([]discoveredRun,0)
+    for _, workflow:=range []string{compileAllWorkflow,compileSidi128Workflow} {
+        endpoint:=fmt.Sprintf("repos/%s/actions/workflows/%s/runs?per_page=100",repository,workflow)
+        data,err:=ghCommand(ctx,"api","--paginate","--slurp",endpoint)
+        // The new workflow may not be registered on GitHub until first deployment.
+        if err!=nil && workflow==compileSidi128Workflow && isRunIDNotFound(err) { continue }
+        if err!=nil { return nil,fmt.Errorf("list %s runs: %w",workflow,err) }
+        var pages []struct { WorkflowRuns []apiWorkflowRun `json:"workflow_runs"` }
+        if err=json.Unmarshal(data,&pages);err!=nil { return nil,fmt.Errorf("parse paginated %s run list: %w",workflow,err) }
+        for _, page:=range pages {
+            for _, r:=range page.WorkflowRuns {
+                runs=append(runs,discoveredRun{DatabaseID:r.ID,WorkflowName:r.Name,WorkflowDatabaseID:r.WorkflowID,RunNumber:r.RunNumber,Attempt:r.Attempt,Status:r.Status,Conclusion:r.Conclusion,HeadSHA:r.HeadSHA,HeadBranch:r.HeadBranch,Event:r.Event,CreatedAt:r.CreatedAt})
+            }
+        }
+    }
+    return runs,nil
 }
 
 func buildAlreadyComplete(root, runID, attempt string, local_only ...bool) bool {

@@ -24,6 +24,7 @@ func TestDiscoverBuildOldestCompleteAttemptAndReconsidersArtifactlessRun(t *test
 	sha2 := strings.Repeat("2", 40)
 	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
 		joined := strings.Join(args, " ")
+        if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
 		switch {
 		case strings.Contains(joined, "workflows/compile-all.yaml/runs?per_page=100"):
 			return []byte(fmt.Sprintf(`[{"workflow_runs":[
@@ -63,6 +64,7 @@ func TestGetEligibleRunListsArtifactsByRunAndKeepsAttemptMetadata(t *testing.T) 
 	jobs := strings.TrimSuffix(strings.Repeat(job+",", 279), ",")
 	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
 		joined := strings.Join(args, " ")
+        if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
 		switch {
 		case strings.HasPrefix(joined, "run view 40655576158"):
 			return []byte(fmt.Sprintf(`{"databaseId":40655576158,"workflowName":"Compile all","workflowDatabaseId":195081922,"number":676,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"jtcores-166","event":"workflow_dispatch","jobs":[%s]}`, sourceSHA, jobs)), nil
@@ -104,6 +106,7 @@ func TestDispatchedPRAssociationLookupErrorsFailClosed(t *testing.T) {
 		t.Run(lookup.name, func(t *testing.T) {
 			ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
 				joined := strings.Join(args, " ")
+        if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
 				switch {
 				case strings.HasPrefix(joined, "run view 40655576158"):
 					return []byte(fmt.Sprintf(`{"databaseId":40655576158,"workflowName":"Compile all","workflowDatabaseId":195081922,"number":676,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"jtcores-166","event":"workflow_dispatch","jobs":[{"status":"completed","conclusion":"success"}]}`, sourceSHA)), nil
@@ -130,6 +133,7 @@ func TestPinnedRunNumberFallbackOnlyOnRunIDNotFound(t *testing.T) {
 	listCalls := 0
 	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
 		joined := strings.Join(args, " ")
+        if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
 		switch {
 		case strings.HasPrefix(joined, "run view 40655576158"):
 			return nil, fmt.Errorf("gh run view: HTTP 403: forbidden")
@@ -156,6 +160,7 @@ func TestPinnedRunNumberFallbackUsesLookupOnlyAfter404(t *testing.T) {
 	var sawNumberLookup, sawArtifactList bool
 	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
 		joined := strings.Join(args, " ")
+        if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
 		switch {
 		case strings.HasPrefix(joined, "run view 676"):
 			return nil, fmt.Errorf("gh run view: HTTP 404: Not Found")

@@ -1,7 +1,7 @@
 # SiDi128 video regression
 
 `jtutil regression` collects PNG video frames from a connected SiDi128 using
-local RBF files for manual captures, or a successful GitHub `compile_all`
+local RBF files for manual captures, or a successful GitHub `Compile all` or `Compile SiDi128`
 build for a full campaign. Collection does
 not approve a game's video content. A designer must inspect and approve the
 images before they become references. Audio is not part of this workflow.
@@ -27,8 +27,9 @@ recorded and checked before execution; changed files require fresh preparation.
 
 ## Automatic build archives
 
-Automatic regression first selects a completed, successful `compile_all` run.
-It looks for that run's commit-named ZIP (for example `a405f1b.zip`) in
+Automatic regression selects a completed, successful run from either
+`compile-all.yaml` or `compile-sidi128.yaml`. It looks for that run's ZIP
+(`a405f1b.zip` for a full build, `a405f1b-sidi128.zip` for SiDi128 only) in
 `/gdrive/jotego/core-builds`. If present, the ZIP is reused without downloading
 it. Otherwise, the exact GitHub artifact is downloaded into that directory.
 An optional `builds-dir` configuration entry overrides the archive directory
@@ -55,6 +56,33 @@ Downloads additionally verify the GitHub service archive digest when supplied.
 The logs distinguish local reuse from a verified service download: the service
 archive wraps the build ZIP, so their SHA256 values are not interchangeable.
 An invalid existing ZIP produces an error rather than being overwritten.
+
+## Build only SiDi128
+
+`Compile SiDi128` (`.github/workflows/compile-sidi128.yaml`) is manual-only.
+After the workflow is published on GitHub, launch it remotely with:
+
+```sh
+gh workflow run compile-sidi128.yaml --repo jotego/jtcores --ref master
+```
+
+Use `--ref <branch>` to build another branch containing the workflow. It uses
+the same core inventory, release-mode compiler and target exclusions as the
+full workflow, but calls `xjtcore.sh <core> sidi128` with no other FPGA target.
+The resulting bundle contains `release/sidi128`, matching `release/mra` and
+resource statistics. Failed core jobs retain diagnostic logs; the final bundle
+is produced only after all matrix jobs succeed. Its `<commit>-sidi128.zip` name
+keeps it separate from a full-platform ZIP for the same commit.
+
+No extra cron entry is needed: the existing regression poll checks both build
+workflows. A completed source commit is tested only once, regardless of which
+workflow produced the selected build. Both workflows remain subject to the
+successful-job, artifact, creation-time and resume checks.
+
+Deleting `regression/log` removes completion history. Before discarding an old
+capture collection, advance `builds-since` to the new baseline's build window
+so polling does not replay the old builds. This is an operational cutoff, not
+a test that arbitrary branch builds contain a particular source fix.
 
 ## Scheduled polling
 
@@ -309,10 +337,12 @@ size; reused RBFs report zero transferred bytes.
 ## Collection and designer approval
 
 ```sh
-jtutil regression --config ~/.config/jtutil/regression.yaml --run-id 676 --no-publish
+jtutil regression --config ~/.config/jtutil/regression.yaml --run-id 40831867014 --no-publish
 ```
 
-`--run-id` pins a workflow run ID or run number. Without it, the command
+`--run-id` pins a GitHub workflow run ID. An unambiguous workflow run number
+is also accepted; if both workflows share that number, use the full run ID.
+Without it, the command
 discovers an eligible successful build. Interrupted runs retain their progress
 under `log/`; `--retry-errors` retries terminal per-game errors.
 

@@ -20,6 +20,7 @@ func TestPollCutoffAndSuccessfulRetry(t *testing.T) {
     sha := strings.Repeat("a",40)
     ghCommand = func(_ context.Context, args ...string)([]byte,error) {
         joined := strings.Join(args," ")
+        if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
         switch {
         case strings.Contains(joined,"workflows/compile-all.yaml/runs"):
             conclusion := "failure"

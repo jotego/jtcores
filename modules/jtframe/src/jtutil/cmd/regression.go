@@ -35,7 +35,7 @@ var regressionJTBin bool
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
 	Short: "Capture a core or run a SiDi128 video regression batch",
-	Long: `Discovers and prepares a successful compile_all build, then runs or resumes its SiDi128 regression.
+	Long: `Discovers and prepares a successful Compile all or Compile SiDi128 build, then runs or resumes its SiDi128 regression.
 Collects PNG frames in $JOTEGO/regression/<core>/<setname>/new for designer review.
 Preparation uses the working project; diagnostics and resume state live under log/.
 
@@ -66,7 +66,7 @@ func init() {
 	regressionCmd.Flags().StringVar(&regressionSetname, "setname", "", "Capture one game of --core (default: all main games)")
 	regressionCmd.Flags().StringVar(&regressionConfig, "config", filepath.Join(project_root(), ".jtutil-regression.yaml"), "Portable regression config YAML")
 	regressionCmd.Flags().StringVar(&regressionManifest, "manifest", "", "Build-specific inventory manifest JSON")
-	regressionCmd.Flags().StringVar(&regressionRunID, "run-id", "", "Pin a GitHub Actions run ID or run number")
+	regressionCmd.Flags().StringVar(&regressionRunID, "run-id", "", "Pin a GitHub Actions run ID or unambiguous run number")
 	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish GitHub summary (local pilot only)")
 	regressionCmd.Flags().BoolVar(&regressionRetryErrors, "retry-errors", false, "Rerun terminal per-game errors from a fresh ARC launch")
 	rootCmd.AddCommand(regressionCmd)
@@ -100,7 +100,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 		if len(manifest.Cores)==0{return fmt.Errorf("manifest contains no cores")}
 		for _,core:=range manifest.Cores{if len(core.Games)==0{return fmt.Errorf("manifest core %s contains no games",core.Core)}}
 		b:=manifest.Build
-		if b.Repository!="jotego/jtcores"||b.Workflow!="compile-all.yaml"||b.Conclusion!="success"||b.Artifact==""||b.ArtifactSHA==""||b.ExpectedJobs>0&&b.ExpectedJobs!=b.SucceededJobs{return fmt.Errorf("manifest must identify a complete successful compile_all build")}
+		if b.Repository!="jotego/jtcores"||!regression.SupportedBuildWorkflow(b.Workflow)||b.Conclusion!="success"||b.Artifact==""||b.ArtifactSHA==""||b.ExpectedJobs>0&&b.ExpectedJobs!=b.SucceededJobs{return fmt.Errorf("manifest must identify a complete successful Compile all or Compile SiDi128 build")}
 	}
 	lock,err:=regression.AcquireLock(data_root)
 	if regressionPoll && errors.Is(err,regression.ErrBoardBusy){fmt.Fprintln(cmd.OutOrStdout(),err);return nil}

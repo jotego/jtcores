@@ -180,7 +180,7 @@ func TestDiscoverySkipsOtherWorkflowRunsOfCompletedCommit(t *testing.T) {
     record.Progress.AutomaticComplete=true;record.Progress.Status="complete";record.Save()
     original:=ghCommand;defer func(){ghCommand=original}()
     ghCommand=func(_ context.Context,args ...string)([]byte,error){
-        if !strings.Contains(strings.Join(args," "),"workflows/compile-all.yaml/runs"){t.Fatalf("completed SHA inspected again: %v",args)}
+        if !strings.Contains(strings.Join(args," "),"workflows/compile-all.yaml/runs") && !strings.Contains(strings.Join(args," "),"workflows/compile-sidi128.yaml/runs"){t.Fatalf("completed SHA inspected again: %v",args)}
         return []byte(`[{"workflow_runs":[{"id":101,"name":"Compile all","run_attempt":1,"status":"completed","conclusion":"success","head_sha":"`+record.Progress.Commit+`"},{"id":202,"name":"Compile all","run_attempt":3,"status":"completed","conclusion":"success","head_sha":"`+record.Progress.Commit+`"}]}]`),nil
     }
     if _,err:=discover_build(context.Background(),"jotego/jtcores","",record.Root,Config{NoPublish:true});err!=ErrNoEligibleBuild{t.Fatalf("duplicate commit selected: %v",err)}
