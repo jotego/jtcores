@@ -1112,7 +1112,7 @@ function [2:0] ALU16RegFromInst(input   Page2, input   Page3, input   [7:0] inst
 reg     [2:0] srcreg;
 begin
     srcreg =  3'b111;       // default
-    if (Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
+    if (HD6309 && Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
         case (inst[3:0])
             4'h0,4'h1,4'h6,4'h7,4'hb: srcreg = ALU16_REG_W;
             4'h2,4'h3,4'h4,4'h5,4'h8,4'h9,4'ha: srcreg = ALU16_REG_D;
@@ -1185,7 +1185,7 @@ reg     writeback;
 begin
     aluop  =  ALUOP16_INVALID;
     writeback  =  1'b1;
-    if (Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
+    if (HD6309 && Page2 && !Page3 && (inst[7:4] >= 4'h8) && (inst[7:4] <= 4'hb)) begin
         case (inst[3:0])
             4'h0: aluop = ALUOP16_SUB;
             4'h1: begin aluop = ALUOP16_CMP; writeback = 1'b0; end
@@ -1264,33 +1264,19 @@ wire    IsALU16Opcode  =  (ALU16Opcode != ALUOP16_INVALID);
 function [23:0] ALU16Inst(input   [3:0] operation16, input   [15:0] a_arg, input   [15:0] b_arg, input   [7:0] cc_arg);
 reg     [7:0]    cc_out;
 reg     [15:0]   ALUFn;
-reg     carry1, carry2;
-reg     borrow;
+reg     [17:0]   sum18;
+reg     sub, cin;
 begin
     cc_out =  cc_arg;
     case (operation16)
-        ALUOP16_ADD:
+        ALUOP16_ADD, ALUOP16_ADC, ALUOP16_SUB, ALUOP16_SBC, ALUOP16_CMP:
         begin
-            {cc_out[CC_C_BIT], ALUFn} =  {1'b0, a_arg} + b_arg;
-            cc_out[CC_V_BIT]   =  (a_arg[15] & b_arg[15] & ~ALUFn[15]) | (~a_arg[15] & ~b_arg[15] & ALUFn[15]);
-        end
-
-        ALUOP16_SUB:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} =  {1'b0, a_arg} - {1'b0, b_arg};
-            cc_out[CC_V_BIT]   =  (a_arg[15] & ~b_arg[15] & ~ALUFn[15]) | (~a_arg[15] & b_arg[15] & ALUFn[15]);
-        end
-
-        ALUOP16_ADC:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} = {1'b0,a_arg} + {1'b0,b_arg} + cc_arg[CC_C_BIT];
-            cc_out[CC_V_BIT] = (~(a_arg[15] ^ b_arg[15])) & (ALUFn[15] ^ a_arg[15]);
-        end
-
-        ALUOP16_SBC:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} = {1'b0,a_arg} - {1'b0,b_arg} - cc_arg[CC_C_BIT];
-            cc_out[CC_V_BIT] = (a_arg[15] ^ b_arg[15]) & (ALUFn[15] ^ a_arg[15]);
+            sub = (operation16 == ALUOP16_SUB) || (operation16 == ALUOP16_SBC) || (operation16 == ALUOP16_CMP);
+            cin = sub ? !(operation16 == ALUOP16_SBC && cc_arg[CC_C_BIT]) : (operation16 == ALUOP16_ADC && cc_arg[CC_C_BIT]);
+            sum18 = {1'b0, a_arg, 1'b1} + {1'b0, (b_arg ^ {16{sub}}), cin};
+            ALUFn = sum18[16:1];
+            cc_out[CC_C_BIT] = sum18[17] ^ sub;
+            cc_out[CC_V_BIT] = ~(a_arg[15] ^ b_arg[15] ^ sub) & (a_arg[15] ^ ALUFn[15]);
         end
 
         ALUOP16_AND:
@@ -1321,12 +1307,6 @@ begin
         begin
             ALUFn  =  b_arg;
             cc_out[CC_V_BIT]   =  1'b0;
-        end
-
-        ALUOP16_CMP:
-        begin
-            {cc_out[CC_C_BIT], ALUFn} =  {1'b0, a_arg} - {1'b0, b_arg};
-            cc_out[CC_V_BIT]   =  (a_arg[15] & ~b_arg[15] & ~ALUFn[15]) | (~a_arg[15] & b_arg[15] & ALUFn[15]);
         end
 
         ALUOP16_LEA:
@@ -1385,52 +1365,6 @@ begin
 end
 endfunction
 
-function [23:0] HD6309RegALU(input [2:0] operation, input [15:0] dst,
-                             input [15:0] src, input wide, input [7:0] cc_arg);
-reg [16:0] result17;
-reg [15:0] result;
-reg [7:0] flags;
-reg carry;
-reg overflow;
-reg [15:0] mask;
-begin
-    result17 = 17'h00000;
-    result = 16'h0000;
-    flags = cc_arg;
-    carry = cc_arg[CC_C_BIT];
-    overflow = 1'b0;
-    mask = wide ? 16'hFFFF : 16'h00FF;
-    case (operation)
-        3'd0,3'd1: begin
-            result17 = {1'b0,(dst & mask)} + {1'b0,(src & mask)} +
-                       ((operation == 3'd1 && cc_arg[CC_C_BIT]) ? 17'd1 : 17'd0);
-            result = result17[15:0] & mask;
-            carry = result17[wide ? 16 : 8];
-            overflow = wide ? ((dst[15] == src[15]) && (result[15] != dst[15])) :
-                               ((dst[7] == src[7]) && (result[7] != dst[7]));
-            flags[CC_C_BIT] = carry;
-            flags[CC_V_BIT] = overflow;
-        end
-        3'd2,3'd3,3'd7: begin
-            result17 = {1'b0,(dst & mask)} - {1'b0,(src & mask)} - ((operation == 3'd3 && cc_arg[CC_C_BIT]) ? 17'd1 : 17'd0);
-            result = result17[15:0] & mask;
-            carry = result17[16];
-            overflow = wide ? ((dst[15] != src[15]) && (result[15] != dst[15])) :
-                               ((dst[7] != src[7]) && (result[7] != dst[7]));
-            flags[CC_C_BIT] = carry;
-            flags[CC_V_BIT] = overflow;
-        end
-        3'd4: begin result = (dst & src) & mask; flags[CC_V_BIT] = 1'b0; end
-        3'd5: begin result = (dst | src) & mask; flags[CC_V_BIT] = 1'b0; end
-        3'd6: begin result = (dst ^ src) & mask; flags[CC_V_BIT] = 1'b0; end
-        default: result = 16'h0000;
-    endcase
-    flags[CC_N_BIT] = wide ? result[15] : result[7];
-    flags[CC_Z_BIT] = (result == 16'h0000);
-    HD6309RegALU = {flags,result};
-end
-endfunction
-
 function [23:0] HD6309Unary16(input [3:0] operation, input [15:0] value,
                               input [7:0] cc_arg);
 reg [15:0] result;
@@ -1480,9 +1414,10 @@ wire HDRegDst8 = HDRegDst[3];
 wire HDRegWide = !HDRegDst8;
 wire [15:0] HDRegSrcValue = HD6309RegValue(HDRegSrc,HDRegWide);
 wire [15:0] HDRegDstValue = HD6309RegValue(HDRegDst,HDRegWide);
-wire [23:0] HDRegResult = HD6309RegALU(Inst1[2:0],HDRegDstValue,HDRegSrcValue,HDRegWide,cc);
-wire [23:0] HDWideUnaryResult = HD6309Unary16(Inst1[3:0],Inst1[7:4] == 4'h4 ? {a,b} : w,cc);
-wire [23:0] FastHDWideUnaryResult = HD6309Unary16(MappedInstruction[3:0],MappedInstruction[7:4] == 4'h4 ? {a,b} : w,cc);
+wire [7:0] HDWideUnaryInst = CpuState == CPUSTATE_FETCH_I1V2 ? MappedInstruction : Inst1;
+wire [23:0] HDWideUnaryResult = HD6309Unary16(HDWideUnaryInst[3:0],
+    HDWideUnaryInst[7:4] == 4'h4 ? {a,b} : w,cc);
+wire [23:0] FastHDWideUnaryResult = HDWideUnaryResult;
 
 reg     [3:0]   ALU16_OP;
 reg     [15:0]  ALU16_A;
@@ -1491,6 +1426,10 @@ reg     [7:0]   ALU16_CC;
 
 // Top 8 bits == CC, bottom 8 bits = output value
 wire    [23:0] ALU16   =  ALU16Inst(ALU16_OP, ALU16_A, ALU16_B, ALU16_CC);
+wire [7:0] HDRegResultCC = HDRegWide ? ALU16[23:16] :
+    {ALU16[23:19],(ALU16[15:8] == 8'h00),ALU16[17:16]};
+wire [15:0] HDRegResultValue = HDRegWide ? ALU16[15:0] : {8'h00,ALU16[15:8]};
+wire [23:0] HDRegResult = {HDRegResultCC,HDRegResultValue};
 
 
 /////////////////////////////////////////////////////////////////
@@ -1557,9 +1496,11 @@ reg     [4:0] ALU_OP;
 function [15:0] ALUInst(input   [4:0] operation, input   [7:0] a_arg, input   [7:0] b_arg, input   [7:0] cc_arg);
 reg     [7:0]    cc_out;
 reg     [7:0]    ALUFn;
+reg     [9:0]    wide;
 reg     borrow;
 begin
     cc_out =  cc_arg;
+    wide = 10'd0;
     case (operation)
         ALUOP_NEG:
         begin
@@ -1647,7 +1588,8 @@ begin
 
         ALUOP_ADC:
         begin
-            {cc_out[CC_C_BIT], ALUFn[7:0]} =  {1'b0, a_arg} + {1'b0, b_arg} + {8'd0,cc_arg[CC_C_BIT]};
+            wide = {1'b0, a_arg, 1'b1} + {1'b0, b_arg, cc_arg[CC_C_BIT]};
+            {cc_out[CC_C_BIT], ALUFn[7:0]} = wide[9:1];
             cc_out[CC_V_BIT]   =  (a_arg[7] & b_arg[7] & ~ALUFn[7]) | (~a_arg[7] & ~b_arg[7] & ALUFn[7]);
             cc_out[CC_H_BIT]   =  a_arg[4] ^ b_arg[4] ^ ALUFn[4];
         end
@@ -1685,7 +1627,8 @@ begin
 
         ALUOP_SBC:
         begin
-            {cc_out[CC_C_BIT], ALUFn[7:0]} = {1'b0, a_arg} - {1'b0, b_arg} - {8'd0,cc_arg[CC_C_BIT]};
+            wide = {1'b0, a_arg, 1'b0} - {1'b0, b_arg, cc_arg[CC_C_BIT]};
+            {cc_out[CC_C_BIT], ALUFn[7:0]} = wide[9:1];
             cc_out[CC_V_BIT]   =   (a_arg[7] & ~b_arg[7] & ~ALUFn[7]) | (~a_arg[7] & b_arg[7] & ALUFn[7]);
         end
 
@@ -2899,6 +2842,20 @@ begin
                         end
                         else if (HD6309 && InstPage2 && (Inst1[7:3] == 5'b00110))
                         begin
+                            ALU16_A = HDRegWide ? HDRegDstValue :
+                                {HDRegDstValue[7:0],(Inst1[2:0] == 3'd1) ? 8'hFF : 8'h00};
+                            ALU16_B = HDRegWide ? HDRegSrcValue : {HDRegSrcValue[7:0],8'h00};
+                            ALU16_CC = cc;
+                            case (Inst1[2:0])
+                                3'd0: ALU16_OP = ALUOP16_ADD;
+                                3'd1: ALU16_OP = ALUOP16_ADC;
+                                3'd2: ALU16_OP = ALUOP16_SUB;
+                                3'd3: ALU16_OP = ALUOP16_SBC;
+                                3'd4: ALU16_OP = ALUOP16_AND;
+                                3'd5: ALU16_OP = ALUOP16_OR;
+                                3'd6: ALU16_OP = ALUOP16_EOR;
+                                default: ALU16_OP = ALUOP16_CMP;
+                            endcase
                             cc_nxt = HDRegResult[23:16];
                             pc_nxt = pc_p1;
                             if (Inst1[2:0] != 3'd7) begin
@@ -5400,118 +5357,130 @@ begin
 
     CPUSTATE_6309_TFM_READ:
     begin
-        tmp_nxt[15:8] = D[7:0];
-        addr_nxt = HDTFMSource;
-        rAVMA = 1'b1;
-        CpuState_nxt = CPUSTATE_6309_TFM_WRITE;
+        if (HD6309) begin
+            tmp_nxt[15:8] = D[7:0];
+            addr_nxt = HDTFMSource;
+            rAVMA = 1'b1;
+            CpuState_nxt = CPUSTATE_6309_TFM_WRITE;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_WRITE:
     begin
-        if ((NMILatched == 1'b0) || ((FIRQLatched == 1'b0) && !cc[CC_F_BIT]) ||
-            ((IRQLatched == 1'b0) && !cc[CC_I_BIT])) begin
-            // TFM may be interrupted after the source read but before the
-            // destination write or address-register updates. Re-fetch it on RTI.
-            cc_nxt[CC_Z_BIT] = 1'b0;
-            pc_nxt = pc - 16'd3;
-            addr_nxt = pc - 16'd3;
-            rAVMA = 1'b1;
-            CpuState_nxt = CPUSTATE_FETCH_I1;
-        end else begin
-            // The original-device X+/X+ capture writes at incremented X after
-            // the source read. Other TFM forms use the normal destination EA.
-            if ((Inst1 == 8'h38) && (tmp[7:4] == 4'h1) && (tmp[3:0] == 4'h1))
-                addr_nxt = x + 16'd1;
-            else
-                addr_nxt = HDTFMDest;
-            DOutput = tmp[15:8];
-            RnWOut = 1'b0;
-            rAVMA = 1'b1;
-            CpuState_nxt = CPUSTATE_6309_TFM_UPDATE;
-        end
+        if (HD6309) begin
+            if ((NMILatched == 1'b0) || ((FIRQLatched == 1'b0) && !cc[CC_F_BIT]) ||
+                ((IRQLatched == 1'b0) && !cc[CC_I_BIT])) begin
+                // TFM may be interrupted after the source read but before the
+                // destination write or address-register updates. Re-fetch it on RTI.
+                cc_nxt[CC_Z_BIT] = 1'b0;
+                pc_nxt = pc - 16'd3;
+                addr_nxt = pc - 16'd3;
+                rAVMA = 1'b1;
+                CpuState_nxt = CPUSTATE_FETCH_I1;
+            end else begin
+                // The original-device X+/X+ capture writes at incremented X after
+                // the source read. Other TFM forms use the normal destination EA.
+                if ((Inst1 == 8'h38) && (tmp[7:4] == 4'h1) && (tmp[3:0] == 4'h1))
+                    addr_nxt = x + 16'd1;
+                else
+                    addr_nxt = HDTFMDest;
+                DOutput = tmp[15:8];
+                RnWOut = 1'b0;
+                rAVMA = 1'b1;
+                CpuState_nxt = CPUSTATE_6309_TFM_UPDATE;
+            end
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_UPDATE:
     begin
-        if ((tmp[7:4] == tmp[3:0]) && ((Inst1 == 8'h38) || (Inst1 == 8'h39))) begin
-            // When both operands name the same register, each side's address
-            // update applies, as it does in the reference micro-operations.
-            case (tmp[7:4])
-                4'h0: {a_nxt,b_nxt} = (Inst1 == 8'h38) ? ({a,b} + 16'd2) : ({a,b} - 16'd2);
-                4'h1: x_nxt = (Inst1 == 8'h38) ? (x + 16'd2) : (x - 16'd2);
-                4'h2: y_nxt = (Inst1 == 8'h38) ? (y + 16'd2) : (y - 16'd2);
-                4'h3: u_nxt = (Inst1 == 8'h38) ? (u + 16'd2) : (u - 16'd2);
-                4'h4: s_nxt = (Inst1 == 8'h38) ? (s + 16'd2) : (s - 16'd2);
-                default: begin end
-            endcase
-        end else begin
-        if ((Inst1 == 8'h38) || (Inst1 == 8'h3A)) begin
-            case (tmp[7:4])
-                4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
-                4'h1: x_nxt = x + 16'd1;
-                4'h2: y_nxt = y + 16'd1;
-                4'h3: u_nxt = u + 16'd1;
-                4'h4: s_nxt = s + 16'd1;
-                default: begin end
-            endcase
-        end else if (Inst1 == 8'h39) begin
-            case (tmp[7:4])
-                4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
-                4'h1: x_nxt = x - 16'd1;
-                4'h2: y_nxt = y - 16'd1;
-                4'h3: u_nxt = u - 16'd1;
-                4'h4: s_nxt = s - 16'd1;
-                default: begin end
-            endcase
-        end
-        if ((Inst1 == 8'h38) || (Inst1 == 8'h3B)) begin
-            case (tmp[3:0])
-                4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
-                4'h1: x_nxt = x + 16'd1;
-                4'h2: y_nxt = y + 16'd1;
-                4'h3: u_nxt = u + 16'd1;
-                4'h4: s_nxt = s + 16'd1;
-                default: begin end
-            endcase
-        end else if (Inst1 == 8'h39) begin
-            case (tmp[3:0])
-                4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
-                4'h1: x_nxt = x - 16'd1;
-                4'h2: y_nxt = y - 16'd1;
-                4'h3: u_nxt = u - 16'd1;
-                4'h4: s_nxt = s - 16'd1;
-                default: begin end
-            endcase
-        end
-        end
-        {e_nxt,f_nxt} = w - 16'd1;
-        if (w == 16'd1) CpuState_nxt = CPUSTATE_6309_TFM_FINAL1;
-        else CpuState_nxt = CPUSTATE_6309_TFM_READ;
-        addr_nxt = 16'hffff;
-        rAVMA = 1'b0;
+        if (HD6309) begin
+            if ((tmp[7:4] == tmp[3:0]) && ((Inst1 == 8'h38) || (Inst1 == 8'h39))) begin
+                // When both operands name the same register, each side's address
+                // update applies, as it does in the reference micro-operations.
+                case (tmp[7:4])
+                    4'h0: {a_nxt,b_nxt} = (Inst1 == 8'h38) ? ({a,b} + 16'd2) : ({a,b} - 16'd2);
+                    4'h1: x_nxt = (Inst1 == 8'h38) ? (x + 16'd2) : (x - 16'd2);
+                    4'h2: y_nxt = (Inst1 == 8'h38) ? (y + 16'd2) : (y - 16'd2);
+                    4'h3: u_nxt = (Inst1 == 8'h38) ? (u + 16'd2) : (u - 16'd2);
+                    4'h4: s_nxt = (Inst1 == 8'h38) ? (s + 16'd2) : (s - 16'd2);
+                    default: begin end
+                endcase
+            end else begin
+                if ((Inst1 == 8'h38) || (Inst1 == 8'h3A)) begin
+                    case (tmp[7:4])
+                        4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
+                        4'h1: x_nxt = x + 16'd1;
+                        4'h2: y_nxt = y + 16'd1;
+                        4'h3: u_nxt = u + 16'd1;
+                        4'h4: s_nxt = s + 16'd1;
+                        default: begin end
+                    endcase
+                end else if (Inst1 == 8'h39) begin
+                    case (tmp[7:4])
+                        4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
+                        4'h1: x_nxt = x - 16'd1;
+                        4'h2: y_nxt = y - 16'd1;
+                        4'h3: u_nxt = u - 16'd1;
+                        4'h4: s_nxt = s - 16'd1;
+                        default: begin end
+                    endcase
+                end
+                if ((Inst1 == 8'h38) || (Inst1 == 8'h3B)) begin
+                    case (tmp[3:0])
+                        4'h0: {a_nxt,b_nxt} = {a,b} + 16'd1;
+                        4'h1: x_nxt = x + 16'd1;
+                        4'h2: y_nxt = y + 16'd1;
+                        4'h3: u_nxt = u + 16'd1;
+                        4'h4: s_nxt = s + 16'd1;
+                        default: begin end
+                    endcase
+                end else if (Inst1 == 8'h39) begin
+                    case (tmp[3:0])
+                        4'h0: {a_nxt,b_nxt} = {a,b} - 16'd1;
+                        4'h1: x_nxt = x - 16'd1;
+                        4'h2: y_nxt = y - 16'd1;
+                        4'h3: u_nxt = u - 16'd1;
+                        4'h4: s_nxt = s - 16'd1;
+                        default: begin end
+                    endcase
+                end
+            end
+            {e_nxt,f_nxt} = w - 16'd1;
+            if (w == 16'd1) CpuState_nxt = CPUSTATE_6309_TFM_FINAL1;
+            else CpuState_nxt = CPUSTATE_6309_TFM_READ;
+            addr_nxt = 16'hffff;
+            rAVMA = 1'b0;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_FINAL1:
     begin
-        addr_nxt = 16'hffff;
-        rAVMA = 1'b0;
-        CpuState_nxt = CPUSTATE_6309_TFM_FINAL2;
+        if (HD6309) begin
+            addr_nxt = 16'hffff;
+            rAVMA = 1'b0;
+            CpuState_nxt = CPUSTATE_6309_TFM_FINAL2;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_FINAL2:
     begin
-        addr_nxt = 16'hffff;
-        rAVMA = 1'b0;
-        CpuState_nxt = CPUSTATE_6309_TFM_FINAL3;
+        if (HD6309) begin
+            addr_nxt = 16'hffff;
+            rAVMA = 1'b0;
+            CpuState_nxt = CPUSTATE_6309_TFM_FINAL3;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_TFM_FINAL3:
     begin
-        addr_nxt = pc;
-        rAVMA = 1'b1;
-        rLIC = 1'b1;
-        cc_nxt[CC_Z_BIT] = 1'b1;
-        CpuState_nxt = CPUSTATE_FETCH_I1;
+        if (HD6309) begin
+            addr_nxt = pc;
+            rAVMA = 1'b1;
+            rLIC = 1'b1;
+            cc_nxt[CC_Z_BIT] = 1'b1;
+            CpuState_nxt = CPUSTATE_FETCH_I1;
+        end else CpuState_nxt = PostIllegalState;
     end
 
     CPUSTATE_6309_ARITH_IMM_LO:
@@ -5893,9 +5862,14 @@ begin
             CpuState_nxt = CPUSTATE_CWAI_POST;
         else if (HD6309 && !md[0] && (CpuState == CPUSTATE_CWAI_PAD4))
             CpuState_nxt = CPUSTATE_6309_CWAI_PAD5;
-        else
-            CpuState_nxt = (CpuState == CPUSTATE_CWAI_PAD4)
-                         ? CPUSTATE_CWAI_POST : CpuState + 1'b1;
+        else begin
+            case (CpuState)
+                CPUSTATE_CWAI_PAD1: CpuState_nxt = CPUSTATE_CWAI_PAD2;
+                CPUSTATE_CWAI_PAD2: CpuState_nxt = CPUSTATE_CWAI_PAD3;
+                CPUSTATE_CWAI_PAD3: CpuState_nxt = CPUSTATE_CWAI_PAD4;
+                default:            CpuState_nxt = CPUSTATE_CWAI_POST;
+            endcase
+        end
     end
 
     CPUSTATE_6309_CWAI_PAD5, CPUSTATE_6309_CWAI_PAD6:

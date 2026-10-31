@@ -174,13 +174,17 @@ JTFRAME_NTSC_LEN         | Use as COLORBURST_RANGE for YC module on NTSC mode
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
 JTFRAME_BA0_AUTOPRECH    |         | Enables auto precharge on bank 0
-JTFRAME_BA0_LEN          |         | Sets length of bank 0, valid values 16, 32 or 64
+JTFRAME_BA0_LEN          |         | Sets bank 0 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA1_AUTOPRECH    |         | Enables auto precharge on bank 1
-JTFRAME_BA2_LEN          |         | Sets length of bank 1, valid values 16, 32 or 64
+JTFRAME_BA1_LEN          |         | Sets bank 1 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA2_AUTOPRECH    |         | Enables auto precharge on bank 2
-JTFRAME_BA2_LEN          |         | Sets length of bank 2, valid values 16, 32 or 64
+JTFRAME_BA2_LEN          |         | Sets bank 2 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA3_AUTOPRECH    |         | Enables auto precharge on bank 3
-JTFRAME_BA3_LEN          |         | Sets length of bank 3, valid values 16, 32 or 64
+JTFRAME_BA3_LEN          |         | Sets bank 3 read burst size in bits: 16, 32 or 64 (default 32)
+
+These sizes apply to all clients in the bank. See
+[SDRAM ROM caches and burst sizes](rom-caches.md) for their interaction with
+client data widths and cache settings.
 
 # SDRAM ROM/RAM Modules
 
@@ -238,3 +242,15 @@ JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vert
 JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
 JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
 JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
+
+### JTFRAME_REMOTE
+
+Enables the paired remote video-capture and CAB input/dump interfaces on the
+MiST-family user-I/O SPI path. The macro is used once at the capture-instance
+boundary; shared board input and joystick logic remains CAB-aware and receives
+constant-zero controls when remote support is disabled. The boundary passes
+the existing feature mask (`0x001e0000`) into user-I/O, where constant feature
+gates remove the remote SPI handlers when disabled. Capture uses RGB444 for
+`COLORW<=4` and RGB555 for `COLORW>=5`, selected at compile time. SiDi128
+enables this macro by default in both debug and release builds. See
+[video capture](video-capture.md) and [CAB stream](cab-stream.md).

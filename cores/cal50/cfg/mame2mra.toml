@@ -7,14 +7,15 @@ sourcefile=[ "downtown.cpp" ]
 debug.Machines=[
 	"downtown",
 	"twineagl",
-	"arbalest",
-	"metafox"
 ]
 
-# Different format for GFX ROMs
 skip.Machines=[
+	# Different format for GFX ROMs
 	"tndrcade",
 	"usclssic",
+	# supported in arblst core
+	"arbalest",
+	"metafox"
 ]
 
 [buttons]

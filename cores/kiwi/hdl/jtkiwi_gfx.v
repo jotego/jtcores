@@ -40,6 +40,7 @@ module jtkiwi_gfx #(
     input      [ 8:0]   vdump,
     input      [ 8:0]   vrender,
     input      [ 8:0]   hdump,
+    input      [ 8:0]   obj_hshift, // foreground only; column coordinates stay independent
 
     input               cpu_rnw,
     input      [ 1:0]   cpu_dsn,    // ignored for CPUW==8
@@ -290,7 +291,7 @@ jtkiwi_obj #(
     .rom_data   ( obj_data  ),
 
     .vdump      ( vdump     ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdump + obj_hshift ),
     .pxl        ( obj_pxl   ),
     .debug_bus  ( debug_bus )
 );

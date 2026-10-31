@@ -43,7 +43,7 @@ always @(posedge clk) if(nreset && cen_Q && !rnw) begin
     else if(addr >= 16'hfff0) vector_mem[addr-16'hfff0] <= cpu_dout;
 end
 
-mc6809i #(.ILLEGAL_INSTRUCTIONS("STOP")) uut(
+mc6809i #(.ILLEGAL_INSTRUCTIONS("STOP"), .HD6309(0)) uut(
     .D(dout), .DOut(cpu_dout), .ADDR(addr), .RnW(rnw),
     .clk(clk), .cen_E(cen_E), .cen_Q(cen_Q), .BS(bs), .BA(ba),
     .nIRQ(irq_n), .nFIRQ(1'b1), .nNMI(1'b1), .AVMA(avma), .BUSY(busy), .LIC(lic),
@@ -158,6 +158,62 @@ task measure_case(input integer expected_cycles, input integer expected_pc,
     end
 endtask
 
+task wait_for_opcode_fetch(input [15:0] expected_pc, input string label);
+    integer watchdog;
+    reg seen;
+    begin
+        watchdog=0; seen=0;
+        while(!seen && watchdog<1000) begin
+            @(posedge clk);
+            if(cen_E && op && addr==expected_pc) seen=1;
+            watchdog=watchdog+1;
+        end
+        assert_msg(seen,$sformatf("%s did not fetch at %04x",label,expected_pc));
+    end
+endtask
+
+task check_page10_extension_decode;
+    integer watchdog;
+    reg seen;
+    begin
+        watchdog=0; seen=0;
+        while(!seen && watchdog<1000) begin
+            @(posedge clk);
+            if(cen_E && uut.InstPage2 && uut.Inst1==8'h8b) begin
+                seen=1;
+                assert_msg(!uut.IsALU16Opcode && uut.ALU16Reg==3'b111,
+                    "$10/$8B entered the 6809 word-ALU decoder");
+            end
+            watchdog=watchdog+1;
+        end
+        assert_msg(seen,"did not reach unsupported $10/$8B encoding");
+    end
+endtask
+
+task check_page10_word_decode;
+    begin
+        load_test_program(8'h12,8'h12);
+        put(16'h0120,8'h10); put(16'h0121,8'h83); put(16'h0122,8'h11); put(16'h0123,8'h22);
+        put(16'h0124,8'h10); put(16'h0125,8'h8c); put(16'h0126,8'h21); put(16'h0127,8'h00);
+        put(16'h0128,8'h10); put(16'h0129,8'h8e); put(16'h012a,8'h12); put(16'h012b,8'h34);
+        put(16'h012c,8'h10); put(16'h012d,8'hce); put(16'h012e,8'h23); put(16'h012f,8'h45);
+        put(16'h0130,8'h11); put(16'h0131,8'h8c); put(16'h0132,8'h23); put(16'h0133,8'h45);
+        put(16'h0134,8'h10); put(16'h0135,8'h8b);
+
+        wait_for_opcode_fetch(16'h0124,"CMPD immediate");
+        assert_msg(regs[82],"CMPD #$1122 did not set Z");
+        wait_for_opcode_fetch(16'h0128,"CMPY immediate");
+        assert_msg(regs[82],"CMPY #$2100 did not set Z");
+        wait_for_opcode_fetch(16'h012c,"LDY immediate");
+        assert_msg(regs[47:32]==16'h1234,$sformatf("LDY result=%04x expected 1234",regs[47:32]));
+        wait_for_opcode_fetch(16'h0130,"LDS immediate");
+        assert_msg(regs[63:48]==16'h2345,$sformatf("LDS result=%04x expected 2345",regs[63:48]));
+        wait_for_opcode_fetch(16'h0134,"CMPS immediate");
+        assert_msg(regs[82],"CMPS #$2345 did not set Z");
+        check_page10_extension_decode();
+    end
+endtask
+
 // Measure cycles from the target opcode fetch through entry into its stable
 // wait state. Then assert IRQ and wait for the handler's opcode fetch. SYNC can
 // fetch the sequential opcode before it vectors, so the handler fetch is the
@@ -212,6 +268,7 @@ initial begin
     load_test_program(8'h3f,8'h12); measure_case(19,16'h0150,500,"SWI");
     load_test_program(8'h10,8'h3f); measure_case(20,16'h0160,500,"SWI2 vector $FFF4");
     load_test_program(8'h11,8'h3f); measure_case(20,16'h0170,500,"SWI3 vector $FFF2");
+    check_page10_word_decode();
     load_test_program(8'h13,8'h12); measure_wait_and_wake(7'd113,4,16'h0150,"SYNC IRQ wake");
     load_test_program(8'h3c,8'h00); measure_wait_and_wake(7'd110,20,16'h0150,"CWAI entry and IRQ wake");
     check_irq_full_frame();

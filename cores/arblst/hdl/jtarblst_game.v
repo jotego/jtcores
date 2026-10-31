@@ -18,10 +18,12 @@ wire        flip, cpu_rnw, sub_rst,
 reg game_id = 1'b0;
 
 // X1-012 tile origin: Meta Fox / Arbalester. HDL flip is active low.
-// Include the tile pipeline offset (29 - MAME's unflipped xoffset).
-// Mirror around the 384-pixel window when flipped (384 - 29 + xoffset).
-wire [15:0] thoffs = flip ? (game_id ? 16'h1f : 16'h0d) :
-                           (game_id ? 16'h162 : 16'h150);
+// Include the tile pipeline offset (29 - unflipped xoffset). Meta Fox's
+// cannon bases require xoffset 0/-3; MAME's 16/-19 misaligns them with sprites.
+// The flipped scroll register is relative to the 512-pixel raster, not the
+// 384-pixel visible window (512 - 29 + flipped xoffset).
+wire [15:0] thoffs = flip ? (game_id ? 16'h1f : 16'h1d) :
+                           (game_id ? 16'h1e2 : 16'h1e0);
 
 always @(posedge clk) if( prog_we && header ) case( prog_addr[3:0] )
     4'd0: game_id <= prog_data[0];
@@ -145,6 +147,9 @@ jtcal50_video #(
     .hdump      ( hdump         ),
     .flip       ( flip          ),
     .thoffs     ( thoffs        ),
+    // Caliber 50's flipped foreground origin differs by three pixels. Meta
+    // Fox uses the normal origin; Arbalester places flipped sprites one right.
+    .obj_hshift ( flip ? 9'd0 : (game_id ? 9'd2 : 9'd3) ),
 
     .cpu_rnw    ( cpu_rnw       ),
     .cpu_dsn    ( cpu_dsn       ),

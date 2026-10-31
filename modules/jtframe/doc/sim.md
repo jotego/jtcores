@@ -100,6 +100,10 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
+For the unattended SiDi128 hardware video regression, see
+[`hardware-regression.md`](hardware-regression.md). The older `run_regression.sh`
+flow below describes the separate `jtsim`/Gitea simulation workflow.
+
 The script `run_regression.sh` is used for automatic regressions triggered by Gitea Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), the workflow reports the failing regression result.
 
 The script `run_regression.sh` runs a simulation using `jtsim` according to the options defined in a configuration file located in `<core>/cfg`, called `reg.yaml`. In this file, you can specify the same options available when using `jtsim`. The syntax is as follows:

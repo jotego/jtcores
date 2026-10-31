@@ -15,6 +15,7 @@ module jtframe_board #(parameter
 )(
     output              rst,
     output              rst_n,
+    input               capture_pause,
     output              game_rst,
     output              game_rst_n,
     output              sdram_init,
@@ -88,6 +89,9 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input               cab_active,
+    input        [20:0] cab_inputs,
+    input               cab_dump_pause,
     input        [ 3:0] board_start,     board_coin,
     input        [15:0] joyana_l1,       joyana_r1,       joyana_l2,       joyana_r2,
     output       [ 9:0] game_joystick1,  game_joystick2,  game_joystick3,  game_joystick4,
@@ -166,7 +170,7 @@ wire         osd_pause;
 wire         key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
-wire         game_pause, soft_rst, game_test;
+wire         game_pause, soft_rst, game_test, effective_pause;
 wire         cheat_led, pre_pause;
 
 wire   [9:0] key_joy1, key_joy2, key_joy3, key_joy4;
@@ -539,6 +543,8 @@ jtframe_inputs #(
     .soft_rst       ( soft_rst        ),
 
     .board_joy1     ( board_joystick1 ),
+    .cab_active     ( cab_active     ),
+    .cab_inputs     ( cab_inputs     ),
     .board_joy2     ( board_joystick2 ),
     .board_joy3     ( board_joystick3 ),
     .board_joy4     ( board_joystick4 ),
@@ -627,12 +633,14 @@ jtframe_inputs #(
     .game_pause     ( game_pause      )
 );
 
+assign effective_pause = game_pause | capture_pause | cab_dump_pause;
+
 jtframe_dip #(.XOR_ROT(XOR_ROT)) u_dip(
     .clk        ( clk_sys       ),
     .status     ( status        ),
     .vertical   ( vertical      ),
     .dipflip_xor( dipflip_xor   ),
-    .game_pause ( game_pause    ),
+    .game_pause ( effective_pause ),
     .hdmi_arx   ( hdmi_arx      ),
     .hdmi_ary   ( hdmi_ary      ),
     .rotate     ( rotate        ),

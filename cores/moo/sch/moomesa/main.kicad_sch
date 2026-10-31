@@ -29015,7 +29015,7 @@
 		)
 		(uuid "10fd8358-8567-449c-8676-796b7f7256ad")
 	)
-	(label "MAIN_D15"
+	(label "MAIN_D7"
 		(at 190.5 138.43 180)
 		(effects
 			(font
@@ -29765,7 +29765,7 @@
 		)
 		(uuid "3ed258a6-afde-4e3e-9d5c-01349de47f72")
 	)
-	(label "MAIN_D9"
+	(label "MAIN_D1"
 		(at 190.5 123.19 180)
 		(effects
 			(font
@@ -29855,7 +29855,7 @@
 		)
 		(uuid "41802065-6f2e-49a3-88a7-319bf2619b86")
 	)
-	(label "MAIN_D10"
+	(label "MAIN_D2"
 		(at 190.5 125.73 180)
 		(effects
 			(font
@@ -29875,7 +29875,7 @@
 		)
 		(uuid "436f8b07-b9ba-4a60-88ed-b076698bfcc3")
 	)
-	(label "MAIN_D4"
+	(label "MAIN_D12"
 		(at 190.5 52.07 180)
 		(effects
 			(font
@@ -30165,7 +30165,7 @@
 		)
 		(uuid "56a73db1-30a9-4802-8596-625e9a676ee6")
 	)
-	(label "MAIN_D2"
+	(label "MAIN_D10"
 		(at 190.5 46.99 180)
 		(effects
 			(font
@@ -30245,7 +30245,7 @@
 		)
 		(uuid "58d062e7-5f0b-4ff7-92e6-093d74e8cd83")
 	)
-	(label "MAIN_D14"
+	(label "MAIN_D6"
 		(at 190.5 135.89 180)
 		(effects
 			(font
@@ -30545,7 +30545,7 @@
 		)
 		(uuid "743bda27-e18a-4083-a5aa-11877b30dc67")
 	)
-	(label "MAIN_D5"
+	(label "MAIN_D13"
 		(at 190.5 54.61 180)
 		(effects
 			(font
@@ -30565,7 +30565,7 @@
 		)
 		(uuid "76af8035-2c8e-46fa-897e-ead646d319ba")
 	)
-	(label "MAIN_D0"
+	(label "MAIN_D8"
 		(at 190.5 41.91 180)
 		(effects
 			(font
@@ -30845,7 +30845,7 @@
 		)
 		(uuid "88ba84f6-c6d1-4d29-8a39-be62f5098206")
 	)
-	(label "MAIN_D12"
+	(label "MAIN_D4"
 		(at 190.5 130.81 180)
 		(effects
 			(font
@@ -31215,7 +31215,7 @@
 		)
 		(uuid "a446abe0-b5ef-49a2-a4ec-57a8fa3b21b0")
 	)
-	(label "MAIN_D11"
+	(label "MAIN_D3"
 		(at 190.5 128.27 180)
 		(effects
 			(font
@@ -31435,7 +31435,7 @@
 		)
 		(uuid "b2540228-e316-4197-8965-582a8bce2602")
 	)
-	(label "MAIN_D1"
+	(label "MAIN_D9"
 		(at 190.5 44.45 180)
 		(effects
 			(font
@@ -31745,7 +31745,7 @@
 		)
 		(uuid "c7ff82d3-7486-44d6-a167-3e2cca69262d")
 	)
-	(label "MAIN_D6"
+	(label "MAIN_D14"
 		(at 190.5 57.15 180)
 		(effects
 			(font
@@ -31785,7 +31785,7 @@
 		)
 		(uuid "caba0e7f-c095-4326-aaaf-edceb369417e")
 	)
-	(label "MAIN_D7"
+	(label "MAIN_D15"
 		(at 190.5 59.69 180)
 		(effects
 			(font
@@ -31935,7 +31935,7 @@
 		)
 		(uuid "d5658011-5c03-44d7-87e7-88aca6bc2140")
 	)
-	(label "MAIN_D3"
+	(label "MAIN_D11"
 		(at 190.5 49.53 180)
 		(effects
 			(font
@@ -32125,7 +32125,7 @@
 		)
 		(uuid "e35eb2e6-1a63-423d-85ee-f4cc33e4a699")
 	)
-	(label "MAIN_D13"
+	(label "MAIN_D5"
 		(at 190.5 133.35 180)
 		(effects
 			(font
@@ -32335,7 +32335,7 @@
 		)
 		(uuid "ef3b26a5-6515-48c9-9128-a2b0c33cb50e")
 	)
-	(label "MAIN_D8"
+	(label "MAIN_D0"
 		(at 190.5 120.65 180)
 		(effects
 			(font
@@ -35538,7 +35538,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "76d46772-c173-4c5b-88a3-6e714f51065c")
-		(property "Reference" "K2"
+		(property "Reference" "K8"
 			(at 299.212 219.202 0)
 			(effects
 				(font
@@ -35626,7 +35626,7 @@
 		(instances
 			(project "moomesa"
 				(path "/45e9fe2d-9112-4e6d-bd21-a45253e31d3f/ca074bfa-b681-46d6-bd0f-c893aacc5720"
-					(reference "K2")
+					(reference "K8")
 					(unit 6)
 				)
 			)
