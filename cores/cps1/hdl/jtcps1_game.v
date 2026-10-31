@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 28-1-2020 */
 
@@ -109,6 +110,9 @@ jtcps1_main u_main(
     .joystick2   ( joystick2        ),
     .dial_x      ( dial_x           ),
     .dial_y      ( dial_y           ),
+    .joyana_r1   ( joyana_r1        ),
+    .joyana_r2   ( joyana_r2        ),
+    .aim_enable  ( dipsw[25]        ),
     .service     ( service          ),
     .tilt        ( 1'b1             ),
     // BUS sharing
