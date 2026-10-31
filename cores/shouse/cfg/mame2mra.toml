@@ -121,7 +121,7 @@ extra=[
     # Drives the same register the service menu's flip setting ends up in
     # (sprite control 0x0FF6 bit 0). Not present in the original: it exists so
     # tate mode can be flipped without reaching the service menu.
-    { name="*Flip screen", options="Off,On", bits="9" }
+    { machine="blastoff", name="*Flip screen", options="Off,On", bits="9" }
 ]
 
 defaults=[
