@@ -12,7 +12,6 @@ Macro                    | Target  |  Usage
 JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
 JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
-JTFRAME_AVATARS          |         | Enables avatars on credits screen
 JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 by default)
 JTFRAME_BUILD_FIRMWARE  |         | Run `make` in the core firmware folder before jtsim and jtcore consume HDL hex files
 JTFRAME_CART_OFFSET      |         | Value added to IOCTL address for the cartridge ROM (consoles)
@@ -238,10 +237,7 @@ Macro                    | Target  |  Usage
 -------------------------|---------|---------------------------------------------
 JTFRAME_CREDITS          |         | Adds credits screen. Automatic for releases if cfg/msg exists
 JTFRAME_CREDITS_AON      |         | credits screen is always on
-JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vertical game
-JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
-JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
-JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
+JTFRAME_CREDITS_PAGES    |         | Generated from the number of rows in cfg/msg
 
 ### JTFRAME_REMOTE
 

@@ -89,6 +89,7 @@ func MakeMacros(core, target string, extra ...string) {
 	add_credits_for_releases(core) // credits must come before parse_def
 	core_def := ConfigFilePath(core, "macros.def")
 	parse_def(core_def, target)
+	make_credits_pages(core)
 	make_mr_lf_bram_macro(target)
 	remove_lf_buffer_rotation_conflict()
 	mem_managed := is_mem_managed(core)
@@ -349,6 +350,25 @@ func fill_defaults(core, target string) {
 			Set(key, val)
 		}
 	}
+}
+
+// Derives the number of 1 KiB credits pages from the 32-character rows in cfg/msg.
+// Blank rows count because the message compiler emits a full row for each input line.
+func make_credits_pages(core string) {
+	msgpath := ConfigFilePath(core, "msg")
+	data, err := os.ReadFile(msgpath)
+	if err != nil {
+		return
+	}
+	rows := strings.Count(string(data), "\n")
+	if len(data) > 0 && data[len(data)-1] != '\n' {
+		rows++
+	}
+	pages := (rows + 31) / 32
+	if pages < 1 {
+		pages = 1
+	}
+	Set("JTFRAME_CREDITS_PAGES", strconv.Itoa(pages))
 }
 
 func add_credits_for_releases(core string) {

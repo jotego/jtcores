@@ -3,6 +3,7 @@ package macros
 import (
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -71,6 +72,49 @@ func Test_uses_sdram_cache(t *testing.T) {
 	}
 	if !uses_sdram_cache("cachecore") {
 		t.Fatal("Expected cache-lane usage to be detected")
+	}
+}
+
+func Test_make_credits_pages_boundaries(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("JTROOT", root)
+	msgpath := filepath.Join(root, "cores", "msgcore", "cfg", "msg")
+	if err := os.MkdirAll(filepath.Dir(msgpath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct{ rows, pages int }{
+		{0, 1}, {1, 1}, {32, 1}, {33, 2}, {96, 3}, {129, 5}, {512, 16}, {513, 17},
+	} {
+		contents := [][]byte{[]byte(strings.Repeat("\n", tc.rows))}
+		if tc.rows > 0 {
+			contents = append(contents, []byte(strings.Repeat("\n", tc.rows-1)+"row"))
+		}
+		for _, content := range contents {
+			if err := os.WriteFile(msgpath, content, 0o644); err != nil {
+				t.Fatal(err)
+			}
+			make_credits_pages("msgcore")
+			if got := Get("JTFRAME_CREDITS_PAGES"); got != strconv.Itoa(tc.pages) {
+				t.Fatalf("Expected %d pages for %d rows, got %s", tc.pages, tc.rows, got)
+			}
+			err := check_credits_pages()
+			if tc.pages > 16 && err == nil {
+				t.Fatalf("Expected %d pages to be rejected", tc.pages)
+			}
+			if tc.pages <= 16 && err != nil {
+				t.Fatalf("Unexpected error for %d pages: %v", tc.pages, err)
+			}
+		}
+	}
+}
+
+func Test_make_credits_pages_keeps_default_without_msg(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("JTROOT", root)
+	Set("JTFRAME_CREDITS_PAGES", "3")
+	make_credits_pages("missing")
+	if got := Get("JTFRAME_CREDITS_PAGES"); got != "3" {
+		t.Fatalf("Expected the 3-page fallback without cfg/msg, got %s", got)
 	}
 }
 
