@@ -1,0 +1,10 @@
+/status.md
+!/ver/.gitkeep
+/ver/*/scratch/
+/ver/*/scenes/
+/ver/*/logs/
+/ver/*/bin/
+/ver/*/build/
+/ver/*/roms/
+/ver/*/reports/
+/ver/*/capture_logs/

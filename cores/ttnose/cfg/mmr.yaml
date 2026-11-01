@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 01-11-2026
+
+- name: k051316
+  no_core_name: true
+  size: 16
+  regs:
+    - name: xcnt0
+      dw: 16
+      at: "0,1"
+    - name: xhstep
+      at: "2,3"
+      dw: 16
+    - name: xvstep
+      at: "4,5"
+      dw: 16
+    - name: ycnt0
+      dw: 16
+      at: "6,7"
+    - name: yhstep
+      at: "8,9"
+      dw: 16
+    - name: yvstep
+      at: "10,11"
+      dw: 16
+    # ROM address bits 23:11: register 13 is above register 12.
+    - name: ckbank
+      at: "13[4:0],12"
+      dw: 13
+    - name: rmrd_n
+      dw: 1
+      at: "14[0]"
+    - name: hflip_en
+      dw: 1
+      at: "14[1]"
+    - name: vflip_en
+      dw: 1
+      at: "14[2]"
+
+- name: video
+  size: 4
+  regs:
+    - { name: txbank, dw: 2, at: "0[2],0[0]" }
+    - { name: txpal, dw: 1, at: "0[5]" }
+    - { name: video_en, dw: 1, at: "0[4]" }
+    - { name: flip, dw: 1, at: "0[7]" }
+- name: gga
+  size: 16
+  read_only: true
+  regs:
+    - { name: hblank, dw: 8, at: "0" }
+    - { name: hsync_start, dw: 8, at: "1" }
+    - { name: hsync_end, dw: 8, at: "2" }
+    - { name: htotal, dw: 8, at: "3" }
+    - { name: reg4, dw: 8, at: "4" }
+    - { name: reg5, dw: 8, at: "5" }
+    - { name: reg6, dw: 8, at: "6" }
+    - { name: reg7, dw: 8, at: "7" }
+    - { name: vblank, dw: 8, at: "8" }
+    - { name: vsync_start, dw: 8, at: "9" }
+    - { name: vsync_end, dw: 8, at: "10" }
+    - { name: vtotal, dw: 8, at: "11" }
+    - { name: reg12, dw: 8, at: "12" }
+    - { name: reg13, dw: 8, at: "13" }
+    - { name: reg14, dw: 8, at: "14" }
+    - { name: reg15, dw: 8, at: "15" }

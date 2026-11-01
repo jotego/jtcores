@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 01-11-2026
+
+[global]
+author=["Andrea Bogazzi"]
+[parse]
+sourcefile=["tail2nos.cpp"]
+mustbe.machines=["tail2nos"]
+skip.setnames=["tail2nosa","sformula","sformulaa"]
+debug.machines=["tail2nos"]
+[buttons]
+names=[{machine="tail2nos",names="Accelerate,Brake"}]
+[dipsw]
+bitcnt=16
+offset=[{name="DSW",value=0}]
+[ROM]
+regions=[
+    {name="maincpu",width=16,reverse=true},
+    {name="user1",start="USER1_START",width=16,reverse=false},
+    {name="user2",start="USER2_START",width=16,reverse=true},
+    {name="chars",start="JTFRAME_BA1_START",width=32,len=0x100000},
+    {name="sprites",start="JTFRAME_BA2_START",width=32},
+    {name="audiocpu",start="JTFRAME_BA3_START",len=0x20000},
+    {name="ymsnd",start="PCM_START"},
+]
+order=["maincpu","user1","user2","chars","sprites","audiocpu","ymsnd"]

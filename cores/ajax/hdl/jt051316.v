@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 29-6-2025 */
 
@@ -31,6 +32,7 @@ parameter [8:0] WR_STRT=9'h060, // Positions in wr_addr skipped during blanking
                 RST_CT =9'h058, // starting value for wr_addr
                 RD_DLY =9'h00B, // number of times to delay hdump
                 RD_END =9'h19F; // Value of rd_addr when LHBL goes low
+parameter YOFFSET=0;
 parameter BPP=7, ROLLERG=0; // Ajax uses 7 bpp; GX861 and GX999 use packed 4 bpp.
 
 wire [23:0] xcnt, ycnt, gfx_addr;
@@ -105,7 +107,10 @@ jtframe_sh #(.W(9),.L(RD_DLY)) u_hb_dly(
     .drop       ( rd_addr   )
 );
 
-jtk051316_cnt #(.LINE_OFFSET(ROLLERG)) u_xcnt(
+jtk051316_cnt #(
+    .LINE_OFFSET ( ROLLERG ),
+    .YOFFSET     ( YOFFSET )
+) u_xcnt(
     .rst        ( rst_cnt   ),
     .clk        ( clk       ),
     .pxl_cen    ( cnt_cen   ),
@@ -116,7 +121,10 @@ jtk051316_cnt #(.LINE_OFFSET(ROLLERG)) u_xcnt(
     .cnt        ( xcnt      )
 );
 
-jtk051316_cnt #(.LINE_OFFSET(ROLLERG)) u_ycnt(
+jtk051316_cnt #(
+    .LINE_OFFSET ( ROLLERG ),
+    .YOFFSET     ( YOFFSET )
+) u_ycnt(
     .rst        ( rst_cnt   ),
     .clk        ( clk       ),
     .pxl_cen    ( cnt_cen   ),
@@ -206,7 +214,7 @@ jtframe_linebuf u_linebuf(
 endmodule
 
 module jtk051316_cnt #(
-    parameter LINE_OFFSET=0
+    parameter LINE_OFFSET=0, YOFFSET=0
 )(
     input             clk, rst,
     input             hs_cen, pxl_cen,
@@ -215,8 +223,8 @@ module jtk051316_cnt #(
 );
 
 reg [23:0] vcnt;
-wire [23:0] cnt_init = {cnt0,8'd0} -
-                       (LINE_OFFSET ? {{8{vstep[15]}},vstep} : 24'd0);
+wire signed [31:0] v_adjust = $signed(vstep) * (YOFFSET+(LINE_OFFSET ? 1 : 0));
+wire [23:0] cnt_init = {cnt0,8'd0} - v_adjust[23:0];
 
 always @(posedge clk) begin
     if( rst ) begin

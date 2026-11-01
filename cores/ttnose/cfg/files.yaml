@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 01-11-2026
+
+ttnose:
+  - get: [ "*.v" ]
+ajax:
+  - get: [ jt051316.v ]
+pspike:
+  - get: [ jtpspike_gga.v ]
+jtframe:
+  - get: [ jtframe_counter.v, jtframe_sh.v ]
+  - from: video
+    get: [ jtframe_vtimer.v, jtframe_obj.yaml, jtframe_scroll.yaml, jtframe_linebuf.v ]
+  - from: ram
+    get: [ jtframe_ram.v, jtframe_dual_ram.v, jtframe_obj_buffer.v, jtframe_dual_nvram.v, jtframe_rpwp_ram.v ]
+  - from: sdram
+    get: [ jtframe_okdly.v ]
+  - from: cpu
+    get: [ jtframe_m68k.yaml, jtframe_z80.yaml ]
+jt12:

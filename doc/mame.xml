@@ -200231,6 +200231,367 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="sformula" sourcefile="vsystem/tail2nos.cpp" cloneof="tail2nos" romof="tail2nos">
+		<description>Super Formula (Japan, set 1)</description>
+		<year>1989</year>
+		<manufacturer>V-System Co.</manufacturer>
+		<rom name="4.ic129" size="65536" crc="672bf690" sha1="b322234b47f20a36430bc03be0b52d9b7f82967b" region="maincpu" offset="0"/>
+		<rom name="7.ic130" size="65536" crc="73f0c91c" sha1="faf14eb1a210c7330b47b78ca6c6563ea6482b3b" region="maincpu" offset="1"/>
+		<rom name="v3.ic141" merge="v3.ic141" size="65536" crc="e2e0abad" sha1="1a1054bada9654484fe81fe4b4b32af5ab7b53f0" region="maincpu" offset="20000"/>
+		<rom name="v6.ic142" merge="v6.ic142" size="65536" crc="069817a7" sha1="cca382fe2a49c8c3c84b879a1c30dffff84ef406" region="maincpu" offset="20001"/>
+		<rom name="a23.ic96" merge="a23.ic96" size="524288" crc="d851cf04" sha1="ac5b366b686c5a037b127d223dc6fe90985eb160" region="user1" offset="0"/>
+		<rom name="v5.ic119" merge="v5.ic119" size="65536" crc="a9fe15a1" sha1="d90bf40c610ea7daaa338f83f82cdffbae7da08e" region="user2" offset="0"/>
+		<rom name="v8.ic120" merge="v8.ic120" size="65536" crc="4fb6a43e" sha1="5cddda0029b3b141c88b0c128655d35bb12fa34d" region="user2" offset="1"/>
+		<rom name="v2.ic125" merge="v2.ic125" size="32768" crc="920d8920" sha1="b8d30903248fee6f985af7fafbe534cfc8c6e829" region="audiocpu" offset="0"/>
+		<rom name="v1.ic137" merge="v1.ic137" size="65536" crc="bf35c1a4" sha1="a838740e023dc3344dc528324a8dbc48bb98b574" region="audiocpu" offset="10000"/>
+		<rom name="a24.ic34" merge="a24.ic34" size="524288" crc="b1e9de43" sha1="0144252dd9ed561fbebd4994cccf11f6c87e1825" region="chars" offset="0"/>
+		<rom name="o1s.ic18" merge="o1s.ic18" size="262144" crc="e27a8eb4" sha1="4fcadabf42a1c3deeb6d74d75cdbee802cf16db5" region="chars" offset="80000"/>
+		<rom name="oj1.ic93" merge="oj1.ic93" size="262144" crc="39c36b35" sha1="a97480696bf6d81bf415737e03cc5324d439ab84" region="sprites" offset="0"/>
+		<rom name="oj2.ic79" merge="oj2.ic79" size="262144" crc="77ccaea2" sha1="e38175859c75c6d0f2f01752fad6e167608c4662" region="sprites" offset="40000"/>
+		<rom name="osb.ic127" merge="osb.ic127" size="131072" crc="d49ab2f5" sha1="92f7f6c8f35ac39910879dd88d2cfb6db7c848c9" region="ymsnd" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="acia6850"/>
+		<device_ref name="rs232"/>
+		<device_ref name="rs232"/>
+		<device_ref name="clock"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="k051316"/>
+		<device_ref name="vsystem_gga"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2608"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2608 OPNA" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="90" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="joy" buttons="2" ways="2"/>
+			<control type="stick" minimum="0" maximum="255" sensitivity="10" keydelta="5"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="5 Coins/1 Credit" value="9"/>
+			<dipvalue name="4 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="2 Coins/1 Credit" value="6"/>
+			<dipvalue name="6 Coins/4 Credits" value="11"/>
+			<dipvalue name="4 Coins/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="13"/>
+			<dipvalue name="4 Coins/5 Credits" value="14"/>
+			<dipvalue name="2 Coins/3 Credits" value="10"/>
+			<dipvalue name="2 Coins/3 Credits" value="15"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="144"/>
+			<dipvalue name="4 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="6 Coins/4 Credits" value="176"/>
+			<dipvalue name="4 Coins/3 Credits" value="192"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="208"/>
+			<dipvalue name="4 Coins/5 Credits" value="224"/>
+			<dipvalue name="2 Coins/3 Credits" value="160"/>
+			<dipvalue name="2 Coins/3 Credits" value="240"/>
+			<dipvalue name="1 Coin/2 Credits" value="16"/>
+			<dipvalue name="1 Coin/3 Credits" value="32"/>
+			<dipvalue name="1 Coin/4 Credits" value="48"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="768">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="256"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="512"/>
+			<dipvalue name="Hardest" value="768"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="1024">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="1024"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW" mask="2048">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Game Mode" tag="DSW" mask="4096">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Single" value="4096" default="yes"/>
+			<dipvalue name="Multiple" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="8192">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Control Panel" tag="DSW" mask="16384">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Standard" value="16384" default="yes"/>
+			<dipvalue name="Original" value="0"/>
+		</dipswitch>
+		<dipswitch name="Country" tag="DSW" mask="32768">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Domestic" value="0" default="yes"/>
+			<dipvalue name="Overseas" value="32768"/>
+		</dipswitch>
+		<port tag=":AN0">
+			<analog mask="255"/>
+		</port>
+		<port tag=":AN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+		<slot name="com_out">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+		<slot name="com_in">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+	</machine>
+	<machine name="sformulaa" sourcefile="vsystem/tail2nos.cpp" cloneof="tail2nos" romof="tail2nos">
+		<description>Super Formula (Japan, set 2)</description>
+		<year>1989</year>
+		<manufacturer>V-System Co.</manufacturer>
+		<rom name="04.ic29" size="65536" crc="f40e9c3c" sha1="2ab45f46f92bce42748692cafe601c5893de127b" region="maincpu" offset="0"/>
+		<rom name="07.ic30" size="65536" crc="d1cf6dca" sha1="18228cc98722eb5907850e2d0317d1f4bf04fb8f" region="maincpu" offset="1"/>
+		<rom name="v3.ic141" merge="v3.ic141" size="65536" crc="e2e0abad" sha1="1a1054bada9654484fe81fe4b4b32af5ab7b53f0" region="maincpu" offset="20000"/>
+		<rom name="v6.ic142" merge="v6.ic142" size="65536" crc="069817a7" sha1="cca382fe2a49c8c3c84b879a1c30dffff84ef406" region="maincpu" offset="20001"/>
+		<rom name="a23.ic96" merge="a23.ic96" size="524288" crc="d851cf04" sha1="ac5b366b686c5a037b127d223dc6fe90985eb160" region="user1" offset="0"/>
+		<rom name="v5.ic119" merge="v5.ic119" size="65536" crc="a9fe15a1" sha1="d90bf40c610ea7daaa338f83f82cdffbae7da08e" region="user2" offset="0"/>
+		<rom name="v8.ic120" merge="v8.ic120" size="65536" crc="4fb6a43e" sha1="5cddda0029b3b141c88b0c128655d35bb12fa34d" region="user2" offset="1"/>
+		<rom name="v2.ic125" merge="v2.ic125" size="32768" crc="920d8920" sha1="b8d30903248fee6f985af7fafbe534cfc8c6e829" region="audiocpu" offset="0"/>
+		<rom name="v1.ic137" merge="v1.ic137" size="65536" crc="bf35c1a4" sha1="a838740e023dc3344dc528324a8dbc48bb98b574" region="audiocpu" offset="10000"/>
+		<rom name="a24.ic34" merge="a24.ic34" size="524288" crc="b1e9de43" sha1="0144252dd9ed561fbebd4994cccf11f6c87e1825" region="chars" offset="0"/>
+		<rom name="o1s.ic18" merge="o1s.ic18" size="262144" crc="e27a8eb4" sha1="4fcadabf42a1c3deeb6d74d75cdbee802cf16db5" region="chars" offset="80000"/>
+		<rom name="9.ic3" size="32768" crc="c76edc0a" sha1="2c6c21f8d1f3bcb0f65ba5a779fe479783271e0b" region="chars" offset="c0000"/>
+		<rom name="oj1.ic93" merge="oj1.ic93" size="262144" crc="39c36b35" sha1="a97480696bf6d81bf415737e03cc5324d439ab84" region="sprites" offset="0"/>
+		<rom name="oj2.ic79" merge="oj2.ic79" size="262144" crc="77ccaea2" sha1="e38175859c75c6d0f2f01752fad6e167608c4662" region="sprites" offset="40000"/>
+		<rom name="osb.ic127" merge="osb.ic127" size="131072" crc="d49ab2f5" sha1="92f7f6c8f35ac39910879dd88d2cfb6db7c848c9" region="ymsnd" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="acia6850"/>
+		<device_ref name="rs232"/>
+		<device_ref name="rs232"/>
+		<device_ref name="clock"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="k051316"/>
+		<device_ref name="vsystem_gga"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2608"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2608 OPNA" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="90" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="joy" buttons="2" ways="2"/>
+			<control type="stick" minimum="0" maximum="255" sensitivity="10" keydelta="5"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="5 Coins/1 Credit" value="9"/>
+			<dipvalue name="4 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="2 Coins/1 Credit" value="6"/>
+			<dipvalue name="6 Coins/4 Credits" value="11"/>
+			<dipvalue name="4 Coins/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="13"/>
+			<dipvalue name="4 Coins/5 Credits" value="14"/>
+			<dipvalue name="2 Coins/3 Credits" value="10"/>
+			<dipvalue name="2 Coins/3 Credits" value="15"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="144"/>
+			<dipvalue name="4 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="6 Coins/4 Credits" value="176"/>
+			<dipvalue name="4 Coins/3 Credits" value="192"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="208"/>
+			<dipvalue name="4 Coins/5 Credits" value="224"/>
+			<dipvalue name="2 Coins/3 Credits" value="160"/>
+			<dipvalue name="2 Coins/3 Credits" value="240"/>
+			<dipvalue name="1 Coin/2 Credits" value="16"/>
+			<dipvalue name="1 Coin/3 Credits" value="32"/>
+			<dipvalue name="1 Coin/4 Credits" value="48"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="768">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="256"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="512"/>
+			<dipvalue name="Hardest" value="768"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="1024">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="1024"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW" mask="2048">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Game Mode" tag="DSW" mask="4096">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Single" value="4096" default="yes"/>
+			<dipvalue name="Multiple" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="8192">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Control Panel" tag="DSW" mask="16384">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Standard" value="16384" default="yes"/>
+			<dipvalue name="Original" value="0"/>
+		</dipswitch>
+		<dipswitch name="Country" tag="DSW" mask="32768">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Domestic" value="0" default="yes"/>
+			<dipvalue name="Overseas" value="32768"/>
+		</dipswitch>
+		<port tag=":AN0">
+			<analog mask="255"/>
+		</port>
+		<port tag=":AN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+		<slot name="com_out">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+		<slot name="com_in">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+	</machine>
 	<machine name="sfp" sourcefile="capcom/sf.cpp" cloneof="sf" romof="sf">
 		<description>Street Fighter (prototype)</description>
 		<year>1987</year>
@@ -234504,6 +234865,366 @@
 		<port tag=":IN1">
 		</port>
 		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="tail2nos" sourcefile="vsystem/tail2nos.cpp">
+		<description>Tail to Nose - Great Championship / Super Formula</description>
+		<year>1989</year>
+		<manufacturer>V-System Co.</manufacturer>
+		<rom name="s2-h.ic129" size="65536" crc="567a55a4" sha1="5cb5cce7199faf13423d7ff749774c428b56d2ec" region="maincpu" offset="0"/>
+		<rom name="s2-l.ic130" size="65536" crc="c630f875" sha1="1cebe3758212e1f6178fe07dea2b626c9efb86da" region="maincpu" offset="1"/>
+		<rom name="v3.ic141" size="65536" crc="e2e0abad" sha1="1a1054bada9654484fe81fe4b4b32af5ab7b53f0" region="maincpu" offset="20000"/>
+		<rom name="v6.ic142" size="65536" crc="069817a7" sha1="cca382fe2a49c8c3c84b879a1c30dffff84ef406" region="maincpu" offset="20001"/>
+		<rom name="a23.ic96" size="524288" crc="d851cf04" sha1="ac5b366b686c5a037b127d223dc6fe90985eb160" region="user1" offset="0"/>
+		<rom name="v5.ic119" size="65536" crc="a9fe15a1" sha1="d90bf40c610ea7daaa338f83f82cdffbae7da08e" region="user2" offset="0"/>
+		<rom name="v8.ic120" size="65536" crc="4fb6a43e" sha1="5cddda0029b3b141c88b0c128655d35bb12fa34d" region="user2" offset="1"/>
+		<rom name="v2.ic125" size="32768" crc="920d8920" sha1="b8d30903248fee6f985af7fafbe534cfc8c6e829" region="audiocpu" offset="0"/>
+		<rom name="v1.ic137" size="65536" crc="bf35c1a4" sha1="a838740e023dc3344dc528324a8dbc48bb98b574" region="audiocpu" offset="10000"/>
+		<rom name="a24.ic34" size="524288" crc="b1e9de43" sha1="0144252dd9ed561fbebd4994cccf11f6c87e1825" region="chars" offset="0"/>
+		<rom name="o1s.ic18" size="262144" crc="e27a8eb4" sha1="4fcadabf42a1c3deeb6d74d75cdbee802cf16db5" region="chars" offset="80000"/>
+		<rom name="oj1.ic93" size="262144" crc="39c36b35" sha1="a97480696bf6d81bf415737e03cc5324d439ab84" region="sprites" offset="0"/>
+		<rom name="oj2.ic79" size="262144" crc="77ccaea2" sha1="e38175859c75c6d0f2f01752fad6e167608c4662" region="sprites" offset="40000"/>
+		<rom name="osb.ic127" size="131072" crc="d49ab2f5" sha1="92f7f6c8f35ac39910879dd88d2cfb6db7c848c9" region="ymsnd" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="acia6850"/>
+		<device_ref name="rs232"/>
+		<device_ref name="rs232"/>
+		<device_ref name="clock"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="k051316"/>
+		<device_ref name="vsystem_gga"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2608"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2608 OPNA" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="90" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="joy" buttons="2" ways="2"/>
+			<control type="stick" minimum="0" maximum="255" sensitivity="10" keydelta="5"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="5 Coins/1 Credit" value="9"/>
+			<dipvalue name="4 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="2 Coins/1 Credit" value="6"/>
+			<dipvalue name="6 Coins/4 Credits" value="11"/>
+			<dipvalue name="4 Coins/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="13"/>
+			<dipvalue name="4 Coins/5 Credits" value="14"/>
+			<dipvalue name="2 Coins/3 Credits" value="10"/>
+			<dipvalue name="2 Coins/3 Credits" value="15"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="144"/>
+			<dipvalue name="4 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="6 Coins/4 Credits" value="176"/>
+			<dipvalue name="4 Coins/3 Credits" value="192"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="208"/>
+			<dipvalue name="4 Coins/5 Credits" value="224"/>
+			<dipvalue name="2 Coins/3 Credits" value="160"/>
+			<dipvalue name="2 Coins/3 Credits" value="240"/>
+			<dipvalue name="1 Coin/2 Credits" value="16"/>
+			<dipvalue name="1 Coin/3 Credits" value="32"/>
+			<dipvalue name="1 Coin/4 Credits" value="48"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="768">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="256"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="512"/>
+			<dipvalue name="Hardest" value="768"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="1024">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="1024"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW" mask="2048">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Game Mode" tag="DSW" mask="4096">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Single" value="4096" default="yes"/>
+			<dipvalue name="Multiple" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="8192">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Control Panel" tag="DSW" mask="16384">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Standard" value="16384" default="yes"/>
+			<dipvalue name="Original" value="0"/>
+		</dipswitch>
+		<dipswitch name="Country" tag="DSW" mask="32768">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Domestic" value="0"/>
+			<dipvalue name="Overseas" value="32768" default="yes"/>
+		</dipswitch>
+		<port tag=":AN0">
+			<analog mask="255"/>
+		</port>
+		<port tag=":AN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+		<slot name="com_out">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+		<slot name="com_in">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+	</machine>
+	<machine name="tail2nosa" sourcefile="vsystem/tail2nos.cpp" cloneof="tail2nos" romof="tail2nos">
+		<description>Tail to Nose - Great Championship</description>
+		<year>1989</year>
+		<manufacturer>V-System Co.</manufacturer>
+		<rom name="v4.ic129" size="65536" crc="1d4240c2" sha1="db8992d8e718e20acb7b3f2f0b1f358098863145" region="maincpu" offset="0"/>
+		<rom name="v7.ic130" size="65536" crc="0fb70066" sha1="3d38672402d5ab70599c191cc274746a192b399b" region="maincpu" offset="1"/>
+		<rom name="v3.ic141" merge="v3.ic141" size="65536" crc="e2e0abad" sha1="1a1054bada9654484fe81fe4b4b32af5ab7b53f0" region="maincpu" offset="20000"/>
+		<rom name="v6.ic142" merge="v6.ic142" size="65536" crc="069817a7" sha1="cca382fe2a49c8c3c84b879a1c30dffff84ef406" region="maincpu" offset="20001"/>
+		<rom name="a23.ic96" merge="a23.ic96" size="524288" crc="d851cf04" sha1="ac5b366b686c5a037b127d223dc6fe90985eb160" region="user1" offset="0"/>
+		<rom name="v5.ic119" merge="v5.ic119" size="65536" crc="a9fe15a1" sha1="d90bf40c610ea7daaa338f83f82cdffbae7da08e" region="user2" offset="0"/>
+		<rom name="v8.ic120" merge="v8.ic120" size="65536" crc="4fb6a43e" sha1="5cddda0029b3b141c88b0c128655d35bb12fa34d" region="user2" offset="1"/>
+		<rom name="v2.ic125" merge="v2.ic125" size="32768" crc="920d8920" sha1="b8d30903248fee6f985af7fafbe534cfc8c6e829" region="audiocpu" offset="0"/>
+		<rom name="v1.ic137" merge="v1.ic137" size="65536" crc="bf35c1a4" sha1="a838740e023dc3344dc528324a8dbc48bb98b574" region="audiocpu" offset="10000"/>
+		<rom name="a24.ic34" merge="a24.ic34" size="524288" crc="b1e9de43" sha1="0144252dd9ed561fbebd4994cccf11f6c87e1825" region="chars" offset="0"/>
+		<rom name="o1s.ic18" merge="o1s.ic18" size="262144" crc="e27a8eb4" sha1="4fcadabf42a1c3deeb6d74d75cdbee802cf16db5" region="chars" offset="80000"/>
+		<rom name="oj1.ic93" merge="oj1.ic93" size="262144" crc="39c36b35" sha1="a97480696bf6d81bf415737e03cc5324d439ab84" region="sprites" offset="0"/>
+		<rom name="oj2.ic79" merge="oj2.ic79" size="262144" crc="77ccaea2" sha1="e38175859c75c6d0f2f01752fad6e167608c4662" region="sprites" offset="40000"/>
+		<rom name="osb.ic127" merge="osb.ic127" size="131072" crc="d49ab2f5" sha1="92f7f6c8f35ac39910879dd88d2cfb6db7c848c9" region="ymsnd" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="acia6850"/>
+		<device_ref name="rs232"/>
+		<device_ref name="rs232"/>
+		<device_ref name="clock"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="k051316"/>
+		<device_ref name="vsystem_gga"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2608"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2608 OPNA" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="90" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="joy" buttons="2" ways="2"/>
+			<control type="stick" minimum="0" maximum="255" sensitivity="10" keydelta="5"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="5 Coins/1 Credit" value="9"/>
+			<dipvalue name="4 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/1 Credit" value="7"/>
+			<dipvalue name="2 Coins/1 Credit" value="6"/>
+			<dipvalue name="6 Coins/4 Credits" value="11"/>
+			<dipvalue name="4 Coins/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="13"/>
+			<dipvalue name="4 Coins/5 Credits" value="14"/>
+			<dipvalue name="2 Coins/3 Credits" value="10"/>
+			<dipvalue name="2 Coins/3 Credits" value="15"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="5 Coins/1 Credit" value="144"/>
+			<dipvalue name="4 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="6 Coins/4 Credits" value="176"/>
+			<dipvalue name="4 Coins/3 Credits" value="192"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="5 Coins/6 Credits" value="208"/>
+			<dipvalue name="4 Coins/5 Credits" value="224"/>
+			<dipvalue name="2 Coins/3 Credits" value="160"/>
+			<dipvalue name="2 Coins/3 Credits" value="240"/>
+			<dipvalue name="1 Coin/2 Credits" value="16"/>
+			<dipvalue name="1 Coin/3 Credits" value="32"/>
+			<dipvalue name="1 Coin/4 Credits" value="48"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="768">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="256"/>
+			<dipvalue name="Normal" value="0" default="yes"/>
+			<dipvalue name="Hard" value="512"/>
+			<dipvalue name="Hardest" value="768"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="1024">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="1024"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW" mask="2048">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="2048"/>
+		</dipswitch>
+		<dipswitch name="Game Mode" tag="DSW" mask="4096">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Single" value="4096" default="yes"/>
+			<dipvalue name="Multiple" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="8192">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8192"/>
+		</dipswitch>
+		<dipswitch name="Control Panel" tag="DSW" mask="16384">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Standard" value="16384" default="yes"/>
+			<dipvalue name="Original" value="0"/>
+		</dipswitch>
+		<dipswitch name="Country" tag="DSW" mask="32768">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Domestic" value="0"/>
+			<dipvalue name="Overseas" value="32768" default="yes"/>
+		</dipswitch>
+		<port tag=":AN0">
+			<analog mask="255"/>
+		</port>
+		<port tag=":AN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+		<slot name="com_out">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
+		<slot name="com_in">
+			<slotoption name="terminal" devname="serial_terminal"/>
+			<slotoption name="swtpc8212" devname="swtpc8212_terminal"/>
+			<slotoption name="sunkbd" devname="sunkbd_adaptor"/>
+			<slotoption name="rs_printer" devname="rs_serial_printer"/>
+			<slotoption name="rs232_sync_io" devname="rs232_sync_io"/>
+			<slotoption name="pty" devname="pseudo_terminal"/>
+			<slotoption name="printer" devname="serial_printer"/>
+			<slotoption name="patch" devname="rs232_patch_box"/>
+			<slotoption name="scorpion" devname="scorpion_ic"/>
+			<slotoption name="mockingboard" devname="mockingboardd"/>
+			<slotoption name="loopback" devname="rs232_loopback"/>
+			<slotoption name="nss_tvi" devname="nss_tvinterface"/>
+			<slotoption name="msystems_mouse" devname="rs232_mouse_hle_msystems"/>
+			<slotoption name="keyboard" devname="serial_keyboard"/>
+			<slotoption name="ie15" devname="ie15_terminal"/>
+			<slotoption name="null_modem" devname="null_modem"/>
+			<slotoption name="votraxtnt" devname="serial_votraxtnt"/>
+			<slotoption name="h19" devname="serial_heath_h19"/>
+			<slotoption name="dec_loopback" devname="dec_rs232_loopback"/>
+		</slot>
 	</machine>
 	<machine name="tankfrce" sourcefile="namco/namcos1.cpp">
 		<description>Tank Force (US, 2 Players)</description>
