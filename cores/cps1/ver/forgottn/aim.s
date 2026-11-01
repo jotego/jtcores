@@ -4,14 +4,21 @@
 
     .text
     .globl forgottn_aim
+/* Each player has a separate sticky activation flag in the CPS1 I/O extension.
+ * Unmodified cores return no signature and retain relative dial operation. */
 forgottn_aim:
     movem.l %d0-%d5,-(%sp)
+    tst.b   0x1f(%a0)
+    bne.s   .Lplayer2
     move.w  0x800064,%d0
     cmpi.w  #0x4a55,%d0
     bne.w   .Lrelative
     move.w  0x800060,%d0
-    tst.b   0x1f(%a0)
-    beq.s   .Lsample
+    bra.s   .Lsample
+.Lplayer2:
+    move.w  0x800066,%d0
+    cmpi.w  #0x4a55,%d0
+    bne.w   .Lrelative
     move.w  0x800062,%d0
 .Lsample:
     move.w  %d0,%d1

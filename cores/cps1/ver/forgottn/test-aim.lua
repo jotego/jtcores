@@ -10,6 +10,7 @@ local folder = source:match("^(.*)/") or "."
 local machine = manager.machine
 local cpu = machine.devices[":maincpu"]
 local space = cpu.spaces.program
+local pc = assert(cpu.state.PC, "MAME 0.282 or newer is required")
 local file = assert(io.open(folder .. "/aim.bin", "rb"))
 local code = file:read("a")
 file:close()
@@ -58,15 +59,21 @@ cases[#cases+1] = {name="signed vertical", x=0, y=-128, want=0x200}
 cases[#cases+1] = {name="disabled relative", flag=0x4a54, initial=0x780, delta=64, want=0x7c0}
 cases[#cases+1] = {name="old core fallback", flag=0xffff, initial=32, delta=-64, want=0xffe0}
 
+cases[#cases+1] = {name="P1 dial with P2 stick active", player=0, flag1=0x4a54, flag2=0x4a55, initial=32, delta=64, want=96}
+cases[#cases+1] = {name="P2 dial with P1 stick active", player=1, flag1=0x4a55, flag2=0x4a54, initial=64, delta=-32, want=32}
+cases[#cases+1] = {name="P2 old core fallback", player=1, flag=0xffff, initial=32, delta=64, want=96}
+
 local active, index, frame = nil, 0, 0
-local flag, raw1, raw2 = 0, 0, 0
+local flag1, flag2, raw1, raw2 = 0, 0, 0, 0
 local dial = {0,0}
+local dial_angle2 = 0
 local taps = {}
 _G.forgottn_aim_taps = taps
-taps[1] = space:install_read_tap(0x800060,0x800065,"right-stick",function(address)
+taps[1] = space:install_read_tap(0x800060,0x800067,"right-stick",function(address)
     if address == 0x800060 then return raw1 end
     if address == 0x800062 then return raw2 end
-    if address == 0x800064 then return flag end
+    if address == 0x800064 then return flag1 end
+    if address == 0x800066 then return flag2 end
 end)
 taps[2] = space:install_read_tap(0x800052,0x80005d,"dial-count",function(address,data)
     local player = address >= 0x80005a and 2 or 1
@@ -81,7 +88,8 @@ end)
 
 local function launch(test)
     active = test
-    flag = test.flag or 0x4a55
+    flag1 = test.flag1 or ((test.player or 0) == 0 and (test.flag or 0x4a55) or 0x4a54)
+    flag2 = test.flag2 or ((test.player or 0) ~= 0 and (test.flag or 0x4a55) or 0x4a54)
     local raw = (((test.y or 0)&255)<<8) | ((test.x or 0)&255)
     raw1 = (test.player or 0) == 0 and raw or 0x7f00
     raw2 = (test.player or 0) ~= 0 and raw or 0x7f00
@@ -94,7 +102,7 @@ local function launch(test)
     space:write_u8(0xff701f,test.player or 0)
     space:write_u16(0xff7028,test.initial or 0)
     space:write_u32(0xff7ff0,0x3f0)
-    cpu.state.PC.value = 0x100
+    pc.value = 0x100
 end
 
 local function button(name, value)
@@ -107,8 +115,8 @@ end
 
 local function step()
     if active then
-        if cpu.state.PC.value ~= 0x3f0 and cpu.state.PC.value ~= 0x3f2 then
-            print(string.format("FAIL %s: PC=%x SP=%x SR=%x",active.name,cpu.state.PC.value,cpu.state.SP.value,cpu.state.SR.value))
+        if pc.value ~= 0x3f0 and pc.value ~= 0x3f2 then
+            print(string.format("FAIL %s: PC=%x SP=%x SR=%x",active.name,pc.value,cpu.state.SP.value,cpu.state.SR.value))
             active = nil
             machine:exit()
             return
@@ -128,7 +136,7 @@ local function step()
     elseif frame == 0 then
         space:write_direct_u16(0x3f0,0xffff)
         machine:soft_reset()
-        flag,raw1,raw2 = 0x4a55,0x007f,0x8100
+        flag1,flag2,raw1,raw2 = 0x4a54,0x4a54,0,0
     end
     frame = frame+1
     if frame > 500 and frame < 1800 then
@@ -137,7 +145,19 @@ local function step()
         if frame%120 == 30 then button("2 Players Start",1) end
         if frame%120 == 40 then button("2 Players Start",0) end
     end
-    if frame == 1800 then raw1,raw2 = 0x8100,0x007f end
+    -- Model the independently tested RTL activation latches during gameplay.
+    if frame == 1800 then
+        dial_angle2 = space:read_u16(0xffb3ba)
+        raw1,dial[2] = 0x8100,64
+    end
+    local function moved(raw)
+        local x,y = raw&255,(raw>>8)&255
+        if x >= 128 then x=x-256 end
+        if y >= 128 then y=y-256 end
+        return math.max(math.abs(x),math.abs(y)) >= 24
+    end
+    if moved(raw1) then flag1=0x4a55 end
+    if moved(raw2) then flag2=0x4a55 end
     if frame == 1700 then
         button("P1 Button 1",1)
         button("P2 Button 1",1)
@@ -145,18 +165,18 @@ local function step()
     if frame == 1900 then
         assert(space:read_u8(0xffb342) ~= 0 and space:read_u8(0xffb392) ~= 0,"both players must be active")
         assert(space:read_u16(0xffb36a) == 0x200,"P1 gameplay aim")
-        assert(space:read_u16(0xffb3ba) == 0,"P2 gameplay aim")
-        raw1,raw2 = 0,0
+        assert(space:read_u16(0xffb3ba) == ((dial_angle2+64)&0xffff),"P2 dial while P1 stick active")
+        raw1,raw2 = 0,0x007f
     end
     if frame == 1950 then
         assert(space:read_u16(0xffb36a) == 0x200,"P1 centered stick must hold")
-        assert(space:read_u16(0xffb3ba) == 0,"P2 centered stick must hold")
-        flag,dial[1] = 0x4a54,64
+        assert(space:read_u16(0xffb3ba) == 0,"P2 automatic stick activation")
+        raw2,dial[1] = 0,64
     end
     if frame == 2000 then
-        assert(space:read_u16(0xffb36a) == 0x240,"switching to dial must restore relative rotation")
-        assert(space:read_u16(0xffb3ba) == 0,"P1 dial must not affect P2")
-        print("PASS patched boot, two-player aiming, neutral hold and dial switch")
+        assert(space:read_u16(0xffb36a) == 0x200,"P1 stick mode must stay latched at center")
+        assert(space:read_u16(0xffb3ba) == 0,"P2 stick mode must hold at center")
+        print("PASS patched boot, independent automatic aiming and neutral hold")
         machine:exit()
     end
 end
