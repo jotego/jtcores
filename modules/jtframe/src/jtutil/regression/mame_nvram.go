@@ -134,12 +134,46 @@ func prepare_mame_nvram(ctx context.Context, mame, setname, rompath, workspace, 
 }
 
 func mame_nvram_seed_target(source, core, setname string, machine mra.MachineXML, seed []byte, files []mame_nvram_file) ([]byte, string, error) {
-	if core == "simson" && setname == "simpsons" {
+	if core == "shouse" {
+		large_seed, err := shouse_has_large_source_seed(source, setname, machine)
+		if err != nil {
+			return nil, "", err
+		}
+		if large_seed || len(seed) == 63552 {
+			// The .nvm contains the 2 KiB restored EEROM followed by 61,504 bytes
+			// of debug RAM. Only the EEROM is restored into the FPGA on startup.
+			if machine.Name != setname || len(seed) != 63552 {
+				return nil, "", fmt.Errorf("shouse/%s NVRAM mapping requires MAME machine %s and the full 63,552-byte default", setname, setname)
+			}
+			mapped_bytes, err := shouse_eerom_capacity(source)
+			if err != nil {
+				return nil, "", err
+			}
+			if mapped_bytes != 2048 {
+				return nil, "", fmt.Errorf("shouse/%s NVRAM capacity mismatch: FPGA EEROM %d bytes", setname, mapped_bytes)
+			}
+			expected_path := filepath.ToSlash(filepath.Join(setname, "nvram"))
+			var found *mame_nvram_file
+			for i := range files {
+				if files[i].path == expected_path && len(files[i].data) == 2048 {
+					if found != nil {
+						return nil, "", fmt.Errorf("shouse/%s MAME NVRAM mapping is ambiguous", setname)
+					}
+					found = &files[i]
+				}
+			}
+			if found == nil {
+				return nil, "", fmt.Errorf("shouse/%s MAME NVRAM is not a unique 2,048-byte %s device", setname, expected_path)
+			}
+			return append([]byte(nil), seed[:mapped_bytes]...), found.path, nil
+		}
+	}
+	if core == "simson" && (setname == "simpsons" || setname == "vendetta") {
 		// The initial seed is 144 bytes, but this FPGA map exposes only addresses
-		// 0..127. MAME models the device as a 128-byte ER5911 EEPROM, so this
-		// specific mapping omits the 16 initial-seed bytes unreachable by FPGA.
-		if machine.Name != "simpsons" || len(seed) != 144 {
-			return nil, "", fmt.Errorf("simson/simpsons NVRAM mapping requires the 144-byte simpsons default")
+		// 0..127. MAME models both devices as 128-byte ER5911 EEPROMs, so these
+		// guarded mappings omit the 16 seed bytes unreachable by the FPGA.
+		if machine.Name != setname || len(seed) != 144 {
+			return nil, "", fmt.Errorf("simson/%s NVRAM mapping requires the 144-byte %s default", setname, setname)
 		}
 		mapped_bytes, err := simpsons_fpga_nvram_capacity(source)
 		if err != nil {
@@ -152,19 +186,20 @@ func mame_nvram_seed_target(source, core, setname string, machine mra.MachineXML
 			}
 		}
 		if mame_bytes != 128 || mapped_bytes != mame_bytes {
-			return nil, "", fmt.Errorf("simson/simpsons EEPROM capacity mismatch: FPGA map %d bytes, MAME XML %d bytes", mapped_bytes, mame_bytes)
+			return nil, "", fmt.Errorf("simson/%s EEPROM capacity mismatch: FPGA map %d bytes, MAME XML %d bytes", setname, mapped_bytes, mame_bytes)
 		}
+		expected_path := filepath.ToSlash(filepath.Join(setname, "eeprom"))
 		var found *mame_nvram_file
 		for i := range files {
-			if files[i].path == "simpsons/eeprom" && len(files[i].data) == 128 {
+			if files[i].path == expected_path && len(files[i].data) == 128 {
 				if found != nil {
-					return nil, "", fmt.Errorf("simson/simpsons MAME EEPROM mapping is ambiguous")
+					return nil, "", fmt.Errorf("simson/%s MAME EEPROM mapping is ambiguous", setname)
 				}
 				found = &files[i]
 			}
 		}
 		if found == nil {
-			return nil, "", fmt.Errorf("simson/simpsons MAME EEPROM is not a unique 128-byte device")
+			return nil, "", fmt.Errorf("simson/%s MAME EEPROM is not a unique 128-byte device", setname)
 		}
 		return append([]byte(nil), seed[:mapped_bytes]...), found.path, nil
 	}
@@ -182,6 +217,75 @@ func mame_nvram_seed_target(source, core, setname string, machine mra.MachineXML
 		return nil, "", fmt.Errorf("cannot uniquely map %d-byte NVRAM seed for %s to MAME devices (matching device files: 0)", len(seed), setname)
 	}
 	return append([]byte(nil), seed...), found.path, nil
+}
+
+func shouse_has_large_source_seed(source, setname string, machine mra.MachineXML) (bool, error) {
+	config_dir := filepath.Join(source, "cores", "shouse", "cfg")
+	names := []string{setname}
+	if machine.Cloneof != "" && machine.Cloneof != setname {
+		names = append(names, machine.Cloneof)
+	}
+	for _, name := range names {
+		data, err := os.ReadFile(filepath.Join(config_dir, name+".nvm"))
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return false, fmt.Errorf("read shouse NVRAM seed %s: %w", name, err)
+		}
+		if len(data) == 63552 {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func shouse_eerom_capacity(source string) (int, error) {
+	path := filepath.Join(source, "cores", "shouse", "cfg", "mem.yaml")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return 0, fmt.Errorf("read shouse EEROM address map %s: %w", path, err)
+	}
+	var config struct {
+		BRAM []struct {
+			Name      string `yaml:"name"`
+			AddrWidth int    `yaml:"addr_width"`
+			DataWidth int    `yaml:"data_width"`
+			Ioctl     struct {
+				Save    bool `yaml:"save"`
+				Restore bool `yaml:"restore"`
+				Order   int  `yaml:"order"`
+			} `yaml:"ioctl"`
+		} `yaml:"bram"`
+	}
+	if err = yaml.Unmarshal(data, &config); err != nil {
+		return 0, fmt.Errorf("parse shouse EEROM address map: %w", err)
+	}
+	var eerom *struct {
+		Name      string `yaml:"name"`
+		AddrWidth int    `yaml:"addr_width"`
+		DataWidth int    `yaml:"data_width"`
+		Ioctl     struct {
+			Save    bool `yaml:"save"`
+			Restore bool `yaml:"restore"`
+			Order   int  `yaml:"order"`
+		} `yaml:"ioctl"`
+	}
+	for i := range config.BRAM {
+		bank := &config.BRAM[i]
+		if bank.Name == "eerom" {
+			if eerom != nil {
+				return 0, fmt.Errorf("shouse mem.yaml declares multiple EEROM BRAMs")
+			}
+			eerom = bank
+		} else if bank.Ioctl.Restore {
+			return 0, fmt.Errorf("shouse mem.yaml declares an additional IOCTL restore bank %s", bank.Name)
+		}
+	}
+	if eerom == nil || eerom.AddrWidth != 11 || eerom.DataWidth != 8 || !eerom.Ioctl.Save || !eerom.Ioctl.Restore || eerom.Ioctl.Order != 0 {
+		return 0, fmt.Errorf("shouse EEROM map must remain AW11/DW8 with IOCTL save/restore order 0")
+	}
+	return 1 << eerom.AddrWidth, nil
 }
 
 func simpsons_fpga_nvram_capacity(source string) (int, error) {

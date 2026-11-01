@@ -46,6 +46,57 @@ func SignatureImage(frame int, img image.Image) (FrameSignature, error) {
 	return FrameSignature{Frame: frame, Width: w, Height: h, Pixels: digest}, nil
 }
 
+// SignatureImageAtCapturePrecision hashes MAME pixels after conversion to the
+// RGB444 or RGB555 code captured by jtframe_capture. FPGA images can require
+// exact expansion-grid values; MAME pixels are quantized to the same code.
+func SignatureImageAtCapturePrecision(frame int, img image.Image, bits int, requireExpanded bool) (FrameSignature, error) {
+	bounds := img.Bounds()
+	w, h := bounds.Dx(), bounds.Dy()
+	if w <= 0 || h <= 0 {
+		return FrameSignature{}, fmt.Errorf("invalid image dimensions %dx%d", w, h)
+	}
+	if bits != 4 && bits != 5 {
+		return FrameSignature{}, fmt.Errorf("unsupported capture precision %d bits", bits)
+	}
+	hash := sha256.New()
+	var dimensions [8]byte
+	binary.LittleEndian.PutUint32(dimensions[0:4], uint32(w))
+	binary.LittleEndian.PutUint32(dimensions[4:8], uint32(h))
+	_, _ = hash.Write(dimensions[:])
+	var pixel [3]byte
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, a := img.At(x, y).RGBA()
+			if a != 0xffff {
+				return FrameSignature{}, fmt.Errorf("image contains non-opaque pixels")
+			}
+			channels := [3]uint8{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8)}
+			for i, channel := range channels {
+				code := quantizeCaptureChannel(channel, bits)
+				if requireExpanded && expandCaptureChannel(code, bits) != channel {
+					return FrameSignature{}, fmt.Errorf("published FPGA pixel (%d,%d) channel %d is not on the %d-bit-per-channel expansion grid", x-bounds.Min.X, y-bounds.Min.Y, i, bits)
+				}
+				pixel[i] = code
+			}
+			_, _ = hash.Write(pixel[:])
+		}
+	}
+	var digest [32]byte
+	copy(digest[:], hash.Sum(nil))
+	return FrameSignature{Frame: frame, Width: w, Height: h, Pixels: digest}, nil
+}
+
+func quantizeCaptureChannel(value uint8, bits int) uint8 {
+	return value >> (8 - bits)
+}
+
+func expandCaptureChannel(code uint8, bits int) uint8 {
+	if bits == 4 {
+		return code * 17
+	}
+	return code<<3 | code>>2
+}
+
 // ImagesEqualRGB confirms the full decoded pixels after a signature match.
 func ImagesEqualRGB(left, right image.Image) bool {
 	a, b := left.Bounds(), right.Bounds()
@@ -64,8 +115,30 @@ func ImagesEqualRGB(left, right image.Image) bool {
 	return true
 }
 
-// MatchFramesOrdered maps each FPGA capture to the earliest later MAME frame
-// with identical geometry and decoded pixels. Reusing a MAME frame is rejected.
+// ImagesEqualAtCapturePrecision confirms all pixels after applying the
+// capture's RGB444/RGB555 channel quantization.
+func ImagesEqualAtCapturePrecision(left, right image.Image, bits int) bool {
+	a, b := left.Bounds(), right.Bounds()
+	if a.Dx() != b.Dx() || a.Dy() != b.Dy() || bits != 4 && bits != 5 {
+		return false
+	}
+	for y := 0; y < a.Dy(); y++ {
+		for x := 0; x < a.Dx(); x++ {
+			lr, lg, lb, la := left.At(a.Min.X+x, a.Min.Y+y).RGBA()
+			rr, rg, rb, ra := right.At(b.Min.X+x, b.Min.Y+y).RGBA()
+			if la != 0xffff || ra != 0xffff ||
+				quantizeCaptureChannel(uint8(lr>>8), bits) != quantizeCaptureChannel(uint8(rr>>8), bits) ||
+				quantizeCaptureChannel(uint8(lg>>8), bits) != quantizeCaptureChannel(uint8(rg>>8), bits) ||
+				quantizeCaptureChannel(uint8(lb>>8), bits) != quantizeCaptureChannel(uint8(rb>>8), bits) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// MatchFramesOrdered maps each reference capture to the earliest later MAME
+// frame with an identical geometry and signature. A candidate cannot be reused.
 func MatchFramesOrdered(reference, candidates []FrameSignature) ([]int, error) {
 	by_signature := make(map[frameKey][]int)
 	last_candidate := -1

@@ -21,7 +21,7 @@ var mameFramesCmd = &cobra.Command{
 	Use:   "mame-frames",
 	Short: "Validate new regression captures against ordered MAME frames",
 	Long: `Runs MAME for each completed new regression capture, matching every image
-exactly in strictly increasing MAME frame order. Exact matches are promoted
+at the core's RGB444/RGB555 capture precision in strictly increasing MAME frame order. Exact matches are promoted
 from new to ref after a final progress and digest check. A dry run validates
 and reports without changing result folders or logs.
 

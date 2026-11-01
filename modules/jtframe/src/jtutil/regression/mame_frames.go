@@ -13,8 +13,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
+
+	"jotego/jtframe/macros"
 )
 
 type MameFrameResult struct {
@@ -64,7 +67,12 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 		} else if mame_err != nil {
 			checkErr = fmt.Errorf("MAME executable not found in PATH: %w", mame_err)
 		} else {
-			detail, checkErr = validate_mame_candidate(ctx, candidate, root, source, mame, rompath, dryrun)
+			capture_bits, precision_err := mame_capture_precision(source, candidate.core)
+			if precision_err != nil {
+				checkErr = precision_err
+			} else {
+				detail, checkErr = validate_mame_candidate(ctx, candidate, root, source, mame, rompath, dryrun, capture_bits)
+			}
 		}
 		if err := ctx.Err(); err != nil {
 			return results, err
@@ -302,7 +310,10 @@ func read_mame_progress(root, path string) (*Progress, error) {
 	return ReadProgress(root, key)
 }
 
-func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root, source, mame, rompath string, dryrun bool) (string, error) {
+func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root, source, mame, rompath string, dryrun bool, capture_bits int) (string, error) {
+	if err := validate_published_capture_precision(candidate.frames, capture_bits); err != nil {
+		return "", err
+	}
 	if err := check_mame_progress(root, candidate); err != nil {
 		return "", err
 	}
@@ -370,7 +381,7 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 			return "", fmt.Errorf("MAME frame sequence is missing or duplicated at frame %d", i+1)
 		}
 	}
-	matched, err := match_mame_pngs_context(ctx, candidate.frames, fpga_dir, mame_paths)
+	matched, err := match_mame_pngs_context(ctx, candidate.frames, fpga_dir, mame_paths, capture_bits)
 	if err != nil {
 		return "", err
 	}
@@ -385,7 +396,94 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 			return "", err
 		}
 	}
-	return fmt.Sprintf("%d frames matched at %g Hz; MAME frames %d..%d", len(matched), refresh, matched[0], matched[len(matched)-1]), nil
+	return fmt.Sprintf("%d frames matched at %s capture precision and %g Hz; MAME frames %d..%d", len(matched), capture_precision_name(capture_bits), refresh, matched[0], matched[len(matched)-1]), nil
+}
+
+func capture_precision_name(bits int) string {
+	if bits == 4 {
+		return "RGB444"
+	}
+	if bits == 5 {
+		return "RGB555"
+	}
+	return fmt.Sprintf("RGB%d", bits*3)
+}
+
+func mame_capture_precision(source, core string) (int, error) {
+	configured_frame := os.Getenv("JTFRAME")
+	if configured_frame == "" {
+		return 0, fmt.Errorf("JTFRAME is unset; cannot resolve %s capture precision", core)
+	}
+	configured_root := os.Getenv("JTROOT")
+	if configured_root == "" {
+		return 0, fmt.Errorf("JTROOT is unset; cannot resolve %s capture precision", core)
+	}
+	if !same_mame_source_path(configured_root, source) {
+		return 0, fmt.Errorf("JTROOT %s does not match capture source %s; cannot resolve %s color width safely", configured_root, source, core)
+	}
+	frame_source := filepath.Join(source, "modules", "jtframe")
+	if !same_mame_source_path(configured_frame, frame_source) {
+		return 0, fmt.Errorf("JTFRAME %s does not match capture source %s; cannot resolve %s target macros safely", configured_frame, frame_source, core)
+	}
+	macro_file := filepath.Join(source, "cores", core, "cfg", "macros.def")
+	if info, stat_err := os.Stat(macro_file); stat_err != nil || !info.Mode().IsRegular() {
+		if stat_err != nil {
+			return 0, fmt.Errorf("inspect core color-width macros %s: %w", macro_file, stat_err)
+		}
+		return 0, fmt.Errorf("core color-width macros %s are not a regular file", macro_file)
+	}
+	macros.MakeMacros(core, "sidi128")
+	color_width, err := strconv.Atoi(macros.Get("JTFRAME_COLORW"))
+	if err != nil {
+		return 0, fmt.Errorf("parse %s JTFRAME_COLORW: %w", core, err)
+	}
+	if color_width < 4 || color_width > 8 {
+		return 0, fmt.Errorf("%s JTFRAME_COLORW %d is outside the supported range 4..8", core, color_width)
+	}
+	if color_width < 5 {
+		return 4, nil
+	}
+	return 5, nil
+}
+
+func same_mame_source_path(left, right string) bool {
+	left_abs, err := filepath.Abs(left)
+	if err != nil {
+		return false
+	}
+	right_abs, err := filepath.Abs(right)
+	if err != nil {
+		return false
+	}
+	if path, e := filepath.EvalSymlinks(left_abs); e == nil {
+		left_abs = path
+	}
+	if path, e := filepath.EvalSymlinks(right_abs); e == nil {
+		right_abs = path
+	}
+	return left_abs == right_abs
+}
+
+func validate_published_capture_precision(reference CaptureSet, capture_bits int) error {
+	if capture_bits != 4 && capture_bits != 5 {
+		return fmt.Errorf("invalid FPGA capture precision %d bits per channel", capture_bits)
+	}
+	for _, capture := range reference.Captures {
+		path := filepath.Join(reference.Dir, capture.Image)
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		img, err := png.Decode(file)
+		_ = file.Close()
+		if err != nil {
+			return fmt.Errorf("decode FPGA capture %s: %w", capture.Image, err)
+		}
+		if _, err = SignatureImageAtCapturePrecision(capture.Requested, img, capture_bits, true); err != nil {
+			return fmt.Errorf("FPGA capture %s does not match source-inferred %s capture precision: %w", capture.Image, capture_precision_name(capture_bits), err)
+		}
+	}
+	return nil
 }
 
 func promote_mame_candidate(root string, candidate mame_candidate) error {
@@ -581,11 +679,11 @@ func isolated_mame_env(work string) []string {
 	return append(env, "XDG_CONFIG_HOME="+filepath.Join(work, "xdg"))
 }
 
-func match_mame_pngs(reference CaptureSet, fpga_dir string, mame_paths []string) ([]int, error) {
-	return match_mame_pngs_context(context.Background(), reference, fpga_dir, mame_paths)
+func match_mame_pngs(reference CaptureSet, fpga_dir string, mame_paths []string, capture_bits int) ([]int, error) {
+	return match_mame_pngs_context(context.Background(), reference, fpga_dir, mame_paths, capture_bits)
 }
 
-func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir string, mame_paths []string) ([]int, error) {
+func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir string, mame_paths []string, capture_bits int) ([]int, error) {
 	reference_signatures := make([]FrameSignature, 0, len(reference.Captures))
 	for _, capture := range reference.Captures {
 		if err := ctx.Err(); err != nil {
@@ -600,7 +698,7 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 		if err != nil {
 			return nil, err
 		}
-		signature, err := SignatureImage(capture.Requested, img)
+		signature, err := SignatureImageAtCapturePrecision(capture.Requested, img, capture_bits, true)
 		if err != nil {
 			return nil, err
 		}
@@ -620,7 +718,7 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 		if err != nil {
 			return nil, fmt.Errorf("decode MAME frame %d: %w", i+1, err)
 		}
-		signature, err := SignatureImage(i+1, img)
+		signature, err := SignatureImageAtCapturePrecision(i+1, img, capture_bits, false)
 		if err != nil {
 			return nil, err
 		}
@@ -652,8 +750,8 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 		if err != nil {
 			return nil, err
 		}
-		if !ImagesEqualRGB(fpga_img, mame_img) {
-			return nil, fmt.Errorf("MAME frame %d hash candidate failed full RGB comparison", frame)
+		if !ImagesEqualAtCapturePrecision(fpga_img, mame_img, capture_bits) {
+			return nil, fmt.Errorf("MAME frame %d hash candidate failed full %s capture-code comparison", frame, capture_precision_name(capture_bits))
 		}
 	}
 	return matched, nil

@@ -44,7 +44,7 @@ func TestReadPublishedMameFramesRequiresNumericScheduleAndPNGOnly(t *testing.T) 
 	}
 }
 
-func TestMatchMamePNGsRequiresOrderedFullRGBMatches(t *testing.T) {
+func TestMatchMamePNGsRequiresOrderedExactCaptureCodeMatches(t *testing.T) {
 	root := t.TempDir()
 	fpga, mame := filepath.Join(root, "fpga"), filepath.Join(root, "mame")
 	if err := os.MkdirAll(fpga, 0700); err != nil {
@@ -70,7 +70,7 @@ func TestMatchMamePNGsRequiresOrderedFullRGBMatches(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	got, err := match_mame_pngs(ref, fpga, paths)
+	got, err := match_mame_pngs(ref, fpga, paths, 4)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func TestMatchMamePNGsRequiresOrderedFullRGBMatches(t *testing.T) {
 		t.Fatalf("matches = %v, want [2 4]", got)
 	}
 	ref.Captures[1].Image = "frame_00000500.png"
-	if _, err = match_mame_pngs(ref, fpga, paths); err == nil {
+	if _, err = match_mame_pngs(ref, fpga, paths, 4); err == nil {
 		t.Fatal("same FPGA image incorrectly matched twice")
 	}
 }
@@ -180,14 +180,31 @@ func TestMameFramesLogKeepsOneFixedWidthLinePerGame(t *testing.T) {
 	}
 }
 
+func TestValidatePublishedCapturePrecisionRejectsMixedOrInvalidFormat(t *testing.T) {
+	dir := t.TempDir()
+	write_mame_test_png(t, filepath.Join(dir, "frame_00000100.png"), color.RGBA{R: 17, A: 255})
+	write_mame_test_png(t, filepath.Join(dir, "frame_00000200.png"), color.RGBA{R: 123, A: 255})
+	set, err := read_published_mame_frames(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = validate_published_capture_precision(set, 4); err == nil {
+		t.Fatal("mixed RGB444/RGB555 expansion values were accepted")
+	}
+	if err = validate_published_capture_precision(set, 5); err == nil {
+		t.Fatal("RGB444-expanded pixel was accepted as an RGB555 capture")
+	}
+}
+
 func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 	root := t.TempDir()
+	source := os.Getenv("JTROOT")
 	for _, set := range []string{"first", "second"} {
-		new_dir := filepath.Join(root, "core", set, "new")
+		new_dir := filepath.Join(root, "gng", set, "new")
 		if err := os.MkdirAll(new_dir, 0700); err != nil {
 			t.Fatal(err)
 		}
-		write_mame_test_png(t, filepath.Join(new_dir, "frame_00000100.png"), color.RGBA{R: 10, A: 255})
+		write_mame_test_png(t, filepath.Join(new_dir, "frame_00000100.png"), color.RGBA{R: 17, A: 255})
 	}
 	bin := t.TempDir()
 	ocr_marker := filepath.Join(bin, "ocr-started")
@@ -199,7 +216,7 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	t.Setenv("PATH", bin)
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 	workspaces_before, err := filepath.Glob("/tmp/jtutil-mame-frames-*")
 	if err != nil {
 		t.Fatal(err)
@@ -225,7 +242,7 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 			}
 		}
 	}()
-	results, err := RunMameFrames(ctx, root, t.TempDir(), "", false)
+	results, err := RunMameFrames(ctx, root, source, "", false)
 	if !errors.Is(err, context.Canceled) || len(results) != 0 {
 		t.Fatalf("cancelled sweep returned results=%v err=%v", results, err)
 	}

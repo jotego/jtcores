@@ -403,17 +403,31 @@ an isolated per-game directory under `/tmp`; ROMs come from `~/.mame/roms`.
 Configured JTFRAME NVRAM defaults are loaded into the MAME device path after a
 bounded probe identifies it. Ambiguous or unresolved defaults fail validation.
 The user's saved `~/.mame/nvram` is not read or changed.
-The `simson/simpsons` mapping verifies the full 144-byte JTFRAME seed, then
-loads its first 128 bytes into MAME's 128-byte ER5911 EEPROM. The FPGA's 7-bit
-address bus and IOCTL dump reach addresses 0–127; the trailing 16 bytes are
-unmapped by that hardware.
+The guarded `simson/simpsons` and `simson/vendetta` mappings verify each full
+144-byte JTFRAME seed, then load its first 128 bytes into MAME's 128-byte ER5911
+EEPROM. The FPGA's 7-bit address bus and IOCTL dump reach addresses 0–127; the
+trailing 16 bytes are unmapped by that hardware.
+For shouse games with a 63,552-byte seed, the full JTFRAME default is checked
+against generated MRA/RAM files when present before its first 2,048 bytes are loaded into
+the probed `<setname>/nvram` device. The FPGA restores only the AW11/DW8 EEROM
+at IOCTL order 0; the trailing 61,504 bytes are debug RAM and are not restored
+at startup. MAME's namcos1 NVRAM is a RAM share, not a ROM region, so capacity
+comes from the isolated probe's actual device file.
 
-Every published FPGA PNG must match one MAME frame exactly by opaque RGB pixels
-and dimensions. Matches must use strictly increasing, distinct MAME frame
-numbers, so one MAME frame cannot satisfy two FPGA checkpoints. Startup captures
-are included. A missing match, geometry mismatch, incomplete snapshot run, or
-capture quality failure leaves `new/` in place. `--dryrun` performs the same
-comparison and reports PASS/FAIL without changing result directories or the
+The current source's `JTFRAME_COLORW`, resolved for the `sidi128` target, selects
+the capture code depth: RGB444 when `COLORW` is 4, RGB555 when it is 5 or greater.
+Published FPGA PNG channels must lie exactly on that format's bit-replication
+expansion grid. MAME's 8-bit RGB channels are reduced to their top four or five
+bits (`>>4` or `>>3`), matching the capture hardware; every capture code and
+geometry is compared exactly. A PASS means exact capture-code matches, rather
+than native 8-bit RGB matches. Matches must use strictly
+increasing, distinct MAME frame numbers, so one MAME frame cannot satisfy two
+FPGA checkpoints. Startup captures are included. A missing match, invalid
+capture format, geometry mismatch, incomplete snapshot run, or capture quality
+failure leaves `new/` in place. PNG slots do not record their source color depth,
+so validation infers it from the current checkout; older captures made after a
+color-width change may fail the expansion-grid check. `--dryrun` performs the
+same comparison and reports PASS/FAIL without changing result directories or the
 MAME validation log.
 
 Promotion requires a matching finalized regression progress entry, a stable

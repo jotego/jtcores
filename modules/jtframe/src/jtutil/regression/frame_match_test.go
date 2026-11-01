@@ -5,6 +5,7 @@ package regression
 import (
 	"image"
 	"image/color"
+	"os"
 	"testing"
 	"time"
 )
@@ -58,6 +59,83 @@ func TestSignatureImageUsesDecodedPixelsAndGeometry(t *testing.T) {
 	b.Height = 2
 	if _, err = MatchFramesOrdered([]FrameSignature{a}, []FrameSignature{b}); err == nil {
 		t.Fatal("different geometry matched")
+	}
+}
+
+func TestCapturePrecisionRGB555QuantizesMAMEButChecksFPGAExpansion(t *testing.T) {
+	fpga := image.NewRGBA(image.Rect(0, 0, 3, 1))
+	mame := image.NewRGBA(image.Rect(0, 0, 3, 1))
+	fpga.SetRGBA(0, 0, color.RGBA{R: 123, G: 74, B: 181, A: 255})
+	mame.SetRGBA(0, 0, color.RGBA{R: 124, G: 75, B: 180, A: 255})
+	fpga.SetRGBA(1, 0, color.RGBA{R: 132, G: 41, B: 222, A: 255})
+	mame.SetRGBA(1, 0, color.RGBA{R: 131, G: 40, B: 221, A: 255})
+	fpga.SetRGBA(2, 0, color.RGBA{R: 0, G: 255, B: 57, A: 255})
+	mame.SetRGBA(2, 0, color.RGBA{R: 1, G: 254, B: 58, A: 255})
+	left, err := SignatureImageAtCapturePrecision(100, fpga, 5, true)
+	if err != nil {
+		t.Fatalf("valid FPGA RGB555 capture rejected: %v", err)
+	}
+	right, err := SignatureImageAtCapturePrecision(1, mame, 5, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if left.Pixels != right.Pixels || !ImagesEqualAtCapturePrecision(fpga, mame, 5) {
+		t.Fatal("MAME +/-1 RGB values that quantize to the same RGB555 codes did not match")
+	}
+	mame.SetRGBA(1, 0, color.RGBA{R: 140, G: 40, B: 221, A: 255})
+	right, err = SignatureImageAtCapturePrecision(2, mame, 5, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if left.Pixels == right.Pixels || ImagesEqualAtCapturePrecision(fpga, mame, 5) {
+		t.Fatal("one RGB555 code difference at one pixel was accepted")
+	}
+}
+
+func TestCapturePrecisionRGB444AndRejectsInvalidFPGAExpansion(t *testing.T) {
+	fpga := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	mame := image.NewRGBA(image.Rect(0, 0, 1, 1))
+	fpga.SetRGBA(0, 0, color.RGBA{R: 119, G: 34, B: 204, A: 255})
+	mame.SetRGBA(0, 0, color.RGBA{R: 120, G: 35, B: 203, A: 255})
+	left, err := SignatureImageAtCapturePrecision(100, fpga, 4, true)
+	if err != nil {
+		t.Fatalf("valid FPGA RGB444 capture rejected: %v", err)
+	}
+	right, err := SignatureImageAtCapturePrecision(1, mame, 4, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if left.Pixels != right.Pixels || !ImagesEqualAtCapturePrecision(fpga, mame, 4) {
+		t.Fatal("MAME values that quantize to the same RGB444 codes did not match")
+	}
+	fpga.SetRGBA(0, 0, color.RGBA{R: 118, G: 34, B: 204, A: 255})
+	if _, err = SignatureImageAtCapturePrecision(100, fpga, 4, true); err == nil {
+		t.Fatal("off-grid FPGA RGB444 capture was accepted")
+	}
+}
+
+func TestCapturePrecisionUsesWireTruncationAtCodeBoundaries(t *testing.T) {
+	for _, tc := range []struct {
+		value uint8
+		bits  int
+		want  uint8
+	}{{7, 5, 0}, {8, 5, 1}, {15, 4, 0}, {16, 4, 1}} {
+		if got := quantizeCaptureChannel(tc.value, tc.bits); got != tc.want {
+			t.Errorf("quantizeCaptureChannel(%d,%d) = %d, want %d", tc.value, tc.bits, got, tc.want)
+		}
+	}
+}
+
+func TestMameCapturePrecisionUsesSidi128CoreMacros(t *testing.T) {
+	root := os.Getenv("JTROOT")
+	for _, tc := range []struct {
+		core string
+		want int
+	}{{"gng", 4}, {"s16", 5}, {"ajax", 5}} {
+		got, err := mame_capture_precision(root, tc.core)
+		if err != nil || got != tc.want {
+			t.Errorf("%s capture precision = %d, %v; want %d", tc.core, got, err, tc.want)
+		}
 	}
 }
 
