@@ -39,7 +39,6 @@ module jtcps1_main(
     `else
     input   [15:0]     joyana_r1,
     input   [15:0]     joyana_r2,
-    input              aim_enable,
     input   [1:0]      cab_1p,
     input   [1:0]      coin,
     `endif
@@ -98,7 +97,7 @@ reg         io_cs, joy_cs, eeprom_cs,
             sys_cs, olatch_cs, snd1_cs, snd0_cs, dial_cs;
 reg         dsn_dly;
 
-reg         sys_sel;
+reg         sys_sel, last_LVBL;
 wire        ok_dly;
 `ifdef CPS15
 reg         io15_cs, joy3_cs, joy4_cs;
@@ -268,14 +267,27 @@ wire [7:0] dial_dout;
     wire       x_rst     = dial_rst & ~xn_y;
     wire       y_rst     = dial_rst &  xn_y;
     reg [15:0] aim_stick1, aim_stick2;
+    reg [ 1:0] aim_enable;
+
+    // Same square dead zone as the ROM patch; signed axes include -128.
+    function stick_moved(input [15:0] stick);
+        stick_moved = $signed(stick[ 7:0]) >=  8'sd24 ||
+                      $signed(stick[ 7:0]) <= -8'sd24 ||
+                      $signed(stick[15:8]) >=  8'sd24 ||
+                      $signed(stick[15:8]) <= -8'sd24;
+    endfunction
 
     always @(posedge clk) begin
         if( rst ) begin
             aim_stick1 <= 0;
             aim_stick2 <= 0;
+            aim_enable <= 0;
         end else if( LVBL && !last_LVBL ) begin
             aim_stick1 <= joyana_r1;
             aim_stick2 <= joyana_r2;
+            // Once used, keep absolute aiming until reset, even at center.
+            aim_enable[0] <= aim_enable[0] | stick_moved(joyana_r1);
+            aim_enable[1] <= aim_enable[1] | stick_moved(joyana_r2);
         end
     end
 
@@ -361,8 +373,8 @@ always @(posedge clk) begin
         case( A[2:1] )
             0: sys_data <= aim_stick1;
             1: sys_data <= aim_stick2;
-            2: sys_data <= {15'h252a,aim_enable};
-            default: sys_data <= 16'hffff;
+            2: sys_data <= {15'h252a,aim_enable[0]}; // 0x800064: P1 mode
+            3: sys_data <= {15'h252a,aim_enable[1]}; // 0x800066: P2 mode
         endcase
     end
     `endif
@@ -414,7 +426,6 @@ wire       bus_busy = |{
     (ram_cs|vram_cs) & ~ok_dly };
 //                          wait_cycles[0] };
 wire       DTACKn;
-reg        last_LVBL;
 wire       dtack_clr;
 
 jtframe_okdly #(.W(2)) u_okdly(

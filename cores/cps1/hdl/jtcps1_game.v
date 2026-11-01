@@ -112,7 +112,6 @@ jtcps1_main u_main(
     .dial_y      ( dial_y           ),
     .joyana_r1   ( joyana_r1        ),
     .joyana_r2   ( joyana_r2        ),
-    .aim_enable  ( dipsw[25]        ),
     .service     ( service          ),
     .tilt        ( 1'b1             ),
     // BUS sharing
