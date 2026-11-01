@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"jotego/jtframe/macros"
@@ -26,27 +27,79 @@ type MameFrameResult struct {
 
 type mame_candidate struct {
 	core, set, dir, digest string
+	profile                Profile
+	cab_source             string
+	cab_digest             string
 	progress_path          string
 	preflight_error        string
 	promotion_error        string
 	frames                 CaptureSet
 }
 
+type mame_frame_outcome struct {
+	index  int
+	result MameFrameResult
+}
+
 // RunMameFrames checks finalized new captures independently while hardware
 // regression may continue to process other games.
-func RunMameFrames(ctx context.Context, root, source, setname string, dryrun bool) ([]MameFrameResult, error) {
-	if setname != "" && !safeComponent(setname) {
-		return nil, fmt.Errorf("unsafe setname %q", setname)
+func RunMameFrames(ctx context.Context, root, source, setname string, dryrun bool, jobs int, global_profile string) ([]MameFrameResult, error) {
+	if jobs < 1 {
+		return nil, fmt.Errorf("jobs must be positive")
 	}
-	candidates, err := discover_mame_candidates(root, source, setname)
+	selected, err := parse_mame_setnames(setname)
 	if err != nil {
 		return nil, err
 	}
-	if setname != "" && len(candidates) > 1 {
-		return nil, fmt.Errorf("setname %s is ambiguous across %d core folders", setname, len(candidates))
+	candidates, err := discover_mame_candidates(root, source, selected)
+	if err != nil {
+		return nil, err
+	}
+	for requested := range selected {
+		count := 0
+		for _, candidate := range candidates {
+			if candidate.set == requested {
+				count++
+			}
+		}
+		if count > 1 {
+			return nil, fmt.Errorf("setname %s is ambiguous across %d core folders", requested, count)
+		}
+		if count == 0 && len(selected) > 1 {
+			return nil, fmt.Errorf("setname %s was not found", requested)
+		}
 	}
 	if len(candidates) == 0 {
 		return nil, nil
+	}
+	if global_profile == "" {
+		global_profile = filepath.Join(source, "modules", "jtframe", "bin", "reg.yaml")
+	}
+	needs_cab_exporter := false
+	for i := range candidates {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		candidate := &candidates[i]
+		if candidate.preflight_error != "" {
+			continue
+		}
+		if profileErr := resolve_mame_candidate_profile(source, global_profile, candidate); profileErr != nil {
+			candidate.preflight_error = fmt.Sprintf("regression profile: %v", profileErr)
+			continue
+		}
+		_, has_dipsw := candidate.profile.Options["dipsw"]
+		needs_cab_exporter = needs_cab_exporter || candidate.cab_source != "" || has_dipsw
+	}
+	cab_packer := ""
+	if needs_cab_exporter {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		cab_packer, err = build_mame_cab_packer(ctx, source)
+		if err != nil {
+			return nil, err
+		}
 	}
 	mame, mame_err := exec.LookPath("mame")
 	home, err := os.UserHomeDir()
@@ -54,11 +107,25 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 		return nil, err
 	}
 	rompath := filepath.Join(home, ".mame", "roms")
-	results := make([]MameFrameResult, 0, len(candidates))
-	for _, candidate := range candidates {
+	precisions := make([]int, len(candidates))
+	precision_errors := make([]error, len(candidates))
+	for i, candidate := range candidates {
 		if err := ctx.Err(); err != nil {
-			return results, err
+			return nil, err
 		}
+		if candidate.preflight_error == "" && mame_err == nil {
+			precisions[i], precision_errors[i] = mame_capture_precision(source, candidate.core)
+		}
+	}
+	if jobs > len(candidates) {
+		jobs = len(candidates)
+	}
+	if jobs == 0 {
+		return nil, nil
+	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	completed := start_mame_candidate_workers(ctx, jobs, candidates, func(ctx context.Context, index int, candidate mame_candidate) MameFrameResult {
 		result := MameFrameResult{Core: candidate.core, Setname: candidate.set, Verdict: "FAIL"}
 		detail := ""
 		var checkErr error
@@ -66,33 +133,145 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 			checkErr = fmt.Errorf("%s", candidate.preflight_error)
 		} else if mame_err != nil {
 			checkErr = fmt.Errorf("MAME executable not found in PATH: %w", mame_err)
+		} else if precision_errors[index] != nil {
+			checkErr = precision_errors[index]
 		} else {
-			capture_bits, precision_err := mame_capture_precision(source, candidate.core)
-			if precision_err != nil {
-				checkErr = precision_err
-			} else {
-				detail, checkErr = validate_mame_candidate(ctx, candidate, root, source, mame, rompath, dryrun, capture_bits)
-			}
-		}
-		if err := ctx.Err(); err != nil {
-			return results, err
+			detail, checkErr = validate_mame_candidate(ctx, candidate, root, source, mame, rompath, cab_packer, true, precisions[index])
 		}
 		if checkErr != nil {
 			result.Detail = compact_mame_error(checkErr.Error())
 		} else {
 			result.Verdict, result.Detail = "PASS", detail
 		}
-		if !dryrun {
-			if err = append_mame_frames_log(root, result); err != nil {
-				return results, err
+		return result
+	})
+	committed := make([]MameFrameResult, len(candidates))
+	var runErr error
+	done := ctx.Done()
+	for completed != nil {
+		select {
+		case <-done:
+			if runErr == nil {
+				runErr = ctx.Err()
 			}
+			done = nil
+		case item, ok := <-completed:
+			if !ok {
+				completed = nil
+				continue
+			}
+			if runErr != nil || ctx.Err() != nil {
+				if runErr == nil {
+					runErr = ctx.Err()
+				}
+				continue
+			}
+			result := item.result
+			candidate := candidates[item.index]
+			if result.Verdict == "PASS" && !dryrun {
+				if err := promote_mame_candidate(root, candidate); err != nil {
+					result.Verdict, result.Detail = "FAIL", compact_mame_error(err.Error())
+				}
+			}
+			if !dryrun {
+				if err := append_mame_frames_log(root, result); err != nil {
+					runErr = err
+					cancel()
+					done = nil
+					break
+				}
+			}
+			committed[item.index] = result
 		}
-		results = append(results, result)
+	}
+	if runErr == nil && ctx.Err() != nil {
+		runErr = ctx.Err()
+	}
+	results := make([]MameFrameResult, 0, len(candidates))
+	for _, result := range committed {
+		if result.Setname != "" {
+			results = append(results, result)
+		}
+	}
+	if runErr != nil {
+		return results, runErr
 	}
 	return results, nil
 }
 
-func discover_mame_candidates(root, source, only_set string) ([]mame_candidate, error) {
+func resolve_mame_candidate_profile(source, global_profile string, candidate *mame_candidate) error {
+	profile, err := ResolveProfile(global_profile, source, candidate.core, candidate.set)
+	if err != nil {
+		return err
+	}
+	candidate.profile = profile
+	if profile.Inputs == "" {
+		return nil
+	}
+	candidate.cab_source = filepath.Clean(filepath.Join(source, "cores", candidate.core, "ver", candidate.set, profile.Inputs))
+	if !regularNonempty(candidate.cab_source) {
+		return fmt.Errorf("configured CAB input %q is unavailable", profile.Inputs)
+	}
+	candidate.cab_digest, err = file_sha256(candidate.cab_source)
+	if err != nil {
+		return fmt.Errorf("hash configured CAB input: %w", err)
+	}
+	return nil
+}
+
+func start_mame_candidate_workers(ctx context.Context, jobs int, candidates []mame_candidate, validate func(context.Context, int, mame_candidate) MameFrameResult) <-chan mame_frame_outcome {
+	type task struct {
+		index     int
+		candidate mame_candidate
+	}
+	queue := make(chan task, jobs)
+	completed := make(chan mame_frame_outcome, jobs)
+	var workers sync.WaitGroup
+	for i := 0; i < jobs; i++ {
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			for work := range queue {
+				if ctx.Err() != nil {
+					continue
+				}
+				completed <- mame_frame_outcome{index: work.index, result: validate(ctx, work.index, work.candidate)}
+			}
+		}()
+	}
+	go func() {
+		defer close(queue)
+		for i, candidate := range candidates {
+			select {
+			case <-ctx.Done():
+				return
+			case queue <- task{index: i, candidate: candidate}:
+			}
+		}
+	}()
+	go func() { workers.Wait(); close(completed) }()
+	return completed
+}
+
+func parse_mame_setnames(value string) (map[string]bool, error) {
+	selected := make(map[string]bool)
+	if value == "" {
+		return selected, nil
+	}
+	for _, set := range strings.Split(value, ",") {
+		set = strings.TrimSpace(set)
+		if !safeComponent(set) {
+			return nil, fmt.Errorf("unsafe or empty setname %q", set)
+		}
+		if selected[set] {
+			return nil, fmt.Errorf("duplicate setname %s", set)
+		}
+		selected[set] = true
+	}
+	return selected, nil
+}
+
+func discover_mame_candidates(root, source string, selected map[string]bool) ([]mame_candidate, error) {
 	_ = source
 	cores, err := os.ReadDir(root)
 	if err != nil {
@@ -110,7 +289,7 @@ func discover_mame_candidates(root, source, only_set string) ([]mame_candidate, 
 		}
 		for _, game_entry := range games {
 			set := game_entry.Name()
-			if !game_entry.IsDir() || !safeComponent(set) || only_set != "" && set != only_set {
+			if !game_entry.IsDir() || !safeComponent(set) || len(selected) > 0 && !selected[set] {
 				continue
 			}
 			game_root := filepath.Join(root, core, set)
@@ -310,7 +489,7 @@ func read_mame_progress(root, path string) (*Progress, error) {
 	return ReadProgress(root, key)
 }
 
-func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root, source, mame, rompath string, dryrun bool, capture_bits int) (string, error) {
+func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root, source, mame, rompath, cab_packer string, dryrun bool, capture_bits int) (string, error) {
 	if err := validate_published_capture_precision(candidate.frames, capture_bits); err != nil {
 		return "", err
 	}
@@ -322,6 +501,10 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 		return "", err
 	}
 	defer os.RemoveAll(work)
+	cab_script, err := prepare_mame_cab(ctx, candidate, cab_packer, work)
+	if err != nil {
+		return "", err
+	}
 	fpga_dir := filepath.Join(work, "fpga")
 	if err = copy_mame_frames(candidate, fpga_dir); err != nil {
 		return "", err
@@ -365,7 +548,7 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 	if err = prepare_mame_nvram(ctx, mame, candidate.set, rompath, work, source, candidate.core); err != nil {
 		return "", err
 	}
-	if err = capture_mame_frames(ctx, mame, candidate.set, rompath, work, frame_limit, timeout); err != nil {
+	if err = capture_mame_frames(ctx, mame, candidate.set, rompath, work, frame_limit, timeout, cab_script); err != nil {
 		return "", err
 	}
 	mame_dir := filepath.Join(work, "snapshots")
@@ -619,39 +802,30 @@ func MameFrameTimeout(frame_limit int, refresh float64) time.Duration {
 	return time.Duration(seconds) * time.Second
 }
 
-func capture_mame_frames(parent context.Context, mame, set, rompath, work string, frame_limit int, timeout time.Duration) error {
+func capture_mame_frames(parent context.Context, mame, set, rompath, work string, frame_limit int, timeout time.Duration, cab MameCabScript) error {
 	if timeout <= 0 {
 		return fmt.Errorf("invalid MAME frame timeout")
 	}
 	script := filepath.Join(work, "capture.lua")
 	complete := filepath.Join(work, "complete")
-	lua := fmt.Sprintf(`local machine = manager.machine
-local screen
-for _, candidate in pairs(machine.screens) do screen = candidate; break end
-if not screen then
-  local f = io.open(%q, "w"); if f then f:write("no screen"); f:close() end
-  machine:exit(); return
-end
-local frames = 0
-emu.register_frame_done(function()
-  frames = frames + 1
-  screen:snapshot(string.format("mame_%%08d.png", frames))
-  if frames >= %d then
-    local f = io.open(%q, "w"); if f then f:write(tostring(frames)); f:close() end
-    manager.machine:exit()
-  end
-end, "frame")
-`, complete, frame_limit, complete)
+	failure := filepath.Join(work, "failure")
+	lua, err := make_mame_capture_lua(cab, frame_limit, filepath.Join(work, "snapshots"), complete, failure)
+	if err != nil {
+		return err
+	}
 	if err := os.WriteFile(script, []byte(lua), 0600); err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
-	command := exec.CommandContext(ctx, mame, set, "-noreadconfig", "-skip_gameinfo", "-sound", "none", "-nothrottle", "-video", "none", "-snapview", "native", "-autoboot_delay", "0",
+	command := exec.CommandContext(ctx, mame, set, "-noreadconfig", "-skip_gameinfo", "-sound", "none", "-nothrottle", "-window", "-video", "none", "-snapview", "native", "-autoboot_delay", "0",
 		"-rompath", rompath, "-inipath", filepath.Join(work, "ini"), "-cfg_directory", filepath.Join(work, "cfg"), "-nvram_directory", filepath.Join(work, "nvram"), "-snapshot_directory", filepath.Join(work, "snapshots"), "-input_directory", filepath.Join(work, "input"), "-state_directory", filepath.Join(work, "state"), "-diff_directory", filepath.Join(work, "diff"), "-autoboot_script", script, "-norotate")
 	command.Dir = work
 	command.Env = isolated_mame_env(work)
 	output, err := command.CombinedOutput()
+	if error_data, readErr := os.ReadFile(failure); readErr == nil {
+		return fmt.Errorf("MAME CAB replay failed: %s", strings.TrimSpace(string(error_data)))
+	}
 	if err != nil {
 		if ctx.Err() != nil {
 			return fmt.Errorf("MAME frame capture timed out after %s", timeout)
@@ -666,6 +840,113 @@ end, "frame")
 		return fmt.Errorf("MAME frame capture completion count is invalid")
 	}
 	return nil
+}
+
+func make_mame_capture_lua(cab MameCabScript, frame_limit int, snapshot_dir, complete, failure string) (string, error) {
+	input_tokens := map[uint]string{
+		0: "COIN1", 1: "SERVICE1", 2: "START1", 3: "START2",
+		4: "P1_JOYSTICK_RIGHT", 5: "P1_JOYSTICK_LEFT", 6: "P1_JOYSTICK_DOWN", 7: "P1_JOYSTICK_UP",
+		8: "P1_BUTTON1", 9: "P1_BUTTON2", 10: "P1_BUTTON3",
+		13: "COIN2", 14: "P2_JOYSTICK_RIGHT", 15: "P2_JOYSTICK_LEFT", 16: "P2_JOYSTICK_DOWN", 17: "P2_JOYSTICK_UP",
+		18: "P2_BUTTON1", 19: "P2_BUTTON2", 20: "P2_BUTTON3",
+	}
+	used := make(map[uint]bool)
+	for _, run := range cab.Runs {
+		for bit := uint(0); bit < 21; bit++ {
+			if run.Inputs&(1<<bit) == 0 {
+				continue
+			}
+			if bit == 11 {
+				return "", fmt.Errorf("CAB test actions are not mapped for MAME frame validation")
+			}
+			if bit == 12 {
+				return "", fmt.Errorf("CAB reset actions are not mapped for MAME frame validation")
+			}
+			if _, ok := input_tokens[bit]; !ok {
+				return "", fmt.Errorf("CAB action bit %d is not mapped for MAME frame validation", bit)
+			}
+			used[bit] = true
+		}
+		if run.HasDIPSW {
+			return "", fmt.Errorf("CAB DIP switch actions are not mapped for MAME frame validation")
+		}
+		if run.Dump {
+			return "", fmt.Errorf("CAB dump actions are unsupported by MAME frame validation")
+		}
+	}
+	var controls strings.Builder
+	for bit := uint(0); bit < 21; bit++ {
+		if token, ok := input_tokens[bit]; ok && used[bit] {
+			fmt.Fprintf(&controls, "  { bit = %d, token = %q },\n", bit, token)
+		}
+	}
+	var runs strings.Builder
+	for _, run := range cab.Runs {
+		fmt.Fprintf(&runs, "  { %d, %d },\n", run.Frames, run.Inputs)
+	}
+	lua := fmt.Sprintf(`local machine = manager.machine
+local ioports = machine.ioport
+local controls = {
+%s}
+local runs = {
+%s}
+local frame_limit = %d
+local profile_frames = %d
+local snapshot_dir = %q
+local complete_path = %q
+local failure_path = %q
+local function fail(message)
+  local f = io.open(failure_path, "w"); if f then f:write(message); f:close() end
+  machine:exit()
+end
+local wanted, fields = {}, {}
+for _, control in ipairs(controls) do wanted[control.token] = true end
+for _, port in pairs(ioports.ports) do
+  for _, field in pairs(port.fields) do
+    local ok, token = pcall(function() return ioports:input_type_to_token(field.type, field.player) end)
+    if ok and token and wanted[token] and field.enabled then
+      if fields[token] then fail("ambiguous MAME input token " .. token); return end
+      fields[token] = field
+    end
+  end
+end
+for _, control in ipairs(controls) do
+  if not fields[control.token] then fail("missing MAME input token " .. control.token); return end
+end
+local function enabled(mask, bit)
+  return math.floor(mask / (2 ^ bit)) %% 2 == 1
+end
+local function mask_at(frame)
+  if frame < 0 or frame >= profile_frames then return 0 end
+  local position = 0
+  for _, run in ipairs(runs) do
+    if frame < position + run[1] then return run[2] end
+    position = position + run[1]
+  end
+  return 0
+end
+local function apply(frame)
+  local mask = mask_at(frame)
+  for _, control in ipairs(controls) do
+    fields[control.token]:set_value(enabled(mask, control.bit) and 1 or 0)
+  end
+end
+local screen
+for _, candidate in pairs(machine.screens) do screen = candidate; break end
+if not screen then fail("MAME has no screen device"); return end
+apply(0)
+local completed = 0
+emu.register_frame_done(function()
+  completed = completed + 1
+  screen:snapshot(string.format("%%s/mame_%%08d.png", snapshot_dir, completed))
+  apply(completed)
+  if completed >= frame_limit then
+    local f = io.open(complete_path, "w"); if f then f:write(tostring(completed)); f:close() end
+    machine:exit()
+  end
+end, "frame")
+`, controls.String(), runs.String(), frame_limit, cab.Frames, snapshot_dir, complete, failure)
+	return lua, nil
 }
 
 func isolated_mame_env(work string) []string {
@@ -726,6 +1007,21 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 	}
 	matched, err := MatchFramesOrdered(reference_signatures, candidate_signatures)
 	if err != nil {
+		if matched != nil {
+			last := -1
+			if len(matched) > 0 {
+				last = matched[len(matched)-1]
+			}
+			index := len(matched)
+			boundary, check_err := mame_boundary_match(ctx, reference_signatures[index], candidate_signatures, last,
+				filepath.Join(fpga_dir, reference.Captures[index].Image), mame_paths, capture_bits)
+			if check_err != nil {
+				return nil, check_err
+			}
+			if boundary {
+				return nil, fmt.Errorf("boundary differences at frame %d", reference_signatures[index].Frame)
+			}
+		}
 		return nil, err
 	}
 	for i, frame := range matched {
@@ -755,6 +1051,44 @@ func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir
 		}
 	}
 	return matched, nil
+}
+
+// A boundary match diagnoses the first failed checkpoint; it never permits
+// promotion. Candidates must still follow the last exact MAME match.
+func mame_boundary_match(ctx context.Context, reference FrameSignature, candidates []FrameSignature, last int, fpga_path string, mame_paths []string, bits int) (bool, error) {
+	if reference.Width <= 2 || reference.Height <= 2 {
+		return false, nil
+	}
+	fpga_file, err := os.Open(fpga_path)
+	if err != nil {
+		return false, err
+	}
+	fpga_img, err := png.Decode(fpga_file)
+	_ = fpga_file.Close()
+	if err != nil {
+		return false, err
+	}
+	for _, candidate := range candidates {
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
+		if candidate.Frame <= last || candidate.Width != reference.Width || candidate.Height != reference.Height || candidate.Interior != reference.Interior {
+			continue
+		}
+		file, err := os.Open(mame_paths[candidate.Frame-1])
+		if err != nil {
+			return false, err
+		}
+		img, err := png.Decode(file)
+		_ = file.Close()
+		if err != nil {
+			return false, err
+		}
+		if images_equal_capture_region(fpga_img, img, bits, 1) && !ImagesEqualAtCapturePrecision(fpga_img, img, bits) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func append_mame_frames_log(root string, result MameFrameResult) error {

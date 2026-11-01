@@ -392,13 +392,35 @@ single setname:
 ```sh
 jtutil mame-frames
 jtutil mame-frames --setname hyperspt --dryrun
+jtutil mame-frames --jobs 1
+jtutil mame-frames --config ~/.config/jtutil/regression.yaml
 ```
+
+Completed games validate concurrently, up to four at a time by default. Use
+`--jobs N` to set a positive concurrency limit. Command output is sorted by
+core/setname; log rows are appended as games finish.
+Cancellation stops pending work, waits for active MAME/OCR
+children to exit, and removes their temporary workspaces.
+
+MAME resolves the same global/core/setname profile used by `jtutil regression`.
+The default global profile is `modules/jtframe/bin/reg.yaml`; pass the same
+`--config` file used for regression when it selects a custom global profile.
+Validation uses the current checkout's profile, because `new/` stores PNGs and
+does not carry the CAB input script.
+Only the profile's explicit `inputs` path is used, resolved under
+`cores/<core>/ver/<setname>/`; an unselected `reg.cab` is ignored. A profile
+without inputs uses neutral inputs. The CAB exporter clips or pads that script
+to the profile's `video` frame budget, and MAME applies each logical input run
+at the matching frame before continuing with neutral inputs through the extra
+500 comparison frames. Inputs must map to enabled MAME control fields. CAB
+reset, test, DIP switch, dump, and unknown controls currently fail validation
+with a per-game error rather than being skipped.
 
 MAME captures every emulated frame from startup through 500 frames beyond the
 largest requested or actual FPGA checkpoint. Its wall-clock timeout is
 `ceil(1.1 * (max_checkpoint + 500) / refresh_hz)` seconds, using the selected
 machine's MAME screen refresh rate. MAME runs unthrottled with sound disabled,
-native snapshots and rotation disabled. Configuration, snapshots and NVRAM use
+native snapshots, rotation disabled and `-window`. Configuration, snapshots and NVRAM use
 an isolated per-game directory under `/tmp`; ROMs come from `~/.mame/roms`.
 Configured JTFRAME NVRAM defaults are loaded into the MAME device path after a
 bounded probe identifies it. Ambiguous or unresolved defaults fail validation.
@@ -429,6 +451,12 @@ so validation infers it from the current checkout; older captures made after a
 color-width change may fail the expansion-grid check. `--dryrun` performs the
 same comparison and reports PASS/FAIL without changing result directories or the
 MAME validation log.
+
+The first unmatched checkpoint reports `no matches after frame N`. If a later
+MAME frame matches its entire interior and differs only on the outermost top,
+bottom, left or right pixel line, it reports `boundary differences at frame N`
+instead. This remains a FAIL; the border is excluded only to diagnose the
+mismatch, never to qualify a reference.
 
 Promotion requires a matching finalized regression progress entry, a stable
 PNG digest, no active run for the game, and an absent `ref/` immediately before

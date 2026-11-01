@@ -13,10 +13,51 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"testing"
 	"time"
 )
+
+func TestParseMameSetnames(t *testing.T) {
+	selected, err := parse_mame_setnames(" hyperspt,  simpsons ")
+	if err != nil || len(selected) != 2 || !selected["hyperspt"] || !selected["simpsons"] {
+		t.Fatalf("unexpected selection %v, %v", selected, err)
+	}
+	for _, value := range []string{"", "hyperspt,", "hyperspt,hyperspt", "../hyperspt"} {
+		if value == "" {
+			continue
+		}
+		if _, err := parse_mame_setnames(value); err == nil {
+			t.Errorf("accepted invalid set list %q", value)
+		}
+	}
+}
+
+func TestMameCandidateWorkersBoundAndOverlap(t *testing.T) {
+	for _, limit := range []int{2, 4} {
+		var active, maximum int32
+		candidates := make([]mame_candidate, 8)
+		for i := range candidates {
+			candidates[i] = mame_candidate{core: "core", set: fmt.Sprintf("set%d", i)}
+		}
+		completed := start_mame_candidate_workers(context.Background(), limit, candidates, func(_ context.Context, _ int, candidate mame_candidate) MameFrameResult {
+			current := atomic.AddInt32(&active, 1)
+			for old := atomic.LoadInt32(&maximum); current > old && !atomic.CompareAndSwapInt32(&maximum, old, current); old = atomic.LoadInt32(&maximum) {
+			}
+			time.Sleep(30 * time.Millisecond)
+			atomic.AddInt32(&active, -1)
+			return MameFrameResult{Core: candidate.core, Setname: candidate.set, Verdict: "FAIL"}
+		})
+		count := 0
+		for range completed {
+			count++
+		}
+		if count != len(candidates) || int(maximum) != limit {
+			t.Fatalf("jobs=%d processed=%d with maximum concurrency=%d", limit, count, maximum)
+		}
+	}
+}
 
 func TestReadPublishedMameFramesRequiresNumericScheduleAndPNGOnly(t *testing.T) {
 	dir := t.TempDir()
@@ -80,6 +121,114 @@ func TestMatchMamePNGsRequiresOrderedExactCaptureCodeMatches(t *testing.T) {
 	ref.Captures[1].Image = "frame_00000500.png"
 	if _, err = match_mame_pngs(ref, fpga, paths, 4); err == nil {
 		t.Fatal("same FPGA image incorrectly matched twice")
+	}
+}
+
+func TestMameBoundaryDifferences(t *testing.T) {
+	for _, bits := range []int{4, 5} {
+		for _, tc := range []struct {
+			name string
+			x, y int
+			want string
+		}{
+			{"top", 2, 0, "boundary differences at frame 500"},
+			{"bottom", 2, 4, "boundary differences at frame 500"},
+			{"left", 0, 2, "boundary differences at frame 500"},
+			{"right", 4, 2, "boundary differences at frame 500"},
+			{"corner", 0, 0, "boundary differences at frame 500"},
+			{"interior", 1, 2, "no matches after frame 500"},
+		} {
+			t.Run(fmt.Sprintf("%d/%s", bits, tc.name), func(t *testing.T) {
+				dir := t.TempDir()
+				fpga := boundary_test_image(5, 5, false)
+				mame := boundary_test_image(5, 5, false)
+				mame.SetRGBA(tc.x, tc.y, color.RGBA{G: 255, A: 255})
+				write_boundary_test_png(t, filepath.Join(dir, "fpga.png"), fpga)
+				path := filepath.Join(dir, "mame.png")
+				write_boundary_test_png(t, path, mame)
+				ref := CaptureSet{Captures: []CaptureRecord{{Requested: 500, Image: "fpga.png"}, {Requested: 600, Image: "fpga.png"}}}
+				got, err := match_mame_pngs(ref, dir, []string{path, path}, bits)
+				if err == nil || err.Error() != tc.want || got != nil {
+					t.Fatalf("got %v, %v; want FAIL %q", got, err, tc.want)
+				}
+			})
+		}
+	}
+}
+
+func TestMameBoundaryDiagnosisPreservesOrderingAndExactMatches(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		candidates []string
+		want       string
+	}{
+		{"later exact wins", []string{"boundary", "exact"}, ""},
+		{"boundary before last exact ignored", []string{"boundary", "first"}, "no matches after frame 600"},
+		{"boundary after last exact", []string{"first", "boundary", "boundary"}, "boundary differences at frame 600"},
+		{"first ordinary failure wins", []string{"first"}, "no matches after frame 600"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			first := boundary_test_image(5, 5, false)
+			first.SetRGBA(2, 2, color.RGBA{G: 255, A: 255})
+			write_boundary_test_png(t, filepath.Join(dir, "first.png"), first)
+			write_boundary_test_png(t, filepath.Join(dir, "exact.png"), boundary_test_image(5, 5, false))
+			write_boundary_test_png(t, filepath.Join(dir, "boundary.png"), boundary_test_image(5, 5, true))
+			ref := CaptureSet{Captures: []CaptureRecord{{Requested: 500, Image: "exact.png"}}}
+			if tc.name != "later exact wins" {
+				ref.Captures = []CaptureRecord{{Requested: 500, Image: "first.png"}, {Requested: 600, Image: "exact.png"}, {Requested: 700, Image: "exact.png"}}
+			}
+			paths := make([]string, len(tc.candidates))
+			for i, name := range tc.candidates {
+				paths[i] = filepath.Join(dir, name+".png")
+			}
+			got, err := match_mame_pngs(ref, dir, paths, 4)
+			if tc.want == "" {
+				if err != nil || len(got) != 1 || got[0] != 2 {
+					t.Fatalf("exact match must take priority: %v, %v", got, err)
+				}
+			} else if err == nil || err.Error() != tc.want || got != nil {
+				t.Fatalf("got %v, %v; want FAIL %q", got, err, tc.want)
+			}
+		})
+	}
+}
+
+func TestMameBoundaryDiagnosisRejectsEmptyInteriorAndGeometryMismatch(t *testing.T) {
+	for _, size := range [][4]int{{2, 5, 2, 5}, {5, 2, 5, 2}, {5, 5, 6, 5}} {
+		dir := t.TempDir()
+		write_boundary_test_png(t, filepath.Join(dir, "fpga.png"), boundary_test_image(size[0], size[1], false))
+		path := filepath.Join(dir, "mame.png")
+		write_boundary_test_png(t, path, boundary_test_image(size[2], size[3], true))
+		ref := CaptureSet{Captures: []CaptureRecord{{Requested: 500, Image: "fpga.png"}}}
+		if _, err := match_mame_pngs(ref, dir, []string{path}, 4); err == nil || err.Error() != "no matches after frame 500" {
+			t.Fatalf("geometry %v: %v", size, err)
+		}
+	}
+}
+
+func boundary_test_image(width, height int, changed bool) *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.SetRGBA(x, y, color.RGBA{R: 255, A: 255})
+		}
+	}
+	if changed {
+		img.SetRGBA(width-1, height/2, color.RGBA{G: 255, A: 255})
+	}
+	return img
+}
+
+func write_boundary_test_png(t *testing.T, path string, img image.Image) {
+	t.Helper()
+	file, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	if err = png.Encode(file, img); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -204,7 +353,13 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 		if err := os.MkdirAll(new_dir, 0700); err != nil {
 			t.Fatal(err)
 		}
-		write_mame_test_png(t, filepath.Join(new_dir, "frame_00000100.png"), color.RGBA{R: 17, A: 255})
+		if set == "first" {
+			if err := os.WriteFile(filepath.Join(new_dir, "frame_00000100.png"), []byte("invalid PNG"), 0600); err != nil {
+				t.Fatal(err)
+			}
+		} else {
+			write_mame_test_png(t, filepath.Join(new_dir, "frame_00000100.png"), color.RGBA{R: 17, A: 255})
+		}
 	}
 	bin := t.TempDir()
 	ocr_marker := filepath.Join(bin, "ocr-started")
@@ -230,7 +385,9 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 		ticker := time.NewTicker(10 * time.Millisecond)
 		defer ticker.Stop()
 		for {
-			if _, statErr := os.Stat(ocr_marker); statErr == nil {
+			_, markerErr := os.Stat(ocr_marker)
+			log_data, logErr := os.ReadFile(filepath.Join(root, "log", "mame-frames.log"))
+			if markerErr == nil && logErr == nil && strings.Contains(string(log_data), "first") {
 				close(child_started)
 				cancel()
 				return
@@ -242,8 +399,8 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 			}
 		}
 	}()
-	results, err := RunMameFrames(ctx, root, source, "", false)
-	if !errors.Is(err, context.Canceled) || len(results) != 0 {
+	results, err := RunMameFrames(ctx, root, source, "", false, 2, "")
+	if !errors.Is(err, context.Canceled) || len(results) != 1 || results[0].Setname != "first" || results[0].Verdict != "FAIL" {
 		t.Fatalf("cancelled sweep returned results=%v err=%v", results, err)
 	}
 	select {
@@ -254,8 +411,9 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 	if _, err = os.Stat(mame_marker); !os.IsNotExist(err) {
 		t.Fatalf("MAME started after cancellation: %v", err)
 	}
-	if _, err = os.Stat(filepath.Join(root, "log", "mame-frames.log")); !os.IsNotExist(err) {
-		t.Fatalf("interrupted or unstarted candidates were logged: %v", err)
+	data, err := os.ReadFile(filepath.Join(root, "log", "mame-frames.log"))
+	if err != nil || !strings.Contains(string(data), "first") || strings.Contains(string(data), "second") {
+		t.Fatalf("completed candidate log not retained or canceled candidate logged: %q, %v", data, err)
 	}
 	workspaces_after, err := filepath.Glob("/tmp/jtutil-mame-frames-*")
 	if err != nil {
@@ -264,7 +422,7 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 	if strings.Join(workspaces_after, "\n") != strings.Join(workspaces_before, "\n") {
 		t.Fatalf("candidate temporary workspace leaked: before=%v after=%v", workspaces_before, workspaces_after)
 	}
-	data, err := os.ReadFile(ocr_marker)
+	data, err = os.ReadFile(ocr_marker)
 	if err != nil {
 		t.Fatalf("fake OCR did not start: %v", err)
 	}

@@ -89,7 +89,7 @@ func prepare_mame_nvram(ctx context.Context, mame, setname, rompath, workspace, 
 	if err = os.WriteFile(lua_path, []byte(lua), 0600); err != nil {
 		return err
 	}
-	args := []string{setname, "-rompath", rompath, "-skip_gameinfo", "-sound", "none", "-video", "none", "-nothrottle", "-noautosave", "-noreadconfig", "-inipath", filepath.Join(probe_dir, "ini"), "-cfg_directory", filepath.Join(probe_dir, "cfg"), "-nvram_directory", filepath.Join(probe_dir, "nvram"), "-input_directory", filepath.Join(probe_dir, "input"), "-state_directory", filepath.Join(probe_dir, "state"), "-snapshot_directory", filepath.Join(probe_dir, "snap"), "-diff_directory", filepath.Join(probe_dir, "diff"), "-autoboot_script", lua_path, "-autoboot_delay", "0"}
+	args := []string{setname, "-rompath", rompath, "-skip_gameinfo", "-sound", "none", "-window", "-video", "none", "-nothrottle", "-noautosave", "-noreadconfig", "-inipath", filepath.Join(probe_dir, "ini"), "-cfg_directory", filepath.Join(probe_dir, "cfg"), "-nvram_directory", filepath.Join(probe_dir, "nvram"), "-input_directory", filepath.Join(probe_dir, "input"), "-state_directory", filepath.Join(probe_dir, "state"), "-snapshot_directory", filepath.Join(probe_dir, "snap"), "-diff_directory", filepath.Join(probe_dir, "diff"), "-autoboot_script", lua_path, "-autoboot_delay", "0"}
 	cmd := exec.CommandContext(probe_ctx, mame, args...)
 	cmd.Dir = probe_dir
 	cmd.Env = append(os.Environ(), "XDG_CONFIG_HOME="+filepath.Join(probe_dir, "xdg"))
