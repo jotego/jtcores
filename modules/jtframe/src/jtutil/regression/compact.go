@@ -38,6 +38,8 @@ error before a build is selected. No new run files are created by an idle poll.
 
 Images are in ../<core>/<game>/{ref,new,fail}. Temporary preparation and capture
 files are in /tmp and are removed. Only a designer may approve references.
+jtutil mame-frames may append its separate fixed-width mame-frames.log and
+promotes only exact ordered matches from a finalized new capture to ref.
 Each ../<core>/<game>/log keeps completed checks: local date/time, short commit,
 verdict and reference CRC32 (-------- when no reference exists).
 Deleting a commit's JSON forgets its progress and permits testing it again.
