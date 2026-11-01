@@ -23,7 +23,7 @@ update_timing_netlist
 puts "############################################################"
 puts "# Worst-case SETUP paths (slow model, full path detail)     "
 puts "############################################################"
-report_timing -setup -npaths 30 -detail full_path -stdout
+report_timing -setup -npaths 100 -detail full_path -stdout
 
 puts "############################################################"
 puts "# Worst-case HOLD paths (slow model)                        "

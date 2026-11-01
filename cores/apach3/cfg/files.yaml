@@ -3,7 +3,7 @@
 # Date: 29-10-2026
 
 apach3:
-  - get: [ "*.v" ]
+  - get: [ "*.v", timing.sdc ]
 jtframe:
   - from: cpu
     get: [ jtframe_v20.yaml, jtframe_m68k.yaml, jtframe_z80.yaml ]
