@@ -3,13 +3,17 @@
 package regression
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -157,7 +161,7 @@ func TestPromoteMameCandidatePreservesResultDigestFallback(t *testing.T) {
 
 func TestMameFramesLogKeepsOneFixedWidthLinePerGame(t *testing.T) {
 	root := t.TempDir()
-	result := MameFrameResult{Core: "core", Setname: "set", Verdict: "FAIL", Detail: "MAME failed\nwith another line\r\n"}
+	result := MameFrameResult{Core: "core", Setname: "abcdefghijklmnop", Verdict: "FAIL", Detail: "MAME failed\nwith another line\r\n"}
 	if err := append_mame_frames_log(root, result); err != nil {
 		t.Fatal(err)
 	}
@@ -168,8 +172,93 @@ func TestMameFramesLogKeepsOneFixedWidthLinePerGame(t *testing.T) {
 	if strings.Count(string(data), "\n") != 1 || strings.Contains(string(data), "\r") {
 		t.Fatalf("log entry is not one line: %q", data)
 	}
-	if !strings.Contains(string(data), "core/set") || !strings.Contains(string(data), "MAME failed with another line") {
+	if !strings.Contains(string(data), "abcdefghijklmnop") || !strings.Contains(string(data), "MAME failed with another line") {
 		t.Fatalf("fixed-width log fields missing: %q", data)
+	}
+	if strings.Index(string(data), "FAIL") != 37 {
+		t.Fatalf("maximum-length setname shifted the fixed verdict column: %q", data)
+	}
+}
+
+func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
+	root := t.TempDir()
+	for _, set := range []string{"first", "second"} {
+		new_dir := filepath.Join(root, "core", set, "new")
+		if err := os.MkdirAll(new_dir, 0700); err != nil {
+			t.Fatal(err)
+		}
+		write_mame_test_png(t, filepath.Join(new_dir, "frame_00000100.png"), color.RGBA{R: 10, A: 255})
+	}
+	bin := t.TempDir()
+	ocr_marker := filepath.Join(bin, "ocr-started")
+	mame_marker := filepath.Join(bin, "mame-started")
+	ocr_script := "#!/bin/sh\nprintf '%s\\n' \"$$\" > \"" + ocr_marker + "\"\nexec /bin/sleep 30\n"
+	mame_script := "#!/bin/sh\nprintf started > \"" + mame_marker + "\"\nexit 1\n"
+	for name, script := range map[string]string{"tesseract": ocr_script, "mame": mame_script} {
+		if err := os.WriteFile(filepath.Join(bin, name), []byte(script), 0700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Setenv("PATH", bin)
+	workspaces_before, err := filepath.Glob("/tmp/jtutil-mame-frames-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	child_started := make(chan struct{})
+	go func() {
+		deadline := time.NewTimer(5 * time.Second)
+		defer deadline.Stop()
+		ticker := time.NewTicker(10 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			if _, statErr := os.Stat(ocr_marker); statErr == nil {
+				close(child_started)
+				cancel()
+				return
+			}
+			select {
+			case <-deadline.C:
+				return
+			case <-ticker.C:
+			}
+		}
+	}()
+	results, err := RunMameFrames(ctx, root, t.TempDir(), "", false)
+	if !errors.Is(err, context.Canceled) || len(results) != 0 {
+		t.Fatalf("cancelled sweep returned results=%v err=%v", results, err)
+	}
+	select {
+	case <-child_started:
+	default:
+		t.Fatal("cancellation test did not observe the live OCR child")
+	}
+	if _, err = os.Stat(mame_marker); !os.IsNotExist(err) {
+		t.Fatalf("MAME started after cancellation: %v", err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "log", "mame-frames.log")); !os.IsNotExist(err) {
+		t.Fatalf("interrupted or unstarted candidates were logged: %v", err)
+	}
+	workspaces_after, err := filepath.Glob("/tmp/jtutil-mame-frames-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(workspaces_after, "\n") != strings.Join(workspaces_before, "\n") {
+		t.Fatalf("candidate temporary workspace leaked: before=%v after=%v", workspaces_before, workspaces_after)
+	}
+	data, err := os.ReadFile(ocr_marker)
+	if err != nil {
+		t.Fatalf("fake OCR did not start: %v", err)
+	}
+	var pid int
+	if _, err = fmt.Sscanf(string(data), "%d", &pid); err != nil {
+		t.Fatal(err)
+	}
+	if err = syscall.Kill(pid, 0); err == nil {
+		t.Fatalf("OCR child PID %d is still running", pid)
+	} else if !errors.Is(err, syscall.ESRCH) {
+		t.Fatalf("could not verify OCR child exit: %v", err)
 	}
 }
 

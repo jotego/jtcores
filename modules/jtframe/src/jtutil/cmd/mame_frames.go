@@ -52,11 +52,11 @@ func run_mame_frames_cmd(cmd *cobra.Command, args []string) error {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	results, err := regression.RunMameFrames(ctx, result_root, project_root(), mameFramesSetname, mameFramesDryrun)
-	if err != nil {
-		return err
-	}
 	for _, result := range results {
 		fmt.Fprintf(cmd.OutOrStdout(), "%-12s %-5s %s\n", result.Setname, result.Verdict, result.Detail)
+	}
+	if err != nil {
+		return err
 	}
 	if len(results) == 0 {
 		fmt.Fprintln(cmd.OutOrStdout(), "No eligible new regression captures found.")

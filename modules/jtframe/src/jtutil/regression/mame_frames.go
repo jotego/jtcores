@@ -53,6 +53,9 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 	rompath := filepath.Join(home, ".mame", "roms")
 	results := make([]MameFrameResult, 0, len(candidates))
 	for _, candidate := range candidates {
+		if err := ctx.Err(); err != nil {
+			return results, err
+		}
 		result := MameFrameResult{Core: candidate.core, Setname: candidate.set, Verdict: "FAIL"}
 		detail := ""
 		var checkErr error
@@ -62,6 +65,9 @@ func RunMameFrames(ctx context.Context, root, source, setname string, dryrun boo
 			checkErr = fmt.Errorf("MAME executable not found in PATH: %w", mame_err)
 		} else {
 			detail, checkErr = validate_mame_candidate(ctx, candidate, root, source, mame, rompath, dryrun)
+		}
+		if err := ctx.Err(); err != nil {
+			return results, err
 		}
 		if checkErr != nil {
 			result.Detail = compact_mame_error(checkErr.Error())
@@ -312,7 +318,7 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 	if digest, e := result_slot_digest(candidate.dir); e != nil || digest != candidate.digest {
 		return "", fmt.Errorf("new capture changed while being snapshotted")
 	}
-	quality, ocr_failure, _, err := captureQuality(candidate.frames, 0)
+	quality, ocr_failure, _, err := captureQualityContext(ctx, candidate.frames, 0)
 	if err != nil {
 		return "", err
 	}
@@ -364,11 +370,17 @@ func validate_mame_candidate(ctx context.Context, candidate mame_candidate, root
 			return "", fmt.Errorf("MAME frame sequence is missing or duplicated at frame %d", i+1)
 		}
 	}
-	matched, err := match_mame_pngs(candidate.frames, fpga_dir, mame_paths)
+	matched, err := match_mame_pngs_context(ctx, candidate.frames, fpga_dir, mame_paths)
 	if err != nil {
 		return "", err
 	}
+	if err = ctx.Err(); err != nil {
+		return "", err
+	}
 	if !dryrun {
+		if err = ctx.Err(); err != nil {
+			return "", err
+		}
 		if err = promote_mame_candidate(root, candidate); err != nil {
 			return "", err
 		}
@@ -570,8 +582,15 @@ func isolated_mame_env(work string) []string {
 }
 
 func match_mame_pngs(reference CaptureSet, fpga_dir string, mame_paths []string) ([]int, error) {
+	return match_mame_pngs_context(context.Background(), reference, fpga_dir, mame_paths)
+}
+
+func match_mame_pngs_context(ctx context.Context, reference CaptureSet, fpga_dir string, mame_paths []string) ([]int, error) {
 	reference_signatures := make([]FrameSignature, 0, len(reference.Captures))
 	for _, capture := range reference.Captures {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		file, err := os.Open(filepath.Join(fpga_dir, capture.Image))
 		if err != nil {
 			return nil, err
@@ -589,6 +608,9 @@ func match_mame_pngs(reference CaptureSet, fpga_dir string, mame_paths []string)
 	}
 	candidate_signatures := make([]FrameSignature, 0, len(mame_paths))
 	for i, path := range mame_paths {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		file, err := os.Open(path)
 		if err != nil {
 			return nil, err
@@ -609,6 +631,9 @@ func match_mame_pngs(reference CaptureSet, fpga_dir string, mame_paths []string)
 		return nil, err
 	}
 	for i, frame := range matched {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		mame_file, err := os.Open(mame_paths[frame-1])
 		if err != nil {
 			return nil, err
@@ -644,7 +669,8 @@ func append_mame_frames_log(root string, result MameFrameResult) error {
 		return err
 	}
 	defer file.Close()
-	_, err = fmt.Fprintf(file, "%-19s %-16s %-5s %s\n", time.Now().Format("2006-01-02 15:04:05"), result.Core+"/"+result.Setname, result.Verdict, compact_mame_error(result.Detail))
+	// MAME parent and clone shortnames are limited to 16 characters.
+	_, err = fmt.Fprintf(file, "%-19s %-16.16s %-5s %s\n", time.Now().Format("2006-01-02 15:04:05"), result.Setname, result.Verdict, compact_mame_error(result.Detail))
 	if err != nil {
 		return err
 	}
