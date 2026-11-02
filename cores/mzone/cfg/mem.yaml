@@ -85,3 +85,76 @@ sdram:
           name: main
           addr_width: 16
           data_width: 8
+
+# Dump layout: five 1 KiB video memories, 2 KiB shared RAM, then video MMR.
+bram:
+  - name: vram0
+    addr_width: 10
+    data_width: 8
+    addr: scrram_addr
+    ioctl: { save: true, order: 0 }
+    dual_port:
+      name: vram0_cpu
+      addr: vram_addr
+      din: vram_din
+      dout: vram0_cpu_dout
+      rw: true
+  - name: vram1
+    addr_width: 10
+    data_width: 8
+    addr: fixram_addr
+    ioctl: { save: true, order: 1 }
+    dual_port:
+      name: vram1_cpu
+      addr: vram_addr
+      din: vram_din
+      dout: vram1_cpu_dout
+      rw: true
+  - name: cram0
+    addr_width: 10
+    data_width: 8
+    addr: scrram_addr
+    ioctl: { save: true, order: 2 }
+    dual_port:
+      name: cram0_cpu
+      addr: vram_addr
+      din: vram_din
+      dout: cram0_cpu_dout
+      rw: true
+  - name: cram1
+    addr_width: 10
+    data_width: 8
+    addr: fixram_addr
+    ioctl: { save: true, order: 3 }
+    dual_port:
+      name: cram1_cpu
+      addr: vram_addr
+      din: vram_din
+      dout: cram1_cpu_dout
+      rw: true
+  - name: objram
+    addr_width: 10
+    data_width: 8
+    addr: objram_addr
+    ioctl: { save: true, order: 4 }
+    dual_port:
+      name: objram_cpu
+      addr: objcpu_addr
+      din: objram_din
+      dout: objram_cpu_dout
+      rw: true
+  - name: shared
+    addr_width: 11
+    data_width: 8
+    addr: main_shared_addr
+    din: main_shared_din
+    we: main_shared_we
+    rw: true
+    ioctl: { save: true, order: 5 }
+    dual_port:
+      name: snd_shared
+      addr: snd_shared_addr
+      din: snd_shared_dout
+      dout: snd_shared_din
+      we: snd_shared_we
+      rw: true

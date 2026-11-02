@@ -1,90 +1,89 @@
-# Mega Zone simulation files
+# Mega Zone simulation
 
-Run the commands below from this directory after loading the jtcores environment
-with `source setprj.sh` from the repository root. Simulation requires the usual
-JTFRAME/Verilator tools and an assembled ROM in `$ROM`.
-
-## Launchers
-
-- `sim.sh`: normal game simulation and loading existing scenes. `-g` selects
-  a ROM set (default `megazone`); `-s` or `--scene` selects `scenes/<name>/`.
+Load the repository environment with `source setprj.sh`. ROMs must already exist
+as `$ROM/<setname>.rom`; the default set is `megazone`.
 
 ```sh
-# Normal game: two frames, sound enabled, waveform output.
 ./sim.sh -video 2 -w
-
-# Another existing ROM set in $ROM.
 ./sim.sh -g megazoneh -video 2 -w
-
-# Existing scene: two frames, zoom and waveforms; main CPU and sound disabled.
 ./sim.sh -s 989
 ```
 
-`sim.sh` does not assemble ROMs. Generate them when missing or after changing
-ROM packing rules:
+The launcher runs in `ver/<setname>` and passes scene options to standard
+`jtsim`. It generates `dump2bin.sh` from `cfg/mem.yaml` before starting, including
+on the first scene run. `--scene` is an alias for `-s`.
+
+For direct invocation, generate the memory configuration once, then run:
 
 ```sh
-jtframe mra mzone --path ~/.mame/roms -v
+jtframe mem mzone --target mist
+cd ../megazone
+jtsim -mist -skipROM -load -s 989
 ```
 
-## Scene files
+`jtsim -s` requires `JOTEGO` to point to the support-files directory. Put captures
+in `$JOTEGO/scenes/mzone/<setname>/<scene>/dump.bin`. JTFRAME links that set's
+scene directory into the simulation folder, splits the dump into RAM images and
+`rest.bin`, and selects `NOMAIN`, `NOSOUND`, `SIMSCENE`, and video capture options.
+A normal run clears the split scene inputs through generated `dump2bin.sh`.
 
-Each scene directory contains the following captured data:
+## Scene format
 
-| File | Contents |
-| --- | --- |
-| `vram0.bin`, `cram0.bin` | SCROLL tile codes and attributes |
-| `vram1.bin`, `cram1.bin` | FIX tile codes and attributes |
-| `obj.bin` | Object RAM |
-| `shared.bin` | Shared CPU RAM |
-| `regs.hex` | Scene scroll and flip register values |
+All CPU-visible video RAM and shared RAM are declared in `cfg/mem.yaml`.
+The dump follows its `ioctl.order`; video registers follow in the compact
+`cfg/mmr.yaml` format. All fields are bytes, with no endian conversion.
 
-The launcher checks that all seven files exist and are nonempty before copying
-them here. It also copies `shared.bin` to `main_shared.bin` for simulation.
+| Offset | Size | Contents | Generated input |
+| --- | --- | --- | --- |
+| `0x0000` | `0x400` | SCROLL tile codes | `vram0.bin` |
+| `0x0400` | `0x400` | FIX tile codes | `vram1.bin` |
+| `0x0800` | `0x400` | SCROLL attributes | `cram0.bin` |
+| `0x0c00` | `0x400` | FIX attributes | `cram1.bin` |
+| `0x1000` | `0x400` | Object RAM | `objram.bin` |
+| `0x1400` | `0x800` | Main/Z80 shared RAM | `shared.bin` |
+| `0x1c00` | `4` | scrolly, scrollx, flip bit 0, reserved | `rest.bin` |
 
-`scenes/capture.sh` and `scenes/capture.lua` create captures using MAME. A scene's
-`scene.lua` supplies its capture configuration. For example:
+Total size is 7172 bytes (`0x1c04`), matching `JTFRAME_IOCTL_RD`. The generated
+MMR restores registers from `rest.bin` on reset, including with `NOMAIN`, and
+handles normal CPU writes. Live dumps expose the same RAM and register layout.
+Renderer DMA buffers and pixel pipelines remain internal and refill normally.
+
+Scene captures are local support files, stored outside the repository at
+`$JOTEGO/scenes/mzone/megazone/<scene>/dump.bin`. No `.bin` or `.hex` scene
+fixture is committed. Once a capture is available there, run `./sim.sh -s 989`.
+
+## Capture with MAME
+
+The capture helpers write standard `dump.bin` directly. Write-only scroll and
+flip latches are recorded through MAME write taps. MAME 0.220 uses the scroll
+shares and saved LS259 latch state instead. For a new capture, place a
+`scene.lua` returning a table with `frame` (and optional `initialize`/`update`
+callbacks) in the destination directory:
 
 ```sh
-bash scenes/capture.sh scenes/989
-./sim.sh -s 989
+mkdir -p "$JOTEGO/scenes/mzone/megazone/989"
+cp scenes/989/scene.lua "$JOTEGO/scenes/mzone/megazone/989/"
+bash scenes/capture.sh "$JOTEGO/scenes/mzone/megazone/989"
 ```
 
-Capture requires MAME and its ROMs. The new launcher reports missing captures;
-it does not start MAME automatically. `save.mame` contains debugger commands
-for manually exporting RAM; it does not produce the complete seven-file scene
-by itself.
+Capture requires MAME and its ROMs. Override the executable with `MZONE_MAME`
+and ROM directory with `MZONE_MAME_ROMS`. `sim.sh` does not start MAME or assemble
+ROMs. To assemble missing ROMs, run `jtframe mra mzone --path ~/.mame/roms -v`.
+Legacy `save.mame` files capture separate regions and are only investigation
+helpers; use `capture.sh` for complete standard scenes.
 
-## Other helpers
+Generated frames, waveforms, split RAM files, and build output live in
+`ver/<setname>`. A video run clears previous frames. `frame_viewer.py` can display
+saved frames and requires Python PyGObject/GTK 3. The first captured frame can
+be black during ROM loading/reset; inspect the last generated PNG for the
+restored scene. A scene replay is static because the main CPU is disabled.
 
-| File | Purpose |
-| --- | --- |
-| `frame_viewer.py` | GTK image viewer with automatic reload, zoom, pan, and pixel-coordinate display; requires Python PyGObject/GTK 3 |
-| `vcd_cpu_summary.py` | Extracts selected CPU and memory activity from a VCD waveform |
-| `make_intmain_test_rom.py` | Builds a diagnostic ROM with a replacement sound-CPU program |
-| `make_picorom_6h_test.py` | Builds a main-CPU test image for socket 6H and a simulation ROM |
-| `mame_scroll_regs.mame` | MAME debugger commands for scroll-register investigation |
-| `dump2bin.sh` | Generic dump helper; currently copies the input to `rest.bin` and optionally calls `rest2bin.sh`. It is not used by `sim.sh` scene loading |
-| `hdmi_border_sim.sh`, `hdmi_border_tb.sv`, `hdmi_border.md` | Separate HDMI-border regression and its notes |
-
-For example, inspect a generated image with:
+Run the automated checks with `simunit.sh` from the repository root:
 
 ```sh
-python3 frame_viewer.py frames/frame_00001.png
+simunit.sh --run cores/mzone/ver/scene_restore
+simunit.sh --run cores/mzone/ver/video_width
 ```
 
-Use the actual generated filename if it differs.
-
-## Generated output and development notes
-
-- `frames/`: images and frame checksums. A new video simulation clears previous
-  frames; copy images elsewhere if they need to be preserved. `sim.sh` does not
-  automatically open an image viewer or save a reference image in the scene.
-- `test.vcd` or `test.fst`: waveform output, depending on the available tools.
-- `rom.bin`, `sdram_bank*.bin`, copied scene files, `obj_dir/`, generated HDL,
-  logs, and audio files: simulation inputs and build/run artifacts.
-- `results/`, `snapshots/`, `current.md`, and `RESUME_MZONE_OBJ.md`: development
-  captures, archives, and historical working notes, rather than required inputs
-  for a normal simulation.
-
-See [../README.md](../README.md) for the broader PCB-test workflow.
+These checks generate their own fixtures and never invoke MAME. To use an
+external capture, set `MZONE_SCENE_DUMP` to its absolute path. See [the unit simulation guide](../README.md) for coverage.

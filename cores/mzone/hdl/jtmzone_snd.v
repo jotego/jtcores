@@ -1,53 +1,55 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+/* SPDX-FileCopyrightText: 2026 Ulf Skutnabba
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-10-2026 */
 
 module jtmzone_snd(
-    input               rst,
-    input               clk,
+    input              rst,
+    input              clk,
     // ROM
-    output      [12:0]  rom_addr,
-    output reg          rom_cs,
-    input       [ 7:0]  rom_data,
-    input               rom_ok,
-    output      [11:0]  mcu_rom_addr,
-    output              mcu_rom_cs,
-    input       [ 7:0]  mcu_rom_data,
-    input               mcu_rom_ok,
+    output     [12:0]  rom_addr,
+    output reg         rom_cs,
+    input      [ 7:0]  rom_data,
+    input              rom_ok,
+    output     [11:0]  mcu_rom_addr,
+    output             mcu_rom_cs,
+    input      [ 7:0]  mcu_rom_data,
+    input              mcu_rom_ok,
 
     // Cabinet inputs, same Konami ports used by MAME
-    input       [ 1:0]  cab_1p,
-    input       [ 1:0]  coin,
-    input       [ 5:0]  joystick1,
-    input       [ 5:0]  joystick2,
-    input               service,
-    input       [ 7:0]  dipsw_a,
-    input       [ 7:0]  dipsw_b,
-    input               LVBL,
-    input       [ 8:0] hdump,
-    input               intsnd,
+    input      [ 1:0]  cab_1p,
+    input      [ 1:0]  coin,
+    input      [ 5:0]  joystick1,
+    input      [ 5:0]  joystick2,
+    input              service,
+    input      [ 7:0]  dipsw_a,
+    input      [ 7:0]  dipsw_b,
+    input              LVBL,
+    input      [ 8:0]  hdump,
+    input              intsnd,
 
     // Shared RAM with the main CPU
-    output      [10:0]  shared_addr,
-    output      [ 7:0]  shared_dout,
-    output              shared_we,
-    input       [ 7:0]  shared_din,
-    output              intmain_n,
+    output     [10:0]  shared_addr,
+    output     [ 7:0]  shared_dout,
+    output             shared_we,
+    input      [ 7:0]  shared_din,
+    output             intmain_n,
 
     // Sound output
-    output       [7:0] psg0a, psg0b, psg0c,
-    output       [3:0] psg0a_rcen, psg0b_rcen, psg0c_rcen,
-    output       [7:0] dac
+    output     [ 7:0]  psg0a, psg0b, psg0c,
+    output     [ 3:0]  psg0a_rcen, psg0b_rcen, psg0c_rcen,
+    output     [ 7:0]  dac
 );
 // Keep the Z80, cabinet I/O and shared RAM active with NOSOUND.
 // jtmzone_snd_dev bypasses only the AY and 8039 audio devices.
 
-wire        [ 7:0] cpu_dout, ay_dout;
-wire        [15:0] A;
-wire               mreq_n, rd_n, wr_n, rfsh_n;
-wire               ay_rd;
-wire        [ 7:0] dipsw_dout = A[0] ? dipsw_a : dipsw_b;
-reg         [ 7:0] cpu_din, cabinet;
-reg                latch_cs, ior_cs, dipsw_cs;
-reg                shared_cs, mcu_irq_cs, mcu_wdog_cs;
+wire [ 7:0]  cpu_dout, ay_dout;
+wire [15:0]  A;
+wire         mreq_n, rd_n, wr_n, rfsh_n;
+wire         ay_rd;
+wire [ 7:0]  dipsw_dout = A[0] ? dipsw_a : dipsw_b;
+reg  [ 7:0]  cpu_din, cabinet;
+reg          latch_cs, ior_cs, dipsw_cs;
+reg          shared_cs, mcu_irq_cs, mcu_wdog_cs;
 
 assign rom_addr      = A[12:0];
 assign shared_addr   = A[10:0];
@@ -87,44 +89,44 @@ always @(posedge clk) begin
         3: cabinet <= 8'hff;
     endcase
     cpu_din <= rom_cs    ? rom_data          :
-               shared_cs ? shared_din        :
-               ay_rd     ? ay_dout           :
-               ior_cs    ? cabinet           :
-               dipsw_cs  ? dipsw_dout        : 8'hff;
+                shared_cs ? shared_din        :
+                ay_rd     ? ay_dout           :
+                ior_cs    ? cabinet           :
+                dipsw_cs  ? dipsw_dout        : 8'hff;
 end
 
 jtmzone_snd_dev u_dev(
-    .rst            ( rst               ),
-    .clk            ( clk               ),
-    .LVBL           ( LVBL              ),
-    .hdump          ( hdump             ),
-    .intsnd         ( intsnd            ),
-    .A              ( A                 ),
-    .cpu_din        ( cpu_din           ),
-    .cpu_dout       ( cpu_dout          ),
-    .mreq_n         ( mreq_n            ),
-    .rd_n           ( rd_n              ),
-    .wr_n           ( wr_n              ),
-    .rfsh_n         ( rfsh_n            ),
-    .rom_cs         ( rom_cs            ),
-    .rom_ok         ( rom_ok            ),
-    .shared_cs      ( shared_cs         ),
-    .latch_cs       ( latch_cs          ),
-    .mcu_irq_cs     ( mcu_irq_cs        ),
-    .mcu_wdog_cs    ( mcu_wdog_cs       ),
-    .ay_dout        ( ay_dout           ),
-    .ay_rd          ( ay_rd             ),
-    .mcu_rom_addr   ( mcu_rom_addr      ),
-    .mcu_rom_cs     ( mcu_rom_cs        ),
-    .mcu_rom_data   ( mcu_rom_data      ),
-    .mcu_rom_ok     ( mcu_rom_ok        ),
-    .psg0a          ( psg0a             ),
-    .psg0b          ( psg0b             ),
-    .psg0c          ( psg0c             ),
-    .psg0a_rcen     ( psg0a_rcen        ),
-    .psg0b_rcen     ( psg0b_rcen        ),
-    .psg0c_rcen     ( psg0c_rcen        ),
-    .dac            ( dac               )
+    .rst             ( rst                                  ),
+    .clk             ( clk                                  ),
+    .LVBL            ( LVBL                                 ),
+    .hdump           ( hdump                                ),
+    .intsnd          ( intsnd                               ),
+    .A               ( A                                    ),
+    .cpu_din         ( cpu_din                              ),
+    .cpu_dout        ( cpu_dout                             ),
+    .mreq_n          ( mreq_n                               ),
+    .rd_n            ( rd_n                                 ),
+    .wr_n            ( wr_n                                 ),
+    .rfsh_n          ( rfsh_n                               ),
+    .rom_cs          ( rom_cs                               ),
+    .rom_ok          ( rom_ok                               ),
+    .shared_cs       ( shared_cs                            ),
+    .latch_cs        ( latch_cs                             ),
+    .mcu_irq_cs      ( mcu_irq_cs                           ),
+    .mcu_wdog_cs     ( mcu_wdog_cs                          ),
+    .ay_dout         ( ay_dout                              ),
+    .ay_rd           ( ay_rd                                ),
+    .mcu_rom_addr    ( mcu_rom_addr                         ),
+    .mcu_rom_cs      ( mcu_rom_cs                           ),
+    .mcu_rom_data    ( mcu_rom_data                         ),
+    .mcu_rom_ok      ( mcu_rom_ok                           ),
+    .psg0a           ( psg0a                                ),
+    .psg0b           ( psg0b                                ),
+    .psg0c           ( psg0c                                ),
+    .psg0a_rcen      ( psg0a_rcen                           ),
+    .psg0b_rcen      ( psg0b_rcen                           ),
+    .psg0c_rcen      ( psg0c_rcen                           ),
+    .dac             ( dac                                  )
 );
 
 endmodule

@@ -1,0 +1,4 @@
+
+# Scene captures and generated simulation fixtures stay local.
+*.bin
+*.hex

@@ -5,6 +5,9 @@ include ../../kicker/cfg/common.def
 
 JTFRAME_WIDTH=288
 JTFRAME_HEIGHT=224
+JTFRAME_RATE=60.61
+# 0x1c00 bytes of RAM followed by four bytes of video registers.
+JTFRAME_IOCTL_RD=7172
 # Bit D is reserved for screen rotation on MiST/SiDi128.
 CORE_OSD=OE,Video width,288,Original 287;
 

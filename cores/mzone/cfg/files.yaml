@@ -4,6 +4,7 @@ mzone:
   - get:
       - jtmzone_game.v
       - jtmzone_main.v
+      - jtmzone_video_mmr.v
       - jtmzone_snd.v
       - jtmzone_video.v
       - jtmzone_obj.v
@@ -38,11 +39,17 @@ jtframe:
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
+      - jtframe_dual_ram32.v
   - from: video
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
       - jtframe_obj.yaml
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+      - jtframe_scroll.v
+      - jtframe_scroll_offset.v
   - from: sdram
     get:
       - jtframe_dwnld.v

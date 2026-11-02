@@ -40,6 +40,9 @@ tile-layer offsets in MAME. The PCB also gives sprites priority over tiles
 at horizontal position 47 when a sprite occupies that position.
 
 See [doc/timing.md](doc/timing.md) for counter mappings and object hardware details.
+The [renderer reuse review](doc/renderers.md) documents the native JTFRAME
+tilemap/scroll/draw helpers, PCB coordinate mapping, and retained object scan/DMA
+controls.
 
 ## Hardware
 
@@ -56,3 +59,6 @@ See [doc/timing.md](doc/timing.md) for counter mappings and object hardware deta
 - **JOTEGO and jtcores contributors** — JTFRAME and shared FPGA components.
 - **MAME contributors** — Mega Zone emulation and hardware documentation used
   as reference material.
+
+Automated checks use the repository [simunit workflow](ver/README.md) and do not
+require MAME or external ROM files.

@@ -62,23 +62,12 @@ if [[ ! -f "$CAPTURE_MARKER" ]]; then
 fi
 rm -f -- "$CAPTURE_MARKER"
 
-declare -A EXPECTED_SIZE=(
-    [vram0.bin]=1024
-    [vram1.bin]=1024
-    [cram0.bin]=1024
-    [cram1.bin]=1024
-    [obj.bin]=1024
-    [shared.bin]=2048
-    [regs.hex]=9
-)
-
-for SCENE_FILE in "${!EXPECTED_SIZE[@]}"; do
-    ACTUAL_SIZE=$(stat -c %s "$SCENE_DIR/$SCENE_FILE" 2>/dev/null || true)
-    if [[ "$ACTUAL_SIZE" != "${EXPECTED_SIZE[$SCENE_FILE]}" ]]; then
-        echo "Invalid scene file $SCENE_FILE: expected ${EXPECTED_SIZE[$SCENE_FILE]} bytes, got ${ACTUAL_SIZE:-missing}." >&2
-        exit 1
-    fi
-done
+# Five 1 KiB RAMs, 2 KiB shared RAM, and four video-register bytes.
+ACTUAL_SIZE=$(stat -c %s "$SCENE_DIR/dump.bin" 2>/dev/null || true)
+if [[ "$ACTUAL_SIZE" != 7172 ]]; then
+    echo "Invalid dump.bin: expected 7172 bytes, got ${ACTUAL_SIZE:-missing}." >&2
+    exit 1
+fi
 
 if (( MAME_STATUS == 139 )); then
     echo "MAME exited with status $MAME_STATUS after completing the capture; accepting the validated files." >&2
