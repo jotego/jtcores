@@ -75,6 +75,7 @@ forgottn_aim:
     bmi.s   .Langle
     neg.w   %d2
 .Langle:
+    addi.w  #16,%d2
     andi.w  #31,%d2
     lsl.w   #6,%d2
     move.w  %d2,0x28(%a0)
