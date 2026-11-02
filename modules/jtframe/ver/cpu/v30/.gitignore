@@ -1,0 +1,7 @@
+/obj_dir*/
+/program.bin
+/build*.log
+/test*.log
+/core
+
+/__pycache__/
