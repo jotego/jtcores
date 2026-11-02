@@ -235,7 +235,7 @@ JTFRAME_CREDITS is always enabled if JTFRAME_CHEAT is defined
 
 Macro                    | Target  |  Usage
 -------------------------|---------|---------------------------------------------
-JTFRAME_CREDITS          |         | Adds credits screen. Automatic for releases if cfg/msg exists
+JTFRAME_CREDITS          |         | Adds credits screen. Enabled for releases in MiSTer, SiDi128 and Pocket target.def; cores can override it
 JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_PAGES    |         | Generated from the number of rows in cfg/msg
 

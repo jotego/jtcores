@@ -86,7 +86,6 @@ func MakeMacros(core, target string, extra ...string) {
 		AddKeyValPairs(extra...)
 	}
 	read_target_macros(target)
-	add_credits_for_releases(core) // credits must come before parse_def
 	core_def := ConfigFilePath(core, "macros.def")
 	parse_def(core_def, target)
 	make_credits_pages(core)
@@ -369,16 +368,6 @@ func make_credits_pages(core string) {
 		pages = 1
 	}
 	Set("JTFRAME_CREDITS_PAGES", strconv.Itoa(pages))
-}
-
-func add_credits_for_releases(core string) {
-	if !IsSet(JTFRAME_RELEASE) {
-		return
-	}
-	msgpath := ConfigFilePath(core, "msg")
-	if FileExists(msgpath) {
-		Set(JTFRAME_CREDITS, "1")
-	}
 }
 
 // Derives the GAMETOP module from the CORENAME if unspecified

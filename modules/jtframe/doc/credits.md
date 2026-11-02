@@ -1,7 +1,16 @@
 # Credits Screen
 
-The shared credits screen is enabled with `JTFRAME_CREDITS`. Release builds
-enable it automatically when `cfg/msg` exists. The file contains 32-character
+The shared credits screen is enabled with `JTFRAME_CREDITS`, defined in a
+target's `target.def` or a core's `cfg/macros.def`. MiSTer, SiDi128 and Pocket
+enable it by default in release builds with `release JTFRAME_CREDITS`;
+MiST and SiDi leave it disabled unless the core explicitly enables it. Core
+definitions are parsed after target defaults, so a core can use
+`-JTFRAME_CREDITS` to disable it.
+The presence of `cfg/msg` does not enable credits automatically.
+The `release` prefix is parsed only when `JTFRAME_RELEASE` is defined, keeping
+credits out of debug builds.
+
+The message file `cfg/msg` contains 32-character
 rows; blank rows count as rows. `jtframe msg <core>` encodes each row as 32
 characters and writes one 1024-entry page per `msgN.bin` file (`msg0.bin`,
 `msg1.bin`, and so on). `JTFRAME_CREDITS_PAGES` is derived from the number of
