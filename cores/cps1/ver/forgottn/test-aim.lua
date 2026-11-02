@@ -49,13 +49,16 @@ for sector=0,31 do
     local radians = sector*math.pi/16
     local x = math.floor(127*math.cos(radians)+0.5)
     local y = math.floor(-127*math.sin(radians)+0.5)
-    cases[#cases+1] = {name="sector "..sector, x=x, y=y, player=sector%2, want=sector*64}
+    cases[#cases+1] = {name="sector "..sector, x=x, y=y, player=sector%2, want=((sector+16)%32)*64}
 end
 cases[#cases+1] = {name="center hold", x=0, y=0, initial=0x345, want=0x345}
 cases[#cases+1] = {name="deadzone", x=23, y=-23, initial=0x456, want=0x456}
-cases[#cases+1] = {name="deadzone boundary", x=24, y=0, want=0}
-cases[#cases+1] = {name="negative extremes", x=-128, y=-128, want=0x300}
-cases[#cases+1] = {name="signed vertical", x=0, y=-128, want=0x200}
+cases[#cases+1] = {name="deadzone boundary", x=24, y=0, want=0x400}
+cases[#cases+1] = {name="positive horizontal", x=127, y=0, want=0x400}
+cases[#cases+1] = {name="negative horizontal", x=-128, y=0, want=0}
+cases[#cases+1] = {name="negative extremes", x=-128, y=-128, want=0x700}
+cases[#cases+1] = {name="negative vertical", x=0, y=-128, want=0x600}
+cases[#cases+1] = {name="positive vertical", x=0, y=127, want=0x200}
 cases[#cases+1] = {name="disabled relative", flag=0x4a54, initial=0x780, delta=64, want=0x7c0}
 cases[#cases+1] = {name="old core fallback", flag=0xffff, initial=32, delta=-64, want=0xffe0}
 
@@ -164,18 +167,18 @@ local function step()
     end
     if frame == 1900 then
         assert(space:read_u8(0xffb342) ~= 0 and space:read_u8(0xffb392) ~= 0,"both players must be active")
-        assert(space:read_u16(0xffb36a) == 0x200,"P1 gameplay aim")
+        assert(space:read_u16(0xffb36a) == 0x600,"P1 gameplay aim")
         assert(space:read_u16(0xffb3ba) == ((dial_angle2+64)&0xffff),"P2 dial while P1 stick active")
         raw1,raw2 = 0,0x007f
     end
     if frame == 1950 then
-        assert(space:read_u16(0xffb36a) == 0x200,"P1 centered stick must hold")
-        assert(space:read_u16(0xffb3ba) == 0,"P2 automatic stick activation")
+        assert(space:read_u16(0xffb36a) == 0x600,"P1 centered stick must hold")
+        assert(space:read_u16(0xffb3ba) == 0x400,"P2 automatic stick activation")
         raw2,dial[1] = 0,64
     end
     if frame == 2000 then
-        assert(space:read_u16(0xffb36a) == 0x200,"P1 stick mode must stay latched at center")
-        assert(space:read_u16(0xffb3ba) == 0,"P2 stick mode must hold at center")
+        assert(space:read_u16(0xffb36a) == 0x600,"P1 stick mode must stay latched at center")
+        assert(space:read_u16(0xffb3ba) == 0x400,"P2 stick mode must hold at center")
         print("PASS patched boot, independent automatic aiming and neutral hold")
         machine:exit()
     end
