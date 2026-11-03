@@ -19,11 +19,19 @@ assert(screen:frame_number() <= 1, "Load mamedump.lua at MAME startup")
 local root = m.devices[":"]
 local mem = m.devices[":maincpu"].spaces.program
 local sub = m.devices[":sub"].spaces.program
-local z80 = m.devices[":sub2"].spaces.program
+local z80_device = m.devices[":sub2"]
+local z80_execution={}
+for _,name in ipairs({"m_suspend","m_nextsuspend","m_eatcycles","m_nexteatcycles"}) do
+    z80_execution[#z80_execution+1]=emu.item(assert(z80_device.items["0/"..name]))
+end
 local rotate = emu.item(assert(root.items["0/m_apache3_rotate_ctrl"]))
 local rotidx = emu.item(assert(root.items["0/m_apache3_rot_idx"]))
 local roadz = emu.item(assert(root.items["0/m_apache3_road_z"]))
 local roadx = emu.item(assert(root.items["0/m_apache3_road_x_ram"]))
+assert(root.items["0/m_sprite_buffer"], "MAME sprite latch is unavailable")
+local sprite_buffer = emu.item(root.items["0/m_sprite_buffer"])
+local sprite_bank = emu.item(assert(root.items["0/m_sprite_bank"]))
+local sprite_valid = emu.item(assert(root.items["0/m_sprite_buffer_valid"]))
 local pending
 local held, requested, fatal = false, false, false
 local key = m.input:seq_from_tokens("KEYCODE_BACKSLASH")
@@ -62,11 +70,20 @@ local function read_words(space, first, size)
     return table.concat(b)
 end
 local function read_state()
+    local sprites=read_words(sub,0x90000,0x4000)
+    local control=read_words(sub,0x9a000,0x200)
+    if sprite_valid:read(0)~=0 then
+        local words={}
+        for i=0,0x1fff do words[#words+1]=string.pack("<I2",sprite_buffer:read(i)) end
+        sprites=table.concat(words)
+        local bank=(sub:read_u16(0x9a040)&0xefff)|sprite_bank:read(0)
+        control=control:sub(1,0x40)..string.pack("<I2",bank)..control:sub(0x43)
+    end
     local blocks={
         read_words(mem,0x4000,0x4000),
         read_words(mem,0xc000,0x2000),
-        read_words(sub,0x90000,0x4000),
-        read_words(sub,0x9a000,0x200),
+        sprites,
+        control,
         read_words(mem,0x8000,0x1000),
     }
     local b={}
@@ -91,17 +108,20 @@ local function freeze()
     end
     hold(sub,0xa0000,0xa0001,"dump_rotate",function() return rotate:read(rotidx:read(0)) end)
     hold(sub,0xc0000,0xc0001,"dump_roadz",function() return roadz:read(0) end)
-    pending.taps[#pending.taps+1]=z80:install_write_tap(0x8000,0xffff,"dump_roadx",function(a,d)
-        local v=a&0xfff
-        if (roadx:read(d)&0xfff)==v then return d end
-        for i=0,255 do if (roadx:read(i)&0xfff)==v then return i end end
-        pending.roadx_changed=true
-        return d
-    end)
+    pending.z80_execution={}
+    for i,item in ipairs(z80_execution) do
+        local value=item:read(0)
+        pending.z80_execution[i]=value
+        item:write(0,i<=2 and (value|0x10) or 1)
+    end
 end
 local function unfreeze(p)
     for _,tap in ipairs(p.taps) do tap:remove() end
     p.taps={}
+    if p.z80_execution then
+        for i,item in ipairs(z80_execution) do item:write(0,p.z80_execution[i]) end
+        p.z80_execution=nil
+    end
 end
 local function restore(p)
     unfreeze(p)
@@ -109,6 +129,8 @@ local function restore(p)
     assert(screen:frame_number()==p.frame, "Machine frame did not restore")
     local current=read_state()
     for i,bytes in ipairs(p.blocks) do assert(current[i]==bytes, "Restored video differs at block "..i) end
+    assert(read_words(sub,0x90000,0x4000)==p.live_sprites, "Live sprite RAM did not restore")
+    assert(read_words(sub,0x9a000,0x200)==p.live_control, "Live sprite control did not restore")
     if p.paused then emu.pause() end
     p.restored=true
 end
@@ -127,6 +149,8 @@ local function begin_capture()
     if not target then
         p.state=m:buffer_save()
         assert(p.state and #p.state>0, "MAME could not checkpoint this machine")
+        p.live_sprites=read_words(sub,0x90000,0x4000)
+        p.live_control=read_words(sub,0x9a000,0x200)
     end
     p.blocks=read_state()
     local serial=0
@@ -140,6 +164,12 @@ local function begin_capture()
     assert(#dump==111616, "Unexpected video dump size")
     write(p.path.."/dump.bin",dump)
     write(p.path.."/mmr.bin",p.blocks[8]..p.blocks[9])
+    for offset=0,0x3ffe,2 do
+        local value=string.unpack("<I2",p.blocks[3],offset+1)
+        sub:write_u16(0x90000+offset,value)
+    end
+    local bank=string.unpack("<I2",p.blocks[4],0x41)
+    sub:write_u16(0x9a040,bank)
     freeze()
     requested=false
     if p.paused then emu.unpause() end
@@ -149,7 +179,6 @@ local function finish_capture()
     local frame=screen:frame_number()
     if frame==p.frame then return end
     assert(frame==p.frame+1, "Missed held reference frame")
-    assert(not p.roadx_changed, "Could not hold road offset write")
     local current=read_state()
     for i,bytes in ipairs(p.blocks) do assert(current[i]==bytes, "Held video changed at block "..i) end
     assert(not screen:snapshot(p.path.."/screen.png"), "Snapshot failed")

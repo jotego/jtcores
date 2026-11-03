@@ -58,7 +58,7 @@ reg [2:0] attr_step;
 reg [12:0] list_base;
 reg [10:0] offset;
 reg [8:0] snap_index, walk_index, object_index, object_count, shadow_count;
-reg ctrl_select, shadow_base, separate_lists, build_shadow, shadow_pass;
+reg shadow_base, separate_lists, build_shadow, shadow_pass;
 wire [8:0] walk_count = build_shadow ? shadow_count : object_count;
 wire first_shadow = object_count == 0 && separate_lists;
 wire [8:0] first_count = first_shadow ? shadow_count : object_count;
@@ -339,7 +339,7 @@ task request;
 endtask
 
 
-assign ctrl_addr = ctrl_select ? 8'he0 : 8'h20;
+assign ctrl_addr = 8'h20;
 wire fsm_req = state == WAIT0 || state == WAIT1;
 reg rom_owner;
 assign rom_addr = rom_owner ? fast_request : request_addr;
@@ -551,7 +551,6 @@ always @(posedge clk) begin
         object_index <= 0;
         object_count <= 0;
         shadow_count <= 0;
-        ctrl_select <= 0;
         shadow_base <= 0;
         separate_lists <= 0;
         build_shadow <= 0;
@@ -1224,9 +1223,8 @@ always @(posedge clk) begin
             end
             CTRL_WAIT: state <= CTRL_SELECT;
             CTRL_SELECT: begin
-                separate_lists <= ctrl_data[12] != list_base[12];
-                shadow_base <= ctrl_data[12];
-                ctrl_select <= 0;
+                separate_lists <= 0;
+                shadow_base <= list_base[12];
                 state <= SNAP_WAIT;
             end
             default: state <= IDLE;
@@ -1261,7 +1259,6 @@ always @(posedge clk) begin
                 build_shadow <= 0;
                 page_valid <= 0;
                 page_count <= 0;
-                ctrl_select <= 1;
                 state <= CTRL_WAIT;
             end else begin
                 shadow_pass <= first_shadow;

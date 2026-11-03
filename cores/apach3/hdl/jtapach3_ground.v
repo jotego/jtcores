@@ -29,7 +29,7 @@ localparam IDLE=0, SCAN=1, ROW_WAIT=2, CALC=3, FETCH=4;
 reg [2:0] state;
 reg [3:0] rotate_idx;
 reg [15:0] rotate [0:11];
-reg signed [31:0] hacc, gacc;
+reg signed [31:0] hacc, gacc, dacc;
 reg [8:0] x, target_y;
 reg [7:0] row;
 reg side;
@@ -37,7 +37,7 @@ reg [1:0] pixel_shift, stripe;
 reg [14:0] cached_addr;
 reg [7:0] cached_data;
 reg cache_valid;
-reg [7:0] cached_row, cached_prom;
+reg [7:0] cached_row, cached_depth_row, cached_prom;
 reg [15:0] cached_road_x;
 reg row_valid;
 reg [10:0] write_data;
@@ -45,11 +45,15 @@ reg write_enable;
 wire [8:0] next_y = v == 279 ? 0 : v + 1'b1;
 wire signed [23:0] h_start = {rotate[0][7:0],rotate[4]};
 wire signed [23:0] g_start = {rotate[9],rotate[10][7:0]};
+wire signed [23:0] d_start = {rotate[1],rotate[5][7:0]};
 wire signed [15:0] h_dx = rotate[2], h_dy = rotate[6];
 wire signed [15:0] g_dx = rotate[8], g_dy = rotate[11];
+wire signed [15:0] d_dx = rotate[3], d_dy = rotate[7];
 wire signed [31:0] grow = gacc >>> 8;
-wire [7:0] ground_row = grow > 255 ? 8'hff : grow[7:0];
-wire row_hit = row_valid && cached_row == ground_row && !road_invalidate;
+wire signed [31:0] depth = dacc >>> 8;
+wire [7:0] road_row = grow > 255 ? 8'hff : grow[7:0];
+wire [7:0] ground_row = depth < 0 ? 8'd0 : depth > 255 ? 8'hff : depth[7:0];
+wire row_hit = row_valid && cached_row == road_row && cached_depth_row == ground_row && !road_invalidate;
 wire [15:0] selected_road_x = row_hit ? cached_road_x : road_x_data;
 wire [7:0] selected_prom = row_hit ? cached_prom : prom_data;
 wire [11:0] hsum = hacc[19:8] + selected_road_x[11:0];
@@ -116,6 +120,7 @@ task draw_ground;
         if (draw_ready) begin
             hacc <= hacc + {{16{h_dx[15]}},h_dx};
             gacc <= gacc + {{16{g_dx[15]}},g_dx};
+            dacc <= dacc + {{16{d_dx[15]}},d_dx};
             x <= x + 1'b1;
             state <= x == 319 ? IDLE : SCAN;
         end else begin
@@ -145,6 +150,7 @@ always @(posedge clk) begin
 `endif
         hacc <= 0;
         gacc <= 0;
+        dacc <= 0;
         x <= 0;
         target_y <= 0;
         row <= 0;
@@ -155,6 +161,7 @@ always @(posedge clk) begin
         cached_data <= 0;
         cache_valid <= 0;
         cached_row <= 0;
+        cached_depth_row <= 0;
         cached_prom <= 0;
         cached_road_x <= 0;
         row_valid <= 0;
@@ -176,6 +183,7 @@ always @(posedge clk) begin
             x <= 0;
             hacc <= $signed({{8{h_start[23]}},h_start}) + $signed({1'b0,next_y}) * h_dy;
             gacc <= $signed({{8{g_start[23]}},g_start}) + $signed({1'b0,next_y}) * g_dy;
+            dacc <= $signed({{8{d_start[23]}},d_start}) + $signed({1'b0,next_y}) * d_dy;
             state <= next_y < 240 ? SCAN : IDLE;
         end else case (state)
             IDLE: begin end
@@ -183,13 +191,14 @@ always @(posedge clk) begin
                 if (grow < 0) begin
                     hacc <= hacc + {{16{h_dx[15]}},h_dx};
                     gacc <= gacc + {{16{g_dx[15]}},g_dx};
+                    dacc <= dacc + {{16{d_dx[15]}},d_dx};
                     x <= x + 1'b1;
                     if (x == 319) state <= IDLE;
                 end else if (row_hit) begin
                     draw_ground();
                 end else begin
-                    row <= ground_row;
-                    road_x_addr <= ground_row;
+                    row <= road_row;
+                    road_x_addr <= road_row;
                     prom_addr <= {1'b0,ground_row};
                     state <= ROW_WAIT;
                 end
@@ -197,6 +206,7 @@ always @(posedge clk) begin
             ROW_WAIT: state <= CALC;
             CALC: begin
                 cached_row <= row;
+                cached_depth_row <= ground_row;
                 cached_road_x <= road_x_data;
                 cached_prom <= prom_data;
                 row_valid <= !road_invalidate;
@@ -209,6 +219,7 @@ always @(posedge clk) begin
                 cache_valid <= !invalidate;
                 hacc <= hacc + {{16{h_dx[15]}},h_dx};
                 gacc <= gacc + {{16{g_dx[15]}},g_dx};
+                dacc <= dacc + {{16{d_dx[15]}},d_dx};
                 x <= x + 1'b1;
                 state <= x == 319 ? IDLE : SCAN;
             end

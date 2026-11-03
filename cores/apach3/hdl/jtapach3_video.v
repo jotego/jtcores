@@ -61,11 +61,13 @@ always @(posedge clk) begin
         red <= 0;
         green <= 0;
         blue <= 0;
-    end else if (pxl_cen) begin
+    end else begin
         shadow <= obj_pxl[9] && text_pxl[2:0] == 0 && !obj_pxl[8];
-        red   <= rgb_visible ? (shadow ? {1'b0,palette_video_data[14:11]} : palette_video_data[14:10]) : 5'd0;
-        green <= rgb_visible ? (shadow ? {1'b0,palette_video_data[ 9: 6]} : palette_video_data[ 9: 5]) : 5'd0;
-        blue  <= rgb_visible ? (shadow ? {1'b0,palette_video_data[ 4: 1]} : palette_video_data[ 4: 0]) : 5'd0;
+        if (pxl_cen) begin
+            red   <= rgb_visible ? (shadow ? {1'b0,palette_video_data[14:11]} : palette_video_data[14:10]) : 5'd0;
+            green <= rgb_visible ? (shadow ? {1'b0,palette_video_data[ 9: 6]} : palette_video_data[ 9: 5]) : 5'd0;
+            blue  <= rgb_visible ? (shadow ? {1'b0,palette_video_data[ 4: 1]} : palette_video_data[ 4: 0]) : 5'd0;
+        end
     end
 end
 
