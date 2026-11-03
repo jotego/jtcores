@@ -10,7 +10,8 @@ JTFRAME_HEIGHT=240
 JTFRAME_COLORW=5
 
 # Base clock: 56 MHz on MiSTer, 49 MHz on SiDi128, so the 7 MHz pixel clock is
-# an integer division. SiDi128's game PLL does not lock above 54 MHz.
+# an integer division. SiDi128's game PLL does not lock above 54 MHz. The
+# framework's nominal 6 MHz setting also divides MiSTer's 56 MHz to 7 MHz.
 
 JTFRAME_BA1_START=0x040000
 DSP_START=0x048000
@@ -21,6 +22,7 @@ JTFRAME_BA3_START=0x099000
 JTFRAME_PROM_START=0x0D9000
 
 [mister]
+JTFRAME_PXLCLK=6
 JTFRAME_PLL=jtframe_pll7000
 JTFRAME_180SHIFT
 

@@ -396,6 +396,9 @@ func prepare_input_record() {
 }
 
 func make_clocks(target string) (mclk int) {
+	if e := check_pxlclk(); e != nil {
+		log.Fatal(e)
+	}
 	// JTFRAME_PLL is defined as the PLL name
 	// in the .def file. This will define that
 	// name as a macro on its own too
@@ -466,6 +469,14 @@ func clean_osd_macro() {
 		core_osd = ""
 	}
 	Set("CORE_OSD", core_osd)
+}
+
+func check_pxlclk() error {
+	pxlclk, _ := strconv.Atoi(Get("JTFRAME_PXLCLK"))
+	if pxlclk == 16 && !IsSet("JTFRAME_SDRAM96") {
+		return fmt.Errorf("JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96")
+	}
+	return nil
 }
 
 func check_colorw() {

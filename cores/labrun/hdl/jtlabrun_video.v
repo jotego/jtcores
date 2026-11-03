@@ -6,8 +6,8 @@ module jtlabrun_video(
     input               rst,
     input               clk,
     input               clk24,
-    output              pxl2_cen,
-    output              pxl_cen,
+    input               pxl2_cen,
+    input               pxl_cen,
     output              LHBL,
     output              LVBL,
     output              HS,
@@ -62,25 +62,6 @@ generate
         assign gfx_addr = {1'b0, pre_gfx_addr[16:0]};
     end
 endgenerate
-
-jtframe_cen48 u_cen(
-    .clk        ( clk       ),    // 48 MHz
-    .cen12      ( pxl2_cen  ),
-    .cen16      (           ),
-    .cen8       (           ),
-    .cen6       ( pxl_cen   ),
-    .cen4       (           ),
-    .cen4_12    (           ), // cen4 based on cen12
-    .cen3       (           ),
-    .cen3q      (           ), // 1/4 advanced with respect to cen3
-    .cen1p5     (           ),
-    .cen12b     (           ),
-    .cen16b     (           ),
-    .cen6b      (           ),
-    .cen3b      (           ),
-    .cen3qb     (           ),
-    .cen1p5b    (           )
-);
 
 jtcontra_gfx #(
     .BYPASS_VPROM({1'b0,GAME==LABRUN}),

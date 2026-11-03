@@ -22,8 +22,6 @@ wire [ 7:0] tb_data;
 wire        tb_ack_n;
 wire signed [15:0] cvsd;
 
-assign pxl2_cen    = cen32;
-assign pxl_cen     = cen16;
 assign ioctl_din   = 0;
 assign ex          = fm_r;
 assign cv          = cvsd;

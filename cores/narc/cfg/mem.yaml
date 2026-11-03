@@ -2,11 +2,6 @@ params:
   - { name: SND_OFFSET,  value: "22'h8_0000" }
   - { name: SNDS_OFFSET, value: "22'h9_0000" }
 clocks:
-  clk:
-    - freq: 32M
-      outputs:
-        - cen32
-        - cen16
   clk24:
     - freq: 8M
       outputs:
