@@ -64,7 +64,6 @@ osd #(.NATIVE_PIXEL(1)) uut_osd(
 reg check_line=0;
 reg [23:0] expected[0:511];
 integer sent=0, got=0, native_osd=0, retimed_osd=0;
-reg last_osd_bit;
 always @(posedge clk) if (check_line) begin
     if (ce_pipe[3] && de_osd) begin
         if (!video_osd[22] && video_osd[7:0]!==((HSTART+sent)&255)) begin
@@ -74,11 +73,14 @@ always @(posedge clk) if (check_line) begin
         expected[sent]=video_osd;
         sent=sent+1;
         if (video_osd[22]) begin
-            if (native_osd!=0 && last_osd_bit===video_osd[23]) begin
+            if (video_osd[23] !== native_osd[0]) begin
                 $display("Repeated/skipped OSD column at native pixel %0d",sent);
                 fail();
             end
-            last_osd_bit=video_osd[23];
+            if (native_osd==0 && sent-1!=(HACTIVE-256)/2) begin
+                $display("OSD centering mismatch: first pixel %0d",sent-1);
+                fail();
+            end
             native_osd=native_osd+1;
         end
     end

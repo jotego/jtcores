@@ -110,10 +110,10 @@ The build uses `DW=24`, `DIV=12`, `STEP=64`, `DEPTH=64` and `HW=10`.
 
 | Resource | Fitted usage |
 |---|---:|
-| ALMs used in final placement | 107 |
-| ALMs needed (Quartus packing estimate) | 79.6 |
+| ALMs used in final placement | 108.7 |
+| ALMs needed (Quartus packing estimate) | 79.4 |
 | Combinational ALUTs | 157 |
-| Dedicated logic registers | 150 |
+| Dedicated logic registers | 154 |
 | M10K blocks | 2 |
 | Logical block-memory bits | 2,560 |
 | DSP blocks | 1 |
@@ -124,11 +124,20 @@ The sync delay occupies another M10K with 1,024 logical bits (512 × 2).
 These are logical memory contents, not the full physical capacity of the two
 allocated M10Ks. The OSD pixel-enable alignment adds a four-register pipeline
 in `sys_top`, outside the retimer hierarchy reported above. Existing OSD and
-scanline resources are also outside these figures.
+scanline resources are also outside these figures. Native OSD composition also
+uses four stages of 24-bit RGB plus DE/HS/VS alignment (108 RTL register bits
+before fitting); these belong to the OSD hierarchy, not `u_hretime`.
+
+In the same build, the complete native VGA OSD hierarchy (including its
+bitmap storage and logo) reports 499.2 placed ALMs, 764 combinational ALUTs,
+606 dedicated registers, 8 M10Ks containing 52,836 logical bits, and no DSPs.
+These OSD totals include the pre-existing menu implementation; they are not
+the incremental cost of native-pixel alignment. Fractional ALM counts are
+Quartus's attribution of packed resources to hierarchy nodes.
 
 Source: the **Fitter Resource Utilization by Entity** section of
 `cores/rungun/mister/output_files/jtrungun.fit.rpt`, from the RTL in commit
-`2cedaed9f`. These are hierarchical fitted counts for this configuration,
+`c8ba19800`. These are hierarchical fitted counts for this configuration,
 not a measured whole-core
 resource difference against a build without the feature. Other pixel-clock
 ratios, FIFO depths and fitter placements can change the counts.
