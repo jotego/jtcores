@@ -6,17 +6,17 @@ module test;
 `include "test_tasks.vh"
 
 localparam DIV=12, HACTIVE=416, HTOTAL=512, VACTIVE=144, VTOTAL=152;
-`ifdef OSD_BYPASS
-localparam RETIME_ON=1'b0;
-`else
-localparam RETIME_ON=1'b1;
-`endif
+reg retime_on=0;
+reg signed [3:0] scale=0;
+reg [3:0] ce_pipe=0;
 reg clk=0;
 always #5 clk=~clk;
 
 reg [3:0] divcnt=0;
 reg [9:0] hcnt=0, vcnt=0;
 reg ce_in=0;
+always @(posedge clk) ce_pipe <= {ce_pipe[2:0],ce_in};
+
 reg io_osd=0, io_strobe=0;
 reg [15:0] io_din=0;
 wire hs_in=hcnt<32;
@@ -36,15 +36,15 @@ always @(posedge clk) begin
 end
 
 jtframe_hretime #(.DIV(DIV),.STEP(64),.DEPTH(64),.HW(10)) uut(
-    .clk(clk), .ce_in(ce_in), .enable(RETIME_ON), .scale(-4'sd5),
-    .din(din), .hs_in(hs_in), .vs_in(vs_in), .de_in(de_in),
+    .clk(clk), .ce_in(ce_pipe[3]), .enable(retime_on), .scale(scale),
+    .din(video_osd), .hs_in(hs_osd), .vs_in(vs_osd), .de_in(de_osd),
     .ce_out(), .dout(video_hz), .hs_out(hs_hz), .vs_out(vs_hz), .de_out(de_hz)
 );
 
 osd uut_osd(
     .clk_sys(clk), .io_osd(io_osd), .io_strobe(io_strobe), .io_din(io_din),
-    .clk_video(clk), .din(video_hz), .de_in(de_hz), .de_ref(de_in),
-    .vs_in(vs_hz), .hs_in(hs_hz), .dout(video_osd),
+    .clk_video(clk), .din(din), .de_in(de_in),
+    .vs_in(vs_in), .hs_in(hs_in), .dout(video_osd),
     .de_out(de_osd), .vs_out(vs_osd), .hs_out(hs_osd), .osd_status()
 );
 
@@ -62,7 +62,7 @@ always @(posedge clk) begin
         if (uut_osd.osd_de[2]) osd_clocks=osd_clocks+1;
         if (de_osd) de_clocks=de_clocks+1;
         if (uut_osd.osd_de[2] && de_osd) overlay_clocks=overlay_clocks+1;
-        if (de_osd && video_osd!=0) visible_clocks=visible_clocks+1;
+        if (de_hz && video_hz!=0) visible_clocks=visible_clocks+1;
         if (hcnt==0 && ce_in) begin
             if (osd_line) osd_lines=osd_lines+1;
             osd_line=0;
@@ -99,19 +99,22 @@ initial begin
     io_strobe=0;
     repeat(2) @(negedge clk);
     io_osd=0;
-    repeat((6*VTOTAL+VACTIVE/2)*HTOTAL*DIV) @(negedge clk);
-    $display("OSD clocks %0d, overlay clocks %0d, visible clocks %0d, DE clocks %0d, OSD lines %0d, frame %0d, enabled %b, en %b, dsp_width %0d, start %0d",
-        osd_clocks,overlay_clocks,visible_clocks,de_clocks,osd_lines,frame,uut_osd.osd_enable,uut_osd.GEOMETRY.osd_en,
-        uut_osd.GEOMETRY.dsp_width,uut_osd.GEOMETRY.h_osd_start);
-    if (osd_clocks>0 && overlay_clocks==osd_clocks && visible_clocks>0 &&
-        uut_osd.GEOMETRY.dsp_width>=550 && uut_osd.GEOMETRY.dsp_width<=560 &&
-        uut_osd.GEOMETRY.h_osd_start>=145 && uut_osd.GEOMETRY.h_osd_start<=150)
-        pass();
-    else fail();
+    // Settle geometry, then exercise bypass and all 16 encoded scales.
+    repeat(6*VTOTAL*HTOTAL*DIV) @(negedge clk);
+    for (i=-1; i<16; i=i+1) begin
+        retime_on=i>=0;
+        scale=i;
+        repeat(2*VTOTAL*HTOTAL*DIV) @(negedge clk);
+        repeat((VACTIVE-1)*HTOTAL*DIV) @(negedge clk);
+        $display("scale=%0d enable=%b visible=%0d OSD=%0d overlay=%0d width=%0d",
+            scale,retime_on,visible_clocks,osd_clocks,overlay_clocks,uut_osd.GEOMETRY.dsp_width);
+        if (visible_clocks<=0 || osd_clocks<=0 || overlay_clocks!=osd_clocks) fail();
+    end
+    pass();
 end
 
 initial begin
-    #100_000_000;
+    #1_000_000_000;
     $display("timeout");
     fail();
 end

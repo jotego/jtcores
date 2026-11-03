@@ -11,7 +11,6 @@ module osd
     input         clk_video,
     input  [23:0] din,
     input         de_in,
-    input         de_ref, // original active window for OSD timing and placement
     input         vs_in,
     input         hs_in,
     output [23:0] dout,
@@ -115,15 +114,15 @@ always @(posedge clk_video) begin
     reg deD;
 
     cnt <= cnt + 1'd1;
-    deD <= de_ref;
+    deD <= de_in;
 
     pixcnt <= pixcnt + 1'd1;
     if(pixcnt == pixsz) pixcnt <= 0;
     ce_pix <= !pixcnt;
 
-    if(~deD && de_ref) cnt <= 0;
+    if(~deD && de_in) cnt <= 0;
 
-    if(deD && ~de_ref) begin
+    if(deD && ~de_in) begin
         pixsz  <= (((cnt+1'b1) >> (9-rot[0])) > 1) ? (((cnt+1'b1) >> (9-rot[0])) - 1'd1) : 22'd0;
         pixcnt <= 0;
     end
@@ -185,7 +184,7 @@ always @(posedge clk_video) begin : GEOMETRY
 
     if(ce_pix) begin
 
-        deD <= de_ref;
+        deD <= de_in;
         if(~&h_cnt) h_cnt <= h_cnt + 1'd1;
 
         if(~&osd_hcnt)  osd_hcnt  <= osd_hcnt + 1'd1;
@@ -204,10 +203,10 @@ always @(posedge clk_video) begin : GEOMETRY
         if (osd_hcnt+1 == osd_w) osd_de[0] <= 0;
 
         // falling edge of de
-        if(!de_ref && deD) dsp_width <= h_cnt[21:0];
+        if(!de_in && deD) dsp_width <= h_cnt[21:0];
 
         // rising edge of de
-        if(de_ref && !deD) begin
+        if(de_in && !deD) begin
             h_cnt <= 0;
             v_cnt <= v_cnt + 1'd1;
             h_osd_start <= info ? (rot[0] ? infoy : infox) : (((dsp_width - osd_w)>>1) - 2'd2);

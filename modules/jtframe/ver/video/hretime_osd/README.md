@@ -1,0 +1,1 @@
+Run and Gun horizontal timing (416/512 at DIV=12), with a shortened vertical period. Composes an enabled OSD before horizontal retiming, delays pixel enable by the four OSD pipeline clocks, and checks visible output on a black background for bypass and all 16 scale encodings. Uses the FPGA zero-power-up model for legacy OSD geometry registers.

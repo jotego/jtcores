@@ -61,14 +61,14 @@ The module has a single clock (`clk` = master clock) and generates its own outpu
 
 * **DIV** — master-clock cycles per source pixel (8 for a 6 MHz pixel clock at 48 MHz)
 * **STEP** — accumulator denominator, 64 by default
-* **scale** — the OSD setting, signed -8..+7
+* **scale** — the encoded OSD setting, signed -8..+7; nonnegative values map to +1..+8, negative values remain -8..-1
 
-The target period is **m = DIV × (STEP + scale)**. Each master-clock cycle the accumulator adds STEP. When the accumulator reaches or exceeds m, it fires `ce_slow` (one output pixel) and wraps by subtracting m. The accumulator resets at every horizontal sync, so every line starts with the same phase.
+The target period is **m = DIV × (STEP + effective_scale)**. Each master-clock cycle the accumulator adds STEP. When the accumulator reaches or exceeds m, it fires `ce_slow` (one output pixel) and wraps by subtracting m. The accumulator resets at every horizontal sync, so every line starts with the same phase.
 
 Every pixel normally takes DIV = 8 master clocks. The scale controls how many pixels in each group of 8 shift to the adjacent divisor (7 or 9 clocks). The shifted pixels are distributed evenly across the line by the accumulator — never two adjacent.
 
 ```
-scale | per group of 8 pixels              | total clocks | % change
+effective scale | per group of 8 pixels              | total clocks | % change
 ------+--------------------------------------+--------------+---------
   -8  | 8 at 7 clocks                       |  56          | -12.5%
   -7  | 7 at 7, 1 at 8                      |  57          | -10.9%
@@ -86,9 +86,10 @@ scale | per group of 8 pixels              | total clocks | % change
   +5  | 3 at 8, 5 at 9                      |  69          |  +7.8%
   +6  | 2 at 8, 6 at 9                      |  70          |  +9.4%
   +7  | 1 at 8, 7 at 9                      |  71          | +10.9%
+  +8  | 8 at 9                             |  72          | +12.5%
 ```
 
-At scale = -8, all 8 pixels move from 8→7 clocks — a full divisor shift. At scale = +7, 7 out of 8 move from 8→9. The pattern is identical on every line (the accumulator resets at hs).
+At scale = -8, all 8 pixels move from 8→7 clocks — a full divisor shift. At effective scale = +8, all 8 move from 8→9. Zero in the table describes disabled retiming. The pattern is identical on every line (the accumulator resets at hs).
 
 ### Pixel edge placement
 
@@ -104,7 +105,7 @@ The FIFO depth is derived at build time from `JTFRAME_WIDTH` and STEP, sized to 
 
 ### Where it sits
 
-The re-timer is instantiated in `sys_top.v` on the VGA branch, between the scanlines filter and the analog OSD — **downstream of the point where the HDMI scaler taps the stream**, so HDMI output is unaffected by construction. The analog OSD uses the original active window for its pixel timing and placement while drawing over the re-timed picture at the full video clock. It is bypassed when the scandoubler is forced, as h-size only makes sense on a 15 kHz monitor.
+The re-timer is instantiated in `sys_top.v` after the analog OSD, downstream of the HDMI scaler tap. The OSD measures the original video timing, then the completed game/menu image is stretched together. Pixel enable is delayed by four video clocks to match the OSD RGB, sync and DE pipeline. Retiming is bypassed when the scandoubler is forced or analog VGA is unavailable on dual-SDRAM builds.
 
 ### Auto-centring
 
@@ -112,7 +113,7 @@ Without centring, stretch grows the picture to the right and shrink pulls it lef
 
 ### OSD
 
-The OSD shows *CRT H size* (enable, Off/On) and *CRT H size adjust* (signed -8..+7). The adjust entry is hidden until enable is On. Each step is `1/JTFRAME_HSIZE_STEP` of the picture width, 1/64 (1.6%) by default, so the range is roughly -12.5%..+11%. **JTFRAME_HSIZE_STEP** must be a power of two. Off is a true bypass (`ce_out = ce_in`), and scale 0 is the same bypass.
+The OSD shows *CRT H size* (enable, Off/On) and *CRT H size adjust* (effective -8..-1 and +1..+8). The adjust entry is hidden until enable is On. Each step is `1/JTFRAME_HSIZE_STEP` of the picture width, 1/64 (1.6%) by default, so the range is -12.5%..+12.5%. **JTFRAME_HSIZE_STEP** must be a power of two. Off is a true bypass (`ce_out = ce_in`). Encoded scale 0 means +1, not bypass.
 
 How far the picture can actually stretch is set by the core's blanking budget, not by the module: if the resized active region would run past hs it is truncated there — the right edge clips but sync is never corrupted. A 256-pixel game inside a 384-pixel line has room for the whole range; a 384-pixel active region runs out at around +6.
 

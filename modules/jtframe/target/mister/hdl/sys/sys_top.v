@@ -1170,7 +1170,6 @@ cyclonev_hps_interface_peripheral_i2c hdmi_i2c
 		.hs_in(hdmi_hs_mask),
 		.vs_in(hdmi_vs_mask),
 		.de_in(hdmi_de_mask),
-		.de_ref(hdmi_de_mask),
 
 		.dout(hdmi_data_osd),
 		.hs_out(hdmi_hs_osd),
@@ -1379,9 +1378,37 @@ scanlines #(0) VGA_scanlines
 // JTFRAME: analogue h-size. Inserted after the HDMI branch has already tapped
 // the stream, so stretching only moves the DAC pixel clock. See
 // $JTFRAME/hdl/video/jtframe_hretime.v
+wire [23:0] vga_data_mix;
+wire        vga_vs_mix, vga_hs_mix, vga_de_mix;
+osd vga_osd
+(
+	.clk_sys(clk_sys),
+
+	.io_osd(io_osd_vga),
+	.io_strobe(io_strobe),
+	.io_din(io_din),
+	.osd_status(osd_status),
+
+	.clk_video(clk_vid),
+	.din(vga_data_sl),
+	.hs_in(vga_hs_sl),
+	.vs_in(vga_vs_sl),
+	.de_in(vga_de_sl),
+
+	.dout(vga_data_mix),
+	.hs_out(vga_hs_mix),
+	.vs_out(vga_vs_mix),
+	.de_out(vga_de_mix)
+);
+
+// Match the four clk_vid registers in the OSD RGB/sync/DE pipeline.
+reg [3:0] vga_ce_pipe;
+wire vga_ce_mix = vga_ce_pipe[3];
+always @(posedge clk_vid) vga_ce_pipe <= {vga_ce_pipe[2:0], vga_ce_sl};
+
 `ifndef JTFRAME_NORETIME
-wire [23:0] vga_data_hz;
-wire        vga_hs_hz, vga_vs_hz, vga_de_hz;
+wire [23:0] vga_data_osd;
+wire        vga_hs_osd, vga_vs_osd, vga_de_osd;
 wire [ 4:0] VGA_HSIZE;
 // h-size only makes sense on a 15 kHz monitor, and the scandoubler doubles the
 // pixel rate that JTFRAME_HSIZE_DIV describes
@@ -1398,51 +1425,27 @@ jtframe_hretime #(
 ) u_hretime
 (
 	.clk(clk_vid),
-	.ce_in(vga_ce_sl),
+	.ce_in(vga_ce_mix),
 	.enable(VGA_HSIZE[4] & ~hsize_off),
 	.scale(VGA_HSIZE[3:0]),
 
-	.din(vga_data_sl),
-	.hs_in(vga_hs_sl),
-	.vs_in(vga_vs_sl),
-	.de_in(vga_de_sl),
+	.din(vga_data_mix),
+	.hs_in(vga_hs_mix),
+	.vs_in(vga_vs_mix),
+	.de_in(vga_de_mix),
 
 	.ce_out(),
-	.dout(vga_data_hz),
-	.hs_out(vga_hs_hz),
-	.vs_out(vga_vs_hz),
-	.de_out(vga_de_hz)
-);
-`else
-wire [23:0] vga_data_hz = vga_data_sl;
-wire        vga_hs_hz   = vga_hs_sl,
-            vga_vs_hz   = vga_vs_sl,
-            vga_de_hz   = vga_de_sl;
-`endif
-
-wire [23:0] vga_data_osd;
-wire        vga_vs_osd, vga_hs_osd, vga_de_osd;
-osd vga_osd
-(
-	.clk_sys(clk_sys),
-
-	.io_osd(io_osd_vga),
-	.io_strobe(io_strobe),
-	.io_din(io_din),
-	.osd_status(osd_status),
-
-	.clk_video(clk_vid),
-	.din(vga_data_hz),
-	.hs_in(vga_hs_hz),
-	.vs_in(vga_vs_hz),
-	.de_in(vga_de_hz),
-	.de_ref(vga_de_sl),
-
 	.dout(vga_data_osd),
 	.hs_out(vga_hs_osd),
 	.vs_out(vga_vs_osd),
 	.de_out(vga_de_osd)
 );
+`else
+wire [23:0] vga_data_osd = vga_data_mix;
+wire        vga_hs_osd   = vga_hs_mix,
+            vga_vs_osd   = vga_vs_mix,
+            vga_de_osd   = vga_de_mix;
+`endif
 
 wire vga_cs_osd;
 csync csync_vga(clk_vid, vga_hs_osd, vga_vs_osd, vga_cs_osd);
