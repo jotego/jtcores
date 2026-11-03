@@ -95,11 +95,43 @@ Because both "clocks" are really enables off the same master clock, the output p
 
 ### The elastic FIFO
 
-Source pixels are written into a small FIFO (~32–64 deep, MLAB-based) at the input pixel rate. The reader pops them at the `ce_slow` rate. The FIFO resets at every horizontal sync so it cannot drift across lines.
+Source pixels are written into a small synchronous-read FIFO at the input pixel rate. Its depth and physical RAM mapping depend on the build parameters and target; the MiSTer example below uses M10K blocks. The reader pops them at the `ce_slow` rate. The FIFO resets at every horizontal sync so it cannot drift across lines.
 
 For stretch the reader is slower, so the writer stays ahead and the FIFO fills gradually. For shrink the reader is faster, so it waits until the writer is far enough ahead (the `started` flag) before beginning — this prevents underrun and ensures the tail of the line is not lost.
 
 The FIFO depth is derived at build time from `JTFRAME_WIDTH` and STEP, sized to the worst-case occupancy at max stretch.
+
+### FPGA resource usage
+
+The full Run and Gun MiSTer build (`jtcore rungun -mr`, seed 1), completed on
+2026-11-03 with Quartus Prime Lite 20.1.1 Build 720, reports the following for
+`sys_top|jtframe_hretime:u_hretime` on the Cyclone V `5CSEBA6U23I7`.
+The build uses `DW=24`, `DIV=12`, `STEP=64`, `DEPTH=64` and `HW=10`.
+
+| Resource | Fitted usage |
+|---|---:|
+| ALMs used in final placement | 107 |
+| ALMs needed (Quartus packing estimate) | 79.6 |
+| Combinational ALUTs | 157 |
+| Dedicated logic registers | 150 |
+| M10K blocks | 2 |
+| Logical block-memory bits | 2,560 |
+| DSP blocks | 1 |
+| ALMs used for memory | 0 |
+
+The pixel FIFO occupies one M10K with 1,536 logical bits (64 × 24).
+The sync delay occupies another M10K with 1,024 logical bits (512 × 2).
+These are logical memory contents, not the full physical capacity of the two
+allocated M10Ks. The OSD pixel-enable alignment adds a four-register pipeline
+in `sys_top`, outside the retimer hierarchy reported above. Existing OSD and
+scanline resources are also outside these figures.
+
+Source: the **Fitter Resource Utilization by Entity** section of
+`cores/rungun/mister/output_files/jtrungun.fit.rpt`, from the RTL in commit
+`2cedaed9f`. These are hierarchical fitted counts for this configuration,
+not a measured whole-core
+resource difference against a build without the feature. Other pixel-clock
+ratios, FIFO depths and fitter placements can change the counts.
 
 ### Where it sits
 
