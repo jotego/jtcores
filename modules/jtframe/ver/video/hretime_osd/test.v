@@ -105,9 +105,13 @@ initial begin
         retime_on=i>=0;
         scale=i;
         repeat(2*VTOTAL*HTOTAL*DIV) @(negedge clk);
-        repeat((VACTIVE-1)*HTOTAL*DIV) @(negedge clk);
+        // Measure the same complete active frame for every setting.
+        wait(vcnt==0 && hcnt==0);
+        wait(vcnt==VACTIVE);
+        @(negedge clk);
         $display("scale=%0d enable=%b visible=%0d OSD=%0d overlay=%0d width=%0d",
             scale,retime_on,visible_clocks,osd_clocks,overlay_clocks,uut_osd.GEOMETRY.dsp_width);
+        $fflush();
         if (visible_clocks<=0 || osd_clocks<=0 || overlay_clocks!=osd_clocks) fail();
     end
     pass();
