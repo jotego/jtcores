@@ -30,7 +30,7 @@ JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves som
 JTFRAME_HEADER           |         | Set to the length of the ROM file header (derived from TOML)
 JTFRAME_HEIGHT           |         | Sets the video height
 JTFRAME_HSIZE_STEP       | MiSTer  | Size change per OSD step, as 1/STEP. Power of two, 64 (1.6%) by default
-JTFRAME_HSIZE_DIV        | MiSTer  | Automatic. clk to pixel-clock ratio used by jtframe_hretime
+JTFRAME_HSIZE_DIV        | MiSTer  | clk-to-pixel ratio used by jtframe_hretime; derived by default, explicit integer override allowed
 JTFRAME_HSIZE_DEPTH      | MiSTer  | Automatic. Elastic FIFO depth used by jtframe_hretime
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games

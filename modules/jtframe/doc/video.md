@@ -135,7 +135,7 @@ ratios, FIFO depths and fitter placements can change the counts.
 
 ### Where it sits
 
-The re-timer is instantiated in `sys_top.v` after the analog OSD, downstream of the HDMI scaler tap. The OSD measures the original video timing, then the completed game/menu image is stretched together. Pixel enable is delayed by four video clocks to match the OSD RGB, sync and DE pipeline. Retiming is bypassed when the scandoubler is forced or analog VGA is unavailable on dual-SDRAM builds.
+The re-timer is instantiated in `sys_top.v` after the analog OSD, downstream of the HDMI scaler tap. The analog OSD advances its bitmap and horizontal geometry on the same native pixel enable as the game (`vga_ce_sl`). It does not derive a separate pixel rate from the active-video width. Each OSD column therefore occupies one native pixel before the completed game/menu image is retimed. The HDMI OSD retains its independent output-resolution timing. In native mode, game RGB, sync and DE are delayed by four native pixels to match bitmap lookup and mask generation. The final output pipeline adds four video clocks; pixel enable is delayed by those same four clocks before retiming. Retiming is bypassed when the scandoubler is forced or analog VGA is unavailable on dual-SDRAM builds.
 
 ### Auto-centring
 
@@ -149,12 +149,12 @@ How far the picture can actually stretch is set by the core's blanking budget, n
 
 ### Build-time macros
 
-`jtframe cfgstr` derives two macros from the core's clocks, and neither should be set by hand:
+`jtframe cfgstr` supplies two build-time parameters:
 
-* **JTFRAME_HSIZE_DIV**: master-clock cycles per pixel. Computed as `base / PXLCLK` where base is 48 (or 96 with SDRAM96). Default PXLCLK = 6 → DIV = 8.
+* **JTFRAME_HSIZE_DIV**: master-clock cycles per pixel. Computed as `base / PXLCLK` where base is 48 (or 96 with SDRAM96). Default PXLCLK = 6 → DIV = 8. A core may explicitly set this integer divisor when its native pixel enable does not follow the nominal PLL convention. CPS3 uses `JTFRAME_HSIZE_DIV=14`: its 112 MHz video clock and 8 MHz native pixels require 14 clocks per pixel; the default 16 would over-stretch the image and can overflow the FIFO.
 * **JTFRAME_HSIZE_DEPTH**: elastic FIFO depth, from JTFRAME_WIDTH and the step size.
 
-The unit test is at `$JTFRAME/ver/video/hretime`, and it sweeps every step at each of the three usual clock ratios (DIV 6, 8, 12).
+The standalone retimer test is at `$JTFRAME/ver/video/hretime`. The OSD integration test at `$JTFRAME/ver/video/hretime_osd` uses alternating bitmap columns with s18, Run and Gun and CPS3 timing profiles. It checks one native pixel per OSD column, byte-exact output order and all 256 OSD columns surviving bypass and every stretch setting. It also covers CPS3’s 14-clock pixel ratio.
 
 # Frame Buffer
 

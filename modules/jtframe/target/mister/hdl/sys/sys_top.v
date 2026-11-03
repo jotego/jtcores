@@ -1166,6 +1166,7 @@ cyclonev_hps_interface_peripheral_i2c hdmi_i2c
 		.io_din(io_din),
 
 		.clk_video(clk_hdmi),
+		.ce_in(1'b0),
 		.din(hdmi_data_mask),
 		.hs_in(hdmi_hs_mask),
 		.vs_in(hdmi_vs_mask),
@@ -1380,7 +1381,7 @@ scanlines #(0) VGA_scanlines
 // $JTFRAME/hdl/video/jtframe_hretime.v
 wire [23:0] vga_data_mix;
 wire        vga_vs_mix, vga_hs_mix, vga_de_mix;
-osd vga_osd
+osd #(.NATIVE_PIXEL(1)) vga_osd
 (
 	.clk_sys(clk_sys),
 
@@ -1390,6 +1391,7 @@ osd vga_osd
 	.osd_status(osd_status),
 
 	.clk_video(clk_vid),
+	.ce_in(vga_ce_sl),
 	.din(vga_data_sl),
 	.hs_in(vga_hs_sl),
 	.vs_in(vga_vs_sl),

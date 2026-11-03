@@ -398,3 +398,15 @@ func Test_make_clocks_rejects_pixel_16_without_sdram96(t *testing.T) {
 		t.Fatalf("Expected 96 MHz clock with valid 16 MHz pixel setup, got %d", got)
 	}
 }
+
+func Test_hsize_explicit_divisor(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_SDRAM96": "1",
+		"JTFRAME_HSIZE_DIV": "14",
+		"JTFRAME_WIDTH": "384",
+	})
+	set_hsize_params(112000000)
+	if Get("JTFRAME_HSIZE_DIV") != "14" || Get("JTFRAME_HSIZE_DEPTH") != "64" {
+		t.Fatal("CPS3 native pixel ratio or FIFO depth changed")
+	}
+}

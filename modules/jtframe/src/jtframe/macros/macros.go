@@ -492,22 +492,29 @@ func set_hsize_params(mclk int) {
 	if e != nil || step < 16 || step&(step-1) != 0 {
 		log.Fatal("JTFRAME: JTFRAME_HSIZE_STEP must be a power of two of 16 or more, got ", Get("JTFRAME_HSIZE_STEP"))
 	}
-	// JTFRAME_PXLCLK is the pixel frequency in MHz. The master clock is set
-	// by the PLL so that mclk / div = PXLCLK MHz exactly, with div computed
-	// against the nominal 48 MHz base (or 96 MHz with JTFRAME_SDRAM96).
-	// Non-standard PLLs change mclk but keep the same divisor.
-	base := 48
-	if IsSet("JTFRAME_SDRAM96") {
-		base = 96
-	}
-	div := base / 6 // default PXLCLK=6
-	if IsSet("JTFRAME_PXLCLK") {
-		mhz, e := strconv.Atoi(Get("JTFRAME_PXLCLK"))
-		if e == nil && mhz > 0 && base%mhz == 0 {
-			div = base / mhz
+	if IsSet("JTFRAME_HSIZE_DIV") {
+		div, e := strconv.Atoi(Get("JTFRAME_HSIZE_DIV"))
+		if e != nil || div < 2 {
+			log.Fatal("JTFRAME: JTFRAME_HSIZE_DIV must be an integer of at least 2")
 		}
+	} else {
+		// JTFRAME_PXLCLK is the pixel frequency in MHz. The master clock is set
+		// by the PLL so that mclk / div = PXLCLK MHz exactly, with div computed
+		// against the nominal 48 MHz base (or 96 MHz with JTFRAME_SDRAM96).
+		// Non-standard PLLs change mclk but keep the same divisor.
+		base := 48
+		if IsSet("JTFRAME_SDRAM96") {
+			base = 96
+		}
+		div := base / 6 // default PXLCLK=6
+		if IsSet("JTFRAME_PXLCLK") {
+			mhz, e := strconv.Atoi(Get("JTFRAME_PXLCLK"))
+			if e == nil && mhz > 0 && base%mhz == 0 {
+				div = base / mhz
+			}
+		}
+		Set("JTFRAME_HSIZE_DIV", fmt.Sprintf("%d", div))
 	}
-	Set("JTFRAME_HSIZE_DIV", fmt.Sprintf("%d", div))
 
 	width := 384
 	w := Get("JTFRAME_WIDTH")
