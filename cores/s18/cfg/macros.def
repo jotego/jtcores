@@ -43,3 +43,8 @@ GAME_WWALLY  =0x40
 [sidi|mist|neptuno|mc*]
 # won't fit
 JTFRAME_SKIP
+
+[mister|sidi128]
+CORE_OSD=OE,Video timing,60 Hz,Original 57 Hz;
+DUAL_RATE
+JTFRAME_RATE=60.10
