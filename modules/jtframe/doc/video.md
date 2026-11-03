@@ -43,17 +43,15 @@ These arrangements help fit the image on any CRT, as many don't have H/V potenti
 There are two modules used for this:
 
 1. jtframe_resync: moves H/V sync pulses
-2. jtframe_hsize: scales the horizontal video signal
+2. jtframe_hretime: stretches or shrinks the analog video after OSD composition
 
-Note that the blanking period also gets scaled by the same factor. H/V sync adjustment occurs before the scaling.
+Horizontal retiming keeps the line period fixed and adjusts the active window within it. H/V sync adjustment occurs before retiming.
 
 The monitor may completely lose sync for some settings. Note that this is a secondary feature, which I cannot fully test, and receives less development attention.
 
 ## Analogue H size (jtframe_hretime)
 
-On MiSTer the analogue h-size uses jtframe_hretime by default. It resizes the picture by re-timing the DAC pixel clock instead of resampling the pixels. Every source pixel is still emitted once and only once, just held for a longer or shorter number of master-clock cycles, so there is no shimmering on moving graphics and no blending. The line period is unchanged; the active window grows into the porches and a fixed-sweep CRT draws it wider.
-
-To fall back to the legacy resampling scaler (jtframe_hsize), set **JTFRAME_NORETIME** in the core's `macros.def`.
+On MiSTer the analogue h-size uses jtframe_hretime. It resizes the picture by re-timing the DAC pixel clock instead of resampling the pixels. Every source pixel is still emitted once and only once, just held for a longer or shorter number of master-clock cycles, so there is no shimmering on moving graphics and no blending. The line period is unchanged; the active window grows into the porches and a fixed-sweep CRT draws it wider.
 
 ### How the phase accumulator works
 

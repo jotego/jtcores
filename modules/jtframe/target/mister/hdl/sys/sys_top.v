@@ -1406,7 +1406,6 @@ reg [3:0] vga_ce_pipe;
 wire vga_ce_mix = vga_ce_pipe[3];
 always @(posedge clk_vid) vga_ce_pipe <= {vga_ce_pipe[2:0], vga_ce_sl};
 
-`ifndef JTFRAME_NORETIME
 wire [23:0] vga_data_osd;
 wire        vga_hs_osd, vga_vs_osd, vga_de_osd;
 wire [ 4:0] VGA_HSIZE;
@@ -1440,12 +1439,6 @@ jtframe_hretime #(
 	.vs_out(vga_vs_osd),
 	.de_out(vga_de_osd)
 );
-`else
-wire [23:0] vga_data_osd = vga_data_mix;
-wire        vga_hs_osd   = vga_hs_mix,
-            vga_vs_osd   = vga_vs_mix,
-            vga_de_osd   = vga_de_mix;
-`endif
 
 wire vga_cs_osd;
 csync csync_vga(clk_vid, vga_hs_osd, vga_vs_osd, vga_cs_osd);
@@ -1809,9 +1802,7 @@ emu emu
 	.VGA_DISABLE(VGA_DISABLE),
 `endif
 
-`ifndef JTFRAME_NORETIME
 	.VGA_HSIZE(VGA_HSIZE),
-`endif
 
 	.HDMI_WIDTH(direct_video ? 12'd0 : hdmi_width),
 	.HDMI_HEIGHT(direct_video ? 12'd0 : hdmi_height),

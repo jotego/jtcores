@@ -78,7 +78,6 @@ JTFRAME_NOSTA            |         | jtcore will not check STA and will produce 
 JTFRAME_EASY_STA         |         | jtcore accepts small negative STA slack down to -0.333 ns
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
 JTFRAME_NOHQ2X           | MiSTer  | Disables HQ2X filter in MiSTer
-JTFRAME_NORETIME         | MiSTer  | Use legacy resampling CRT scaler (jtframe_hsize) instead of jtframe_hretime
 JTFRAME_OSD_FLIP         |         | flip option on OSD
 JTFRAME_OSD_LOAD         | MiST(er)| load option shown on OSD (off by default on MiSTer)
 JTFRAME_OSD_NOCREDITS    |         | No credits option on OSD

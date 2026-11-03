@@ -484,11 +484,7 @@ func check_pxlclk() error {
 // so the re-timer needs the clk-to-pixel-clock ratio. It also needs a FIFO able
 // to hold the peak lead between writer and reader, which is at most
 // JTFRAME_WIDTH*8/JTFRAME_HSIZE_STEP samples (8 = the largest scale step).
-// Skipped when JTFRAME_NORETIME selects the legacy resampling scaler.
 func set_hsize_params(mclk int) {
-	if IsSet("JTFRAME_NORETIME") {
-		return
-	}
 	if !IsSet("JTFRAME_HSIZE_STEP") {
 		Set("JTFRAME_HSIZE_STEP", "64")
 	}
