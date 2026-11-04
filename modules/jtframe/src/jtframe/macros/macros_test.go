@@ -1,6 +1,8 @@
 package macros
 
 import (
+	"bytes"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -408,5 +410,41 @@ func Test_hsize_explicit_divisor(t *testing.T) {
 	set_hsize_params(112000000)
 	if Get("JTFRAME_HSIZE_DIV") != "14" || Get("JTFRAME_HSIZE_DEPTH") != "64" {
 		t.Fatal("CPS3 native pixel ratio or FIFO depth changed")
+	}
+}
+
+func Test_hsize_missing_ratio_warning(t *testing.T) {
+	var output bytes.Buffer
+	previous := log.Writer()
+	log.SetOutput(&output)
+	defer log.SetOutput(previous)
+	for _, tc := range []struct {
+		core string
+		values map[string]string
+		warn bool
+	}{
+		{"custom", map[string]string{}, true},
+		{"custom", map[string]string{"JTFRAME_SDRAM96": "1"}, true},
+		{"custom", map[string]string{"JTFRAME_PXLCLK": "8"}, false},
+		{"cps3", map[string]string{"JTFRAME_HSIZE_DIV": "14"}, false},
+		{"custom", map[string]string{"JTFRAME_HSIZE_DIV": "14", "JTFRAME_PXLCLK": "8"}, false},
+		{"ngp", map[string]string{}, false},
+		{"ngpc", map[string]string{}, false},
+	} {
+		MakeFromMap(tc.values)
+		output.Reset()
+		warn_hsize_clock(tc.core)
+		warned := strings.Contains(output.String(), "WARNING: " + tc.core + " defines neither JTFRAME_HSIZE_DIV nor JTFRAME_PXLCLK")
+		if warned != tc.warn {
+			t.Fatalf("Unexpected warning for %s %v: %s", tc.core, tc.values, output.String())
+		}
+		set_hsize_params(48000000)
+		if tc.warn {
+			want := "8"
+			if IsSet("JTFRAME_SDRAM96") { want = "16" }
+			if Get("JTFRAME_HSIZE_DIV") != want {
+				t.Fatalf("Warning changed legacy divisor: got %s, want %s", Get("JTFRAME_HSIZE_DIV"), want)
+			}
+		}
 	}
 }

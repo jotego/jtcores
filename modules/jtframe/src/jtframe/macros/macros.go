@@ -116,6 +116,7 @@ func MakeMacros(core, target string, extra ...string) {
 	clean_osd_macro()
 	check_colorw()
 	mclk := make_clocks(target)
+	warn_hsize_clock(core)
 	set_hsize_params(mclk)
 	set_sdram_refresh_rate(int64(mclk))
 	add_subcarrier_clk(int64(mclk))
@@ -478,6 +479,13 @@ func check_pxlclk() error {
 		return fmt.Errorf("JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96")
 	}
 	return nil
+}
+
+func warn_hsize_clock(core string) {
+	if core == "ngp" || core == "ngpc" || IsSet("JTFRAME_HSIZE_DIV") || IsSet("JTFRAME_PXLCLK") {
+		return
+	}
+	log.Printf("WARNING: %s defines neither JTFRAME_HSIZE_DIV nor JTFRAME_PXLCLK; assuming nominal 6 MHz pixels. Define JTFRAME_HSIZE_DIV explicitly for a custom pixel clock.", core)
 }
 
 // jtframe_hretime regenerates the analogue pixel clock with a phase accumulator,
