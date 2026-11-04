@@ -15,24 +15,32 @@ jtblkout_video dut(.clk(clk), .rst(rst), .pxl_cen(pxl_cen),
     .LHBL(lhbl), .LVBL(lvbl), .HS(hs), .VS(vs));
 localparam CORE_CODE = 0;
 localparam EXPECTED_HSYNC = 27, EXPECTED_VSYNC = 3;
+localparam EXPECTED_HFRONT = 82, EXPECTED_HBACK = 83;
+localparam EXPECTED_VFRONT_TICKS = 6656, EXPECTED_VBACK_TICKS = 6656;
 localparam EXPECTED_HTOTAL = 512, EXPECTED_VTOTAL = 269, EXPECTED_HACTIVE = 320, EXPECTED_VACTIVE = 240;
 `elsif CORE_PKTGAL
 jtpktgal_video dut(.clk(clk), .rst(rst), .pxl_cen(pxl_cen),
     .LHBL(lhbl), .LVBL(lvbl), .HS(hs), .VS(vs));
 localparam CORE_CODE = 1;
 localparam EXPECTED_HSYNC = 32, EXPECTED_VSYNC = 3;
+localparam EXPECTED_HFRONT = 48, EXPECTED_HBACK = 48;
+localparam EXPECTED_VFRONT_TICKS = 3128, EXPECTED_VBACK_TICKS = 9544;
 localparam EXPECTED_HTOTAL = 384, EXPECTED_VTOTAL = 260, EXPECTED_HACTIVE = 256, EXPECTED_VACTIVE = 224;
 `elsif CORE_SF
 jtsf_video dut(.clk(clk), .rst(rst), .pxl_cen(pxl_cen),
     .LHBL(lhbl), .LVBL(lvbl), .HS(hs), .VS(vs));
 localparam CORE_CODE = 2;
 localparam EXPECTED_HSYNC = 40, EXPECTED_VSYNC = 3;
+localparam EXPECTED_HFRONT = 32, EXPECTED_HBACK = 56;
+localparam EXPECTED_VFRONT_TICKS = 2568, EXPECTED_VBACK_TICKS = 12280;
 localparam EXPECTED_HTOTAL = 512, EXPECTED_VTOTAL = 256, EXPECTED_HACTIVE = 384, EXPECTED_VACTIVE = 224;
 `elsif CORE_SARMS
 jtsarms_video dut(.clk(clk), .rst(rst), .pxl_cen(pxl_cen),
     .LHBL(lhbl), .LVBL(lvbl), .HS(hs), .VS(vs));
 localparam CORE_CODE = 3;
 localparam EXPECTED_HSYNC = 40, EXPECTED_VSYNC = 3;
+localparam EXPECTED_HFRONT = 32, EXPECTED_HBACK = 56;
+localparam EXPECTED_VFRONT_TICKS = 2576, EXPECTED_VBACK_TICKS = 12272;
 localparam EXPECTED_HTOTAL = 512, EXPECTED_VTOTAL = 256, EXPECTED_HACTIVE = 384, EXPECTED_VACTIVE = 224;
 `elsif CORE_GAE1
 `ifndef TEST_VTOTAL
@@ -43,6 +51,9 @@ jtgae1_video #(.VTOTAL(`TEST_VTOTAL)) dut(.clk(clk), .rst(rst), .pxl_cen(pxl_cen
     .squash(1'b0), .bigkarnk(1'b0), .spr_force_high(6'b0));
 localparam CORE_CODE = 4;
 localparam EXPECTED_HSYNC = 28, EXPECTED_VSYNC = 8;
+localparam EXPECTED_HFRONT = 11, EXPECTED_HBACK = 25;
+localparam EXPECTED_VFRONT_TICKS = ((`TEST_VTOTAL-247)/2)*384 - ((`TEST_VTOTAL%2) ? 192 : 0);
+localparam EXPECTED_VBACK_TICKS = EXPECTED_VFRONT_TICKS;
 localparam EXPECTED_HTOTAL = 384, EXPECTED_VTOTAL = `TEST_VTOTAL, EXPECTED_HACTIVE = 320, EXPECTED_VACTIVE = 240;
 `elsif CORE_TOKI
 jttoki_video dut(.clk(clk), .rst(rst), .pxl_cen(pxl_cen), .pxl2_cen(pxl_cen),
@@ -52,6 +63,8 @@ jttoki_video dut_cabal(.clk(clk), .rst(rst), .pxl_cen(pxl_cen), .pxl2_cen(pxl_ce
     .hsync(toki_cabal_hs), .vsync(toki_cabal_vs));
 localparam CORE_CODE = 5;
 localparam EXPECTED_HSYNC = 32, EXPECTED_VSYNC = 3;
+localparam EXPECTED_HFRONT = 41, EXPECTED_HBACK = 55;
+localparam EXPECTED_VFRONT_TICKS = 3788, EXPECTED_VBACK_TICKS = 9652;
 localparam EXPECTED_HTOTAL = 384, EXPECTED_VTOTAL = 262, EXPECTED_HACTIVE = 256, EXPECTED_VACTIVE = 224;
 `else
 initial begin $display("FAIL: select a core with -DCORE_*"); $fatal(1); end
@@ -206,8 +219,8 @@ always @(negedge clk) if (pxl_cen) begin
             last_hblank_width = blank_width;
             hback = hblank_end - hsync_end;
 `ifndef MEASURE_ONLY
-            if ((hfront > hback ? hfront-hback : hback-hfront) > 1)
-                fail("horizontal sync is not centered in blanking");
+            if (hfront != EXPECTED_HFRONT || hback != EXPECTED_HBACK)
+                fail("horizontal sync phase differs from selected output timing");
 `endif
             last_hfront = hfront;
             last_hback = hback;
@@ -264,8 +277,8 @@ always @(negedge clk) if (pxl_cen) begin
             vfront_ticks = vsync_start_tick - previous_vblank_start_tick;
             vback_ticks  = tick - vsync_end_tick;
 `ifndef MEASURE_ONLY
-            if ((vfront_ticks > vback_ticks ? vfront_ticks-vback_ticks : vback_ticks-vfront_ticks) > 1)
-                fail("vertical sync is not centered in blanking");
+            if (vfront_ticks != EXPECTED_VFRONT_TICKS || vback_ticks != EXPECTED_VBACK_TICKS)
+                fail("vertical sync phase differs from selected output timing");
 `endif
             last_vfront = vfront;
             last_vback = vback;

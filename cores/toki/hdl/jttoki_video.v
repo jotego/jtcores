@@ -78,10 +78,9 @@ wire [7:0] line_number = vrender[7:0];
 wire [10:1] toki_scr2_addr;
 wire [18:2] toki_gfx4_addr;
 wire        toki_gfx4_cs, render_hs;
-reg         hsync_out, vsync_out;
+reg         hsync_out;
 
 assign hsync = hsync_out;
-assign vsync = vsync_out;
 assign scr2_addr   = cabal ? 10'd0             : toki_scr2_addr;
 assign gfx4_addr   = toki_gfx4_addr;
 assign gfx4_cs     = cabal ? 1'b0              : toki_gfx4_cs;
@@ -116,16 +115,12 @@ jtframe_vtimer #(
     .LHBL       ( lhbl    ),
     .LVBL       ( lvbl    ),
     .HS         ( render_hs ),
-    .VS         (           )
+    .VS         ( vsync   )
 );
 
 always @(posedge clk) if( pxl_cen ) begin
-    if( hdump==9'd441 ) hsync_out <= 1'b1;
-    if( hdump==9'd473 ) hsync_out <= 1'b0;
-    if( hdump==9'd191 ) begin
-        if( vdump==9'd258 ) vsync_out <= 1'b1;
-        if( vdump==9'd261 ) vsync_out <= 1'b0;
-    end
+    if( hdump==9'd434 ) hsync_out <= 1'b1;
+    if( hdump==9'd466 ) hsync_out <= 1'b0;
 end
 
 jttoki_fix u_fix(

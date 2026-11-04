@@ -52,7 +52,7 @@ wire [8:0] hdump, vdump, vrender;
 wire [ 7:0] pf_pxl;
 wire [ 4:0] obj_pxl;
 wire        flip, render_hs;
-reg         hsync_out, vsync_out;
+reg         hsync_out;
 
 jtframe_vtimer #(
     .HB_END   ( 9'd0   ),
@@ -77,19 +77,14 @@ jtframe_vtimer #(
     .LHBL     ( LHBL    ),
     .LVBL     ( LVBL    ),
     .HS       ( render_hs ),
-    .VS       (          )
+    .VS       ( VS       )
 );
 
 assign HS = hsync_out;
-assign VS = vsync_out;
 
 always @(posedge clk) if( pxl_cen ) begin
     if( hdump==9'd304 ) hsync_out <= 1'b1;
     if( hdump==9'd336 ) hsync_out <= 1'b0;
-    if( hdump==9'd64 ) begin
-        if( vdump==9'd256 ) vsync_out <= 1'b1;
-        if( vdump==9'd259 ) vsync_out <= 1'b0;
-    end
 end
 
 jtpktgal_bac06 u_bac06(
