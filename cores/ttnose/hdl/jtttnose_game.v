@@ -19,8 +19,6 @@ assign oram_addr=cpu_addr[11:1];
 assign txram_addr=cpu_addr[11:1];
 assign pal_addr=cpu_addr[11:1];
 assign objr_addr={2'd0,sprite_addr};
-assign pcm_cs=0;
-assign pcm_addr=0;
 assign dip_flip=dipsw[13];
 assign st_dout=debug_view;
 jtttnose_controls u_controls(
@@ -33,6 +31,30 @@ jtttnose_controls u_controls(
     .accelerator ( accelerator    ),
     .brake       ( brake          )
 );
+`ifdef NOMAIN
+assign cpu_addr = 0;
+assign main_dout = 0;
+assign main_addr = 0;
+assign main_cs = 0;
+assign work_addr = 0;
+assign work_cs = 0;
+assign work_we = 0;
+assign work_dsn = 2'b11;
+assign work_din = 0;
+assign rozgfx_we = 0;
+assign oram_we = 0;
+assign txram_we = 0;
+assign pal_we = 0;
+assign roz_map_cs = 0;
+assign roz_map_we = 0;
+assign roz_we = 0;
+assign gga_cs = 0;
+assign gga_we = 0;
+assign gfxbank_we = 0;
+assign snd_latch = 0;
+assign snd_wr = 0;
+assign debug_view = 0;
+`else
 jtttnose_main u_main(
     .rst          ( rst          ),
     .clk          ( clk          ),
@@ -82,6 +104,7 @@ jtttnose_main u_main(
     .dipsw        ( dipsw[15:0]  ),
     .debug_view   ( debug_view   )
 );
+`endif
 jtttnose_video u_video(
     .rst            ( rst                             ),
     .clk            ( clk                             ),
@@ -135,6 +158,20 @@ jtttnose_video u_video(
     .blue           ( blue                            ),
     .obj_overrun    (                                 )
 );
+`ifdef NOSOUND
+assign snd_pending = 0;
+assign snd_addr = 0;
+assign snd_cs = 0;
+assign sram_addr = 0;
+assign snd_dout = 0;
+assign sram_we = 0;
+assign pcm_cs = 0;
+assign pcm_addr = 0;
+assign rhythm_addr = 0;
+assign snd_left = 0;
+assign snd_right = 0;
+assign sample = 0;
+`else
 jtttnose_snd u_snd(
     .rst         ( rst         ),
     .clk         ( clk         ),
@@ -151,8 +188,17 @@ jtttnose_snd u_snd(
     .ram_din     ( snd_dout    ),
     .ram_we      ( sram_we     ),
     .ram_data    ( sram_dout   ),
-    .snd         ( snd         ),
+    .pcm_addr    ( pcm_addr    ),
+    .pcm_cs      ( pcm_cs      ),
+    .pcm_data    ( pcm_data    ),
+    .pcm_ok      ( pcm_ok      ),
+    .rhythm_addr ( rhythm_addr ),
+    .rhythm_data ( rhythm_data ),
+    .snd_left    ( snd_left    ),
+    .snd_right   ( snd_right   ),
     .sample      ( sample      )
 );
+
+`endif
 
 endmodule

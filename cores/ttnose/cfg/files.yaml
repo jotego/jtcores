@@ -19,3 +19,4 @@ jtframe:
   - from: cpu
     get: [ jtframe_m68k.yaml, jtframe_z80.yaml ]
 jt12:
+  - get: [ jt08.yaml ]

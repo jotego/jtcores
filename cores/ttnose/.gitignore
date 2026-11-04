@@ -1,5 +1,8 @@
 /status.md
 !/ver/.gitkeep
+!/ver/game/
+!/ver/game/replay.sh
+!/ver/game/sound.sh
 /ver/*/scratch/
 /ver/*/scenes/
 /ver/*/logs/

@@ -2,7 +2,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 01-11-2026 */
 
-module jtttnose_scr(
+module jtttnose_scr #(
+    parameter YOFFSET=0
+)(
     input             rst, clk, pxl_cen, hs, en, flip,
     input      [8:0]  hdump, vdump,
     input      [1:0]  bank,
@@ -17,6 +19,7 @@ module jtttnose_scr(
 );
 
 wire [31:0] planes;
+wire [7:0] scroll_y = YOFFSET[7:0] - (flip ? 8'd8 : 8'd0);
 wire [14:0] code = {bank,ram_data[12:0]};
 wire [6:0] pal = {pal_bank ? 3'd7 : 3'd3,1'b0,ram_data[15:13]};
 genvar p, x;
@@ -48,8 +51,8 @@ jtframe_scroll #(
     .hdump     ( hdump               ),
     .blankn    ( en                  ),
     .flip      ( flip                ),
-    .scrx      ( 9'd0                ),
-    .scry      ( flip ? 8'hf8 : 8'd0 ),
+    .scrx      ( 9'd9                ),
+    .scry      ( scroll_y            ),
     .vram_addr ( ram_addr            ),
     .code      ( code                ),
     .pal       ( pal                 ),

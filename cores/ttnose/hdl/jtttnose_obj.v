@@ -2,7 +2,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 01-11-2026 */
 
-module jtttnose_obj(
+module jtttnose_obj #(
+    parameter YOFFSET=0
+)(
     input             rst, clk, pxl_cen, hs, en, flip,
     input      [8:0]  hdump, vrender,
     output     [9:1]  ram_addr,
@@ -26,7 +28,7 @@ reg [15:0] ypos, xpos_raw, attr;
 reg draw, hs_l;
 wire busy;
 wire [15:0] sx = flip ? 16'd305-xpos_raw : xpos_raw+16'd3;
-wire [15:0] sy = flip ? 16'd217+ypos : 16'd1-ypos;
+wire [15:0] sy = flip ? 16'd217+ypos+YOFFSET[15:0] : 16'd1-ypos-YOFFSET[15:0];
 wire [15:0] row = {7'd0,line_y}-sy;
 wire [4:0] yrow = row[4:0] ^ {5{attr[11]^flip}};
 wire [18:2] raw_addr;

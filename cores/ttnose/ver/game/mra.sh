@@ -24,4 +24,6 @@ elif [[ -f "$rom_root/tail2nos.7z" ]]; then
 else
     echo "Missing tail2nos ROMs in $rom_root" >&2;exit 1
 fi
+[[ -f "$rom_root/ym2608.zip" ]] || { echo "Missing YM2608 rhythm ROM in $rom_root" >&2; exit 1; }
+cp "$rom_root/ym2608.zip" "$run_dir/roms/ym2608.zip"
 exec "$helper" mra ttnose --path "$run_dir/roms" --skipPocket "$@"

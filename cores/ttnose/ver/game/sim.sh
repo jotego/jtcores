@@ -17,6 +17,7 @@ exec docker run --rm --pull=never --label codex.task=ttnose --entrypoint /bin/ba
     -w /jtcores/cores/ttnose/ver/tail2nos \
     -e JTROOT=/jtcores -e JTFRAME=/jtcores/modules/jtframe -e CORES=/jtcores/cores \
     -e MODULES=/jtcores/modules -e JTBIN=/jtcores/release -e ROM=/jtcores/rom \
+    -e TTNOSE_SCENE_DUMP="${TTNOSE_SCENE_DUMP:-}" \
     -e RLS=/jtcores/release -e MRA=/jtcores/release/mra -e JOTEGO=/jtcores \
     "$image" -euo pipefail -c '
         helper="$PWD/bin/jtframe"

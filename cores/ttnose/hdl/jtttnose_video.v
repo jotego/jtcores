@@ -42,11 +42,15 @@ module jtttnose_video(
     output            obj_overrun
 );
 
+localparam YOFFSET=8;
+
 wire video_en, flip, txpal;
 wire [1:0] txbank;
 wire [6:0] roz_pxl, obj_pxl;
 wire [10:0] tx_pxl;
 wire hblank, vblank;
+wire [8:0] h_last;
+wire [8:0] scroll_h = hdump>=h_last-9'd31 ? hdump-(h_last+9'd1) : hdump;
 reg [2:0] blank_pipe;
 
 jtttnose_video_mmr #(
@@ -78,7 +82,7 @@ jtpspike_gga u_gga(
     .we       ( gga_we   ),
     .addr     ( gga_addr ),
     .din      ( gga_din  ),
-    .h_last   (          ),
+    .h_last   ( h_last   ),
     .hsize    (          ),
     .vsize    (          ),
     .vdump    ( vdump    ),
@@ -93,7 +97,9 @@ jtpspike_gga u_gga(
     .VS       ( VS       )
 );
 
-jtttnose_roz u_roz(
+jtttnose_roz #(
+    .YOFFSET ( YOFFSET )
+) u_roz(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .pxl_cen    ( pxl_cen        ),
@@ -104,6 +110,7 @@ jtttnose_roz u_roz(
     .lvbl       ( vblank         ),
     .hdump      ( hdump          ),
     .vdump      ( vdump          ),
+    .h_last     ( h_last         ),
     .ctrl_we    ( roz_we         ),
     .ctrl_addr  ( roz_ctrl_addr  ),
     .ctrl_din   ( roz_ctrl_din   ),
@@ -122,7 +129,9 @@ jtttnose_roz u_roz(
     .pxl        ( roz_pxl        )
 );
 
-jtttnose_obj u_obj(
+jtttnose_obj #(
+    .YOFFSET ( YOFFSET )
+) u_obj(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .pxl_cen  ( pxl_cen     ),
@@ -141,14 +150,16 @@ jtttnose_obj u_obj(
     .overrun  ( obj_overrun )
 );
 
-jtttnose_scr u_scr(
+jtttnose_scr #(
+    .YOFFSET ( YOFFSET )
+) u_scr(
     .rst      ( rst                  ),
     .clk      ( clk                  ),
     .pxl_cen  ( pxl_cen              ),
     .hs       ( HS                   ),
     .en       ( video_en & gfx_en[2] ),
     .flip     ( flip                 ),
-    .hdump    ( hdump                ),
+    .hdump    ( scroll_h             ),
     .vdump    ( vdump                ),
     .bank     ( txbank               ),
     .pal_bank ( txpal                ),
@@ -192,5 +203,6 @@ always @(posedge clk) begin
         end
     end
 end
+
 
 endmodule

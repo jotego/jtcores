@@ -2,10 +2,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 01-11-2026 */
 
-module jtttnose_roz(
+module jtttnose_roz #(
+    parameter YOFFSET=0
+)(
     input             rst, clk, pxl_cen, pxl2_cen,
     input             hs, vs, lhbl, lvbl,
-    input      [8:0]  hdump, vdump,
+    input      [8:0]  hdump, vdump, h_last,
     input             ctrl_we,
     input      [3:0]  ctrl_addr,
     input      [7:0]  ctrl_din,
@@ -23,6 +25,7 @@ module jtttnose_roz(
 );
 
 wire [23:0] byte_addr;
+wire [8:0] read_h = hdump==h_last ? 9'd0 : hdump+9'd1;
 wire [7:0] raw_pxl;
 wire [7:0] gfx_byte = byte_addr[0] ? gfx_data[7:0] : gfx_data[15:8];
 wire [10:0] cpu_addr = ctrl_we ? {7'd0,ctrl_addr} : map_addr;
@@ -31,14 +34,14 @@ assign gfx_addr = byte_addr[16:1];
 assign pxl = raw_pxl[6:0];
 
 jt051316 #(
-    .WR_STRT ( 9'd0   ),
-    .VB_END  ( 9'd0   ),
-    .RST_CT  ( 9'd0   ),
-    .RD_DLY  ( 9'd1   ),
-    .RD_END  ( 9'd320 ),
-    .BPP     ( 4      ),
-    .ROLLERG ( 0      ),
-    .YOFFSET ( 2      )
+    .WR_STRT ( 9'd0      ),
+    .VB_END  ( 9'd255    ),
+    .RST_CT  ( 9'd0      ),
+    .RD_DLY  ( 9'd1      ),
+    .RD_END  ( 9'd321    ),
+    .BPP     ( 4         ),
+    .ROLLERG ( 0         ),
+    .YOFFSET ( 2-YOFFSET )
 ) u_psac(
     .rst        ( rst                          ),
     .clk        ( clk                          ),
@@ -59,7 +62,7 @@ jt051316 #(
     .blnk_n     (                              ),
     .rvo        ( 1'b0                         ),
     .wrap       ( 1'b1                         ),
-    .hdump      ( hdump                        ),
+    .hdump      ( read_h                       ),
     .vdump      ( vdump                        ),
     .rom_addr   ( byte_addr                    ),
     .rom_cs     (                              ),

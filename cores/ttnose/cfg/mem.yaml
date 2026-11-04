@@ -78,3 +78,7 @@ bram:
     data_width: 8
     rw: true
     din: snd_dout
+  - name: rhythm
+    addr_width: 13
+    data_width: 8
+    prom: true

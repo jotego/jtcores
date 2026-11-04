@@ -4,11 +4,11 @@
 
 [global]
 author=["Andrea Bogazzi"]
+zip.alt="ym2608.zip"
 [parse]
 sourcefile=["tail2nos.cpp"]
 mustbe.machines=["tail2nos"]
 skip.setnames=["tail2nosa","sformula","sformulaa"]
-debug.machines=["tail2nos"]
 [buttons]
 names=[{machine="tail2nos",names="Accelerate,Brake"}]
 [dipsw]
@@ -23,5 +23,6 @@ regions=[
     {name="sprites",start="JTFRAME_BA2_START",width=32},
     {name="audiocpu",start="JTFRAME_BA3_START",len=0x20000},
     {name="ymsnd",start="PCM_START"},
+    {name="rhythm",start="JTFRAME_PROM_START",rom_len=0x2000,files=[{name="ym2608_adpcm_rom.bin",crc="23c9e0d8",size=0x2000}]},
 ]
-order=["maincpu","user1","user2","chars","sprites","audiocpu","ymsnd"]
+order=["maincpu","user1","user2","chars","sprites","audiocpu","ymsnd","rhythm"]

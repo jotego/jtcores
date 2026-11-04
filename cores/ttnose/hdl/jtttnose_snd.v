@@ -18,7 +18,13 @@ module jtttnose_snd(
     output [7:0] ram_din,
     output ram_we,
     input [7:0] ram_data,
-    output signed [15:0] snd,
+    output [16:0] pcm_addr,
+    output pcm_cs,
+    input [7:0] pcm_data,
+    input pcm_ok,
+    output [12:0] rhythm_addr,
+    input [7:0] rhythm_data,
+    output signed [15:0] snd_left, snd_right,
     output sample
 );
 wire [15:0] a;
@@ -65,53 +71,74 @@ jtframe_z80_devwait u_cpu(
     .rom_ok   ( rom_ok       ),
     .dev_busy ( 1'b0         )
 );
-jt12_top #(
-    .use_lfo   ( 1 ),
-    .use_ssg   ( 1 ),
-    .num_ch    ( 6 ),
-    .use_pcm   ( 0 ),
-    .use_adpcm ( 0 ),
-    .mask_div  ( 0 )
-) u_fm(
-    .rst          ( rst      ),
-    .clk          ( clk      ),
-    .cen          ( fm_cen   ),
-    .din          ( cpu_dout ),
-    .addr         ( a[1:0]   ),
-    .cs_n         ( ~fm_cs   ),
-    .wr_n         ( wr_n     ),
-    .dout         ( fm_dout  ),
-    .irq_n        ( int_n    ),
-    .en_hifi_pcm  ( 1'b0     ),
-    .adpcma_addr  (          ),
-    .adpcma_bank  (          ),
-    .adpcma_roe_n (          ),
-    .adpcma_data  ( 8'd0     ),
-    .adpcmb_addr  (          ),
-    .adpcmb_data  ( 8'd0     ),
-    .adpcmb_roe_n (          ),
-    .IOA_in       ( 8'hff    ),
-    .IOB_in       ( 8'hff    ),
-    .IOA_out      (          ),
-    .IOB_out      ( bank     ),
-    .IOA_oe       (          ),
-    .IOB_oe       (          ),
-    .psg_A        (          ),
-    .psg_B        (          ),
-    .psg_C        (          ),
-    .fm_snd_left  (          ),
-    .fm_snd_right (          ),
-    .adpcmA_l     (          ),
-    .adpcmA_r     (          ),
-    .adpcmB_l     (          ),
-    .adpcmB_r     (          ),
-    .psg_snd      (          ),
-    .snd_right    (          ),
-    .snd_left     ( snd      ),
-    .snd_sample   ( sample   ),
-    .ch_enable    ( 6'h3f    ),
-    .debug_bus    ( 8'd0     ),
-    .debug_view   (          )
+wire [23:0] adpcm_addr;
+wire adpcm_cs,adpcm_we;
+wire [7:0] adpcm_din;
+wire signed [15:0] digital_left,digital_right;
+wire [9:0] psg;
+wire pcm_hole=|adpcm_addr[23:17];
+wire signed [20:0] mix_left={{5{digital_left[15]}},digital_left}+{6'd0,psg,5'd0};
+wire signed [20:0] mix_right={{5{digital_right[15]}},digital_right}+{6'd0,psg,5'd0};
+assign pcm_addr=adpcm_addr[16:0];
+assign pcm_cs=adpcm_cs && !adpcm_we && !pcm_hole;
+assign snd_left=mix_left>32767 ? 16'sh7fff : mix_left< -32768 ? 16'sh8000 : mix_left[15:0];
+assign snd_right=mix_right>32767 ? 16'sh7fff : mix_right< -32768 ? 16'sh8000 : mix_right[15:0];
+
+jt08 u_fm(
+    .rst          ( rst                            ),
+    .clk          ( clk                            ),
+    .cen          ( fm_cen                         ),
+    .din          ( cpu_dout                       ),
+    .addr         ( a[1:0]                         ),
+    .cs_n         ( ~fm_cs                         ),
+    .wr_n         ( wr_n                           ),
+    .rd_n         ( 1'b1                           ),
+    .dout         ( fm_dout                        ),
+    .irq_n        ( int_n                          ),
+    .IOA_in       ( 8'hff                          ),
+    .IOB_in       ( 8'hff                          ),
+    .IOA_out      (                                ),
+    .IOB_out      ( bank                           ),
+    .IOA_oe       (                                ),
+    .IOB_oe       (                                ),
+    .psg_A        (                                ),
+    .psg_B        (                                ),
+    .psg_C        (                                ),
+    .psg_snd      ( psg                            ),
+    .fm_left      (                                ),
+    .fm_right     (                                ),
+    .rhythm_addr  ( rhythm_addr                    ),
+    .rhythm_cs    (                                ),
+    .rhythm_data  ( rhythm_data                    ),
+    .rhythm_left  (                                ),
+    .rhythm_right (                                ),
+    .adpcm_addr   ( adpcm_addr                     ),
+    .adpcm_cs     ( adpcm_cs                       ),
+    .adpcm_we     ( adpcm_we                       ),
+    .adpcm_din    ( adpcm_din                      ),
+    .adpcm_data   ( pcm_hole ? 8'hff : pcm_data    ),
+    .adpcm_ok     ( adpcm_we || pcm_hole || pcm_ok ),
+    .adpcm_left   (                                ),
+    .adpcm_right  (                                ),
+    .snd_left     ( digital_left                   ),
+    .snd_right    ( digital_right                  ),
+    .snd_sample   ( sample                         )
 );
+
+`ifdef TTNOSE_SOUND_TRACE
+reg trace_wr_l;
+integer trace_cycle=0;
+integer trace_file;
+initial trace_file=$fopen("ym2608_bus.csv","w");
+always @(posedge clk) begin
+    trace_wr_l<=fm_cs && !wr_n;
+    if(rst) trace_cycle<=0;
+    else if(fm_cen) trace_cycle<=trace_cycle+1;
+    if(fm_cs && !wr_n && !trace_wr_l) begin
+        $fwrite(trace_file,"%0d,%0d,%0d\n",trace_cycle,a[1:0],cpu_dout);
+        $fflush(trace_file);
+    end
+end
+`endif
 
 endmodule
