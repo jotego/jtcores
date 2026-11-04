@@ -8,6 +8,12 @@ MiST derived FPGA platforms, including MiSTer, send core configuration from the 
 
 Macros are expected in the file *cores/corename/cfg/macros.def*. From there, other files can be included. The *macros.def* file accepts target-specific macros. Check for examples in JT cores, such as [kicker](https://github.com/jotego/jtkicker).
 
+Target defaults are read first from `$JTFRAME/target/<target>/target.def`, when
+present. The core's `cfg/macros.def` can then override or remove them. For
+example, MiSTer, SiDi128 and Pocket use `release JTFRAME_CREDITS` in `target.def`;
+MiST and SiDi do not. Credits are enabled only by explicit macro definitions,
+not by the presence of `cfg/msg`.
+
 Macros can also be defined when invoking *jtcore* or *jtframe* command-line tools. Macros are available for verilog files and also verilator C++ files. For C++, the macro name is added an initial underscore, so `ABC` becomes `_ABC`
 
 Macros in *macros.def* can have different values for a given target platform, using the following syntax:
@@ -38,6 +44,16 @@ ABC
 ```
 
 Will ignore SHOWINFO when JTFRAME_RELEASE is defined. ABC will always be defined.
+
+The `release` prefix does the opposite: the entry is parsed only when
+`JTFRAME_RELEASE` is defined. Both prefixes work in `target.def` and
+`macros.def`. For example:
+
+```
+release JTFRAME_CREDITS
+```
+
+enables credits only for release builds.
 
 Macros can be removed by preceding them with a minus sign:
 

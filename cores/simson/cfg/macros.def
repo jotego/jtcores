@@ -35,7 +35,6 @@ debug JTFRAME_IOCTL_RD+=28705
 [mist|sidi]
 # OSD credits cannot be used when
 # DIP base is less than 13
--JTFRAME_CREDITS
 JTFRAME_OSD_NOCREDITS
 #JTFRAME_OSD_NOLOGO
 

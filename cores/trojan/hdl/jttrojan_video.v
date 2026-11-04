@@ -9,9 +9,7 @@ module jttrojan_video #(
     input               rst,
     input               clk,
     input               cen12,
-    input               cen8,
     input               cen6,
-    input               cen3,
     input               cpu_cen,
     input               avengers,
 

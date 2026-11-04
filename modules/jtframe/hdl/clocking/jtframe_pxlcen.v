@@ -11,10 +11,12 @@ module jtframe_pxlcen(
 
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
-               M      = (PXLCLK==12 ? 2 : PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
+               M      = PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
 
     initial begin
-        if( PXLCLK!=8 && PXLCLK!=6 ) begin
+        if( PXLCLK==16 && CLK!=96 ) begin
+            $fatal(1,"JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96");
+        end else if( PXLCLK!=16 && PXLCLK!=8 && PXLCLK!=6 ) begin
             $display("JTFRAME_PXLCLK is set to %d. But that value isn't supported yet.",PXLCLK);
             $finish;
         end else begin

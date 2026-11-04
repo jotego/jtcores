@@ -44,8 +44,6 @@ assign prom_d1_we    = prom_we && prog_addr[11:8]==6; // sb-2.d1 -- unused by Vu
 assign prom_d2_we    = prom_we && prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
 assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd9 : 4'd4); // sb-1.k6
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 assign debug_view = {dipsw[16], 3'b0, 1'b0, dip_flip, flip_xor, flip };
 assign dip_flip = (game_id==VULGUS & dipsw[16]) ^ flip;
 // CHAR VRAM in mem.yaml
@@ -158,7 +156,7 @@ jt1942_sound u_sound (
 jt1942_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
+    .cen6       ( pxl_cen       ),
     .cen3       ( cen3          ),
     .game_id    ( game_id       ),
     .cpu_cen    ( cpu_cen       ),

@@ -90,17 +90,17 @@ bit     |  meaning                | Enabled with macro
 41      | Vertical crop (MiSTer)  | MiSTer only
 42-45   | Crop offset   (MiSTer)  | MiSTer only
 46-47   | Scaling style (MiSTer)  | MiSTer only
-48      | CRT H scaling enable    | MiSTer only
-49-52   | CRT H scaling factor    | MiSTer only, visibility masked
-53-56   | CRT H offset            | MiSTer only
-57-60   | CRT V offset            | MiSTer only
+48      | CRT scale enable (retimer) | MiSTer only, `oG`: 0=Off, 1=On
+49-52   | CRT scale factor (retimer) | MiSTer only, `oHK`, hidden when bit 48 is 0
+53-56   | CRT H offset            | MiSTer only, `oLO`, signed 4-bit
+57-60   | CRT V offset            | MiSTer only, `oPS`, signed 4-bit
 61-63   |    -- free --           |
 
 Note that CORE_OSD cannot be used with JTFRAME_PLL_TUNE
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
 
-Option visibility in MiSTer is controlled in [jtframe_mister.sv](../target/mister/jtframe_mister.sv) using the `status_menumask` variable.
+Option visibility in MiSTer is controlled in [jtframe_mister.sv](../target/mister/hdl/jtframe_mister.sv) using the `status_menumask` variable.
 
 If **JTFRAME_OSD_VOL** is set, the dip_fxlevel inputs to the game module will vary according to the following table:
 
@@ -119,6 +119,40 @@ To add game specific OSD strings, the recommended way is by adding a line to the
 CORE_OSD=OD,Turbo,Off,On
 ```
 Only one CORE_OSD can be defined, but it an contain multiple values separated by colon.
+
+### MiSTer CRT retimer controls
+
+The Video page in [MiSTer cfgstr](../target/mister/cfgstr) uses the following
+status fields. Lowercase `o` selects the upper 32 bits; `P1` selects the Video
+page and does not allocate a status bit.
+
+| cfgstr entry | Status field | Menu label | Encoding |
+|---|---|---|---|
+| `P1oG` | `status[48]` | CRT scale enable | 0 = Off (bypass), 1 = On |
+| `H2P1oHK` | `status[52:49]` | CRT scale factor | 0…7 = +1…+8; 8…15 = −8…−1 |
+| `P1oLO` | `status[56:53]` | CRT H offset | 0…7 = 0…+7; 8…15 = −8…−1 |
+| `P1oPS` | `status[60:57]` | CRT V offset | 0…7 = 0…+7; 8…15 = −8…−1 |
+
+[jtframe_mister_status.v](../target/mister/hdl/jtframe_mister_status.v)
+decodes bit 48 as `hsize_enable` and bits 52:49 as `hsize_scale`. These are
+forwarded as `VGA_HSIZE[4:0] = {hsize_enable, hsize_scale}` to the analog
+retimer in `sys_top.v`. Bits 60:53 remain the independent sync offsets;
+bits 61:63 remain free.
+
+The factor field stores a four-bit code. The retimer interprets codes 8…15
+as signed −8…−1 and adds one to codes 0…7, yielding +1…+8. Thus **code 0
+means +1 when enabled**, not unity scale. Clear bit 48 to bypass retiming.
+With the default `JTFRAME_HSIZE_STEP=64`, each step changes the pixel period
+by 1/64, giving an enabled range of −12.5%…−1.5625% or +1.5625%…+12.5%.
+
+`H2` hides the factor entry through `status_menumask[2] = ~hsize_enable`;
+this is a menu visibility mask, not status-word bit 2. Forced scandoubling
+and dual-SDRAM mode also bypass the analog retimer regardless of bit 48.
+`JTFRAME_RELEASE` does not gate it. The separate `P1oEF` **Scale** entry uses
+bits 47:46 for MiSTer's integer-scaling style; it is not the CRT factor.
+
+See [Analogue H size](video.md#analogue-h-size-jtframe_hretime) for the
+native-pixel OSD composition, retiming implementation and build parameters.
 
 ### Screen Rotation
 

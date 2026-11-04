@@ -20,8 +20,6 @@ wire        blue_cs, redgreen_cs, flip, HINIT, scr0,
             mcu_mrd, mcu_mwr, mcu_srd, mcu_swr, cpu_cen;
 reg         trojan, avengers, mcu_en, rst_mcu;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 assign dip_flip = flip^avengers;
 assign scr_part = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], scr_data[ 3: 0] } :
                          { scr_data[31:28], scr_data[23:20], scr_data[15:12], scr_data[ 7: 4] };
@@ -166,10 +164,8 @@ jttrojan_sound u_sound (
 jttrojan_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
-    .cen3       ( cen3          ),
+    .cen12      ( pxl2_cen      ),
+    .cen6       ( pxl_cen       ),
     .cpu_cen    ( base_cen      ),
     .avengers   ( avengers      ),
     .cpu_AB     ( cpu_AB[11:0]  ),
