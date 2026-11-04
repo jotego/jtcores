@@ -95,6 +95,7 @@ wire [OBJPW-1:0] obj_pxl;
 wire [SCRPW-1:0] scr1_pxl, scr2_pxl;
 
 wire preLHBL, preLVBL, HINIT;
+reg  hsync_out, vsync_out;
 
 // Frame rate and blanking as the original
 // Sync pulses slightly adjusted
@@ -123,13 +124,25 @@ jtframe_vtimer #(
     .Hinit     ( HINIT    ),
     .LHBL      ( preLHBL  ),
     .LVBL      ( preLVBL  ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
+    .HS        (           ),
+    .VS        (           ),
     .Vinit     (          ),
     // unused
     .vrender   (          ),
     .vrender1  (          )
 );
+
+assign HS = hsync_out;
+assign VS = vsync_out;
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( H==9'd502 ) hsync_out <= 1'b1;
+    if( H==9'd30  ) hsync_out <= 1'b0;
+    if( H==9'd266 ) begin
+        if( V==9'd254 ) vsync_out <= 1'b1;
+        if( V==9'd1   ) vsync_out <= 1'b0;
+    end
+end
 
 `ifndef NOCHAR
 wire [8:0] ch;

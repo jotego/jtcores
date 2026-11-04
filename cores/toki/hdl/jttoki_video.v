@@ -77,8 +77,11 @@ wire [8:0] hdump, vdump, vrender;
 wire [7:0] line_number = vrender[7:0];
 wire [10:1] toki_scr2_addr;
 wire [18:2] toki_gfx4_addr;
-wire        toki_gfx4_cs;
+wire        toki_gfx4_cs, render_hs;
+reg         hsync_out, vsync_out;
 
+assign hsync = hsync_out;
+assign vsync = vsync_out;
 assign scr2_addr   = cabal ? 10'd0             : toki_scr2_addr;
 assign gfx4_addr   = toki_gfx4_addr;
 assign gfx4_cs     = cabal ? 1'b0              : toki_gfx4_cs;
@@ -112,9 +115,18 @@ jtframe_vtimer #(
     .Vinit      (         ),
     .LHBL       ( lhbl    ),
     .LVBL       ( lvbl    ),
-    .HS         ( hsync   ),
-    .VS         ( vsync   )
+    .HS         ( render_hs ),
+    .VS         (           )
 );
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( hdump==9'd441 ) hsync_out <= 1'b1;
+    if( hdump==9'd473 ) hsync_out <= 1'b0;
+    if( hdump==9'd191 ) begin
+        if( vdump==9'd258 ) vsync_out <= 1'b1;
+        if( vdump==9'd261 ) vsync_out <= 1'b0;
+    end
+end
 
 jttoki_fix u_fix(
     .rst          ( rst           ),
@@ -150,7 +162,7 @@ jttoki_scroll u_scr1(
 
     .hdump        ( hdump          ),
     .vdump        ( vdump          ),
-    .hs           ( hsync          ),
+    .hs           ( render_hs      ),
     .line_number  ( line_number    ),
 
     .scroll_x     ( scr1_scroll_x ),
@@ -175,7 +187,7 @@ jttoki_scroll u_scr2(
 
     .hdump        ( hdump          ),
     .vdump        ( vdump          ),
-    .hs           ( hsync          ),
+    .hs           ( render_hs      ),
     .line_number  ( line_number    ),
 
     .scroll_x     ( scr2_scroll_x ),
@@ -197,7 +209,7 @@ jttoki_obj u_obj(
     .rst              ( rst                     ),
     .pxl_cen          ( pxl_cen                 ),
     .cabal            ( cabal                   ),
-    .hs               ( hsync                   ),
+    .hs               ( render_hs               ),
 
     .hdump            ( hdump                   ),
     .vrender          ( vrender                 ),

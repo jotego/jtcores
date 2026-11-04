@@ -85,6 +85,7 @@ localparam [9:0] OBJMAX      = 10'h200; // DMA buffer 512 bytes = 4*128
 localparam [5:0] OBJMAX_LINE = 6'd32;
 
 wire       preLHBL, preLVBL, HINIT;
+reg        hsync_out, vsync_out;
 
 wire [7:0] char_pxl, obj_pxl;
 wire [8:0] scr_pxl;
@@ -116,13 +117,25 @@ jtframe_vtimer #(
     .Hinit     ( HINIT    ),
     .LHBL      ( preLHBL  ),
     .LVBL      ( preLVBL  ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
+    .HS        (           ),
+    .VS        (           ),
     .Vinit     (          ),
     // unused
     .vrender   (          ),
     .vrender1  (          )
 );
+
+assign HS = hsync_out;
+assign VS = vsync_out;
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( H==9'd510 ) hsync_out <= 1'b1;
+    if( H==9'd38  ) hsync_out <= 1'b0;
+    if( H==9'd266 ) begin
+        if( V==9'd254 ) vsync_out <= 1'b1;
+        if( V==9'd1   ) vsync_out <= 1'b0;
+    end
+end
 
 jtgng_char #(
     .HOFFSET ( CHAR_OFFSET ),
