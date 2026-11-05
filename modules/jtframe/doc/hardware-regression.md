@@ -32,6 +32,9 @@ Automatic regression selects a completed, successful run from either
 (`a405f1b.zip` for a full build, `a405f1b-sidi128.zip` for SiDi128 only) in
 `/gdrive/jotego/core-builds`. If present, the ZIP is reused without downloading
 it. Otherwise, the exact GitHub artifact is downloaded into that directory.
+Discovery uses the run's completed success conclusion and finds its matching
+unexpired artifact across all artifact pages. GitHub can retain a same-named
+artifact from an earlier retry, so discovery selects the newest matching one.
 An optional `builds-dir` configuration entry overrides the archive directory
 when operating on another machine.
 
@@ -77,7 +80,7 @@ keeps it separate from a full-platform ZIP for the same commit.
 No extra cron entry is needed: the existing regression poll checks both build
 workflows. A completed source commit is tested only once, regardless of which
 workflow produced the selected build. Both workflows remain subject to the
-successful-job, artifact, creation-time and resume checks.
+successful-run, artifact, creation-time and resume checks.
 
 Deleting `regression/log` removes completion history. Before discarding an old
 capture collection, advance `builds-since` to the new baseline's build window
