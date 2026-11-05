@@ -14,12 +14,11 @@ fstall ~60k) runs 12.5% faster, SDRAM bandwidth +12.5%.
 
 ## Wiring (all plumbing already exists from the 60 MHz era)
 
-JTFRAME_PLL=jtframe_pll6048 keeps the pixel-frequency name parse (6.048);
-JTFRAME_BASE_MUL=9 makes mclk 54.432 and drives pllsim. Needed additions:
-files.yaml qip selection must learn the MUL dimension (pll6048 vs
-pll6048m9), and jtframe_pxlcen's M table needs the n=2/m=9 fractional pair
-(M=BASE_MUL/2 breaks on odd MUL). Cen ratios on the base: cpu 10/27
-(20.16), xin 8/27 (16.128), c352 4/9 (24.192) - exact PCB rates preserved.
+`JTFRAME_PLL=jtframe_plle6048` selects the 54.432 MHz base PLL and
+sets the matching simulation frequency. `JTFRAME_PXL_DIV=9` preserves
+the 6.048 MHz pixel rate using the n=2/m=9 fractional enable pair.
+Cen ratios on the base: cpu 10/27 (20.16), xin 8/27 (16.128),
+c352 4/9 (24.192) - exact PCB rates preserved.
 
 ## Closure assessment
 

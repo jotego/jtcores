@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 7-7-2022 */
 
@@ -10,7 +11,6 @@ import (
     "fmt"
     "log"
     "os"
-    "regexp"
     "strconv"
     "strings"
     "text/template"
@@ -161,7 +161,7 @@ func dump_cpp(def map[string]string) {
 }
 
 func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
-    pllsim := "10.416"
+    pllsim := pll_sim_period(def)
     for k, v := range def {
         // Optionally escape quote characters
         apost := "'"
@@ -196,20 +196,6 @@ func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
             }
             fmt.Printf(fmtstr+"\n", k, v)
         }
-        if k == "JTFRAME_PLL" {
-            // Converts to ns for simulation
-            khz_str := regexp.MustCompile("[0-9]+$").FindString(v)
-            khz, err := strconv.Atoi(khz_str)
-            if err != nil {
-                log.Fatal("cfgstr: while parsing JTFRAME_PLL ", v)
-            }
-            mul := 8
-            if base_mul, fnd := def["JTFRAME_BASE_MUL"]; fnd {
-                if m, e := strconv.Atoi(base_mul); e == nil { mul = m }
-            }
-            ns := 1e6 / float32(khz*2*mul)
-            pllsim = fmt.Sprintf("%.3f", ns)
-        }
     }
     // Output an extra macro used by fast_pll.v
     fmt.Printf(fmtstr+"\n", "JTFRAME_PLLSIM", pllsim)
@@ -235,4 +221,16 @@ func dump_parameter(def map[string]string, fmtstr string) {
             fmt.Printf(fmtstr+"\n", k, v)
         }
     }
+}
+
+func pll_sim_period(def map[string]string) string {
+    mclk, err := strconv.Atoi(def["JTFRAME_MCLK"])
+    if err != nil || mclk <= 0 {
+        log.Fatal("cfgstr: invalid JTFRAME_MCLK ", def["JTFRAME_MCLK"])
+    }
+    fast := float64(mclk)
+    if _, doubled := def["JTFRAME_SDRAM96"]; !doubled {
+        fast *= 2
+    }
+    return fmt.Sprintf("%.3f", 1e9/fast)
 }

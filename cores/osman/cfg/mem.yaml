@@ -7,25 +7,12 @@ params:
   - name: PCM2_OFFSET
     value: "(`PCM2_START-`JTFRAME_BA2_START)>>1"
 
-# Real-board clock tree: one 28 MHz XTAL; pll7000 base clk = 56 MHz = 2x28, so every
-# divider below is the exact doubled board divider (integer division, no fraction).
 clocks:
   clk:
-    - mul: 1
-      div: 4
-      outputs: [ cen_ymz ]
-    - mul: 1
-      div: 8                 # ARM DE156 = 28/4 = 7 MHz
-      outputs: [ cen_arm ]
-    - mul: 1
-      div: 56                # OKI #1 sfx = 28/28 = 1 MHz (PIN7 HIGH)
-      outputs: [ cen_oki1 ]
-    - mul: 1
-      div: 56                # OKI #2 music = 28/28 (Mitchell boards)
-      outputs: [ cen_oki2 ]
-    - mul: 1
-      div: 28                # OKI #2 music = 28/14 = 2 MHz (DECO PCBs + hvysmsh)
-      outputs: [ cen_oki2b ]
+    - freq: 14M
+      outputs: [ cen_ymz, cen_arm ]
+    - freq: 2M
+      outputs: [ cen_oki2b, cen_oki1 ]
 
 download:
   post_addr: true            # tiles ROM_CONTINUE placement + sprite plane-pack

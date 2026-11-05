@@ -283,6 +283,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
             echo "Warning: latch inferred"
         fi
+        if [[ -s "$RPTPATH/$corename.fit.rpt" ]]; then
+            cp "$RPTPATH/$corename.fit.rpt" "${LOG%.log}.fit.rpt"
+        fi
         # Report FPGA usage
         if [ $(find $RPTPATH -name "*.fit.summary"|wc -l) -gt 0 ]; then
             grep "Total logic\|Logic utilization" $RPTPATH/*.fit.summary

@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 4-1-2025 */
 
@@ -407,8 +408,12 @@ func make_clocks(target string) (mclk int) {
 	mclk = 48000000
 	if pll, f := macros["JTFRAME_PLL"]; f {
 		var freq int
+		pllFactor := 8
 		pll = strings.ToUpper(pll)
 		switch pll {
+		case "JTFRAME_PLLE6048":
+			freq = 6048000
+			pllFactor = 9
 		case "JTFRAME_PLL7159": freq = 7159090
 		case "JTFRAME_PLL6144":
 			switch target {
@@ -444,11 +449,7 @@ func make_clocks(target string) (mclk int) {
 				freq*=1000
 			}
 		}
-		mul := 8
-		if base_mul, f := macros["JTFRAME_BASE_MUL"]; f {
-			if m, e := strconv.Atoi(base_mul); e == nil { mul = m }
-		}
-		mclk = freq * mul
+		mclk = freq * pllFactor
 		Set(pll, "") // define a macro with the PLL name
 	} else {
 		Set("JTFRAME_PLL6000", "")
@@ -509,6 +510,8 @@ func set_hsize_params(mclk int) {
 		if e != nil || div < 2 {
 			log.Fatal("JTFRAME: JTFRAME_HSIZE_DIV must be an integer of at least 2")
 		}
+	} else if IsSet("JTFRAME_PXL_DIV") {
+		Set("JTFRAME_HSIZE_DIV", Get("JTFRAME_PXL_DIV"))
 	} else {
 		// JTFRAME_PXLCLK is the pixel frequency in MHz. The master clock is set
 		// by the PLL so that mclk / div = PXLCLK MHz exactly, with div computed

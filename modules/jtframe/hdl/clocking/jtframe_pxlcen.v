@@ -1,4 +1,5 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-FileCopyrightText: 2026 Andrea Bogazzi
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 6-12-2022 */
 
@@ -11,13 +12,10 @@ module jtframe_pxlcen(
 
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
-               // base clock = JTFRAME_BASE_MUL x pixel clock (8 by default)
-               MUL    = (`ifdef JTFRAME_BASE_MUL `JTFRAME_BASE_MUL
-                        `else (PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4)) `endif)
-                        << (CLK==96 ? 1:0),
-               // an odd multiplier needs the fractional pair
-               N      = MUL[0] ? 2 : 1,
-               M      = MUL[0] ? MUL : MUL/2;
+               DIV    = `ifdef JTFRAME_PXL_DIV `JTFRAME_PXL_DIV
+                        `else CLK/PXLCLK `endif,
+               N      = DIV[0] ? 2 : 1,
+               M      = DIV[0] ? DIV : DIV/2;
 
     initial begin
         if( PXLCLK==16 && CLK!=96 ) begin
@@ -26,7 +24,7 @@ module jtframe_pxlcen(
             $display("JTFRAME_PXLCLK is set to %d. But that value isn't supported yet.",PXLCLK);
             $finish;
         end else begin
-            $display("jtframe_pxlcen: using %0d as clock divider", M[3:0]);
+            $display("jtframe_pxlcen: using %0d as clock divider", DIV);
         end
     end
 

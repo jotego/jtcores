@@ -205,7 +205,7 @@ jtosman_snd u_snd(
     .rst        ( rst | wc                         ),
     .clk        ( clk                              ),
     .cen_oki1   ( cen_oki1                         ),
-    .cen_oki2   ( mus2m ? cen_oki2b : cen_oki2     ),  // DECO PCBs + hvysmsh: music OKI at 2 MHz
+    .cen_oki2   ( mus2m ? cen_oki2b : cen_oki1     ),  // DECO PCBs + hvysmsh: music OKI at 2 MHz
     .oki1_bank  ( oki1_bank & sfxbank              ),
     .din        ( oki_din                          ),
     .oki1_wr    ( oki1_wr                          ),

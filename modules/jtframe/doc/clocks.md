@@ -108,6 +108,8 @@ Most cores define these two signals as output ports. They can instead be input p
 
 **JTFRAME_PXLCLK** selects a fixed divider of `clk_rom`: 8 or 6 for the 6 and 8 MHz settings at a 48 MHz reference, doubled when **JTFRAME_SDRAM96** is set. The 16 MHz setting uses a divider of 6 at a 96 MHz reference. With a custom **JTFRAME_PLL**, these dividers stay fixed, so the actual pixel frequencies scale with the PLL frequency. For example, a 56 MHz `clk_rom` with `JTFRAME_PXLCLK=6` produces 7 MHz `pxl_cen` and 14 MHz `pxl2_cen` (56/8 and 56/4); the macro names the divider configuration, not a frequency correction.
 
+**JTFRAME_PXL_DIV** overrides the pixel divider with the actual number of system-clock cycles per pixel, including any SDRAM clock doubling. Odd divisors produce alternating intervals for `pxl2_cen`. It also supplies the default **JTFRAME_HSIZE_DIV**.
+
 | JTFRAME_PXLCLK | pxl2_cen | pxl_cen |
 |:---------------|:---------|:--------|
 | 16 (SDRAM96)   | 32       | 16      |

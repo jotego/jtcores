@@ -20,14 +20,8 @@ JTFRAME_VERTICAL=1
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=240
 JTFRAME_COLORW=8
-# Clocking: reuse the cps3 pll7000 (base 56 MHz -> 28/56/112). PXLCLK=6 divides by 8,
-# so pxl_cen = 56/8 = 7 MHz, the DE156's native dot clock; the /8 base also gives clean
-# cen divisors (ARM 7, OKI 1/2 MHz). JTFRAME_180SHIFT is required for the SDRAM to meet
-# timing at this clock (without it the core does not boot), same as cps3.
 JTFRAME_PXLCLK=6
 JTFRAME_PLL=jtframe_pll7000
-# The PLL is bypassed in Verilator, so the sim pixel clock (nominal) differs from the
-# pll7000 hardware clock; skip the sim rate check as cps3 does. RATE documents hardware.
 JTFRAME_RATE=57.79
 JTFRAME_SKIP_RATE_TEST
 
@@ -58,3 +52,5 @@ JTFRAME_ARY=3
 
 [sidi128]
 ALTERA_FPGA
+JTFRAME_PLL=jtframe_pll6125
+JTFRAME_PXL_DIV=7

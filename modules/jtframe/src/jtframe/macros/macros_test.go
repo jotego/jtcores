@@ -448,3 +448,33 @@ func Test_hsize_missing_ratio_warning(t *testing.T) {
 		}
 	}
 }
+
+func Test_pixel_divider_preserves_pll_frequency(t *testing.T) {
+	for _, tc := range []struct {
+		pll     string
+		div     string
+		doubled bool
+		want    int
+	}{
+		{"jtframe_pll6125", "7", false, 49000000},
+		{"jtframe_pll7000", "8", false, 56000000},
+		{"jtframe_plle6048", "9", false, 54432000},
+		{"jtframe_plle6048", "18", true, 108864000},
+	} {
+		t.Run(tc.pll+"/"+tc.div, func(t *testing.T) {
+			values := map[string]string{"JTFRAME_PLL": tc.pll, "JTFRAME_PXLCLK": "6", "JTFRAME_PXL_DIV": tc.div}
+			if tc.doubled {
+				values["JTFRAME_SDRAM96"] = "1"
+			}
+			MakeFromMap(values)
+			got := make_clocks("MISTER")
+			if got != tc.want {
+				t.Fatalf("clock = %d, want %d", got, tc.want)
+			}
+			set_hsize_params(got)
+			if Get("JTFRAME_HSIZE_DIV") != tc.div {
+				t.Fatalf("horizontal divider = %s, want %s", Get("JTFRAME_HSIZE_DIV"), tc.div)
+			}
+		})
+	}
+}
