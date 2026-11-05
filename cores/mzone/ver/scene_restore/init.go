@@ -40,6 +40,9 @@ func main() {
 	cfg := filepath.Join(tmp, "mzone", "cfg")
 	must(os.MkdirAll(cfg, 0755))
 	must(os.MkdirAll(filepath.Join(tmp, "mzone", "hdl"), 0755))
+	// mem inspects the game port include before generating mem_ports.inc.
+	// Keep that inspection local to the fixture tree as well.
+	write(filepath.Join(tmp, "mzone", "hdl", "jtmzone_game.v"), read(filepath.Join(core, "hdl", "jtmzone_game.v")))
 	entries, err := os.ReadDir(filepath.Join(core, "cfg"))
 	must(err)
 	for _, entry := range entries {

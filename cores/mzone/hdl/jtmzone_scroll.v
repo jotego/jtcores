@@ -44,8 +44,15 @@ wire [31:0]  planes;
 wire [ 7:0]  raw_pxl;
 genvar b;
 
+// GNG-style video-side staging before the horizontal scroll adder.
+reg [7:0] scrolly_l;
+always @(posedge clk) begin
+    if(rst) scrolly_l <= 8'd0;
+    else if(pxl_cen) scrolly_l <= scrolly;
+end
+
 `ifdef MZONE_FETCH_DIAG
-wire [ 7:0]  heff = (tile_h[7:0] ^ {8{flip}})+scrolly;
+wire [ 7:0]  heff = (tile_h[7:0] ^ {8{flip}})+scrolly_l;
 reg          last_phase;
 always @(posedge clk) if(pxl_cen) last_phase <= heff[3];
 // Native tilemap policy: a missing word at the load boundary becomes zero.
@@ -81,7 +88,7 @@ jtframe_scroll #(
     .blankn          ( 1'b1                                 ),
     .flip            ( flip                                 ),
     // Register names follow the vertically oriented PCB axes.
-    .scrx            ( scrolly                              ),
+    .scrx            ( scrolly_l                            ),
     .scry            ( scrollx                              ),
     .vram_addr       ( ram_addr                             ),
     .code            ( {cram[7],vram}                       ),
