@@ -86,6 +86,7 @@ wire [9:0] frequency = {1'b0,(mode[ch]==1 ? {1'b0,fnum[ch][7:0]} : fnum[ch])} + 
 
 reg [7:0] gain_l, gain_r;
 reg [11:0] pan_product;
+reg [11:0] pan_gain;
 reg signed [25:0] interp_wide;
 reg signed [15:0] interpolated;
 reg signed [24:0] product_l, product_r;
@@ -95,14 +96,15 @@ always @* begin
     pan_product = 0;
     if(pan[ch]<8) begin
         pan_product = level[ch] * (pan[ch]==0 ? 12'd0 : {8'd0,pan[ch]}-12'd1);
-        gain_r = 8'(pan_product / 12'd7);
     end else if(pan[ch]>8) begin
         pan_product = level[ch] * (12'd15-{8'd0,pan[ch]});
-        gain_l = 8'(pan_product / 12'd7);
     end
+    pan_gain = pan_product / 12'd7;
+    if(pan[ch]<8) gain_r = pan_gain[7:0];
+    else if(pan[ch]>8) gain_l = pan_gain[7:0];
     interp_wide = prev_data[ch] * $signed(11'd512-{2'd0,phase[ch][8:0]}) +
                   curr_data[ch] * $signed({2'd0,phase[ch][8:0]});
-    interpolated = 16'(interp_wide >>> 9);
+    interpolated = interp_wide[24:9];
     product_l = interpolated * $signed({1'b0,gain_l});
     product_r = interpolated * $signed({1'b0,gain_r});
 end
@@ -118,9 +120,10 @@ endfunction
 function automatic signed [15:0] decay(input signed [15:0] value);
     reg signed [20:0] magnitude;
     begin
-        magnitude = value<0 ? -21'(value) : 21'(value);
+        magnitude = $signed({{5{value[15]}},value});
+        if(value[15]) magnitude = -magnitude;
         magnitude = (magnitude * 21'sd15) >>> 4;
-        decay = value<0 ? -16'(magnitude) : 16'(magnitude);
+        decay = value[15] ? -$signed(magnitude[15:0]) : $signed(magnitude[15:0]);
     end
 endfunction
 
