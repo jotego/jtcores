@@ -29,3 +29,7 @@ JTFRAME_PLL=jtframe_pll6125
 
 [mist|sidi]
 JTFRAME_SKIP
+
+[pocket]
+JTFRAME_PLL=jtframe_pll7000
+JTFRAME_PXLCLK=6

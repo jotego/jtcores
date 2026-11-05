@@ -32,17 +32,26 @@ jtframe:
     get:
       - "*.v"
 jtframe/target/sidi128:
-  # uses zero-shift PLLs as sidi128
-  - get:
+  # Pocket's default PLL is the SiDi128 zero-shift ALTPLL. The PLL7000
+  # backend uses Cyclone V altera_pll IP configured for the 56 MHz chain.
+  - unless: [ JTFRAME_PLL7000 ]
+    get:
       - pll_game.qip
 jtframe/target/mist:
   - get:
     - common.yaml
 jtframe/target/pocket:
-  - when: [JTFRAME_SDRAM96]
+  - when: [ JTFRAME_PLL7000 ]
+    unless: [ JTFRAME_SDRAM96 ]
+    get:
+      - pll7000.qip
+      - pllgame7000.qip
+      - sdram_clk48_7000.sdc
+  - unless: [ JTFRAME_PLL7000 ]
+    when: [ JTFRAME_SDRAM96 ]
     get:
       - sdram_clk96.sdc
-  - unless: [JTFRAME_SDRAM96]
+  - unless: [ JTFRAME_PLL7000, JTFRAME_SDRAM96 ]
     get:
       - sdram_clk48.sdc
   - unless: [ VERILATOR ]
