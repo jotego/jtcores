@@ -38,6 +38,8 @@ var regressionCmd = &cobra.Command{
 	Long: `Discovers and prepares a successful Compile all or Compile SiDi128 build, then runs or resumes its SiDi128 regression.
 Collects PNG frames in $JOTEGO/regression/<core>/<setname>/new for designer review.
 Preparation uses the working project; diagnostics and resume state live under log/.
+After a completed new capture is available, use jtutil mame-frames to validate
+its exact ordered frames against MAME and promote a complete match to ref.
 
 Use --core to capture that core's main games, or add --setname for one game.
 Manual captures run fresh, compare approved refs, and replace new PNGs locally.

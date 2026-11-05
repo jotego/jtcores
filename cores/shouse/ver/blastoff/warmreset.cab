@@ -1,0 +1,25 @@
+# Cold boot with SW1 on -> ROM/RAM test -> IO ERROR 64, then a warm reset.
+#
+# BRAM has no reset in jtframe_dual_ram, so memory survives the reset pulse
+# exactly as it does on hardware. MAME skips the test on a warm boot; we do not,
+# and that divergence is what this script exercises.
+#
+# The boot switch is C040: CMPA $3000 -- the main CPU waits ~0.65s for tri-RAM
+# offset 0 to read 0xA6 (and 0x0F to go non-zero), and falls into the self-test
+# when that times out. See doc/WARMBOOT_HANDOFF.md.
+#
+# Verdict is mechanical: the frame dumper only writes a PNG when the image
+# changes. Two identical bursts (681..709 and 1450..1478, same deltas) means
+# both boots errored; a healthy boot keeps emitting frames to the end.
+#
+#   FRAMES=1700 ROMS_HOST=~/mameroms ./sim-core.sh shouse blastoff \
+#       -dipsw fffe ../blastoff/warmreset.cab
+
+# 1. cold boot with SW1 on -> the self-test runs and fails
+750
+
+# 2. warm reset: memory keeps its contents
+20 reset
+
+# 3. second boot: does it skip the test, as MAME does?
+900

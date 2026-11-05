@@ -117,6 +117,9 @@ jts16_tilemap #(.MODEL(MODEL)) u_tilemap(
     .colscr_en  ( colscr_en ),  // unconnected in MODEL 1
     .rowscr_en  ( rowscr_en ),
     .alt_en     ( alt_en    ),
+    // ignored as DUAL_RATE is 0
+    .req_57Hz   ( 1'b0      ),
+    .is_57Hz    (           ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),

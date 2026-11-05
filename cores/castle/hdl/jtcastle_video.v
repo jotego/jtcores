@@ -5,8 +5,8 @@
 module jtcastle_video(
     input               rst,
     input               clk,
-    output              pxl2_cen,
-    output              pxl_cen,
+    input               pxl2_cen,
+    input               pxl_cen,
     output              LHBL,
     output              LVBL,
     output              HS,
@@ -74,25 +74,6 @@ assign gfx1_addr[18] = video_bank[0] &  gfx1_sel;
 assign gfx2_addr[18] = video_bank[1] & ~gfx2_sel;
 
 always @(posedge clk) st_dout <= debug_bus[3] ? st_dout2 : st_dout1;
-
-jtframe_cen48 u_cen(
-    .clk        ( clk       ),    // 48 MHz
-    .cen12      ( pxl2_cen  ),
-    .cen16      (           ),
-    .cen16b     (           ),
-    .cen8       (           ),
-    .cen6       ( pxl_cen   ),
-    .cen4       (           ),
-    .cen4_12    (           ), // cen4 based on cen12
-    .cen3       (           ),
-    .cen3q      (           ), // 1/4 advanced with respect to cen3
-    .cen1p5     (           ),
-    .cen12b     (           ),
-    .cen6b      (           ),
-    .cen3b      (           ),
-    .cen3qb     (           ),
-    .cen1p5b    (           )
-);
 
 jtcontra_gfx #(
     .CFGFILE("gfx1_cfg.hex" ),

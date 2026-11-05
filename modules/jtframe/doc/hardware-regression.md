@@ -358,30 +358,114 @@ $JOTEGO/regression/
         <frame>.png
 ```
 
-`new/` contains only collected PNG frames awaiting designer review, including
-black or uniform frames when the capture itself is complete and decodable. The
-collector never creates or approves `ref/`. After inspecting the images, a
-designer may promote the PNG folder to `ref/`. Existing designer references
-are read-only inputs to later exact-pixel comparisons and do not require a
-tool-generated approval marker. A mismatch is retained in `fail/` as PNGs;
-comparison details belong in the run log.
+`new/` contains only collected PNG frames awaiting review, including black or
+uniform frames when the capture itself is complete and decodable. The collector
+never creates or approves `ref/`. A designer may promote inspected captures to
+`ref/`; `jtutil mame-frames` may also promote a capture after exact ordered MAME
+validation and final progress/digest checks. Existing references remain
+read-only inputs to later exact-pixel comparisons. A mismatch is retained in
+`fail/` as PNGs; comparison details belong in the run log.
 
 Progress and readable results are stored in the commit's JSON/text log pair
 under `$JOTEGO/regression/log/`. Frame receipts and helper reports are temporary
 working data, removed after the game.
-Each game gets a private, unique `/tmp/jtutil-regression-capture-*` workspace
-for its effective CAB, RAW downloads, intermediate images and helper reports.
-It is removed after the game on success or failure, after publishing complete
-results and recording useful errors in the commit log. Reference receipt
-checks also use short-lived `/tmp/jtutil-regression-receipt-*` directories.
-RAW capture files are not published to the results directory. ROMs, source checkouts,
-executables and machine configuration do not belong there.
+
+Each regression game gets a private, unique `/tmp/jtutil-regression-capture-*`
+workspace for its effective CAB, RAW downloads, intermediate images and helper
+reports. It is removed after the game on success or failure, after publishing
+complete results and recording useful errors in the commit log. Reference
+receipt checks also use short-lived `/tmp/jtutil-regression-receipt-*`
+directories. RAW capture files are not published to the results directory.
+ROMs, source checkouts, executables and machine configuration do not belong there.
 
 The outer capture deadline allows for execution, capture pauses and retrieval:
 120 seconds plus one tenth of a second per configured frame, capped by
 `timeout-seconds` (900 seconds by default). Independent progress checks still
-bound stalled playback and capture operations. Failed helper diagnostics are summarized in the commit log before temporary
-files are removed.
+bound stalled playback and capture operations. Failed helper diagnostics are
+summarized in the commit log before temporary files are removed.
+
+## MAME frame validation
+
+Use MAME to compare completed `new/` folders across all cores, or select a
+single setname:
+
+```sh
+jtutil mame-frames
+jtutil mame-frames --setname hyperspt --dryrun
+jtutil mame-frames --jobs 1
+jtutil mame-frames --config ~/.config/jtutil/regression.yaml
+```
+
+Completed games validate concurrently, up to four at a time by default. Use
+`--jobs N` to set a positive concurrency limit. Command output is sorted by
+core/setname; log rows are appended as games finish.
+Cancellation stops pending work, waits for active MAME/OCR
+children to exit, and removes their temporary workspaces.
+
+MAME resolves the same global/core/setname profile used by `jtutil regression`.
+The default global profile is `modules/jtframe/bin/reg.yaml`; pass the same
+`--config` file used for regression when it selects a custom global profile.
+Validation uses the current checkout's profile, because `new/` stores PNGs and
+does not carry the CAB input script.
+Only the profile's explicit `inputs` path is used, resolved under
+`cores/<core>/ver/<setname>/`; an unselected `reg.cab` is ignored. A profile
+without inputs uses neutral inputs. The CAB exporter clips or pads that script
+to the profile's `video` frame budget, and MAME applies each logical input run
+at the matching frame before continuing with neutral inputs through the extra
+500 comparison frames. Inputs must map to enabled MAME control fields. CAB
+reset, test, DIP switch, dump, and unknown controls currently fail validation
+with a per-game error rather than being skipped.
+
+MAME captures every emulated frame from startup through 500 frames beyond the
+largest requested or actual FPGA checkpoint. Its wall-clock timeout is
+`ceil(1.1 * (max_checkpoint + 500) / refresh_hz)` seconds, using the selected
+machine's MAME screen refresh rate. MAME runs unthrottled with sound disabled,
+native snapshots, rotation disabled and `-window`. Configuration, snapshots and NVRAM use
+an isolated per-game directory under `/tmp`; ROMs come from `~/.mame/roms`.
+Configured JTFRAME NVRAM defaults are loaded into the MAME device path after a
+bounded probe identifies it. Ambiguous or unresolved defaults fail validation.
+The user's saved `~/.mame/nvram` is not read or changed.
+The guarded `simson/simpsons` and `simson/vendetta` mappings verify each full
+144-byte JTFRAME seed, then load its first 128 bytes into MAME's 128-byte ER5911
+EEPROM. The FPGA's 7-bit address bus and IOCTL dump reach addresses 0–127; the
+trailing 16 bytes are unmapped by that hardware.
+For shouse games with a 63,552-byte seed, the full JTFRAME default is checked
+against generated MRA/RAM files when present before its first 2,048 bytes are loaded into
+the probed `<setname>/nvram` device. The FPGA restores only the AW11/DW8 EEROM
+at IOCTL order 0; the trailing 61,504 bytes are debug RAM and are not restored
+at startup. MAME's namcos1 NVRAM is a RAM share, not a ROM region, so capacity
+comes from the isolated probe's actual device file.
+
+The current source's `JTFRAME_COLORW`, resolved for the `sidi128` target, selects
+the capture code depth: RGB444 when `COLORW` is 4, RGB555 when it is 5 or greater.
+Published FPGA PNG channels must lie exactly on that format's bit-replication
+expansion grid. MAME's 8-bit RGB channels are reduced to their top four or five
+bits (`>>4` or `>>3`), matching the capture hardware; every capture code and
+geometry is compared exactly. A PASS means exact capture-code matches, rather
+than native 8-bit RGB matches. Matches must use strictly
+increasing, distinct MAME frame numbers, so one MAME frame cannot satisfy two
+FPGA checkpoints. Startup captures are included. A missing match, invalid
+capture format, geometry mismatch, incomplete snapshot run, or capture quality
+failure leaves `new/` in place. PNG slots do not record their source color depth,
+so validation infers it from the current checkout; older captures made after a
+color-width change may fail the expansion-grid check. `--dryrun` performs the
+same comparison and reports PASS/FAIL without changing result directories or the
+MAME validation log.
+
+The first unmatched checkpoint reports `no matches after frame N`. If a later
+MAME frame matches its entire interior and differs only on the outermost top,
+bottom, left or right pixel line, it reports `boundary differences at frame N`
+instead. This remains a FAIL; the border is excluded only to diagnose the
+mismatch, never to qualify a reference.
+
+Promotion requires a matching finalized regression progress entry, a stable
+PNG digest, no active run for the game, and an absent `ref/` immediately before
+rename. Games with active, stale or unverifiable progress can still be compared
+read-only; they are not promoted. Exact-match results and failures are appended
+to the fixed-width `$JOTEGO/regression/log/mame-frames.log`. Each game's
+temporary MAME workspace is removed after completion or interruption.
+The shared NFSv3 filesystem has no atomic no-replace directory rename; the
+command checks `ref/` immediately before rename and reports detectable conflicts.
 
 Technical checks establish that a capture is complete and decodable. They
 cannot establish that the game's graphics or behavior are correct. Reports

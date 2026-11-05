@@ -4,6 +4,7 @@ package regression
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"image/color"
@@ -29,6 +30,10 @@ func captureQualityFailure(set CaptureSet, startup int) (string, error) {
 }
 
 func captureQuality(set CaptureSet, startup int) (string, string, string, error) {
+	return captureQualityContext(context.Background(), set, startup)
+}
+
+func captureQualityContext(ctx context.Context, set CaptureSet, startup int) (string, string, string, error) {
 	ocrAvailable := true
 	if _, err := exec.LookPath("tesseract"); err != nil {
 		ocrAvailable = false
@@ -56,7 +61,7 @@ func captureQuality(set CaptureSet, startup int) (string, string, string, error)
 			identical = false
 		}
 		if ocrAvailable && !frameBlack && ocrFailure == "" {
-			text, err := recognize_capture_text(decoded)
+			text, err := recognize_capture_text_context(ctx, decoded)
 			if err != nil {
 				return "", "", "", fmt.Errorf("OCR frame %d: %w", frame.Requested, err)
 			}
@@ -87,6 +92,10 @@ func qualityOCRWarning(available bool) string {
 }
 
 func recognize_capture_text(decoded decodedImage) (string, error) {
+	return recognize_capture_text_context(context.Background(), decoded)
+}
+
+func recognize_capture_text_context(ctx context.Context, decoded decodedImage) (string, error) {
 	frame := image.NewRGBA(image.Rect(0, 0, decoded.width, decoded.height))
 	for i, pixel := range decoded.pixels {
 		frame.SetRGBA(i%decoded.width, i/decoded.width, color.RGBA{uint8(pixel >> 16), uint8(pixel >> 8), uint8(pixel), 255})
@@ -95,12 +104,15 @@ func recognize_capture_text(decoded decodedImage) (string, error) {
 	if err := png.Encode(&input, frame); err != nil {
 		return "", err
 	}
-	command := exec.Command("tesseract", "stdin", "stdout", "--psm", "11")
+	command := exec.CommandContext(ctx, "tesseract", "stdin", "stdout", "--psm", "11")
 	command.Stdin = &input
 	var output, diagnostic bytes.Buffer
 	command.Stdout = &output
 	command.Stderr = &diagnostic
 	if err := command.Run(); err != nil {
+		if ctx.Err() != nil {
+			return "", ctx.Err()
+		}
 		if diagnostic.Len() > 0 {
 			return "", fmt.Errorf("tesseract failed: %w: %s", err, strings.TrimSpace(diagnostic.String()))
 		}

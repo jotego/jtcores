@@ -86,7 +86,6 @@ func MakeMacros(core, target string, extra ...string) {
 		AddKeyValPairs(extra...)
 	}
 	read_target_macros(target)
-	add_credits_for_releases(core) // credits must come before parse_def
 	core_def := ConfigFilePath(core, "macros.def")
 	parse_def(core_def, target)
 	make_credits_pages(core)
@@ -117,6 +116,8 @@ func MakeMacros(core, target string, extra ...string) {
 	clean_osd_macro()
 	check_colorw()
 	mclk := make_clocks(target)
+	warn_hsize_clock(core)
+	set_hsize_params(mclk)
 	set_sdram_refresh_rate(int64(mclk))
 	add_subcarrier_clk(int64(mclk))
 	make_beta_macros(core, target)
@@ -371,16 +372,6 @@ func make_credits_pages(core string) {
 	Set("JTFRAME_CREDITS_PAGES", strconv.Itoa(pages))
 }
 
-func add_credits_for_releases(core string) {
-	if !IsSet(JTFRAME_RELEASE) {
-		return
-	}
-	msgpath := ConfigFilePath(core, "msg")
-	if FileExists(msgpath) {
-		Set(JTFRAME_CREDITS, "1")
-	}
-}
-
 // Derives the GAMETOP module from the CORENAME if unspecified
 func make_gametop_macro() {
 	if !IsSet("GAMETOP") {
@@ -407,6 +398,9 @@ func prepare_input_record() {
 }
 
 func make_clocks(target string) (mclk int) {
+	if e := check_pxlclk(); e != nil {
+		log.Fatal(e)
+	}
 	// JTFRAME_PLL is defined as the PLL name
 	// in the .def file. This will define that
 	// name as a macro on its own too
@@ -481,6 +475,72 @@ func clean_osd_macro() {
 		core_osd = ""
 	}
 	Set("CORE_OSD", core_osd)
+}
+
+func check_pxlclk() error {
+	pxlclk, _ := strconv.Atoi(Get("JTFRAME_PXLCLK"))
+	if pxlclk == 16 && !IsSet("JTFRAME_SDRAM96") {
+		return fmt.Errorf("JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96")
+	}
+	return nil
+}
+
+func warn_hsize_clock(core string) {
+	if core == "ngp" || core == "ngpc" || IsSet("JTFRAME_HSIZE_DIV") || IsSet("JTFRAME_PXLCLK") {
+		return
+	}
+	log.Printf("WARNING: %s defines neither JTFRAME_HSIZE_DIV nor JTFRAME_PXLCLK; assuming nominal 6 MHz pixels. Define JTFRAME_HSIZE_DIV explicitly for a custom pixel clock.", core)
+}
+
+// jtframe_hretime regenerates the analogue pixel clock with a phase accumulator,
+// so the re-timer needs the clk-to-pixel-clock ratio. It also needs a FIFO able
+// to hold the peak lead between writer and reader, which is at most
+// JTFRAME_WIDTH*8/JTFRAME_HSIZE_STEP samples (8 = the largest scale step).
+func set_hsize_params(mclk int) {
+	if !IsSet("JTFRAME_HSIZE_STEP") {
+		Set("JTFRAME_HSIZE_STEP", "64")
+	}
+	step, e := strconv.Atoi(Get("JTFRAME_HSIZE_STEP"))
+	if e != nil || step < 16 || step&(step-1) != 0 {
+		log.Fatal("JTFRAME: JTFRAME_HSIZE_STEP must be a power of two of 16 or more, got ", Get("JTFRAME_HSIZE_STEP"))
+	}
+	if IsSet("JTFRAME_HSIZE_DIV") {
+		div, e := strconv.Atoi(Get("JTFRAME_HSIZE_DIV"))
+		if e != nil || div < 2 {
+			log.Fatal("JTFRAME: JTFRAME_HSIZE_DIV must be an integer of at least 2")
+		}
+	} else {
+		// JTFRAME_PXLCLK is the pixel frequency in MHz. The master clock is set
+		// by the PLL so that mclk / div = PXLCLK MHz exactly, with div computed
+		// against the nominal 48 MHz base (or 96 MHz with JTFRAME_SDRAM96).
+		// Non-standard PLLs change mclk but keep the same divisor.
+		base := 48
+		if IsSet("JTFRAME_SDRAM96") {
+			base = 96
+		}
+		div := base / 6 // default PXLCLK=6
+		if IsSet("JTFRAME_PXLCLK") {
+			mhz, e := strconv.Atoi(Get("JTFRAME_PXLCLK"))
+			if e == nil && mhz > 0 && base%mhz == 0 {
+				div = base / mhz
+			}
+		}
+		Set("JTFRAME_HSIZE_DIV", fmt.Sprintf("%d", div))
+	}
+
+	width := 384
+	w := Get("JTFRAME_WIDTH")
+	if k := strings.LastIndex(w, "'"); k >= 0 && len(w) > k+2 {
+		w = w[k+2:] // JTFRAME_WIDTH may already be a Verilog literal
+	}
+	if v, e := strconv.Atoi(w); e == nil && v > 0 {
+		width = v
+	}
+	depth := 16
+	for depth <= (width*8)/step {
+		depth <<= 1
+	}
+	Set("JTFRAME_HSIZE_DEPTH", fmt.Sprintf("%d", depth))
 }
 
 func check_colorw() {

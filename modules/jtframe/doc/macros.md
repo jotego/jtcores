@@ -29,6 +29,9 @@ JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
 JTFRAME_HEADER           |         | Set to the length of the ROM file header (derived from TOML)
 JTFRAME_HEIGHT           |         | Sets the video height
+JTFRAME_HSIZE_STEP       | MiSTer  | Size change per OSD step, as 1/STEP. Power of two, 64 (1.6%) by default
+JTFRAME_HSIZE_DIV        | MiSTer  | clk-to-pixel ratio used by jtframe_hretime; derived from JTFRAME_PXLCLK. Define explicitly for custom pixel clocks; missing both macros warns (except ngp/ngpc)
+JTFRAME_HSIZE_DEPTH      | MiSTer  | Automatic. Elastic FIFO depth used by jtframe_hretime
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
@@ -86,7 +89,7 @@ JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
 JTFRAME_PLL_TUNE         | MiSTer  | Enables live game-PLL speed tuning. Adds the CRT clock OSD option on status bits 13:15; the target must provide a reconfigurable PLL implementation.
-JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
+JTFRAME_PXLCLK           |         | 6, 8 or 16. Defines the nominal pixel clock in MHz; 16 requires JTFRAME_SDRAM96. See [clocks](clocks.md)
 JTFRAME_RATE             |         | Expected video refresh rate in Hz. Verilator `jtsim` checks this when the core produces frames.
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
 JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe_board
@@ -235,7 +238,7 @@ JTFRAME_CREDITS is always enabled if JTFRAME_CHEAT is defined
 
 Macro                    | Target  |  Usage
 -------------------------|---------|---------------------------------------------
-JTFRAME_CREDITS          |         | Adds credits screen. Automatic for releases if cfg/msg exists
+JTFRAME_CREDITS          |         | Adds credits screen. Enabled for releases in MiSTer, SiDi128 and Pocket target.def; cores can override it
 JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_PAGES    |         | Generated from the number of rows in cfg/msg
 

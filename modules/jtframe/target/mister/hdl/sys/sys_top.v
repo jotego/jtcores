@@ -1166,6 +1166,7 @@ cyclonev_hps_interface_peripheral_i2c hdmi_i2c
 		.io_din(io_din),
 
 		.clk_video(clk_hdmi),
+		.ce_in(1'b0),
 		.din(hdmi_data_mask),
 		.hs_in(hdmi_hs_mask),
 		.vs_in(hdmi_vs_mask),
@@ -1375,9 +1376,12 @@ scanlines #(0) VGA_scanlines
 	.ce_out(vga_ce_sl)
 );
 
-wire [23:0] vga_data_osd;
-wire        vga_vs_osd, vga_hs_osd, vga_de_osd;
-osd vga_osd
+// JTFRAME: analogue h-size. Inserted after the HDMI branch has already tapped
+// the stream, so stretching only moves the DAC pixel clock. See
+// $JTFRAME/hdl/video/jtframe_hretime.v
+wire [23:0] vga_data_mix;
+wire        vga_vs_mix, vga_hs_mix, vga_de_mix;
+osd #(.NATIVE_PIXEL(1)) vga_osd
 (
 	.clk_sys(clk_sys),
 
@@ -1387,11 +1391,51 @@ osd vga_osd
 	.osd_status(osd_status),
 
 	.clk_video(clk_vid),
+	.ce_in(vga_ce_sl),
 	.din(vga_data_sl),
 	.hs_in(vga_hs_sl),
 	.vs_in(vga_vs_sl),
 	.de_in(vga_de_sl),
 
+	.dout(vga_data_mix),
+	.hs_out(vga_hs_mix),
+	.vs_out(vga_vs_mix),
+	.de_out(vga_de_mix)
+);
+
+// Match the four clk_vid registers in the OSD RGB/sync/DE pipeline.
+reg [3:0] vga_ce_pipe;
+wire vga_ce_mix = vga_ce_pipe[3];
+always @(posedge clk_vid) vga_ce_pipe <= {vga_ce_pipe[2:0], vga_ce_sl};
+
+wire [23:0] vga_data_osd;
+wire        vga_hs_osd, vga_vs_osd, vga_de_osd;
+wire [ 4:0] VGA_HSIZE;
+// h-size only makes sense on a 15 kHz monitor, and the scandoubler doubles the
+// pixel rate that JTFRAME_HSIZE_DIV describes
+`ifdef MISTER_DUAL_SDRAM
+wire        hsize_off = 1'b1;   // no analogue VGA on a dual SDRAM board
+`else
+wire        hsize_off = forced_scandoubler;
+`endif
+
+jtframe_hretime #(
+	.DIV  (`JTFRAME_HSIZE_DIV  ),
+	.STEP (`JTFRAME_HSIZE_STEP ),
+	.DEPTH(`JTFRAME_HSIZE_DEPTH)
+) u_hretime
+(
+	.clk(clk_vid),
+	.ce_in(vga_ce_mix),
+	.enable(VGA_HSIZE[4] & ~hsize_off),
+	.scale(VGA_HSIZE[3:0]),
+
+	.din(vga_data_mix),
+	.hs_in(vga_hs_mix),
+	.vs_in(vga_vs_mix),
+	.de_in(vga_de_mix),
+
+	.ce_out(),
 	.dout(vga_data_osd),
 	.hs_out(vga_hs_osd),
 	.vs_out(vga_vs_osd),
@@ -1759,6 +1803,8 @@ emu emu
 `ifndef MISTER_DUAL_SDRAM
 	.VGA_DISABLE(VGA_DISABLE),
 `endif
+
+	.VGA_HSIZE(VGA_HSIZE),
 
 	.HDMI_WIDTH(direct_video ? 12'd0 : hdmi_width),
 	.HDMI_HEIGHT(direct_video ? 12'd0 : hdmi_height),

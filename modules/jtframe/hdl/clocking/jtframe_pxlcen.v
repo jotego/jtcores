@@ -13,14 +13,16 @@ module jtframe_pxlcen(
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
                // base clock = JTFRAME_BASE_MUL x pixel clock (8 by default)
                MUL    = (`ifdef JTFRAME_BASE_MUL `JTFRAME_BASE_MUL
-                        `else (PXLCLK==12 ? 4 : PXLCLK==8 ? 6 : 8) `endif)
+                        `else (PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4)) `endif)
                         << (CLK==96 ? 1:0),
                // an odd multiplier needs the fractional pair
                N      = MUL[0] ? 2 : 1,
                M      = MUL[0] ? MUL : MUL/2;
 
     initial begin
-        if( PXLCLK!=8 && PXLCLK!=6 ) begin
+        if( PXLCLK==16 && CLK!=96 ) begin
+            $fatal(1,"JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96");
+        end else if( PXLCLK!=16 && PXLCLK!=8 && PXLCLK!=6 ) begin
             $display("JTFRAME_PXLCLK is set to %d. But that value isn't supported yet.",PXLCLK);
             $finish;
         end else begin

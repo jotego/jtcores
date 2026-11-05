@@ -108,6 +108,9 @@ func (item *MacroEnabled) Enabled() bool {
 
 // check incompatible macro settings
 func CheckMacros() error {
+	if e := check_pxlclk(); e != nil {
+		return e
+	}
 	if err := check_credits_pages(); err != nil {
 		return err
 	}
