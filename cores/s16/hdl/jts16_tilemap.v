@@ -37,6 +37,8 @@ module jts16_tilemap(
     input              alt_en, // This is controlled by pin 77, named K8 in sch.
                                // pin 77 was set with a jumper on the ROM board
                                // That pin corresponds to ~alt_en in Super Hang On sch.
+    input              req_57Hz,
+    output             is_57Hz,
 
     // SDRAM interface
     input              char_ok,
@@ -96,7 +98,8 @@ module jts16_tilemap(
     output             scr_bad
 );
 
-parameter MODEL = 1;
+parameter MODEL = 1,
+          DUAL_RATE = 0;
 // Frame rate and horizontal frequency as the original
 // "The sprite X position defines the starting location of the sprite. The
 //  leftmost pixel of the screen is $00B6, and the rightmost is $1F5."
@@ -147,21 +150,15 @@ generate
     end
 endgenerate
 
-jtframe_vtimer #(
-    .HB_START  ( 9'h1ff ),
-    .HB_END    ( HB_END ),
-    .HCNT_START( 9'h70  ), // it should be 'h50
-    .HCNT_END  ( 9'h1FF ),
-    .VB_START  ( 9'h0DF ),
-    .VB_END    ( 9'h105 ),
-    .VCNT_END  ( 9'h105 ), // 262 lines
-    .VS_START  ( 9'hEF  ),
-    .VS_END    ( 9'hF3  ), // 4 lines
-    .HS_START  ( 9'h080 ),
-    .HS_END    ( HS_END )  // 4.8us measured in PCB
+jts16_vtimer #(
+    .DUAL_RATE ( DUAL_RATE ),
+    .HB_END    ( HB_END    ),
+    .HS_END    ( HS_END    )
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
+    .req_57Hz  ( req_57Hz ),
+    .is_57Hz   ( is_57Hz  ),
     .vdump     ( vdump    ),
     .H         ( hdump    ),
     .Hinit     ( hstart   ),

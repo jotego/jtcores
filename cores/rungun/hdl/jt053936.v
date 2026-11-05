@@ -32,6 +32,8 @@ module jt053936 #(
     output reg        xh,
     output reg [12:0] y,
     output reg        yh,
+    output     [12:0] nx,
+    output     [12:0] ny,
     output            ob, // out of bonds, original pin: NOB
     // IOCTL dump
     input      [4:0] ioctl_addr,
@@ -71,6 +73,8 @@ module jt053936 #(
     assign hcnt0  = mmr[12][9:0];
     assign vcnt0  = mmr[13][8:0];
     assign ln0    = mmr[14][8:0];
+    assign nx     = xsum[23:11];
+    assign ny     = ysum[23:11];
 
     assign dma_n  = ln_rd || !ln_en;
 
@@ -396,6 +400,7 @@ module jt053936_counter #(
     wire signed [23:0] eff_hstep = hmul ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
     wire signed [23:0] eff_vstep = vmul ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
     reg  signed [23:0] vcnt;
+    reg  signed [23:0] hstep_l;
     reg         hs_l;
     wire signed [31:0] cnt0_ext  = {{8{cnt0[15]}}, cnt0, 8'd0};
     wire signed [31:0] xbias     = $signed(eff_hstep) * -XOFFSET;
@@ -403,17 +408,20 @@ module jt053936_counter #(
     wire signed [31:0] base_cnt0 = cnt0_ext + xbias + ybias;
 
     always @(posedge clk) if(rst) begin
-        cnt   <= 0;
-        vcnt  <= 0;
-        hs_l  <= 0;
+        cnt     <= 0;
+        vcnt    <= 0;
+        hstep_l <= 0;
+        hs_l    <= 0;
     end else if(cen) begin
-        cnt   <= eff_hstep + cnt;
+        cnt   <= hstep_l + cnt;
         hs_l  <= hs;
         if(hs_l) begin
+            hstep_l <= eff_hstep;
             vcnt <= eff_vstep + vcnt;
             cnt  <= ln_en ? eff_vstep + base_cnt0[23:0] : vcnt;
         end
         if(vs) begin
+            hstep_l <= eff_hstep;
              cnt <= base_cnt0[23:0];
             vcnt <= base_cnt0[23:0];
         end

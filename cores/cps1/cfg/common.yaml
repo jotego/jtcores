@@ -17,6 +17,7 @@ cps1:
     - jtcps1_cpucen.v
     - jtcps1_dma.v
     - jtcps1_sdram.v
+    - jtcps1_vram.v
     - jtcps1_watch.v
 jtframe:
   - from: cpu
@@ -38,6 +39,7 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
       - jtframe_ram.v
   - from: clocking
     get:

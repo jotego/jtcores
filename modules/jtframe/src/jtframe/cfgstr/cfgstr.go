@@ -142,6 +142,11 @@ func dump_cpp(def map[string]string) {
         if k == "JTFRAME_MCLK" && (v == "48000000" || v == "96000000") {
             continue
         }
+        if k == "JTFRAME_PROM_START" {
+            if value, err := macros.Eval(v); err == nil {
+                v = fmt.Sprintf("%d", value)
+            }
+        }
         // Get only the numerical part
         fmt.Printf("#define _%s %s\n", k, v)
         _, exists := expected[k]

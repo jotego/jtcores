@@ -1,7 +1,7 @@
 // A simple OSD implementation. Can be hooked up between a cores
 // VGA output and the physical VGA pins
 
-module osd
+module osd #(parameter NATIVE_PIXEL=0)
 (
     input         clk_sys,
     input         io_osd,
@@ -9,6 +9,7 @@ module osd
     input  [15:0] io_din,
 
     input         clk_video,
+    input         ce_in, // native pixel enable when NATIVE_PIXEL=1
     input  [23:0] din,
     input         de_in,
     input         vs_in,
@@ -107,9 +108,37 @@ always@(posedge clk_sys) begin
     end
 end
 
-(* direct_enable *) reg ce_pix;
+wire ce_pix;
+wire [23:0] mix_din;
+wire mix_de, mix_hs, mix_vs;
+generate if (NATIVE_PIXEL) begin : NATIVE
+    // Bitmap RAM, bit selection and mask take four native pixels to
+    // reach the compositor. Delay game video equally, including blanking.
+    reg [23:0] rgb_pipe[0:3];
+    reg [3:0] de_pipe, hs_pipe, vs_pipe;
+    always @(posedge clk_video) if (ce_in) begin
+        rgb_pipe[0] <= din;
+        rgb_pipe[1] <= rgb_pipe[0];
+        rgb_pipe[2] <= rgb_pipe[1];
+        rgb_pipe[3] <= rgb_pipe[2];
+        de_pipe <= {de_pipe[2:0], de_in};
+        hs_pipe <= {hs_pipe[2:0], hs_in};
+        vs_pipe <= {vs_pipe[2:0], vs_in};
+    end
+    assign ce_pix = ce_in;
+    assign mix_din = rgb_pipe[3];
+    assign mix_de = de_pipe[3];
+    assign mix_hs = hs_pipe[3];
+    assign mix_vs = vs_pipe[3];
+end else begin : AUTO_PIXEL
+assign mix_din = din;
+assign mix_de = de_in;
+assign mix_hs = hs_in;
+assign mix_vs = vs_in;
+reg ce_auto;
+assign ce_pix = ce_auto;
+reg [21:0] cnt = 0;
 always @(posedge clk_video) begin
-    reg [21:0] cnt = 0;
     reg [21:0] pixsz, pixcnt;
     reg deD;
 
@@ -118,7 +147,7 @@ always @(posedge clk_video) begin
 
     pixcnt <= pixcnt + 1'd1;
     if(pixcnt == pixsz) pixcnt <= 0;
-    ce_pix <= !pixcnt;
+    ce_auto <= !pixcnt;
 
     if(~deD && de_in) cnt <= 0;
 
@@ -127,6 +156,8 @@ always @(posedge clk_video) begin
         pixcnt <= 0;
     end
 end
+
+end endgenerate
 
 reg  [2:0] osd_de;
 reg        osd_pixel;
@@ -137,7 +168,7 @@ reg [21:0] v_info_start_h, v_info_start_1, v_info_start_2, v_info_start_3, v_inf
 
 wire [21:0] osd_h_hdr = (info || rot) ? osd_h : (osd_h + OSD_HDR);
 
-wire [8:0] logo_h, logo_v;
+reg  [8:0] logo_h, logo_v;
 wire [2:0] logo_rgb;
 wire       logo_blank;
 reg        logo_enb;
@@ -209,7 +240,9 @@ always @(posedge clk_video) begin : GEOMETRY
         if(de_in && !deD) begin
             h_cnt <= 0;
             v_cnt <= v_cnt + 1'd1;
-            h_osd_start <= info ? (rot[0] ? infoy : infox) : (((dsp_width - osd_w)>>1) - 2'd2);
+            h_osd_start <= info ? (rot[0] ? infoy : infox) :
+                NATIVE_PIXEL ? (dsp_width+1 >= osd_w ? ((dsp_width+1-osd_w)>>1) : 0) :
+                (((dsp_width - osd_w)>>1) - 2'd2);
 
             if(h_cnt > {dsp_width, 2'b00}) begin
                 v_cnt <= 1;
@@ -284,18 +317,18 @@ always @(posedge clk_video) begin
     reg vs1,vs2,vs3;
     reg hs1,hs2,hs3;
 
-    nrdout1 <= din;
-    ordout1 <= { osd_pixel, logo_blank ? { OSD_COLOR[5:4], din[23-:5] } : {1'b0,{6{logo_rgb[2]}}} ,// 23:16
-                 osd_pixel, logo_blank ? { OSD_COLOR[3:2], din[15-:5] } : {1'b0,{6{logo_rgb[1]}}} ,// 15:8
-                 osd_pixel, logo_blank ? { OSD_COLOR[1:0], din[ 7-:5] } : {1'b0,{6{logo_rgb[0]}}} }; //  7:0
+    nrdout1 <= mix_din;
+    ordout1 <= { osd_pixel, logo_blank ? { OSD_COLOR[5:4], mix_din[23-:5] } : {1'b0,{6{logo_rgb[2]}}} ,// 23:16
+                 osd_pixel, logo_blank ? { OSD_COLOR[3:2], mix_din[15-:5] } : {1'b0,{6{logo_rgb[1]}}} ,// 15:8
+                 osd_pixel, logo_blank ? { OSD_COLOR[1:0], mix_din[ 7-:5] } : {1'b0,{6{logo_rgb[0]}}} }; //  7:0
 
     osd_mux <= ~osd_de[2];
     rdout2  <= osd_mux ? nrdout1 : ordout1;
     rdout3  <= rdout2;
 
-    de1 <= de_in; de2 <= de1; de3 <= de2;
-    hs1 <= hs_in; hs2 <= hs1; hs3 <= hs2;
-    vs1 <= vs_in; vs2 <= vs1; vs3 <= vs2;
+    de1 <= mix_de; de2 <= de1; de3 <= de2;
+    hs1 <= mix_hs; hs2 <= hs1; hs3 <= hs2;
+    vs1 <= mix_vs; vs2 <= vs1; vs3 <= vs2;
 
     rdout   <= rdout3;
     de_out  <= de3;

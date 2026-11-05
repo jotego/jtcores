@@ -42,6 +42,13 @@ rename=[
     {name="Display Hit Percentage (Cheat)", to="Hit Percentage Cheat" },
 ]
 
+# Operation Wolf: SW1:2 low enables continues; SW2:1,2 = 10 selects Easy.
+defaults=[
+    { machine="opwolf", value="fd,3e" },
+    # The prototype maps SW2[7:4] to cheats and language, all normally high.
+    { setname="opwolfp", value="fd,fe" },
+]
+
 [ROM]
 # values starting with $ refer to macro definitions in the .def file
 # or arguments passed to mame2mra

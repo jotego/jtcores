@@ -1,0 +1,15 @@
+- name: x1012
+  no_core_name: true
+  size: 8
+  dw: 16
+  regs:
+    - name: hpos
+      dw: 16
+      at: "1,0"
+    - name: vpos
+      dw: 16
+      at: "3,2"
+    # vctrl[2]: bit3 (0x08)=tilemap bank (vram 0 / 0x1000), bit4 (0x10)=color/gfx mode (MAME x1_012.cpp)
+    - name: bank
+      dw: 1
+      at: "4[3]"

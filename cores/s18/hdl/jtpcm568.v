@@ -86,7 +86,7 @@ end
 generate
     genvar k;
     for(k=0;k<8;k=k+1) begin : channels
-        assign chwr[k] = regwr && chsel==k;
+        assign chwr[k] = regwr && !addr[3] && chsel==k;
 
         jtpcm568_ch u_ch(
             .rst        ( rst       ),

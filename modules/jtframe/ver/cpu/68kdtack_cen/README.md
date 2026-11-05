@@ -1,74 +1,73 @@
-# 68000 DTACK and clock-enable test
+# 68000 DTACK and clock enables
 
-This simunit verifies the nominal 8, 9, 10, 12, and 16 MHz enable ratios of
-`jtframe_68kdtack_cen` and its recovery from memory wait states.
+This simunit checks the production `jtframe_68kdtack_cen` divider at 8, 9, 10,
+12, and 16 MHz, delivered phase accounting, configured waits, and bus ownership.
+The [cached SDRAM integration regression](../68kdtack_cache/README.md) separately
+checks real fx68k instruction timing through ROM/RAM requesters, the SDRAM
+controller, and the memory model. Both levels of verification are necessary.
 
-## Recovery regression
+## Actual phase recovery
 
-The recovery test configures the DUT and a no-wait reference instance for a
-10 MHz 68000 clock. It applies 3,000 deterministic SDRAM-style transactions to
-the DUT, with six to ten busy master-clock cycles followed by a two-to-five
-cycle inter-transaction gap.
+The module allows request setup to complete, then holds the Phi2 that samples
+DTACK when memory is late. Both CPU enables remain low during this hold. The
+next phase is preserved, and only scheduled phases actually withheld are added
+to recovery debt. Extra delivered phases repay that debt after memory is ready.
+Frequency reporting counts delivered Phi1 events directly.
 
-While an implementation-only SDRAM delay is active, each nominal phase selected
-by the fractional clock divider is added to the recovery counter. The phase
-enables continue to clock fx68k normally while it observes `DTACKn`; the charged
-phases are replayed after the bus is ready.
+The recovery test uses a 10 MHz DUT and an independently running no-wait
+reference divider. It generates 3,000 deterministic transactions from actual
+CPU phase events: request setup follows Phi1, DTACK is sampled on Phi2, and
+bus release follows Phi1. Response latency varies from six to twenty-two master
+clocks. Four Phi1 events of internal execution between transactions leave enough
+recovery capacity for this offered memory workload.
 
-The divider's current `over` event must be used for this accounting.
-`cpu_cen` and `cpu_cenb` are registered outputs, so sampling them in the same
-clocked block refers to the preceding edge. If `delayed` changes around an SDRAM
-response, that misaligns the phase ledger and replays phases that were not
-scheduled while the delay was active.
-
-Frequency reporting uses the same aligned events. A scheduled phase contributes
-when it is not charged as delayed, and its eventual recovery phase contributes
-when it is replayed. A dedicated parity bit pairs this effective half-phase
-stream into reported CPU cycles. The raw `risefall` polarity cannot be reused,
-because a charged phase and its later replay may occupy different positions in
-the raw output stream. The input to `fave` must also not use
-`cpu_cen && !delayed`, because that combines the preceding registered phase with
-the current delay state and under-reports the effective frequency.
-
-The test measures:
-
-- raw `cpu_cen` and `cpu_cenb` phase balance;
-- scheduled recovery debt against the number of replayed phases;
-- delivered phases against the no-wait schedule plus the replayed phases;
-- the peak recovery debt;
-- aligned effective-phase counts and the reported effective frequency.
-
-The recovery regression uses a dedicated DUT so its traffic and accumulated
-debt cannot affect the legacy `fave` checks. After the traffic ends, 10,000
-master-clock cycles are allowed for recovery. This is much longer than required
-to drain the counter.
-
-When recovery was restricted to `ASn`, this workload wrapped the 11-bit counter
-once and permanently lost 1,024 CPU cycles. Allowing recovery after `DTACKn`
-is asserted reduces the peak debt to 754, so the original counter width is
-sufficient and the regression completes with no lost recovery phases:
+It checks the exact ledger:
 
 ```text
-raw         = 14871 / 14871
-effective   = 10521 / 10521
-reference   = 10521 / 10521
-debt/replay = 8700 / 8700
-peak debt   = 754
-fave        = 0999 or 1000
+delivered phases = nominal scheduled phases - withheld phases + replayed phases
 ```
 
-The phase pair must remain balanced within one. Scheduled debt must be replayed
-exactly, and the total delivered phase count must equal the no-wait schedule plus
-those replayed phases. In simulation, the module reports a failure and stops
-immediately if recovery debt reaches the maximum counter value and another
-scheduled delayed phase would wrap it.
+After traffic and 10,000 master clocks for recovery, debt must be zero,
+withheld and replayed counts must match, and delivered phases must equal the
+no-wait reference. Phi1 and Phi2 must never overlap, must alternate across holds
+and recovery, and their final counts may differ by at most one. The reported
+frequency must remain within the 10 MHz tolerance.
 
-## Wait-state latency regression
+There is no separate fictitious effective-phase stream. Counting delivered
+phases as lost while allowing the CPU to keep executing was the old failure
+mode; this test checks physical enable outputs against the ledger.
 
-Two synchronized instances run at a 12 MHz CPU enable rate. One requests
-`wait2`, while the other requests `wait3`. The test measures master-clock cycles
-from the same falling `ASn` edge to each falling `DTACKn` edge and asserts that
-`wait3` takes longer than `wait2`.
+## Legitimate waits and bus ownership
+
+A long artificial memory stall first accumulates debt. With that debt pending,
+the test asserts `bus_legit`, then `bus_ack`, and checks that:
+
+- both withholding and replay are disabled;
+- nominal CPU phases continue, allowing board wait counters and arbitration to
+  progress;
+- debt neither increases nor decreases while either exclusion applies;
+- debt drains after the exclusions end.
+
+## WAIT1 and extra wait qualification
+
+Six phase-driven instances cover `WAIT1=0/1`, each with no extra wait, `wait2`,
+or `wait3`. With memory immediately ready, the acknowledgement qualification
+occurs after these delivered Phi1 events following request assertion:
+
+| WAIT1 | No extra wait | wait2 | wait3 |
+|---|---:|---:|---:|
+| 0 | 0 | 1 | 2 |
+| 1 | 2 | 2 | 3 |
+
+These are qualification-event counts, not claims about complete 68000
+instruction cycles. The test also preserves the original synchronized check
+that `wait3` acknowledges later than `wait2`.
+
+Each configuration then receives a late memory response. Both CPU enables must
+be held, debt must accrue, and DTACK must become ready on master-clock edges
+without requiring a held Phi1 to execute. A following transfer begins with debt
+still pending: configured board waits must not charge or spend it. Debt must
+then drain in idle even if the wait inputs retain the preceding selection.
 
 ## Running
 

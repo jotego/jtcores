@@ -74,6 +74,18 @@
     input    [15:0] ln_pxl,
     input    [`JTFRAME_LF_VW-1:0] ln_v,
 `endif
+`ifdef JTFRAME_MR_GAME_DDR
+    // DDR3 for the game logic (MiSTer only), on clk
+    output   [ 7:0] ddr_burstcnt,
+    output   [28:0] ddr_addr,
+    output          ddr_rd,
+    output          ddr_we,
+    output   [ 7:0] ddr_be,
+    output   [63:0] ddr_din,
+    input           ddr_busy,
+    input    [63:0] ddr_dout,
+    input           ddr_dout_ready,
+`endif
 `ifdef JTFRAME_LF_ZOOM
     output   [ 8:0] h_step,
     output   [ 8:0] v_step,

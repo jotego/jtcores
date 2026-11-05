@@ -1,0 +1,34 @@
+narc:
+  - get:
+    - jtnarc_game.v
+    - jtnarc_main.v
+    - jtnarc_dma.v
+    - jtnarc_aerase.v
+    - jtnarc_vsr.v
+    - jtnarc_vmap.v
+    - jtnarc_ddr.v
+    - jtnarc_ddr_rbuf.v
+    - jtnarc_cab.v
+    - jtnarc_gsp.sv
+    - jtnarc_vclk.v
+    - jtnarc_video.v
+    - jtnarc_colmix.v
+    - jtnarc_sound.v
+    - jtnarc_sndmain.v
+    - jtnarc_sndsub.v
+    - jtnarc_sndrom.v
+    - jtnarc_cvsd.v
+    - jtnarc_cvsdflt.v
+    - timing.sdc
+jtframe:
+  - from: cpu
+    get:
+    - jtframe_6809.yaml
+  - from: video
+    get:
+    - jtframe_vtimer.v
+  - from: sound
+    get:
+    - jtframe_hipass.v
+jt51:
+tms34010:

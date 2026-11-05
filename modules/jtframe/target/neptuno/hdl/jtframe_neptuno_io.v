@@ -31,7 +31,7 @@ module jtframe_neptuno_io(
     output  [24:0] ioctl_addr,
     output   [7:0] ioctl_dout,
 
-    output  [ 6:0] core_mod,
+    output  [17:0] core_mod,
     output  [63:0] status,
     output         scan2x_enb,
 
@@ -78,6 +78,8 @@ wire        toggle_scandb;
 // wire scan2x_toggle = joy_mix[10] & joy_mix[7]; // Start + B buttons
 wire osd_en = joy_mix[10] & joy_mix[6]; // Start + C buttons of Megadrive controller
 wire osd_en_filt;
+
+assign core_mod[17:7] = 0;
 
 jtframe_enlarger #(4) u_enlarger(
     .rst        ( sdram_init    ),
@@ -133,7 +135,7 @@ data_io  u_datain (
     .conf_addr          ( cfg_addr          ),
     .conf_chr           ( cfg_dout          ),
     .status             ( status_s          ),
-    .core_mod           ( core_mod          ),
+    .core_mod           ( core_mod[6:0]     ),
 
     .clk_rom            ( clk_rom           ),
     .ioctl_download     ( ioctl_download    ),

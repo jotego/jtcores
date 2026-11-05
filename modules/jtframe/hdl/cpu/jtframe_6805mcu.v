@@ -68,7 +68,7 @@ always @(posedge clk) begin
     if( rst ) begin
         pa_latch <= 0; pa_ddr <= 0;
         pb_latch <= 0; pb_ddr <= 0;
-        pc_latch <= 0; pa_ddr <= 0;
+        pc_latch <= 0; pc_ddr <= 0;
         tdr    <= 8'hff;
         tcr    <= 8'h40;
         pres <= 7'h7f;

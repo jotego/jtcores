@@ -55,6 +55,9 @@ reg  [3:0]      clip_cnt;
 reg [6:0] div3=0;       // A divider for each group
 reg [4:0] duty=0;
 reg       cen256=0;
+reg [16:0] nrng=1;
+reg [ 6:0] ncnt=0;
+reg [ 3:0] nclk=0;
 
 `ifdef SIMULATION
 reg [3:0] al;
@@ -78,6 +81,14 @@ end
 // CPU interface
 always @(posedge clk) begin
     no_used <= |noise;
+end
+
+always @(posedge clk) if(cen1) begin
+    ncnt <= ncnt+7'd1;
+    if(&ncnt) begin
+        nrng <= {1'b0,nrng[16:1]}^(nrng[0] ? 17'h12000 : 17'h0);
+        if(nrng[0]!=nrng[16]) nclk <= nclk+4'd1;
+    end
 end
 
 always @(posedge clk) begin
@@ -121,15 +132,15 @@ jt5232_eg u_eg6(rst,clk,cen256,duty,gf[6],kon[6],ege[1],arm[1],attack[1],decay[1
 jt5232_eg u_eg7(rst,clk,cen256,duty,gf[7],kon[7],ege[1],arm[1],attack[1],decay[1],eg[7*12+:12]);
 // tone generators
 // group 1
-jt5232_tg u_tg0( rst, clk, cen1, step[0], bsel[0], oen[0], organ[0*3+:3] );
-jt5232_tg u_tg1( rst, clk, cen1, step[1], bsel[1], oen[0], organ[1*3+:3] );
-jt5232_tg u_tg2( rst, clk, cen1, step[2], bsel[2], oen[0], organ[2*3+:3] );
-jt5232_tg u_tg3( rst, clk, cen1, step[3], bsel[3], oen[0], organ[3*3+:3] );
+jt5232_tg u_tg0( rst, clk, cen1, step[0], bsel[0], oen[0], noise[0], nclk, organ[0*3+:3] );
+jt5232_tg u_tg1( rst, clk, cen1, step[1], bsel[1], oen[0], noise[1], nclk, organ[1*3+:3] );
+jt5232_tg u_tg2( rst, clk, cen1, step[2], bsel[2], oen[0], noise[2], nclk, organ[2*3+:3] );
+jt5232_tg u_tg3( rst, clk, cen1, step[3], bsel[3], oen[0], noise[3], nclk, organ[3*3+:3] );
 // group 2
-jt5232_tg u_tg4( rst, clk, cen2, step[4], bsel[4], oen[1], organ[4*3+:3] );
-jt5232_tg u_tg5( rst, clk, cen2, step[5], bsel[5], oen[1], organ[5*3+:3] );
-jt5232_tg u_tg6( rst, clk, cen2, step[6], bsel[6], oen[1], organ[6*3+:3] );
-jt5232_tg u_tg7( rst, clk, cen2, step[7], bsel[7], oen[1], organ[7*3+:3] );
+jt5232_tg u_tg4( rst, clk, cen2, step[4], bsel[4], oen[1], noise[4], nclk, organ[4*3+:3] );
+jt5232_tg u_tg5( rst, clk, cen2, step[5], bsel[5], oen[1], noise[5], nclk, organ[5*3+:3] );
+jt5232_tg u_tg6( rst, clk, cen2, step[6], bsel[6], oen[1], noise[6], nclk, organ[6*3+:3] );
+jt5232_tg u_tg7( rst, clk, cen2, step[7], bsel[7], oen[1], noise[7], nclk, organ[7*3+:3] );
 // accumulator
 jt5232_acc u_acc(
     .clk    ( clk       ),

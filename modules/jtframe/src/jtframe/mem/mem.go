@@ -123,7 +123,7 @@ func (bus AudioCh) Is_nbits(n int) bool        { return bus.Data_width == n }
 func (bus SDRAMCacheLine) Is_nbits(n int) bool { return bus.Data_width == n }
 
 func addr_range(bus Bus) string {
-	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)
+	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, cache_data_aw0(bus.Get_dw()))
 }
 
 func data_range(bus Bus) string {
@@ -609,6 +609,7 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 }
 
 func (cfg *MemConfig) check_sdram() error {
+	cfg.SDRAM.Tag_ram = macros.IsSet("JTFRAME_SDRAM96")
 	if len(cfg.SDRAM.Banks) > 0 && len(cfg.SDRAM.Cache_lanes) > 0 {
 		return fmt.Errorf("jtframe mem: sdram.banks and sdram.cache-lanes cannot be defined at the same time")
 	}
@@ -665,9 +666,22 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 			continue
 		}
 		total_ram := 0
-		for _, bus := range each.Buses {
+		for bus_idx := range cfg.SDRAM.Banks[k].Buses {
+			bus := &cfg.SDRAM.Banks[k].Buses[bus_idx]
 			if _, e := ResolveSimfileDataWidth("SDRAM bus", bus.Name, bus.Data_width, bus.Simfile.Data_type, bus.Simfile.Big_endian); e != nil {
 				return fmt.Errorf("jtframe mem: %w", e)
+			}
+			if e := check_bank_cache(bus); e != nil {
+				return e
+			}
+			if bus.Data_width == 64 {
+				if !bus.Cache_large {
+					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires a string cache_size for the large cache", bus.Name)
+				}
+				len_macro := fmt.Sprintf("JTFRAME_BA%d_LEN", k)
+				if !macros.IsInt(len_macro) || macros.GetInt(len_macro) != 64 {
+					return fmt.Errorf("jtframe mem: SDRAM bus %s uses data_width 64 but requires %s=64", bus.Name, len_macro)
+				}
 			}
 			if bus.Rw {
 				total_ram++
@@ -705,6 +719,49 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 		}
 	}
 	return nil
+}
+
+func check_bank_cache(bus *SDRAMBus) error {
+	bus.Cache_large = false
+	if bus.Cache_size == nil {
+		return nil
+	}
+	switch value := bus.Cache_size.(type) {
+	case int:
+		if value < 0 {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s uses an invalid cache_size %d", bus.Name, value)
+		}
+		if bus.Rw && value != 0 {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s enables cache_size but is read/write", bus.Name)
+		}
+		return nil
+	case string:
+		size, e := parse_memory_size(value)
+		if e != nil {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s uses an invalid cache_size %q", bus.Name, value)
+		}
+		if size < 1024 {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s cache_size must be at least 1kB", bus.Name)
+		}
+		if size&(size-1) != 0 {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s cache_size must be an exact power of two", bus.Name)
+		}
+		max_size := 0
+		if bus.Addr_width >= 3 {
+			max_size = 1 << (bus.Addr_width - 3)
+		}
+		if size > max_size {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s cache_size %d bytes exceeds one eighth of its %d-bit address space (%d bytes)", bus.Name, size, bus.Addr_width, max_size)
+		}
+		if bus.Rw {
+			return fmt.Errorf("jtframe mem: SDRAM bus %s enables cache_size but is read/write", bus.Name)
+		}
+		bus.Cache_large = true
+		bus.Cache_size = size
+		return nil
+	default:
+		return fmt.Errorf("jtframe mem: SDRAM bus %s uses an invalid cache_size", bus.Name)
+	}
 }
 
 func (cfg *MemConfig) check_cache_lanes() error {

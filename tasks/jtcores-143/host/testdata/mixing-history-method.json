@@ -1,0 +1,100 @@
+{
+  "state": "frozen_before_public_model_capture_or_read",
+  "created_utc": "2026-10-17T22:56:54.772240+00:00",
+  "version": "common-held-public-adapter-v1",
+  "generic_method_sha256": "0223bbdbd18bbb9b37812d13191b3a4fa9b7ce3bbf3d0a42de08b1fa28279234",
+  "generic_final_handoff_sha256": "5440d00a3f3d11b64ee64468cc7e21cf7cd029902c24054145e18bda70d16abe",
+  "unchanged_free_frequency_source_sha256": "34b3d01a6235e871a867a910236c35fed0e208d83fccfa0b0f9f0c0eb910bc56",
+  "strict_CSV_headers": {
+    "jt51": [
+      "sample",
+      "left",
+      "right",
+      "xleft",
+      "xright",
+      "clock",
+      "status"
+    ],
+    "opm": [
+      "sample",
+      "left",
+      "right",
+      "clock",
+      "inc0",
+      "inc8",
+      "inc16",
+      "inc24",
+      "phase24"
+    ],
+    "physical": [
+      "sample",
+      "raw16_hex",
+      "linear"
+    ],
+    "independent_synthetic": [
+      "sample",
+      "left",
+      "right"
+    ]
+  },
+  "input_rules": {
+    "frames": 16384,
+    "native_stride": 1,
+    "samples": "unique consecutive integers0..16383",
+    "PCM": "finite integral signed16bit; validate allpublic PCM columns, including nonselected",
+    "models": "strict64masterclock cadence; auxiliary internal fields syntax-validated but NEVER used as measurement",
+    "physical": "raw16hex1..4hex digits optional0x; exp1..7 and linear matches independently decoded word",
+    "separate_pair": "samecount/index geometry plus hashed input+marker binding; captureidentity/serialframing requires upstream audit",
+    "maximum_bytes": 67108864,
+    "profile": "exact one of six frozen fixtures"
+  },
+  "timing_binding_fields": [
+    "kind",
+    "source_id",
+    "input_sha256",
+    "marker_sha256",
+    "native_frames",
+    "native_stride",
+    "final_event_upper_native",
+    "guard_native",
+    "final_post_start_native",
+    "evidence_path",
+    "evidence_sha256"
+  ],
+  "timing_kinds": [
+    "independent_synthetic",
+    "public_model_sidecar",
+    "physical_host_upper"
+  ],
+  "timing_rule": "guard_native128; final_post_start_native=caller-derived final_event_upper_native+128; hash evidence and both traces. Identity/guard arithmetic verified; accepted physicalwrite timing remains unobserved and evidence semantics require upstream audit. Latebounds retained as shortgeometry.",
+  "geometry": {
+    "markers": 2,
+    "minimum_zero_run": 256,
+    "complete_marker_guard": 128,
+    "initial_start": 128,
+    "minimum_each_interior": 1536,
+    "training_first": 1024,
+    "holdout_next": 512,
+    "return_start": "max(marker2.end_exclusive+128,timing.final_post_start_native)"
+  },
+  "reporting": {
+    "known_increment": 4124,
+    "fixed_basis": "cos/sin/DC at absolute original native indices; first1024initial-low train only",
+    "metrics": "continuous RMS/max/mean/relative-to-low-amplitude residual, coefficients/amplitude/phase/DC; rawstats. No inventedq or actualphysicalpassband",
+    "return": "predict first1536return with unchanged initialcoefficients; own1024return fit and512return holdout diagnostic do not replace early prediction",
+    "middle": "N1 or N32TL40/noop diagnostic1024fit512holdout; NEVER N32TL0fit/frequency/phase/gain/DC correction",
+    "frequency": "unchanged fit_free_sine fullsupported initial-low/return/allowedmiddle; preserve <8crossings unresolved. No expectedfrequency supplied. Independently rawzerorising crossings/intervals",
+    "whole_RIGHT": "freefrequency/rawcrossing diagnostics ONLY N1/N32 TL32\u219232\u219232noops heldlow throughout; never wholepiecewise amplitude record or overload",
+    "constant_or_zero": "nullphase/gain where noAC; weak fittedcomponents descriptive only, never impliedsupport/precision",
+    "references": "optional same-source noopreport and matching N1calibration; hash/version/profile/source checked, report differences/gain/phase/DC and TL40 scalarcoefficient discrepancy descriptive only. Never adjust highwaveform into agreement",
+    "curve": "unaligned original sample index/RIGHT/initial-low prediction/residual; optional N1scaled-lowACcoordinate only, no highfit"
+  },
+  "qualification_scope": {
+    "known_signals": "native-integrated arbitraryphase/gain/DC, wrongcarrier3900, drift/returnsteps, constant/lowamplitude, piecewisegeometry; noisewrongrate diagnostic/unresolved states retained",
+    "strict_negatives": "schema,rows,PCM,clock,rawhex/exponent/linear,source/hash/timing/ref,markers/horizons/exclusiveoutputs",
+    "no_real_q": true,
+    "no_model_or_physical_data_reads": true,
+    "no_new_chip_band": true
+  },
+  "next_boundary": "STOP for ROOT review after adapter qualification; no12wholemodelcaptures or hardware authorized."
+}

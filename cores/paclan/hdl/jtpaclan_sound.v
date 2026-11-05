@@ -9,7 +9,6 @@ module jtpaclan_sound(
 
     input        [15:0] dipsw,
     input        [ 6:0] joystick1, joystick2,
-    input        [15:0] joyana_r1,
     input        [ 1:0] cab_1p,
     input        [ 1:0] coin,
     input               service,

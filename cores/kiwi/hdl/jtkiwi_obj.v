@@ -8,7 +8,10 @@ module jtkiwi_obj #(
     parameter [8:0] XOFF=0,
     parameter [7:0] YOFF=0,
     parameter       YWRAP=0,
-    parameter [8:0] LIMIT=9'h1ff
+    parameter [8:0] LIMIT=9'h1ff,
+    // 12 = 8kB sprite RAM, page selects the 0x800 half (tnzs/calibr50)
+    // 13 = 16kB, page selects the 0x1000 buffer (metafox/arbalest, MAME seta001 setac)
+    parameter       OBJAW=12
 )(
     input               rst,
     input               clk,
@@ -19,7 +22,7 @@ module jtkiwi_obj #(
     input               flip,
     input               page,
 
-    output     [12:1]   lut_addr,
+    output     [OBJAW:1] lut_addr,
     input      [15:0]   lut_data,
 
     output     [ 8:0]   y_addr,
@@ -54,7 +57,10 @@ wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
 
-assign lut_addr = { page, 1'b0, ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
+generate
+    if( OBJAW==13 ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 1 + 2 + 1 + 9 = 13
+    else            assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
+endgenerate
 assign y_addr   = objcnt;
 assign vf       = {9{flip}} ^ (vdump-9'd1);
 assign ypos     = y_data + YOFF;

@@ -28,6 +28,7 @@ reg  [15:0] priority_first_vec;
 reg  [15:0] priority_second_vec;
 reg         priority_first_ie0;
 reg         priority_first_tf0;
+reg         level_short_accepted;
 
 always #5 clk = ~clk;
 // Match the 6 MHz MCU enable used by Bionic Commando on a 24 MHz wrapper
@@ -59,6 +60,10 @@ always @(posedge uut.u_mcu.u_ctrl.irq_take) if (priority_phase) begin
         priority_second_vec <= uut.u_mcu.u_periph.irq_vec_l;
     end
     priority_irqs <= priority_irqs + 1;
+end
+
+always @(posedge uut.u_mcu.u_ctrl.irq_take) begin
+    if (level_short_accepted) $fatal(1, "released level INT0 request was accepted");
 end
 
 task put;
@@ -190,6 +195,61 @@ initial begin
     assert_msg(priority_first_ie0 && priority_first_tf0, "both pending flags are present when Timer0 is accepted");
     assert_msg(p1_o == 8'h10, "low-priority INT0 ISR executes after the Timer0 ISR");
     assert_msg(uut.u_mcu.sp == 8'h07, "both priority ISR RETIs restore stack pointer");
+
+    // Level-triggered INT0 is not latched: a valid-width low request must
+    // remain active through acceptance.  The first pulse lasts more than one
+    // machine cycle, but is released before the two-cycle LJMP ends; it must
+    // not vector.  Keeping the pin low for the next iteration must vector.
+    put(12'h000,8'h02); put(12'h001,8'h00); put(12'h002,8'h40); // reset -> main
+    put(12'h003,8'h02); put(12'h004,8'h03); put(12'h005,8'h00); // INT0 -> $0300
+    put(12'h300,8'h75); put(12'h301,8'h90); put(12'h302,8'ha5); // MOV P1,#$A5
+    put(12'h303,8'h32); // RETI
+    put(12'h040,8'h75); put(12'h041,8'h88); put(12'h042,8'h00); // MOV TCON,#0 (level)
+    put(12'h043,8'h75); put(12'h044,8'ha8); put(12'h045,8'h81); // MOV IE,#$81
+    put(12'h046,8'h00); // consume the architectural IE write delay
+    put(12'h047,8'h02); put(12'h048,8'h00); put(12'h049,8'h47); // LJMP $0047
+
+    rst = 1'b1;
+    int0n = 1'b1;
+    repeat (160) @(posedge clk);
+    rst = 1'b0;
+    while (uut.u_mcu.ir != 8'h02 || uut.u_mcu.pc != 16'h0048) @(posedge clk);
+    @(negedge clk) int0n = 1'b0;
+    // INT0 is sampled for thirteen cen pulses, exceeding the twelve-pulse
+    // machine cycle, but is high again before this LJMP can retire.
+    repeat (13) @(posedge cen);
+    @(negedge clk) int0n = 1'b1;
+    level_short_accepted = 1'b1;
+    repeat (400) @(posedge clk);
+    level_short_accepted = 1'b0;
+    assert_msg(p1_o == 8'hff, "released level INT0 request does not vector");
+
+    while (uut.u_mcu.ir != 8'h02 || uut.u_mcu.pc != 16'h0048) @(posedge clk);
+    @(negedge clk) int0n = 1'b0;
+    repeat (1000) @(posedge clk);
+    assert_msg(p1_o == 8'ha5, "held level INT0 request vectors to its ISR");
+    @(negedge clk) int0n = 1'b1;
+
+    // Clearing an edge request before the boundary has the same requirement:
+    // the controller must not retain an aggregate irq after IE0 is clear.
+    put(12'h000,8'h02); put(12'h001,8'h00); put(12'h002,8'h40); // reset -> main
+    put(12'h003,8'h02); put(12'h004,8'h03); put(12'h005,8'h00); // INT0 -> $0300
+    put(12'h300,8'h75); put(12'h301,8'h90); put(12'h302,8'h3c); // MOV P1,#$3C
+    put(12'h303,8'h32); // RETI
+    put(12'h040,8'h75); put(12'h041,8'h88); put(12'h042,8'h01); // MOV TCON,#1 (edge)
+    put(12'h043,8'h75); put(12'h044,8'ha8); put(12'h045,8'h81); // MOV IE,#$81
+    put(12'h046,8'h00); // consume the architectural IE write delay
+    put(12'h047,8'h02); put(12'h048,8'h00); put(12'h049,8'h47); // LJMP $0047
+
+    rst = 1'b1;
+    repeat (160) @(posedge clk);
+    rst = 1'b0;
+    while (uut.u_mcu.ir != 8'h02 || uut.u_mcu.pc != 16'h0048) @(posedge clk);
+    @(negedge clk) uut.u_mcu.u_periph.tcon[1] = 1'b1;
+    repeat (4) @(posedge cen);
+    @(negedge clk) uut.u_mcu.u_periph.tcon[1] = 1'b0;
+    repeat (400) @(posedge clk);
+    assert_msg(p1_o == 8'hff, "cleared edge INT0 request does not vector");
     pass();
 end
 

@@ -12,6 +12,8 @@ module jtframe_joysticks(
                       key_coin,   key_start,
                       joy_coin,   joy_start,
     input             key_service,key_tilt,  key_reset,
+    input             cab_active,
+    input      [20:0] cab_inputs,
 
     input      [15:0] ana1, ana2,
                       board_joy1, board_joy2, board_joy3, board_joy4,
@@ -36,13 +38,31 @@ module jtframe_joysticks(
                 sortd_joy1, sortd_joy2, sortd_joy3, sortd_joy4;
     wire [ 3:0] merge_coin, merge_start, lock_coin, lock_start;
     wire        merge_service;
+    wire [9:0] selected_joy1, selected_joy2, selected_joy3, selected_joy4;
+    wire [3:0] selected_coin, selected_start;
+    wire [1:0] selected_pos;
+    wire selected_service, selected_reset, merged_test, merged_tilt;
+
+    // CAB inputs are canonical cabinet controls, independent of display rotation
+    // or physical controller remapping. Preserve beta locking and core direction order.
+    assign selected_joy1 = cab_active ? {3'b111,~cab_inputs[10:4]} : rot_joy1;
+    assign selected_joy2 = cab_active ? {3'b111,~cab_inputs[20:14]} : rot_joy2;
+    assign selected_joy3 = cab_active ? 10'h3ff : rot_joy3;
+    assign selected_joy4 = cab_active ? 10'h3ff : rot_joy4;
+    assign selected_coin = cab_active ? {2'b11,~cab_inputs[13],~cab_inputs[0]} : merge_coin;
+    assign selected_start = cab_active ? {2'b11,~cab_inputs[3:2]} : merge_start;
+    assign selected_service = cab_active ? ~cab_inputs[1] : merge_service;
+    assign selected_pos = cab_active ? 2'd0 : joy1_pos;
+    assign selected_reset = cab_active ? 1'b0 : key_reset;
+    assign game_test = cab_active ? ~cab_inputs[11] : merged_test;
+    assign game_tilt = cab_active ? 1'b1 : merged_tilt;
 
     assign recjoy1 = ~merge_joy1[5:0];
 
     jtframe_edge u_rst(
         .rst    ( rst       ),
         .clk    ( clk       ),
-        .edgeof ( key_reset ),
+        .edgeof ( selected_reset ),
         .clr    ( vs        ),
         .q      ( soft_rst  )
     );
@@ -96,8 +116,8 @@ module jtframe_joysticks(
         .game_joy4  ( merge_joy4    ),
         .game_coin  ( merge_coin    ),
         .game_start ( merge_start   ),
-        .game_test  ( game_test     ),
-        .game_tilt  ( game_tilt     ),
+        .game_test  ( merged_test   ),
+        .game_tilt  ( merged_tilt   ),
         .game_service(merge_service )
     );
 
@@ -119,13 +139,13 @@ module jtframe_joysticks(
         .clk        ( clk           ),
         .locked     ( locked        ),
 
-        .raw1       ( rot_joy1      ),
-        .raw2       ( rot_joy2      ),
-        .raw3       ( rot_joy3      ),
-        .raw4       ( rot_joy4      ),
-        .raw_start  ( merge_start   ),
-        .raw_coin   ( merge_coin    ),
-        .raw_service( merge_service ),
+        .raw1       ( selected_joy1 ),
+        .raw2       ( selected_joy2 ),
+        .raw3       ( selected_joy3 ),
+        .raw4       ( selected_joy4 ),
+        .raw_start  ( selected_start),
+        .raw_coin   ( selected_coin ),
+        .raw_service(selected_service),
 
         .joy1       ( lock_joy1     ),
         .joy2       ( lock_joy2     ),
@@ -149,7 +169,7 @@ module jtframe_joysticks(
 
     jtframe_joy1_pos u_joy1_pos(
         .clk        ( clk           ),
-        .pos        ( joy1_pos      ),
+        .pos        ( selected_pos  ),
 
         .raw1       ( sortd_joy1    ),
         .raw2       ( sortd_joy2    ),
@@ -250,6 +270,7 @@ module jtframe_joy_reorder(
     `ifdef JTFRAME_JOY_DURL reorder[3:0]={joy_in[2], joy_in[3], joy_in[0], joy_in[1]}; `endif
     `ifdef JTFRAME_JOY_DULR reorder[3:0]={joy_in[2], joy_in[3], joy_in[1], joy_in[0]}; `endif
     `ifdef JTFRAME_JOY_B1B0 reorder[5:4]={joy_in[4], joy_in[5]}; `endif
+    `ifdef JTFRAME_JOY_B2B1B0 reorder[6:4]={joy_in[4], joy_in[5],joy_in[6]}; `endif
         end
     endfunction
 

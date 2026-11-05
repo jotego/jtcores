@@ -76,14 +76,14 @@ wire [11:2] scan_addr;
 wire [11:1] dma_wr_addr;
 wire [ 9:0] xoffset, yoffset;
 wire [ 7:0] cfg;
-wire        dma_wel, dma_weh, cpu_bsy,
+wire        dma_wel, dma_weh, half_width,
             ghf, gvf, mode8, dma_en, flicker;
 
-assign ghf       = cfg[0]; // global flip
-assign gvf       = cfg[1];
-assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
-assign cpu_bsy   = cfg[3];
-assign dma_en    = cfg[4];
+assign ghf        = cfg[0]; // global flip
+assign gvf        = cfg[1];
+assign mode8      = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
+assign half_width = cfg[3]; // GX975 halves sprite X coordinates and widths
+assign dma_en     = cfg[4];
 
 jt053246_scan #(.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .rst       ( rst        ),
@@ -107,6 +107,7 @@ jt053246_scan #(.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .yoffset   ( yoffset    ),
     .ghf       ( ghf        ),
     .gvf       ( gvf        ),
+    .half_width( half_width ),
     .scan_addr ( scan_addr  ),
     .shd       ( shd        ),
     .dr_start  ( dr_start   ),

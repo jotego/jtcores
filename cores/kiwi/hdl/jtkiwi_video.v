@@ -124,6 +124,7 @@ jtkiwi_gfx u_gfx(
     .vdump      ( vdump          ),
     .vrender    ( vrender        ),
     .hdump      ( hdump          ),
+    .obj_hshift ( 9'd0           ),
     // CPU interface
     .vram_cs    ( vram_cs        ),
     .vctrl_cs   ( vctrl_cs       ),

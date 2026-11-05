@@ -48,3 +48,30 @@ The SIMM modules are mapped to the SDRAM banks as:
 | 3    | 1           | 16        |
 | 4    | 2           | 16        |
 | 5    | 3           |  4        |
+
+## Scene simulations
+
+`dump.bin` format:
+
+- Its first 128 bytes are the normal EEPROM IOCTL block
+- The generated splitter copies every remaining byte to `rest.bin`, and CPS3's `rest2bin.sh` splits it into the following payload:
+
+| Offset | Size | Content |
+| ---: | ---: | --- |
+| `0x000000` | `0x000080` | EEPROM compatibility prefix |
+| `0x000080` | `0x002000` | flattened scene list BRAM |
+| `0x002080` | `0x040000` | palette BRAM |
+| `0x042080` | `0x004000` | SS character BRAM |
+| `0x046080` | `0x002000` | SS tilemap BRAM |
+| `0x048080` | `0x002000` | SS line-scroll BRAM |
+| `0x04a080` | `0x080000` | sprite/tilemap RAM SDRAM overlay |
+| `0x0ca080` | `0x800000` | character/tile RAM SDRAM overlay |
+| `0x8ca080` | `0x0000b0` | PPU MMR bytes |
+| `0x8ca130` | `0x000016` | SS MMR bytes |
+| `0x8ca146` | `0x000002` | flattened scene entry count |
+
+The file must be exactly `0x8ca148` bytes. `ver/rest2bin.sh` rejects other
+sizes, splits the CPS3 payload, and invokes `jtutil sdram --sim` to apply the
+two SDRAM overlays. The CPU and sound are disabled by the standard `jtsim -s`
+macros; `SIMSCENE` restores the flattened scene entry count without running
+sprite DMA.

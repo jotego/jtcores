@@ -62,8 +62,6 @@ JTFRAME_PROM_START=0x298000
 JTFRAME_LF_BUFFER
 -JTFRAME_OSD_NOLOGO
 -NODEC
-JTFRAME_CREDITS_PAGES=3
-JTFRAME_CREDITS_HSTART=32
 
 [mister|sockit|de1soc|de10std|sidi128]
 # Controller options have only been tested on MiSTer

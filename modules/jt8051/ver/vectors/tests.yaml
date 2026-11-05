@@ -1242,3 +1242,36 @@ cjne_alias_carry_set:
     - { asm: "MOV R7,#10H",       check: "" }
     - { asm: "CJNE R7,#20H,cr7",  check: "C=1" }
     - { asm: "cr7: NOP",          check: "" }
+
+# Avengers switches to bank 1 with SETB PSW.3 before consuming its angle
+# parameters. Bit writes to CPU-owned SFRs must merge with the old byte,
+# just like the peripheral ports, rather than writing the single-bit source.
+internal_sfr_bits:
+  test:
+    - { asm: "MOV PSW,#00H", check: "PSW=$00" }
+    - { asm: "MOV 0AH,#12H", check: "IRAM[$0A]=$12" }
+    - { asm: "SETB 0D3H",    check: "PSW=$08", cycles: 1 }
+    - { asm: "MOV A,R2",     check: "A=$12, P=0" }
+    - { asm: "SETB 0D4H",    check: "PSW=$18" }
+    - { asm: "CLR 0D3H",     check: "PSW=$10" }
+    - { asm: "CPL 0D4H",     check: "PSW=$00" }
+    - { asm: "SETB C",       check: "C=1" }
+    - { asm: "MOV 0D5H,C",   check: "PSW=$A0" }
+    - { asm: "CLR 0D5H",     check: "PSW=$80" }
+    - { asm: "MOV B,#0A4H",  check: "B=$A4" }
+    - { asm: "SETB 0F0H",    check: "B=$A5" }
+    - { asm: "CLR 0F2H",     check: "B=$A1" }
+    - { asm: "CPL 0F7H",     check: "B=$21" }
+    - { asm: "MOV 0F6H,C",   check: "B=$61" }
+    - { asm: "CLR C",        check: "C=0" }
+    - { asm: "MOV 0F5H,C",   check: "B=$41" }
+    - { asm: "MOV A,#54H",   check: "A=$54, P=1" }
+    - { asm: "SETB 0E0H",    check: "A=$55, P=0" }
+    - { asm: "CLR 0E2H",     check: "A=$51, P=1" }
+    - { asm: "CPL 0E7H",     check: "A=$D1, P=0" }
+    - { asm: "SETB C",       check: "C=1" }
+    - { asm: "MOV 0E1H,C",   check: "A=$D3, P=1" }
+    - { asm: "SETB 0D0H",    check: "A=$D3, P=1" }
+    - { asm: "CLR 0D0H",     check: "A=$D3, P=1" }
+    - { asm: "JBC 0F6H,bit_cleared", check: "B=$01", cycles: 2 }
+    - { asm: "bit_cleared: NOP", check: "B=$01" }

@@ -90,7 +90,6 @@ wire scrwin;
 wire [(SCR_TILE4?3:2):0] scr_col;
 wire [2:0] scr_pal;
 wire [3:0] cc;
-wire [3:0] avatar_idx;
 
 `ifdef NOVIDEO
 `define NOCHAR

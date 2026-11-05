@@ -20,6 +20,7 @@ module jt65c02_regs #(parameter DECO222=0)(
     output reg        rd,
     input             stcy, brcy,
     output reg        pcpage,
+    output            ea_ff,
     input      [ 1:0] ea_sel,
     input      [ 1:0] opnd_sel,
     input      [ 3:0] ld_sel,
@@ -42,6 +43,7 @@ module jt65c02_regs #(parameter DECO222=0)(
 reg  [ 7:0] a, x, y, s, rmux;
 reg  [15:0] ea, pc;
 reg         v,n,z; // other condition codes (b=break)
+assign ea_ff = ea[7:0] == 8'hff;
 
 wire [7:0] cc = {n,v,2'b10,d,i,z,c};
 wire [7:0] md_op = DECO222 && opdec ? { md[7], md[5], md[6], md[4:0] } : md;

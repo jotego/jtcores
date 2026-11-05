@@ -1,0 +1,24 @@
+# Turn SW1 (Service Mode) on AFTER the game has booted, rather than at power-up.
+#
+# RESULT: this does NOT reach the settings menu. It hits the same IO ERROR 64,
+# roughly 600 frames later than the power-up path. Toggling the DIP mid-run
+# evidently re-enters the boot sequence, so it meets the same C040 timeout
+# (tri-RAM offset 0 must read 0xA6 within ~0.65s) and falls into the self-test.
+# Matches the behaviour reported on MiSTer hardware.
+#
+# Verified with FRAMES=1900: the late burst at 1311..1339 has byte-identical
+# frame sizes and deltas to the power-up error burst at 681..709. A shorter run
+# stops around frame 789 and looks like it succeeded - it has not, so do not
+# judge this script with FRAMES below ~1500.
+#
+#   FRAMES=1900 ROMS_HOST=~/mameroms ./sim-core.sh shouse blastoff \
+#       ../blastoff/service.cab
+#
+# Kept because it documents that there is currently no route into the menu:
+# neither a warm reset (see warmreset.cab) nor a mid-run DIP toggle works.
+
+# 1. boot to attract with SW1 off
+500
+
+# 2. SW1 on
+1200 dipsw=fffe

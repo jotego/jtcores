@@ -1,0 +1,12 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+        target-path = "/soc/base-fpga-region";
+        __overlay__ {
+            firmware-name = "c96-yamaha104.rbf";
+            fpga-bridges = <&fpga_bridge0 &fpga_bridge1 &fpga_bridge2 &fpga_bridge3>;
+        };
+    };
+};

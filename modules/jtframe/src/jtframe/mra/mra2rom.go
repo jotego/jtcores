@@ -25,6 +25,7 @@ import (
 func Mra2rom(root *XMLNode, save2disk bool, zippath string) (e error) {
 	e = save_rom(root, save2disk, zippath )
 	if save2disk {
+		save_nvram(root)
 		save_coremod(root)
 		make_dip_file(root)
 	}

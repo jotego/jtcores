@@ -5,7 +5,6 @@
 module jtgunsmk_main(
     input              rst,
     input              clk,
-    input              cen6,   // 6MHz
     input              cen3    /* synthesis direct_enable = 1 */,   // 3MHz
     output             cpu_cen,
     // Timing

@@ -146,6 +146,7 @@ always @(posedge clk) begin
     cpu_din <= rom_cs   ? rom_data         :
                ram_cs   ? ram_dout         :
                obj_cs   ? oram_dout        :
+               |objset_cs ? oram_dout      :
                vram_cs  ? {2{vram_dout}}   :
                pal_cs   ? pal_dout         :
                pslrm_cs ? lmem_dout        :

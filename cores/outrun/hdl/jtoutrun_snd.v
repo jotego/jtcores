@@ -126,7 +126,7 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jtoutrun_pcm u_pcm(
+jtoutrun_pcm #(.WD(16)) u_pcm(
     .rst        ( mix_rst       ),
     .clk        ( clk           ),
     .cen        ( cen_pcm       ),

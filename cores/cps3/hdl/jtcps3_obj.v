@@ -90,7 +90,7 @@ assign cmd_draw_w   = { 1'b0, cmd[86:80] } + 8'd1;
 assign cmd_draw_h   = { 1'b0, cmd[94:88] } + 8'd1;
 assign cmd_native_w = { cmd_x_tiles, 4'd0 };
 assign cmd_native_h = { cmd_y_tiles, 4'd0 };
-assign cmd_sprite_x0 = wrap10_center_x(cmd[57:48]+10'd64, cmd_draw_w);
+assign cmd_sprite_x0 = wrap10_center_x(cmd[57:48], cmd_draw_w) + 12'sd64;
 assign cmd_line_delta = ({ 3'd0, draw_v }) - sign10(sprite_top_raw(cmd[41:32], cmd_draw_h));
 
 jtcps3_pixel u_pixel(

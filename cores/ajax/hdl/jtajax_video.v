@@ -144,6 +144,7 @@ jt051316 u_psac(
     .vr_cs      ( vr_cs     ),
     .io_cs      ( rio_cs    ),
     .rvo        ( rvo       ),
+    .wrap       ( 1'b0      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
 

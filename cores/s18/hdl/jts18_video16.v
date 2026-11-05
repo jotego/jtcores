@@ -13,6 +13,7 @@ module jts18_video16(
     input              pxl_cen,   // pixel clock enable
 
     input              video_en,
+    input              req_57Hz,
     input              gray_n,
 
     // CPU interface
@@ -26,6 +27,7 @@ module jts18_video16(
     output     [15:0]  char_dout,
     output     [15:0]  obj_dout,
     output             vint,
+    output             is_57Hz,
 
     // Other configuration
     input              flip,
@@ -83,6 +85,7 @@ module jts18_video16(
     output             scr_bad
 );
 
+parameter DUAL_RATE=0;
 localparam MODEL=1;
 localparam [9:0] ROWSCR_DLY=10'd17;
 
@@ -96,7 +99,7 @@ assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
 assign obj_prio = obj_pxl[11:10];
 
-jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
+jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),.DUAL_RATE(DUAL_RATE),
     .SCR2_DLY(10'd9),.SCR1_DLY(10'd9),
     .ROWSCR1_DLY(ROWSCR_DLY),.ROWSCR2_DLY(ROWSCR_DLY)
     ) u_tilemap(
@@ -119,6 +122,8 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
     .colscr_en  ( 1'b0      ),
     .rowscr_en  ( 1'b0      ),
     .alt_en     ( 1'b0      ),
+    .req_57Hz   ( req_57Hz  ),
+    .is_57Hz    ( is_57Hz   ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),

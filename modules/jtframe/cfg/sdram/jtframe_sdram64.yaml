@@ -24,6 +24,7 @@ jtframe:
       - jtframe_rom_7slots.v
       - jtframe_romrq.v
       - jtframe_romrq_bcache.v
+      - jtframe_romrq_lcache.v
       - jtframe_romrq_xscache.v
       - jtframe_ucache.v
       - jtframe_rom.v

@@ -43,6 +43,7 @@ assign cchip_rnw  = main_rnw | main_dsn[0];
 assign ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
 assign pal_we    = {2{pal_cs & ~main_rnw}} & ~main_dsn;
 assign objram_we = {2{obj_cs & ~main_rnw}} & ~main_dsn;
+assign ioctl_din = 0;
 
 jtvlfied_main u_main(
     .rst        ( rst       ),

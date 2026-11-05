@@ -82,16 +82,18 @@ localparam EDGE_TRIGGER = `ifndef NOMAIN 1 `else 0 `endif;
 
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
-wire [ 8:0] virt_hdumpf, obj_pxl, virt_hdump;
-wire [ 7:0] virt_vdumpf, psc_pxl, virt_vdump;
-wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
+wire [ 8:0] virt_hdumpf, obj_pxl_raw, obj_pxl, virt_hdump;
+wire [ 7:0] virt_vdumpf, psc_pxl_raw, psc_pxl, virt_vdump;
+wire [ 7:0] fix_raw, fix_pxl_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 5:0] hbs_len, hsy_len, hsa_len;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
-wire [ 1:0] oram_we, shadow;
+wire [ 1:0] oram_we, shadow_raw, shadow;
+wire [15:0] ln_data_raw;
 wire        cpu_we, hld, vld, obj_done;
 reg  [14:0] ioctl_adj;
-wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen, obj_cen;
+wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen, obj_cen,
+            lrsw_l, pri_l;
 
 assign cpu_we    = ~rnw;
 assign oram_we   = ~cpu_dsn & {2{~rnw}};
@@ -186,16 +188,32 @@ jtframe_blank_length u_counter(
 );
 
 jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .obj_done   ( obj_done      ),
 
     .ln_addr    ( ln_addr       ),
+    .ln_data    ( ln_data       ),
     .ln_done    ( ln_done       ),
     .ln_hs      ( ln_hs         ),
     .ln_v       ( ln_v          ),
     .ln_vs      ( ln_vs         ),
     .ln_lvbl    ( ln_lvbl       ),
     .ln_we      ( ln_we         ),
+
+    .obj_pxl_raw ( obj_pxl_raw  ),
+    .fix_pxl_raw ( fix_pxl_raw  ),
+    .psc_pxl_raw ( psc_pxl_raw  ),
+    .shadow_raw  ( shadow_raw   ),
+    .lrsw        ( lrsw         ),
+    .pri         ( pri          ),
+    .ln_data_raw ( ln_data_raw  ),
+    .obj_pxl     ( obj_pxl      ),
+    .fix_pxl     ( fix_pxl      ),
+    .psc_pxl     ( psc_pxl      ),
+    .shadow      ( shadow       ),
+    .lrsw_l      ( lrsw_l       ),
+    .pri_l       ( pri_l        ),
 
     .vflip      ( gvflip        ),
     .hflip      ( ghflip        ),
@@ -263,7 +281,7 @@ jtframe_sh #(.W(8),.L(2)) u_fixsh(
     .clk    ( clk       ),
     .clk_en ( virt_cen  ),
     .din    ( fix_raw   ),
-    .drop   ( fix_pxl   )
+    .drop   ( fix_pxl_raw )
 );
 
 jtrungun_psac u_psac(
@@ -293,7 +311,7 @@ jtrungun_psac u_psac(
     .rom_data   ( scr_data  ),
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),
-    .pxl        ( psc_pxl   ),
+    .pxl        ( psc_pxl_raw ),
     .gfx_en     ( gfx_en    ),
     // IOCTL dump
     .ioctl_addr (ioctl_addr[4:0]),
@@ -338,8 +356,8 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
     .rom_cs     ( obj_cs    ),
     .objcha_n   ( objcha_n  ),
     // pixel output
-    .pxl        ( obj_pxl   ),
-    .shd        ( shadow    ),
+    .pxl        ( obj_pxl_raw ),
+    .shd        ( shadow_raw),
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
@@ -351,15 +369,15 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
 );
 
 jtrungun_colmix u_colmix(
-    .lrsw       ( lrsw          ),
-    .pri        ( pri           ),
+    .lrsw       ( lrsw_l        ),
+    .pri        ( pri_l         ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
     .obj_pxl    ( obj_pxl       ),
     .psc_pxl    ( psc_pxl       ),
     .shadow     ( shadow        ),
 
-    .pxl        ( ln_data       ),
+    .pxl        ( ln_data_raw   ),
     .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     )
 );

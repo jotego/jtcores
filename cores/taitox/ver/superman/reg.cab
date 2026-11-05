@@ -1,0 +1,8 @@
+=100
+tracing_on
+loop
+4 coin
+40
+repeat 5
+4 1p
+10

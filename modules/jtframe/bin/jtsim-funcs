@@ -9,6 +9,7 @@ Common options:
     -u | -undef <macro>                  Undefine a simulation macro
     -time <ms>                           Simulate for a fixed number of milliseconds
     -video [frames]                      Dump video output
+    -norotate                            Keep Verilator dumped frames unrotated
     -dummyROM                            Use a local dummy rom.bin without set-name lookup
     -w [frame] | -deep [frame]           Dump waveform data (overrides .cab tracing_on)
     file.cab                             Feed a cabinet-input script (Verilator)
@@ -300,7 +301,7 @@ build_core_firmware() {
 make_verilator_command() {
 	echo "${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
 "       -I$JTFRAME/hdl/inc "\
-"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl "\
+"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl -I$JTFRAME/hdl/cpu/ika32010 "\
 "       --timescale 1ps/1ps "\
 "       $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS "\
 "       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\
@@ -656,6 +657,37 @@ rename_scene_file() {
     if [ -e "$scene" ]; then return; fi
     if rename_ext_file "$folder" nvm; then return; fi
     rename_ext_file "$folder" RAM
+}
+
+link_scene_folder() {
+    local corename="$1"
+    local setname="$2"
+    local scene_root="${JOTEGO:-}/scenes/$corename/$setname"
+    local scene_target
+    local current_target
+
+    if [ -z "${JOTEGO:-}" ]; then
+        echo "jtsim -s requires JOTEGO to be defined as the support-files directory" >&2
+        return 1
+    fi
+    if [ ! -d "$scene_root" ]; then
+        echo "Scene folder not found: $scene_root" >&2
+        return 1
+    fi
+    scene_target=$(realpath "$scene_root") || return 1
+
+    if [ -e scenes ] && [ ! -L scenes ]; then
+        echo "Cannot create scene link: scenes is an existing directory" >&2
+        return 1
+    fi
+    if [ -L scenes ]; then
+        current_target=$(readlink -f scenes)
+        if [ "$current_target" = "$scene_target" ]; then
+            return 0
+        fi
+        unlink scenes || return 1
+    fi
+    ln -s "$scene_target" scenes
 }
 
 rename_ext_file() {

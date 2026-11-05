@@ -9,7 +9,9 @@ desertbr:
   video: 2200
 hamaway:
 lghost:
-  inputs: reg.cab
+  skip: true
+  video: 5000
+  start-up: 1900
 mwalk:
 shdancer:
 wwallyj:

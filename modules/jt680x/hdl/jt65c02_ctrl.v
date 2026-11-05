@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 28-11-2025 */
 /* verilator coverage_off */
-module jt65c02_ctrl(
+module jt65c02_ctrl #(parameter DECO222=0)(
     input        rst,
     input        clk,
     input        cen,
@@ -14,7 +14,7 @@ module jt65c02_ctrl(
     input        nmi,
     output reg [2:0] iv,
     // control
-    input        brok, calt, d, pcpage,
+    input        brok, calt, d, pcpage, ea_ff,
     output       branch, branch_lo,
     output       brlatch,
     output       fetch,
@@ -49,6 +49,43 @@ wire       wait4cy, nobr;
 
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
+function reserved_nop(input [7:0] opcode);
+    begin
+        case(opcode)
+            8'h02,8'h03,8'h0b,8'h13,8'h1b,8'h22,8'h23,8'h2b,8'h33,8'h3b,
+            8'h42,8'h43,8'h44,8'h4b,8'h53,8'h54,8'h5b,8'h5c,8'h62,8'h63,
+            8'h6b,8'h73,8'h7b,8'h82,8'h83,8'h8b,8'h93,8'h9b,8'ha3,8'hab,
+            8'hb3,8'hbb,8'hc2,8'hc3,8'hcb,8'hd3,8'hd4,8'hdb,8'hdc,8'he2,
+            8'he3,8'heb,8'hf3,8'hf4,8'hfb,8'hfc: reserved_nop=1'b1;
+            default: reserved_nop=1'b0;
+        endcase
+    end
+endfunction
+
+function deco222_nop(input [7:0] opcode);
+    begin
+        case(opcode)
+            8'h02,8'h22,8'h42,8'h62,8'h82,8'hc2,8'he2,
+            8'h44,8'h54,8'hd4,8'hf4,8'h5c,8'hdc,8'hfc: deco222_nop=1'b1;
+            default: deco222_nop=1'b0;
+        endcase
+    end
+endfunction
+
+function is_branch_opcode(input [7:0] opcode);
+    begin
+        // BBR/BBS occupy every xF slot; the other relative branches use the
+        // listed opcodes. A taken backward same-page branch can have calt=1
+        // from the low-byte subtraction while pcpage remains zero.
+        if(opcode[3:0]==4'hf) is_branch_opcode=1'b1;
+        else case(opcode)
+            8'h80,8'h90,8'hb0,8'hd0,8'hf0,
+            8'h10,8'h30,8'h50,8'h70: is_branch_opcode=1'b1;
+            default: is_branch_opcode=1'b0;
+        endcase
+    end
+endfunction
+
 reg [2:0] waitcnt;
 assign waiting = ~waitcnt[2];
 
@@ -57,7 +94,13 @@ always @(posedge clk) begin
         waitcnt <= 0;
     end else if(cen) begin
         if( waiting ) waitcnt <= waitcnt+1'd1;
-        if( wait4cy & (branch ? pcpage : calt) ) begin
+        // Branch page crossing is registered by the high-byte PC write, so
+        // its wait occurs in the following microstep with branch deasserted.
+        // Branch waits use the actual high-byte page change. calt is only a
+        // low-byte carry and also goes high for backward same-page offsets.
+        // Indexed-address waits still use calt; JMP ($xxFF) has its own gate.
+        if( wait4cy & (pcpage | (calt & !is_branch_opcode(ir)) |
+                       ((ir==8'h6c) & ea_ff)) ) begin
             waitcnt <= 0;
         end
     end
@@ -101,7 +144,14 @@ always @(posedge clk) begin
         if( swi ) iv <= BRK_VECTOR;
         if( next_instruction ) begin
             ir         <= md;
-            uaddr      <= { md, 4'd0 };
+            // Rockwell Table 4 says every undefined encoding is a NOP. Decode
+            // these through the defined NOP microcode entry, without assigning
+            // undocumented timing or giving WDC WAI/STP their modern meaning.
+            // DECO222 assigns instruction lengths/paths to 14 original
+            // reserved bytes. Let its selected profile decode those entries;
+            // all remaining Rockwell-reserved bytes still take generic NOP.
+            uaddr      <= (reserved_nop(md) && !(DECO222 && deco222_nop(md))) ?
+                          { 8'hEA, 4'd0 } : { md, 4'd0 };
             stack_busy <= 0;
             if( ~i & irq ) begin
                 iv     <= BRK_VECTOR; // same one for IRQ and BRK

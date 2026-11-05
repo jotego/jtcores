@@ -39,7 +39,7 @@ names=[
     { machine="qndream", names="Button 1,Button 2,Button 3,Button 4" },
     { machine="ringdest", names="Grab,Light Punch,Heavy Punch,Unused,Light Kick,Heavy Kick" },
     { machine="sgemf", names="Punch,Kick,Special" },
-    { machine="spf2t", names="Rotate Left,Rotate Right" },
+    { machine="spf2t", names="Rotate Left,Rotate Right", map="LR" },
 ]
 
 [header]

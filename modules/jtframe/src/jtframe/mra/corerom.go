@@ -102,6 +102,9 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		}
 
 		reg_offsets[reg] = pos
+		for _, index := range reg_cfg.Sequence {
+			if index < 0 { return fmt.Errorf("region %s: negative ROM sequence index %d", reg, index) }
+		}
 		if Verbose {
 			fmt.Printf("\tbefore sorting %s:\n\t%v\n", reg_cfg.Name, reg_roms)
 		}
@@ -144,14 +147,26 @@ func make_region_parts(reg string, reg_cfg *RegCfg, reg_roms []MameROM, machine 
 		}
 	} else if reg_cfg.Singleton {
 		// Singleton interleave case
+		if reg_cfg.Width != 16 && reg_cfg.Width != 32 {
+			return parts, fmt.Errorf("region %s: singleton only supported for width 16 and 32", reg)
+		}
 		parts.length += parse_singleton(reg_roms, reg_cfg, &parts.node)
 	} else {
 		split_offset, split_minlen := is_split(reg, machine, cfg)
 		// Regular interleave case
 		if reg_cfg.Frac.Parts != 0 {
+			if reg_cfg.Frac.Parts < 0 || reg_cfg.Frac.Bytes <= 0 || reg_cfg.Frac.Parts % reg_cfg.Frac.Bytes != 0 || (reg_cfg.Frac.Parts / reg_cfg.Frac.Bytes) % 2 != 0 {
+				return parts, fmt.Errorf("region %s: invalid frac parts/bytes", reg)
+			}
+			missing := reg_cfg.Frac.Parts - len(reg_roms) % reg_cfg.Frac.Parts
+			if missing != reg_cfg.Frac.Parts && len(reg_roms) < missing {
+				return parts, fmt.Errorf("region %s: too few ROMs for frac parts", reg)
+			}
 			parts.length += make_frac(&parts.node, reg_cfg, reg_roms)
 		} else if (reg_cfg.Width != 0 && reg_cfg.Width != 8) && len(reg_roms) > 1 {
-			parse_regular_interleave(split_offset, reg, reg_roms, reg_cfg, &parts.node, machine, cfg, &parts.length)
+			if reg_cfg.Width < 8 || reg_cfg.Width % 8 != 0 { return parts, fmt.Errorf("region %s: invalid width %d", reg, reg_cfg.Width) }
+			e = parse_regular_interleave(split_offset, reg, reg_roms, reg_cfg, &parts.node, machine, cfg, &parts.length)
+			if e != nil { return parts, e }
 		} else if reg_cfg.Width <= 8 || len(reg_roms) == 1 {
 			parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, &parts.node, machine, cfg, &parts.length)
 		} else {
@@ -538,7 +553,7 @@ func is_blank(curpos int, reg string, machine *MachineXML, cfg Mame2MRA) (blank_
 func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) (int, error) {
 	dumped := 0
 	n := p
-	reg_cfg.check_width_vs_parts()
+	if e := reg_cfg.check_width_vs_parts(); e != nil { return 0, e }
 	mask := 0
 	if reg_cfg.Width > 8 {
 		switch reg_cfg.Width {
@@ -551,7 +566,7 @@ func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) (int, error) {
 		default:
 			{
 				msg := fmt.Sprintf("Unexpected value of width %d", reg_cfg.Width)
-				panic(msg)
+				return 0, fmt.Errorf("%s", msg)
 			}
 		}
 		if mask != 0 {
@@ -591,8 +606,7 @@ func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) (int, error) {
 		}
 		dumped += each.Length
 	}
-	reg_cfg.check_parts_consistency()
-	return dumped, nil
+	return dumped, reg_cfg.check_parts_consistency()
 }
 
 func (reg_cfg *RegCfg) add_interleave(p *XMLNode) *XMLNode {
@@ -608,15 +622,16 @@ func (part *RegParts) get_size_from_mame(roms []MameROM) error {
 	return nil
 }
 
-func (reg_cfg *RegCfg) check_parts_consistency() {
+func (reg_cfg *RegCfg) check_parts_consistency() error {
 	for k := 1; k < len(reg_cfg.Parts); k++ {
 		if reg_cfg.Parts[k].equivalent_size() != reg_cfg.Parts[k-1].equivalent_size() {
 			msg := fmt.Sprintf("Different length for parts %s (%X) and %s (%X) in region %s",
 				reg_cfg.Parts[k-1].Name, reg_cfg.Parts[k-1].Length,
 				reg_cfg.Parts[k].Name, reg_cfg.Parts[k].Length, reg_cfg.Name)
-			panic(msg)
+			return fmt.Errorf("%s", msg)
 		}
 	}
+	return nil
 }
 
 func (part *RegParts) equivalent_size() int {
@@ -650,7 +665,7 @@ func (part *RegParts) verify_size(roms []MameROM) error {
 		return part.error_unknown_rom()
 	}
 	if part.Length+part.Offset > roms[idx].Size {
-		part.panic_rom_too_small(roms[idx].Size)
+		return fmt.Errorf("ROM length+offset set in TOML for ROM %s as 0x%X, but the file is only 0x%X in MAME", part.Name, part.Length+part.Offset, roms[idx].Size)
 	}
 	return nil
 }
@@ -659,12 +674,7 @@ func (part *RegParts) error_unknown_rom() error {
 	return fmt.Errorf("Unknown ROM length for ROM %s (CRC %s)", part.Name, part.Crc)
 }
 
-func (part *RegParts) panic_rom_too_small(ref int) {
-	msg := fmt.Sprintf("ROM length+offset set in TOML for ROM %s as 0x%X, but the file is only 0x%X in MAME", part.Name, part.Length, ref)
-	panic(msg)
-}
-
-func (cfg *RegCfg) check_width_vs_parts() {
+func (cfg *RegCfg) check_width_vs_parts() error {
 	bytemap_len := 0
 	for _, part := range cfg.Parts {
 		if this_len := len(part.Map); this_len > bytemap_len {
@@ -676,8 +686,9 @@ func (cfg *RegCfg) check_width_vs_parts() {
 		cfg.Width = derived_width
 	} else if cfg.Width != derived_width {
 		msg := fmt.Sprintf("Expected interleave of width %d for region %s", derived_width, cfg.Name)
-		panic(msg)
+		return fmt.Errorf("%s", msg)
 	}
+	return nil
 }
 
 func parse_singleton(reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode) int {
@@ -900,7 +911,7 @@ func reg_used(reg_roms []MameROM) bool {
 
 func parse_regular_interleave(split_offset int, reg string,
 	reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-	machine *MachineXML, cfg Mame2MRA, pos *int) {
+	machine *MachineXML, cfg Mame2MRA, pos *int) error {
 	if Verbose {
 		fmt.Printf("Regular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
@@ -926,17 +937,17 @@ func parse_regular_interleave(split_offset int, reg string,
 			reg_roms = append(reg_roms, each)
 		}
 	}
-	make_interleave_groups(reg, reg_roms, reg_cfg, p, machine, cfg, pos)
+	return make_interleave_groups(reg, reg_roms, reg_cfg, p, machine, cfg, pos)
 }
 
 func make_interleave_groups(reg string,
 	reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-	machine *MachineXML, cfg Mame2MRA, pos *int) {
+	machine *MachineXML, cfg Mame2MRA, pos *int) error {
 	if Verbose {
 		fmt.Printf("\tRegular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
 	if len(reg_roms) == 0 {
-		return
+		return nil
 	}
 	start_pos := *pos
 	if !reg_cfg.No_offset {
@@ -1014,7 +1025,7 @@ func make_interleave_groups(reg string,
 								reg_roms[sel[k]].Region,
 								reg_roms[sel[k]].wlen)
 						}
-						os.Exit(1)
+						return fmt.Errorf("bad ROM width for interleave in %s, region %s", machine.Name, reg_cfg.Name)
 					}
 				}
 				// Create the mapstr
@@ -1092,8 +1103,8 @@ func make_interleave_groups(reg string,
 	} else {
 		// If no_offset is set, then assume all are grouped together and the word length is 1 byte
 		if (len(reg_roms) % (reg_cfg.Width / 8)) != 0 {
-			log.Fatal(fmt.Sprintf("The number of ROMs for the %d-bit region (%s) is not even in %s",
-				reg_cfg.Width, reg_cfg.Name, machine.Name))
+			return fmt.Errorf("The number of ROMs for the %d-bit region (%s) is not even in %s",
+				reg_cfg.Width, reg_cfg.Name, machine.Name)
 		}
 		assign_1byte_length_as_single_group(reg_roms)
 		interleave_group(reg,
@@ -1103,6 +1114,7 @@ func make_interleave_groups(reg string,
 	if Verbose {
 		fmt.Println("*******************")
 	}
+	return nil
 }
 
 func assign_1byte_length_as_single_group(reg_roms []MameROM) {

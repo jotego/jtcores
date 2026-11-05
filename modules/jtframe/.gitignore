@@ -9,7 +9,6 @@ sim
 history
 a.out
 *.sim
-src/jtframe/mra/pocket.go
 .DS_Store
 bin2m
 lut2hex
@@ -17,3 +16,5 @@ msg2hex
 reverse_bits
 src/jtframe/jtframe
 src/jtutil/jtutil
+
+/bin/cabinet_pack

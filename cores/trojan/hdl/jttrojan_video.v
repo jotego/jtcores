@@ -9,9 +9,7 @@ module jttrojan_video #(
     input               rst,
     input               clk,
     input               cen12,
-    input               cen8,
     input               cen6,
-    input               cen3,
     input               cpu_cen,
     input               avengers,
 
@@ -75,7 +73,6 @@ module jttrojan_video #(
     output      [3:0]   blue
 );
 
-localparam AVATAR_MAX = 9;
 localparam LAYOUT     = 6;
 
 localparam PXL_CHRW=6;

@@ -1,6 +1,10 @@
 #!/bin/bash -e
 
 main() {
+	if [[ ${1:-} == --delete ]]; then
+		rm -f seta_cfg.hex
+		return
+	fi
 	check_size
 	extract_seta_config
 }

@@ -5,7 +5,9 @@
 // Following Trojan schematics, although it is not
 // used in Trojan but Avengers
 
-module jttrojan_mcu(
+module jttrojan_mcu #(
+    parameter LATCH_INT0 = 0
+)(
     input                rst,
     input                clk_rom,
     input                clk,
@@ -15,7 +17,7 @@ module jttrojan_mcu(
     // CPU interface
     input                mwr,
     input                mrd,
-    output reg   [ 7:0]  to_main,
+    output reg  [ 7:0]  to_main,
     input        [ 7:0]  from_main,
 
     input                swr,
@@ -29,33 +31,37 @@ module jttrojan_mcu(
 );
 `ifndef NOMCU
 wire [ 7:0] p0_o, p2_o, p3_i, p3_o;
-wire        ceng;
-reg         int0n /* P32 */, int1n /* P33 */, p36l, g=1;
+reg         p36l, p37l, int0n;
+wire        p3_strobe = p3_o[6] && !p36l;
+wire        int0_pin = LATCH_INT0 ? int0n : ~mwr;
 
-assign p3_i = {2'b11,~mrd,LVBL,LVBL,~mwr,1'b1,~srd};
-assign ceng = cen & g; // this synchronization mechanism with the other
-// two CPUs is required because the 8751 core used is not cycle accurate.
-// If operated at the right speed, the MCU writes data to the main CPU
-// one byte each 70us, whereas the CPU wants to read it one byte per 55.6us
-// Some instructions, like INC DPTR, take too long on the 8751 core.
-// The solution taken here is to operate the 8751 very fast but halt it when
-// data has been written to the other CPUs. When data is read, the halt is
-// released.
+assign p3_i = {2'b11,~mrd,LVBL,LVBL,int0_pin,1'b1,~srd};
 
 always @(posedge clk) begin
-    p36l <= p3_o[6];
-    if( p3_o[6] && !p36l ) begin
-        to_main <= p0_o;
-        to_snd  <= p2_o;
-        g       <= 0;
+    if( rst ) begin
+        p36l    <= 0;
+        p37l    <= 1;
+        int0n   <= 1;
+        to_main <= 0;
+        to_snd  <= 0;
+    end else begin
+        p36l <= p3_o[6];
+        p37l <= p3_o[7];
+        // Keep the main-CPU request pending until the MCU acknowledges it.
+        // A Z80 write strobe can be shorter than an 8751 sampling period.
+        if( mwr ) int0n <= 0;
+        if( p3_o[7] != p37l ) int0n <= 1;
+        if( p3_strobe ) begin
+            to_main <= p0_o;
+            to_snd <= p2_o;
+        end
     end
-    if( mrd | srd ) g <= 1;
 end
 
 jtframe_8751mcu u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( ceng      ),
+    .cen        ( cen       ),
     // external memory: connected to main CPU
     .x_din      ( 8'd0      ),
     .x_dout     (           ),
@@ -63,16 +69,16 @@ jtframe_8751mcu u_mcu(
     .x_wr       (           ),
     .x_acc      (           ),
     // interrupts
-    .int0n      ( ~mwr      ), // P32
+    .int0n      ( int0_pin  ), // P32
     .int1n      ( LVBL      ), // P33, /INT in sch, but it's basically LVBL
     // Ports
-    .p0_i       ( from_main ),
+    .p0_i       ( !p3_o[7] ? from_main : 8'hff ),
     .p0_o       ( p0_o      ),
 
     .p1_i       ( vdump[7:0]),
     .p1_o       (           ),
 
-    .p2_i       ( from_snd  ), // from sound CPU
+    .p2_i       ( !p3_o[7] ? from_snd : 8'hff ), // main CPU sound latch
     .p2_o       ( p2_o      ),
 
     .p3_i       ( p3_i      ),
@@ -84,6 +90,7 @@ jtframe_8751mcu u_mcu(
     .prom_we    ( prom_we   )
 );
 `else // NOMCU
-    initial { to_main, to_snd } = 0;
+    assign to_main = 0;
+    initial to_snd = 0;
 `endif
 endmodule

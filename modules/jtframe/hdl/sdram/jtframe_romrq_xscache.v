@@ -2,8 +2,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 10-10-2023 */
 
-`timescale 1ns/1ps
-
 module jtframe_romrq_xscache #(parameter
     SDRAMW  = 22,  // SDRAM width
     AW      = 18,

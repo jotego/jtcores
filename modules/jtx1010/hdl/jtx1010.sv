@@ -63,7 +63,7 @@ wire keyoff;
 always_comb begin
     kon     = cfg[WAV] ? cfg[KEYON] & ~keyoff: cfg[KEYON];
     cfg_din ={cfg[7:1],kon};
-    cfg_we  = up && st==5'o30;
+    cfg_we  = up && st==5'o30 && !kon;
 end
 
 jtframe_dual_ram #(.AW(7)) u_mmr(

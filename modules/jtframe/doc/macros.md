@@ -12,7 +12,6 @@ Macro                    | Target  |  Usage
 JTFRAME_180SHIFT         | MiSTer  | Use DDIO cell instead of PLL to create the SDRAM phase shift
 JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
-JTFRAME_AVATARS          |         | Enables avatars on credits screen
 JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 by default)
 JTFRAME_BUILD_FIRMWARE  |         | Run `make` in the core firmware folder before jtsim and jtcore consume HDL hex files
 JTFRAME_CART_OFFSET      |         | Value added to IOCTL address for the cartridge ROM (consoles)
@@ -30,6 +29,9 @@ JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
 JTFRAME_HEADER           |         | Set to the length of the ROM file header (derived from TOML)
 JTFRAME_HEIGHT           |         | Sets the video height
+JTFRAME_HSIZE_STEP       | MiSTer  | Size change per OSD step, as 1/STEP. Power of two, 64 (1.6%) by default
+JTFRAME_HSIZE_DIV        | MiSTer  | clk-to-pixel ratio used by jtframe_hretime; derived from JTFRAME_PXLCLK. Define explicitly for custom pixel clocks; missing both macros warns (except ngp/ngpc)
+JTFRAME_HSIZE_DEPTH      | MiSTer  | Automatic. Elastic FIFO depth used by jtframe_hretime
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
@@ -43,6 +45,7 @@ JTFRAME_JOY_RLUD         |         | Joystick lower 4 bits are:  right, left,  u
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
+JTFRAME_JOY_B2B1B0       |         | Swaps the first three buttons
 JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
 JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
 JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core
@@ -66,6 +69,7 @@ JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude i
 JTFRAME_MOUSE_NOEMU      |         | Disables mouse emulation via joystick
 JTFRAME_MR_DDR           | MiSTer  | Defined internally when MiSTer DDR is used. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
+JTFRAME_MR_GAME_DDR      | MiSTer  | Game module gets the DDR3 port (ddr_* signals on clk_rom, see sdram.md). Not with rotation, LF buffer or DDR load
 JTFRAME_MR_LF_BRAM       | MiSTer  | Use BRAM instead of DDR for JTFRAME_LF_BUFFER. Automatically set when JTFRAME_VERTICAL is also enabled
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
@@ -85,7 +89,7 @@ JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
 JTFRAME_PLL_TUNE         | MiSTer  | Enables live game-PLL speed tuning. Adds the CRT clock OSD option on status bits 13:15; the target must provide a reconfigurable PLL implementation.
-JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
+JTFRAME_PXLCLK           |         | 6, 8 or 16. Defines the nominal pixel clock in MHz; 16 requires JTFRAME_SDRAM96. See [clocks](clocks.md)
 JTFRAME_RATE             |         | Expected video refresh rate in Hz. Verilator `jtsim` checks this when the core produces frames.
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
 JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe_board
@@ -95,6 +99,7 @@ JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
+JTFRAME_SDRAM_XL         | MiSTer  | Enables 128MB SDRAM
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)
@@ -171,13 +176,17 @@ JTFRAME_NTSC_LEN         | Use as COLORBURST_RANGE for YC module on NTSC mode
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
 JTFRAME_BA0_AUTOPRECH    |         | Enables auto precharge on bank 0
-JTFRAME_BA0_LEN          |         | Sets length of bank 0, valid values 16, 32 or 64
+JTFRAME_BA0_LEN          |         | Sets bank 0 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA1_AUTOPRECH    |         | Enables auto precharge on bank 1
-JTFRAME_BA2_LEN          |         | Sets length of bank 1, valid values 16, 32 or 64
+JTFRAME_BA1_LEN          |         | Sets bank 1 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA2_AUTOPRECH    |         | Enables auto precharge on bank 2
-JTFRAME_BA2_LEN          |         | Sets length of bank 2, valid values 16, 32 or 64
+JTFRAME_BA2_LEN          |         | Sets bank 2 read burst size in bits: 16, 32 or 64 (default 32)
 JTFRAME_BA3_AUTOPRECH    |         | Enables auto precharge on bank 3
-JTFRAME_BA3_LEN          |         | Sets length of bank 3, valid values 16, 32 or 64
+JTFRAME_BA3_LEN          |         | Sets bank 3 read burst size in bits: 16, 32 or 64 (default 32)
+
+These sizes apply to all clients in the bank. See
+[SDRAM ROM caches and burst sizes](rom-caches.md) for their interaction with
+client data widths and cache settings.
 
 # SDRAM ROM/RAM Modules
 
@@ -229,9 +238,18 @@ JTFRAME_CREDITS is always enabled if JTFRAME_CHEAT is defined
 
 Macro                    | Target  |  Usage
 -------------------------|---------|---------------------------------------------
-JTFRAME_CREDITS          |         | Adds credits screen. Automatic for releases if cfg/msg exists
+JTFRAME_CREDITS          |         | Adds credits screen. Enabled for releases in MiSTer, SiDi128 and Pocket target.def; cores can override it
 JTFRAME_CREDITS_AON      |         | credits screen is always on
-JTFRAME_CREDITS_HIDEVERT |         | Hide the credits when the core plays a vertical game
-JTFRAME_CREDITS_HSTART   |         | Horizontal offset for the 256-pxl wide credits
-JTFRAME_CREDITS_NOROTATE |         | Always display the credits horizontally
-JTFRAME_CREDITS_PAGES    |         | number of pages of credits text (default 3)
+JTFRAME_CREDITS_PAGES    |         | Generated from the number of rows in cfg/msg
+
+### JTFRAME_REMOTE
+
+Enables the paired remote video-capture and CAB input/dump interfaces on the
+MiST-family user-I/O SPI path. The macro is used once at the capture-instance
+boundary; shared board input and joystick logic remains CAB-aware and receives
+constant-zero controls when remote support is disabled. The boundary passes
+the existing feature mask (`0x001e0000`) into user-I/O, where constant feature
+gates remove the remote SPI handlers when disabled. Capture uses RGB444 for
+`COLORW<=4` and RGB555 for `COLORW>=5`, selected at compile time. SiDi128
+enables this macro by default in both debug and release builds. See
+[video capture](video-capture.md) and [CAB stream](cab-stream.md).

@@ -235,8 +235,27 @@ always @(A,bank) begin
     rom_addr[16:14] = A[15] ? { 1'b0, bank } : { 2'b10, A[14] };
 end
 
-/////////////////////////////////////////////////////////////////
-jtframe_z80wait u_wait(
+// Avengers' /MREQ-to-/WAIT wire mod adds one wait state to each memory
+// access except refresh, compensating the 6 MHz Z80.
+reg mreq_l, mreq_wait;
+wire wait_en  = nmi_sel;
+wire main_cen = cpu_cen & ~mreq_wait;
+
+always @(posedge clk) begin
+    if( !t80_rst_n ) begin
+        mreq_l    <= 1'b1;
+        mreq_wait <= 1'b0;
+    end else if( base_cen ) begin
+        mreq_l <= mreq_n;
+        if( rfsh_n && !mreq_n && mreq_l )
+            mreq_wait <= 1'b1;
+        else
+            mreq_wait <= 1'b0;
+        if( ~wait_en ) mreq_wait <= 0;
+    end
+end
+
+jtframe_z80wait #(.RECOVERY(0)) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
     .cen_in     ( base_cen  ),
@@ -284,7 +303,7 @@ end
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
     .clk        ( clk         ),
-    .cen        ( cpu_cen     ),
+    .cen        ( main_cen    ),
     .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),

@@ -1,0 +1,29 @@
+[global]
+author=["Chris Watson"]
+
+[parse]
+sourcefile=[ "midyunit.cpp" ]
+mustbe.machines=[ "narc" ]
+main_setnames=["narc"]
+
+[buttons]
+names = [
+    { machine="narc", names="Fire,Jump,Rocket Bomb,Crouch,Service" },
+]
+
+[Audio]
+volume = [
+    { machine="narc", value=0xB5 },
+]
+
+[ROM]
+regions = [
+    { setnames=["narc2","narc3","narc4","narc6"], name="maindata", width=16, no_offset=true, sequence=[0, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 6, 7, 6, 7] },
+    { name="maindata", width=16 },
+    { name="narcsnd:cpu0", start="SND_START", no_offset=true },
+    { name="narcsnd:cpu1", no_offset=true },
+    { setname="narc1", name="gfx", width=32, no_offset=true, start="JTFRAME_BA2_START", len=0x3C0000, sequence=[0, 14, 28, 42, 1, 15, 29, 43, 2, 16, 30, 44, 3, 17, 31, 45, 4, 18, 32, 46, 5, 19, 33, 47, 6, 20, 34, 48, 7, 21, 35, 49, 8, 22, 36, 50, 9, 23, 37, 51, 10, 24, 38, 52, 11, 25, 39, 53, 12, 26, 40, 54, 13, 27, 41, 55] },
+    { name="gfx", width=32, no_offset=true, start="JTFRAME_BA2_START", sequence=[0, 15, 30, 45, 1, 16, 31, 46, 2, 17, 32, 47, 3, 18, 33, 48, 4, 19, 34, 49, 5, 20, 35, 50, 6, 21, 36, 51, 7, 22, 37, 52, 8, 23, 38, 53, 9, 24, 39, 54, 10, 25, 40, 55, 11, 26, 41, 56, 12, 27, 42, 57, 13, 28, 43, 58, 14, 29, 44, 59] },
+    { name="plds", skip=true },
+]
+order = [ "maindata", "narcsnd:cpu0", "narcsnd:cpu1", "gfx" ]

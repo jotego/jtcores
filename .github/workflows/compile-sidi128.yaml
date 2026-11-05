@@ -1,0 +1,85 @@
+name: Compile SiDi128
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  list_cores:
+    runs-on: ubuntu-latest
+    outputs:
+      cores: ${{ steps.matrix.outputs.cores }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: matrix
+        shell: bash
+        run: |
+          cores=()
+          for directory in cores/*; do
+            if [[ -f "$directory/cfg/macros.def" && ! -e "$directory/cfg/skip" ]]; then
+              cores+=("${directory#cores/}")
+            fi
+          done
+          printf '%s\n' "${cores[@]}" | jq -R . | jq -sc '{cores: .}' > matrix.json
+          echo "cores=$(jq -c .cores matrix.json)" >> "$GITHUB_OUTPUT"
+
+  compile:
+    runs-on: ubuntu-latest
+    needs: list_cores
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          token: ${{ secrets.PAT }}
+      - name: Build SiDi128 release core and MRAs
+        env:
+          BETAKEY: ${{ secrets.BETAKEY }}
+          CORE: ${{ matrix.core }}
+        run: |
+          docker run -e BETAKEY --network host -v "$PWD":/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh "$CORE" sidi128
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: log-sidi128-${{ matrix.core }}
+          path: log
+          retention-days: 7
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v6
+        with:
+          name: release-sidi128-${{ matrix.core }}
+          path: release
+          retention-days: 1
+          # xjtcore skips targets excluded by JTFRAME_SKIP.
+          if-no-files-found: warn
+
+  bundle:
+    runs-on: ubuntu-latest
+    needs: compile
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v7
+        with:
+          path: release
+          pattern: release-sidi128-*
+          merge-multiple: true
+      - name: Package complete SiDi128 build
+        shell: bash
+        run: |
+          archive="$(git rev-parse --short=7 HEAD)-sidi128.zip"
+          find release -mindepth 2 -maxdepth 2 -type f -name '*.yml' -print0 | sort -z | xargs -0 cat > release/stats.yml
+          find release -mindepth 2 -maxdepth 2 -type f -name '*.yml' -delete
+          zip -r "$archive" release
+          touch -m -d "$(git show -s --format=%ci HEAD)" "$archive"
+          echo "ARTIFACT_NAME=$archive" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_NAME }}
+          if-no-files-found: error

@@ -29,7 +29,7 @@ always @(posedge clk) begin
     acc0 <= {1'b0,mul[0]}+{1'b0,mul[1]};
     acc1 <= {1'b0,mul[2]}+{1'b0,mul[3]};
     acc2 <= {1'b0,mul[4]}+{1'b0,mul[5]};
-    acc3 <= {1'b0,mul[7]}+{1'b0,mul[7]};
+    acc3 <= {1'b0,mul[6]}+{1'b0,mul[7]};
     if(cen) begin
         acc4 <= {1'b0,acc0}+{1'b0,acc1};
         acc5 <= {1'b0,acc2}+{1'b0,acc3};
