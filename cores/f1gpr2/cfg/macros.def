@@ -37,9 +37,10 @@ JTFRAME_180SHIFT
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 
 [sidi128]
-JTFRAME_PLL=jtframe_pll5369
-JTFRAME_SDRAM96
-JTFRAME_PXLCLK=8
+CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
+# JTFRAME_PLL=jtframe_pll5369
+# JTFRAME_SDRAM96
+# JTFRAME_PXLCLK=8
 
 [mist|sidi]
 JTFRAME_SKIP

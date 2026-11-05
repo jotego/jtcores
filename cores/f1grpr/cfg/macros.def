@@ -36,6 +36,7 @@ PCMB_START=0x9C0000
 
 # Debug options
 JTFRAME_STATUS
+CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 
 [mister]
 JTFRAME_MR_DDRLOAD
