@@ -28,7 +28,8 @@ module jtymz280b(
 
 localparam [3:0] IDLE=0, VOICE=1, FETCH=2, WAIT_LO=3,
                  FETCH_HI=4, WAIT_HI=5, DECODE=6, ADVANCE=7,
-                 MIX=8, NEXT=9, EXT_WAIT=10;
+                 MIX=8, NEXT=9, EXT_WAIT=10, PAN_GAIN=11,
+                 MIX_GAIN=12, MIX_SCALE=13;
 
 reg [3:0] state;
 reg [2:0] ch;
@@ -85,28 +86,23 @@ wire [7:0] end_mask = end_voice && !data_wr ? (8'b1 << ch) : 8'd0;
 wire [9:0] frequency = {1'b0,(mode[ch]==1 ? {1'b0,fnum[ch][7:0]} : fnum[ch])} + 10'd1;
 
 reg [7:0] gain_l, gain_r;
+reg [7:0] mix_level;
+reg [3:0] mix_pan, pan_factor;
 reg [11:0] pan_product;
-reg [11:0] pan_gain;
-reg signed [25:0] interp_wide;
+reg [23:0] pan_recip;
+reg signed [25:0] interp_prev, interp_curr, interp_wide;
 reg signed [15:0] interpolated;
-reg signed [24:0] product_l, product_r;
+// floor(x/7) = (x*2341)>>14 for every unsigned 12-bit x.
+wire [23:0] pan_scaled = pan_product * 12'd2341;
+wire signed [24:0] product_l = interpolated * $signed({1'b0,gain_l});
+wire signed [24:0] product_r = interpolated * $signed({1'b0,gain_r});
 always @* begin
-    gain_l = level[ch];
-    gain_r = level[ch];
-    pan_product = 0;
+    pan_factor = 0;
     if(pan[ch]<8) begin
-        pan_product = level[ch] * (pan[ch]==0 ? 12'd0 : {8'd0,pan[ch]}-12'd1);
+        if(pan[ch]!=0) pan_factor = pan[ch]-4'd1;
     end else if(pan[ch]>8) begin
-        pan_product = level[ch] * (12'd15-{8'd0,pan[ch]});
+        pan_factor = 4'd15-pan[ch];
     end
-    pan_gain = pan_product / 12'd7;
-    if(pan[ch]<8) gain_r = pan_gain[7:0];
-    else if(pan[ch]>8) gain_l = pan_gain[7:0];
-    interp_wide = prev_data[ch] * $signed(11'd512-{2'd0,phase[ch][8:0]}) +
-                  curr_data[ch] * $signed({2'd0,phase[ch][8:0]});
-    interpolated = interp_wide[24:9];
-    product_l = interpolated * $signed({1'b0,gain_l});
-    product_r = interpolated * $signed({1'b0,gain_r});
 end
 
 function automatic signed [15:0] clip;
@@ -167,6 +163,16 @@ always @(posedge clk) begin
         mix_r <= 0;
         voice_l <= 0;
         voice_r <= 0;
+        gain_l <= 0;
+        gain_r <= 0;
+        mix_level <= 0;
+        mix_pan <= 0;
+        pan_product <= 0;
+        pan_recip <= 0;
+        interp_prev <= 0;
+        interp_curr <= 0;
+        interp_wide <= 0;
+        interpolated <= 0;
         snd_l <= 0;
         snd_r <= 0;
         sample <= 0;
@@ -283,6 +289,25 @@ always @(posedge clk) begin
                 state <= MIX;
             end
             MIX: begin
+                mix_level <= level[ch];
+                mix_pan <= pan[ch];
+                pan_product <= level[ch] * pan_factor;
+                interp_prev <= prev_data[ch] * $signed(11'd512-{2'd0,phase[ch][8:0]});
+                interp_curr <= curr_data[ch] * $signed({2'd0,phase[ch][8:0]});
+                state <= PAN_GAIN;
+            end
+            PAN_GAIN: begin
+                pan_recip <= pan_scaled;
+                interp_wide <= interp_prev + interp_curr;
+                state <= MIX_GAIN;
+            end
+            MIX_GAIN: begin
+                gain_l <= mix_pan>8 ? pan_recip[21:14] : mix_level;
+                gain_r <= mix_pan<8 ? pan_recip[21:14] : mix_level;
+                interpolated <= interp_wide[24:9];
+                state <= MIX_SCALE;
+            end
+            MIX_SCALE: begin
                 voice_l <= product_l;
                 voice_r <= product_r;
                 phase[ch] <= phase[ch]+frequency;

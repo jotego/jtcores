@@ -20,7 +20,7 @@ reg [23:0] held_address;
 reg held_we;
 reg [7:0] held_data;
 integer checks=0, i, j, k, n, ref_signal, ref_step, scale, delta;
-integer expected_l, expected_r, left_gain, right_gain;
+integer expected_l, expected_r, left_gain, right_gain, volume;
 integer frames=0, cycles=0, last_sample=0;
 integer ref_pos [0:7], ref_phase [0:7], ref_prev [0:7], ref_curr [0:7];
 integer ref_sig [0:7], ref_stp [0:7], ref_loop_sig [0:7], ref_loop_stp [0:7];
@@ -227,10 +227,13 @@ initial begin
         write_reg(8'hff,8'h80);
         address_reg(0,1,0); address_reg(0,2,1);
         voice_setup(0,2,1,511,0,1,255,k);
-        repeat(5) run_frame;
-        left_gain=k<=8 ? 255 : 255*(15-k)/7;
-        right_gain=k>=8 ? 255 : k==0 ? 0 : 255*(k-1)/7;
-        check_mix(16384*left_gain/512,16384*right_gain/512);
+        for(volume=0;volume<256;volume=volume+1) begin
+            write_reg(2,volume[7:0]);
+            repeat(2) run_frame;
+            left_gain=k<=8 ? volume : volume*(15-k)/7;
+            right_gain=k>=8 ? volume : k==0 ? 0 : volume*(k-1)/7;
+            check_mix(16384*left_gain/512,16384*right_gain/512);
+        end
         if(overrun) $fatal(1,"unexpected overrun");
     end
 
