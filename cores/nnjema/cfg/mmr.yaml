@@ -1,0 +1,15 @@
+# galivan/dangar scroll ports 0x41-0x44, one raw byte per address
+# layer enable bits ride on the scrollx MSB write (0x42)
+- name: video
+  size: 4
+  read_only: true
+  regs:
+    - name: scrx
+      dw: 11
+      at: "0x1[2:0],0x0[7:0]"
+    - name: scry
+      dw: 11
+      at: "0x3[2:0],0x2[7:0]"
+    - name: layers
+      dw: 3
+      at: "0x1[7:5]"

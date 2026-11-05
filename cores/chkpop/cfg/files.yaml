@@ -1,0 +1,33 @@
+chkpop:
+  - get:
+    - jtchkpop_game.v
+    - jtchkpop_main.v
+    - jtchkpop_video.v
+    - jtchkpop_char.v
+    - jtchkpop_obj.v
+    - jtchkpop_bmap.v
+    - jtchkpop_colmix.v
+kunio:
+  - get:
+    # taito68705 semaphore interface, same protocol as Tokio in bubl
+    - jtkunio_mcu.v
+jtframe:
+  - get:
+    - jtframe_8bit_reg.v    # gfxmode register at 0x880c
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_6805mcu.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v      # palette PROMs
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+jt12:
+  - get:
+    - jt49.yaml

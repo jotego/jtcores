@@ -1,0 +1,19 @@
+CORENAME=JTCHKPOP
+JTFRAME_RATE=59.18
+JTFRAME_BUTTONS=2
+JTFRAME_PXLCLK=6
+
+# Screen: visarea 0..255 x 16..239, ROT0
+JTFRAME_COLORW=8
+JTFRAME_WIDTH=256
+JTFRAME_HEIGHT=224
+
+# ROM regions
+# bank 0 = everything below BA1_START -> maincpu (0xc000, hole at 0x8000-0x9fff)
+JTFRAME_BA1_START  = 0x0C000
+OBJ_START          = 0x10000
+MCU_START          = 0x14000
+JTFRAME_PROM_START = 0x14800
+# bank 2 is scratch: 32 kB bitmap VRAM, nothing is downloaded into it
+JTFRAME_BA2_START  = 0x15000
+JTFRAME_BA2_WEN

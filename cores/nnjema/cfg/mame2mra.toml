@@ -1,0 +1,42 @@
+[parse]
+sourcefile=[ "galivan.cpp" ]
+skip.Bootlegs=true
+# dangarj needs the NB1412M2, ninjemat/youmab* are NOT_WORKING in MAME
+skip.Setnames=[ "dangarj", "ninjemat", "youmab", "youmab2" ]
+
+[buttons]
+names=[
+    { machine="ninjemak", names="Shot,Ninpo,-" },
+    { machine="galivan",  names="Shot,Jump,Hang" },
+    { machine="dangar",   names="Shot,Jump,-" },
+]
+
+[dipsw]
+delete=[ { names=[ "Unused", "Unknown" ] } ]
+offset=[
+    { name="DSW1",    value=0  },
+    { name="DSW2",    value=8  },
+    { name="SERVICE", value=16 },
+]
+
+[header]
+info="byte 0: bit 0 = NB1414M4 present (ninjemak/youma hardware)"
+registers=[
+    { name="m4_en", pos="0[0]", desc="NB1414M4 text blitter fitted", values=[ { machines=["ninjemak","youma","youma2"], value=1 } ] },
+]
+
+[ROM]
+regions=[
+    { name="maincpu",  len=0x18000 },
+    { name="bgtiles",  rename="bgmap", width=16, len=0x8000, frac={ bytes=1, parts=2 } },
+    { name="audiocpu", len=0xc000 },
+    { name="chars",    len=0x8000 },
+    { name="tiles",    rename="scr", len=0x20000 },
+    # RGN_FRAC(1,2): pair byte n of each half -> 16,14 / 17,15 on 4-file sets
+    { name="sprites",  rename="obj", machine="ninjemak", sequence=[0,2,1,3], width=16, len=0x20000, frac={ bytes=1, parts=2 } },
+    { name="sprites",  rename="obj", width=16, len=0x20000, frac={ bytes=1, parts=2 } },
+    { name="nb1414m4", rename="m4rom", len=0x4000 },
+    { name="proms" },
+    { name="sprpalbank_prom", rename="objbank" },
+]
+order=[ "maincpu", "bgmap", "audiocpu", "chars", "scr", "obj", "m4rom", "proms", "objbank" ]

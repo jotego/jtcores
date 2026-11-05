@@ -1,0 +1,77 @@
+params:
+  - { name: BGMAP_OFFSET, value: "(`BGMAP_START)>>1" }
+  - { name:   SCR_OFFSET, value: "(`SCR_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk48:
+    - freq: 12M
+      outputs:
+        - cen12
+        - cen6
+    - freq: 4M
+      outputs:
+        - cen4
+        - cen2
+audio:
+  rsum: 1k
+  channels:
+    # mixing resistors: YM 1k, DAC1 4.7k, DAC2 3.3k (MAME galivan.cpp)
+    # SK filters approximated as two RC poles
+    - { name: fm,   module: jtopl, rsum: 1k,   rc: [{ r: 4.7k, c: 3.3n }, { r: 4.7k, c: 1n }] }
+    - { name: dac1, data_width: 8, unsigned: true, dcrm: true, rsum: 4.7k, rc: [{ r: 10k, c: 10n }, { r: 10k, c: 4.7n }] }
+    - { name: dac2, data_width: 8, unsigned: true, dcrm: true, rsum: 3.3k, rc: [{ r: 10k, c: 10n }, { r: 10k, c: 4.7n }] }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 17
+        data_width: 8
+      - name: bgmap
+        addr_width: 15
+        data_width: 16
+        offset: BGMAP_OFFSET
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: char
+        addr_width: 15
+        data_width: 32
+      - name: scr
+        addr_width: 17
+        data_width: 32
+        offset: SCR_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 17
+        data_width: 32
+bram:
+  # text layer, code+attr planes; port A: video scan, port B: CPU/NB1414M4 writes
+  - name: vcode
+    addr_width: 10
+    data_width: 8
+    addr: vcode_scan
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port: { name: vcwr, addr: vcwr_addr, din: vcwr_din, dout: vcwr_dout, we: vcwr_we, rw: true }
+  - name: vattr
+    addr_width: 10
+    data_width: 8
+    addr: vattr_scan
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port: { name: vawr, addr: vawr_addr, din: vawr_din, dout: vawr_dout, we: vawr_we, rw: true }
+  # sprite RAM; port A: DMA scan, port B: CPU
+  - name: oram
+    addr_width: 9
+    data_width: 8
+    addr: odma_addr
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port: { name: ocpu, addr: ocpu_addr, din: ocpu_din, dout: ocpu_dout, we: ocpu_we, rw: true }
+  # NB1414M4 text data ROM (ninjemak.5)
+  - { name: m4rom,   addr_width: 14, data_width: 8, prom: true }
+  # color PROMs
+  - { name: red,     addr_width:  8, data_width: 4, prom: true }
+  - { name: green,   addr_width:  8, data_width: 4, prom: true }
+  - { name: blue,    addr_width:  8, data_width: 4, prom: true }
+  # sprite lookup + sprite palette bank PROMs
+  - { name: objlut,  addr_width:  8, data_width: 4, prom: true }
+  - { name: objbank, addr_width:  8, data_width: 4, prom: true }
