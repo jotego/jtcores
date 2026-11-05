@@ -8,7 +8,6 @@ zip.alt="ym2608.zip"
 [parse]
 sourcefile=["tail2nos.cpp"]
 mustbe.machines=["tail2nos"]
-skip.setnames=["tail2nosa","sformula","sformulaa"]
 [buttons]
 names=[{machine="tail2nos",names="Accelerate,Brake"}]
 [dipsw]
