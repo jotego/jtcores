@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 //////////////////////////////////////////////////////////////////
 //                                                              //
 //  Execute stage of Amber 2 Core                               //
@@ -200,6 +201,7 @@ wire [1:0]          status_bits_out;
 
 wire [31:0]         alu_out_pc_filtered;
 wire                adex_nxt;
+reg                 adex_address;
 
 wire                carry_in;
 
@@ -331,7 +333,28 @@ assign o_address_nxt = (!execute)              ? (i_fetch_abort ? pc : pc_plus4 
 
 // Data accesses use 32-bit address space, but instruction
 // accesses are restricted to 26 bit space
-assign adex_nxt      = |o_address_nxt[31:26] && !i_data_access_exec;
+function address_plus4_high;
+    input [31:0] address;
+    begin
+        address_plus4_high = (&address[25:2]) ? !(&address[31:26]) : |address[31:26];
+    end
+endfunction
+
+always @* begin
+    if(!execute) adex_address = i_fetch_abort ? |pc[31:26] : address_plus4_high(pc);
+    else case(i_address_sel)
+        4'd0: adex_address = address_plus4_high(pc);
+        4'd1: adex_address = |alu_out_pc_filtered[31:26];
+        4'd2: adex_address = 1'b0;
+        4'd3: adex_address = |pc[31:26];
+        4'd4: adex_address = |rn[31:26];
+        4'd5: adex_address = address_plus4_high(o_address);
+        4'd6: adex_address = address_plus4_high(alu_out);
+        default: adex_address = address_plus4_high(rn);
+    endcase
+end
+
+assign adex_nxt = adex_address && !i_data_access_exec;
 
 // ========================================================
 // Program Counter Select

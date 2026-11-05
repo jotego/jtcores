@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module test;
-reg clk=0;
-always #5 clk=~clk;
+reg clk=0, run_clocks=0;
+always #5 if(run_clocks) clk=~clk;
 reg rst=1;
 reg [2:0] divider=0;
 wire ce=divider==7;
@@ -17,6 +17,12 @@ integer index, lane;
 integer runs=0;
 integer words=50, expected_writes=7;
 reg [2047:0] program_file;
+reg [31:0] check_pc, check_alu, check_rn, check_address;
+reg check_execute, check_abort, check_data, check_pc_wen;
+reg [1:0] check_pc_sel;
+reg [3:0] check_sel;
+integer adex_checks=0, check_iteration, check_index;
+reg [31:0] boundary [0:15];
 wire req=cyc&&stb;
 wire ack=req&&(latency>=delay_cycles);
 wire [31:0] rdata=ack ? mem[addr[9:2]] : 32'hffffffff;
@@ -31,6 +37,58 @@ initial begin
     if (!$value$plusargs("rom=%s",program_file)) program_file="program.hex";
     for(index=0;index<256;index=index+1) mem[index]=0;
     $readmemh(program_file,mem,0,words-1);
+    force cpu.u_execute.pc=check_pc;
+    force cpu.u_execute.alu_out=check_alu;
+    force cpu.u_execute.rn=check_rn;
+    force cpu.u_execute.o_address=check_address;
+    force cpu.u_execute.execute=check_execute;
+    force cpu.u_execute.i_fetch_abort=check_abort;
+    force cpu.u_execute.i_data_access_exec=check_data;
+    force cpu.u_execute.pc_wen=check_pc_wen;
+    force cpu.u_execute.i_pc_sel=check_pc_sel;
+    force cpu.u_execute.i_address_sel=check_sel;
+    boundary[0]=0; boundary[1]=1; boundary[2]=3; boundary[3]=4;
+    boundary[4]=32'h03fffffb; boundary[5]=32'h03fffffc;
+    boundary[6]=32'h03fffffd; boundary[7]=32'h03fffffe;
+    boundary[8]=32'h03ffffff; boundary[9]=32'h04000000;
+    boundary[10]=32'hfbffffff; boundary[11]=32'hfffffffb;
+    boundary[12]=32'hfffffffc; boundary[13]=32'hfffffffd;
+    boundary[14]=32'hfffffffe; boundary[15]=32'hffffffff;
+    for(check_iteration=0;check_iteration<4112;check_iteration=check_iteration+1) begin
+        check_pc=check_iteration<16 ? boundary[check_iteration] : $random;
+        check_alu=check_pc;
+        check_rn=check_pc;
+        check_address=check_pc;
+        if(check_iteration>=16) begin
+            check_alu=$random;
+            check_rn=$random;
+            check_address=$random;
+        end
+        for(check_index=0;check_index<256;check_index=check_index+1) begin
+            check_sel=check_index[3:0];
+            check_execute=check_index[4];
+            check_abort=check_index[5];
+            check_data=check_index[6];
+            check_pc_wen=check_index[7];
+            check_pc_sel=check_index[7] ? 2'd1 : 2'd0;
+            #1;
+            if(cpu.u_execute.adex_nxt !== ((|cpu.u_execute.o_address_nxt[31:26]) && !check_data))
+                $fatal(1,"address exception mismatch address=%h select=%h",check_pc,check_sel);
+            adex_checks=adex_checks+1;
+        end
+    end
+    release cpu.u_execute.pc;
+    release cpu.u_execute.alu_out;
+    release cpu.u_execute.rn;
+    release cpu.u_execute.o_address;
+    release cpu.u_execute.execute;
+    release cpu.u_execute.i_fetch_abort;
+    release cpu.u_execute.i_data_access_exec;
+    release cpu.u_execute.pc_wen;
+    release cpu.u_execute.i_pc_sel;
+    release cpu.u_execute.i_address_sel;
+    $display("Checked %0d address exception equivalence cases",adex_checks);
+    run_clocks=1;
     repeat(16) @(negedge clk);
     rst=0;
 end

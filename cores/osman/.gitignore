@@ -12,3 +12,5 @@
 !ver/hdl/wcvol95/.simunit
 !ver/hdl/wcvol95/gather.f
 !ver/hdl/wcvol95/test.v
+!ver/amber/.simunit
+!ver/amber/gather.f
