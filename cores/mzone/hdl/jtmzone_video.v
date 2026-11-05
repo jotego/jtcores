@@ -54,7 +54,7 @@ module jtmzone_video(
     output     [ 8:0]  vrender
 `ifdef MZONE_FETCH_DIAG
     ,input     [ 7:0]  debug_bus
-    ,outputreg [ 7:0]  fetch_debug
+    ,output reg [ 7:0] fetch_debug
 `endif
 );
 
