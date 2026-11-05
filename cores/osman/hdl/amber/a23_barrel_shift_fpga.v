@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2026 Andrea Bogazzi
 //////////////////////////////////////////////////////////////////
 //                                                              //
 //  Barrel Shifter for Amber 2 Core                             //
@@ -93,13 +94,13 @@ wire [31:0] p_l;                                // Alias for the rot_prod
 
 always @*
 begin
-	shift_32 = i_shift_amount == 32;
+	shift_32 = !i_shift_imm_zero && i_shift_amount == 8'd32;
 
-	shift_over = |i_shift_amount[7:5];
+	shift_over = !i_shift_imm_zero && |i_shift_amount[7:5];
 
-	shift_nzero = |i_shift_amount[7:0];
+	shift_nzero = !i_shift_imm_zero && |i_shift_amount[7:0];
 
-	shift_amount = i_shift_amount[4:0];
+	shift_amount = i_shift_imm_zero ? 5'd0 : i_shift_amount[4:0];
 
 	if (i_shift_imm_zero) begin
 		if (i_function == LSR || i_function == ASR) begin
@@ -211,20 +212,20 @@ endcase
 // Cost: 33 4-to-1 LUTs.
 always @*
 casez (lsl_selector) // synthesis full_case parallel_case
-	7'b1??:	lsl_mask =  33'h_1_0000_0000;
-	7'b01?:	lsl_mask =  33'h_0_0000_0000;
-	7'b001:	lsl_mask = { 1'h_1, low_mask, 16'h_0000};
-	7'b000:	lsl_mask = {17'h_1_ffff, low_mask};
+	3'b1??:	lsl_mask =  33'h1_0000_0000;
+	3'b01?:	lsl_mask =  33'h0_0000_0000;
+	3'b001:	lsl_mask = { 1'h1, low_mask, 16'h0000};
+	3'b000:	lsl_mask = {17'h1_ffff, low_mask};
 endcase
 
 // Right-hand mask calculation.
 // Cost: 33 4-to-1 LUTs.
 always @*
 casez (lsr_selector) // synthesis full_case parallel_case
-	7'b1??:	lsr_mask =  33'h_1_0000_0000;
-	7'b01?:	lsr_mask =  33'h_0_0000_0000;
-	7'b000:	lsr_mask = { 1'h_1, bit_swap(low_mask), 16'h_ffff};
-	7'b001:	lsr_mask = {17'h_1_0000, bit_swap(low_mask)};
+	3'b1??:	lsr_mask =  33'h1_0000_0000;
+	3'b01?:	lsr_mask =  33'h0_0000_0000;
+	3'b000:	lsr_mask = { 1'h1, bit_swap(low_mask), 16'hffff};
+	3'b001:	lsr_mask = {17'h1_0000, bit_swap(low_mask)};
 endcase
 
 // Alias: right-rotated

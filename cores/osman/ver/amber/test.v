@@ -23,6 +23,31 @@ reg [1:0] check_pc_sel;
 reg [3:0] check_sel;
 integer adex_checks=0, check_iteration, check_index;
 reg [31:0] boundary [0:15];
+reg [31:0] shift_data;
+reg [7:0] shift_amount;
+reg [1:0] shift_function;
+reg shift_carry, shift_zero;
+wire [31:0] shift_generic, shift_fpga;
+wire carry_generic, carry_fpga;
+integer shift_checks=0, shift_pattern, shift_control;
+a23_barrel_shift reference_shift(
+    .i_in             ( shift_data     ),
+    .i_carry_in       ( shift_carry    ),
+    .i_shift_amount   ( shift_amount   ),
+    .i_shift_imm_zero ( shift_zero     ),
+    .i_function       ( shift_function ),
+    .o_out            ( shift_generic  ),
+    .o_carry_out      ( carry_generic  )
+);
+a23_barrel_shift_fpga fpga_shift(
+    .i_in             ( shift_data     ),
+    .i_carry_in       ( shift_carry    ),
+    .i_shift_amount   ( shift_amount   ),
+    .i_shift_imm_zero ( shift_zero     ),
+    .i_function       ( shift_function ),
+    .o_out            ( shift_fpga     ),
+    .o_carry_out      ( carry_fpga     )
+);
 wire req=cyc&&stb;
 wire ack=req&&(latency>=delay_cycles);
 wire [31:0] rdata=ack ? mem[addr[9:2]] : 32'hffffffff;
@@ -88,6 +113,28 @@ initial begin
     release cpu.u_execute.i_pc_sel;
     release cpu.u_execute.i_address_sel;
     $display("Checked %0d address exception equivalence cases",adex_checks);
+    for(shift_pattern=0;shift_pattern<128;shift_pattern=shift_pattern+1) begin
+        case(shift_pattern)
+            0: shift_data=0;
+            1: shift_data=32'hffffffff;
+            2: shift_data=32'ha5a5a5a5;
+            3: shift_data=32'h5a5a5a5a;
+            default: shift_data=shift_pattern<36 ? 32'd1 << (shift_pattern-4) : $random;
+        endcase
+        for(shift_control=0;shift_control<4096;shift_control=shift_control+1) begin
+            shift_function=shift_control[1:0];
+            shift_amount=shift_control[9:2];
+            shift_zero=shift_control[10];
+            shift_carry=shift_control[11];
+            #1;
+            if({carry_fpga,shift_fpga}!=={carry_generic,shift_generic})
+                $fatal(1,"shifter mismatch data=%h amount=%0d function=%0d zero=%b carry=%b got=%h expected=%h",
+                    shift_data,shift_amount,shift_function,shift_zero,shift_carry,
+                    {carry_fpga,shift_fpga},{carry_generic,shift_generic});
+            shift_checks=shift_checks+1;
+        end
+    end
+    $display("Checked %0d barrel shifter equivalence cases",shift_checks);
     run_clocks=1;
     repeat(16) @(negedge clk);
     rst=0;

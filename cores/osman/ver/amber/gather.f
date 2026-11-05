@@ -1,3 +1,4 @@
+$JTROOT/cores/osman/hdl/amber/a23_barrel_shift_fpga.v
 $JTROOT/cores/osman/hdl/amber/a23_barrel_shift.v
 $JTROOT/cores/osman/hdl/amber/a23_core.v
 $JTROOT/cores/osman/hdl/amber/a23_decode.v
