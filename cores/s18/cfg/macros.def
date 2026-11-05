@@ -44,10 +44,6 @@ GAME_WWALLY  =0x40
 # won't fit
 JTFRAME_SKIP
 
-[pocket]
-# Restore Pocket support after validation: Gitea #190
-JTFRAME_SKIP
-
 [mister|sidi128]
 CORE_OSD=OE,Video timing,60 Hz,Original 57 Hz;
 DUAL_RATE

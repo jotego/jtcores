@@ -32,7 +32,7 @@
 /* xxverilator lint_off UNOPTFLAT */
 /* xxxverilator tracing_on */
 module ym7101
-	#(parameter PASSIVE=0)
+	#(parameter PASSIVE=0, parameter MODE4=1)
 	(
 	input MCLK,
 	input pxl_cen,
@@ -156,11 +156,14 @@ module ym7101
 	wire i_spa = ~SPA_B_i;
 	
 	wire reset_ext = ~RESET;
+	// MODE4=0 removes selected Mode4 rendering paths without changing CPU MMR behavior.
+	wire render_m5;
 	
 	wire clk1, clk2;
 	wire hclk1, hclk2;
 	wire legacy_clk1, legacy_clk2;
 	wire legacy_hclk1, legacy_hclk2;
+	assign render_m5 = !MODE4 | reg_m5;
 	localparam PASSIVE_Q0=2'd0;
 	localparam PASSIVE_Q1=2'd1;
 	localparam PASSIVE_Q2=2'd2;
@@ -4252,7 +4255,7 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl179(.MCLK(MCLK), .en(w230), .inp(reg_data_l2[7:0]), .val(l179));
 	
-	assign w515 = reg_m5 ? vsram_out : { 3'h0, l179 };
+	assign w515 = render_m5 ? vsram_out : { 3'h0, l179 };
 	
 	ym_slatch #(.DATA_WIDTH(11)) sl180(.MCLK(MCLK), .en(w516), .inp(vsram_out), .val(l180));
 	
@@ -4276,7 +4279,7 @@ module ym7101
 	
 	assign w519 = ~(l106[7:6] == 2'h3 & reg_80_b7);
 	
-	assign w520 = reg_m5 & (l178 | reg_vscr);
+	assign w520 = render_m5 & (l178 | reg_vscr);
 	
 	assign w521 = w520 ? l185 : w518;
 	
@@ -4303,7 +4306,7 @@ module ym7101
 	
 	assign w528 = { reg_vsz[1] & w526[6], reg_vsz[0] & w526[5], w528_sum, w526[1:0] };
 	
-	assign w529 = ~reg_m5 & w530;
+	assign w529 = ~render_m5 & w530;
 	
 	assign w530 = w526[4:2] == 3'h7 | w526[5];
 	
@@ -4317,7 +4320,7 @@ module ym7101
 	
 	assign w532 = l200 ? reg_sb : reg_sa;
 	
-	assign w533 = reg_m5 ? w527[6:5] : reg_nt;
+	assign w533 = render_m5 ? w527[6:5] : reg_nt;
 	
 	ym_slatch sl_8e_b0(.MCLK(MCLK), .en(w232), .inp(reg_data_l2[0]), .val(reg_8e_b0));
 	
@@ -4389,7 +4392,7 @@ module ym7101
 	
 	assign w552 = ~(~reg_80_b6 | w355[5] | w355[6] | w355[4] | w355[7]);
 	
-	assign w553 = w552 | reg_m5;
+	assign w553 = w552 | render_m5;
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl193(.MCLK(MCLK), .en(w547), .inp(reg_88), .val(l193));
 	
@@ -4437,11 +4440,11 @@ module ym7101
 	
 	assign w561 = reg_rs1 ? w568 : l106[8];
 	
-	assign w562 = ~(w561 | reg_m5);
+	assign w562 = ~(w561 | render_m5);
 	
 	assign w563 = w562 & l106[3];
 	
-	assign w564 = w554[3] | reg_m5;
+	assign w564 = w554[3] | render_m5;
 	
 	assign w565 = w561 ? 4'hf : l106[7:4];
 	
@@ -4515,10 +4518,10 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl222(.MCLK(MCLK), .en(w618), .inp(vram_serial), .val(l222));
 	
-	assign w584 = reg_m5 ? l220[3] : l220[1];
-	assign w585 = reg_m5 ? l220[4] : l220[2];
-	assign w586 = reg_m5 ? l220[6:5] : { 1'h0, l220[3] };
-	assign w587 = reg_m5 ? l220[7] : l220[4];
+	assign w584 = render_m5 ? l220[3] : l220[1];
+	assign w585 = render_m5 ? l220[4] : l220[2];
+	assign w586 = render_m5 ? l220[6:5] : { 1'h0, l220[3] };
+	assign w587 = render_m5 ? l220[7] : l220[4];
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl223(.MCLK(MCLK), .en(w591), .inp(vram_serial), .val(l223));
 	
@@ -4628,13 +4631,13 @@ module ym7101
 	
 	ym_slatch #(.DATA_WIDTH(8)) sl265(.MCLK(MCLK), .en(w611), .inp(l260), .val(l265));
 	
-	assign w598 = reg_m5 ? l302 : l231;
+	assign w598 = render_m5 ? l302 : l231;
 	
-	assign w599 = reg_m5 & l241[3];
+	assign w599 = render_m5 & l241[3];
 	
 	assign w600 = ~(hclk1 & w612);
 	
-	assign w601 = reg_m5 ^ l241[1];
+	assign w601 = render_m5 ^ l241[1];
 	
 	assign w602 = w599 ? l265[0] : l265[1];
 	
@@ -4690,11 +4693,11 @@ module ym7101
 		(w606_sel[0] ? l240[7:4] : 4'h0);
 	
 	assign w607 =
-		(~reg_m5 ? w607_m4 : 4'h0) |
-		((reg_m5 & ~l241[3]) ? w607_m5_1 : 4'h0) |
-		((reg_m5 & l241[3]) ? w607_m5_2 : 4'h0);
+		(~render_m5 ? w607_m4 : 4'h0) |
+		((render_m5 & ~l241[3]) ? w607_m5_1 : 4'h0) |
+		((render_m5 & l241[3]) ? w607_m5_2 : 4'h0);
 	
-	assign w608 = l241[3] | ~reg_m5;
+	assign w608 = l241[3] | ~render_m5;
 	
 	assign w609 = w608 & l241[2:0] == 3'h7;
 	
@@ -5511,15 +5514,15 @@ module ym7101
 	
 	assign w794 = w793 | w796;
 	
-	assign w795 = l439 & reg_m5;
+	assign w795 = l439 & render_m5;
 	
-	assign w796 = ~reg_m5 & reg_80_b3;
+	assign w796 = ~render_m5 & reg_80_b3;
 	
-	assign w797 = reg_m5 | w796;
+	assign w797 = render_m5 | w796;
 	
 	assign w798 = w789 & ~l449;
 	
-	assign w799 = reg_m5 ? l443 : { 1'h0, l437 };
+	assign w799 = render_m5 ? l443 : { 1'h0, l437 };
 	
 	assign w800 = w799[8:3] + {5'h0, w795} + { w797, w797, w796, w796, w794, w791 };
 	
@@ -5555,16 +5558,16 @@ module ym7101
 	
 	assign w805 = l456 & w808 & hclk1;
 	
-	assign w806 = ~(reg_m5 & l442[0]);
+	assign w806 = ~(render_m5 & l442[0]);
 	
 	ym_cnt_bit_load #(.DATA_WIDTH(2)) cnt457(.MCLK(MCLK), .c1(hclk1), .c2(hclk2),
 		.c_in(l456), .reset(w360), .load(w804), .load_val( { w807, w806 } ), .val(l457));
 	
-	assign w807 = ~(reg_m5 & l442[1]);
+	assign w807 = ~(render_m5 & l442[1]);
 	
 	assign w808 = l457 == 2'h0;
 	
-	assign w809 = l106 + 9'h1 + { 4'hf, ~reg_m5, reg_m5, 2'h2, reg_m5 };
+	assign w809 = l106 + 9'h1 + { 4'hf, ~render_m5, render_m5, 2'h2, render_m5 };
 	
 	ym_sr_bit sr458(.MCLK(MCLK), .c1(clk1), .c2(clk2), .bit_in(w810), .sr_out(l458));
 	
@@ -5710,9 +5713,9 @@ module ym7101
 	
 	assign w840 = l501 ? l498 : l495;
 	
-	assign w841 = ~(~reg_m5 | l514);
+	assign w841 = ~(~render_m5 | l514);
 	
-	assign w842 = ~(reg_m5 | l514);
+	assign w842 = ~(render_m5 | l514);
 	
 	wire [7:0] w843_1 =
 		(~w837 ? l492 : 8'h0) |
@@ -6101,11 +6104,11 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(4)) sr555(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(spr_index), .data_out(l555));
 	
-	assign w970 = reg_m5 ? l553 : spr_pal;
+	assign w970 = render_m5 ? l553 : spr_pal;
 	
-	assign w971 = reg_m5 ? l554 : spr_priority;
+	assign w971 = render_m5 ? l554 : spr_priority;
 	
-	assign w972 = reg_m5 ? l555 : spr_index;
+	assign w972 = render_m5 ? l555 : spr_index;
 	
 	ym_sr_bit_array #(.DATA_WIDTH(2)) sr556(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w970), .data_out(l556));
 	
@@ -6113,9 +6116,9 @@ module ym7101
 	
 	ym_sr_bit_array #(.DATA_WIDTH(4)) sr558(.MCLK(MCLK), .c1(hclk1), .c2(hclk2), .data_in(w972), .data_out(l558));
 	
-	assign w973 = l557 & reg_m5;
+	assign w973 = l557 & render_m5;
 	
-	assign w974 = reg_m5 ? l556 : 2'h1;
+	assign w974 = render_m5 ? l556 : 2'h1;
 	
 	assign w975 = l556 == 2'h3;
 	
