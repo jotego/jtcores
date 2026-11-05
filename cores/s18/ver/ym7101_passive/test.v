@@ -4,12 +4,18 @@ module test;
 
 `include "test_tasks.vh"
 
-`ifdef PASSIVE1_TEST
+`ifdef PASSIVE1_NOMODE4_TEST
 localparam PASSIVE_MODE = 1;
+localparam MODE4_ENABLED = 0;
+`elsif PASSIVE1_TEST
+localparam PASSIVE_MODE = 1;
+localparam MODE4_ENABLED = 1;
 `elsif PASSIVE0_TEST
 localparam PASSIVE_MODE = 0;
+localparam MODE4_ENABLED = 1;
 `else
 localparam PASSIVE_MODE = 0;
+localparam MODE4_ENABLED = 1;
 `endif
 
 reg clk96 = 0, clk48 = 0;
@@ -64,7 +70,7 @@ integer phase_i;
 integer legacy_phase_transitions;
 reg last_clk1;
 
-ym7101 #(.PASSIVE(PASSIVE_MODE)) uut (
+ym7101 #(.PASSIVE(PASSIVE_MODE),.MODE4(MODE4_ENABLED)) uut (
     .MCLK(clk), .pxl_cen(1'b0), .pxl2_cen(1'b0),
     .HS(1'b1), .VS(1'b1), .LHBL(1'b0), .LVBL(1'b0), .SD(sd_bus),
     .SE1(), .SE0(ym_se0), .SC(ym_sc), .RAS1(ym_ras), .CAS1(ym_cas),
@@ -279,7 +285,8 @@ initial begin : smoke
         $fatal(1);
     end
     check_muted();
-    $display("YM7101 smoke PASSIVE=%0d: normal phase, MMR/status, VRAM write/readback, blank output",PASSIVE_MODE);
+    $display("YM7101 smoke PASSIVE=%0d MODE4=%0d: normal phase, MMR/status, VRAM write/readback, blank output",
+        PASSIVE_MODE,MODE4_ENABLED);
     pass();
 end
 
