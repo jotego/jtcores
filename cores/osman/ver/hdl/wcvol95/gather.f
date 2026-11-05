@@ -1,6 +1,6 @@
 $JTROOT/cores/osman/hdl/jtosman_ymz.v
-$JTROOT/cores/osman/hdl/ymz280b/jtymz280b.sv
-$JTROOT/cores/osman/hdl/ymz280b/jtymz280b_adpcm.sv
+$JTROOT/cores/osman/hdl/ymz280b/jtymz280b.v
+$JTROOT/cores/osman/hdl/ymz280b/jtymz280b_adpcm.v
 $JTROOT/cores/osman/hdl/jtosman_main.v
 $JTROOT/cores/osman/hdl/jtosman_eeprom.v
 $JTROOT/cores/osman/hdl/jtosman_deco156.v

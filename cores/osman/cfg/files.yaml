@@ -17,8 +17,8 @@ osman:
     - osman.qip           # syn/ — adds cores/osman/hdl to Quartus SEARCH_PATH for the amber/ includes
   - from: ymz280b
     get:
-      - jtymz280b.sv
-      - jtymz280b_adpcm.sv
+      - jtymz280b.v
+      - jtymz280b_adpcm.v
   # Amber 2 ARM core (OpenCores, permissive license) — VENDORED under hdl/amber, not a generic
   # jtframe module. `from:` pulls the subfolder ($CORES/osman/hdl/amber/). DE156 = ARMv2a-compatible.
   # Only the 15 MODULE files are listed; the 5 include-fragments (a23_localparams/functions/

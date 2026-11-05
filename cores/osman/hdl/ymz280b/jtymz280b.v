@@ -109,7 +109,8 @@ always @* begin
     product_r = interpolated * $signed({1'b0,gain_r});
 end
 
-function automatic signed [15:0] clip(input signed [27:0] value);
+function automatic signed [15:0] clip;
+    input signed [27:0] value;
     reg signed [27:0] scaled;
     begin
         scaled = value >>> 9;
@@ -117,7 +118,8 @@ function automatic signed [15:0] clip(input signed [27:0] value);
     end
 endfunction
 
-function automatic signed [15:0] decay(input signed [15:0] value);
+function automatic signed [15:0] decay;
+    input signed [15:0] value;
     reg signed [20:0] magnitude;
     begin
         magnitude = $signed({{5{value[15]}},value});
