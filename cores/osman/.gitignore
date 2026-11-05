@@ -5,3 +5,10 @@
 !ver/eeprom/test.v
 !ver/prepare_nvram.sh
 !ver/attract_run.sh
+/status.md
+!ver/hdl/ymz280b/.simunit
+!ver/hdl/ymz280b/gather.f
+!ver/hdl/ymz280b/test.v
+!ver/hdl/wcvol95/.simunit
+!ver/hdl/wcvol95/gather.f
+!ver/hdl/wcvol95/test.v

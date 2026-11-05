@@ -12,6 +12,9 @@ params:
 clocks:
   clk:
     - mul: 1
+      div: 4
+      outputs: [ cen_ymz ]
+    - mul: 1
       div: 8                 # ARM DE156 = 28/4 = 7 MHz
       outputs: [ cen_arm ]
     - mul: 1
@@ -30,6 +33,7 @@ download:
 
 audio:
   rsum: 20k
+  rsum_feedback_res: true
   channels:
     # MAME chainrec routes: okisfx 0.6, okimusic 0.2 (level ~ 1/rsum). TODO tune vs MAME per-channel.
     # channel names differ from the SDRAM bus names (oki1/oki2) to avoid a port clash.
@@ -39,6 +43,12 @@ audio:
     - name: pcm2             # okimusic — music (banked; bitswapped on simpl156)
       module: jt6295
       rsum: 60k
+    - name: ymz
+      data_width: 16
+      stereo: true
+      rsum: 20k
+      rout: 100k
+      vpp: 1.0
 
 # Board RAMs live here (never instantiated in core HDL); only chip-internal state
 # stays in the modules: the deco16ic pf name tables + control regs (jtosman_video /

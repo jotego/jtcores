@@ -25,7 +25,7 @@ module jtosman_main(
     input             cen_arm,
     input             LVBL,       // vblank level (active low visible) -> IRQ + IN0[7]
     // header: one-hot family bits (cninja pattern); all clear = Mitchell map
-    input             jm, cr, md, mdp, hv,
+    input             jm, cr, md, mdp, hv, wc,
     output reg        oki1_bank,  // hvysmsh banked sfx OKI
 
     // 93C46 defaults, saved-image restore and live EEPROM upload (index 2)
@@ -70,6 +70,13 @@ module jtosman_main(
     output reg [ 2:0] oki2_bank,  // eeprom_w[2:0]
     input      [ 7:0] oki1_dout,  // okim6295 status read
     input      [ 7:0] oki2_dout,
+    output            ymz_cs,
+    output            ymz_wr,
+    output            ymz_rd,
+    output            ymz_addr,
+    output     [ 7:0] ymz_din,
+    input      [ 7:0] ymz_dout,
+    input             ymz_ready,
 
     // cabinet (JTFRAME order, active-low)
     input    [ 6:0]   joystick1,
@@ -98,6 +105,11 @@ assign cpu_dhi  = 16'd0;
 assign cpu_rnw  = 1'b1;
 assign dsn      = 2'b11;
 assign obj_copy = 1'b0;
+assign ymz_cs   = 1'b0;
+assign ymz_wr   = 1'b0;
+assign ymz_rd   = 1'b0;
+assign ymz_addr = 1'b0;
+assign ymz_din  = 8'd0;
 initial begin
     rom_cs=0; pf_cs=0; pfram_cs=0; pal_cs=0; oram_cs=0; rowscr_cs=0;
     oki1_wr=0; oki2_wr=0; oki_din=0; oki2_bank=0; oki1_bank=0; flip=0;
@@ -123,7 +135,7 @@ wire        vbl = ~LVBL;
 //      a tidy block at different bases, hvysmsh scatters them. Unmapped pages read
 //      FFFF/ack (MAME unmap_value_high), which also covers the ctrl page. ----
 wire        hvio  = hv;                          // hvysmsh io page layout
-wire        rom1m = hv;                          // 1MB main ROM
+wire        rom1m = hv | wc;
 wire [ 7:0] page = wb_adr[23:16];
 // mitchell (default): mram 18, oram 19, pal 1A, io 1B, pfctl 1C, pfram 1D, rowscr 1E,
 //                     sfx 10, mus 14. charlien shares it.
@@ -138,17 +150,19 @@ wire [ 7:0] sfxpage    = hv ? 8'h14 : jm ? 8'h18 : cr ? 8'h48 : md ? 8'h40 : mdp
 wire [ 7:0] muspage    = hv ? 8'h16 : jm ? 8'h1c : cr ? 8'h3c : md ? 8'h34 : mdp ? 8'h4c : 8'h14;
 wire is_rom    = rom1m ? wb_adr[23:20]==4'd0    // 000000-0FFFFF (hvysmsh)
                        : wb_adr[23:19]==5'd0;   // 000000-07FFFF
-wire is_okisfx = page==sfxpage;
-wire is_okimus = page==muspage;
-wire is_mram   = page==mrampage;                // main RAM (16-bit, 32 KB)
-wire is_oram   = page==orampage;                // sprite RAM (16-bit, 8 KB)
-wire is_pal    = page==palpage;                 // palette (16-bit; 32-bit on hvysmsh)
-wire is_io     = page==iopage;                  // R:IN1/INPUTS W:eeprom_w (+friends on hvio)
-wire is_pfctl  = page==pfctlpage;               // pf control (0x20)
-wire is_pfram  = page==pframpage;               // pf name tables (0x6000)
-wire is_rowscr = page==rowscrpage;              // rowscroll
-wire is_in0    = page==8'h20 & ~wb_adr[12];     // 200000 IN0
-wire is_sram   = page==8'h20 &  wb_adr[12];     // 201000-201FFF systemram (32-bit)
+wire is_okisfx = !wc && page==sfxpage;
+wire is_okimus = !wc && page==muspage;
+wire is_mram   = wc ? wb_adr[23:15]==9'h026 : page==mrampage;
+wire is_oram   = wc ? wb_adr[23:13]==11'h0b0 : page==orampage;
+wire is_pal    = wc ? wb_adr[23:12]==12'h180 : page==palpage;
+wire is_io     = wc ? wb_adr[23:2]==22'h50000 : page==iopage;
+wire is_pfctl  = wc ? wb_adr[23:5]==19'h08000 : page==pfctlpage;
+wire is_pfram  = wc ? (wb_adr[23:13]==11'h088 || wb_adr[23:13]==11'h08a) : page==pframpage;
+wire is_rowscr = wc ? (wb_adr[23:12]==12'h120 || wb_adr[23:12]==12'h124) : page==rowscrpage;
+wire is_in0    = !wc && page==8'h20 && !wb_adr[12];
+wire is_sram   = !wc && page==8'h20 &&  wb_adr[12];
+wire is_ymz    = wc && wb_adr[23:3]==21'h34000;
+wire is_wcee   = wc && wb_adr[23:2]==22'h54000;
 wire is_dmachk = hvio & page==8'h1d;            // hvysmsh 1D0010-1D002F nopr: DMA-complete flags, IRQ handler spins on bit3 unless 0
 
 wire is_video  = is_pfctl | is_pfram | is_rowscr | is_pal | is_oram;
@@ -168,6 +182,12 @@ wire [15:0] in1 = { cab_1p[1], joystick2, cab_1p[0], joystick1 };
 // hvysmsh single INPUTS port: P1/P2 bytes as in1; b16 coin1, b17 coin2, b18 service1,
 // b19 service(no-toggle), b20 vblank(HIGH), b24 eeprom DO; unused active-low bits read 1
 wire [31:0] hv_in = { 7'h7f, ee_sdo, 3'h7, vbl, dip_test, service, coin[1], coin[0], in1 };
+wire [31:0] wc_in = { 7'h7f, ee_sdo, 3'h7, ~vbl, dip_test, service, coin[1], coin[0], in1 };
+assign ymz_cs   = is_ymz && acc && wb_sel[0];
+assign ymz_wr   = ymz_cs && wb_we && ymz_ready;
+assign ymz_rd   = ymz_cs && !wb_we && ymz_ready;
+assign ymz_addr = wb_adr[2];
+assign ymz_din  = wb_wdat[7:0];
 
 // ---- deco156 ARM ROM descramble at fetch ----
 wire [17:0] arm_word = rom1m ? wb_adr[19:2]     // 1 MB = 256K 32-bit words (hvysmsh)
@@ -270,18 +290,19 @@ always @* begin
     wb_ack  = 1'b0;
     if( acc ) begin
         if( is_rom )      begin wb_rdat = rom_dec;                 wb_ack = wr | (rom_cs & rom_ok); end // ROM writes ack+discard (MAME rom() drops them; hvysmsh does one)
-        else if( is_mram )begin wb_rdat = {hv ? mramh_dout : 16'hffff, mram_q}; wb_ack = wr | bram_rdy; end
+        else if( is_mram )begin wb_rdat = {(hv|wc) ? mramh_dout : 16'hffff, mram_q}; wb_ack = wr | bram_rdy; end
         else if( is_sram )begin wb_rdat = sram_q;                  wb_ack = wr | bram_rdy;  end
         else if( is_pal ) begin wb_rdat = {16'hffff, pal_dout};    wb_ack = wr | bram_rdy;  end
         else if( is_oram )begin wb_rdat = {16'hffff, oram_dout};   wb_ack = wr | bram_rdy;  end
         else if( is_pfram|is_pfctl ) begin wb_rdat = {16'hffff, pf_dout}; wb_ack = wr | bram_rdy; end
         else if( is_in0 ) begin wb_rdat = {16'hffff, in0};         wb_ack = 1'b1; end
-        else if( is_io )  begin wb_rdat = hvio ? hv_in
+        else if( is_io )  begin wb_rdat = wc ? wc_in : hvio ? hv_in
                                                : {16'hffff, in1};  wb_ack = 1'b1; end   // R:IN1 / INPUTS
         // OKI status read (okim6295 read): {4'hf, per-channel busy}. The music sequencer polls
         // this to know when a phrase is done; a hardcoded 0 makes it re-trigger forever (noise).
         else if( is_okisfx ) begin wb_rdat = {24'hff_ffff, oki1_dout}; wb_ack = 1'b1; end
         else if( is_okimus ) begin wb_rdat = {24'hff_ffff, oki2_dout}; wb_ack = 1'b1; end
+        else if( is_ymz ) begin wb_rdat = {24'hff_ffff, ymz_dout}; wb_ack = !wb_sel[0] || ymz_ready; end
         else if( is_dmachk ) begin wb_rdat = 32'd0;                    wb_ack = 1'b1; end
         else              begin wb_rdat = 32'hffff_ffff;           wb_ack = 1'b1; end   // rowscroll/ctrl/unmapped
     end
@@ -301,7 +322,7 @@ always @(posedge clk) begin
             // eeprom_w: same bit layout everywhere (bank d[2:0], di d[4], clk d[5], cs d[6]);
             // simpl156 maps it at io+0, hvysmsh at io+4 (io+0 is the volume DAC there, io+0xC
             // the sfx-OKI bank). Volume is left to the OSD control.
-            if( is_io & wb_sel[0] & (hvio ? wb_adr[3:2]==2'd1 : wb_adr[3:2]==2'd0) ) begin
+            if( !wc & is_io & wb_sel[0] & (hvio ? wb_adr[3:2]==2'd1 : wb_adr[3:2]==2'd0) ) begin
                 oki2_bank <= wb_wdat[2:0];
                 ee_sdi    <= wb_wdat[4];
                 ee_sclk   <= wb_wdat[5];
@@ -309,6 +330,11 @@ always @(posedge clk) begin
             end
             if( is_io & hvio & wb_sel[0] & wb_adr[3:2]==2'd3 )
                 oki1_bank <= wb_wdat[0];
+            if( is_wcee && wb_sel[0] ) begin
+                ee_sdi  <= wb_wdat[0];
+                ee_sclk <= wb_wdat[1];
+                ee_scs  <= wb_wdat[2];
+            end
         end
     end
 end

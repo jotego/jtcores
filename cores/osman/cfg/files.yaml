@@ -9,11 +9,16 @@ osman:
     - jtosman_main.v
     - jtosman_eeprom.v
     - jtosman_snd.v
+    - jtosman_ymz.v
     - jtosman_video.v
     - jtosman_colmix.v
     - jtosman_deco156.v
     - jtosman_gfxdec.v
     - osman.qip           # syn/ — adds cores/osman/hdl to Quartus SEARCH_PATH for the amber/ includes
+  - from: ymz280b
+    get:
+      - jtymz280b.sv
+      - jtymz280b_adpcm.sv
   # Amber 2 ARM core (OpenCores, permissive license) — VENDORED under hdl/amber, not a generic
   # jtframe module. `from:` pulls the subfolder ($CORES/osman/hdl/amber/). DE156 = ARMv2a-compatible.
   # Only the 15 MODULE files are listed; the 5 include-fragments (a23_localparams/functions/

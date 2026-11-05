@@ -23,6 +23,7 @@ module jtosman_colmix(
     input      [15:0] pal_data,
     input      [15:0] palhi_data,  // dword high half (pal888)
     input             pal888,      // xBGR888: full dword {x,B[23:16],G[15:8],R[7:0]}
+    input             wc,
 
     output     [ 7:0] red,
     output     [ 7:0] green,
@@ -65,7 +66,7 @@ wire [9:0] hv_idx = pf1a_op ? {2'b00, pf1a_pxl} :
                    pf1b_op ? {2'b00, pf1b_pxl} :
                    obj_op  ? {1'b1, obj_pxl[8:0]} :
                              {2'b01, pf2_selected};
-wire [9:0] pal_idx = pal888 ? hv_idx : simpl_idx;
+wire [9:0] pal_idx = (pal888|wc) ? hv_idx : simpl_idx;
 
 always @(posedge clk) if(pxl_cen) pal_addr <= pal_idx;
 

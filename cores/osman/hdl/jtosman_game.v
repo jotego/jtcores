@@ -40,6 +40,13 @@ wire        flip;
 wire        oki1_wr, oki2_wr;
 wire [ 7:0] oki_din, oki1_dout, oki2_dout;
 wire [ 2:0] oki2_bank;
+wire ymz_cs, ymz_wr, ymz_rd, ymz_addr, ymz_ready;
+wire [7:0] ymz_din, ymz_dout;
+wire oki_rom1_cs, oki_rom2_cs, ymz_rom_cs;
+wire [18:0] oki_rom1_addr;
+wire [20:0] oki_rom2_addr, ymz_rom_addr;
+wire signed [13:0] oki_pcm1, oki_pcm2;
+wire signed [15:0] ymz_left, ymz_right;
 
 assign dip_flip   = flip;
 assign debug_view = 8'd0;
@@ -57,7 +64,7 @@ assign rs2rw_addr  = cpu_addr[12:2];
 assign rs2rw_we    = {2{rowscr_cs &  cpu_addr[14] & ~cpu_rnw}} & ~dsn;
 
 // ---- header: one-hot family bits (cninja pattern); the decode lives in HDL ----
-wire jm, cr, md, mdp, cn, hv;
+wire jm, cr, md, mdp, cn, hv, wc;
 wire oki1_bank;
 jtosman_header u_header(
     .clk       ( clk            ),
@@ -65,7 +72,13 @@ jtosman_header u_header(
     .prog_we   ( prog_we        ),
     .prog_addr ( prog_addr[3:0] ),
     .prog_data ( prog_data      ),
-    .jm(jm), .cr(cr), .md(md), .mdp(mdp), .cn(cn), .hv(hv)
+    .jm        ( jm             ),
+    .cr        ( cr             ),
+    .md        ( md             ),
+    .mdp       ( mdp            ),
+    .cn        ( cn             ),
+    .hv        ( hv             ),
+    .wc        ( wc             )
 );
 // Per-family behaviour, derived - no game tables in the MRA:
 wire tile1mb = jm|cr|md|mdp;        // 1MB plain tile region (else 2MB w/ ROM_CONTINUE swap)
@@ -102,7 +115,7 @@ assign main_post_addr = { 6'd0, xf_dec, main_pre_addr[0] };
 
 always @* begin
     post_addr = prog_addr;
-    post_data = prog_data;    if( prog_ba==2'd1 && !tile1mb ) begin
+    post_data = prog_data;    if( prog_ba==2'd1 && !tile1mb && !wc ) begin
         post_addr[19] = prog_addr[18];
         post_addr[18] = prog_addr[19];
     end
@@ -110,7 +123,7 @@ always @* begin
     // family + charlien) bit19, 8MB (Mitchell + hvysmsh) bit21
     if( prog_ba==2'd3 )
         post_addr = jm          ? { prog_addr[21:19], prog_addr[17:0], ~prog_addr[18] } :
-                    (cr|md|mdp|cn) ? { prog_addr[21:20], prog_addr[18:0], ~prog_addr[19] } :
+                    (cr|md|mdp|cn|wc) ? { prog_addr[21:20], prog_addr[18:0], ~prog_addr[19] } :
                                    { prog_addr[20:0], ~prog_addr[21] };
     // Heavy Smash populates only the first 2MB of each 4MB plane half.
     // MRA padding is FF; the empty MAME ROM-region slots are zero-filled.
@@ -121,7 +134,12 @@ end
 jtosman_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .jm(jm), .cr(cr), .md(md), .mdp(mdp), .hv(hv),
+    .jm         ( jm        ),
+    .cr         ( cr        ),
+    .md         ( md        ),
+    .mdp        ( mdp       ),
+    .hv         ( hv        ),
+    .wc         ( wc        ),
     .oki1_bank  ( oki1_bank ),
     .mram_addr  ( mram_addr ),
     .mram_we    ( mram_we   ),
@@ -164,6 +182,13 @@ jtosman_main u_main(
     .oki2_bank  ( oki2_bank ),
     .oki1_dout  ( oki1_dout ),
     .oki2_dout  ( oki2_dout ),
+    .ymz_cs     ( ymz_cs    ),
+    .ymz_wr     ( ymz_wr    ),
+    .ymz_rd     ( ymz_rd    ),
+    .ymz_addr   ( ymz_addr  ),
+    .ymz_din    ( ymz_din   ),
+    .ymz_dout   ( ymz_dout  ),
+    .ymz_ready  ( ymz_ready ),
     // cabinet
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
@@ -177,29 +202,58 @@ jtosman_main u_main(
 
 /* verilator tracing_off */
 jtosman_snd u_snd(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen_oki1   ( cen_oki1  ),
-    .cen_oki2   ( mus2m ? cen_oki2b : cen_oki2 ),  // DECO PCBs + hvysmsh: music OKI at 2 MHz
-    .oki1_bank  ( oki1_bank & sfxbank ),
-    .din        ( oki_din   ),
-    .oki1_wr    ( oki1_wr   ),
-    .oki2_wr    ( oki2_wr   ),
-    .oki2_bank  ( oki2_bank ),
-    .oki1_dout  ( oki1_dout ),
-    .oki2_dout  ( oki2_dout ),
+    .rst        ( rst | wc                         ),
+    .clk        ( clk                              ),
+    .cen_oki1   ( cen_oki1                         ),
+    .cen_oki2   ( mus2m ? cen_oki2b : cen_oki2     ),  // DECO PCBs + hvysmsh: music OKI at 2 MHz
+    .oki1_bank  ( oki1_bank & sfxbank              ),
+    .din        ( oki_din                          ),
+    .oki1_wr    ( oki1_wr                          ),
+    .oki2_wr    ( oki2_wr                          ),
+    .oki2_bank  ( oki2_bank                        ),
+    .oki1_dout  ( oki1_dout                        ),
+    .oki2_dout  ( oki2_dout                        ),
     // OKI #1 sample ROM (SDRAM)
-    .rom1_cs    ( oki1_cs   ),
-    .rom1_addr  ( oki1_addr ),
-    .rom1_data  ( oki1_data ),
-    .rom1_ok    ( oki1_ok   ),
+    .rom1_cs    ( oki_rom1_cs                      ),
+    .rom1_addr  ( oki_rom1_addr                    ),
+    .rom1_data  ( oki1_data                        ),
+    .rom1_ok    ( oki1_ok                          ),
     // OKI #2 sample ROM (SDRAM)
-    .rom2_cs    ( oki2_cs   ),
-    .rom2_addr  ( oki2_addr ),
-    .rom2_data  ( oki2_data ),
-    .rom2_ok    ( oki2_ok   ),
-    .pcm1       ( pcm1      ),
-    .pcm2       ( pcm2      )
+    .rom2_cs    ( oki_rom2_cs                      ),
+    .rom2_addr  ( oki_rom2_addr                    ),
+    .rom2_data  ( oki2_data                        ),
+    .rom2_ok    ( oki2_ok                          ),
+    .pcm1       ( oki_pcm1                         ),
+    .pcm2       ( oki_pcm2                         )
+);
+
+assign oki1_cs   = !wc && oki_rom1_cs;
+assign oki1_addr = oki_rom1_addr;
+assign oki2_cs   = wc ? ymz_rom_cs : oki_rom2_cs;
+assign oki2_addr = wc ? ymz_rom_addr : oki_rom2_addr;
+assign pcm1     = wc ? 14'sd0 : oki_pcm1;
+assign pcm2     = wc ? 14'sd0 : oki_pcm2;
+assign ymz_l    = wc ? ymz_left : 16'sd0;
+assign ymz_r    = wc ? ymz_right : 16'sd0;
+
+jtosman_ymz u_ymz(
+    .rst        ( rst | !wc   ),
+    .clk        ( clk         ),
+    .cen        ( cen_ymz     ),
+    .cs         ( ymz_cs      ),
+    .wr         ( ymz_wr      ),
+    .rd         ( ymz_rd      ),
+    .addr       ( ymz_addr    ),
+    .din        ( ymz_din     ),
+    .dout       ( ymz_dout    ),
+    .ready      ( ymz_ready   ),
+    .rom_cs     ( ymz_rom_cs  ),
+    .rom_addr   ( ymz_rom_addr),
+    .rom_data   ( oki2_data   ),
+    .rom_ok     ( oki2_ok     ),
+    .snd_l      ( ymz_left    ),
+    .snd_r      ( ymz_right   ),
+    .overrun    (             )
 );
 
 /* verilator tracing_off */
@@ -211,6 +265,7 @@ jtosman_video u_video(
     .gfx_en     ( gfx_en    ),
     .flip       ( flip      ),
     .tile1mb    ( tile1mb   ),
+    .wc         ( wc        ),
     .pal888     ( pal888    ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),

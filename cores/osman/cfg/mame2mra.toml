@@ -22,9 +22,6 @@ sourcefile=[ "simpl156.cpp", "deco156.cpp" ]   # deco156.cpp = hvysmsh+wcvol95 i
 skip.setnames=[
     "joemacrj",   # its own 1MB tile ROM (mbn00, crc 11b2dac7) is not in the collection
 ]
-skip.machines=[
-    "wcvol95",    # deco156.cpp but YMZ280B sound + own map: different hardware class
-]
 
 [header]
 # cninja pattern: ONE-HOT family bits only - the per-family address decode and
@@ -38,11 +35,13 @@ registers=[
     { name="mdp", pos="0[3]", desc="Magical Drop Plus",  values=[{ setname="magdropp", value=1 }] },
     { name="cn",  pos="0[4]", desc="Charlie Ninja",      values=[{ machine="charlien", value=1 }] },
     { name="hv",  pos="0[5]", desc="Heavy Smash",        values=[{ machine="hvysmsh",  value=1 }] },
+    { name="wc",  pos="0[6]", desc="World Cup Volleyball 95", values=[{ machine="wcvol95", value=1 }] },
 ]
 
 [buttons]
 Names = [ { machine="osman",    names="Attack,Jump,Special" },
           { machine="hvysmsh",  names="Shoot & Tackle,Jump,Pass & Shot" },
+          { machine="wcvol95",  names="Button 1,Button 2,Button 3" },
           { machine="joemacr",  names="Attack,Jump" },
           { machine="charlien", names="Shot,Jump" },
           { machine="chainrec", names="Pull in the balloons,Shoot out the balloons" },
@@ -54,6 +53,7 @@ Names = [ { machine="osman",    names="Attack,Jump,Special" },
 # These families have no EEPROM ROM region in MAME. Start with an erased
 # 93C46 so the game can initialize it; clones inherit machine matching.
 nvram = { defaults=[
+    { machine="wcvol95", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
     { machine="joemacr", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
     { machine="charlien", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
     { machine="hvysmsh", data="FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF" },
@@ -74,6 +74,18 @@ regions = [
     { name="maincpu", setname="hvysmshj", width=32, parts=[
         { name="lp01-2.3j", crc="a6fe282a", map="0012" },
         { name="lp00-2.2j", crc="3f8fd724", map="1200" },
+    ]},
+    { name="maincpu", setname="wcvol95", width=32, parts=[
+        { name="pw01-0.4f", crc="3a0ee861", map="0012" },
+        { name="pw00-0.2f", crc="86765209", map="1200" },
+    ]},
+    { name="maincpu", setname="wcvol95j", width=32, parts=[
+        { name="pn01-0.4f", crc="1c3641c3", map="0012" },
+        { name="pn00-0.2f", crc="c9ed2006", map="1200" },
+    ]},
+    { name="maincpu", setname="wcvol95x", width=32, parts=[
+        { name="4f.bin", crc="e211f67a", map="0012" },
+        { name="2f.bin", crc="ac06633d", map="1200" },
     ]},
     # ---- tiles (deco56-encrypted, decrypt-at-fetch). RAW load for now — boot doesn't fetch gfx.
     # TODO(video step): ROM_CONTINUE reorder (blk0->0,blk1->0x100000,blk2->0x080000,blk3->0x180000)
@@ -96,10 +108,12 @@ regions = [
     # jtosman_snd applies the inverse MAME descramble to its read addresses.
     { name="oki1", machine="hvysmsh", start="PCM1_START", No_offset=true },
     { name="oki2", machine="hvysmsh", start="PCM2_START", No_offset=true },
+    { name="ymz", machine="wcvol95", rename="oki2", start="PCM2_START", No_offset=true },
     # Raw per-set defaults at index 2. Magical Drop / Plus use WORD_SWAP in
     # MAME; jtosman_eeprom swaps both download and upload byte pairs for them.
     { name="eeprom", rename="nvram", skip=true },
     { name="plds",     skip=true },
+    { name="gals",     skip=true },
 ]
 
 order = [ "maincpu", "tiles", "oki1", "oki2", "sprites" ]
