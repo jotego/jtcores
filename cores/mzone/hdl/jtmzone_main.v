@@ -57,7 +57,7 @@ wire [ 7:0]  cpu_dout;
 reg          shared_cs;
 wire         irq_n;
 wire         firq_n;
-wire         BS;
+wire         irq_ack;
 wire         irq_trigger = ~LVBL & dip_pause;
 wire         scroll_cs     = scrolly_cs | scrollx_cs;
 
@@ -149,7 +149,7 @@ jtframe_ff u_nirq(
 );
 
 // B_C1B on the schematic: D is grounded, Q drives ~FIRQ and the active-low
-// preset is driven by ~MBS. BS is the corresponding active-high event.
+// preset is driven by ~MBS. With DMA and HALT disabled, irq_ack equals BS.
 jtframe_ff u_nfirq(
     .rst             ( rst                                  ),
     .clk             ( clk                                  ),
@@ -157,7 +157,7 @@ jtframe_ff u_nfirq(
     .din             ( 1'b0                                 ),
     .q               ( firq_n                               ),
     .qn              (                                      ),
-    .set             ( BS                                   ),
+    .set             ( irq_ack                              ),
     .clr             ( 1'b0                                 ),
     .sigedge         ( intmain_n                            )
 );
@@ -176,9 +176,7 @@ jtframe_sys6809 #(
     .nIRQ            ( irq_n                                ),
     .nFIRQ           ( firq_n                               ),
     .nNMI            ( 1'b1                                 ),
-    .irq_ack         (                                      ),
-    .BA              (                                      ),
-    .BS              ( BS                                   ),
+    .irq_ack         ( irq_ack                              ),
     .bus_busy        ( 1'b0                                 ),
 
     .A               ( A                                    ),
