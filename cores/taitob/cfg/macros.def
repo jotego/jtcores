@@ -1,0 +1,86 @@
+CORENAME=JTTAITOB
+
+# Hardware: Taito B System (1988-91).
+# Reference: MAME taito/taito_b.cpp (mirrored in cores/taitob/doc/)
+#
+# First target: Rastan Saga 2 / Nastar / Nastar Warrior (rastsag2, 1988).
+# All three regional sets share the same `rastsag2` machine config.
+#
+# Clocks (24 MHz + 16 MHz master XTALs per MAME):
+#   68000   = 24 / 2 = 12 MHz   (main)
+#   Z80     = 16 / 4 =  4 MHz   (sound)
+#   YM2610  = 16 / 2 =  8 MHz   (sound)
+#   TC0180VCU pixel = 27.164 / 4 ≈ 6.79 MHz   (video — synthesised below)
+#
+# Custom Taito chips on the Taito B board (taito_b.cpp:11):
+#   TC0220IOC  — I/O / dipswitch / coin controller (jttaitob_ioc.v stub)
+#   TC0260DAR  — passive 12-bit palette DAC (no device in MAME; palette
+#                lives at 0x200000 as plain CPU-writable RAM, jttaitob_main.v
+#                exposes it via a BRAM port to jttaitob_colmix.v)
+#   TC0180VCU  — fused video chip: 2× 64×64 tile planes + zooming sprites
+#                + text plane + per-line scroll. No reference implementation
+#                exists anywhere — full HDL job. Currently stubbed.
+#   TC0140SYT  — main↔sound comms. Reused verbatim from Superman
+#                (jtsuperman_syt.v copied to jttaitob_syt.v, same chip).
+
+# ─── Controls ────────────────────────────────────────────────────────────────
+# Rastan Saga 2 / Nastar uses 2 action buttons (Attack + Jump). All
+# Taito B games are 2-button except Hit The Ice (4-player). Stick with
+# 2 for now; revisit if/when hitice lands in this bitstream.
+JTFRAME_BUTTONS=2
+
+# Joystick reorder — Superman precedent: HPS_IO board_joy1 arrives in
+# RLDU order (bit 0=RIGHT, 1=LEFT, 2=DOWN, 3=UP). MAME's
+# TAITO_JOY_UDLR_2_BUTTONS_START expects UDLR. JTFRAME_JOY_RLDU
+# applies the bit-reverse on bits 3:0 that maps RLDU → UDLR.
+JTFRAME_JOY_RLDU
+
+# ─── Video ───────────────────────────────────────────────────────────────────
+# MAME's set_visarea(0*8, 40*8-1, 2*8, 30*8-1) = 320×224 active.
+# Palette is 12-bit RGBx_444 (4 bits per channel), 4096 colours.
+JTFRAME_COLORW=4
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=224
+
+# 48 MHz frame clock — Superman pattern. Gives clean integer cens for
+# 12 MHz (÷4), 8 MHz (÷6), 4 MHz (÷12).
+JTFRAME_CLK48
+
+# Pixel clock — PXLCLK=70 = 7.00 MHz (fractional cen n=7/m=24, see
+# jtframe_pxlcen.v). Real chip is 6.79 MHz (27.164/4). With H total 448
+# (jttaitob_game.v vtimer) this gives 15.625 kHz / 60.1 Hz and a 128-px
+# H-blank (~878 clk) — enough for the sequential BG/FG/TX ring fills
+# (~840 clk), unlike PXLCLK=6/384 (512-clk blank, overruns). Image width
+# 71% of the line (between 62.5% @8 MHz and 83% @6 MHz; ≈ real arcade).
+JTFRAME_PXLCLK=70
+
+# ─── SDRAM layout ────────────────────────────────────────────────────────────
+# Bank 0  : 68k main ROM (max 512 KB)                 0x000000
+# Bank 1  : all audio ROM — Z80 + ADPCM-A + ADPCM-B
+#           snd@0x080000  adpcma@0x100000  adpcmb@0x180000
+# Bank 2  : TC0180VCU gfx, copy 1 (1 MB) — bg/obj/tx  0x200000
+# Bank 3  : TC0180VCU gfx, copy 2 (1 MB) — fg only    0x300000
+#           (duplicate so BG fill@bank2 and FG fill@bank3 interleave)
+JTFRAME_HEADER=16
+JTFRAME_BA1_START=0x080000
+JTFRAME_BA2_START=0x200000
+JTFRAME_BA3_START=0x300000
+PCM_START=0x100000
+ADPCMB_START=0x180000
+
+# Debug knobs
+JTFRAME_IOCTL_RD=2048
+JTFRAME_STATUS
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+[mist]
+-JTFRAME_CREDITS
+NOCREDITS
+JTFRAME_OSD_NOCREDITS
+
+[sidi]
+# May not fit on smaller SiDi — leave as build-once and re-evaluate
+JTFRAME_SKIP
