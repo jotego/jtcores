@@ -1,0 +1,86 @@
+name: SiDi128 hardware regression
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: regression-host
+    timeout-minutes: 1440
+    permissions:
+      contents: read
+      issues: write
+    env:
+      JOTEGO: ${{ secrets.JOTEGO }}
+    steps:
+      - name: Check regression lock before checkout
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$JOTEGO" ]] || ! mkdir -p "$JOTEGO/regression/log" 2>/dev/null; then
+            echo 'Private regression storage is unavailable.'
+            exit 1
+          fi
+          status=0
+          flock -n -E 75 "$JOTEGO/regression/log/lock" true 2>/dev/null || status=$?
+          case "$status" in
+            0) echo 'available=true' >> "$GITHUB_OUTPUT" ;;
+            75) echo 'Regression already running; skipping checkout.' ;;
+            *) echo 'Unable to check the regression lock.'; exit 1 ;;
+          esac
+
+      - name: Shallow checkout of current master
+        if: steps.gate.outputs.available == 'true'
+        env:
+          GITEA_TOKEN: ${{ gitea.token }}
+          GITEA_SERVER_URL: ${{ gitea.server_url }}
+          GITEA_REPOSITORY: ${{ gitea.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          workspace=$(mktemp -d)
+          echo "REGRESSION_WORKSPACE=$workspace" >> "$GITHUB_ENV"
+          export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=http.extraHeader
+          export GIT_CONFIG_VALUE_0="Authorization: token $GITEA_TOKEN"
+          if ! git clone --quiet --depth 1 --branch master --no-recurse-submodules \
+            "$GITEA_SERVER_URL/$GITEA_REPOSITORY.git" "$workspace/project" \
+            > "$workspace/checkout.log" 2>&1; then
+            echo 'Checkout failed; diagnostics retained privately on the runner.'
+            exit 1
+          fi
+          echo 'Checked out current master (depth 1, no submodules).'
+
+      - name: Run or resume regression and report to Gitea
+        if: steps.gate.outputs.available == 'true'
+        env:
+          REGRESSION_CONFIG: ${{ secrets.REGRESSION_CONFIG }}
+          GITEA_TOKEN: ${{ gitea.token }}
+          GITEA_SERVER_URL: ${{ gitea.server_url }}
+          GITEA_REPOSITORY: ${{ gitea.repository }}
+        shell: bash
+        run: |
+          set -eo pipefail
+          cd "$REGRESSION_WORKSPACE/project"
+          source ./setprj.sh > "$REGRESSION_WORKSPACE/setup.log" 2>&1
+          exec "$JTFRAME/bin/regression-action.sh"
+
+      - name: Verify lock and remove temporary checkout
+        if: always() && steps.gate.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=0
+          flock -n -E 75 "$JOTEGO/regression/log/lock" true 2>/dev/null || status=$?
+          case "$status" in
+            0) echo 'Regression lock is released.' ;;
+            75) echo 'Lock held by another process; left untouched.' ;;
+            *) echo 'Unable to verify the regression lock.' ;;
+          esac
+          if [[ -n "${REGRESSION_WORKSPACE:-}" ]]; then
+            rm -rf -- "$REGRESSION_WORKSPACE"
+          fi
+          if [[ "$status" != 0 && "$status" != 75 ]]; then exit 1; fi

@@ -27,6 +27,7 @@ var regressionConfig string
 var regressionManifest string
 var regressionRunID string
 var regressionNoPublish bool
+var regressionPublishTo string
 var regressionRetryErrors bool
 var regressionCore string
 var regressionSetname string
@@ -69,7 +70,8 @@ func init() {
 	regressionCmd.Flags().StringVar(&regressionConfig, "config", filepath.Join(project_root(), ".jtutil-regression.yaml"), "Portable regression config YAML")
 	regressionCmd.Flags().StringVar(&regressionManifest, "manifest", "", "Build-specific inventory manifest JSON")
 	regressionCmd.Flags().StringVar(&regressionRunID, "run-id", "", "Pin a GitHub Actions run ID or unambiguous run number")
-	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish GitHub summary (local pilot only)")
+	regressionCmd.Flags().StringVar(&regressionPublishTo,"publish-to","github","Report destination: github or gitea (uses GITEA_SERVER_URL, GITEA_REPOSITORY, GITEA_TOKEN)")
+	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish an external regression summary")
 	regressionCmd.Flags().BoolVar(&regressionRetryErrors, "retry-errors", false, "Rerun terminal per-game errors from a fresh ARC launch")
 	rootCmd.AddCommand(regressionCmd)
 }
@@ -89,6 +91,8 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	if err != nil { return err }
 	cfg.Source = project_root()
 	cfg.NoPublish = regressionNoPublish || manual || regressionManifest!=""
+	if regressionPublishTo!="github" && regressionPublishTo!="gitea" {return fmt.Errorf("--publish-to must be github or gitea")}
+	cfg.ReportTarget=regressionPublishTo
 	if cfg.Root != "" {
 		configured, e := filepath.Abs(cfg.Root); if e != nil { return e }
 		expected, e := filepath.Abs(data_root); if e != nil { return e }
@@ -144,6 +148,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	work,err:=os.MkdirTemp("/tmp","jtutil-regression-run-")
 	if err!=nil{return err};defer os.RemoveAll(work)
 	publisher:=regression.GitHubPublisher{TempDir:work}
+	gitea:=regression.GiteaPublisher{Server:os.Getenv("GITEA_SERVER_URL"),Repository:os.Getenv("GITEA_REPOSITORY"),Token:os.Getenv("GITEA_TOKEN")}
 	if !manual&&record.Progress.ReportPR==nil {
 		pr:=0
 		if manifest.Build.Event=="pull_request"||manifest.Build.Event=="workflow_dispatch"&&manifest.Build.Ref!="master"{pr=manifest.Build.PR}
@@ -155,14 +160,32 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 		return build
 	}
 	publish:=func()error{
-		if cfg.NoPublish || record.Progress.ReportURL!="" {return nil}
+		if cfg.NoPublish {return nil}
+		if regressionPublishTo=="gitea" {
+			if e:=gitea.Preflight(report_build());e!=nil{return e}
+			url,e:=gitea.Publish(record.Summary(report_build()),record.Progress.GiteaReportURL);if e!=nil{return e}
+			record.Progress.GiteaReportURL=url
+			record.Progress.GiteaReportComplete=record.Progress.AutomaticComplete
+			return record.Save()
+		}
+		if record.Progress.ReportURL!="" {return nil}
 		if e:=publisher.Preflight(report_build());e!=nil{return e}
 		url,_,e:=publisher.Publish(record.Summary(report_build()));if e!=nil{return e}
 		record.Progress.ReportURL=url
 		return record.Save()
 	}
+	if !cfg.NoPublish && regressionPublishTo=="gitea" {
+		// Publish an initial issue and refresh that same issue on interruption.
+		defer func(){
+			if result_error!=nil {
+				if record.Progress.Status!="interrupted" || record.Progress.Error!=result_error.Error(){result_error=record.Failed(result_error)}
+				if e:=publish();e!=nil{result_error=fmt.Errorf("%w; Gitea report: %v",result_error,e)}
+			}
+		}()
+	}
 	if !manual && regressionManifest=="" && record.Progress.AutomaticComplete && !regressionRetryErrors {return publish()}
 	record.Progress.Status="preparing";record.Progress.Error=""
+	if !cfg.NoPublish && regressionPublishTo=="gitea" {if err=publish();err!=nil{return err}}
 	if err=record.Save();err!=nil{return err}
 	if manual {
 		manifest,err=regression.PrepareManual(ctx,cfg,work,regressionCore,regressionSetname,regressionJTBin)
@@ -176,7 +199,7 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	if !manual {
 		if manifest.Build.Conclusion!="success" || manifest.Build.Repository!="jotego/jtcores" {return fmt.Errorf("a successful jtcores build is required")}
 		record.Progress.ArchiveSHA=manifest.Build.ArtifactSHA
-		if err=publisher.Preflight(manifest.Build);err!=nil{return err}
+		if !cfg.NoPublish && regressionPublishTo=="github" {if err=publisher.Preflight(manifest.Build);err!=nil{return err}}
 	}
 	if cfg.Host=="" {return fmt.Errorf("config host is required")}
 	if cfg.GlobalProfile=="" {cfg.GlobalProfile=filepath.Join(cfg.Source,"modules","jtframe","bin","reg.yaml")}
@@ -191,6 +214,10 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	cfg.CaptureToolSHA256=tool_identity
 	if digest,e:=hex.DecodeString(cfg.FirmwareSHA256);e!=nil||len(digest)!=32{return fmt.Errorf("firmware-sha256 must be a 64-character hexadecimal digest")}
 	if err=hardware.Preflight();err!=nil{return err}
+	if !cfg.NoPublish && regressionPublishTo=="gitea" {
+		record.Progress.Status="running"
+		if err=publish();err!=nil{return err}
+	}
 	if err=regression.RunCommit(ctx,record,manifest,cfg,hardware,manual,regressionRetryErrors,regressionManifest!="");err!=nil{return err}
 	if err=publish();err!=nil{return err}
 	fmt.Fprintf(cmd.OutOrStdout(),"Regression complete. Log: %s\n",filepath.Join(data_root,"log",regression.LogKey(commit,dirty)+".log"))

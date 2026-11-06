@@ -165,7 +165,7 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 		if r.DatabaseID == 0 || workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) {
 			continue
 		}
-		if commit_complete(dataRoot, r.HeadSHA, cfg.NoPublish) {
+		if campaign_complete(dataRoot, r.HeadSHA, cfg) {
 			continue
 		}
 		id, err := getEligibleRun(ctx, repository, r.DatabaseID)
