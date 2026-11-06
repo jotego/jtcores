@@ -27124,6 +27124,145 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="blkpnthr" sourcefile="konami/nemesis.cpp">
+		<description>Black Panther</description>
+		<year>1987</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="604-f02.18b" size="65536" crc="487bf8da" sha1="43b01599a1e3f82972d597a7a92bdd4ce1343847" region="maincpu" offset="0"/>
+		<rom name="604-f05.18c" size="65536" crc="b08f8ca2" sha1="ca3b17709a86abdcfa0034ccb4ff8d0afc84558f" region="maincpu" offset="1"/>
+		<rom name="604-c03.17b" size="131072" crc="815bc3b0" sha1="ee643b9af5906d12b1d621996503c2e28d93a207" region="maincpu" offset="40000"/>
+		<rom name="604-c06.17c" size="131072" crc="4af6bf7f" sha1="bf6d128670dda1f30cbf72cb82b61bf6ddfcde60" region="maincpu" offset="40001"/>
+		<rom name="604-a08.11j" size="32768" crc="aff88a2b" sha1="7080add63deab5755606759a218dea9105df4819" region="audiocpu" offset="0"/>
+		<rom name="604-a01.10a" size="131072" crc="eceb64a6" sha1="028157d336770fe4ca17c24476d62a790255898a" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="50k 100k" value="24"/>
+			<dipvalue name="20k 50k" value="16" default="yes"/>
+			<dipvalue name="30k 70k" value="8"/>
+			<dipvalue name="80k 150k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Continue" tag="IN0" mask="192">
+			<diplocation name="SW3" number="2"/>
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="192"/>
+			<dipvalue name="2 Areas" value="128" default="yes"/>
+			<dipvalue name="3 Areas" value="64"/>
+			<dipvalue name="4 Areas" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="blktiger" sourcefile="capcom/blktiger.cpp">
 		<description>Black Tiger</description>
 		<year>1987</year>
@@ -31969,6 +32108,162 @@
 		<port tag=":IN2">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="bubsys" sourcefile="konami/nemesis.cpp" isbios="yes">
+		<description>Bubble System BIOS</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="boot.bin" size="480" crc="f0774fc2" sha1="84fade54e025f170d983200a86c1ed96ef1a9ed3" region="maincpu" offset="0"/>
+		<rom name="mcu" size="4096" status="nodump" region="mcu" offset="0"/>
+		<rom name="400b03.8g" size="8192" crc="85c2afc5" sha1="387842d02d50d0d78a27270e7267af19555b9e63" region="audiocpu" offset="0"/>
+		<rom name="400a1.2b" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400a2.1b" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Players" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="1" value="2"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
 	<machine name="buccanrs" sourcefile="irem/vigilant.cpp">
 		<description>Buccaneers (set 1)</description>
@@ -39856,6 +40151,322 @@
 		<port tag=":P2">
 		</port>
 		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="citybomb" sourcefile="konami/nemesis.cpp">
+		<description>City Bomber (World)</description>
+		<year>1987</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="787-g10.15k" size="65536" crc="26207530" sha1="ccb5e4ca472aad11cf308973d6a020d3af22a134" region="maincpu" offset="0"/>
+		<rom name="787-g09.15h" size="65536" crc="ce7de262" sha1="73ab58c057113ffffb633c314fa383e65236d423" region="maincpu" offset="1"/>
+		<rom name="787-g08.15f" size="131072" crc="6242ef35" sha1="16fd4478d54117bbf09792e22c786622ca5049bb" region="maincpu" offset="100000"/>
+		<rom name="787-g07.15d" size="131072" crc="21be5e9e" sha1="37fdf6d6fe3e84e897f2d908afdfc47e8d4a9265" region="maincpu" offset="100001"/>
+		<rom name="787-e06.14f" size="131072" crc="c251154a" sha1="7c6a1f862ddf64a604164b85e4a04bb01e2966a7" region="maincpu" offset="140000"/>
+		<rom name="787-e05.14d" size="131072" crc="0781e22d" sha1="03a998ee47194960af4dde2bf553359fe8a3aee7" region="maincpu" offset="140001"/>
+		<rom name="787-g04.13f" size="131072" crc="137cf39f" sha1="39cfd25c45d824cabc3641fd39eb77c98d32ec9b" region="maincpu" offset="180000"/>
+		<rom name="787-g03.13d" size="131072" crc="0cc704dc" sha1="b0c3991393cdb6a75461597d51452bfa08955081" region="maincpu" offset="180001"/>
+		<rom name="787-e02.4h" size="32768" crc="f4591e46" sha1="c17c1a24bf1866fbba388521a4b7ea0975bda587" region="audiocpu" offset="0"/>
+		<rom name="787-e01.1k" size="524288" crc="edc34d01" sha1="b1465d1a7364a7cebc14b96cd01dc78e57975972" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="adc0804"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="k051649"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM3812 OPL2" clock="3579545"/>
+		<chip type="audio" tag="k051649" name="Konami 051649 SCC1" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="paddle" player="1" minimum="0" maximum="255" sensitivity="50" keydelta="5"/>
+			<control type="pedal" player="1" minimum="0" maximum="255" sensitivity="30" keydelta="10"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Qualify" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Long" value="24"/>
+			<dipvalue name="Normal" value="16" default="yes"/>
+			<dipvalue name="Short" value="8"/>
+			<dipvalue name="Very Short" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Upright Controls" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Single" value="64" default="yes"/>
+			<dipvalue name="Dual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Device Type" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Handle" value="0"/>
+			<dipvalue name="Joystick" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="citybombj" sourcefile="konami/nemesis.cpp" cloneof="citybomb" romof="citybomb">
+		<description>City Bomber (Japan)</description>
+		<year>1987</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="787-h10.15k" size="65536" crc="66fecf69" sha1="5881ec019ef6228a693af5c9f6c26e05bdee3846" region="maincpu" offset="0"/>
+		<rom name="787-h09.15h" size="65536" crc="a0e29468" sha1="78971da14a748ade6ea94770080a393c7617b97d" region="maincpu" offset="1"/>
+		<rom name="787-g08.15f" merge="787-g08.15f" size="131072" crc="6242ef35" sha1="16fd4478d54117bbf09792e22c786622ca5049bb" region="maincpu" offset="100000"/>
+		<rom name="787-g07.15d" merge="787-g07.15d" size="131072" crc="21be5e9e" sha1="37fdf6d6fe3e84e897f2d908afdfc47e8d4a9265" region="maincpu" offset="100001"/>
+		<rom name="787-e06.14f" merge="787-e06.14f" size="131072" crc="c251154a" sha1="7c6a1f862ddf64a604164b85e4a04bb01e2966a7" region="maincpu" offset="140000"/>
+		<rom name="787-e05.14d" merge="787-e05.14d" size="131072" crc="0781e22d" sha1="03a998ee47194960af4dde2bf553359fe8a3aee7" region="maincpu" offset="140001"/>
+		<rom name="787-g04.13f" merge="787-g04.13f" size="131072" crc="137cf39f" sha1="39cfd25c45d824cabc3641fd39eb77c98d32ec9b" region="maincpu" offset="180000"/>
+		<rom name="787-g03.13d" merge="787-g03.13d" size="131072" crc="0cc704dc" sha1="b0c3991393cdb6a75461597d51452bfa08955081" region="maincpu" offset="180001"/>
+		<rom name="787-e02.4h" merge="787-e02.4h" size="32768" crc="f4591e46" sha1="c17c1a24bf1866fbba388521a4b7ea0975bda587" region="audiocpu" offset="0"/>
+		<rom name="787-e01.1k" merge="787-e01.1k" size="524288" crc="edc34d01" sha1="b1465d1a7364a7cebc14b96cd01dc78e57975972" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="adc0804"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="k051649"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM3812 OPL2" clock="3579545"/>
+		<chip type="audio" tag="k051649" name="Konami 051649 SCC1" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="paddle" player="1" minimum="0" maximum="255" sensitivity="50" keydelta="5"/>
+			<control type="pedal" player="1" minimum="0" maximum="255" sensitivity="30" keydelta="10"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Qualify" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Long" value="24"/>
+			<dipvalue name="Normal" value="16" default="yes"/>
+			<dipvalue name="Short" value="8"/>
+			<dipvalue name="Very Short" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Upright Controls" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Single" value="64" default="yes"/>
+			<dipvalue name="Dual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Device Type" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Handle" value="0"/>
+			<dipvalue name="Joystick" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -90711,6 +91322,160 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="gradius" sourcefile="konami/nemesis.cpp" cloneof="nemesis" romof="nemesis">
+		<description>Gradius (Japan, ROM version)</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="400-a06.15l" size="32768" crc="b99d8cff" sha1="18e277827a534bab2b3b8b81e51d886b8382d435" region="maincpu" offset="0"/>
+		<rom name="400-a04.10l" size="32768" crc="d02c9552" sha1="ec0aaa093541dab98412c11f666161cd558c383a" region="maincpu" offset="1"/>
+		<rom name="456-a07.17l" size="131072" crc="92df792c" sha1="aec916f70af92a2d6476d7a36ba9be265890f9aa" region="maincpu" offset="80000"/>
+		<rom name="456-a05.12l" size="131072" crc="5cafb263" sha1="7cd12c695ec6ef4d5785ce218911961fc3528e95" region="maincpu" offset="80001"/>
+		<rom name="400-e03.5l" size="8192" crc="a5a8e57d" sha1="f4236770093392dec3f76835a5766e9b3ed64e2e" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" merge="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" merge="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k and every 70k" value="24"/>
+			<dipvalue name="30k and every 80k" value="16" default="yes"/>
+			<dipvalue name="20k only" value="8"/>
+			<dipvalue name="30k only" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Upright Controls" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Single" value="2" default="yes"/>
+			<dipvalue name="Dual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="gradius2" sourcefile="konami/twin16.cpp" cloneof="vulcan" romof="vulcan">
 		<description>Gradius II: GOFER no Yabou (Japan, new)</description>
 		<year>1988</year>
@@ -92024,6 +92789,160 @@
 		<port tag=":SYSTEM">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="gradiusb" sourcefile="konami/nemesis.cpp" romof="bubsys">
+		<description>Gradius (Bubble System)</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="boot.bin" merge="boot.bin" size="480" crc="f0774fc2" sha1="84fade54e025f170d983200a86c1ed96ef1a9ed3" region="maincpu" offset="0"/>
+		<rom name="gradius.bin" size="295776" crc="f83b9607" sha1="53493c2d5b0e66dd6b75865abf0982ee50c01a6f" region="bubblememory" offset="0"/>
+		<rom name="mcu" size="4096" status="nodump" region="mcu" offset="0"/>
+		<rom name="400b03.8g" merge="400b03.8g" size="8192" crc="85c2afc5" sha1="387842d02d50d0d78a27270e7267af19555b9e63" region="audiocpu" offset="0"/>
+		<rom name="400a1.2b" merge="400a1.2b" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400a2.1b" merge="400a2.1b" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k and every 70k" value="24"/>
+			<dipvalue name="30k and every 80k" value="16" default="yes"/>
+			<dipvalue name="20k only" value="8"/>
+			<dipvalue name="30k only" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Upright Controls" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Single" value="2" default="yes"/>
+			<dipvalue name="Dual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="preliminary" emulation="good" savestate="unsupported"/>
+		<feature type="protection" status="imperfect"/>
 	</machine>
 	<machine name="grdian" sourcefile="toaplan/slapfght.cpp">
 		<description>Guardian (US)</description>
@@ -94033,6 +94952,160 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="gwarrior" sourcefile="konami/nemesis.cpp">
+		<description>Galactic Warriors</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="400-a06.15l" size="32768" crc="b99d8cff" sha1="18e277827a534bab2b3b8b81e51d886b8382d435" region="maincpu" offset="0"/>
+		<rom name="400-a04.10l" size="32768" crc="d02c9552" sha1="ec0aaa093541dab98412c11f666161cd558c383a" region="maincpu" offset="1"/>
+		<rom name="578-a07.17l" size="131072" crc="0aedacb5" sha1="bf8e4b443df37e021a86e1fe76683113977a1a76" region="maincpu" offset="80000"/>
+		<rom name="578-a05.12l" size="131072" crc="76240e2e" sha1="3f4086972fa655704ec6480fa3012c3e8999d8ab" region="maincpu" offset="80001"/>
+		<rom name="400-e03.5l" size="8192" crc="a5a8e57d" sha1="f4236770093392dec3f76835a5766e9b3ed64e2e" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="1" value="3"/>
+			<dipvalue name="2" value="2"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="30k 100k 200k 400k" value="24" default="yes"/>
+			<dipvalue name="40k 120k 240k 480k" value="16"/>
+			<dipvalue name="50k 150k 300k 600k" value="8"/>
+			<dipvalue name="100k 200k 400k 800k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Players" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="1" value="2"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="hamaway" sourcefile="sega/segas18.cpp">
 		<description>Hammer Away (Japan, prototype)</description>
 		<year>1991</year>
@@ -95813,6 +96886,298 @@
 		<port tag=":P2">
 		</port>
 		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="hcrash" sourcefile="konami/nemesis.cpp">
+		<description>Hyper Crash (version D)</description>
+		<year>1987</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="790-d03.t9" size="32768" crc="10177dce" sha1="e46f75e3206eff5299e08e5258e67b68efc4c20c" region="maincpu" offset="0"/>
+		<rom name="790-d06.t7" size="32768" crc="fca5ab3e" sha1="2ad335cf25a86fe38c190e2e0fe101ea161eb81d" region="maincpu" offset="1"/>
+		<rom name="790-c02.s9" size="65536" crc="8ae6318f" sha1="b3205df1103a69eef34c5207e567a27a5fee5660" region="maincpu" offset="40000"/>
+		<rom name="790-c05.s7" size="65536" crc="c214f77b" sha1="c5754c3da2a3820d8d06f8ff171be6c2aea92ecc" region="maincpu" offset="40001"/>
+		<rom name="790-c09.n2" size="32768" crc="a68a8cce" sha1="a54966b9cbbe37b2be6a2276ee09c81452d9c0ca" region="audiocpu" offset="0"/>
+		<rom name="790-c08.j4" size="32768" crc="cfb844bc" sha1="43b7adb6093e707212204118087ef4f79b0dbc1f" region="vlm" offset="4000"/>
+		<rom name="790-c01.m10" size="131072" crc="07976bc3" sha1="9341ac6084fbbe17c4e7bbefade9a3f1dec3f132" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="adc0804"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="6144000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="4" minimum="0" maximum="255" sensitivity="50" keydelta="5"/>
+			<control type="pedal" minimum="0" maximum="128" sensitivity="30" keydelta="10"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Konami GT without brake" value="3"/>
+			<dipvalue name="WEC Le Mans 24 Upright" value="2" default="yes"/>
+			<dipvalue name="Konami GT with brake" value="1"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Quantity of Initials" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="3" value="0"/>
+			<dipvalue name="7" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Speed Unit" tag="TEST" mask="8">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="km/h" value="8" default="yes"/>
+			<dipvalue name="M.P.H." value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":PADDLE">
+			<analog mask="127"/>
+		</port>
+		<port tag=":TEST">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="hcrashc" sourcefile="konami/nemesis.cpp" cloneof="hcrash" romof="hcrash">
+		<description>Hyper Crash (version C)</description>
+		<year>1987</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="790-c03.t9" size="32768" crc="d98ec625" sha1="ddec88b0babd1c538fe5055adec73b537d637d3e" region="maincpu" offset="0"/>
+		<rom name="790-c06.t7" size="32768" crc="1d641a86" sha1="d20ae01565d04db62d5687546c19d87c8e26248c" region="maincpu" offset="1"/>
+		<rom name="790-c02.s9" merge="790-c02.s9" size="65536" crc="8ae6318f" sha1="b3205df1103a69eef34c5207e567a27a5fee5660" region="maincpu" offset="40000"/>
+		<rom name="790-c05.s7" merge="790-c05.s7" size="65536" crc="c214f77b" sha1="c5754c3da2a3820d8d06f8ff171be6c2aea92ecc" region="maincpu" offset="40001"/>
+		<rom name="790-c09.n2" merge="790-c09.n2" size="32768" crc="a68a8cce" sha1="a54966b9cbbe37b2be6a2276ee09c81452d9c0ca" region="audiocpu" offset="0"/>
+		<rom name="790-c08.j4" merge="790-c08.j4" size="32768" crc="cfb844bc" sha1="43b7adb6093e707212204118087ef4f79b0dbc1f" region="vlm" offset="4000"/>
+		<rom name="790-c01.m10" merge="790-c01.m10" size="131072" crc="07976bc3" sha1="9341ac6084fbbe17c4e7bbefade9a3f1dec3f132" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="adc0804"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="6144000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="4" minimum="0" maximum="255" sensitivity="50" keydelta="5"/>
+			<control type="pedal" minimum="0" maximum="128" sensitivity="30" keydelta="10"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Konami GT without brake" value="3"/>
+			<dipvalue name="WEC Le Mans 24 Upright" value="2" default="yes"/>
+			<dipvalue name="Konami GT with brake" value="1"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Quantity of Initials" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="3" value="0"/>
+			<dipvalue name="7" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Speed Unit" tag="TEST" mask="8">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="km/h" value="8" default="yes"/>
+			<dipvalue name="M.P.H." value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":PADDLE">
+			<analog mask="127"/>
+		</port>
+		<port tag=":TEST">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -106272,6 +107637,131 @@
 		</port>
 		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
 	</machine>
+	<machine name="kittenk" sourcefile="konami/nemesis.cpp">
+		<description>Kitten Kaboodle</description>
+		<year>1988</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="712-b10.15k" size="65536" crc="8267cb2b" sha1="63c4ebef834850eff379141b8eb0fafbdcf26d0e" region="maincpu" offset="0"/>
+		<rom name="712-b09.15h" size="65536" crc="eb41cfa5" sha1="d481e63faea098625a42613c13f82fec310a7c62" region="maincpu" offset="1"/>
+		<rom name="712-b08.15f" size="131072" crc="e6d71611" sha1="89fced4074c491c211fea908f08be94595c57f31" region="maincpu" offset="100000"/>
+		<rom name="712-b07.15d" size="131072" crc="30f75c9f" sha1="0cbc247ff37800dd3275d2ff23a63ed19ec4cef2" region="maincpu" offset="100001"/>
+		<rom name="712-e02.4h" size="32768" crc="ba76f310" sha1="cc2164a9617493d1b3b8ac67430f9eb26fd987d2" region="audiocpu" offset="0"/>
+		<rom name="712-b01.1k" size="524288" crc="f65b5d95" sha1="12701be68629844720cd16af857ce38ef06af61c" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="k051649"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM3812 OPL2" clock="3579545"/>
+		<chip type="audio" tag="k051649" name="Konami 051649 SCC1" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="knights" sourcefile="capcom/cps1.cpp">
 		<description>Knights of the Round (World 911127)</description>
 		<year>1991</year>
@@ -108440,6 +109930,140 @@
 		<port tag=":IN1">
 		</port>
 		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="konamigt" sourcefile="konami/nemesis.cpp">
+		<description>Konami GT</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="561-c01.12a" size="32768" crc="56245bfd" sha1="12579ae0031c172d42b766f5a801ef479148105e" region="maincpu" offset="0"/>
+		<rom name="561-c05.12c" size="32768" crc="8d651f44" sha1="0d057ce063dd19c0a708cffa413511b367206682" region="maincpu" offset="1"/>
+		<rom name="561-c02.13a" size="32768" crc="3407b7cb" sha1="1df834a47e3b4cabc79ece4cd90e05e5df68df9a" region="maincpu" offset="10000"/>
+		<rom name="561-c06.13c" size="32768" crc="209942d4" sha1="953321eeed88086dee3a9f8cd596191f19260b3a" region="maincpu" offset="10001"/>
+		<rom name="561-b03.14a" size="32768" crc="aef7df48" sha1="04d3e79e8fa0e332d92738094933069bcdbdfeab" region="maincpu" offset="20000"/>
+		<rom name="561-b07.14c" size="32768" crc="e9bd6250" sha1="507b72c7e5f8fb7b6feb357ec522e814e25f2cc1" region="maincpu" offset="20001"/>
+		<rom name="561-b04.15a" size="32768" crc="94bd4bd7" sha1="314b537ba97dec1a91dcfc5deeb1dd9f7bb4a930" region="maincpu" offset="30000"/>
+		<rom name="561-b08.15c" size="32768" crc="b7236567" sha1="7626d70262a0acff36357877a5e7c9ed3f45415e" region="maincpu" offset="30001"/>
+		<rom name="561-b09.9c" size="16384" crc="539d0c49" sha1="4c16b07fbd876b6445fc0ec49c3ad5ab1a92cbf6" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="dial" buttons="3" minimum="0" maximum="255" sensitivity="25" keydelta="5"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Normal" value="32" default="yes"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -111033,6 +112657,272 @@
 		<port tag=":P1">
 		</port>
 		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="lifefrce" sourcefile="konami/nemesis.cpp" cloneof="salamand" romof="salamand">
+		<description>Lifeforce (US)</description>
+		<year>1986</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="587-l02.18b" size="65536" crc="4a44da18" sha1="8e76bc2b9c48bfc65664fb6ee4d1d33622ee1eb8" region="maincpu" offset="0"/>
+		<rom name="587-l05.18c" size="65536" crc="2f8c1cbd" sha1="aa309d509be69f315e50047abff42d9b30334e1d" region="maincpu" offset="1"/>
+		<rom name="6107.17b" merge="587-c03.17b" size="131072" crc="e5caf6e6" sha1="f5df4fbc43cfa6e2866558c99dd95ba8dc89dc7a" region="maincpu" offset="40000"/>
+		<rom name="6108.17c" merge="587-c06.17c" size="131072" crc="c2f567ea" sha1="0c38fea53f3d4a9ae0deada5669deca4be8c9fd3" region="maincpu" offset="40001"/>
+		<rom name="587-k09.11j" size="32768" crc="2255fe8c" sha1="6ee35575a15f593642b29020857ec466094ef495" region="audiocpu" offset="0"/>
+		<rom name="587-k08.8g" size="16384" crc="7f0e9b41" sha1="c9fc2723fac55691dfbb4cf9b3c472a42efa97c9" region="vlm" offset="0"/>
+		<rom name="6106.10a" merge="587-c01.10a" size="131072" crc="09fe0632" sha1="4c3b29c623d70bbe8a938a0beb4638912c46fb6a" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Disabled" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot(s)" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="4"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Max Credit(s)" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="1" value="24"/>
+			<dipvalue name="3" value="16"/>
+			<dipvalue name="5" value="8"/>
+			<dipvalue name="9" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="lifefrcej" sourcefile="konami/nemesis.cpp" cloneof="salamand" romof="salamand">
+		<description>Lifeforce (Japan)</description>
+		<year>1987</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="587-n02.18b" size="65536" crc="235dba71" sha1="f3a0092a7d002436253054953e36d0865ce95b80" region="maincpu" offset="0"/>
+		<rom name="587-n05.18c" size="65536" crc="054e569f" sha1="e810f7e3e762875e2e71e4356997257e1bbe0da1" region="maincpu" offset="1"/>
+		<rom name="587-n03.17b" size="131072" crc="9041f850" sha1="d62b8c3132916a4053cb282448b2404ac0143e01" region="maincpu" offset="40000"/>
+		<rom name="587-n06.17c" size="131072" crc="fba8b6aa" sha1="5ef861b89b7a89c9d70355e09621b106baa5c1e7" region="maincpu" offset="40001"/>
+		<rom name="587-n09.11j" size="32768" crc="e8496150" sha1="c7d40b6dc56849dfd8d080f1aaebad36c88d93df" region="audiocpu" offset="0"/>
+		<rom name="587-n08.8g" size="16384" crc="7f0e9b41" sha1="c9fc2723fac55691dfbb4cf9b3c472a42efa97c9" status="baddump" region="vlm" offset="0"/>
+		<rom name="587-c01.10a" merge="587-c01.10a" size="131072" crc="09fe0632" sha1="4c3b29c623d70bbe8a938a0beb4638912c46fb6a" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot(s)" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="4"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="70k and every 200k" value="24" default="yes"/>
+			<dipvalue name="100k and every 300k" value="16"/>
+			<dipvalue name="70k only" value="8"/>
+			<dipvalue name="100k only" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -132760,6 +134650,316 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="nemesis" sourcefile="konami/nemesis.cpp">
+		<description>Nemesis (ROM version)</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="456-d01.12a" size="32768" crc="35ff1aaa" sha1="2879a5d2ff7dca217fe5cd40be871878294c491f" region="maincpu" offset="0"/>
+		<rom name="456-d05.12c" size="32768" crc="23155faa" sha1="08c73c669b3a5275353cbfcbe58ced92d93244a7" region="maincpu" offset="1"/>
+		<rom name="456-d02.13a" size="32768" crc="ac0cf163" sha1="8b1a46c3ad102fe78cf099425e108d09dafd0955" region="maincpu" offset="10000"/>
+		<rom name="456-d06.13c" size="32768" crc="023f22a9" sha1="0b9096b9cfcc3ed273de04c93227ab24c63513e8" region="maincpu" offset="10001"/>
+		<rom name="456-d03.14a" size="32768" crc="8cefb25f" sha1="876b1974ca76ca89f8b8ea45b4ba9ec82d7c7228" region="maincpu" offset="20000"/>
+		<rom name="456-d07.14c" size="32768" crc="d50b82cb" sha1="71e9fbe51272788e2ef6f150c7bff59ac8c28f1d" region="maincpu" offset="20001"/>
+		<rom name="456-d04.15a" size="32768" crc="9ca75592" sha1="04388f2874faa54dd2cabfec4d6ce3e8d164cbcc" region="maincpu" offset="30000"/>
+		<rom name="456-d08.15c" size="32768" crc="03c0b7f5" sha1="4eb31bcbd2ee66afe4158308351a57589c5a1e4e" region="maincpu" offset="30001"/>
+		<rom name="456-d09.9c" size="16384" crc="26bf9636" sha1="009dcbf18ea6230fc75a72232bd4fc29ad28dbf0" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="50k and every 100k" value="24" default="yes"/>
+			<dipvalue name="30k" value="16"/>
+			<dipvalue name="50k" value="8"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Upright Controls" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Single" value="2" default="yes"/>
+			<dipvalue name="Dual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="nemesisuk" sourcefile="konami/nemesis.cpp" cloneof="nemesis" romof="nemesis">
+		<description>Nemesis (World?, ROM version)</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="456-e01.12a" size="32768" crc="e1993f91" sha1="6759bb9ba0ce28ad4d7f61b824a7d0fe43215bdc" region="maincpu" offset="0"/>
+		<rom name="456-e05.12c" size="32768" crc="c9761c78" sha1="bfd63517efa820a05a0d9a908dd0917cd0d01b77" region="maincpu" offset="1"/>
+		<rom name="456-e02.13a" size="32768" crc="f6169c4b" sha1="047a204fbcf8c24eca2db7197d4297e5a28c2b42" region="maincpu" offset="10000"/>
+		<rom name="456-e06.13c" size="32768" crc="af58c548" sha1="a15725c14b6e7840c84ab2bd4cf3668bbaf35abf" region="maincpu" offset="10001"/>
+		<rom name="456-e03.14a" merge="456-d03.14a" size="32768" crc="8cefb25f" sha1="876b1974ca76ca89f8b8ea45b4ba9ec82d7c7228" region="maincpu" offset="20000"/>
+		<rom name="456-e07.14c" merge="456-d07.14c" size="32768" crc="d50b82cb" sha1="71e9fbe51272788e2ef6f150c7bff59ac8c28f1d" region="maincpu" offset="20001"/>
+		<rom name="456-e04.15a" size="32768" crc="322423d0" sha1="6106b607132a09193353f339d06032a13b1e3de8" region="maincpu" offset="30000"/>
+		<rom name="456-e08.15c" size="32768" crc="eb656266" sha1="2f4abea282d30775f7a25747eb41bfd8d5299967" region="maincpu" offset="30001"/>
+		<rom name="456-b09.9c" merge="456-d09.9c" size="16384" crc="26bf9636" sha1="009dcbf18ea6230fc75a72232bd4fc29ad28dbf0" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" merge="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" merge="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k and every 70k" value="24" default="yes"/>
+			<dipvalue name="30k and every 80k" value="16"/>
+			<dipvalue name="20k" value="8"/>
+			<dipvalue name="30k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Upright Controls" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Single" value="2" default="yes"/>
+			<dipvalue name="Dual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="nemo" sourcefile="capcom/cps1.cpp">
 		<description>Nemo (World 901130)</description>
 		<year>1990</year>
@@ -134801,6 +137001,131 @@
 		<port tag=":EEPROMOUT">
 		</port>
 		<port tag=":HW_TYPE">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="nyanpani" sourcefile="konami/nemesis.cpp" cloneof="kittenk" romof="kittenk">
+		<description>Nyan Nyan Panic (Japan)</description>
+		<year>1988</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="712-j10.15k" size="65536" crc="924b27ec" sha1="019279349b1be45ba46e57ef8f21d79a1b115d7b" region="maincpu" offset="0"/>
+		<rom name="712-j09.15h" size="65536" crc="a9862ea1" sha1="84e481eb6159889d54d0dfe4c31399ab06e13bb7" region="maincpu" offset="1"/>
+		<rom name="712-b08.15f" merge="712-b08.15f" size="131072" crc="e6d71611" sha1="89fced4074c491c211fea908f08be94595c57f31" region="maincpu" offset="100000"/>
+		<rom name="712-b07.15d" merge="712-b07.15d" size="131072" crc="30f75c9f" sha1="0cbc247ff37800dd3275d2ff23a63ed19ec4cef2" region="maincpu" offset="100001"/>
+		<rom name="712-e02.4h" merge="712-e02.4h" size="32768" crc="ba76f310" sha1="cc2164a9617493d1b3b8ac67430f9eb26fd987d2" region="audiocpu" offset="0"/>
+		<rom name="712-b01.1k" merge="712-b01.1k" size="524288" crc="f65b5d95" sha1="12701be68629844720cd16af857ce38ef06af61c" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="k051649"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM3812 OPL2" clock="3579545"/>
+		<chip type="audio" tag="k051649" name="Konami 051649 SCC1" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Invalid" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
 		</port>
 		<port tag=":IN0">
 		</port>
@@ -153634,6 +155959,138 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="rf2" sourcefile="konami/nemesis.cpp" cloneof="konamigt" romof="konamigt">
+		<description>Konami RF2 - Red Fighter</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="400-a06.15l" size="32768" crc="b99d8cff" sha1="18e277827a534bab2b3b8b81e51d886b8382d435" region="maincpu" offset="0"/>
+		<rom name="400-a04.10l" size="32768" crc="d02c9552" sha1="ec0aaa093541dab98412c11f666161cd558c383a" region="maincpu" offset="1"/>
+		<rom name="561-a07.17l" size="131072" crc="ed6e7098" sha1="a28f2846b091b5bc333088054451d7b6d7f6458e" region="maincpu" offset="80000"/>
+		<rom name="561-a05.12l" size="131072" crc="dfe04425" sha1="0817992aeeba140feba1417c265b794f096936d9" region="maincpu" offset="80001"/>
+		<rom name="400-e03.5l" size="8192" crc="a5a8e57d" sha1="f4236770093392dec3f76835a5766e9b3ed64e2e" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" merge="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" merge="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="dial" buttons="3" minimum="0" maximum="255" sensitivity="25" keydelta="5"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Easy" value="48"/>
+			<dipvalue name="Normal" value="32" default="yes"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="ringdest" sourcefile="capcom/cps2.cpp">
 		<description>Ring of Destruction: Slammasters II (Europe 940902)</description>
 		<year>1994</year>
@@ -160903,6 +163360,376 @@
 		<port tag=":UNUSED">
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
+	</machine>
+	<machine name="salamand" sourcefile="konami/nemesis.cpp">
+		<description>Salamander (version D)</description>
+		<year>1986</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="587-d02.18b" size="65536" crc="a42297f9" sha1="7c974779e438eae649b39b36f6f6d24847099a6e" region="maincpu" offset="0"/>
+		<rom name="587-d05.18c" size="65536" crc="f9130b0a" sha1="925ea65c13fc87fc59f893cc0ead2c82fd0bed6f" region="maincpu" offset="1"/>
+		<rom name="587-c03.17b" size="131072" crc="e5caf6e6" sha1="f5df4fbc43cfa6e2866558c99dd95ba8dc89dc7a" region="maincpu" offset="40000"/>
+		<rom name="587-c06.17c" size="131072" crc="c2f567ea" sha1="0c38fea53f3d4a9ae0deada5669deca4be8c9fd3" region="maincpu" offset="40001"/>
+		<rom name="587-d09.11j" size="32768" crc="5020972c" sha1="04c752c3b7fd850a8a51ecd230b39e6edde9dd7e" region="audiocpu" offset="0"/>
+		<rom name="587-d08.8g" size="16384" crc="f9ac6b82" sha1="3370fc3a7f82e922e19d54afb3bca7b07fa4aa9a" region="vlm" offset="0"/>
+		<rom name="587-c01.10a" size="131072" crc="09fe0632" sha1="4c3b29c623d70bbe8a938a0beb4638912c46fb6a" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Disabled" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot(s)" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="4"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Max Credit(s)" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="1" value="24"/>
+			<dipvalue name="3" value="16"/>
+			<dipvalue name="5" value="8"/>
+			<dipvalue name="9" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="salamandj" sourcefile="konami/nemesis.cpp" cloneof="salamand" romof="salamand">
+		<description>Salamander (version J)</description>
+		<year>1986</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="587-j02.18b" size="65536" crc="f68ee99a" sha1="aec1f4720abe2529120ae711daa9e7e7d966b351" region="maincpu" offset="0"/>
+		<rom name="587-j05.18c" size="65536" crc="72c16128" sha1="6921445caa0b1121e483c9c62c17aad8aa42cc18" region="maincpu" offset="1"/>
+		<rom name="587-c03.17b" merge="587-c03.17b" size="131072" crc="e5caf6e6" sha1="f5df4fbc43cfa6e2866558c99dd95ba8dc89dc7a" region="maincpu" offset="40000"/>
+		<rom name="587-c06.17c" merge="587-c06.17c" size="131072" crc="c2f567ea" sha1="0c38fea53f3d4a9ae0deada5669deca4be8c9fd3" region="maincpu" offset="40001"/>
+		<rom name="587-d09.11j" merge="587-d09.11j" size="32768" crc="5020972c" sha1="04c752c3b7fd850a8a51ecd230b39e6edde9dd7e" region="audiocpu" offset="0"/>
+		<rom name="587-d08.8g" merge="587-d08.8g" size="16384" crc="f9ac6b82" sha1="3370fc3a7f82e922e19d54afb3bca7b07fa4aa9a" region="vlm" offset="0"/>
+		<rom name="587-c01.10a" merge="587-c01.10a" size="131072" crc="09fe0632" sha1="4c3b29c623d70bbe8a938a0beb4638912c46fb6a" region="k007232" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Disabled" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot(s)" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="4"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Max Credit(s)" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="1" value="24"/>
+			<dipvalue name="3" value="16"/>
+			<dipvalue name="5" value="8"/>
+			<dipvalue name="9" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="salamandt" sourcefile="konami/nemesis.cpp" cloneof="salamand" romof="salamand">
+		<description>Salamander (Tecfri license)</description>
+		<year>1986</year>
+		<manufacturer>Konami (Tecfri license)</manufacturer>
+		<rom name="5_27512.18b" merge="587-d02.18b" size="65536" crc="a42297f9" sha1="7c974779e438eae649b39b36f6f6d24847099a6e" region="maincpu" offset="0"/>
+		<rom name="6_27512.18c" merge="587-d05.18c" size="65536" crc="f9130b0a" sha1="925ea65c13fc87fc59f893cc0ead2c82fd0bed6f" region="maincpu" offset="1"/>
+		<rom name="10_27512.17b" size="65536" crc="b83e8724" sha1="69707a98ac3e15f240b24812ff639cafd99c306d" region="maincpu" offset="40000"/>
+		<rom name="4_27512.17c" size="65536" crc="a6ef6dc4" sha1="639113b506fce4318d4b79efd8717232c31dd748" region="maincpu" offset="40001"/>
+		<rom name="9_27512.17b" size="65536" crc="b4d2fec9" sha1="b095e003d86f6d5f486a1d9a4cf02572ff20edeb" region="maincpu" offset="60000"/>
+		<rom name="3_27512.17c" size="65536" crc="6ea59643" sha1="cb2ba819a601eb417eb67d50568126269fa613a4" region="maincpu" offset="60001"/>
+		<rom name="2_tmm24256ap.11j" size="32768" crc="7eb8bb88" sha1="8eb3063b0f4b0775b80f25cc6588661c0e61227d" region="audiocpu" offset="0"/>
+		<rom name="1_27128.8g" merge="587-d08.8g" size="16384" crc="f9ac6b82" sha1="3370fc3a7f82e922e19d54afb3bca7b07fa4aa9a" region="vlm" offset="0"/>
+		<rom name="8_27512.10a" size="65536" crc="cf477da4" sha1="92867b3488228a802f0176139040c4eaf2b92700" region="k007232" offset="0"/>
+		<rom name="7_27512.10a" size="65536" crc="52384e79" sha1="06d7003d8746287d95710dc6b52556aa642ccc83" region="k007232" offset="10000"/>
+		<rom name="007366_pal8l14a.19d" size="32" crc="77304735" sha1="1f9dc7b78d4f7a40e7886d106d07b6349abaaa57" region="pld" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="vlm5030"/>
+		<device_ref name="k007232"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<chip type="audio" tag="k007232" name="Konami 007232 PCM Controller" clock="3579545"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Disabled" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Slot(s)" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="4"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Max Credit(s)" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="1" value="24"/>
+			<dipvalue name="3" value="16"/>
+			<dipvalue name="5" value="8"/>
+			<dipvalue name="9" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="32">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="IN0" mask="64">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="128">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="IN1" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
 	<machine name="savgbees" sourcefile="capcom/exedexes.cpp" cloneof="exedexes" romof="exedexes">
 		<description>Savage Bees</description>
@@ -234935,6 +237762,314 @@
 		<port tag=":SYSTEM">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="twinbee" sourcefile="konami/nemesis.cpp">
+		<description>TwinBee (ROM version)</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="400-a06.15l" size="32768" crc="b99d8cff" sha1="18e277827a534bab2b3b8b81e51d886b8382d435" region="maincpu" offset="0"/>
+		<rom name="400-a04.10l" size="32768" crc="d02c9552" sha1="ec0aaa093541dab98412c11f666161cd558c383a" region="maincpu" offset="1"/>
+		<rom name="412-a07.17l" size="131072" crc="d93c5499" sha1="4555b9232ce86192360ea5b5092643ff51446aa0" region="maincpu" offset="80000"/>
+		<rom name="412-a05.12l" size="131072" crc="2b357069" sha1="409cf3aa174f5d7dc5efc8b8b1c925fcb677fc98" region="maincpu" offset="80001"/>
+		<rom name="400-e03.5l" size="8192" crc="a5a8e57d" sha1="f4236770093392dec3f76835a5766e9b3ed64e2e" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 100k" value="24"/>
+			<dipvalue name="30k 120k" value="16" default="yes"/>
+			<dipvalue name="40k 140k" value="8"/>
+			<dipvalue name="50k 160k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Players" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="1" value="2"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="twinbeeb" sourcefile="konami/nemesis.cpp" romof="bubsys">
+		<description>TwinBee (Bubble System)</description>
+		<year>1985</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="boot.bin" size="480" crc="ee6e93d7" sha1="7302c08a726a760f59d6837be8fd10bbd1f79da0" region="maincpu" offset="0"/>
+		<rom name="twinbee.bin" size="262912" crc="4d396a0a" sha1="ee922a1bd7062c0fcf358f5079cca6424aadc975" region="bubblememory_temp" offset="0"/>
+		<rom name="mcu" size="4096" status="nodump" region="mcu" offset="0"/>
+		<rom name="400-e03.5l" size="8192" crc="a5a8e57d" sha1="f4236770093392dec3f76835a5766e9b3ed64e2e" region="audiocpu" offset="0"/>
+		<rom name="400-a01.fse" merge="400a1.2b" size="256" crc="5827b1e8" sha1="fa8cf5f868cfb08bce203baaebb6c4055ee2a000" region="k005289" offset="0"/>
+		<rom name="400-a02.fse" merge="400a2.1b" size="256" crc="2f44f970" sha1="7ab46f9d5d587665782cefc623b8de0124a6d38a" region="k005289" offset="100"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="k005289"/>
+		<device_ref name="vlm5030"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="9216000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="1789772"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="filter1" name="RC Filter"/>
+		<chip type="audio" tag="filter2" name="RC Filter"/>
+		<chip type="audio" tag="filter3" name="RC Filter"/>
+		<chip type="audio" tag="filter4" name="RC Filter"/>
+		<chip type="audio" tag="k005289" name="Konami 005289 SCC" clock="3579545"/>
+		<chip type="audio" tag="vlm" name="Sanyo VLM5030" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW0" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW0" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3"/>
+			<dipvalue name="3" value="2" default="yes"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 100k" value="24"/>
+			<dipvalue name="30k 120k" value="16" default="yes"/>
+			<dipvalue name="40k 140k" value="8"/>
+			<dipvalue name="50k 160k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="TEST" mask="1">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Players" tag="TEST" mask="2">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="1" value="2"/>
+			<dipvalue name="2" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="TEST" mask="4">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW0">
+		</port>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":TEST">
+		</port>
+		<driver status="preliminary" emulation="good" savestate="unsupported"/>
+		<feature type="protection" status="imperfect"/>
 	</machine>
 	<machine name="twincobr" sourcefile="toaplan/twincobr.cpp">
 		<description>Twin Cobra (World)</description>
