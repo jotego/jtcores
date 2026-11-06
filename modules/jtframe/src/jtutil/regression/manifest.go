@@ -18,6 +18,7 @@ type Config struct {
 	ROMSource         string   `yaml:"rom-source"`
 	BuildsDir         string   `yaml:"builds-dir"`
 	BuildsSince       string   `yaml:"builds-since"`
+	ReportTarget      string   `yaml:"-"`
 	NoPublish         bool     `yaml:"-"`
 	Host              string   `yaml:"host"`
 	Netrc             string   `yaml:"netrc"`

@@ -101,16 +101,49 @@ so another workflow attempt or build of that commit does not repeat a completed
 regression. Failed/incomplete workflows are reconsidered after successful retries;
 unchanged-source workflows with skipped jobs/no artifact do not start captures.
 
-Example user crontab (adapt paths for the machine):
+The Gitea workflow `.gitea/workflows/hardware-regression.yaml` polls every
+15 minutes and also accepts a manual `workflow_dispatch`. Jobs run on the native
+`regression-host:host` runner with a 1440-minute (24-hour) timeout. Configure the
+runner's timeout to `24h` and the Gitea server's `[actions] ENDLESS_TASK_TIMEOUT`
+to at least `25h`; Gitea 1.26 has an independent server limit (default `3h`).
+Register the runner for this repository, enable its service at boot, and allow
+two concurrent jobs so scheduled busy checks can finish while a campaign runs.
 
-```cron
-*/15 * * * * /usr/bin/env PATH=/usr/local/go/bin:/usr/local/bin:/usr/bin:/bin JOTEGO=/gdrive/jotego /bin/bash -c 'cd /home/jtejada/jtcores && source ./setprj.sh && exec "$JTFRAME/bin/regression-cron.sh" --no-publish'
-```
+Before cloning, an inline `flock` check skips busy polls. The command still
+acquires the same lock to cover races. The lock file is never deleted: file
+existence does not mean it is held. Cleanup checks availability after execution
+and leaves any other process's lock untouched.
 
-Use `--no-publish` while GitHub reports require review. Completed local campaigns
-are still remembered. With publishing enabled, a pending report can be retried
-without running games again. Before other work in the shared checkout, disable
-its cron line and let the active game finish cleanup.
+Each available job shallow-clones current Gitea `master` (depth 1, without
+submodules) into a private temporary directory and sources `setprj.sh`. Required
+host tools include Go, Python, Git, `gh`, `flock`, a C++ compiler, `mra`, and the
+configured FTP capture helper. The runner account supplies its existing GitHub
+credentials, ROM collection and netrc. Do not replace `GH_TOKEN` or `GITHUB_TOKEN`
+with a Gitea job token. Validate the workflow manually before scheduled use.
+
+Repository Actions secrets:
+
+- `JOTEGO`: private support-files directory, never a literal workflow path.
+- `REGRESSION_CONFIG`: machine YAML, including board/helper/firmware settings.
+  Source and results always come from the temporary checkout and `$JOTEGO`.
+
+The workflow requests `contents: read` and `issues: write` for its built-in
+Gitea job token. `jtutil regression --publish-to gitea` reads `GITEA_SERVER_URL`,
+`GITEA_REPOSITORY`, and `GITEA_TOKEN`. It requires a private destination and
+creates one issue per tested commit, updates the same issue on interruption
+and completion, and searches all issue pages to recover a lost receipt.
+Successful campaigns also get reports; idle and busy polls do not. Gitea and
+GitHub publication receipts are independent. GitHub remains the default CLI
+report destination; `--no-publish` suppresses external reporting.
+
+Detailed command output stays in private runner diagnostics under
+`${XDG_STATE_HOME:-$HOME/.local/state}/jtcores-regression`, with campaign results
+in `$JOTEGO/regression/log`. Actions output uses generic status messages to avoid
+printing internal paths, configuration or helper errors. Temporary checkout and
+configuration files are removed on completion and cancellation. Resume identities
+use input names, roles and contents, so a new temporary checkout does not force
+recapture. Legacy identities can be upgraded when resumed in their original
+checkout; an old interrupted campaign should finish there before switching.
 
 Eligibility uses both `doc/mame.xml` and `doc/custom.xml`, matching `jtframe mra`.
 Titles present only in an artifact remain per-game preparation errors when the
