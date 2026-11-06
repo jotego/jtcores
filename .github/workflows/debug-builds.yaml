@@ -9,6 +9,7 @@ on:
   #   - cron: '0 3 * * 4' # runs every Thursday night
 jobs:
   list_cores:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -36,6 +37,7 @@ jobs:
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
   compile_cores20:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -65,7 +67,7 @@ jobs:
   join_artifacts:
     runs-on: ubuntu-latest
     needs: [ compile_cores20 ]
-    if: ${{ always() }} # upload the results even if some core did not compile correctly
+    if: ${{ github.repository != 'jotego/jtcores-private' && always() }} # upload the results even if some core did not compile correctly
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v7

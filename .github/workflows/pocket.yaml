@@ -6,6 +6,7 @@ on:
     types: rebuild
 jobs:
   list_cores:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
@@ -30,6 +31,7 @@ jobs:
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
   compile_cores20:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 jobs:
   list_cores:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,6 +32,7 @@ jobs:
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
   compile_cores13:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:
