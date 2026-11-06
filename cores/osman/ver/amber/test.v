@@ -89,6 +89,8 @@ initial begin
             check_rn=$random;
             check_address=$random;
         end
+        if(check_iteration<128)
+            check_alu=(32'hffffffff >> check_iteration[6:2]) + {30'd0,check_iteration[1:0]};
         for(check_index=0;check_index<256;check_index=check_index+1) begin
             check_sel=check_index[3:0];
             check_execute=check_index[4];
@@ -97,6 +99,8 @@ initial begin
             check_pc_wen=check_index[7];
             check_pc_sel=check_index[7] ? 2'd1 : 2'd0;
             #1;
+            if(cpu.u_execute.alu_plus4 !== check_alu+32'd4)
+                $fatal(1,"ALU address increment mismatch input=%h",check_alu);
             if(cpu.u_execute.adex_nxt !== ((|cpu.u_execute.o_address_nxt[31:26]) && !check_data))
                 $fatal(1,"address exception mismatch address=%h select=%h",check_pc,check_sel);
             adex_checks=adex_checks+1;

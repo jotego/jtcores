@@ -270,7 +270,11 @@ assign status_bits_firq_mask_nxt = i_status_bits_sel == 3'd0 ? i_status_bits_fir
 assign pc_plus4      = pc        + 32'd4;
 assign pc_minus4     = pc        - 32'd4;
 assign address_plus4 = o_address + 32'd4;
-assign alu_plus4     = alu_out   + 32'd4;
+assign alu_plus4[1:0]   = alu_out[1:0];
+assign alu_plus4[7:2]   = alu_out[7:2]   + 6'd1;
+assign alu_plus4[15:8]  = alu_out[15:8]  + {7'd0,(&alu_out[7:2])};
+assign alu_plus4[23:16] = alu_out[23:16] + {7'd0,(&alu_out[15:2])};
+assign alu_plus4[31:24] = alu_out[31:24] + {7'd0,(&alu_out[23:2])};
 assign rn_plus4      = rn        + 32'd4;
 
 // ========================================================
