@@ -17,3 +17,7 @@ $JTROOT/modules/jtframe/hdl/ram/jtframe_dual_ram.v
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Date: 5-11-2026
 +incdir+$JTROOT/cores/osman/hdl
+
+$JTROOT/modules/jtframe/hdl/clocking/jtframe_gated_cen.v
+$JTROOT/modules/jtframe/hdl/clocking/jtframe_freqinfo.v
+$JTROOT/modules/jtframe/hdl/jtframe_bcd_cnt.v

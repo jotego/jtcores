@@ -3,9 +3,22 @@ module test;
 reg clk=0, run_clocks=0;
 always #5 if(run_clocks) clk=~clk;
 reg rst=1;
-reg [2:0] divider=0;
-wire ce=divider==7;
-always @(posedge clk) divider<=divider+1'b1;
+localparam CPU_DIV = `ifdef ALTERA_FPGA 7 `else 8 `endif,
+           CEN_NUM = `ifdef ALTERA_FPGA 2 `else 1 `endif,
+           CEN_DEN = `ifdef ALTERA_FPGA 7 `else 4 `endif;
+wire ce, open_cen;
+jtframe_gated_cen #(
+    .W     ( 2       ),
+    .NUM   ( CEN_NUM ),
+    .DEN   ( CEN_DEN )
+) u_cpu_cen(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .busy   ( 1'b0          ),
+    .cen    ( {ce,open_cen} ),
+    .fave   (               ),
+    .fworst (               )
+);
 wire [31:0] addr,wdata;
 wire [3:0] sel;
 wire we,cyc,stb,tga;
@@ -55,6 +68,74 @@ a23_core cpu(.i_clk(clk),.i_reset(rst),.i_irq(1'b0),.i_firq(1'b0),
     .i_system_rdy(ce),.o_wb_adr(addr),.o_wb_sel(sel),.o_wb_we(we),
     .i_wb_dat(rdata),.o_wb_dat(wdata),.o_wb_cyc(cyc),.o_wb_stb(stb),
     .i_wb_ack(ack),.i_wb_err(1'b0),.o_wb_tga(tga));
+
+wire [907:0] audited_state = {
+    cpu.u_execute.u_register_bank.r0,
+    cpu.u_execute.u_register_bank.r1,
+    cpu.u_execute.u_register_bank.r2,
+    cpu.u_execute.u_register_bank.r3,
+    cpu.u_execute.u_register_bank.r4,
+    cpu.u_execute.u_register_bank.r5,
+    cpu.u_execute.u_register_bank.r6,
+    cpu.u_execute.u_register_bank.r7,
+    cpu.u_execute.u_register_bank.r8,
+    cpu.u_execute.u_register_bank.r9,
+    cpu.u_execute.u_register_bank.r10,
+    cpu.u_execute.u_register_bank.r11,
+    cpu.u_execute.u_register_bank.r12,
+    cpu.u_execute.u_register_bank.r13,
+    cpu.u_execute.u_register_bank.r14,
+    cpu.u_execute.u_register_bank.r15,
+    cpu.u_execute.u_register_bank.r8_firq,
+    cpu.u_execute.u_register_bank.r9_firq,
+    cpu.u_execute.u_register_bank.r10_firq,
+    cpu.u_execute.u_register_bank.r11_firq,
+    cpu.u_execute.u_register_bank.r12_firq,
+    cpu.u_execute.u_register_bank.r13_firq,
+    cpu.u_execute.u_register_bank.r14_firq,
+    cpu.u_execute.u_register_bank.r13_svc,
+    cpu.u_execute.u_register_bank.r14_svc,
+    cpu.u_execute.u_register_bank.r13_irq,
+    cpu.u_execute.u_register_bank.r14_irq,
+    cpu.u_execute.status_bits_mode,
+    cpu.u_execute.status_bits_mode_rds,
+    cpu.u_execute.status_bits_mode_rds_oh,
+    cpu.u_execute.o_address,
+    cpu.u_decode.o_rm_sel,
+    cpu.u_decode.o_rds_sel,
+    cpu.u_decode.o_rn_sel
+};
+reg [907:0] previous_audited_state;
+reg audit_valid=0, audit_reset=1, audit_step=0;
+integer audit_cycle=0, last_step=-100, last_cen=-100, audit_checks=0;
+always @(posedge clk) begin
+    audit_cycle=audit_cycle+1;
+    audit_step=!cpu.fetch_stall;
+    audit_reset=rst;
+    if(!rst) begin
+        if(ce) begin
+            if(last_cen>=0 && audit_cycle-last_cen!=CPU_DIV)
+                $fatal(1,"FAIL: CPU enable spacing");
+            last_cen=audit_cycle;
+        end
+        if(cpu.u_execute.fetch_stall!==cpu.fetch_stall)
+            $fatal(1,"FAIL: execute bypasses shared stall");
+        if(audit_step) begin
+            if(!ce || audit_cycle-last_step<2)
+                $fatal(1,"FAIL: multicycle register updates too close");
+            last_step=audit_cycle;
+        end
+    end else begin
+        last_step=-100;
+        last_cen=-100;
+    end
+    #1;
+    if(audit_valid && !audit_reset && !audit_step && audited_state!==previous_audited_state)
+        $fatal(1,"FAIL: constrained register changed outside CPU enable");
+    previous_audited_state=audited_state;
+    audit_valid=!audit_reset;
+    audit_checks=audit_checks+1;
+end
 initial begin
     if (!$value$plusargs("delay=%d",delay_cycles)) delay_cycles=1;
     if (!$value$plusargs("words=%d",words)) words=50;
@@ -165,7 +246,7 @@ always @(posedge clk) begin
                     if(writes!=expected_writes) $fatal(1,"Repeated/lost writes: %0d (expected %0d)",writes,expected_writes);
                     $display("PASS delay=%0d clocks=%0d ticks=%0d advances=%0d transfers=%0d writes=%0d",delay_cycles,clocks,ticks,advances,transfers,writes);
                     if(runs==1) begin
-                        $display("PASS instruction program after warm reset");
+                        $display("PASS instruction program after warm reset; %0d clock-enable audit checks",audit_checks);
                         $finish;
                     end
                     // Exercise warm reset after status changes: SVC, masks,
