@@ -8,10 +8,12 @@ module object_rom(
 );
 `include "patterns.vh"
 reg active=0,ready=0;
-assign ok=cs && active && pending==addr && ready;
 reg [12:0] pending;
 integer wait_count=0;
 integer requests=0,stalls=0;
+
+assign ok=cs && active && pending==addr && ready;
+
 always @(posedge clk) begin
     if(rst || !cs) begin active<=0;ready<=0;end
     else if(!active || pending!=addr) begin

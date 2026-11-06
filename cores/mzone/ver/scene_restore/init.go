@@ -28,15 +28,22 @@ func main() {
 		panic("source setprj.sh before running simunit")
 	}
 	core := filepath.Join(root, "cores", "mzone")
-	tool := os.Getenv("JTFRAME_BIN")
-	if tool == "" {
-		tool = "jtframe"
-	}
 	// Generate the MMR in isolation so concurrent simunits never rewrite RTL
 	// that another test may be compiling.
 	tmp, err := os.MkdirTemp("", "mzone-mmr-")
 	must(err)
 	defer os.RemoveAll(tmp)
+	tool := os.Getenv("JTFRAME_BIN")
+	if tool == "" {
+		// Build a private executable before overriding CORES. The jtframe
+		// wrapper runs repository-wide Go tests when its binary is stale;
+		// those tests require the complete core tree, not this fixture.
+		tool = filepath.Join(tmp, "jtframe")
+		cmd := exec.Command("go", "build", "-o", tool, ".")
+		cmd.Dir = filepath.Join(root, "modules", "jtframe", "src", "jtframe")
+		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
+		must(cmd.Run())
+	}
 	cfg := filepath.Join(tmp, "mzone", "cfg")
 	must(os.MkdirAll(cfg, 0755))
 	must(os.MkdirAll(filepath.Join(tmp, "mzone", "hdl"), 0755))
