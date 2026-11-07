@@ -147,6 +147,7 @@ end
 // video timer
 jtk053252 u_k053252(
     .rst        ( rst           ),
+    .timer_rst  ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 

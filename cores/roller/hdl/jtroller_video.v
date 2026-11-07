@@ -42,7 +42,7 @@ wire [ 7:0] psac_mmr, obj_mmr;
 wire [ 4:0] obj_prio;
 wire [ 1:0] obj_we;
 wire        hld, vld, psac_opaque, obj_shadow, obj_dma_bsy;
-wire        obj_half;
+wire        obj_half, ccu_timer_rst;
 
 assign psac_addr = psac_full_addr[18:0];
 assign obj_addr  = obj_full_addr[20:2];
@@ -59,8 +59,15 @@ assign ioctl_din = ioctl_addr[12:11]==1 ? psac_dump :
 assign obj_dout = obj_reg_cs && !cpu_we && cpu_addr[3:2]==2'b11 ? obj_word[7:0] :
                   obj_half ? obj_word[7:0] : obj_word[15:8];
 
+jtrungun_timer_rst u_timer_rst(
+    .clk        ( clk                 ),
+    .rst        ( rst                 ),
+    .timer_rst  ( ccu_timer_rst       )
+);
+
 jtk053252 u_ccu(
     .rst        ( rst                 ),
+    .timer_rst  ( ccu_timer_rst       ),
     .clk        ( clk                 ),
     .pxl_cen    ( pxl_cen             ),
     .sel        ( 3'd0                ),

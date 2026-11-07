@@ -1,4 +1,5 @@
 ../../hdl/jtk053252.v
+../../hdl/jtrungun_timer_rst.v
 ../../doc/053252.v
 ../../doc/74163.v
 ../../hdl/jtk053252_mmr.v

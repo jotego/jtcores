@@ -238,6 +238,26 @@ jtutil regression --core shouse --setname splatter
 jtutil regression --core shouse --setname splatter --jtbin
 ```
 
+`--core` accepts comma-separated core names; `--cores` is an alias. `--setname`
+also accepts comma-separated game names. Multi-core local and JTBIN captures
+run serially under the same regression lock. JTBIN selections must identify one
+jtcores source commit across all selected RBFs.
+
+To capture against an archived build without downloading or modifying the
+working project's release tree, use a local archive in `$JOTEGO/core-builds`:
+
+```sh
+jtutil regression --commit 4401da8 --core 1943,gng
+jtutil regression --commit 4401da8 --core cps1 --setname 1943,1943a
+```
+
+The archive supplies both the SiDi128 RBF and authoritative MRA. Selected
+MRAs are converted with the current project's tools and ROM source, while
+per-core generated ROM/ARC/RAM inputs are staged separately. A short SHA must
+resolve through local Git history or a unique full-SHA archive filename; use a
+full 40-character SHA when that information is unavailable. The command does
+not contact GitHub or infer the current checkout as the archive identity.
+
 The default uses the working project's `release/sidi128` RBF and normal
 `jtframe mra` generation. `--jtbin` reads existing MRA/RBF files from `$JTBIN`.
 Profiles and CAB inputs still come from the working project. Each invocation
@@ -253,6 +273,43 @@ its inventory rather than silently removing entries from a historical run.
 
 Manual captures do not need a manifest or run ID and do not publish GitHub
 reports. Existing campaign captures remain resumable through the batch API.
+
+## Review and queue commands
+
+The shared lock also protects review actions from running while a capture is
+changing the same result tree:
+
+```sh
+jtutil regression --busy
+jtutil regression --status
+jtutil regression --accept splatter
+jtutil regression --reject splatter --reason "reviewed against MAME"
+```
+
+`--busy` (or `-b`) prints `Regression in progress` and exits 0 only while the
+shared `log/lock` is held; it exits 1 when idle. It checks the live flock, not
+the mere presence of the lock file.
+
+`--accept <setname>` requires exactly one matching core folder with exactly
+one pending `new/` or `fail/` slot. The slot must contain valid PNG frames; an
+empty set, all-black set, or a set where more than half of the frames have
+identical pixels is rejected. The slot becomes `ref/`, replacing any prior
+reference without keeping a backup. The per-game `log` gets an ACCEPT row with
+the resulting reference CRC. Acceptance validation exits use distinct codes:
+2 no frames, 3 invalid PNG, 4 all black, 5 majority-identical frames, 6
+missing/ambiguous source slot, and 7 unsafe setname.
+
+`--reject <setname>` removes existing `new/` and/or `fail/` slots and appends a
+REJECT row with the current reference CRC. `--reason` adds a single-line reason
+to that event and is valid only with `--reject`.
+
+`--status` reports total PASS, FAIL, NEW, ERROR, UNSUPPORTED, ACCEPTED and
+REJECTED outcomes from the latest per-game history or review event, then lists
+FAIL and ERROR games by core. A later review event replaces the older result
+label in the current summary without changing that historical check row. For
+older result folders without history, a pending `fail/` or `new/` slot is
+reported as FAIL or NEW. A reference folder by itself is not treated as
+evidence of a PASS.
 
 ## Host setup
 
@@ -515,3 +572,11 @@ firmware and capture tools. A completed game with changed inputs is rerun and
 this is noted in the text log. Historical per-frame receipts and special firmware
 transition files are no longer required. Designer reference approval remains
 separate from resume bookkeeping.
+
+With `--commit`, omitting both selectors captures every eligible root/main MRA
+in the archive; `--core`/`--cores` and `--setname` filter that inventory by
+intersection. Every requested core and game name must match. Current source
+`skip:true` and debug exclusions are omitted for an unfiltered run; explicitly
+requesting an excluded game fails before its ROM conversion. Local and JTBIN
+multi-core captures also run serially under one lock, and a multi-core JTBIN
+selection is rejected if its RBF history points to different jtcores commits.

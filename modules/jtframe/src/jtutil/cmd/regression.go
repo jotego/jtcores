@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sort"
 	"syscall"
 	"path/filepath"
 	"strings"
@@ -30,8 +31,15 @@ var regressionNoPublish bool
 var regressionPublishTo string
 var regressionRetryErrors bool
 var regressionCore string
+var regressionCores string
 var regressionSetname string
+var regressionCommit string
 var regressionJTBin bool
+var regressionBusy bool
+var regressionAccept string
+var regressionReject string
+var regressionReason string
+var regressionStatus bool
 
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
@@ -42,7 +50,7 @@ Preparation uses the working project; diagnostics and resume state live under lo
 After a completed new capture is available, use jtutil mame-frames to validate
 its exact ordered frames against MAME and promote a complete match to ref.
 
-Use --core to capture that core's main games, or add --setname for one game.
+Use --core/--cores to capture selected cores, or add --setname for selected games.
 Manual captures run fresh, compare approved refs, and replace new PNGs locally.
 They do not publish GitHub reports or require campaign manifest/run selectors.
 
@@ -50,9 +58,12 @@ Examples:
   jtutil regression --core shouse
   jtutil regression --core shouse --setname splatter
   jtutil regression --core shouse --setname splatter --jtbin
+  jtutil regression --commit 4401da8 --core 1943,gng
 
 By default, manual captures generate MRAs in the working project and use its
 release/sidi128 RBF. --jtbin reads existing MRA/RBF files from $JTBIN.
+--commit pins both MRA and SiDi128 RBF to a local $JOTEGO/core-builds ZIP;
+it accepts a resolvable 7-character SHA or full 40-character SHA.
 Games marked debug in the working project's mame2mra.toml are excluded.`,
 	Args: cobra.NoArgs,
 	RunE: run_regression_cmd,
@@ -66,23 +77,49 @@ func init() {
 	regressionCmd.Flags().BoolVar(&regressionPoll, "poll", false, "Poll once; an active batch or no eligible build is a successful no-op")
 	regressionCmd.Flags().BoolVar(&regressionJTBin,"jtbin",false,"Read manual capture MRA/RBF files from $JTBIN (requires --core)")
 	regressionCmd.Flags().StringVar(&regressionCore, "core", "", "Capture one core locally using the working project's RBF and ROMs")
-	regressionCmd.Flags().StringVar(&regressionSetname, "setname", "", "Capture one game of --core (default: all main games)")
+	regressionCmd.Flags().StringVar(&regressionCores, "cores", "", "Comma-separated alias for --core")
+	regressionCmd.Flags().StringVar(&regressionSetname, "setname", "", "Capture comma-separated selected games (default: all main games)")
+	regressionCmd.Flags().StringVar(&regressionCommit, "commit", "", "Use a local $JOTEGO/core-builds archive for the specified jtcores commit")
 	regressionCmd.Flags().StringVar(&regressionConfig, "config", filepath.Join(project_root(), ".jtutil-regression.yaml"), "Portable regression config YAML")
 	regressionCmd.Flags().StringVar(&regressionManifest, "manifest", "", "Build-specific inventory manifest JSON")
 	regressionCmd.Flags().StringVar(&regressionRunID, "run-id", "", "Pin a GitHub Actions run ID or unambiguous run number")
 	regressionCmd.Flags().StringVar(&regressionPublishTo,"publish-to","github","Report destination: github or gitea (uses GITEA_SERVER_URL, GITEA_REPOSITORY, GITEA_TOKEN)")
 	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish an external regression summary")
 	regressionCmd.Flags().BoolVar(&regressionRetryErrors, "retry-errors", false, "Rerun terminal per-game errors from a fresh ARC launch")
+	regressionCmd.Flags().BoolVarP(&regressionBusy, "busy", "b", false, "Check whether a regression currently holds the shared lock")
+	regressionCmd.Flags().StringVar(&regressionAccept, "accept", "", "Promote a setname's reviewed new/ or fail/ frames to ref")
+	regressionCmd.Flags().StringVar(&regressionReject, "reject", "", "Remove a setname's pending new/ or fail/ frames")
+	regressionCmd.Flags().StringVar(&regressionReason, "reason", "", "Single-line reason recorded with --reject")
+	regressionCmd.Flags().BoolVar(&regressionStatus, "status", false, "Summarize the latest completed per-game regression checks")
 	rootCmd.AddCommand(regressionCmd)
 }
 
 func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) {
+	originalCore, originalSet := regressionCore, regressionSetname
+	defer func(){ regressionCore, regressionSetname = originalCore, originalSet }()
+	management := regressionBusy || regressionAccept != "" || regressionReject != "" || regressionStatus || cmd.Flags().Changed("accept") || cmd.Flags().Changed("reject") || cmd.Flags().Changed("reason")
+	if management {
+		if cmd.Flags().Changed("commit") || cmd.Flags().Changed("core") || cmd.Flags().Changed("cores") || cmd.Flags().Changed("setname") { return fmt.Errorf("management modes cannot be combined with capture selectors") }
+		return run_regression_management(cmd)
+	}
 	parent := cmd.Context()
 	if parent == nil { parent = context.Background() }
 	ctx, stop := signal.NotifyContext(parent, os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	manual, err := validate_regression_selection(regressionCore, regressionSetname, regressionManifest, regressionRunID, regressionRetryErrors, regressionJTBin)
+	cores, sets, err := parse_regression_lists(regressionCore, regressionCores, regressionSetname, cmd.Flags().Changed("core"), cmd.Flags().Changed("cores"))
 	if err != nil { return err }
+	if cmd.Flags().Changed("commit") && strings.TrimSpace(regressionCommit)=="" { return fmt.Errorf("--commit requires a nonempty commit SHA") }
+	archiveMode := regressionCommit != ""
+	if err=validate_explicit_regression_values(archiveMode, cmd.Flags().Changed("core"), cmd.Flags().Changed("cores"), cmd.Flags().Changed("setname"), regressionCore, regressionCores, regressionSetname); err!=nil{return err}
+	if archiveMode && (regressionJTBin || regressionPoll || regressionManifest!="" || regressionRunID!="" || regressionRetryErrors || regressionMigrate!="" || regressionImport!="" || regressionBusy || regressionStatus || regressionAccept!="" || regressionReject!="" || regressionReason!="") { return fmt.Errorf("--commit cannot be combined with --jtbin, automatic selectors, or management modes") }
+	if len(sets)>0 && len(cores)==0 && !archiveMode { return fmt.Errorf("--setname requires --core") }
+	if len(cores)>0 { regressionCore=cores[0] }
+	if len(sets)==1 { regressionSetname=sets[0] } else if len(sets)>1 { regressionSetname="" }
+	manual := archiveMode
+	if !archiveMode {
+		manual, err = validate_regression_selection(regressionCore, regressionSetname, regressionManifest, regressionRunID, regressionRetryErrors, regressionJTBin)
+		if err != nil { return err }
+	}
 	if regressionPoll && (manual || regressionRunID != "" || regressionManifest != "" || regressionRetryErrors) { return fmt.Errorf("--poll requires automatic discovery") }
 	root := os.Getenv("JOTEGO")
 	if root == "" { return fmt.Errorf("JOTEGO must name the private regression data directory") }
@@ -131,8 +168,21 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 		if record!=nil {if e:=record.Close();e!=nil&&result_error==nil{result_error=e}}
 	}()
 	commit,dirty:="",false
+	var manualArchive regression.ManualArchive
 	if manual {
-		commit,dirty,err=regression.ManualCommit(ctx,cfg.Source,regressionCore,regressionJTBin)
+		if archiveMode {
+			manualArchive,err=regression.ResolveManualArchive(ctx,cfg.Source,filepath.Join(root,"core-builds"),regressionCommit)
+			commit=manualArchive.Commit
+			if err==nil { _,dirty,err=regression.ManualCommit(ctx,cfg.Source,regressionCore,false) }
+		} else {
+			for i, core := range cores {
+				var candidate string; var coreDirty bool
+				candidate,coreDirty,err=regression.ManualCommit(ctx,cfg.Source,core,regressionJTBin)
+				if err!=nil { break }
+				if i>0 && candidate!=commit { err=fmt.Errorf("selected manual cores have different source commits (%s and %s)",commit,candidate); break }
+				commit=candidate; dirty=dirty||coreDirty
+			}
+		}
 		if err!=nil{return err}
 		if dirty {fmt.Fprintln(cmd.ErrOrStderr(),"Warning: jtcores checkout is dirty; a clean checkout is recommended. Recording this development run with the dirty label.")}
 	} else {
@@ -143,6 +193,8 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	}
 	record,err=regression.OpenCommitLog(data_root,commit,dirty)
 	if err!=nil{return err}
+	if archiveMode && record.Progress.ArchiveSHA!="" && record.Progress.ArchiveSHA!=manualArchive.SHA256 { return fmt.Errorf("selected build archive differs from the archive pinned in this log") }
+	if archiveMode { record.Progress.ArchiveSHA=manualArchive.SHA256 }
 	if err=record.Write("Starting regression in "+cfg.Source);err!=nil{return err}
 	if dirty {if err=record.Entry("",-1,"warning","dirty checkout; clean state recommended");err!=nil{return err}}
 	work,err:=os.MkdirTemp("/tmp","jtutil-regression-run-")
@@ -188,7 +240,13 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	if !cfg.NoPublish && regressionPublishTo=="gitea" {if err=publish();err!=nil{return err}}
 	if err=record.Save();err!=nil{return err}
 	if manual {
-		manifest,err=regression.PrepareManual(ctx,cfg,work,regressionCore,regressionSetname,regressionJTBin)
+		if archiveMode {
+			manifest,err=regression.PrepareManualArchive(ctx,cfg,work,work,manualArchive,cores,sets)
+		} else if len(cores)>1 || len(sets)>1 {
+			manifest,err=regression.PrepareManualSelection(ctx,cfg,work,work,cores,sets,regressionJTBin)
+		} else {
+			manifest,err=regression.PrepareManual(ctx,cfg,work,regressionCore,regressionSetname,regressionJTBin)
+		}
 		manifest.Build.SHA=commit
 	} else if regressionManifest=="" {
 		manifest.Build.ArtifactSHA=record.Progress.ArchiveSHA
@@ -224,6 +282,46 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	return nil
 }
 
+func run_regression_management(cmd *cobra.Command) error {
+	selected := 0
+	acceptSet, rejectSet := cmd.Flags().Changed("accept"), cmd.Flags().Changed("reject")
+	for _, mode := range []bool{regressionBusy, acceptSet || regressionAccept != "", rejectSet || regressionReject != "", regressionStatus} { if mode { selected++ } }
+	if selected != 1 { return fmt.Errorf("choose exactly one of --busy, --accept, --reject or --status") }
+	if cmd.Flags().Changed("reason") && !rejectSet { return fmt.Errorf("--reason requires --reject") }
+	if acceptSet && regressionAccept == "" { return &regression.CurationError{Code:6, Err:errors.New("--accept requires a nonempty setname")} }
+	if rejectSet && regressionReject == "" { return fmt.Errorf("--reject requires a nonempty setname") }
+	if regressionCore != "" || regressionCores != "" || regressionSetname != "" || regressionManifest != "" || regressionRunID != "" || regressionPoll || regressionJTBin || regressionRetryErrors || regressionMigrate != "" || regressionImport != "" {
+		return fmt.Errorf("management flags cannot be combined with capture or campaign selectors")
+	}
+	root := os.Getenv("JOTEGO")
+	if root == "" { return fmt.Errorf("JOTEGO must name the private regression data directory") }
+	dataRoot := filepath.Join(root, "regression")
+	if regressionBusy {
+		busy, err := regression.RegressionBusy(dataRoot); if err != nil { return err }
+		if busy { fmt.Fprintln(cmd.OutOrStdout(), "Regression in progress"); return nil }
+		return &regression.CurationError{Code:1, Err:errors.New("no regression in progress")}
+	}
+	lock, err := regression.AcquireLock(dataRoot); if err != nil { return err }; defer regression.ReleaseLock(lock)
+	if err = regression.InitializeLog(dataRoot); err != nil { return err }
+	switch {
+	case regressionAccept != "":
+		err = regression.AcceptResult(dataRoot, regressionAccept)
+		if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Accepted %s as ref\n", regressionAccept) }
+	case regressionReject != "":
+		err = regression.RejectResult(dataRoot, regressionReject, regressionReason)
+		if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Rejected %s\n", regressionReject) }
+	case regressionStatus:
+		var status regression.CurationStatus
+		status, err = regression.ReadCurationStatus(dataRoot)
+		if err == nil {
+			fmt.Fprintf(cmd.OutOrStdout(), "PASS: %d  FAIL: %d  NEW: %d  ERROR: %d  UNSUPPORTED: %d  ACCEPTED: %d  REJECTED: %d\n", status.Totals[regression.Pass], status.Totals[regression.Fail], status.Totals[regression.New], status.Totals[regression.Error], status.Totals[regression.Unsupported], status.Totals[regression.Outcome("accept")], status.Totals[regression.Outcome("reject")])
+			cores := make([]string, 0, len(status.Failures)); for core := range status.Failures { cores = append(cores, core) }; sort.Strings(cores)
+			for _, core := range cores { fmt.Fprintf(cmd.OutOrStdout(), "%s: %s\n", core, strings.Join(status.Failures[core], ", ")) }
+		}
+	}
+	return err
+}
+
 // Manual selection starts a fresh local capture session; campaign selectors
 // deliberately remain exclusive so a manual recapture cannot resume a batch.
 func validate_regression_selection(core, setname, manifest, runID string, retry, useJTBin bool) (bool,error) {
@@ -235,6 +333,31 @@ func validate_regression_selection(core, setname, manifest, runID string, retry,
 	if !safe_manual_regression_name(core) || setname != "" && !safe_manual_regression_name(setname) { return false,fmt.Errorf("--core and --setname must be safe core/game names (letters, digits, underscore or hyphen)") }
 	if manifest != "" || runID != "" || retry { return false,fmt.Errorf("--core starts a fresh manual capture; do not combine it with --manifest, --run-id or --retry-errors") }
 	return true,nil
+}
+
+
+func parse_regression_lists(coreArg, coresArg, setArg string, coreChanged, coresChanged bool) ([]string, []string, error) {
+	parse := func(raw, flag string) ([]string,error) {
+		if raw=="" { return nil,nil }
+		parts:=strings.Split(raw,","); seen:=map[string]bool{}; out:=[]string{}
+		for _,part:=range parts { value:=strings.TrimSpace(part); if value=="" || !safe_manual_regression_name(value) { return nil,fmt.Errorf("--%s contains an empty or unsafe name",flag) }; if !seen[value] {seen[value]=true;out=append(out,value)} }
+		sort.Strings(out); return out,nil
+	}
+	coreValues,err:=parse(coreArg,"core");if err!=nil{return nil,nil,err}
+	aliasValues,err:=parse(coresArg,"cores");if err!=nil{return nil,nil,err}
+	if coreChanged&&coresChanged&&!equalRegressionLists(coreValues,aliasValues){return nil,nil,fmt.Errorf("--core and --cores specify different selections")}
+	if len(aliasValues)>0 { coreValues=aliasValues }
+	sets,err:=parse(setArg,"setname");if err!=nil{return nil,nil,err}
+	return coreValues,sets,nil
+}
+
+func equalRegressionLists(a,b []string) bool { if len(a)!=len(b){return false}; for i:=range a{if a[i]!=b[i]{return false}};return true }
+
+func validate_explicit_regression_values(commitMode, coreChanged, coresChanged, setChanged bool, core, cores, set string) error {
+	if coreChanged && strings.TrimSpace(core)=="" || coresChanged && strings.TrimSpace(cores)=="" || setChanged && strings.TrimSpace(set)=="" {
+		return fmt.Errorf("explicit --core, --cores and --setname values must be nonempty")
+	}
+	return nil
 }
 
 func safe_manual_regression_name(name string) bool {
