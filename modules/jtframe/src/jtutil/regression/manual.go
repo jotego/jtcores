@@ -27,7 +27,7 @@ var manualCommand = func(ctx context.Context, source string, args ...string) ([]
 // PrepareManual selects only the requested core/set before generating ROMs.
 // It never discovers Actions builds. RBF bytes and MRA bytes, rather than an
 // inferred compile_all run, establish the identity of a manual session.
-func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname string, useJTBin bool) (Manifest, error) {
+func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname string, useJTBin bool, releaseOverride ...string) (Manifest, error) {
 	if !manualComponent(core) || setname != "" && !manualComponent(setname) {
 		return Manifest{}, fmt.Errorf("manual core and setname must be simple names")
 	}
@@ -51,6 +51,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	mode := "local"
 	if useJTBin {
 		release = os.Getenv("JTBIN")
+		if len(releaseOverride) > 0 && releaseOverride[0] != "" { release = releaseOverride[0]; mode = "commit" }
 		if release == "" {
 			return Manifest{}, fmt.Errorf("--jtbin requires JTBIN")
 		}
@@ -58,7 +59,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		if err != nil {
 			return Manifest{}, err
 		}
-		mode = "jtbin"
+		if mode != "commit" { mode = "jtbin" }
 	} else if !regularNonempty(filepath.Join(source, "cores", core, "cfg", "mame2mra.toml")) {
 		return Manifest{}, fmt.Errorf("unknown project core %s", core)
 	}
