@@ -1886,6 +1886,12 @@ BEGIN
 			o_readlev<=0;
 			o_copylev<=0;
 			o_hsp<='0';
+			o_readack_sync<='0';
+			o_readack_sync2<='0';
+			o_readack<='0';
+			o_readdataack_sync<='0';
+			o_readdataack_sync2<='0';
+			o_readdataack<='0';
 
 		ELSIF rising_edge(o_clk) THEN
 			------------------------------------------------------
@@ -2380,6 +2386,16 @@ BEGIN
 				o_lastv(2)<=last_v;
 				o_bibv (2)<=bib_v;
 				o_off  (2)<=off_v;
+			END IF;
+
+			-- Sometimes o_clk is paused during PLL reconfig and causes o_state to get stuck in sREAD state.
+			-- Reset state at VSync.
+			IF o_vsv(1)='1' AND o_vsv(0)='0' THEN
+				o_copy<=sWAIT;
+				o_state<=sDISP;
+				o_readlev<=0;
+				o_copylev<=0;
+				o_hsp<='0';
 			END IF;
 
 			------------------------------------------------------

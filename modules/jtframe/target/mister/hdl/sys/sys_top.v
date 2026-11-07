@@ -232,7 +232,7 @@ end
 
 // gp_in[31] = 0 - quick flag that FPGA is initialized (HPS reads 1 when FPGA is not in user mode)
 //                 used to avoid lockups while JTAG loading
-wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 8'd0, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
+wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 7'd0, ~HDMI_TX_INT, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
 wire [31:0] gp_out;
 
 wire  [1:0] io_ver = 1; // 0 - obsolete. 1 - optimized HPS I/O. 2,3 - reserved for future.
@@ -396,6 +396,8 @@ always@(posedge clk_sys) begin
 `ifndef MISTER_DEBUG_NOHDMI
 			if(io_din[7:0] == 'h40) io_dout_sys <= fb_crc;
 `endif
+			if(io_din[7:0] == 'h42) io_dout_sys <= {1'b1, frame_cnt};
+			if(io_din[7:0] == 'h44) io_dout_sys <= 1;
 		end
 		else begin
 			cnt <= cnt + 1'd1;
@@ -534,6 +536,15 @@ always@(posedge clk_sys) begin
 
 	vs_d2 <= vs_d1;
 	if(~vs_d2 & vs_d1) vs_wait <= 0;
+end
+
+reg [7:0] frame_cnt;
+always @(posedge clk_sys) begin
+	reg vs_r, vs_old;
+
+	vs_r <= vs_fix;
+	if(vs_r == vs_fix) vs_old <= vs_r;
+	if(~vs_old & vs_r) frame_cnt <= frame_cnt + 1'd1;
 end
 
 cyclonev_hps_interface_peripheral_uart uart
@@ -1581,10 +1592,6 @@ assign SDCD_SPDIF = (mcp_en & ~spdif) ? 1'b0 : 1'bZ;
 
 `ifndef MISTER_DUAL_SDRAM
 	wire analog_l, analog_r;
-
-	assign AUDIO_SPDIF = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
-	assign AUDIO_R     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
-	assign AUDIO_L     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
 `endif
 
 assign HDMI_MCLK = clk_audio;
@@ -1634,6 +1641,19 @@ audio_out audio_out
 `endif
 	.spdif(spdif)
 );
+
+`ifndef MISTER_DUAL_SDRAM
+	reg aud_spdif_q, aud_r_q, aud_l_q;
+	always @(posedge clk_audio) begin
+		aud_spdif_q <= (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
+		aud_r_q     <= (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
+		aud_l_q     <= (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
+	end
+
+	assign AUDIO_SPDIF = av_dis ? 1'bZ : aud_spdif_q;
+	assign AUDIO_R     = av_dis ? 1'bZ : aud_r_q;
+	assign AUDIO_L     = av_dis ? 1'bZ : aud_l_q;
+`endif
 
 
 `ifndef MISTER_DISABLE_ALSA

@@ -39,6 +39,7 @@ func build_archive_name(sha, workflow string) string {
 }
 
 var ErrNoEligibleBuild = errors.New("no completed successful Compile all or Compile SiDi128 build with a downloadable artifact is available")
+var errNoBuildArtifact = errors.New("run has no unexpired build artifact")
 
 type discoveredRun struct {
 	DatabaseID         int64     `json:"databaseId"`
@@ -73,12 +74,15 @@ var ghArtifactDownload = func(ctx context.Context, repository string, artifactID
 
 type ghArtifactList struct {
 	TotalCount int `json:"total_count"`
-	Artifacts  []struct {
-		ID      int64  `json:"id"`
-		Name    string `json:"name"`
-		Expired bool   `json:"expired"`
-		Digest  string `json:"digest"`
-	} `json:"artifacts"`
+	Artifacts  []ghArtifact `json:"artifacts"`
+}
+
+type ghArtifact struct {
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Expired   bool      `json:"expired"`
+	Digest    string    `json:"digest"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type apiWorkflowRun struct {
@@ -161,77 +165,50 @@ func discover_build(ctx context.Context, repository, runID, dataRoot string, cfg
 		if r.DatabaseID == 0 || workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) {
 			continue
 		}
-		if commit_complete(dataRoot, r.HeadSHA, cfg.NoPublish) {
+		if campaign_complete(dataRoot, r.HeadSHA, cfg) {
 			continue
 		}
 		id, err := getEligibleRun(ctx, repository, r.DatabaseID)
-		if err == nil {
-			return id, nil
+		if err != nil {
+			if errors.Is(err, errNoBuildArtifact) {
+				// A successful run with no artifact is reconsidered on the next poll.
+				continue
+			}
+			return BuildIdentity{}, err
 		}
-		// A successful run with no artifact is not processed; keep looking for an
-		// eligible build and leave the candidate for the next polling invocation.
+		return id, nil
 	}
 	return BuildIdentity{}, ErrNoEligibleBuild
 }
 
 func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildIdentity, error) {
-	data, err := ghCommand(ctx, "run", "view", strconv.FormatInt(runID, 10), "--repo", repository, "--json", "databaseId,workflowName,workflowDatabaseId,number,attempt,status,conclusion,headSha,headBranch,event,createdAt,jobs")
+	// The run-level conclusion avoids querying a large compile-all job inventory,
+	// which can fail independently of the completed workflow and its artifacts.
+	data, err := ghCommand(ctx, "run", "view", strconv.FormatInt(runID, 10), "--repo", repository, "--json", "databaseId,workflowName,workflowDatabaseId,number,attempt,status,conclusion,headSha,headBranch,event,createdAt")
 	if err != nil {
 		return BuildIdentity{}, fmt.Errorf("inspect workflow run %d: %w", runID, err)
 	}
-	var run struct {
-		discoveredRun
-		Jobs []struct {
-			Conclusion string `json:"conclusion"`
-			Status     string `json:"status"`
-		} `json:"jobs"`
-	}
-	if err = json.Unmarshal(data, &run); err != nil {
+	var r discoveredRun
+	if err = json.Unmarshal(data, &r); err != nil {
 		return BuildIdentity{}, fmt.Errorf("parse workflow run %d: %w", runID, err)
 	}
-	r := run.discoveredRun
 	if r.DatabaseID != runID {
 		return BuildIdentity{}, fmt.Errorf("workflow run lookup for %d returned database id %d", runID, r.DatabaseID)
 	}
 	if workflow_file(r.WorkflowName)=="" || r.Status != "completed" || r.Conclusion != "success" || !valid_commit(r.HeadSHA) || r.Attempt <= 0 {
 		return BuildIdentity{}, fmt.Errorf("workflow run %d is not a completed successful Compile all or Compile SiDi128 attempt", runID)
 	}
-	if len(run.Jobs) == 0 {
-		return BuildIdentity{}, fmt.Errorf("workflow run %d has no job completion inventory", runID)
-	}
-	for _, j := range run.Jobs {
-		if j.Status != "completed" || j.Conclusion != "success" {
-			return BuildIdentity{}, fmt.Errorf("workflow run %d includes an incomplete or failed job", runID)
-		}
-	}
-	artifactData, err := ghCommand(ctx, "api", fmt.Sprintf("repos/%s/actions/runs/%d/artifacts", repository, runID))
+	artifactData, err := ghCommand(ctx, "api", "--paginate", "--slurp", fmt.Sprintf("repos/%s/actions/runs/%d/artifacts?per_page=100", repository, runID))
 	if err != nil {
 		return BuildIdentity{}, fmt.Errorf("list artifacts for run %d attempt %d: %w", runID, r.Attempt, err)
 	}
-	var artifacts ghArtifactList
-	if err = json.Unmarshal(artifactData, &artifacts); err != nil {
+	var artifactPages []ghArtifactList
+	if err = json.Unmarshal(artifactData, &artifactPages); err != nil {
 		return BuildIdentity{}, fmt.Errorf("parse artifacts for run %d: %w", runID, err)
 	}
-	var selected *struct {
-		ID      int64  `json:"id"`
-		Name    string `json:"name"`
-		Expired bool   `json:"expired"`
-		Digest  string `json:"digest"`
-	}
-	for i := range artifacts.Artifacts {
-		a := &artifacts.Artifacts[i]
-		if a.Expired {
-			continue
-		}
-		expected := build_archive_name(r.HeadSHA,workflow_file(r.WorkflowName))
-		if strings.EqualFold(a.Name, expected) || strings.EqualFold(a.Name, "sidi128") {
-			if selected == nil || strings.EqualFold(a.Name, expected) {
-				selected = a
-			}
-		}
-	}
+	selected := select_build_artifact(artifactPages, r.HeadSHA, workflow_file(r.WorkflowName))
 	if selected == nil {
-		return BuildIdentity{}, fmt.Errorf("workflow run %d (selected attempt %d) has no unexpired build artifact", runID, r.Attempt)
+		return BuildIdentity{}, fmt.Errorf("workflow run %d (selected attempt %d): %w", runID, r.Attempt, errNoBuildArtifact)
 	}
 	if selected.ID <= 0 || strings.TrimSpace(selected.Digest) == "" {
 		return BuildIdentity{}, fmt.Errorf("workflow run %d (selected attempt %d) artifact %q has no immutable ID or digest", runID, r.Attempt, selected.Name)
@@ -260,7 +237,33 @@ func getEligibleRun(ctx context.Context, repository string, runID int64) (BuildI
 			return BuildIdentity{}, fmt.Errorf("resolve originating pull request for dispatched branch %s: %w", r.HeadBranch, associationErr)
 		}
 	}
-	return BuildIdentity{Repository: repository, Workflow: workflow_file(r.WorkflowName), WorkflowID: r.WorkflowDatabaseID, RunID: strconv.FormatInt(runID, 10), RunNumber: r.RunNumber, Attempt: strconv.Itoa(r.Attempt), SHA: r.HeadSHA, Ref: r.HeadBranch, Event: r.Event, PR: pr, Artifact: selected.Name, ArtifactID: selected.ID, ArtifactAPIHash: strings.TrimPrefix(selected.Digest, "sha256:"), Conclusion: r.Conclusion, ExpectedJobs: len(run.Jobs), SucceededJobs: len(run.Jobs)}, nil
+	return BuildIdentity{Repository: repository, Workflow: workflow_file(r.WorkflowName), WorkflowID: r.WorkflowDatabaseID, RunID: strconv.FormatInt(runID, 10), RunNumber: r.RunNumber, Attempt: strconv.Itoa(r.Attempt), SHA: r.HeadSHA, Ref: r.HeadBranch, Event: r.Event, PR: pr, Artifact: selected.Name, ArtifactID: selected.ID, ArtifactAPIHash: strings.TrimPrefix(selected.Digest, "sha256:"), Conclusion: r.Conclusion}, nil
+}
+
+func select_build_artifact(pages []ghArtifactList, sha, workflow string) *ghArtifact {
+	expected := build_archive_name(sha, workflow)
+	var selected_expected, selected_fallback *ghArtifact
+	for i := range pages {
+		for j := range pages[i].Artifacts {
+			a := &pages[i].Artifacts[j]
+			if a.Expired {
+				continue
+			}
+			target := &selected_fallback
+			if strings.EqualFold(a.Name, expected) {
+				target = &selected_expected
+			} else if !strings.EqualFold(a.Name, "sidi128") {
+				continue
+			}
+			if *target == nil || a.CreatedAt.After((*target).CreatedAt) || (a.CreatedAt.Equal((*target).CreatedAt) && a.ID > (*target).ID) {
+				*target = a
+			}
+		}
+	}
+	if selected_expected != nil {
+		return selected_expected
+	}
+	return selected_fallback
 }
 
 func pullRequestForCommit(ctx context.Context, repository, sha, branch string) (int, error) {

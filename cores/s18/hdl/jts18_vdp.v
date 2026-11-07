@@ -105,7 +105,7 @@ always @(posedge clk48) clk2 <= ~clk2;
 always @(posedge clk48) rst_n <= ~rst;
 /* verilator lint_off PINMISSING */
 /* verilator tracing_off */
-ym7101 #(.PASSIVE(1)) u_vdp(
+ym7101 #(.MODE4(0), .PASSIVE(1)) u_vdp(
     .RESET      ( rst_n     ),
     .MCLK       ( clk48     ),
     .MCLK_e     ( clk2      ),

@@ -8,7 +8,9 @@ on:
   schedule:
     - cron: '0 1 * * *' # GitHub cron is UTC; 3am in GMT+2
 jobs:
+  # Full builds run in the public repository, never in the private mirror.
   check_schedule:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -49,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - check_schedule
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     defaults:
       run:
         shell: bash
@@ -59,7 +61,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
-        token: ${{ secrets.PAT }}
+        token: ${{ secrets.PAT || github.token }}
     - id: generate-matrix
       run: |
         cd cores
@@ -83,7 +85,7 @@ jobs:
     needs:
       - check_schedule
       - list_cores
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -92,7 +94,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 13
@@ -112,7 +114,7 @@ jobs:
     needs:
       - check_schedule
       - list_cores
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -121,7 +123,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 20.1
@@ -141,7 +143,7 @@ jobs:
     needs:
       - check_schedule
       - list_cores
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -150,7 +152,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 20.1
@@ -165,7 +167,7 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
     needs: [ check_schedule, compile_cores13, mister-pocket, sidis ]
-    if: ${{ always() && needs.check_schedule.outputs.should_compile == 'true' }} # upload the results even if some core did not compile correctly
+    if: ${{ github.repository != 'jotego/jtcores-private' && always() && needs.check_schedule.outputs.should_compile == 'true' }} # upload the results even if some core did not compile correctly
     steps:
       - uses: actions/checkout@v5
       - name: Download all artifacts

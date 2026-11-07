@@ -11,7 +11,9 @@ on:
   schedule:
     - cron: '0 0 * * *' # runs every night
 jobs:
+  # Run jobs in the private mirror only for PRs; keep public triggers unchanged.
   framework:
+    if: ${{ github.repository != 'jotego/jtcores-private' || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
@@ -21,7 +23,7 @@ jobs:
     - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
-        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+        token: ${{ secrets.PAT || github.token }}
     - id: bash
       run: |
         source setprj.sh

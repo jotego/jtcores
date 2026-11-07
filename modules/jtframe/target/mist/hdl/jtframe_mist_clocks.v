@@ -33,7 +33,15 @@ module jtframe_mist_clocks(
 `ifdef JTFRAME_SDRAM96
     `define JTFRAME_GAMEPLL jtframe_pllgame96
 `else
-    `define JTFRAME_GAMEPLL jtframe_pllgame
+    `ifdef POCKET
+        `ifdef JTFRAME_PLL7000
+            `define JTFRAME_GAMEPLL jtframe_pllgame7000
+        `else
+            `define JTFRAME_GAMEPLL jtframe_pllgame
+        `endif
+    `else
+        `define JTFRAME_GAMEPLL jtframe_pllgame
+    `endif
 `endif
 
 wire pll0_lock, pll1_lock, pll2_lock, pll_base, clk27;

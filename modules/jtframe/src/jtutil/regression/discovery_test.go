@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -35,11 +36,11 @@ func TestDiscoverBuildOldestCompleteAttemptAndReconsidersArtifactlessRun(t *test
 		case strings.HasPrefix(joined, "run view 11"):
 			return []byte(fmt.Sprintf(`{"databaseId":11,"workflowName":"Compile all","workflowDatabaseId":195,"number":10,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"old","event":"push","jobs":[{"status":"completed","conclusion":"success"}]}`, sha1)), nil
 		case strings.Contains(joined, "actions/runs/11/artifacts"):
-			return []byte(`{"total_count":0,"artifacts":[]}`), nil
+			return []byte(`[{"total_count":0,"artifacts":[]}]`), nil
 		case strings.HasPrefix(joined, "run view 13"):
 			return []byte(fmt.Sprintf(`{"databaseId":13,"workflowName":"Compile all","workflowDatabaseId":195,"number":12,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"ready","event":"pull_request","pullRequests":[{"number":169}],"jobs":[{"status":"completed","conclusion":"success"},{"status":"completed","conclusion":"success"}]}`, sha2)), nil
 		case strings.Contains(joined, "actions/runs/13/artifacts"):
-			return []byte(`{"total_count":1,"artifacts":[{"id":1300,"name":"2222222.zip","expired":false,"digest":"sha256:abcd"}]}`), nil
+			return []byte(`[{"total_count":1,"artifacts":[{"id":1300,"name":"2222222.zip","expired":false,"digest":"sha256:abcd"}]}]`), nil
 		case strings.Contains(joined, "repos/jotego/jtcores/actions/runs/13"):
 			return []byte(`{"pull_requests":[{"number":169}]}`), nil
 		default:
@@ -50,7 +51,7 @@ func TestDiscoverBuildOldestCompleteAttemptAndReconsidersArtifactlessRun(t *test
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.RunID != "13" || got.Attempt != "1" || got.SHA != sha2 || got.PR != 169 || got.Artifact != "2222222.zip" || got.ArtifactID != 1300 || got.ExpectedJobs != 2 || got.SucceededJobs != 2 {
+	if got.RunID != "13" || got.Attempt != "1" || got.SHA != sha2 || got.PR != 169 || got.Artifact != "2222222.zip" || got.ArtifactID != 1300 || got.ExpectedJobs != 0 || got.SucceededJobs != 0 {
 		t.Fatalf("wrong selected build: %+v", got)
 	}
 }
@@ -60,19 +61,19 @@ func TestGetEligibleRunListsArtifactsByRunAndKeepsAttemptMetadata(t *testing.T) 
 	defer func() { ghCommand = old }()
 	const runID int64 = 40655576158
 	const sourceSHA = "a405f1b955a06f10f75a5aafe2d7080d631e062e"
-	job := `{"status":"completed","conclusion":"success"}`
-	jobs := strings.TrimSuffix(strings.Repeat(job+",", 279), ",")
 	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
 		joined := strings.Join(args, " ")
         if strings.Contains(joined,"workflows/compile-sidi128.yaml/runs") { return []byte(`[{"workflow_runs":[]}]`),nil }
 		switch {
 		case strings.HasPrefix(joined, "run view 40655576158"):
-			return []byte(fmt.Sprintf(`{"databaseId":40655576158,"workflowName":"Compile all","workflowDatabaseId":195081922,"number":676,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"jtcores-166","event":"workflow_dispatch","jobs":[%s]}`, sourceSHA, jobs)), nil
+			if strings.Contains(joined, "jobs") { t.Fatalf("run inspection should not request the large jobs inventory: %s", joined) }
+			return []byte(fmt.Sprintf(`{"databaseId":40655576158,"workflowName":"Compile all","workflowDatabaseId":195081922,"number":676,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"jtcores-166","event":"workflow_dispatch"}`, sourceSHA)), nil
 		case strings.Contains(joined, "repos/jotego/jtcores/actions/runs/40655576158/artifacts"):
 			if strings.Contains(joined, "/attempts/") {
 				t.Fatalf("artifact listing must not use a nonexistent attempt-specific endpoint: %s", joined)
 			}
-			return []byte(`{"total_count":1,"artifacts":[{"id":12807547611,"name":"a405f1b.zip","expired":false,"digest":"sha256:1d8319f3077299eebc33c2cf1bdda8212dd17704664430b8ac2deefce0a42839"}]}`), nil
+			if !strings.Contains(joined, "--paginate --slurp") || !strings.Contains(joined, "per_page=100") { t.Fatalf("artifact listing must paginate: %s", joined) }
+			return []byte(`[{"total_count":1,"artifacts":[{"id":12807547611,"name":"a405f1b.zip","expired":false,"digest":"sha256:1d8319f3077299eebc33c2cf1bdda8212dd17704664430b8ac2deefce0a42839"}]}]`), nil
 		case strings.Contains(joined, "repos/jotego/jtcores/commits/"+sourceSHA+"/pulls"):
 			return []byte(fmt.Sprintf(`[{"number":1689,"head":{"ref":"jtcores-166","sha":"%s"}}]`, sourceSHA)), nil
 		case strings.Contains(joined, "repos/jotego/jtcores/actions/runs/40655576158"):
@@ -85,8 +86,61 @@ func TestGetEligibleRunListsArtifactsByRunAndKeepsAttemptMetadata(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.RunID != "40655576158" || got.RunNumber != 676 || got.Attempt != "1" || got.ArtifactID != 12807547611 || got.Artifact != "a405f1b.zip" || got.ArtifactAPIHash != "1d8319f3077299eebc33c2cf1bdda8212dd17704664430b8ac2deefce0a42839" || got.ExpectedJobs != 279 || got.SucceededJobs != 279 {
+	if got.RunID != "40655576158" || got.RunNumber != 676 || got.Attempt != "1" || got.ArtifactID != 12807547611 || got.Artifact != "a405f1b.zip" || got.ArtifactAPIHash != "1d8319f3077299eebc33c2cf1bdda8212dd17704664430b8ac2deefce0a42839" || got.ExpectedJobs != 0 || got.SucceededJobs != 0 {
 		t.Fatalf("wrong selected run/artifact identity: %+v", got)
+	}
+}
+
+func TestGetEligibleRunSelectsLatestRetryArtifactAcrossPages(t *testing.T) {
+	old := ghCommand
+	defer func() { ghCommand = old }()
+	const runID int64 = 41994675289
+	const sourceSHA = "14a43bf7201c4eb73e045e402702ff4f2c99ea23"
+	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
+		joined := strings.Join(args, " ")
+		if strings.HasPrefix(joined, "run view 41994675289") {
+			if strings.Contains(joined, "jobs") { t.Fatalf("run inspection should not request the large jobs inventory: %s", joined) }
+			return []byte(fmt.Sprintf(`{"databaseId":41994675289,"workflowName":"Compile all","workflowDatabaseId":195081922,"number":999,"attempt":2,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"master","event":"workflow_dispatch","createdAt":"2026-11-05T17:52:24Z"}`, sourceSHA)), nil
+		}
+		if strings.Contains(joined, "actions/runs/41994675289/artifacts") {
+			if !strings.Contains(joined, "--paginate --slurp") || !strings.Contains(joined, "per_page=100") { t.Fatalf("artifact listing must paginate: %s", joined) }
+			return []byte(`[
+{"total_count":242,"artifacts":[{"id":13441311426,"name":"14a43bf.zip","expired":false,"digest":"sha256:2bbb55cc215d554e96fb10a35c453b2a896a3b0ee6376f86a78f9d28fd1ff2bb","created_at":"2026-11-05T18:14:10Z"}]},
+{"total_count":242,"artifacts":[{"id":13406761843,"name":"14a43bf.zip","expired":false,"digest":"sha256:c381f45b3bffb771cad42edcc9644387d7e5069de0d3b33fb1bdadb496219912","created_at":"2026-11-05T10:22:26Z"}]}
+]`), nil
+		}
+		if strings.Contains(joined, "repos/jotego/jtcores/actions/runs/41994675289") {
+			return []byte(`{"pull_requests":[]}`), nil
+		}
+		return nil, fmt.Errorf("unexpected gh command: %s", joined)
+	}
+	got, err := getEligibleRun(context.Background(), "jotego/jtcores", runID)
+	if err != nil { t.Fatal(err) }
+	if got.Attempt != "2" || got.ArtifactID != 13441311426 || got.ArtifactAPIHash != "2bbb55cc215d554e96fb10a35c453b2a896a3b0ee6376f86a78f9d28fd1ff2bb" {
+		t.Fatalf("selected wrong retry artifact: %+v", got)
+	}
+}
+
+func TestDiscoverBuildSurfacesCandidateInspectionErrors(t *testing.T) {
+	old := ghCommand
+	defer func() { ghCommand = old }()
+	const sha = "14a43bf7201c4eb73e045e402702ff4f2c99ea23"
+	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
+		joined := strings.Join(args, " ")
+		switch {
+		case strings.Contains(joined, "workflows/compile-sidi128.yaml/runs"):
+			return []byte(`[{"workflow_runs":[]}]`), nil
+		case strings.Contains(joined, "workflows/compile-all.yaml/runs"):
+			return []byte(fmt.Sprintf(`[{"workflow_runs":[{"id":4,"name":"Compile all","run_attempt":2,"status":"completed","conclusion":"success","head_sha":"%s","created_at":"2026-11-05T17:52:24Z"}]}]`, sha)), nil
+		case strings.HasPrefix(joined, "run view 4 "):
+			return nil, fmt.Errorf("gh run view: HTTP 502: upstream failure")
+		default:
+			return nil, fmt.Errorf("unexpected gh command: %s", joined)
+		}
+	}
+	_, err := discover_build(context.Background(), "jotego/jtcores", "", t.TempDir(), Config{})
+	if err == nil || errors.Is(err, ErrNoEligibleBuild) || !strings.Contains(err.Error(), "HTTP 502") {
+		t.Fatalf("candidate inspection failure was hidden as an idle poll: %v", err)
 	}
 }
 
@@ -111,7 +165,7 @@ func TestDispatchedPRAssociationLookupErrorsFailClosed(t *testing.T) {
 				case strings.HasPrefix(joined, "run view 40655576158"):
 					return []byte(fmt.Sprintf(`{"databaseId":40655576158,"workflowName":"Compile all","workflowDatabaseId":195081922,"number":676,"attempt":1,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"jtcores-166","event":"workflow_dispatch","jobs":[{"status":"completed","conclusion":"success"}]}`, sourceSHA)), nil
 				case strings.Contains(joined, "actions/runs/40655576158/artifacts"):
-					return []byte(`{"total_count":1,"artifacts":[{"id":12807547611,"name":"a405f1b.zip","expired":false,"digest":"sha256:1d8319f3077299eebc33c2cf1bdda8212dd17704664430b8ac2deefce0a42839"}]}`), nil
+					return []byte(`[{"total_count":1,"artifacts":[{"id":12807547611,"name":"a405f1b.zip","expired":false,"digest":"sha256:1d8319f3077299eebc33c2cf1bdda8212dd17704664430b8ac2deefce0a42839"}]}]`), nil
 				case strings.Contains(joined, "repos/jotego/jtcores/actions/runs/40655576158"):
 					return []byte(`{"pull_requests":[]}`), nil
 				case strings.Contains(joined, "repos/jotego/jtcores/commits/"+sourceSHA+"/pulls"):
@@ -171,7 +225,7 @@ func TestPinnedRunNumberFallbackUsesLookupOnlyAfter404(t *testing.T) {
 			return []byte(fmt.Sprintf(`{"databaseId":406,"workflowName":"Compile all","workflowDatabaseId":195,"number":676,"attempt":2,"status":"completed","conclusion":"success","headSha":"%s","headBranch":"release","event":"push","jobs":[{"status":"completed","conclusion":"success"}]}`, sha)), nil
 		case strings.Contains(joined, "repos/jotego/jtcores/actions/runs/406/artifacts"):
 			sawArtifactList = true
-			return []byte(`{"total_count":1,"artifacts":[{"id":987,"name":"aaaaaaa.zip","expired":false,"digest":"sha256:feed"}]}`), nil
+			return []byte(`[{"total_count":1,"artifacts":[{"id":987,"name":"aaaaaaa.zip","expired":false,"digest":"sha256:feed"}]}]`), nil
 		case strings.Contains(joined, "repos/jotego/jtcores/actions/runs/406"):
 			return []byte(`{"pull_requests":[]}`), nil
 		default:
@@ -190,14 +244,23 @@ func TestPinnedRunNumberFallbackUsesLookupOnlyAfter404(t *testing.T) {
 func TestDiscoverBuildRejectsFailedOrIncompletePinnedRun(t *testing.T) {
 	old := ghCommand
 	defer func() { ghCommand = old }()
-	ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
-		if strings.HasPrefix(strings.Join(args, " "), "run view") {
-			return []byte(`{"databaseId":4,"workflowName":"Compile all","workflowDatabaseId":8,"number":4,"attempt":1,"status":"completed","conclusion":"success","headSha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","jobs":[{"status":"completed","conclusion":"success"},{"status":"in_progress","conclusion":""}]}`), nil
-		}
-		return nil, fmt.Errorf("unexpected gh request")
-	}
-	if _, err := getEligibleRun(context.Background(), "jotego/jtcores", 4); err == nil || !strings.Contains(err.Error(), "incomplete or failed job") {
-		t.Fatalf("expected incomplete job rejection, got %v", err)
+	for _, tc := range []struct {
+		name, status, conclusion string
+	}{
+		{name: "failed", status: "completed", conclusion: "failure"},
+		{name: "incomplete", status: "in_progress", conclusion: ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ghCommand = func(_ context.Context, args ...string) ([]byte, error) {
+				if strings.HasPrefix(strings.Join(args, " "), "run view") {
+					return []byte(fmt.Sprintf(`{"databaseId":4,"workflowName":"Compile all","workflowDatabaseId":8,"number":4,"attempt":1,"status":%q,"conclusion":%q,"headSha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}`, tc.status, tc.conclusion)), nil
+				}
+				return nil, fmt.Errorf("unexpected gh request")
+			}
+			if _, err := getEligibleRun(context.Background(), "jotego/jtcores", 4); err == nil || !strings.Contains(err.Error(), "not a completed successful") {
+				t.Fatalf("expected run conclusion rejection, got %v", err)
+			}
+		})
 	}
 }
 

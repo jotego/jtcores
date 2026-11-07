@@ -44,6 +44,7 @@ always@(posedge clk) begin
 	reg  [3:0] idx = 0;
 	reg  [1:0] state = 0;
 	reg [15:0] timeout = 0;
+	reg        mode_rd = 1;
 
 	if(~&timeout) begin
 		timeout <= timeout + 1'd1;
@@ -89,7 +90,9 @@ always@(posedge clk) begin
 						rw <= 0;
 						if(!error) begin
 							if(rw) begin
-								{flg_sd_cd, flg_mode, btn} <= {dout[7:3]};
+								{flg_sd_cd, btn} <= {dout[7], dout[5:3]};
+								mode_rd <= dout[6];
+								if(mode_rd == dout[6]) flg_mode <= dout[6];
 								flg_present <= 1;
 							end
 							rw <= ~rw;
@@ -100,7 +103,6 @@ always@(posedge clk) begin
 		end
 	end
 end
-
 wire [15:0] init_data[12] = 
 '{
 	16'h00F8,
