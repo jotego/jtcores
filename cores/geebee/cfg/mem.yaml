@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 06-11-2026
+
+params: []
+
+clocks: {}
+
+audio:
+  channels: []
+
+sdram:
+  banks:
+    - buses: []
+
+bram:
+  - name: maincpu
+    addr_width: 12
+    data_width: 8
+    prom: true
+  - name: gfx1
+    addr_width: 11
+    data_width: 8
+    prom: true
+  - name: vram
+    addr_width: 10
+    data_width: 8
+    rw: true
+    dual_port:
+      name: vram_video
+      addr: vram_video_addr
+      dout: vram_video_data
+  - name: workram
+    addr_width: 8
+    data_width: 8
+    rw: true

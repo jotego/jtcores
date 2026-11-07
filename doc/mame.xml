@@ -90388,6 +90388,352 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="geebee" sourcefile="namco/warpwarp.cpp">
+		<description>Gee Bee (Japan)</description>
+		<year>1978</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="geebee.1k" size="4096" crc="8a5577e0" sha1="356d33e19c6b4f519816ee4b65ff9b59d6c1b565" region="maincpu" offset="0"/>
+		<rom name="geebee.3a" size="1024" crc="f257b21b" sha1="c788fd923438f1bffbff9ff3cd4c5c8b547c0c14" region="gfx1" offset="0"/>
+		<device_ref name="i8080"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="geebee_sound"/>
+		<chip type="cpu" tag="maincpu" name="Intel 8080" clock="2048000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="geebee_custom" name="Gee Bee Custom Sound" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="90" width="272" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="272" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="paddle" player="1" buttons="1" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+			<control type="paddle" player="2" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<diplocation name="DSW2" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="2">
+			<diplocation name="DSW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="5" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW2" mask="12">
+			<diplocation name="DSW2" number="3"/>
+			<diplocation name="DSW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="Free Play" value="12"/>
+		</dipswitch>
+		<dipswitch name="Replay" tag="DSW2" mask="48">
+			<diplocation name="DSW2" number="5"/>
+			<diplocation name="DSW2" number="6"/>
+			<dipvalue name="40k 80k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="70k 140k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="100k 200k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="60k 120k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="100k 200k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="150k 300k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SW0" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN2">
+			<analog mask="255"/>
+		</port>
+		<port tag=":SW0">
+		</port>
+		<port tag=":SW1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="geebeea" sourcefile="namco/warpwarp.cpp" cloneof="geebee" romof="geebee">
+		<description>Gee Bee (UK)</description>
+		<year>1978</year>
+		<manufacturer>Namco (Alca license)</manufacturer>
+		<rom name="132" size="1024" crc="23252fc7" sha1="433f0f435ff741a789942194356aaec53192608a" region="maincpu" offset="0"/>
+		<rom name="133" size="1024" crc="0bc4d4ca" sha1="46028ce1dbf46e49b921cfabec78cded914af358" region="maincpu" offset="400"/>
+		<rom name="134" size="1024" crc="7899b4c1" sha1="70f609f9873f1a4d9c8a90361c7519bdd24ad9ea" region="maincpu" offset="800"/>
+		<rom name="135" size="1024" crc="0b6e6fcb" sha1="e7c3e8a13e3d2be6cfb6675fb57cc4a2fda6bec2" region="maincpu" offset="c00"/>
+		<rom name="a_136" size="1024" crc="bd01437d" sha1="4324c68472f762a13f978e54b3c4a7984cc7195a" region="gfx1" offset="0"/>
+		<device_ref name="i8080"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="geebee_sound"/>
+		<chip type="cpu" tag="maincpu" name="Intel 8080" clock="2048000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="geebee_custom" name="Gee Bee Custom Sound" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="90" width="272" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="272" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="paddle" player="1" buttons="1" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+			<control type="paddle" player="2" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<diplocation name="DSW2" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="2">
+			<diplocation name="DSW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="5" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW2" mask="12">
+			<diplocation name="DSW2" number="3"/>
+			<diplocation name="DSW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="Free Play" value="12"/>
+		</dipswitch>
+		<dipswitch name="Replay" tag="DSW2" mask="48">
+			<dipvalue name="40k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="70k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="100k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="60k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="100k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="150k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SW0" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN2">
+			<analog mask="255"/>
+		</port>
+		<port tag=":SW0">
+		</port>
+		<port tag=":SW1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="geebeeb" sourcefile="namco/warpwarp.cpp" cloneof="geebee" romof="geebee">
+		<description>Gee Bee (Europe)</description>
+		<year>1978</year>
+		<manufacturer>Namco (F.lli Bertolino license)</manufacturer>
+		<rom name="1.1m" size="1024" crc="23252fc7" sha1="433f0f435ff741a789942194356aaec53192608a" region="maincpu" offset="0"/>
+		<rom name="2.1p" size="1024" crc="0bc4d4ca" sha1="46028ce1dbf46e49b921cfabec78cded914af358" region="maincpu" offset="400"/>
+		<rom name="3.1s" size="1024" crc="7899b4c1" sha1="70f609f9873f1a4d9c8a90361c7519bdd24ad9ea" region="maincpu" offset="800"/>
+		<rom name="4.1t" size="1024" crc="0b6e6fcb" sha1="e7c3e8a13e3d2be6cfb6675fb57cc4a2fda6bec2" region="maincpu" offset="c00"/>
+		<rom name="geebee.3a" merge="geebee.3a" size="1024" crc="f257b21b" sha1="c788fd923438f1bffbff9ff3cd4c5c8b547c0c14" region="gfx1" offset="0"/>
+		<device_ref name="i8080"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="geebee_sound"/>
+		<chip type="cpu" tag="maincpu" name="Intel 8080" clock="2048000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="geebee_custom" name="Gee Bee Custom Sound" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="90" width="272" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="272" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="paddle" player="1" buttons="1" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+			<control type="paddle" player="2" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<diplocation name="DSW2" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="2">
+			<diplocation name="DSW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="5" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW2" mask="12">
+			<diplocation name="DSW2" number="3"/>
+			<diplocation name="DSW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="Free Play" value="12"/>
+		</dipswitch>
+		<dipswitch name="Replay" tag="DSW2" mask="48">
+			<dipvalue name="40k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="70k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="100k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="60k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="100k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="150k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SW0" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN2">
+			<analog mask="255"/>
+		</port>
+		<port tag=":SW0">
+		</port>
+		<port tag=":SW1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="geebeeg" sourcefile="namco/warpwarp.cpp" cloneof="geebee" romof="geebee">
+		<description>Gee Bee (US)</description>
+		<year>1978</year>
+		<manufacturer>Namco (Gremlin license)</manufacturer>
+		<rom name="geebee.1k" merge="geebee.1k" size="4096" crc="8a5577e0" sha1="356d33e19c6b4f519816ee4b65ff9b59d6c1b565" region="maincpu" offset="0"/>
+		<rom name="geebeeg.3a" size="1024" crc="a45932ba" sha1="48f70742c42a9377f31fac3a1e43123751e57656" region="gfx1" offset="0"/>
+		<device_ref name="i8080"/>
+		<device_ref name="ls259"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="geebee_sound"/>
+		<chip type="cpu" tag="maincpu" name="Intel 8080" clock="2048000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="geebee_custom" name="Gee Bee Custom Sound" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="90" width="272" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="272" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="paddle" player="1" buttons="1" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+			<control type="paddle" player="2" minimum="16" maximum="160" sensitivity="30" keydelta="15" reverse="yes"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSW2" mask="1">
+			<diplocation name="DSW2" number="1"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="2">
+			<diplocation name="DSW2" number="2"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="5" value="2"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSW2" mask="12">
+			<diplocation name="DSW2" number="3"/>
+			<diplocation name="DSW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="4"/>
+			<dipvalue name="Free Play" value="12"/>
+		</dipswitch>
+		<dipswitch name="Replay" tag="DSW2" mask="48">
+			<diplocation name="DSW2" number="5"/>
+			<diplocation name="DSW2" number="6"/>
+			<dipvalue name="40k 80k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="70k 140k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="100k 200k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="60k 120k" value="16" default="yes">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="100k 200k" value="32">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="150k 300k" value="48">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+			<dipvalue name="None" value="0">
+				<condition tag="DSW2" mask="2" relation="eq" value="2"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SW0" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN2">
+			<analog mask="255"/>
+		</port>
+		<port tag=":SW0">
+		</port>
+		<port tag=":SW1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="genpeitd" sourcefile="namco/namcos86.cpp">
 		<description>Genpei ToumaDen</description>
 		<year>1986</year>

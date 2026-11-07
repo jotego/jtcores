@@ -65,6 +65,8 @@ cores/*/neptuno/*
 cores/*/pocket/*
 cores/*/sch/*/*pdf
 cores/*/sch/*pdf
+cores/geebee/doc/*.pdf
+cores/geebee/status.md
 cores/*/sidi/*
 cores/*/sidi128/*
 cores/*/sockit/*
@@ -133,6 +135,7 @@ scenes/
 !/cores/*/ver/**/
 !*.cab
 !sim.sh
+!/cores/geebee/ver/game/build_t80_8080.sh
 
 # Local hardware regression machine configuration
 /.jtutil-regression.yaml
