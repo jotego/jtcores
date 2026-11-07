@@ -9,6 +9,7 @@
 // the clock divider is not implemented. Apply the expected pxl_cen directly
 module jtk053252(
     input             rst,
+    input             timer_rst,
     input             clk,
     input             pxl_cen,
     input       [2:0] sel,          // sel pins, normally 0 (unused)
@@ -68,7 +69,7 @@ always @(posedge clk) if(pxl_cen) begin
 end
 
 jtframe_edge u_int2en(
-    .rst    ( rst       ),
+    .rst    ( timer_rst ),
     .clk    ( clk       ),
     .edgeof ( set_int2en),
     .clr    ( 1'b0      ),
@@ -76,7 +77,7 @@ jtframe_edge u_int2en(
 );
 
 jtframe_edge u_int1(
-    .rst    ( rst       ),
+    .rst    ( timer_rst ),
     .clk    ( clk       ),
     .edgeof ( vb        ),
     .clr    ( int1ack   ),
@@ -84,7 +85,7 @@ jtframe_edge u_int1(
 );
 
 jtframe_edge u_int2(
-    .rst    ( rst       ),
+    .rst    ( timer_rst ),
     .clk    ( clk       ),
     .edgeof ( i2tc      ),
     .clr    ( int2ack   ),
@@ -94,7 +95,7 @@ jtframe_edge u_int2(
 wire hbk_cen = pxl_cen & hbk0_eff;
 
 jtframe_count_ld #(9) u_vcnt(
-    .rst        ( rst       ),
+    .rst        ( timer_rst ),
     .clk        ( clk       ),
     .cen        ( hbk_cen   ),
     .en         ( 1'b1      ),
@@ -105,7 +106,7 @@ jtframe_count_ld #(9) u_vcnt(
 );
 
 jtframe_count_ld #(10) u_hcnt(
-    .rst        ( rst       ),
+    .rst        ( timer_rst ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
     .en         (~hcnt_dis  ),
@@ -116,7 +117,7 @@ jtframe_count_ld #(10) u_hcnt(
 );
 
 jtframe_count_ld #(7) u_hscnt(
-    .rst        ( rst       ),
+    .rst        ( timer_rst ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
     .en         ( ~hcnt_dis ),
@@ -128,7 +129,7 @@ jtframe_count_ld #(7) u_hscnt(
 
 // CNTA - VB
 jtframe_count_ld #(.W(8),.ONE_SHOT(1)) u_vbcnt(
-    .rst        ( rst            ),
+    .rst        ( timer_rst      ),
     .clk        ( clk            ),
     .cen        ( pxl_cen        ),
     .en         ( hbk0_eff       ), // L38B
@@ -140,7 +141,7 @@ jtframe_count_ld #(.W(8),.ONE_SHOT(1)) u_vbcnt(
 
 // CNTB - HB
 jtframe_count_ld #(.W(9),.ONE_SHOT(1)) u_hbcnt(
-    .rst        ( rst       ),
+    .rst        ( timer_rst ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
     .en         ( 1'b1      ),
@@ -152,7 +153,7 @@ jtframe_count_ld #(.W(9),.ONE_SHOT(1)) u_hbcnt(
 
 // CNTC - VS
 jtframe_count_ld #(4) u_vscnt(
-    .rst        ( rst       ),
+    .rst        ( timer_rst ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
     .en         ( hbk0_eff  ),
@@ -164,7 +165,7 @@ jtframe_count_ld #(4) u_vscnt(
 
 // CNTD - interrupt 2
 jtframe_count_ld #(8) u_i2cnt(
-    .rst        ( rst       ),
+    .rst        ( timer_rst ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
     .en         ( i2cnt_en  ),
@@ -175,10 +176,10 @@ jtframe_count_ld #(8) u_i2cnt(
 );
 
 //                                    J       K    Q   ~Q
-jtframe_ff_jk u_hs(rst,clk,pxl_cen, hld_mx, hstc,  hs, hsn );
-jtframe_ff_jk u_vs(rst,clk,pxl_cen, vld_mx, vstc,  vs, vsn );
-jtframe_ff_jk u_hb(rst,clk,pxl_cen, hbk0,   hbtc,  hb, lhbl);
-jtframe_ff_jk u_vb(rst,clk,pxl_cen, vbk0,   vbtc,  vb, lvbl);
+jtframe_ff_jk u_hs(timer_rst,clk,pxl_cen, hld_mx, hstc,  hs, hsn );
+jtframe_ff_jk u_vs(timer_rst,clk,pxl_cen, vld_mx, vstc,  vs, vsn );
+jtframe_ff_jk u_hb(timer_rst,clk,pxl_cen, hbk0,   hbtc,  hb, lhbl);
+jtframe_ff_jk u_vb(timer_rst,clk,pxl_cen, vbk0,   vbtc,  vb, lvbl);
 
 jtk053252_mmr #(.SIMFILE("ccu.bin"),.INIT(INIT)) u_mmr(
     .rst        ( rst       ),

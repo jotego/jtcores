@@ -4,6 +4,7 @@
 
 module jtrungun_video(
     input              rst, clk,
+    input              timer_rst,
     input              pxl_cen, pxl2_cen,
                        ghflip, gvflip, pri,
     input              lrsw,
@@ -138,6 +139,7 @@ jtrungun_vtimer u_vtimer(
 // video timer
 jtk053252 u_k053252(
     .rst        ( rst           ),
+    .timer_rst  ( timer_rst     ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
