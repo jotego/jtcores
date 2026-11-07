@@ -1,0 +1,6 @@
+/build/
+/logs/
+/ucrom.hex
+/ucdecode.hex
+/core
+!program.hex
