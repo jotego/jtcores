@@ -199,6 +199,7 @@ Aliens                         | GX875          | 052256        |  Yes
 Super Contra                   | GX775          | 052001        |  Yes
 Thunder Cross                  | GX873          | 052526/052001 |  Yes
 Gang Busters / Crazy Cop       | GX878          | 052526        |  Yes (same as GX873)
+Block Hole / Quarth            | GX973          | 052526        |  No
 
 # Support
 
