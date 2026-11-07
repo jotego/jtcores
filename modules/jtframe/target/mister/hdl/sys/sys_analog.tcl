@@ -54,6 +54,9 @@ set_location_assignment PIN_AE25 -to AUDIO_R
 set_location_assignment PIN_AG26 -to AUDIO_SPDIF
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to AUDIO_*
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to AUDIO_*
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to AUDIO_L
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to AUDIO_R
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to AUDIO_SPDIF
 
 #============================================================
 # I/O #1
