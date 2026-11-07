@@ -254,6 +254,43 @@ its inventory rather than silently removing entries from a historical run.
 Manual captures do not need a manifest or run ID and do not publish GitHub
 reports. Existing campaign captures remain resumable through the batch API.
 
+## Review and queue commands
+
+The shared lock also protects review actions from running while a capture is
+changing the same result tree:
+
+```sh
+jtutil regression --busy
+jtutil regression --status
+jtutil regression --accept splatter
+jtutil regression --reject splatter --reason "reviewed against MAME"
+```
+
+`--busy` (or `-b`) prints `Regression in progress` and exits 0 only while the
+shared `log/lock` is held; it exits 1 when idle. It checks the live flock, not
+the mere presence of the lock file.
+
+`--accept <setname>` requires exactly one matching core folder with exactly
+one pending `new/` or `fail/` slot. The slot must contain valid PNG frames; an
+empty set, all-black set, or a set where more than half of the frames have
+identical pixels is rejected. The slot becomes `ref/`, replacing any prior
+reference without keeping a backup. The per-game `log` gets an ACCEPT row with
+the resulting reference CRC. Acceptance validation exits use distinct codes:
+2 no frames, 3 invalid PNG, 4 all black, 5 majority-identical frames, 6
+missing/ambiguous source slot, and 7 unsafe setname.
+
+`--reject <setname>` removes existing `new/` and/or `fail/` slots and appends a
+REJECT row with the current reference CRC. `--reason` adds a single-line reason
+to that event and is valid only with `--reject`.
+
+`--status` reports total PASS, FAIL, NEW, ERROR, UNSUPPORTED, ACCEPTED and
+REJECTED outcomes from the latest per-game history or review event, then lists
+FAIL and ERROR games by core. A later review event replaces the older result
+label in the current summary without changing that historical check row. For
+older result folders without history, a pending `fail/` or `new/` slot is
+reported as FAIL or NEW. A reference folder by itself is not treated as
+evidence of a PASS.
+
 ## Host setup
 
 Set `JOTEGO` to the private support-files directory. Keep machine-specific

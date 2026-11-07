@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sort"
 	"syscall"
 	"path/filepath"
 	"strings"
@@ -32,6 +33,11 @@ var regressionRetryErrors bool
 var regressionCore string
 var regressionSetname string
 var regressionJTBin bool
+var regressionBusy bool
+var regressionAccept string
+var regressionReject string
+var regressionReason string
+var regressionStatus bool
 
 var regressionCmd = &cobra.Command{
 	Use:   "regression",
@@ -73,10 +79,19 @@ func init() {
 	regressionCmd.Flags().StringVar(&regressionPublishTo,"publish-to","github","Report destination: github or gitea (uses GITEA_SERVER_URL, GITEA_REPOSITORY, GITEA_TOKEN)")
 	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish an external regression summary")
 	regressionCmd.Flags().BoolVar(&regressionRetryErrors, "retry-errors", false, "Rerun terminal per-game errors from a fresh ARC launch")
+	regressionCmd.Flags().BoolVarP(&regressionBusy, "busy", "b", false, "Check whether a regression currently holds the shared lock")
+	regressionCmd.Flags().StringVar(&regressionAccept, "accept", "", "Promote a setname's reviewed new/ or fail/ frames to ref")
+	regressionCmd.Flags().StringVar(&regressionReject, "reject", "", "Remove a setname's pending new/ or fail/ frames")
+	regressionCmd.Flags().StringVar(&regressionReason, "reason", "", "Single-line reason recorded with --reject")
+	regressionCmd.Flags().BoolVar(&regressionStatus, "status", false, "Summarize the latest completed per-game regression checks")
 	rootCmd.AddCommand(regressionCmd)
 }
 
 func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) {
+	management := regressionBusy || regressionAccept != "" || regressionReject != "" || regressionStatus || cmd.Flags().Changed("accept") || cmd.Flags().Changed("reject") || cmd.Flags().Changed("reason")
+	if management {
+		return run_regression_management(cmd)
+	}
 	parent := cmd.Context()
 	if parent == nil { parent = context.Background() }
 	ctx, stop := signal.NotifyContext(parent, os.Interrupt, syscall.SIGTERM)
@@ -222,6 +237,46 @@ func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) 
 	if err=publish();err!=nil{return err}
 	fmt.Fprintf(cmd.OutOrStdout(),"Regression complete. Log: %s\n",filepath.Join(data_root,"log",regression.LogKey(commit,dirty)+".log"))
 	return nil
+}
+
+func run_regression_management(cmd *cobra.Command) error {
+	selected := 0
+	acceptSet, rejectSet := cmd.Flags().Changed("accept"), cmd.Flags().Changed("reject")
+	for _, mode := range []bool{regressionBusy, acceptSet || regressionAccept != "", rejectSet || regressionReject != "", regressionStatus} { if mode { selected++ } }
+	if selected != 1 { return fmt.Errorf("choose exactly one of --busy, --accept, --reject or --status") }
+	if cmd.Flags().Changed("reason") && !rejectSet { return fmt.Errorf("--reason requires --reject") }
+	if acceptSet && regressionAccept == "" { return &regression.CurationError{Code:6, Err:errors.New("--accept requires a nonempty setname")} }
+	if rejectSet && regressionReject == "" { return fmt.Errorf("--reject requires a nonempty setname") }
+	if regressionCore != "" || regressionSetname != "" || regressionManifest != "" || regressionRunID != "" || regressionPoll || regressionJTBin || regressionRetryErrors || regressionMigrate != "" || regressionImport != "" {
+		return fmt.Errorf("management flags cannot be combined with capture or campaign selectors")
+	}
+	root := os.Getenv("JOTEGO")
+	if root == "" { return fmt.Errorf("JOTEGO must name the private regression data directory") }
+	dataRoot := filepath.Join(root, "regression")
+	if regressionBusy {
+		busy, err := regression.RegressionBusy(dataRoot); if err != nil { return err }
+		if busy { fmt.Fprintln(cmd.OutOrStdout(), "Regression in progress"); return nil }
+		return &regression.CurationError{Code:1, Err:errors.New("no regression in progress")}
+	}
+	lock, err := regression.AcquireLock(dataRoot); if err != nil { return err }; defer regression.ReleaseLock(lock)
+	if err = regression.InitializeLog(dataRoot); err != nil { return err }
+	switch {
+	case regressionAccept != "":
+		err = regression.AcceptResult(dataRoot, regressionAccept)
+		if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Accepted %s as ref\n", regressionAccept) }
+	case regressionReject != "":
+		err = regression.RejectResult(dataRoot, regressionReject, regressionReason)
+		if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Rejected %s\n", regressionReject) }
+	case regressionStatus:
+		var status regression.CurationStatus
+		status, err = regression.ReadCurationStatus(dataRoot)
+		if err == nil {
+			fmt.Fprintf(cmd.OutOrStdout(), "PASS: %d  FAIL: %d  NEW: %d  ERROR: %d  UNSUPPORTED: %d  ACCEPTED: %d  REJECTED: %d\n", status.Totals[regression.Pass], status.Totals[regression.Fail], status.Totals[regression.New], status.Totals[regression.Error], status.Totals[regression.Unsupported], status.Totals[regression.Outcome("accept")], status.Totals[regression.Outcome("reject")])
+			cores := make([]string, 0, len(status.Failures)); for core := range status.Failures { cores = append(cores, core) }; sort.Strings(cores)
+			for _, core := range cores { fmt.Fprintf(cmd.OutOrStdout(), "%s: %s\n", core, strings.Join(status.Failures[core], ", ")) }
+		}
+	}
+	return err
 }
 
 // Manual selection starts a fresh local capture session; campaign selectors
