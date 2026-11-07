@@ -11,6 +11,7 @@ JTFRAME_OSD_NOLOGO
 # core-local sprite ROM cache (see hdl/jtframe_romrq_lcache.v)
 JTFRAME_CORE_LCACHE
 JTFRAME_NOHQ2X
+-JTFRAME_CREDITS
 
 # Video configuration
 JTFRAME_COLORW=8
