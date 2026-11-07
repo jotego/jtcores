@@ -1,0 +1,30 @@
+[global]
+author=["Andrea Bogazzi"]
+
+[parse]
+sourcefile=[ "sauro.cpp" ]
+# Sauro is a different board (second Z80, SP0256 speech, extra FG tile
+# layer) and shares the MAME driver only, so its sets are skipped here
+skip = { setnames=[
+    "sauro","sauroa","saurob","sauroc","saurop","saurorr","saurobl","seawolft"
+] }
+
+[buttons]
+names=[
+    { names="Jump,Shot" }
+]
+
+[dipsw]
+delete=[{ names=["Unused","Unknown"] }]
+
+[ROM]
+regions = [
+    { name="maincpu" },
+    { name="bgtiles", start="JTFRAME_BA1_START" },
+    { name="sprites", start="JTFRAME_BA2_START" },
+    { name="proms",   start="JTFRAME_PROM_START", no_offset=true },
+    # unidentified PROM, likely the sprite/H timing decoder
+    { name="user1",   skip=true },
+]
+
+order = [ "maincpu", "bgtiles", "sprites", "proms" ]
