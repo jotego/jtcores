@@ -1,26 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 23-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-7-2023 */
 
 module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
-    input             simson, paroda, suratk,
+    input             simson, paroda, suratk, esckids,
 
     // Base Video
     input             pxl_cen,
@@ -141,6 +127,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .paroda     ( paroda    ),
     .simson     ( simson    ),
     .suratk     ( suratk    ),
+    .esckids    ( esckids   ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -223,7 +210,9 @@ jtriders_obj #(
     .HFLIP_OFFSET ( 10'd134 )
    ,.SHADOW       ( 1       )
 ) u_obj(
+    .cpu_ok     (           ),
     .lgtnfght   ( 1'b0      ),
+    .mmr_noa1  ( 1'b0      ),
 `endif
     .lvbl       ( lvbl      ),
     .rst        ( rst       ),
@@ -274,7 +263,7 @@ jtriders_obj #(
 );
 
 function [6:0] lyrcol( input [7:0] pxl );
-    lyrcol = parsur ? {       pxl[7:5], pxl[3:0] } :
+    lyrcol = (parsur | esckids) ? { pxl[7:5], pxl[3:0] } :
                       { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
 

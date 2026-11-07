@@ -3,7 +3,7 @@
 jtframe-mmr \- generate memory-mapped register RTL
 .SH SYNOPSIS
 .B jtframe mmr
-.RI "[core-name] [flags]"
+.RI "[core-or-module-name] [flags]"
 .SH DESCRIPTION
 \fBjtframe mmr\fR
 reads
@@ -13,9 +13,24 @@ and renders the template
 into generated Verilog modules under
 \fB$CORES/<core>/hdl/\fR.
 .PP
+With
+\fB-m\fR
+or
+\fB--module\fR,
+the argument names a folder under
+\fB$MODULES\fR.
+The input file is
+\fB$MODULES/<module>/cfg/mmr.yaml\fR
+and generated Verilog modules are written under
+\fB$MODULES/<module>/hdl/\fR.
+.PP
 Each
 \fBmmr.yaml\fR
 entry defines one MMR block.
+.SH OPTIONS
+.TP
+.B \-m, \-\-module
+Interpret the argument as a module folder instead of a core folder.
 .SS Block Keys
 .TP
 .B include

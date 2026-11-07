@@ -11,7 +11,6 @@ JTFRAME_HEIGHT=224
 JTFRAME_ARX=5
 JTFRAME_ARY=4
 
-JTFRAME_CREDITS_PAGES=1
 
 # SDRAM
 SND_START  = 0x28000
@@ -30,3 +29,4 @@ JTFRAME_PROM_START = 0xD8000
 # Leaving the logo and removing the credits is
 # not enough to make it fit. The logo must go out
 JTFRAME_OSD_NOLOGO
+JT1943_MCU_HLE

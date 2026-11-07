@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package mem
 
@@ -183,6 +170,14 @@ type AudioRC struct {
 	C string `yaml:"c"`
 }
 
+type AudioSallenKey struct {
+	R1 string `yaml:"R1"`
+	R2 string `yaml:"R2"`
+	R3 string `yaml:"R3"`
+	C1 string `yaml:"C1"`
+	C2 string `yaml:"C2"`
+}
+
 type AudioCh struct {
 	Name   string    `yaml:"name"`
 	Module string    `yaml:"module"`
@@ -192,6 +187,7 @@ type AudioCh struct {
 	Vpp    string    `yaml:"vpp`   // peak-to-peak voltage range, 1.0=>5V
 	RC     []AudioRC `yaml:"rc"`
 	Fir    string    `yaml:"fir"` // CSV file containing filter coefficients
+	SallenKey *AudioSallenKey `yaml:"sallen-key"`
 	DCrm   bool      `yaml:"dcrm"`
 	// These two are filled from Module, if the Module is present
 	Stereo     bool `yaml:"stereo"`
@@ -271,6 +267,7 @@ type SDRAMCfg struct {
 	Big_endian  bool             `yaml:"big_endian"`
 	Cache_lanes []SDRAMCacheLine `yaml:"cache-lanes"`
 	Burst_len   int
+	Tag_ram     bool
 }
 
 type SDRAMBank struct {
@@ -290,7 +287,8 @@ type SDRAMBus struct {
 	Addr       string          `yaml:"addr"`
 	Addr_width int             `yaml:"addr_width"` // Width for counting all *bytes*
 	Data_width int             `yaml:"data_width"`
-	Cache_size int             `yaml:"cache_size"`
+	Cache_size interface{}     `yaml:"cache_size"`
+	Cache_large bool
 	Rw         bool            `yaml:"rw"`
 	Dont_erase bool            `yaml:"do_not_erase"`
 	Dsn        string          `yaml:"dsn"` // optional name for dsn signal
@@ -494,7 +492,7 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error
 		Addr       string          `yaml:"addr"`
 		Addr_width int             `yaml:"addr_width"`
 		Data_width int             `yaml:"data_width"`
-		Cache_size int             `yaml:"cache_size"`
+		Cache_size interface{}     `yaml:"cache_size"`
 		Rw         bool            `yaml:"rw"`
 		Dont_erase bool            `yaml:"do_not_erase"`
 		Dsn        string          `yaml:"dsn"`

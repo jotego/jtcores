@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 12-6-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-6-2021 */
     
 `ifdef MULTICORE2PLUS
     `define MC2_PINS
@@ -45,7 +31,7 @@ module jtframe_neptuno_io(
     output  [24:0] ioctl_addr,
     output   [7:0] ioctl_dout,
 
-    output  [ 6:0] core_mod,
+    output  [17:0] core_mod,
     output  [63:0] status,
     output         scan2x_enb,
 
@@ -92,6 +78,8 @@ wire        toggle_scandb;
 // wire scan2x_toggle = joy_mix[10] & joy_mix[7]; // Start + B buttons
 wire osd_en = joy_mix[10] & joy_mix[6]; // Start + C buttons of Megadrive controller
 wire osd_en_filt;
+
+assign core_mod[17:7] = 0;
 
 jtframe_enlarger #(4) u_enlarger(
     .rst        ( sdram_init    ),
@@ -147,7 +135,7 @@ data_io  u_datain (
     .conf_addr          ( cfg_addr          ),
     .conf_chr           ( cfg_dout          ),
     .status             ( status_s          ),
-    .core_mod           ( core_mod          ),
+    .core_mod           ( core_mod[6:0]     ),
 
     .clk_rom            ( clk_rom           ),
     .ioctl_download     ( ioctl_download    ),

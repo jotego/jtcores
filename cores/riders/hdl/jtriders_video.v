@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-7-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-7-2024 */
 
 module jtriders_video(
     input             rst,
@@ -150,7 +136,8 @@ wire [ 3:0] obj_amsb;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
-            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
+            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg, obj_cpu_ok,
+            mmr_noa1;
 reg         skip12;
 
 assign cpu_weg   = cpu_we && cpu_dsn!=3;
@@ -198,7 +185,7 @@ jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
     .st_dout        ( st_dout       )
 );
 
-always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
+always @(posedge clk) vdtac <= pre_vdtac && obj_cpu_ok;
 
 always @* begin
     lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
@@ -375,13 +362,14 @@ wire [13:1] orama;
 wire [15:0] oramd;
 wire [ 1:0] oramw;
 
-assign ommra = {cpu_addr[4:2], cpu_dsn[1]};
+assign mmr_noa1 = !glfgreat || !cpu_addr[14];
+assign ommra = mmr_noa1 ? {cpu_addr[4:2],cpu_dsn[1]} : cpu_addr[4:1];
 assign orama = lgtnfght ? cpu_addr[13:1] : oram_addr;
 assign oramd = lgtnfght ? cpu_dout : oram_din;
 assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
 /* verilator tracing_on */
-jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325),.SHADOW(SHADOW)) u_obj(    // sprite logic
+jtriders_obj #(.RAMW(13),.CPU_ROM_REG(1),.HFLIP_OFFSET(10'd325),.SHADOW(SHADOW)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -399,12 +387,14 @@ jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325),.SHADOW(SHADOW)) u_obj(    // sp
     .ram_din    ( oramd     ),
     .ram_we     ( oramw     ),
     .cpu_din    (objsys_dout),
+    .cpu_ok     ( obj_cpu_ok),
 
     .reg_cs     ( objreg_cs ),
     .mmr_addr   ( ommra     ),
     .mmr_din    ( cpu_dout  ),
     .mmr_we     ( cpu_we    ), // active on ~dsn[1] but ignores cpu_dout[15:8]
     .mmr_dsn    ( cpu_dsn   ),
+    .mmr_noa1  ( mmr_noa1 ),
 
     .dma_bsy    ( dma_bsy   ),
     // ROM

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-5-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-5-2025 */
 
 module jtpaclan_video(
     input             rst,
@@ -56,6 +42,7 @@ module jtpaclan_video(
 
 wire [ 9:0] scr0_pxl, scr1_pxl;
 wire [ 7:0] obj_pxl;
+wire        obj_msk;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire        scr0_prio, fixed;
 
@@ -117,6 +104,7 @@ jtpaclan_obj u_obj(
     .lvbl       ( lvbl          ),
     .hs         ( hs            ),
     .flip       ( flip          ),
+    .rot        ( 1'b0          ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
 
@@ -132,6 +120,7 @@ jtpaclan_obj u_obj(
     .rom_ok     ( obj_ok        ),
 
     .pxl        ( obj_pxl       ),
+    .msk        ( obj_msk       ),
 
     .debug_bus  ( debug_bus     )
 );
@@ -151,6 +140,7 @@ jtpaclan_colmix u_colmix(
     .scr0_pxl     ( scr0_pxl        ),
     .scr1_pxl     ( scr1_pxl        ),
     .obj_pxl      ( obj_pxl         ),
+    .obj_msk      ( obj_msk         ),
     .scr0_prio    ( scr0_prio       ),
 
     .rgb_addr     ( rgb_addr        ),

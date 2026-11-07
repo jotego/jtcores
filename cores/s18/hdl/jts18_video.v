@@ -1,27 +1,14 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-4-2024 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-4-2024 */
-
-module jts18_video(
+module jts18_video #(
+    parameter DUAL_RATE = 0
+)(
     input              rst,
-    input              clk96,
     input              clk48,
-    input              pxl2_cen,  // pixel clock enable (2x)
-    input              pxl_cen,   // pixel clock enable
+    input              pxl2_cen,  // framework pixel clock enable (2x)
+    input              pxl_cen,   // framework pixel clock enable
     // pixel clock enable at 48 MHz
     input              pxl2_48cen,
     input              pxl_48cen,
@@ -31,6 +18,7 @@ module jts18_video(
     inout              ext_flip,
     input              vdp_en,
     input              vid16_en,
+    input              req_57Hz,
     input              gray_n,
     input      [ 7:0]  tile_bank,
     input      [ 7:0]  game_id,
@@ -113,9 +101,10 @@ wire [5:0] s16_r, s16_g, s16_b;
 wire [7:0] vdp_r, vdp_g, vdp_b;
 wire [7:0] st_s16, st_vdp;
 wire [8:0] hdump, vdump;
-wire       vdp_hs, vdp_vs, vdp_hde, vdp_vde, vdp_spa_b, vdp_ysn;
+wire       vdp_ysn;
 wire       scr_hs, scr_vs, scr_lvbl, scr_lhbl;
-wire       LHBL_dly, LVBL_dly, HS48, VS48, LHBL48, LVBL48,
+wire       is_57Hz;
+wire       LHBL_dly, LVBL_dly,
            scr1_sel, scr2_sel, vdp_on,
            obj, sa, sb, fix, s1_pri, s2_pri;
 wire [1:0] obj_prio;
@@ -138,35 +127,19 @@ assign scr2_addr[21:15] = alt_gfx ? tilebanks[{1'b0, scr2_bank}][6:0] : {1'b0, s
 
 assign obj_addr[22:17] = (game_id[PCB_5987_DESERTBR]|game_id[PCB_5987]) ? {tilebanks[{1'b1, obj_bank[3:1]}][4:0], obj_bank[0]} : {2'd0, obj_bank};
 
-`ifndef NOVDP
-assign VS   = scr_vs;   // gfx_en[2] ? scr_vs   : vdp_vs;
-assign HS   = scr_hs;   // gfx_en[2] ? scr_hs   : vdp_hs;
-assign LVBL = scr_lvbl; // gfx_en[2] ? scr_lvbl : vdp_vde;
-assign LHBL = scr_lhbl; // gfx_en[2] ? scr_lhbl : vdp_hde;
-`else
-assign VS   = scr_vs;
-assign HS   = scr_hs;
 assign LVBL = scr_lvbl;
 assign LHBL = scr_lhbl;
-`endif
-
-// always @(posedge clk) begin
-//     if(pxl_cen) begin
-//         HS <= HS48;
-//         VS <= VS48;
-//         LHBL <= LHBL48;
-//         LVBL <= LVBL48;
-//     end
-// end
 
 /* verilator tracing_on */
-jts18_video16 u_video16(
+jts18_video16 #(.DUAL_RATE(DUAL_RATE)) u_video16(
     .rst        ( rst       ),
     .clk        ( clk48     ),
     .pxl2_cen   ( pxl2_48cen),
     .pxl_cen    ( pxl_48cen ),
 
     .video_en   ( vid16_en  ),
+    .req_57Hz   ( req_57Hz  ),
+    .is_57Hz    ( is_57Hz   ),
     .flip       ( flip      ),
     .gray_n     ( gray_n    ),
 
@@ -239,18 +212,28 @@ jts18_video16 u_video16(
     .scr_bad    (           )
 );
 
+jts18_sync u_sync(
+    .clk                   ( clk48                 ),
+    .pxl_cen               ( pxl_48cen             ),
+    .is_57Hz               ( is_57Hz               ),
+    .hdump                 ( hdump                 ),
+    .vdump                 ( vdump                 ),
+    .HS                    ( HS                    ),
+    .VS                    ( VS                    )
+);
+
 // Megadrive VDP
 /* verilator tracing_off */
 jts18_vdp u_vdp(
     .rst        ( rst       ),
-    .clk96      ( clk96     ),
     .clk48      ( clk48     ),
     // S16 video
-    .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
-    .s16b_vs    ( VS        ),
-    .s16b_hs    ( HS        ),
-    .pxl_cen    ( pxl_cen   ),
+    .pxl2_48cen ( pxl2_48cen),
+    .pxl_48cen  ( pxl_48cen ),
+    .HS         ( scr_hs    ),
+    .VS         ( scr_vs    ),
+    .LHBL       ( scr_lhbl  ),
+    .LVBL       ( scr_lvbl  ),
     // Main CPU interface
     .addr       ( addr      ),
     .din        ( din       ),
@@ -260,14 +243,15 @@ jts18_vdp u_vdp(
     .dsn        ( dsn       ),
     .dtackn     ( vdp_dtackn),
     // Video output
-    .hs         ( vdp_hs    ),
-    .vs         ( vdp_vs    ),
-    .hde        ( vdp_hde   ),
-    .vde        ( vdp_vde   ),
+    .hs         (           ),
+    .vs         (           ),
+    .hde        (           ),
+    .vde        (           ),
     .red        ( vdp_r     ),
     .green      ( vdp_g     ),
     .blue       ( vdp_b     ),
-    .spa_b      ( vdp_spa_b ),
+    .spa_b      (           ),
+    // With both layers enabled, YS=0 makes VDP transparent; vid16_en=0 overrides YS.
     .ys_n       ( vdp_ysn   ),
     .video_en   ( vdp_on    ),
     .debug_bus  ( 8'b0/*debug_bus*/ ),

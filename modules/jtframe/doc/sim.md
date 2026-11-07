@@ -91,11 +91,18 @@ The advantage of ModelSim over the other two is mixed VHDL/Verilog simulations.
 
 Verilator simulations do not simulate the *target* but only the game top. SDRAM access is particularly faster in Verilator. Verilator does not simulate 4-state signals either.
 
+Verilator PNG frame dumps rotate vertical cores by default. Use `jtsim -video -norotate`
+to keep dumped frames in the core's native orientation.
+
 ## Audio output
 
 By default, all audio output gets dumped to test.wav. If the **Audio** section of the **mem.yaml** file is used, then per-channel audio files can be generated too. In order to enable per-channel files, either request jtsim to dump waveforms `jtsim -w` or use the macro **JTFRAME_SIM_CH_RAW** so produce wave files without dumping logic waveforms.
 
 # Regression
+
+For the unattended SiDi128 hardware video regression, see
+[`hardware-regression.md`](hardware-regression.md). The older `run_regression.sh`
+flow below describes the separate `jtsim`/Gitea simulation workflow.
 
 The script `run_regression.sh` is used for automatic regressions triggered by Gitea Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), the workflow reports the failing regression result.
 

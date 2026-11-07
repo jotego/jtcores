@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 4-12-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-12-2023 */
 /* verilator coverage_off */
 module jt6805_regs(
     input             rst,
@@ -53,8 +39,9 @@ module jt6805_regs(
 `include "6805_param.vh"
 
 reg  [ 7:0] a, x;
-reg  [ 5:0] s;
-reg  [12:0] rmux, ea, pc;
+reg  [ 4:0] s;
+reg  [12:0] rmux, ea;
+reg  [10:0] pc;
 reg         n,z; // other condition codes
 reg         brok;
 
@@ -66,28 +53,30 @@ always @* begin
     case( rmux_sel )
            A_RMUX: rmux = { 5'd0, a };
            X_RMUX: rmux = { 5'd0, x };
-           S_RMUX: rmux = { 7'd1, s };
-          PC_RMUX: rmux = pc;
+           S_RMUX: rmux = { 2'b00, 6'd3, s };
+          PC_RMUX: rmux = { 2'b00, pc };
           EA_RMUX: rmux = ea;
-          CC_RMUX: rmux = {8'd0, h,i,n,z,c};
+          CC_RMUX: rmux = {5'd0, 3'b111, h,i,n,z,c};
          ONE_RMUX: rmux = 13'd1;
         ZERO_RMUX: rmux = 13'd0;
           IV_RMUX: rmux = {9'h1ff,iv,1'b0};
           default: rmux = md;
     endcase
     case( ea_sel )
-        S_EA: addr = { 7'd1, s };
+        S_EA: addr = { 2'b00, 6'd3, s };
         M_EA: addr = ea;
-        default: addr = pc;
+        default: addr = {2'b00,pc};
     endcase
-    dout = md_shift ? {3'd0,md[12:8]} : md[7:0];
+    // The 68705 stack stores only the low three PC-high bits; its five
+    // unused high-byte bits are one. A pull discards those format bits.
+    dout = md_shift ? {5'b11111,md[10:8]} : md[7:0];
 end
 
 always @( posedge clk, posedge rst ) begin
     if( rst ) begin
         a   <= 0;
         x   <= 0;
-        s   <= 6'h3f;
+        s   <= 5'h1f;
         op0 <= 0;
         op1 <= 0;
         md  <= 0;
@@ -97,6 +86,8 @@ always @( posedge clk, posedge rst ) begin
     end else if( cen ) begin
         if( fetch  ) begin
             md[ 7:0] <= din;
+            // Keep all five shifted bits here for extended operands. PC_LD
+            // applies the target's 11-bit mask when a stacked PCH is pulled.
             md[12:8] <= md_shift ? md[4:0] : 5'd0;
         end
         if( branch ) md[12:8] <= {5{md[7]}}; // sign extension for BR instructions
@@ -121,15 +112,15 @@ always @( posedge clk, posedge rst ) begin
         case( ld_sel )
               A_LD:     a <= rslt[7:0];
               X_LD:     x <= rslt[7:0];
-              S_LD:     s <= rslt[5:0];
+              S_LD:     s <= rslt[4:0];
              MD_LD:    md <= rslt;
              EA_LD:    ea <= rslt;
              CC_LD:    {h,i,n,z,c} <= rslt[4:0];
              PC_LD: if( (brok && branch) || (!branch && brt_sel==0) || (brt_sel==CLR_BRT && !c) || (brt_sel==SET_BRT && c))
-                        pc <= rslt;
+                        pc <= rslt[10:0];
              default:;
         endcase
-        if( inc_pc ) pc <= pc+13'd1;
+        if( inc_pc ) pc <= pc+11'd1;
     end
 end
 

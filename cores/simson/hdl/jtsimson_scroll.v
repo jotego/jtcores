@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 24-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 24-7-2023 */
 
 module jtsimson_scroll(
     input             rst,
@@ -22,7 +8,7 @@ module jtsimson_scroll(
     input             pxl_cen,
     input             pxl2_cen,
 
-    input             paroda, simson, suratk,
+    input             paroda, simson, suratk, esckids,
     // Base Video
     output            lhbl,
     output            lvbl,
@@ -99,7 +85,7 @@ always @(posedge clk) begin
 end
 
 function [19:2] sort( input [7:0] col, input [12:0] pre );
-    sort = parsur ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
+    sort = (parsur | esckids) ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
            simson ? { pre[11],    col[5:0],                 pre[10:0] } :
                     { pre[11], col[3:2], col[5:4],col[1:0], pre[10:0] };
 endfunction

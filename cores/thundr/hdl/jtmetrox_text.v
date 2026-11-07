@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-5-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-5-2025 */
 
 module jtmetrox_text(
     input               rst,
@@ -42,7 +28,8 @@ wire [10:1] vram_prea;
 wire [ 8:0] code, hadj, vadj;
 wire [ 6:0] pal;
 wire [ 2:0] code_msb;
-wire        blankn = hdump>=9'o60 && hdump<9'o550, border;
+wire        border;
+wire        blankn = hdump>=9'o60 && hdump<9'o550;
 
 assign pal    = vram_dout[14:8];
 assign code   = {vram_dout[15],vram_dout[7:0]};

@@ -1,25 +1,8 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-5-2026 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
-    Version: 1.0
-    Date: 5-5-2026
-
-    Based on the work in Gradius III schematics by Skutis
-
-    */
-
+// Based on the work in Gradius III schematics by Skutis
 module jtgrad3_colmix(
     input         rst,
     input         clk,
@@ -72,12 +55,12 @@ function [14:0] dim( input [14:0] d );
 endfunction
 
 always @(*) begin
-    case({sel})
-        0: pal_addr[7:0] = {1'b0,lyrf_pxl[6:0]};
-        1: pal_addr[7:0] = {lyro_pxl[8:5],lyro_pxl[3:0]};
-        2: pal_addr[7:0] = {1'b0,lyra_pxl[6:0]};
-        3: pal_addr[7:0] = {1'b0,lyrb_pxl[6:0]};
-        default:;
+    case({en_b,sel})
+        3'b0_00: pal_addr[7:0] = {1'b0,lyrf_pxl[6:0]};
+        3'b0_01: pal_addr[7:0] = {lyro_pxl[8:5],lyro_pxl[3:0]};
+        3'b0_10: pal_addr[7:0] = {1'b0,lyra_pxl[6:0]};
+        3'b0_11: pal_addr[7:0] = {1'b0,lyrb_pxl[6:0]};
+        default: pal_addr[7:0] = 8'h0;
     endcase
     pal_addr[10:8] = {en_b,sel};
 end
@@ -89,7 +72,7 @@ always @(posedge clk) begin
         rgb <= 0;
     end else if(pxl_cen) begin
         pal_rd_addr <= pal_addr;
-        shl <= shd;
+        shl <= shd | en_b;
         rgb <= shl ? palrd_dout[14:0] : dim(palrd_dout[14:0]);
     end
 end

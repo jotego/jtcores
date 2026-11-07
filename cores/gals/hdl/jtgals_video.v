@@ -1,25 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 12-7-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-7-2026 */
 
 module jtgals_video(
     input              rst,
     input              clk,
     input              pxl_cen,
+    input              flip,
     input       [ 3:0] gfx_en,
     output      [ 7:0] game_vrender,
     output      [ 8:0] game_hdump,
@@ -72,8 +59,8 @@ assign game_vrender     = vrender[7:0];
 assign h1_prefetch       = hdump == HB_END - 9'd1;
 assign h0_prefetch       = hdump == HB_END;
 assign h_addr            = h0_prefetch ? 9'd0 : hdump + 9'd1;
-assign bmp_h_addr        = 8'hff - h_addr[7:0];
-assign bmp_v_addr        = 8'd223 - vdump[7:0];
+assign bmp_h_addr        = flip ? h_addr[7:0] : 8'hff - h_addr[7:0];
+assign bmp_v_addr        = flip ? vdump[7:0]  : 8'd223 - vdump[7:0];
 assign fg_video_addr     = { bmp_v_addr, bmp_h_addr };
 assign bg_video_addr     = { bmp_v_addr, bmp_h_addr };
 assign pxl_blank         = ~((LHBL | h0_prefetch) & LVBL);
@@ -108,6 +95,7 @@ jtgals_obj u_obj(
     .rst          ( rst               ),
     .clk          ( clk               ),
     .pxl_cen      ( pxl_cen           ),
+    .flip         ( flip              ),
     .lvbl         ( LVBL              ),
     .ln_addr      ( ln_addr           ),
     .ln_data      ( ln_data           ),

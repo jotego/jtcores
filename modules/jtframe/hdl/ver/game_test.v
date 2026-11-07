@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-4-2022 */
 
 `ifndef JTFRAME_BUTTONS
 `define JTFRAME_BUTTONS 2
@@ -521,6 +507,25 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
 `endif
     `endif
 `endif
+`ifdef JTFRAME_MR_GAME_DDR
+wire [ 7:0] ddr_burstcnt, ddr_be;
+wire [28:0] ddr_addr;
+wire        ddr_rd, ddr_we, ddr_busy, ddr_dout_ready;
+wire [63:0] ddr_din, ddr_dout;
+
+jtframe_ddr_model u_game_ddr(
+    .clk          ( clk_rom        ),
+    .busy         ( ddr_busy       ),
+    .burstcnt     ( ddr_burstcnt   ),
+    .addr         ( ddr_addr       ),
+    .dout         ( ddr_dout       ),
+    .dout_ready   ( ddr_dout_ready ),
+    .rd           ( ddr_rd         ),
+    .din          ( ddr_din        ),
+    .be           ( ddr_be         ),
+    .we           ( ddr_we         )
+);
+`endif
 `ifndef JTFRAME_SDRAM_CACHE
 assign burst_addr=0, burst_ba=0, burst_rd=0, burst_wr=0, burst_din=0,
        burst_ack=0, burst_rdy=0, burst_dst=0, burst_dok=0;
@@ -686,6 +691,17 @@ u_game(
     .h_step      ( game_h_step    ),
     .v_step      ( game_v_step    ),
 `endif
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .ddr_burstcnt  ( ddr_burstcnt   ),
+    .ddr_addr      ( ddr_addr       ),
+    .ddr_rd        ( ddr_rd         ),
+    .ddr_we        ( ddr_we         ),
+    .ddr_be        ( ddr_be         ),
+    .ddr_din       ( ddr_din        ),
+    .ddr_busy      ( ddr_busy       ),
+    .ddr_dout      ( ddr_dout       ),
+    .ddr_dout_ready( ddr_dout_ready ),
 `endif
 
     // sound

@@ -1,22 +1,23 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-11-2025 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-11-2025 */
-
-module jtcal50_video(
+module jtcal50_video #(
+    // 12 = 8kB sprite RAM (calibr50), 13 = 16kB + setac bank (metafox/arbalest)
+    parameter OBJAW  = 12,
+    // 1: blend the X1-001 background layer (metafox/arbalest)
+    parameter SCR_EN = 0,
+    // Caliber 50 only populates object entries 0-200; a shorter scan leaves
+    // line time for the sprites that wrap through Y=0
+    parameter [ 8:0] OBJ_LIMIT = 9'd200,
+    parameter [ 8:0] VB_END   = 9'd0,
+    parameter [ 8:0] VB_START = 9'd240,
+    parameter [ 8:0] OBJ_XOFF = 9'h1fe,
+    parameter [ 8:0] SCR_VOFF = 9'd0,
+    parameter [ 8:0] SCR_HOFF = 9'd0,
+    parameter [ 8:0] SCR_VOFF_F = SCR_VOFF,
+    parameter [ 8:0] SCR_HOFF_F = SCR_HOFF
+)(
     input               rst,
     input               clk,
     input               clk_cpu,
@@ -29,6 +30,8 @@ module jtcal50_video(
     output              HS,
     output              VS,
     output              flip,
+    input      [15:0]   thoffs,
+    input      [ 8:0]   obj_hshift, // foreground-only horizontal read correction
     output     [ 8:0]   hdump,
     // Palette
     output     [ 9:1]   pal_addr,
@@ -56,11 +59,11 @@ module jtcal50_video(
     input      [ 7:0]   col_data, yram_dout,
     output              yram_we,
     // X1-001 External VRAM (defined in mem.yaml)
-    output     [12:1]   dma_addr,
+    output     [OBJAW:1]   dma_addr,
     output     [15:0]   dma_din,
     output     [ 1:0]   dma_we,
     input      [15:0]   dma_dout, code_dout,
-    output     [11:0]   code_addr,
+    output     [OBJAW-1:0] code_addr,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -91,10 +94,13 @@ wire [ 7:0] st_tiles, st_kiwi, x1012_ioctl_din, x1001_ioctl_din;
 reg        LHBL_l;
 reg  [5:0] cnt244;
 wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
-// Align the graphics coordinate origin with the PCB/MAME active area.
+localparam [8:0] OBJ_VOFF =  9'd18, OBJ_VOFF_F = -9'd4,
+                 OBJ_HOFF = -9'd4,  OBJ_HOFF_F = -9'd7;
+
 wire [8:0] hdump_gfx = hdump - 9'd7;
 wire [8:0] vdump_gfx = vdump - 9'd1,
            vrender_gfx = vrender - 9'd1;
+wire [8:0] vdump_tile = vdump_gfx - VB_END;
 
 assign ioctl_din = ioctl_addr[3] ? x1001_ioctl_din : x1012_ioctl_din;
 
@@ -120,8 +126,8 @@ jtframe_vtimer #(
     .V_START ( 9'd000 ),
     .VS_START( 9'd253 ),
     .VS_END  ( 9'd261 ),
-    .VB_START( 9'd240 ),
-    .VB_END  ( 9'd000 ),
+    .VB_START( VB_START ),
+    .VB_END  ( VB_END   ),
     .VCNT_END( 9'd271 )
 ) u_timer(
     .clk        ( clk        ),
@@ -151,7 +157,8 @@ jtx1012 u_tiles(
 
     .hs         ( HS            ),
     .flip       ( flip          ),
-    .vdump      ( vdump_gfx     ),
+    .hoffs      ( thoffs        ),
+    .vdump      ( vdump_tile    ),
     .hdump      ( hdump_gfx     ),
     // Video RAM
     .vram_addr  ( tvram_addr    ),
@@ -172,21 +179,22 @@ jtx1012 u_tiles(
     .st_dout    ( st_tiles      )
 );
 
-localparam [8:0] VADJ = 9'd19,HADJ=9'd3;
-
-wire [8:0] vdump_adj   = vdump_gfx   + VADJ,
-           vrender_adj = vrender_gfx + VADJ,
-           hdump_adj   = hdump_gfx   + HADJ;
+wire [8:0] vdump_adj   = vdump   + (flip ? OBJ_VOFF : OBJ_VOFF_F),
+           vrender_adj = vrender + (flip ? OBJ_VOFF : OBJ_VOFF_F),
+           hdump_adj   = hdump   + (flip ? OBJ_HOFF : OBJ_HOFF_F);
 
 /* verilator tracing_on */
-// Caliber 50 uses object entries 0-200.  Limiting the scan to that populated
-// range leaves enough line time for sprites that wrap through Y=0.
 jtkiwi_gfx #(
     .CPUW    ( 16      ),
-    .OBJ_XOFF( 9'h1fe  ),
+    .OBJ_XOFF( OBJ_XOFF ),
     .OBJ_YOFF( 8'hf5   ),
     .OBJ_YWRAP( 1'b1   ),
-    .OBJ_LIMIT( 9'd200 )
+    .SCR_VOFF( SCR_VOFF ),
+    .SCR_HOFF( SCR_HOFF ),
+    .SCR_VOFF_F( SCR_VOFF_F ),
+    .SCR_HOFF_F( SCR_HOFF_F ),
+    .OBJ_LIMIT( OBJ_LIMIT ),
+    .OBJAW    ( OBJAW  )
 ) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
@@ -203,6 +211,7 @@ jtkiwi_gfx #(
     .vdump      ( vdump_adj      ),
     .vrender    ( vrender_adj    ),
     .hdump      ( hdump_adj      ),
+    .obj_hshift ( obj_hshift     ),
     // CPU interface
     .vram_cs    ( vram_cs        ),
     .vctrl_cs   ( vctrl_cs       ),
@@ -245,7 +254,7 @@ jtkiwi_gfx #(
     .st_dout    ( st_kiwi        )
 );
 /* verilator tracing_on */
-jtcal50_colmix u_colmix(
+jtcal50_colmix #(.SCR_EN(SCR_EN)) u_colmix(
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
     .pxl_cen    ( pxl_cen        ),

@@ -4,22 +4,24 @@ on:
   workflow_dispatch:
   workflow_call:
 jobs:
+  # Run jobs in the private mirror only for PRs; keep public triggers unchanged.
   check_cores:
+    if: ${{ github.repository != 'jotego/jtcores-private' || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v6
       with:
         go-version: '1.21.3'
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
-        token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
+        token: ${{ secrets.PAT || github.token }}
         fetch-depth: 50
     - id: files
       name: filechange.sh
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT }}
+        GITHUB_TOKEN: ${{ secrets.PAT || github.token }}
       run: |
         . setprj.sh
         jtframe

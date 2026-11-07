@@ -1,26 +1,12 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 // Dual RAM that can easily interface with
 // the memory dump interface for NVRAM implementations
 
 module jtframe_dual_nvram #(parameter DW=8, AW=10,
-    SIMFILE_BYTE=0, FULL_DW=8,
+    SIMFILE_BYTE=0, SIMFILE_DW=8,
     SIMFILE="", SIMHEXFILE="", SYNFILE="", DUMPFILE="dump.hex"
 )(
     // Port 0
@@ -53,7 +39,7 @@ jtframe_dual_ram #(
     .SYNFILE   ( SYNFILE    ),
     .DUMPFILE  ( DUMPFILE   ),
     .SIMFILE_BYTE( SIMFILE_BYTE ),
-    .FULL_DW   ( DW         )
+    .SIMFILE_DW( SIMFILE_DW )
 ) u_dual(
     // Port 0
     .clk0   ( clk0  ),

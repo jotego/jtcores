@@ -7,10 +7,6 @@ sourcefile=[ "tnzs.cpp" ]
 skip = { setnames = [
     # Inputs not working
     "plumppop",     # most left column missing, see service screen
-    "chukatai",     # top screen row missing for objects plus garbage at top left
-    "chukataij",
-    "chukataija",
-    "chukataiu",
 
     # Korean hack on mostly unrelated hardware
     "jpopnics",
@@ -20,6 +16,7 @@ debug = { machine="kabukiz" }
 [Audio]
 volume = [
     { machine="arknoid2", value=0x93 },
+    { machine="chukatai", value=0x40 },
     { machine="drtoppel", value=0x66 },
     { machine="extrmatn", value=0x71 },
     { machine="insectx", value=0xAD },
@@ -42,10 +39,11 @@ info="""bit 0 = MCU
              bit 1 = button aid
              bit 2 = 3 MHz for FM module
              bit 3 = Kabuki Z with different memory map
-             bit 4 = 13 bits tilemap code"""
+             bit 4 = 13 bits tilemap code
+             bit 5 = PSG channels summed, not shorted"""
 data=[
     { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1 04" }, # HB dly, Banked RAM, MCU, 3MHz FM
-    { machines=["chukatai"], data="41" }, # MCU
+    { machines=["chukatai"], data="41 24" }, # MCU, 3MHz FM, PSG summed
     { machines=["insectx"],  data="40" }, # dip_flip inversion
     { machines=["drtoppel"], data="03 10" },
     { machines=["extrmatn","plumppop" ], data="03" }, # MCU - Color PROM
@@ -62,6 +60,7 @@ Names = [ { machine="insectx",  names="Fire,Warp"},
           { machine="kabuki",   names="Attack,Block"},
           { machine="kageki",   names="Left jab,Right hook"},
           { machine="arknoid2", names="Shoot"},
+          { machine="chukatai", names="Fire,Magic Bomb"},
 ]
 
 [dipsw]
@@ -87,6 +86,17 @@ regions = [
 order = [
     "maincpu", "sub", "audiocpu", "samples",
     "gfx1", "proms", "mcu"
+]
+
+# Chuka Taisen only clears 0x17E of the 512 sprite Y slots at boot
+# (LD BC,$017D + LDIR at $004E), leaving $F17E-$F1FF at zero. Those slots
+# then draw sprite 0 over the top two screen rows and starve the per-line
+# object budget, clipping the header text. Widen the fill to the whole table.
+# Open questions: did Chuka Taisen use a different sprite chip? If it is the same
+# chip, is a different MMR setting limiting the number of sprites?
+# Todo: make it work without the patch
+patches = [
+    { setnames=["chukatai","chukataij","chukataiu","chukataija"], offset=0x004F, data="FF" },
 ]
 
 

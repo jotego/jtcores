@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-8-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-8-2022 */
 
 module jtroc_video(
     input               rst,
@@ -25,7 +11,8 @@ module jtroc_video(
     input               pxl2_cen,
 
     // configuration
-    input               flip,
+    input               flip,       // software flip, written by the CPU (cocktail mode)
+    input               dip_flip,   // user flip from the OSD, unknown to the game code
 
     // CPU interface
     input        [10:0] cpu_addr,
@@ -76,20 +63,24 @@ module jtroc_video(
 parameter LAYOUT=5;
 
 wire       preLHBL, preLVBL, hinit;
-wire [8:0] vdump, vrender, hdump;
+wire [8:0] vdump, vrender, hdump, obj_hdump;
 wire [3:0] obj_pxl, scr_pxl;
 reg  [2:0] prom_we;
 wire       obj1_cs, obj2_cs, prio, obj_en;
 reg  [1:0] fix_addr;
+reg        scr_flip;
 
 assign obj1_cs = objram_cs &  cpu_addr[10];
 assign obj2_cs = objram_cs & ~cpu_addr[10];
 assign obj_en  = gfx_en[3] & ~prio;
+assign obj_hdump = { hdump[8], hdump[7:0]^{8{dip_flip}} };
 
 always @* begin
     prom_we = 0;
     prom_we[ prog_addr[9:8] ] = prom_en;
 end
+
+always @(posedge clk) scr_flip <= flip ^ dip_flip;
 
 // reg [10:0] vram_addr, objram_addr;
 
@@ -137,7 +128,7 @@ jtkicker_scroll #(.LAYOUT(LAYOUT),.NOSCROLL(1)) u_scroll(
     .LVBL       ( LVBL      ),
     .vdump      ( vdump[7:0] ),
     .hdump      ( hdump     ),
-    .flip       ( flip      ),
+    .flip       ( scr_flip  ),
 
     // PROMs
     .prog_data  ( prog_data[3:0] ),
@@ -174,8 +165,8 @@ jtkicker_obj #(.LAYOUT(LAYOUT)) u_obj(
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .vrender    (vrender[7:0]),
-    .hdump      ( hdump     ),
-    .flip       ( 1'd0      ),      // unconnected in the original
+    .hdump      ( obj_hdump ),
+    .flip       ( dip_flip  ),      // unconnected in the original: OSD flip only
 
     // PROMs
     .prog_data  ( prog_data[3:0] ),

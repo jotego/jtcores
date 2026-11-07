@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-3-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-3-2021 */
 
 // Implements 315-5197       -- System 16B and Out Run
 // Implements 315-5049 (x2)  -- System 16A
@@ -51,6 +37,8 @@ module jts16_tilemap(
     input              alt_en, // This is controlled by pin 77, named K8 in sch.
                                // pin 77 was set with a jumper on the ROM board
                                // That pin corresponds to ~alt_en in Super Hang On sch.
+    input              req_57Hz,
+    output             is_57Hz,
 
     // SDRAM interface
     input              char_ok,
@@ -110,7 +98,8 @@ module jts16_tilemap(
     output             scr_bad
 );
 
-parameter MODEL = 1;
+parameter MODEL = 1,
+          DUAL_RATE = 0;
 // Frame rate and horizontal frequency as the original
 // "The sprite X position defines the starting location of the sprite. The
 //  leftmost pixel of the screen is $00B6, and the rightmost is $1F5."
@@ -161,21 +150,15 @@ generate
     end
 endgenerate
 
-jtframe_vtimer #(
-    .HB_START  ( 9'h1ff ),
-    .HB_END    ( HB_END ),
-    .HCNT_START( 9'h70  ), // it should be 'h50
-    .HCNT_END  ( 9'h1FF ),
-    .VB_START  ( 9'h0DF ),
-    .VB_END    ( 9'h105 ),
-    .VCNT_END  ( 9'h105 ), // 262 lines
-    .VS_START  ( 9'hEF  ),
-    .VS_END    ( 9'hF3  ), // 4 lines
-    .HS_START  ( 9'h080 ),
-    .HS_END    ( HS_END )  // 4.8us measured in PCB
+jts16_vtimer #(
+    .DUAL_RATE ( DUAL_RATE ),
+    .HB_END    ( HB_END    ),
+    .HS_END    ( HS_END    )
 ) u_timer(
     .clk       ( clk      ),
     .pxl_cen   ( pxl_cen  ),
+    .req_57Hz  ( req_57Hz ),
+    .is_57Hz   ( is_57Hz  ),
     .vdump     ( vdump    ),
     .H         ( hdump    ),
     .Hinit     ( hstart   ),

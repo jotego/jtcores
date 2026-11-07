@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 8-10-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 8-10-2021 */
 
 module jtoutrun_obj(
     input              rst,
@@ -39,7 +25,7 @@ module jtoutrun_obj(
     output     [ 8:0]  buf_addr,
     output     [13:0]  buf_data,
     output             buf_we,
-    output             ln_done,
+    output reg         ln_done,
 
     // Video signal
     input              flip,
@@ -74,6 +60,23 @@ wire [ 1:0] dr_prio;
 wire [ 6:0] dr_pal;
 wire [ 9:0] dr_hzoom;
 wire        dr_hflip, dr_backwd, dr_shadow;
+wire        scan_done;
+
+reg         done_pend;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        ln_done   <= 0;
+        done_pend <= 0;
+    end else begin
+        ln_done <= 0;
+        if( scan_done ) done_pend <= 1;
+        if( (done_pend || scan_done) && !dr_busy && !dr_start ) begin
+            ln_done   <= 1;
+            done_pend <= 0;
+        end
+    end
+end
 
 jtoutrun_obj_ram u_ram(
     .rst       ( rst            ),
@@ -98,7 +101,7 @@ jtoutrun_obj_ram u_ram(
 jtoutrun_obj_scan #(.PXL_DLY(0)) u_scan(
     .rst       ( rst            ),
     .clk       ( clk            ),
-    .ln_done   ( ln_done        ),
+    .ln_done   ( scan_done      ),
 
     // Obj table
     .tbl_addr  ( tbl_addr       ),

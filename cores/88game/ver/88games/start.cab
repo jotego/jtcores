@@ -1,0 +1,8 @@
+# Wait until the attract scene, then insert a coin and start player one.
+=280
+2 coin
+8
+loop
+1 1p
+4
+repeat 10

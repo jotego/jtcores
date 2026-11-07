@@ -20,10 +20,6 @@ gng:
     - jtgng_sound.yaml
     - jtgng_dual_ram.v
 jtframe:
-  - from: clocking
-    get:
-      - jtframe_cen48.v
-      - jtframe_cen24.v
   - from: cpu
     unless: [NOSOUND]
     get:

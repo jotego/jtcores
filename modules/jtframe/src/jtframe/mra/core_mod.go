@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package mra
 
@@ -27,13 +14,16 @@ import(
 
 const (
 	COREMOD_LIGHTGUN_BIT = 1
+	COREMOD_VFRAME_BIT   = 3
 	COREMOD_HFRAME_BIT   = 5
 	COREMOD_VOLUME_BIT   = 8
+	COREMOD_DIAL_BIT     = 16
 
 	COREMOD_VERTICAL     = 1
 	COREMOD_XORFLIP      = 4
-	COREMOD_DIAL_ENABLE  = 1<<3
-	COREMOD_DIAL_REVERSE = 1<<4
+	COREMOD_DIAL_ENABLE  = 1<<COREMOD_DIAL_BIT
+	COREMOD_DIAL_REVERSE = 1<<(COREMOD_DIAL_BIT+1)
+	COREMOD_VFRAME_MASK  = uint(3)<<COREMOD_VFRAME_BIT
 	COREMOD_HFRAME_MASK  = uint(3)<<COREMOD_HFRAME_BIT
 	COREMOD_LIGHTGUN     = 1<<COREMOD_LIGHTGUN_BIT
 	COREMOD_UNITY_VOLUME = 0x80
@@ -79,7 +69,8 @@ func (mod coreMOD) describe_encoding() string {
 	is_dial		:= (mod.coremod&COREMOD_DIAL_ENABLE) !=0
 	is_dial_rev := (mod.coremod&COREMOD_DIAL_REVERSE)!=0
 	is_gun      := (mod.coremod&COREMOD_LIGHTGUN)    !=0
-	has_frame   := (mod.coremod&COREMOD_HFRAME_MASK) !=0
+	has_hframe  := (mod.coremod&COREMOD_HFRAME_MASK) !=0
+	has_vframe  := (mod.coremod&COREMOD_VFRAME_MASK) !=0
 	if is_vertical {
 		sb.WriteString("Vertical screen. ")
 	}
@@ -96,10 +87,16 @@ func (mod coreMOD) describe_encoding() string {
 		}
 		sb.WriteString(". ")
 	}
-	if has_frame {
-		switch mod.get_hframe() {
-			case COREMOD_8PXL_FRAME:  sb.WriteString(" 8-pxl black frame on sides. ")
+	if has_hframe {
+		switch mod.get_frame(COREMOD_HFRAME_BIT) {
+			case COREMOD_8PXL_FRAME:  sb.WriteString("8-pxl black frame on sides. ")
 			case COREMOD_16PXL_FRAME: sb.WriteString("16-pxl black frame on sides. ")
+		}
+	}
+	if has_vframe {
+		switch mod.get_frame(COREMOD_VFRAME_BIT) {
+			case COREMOD_8PXL_FRAME:  sb.WriteString("8-line black frame on top/bottom. ")
+			case COREMOD_16PXL_FRAME: sb.WriteString("16-line black frame on top/bottom. ")
 		}
 	}
 	desc := sb.String()
@@ -111,6 +108,9 @@ func (mod coreMOD) describe_encoding() string {
 
 func (mod coreMOD) add_ROM_part(rom *XMLNode) {
 	hexdump := fmt.Sprintf("%02X %02X", mod.coremod&0xFF, (mod.coremod>>8)&0xff)
+	if mod.coremod>>16 != 0 {
+		hexdump = fmt.Sprintf("%s %02X", hexdump, (mod.coremod>>16)&0xff)
+	}
 	rom.AddNode("part").SetText(hexdump)
 }
 
@@ -151,28 +151,23 @@ func (mod *coreMOD)screenSize(machine *MachineXML, cfg Mame2MRA) {
 	ch := macros.GetInt("JTFRAME_HEIGHT")
 	mod.wdiff = (int(cw)-machine.Display.Width)/2
 	mod.hdiff = (int(ch)-machine.Display.Height)/2
-	if mod.wdiff<0 || mod.hdiff<0 {
-		mod.wdiff=0
-		mod.hdiff=0
-	}
-	explicit := false
 	if frame_idx := bestMatch(len(cfg.Header.Frames), func(k int) int {
 		return cfg.Header.Frames[k].Match(machine)
 	}); frame_idx >= 0 {
 		mod.wdiff = cfg.Header.Frames[frame_idx].Width
-		explicit = true
 	}
-	if mod.hdiff != 0 && !explicit {
-		fmt.Printf("%s: core and MAME screen sizes differ. Remove top/bottom black frame (%d pixels total)\n",
-			machine.Name, mod.hdiff)
-	}
-	switch mod.wdiff {
-		case 0: break
-		case 8:  mod.coremod |= 1<<COREMOD_HFRAME_BIT
-		case 16: mod.coremod |= 3<<COREMOD_HFRAME_BIT
-		default: if mod.wdiff>0 {
-			fmt.Printf("%s: unsupported black frame of %d pixels around the image\nDefine one explicitly in the TOML file.\n",
-				machine.Name,mod.wdiff)
+	mod.encode_frame(machine,"horizontal",mod.wdiff,COREMOD_HFRAME_BIT)
+	mod.encode_frame(machine,"vertical",  mod.hdiff,COREMOD_VFRAME_BIT)
+}
+
+func (mod *coreMOD)encode_frame(machine *MachineXML, axis string, frame, bit int) {
+	switch frame {
+		case 0:  break
+		case 8:  mod.coremod |= 1<<bit
+		case 16: mod.coremod |= 3<<bit
+		default: if frame>0 {
+			fmt.Printf("%s: unsupported %s black frame of %d pixels/lines per side\nDefine one explicitly in the TOML file.\n",
+				machine.Name,axis,frame)
 		}
 	}
 }
@@ -204,8 +199,8 @@ func (mod *coreMOD)get_volume() int {
 	return int(masked)
 }
 
-func (mod *coreMOD)get_hframe() int {
-	frame  := mod.coremod>>COREMOD_HFRAME_BIT
+func (mod *coreMOD)get_frame(bit int) int {
+	frame  := mod.coremod>>bit
 	masked := frame & 3
 	return int(masked)
 }

@@ -3,6 +3,7 @@ s16:
     - jts16_game.v
     - jts16_mem.v
     - jts16_main.v
+    - jts16_mcu_romresp.v
     - jts16_shadow.v
     - jts16_snd.v
     - jts16_cen.v

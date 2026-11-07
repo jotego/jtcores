@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 14-9-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 14-9-2019 */
 
 
 module jtbiocom_game(
@@ -31,7 +17,6 @@ wire [ 7:0] char_dout, scr1_dout, scr2_dout;
 wire [15:0] cpu_dout;
 wire        rd, cpu_cen;
 wire        char_busy, scr1_busy, scr2_busy;
-wire        clk_mcu;
 
 // MCU interface
 wire [ 7:0] snd_din, snd_dout;
@@ -60,9 +45,12 @@ wire        scr1_cs, scr2_cs;
 wire [15:0] scr1_hpos, scr1_vpos;
 wire [ 8:0] scr2_hpos, scr2_vpos;
 
-assign clk_mcu = clk24;
-assign prom_mcu_we  = prom_we && !ioctl_addr[12];
-assign prom_prio_we = prom_we &&  ioctl_addr[12];
+// prog_addr is relative to JTFRAME_PROM_START.  ioctl_addr is the original
+// ROM-file address, whose bit 12 does not distinguish the 8751 from the
+// following priority PROM.  Using it let the latter wrap through the MCU's
+// 12-bit programming address and overwrite its interrupt vectors.
+assign prom_mcu_we  = prom_we && !prog_addr[12];
+assign prom_prio_we = prom_we &&  prog_addr[12];
 assign debug_view   = 0;
 assign dip_flip     = ~flip;
 
@@ -153,8 +141,8 @@ jtbiocom_main u_main(
 );
 
 jtbiocom_mcu u_mcu(
-    .rst        ( rst24         ),
-    .clk        ( clk_mcu       ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .rst_cpu    ( rst           ),
     .clk_rom    ( clk           ),
     .clk_cpu    ( clk           ),
@@ -201,7 +189,7 @@ jtbiocom_sound #(.RECOVERY(1)) u_sound (
     .fm_l           ( fm_l           ),
     .fm_r           ( fm_r           )
 );
-
+/* verilator tracing_off */
 jtbiocom_video #(
     .OBJ_PAL      (2'b10),
     .PALETTE_PROM (1),

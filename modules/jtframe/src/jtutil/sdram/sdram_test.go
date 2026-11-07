@@ -226,6 +226,28 @@ func TestDumpRemovesEmptyRegionFile(t *testing.T) {
 	}
 }
 
+func TestDumpAcceptsMissingEmptyRegionFile(t *testing.T) {
+	dir := t.TempDir()
+	restore := chdir(t, dir)
+	defer restore()
+
+	rom := []byte{0, 1, 2, 3}
+	var next int
+	var err error
+	output := captureStdout(t, func() {
+		next, err = dump("empty.bin", rom, 2, 2, len(rom), 0)
+	})
+	if err != nil {
+		t.Fatalf("dump returned error: %v", err)
+	}
+	if next != 2 {
+		t.Fatalf("dump next mismatch: got=%d want=%d", next, 2)
+	}
+	if !strings.Contains(output, "Warning: empty region file does not exist empty.bin") {
+		t.Fatalf("missing-file warning not reported: %q", output)
+	}
+}
+
 func TestSdramBankSizeDefaultsTo8MB(t *testing.T) {
 	macros.MakeFromMap(map[string]string{})
 	got := sdramBankSize()
@@ -347,6 +369,32 @@ func TestBankEndOffsetCapsNextBankAtProm(t *testing.T) {
 	}
 	if got, want := bankEndOffset(3, 4, offsets, offsets[4]), offsets[4]; got != want {
 		t.Fatalf("blank bank after PROM end mismatch: got=%#x want=%#x", got, want)
+	}
+}
+
+func TestPromEndOffsetClampsPastROMEnd(t *testing.T) {
+	const romLen = 0x210008
+	got := 0
+	output := captureStdout(t, func() {
+		got = promEndOffset([]int{0, 0x80008, 0x110008, 0x190008, 0x280008}, 4, romLen)
+	})
+	if got != romLen {
+		t.Fatalf("PROM end mismatch: got=%#x want=%#x", got, romLen)
+	}
+	if !strings.Contains(output, "WARNING: JTFRAME_PROM_START ($280008) is beyond ROM end ($210008)") {
+		t.Fatalf("expected PROM warning, got %q", output)
+	}
+}
+
+func TestPromEndOffsetUsesInRangePROM(t *testing.T) {
+	const promStart = 0x280008
+	output := captureStdout(t, func() {
+		if got := promEndOffset([]int{0, 0x80008, 0x110008, 0x190008, promStart}, 4, 0x283008); got != promStart {
+			t.Fatalf("PROM end mismatch: got=%#x want=%#x", got, promStart)
+		}
+	})
+	if output != "" {
+		t.Fatalf("unexpected PROM warning: %q", output)
 	}
 }
 

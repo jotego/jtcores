@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 11-1-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 11-1-2021 */
 
 // 1 slots for SDRAM read-only access
 // Each slot can be used for 8, 16 or 32 bit access
@@ -22,11 +8,14 @@
 /* verilator coverage_off */
 module jtframe_rom_1slot #(parameter
     SDRAMW       = 22,
+    TAG_RAM      =  0,
     SLOT0_DW     = 8,
     SLOT0_AW     = 8,
     SLOT0_LATCH  = 0,
     SLOT0_DOUBLE = 0,
     CACHE0_SIZE  = 0,
+    CACHE0_LARGE = 0,
+    SLOT0_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT0_OFFSET = {SDRAMW{1'b0}},
 /* verilator lint_on WIDTH */
@@ -59,7 +48,10 @@ jtframe_rom_2slots #(
     .SLOT0_OFFSET ( SLOT0_OFFSET  ),
     .SLOT0_DOUBLE ( SLOT0_DOUBLE  ),
     .SLOT0_OKLATCH( SLOT0_OKLATCH ),
-    .CACHE0_SIZE  ( CACHE0_SIZE   )
+    .CACHE0_SIZE  ( CACHE0_SIZE   ),
+    .CACHE0_LARGE ( CACHE0_LARGE  ),
+    .TAG_RAM      ( TAG_RAM       ),
+    .SLOT0_BURSTLEN( SLOT0_BURSTLEN )
 ) u_2slots(
     .rst    ( rst       ),
     .clk    ( clk       ),

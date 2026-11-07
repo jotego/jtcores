@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-2-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-2-2021 */
 
 /*
 
@@ -60,7 +46,7 @@ module jtframe_mister_dwnld(
     output reg [ 7:0] ioctl_dout,
 
     // Configuration
-    output reg [ 6:0] core_mod,
+    output reg [17:0] core_mod,
     output reg [ 7:0] game_vol=8'h80,
     input      [31:0] status,
     output     [31:0] dipsw,
@@ -95,8 +81,9 @@ always @(posedge clk) begin
         // The hps_addr[0]==1'b0 condition is needed in case JTFRAME_MR_FASTIO is enabled
         // as it always creates two write events and the second would delete the data of the first
         if (hps_wr && hps_index==IDX_MOD) case (hps_addr[1:0])
-            0: core_mod <= hps_dout[6:0];
-            1: game_vol <= hps_dout;
+            0: core_mod       <= {11'd0,hps_dout[6:0]};
+            1: game_vol       <= hps_dout;
+            2: core_mod[17:16]<= hps_dout[1:0];
         endcase
     end
 end

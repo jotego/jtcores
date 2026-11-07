@@ -1,0 +1,10 @@
+$JTROOT/cores/s18/hdl/jts18_colmix.v
+$JTROOT/cores/s18/hdl/jts18_vdp_pri_gate.sv
+$JTROOT/cores/s18/hdl/jts18_vdp_pri.sv
+$JTFRAME/hdl/video/jtframe_blank.v
+$JTFRAME/hdl/video/jtframe_short_blank.v
+$JTFRAME/hdl/video/crosshair/jtframe_crosshair.v
+$JTFRAME/hdl/video/crosshair/jtframe_crosshair_color.v
+$JTFRAME/hdl/video/crosshair/jtframe_crosshair_draw.sv
+$JTFRAME/hdl/video/jtframe_video_counter.v
+$JTFRAME/hdl/jtframe_sh.v

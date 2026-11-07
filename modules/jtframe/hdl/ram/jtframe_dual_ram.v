@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 // Generic dual port RAM with clock enable
 // parameters:
@@ -32,7 +18,7 @@
 
 module jtframe_dual_ram #(parameter DW=8, AW=10,
     SIMFILE="", SIMHEXFILE="",
-    SIMFILE_BYTE=0, FULL_DW=8,
+    SIMFILE_BYTE=0, SIMFILE_DW=8,
     SYNFILE="",
     ASCII_BIN=0,  // set to 1 to read the ASCII file as binary
     DUMPFILE="dump.hex",
@@ -64,7 +50,7 @@ module jtframe_dual_ram #(parameter DW=8, AW=10,
         .SIMFILE    ( SIMFILE   ),
         .SIMHEXFILE ( SIMHEXFILE),
         .SIMFILE_BYTE( SIMFILE_BYTE ),
-        .FULL_DW    ( FULL_DW   ),
+        .SIMFILE_DW ( SIMFILE_DW ),
         .SYNFILE    ( SYNFILE   ),
         .ASCII_BIN  ( ASCII_BIN ),
         .DUMPFILE   ( DUMPFILE  ),
@@ -97,7 +83,7 @@ endmodule
 
 module jtframe_dual_ram_cen #(parameter DW=8, AW=10,
     SIMFILE="", SIMHEXFILE="",
-    SIMFILE_BYTE=0, FULL_DW=8,
+    SIMFILE_BYTE=0, SIMFILE_DW=8,
     SYNFILE="",
     ASCII_BIN=0,  // set to 1 to read the ASCII file as binary
     DUMPFILE="dump", // do not add an extension to the name
@@ -253,23 +239,23 @@ localparam POCKET=0;
                     end
                 `endif
 
-                localparam FULL_BYTES = FULL_DW==32 ? 4 : (FULL_DW==16 ? 2 : 1);
+                localparam SIMFILE_BYTES = SIMFILE_DW==32 ? 4 : (SIMFILE_DW==16 ? 2 : 1);
                 integer f, readcnt, loadcnt, loadpos;
                 reg [7:0] file_data[0:(2**AW)*4-1];
                 initial begin
-                    if( FULL_DW!=8 && FULL_DW!=16 && FULL_DW!=32 ) begin
-                        $display("ERROR: %m invalid FULL_DW=%0d", FULL_DW);
+                    if( SIMFILE_DW!=8 && SIMFILE_DW!=16 && SIMFILE_DW!=32 ) begin
+                        $display("ERROR: %m invalid SIMFILE_DW=%0d", SIMFILE_DW);
                         $finish;
                     end
-                    if( FULL_DW==16 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>1) ) begin
-                        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for FULL_DW=16", SIMFILE_BYTE);
+                    if( SIMFILE_DW==16 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>1) ) begin
+                        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for SIMFILE_DW=16", SIMFILE_BYTE);
                         $finish;
                     end
-                    if( FULL_DW==32 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>3) ) begin
-                        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for FULL_DW=32", SIMFILE_BYTE);
+                    if( SIMFILE_DW==32 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>3) ) begin
+                        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for SIMFILE_DW=32", SIMFILE_BYTE);
                         $finish;
                     end
-                    if( FULL_DW!=8 && DW!=8 ) begin
+                    if( SIMFILE_DW!=8 && DW!=8 ) begin
                         $display("ERROR: %m partial SIMFILE loading requires DW=8");
                         $finish;
                     end
@@ -279,12 +265,12 @@ localparam POCKET=0;
                     if( SIMFILE != "" ) begin
                         f=$fopen(SIMFILE,"rb");
                         if( f != 0 ) begin
-                            if( FULL_DW==8 ) begin
+                            if( SIMFILE_DW==8 ) begin
                                 readcnt=$fread( mem, f );
                             end else begin
                                 readcnt=$fread( file_data, f );
                                 loadcnt = 0;
-                                for( loadpos=SIMFILE_BYTE; loadpos<readcnt && loadcnt<(2**AW); loadpos=loadpos+FULL_BYTES ) begin
+                                for( loadpos=SIMFILE_BYTE; loadpos<readcnt && loadcnt<(2**AW); loadpos=loadpos+SIMFILE_BYTES ) begin
                                     /* verilator lint_off WIDTHTRUNC */
                                     /* verilator lint_off WIDTHEXPAND */
                                     mem[loadcnt] = file_data[loadpos];
@@ -292,12 +278,12 @@ localparam POCKET=0;
                                     /* verilator lint_on WIDTHTRUNC */
                                     loadcnt = loadcnt+1;
                                 end
-                                if( readcnt%FULL_BYTES != 0 )
-                                    $display("WARNING: %m ignored %0d trailing bytes from %s", readcnt%FULL_BYTES, SIMFILE);
+                                if( readcnt%SIMFILE_BYTES != 0 )
+                                    $display("WARNING: %m ignored %0d trailing bytes from %s", readcnt%SIMFILE_BYTES, SIMFILE);
                             end
                             $display("-%-12s (%4d bytes) %m",
                                 SIMFILE, readcnt);
-                            if( FULL_DW==8 ) begin
+                            if( SIMFILE_DW==8 ) begin
                                 if( readcnt != 2**AW && readcnt!=0)
                                     $display("\tthe memory was not filled by the file data");
                             end else begin

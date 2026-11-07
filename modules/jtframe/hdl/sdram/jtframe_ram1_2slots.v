@@ -1,25 +1,12 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-12-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-12-2020 */
 
 // SDRAM access multiplexer, 2 -> 1
 
 module jtframe_ram1_2slots #(parameter
     SDRAMW = 22,
+    TAG_RAM = 0,
     SLOT0_ERASE = 1, // erase memory contents after a reset
     SLOT0_DW =16, SLOT1_DW = 8, SLOT2_DW = 8,
     SLOT0_AW = 8, SLOT1_AW = 8, SLOT2_AW = 8,
@@ -30,6 +17,8 @@ module jtframe_ram1_2slots #(parameter
     SLOT1_OKLATCH= 1,
 
     CACHE1_SIZE = 0,
+    CACHE1_LARGE = 0,
+    SLOT1_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT1_OFFSET = 0,
 /* verilator lint_on WIDTH */
@@ -109,7 +98,7 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.ERASE(SLOT0_ERASE)
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
     .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
-    .CACHE_SIZE(CACHE1_SIZE))
+    .CACHE_SIZE ( CACHE1_SIZE     ), .CACHE_LARGE( CACHE1_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT1_BURSTLEN ))
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

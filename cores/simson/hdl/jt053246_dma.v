@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 4-2-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-2-2024 */
 
 module jt053246_dma(
     input             rst,
@@ -60,7 +46,7 @@ assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 assign hs_pos  = hs & ~hsl;
 
 assign sort_673 = dma_data[7:0]^{8{K55673_DESC_SORT[0]}};
-assign sort_24x ={ ~k44_en & dma_data[7], k44_en ? dma_data[6:0] : ~dma_data[6:0]};
+assign sort_24x = k44_en ? {1'b0, dma_data[6:0]} : ~dma_data[7:0];
 
 // DMA logic
 always @(posedge clk, posedge rst) begin

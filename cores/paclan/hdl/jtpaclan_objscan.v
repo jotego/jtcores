@@ -1,24 +1,10 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 21-5-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-5-2025 */
 
 module jtpaclan_objscan(
     input             clk, hs, blankn,
-    input             flip,
+    input             flip, rot,
     input      [ 8:0] vrender,
 
     output reg [ 8:0] code,
@@ -38,8 +24,10 @@ module jtpaclan_objscan(
     input      [ 7:0] debug_bus
 );
 
-localparam [8:0] XOS=9'h1f7+9'd4;
-localparam [7:0] YOS=8'd24;
+parameter SKYKID=0;
+
+localparam [8:0] XOS=9'h1f7+9'd4, SKXOS=9'h1fa, SKXROT=9'd418;
+localparam [7:0] YOS=8'd24, SKYROT=8'd2;
 localparam    HLARGE=1'b1;
 
 reg  [7:0] y, vos_dr;
@@ -56,7 +44,7 @@ wire       draw_step, hsub, cen, hcnt_nx;
 assign draw_step = st==3;
 assign objcnt    = raw_addr[2+:6];
 
-assign ram_addr[12:11] = st[1:0];
+assign ram_addr[12:11] = st[1:0]+(SKYKID==1 ? 2'd1 : 2'd0);
 assign ram_addr[10: 7] = 4'b1111;
 assign ram_addr[ 6: 1] = objcnt;
 
@@ -77,6 +65,15 @@ always @(posedge clk) if(cen) begin
             { code[8], vsize, hsize, vflip, hflip} <= {ram_dout[7],ram_dout[3:1],~ram_dout[0]}; // A[12:11]=2
             y <= y + YOS + (ram_dout[3] ? 8'd16 : 8'd0);
             hpos <= {ram_dout[8],hpos[7:0]}+XOS+{debug_bus[7],debug_bus};
+            if( SKYKID==1 ) begin
+                { vflip, hflip } <= {ram_dout[1],~ram_dout[0]}^{2{flip^rot}};
+                if( rot ) begin
+                    y    <= SKYROT + (ram_dout[3] ? 8'd32 : 8'd16) - (y + YOS + (ram_dout[3] ? 8'd16 : 8'd0));
+                    hpos <= SKXROT - ({ram_dout[8],hpos[7:0]} + SKXOS) - (ram_dout[2] ? 9'd32 : 9'd16);
+                end else begin
+                    hpos <= {ram_dout[8],hpos[7:0]} + SKXOS;
+                end
+            end
         end
         3: if(!dr_busy && !dr_draw && inzone) begin
             ysub <= nx_ysub;

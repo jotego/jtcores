@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-11-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-11-2025 */
 /* verilator coverage_off */
 module jt65c02_regs #(parameter DECO222=0)(
     input             rst,
@@ -34,6 +20,7 @@ module jt65c02_regs #(parameter DECO222=0)(
     output reg        rd,
     input             stcy, brcy,
     output reg        pcpage,
+    output            ea_ff,
     input      [ 1:0] ea_sel,
     input      [ 1:0] opnd_sel,
     input      [ 3:0] ld_sel,
@@ -56,6 +43,7 @@ module jt65c02_regs #(parameter DECO222=0)(
 reg  [ 7:0] a, x, y, s, rmux;
 reg  [15:0] ea, pc;
 reg         v,n,z; // other condition codes (b=break)
+assign ea_ff = ea[7:0] == 8'hff;
 
 wire [7:0] cc = {n,v,2'b10,d,i,z,c};
 wire [7:0] md_op = DECO222 && opdec ? { md[7], md[5], md[6], md[4:0] } : md;

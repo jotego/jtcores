@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-2-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-2-2019 */
 
 ////////////////////////////////////////////////////////////
 /////// read/write type
@@ -48,10 +34,10 @@ module jtframe_ram_rq #(parameter
     input               wrin,
     input               we,
     input               dst,
-    output reg          req,
-    output reg          req_rnw,
+    output              req,
+    output              req_rnw,
     output reg          data_ok,    // strobe that signals that data is ready
-    output reg [SDRAMW-1:0]   sdram_addr,
+    output     [SDRAMW-1:0]   sdram_addr,
     input      [DW-1:0] wrdata,
     output reg [DW-1:0] dout,       // sends SDRAM data back to requester
     output              erase_bsy
@@ -60,19 +46,25 @@ module jtframe_ram_rq #(parameter
     wire  [SDRAMW-1:0] size_ext   = { {SDRAMW-AW{1'b0}}, addr };
 
     reg          last_cs, pending, erased;
+    reg          req_l, req_rnw_l;
+    reg [SDRAMW-1:0] sdram_addr_l;
     reg [AW-1:0] erase_cnt;
     wire         cs_posedge = addr_ok && !last_cs;
+    wire         req_fast = !erase_bsy && !we && (cs_posedge || pending);
     // wire   cs_negedge = !addr_ok && last_cs;
     assign erase_bsy = ERASE[0] && !erased;
+    assign req        = req_l | req_fast;
+    assign req_rnw    = req_fast ? ~wrin : req_rnw_l;
+    assign sdram_addr = req_fast ? size_ext + offset : sdram_addr_l;
 
     always @(posedge clk) begin
         if( rst ) begin
             last_cs   <= 0;
-            req       <= 0;
+            req_l     <= 0;
             data_ok   <= 0;
             pending   <= 0;
             dout      <= 0;
-            req_rnw   <= 1;
+            req_rnw_l <= 1;
             if( ERASE==1 ) begin
                 erased    <= 0;
                 erase_cnt <= 0;
@@ -80,13 +72,13 @@ module jtframe_ram_rq #(parameter
         end else begin
             if( ERASE==1 && !erased ) begin
                 if( we ) begin
-                    req <= 0;
-                    if( req ) {erased,erase_cnt}<= erase_cnt+1'd1;
+                    req_l <= 0;
+                    if( req_l ) {erased,erase_cnt}<= erase_cnt+1'd1;
                 end else begin
-                    req        <= 1;
-                    req_rnw    <= 0;
-                    if(!req) begin
-                        sdram_addr <= { {SDRAMW-AW{1'b0}}, erase_cnt } + offset;
+                    req_l     <= 1;
+                    req_rnw_l <= 0;
+                    if(!req_l) begin
+                        sdram_addr_l <= { {SDRAMW-AW{1'b0}}, erase_cnt } + offset;
                     end
                 end
             end else begin
@@ -97,8 +89,8 @@ module jtframe_ram_rq #(parameter
                         data_ok <= 0;
                         pending <= 1;
                     end
-                    req <= 0;
-                    if( FASTWR && !req_rnw ) begin
+                    req_l <= 0;
+                    if( FASTWR && !req_rnw_l ) begin
                         data_ok <= 1;
                     end
                     if( dst ) begin // note byte selection for DW==8
@@ -107,11 +99,11 @@ module jtframe_ram_rq #(parameter
                     end
                     if( din_ok && (!FASTWR || req_rnw) ) data_ok <= 1;
                 end else if( cs_posedge || pending ) begin
-                    req        <= 1;
-                    req_rnw    <= ~wrin;
+                    req_l      <= 1;
+                    req_rnw_l  <= ~wrin;
                     data_ok    <= 0;
                     pending    <= 0;
-                    sdram_addr <= size_ext + offset;
+                    sdram_addr_l <= size_ext + offset;
                 end
             end
         end

@@ -66,7 +66,11 @@ The JT team's work on this core benefited from a real SEGA MoonWalker PCB loaned
 
 ## Video Notes
 
-System 18 analog video can be picky on some CRT monitors. As discussed in GitHub issue [#692](https://github.com/jotego/jtcores/issues/692), some displays are troubled by the current analog output timing. The main suspect is horizontal sync pulse length rather than vertical timing. The original sync captures and screenshots used for comparison are in the `doc/` folder, and the issue notes that testing longer HS variants is useful when checking monitor compatibility.
+System 18 analog video can be picky on some CRT monitors. As discussed in GitHub issue [#692](https://github.com/jotego/jtcores/issues/692), some displays are troubled by the current analog output timing.
+
+Use the MiSTer **System clock** OSD option to try a slightly faster timing; `104.16%` targets the usual 15.625 kHz line rate. This changes the speed of the whole emulated system, not just video timing: gameplay, music, and sound effects all run faster or slower with the selected value.
+
+The original sync captures and screenshots used for comparison are in the `doc/` folder.
 
 ## Inputs
 

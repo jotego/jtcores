@@ -33,7 +33,6 @@ regions = [
     { name="maincpu", width=16, reverse=true  },
     { name="sub", width=16, reverse=true  },
     { name="sub", setnames=[ "fround", "froundl" ], skip = true },
-    { name="data"  },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="fixed",    start="JTFRAME_BA2_START" },
     { name="tiles",    start="SCR_START", width=32 },
@@ -44,7 +43,7 @@ regions = [
 ]
 
 order = [
-    "maincpu", "sub", "data", "audiocpu",
+    "maincpu", "sub", "audiocpu",
     "k007232", "upd",
     "fixed", "tiles", "gfxrom"
 ]

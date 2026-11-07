@@ -1,0 +1,12 @@
+# Regression script: boot, insert a coin, start a 1P game.
+# Ballbros then shows a mode-select screen - "SELECT AND PRESS BUTTON
+# ACCORDINGLY" - where the left arrow is ONE PLAYER. Hold left, then press
+# the action button with it to confirm.
+=560
+4 coin
+40
+4 1p
+60
+8 left
+8 left b1
+200

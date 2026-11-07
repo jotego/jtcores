@@ -11,6 +11,10 @@
 
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_game(
@@ -19,35 +23,24 @@ module jtblkout_game(
 
 wire [ 1:0] main_dsn;
 wire        main_rnw;
-wire        work_cs, work2_cs, work3_cs, fvram_cs, pal_cs, fb_cs, frontcol_cs;
-wire [11:0] frontcol;
-wire [ 7:0] snd_latch;
+wire        frontcol_cs;
+wire [ 7:0] snd_latch, st_video;
 wire        snd_irq;
 
 assign dip_flip   = 0;
-assign debug_view = 0;
+assign debug_view = st_video;
 
-// BRAM write strobes (addr + din wired via mem.yaml)
-assign work_we   = {2{work_cs  & ~main_rnw}} & ~main_dsn;
-assign work2_we  = {2{work2_cs & ~main_rnw}} & ~main_dsn;
-assign fvram_we  = {2{fvram_cs & ~main_rnw}} & ~main_dsn;
-assign pal_we    = {2{pal_cs   & ~main_rnw}} & ~main_dsn;
+wire blockout, blockoutj;
 
-// Back framebuffer (SDRAM bank 2): CPU R/W straight-through, video read is fbrd.
-// A write must wait for a valid byte strobe: fb_cs asserts at ASn but the 68k
-// drives UDSn/LDSn later, so issuing at ASn with dsn=11 would mask the byte.
-wire fb_wr = fb_cs & ~main_rnw;
-assign fbram_sel = main_rnw ? fb_cs : (fb_wr & main_dsn!=2'b11);
-assign fbram_addr= main_addr[17:1];
-assign fbram_dsn = main_dsn;
-assign fbram_we  = fb_wr & main_dsn!=2'b11;
-
-// Work RAM 0x208000-0x21ffff (SDRAM bank 3): same byte-strobe handling, no video read.
-wire work3_wr = work3_cs & ~main_rnw;
-assign work3_sel = main_rnw ? work3_cs : (work3_wr & main_dsn!=2'b11);
-assign work3_addr= main_addr[16:1];
-assign work3_dsn = main_dsn;
-assign work3_we  = work3_wr & main_dsn!=2'b11;
+jtblkout_header u_header(
+    .clk        ( clk            ),
+    .header     ( header         ),
+    .prog_we    ( prog_we        ),
+    .blockout   ( blockout       ),
+    .blockoutj  ( blockoutj      ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data      )
+);
 
 jtblkout_main u_main(
     .rst        ( rst24     ),
@@ -59,15 +52,21 @@ jtblkout_main u_main(
     .main_dsn   ( main_dsn  ),
     .main_rnw   ( main_rnw  ),
     .rom_cs     ( main_cs   ),
-    .work_cs    ( work_cs   ),
-    .work2_cs   ( work2_cs  ),
-    .work3_cs   ( work3_cs  ),
-    .fvram_cs   ( fvram_cs  ),
-    .pal_cs     ( pal_cs    ),
-    .fb_cs      ( fb_cs     ),
+    .work_we    ( work_we   ),
+    .work2_we   ( work2_we  ),
+    .work3_sel  ( work3_sel ),
+    .work3_addr ( work3_addr),
+    .work3_dsn  ( work3_dsn ),
+    .work3_we   ( work3_we  ),
+    .fvram_we   ( fvram_we  ),
+    .pal_we     ( pal_we    ),
+    .fbram_sel  ( fbram_sel ),
+    .fbram_addr ( fbram_addr),
+    .fbram_dsn  ( fbram_dsn ),
+    .fbram_we   ( fbram_we  ),
     .frontcol_cs( frontcol_cs ),
-    .frontcol   ( frontcol  ),
 
+    .blockoutj  ( blockoutj ),
     .work_dout  ( work_dout ),
     .work2_dout ( work2_dout),
     .work3_dout ( work3_data),
@@ -103,7 +102,11 @@ jtblkout_video u_video(
     .HS         ( HS        ),
     .VS         ( VS        ),
 
-    .frontcol   ( frontcol  ),
+    .frontcol_cs( frontcol_cs ),
+    .main_addr  ( main_addr[1] ),
+    .cpu_dout   ( cpu_dout  ),
+    .main_dsn   ( main_dsn  ),
+    .main_rnw   ( main_rnw  ),
 
     .fbrd_addr  ( fbrd_addr ),
     .fbrd_cs    ( fbrd_cs   ),
@@ -118,7 +121,12 @@ jtblkout_video u_video(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+
+    .ioctl_addr ( ioctl_addr),
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  )
 );
 
 jtdd2_sound u_sound(

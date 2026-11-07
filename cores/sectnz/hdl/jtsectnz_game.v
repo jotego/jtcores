@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-6-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-6-2019 */
 
 
 module jtsectnz_game(
@@ -33,8 +19,6 @@ wire        rd, cpu_cen, char_busy, scr_busy, scr_cs, RnW, sres_b, snd_int,
 reg         game_cfg;
 
 assign debug_view = { 6'd0, flip, game_cfg };
-assign pxl2_cen   = cen12;
-assign pxl_cen    = cen6;
 assign dip_flip   = flip^game_cfg;
 assign scr_part   = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], scr_data[ 3: 0] } :
                            { scr_data[31:28], scr_data[23:20], scr_data[15:12], scr_data[ 7: 4] };
@@ -153,8 +137,8 @@ jtgng_sound #(.LAYOUT(0)) u_sound (
 jtsectnz_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
-    .cen6       ( cen6          ),
+    .cen12      ( pxl2_cen      ),
+    .cen6       ( pxl_cen       ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),

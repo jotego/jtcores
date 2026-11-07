@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 30-10-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-10-2022 */
 
 package msg
 
@@ -46,6 +33,10 @@ func (msg *Compiler) Convert() (e error) {
 	fmsg, e := os.Open(msgpath); if e!=nil { return e }
 	defer fmsg.Close()
 	_, e = msg.parse_stream(fmsg); if e!=nil { return e }
+	pages := len(msg.data) / 1024
+	if len(msg.data)%1024 != 0 { pages++ }
+	if pages < 1 { pages = 1 }
+	if pages > 16 { return fmt.Errorf("credits message has %d pages; maximum is 16", pages) }
 	msg.roundup_1k()
 	return msg.dump_msg()
 }
@@ -64,7 +55,7 @@ func (msg *Compiler) parse_stream(fmsg io.Reader) (parsed_lines int, e error) {
 		msg.data=append(msg.data,line.data...)
 		msg.line_cnt++
 	}
-	return msg.line_cnt, nil
+	return msg.line_cnt, scanner.Err()
 }
 
 type line_parser struct {
@@ -145,6 +136,10 @@ func (line *line_parser) push(c rune) error {
 }
 
 func (msg *Compiler)roundup_1k() {
+	if len(msg.data) == 0 {
+		msg.data = make(ChData, 1024)
+		return
+	}
 	rest := len(msg.data)%1024
 	if rest==0 { return }
 	chunks := 1+len(msg.data)/1024
@@ -159,5 +154,12 @@ func (msg *Compiler)dump_msg() error {
 	if e!=nil { return e }
 	bin := common.MakeBinBytes(msg.data)
 	e = os.WriteFile("msg.bin",bin,0644)
-	return e
+	if e!=nil { return e }
+	for page, start := 0, 0; start < len(msg.data); page, start = page+1, start+1024 {
+		end := start + 1024
+		page_data := msg.data[start:end]
+		if e = os.WriteFile(fmt.Sprintf("msg%d.hex", page), common.MakeHexBytes(page_data), 0644); e != nil { return e }
+		if e = os.WriteFile(fmt.Sprintf("msg%d.bin", page), common.MakeBinBytes(page_data), 0644); e != nil { return e }
+	}
+	return nil
 }

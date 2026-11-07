@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-7-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-7-2021 */
 
 module jts16b_main(
     input              rst,
@@ -136,7 +122,8 @@ wire [23:0] A_full = {A,1'b0};
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn;
 wire        ok_dly;
-reg         sdram_ok, ram_ok_dly;
+reg         sdram_ok;
+wire        ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw, mul_dout, cmp_dout, cmp2_dout;
 
 reg         io_cs, mul_cs, cmp_cs, cmp2_cs, wdog_cs, tbank_cs;
@@ -215,6 +202,7 @@ jts16b_mapper u_mapper(
     .bus_dsn    ( {UDSn,  LDSn}  ),
     .bus_cs     ( bus_cs         ),
     .bus_busy   ( bus_busy       ),
+    .bus_legit  ( 1'b0           ),
     // effective bus signals
     .addr_out   ( A              ),
 
@@ -266,7 +254,6 @@ jts16b_mapper u_mapper(
 
 
 jtframe_8751mcu #(
-    .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
     .SYNC_P1    ( 1             ),
     .SYNC_INT   ( 1             )
@@ -307,6 +294,16 @@ jtframe_8751mcu #(
 always @* begin
     sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok_dly);
 end
+
+wire ram_acc = ram_cs | vram_cs;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -477,7 +474,6 @@ jts16b_cabinet u_cabinet(
 
 // Data bus input
 always @(posedge clk) begin
-    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

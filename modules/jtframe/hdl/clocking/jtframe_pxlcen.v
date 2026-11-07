@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-12-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-12-2022 */
 
 `ifdef JTFRAME_PXLCLK
 module jtframe_pxlcen(
@@ -25,10 +11,12 @@ module jtframe_pxlcen(
 
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
-               M      = (PXLCLK==12 ? 2 : PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
+               M      = PXLCLK==16 ? 3 : (PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
 
     initial begin
-        if( PXLCLK!=8 && PXLCLK!=6 ) begin
+        if( PXLCLK==16 && CLK!=96 ) begin
+            $fatal(1,"JTFRAME_PXLCLK=16 requires JTFRAME_SDRAM96");
+        end else if( PXLCLK!=16 && PXLCLK!=8 && PXLCLK!=6 ) begin
             $display("JTFRAME_PXLCLK is set to %d. But that value isn't supported yet.",PXLCLK);
             $finish;
         end else begin

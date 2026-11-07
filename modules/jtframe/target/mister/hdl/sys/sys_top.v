@@ -232,7 +232,7 @@ end
 
 // gp_in[31] = 0 - quick flag that FPGA is initialized (HPS reads 1 when FPGA is not in user mode)
 //                 used to avoid lockups while JTAG loading
-wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 8'd0, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
+wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 7'd0, ~HDMI_TX_INT, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
 wire [31:0] gp_out;
 
 wire  [1:0] io_ver = 1; // 0 - obsolete. 1 - optimized HPS I/O. 2,3 - reserved for future.
@@ -396,6 +396,8 @@ always@(posedge clk_sys) begin
 `ifndef MISTER_DEBUG_NOHDMI
 			if(io_din[7:0] == 'h40) io_dout_sys <= fb_crc;
 `endif
+			if(io_din[7:0] == 'h42) io_dout_sys <= {1'b1, frame_cnt};
+			if(io_din[7:0] == 'h44) io_dout_sys <= 1;
 		end
 		else begin
 			cnt <= cnt + 1'd1;
@@ -534,6 +536,15 @@ always@(posedge clk_sys) begin
 
 	vs_d2 <= vs_d1;
 	if(~vs_d2 & vs_d1) vs_wait <= 0;
+end
+
+reg [7:0] frame_cnt;
+always @(posedge clk_sys) begin
+	reg vs_r, vs_old;
+
+	vs_r <= vs_fix;
+	if(vs_r == vs_fix) vs_old <= vs_r;
+	if(~vs_old & vs_r) frame_cnt <= frame_cnt + 1'd1;
 end
 
 cyclonev_hps_interface_peripheral_uart uart
@@ -1166,6 +1177,7 @@ cyclonev_hps_interface_peripheral_i2c hdmi_i2c
 		.io_din(io_din),
 
 		.clk_video(clk_hdmi),
+		.ce_in(1'b0),
 		.din(hdmi_data_mask),
 		.hs_in(hdmi_hs_mask),
 		.vs_in(hdmi_vs_mask),
@@ -1375,9 +1387,12 @@ scanlines #(0) VGA_scanlines
 	.ce_out(vga_ce_sl)
 );
 
-wire [23:0] vga_data_osd;
-wire        vga_vs_osd, vga_hs_osd, vga_de_osd;
-osd vga_osd
+// JTFRAME: analogue h-size. Inserted after the HDMI branch has already tapped
+// the stream, so stretching only moves the DAC pixel clock. See
+// $JTFRAME/hdl/video/jtframe_hretime.v
+wire [23:0] vga_data_mix;
+wire        vga_vs_mix, vga_hs_mix, vga_de_mix;
+osd #(.NATIVE_PIXEL(1)) vga_osd
 (
 	.clk_sys(clk_sys),
 
@@ -1387,11 +1402,51 @@ osd vga_osd
 	.osd_status(osd_status),
 
 	.clk_video(clk_vid),
+	.ce_in(vga_ce_sl),
 	.din(vga_data_sl),
 	.hs_in(vga_hs_sl),
 	.vs_in(vga_vs_sl),
 	.de_in(vga_de_sl),
 
+	.dout(vga_data_mix),
+	.hs_out(vga_hs_mix),
+	.vs_out(vga_vs_mix),
+	.de_out(vga_de_mix)
+);
+
+// Match the four clk_vid registers in the OSD RGB/sync/DE pipeline.
+reg [3:0] vga_ce_pipe;
+wire vga_ce_mix = vga_ce_pipe[3];
+always @(posedge clk_vid) vga_ce_pipe <= {vga_ce_pipe[2:0], vga_ce_sl};
+
+wire [23:0] vga_data_osd;
+wire        vga_hs_osd, vga_vs_osd, vga_de_osd;
+wire [ 4:0] VGA_HSIZE;
+// h-size only makes sense on a 15 kHz monitor, and the scandoubler doubles the
+// pixel rate that JTFRAME_HSIZE_DIV describes
+`ifdef MISTER_DUAL_SDRAM
+wire        hsize_off = 1'b1;   // no analogue VGA on a dual SDRAM board
+`else
+wire        hsize_off = forced_scandoubler;
+`endif
+
+jtframe_hretime #(
+	.DIV  (`JTFRAME_HSIZE_DIV  ),
+	.STEP (`JTFRAME_HSIZE_STEP ),
+	.DEPTH(`JTFRAME_HSIZE_DEPTH)
+) u_hretime
+(
+	.clk(clk_vid),
+	.ce_in(vga_ce_mix),
+	.enable(VGA_HSIZE[4] & ~hsize_off),
+	.scale(VGA_HSIZE[3:0]),
+
+	.din(vga_data_mix),
+	.hs_in(vga_hs_mix),
+	.vs_in(vga_vs_mix),
+	.de_in(vga_de_mix),
+
+	.ce_out(),
 	.dout(vga_data_osd),
 	.hs_out(vga_hs_osd),
 	.vs_out(vga_vs_osd),
@@ -1537,10 +1592,6 @@ assign SDCD_SPDIF = (mcp_en & ~spdif) ? 1'b0 : 1'bZ;
 
 `ifndef MISTER_DUAL_SDRAM
 	wire analog_l, analog_r;
-
-	assign AUDIO_SPDIF = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
-	assign AUDIO_R     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
-	assign AUDIO_L     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
 `endif
 
 assign HDMI_MCLK = clk_audio;
@@ -1590,6 +1641,19 @@ audio_out audio_out
 `endif
 	.spdif(spdif)
 );
+
+`ifndef MISTER_DUAL_SDRAM
+	reg aud_spdif_q, aud_r_q, aud_l_q;
+	always @(posedge clk_audio) begin
+		aud_spdif_q <= (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
+		aud_r_q     <= (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
+		aud_l_q     <= (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
+	end
+
+	assign AUDIO_SPDIF = av_dis ? 1'bZ : aud_spdif_q;
+	assign AUDIO_R     = av_dis ? 1'bZ : aud_r_q;
+	assign AUDIO_L     = av_dis ? 1'bZ : aud_l_q;
+`endif
 
 
 `ifndef MISTER_DISABLE_ALSA
@@ -1759,6 +1823,8 @@ emu emu
 `ifndef MISTER_DUAL_SDRAM
 	.VGA_DISABLE(VGA_DISABLE),
 `endif
+
+	.VGA_HSIZE(VGA_HSIZE),
 
 	.HDMI_WIDTH(direct_video ? 12'd0 : hdmi_width),
 	.HDMI_HEIGHT(direct_video ? 12'd0 : hdmi_height),

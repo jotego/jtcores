@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 4-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-7-2025 */
 
 module jtrungun_video(
     input              rst, clk,
@@ -29,6 +15,7 @@ module jtrungun_video(
     output             vs,
     output      [ 8:0] hdump,
     output      [ 7:0] vdump,
+    output      [ 7:0] vrender,
     // CPU interface
     input              ccu_cs,   // timer
     input              psac_cs,
@@ -95,16 +82,18 @@ localparam EDGE_TRIGGER = `ifndef NOMAIN 1 `else 0 `endif;
 
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
-wire [ 8:0] virt_hdumpf, obj_pxl, virt_hdump;
-wire [ 7:0] virt_vdumpf, psc_pxl, virt_vdump;
-wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
+wire [ 8:0] virt_hdumpf, obj_pxl_raw, obj_pxl, virt_hdump;
+wire [ 7:0] virt_vdumpf, psc_pxl_raw, psc_pxl, virt_vdump;
+wire [ 7:0] fix_raw, fix_pxl_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 5:0] hbs_len, hsy_len, hsa_len;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
-wire [ 1:0] oram_we, shadow;
+wire [ 1:0] oram_we, shadow_raw, shadow;
+wire [15:0] ln_data_raw;
 wire        cpu_we, hld, vld, obj_done;
 reg  [14:0] ioctl_adj;
-wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen;
+wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen, obj_cen,
+            lrsw_l, pri_l;
 
 assign cpu_we    = ~rnw;
 assign oram_we   = ~cpu_dsn & {2{~rnw}};
@@ -142,7 +131,8 @@ jtrungun_vtimer u_vtimer(
     .hdump      ( hdump         ),
     .hdumpf     (               ),
     .vdump      ( vdump         ),
-    .vdumpf     (               )
+    .vdumpf     (               ),
+    .vrender    ( vrender       )
 );
 
 // video timer
@@ -198,16 +188,32 @@ jtframe_blank_length u_counter(
 );
 
 jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .obj_done   ( obj_done      ),
 
     .ln_addr    ( ln_addr       ),
+    .ln_data    ( ln_data       ),
     .ln_done    ( ln_done       ),
     .ln_hs      ( ln_hs         ),
     .ln_v       ( ln_v          ),
     .ln_vs      ( ln_vs         ),
     .ln_lvbl    ( ln_lvbl       ),
     .ln_we      ( ln_we         ),
+
+    .obj_pxl_raw ( obj_pxl_raw  ),
+    .fix_pxl_raw ( fix_pxl_raw  ),
+    .psc_pxl_raw ( psc_pxl_raw  ),
+    .shadow_raw  ( shadow_raw   ),
+    .lrsw        ( lrsw         ),
+    .pri         ( pri          ),
+    .ln_data_raw ( ln_data_raw  ),
+    .obj_pxl     ( obj_pxl      ),
+    .fix_pxl     ( fix_pxl      ),
+    .psc_pxl     ( psc_pxl      ),
+    .shadow      ( shadow       ),
+    .lrsw_l      ( lrsw_l       ),
+    .pri_l       ( pri_l        ),
 
     .vflip      ( gvflip        ),
     .hflip      ( ghflip        ),
@@ -225,6 +231,7 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .hsa_len    ( hsa_len       ),
 
     .cen        ( virt_cen      ),
+    .obj_cen    ( obj_cen       ),
     .hs         ( virt_hs       ),
     .lhbl       ( virt_lhbl     ),
     .hdump      ( virt_hdump    ),
@@ -274,7 +281,7 @@ jtframe_sh #(.W(8),.L(2)) u_fixsh(
     .clk    ( clk       ),
     .clk_en ( virt_cen  ),
     .din    ( fix_raw   ),
-    .drop   ( fix_pxl   )
+    .drop   ( fix_pxl_raw )
 );
 
 jtrungun_psac u_psac(
@@ -304,7 +311,7 @@ jtrungun_psac u_psac(
     .rom_data   ( scr_data  ),
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),
-    .pxl        ( psc_pxl   ),
+    .pxl        ( psc_pxl_raw ),
     .gfx_en     ( gfx_en    ),
     // IOCTL dump
     .ioctl_addr (ioctl_addr[4:0]),
@@ -314,10 +321,10 @@ jtrungun_psac u_psac(
 localparam [9:0] OVOFFSET = 10'h10f;
 
 jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
-               .HOFFSET(10'd2),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
+               .HOFFSET(10'd3),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pxl_cen    ( virt_cen  ),
+    .pxl_cen    ( obj_cen   ),
     .pxl2_cen   ( pxl2_cen  ),  // for DMA only
     .simson     ( 1'b0      ),
     .ln_done    ( obj_done  ),
@@ -349,8 +356,8 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
     .rom_cs     ( obj_cs    ),
     .objcha_n   ( objcha_n  ),
     // pixel output
-    .pxl        ( obj_pxl   ),
-    .shd        ( shadow    ),
+    .pxl        ( obj_pxl_raw ),
+    .shd        ( shadow_raw),
     .prio       ( obj_prio  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
@@ -358,19 +365,19 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( 8'd0      )
 );
 
 jtrungun_colmix u_colmix(
-    .lrsw       ( lrsw          ),
-    .pri        ( pri           ),
+    .lrsw       ( lrsw_l        ),
+    .pri        ( pri_l         ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
     .obj_pxl    ( obj_pxl       ),
     .psc_pxl    ( psc_pxl       ),
     .shadow     ( shadow        ),
 
-    .pxl        ( ln_data       ),
+    .pxl        ( ln_data_raw   ),
     .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     )
 );

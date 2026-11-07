@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-3-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-3-2025 */
 
 module jtgaiden_priority(
     input        [ 7:0] txt_pxl, scr2_pxl,
@@ -52,18 +38,29 @@ always @* begin
              3'b1??: sel = SEL_TXT;
              3'b01?: begin sel = SEL_SCR1; sel2 = sblend ? SEL_OBJ  : SEL_NONE; end
              3'b001: begin sel = SEL_OBJ;  sel2 = oblend ? SEL_SCR2 : SEL_NONE; end
-            default: sel = SEL_OBJ;
+            default: begin sel = SEL_OBJ;  sel2 = oblend ? SEL_BGPEN: SEL_NONE; end
         endcase
         3'b1_10: casez(bgopac)
              3'b1??: sel = SEL_TXT;
              3'b01?: begin sel = SEL_OBJ; sel2 = oblend ? SEL_SCR1 : SEL_NONE; end
              3'b001: begin sel = SEL_OBJ; sel2 = oblend ? SEL_SCR2 : SEL_NONE; end
-            default: sel = SEL_OBJ;
+            default: begin sel = SEL_OBJ; sel2 = oblend ? SEL_BGPEN: SEL_NONE; end
         endcase
-        3'b1_11: sel = SEL_OBJ;
+        3'b1_11: begin
+            sel = SEL_OBJ;
+            if( oblend ) casez(bgopac)
+                 3'b1??: sel2 = SEL_TXT;
+                 3'b01?: sel2 = SEL_SCR1;
+                 3'b001: sel2 = SEL_SCR2;
+                default: sel2 = SEL_BGPEN;
+            endcase
+        end
         3'b0_??: casez(bgopac)
              3'b1??: sel = SEL_TXT;
-             3'b01?: sel = SEL_SCR1;
+             3'b01?: begin
+                sel  = SEL_SCR1;
+                sel2 = !sblend ? SEL_NONE : scr2_bn ? SEL_SCR2 : SEL_BGPEN;
+             end
              3'b001: sel = SEL_SCR2;
             default: sel = SEL_NONE;
         endcase

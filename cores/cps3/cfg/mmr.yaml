@@ -1,0 +1,112 @@
+# PPU registers at 0x040C0000-0x040C00AF
+# Big-endian: at field lists MSByte (lower addr) first
+# dma_status read at 0x0C is handled externally (dynamic, not stored here)
+- name: ppu
+  size: 176
+  dw: 16
+  regs:
+    # Global Scroll (0x00-0x1F): 8 entries, each 32-bit word {X[25:16], Y[9:0]}
+    - { name: gscr0x, desc: "global scroll 0 X", dw: 10, at: "0x00[1:0], 0x01" }
+    - { name: gscr0y, desc: "global scroll 0 Y", dw: 10, at: "0x02[1:0], 0x03" }
+    - { name: gscr1x, desc: "global scroll 1 X", dw: 10, at: "0x04[1:0], 0x05" }
+    - { name: gscr1y, desc: "global scroll 1 Y", dw: 10, at: "0x06[1:0], 0x07" }
+    - { name: gscr2x, desc: "global scroll 2 X", dw: 10, at: "0x08[1:0], 0x09" }
+    - { name: gscr2y, desc: "global scroll 2 Y", dw: 10, at: "0x0A[1:0], 0x0B" }
+    - { name: gscr3x, desc: "global scroll 3 X", dw: 10, at: "0x0C[1:0], 0x0D" }
+    - { name: gscr3y, desc: "global scroll 3 Y", dw: 10, at: "0x0E[1:0], 0x0F" }
+    - { name: gscr4x, desc: "global scroll 4 X", dw: 10, at: "0x10[1:0], 0x11" }
+    - { name: gscr4y, desc: "global scroll 4 Y", dw: 10, at: "0x12[1:0], 0x13" }
+    - { name: gscr5x, desc: "global scroll 5 X", dw: 10, at: "0x14[1:0], 0x15" }
+    - { name: gscr5y, desc: "global scroll 5 Y", dw: 10, at: "0x16[1:0], 0x17" }
+    - { name: gscr6x, desc: "global scroll 6 X", dw: 10, at: "0x18[1:0], 0x19" }
+    - { name: gscr6y, desc: "global scroll 6 Y", dw: 10, at: "0x1A[1:0], 0x1B" }
+    - { name: gscr7x, desc: "global scroll 7 X", dw: 10, at: "0x1C[1:0], 0x1D" }
+    - { name: gscr7y, desc: "global scroll 7 Y", dw: 10, at: "0x1E[1:0], 0x1F" }
+    # Tilemap 0 (0x20-0x29)
+    - { name: tmap0_scrx,      desc: "tilemap 0 scroll X",            dw: 16, at: "0x20, 0x21" }
+    - { name: tmap0_scry,      desc: "tilemap 0 scroll Y",            dw: 16, at: "0x22, 0x23" }
+    - { name: tmap0_width,     desc: "tilemap 0 width in tiles",      dw: 5,  at: "0x25[4:0]" }
+    - { name: tmap0_ctrl,      desc: "en[5] lscr[4] lzm[3] ?[2] fx[1] fy[0]", dw: 6, at: "0x26[7:2]" }
+    - { name: tmap0_lscr_base, desc: "tilemap 0 linescroll/zoom base", dw: 7, at: "0x28[6:0]" }
+    - { name: tmap0_tile_base, desc: "tilemap 0 tiles base",          dw: 7,  at: "0x29[6:0]" }
+    # Tilemap 1 (0x30-0x39)
+    - { name: tmap1_scrx,      desc: "tilemap 1 scroll X",            dw: 16, at: "0x30, 0x31" }
+    - { name: tmap1_scry,      desc: "tilemap 1 scroll Y",            dw: 16, at: "0x32, 0x33" }
+    - { name: tmap1_width,     desc: "tilemap 1 width in tiles",      dw: 5,  at: "0x35[4:0]" }
+    - { name: tmap1_ctrl,      desc: "en[5] lscr[4] lzm[3] ?[2] fx[1] fy[0]", dw: 6, at: "0x36[7:2]" }
+    - { name: tmap1_lscr_base, desc: "tilemap 1 linescroll/zoom base", dw: 7, at: "0x38[6:0]" }
+    - { name: tmap1_tile_base, desc: "tilemap 1 tiles base",          dw: 7,  at: "0x39[6:0]" }
+    # Tilemap 2 (0x40-0x49)
+    - { name: tmap2_scrx,      desc: "tilemap 2 scroll X",            dw: 16, at: "0x40, 0x41" }
+    - { name: tmap2_scry,      desc: "tilemap 2 scroll Y",            dw: 16, at: "0x42, 0x43" }
+    - { name: tmap2_width,     desc: "tilemap 2 width in tiles",      dw: 5,  at: "0x45[4:0]" }
+    - { name: tmap2_ctrl,      desc: "en[5] lscr[4] lzm[3] ?[2] fx[1] fy[0]", dw: 6, at: "0x46[7:2]" }
+    - { name: tmap2_lscr_base, desc: "tilemap 2 linescroll/zoom base", dw: 7, at: "0x48[6:0]" }
+    - { name: tmap2_tile_base, desc: "tilemap 2 tiles base",          dw: 7,  at: "0x49[6:0]" }
+    # Tilemap 3 (0x50-0x59)
+    - { name: tmap3_scrx,      desc: "tilemap 3 scroll X",            dw: 16, at: "0x50, 0x51" }
+    - { name: tmap3_scry,      desc: "tilemap 3 scroll Y",            dw: 16, at: "0x52, 0x53" }
+    - { name: tmap3_width,     desc: "tilemap 3 width in tiles",      dw: 5,  at: "0x55[4:0]" }
+    - { name: tmap3_ctrl,      desc: "en[5] lscr[4] lzm[3] ?[2] fx[1] fy[0]", dw: 6, at: "0x56[7:2]" }
+    - { name: tmap3_lscr_base, desc: "tilemap 3 linescroll/zoom base", dw: 7, at: "0x58[6:0]" }
+    - { name: tmap3_tile_base, desc: "tilemap 3 tiles base",          dw: 7,  at: "0x59[6:0]" }
+    # CRTC horizontal (0x60-0x6F)
+    - { name: h_sync_width, desc: "H sync width",      dw: 10, at: "0x60[1:0], 0x61" }
+    - { name: h_blank_end,  desc: "H blank end",       dw: 10, at: "0x62[1:0], 0x63" }
+    - { name: h_screen_end, desc: "H screen end",      dw: 10, at: "0x64[1:0], 0x65" }
+    - { name: h_total_end,  desc: "H total end",       dw: 10, at: "0x66[1:0], 0x67" }
+    - { name: h_zoom_mstr,  desc: "H zoom master",     dw: 10, at: "0x68[1:0], 0x69" }
+    - { name: h_zoom_off,   desc: "H zoom offset",     dw: 16, at: "0x6A, 0x6B" }
+    - { name: h_zoom_size,  desc: "H zoom size",       dw: 16, at: "0x6C, 0x6D" }
+    - { name: h_zoom_scl,   desc: "H zoom scale",      dw: 16, at: "0x6E, 0x6F" }
+    # CRTC vertical (0x70-0x7F)
+    - { name: v_sync_end,   desc: "V sync end",        dw: 10, at: "0x70[1:0], 0x71" }
+    - { name: v_blank_end,  desc: "V blank end",       dw: 10, at: "0x72[1:0], 0x73" }
+    - { name: v_screen_end, desc: "V screen end",      dw: 10, at: "0x74[1:0], 0x75" }
+    - { name: v_total_end,  desc: "V total end",       dw: 10, at: "0x76[1:0], 0x77" }
+    - { name: v_zoom_mstr,  desc: "V zoom master",     dw: 10, at: "0x78[1:0], 0x79" }
+    - { name: v_zoom_off,   desc: "V zoom offset",     dw: 16, at: "0x7A, 0x7B" }
+    - { name: v_zoom_size,  desc: "V zoom size",       dw: 16, at: "0x7C, 0x7D" }
+    - { name: v_zoom_scl,   desc: "V zoom scale",      dw: 16, at: "0x7E, 0x7F" }
+    # PPU config (0x80-0x8F)
+    - { name: pxl_div,        desc: "pixel clock divider",  dw: 3, at: "0x81[2:0]" }
+    - { name: flip,           desc: "flip screen X/Y",      dw: 2, at: "0x81[4:3]" }
+    - { name: sprdma,         desc: "sprite DMA control",   dw: 16, at: "0x82, 0x83" }
+    - { name: sprdma_go,      desc: "sprite DMA write",     event: write, at: "0x83" }
+    - { name: cram_bank,      desc: "character RAM bank",   dw: 4, at: "0x87[3:0]" }
+    - { name: gfxflash_bank,  desc: "GFX flash bank",       dw: 16, at: "0x88, 0x89" }
+    # Character DMA (0x94-0x9B)
+    - { name: chardma_src_lo, desc: "char DMA source low",  dw: 16, at: "0x96, 0x97" }
+    - { name: chardma_src_hi, desc: "char DMA source high", dw: 6,  at: "0x99[5:0]" }
+    - { name: chardma_go,     desc: "char DMA trigger",     event: one, at: "0x99[6]" }
+    # Palette DMA (0xA0-0xAF)
+    - { name: paldma_src,     desc: "palette DMA source",   dw: 32, at: "0xA0, 0xA1, 0xA2, 0xA3" }
+    - { name: paldma_dst,     desc: "palette DMA dest",     dw: 32, at: "0xA4, 0xA5, 0xA6, 0xA7" }
+    - { name: paldma_fade,    desc: "palette DMA fade",     dw: 32, at: "0xA8, 0xA9, 0xAA, 0xAB" }
+    - { name: paldma_len,     desc: "palette DMA length",   dw: 16, at: "0xAC, 0xAD" }
+    - { name: paldma_len_hi,  desc: "palette DMA len bit16", dw: 1, at: "0xAF[0]" }
+    - { name: paldma_go,      desc: "palette DMA trigger",  event: one, at: "0xAF[1]" }
+
+# SS (Score Screen) registers at 0x05050000
+# Accessed via umask32(0x00ff00ff), odd bytes only
+# Byte offsets are the ssregs_w handler offsets (0x00-0x15)
+# Multi-byte: L at lower offset, H at higher offset (little-endian order)
+- name: ss
+  size: 22
+  regs:
+    - { name: ss_hsync,    desc: "H sync end",     dw: 8,  at: "0x00" }
+    - { name: ss_hstart,   desc: "H start",        dw: 16, at: "0x02, 0x01" }
+    - { name: ss_hblank,   desc: "H blank end",    dw: 16, at: "0x04, 0x03" }
+    - { name: ss_htotal,   desc: "H total end",    dw: 16, at: "0x06, 0x05" }
+    # ss_hscroll: written by CPU but never read by MAME's draw_fg_layer().
+    # Actual horizontal scrolling uses per-row values from SS RAM at 0x2000.
+    - { name: ss_hscroll,  desc: "H scroll (unused in rendering)", dw: 16, at: "0x08, 0x07" }
+    - { name: ss_vsync,    desc: "V sync end",     dw: 8,  at: "0x09" }
+    - { name: ss_vstart,   desc: "V start",        dw: 16, at: "0x0B, 0x0A" }
+    - { name: ss_vblank,   desc: "V blank end",    dw: 16, at: "0x0D, 0x0C" }
+    - { name: ss_vtotal,   desc: "V total end",    dw: 16, at: "0x0F, 0x0E" }
+    # ss_vscroll: only bit 8 is used: (-vscroll) & 0x100, giving a 0 or 256 px vertical jump.
+    - { name: ss_vscroll,  desc: "V scroll (only bit 8 used)", dw: 16, at: "0x11, 0x10" }
+    - { name: ss_pal_base, desc: "palette base",   dw: 8,  at: "0x12" }
+    - { name: ss_pxl_div,  desc: "pixel clock",    dw: 3,  at: "0x13[2:0]" }
+    - { name: ss_flip,     desc: "flip screen X/Y", dw: 2, at: "0x14[1:0]" }

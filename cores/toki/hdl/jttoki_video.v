@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-7-2025 */
 
 module jttoki_video(
     input             rst,
@@ -91,8 +77,10 @@ wire [8:0] hdump, vdump, vrender;
 wire [7:0] line_number = vrender[7:0];
 wire [10:1] toki_scr2_addr;
 wire [18:2] toki_gfx4_addr;
-wire        toki_gfx4_cs;
+wire        toki_gfx4_cs, render_hs;
+reg         hsync_out;
 
+assign hsync = hsync_out;
 assign scr2_addr   = cabal ? 10'd0             : toki_scr2_addr;
 assign gfx4_addr   = toki_gfx4_addr;
 assign gfx4_cs     = cabal ? 1'b0              : toki_gfx4_cs;
@@ -126,9 +114,14 @@ jtframe_vtimer #(
     .Vinit      (         ),
     .LHBL       ( lhbl    ),
     .LVBL       ( lvbl    ),
-    .HS         ( hsync   ),
+    .HS         ( render_hs ),
     .VS         ( vsync   )
 );
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( hdump==9'd434 ) hsync_out <= 1'b1;
+    if( hdump==9'd466 ) hsync_out <= 1'b0;
+end
 
 jttoki_fix u_fix(
     .rst          ( rst           ),
@@ -164,7 +157,7 @@ jttoki_scroll u_scr1(
 
     .hdump        ( hdump          ),
     .vdump        ( vdump          ),
-    .hs           ( hsync          ),
+    .hs           ( render_hs      ),
     .line_number  ( line_number    ),
 
     .scroll_x     ( scr1_scroll_x ),
@@ -189,7 +182,7 @@ jttoki_scroll u_scr2(
 
     .hdump        ( hdump          ),
     .vdump        ( vdump          ),
-    .hs           ( hsync          ),
+    .hs           ( render_hs      ),
     .line_number  ( line_number    ),
 
     .scroll_x     ( scr2_scroll_x ),
@@ -211,7 +204,7 @@ jttoki_obj u_obj(
     .rst              ( rst                     ),
     .pxl_cen          ( pxl_cen                 ),
     .cabal            ( cabal                   ),
-    .hs               ( hsync                   ),
+    .hs               ( render_hs               ),
 
     .hdump            ( hdump                   ),
     .vrender          ( vrender                 ),

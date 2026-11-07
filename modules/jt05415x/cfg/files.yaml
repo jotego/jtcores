@@ -1,0 +1,10 @@
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+jt05415x:
+  - get:
+    - jt05415x.v
+    - jt054156_mmr.v
+    - jt054157_mmr.v

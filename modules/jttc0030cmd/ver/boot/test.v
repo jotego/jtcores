@@ -33,6 +33,7 @@ module test;
         .an(8'd0),
         .mrom_addr(mrom_addr), .mrom_data(mrom_data),
         .eprom_addr(eprom_addr), .eprom_data(8'd0),
+        .rom_addr(), .rom_cs(),
         .dbg_pc(), .dbg_fetch()
     );
 

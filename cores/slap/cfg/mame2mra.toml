@@ -1,0 +1,37 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=["slapfght.cpp"]
+# These systems have different CPU, protection or video wiring.
+skip={ machines=["perfrman","grdian"], bootlegs=true }
+
+[header]
+offset={bits=8,start=0,regions=["maincpu","audiocpu","gfx1","gfx3","mcu","proms"]}
+info="Byte 12: bit 0 A76 main-latch screen flip; bit 1 Tiger-Heli fixed ROM, MCU status polarity, main-latch flip and sound divider."
+registers=[
+    { name="a76", pos="12[0]", values=[{setname="slapfigha",value=1}] },
+    { name="tigerh", pos="12[1]", values=[{machine="tigerh",value=1}] },
+]
+
+[buttons]
+names=[{names="Fire,Select"}, {machine="tigerh",names="Fire,Bomb"}]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+regions=[
+    {name="maincpu", no_offset=true},
+    {name="audiocpu",start="JTFRAME_BA1_START"},
+    {name="gfx1",start="JTFRAME_BA2_START",width=16,sequence=[1,0]},
+    {name="gfx2",start="SCR_START",width=32,sequence=[3,2,1,0]},
+    {name="gfx3",start="JTFRAME_BA3_START",width=32,sequence=[3,2,1,0]},
+    # Tiger-Heli uses half-size background and sprite ROMs; A14 is unconnected.
+    {name="gfx2",machine="tigerh",start="SCR_START",width=32,sequence=[3,2,1,0],len=0x20000,mirror=true},
+    {name="gfx3",machine="tigerh",start="JTFRAME_BA3_START",width=32,sequence=[3,2,1,0],len=0x20000,mirror=true},
+    {name="bmcu:mcu",rename="mcu",start="JTFRAME_PROM_START"},
+    {name="proms",start="PAL_START"},
+    {name="plds",skip=true},
+]
+order=["maincpu","audiocpu","gfx1","gfx2","gfx3","mcu","proms"]

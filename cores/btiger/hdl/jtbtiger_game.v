@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-11-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-11-2019 */
 
 module jtbtiger_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -41,8 +27,6 @@ wire        prom_mcu      = prom[4];
 
 assign debug_view  = { 5'd0, OBJON, SCRON, CHRON };
 assign dip_flip    = ~dipsw[6];
-assign pxl2_cen    = cen12;
-assign pxl_cen     = cen6;
 assign mcuover     = ioctl_addr>=MCUOVER;
 assign prom[0] = prom_we &&  mcuover && ioctl_addr[10:8]==0;
 assign prom[1] = prom_we &&  mcuover && ioctl_addr[10:8]==1;
@@ -72,7 +56,7 @@ jtframe_cen3p57 u_cen3p57(
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
-    .cen6      ( cen6     ),
+    .cen6      ( pxl_cen  ),
     .V         ( V        ),
     .H         ( H        ),
     .Hinit     ( HINIT    ),
@@ -199,9 +183,9 @@ jtgng_sound #(.LAYOUT(4)) u_sound (
 jtbtiger_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen12      ( cen12         ),
+    .cen12      ( pxl2_cen      ),
     .cen8       ( cen8          ),
-    .cen6       ( cen6          ),
+    .cen6       ( pxl_cen       ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),

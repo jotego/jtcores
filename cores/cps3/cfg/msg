@@ -1,0 +1,97 @@
+       \BJTCPS3\W
+   \RCPS 3\W compatible
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+  Version \C - \D
+
+  Special Thanks to
+  \RSergiy Dvodnenko\W
+  for his SH7604 CPU module
+
+   PCBs donated by
+    Jose A. Cruz
+    Julius Lagula
+
+   Die Shots by Furrtek
+
+ \B______ \RDIRECTORS\B _______\W
+Andrea Bogazzi  f3bandit
+Fabio Michelin  Filip Kindt
+Frederic Mahe   Luis Massot
+    Fulvio Venturelli
+Georgi Rakidov  Martin
+Max Kupriianov  kccheng
+Martin Donlon   Tulio Adriano
+    Michele Fornasini
+musicisfun15    Youqiang Gu
+    Skutis
+
+       \BThanks to\W
+\R     Alexander Facchini
+\RAlon Faifer     BigRedPimp
+\Rblktiger        brad
+\RBlue Abs        Bob Gallardo
+\RBrian Sallee    Daithi
+\RDan Avedikian   Daniel Bauza
+\RDanny Garfield  DrewtoriousFGC
+\RER              Halla
+\RHarper Reed     Matt Hayden 
+\R     Henrik Nordstrom
+\RJacob Jewell    Rautz
+\RJim Sprigler    Joe Castle
+\RNick Chapman    LaNaveRETRO 
+\RPD Lee          Pelayo Marinas
+\RPeter Vessenes  qwupz
+\RRenaissance 2K  RetroWilly
+\RRobert Moran    Sayit BELET
+\RTej Bilkhu      TheJesusFish   
+\R     Strong Badam
+\RoldmanoftheSEA  popunmori
+             
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways
+Andrew Moore    Bryan Adams
+Carrboroman     Chris Doyle
+Chris Harvey    Christian
+DMG             Dan Bayley
+Daniel Cortes   Darren Chell
+Dave Sasser     David Moylan
+Dean Winger     Don Gafford
+Ed Balan        Eduardo Javier
+Fred Jorge      Gus Douboulidis
+    Hendrik Osterholz
+    INAKI ECHEVARRIA
+hyp36rmax       Ian Court       
+    JPS (RetroFPGA)
+James Stroup    Jo le Zef
+Joe Tassone     Joeri van
+John Casey      John Silva
+Juan Sandoval   JuanRa
+Keith F. Kelly  Leslie Law
+    Lukas Hinterleitner     
+Matt_Rant       Matthew Young
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Mike Phan
+Nima            Nunzio Mannino
+Oliver Wndmth   Oscar Laguna
+Retro_Brewz     Richard MS
+Rob Jenkins     Robert MacLean
+Steven Wilson   RetroLarry
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+Vitor Duarte    albertprime
+ultimatekd      
+  ________________________
+
+      - Beta version -
+      Do not distribute
+
+      -     MiSTer   -
+      Place jtbeta.zip
+      in games/mame
+      do not unzip it

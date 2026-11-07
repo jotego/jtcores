@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 23-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-7-2023 */
 
 module jtsimson_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -33,7 +19,7 @@ wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
 wire [15:0] video_dumpa;
 reg  [ 7:0] debug_mux;
-reg         simson, paroda, vendetta, suratk;
+reg         simson, paroda, vendetta, esckids, suratk;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -45,6 +31,7 @@ always @(posedge clk) begin
         simson   <= prog_data[2:0]==0;
         paroda   <= prog_data[2:0]==1;
         vendetta <= prog_data[2:0]==2;
+        esckids  <= prog_data[2:0]==3;
         suratk   <= prog_data[2:0]==4;
     end
     case( debug_bus[7:6] )
@@ -65,6 +52,7 @@ jtsimson_main u_main(
     .simson         ( simson        ),
     .paroda         ( paroda        ),
     .vendetta       ( vendetta      ),
+    .esckids        ( esckids       ),
     .suratk         ( suratk        ),
     // YM2151 (only suratk)
     .fm_cs          ( main_fmcs     ),
@@ -193,6 +181,7 @@ jtsimson_video u_video (
     .simson         ( simson        ),
     .paroda         ( paroda        ),
     .suratk         ( suratk        ),
+    .esckids        ( esckids       ),
 
     // base video
     .pxl_cen        ( pxl_cen       ),

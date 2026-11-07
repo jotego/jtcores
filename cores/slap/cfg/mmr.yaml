@@ -1,0 +1,7 @@
+- name: video
+  size: 4
+  read_only: true
+  regs:
+    - { name: scrx, dw: 9, at: "1[0],0" }
+    - { name: scry, dw: 8, at: "2" }
+    - { name: flip, dw: 1, at: "3[0]" }

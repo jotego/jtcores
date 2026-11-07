@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-3-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-3-2025 */
 
 module jtthundr_scroll(
     input               rst,
@@ -23,7 +9,6 @@ module jtthundr_scroll(
     input        [ 8:0] hdump, vdump,
     input        [ 8:0] scrx,
     input        [ 7:0] scry,
-    input signed [ 7:0] scrvos,
 
     output       [11:1] vram_addr,
     input        [15:0] vram_dout,
@@ -43,7 +28,8 @@ parameter LYR=0,
           HBASE=9'd0,
           HOFFSET=(LYR==0 ? -9'h22 : -9'h24)+HBASE,
           VOFFSET=-8'd8,
-          SCRHFLIP=9'h98;
+          SCRHFLIP=(LYR==0 ? 9'h96 : 9'h98),
+          SCRVFLIP=8'he6;
 
 wire [31:0] sorted;
 wire [11:0] pre_pxl;
@@ -54,15 +40,15 @@ wire [ 2:0] code_msb;
 
 assign pal  = vram_dout[15:8];
 assign code = {code_msb,vram_dout[7:0]};
-assign pxl  = {pre_pxl[11:4],pre_pxl[2:0]};
+assign pxl  = {pre_pxl[11:4],!dec_en && pre_pxl[5] ? pre_pxl[3] : pre_pxl[2],pre_pxl[1:0]};
 assign xadj = scrhflip ? (SCRHFLIP-scrx) : (scrx + HOFFSET);
-assign yadj = scry + VOFFSET + scrvos;
+assign yadj = scrhflip ? (SCRVFLIP-scry) : (scry + VOFFSET);
 assign dec_addr = {LYR[0],LYR==0?pal[1:0]:2'b0,LYR==1?pal[1:0]:2'b0};
 assign code_msb = dec_en ? (LYR==0 ? dec_data[3:1] : dec_data[7:5]) : {LYR[0],pal[1:0]};
 assign upper_nibbles = { rom_data[20+:4], rom_data[28+:4] };
 assign lower_nibbles = { rom_data[16+:4], rom_data[24+:4] };
-assign sorted   = { 8'd0,
-    dec_en ? rom_data[23-:8]^{8{plane3inv}} : code[9] ? lower_nibbles : upper_nibbles,
+assign sorted   = { lower_nibbles,
+    dec_en ? rom_data[23-:8]^{8{plane3inv}} : upper_nibbles,
     rom_data[ 4+:4],rom_data[12+:4],
     rom_data[ 0+:4],rom_data[ 8+:4]
 };

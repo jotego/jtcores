@@ -1,0 +1,23 @@
+cps3:
+  - get:
+    - "*.v"
+    - timing.sdc
+cps1:
+  - get:
+    - jtcps1_timing.v
+jtframe:
+  - get:
+      - jtframe_16bit_reg.v
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+    - SH7604.yaml
+  - from: sdram
+    get:
+      - jtframe_burst_sdram.yaml
+  - from: video
+    get:
+      - jtframe_scroll.yaml
+  - from: ram
+    get:
+      - jtframe_bram_burst.v

@@ -13,6 +13,7 @@ main() {
     test_compare_scene_snapshot_match
     test_compare_scene_snapshot_mismatch
     test_compare_scene_snapshot_size_mismatch
+    test_simulation_lock
     if [ "$FAIL" = 1 ]; then
         exit 1
     fi
@@ -83,6 +84,34 @@ test_get_macro() {
         fail "Cannot find JTFRAME_SIM_DIPS"
         bad=1
     fi
+    pass $bad
+}
+
+test_simulation_lock() {
+    local bad lock_dir owner err
+    local old_dir=$(pwd)
+    local tmp=$(mktemp -d)
+    lock_dir="$tmp/.jtsim.lock"
+
+    acquire_simulation_lock "$lock_dir" || bad=1
+    [ -d "$lock_dir" ] || bad=1
+    release_simulation_lock
+    [ ! -e "$lock_dir" ] || bad=1
+
+    mkdir "$lock_dir"
+    sleep 1 &
+    owner=$!
+    printf '%s\n' "$owner" > "$lock_dir/pid"
+    simulation_process_stamp "$owner" > "$lock_dir/stamp"
+    err=$(acquire_simulation_lock "$lock_dir" 2>&1) && bad=1
+    [[ "$err" == *"Active simulation PID: $owner"* ]] || bad=1
+    wait "$owner"
+
+    acquire_simulation_lock "$lock_dir" || bad=1
+    release_simulation_lock
+    rmdir "$lock_dir" 2>/dev/null || true
+    rmdir "$tmp"
+    cd "$old_dir"
     pass $bad
 }
 

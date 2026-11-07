@@ -6,6 +6,25 @@ There are facilities to help with the upsampling needed for DACs. Some modules n
 
 The module **jtframe_fir** is designed to operate on a stereo signal input to apply a FIR filter of up to 127 coefficients. It takes one BRAM block. As it needs about 256 clocks per sample, the input sampling frequency must be lower than clk/256.
 
+### Sallen-Key low-pass stages
+
+Specify the circuit parts in a channel to generate `fir_<channel>.csv` and its
+`fir_<channel>.hex` synthesis image automatically:
+
+```yaml
+audio:
+  channels:
+    - { name: pcm, module: jt7759, rsum: 5.1k, sallen-key: { R1: 5.6k, R2: 10k, R3: 5.6k, C1: 22n, C2: 4.7n } }
+```
+
+`R3` is optional. When present, the effective first resistance is `R1||R3`,
+and the channel's `pre` gain becomes `R3/(R1+R3)`. Do not set `pre` separately
+with `R3`. The natural frequency is
+`1/(2*pi*sqrt((R1||R3)*R2*C1*C2))`, using `R1` when `R3` is absent. Values
+outside 1–24 kHz produce a warning. The generated 68-tap FIR is the sampled
+second-order circuit response at the 192 kHz audio rate. The tap count matches
+the current `jtframe_fir` instance's fixed `KMAX=68`.
+
 ## jtframe_dcrm
 
 IIR filter to remove the DC value of a signal.

@@ -28,11 +28,12 @@ wire [ 7:0] r0, r1, r2, r3, r4,
             l0, l1, l2, l3, l4;
 wire [15:0] pre_out;
 
-reg  [ 7:0] latch_r3;
+// Split the four rounds evenly across the existing pipeline stage.
+reg  [ 7:0] latch_r2;
 
 assign r1 = pre_r1 ^ l0;
-assign r2 = pre_r2 ^ l1;
-assign r3 = latch_r3 ^ l2;
+assign r2 = latch_r2 ^ l1;
+assign r3 = pre_r3 ^ l2;
 assign r4 = pre_r4 ^ l3;
 assign pre_out = { l4, r4 };
 
@@ -51,7 +52,7 @@ assign {
 } = pre_out;
 
 always @(posedge clk) begin
-    latch_r3 <= pre_r3;
+    latch_r2 <= pre_r2;
 end
 
 always @(*) begin

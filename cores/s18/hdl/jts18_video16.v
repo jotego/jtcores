@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-4-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-4-2024 */
 
 // 315-5361/2 video subsystem
 // equivalent to System 16B 
@@ -27,6 +13,7 @@ module jts18_video16(
     input              pxl_cen,   // pixel clock enable
 
     input              video_en,
+    input              req_57Hz,
     input              gray_n,
 
     // CPU interface
@@ -40,6 +27,7 @@ module jts18_video16(
     output     [15:0]  char_dout,
     output     [15:0]  obj_dout,
     output             vint,
+    output             is_57Hz,
 
     // Other configuration
     input              flip,
@@ -97,6 +85,7 @@ module jts18_video16(
     output             scr_bad
 );
 
+parameter DUAL_RATE=0;
 localparam MODEL=1;
 localparam [9:0] ROWSCR_DLY=10'd17;
 
@@ -110,7 +99,7 @@ assign gpal  = { pal_dout[ 7:4], pal_dout[13] };
 assign bpal  = { pal_dout[11:8], pal_dout[14] };
 assign obj_prio = obj_pxl[11:10];
 
-jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
+jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),.DUAL_RATE(DUAL_RATE),
     .SCR2_DLY(10'd9),.SCR1_DLY(10'd9),
     .ROWSCR1_DLY(ROWSCR_DLY),.ROWSCR2_DLY(ROWSCR_DLY)
     ) u_tilemap(
@@ -133,6 +122,8 @@ jts16_tilemap #(.MODEL(MODEL),.HS_END(9'hA0),
     .colscr_en  ( 1'b0      ),
     .rowscr_en  ( 1'b0      ),
     .alt_en     ( 1'b0      ),
+    .req_57Hz   ( req_57Hz  ),
+    .is_57Hz    ( is_57Hz   ),
 
     // SDRAM interface
     .char_ok    ( char_ok   ),

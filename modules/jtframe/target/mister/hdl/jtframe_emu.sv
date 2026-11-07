@@ -32,6 +32,10 @@
 `define JTFRAME_MR_DDR
 `endif
 
+`ifdef JTFRAME_MR_GAME_DDR
+`define JTFRAME_MR_DDR
+`endif
+
 module emu
 (
     //Master input clock
@@ -61,6 +65,7 @@ module emu
     output  [1:0] VGA_SL,
     output        VGA_SCALER,
     output        VGA_DISABLE, // analog out is off
+    output  [4:0] VGA_HSIZE,   // { enable, signed scale }, analogue branch only
 
     input  [11:0] HDMI_WIDTH,
     input  [11:0] HDMI_HEIGHT,
@@ -211,6 +216,12 @@ wire rst96, rst48, rst24;
 wire pll_locked;
 reg  pll_rst = 1'b0;
 wire sys_rst;
+`ifdef JTFRAME_PLL_TUNE
+wire [63:0] pll_reconfig_to, pll_reconfig_from;
+wire        pll_cfg_waitrequest, pll_cfg_write, pll_tune_hold;
+wire [ 5:0] pll_cfg_address;
+wire [31:0] pll_cfg_writedata;
+`endif
 
 // Resets the PLL if it looses lock
 jtframe_sync u_sync(
@@ -220,6 +231,7 @@ jtframe_sync u_sync(
     .sync       ( sys_rst   )
 );
 
+`ifndef JTFRAME_PLL_TUNE
 always @(posedge clk_sys or posedge sys_rst) begin : pll_controller
     reg last_locked;
     reg [7:0] rst_cnt;
@@ -240,6 +252,7 @@ always @(posedge clk_sys or posedge sys_rst) begin : pll_controller
         end
     end
 end
+`endif
 
 // There are many false paths defined in the
 // SDC file between this PLL and the ones
@@ -254,6 +267,10 @@ pll pll(
     .outclk_3   (            ),
     .outclk_4   ( clk96      ),
     .outclk_5   ( clk96sh    )
+`ifdef JTFRAME_PLL_TUNE
+   ,.reconfig_to_pll   ( pll_reconfig_to   ),
+    .reconfig_from_pll ( pll_reconfig_from )
+`endif
 );
 
 jtframe_rst_sync u_reset96(
@@ -324,6 +341,31 @@ endgenerate
 wire [63:0] status;
 wire [ 1:0] buttons;
 
+`ifdef JTFRAME_PLL_TUNE
+pll_cfg_hdmi pll_game_cfg(
+    .mgmt_clk        ( CLK_50M            ),
+    .mgmt_reset      ( RESET              ),
+    .mgmt_waitrequest( pll_cfg_waitrequest ),
+    .mgmt_write      ( pll_cfg_write       ),
+    .mgmt_address    ( pll_cfg_address     ),
+    .mgmt_writedata  ( pll_cfg_writedata   ),
+    .reconfig_to_pll ( pll_reconfig_to     ),
+    .reconfig_from_pll(pll_reconfig_from   )
+);
+
+jtframe_pll_tune pll_tune(
+    .clk            ( CLK_50M            ),
+    .rst            ( RESET              ),
+    .speed          ( status[15:13]      ),
+    .pll_locked     ( pll_locked          ),
+    .cfg_waitrequest( pll_cfg_waitrequest ),
+    .cfg_write      ( pll_cfg_write       ),
+    .cfg_address    ( pll_cfg_address     ),
+    .cfg_writedata  ( pll_cfg_writedata   ),
+    .hold_reset     ( pll_tune_hold       )
+);
+`endif
+
 wire [ 1:0] dip_fxlevel;
 wire        dip_pause, dip_flip, dip_test;
 wire [31:0] dipsw;
@@ -339,7 +381,11 @@ wire [ 7:0] debug_bus, debug_view;
 wire [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
             joyana_r1, joyana_r2, joyana_r3, joyana_r4;
 
-wire        rst_req   = sys_rst | status[0] | buttons[1];
+wire        rst_req   = sys_rst | status[0] | buttons[1]
+`ifdef JTFRAME_PLL_TUNE
+                        | pll_tune_hold
+`endif
+                        ;
 wire [15:0] snd_left, snd_right;
 wire [ 5:0] snd_en, snd_vu;
 wire [ 7:0] snd_vol;
@@ -399,6 +445,13 @@ wire [`JTFRAME_LF_HW-1:0] game_hdump,   ln_addr;
 wire [`JTFRAME_LF_VW-1:0] game_vrender, ln_v;
 wire        ln_done, ln_hs, ln_vs, ln_lvbl, ln_we, fb_keep;
 wire [15:0] ln_dout, ln_pxl, ln_data;
+
+`ifdef JTFRAME_MR_GAME_DDR
+wire [ 7:0] game_ddr_burstcnt, game_ddr_be;
+wire [28:0] game_ddr_addr;
+wire        game_ddr_rd, game_ddr_we, game_ddr_busy, game_ddr_dout_ready;
+wire [63:0] game_ddr_din, game_ddr_dout;
+`endif
 
 jtframe_mister #(
     .SDRAMW         ( SDRAMW         ),
@@ -463,6 +516,17 @@ u_frame(
 `ifdef JTFRAME_LF_ZOOM
     .game_h_step    ( game_h_step    ),
     .game_v_step    ( game_v_step    ),
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    .game_ddr_burstcnt  ( game_ddr_burstcnt   ),
+    .game_ddr_addr      ( game_ddr_addr       ),
+    .game_ddr_rd        ( game_ddr_rd         ),
+    .game_ddr_we        ( game_ddr_we         ),
+    .game_ddr_be        ( game_ddr_be         ),
+    .game_ddr_din       ( game_ddr_din        ),
+    .game_ddr_busy      ( game_ddr_busy       ),
+    .game_ddr_dout      ( game_ddr_dout       ),
+    .game_ddr_dout_ready( game_ddr_dout_ready ),
 `endif
 
     `ifdef JTFRAME_VERTICAL
@@ -644,6 +708,7 @@ u_frame(
     .scan2x_cen     ( CE_PIXEL       ),
     .scan2x_de      ( VGA_DE         ),
     .scan2x_sl      ( VGA_SL         ),
+    .hsize_ctl      ( VGA_HSIZE      ),
     // status
     .st_addr        ( st_addr        ),
     .st_dout        ( st_dout        ),

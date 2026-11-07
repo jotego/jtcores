@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 8-9-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 8-9-2024 */
 
 // based on jtcommnd_main
 module jttrojan_main(
@@ -249,8 +235,27 @@ always @(A,bank) begin
     rom_addr[16:14] = A[15] ? { 1'b0, bank } : { 2'b10, A[14] };
 end
 
-/////////////////////////////////////////////////////////////////
-jtframe_z80wait u_wait(
+// Avengers' /MREQ-to-/WAIT wire mod adds one wait state to each memory
+// access except refresh, compensating the 6 MHz Z80.
+reg mreq_l, mreq_wait;
+wire wait_en  = nmi_sel;
+wire main_cen = cpu_cen & ~mreq_wait;
+
+always @(posedge clk) begin
+    if( !t80_rst_n ) begin
+        mreq_l    <= 1'b1;
+        mreq_wait <= 1'b0;
+    end else if( base_cen ) begin
+        mreq_l <= mreq_n;
+        if( rfsh_n && !mreq_n && mreq_l )
+            mreq_wait <= 1'b1;
+        else
+            mreq_wait <= 1'b0;
+        if( ~wait_en ) mreq_wait <= 0;
+    end
+end
+
+jtframe_z80wait #(.RECOVERY(0)) u_wait(
     .rst_n      ( t80_rst_n ),
     .clk        ( clk       ),
     .cen_in     ( base_cen  ),
@@ -298,7 +303,7 @@ end
 jtframe_z80 u_cpu(
     .rst_n      ( t80_rst_n   ),
     .clk        ( clk         ),
-    .cen        ( cpu_cen     ),
+    .cen        ( main_cen    ),
     .wait_n     ( 1'b1        ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),

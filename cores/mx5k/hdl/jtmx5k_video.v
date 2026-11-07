@@ -1,27 +1,13 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 02-05-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 02-05-2020 */
 
 module jtmx5k_video(
     input               rst,
     input               clk,
     input               clk24,
-    output              pxl2_cen,
-    output              pxl_cen,
+    input               pxl2_cen,
+    input               pxl_cen,
     output              LHBL,
     output              LVBL,
     output              HS,
@@ -79,25 +65,6 @@ always @(*) begin
     gfx1_addr = pre_gfx1_addr;
     if( pre_gfx1_addr[13:10]==0 && !gfx1_sel ) gfx1_addr[17:14]=0;
 end
-
-jtframe_cen48 u_cen(
-    .clk        ( clk       ),    // 48 MHz
-    .cen12      ( pxl2_cen  ),
-    .cen16      (           ),
-    .cen8       (           ),
-    .cen6       ( pxl_cen   ),
-    .cen4       (           ),
-    .cen4_12    (           ), // cen4 based on cen12
-    .cen3       (           ),
-    .cen3q      (           ), // 1/4 advanced with respect to cen3
-    .cen1p5     (           ),
-    .cen16b     (           ),
-    .cen12b     (           ),
-    .cen6b      (           ),
-    .cen3b      (           ),
-    .cen3qb     (           ),
-    .cen1p5b    (           )
-);
 
 jtcontra_gfx #(
     .CFGFILE("gfx1_cfg.hex" ),

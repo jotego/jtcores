@@ -17,7 +17,7 @@ volume = [
 
 [buttons]
 names=[
-    { names="Shoot left,Shoot centre,Shoot right" }
+    { names="Shoot left,Shoot centre,Shoot right", map="YXA" }
 ]
 
 [ROM]

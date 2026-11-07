@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-1-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-1-2019 */
 
 
 module jt1942_game(
@@ -58,8 +44,6 @@ assign prom_d1_we    = prom_we && prog_addr[11:8]==6; // sb-2.d1 -- unused by Vu
 assign prom_d2_we    = prom_we && prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
 assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd9 : 4'd4); // sb-1.k6
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 assign debug_view = {dipsw[16], 3'b0, 1'b0, dip_flip, flip_xor, flip };
 assign dip_flip = (game_id==VULGUS & dipsw[16]) ^ flip;
 // CHAR VRAM in mem.yaml
@@ -172,7 +156,7 @@ jt1942_sound u_sound (
 jt1942_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
+    .cen6       ( pxl_cen       ),
     .cen3       ( cen3          ),
     .game_id    ( game_id       ),
     .cpu_cen    ( cpu_cen       ),

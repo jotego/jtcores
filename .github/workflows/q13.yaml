@@ -3,7 +3,9 @@ name: MiST
 on:
   workflow_dispatch:
 jobs:
+  # Compilation jobs do not run in the private mirror.
   list_cores:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -11,10 +13,10 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
-        token: ${{ secrets.PAT }}
+        token: ${{ secrets.PAT || github.token }}
     - id: generate-matrix
       run: |
         cd cores
@@ -31,6 +33,7 @@ jobs:
         echo "cores=${CORES}" >> $GITHUB_OUTPUT
 
   compile_cores13:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,16 +45,16 @@ jobs:
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 13
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore13 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mist
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-q13-${{ matrix.core }}
           path: release

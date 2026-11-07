@@ -1,21 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 31-8-2019 */
-
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 31-8-2019 */
 
 module jtgunsmk_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -23,15 +8,12 @@ module jtgunsmk_game(
 
 wire [15:0] pre_obj_addr;
 wire [12:0] cpu_AB, obj_AB;
-wire [ 8:0] V, H;
+wire [ 8:0] V;
 wire [ 7:0] cpu_dout, char_dout, scr_dout, snd_latch, main_ram;
 wire [ 2:0] obj_bank;
-wire        char_cs, flip, cpu_cen, char_busy, HINIT,
-            cen12, cen6, cen3, cen8, cen1p5,
-            LHBL_obj, LVBL_obj, preLHBL, preLVBL,
+wire        char_cs, flip, cpu_cen, char_busy,
             wr_n, rd_n, sres_b, nc,
             CHON, OBJON, SCRON, OKOUT, blcnten, bus_req, bus_ack;
-reg         video_flip;
 
 wire prom_red_we   = prom_we && ioctl_addr[11:8]==0;
 wire prom_green_we = prom_we && ioctl_addr[11:8]==1;
@@ -46,42 +28,13 @@ wire prom_prior_we = prom_we && ioctl_addr[11:8]==9;
 wire [7:0] scrposv;
 wire [15:0] scrposh;
 
-assign pxl2_cen = cen12;
-assign pxl_cen  = cen6;
 assign obj_addr[14:1]  = pre_obj_addr[13:0];
 assign obj_addr[17:15] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
 assign debug_view = {6'd0, dip_flip, flip};
 
-/* verilator lint_off PINMISSING */
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen12  ( cen12     ),
-    .cen8   ( cen8      ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen1p5 ( cen1p5    )
-);
-/* verilator lint_on PINMISSING */
-
-jtgng_timer u_timer(
-    .clk       ( clk      ),
-    .cen6      ( cen6     ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( preLHBL  ),
-    .LVBL      ( preLVBL  ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL_obj  ( LVBL_obj ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
-);
-
 jtgunsmk_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cpu_cen    ( cpu_cen       ),
     // Timing
@@ -158,9 +111,6 @@ jtgng_sound u_sound (
     .mcu_srd        (                )
 );
 
-always @(posedge clk)
-    video_flip <= dip_flip ^ flip; // Original Gun Smoke did not have this DIP bit.
-
 jt1943_video #(
     .CHAR_PAL      ( "../../../rom/gunsmoke/g-01.03b" ),
     .CHAR_IDMSB0   ( 6                                ),
@@ -185,18 +135,20 @@ jt1943_video #(
 ) u_video(
     .rst           ( rst           ),
     .clk           ( clk           ),
-    .pxl2_cen      ( cen12         ),
-    .pxl_cen       ( cen6          ),
+    .pxl2_cen      ( pxl2_cen      ),
+    .pxl_cen       ( pxl_cen       ),
     .cen8          ( cen8          ),
     .cen3          ( cen3          ),
-    .cpu_cen       ( cpu_cen       ),
+    .cen6          ( pxl_cen       ),
     .cpu_AB        ( cpu_AB[10:0]  ),
     .V             ( V             ),
-    .H             ( H             ),
+    .HS            ( HS            ),
+    .VS            ( VS            ),
     .rd_n          ( rd_n          ),
     .wr_n          ( wr_n          ),
     .cpu_dout      ( cpu_dout      ),
-    .flip          ( video_flip    ), // no software support for DIP flip in GunSmoke
+    .flip          ( flip          ), // no software support for DIP flip in GunSmoke
+    .dip_flip      ( dip_flip      ),
     // CHAR
     .char_cs       ( char_cs       ),
     .chram_dout    ( char_dout     ),
@@ -226,7 +178,6 @@ jt1943_video #(
     .map2_data     (               ),
     // OBJ
     .OBJON         ( OBJON         ),
-    .HINIT         ( HINIT         ),
     .obj_AB        ( obj_AB        ),
     .obj_DB        ( main_ram      ),
     .obj_addr      ( pre_obj_addr  ),
@@ -236,13 +187,8 @@ jt1943_video #(
     .bus_req       ( bus_req       ), // Request bus
     .bus_ack       ( bus_ack       ), // bus acknowledge
     .blcnten       ( blcnten       ), // bus line counter enable
-    // Color Mix
-    .preLHBL       ( preLHBL       ),
-    .preLVBL       ( preLVBL       ),
     .LHBL          ( LHBL          ),
     .LVBL          ( LVBL          ),
-    .LHBL_obj      ( LHBL_obj      ),
-    .LVBL_obj      ( LVBL_obj      ),
     // PROM access
     .prog_addr     ( prog_addr[7:0]),
     .prog_din      ( prog_data[3:0]),

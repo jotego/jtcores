@@ -137,8 +137,7 @@ if [ ! -d "$HOME/verilator/.git" ]; then
     unset VERILATOR_ROOT
     git clone https://github.com/verilator/verilator.git --depth 1 || exit $?
     cd $HOME/verilator
-    # v5.046 does not produce images in simulation
-    git checkout v5.044
+    git checkout v5.050
     autoconf
     ./configure
     # compile using 80% of available CPUs

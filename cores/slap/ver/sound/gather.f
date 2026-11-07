@@ -1,0 +1,11 @@
+$JTROOT/cores/slap/hdl/jtslap_sound.v
+$JTFRAME/hdl/cpu/jtframe_z80.v
+$JTFRAME/hdl/cpu/jtframe_z80wait.v
+$JTFRAME/hdl/cpu/t80/T80s.v
+$JTROOT/modules/jt12/jt49/hdl/jt49.v
+$JTROOT/modules/jt12/jt49/hdl/jt49_bus.v
+$JTROOT/modules/jt12/jt49/hdl/jt49_div.v
+$JTROOT/modules/jt12/jt49/hdl/jt49_cen.v
+$JTROOT/modules/jt12/jt49/hdl/jt49_eg.v
+$JTROOT/modules/jt12/jt49/hdl/jt49_exp.v
+$JTROOT/modules/jt12/jt49/hdl/jt49_noise.v

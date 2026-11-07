@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 8-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 8-7-2025 */
 
 module jtrungun_sound(
     input           rst,
@@ -46,8 +32,7 @@ module jtrungun_sound(
 );
 /* verilator tracing_off */
 parameter PRMR=0;
-localparam  LOUDER=1, NORMAL=0,
-            VOLSHIFT= PRMR==0 ? LOUDER : NORMAL;
+localparam  VOLSHIFT = PRMR==1 ? 2 : 3; // Per-set gain from full-volume MAME peak captures
 
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, ctl,
                     k39a_dout, k39b_dout, latch_dout, sta_dout, stb_dout;
@@ -67,11 +52,6 @@ assign nmi_clr  =~ctl[4];
 assign bank     = ctl[3:0];
 assign st_dout  = debug_bus[7] ? stb_dout : sta_dout;
 assign latch_we = k21_cs & ~wr_n;
-assign cpu_din  = rom_cs  ? rom_data   :
-                  ram_cs  ? ram_dout   :
-                  k39a_cs ? k39a_dout  :
-                  k39b_cs ? k39b_dout  :
-                  k21_cs  ? latch_dout : 8'h0;
 
 always @(*) begin
     mem_acc =!mreq_n  && rfsh_n;
@@ -111,9 +91,15 @@ jt054321 u_54321(
     .siorq_n    ( iorq_n    ),
     .int_n      ( int_n     )
 );
-`ifndef NOSOUND
 
+`ifndef NOSOUND
 wire eff_nmin = PRMR==1 ? tima : nmi_n;
+
+assign cpu_din  = rom_cs  ? rom_data   :
+                  ram_cs  ? ram_dout   :
+                  k39a_cs ? k39a_dout  :
+                  k39b_cs ? k39b_dout  :
+                  k21_cs  ? latch_dout : 8'h0;
 
 jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .rst_n      ( ~rst      ),
@@ -146,79 +132,83 @@ wire [1:0] nca;
 
 assign ma = PRMR==1 ? A[8:0] : {A[9],A[7:0]};
 /* verilator tracing_on */
-wire [15:0] auxa_l, auxa_r;
-
-jt539 #(.VOLSHIFT(VOLSHIFT)) u_k54539a(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cen_pcm   ),
-    .timeout    ( tima      ),
-    // CPU interface
-    .addr       ( ma        ),
-    .we         ( ~wr_n     ),
-    .rd         ( ~rd_n     ),
-    .cs         ( k39a_cs   ),
-    .din        ( cpu_dout  ),
-    .dout       ( k39a_dout ),
-    // ROM
-    .rom_cs     ( pcma_cs   ),
-    .rom_addr   ( {nca,pcma_addr} ),
-    .rom_data   ( pcma_data ),
-    // FM - unused
-    .aux_l      ( auxa_l    ),
-    .aux_r      ( auxa_r    ),
-    // Sound output
-    .left       ( k539a_l   ),
-    .right      ( k539a_r   ),
-    // debug
-    .debug_bus  ( debug_bus ),
-    .st_dout    ( sta_dout  )
-);
-
-generate if(PRMR==0) begin
+generate if(PRMR==0) begin: dual
     wire [1:0] ncb;
     wire [15:0] auxb_l, auxb_r;
-
-    jt539 u_k54539b(
+    reg signed [15:0] out_l, out_r;
+    jt539_dual #(.VOLSHIFT_A(VOLSHIFT)) u_k54539(
         .rst        ( rst       ),
         .clk        ( clk       ),
         .cen        ( cen_pcm   ),
-        .timeout    (           ),
-        // CPU interface
-        .addr       ({A[9],A[7:0]}),
-        .we         ( ~wr_n     ),
-        .rd         ( ~rd_n     ),
-        .cs         ( k39b_cs   ),
-        .din        ( cpu_dout  ),
-        .dout       ( k39b_dout ),
-        // ROM
-        .rom_cs     ( pcmb_cs   ),
-        .rom_addr   ( {ncb,pcmb_addr} ),
-        .rom_data   ( pcmb_data ),
-        // FM - unused
-        .aux_l      ( auxb_l    ),
-        .aux_r      ( auxb_r    ),
-        // Sound output
-        .left       ( k539b_l   ),
-        .right      ( k539b_r   ),
-        // debug
+        .timeout_a  ( tima      ),
+        .timeout_b  (           ),
+        .addr_a     ( ma        ),
+        .addr_b     ( {A[9],A[7:0]} ),
+        .we_a       ( ~wr_n     ),
+        .we_b       ( ~wr_n     ),
+        .rd_a       ( ~rd_n     ),
+        .rd_b       ( ~rd_n     ),
+        .cs_a       ( k39a_cs   ),
+        .cs_b       ( k39b_cs   ),
+        .din_a      ( cpu_dout  ),
+        .din_b      ( cpu_dout  ),
+        .dout_a     ( k39a_dout ),
+        .dout_b     ( k39b_dout ),
+        .rom_cs_a   ( pcma_cs   ),
+        .rom_cs_b   ( pcmb_cs   ),
+        .rom_addr_a ( {nca,pcma_addr} ),
+        .rom_addr_b ( {ncb,pcmb_addr} ),
+        .rom_data_a ( pcma_data ),
+        .rom_data_b ( pcmb_data ),
+        .aux_l_a    ( k539b_l   ),
+        .aux_r_a    ( k539b_r   ),
+        .aux_l_b    ( auxb_l    ),
+        .aux_r_b    ( auxb_r    ),
+        .left_a     ( k539a_l   ),
+        .right_a    ( k539a_r   ),
+        .left_b     ( k539b_l   ),
+        .right_b    ( k539b_r   ),
         .debug_bus  ( debug_bus ),
-        .st_dout    ( stb_dout  )
+        .st_dout_a  ( sta_dout  ),
+        .st_dout_b  ( stb_dout  )
     );
-    assign auxa_l = k539b_l,
-           auxa_r = k539b_r;
     assign auxb_l = 16'd0,
            auxb_r = 16'd0;
-    assign k539_l = k539a_l,
-           k539_r = k539a_r;
-end else begin // 2nd jt539 not present in prmrsocr
-    assign auxa_l = 0, auxa_r = 0, k39b_dout=0,
+    always @(posedge clk) begin
+        out_l <= k539a_l;
+        out_r <= k539a_r;
+    end
+    assign k539_l = out_l,
+           k539_r = out_r;
+end else begin: single // 2nd jt539 not present in prmrsocr
+    jt539_single #(.VOLSHIFT(VOLSHIFT)) u_k54539a(
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( cen_pcm   ),
+        .timeout    ( tima      ),
+        .addr       ( ma        ),
+        .we         ( ~wr_n     ),
+        .rd         ( ~rd_n     ),
+        .cs         ( k39a_cs   ),
+        .din        ( cpu_dout  ),
+        .dout       ( k39a_dout ),
+        .rom_cs     ( pcma_cs   ),
+        .rom_addr   ( {nca,pcma_addr} ),
+        .rom_data   ( pcma_data ),
+        .aux_l      ( 16'd0    ),
+        .aux_r      ( 16'd0    ),
+        .left       ( k539a_l   ),
+        .right      ( k539a_r   ),
+        .debug_bus  ( debug_bus ),
+        .st_dout    ( sta_dout  )
+    );
+    assign k39b_dout=0,
            pcmb_cs=0, pcmb_addr=0, stb_dout=0,
            k539_l = k539a_l, k539_r = k539a_r;
 end endgenerate
 
 `else
-assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
+assign k539_l=0, k539_r=0,
        m1_n=1, mreq_n=1, rfsh_n=1, wr_n=1, A=0, cpu_dout=0, iorq_n=1, tima=0,
        pcma_cs=0, pcmb_cs=0, pcma_addr=0, pcmb_addr=0, ram_dout=0,
        k39a_dout=0, k39b_dout=0, sta_dout=0, stb_dout=0;

@@ -1,0 +1,11 @@
+- name: rastan
+  no_core_name: true
+  size: 32
+  dw: 16
+  read_only: true
+  regs:
+    - { name: scr0_vpos, dw: 16, at: "9,8" }
+    - { name: scr1_vpos, dw: 16, at: "11,10" }
+    - { name: scr0_hpos, dw: 16, at: "17,16" }
+    - { name: scr1_hpos, dw: 16, at: "19,18" }
+    - { name: flip,      dw: 1,  at: "20[0]" }

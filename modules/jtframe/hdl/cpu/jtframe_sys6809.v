@@ -1,22 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 4-1-2020
-
-*/
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2020 */
 
 module jtframe_6809wait(
     input           rstn,
@@ -97,6 +81,7 @@ module jtframe_sys6809 #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1 mode
+    HD6309   = 0,
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
     CENDIV   = 1    // set to zero to not divide by four the input cen, implies RECOVERY=0
 )(
@@ -128,6 +113,7 @@ module jtframe_sys6809 #( parameter
         .RAM_AW     ( RAM_AW    ),
         .RECOVERY   ( RECOVERY  ),
         .KONAMI     ( KONAMI    ),
+        .HD6309     ( HD6309    ),
         .CENDIV     ( CENDIV    ),
         .IRQFF      ( IRQFF     )
     ) u_sys6809(
@@ -173,6 +159,7 @@ module jtframe_sys6809_dma #( parameter
     RAM_AW   = 12,
     RECOVERY = 1,   // Recover clock cycles if needed
     KONAMI   = 0,   // Enable Konami-1/2 mode
+    HD6309   = 0,   // Enable Hitachi 6309 instructions and native mode
     IRQFF    = KONAMI==2,// Add latches for IRQ signals
     CENDIV   = 1         // set to zero to not divide by four the input cen, implies RECOVERY=0
 )
@@ -321,7 +308,7 @@ module jtframe_sys6809_dma #( parameter
     // cycle accurate core
     wire [111:0] RegData;
 
-    mc6809i u_cpu(
+    mc6809i #(.HD6309(HD6309)) u_cpu(
         .D       ( din_dec ),
         .DOut    ( cpu_dout),
         .ADDR    ( A       ),
@@ -341,7 +328,8 @@ module jtframe_sys6809_dma #( parameter
         .nHALT   ( 1'b1    ),
         .nRESET  ( rstn    ),
         .OP      ( OP      ),
-        .RegData ( RegData )
+        .RegData ( RegData ),
+        .RegData6309 ( )
     );
 
     `ifdef SIMULATION

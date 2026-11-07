@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 9-8-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 9-8-2020 */
 
 module jtsarms_video #(
     parameter SCRW  = 17,
@@ -26,7 +12,6 @@ module jtsarms_video #(
     input               pxl2_cen,
     input               pxl_cen,
     input               cpu_cen,
-    input               cen12,
     input       [11:0]  cpu_AB,
     output      [ 8:0]  V,
     output      [ 8:0]  H,
@@ -79,10 +64,6 @@ module jtsarms_video #(
     output              VS,
     input               eres_n,        // clears palette error signal
     output              wrerr_n,       // marks an attempt to write in palette outside v-blanking
-    // Priority PROMs
-    // input       [7:0]   prog_addr,
-    // input               prom_prio_we,
-    // input       [3:0]   prom_din,
     // Palette RAM
     input               blue_cs,
     input               redgreen_cs,
@@ -143,7 +124,6 @@ jtframe_vtimer #(
     .vrender1  (          )
 );
 
-`ifndef NOCHAR
 jtgng_char #(
     .HOFFSET ( CHAR_OFFSET ),
     .ROM_AW  ( 14          ),
@@ -177,12 +157,7 @@ jtgng_char #(
     .prog_din   (               ),
     .prom_we    (               )
 );
-`else
-assign char_pxl  = ~8'd0;
-assign char_mrdy = 1'b1;
-`endif
 
-`ifndef NOSCR
 jt1943_scroll #(
     .HOFFSET    (SCR_OFFSET   ),
     .AS8MASK    ( 1'b0        ),
@@ -217,14 +192,7 @@ jt1943_scroll #(
     .scr_pxl      ( scr_pxl       ),
     .debug_bus    ( 8'd0          )
 );
-`else
-assign scr_pxl    = 9'h0f;
-assign scr_addr   = 17'd0;
-assign scr_dout   = 8'd0;
-assign map_addr   = 'd0;
-`endif
 
-`ifndef NOSCR
 jtsarms_star u_star(
     .rst        ( rst        ),
     .clk        ( clk        ),
@@ -245,12 +213,10 @@ jtsarms_star u_star(
     .debug_bus  ( debug_bus  ),
     .star_pxl   ( star_pxl   )
 );
-`else
-assign star_pxl  = 3'd0;
-assign star_addr = 12'd0;
-`endif
 
-`ifndef NOOBJ
+assign obj_AB[ 12] = 1'b1;
+assign obj_AB[4:2] = 3'b0;
+
 jtgng_obj #(
     .ROM_AW       ( OBJW        ),
     .PALW         (  4          ),
@@ -291,15 +257,7 @@ jtgng_obj #(
     .prom_lo_we ( 1'b0        ),
     .OBJON      ( 1'b1        )
 );
-assign obj_AB[ 12] = 1'b1;
-assign obj_AB[4:2] = 3'b0;
-`else
-assign blcnten = 1'b0;
-assign bus_req = 1'b0;
-assign obj_pxl = ~6'd0;
-`endif
 
-`ifndef NOCOLMIX
 jtsarms_colmix #(
     .CHARW     ( PXL_CHRW  ),
     .BLANK_DLY ( BLANK_DLY )
@@ -347,10 +305,5 @@ u_colmix (
     .green        ( green         ),
     .blue         ( blue          )
 );
-`else
-assign  red = 4'd0;
-assign blue = 4'd0;
-assign green= 4'd0;
-`endif
 
 endmodule

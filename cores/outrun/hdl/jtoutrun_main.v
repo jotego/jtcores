@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 10-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 10-7-2022 */
 
 module jtoutrun_main(
     input              rst,
@@ -53,6 +39,7 @@ module jtoutrun_main(
     output             RnW,
     output reg         sub_cs,
     input              sub_ok,
+    input              sub_bsy,
     input       [15:0] sub_din,
     output      [ 1:0] dsn,
     output             creset,
@@ -66,6 +53,8 @@ module jtoutrun_main(
     input       [ 1:0] cab_1p,
     input       [ 1:0] coin,
     input              service,
+    input              gear_toggle,
+    input              gear_show,
     output      [19:1] addr,
     // ROM access
     output reg         rom_cs,
@@ -126,9 +115,21 @@ wire [15:0] rom_dec, cpu_dout_raw;
 
 reg         io_cs, ppi_cs, adc_wr;
 wire        cpu_RnW, dec_ok;
-reg         vram_ok_dly;
+wire        vram_ok_dly;
 
 reg  [ 7:0] cab_dout, cab_ctrl;
+reg         gear_hi, gear_l;
+wire        gear;
+
+assign gear = gear_toggle ? gear_hi : joystick1[6];
+
+always @(posedge clk) begin
+    gear_l <= joystick1[6];
+    if( rst || !gear_toggle )
+        gear_hi <= 0;
+    else if( gear_l && !joystick1[6] )
+        gear_hi <= ~gear_hi;
+end
 wire [ 7:0] active, sys_inputs, st_mapper,
             ppi_dout, ppia_dout, ppib_dout, ppic_dout;
 wire [ 2:0] cpu_ipln, mix_ipln;
@@ -144,14 +145,13 @@ wire [ 2:0] motor_lim;
 wire        none_cs;
 reg  [ 2:0] adc_ch;
 
-assign BUSn  = LDSn & UDSn;
-assign dsn   = { UDSn, LDSn };
-// assign UDSWn = RnW | UDSn;
-assign LDSWn = RnW | LDSn;
-assign flip     = 0;
-assign addr     = A[19:1];
-assign mix_ipln = { cpu_ipln[2], line_intn, 1'b1 };
-assign creset = cpu_rst | ~cpu_oresetn;
+assign BUSn      = LDSn & UDSn;
+assign dsn       = { UDSn, LDSn };
+assign LDSWn     = RnW | LDSn;
+assign flip      = 0;
+assign addr      = A[19:1];
+assign mix_ipln  = { cpu_ipln[2], line_intn, 1'b1 };
+assign creset    = cpu_rst | ~cpu_oresetn;
 
 jts16b_mapper u_mapper(
     .rst        ( rst            ),
@@ -167,6 +167,7 @@ jts16b_mapper u_mapper(
     .bus_dsn    ( {UDSn,  LDSn}  ),
     .bus_cs     ( bus_cs         ),
     .bus_busy   ( bus_busy       ),
+    .bus_legit  ( sub_bsy        ),
     // effective bus signals
     .addr_out   ( A              ),
 
@@ -352,7 +353,7 @@ always @(*) begin
                 cab_dout = ppi_dout;
             end
             1: case( A[2:1] )
-                0: cab_dout = { coin, ~joystick1[7], joystick1[6], cab_1p[0], service, dip_test, 1'b1 };
+                0: cab_dout = { coin, ~joystick1[7], gear, cab_1p[0], service, dip_test, ~gear_show };
                 1: cab_dout = 8'hff;
                 2: cab_dout = dipsw_a;
                 3: cab_dout = dipsw_b;
@@ -435,9 +436,16 @@ jtoutrun_motor u_motor(
 
 wire bad_cs = ~|{ram_cs, vram_cs, rom_cs, char_cs, pal_cs, objram_cs, sub_cs, io_cs, none_cs} & ~ASn;
 
+jtframe_okdly u_vram_okdly(
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .cs     ( vram_cs     ),
+    .ok     ( vram_ok     ),
+    .ok_dly ( vram_ok_dly )
+);
+
 // Data bus input
 always @(posedge clk) begin
-    vram_ok_dly <= vram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

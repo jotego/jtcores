@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-3-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-3-2025 */
 
 module jtgaiden_palmux(
     input               clk,
@@ -32,23 +18,29 @@ module jtgaiden_palmux(
 `include "jtgaiden_colmix.vh"
 
 reg [ 4:0] amuxsel=SEL_NONE;
+reg [ 3:0] bank=0;
 
 always @* begin
     case(amuxsel)
-        SEL_TXT:  pal_addr = {TEXT, txt_pxl};
-        SEL_SCR1: pal_addr = {SCR1, scr1_pxl[7:0]};
-        SEL_SCR2: pal_addr = {SCR2, scr2_pxl};
-        SEL_OBJ:  pal_addr = {OBJ,  obj_pxl[7:0]};
+        SEL_TXT:  pal_addr = {TEXT|bank, txt_pxl};
+        SEL_SCR1: pal_addr = {SCR1|bank, scr1_pxl[7:0]};
+        SEL_SCR2: pal_addr = {SCR2|bank, scr2_pxl};
+        SEL_OBJ:  pal_addr = {OBJ |bank, obj_pxl[7:0]};
+        SEL_BGPEN:pal_addr = {SCR1|BLEND_COMP, 8'd0};
         default:  pal_addr = FILL;
     endcase
 end
 
 always @(posedge clk) begin
     case(st)
-        1: amuxsel <= sel;
+        1: begin
+            amuxsel <= sel;
+            bank    <= sel2!=SEL_NONE ? BLEND_SRC : 4'd0;
+        end
         3: begin
             main    <= pal_dout[11:0];
             amuxsel <= sel2;
+            bank    <= BLEND_COMP;
         end
         5: begin
             other <= pal_dout[11:0];

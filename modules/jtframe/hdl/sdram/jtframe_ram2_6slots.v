@@ -1,23 +1,10 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-12-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-12-2020 */
 
 module jtframe_ram2_6slots #(parameter
     SDRAMW = 22,
+    TAG_RAM = 0,
     SLOT0_ERASE  = 1, // erase memory contents after a reset
     SLOT1_ERASE  = 1, // erase memory contents after a reset
     SLOT0_FASTWR = 0,
@@ -48,6 +35,14 @@ module jtframe_ram2_6slots #(parameter
     CACHE3_SIZE = 0,
     CACHE4_SIZE = 0,
     CACHE5_SIZE = 0,
+    CACHE2_LARGE = 0,
+    CACHE3_LARGE = 0,
+    CACHE4_LARGE = 0,
+    CACHE5_LARGE = 0,
+    SLOT2_BURSTLEN = 32,
+    SLOT3_BURSTLEN = 32,
+    SLOT4_BURSTLEN = 32,
+    SLOT5_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT2_OFFSET = {SDRAMW{1'b0}},
     parameter [SDRAMW-1:0] SLOT3_OFFSET = {SDRAMW{1'b0}},
@@ -184,7 +179,7 @@ jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),.FASTWR(0),.ERASE(S
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
     .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
-    .CACHE_SIZE(CACHE2_SIZE))
+    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT2_BURSTLEN ))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -204,7 +199,7 @@ u_slot2(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
     .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
-    .CACHE_SIZE(CACHE3_SIZE))
+    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT3_BURSTLEN ))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -224,7 +219,7 @@ u_slot3(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT4_AW),.DW(SLOT4_DW),
     .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH),
-    .CACHE_SIZE(CACHE4_SIZE))
+    .CACHE_SIZE ( CACHE4_SIZE     ), .CACHE_LARGE( CACHE4_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT4_BURSTLEN ))
 u_slot4(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -244,7 +239,7 @@ u_slot4(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT5_AW),.DW(SLOT5_DW),
     .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH),
-    .CACHE_SIZE(CACHE5_SIZE))
+    .CACHE_SIZE ( CACHE5_SIZE     ), .CACHE_LARGE( CACHE5_LARGE ), .TAG_RAM( TAG_RAM ), .BURSTLEN( SLOT5_BURSTLEN ))
 u_slot5(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

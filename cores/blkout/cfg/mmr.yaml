@@ -1,0 +1,11 @@
+# 0x280000-0x280003. Only 0x280002 is used: the colour of the 1bpp overlay
+# (pen 512), write only. Kept as an MMR so scene dumps carry it.
+- name: frontcol
+  size: 4
+  dw: 16
+  read_only: true
+  regs:
+    - name: frontcol
+      desc: overlay colour, xBGR-444
+      dw: 12
+      at: "3[3:0],2"

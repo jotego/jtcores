@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 22-11-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 22-11-2023 */
 /* verilator coverage_off */
 module jt680x_ctrl(
     input        rst,
@@ -89,7 +75,12 @@ always @(posedge clk) begin
         if(  halt | (ni & ext_halt) ) ba<=1;
         if( ~halt & ~ext_halt       ) ba<=0;
         if( ni | halt ) begin
-            if( !still ) begin
+            // A halt instruction is a wait state until an interrupt is
+            // actually serviceable. Normal NI boundaries still dispatch the
+            // next opcode when no interrupt is pending.
+            if( !still && ( !halt || ( ~ext_halt &
+                ( pendng | ( ~i & ( irq | irq_icf | irq_ocf | irq_tof | irq_sci | irq2 | irq_cmf ) ) |
+                    ( uaddr[11:4]==8'h1a & ( irq | irq_icf | irq_ocf | irq_tof | irq_sci | irq2 | irq_cmf ) ) ) ) ) ) begin
                 uaddr <= { md[7:0], 4'd0 };
                 stack_busy <= 0;
                 // ops[md[7:0]] <= 1;
@@ -112,7 +103,7 @@ always @(posedge clk) begin
             end
             if( pendng ) begin
                 iv <= 4'o16;
-                uaddr <= ISRV_SEQA;
+                uaddr <= alt ? IVRD_SEQA : ISRV_SEQA;
                 stack_busy <= 1;
                 pendng <= 0;
             end

@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package macros
 
@@ -121,6 +108,15 @@ func (item *MacroEnabled) Enabled() bool {
 
 // check incompatible macro settings
 func CheckMacros() error {
+	if e := check_pxlclk(); e != nil {
+		return e
+	}
+	if err := check_credits_pages(); err != nil {
+		return err
+	}
+	if IsSet("JTFRAME_PLL_TUNE") && Get("CORE_OSD") != "" {
+		return fmt.Errorf("jtframe: JTFRAME_PLL_TUNE and CORE_OSD are incompatible because both use status bits 13:15")
+	}
 	// Check that MiST DIPs are defined after the
 	// last used status bit
 	dipbase, _ := strconv.Atoi(Get("JTFRAME_DIPBASE"))
@@ -134,6 +130,13 @@ func CheckMacros() error {
 	}
 	if IsSet("JTFRAME_MR_LF_BRAM") && !IsSet("JTFRAME_VERTICAL") {
 		return fmt.Errorf("jtframe: JTFRAME_MR_LF_BRAM requires JTFRAME_VERTICAL")
+	}
+	if IsSet("JTFRAME_MR_GAME_DDR") {
+		for _, name := range []string{"JTFRAME_VERTICAL", "JTFRAME_LF_BUFFER", "JTFRAME_MR_DDRLOAD"} {
+			if IsSet(name) {
+				return fmt.Errorf("jtframe: JTFRAME_MR_GAME_DDR uses the DDR port that %s needs", name)
+			}
+		}
 	}
 	if IsSet("JTFRAME_JOY1_POS") && GetInt("JTFRAME_DIPBASE")<20 {
 		return fmt.Errorf("jtframe: JTFRAME_JOY1_POS requires JTFRAME_DIPBASE to be at least 20")
@@ -165,6 +168,20 @@ func CheckMacros() error {
 	}
 	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT","JTFRAME_LF_HW","JTFRAME_LF_VW"); e!=nil {
 		return e
+	}
+	return nil
+}
+
+func check_credits_pages() error {
+	if !IsSet("JTFRAME_CREDITS_PAGES") {
+		return nil
+	}
+	if !IsInt("JTFRAME_CREDITS_PAGES") {
+		return fmt.Errorf("jtframe: JTFRAME_CREDITS_PAGES must be an integer")
+	}
+	pages := GetInt("JTFRAME_CREDITS_PAGES")
+	if pages < 1 || pages > 16 {
+		return fmt.Errorf("jtframe: JTFRAME_CREDITS_PAGES must be between 1 and 16 (got %d)", pages)
 	}
 	return nil
 }

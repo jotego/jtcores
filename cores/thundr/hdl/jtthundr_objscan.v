@@ -1,24 +1,10 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 9-4-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 9-4-2025 */
 
 module jtthundr_objscan(
     input             clk, hs, blankn,
-    input             flip,
+    input             flip, metrocrs,
     input      [ 8:0] vrender, xoffset,
     input      [ 7:0] yoffset,
 
@@ -51,7 +37,7 @@ wire [8:0] vlatch, raw_addr;
 wire [1:0] st;
 reg  [1:0] hos, vos, hmsb_nx;
 reg  [4:0] nx_ysub;
-reg        inzone, wide=0;
+reg        inzone, wide=0, bara_prio=0;
 wire       draw_step, hsub, cen, hcnt_nx;
 
 assign draw_step = st==3;
@@ -94,11 +80,15 @@ end
 
 always @(posedge clk) if(cen) begin
     case(st)
-        0: { code[7:0], hsize, hflip, hos, code[10:8] } <= ram_dout;
+        0: begin
+            { code[7:0], hsize, hflip, hos, code[10:8] } <= ram_dout;
+            bara_prio <= ram_dout[0];
+        end
         1: { hpos[7:0], pal, hpos[8] } <= ram_dout;
         2: begin
             wide  <= hsize==HLARGE;
-            { prio, vos, vsize, vflip } <= ram_dout[7:0];
+            { vos, vsize, vflip } <= ram_dout[4:0];
+            prio  <= metrocrs ? {2'd0,bara_prio} : ram_dout[7:5];
             y    <= ram_dout[15:8] + yoffset + YOS + vos_dr;
             hpos <= hpos + xoffset + XOS;
         end

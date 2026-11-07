@@ -8,7 +8,9 @@ on:
   schedule:
     - cron: '0 1 * * *' # GitHub cron is UTC; 3am in GMT+2
 jobs:
+  # Full builds run in the public repository, never in the private mirror.
   check_schedule:
+    if: github.repository != 'jotego/jtcores-private'
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -16,7 +18,7 @@ jobs:
       should_compile: ${{ steps.check.outputs.should_compile }}
     steps:
       - id: check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             if (context.eventName !== 'schedule') {
@@ -49,17 +51,17 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - check_schedule
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     defaults:
       run:
         shell: bash
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
-        token: ${{ secrets.PAT }}
+        token: ${{ secrets.PAT || github.token }}
     - id: generate-matrix
       run: |
         cd cores
@@ -83,22 +85,22 @@ jobs:
     needs:
       - check_schedule
       - list_cores
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 13
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore13 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mist
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-q13-${{ matrix.core }}
           path: release
@@ -112,22 +114,22 @@ jobs:
     needs:
       - check_schedule
       - list_cores
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} mister pocket
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-mrpocket-${{ matrix.core }}
           path: release
@@ -141,35 +143,35 @@ jobs:
     needs:
       - check_schedule
       - list_cores
-    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
+    if: ${{ github.repository != 'jotego/jtcores-private' && needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT || github.token }}
       - id: compile
         run: |
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} sidi sidi128
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-sidis-${{ matrix.core }}
           path: release
           retention-days: 1
 
-  upload:
+  bundle:
     runs-on: ubuntu-latest
     needs: [ check_schedule, compile_cores13, mister-pocket, sidis ]
-    if: ${{ always() && needs.check_schedule.outputs.should_compile == 'true' }} # upload the results even if some core did not compile correctly
+    if: ${{ github.repository != 'jotego/jtcores-private' && always() && needs.check_schedule.outputs.should_compile == 'true' }} # upload the results even if some core did not compile correctly
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: release
           pattern: release-*
@@ -178,6 +180,10 @@ jobs:
         run: |
           echo ARTIFACT_NAME=`git rev-parse --short HEAD`.zip >> "$GITHUB_ENV"
           echo COMMIT_DATE=$(git show -s --format=%ci 2> /dev/null) >> "$GITHUB_ENV"
+      - name: Bundle resource statistics
+        run: |
+          find release -mindepth 2 -maxdepth 2 -type f -name '*.yml' -print0 | sort -z | xargs -0 cat > release/stats.yml
+          find release -mindepth 2 -maxdepth 2 -type f -name '*.yml' -delete
       - name: Make zip file
         run: |
           ls -l release/*
@@ -186,13 +192,7 @@ jobs:
           touch -m -d "$COMMIT_DATE" "$ARTIFACT_NAME"
           ls -l $ARTIFACT_NAME
       - name: Upload bundle
-        uses: bayssmekanique/action-simple-file-upload@v2
+        uses: actions/upload-artifact@v6
         with:
-          user: ${{ secrets.FTPUSER }}
-          password: ${{ secrets.FTPPASS }}
-          host: jotego.es
-          src: ${{ env.ARTIFACT_NAME }}
-          dest: ${{ env.ARTIFACT_NAME }}
-      - uses: geekyeggo/delete-artifact@v4
-        with:
-            name: $ARTIFACT_NAME
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_NAME }}

@@ -1,0 +1,6 @@
+# Enable the service DIP at boot. The video ROM check ends near frame 900;
+# holding 1P through the test transition advances to OBJ CHARACTER ROM CHECK.
+dipsw=fb55ff
+=900
+400 1p
+=3600

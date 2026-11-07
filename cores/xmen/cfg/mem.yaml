@@ -1,5 +1,4 @@
 params:
-  - { name: RAM_OFFSET,   value: "22'h100000" }
   - { name: PCM_OFFSET,   value: "22'h020000>>1" }
 clocks:
   clk48:
@@ -20,11 +19,6 @@ audio:
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 14
-          data_width: 16
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 20
           data_width: 16
@@ -51,6 +45,14 @@ sdram:
           addr_width: 22
           data_width: 32
 bram:
+  # Main CPU work RAM
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    addr: main_addr[13:1]
+    din: ram_din
+    dout: ram_data
   # EEROM
   - name: nvram
     addr_width: 7

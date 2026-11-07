@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-1-2025 */
 
 module jtgaiden_main(
     input                rst,
@@ -75,7 +61,7 @@ reg         io_cs, txt_cs, scra_cs, scrb_cs, obj_cs, pal_cs, regs_cs, cab_cs,
             txtx_cs, scrax_cs, scrbx_cs, objy_cs, flip_cs, clr_int,
             mcu_rd,  mcu_wr;
 reg  [15:0] cpu_din, cab_dout;
-reg         rom_ok_dly;
+wire        rom_ok_dly;
 wire [15:0] cpu_dout, wf_lut;
 wire        bus_cs, bus_busy, intn, short_en, long_en;
 
@@ -98,6 +84,14 @@ assign scrb_we  = {2{scrb_cs&~RnW}} & ~{UDSn,LDSn};
 assign obj_we   = {2{obj_cs &~RnW}} & ~{UDSn,LDSn};
 assign pal_we   = {2{pal_cs &~RnW}} & ~{UDSn,LDSn};
 assign short_en = A[3];
+
+jtframe_okdly u_rom_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( rom_cs     ),
+    .ok     ( rom_ok     ),
+    .ok_dly ( rom_ok_dly )
+);
 assign long_en  = A[2];
 assign wf_lut[15:8] = 0;
 
@@ -137,7 +131,6 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    rom_ok_dly <= rom_ok;
     cpu_din <= rom_cs  ? rom_data :
                ram_cs  ? ram_dout :
                txt_cs  ? mt_dout  :

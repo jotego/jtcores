@@ -1,1 +1,0 @@
-Maggie's balloon should not be visible at the bottom of the screen

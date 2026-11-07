@@ -7,11 +7,13 @@ on:
       - "**"
 
 jobs:
+  # Run jobs in the private mirror only for PRs; keep public triggers unchanged.
   check-beta-keys:
+    if: ${{ github.repository != 'jotego/jtcores-private' || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install yq
         uses: mikefarah/yq@v4

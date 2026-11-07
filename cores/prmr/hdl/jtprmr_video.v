@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-12-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-12-2025 */
 
 module jtprmr_video(
     input             rst,
@@ -121,7 +107,7 @@ wire [ 3:0] obj_amsb;
 wire        lyrf_blnk_n,
             lyra_blnk_n, obj_nmin,
             lyrb_blnk_n, lyro_precs,
-            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
+            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg, obj_cpu_ok;
 
 assign cpu_weg    = cpu_we && cpu_dsn!=3;
 assign cpu_saddr  = { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_addr[11:1] };
@@ -163,7 +149,7 @@ jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
     .st_dout        ( st_dout       )
 );
 
-always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
+always @(posedge clk) vdtac <= pre_vdtac && obj_cpu_ok;
 
 always @* begin
     lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[3:2], lyrf_col[4], lyrf_col[1:0], pre_f[10:0] };
@@ -308,7 +294,7 @@ assign mmr_addr  =  objset_cs[0] ? {cpu_addr[4:2],~cpu_dsn[0]} : cpu_addr[4:1];
 assign oramw     = {2{cpu_we}}&~cpu_dsn;
 
 /* verilator tracing_off */
-jtriders_obj #(.RAMW(13),.SHADOW(1)) u_obj(
+jtriders_obj #(.RAMW(13),.CPU_ROM_REG(1),.SHADOW(1)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -326,12 +312,14 @@ jtriders_obj #(.RAMW(13),.SHADOW(1)) u_obj(
     .ram_din    ( cpu_dout  ),
     .ram_we     ( oramw     ),
     .cpu_din    (objsys_dout),
+    .cpu_ok     ( obj_cpu_ok),
 
     .reg_cs     ( objreg_cs ),
     .mmr_addr   ( mmr_addr  ),
     .mmr_din    ( cpu_dout  ),
     .mmr_we     ( cpu_weg   ), // active on ~dsn[1] but ignores cpu_dout[15:8]
     .mmr_dsn    ( cpu_dsn   ),
+    .mmr_noa1  ( objset_cs[0] ),
 
     .dma_bsy    ( dma_bsy   ),
     // ROM

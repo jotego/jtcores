@@ -1,0 +1,161 @@
+params:
+  # Cache-line offsets are expressed in halfword address space.
+  # Bank 0 layout:
+  #        0-0x87FFFF bytes -> BIOS plus SIMM 1 (512kB + 8MB)
+  # 0x880000-0x8FFFFF bytes -> sprite RAM (512kB)
+  # 0x900000-0x97FFFF bytes -> RAM (512kB)
+  - { name: SPRRAM,       value: 23'h4_40000 }
+clocks:
+  clk:
+    - freq: 16 MHz
+      outputs: [ std2_cen, std_cen ]
+  clk48:
+    - freq: 25 MHz
+      outputs: [ cen_r ]
+    - freq: 14.318181 MHz
+      outputs: [ pcm_cen ]
+audio:
+  mute: true
+  rsum: 1k
+  gain: 1.999 # compensate for automatic /2 divider added
+  rc: { r: 8.54k, c: 1n } # PCM max sample rate = 37.29 kHz
+  channels:
+    - { name: snd, stereo: true, rsum: 1k, data_width: 16 }
+sdram:
+  # chip 0 bank 0: bios, code and various RAMs
+  # chip 0 bank 1: simm 3
+  # chip 0 bank 2: simm 4
+  # chip 0 bank 3: simm 5
+  # chip 1 bank 0: simm 2
+  # chip 1 bank 3: 8MB of tiles RAM
+  burst: 1kB
+  big_endian: true
+  cache-lanes:
+    # 1. CPU access to bank 0
+    - name: cpuba0
+      data_width: 32
+      rw: true
+      flush:  { enable: true, invalidates: [scndma, scrmap] }
+      blocks: { count: 64, size: 256 }
+      at:     { bank: 0, length: 16MB }
+    # 2. Character and palette DMA share one read lane for the full SDRAM
+    - name: gfxdma
+      data_width: 32
+      rw: true
+      flush: { enable: true }
+      blocks: { count: 32, size: 32 }
+    # 3. Character DMA uses tiles_wr
+    - name: tiles_wr
+      data_width: 32
+      rw: true
+      flush:  { enable: true, invalidates: [tiles] }
+      blocks: { count: 4, size: 512 }
+      at:     { chip: 1, bank: 3, length: 8MB }
+    # 4. SIMM 2
+    - name: simm2
+      data_width: 32
+      rw: true
+      blocks: { count: 64, size: 64 }
+      at:     { bank: 0, length: 8MB, chip: 1 }
+    # 5. Video uses tiles
+    - name: tiles
+      data_width: 128
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+      at:     { chip: 1, bank: 3, length: 8MB }
+      simfile: { name: tilechar.bin }
+    # 6. Scene DMA reads
+    - name: scndma
+      data_width: 32
+      blocks: { count: 8, size: 256 }
+      at:     { bank: 0, offset: SPRRAM, length: 512kB }
+      simfile: { name: spriteram.bin }
+    # 7. Scroll Tile Map
+    - name: scrmap
+      data_width: 32
+      blocks: { count: 8, size: 1kB }
+      at:     { bank: 0, offset: SPRRAM, length: 512kB }
+      simfile: { name: spriteram.bin }
+    # 8. PCM sound (SIMM 3)
+    - name: pcm
+      data_width: 8
+      blocks: { count: 256, size: 32B  }
+      at:     { bank: 1, length: 16MB }
+bram:
+  - name: fram
+    addr_width: 9
+    data_width: 8  # only odd bytes used, so not a full 32-bit mem
+    din: cpu_dodd
+    rw: true
+  # Managed by the sprite list DMA. Contains the parsed list of
+  # sprite and tilemap command to apply during frame rendering
+  - name: scene
+    size: 8kB
+    data_width: 32
+    rw: true
+    simfile: { big_endian: true }
+    latch: all
+    dual_port:
+      name: video
+      latch: outputs
+      addr: scn_vaddr
+      dout: scn_vdata
+  - name: pal
+    size: 256kB
+    data_width: 16
+    rw: true
+    simfile: {}
+    latch: all
+    dual_port:
+      name: video
+      latch: inputs
+      addr: pal_vaddr
+      dout: pal_vdata
+  # CPU offset range: 0x8000-0xFFFF
+  # 8x8 tile pixel data
+  - name: sschar
+    size: 16kB
+    data_width: 16
+    rw: true
+    simfile: {}
+    latch: all
+    dual_port:
+      name: video
+      addr: sschar_vaddr
+      dout: sschar_vdata
+  # CPU offset range: 0x0000-0x3FFF
+  # Tilemap layout
+  - name: ssmap
+    size: 8kB
+    data_width: 16
+    rw: true
+    simfile: {}
+    latch: all
+    dual_port:
+      name: video
+      addr: ssmap_vaddr
+      dout: ssmap_vdata
+  # CPU offset range: 0x4000-0x7FFF
+  # per-line scroll
+  - name: ssscr
+    size: 8kB
+    data_width: 16
+    rw: true
+    simfile: {}
+    latch: all
+    dual_port:
+      name: video
+      addr: ssscr_vaddr
+      dout: ssscr_vdata
+  # 32x32 EEPROM
+  - name: eeprom
+    size: 128 B
+    data_width: 32
+    rw: true
+    ioctl:
+      save: true
+      restore: true

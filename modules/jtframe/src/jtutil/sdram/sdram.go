@@ -1,19 +1,6 @@
-/*  This file is part of JTCORES.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package sdram
 
@@ -194,10 +181,7 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 		promIdx = 8
 	}
 	bankCount := sdramDumpBankCount(memCfg, offsets, maxBankCount, promIdx)
-	promStart := len(rom)
-	if promIdx < len(offsets) {
-		promStart = offsets[promIdx]
-	}
+	promStart := promEndOffset(offsets, promIdx, len(rom))
 	nxStart := header
 	for bank := 0; bank < bankCount; bank++ {
 		nx := bankEndOffset(bank, bankCount, offsets, promStart)
@@ -231,6 +215,18 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 func bankEndOffset(bank, bankCount int, offsets []int, promStart int) int {
 	if bank+1 < bankCount && bank+1 < len(offsets) && offsets[bank+1] < promStart {
 		return offsets[bank+1]
+	}
+	return promStart
+}
+
+func promEndOffset(offsets []int, promIdx, romLen int) int {
+	if promIdx >= len(offsets) {
+		return romLen
+	}
+	promStart := offsets[promIdx]
+	if promStart > romLen {
+		fmt.Printf("WARNING: JTFRAME_PROM_START ($%X) is beyond ROM end ($%X); using ROM end as PROM boundary\n", promStart, romLen)
+		return romLen
 	}
 	return promStart
 }
@@ -904,10 +900,14 @@ func dump(name string, rom []byte, p0, p1, lim, fill int) (int, error) {
 	}
 	if p1 == p0 && fill == 0 {
 		err := os.Remove(name)
-		if err != nil {
+		if err != nil && !os.IsNotExist(err) {
 			return 0, err
 		}
-		fmt.Println("Removed file", name)
+		if err == nil {
+			fmt.Println("Removed file", name)
+		} else {
+			fmt.Println("Warning: empty region file does not exist", name)
+		}
 		return p1, nil
 	}
 	if err := os.WriteFile(name, rom[p0:p1], 0664); err != nil {

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 17-3-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-3-2021 */
 
 module jts16_main(
     input              rst,
@@ -128,8 +114,8 @@ wire [23:0] A_full = {A,1'b0};
 
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn, VPAn;
-wire        ok_dly;
-reg         ram_ok_dly;
+wire        ok_dly, ram_acc;
+wire        ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw;
 reg  [15:0] cpu_din;
 wire        cpu_LDSn, cpu_UDSn, cpu_RnW, DTACKn;
@@ -199,7 +185,7 @@ always @(posedge clk, posedge rst) begin
             // process a new request. BUSn will toggle for
             // read-modify-writes
             pre_vram_cs <= !BUSn && A[22] && A[18:16]==0;        // 40
-            pre_ram_cs  <= !BUSn && A[23:22]==3 && A[18:16]==7;  // c7
+            pre_ram_cs  <= (mcu_bus || !BUSn) && A[23:22]==3 && A[18:16]==7; // c7
         end else begin
             rom_cs    <= 0;
             char_cs   <= 0;
@@ -215,6 +201,7 @@ end
 
 assign ram_cs  = pre_ram_cs,
        vram_cs = pre_vram_cs;
+assign ram_acc = ram_cs | vram_cs;
 
 // cabinet input
 reg [ 7:0] cab_dout, sort1, sort2;
@@ -392,6 +379,9 @@ end
 
 `ifndef NOMCU
     reg [7:0] mcu_din;
+    wire [7:0] mcu_rom_din;
+    wire [7:0] mcu_xdin = mcu_ctrl[5:3]>=5 ? mcu_rom_din : mcu_din;
+    reg       mcu_acc_l;
     wire      mcu_br;
 
     assign mcu_bus = ~BGACKn | cpu_rst;
@@ -399,14 +389,38 @@ end
 
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
-            mcu_din <= 0;
-        end else if(mcu_bus) begin
-            mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
+            mcu_din   <= 0;
+            mcu_acc_l <= 0;
+        end else begin
+            // The 68k bus return is registered after the request.  Capture
+            // it on the following MCU clock and retain it until the next
+            // transaction; otherwise the idle bus overwrites a valid MOVX
+            // byte before the wrapper's synchronous input reaches the MCU.
+            mcu_acc_l <= mcu_acc;
+            if(mcu_bus && mcu_acc_l)
+                mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
         end
     end
 
+    jts16_mcu_romresp u_mcu_romresp(
+        .rst    ( rst         ),
+        .clk    ( clk         ),
+        .mcu_bus( mcu_bus     ),
+        .rom_ok ( rom_ok      ),
+        .LDSn   ( LDSn        ),
+        .rom_din( rom_dec     ),
+        .mcu_din( mcu_rom_din )
+    );
+
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
+
+    wire mcu_rom_read = mcu_acc && !mcu_wr && mcu_ctrl[5:3]>=5;
+    wire mcu_ram_access = mcu_acc && mcu_ctrl[5:3]==0 &&
+                          mcu_addr[15:14]==2'b01;
+    wire mcu_bus_granted = cpu_rst | ~BGACKnl;
+    wire mcu_target_ready = mcu_rom_read ? (rom_cs && rom_ok) :
+                            mcu_ram_access ? (ram_cs && ram_ok) : 1'b1;
 
     always @(*) begin
         case(mcu_ctrl[5:3])
@@ -422,12 +436,11 @@ end
     end
 
     // This is done by IC69 (a 82S153 programmable logic chip)
+    // CPU reset gives the MCU bus ownership, but memory accesses still wait
+    // for their decoded target to become ready before the MCU advances.
     always @(posedge clk) begin
         BGACKnl <= BGACKn;
-        if( !mcu_cen ) mcu_ok <= cpu_rst | (BRn & BGACKn) | (
-            BGACKnl ? 1'b0   :
-            rom_cs  ? rom_ok :
-            ram_cs  ? ram_ok : 1'b1 );
+        if( !mcu_cen ) mcu_ok <= !mcu_acc || (mcu_bus_granted && mcu_target_ready);
     end
 
     assign mcu_gated = mcu_cen & mcu_ok;
@@ -445,7 +458,6 @@ end
     );
 
     jtframe_8751mcu #(
-        .DIVCEN     ( 1             ),
         .SYNC_XDATA ( 1             ),
         .SYNC_P1    ( 1             ),
         .SYNC_INT   ( 1             ),
@@ -458,10 +470,10 @@ end
         .int0n      ( ~vint         ),
         .int1n      ( ~ppib_dout[6] ),
 
-        .p0_i       ( mcu_din       ),
+        .p0_i       ( mcu_xdin      ),
         .p1_i       ( mcu_ctrl      ), // feedback the output, need for PUSH p1 to work as expected
         .p2_i       ( 8'hff         ),
-        .p3_i       ( {4'hf, ~ppib_dout[6], ~vint, 2'b11} ), // need for instructions like jb int0,xx
+        .p3_i       ( 8'hff         ),
 
         .p0_o       (               ),
         .p1_o       ( mcu_ctrl      ),
@@ -469,7 +481,7 @@ end
         .p3_o       (               ),
 
         // external memory
-        .x_din      ( mcu_din       ),
+        .x_din      ( mcu_xdin      ),
         .x_dout     ( mcu_dout      ),
         .x_addr     ( mcu_addr      ),
         .x_wr       ( mcu_wr        ),
@@ -519,7 +531,6 @@ jt8255 u_8255(
 
 // Data bus input
 always @(posedge clk) begin
-    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -555,9 +566,17 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-wire bus_cs    = pal_cs | char_cs | pre_vram_cs | pre_ram_cs | rom_cs | objram_cs | io_cs;
-wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok_dly };
+wire bus_cs    = pal_cs | char_cs | ram_acc | rom_cs | objram_cs | io_cs;
+wire bus_busy  = |{ rom_cs & ok_dly===0, ram_acc & ~ram_ok_dly };
 wire bus_legit = 0;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .rst        ( rst       ),

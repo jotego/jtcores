@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-6-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-6-2025 */
 
 module jt051316(
     input          rst, clk, pxl_cen, cen24,
@@ -28,6 +14,7 @@ module jt051316(
     output  [ 7:0] pxl,
     output         blnk_n,
     input          rvo, // enables blanking
+    input          wrap, // repeats the tilemap outside its nominal bounds
     input   [ 8:0] hdump, vdump,
 
     output  [23:0] rom_addr,
@@ -44,8 +31,10 @@ parameter [8:0] WR_STRT=9'h060, // Positions in wr_addr skipped during blanking
                 RST_CT =9'h058, // starting value for wr_addr
                 RD_DLY =9'h00B, // number of times to delay hdump
                 RD_END =9'h19F; // Value of rd_addr when LHBL goes low
+parameter BPP=7, ROLLERG=0; // Ajax uses 7 bpp; GX861 and GX999 use packed 4 bpp.
 
 wire [23:0] xcnt, ycnt, gfx_addr;
+wire [23:0] rom_source;
 wire [15:0] scan_dout;
 wire [ 9:0] vaddr;
 wire [ 8:0] wr_addr, rd_addr;
@@ -62,20 +51,27 @@ reg         hs_l, hs_cen, cnt_cen, done;
 assign we        ={cpu_addr[10],~cpu_addr[10]} & {2{cpu_we & vr_cs}};
 assign cpu_din   = cpu_addr[10] ? cpu_ram2 : cpu_ram1;
 assign ioctl_din = ioctl_addr[10] ? scan_dout[15:8] : scan_dout[7:0];
-assign rom_addr  =  rmrd_n ? gfx_addr : { ckbank, cpu_addr };
+assign rom_source=  rmrd_n ? gfx_addr : { ckbank, cpu_addr };
+assign rom_addr  =  BPP==4 ? {1'b0,rom_source[23:1]} : rom_source;
 assign rom_cs    =  rmrd_n |  vr_cs;
 assign cpu_ok    =  rmrd_n | ~vr_cs | rom_ok;
 assign vflip     = vflip_en & scan_dout[15];
 assign hflip     = hflip_en & scan_dout[14];
 assign vf        = {4{vflip}} ^ ycnt[14:11];
 assign hf        = {4{hflip}} ^ xcnt[14:11];
-assign gfx_addr  = { scan_dout, vf, hf };
+assign gfx_addr  = ROLLERG ? {4'd0,scan_dout[11:8],scan_dout[7:0],vf,hf} :
+                             {scan_dout,vf,hf};
 assign vaddr     = {ycnt[19:15],xcnt[19:15]};
-assign buf_din   = duplicate ? 8'h0 : { rom_addr[19], rom_data[6:0] };
-assign blnk_n    = pxl[6:0]!=0;
+// Packed GX861 pixels use the high nibble at even gfx addresses.
+assign buf_din   = duplicate ? 8'h0 :
+                   BPP==4 ? { ROLLERG ? {2'b0,scan_dout[13:12]} :
+                                       {scan_dout[15],scan_dout[13:11]},
+                              gfx_addr[0] ? rom_data[3:0] : rom_data[7:4] } :
+                            { rom_addr[19], rom_data[6:0] };
+assign blnk_n    = BPP==4 ? pxl[3:0]!=0 : pxl[6:0]!=0;
 assign rst_cnt   = vs & hs;
 assign pre_lvbl  = vdump==VB_END;
-assign duplicate = ~oblk[2] | rvo;   // According to documentation, more regs could be involved
+assign duplicate = (~oblk[2] & ~wrap) | rvo;
 
 always @(*) begin
     done    = wr_addr>=RD_END;
@@ -109,7 +105,7 @@ jtframe_sh #(.W(9),.L(RD_DLY)) u_hb_dly(
     .drop       ( rd_addr   )
 );
 
-jtk051316_cnt u_xcnt(
+jtk051316_cnt #(.LINE_OFFSET(ROLLERG)) u_xcnt(
     .rst        ( rst_cnt   ),
     .clk        ( clk       ),
     .pxl_cen    ( cnt_cen   ),
@@ -120,7 +116,7 @@ jtk051316_cnt u_xcnt(
     .cnt        ( xcnt      )
 );
 
-jtk051316_cnt u_ycnt(
+jtk051316_cnt #(.LINE_OFFSET(ROLLERG)) u_ycnt(
     .rst        ( rst_cnt   ),
     .clk        ( clk       ),
     .pxl_cen    ( cnt_cen   ),
@@ -209,7 +205,9 @@ jtframe_linebuf u_linebuf(
 
 endmodule
 
-module jtk051316_cnt(
+module jtk051316_cnt #(
+    parameter LINE_OFFSET=0
+)(
     input             clk, rst,
     input             hs_cen, pxl_cen,
     input      [15:0] hstep, vstep, cnt0,
@@ -217,11 +215,13 @@ module jtk051316_cnt(
 );
 
 reg [23:0] vcnt;
+wire [23:0] cnt_init = {cnt0,8'd0} -
+                       (LINE_OFFSET ? {{8{vstep[15]}},vstep} : 24'd0);
 
 always @(posedge clk) begin
     if( rst ) begin
-        cnt  <= {cnt0,8'd0};
-        vcnt <= {cnt0,8'd0};
+        cnt  <= cnt_init;
+        vcnt <= cnt_init;
     end else begin
         if(pxl_cen)
             cnt  <= cnt  + {{8{hstep[15]}},hstep};

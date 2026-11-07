@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-12-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-12-2019 */
 
 module jtdd_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -24,7 +10,8 @@ wire       [12:0]  cpu_AB;
 wire               cram_cs, vram_cs, oram_cs, pal_cs;
 wire               cpu_wrn;
 wire       [ 7:0]  cpu_dout;
-wire       [ 7:0]  char_dout, scr_dout, pal_dout;
+wire       [ 7:0]  scr_dout, pal_dout;
+reg        [ 7:0]  char_dout_l, obj_dout_l;
 // video signals
 wire               VBL, IMS, H8, flip, nc;
 // Sound
@@ -45,11 +32,15 @@ assign scr_cs     = LVBL;
 assign main_dout  = cpu_dout;
 assign oram_we    = oram_cs & ~cpu_wrn;
 assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
-assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 assign mcu_cen    = turbo_l ? mcu_cen12 : mcu_cen6;
 assign cpu_cen    = turbo_l ? cen6 : cen3;
 
 always @(posedge clk) if( mcu_cen && cpu_cen ) turbo_l <= turbo;
+
+always @(posedge clk24) begin
+    char_dout_l <= main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
+    obj_dout_l  <= obj_dout;
+end
 
 /* verilator tracing_on */
 // CPU and sub CPU from slower clock in order to
@@ -76,11 +67,11 @@ jtdd_main u_main(
     .snd_irq        ( snd_irq       ),
     .snd_latch      ( snd_latch     ),
     // Characters
-    .char_dout      ( char_dout     ),
+    .char_dout      ( char_dout_l   ),
     .cpu_dout       ( cpu_dout      ),
     .cram_cs        ( cram_cs       ),
     // Objects
-    .obj_dout       ( obj_dout      ),
+    .obj_dout       ( obj_dout_l    ),
     .oram_cs        ( oram_cs       ),
     // scroll
     .scr_dout       ( scr_dout      ),

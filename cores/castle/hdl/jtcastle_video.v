@@ -1,26 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 31-01-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 31-01-2023 */
 
 module jtcastle_video(
     input               rst,
     input               clk,
-    output              pxl2_cen,
-    output              pxl_cen,
+    input               pxl2_cen,
+    input               pxl_cen,
     output              LHBL,
     output              LVBL,
     output              HS,
@@ -88,25 +74,6 @@ assign gfx1_addr[18] = video_bank[0] &  gfx1_sel;
 assign gfx2_addr[18] = video_bank[1] & ~gfx2_sel;
 
 always @(posedge clk) st_dout <= debug_bus[3] ? st_dout2 : st_dout1;
-
-jtframe_cen48 u_cen(
-    .clk        ( clk       ),    // 48 MHz
-    .cen12      ( pxl2_cen  ),
-    .cen16      (           ),
-    .cen16b     (           ),
-    .cen8       (           ),
-    .cen6       ( pxl_cen   ),
-    .cen4       (           ),
-    .cen4_12    (           ), // cen4 based on cen12
-    .cen3       (           ),
-    .cen3q      (           ), // 1/4 advanced with respect to cen3
-    .cen1p5     (           ),
-    .cen12b     (           ),
-    .cen6b      (           ),
-    .cen3b      (           ),
-    .cen3qb     (           ),
-    .cen1p5b    (           )
-);
 
 jtcontra_gfx #(
     .CFGFILE("gfx1_cfg.hex" ),

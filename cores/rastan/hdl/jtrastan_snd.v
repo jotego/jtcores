@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 3-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 3-4-2022 */
 
 module jtrastan_snd(
     input                rst,
@@ -51,14 +37,6 @@ module jtrastan_snd(
     output reg           peak,
     input         [ 7:0] debug_bus
 );
-reg  snd_cen_tog;
-wire snd_cen = main_cen & snd_cen_tog;
-always @(posedge clk, posedge rst) begin
-    if( rst )
-        snd_cen_tog <= 0;
-    else if( main_cen )
-        snd_cen_tog <= ~snd_cen_tog;
-end
 `ifndef NOSOUND
 wire               int_n;
 wire        [15:0] A;
@@ -215,7 +193,7 @@ jtrastan_pc060 u_pc060(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .main_cen   ( main_cen  ),
-    .snd_cen    ( snd_cen   ),
+    .snd_cen    ( fm_cen    ),
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),
@@ -231,13 +209,10 @@ jtrastan_pc060 u_pc060(
     .snd_rst    ( pc6_rst   )
 );
 
-// RECOVERY cannot be set because snd_cen comes from fx68k and it
-// may not have enough idle clock cycles for RECOVERY to work.
-// See https://github.com/jotego/jtcores/issues/1502
-jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
+jtframe_sysz80 u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),
-    .cen        ( snd_cen   ),
+    .cen        ( fm_cen    ),
     .cpu_cen    (           ),
     .int_n      ( int_n     ),
     .nmi_n      ( nmi_n     ),
@@ -332,13 +307,15 @@ jtopwolf_mix u_opwolf_mix(
     .peak        ( opwolf_peak   )
 );
 `else
-assign main_din=0, rom_addr=0, left=0, right=0;
+assign main_din=0, rom_addr=0;
 initial begin
     rom_cs=0;
     pcm0_addr=0;
     pcm1_addr=0;
     pcm0_cs=0;
     pcm1_cs=0;
+    peak=0;
+    left=0; right=0;
 end
 `endif
 endmodule

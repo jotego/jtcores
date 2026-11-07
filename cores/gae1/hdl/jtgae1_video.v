@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-7-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-7-2026 */
 
 module jtgae1_video #(
     parameter integer VTOTAL = 272
@@ -62,15 +48,22 @@ localparam VB_START = VVIS - 1;
 localparam VB_END   = VTOTAL - 1;
 localparam HS_START = HVIS + HFP;
 localparam HS_END   = HVIS + HFP + HSW;
-localparam VS_START = VVIS + VFP;
-localparam VS_END   = VVIS + VFP + VSW;
 localparam HTOTAL   = HVIS + HFP + HSW + HBP;
+localparam VS_START = VB_START + (VTOTAL - VVIS - VSW + 1)/2;
+localparam VS_END   = VS_START + VSW;
+localparam VS_H     = (VTOTAL[0] ? (HB_START + HTOTAL/2) % HTOTAL : HB_START);
+localparam SYNC_HS_START = HS_START + HBL_DLY/2;
+localparam SYNC_HS_END   = HS_END   + HBL_DLY/2;
+localparam TIMER_VS_START = VVIS + VFP;
+localparam TIMER_VS_END   = TIMER_VS_START + VSW;
 localparam HCNT_END = HTOTAL[8:0] - 9'd1;
 localparam VCNT_END = VTOTAL[8:0] - 9'd1;
 
 wire [ 8:0] hdump;
 wire [ 8:0] vdump;
 wire [12:0] obj_pxl;
+wire        render_hs;
+reg         hsync_out, vsync_out;
 
 jtframe_vtimer #(
     .HCNT_END ( HCNT_END      ),
@@ -81,8 +74,8 @@ jtframe_vtimer #(
     .VCNT_END ( VCNT_END      ),
     .VB_START ( VB_START[8:0] ),
     .VB_END   ( VB_END[8:0]   ),
-    .VS_START ( VS_START[8:0] ),
-    .VS_END   ( VS_END[8:0]   )
+    .VS_START ( TIMER_VS_START[8:0] ),
+    .VS_END   ( TIMER_VS_END[8:0]   )
 ) u_vtimer (
     .clk      ( clk     ),
     .pxl_cen  ( pxl_cen ),
@@ -94,9 +87,21 @@ jtframe_vtimer #(
     .Vinit    (         ),
     .LHBL     ( lhbl    ),
     .LVBL     ( lvbl    ),
-    .HS       ( hsync   ),
-    .VS       ( vsync   )
+    .HS       ( render_hs ),
+    .VS       (           )
 );
+
+assign hsync = hsync_out;
+assign vsync = vsync_out;
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( hdump==SYNC_HS_START[8:0] ) hsync_out <= 1'b1;
+    if( hdump==SYNC_HS_END[8:0]   ) hsync_out <= 1'b0;
+    if( hdump==VS_H[8:0] ) begin
+        if( vdump==VS_START[8:0] ) vsync_out <= 1'b1;
+        if( vdump==VS_END[8:0]   ) vsync_out <= 1'b0;
+    end
+end
 
 wire [11:0] scr0_pxl, scr1_pxl;
 jtgae1_scroll u_scroll (
@@ -104,7 +109,7 @@ jtgae1_scroll u_scroll (
     .rst       ( rst       ),
     .pxl_cen   ( pxl_cen   ),
     .gfx_4m    ( gfx_4m     ),
-    .hsync     ( hsync     ),
+    .hsync     ( render_hs ),
     .hpos      ( hdump     ),
     .vpos      ( vdump     ),
     .scr0_y    ( scr0_y    ),
@@ -131,7 +136,7 @@ jtgae1_obj #(
     .clk            ( clk            ),
     .rst            ( rst            ),
     .pxl_cen        ( pxl_cen        ),
-    .hs             ( hsync          ),
+    .hs             ( render_hs      ),
     .vpos           ( vdump          ),
     .hpos           ( hdump          ),
     .spr_force_high ( spr_force_high ),

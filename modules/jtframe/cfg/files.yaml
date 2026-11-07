@@ -79,6 +79,7 @@ jtframe:
       - jtframe_dwnld.v
       - jtframe_ioctl_range.v
       - jtframe_headerbyte.v
+      - jtframe_okdly.v
       - jtframe_sdram.v
       - jtframe_sdram64.yaml
       - jtframe_burst_sdram.yaml

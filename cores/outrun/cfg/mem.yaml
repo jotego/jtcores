@@ -25,7 +25,7 @@ sdram:
     - buses:
         - { name: xram,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, rw: true }
         - { name: subram, addr_width: 15, data_width: 16, offset: SRAM_OFFSET, rw: true }
-        - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+        - { name: main,   addr_width: 19, data_width: 16, cache_size: 1kB } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
         - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
       # dump:
@@ -33,7 +33,7 @@ sdram:
 
     # Bank 1 for sound & frame buffer
     - buses:
-        - { name: subrom, addr_width: 19, data_width: 16 } # ok latch 0, # latch 0
+        - { name: subrom, addr_width: 19, data_width: 16, cache_size: 1kB } # ok latch 0, # latch 0
         - { name: snd, addr_width: 16, data_width: 8, offset: SND_OFFSET }
         - { name: pcm, addr_width: 19, data_width: 8, offset: PCM_OFFSET }
 

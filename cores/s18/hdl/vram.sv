@@ -15,7 +15,9 @@
 
 */
 
-module vram
+module vram #(
+	parameter SERIAL_LOOKAHEAD = 1'b0
+)
 	(
 	input MCLK,
 	input RAS,
@@ -46,6 +48,7 @@ module vram
 	wire cas = ~RAS & ~CAS;
 	wire wr = ~RAS & ~CAS & ~WE;
 	wire rd = ~RAS & ~CAS & ~OE & ~dt;
+	wire page_load = dt & !o_OE & OE;
 
 	reg [7:0] mem[65536];
 	reg [7:0] ser_o;
@@ -54,7 +57,9 @@ module vram
 		RD_o <= mem[addr];
 		if (wr) mem[addr] <= RD_i;
 
-		ser_o <= mem[{addr_ser_page, addr_ser}];
+		// A passive page load can be followed by SC on the next MCLK.
+		// Read the selected DRAM address early so the registered serial byte is ready.
+		ser_o <= mem[(SERIAL_LOOKAHEAD && page_load) ? addr : {addr_ser_page, addr_ser}];
 	end
 
 	assign RD_d = ~o_valid;
@@ -66,7 +71,7 @@ module vram
 	
 	always @(posedge MCLK)
 	begin
-		if (dt & !o_OE & OE)
+		if (page_load)
 		begin
 			addr_ser <= addr[7:0];
 			addr_ser_page <= addr[15:8];

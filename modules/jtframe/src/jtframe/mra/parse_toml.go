@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package mra
 
@@ -67,7 +54,7 @@ func NewMRAcfgFromTOML(toml_file io.Reader) (mra_cfg Mame2MRA, e error) {
 	if e != nil {
 	    return mra_cfg, fmt.Errorf("problem while parsing TOML file after JSON transformation: %w", e)
 	}
-	return mra_cfg,nil
+	return mra_cfg,mra_cfg.validate_button_maps()
 }
 
 func (mra_cfg *Mame2MRA) apply_macros() {

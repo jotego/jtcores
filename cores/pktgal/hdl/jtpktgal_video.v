@@ -1,19 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 12-7-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-7-2026 */
 
 module jtpktgal_video(
     input             rst,
@@ -64,7 +51,8 @@ module jtpktgal_video(
 wire [8:0] hdump, vdump, vrender;
 wire [ 7:0] pf_pxl;
 wire [ 4:0] obj_pxl;
-wire        flip;
+wire        flip, render_hs;
+reg         hsync_out;
 
 jtframe_vtimer #(
     .HB_END   ( 9'd0   ),
@@ -88,15 +76,22 @@ jtframe_vtimer #(
     .Vinit    (         ),
     .LHBL     ( LHBL    ),
     .LVBL     ( LVBL    ),
-    .HS       ( HS      ),
-    .VS       ( VS      )
+    .HS       ( render_hs ),
+    .VS       ( VS       )
 );
+
+assign HS = hsync_out;
+
+always @(posedge clk) if( pxl_cen ) begin
+    if( hdump==9'd304 ) hsync_out <= 1'b1;
+    if( hdump==9'd336 ) hsync_out <= 1'b0;
+end
 
 jtpktgal_bac06 u_bac06(
     .rst          ( rst          ),
     .clk          ( clk          ),
     .pxl_cen      ( pxl_cen      ),
-    .HS           ( HS           ),
+    .HS           ( render_hs    ),
     .LVBL         ( LVBL         ),
     .hdump        ( hdump        ),
     .vdump        ( vdump        ),

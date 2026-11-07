@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 30-7-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 30-7-2023 */
 
 module jt053244(    // sprite logic
     input             rst,
@@ -70,7 +56,7 @@ module jt053244(    // sprite logic
     output     [ 7:0] st_dout
 );
 
-parameter HFLIP_OFFSET = 0;
+parameter HFLIP_OFFSET = 0, VFLIP_OFFSET = 0, DEBUG_FLICKER = 1;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -93,7 +79,8 @@ assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 assign dma_trig  = cs && cpu_addr[2:1]==3;
 
-jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET)
+jt053244_scan #(.HFLIP_OFFSET(HFLIP_OFFSET),.VFLIP_OFFSET(VFLIP_OFFSET),
+    .DEBUG_FLICKER(DEBUG_FLICKER)
     )u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),

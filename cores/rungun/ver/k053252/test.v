@@ -59,7 +59,7 @@ always @(negedge lvbl) if(prog_done) begin
 end
 
 always @(posedge lvbl) if(rdy) begin
-    assert_msg(uut.vcnt==9'hf7,"lvbl at unexpected time");
+    assert_msg(uut.vcnt==9'hf8,"lvbl at unexpected time");
 end
 
 reg lvbl_l;
@@ -71,7 +71,7 @@ always @(posedge hs) begin
         lvbl_l <= 0;
     end else begin
         lvbl_l <= lvbl;
-        lines <= lines + 1;
+        lines  <= lines + 1;
         if(!lvbl && lvbl_l) begin
             lines <= 1;
             if(lines!=0) assert_msg(lines==9'd289,"Must have 289 lines");

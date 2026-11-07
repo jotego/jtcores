@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 19-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 19-3-2022 */
 
 module jttrack_main(
     input               rst,
@@ -76,7 +62,8 @@ wire [ 7:0] ram_dout;
 wire [15:0] A;
 wire        RnW, irq_n;
 wire        irq_trigger;
-reg         irq_clrn, ram_cs, ok_dly;
+reg         irq_clrn, ram_cs;
+wire        ok_dly;
 reg         ior_cs, in5_cs,
             iow_cs;
 wire        VMA, nvram_we;
@@ -124,7 +111,6 @@ function [2:0] rev3( input [6:0] x );
 endfunction
 
 always @(posedge clk) begin
-    ok_dly <= rom_ok;
     case( A[1:0] )
         0: cabinet <= { 3'b111, cab_1p[1:0], service, coin[1:0] };
         1: cabinet <= {1'b1, rev3(joystick2), cab_1p[2], rev3(joystick1) };
@@ -138,6 +124,14 @@ always @(posedge clk) begin
                ior_cs  ? cabinet  :
                in5_cs  ? dipsw_b  : 8'hff;
 end
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk) begin
     if( rst ) begin

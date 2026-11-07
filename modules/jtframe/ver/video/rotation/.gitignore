@@ -1,0 +1,8 @@
+/build/
+/obj_dir/
+/input.hex
+/output.txt
+/output-*.png
+/build.log
+/sim
+__pycache__/

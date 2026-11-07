@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-3-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-3-2019 */
 
 module jtframe_mister #(parameter
     BUTTONS                 = 2,
@@ -86,6 +72,18 @@ module jtframe_mister #(parameter
 `ifdef JTFRAME_LF_ZOOM
     input        [ 8:0] game_h_step,
     input        [ 8:0] game_v_step,
+`endif
+`ifdef JTFRAME_MR_GAME_DDR
+    // DDR3 for the game logic, on clk_rom. Not compatible with rotation, the line-frame buffer or DDR loading
+    input        [ 7:0] game_ddr_burstcnt,
+    input        [28:0] game_ddr_addr,
+    input               game_ddr_rd,
+    input               game_ddr_we,
+    input        [ 7:0] game_ddr_be,
+    input        [63:0] game_ddr_din,
+    output              game_ddr_busy,
+    output       [63:0] game_ddr_dout,
+    output              game_ddr_dout_ready,
 `endif
 
     // Signals to rotate the screen
@@ -210,6 +208,8 @@ module jtframe_mister #(parameter
     output          scan2x_cen,
     output          scan2x_de,
     output    [1:0] scan2x_sl,
+    // analogue h-size, applied by sys_top on the VGA branch only
+    output    [4:0] hsize_ctl,
     // non standard:
     output            dip_pause,
     inout             dip_flip,
@@ -242,7 +242,7 @@ wire        force_scan2x, direct_video;
 wire        video_rotated;
 wire        lightgun_en;
 
-wire [ 6:0] core_mod;
+wire [17:0] core_mod;
 wire [ 7:0] st_lpbuf, game_vol;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
@@ -624,42 +624,15 @@ jtframe_mister_cartsave u_save(
 assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
 `endif
 
-`ifndef DEBUG_NOHDMI
-    // scales base video horizontally
-    jtframe_hsize #(.COLORW(COLORW)) u_hsize(
-        .clk        ( clk_sys   ),
-        .pxl_cen    ( pxl1_cen  ),
-        .pxl2_cen   ( pxl2_cen  ),
-
-        .scale      ( hsize_scale  ),
-        .offset     ( 5'd0         ),
-        .enable     ( hsize_enable ),
-
-        .r_in       ( game_r    ),
-        .g_in       ( game_g    ),
-        .b_in       ( game_b    ),
-        .HS_in      ( hs_resync ),
-        .VS_in      ( vs_resync ),
-        .HB_in      ( ~LHBL     ),
-        .VB_in      ( ~LVBL     ),
-        // filtered video
-        .HS_out     ( hsize_hs  ),
-        .VS_out     ( hsize_vs  ),
-        .HB_out     ( hsize_hb  ),
-        .VB_out     ( hsize_vb  ),
-        .r_out      ( hsize_r   ),
-        .g_out      ( hsize_g   ),
-        .b_out      ( hsize_b   )
-    );
-`else
-    assign hsize_hs = hs_resync;
-    assign hsize_vs = vs_resync;
-    assign hsize_hb = ~LHBL;
-    assign hsize_vb = ~LVBL;
-    assign hsize_r  = game_r;
-    assign hsize_g  = game_g;
-    assign hsize_b  = game_b;
-`endif
+    // hretime lives in sys_top — pass signals through
+    assign hsize_ctl = { hsize_enable, hsize_scale };
+    assign hsize_hs  = hs_resync;
+    assign hsize_vs  = vs_resync;
+    assign hsize_hb  = ~LHBL;
+    assign hsize_vb  = ~LVBL;
+    assign hsize_r   = game_r;
+    assign hsize_g   = game_g;
+    assign hsize_b   = game_b;
 
 localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
 
@@ -719,6 +692,10 @@ jtframe_board #(
 ) u_board(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
+    .capture_pause  ( 1'b0            ),
+    .cab_active     ( 1'b0            ),
+    .cab_inputs     ( 21'b0           ),
+    .cab_dump_pause ( 1'b0            ),
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
     .rst_req        ( rst_req         ),
@@ -978,7 +955,19 @@ wire rot_clk;
         .DDRAM_DIN      ( rot_din        )
     );
 `else
-    `ifndef JTFRAME_LF_BUFFER
+    `ifdef JTFRAME_MR_GAME_DDR
+    assign rot_clk      = clk_rom;
+    assign rot_burstcnt = game_ddr_burstcnt;
+    assign rot_addr     = game_ddr_addr;
+    assign rot_rd       = game_ddr_rd;
+    assign rot_we       = game_ddr_we;
+    assign rot_be       = game_ddr_be;
+    assign rot_din      = game_ddr_din;
+    assign game_ddr_busy       = rot_busy;
+    assign game_ddr_dout       = DDRAM_DOUT;
+    assign game_ddr_dout_ready = DDRAM_DOUT_READY;
+    `elsif JTFRAME_LF_BUFFER
+    `else
     assign rot_clk      = clk_rom;
     assign rot_burstcnt = 8'd0;
     assign rot_addr     = 29'd0;

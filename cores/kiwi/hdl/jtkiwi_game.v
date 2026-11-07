@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 02-05-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 02-05-2020 */
 
 module jtkiwi_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -34,7 +20,8 @@ wire        cpu_rnw, vctrl_cs, vflag_cs,
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
             kageki=0, kabuki=0, kabuki_mod = 0, service_xor=0,
-            colprom_en=0, mcu_en=0, aid_en, fast_fm=0, drtoppel=0;
+            colprom_en=0, mcu_en=0, aid_en, fast_fm=0, drtoppel=0,
+            unlump=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
 assign other_st   = { hb_dly, dip_flip_xor, coin_xor,   banked_ram,
@@ -61,7 +48,7 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            { drtoppel, kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[4:0];
+            { unlump, drtoppel, kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[5:0];
     end
 end
 
@@ -190,6 +177,7 @@ jtkiwi_snd u_sound(
     .clk        ( clk           ),
     .snd_rstn   ( snd_rstn      ),
     .fast_fm    ( fast_fm       ),
+    .unlump     ( unlump        ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),

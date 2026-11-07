@@ -31,6 +31,7 @@ sdram:
         - name: main
           addr_width: 22
           data_width: 16
+          cache_size: 1kB
     - buses:
         - name: snd
           addr_width: 17
@@ -47,6 +48,7 @@ sdram:
         - name: scr
           addr_width: 21
           data_width:  8
+          cache_size: 1kB
         - name: fix
           addr_width: 17
           data_width: 32
@@ -55,6 +57,7 @@ sdram:
         - name: obj
           addr_width: 23
           data_width: 32
+          cache_size: 1kB
 bram:
   - name: ram
     unless: [ POCKET ]

@@ -306,10 +306,18 @@ wire [15:0] col_pix1;
 wire [15:0] col_pix2;
 wire [15:0] final_rgb565;
 
-reg [2:0] hi_blank_d;
+// The horizontal and vertical colour pipelines each take three output
+// pixels. Delay the vertical controls to follow the horizontal result.
+reg [7:0] vfilter_fraction_d[0:2];
+reg [2:0] vi_blank_d;
+always @(posedge clk_sys) if (ppe_out) begin
+    vfilter_fraction_d[0] <= vfilter_fraction;
+    vfilter_fraction_d[1] <= vfilter_fraction_d[0];
+    vfilter_fraction_d[2] <= vfilter_fraction_d[1];
+    vi_blank_d <= {vi_blank_d[1:0], vi_blank};
+end
 
 always @(posedge clk_sys) begin
-	hi_blank_d<= {hi_blank_d[1:0],hi_blank};
 
 	if(fetchbuffer) begin
 		row1_pix1<=linebuffer1[hi_whole];
@@ -350,7 +358,8 @@ wire [7:0] vfilter_fraction = vfilter ? vi_fraction[15:8] : 8'h00;
 scandoubler_rgb_interp rgbinterp_h1
 (
 	.clk_sys(clk_sys),
-	.blank(hi_blank_d[2]),
+	.ce(ppe_out),
+	.blank(hi_blank),
 	.fraction(hfilter_fraction),
 	.rgb_in(row1_pix1),
 	.rgb_in_prev(row1_pix2),
@@ -360,7 +369,8 @@ scandoubler_rgb_interp rgbinterp_h1
 scandoubler_rgb_interp rgbinterp_h2
 (
 	.clk_sys(clk_sys),
-	.blank(hi_blank_d[2]),
+	.ce(ppe_out),
+	.blank(hi_blank),
 	.fraction(hfilter_fraction),
 	.rgb_in(row2_pix1),
 	.rgb_in_prev(row2_pix2),
@@ -370,8 +380,9 @@ scandoubler_rgb_interp rgbinterp_h2
 scandoubler_rgb_interp rgbinterp_v
 (
 	.clk_sys(clk_sys),
-	.blank(vi_blank),
-	.fraction(vfilter_fraction),
+	.ce(ppe_out),
+	.blank(vi_blank_d[2]),
+	.fraction(vfilter_fraction_d[2]),
 	.rgb_in(col_pix1),
 	.rgb_in_prev(col_pix2),
 	.rgb_out(final_rgb565)

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-11-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-11-2025 */
 
 `ifndef VERILATOR_KEEP_CPU
 /* verilator tracing_off */
@@ -53,11 +39,11 @@ wire       branch, branch_lo;
 wire       brlatch, brok;
 wire       ni;
 wire       inc_pc;
-wire       swi, pcpage;
+wire       swi, pcpage, ea_ff;
 
 assign opmd = DECO222 && opdec ? { md[7], md[5], md[6], md[4:0] } : md;
 
-jt65c02_ctrl u_ctrl(
+jt65c02_ctrl #(.DECO222(DECO222)) u_ctrl(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -70,6 +56,7 @@ jt65c02_ctrl u_ctrl(
     .iv         ( iv        ),
     // control
     .pcpage     ( pcpage    ),
+    .ea_ff      ( ea_ff     ),
     .d          ( d         ),
     .branch     ( branch    ),
     .branch_lo  ( branch_lo ),
@@ -132,6 +119,7 @@ jt65c02_regs #(.DECO222(DECO222)) u_regs(
     .cc_sel     ( cc_sel    ),
     .rmux_sel   ( rmux_sel  ),
     .pcpage     ( pcpage    ),
+    .ea_ff      ( ea_ff     ),
     // interrupts
     .irq        ( irq       ),
     .opdec      ( opdec     ),

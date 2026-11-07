@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-5-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-5-2023 */
 
 module jtajax_sub(
     input               rstn,
@@ -111,7 +97,7 @@ jtframe_dual_ram #(.AW(13)) u_com(
     .q1         ( mcom_dout )
 );
 
-jtframe_sys6809 #(.RAM_AW(0),.CENDIV(0),.IRQFF(0)) u_cpu(
+jtframe_sys6809 #(.RAM_AW(0),.CENDIV(0),.IRQFF(0),.HD6309(1)) u_cpu(
     .rstn       ( rstn      ),
     .clk        ( clk       ),
     .cen        ( cen3      ),   // This is normally the input clock to the CPU
@@ -137,4 +123,4 @@ jtframe_sys6809 #(.RAM_AW(0),.CENDIV(0),.IRQFF(0)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
-endmodule 
+endmodule

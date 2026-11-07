@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-5-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-5-2023 */
 
 module jtsimson_main(
     input               rst,
@@ -25,6 +11,7 @@ module jtsimson_main(
     input               paroda,
     input               simson,
     input               vendetta,
+    input               esckids,
     input               suratk,
 
     output      [ 7:0]  cpu_dout,
@@ -277,6 +264,28 @@ always @(*) begin
         rom_addr[17:13] = A[15] ? {3'b111,A[14:13]} : Aupper[4:0]; // 2Mbit ROM in PCB. Schematics only show a 1Mbit connection
         rom_addr[18]    = 0;
     end
+    if( esckids ) begin
+        ram_cs     = A[15:13]==0;
+        tilesys_cs = ((!init && A[15:13]==3) ||
+                      (init && (A[15:13]==1 || A[15:13]==2))) &&
+                     !(A[15:12]==2 && WOC0) &&
+                     !(A[15:12]==4 && WOC0) &&
+                     !(A[15:8]==8'h3f && A[7:4]>=8 && A[7:4]<=13);
+        objsys_cs  = A[15:12]==2 && WOC0;
+        pal_cs     = A[15:12]==4 && WOC0;
+        joystk_cs  = A[15:4]==12'h3f8;
+        stsw_cs    = A[15:4]==12'h3f9;
+        objreg_cs  = A[15:4]==12'h3fa;
+        pcu_cs     = A[15:4]==12'h3fb;
+        io_cs      = A[15:4]==12'h3fd;
+        hip_cs     = 0;
+        banked_cs  = init && A[15:13]==3;
+        rom_cs     = banked_cs || A[15];
+        rom_addr[17:13] = banked_cs ? Aupper[4:0] : {2'b01,A[15:13]};
+        rom_addr[18] = 0;
+        snd_cs     = io_cs && A[3:1]==3;
+        snd_irq    = io_cs && A[3:1]==2;
+    end
 end
 
 always @* begin
@@ -329,7 +338,7 @@ always @(posedge clk) begin
                 2'd2: port_in <= { dipsw[23:20], coin[1:0], dip_test, service };
                 2'd3: port_in <= dipsw[7:0];
             endcase
-        end else if( vendetta ) begin
+        end else if( vendetta | esckids ) begin
             if( io_cs ) case( A[3:1] )
                 0: { objcha_n, init, rmrd } <= {~cpu_dout[5], cpu_dout[4:3]}; // bit 2 named but unused, bits 1:0 are coin counters
                 1: { irqen, eep_di, eep_clk, eep_cs, mono, WOC1, WOC0 } <= cpu_dout[6:0];
@@ -408,7 +417,7 @@ jtframe_edge #(.QSET(0)) u_firq (
 // there is a reset for the first 8 frames, skip it in sims
 always @(posedge clk) rst_cmb <= rst `ifndef SIMULATION | rst8 `endif ;
 // always @(posedge clk) rst_cmb <= rst | rst8;
-assign irq_mx = (vendetta ? irqn_ff : irq_n) | ~dip_pause;
+assign irq_mx = ((vendetta | esckids) ? irqn_ff : irq_n) | ~dip_pause;
 
 `ifdef SIMSON
 // only used in Vendetta
@@ -452,9 +461,7 @@ jtkcpu u_cpu(
     assign cpu_addr  = 0;
     assign ram_we    = 0;
     assign cpu_we    = 0;
-    assign st_dout   = 0;
     assign pal_we    = 0;
-    assign rom_addr  = 0;
     assign snd_wrn   = 1;
     assign nv_din    = 0;
     assign nv_addr   = 0;

@@ -1,29 +1,15 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 19-3-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 19-3-2025 */
 
 // dual tilemap with independent scroll
 module jtcus42(
     input               rst,
     input               clk, pxl_cen, dec_en, plane3inv,
     input               flip, scrhflip, hs,
+    input               metrocrs,
     input        [ 8:0] hdump, vdump,
     input        [ 3:0] scrhos,         // per game adjustment
-    input signed [ 7:0] scrvos,         // per game adjustment
 
     input               cs, cpu_rnw,
     input        [ 2:0] cpu_addr,
@@ -44,6 +30,7 @@ module jtcus42(
 
     output       [10:0] pxl,
     output       [ 2:0] prio,
+    output              frontop,
     // debug
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
@@ -51,7 +38,7 @@ module jtcus42(
 
 parameter ID=0,HBASE=9'd0;
 
-localparam [2:0] ALPHA=7;
+localparam [2:0] ALPHA=7, BACKB=6;
 
 wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
@@ -61,11 +48,14 @@ reg  [ 8:0] effxa, effxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
-wire        scra_op, scrb_op, selb;
+wire        scra_op, scrb_op, selb, backb;
 
 assign scra_op = scra_pxl[2:0]!=ALPHA;
 assign scrb_op = scrb_pxl[2:0]!=ALPHA;
-assign selb    = scrb_op && (!scra_op || priob > prioa);
+assign backb   = prioa==BACKB;
+assign frontop = backb ? scra_op : scrb_op;
+assign selb    = metrocrs ? (backb ? ~scra_op : scrb_op)
+                          : scrb_op && (!scra_op || priob > prioa);
 assign pxl     = selb ? scrb_pxl  : scra_pxl;
 assign prio    = selb ? priob : prioa;
 
@@ -80,8 +70,12 @@ jtframe_ram_rdmux #(.AW(12),.DW(16)) u_vram_mux(
     .data       ( vram_dout     ),
     .addr_a     ( {1'b0,a_addr} ),
     .addr_b     ( {1'b1,b_addr} ),
+    .cs_a       ( 1'b1          ),
+    .cs_b       ( 1'b1          ),
     .douta      ( a_dout        ),
-    .doutb      ( b_dout        )
+    .doutb      ( b_dout        ),
+    .ok_a       (               ),
+    .ok_b       (               )
 );
 
 jtframe_ram_rdmux #(.AW(5),.DW(8)) u_dec_mux(
@@ -90,8 +84,12 @@ jtframe_ram_rdmux #(.AW(5),.DW(8)) u_dec_mux(
     .data       ( dec_data      ),
     .addr_a     ( adec_addr     ),
     .addr_b     ( bdec_addr     ),
+    .cs_a       ( 1'b1          ),
+    .cs_b       ( 1'b1          ),
     .douta      ( adec_data     ),
-    .doutb      ( bdec_data     )
+    .doutb      ( bdec_data     ),
+    .ok_a       (               ),
+    .ok_b       (               )
 );
 
 jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(
@@ -133,7 +131,6 @@ jtthundr_scroll #(.LYR(0),.HBASE(HBASE)) u_scra(
     .vdump      ( vdump         ),
     .scrx       ( effxa         ),
     .scry       ( scrya         ),
-    .scrvos     ( scrvos        ),
 
     .vram_addr  ( a_addr        ),
     .vram_dout  ( a_dout        ),
@@ -162,7 +159,6 @@ jtthundr_scroll #(.LYR(1),.HBASE(HBASE)) u_scrb(
     .vdump      ( vdump         ),
     .scrx       ( effxb         ),
     .scry       ( scryb         ),
-    .scrvos     ( scrvos        ),
 
     .vram_addr  ( b_addr        ),
     .vram_dout  ( b_dout        ),

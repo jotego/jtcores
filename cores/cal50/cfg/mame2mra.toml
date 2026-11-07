@@ -7,23 +7,21 @@ sourcefile=[ "downtown.cpp" ]
 debug.Machines=[
 	"downtown",
 	"twineagl",
+]
+
+skip.Machines=[
+	# Different format for GFX ROMs
+	"tndrcade",
+	"usclssic",
+	# supported in arblst core
 	"arbalest",
 	"metafox"
 ]
 
-# Different format for GFX ROMs
-skip.Machines=[
-	"tndrcade",
-	"usclssic",
-]
-
 [buttons]
 names = [
-    { machine="calibr50", names="Shoot,Grenade,Turn Left,Turn Right" },
+    { machine="calibr50", names="Shoot,Grenade,Turn Right,Turn Left", map="YBRL" },
 ]
-
-[header]
-frames = [ { width=8 }, ]
 
 [dipsw]
 delete= [
