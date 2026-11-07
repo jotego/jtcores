@@ -253,8 +253,7 @@ end
 // Register map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        // 052109 power-up value, Block Hole never writes this register
-        mmr[0]  <= 8'h13; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
+        mmr[0]  <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
         mmr[4]  <= 0; mmr[5] <= 0; mmr[6] <= 0;
 `ifdef SIMULATION
         if( fcnt!=0 ) begin

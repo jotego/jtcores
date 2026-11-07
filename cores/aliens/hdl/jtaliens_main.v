@@ -168,7 +168,7 @@ always @(*) begin
                           | &A[9:7] & norA65 & incs );
         end
         SCONTRA, THUNDERX, BLOCKHL: begin
-            banked_cs  = A[15:13]==3 && (init || cfg!=SCONTRA); // 6000-7FFFF
+            banked_cs  = A[15:13]==3 && (init || cfg==THUNDERX); // 6000-7FFFF
             pal_cs     = A[15:12]==5 && A[11] && ~work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && (!A[11] || !A[12]&&A[11] || work);
             ioout      = A[15:13]==0;
@@ -231,7 +231,7 @@ always @(posedge clk, posedge rst) begin
             work <= Aupper[5];
         end
         if( cfg==BLOCKHL ) begin
-            init <= 1;          // no INIT bit on this board
+            init <= Aupper[7];
             rmrd <= Aupper[6];
             work <= Aupper[5];  // 1 = work RAM at 5800, 0 = palette
         end
