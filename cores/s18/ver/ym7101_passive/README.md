@@ -1,6 +1,7 @@
 # YM7101 current-source smoke test
 
-This `simunit` checks the YM7101 in both `PASSIVE=0` and `PASSIVE=1` builds.
+This `simunit` checks the YM7101 in `PASSIVE=0` and `PASSIVE=1` builds, plus
+`PASSIVE=1, MODE4=0` for the Pocket configuration.
 It exercises the normal clock phases, legal 68000 MMR and status accesses,
 two sequential VRAM writes with autoincrement and CPU readback, and verifies
 that RGB stays black while the external raster is blank. In passive mode it

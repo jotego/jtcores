@@ -30,12 +30,18 @@ set_multicycle_path -hold \
 # register also provides a synthesized-object guard for cores without it.
 set jtframe_lfbuf_ctrl [get_keepers -nowarn {*|u_lfbuf|u_ctrl|st[0]}]
 if { [get_collection_size $jtframe_lfbuf_ctrl] > 0 } {
-    set jtframe_cram0_source \
-        {u_clocks|u_pll_game|altpll_component|auto_generated|generic_pll1~PLL_OUTPUT_COUNTER|divclk}
-    if { [get_collection_size [get_clocks -nowarn \
-        {u_clocks|u_pll_game|altpll_component|auto_generated|generic_pll2~PLL_OUTPUT_COUNTER|divclk}]] > 0 } {
+    set jtframe_cram0_source [get_nets -nowarn \
+        {u_clocks|u_pll_game|jtframe_pllgame7000_inst|altera_pll_i|outclk_wire[1]}]
+    if { [get_collection_size $jtframe_cram0_source] == 0 } {
         set jtframe_cram0_source \
-            {u_clocks|u_pll_game|altpll_component|auto_generated|generic_pll2~PLL_OUTPUT_COUNTER|divclk}
+            {u_clocks|u_pll_game|altpll_component|auto_generated|generic_pll1~PLL_OUTPUT_COUNTER|divclk}
+        if { [get_collection_size [get_clocks -nowarn \
+            {u_clocks|u_pll_game|altpll_component|auto_generated|generic_pll2~PLL_OUTPUT_COUNTER|divclk}]] > 0 } {
+            set jtframe_cram0_source \
+                {u_clocks|u_pll_game|altpll_component|auto_generated|generic_pll2~PLL_OUTPUT_COUNTER|divclk}
+        }
+    } elseif { [get_collection_size $jtframe_cram0_source] != 1 } {
+        error "Expected one Pocket PLL7000 CRAM source, found [get_collection_size $jtframe_cram0_source]"
     }
     create_generated_clock -name cram0_clk -source \
         $jtframe_cram0_source \

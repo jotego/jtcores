@@ -5,6 +5,7 @@ usage() {
     cat <<'EOF'
 Usage: sim.sh [--baseline-dir DIR] [--baseline-sha SHA] [--candidate-dir DIR]
               [--build-dir DIR] [--run-staged DIR] [--mode legacy|passive]
+              [--mode4 default|disabled]
               [--geometry 400x262|384x260|384x261] [--scenario pattern_a|service|features|legacy_formats|copy_first|copy_read_before|irq_hv|geometry_switch|production_switch]
               [--copy-start active|late] [--transitions]
               [--dry-run] [--keep] [-- program arguments ...]
@@ -76,6 +77,7 @@ write_manifest() {
         echo "jts16_vtimer=$S16_VTIMER"
         echo "bench=$BENCH"
         echo "test_mode=$TEST_MODE"
+        echo "mode4=$MODE4_SETTING"
         echo "geometry=$GEOMETRY"
         echo "scenario=$SCENARIO"
         echo "cpu_start_delay96=$CPU_START_DELAY96"
@@ -95,6 +97,11 @@ verify_staged_snapshot() {
     [[ -f "$manifest" && -d "$src" ]] || die "staged snapshot needs manifest.txt and src/: $dir"
     grep -Fxq "baseline_sha=$BASELINE_SHA" "$manifest" || die "staged baseline SHA does not match $BASELINE_SHA"
     grep -Fxq "test_mode=$TEST_MODE" "$manifest" || die "staged test mode does not match $TEST_MODE"
+    if grep -q '^mode4=' "$manifest"; then
+        grep -Fxq "mode4=$MODE4_SETTING" "$manifest" || die "staged MODE4 setting does not match $MODE4_SETTING"
+    elif [[ "$MODE4_SETTING" != default ]]; then
+        die "staged snapshot has no MODE4 metadata and cannot be used for MODE4=$MODE4_SETTING"
+    fi
     grep -Fxq "geometry=$GEOMETRY" "$manifest" || die "staged geometry does not match $GEOMETRY"
     grep -Fxq "scenario=$SCENARIO" "$manifest" || die "staged scenario does not match $SCENARIO"
     grep -Fxq "cpu_start_delay96=$CPU_START_DELAY96" "$manifest" || die "staged CPU startup phase does not match K=$CPU_START_DELAY96"
@@ -110,6 +117,7 @@ verify_staged_snapshot() {
 build_runner() {
     local src=$1 obj=$2
     local -a defines=("-D$TEST_MODE" -DSIMULATION -DJTFRAME_MCLK=48000000)
+    if [[ "$MODE4_SETTING" == disabled ]]; then defines+=(-DMODE4_DISABLED_TEST); fi
     case "$GEOMETRY" in
         400x262) ;;
         384x260) defines+=(-DPASSIVE_384_260) ;;
@@ -148,6 +156,7 @@ main() {
     CANDIDATE_DIR=${YM7101_CANDIDATE_DIR:-$REPO/cores/s18/hdl}
     BUILD_DIR=${YM7101_RENDER_BUILD_DIR:-$build_default}
     TEST_MODE=${YM7101_RENDER_MODE:-LEGACY_TEST}
+    MODE4_SETTING=${YM7101_RENDER_MODE4:-default}
     BUILD_JOBS=${YM7101_RENDER_JOBS:-4}
     GEOMETRY=400x262
     TRANSITIONS=0
@@ -173,6 +182,10 @@ main() {
                     passive|PASSIVE_TEST) TEST_MODE=PASSIVE_TEST ;;
                     *) die "unknown mode '$2' (use legacy or passive)" ;;
                 esac
+                shift 2 ;;
+            --mode4)
+                (($# >= 2)) || die "--mode4 needs default or disabled"
+                case "$2" in default|disabled) MODE4_SETTING=$2 ;; *) die "unknown MODE4 setting '$2' (use default or disabled)" ;; esac
                 shift 2 ;;
             --geometry)
                 (($# >= 2)) || die "--geometry needs 400x262, 384x260, or 384x261"
@@ -208,6 +221,10 @@ main() {
     JTFRAME_VTIMER=$JTFRAME/hdl/video/jtframe_vtimer.v
     S16_VTIMER=$REPO/cores/s16/hdl/jts16_vtimer.v
     [[ "$TEST_MODE" == LEGACY_TEST || "$TEST_MODE" == PASSIVE_TEST ]] || die "invalid mode: $TEST_MODE"
+    [[ "$MODE4_SETTING" == default || "$MODE4_SETTING" == disabled ]] || die "invalid MODE4 setting: $MODE4_SETTING"
+    if [[ "$MODE4_SETTING" == disabled && "$TEST_MODE" != PASSIVE_TEST ]]; then
+        die "MODE4 disabled is only supported in passive mode"
+    fi
     for arg in "${run_args[@]}"; do
         [[ "$arg" != +copy_start=* ]] || die "+copy_start is reserved; use --copy-start"
     done
@@ -222,6 +239,9 @@ main() {
     fi
     if [[ "$SCENARIO" == legacy_formats && ( "$TEST_MODE" != LEGACY_TEST || "$GEOMETRY" != 400x262 || "$TRANSITIONS" == 1 ) ]]; then
         die "legacy_formats scenario requires legacy mode, 400x262 geometry, and no reset transitions"
+    fi
+    if [[ "$SCENARIO" == legacy_formats && "$MODE4_SETTING" != default ]]; then
+        die "legacy_formats requires default MODE4=1 for Mode4/H32 historical equivalence"
     fi
     if [[ "$SCENARIO" == irq_hv && "$TRANSITIONS" == 1 ]]; then
         die "irq_hv does not combine with reset transitions"
@@ -304,6 +324,7 @@ main() {
     fi
     if ((dry_run)); then
         echo "compile_defines=-D$TEST_MODE -DSIMULATION -DJTFRAME_MCLK=48000000"
+        if [[ "$MODE4_SETTING" == disabled ]]; then echo "compile_defines+=-DMODE4_DISABLED_TEST"; fi
         case "$GEOMETRY" in
             384x260) echo "compile_defines+=-DPASSIVE_384_260" ;;
             384x261) echo "compile_defines+=-DPASSIVE_384_261" ;;
@@ -317,7 +338,7 @@ main() {
         if [[ "$SCENARIO" == irq_hv ]]; then echo "compile_defines+=-DIRQ_HV_SCENARIO"; fi
         if [[ "$SCENARIO" == geometry_switch ]]; then echo "compile_defines+=-DGEOMETRY_SWITCH_SCENARIO"; fi
         if [[ "$SCENARIO" == production_switch ]]; then echo "compile_defines+=-DGEOMETRY_SWITCH_SCENARIO -DPRODUCTION_TIMER_SCENARIO"; fi
-        echo "selected_geometry=$GEOMETRY scenario=$SCENARIO transitions=$TRANSITIONS"
+        echo "selected_geometry=$GEOMETRY scenario=$SCENARIO transitions=$TRANSITIONS mode4=$MODE4_SETTING"
         echo "cpu_start_delay96=$CPU_START_DELAY96"
         echo "copy_first_start=$COPY_START"
         echo "candidate_compile_inputs=$src/candidate_ym7101.v,$src/candidate_ym_lib.v,$src/candidate_vram.sv,$src/candidate_ym7101_raster.v,$src/candidate_jts16_vtimer.v"

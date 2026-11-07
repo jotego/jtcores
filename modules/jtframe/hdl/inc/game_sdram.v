@@ -25,6 +25,10 @@ localparam        SDRAMW     =`ifdef JTFRAME_SDRAM_XL 25 `elsif JTFRAME_SDRAM_LA
 localparam        IOCTL_AW   =`ifdef JTFRAME_SDRAM_XL 27 `else 26 `endif;
 /* verilator lint_on WIDTH */
 
+`ifdef JTFRAME_PROM_START
+localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
+`endif
+
 {{ range .Params }}
 parameter {{.Name}} = {{ if .Value }}{{.Value}}{{else}}`{{.Name}}{{ end}};
 {{- end}}
@@ -584,9 +588,6 @@ assign ba{{$index}}_din  = 0;
 {{ end -}}
 {{ end -}}
 
-`ifdef JTFRAME_PROM_START
-localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
-`endif
 {{ range $cnt, $bus:=.BRAM -}}
 {{- if $bus.Prom }}{{template "prom_dwnld.v" $bus}}
 {{- else if $bus.Dual_port.Name }}
