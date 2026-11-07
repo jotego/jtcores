@@ -225,15 +225,10 @@ always @(posedge clk, posedge rst) begin
         if( buserror ) berr_l <= 1;
         eff_nmi_n <= (cfg==ALIENS || cfg==THUNDERX) ? nmi_n : 1'b1;
         eff_bank  <= cfg==SCONTRA ? bank : Aupper[3:0]; // Only Super Contra uses a latch
-        if( cfg==CRIMFGHT ) begin
+        if( cfg==CRIMFGHT || cfg==BLOCKHL ) begin
             init <= Aupper[7];
             rmrd <= Aupper[6];
             work <= Aupper[5];
-        end
-        if( cfg==BLOCKHL ) begin
-            init <= Aupper[7];
-            rmrd <= Aupper[6];
-            work <= Aupper[5];  // 1 = work RAM at 5800, 0 = palette
         end
         if(cpu_cen) snd_irq <= 0;
         if( io_cs ) case(cfg)
