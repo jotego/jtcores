@@ -18,11 +18,13 @@ const (
 	COREMOD_HFRAME_BIT   = 5
 	COREMOD_VOLUME_BIT   = 8
 	COREMOD_DIAL_BIT     = 16
+	COREMOD_CRT480I_BIT  = 18
 
 	COREMOD_VERTICAL     = 1
 	COREMOD_XORFLIP      = 4
 	COREMOD_DIAL_ENABLE  = 1<<COREMOD_DIAL_BIT
 	COREMOD_DIAL_REVERSE = 1<<(COREMOD_DIAL_BIT+1)
+	COREMOD_CRT480I      = 1<<COREMOD_CRT480I_BIT
 	COREMOD_VFRAME_MASK  = uint(3)<<COREMOD_VFRAME_BIT
 	COREMOD_HFRAME_MASK  = uint(3)<<COREMOD_HFRAME_BIT
 	COREMOD_LIGHTGUN     = 1<<COREMOD_LIGHTGUN_BIT
@@ -107,11 +109,15 @@ func (mod coreMOD) describe_encoding() string {
 }
 
 func (mod coreMOD) add_ROM_part(rom *XMLNode) {
+	rom.AddNode("part").SetText(mod.hex_string())
+}
+
+func (mod coreMOD) hex_string() string {
 	hexdump := fmt.Sprintf("%02X %02X", mod.coremod&0xFF, (mod.coremod>>8)&0xff)
 	if mod.coremod>>16 != 0 {
 		hexdump = fmt.Sprintf("%s %02X", hexdump, (mod.coremod>>16)&0xff)
 	}
-	rom.AddNode("part").SetText(hexdump)
+	return hexdump
 }
 
 func (mod *coreMOD) encode_rotation(machine *MachineXML, is_fixed bool) {

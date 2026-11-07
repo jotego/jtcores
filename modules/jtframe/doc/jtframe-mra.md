@@ -27,6 +27,10 @@ mra` emits a dull MRA containing only the core metadata and RBF link, without a
 ROM download node. This is intended for test cores whose required contents are
 synthesized into FPGA BRAM.
 
+Interlaced analog MRA variants are configured through `[video].interleaved_MRAs`.
+See [core_mod bit 18](core_mod.md#interlaced-analog-video) for the byte encoding
+and an example of the two generated NARC MRAs.
+
 TOML elements (see full reference in mame2mra.go)
 
 ```
@@ -52,6 +56,13 @@ mustbe.machines=[ "machine name"... ]
 # Promote an alternative set as the main one
 # use when the main set doesn't work
 main_setnames=[ "setname"... ]
+
+[video]
+# Also generate "Game (15kHz) (...)" MRAs beside matching regular MRAs.
+# Requires JTFRAME_CRT480I in macros.def. Normal MRAs and Pocket output
+# retain native video; both MRA versions use the same RBF and game ROMs.
+# Supports machine/machines/setname/setnames; omit to disable extra MRAs.
+interleaved_MRAs = { machine="narc" }
 
 [Pocket]
 display_modes=[ 0x61 ] # add extra display modes for Analogue Pocket

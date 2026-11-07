@@ -311,10 +311,11 @@ module scanlines #(parameter P0=0) (
 );
 endmodule
 
-module jtframe_hretime #(parameter DIV=0, parameter STEP=0, parameter DEPTH=0) (
+module jtframe_hretime #(parameter DIV=0, parameter DIV_ALT_X2=0, parameter STEP=0, parameter DEPTH=0) (
     input clk,
     input ce_in,
     input enable,
+    input div_alt,
     input scale,
     input din,
     input hs_in,

@@ -2,9 +2,8 @@
 //   - every source pixel comes out once, in order, byte exact
 //   - the active window is resized by scale/STEP
 //   - the window stays centred on the same point of the line
-// A 256/384 line is used because that is the usual jtcores blanking budget:
-// at the extreme step the active region grows by 32 pixels, which still fits
-// inside the 48-pixel front porch.
+// A 512-pixel line with an 80-pixel front porch leaves room to check the
+// complete pixel sequence even at the largest stretch setting.
 
 module test;
 
@@ -12,22 +11,33 @@ module test;
 
 // DIV is what jtframe derives from the core's pixel clock: 8 at 48 MHz,
 // 12 with JTFRAME_PXLCLK=8 on a 96 MHz core, 16 at 96 MHz
-`ifdef HRETIME_DIV12
+`ifdef HRETIME_CRT480I
+localparam DIV=6, ALT_X2=18, MODES=3;
+`elsif HRETIME_CRT480I48
+localparam DIV=8, ALT_X2=9, MODES=3;
+`elsif HRETIME_DIV12
 localparam DIV=12;
 `elsif HRETIME_DIV16
 localparam DIV=16;
 `else
 localparam DIV=8;
 `endif
-localparam DW=24, STEP=64, DEPTH=64, HW=10;
-localparam HACTIVE=256, FP=48, HSW=32, BP=48,
+`ifndef HRETIME_CRT480I
+`ifndef HRETIME_CRT480I48
+localparam ALT_X2=DIV<<1, MODES=1;
+`endif
+`endif
+localparam DW=24, STEP=64, DEPTH=128, HW=10;
+localparam HACTIVE=512, FP=80, HSW=32, BP=80,
            HTOTAL=HACTIVE+FP+HSW+BP;
 localparam VACTIVE=3, VTOTAL=4;
-localparam TOL=3*DIV;   // 3 pixels
+localparam MAXDIV=DIV>((ALT_X2+1)>>1) ? DIV : ((ALT_X2+1)>>1);
+localparam TOL=3*MAXDIV;   // 3 pixels
 
 reg               clk=0;
 reg  [      31:0] tick=0;
-reg  [  DIV-1:0]  divcnt=1;
+reg  [       7:0] divcnt=0;
+reg               div_alt=0, pixel_alt=0;
 reg  [       9:0] hcnt=0, vcnt=0;
 reg               ce_in=0, enable=0, check_en=0;
 reg  signed [3:0] scale=0;
@@ -40,18 +50,29 @@ wire [   DW-1:0]  din   = { 16'd0, hcnt[7:0] };
 wire              ce_out, hs_out, vs_out, de_out;
 wire [   DW-1:0]  dout;
 
-integer errs=0, sweep=0, sc=0;
+integer errs=0, sweep=0, sc=0, mode=0;
+wire [7:0] pixel_last;
+wire [31:0] source_x2;
+assign source_x2 = div_alt ? ALT_X2 : DIV<<1;
+`ifdef HRETIME_CRT480I
+assign pixel_last = div_alt ? (pixel_alt ? 8'd9 : 8'd7) : DIV-1;
+`elsif HRETIME_CRT480I48
+assign pixel_last = div_alt ? (pixel_alt ? 8'd4 : 8'd3) : DIV-1;
+`else
+assign pixel_last = DIV-1;
+`endif
 
 always #5 clk <= ~clk;
 
 always @(posedge clk) begin
     tick  <= tick+1;
     ce_in <= 0;
-    if( divcnt[DIV-1] ) begin
-        divcnt <= 1;
+    if( divcnt>=pixel_last ) begin
+        divcnt <= 0;
         ce_in  <= 1;
+        pixel_alt <= ~pixel_alt;
     end else begin
-        divcnt <= divcnt<<1;
+        divcnt <= divcnt+1'b1;
     end
 end
 
@@ -60,10 +81,11 @@ always @(posedge clk) if( ce_in ) begin
     if( hcnt==HTOTAL-1 ) vcnt <= vcnt==VTOTAL-1 ? 10'd0 : vcnt+1'd1;
 end
 
-jtframe_hretime #(.DW(DW),.DIV(DIV),.STEP(STEP),.DEPTH(DEPTH),.HW(HW)) uut(
+jtframe_hretime #(.DIV(DIV),.DIV_ALT_X2(ALT_X2),.DEPTH(DEPTH)) uut(
     .clk    ( clk       ),
     .ce_in  ( ce_in     ),
     .enable ( enable    ),
+    .div_alt( div_alt   ),
     .scale  ( scale     ),
 
     .din    ( din       ),
@@ -104,8 +126,8 @@ always @(posedge clk) begin
         if( check_en && vcnt<VACTIVE && got>0 ) begin
             span     = t_last-t_first;
             ctr      = tick-((t_first+t_last)/2);
-            exp_span = ((HACTIVE-1)*DIV*(STEP+sc))/STEP;
-            exp_ctr  = ((2*(HACTIVE+FP)-(HACTIVE-1))*DIV)/2;
+            exp_span = ((HACTIVE-1)*source_x2*(STEP+sc))/(STEP<<1);
+            exp_ctr  = ((2*(HACTIVE+FP)-(HACTIVE-1))*source_x2)/4;
             if( got!=HACTIVE ) begin
                 $display("scale %0d: %0d pixels out, expected %0d",sc,got,HACTIVE);
                 errs = errs+1;
@@ -142,6 +164,9 @@ task wait_line; begin
 end endtask
 
 initial begin
+  for( mode=0; mode<MODES; mode=mode+1 ) begin
+    check_en = 0;
+    div_alt = mode==1;
     enable = 0;
     scale  = 0;
     sc     = 0;
@@ -204,11 +229,13 @@ initial begin
     repeat(3) wait_line;
 
     check_en = 0;
+    $display("DIV=%0d ALT_X2=%0d alternate=%b: scale sweep complete",DIV,ALT_X2,div_alt);
+  end
     if( errs==0 ) pass(); else fail();
 end
 
 initial begin
-    #40_000_000;
+    #160_000_000;
     $display("timeout");
     fail();
 end

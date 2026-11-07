@@ -6,6 +6,9 @@ sourcefile=[ "midyunit.cpp" ]
 mustbe.machines=[ "narc" ]
 main_setnames=["narc"]
 
+[video]
+interleaved_MRAs = { machine="narc" }
+
 [buttons]
 names = [
     { machine="narc", names="Fire,Jump,Rocket Bomb,Crouch,Service" },

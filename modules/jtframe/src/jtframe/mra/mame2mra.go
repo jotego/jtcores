@@ -185,12 +185,13 @@ func (args *Args) dump_alt_setnames(parsed_machines []ParsedMachine, parent_name
 		for _, altversion := range collect_alt_versions(d.machine, args.mra_cfg) {
 			alt_args := *args
 			alt_args.cur_alt_version = altversion
-			alt_xml, _, _, e := make_mra(d.machine, args.mra_cfg, alt_args)
+			alt_xml, _, coremod, e := make_mra(d.machine, args.mra_cfg, alt_args)
 			if e != nil {
 				all_errors = common.JoinErrors(all_errors, fmt.Errorf("%s (%s): %w", d.machine.Name, altversion, e))
 				continue
 			}
 			dump_mra(alt_args, d.machine, args.mra_cfg, alt_xml, parent_names)
+			alt_args.dump_crt_480i_mra(d.machine, args.mra_cfg, alt_xml, coremod, parent_names)
 			count++
 		}
 	}
@@ -392,6 +393,7 @@ func (args *Args) produce_mra_rom_nvram(d ParsedMachine, parent_names map[string
 	}
 	save_nvram(d.mra_xml)
 	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)
+	args.dump_crt_480i_mra(d.machine, mra_cfg, d.mra_xml, d.coremod, parent_names)
 }
 
 func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {

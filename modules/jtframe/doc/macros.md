@@ -20,6 +20,8 @@ JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
 JTFRAME_CLK24            |         | Adds an additional clock input
 JTFRAME_CLK48            |         | Adds an additional clock input
 JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
+JTFRAME_CRT480I          | MiSTer  | Includes the 15 kHz interlaced analog converter, selected by [core_mod bit 18](core_mod.md#interlaced-analog-video). Select games with `[video].interleaved_MRAs` in mame2mra.toml to generate separate interlaced MRAs
+JTFRAME_CRT480I_RING     | MiSTer  | Source-line buffer depth for JTFRAME_CRT480I (default=96; NARC uses 128)
 JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right

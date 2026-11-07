@@ -5,7 +5,11 @@
 module test;
 `include "test_tasks.vh"
 
-`ifdef OSD_NARROW
+`ifdef OSD_NARC480I
+localparam DIV=9, HACTIVE=512, HTOTAL=682, HSTART=111;
+`elsif OSD_NARC480I48
+localparam DIV=5, HACTIVE=512, HTOTAL=682, HSTART=111;
+`elsif OSD_NARROW
 localparam DIV=8, HACTIVE=256, HTOTAL=384, HSTART=64;
 `elsif OSD_CPS3
 localparam DIV=14, HACTIVE=384, HTOTAL=455, HSTART=53;
@@ -15,6 +19,13 @@ localparam DIV=8, HACTIVE=320, HTOTAL=424, HSTART=64;
 localparam DIV=12, HACTIVE=416, HTOTAL=512, HSTART=88;
 `endif
 localparam VACTIVE=144, VTOTAL=152;
+`ifdef OSD_NARC480I
+localparam NATIVE_DIV=6, ALT_X2=18, ALT=1, DEPTH=128;
+`elsif OSD_NARC480I48
+localparam NATIVE_DIV=8, ALT_X2=9, ALT=1, DEPTH=128;
+`else
+localparam NATIVE_DIV=DIV, ALT_X2=DIV<<1, ALT=0, DEPTH=64;
+`endif
 reg retime_on=0;
 reg signed [3:0] scale=0;
 reg [3:0] ce_pipe=0;
@@ -22,6 +33,15 @@ reg clk=0;
 always #5 clk=~clk;
 
 reg [3:0] divcnt=0;
+reg pixel_alt=0;
+wire [3:0] pixel_last;
+`ifdef OSD_NARC480I
+assign pixel_last = pixel_alt ? 4'd9 : 4'd7;
+`elsif OSD_NARC480I48
+assign pixel_last = pixel_alt ? 4'd4 : 4'd3;
+`else
+assign pixel_last = DIV-1;
+`endif
 reg [9:0] hcnt=0, vcnt=0;
 reg ce_in=0;
 always @(posedge clk) ce_pipe <= {ce_pipe[2:0],ce_in};
@@ -39,16 +59,17 @@ always @(posedge clk) ce_out_l <= ce_out;
 wire hs_hz, vs_hz, de_hz, hs_osd, vs_osd, de_osd;
 
 always @(posedge clk) begin
-    ce_in <= divcnt==DIV-1;
-    divcnt <= divcnt==DIV-1 ? 0 : divcnt+1'b1;
+    ce_in <= divcnt==pixel_last;
+    divcnt <= divcnt==pixel_last ? 0 : divcnt+1'b1;
+    if (divcnt==pixel_last) pixel_alt <= ~pixel_alt;
     if (ce_in) begin
         hcnt <= hcnt==HTOTAL-1 ? 0 : hcnt+1'b1;
         if (hcnt==HTOTAL-1) vcnt <= vcnt==VTOTAL-1 ? 0 : vcnt+1'b1;
     end
 end
 
-jtframe_hretime #(.DIV(DIV),.STEP(64),.DEPTH(64),.HW(10)) uut(
-    .clk(clk), .ce_in(ce_pipe[3]), .enable(retime_on), .scale(scale),
+jtframe_hretime #(.DIV(NATIVE_DIV),.DIV_ALT_X2(ALT_X2),.DEPTH(DEPTH)) uut(
+    .clk(clk), .ce_in(ce_pipe[3]), .enable(retime_on), .div_alt(ALT[0]), .scale(scale),
     .din(video_osd), .hs_in(hs_osd), .vs_in(vs_osd), .de_in(de_osd),
     .ce_out(ce_out), .dout(video_hz), .hs_out(hs_hz), .vs_out(vs_hz), .de_out(de_hz)
 );
