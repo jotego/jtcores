@@ -32,9 +32,9 @@ func main() {
 	emu := read("target/mister/hdl/jtframe_emu.sv")
 	sys := read("target/mister/hdl/sys/sys_top.v")
 	// Compile production routing, not a second copy of its equations.
-	write("emu_route.vh", between(emu, "`ifndef JTFRAME_SPLIT_VIDEO\n`ifndef JTFRAME_INTERLACED", "// unused features"))
-	write("scan_ports.vh", between(emu, "`ifdef JTFRAME_SPLIT_VIDEO\n    .scan2x_r", "    // status"))
-	write("sys_route.vh", between(sys, "`ifdef JTFRAME_SPLIT_VIDEO\nwire  [7:0] sc_r", "wire uart_dtr;"))
+	write("emu_route.vh", between(emu, "`ifdef JTFRAME_CRT480I\nwire crt_f1;", "// unused features"))
+	write("scan_ports.vh", between(emu, "`ifdef JTFRAME_CRT480I\n    // native picture", "    // status"))
+	write("sys_route.vh", between(sys, "`ifdef JTFRAME_CRT480I\n// 480i selected", "wire uart_dtr;"))
 	write("cfg_route.vh", between(sys, "`ifdef MISTER_DEBUG_NOHDMI\n\twire    vga_fb", "wire       audio_96k")+between(sys, "\t`ifdef MISTER_DEBUG_NOHDMI\n\t\twire vga_scaler", "\n`endif\n\nreg        cfg_custom_t"))
 	// Guard paths outside the isolated combinational harness: both OSDs stay
 	// downstream, RGB/component conversion consumes the analog OSD result, and
@@ -43,7 +43,7 @@ func main() {
 		".din(vga_data_sl)", ".din(vga_data_osd)", ".ypbpr_en(ypbpr_en)",
 		".dout(vga_data_osd)", ".VGA_F1(f1)", ".SCALER_F1(sc_f1)",
 		"wire forced_scandoubler = cfg[4]", "wire ypbpr_en           = cfg[5]",
-		".i_fl     (hf1)", ".HPS_BUS({fb_en, sl, hf1, HDMI_TX_VS,",
+		".i_fl     (hf1)", ".HPS_BUS({fb_en, sl, hdmi_f1, HDMI_TX_VS,",
 	} {
 		if !strings.Contains(sys, want) {
 			panic("changed downstream wiring: " + want)
