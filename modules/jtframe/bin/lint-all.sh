@@ -16,13 +16,14 @@ Usage: lint-all.sh [options]
 Lint all JT cores with Verilator and report warnings and errors.
 
 Options:
-  -t, --target <target>  Select the target (default: mister)
+  -t, --target <target>  Select one target for every core
+                        (default: configured target; Narc uses MiSTer)
   -h, --help   Show this help and exit
 EOF
 }
 
 parse_args() {
-    LINT_TARGET=mister
+    LINT_TARGET=
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -h|--help)
@@ -63,7 +64,12 @@ lint_cores() {
 for core in *; do
     if [ ! -d $core ]; then continue; fi
     LOG=$LOGFOLDER/lint-$core.log
-    if ! $JTFRAME/bin/lint-one.sh $core --target "$LINT_TARGET" > $LOG 2>&1; then
+    core_target=${LINT_TARGET:-${TARGET:-mister}}
+    # Narc needs MiSTer DDR3 and skips the configured SiDi128 target.
+    if [[ -z "$LINT_TARGET" && "$core" == narc ]]; then
+        core_target=mister
+    fi
+    if ! $JTFRAME/bin/lint-one.sh $core --target "$core_target" > $LOG 2>&1; then
         if [ ! -z "$ERRLIST" ]; then ERRLIST="$ERRLIST "; fi
         ERRLIST="${ERRLIST}$core"
     fi
