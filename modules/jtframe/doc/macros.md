@@ -111,7 +111,8 @@ JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sou
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS
 JTFRAME_SKIP_RATE_TEST   |         | Documents that the core needs software-programmed video counters, so Verilator `jtsim` skips the `JTFRAME_RATE` check.
 JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!
-JTFRAME_SPLIT_VIDEO      | MiSTer  | The analog output shows the game's second video (split_r/g/b, split_hs/vs/de/ce/field) instead of the main one, never scaled or scan-lined (MiSTer.ini vga_scaler ignored); HDMI shows the main video (the split one with direct_video). Hides the CRT offset/scale OSD items. The split ports are left open on other targets
+JTFRAME_SPLIT_DEFLICKER  | MiSTer  | Adds the shared CRT deflicker menu for a split-video core on status[31:30]; the core supplies its own analog filter
+JTFRAME_SPLIT_VIDEO      | MiSTer  | The analog output shows the game's second video (split_r/g/b, split_hs/vs/de/ce/field) instead of the main one; MiSTer.ini vga_scaler is ignored. HDMI shows the main video (the split one with direct_video). Standard CRT offset/scale OSD items remain available. The split ports are left open on other targets
 JTFRAME_STATUS           |         | Game module will receive an 8-bit address and can output 8-bit data in response
 JTFRAME_STEREO           |         | Enables stereo sound (snd_left/right outputs from game module instead of single snd)
 JTFRAME_UART             |         | Connects the UART pins to the game module (see [inputs.md](inputs.md))
