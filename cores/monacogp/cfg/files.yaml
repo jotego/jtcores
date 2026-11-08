@@ -1,0 +1,51 @@
+monacogp:
+  - get:
+      - jtmonacogp_game.v
+      - jtmonacogp_timing.v
+      - jtmonacogp_player.v
+      - jtmonacogp_effects.v
+      - jtmonacogp_ptest.v
+      - jtmonacogp_pview.v
+      - jtmonacogp_font.v
+      - jtmonacogp_diag.v
+      - jtmonacogp_motion.v
+      - jtmonacogp_scenery.v
+      - jtmonacogp_stest.v
+      - jtmonacogp_sview.v
+      - jtmonacogp_coin.v
+      - jtmonacogp_bonus.v
+      - jtmonacogp_lamps.v
+      - jtmonacogp_control.v
+      - jtmonacogp_cars.v
+      - jtmonacogp_rescue.v
+      - jtmonacogp_score.v
+      - jtmonacogp_rank.v
+      - jtmonacogp_ranks.v
+      - jtmonacogp_leds.v
+      - jtmonacogp_panel.v
+      - jtmonacogp_colour.v
+      - jtmonacogp_flip.v
+      - jtmonacogp_hud.v
+      - jtmonacogp_handle.v
+      - jtmonacogp_gtest.v
+      - jtmonacogp_gview.v
+      - jtmonacogp_sound.v
+      - jtmonacogp_snd_d3.v
+      - jtmonacogp_snd_noise.v
+      - jtmonacogp_snd_band.v
+      - jtmonacogp_snd_expl.v
+      - jtmonacogp_snd_mix.v
+      - jtmonacogp_snd_mc3340.v
+      - jtmonacogp_snd_d6bank.v
+      - jtmonacogp_snd_d7car.v
+      - jtmonacogp_snd_d7ctl.v
+      - jtmonacogp_snd_d67.v
+      - jtmonacogp_snd_d2.v
+      - jtmonacogp_snd_d2vco.v
+      - jtmonacogp_snd_d1.v
+      - jtmonacogp_snd_d5.v
+
+jtframe/target/mister:
+  - when: [ MISTER ]
+    get:
+      - pll5369.qip

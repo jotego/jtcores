@@ -1,0 +1,56 @@
+CORENAME=JTMONACOGP
+JTFRAME_BUTTONS=3
+JTFRAME_COLORW=4
+JTFRAME_WIDTH=360
+JTFRAME_HEIGHT=240
+JTFRAME_PLL=jtframe_pll5369
+JTFRAME_PXLCLK=8
+JTFRAME_PROM_START=0
+JTFRAME_RATE=59.414042
+JTFRAME_OSD_NOLOGO
+JTFRAME_OSD_NOCREDITS
+# No credits screen, on any build (release builds would turn it on)
+-JTFRAME_CREDITS
+JTFRAME_NO_DB15
+# The high scores' NVRAM file: 512 bytes of memory and 2 for its address
+# (mem.yaml). MiSTer writes it with the OSD's Save settings.
+JTFRAME_IOCTL_RD=514
+JTFRAME_NOHQ2X
+# A vertical game: the cabinet's monitor is turned clockwise. MiSTer's frame
+# buffer rotates it for HDMI (Rotate screen); OSD Flip screen turns the core's
+# own picture by 180 degrees (jtmonacogp_flip.v), for a CRT on the native
+# 15 kHz output turned the other way. JTFRAME turns the frame buffer the other
+# way too while it is on, so the HDMI picture does not change.
+JTFRAME_VERTICAL
+JTFRAME_OSD_FLIP
+# The steering wheel's two optical sensors are a quadrature pair: JTFRAME's
+# dial feeds them (jtmonacogp_handle.v). Joystick emulation uses bit 0
+# (right) to turn right and bit 1 (left) to turn left; a spinner or the
+# mouse turns it too. Joystick emulation steps the dial 16 times a frame at
+# the highest sensitivity (12, 8 and 4 at the others): four handle pulses a
+# frame. JTFRAME's default, 8 (two pulses), was doubled at Aldo's request
+# (3 November 2026); the handle board keeps up (one pulse per four steps,
+# checked at 16 steps on consecutive lines).
+JTFRAME_DIAL
+JTFRAME_DIAL_EMUSENS=16
+JTFRAME_DIALEMU_LEFT=0
+# OSD page "Display". Score overlay (jtmonacogp_hud.v, not original circuitry): TIME and SCORE,
+# and the gear, each On by default. Score panel (jtmonacogp_panel.v, not
+# original circuitry): the cabinet's LED panel (ranks, score, players, rank,
+# timer), drawn only while button 3 (Scoreboard) is held. The development
+# displays need MONACOGP_DEVVIEWS (the tests define it) and are not in the
+# release build.
+# Back speaker (not original circuitry): Off, both channels carry SOUND OUT;
+# Right channel, BACK SOUND OUT (the cabinet's second speaker, D-2's pad R)
+# on the right channel. The board's switches are in the MRA's DIP menu.
+CORE_OSD=P2,Display;P2OD,Show Score & Time,On,Off;P2OE,Show Gear,On,Off;OI,Back speaker,Off,Right channel
+JTFRAME_STEREO
+# Simulations through JTFRAME's harness use the DIP menu's defaults
+JTFRAME_SIM_DIPS=0
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+[mist|sidi]
+JTFRAME_SKIP

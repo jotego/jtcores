@@ -389,4 +389,308 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<!-- Monaco GP ROM reuse for Pro is provisional; lamp PROMs are undumped. -->
+	<machine name="monacogp" sourcefile="sega/monacogp.cpp">
+		<description>Monaco GP (set 1)</description>
+		<year>1980</year>
+		<manufacturer>Sega</manufacturer>
+		<rom name="pra125.ic59" size="512" crc="7a66ed4c" sha1="514e129c334a551b931c90b063b073a9b4bdffc3" region="roms" offset="0"/>
+		<rom name="pra126.ic65" size="512" crc="5d7a8f12" sha1="b4f0d21b91a7cf7002f99c08788669c7c38be51d" region="roms" offset="0"/>
+		<rom name="pra131.ic71" size="512" crc="ff31eb01" sha1="fd6bcd92c4bd919bb1a96ca97688d46cb310b39d" region="roms" offset="0"/>
+		<rom name="pra127.ic77" size="512" crc="8ffdc2f0" sha1="05cc3330c067965b8b90b5d27119fe9f26580a13" region="roms" offset="0"/>
+		<rom name="pra128.ic84" size="512" crc="dde29dea" sha1="34c413edff991297471bd0bc193c4bd8ede4e468" region="roms" offset="0"/>
+		<rom name="pra129.ic91" size="512" crc="7b18af26" sha1="3d1ff2610813544c3b9b65182f081272a9537640" region="roms" offset="0"/>
+		<rom name="pra130.ic98" size="512" crc="9ef1913b" sha1="58830121781b8a13532eaf8ea13ec07f10522320" region="roms" offset="0"/>
+		<rom name="pra132.ic111" size="512" crc="6b8ad9bc" sha1="be36e3b6b647d3a9565bc45903027c791dc889e5" region="roms" offset="0"/>
+		<rom name="prm39.ic105" size="32" crc="6acfa0da" sha1="1e56da4cdf71a095eac29878969b831babac222b" region="roms" offset="0"/>
+		<rom name="prm38.ic115" size="32" crc="82dd0a0f" sha1="3e7e475c3270853d70c1fe90a773172532b60cfb" region="roms" offset="0"/>
+		<rom name="pra140.ic12" size="512" crc="48e9971b" sha1="c0c265cdc08727e3caaf49cdfe728a91c4c46ba2" region="roms" offset="0"/>
+		<rom name="pra141.ic17" size="512" crc="99934236" sha1="ec271f3e690d5c57ead9132b22b9b1b966e4d170" region="roms" offset="0"/>
+		<rom name="pra138.ic30" size="512" crc="058e53cf" sha1="7c3aaaca5a9e9ce3a3badd0dcc8360342673a397" region="roms" offset="0"/>
+		<rom name="pra139.ic51" size="512" crc="e8ba0794" sha1="eadd7425134f26b1c126bbcd3d3dabf4b2e1fe70" region="roms" offset="0"/>
+		<rom name="pra133.ic64" size="512" crc="d50641d9" sha1="bf399e9830c88e4d8f8fb386305f54ef766946d9" region="roms" offset="0"/>
+		<rom name="pra136.ic99" size="512" crc="ecc5d1a2" sha1="33bff7381785557a85e4c8bdd74679b59e0ed9d5" region="roms" offset="0"/>
+		<rom name="pra135.ic106" size="512" crc="986eda32" sha1="73fa539d4c83748952d9339985208520fec955f3" region="roms" offset="0"/>
+		<rom name="pra134.ic113" size="512" crc="8ebd50bb" sha1="98d51f503753d4d7191a09b509d26c1e049e981a" region="roms" offset="0"/>
+		<rom name="pra137.ic120" size="512" crc="ddd9004e" sha1="5229c34578e66d9c51a05439a516513946ba69ed" region="roms" offset="0"/>
+		<rom name="prm40.ic21" size="32" crc="87d12d57" sha1="54682ce464449a3084cba29a82ff80288c87ad36" region="roms" offset="0"/>
+		<device_ref name="netlist_cpu"/>
+		<device_ref name="screen"/>
+		<device_ref name="fixfreq"/>
+		<chip type="cpu" tag="maincpu" name="Netlist CPU Device" clock="1000000000"/>
+		<display tag="screen" type="raster" rotate="0" width="455" height="262" refresh="60.053687" pixclock="7159000" htotal="455" hbend="0" hbstart="455" vtotal="262" vbend="0" vbstart="262" />
+		<sound channels="0"/>
+		<input players="1">
+		</input>
+		<configuration name="Display Monitor sliders" tag="fixfreq:ENABLE" mask="1">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="1"/>
+		</configuration>
+		<configuration name="Visual Timing Debug" tag="fixfreq:ENABLE" mask="2">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="2"/>
+		</configuration>
+		<configuration name="Display gray test pattern" tag="fixfreq:ENABLE" mask="4">
+			<condition tag="VECTOR" mask="1" relation="eq" value="0"/>
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="4"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="fixfreq:ENABLE" mask="8">
+			<condition tag="VECTOR" mask="1" relation="eq" value="0"/>
+			<confsetting name="Interlaced" value="0" default="yes"/>
+			<confsetting name="Progressive" value="8"/>
+		</configuration>
+		<configuration name="Use vector rendering" tag="fixfreq:VECTOR" mask="1">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="1"/>
+		</configuration>
+		<port tag=":fixfreq:ENABLE">
+		</port>
+		<port tag=":fixfreq:GAIN">
+		</port>
+		<port tag=":fixfreq:HBACKPORCH">
+		</port>
+		<port tag=":fixfreq:HFRONTPORCH">
+		</port>
+		<port tag=":fixfreq:HSYNC">
+		</port>
+		<port tag=":fixfreq:HVISIBLE">
+		</port>
+		<port tag=":fixfreq:SCANLINE_HEIGHT">
+		</port>
+		<port tag=":fixfreq:SYNCTHRESHOLD">
+		</port>
+		<port tag=":fixfreq:VBACKPORCH">
+		</port>
+		<port tag=":fixfreq:VECTOR">
+		</port>
+		<port tag=":fixfreq:VFRONTPORCH">
+		</port>
+		<port tag=":fixfreq:VSYNC">
+		</port>
+		<port tag=":fixfreq:VSYNCTHRESHOLD">
+		</port>
+		<port tag=":fixfreq:VVISIBLE">
+		</port>
+		<adjuster name="Monitor - Signal Gain" default="27"/>
+		<adjuster name="Monitor - H Back porch width" default="8"/>
+		<adjuster name="Monitor - H Front porch width" default="27"/>
+		<adjuster name="Monitor - H Sync width" default="32"/>
+		<adjuster name="Monitor - H Visible" default="388"/>
+		<adjuster name="Monitor - Scanline Height" default="100"/>
+		<adjuster name="Monitor - Sync threshold mV" default="300"/>
+		<adjuster name="Monitor - V Back porch width" default="12"/>
+		<adjuster name="Monitor - V Front porch width" default="3"/>
+		<adjuster name="Monitor - V Sync width" default="7"/>
+		<adjuster name="Monitor - V Sync threshold mV" default="600"/>
+		<adjuster name="Monitor - V Visible" default="240"/>
+		<dipswitch name="Board select" tag="PCB" mask="32768">
+			<dipvalue name="Monaco GP" value="0" default="yes"/>
+			<dipvalue name="Pro Monaco GP" value="32768"/>
+		</dipswitch>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="sound" status="unemulated"/>
+	</machine>
+	<machine name="monacogpa" sourcefile="sega/monacogp.cpp" cloneof="monacogp" romof="monacogp">
+		<description>Monaco GP (set 2)</description>
+		<year>1980</year>
+		<manufacturer>Sega</manufacturer>
+		<rom name="prb-01.ic59" merge="pra125.ic59" size="512" crc="7a66ed4c" sha1="514e129c334a551b931c90b063b073a9b4bdffc3" region="roms" offset="0"/>
+		<rom name="prb-02.ic65" merge="pra126.ic65" size="512" crc="5d7a8f12" sha1="b4f0d21b91a7cf7002f99c08788669c7c38be51d" region="roms" offset="0"/>
+		<rom name="prb-04.ic71" merge="pra131.ic71" size="512" crc="ff31eb01" sha1="fd6bcd92c4bd919bb1a96ca97688d46cb310b39d" region="roms" offset="0"/>
+		<rom name="prb-13.ic77" merge="pra127.ic77" size="512" crc="8ffdc2f0" sha1="05cc3330c067965b8b90b5d27119fe9f26580a13" region="roms" offset="0"/>
+		<rom name="prb-03.ic84" merge="pra128.ic84" size="512" crc="dde29dea" sha1="34c413edff991297471bd0bc193c4bd8ede4e468" region="roms" offset="0"/>
+		<rom name="prb-14.ic98" size="1024" crc="8ec80107" sha1="8182c52dae83a6fc876d484c543894fa768896ca" region="roms" offset="0"/>
+		<rom name="prb-15.ic111" merge="pra132.ic111" size="512" crc="6b8ad9bc" sha1="be36e3b6b647d3a9565bc45903027c791dc889e5" region="roms" offset="0"/>
+		<rom name="prm39.ic105" merge="prm39.ic105" size="32" crc="6acfa0da" sha1="1e56da4cdf71a095eac29878969b831babac222b" region="roms" offset="0"/>
+		<rom name="prm38.ic115" merge="prm38.ic115" size="32" crc="82dd0a0f" sha1="3e7e475c3270853d70c1fe90a773172532b60cfb" region="roms" offset="0"/>
+		<rom name="prb-16.ic17" size="1024" crc="719c5ca4" sha1="103f6f1ecf30a7c81eb0926d794d1c3bf7d5760b" region="roms" offset="0"/>
+		<rom name="prb-10.ic30" merge="pra138.ic30" size="512" crc="058e53cf" sha1="7c3aaaca5a9e9ce3a3badd0dcc8360342673a397" region="roms" offset="0"/>
+		<rom name="prb-11.ic51" merge="pra139.ic51" size="512" crc="e8ba0794" sha1="eadd7425134f26b1c126bbcd3d3dabf4b2e1fe70" region="roms" offset="0"/>
+		<rom name="prb-05.ic64" merge="pra133.ic64" size="512" crc="d50641d9" sha1="bf399e9830c88e4d8f8fb386305f54ef766946d9" region="roms" offset="0"/>
+		<rom name="prb-08.ic99" merge="pra136.ic99" size="512" crc="ecc5d1a2" sha1="33bff7381785557a85e4c8bdd74679b59e0ed9d5" region="roms" offset="0"/>
+		<rom name="prb-07.ic106" merge="pra135.ic106" size="512" crc="986eda32" sha1="73fa539d4c83748952d9339985208520fec955f3" region="roms" offset="0"/>
+		<rom name="prb-06.ic113" merge="pra134.ic113" size="512" crc="8ebd50bb" sha1="98d51f503753d4d7191a09b509d26c1e049e981a" region="roms" offset="0"/>
+		<rom name="prb-09.ic120" merge="pra137.ic120" size="512" crc="ddd9004e" sha1="5229c34578e66d9c51a05439a516513946ba69ed" region="roms" offset="0"/>
+		<rom name="prm40.ic21" merge="prm40.ic21" size="32" crc="87d12d57" sha1="54682ce464449a3084cba29a82ff80288c87ad36" region="roms" offset="0"/>
+		<device_ref name="netlist_cpu"/>
+		<device_ref name="screen"/>
+		<device_ref name="fixfreq"/>
+		<chip type="cpu" tag="maincpu" name="Netlist CPU Device" clock="1000000000"/>
+		<display tag="screen" type="raster" rotate="0" width="455" height="262" refresh="60.053687" pixclock="7159000" htotal="455" hbend="0" hbstart="455" vtotal="262" vbend="0" vbstart="262" />
+		<sound channels="0"/>
+		<input players="1">
+		</input>
+		<configuration name="Display Monitor sliders" tag="fixfreq:ENABLE" mask="1">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="1"/>
+		</configuration>
+		<configuration name="Visual Timing Debug" tag="fixfreq:ENABLE" mask="2">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="2"/>
+		</configuration>
+		<configuration name="Display gray test pattern" tag="fixfreq:ENABLE" mask="4">
+			<condition tag="VECTOR" mask="1" relation="eq" value="0"/>
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="4"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="fixfreq:ENABLE" mask="8">
+			<condition tag="VECTOR" mask="1" relation="eq" value="0"/>
+			<confsetting name="Interlaced" value="0" default="yes"/>
+			<confsetting name="Progressive" value="8"/>
+		</configuration>
+		<configuration name="Use vector rendering" tag="fixfreq:VECTOR" mask="1">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="1"/>
+		</configuration>
+		<port tag=":fixfreq:ENABLE">
+		</port>
+		<port tag=":fixfreq:GAIN">
+		</port>
+		<port tag=":fixfreq:HBACKPORCH">
+		</port>
+		<port tag=":fixfreq:HFRONTPORCH">
+		</port>
+		<port tag=":fixfreq:HSYNC">
+		</port>
+		<port tag=":fixfreq:HVISIBLE">
+		</port>
+		<port tag=":fixfreq:SCANLINE_HEIGHT">
+		</port>
+		<port tag=":fixfreq:SYNCTHRESHOLD">
+		</port>
+		<port tag=":fixfreq:VBACKPORCH">
+		</port>
+		<port tag=":fixfreq:VECTOR">
+		</port>
+		<port tag=":fixfreq:VFRONTPORCH">
+		</port>
+		<port tag=":fixfreq:VSYNC">
+		</port>
+		<port tag=":fixfreq:VSYNCTHRESHOLD">
+		</port>
+		<port tag=":fixfreq:VVISIBLE">
+		</port>
+		<adjuster name="Monitor - Signal Gain" default="27"/>
+		<adjuster name="Monitor - H Back porch width" default="8"/>
+		<adjuster name="Monitor - H Front porch width" default="27"/>
+		<adjuster name="Monitor - H Sync width" default="32"/>
+		<adjuster name="Monitor - H Visible" default="388"/>
+		<adjuster name="Monitor - Scanline Height" default="100"/>
+		<adjuster name="Monitor - Sync threshold mV" default="300"/>
+		<adjuster name="Monitor - V Back porch width" default="12"/>
+		<adjuster name="Monitor - V Front porch width" default="3"/>
+		<adjuster name="Monitor - V Sync width" default="7"/>
+		<adjuster name="Monitor - V Sync threshold mV" default="600"/>
+		<adjuster name="Monitor - V Visible" default="240"/>
+		<dipswitch name="Board select" tag="PCB" mask="32768">
+			<dipvalue name="Monaco GP" value="0" default="yes"/>
+			<dipvalue name="Pro Monaco GP" value="32768"/>
+		</dipswitch>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="sound" status="unemulated"/>
+	</machine>
+	<machine name="promonacogp" cloneof="monacogp" romof="monacogp" sourcefile="sega/monacogp.cpp">
+		<description>Pro Monaco GP</description>
+		<year>1980</year>
+		<manufacturer>Sega</manufacturer>
+		<rom name="pra125.ic59" size="512" crc="7a66ed4c" sha1="514e129c334a551b931c90b063b073a9b4bdffc3" region="roms" offset="0"/>
+		<rom name="pra126.ic65" size="512" crc="5d7a8f12" sha1="b4f0d21b91a7cf7002f99c08788669c7c38be51d" region="roms" offset="200"/>
+		<rom name="pra131.ic71" size="512" crc="ff31eb01" sha1="fd6bcd92c4bd919bb1a96ca97688d46cb310b39d" region="roms" offset="400"/>
+		<rom name="pra127.ic77" size="512" crc="8ffdc2f0" sha1="05cc3330c067965b8b90b5d27119fe9f26580a13" region="roms" offset="600"/>
+		<rom name="pra128.ic84" size="512" crc="dde29dea" sha1="34c413edff991297471bd0bc193c4bd8ede4e468" region="roms" offset="800"/>
+		<rom name="pra129.ic91" size="512" crc="7b18af26" sha1="3d1ff2610813544c3b9b65182f081272a9537640" region="roms" offset="a00"/>
+		<rom name="pra130.ic98" size="512" crc="9ef1913b" sha1="58830121781b8a13532eaf8ea13ec07f10522320" region="roms" offset="c00"/>
+		<rom name="pra132.ic111" size="512" crc="6b8ad9bc" sha1="be36e3b6b647d3a9565bc45903027c791dc889e5" region="roms" offset="e00"/>
+		<rom name="prm39.ic105" size="32" crc="6acfa0da" sha1="1e56da4cdf71a095eac29878969b831babac222b" region="roms" offset="1000"/>
+		<rom name="prm38.ic115" size="32" crc="82dd0a0f" sha1="3e7e475c3270853d70c1fe90a773172532b60cfb" region="roms" offset="1020"/>
+		<rom name="pra140.ic12" size="512" crc="48e9971b" sha1="c0c265cdc08727e3caaf49cdfe728a91c4c46ba2" region="roms" offset="1040"/>
+		<rom name="pra141.ic17" size="512" crc="99934236" sha1="ec271f3e690d5c57ead9132b22b9b1b966e4d170" region="roms" offset="1240"/>
+		<rom name="pra138.ic30" size="512" crc="058e53cf" sha1="7c3aaaca5a9e9ce3a3badd0dcc8360342673a397" region="roms" offset="1440"/>
+		<rom name="pra139.ic51" size="512" crc="e8ba0794" sha1="eadd7425134f26b1c126bbcd3d3dabf4b2e1fe70" region="roms" offset="1640"/>
+		<rom name="pra133.ic64" size="512" crc="d50641d9" sha1="bf399e9830c88e4d8f8fb386305f54ef766946d9" region="roms" offset="1840"/>
+		<rom name="pra136.ic99" size="512" crc="ecc5d1a2" sha1="33bff7381785557a85e4c8bdd74679b59e0ed9d5" region="roms" offset="1a40"/>
+		<rom name="pra135.ic106" size="512" crc="986eda32" sha1="73fa539d4c83748952d9339985208520fec955f3" region="roms" offset="1c40"/>
+		<rom name="pra134.ic113" size="512" crc="8ebd50bb" sha1="98d51f503753d4d7191a09b509d26c1e049e981a" region="roms" offset="1e40"/>
+		<rom name="pra137.ic120" size="512" crc="ddd9004e" sha1="5229c34578e66d9c51a05439a516513946ba69ed" region="roms" offset="2040"/>
+		<rom name="prm40.ic21" size="32" crc="87d12d57" sha1="54682ce464449a3084cba29a82ff80288c87ad36" region="roms" offset="2240"/>
+		<rom name="pr01.ic55" size="32" status="nodump" region="lamp_proms" offset="0"/>
+		<rom name="pr02.ic54" size="32" status="nodump" region="lamp_proms" offset="20"/>
+		<device_ref name="netlist_cpu"/>
+		<device_ref name="screen"/>
+		<device_ref name="fixfreq"/>
+		<chip type="cpu" tag="maincpu" name="Netlist CPU Device" clock="1000000000"/>
+		<display tag="screen" type="raster" rotate="0" width="455" height="262" refresh="60.053687" pixclock="7159000" htotal="455" hbend="0" hbstart="455" vtotal="262" vbend="0" vbstart="262" />
+		<sound channels="0"/>
+		<input players="1">
+		</input>
+		<configuration name="Display Monitor sliders" tag="fixfreq:ENABLE" mask="1">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="1"/>
+		</configuration>
+		<configuration name="Visual Timing Debug" tag="fixfreq:ENABLE" mask="2">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="2"/>
+		</configuration>
+		<configuration name="Display gray test pattern" tag="fixfreq:ENABLE" mask="4">
+			<condition tag="VECTOR" mask="1" relation="eq" value="0"/>
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="4"/>
+		</configuration>
+		<configuration name="Interlace mode" tag="fixfreq:ENABLE" mask="8">
+			<condition tag="VECTOR" mask="1" relation="eq" value="0"/>
+			<confsetting name="Interlaced" value="0" default="yes"/>
+			<confsetting name="Progressive" value="8"/>
+		</configuration>
+		<configuration name="Use vector rendering" tag="fixfreq:VECTOR" mask="1">
+			<confsetting name="Off" value="0" default="yes"/>
+			<confsetting name="On" value="1"/>
+		</configuration>
+		<port tag=":fixfreq:ENABLE">
+		</port>
+		<port tag=":fixfreq:GAIN">
+		</port>
+		<port tag=":fixfreq:HBACKPORCH">
+		</port>
+		<port tag=":fixfreq:HFRONTPORCH">
+		</port>
+		<port tag=":fixfreq:HSYNC">
+		</port>
+		<port tag=":fixfreq:HVISIBLE">
+		</port>
+		<port tag=":fixfreq:SCANLINE_HEIGHT">
+		</port>
+		<port tag=":fixfreq:SYNCTHRESHOLD">
+		</port>
+		<port tag=":fixfreq:VBACKPORCH">
+		</port>
+		<port tag=":fixfreq:VECTOR">
+		</port>
+		<port tag=":fixfreq:VFRONTPORCH">
+		</port>
+		<port tag=":fixfreq:VSYNC">
+		</port>
+		<port tag=":fixfreq:VSYNCTHRESHOLD">
+		</port>
+		<port tag=":fixfreq:VVISIBLE">
+		</port>
+		<adjuster name="Monitor - Signal Gain" default="27"/>
+		<adjuster name="Monitor - H Back porch width" default="8"/>
+		<adjuster name="Monitor - H Front porch width" default="27"/>
+		<adjuster name="Monitor - H Sync width" default="32"/>
+		<adjuster name="Monitor - H Visible" default="388"/>
+		<adjuster name="Monitor - Scanline Height" default="100"/>
+		<adjuster name="Monitor - Sync threshold mV" default="300"/>
+		<adjuster name="Monitor - V Back porch width" default="12"/>
+		<adjuster name="Monitor - V Front porch width" default="3"/>
+		<adjuster name="Monitor - V Sync width" default="7"/>
+		<adjuster name="Monitor - V Sync threshold mV" default="600"/>
+		<adjuster name="Monitor - V Visible" default="240"/>
+		<dipswitch name="Board select" tag="PCB" mask="32768">
+			<dipvalue name="Monaco GP" value="0" default="yes"/>
+			<dipvalue name="Pro Monaco GP" value="32768"/>
+		</dipswitch>
+		<driver status="preliminary" emulation="preliminary" savestate="unsupported"/>
+		<feature type="sound" status="unemulated"/>
+	</machine>
 </mame>

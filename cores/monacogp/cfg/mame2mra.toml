@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 03-11-2026
+
+[global]
+author=["Andrea Bogazzi"]
+overrule=[{rotate=270}]
+
+[parse]
+sourcefile=["monacogp.cpp"]
+
+[buttons]
+names=[{names="Accelerate,Gear,Scoreboard"}]
+
+[dipsw]
+delete=[{names=["Board select"]}]
+defaults=[
+    {setnames=["monacogp", "monacogpa"], value="00,00"},
+    {setname="promonacogp", value="00,80"},
+]
+extra=[
+    {name="Coin, play", options="1 coin 1 play,1 coin 2 plays", bits="0"},
+    {name="Back sound in front mix", options="On,Off", bits="8"},
+    {name="Louder explosion", options="Off,On", bits="9"},
+]
+
+[ROM]
+regions=[
+    {name="maincpu", skip=true},
+    {name="roms", no_offset=true},
+]
+order=["roms", "lamp_proms"]
+blanks=[{region="roms", offset=0x2260, len=0x40}]
+patches=[
+    {offset=0x2260, data="ff fe fc f8 f0 e0 c0 80 00 00 00 00 00 00 00 00 ff fe fc f8 f0 e0 c0 80 00 00 00 00 00 00 00 00"},
+    {offset=0x2280, data="7f 7f 7f 7f 7f 7f 7f 7f 7f 7e 7c 78 70 60 40 40 ff ff ff ff ff ff ff ff ff fe fc f8 f0 e0 c0 c0"},
+]

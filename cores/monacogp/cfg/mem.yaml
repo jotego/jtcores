@@ -1,0 +1,88 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 03-11-2026
+
+clocks:
+  clk:
+    - mul: 1
+      div: 3
+      outputs:
+        - board_cen
+
+sdram:
+  banks:
+    - buses: []
+
+bram:
+  - name: flipbuf0
+    addr_width: 16
+    data_width: 16
+    rw: true
+    addr: flip_wr_addr
+    we: flip_wr_we
+    dual_port:
+      name: flipread0
+      addr: flip_rd_addr
+      dout: flipread0_data
+  - name: flipbuf1
+    addr_width: 16
+    data_width: 16
+    rw: true
+    addr: flip_wr_addr
+    we: flip_wr_we
+    dual_port:
+      name: flipread1
+      addr: flip_rd_addr
+      dout: flipread1_data
+  - name: flipbuf2
+    addr_width: 16
+    data_width: 16
+    rw: true
+    addr: flip_wr_addr
+    we: flip_wr_we
+    dual_port:
+      name: flipread2
+      addr: flip_rd_addr
+      dout: flipread2_data
+  # Sheet I's 2111s, 256 x 16 bits, and 9F's value. Both go in the NVRAM file:
+  # JTFRAME_IOCTL_RD in macros.def and <nvram> in the MRA are their total size.
+  - name: score
+    addr_width: 9
+    data_width: 16
+    rw: true
+    addr: score_addr
+    din: score_din
+    dout: score_dout
+    we: score_we
+    ioctl: { save: true, restore: true, order: 0 }
+  - name: scoreptr
+    addr_width: 1
+    data_width: 8
+    rw: true
+    addr: scoreptr_addr
+    din: scoreptr_din
+    dout: scoreptr_dout
+    we: scoreptr_we
+    ioctl: { save: true, restore: true, order: 1 }
+  - { name: rom00, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom01, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom02, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom03, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom04, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom05, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom06, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom07, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom08, addr_width: 5, data_width: 8, prom: true }
+  - { name: rom09, addr_width: 5, data_width: 8, prom: true }
+  - { name: rom10, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom11, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom12, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom13, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom14, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom15, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom16, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom17, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom18, addr_width: 9, data_width: 8, prom: true }
+  - { name: rom19, addr_width: 5, data_width: 8, prom: true }
+  - { name: lamp01, addr_width: 5, data_width: 8, addr: lamp_addr, prom: true }
+  - { name: lamp02, addr_width: 5, data_width: 8, addr: lamp_addr, prom: true }
