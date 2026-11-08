@@ -15,6 +15,7 @@
     H7P1O[65:64],CRT deflicker,Off,Low,Mid,High;
     H7P1O[69:67],CRT height,224,232,240,1:1,200,208,216;
 {{ end }}
+{{ end }}
 P1{{ .SEPARATOR }}
 {{ if .JTFRAME_NOHQ2X }}            d3P1O35,Scandoubler Fx,None,N/A,CRT 25%,CRT 50%,CRT 75%;
         {{ else }}                  d3P1O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%; {{ end }}

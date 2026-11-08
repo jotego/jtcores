@@ -14,6 +14,7 @@ wire [7:0] VGA_R,VGA_G,VGA_B,SCALER_R,SCALER_G,SCALER_B;
 wire VGA_HS,VGA_VS,VGA_DE,VGA_F1,CE_PIXEL,CLK_VIDEO;
 wire SCALER_CE,SCALER_HS,SCALER_VS,SCALER_DE,SCALER_F1;
 wire [1:0] VGA_SL;
+wire [4:0] VGA_HSIZE;
 `include "emu_route.vh"
 // Progressive scan2x source has deliberately different tags from the analog bus.
 source u_scan(
@@ -22,7 +23,7 @@ source u_scan(
 wire clk_vid=clk;
 wire [23:0] vga_data_sl={VGA_R,VGA_G,VGA_B};
 wire vga_ce_sl=CE_PIXEL,vga_hs_sl=VGA_HS,vga_vs_sl=VGA_VS,vga_de_sl=VGA_DE,f1=VGA_F1;
-wire ce_hpix,hhs_fix,hvs_fix,hde_emu;
+wire ce_hpix,hhs_fix,hvs_fix,hde_emu,hdmi_f1;
 wire [7:0] hr_out,hg_out,hb_out;
 `include "sys_route.vh"
 `ifdef JTFRAME_SPLIT_VIDEO
@@ -75,7 +76,8 @@ initial begin
 end
 initial begin #10000;$fatal(1,"routing timeout");end
 endmodule
-module source(output [7:0] scan2x_r,scan2x_g,scan2x_b,output scan2x_hs,scan2x_vs,scan2x_clk,scan2x_cen,scan2x_de,output [1:0] scan2x_sl,input unused);
+module source(output [7:0] scan2x_r,scan2x_g,scan2x_b,output scan2x_hs,scan2x_vs,scan2x_clk,scan2x_cen,scan2x_de,output [1:0] scan2x_sl,output [4:0] hsize_ctl,input unused);
+assign hsize_ctl=0;
 assign {scan2x_r,scan2x_g,scan2x_b}=24'h123456;
 assign {scan2x_hs,scan2x_vs,scan2x_clk,scan2x_cen,scan2x_de,scan2x_sl}=7'b0101110;
 endmodule
