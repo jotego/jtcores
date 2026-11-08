@@ -226,6 +226,9 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		if !regularNonempty(game.ARC) {
 			return Manifest{}, fmt.Errorf("manual ARC converter did not produce %s", game.ARC)
 		}
+		if err = normalize_arc_buttons_file(game.ARC); err != nil {
+			return Manifest{}, fmt.Errorf("normalizing manual ARC button labels for %s: %w", set, err)
+		}
 		if profile.Inputs != "" {
 			game.CAB = filepath.Join(source, "cores", core, "ver", set, profile.Inputs)
 			if !regularNonempty(game.CAB) {

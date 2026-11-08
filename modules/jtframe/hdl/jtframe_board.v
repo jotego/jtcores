@@ -191,10 +191,6 @@ wire   [1:0] debug_plus, debug_minus;
 
 `ifdef MISTER
 assign joy_aux_en = 1'b1;
-`elsif NEPTUNO
-assign joy_aux_en = 1'b0;
-`elsif MIST
-assign joy_aux_en = status[15];
 `else
 assign joy_aux_en = 1'b0;
 `endif

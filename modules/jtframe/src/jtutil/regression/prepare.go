@@ -515,6 +515,10 @@ func mainGameInventory(ctx context.Context, source, rbfRoot, fixtureRoot, artifa
 			cmd := exec.CommandContext(ctx, converter, "-s", "-A", "-a", arc, mraTool)
 			if out, e := cmd.CombinedOutput(); e != nil {
 				spec.PreparationError = appendPrepError(spec.PreparationError, fmt.Sprintf("MRA ARC conversion failed: %v: %s", e, strings.TrimSpace(string(out))))
+			} else if regularNonempty(arc) {
+				if e := normalize_arc_buttons_file(arc); e != nil {
+					spec.PreparationError = appendPrepError(spec.PreparationError, fmt.Sprintf("normalizing ARC button labels: %v", e))
+				}
 			}
 			if !regularNonempty(arc) {
 				spec.PreparationError = appendPrepError(spec.PreparationError, "MRA converter did not create an ARC file")

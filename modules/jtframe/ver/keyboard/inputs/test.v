@@ -53,8 +53,8 @@ initial begin
     cab_inputs=0;
     joy_aux_en=0;
     repeat (8) @(negedge clk);
-    assert_msg(test1===1'b1 && test2===1'b1 && test6===1'b1,"disabled pad option suppresses Test");
-    assert_msg(service1===1'b1 && service2===1'b1 && service6===1'b1,"disabled pad option suppresses Service");
+    assert_msg(test1===1'b1 && test2===1'b1 && test6===1'b1,"joy_aux_en=0 suppresses Test utility decoding");
+    assert_msg(service1===1'b1 && service2===1'b1 && service6===1'b1,"joy_aux_en=0 suppresses Service utility decoding");
 
     joy_aux_en=1;
     joy1=0; joy2=0; joy3=0; joy4=0;

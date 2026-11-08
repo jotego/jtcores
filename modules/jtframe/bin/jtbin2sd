@@ -85,6 +85,12 @@ function cp_mist {
         done
         unset IFS
     done
+    # ARC names come from the MRA <name>, not its filename. Normalize all
+    # converted and already-present ARC files by the exact framework tail.
+    for ARC in "$DST"/*.arc; do
+        [ -f "$ARC" ] || continue
+        sed -E -i 's/^(BUTTONS="[^"]*),Start,Coin,Core credits,Test,Service"(\r?)$/\1,Start,Coin,Core credits"\2/' "$ARC"
+    done
     # Set one game as core.arc
     if [ ! -z "$SETNAME" ]; then
         local MAINSET=`grep -iw $SETNAME $DST/*.arc --files-with-matches | head -n 1`

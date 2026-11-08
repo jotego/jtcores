@@ -75,7 +75,7 @@ func TestArtifactFallbackNeverRestoresCurrentDebugOrSkippedGames(t *testing.T) {
 	artifact := filepath.Join(root, "artifact.zip")
 	writeZip(t, artifact, entries)
 	converter := filepath.Join(root, "converter")
-	manualWrite(t, converter, []byte("#!/bin/sh\nprintf '[ARC]\\nNAME=GOOD\\nRBF=JTGOOD\\n' > \"$4\"\n"))
+	manualWrite(t, converter, []byte("#!/bin/sh\nprintf '[ARC]\\nNAME=GOOD\\nBUTTONS=\"Punch,Start,Coin,Core credits,Test,Service\"\\nRBF=JTGOOD\\n' > \"$4\"\n"))
 	if err := os.Chmod(converter, 0750); err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +85,10 @@ func TestArtifactFallbackNeverRestoresCurrentDebugOrSkippedGames(t *testing.T) {
 	}
 	if len(cores) != 1 || cores[0].Core != "good" || len(cores[0].Games) != 1 {
 		t.Fatalf("excluded games restored: %+v", cores)
+	}
+	arc, err := os.ReadFile(cores[0].Games[0].ARC)
+	if err != nil || !strings.Contains(string(arc), `BUTTONS="Punch,Start,Coin,Core credits"`) || strings.Contains(string(arc), `Core credits,Test,Service`) {
+		t.Fatalf("inventory ARC button tail was not normalized: %s (%v)", arc, err)
 	}
 	if len(rec.ArtifactFallbacks) != 0 || len(rec.SourceExcluded) != 4 || len(rec.SourceExclusionReasons) != 4 {
 		t.Fatalf("exclusions not reconciled: %+v", rec)

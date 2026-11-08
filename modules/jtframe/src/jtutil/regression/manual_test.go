@@ -59,7 +59,7 @@ func fakeManualCommands(t *testing.T) (*[]string, *[]string) {
 			return nil, nil
 		}
 		if len(args) == 6 && args[1] == "-s" && args[2] == "-A" && args[3] == "-a" {
-			manualWrite(t, args[4], []byte("[ARC]\nNAME=TEST\nRBF=JTTEST\n"))
+			manualWrite(t, args[4], []byte("[ARC]\nNAME=TEST\nBUTTONS=\"Punch,Start,Coin,Core credits,Test,Service\"\nRBF=JTTEST\n"))
 			return nil, nil
 		}
 		return nil, fmt.Errorf("unexpected command %v", args)
@@ -88,6 +88,10 @@ func TestManualJTBinReadsSelectedSourceWithoutChanges(t *testing.T) {
 	game := manifest.Cores[0].Games[0]
 	if game.Setname != "clone" || len(game.ROMs) != 2 || !strings.HasSuffix(game.ROMs[1], "CLONE.RAM") {
 		t.Fatalf("bad fixtures %+v", game)
+	}
+	arc, e := os.ReadFile(game.ARC)
+	if e != nil || !strings.Contains(string(arc), `BUTTONS="Punch,Start,Coin,Core credits"`) || strings.Contains(string(arc), `Core credits,Test,Service`) {
+		t.Fatalf("manual ARC button tail was not normalized: %s (%v)", arc, e)
 	}
 	for p, want := range paths {
 		got, e := os.ReadFile(p)

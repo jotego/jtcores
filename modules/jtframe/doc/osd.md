@@ -79,9 +79,7 @@ bit     |  meaning                | Enabled with macro
 10      | Test mode               | JTFRAME_OSD_TEST
 11      | Horizontal filter       | MiSTer only
 12      | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)
-13-14   | Core-specific options   | CORE_OSD (option char: D,E)
-15      | Pad Test/Service enable | MiST/SiDi/SiDi128 only; default Off. MiSTer always enables these pad inputs.
-13-15   | Core-specific options   | MiSTer `CORE_OSD` (option char: D,E,F)
+13-15   | Core-specific options   | CORE_OSD (option char: D,E,F)
 13-15   | CRT clock tuning        | JTFRAME_PLL_TUNE (MiSTer)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
 18-19   | Joystick 1 position     | JTFRAME_JOY1_POS
@@ -96,13 +94,12 @@ bit     |  meaning                | Enabled with macro
 49-52   | CRT scale factor (retimer) | MiSTer only, `oHK`, hidden when bit 48 is 0
 53-56   | CRT H offset            | MiSTer only, `oLO`, signed 4-bit
 57-60   | CRT V offset            | MiSTer only, `oPS`, signed 4-bit
-61-63   |    -- free --           |
+61      | DB15 OSD combo         | MiSTer only, JTFRAME_NO_DB15 unset; default Start+Button 3, Off disables OSD shortcut only
+62-63   |    -- free --           |
 
 Note that CORE_OSD cannot be used with JTFRAME_PLL_TUNE
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
-
-On MiST, SiDi, and SiDi128, status bit 15 controls the extra pad Test and Service buttons. Leave it Off for legacy pads whose firmware aliases the extra shoulder inputs to the normal shoulders. MiSTer enables the extra pad inputs automatically and keeps bit 15 available to its core OSD options. NeptUNO uses bit 15 for its scandoubler setting and does not enable the extra pad inputs.
 
 Option visibility in MiSTer is controlled in [jtframe_mister.sv](../target/mister/hdl/jtframe_mister.sv) using the `status_menumask` variable.
 
@@ -141,7 +138,8 @@ page and does not allocate a status bit.
 decodes bit 48 as `hsize_enable` and bits 52:49 as `hsize_scale`. These are
 forwarded as `VGA_HSIZE[4:0] = {hsize_enable, hsize_scale}` to the analog
 retimer in `sys_top.v`. Bits 60:53 remain the independent sync offsets;
-bits 61:63 remain free.
+Bit 61 is used by the DB15 OSD combo option when DB15 support is enabled;
+bits 62:63 remain free.
 
 The factor field stores a four-bit code. The retimer interprets codes 8…15
 as signed −8…−1 and adds one to codes 0…7, yielding +1…+8. Thus **code 0

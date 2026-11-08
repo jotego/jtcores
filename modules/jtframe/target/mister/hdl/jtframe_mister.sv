@@ -409,9 +409,11 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 
 // OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
 wire [15:0] status_menumask; // a high value hides the menu item
-wire        vertical;
+wire        vertical, db15_osd_combo_en;
 
-assign status_menumask[15:8] = 0,
+assign db15_osd_combo_en = ~status[61];
+assign status_menumask[15:9] = 0,
+       status_menumask[8]    = ~(db15_en | uart_en),
 `ifdef JTFRAME_CRT480I
        status_menumask[7]    = ~crt_on, // extra CRT height/filter options in the Video page
 `else
@@ -499,6 +501,7 @@ jtframe_joymux #(.BUTTONS(BUTTONS)) u_joymux(
 
     // joystick mux
     .db15_en    ( db15_en   ),
+    .osd_combo_en ( db15_osd_combo_en ),
     .joyusb_1   ( joyusb_1  ),
     .joyusb_2   ( joyusb_2  ),
     .joymux_1   ( joystick1 ),
