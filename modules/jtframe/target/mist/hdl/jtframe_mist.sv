@@ -474,6 +474,7 @@ jtframe_board #(
     .cab_active    ( cab_active     ),
     .cab_inputs    ( cab_inputs     ),
     .cab_dump_pause( cab_dump_pause ),
+    .joy_aux_en    ( 1'b0           ),
     .board_joystick2( joystick2[15:0] ),
     .board_joystick3( joystick3[15:0] ),
     .board_joystick4( joystick4[15:0] ),

@@ -89,6 +89,7 @@ module jtframe_board #(parameter
     output              uart_tx,
     // joystick
     input        [15:0] board_joystick1, board_joystick2, board_joystick3, board_joystick4,
+    input               joy_aux_en,
     input               cab_active,
     input        [20:0] cab_inputs,
     input               cab_dump_pause,
@@ -167,7 +168,6 @@ module jtframe_board #(parameter
 );
 
 wire         osd_pause;
-wire         joy_aux_en;
 wire         key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
@@ -188,12 +188,6 @@ wire         gun_crossh_en, dipflip_xor;
 wire   [1:0] cross_disable;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
-
-`ifdef MISTER
-assign joy_aux_en = 1'b1;
-`else
-assign joy_aux_en = 1'b0;
-`endif
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b,
