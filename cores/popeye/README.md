@@ -3,8 +3,10 @@
 FPGA implementation by Chris Watson of Nintendo TPP2 (Popeye), TPP1 (Japanese
 Popeye), the supported Popeye bootlegs and TNX1 (Sky Skipper). Jose Tejada's
 JTFRAME integration and schematic reference circuits retain their attribution.
-The supported FPGA target is currently MiSTer; other targets are explicitly
-skipped until their analog/scaler integration is validated.
+MiSTer uses the separate analog output and a full 448-line progressive HDMI
+picture. SiDi128, Pocket and Neptuno also use the full progressive picture.
+MiST and SiDi use each native 224-line field with the target's scan doubler to
+fit their smaller FPGA memory.
 
 The board timing is preserved: a 20.16 MHz enable, 10.08/5.04 MHz video phases,
 4 MHz CPU and 2 MHz PSG, with 513 half-lines and alternating interlace phase.

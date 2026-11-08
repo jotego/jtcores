@@ -98,8 +98,13 @@ wire [ 2:0] obj_clob;
 wire [ 5:0] dbl_obj_c;
 wire [ 4:0] dbl_bakc;
 wire [ 3:0] dbl_txtc;
+wire        hs_raw, lvbl_raw;
 wire        hb, h20, lhbl, txtv, bakc4, vtick, vhalf, initeo_a, initeo_b, fsel, dd7, do16,
             vs_raw, dbl_txtv, dbl_hbd_n, dbl_vb, dbl_lhbl, dbl_lvbl;
+wire        color_cen;
+`ifdef JTPOPEYE_FIELD_VIDEO
+reg  [ 2:0] hs_pipe, vs_pipe;
+`endif
 
 assign char_ad   = ad[11:0];
 assign dd_lo     = dd[3:0];
@@ -111,9 +116,28 @@ assign h_lo      = h_raw[1:0];
 assign initeo_a  = ~rv;
 assign initeo_b  = ~initeo_a;
 assign fsel      = initeo ^ initeo_a;
+`ifdef JTPOPEYE_FIELD_VIDEO
+assign pxl2_cen  = cen20;
+assign color_cen = cen10;
+assign HS        = hs_pipe[2];
+assign VS        = vs_pipe[2];
+
+always @(posedge clk) begin
+    pxl_cen <= cen10;
+    if( rst ) begin
+        hs_pipe <= 0;
+        vs_pipe <= 0;
+    end else if( cen10 ) begin
+        hs_pipe <= { hs_pipe[1:0], hs_raw };
+        vs_pipe <= { vs_pipe[1:0], vs_raw };
+    end
+end
+`else
 assign pxl2_cen  = cen20 | pxl_cen;
+assign color_cen = cen20;
 
 always @(posedge clk) pxl_cen <= cen20;
+`endif
 
 jtpopeye_timing u_timing(
     .rst        ( rst       ),
@@ -138,10 +162,10 @@ jtpopeye_timing u_timing(
     .vcnt       ( vcnt      ),
     .vlatch     ( vlatch    ),
     .vhalf      ( vhalf     ),
-    .hs         (           ),
+    .hs         ( hs_raw    ),
     .vs         ( vs_raw    ),
     .lhbl       ( lhbl      ),
-    .lvbl       (           )
+    .lvbl       ( lvbl_raw  )
 );
 
 jtpopeye_char u_char(
@@ -265,6 +289,17 @@ jtpopeye_obj u_objb(
     .obj_c      ( obj_clob  )
 );
 
+`ifdef JTPOPEYE_FIELD_VIDEO
+assign dbl_txtv  = txtv;
+assign dbl_txtc  = txtc;
+assign dbl_bakc  = bakc;
+assign dbl_hbd_n = hbd_n;
+assign dbl_vb    = vb;
+assign dbl_obj_v = vhalf ? obj_vb : obj_v;
+assign dbl_obj_c = { obj_chi, vhalf ? obj_clob : obj_clo };
+assign dbl_lhbl  = lhbl;
+assign dbl_lvbl  = lvbl_raw;
+`else
 jtpopeye_dbl u_dbl(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -299,11 +334,12 @@ jtpopeye_dbl u_dbl(
     .hs_o       ( HS        ),
     .vs_o       ( VS        )
 );
+`endif
 
 jtpopeye_colmix u_colmix(
     .rst          ( rst          ),
     .clk          ( clk          ),
-    .pxl_cen      ( cen20        ),
+    .pxl_cen      ( color_cen    ),
     .hbd_n        ( dbl_hbd_n    ),
     .vb           ( dbl_vb       ),
     .lhbl         ( dbl_lhbl     ),
