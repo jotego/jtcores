@@ -43,6 +43,18 @@ Bit  |  Action
 
 If a different mapping is needed, it should be set via a JTFRAME_JOY macro. The analog stick is used to emulate a 32-way joystick via pulse-width modulation.
 
+For non-Pocket targets, the pad Test input is joystick bit `BUTTONS+7` and
+Service is `BUTTONS+8`, where `BUTTONS` is the number of gameplay buttons.
+Both inputs are combined across all four players and are ignored while CAB
+input streaming is active. MiSTer enables them automatically. MiST, SiDi, and
+SiDi128 require the `Pad Test/Service` OSD option (status bit 15), which
+defaults Off for legacy pad firmware. NeptUNO does not decode these inputs.
+Pocket keeps its front-button Test shortcut and does not decode pad Service.
+
+Keyboard Service and enabled pad Service reach the game's service input. When
+the game is paused, either one advances a single frame; CAB input streaming
+uses its own service mapping and does not advance paused frames.
+
 Analog controllers are connected via ports:
 
 ```

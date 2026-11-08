@@ -167,6 +167,7 @@ module jtframe_board #(parameter
 );
 
 wire         osd_pause;
+wire         joy_aux_en;
 wire         key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
 wire         key_reset, key_pause, key_test, rot_control;
@@ -187,6 +188,16 @@ wire         gun_crossh_en, dipflip_xor;
 wire   [1:0] cross_disable;
 wire         debug_toggle;
 wire   [1:0] debug_plus, debug_minus;
+
+`ifdef MISTER
+assign joy_aux_en = 1'b1;
+`elsif NEPTUNO
+assign joy_aux_en = 1'b0;
+`elsif MIST
+assign joy_aux_en = status[15];
+`else
+assign joy_aux_en = 1'b0;
+`endif
 
 wire [COLORW-1:0] crdts_r, crdts_g, crdts_b,
                   dbg_r, dbg_g, dbg_b,
@@ -526,6 +537,7 @@ jtframe_inputs #(
     .lhbl           ( LHBLs           ),
     .lvbl           ( LVBLs           ),
     .ioctl_rom      ( dwnld_busy      ),
+    .joy_aux_en     ( joy_aux_en      ),
     .joy1_pos       ( joy1_pos        ),
     .rot            ( rot_control     ),
     .rotate         ( rotate          ),

@@ -148,6 +148,8 @@ frames = [
 # Name and map are selected together by machine/setname, including clones.
 # Omitting map keeps the existing defaults. --buttons overrides names and
 # resets the MRA mapping to the default order.
+# The framework appends Start, Coin, Core credits, Test, Service after the
+# gameplay buttons. Their default pad mapping is Start, Select, L2, R2, L3.
 names=[
 	{ setname="...", machine="...", names="shot,jump" }
 ]

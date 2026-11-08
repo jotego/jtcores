@@ -32,7 +32,7 @@ jtframe_joysticks uut(
     .rst(rst), .clk(clk), .vs(1'b0), .locked(locked), .rot(1'b1), .rot_ccw(1'b1),
     .cab_active(cab_active), .cab_inputs(cab_inputs), .joy1_pos(2'd3),
     .board_coin(4'hf), .board_start(4'hf), .key_coin(4'hf), .key_start(4'hf),
-    .joy_coin(4'hf), .joy_start(4'hf), .key_service(1'b1), .key_tilt(1'b1), .key_reset(1'b1),
+    .joy_coin(4'hf), .joy_start(4'hf), .key_service(1'b1), .joy_service(1'b1), .key_tilt(1'b1), .key_reset(1'b1),
     .ana1(16'h7f7f), .ana2(16'h7f7f), .board_joy1(16'hffff), .board_joy2(16'hffff),
     .board_joy3(16'hffff), .board_joy4(16'hffff), .key_joy1(10'h3ff), .key_joy2(10'h3ff),
     .key_joy3(10'h3ff), .key_joy4(10'h3ff), .joy_test(1'b1), .key_test(1'b1),

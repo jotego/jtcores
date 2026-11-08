@@ -7,6 +7,7 @@ reg         [3:0] board_coin=0, board_start=0,
                   key_coin=0,   key_start=0,
                   joy_coin=0,   joy_start=0;
 reg               key_service=0,key_tilt=0,  key_reset=0;
+reg               joy_service=0;
 
 
 reg        [15:0] ana1=0, ana2=0,
@@ -49,6 +50,22 @@ initial begin
     repeat (20) @(posedge clk);
     assert_msg(game_test==1,"test DIP must be high after keyboard unset");
 
+    assert_msg(game_service===1,"service DIP must be high at startup");
+    key_service = 1;
+    repeat (20) @(posedge clk);
+    assert_msg(game_service===0,"keyboard service must activate service DIP");
+    key_service = 0;
+    joy_service = 1;
+    repeat (20) @(posedge clk);
+    assert_msg(game_service===0,"joystick service must activate service DIP");
+    key_service = 1;
+    repeat (20) @(posedge clk);
+    assert_msg(game_service===0,"keyboard and joystick service inputs must merge");
+    key_service = 0;
+    joy_service = 0;
+    repeat (20) @(posedge clk);
+    assert_msg(game_service===1,"service DIP must return high when released");
+
     for( dir=0; dir<4; dir=dir+1 ) begin
         board_joy1[3:0]=1<<dir;
         repeat (20) @(posedge clk);
@@ -80,6 +97,7 @@ jtframe_joysticks uut(
     .joy_coin   ( joy_coin      ),
     .joy_start  ( joy_start     ),
     .key_service( key_service   ),
+    .joy_service( joy_service   ),
     .cab_active ( 1'b0          ),
     .cab_inputs ( 21'b0         ),
     .key_tilt   ( key_tilt      ),

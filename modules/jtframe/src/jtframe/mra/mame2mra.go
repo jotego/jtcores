@@ -825,11 +825,16 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			}
 		}
 	}
-	pad := "A,B,X,Y,L,R,"
+	pad := ""
+	pad_keys := "ABXYLR"
+	for k := 0; k < len(buttons) && k < cfg.Buttons.Core && k < len(pad_keys); k++ {
+		if strings.TrimSpace(buttons[k]) != "-" {
+			pad += string(pad_keys[k]) + ","
+		}
+	}
 	for k := len(buttons); k < 6 && k < cfg.Buttons.Core; k++ {
 		buttons_str += "-,"
 	}
-	pad = pad[0 : len(buttons)*2]
 	if button_map != "" {
 		// MiSTer skips unnamed core inputs; '-' terminates the default list.
 		pad = ""
@@ -838,9 +843,9 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			pad += string(button_map[k]) + ","
 		}
 	}
-	buttons_str += "Start,Coin,Core credits"
+	buttons_str += "Start,Coin,Core credits,Test,Service"
 	n.AddAttr("names", buttons_str)
-	n.AddAttr("default", pad+"Start,Select,-")
+	n.AddAttr("default", pad+"Start,Select,L2,R2,L3")
 	n.AddIntAttr("count", count)
 }
 

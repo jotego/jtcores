@@ -120,6 +120,9 @@ func CheckMacros() error {
 	// Check that MiST DIPs are defined after the
 	// last used status bit
 	dipbase, _ := strconv.Atoi(Get("JTFRAME_DIPBASE"))
+	if target_uses_pad_test_service(Get("TARGET")) && dipbase < 16 {
+		return fmt.Errorf("jtframe: extra pad Test/Service uses status bit 15; JTFRAME_DIPBASE must be at least 16")
+	}
 	if target_uses_dipbase(Get("TARGET")) {
 		if IsSet("JTFRAME_AUTOFIRE0") && dipbase < 17 {
 			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_AUTOFIRE0")

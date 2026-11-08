@@ -11,7 +11,7 @@ module jtframe_joysticks(
     input       [3:0] board_coin, board_start,
                       key_coin,   key_start,
                       joy_coin,   joy_start,
-    input             key_service,key_tilt,  key_reset,
+    input             key_service,joy_service,key_tilt, key_reset,
     input             cab_active,
     input      [20:0] cab_inputs,
 
@@ -106,6 +106,7 @@ module jtframe_joysticks(
         .joy_test   ( joy_test      ),
         .key_test   ( key_test      ),
         .key_service( key_service   ),
+        .joy_service( joy_service   ),
 
         .mouse_but_1p(mouse_but_1p  ),
         .mouse_but_2p(mouse_but_2p  ),
@@ -196,7 +197,7 @@ module jtframe_merge_keyjoy(
 
     input      [15:0] joy1,     joy2,     joy3,     joy4,
     input       [9:0] key_joy1, key_joy2, key_joy3, key_joy4,
-    input             joy_test, key_test, key_tilt, key_service,
+    input             joy_test, key_test, key_tilt, key_service, joy_service,
 
     input       [2:0] mouse_but_1p, mouse_but_2p,
 
@@ -219,7 +220,7 @@ module jtframe_merge_keyjoy(
         end else begin
             game_test    <= ~(key_test  | joy_test);
             game_tilt    <= ~ key_tilt;
-            game_service <= ~ key_service;
+            game_service <= ~(key_service | joy_service);
 
             game_coin    <= ~(joy_coin  | key_coin  | board_coin);
             game_start   <= ~(joy_start | key_start | board_start);

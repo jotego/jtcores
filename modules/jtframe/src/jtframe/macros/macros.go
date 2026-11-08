@@ -59,6 +59,15 @@ func target_uses_dipbase(target string) bool {
 	}
 }
 
+func target_uses_pad_test_service(target string) bool {
+	switch target {
+	case "mist", "sidi", "sidi128":
+		return true
+	default:
+		return false
+	}
+}
+
 func check_integer(all_names ...string) error {
 	for _, name := range all_names {
 		if !IsInt(name) {

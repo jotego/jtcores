@@ -149,6 +149,29 @@ func Test_check_macros_rejects_pll_tune_and_core_osd(t *testing.T) {
 	}
 }
 
+func Test_check_macros_pad_test_service_status_bit(t *testing.T) {
+	for _, target := range []string{"mist", "sidi", "sidi128"} {
+		MakeFromMap(map[string]string{
+			"TARGET": target, "JTFRAME_DIPBASE": "15",
+			"JTFRAME_LF_HW": "9", "JTFRAME_LF_VW": "8",
+			"JTFRAME_WIDTH": "320", "JTFRAME_HEIGHT": "224",
+		})
+		if err := CheckMacros(); err == nil || !strings.Contains(err.Error(), "JTFRAME_DIPBASE must be at least 16") {
+			t.Errorf("target=%s: expected DIPBASE 15 to be rejected, got %v", target, err)
+		}
+	}
+	for _, target := range []string{"mist", "sidi", "sidi128", "mister", "neptuno"} {
+		MakeFromMap(map[string]string{
+			"TARGET": target, "JTFRAME_DIPBASE": "16",
+			"JTFRAME_LF_HW": "9", "JTFRAME_LF_VW": "8",
+			"JTFRAME_WIDTH": "320", "JTFRAME_HEIGHT": "224",
+		})
+		if err := CheckMacros(); err != nil {
+			t.Errorf("target=%s: expected DIPBASE 16 to be accepted, got %v", target, err)
+		}
+	}
+}
+
 func Test_check_macros_accepts_pll_tune_with_empty_core_osd(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"TARGET":             "mister",
@@ -225,6 +248,7 @@ func Test_check_macros_lf_buffer_vertical_pocket(t *testing.T) {
 func Test_check_macros_lf_buffer_vertical_sidi128(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"TARGET":            "sidi128",
+		"JTFRAME_DIPBASE":   "16",
 		"JTFRAME_LF_BUFFER": "1",
 		"JTFRAME_LF_HW":     "9",
 		"JTFRAME_LF_VW":     "8",
