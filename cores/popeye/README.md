@@ -14,6 +14,13 @@ The progressive 512x448 path feeds the HDMI scaler; the separate interlaced
 path feeds analog/direct video. CRT deflicker, width and position controls act
 on that analog path. Monitor acceptance still needs hardware validation.
 
+The MiSTer Video page shares the deflicker menu with CRT480I cores, but Popeye
+keeps its own interlaced analog generator. It blends adjacent source lines in a
+small line RAM: Low is 1:6:1 / 8, Mid is 3:10:3 / 16 and High is 1:2:1 / 4.
+The CRT480I converter uses 1:3:1 / 5 for Mid and also blends while stretching
+the image vertically. Popeye's separate CRT H/V position options move the
+analog picture; the framework CRT H/V offsets act on the progressive path.
+
 `cfg/mame2mra.toml` documents the per-set header bits for ROM scrambling,
 bootleg protection and palette polarity, RAM decode, background nibble select
 and TNX1 addressing. `hdl/jtpopeye_header.v` receives those bits during download.
