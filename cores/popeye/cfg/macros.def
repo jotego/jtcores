@@ -8,9 +8,6 @@ JTFRAME_WIDTH=512
 JTFRAME_HEIGHT=448
 JTFRAME_COLORW=8
 JTFRAME_SPLIT_VIDEO
-# Keep the deflicker selector on the shared MiSTer Video page; the game reads status[31:30].
-JTFRAME_SPLIT_DEFLICKER
-CORE_OSD=P1O[18],CRT width,PCB,Narrow;P1O[29:24],CRT H pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,-32,-31,-30,-29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1;P1O[23:19],CRT V pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1;
 
 CHAR_START=0x8000
 OBJ_START =0x9000
@@ -20,6 +17,13 @@ JTFRAME_IOCTL_RD=16384
 
 JTFRAME_JOY_DULR
 
-# Split analog/scaler integration is currently supported on MiSTer only.
-[mist|sidi|sidi128|pocket|neptuno|mc2|mcp]
-JTFRAME_SKIP
+[mist|sidi]
+# Small FPGAs display the native fields through the target scan doubler.
+JTPOPEYE_FIELD_VIDEO
+JTFRAME_COLORW=6
+JTFRAME_HEIGHT=224
+
+[mister]
+# MiSTer alone routes the second analog video path and its OSD controls.
+JTFRAME_SPLIT_DEFLICKER
+CORE_OSD=P1O[18],CRT width,PCB,Narrow;P1O[29:24],CRT H pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,-32,-31,-30,-29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1;P1O[23:19],CRT V pos,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,-16,-15,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1;

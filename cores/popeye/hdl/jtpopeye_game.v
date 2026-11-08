@@ -30,6 +30,7 @@ wire [ 1:0] cpyr;
 wire [ 1:0] deflicker;
 wire [ 5:0] hpos;
 wire [ 4:0] vpos;
+wire [ 7:0] video_r, video_g, video_b;
 
 `ifdef NOMAIN
 assign rv = scene_rv;
@@ -44,6 +45,9 @@ assign deflicker    = status[31:30];
 assign narrow       = status[18];
 assign vpos         = status[23:19];
 assign hpos         = status[29:24];
+assign red          = video_r[7 -: `JTFRAME_COLORW];
+assign green        = video_g[7 -: `JTFRAME_COLORW];
+assign blue         = video_b[7 -: `JTFRAME_COLORW];
 assign blprotl_addr = blprot_addr;
 assign blproth_addr = blprot_addr;
 assign blprot_data  = { blproth_data, blprotl_data };
@@ -214,9 +218,9 @@ jtpopeye_video u_video(
     .VS           ( VS           ),
     .LHBL         ( LHBL         ),
     .LVBL         ( LVBL         ),
-    .red          ( red          ),
-    .green        ( green        ),
-    .blue         ( blue         ),
+    .red          ( video_r      ),
+    .green        ( video_g      ),
+    .blue         ( video_b      ),
     .split_r      ( split_r      ),
     .split_g      ( split_g      ),
     .split_b      ( split_b      ),
