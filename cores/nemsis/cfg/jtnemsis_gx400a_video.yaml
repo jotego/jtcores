@@ -1,0 +1,19 @@
+nemsis:
+  - get:
+      - jtnemsis_gx400a_video.v
+      - jtnemsis_colmix.v
+      - jtnemsis_gx400_priority_handler.v
+      - jtnemsis_k5290.v
+      - jtnemsis_k5291.v
+      - jtnemsis_k5292.v
+      - jtnemsis_k5293.v
+      - jtnemsis_k5294.v
+      - jtnemsis_k5295.v
+      - jtnemsis_colour_lut.v
+      - jtnemsis_lmn74194_nbit.v
+      - jtnemsis_os_pulse_gen.v
+
+jtframe:
+  - from: video
+    get:
+      - jtframe_blank.v

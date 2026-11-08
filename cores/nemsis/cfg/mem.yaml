@@ -1,0 +1,119 @@
+# GX400 ROM map in JTFRAME SDRAM banks (byte offsets; total 272kB)
+#
+#   bank 0: 0x00000  68000 program   256kB   main
+#   bank 1: 0x40000  Z80 program      16kB   audio
+#   0x44000  jtnemsis_k5289 wave PROM A  256B  ] loaded to BRAM by the
+#   0x44100  jtnemsis_k5289 wave PROM B  256B  ] jtframe_prom instances in
+#   0x44200  volume table         256B  ] jtnemsis_game.v
+
+include:
+  - file: audio.yaml
+    core: nemsis
+
+clocks:
+  clk48:
+    - mul: 67
+      div: 1840
+      gate: [ audio ]
+      outputs: [ sndcpu ]
+
+sdram:
+  banks:
+    - buses:
+      - name: main        # 68000 program
+        addr_width: 18    # 256kB
+        data_width: 16
+    - buses:
+      - name: audio       # Z80 program
+        addr_width: 14    # 16kB
+        data_width: 8
+
+bram:
+  # Color RAM: 2 x 2k x 8-bit, CPU word address and independent byte strobes.
+  - name: pal
+    size: 4kB
+    data_width: 16
+    addr: pal_cpu_addr
+    din: pal_cpu_din
+    dout: pal_dout
+    we: pal_cpu_we
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: video
+      addr: pal_video_addr
+      dout: pal_video_dout
+
+  # Scroll/object RAMs: one byte lane, selected by LDS.
+  - name: scroll
+    size: 2kB
+    data_width: 8
+    addr: scroll_cpu_addr
+    din: scroll_cpu_din
+    dout: scroll_dout
+    we: scroll_cpu_we
+    rw: true
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: video
+      addr: scroll_gfx_addr
+      dout: scroll_gfx_dout
+
+  - name: obj
+    size: 2kB
+    data_width: 8
+    addr: obj_cpu_addr
+    din: obj_cpu_din
+    dout: obj_dout
+    we: obj_cpu_we
+    rw: true
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: video
+      addr: obj_gfx_addr
+      dout: obj_gfx_dout
+
+  # Tile-map RAM 1 has separate high and low byte enables.
+  - name: vram1
+    size: 8kB
+    data_width: 16
+    addr: vram1_cpu_addr
+    din: vram1_cpu_din
+    dout: vram1_dout
+    we: vram1_cpu_we
+    rw: true
+    ioctl: { save: true, restore: true, order: 3 }
+    dual_port:
+      name: video
+      addr: vram_gfx_addr
+      dout: vram1_gfx_dout
+
+  - name: vram2
+    size: 4kB
+    data_width: 8
+    addr: vram2_cpu_addr
+    din: vram2_cpu_din
+    dout: vram2_dout
+    we: vram2_cpu_we
+    rw: true
+    ioctl: { save: true, restore: true, order: 4 }
+    dual_port:
+      name: video
+      addr: vram2_gfx_addr
+      dout: vram2_gfx_dout
+
+  # Four byte memories share a 32-bit word. The 68000 address bit 1 chooses
+  # the active word half and LDS/UDS choose bytes within that half.
+  - name: char
+    size: 64kB
+    data_width: 32
+    addr: char_cpu_addr
+    din: char_cpu_din
+    dout: char_dout
+    we: char_cpu_we
+    rw: true
+    ioctl: { save: true, restore: true, order: 5 }
+    dual_port:
+      name: video
+      addr: char_gfx_addr
+      dout: char_gfx_dout

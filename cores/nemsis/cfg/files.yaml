@@ -1,0 +1,18 @@
+nemsis:
+  - get:
+      - jtnemsis_game.v
+      - jtnemsis_video_bram_if.v
+      - jtnemsis_palram_if.v
+      - jtnemsis_main.yaml
+      - jtnemsis_sound.yaml
+      - jtnemsis_gx400a_video.yaml
+      - jtnemsis_bus_ff.v
+
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_prom.v

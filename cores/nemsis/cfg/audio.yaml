@@ -1,0 +1,46 @@
+# GX400 audio sources and the board's switched analog filters.
+audio:
+  rsum: 10k # gain normalization reference; not a claimed PCB load
+  gain: 0.5 # reserve headroom for all four sources playing together
+  channels:
+    # Each AY output is already summed by jt49. Preserve the gain balance
+    # measured in the original core after applying the board's input resistors.
+    - name: ay7e
+      data_width: 10
+      unsigned: true
+      dcrm: true
+      rsum: 10k
+      pre: 0.659
+      # Banks: both caps; 33n only; 4.7u only. rc_en selects one-hot pairs.
+      rc:
+        - { r: 1.194k, c: 33n }
+        - { r: 1.66k, c: 4.7u }
+        - { r: 1.194k, c: 33n }
+        - { r: 0, c: 0 }
+        - { r: 0, c: 0 }
+        - { r: 1.66k, c: 4.7u }
+      rc_en: true
+    - name: ay8e
+      data_width: 10
+      unsigned: true
+      dcrm: true
+      rsum: 12k
+      pre: 1.0
+      rc: [{ r: 1.66k, c: 4.7u }]
+      rc_en: true
+    - name: wav1
+      data_width: 8
+      unsigned: true
+      dcrm: true
+      rsum: 12k
+      pre: 0.1885
+      rc: [{ r: 1.66k, c: 4.7u }]
+      rc_en: true
+    - name: wav2
+      data_width: 8
+      unsigned: true
+      dcrm: true
+      rsum: 12k
+      pre: 0.1885
+      rc: [{ r: 1.66k, c: 4.7u }]
+      rc_en: true
