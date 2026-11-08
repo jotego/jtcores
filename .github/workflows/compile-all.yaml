@@ -6,7 +6,8 @@ on:
   repository_dispatch:
     types: rebuild
   schedule:
-    - cron: '0 1 * * *' # GitHub cron is UTC; 3am in GMT+2
+    - cron: '0 23 * * *' # 11pm local time, including daylight saving time
+      timezone: 'Europe/Madrid'
 jobs:
   # Full builds run in the public repository, never in the private mirror.
   check_schedule:
