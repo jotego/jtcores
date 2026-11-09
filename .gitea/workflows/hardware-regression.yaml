@@ -2,7 +2,7 @@ name: SiDi128 hardware regression
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 jobs:

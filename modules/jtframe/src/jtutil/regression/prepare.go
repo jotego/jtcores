@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"jotego/jtframe/mra"
 )
 
 
@@ -719,7 +721,22 @@ func readTuple(path string) (InventoryTuple, bool) {
 	if xml.Unmarshal(b, &m) != nil || strings.TrimSpace(m.Setname) == "" || strings.TrimSpace(m.RBF) == "" || !strings.HasPrefix(m.RBF, "jt") {
 		return InventoryTuple{}, false
 	}
+	if m.interlaced_video() { return InventoryTuple{}, false }
 	return InventoryTuple{Core: strings.TrimPrefix(m.RBF, "jt"), Setname: strings.TrimSpace(m.Setname), RBF: strings.TrimSpace(m.RBF)}, true
+}
+
+// Regression covers native video. Generated CRT variants retain the same
+// core/setname, so identify them by their mode bytes rather than their title.
+func (m mraInventory) interlaced_video() bool {
+	const mode_byte = mra.COREMOD_CRT480I_BIT / 8
+	const mode_bit = byte(1 << (mra.COREMOD_CRT480I_BIT % 8))
+	for _, rom := range m.ROM {
+		if rom.Index != "1" || len(rom.Parts) != 1 || len(rom.Interleave) != 0 { continue }
+		mode, err := hex.DecodeString(strings.Join(strings.Fields(rom.Parts[0].Text), ""))
+		if err != nil || len(mode) <= mode_byte { continue }
+		return mode[mode_byte] & mode_bit != 0
+	}
+	return false
 }
 func generatedMRATuple(root, core, set, rbf string) error {
 	_, err := findGeneratedMRATuple(root, core, set, rbf)
@@ -1025,6 +1042,7 @@ func readArtifactMainMRAs(artifact, dst string) ([]string, []InventoryTuple, err
 		if xml.Unmarshal(b, &m) != nil || strings.TrimSpace(m.Setname) == "" || !strings.HasPrefix(strings.TrimSpace(m.RBF), "jt") {
 			continue
 		}
+		if m.interlaced_video() { continue }
 		t := InventoryTuple{Core: strings.TrimPrefix(strings.TrimSpace(m.RBF), "jt"), Setname: strings.TrimSpace(m.Setname), RBF: strings.TrimSpace(m.RBF)}
 		if seen[tupleKey(t)] {
 			return nil, nil, fmt.Errorf("duplicate artifact main MRA tuple %s/%s/%s", t.Core, t.Setname, t.RBF)

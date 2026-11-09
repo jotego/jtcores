@@ -101,8 +101,9 @@ so another workflow attempt or build of that commit does not repeat a completed
 regression. Failed/incomplete workflows are reconsidered after successful retries;
 unchanged-source workflows with skipped jobs/no artifact do not start captures.
 
-The Gitea workflow `.gitea/workflows/hardware-regression.yaml` polls every
-15 minutes and also accepts a manual `workflow_dispatch`. Jobs run on the native
+The Gitea workflow `.gitea/workflows/hardware-regression.yaml` polls nightly
+at 03:00 in the Gitea scheduler's timezone and also accepts a manual
+`workflow_dispatch`. Jobs run on the native
 `regression-host:host` runner with a 1440-minute (24-hour) timeout. Configure the
 runner's timeout to `24h` and the Gitea server's `[actions] ENDLESS_TASK_TIMEOUT`
 to at least `25h`; Gitea 1.26 has an independent server limit (default `3h`).
@@ -146,6 +147,10 @@ recapture. Legacy identities can be upgraded when resumed in their original
 checkout; an old interrupted campaign should finish there before switching.
 
 Eligibility uses both `doc/mame.xml` and `doc/custom.xml`, matching `jtframe mra`.
+Regression selects native-video MRAs. Additional interlaced CRT variants
+(`COREMOD_CRT480I` in the index-1 mode ROM) are omitted from automatic,
+local, JTBIN and archived manual inventories, even when they share a main
+game's setname. Other duplicate main tuples remain an inventory error.
 Titles present only in an artifact remain per-game preparation errors when the
 current project cannot prepare them; they cannot execute or stop unrelated games.
 
@@ -283,21 +288,27 @@ changing the same result tree:
 jtutil regression --busy
 jtutil regression --status
 jtutil regression --accept splatter
+jtutil regression --accept cps1,cps2
 jtutil regression --reject splatter --reason "reviewed against MAME"
 ```
 
 `--busy` (or `-b`) prints `Regression in progress` and exits 0 only while the
-shared `log/lock` is held; it exits 1 when idle. It checks the live flock, not
-the mere presence of the lock file.
+shared `log/lock` is held; when idle it prints exactly `no regression in
+progress` and exits 1 without Cobra's error or usage text. It checks the live
+flock, not the mere presence of the lock file.
 
-`--accept <setname>` requires exactly one matching core folder with exactly
-one pending `new/` or `fail/` slot. The slot must contain valid PNG frames; an
-empty set, all-black set, or a set where more than half of the frames have
-identical pixels is rejected. The slot becomes `ref/`, replacing any prior
-reference without keeping a backup. The per-game `log` gets an ACCEPT row with
-the resulting reference CRC. Acceptance validation exits use distinct codes:
+`--accept <setname>` accepts one game when its name resolves to exactly one
+core folder. `--accept <core>[,<core>...]` accepts every pending game in the
+named core folders; a single value matching a core folder uses this form too.
+Core names are validated before any promotion, and missing core folders fail
+the request. Each game must have exactly one pending `new/` or `fail/` slot
+with valid PNG frames; an empty set, all-black set, or a set where more than
+half of the frames have identical pixels is rejected. Each accepted slot
+becomes `ref/`, replacing any prior reference without keeping a backup. The
+per-game `log` gets an ACCEPT row with the resulting reference CRC. Acceptance
+validation exits use distinct codes:
 2 no frames, 3 invalid PNG, 4 all black, 5 majority-identical frames, 6
-missing/ambiguous source slot, and 7 unsafe setname.
+missing/ambiguous source slot, and 7 unsafe setname or core name.
 
 `--reject <setname>` removes existing `new/` and/or `fail/` slots and appends a
 REJECT row with the current reference CRC. `--reason` adds a single-line reason

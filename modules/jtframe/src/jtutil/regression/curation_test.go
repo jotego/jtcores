@@ -116,6 +116,35 @@ func TestAcceptResultAllowsExactlyHalfDuplicateFrames(t *testing.T) {
 	}
 }
 
+func TestAcceptCoreResultsAndValidateAllCoreSelectionsFirst(t *testing.T) {
+	root := t.TempDir()
+	for _, core := range []string{"core1", "core2"} {
+		slot := filepath.Join(root, core, "same", "new")
+		curation_png(t, slot, 1, color.RGBA{R: 1, A: 255})
+		curation_png(t, slot, 2, color.RGBA{G: 1, A: 255})
+	}
+	if err := AcceptCoreResults(root, []string{"core1", "missing"}); err == nil {
+		t.Fatal("missing selected core was accepted")
+	}
+	for _, core := range []string{"core1", "core2"} {
+		if _, err := os.Stat(filepath.Join(root, core, "same", "new")); err != nil {
+			t.Fatalf("selection validation partially accepted %s: %v", core, err)
+		}
+	}
+	if err := AcceptCoreResults(root, []string{"core1", "core2"}); err != nil {
+		t.Fatal(err)
+	}
+	for _, core := range []string{"core1", "core2"} {
+		game := filepath.Join(root, core, "same")
+		if _, err := os.Stat(filepath.Join(game, "new")); !os.IsNotExist(err) {
+			t.Fatalf("%s new slot remains: %v", core, err)
+		}
+		if _, err := os.Stat(filepath.Join(game, "ref")); err != nil {
+			t.Fatalf("%s reference missing: %v", core, err)
+		}
+	}
+}
+
 func TestRejectResultAndStatus(t *testing.T) {
 	root := t.TempDir()
 	game := filepath.Join(root, "core", "game")

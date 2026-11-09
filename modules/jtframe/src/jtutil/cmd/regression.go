@@ -87,7 +87,7 @@ func init() {
 	regressionCmd.Flags().BoolVar(&regressionNoPublish, "no-publish", false, "Do not publish an external regression summary")
 	regressionCmd.Flags().BoolVar(&regressionRetryErrors, "retry-errors", false, "Rerun terminal per-game errors from a fresh ARC launch")
 	regressionCmd.Flags().BoolVarP(&regressionBusy, "busy", "b", false, "Check whether a regression currently holds the shared lock")
-	regressionCmd.Flags().StringVar(&regressionAccept, "accept", "", "Promote a setname's reviewed new/ or fail/ frames to ref")
+	regressionCmd.Flags().StringVar(&regressionAccept, "accept", "", "Promote a setname's frames or all pending captures in comma-separated cores to ref")
 	regressionCmd.Flags().StringVar(&regressionReject, "reject", "", "Remove a setname's pending new/ or fail/ frames")
 	regressionCmd.Flags().StringVar(&regressionReason, "reason", "", "Single-line reason recorded with --reject")
 	regressionCmd.Flags().BoolVar(&regressionStatus, "status", false, "Summarize the latest completed per-game regression checks")
@@ -95,6 +95,7 @@ func init() {
 }
 
 func run_regression_cmd(cmd *cobra.Command, args []string) (result_error error) {
+	cmd.SilenceErrors, cmd.SilenceUsage = false, false
 	originalCore, originalSet := regressionCore, regressionSetname
 	defer func(){ regressionCore, regressionSetname = originalCore, originalSet }()
 	management := regressionBusy || regressionAccept != "" || regressionReject != "" || regressionStatus || cmd.Flags().Changed("accept") || cmd.Flags().Changed("reject") || cmd.Flags().Changed("reason")
@@ -296,17 +297,40 @@ func run_regression_management(cmd *cobra.Command) error {
 	root := os.Getenv("JOTEGO")
 	if root == "" { return fmt.Errorf("JOTEGO must name the private regression data directory") }
 	dataRoot := filepath.Join(root, "regression")
+	var acceptCores []string
+	acceptByCore := false
+	if regressionAccept != "" {
+		parts := strings.Split(regressionAccept, ",")
+		acceptByCore = len(parts) > 1
+		if len(parts) == 1 {
+			info, statErr := os.Lstat(filepath.Join(dataRoot, strings.TrimSpace(parts[0])))
+			acceptByCore = statErr == nil && info.IsDir()
+		}
+		if acceptByCore {
+			var parseErr error
+			acceptCores, parseErr = parse_regression_core_names(regressionAccept)
+			if parseErr != nil { return parseErr }
+		}
+	}
 	if regressionBusy {
 		busy, err := regression.RegressionBusy(dataRoot); if err != nil { return err }
 		if busy { fmt.Fprintln(cmd.OutOrStdout(), "Regression in progress"); return nil }
+		fmt.Fprintln(cmd.OutOrStdout(), "no regression in progress")
+		cmd.SilenceErrors = true
+		cmd.SilenceUsage = true
 		return &regression.CurationError{Code:1, Err:errors.New("no regression in progress")}
 	}
 	lock, err := regression.AcquireLock(dataRoot); if err != nil { return err }; defer regression.ReleaseLock(lock)
 	if err = regression.InitializeLog(dataRoot); err != nil { return err }
 	switch {
 	case regressionAccept != "":
-		err = regression.AcceptResult(dataRoot, regressionAccept)
-		if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Accepted %s as ref\n", regressionAccept) }
+		if acceptByCore {
+			err = regression.AcceptCoreResults(dataRoot, acceptCores)
+			if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Accepted pending captures for cores %s as ref\n", strings.Join(acceptCores, ", ")) }
+		} else {
+			err = regression.AcceptResult(dataRoot, regressionAccept)
+			if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Accepted %s as ref\n", regressionAccept) }
+		}
 	case regressionReject != "":
 		err = regression.RejectResult(dataRoot, regressionReject, regressionReason)
 		if err == nil { fmt.Fprintf(cmd.OutOrStdout(), "Rejected %s\n", regressionReject) }
@@ -352,6 +376,19 @@ func parse_regression_lists(coreArg, coresArg, setArg string, coreChanged, cores
 }
 
 func equalRegressionLists(a,b []string) bool { if len(a)!=len(b){return false}; for i:=range a{if a[i]!=b[i]{return false}};return true }
+
+func parse_regression_core_names(raw string) ([]string, error) {
+	parts := strings.Split(raw, ",")
+	seen := map[string]bool{}
+	cores := []string{}
+	for _, part := range parts {
+		core := strings.TrimSpace(part)
+		if !safe_manual_regression_name(core) { return nil, fmt.Errorf("--accept contains an empty or unsafe core name") }
+		if !seen[core] { seen[core] = true; cores = append(cores, core) }
+	}
+	sort.Strings(cores)
+	return cores, nil
+}
 
 func validate_explicit_regression_values(commitMode, coreChanged, coresChanged, setChanged bool, core, cores, set string) error {
 	if coreChanged && strings.TrimSpace(core)=="" || coresChanged && strings.TrimSpace(cores)=="" || setChanged && strings.TrimSpace(set)=="" {

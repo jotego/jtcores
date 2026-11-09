@@ -58,6 +58,70 @@ func AcceptResult(root, setname string) error {
 	if err != nil {
 		return err
 	}
+	return accept_curation_game(gameRoot)
+}
+
+// AcceptCoreResults promotes every pending game in each selected core.
+func AcceptCoreResults(root string, selectedCores []string) error {
+	if len(selectedCores) == 0 {
+		return fmt.Errorf("at least one core is required")
+	}
+	seen := map[string]bool{}
+	for _, core := range selectedCores {
+		if !safeComponent(core) || core == "log" {
+			return &CurationError{7, fmt.Errorf("unsafe core %q", core)}
+		}
+		if seen[core] { return fmt.Errorf("core %q was selected more than once", core) }
+		seen[core] = true
+	}
+	games := []string{}
+	for _, core := range selectedCores {
+		coreRoot := filepath.Join(root, core)
+		info, err := os.Lstat(coreRoot)
+		if os.IsNotExist(err) {
+			return fmt.Errorf("core folder does not exist: %s", coreRoot)
+		}
+		if err != nil {
+			return err
+		}
+		if info.Mode()&os.ModeSymlink != 0 || !info.IsDir() {
+			return fmt.Errorf("core path is not a real directory: %s", coreRoot)
+		}
+		entries, err := os.ReadDir(coreRoot)
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			if !entry.IsDir() || entry.Type()&os.ModeSymlink != 0 || !safeComponent(entry.Name()) {
+				continue
+			}
+			gameRoot := filepath.Join(coreRoot, entry.Name())
+			newExists, err := is_real_directory(filepath.Join(gameRoot, "new"))
+			if err != nil {
+				return err
+			}
+			failExists, err := is_real_directory(filepath.Join(gameRoot, "fail"))
+			if err != nil {
+				return err
+			}
+			if newExists || failExists {
+				games = append(games, gameRoot)
+			}
+		}
+	}
+	if len(games) == 0 {
+		return fmt.Errorf("selected cores have no pending new/ or fail/ captures")
+	}
+	sort.Strings(games)
+	for _, gameRoot := range games {
+		if err := accept_curation_game(gameRoot); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func accept_curation_game(gameRoot string) error {
 	newDir, failDir := filepath.Join(gameRoot, "new"), filepath.Join(gameRoot, "fail")
 	newExists, err := is_real_directory(newDir)
 	if err != nil {
