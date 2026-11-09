@@ -41,6 +41,8 @@
 module jtframe_hretime #(parameter
     DW    = 24,     // colour bus width
     DIV   = 8,      // clk cycles per input pixel
+    NUM   = DIV,    // exact input period NUM/DEN for fractional pixel enables
+    DEN   = 1,
     DIV_ALT_X2 = DIV << 1, // alternate pixel period in half-clocks (e.g. 9 = 4.5 clocks)
     STEP  = 64,     // scale denominator, must be a power of two
     DEPTH = 64,     // FIFO depth, must be a power of two
@@ -67,13 +69,14 @@ module jtframe_hretime #(parameter
 localparam MAXDIV = DIV > ((DIV_ALT_X2+1)>>1) ? DIV : ((DIV_ALT_X2+1)>>1),
            SLOG = $clog2(STEP),                  // log2(STEP), shift replaces divide
            AW   = $clog2(DEPTH),
-           ACCW = $clog2(MAXDIV*(STEP+8))+1,     // rate accumulator width
+           ACCW = $clog2((NUM > MAXDIV ? NUM : MAXDIV)*(STEP+8)+STEP*DEN)+1,
            PW   = SLOG+HW,                       // nactive * |scale| product width
            SDEP = 1<<$clog2((DEPTH*MAXDIV)/2+1), // sync delay line depth
            SAW  = $clog2(SDEP);
 localparam [ACCW:0] DIV_X2 = {DIV[ACCW-1:0], 1'b0}, ALT_X2 = DIV_ALT_X2[ACCW:0];
 localparam [HW+5:0] DLY_DIV_X2 = {DIV[HW+4:0], 1'b0}, DLY_ALT_X2 = DIV_ALT_X2[HW+5:0];
-localparam [HW:0] ALT_GUARD = DIV_ALT_X2 != (DIV<<1) ? 2 : 0;
+localparam [HW:0] ALT_GUARD = DIV_ALT_X2 != (DIV<<1) ? {{HW-1{1'b0}}, 2'd2} : {HW+1{1'b0}};
+localparam integer RATE_STEP = STEP*DEN;
 
 (* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:DEPTH-1];
 reg [DW-1:0] mem_rd;                    // registered M10K read output
@@ -92,16 +95,18 @@ reg  signed [3:0] scale_l=0;
 // effective scale: non-negative inputs get +1 so range is -8..+8 (skip 0)
 wire signed [4:0] escale = {scale_l[3], scale_l} + {4'd0, ~scale_l[3]};
 
-wire [ACCW-1:0] nxt = acc + STEP[ACCW-1:0];
+wire [ACCW-1:0] nxt = acc + RATE_STEP[ACCW-1:0];
 
 // 3-stage registered pipeline: scale→extra_px→sync_dly
 reg  [ ACCW-1:0] period;
 reg  [  HW-1:0] extra_px;
 reg  [ SAW-1:0] sync_dly;
 wire [ACCW-1:0] scale_step;
+wire [ACCW-1:0] scaled_period;
 wire [ACCW  :0] period_x2;
 wire [HW:0] shrink_prefill;
 assign scale_step = STEP[ACCW-1:0] + {{ACCW-5{escale[4]}}, escale};
+assign scaled_period = NUM[ACCW-1:0] * scale_step;
 assign period_x2 = div_alt_l ? ALT_X2 * {1'b0, scale_step} :
                               DIV_X2 * {1'b0, scale_step};
 // Alternating input pixel intervals can put the reader just ahead of a RAM
@@ -114,7 +119,7 @@ always @(posedge clk) begin : dly_pipe
     reg [HW+5:0]  dly_x2;
     reg [HW+3:0]  dly_h;
     absc = escale[4] ? -escale : escale;
-    period <= period_x2[ACCW:1];
+    period <= div_alt_l ? period_x2[ACCW:1] : scaled_period;
     prod = nactive * absc;
     extra_px <= prod[PW-1:SLOG];
     // uses registered extra_px, so sync_dly settles one clock after extra_px

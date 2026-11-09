@@ -29,9 +29,9 @@ module jtpopeye_colmix(
     output     [7:0] objpalh_addr,
     input      [3:0] objpalh_data,
 
-    output     [7:0] red,
-    output     [7:0] green,
-    output     [7:0] blue,
+    output     [2:0] red,
+    output     [2:0] green,
+    output     [2:0] blue,
     output           LHBL,
     output           LVBL,
     input      [3:0] gfx_en
@@ -45,7 +45,7 @@ localparam [1:0] NONE = 2'd0,
 wire        txt_on, obj_on, bak_on;
 wire [ 7:0] pull, txt_d, bg_d, obj_d, inv;
 wire [ 2:0] obj_bank;
-wire [23:0] rgb_in, rgb_out;
+wire [ 8:0] rgb_in, rgb_out;
 reg  [ 1:0] sel;
 reg  [ 7:0] pal;
 
@@ -60,7 +60,7 @@ assign bak_on       = hbd_n & ~vb & gfx_en[1];
 assign objpalh_addr = objpall_addr;
 assign pull         = ~pal;
 assign { red, green, blue } = rgb_out;
-assign rgb_in       = { {2{pull[2:0]}}, pull[2:1], {2{pull[5:3]}}, pull[5:4], {4{pull[7:6]}} };
+assign rgb_in       = { pull[2:0], pull[5:3], pull[7:6], pull[7] };
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -91,7 +91,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_blank #(.DLY(3),.DW(24)) u_blank(
+jtframe_blank #(.DLY(3),.DW(9)) u_blank(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .preLHBL    ( lhbl      ),

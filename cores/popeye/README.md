@@ -3,25 +3,31 @@
 FPGA implementation by Chris Watson of Nintendo TPP2 (Popeye), TPP1 (Japanese
 Popeye), the supported Popeye bootlegs and TNX1 (Sky Skipper). Jose Tejada's
 JTFRAME integration and schematic reference circuits retain their attribution.
-MiSTer uses the separate analog output and a full 448-line progressive HDMI
-picture. SiDi128, Pocket and Neptuno also use the full progressive picture.
-MiST and SiDi use each native 224-line field with the target's scan doubler to
-fit their smaller FPGA memory.
+All targets receive the PCB's native 10.08 MHz, 512-pixel-wide, 224-line
+interlaced field stream. The game module exports the original timing, blanking,
+RGB and field parity. The palette carries three red bits, three green bits and
+two blue bits. The colour mixer duplicates blue's MSB to fill the common
+three-bit RGB bus; JTFRAME expands those channels for each platform. JTFRAME
+also owns the target scan doubler, HDMI scaler, CRT position and horizontal
+retimer. MiST, SiDi, SiDi128 and NeptUNO use a 640-pixel line length for
+`jtframe_scan2x`.
 
 The board timing is preserved: a 20.16 MHz enable, 10.08/5.04 MHz video phases,
 4 MHz CPU and 2 MHz PSG, with 513 half-lines and alternating interlace phase.
 Measured field refresh is about 61.41 Hz (`JTFRAME_RATE=61.40`). MAME's 59.94 Hz
 is explicitly marked FIXME and is not a reason to retune the PCB counters.
-The progressive 512x448 path feeds the HDMI scaler; the separate interlaced
-path feeds analog/direct video. CRT deflicker, width and position controls act
-on that analog path. Monitor acceptance still needs hardware validation.
+The MiSTer analog output and HDMI scaler both receive the native fields;
+MiSTer's scaler receives the field flag. The framework's CRT H/V offsets and
+horizontal size controls operate downstream of the core. `jtframe_hretime`
+uses the exact 100/21 master clocks per native pixel on Popeye; its sync-delay
+estimate still uses the nearest integer divisor. Monitor acceptance remains
+to be checked on hardware.
 
-The MiSTer Video page shares the deflicker menu with CRT480I cores, but Popeye
-keeps its own interlaced analog generator. It blends adjacent source lines in a
-small line RAM: Low is 1:6:1 / 8, Mid is 3:10:3 / 16 and High is 1:2:1 / 4.
-The CRT480I converter uses 1:3:1 / 5 for Mid and also blends while stretching
-the image vertically. Popeye's separate CRT H/V position options move the
-analog picture; the framework CRT H/V offsets act on the progressive path.
+The former Popeye progressive doubler and analog reconstruction modules are
+excluded from the core's build. Their old unit tests remain as references for
+now. The shared CRT deflicker menu is not enabled for native field video: the
+current JTFRAME deflicker belongs to the progressive-to-interlaced CRT480I
+converter and cannot filter already interlaced fields correctly.
 
 `cfg/mame2mra.toml` documents the per-set header bits for ROM scrambling,
 bootleg protection and palette polarity, RAM decode, background nibble select
@@ -34,8 +40,10 @@ PROMs are excluded from parent-only validation.
 After sourcing `setprj.sh`, run `simunit-all.sh --only popeye`. All twelve block
 suites use generated inputs and pinned schematic models, with no private ROM
 or sibling repository dependency. Each suite README describes its assertions.
+`cfg/lint.vlt` waives two known width truncation warnings in the unchanged
+master `jt49_mave` used by Popeye sound; Quartus still reports those warnings.
 The shared MiSTer routing regression is under
-`modules/jtframe/ver/mister/split_video` and covers macro off/on, field routing,
+`modules/jtframe/ver/mister/split_video` and covers the native field flag,
 direct video, scaler/framebuffer overrides and RGB/component conversion.
 
 For a full boot, coin or start run, generate the ROMs and use a game folder:
@@ -74,12 +82,16 @@ with zero upper bits to support the standard ioctl byte interface, preserving
 read/write latency and separate nibble enables. `mmr.yaml` mirrors the live AY
 flip latch for capture; NOMAIN freezes the restored copy. NOSOUND retains PSG
 bus and DIP/flip I/O while removing the audio filters. NOMAIN grants video DMA
-the work RAM bus. DMA descriptors and all line/filter buffers rebuild normally;
+the work RAM bus. DMA descriptors and sprite buffers rebuild normally;
 none is restored from a MAME framebuffer.
 
 Set `JOTEGO` to the private support directory. Canonical dumps live under
 `$JOTEGO/scenes/popeye/<setname>/<frame>`. Run `ver/scene.sh <setname> <frame>`
-from the core folder for a download, restore and explicit snapshot comparison.
+from the core folder for a download, restore and field aware snapshot comparison.
+The check samples one field from MAME's double-height image, requires a
+nonblank output and limits mean RGB difference to under 12 levels. Dynamic
+gameplay scenes have a larger difference because the reference combines both
+fields while the core captures one.
 The maintained MAME scene worktree supports this payload; see `doc/scenes.md`.
 References and comparison images remain outside git.
 

@@ -15,8 +15,6 @@ popeye:
     - jtpopeye_objbuf.v
     - jtpopeye_obj.v
     - jtpopeye_colmix.v
-    - jtpopeye_dbl.v
-    - jtpopeye_ana.v
 jtframe:
   - from: cpu
     get:
