@@ -47,6 +47,14 @@ There are two modules used for this:
 
 Horizontal retiming keeps the line period fixed and adjusts the active window within it. H/V sync adjustment occurs before retiming.
 
+For a core with `JTFRAME_INTERLACED`, MiSTer measures sync at the source pixel
+enable and uses the VSync timing stored for the current field. `arcade_video`
+then samples VSync at every source pixel. These steps preserve the half-line
+phase and a constant field period, which the CRT needs to distinguish fields.
+Progressive cores keep their existing pixel-center enable and HSync-aligned
+VSync sampling. Run `cores/popeye/ver/crt_sync` and
+`modules/jtframe/ver/mister/arcade_interlace/sim.sh` to check both paths.
+
 The monitor may completely lose sync for some settings. Note that this is a secondary feature, which I cannot fully test, and receives less development attention.
 
 ## Analogue H size (jtframe_hretime)
