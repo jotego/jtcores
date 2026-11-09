@@ -5,6 +5,9 @@
 `define JTFRAME_SPLIT_VIDEO
 `define JTFRAME_INTERLACED
 `endif
+`ifdef NATIVE_INTERLACED
+`define JTFRAME_INTERLACED
+`endif
 module test;
 reg clk=0;always #5 clk=~clk;
 reg [15:0] cfg=0;
@@ -35,6 +38,8 @@ assign field=1;
 `endif
 assign split_r=8'hc1;assign split_g=8'h72;assign split_b=8'h23;
 assign split_hs=1;assign split_vs=0;assign split_de=1;assign split_ce=0;assign split_field=1;
+`elsif JTFRAME_INTERLACED
+assign field=1;
 `endif
 reg component=0;
 wire [23:0] analog_out;
@@ -65,6 +70,11 @@ initial begin
 `else
   if(vga_fb!==(cfg[12]|vga_force_scaler)||vga_scaler!==(cfg[2]|vga_force_scaler))$fatal(1,"legacy config");
   if({hr_out,hg_out,hb_out,hhs_fix,hvs_fix,ce_hpix,hde_emu}!=={24'h123456,4'b0111})$fatal(1,"legacy video");
+`ifdef JTFRAME_INTERLACED
+  if(VGA_F1!==1 || hdmi_f1!==1)$fatal(1,"native field to VGA and HDMI");
+`else
+  if(VGA_F1!==0 || hdmi_f1!==0)$fatal(1,"progressive field clear");
+`endif
 `endif
  end
  cfg=0;repeat(5)@(negedge clk);

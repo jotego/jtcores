@@ -328,16 +328,14 @@ localparam B0 = 0;
 
 wire [COLW*3-1:0] dim = { 1'b0, rgb_d3[R1:R0+1], 1'b0, rgb_d3[G1:G0+1], 1'b0, rgb_d3[B1:B0+1] };
 
-// COLW must be >= 4
-reg [7:0] b;
-
 function [COLW*3-1:0] extend;
     input [11:0] rgb4;
+    reg [7:0] r, g, b;
     begin
+        r = {2{rgb4[11:8]}};
+        g = {2{rgb4[ 7:4]}};
         b = {2{rgb4[3:0]}};
-        extend[COLW*3-1-:8] = {2{rgb4[11:8]}};
-        extend[COLW*2-1-:8] = {2{rgb4[ 7:4]}};
-        extend[COLW*1-1: 0] = b[7-:COLW];
+        extend = {r[7-:COLW], g[7-:COLW], b[7-:COLW]};
     end
 endfunction
 

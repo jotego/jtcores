@@ -1,0 +1,5 @@
+`verilator_config
+
+// jt12 master jt49_mave intentionally discards the carry from its accumulator.
+lint_off -rule WIDTHTRUNC -file "*jt49_mave.v" -match "*Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's REPLICATE generates 13 bits.*"
+lint_off -rule WIDTHTRUNC -file "*jt49_mave.v" -match "*Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's ADD generates 13 bits.*"

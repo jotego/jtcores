@@ -1464,6 +1464,10 @@ assign hsize_enable = VGA_HSIZE[4] & ~hsize_off;
 
 jtframe_hretime #(
 	.DIV  (`JTFRAME_HSIZE_DIV  ),
+`ifdef JTFRAME_HSIZE_NUM
+	.NUM  (`JTFRAME_HSIZE_NUM  ),
+	.DEN  (`JTFRAME_HSIZE_DEN  ),
+`endif
 `ifdef JTFRAME_CRT480I
 `ifdef JTFRAME_SDRAM96
 	.DIV_ALT_X2(18), // 96 MHz / 10.67 MHz = 9 clocks per converted pixel

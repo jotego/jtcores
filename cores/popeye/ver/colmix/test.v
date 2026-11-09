@@ -25,7 +25,7 @@ wire [ 7:0] objpall_addr, objpalh_addr;
 wire [ 7:0] txtpal_data, bgpal_data, objpall_q, objpalh_q;
 wire [ 3:0] objpall_data = objpall_q[3:0];
 wire [ 3:0] objpalh_data = objpalh_q[3:0];
-wire [ 7:0] red, green, blue;
+wire [ 2:0] red, green, blue;
 wire        LHBL, LVBL;
 
 reg  [ 7:0] p3a[0:31], p4a[0:31], p5a[0:255], p5b[0:255];
@@ -34,7 +34,7 @@ integer     fd, nrd;
 integer     errors=0, checks=0, npix=0, nvis=0, i;
 integer     hit_txt=0, hit_obj=0, hit_bak=0, hit_none=0, hit_blank=0;
 reg         seen3a[0:31], seen4a[0:31], seen5b[0:255];
-reg  [23:0] exp_rgb[0:3];
+reg  [ 8:0] exp_rgb[0:3];
 reg         exp_hb[0:3], exp_vb[0:3];
 reg         run=0, compare2020=0;
 
@@ -159,15 +159,15 @@ jtpopeye_colmix_2020 u_2020(
     .blue       ( b2020         )
 );
 
-// The 2020 core's colours: the inverted 3/3/2 PROM bits widened by bit repetition
-function [23:0] pal_rgb( input [7:0] d );
-    pal_rgb = { {2{~d[2:0]}}, ~d[2:1], {2{~d[5:3]}}, ~d[5:4], {4{~d[7:6]}} };
+// The PCB's inverted 3/3/2 PROM bits, before platform colour expansion.
+function [8:0] pal_rgb( input [7:0] d );
+    pal_rgb = { ~d[2:0], ~d[5:3], ~d[7:6], ~d[7] };
 endfunction
 
 reg        t_n, cs3a_n, cs4a_n, cs5b1, cs5b2, en5b, spr;
 reg  [7:0] dnode;
 reg  [1:0] objv_e;
-reg [23:0] ref_rgb;
+reg [ 8:0] ref_rgb;
 
 always @* begin
     t_n    = gfx_en[0] ? txtv : 1'b1;
@@ -179,14 +179,14 @@ always @* begin
     cs5b2  = ~t_n;
     en5b   = ~cs5b1 & ~cs5b2;
     dnode  = 8'hff;
-    ref_rgb= 24'd0;
+    ref_rgb= 9'd0;
     if( !cs3a_n ) ref_rgb = pal_rgb( p3a[{txtc[3],txtc}] );
     if( en5b    ) ref_rgb = pal_rgb( { p5a[{obj_c,obj_v}][3:0], p5b[{obj_c,obj_v}][3:0] } );
     if( !cs4a_n ) ref_rgb = pal_rgb( p4a[bakc] );
 end
 
 always @(posedge clk) if( cen10 && run ) begin
-    exp_rgb[0] <= (lhbl & lvbl) ? ref_rgb : 24'd0;
+    exp_rgb[0] <= (lhbl & lvbl) ? ref_rgb : 9'd0;
     exp_hb[0]  <= lhbl;
     exp_vb[0]  <= lvbl;
     for( i=1; i<4; i=i+1 ) begin
@@ -208,7 +208,7 @@ always @(negedge clk) if( cen10 && run && npix>4 ) begin
     checks = checks+1;
     if( {red,green,blue} !== exp_rgb[2] || LHBL !== exp_hb[2] || LVBL !== exp_vb[2] ) begin
         errors = errors+1;
-        if( errors<20 ) $display("ERROR pix %0d: rgb %06X LHBL %b LVBL %b, expected %06X %b %b",
+        if( errors<20 ) $display("ERROR pix %0d: rgb %03X LHBL %b LVBL %b, expected %03X %b %b",
             npix, {red,green,blue}, LHBL, LVBL, exp_rgb[2], exp_hb[2], exp_vb[2]);
     end
 end

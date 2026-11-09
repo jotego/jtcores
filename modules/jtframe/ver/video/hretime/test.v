@@ -19,8 +19,15 @@ localparam DIV=8, ALT_X2=9, MODES=3;
 localparam DIV=12;
 `elsif HRETIME_DIV16
 localparam DIV=16;
+`elsif HRETIME_POPEYE
+localparam DIV=5;
 `else
 localparam DIV=8;
+`endif
+`ifdef HRETIME_POPEYE
+localparam NUM=100, DEN=21;
+`else
+localparam NUM=DIV, DEN=1;
 `endif
 `ifndef HRETIME_CRT480I
 `ifndef HRETIME_CRT480I48
@@ -37,6 +44,7 @@ localparam TOL=3*MAXDIV;   // 3 pixels
 reg               clk=0;
 reg  [      31:0] tick=0;
 reg  [       7:0] divcnt=0;
+reg  [       4:0] pixel_phase=0;
 reg               div_alt=0, pixel_alt=0;
 reg  [       9:0] hcnt=0, vcnt=0;
 reg               ce_in=0, enable=0, check_en=0;
@@ -58,6 +66,9 @@ assign source_x2 = div_alt ? ALT_X2 : DIV<<1;
 assign pixel_last = div_alt ? (pixel_alt ? 8'd9 : 8'd7) : DIV-1;
 `elsif HRETIME_CRT480I48
 assign pixel_last = div_alt ? (pixel_alt ? 8'd4 : 8'd3) : DIV-1;
+`elsif HRETIME_POPEYE
+assign pixel_last = pixel_phase==4 || pixel_phase==8 || pixel_phase==12 ||
+                    pixel_phase==16 || pixel_phase==20 ? 8'd3 : 8'd4;
 `else
 assign pixel_last = DIV-1;
 `endif
@@ -71,6 +82,7 @@ always @(posedge clk) begin
         divcnt <= 0;
         ce_in  <= 1;
         pixel_alt <= ~pixel_alt;
+        pixel_phase <= pixel_phase==20 ? 0 : pixel_phase+1'b1;
     end else begin
         divcnt <= divcnt+1'b1;
     end
@@ -81,7 +93,7 @@ always @(posedge clk) if( ce_in ) begin
     if( hcnt==HTOTAL-1 ) vcnt <= vcnt==VTOTAL-1 ? 10'd0 : vcnt+1'd1;
 end
 
-jtframe_hretime #(.DIV(DIV),.DIV_ALT_X2(ALT_X2),.DEPTH(DEPTH)) uut(
+jtframe_hretime #(.DIV(DIV),.NUM(NUM),.DEN(DEN),.DIV_ALT_X2(ALT_X2),.DEPTH(DEPTH)) uut(
     .clk    ( clk       ),
     .ce_in  ( ce_in     ),
     .enable ( enable    ),
@@ -126,8 +138,13 @@ always @(posedge clk) begin
         if( check_en && vcnt<VACTIVE && got>0 ) begin
             span     = t_last-t_first;
             ctr      = tick-((t_first+t_last)/2);
-            exp_span = ((HACTIVE-1)*source_x2*(STEP+sc))/(STEP<<1);
-            exp_ctr  = ((2*(HACTIVE+FP)-(HACTIVE-1))*source_x2)/4;
+            if( div_alt ) begin
+                exp_span = ((HACTIVE-1)*source_x2*(STEP+sc))/(STEP<<1);
+                exp_ctr  = ((2*(HACTIVE+FP)-(HACTIVE-1))*source_x2)/4;
+            end else begin
+                exp_span = ((HACTIVE-1)*NUM*(STEP+sc))/(STEP*DEN);
+                exp_ctr  = ((2*(HACTIVE+FP)-(HACTIVE-1))*NUM)/(2*DEN);
+            end
             if( got!=HACTIVE ) begin
                 $display("scale %0d: %0d pixels out, expected %0d",sc,got,HACTIVE);
                 errs = errs+1;

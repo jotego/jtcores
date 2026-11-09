@@ -22,15 +22,12 @@ wire [ 3:0] dmcs_n;
 wire        reset_n, busrq_n, busak_n, dma_cs, rohvs, rohvck,
             csv, csbw_n, dwrbk_n, memwr0, bdir, bc1,
             prot_cs, prot_we, prot_addr,
-            vb, hbd_n, ai_n, bi_n, initeo, rv, narrow,
+            vb, hbd_n, ai_n, bi_n, initeo, rv,
             tpp1rom, boot, tpp1ram, nibd7, tnx1;
 wire [ 3:0] sw1;
 wire [ 7:0] sw2;
 wire [ 1:0] cpyr;
-wire [ 1:0] deflicker;
-wire [ 5:0] hpos;
-wire [ 4:0] vpos;
-wire [ 7:0] video_r, video_g, video_b;
+wire [ 2:0] video_r, video_g, video_b;
 
 `ifdef NOMAIN
 assign rv = scene_rv;
@@ -41,13 +38,9 @@ assign dip_flip     = rv;
 assign sw1          = dipsw[3:0];
 assign sw2          = dipsw[11:4];
 assign cpyr         = dipsw[13:12];
-assign deflicker    = status[31:30];
-assign narrow       = status[18];
-assign vpos         = status[23:19];
-assign hpos         = status[29:24];
-assign red          = video_r[7 -: `JTFRAME_COLORW];
-assign green        = video_g[7 -: `JTFRAME_COLORW];
-assign blue         = video_b[7 -: `JTFRAME_COLORW];
+assign red          = video_r;
+assign green        = video_g;
+assign blue         = video_b;
 assign blprotl_addr = blprot_addr;
 assign blproth_addr = blprot_addr;
 assign blprot_data  = { blproth_data, blprotl_data };
@@ -210,25 +203,14 @@ jtpopeye_video u_video(
     .nibd7        ( nibd7        ),
     .boot         ( boot         ),
     .tnx1         ( tnx1         ),
-    .deflicker    ( deflicker    ),
-    .narrow       ( narrow       ),
-    .hpos         ( hpos         ),
-    .vpos         ( vpos         ),
+    .field        ( field        ),
     .HS           ( HS           ),
     .VS           ( VS           ),
     .LHBL         ( LHBL         ),
     .LVBL         ( LVBL         ),
     .red          ( video_r      ),
     .green        ( video_g      ),
-    .blue         ( video_b      ),
-    .split_r      ( split_r      ),
-    .split_g      ( split_g      ),
-    .split_b      ( split_b      ),
-    .split_hs     ( split_hs     ),
-    .split_vs     ( split_vs     ),
-    .split_de     ( split_de     ),
-    .split_ce     ( split_ce     ),
-    .split_field  ( split_field  )
+    .blue         ( video_b      )
 );
 
 jtpopeye_sound u_sound(

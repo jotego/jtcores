@@ -540,10 +540,10 @@ func set_hsize_params(mclk int) {
 }
 
 func check_colorw() {
-	// Do not accept less than 4bpp
+	// Three-bit channels are supported; targets expand them as needed.
 	colorw, _ := strconv.Atoi(Get("JTFRAME_COLORW"))
-	if colorw < 4 || colorw > 8 {
-		log.Fatal("JTFRAME: macro JTFRAME_COLORW must be between 4 and 8")
+	if colorw < 3 || colorw > 8 {
+		log.Fatal("JTFRAME: macro JTFRAME_COLORW must be between 3 and 8")
 	}
 }
 

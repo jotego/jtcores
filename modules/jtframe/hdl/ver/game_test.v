@@ -555,6 +555,9 @@ u_game(
     .LVBL        ( LVBL           ),
     .HS          ( HS             ),
     .VS          ( VS             ),
+`ifdef JTFRAME_INTERLACED
+    .field       (                ),
+`endif
 `ifdef JTFRAME_SPLIT_VIDEO
     .split_r     (                ),
     .split_g     (                ),

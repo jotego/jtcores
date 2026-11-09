@@ -176,6 +176,9 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .LVBL           ( LVBL          ),
     .HS             ( HS            ),
     .VS             ( VS            ),
+`ifdef JTFRAME_INTERLACED
+    .field          ( field         ),
+`endif
 `ifdef JTFRAME_SPLIT_VIDEO
     .split_r        ( split_r       ),
     .split_g        ( split_g       ),

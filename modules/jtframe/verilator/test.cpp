@@ -663,6 +663,7 @@ class JTSim {
             case 6: return (c<<2) | ((c>>3)&3);
             case 5: return (c<<3) | ((c>>2)&7);
             case 4: return (c<<4) | c;
+            case 3: return (c<<5) | (c<<2) | (c>>1);
             default: return c;
         }
     }

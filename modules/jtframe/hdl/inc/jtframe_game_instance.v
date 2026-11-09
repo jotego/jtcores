@@ -71,7 +71,12 @@ u_game(
     .LVBL        ( LVBL           ),
     .HS          ( hs             ),
     .VS          ( vs             ), `ifdef JTFRAME_INTERLACED
-    .field       ( field          ), `endif
+`ifdef MISTER
+    .field       ( field          ),
+`else
+    .field       (                ),
+`endif
+`endif
 `ifdef JTFRAME_SPLIT_VIDEO `ifdef MISTER
     .split_r     ( split_r        ), .split_g     ( split_g        ),
     .split_b     ( split_b        ), .split_hs    ( split_hs       ),

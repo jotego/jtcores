@@ -19,7 +19,7 @@ JTFRAME_CHEAT            |         | Enables the [cheat engine](cheat.md)
 JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
 JTFRAME_CLK24            |         | Adds an additional clock input
 JTFRAME_CLK48            |         | Adds an additional clock input
-JTFRAME_COLORW           |         | Sets the number of bits per color component (default=4)
+JTFRAME_COLORW           |         | Sets the number of bits per color component (3–8; default=4)
 JTFRAME_CRT480I          | MiSTer  | Includes the 15 kHz interlaced analog converter, selected by [core_mod bit 18](core_mod.md#interlaced-analog-video). Select games with `[video].interleaved_MRAs` in mame2mra.toml to generate separate interlaced MRAs
 JTFRAME_CRT480I_RING     | MiSTer  | Source-line buffer depth for JTFRAME_CRT480I (default=96; NARC uses 128)
 JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
@@ -33,9 +33,10 @@ JTFRAME_HEADER           |         | Set to the length of the ROM file header (d
 JTFRAME_HEIGHT           |         | Sets the video height
 JTFRAME_HSIZE_STEP       | MiSTer  | Size change per OSD step, as 1/STEP. Power of two, 64 (1.6%) by default
 JTFRAME_HSIZE_DIV        | MiSTer  | clk-to-pixel ratio used by jtframe_hretime; derived from JTFRAME_PXLCLK. Define explicitly for custom pixel clocks; missing both macros warns (except ngp/ngpc)
+JTFRAME_HSIZE_NUM/DEN    | MiSTer  | Exact rational clk-to-pixel period for jtframe_hretime when the source pixel enable is fractional; define both with JTFRAME_HSIZE_DIV set to the nearest integer for the sync-delay estimate
 JTFRAME_HSIZE_DEPTH      | MiSTer  | Automatic. Elastic FIFO depth used by jtframe_hretime
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
-JTFRAME_INTERLACED       |         | Support for interlaced games
+JTFRAME_INTERLACED       |         | Add a field output to the game and SDRAM wrapper; MiSTer forwards it to analog VGA and the HDMI scaler
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer
 JTFRAME_JOY1_POS         |         | Joystick 1 can be mapped to a different player (see TMNT core)
 JTFRAME_JOY_DURL         |         | Joystick lower 4 bits are:  down,  up,    right, left
@@ -100,6 +101,7 @@ JTFRAME_RFSH_M           |         | Automatic. Used by SDRAM refresh in jtframe
 JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
+JTFRAME_SCAN2X_HLEN      | MiST    | Total line length for jtframe_scan2x when it exceeds the visible JTFRAME_WIDTH; also used by SiDi, SiDi128 and NeptUNO
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
 JTFRAME_SDRAM_XL         | MiSTer  | Enables 128MB SDRAM
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz

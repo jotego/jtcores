@@ -65,14 +65,18 @@ module jtframe_mist_video #(parameter
     output             sd_cke
 );
 `ifdef SIMULATION
+localparam CSHIFT = COLORW >= VGA_DW ? COLORW-VGA_DW : VGA_DW-COLORW;
 always @* begin
     video_hs = game_hs;
     video_vs = game_vs;
 end
 
-assign video_r = game_rgb[3*VGA_DW-1-:COLORW];
-assign video_g = game_rgb[2*VGA_DW-1-:COLORW];
-assign video_b = game_rgb[  VGA_DW-1-:COLORW];
+assign video_r = COLORW >= VGA_DW ? game_rgb[3*COLORW-1-:COLORW] >> CSHIFT :
+                                  game_rgb[3*COLORW-1-:COLORW] << CSHIFT;
+assign video_g = COLORW >= VGA_DW ? game_rgb[2*COLORW-1-:COLORW] >> CSHIFT :
+                                  game_rgb[2*COLORW-1-:COLORW] << CSHIFT;
+assign video_b = COLORW >= VGA_DW ? game_rgb[  COLORW-1-:COLORW] >> CSHIFT :
+                                  game_rgb[  COLORW-1-:COLORW] << CSHIFT;
 `else
 // Limited bandwidth for video signal
 localparam CLROUTW = COLORW < 5 ? COLORW+1 : COLORW;
@@ -130,8 +134,15 @@ wire scan2x_hsin = bw_en ?  hs_ana   :  game_hs;
 wire scan2x_hbin = bw_en ? ~lhbl_ana : ~game_lhbl;
 wire scan2x_vbin = bw_en ? ~lvbl_ana : ~game_lvbl;
 
-// Note that VIDEO_WIDTH must include blanking for jtframe_scan2x
-jtframe_scan2x #(.COLORW(CLROUTW), .HLEN(VIDEO_WIDTH)) u_scan2x(
+// HLEN must span the whole line; cores with a wider blanked line can set
+// JTFRAME_SCAN2X_HLEN while keeping JTFRAME_WIDTH at the visible width.
+jtframe_scan2x #(.COLORW(CLROUTW),
+`ifdef JTFRAME_SCAN2X_HLEN
+    .HLEN(`JTFRAME_SCAN2X_HLEN)
+`else
+    .HLEN(VIDEO_WIDTH)
+`endif
+) u_scan2x(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .pxl_cen    ( pxl_cen        ),
