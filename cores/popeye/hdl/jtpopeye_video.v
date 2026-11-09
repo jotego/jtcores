@@ -89,6 +89,7 @@ wire        hs_raw, lvbl_raw;
 wire        hb, h20, lhbl, txtv, bakc4, vhalf, initeo_a, initeo_b, fsel, dd7, do16,
             vs_raw;
 reg  [ 2:0] hs_pipe, vs_pipe;
+reg         hb_l, obj_fld;
 
 assign char_ad   = ad[11:0];
 assign dd_lo     = dd[3:0];
@@ -113,6 +114,16 @@ always @(posedge clk) begin
     end else if( cen10 ) begin
         hs_pipe <= { hs_pipe[1:0], hs_raw };
         vs_pipe <= { vs_pipe[1:0], vs_raw };
+    end
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        hb_l    <= 0;
+        obj_fld <= 0;
+    end else begin
+        hb_l <= hb;
+        if( hb && !hb_l ) obj_fld <= vhalf;
     end
 end
 
@@ -266,8 +277,8 @@ jtpopeye_obj u_objb(
     .obj_c      ( obj_clob  )
 );
 
-assign mix_obj_v = vhalf ? obj_v : obj_vb;
-assign mix_obj_c = { obj_chi, vhalf ? obj_clo : obj_clob };
+assign mix_obj_v = obj_fld ? obj_vb : obj_v;
+assign mix_obj_c = { obj_chi, obj_fld ? obj_clob : obj_clo };
 
 jtpopeye_colmix u_colmix(
     .rst          ( rst          ),
