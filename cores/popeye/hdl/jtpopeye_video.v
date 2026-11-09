@@ -266,8 +266,8 @@ jtpopeye_obj u_objb(
     .obj_c      ( obj_clob  )
 );
 
-assign mix_obj_v = vhalf ? obj_vb : obj_v;
-assign mix_obj_c = { obj_chi, vhalf ? obj_clob : obj_clo };
+assign mix_obj_v = vhalf ? obj_v : obj_vb;
+assign mix_obj_c = { obj_chi, vhalf ? obj_clo : obj_clob };
 
 jtpopeye_colmix u_colmix(
     .rst          ( rst          ),

@@ -20,8 +20,12 @@ The MiSTer analog output and HDMI scaler both receive the native fields;
 MiSTer's scaler receives the field flag. The framework's CRT H/V offsets and
 horizontal size controls operate downstream of the core. `jtframe_hretime`
 uses the exact 100/21 master clocks per native pixel on Popeye; its sync-delay
-estimate still uses the nearest integer divisor. Monitor acceptance remains
-to be checked on hardware.
+estimate still uses the nearest integer divisor. MiSTer CRT testing confirmed
+field lock and aligned objects. The MiSTer path measures sync at the native
+pixel rate and samples VSync at every pixel. The resync module selects timing from
+the current field; selecting the preceding field shifted alternating VSync
+edges by half a line and changed successive field lengths by a full line.
+The PCB's constant 256.5-line field period must survive the framework.
 
 The former Popeye progressive doubler and analog reconstruction modules are
 excluded from the core's build. Their old unit tests remain as references for
@@ -45,6 +49,9 @@ master `jt49_mave` used by Popeye sound; Quartus still reports those warnings.
 The shared MiSTer routing regression is under
 `modules/jtframe/ver/mister/split_video` and covers the native field flag,
 direct video, scaler/framebuffer overrides and RGB/component conversion.
+`ver/crt_sync` checks the PCB timing PROM through `jtframe_resync`, while
+`modules/jtframe/ver/mister/arcade_interlace/sim.sh` checks half-line VSync
+through MiSTer's actual video mixer.
 
 For a full boot, coin or start run, generate the ROMs and use a game folder:
 
@@ -117,3 +124,9 @@ line schedule and does not preserve these relationships directly. Retain this
 schematic implementation and its independent pixel/phase tests until a shared
 helper can express those semantics. The custom half-line timer is necessary
 for the same reason.
+
+The native field mixer selects object path A for `vhalf=1` and B for `vhalf=0`.
+The old progressive doubler has its own delayed row selection and cannot supply
+the native mux order. With the opposite native selection, the thin heart-box
+grid in scene `popeye/2000` lands on different vertical rows in alternating
+fields; the current order interleaves on MAME's full-height rows.

@@ -267,6 +267,11 @@ wire [ 7:0] mouse_f;
 wire        mouse_st;
 
 wire        hs_resync, vs_resync;
+`ifdef JTFRAME_INTERLACED
+localparam INTERLACED_VIDEO = 1;
+`else
+localparam INTERLACED_VIDEO = 0;
+`endif
 
 // Horizontal scaling for CRT
 wire        hsize_enable;
@@ -434,8 +439,9 @@ always @(posedge clk_sys) begin
     framebuf_flip <= status[39:38]==2;
 end
 
-// this places the pxl1_cen in the pixel centre
-always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
+// Native fields use the source pixel enable. The double-pixel enable has a
+// different phase and would make sync measurements run at twice the pixel rate.
+always @(posedge clk_sys) pxl1_cen <= INTERLACED_VIDEO ? pxl_cen : pxl2_cen & ~pxl_cen;
 
 
 jtframe_mister_dwnld u_dwnld(
@@ -690,7 +696,7 @@ generate
 endgenerate
 
 // VIDEO_WIDTH does not include blanking:
-arcade_video #(.WIDTH(VIDEO_WIDTH),.DW(VIDEO_DW))
+arcade_video #(.WIDTH(VIDEO_WIDTH),.DW(VIDEO_DW),.INTERLACED(INTERLACED_VIDEO))
 u_arcade_video(
     .clk_video  ( clk_sys       ),
     .ce_pix     ( pxl_cen       ),
