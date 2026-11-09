@@ -131,7 +131,12 @@ lint_uut() {
 	if [[ $macro != *JTFRAME_MCLK* ]]; then
 		macro="$macro -DJTFRAME_MCLK=48000000"
 	fi
-	verilator --quiet --lint-only -Wno-TIMESCALEMOD -f $GATHER --top-module $top $macro
+	# Core unit tests use the same narrow lint waivers as lint-one.sh.
+	local lint_config=
+	if [ -f ../../cfg/lint.vlt ]; then
+		lint_config=../../cfg/lint.vlt
+	fi
+	verilator --quiet --lint-only -Wno-TIMESCALEMOD -f $GATHER --top-module $top $macro $lint_config
 }
 
 get_top_module() {
