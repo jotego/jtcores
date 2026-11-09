@@ -310,6 +310,18 @@ wire [10:0] db_vram_char_index;
 
 // There are two tilemaps and one object layer on this board. The conventional
 // JTFRAME fixed-layer bit [0] has no corresponding independent GX400 source.
+wire [7:0] h1_n_edge_8;
+wire [7:0] u19g_clk_edge_8;
+wire [11:0] h2_n_edge_12;
+wire [13:0] champx2_edge_14;
+wire [31:0] obj_buff_cas_edge_32;
+
+assign h1_n_edge_8 = {8{h1_n}};
+assign u19g_clk_edge_8 = {8{u19g_clk}};
+assign h2_n_edge_12 = {12{h2_n}};
+assign champx2_edge_14 = {14{champx2}};
+assign obj_buff_cas_edge_32 = {32{obj_buff_cas}};
+
 assign tm_a_visible = tm_a_px_trans & gfx_en[1];
 assign tm_b_visible = tm_b_px_trans & gfx_en[2];
 assign rst_n = ~rst;
@@ -706,7 +718,6 @@ jtnemsis_k5291 u_5291(
     .h256_n             ( h256_n             ),
     .h128a              ( h128a             ),
 
-	.cpu_addr_bus       ( cpu_addr[12:1]        ),
 	.scroll_data_bus    ( scroll_gfx_dout ),
 
 	// outputs
@@ -721,14 +732,16 @@ jtnemsis_k5291 u_5291(
 // ** [LS273] @ 12B                **
 // ** Hex D Flip-Flop              **
 // ** [LS174] @ 13C                **
-jtnemsis_bus_ff #( .W( 12 ) )
-u_tile_addr_ff(
-	.rst     ( rst         ),
-	.clk     ( clk          ),
-	.trig    ( h2_n          ),
-	.d       ( tile_addr_d ),
-	.q       ( tile_addr_q ),
-	.q_n     (                 )
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) u_tile_addr_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tile_addr_d ),
+    .q       ( tile_addr_q ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( h2_n_edge_12 )
 );
 
 // Implement RAS/CAS on CHARRAM with external flip-flop on CAS,
@@ -740,14 +753,16 @@ u_tile_addr_ff(
 //
 // ** 2 x Quad 2-Input Multiplexer **
 // ** [LS157] @ 11A–B              **
-jtnemsis_bus_ff #( .W( 14 ) )
-u_oca_ras_cas_ff(
-	.rst     ( rst        ),
-	.clk     ( clk         ),
-	.trig    ( champx2        ), // cas_n = ~CHAMPX delayed -> cas = CHAMPX delayed
-	.d       ( char_addr_mux ),
-	.q       ( char_gfx_addr[15:2] ),
-	.q_n     (                )
+jtframe_ff #( .W( 14 ), .EDGE_RESET( 1'b1 ) ) u_oca_ras_cas_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_addr_mux ),
+    .q       ( char_gfx_addr[15:2] ),
+    .qn      (  ),
+    .set     ( 14'd0 ),
+    .clr     ( 14'd0 ),
+    .sigedge ( champx2_edge_14 )
 );
 
 // ** Custom chip Konami Tile Shifter **
@@ -851,26 +866,30 @@ obj_clr_we_gen
 
 // ** Octal D Flip-Flop With Clear **
 // ** [LS374] @ 19G                **
-jtnemsis_bus_ff #( .W( 8 ) )
-u_obj_pri_ff(
-	.rst     ( rst          ),
-	.clk     ( clk           ),
-	.trig    ( u19g_clk         ),
-	.d       ( obj_gfx_dout  ),
-	.q       ( obj_pri          ),
-	.q_n     (                  )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) u_obj_pri_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( obj_gfx_dout ),
+    .q       ( obj_pri ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( u19g_clk_edge_8 )
 );
 
 // ** Octal D flip-flop **
 // ** [LS374] @ 17G     **
-jtnemsis_bus_ff #( .W( 8 ) )
-u_obj_din_ff(
-	.rst     ( rst          ),
-	.clk     ( clk           ),
-	.trig    ( h1_n           ),
-	.d       ( obj_gfx_dout  ),
-	.q       ( obj_table_din    ),
-	.q_n     (                  )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) u_obj_din_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( obj_gfx_dout ),
+    .q       ( obj_table_din ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( h1_n_edge_8 )
 );
 
 // ** 2k x 8bit Static RAM **
@@ -952,14 +971,16 @@ jtnemsis_k5294 u_5294
 
 // Implement RAS/CAS on object buffers with external flip-flop on CAS.
 
-jtnemsis_bus_ff #( .W( 32 ) )
-u_obj_buffer_ras_cas_ff(
-	.rst     ( rst        ),
-	.clk     ( clk         ),
-	.trig    ( obj_buff_cas   ),
-	.d       ( obj_buffer_addr_d ),
-	.q       ( obj_buffer_addr_q ),
-	.q_n     (                )
+jtframe_ff #( .W( 32 ), .EDGE_RESET( 1'b1 ) ) u_obj_buffer_ras_cas_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( obj_buffer_addr_d ),
+    .q       ( obj_buffer_addr_q ),
+    .qn      (  ),
+    .set     ( 32'd0 ),
+    .clr     ( 32'd0 ),
+    .sigedge ( obj_buff_cas_edge_32 )
 );
 
 // ** 8 x 64k x 1bit Dynamic RAM              **

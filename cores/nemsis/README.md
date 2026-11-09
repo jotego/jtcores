@@ -82,7 +82,7 @@ The volume table that models the switched resistor ladders at the output of the 
 
 The color-RAM lookup table is calculated by `tools/resnet_colmix.cpp`, adapted from MAME's `resnet.cpp` with the Nemesis network values. Its measured byte values are checked in as `hdl/colmix.hex`.
 
-The two AY-3-8910 channels use core-local `jtnemsis_jt49` copies so the Nemesis transfer curve stays scoped to this core. JTFRAME's standard `audio.yaml` mixer combines those 10-bit AY sources with the two 8-bit K005289 PROM outputs. The switched 4.7 µF capacitor C23 is modeled as an equivalent low-pass pole shared by the outputs. Its source resistance is an estimate; the variable output-volume control load is ignored because its setting is not fixed, so the exact low-frequency response can differ from a particular PCB.
+Both AY-3-8910 chips use the shared JT49 implementation with `COMP=3'd6`, selecting the Nemesis output curve measured by Olivier Scherler on an original PCB. JT49 sums each chip's three channels into one unsigned 10-bit output. JTFRAME's standard `audio.yaml` mixer combines the two AY sums with the two 8-bit K005289 PROM outputs. The switched 4.7 µF capacitor C23 is modeled as an equivalent low-pass pole shared by the outputs. Its source resistance is an estimate; the variable output-volume control load is ignored because its setting is not fixed, so the exact low-frequency response can differ from a particular PCB.
 
 ## Known Issues
 

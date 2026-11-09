@@ -89,6 +89,24 @@ wire [1:0] pri_tmb_3;
 wire [6:0] color_tmb_3;
 `endif
 
+wire [9:0] h2_clkd_edge_10;
+wire [9:0] h4_clkd_edge_10;
+wire [9:0] shift_b_clkd_edge_10;
+wire [10:0] shift_a2_clkd_edge_11;
+wire [11:0] h2_clkd_edge_12;
+wire [11:0] h4_clkd_edge_12;
+wire [11:0] shift_a1_clkd_edge_12;
+wire [15:0] h1_n_edge_16;
+
+assign h2_clkd_edge_10 = {10{h2_clkd}};
+assign h4_clkd_edge_10 = {10{h4_clkd}};
+assign shift_b_clkd_edge_10 = {10{shift_b_clkd}};
+assign shift_a2_clkd_edge_11 = {11{shift_a2_clkd}};
+assign h2_clkd_edge_12 = {12{h2_clkd}};
+assign h4_clkd_edge_12 = {12{h4_clkd}};
+assign shift_a1_clkd_edge_12 = {12{shift_a1_clkd}};
+assign h1_n_edge_16 = {16{h1_n}};
+
 `ifdef SIMULATION
 assign pri_tma_1 = { tm_a_4hd_latched[10], tm_a_4hd_latched[11], tm_a_4hd_latched[9], tm_a_4hd_latched[8] };
 assign color_tma_1 = tm_a_4hd_latched[6:0];
@@ -153,76 +171,100 @@ always @(posedge clk ) if( pxl_cen ) begin
 end
 
 // Registered tile, object, and priority-chip instances.
-jtnemsis_bus_ff #( .W( 12 ) ) u_tm_a_4hd_ff(
-	.rst     ( rst            ),
-	.clk     ( clk            ),
-	.trig    ( h4_clkd       ),
-	.d       ( tm_a_4hd_data ),
-	.q       ( tm_a_4hd_latched ),
-	.q_n     (                  )
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) u_tm_a_4hd_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_a_4hd_data ),
+    .q       ( tm_a_4hd_latched ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( h4_clkd_edge_12 )
 );
 
-jtnemsis_bus_ff #( .W( 12 ) ) u_tm_a_2hd_ff(
-	.rst     ( rst            ),
-	.clk     ( clk            ),
-	.trig    ( h2_clkd       ),
-	.d       ( tm_a_4hd_latched ),
-	.q       ( tm_a_2hd_latched ),
-	.q_n     (                  )
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) u_tm_a_2hd_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_a_4hd_latched ),
+    .q       ( tm_a_2hd_latched ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( h2_clkd_edge_12 )
 );
 
-jtnemsis_bus_ff #( .W( 12 ) ) u_tm_a_shift_a1_ff(
-	.rst     ( rst                 ),
-	.clk     ( clk                 ),
-	.trig    ( shift_a1_clkd       ),
-	.d       ( tm_a_2hd_latched      ),
-	.q       ( tm_a_shift_a1_latched ),
-	.q_n     (                       )
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) u_tm_a_shift_a1_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_a_2hd_latched ),
+    .q       ( tm_a_shift_a1_latched ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( shift_a1_clkd_edge_12 )
 );
 
-jtnemsis_bus_ff #( .W( 11 ) ) u_tm_a_shift_a2_ff(
-	.rst     ( rst                 ),
-	.clk     ( clk                 ),
-	.trig    ( shift_a2_clkd       ),
-	.d       ( tm_a_shift_a2_data ),
-	.q       ( tm_a_shift_a2_latched ),
-	.q_n     (                       )
+jtframe_ff #( .W( 11 ), .EDGE_RESET( 1'b1 ) ) u_tm_a_shift_a2_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_a_shift_a2_data ),
+    .q       ( tm_a_shift_a2_latched ),
+    .qn      (  ),
+    .set     ( 11'd0 ),
+    .clr     ( 11'd0 ),
+    .sigedge ( shift_a2_clkd_edge_11 )
 );
 
-jtnemsis_bus_ff #( .W( 10 ) ) u_tm_b_2hd_ff(
-	.rst     ( rst            ),
-	.clk     ( clk            ),
-	.trig    ( h2_clkd       ),
-	.d       ( tm_b_2hd_data ),
-	.q       ( tm_b_2hd_latched ),
-	.q_n     (                  )
+jtframe_ff #( .W( 10 ), .EDGE_RESET( 1'b1 ) ) u_tm_b_2hd_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_b_2hd_data ),
+    .q       ( tm_b_2hd_latched ),
+    .qn      (  ),
+    .set     ( 10'd0 ),
+    .clr     ( 10'd0 ),
+    .sigedge ( h2_clkd_edge_10 )
 );
 
-jtnemsis_bus_ff #( .W( 10 ) ) u_tm_b_4hd_ff(
-	.rst     ( rst            ),
-	.clk     ( clk            ),
-	.trig    ( h4_clkd       ),
-	.d       ( tm_b_2hd_latched ),
-	.q       ( tm_b_4hd_latched ),
-	.q_n     (                  )
+jtframe_ff #( .W( 10 ), .EDGE_RESET( 1'b1 ) ) u_tm_b_4hd_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_b_2hd_latched ),
+    .q       ( tm_b_4hd_latched ),
+    .qn      (  ),
+    .set     ( 10'd0 ),
+    .clr     ( 10'd0 ),
+    .sigedge ( h4_clkd_edge_10 )
 );
 
-jtnemsis_bus_ff #( .W( 10 ) ) u_tm_b_shift_a1_ff(
-	.rst     ( rst                ),
-	.clk     ( clk                ),
-	.trig    ( shift_b_clkd       ),
-	.d       ( tm_b_4hd_latched     ),
-	.q       ( tm_b_shift_b_latched ),
-	.q_n     (                      )
+jtframe_ff #( .W( 10 ), .EDGE_RESET( 1'b1 ) ) u_tm_b_shift_a1_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( tm_b_4hd_latched ),
+    .q       ( tm_b_shift_b_latched ),
+    .qn      (  ),
+    .set     ( 10'd0 ),
+    .clr     ( 10'd0 ),
+    .sigedge ( shift_b_clkd_edge_10 )
 );
 
-jtnemsis_bus_ff #( .W( 16 ) ) u_obj_ff(
-	.rst     ( rst            ),
-	.clk     ( clk            ),
-	.trig    ( h1_n           ),
-	.d       ( obj_px_data    ),
-	.q       ( obj_px_bus_latched ),
-	.q_n     (                  )
+jtframe_ff #( .W( 16 ), .EDGE_RESET( 1'b1 ) ) u_obj_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( obj_px_data ),
+    .q       ( obj_px_bus_latched ),
+    .qn      (  ),
+    .set     ( 16'd0 ),
+    .clr     ( 16'd0 ),
+    .sigedge ( h1_n_edge_16 )
 );
 
 jtnemsis_gx400_priority_handler priority_handler

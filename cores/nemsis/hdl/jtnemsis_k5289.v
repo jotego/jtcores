@@ -104,6 +104,16 @@ wire        ch1_load, ch1_trigger, ch2_load, ch2_trigger;
 reg  [16:0] count1, count2;
 reg  [6:0]  cen_cnt;
 
+wire [11:0] ch1_load_edge_12;
+wire [11:0] ch1_trigger_edge_12;
+wire [11:0] ch2_load_edge_12;
+wire [11:0] ch2_trigger_edge_12;
+
+assign ch1_load_edge_12 = {12{ch1_load}};
+assign ch1_trigger_edge_12 = {12{ch1_trigger}};
+assign ch2_load_edge_12 = {12{ch2_load}};
+assign ch2_trigger_edge_12 = {12{ch2_trigger}};
+
 assign sound_reset = ~rst_n;
 assign ch1_load    = ~ld1;
 assign ch1_trigger = ~tg1;
@@ -140,41 +150,53 @@ always @(posedge clk) begin
 end
 
 // Channel 1 load and trigger latches.
-jtnemsis_bus_ff #(.W(12)) ch1_ld_latch(
-    .rst   (sound_reset),
-    .clk   (clk),
-    .trig  (ch1_load),
-    .d     (counter),
-    .q     (addrLD1),
-    .q_n   ()
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) ch1_ld_latch(
+    .rst     ( sound_reset ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( counter ),
+    .q       ( addrLD1 ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( ch1_load_edge_12 )
 );
 
-jtnemsis_bus_ff #(.W(12)) ch1_tg_latch(
-    .rst   (sound_reset),
-    .clk   (clk),
-    .trig  (ch1_trigger),
-    .d     (addrLD1),
-    .q     (addrTG1),
-    .q_n   ()
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) ch1_tg_latch(
+    .rst     ( sound_reset ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( addrLD1 ),
+    .q       ( addrTG1 ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( ch1_trigger_edge_12 )
 );
 
 // Channel 2 load and trigger latches.
-jtnemsis_bus_ff #(.W(12)) ch2_ld_latch(
-    .rst   (sound_reset),
-    .clk   (clk),
-    .trig  (ch2_load),
-    .d     (counter),
-    .q     (addrLD2),
-    .q_n   ()
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) ch2_ld_latch(
+    .rst     ( sound_reset ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( counter ),
+    .q       ( addrLD2 ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( ch2_load_edge_12 )
 );
 
-jtnemsis_bus_ff #(.W(12)) ch2_tg_latch(
-    .rst   (sound_reset),
-    .clk   (clk),
-    .trig  (ch2_trigger),
-    .d     (addrLD2),
-    .q     (addrTG2),
-    .q_n   ()
+jtframe_ff #( .W( 12 ), .EDGE_RESET( 1'b1 ) ) ch2_tg_latch(
+    .rst     ( sound_reset ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( addrLD2 ),
+    .q       ( addrTG2 ),
+    .qn      (  ),
+    .set     ( 12'd0 ),
+    .clr     ( 12'd0 ),
+    .sigedge ( ch2_trigger_edge_12 )
 );
 
 endmodule

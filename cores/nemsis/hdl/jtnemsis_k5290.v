@@ -138,6 +138,12 @@ wire [0:3] db_TM_B_px_7_latched;
 
 `endif
 
+wire [7:0] tm_a_pixel_latch_edge_8;
+wire [7:0] tm_b_pixel_latch_edge_8;
+
+assign tm_a_pixel_latch_edge_8 = {8{TM_A_pixel_latch}};
+assign tm_b_pixel_latch_edge_8 = {8{TM_B_pixel_latch}};
+
 assign TM_A_pixel_latch = ~(~hd4_n & hd2);
 assign TM_B_pixel_latch = ~(hd4_n & hd2);
 assign char_data_0 = {h[0], g[0], f[0], e[0], d[0], c[0], b[0], a[0]};
@@ -191,13 +197,16 @@ always @( posedge clk ) begin
 end
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U1(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_A_pixel_latch       ),
-	.d       ( char_data_0 ),
-	.q       ( TM_A_px_bits_0_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U1(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_0 ),
+    .q       ( TM_A_px_bits_0_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_a_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -214,13 +223,16 @@ U2U3(
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U4(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_A_pixel_latch       ),
-	.d       ( char_data_1 ),
-	.q       ( TM_A_px_bits_1_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U4(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_1 ),
+    .q       ( TM_A_px_bits_1_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_a_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -237,13 +249,16 @@ U5U6(
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U7(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_A_pixel_latch       ),
-	.d       ( char_data_2 ),
-	.q       ( TM_A_px_bits_2_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U7(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_2 ),
+    .q       ( TM_A_px_bits_2_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_a_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -260,13 +275,16 @@ U8U9(
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U10(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_A_pixel_latch       ),
-	.d       ( char_data_3 ),
-	.q       ( TM_A_px_bits_3_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U10(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_3 ),
+    .q       ( TM_A_px_bits_3_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_a_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -334,13 +352,16 @@ U16
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U17(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_B_pixel_latch       ), // clock
-	.d       ( char_data_0 ),
-	.q       ( TM_B_px_bits_0_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U17(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_0 ),
+    .q       ( TM_B_px_bits_0_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_b_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -357,13 +378,16 @@ U18U19(
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U20(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_B_pixel_latch       ), // clock
-	.d       ( char_data_1 ),
-	.q       ( TM_B_px_bits_1_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U20(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_1 ),
+    .q       ( TM_B_px_bits_1_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_b_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -380,13 +404,16 @@ U21U22(
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U23(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_B_pixel_latch       ), // clock
-	.d       ( char_data_2 ),
-	.q       ( TM_B_px_bits_2_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U23(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_2 ),
+    .q       ( TM_B_px_bits_2_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_b_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register
@@ -403,13 +430,16 @@ U24U25(
 );
 
 // Octal D-type flip-flop latch with reset; positive-edge trigger
-jtnemsis_bus_ff #( .W( 8 ) ) U26(
-	.rst     ( rst                  ),
-	.clk     ( clk                 ),
-	.trig    ( TM_B_pixel_latch       ), // clock
-	.d       ( char_data_3 ),
-	.q       ( TM_B_px_bits_3_latched ),
-	.q_n     (                        )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) U26(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( char_data_3 ),
+    .q       ( TM_B_px_bits_3_latched ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( tm_b_pixel_latch_edge_8 )
 );
 
 // 8-bit bidirectional universal shift register

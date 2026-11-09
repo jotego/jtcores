@@ -61,9 +61,6 @@ module jtnemsis_k5291
     input                   h256_n,
     input                   h128a,
 
-    //CPU address bus
-    input           [11:0]  cpu_addr_bus,
-
     //scroll data bus
     input           [7:0]   scroll_data_bus,
 
@@ -183,6 +180,18 @@ reg     [3:0]   tile_line_address_adder;
 reg     [8:0]   tile_v_address_adder;
 
 // Continuous signal equations.
+wire [2:0] hcntr_1_n_edge_3;
+wire [2:0] hcntr_bus_1_edge_3;
+wire [7:0] hpixel_number_0_edge_8;
+wire [7:0] hpixel_number_2_edge_8;
+wire [7:0] vscroll_latch_tick_edge_8;
+
+assign hcntr_1_n_edge_3 = {3{hcntr_1_n}};
+assign hcntr_bus_1_edge_3 = {3{hcntr_bus[1]}};
+assign hpixel_number_0_edge_8 = {8{hpixel_number[0]}};
+assign hpixel_number_2_edge_8 = {8{hpixel_number[2]}};
+assign vscroll_latch_tick_edge_8 = {8{vscroll_latch_tick}};
+
 assign hpixel_number = ~(hcounter_decoder & {4{pxl_cen}});
 
 assign hscroll_shift_a_sum = hscroll_value_latch_0[2:0] +
@@ -252,82 +261,96 @@ end
 // working on posedge i_MCLK gives just enough delay that the K5293 latches the correct tilemap later
 always @( posedge clk ) begin
 
-`ifdef K5291_NO_MUX
     vram_addr_bus <= {hcntr_bus[2], tile_v_address_adder[7:3], tile_h_address_adder[5:0]};
-`else
-    case(hcntr_bus[1])
-        1'b0: vram_addr_bus <= cpu_addr_bus;
-        1'b1: vram_addr_bus <= {hcntr_bus[2], tile_v_address_adder[7:3], tile_h_address_adder[5:0]};
-    endcase
-`endif
 
 end
 
 // Chip and framework instances.
 
-jtnemsis_bus_ff #( .W( 8 ) ) hscroll_0_lo_latch(
-	.rst     ( 1'b0                       ),
-	.clk     ( clk                     ),
-	.trig    ( hpixel_number[0]           ),
-	.d       ( scroll_data_bus          ),
-	.q       ( hscroll_value_latch_0[7:0] ),
-	.q_n     (                            )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) hscroll_0_lo_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( scroll_data_bus ),
+    .q       ( hscroll_value_latch_0[7:0] ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( hpixel_number_0_edge_8 )
 );
 
-jtnemsis_bus_ff hscroll_0_hi_latch(
-	.rst     ( 1'b0                       ),
-	.clk     ( clk                     ),
-	.trig    ( hpixel_number[1]           ),
-	.d       ( scroll_data_bus[0]       ),
-	.q       ( hscroll_value_latch_0[8]   ),
-	.q_n     (                            )
+jtframe_ff #( .EDGE_RESET( 1'b1 ) ) hscroll_0_hi_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( scroll_data_bus[0] ),
+    .q       ( hscroll_value_latch_0[8] ),
+    .qn      (  ),
+    .set     ( 1'd0 ),
+    .clr     ( 1'd0 ),
+    .sigedge ( hpixel_number[1] )
 );
 
-jtnemsis_bus_ff #( .W( 8 ) ) hscroll_1_lo_latch(
-	.rst     ( 1'b0                       ),
-	.clk     ( clk                     ),
-	.trig    ( hpixel_number[2]           ),
-	.d       ( scroll_data_bus          ),
-	.q       ( hscroll_value_latch_1[7:0] ),
-	.q_n     (                            )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) hscroll_1_lo_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( scroll_data_bus ),
+    .q       ( hscroll_value_latch_1[7:0] ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( hpixel_number_2_edge_8 )
 );
 
-jtnemsis_bus_ff hscroll_1_hi_latch(
-	.rst     ( 1'b0                       ),
-	.clk     ( clk                     ),
-	.trig    ( hpixel_number[3]           ),
-	.d       ( scroll_data_bus[0]       ),
-	.q       ( hscroll_value_latch_1[8]   ),
-	.q_n     (                            )
+jtframe_ff #( .EDGE_RESET( 1'b1 ) ) hscroll_1_hi_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( scroll_data_bus[0] ),
+    .q       ( hscroll_value_latch_1[8] ),
+    .qn      (  ),
+    .set     ( 1'd0 ),
+    .clr     ( 1'd0 ),
+    .sigedge ( hpixel_number[3] )
 );
 
 // U23
-jtnemsis_bus_ff #( .W( 8 ) ) vscroll_latch(
-	.rst     ( 1'b0                     ),
-	.clk     ( clk                   ),
-	.trig    ( vscroll_latch_tick       ),
-	.d       ( scroll_data_bus        ),
-	.q       ( vscroll_byte_value_latch ),
-	.q_n     (                          )
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) vscroll_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( scroll_data_bus ),
+    .q       ( vscroll_byte_value_latch ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( vscroll_latch_tick_edge_8 )
 );
 
 // U20
-jtnemsis_bus_ff #( .W( 3 ) ) vscroll_adder_latch(
-	.rst     ( 1'b0                          ),
-	.clk     ( clk                        ),
-	.trig    ( hcntr_1_n                   ),
-	.d       ( vscroll_byte_value_latch[2:0] ),
-	.q       ( vscroll_3bit_value_latch      ),
-	.q_n     (                               )
+jtframe_ff #( .W( 3 ), .EDGE_RESET( 1'b1 ) ) vscroll_adder_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( vscroll_byte_value_latch[2:0] ),
+    .q       ( vscroll_3bit_value_latch ),
+    .qn      (  ),
+    .set     ( 3'd0 ),
+    .clr     ( 3'd0 ),
+    .sigedge ( hcntr_1_n_edge_3 )
 );
 
 // U19
-jtnemsis_bus_ff #( .W( 3 ) ) vscroll_cntr_latch(
-	.rst     ( 1'b0                         ),
-	.clk     ( clk                       ),
-	.trig    ( hcntr_bus[1]               ),
-	.d       ( vcntr_flip_bus_internal[2:0] ),
-	.q       ( vscroll_vcntr_latch          ),
-	.q_n     (                              )
+jtframe_ff #( .W( 3 ), .EDGE_RESET( 1'b1 ) ) vscroll_cntr_latch(
+    .rst     ( 1'b0 ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( vcntr_flip_bus_internal[2:0] ),
+    .q       ( vscroll_vcntr_latch ),
+    .qn      (  ),
+    .set     ( 3'd0 ),
+    .clr     ( 3'd0 ),
+    .sigedge ( hcntr_bus_1_edge_3 )
 );
 endmodule

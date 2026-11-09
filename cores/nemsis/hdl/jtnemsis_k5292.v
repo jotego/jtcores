@@ -228,21 +228,27 @@ end
 
 // Chip and framework instances.
 
-jtnemsis_bus_ff u_vclk_ff(
-	.rst     ( reset      ),
-	.clk     ( clk        ),
-	.trig    ( h256_h1[4] ), // 16H
-	.d       ( vclk_ff_d  ),
-	.q       ( vclk       ),
-	.q_n     ( vclk_n     )
+jtframe_ff #( .EDGE_RESET( 1'b1 ) ) u_vclk_ff(
+    .rst     ( reset ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( vclk_ff_d ),
+    .q       ( vclk ),
+    .qn      ( vclk_n ),
+    .set     ( 1'd0 ),
+    .clr     ( 1'd0 ),
+    .sigedge ( h256_h1[4] )
 );
 
-jtnemsis_bus_ff u_256v_ff2(
-	.rst     ( reset             ),
-	.clk     ( clk              ),
-	.trig    ( vblank_active    ),
-	.d       ( v256_internal_n  ),
-	.q       ( v256              ),
-	.q_n     ( v256_internal_n  )
+jtframe_ff #( .EDGE_RESET( 1'b1 ) ) u_256v_ff2(
+    .rst     ( reset ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( v256_internal_n ),
+    .q       ( v256 ),
+    .qn      ( v256_internal_n ),
+    .set     ( 1'd0 ),
+    .clr     ( 1'd0 ),
+    .sigedge ( vblank_active )
 );
 endmodule

@@ -80,6 +80,12 @@ wire        ay7_bc1, ay7_bdir, ay8_bc1, ay8_bdir;
 wire        ram_we, cpu_irq_clear;
 wire [ 1:0] filter_addr, filter_control;
 
+wire [1:0] filter_ff_clk_edge_2;
+wire [7:0] data_n_edge_8;
+
+assign filter_ff_clk_edge_2 = {2{filter_ff_clk}};
+assign data_n_edge_8 = {8{data_n}};
+
 assign cpu_rst_n = ~rst;
 assign z80_cs    = ~rom_ce_n;
 assign z80_addr  = cpu_addr[13:0];
@@ -169,7 +175,7 @@ jtnemsis_k5289 u_k5289(
 );
 
 /* verilator lint_off PINCONNECTEMPTY */
-jtnemsis_jt49_bus #(.COMP(3'b001)) u_ay_7(
+jt49_bus #(.COMP(3'd6)) u_ay_7(
     .rst_n   (cpu_rst_n),
     .clk     (clk),
     .clk_en  (cen_1p7),
@@ -191,7 +197,7 @@ jtnemsis_jt49_bus #(.COMP(3'b001)) u_ay_7(
     .IOB_oe  ()
 );
 
-jtnemsis_jt49_bus #(.COMP(3'b001)) u_ay_8(
+jt49_bus #(.COMP(3'd6)) u_ay_8(
     .rst_n   (cpu_rst_n),
     .clk     (clk),
     .clk_en  (cen_1p7),
@@ -227,22 +233,28 @@ jtframe_ff u_sound_on_ff(
     .qn      (cpu_int_n)
 );
 
-jtnemsis_bus_ff #(.W(2)) u_ay_filter_ff(
-    .rst (rst),
-    .clk (clk),
-    .trig(filter_ff_clk),
-    .d   (filter_addr),
-    .q   (filter_control),
-    .q_n ()
+jtframe_ff #( .W( 2 ), .EDGE_RESET( 1'b1 ) ) u_ay_filter_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( filter_addr ),
+    .q       ( filter_control ),
+    .qn      (  ),
+    .set     ( 2'd0 ),
+    .clr     ( 2'd0 ),
+    .sigedge ( filter_ff_clk_edge_2 )
 );
 
-jtnemsis_bus_ff #(.W(8)) u_data_ff(
-    .rst (rst),
-    .clk (clk),
-    .trig(data_n),
-    .d   (main_db),
-    .q   (data_ff_out),
-    .q_n ()
+jtframe_ff #( .W( 8 ), .EDGE_RESET( 1'b1 ) ) u_data_ff(
+    .rst     ( rst ),
+    .clk     ( clk ),
+    .cen     ( 1'b1 ),
+    .din     ( main_db ),
+    .q       ( data_ff_out ),
+    .qn      (  ),
+    .set     ( 8'd0 ),
+    .clr     ( 8'd0 ),
+    .sigedge ( data_n_edge_8 )
 );
 
 // Z80 is last so its pin mapping stays together after the supporting logic.
