@@ -1,0 +1,24 @@
+[global]
+author=["LMN-san","OScherler","Raki","jotego"]
+
+[parse]
+sourcefile=[ "nemesis.cpp" ]
+mustbe.machines=[ "blkpnthr" ]
+
+[buttons]
+names=[
+    { names="Shoot,Jump" }
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+regions = [
+    # reverse=true: jtframe_dwnld byte-swaps into SDRAM, so the MRA presents the
+    # 16-bit words pre-swapped for the 68000 to read back big-endian.
+    { name="maincpu",  width=16, reverse=true },
+    { name="audiocpu", start="SND_START" },
+    { name="k007232",  start="PCM_START" },
+]
+order = [ "maincpu", "audiocpu", "k007232" ]
