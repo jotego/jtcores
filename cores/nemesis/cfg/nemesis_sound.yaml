@@ -1,0 +1,22 @@
+nemesis:
+  - get:
+      - nemesis_sound.v
+      - k5289.v
+      - nemesis_jt49_exp.v
+      - unsigned_mixer.v
+
+jtframe:
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+
+# AY-3-8910 x2
+# exclude jt49_exp.v so we can substitute our own
+jt12/jt49:
+  - get:
+      - jt49.v
+      - jt49_bus.v
+      - jt49_div.v
+      - jt49_cen.v
+      - jt49_eg.v
+      - jt49_noise.v

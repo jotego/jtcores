@@ -1,0 +1,67 @@
+--- mame/resnet.cpp	2023-09-27 11:37:36.000000000 +0200
++++ mame/resnet.cpp	2023-09-27 13:42:09.000000000 +0200
+@@ -45,12 +45,21 @@
+ 
+ *****************************************************************************/
+ 
++#include <iostream>
++#include <stdio.h>
+ 
+-#include "emu.h"
+-#include "resnet.h"
++typedef uint32_t u32;
++typedef uint8_t u8;
++typedef uint16_t u16;
++typedef int16_t s16;
+ 
+-#define VERBOSE 0
++#include "mame/palette.h"
++#include "mame/resnet.h"
+ 
++#define VERBOSE 1
++
++#define fatalerror printf
++#define osd_printf_info printf
+ 
+ double compute_resistor_weights(
+ 	int minval, int maxval, double scaler,
+@@ -717,3 +726,39 @@
+ 		rgb[i-rdi.start] = rgb_t(r,g,b);
+ 	}
+ }
++
++void create_palette_lookups()
++{
++	uint8_t     m_palette_lookup[32];
++
++	// driver is 74LS09 (AND gates with open collector)
++
++	static const res_net_info nemesis_net_info =
++	{
++		RES_NET_VCC_5V | RES_NET_VBIAS_5V | RES_NET_VIN_OPEN_COL,
++		{
++			{ RES_NET_AMP_EMITTER, 1000, 0, 5, { 4700, 2400, 1200, 620, 300 } },
++			{ RES_NET_AMP_EMITTER, 1000, 0, 5, { 4700, 2400, 1200, 620, 300 } },
++			{ RES_NET_AMP_EMITTER, 1000, 0, 5, { 4700, 2400, 1200, 620, 300, 300 } }
++		}
++	};
++
++	for (int i = 0; i < 32; i++)
++		m_palette_lookup[i] = compute_res_net(i, 0, nemesis_net_info);
++
++	// normalize black/white levels
++	double black = m_palette_lookup[0];
++	double white = 255.0 / (m_palette_lookup[31] - black);
++	for (auto & elem : m_palette_lookup)
++		elem = (elem - black) * white + 0.5;
++
++	for (int i = 0; i < 32; i++)
++	{
++		printf("%02x\n", m_palette_lookup[i]);
++	}
++}
++
++int main()
++{
++	create_palette_lookups();
++}

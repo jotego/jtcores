@@ -1,0 +1,13 @@
+nemesis:
+  - get:
+      - gx400_cen.v
+      - nemesis_main.v
+      - nemesis_68k_addr_dec.v
+
+jtframe:
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
