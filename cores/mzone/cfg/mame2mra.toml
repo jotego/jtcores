@@ -27,8 +27,8 @@ regions = [
     # PCB object ROM organization: doc/timing.md, "PCB object hardware".
     # Pair matching object-plane ROMs. mem.yaml gfx_sort then transposes
     # group[0] with ysub[2:0] during download so each SDRAM word holds 8 X pixels.
-    { name="gfx1", no_offset=true, start="OBJ_START", width=16, sequence=[0,2,1,3] },
-    { name="gfx2", no_offset=true, start="SCR_START" },
+    { name="sprites", rename="gfx1", no_offset=true, start="OBJ_START", width=16, sequence=[0,2,1,3] },
+    { name="tiles", rename="gfx2", no_offset=true, start="SCR_START" },
     { name="proms", start="JTFRAME_PROM_START", no_offset=true },
 ]
 
