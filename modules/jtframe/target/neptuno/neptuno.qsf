@@ -222,8 +222,8 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 # set_global_assignment -name CDF_FILE jtag.cdf
 
 # SDRAM
-set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_*
-set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER OFF -to SDRAM_*
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER OFF -to SDRAM_DQ[*]
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]
 set_global_assignment -name FORCE_SYNCH_CLEAR ON
 

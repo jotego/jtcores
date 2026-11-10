@@ -10,8 +10,10 @@
     P1oPS,CRT V offset,0,+1,+2,+3,+4,+5,+6,+7,-8,-7,-6,-5,-4,-3,-2,-1;
     P1oG,CRT scale enable,Off,On;
     H2P1oHK,CRT scale factor,+1,+2,+3,+4,+5,+6,+7,+8,-8,-7,-6,-5,-4,-3,-2,-1;
+{{ if or .JTFRAME_CRT480I .JTFRAME_SPLIT_DEFLICKER }}
+    {{ if .JTFRAME_CRT480I }}H7P1O[65:64]{{ else }}P1O[31:30]{{ end }},CRT deflicker,Off,Low,Mid,High;
+{{ end }}
 {{ if .JTFRAME_CRT480I }}
-    H7P1O[65:64],CRT deflicker,Off,Low,Mid,High;
     H7P1O[69:67],CRT height,224,232,240,1:1,200,208,216;
 {{ end }}
 P1{{ .SEPARATOR }}

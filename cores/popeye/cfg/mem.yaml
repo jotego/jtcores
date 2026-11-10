@@ -1,0 +1,141 @@
+params:
+  - { name: CHAR_OFFSET, value: "`CHAR_START>>1" }
+  - { name: OBJ0_OFFSET, value: "`OBJ_START>>1" }
+  - { name: OBJ1_OFFSET, value: "(`OBJ_START+'h2000)>>1" }
+  - { name: OBJ2_OFFSET, value: "(`OBJ_START+'h4000)>>1" }
+  - { name: OBJ3_OFFSET, value: "(`OBJ_START+'h6000)>>1" }
+clocks:
+  clk:
+    - mul: 21
+      div: 50
+      outputs:
+        - cen20
+        - cen10
+        - cen5
+    - mul: 1
+      div: 12
+      gate: [ "main" ]
+      outputs:
+        - cpu_cen
+    - mul: 1
+      div: 24
+      outputs:
+        - psg_cen
+audio:
+  rsum: 20k
+  rsum_feedback_res: true
+  pcb:
+    # same order as PCBs in mame2mra.toml
+    - { rfb: 20k, rsums: [ 20k, 30k, 30k ] } # TPP2 network (also TPP1, bootlegs)
+    - { rfb: 20k, rsums: [ 20k, 20k, 20k ] } # TNX1: plain sum
+  channels:
+    - { name: psga, data_width: 10, unsigned: true, dcrm: true, rsum: 20k, rc: [{ r: 2.5k, c: 47n }], rc_en: true }
+    - { name: psgb, data_width: 10, unsigned: true, dcrm: true, rsum: 30k }
+    - { name: psgc, data_width: 10, unsigned: true, dcrm: true, rsum: 30k }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 15
+        data_width: 8
+bram:
+  - name: char
+    size: 4k
+    data_width: 8
+    rom: { offset: CHAR_OFFSET }
+  - name: obj0
+    size: 8k
+    data_width: 16
+    rom: { offset: OBJ0_OFFSET }
+  - name: obj1
+    size: 8k
+    data_width: 16
+    rom: { offset: OBJ1_OFFSET }
+  - name: obj2
+    size: 8k
+    data_width: 16
+    rom: { offset: OBJ2_OFFSET }
+  - name: obj3
+    size: 8k
+    data_width: 16
+    rom: { offset: OBJ3_OFFSET }
+  # PROM order here must match the MRA order
+  - name: tprom
+    size: 256
+    data_width: 4
+    prom: true
+  - name: objpall
+    size: 256
+    data_width: 4
+    prom: true
+  - name: objpalh
+    size: 256
+    data_width: 4
+    prom: true
+  - name: bgpal
+    size: 32
+    data_width: 8
+    prom: true
+  - name: txtpal
+    size: 32
+    data_width: 8
+    prom: true
+  - name: blprotl
+    size: 256
+    data_width: 4
+    prom: true
+  - name: blproth
+    size: 256
+    data_width: 4
+    prom: true
+
+  # Physical work RAM address order, including the DMA source table.
+  - name: work
+    size: 4k
+    data_width: 8
+    rw: true
+    din: cpu_dout
+    simfile: {}
+    ioctl: { save: true, restore: true, order: 0 }
+  - name: text
+    size: 1k
+    data_width: 8
+    simfile: {}
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: text_cpu
+      dout: unused_text
+      addr: text_cpu_addr
+      din: dd
+      we: text_we
+      rw: true
+  # Upper nibble is zero: byte storage supports the standard ioctl interface.
+  - name: color
+    size: 1k
+    data_width: 8
+    addr: text_addr
+    simfile: {}
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: color_cpu
+      dout: unused_color
+      addr: text_cpu_addr
+      din: "{4'd0,dd[3:0]}"
+      we: color_we
+      rw: true
+  - name: bglo
+    size: 4k
+    data_width: 8
+    addr: bg_addr
+    din: "{4'd0,dd[3:0]}"
+    rw: true
+    simfile: {}
+    ioctl: { save: true, restore: true, order: 3 }
+  - name: bghi
+    size: 4k
+    data_width: 8
+    addr: bg_addr
+    din: "{4'd0,dd[3:0]}"
+    rw: true
+    simfile: {}
+    ioctl: { save: true, restore: true, order: 4 }

@@ -15,7 +15,7 @@ Macro Def.      |   Module          | Description
  ------------|-----------------------|--------------------------
  VIDEO_HEIGHT| both                  | Visible vertical pixels
  VIDEO_WIDTH | arcade_video          | Visible horizontal pixels
- VIDEO_WIDTH | jtframe_scan2x        | Total horizontal pixels
+ VIDEO_WIDTH | jtframe_scan2x        | Total horizontal pixels by default; `JTFRAME_SCAN2X_HLEN` overrides this when the visible width must be kept for capture and simulation
 
 No image problems might be related to misdefinition of these macros.
 
@@ -47,6 +47,14 @@ There are two modules used for this:
 
 Horizontal retiming keeps the line period fixed and adjusts the active window within it. H/V sync adjustment occurs before retiming.
 
+For a core with `JTFRAME_INTERLACED`, MiSTer measures sync at the source pixel
+enable and uses the VSync timing stored for the current field. `arcade_video`
+then samples VSync at every source pixel. These steps preserve the half-line
+phase and a constant field period, which the CRT needs to distinguish fields.
+Progressive cores keep their existing pixel-center enable and HSync-aligned
+VSync sampling. Run `cores/popeye/ver/crt_sync` and
+`modules/jtframe/ver/mister/arcade_interlace/sim.sh` to check both paths.
+
 The monitor may completely lose sync for some settings. Note that this is a secondary feature, which I cannot fully test, and receives less development attention.
 
 ## Analogue H size (jtframe_hretime)
@@ -57,7 +65,7 @@ On MiSTer the analogue h-size uses jtframe_hretime. It resizes the picture by re
 
 The module has a single clock (`clk` = master clock) and generates its own output pixel enable (`ce_slow`) using a phase accumulator. The key values:
 
-* **DIV** — master-clock cycles per source pixel (8 for a 6 MHz pixel clock at 48 MHz)
+* **DIV** — master-clock cycles per source pixel (8 for a 6 MHz pixel clock at 48 MHz). For a fractional enable, **NUM/DEN** gives the exact source period; DIV remains the nearest integer estimate for sync centring.
 * **STEP** — accumulator denominator, 64 by default
 * **scale** — the encoded OSD setting, signed -8..+7; nonnegative values map to +1..+8, negative values remain -8..-1
 
@@ -160,7 +168,7 @@ How far the picture can actually stretch is set by the core's blanking budget, n
 
 `jtframe cfgstr` supplies two build-time parameters:
 
-* **JTFRAME_HSIZE_DIV**: master-clock cycles per pixel. Computed as `base / PXLCLK` where base is 48 (or 96 with SDRAM96). Cores without `JTFRAME_PXLCLK` should define this integer divisor explicitly (at least 2). If both macros are absent, configuration warns and retains the legacy nominal 6 MHz fallback: DIV 8, or 16 with SDRAM96. NGP and NGPC are exempt from the warning; their fractional native pixel cadence cannot be represented exactly by this integer divisor, and they are skipped for MiSTer. A core may also override the derived divisor when its native pixel enable does not follow the nominal PLL convention. CPS3 uses `JTFRAME_HSIZE_DIV=14`: its 112 MHz video clock and 8 MHz native pixels require 14 clocks per pixel; the default 16 would over-stretch the image and can overflow the FIFO.
+* **JTFRAME_HSIZE_DIV**: master-clock cycles per pixel. Computed as `base / PXLCLK` where base is 48 (or 96 with SDRAM96). Cores without `JTFRAME_PXLCLK` should define this integer divisor explicitly (at least 2). If both macros are absent, configuration warns and retains the legacy nominal 6 MHz fallback: DIV 8, or 16 with SDRAM96. NGP and NGPC are exempt from the warning and are skipped for MiSTer. A core may also override the derived divisor when its native pixel enable does not follow the nominal PLL convention. CPS3 uses `JTFRAME_HSIZE_DIV=14`: its 112 MHz video clock and 8 MHz native pixels require 14 clocks per pixel; the default 16 would over-stretch the image and can overflow the FIFO. For fractional enables, `JTFRAME_HSIZE_NUM` and `JTFRAME_HSIZE_DEN` set the exact rate while DIV supplies a nearby sync-delay estimate. Popeye uses 100/21 clocks per pixel and DIV 5.
 * **JTFRAME_HSIZE_DEPTH**: elastic FIFO depth, from JTFRAME_WIDTH and the step size.
 
 The standalone retimer test is at `$JTFRAME/ver/video/hretime`. The OSD integration test at `$JTFRAME/ver/video/hretime_osd` uses alternating bitmap columns with s18, Run and Gun and CPS3 timing profiles. It checks one native pixel per OSD column, byte-exact output order and all 256 OSD columns surviving bypass and every stretch setting. It also covers CPS3’s 14-clock pixel ratio.

@@ -620,8 +620,8 @@ func mame_capture_precision(source, core string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse %s JTFRAME_COLORW: %w", core, err)
 	}
-	if color_width < 4 || color_width > 8 {
-		return 0, fmt.Errorf("%s JTFRAME_COLORW %d is outside the supported range 4..8", core, color_width)
+	if color_width < 3 || color_width > 8 {
+		return 0, fmt.Errorf("%s JTFRAME_COLORW %d is outside the supported range 3..8", core, color_width)
 	}
 	if color_width < 5 {
 		return 4, nil

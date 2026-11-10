@@ -71,7 +71,21 @@ u_game(
     .LVBL        ( LVBL           ),
     .HS          ( hs             ),
     .VS          ( vs             ), `ifdef JTFRAME_INTERLACED
-    .field       ( field          ), `endif
+`ifdef MISTER
+    .field       ( field          ),
+`else
+    .field       (                ),
+`endif
+`endif
+`ifdef JTFRAME_SPLIT_VIDEO `ifdef MISTER
+    .split_r     ( split_r        ), .split_g     ( split_g        ),
+    .split_b     ( split_b        ), .split_hs    ( split_hs       ),
+    .split_vs    ( split_vs       ), .split_de    ( split_de       ),
+    .split_ce    ( split_ce       ), .split_field ( split_field    ), `else
+    .split_r     (                ), .split_g     (                ),
+    .split_b     (                ), .split_hs    (                ),
+    .split_vs    (                ), .split_de    (                ),
+    .split_ce    (                ), .split_field (                ), `endif `endif
 
     // Inputs
     .cab_1p ( game_start[STARTW-1:0]      ), .coin ( game_coin[STARTW-1:0]       ),
