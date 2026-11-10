@@ -243,12 +243,12 @@ end
 // Direct modelling of data inputs to the Z80
 always @(*) begin
 	case( 1'b1 )
-		~r_rom_CE_n:             cpu_data_in <= cpu_rom_data;
-		~r_ram_CS && ~cpu_rd_n:  cpu_data_in <= cpu_ram_data;
-		~ay7_bdir && ay7_bc1:    cpu_data_in <= ay7_data;
-		~ay8_bdir && ay8_bc1:    cpu_data_in <= ay8_data;
-		~r_data_OC_n:            cpu_data_in <= data_ff_out;
-		default:                 cpu_data_in <= 8'hff;
+		~r_rom_CE_n:             cpu_data_in = cpu_rom_data;
+		~r_ram_CS && ~cpu_rd_n:  cpu_data_in = cpu_ram_data;
+		~ay7_bdir && ay7_bc1:    cpu_data_in = ay7_data;
+		~ay8_bdir && ay8_bc1:    cpu_data_in = ay8_data;
+		~r_data_OC_n:            cpu_data_in = data_ff_out;
+		default:                 cpu_data_in = 8'hff;
 	endcase
 end
 
@@ -261,6 +261,7 @@ wire cen_z80_wait, cpu_busak_n;
 
 // ** Z80 CPU      **
 // ** [Z80A] @ 10A **
+/* verilator lint_off PINCONNECTEMPTY */
 T80s u_audio_cpu(
 	.RFSH_n  ( cpu_rfsh_n   ),
 	.MREQ_n  ( cpu_mreq_n   ),
@@ -279,7 +280,8 @@ T80s u_audio_cpu(
 	.RD_n    ( cpu_rd_n     ),
 	.WR_n    ( cpu_wr_n     ),
 	
-	// M1_n, HALT_n unused
+	.M1_n    (              ),
+	.HALT_n  (              ),
 	
 	.A       ( cpu_addr     ),
 	.DI      ( cpu_data_in  ),
@@ -287,6 +289,7 @@ T80s u_audio_cpu(
 	.OUT0    ( 1'b0         )
 );
 
+/* verilator lint_on PINCONNECTEMPTY */
 jtframe_z80wait #(1) u_wait(
 	.rst_n      ( cpu_rst_n    ),
 	.clk        ( i_clk        ),
@@ -397,7 +400,8 @@ assign ay8_bc1  = ~|{ r_ay8_sel_n, cpu_addr[ 8] };
 
 // ** Programmable Sound Generator **
 // ** [AY-3-8910] @ 7E             **
-jt49_bus #( .COMP( 2'b01 ) ) u_ay_7 (
+/* verilator lint_off PINCONNECTEMPTY */
+jt49_bus #( .COMP( 3'b001 ) ) u_ay_7 (
 	.rst_n   ( cpu_rst_n    ),
 	.clk     ( i_clk        ),
 	.clk_en  ( cen_z80      ),
@@ -413,13 +417,15 @@ jt49_bus #( .COMP( 2'b01 ) ) u_ay_7 (
 	.sample  (              ),
 	.IOA_in  ( 8'b0         ),
 	.IOA_out ( ay7_ioa_out  ),
+	.IOA_oe  (              ),
 	.IOB_in  ( 8'b0         ),
-	.IOB_out ( ay7_iob_out  )
+	.IOB_out ( ay7_iob_out  ),
+	.IOB_oe  (              )
 );
 
 // ** Programmable Sound Generator **
 // ** [AY-3-8910] @ 8E             **
-jt49_bus #( .COMP( 2'b01 ) ) u_ay_8 (
+jt49_bus #( .COMP( 3'b001 ) ) u_ay_8 (
 	.rst_n   ( cpu_rst_n    ),
 	.clk     ( i_clk        ),
 	.clk_en  ( cen_z80      ),
@@ -435,9 +441,12 @@ jt49_bus #( .COMP( 2'b01 ) ) u_ay_8 (
 	.sample  (              ),
 	.IOA_in  ( r_ay8_ioa_in ),
 	.IOA_out (              ),
+	.IOA_oe  (              ),
 	.IOB_in  ( 8'b0         ),
-	.IOB_out (              )
+	.IOB_out (              ),
+	.IOB_oe  (              )
 );
+/* verilator lint_on PINCONNECTEMPTY */
 
 // ---------------------------------------------------------------------------
 // Main CPU communication and filters

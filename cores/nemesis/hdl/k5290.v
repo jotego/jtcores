@@ -25,6 +25,7 @@ You can read the whole license file at http://www.gnu.org/licenses/
 
 `default_nettype none
 
+/* verilator lint_off ASCRANGE */
 module K005290
 (
 	input                 i_MCLK,           // Main clock 48 MHz
@@ -424,3 +425,4 @@ end
 assign o_TM_B_px_trans = (o_TM_B_pixels == 4'b0)  ?  1'b0 : 1'b1;
 
 endmodule
+/* verilator lint_on ASCRANGE */

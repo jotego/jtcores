@@ -226,7 +226,7 @@ always @( posedge i_MCLK ) begin
 		orinc_prev <= 1'b1;
 		obj_cnt <= 8'd0;
 	end else if( ~i_ORINC & orinc_prev ) begin // negative edge
-		obj_cnt <= obj_cnt + 4'd1;
+		obj_cnt <= obj_cnt + 8'd1;
 	end
 	
 	orinc_prev <= i_ORINC;

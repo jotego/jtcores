@@ -324,8 +324,8 @@ u_blk_dly(
 // ** [LS04] @ 22E (3 -> 4)        **
 always @(*) begin
 	case( { ~vclk } )
-		1'b0:   scrollram_gfx_addr <= { 1'b0, w_4hd, w_2h, w_128v_x, w_64v_x, w_32v_x, w_16v_x, w_8v_x, w_4v_x, w_2v_x, w_1v_x };
-		1'b1:   scrollram_gfx_addr <= { {4{1'b1}}, w_4hd, w_256h_x, w_128h_x, w_64h_x, w_32h_x, w_16h_x, w_8h_x };
+		1'b0:   scrollram_gfx_addr = { 1'b0, w_4hd, w_2h, w_128v_x, w_64v_x, w_32v_x, w_16v_x, w_8v_x, w_4v_x, w_2v_x, w_1v_x };
+		1'b1:   scrollram_gfx_addr = { {4{1'b1}}, w_4hd, w_256h_x, w_128h_x, w_64h_x, w_32h_x, w_16h_x, w_8h_x };
 	endcase
 end
 
@@ -420,7 +420,9 @@ wire       tm_a_hflip, tm_b_hflip, aff, bff,
 wire [3:0] tm_a_px_data, tm_b_px_data;
 
 // Bit order for A-H is in the opposite direction than charram_X_gfx_dout
+/* verilator lint_off ASCRANGE */
 wire [0:3] A, B, C, D, E, F, G, H;
+/* verilator lint_on ASCRANGE */
 
 assign A[0:3] = charram_1_hi_gfx_dout[7:4];
 assign B[0:3] = charram_1_hi_gfx_dout[3:0];
@@ -646,13 +648,15 @@ wire wrtime2_buf_ras_n;
 //
 // ** Quad 2-Input AND Gate    **
 // ** [LS08] @ 21H (1, 2 -> 3) **
+/* verilator lint_off PINCONNECTEMPTY */
 os_pulse_gen #( .DELAY( 0 ), .DURATION( 4 ) )
 wrtime2_buf_ras_n_gen
 (
 	.clk     ( i_MCLK            ),
 	.trig    ( ~wrtime2          ),
 	.trig_en ( 1'b1              ),
-	.pulse   ( wrtime2_buf_ras_n )
+	.pulse   ( wrtime2_buf_ras_n ),
+	.dl      (                   )
 );
 
 // ** Quad 2-Input Multiplexer **
@@ -686,9 +690,11 @@ obj_clr_we_gen
 	.clk     ( i_MCLK            ),
 	.trig    ( cen6              ),
 	.trig_en ( w_1h              ),
-	.pulse   ( obj_clr_we_pulse  )
+	.pulse   ( obj_clr_we_pulse  ),
+	.dl      (                   )
 );
 
+/* verilator lint_on PINCONNECTEMPTY */
 assign obj_clr_we = ~obj_clr_we_pulse;
 
 // ** Quad 2-Input OR Gate      **
@@ -948,13 +954,13 @@ end
 
 always @(*) begin
 	case( 1'b0 )
-		i_vzcs:     o_data_bus_out <= { 8'h00, scroll_ram_cpu_dout };
-		i_objram_n: o_data_bus_out <= { 8'h00, objram_cpu_dout };
-		i_vcs1:     o_data_bus_out <= { video_ram1_hi_cpu_dout, video_ram1_lo_cpu_dout };
-		i_vcs2:     o_data_bus_out <= { 8'h00, video_ram2_cpu_dout };
-		chacs1:     o_data_bus_out <= { charram_1_hi_cpu_dout, charram_1_lo_cpu_dout };
-		chacs2:     o_data_bus_out <= { charram_2_hi_cpu_dout, charram_2_lo_cpu_dout };
-		default:    o_data_bus_out <= 16'hffff;
+		i_vzcs:     o_data_bus_out = { 8'h00, scroll_ram_cpu_dout };
+		i_objram_n: o_data_bus_out = { 8'h00, objram_cpu_dout };
+		i_vcs1:     o_data_bus_out = { video_ram1_hi_cpu_dout, video_ram1_lo_cpu_dout };
+		i_vcs2:     o_data_bus_out = { 8'h00, video_ram2_cpu_dout };
+		chacs1:     o_data_bus_out = { charram_1_hi_cpu_dout, charram_1_lo_cpu_dout };
+		chacs2:     o_data_bus_out = { charram_2_hi_cpu_dout, charram_2_lo_cpu_dout };
+		default:    o_data_bus_out = 16'hffff;
 	endcase
 end
 

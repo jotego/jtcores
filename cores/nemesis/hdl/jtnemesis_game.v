@@ -382,6 +382,16 @@ GX400A_VIDEO video(
 // real PCB; nemesis_sound mixes internally and hands jtframe one channel.
 // ---------------------------------------------------------------------------
 
+// Debug audio metering expects a 192 kHz sample enable.
+wire sample_unused;
+jtframe_frac_cen #(.WC(9)) u_sample_cen(
+    .clk  ( clk ),
+    .n    ( 9'd1 ),
+    .m    ( 9'd256 ),
+    .cen  ( {sample_unused, sample} ),
+    .cenb ( )
+);
+
 localparam [7:0] VOLUME_PROMS = 8'd104,
                  VOLUME_AY1   = 8'd138,
                  VOLUME_AY2   = 8'd102;

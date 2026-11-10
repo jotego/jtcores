@@ -367,14 +367,14 @@ wire            tileline7_complete = &{hzoom_nextval[10], hzoom_tileline_cntr[0]
 always @(*)
 begin
     case({LATCH_A[5:3]})
-        4'h0: hline_complete <= tileline3_complete; //32*32     4 horizontal tileline
-        4'h1: hline_complete <= tileline1_complete; //16*32     2 horizontal tileline
-        4'h2: hline_complete <= tileline3_complete; //32*16     4 horizontal tileline
-        4'h3: hline_complete <= tileline7_complete; //64*64     8 horizontal tileline
-        4'h4: hline_complete <= tileline0_complete; //8*8       1 horizontal tileline
-        4'h5: hline_complete <= tileline1_complete; //16*8      2 horizontal tileline
-        4'h6: hline_complete <= tileline0_complete; //8*16      1 horizontal tileline
-        4'h7: hline_complete <= tileline1_complete; //16*16     2 horizontal tileline
+        3'h0: hline_complete = tileline3_complete; //32*32     4 horizontal tileline
+        3'h1: hline_complete = tileline1_complete; //16*32     2 horizontal tileline
+        3'h2: hline_complete = tileline3_complete; //32*16     4 horizontal tileline
+        3'h3: hline_complete = tileline7_complete; //64*64     8 horizontal tileline
+        3'h4: hline_complete = tileline0_complete; //8*8       1 horizontal tileline
+        3'h5: hline_complete = tileline1_complete; //16*8      2 horizontal tileline
+        3'h6: hline_complete = tileline0_complete; //8*16      1 horizontal tileline
+        3'h7: hline_complete = tileline1_complete; //16*16     2 horizontal tileline
     endcase
 end
 
@@ -452,22 +452,22 @@ wire            vtile15_complete_n = ~&{vzoom_nextval[10], vzoom_vtile_cntr[0], 
 always @(*)
 begin
     case({LATCH_A[1], LATCH_A[5:3]})
-        4'h0: vtile_complete_n <= vtile3_complete_n; //32*32    4 vetrical tiles
-        4'h1: vtile_complete_n <= vtile3_complete_n; //16*32    4 vetrical tiles
-        4'h2: vtile_complete_n <= vtile1_complete_n; //32*16    2 vetrical tiles
-        4'h3: vtile_complete_n <= vtile7_complete_n; //64*64    8 vetrical tiles
-        4'h4: vtile_complete_n <= vtile0_complete_n; //8*8      1 vetrical tiles
-        4'h5: vtile_complete_n <= vtile0_complete_n; //16*8     1 vetrical tiles
-        4'h6: vtile_complete_n <= vtile1_complete_n; //8*16     2 vetrical tiles
-        4'h7: vtile_complete_n <= vtile1_complete_n; //16*16    2 vetrical tiles
-        4'h8: vtile_complete_n <= vtile7_complete_n; //32*64    8 vetrical tiles
-        4'h9: vtile_complete_n <= vtile7_complete_n; //16*64    8 vetrical tiles
-        4'hA: vtile_complete_n <= vtile3_complete_n; //32*32    4 vetrical tiles
-        4'hB: vtile_complete_n <= vtile15_complete_n; //64*128  16 vetrical tiles
-        4'hC: vtile_complete_n <= vtile1_complete_n; //8*16     2 vetrical tiles
-        4'hD: vtile_complete_n <= vtile1_complete_n; //16*16    2 vetrical tiles
-        4'hE: vtile_complete_n <= vtile3_complete_n; //8*32     4 vetrical tiles
-        4'hF: vtile_complete_n <= vtile3_complete_n; //16*32    4 vetrical tiles
+        4'h0: vtile_complete_n = vtile3_complete_n; //32*32    4 vetrical tiles
+        4'h1: vtile_complete_n = vtile3_complete_n; //16*32    4 vetrical tiles
+        4'h2: vtile_complete_n = vtile1_complete_n; //32*16    2 vetrical tiles
+        4'h3: vtile_complete_n = vtile7_complete_n; //64*64    8 vetrical tiles
+        4'h4: vtile_complete_n = vtile0_complete_n; //8*8      1 vetrical tiles
+        4'h5: vtile_complete_n = vtile0_complete_n; //16*8     1 vetrical tiles
+        4'h6: vtile_complete_n = vtile1_complete_n; //8*16     2 vetrical tiles
+        4'h7: vtile_complete_n = vtile1_complete_n; //16*16    2 vetrical tiles
+        4'h8: vtile_complete_n = vtile7_complete_n; //32*64    8 vetrical tiles
+        4'h9: vtile_complete_n = vtile7_complete_n; //16*64    8 vetrical tiles
+        4'hA: vtile_complete_n = vtile3_complete_n; //32*32    4 vetrical tiles
+        4'hB: vtile_complete_n = vtile15_complete_n; //64*128  16 vetrical tiles
+        4'hC: vtile_complete_n = vtile1_complete_n; //8*16     2 vetrical tiles
+        4'hD: vtile_complete_n = vtile1_complete_n; //16*16    2 vetrical tiles
+        4'hE: vtile_complete_n = vtile3_complete_n; //8*32     4 vetrical tiles
+        4'hF: vtile_complete_n = vtile3_complete_n; //16*32    4 vetrical tiles
     endcase
 end
 
@@ -1104,47 +1104,47 @@ always @(*) //Quartus
 begin
     case(sprite_engine_state)
         ATTR_LATCHING_S0: begin
-            latching_start <= 1'b1;
+            latching_start = 1'b1;
 
-            hzoom_cnt_n <= 1'b1;
-            hzoom_rst_n <= 1'b1;
+            hzoom_cnt_n = 1'b1;
+            hzoom_rst_n = 1'b1;
 
-            vzoom_cnt_n <= 1'b1;
-            vzoom_rst_n <= 1'b1;
+            vzoom_cnt_n = 1'b1;
+            vzoom_rst_n = 1'b1;
 
-            ypos_cnt_n <= 1'b1;
+            ypos_cnt_n = 1'b1;
 
-            pixellatch_wait_n <= 1'b0;
+            pixellatch_wait_n = 1'b0;
         end
 
         ATTR_LATCHING_S1: begin
             if(LATCH_F_2H_NCLKD_en_n == 1'b0 && pixel3_n == 1'b0)
             begin
-                latching_start <= 1'b0;
+                latching_start = 1'b0;
 
-                hzoom_cnt_n <= 1'b1;
-                hzoom_rst_n <= 1'b0;
+                hzoom_cnt_n = 1'b1;
+                hzoom_rst_n = 1'b0;
 
-                vzoom_cnt_n <= 1'b1;
-                vzoom_rst_n <= 1'b0;
+                vzoom_cnt_n = 1'b1;
+                vzoom_rst_n = 1'b0;
 
-                ypos_cnt_n <= 1'b1;
+                ypos_cnt_n = 1'b1;
 
-                pixellatch_wait_n <= 1'b0;
+                pixellatch_wait_n = 1'b0;
             end
             else
             begin
-                latching_start <= 1'b0;
+                latching_start = 1'b0;
 
-                hzoom_cnt_n <= 1'b1;
-                hzoom_rst_n <= 1'b1;
+                hzoom_cnt_n = 1'b1;
+                hzoom_rst_n = 1'b1;
 
-                vzoom_cnt_n <= 1'b1;
-                vzoom_rst_n <= 1'b1;
+                vzoom_cnt_n = 1'b1;
+                vzoom_rst_n = 1'b1;
 
-                ypos_cnt_n <= 1'b1;
+                ypos_cnt_n = 1'b1;
 
-                pixellatch_wait_n <= 1'b0;
+                pixellatch_wait_n = 1'b0;
             end    
         end
 
@@ -1169,33 +1169,33 @@ begin
             계속 증가시켜야 합니다.
         */
 
-            latching_start <= 1'b0;
+            latching_start = 1'b0;
 
             if(drawing_status == END_OF_SPRITE)
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= ~hsize_parity;
+                    pixellatch_wait_n = ~hsize_parity;
                 end
             end
             else if(drawing_status == END_OF_HLINE)
@@ -1204,54 +1204,54 @@ begin
                 begin
                     if(pixel3_n == 1'b0) //pixel 3
                     begin
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b0;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b0;
 
-                        vzoom_cnt_n <= 1'b0;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b0;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b0;
+                        ypos_cnt_n = 1'b0;
 
-                        pixellatch_wait_n <= 1'b1;
+                        pixellatch_wait_n = 1'b1;
                     end
                     else
                     begin //before pixel 3
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= ~hsize_parity;
+                        pixellatch_wait_n = ~hsize_parity;
                     end 
                 end
                 else 
                 begin
                     if(pixel3_n == 1'b0) //pixel 3, after drawing odd pixles: will go to ODDSIZE_S0
                     begin
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b1; //latch immediately
+                        pixellatch_wait_n = 1'b1; //latch immediately
                     end
                     else
                     begin //before pixel 3, will go to HWAIT_S0
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b0; //will be latched on pixel3 of HWAIT_S0
+                        pixellatch_wait_n = 1'b0; //will be latched on pixel3 of HWAIT_S0
                     end 
                 end
                    
@@ -1260,27 +1260,27 @@ begin
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1; //latch anyway
+                    pixellatch_wait_n = 1'b1; //latch anyway
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= ~hsize_parity; //odd size = wait for the even pixel, 
+                    pixellatch_wait_n = ~hsize_parity; //odd size = wait for the even pixel,
                                                         //even size = latch(=do not need to be latched, will be drawn immediately)
                 end
             end
@@ -1288,27 +1288,27 @@ begin
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
             end
         end
@@ -1331,7 +1331,7 @@ begin
             작성합니다.
         */
 
-            latching_start <= 1'b0;
+            latching_start = 1'b0;
 
             if(drawing_status == END_OF_SPRITE)
             begin
@@ -1339,54 +1339,54 @@ begin
                 begin
                     if(pixel3_n == 1'b0) //pixel 3
                     begin
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b1;
+                        pixellatch_wait_n = 1'b1;
                     end
                     else
                     begin //before pixel 3
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b0;
+                        pixellatch_wait_n = 1'b0;
                     end
                 end
                 else //after drawing odd pixels: everything will be changed in ODDSIZE_S0
                 begin
                     if(pixel3_n == 1'b0) //pixel 3
                     begin
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b1;
+                        pixellatch_wait_n = 1'b1;
                     end
                     else
                     begin //before pixel 3
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b0;
+                        pixellatch_wait_n = 1'b0;
                     end
                 end
             end
@@ -1396,54 +1396,54 @@ begin
                 begin
                     if(pixel3_n == 1'b0) //pixel 3
                     begin
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b0;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b0;
 
-                        vzoom_cnt_n <= 1'b0;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b0;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b0;
+                        ypos_cnt_n = 1'b0;
 
-                        pixellatch_wait_n <= 1'b1;
+                        pixellatch_wait_n = 1'b1;
                     end
                     else
                     begin //before pixel 3
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b0;
+                        pixellatch_wait_n = 1'b0;
                     end
                 end
                 else //after drawing odd pixels: everything will be changed in ODDSIZE_S0
                 begin
                     if(pixel3_n == 1'b0) //pixel 3
                     begin
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b1;
+                        pixellatch_wait_n = 1'b1;
                     end
                     else
                     begin //before pixel 3
-                        hzoom_cnt_n <= 1'b1;
-                        hzoom_rst_n <= 1'b1;
+                        hzoom_cnt_n = 1'b1;
+                        hzoom_rst_n = 1'b1;
 
-                        vzoom_cnt_n <= 1'b1;
-                        vzoom_rst_n <= 1'b1;
+                        vzoom_cnt_n = 1'b1;
+                        vzoom_rst_n = 1'b1;
 
-                        ypos_cnt_n <= 1'b1;
+                        ypos_cnt_n = 1'b1;
 
-                        pixellatch_wait_n <= 1'b0;
+                        pixellatch_wait_n = 1'b0;
                     end
                 end 
             end
@@ -1451,54 +1451,54 @@ begin
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end
             end
             else //`KEEP_DRAWING: WILL NOT HAPPEN
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
             end
         end
@@ -1518,114 +1518,114 @@ begin
             작성합니다.
         */
 
-            latching_start <= 1'b0;
+            latching_start = 1'b0;
             
             if(drawing_status == END_OF_SPRITE)
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b0;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b0;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b0;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b0;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end
             end
             else if(drawing_status == END_OF_HLINE)
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b0;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b0;
 
-                    vzoom_cnt_n <= 1'b0;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b0;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b0;
+                    ypos_cnt_n = 1'b0;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end     
             end
             else if(drawing_status[1:0] == END_OF_TILELINE) //WILL NOT HAPPEN
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b0;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b0;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end
             end
             else //`KEEP_DRAWING
             begin
                 if(pixel3_n == 1'b0) //pixel 3
                 begin
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b1;
+                    pixellatch_wait_n = 1'b1;
                 end
                 else
                 begin //before pixel 3
-                    hzoom_cnt_n <= 1'b1;
-                    hzoom_rst_n <= 1'b1;
+                    hzoom_cnt_n = 1'b1;
+                    hzoom_rst_n = 1'b1;
 
-                    vzoom_cnt_n <= 1'b1;
-                    vzoom_rst_n <= 1'b1;
+                    vzoom_cnt_n = 1'b1;
+                    vzoom_rst_n = 1'b1;
 
-                    ypos_cnt_n <= 1'b1;
+                    ypos_cnt_n = 1'b1;
 
-                    pixellatch_wait_n <= 1'b0;
+                    pixellatch_wait_n = 1'b0;
                 end
             end
         end
@@ -1635,45 +1635,45 @@ begin
             SUSPEND_S0
             작업이 재개될 때 까지 기다립니다.
         */
-            latching_start <= 1'b0;
+            latching_start = 1'b0;
 
-            hzoom_cnt_n <= 1'b1;
-            hzoom_rst_n <= 1'b1;
+            hzoom_cnt_n = 1'b1;
+            hzoom_rst_n = 1'b1;
 
-            vzoom_cnt_n <= 1'b1;
-            vzoom_rst_n <= 1'b1;
+            vzoom_cnt_n = 1'b1;
+            vzoom_rst_n = 1'b1;
 
-            ypos_cnt_n <= 1'b1;
+            ypos_cnt_n = 1'b1;
 
-            pixellatch_wait_n <= 1'b0;
+            pixellatch_wait_n = 1'b0;
         end
 
         XOFF_S0: begin
-            latching_start <= 1'b0;
+            latching_start = 1'b0;
 
-            hzoom_cnt_n <= 1'b1;
-            hzoom_rst_n <= 1'b1;
+            hzoom_cnt_n = 1'b1;
+            hzoom_rst_n = 1'b1;
 
-            vzoom_cnt_n <= 1'b1;
-            vzoom_rst_n <= 1'b1;
+            vzoom_cnt_n = 1'b1;
+            vzoom_rst_n = 1'b1;
 
-            ypos_cnt_n <= 1'b1;
+            ypos_cnt_n = 1'b1;
 
-            pixellatch_wait_n <= 1'b0;
+            pixellatch_wait_n = 1'b0;
         end
 
         default: begin
-            latching_start <= 1'b0;
+            latching_start = 1'b0;
 
-            hzoom_cnt_n <= 1'b1;
-            hzoom_rst_n <= 1'b1;
+            hzoom_cnt_n = 1'b1;
+            hzoom_rst_n = 1'b1;
 
-            vzoom_cnt_n <= 1'b1;
-            vzoom_rst_n <= 1'b1;
+            vzoom_cnt_n = 1'b1;
+            vzoom_rst_n = 1'b1;
 
-            ypos_cnt_n <= 1'b1;
+            ypos_cnt_n = 1'b1;
 
-            pixellatch_wait_n <= 1'b0;
+            pixellatch_wait_n = 1'b0;
         end
     endcase
 end
@@ -1730,23 +1730,23 @@ always @(*)
 begin
     case({LATCH_A[1], LATCH_A[5:3]})
         //                     |-------(OBJ CODE)-------| 
-        4'h0: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:3], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*32    4 vetrical tiles
-        4'h1: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*32    4 vetrical tiles
-        4'h2: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[0:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*16    2 vetrical tiles
-        4'h3: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:5], VTILE_ADDR[2:0], HLINE_ADDR[2:0], TILELINE_ADDR[2:0]}; //64*64    8 vetrical tiles
-        4'h4: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:0],            1'b0, HLINE_ADDR[2:0]                    }; //8*8      1 vetrical tiles
-        4'h5: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:0],                  HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*8     1 vetrical tiles
-        4'h6: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:0], VTILE_ADDR[0:0], HLINE_ADDR[2:0]                    }; //8*16     2 vetrical tiles
-        4'h7: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:1], VTILE_ADDR[0:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*16    2 vetrical tiles
+        4'h0: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:3], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*32    4 vetrical tiles
+        4'h1: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*32    4 vetrical tiles
+        4'h2: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[0:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*16    2 vetrical tiles
+        4'h3: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:5], VTILE_ADDR[2:0], HLINE_ADDR[2:0], TILELINE_ADDR[2:0]}; //64*64    8 vetrical tiles
+        4'h4: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:0],            1'b0, HLINE_ADDR[2:0]                    }; //8*8      1 vetrical tiles
+        4'h5: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:0],                  HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*8     1 vetrical tiles
+        4'h6: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:0], VTILE_ADDR[0:0], HLINE_ADDR[2:0]                    }; //8*16     2 vetrical tiles
+        4'h7: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:1], VTILE_ADDR[0:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*16    2 vetrical tiles
 
-        4'h8: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:4], VTILE_ADDR[2:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*64    8 vetrical tiles
-        4'h9: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:3], VTILE_ADDR[2:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*64    8 vetrical tiles
-        4'hA: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:4], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*32    4 vetrical tiles
-        4'hB: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:6], VTILE_ADDR[3:0], HLINE_ADDR[2:0], TILELINE_ADDR[2:0]}; //64*128   16 vetrical tiles
-        4'hC: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:0], VTILE_ADDR[0:0], HLINE_ADDR[2:0]                    }; //8*16     2 vetrical tiles
-        4'hD: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:1], VTILE_ADDR[0:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*16    2 vetrical tiles
-        4'hE: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:1], VTILE_ADDR[1:0], HLINE_ADDR[2:0]                    }; //8*32     4 vetrical tiles
-        4'hF: CHARRAM_ADDR <= {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*32    4 vetrical tiles
+        4'h8: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:4], VTILE_ADDR[2:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*64    8 vetrical tiles
+        4'h9: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:3], VTILE_ADDR[2:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*64    8 vetrical tiles
+        4'hA: CHARRAM_ADDR = {1'b0, LATCH_D[7:6], LATCH_C[7:4], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[1:0]}; //32*32    4 vetrical tiles
+        4'hB: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:6], VTILE_ADDR[3:0], HLINE_ADDR[2:0], TILELINE_ADDR[2:0]}; //64*128   16 vetrical tiles
+        4'hC: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:0], VTILE_ADDR[0:0], HLINE_ADDR[2:0]                    }; //8*16     2 vetrical tiles
+        4'hD: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:1], VTILE_ADDR[0:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*16    2 vetrical tiles
+        4'hE: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:1], VTILE_ADDR[1:0], HLINE_ADDR[2:0]                    }; //8*32     4 vetrical tiles
+        4'hF: CHARRAM_ADDR = {LATCH_D[7:6], LATCH_C[7:2], VTILE_ADDR[1:0], HLINE_ADDR[2:0], TILELINE_ADDR[0:0]}; //16*32    4 vetrical tiles
     endcase
 end
 
@@ -1874,12 +1874,12 @@ always @(*)
 begin
     case(i_OBJWR)
         1'b1: begin //sprite drawing period
-            EVENBUFFER_ADDR <= {~buffer_frame_parity, buffer_ypos_counter, evenbuffer_xpos_counter[6:0]}; //sprite double buffering
-            ODDBUFFER_ADDR  <= {~buffer_frame_parity, buffer_ypos_counter, oddbuffer_xpos_counter[6:0]}; //sprite double buffering
+            EVENBUFFER_ADDR = {~buffer_frame_parity, buffer_ypos_counter, evenbuffer_xpos_counter[6:0]}; //sprite double buffering
+            ODDBUFFER_ADDR  = {~buffer_frame_parity, buffer_ypos_counter, oddbuffer_xpos_counter[6:0]}; //sprite double buffering
         end
         1'b0: begin //active video period
-            EVENBUFFER_ADDR <= {buffer_frame_parity, buffer_y_screencounter ^ {8{i_FLIP}}, buffer_x_screencounter ^ {7{i_FLIP}}};
-            ODDBUFFER_ADDR  <= {buffer_frame_parity, buffer_y_screencounter ^ {8{i_FLIP}}, buffer_x_screencounter ^ {7{i_FLIP}}};
+            EVENBUFFER_ADDR = {buffer_frame_parity, buffer_y_screencounter ^ {8{i_FLIP}}, buffer_x_screencounter ^ {7{i_FLIP}}};
+            ODDBUFFER_ADDR  = {buffer_frame_parity, buffer_y_screencounter ^ {8{i_FLIP}}, buffer_x_screencounter ^ {7{i_FLIP}}};
         end
     endcase
 end
@@ -1919,11 +1919,11 @@ always @(*)
 begin
     if(oddbuffer_xpos_counter == 8'd124 && buffer_ypos_counter == 8'd218)
     begin
-        debug <= 1'b1;
+        debug = 1'b1;
     end
     else
     begin
-        debug <= 1'b0;
+        debug = 1'b0;
     end
 end
 

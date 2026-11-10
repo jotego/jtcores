@@ -201,10 +201,10 @@ assign input_mux_sel = cpu_addr[2:1];
 // ** [LS253] @ 3E, 3F, 3G, 3J         **
 always @(*) begin
 	case( input_mux_sel )
-		2'b00: input_mux_out <= input_mux_a;
-		2'b01: input_mux_out <= input_mux_b;
-		2'b10: input_mux_out <= input_mux_c;
-		2'b11: input_mux_out <= input_mux_d;
+		2'b00: input_mux_out = input_mux_a;
+		2'b01: input_mux_out = input_mux_b;
+		2'b10: input_mux_out = input_mux_c;
+		2'b11: input_mux_out = input_mux_d;
 	endcase
 end
 
@@ -420,10 +420,10 @@ jtframe_ff u_18f(
 // ** [LS153] @ 16E                                   **
 always @(*) begin
 	case( { prom_cs_n, vzure_objram_cs_n, vram_chara_cs_n } )
-		3'b011:  DTACKn <= ( LUDSn | ~i_rom_ok ); // PROM (add ROM OK signal to wait for SDRAM ready)
-		3'b101:  DTACKn <= DTACKn_vzure_objram;   // VZURE or OBJRAM
-		3'b110:  DTACKn <= DTACKn_vram_chara;     // VRAMCS1-2, CHARA
-		default: DTACKn <= DTACKn_other;
+		3'b011:  DTACKn = ( LUDSn | ~i_rom_ok ); // PROM (add ROM OK signal to wait for SDRAM ready)
+		3'b101:  DTACKn = DTACKn_vzure_objram;   // VZURE or OBJRAM
+		3'b110:  DTACKn = DTACKn_vram_chara;     // VRAMCS1-2, CHARA
+		default: DTACKn = DTACKn_other;
 	endcase
 end
 
@@ -466,11 +466,11 @@ jtframe_ff u_17f_bottom(
 // ** [LS147] @ 16F                      **
 always @(*) begin
 	if( ~u16f_d2 & i_pause )
-		ipl_n <= 3'b101;
+		ipl_n = 3'b101;
 	else if( ~u16f_d1 & i_pause )
-		ipl_n <= 3'b110;
+		ipl_n = 3'b110;
 	else
-		ipl_n <= 3'b111;
+		ipl_n = 3'b111;
 end
 
 // ---------------------------------------------------------------------------

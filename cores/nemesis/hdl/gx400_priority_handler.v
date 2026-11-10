@@ -550,6 +550,7 @@ always @(*) begin
 				&{ i_TM_A_PX_TRANS, ~i_TM_B_PX_TRANS, ~obj_px_trans },
 				1'b0
 			};
+		default: tm_select = 2'b00;
 	endcase
 end
 

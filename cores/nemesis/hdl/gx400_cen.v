@@ -75,11 +75,12 @@ module gx400_cen(
 
 localparam        WC     = 10; // enough for largest parameter (which is 500 or 512)
 
+wire cen9_unused;
 jtframe_frac_cen #( .W(2) ) u_cpucen(
 	.clk        ( i_clk      ), // input 48 MHz
 	.n          ( 10'd24     ),
 	.m          ( 10'd128    ),
-	.cen        ( o_cen9     ), // output 9'216'000 Hz
+	.cen        ( {cen9_unused, o_cen9} ), // output 9'216'000 Hz
 	.cenb       (            )
 );
 

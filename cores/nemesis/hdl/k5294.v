@@ -153,14 +153,14 @@ reg     [3:0]   OBJ_PIXEL_UNLATCHED;
 always @(*)
 begin
     case(pixelsel_dly)
-        3'b000: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[31:28]; //pixel 0(A)
-        3'b001: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[27:24]; //pixel 1(B)
-        3'b010: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[23:20];
-        3'b011: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[19:16];
-        3'b100: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[15:12];
-        3'b101: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[11:8];
-        3'b110: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[7:4];
-        3'b111: OBJ_PIXEL_UNLATCHED <= OBJ_TILELINELATCH[3:0];
+        3'b000: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[31:28]; //pixel 0(A)
+        3'b001: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[27:24]; //pixel 1(B)
+        3'b010: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[23:20];
+        3'b011: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[19:16];
+        3'b100: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[15:12];
+        3'b101: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[11:8];
+        3'b110: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[7:4];
+        3'b111: OBJ_PIXEL_UNLATCHED = OBJ_TILELINELATCH[3:0];
     endcase
 end
 
@@ -183,20 +183,20 @@ always @(*)
 begin
     case({pixellatch_wait_dly[2], i_XPOS_D0})
         2'b00: begin
-            o_DA <= {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
-            o_DB <= {OBJ_PALETTE, OBJ_PIXEL_UNLATCHED};
+            o_DA = {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
+            o_DB = {OBJ_PALETTE, OBJ_PIXEL_UNLATCHED};
         end
         2'b01: begin
-            o_DA <= {OBJ_PALETTE, OBJ_PIXEL_UNLATCHED};
-            o_DB <= {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
+            o_DA = {OBJ_PALETTE, OBJ_PIXEL_UNLATCHED};
+            o_DB = {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
         end
         2'b10: begin
-            o_DA <= {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
-            o_DB <= {4'b0000, 4'b0000};
+            o_DA = {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
+            o_DB = {4'b0000, 4'b0000};
         end
         2'b11: begin
-            o_DA <= {4'b0000, 4'b0000};
-            o_DB <= {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
+            o_DA = {4'b0000, 4'b0000};
+            o_DB = {OBJ_PALETTE, OBJ_PIXEL_LATCHED};
         end
     endcase
 end

@@ -48,6 +48,7 @@ always @( posedge mclk ) begin
 			2'b10: Q <= { L, Q[N-1:1] }; // feed from left
 			2'b01: Q <= { Q[N-2:0], R }; // feed from right
 			2'b11: Q <= D;               // parallel load
+			default: ;                // hold
 		endcase
 	end
 end

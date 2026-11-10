@@ -220,7 +220,7 @@ always @(posedge i_CLK ) if( i_CEN6 ) begin
 	case( tm_select )
 		2'b10:   o_COLOR_RAM_ADDR <= { tm_a_shift_a2_latched[6:0], i_TM_A_PX_DATA };
 		2'b11:   o_COLOR_RAM_ADDR <= { tm_b_shift_b_latched[6:0],  i_TM_B_PX_DATA };
-		default: o_COLOR_RAM_ADDR <= obj_px_data_muxed;
+		default: o_COLOR_RAM_ADDR <= {3'b000, obj_px_data_muxed};
 	endcase
 end
 

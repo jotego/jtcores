@@ -185,8 +185,8 @@ reg     [3:0]   hscroll_shift_a_adder;
 reg     [3:0]   hscroll_shift_b_adder;
 
 always @( posedge i_MCLK ) begin
-    hscroll_shift_a_adder <= hscroll_value_latch_0[2:0] + ( i_HCNTR_BUS[2:0] ^ {3{i_HFLIP}} );
-    hscroll_shift_b_adder <= hscroll_value_latch_1[2:0] + ( i_HCNTR_BUS[2:0] ^ {3{i_HFLIP}} );
+    hscroll_shift_a_adder <= {1'b0, hscroll_value_latch_0[2:0]} + {1'b0, (i_HCNTR_BUS[2:0] ^ {3{i_HFLIP}})};
+    hscroll_shift_b_adder <= {1'b0, hscroll_value_latch_1[2:0]} + {1'b0, (i_HCNTR_BUS[2:0] ^ {3{i_HFLIP}})};
 end
 
 assign o_SHIFT_A1 = ~(  hscroll_shift_a_adder[2] & hscroll_shift_a_adder[1] & hscroll_shift_a_adder[0] );
@@ -199,11 +199,11 @@ assign o_SHIFT_B  = ~( ~hscroll_shift_b_adder[2] & hscroll_shift_b_adder[1] & hs
     TILEMAP HORIZONTAL ADDRESS GENERATOR
 */
 
-reg     [5:0]   latched_scroll_value = 5'd0;
+reg     [5:0]   latched_scroll_value = 6'd0;
 reg     [6:0]   tile_h_address_adder;
 
 always @( posedge i_MCLK ) begin
-    tile_h_address_adder <= latched_scroll_value + ({i_256H_n, i_128HA, i_HCNTR_BUS[6:3]} ^ {6{i_HFLIP}});
+    tile_h_address_adder <= {1'b0, latched_scroll_value} + {1'b0, ({i_256H_n, i_128HA, i_HCNTR_BUS[6:3]} ^ {6{i_HFLIP}})};
 end
 
 always @(*) 
