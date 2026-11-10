@@ -259,7 +259,7 @@ jtframe_pole #(.WA(8), .WS(14)) u_pole(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( sample    ),
-    .a          ( 8'he7     ),  // pole at 770Hz for a 48kHz sample rate
+    .a          ( 8'h94     ),  // first-order 4 kHz low-pass at 48 kHz
     .sin        ( oki_pre   ),
     .sout       ( pcm_rc    )
 );
