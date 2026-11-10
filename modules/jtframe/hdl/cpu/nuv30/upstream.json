@@ -1,0 +1,154 @@
+{
+  "repository": "https://github.com/wickerwaka/nuV30",
+  "commit": "ddda5dfe792672680952e95de5625dfc372fa593",
+  "author": "Andrea Bogazzi",
+  "creation_date": "18-10-2026",
+  "upstream_license_file": "LICENSE",
+  "adaptations": {
+    "v30_core.sv": "Expose HEXDIR and forward it to the execution unit",
+    "v30u_eu.sv": "Expose HEXDIR and forward it to the microcode ROM",
+    "v30u_biu.sv": "Refresh read data at the READY completion edge, including waited reads; preserve the original T2 sample"
+  },
+  "files": [
+    {
+      "name": "pla3_tables.svh",
+      "upstream_sha256": "0d9693c01a289c7eb258ef9478c3405c93492417ee2cf42a28e4552360f61302",
+      "local_sha256": "0d9693c01a289c7eb258ef9478c3405c93492417ee2cf42a28e4552360f61302"
+    },
+    {
+      "name": "ucdecode.hex",
+      "upstream_sha256": "f5cf6e2bef1d3bec371d0b0227fb7cbcaaf62fd68f2ba3e505d345f492e08bda",
+      "local_sha256": "f5cf6e2bef1d3bec371d0b0227fb7cbcaaf62fd68f2ba3e505d345f492e08bda"
+    },
+    {
+      "name": "ucrom.hex",
+      "upstream_sha256": "d9cfcddd4cb473f0c21f112bd64419e91d9395a256158e0205137e12ba3e531d",
+      "local_sha256": "d9cfcddd4cb473f0c21f112bd64419e91d9395a256158e0205137e12ba3e531d"
+    },
+    {
+      "name": "v30_core.sv",
+      "upstream_sha256": "e4ecf911e8874ed95d96bb738dc6b836741ba9164ed2c11ccf527219d48eb670",
+      "local_sha256": "159e86653719ea7395b23af539a55ff7b88cfe323739824a7cd9d79ca31dffe2"
+    },
+    {
+      "name": "v30u_biu.sv",
+      "upstream_sha256": "8e54248ef1bd5567c2af6a1b5ef8feee88d8c695b1c9d675ac25e40df2e5c463",
+      "local_sha256": "45f27a1000d189c255e5a28400483a0505e7173b38112ada752dc55655f39e03"
+    },
+    {
+      "name": "v30u_eu.sv",
+      "upstream_sha256": "4bd5ecd88194a3e19019d7af209c32732567355310401306f242e6c8f7b15945",
+      "local_sha256": "f22be15db1d800c38139dd3227bf3684cf501bc844bb1bc413caffaafd909be6"
+    },
+    {
+      "name": "v30u_eu_1bl.svh",
+      "upstream_sha256": "8f22d7cd81a85092cb084996b17f8d70b70d19705ef79645dfd2a68bd83798f2",
+      "local_sha256": "8f22d7cd81a85092cb084996b17f8d70b70d19705ef79645dfd2a68bd83798f2"
+    },
+    {
+      "name": "v30u_eu_arm_bind.svh",
+      "upstream_sha256": "3a26f19bf252d851590c895ece3798e1653f3b6e78327efb10294366e730f3e9",
+      "local_sha256": "3a26f19bf252d851590c895ece3798e1653f3b6e78327efb10294366e730f3e9"
+    },
+    {
+      "name": "v30u_eu_arm_decode.svh",
+      "upstream_sha256": "0f376e6049fc82c954e13a5c030fd1633a90fbd1436c0d51ea68fb2fe62cb09a",
+      "local_sha256": "0f376e6049fc82c954e13a5c030fd1633a90fbd1436c0d51ea68fb2fe62cb09a"
+    },
+    {
+      "name": "v30u_eu_arm_decode2.svh",
+      "upstream_sha256": "20164c8bbd2660dca8c2af62ddb70de01402404100a899f97ff6865c607508e3",
+      "local_sha256": "20164c8bbd2660dca8c2af62ddb70de01402404100a899f97ff6865c607508e3"
+    },
+    {
+      "name": "v30u_eu_arm_ea_calc.svh",
+      "upstream_sha256": "f0899a88f21db96a5e760c6e58e217919096d9c07543b88049dcd33617bedd71",
+      "local_sha256": "f0899a88f21db96a5e760c6e58e217919096d9c07543b88049dcd33617bedd71"
+    },
+    {
+      "name": "v30u_eu_arm_enter.svh",
+      "upstream_sha256": "e54ddc62fce3f99111e9fd9f18f40e62584a523cd03e901dd31b0ea96ace3079",
+      "local_sha256": "e54ddc62fce3f99111e9fd9f18f40e62584a523cd03e901dd31b0ea96ace3079"
+    },
+    {
+      "name": "v30u_eu_arm_instr_end.svh",
+      "upstream_sha256": "af5057d357ce05a20abbd690d108231d1efa6c91a29b909effceddd134f05e01",
+      "local_sha256": "af5057d357ce05a20abbd690d108231d1efa6c91a29b909effceddd134f05e01"
+    },
+    {
+      "name": "v30u_eu_arm_tail.svh",
+      "upstream_sha256": "cc015ce8094c64f2ebf2c77d2f21dcb01295c18e15427ca239c6dbea4d2ea2ac",
+      "local_sha256": "cc015ce8094c64f2ebf2c77d2f21dcb01295c18e15427ca239c6dbea4d2ea2ac"
+    },
+    {
+      "name": "v30u_eu_arm_tail_pop.svh",
+      "upstream_sha256": "f3b12b9df5ed40a6a2693df149923c55ab7f8081e6218c5b10b9f19ad570ba62",
+      "local_sha256": "f3b12b9df5ed40a6a2693df149923c55ab7f8081e6218c5b10b9f19ad570ba62"
+    },
+    {
+      "name": "v30u_eu_arm_take_opc.svh",
+      "upstream_sha256": "64431461fce0e707869e6df465b7dc26d864fa2dc313260e7014c686546b8484",
+      "local_sha256": "64431461fce0e707869e6df465b7dc26d864fa2dc313260e7014c686546b8484"
+    },
+    {
+      "name": "v30u_eu_chain_pos.svh",
+      "upstream_sha256": "60ccea8d54d2e0e8053e4944b26f2b3c4ea5c5ed054dbb8b4dd628e29c1bd95a",
+      "local_sha256": "60ccea8d54d2e0e8053e4944b26f2b3c4ea5c5ed054dbb8b4dd628e29c1bd95a"
+    },
+    {
+      "name": "v30u_eu_cond.svh",
+      "upstream_sha256": "c676efd95c420875248741134a80cfe6b46bb3cea30119070ce6c7cd6e2c81fb",
+      "local_sha256": "c676efd95c420875248741134a80cfe6b46bb3cea30119070ce6c7cd6e2c81fb"
+    },
+    {
+      "name": "v30u_eu_iend_late.svh",
+      "upstream_sha256": "5dcf16f01584ae258d5c63b9bd969a8623cc7ffba827506f04f5753c1e5df20a",
+      "local_sha256": "5dcf16f01584ae258d5c63b9bd969a8623cc7ffba827506f04f5753c1e5df20a"
+    },
+    {
+      "name": "v30u_eu_poste.svh",
+      "upstream_sha256": "e8644de45bd67f0b04726f384d1cb250f8d6b8413d4b8058203fb6c46162cfd1",
+      "local_sha256": "e8644de45bd67f0b04726f384d1cb250f8d6b8413d4b8058203fb6c46162cfd1"
+    },
+    {
+      "name": "v30u_eu_preload.svh",
+      "upstream_sha256": "42052f5258da6c1816b988eca97cc52b7b7d5569a4757273dd5f03b1fa3fe461",
+      "local_sha256": "42052f5258da6c1816b988eca97cc52b7b7d5569a4757273dd5f03b1fa3fe461"
+    },
+    {
+      "name": "v30u_eu_row.svh",
+      "upstream_sha256": "692c8cf49961f1f0e47b66349ddd70f6907c1c84eb87dbdb7ae056bd81220f4c",
+      "local_sha256": "692c8cf49961f1f0e47b66349ddd70f6907c1c84eb87dbdb7ae056bd81220f4c"
+    },
+    {
+      "name": "v30u_eu_ss_read.svh",
+      "upstream_sha256": "877a63d21dc92483c18ed0fe126bb247d60dc7ee143446b6a1d04f676a640fdb",
+      "local_sha256": "877a63d21dc92483c18ed0fe126bb247d60dc7ee143446b6a1d04f676a640fdb"
+    },
+    {
+      "name": "v30u_eu_ss_write.svh",
+      "upstream_sha256": "3c233d019d92a773fcc5c67d71fef730efcc9b45b20c7c1c04bf38f91184d579",
+      "local_sha256": "3c233d019d92a773fcc5c67d71fef730efcc9b45b20c7c1c04bf38f91184d579"
+    },
+    {
+      "name": "v30u_eu_step.svh",
+      "upstream_sha256": "3774e7368f894fce98198f867776bb6cfd62694756695d0d965fd19b7eb9aa8a",
+      "local_sha256": "3774e7368f894fce98198f867776bb6cfd62694756695d0d965fd19b7eb9aa8a"
+    },
+    {
+      "name": "v30u_eu_wd1.svh",
+      "upstream_sha256": "a6bd4ac45f8b6ca304f9b6eadee3ee8d8d504def574e20566c297b2f8348b65d",
+      "local_sha256": "a6bd4ac45f8b6ca304f9b6eadee3ee8d8d504def574e20566c297b2f8348b65d"
+    },
+    {
+      "name": "v30u_ss_pkg.sv",
+      "upstream_sha256": "c9d198f0cbead26f1f797468ef16b72f4cabf67f2fb58599cf0375b291a32aed",
+      "local_sha256": "c9d198f0cbead26f1f797468ef16b72f4cabf67f2fb58599cf0375b291a32aed"
+    },
+    {
+      "name": "v30u_ucrom.sv",
+      "upstream_sha256": "60aa81810bbccaa3ab6041394429e1762ab880b051f5aa037ffe15b1df931718",
+      "local_sha256": "60aa81810bbccaa3ab6041394429e1762ab880b051f5aa037ffe15b1df931718"
+    }
+  ]
+}
