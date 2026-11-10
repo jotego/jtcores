@@ -1,9 +1,10 @@
 --- mame/resnet.cpp	2023-09-27 11:37:36.000000000 +0200
 +++ mame/resnet.cpp	2023-09-27 13:42:09.000000000 +0200
-@@ -45,12 +45,21 @@
+@@ -45,12 +45,22 @@
  
  *****************************************************************************/
  
++#include <cstdint>
 +#include <iostream>
 +#include <stdio.h>
  
@@ -25,7 +26,7 @@
  
  double compute_resistor_weights(
  	int minval, int maxval, double scaler,
-@@ -717,3 +726,39 @@
+@@ -717,3 +727,39 @@
  		rgb[i-rdi.start] = rgb_t(r,g,b);
  	}
  }
