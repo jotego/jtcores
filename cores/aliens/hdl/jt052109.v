@@ -102,7 +102,8 @@ localparam [ 2:0] REG_CFG   = 0, // 1C00 set at start up,   only 6 bits used
 // tile map addressing
 wire [15:0] scan_dout;
 reg  [ 7:0] mmr[0:6], col_cfg,
-            vposa, vposb;
+            vposa, vposb, prv_va, prv_vb, veff_a, veff_b;
+reg  [ 5:0] prv_ca, prv_cb;
 reg  [ 8:0] hposa, hposb, heff_a, heff_b, vdumpf;
 reg  [ 8:0] hdumpf;
 wire [ 7:0] bank0, bank1, cfg, int_en, ram0_dout,
@@ -200,8 +201,11 @@ always @* begin
     map_a[5:0] = hdumpf[8:3] + heff_a[8:3] + {5'd0,ca};
     map_b[5:0] = hdumpf[8:3] + heff_b[8:3] + {5'd0,cb};
     // V part of the scan
-    { map_a[10:6], vsub_a } = vdumpf[7:0] + vposa;
-    { map_b[10:6], vsub_b } = vdumpf[7:0] + vposb;
+    // a tile fetched again at the next column keeps its column scroll value
+    veff_a = cscra_en && !hdump[2] && map_a[5:0]==prv_ca ? prv_va : vposa;
+    veff_b = cscrb_en && !hdump[2] && map_b[5:0]==prv_cb ? prv_vb : vposb;
+    { map_a[10:6], vsub_a } = vdumpf[7:0] + veff_a;
+    { map_b[10:6], vsub_b } = vdumpf[7:0] + veff_b;
 
     // scan address
     if( rd_rowscr ) begin
@@ -343,6 +347,10 @@ always @(posedge clk) begin
         // hposb     <= 0;
         vposa     <= 0;
         vposb     <= 0;
+        prv_va    <= 0;
+        prv_vb    <= 0;
+        prv_ca    <= 0;
+        prv_cb    <= 0;
         vdumpf    <= 0;
     end else begin
 // `ifdef SIMULATION
@@ -361,8 +369,8 @@ always @(posedge clk) begin
                     if( rd_vpos || cscrb_en )
                         vposb <= scan_dout[ 7:0];
                 end
-                1: begin lyra_col <= col_cfg; lyra_extra <= ram0_dout; lyra_addr <= { cab, vc }; end
-                2: begin lyrb_col <= col_cfg; lyrb_extra <= ram0_dout; lyrb_addr <= { cab, vc }; end
+                1: begin lyra_col <= col_cfg; lyra_extra <= ram0_dout; lyra_addr <= { cab, vc }; { prv_ca, prv_va } <= { map_a[5:0], veff_a }; end
+                2: begin lyrb_col <= col_cfg; lyrb_extra <= ram0_dout; lyrb_addr <= { cab, vc }; { prv_cb, prv_vb } <= { map_b[5:0], veff_b }; end
                 3: begin lyrf_col <= col_cfg; lyrf_extra <= ram0_dout; lyrf_addr <= { cab, vc[10:3], vc[2:0]^{3{flip}} }; end
             endcase else case( hdump[1:0] ) // row scroll position reading
                 0: if( rd_hpos || rscra_en ) hposa[7:0] <= scan_dout[15:8];
