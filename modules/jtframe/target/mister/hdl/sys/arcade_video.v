@@ -26,7 +26,7 @@
 // 12 : 4R 4G 4B
 // 24 : 8R 8G 8B
 
-module arcade_video #(parameter WIDTH=320, DW=8, GAMMA=1)
+module arcade_video #(parameter WIDTH=320, DW=8, GAMMA=1, INTERLACED=0)
 (
 	input         clk_video,
 	input         ce_pix,
@@ -68,7 +68,9 @@ always @(posedge CLK_VIDEO) begin
 	if(~old_ce & ce_pix) begin
 		CE <= 1;
 		HS <= hs_fix;
-		if(~HS & hs_fix) VS <= vs_fix;
+		// Progressive sources align VSync to HSync. Native interlaced
+		// sources must retain their half-line VSync phase.
+		if(INTERLACED || (~HS & hs_fix)) VS <= vs_fix;
 
 		RGB_fix <= RGB_in;
 		HBL <= HBlank;

@@ -76,6 +76,15 @@ module emu
     output        NATIVE_HS,
     output        NATIVE_VS,
     output        NATIVE_DE,
+`elsif JTFRAME_SPLIT_VIDEO
+    output        SCALER_CE,
+    output  [7:0] SCALER_R,
+    output  [7:0] SCALER_G,
+    output  [7:0] SCALER_B,
+    output        SCALER_HS,
+    output        SCALER_VS,
+    output        SCALER_DE,
+    output        SCALER_F1,
 `endif
 
     input  [11:0] HDMI_WIDTH,
@@ -197,13 +206,33 @@ module emu
 `endif
 
 `ifdef JTFRAME_CRT480I
-wire   crt_f1;
-assign VGA_F1=crt_f1;
+wire crt_f1;
+assign VGA_F1 = crt_f1;
+`elsif JTFRAME_SPLIT_VIDEO
+wire [7:0] split_r, split_g, split_b;
+wire split_hs, split_vs, split_de, split_ce, split_field;
+
+`ifndef JTFRAME_INTERLACED
+assign SCALER_F1 = 1'b0;
+`else
+wire field;
+assign SCALER_F1 = field;
+`endif
+
+assign VGA_R     = split_r;
+assign VGA_G     = split_g;
+assign VGA_B     = split_b;
+assign VGA_HS    = split_hs;
+assign VGA_VS    = split_vs;
+assign VGA_DE    = split_de;
+assign VGA_F1    = split_field;
+assign CE_PIXEL  = split_ce;
+assign VGA_SL    = 2'd0;
 `else
     `ifndef JTFRAME_INTERLACED
     assign VGA_F1=1'b0;
     `else
-    wire   field;
+    wire field;
     assign VGA_F1=field;
     `endif
 `endif
@@ -735,6 +764,16 @@ u_frame(
     .crt_f1         ( crt_f1         ),
     .crt_sl         ( VGA_SL         ),
     .crt_on         ( CRT480I_ON     ),
+`elsif JTFRAME_SPLIT_VIDEO
+    .scan2x_r       ( SCALER_R       ),
+    .scan2x_g       ( SCALER_G       ),
+    .scan2x_b       ( SCALER_B       ),
+    .scan2x_hs      ( SCALER_HS      ),
+    .scan2x_vs      ( SCALER_VS      ),
+    .scan2x_clk     ( CLK_VIDEO      ),
+    .scan2x_cen     ( SCALER_CE      ),
+    .scan2x_de      ( SCALER_DE      ),
+    .scan2x_sl      (                ),
 `else
     // scan doubler output to VGA pins
     .scan2x_r       ( VGA_R          ),

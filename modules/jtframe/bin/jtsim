@@ -658,11 +658,16 @@ echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 if [[ ! -z "$SCENE" && ( -e frames/frame_00001.png || -e frames/frame_00001.jpg ) ]]; then
     if [ ! -z "$BATCH" ]; then
         scene_frame=$(copy_scene_frame)
-        compare_scene_snapshot "$scene_frame" || exit $?
+        # Core-local scene checks may compare a native field with a full-frame reference.
+        if [ -z "${JTFRAME_SCENE_COMPARE_SKIP:-}" ]; then
+            compare_scene_snapshot "$scene_frame" || exit $?
+        fi
     else
         scene_frame=$(last_frame_image)
         scene_compare_status=0
-        compare_scene_snapshot "$scene_frame" || scene_compare_status=$?
+        if [ -z "${JTFRAME_SCENE_COMPARE_SKIP:-}" ]; then
+            compare_scene_snapshot "$scene_frame" || scene_compare_status=$?
+        fi
         if which eom > /dev/null; then
             display_scene_frame&
         fi
