@@ -47,6 +47,8 @@ jtgeebee_cab u_cab(
     .clk      ( clk          ),
     .rst      ( rst          ),
     .joystick1( joystick1    ),
+    .joyana_l1( joyana_l1    ),
+    .joyana_l2( joyana_l2    ),
     .dial_x   ( dial_x       ),
     .dial_y   ( dial_y       ),
     .flip     ( flip         ),
