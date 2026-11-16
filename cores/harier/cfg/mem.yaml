@@ -78,7 +78,7 @@ bram:
     size: 4kB
     data_width: 16
     rw: true
-    ioctl: { save: true, restore: true, order: 0 }
+    ioctl: { save: true, order: 0 }
     dual_port:
       name: roaden
       addr: rdram_addr
@@ -91,7 +91,7 @@ bram:
     addr: main_addr[11:1]
     din: main_dout
     rw: true
-    ioctl: { save: true, restore: true, order: 1 }
+    ioctl: { save: true, order: 1 }
     dual_port:
       name: obj
       addr: objdma_addr
@@ -102,7 +102,7 @@ bram:
     addr: main_addr[11:1]
     din: main_dout
     rw: true
-    ioctl: { save: true, restore: true, order: 2 }
+    ioctl: { save: true, order: 2 }
     dual_port:
       name: palrd
       addr: pal_vaddr
