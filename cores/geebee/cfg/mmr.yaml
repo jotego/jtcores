@@ -2,4 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Date: 06-11-2026
 
-[]
+- name: scene
+  size: 6
+  dw: 8
+  regs:
+    - { name: bgw, dw: 1, at: "0[0]" }
+    - { name: ball_on, dw: 1, at: "1[0]" }
+    - { name: ball_h, dw: 8, at: "2" }
+    - { name: ball_v, dw: 8, at: "3" }
+    - { name: flip_x, dw: 1, at: "4[0]" }
+    - { name: flip_y, dw: 1, at: "5[0]" }

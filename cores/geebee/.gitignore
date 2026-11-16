@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Date: 16-11-2026
+
+!ver/game/rest2bin.sh
+!ver/game/simscene.sh
+!ver/geebee/mamedump.sh
+!ver/geebee/mamedump.lua

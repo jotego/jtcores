@@ -6,6 +6,9 @@ module jtgeebee_main(
     input             clk,
     input             rst,
     input             cen_cpu,
+    input             pxl_cen,
+    input      [8:0]  h,
+    input      [8:0]  v,
     input             vblank,
     input      [7:0]  sw0,
     input      [7:0]  sw1,
@@ -54,10 +57,17 @@ wire bhd_wr = out6_sel && addr[1:0] == 2'd0;
 wire bvd_wr = out6_sel && addr[1:0] == 2'd1;
 wire sound_wr = out6_sel && addr[1:0] == 2'd3;
 wire int_ack = !m1_n && !iorq_n;
+wire ram_cycle = ram_sel && !mreq_n && (!rd_n || !wr_n);
+wire video_cycle = (vram_sel || cgrom_sel) && !mreq_n && (!rd_n || !wr_n);
+wire ready_n = (!ram_cycle || ram_waited) &&
+               !(video_cycle && ready_h_nq && ready_v_q);
 reg [7:0] din;
 reg [7:0] latch;
 reg vblank_d;
 reg irq;
+reg ram_waited;
+reg ready_h_nq;
+reg ready_v_q;
 
 assign maincpu_addr = addr[11:0];
 assign gfx_cpu_addr = addr[9:0];
@@ -76,9 +86,7 @@ assign flip         = latch[7];
 
 always @* begin
     din = 8'hff;
-    if (int_ack) begin
-        din = 8'hcf;
-    end else if (bus_rd) begin
+    if (!int_ack && bus_rd) begin
         if (rom2_sel) din = maincpu_data;
         if (vram_sel) din = vram_dout;
         if (cgrom_sel) din = gfx1_data;
@@ -97,7 +105,18 @@ always @(posedge clk or posedge rst) begin
         ball_y   <= 0;
         vblank_d <= 0;
         irq      <= 0;
+        ram_waited <= 0;
+        ready_h_nq <= 0;
+        ready_v_q <= 0;
     end else begin
+        if (!ram_cycle) ram_waited <= 0;
+        else if (cen_cpu) ram_waited <= 1;
+        if (pxl_cen) begin
+            if (h[6:4] == 3'b111) ready_h_nq <= 1;
+            else if (h[4] && h[3:0] == 4'd0) ready_h_nq <= 0;
+            if (h == 0 && v[4] && v[3:0] == 4'd0)
+                ready_v_q <= !(v[7] && v[6] && v[5]);
+        end
         vblank_d <= vblank;
         if (vblank && !vblank_d) irq <= 1;
         if (int_ack) irq <= 0;
@@ -124,7 +143,7 @@ T80s #(
     .RESET_n( ~rst    ),
     .CLK    ( clk     ),
     .CEN    ( cen_cpu ),
-    .WAIT_n ( 1'b1    ),
+    .WAIT_n ( ready_n ),
     .INT_n  ( ~irq    ),
     .NMI_n  ( 1'b1    ),
     .BUSRQ_n( 1'b1    ),

@@ -26,6 +26,7 @@ bram:
     addr_width: 10
     data_width: 8
     rw: true
+    simfile: {}
     dual_port:
       name: vram_video
       addr: vram_video_addr
