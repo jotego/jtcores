@@ -29,14 +29,16 @@ always @(posedge clk or posedge rst) begin
         paddle_pos <= 8'h58;
         paddle     <= 8'h58;
         paddle_div <= 0;
-    end else if (paddle_div == 13'd4095) begin
-        paddle_div <= 0;
-        if (!joystick1[0] && joystick1[1]) paddle_pos <= paddle_pos - 1'b1;
-        if (!joystick1[1] && joystick1[0]) paddle_pos <= paddle_pos + 1'b1;
     end else begin
-        paddle_div <= paddle_div + 1'b1;
+        if (paddle_div == 13'd4095) begin
+            paddle_div <= 0;
+            if (!joystick1[0] && joystick1[1]) paddle_pos <= paddle_pos - 1'b1;
+            if (!joystick1[1] && joystick1[0]) paddle_pos <= paddle_pos + 1'b1;
+        end else begin
+            paddle_div <= paddle_div + 1'b1;
+        end
+        if (v == paddle_pos) paddle <= v;
     end
-    if (!rst && v == paddle_pos) paddle <= v;
 end
 
 endmodule
