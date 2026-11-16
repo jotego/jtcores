@@ -36,7 +36,7 @@ reg [3:0] sh_hi, sh_lo;
 reg char_gate_latch;
 reg [7:0] ball_hcnt;
 reg ball_count_en;
-wire [7:0] ball_vsum = ball_y + v[7:0];
+wire [7:0] ball_vsum = ball_y + (flip ? ~v[7:0] : v[7:0]);
 
 jtframe_vtimer #(
     .HCNT_START( 9'd0   ),
@@ -93,8 +93,8 @@ always @(posedge clk or posedge rst) begin
 end
 
 always @(posedge clk) if (pxl_cen) begin
-    if (hs) ball_hcnt <= ball_x;
-    else if (ball_count_en) ball_hcnt <= ball_hcnt + 1'b1;
+    if (hs) ball_hcnt <= flip ? ball_x - 8'd3 : ball_x;
+    else if (ball_count_en) ball_hcnt <= flip ? ball_hcnt - 1'b1 : ball_hcnt + 1'b1;
 end
 
 always @(posedge clk) if (pxl_cen) begin

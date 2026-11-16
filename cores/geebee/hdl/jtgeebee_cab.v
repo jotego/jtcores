@@ -5,7 +5,10 @@
 module jtgeebee_cab(
     input            clk,
     input            rst,
-    input      [6:0] joystick1,
+    input      [4:0] joystick1,
+    input      [1:0] dial_x,
+    input      [1:0] dial_y,
+    input            flip,
     input      [1:0] cab_1p,
     input      [1:0] coin,
     input            service,
@@ -17,8 +20,9 @@ module jtgeebee_cab(
     output reg [7:0] paddle
 );
 
-reg [7:0] paddle_pos;
-reg [12:0] paddle_div;
+reg [7:0] paddle_pos_1p, paddle_pos_2p;
+reg [1:0] dial_x_last, dial_y_last;
+wire [7:0] paddle_pos = flip ? paddle_pos_2p : paddle_pos_1p;
 
 assign sw0 = {2'b11, service, joystick1[4], cab_1p, coin};
 assign sw1 = 8'hff;
@@ -26,17 +30,22 @@ assign dsw = dipsw;
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
-        paddle_pos <= 8'h58;
-        paddle     <= 8'h58;
-        paddle_div <= 0;
+        paddle_pos_1p <= 8'h58;
+        paddle_pos_2p <= 8'h58;
+        dial_x_last <= 2'b00;
+        dial_y_last <= 2'b00;
+        paddle <= 8'h58;
     end else begin
-        if (paddle_div == 13'd4095) begin
-            paddle_div <= 0;
-            if (!joystick1[0] && joystick1[1]) paddle_pos <= paddle_pos - 1'b1;
-            if (!joystick1[1] && joystick1[0]) paddle_pos <= paddle_pos + 1'b1;
-        end else begin
-            paddle_div <= paddle_div + 1'b1;
-        end
+        dial_x_last <= dial_x;
+        dial_y_last <= dial_y;
+        if (dial_x == {dial_x_last[0], ~dial_x_last[1]} && paddle_pos_1p > 8'h10)
+            paddle_pos_1p <= paddle_pos_1p - 1'b1;
+        else if (dial_x == {~dial_x_last[0], dial_x_last[1]} && paddle_pos_1p < 8'ha0)
+            paddle_pos_1p <= paddle_pos_1p + 1'b1;
+        if (dial_y == {dial_y_last[0], ~dial_y_last[1]} && paddle_pos_2p > 8'h10)
+            paddle_pos_2p <= paddle_pos_2p - 1'b1;
+        else if (dial_y == {~dial_y_last[0], dial_y_last[1]} && paddle_pos_2p < 8'ha0)
+            paddle_pos_2p <= paddle_pos_2p + 1'b1;
         if (v == paddle_pos) paddle <= v;
     end
 end
