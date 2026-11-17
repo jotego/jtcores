@@ -60,7 +60,7 @@ endmodule
 module jtframe_68kdtack_cen #(parameter W=8, MFREQ=50000)(
     input rst, clk,
     output cpu_cen, cpu_cenb,
-    input bus_cs, bus_busy, bus_legit, bus_ack, ASn,
+    input bus_cs, bus_busy, bus_legit, bus_ack, ASn, RnW, BGACKn,
     input [1:0] DSn,
     input [6:0] num,
     input [7:0] den,

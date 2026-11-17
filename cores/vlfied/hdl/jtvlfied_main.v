@@ -126,6 +126,8 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( main_rnw  ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 11'd231   ),

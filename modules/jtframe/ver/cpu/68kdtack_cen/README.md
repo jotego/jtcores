@@ -69,6 +69,15 @@ without requiring a held Phi1 to execute. A following transfer begins with debt
 still pending: configured board waits must not charge or spend it. Debt must
 then drain in idle even if the wait inputs retain the preceding selection.
 
+## Read/write symmetry
+
+The [real CPU read/write regression](../68kdtack_rw/README.md) checks all eight
+`WAIT1`/`wait2`/`wait3` combinations, including both extra-wait inputs high.
+The helper receives raw CPU `RnW` and `BGACKn`. Write qualification starts at
+AS/RnW setup, one CPU clock before the write strobes, so its timing matches
+reads. DTACK still clears whenever both strobes are inactive; the TAS gap
+reloads the qualification before its write half.
+
 ## Running
 
 From the repository root:

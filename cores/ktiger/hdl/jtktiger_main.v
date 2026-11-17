@@ -232,6 +232,8 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( shr_cs    ),
     .bus_ack    ( dsp_ack   ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( BGACKn    ),
     .ASn        ( ASn       ),
     .DSn        ( dsn       ),
     .num        ( fast ? 7'd10 : 7'd7 ),

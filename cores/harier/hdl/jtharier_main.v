@@ -507,6 +507,8 @@ jtharier_dtack_cen u_dtack(
     .bus_busy   ( bus_busy    ),
     .bus_legit  ( vwait       ),
     .bus_ack    ( ~BGACKn     ),
+    .RnW        ( cpu_RnW     ),
+    .BGACKn     ( BGACKn      ),
     .ASn        ( ASn         ),
     .DSn        ( {UDSn,LDSn} ),
     .DTACKn     ( DTACKn      ),

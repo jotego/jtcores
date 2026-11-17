@@ -292,6 +292,8 @@ jtframe_68kdtack_cen #(.W(8),.RECOVERY(1)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( cpu_rnw   ),
+    .BGACKn     ( cpu_bgackn                                                     ),
     .ASn        ( cpu_asn || cpu_fc[1:0]==2'b11  ),  // BUSn = ASn | (LDSn & UDSn)
     .DSn        ( cpu_dsn   ),
     .num        ( FNUM      ),  // numerator

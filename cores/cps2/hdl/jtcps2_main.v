@@ -375,6 +375,8 @@ jtframe_68kdtack_cen #(.MFREQ(48_000)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
     .bus_ack    ( busack    ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( BGACKn    ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 4'd1      ),

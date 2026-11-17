@@ -13,6 +13,7 @@ module jtharier_dtack_cen(
     input         bus_busy,
     input         bus_legit,
     input         bus_ack, // do not recover cycles if another CPU has the bus
+    input         RnW, BGACKn,
     input         ASn,  // DTACKn set low at the next cpu_cen after ASn goes low
     input [1:0]   DSn,  // If DSn goes high, DTACKn is reset high
 
@@ -33,6 +34,8 @@ jtframe_68kdtack_cen #(.W(10)) u_dtack(
     .bus_busy   ( bus_busy    ),
     .bus_legit  ( bus_legit   ),
     .bus_ack    ( 1'b0        ),
+    .RnW        ( RnW         ),
+    .BGACKn     ( BGACKn      ),
     .ASn        ( ASn         ),
     .DSn        ( {UDSn,LDSn} ),
     .num        ( num         ),

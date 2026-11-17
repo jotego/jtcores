@@ -363,6 +363,8 @@ jtframe_68kdtack_cen u_dtack( // cen = 12 or 10 MHz
     .bus_busy   ( bus_busy   ),
     .bus_legit  ( bus_legit  ),
     .bus_ack    ( 1'b0       ),
+    .RnW        ( RnW        ),
+    .BGACKn     ( BGACKn     ),
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
     .DTACKn     ( DTACKn     ),

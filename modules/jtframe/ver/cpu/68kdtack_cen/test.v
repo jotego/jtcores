@@ -307,6 +307,8 @@ jtframe_68kdtack_cen #(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .RnW        ( 1'b1      ),
+    .BGACKn     ( 1'b1      ),
     .bus_ack    ( 1'b0      ),
     .ASn        ( asn       ),  // DTACKn set low at the next cpu_cen after ASn goes low
     .DSn        ( {2{asn}}  ),  // If DSn goes high, DTACKn is reset high
@@ -331,6 +333,8 @@ jtframe_68kdtack_cen #(
     .bus_cs     ( rec_bus_cs   ),
     .bus_busy   ( rec_bus_busy ),
     .bus_legit  ( rec_legit    ),
+    .RnW        ( 1'b1         ),
+    .BGACKn     ( 1'b1         ),
     .bus_ack    ( rec_ack      ),
     .ASn        ( rec_asn      ),
     .DSn        ( {2{rec_asn}} ),
@@ -354,6 +358,8 @@ jtframe_68kdtack_cen #(
     .bus_cs     ( 1'b0      ),
     .bus_busy   ( 1'b0      ),
     .bus_legit  ( 1'b0      ),
+    .RnW        ( 1'b1      ),
+    .BGACKn     ( 1'b1      ),
     .bus_ack    ( 1'b0      ),
     .ASn        ( 1'b1      ),
     .DSn        ( 2'b11     ),
@@ -374,6 +380,8 @@ jtframe_68kdtack_cen #(.RECOVERY(0)) uut_wait2(
     .bus_cs     ( 1'b0          ),
     .bus_busy   ( 1'b0          ),
     .bus_legit  ( 1'b0          ),
+    .RnW        ( 1'b1          ),
+    .BGACKn     ( 1'b1          ),
     .bus_ack    ( 1'b0          ),
     .ASn        ( wait_asn      ),
     .DSn        ( {2{wait_asn}} ),
@@ -394,6 +402,8 @@ jtframe_68kdtack_cen #(.RECOVERY(0)) uut_wait3(
     .bus_cs     ( 1'b0          ),
     .bus_busy   ( 1'b0          ),
     .bus_legit  ( 1'b0          ),
+    .RnW        ( 1'b1          ),
+    .BGACKn     ( 1'b1          ),
     .bus_ack    ( 1'b0          ),
     .ASn        ( wait_asn      ),
     .DSn        ( {2{wait_asn}} ),
@@ -442,7 +452,7 @@ assign wait3=EXTRA==2;
 assign cs=!asn;
 jtframe_68kdtack_cen #(.WAIT1(WAIT1),.MFREQ(48000)) uut(
     .rst(rst), .clk(clk), .cpu_cen(cen), .cpu_cenb(cenb),
-    .bus_cs(cs), .bus_busy(busy), .bus_legit(1'b0), .bus_ack(1'b0),
+    .bus_cs(cs), .bus_busy(busy), .bus_legit(1'b0), .bus_ack(1'b0), .RnW(1'b1), .BGACKn(1'b1),
     .ASn(asn), .DSn({2{asn}}), .num(4'd1), .den(5'd4),
     .wait2(wait2), .wait3(wait3), .DTACKn(dtackn), .fave(), .fworst()
 );

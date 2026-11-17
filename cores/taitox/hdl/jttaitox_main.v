@@ -189,6 +189,8 @@ jtframe_68kdtack_cen #(.W(6)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ), // 16 MHz XTAL / 2 = 8 MHz, exactly 48/6
