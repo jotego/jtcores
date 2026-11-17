@@ -28,6 +28,7 @@ module jtgeebee_video(
 
 wire [8:0] scan_x = flip ? ~h : h;
 wire [8:0] scan_y = flip ? ~v : v;
+// Sheet 8: 4F and 4E establish the /CMPBLK windows.
 reg cmpblk_h_n, cmpblk_v_n;
 assign cmpblk_n = cmpblk_h_n && cmpblk_v_n;
 wire side_sel = h[8] && cmpblk_n;
@@ -36,8 +37,10 @@ reg [3:0] sh_hi, sh_lo;
 reg char_gate_latch;
 reg [7:0] ball_hcnt;
 reg ball_count_en;
+// Sheet 9: 2R/3R adders and 3S/3T counters form the ball position pulse.
 wire [7:0] ball_vsum = ball_y + (flip ? ~v[7:0] : v[7:0]);
 
+// Sheet 8: 3L, 3K and 3J supply the H/V counter and sync chain.
 jtframe_vtimer #(
     .HCNT_START( 9'd0   ),
     .HCNT_END  ( 9'd383 ),
@@ -68,9 +71,12 @@ jtframe_vtimer #(
     .VS         ( vs      )
 );
 
+// Sheet 9: 2J/2K/2L/2M form the video RAM address mux chain.
 assign vram_addr = side_sel ? {4'b0, scan_x[3], scan_y[7:3]} :
                               {scan_y[7:3], scan_x[7:3]};
+// Sheet 9: 2D/2E and 4J/4K/3D drive 2708 A9..A0.
 assign gfx_addr  = {1'b0, vram_data[6:0], scan_y[2:0]};
+// Sheet 9: 74194s 2C/2B shift the graphics byte; 74157 2A selects QA/QD.
 assign char_pxl  = flip ? sh_lo[3] : sh_hi[0];
 assign char_gate = char_gate_latch;
 assign ball_pxl  = ball_on && !vs && ball_count_en &&

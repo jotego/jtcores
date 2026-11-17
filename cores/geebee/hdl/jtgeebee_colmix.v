@@ -17,6 +17,7 @@ module jtgeebee_colmix(
     output [`JTFRAME_COLORW-1:0] blue
 );
 
+// Sheet 9: 7486 4M mixes BGW with 2A pixels; 3W adds the ball branch.
 wire pixel = bgw ^ char_pxl;
 wire [8:0] x = v - 9'd16;
 wire [8:0] y = 9'd271 - h;

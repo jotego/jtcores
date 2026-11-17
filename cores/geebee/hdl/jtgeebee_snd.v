@@ -17,6 +17,7 @@ reg [3:0] latch;
 reg [14:0] level;
 reg [15:0] noise;
 reg [7:0] old_v;
+// Sheet 7: 74151 selects V-counter tones and the noise shift output.
 wire [7:0] sources;
 wire tone;
 

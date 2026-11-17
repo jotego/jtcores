@@ -4,7 +4,11 @@
 
 params: []
 
-clocks: {}
+clocks:
+  clk48:
+    - mul: 1
+      div: 24
+      outputs: [cpu]
 
 audio:
   channels: []

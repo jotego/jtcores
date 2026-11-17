@@ -6,8 +6,6 @@ module jtgeebee_game(
     `include "jtframe_game_ports.inc"
 );
 
-reg [4:0] cpu_div;
-wire cen_cpu = cpu_div == 5'd23;
 wire [8:0] h, v;
 wire [9:0] gfx_cpu_addr;
 wire [10:0] gfx_video_addr;
@@ -35,11 +33,7 @@ wire [7:0] ball_y_eff = ball_y;
 wire flip_eff = flip ^ dip_flip;
 `endif
 
-always @(posedge clk or posedge rst) begin
-    if (rst) cpu_div <= 0;
-    else cpu_div <= cen_cpu ? 0 : cpu_div + 1'b1;
-end
-
+// Sheet 9: 74157s 2D/2E switch 2708 addressing between CPU and video.
 assign gfx1_addr  = gfx_cpu_rd && !cmpblk_n ? {1'b0, gfx_cpu_addr} : gfx_video_addr;
 assign debug_view = 8'd0;
 
@@ -66,7 +60,7 @@ jtgeebee_cab u_cab(
 jtgeebee_main u_main(
     .clk          ( clk          ),
     .rst          ( cpu_rst      ),
-    .cen_cpu      ( cen_cpu      ),
+    .cen_cpu      ( cpu_cen      ),
     .pxl_cen      ( pxl_cen      ),
     .h            ( h            ),
     .v            ( v            ),
