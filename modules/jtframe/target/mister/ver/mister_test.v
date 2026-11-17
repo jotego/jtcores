@@ -103,6 +103,7 @@ wire VGA_F1;
 emu UUT(
     .CLK_50M    (  clk50        ),
     .RESET      (  rst          ),
+    .CAP_SYSTEM_RESET ( rst      ),
     .HPS_BUS    (  HPS_BUS      ),
     // VGA
     .VGA_CLK    (  VGA_CLK      ),

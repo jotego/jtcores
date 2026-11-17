@@ -244,6 +244,24 @@ JTFRAME_CREDITS          |         | Adds credits screen. Enabled for releases i
 JTFRAME_CREDITS_AON      |         | credits screen is always on
 JTFRAME_CREDITS_PAGES    |         | Generated from the number of rows in cfg/msg
 
+### MiSTer regression transport
+
+`JTFRAME_REGRESSION` enables the MiSTer CAB replay bridge and exact native
+capture transport on normal full-HDMI builds. It is supplied by the MiSTer
+target default, so release builds and ordinary `jtcore <core> -mr` builds get
+the capability without per-core configuration. The default is target-only;
+MiST, SiDi/SiDi128, and Pocket builds do not acquire it. SiDi128's existing
+end-user screenshot path is unchanged.
+
+MiSTer quick builds that omit HDMI (`-mrq`, `-qq`, and credits builds) remove
+`JTFRAME_REGRESSION` after macro parsing, even if it was explicitly defined.
+Standalone `-q` retains HDMI and keeps regression support. Use
+`jtcore <core> -mr -u JTFRAME_REGRESSION` to disable it in a full-HDMI build;
+the usual presence semantics apply, so `JTFRAME_REGRESSION=0` is still enabled.
+Exact capture is unavailable for CRT480I and interlaced builds. Native vertical
+capture requires the existing Video Rotate screen option to be off; rotated,
+framebuffer, and other unqualified video modes are rejected at runtime.
+
 ### JTFRAME_REMOTE
 
 Enables the paired remote video-capture and CAB input/dump interfaces on the

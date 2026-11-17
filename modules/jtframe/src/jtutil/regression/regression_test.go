@@ -466,13 +466,16 @@ func makeBatch(t *testing.T, root string, hardware Hardware, games []GameSpec) *
 	if e := os.WriteFile(global, []byte("video: 4000\nstart-up: 500\n"), 0600); e != nil {
 		t.Fatal(e)
 	}
-	log, e := NewEventLog(filepath.Join(root, "data"), "run-attempt-1", "fake")
+	dataRoot := filepath.Join(root, "data")
+	if e := os.MkdirAll(dataRoot, 0750); e != nil { t.Fatal(e) }
+	if e := GuardCaptureTarget(dataRoot, "sidi128"); e != nil { t.Fatal(e) }
+	log, e := NewEventLog(dataRoot, "run-attempt-1", "fake")
 	if e != nil {
 		t.Fatal(e)
 	}
 	t.Cleanup(func() { _ = log.Close() })
 	statePath := filepath.Join(root, "state.json")
-	return &Batch{Root: filepath.Join(root, "data"), CorePath: corePath, Core: "fake", RunID: "run-attempt-1", Build: BuildIdentity{RunID: "run", Attempt: "1", SHA: "abc"}, State: &State{RunID: "run-attempt-1", Build: BuildIdentity{RunID: "run", Attempt: "1", SHA: "abc"}, Core: "fake"}, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: global, Games: games}
+	return &Batch{Root: dataRoot, CorePath: corePath, Core: "fake", RunID: "run-attempt-1", Build: BuildIdentity{RunID: "run", Attempt: "1", SHA: "abc"}, State: &State{RunID: "run-attempt-1", Build: BuildIdentity{RunID: "run", Attempt: "1", SHA: "abc"}, Core: "fake"}, StatePath: statePath, Log: log, Hardware: hardware, GlobalProfile: global, Games: games, Config:Config{Target:"sidi128", LegacySiDi128:true}}
 }
 
 func TestBatchContinuesAfterGameSpecificFailure(t *testing.T) {

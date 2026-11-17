@@ -79,12 +79,15 @@ func TestExplicitDebugManifestRejectedBeforeAnyCampaignWrite(t *testing.T) {
 			}
 			oldConfig, oldManifest, oldRun, oldCore, oldSet := regressionConfig, regressionManifest, regressionRunID, regressionCore, regressionSetname
 			oldRetry, oldNoPublish, oldJTBin := regressionRetryErrors, regressionNoPublish, regressionJTBin
+			oldLegacy := regressionLegacySiDi128
 			t.Cleanup(func() {
 				regressionConfig, regressionManifest, regressionRunID, regressionCore, regressionSetname = oldConfig, oldManifest, oldRun, oldCore, oldSet
 				regressionRetryErrors, regressionNoPublish, regressionJTBin = oldRetry, oldNoPublish, oldJTBin
+				regressionLegacySiDi128 = oldLegacy
 			})
 			regressionConfig, regressionManifest, regressionRunID, regressionCore, regressionSetname = config, manifest, "", "", ""
 			regressionRetryErrors, regressionNoPublish, regressionJTBin = existing, true, false
+			regressionLegacySiDi128 = true
 			err := run_regression_cmd(regressionCmd, nil)
 			if err == nil || !strings.Contains(err.Error(), "debug") {
 				t.Fatalf("expected debug exclusion before any other preflight: %v", err)
@@ -106,4 +109,25 @@ func TestExplicitDebugManifestRejectedBeforeAnyCampaignWrite(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestLegacySiDi128OptInRejectsMiSTerConfig(t *testing.T) {
+	reset_curation_flags()
+	root := t.TempDir()
+	t.Setenv("JOTEGO", root)
+	config := filepath.Join(root, "mister.yaml")
+	if err := os.WriteFile(config, []byte("target: mister\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	regressionConfig = config
+	regressionLegacySiDi128 = true
+	regressionCmd.Flags().Lookup("legacy-sidi128").Changed = true
+	err := run_regression_cmd(regressionCmd, nil)
+	if err == nil || !strings.Contains(err.Error(), "cannot be combined with target=mister") {
+		t.Fatalf("legacy opt-in accepted MiSTer config: %v", err)
+	}
+	if _, statErr := os.Stat(filepath.Join(root, "regression")); !os.IsNotExist(statErr) {
+		t.Fatalf("mismatched target created regression archive: %v", statErr)
+	}
+	reset_curation_flags()
 }

@@ -34,6 +34,118 @@ func TestParseMameSetnames(t *testing.T) {
 	}
 }
 
+func TestMameFramesArchiveTargetGuardPrecedesLogAndPromotion(t *testing.T) {
+	for _, target := range []string{"mister", "unmarked"} {
+		t.Run(target, func(t *testing.T) {
+			root := t.TempDir()
+			if target == "mister" {
+				if err := GuardCaptureTarget(root, "mister"); err != nil { t.Fatal(err) }
+			} else {
+				if err := os.MkdirAll(filepath.Join(root,"core","set","new"),0700); err != nil { t.Fatal(err) }
+			}
+			_, err := RunMameFrames(context.Background(), root, "", "", false, 1, "", MameFrameOptions{Target:"sidi128", LegacySiDi128:true})
+			if err == nil { t.Fatal("cross-target or unmarked legacy write was accepted") }
+			if _, statErr := os.Lstat(filepath.Join(root,"log","mame-frames.log")); !os.IsNotExist(statErr) {
+				t.Fatalf("rejected archive write created a MAME log: %v",statErr)
+			}
+			if _, statErr := os.Lstat(filepath.Join(root,".capture-target.json")); target == "unmarked" && !os.IsNotExist(statErr) {
+				t.Fatalf("nonempty legacy archive was silently claimed: %v",statErr)
+			}
+		})
+	}
+}
+
+func TestMameDryrunCanReadUnmarkedEmptyArchiveWithoutClaimingIt(t *testing.T) {
+	root := t.TempDir()
+	results, err := RunMameFrames(context.Background(), root, "", "", true, 1, "", MameFrameOptions{Target:"sidi128"})
+	if err != nil || len(results) != 0 { t.Fatalf("empty historical dry run = %v, %v",results,err) }
+	if _, err = os.Lstat(filepath.Join(root,".capture-target.json")); !os.IsNotExist(err) { t.Fatalf("dry run claimed archive: %v",err) }
+	if _, err = os.Lstat(filepath.Join(root,"log")); !os.IsNotExist(err) { t.Fatalf("dry run created log directory: %v",err) }
+}
+
+func TestMameCannotPromoteJournaledMiSTerNewFromLegacyContext(t *testing.T) {
+	f := newRunCommitRecoveryFixture(t, "mame-data-guard")
+	if _, err := RunCommitMiSTer(context.Background(), f.log, f.prepared, f.cfg, f.deps, f.policy); err != nil {
+		t.Fatal(err)
+	}
+	candidates, err := discover_mame_candidates(f.log.Root, "", nil)
+	if err != nil || len(candidates) != 1 {
+		t.Fatalf("discovery error=%v candidates=%d", err, len(candidates))
+	}
+	candidate := candidates[0]
+	if candidate.preflight_error != "" {
+		t.Fatalf("fixture is not a valid capture set: %s", candidate.preflight_error)
+	}
+	if candidate.promotion_error == "" {
+		t.Fatal("journal-only MiSTer candidate was not blocked during discovery")
+	}
+	// Reproduce a legacy digest entry that would otherwise make MAME matching
+	// look valid. The target-data guard must still stop the final rename.
+	f.log.Progress.Games["fake/alpha"] = ProgressGame{Result: New, Output: candidate.digest}
+	if err = f.log.Save(); err != nil {
+		t.Fatal(err)
+	}
+	candidates, err = discover_mame_candidates(f.log.Root, "", nil)
+	if err != nil || len(candidates) != 1 {
+		t.Fatalf("rediscovery error=%v candidates=%d", err, len(candidates))
+	}
+	if err = promote_mame_candidate(f.log.Root, candidates[0]); err == nil {
+		t.Fatal("legacy MAME path accepted a journaled MiSTer RGB888 candidate")
+	}
+	if _, err = os.Stat(f.gameRoot() + "/ref"); !os.IsNotExist(err) {
+		t.Fatalf("blocked MiSTer candidate created ref: %v", err)
+	}
+}
+
+func TestMamePromotionKeepsLegacyOnlyCandidateBehavior(t *testing.T) {
+	root := t.TempDir()
+	if err := GuardCaptureTarget(root, "sidi128"); err != nil { t.Fatal(err) }
+	game := filepath.Join(root, "legacy", "set")
+	newDir := filepath.Join(game, "new")
+	if err := os.MkdirAll(newDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	write_mame_test_png(t, filepath.Join(newDir, "frame_00000500.png"), color.RGBA{R: 12, G: 34, B: 56, A: 255})
+	frames, err := read_published_mame_frames(newDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest, err := result_slot_digest(newDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = InitializeLog(root); err != nil {
+		t.Fatal(err)
+	}
+	log, err := OpenCommitLog(root, strings.Repeat("a", 40))
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.Progress.Games["legacy/set"] = ProgressGame{Result: New, Output: digest}
+	if err = log.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if err = log.Close(); err != nil {
+		t.Fatal(err)
+	}
+	candidates, err := discover_mame_candidates(root, "", nil)
+	if err != nil || len(candidates) != 1 {
+		t.Fatalf("legacy discovery error=%v candidates=%d", err, len(candidates))
+	}
+	candidate := candidates[0]
+	candidate.frames = frames
+	if candidate.promotion_error != "" {
+		t.Fatalf("legacy candidate unexpectedly blocked: %s", candidate.promotion_error)
+	}
+	candidate.target, candidate.legacy_sidi128 = "sidi128", true
+	if err = promote_mame_candidate(root, candidate); err != nil {
+		t.Fatalf("legacy-only promotion changed: %v", err)
+	}
+	if _, err = os.Stat(filepath.Join(game, "ref", "frame_00000500.png")); err != nil {
+		t.Fatalf("legacy ref not promoted: %v", err)
+	}
+}
+
 func TestMameCandidateWorkersBoundAndOverlap(t *testing.T) {
 	for _, limit := range []int{2, 4} {
 		var active, maximum int32
@@ -269,6 +381,7 @@ func TestMameProgressSelectionRejectsActiveAndFiltersOtherJSON(t *testing.T) {
 
 func TestPromoteMameCandidatePreservesResultDigestFallback(t *testing.T) {
 	root := t.TempDir()
+	if err := GuardCaptureTarget(root, "sidi128"); err != nil { t.Fatal(err) }
 	game_root := filepath.Join(root, "core", "set")
 	new_dir := filepath.Join(game_root, "new")
 	if err := os.MkdirAll(filepath.Join(root, "log"), 0700); err != nil {
@@ -292,7 +405,7 @@ func TestPromoteMameCandidatePreservesResultDigestFallback(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	candidate := mame_candidate{core: "core", set: "set", dir: new_dir, digest: digest, progress_path: progress_path, frames: frames}
+	candidate := mame_candidate{core: "core", set: "set", dir: new_dir, digest: digest, progress_path: progress_path, frames: frames, target:"sidi128", legacy_sidi128:true}
 	if err = promote_mame_candidate(root, candidate); err != nil {
 		t.Fatal(err)
 	}
@@ -310,8 +423,11 @@ func TestPromoteMameCandidatePreservesResultDigestFallback(t *testing.T) {
 
 func TestMameFramesLogKeepsOneFixedWidthLinePerGame(t *testing.T) {
 	root := t.TempDir()
+	if err := GuardCaptureTarget(root, "sidi128"); err != nil {
+		t.Fatal(err)
+	}
 	result := MameFrameResult{Core: "core", Setname: "abcdefghijklmnop", Verdict: "FAIL", Detail: "MAME failed\nwith another line\r\n"}
-	if err := append_mame_frames_log(root, result); err != nil {
+	if err := append_mame_frames_log(root, "sidi128", result); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(root, "log", "mame-frames.log"))
@@ -329,24 +445,88 @@ func TestMameFramesLogKeepsOneFixedWidthLinePerGame(t *testing.T) {
 	}
 }
 
+func TestMameWriterRespectsHeldCommonArchiveLock(t *testing.T) {
+	root := t.TempDir()
+	lock, err := AcquireLock(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ReleaseLock(lock)
+	_, err = RunMameFrames(context.Background(), root, "", "", false, 1, "", MameFrameOptions{Target: "sidi128", LegacySiDi128: true})
+	if !errors.Is(err, ErrBoardBusy) {
+		t.Fatalf("MAME writer did not respect the common lock: %v", err)
+	}
+	if _, err = os.Lstat(filepath.Join(root, captureTargetMarkerName)); !os.IsNotExist(err) {
+		t.Fatalf("MAME claimed target while another writer held the lock: %v", err)
+	}
+}
+
+func TestMameFrameCaptureTimeoutCancelsWithoutCompletion(t *testing.T) {
+	root := t.TempDir()
+	fakeMame := filepath.Join(root, "mame-stall")
+	if err := os.WriteFile(fakeMame, []byte("#!/bin/sh\nexec sleep 5\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	cab := MameCabScript{Version: 1, Frames: 1, Runs: []MameCabRun{{Frames: 1}}}
+	err := capture_mame_frames(context.Background(), fakeMame, "fake", "", root, 1, 1, 25*time.Millisecond, cab)
+	if err == nil || !strings.Contains(err.Error(), "timed out") {
+		t.Fatalf("stalled MAME was not cancelled at its wall deadline: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "complete")); !os.IsNotExist(err) {
+		t.Fatalf("timed out MAME capture was marked complete: %v", err)
+	}
+}
+
+func TestMameLogWriterRequiresLockedMatchingTarget(t *testing.T) {
+	root := t.TempDir()
+	if err := GuardCaptureTarget(root, "mister"); err != nil {
+		t.Fatal(err)
+	}
+	result := MameFrameResult{Setname: "game", Verdict: "FAIL"}
+	if err := append_mame_frames_log(root, "sidi128", result); err == nil {
+		t.Fatal("MAME log accepted a target mismatch")
+	}
+	if _, err := os.Stat(filepath.Join(root, "log", "mame-frames.log")); !os.IsNotExist(err) {
+		t.Fatalf("target mismatch created a MAME log: %v", err)
+	}
+	lock, err := AcquireLock(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ReleaseLock(lock)
+	if err = append_mame_frames_log(root, "mister", result); !errors.Is(err, ErrBoardBusy) {
+		t.Fatalf("MAME log writer ignored held archive lock: %v", err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "log", "mame-frames.log")); !os.IsNotExist(err) {
+		t.Fatalf("MAME log was created while archive lock was held: %v", err)
+	}
+}
+
 func TestValidatePublishedCapturePrecisionRejectsMixedOrInvalidFormat(t *testing.T) {
 	dir := t.TempDir()
 	write_mame_test_png(t, filepath.Join(dir, "frame_00000100.png"), color.RGBA{R: 17, A: 255})
-	write_mame_test_png(t, filepath.Join(dir, "frame_00000200.png"), color.RGBA{R: 123, A: 255})
+	write_mame_test_png(t, filepath.Join(dir, "frame_00000200.png"), color.RGBA{R: 123, G: 37, A: 255})
 	set, err := read_published_mame_frames(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = validate_published_capture_precision(set, 4); err == nil {
-		t.Fatal("mixed RGB444/RGB555 expansion values were accepted")
+	if err = validate_published_capture_precision(set, 4); err != nil {
+		t.Fatalf("RGB888 low-bit expansion differences were rejected: %v", err)
 	}
-	if err = validate_published_capture_precision(set, 5); err == nil {
-		t.Fatal("RGB444-expanded pixel was accepted as an RGB555 capture")
+	if err = validate_published_capture_precision(set, 5); err != nil {
+		t.Fatalf("valid native 5-bit channel values were rejected: %v", err)
+	}
+	write_mame_test_png(t, filepath.Join(dir, "frame_00000200.png"), color.RGBA{R: 140, G: 37, A: 255})
+	set, err = read_published_mame_frames(dir)
+	if err != nil { t.Fatal(err) }
+	if err = validate_published_capture_precision(set, 5); err != nil {
+		t.Fatalf("an arbitrary RGB888 expansion was rejected for bit replication: %v", err)
 	}
 }
 
 func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 	root := t.TempDir()
+	if err := GuardCaptureTarget(root, "sidi128"); err != nil { t.Fatal(err) }
 	source := os.Getenv("JTROOT")
 	for _, set := range []string{"first", "second"} {
 		new_dir := filepath.Join(root, "gng", set, "new")
@@ -399,7 +579,7 @@ func TestMameFramesCancellationStopsBeforeNextCandidate(t *testing.T) {
 			}
 		}
 	}()
-	results, err := RunMameFrames(ctx, root, source, "", false, 2, "")
+	results, err := RunMameFrames(ctx, root, source, "", false, 2, "", MameFrameOptions{Target:"sidi128", LegacySiDi128:true})
 	if !errors.Is(err, context.Canceled) || len(results) != 1 || results[0].Setname != "first" || results[0].Verdict != "FAIL" {
 		t.Fatalf("cancelled sweep returned results=%v err=%v", results, err)
 	}
@@ -441,6 +621,7 @@ func TestPromoteMameCandidateRefusesExistingRefAndChangedDigest(t *testing.T) {
 	for _, mutate := range []string{"ref exists", "digest changed", "active run"} {
 		t.Run(mutate, func(t *testing.T) {
 			root := t.TempDir()
+			if err := GuardCaptureTarget(root, "sidi128"); err != nil { t.Fatal(err) }
 			game_root := filepath.Join(root, "core", "set")
 			new_dir := filepath.Join(game_root, "new")
 			if err := os.MkdirAll(filepath.Join(root, "log"), 0700); err != nil {
@@ -476,7 +657,7 @@ func TestPromoteMameCandidateRefusesExistingRefAndChangedDigest(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			candidate := mame_candidate{core: "core", set: "set", dir: new_dir, digest: candidate_digest, progress_path: progress_path, frames: frames}
+			candidate := mame_candidate{core: "core", set: "set", dir: new_dir, digest: candidate_digest, progress_path: progress_path, frames: frames, target:"sidi128", legacy_sidi128:true}
 			if err = promote_mame_candidate(root, candidate); err == nil {
 				t.Fatal("unsafe candidate was promoted")
 			}

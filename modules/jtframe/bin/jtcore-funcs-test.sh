@@ -97,6 +97,7 @@ main() {
     [[ ! -e .jtcore-complete ]]
     echo 'PASS failed compilation invalidates completion marker'
 
+
     MOCK_COMPILE_STATUS=0 MOCK_RAPID_STATUS=0
     generate_project
     compile_quartus
@@ -139,6 +140,39 @@ main() {
     echo 'Info (332146): Worst-case hold slack is 0.243' >> cached.sta.rpt
     [[ "$(worst_negative_sta_slack cached.sta.rpt)" = -0.462 ]]
     echo 'PASS cached timing reports retain negative slack'
+
+    local jtcore_path=$JTFRAME/bin/jtcore
+    local entry_root=$test_dir/nocopy-entry
+    mkdir -p "$entry_root/modules" "$entry_root/stub-bin" "$entry_root/cores/probe/cfg" "$entry_root/cores/probe/mister/output_files"
+    ln -s "$JTFRAME" "$entry_root/modules/jtframe"
+    printf 'CORENAME=JTPROBE\n' > "$entry_root/cores/probe/cfg/macros.def"
+    cat > "$entry_root/stub-bin/jtframe" <<'EOF'
+#!/bin/bash
+[[ "$1" = cfgstr ]] || exit 91
+printf 'CORENAME=JTPROBE\n'
+EOF
+    chmod +x "$entry_root/stub-bin/jtframe"
+    printf 'fixture-rbf\n' > "$entry_root/cores/probe/mister/output_files/jtprobe.rbf"
+    local output
+    output=$( (
+        cd "$entry_root/cores/probe"
+        JTROOT=$entry_root JTFRAME=$entry_root/modules/jtframe CORES=$entry_root/cores \
+            JTBIN=$entry_root/release JTCORE_DEFAULT= OUTPUT_FOLDER= PATH=$entry_root/stub-bin:$PATH \
+            "$jtcore_path" --skip --nocopy --target mister probe
+    ) 2>&1) || { printf '%s\n' "$output" >&2; exit 1; }
+    [[ "$output" != *'publish_mister_build_evidence: command not found'* ]]
+    [[ -s "$entry_root/cores/probe/mister/output_files/jtprobe.rbf" && ! -e "$entry_root/release/mister/jtprobe.rbf" ]]
+    echo 'PASS actual jtcore --skip --nocopy completion does not require build-evidence helper or copy the RBF'
+
+    output=$( (
+        cd "$entry_root/cores/probe"
+        JTROOT=$entry_root JTFRAME=$entry_root/modules/jtframe CORES=$entry_root/cores \
+            JTBIN=$entry_root/release JTCORE_DEFAULT= OUTPUT_FOLDER= PATH=$entry_root/stub-bin:$PATH \
+            "$jtcore_path" --skip --target mister probe
+    ) 2>&1) || { printf '%s\n' "$output" >&2; exit 1; }
+    [[ "$output" != *'publish_mister_build_evidence: command not found'* ]]
+    cmp -s "$entry_root/cores/probe/mister/output_files/jtprobe.rbf" "$entry_root/release/mister/jtprobe.rbf"
+    echo 'PASS actual jtcore copy path preserves RBF bytes without build-evidence helper'
 }
 
 generate_project() {
@@ -154,6 +188,11 @@ quartus_sh() {
         echo "Quartus Prime Version ${MOCK_VERSION:-20.1.1}"
         return 0
     fi
+    if [[ "$1" = -t ]]; then
+        echo "project-open-close" >> calls
+        sed -i 's/17.0.2 Standard Edition/20.1.1 Lite Edition/' "$BUILDDIR/$corename.qsf"
+        return 0
+    fi
     echo "$2" >> calls
     mkdir -p db incremental_db
     if [[ "$2" = recompile ]]; then
@@ -167,5 +206,6 @@ quartus_sh() {
     echo 'Quartus Prime Full Compilation was successful'
     return "$MOCK_COMPILE_STATUS"
 }
+
 
 main "$@"

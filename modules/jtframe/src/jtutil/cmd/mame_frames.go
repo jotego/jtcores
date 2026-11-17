@@ -19,14 +19,19 @@ var mameFramesSetname string
 var mameFramesDryrun bool
 var mameFramesJobs int
 var mameFramesConfig string
+var mameFramesLegacySiDi128 bool
 
 var mameFramesCmd = &cobra.Command{
 	Use:   "mame-frames",
 	Short: "Validate new regression captures against ordered MAME frames",
-	Long: `Runs MAME for each completed new regression capture, matching every image
-at the core's RGB444/RGB555 capture precision in strictly increasing MAME frame order. Exact matches are promoted
-from new to ref after a final progress and digest check. A dry run validates
-and reports without changing result folders or logs.
+Long: `Runs MAME for each completed new regression capture in a visible window,
+using a finite emulation duration to bypass information and warning screens,
+and matching every image at the target's
+native per-channel precision in strictly increasing MAME frame order. Exact matches are promoted
+from new to ref after a final progress and provenance check. MiSTer promotion
+requires a matching finalized capture generation and qualification. A dry run validates
+and reports without changing result folders or logs. Legacy SiDi128 result writes
+require explicit --legacy-sidi128. A working graphical display is required.
 
 Use --setname to select one game name, or a comma-separated list of names. Up to
 --jobs games are validated concurrently (default 4); use --jobs 1 for serial execution.
@@ -40,6 +45,7 @@ func init() {
 	mameFramesCmd.Flags().BoolVar(&mameFramesDryrun, "dryrun", false, "Report validation results without logging or promoting captures")
 	mameFramesCmd.Flags().IntVar(&mameFramesJobs, "jobs", 4, "Maximum games to validate concurrently")
 	mameFramesCmd.Flags().StringVar(&mameFramesConfig, "config", filepath.Join(project_root(), ".jtutil-regression.yaml"), "Regression profile configuration")
+	mameFramesCmd.Flags().BoolVar(&mameFramesLegacySiDi128, "legacy-sidi128", false, "Explicitly opt in to legacy SiDi128 MAME log/promotion writes")
 	rootCmd.AddCommand(mameFramesCmd)
 }
 
@@ -64,13 +70,42 @@ func run_mame_frames_cmd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("JOTEGO must name the private regression data directory")
 	}
 	result_root := filepath.Join(root, "regression")
+	cfg, err := regression.ReadConfig(mameFramesConfig)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	target := cfg.Target
+	if target == "" {
+		if archived, present, markerErr := regression.ReadCaptureTarget(result_root); markerErr != nil {
+			return markerErr
+		} else if present {
+			target = archived
+		} else if mameFramesLegacySiDi128 {
+			target = "sidi128"
+		} else if mameFramesDryrun {
+			target = "sidi128"
+		} else {
+			return fmt.Errorf("mame-frames writes require target=mister or explicit --legacy-sidi128")
+		}
+	}
+	if target == "sidi128" && !mameFramesDryrun && !mameFramesLegacySiDi128 {
+		return fmt.Errorf("writing legacy SiDi128 MAME results requires --legacy-sidi128")
+	}
+	if target == "mister" && mameFramesLegacySiDi128 {
+		return fmt.Errorf("--legacy-sidi128 cannot be combined with target=mister")
+	}
+	options := regression.MameFrameOptions{Target: target, LegacySiDi128: mameFramesLegacySiDi128}
+	if cfg.CaptureContract != nil {
+		options.Generation = cfg.CaptureContract.Generation
+		options.QualificationID = cfg.CaptureContract.QualificationID
+	}
 	ctx := cmd.Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	results, err := regression.RunMameFrames(ctx, result_root, project_root(), mameFramesSetname, mameFramesDryrun, mameFramesJobs, global_profile)
+	results, err := regression.RunMameFrames(ctx, result_root, project_root(), mameFramesSetname, mameFramesDryrun, mameFramesJobs, global_profile, options)
 	for _, result := range results {
 		fmt.Fprintf(cmd.OutOrStdout(), "%-12s %-5s %s\n", result.Setname, result.Verdict, result.Detail)
 	}

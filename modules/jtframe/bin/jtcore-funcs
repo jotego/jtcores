@@ -117,6 +117,7 @@ Common options:
     --undef | -u <macro>     Undefine a Verilog macro
     --quick | -q             Faster build with reduced features
     --quicker | -qq          Faster MiSTer-oriented build
+    -mrq                     MiSTer build without HDMI; disables regression support
     --program | -p           Program the FPGA after the build
     --skip | -s              Skip compilation and run the remaining steps
     --output <folder>        Copy the compiled core under this output folder

@@ -7,6 +7,7 @@ module sysmem_lite
 	input          reset_hps_cold_req,
 	input          reset_hps_warm_req,
 	input          reset_core_req,
+	input          vbuf_user_reset,
 
 	input          ram1_clk,
 	input   [28:0] ram1_address,
@@ -152,7 +153,7 @@ wire         f2h_vbuf_write;
 (* altera_attribute = {"-name SYNCHRONIZER_IDENTIFICATION FORCED_IF_ASYNCHRONOUS"} *) reg vbuf_reset_0 = 1'b1;
 (* altera_attribute = {"-name SYNCHRONIZER_IDENTIFICATION FORCED_IF_ASYNCHRONOUS"} *) reg vbuf_reset_1 = 1'b1;
 always @(posedge vbuf_clk) begin
-	vbuf_reset_0 <= reset_out;
+	vbuf_reset_0 <= reset_out | vbuf_user_reset;
 	vbuf_reset_1 <= vbuf_reset_0;
 end
 

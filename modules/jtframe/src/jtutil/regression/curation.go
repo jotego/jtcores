@@ -6,6 +6,7 @@ package regression
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -51,6 +52,9 @@ func RegressionBusy(root string) (bool, error) {
 
 // AcceptResult promotes exactly one reviewed capture slot to ref after quality checks.
 func AcceptResult(root, setname string) error {
+	if err := RequireCaptureTarget(root, "sidi128"); err != nil {
+		return err
+	}
 	if !safeComponent(setname) {
 		return &CurationError{7, fmt.Errorf("unsafe setname %q", setname)}
 	}
@@ -63,6 +67,9 @@ func AcceptResult(root, setname string) error {
 
 // AcceptCoreResults promotes every pending game in each selected core.
 func AcceptCoreResults(root string, selectedCores []string) error {
+	if err := RequireCaptureTarget(root, "sidi128"); err != nil {
+		return err
+	}
 	if len(selectedCores) == 0 {
 		return fmt.Errorf("at least one core is required")
 	}
@@ -71,7 +78,9 @@ func AcceptCoreResults(root string, selectedCores []string) error {
 		if !safeComponent(core) || core == "log" {
 			return &CurationError{7, fmt.Errorf("unsafe core %q", core)}
 		}
-		if seen[core] { return fmt.Errorf("core %q was selected more than once", core) }
+		if seen[core] {
+			return fmt.Errorf("core %q was selected more than once", core)
+		}
 		seen[core] = true
 	}
 	games := []string{}
@@ -122,6 +131,10 @@ func AcceptCoreResults(root string, selectedCores []string) error {
 }
 
 func accept_curation_game(gameRoot string) error {
+	return accept_curation_game_with_metadata(gameRoot, nil, nil)
+}
+
+func accept_curation_game_with_metadata(gameRoot string, metadata []byte, afterPromote func() error) error {
 	newDir, failDir := filepath.Join(gameRoot, "new"), filepath.Join(gameRoot, "fail")
 	newExists, err := is_real_directory(newDir)
 	if err != nil {
@@ -184,7 +197,7 @@ func accept_curation_game(gameRoot string) error {
 	if err = preflight_curation_paths(gameRoot, source, refDir); err != nil {
 		return err
 	}
-	if err = replace_curation_ref(source, refDir, gameRoot, crc); err != nil {
+	if err = replace_curation_ref_with_metadata(source, refDir, gameRoot, crc, metadata, afterPromote); err != nil {
 		return err
 	}
 	return os.RemoveAll(source)
@@ -192,6 +205,9 @@ func accept_curation_game(gameRoot string) error {
 
 // RejectResult removes pending captures and appends a rejection event if either slot exists.
 func RejectResult(root, setname, reason string) error {
+	if err := RequireCaptureTarget(root, "sidi128"); err != nil {
+		return err
+	}
 	if !safeComponent(setname) {
 		return fmt.Errorf("unsafe setname %q", setname)
 	}
@@ -488,6 +504,10 @@ func preflight_curation_paths(gameRoot, source, ref string) error {
 }
 
 func replace_curation_ref(source, destination, gameRoot, crc string) error {
+	return replace_curation_ref_with_metadata(source, destination, gameRoot, crc, nil, nil)
+}
+
+func replace_curation_ref_with_metadata(source, destination, gameRoot, crc string, metadata []byte, afterPromote func() error) error {
 	if err := recover_dir(destination); err != nil {
 		return err
 	}
@@ -498,6 +518,25 @@ func replace_curation_ref(source, destination, gameRoot, crc string) error {
 	if err := copy_tree(source, staging); err != nil {
 		_ = os.RemoveAll(staging)
 		return err
+	}
+	if metadata != nil {
+		metadataPath := filepath.Join(staging, "reference-provenance.json")
+		file, err := os.OpenFile(metadataPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+		if err != nil {
+			_ = os.RemoveAll(staging)
+			return err
+		}
+		_, writeErr := file.Write(metadata)
+		syncErr := file.Sync()
+		closeErr := file.Close()
+		if err := errors.Join(writeErr, syncErr, closeErr); err != nil {
+			_ = os.RemoveAll(staging)
+			return err
+		}
+		if err := sync_capture_progress_dir(staging); err != nil {
+			_ = os.RemoveAll(staging)
+			return err
+		}
 	}
 	log, err := os.OpenFile(filepath.Join(gameRoot, "log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640)
 	if err != nil {
@@ -536,6 +575,11 @@ func replace_curation_ref(source, destination, gameRoot, crc string) error {
 	}
 	if err = os.Rename(staging, destination); err != nil {
 		return rollback(err)
+	}
+	if afterPromote != nil {
+		if err = afterPromote(); err != nil {
+			return fmt.Errorf("reference promoted with metadata before injected interruption: %w", err)
+		}
 	}
 	line := fmt.Sprintf("%s %-13s %-11s %s\n", LogTime(time.Now()), "manual", "ACCEPT", crc)
 	if _, err = io.WriteString(log, line); err != nil {

@@ -2,6 +2,9 @@ jtframe/target/mister:
   - get:
     - jtframe_emu.sv
     - jtframe_mister.sv
+    - jtframe_mister_cab.v
+    - jtframe_mister_capture_io.v
+    - jtframe_mister_capture_tags.v
     - jtframe_mister_dwnld.v
     - jtframe_mister_status.v
     - jtframe_target_info.sv
@@ -45,6 +48,9 @@ jtframe/target/mister:
     get:
       - sdram_clk48.sdc
 jtframe:
+  - from: keyboard
+    get:
+    - jtframe_cab_stream.v
   - from: sdram
     get:
     - jtframe_shadow.v

@@ -18,10 +18,83 @@ import (
 
 func reset_curation_flags() {
 	regressionBusy, regressionAccept, regressionReject, regressionReason, regressionStatus = false, "", "", "", false
+	regressionLegacySiDi128 = false
+	regressionAdoptLegacySiDi128, regressionConfirmLegacySiDi128 = false, ""
+	regressionImport, regressionMigrate, regressionPoll, regressionJTBin = "", "", false, false
+	regressionManifest, regressionRunID, regressionRetryErrors = "", "", false
+	regressionCore, regressionCores, regressionSetname = "", "", ""
+	regressionCommit, regressionMisterRunScope = "", ""
+	regressionNoPublish, regressionPublishTo = false, "github"
+	regressionConfig = filepath.Join(project_root(), ".jtutil-regression.yaml")
 	regressionCmd.SilenceErrors, regressionCmd.SilenceUsage = false, false
-	for _, name := range []string{"busy", "accept", "reject", "reason", "status", "core", "setname", "manifest", "run-id", "poll", "jtbin", "retry-errors", "migrate-logs", "import-progress"} {
+	for _, name := range []string{"busy", "accept", "reject", "reason", "status", "legacy-sidi128", "adopt-legacy-sidi128", "confirm-legacy-sidi128", "config", "core", "cores", "setname", "manifest", "run-id", "poll", "jtbin", "retry-errors", "migrate-logs", "import-progress", "commit", "mister-run-scope", "publish-to", "no-publish"} {
 		regressionCmd.Flags().Lookup(name).Changed = false
 	}
+}
+
+func TestLegacyArchiveAdoptionUsesExistingRegressionCommandAndRejectsMiSTerTarget(t *testing.T) {
+	reset_curation_flags()
+	root := t.TempDir()
+	t.Setenv("JOTEGO", root)
+	config := filepath.Join(root, "sidi.yaml")
+	if err := os.WriteFile(config, []byte("target: sidi128\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	archive := filepath.Join(root, "regression")
+	game := filepath.Join(archive, "contra", "contra", "ref")
+	if err := os.MkdirAll(game, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(game, "old.png"), []byte("legacy"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	regressionConfig = config
+	regressionLegacySiDi128 = true
+	regressionAdoptLegacySiDi128 = true
+	regressionConfirmLegacySiDi128 = "sidi128"
+	regressionCmd.Flags().Lookup("legacy-sidi128").Changed = true
+	regressionCmd.Flags().Lookup("adopt-legacy-sidi128").Changed = true
+	regressionCmd.Flags().Lookup("confirm-legacy-sidi128").Changed = true
+	if err := run_regression_cmd(regressionCmd, nil); err != nil {
+		t.Fatalf("existing regression entrypoint did not adopt archive: %v", err)
+	}
+	marker, err := os.ReadFile(filepath.Join(archive, ".capture-target.json"))
+	if err != nil || string(marker) != "{\"target\":\"sidi128\"}\n" {
+		t.Fatalf("adoption marker=%q err=%v", marker, err)
+	}
+	reset_curation_flags()
+	root = t.TempDir()
+	t.Setenv("JOTEGO", root)
+	config = filepath.Join(root, "mister.yaml")
+	if err = os.WriteFile(config, []byte("target: mister\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	regressionConfig = config
+	regressionLegacySiDi128 = true
+	regressionAdoptLegacySiDi128 = true
+	regressionConfirmLegacySiDi128 = "sidi128"
+	regressionCmd.Flags().Lookup("legacy-sidi128").Changed = true
+	regressionCmd.Flags().Lookup("adopt-legacy-sidi128").Changed = true
+	regressionCmd.Flags().Lookup("confirm-legacy-sidi128").Changed = true
+	if err = run_regression_cmd(regressionCmd, nil); err == nil || !strings.Contains(err.Error(), "cannot target a MiSTer") {
+		t.Fatalf("MiSTer target adoption result = %v", err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "regression")); !os.IsNotExist(err) {
+		t.Fatalf("rejected MiSTer adoption created an archive: %v", err)
+	}
+	reset_curation_flags()
+}
+
+func enableSidiCommandCuration(t *testing.T, root string) {
+	t.Helper()
+	archive := filepath.Join(root, "regression")
+	if err := os.MkdirAll(archive, 0750); err != nil { t.Fatal(err) }
+	if err := os.WriteFile(filepath.Join(archive, ".capture-target.json"), []byte("{\"target\":\"sidi128\"}\n"), 0640); err != nil { t.Fatal(err) }
+	config := filepath.Join(t.TempDir(), "regression.yaml")
+	if err := os.WriteFile(config, []byte("{}\n"), 0600); err != nil { t.Fatal(err) }
+	regressionConfig = config
+	regressionLegacySiDi128 = true
+	regressionCmd.Flags().Lookup("legacy-sidi128").Changed = true
 }
 
 func TestRegressionBusyIdleOutputAndExit(t *testing.T) {
@@ -62,6 +135,7 @@ func TestRegressionAcceptCommaSeparatedCores(t *testing.T) {
 	reset_curation_flags()
 	root := t.TempDir()
 	t.Setenv("JOTEGO", root)
+	enableSidiCommandCuration(t, root)
 	for i, core := range []string{"core1", "core2"} {
 		slot := filepath.Join(root, "regression", core, "same", "new")
 		if err := os.MkdirAll(slot, 0750); err != nil { t.Fatal(err) }
@@ -125,6 +199,7 @@ func TestRegressionManagementRejectAndStatus(t *testing.T) {
 	reset_curation_flags()
 	root := t.TempDir()
 	t.Setenv("JOTEGO", root)
+	enableSidiCommandCuration(t, root)
 	game := filepath.Join(root, "regression", "core", "game")
 	if err := os.MkdirAll(filepath.Join(game, "new"), 0750); err != nil {
 		t.Fatal(err)

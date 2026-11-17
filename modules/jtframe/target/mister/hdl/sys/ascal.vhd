@@ -129,6 +129,10 @@ ENTITY ascal IS
 		IHRES        : natural RANGE 1 TO 2048 :=2048;
 		N_DW         : natural RANGE 64 TO 128 := 128;
 		N_AW         : natural RANGE 8 TO 32 := 32;
+		CAPTURE      : boolean := false;
+		-- Deterministic starting identity for capture verification. Production
+		-- instances retain zero; writer tokens are locally modulo-256.
+		CAPTURE_WRITE_ID_SEED : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
 
 		-- Sinden Lightgun support border
 		BORDER_H     : natural := 20;
@@ -136,7 +140,8 @@ ENTITY ascal IS
 		BORDER_H2    : natural := 28;
 		BORDER_V2    : natural := 28;
 
-		N_BURST      : natural := 256 -- 256 bytes per burst
+		N_BURST      : natural := 256; -- 256 bytes per burst
+		CAPTURE_CYCLES_PER_MS : natural := 100000
 		);
 	PORT (
 		------------------------------------
@@ -262,11 +267,42 @@ ENTITY ascal IS
 		avl_byteenable     : OUT   std_logic_vector(N_DW/8-1 DOWNTO 0);
 
 		------------------------------------
-		reset_na           : IN    std_logic
+		reset_na           : IN    std_logic;
+
+		-- Optional exact-frame capture interface. The shared CAB/frame helper
+		-- owns the native-clock tag source; ascal owns its async FIFO and the
+		-- capture/write/readback state machine.
+		cap_io_clk               : IN  std_logic := '0';
+		cap_io_rst               : IN  std_logic := '1';
+		cap_req_toggle           : IN  std_logic := '0';
+		cap_req                  : IN  std_logic_vector(31 DOWNTO 0) := (OTHERS=>'0');
+		cap_req_ack_toggle       : OUT std_logic;
+		cap_release_toggle       : IN  std_logic := '0';
+		cap_release              : IN  std_logic_vector(15 DOWNTO 0) := (OTHERS=>'0');
+		cap_release_ack_toggle   : OUT std_logic;
+		cap_abort_toggle         : IN  std_logic := '0';
+		cap_abort                : IN  std_logic_vector(15 DOWNTO 0) := (OTHERS=>'0');
+		cap_abort_ack_toggle     : OUT std_logic;
+		cap_life_toggle          : IN  std_logic := '0';
+		cap_life                 : IN  std_logic_vector(31 DOWNTO 0) := (OTHERS=>'0');
+		cap_life_ack_toggle      : OUT std_logic;
+		cap_tag_clk              : IN  std_logic := '0';
+		cap_tag_rst              : IN  std_logic := '1';
+		cap_tag_valid            : IN  std_logic := '0';
+		cap_tag                  : IN  std_logic_vector(14 DOWNTO 0) := (OTHERS=>'0');
+		cap_tag_error            : IN  std_logic := '0';
+		cap_mode_supported       : IN  std_logic := '1';
+		cap_tag_ready            : OUT std_logic;
+		cap_result_toggle        : OUT std_logic;
+		cap_result               : OUT std_logic_vector(511 DOWNTO 0);
+		cap_result_ack_toggle    : IN  std_logic := '0';
+		cap_state                : OUT std_logic_vector(7 DOWNTO 0);
+		cap_fault                : OUT std_logic_vector(7 DOWNTO 0)
 		);
 
 BEGIN
 	ASSERT N_DW=64 OR N_DW=128 REPORT "DW" SEVERITY failure;
+	ASSERT CAPTURE_CYCLES_PER_MS>0 REPORT "CAPTURE_CYCLES_PER_MS" SEVERITY failure;
 
 	ASSERT OHRES = 1024 OR OHRES = 2048 OR OHRES = 2304 OR
 	       OHRES = 2560 OR OHRES = 4096 REPORT "OHRES" SEVERITY failure;
@@ -326,6 +362,11 @@ ARCHITECTURE rtl OF ascal IS
 		END CASE;
 	END FUNCTION;
 
+	FUNCTION cap_gray(v : unsigned) RETURN unsigned IS
+	BEGIN
+		RETURN v XOR ('0' & v(v'left DOWNTO 1));
+	END FUNCTION;
+
 	CONSTANT OHRESH : natural := ohres_h(OHRES);
 	CONSTANT OHRESL : natural := ohres_l(OHRES);
 	CONSTANT OHRESM : natural := ohres_m(OHRES);
@@ -337,6 +378,162 @@ ARCHITECTURE rtl OF ascal IS
 
 	----------------------------------------------------------
 	TYPE arr_dw IS  ARRAY (natural RANGE <>) OF unsigned(N_DW-1 DOWNTO 0);
+
+	CONSTANT CAP_TAG_AW : natural := 2;
+	TYPE cap_tag_mem_t IS ARRAY (0 TO 2**CAP_TAG_AW-1) OF std_logic_vector(14 DOWNTO 0);
+	SIGNAL cap_tag_mem : cap_tag_mem_t;
+	SIGNAL cap_tag_wr_bin,cap_tag_wr_gray,cap_tag_rd_bin,cap_tag_rd_gray : unsigned(CAP_TAG_AW DOWNTO 0);
+	SIGNAL cap_tag_rd_gray_sync1,cap_tag_rd_gray_sync2 : unsigned(CAP_TAG_AW DOWNTO 0);
+	SIGNAL cap_tag_wr_gray_sync1,cap_tag_wr_gray_sync2 : unsigned(CAP_TAG_AW DOWNTO 0);
+	SIGNAL cap_tag_full,cap_tag_empty : std_logic;
+	SIGNAL cap_tag_error_sync1_i,cap_tag_error_sync2_i : std_logic := '0';
+	SIGNAL cap_tag_valid_sync1_i,cap_tag_valid_sync2_i : std_logic := '0';
+	SIGNAL cap_tag_pop : std_logic := '0';
+	SIGNAL cap_tag_head : std_logic_vector(14 DOWNTO 0);
+	SIGNAL cap_req_ack_i,cap_release_ack_i,cap_abort_ack_i,cap_life_ack_i : std_logic := '0';
+	SIGNAL cap_result_toggle_i : std_logic := '0';
+	SIGNAL cap_result_toggle_sync1_io,cap_result_toggle_sync2_io,cap_result_toggle_seen_io,
+	       cap_result_toggle_io,cap_result_ack_sync1_i,
+	       cap_result_ack_sync2_i : std_logic := '0';
+	SIGNAL cap_result_io : std_logic_vector(511 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_mode_sync1_i,cap_mode_sync2_i : std_logic := '1';
+	SIGNAL cap_req_ack_pending_i,cap_req_ack_pending_toggle_i : std_logic := '0';
+	SIGNAL cap_fault_mailbox_avl : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_fault_mailbox_pending_code_avl : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_fault_mailbox_toggle_avl,cap_fault_mailbox_pending_avl : std_logic := '0';
+	SIGNAL cap_fault_mailbox_ack_i_sync1_avl,cap_fault_mailbox_ack_i_sync2_avl,
+	       cap_fault_mailbox_ack_io_sync1_avl,cap_fault_mailbox_ack_io_sync2_avl : std_logic := '0';
+	SIGNAL cap_fault_mailbox_toggle_sync1_i,cap_fault_mailbox_toggle_sync2_i,
+	       cap_fault_mailbox_seen_i,cap_fault_mailbox_ack_toggle_i,
+	       cap_fault_mailbox_ack_sync1_i,cap_fault_mailbox_ack_sync2_i : std_logic := '0';
+	SIGNAL cap_fault_mailbox_code_i : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_fault_mailbox_toggle_sync1_io,cap_fault_mailbox_toggle_sync2_io,
+	       cap_fault_mailbox_seen_io,cap_fault_mailbox_ack_toggle_io,
+	       cap_fault_override_io : std_logic := '0';
+	SIGNAL cap_fault_mailbox_code_io : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_state_i,cap_fault_i : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_status_bundle_i,cap_status_bundle_io : std_logic_vector(19 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_status_toggle_i,cap_status_ack_toggle_io : std_logic := '0';
+	SIGNAL cap_status_ack_sync1_i,cap_status_ack_sync2_i : std_logic := '0';
+	SIGNAL cap_status_toggle_sync1_io,cap_status_toggle_sync2_io,cap_status_seen_io : std_logic := '0';
+	SIGNAL cap_req_sync1,cap_req_sync2,cap_req_seen : std_logic := '0';
+	SIGNAL cap_release_sync1,cap_release_sync2,cap_release_seen : std_logic := '0';
+	SIGNAL cap_abort_sync1,cap_abort_sync2,cap_abort_seen : std_logic := '0';
+	SIGNAL cap_life_sync1,cap_life_sync2,cap_life_seen : std_logic := '0';
+	SIGNAL cap_req_checkpoint,cap_last_checkpoint_i : unsigned(14 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_req_hold_ms : unsigned(10 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_life_completed_i : unsigned(14 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_life_state_i,cap_life_error_i : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_life_running,cap_life_done_i,cap_life_valid_i : std_logic := '0';
+	SIGNAL cap_session_ready_i,cap_drain_ready_i : std_logic := '0';
+	SIGNAL cap_status_state_i : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_lifecycle_cancel_i : std_logic := '0';
+	SIGNAL cap_watchdog_active_i,cap_watchdog_toggle_i : std_logic := '0';
+	SIGNAL cap_watchdog_sync1_avl,cap_watchdog_sync2_avl,cap_watchdog_seen_avl,
+	       cap_watchdog_active_avl : std_logic := '0';
+	SIGNAL cap_watchdog_cycle_avl : natural RANGE 0 TO CAPTURE_CYCLES_PER_MS-1 := 0;
+	SIGNAL cap_watchdog_ms_avl : natural RANGE 0 TO 2000 := 0;
+	SIGNAL cap_hold_pending,cap_hold_active,cap_release_pending,cap_abort_pending : std_logic := '0';
+	SIGNAL cap_owner_i : std_logic := '0';
+	SIGNAL cap_producer_seen_i : std_logic := '0';
+	-- Slot reply follows the input EOF request through the output buffer-update
+	-- pipeline. The stable generation+slot bundle describes the NEXT image.
+	SIGNAL cap_slot_req_toggle_i,cap_slot_reply_ack_i : std_logic := '0';
+	SIGNAL cap_slot_req_sync1_o,cap_slot_req_sync2_o,cap_slot_req_seen_o : std_logic := '0';
+	SIGNAL cap_slot_pending_o : std_logic := '0';
+	SIGNAL cap_slot_reply_toggle_o,cap_slot_reply_ack_sync1_o,cap_slot_reply_ack_sync2_o : std_logic := '0';
+	SIGNAL cap_slot_reply_slot_o : natural RANGE 0 TO 2 := 0;
+	SIGNAL cap_slot_reply_sync1_i,cap_slot_reply_sync2_i,cap_slot_reply_seen_i : std_logic := '0';
+	SIGNAL cap_slot_reply_slot_i : natural RANGE 0 TO 2 := 0;
+	SIGNAL cap_image_slot_i : natural RANGE 0 TO 2 := 0;
+	SIGNAL cap_image_base_i : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
+	TYPE cap_unsigned32_pair_t IS ARRAY (0 TO 1) OF unsigned(31 DOWNTO 0);
+	SUBTYPE cap_write_id_t IS unsigned(7 DOWNTO 0);
+	TYPE cap_write_id_pair_t IS ARRAY (0 TO 1) OF cap_write_id_t;
+	TYPE cap_natural_pair_t IS ARRAY (0 TO 1) OF natural RANGE 0 TO 2;
+	SIGNAL cap_half_lease_i,cap_half_req_toggle_i,cap_half_ack_sync1_i,
+	       cap_half_ack_sync2_i,cap_half_ack_seen_i : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_half_req_toggle_o,cap_half_req_sync1_o,cap_half_req_sync2_o,
+	       cap_half_req_seen_o,cap_half_ack_toggle_o : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_half_base_i,cap_half_offset_i : cap_unsigned32_pair_t := (OTHERS=>(OTHERS=>'0'));
+	SIGNAL cap_half_id_i : cap_write_id_pair_t := (OTHERS=>(OTHERS=>'0'));
+	SIGNAL cap_half_line_i : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_write_stage_valid_i,cap_write_stage_half_i,cap_write_stage_line_i : std_logic := '0';
+	SIGNAL cap_write_stage_delay_i : natural RANGE 0 TO 4 := 0;
+	SIGNAL cap_write_stage_base_i,cap_write_stage_offset_i : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_write_stage_id_i,cap_write_next_id_i : cap_write_id_t := (OTHERS=>'0');
+	SIGNAL cap_half_pending_avl : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_half_pending_toggle_avl,cap_half_active_toggle_avl : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_half_base_avl,cap_half_offset_avl : cap_unsigned32_pair_t := (OTHERS=>(OTHERS=>'0'));
+	SIGNAL cap_half_id_avl,cap_half_done_id_avl : cap_write_id_pair_t := (OTHERS=>(OTHERS=>'0'));
+	SIGNAL cap_half_line_avl : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_write_active_avl,cap_write_active_half_avl : std_logic := '0';
+	SIGNAL cap_write_active_id_avl : cap_write_id_t := (OTHERS=>'0');
+	SIGNAL cap_write_active_base_avl,cap_write_active_offset_avl : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_write_active_line_avl : std_logic := '0';
+	SIGNAL cap_write_expected_id_avl,cap_write_completed_id_i : cap_write_id_t := (OTHERS=>'0');
+	-- Exact image tuple saved with the header which was actually admitted. The
+	-- formatter fields and final CRC remain immutable through Avalon writes,
+	-- scan/fence returns, cleanup, and result publication; a fresh admitted ARM
+	-- is the only reuse point after the existing drain/ACK barriers.
+	SIGNAL cap_image_header_i,cap_target_header_i : unsigned(127 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_metadata_valid_i : std_logic := '0';
+	SIGNAL cap_crc_active_i : std_logic := '0';
+	SIGNAL cap_crc_wait_ack_i : std_logic := '0';
+	SIGNAL cap_crc_byte_i : natural RANGE 0 TO 55 := 0;
+	SIGNAL cap_crc_state_i : unsigned(31 DOWNTO 0) := (OTHERS=>'1');
+	SIGNAL cap_metadata_toggle_i,cap_metadata_ack_sync1_i,cap_metadata_ack_sync2_i,
+	       cap_metadata_ack_avl,cap_metadata_toggle_sync1_avl,cap_metadata_toggle_sync2_avl,
+	       cap_metadata_toggle_seen_avl,cap_metadata_valid_avl : std_logic := '0';
+	SIGNAL cap_metadata_word_index_avl : natural RANGE 0 TO BLEN-1 := 0;
+	SIGNAL cap_metadata_word_avl : std_logic_vector(N_DW-1 DOWNTO 0);
+	SIGNAL cap_fence_done_sync1_i,cap_fence_done_sync2_i : std_logic := '0';
+	SIGNAL cap_image_slot_i_saved,cap_target_slot_i : natural RANGE 0 TO 2 := 0;
+	SIGNAL cap_image_base_i_saved,cap_target_base_i : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_image_width_i,cap_image_height_i,cap_target_width_i,cap_target_height_i : natural RANGE 0 TO 4095 := 0;
+	SIGNAL cap_image_pitch_i,cap_target_pitch_i : natural RANGE 0 TO 65535 := 0;
+	SIGNAL cap_target_final_id_i : cap_write_id_t := (OTHERS=>'0');
+	SIGNAL cap_target_completed_id_i : cap_write_id_t := (OTHERS=>'0');
+	SIGNAL cap_error_watchdog_started_i : std_logic := '0';
+	CONSTANT CAPTURE_REQUEST_COUNT_W : natural := 17;
+	CONSTANT CAPTURE_MAX_PIXEL_BURSTS : natural := 4095*31;
+	SIGNAL cap_image_request_count_i,cap_target_request_count_i,cap_target_expected_count_i : unsigned(CAPTURE_REQUEST_COUNT_W-1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_target_pixel_bursts_i : unsigned(CAPTURE_REQUEST_COUNT_W-1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_target_payload_bytes_i : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_target_checkpoint_i : unsigned(14 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_target_valid_i,cap_target_active_i,cap_drain_sent_i : std_logic := '0';
+	SIGNAL cap_cleanup_pending_i,cap_cleanup_drained_i,cap_drain_cleanup_i : std_logic := '0';
+	SIGNAL cap_cleanup_diag_i : std_logic := '0';
+	SIGNAL cap_cleanup_done_toggle_avl,cap_cleanup_done_sync1_i,cap_cleanup_done_sync2_i,
+	       cap_cleanup_done_seen_i : std_logic := '0';
+	SIGNAL cap_drain_toggle_i,cap_drain_ack_sync1_i,cap_drain_ack_sync2_i : std_logic := '0';
+	SIGNAL cap_drain_req_sync1_avl,cap_drain_req_sync2_avl,cap_drain_req_seen_avl : std_logic := '0';
+	SIGNAL cap_drain_cleanup_sync1_avl,cap_drain_cleanup_sync2_avl,cap_drain_cleanup_avl : std_logic := '0';
+	SIGNAL cap_cleanup_sync1_avl,cap_cleanup_sync2_avl,cap_cleanup_seen_avl : std_logic := '0';
+	SIGNAL cap_drain_sent_sync1_avl,cap_drain_sent_sync2_avl : std_logic := '0';
+	SIGNAL cap_drain_pending_avl,cap_drain_ack_avl : std_logic := '0';
+	SIGNAL cap_drain_final_id_avl : cap_write_id_t := (OTHERS=>'0');
+	SIGNAL cap_avl_fault_avl : std_logic_vector(7 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_avl_fault_clear_toggle_i,cap_avl_fault_clear_sync1_avl,
+	       cap_avl_fault_clear_sync2_avl,cap_avl_fault_clear_seen_avl,
+	       cap_avl_fault_clear_ack_avl,cap_avl_fault_clear_ack_sync1_i,
+	       cap_avl_fault_clear_ack_sync2_i,cap_avl_fault_clear_pending_i : std_logic := '0';
+	TYPE cap_avl_capture_phase_t IS (capAvlIdle,capAvlScanIssue,capAvlScanWait,capAvlMetaIssue,
+		capAvlFenceIssue,capAvlFenceWait,capAvlFenceDrain,capAvlReady);
+	SIGNAL cap_avl_capture_phase : cap_avl_capture_phase_t := capAvlIdle;
+	SIGNAL cap_scan_burst_index_avl : unsigned(CAPTURE_REQUEST_COUNT_W-1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_scan_beat_count_avl : natural RANGE 0 TO BLEN-1 := 0;
+	SIGNAL cap_display_queue_address_avl : cap_unsigned32_pair_t := (OTHERS=>(OTHERS=>'0'));
+	SIGNAL cap_display_queue_count_avl : natural RANGE 0 TO 2 := 0;
+	SIGNAL cap_display_queue_rd_avl,cap_display_queue_wr_avl : natural RANGE 0 TO 1 := 0;
+	SIGNAL cap_display_queue_line_avl : std_logic_vector(1 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_display_outstanding_avl : natural RANGE 0 TO 2 := 0;
+	SIGNAL cap_display_beat_count_avl : natural RANGE 0 TO BLEN-1 := 0;
+	SIGNAL cap_read_command_scan_avl,cap_read_command_fence_avl : std_logic := '0';
+	SIGNAL cap_read_command_address_avl : unsigned(31 DOWNTO 0) := (OTHERS=>'0');
+	SIGNAL cap_metadata_write_active_avl : std_logic := '0';
+	SIGNAL cap_fence_beat_count_avl : natural RANGE 0 TO BLEN-1 := 0;
+	SIGNAL cap_fence_done_toggle_avl,cap_fence_done_seen_i : std_logic := '0';
 
 	TYPE type_pix IS RECORD
 		r,g,b : unsigned(7 DOWNTO 0); -- 0.8
@@ -358,11 +555,16 @@ ARCHITECTURE rtl OF ascal IS
 
 	----------------------------------------------------------
 	-- Input image
-	SIGNAL i_pvs,i_pfl,i_pde,i_pce : std_logic;
+	SIGNAL i_pvs,i_pde,i_pce : std_logic;
+	-- A deterministic progressive field history avoids a false interlace
+	-- detection on the first pixel-enable after reset when i_fl is held low.
+	SIGNAL i_pfl : std_logic := '0';
 	SIGNAL i_ppix : type_pix;
 	SIGNAL i_freeze : std_logic;
 	SIGNAL i_bob_deint : std_logic;
-	SIGNAL i_count : unsigned(2 DOWNTO 0);
+	-- Power-up value keeps the legacy header's modulo-8 frame hint defined.
+	-- Exact capture identity is the bounded native checkpoint alone.
+	SIGNAL i_count : unsigned(2 DOWNTO 0) := (OTHERS=>'0');
 	SIGNAL i_hsize,i_hmin,i_hmax,i_hcpt : uint12;
 	SIGNAL i_hrsize,i_vrsize : uint12;
 	SIGNAL i_himax,i_vimax : uint12;
@@ -373,7 +575,8 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL i_ven,i_sof : std_logic;
 	SIGNAL i_wr : std_logic;
 	SIGNAL i_divstart,i_divrun : std_logic;
-	SIGNAL i_de_pre,i_vs_pre,i_fl_pre : std_logic;
+	SIGNAL i_de_pre,i_vs_pre : std_logic;
+	SIGNAL i_fl_pre : std_logic := '0';
 	SIGNAL i_de_delay : natural RANGE 0 TO 31;
 	SIGNAL i_intercnt : natural RANGE 0 TO 3;
 	SIGNAL i_inter,i_half,i_flm : std_logic;
@@ -449,6 +652,149 @@ ARCHITECTURE rtl OF ascal IS
 		IF b=1 THEN RETURN base+size; END IF;
 		IF b=2 THEN RETURN base+(size(30 DOWNTO 0) & '0'); END IF;
 		RETURN base;
+	END FUNCTION;
+	FUNCTION crc32_ieee_byte(crc_in : unsigned(31 DOWNTO 0);
+	                         data : std_logic_vector(7 DOWNTO 0)) RETURN unsigned IS
+		VARIABLE crc_v : unsigned(31 DOWNTO 0);
+	BEGIN
+		crc_v:=crc_in XOR resize(unsigned(data),32);
+		FOR bit_idx IN 0 TO 7 LOOP
+			IF crc_v(0)='1' THEN crc_v:=shift_right(crc_v,1) XOR x"EDB88320";
+			ELSE crc_v:=shift_right(crc_v,1);
+			END IF;
+		END LOOP;
+		RETURN crc_v;
+	END FUNCTION;
+	SUBTYPE capture_byte_t IS std_logic_vector(7 DOWNTO 0);
+	FUNCTION capture_header_byte(header : unsigned(127 DOWNTO 0); byte_index : natural)
+		RETURN capture_byte_t IS
+	BEGIN
+		CASE byte_index IS
+			WHEN 0 => RETURN std_logic_vector(header(127 DOWNTO 120));
+			WHEN 1 => RETURN std_logic_vector(header(119 DOWNTO 112));
+			WHEN 2 => RETURN std_logic_vector(header(111 DOWNTO 104));
+			WHEN 3 => RETURN std_logic_vector(header(103 DOWNTO 96));
+			WHEN 4 => RETURN std_logic_vector(header(95 DOWNTO 88));
+			WHEN 5 => RETURN std_logic_vector(header(87 DOWNTO 80));
+			WHEN 6 => RETURN std_logic_vector(header(79 DOWNTO 72));
+			WHEN 7 => RETURN std_logic_vector(header(71 DOWNTO 64));
+			WHEN 8 => RETURN std_logic_vector(header(63 DOWNTO 56));
+			WHEN 9 => RETURN std_logic_vector(header(55 DOWNTO 48));
+			WHEN 10 => RETURN std_logic_vector(header(47 DOWNTO 40));
+			WHEN 11 => RETURN std_logic_vector(header(39 DOWNTO 32));
+			WHEN 12 => RETURN std_logic_vector(header(31 DOWNTO 24));
+			WHEN 13 => RETURN std_logic_vector(header(23 DOWNTO 16));
+			WHEN 14 => RETURN std_logic_vector(header(15 DOWNTO 8));
+			WHEN 15 => RETURN std_logic_vector(header(7 DOWNTO 0));
+			WHEN OTHERS => RETURN x"00";
+		END CASE;
+	END FUNCTION;
+	FUNCTION capture_u32_byte(value : unsigned(31 DOWNTO 0); byte_lane : natural)
+		RETURN capture_byte_t IS
+	BEGIN
+		CASE byte_lane IS
+			WHEN 0 => RETURN std_logic_vector(value(7 DOWNTO 0));
+			WHEN 1 => RETURN std_logic_vector(value(15 DOWNTO 8));
+			WHEN 2 => RETURN std_logic_vector(value(23 DOWNTO 16));
+			WHEN 3 => RETURN std_logic_vector(value(31 DOWNTO 24));
+			WHEN OTHERS => RETURN x"00";
+		END CASE;
+	END FUNCTION;
+	FUNCTION capture_metadata_byte(
+		header : unsigned(127 DOWNTO 0);
+		checkpoint : unsigned(14 DOWNTO 0);
+		base,stride,payload,issued,completed : unsigned(31 DOWNTO 0);
+		slot : natural RANGE 0 TO 2;
+		fb_enabled : std_logic;
+		crc : unsigned(31 DOWNTO 0);
+		byte_index : natural
+	) RETURN capture_byte_t IS
+		VARIABLE descriptor_index,byte_lane : natural RANGE 0 TO 63;
+		VARIABLE width_v,height_v,pitch_v,mode_v,value_v : unsigned(31 DOWNTO 0);
+		VARIABLE previous_checkpoint_v : unsigned(14 DOWNTO 0);
+	BEGIN
+		IF byte_index<16 THEN
+			RETURN capture_header_byte(header,byte_index);
+		ELSIF byte_index<192 THEN
+			RETURN x"00";
+		ELSIF byte_index>=256 THEN
+			RETURN x"00";
+		END IF;
+
+		descriptor_index:=byte_index-192;
+		width_v:=resize(header(79 DOWNTO 64),32);
+		height_v:=resize(header(63 DOWNTO 48),32);
+		pitch_v:=resize(header(47 DOWNTO 32),32);
+		mode_v:=to_unsigned(1+slot*256+1024+2048,32);
+		IF fb_enabled='1' THEN mode_v:=mode_v+4096; END IF;
+		previous_checkpoint_v:=checkpoint-1;
+		CASE descriptor_index IS
+			WHEN 0  => RETURN x"4A"; -- JTC2, byte0 in bits7:0
+			WHEN 1  => RETURN x"54";
+			WHEN 2  => RETURN x"43";
+			WHEN 3  => RETURN x"32";
+			WHEN 4  => RETURN x"02";
+			WHEN 5  => RETURN x"00";
+			WHEN 6  => RETURN x"40";
+			WHEN 7  => RETURN x"00";
+			WHEN 8  => RETURN std_logic_vector(checkpoint(7 DOWNTO 0));
+			WHEN 9  => RETURN '0' & std_logic_vector(checkpoint(14 DOWNTO 8));
+			WHEN 10 => RETURN std_logic_vector(previous_checkpoint_v(7 DOWNTO 0));
+			WHEN 11 => RETURN '0' & std_logic_vector(previous_checkpoint_v(14 DOWNTO 8));
+			WHEN 12 TO 15 => value_v:=base; byte_lane:=descriptor_index-12;
+			WHEN 16 TO 19 => value_v:=stride; byte_lane:=descriptor_index-16;
+			WHEN 20 => RETURN std_logic_vector(width_v(7 DOWNTO 0));
+			WHEN 21 => RETURN std_logic_vector(width_v(15 DOWNTO 8));
+			WHEN 22 => RETURN std_logic_vector(height_v(7 DOWNTO 0));
+			WHEN 23 => RETURN std_logic_vector(height_v(15 DOWNTO 8));
+			WHEN 24 TO 27 => value_v:=pitch_v; byte_lane:=descriptor_index-24;
+			WHEN 28 TO 31 => value_v:=payload; byte_lane:=descriptor_index-28;
+			WHEN 32 TO 35 => value_v:=mode_v; byte_lane:=descriptor_index-32;
+			WHEN 36 TO 39 => value_v:=issued; byte_lane:=descriptor_index-36;
+			WHEN 40 TO 43 => value_v:=completed; byte_lane:=descriptor_index-40;
+			WHEN 56 TO 59 => value_v:=crc; byte_lane:=descriptor_index-56;
+			WHEN 60 => RETURN x"52"; -- RDY2, byte0 in bits7:0
+			WHEN 61 => RETURN x"44";
+			WHEN 62 => RETURN x"59";
+			WHEN 63 => RETURN x"32";
+			WHEN OTHERS => RETURN x"00";
+		END CASE;
+		RETURN capture_u32_byte(value_v,byte_lane);
+	END FUNCTION;
+	FUNCTION capture_metadata_word(
+		beat_index : natural RANGE 0 TO BLEN-1;
+		header : unsigned(127 DOWNTO 0);
+		checkpoint : unsigned(14 DOWNTO 0);
+		base,stride,payload,issued,completed : unsigned(31 DOWNTO 0);
+		slot : natural RANGE 0 TO 2;
+		fb_enabled : std_logic;
+		crc : unsigned(31 DOWNTO 0)
+	) RETURN std_logic_vector IS
+		VARIABLE result_v : std_logic_vector(N_DW-1 DOWNTO 0);
+		VARIABLE byte_index_v : natural;
+	BEGIN
+		FOR lane IN 0 TO N_DW/8-1 LOOP
+			byte_index_v:=beat_index*(N_DW/8)+lane;
+			result_v(lane*8+7 DOWNTO lane*8):=capture_metadata_byte(
+					header,checkpoint,base,stride,payload,issued,completed,slot,fb_enabled,crc,byte_index_v);
+		END LOOP;
+		RETURN result_v;
+	END FUNCTION;
+	FUNCTION capture_descriptor_result(
+		header : unsigned(127 DOWNTO 0);
+		checkpoint : unsigned(14 DOWNTO 0);
+		base,stride,payload,issued,completed : unsigned(31 DOWNTO 0);
+		slot : natural RANGE 0 TO 2;
+		fb_enabled : std_logic;
+		crc : unsigned(31 DOWNTO 0)
+	) RETURN std_logic_vector IS
+		VARIABLE result_v : std_logic_vector(511 DOWNTO 0);
+	BEGIN
+		FOR byte_index IN 0 TO 63 LOOP
+			result_v(byte_index*8+7 DOWNTO byte_index*8):=capture_metadata_byte(
+				header,checkpoint,base,stride,payload,issued,completed,slot,fb_enabled,crc,192+byte_index);
+		END LOOP;
+		RETURN result_v;
 	END FUNCTION;
 
 	----------------------------------------------------------
@@ -1162,7 +1508,1008 @@ ARCHITECTURE rtl OF ascal IS
 
 		RETURN v;
 	END FUNCTION;
+
+	-- Keep the byte-address shift at the Avalon address width. Shifting the
+	-- bounded burst index before resize silently discarded high address bits.
+	FUNCTION capture_scan_byte_offset(index_i : unsigned) RETURN unsigned IS
+		VARIABLE wide_v : unsigned(31 DOWNTO 0);
+	BEGIN
+		wide_v := resize(index_i, wide_v'length);
+		RETURN shift_left(wide_v, NB_BURST);
+	END FUNCTION;
+	FUNCTION capture_expected_pixels(expected_count_i : unsigned) RETURN unsigned IS
+	BEGIN
+		-- Zero denotes an uninitialized/invalid target; avoid subtract underflow.
+		IF expected_count_i=0 THEN RETURN to_unsigned(0,expected_count_i'length); END IF;
+		RETURN expected_count_i-1;
+	END FUNCTION;
 BEGIN
+	cap_target_pixel_bursts_i<=capture_expected_pixels(cap_target_expected_count_i);
+	cap_target_payload_bytes_i<=capture_scan_byte_offset(cap_target_pixel_bursts_i);
+	ASSERT 1+CAPTURE_MAX_PIXEL_BURSTS < 2**CAPTURE_REQUEST_COUNT_W
+		REPORT "capture request counter width does not cover the bounded source geometry"
+		SEVERITY failure;
+	-- synthesis translate_off
+	ASSERT capture_scan_byte_offset(to_unsigned(511,CAPTURE_REQUEST_COUNT_W)) =
+		to_unsigned(511*N_BURST,32) REPORT "capture scan byte offset 511 wrapped" SEVERITY failure;
+	ASSERT capture_scan_byte_offset(to_unsigned(512,CAPTURE_REQUEST_COUNT_W)) =
+		to_unsigned(512*N_BURST,32) REPORT "capture scan byte offset 512 wrapped" SEVERITY failure;
+	ASSERT capture_scan_byte_offset(to_unsigned(CAPTURE_MAX_PIXEL_BURSTS,CAPTURE_REQUEST_COUNT_W)) =
+		to_unsigned(CAPTURE_MAX_PIXEL_BURSTS*N_BURST,32)
+		REPORT "maximum capture scan byte offset wrapped" SEVERITY failure;
+	-- synthesis translate_on
+	cap_req_ack_toggle<=cap_status_bundle_io(0);
+	cap_release_ack_toggle<=cap_status_bundle_io(1);
+	cap_abort_ack_toggle<=cap_status_bundle_io(2);
+	cap_life_ack_toggle<=cap_status_bundle_io(3);
+	cap_result_toggle<=cap_result_toggle_io;
+	cap_result<=cap_result_io;
+	cap_drain_ready_i<='1' WHEN CAPTURE AND
+		(cap_session_ready_i='1' OR
+		 (cap_life_valid_i='1' AND cap_life_state_i=x"00" AND cap_life_error_i=x"00")) AND
+		cap_state_i=x"00" AND cap_owner_i='0' AND cap_cleanup_pending_i='0' AND
+		cap_lifecycle_cancel_i='0' AND cap_life_sync2=cap_life_seen AND
+		cap_tag_empty='1' AND cap_tag_valid_sync2_i='0' AND
+		cap_result_ack_sync2_i=cap_result_toggle_i AND
+		cap_metadata_ack_sync2_i=cap_metadata_toggle_i AND
+		cap_fault_mailbox_ack_sync2_i=cap_fault_mailbox_toggle_sync2_i AND
+		cap_fault_mailbox_ack_toggle_i=cap_fault_mailbox_toggle_sync2_i AND
+		cap_avl_fault_clear_pending_i='0'
+		ELSE '0';
+	cap_status_state_i<=x"05" WHEN CAPTURE AND cap_state_i=x"00" AND cap_drain_ready_i='0'
+		ELSE cap_state_i;
+	cap_state<=x"04" WHEN cap_fault_override_io='1' AND cap_status_bundle_io(19 DOWNTO 12)/=x"00"
+		ELSE cap_status_bundle_io(19 DOWNTO 12);
+	-- The Avalon override can invalidate stale READY while i_clk is stopped,
+	-- but must not replace an earlier first-fault already published by the
+	-- controller. A later coherent controller status can still publish that
+	-- original code after the independent override arrives.
+	cap_fault<=cap_status_bundle_io(11 DOWNTO 4)
+		WHEN cap_fault_override_io='1' AND cap_status_bundle_io(11 DOWNTO 4)/=x"00"
+		ELSE cap_fault_mailbox_code_io WHEN cap_fault_override_io='1'
+		ELSE cap_status_bundle_io(11 DOWNTO 4);
+	cap_metadata_word_index_avl<=cap_fence_beat_count_avl
+		WHEN cap_avl_capture_phase=capAvlFenceWait ELSE avl_rad MOD BLEN;
+	cap_metadata_word_avl<=capture_metadata_word(cap_metadata_word_index_avl,
+		cap_target_header_i,cap_target_checkpoint_i,cap_target_base_i,RAMSIZE,cap_target_payload_bytes_i,
+		resize(cap_target_final_id_i,32),resize(cap_target_completed_id_i,32),
+		cap_target_slot_i,'0',NOT cap_crc_state_i);
+
+	-- Coherent capture status mailbox from the controller clock to CAP_IO_CLK.
+	-- State, fault and controller acknowledgements move as one stable20-bit
+	-- bundle so a completion cannot outrun the matching coherent status.
+	CaptureStatusIo: PROCESS(cap_io_clk,cap_io_rst) IS
+	BEGIN
+		IF cap_io_rst='1' THEN
+			cap_status_toggle_sync1_io<='0'; cap_status_toggle_sync2_io<='0'; cap_status_seen_io<='0';
+			cap_status_ack_toggle_io<='0'; cap_status_bundle_io<=(OTHERS=>'0');
+		ELSIF rising_edge(cap_io_clk) THEN
+			cap_status_toggle_sync1_io<=cap_status_toggle_i;
+			cap_status_toggle_sync2_io<=cap_status_toggle_sync1_io;
+			IF cap_status_toggle_sync2_io/=cap_status_seen_io THEN
+				cap_status_seen_io<=cap_status_toggle_sync2_io;
+				cap_status_bundle_io<=cap_status_bundle_i;
+				cap_status_ack_toggle_io<=cap_status_toggle_sync2_io;
+			END IF;
+		END IF;
+	END PROCESS;
+
+	-- An Avalon-clock watchdog can expire while i_clk is stopped. Publish its
+	-- sticky fault independently so CAP_IO_CLK immediately invalidates stale
+	-- READY; state remains ERROR until the controller later confirms cleanup.
+	CaptureFaultIo: PROCESS(cap_io_clk,cap_io_rst) IS
+	BEGIN
+		IF cap_io_rst='1' THEN
+			cap_fault_mailbox_toggle_sync1_io<='0'; cap_fault_mailbox_toggle_sync2_io<='0';
+			cap_fault_mailbox_seen_io<='0'; cap_fault_mailbox_ack_toggle_io<='0';
+			cap_fault_override_io<='0'; cap_fault_mailbox_code_io<=(OTHERS=>'0');
+		ELSIF rising_edge(cap_io_clk) THEN
+			cap_fault_mailbox_toggle_sync1_io<=cap_fault_mailbox_toggle_avl;
+			cap_fault_mailbox_toggle_sync2_io<=cap_fault_mailbox_toggle_sync1_io;
+			IF cap_fault_mailbox_toggle_sync2_io/=cap_fault_mailbox_seen_io THEN
+				cap_fault_mailbox_seen_io<=cap_fault_mailbox_toggle_sync2_io;
+				cap_fault_mailbox_code_io<=cap_fault_mailbox_avl;
+				IF cap_fault_mailbox_avl/=x"00" THEN
+					cap_fault_override_io<='1';
+				ELSE
+					cap_fault_override_io<='0';
+				END IF;
+				cap_fault_mailbox_ack_toggle_io<=cap_fault_mailbox_toggle_sync2_io;
+			END IF;
+		END IF;
+	END PROCESS;
+
+	-- The immutable descriptor source crosses only with its acknowledged toggle.
+	-- Keep the separate CAP_IO result latched for the full host-read lifetime.
+	CaptureResultIo: PROCESS(cap_io_clk,cap_io_rst) IS
+	BEGIN
+		IF cap_io_rst='1' THEN
+			cap_result_toggle_sync1_io<='0'; cap_result_toggle_sync2_io<='0';
+			cap_result_toggle_seen_io<='0'; cap_result_toggle_io<='0';
+			cap_result_io<=(OTHERS=>'0');
+		ELSIF rising_edge(cap_io_clk) THEN
+			cap_result_toggle_sync1_io<=cap_result_toggle_i;
+			cap_result_toggle_sync2_io<=cap_result_toggle_sync1_io;
+			IF cap_result_toggle_sync2_io/=cap_result_toggle_seen_io THEN
+				cap_result_toggle_seen_io<=cap_result_toggle_sync2_io;
+				cap_result_io<=capture_descriptor_result(cap_target_header_i,
+					cap_target_checkpoint_i,cap_target_base_i,RAMSIZE,cap_target_payload_bytes_i,
+					resize(cap_target_final_id_i,32),
+					resize(cap_target_completed_id_i,32),
+					cap_target_slot_i,'0',NOT cap_crc_state_i);
+				cap_result_toggle_io<=cap_result_toggle_sync2_io;
+			END IF;
+		END IF;
+	END PROCESS;
+
+	-- Native CAB image tags cross into the input-video clock through a single
+	-- four-entry Gray-pointer FIFO. A full FIFO is an explicit capture fault;
+	-- it never stalls the game or native CAB clock.
+	cap_tag_fifo_enabled: IF CAPTURE GENERATE
+		SIGNAL cap_tag_wr_bin_next : unsigned(CAP_TAG_AW DOWNTO 0);
+		SIGNAL cap_tag_wr_gray_next : unsigned(CAP_TAG_AW DOWNTO 0);
+	BEGIN
+		cap_tag_wr_bin_next  <= cap_tag_wr_bin + 1;
+		cap_tag_wr_gray_next <= cap_gray(cap_tag_wr_bin_next);
+		-- Full describes whether the current write pointer names a full FIFO.
+		-- Comparing wr_next would reject the fourth entry at depth four.
+		cap_tag_full <= '1' WHEN cap_tag_wr_gray =
+			(NOT cap_tag_rd_gray_sync2(CAP_TAG_AW DOWNTO CAP_TAG_AW-1)) &
+			 cap_tag_rd_gray_sync2(CAP_TAG_AW-2 DOWNTO 0) ELSE '0';
+		cap_tag_empty <= '1' WHEN cap_tag_rd_gray = cap_tag_wr_gray_sync2 ELSE '0';
+		cap_tag_head <= cap_tag_mem(to_integer(cap_tag_rd_bin(CAP_TAG_AW-1 DOWNTO 0)));
+		cap_tag_ready <= NOT cap_tag_full;
+
+		TagWrite: PROCESS(cap_tag_clk,cap_tag_rst) IS
+		BEGIN
+			IF cap_tag_rst='1' THEN
+				cap_tag_wr_bin<=(OTHERS=>'0');
+				cap_tag_wr_gray<=(OTHERS=>'0');
+				cap_tag_rd_gray_sync1<=(OTHERS=>'0');
+				cap_tag_rd_gray_sync2<=(OTHERS=>'0');
+			ELSIF rising_edge(cap_tag_clk) THEN
+				cap_tag_rd_gray_sync1<=cap_tag_rd_gray;
+				cap_tag_rd_gray_sync2<=cap_tag_rd_gray_sync1;
+				IF cap_tag_valid='1' THEN
+					IF cap_tag_full='0' THEN
+						cap_tag_mem(to_integer(cap_tag_wr_bin(CAP_TAG_AW-1 DOWNTO 0)))<=cap_tag;
+						cap_tag_wr_bin<=cap_tag_wr_bin_next;
+						cap_tag_wr_gray<=cap_tag_wr_gray_next;
+					END IF;
+				END IF;
+			END IF;
+		END PROCESS;
+
+		TagRead: PROCESS(i_clk,i_reset_na) IS
+		BEGIN
+			IF i_reset_na='0' THEN
+				cap_tag_rd_bin<=(OTHERS=>'0');
+				cap_tag_rd_gray<=(OTHERS=>'0');
+				cap_tag_wr_gray_sync1<=(OTHERS=>'0');
+				cap_tag_wr_gray_sync2<=(OTHERS=>'0');
+			ELSIF rising_edge(i_clk) THEN
+				cap_tag_wr_gray_sync1<=cap_tag_wr_gray;
+				cap_tag_wr_gray_sync2<=cap_tag_wr_gray_sync1;
+				IF cap_tag_pop='1' AND cap_tag_empty='0' THEN
+					cap_tag_rd_bin<=cap_tag_rd_bin+1;
+					cap_tag_rd_gray<=cap_gray(cap_tag_rd_bin+1);
+				END IF;
+			END IF;
+		END PROCESS;
+	END GENERATE;
+
+	cap_tag_fifo_disabled: IF NOT CAPTURE GENERATE
+	BEGIN
+		cap_tag_full<='0';
+		cap_tag_empty<='1';
+		cap_tag_head<=(OTHERS=>'0');
+		cap_tag_ready<='0';
+	END GENERATE;
+
+	-- Request/reply slot ownership by native input EOF generation. The output
+	-- pointer is sampled only after its registered o_isync update has occurred;
+	-- the response remains stable until the input clock acknowledges it.
+	CaptureSlotReply: PROCESS(o_clk,o_reset_na) IS
+	BEGIN
+		IF o_reset_na='0' THEN
+			cap_slot_req_sync1_o<='0'; cap_slot_req_sync2_o<='0'; cap_slot_req_seen_o<='0';
+			cap_slot_pending_o<='0';
+			cap_slot_reply_toggle_o<='0';
+			cap_slot_reply_slot_o<=0;
+			cap_slot_reply_ack_sync1_o<='0'; cap_slot_reply_ack_sync2_o<='0';
+		ELSIF rising_edge(o_clk) THEN
+			cap_slot_req_sync1_o<=cap_slot_req_toggle_i;
+			cap_slot_req_sync2_o<=cap_slot_req_sync1_o;
+			cap_slot_reply_ack_sync1_o<=cap_slot_reply_ack_i;
+			cap_slot_reply_ack_sync2_o<=cap_slot_reply_ack_sync1_o;
+			IF CAPTURE AND cap_slot_req_sync2_o/=cap_slot_req_seen_o AND cap_slot_pending_o='0' THEN
+				cap_slot_req_seen_o<=cap_slot_req_sync2_o;
+				cap_slot_pending_o<='1';
+			END IF;
+			IF CAPTURE AND cap_slot_pending_o='1' AND
+			   cap_slot_reply_toggle_o=cap_slot_reply_ack_sync2_o AND
+			   o_iendframe02='1' THEN
+				cap_slot_reply_slot_o<=o_ibuf0;
+				cap_slot_reply_toggle_o<=NOT cap_slot_reply_toggle_o;
+				cap_slot_pending_o<='0';
+			END IF;
+		END IF;
+	END PROCESS;
+
+	CaptureSlotRead: PROCESS(i_clk,i_reset_na) IS
+	BEGIN
+		IF i_reset_na='0' THEN
+			cap_slot_reply_sync1_i<='0'; cap_slot_reply_sync2_i<='0'; cap_slot_reply_seen_i<='0';
+			cap_slot_reply_ack_i<='0';
+			cap_slot_reply_slot_i<=0;
+		ELSIF rising_edge(i_clk) THEN
+			cap_slot_reply_sync1_i<=cap_slot_reply_toggle_o;
+			cap_slot_reply_sync2_i<=cap_slot_reply_sync1_i;
+			IF CAPTURE AND cap_slot_reply_sync2_i/=cap_slot_reply_seen_i THEN
+				cap_slot_reply_seen_i<=cap_slot_reply_sync2_i;
+				cap_slot_reply_ack_i<=cap_slot_reply_sync2_i;
+				cap_slot_reply_slot_i<=cap_slot_reply_slot_o;
+			END IF;
+		END IF;
+	END PROCESS;
+
+	-- Capture request/control bundles use a stable-data toggle mailbox. The
+	-- native token is paired at the input EOF; only the following clean header
+	-- boundary closes admission, allowing the matched image's pipeline to drain.
+	CaptureControl: PROCESS(i_clk,i_reset_na) IS
+		VARIABLE eof_v : boolean;
+		VARIABLE half_v : natural RANGE 0 TO 1;
+		VARIABLE completed_id_v : cap_write_id_t;
+		VARIABLE completion_update_v : boolean;
+		VARIABLE ack_pending_v : std_logic_vector(1 DOWNTO 0);
+		VARIABLE ack_found_v : boolean;
+		VARIABLE tag_checkpoint_v : unsigned(14 DOWNTO 0);
+		VARIABLE crc_v : unsigned(31 DOWNTO 0);
+		VARIABLE width_v,height_v,pitch_v : natural;
+		VARIABLE producer_quiet_v : boolean;
+		VARIABLE life_cancel_v : boolean;
+		VARIABLE life_event_v : boolean;
+		VARIABLE life_armed_v : boolean;
+		VARIABLE life_armed_from_idle_v : boolean;
+		VARIABLE life_invalid_state_v : boolean;
+		VARIABLE life_arm_block_v : boolean;
+		VARIABLE life_progress_v : boolean;
+	BEGIN
+		IF i_reset_na='0' THEN
+			cap_req_sync1<='0'; cap_req_sync2<='0'; cap_req_seen<='0';
+			cap_release_sync1<='0'; cap_release_sync2<='0'; cap_release_seen<='0';
+			cap_abort_sync1<='0'; cap_abort_sync2<='0'; cap_abort_seen<='0';
+			cap_life_sync1<='0'; cap_life_sync2<='0'; cap_life_seen<='0';
+			cap_tag_error_sync1_i<='0'; cap_tag_error_sync2_i<='0';
+			cap_tag_valid_sync1_i<='0'; cap_tag_valid_sync2_i<='0';
+			cap_mode_sync1_i<='1'; cap_mode_sync2_i<='1';
+			cap_fault_mailbox_toggle_sync1_i<='0'; cap_fault_mailbox_toggle_sync2_i<='0';
+			cap_fault_mailbox_seen_i<='0'; cap_fault_mailbox_ack_toggle_i<='0';
+			cap_fault_mailbox_code_i<=(OTHERS=>'0');
+			cap_fault_mailbox_ack_sync1_i<='0'; cap_fault_mailbox_ack_sync2_i<='0';
+			cap_req_ack_pending_i<='0'; cap_req_ack_pending_toggle_i<='0';
+			cap_status_bundle_i<=(OTHERS=>'0'); cap_status_toggle_i<='0';
+			cap_status_ack_sync1_i<='0'; cap_status_ack_sync2_i<='0';
+			cap_req_ack_i<='0'; cap_release_ack_i<='0'; cap_abort_ack_i<='0'; cap_life_ack_i<='0';
+			cap_result_toggle_i<='0';
+			cap_result_ack_sync1_i<='0'; cap_result_ack_sync2_i<='0';
+			cap_metadata_valid_i<='0';
+			cap_crc_active_i<='0'; cap_crc_wait_ack_i<='0';
+			cap_crc_byte_i<=0; cap_crc_state_i<=(OTHERS=>'1');
+			cap_metadata_toggle_i<='0'; cap_metadata_ack_sync1_i<='0'; cap_metadata_ack_sync2_i<='0';
+			cap_fence_done_sync1_i<='0'; cap_fence_done_sync2_i<='0'; cap_fence_done_seen_i<='0';
+			cap_cleanup_done_sync1_i<='0'; cap_cleanup_done_sync2_i<='0'; cap_cleanup_done_seen_i<='0';
+			cap_req_checkpoint<=(OTHERS=>'0'); cap_req_hold_ms<=(OTHERS=>'0');
+			cap_life_state_i<=(OTHERS=>'0'); cap_life_error_i<=(OTHERS=>'0');
+			cap_life_completed_i<=(OTHERS=>'0'); cap_last_checkpoint_i<=(OTHERS=>'0');
+			cap_life_running<='0'; cap_life_done_i<='0'; cap_life_valid_i<='0';
+			cap_session_ready_i<='0';
+			cap_lifecycle_cancel_i<='0';
+			cap_watchdog_active_i<='0'; cap_watchdog_toggle_i<='0';
+			cap_slot_req_toggle_i<='0';
+			cap_image_slot_i<=0; cap_image_base_i<=(OTHERS=>'0');
+			cap_half_lease_i<=(OTHERS=>'0'); cap_half_req_toggle_i<=(OTHERS=>'0');
+			cap_half_ack_sync1_i<=(OTHERS=>'0'); cap_half_ack_sync2_i<=(OTHERS=>'0');
+			cap_half_ack_seen_i<=(OTHERS=>'0'); cap_write_stage_valid_i<='0';
+			cap_write_stage_half_i<='0'; cap_write_stage_line_i<='0'; cap_write_stage_delay_i<=0;
+			cap_write_stage_base_i<=(OTHERS=>'0'); cap_write_stage_offset_i<=(OTHERS=>'0');
+			cap_write_stage_id_i<=(OTHERS=>'0'); cap_write_next_id_i<=resize(CAPTURE_WRITE_ID_SEED,8);
+			cap_half_base_i<=(OTHERS=>(OTHERS=>'0')); cap_half_offset_i<=(OTHERS=>(OTHERS=>'0'));
+			cap_half_id_i<=(OTHERS=>(OTHERS=>'0')); cap_half_line_i<=(OTHERS=>'0');
+			cap_write_completed_id_i<=resize(CAPTURE_WRITE_ID_SEED,8);
+			cap_image_header_i<=(OTHERS=>'0'); cap_target_header_i<=(OTHERS=>'0');
+			cap_image_slot_i_saved<=0; cap_target_slot_i<=0;
+			cap_image_base_i_saved<=(OTHERS=>'0'); cap_target_base_i<=(OTHERS=>'0');
+			cap_image_width_i<=0; cap_image_height_i<=0; cap_target_width_i<=0; cap_target_height_i<=0;
+			cap_image_pitch_i<=0; cap_target_pitch_i<=0;
+			cap_target_final_id_i<=(OTHERS=>'0');
+			cap_target_completed_id_i<=(OTHERS=>'0');
+			cap_error_watchdog_started_i<='0';
+			cap_image_request_count_i<=(OTHERS=>'0'); cap_target_request_count_i<=(OTHERS=>'0');
+			cap_target_expected_count_i<=(OTHERS=>'0');
+			cap_target_checkpoint_i<=(OTHERS=>'0');
+			cap_target_valid_i<='0'; cap_target_active_i<='0'; cap_drain_sent_i<='0'; cap_drain_toggle_i<='0';
+			cap_cleanup_pending_i<='0'; cap_cleanup_drained_i<='0'; cap_drain_cleanup_i<='0';
+			cap_cleanup_diag_i<='0';
+			cap_drain_ack_sync1_i<='0'; cap_drain_ack_sync2_i<='0';
+			cap_avl_fault_clear_toggle_i<='0'; cap_avl_fault_clear_ack_sync1_i<='0';
+			cap_avl_fault_clear_ack_sync2_i<='0'; cap_avl_fault_clear_pending_i<='0';
+			cap_state_i<=(OTHERS=>'0'); cap_fault_i<=(OTHERS=>'0');
+			cap_hold_pending<='0'; cap_hold_active<='0';
+			cap_release_pending<='0'; cap_abort_pending<='0'; cap_tag_pop<='0';
+			cap_owner_i<='0';
+			cap_producer_seen_i<='0';
+		ELSIF rising_edge(i_clk) THEN
+			IF CAPTURE AND cap_crc_wait_ack_i='1' AND
+			   cap_metadata_ack_sync2_i=cap_metadata_toggle_i THEN
+				cap_metadata_valid_i<='1';
+				cap_metadata_toggle_i<=NOT cap_metadata_toggle_i;
+				cap_crc_wait_ack_i<='0';
+			END IF;
+			IF CAPTURE AND cap_crc_active_i='1' THEN
+				crc_v:=crc32_ieee_byte(cap_crc_state_i,
+					capture_metadata_byte(cap_target_header_i,cap_target_checkpoint_i,
+						cap_target_base_i,RAMSIZE,cap_target_payload_bytes_i,
+						resize(cap_target_final_id_i,32),resize(cap_target_completed_id_i,32),
+						cap_target_slot_i,'0',
+						(OTHERS=>'0'),192+cap_crc_byte_i));
+				IF cap_crc_byte_i=55 THEN
+					cap_crc_state_i<=crc_v;
+					cap_crc_active_i<='0';
+					cap_crc_wait_ack_i<='1';
+					-- The immutable formatter source outlives this early validity ACK;
+					-- it is not reclaimed until a fully drained fresh ARM.
+					IF cap_metadata_ack_sync2_i=cap_metadata_toggle_i THEN
+						cap_metadata_valid_i<='1';
+						cap_metadata_toggle_i<=NOT cap_metadata_toggle_i;
+						cap_crc_wait_ack_i<='0';
+					END IF;
+				ELSE
+					cap_crc_byte_i<=cap_crc_byte_i+1;
+					cap_crc_state_i<=crc_v;
+				END IF;
+			END IF;
+			cap_fence_done_sync1_i<=cap_fence_done_toggle_avl;
+			cap_fence_done_sync2_i<=cap_fence_done_sync1_i;
+			cap_metadata_ack_sync1_i<=cap_metadata_ack_avl;
+			cap_metadata_ack_sync2_i<=cap_metadata_ack_sync1_i;
+			cap_status_ack_sync1_i<=cap_status_ack_toggle_io;
+			cap_status_ack_sync2_i<=cap_status_ack_sync1_i;
+			cap_result_ack_sync1_i<=cap_result_ack_toggle;
+			cap_result_ack_sync2_i<=cap_result_ack_sync1_i;
+			cap_cleanup_done_sync1_i<=cap_cleanup_done_toggle_avl;
+			cap_cleanup_done_sync2_i<=cap_cleanup_done_sync1_i;
+			IF cap_cleanup_done_sync2_i/=cap_cleanup_done_seen_i THEN
+				cap_cleanup_done_seen_i<=cap_cleanup_done_sync2_i;
+				cap_cleanup_drained_i<='1';
+			END IF;
+			cap_drain_ack_sync1_i<=cap_drain_ack_avl;
+			cap_drain_ack_sync2_i<=cap_drain_ack_sync1_i;
+			cap_avl_fault_clear_ack_sync1_i<=cap_avl_fault_clear_ack_avl;
+			cap_avl_fault_clear_ack_sync2_i<=cap_avl_fault_clear_ack_sync1_i;
+			IF cap_avl_fault_clear_ack_sync2_i=cap_avl_fault_clear_toggle_i THEN
+				cap_avl_fault_clear_pending_i<='0';
+			END IF;
+			cap_req_sync1<=cap_req_toggle; cap_req_sync2<=cap_req_sync1;
+			cap_release_sync1<=cap_release_toggle; cap_release_sync2<=cap_release_sync1;
+			cap_abort_sync1<=cap_abort_toggle; cap_abort_sync2<=cap_abort_sync1;
+			cap_life_sync1<=cap_life_toggle; cap_life_sync2<=cap_life_sync1;
+			cap_tag_error_sync1_i<=cap_tag_error; cap_tag_error_sync2_i<=cap_tag_error_sync1_i;
+			cap_tag_valid_sync1_i<=cap_tag_valid; cap_tag_valid_sync2_i<=cap_tag_valid_sync1_i;
+			cap_mode_sync1_i<=cap_mode_supported; cap_mode_sync2_i<=cap_mode_sync1_i;
+			cap_fault_mailbox_toggle_sync1_i<=cap_fault_mailbox_toggle_avl;
+			cap_fault_mailbox_toggle_sync2_i<=cap_fault_mailbox_toggle_sync1_i;
+			cap_fault_mailbox_ack_sync1_i<=cap_fault_mailbox_ack_toggle_io;
+			cap_fault_mailbox_ack_sync2_i<=cap_fault_mailbox_ack_sync1_i;
+			IF cap_fault_mailbox_toggle_sync2_i/=cap_fault_mailbox_seen_i THEN
+				cap_fault_mailbox_seen_i<=cap_fault_mailbox_toggle_sync2_i;
+				cap_fault_mailbox_code_i<=cap_fault_mailbox_avl;
+				cap_fault_mailbox_ack_toggle_i<=cap_fault_mailbox_toggle_sync2_i;
+			END IF;
+			IF cap_req_ack_pending_i='1' AND
+			   cap_avl_fault_clear_ack_sync2_i=cap_avl_fault_clear_toggle_i AND
+			   cap_fault_mailbox_ack_sync2_i=cap_fault_mailbox_toggle_sync2_i AND
+			   cap_fault_mailbox_ack_toggle_i=cap_fault_mailbox_toggle_sync2_i THEN
+				cap_req_ack_i<=cap_req_ack_pending_toggle_i;
+				cap_req_ack_pending_i<='0';
+			END IF;
+			cap_half_ack_sync1_i<=cap_half_ack_toggle_o;
+			cap_half_ack_sync2_i<=cap_half_ack_sync1_i;
+			cap_tag_pop<='0';
+			eof_v := i_pce='1' AND i_pvs='1' AND i_vs_pre='0';
+			-- A STOP/error already present at the lifecycle mailbox has
+			-- priority over an empty-tag EOF on this same i_clk edge. Otherwise an
+			-- EOF underflow could overwrite the lifecycle first fault.
+			life_event_v := CAPTURE AND cap_life_sync2/=cap_life_seen;
+			life_armed_v := life_event_v AND cap_life(17 DOWNTO 15)="001";
+			life_armed_from_idle_v := life_armed_v AND cap_life_valid_i='1' AND
+				cap_life_state_i=x"00" AND cap_life_error_i=x"00" AND
+				cap_life(25 DOWNTO 18)=x"00";
+			life_invalid_state_v := life_event_v AND
+				((cap_life(17 DOWNTO 15)/="000" AND cap_life(17 DOWNTO 15)/="001" AND
+				  cap_life(17 DOWNTO 15)/="010" AND cap_life(17 DOWNTO 15)/="011" AND
+				  cap_life(17 DOWNTO 15)/="100") OR cap_life(25 DOWNTO 18)/=x"00");
+			life_arm_block_v := life_event_v AND
+				(cap_life(17 DOWNTO 15)="000" OR cap_life(17 DOWNTO 15)="001" OR
+				 cap_life(17 DOWNTO 15)="100" OR life_invalid_state_v);
+			life_cancel_v := CAPTURE AND cap_state_i/=x"00" AND life_arm_block_v;
+			life_progress_v := life_event_v AND cap_life_valid_i='1' AND
+				cap_session_ready_i='1' AND cap_life_error_i=x"00" AND
+				cap_life(25 DOWNTO 18)=x"00" AND
+				unsigned(cap_life(14 DOWNTO 0))>=cap_life_completed_i AND
+				((cap_life_state_i=x"01" AND
+				  (cap_life(17 DOWNTO 15)="010" OR cap_life(17 DOWNTO 15)="011")) OR
+				 (cap_life_state_i=x"02" AND
+				  (cap_life(17 DOWNTO 15)="010" OR cap_life(17 DOWNTO 15)="011")) OR
+				 (cap_life_state_i=x"03" AND cap_life(17 DOWNTO 15)="011"));
+			IF life_cancel_v AND eof_v THEN
+				REPORT "capture lifecycle cancellation coincident with native EOF" SEVERITY note;
+			END IF;
+			producer_quiet_v := (cap_producer_seen_i='0' AND i_ven/='1' AND i_wr/='1' AND i_wreq/='1') OR
+				(i_ven='0' AND i_ven1='0' AND i_ven2='0' AND
+				i_ven3='0' AND i_ven4='0' AND i_ven5='0' AND i_ven6='0' AND
+				i_push='0' AND i_pushend='0' AND i_pushend2='0' AND i_eol='0' AND i_wr='0' AND
+				i_pushhead='0' AND i_pushhead2='0' AND i_pushhead3='0' AND
+				i_wreq='0' AND cap_write_stage_valid_i='0' AND i_acpt=0);
+			IF CAPTURE AND (i_pushhead='1' OR i_ven='1' OR i_wr='1' OR i_wreq='1') THEN
+				cap_producer_seen_i<='1';
+			END IF;
+			IF CAPTURE AND cap_state_i=x"04" AND cap_fault_i/=x"00" AND
+			   (cap_fault_i/=x"0C" OR cap_fault_mailbox_code_i=x"0B") THEN
+				cap_cleanup_pending_i<='1';
+				cap_hold_pending<='0'; cap_hold_active<='1';
+			END IF;
+			-- ARMED faults can happen before the normal target watchdog starts.
+			-- Give each owned failed session one bounded cleanup window, without
+			-- restarting a watchdog already running or one which has expired.
+			IF CAPTURE AND cap_state_i=x"04" AND cap_fault_i/=x"00" AND
+			   cap_owner_i='1' AND cap_error_watchdog_started_i='0' THEN
+				cap_error_watchdog_started_i<='1';
+				IF cap_watchdog_active_i='0' THEN
+					cap_watchdog_active_i<='1';
+					cap_watchdog_toggle_i<=NOT cap_watchdog_toggle_i;
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_cleanup_pending_i='1' AND cap_drain_sent_i='0' AND
+			   NOT producer_quiet_v AND cap_cleanup_diag_i='0' THEN
+				cap_cleanup_diag_i<='1';
+				-- synthesis translate_off
+				REPORT "capture cleanup waiting producer: acpt=" & integer'image(i_acpt) &
+					" ven=" & std_logic'image(i_ven) & std_logic'image(i_ven1) &
+					std_logic'image(i_ven2) & std_logic'image(i_ven3) & std_logic'image(i_ven4) &
+					std_logic'image(i_ven5) & std_logic'image(i_ven6) &
+					" push=" & std_logic'image(i_push) & std_logic'image(i_pushend) &
+					std_logic'image(i_pushend2) & " eol=" & std_logic'image(i_eol) &
+					" wr=" & std_logic'image(i_wr) & " head=" & std_logic'image(i_pushhead) &
+					std_logic'image(i_pushhead2) & std_logic'image(i_pushhead3) &
+					" wreq=" & std_logic'image(i_wreq) & " stage=" &
+					std_logic'image(cap_write_stage_valid_i) SEVERITY note;
+				-- synthesis translate_on
+			END IF;
+			IF CAPTURE AND cap_avl_fault_clear_pending_i='0' AND
+			   cap_fault_mailbox_code_i/=x"00" AND cap_fault_i=x"00" THEN
+				cap_fault_i<=cap_fault_mailbox_code_i;
+				cap_state_i<=x"04";
+				cap_hold_pending<='0'; cap_hold_active<='1';
+			END IF;
+			IF CAPTURE AND i_pushhead='1' AND i_freeze='0' AND
+			   cap_hold_pending='0' AND cap_hold_active='0' THEN
+				-- Snapshot the exact old header and slot on the edge which InAT
+				-- writes that same i_head value as the legacy image header.
+				cap_image_header_i<=i_head;
+				cap_image_slot_i_saved<=cap_image_slot_i;
+				cap_image_base_i_saved<=cap_image_base_i;
+				cap_image_width_i<=i_hrsize; cap_image_height_i<=i_vrsize;
+				cap_image_pitch_i<=N_BURST*i_hburst;
+				cap_image_request_count_i<=(OTHERS=>'0');
+			END IF;
+			completed_id_v:=cap_write_completed_id_i;
+			completion_update_v:=false;
+			FOR h IN 0 TO 1 LOOP
+				ack_pending_v(h):='0';
+				IF CAPTURE AND cap_half_ack_sync2_i(h)/=cap_half_ack_seen_i(h) THEN
+					ack_pending_v(h):='1';
+				END IF;
+			END LOOP;
+			-- synthesis translate_off
+			IF ack_pending_v="11" THEN
+				REPORT "capture observed both half ACKs together; next ID=" &
+					to_hstring(completed_id_v+1) SEVERITY note;
+			END IF;
+			-- synthesis translate_on
+			-- ACK IDs wrap at the bounded local token width. Select the exact expected-next ID
+			-- each pass rather than sorting IDs numerically (0 follows FFFFFFFF).
+			FOR n IN 0 TO 1 LOOP
+				ack_found_v:=false;
+				FOR h IN 0 TO 1 LOOP
+					IF ack_pending_v(h)='1' AND
+					   cap_half_done_id_avl(h)=completed_id_v+1 AND NOT ack_found_v THEN
+						half_v:=h;
+						ack_found_v:=true;
+					END IF;
+				END LOOP;
+				IF ack_found_v THEN
+					cap_half_ack_seen_i(half_v)<=cap_half_ack_sync2_i(half_v);
+					cap_half_lease_i(half_v)<='0';
+					ack_pending_v(half_v):='0';
+					completed_id_v:=cap_half_done_id_avl(half_v);
+					completion_update_v:=true;
+				END IF;
+			END LOOP;
+			FOR h IN 0 TO 1 LOOP
+				IF ack_pending_v(h)='1' THEN
+					cap_half_ack_seen_i(h)<=cap_half_ack_sync2_i(h);
+					cap_half_lease_i(h)<='0';
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"08"; END IF; -- WRITE_OVERRUN
+					cap_state_i<=x"04";
+					cap_hold_pending<='0'; cap_hold_active<='1';
+				END IF;
+			END LOOP;
+			IF completion_update_v THEN cap_write_completed_id_i<=completed_id_v; END IF;
+
+			-- A request is recognized after i_wr has presented its final half
+			-- word. Lease acquisition on this edge therefore permits that final
+			-- fill, then prevents any later write until the Avalon last-beat ACK.
+			-- A failed session drops new descriptors, but normal hold still drains
+			-- already-admitted EOL/packing tail requests before the explicit drain
+			-- predicate is satisfied.
+			IF CAPTURE AND i_wreq='1' AND cap_state_i/=x"04" THEN
+				IF cap_image_request_count_i=(cap_image_request_count_i'RANGE=>'1') OR
+				   (cap_target_active_i='1' AND
+				    cap_target_request_count_i=(cap_target_request_count_i'RANGE=>'1')) THEN
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0D"; END IF; -- NATIVE_PROGRESS / count overflow
+					cap_state_i<=x"04";
+					cap_hold_pending<='0'; cap_hold_active<='1';
+				ELSE
+					cap_image_request_count_i<=cap_image_request_count_i+1;
+					IF cap_target_active_i='1' THEN
+						cap_target_request_count_i<=cap_target_request_count_i+1;
+					END IF;
+					IF i_alt='0' THEN half_v:=0; ELSE half_v:=1; END IF;
+					IF cap_write_stage_valid_i='1' OR
+					   (cap_half_lease_i(half_v)='1' AND
+					    cap_half_ack_sync2_i(half_v)=cap_half_ack_seen_i(half_v)) OR
+					   ((i_wad>=BLEN) /= (i_alt='1')) THEN
+						IF cap_fault_i=x"00" THEN cap_fault_i<=x"08"; END IF; -- WRITE_OVERRUN
+						cap_state_i<=x"04";
+						cap_hold_pending<='0'; cap_hold_active<='1';
+					ELSE
+						cap_half_lease_i(half_v)<='1';
+						cap_write_stage_valid_i<='1';
+						cap_write_stage_delay_i<=0;
+						cap_write_stage_half_i<=i_alt;
+						cap_write_stage_line_i<=i_line;
+						cap_write_stage_base_i<=cap_image_base_i;
+						cap_write_stage_offset_i<=i_adrs;
+						cap_write_stage_id_i<=cap_write_next_id_i+1;
+						-- synthesis translate_off
+						IF CAPTURE_WRITE_ID_SEED/=0 THEN
+							REPORT "capture issued write ID " & to_hstring(cap_write_next_id_i+1) &
+								" half=" & std_logic'image(i_alt) &
+								" base=" & to_hstring(cap_image_base_i) &
+								" offset=" & to_hstring(i_adrs)
+							SEVERITY note;
+						END IF;
+						-- synthesis translate_on
+						cap_write_next_id_i<=cap_write_next_id_i+1;
+					END IF;
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_write_stage_valid_i='1' THEN
+				IF cap_write_stage_delay_i=4 THEN
+					half_v:=0;
+					IF cap_write_stage_half_i='1' THEN half_v:=1; END IF;
+					cap_half_base_i(half_v)<=cap_write_stage_base_i;
+					cap_half_offset_i(half_v)<=cap_write_stage_offset_i;
+					cap_half_line_i(half_v)<=cap_write_stage_line_i;
+					cap_half_id_i(half_v)<=cap_write_stage_id_i;
+					cap_half_req_toggle_i(half_v)<=NOT cap_half_req_toggle_i(half_v);
+					cap_write_stage_valid_i<='0';
+					cap_write_stage_delay_i<=0;
+				ELSE
+					cap_write_stage_delay_i<=cap_write_stage_delay_i+1;
+				END IF;
+			END IF;
+			IF CAPTURE AND i_wr='1' THEN
+				half_v:=0;
+				IF i_wad>=BLEN THEN half_v:=1; END IF;
+				IF cap_half_lease_i(half_v)='1' AND
+				   cap_half_ack_sync2_i(half_v)=cap_half_ack_seen_i(half_v) THEN
+										-- synthesis translate_off
+										IF CAPTURE_WRITE_ID_SEED/=0 THEN
+										REPORT "capture WRITE_OVERRUN half=" & integer'image(half_v) &
+											" wad=" & integer'image(i_wad) &
+											" stage_id=" & to_hstring(cap_write_stage_id_i) &
+											" completed_id=" & to_hstring(cap_write_completed_id_i)
+											SEVERITY note;
+									END IF;
+										-- synthesis translate_on
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"08"; END IF; -- WRITE_OVERRUN
+					cap_state_i<=x"04";
+					cap_hold_pending<='0'; cap_hold_active<='1';
+				END IF;
+			END IF;
+
+			IF life_event_v THEN
+				cap_life_seen<=cap_life_sync2;
+				cap_life_ack_i<=cap_life_sync2;
+				cap_life_completed_i<=unsigned(cap_life(14 DOWNTO 0));
+				cap_life_state_i<="00000" & cap_life(17 DOWNTO 15);
+				cap_life_error_i<=cap_life(25 DOWNTO 18);
+				cap_life_valid_i<='1';
+				IF cap_life(17 DOWNTO 15)="000" THEN
+					cap_session_ready_i<='0';
+				ELSIF cap_life(17 DOWNTO 15)="001" THEN
+					-- ARMED is eligible only when a valid, acknowledged IDLE
+					-- mailbox value immediately preceded it. Invalid/repeated ARMED
+					-- always drops admission, including after reset or a live owner.
+					IF life_armed_from_idle_v THEN
+						cap_session_ready_i<='1';
+					ELSE
+						cap_session_ready_i<='0';
+					END IF;
+				ELSIF life_invalid_state_v OR cap_life(17 DOWNTO 15)="100" THEN
+					cap_session_ready_i<='0';
+				END IF;
+				IF cap_state_i/=x"00" AND life_arm_block_v THEN
+					cap_life_running<='0'; cap_life_done_i<='0';
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"05"; END IF; -- LIFECYCLE_CHANGED
+					cap_state_i<=x"04"; cap_hold_pending<='0'; cap_hold_active<='1';
+					cap_lifecycle_cancel_i<='1';
+					cap_watchdog_active_i<='1'; cap_watchdog_toggle_i<=NOT cap_watchdog_toggle_i;
+				ELSIF cap_life(17 DOWNTO 15)="010" AND cap_life(25 DOWNTO 18)=x"00" THEN
+					cap_life_running<='1'; cap_life_done_i<='0';
+				ELSIF cap_life(17 DOWNTO 15)="011" AND cap_life(25 DOWNTO 18)=x"00" THEN
+					-- Normal DONE preserves a matched final checkpoint and READY ownership.
+					cap_life_running<='1'; cap_life_done_i<='1';
+				ELSIF cap_life(17 DOWNTO 15)="000" OR cap_life(17 DOWNTO 15)="100" OR
+				      life_invalid_state_v THEN
+					cap_life_running<='0';
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_tag_error_sync2_i='1' AND cap_state_i/=x"00" AND cap_fault_i=x"00" THEN
+				cap_fault_i<=x"07"; -- TAG_SEQUENCE / helper detected lost token
+				cap_state_i<=x"04";
+				cap_hold_pending<='0'; cap_hold_active<='1';
+			END IF;
+			IF CAPTURE AND cap_mode_sync2_i='0' AND cap_state_i/=x"00" AND cap_fault_i=x"00" THEN
+				cap_fault_i<=x"06"; -- UNSUPPORTED_MODE
+				cap_state_i<=x"04";
+				cap_hold_pending<='0'; cap_hold_active<='1';
+			END IF;
+
+			IF CAPTURE AND cap_req_sync2/=cap_req_seen AND NOT
+			   (cap_state_i=x"00" AND cap_owner_i='0' AND cap_cleanup_pending_i='0' AND
+			    cap_lifecycle_cancel_i='0' AND life_progress_v) THEN
+				cap_req_seen<=cap_req_sync2;
+				-- A completed CAB IDLE->ARMED barrier plus drained transport, tag,
+				-- result and metadata mailboxes replaces an epoch identity.
+				IF cap_state_i=x"00" AND NOT life_arm_block_v AND cap_drain_ready_i='1' AND
+				   cap_life_valid_i='1' AND cap_session_ready_i='1' AND
+				   (cap_life_state_i=x"01" OR cap_life_state_i=x"02" OR
+				    (cap_life_state_i=x"03" AND cap_life_completed_i>=unsigned(cap_req(14 DOWNTO 0)))) AND
+				   cap_life_error_i=x"00" AND cap_req(15)='0' AND
+				   cap_req(31 DOWNTO 27)="00000" AND
+				   cap_result_ack_sync2_i=cap_result_toggle_i AND
+				   cap_metadata_ack_sync2_i=cap_metadata_toggle_i AND
+				   cap_fault_mailbox_ack_sync2_i=cap_fault_mailbox_toggle_sync2_i AND
+				   cap_fault_mailbox_ack_toggle_i=cap_fault_mailbox_toggle_sync2_i AND
+				   cap_tag_error_sync2_i='0' AND cap_mode_sync2_i='1' AND
+				   unsigned(cap_req(14 DOWNTO 0))/=0 AND
+				   unsigned(cap_req(26 DOWNTO 16))>=100 AND
+				   unsigned(cap_req(26 DOWNTO 16))<=2000 THEN
+					cap_req_checkpoint<=unsigned(cap_req(14 DOWNTO 0));
+					cap_req_hold_ms<=unsigned(cap_req(26 DOWNTO 16));
+					cap_state_i<=x"01"; -- ARMED
+					cap_req_ack_pending_i<='1';
+					cap_req_ack_pending_toggle_i<=cap_req_sync2;
+					cap_owner_i<='1';
+					cap_error_watchdog_started_i<='0';
+					cap_avl_fault_clear_toggle_i<=NOT cap_avl_fault_clear_toggle_i;
+					cap_avl_fault_clear_pending_i<='1';
+					cap_fault_i<=(OTHERS=>'0');
+					cap_metadata_valid_i<='0';
+					cap_crc_active_i<='0'; cap_crc_wait_ack_i<='0';
+					cap_metadata_toggle_i<=NOT cap_metadata_toggle_i;
+					IF cap_life_state_i=x"02" THEN
+						cap_life_running<='1'; cap_life_done_i<='0';
+					ELSIF cap_life_state_i=x"03" THEN
+						cap_life_running<='1'; cap_life_done_i<='1';
+					ELSE
+						cap_life_running<='0'; cap_life_done_i<='0';
+					END IF;
+					cap_last_checkpoint_i<=(OTHERS=>'0');
+					cap_lifecycle_cancel_i<='0';
+					cap_hold_pending<='0'; cap_hold_active<='0';
+					cap_target_valid_i<='0'; cap_target_active_i<='0'; cap_drain_sent_i<='0';
+					cap_cleanup_pending_i<='0'; cap_cleanup_drained_i<='0'; cap_drain_cleanup_i<='0';
+					cap_image_request_count_i<=(OTHERS=>'0'); cap_target_request_count_i<=(OTHERS=>'0');
+				ELSE
+					cap_req_ack_i<=cap_req_sync2;
+					-- synthesis translate_off
+					REPORT "capture ARM rejected state=" & to_hstring(cap_state_i) &
+						" drain_ready=" & std_logic'image(cap_drain_ready_i) &
+						" fault=" & to_hstring(cap_fault_i) & " tag_error=" &
+						std_logic'image(cap_tag_error_sync2_i) & " request=" & to_hstring(cap_req)
+						SEVERITY note;
+					-- synthesis translate_on
+					IF cap_fault_i=x"00" AND NOT life_cancel_v THEN
+						IF cap_mode_sync2_i='0' THEN cap_fault_i<=x"06";
+						ELSIF cap_tag_error_sync2_i='1' THEN cap_fault_i<=x"07";
+						ELSIF life_arm_block_v THEN cap_fault_i<=x"03"; -- same-edge session boundary/invalid lifecycle
+						ELSIF cap_life_valid_i='0' OR cap_session_ready_i='0' OR
+						      (cap_life_state_i/=x"01" AND cap_life_state_i/=x"02" AND
+						       cap_life_state_i/=x"03") OR cap_life_error_i/=x"00" THEN
+							cap_fault_i<=x"03"; -- BAD_STATE / missing lifecycle barrier
+						ELSIF cap_life_state_i=x"03" AND
+						      cap_life_completed_i<unsigned(cap_req(14 DOWNTO 0)) THEN
+							cap_fault_i<=x"04"; -- LATE_TARGET
+						ELSE cap_fault_i<=x"03"; -- BAD_STATE / undrained mailbox
+						END IF;
+					END IF;
+					IF cap_state_i=x"00" THEN
+						cap_state_i<=x"00";
+					ELSE
+						cap_state_i<=x"04";
+						cap_hold_pending<='0'; cap_hold_active<='1';
+					END IF;
+				END IF;
+			END IF;
+
+			IF CAPTURE AND cap_state_i=x"00" AND eof_v AND cap_tag_empty='0' THEN
+				cap_tag_pop<='1'; -- Drain unrelated scaler frames before capture ARM.
+			END IF;
+			IF CAPTURE AND cap_state_i=x"04" AND eof_v AND cap_tag_empty='0' THEN
+				cap_tag_pop<='1'; -- Failed sessions keep consuming native tags while ownership drains.
+			END IF;
+			IF CAPTURE AND cap_state_i=x"01" AND cap_life_running='1' AND eof_v AND NOT life_cancel_v THEN
+				IF cap_tag_empty='1' THEN
+					IF cap_life_done_i='1' AND cap_last_checkpoint_i>=cap_life_completed_i THEN
+						IF cap_fault_i=x"00" THEN cap_fault_i<=x"04"; END IF; -- LATE_TARGET
+					ELSE
+						IF cap_fault_i=x"00" THEN cap_fault_i<=x"07"; END IF; -- TAG_SEQUENCE
+					END IF;
+					cap_state_i<=x"04";
+				ELSE
+					cap_tag_pop<='1';
+					tag_checkpoint_v:=unsigned(cap_tag_head);
+					cap_last_checkpoint_i<=tag_checkpoint_v;
+					IF tag_checkpoint_v<cap_req_checkpoint THEN
+						IF cap_life_done_i='1' AND tag_checkpoint_v>=cap_life_completed_i THEN
+							IF cap_fault_i=x"00" THEN cap_fault_i<=x"04"; END IF; -- LATE_TARGET
+							cap_state_i<=x"04";
+						ELSE
+							NULL; -- Discard preceding native intervals while staying armed.
+						END IF;
+					ELSIF tag_checkpoint_v=cap_req_checkpoint THEN
+						cap_state_i<=x"02"; -- RUNNING / matched target
+						cap_watchdog_active_i<='1'; cap_watchdog_toggle_i<=NOT cap_watchdog_toggle_i;
+						cap_hold_pending<='1';
+						cap_target_valid_i<='1'; cap_target_active_i<='1';
+						cap_target_checkpoint_i<=tag_checkpoint_v;
+						cap_target_header_i<=cap_image_header_i;
+						cap_target_slot_i<=cap_image_slot_i_saved; cap_target_base_i<=cap_image_base_i_saved;
+						cap_target_width_i<=cap_image_width_i; cap_target_height_i<=cap_image_height_i;
+						cap_target_pitch_i<=cap_image_pitch_i;
+						cap_target_expected_count_i<=to_unsigned(1+cap_image_height_i*(cap_image_pitch_i/N_BURST),CAPTURE_REQUEST_COUNT_W);
+						cap_target_request_count_i<=cap_image_request_count_i;
+						IF i_wreq='1' THEN cap_target_request_count_i<=cap_image_request_count_i+1; END IF;
+					ELSE
+						IF cap_fault_i=x"00" THEN cap_fault_i<=x"04"; END IF; -- LATE_TARGET
+						cap_state_i<=x"04";
+					END IF;
+				END IF;
+			END IF;
+			IF CAPTURE AND (cap_state_i=x"02" OR cap_state_i=x"03") AND eof_v AND cap_tag_empty='0' THEN
+				-- Native playback is never backpressured; discard subsequent image
+				-- tags while the selected slot remains owned.
+				cap_tag_pop<='1';
+			END IF;
+
+			-- Close admission only after the matched image's last EOF/EOL work,
+			-- at the next vertical-blank boundary before its next header/pixels.
+			IF CAPTURE AND cap_state_i=x"02" AND cap_hold_pending='1' AND
+			   i_pvs='0' AND i_vs_pre='1' THEN
+				cap_hold_pending<='0';
+				cap_hold_active<='1';
+			END IF;
+
+			-- The output pointer update follows this EOF across its own clock
+			-- domain. Request one stable slot reply for every forwarded interval;
+			-- held/discarded source intervals do not advance the request generation.
+			IF CAPTURE AND eof_v AND cap_hold_active='0' THEN
+				IF cap_slot_reply_ack_i=cap_slot_req_toggle_i THEN
+					cap_slot_req_toggle_i<=NOT cap_slot_req_toggle_i;
+				ELSE
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0D"; END IF; -- NATIVE_PROGRESS
+					cap_state_i<=x"04";
+					cap_hold_pending<='0'; cap_hold_active<='1';
+				END IF;
+			END IF;
+
+			-- At the next header boundary the reply describes this image, not
+			-- the one that just completed. Never guess a stale/live slot value.
+			IF CAPTURE AND i_pce='1' AND i_pvs='0' AND i_vs_pre='1' AND
+			   cap_hold_pending='0' AND cap_hold_active='0' THEN
+				IF cap_slot_reply_ack_i=cap_slot_req_toggle_i THEN
+					cap_image_slot_i<=cap_slot_reply_slot_i;
+					cap_image_base_i<=buf_offset(cap_slot_reply_slot_i,RAMBASE,RAMSIZE);
+				ELSE
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0D"; END IF; -- NATIVE_PROGRESS
+					cap_state_i<=x"04";
+					cap_hold_active<='1';
+				END IF;
+			END IF;
+
+			-- The target image is not drainable until every admitted scaler
+			-- validity, pack, EOL, DPRAM and descriptor stage is empty. Keep this
+			-- separate from the admission hold so already-launched tail requests
+			-- continue through the writer.
+			IF CAPTURE AND cap_state_i=x"02" AND cap_fault_i=x"00" AND
+			   cap_target_valid_i='1' AND cap_hold_active='1' AND
+			   cap_drain_sent_i='0' AND i_ven='0' AND i_ven1='0' AND i_ven2='0' AND
+			   i_ven3='0' AND i_ven4='0' AND i_ven5='0' AND i_ven6='0' AND
+			   i_push='0' AND i_pushend='0' AND i_pushend2='0' AND i_eol='0' AND i_wr='0' AND
+			   i_pushhead='0' AND i_pushhead2='0' AND i_pushhead3='0' AND
+			   i_wreq='0' AND cap_write_stage_valid_i='0' AND i_acpt=0 THEN
+				IF cap_target_request_count_i=cap_target_expected_count_i AND
+				   cap_image_request_count_i=cap_target_expected_count_i THEN
+					cap_target_final_id_i<=cap_write_next_id_i;
+					cap_drain_sent_i<='1';
+					cap_drain_cleanup_i<='0';
+					cap_drain_toggle_i<=NOT cap_drain_toggle_i;
+					-- synthesis translate_off
+					REPORT "capture producer quiet; target requests=" &
+						to_hstring(cap_target_request_count_i) & " expected=" &
+						to_hstring(cap_target_expected_count_i) & " final ID=" &
+						to_hstring(cap_write_next_id_i) & " slot=" &
+						integer'image(cap_target_slot_i) & " pitch=" &
+						integer'image(cap_target_pitch_i)
+						SEVERITY note;
+					-- synthesis translate_on
+				ELSE
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0E"; END IF; -- GEOMETRY_CHANGED
+					cap_state_i<=x"04";
+					-- synthesis translate_off
+					REPORT "capture image request count mismatch: got=" &
+						to_hstring(cap_target_request_count_i) & " expected=" &
+						to_hstring(cap_target_expected_count_i) & " total=" &
+						to_hstring(cap_image_request_count_i)
+						SEVERITY note;
+					-- synthesis translate_on
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_state_i=x"04" AND cap_cleanup_pending_i='1' AND
+			   cap_cleanup_drained_i='0' AND cap_drain_sent_i='0' AND producer_quiet_v THEN
+				cap_target_final_id_i<=cap_write_next_id_i;
+				cap_drain_cleanup_i<='1'; cap_drain_sent_i<='1';
+				cap_drain_toggle_i<=NOT cap_drain_toggle_i;
+				-- synthesis translate_off
+				REPORT "capture cleanup issued local drain ID=" & to_hstring(cap_write_next_id_i)
+					SEVERITY note;
+				-- synthesis translate_on
+			END IF;
+
+			-- The Avalon drain acknowledgement names the exact final image-write
+			-- identity. Derive metadata from the admitted legacy header itself and
+			-- reject any one-cycle geometry/header mismatch before publishing it to
+			-- the Avalon clock domain. The formatter source then stays immutable
+			-- through accepted writes, every fence return, cleanup, and result copy.
+			IF CAPTURE AND cap_drain_sent_i='1' AND
+				   cap_drain_ack_sync2_i=cap_drain_toggle_i AND cap_metadata_valid_i='0' AND
+				   cap_crc_active_i='0' AND cap_crc_wait_ack_i='0' AND
+			   cap_state_i=x"02" AND cap_fault_i=x"00" THEN
+				IF cap_write_completed_id_i/=cap_target_final_id_i THEN
+					-- The local Avalon fence can arrive before controller-clock ACK
+					-- toggles cross back. Do not publish metadata until the actual
+					-- ordered completion stream reaches the inclusive final ID.
+					NULL;
+				ELSE
+					cap_target_completed_id_i<=cap_write_completed_id_i;
+				width_v:=to_integer(cap_target_header_i(79 DOWNTO 64));
+				height_v:=to_integer(cap_target_header_i(63 DOWNTO 48));
+				pitch_v:=to_integer(cap_target_header_i(47 DOWNTO 32));
+				IF cap_target_checkpoint_i=0 OR cap_target_header_i(127 DOWNTO 120)/=x"01" OR
+				   cap_target_header_i(119 DOWNTO 112)/=x"01" OR
+				   width_v/=cap_target_width_i OR height_v/=cap_target_height_i OR
+				   pitch_v/=cap_target_pitch_i OR width_v=0 OR height_v=0 OR
+				   pitch_v/=((width_v*3+N_BURST-1)/N_BURST)*N_BURST OR
+				   to_integer(RAMSIZE)<N_BURST OR
+				   to_integer(cap_target_payload_bytes_i)>to_integer(RAMSIZE)-N_BURST OR
+				   o_fb_ena/='0' THEN
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0E"; END IF; -- GEOMETRY_CHANGED
+					cap_state_i<=x"04";
+					cap_hold_active<='1';
+				ELSE
+					cap_metadata_valid_i<='0';
+					cap_crc_byte_i<=0; cap_crc_state_i<=(OTHERS=>'1');
+					cap_crc_active_i<='1'; cap_crc_wait_ack_i<='0';
+				END IF;
+				END IF;
+			END IF;
+
+			IF CAPTURE AND cap_fence_done_sync2_i/=cap_fence_done_seen_i THEN
+				cap_fence_done_seen_i<=cap_fence_done_sync2_i;
+				IF cap_state_i=x"02" AND cap_fault_i=x"00" AND cap_metadata_valid_i='1' THEN
+					cap_result_toggle_i<=NOT cap_result_toggle_i;
+					cap_state_i<=x"03"; -- READY after matching full-header fence
+					cap_watchdog_active_i<='1'; cap_watchdog_toggle_i<=NOT cap_watchdog_toggle_i;
+				ELSE
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0A"; END IF; -- FENCE/HEADER
+					cap_state_i<=x"04";
+				END IF;
+			END IF;
+
+			IF CAPTURE AND cap_release_sync2/=cap_release_seen THEN
+				cap_release_seen<=cap_release_sync2;
+				IF cap_state_i=x"03" AND cap_release(15)='0' AND
+				   unsigned(cap_release(14 DOWNTO 0))=cap_req_checkpoint THEN
+					cap_release_pending<='1';
+				ELSE
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0C"; END IF; -- BAD_RELEASE
+					cap_release_ack_i<=cap_release_sync2;
+					IF cap_state_i/=x"00" THEN
+						cap_state_i<=x"04"; cap_hold_pending<='0'; cap_hold_active<='1';
+						cap_metadata_valid_i<='0';
+						cap_crc_active_i<='0'; cap_crc_wait_ack_i<='0';
+					END IF;
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_abort_sync2/=cap_abort_seen THEN
+				cap_abort_seen<=cap_abort_sync2;
+				IF cap_state_i/=x"00" AND cap_abort(15)='0' AND
+				   unsigned(cap_abort(14 DOWNTO 0))=cap_req_checkpoint THEN
+					cap_abort_pending<='1';
+					cap_cleanup_pending_i<='1';
+					cap_hold_pending<='0'; cap_hold_active<='1';
+					cap_state_i<=x"04";
+					cap_metadata_valid_i<='0';
+					cap_crc_active_i<='0'; cap_crc_wait_ack_i<='0';
+					IF cap_state_i=x"03" THEN cap_cleanup_drained_i<='1'; END IF;
+				ELSE
+					IF cap_fault_i=x"00" THEN cap_fault_i<=x"0C"; END IF; -- BAD_RELEASE
+					cap_abort_ack_i<=cap_abort_sync2;
+					IF cap_state_i/=x"00" THEN
+						cap_state_i<=x"04"; cap_hold_pending<='0'; cap_hold_active<='1';
+					END IF;
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_release_pending='1' AND cap_state_i=x"03" AND cap_fault_i=x"00" AND
+			   i_pce='1' AND i_pvs='0' AND i_vs_pre='1' THEN
+				cap_hold_pending<='0'; cap_hold_active<='0'; cap_state_i<=x"00";
+				cap_watchdog_active_i<='0'; cap_watchdog_toggle_i<=NOT cap_watchdog_toggle_i;
+				cap_target_valid_i<='0'; cap_target_active_i<='0'; cap_drain_sent_i<='0';
+				cap_metadata_valid_i<='0'; cap_crc_active_i<='0'; cap_crc_wait_ack_i<='0';
+				cap_release_pending<='0'; cap_abort_pending<='0';
+				cap_cleanup_pending_i<='0'; cap_cleanup_drained_i<='0'; cap_drain_cleanup_i<='0';
+				cap_lifecycle_cancel_i<='0';
+				cap_owner_i<='0';
+				cap_release_ack_i<=cap_release_sync2;
+			END IF;
+			IF CAPTURE AND cap_cleanup_pending_i='1' AND cap_cleanup_drained_i='1' AND
+			   (cap_abort_pending='1' OR cap_lifecycle_cancel_i='1' OR
+			    cap_fault_mailbox_code_i=x"0B" OR cap_owner_i='0') AND
+			   i_pce='1' AND i_pvs='0' AND i_vs_pre='1' THEN
+				cap_hold_pending<='0'; cap_hold_active<='0';
+				cap_state_i<=x"00";
+				cap_watchdog_active_i<='0'; cap_watchdog_toggle_i<=NOT cap_watchdog_toggle_i;
+				cap_target_valid_i<='0'; cap_target_active_i<='0'; cap_drain_sent_i<='0';
+				cap_metadata_valid_i<='0'; cap_crc_active_i<='0'; cap_crc_wait_ack_i<='0';
+				cap_release_pending<='0'; cap_abort_pending<='0';
+				cap_cleanup_pending_i<='0'; cap_cleanup_drained_i<='0'; cap_drain_cleanup_i<='0';
+				cap_lifecycle_cancel_i<='0';
+				cap_owner_i<='0';
+				IF cap_abort_pending='1' THEN cap_abort_ack_i<=cap_abort_sync2; END IF;
+			END IF;
+			IF CAPTURE AND cap_status_ack_sync2_i=cap_status_toggle_i AND
+			   cap_status_bundle_i/=(cap_status_state_i & cap_fault_i & cap_life_ack_i &
+				cap_abort_ack_i & cap_release_ack_i & cap_req_ack_i) THEN
+				cap_status_bundle_i<=cap_status_state_i & cap_fault_i & cap_life_ack_i &
+					cap_abort_ack_i & cap_release_ack_i & cap_req_ack_i;
+				cap_status_toggle_i<=NOT cap_status_toggle_i;
+			END IF;
+		END IF;
+	END PROCESS;
 
 	-----------------------------------------------------------------------------
 	i_reset_na<='0'   WHEN reset_na='0' ELSE '1' WHEN rising_edge(i_clk);
@@ -1260,11 +2607,12 @@ BEGIN
 				END IF;
 
 				i_ven<=to_std_logic(i_hcpt>=i_hmin AND i_hcpt<=i_hmax AND
-														i_vcpt>=i_vmin AND i_vcpt<=i_vmax);
+													 i_vcpt>=i_vmin AND i_vcpt<=i_vmax) AND
+													 NOT cap_hold_pending AND NOT cap_hold_active;
 
 				-- Detects end of frame for triple buffering.
-				i_endframe0<=i_vs AND (NOT i_inter OR i_flm OR i_bob_deint);
-				i_endframe1<=i_vs AND (NOT i_inter OR NOT i_flm OR i_bob_deint);
+				i_endframe0<=i_vs AND (NOT i_inter OR i_flm OR i_bob_deint) AND NOT cap_hold_active;
+				i_endframe1<=i_vs AND (NOT i_inter OR NOT i_flm OR i_bob_deint) AND NOT cap_hold_active;
 
 				i_vss<=to_std_logic(i_vcpt>=i_vmin AND i_vcpt<=i_vmax);
 
@@ -1501,7 +2849,8 @@ BEGIN
 					i_wad<=2*BLEN-1;
 				END IF;
 
-				IF i_pvs='0' AND i_vs_pre='1' THEN
+				IF i_pvs='0' AND i_vs_pre='1' AND
+				   cap_hold_pending='0' AND cap_hold_active='0' THEN
 					-- Push header
 					i_pushhead<=to_std_logic(HEADER);
 				END IF;
@@ -1522,9 +2871,10 @@ BEGIN
 
 			------------------------------------------------------
 			-- Write image properties header
-			i_pushhead2<=i_pushhead; i_pushhead3<=i_pushhead2;
+			i_pushhead2<=i_pushhead AND NOT cap_hold_pending AND NOT cap_hold_active;
+			i_pushhead3<=i_pushhead2 AND NOT cap_hold_pending AND NOT cap_hold_active;
 
-			IF i_pushhead='1' AND i_freeze='0' THEN
+			IF i_pushhead='1' AND i_freeze='0' AND cap_hold_pending='0' AND cap_hold_active='0' THEN
 				i_dw<=i_head(127 DOWNTO 128-N_DW);
 				i_count<=i_count+1;
 				i_wr<='1';
@@ -1536,7 +2886,7 @@ BEGIN
 				END IF;
 			END IF;
 
-			IF i_pushhead2='1' AND i_freeze='0' AND N_DW=64 THEN
+			IF i_pushhead2='1' AND i_freeze='0' AND cap_hold_pending='0' AND cap_hold_active='0' AND N_DW=64 THEN
 				i_dw<=i_head(N_DW-1 DOWNTO 0);
 				i_wr<='1';
 				i_wad<=1;
@@ -1544,7 +2894,7 @@ BEGIN
 				i_alt<='0';
 				i_adrs<=(OTHERS =>'0');
 			END IF;
-			IF i_pushhead3='1' THEN
+			IF i_pushhead3='1' AND cap_hold_pending='0' AND cap_hold_active='0' THEN
 				i_wad<=BLEN-1;
 			END IF;
 
@@ -1585,13 +2935,13 @@ BEGIN
 			END IF;
 
 			-- Push write accesses. Ensure a delay between consecutive writes
-			IF i_wreq='1' THEN
+			IF i_wreq='1' AND NOT CAPTURE THEN
 				i_wadrs_mem<=i_adrs; -- Address
 				i_walt_mem <=i_alt;  -- Double buffer select
 				i_wline_mem<=i_line; -- Line, for interleaved video
 				i_wreq_mem<='1';
 			END IF;
-			IF i_wreq_mem='1' AND i_wdelay=5 THEN
+			IF i_wreq_mem='1' AND i_wdelay=5 AND NOT CAPTURE THEN
 				i_write<=NOT i_write;
 				i_wadrs<=i_wadrs_mem;
 				i_walt <=i_walt_mem;
@@ -1655,7 +3005,19 @@ BEGIN
 	BEGIN
 		IF rising_edge(i_clk) THEN
 			IF i_wr='1' THEN
-				i_dpram(i_wad)<=i_dw;
+				IF NOT CAPTURE THEN
+					i_dpram(i_wad)<=i_dw;
+				ELSIF i_wad<BLEN THEN
+					IF cap_half_lease_i(0)='0' OR
+					   cap_half_ack_sync2_i(0)/=cap_half_ack_seen_i(0) THEN
+						i_dpram(i_wad)<=i_dw;
+					END IF;
+				ELSE
+					IF cap_half_lease_i(1)='0' OR
+					   cap_half_ack_sync2_i(1)/=cap_half_ack_seen_i(1) THEN
+						i_dpram(i_wad)<=i_dw;
+					END IF;
+				END IF;
 			END IF;
 		END IF;
 	END PROCESS;
@@ -1681,6 +3043,10 @@ BEGIN
 	-- AVALON interface
 	Avaloir:PROCESS(avl_clk,avl_reset_na) IS
 		VARIABLE adr_v : unsigned(31 DOWNTO 0);
+		VARIABLE cap_half_v : natural RANGE 0 TO 1;
+		VARIABLE disp_count_v,disp_rd_v,disp_wr_v : natural RANGE 0 TO 2;
+		VARIABLE disp_outstanding_v : natural RANGE 0 TO 2;
+		VARIABLE disp_beat_v,scan_beat_v : natural RANGE 0 TO BLEN-1;
 	BEGIN
 		IF avl_reset_na='0' THEN
 			avl_state<=sIDLE;
@@ -1688,8 +3054,145 @@ BEGIN
 			avl_read_sr<='0';
 			avl_readdataack<='0';
 			avl_readack<='0';
+			cap_half_req_sync1_o<=(OTHERS=>'0'); cap_half_req_sync2_o<=(OTHERS=>'0');
+			cap_half_req_seen_o<=(OTHERS=>'0'); cap_half_pending_avl<=(OTHERS=>'0');
+			cap_half_pending_toggle_avl<=(OTHERS=>'0'); cap_half_ack_toggle_o<=(OTHERS=>'0');
+			cap_half_base_avl<=(OTHERS=>(OTHERS=>'0')); cap_half_offset_avl<=(OTHERS=>(OTHERS=>'0'));
+			cap_half_id_avl<=(OTHERS=>(OTHERS=>'0')); cap_half_line_avl<=(OTHERS=>'0');
+			cap_half_done_id_avl<=(OTHERS=>(OTHERS=>'0'));
+			cap_write_active_avl<='0'; cap_write_active_half_avl<='0';
+			cap_half_active_toggle_avl<=(OTHERS=>'0'); cap_write_active_id_avl<=(OTHERS=>'0');
+			cap_write_active_base_avl<=(OTHERS=>'0'); cap_write_active_offset_avl<=(OTHERS=>'0');
+			cap_write_active_line_avl<='0';
+			cap_write_expected_id_avl<=resize(CAPTURE_WRITE_ID_SEED,8)+1;
+			cap_drain_req_sync1_avl<='0'; cap_drain_req_sync2_avl<='0'; cap_drain_req_seen_avl<='0';
+			cap_drain_cleanup_sync1_avl<='0'; cap_drain_cleanup_sync2_avl<='0'; cap_drain_cleanup_avl<='0';
+			cap_cleanup_sync1_avl<='0'; cap_cleanup_sync2_avl<='0'; cap_cleanup_seen_avl<='0';
+			cap_drain_sent_sync1_avl<='0'; cap_drain_sent_sync2_avl<='0';
+			cap_cleanup_done_toggle_avl<='0';
+			cap_drain_pending_avl<='0'; cap_drain_ack_avl<='0'; cap_drain_final_id_avl<=(OTHERS=>'0');
+			cap_avl_capture_phase<=capAvlIdle;
+			cap_scan_burst_index_avl<=(OTHERS=>'0');
+			cap_scan_beat_count_avl<=0;
+			cap_metadata_write_active_avl<='0'; cap_fence_beat_count_avl<=0;
+			cap_metadata_toggle_sync1_avl<='0'; cap_metadata_toggle_sync2_avl<='0';
+			cap_metadata_toggle_seen_avl<='0'; cap_metadata_ack_avl<='0';
+			cap_metadata_valid_avl<='0';
+			cap_fence_done_toggle_avl<='0'; cap_read_command_scan_avl<='0'; cap_read_command_fence_avl<='0';
+			cap_display_queue_address_avl<=(OTHERS=>(OTHERS=>'0'));
+			cap_display_queue_count_avl<=0; cap_display_queue_rd_avl<=0; cap_display_queue_wr_avl<=0;
+			cap_display_queue_line_avl<=(OTHERS=>'0'); cap_display_outstanding_avl<=0; cap_display_beat_count_avl<=0;
+			cap_read_command_address_avl<=(OTHERS=>'0');
+			cap_avl_fault_avl<=(OTHERS=>'0');
+			cap_avl_fault_clear_sync1_avl<='0'; cap_avl_fault_clear_sync2_avl<='0';
+			cap_avl_fault_clear_seen_avl<='0'; cap_avl_fault_clear_ack_avl<='0';
+			cap_fault_mailbox_avl<=(OTHERS=>'0'); cap_fault_mailbox_pending_code_avl<=(OTHERS=>'0');
+			cap_fault_mailbox_toggle_avl<='0'; cap_fault_mailbox_pending_avl<='0';
+			cap_fault_mailbox_ack_i_sync1_avl<='0'; cap_fault_mailbox_ack_i_sync2_avl<='0';
+			cap_fault_mailbox_ack_io_sync1_avl<='0'; cap_fault_mailbox_ack_io_sync2_avl<='0';
+			cap_watchdog_sync1_avl<='0'; cap_watchdog_sync2_avl<='0'; cap_watchdog_seen_avl<='0';
+			cap_watchdog_active_avl<='0'; cap_watchdog_cycle_avl<=0; cap_watchdog_ms_avl<=0;
 
 		ELSIF rising_edge(avl_clk) THEN
+			disp_count_v:=cap_display_queue_count_avl;
+			disp_rd_v:=cap_display_queue_rd_avl;
+			disp_wr_v:=cap_display_queue_wr_avl;
+			disp_outstanding_v:=cap_display_outstanding_avl;
+			disp_beat_v:=cap_display_beat_count_avl;
+			scan_beat_v:=cap_scan_beat_count_avl;
+			cap_drain_req_sync1_avl<=cap_drain_toggle_i;
+			cap_drain_req_sync2_avl<=cap_drain_req_sync1_avl;
+			cap_metadata_toggle_sync1_avl<=cap_metadata_toggle_i;
+			cap_metadata_toggle_sync2_avl<=cap_metadata_toggle_sync1_avl;
+			IF cap_metadata_toggle_sync2_avl/=cap_metadata_toggle_seen_avl THEN
+				cap_metadata_toggle_seen_avl<=cap_metadata_toggle_sync2_avl;
+				cap_metadata_valid_avl<=cap_metadata_valid_i;
+				cap_metadata_ack_avl<=cap_metadata_toggle_sync2_avl;
+			END IF;
+			cap_drain_cleanup_sync1_avl<=cap_drain_cleanup_i;
+			cap_drain_cleanup_sync2_avl<=cap_drain_cleanup_sync1_avl;
+			cap_cleanup_sync1_avl<=cap_cleanup_pending_i;
+			cap_cleanup_sync2_avl<=cap_cleanup_sync1_avl;
+			cap_drain_sent_sync1_avl<=cap_drain_sent_i;
+			cap_drain_sent_sync2_avl<=cap_drain_sent_sync1_avl;
+			IF cap_cleanup_sync2_avl='0' THEN
+				cap_cleanup_seen_avl<='0';
+			ELSIF cap_cleanup_sync2_avl='1' AND cap_drain_sent_sync2_avl='1' AND
+			      cap_cleanup_seen_avl='0' AND
+			      avl_state=sIDLE AND cap_avl_capture_phase=capAvlIdle AND
+			      cap_drain_pending_avl='0' AND cap_half_pending_avl="00" AND
+			      cap_write_active_avl='0' AND
+			      cap_write_expected_id_avl=cap_drain_final_id_avl+1 AND
+			      cap_drain_req_seen_avl=cap_drain_req_sync2_avl THEN
+				cap_cleanup_seen_avl<='1';
+				cap_cleanup_done_toggle_avl<=NOT cap_cleanup_done_toggle_avl;
+			END IF;
+			cap_watchdog_sync1_avl<=cap_watchdog_toggle_i;
+			cap_watchdog_sync2_avl<=cap_watchdog_sync1_avl;
+			cap_avl_fault_clear_sync1_avl<=cap_avl_fault_clear_toggle_i;
+			cap_avl_fault_clear_sync2_avl<=cap_avl_fault_clear_sync1_avl;
+			cap_fault_mailbox_ack_io_sync1_avl<=cap_fault_mailbox_ack_toggle_io;
+			cap_fault_mailbox_ack_io_sync2_avl<=cap_fault_mailbox_ack_io_sync1_avl;
+			cap_fault_mailbox_ack_i_sync1_avl<=cap_fault_mailbox_ack_toggle_i;
+			cap_fault_mailbox_ack_i_sync2_avl<=cap_fault_mailbox_ack_i_sync1_avl;
+			IF cap_avl_fault_clear_sync2_avl/=cap_avl_fault_clear_seen_avl THEN
+				cap_avl_fault_clear_seen_avl<=cap_avl_fault_clear_sync2_avl;
+				cap_avl_fault_clear_ack_avl<=cap_avl_fault_clear_sync2_avl;
+				cap_avl_fault_avl<=(OTHERS=>'0');
+				cap_fault_mailbox_pending_code_avl<=(OTHERS=>'0');
+				cap_fault_mailbox_pending_avl<='1';
+			ELSIF cap_avl_fault_avl/=x"00" AND
+			      cap_avl_fault_avl/=cap_fault_mailbox_avl AND
+			      cap_avl_fault_avl/=cap_fault_mailbox_pending_code_avl THEN
+				cap_fault_mailbox_pending_code_avl<=cap_avl_fault_avl;
+				cap_fault_mailbox_pending_avl<='1';
+			END IF;
+			IF cap_fault_mailbox_pending_avl='1' AND
+			   cap_avl_fault_clear_sync2_avl=cap_avl_fault_clear_seen_avl AND
+			   NOT (cap_avl_fault_avl/=x"00" AND cap_avl_fault_avl/=cap_fault_mailbox_avl AND
+			        cap_avl_fault_avl/=cap_fault_mailbox_pending_code_avl) AND
+			   cap_fault_mailbox_ack_io_sync2_avl=cap_fault_mailbox_toggle_avl AND
+			   cap_fault_mailbox_ack_i_sync2_avl=cap_fault_mailbox_toggle_avl THEN
+				cap_fault_mailbox_avl<=cap_fault_mailbox_pending_code_avl;
+				cap_fault_mailbox_toggle_avl<=NOT cap_fault_mailbox_toggle_avl;
+				cap_fault_mailbox_pending_avl<='0';
+			END IF;
+			IF cap_watchdog_sync2_avl/=cap_watchdog_seen_avl THEN
+				cap_watchdog_seen_avl<=cap_watchdog_sync2_avl;
+				cap_watchdog_active_avl<=cap_watchdog_active_i;
+				cap_watchdog_cycle_avl<=0; cap_watchdog_ms_avl<=0;
+			ELSIF cap_watchdog_active_avl='1' THEN
+				IF cap_watchdog_cycle_avl=CAPTURE_CYCLES_PER_MS-1 THEN
+					cap_watchdog_cycle_avl<=0;
+					IF cap_watchdog_ms_avl+1>=to_integer(cap_req_hold_ms) THEN
+						cap_watchdog_active_avl<='0';
+						IF cap_avl_fault_avl=x"00" THEN cap_avl_fault_avl<=x"0B"; END IF; -- HOLD_TIMEOUT
+					ELSE
+						cap_watchdog_ms_avl<=cap_watchdog_ms_avl+1;
+					END IF;
+				ELSE
+					cap_watchdog_cycle_avl<=cap_watchdog_cycle_avl+1;
+				END IF;
+			END IF;
+			IF CAPTURE AND cap_drain_req_sync2_avl/=cap_drain_req_seen_avl THEN
+				cap_drain_req_seen_avl<=cap_drain_req_sync2_avl;
+				cap_drain_final_id_avl<=cap_target_final_id_i;
+				cap_drain_cleanup_avl<=cap_drain_cleanup_sync2_avl;
+				cap_drain_pending_avl<='1';
+			END IF;
+			cap_half_req_sync1_o<=cap_half_req_toggle_i;
+			cap_half_req_sync2_o<=cap_half_req_sync1_o;
+			FOR h IN 0 TO 1 LOOP
+				IF CAPTURE AND cap_half_req_sync2_o(h)/=cap_half_req_seen_o(h) THEN
+					cap_half_req_seen_o(h)<=cap_half_req_sync2_o(h);
+					cap_half_pending_toggle_avl(h)<=cap_half_req_sync2_o(h);
+					cap_half_base_avl(h)<=cap_half_base_i(h);
+					cap_half_offset_avl(h)<=cap_half_offset_i(h);
+					cap_half_id_avl(h)<=cap_half_id_i(h);
+					cap_half_line_avl(h)<=cap_half_line_i(h);
+					cap_half_pending_avl(h)<='1';
+				END IF;
+			END LOOP;
 			----------------------------------
 			avl_write_sync<=i_write; -- <ASYNC>
 			avl_write_sync2<=avl_write_sync;
@@ -1706,6 +3209,19 @@ BEGIN
 			avl_read_pulse<=avl_read_sync XOR avl_read_sync2;
 			avl_radrs <=o_adrs; -- <ASYNC>
 			avl_rline <=o_rline; -- <ASYNC>
+			IF CAPTURE AND avl_read_pulse='1' THEN
+				IF disp_count_v<2 THEN
+					adr_v:=unsigned(o_adrs);
+					IF o_rline='0' THEN adr_v:=adr_v+avl_o_offset0;
+					ELSE adr_v:=adr_v+avl_o_offset1; END IF;
+					cap_display_queue_address_avl(disp_wr_v)<=adr_v;
+					cap_display_queue_line_avl(disp_wr_v)<=o_rline;
+					disp_count_v:=disp_count_v+1;
+					disp_wr_v:=(disp_wr_v+1) MOD 2;
+				ELSE
+					IF cap_avl_fault_avl=x"00" THEN cap_avl_fault_avl<=x"03"; END IF;
+				END IF;
+			END IF;
 
 			--------------------------------------------
 			avl_o_vs_sync<=o_vsv(0); -- <ASYNC>
@@ -1744,7 +3260,37 @@ BEGIN
 			--------------------------------------------
 			CASE avl_state IS
 				WHEN sIDLE =>
-					IF avl_write_sr='1' THEN
+					IF CAPTURE AND
+					   ((cap_half_pending_avl(0)='1' AND cap_half_id_avl(0)=cap_write_expected_id_avl) OR
+					    (cap_half_pending_avl(1)='1' AND cap_half_id_avl(1)=cap_write_expected_id_avl)) THEN
+						IF cap_half_pending_avl(0)='1' AND cap_half_id_avl(0)=cap_write_expected_id_avl THEN
+							cap_half_v:=0;
+						ELSE
+							cap_half_v:=1;
+						END IF;
+						cap_half_pending_avl(cap_half_v)<='0';
+						cap_write_active_avl<='1';
+						cap_write_active_half_avl<=to_std_logic(cap_half_v=1);
+						cap_write_active_id_avl<=cap_half_id_avl(cap_half_v);
+						cap_write_active_base_avl<=cap_half_base_avl(cap_half_v);
+						cap_write_active_offset_avl<=cap_half_offset_avl(cap_half_v);
+						cap_write_active_line_avl<=cap_half_line_avl(cap_half_v);
+						cap_half_active_toggle_avl(cap_half_v)<=cap_half_pending_toggle_avl(cap_half_v);
+						-- synthesis translate_off
+						IF CAPTURE_WRITE_ID_SEED/=0 THEN
+							REPORT "capture Avalon start ID " & to_hstring(cap_half_id_avl(cap_half_v)) &
+								" half=" & integer'image(cap_half_v) &
+								" base=" & to_hstring(cap_half_base_avl(cap_half_v)) &
+								" offset=" & to_hstring(cap_half_offset_avl(cap_half_v))
+								SEVERITY note;
+						END IF;
+						-- synthesis translate_on
+						avl_state<=sWRITE;
+						avl_rad<=cap_half_v*BLEN;
+						avl_walt<=to_std_logic(cap_half_v=1);
+						adr_v:=cap_half_base_avl(cap_half_v)+cap_half_offset_avl(cap_half_v);
+						avl_address<=std_logic_vector(adr_v(N_AW+NB_LA-1 DOWNTO NB_LA));
+					ELSIF avl_write_sr='1' THEN
 						avl_state<=sWRITE;
 						avl_write_clr<='1';
 						IF avl_walt='0' THEN
@@ -1761,7 +3307,52 @@ BEGIN
 								avl_wadrs(N_AW+NB_LA-1 DOWNTO NB_LA) +
 								avl_i_offset1(N_AW+NB_LA-1 DOWNTO NB_LA));
 						END IF;
-					ELSIF avl_read_sr='1' THEN
+					ELSIF CAPTURE AND cap_display_queue_count_avl>0 AND
+					      cap_display_outstanding_avl<2 AND cap_avl_capture_phase/=capAvlScanWait THEN
+						avl_state<=sREAD;
+						cap_read_command_scan_avl<='0';
+						cap_read_command_fence_avl<='0';
+						cap_read_command_address_avl<=cap_display_queue_address_avl(cap_display_queue_rd_avl);
+					ELSIF CAPTURE AND cap_cleanup_sync2_avl='1' AND
+					      (cap_avl_capture_phase=capAvlScanIssue OR
+					       cap_avl_capture_phase=capAvlMetaIssue OR
+					       cap_avl_capture_phase=capAvlReady) THEN
+						-- Abort invalidates the receipt immediately. Any accepted scan read
+						-- or metadata write is retired below; do not issue subsequent work.
+						cap_avl_capture_phase<=capAvlIdle;
+					ELSIF CAPTURE AND cap_avl_capture_phase=capAvlMetaIssue AND
+					      cap_metadata_valid_avl='1' AND cap_display_queue_count_avl=0 AND
+					      cap_display_outstanding_avl=0 THEN
+						avl_state<=sWRITE;
+						avl_rad<=0;
+						avl_address<=std_logic_vector(cap_target_base_i(N_AW+NB_LA-1 DOWNTO NB_LA));
+						cap_metadata_write_active_avl<='1';
+						cap_read_command_scan_avl<='0';
+						cap_read_command_fence_avl<='0';
+					ELSIF CAPTURE AND cap_avl_capture_phase=capAvlFenceIssue AND
+					      cap_display_queue_count_avl=0 AND cap_display_outstanding_avl=0 THEN
+						avl_state<=sREAD;
+						cap_read_command_scan_avl<='0';
+						cap_read_command_fence_avl<='1';
+						cap_read_command_address_avl<=cap_target_base_i;
+					ELSIF CAPTURE AND cap_avl_capture_phase=capAvlScanIssue AND
+					      cap_display_queue_count_avl=0 AND cap_display_outstanding_avl=0 THEN
+						IF cap_scan_burst_index_avl<cap_target_pixel_bursts_i THEN
+							adr_v:=cap_target_base_i+to_unsigned(N_BURST,32)+
+								capture_scan_byte_offset(cap_scan_burst_index_avl);
+							cap_read_command_address_avl<=adr_v;
+							cap_read_command_scan_avl<='1';
+							cap_read_command_fence_avl<='0';
+							avl_state<=sREAD;
+						ELSE
+							cap_avl_capture_phase<=capAvlMetaIssue;
+						END IF;
+					ELSIF CAPTURE AND cap_avl_capture_phase/=capAvlIdle AND
+					      cap_avl_capture_phase/=capAvlScanWait AND avl_read_sr='1' AND
+					      cap_display_queue_count_avl=0 THEN
+						-- A pulse is being captured into the bounded DISPLAY queue.
+						NULL;
+					ELSIF NOT CAPTURE AND avl_read_sr='1' THEN
 						avl_state<=sREAD;
 						avl_read_clr<='1';
 					END IF;
@@ -1772,14 +3363,40 @@ BEGIN
 						IF (avl_rad MOD BLEN)=BLEN-1 THEN
 							avl_write_i<='0';
 							avl_state<=sIDLE;
+							IF CAPTURE AND cap_metadata_write_active_avl='1' THEN
+								cap_metadata_write_active_avl<='0';
+								cap_avl_capture_phase<=capAvlFenceIssue;
+							ELSIF CAPTURE AND cap_write_active_avl='1' THEN
+								ASSERT cap_write_active_id_avl=cap_write_expected_id_avl
+									REPORT "capture Avalon write completion identity out of order" SEVERITY failure;
+								-- synthesis translate_off
+								IF CAPTURE_WRITE_ID_SEED/=0 THEN
+									REPORT "capture accepted write ID " & to_hstring(cap_write_active_id_avl)
+										SEVERITY note;
+								END IF;
+								-- synthesis translate_on
+								IF cap_write_active_half_avl='0' THEN
+									cap_half_ack_toggle_o(0)<=cap_half_active_toggle_avl(0);
+									cap_half_done_id_avl(0)<=cap_write_active_id_avl;
+								ELSE
+									cap_half_ack_toggle_o(1)<=cap_half_active_toggle_avl(1);
+									cap_half_done_id_avl(1)<=cap_write_active_id_avl;
+								END IF;
+								cap_write_expected_id_avl<=cap_write_expected_id_avl+1;
+								cap_write_active_avl<='0';
+							END IF;
 						END IF;
 					END IF;
 
 				WHEN sREAD =>
-					IF avl_rline='0' THEN
-						adr_v:=avl_radrs + avl_o_offset0;
+					IF CAPTURE THEN
+						adr_v:=cap_read_command_address_avl;
 					ELSE
-						adr_v:=avl_radrs + avl_o_offset1;
+						IF avl_rline='0' THEN
+							adr_v:=avl_radrs + avl_o_offset0;
+						ELSE
+							adr_v:=avl_radrs + avl_o_offset1;
+						END IF;
 					END IF;
 					avl_address<=std_logic_vector(adr_v(N_AW+NB_LA-1 DOWNTO NB_LA));
 
@@ -1787,18 +3404,124 @@ BEGIN
 					IF avl_read_i='1' AND avl_waitrequest='0' THEN
 						avl_state<=sIDLE;
 						avl_read_i<='0';
-						avl_readack<=NOT avl_readack;
+						IF CAPTURE AND cap_read_command_scan_avl='1' THEN
+							cap_avl_capture_phase<=capAvlScanWait;
+							scan_beat_v:=0;
+						ELSIF CAPTURE AND cap_read_command_fence_avl='1' THEN
+							cap_avl_capture_phase<=capAvlFenceWait;
+							cap_fence_beat_count_avl<=0;
+						ELSE
+							avl_readack<=NOT avl_readack;
+							IF CAPTURE THEN
+								avl_read_clr<='1';
+								IF disp_count_v=0 OR disp_outstanding_v>=2 THEN
+									IF cap_avl_fault_avl=x"00" THEN cap_avl_fault_avl<=x"03"; END IF;
+								ELSE
+									disp_count_v:=disp_count_v-1;
+									disp_rd_v:=(disp_rd_v+1) MOD 2;
+									disp_outstanding_v:=disp_outstanding_v+1;
+								END IF;
+							END IF;
+						END IF;
 					END IF;
 			END CASE;
+
+			-- Local Avalon drain means the exact final image identity has been
+			-- accepted and no captured half or active image burst remains. This
+			-- is only the local-port fence; the full pixel readback follows.
+			IF CAPTURE AND cap_drain_pending_avl='1' AND avl_state=sIDLE AND
+			   cap_half_pending_avl="00" AND cap_write_active_avl='0' AND
+			   cap_write_expected_id_avl=cap_drain_final_id_avl+1 THEN
+				cap_drain_pending_avl<='0';
+				cap_drain_ack_avl<=cap_drain_req_sync2_avl;
+				IF cap_drain_cleanup_avl='1' OR cap_cleanup_sync2_avl='1' THEN
+					cap_avl_capture_phase<=capAvlIdle;
+				ELSE
+					cap_avl_capture_phase<=capAvlScanIssue;
+					cap_scan_burst_index_avl<=(OTHERS=>'0');
+				END IF;
+				-- synthesis translate_off
+				REPORT "capture Avalon drain complete; final ID=" &
+					to_hstring(cap_drain_final_id_avl) SEVERITY note;
+				-- synthesis translate_on
+			END IF;
 
 			--------------------------------------------
 			-- Pipelined data read
 			avl_wr<='0';
 			IF avl_readdatavalid='1' THEN
-				avl_wr<='1';
-				avl_wad<=(avl_wad+1) MOD (2*BLEN);
-				IF (avl_wad MOD BLEN)=BLEN-2 THEN
-					avl_readdataack<=NOT avl_readdataack;
+				IF CAPTURE AND cap_avl_capture_phase=capAvlScanWait THEN
+					IF scan_beat_v=BLEN-1 THEN
+						scan_beat_v:=0;
+						IF cap_cleanup_sync2_avl='1' THEN
+							cap_avl_capture_phase<=capAvlIdle;
+						ELSIF cap_scan_burst_index_avl+1>=cap_target_pixel_bursts_i THEN
+							cap_scan_burst_index_avl<=cap_scan_burst_index_avl+1;
+							cap_avl_capture_phase<=capAvlMetaIssue;
+							-- synthesis translate_off
+							REPORT "capture pixel scan complete; bursts=" &
+								integer'image(to_integer(cap_target_pixel_bursts_i))
+								SEVERITY note;
+							-- synthesis translate_on
+						ELSE
+							cap_scan_burst_index_avl<=cap_scan_burst_index_avl+1;
+							cap_avl_capture_phase<=capAvlScanIssue;
+						END IF;
+					ELSE
+						scan_beat_v:=scan_beat_v+1;
+					END IF;
+				ELSIF CAPTURE AND cap_avl_capture_phase=capAvlFenceWait THEN
+					IF avl_readdata/=cap_metadata_word_avl THEN
+						IF cap_avl_fault_avl=x"00" THEN cap_avl_fault_avl<=x"0A"; END IF;
+						cap_read_command_fence_avl<='0';
+						IF cap_fence_beat_count_avl=BLEN-1 THEN
+							cap_fence_beat_count_avl<=0;
+							cap_avl_capture_phase<=capAvlIdle;
+						ELSE
+							cap_fence_beat_count_avl<=cap_fence_beat_count_avl+1;
+							cap_avl_capture_phase<=capAvlFenceDrain;
+						END IF;
+					ELSE
+						IF cap_fence_beat_count_avl=BLEN-1 THEN
+							cap_fence_beat_count_avl<=0;
+							cap_read_command_fence_avl<='0';
+							IF cap_cleanup_sync2_avl='1' THEN
+								cap_avl_capture_phase<=capAvlIdle;
+							ELSE
+								cap_avl_capture_phase<=capAvlReady;
+								cap_fence_done_toggle_avl<=NOT cap_fence_done_toggle_avl;
+								REPORT "capture full-header fence matched; READY publication requested"
+									SEVERITY note;
+							END IF;
+						ELSE
+							cap_fence_beat_count_avl<=cap_fence_beat_count_avl+1;
+						END IF;
+					END IF;
+				ELSIF CAPTURE AND cap_avl_capture_phase=capAvlFenceDrain THEN
+					-- A failed fence still owns the accepted Avalon burst. Consume every
+					-- remaining return beat before cleanup can acknowledge ownership.
+					IF cap_fence_beat_count_avl=BLEN-1 THEN
+						cap_fence_beat_count_avl<=0;
+						cap_avl_capture_phase<=capAvlIdle;
+					ELSE
+						cap_fence_beat_count_avl<=cap_fence_beat_count_avl+1;
+					END IF;
+				ELSIF NOT CAPTURE OR disp_outstanding_v>0 THEN
+					avl_wr<='1';
+					avl_wad<=(avl_wad+1) MOD (2*BLEN);
+					IF (avl_wad MOD BLEN)=BLEN-2 THEN
+						avl_readdataack<=NOT avl_readdataack;
+					END IF;
+					IF CAPTURE THEN
+						IF disp_beat_v=BLEN-1 THEN
+							disp_beat_v:=0;
+							disp_outstanding_v:=disp_outstanding_v-1;
+						ELSE
+							disp_beat_v:=disp_beat_v+1;
+						END IF;
+					END IF;
+				ELSIF CAPTURE AND cap_avl_capture_phase/=capAvlIdle THEN
+					IF cap_avl_fault_avl=x"00" THEN cap_avl_fault_avl<=x"0A"; END IF;
 				END IF;
 			END IF;
 
@@ -1806,13 +3529,21 @@ BEGIN
 				avl_wad<=2*BLEN-1;
 			END IF;
 
+			cap_display_queue_count_avl<=disp_count_v;
+			cap_display_queue_rd_avl<=disp_rd_v MOD 2;
+			cap_display_queue_wr_avl<=disp_wr_v MOD 2;
+			cap_display_outstanding_avl<=disp_outstanding_v;
+			cap_display_beat_count_avl<=disp_beat_v;
+			cap_scan_beat_count_avl<=scan_beat_v;
+
 			--------------------------------------------
 		END IF;
 	END PROCESS Avaloir;
 
 	avl_read<=avl_read_i;
 	avl_write<=avl_write_i;
-	avl_writedata<=std_logic_vector(swap(avl_dr));
+	avl_writedata<=cap_metadata_word_avl
+		WHEN CAPTURE AND cap_metadata_write_active_avl='1' ELSE std_logic_vector(swap(avl_dr));
 	avl_burstcount<=std_logic_vector(to_unsigned(BLEN,8));
 	avl_byteenable<=(OTHERS =>'1');
 
@@ -2219,10 +3950,15 @@ BEGIN
 						o_altx<=o_alt;
 					END IF;
 					o_adturn<='0';
-					o_pshift<=o_off(0) -1;
+					-- This is a four-bit hardware counter. Spell out wraparound so
+					-- simulators with strict natural range checks see the same
+					-- modulo-16 behavior as the synthesized counter.
+					o_pshift<=(o_off(0)+15) MOD 16;
 					IF o_primv(0)='1' THEN
 						-- First memcopy of a horizontal line, carriage return !
-						o_ihsizem<=o_ihsize + o_off(0) - 2;
+						-- o_ihsize/o_ihsizem are 12-bit hardware counters. Preserve
+						-- their wraparound on startup when the first image is absent.
+						o_ihsizem<=(o_ihsize + o_off(0) + 4094) MOD 4096;
 						o_hacc     <=o_hacc_ini;
 						o_hacc_next<=o_hacc_ini + 2*o_ihsize;
 						o_hacpt    <=x"000";
@@ -2246,7 +3982,7 @@ BEGIN
 					IF shift_onext(o_acpt,o_format) THEN
 						o_ad<=(o_ad+1) MOD (2*BLEN);
 					END IF;
-					o_pshift<=o_pshift-1;
+					o_pshift<=(o_pshift+15) MOD 16;
 					IF o_pshift=0 THEN
 						o_copy<=sCOPY;
 					END IF;

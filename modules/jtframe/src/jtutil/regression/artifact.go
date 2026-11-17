@@ -95,19 +95,27 @@ func prepareArtifact(ctx context.Context, cfg Config, log_dir string, id BuildId
 	if id.ArtifactSHA != "" && !strings.EqualFold(digest, id.ArtifactSHA) {
 		return "", "", fmt.Errorf("build archive checksum mismatch: %s", archive)
 	}
+	target := cfg.Target
+	if target == "" {
+		target = "sidi128"
+	}
+	targetDir, err := buildReleaseDirectory(target)
+	if err != nil {
+		return "", "", err
+	}
 	manifest_path := filepath.Join(log_dir, "build-manifest.json")
 	var previous archive_record
 	if raw, e := os.ReadFile(manifest_path); e == nil {
 		if e = json.Unmarshal(raw, &previous); e != nil {
 			return "", "", fmt.Errorf("read previous archive identity: %w", e)
 		}
-		if previous.RunID != id.RunID || previous.Attempt != id.Attempt || previous.SHA != id.SHA || previous.ArtifactID != id.ArtifactID || previous.Artifact != name || !strings.EqualFold(previous.ArtifactSHA, digest) {
+		if previous.RunID != id.RunID || previous.Attempt != id.Attempt || previous.SHA != id.SHA || previous.ArtifactID != id.ArtifactID || previous.Artifact != name || previous.Target != filepath.ToSlash(targetDir) || !strings.EqualFold(previous.ArtifactSHA, digest) {
 			return "", "", fmt.Errorf("archive differs from recorded build identity for run %s attempt %s", id.RunID, id.Attempt)
 		}
 	} else if !os.IsNotExist(e) {
 		return "", "", e
 	}
-	rbfs, err := extract_build_archive(payload, cfg.Source)
+	rbfs, err := extract_build_archive_for_target(payload, cfg.Source, target)
 	if err != nil {
 		return "", "", err
 	}
@@ -116,7 +124,7 @@ func prepareArtifact(ctx context.Context, cfg Config, log_dir string, id BuildId
 			return "", "", err
 		}
 	}
-	record := archive_record{RunID: id.RunID, Attempt: id.Attempt, SHA: id.SHA, ArtifactID: id.ArtifactID, Artifact: name, ArtifactSHA: digest, ArtifactAPIHash: id.ArtifactAPIHash, Acquisition: acquisition, ArchivePath: archive, Target: "release/sidi128", RBF: rbfs}
+	record := archive_record{RunID: id.RunID, Attempt: id.Attempt, SHA: id.SHA, ArtifactID: id.ArtifactID, Artifact: name, ArtifactSHA: digest, ArtifactAPIHash: id.ArtifactAPIHash, Acquisition: acquisition, ArchivePath: archive, Target: filepath.ToSlash(targetDir), RBF: rbfs}
 	// A local ZIP's payload hash is not the GitHub service-wrapper hash. Keep
 	// its acquisition explicit instead of claiming the latter was verified.
 	raw, err := json.MarshalIndent(record, "", "  ")
@@ -129,7 +137,18 @@ func prepareArtifact(ctx context.Context, cfg Config, log_dir string, id BuildId
 	if err = os.WriteFile(manifest_path, append(raw, '\n'), 0640); err != nil {
 		return "", "", err
 	}
-	return archive, filepath.Join(cfg.Source, "release", "sidi128"), nil
+	return archive, filepath.Join(cfg.Source, targetDir), nil
+}
+
+func buildReleaseDirectory(target string) (string, error) {
+	switch target {
+	case "sidi128":
+		return filepath.Join("release", "sidi128"), nil
+	case "mister":
+		return filepath.Join("release", "mister"), nil
+	default:
+		return "", fmt.Errorf("unsupported regression build target %q", target)
+	}
 }
 
 // The validated payload comes from /tmp, which may be another filesystem.
@@ -168,7 +187,16 @@ func publish_build_archive(payload, archive, digest string) (result_error error)
 // Validate and unpack every release file before touching the working release.
 // Staging is temporary and removed on success or failure, never a build cache.
 func extract_build_archive(archive, source string) (map[string]string, error) {
-	source, err := filepath.Abs(source)
+	return extract_build_archive_for_target(archive, source, "sidi128")
+}
+
+func extract_build_archive_for_target(archive, source, target string) (map[string]string, error) {
+	targetDir, err := buildReleaseDirectory(target)
+	if err != nil {
+		return nil, err
+	}
+	targetParts := strings.Split(filepath.ToSlash(targetDir), "/")
+	source, err = filepath.Abs(source)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +243,7 @@ func extract_build_archive(archive, source string) (map[string]string, error) {
 			return nil, err
 		}
 		parts := strings.Split(name, "/")
-		if len(parts) == 3 && parts[1] == "sidi128" && strings.HasPrefix(parts[2], "jt") && strings.HasSuffix(parts[2], ".rbf") {
+		if len(parts) == len(targetParts)+1 && strings.Join(parts[:len(targetParts)], "/") == filepath.ToSlash(targetDir) && strings.HasPrefix(parts[len(targetParts)], "jt") && strings.HasSuffix(parts[len(targetParts)], ".rbf") {
 			if entry.UncompressedSize64 == 0 {
 				return nil, fmt.Errorf("empty SiDi128 RBF: %s", name)
 			}
@@ -226,7 +254,7 @@ func extract_build_archive(archive, source string) (map[string]string, error) {
 		}
 	}
 	if len(rbfs) == 0 {
-		return nil, fmt.Errorf("artifact has no release/sidi128 SiDi RBFs")
+		return nil, fmt.Errorf("artifact has no %s RBFs", filepath.ToSlash(targetDir))
 	}
 	// Preflight all destinations before replacing anything. Existing symlinks
 	// must not redirect extraction outside the selected checkout.
@@ -272,7 +300,7 @@ func extract_build_archive(archive, source string) (map[string]string, error) {
 	}
 	// The regression inventory scans this directory; stale RBFs from another
 	// build must not become candidates for the selected build.
-	old, err := filepath.Glob(filepath.Join(source, "release", "sidi128", "jt*.rbf"))
+	old, err := filepath.Glob(filepath.Join(source, targetDir, "jt*.rbf"))
 	if err != nil {
 		return nil, err
 	}

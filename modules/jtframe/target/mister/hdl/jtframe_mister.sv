@@ -173,6 +173,7 @@ module jtframe_mister #(parameter
     output          game_rst_n,
     // reset forcing signals:
     input           rst_req,
+    input           cap_system_reset,
     // joystick
     output  [ 9:0]  game_joystick1, game_joystick2, game_joystick3, game_joystick4,
     // left analogue stick
@@ -231,12 +232,70 @@ module jtframe_mister #(parameter
     output    [ 7:0]  debug_bus,
     input     [ 7:0]  debug_view,
     output    [ 7:0]  st_addr,
-    input     [ 7:0]  st_dout
+    input     [ 7:0]  st_dout,
+    // Exact-capture boundary to sys_top/ascal.
+    output          cap_io_clk,
+    output          cap_tag_clk,
+    output          cap_io_rst,
+    output          cap_tag_rst,
+    output          cap_video_ok,
+    output          cap_req_toggle,
+    output  [ 31:0] cap_req,
+    input           cap_req_ack_toggle,
+    output          cap_release_toggle,
+    output   [15:0] cap_release,
+    input           cap_release_ack_toggle,
+    output          cap_abort_toggle,
+    output   [15:0] cap_abort,
+    input           cap_abort_ack_toggle,
+    output          cap_life_toggle,
+    output  [ 31:0] cap_life,
+    input           cap_life_ack_toggle,
+    output          cap_tag_valid,
+    output   [14:0] cap_tag,
+    input           cap_tag_ready,
+    output          cap_tag_error,
+    input           cap_result_toggle,
+    input   [511:0] cap_result,
+    output          cap_result_ack_toggle,
+    input     [7:0] cap_state,
+    input     [7:0] cap_fault
 );
+
+`ifdef JTFRAME_REGRESSION
+    `ifndef MISTER_DEBUG_NOHDMI
+localparam REGRESSION_BUILD=1;
+    `else
+localparam REGRESSION_BUILD=0;
+    `endif
+`else
+localparam REGRESSION_BUILD=0;
+`endif
+
+`ifdef JTFRAME_CRT480I
+localparam CAPTURE_BUILD=0;
+`elsif JTFRAME_INTERLACED
+localparam CAPTURE_BUILD=0;
+`else
+localparam CAPTURE_BUILD=REGRESSION_BUILD;
+`endif
 
 wire [21:0] gamma_bus;
 wire [31:0] timestamp;
 wire [ 7:0] ioctl_index;
+wire [35:0] hps_ext_bus;
+wire [31:0] hps_dipsw;
+wire [20:0] cab_inputs;
+wire [31:0] cab_dipsw;
+wire [14:0] cab_frame, cab_frame_index;
+wire cab_active, cab_hold_reset, cab_dipsw_valid, cab_frame_start;
+wire [2:0] cab_state;
+wire [7:0] cab_error;
+wire cab_response_enable, cap_response_enable, ext_response_enable;
+wire [15:0] cab_response_word, cap_response_word, ext_response_word;
+wire io_strobe, io_enable;
+wire [15:0] host_word;
+wire [127:0] hps_status_full;
 
 wire [3*COLORW-1:0] base_rgb;
 wire        base_lhbl, base_lvbl, base_hs, base_vs;
@@ -472,7 +531,7 @@ jtframe_mister_dwnld u_dwnld(
 `endif
     .game_vol       ( game_vol       ),
     .status         ( status         ),
-    .dipsw          ( dipsw          ),
+    .dipsw          ( hps_dipsw      ),
     .cheat          ( cheat          ),
 
     // DDR
@@ -538,8 +597,149 @@ assign joystick2 = joyusb_2;
 
 `ifdef JTFRAME_CRT480I
 wire [127:0] status_full;   // CRT filter: 65:64; height: 69:67; bit 66 is free
-assign status = status_full[63:0];
+assign status_full = hps_status_full;
 `endif
+
+assign status = {hps_status_full[63:1],hps_status_full[0] | cab_hold_reset | cab_inputs[12]};
+assign dipsw = cab_dipsw_valid ? cab_dipsw : hps_dipsw;
+
+assign io_strobe = hps_ext_bus[33];
+assign io_enable = hps_ext_bus[34] && !hps_ext_bus[35];
+assign host_word = hps_ext_bus[31:16];
+assign ext_response_enable = cap_response_enable || cab_response_enable;
+assign ext_response_word = cap_response_enable ? cap_response_word : cab_response_word;
+assign hps_ext_bus[32] = ext_response_enable;
+assign hps_ext_bus[15:0] = ext_response_enable ? ext_response_word : 16'hzzzz;
+
+generate if(REGRESSION_BUILD) begin: g_regression
+jtframe_mister_cab u_cab_bridge(
+    .rst             ( rst             ),
+    .clk_rom         ( clk_rom         ),
+    .clk_sys         ( clk_sys         ),
+    .lvbl            ( LVBL            ),
+    .io_strobe       ( io_strobe       ),
+    .io_enable       ( io_enable       ),
+    .host_word       ( host_word       ),
+    .response_enable ( cab_response_enable ),
+    .response_word   ( cab_response_word   ),
+    .cab_active      ( cab_active      ),
+    .cab_hold_reset  ( cab_hold_reset  ),
+    .cab_inputs      ( cab_inputs      ),
+    .cab_dipsw_valid ( cab_dipsw_valid ),
+    .cab_dipsw       ( cab_dipsw       ),
+    .cab_frame       ( cab_frame       ),
+    .cab_frame_start ( cab_frame_start ),
+    .cab_frame_index ( cab_frame_index ),
+    .cab_state       ( cab_state       ),
+    .cab_error       ( cab_error       )
+);
+end else begin: g_no_regression
+    assign cab_response_enable=1'b0;
+    assign cab_response_word=16'd0;
+    assign cab_active=1'b0;
+    assign cab_hold_reset=1'b0;
+    assign cab_inputs=21'd0;
+    assign cab_dipsw_valid=1'b0;
+    assign cab_dipsw=32'd0;
+    assign cab_frame=15'd0;
+    assign cab_frame_start=1'b0;
+    assign cab_frame_index=15'd0;
+    assign cab_state=3'd0;
+    assign cab_error=8'd0;
+end endgenerate
+
+generate if(CAPTURE_BUILD) begin: g_capture
+    wire cap_reset_async = rst | cap_system_reset;
+    reg [1:0] cap_io_reset_pipe, cap_tag_reset_pipe;
+    reg cap_video_ok_reg;
+
+    assign cap_io_clk = clk_rom;
+    assign cap_tag_clk = clk_sys;
+    // Assert on framework startup or the same system reset event as ascal. Release
+    // separately in the two helper domains; CAB/game reset is intentionally absent.
+    always @(posedge clk_rom or posedge cap_reset_async) begin
+        if(cap_reset_async) cap_io_reset_pipe <= 2'b11;
+        else cap_io_reset_pipe <= {cap_io_reset_pipe[0],1'b0};
+    end
+
+    always @(posedge clk_sys or posedge cap_reset_async) begin
+        if(cap_reset_async) cap_tag_reset_pipe <= 2'b11;
+        else cap_tag_reset_pipe <= {cap_tag_reset_pipe[0],1'b0};
+    end
+
+    assign cap_io_rst = cap_io_reset_pipe[1];
+    assign cap_tag_rst = cap_tag_reset_pipe[1];
+    always @(posedge clk_rom) begin
+        if(rst) cap_video_ok_reg <= 1'b0;
+        else cap_video_ok_reg <= status[5:3]==0 && !force_scan2x &&
+                                 !gamma_bus[19] && !rotate[0] && !framebuf_flip;
+    end
+    assign cap_video_ok = cap_video_ok_reg;
+
+    jtframe_mister_capture_io u_capture_io(
+        .clk_rom                 ( clk_rom                 ),
+        .rst                     ( cap_io_rst              ),
+        .io_strobe               ( io_strobe               ),
+        .io_enable               ( io_enable               ),
+        .host_word               ( host_word               ),
+        .response_enable         ( cap_response_enable     ),
+        .response_word           ( cap_response_word       ),
+        .cap_state_in            ( cap_state               ),
+        .cap_fault_in            ( cap_fault               ),
+        .cap_req_toggle          ( cap_req_toggle          ),
+        .cap_req                 ( cap_req                 ),
+        .cap_req_ack_toggle      ( cap_req_ack_toggle      ),
+        .cap_release_toggle      ( cap_release_toggle      ),
+        .cap_release             ( cap_release             ),
+        .cap_release_ack_toggle  ( cap_release_ack_toggle  ),
+        .cap_abort_toggle        ( cap_abort_toggle        ),
+        .cap_abort               ( cap_abort               ),
+        .cap_abort_ack_toggle    ( cap_abort_ack_toggle    ),
+        .cap_result_toggle       ( cap_result_toggle       ),
+        .cap_result              ( cap_result              ),
+        .cap_result_ack_toggle   ( cap_result_ack_toggle   )
+    );
+
+    jtframe_mister_capture_tags u_capture_tags(
+        .clk_sys                 ( clk_sys                 ),
+        .rst                     ( cap_tag_rst             ),
+        .lvbl                    ( LVBL                    ),
+        .cab_frame_start         ( cab_frame_start         ),
+        .cab_frame_index         ( cab_frame_index         ),
+        .cab_completed           ( cab_frame               ),
+        .cab_state               ( cab_state               ),
+        .cab_error               ( cab_error               ),
+        .cap_tag_valid           ( cap_tag_valid           ),
+        .cap_tag                 ( cap_tag                 ),
+        .cap_tag_ready           ( cap_tag_ready           ),
+        .cap_tag_overflow        (                         ),
+        .cap_tag_sequence_error  (                         ),
+        .cap_tag_error           ( cap_tag_error           ),
+        .cap_life_toggle         ( cap_life_toggle         ),
+        .cap_life                ( cap_life                ),
+        .cap_life_ack_toggle     ( cap_life_ack_toggle     )
+    );
+end else begin: g_no_capture
+    assign cap_io_clk=1'b0;
+    assign cap_tag_clk=1'b0;
+    assign cap_io_rst=1'b0;
+    assign cap_tag_rst=1'b0;
+    assign cap_video_ok=1'b0;
+    assign cap_response_enable=1'b0;
+    assign cap_response_word=16'd0;
+    assign cap_req_toggle=1'b0;
+    assign cap_req=32'd0;
+    assign cap_release_toggle=1'b0;
+    assign cap_release=16'd0;
+    assign cap_abort_toggle=1'b0;
+    assign cap_abort=16'd0;
+    assign cap_life_toggle=1'b0;
+    assign cap_life=32'd0;
+    assign cap_tag_valid=1'b0;
+    assign cap_tag=15'd0;
+    assign cap_tag_error=1'b0;
+    assign cap_result_ack_toggle=1'b0;
+end endgenerate
 
 hps_io #(
     .STRLEN(1024),
@@ -548,12 +748,13 @@ hps_io #(
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
+    .EXT_BUS         ( hps_ext_bus    ),
 
     .buttons         ( buttons        ),
 `ifdef JTFRAME_CRT480I
-    .status          ( status_full    ),
+    .status          ( hps_status_full),
 `else
-    .status          ( status         ),
+    .status          ( hps_status_full),
 `endif
     .status_menumask ( status_menumask),
     .gamma_bus       ( gamma_bus      ),
@@ -837,8 +1038,8 @@ jtframe_board #(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
     .capture_pause  ( 1'b0            ),
-    .cab_active     ( 1'b0            ),
-    .cab_inputs     ( 21'b0           ),
+    .cab_active     ( cab_active      ),
+    .cab_inputs     ( cab_inputs      ),
     .cab_dump_pause ( 1'b0            ),
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),

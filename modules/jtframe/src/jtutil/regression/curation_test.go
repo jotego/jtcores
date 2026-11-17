@@ -17,6 +17,15 @@ import (
 	"testing"
 )
 
+func sidi_curation_archive(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	if err := GuardCaptureTarget(root, "sidi128"); err != nil {
+		t.Fatal(err)
+	}
+	return root
+}
+
 func curation_png(t *testing.T, dir string, n int, pixel color.RGBA) {
 	t.Helper()
 	if err := os.MkdirAll(dir, 0750); err != nil {
@@ -41,7 +50,7 @@ func curation_png(t *testing.T, dir string, n int, pixel color.RGBA) {
 }
 
 func TestAcceptResultQualityAndPromotion(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	game := filepath.Join(root, "core", "game")
 	ref := filepath.Join(game, "ref")
 	curation_png(t, ref, 1, color.RGBA{R: 255, A: 255})
@@ -78,7 +87,7 @@ func TestAcceptResultRejectsQualityAndAmbiguousSlots(t *testing.T) {
 		{"majority", []color.RGBA{{R: 1, A: 255}, {R: 1, A: 255}, {G: 1, A: 255}}, 5},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			root := t.TempDir()
+			root := sidi_curation_archive(t)
 			slot := filepath.Join(root, "core", "game", "new")
 			if err := os.MkdirAll(slot, 0750); err != nil {
 				t.Fatal(err)
@@ -93,7 +102,7 @@ func TestAcceptResultRejectsQualityAndAmbiguousSlots(t *testing.T) {
 			}
 		})
 	}
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	for _, core := range []string{"core1", "core2"} {
 		if err := os.MkdirAll(filepath.Join(root, core, "same", "new"), 0750); err != nil {
 			t.Fatal(err)
@@ -105,7 +114,7 @@ func TestAcceptResultRejectsQualityAndAmbiguousSlots(t *testing.T) {
 }
 
 func TestAcceptResultAllowsExactlyHalfDuplicateFrames(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	slot := filepath.Join(root, "core", "game", "new")
 	curation_png(t, slot, 1, color.RGBA{R: 1, A: 255})
 	curation_png(t, slot, 2, color.RGBA{R: 1, A: 255})
@@ -117,7 +126,7 @@ func TestAcceptResultAllowsExactlyHalfDuplicateFrames(t *testing.T) {
 }
 
 func TestAcceptCoreResultsAndValidateAllCoreSelectionsFirst(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	for _, core := range []string{"core1", "core2"} {
 		slot := filepath.Join(root, core, "same", "new")
 		curation_png(t, slot, 1, color.RGBA{R: 1, A: 255})
@@ -146,7 +155,7 @@ func TestAcceptCoreResultsAndValidateAllCoreSelectionsFirst(t *testing.T) {
 }
 
 func TestRejectResultAndStatus(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	game := filepath.Join(root, "core", "game")
 	for _, slot := range []string{"new", "fail"} {
 		if err := os.MkdirAll(filepath.Join(game, slot), 0750); err != nil {
@@ -181,7 +190,7 @@ func TestRejectResultAndStatus(t *testing.T) {
 }
 
 func TestAcceptPreflightPreservesReferenceOnBadTree(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	game := filepath.Join(root, "core", "game")
 	ref := filepath.Join(game, "ref")
 	if err := os.MkdirAll(ref, 0750); err != nil {
@@ -211,7 +220,7 @@ func TestAcceptPreflightPreservesReferenceOnBadTree(t *testing.T) {
 }
 
 func TestAcceptPreflightPreservesReferenceWhenLogNotWritable(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	game := filepath.Join(root, "core", "game")
 	ref := filepath.Join(game, "ref")
 	if err := os.MkdirAll(ref, 0750); err != nil {
@@ -235,7 +244,7 @@ func TestAcceptPreflightPreservesReferenceWhenLogNotWritable(t *testing.T) {
 }
 
 func TestCurationEventsSupersedeCheckStatus(t *testing.T) {
-	root := t.TempDir()
+	root := sidi_curation_archive(t)
 	game := filepath.Join(root, "core", "game")
 	if err := os.MkdirAll(filepath.Join(game, "new"), 0750); err != nil {
 		t.Fatal(err)
@@ -307,5 +316,39 @@ func TestRegressionBusyUsesFlockState(t *testing.T) {
 	busy, err = RegressionBusy(root)
 	if err != nil || !busy {
 		t.Fatalf("held lock reports busy=%v err=%v", busy, err)
+	}
+}
+
+func TestReferencePromotionCrashKeepsProvenanceWithImages(t *testing.T) {
+	root := t.TempDir()
+	gameRoot := filepath.Join(root, "core", "set")
+	oldRef := filepath.Join(gameRoot, "ref")
+	newDir := filepath.Join(gameRoot, "new")
+	curation_png(t, oldRef, 1, color.RGBA{R: 1, A: 255})
+	curation_png(t, newDir, 1, color.RGBA{R: 255, A: 255})
+	curation_png(t, newDir, 2, color.RGBA{G: 255, A: 255})
+	curation_png(t, newDir, 3, color.RGBA{B: 255, A: 255})
+	metadata := []byte("{\"source_commit\":\"0123456789012345678901234567890123456789\"}\n")
+	injected := errors.New("simulated stop after ref rename")
+	err := accept_curation_game_with_metadata(gameRoot, metadata, func() error { return injected })
+	if !errors.Is(err, injected) {
+		t.Fatalf("promotion result = %v", err)
+	}
+	gotMetadata, err := os.ReadFile(filepath.Join(oldRef, "reference-provenance.json"))
+	if err != nil || !bytes.Equal(gotMetadata, metadata) {
+		t.Fatalf("promoted provenance=%q err=%v", gotMetadata, err)
+	}
+	if _, err = os.Stat(filepath.Join(oldRef, "frame_00000003.png")); err != nil {
+		t.Fatalf("promoted image missing beside provenance: %v", err)
+	}
+	if err = recover_dir(oldRef); err != nil {
+		t.Fatalf("recover interrupted promotion: %v", err)
+	}
+	gotMetadata, err = os.ReadFile(filepath.Join(oldRef, "reference-provenance.json"))
+	if err != nil || !bytes.Equal(gotMetadata, metadata) {
+		t.Fatalf("recovered provenance=%q err=%v", gotMetadata, err)
+	}
+	if _, err = os.Stat(filepath.Join(oldRef, "frame_00000003.png")); err != nil {
+		t.Fatalf("recovered image missing beside provenance: %v", err)
 	}
 }

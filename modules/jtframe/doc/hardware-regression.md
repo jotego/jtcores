@@ -1,4 +1,223 @@
-# SiDi128 video regression
+# Hardware video regression
+
+## MiSTer native capture capability
+
+A core that defines `JTFRAME_REGRESSION` must continue ordinary gameplay with
+stock Main, including Main builds that do not implement the regression
+commands. This is a compatibility requirement for every regression-enabled
+core; PR validation must establish it before claiming qualification. Automated
+capture and replay require a matching Main build with the corresponding
+regression feature enabled. This requirement is not evidence that stock Main
+compatibility has already been qualified.
+
+Normal full-HDMI MiSTer builds enable the CAB replay bridge and exact native
+capture support through the target-default `JTFRAME_REGRESSION` macro. MiSTer
+builds without HDMI (`-mrq`, `-qq`, or credits mode) remove the macro and leave
+the existing hps_io commands unsupported. Standalone `-q` keeps HDMI and the
+capability; `-u JTFRAME_REGRESSION` disables it explicitly. A defined value of
+`0` is still enabled under the project's macro-presence semantics.
+
+The exact capture transport is unavailable in CRT480I and interlaced builds.
+Native vertical capture uses the normal Video Rotate screen option set to No;
+rotated/framebuffer paths are unavailable to the current contract. A board
+build containing this capability is not, by itself, evidence that a core or
+hardware setup has been qualified. The configured qualification record must
+match the generation, convention, Main executable hash and qualification ID.
+
+The MiSTer route below is separate from the existing SiDi128 screenshot
+workflow. It does not change the SiDi128 result folders, history rows, or
+historical readers described later in this document.
+
+The capture protocol uses a native checkpoint in the range 1..32767. Checkpoint
+N identifies completed native interval N-1; checkpoint 1 therefore identifies
+interval 0. There is no FPGA epoch or separate screenshot ordinal in this
+protocol. A requested maximum hold, when needed, is 100..2000 ms. One capture
+session has a 300-second monotonic wall-clock deadline covering playback,
+capture, copy, encode, release and cleanup. The checkpoint range is a protocol
+bound, not permission to run a 32767-frame session: at 60 Hz that would exceed
+the session deadline.
+
+## MiSTer native regression
+
+MiSTer capture uses the normal CAB input stream and native RGB888 scaler
+capture. It is a qualification-gated, local-only route. The initial capture
+contract supports progressive, non-rotated video without framebuffer or
+low-latency paths;
+CRT480I and interlaced builds are unavailable. Do not interpret a completed
+board transfer as a qualified result: the host checks session identity,
+generation, frame sequence, image receipts and pixel quality before it writes
+the selected generation's progress lane.
+
+### Build and artifact requirements
+
+Build the core with normal HDMI output so `JTFRAME_REGRESSION` remains enabled:
+
+```sh
+jtcore <core> -mr
+```
+
+The MiSTer target enables this macro by default. The reduced `-mrq` route,
+`-qq`, credits builds, `MISTER_DEBUG_NOHDMI`, CRT480I and interlaced builds do
+not provide the required bridge/capture combination. `-q` only removes optional
+build work and retains HDMI; `-u JTFRAME_REGRESSION` explicitly disables the
+feature. A defined macro value of `0` is still considered enabled by the
+project's macro-presence logic.
+
+MiSTer runs use the selected Compile all workflow commit as the source identity
+for the RBF set. The active JTCORES checkout must match that commit before
+capture begins. There are no per-RBF build proof files; release qualification
+and source selection remain tied to the workflow commit. Inventory verifies the
+selected MRA, its effective ROM ZIP candidates and CRCs, default RAM, CAB and
+capture plan before assigning a board. The native `.CFG` path follows the MRA
+setname override and the config version emitted by the selected core's rendered
+MiSTer config string (for example, `set_v52.CFG`). If the source commit or
+config string cannot be resolved, preparation stops before board access.
+
+Manual preparation uses the working checkout's generated files; `--jtbin`
+selects existing MRA/RBF files from `$JTBIN`. `--commit` selects a local archive
+under `$JOTEGO/core-builds`. Automatic discovery accepts successful `Compile
+all` builds for MiSTer and validates their artifact identity before extracting
+selected assets. MiSTer capture does not publish external GitHub or Gitea
+reports.
+
+### Configuration and credentials
+
+Use a separate machine-local YAML file, passed with `--config`. The example
+contains no credentials. The qualification file is strict JSON; use a record
+created by the reviewed qualification process, not the illustrative digest
+below.
+
+```yaml
+target: mister
+root: /home/regression/jotego/regression
+builds-dir: /home/regression/jotego/core-builds
+boards:
+  - id: regression-a
+    host: mister-a.example.net
+    user: root
+    ssh-config: /home/regression/.ssh/jtframe-mister
+    identity-file: /home/regression/.ssh/id_ed25519
+    remote-staging-root: /media/fat/_Arcade
+capture-contract:
+  generation: native-rgb888-v1
+  convention: native-non-rotated-rgb888-v1
+  qualification-id: board-a-qualification-2026-01
+  qualification-evidence: /home/regression/jtcores/mister-qualification.json
+  main-sha256: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+  command-timeout-seconds: 30
+  load-timeout-seconds: 120
+  capture-timeout-seconds: 900
+  cleanup-timeout-seconds: 60
+  max-hold-ms: 1000
+  expected-bridge-count: 1
+```
+
+The `remote-staging-root` is currently fixed to `/media/fat/_Arcade` by the
+driver. `ssh-config` and optional `identity-file` must refer to externally
+managed absolute paths. Put host aliases, ports and SSH options in the SSH
+config file. If password authentication is required, provide
+`JTFRAME_MISTER_REGRESSION_A_SSHPASS` through the process environment for this
+board ID. Do not put passwords or private keys in YAML, logs, result folders,
+or command-line arguments.
+
+The qualification JSON schema is:
+
+```json
+{
+  "schema": 1,
+  "target": "mister",
+  "generation": "native-rgb888-v1",
+  "convention": "native-non-rotated-rgb888-v1",
+  "qualification_id": "board-a-qualification-2026-01",
+  "main_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "qualified": true
+}
+```
+
+The configured values must match the file exactly. `qualified: true` is not a
+user-set override; the file must come from an independently reviewed
+qualification record for that hardware generation and Main binary.
+
+### Capture and resume
+
+Examples for a manual working-tree selection and a local archived build:
+
+```sh
+jtutil regression --config ~/.config/jtutil/mister-regression.yaml \
+  --core circus --setname circusc
+jtutil regression --config ~/.config/jtutil/mister-regression.yaml \
+  --core circus --setname circusc --jtbin
+jtutil regression --config ~/.config/jtutil/mister-regression.yaml \
+  --commit <40-character-jtcores-sha> --core circus --setname circusc
+```
+
+Automatic build discovery can be polled once with `--poll`; an optional
+`--run-id` pins a successful build. `--commit` uses the exact local archive
+under `builds-dir` (or `$JOTEGO/core-builds` when omitted). Do not combine
+automatic selectors with the manual `--mister-run-scope` option. A manual
+capture normally creates a fresh scope; to resume that same interrupted manual
+scope, pass its exact ID with `--mister-run-scope`. A board with an uncertain
+live attempt remains quarantined until the driver can prove a clean reload and
+reconcile its persisted state; a ping or expired host timeout does not clear
+the quarantine.
+MiSTer runs reject `--manifest`, `--retry-errors`, `--migrate-logs`,
+`--import-progress` and `--publish-to`; the route prepares and verifies its own
+inventory and is local-only.
+
+One worker is assigned to each configured board. Independent boards can capture
+in parallel, while one board runs one attempt at a time. The common regression
+lock excludes overlapping regression and management operations. Progress is
+saved to the existing flat `<build-sha>.json` and `<build-sha>.log` files.
+MiSTer data is isolated in the additive `capture_runs` JSON lane, keyed by
+target, capture generation, capture convention, qualification ID and run scope.
+The lane records selected games, result summaries, attempts and resumable
+finalization state; legacy top-level status, error, completion, report and RBF
+fields retain their prior meaning. Selected archive SHA256 is stored with the
+MiSTer lane, not the legacy archive field. Owned private recovery state lives
+under `log/.mister-private/`; it is not a public report tree.
+
+Per-game images continue to use the existing `<core>/<setname>/{ref,new,fail}`
+directories. A capture without a reference is `new`; a failed exact comparison
+or capture-quality check is `fail`; a successful comparison clears pending
+images. Completed MiSTer results append a compatible row to the existing flat
+per-game `log` history; earlier rows and historical readers are preserved.
+
+`jtutil regression --status --config <file>` displays lanes matching that
+configuration's generation and qualification without contacting a board.
+`--busy` is also a local lock query. Explicit curation is:
+
+```sh
+jtutil regression --config <file> --accept circus/circusc
+jtutil regression --config <file> --reject circus/circusc \
+  --reason "Rejected after visual review"
+```
+
+Acceptance requires exactly one completed, journaled `new` candidate from the
+configured generation, a revalidated private candidate and unchanged published
+PNGs. It promotes those PNGs and writes `reference-provenance.json` beside
+`ref/`. Existing references without matching qualified provenance are not
+automatically promoted, replaced, or rolled over. Resolve an old or unqualified
+reference explicitly before accepting a MiSTer result. Rejection is also
+explicit; capture itself never approves a reference.
+
+MiSTer images use native RGB888 and must not be passed through the historical
+SiDi128 RGB444/RGB555 decoder. `jtutil mame-frames` resolves native precision
+from the selected core and target. Current JTFRAME color-width macros support
+4..8 bits per channel; the generic comparison quantizer accepts 1..8 bits.
+Historical SiDi128 images and flat check history remain readable and unchanged.
+
+The standalone executable-only startup path is not accepted by the MiSTer
+driver: loading an RBF/MRA from process arguments does not program the FPGA.
+Use a normal loader-mediated `load_core` operation so the FPGA generation and
+capture witness can be verified. Do not substitute cached core/RBF names for a
+fresh load witness.
+
+The [hardware regression workflow](../../../.gitea/workflows/hardware-regression.yaml)
+does not opt into SiDi128 implicitly. Its manual `legacy_sidi128` input defaults
+to false; set it true only for a deliberate legacy campaign. A scheduled run
+without an explicit opt-in fails closed. MiSTer capture is selected with
+`target: mister` and requires a generation and qualification in the config. The
+shared archive is claimed by its first writer and cannot mix target results.
 
 `jtutil regression` collects PNG video frames from a connected SiDi128 using
 local RBF files for manual captures, or a successful GitHub `Compile all` or `Compile SiDi128`
@@ -201,11 +420,13 @@ Each `<core>/<setname>/log` is an append-only check history, separate from the
 per-commit logs. It contains one fixed-width row per completed game check:
 
 ```text
-2026-10-31 13:21:05 f848902       PASS        a1b2c3d4
+2026-10-31 13:21:05 f848902       PASS        a1b2c3d4 mister-real
 ```
 
 Columns are completion date (10, `YYYY-MM-DD`), local time (8), short commit
-(13, allowing `-dirty`), verdict (11), and reference CRC (8 hexadecimal digits).
+(13, allowing `-dirty`), verdict (11), reference CRC (8 hexadecimal digits),
+and the MiSTer's probed system hostname. The hostname is read from the device
+after SSH connects; it is distinct from the configured SSH alias or address.
 The CRC32/IEEE is measured from `ref/` at check completion. It covers every
 regular file recursively in sorted relative-path order, including names and raw
 contents; modification times are ignored. Hash records are `d<path>\0` for
@@ -498,6 +719,7 @@ jtutil mame-frames
 jtutil mame-frames --setname hyperspt --dryrun
 jtutil mame-frames --jobs 1
 jtutil mame-frames --config ~/.config/jtutil/regression.yaml
+jtutil mame-frames --legacy-sidi128
 ```
 
 Completed games validate concurrently, up to four at a time by default. Use
@@ -521,10 +743,16 @@ reset, test, DIP switch, dump, and unknown controls currently fail validation
 with a per-game error rather than being skipped.
 
 MAME captures every emulated frame from startup through 500 frames beyond the
-largest requested or actual FPGA checkpoint. Its wall-clock timeout is
-`ceil(1.1 * (max_checkpoint + 500) / refresh_hz)` seconds, using the selected
-machine's MAME screen refresh rate. MAME runs unthrottled with sound disabled,
-native snapshots, rotation disabled and `-window`. Configuration, snapshots and NVRAM use
+largest requested or actual FPGA checkpoint when that fits the supported
+visible-window startup bypass. MAME's unattended startup bypass requires a
+finite `-seconds_to_run` value below 300 seconds; the command chooses the
+smallest such duration covering all requested frames and the 500-frame search
+grace. Longer requests fail before MAME starts rather than truncating the
+frame sequence. Its wall-clock timeout is
+`min(300, ceil(1.1 * frame_limit / refresh_hz))` seconds, using the selected
+machine's MAME screen refresh rate. MAME runs unthrottled with sound disabled
+in a visible `-window` using native snapshots and rotation disabled; the host
+must have a working graphical display. Configuration, snapshots and NVRAM use
 an isolated per-game directory under `/tmp`; ROMs come from `~/.mame/roms`.
 Configured JTFRAME NVRAM defaults are loaded into the MAME device path after a
 bounded probe identifies it. Ambiguous or unresolved defaults fail validation.
@@ -540,21 +768,39 @@ at IOCTL order 0; the trailing 61,504 bytes are debug RAM and are not restored
 at startup. MAME's namcos1 NVRAM is a RAM share, not a ROM region, so capacity
 comes from the isolated probe's actual device file.
 
-The current source's `JTFRAME_COLORW`, resolved for the `sidi128` target, selects
-the capture code depth: RGB444 when `COLORW` is 4, RGB555 when it is 5 or greater.
-Published FPGA PNG channels must lie exactly on that format's bit-replication
-expansion grid. MAME's 8-bit RGB channels are reduced to their top four or five
-bits (`>>4` or `>>3`), matching the capture hardware; every capture code and
-geometry is compared exactly. A PASS means exact capture-code matches, rather
-than native 8-bit RGB matches. Matches must use strictly
+The current source's `JTFRAME_COLORW` is resolved for the configured archive
+target. MiSTer captures retain the full native per-channel width configured by
+`JTFRAME_COLORW` (currently 4..8 bits). The generic quantizer accepts 1..8-bit
+images; this does not expand the widths accepted by JTFRAME macros.
+SiDi128's capture transport stores RGB444 when `COLORW` is 4 and RGB555 when
+`COLORW` is 5 or greater. Both MAME and FPGA PNG pixels are normalized by
+keeping the top bits at that target's capture precision. Low RGB888 bits added
+by color expansion do not cause a mismatch; the remaining native color codes
+and geometry are compared exactly. No one RGB888 bit-replication pattern is
+required. A PASS means exact matches at the selected target's native capture
+precision rather than full 8-bit RGB. Matches must use strictly
 increasing, distinct MAME frame numbers, so one MAME frame cannot satisfy two
 FPGA checkpoints. Startup captures are included. A missing match, invalid
 capture format, geometry mismatch, incomplete snapshot run, or capture quality
-failure leaves `new/` in place. PNG slots do not record their source color depth,
-so validation infers it from the current checkout; older captures made after a
-color-width change may fail the expansion-grid check. `--dryrun` performs the
-same comparison and reports PASS/FAIL without changing result directories or the
-MAME validation log.
+failure leaves `new/` in place. MAME uses its native unrotated view; exact image
+geometry must match, so orientation and crop differences fail comparison.
+Checkpoint N denotes the completed native interval N-1, and the matching MAME
+frame numbers must advance strictly across the capture schedule. PNG slots do
+not record their source color depth, so validation infers it from the current
+core and target macros. `--dryrun` performs the same comparison and reports
+PASS/FAIL without changing result directories or the MAME validation log.
+
+The archive root owns one immutable target in `.capture-target.json`. The first
+writer may claim an empty archive; a nonempty unmarked archive is never assigned
+a target automatically. Historical readers and dry runs remain available for
+unmarked archives. To deliberately adopt an existing legacy archive, run the
+same `jtutil regression` entry point with
+`--adopt-legacy-sidi128 --legacy-sidi128 --confirm-legacy-sidi128 sidi128`.
+This board-free command holds the archive lock, requires an explicit SiDi128
+confirmation, rejects MiSTer provenance, and only adds the immutable target
+marker; it does not rewrite historical results. Legacy SiDi128 MAME log and
+promotion writes still require `--legacy-sidi128`. SiDi128 and MiSTer results
+cannot share a writable archive.
 
 The first unmatched checkpoint reports `no matches after frame N`. If a later
 MAME frame matches its entire interior and differs only on the outermost top,
@@ -562,11 +808,18 @@ bottom, left or right pixel line, it reports `boundary differences at frame N`
 instead. This remains a FAIL; the border is excluded only to diagnose the
 mismatch, never to qualify a reference.
 
-Promotion requires a matching finalized regression progress entry, a stable
-PNG digest, no active run for the game, and an absent `ref/` immediately before
-rename. Games with active, stale or unverifiable progress can still be compared
-read-only; they are not promoted. Exact-match results and failures are appended
-to the fixed-width `$JOTEGO/regression/log/mame-frames.log`. Each game's
+SiDi128 promotion requires a matching finalized regression progress entry, a
+stable PNG digest, no active run for the game, and an absent `ref/` immediately
+before rename. MiSTer promotion additionally requires the configured capture
+generation and qualification, a completed protocol-v2 NEW finalization, and a
+matching image receipt/provenance inventory. It records the same
+`reference-provenance.json` used by explicit MiSTer curation. Historical MiSTer
+captures without protocol-v2 provenance remain comparable but cannot be
+promoted by this command. Games with active, stale or unverifiable progress can
+still be compared read-only; an exact pixel PASS stays PASS when promotion is
+withheld. Exact-match results and failures are appended to the fixed-width
+`$JOTEGO/regression/log/mame-frames.log` only after the archive target guard.
+Each game's
 temporary MAME workspace is removed after completion or interruption.
 The shared NFSv3 filesystem has no atomic no-replace directory rename; the
 command checks `ref/` immediately before rename and reports detectable conflicts.

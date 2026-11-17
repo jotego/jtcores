@@ -28,3 +28,13 @@ func TestMameGlobalProfileConfigSelection(t *testing.T) {
 		t.Fatalf("custom profile: got %q, %v", got, err)
 	}
 }
+
+func TestMameFramesReadsMiSTerConfigForNativePromotion(t *testing.T) {
+	config := filepath.Join(t.TempDir(), "mister.yaml")
+	if err := os.WriteFile(config, []byte("target: mister\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := mame_global_profile(t.TempDir(), config, true); err != nil {
+		t.Fatalf("MiSTer MAME config rejected: %v", err)
+	}
+}
