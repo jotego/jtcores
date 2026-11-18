@@ -130,22 +130,21 @@ module jtmonacogp_panel(
     endfunction
     wire       in_cap = bu >= 9'd8 && bu < 9'd8 + 9'd48 && lw >= 9'd6 && lw < 9'd13 && line != 4'd15;
     wire [8:0] cu = bu - 9'd8;
-    wire [2:0] ci = cu[8:3];
+    wire [2:0] ci = cu[5:3];
     wire [7:0] ch = cap[(3'd5 - ci)*8 +: 8];
     wire [8:0] frow = lw - 9'd6;        // 0..6 inside in_cap
-    wire       cap_ink;
-    jtmonacogp_font u_font(.ch(ch), .row(frow[2:0]), .col(cu[2:0]), .pix(cap_ink));
 
     // digits: 4 positions (group 4 .. group 1) from DU, each 8 x 15
     wire [8:0] du = bu - DU;
     reg  [1:0] pos;
     reg        in_dig;
+    wire [8:0] digit_offset = du - DP*pos;
     reg  [3:0] su;                      // within the digit, 0..7
     always @* begin
         in_dig = 0; pos = 0; su = 0;
         if (bu >= DU && bu < DU + 4*DP && line != 4'd15 && lw >= 9'd2 && lw < 9'd17) begin
             pos = du < DP ? 2'd0 : du < 2*DP ? 2'd1 : du < 3*DP ? 2'd2 : 2'd3;
-            su  = du - DP*pos;
+            su  = digit_offset[3:0];
             in_dig = su < 4'd8;
         end
     end
@@ -170,10 +169,10 @@ module jtmonacogp_panel(
         segs = 0; present = 0;
         case (line)
             4'd0, 4'd1, 4'd2, 4'd3, 4'd4, 4'd5: begin
-                present = 1; segs = lit[28*line[2:0] + 7*(3-pos) +: 7];
+                present = 1; segs = lit[28*line[2:0] + 7*(3-{30'd0,pos}) +: 7];
             end
-            4'd6: begin present = pos != 2'd3; segs = lit[28*6 + 7*(3-pos) +: 7]; end
-            4'd7: begin present = pos != 2'd3; segs = lit[28*7 + 7*(3-pos) +: 7]; end
+            4'd6: begin present = pos != 2'd3; segs = lit[28*6 + 7*(3-{30'd0,pos}) +: 7]; end
+            4'd7: begin present = pos != 2'd3; segs = lit[28*7 + 7*(3-{30'd0,pos}) +: 7]; end
             4'd8: begin                                  // timer: tens, units
                 present = pos >= 2'd2;
                 segs = pos == 2'd2 ? lit[28*6 +: 7] : lit[28*7 +: 7];
@@ -203,8 +202,13 @@ module jtmonacogp_panel(
     wire [3:0] lci = cu[6:3];
     wire [7:0] lch = lcap[(4'd9 - lci)*8 +: 8];
     wire [8:0] lfrow = lrw - 9'd6;
-    wire       lcap_ink;
-    jtmonacogp_font u_lfont(.ch(lch), .row(lfrow[2:0]), .col(cu[2:0]), .pix(lcap_ink));
+    wire       cap_ink;
+    jtmonacogp_font u_font(
+        .ch  ( in_lbox ? lch : ch               ),
+        .row ( in_lbox ? lfrow[2:0] : frow[2:0] ),
+        .col ( cu[2:0]                          ),
+        .pix ( cap_ink                          )
+    );
     wire [8:0] lu = bu - LU;
     wire [8:0] lk9 = lu / LP;
     wire [3:0] lk = lk9[3:0];                    // lamp 0..13 under this pixel
@@ -214,7 +218,7 @@ module jtmonacogp_panel(
     wire [11:0] lamp_rgb = !lamp_lit ? 12'h000 : (!lrow && lk < GREEN) ? 12'h0f0 : 12'hf00;
 
     always @* begin
-        if (in_lbox) rgb_out = in_llamp ? lamp_rgb : (in_lcap && lcap_ink) ? 12'hccc : 12'h000;
+        if (in_lbox) rgb_out = in_llamp ? lamp_rgb : (in_lcap && cap_ink) ? 12'hccc : 12'h000;
         else if (!in_box) rgb_out = rgb_in;
         else if (on_seg) rgb_out = 12'hf00;
         else if (in_lamp && lamp_on) rgb_out = 12'hf00;  // unlit: the box's black

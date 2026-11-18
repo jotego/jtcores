@@ -142,3 +142,17 @@ scenes/
 CODEX.md
 DEEPSEEK.md
 .claude
+
+!/cores/monacogp/ver/game/unit.sh
+!/cores/monacogp/ver/hdl/panel/.simunit
+!/cores/monacogp/ver/hdl/panel/gather.f
+!/cores/monacogp/ver/hdl/panel/test.v
+!/cores/monacogp/ver/hdl/panel/tb_panel.v
+!/cores/monacogp/ver/hdl/panel_colour/.simunit
+!/cores/monacogp/ver/hdl/panel_colour/gather.f
+!/cores/monacogp/ver/hdl/panel_colour/test.v
+!/cores/monacogp/ver/hdl/panel_colour/tb_panel_colour.v
+!/cores/monacogp/ver/hdl/gtest_trigger/.simunit
+!/cores/monacogp/ver/hdl/gtest_trigger/gather.f
+!/cores/monacogp/ver/hdl/gtest_trigger/test.v
+!/cores/monacogp/ver/hdl/gtest_trigger/tb_gtest_trigger.v

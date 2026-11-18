@@ -116,18 +116,18 @@ jtgeebee_video u_video(
 );
 
 jtgeebee_colmix u_colmix(
-    .h         ( h          ),
-    .v         ( v          ),
-    .overlay   ( status[13] ),
-    .char_pxl  ( char_pxl   ),
-    .char_gate ( char_gate  ),
-    .ball_pxl  ( ball_pxl   ),
-    .bgw       ( bgw_eff    ),
-    .lhbl      ( LHBL       ),
-    .lvbl      ( LVBL       ),
-    .red       ( red        ),
-    .green     ( green      ),
-    .blue      ( blue       )
+    .h         ( h             ),
+    .v         ( v             ),
+    .overlay   ( status[14:13] ),
+    .char_pxl  ( char_pxl      ),
+    .char_gate ( char_gate     ),
+    .ball_pxl  ( ball_pxl      ),
+    .bgw       ( bgw_eff       ),
+    .lhbl      ( LHBL          ),
+    .lvbl      ( LVBL          ),
+    .red       ( red           ),
+    .green     ( green         ),
+    .blue      ( blue          )
 );
 
 jtgeebee_snd u_sound(
