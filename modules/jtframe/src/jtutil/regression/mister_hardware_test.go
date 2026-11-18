@@ -156,6 +156,7 @@ func (f *fakeMiSTerRemote) Probe(context.Context) (MiSTerBoardSnapshot, error) {
 	}
 	return cloneSnapshot(f.probe), nil
 }
+func (f *fakeMiSTerRemote) FIFOReady(context.Context, int) (bool, error) { return true, nil }
 func (f *fakeMiSTerRemote) ResolvePath(_ context.Context, name string) (string, bool, error) {
 	if _, exists := f.files[name]; !exists {
 		return "", false, nil

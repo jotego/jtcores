@@ -174,7 +174,7 @@ func (e *miSTerSerialResultEffects) PrepareSerialResult(ctx context.Context, ope
 		ReferenceProvenanceSHA256: refProvenanceSHA, BeforeSlotDigests: before, AfterSlotDigests: after,
 	}
 	if effect != MiSTerEffectPrivateFailure {
-		row, historyPath, err := e.historyRow(session, outcome, refCRC, e.clock(), attempt.Board, capture.HostName)
+		row, historyPath, err := e.historyRow(session, outcome, refCRC, e.clock(), attempt.Board)
 		if err != nil {
 			return nil, err
 		}
@@ -983,14 +983,11 @@ func (e *miSTerSerialResultEffects) historyPath(core, set string) string {
 	return filepath.Join(e.root, core, set, "log")
 }
 
-func (e *miSTerSerialResultEffects) historyRow(session PreparedSession, outcome Outcome, refCRC string, at time.Time, board BoardKey, actualHost ...string) (string, string, error) {
+func (e *miSTerSerialResultEffects) historyRow(session PreparedSession, outcome Outcome, refCRC string, at time.Time, board BoardKey) (string, string, error) {
 	if !safeComponent(session.Core) || !safeComponent(session.Setname) || !valid_commit(e.log.Progress.Commit) {
 		return "", "", fmt.Errorf("invalid MiSTer history identity")
 	}
 	host := e.hosts[board]
-	if len(actualHost) != 0 && actualHost[0] != "" {
-		host = actualHost[0]
-	}
 	if host == "" || strings.ContainsAny(host, " \t\r\n") {
 		return "", "", fmt.Errorf("MiSTer attempt board %q has no single configured hostname", board)
 	}

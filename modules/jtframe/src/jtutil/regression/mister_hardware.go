@@ -2083,6 +2083,8 @@ func fixtureDigest(prepared PreparedSession, role FixtureRole) string {
 }
 
 func (d *MiSTerSessionDriver) waitLoaded(ctx context.Context, active *miSTerActiveSession, mraPath, rbfPath string) (MiSTerBoardSnapshot, error) {
+	ctx, cancel := context.WithTimeout(ctx, d.Config.LoadTimeout)
+	defer cancel()
 	deadline := d.Now().Add(d.Config.LoadTimeout)
 	for {
 		if err := ctx.Err(); err != nil {
@@ -2092,10 +2094,16 @@ func (d *MiSTerSessionDriver) waitLoaded(ctx context.Context, active *miSTerActi
 		if err == nil && snapshot.MainPID != active.ledger.BeforePID && snapshot.MainSHA256 == d.Config.MainSHA256 &&
 			snapshot.MainExePath == active.ledger.Before.MainExePath && snapshot.ArgvRBF == rbfPath &&
 			snapshot.ArgvMRA == mraPath && snapshot.FPGAState == "operating" && bridgesEnabled(snapshot.BridgeStates, d.Config.ExpectedBridgeCount) {
-			return snapshot, nil
+			ready, readyErr := d.Remote.FIFOReady(ctx, snapshot.MainPID)
+			if readyErr != nil {
+				return snapshot, readyErr
+			}
+			if ready && d.Now().Before(deadline) && ctx.Err() == nil {
+				return snapshot, nil
+			}
 		}
 		if d.Now().After(deadline) {
-			return snapshot, fmt.Errorf("normal load_core did not produce the exact Main/RBF/MRA full-program witness")
+			return snapshot, fmt.Errorf("normal load_core did not produce the exact Main/RBF/MRA full-program witness with a ready FIFO")
 		}
 		if err := d.Sleep(ctx, d.pollInterval()); err != nil {
 			return snapshot, err

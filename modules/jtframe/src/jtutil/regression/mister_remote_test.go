@@ -208,6 +208,18 @@ func TestMiSTerSCPArgumentsKeepLocalNamesWithSpacesAndQuotesInArgv(t *testing.T)
 	}
 }
 
+func TestMiSTerSCPLegacyPortableDownloadAndShellSafety(t *testing.T) {
+	remote := testSSHRemote(&recordingRunner{})
+	for _, path := range []string{"/media/fat/screenshots/circusc/20261118_015040-cabcap_j232-circusc-6_01f4.png", "/tmp/jtframe-capture-a-00001.receipt.json"} {
+		args := remote.scpArgs("root@mister.home:"+path, "/tmp/output")
+		if !contains(args, "-O") || contains(args, "-T") || !contains(args, "root@mister.home:"+path) { t.Fatalf("portable source changed or strict check disabled: %#v", args) }
+	}
+	for _, path := range []string{"/tmp/space name", "/tmp/glob*", "/tmp/$(touch x)", "/tmp/a'b", "/tmp/a;id", "/tmp/`id`"} {
+		args := remote.scpArgs("root@mister.home:"+path, "/tmp/output")
+		if !contains(args, "root@mister.home:"+shellQuote(path)) { t.Fatalf("unsafe source not shell-quoted: %#v", args) }
+	}
+}
+
 func TestMiSTerProbeRecordsActualHostnameInsteadOfSSHAlias(t *testing.T) {
 	runner := &recordingRunner{out: []byte("M\t101\t/media/fat/Main\t" + strings.Repeat("a", 64) + "\tcircus\tJTFRAME\t/media/fat/circus.rbf\t/media/fat/circus.mra\toperating\nH\tmister-real.local\nB\t/sys/class/fpga_bridge/br0/state\tenabled\n")}
 	remote := testSSHRemote(runner)

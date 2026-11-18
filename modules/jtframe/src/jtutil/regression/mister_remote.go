@@ -147,6 +147,7 @@ type MiSTerBoardSnapshot struct {
 // explicit while the SSH implementation below supplies the concrete path.
 type MiSTerRemote interface {
 	Probe(context.Context) (MiSTerBoardSnapshot, error)
+	FIFOReady(context.Context, int) (bool, error)
 	ResolvePath(context.Context, string) (string, bool, error)
 	PathExists(context.Context, string) (bool, error)
 	MakeDir(context.Context, string) error
@@ -171,6 +172,46 @@ type miSTerOwnedFileBatchRemover interface {
 type MiSTerSSHRemote struct {
 	Config MiSTerSSHConfig
 	Runner MiSTerCommandRunner
+}
+
+// FIFOReady observes the currently named FIFO and the loaded Main's open
+// descriptors without opening or reading the FIFO itself.
+func (r MiSTerSSHRemote) FIFOReady(ctx context.Context, pid int) (bool, error) {
+	if pid <= 0 {
+		return false, fmt.Errorf("invalid Main PID")
+	}
+	script := miSTerFIFOReadyScript(pid, "/dev/MiSTer_cmd")
+	output, err := r.runSSH(ctx, "sh -c "+shellQuote(script), nil, 32)
+	if err != nil {
+		return false, fmt.Errorf("inspect Main FIFO readiness: %w", err)
+	}
+	switch strings.TrimSpace(string(output)) {
+	case "1":
+		return true, nil
+	case "0":
+		return false, nil
+	}
+	return false, fmt.Errorf("invalid Main FIFO readiness response")
+}
+
+func miSTerFIFOReadyScript(pid int, fifo string) string {
+	return `set -u
+pid=` + strconv.Itoa(pid) + `
+fifo=` + shellQuote(fifo) + `
+[ -p "$fifo" ] || { echo 0; exit 0; }
+target="$(stat -Lc '%d:%i' "$fifo" 2>/dev/null)" || { echo 0; exit 0; }
+for fd in /proc/$pid/fd/*; do
+  [ "$(stat -Lc '%d:%i' "$fd" 2>/dev/null)" = "$target" ] || continue
+  flags="$(awk '/^flags:/ {print $2}' "/proc/$pid/fdinfo/${fd##*/}" 2>/dev/null)"
+  case "$flags" in ''|*[!0-7]*) continue ;; esac
+  [ $((0$flags & 010000000)) -eq 0 ] || continue
+  mode=$((0$flags & 3))
+  [ "$mode" -eq 0 ] || [ "$mode" -eq 2 ] || continue
+  [ "$(stat -Lc '%d:%i' "$fd" 2>/dev/null)" = "$target" ] || continue
+  [ "$(stat -Lc '%d:%i' "$fifo" 2>/dev/null)" = "$target" ] || break
+  echo 1; exit 0
+done
+echo 0`
 }
 
 func (r MiSTerSSHRemote) validate() error {
@@ -703,7 +744,19 @@ func quoteSCPRemoteSpec(spec string) string {
 	if !strings.Contains(host, "@") || validMiSTerRemotePath(remotePath) != nil {
 		return spec
 	}
+	// Legacy SCP's sink compares the returned basename against the literal
+	// request. Avoid shell quotes for portable paths so that check still works.
+	if miSTerSCPPortablePath(remotePath) { return spec }
 	return host + ":" + shellQuote(remotePath)
+}
+
+func miSTerSCPPortablePath(path string) bool {
+	for _, c := range path {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '/' || c == '.' || c == '_' || c == '-') {
+			return false
+		}
+	}
+	return true
 }
 
 func safeEnvironmentName(value string) bool {

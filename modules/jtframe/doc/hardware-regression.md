@@ -420,13 +420,12 @@ Each `<core>/<setname>/log` is an append-only check history, separate from the
 per-commit logs. It contains one fixed-width row per completed game check:
 
 ```text
-2026-10-31 13:21:05 f848902       PASS        a1b2c3d4 mister-real
+2026-10-31 13:21:05 f848902       PASS        a1b2c3d4 mister.home
 ```
 
 Columns are completion date (10, `YYYY-MM-DD`), local time (8), short commit
 (13, allowing `-dirty`), verdict (11), reference CRC (8 hexadecimal digits),
-and the MiSTer's probed system hostname. The hostname is read from the device
-after SSH connects; it is distinct from the configured SSH alias or address.
+and the configured SSH host or address of the MiSTer that ran the check.
 The CRC32/IEEE is measured from `ref/` at check completion. It covers every
 regular file recursively in sorted relative-path order, including names and raw
 contents; modification times are ignored. Hash records are `d<path>\0` for

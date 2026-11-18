@@ -111,7 +111,7 @@ func (d *runCommitTestDriver) captureResult(attempt AttemptKey, session Prepared
 			Width: 16, Height: 12, Pitch: 256, Slot: uint32(index % 3), Mode: 0, DescriptorCRC32: uint32(index + 1), Released: true,
 			PNGPath: path, PNGBytes: info.Size(), PNGComplete: true})
 	}
-	return SessionCapture{Key: attempt, Receipt: CaptureReceipt{SessionID: attempt.SessionID, Generation: session.Generation, CaptureConvention: session.Convention,
+	return SessionCapture{Key: attempt, HostName: "MiSTer", Receipt: CaptureReceipt{SessionID: attempt.SessionID, Generation: session.Generation, CaptureConvention: session.Convention,
 		CaptureProtocol: miSTerCaptureProtocolV2, PlanSHA256: planSHA, CABPayloadCRC32: session.CAB.PayloadCRC32, Images: images}, PNGPaths: paths, Cleanup: SessionCleanup{Confirmed: true}}, nil
 }
 
@@ -208,11 +208,11 @@ func TestMiSTerHistoryRowAppendsHostnameForAttemptBoard(t *testing.T) {
 	}
 	log := &CommitLog{Root: root, Progress: &Progress{Commit: strings.Repeat("a", 40)}}
 	effects := &miSTerSerialResultEffects{log: log, root: root, hosts: map[BoardKey]string{"board-a": "mister.home", "board-b": "mister2.home"}}
-	row, path, err := effects.historyRow(PreparedSession{Core: "fake", Setname: "alpha"}, Pass, "12345678", time.Date(2026, 11, 15, 12, 0, 0, 0, time.UTC), "board-b", "mister-real.local")
+	row, path, err := effects.historyRow(PreparedSession{Core: "fake", Setname: "alpha"}, Pass, "12345678", time.Date(2026, 11, 15, 12, 0, 0, 0, time.UTC), "board-b")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if path != filepath.Join(root, "fake", "alpha", "log") || !strings.HasSuffix(row, " 12345678 mister-real.local\n") {
+	if path != filepath.Join(root, "fake", "alpha", "log") || !strings.HasSuffix(row, " 12345678 mister2.home\n") {
 		t.Fatalf("history row did not bind the executing board hostname: path=%s row=%q", path, row)
 	}
 	witness := MiSTerHistoryWitness{PrefixBytes: int64(len(old)), PrefixSHA256: sha256Hex([]byte(old)), Row: row}
@@ -226,7 +226,7 @@ func TestMiSTerHistoryRowAppendsHostnameForAttemptBoard(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasPrefix(string(data), old) || strings.Count(string(data), "\n") != 2 || !strings.HasSuffix(string(data), "mister-real.local\n") {
+	if !strings.HasPrefix(string(data), old) || strings.Count(string(data), "\n") != 2 || !strings.HasSuffix(string(data), "mister2.home\n") {
 		t.Fatalf("hostname/history append changed prior rows or duplicated the new row: %q", data)
 	}
 }
@@ -1533,6 +1533,12 @@ func runMiSTerCommitFixture(t *testing.T, sets []string, reverse bool) (map[stri
 		history, err := os.ReadFile(filepath.Join(progressRoot, "fake", setname, "log"))
 		if err != nil || strings.Count(string(history), "\n") != 1 {
 			t.Fatalf("expected exactly one history row for %s, got %q (%v)", setname, history, err)
+		}
+		lane := log.Progress.CaptureRuns[captureRunLaneForTest(log.Progress, "scope-r1")]
+		board := lane.Games["fake/"+setname].Attempt.Board
+		wantHost := map[BoardKey]string{"board-a": "192.0.2.1", "board-b": "192.0.2.2"}[board]
+		if wantHost == "" || !strings.HasSuffix(string(history), " "+wantHost+"\n") {
+			t.Fatalf("shared Linux hostname obscured dispatch board %q: %q", board, history)
 		}
 		outputs[setname] = log.Progress.CaptureRuns[captureRunLaneForTest(log.Progress, "scope-r1")].Games["fake/"+setname].OutputDigest
 	}

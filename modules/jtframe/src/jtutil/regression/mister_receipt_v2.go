@@ -24,6 +24,8 @@ type miSTerCaptureStatusV2 struct {
 	Checkpoint         uint32 `json:"checkpoint"`
 	MaxHoldMS          uint32 `json:"max_hold_ms"`
 	Fault              uint32 `json:"fault"`
+	RTLFaultCode       uint8  `json:"rtl_fault_code,omitempty"`
+	Reason             string `json:"reason,omitempty"`
 	CleanupConfirmed   bool   `json:"cleanup_confirmed"`
 	ReloadRequired     bool   `json:"reload_required"`
 	StatusWriteFailed  bool   `json:"status_write_failed"`
@@ -160,8 +162,26 @@ var captureImageV2Keys = []string{
 
 func decodeMiSTerCaptureStatusV2(data []byte) (miSTerCaptureStatusV2, error) {
 	var v miSTerCaptureStatusV2
-	if err := strictJSONDecode(data, maxCaptureStatusJSONBytes, captureStatusV2Keys, &v); err != nil {
+	root, err := strictJSONValue(data, maxCaptureStatusJSONBytes)
+	if err != nil {
 		return v, err
+	}
+	object, ok := root.(map[string]interface{})
+	if !ok {
+		return v, fmt.Errorf("JSON root must be an object")
+	}
+	keys := captureStatusV2Keys
+	if len(object) == len(captureStatusV2Keys)+2 {
+		keys = append(append([]string(nil), captureStatusV2Keys...), "rtl_fault_code", "reason")
+	}
+	if err = requireJSONKeys(object, keys); err != nil {
+		return v, err
+	}
+	if err = decodeJSONValue(root, &v); err != nil {
+		return v, err
+	}
+	if v.State == "complete" && v.ScheduleState == "complete" && (v.RTLFaultCode != 0 || v.Reason != "") {
+		return v, fmt.Errorf("completed MiSTer capture status contains failure diagnostics")
 	}
 	return v, nil
 }
