@@ -584,7 +584,7 @@ func (c *CaptureCoordinator) recoverFinalizations(ctx context.Context, lane *Cap
 			if item.ResultDigest != "" {
 				return fmt.Errorf("pending capture finalization has a result digest")
 			}
-			if c.finalizationKind == miSTerSerialResultsKind && item.Plan.Candidate.CaptureProtocol != miSTerCaptureProtocolV2 {
+			if c.finalizationKind == miSTerSerialResultsKind && !miSTerCurrentCaptureProtocol(item.Plan.Candidate.CaptureProtocol) {
 				return fmt.Errorf("pending MiSTer finalization %s uses a legacy or missing capture protocol; it cannot be replayed as v2", operationKey)
 			}
 			resultDigest, committed, err := c.effects.ReconcileCapture(ctx, operationKey, item.InputDigest, item.Plan.Clone())

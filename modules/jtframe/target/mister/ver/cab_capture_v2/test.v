@@ -2,6 +2,7 @@
 
 module test;
 reg clk=0, rst=1, io_strobe=0, io_enable=0, lvbl=0;
+reg clk_sys=0;
 reg [15:0] host_word=0;
 reg probe_rst=1, probe_lvbl=0, probe_rx_strobe=0;
 reg [7:0] probe_rx_cmd=0, probe_rx_byte=0;
@@ -20,11 +21,27 @@ wire [14:0] cab_frame, cab_frame_index;
 wire [2:0] cab_state;
 wire [7:0] cab_error;
 always #5 clk=~clk;
+always #7 clk_sys=~clk_sys;
+
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [6:0] uio_words, uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cab_caps;
+wire [255:0] uio_snapshot;
+wire uio_snapshot_valid;
+jtframe_mister_uio transport(.rst(rst), .clk(clk), .io_enable(io_enable), .io_strobe(io_strobe), .host_word(host_word),
+    .cab_caps(uio_cab_caps), .cap_caps(128'd0), .cab_snapshot(uio_snapshot),
+    .cap_result(512'd0), .cab_snapshot_valid(uio_snapshot_valid), .cap_result_valid(1'b0),
+    .response_enable(response_enable), .response_word(response_word), .start(uio_start), .finish(uio_finish), .active(uio_active), .command(uio_command),
+    .words(uio_words), .payload(uio_payload), .bad_word(uio_bad_word), .bad_index(uio_bad_index));
 
 jtframe_mister_cab uut(
-    .rst(rst), .clk_rom(clk), .clk_sys(clk), .lvbl(lvbl),
+    .uio_start(uio_start), .uio_finish(uio_finish), .uio_active(uio_active),
+    .uio_command(uio_command), .uio_words(uio_words), .uio_payload(uio_payload), .uio_bad_word(uio_bad_word), .uio_bad_index(uio_bad_index),
+    .rst(rst), .clk_rom(clk), .clk_sys(clk_sys), .lvbl(lvbl),
     .io_strobe(io_strobe), .io_enable(io_enable), .host_word(host_word),
-    .response_enable(response_enable), .response_word(response_word),
+    .uio_caps(uio_cab_caps), .uio_snapshot(uio_snapshot), .uio_snapshot_valid(uio_snapshot_valid),
     .cab_active(cab_active), .cab_hold_reset(cab_hold_reset),
     .cab_inputs(cab_inputs), .cab_dipsw_valid(cab_dipsw_valid), .cab_dipsw(cab_dipsw),
     .cab_frame(cab_frame), .cab_frame_start(cab_frame_start),
@@ -36,7 +53,7 @@ jtframe_cab_stream #(.REGRESSION_V2(1)) empty_fifo_probe(
     .capture_frame(probe_capture_frame), .cab_epoch(probe_epoch),
     .frame_start(), .frame_index(probe_frame_index),
     .rx_strobe(probe_rx_strobe), .rx_cmd(probe_rx_cmd), .rx_byte(probe_rx_byte),
-    .rx_index(probe_rx_index), .active(probe_active), .hold_reset(probe_hold_reset),
+    .rx_index(probe_rx_index), .rx_parallel(96'd0), .active(probe_active), .hold_reset(probe_hold_reset),
     .state_out(probe_state), .error_out(probe_error), .inputs(probe_inputs),
     .dipsw_valid(probe_dipsw_valid), .dipsw(probe_dipsw), .dump_pause(probe_dump_pause),
     .snapshot(probe_snapshot)
@@ -77,8 +94,8 @@ task read_snapshot(output reg [255:0] s); integer i; begin
     end_tx();
 end endtask
 task frame_tick; begin
-    @(negedge clk); lvbl=0; repeat(4) tick();
-    @(negedge clk); lvbl=1; repeat(4) tick();
+    @(negedge clk); lvbl=0; repeat(7) tick();
+    @(negedge clk); lvbl=1; repeat(7) tick();
 end endtask
 
 task check_empty_fifo_boundary(input [7:0] command, input [31:0] dip_value);
@@ -102,7 +119,7 @@ begin
     empty_fifo_probe.inputs=0;
     empty_fifo_probe.dipsw=0;
     empty_fifo_probe.dipsw_set=0;
-    empty_fifo_probe.payload=next_event[87:0];
+    empty_fifo_probe.serial_payload.payload_reg=next_event[87:0];
     probe_rx_byte=next_event[95:88];
     probe_rx_cmd=command;
     probe_rx_index=(command==8'h86) ? 5'd12 : 5'd8;

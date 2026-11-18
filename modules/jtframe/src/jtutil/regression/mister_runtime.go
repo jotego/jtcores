@@ -116,7 +116,7 @@ func BuildMiSTerPoolBoards(cfg Config, prepared []MiSTerPreparedGame, dataRoot s
 			for _, asset := range append(append([]MiSTerAssetFile(nil), item.Spec.MisterAssets.ROMArchives...), item.Spec.MisterAssets.DefaultRAM...) {
 				if asset.Role == fixture.Role && asset.SHA256 == fixture.SHA256 {
 					if path != "" {
-						return nil, fmt.Errorf("prepared fixture mapping is ambiguous for %s/%s", fixture.Role, fixture.SHA256)
+						return nil, miSTerGameInputError(fmt.Errorf("prepared fixture mapping is ambiguous for %s/%s", fixture.Role, fixture.SHA256))
 					}
 					path = asset.Path
 				}

@@ -2,14 +2,14 @@
 
 module test;
 
-reg clk=0, rst=1;
+reg clk=0, rst=1, uio_extra_rst=0;
 reg io_strobe=0, io_enable=0, fp_enable=0;
 reg [15:0] host_word=0;
 tri [48:0] HPS_BUS;
 tri [35:0] EXT_BUS;
 tri [21:0] gamma_bus;
-wire capture_response_enable, cab_response_enable, response_enable;
-wire [15:0] capture_response_word, cab_response_word, response_word;
+wire response_enable;
+wire [15:0] response_word;
 reg [7:0] cap_state=0, cap_fault=0;
 wire req_toggle, release_toggle, abort_toggle, result_ack;
 wire [31:0] req;
@@ -30,8 +30,6 @@ wire [7:0] ioctl_dout;
 
 always #5 clk=~clk;
 
-assign response_enable = capture_response_enable || cab_response_enable;
-assign response_word = capture_response_enable ? capture_response_word : cab_response_word;
 
 assign HPS_BUS[35:33] = {fp_enable,io_enable,io_strobe};
 assign HPS_BUS[31:16] = host_word;
@@ -62,14 +60,30 @@ hps_io #(.WIDE(0),.PS2DIV(0),.STRLEN(1),.CONF_STR_BRAM(0)) hps(
 );
 /* verilator lint_on PINMISSING */
 
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [6:0] uio_words, uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cab_caps, uio_cap_caps;
+wire [255:0] uio_snapshot;
+wire uio_snapshot_valid, uio_result_valid;
+jtframe_mister_uio transport(.rst(rst | uio_extra_rst), .clk(clk), .io_enable(EXT_BUS[34] && !EXT_BUS[35]), .io_strobe(EXT_BUS[33]), .host_word(EXT_BUS[31:16]),
+    .cab_caps(uio_cab_caps), .cap_caps(uio_cap_caps), .cab_snapshot(uio_snapshot),
+    .cap_result(result_data), .cab_snapshot_valid(uio_snapshot_valid), .cap_result_valid(uio_result_valid),
+    .response_enable(response_enable), .response_word(response_word), .start(uio_start), .finish(uio_finish), .active(uio_active), .command(uio_command),
+    .words(uio_words), .payload(uio_payload), .bad_word(uio_bad_word), .bad_index(uio_bad_index));
+
 jtframe_mister_capture_io capture(
+    .uio_start(uio_start), .uio_finish(uio_finish), .uio_active(uio_active),
+    .uio_command(uio_command), .uio_words(uio_words), .uio_payload(uio_payload),
+    .uio_bad_word(uio_bad_word), .uio_bad_index(uio_bad_index),
     .clk_rom              ( clk              ),
     .rst                  ( rst              ),
     .io_strobe            ( EXT_BUS[33]      ),
     .io_enable            ( EXT_BUS[34] && !EXT_BUS[35] ),
     .host_word            ( EXT_BUS[31:16]   ),
-    .response_enable      ( capture_response_enable ),
-    .response_word        ( capture_response_word   ),
+    .uio_caps             ( uio_cap_caps            ),
+    .uio_result_valid     ( uio_result_valid        ),
     .cap_state_in         ( cap_state        ),
     .cap_fault_in         ( cap_fault        ),
     .cap_req_toggle       ( req_toggle       ),
@@ -87,6 +101,8 @@ jtframe_mister_capture_io capture(
 );
 
 jtframe_mister_cab cab(
+    .uio_start(uio_start), .uio_finish(uio_finish), .uio_active(uio_active),
+    .uio_command(uio_command), .uio_words(uio_words), .uio_payload(uio_payload), .uio_bad_word(uio_bad_word), .uio_bad_index(uio_bad_index),
     .rst             ( rst             ),
     .clk_rom         ( clk             ),
     .clk_sys         ( clk             ),
@@ -94,8 +110,9 @@ jtframe_mister_cab cab(
     .io_strobe       ( EXT_BUS[33]     ),
     .io_enable       ( EXT_BUS[34] && !EXT_BUS[35] ),
     .host_word       ( EXT_BUS[31:16]  ),
-    .response_enable ( cab_response_enable ),
-    .response_word   ( cab_response_word   ),
+    .uio_caps        ( uio_cab_caps ),
+    .uio_snapshot    ( uio_snapshot ),
+    .uio_snapshot_valid ( uio_snapshot_valid ),
     .cab_active      ( cab_active      ),
     .cab_hold_reset  ( cab_hold_reset  ),
     .cab_inputs      ( cab_inputs      ),
@@ -116,8 +133,6 @@ task host_word_pulse(input [15:0] value);
 begin
     @(negedge clk); host_word=value; io_strobe=1;
     @(posedge clk); #1;
-    if(capture_response_enable && cab_response_enable)
-        $fatal(1,"capture and CAB response owners overlap");
     if(response_enable && $isunknown(HPS_BUS[15:0]))
         $fatal(1,"HPS response bus contains X/Z while capture owns the read");
     io_strobe=0;
@@ -179,6 +194,19 @@ endtask
 initial begin
     repeat(4) tick(); rst=0; repeat(4) tick();
 
+    // A capture-only reset can interrupt a foreign UIO transaction while
+    // the CAB backend remains running. Neither reset-time words nor the tail
+    // after reset may be decoded as new CAB commands.
+    packet_begin(16'h0000);
+    @(negedge clk); uio_extra_rst=1;
+    host_word_pulse(16'h0087);
+    @(negedge clk); uio_extra_rst=0;
+    host_word_pulse(16'h0087);
+    host_word_pulse(16'h0085);
+    packet_end(); repeat(8) tick();
+    if(cab.fault_code!==0 || cab.abort_pending || cab.command_toggle_rom || response_enable)
+        $fatal(1,"capture-only reset decoded a foreign packet tail as CAB traffic");
+
     // Full 16-bit command 0x0190 must not alias CAP_CAPS 0x0090.
     packet_begin(16'h0190);
     repeat(8) host_word_pulse(16'd0);
@@ -215,7 +243,7 @@ initial begin
     packet_end();
     if(words[0]!==16'hCA50 || words[1]!==16'd2 || words[2]!==16'd64)
         $fatal(1,"real hps_io CAP_CAPS response mismatch: %h %h %h",words[0],words[1],words[2]);
-    if(words[3][15:0]!==0) $fatal(1,"unexpected initial capture flags %h",words[3]);
+    if(words[3][15:0]!==16'h0040) $fatal(1,"unexpected initial capture flags %h",words[3]);
 
     // A nonzero upper byte in a payload word must fault before ARM publishes
     // anything, even through the real hps_io EXT_BUS serializer.
@@ -244,7 +272,7 @@ initial begin
         words[j]=HPS_BUS[15:0];
     end
     packet_end();
-    if(words[3]!==16'h0020 || words[4]!==16'd0 || words[5]!==16'd0 ||
+    if(words[3]!==16'h0060 || words[4]!==16'd0 || words[5]!==16'd0 ||
        words[6]!==16'd0 || words[7]!==16'd0)
         $fatal(1,"internal drain state was not serialized as CAPS bit5 only: flags=%h",words[3]);
     cap_state=0;
@@ -327,7 +355,7 @@ initial begin
     packet_begin(16'h0090);
     for(j=0;j<8;j=j+1) begin host_word_pulse(16'd0); words[j]=HPS_BUS[15:0]; end
     packet_end();
-    if(words[3]!==16'd0 || words[4]!==16'd0 || words[5]!==16'd0 ||
+    if(words[3]!==16'h0040 || words[4]!==16'd0 || words[5]!==16'd0 ||
        words[6]!==16'd0 || words[7]!==16'd0)
         $fatal(1,"READY reset retained cached result/CAPS ownership: %h",words[3]);
 

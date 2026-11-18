@@ -76,8 +76,7 @@ module test;
 
     task check_unowned;
     begin
-        if(uut.hps_ext_bus[32] !== 1'b0 || uut.cap_response_enable !== 1'b0 ||
-           uut.cab_response_enable !== 1'b0)
+        if(uut.hps_ext_bus[32] !== 1'b0 || uut.ext_response_enable !== 1'b0)
             $fatal(1,"disabled wrapper claimed EXT_BUS response ownership");
         if(uut.cab_active !== 1'b0 || uut.cab_hold_reset !== 1'b0 ||
            uut.cab_inputs !== 21'd0 || uut.cab_dipsw_valid !== 1'b0 ||

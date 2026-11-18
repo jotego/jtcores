@@ -307,6 +307,11 @@ if [ $SKIP_COMPILE = FALSE ]; then
             cat $AUX
         fi
         rm -f $AUX
+        # Run on every fitted MiSTer project, including builds whose normal
+        # timing report fails or whose STA verdict is explicitly disabled.
+        if ! run_mister_cdc_audit; then
+            FAIL=1
+        fi
         # Smart compilation can reuse STA without repeating slack in stdout.
         # Read the report associated with the fitted database in that case too.
         STA_LOG="$RPTPATH/$corename.sta.rpt"

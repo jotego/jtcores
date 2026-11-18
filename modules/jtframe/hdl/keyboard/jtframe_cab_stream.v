@@ -4,7 +4,8 @@
 
 module jtframe_cab_stream #(
     parameter AW = 3,
-    parameter REGRESSION_V2 = 0
+    parameter REGRESSION_V2 = 0,
+    parameter PARALLEL_V2 = 0
 )(
     input              rst, clk,
     input              lvbl,
@@ -16,6 +17,7 @@ module jtframe_cab_stream #(
     input              rx_strobe,
     input       [ 7:0] rx_cmd, rx_byte,
     input       [ 4:0] rx_index,
+    input       [95:0] rx_parallel,
     output             active, hold_reset,
     output      [ 2:0] state_out,
     output      [ 7:0] error_out,
@@ -34,11 +36,12 @@ localparam EVENT_W = REGRESSION_V2 ? 15 : 32;
 localparam QUEUE_W = REGRESSION_V2 ? 69 : 96;
 localparam PAYLOAD_W = REGRESSION_V2 ? 96 : 160;
 localparam PAYLOAD_INDEX_W = REGRESSION_V2 ? 4 : 5;
+localparam USE_PARALLEL = REGRESSION_V2 && PARALLEL_V2;
 localparam LEGACY_SNAPSHOT_PAD = REGRESSION_V2 ? 51 : 0;
 localparam [7:0] UNDERRUN=1, STALE=2, SEQUENCE=3, FULL=4,
                  BAD_EVENT=5, BAD_LENGTH=6, BAD_STATE=7;
 
-reg [PAYLOAD_W-1:0] payload;
+wire [PAYLOAD_W-1:0] payload;
 reg [QUEUE_W-1:0] queue[0:(1<<AW)-1];
 reg [AW-1:0] wr_ptr, rd_ptr;
 reg [AW:0] queued;
@@ -79,7 +82,8 @@ assign frame_index={{(32-FRAME_W){1'b0}},frame_index_native};
 assign cab_epoch  = REGRESSION_V2 ? 32'd0 : epoch;
 assign payload_legacy = {{(160-PAYLOAD_W){1'b0}},payload};
 assign packet_legacy = rx_cmd==8'h86 ? {rx_byte,payload_legacy[151:0]} : {32'd0,rx_byte,payload_legacy[119:0]};
-assign packet_v2  = rx_cmd==8'h82 ? {56'd0,rx_byte,payload[31:0]} :
+assign packet_v2  = USE_PARALLEL ? rx_parallel :
+                    rx_cmd==8'h82 ? {56'd0,rx_byte,payload[31:0]} :
                     rx_cmd==8'h83 ? {32'd0,rx_byte,payload[55:0]} :
                                     {rx_byte,payload[87:0]};
 assign packet     = REGRESSION_V2 ? {64'd0,packet_v2} : packet_legacy;
@@ -140,13 +144,19 @@ always @(posedge clk) begin
     lvbl_l    <= lvbl_sync[1];
 end
 
+generate if(!USE_PARALLEL) begin: serial_payload
+reg [PAYLOAD_W-1:0] payload_reg;
+assign payload = payload_reg;
 always @(posedge clk) begin
-    if(rst) payload <= 0;
+    if(rst) payload_reg <= 0;
     else if(rx_strobe) begin
-        if(rx_index==0) payload <= 0;
-        else if(rx_index<=(REGRESSION_V2 ? 12 : 20)) payload[{payload_index,3'b000} +: 8] <= rx_byte;
+        if(rx_index==0) payload_reg <= 0;
+        else if(rx_index<=(REGRESSION_V2 ? 12 : 20)) payload_reg[{payload_index,3'b000} +: 8] <= rx_byte;
     end
 end
+end else begin: parallel_payload
+    assign payload = {PAYLOAD_W{1'b0}};
+end endgenerate
 
 // Eight duration/input/DIP records, independent of script length.
 always @(posedge clk) if(enqueue) queue[wr_ptr] <= queue_entry;

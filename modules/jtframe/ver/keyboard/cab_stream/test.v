@@ -231,11 +231,17 @@ end
 
 initial begin #5000000; fail(); end
 
-jtframe_cab_stream uut(
+jtframe_cab_stream #(
+`ifdef LEGACY_WITH_PARALLEL
+    .PARALLEL_V2(1)
+`else
+    .PARALLEL_V2(0)
+`endif
+) uut(
     .capture_hold(capture_hold), .capture_frame(),
     .cab_epoch(cab_epoch), .frame_start(frame_start), .frame_index(frame_index),
     .rst(rst), .clk(clk), .lvbl(lvbl), .rx_strobe(rx_strobe),
-    .rx_cmd(rx_cmd), .rx_byte(rx_byte), .rx_index(rx_index),
+    .rx_cmd(rx_cmd), .rx_byte(rx_byte), .rx_index(rx_index), .rx_parallel(96'd0),
     .active(active), .hold_reset(hold_reset), .inputs(inputs),
     .dipsw_valid(dipsw_valid), .dipsw(dipsw), .dump_pause(dump_pause), .snapshot(snapshot)
 );

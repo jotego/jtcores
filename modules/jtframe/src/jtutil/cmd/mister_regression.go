@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -176,22 +177,32 @@ func runMiSTerRegression(ctx context.Context, command *cobra.Command, cfg regres
 	if manifest.Build.SHA != "" && manifest.Build.SHA != commit {
 		return fmt.Errorf("prepared MiSTer inventory source SHA differs from the selected log identity")
 	}
-	prepared, err := prepareMiSTerJobs(ctx, cfg, manifest, work, qualification)
+	bulkArchive := archiveMode && len(cores)==0 && len(sets)==0
+	prepared, failures, err := prepareMiSTerJobs(ctx, cfg, manifest, work, qualification, bulkArchive)
 	if err != nil {
 		return err
 	}
-	boards, err := regression.BuildMiSTerPoolBoards(cfg, prepared, dataRoot)
-	if err != nil {
-		return err
-	}
-	scope, resume := regression.MiSTerAutomaticRunScopeID, false
-	if manual {
-		scope, resume, err = miSTerScopeID(regressionMisterRunScope)
-		if err != nil {
-			return err
+	if bulkArchive {
+		var ready []regression.MiSTerPreparedGame
+		for _, item := range prepared {
+			_, checkErr := regression.BuildMiSTerPoolBoards(cfg, []regression.MiSTerPreparedGame{item}, dataRoot)
+			if checkErr != nil {
+				if !regression.IsMiSTerGamePreparationError(checkErr) { return checkErr }
+				failures = append(failures, miSTerPreparationFailure{item.Job.Session.Core+"/"+item.Job.Session.Setname,checkErr.Error()}); continue
+			}
+			ready = append(ready,item)
 		}
-	} else if regressionMisterRunScope != "" {
-		return fmt.Errorf("--mister-run-scope is only for manual MiSTer capture resumption")
+		prepared = ready
+	}
+	if err = recordMiSTerPreparationSkips(record, manifest); err != nil { return err }
+	for _, failure := range failures {
+		if err = record.Entry(failure.game, -1, "error", "prepare: "+failure.message); err != nil { return err }
+	}
+	boards, scope, resume, err := miSTerDispatchInputs(cfg, prepared, dataRoot, manual, regressionMisterRunScope)
+	if err != nil { return err }
+	if len(prepared)==0 {
+		if len(failures)>0 { return fmt.Errorf("MiSTer inventory has no prepared games (%d preparation errors)", len(failures)) }
+		return record.Entry("", -1, "info", "MiSTer inventory has no eligible games in the selected build")
 	}
 	archiveSHA256 := manualArchive.SHA256
 	if archiveSHA256 == "" && len(manifest.Build.ArtifactSHA) == 64 {
@@ -207,19 +218,59 @@ func runMiSTerRegression(ctx context.Context, command *cobra.Command, cfg regres
 	_, err = regression.RunCommitMiSTer(ctx, record, prepared, cfg, deps, policy)
 	if err != nil {
 		_ = record.Entry("", -1, "error", err.Error())
-		return err
+		return errors.Join(miSTerPreparationError(len(failures)), err)
 	}
+	return reportMiSTerLane(command, dataRoot, qualification, commit, scope, len(failures))
+}
+
+func reportMiSTerLane(command *cobra.Command, dataRoot string, qualification regression.CaptureQualification, commit, scope string, failureCount int) error {
 	lanes, err := regression.ReadMiSTerLaneStatus(dataRoot, qualification.Generation, qualification.QualificationID)
 	if err != nil {
-		return err
+		return errors.Join(miSTerPreparationError(failureCount), err)
 	}
 	for _, lane := range lanes {
 		if lane.Commit == commit && lane.Lane.RunScopeID == scope {
-			fmt.Fprintf(command.OutOrStdout(), "MiSTer lane %s: %s (%d selected games)\n", lane.Key, lane.Lane.Status, len(lane.Lane.Selected))
-			return nil
+			return printMiSTerLaneResult(command, lane, failureCount)
 		}
 	}
-	return fmt.Errorf("MiSTer coordinator returned without a persisted selected lane")
+	return errors.Join(miSTerPreparationError(failureCount), fmt.Errorf("MiSTer coordinator returned without a persisted selected lane"))
+}
+
+func printMiSTerLaneResult(command *cobra.Command, lane regression.MiSTerLaneStatus, failureCount int) error {
+	fmt.Fprintf(command.OutOrStdout(), "MiSTer lane %s: %s (%d selected games)\n", lane.Key, lane.Lane.Status, len(lane.Lane.Selected))
+	return miSTerPreparationError(failureCount)
+}
+
+func miSTerPreparationError(count int) error {
+	if count == 0 { return nil }
+	return fmt.Errorf("MiSTer run has %d preparation errors; see commit log", count)
+}
+
+// Skip records are immutable facts already kept in this commit's text log.
+// Reuse those records on resume without altering the progress or lane schema.
+func recordMiSTerPreparationSkips(record *regression.CommitLog, manifest regression.Manifest) error {
+	filename := filepath.Join(record.Root, "log", regression.LogKey(record.Progress.Commit, record.Progress.Dirty)+".log")
+	file, err := os.Open(filename); if err != nil { return err }
+	defer file.Close()
+	seen := map[string]bool{}
+	scanner := bufio.NewScanner(file)
+	scanner.Buffer(make([]byte, 4096), 1<<20)
+	const prefix = len("2006-01-02 15:04:05 ")
+	for scanner.Scan() { line := scanner.Text(); if len(line) >= prefix { seen[line[prefix:]] = true } }
+	if err = scanner.Err(); err != nil { return err }
+	write := func(game, message string) error {
+		lines := strings.Split(strings.TrimSuffix(regression.FormatLogEntry(time.Time{}, game, -1, "info", message), "\n"), "\n")
+		allSeen := true
+		for _, line := range lines { if len(line) < prefix || !seen[line[prefix:]] { allSeen = false } }
+		if allSeen { return nil }
+		if err := record.Entry(game, -1, "info", message); err != nil { return err }
+		for _, line := range lines { if len(line) >= prefix { seen[line[prefix:]] = true } }
+		return nil
+	}
+	for _, core := range manifest.SkippedTargets { if err := write(core, "MiSTer target explicitly skipped by source configuration"); err != nil { return err } }
+	for _, core := range manifest.SkippedBuilds { if err := write(core, "MiSTer bitstream omitted from selected build archive"); err != nil { return err } }
+	for _, game := range manifest.SkippedGames { if err := write("", "MiSTer source exclusion "+game); err != nil { return err } }
+	return nil
 }
 
 func makeMiSTerRunScope() (string, error) {
@@ -249,8 +300,20 @@ func miSTerResultRoot(cfg regression.Config, dataRoot string) (regression.Config
 	return cfg, nil
 }
 
+func miSTerDispatchInputs(cfg regression.Config, prepared []regression.MiSTerPreparedGame, dataRoot string, manual bool, requestedScope string) ([]regression.PoolBoard, string, bool, error) {
+	boards, err := regression.BuildMiSTerPoolBoards(cfg, prepared, dataRoot)
+	if err != nil { return nil, "", false, err }
+	if manual {
+		scope, resume, err := miSTerScopeID(requestedScope)
+		return boards, scope, resume, err
+	}
+	if requestedScope != "" { return nil, "", false, fmt.Errorf("--mister-run-scope is only for manual MiSTer capture resumption") }
+	return boards, regression.MiSTerAutomaticRunScopeID, false, nil
+}
+
 func miSTerScopeID(explicit string) (string, bool, error) {
 	if explicit != "" {
+		if explicit == regression.MiSTerAutomaticRunScopeID { return "", false, fmt.Errorf("MiSTer automatic run scope is reserved") }
 		if strings.TrimSpace(explicit) != explicit || len(explicit) > 256 || strings.ContainsAny(explicit, "\x00\r\n") {
 			return "", false, fmt.Errorf("MiSTer run scope is invalid")
 		}
@@ -286,18 +349,25 @@ func miSTerTimeoutContext(parent context.Context, seconds int) (context.Context,
 	return context.WithTimeout(parent, time.Duration(seconds)*time.Second)
 }
 
-func prepareMiSTerJobs(ctx context.Context, cfg regression.Config, manifest regression.Manifest, work string, qualification regression.CaptureQualification) ([]regression.MiSTerPreparedGame, error) {
+type miSTerPreparationFailure struct { game, message string }
+
+func prepareMiSTerJobs(ctx context.Context, cfg regression.Config, manifest regression.Manifest, work string, qualification regression.CaptureQualification, tolerateGameErrors bool) ([]regression.MiSTerPreparedGame, []miSTerPreparationFailure, error) {
 	var prepared []regression.MiSTerPreparedGame
+	var failures []miSTerPreparationFailure
 	seen := map[string]bool{}
 	for _, core := range manifest.Cores {
 		for _, spec := range core.Games {
 			if seen[core.Core+"/"+spec.Setname] {
-				return nil, fmt.Errorf("duplicate MiSTer inventory game %s/%s", core.Core, spec.Setname)
+				return nil, nil, fmt.Errorf("duplicate MiSTer inventory game %s/%s", core.Core, spec.Setname)
 			}
 			seen[core.Core+"/"+spec.Setname] = true
+			if spec.PreparationError != "" {
+				if !tolerateGameErrors { return nil, nil, fmt.Errorf("prepare MiSTer game %s/%s: %s",core.Core,spec.Setname,spec.PreparationError) }
+				failures = append(failures, miSTerPreparationFailure{core.Core+"/"+spec.Setname,spec.PreparationError}); continue
+			}
 			stage := filepath.Join(work, "sessions", core.Core, spec.Setname)
 			if err := os.MkdirAll(stage, 0700); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			session, packedCAB, capturePlan, err := regression.PrepareMiSTerSession(ctx, core.Core, spec, regression.MiSTerSessionBuildOptions{
 				SourceRoot: cfg.Source, ConfigSourceRoot: cfg.SourceConfigRoot, CabPacker: cfg.CabPacker, Generation: qualification.Generation,
@@ -305,20 +375,18 @@ func prepareMiSTerJobs(ctx context.Context, cfg regression.Config, manifest regr
 				MaxHoldMS: cfg.CaptureContract.MaxHoldMS, StagingDir: stage,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("prepare MiSTer session %s/%s: %w", core.Core, spec.Setname, err)
+				if tolerateGameErrors && regression.IsMiSTerGamePreparationError(err) { failures = append(failures, miSTerPreparationFailure{core.Core+"/"+spec.Setname,err.Error()}); continue }
+				return nil, nil, fmt.Errorf("prepare MiSTer session %s/%s: %w", core.Core, spec.Setname, err)
 			}
 			sessionID, nonce, err := randomMiSTerAttempt()
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			job := regression.PoolJob{Session: session, SessionID: sessionID, Nonce: nonce}
 			prepared = append(prepared, regression.MiSTerPreparedGame{Job: job, Spec: spec, PackedCAB: packedCAB, CapturePlan: capturePlan})
 		}
 	}
-	if len(prepared) == 0 {
-		return nil, fmt.Errorf("MiSTer inventory contains no games")
-	}
-	return prepared, nil
+	return prepared, failures, nil
 }
 
 func randomMiSTerAttempt() (string, string, error) {

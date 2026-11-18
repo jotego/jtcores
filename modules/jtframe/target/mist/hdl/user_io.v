@@ -208,6 +208,7 @@ jtframe_cab_stream u_cab_stream(
     .rx_cmd     ( cab_rx_cmd     ),
     .rx_byte    ( cab_rx_byte    ),
     .rx_index   ( cab_rx_index   ),
+    .rx_parallel( 96'd0          ),
     .active     ( cab_active_i     ),
     .hold_reset ( cab_hold_reset_i ),
     .state_out  (                  ),

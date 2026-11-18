@@ -57,6 +57,9 @@ type Manifest struct {
 	Source string         `json:"source"`
 	ProjectSHA string      `json:"project_sha"`
 	Cores  []CoreManifest `json:"cores"`
+	SkippedTargets []string `json:"skipped_targets,omitempty"`
+	SkippedBuilds []string `json:"skipped_builds,omitempty"`
+	SkippedGames []string `json:"skipped_games,omitempty"`
 }
 
 type CoreManifest struct {

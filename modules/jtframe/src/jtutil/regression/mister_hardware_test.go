@@ -93,6 +93,9 @@ type fakeMiSTerRemote struct {
 	loadCount                 int
 	nvramPath                 string
 	nvramAtLoad               []byte
+	nvramExistsAtLoad         bool
+	createNVRAMOnLoad         bool
+	mraAtLoad                 []byte
 	nvramAtRestoreLoad        []byte
 	nativeStatusAtLoad        []byte
 	nativeStatusAtRestoreLoad []byte
@@ -259,7 +262,10 @@ func (f *fakeMiSTerRemote) WriteFIFO(_ context.Context, record []byte, _ time.Du
 		mra := strings.TrimSuffix(strings.TrimPrefix(text, "load_core "), "\n")
 		if mra == f.loadMRA {
 			f.originalLoaded = false
-			f.nvramAtLoad = append([]byte(nil), f.files[f.nvramPath]...)
+			f.nvramAtLoad, f.nvramExistsAtLoad = f.files[f.nvramPath]
+			f.nvramAtLoad = append([]byte(nil), f.nvramAtLoad...)
+			f.mraAtLoad = append([]byte(nil), f.files[mra]...)
+			if f.createNVRAMOnLoad { f.files[f.nvramPath] = []byte("candidate-created save") }
 			f.nativeStatusAtLoad = append([]byte(nil), f.files["/media/fat/config/circusc.CFG"]...)
 			if f.ignoreLoad {
 				return nil
@@ -725,8 +731,8 @@ func TestMiSTerDriverRunsOneBoundedSessionAndRestoresOriginalState(t *testing.T)
 	if got := remote.files[inputs.NativeStatusPath]; string(got) != string(originalCFG) {
 		t.Fatalf("native status seed was not restored byte-for-byte: %x", got)
 	}
-	if string(remote.nvramAtLoad) != string([]byte{0x12, 0x34, 0x56, 0x78}) {
-		t.Fatalf("candidate MRA did not consume the hashed default NVRAM seed: %x", remote.nvramAtLoad)
+	if remote.nvramExistsAtLoad {
+		t.Fatalf("candidate saw saved NVRAM instead of MRA defaults: %x", remote.nvramAtLoad)
 	}
 	nativeSeed := CanonicalNativeVideoStatusSeed()
 	if string(remote.nativeStatusAtLoad) != string(nativeSeed[:]) {
@@ -1490,7 +1496,7 @@ func TestMiSTerDriverKeepsQuarantineIfStopIsUnconfirmed(t *testing.T) {
 	if readErr != nil || ledger.State != "quarantined" || ledger.RemoteLock == "" {
 		t.Fatalf("uncertain cleanup did not persist quarantine ownership: %+v %v", ledger, readErr)
 	}
-	if ledger.NVRAMPath != remote.nvramPath || ledger.NVRAMSeedSHA256 != digestBytes([]byte{0x12, 0x34, 0x56, 0x78}) {
+	if ledger.NVRAMPath != remote.nvramPath || ledger.NVRAMSeedSHA256 != "" {
 		t.Fatalf("quarantine ledger did not separate candidate NVRAM path and seed identity: %+v", ledger)
 	}
 	foundBackup := false
@@ -1598,8 +1604,8 @@ func fakeMiSTerDriverFixture(t *testing.T, remote *fakeMiSTerRemote) (*MiSTerSes
 		}
 		return path
 	}
-	originalMRA := []byte(`<mister><rbf>circus</rbf><rom zip="circus.zip"><part name="game.bin"/></rom><nvram index="2" size="4"/></mister>`)
-	launchMRA := []byte(`<mister><rbf>jt224-circus-r1</rbf><rom zip="circus.zip"><part name="game.bin"/></rom><nvram index="2" size="4"/></mister>`)
+	originalMRA := []byte(`<mister><rbf>circus</rbf><rom zip="circus.zip"><part name="game.bin"/></rom><rom index="2"><part>12 34 56 78</part></rom><nvram index="2" size="4"/></mister>`)
+	launchMRA := []byte(`<mister><rbf>jt224-circus-r1</rbf><rom zip="circus.zip"><part name="game.bin"/></rom><rom index="2"><part>12 34 56 78</part></rom><nvram index="2" size="4"/></mister>`)
 	rbf := []byte("deterministic fake rbf")
 	rom := []byte("deterministic fake zip")
 	defaultNVRAM := []byte{0x12, 0x34, 0x56, 0x78}
@@ -1748,4 +1754,64 @@ func assertNativeMainMockDescriptor(t *testing.T) {
 	if crc32.ChecksumIEEE(header) != 0x9a8e79da {
 		t.Fatalf("native Main mock header did not preserve the checked JTC2 bytes, CRC=%08x", crc32.ChecksumIEEE(header))
 	}
+}
+
+func TestMiSTerDriverMRASeedAndSavedNVRAMAreIndependent(t *testing.T) {
+	for _, sizes := range []struct{ seed, save int }{{128, 41153}, {144, 28833}} {
+		for _, present := range []bool{false, true} {
+			for _, fail := range []bool{false, true} {
+				name := fmt.Sprintf("seed%d_save%d_present%t_fail%t", sizes.seed, sizes.save, present, fail)
+				t.Run(name, func(t *testing.T) {
+					remote := newFakeMiSTerRemote()
+					driver, prepared, inputs, key, _ := fakeMiSTerDriverFixture(t, remote)
+					remote.createNVRAMOnLoad = true
+					seed := bytes.Repeat([]byte{0x12}, sizes.seed)
+					for _, role := range []FixtureRole{FixtureOriginalMRA, FixtureLaunchMRA} {
+						filename := inputs.FixturePaths[role]
+						data, err := os.ReadFile(filename); if err != nil { t.Fatal(err) }
+						data = bytes.Replace(data, []byte("12 34 56 78"), []byte(strings.Repeat("12 ", sizes.seed)), 1)
+						data = bytes.Replace(data, []byte(`size="4"`), []byte(fmt.Sprintf(`size="%d"`, sizes.save)), 1)
+						if err = os.WriteFile(filename, data, 0600); err != nil { t.Fatal(err) }
+						if role == FixtureOriginalMRA { prepared.OriginalMRA.SHA256 = digestBytes(data) } else { prepared.LaunchMRA.SHA256 = digestBytes(data) }
+					}
+					launch, err := os.ReadFile(inputs.FixturePaths[FixtureLaunchMRA]); if err != nil { t.Fatal(err) }
+					for i := range inputs.FixtureFiles {
+						if inputs.FixtureFiles[i].Role == FixtureDefaultRAM {
+							if err = os.WriteFile(inputs.FixtureFiles[i].Path, seed, 0600); err != nil { t.Fatal(err) }
+							inputs.FixtureFiles[i].SHA256 = digestBytes(seed)
+						}
+					}
+					for i := range prepared.Fixtures { if prepared.Fixtures[i].Role == FixtureDefaultRAM { prepared.Fixtures[i].SHA256 = digestBytes(seed) } }
+					old := append([]byte(nil), remote.files[remote.nvramPath]...)
+					if !present { delete(remote.files, remote.nvramPath) }
+					if fail {
+						statusPath := "/tmp/jtframe-capture-" + key.SessionID + ".json"
+						status, decodeErr := decodeMiSTerCaptureStatusV2(remote.startFiles[statusPath]); if decodeErr != nil { t.Fatal(decodeErr) }
+						status.Fault = 10
+						remote.startFiles[statusPath], err = json.Marshal(status); if err != nil { t.Fatal(err) }
+					}
+					result, err := driver.CapturePrepared(context.Background(), key, prepared, inputs)
+					if (err != nil) != fail || !result.Cleanup.Confirmed { t.Fatalf("capture err=%v cleanup=%+v", err, result.Cleanup) }
+					if remote.nvramExistsAtLoad || !bytes.Equal(remote.mraAtLoad, launch) { t.Fatal("candidate did not receive unchanged MRA with saved NVRAM absent") }
+					got, exists := remote.files[remote.nvramPath]
+					if exists != present || (present && !bytes.Equal(got, old)) { t.Fatalf("saved file restoration: exists=%t data=%x", exists, got) }
+					writes := 0
+					for _, mutation := range remote.mutations { if mutation == "write "+remote.nvramPath || mutation == "upload "+remote.nvramPath { writes++ } }
+					if writes != 0 && !(present && writes == 1) { t.Fatalf("unexpected NVRAM writes: %v", remote.mutations) }
+				})
+			}
+		}
+	}
+}
+
+func TestMiSTerDriverRejectsChangedDefaultFixture(t *testing.T) {
+	remote := newFakeMiSTerRemote()
+	driver, prepared, inputs, key, _ := fakeMiSTerDriverFixture(t, remote)
+	for _, fixture := range inputs.FixtureFiles {
+		if fixture.Role == FixtureDefaultRAM {
+			if err := os.WriteFile(fixture.Path, []byte("changed"), 0600); err != nil { t.Fatal(err) }
+		}
+	}
+	if _, err := driver.CapturePrepared(context.Background(), key, prepared, inputs); err == nil { t.Fatal("changed default fixture accepted") }
+	if len(remote.mutations) != 0 { t.Fatalf("fixture corruption detected after remote mutation: %v", remote.mutations) }
 }

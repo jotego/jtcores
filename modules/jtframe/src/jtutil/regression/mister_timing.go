@@ -154,16 +154,9 @@ func resolveJTFRAMEValue(source, core, target, key string) (string, error) {
 	if !manualComponent(core) || target == "" || strings.TrimSpace(key) != key {
 		return "", fmt.Errorf("invalid core, target or macro name")
 	}
-	macroPath := filepath.Join(source, "cores", core, "cfg", "macros.def")
-	macroInfo, err := os.Stat(macroPath)
-	if err != nil {
-		return "", fmt.Errorf("read %s macros for %s: %w", filepath.Base(macroPath), core, err)
-	}
-	if !macroInfo.Mode().IsRegular() {
-		return "", fmt.Errorf("%s macros for %s are not a regular file", filepath.Base(macroPath), core)
-	}
+	if err := validateCoreMacroFile(source, core); err != nil { return "", err }
 	var value string
-	err = withSourceEnvironment(source, func() error {
+	err := withSourceEnvironment(source, func() error {
 		jtframeMacroMu.Lock()
 		defer jtframeMacroMu.Unlock()
 		macros.MakeMacros(core, target)
@@ -174,6 +167,32 @@ func resolveJTFRAMEValue(source, core, target, key string) (string, error) {
 		return "", err
 	}
 	return value, nil
+}
+
+func validateCoreMacroFile(source, core string) error {
+	if !manualComponent(core) { return fmt.Errorf("invalid core name %q", core) }
+	macroPath := filepath.Join(source, "cores", core, "cfg", "macros.def")
+	macroInfo, err := os.Stat(macroPath)
+	if err != nil {
+		return fmt.Errorf("read %s macros for %s: %w", filepath.Base(macroPath), core, err)
+	}
+	if !macroInfo.Mode().IsRegular() {
+		return fmt.Errorf("%s macros for %s are not a regular file", filepath.Base(macroPath), core)
+	}
+	return nil
+}
+
+func miSTerTargetSkipped(source, core string) (bool, error) {
+	if err := validateCoreMacroFile(source, core); err != nil { return false, err }
+	var skipped bool
+	err := withSourceEnvironment(source, func() error {
+		jtframeMacroMu.Lock()
+		defer jtframeMacroMu.Unlock()
+		macros.MakeMacros(core, "mister")
+		skipped = macros.IsSet("JTFRAME_SKIP")
+		return nil
+	})
+	return skipped, err
 }
 
 func withSourceEnvironment(source string, run func() error) error {

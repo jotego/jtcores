@@ -15,8 +15,17 @@ module jtframe_mister_cab(
     input              io_strobe,
     input              io_enable,
     input       [15:0] host_word,
-    output             response_enable,
-    output reg  [15:0] response_word,
+    input              uio_start,
+    input              uio_finish,
+    input              uio_active,
+    input       [15:0] uio_command,
+    input       [ 6:0] uio_words,
+    input       [95:0] uio_payload,
+    input              uio_bad_word,
+    input       [ 6:0] uio_bad_index,
+    output     [127:0] uio_caps,
+    output     [255:0] uio_snapshot,
+    output             uio_snapshot_valid,
     output             cab_active,
     output             cab_hold_reset,
     output      [20:0] cab_inputs,
@@ -51,16 +60,13 @@ wire [20:0] stream_inputs;
 wire [31:0] stream_dipsw, stream_frame;
 wire [31:0] stream_frame_index;
 
-reg [15:0] tx_command;
-reg [95:0] tx_payload;
-reg [4:0] expected_bytes, received_bytes;
-reg [6:0] txn_words;
-reg [7:0] tx_error;
-reg txn_active, txn_owned;
-reg [2:0] read_mode;
-reg [5:0] read_index;
-reg [127:0] caps_latch;
-reg [255:0] snapshot_read_latch;
+wire [15:0] tx_command;
+wire [95:0] tx_payload;
+wire [ 4:0] expected_bytes;
+wire [ 6:0] received_bytes, txn_words;
+wire [ 7:0] tx_error;
+wire txn_active, txn_owned;
+wire [ 2:0] read_mode;
 reg [95:0] command_box;
 reg [15:0] command_id_box;
 reg [4:0] command_bytes_box;
@@ -73,16 +79,29 @@ reg [7:0] fault_code;
 reg [1:0] command_ack_sync, snapshot_toggle_sync;
 reg [1:0] command_toggle_sync_sys, snapshot_ack_sync_sys;
 reg command_ack_seen, snapshot_seen;
-reg [255:0] snapshot_cache;
 reg command_ready_sys;
 reg [2:0] stream_state;
-reg [4:0] feed_index;
 reg command_ack_toggle_sys, snapshot_toggle_sys, snapshot_ack_toggle_rom;
 reg [15:0] flags_caps;
 reg [15:0] active_sequence_rom;
 reg active_meta_rom, active_sync_rom;
 
-assign response_enable = io_enable && read_mode!=RD_NONE;
+assign uio_caps = {16'd0,snapshot_seq,16'd0,completed_seq,flags_caps,16'h0008,16'h0002,16'hCA4D};
+assign uio_snapshot = stream_snapshot[255:0];
+assign uio_snapshot_valid = snapshot_valid;
+assign tx_command = uio_command;
+assign tx_payload = uio_payload;
+assign txn_active = uio_active;
+assign txn_words = uio_words;
+assign received_bytes = uio_words-1'b1;
+assign expected_bytes = tx_command==ARM ? 5 : tx_command==PUSH ? 8 :
+                        tx_command==PUSH_DIP ? 12 : 0;
+assign txn_owned = tx_command>=CAPS && tx_command<=16'h0089;
+assign read_mode = !txn_active ? RD_NONE : tx_command==CAPS ? RD_CAPS :
+                   tx_command==SNAPSHOT_READ ? RD_SNAPSHOT : RD_NONE;
+assign tx_error = (tx_command==16'h0088 || tx_command==16'h0089) ? F_UNSUPPORTED :
+                  uio_bad_word && uio_bad_index<={2'b0,expected_bytes} ? F_BAD_WORD :
+                  received_bytes>{2'b0,expected_bytes} ? F_BAD_LENGTH : F_NONE;
 
 assign cab_active      = stream_cab_active;
 assign cab_hold_reset  = stream_hold_reset;
@@ -96,8 +115,8 @@ assign cab_state       = stream_state_out;
 assign cab_error       = stream_error_out;
 assign stream_rx_strobe = stream_state==ST_FEED;
 assign stream_rx_cmd    = command_id_box[7:0];
-assign stream_rx_index  = feed_index;
-assign stream_rx_byte   = feed_index==0 ? command_id_box[7:0] : command_box[{(feed_index[3:0]-1'b1),3'b000} +: 8];
+assign stream_rx_index  = command_bytes_box;
+assign stream_rx_byte   = 8'd0;
 
 always @* begin
     flags_caps = 16'd0;
@@ -117,18 +136,14 @@ wire [7:0] complete_error = tx_error!=F_NONE ? tx_error :
 
 always @(posedge clk_rom) begin
     if(rst) begin
-        txn_active<=0; txn_owned<=0; tx_command<=0; tx_payload<=0;
-        expected_bytes<=0; received_bytes<=0; txn_words<=0; tx_error<=0;
-        read_mode<=RD_NONE; read_index<=0; caps_latch<=0; snapshot_read_latch<=0;
         command_box<=0; command_id_box<=0; command_bytes_box<=0;
         command_toggle_rom<=0; command_seq_pending<=0;
         command_is_internal_stop<=0; abort_pending<=0; abort_has_sequence<=0;
         completed_seq<=0; snapshot_seq<=0; snapshot_valid<=0; fault_code<=F_NONE;
         command_ack_sync<=0; snapshot_toggle_sync<=0;
-        command_ack_seen<=0; snapshot_seen<=0; snapshot_cache<=0;
+        command_ack_seen<=0; snapshot_seen<=0;
         snapshot_ack_toggle_rom<=0; active_meta_rom<=0; active_sync_rom<=0;
         active_sequence_rom<=0;
-        response_word<=0;
     end else begin
         command_ack_sync  <= {command_ack_sync[0],command_ack_toggle_sys};
         snapshot_toggle_sync <= {snapshot_toggle_sync[0],snapshot_toggle_sys};
@@ -137,7 +152,6 @@ always @(posedge clk_rom) begin
 
         if(snapshot_toggle_sync[1]!=snapshot_seen) begin
             snapshot_seen <= snapshot_toggle_sync[1];
-            snapshot_cache <= stream_snapshot[255:0];
             snapshot_valid <= 1;
             snapshot_seq <= active_sequence_rom;
             snapshot_ack_toggle_rom <= ~snapshot_ack_toggle_rom;
@@ -151,21 +165,19 @@ always @(posedge clk_rom) begin
             if(command_is_internal_stop) abort_has_sequence <= 0;
         end
 
-        if(!io_enable) begin
-            if(txn_active && txn_owned && read_mode==RD_NONE) begin
+        if(uio_finish && txn_owned) begin
+            if(read_mode==RD_NONE) begin
                 if((command_toggle_rom!=command_ack_sync[1]) || command_seq_pending || abort_pending) begin
                     if(fault_code==F_NONE) fault_code <= F_OVERRUN;
                     abort_pending <= 1;
                     abort_has_sequence <= 0;
-                end else if(complete_error!=F_NONE || received_bytes!=expected_bytes) begin
+                end else if(complete_error!=F_NONE || received_bytes!={2'b0,expected_bytes}) begin
                     if(fault_code==F_NONE) fault_code <= complete_error!=F_NONE ? complete_error : F_BAD_LENGTH;
                     abort_pending <= 1;
                     abort_has_sequence <= 1;
                 end else begin
                     command_box <= tx_payload;
                     command_id_box <= tx_command;
-                    // feed_bytes is the final rx_index: the stream sees index 0
-                    // plus one strobe for every payload byte, inclusive.
                     command_bytes_box <= expected_bytes;
                     active_sequence_rom <= completed_seq+1'd1;
                     command_toggle_rom <= ~command_toggle_rom;
@@ -177,64 +189,17 @@ always @(posedge clk_rom) begin
                         if(!active_sync_rom) fault_code <= F_NONE;
                     end
                 end
-            end else if(txn_active && txn_owned && read_mode==RD_CAPS && txn_words!=9) begin
-                if(fault_code==F_NONE) fault_code<=F_BAD_LENGTH;
-                abort_pending<=1;
-                abort_has_sequence<=0;
-            end else if(txn_active && txn_owned && read_mode==RD_SNAPSHOT && txn_words!=33) begin
+            end else if((read_mode==RD_CAPS && txn_words!=9) ||
+                        (read_mode==RD_SNAPSHOT && txn_words!=33)) begin
                 if(fault_code==F_NONE) fault_code<=F_BAD_LENGTH;
                 abort_pending<=1;
                 abort_has_sequence<=0;
             end
-            txn_active<=0; txn_owned<=0; expected_bytes<=0; received_bytes<=0;
-            txn_words<=0; read_mode<=RD_NONE; read_index<=0; tx_error<=F_NONE;
-        end else if(io_strobe) begin
-            if(!txn_active) begin
-                txn_active<=1; txn_words<=1; tx_command<=host_word;
-                tx_payload<=0; received_bytes<=0; tx_error<=F_NONE;
-                expected_bytes<=0; txn_owned<=0; read_mode<=RD_NONE;
-                if(host_word==CAPS) begin
-                    txn_owned<=1; read_mode<=RD_CAPS; read_index<=0;
-                    caps_latch<={16'd0,snapshot_seq,16'd0,completed_seq,flags_caps,16'h0008,16'h0002,16'hCA4D};
-                end else if(host_word==SNAPSHOT_READ) begin
-                    txn_owned<=1; read_mode<=RD_SNAPSHOT; read_index<=0;
-                    if(snapshot_valid) snapshot_read_latch<=snapshot_cache;
-                    else begin
-                        snapshot_read_latch<=0;
-                        if(fault_code==F_NONE) fault_code<=F_NO_SNAPSHOT;
-                        abort_pending<=1; abort_has_sequence<=0;
-                    end
-                end else if(host_word==STATUS) begin
-                    txn_owned<=1; expected_bytes<=0;
-                end else if(host_word==ARM) begin
-                    txn_owned<=1; expected_bytes<=5;
-                end else if(host_word==PUSH) begin
-                    txn_owned<=1; expected_bytes<=8;
-                end else if(host_word==START) begin
-                    txn_owned<=1; expected_bytes<=0;
-                end else if(host_word==STOP) begin
-                    txn_owned<=1; expected_bytes<=0;
-                end else if(host_word==PUSH_DIP) begin
-                    txn_owned<=1; expected_bytes<=12;
-                end else if(host_word==16'h0088 || host_word==16'h0089) begin
-                    txn_owned<=1; tx_error<=F_UNSUPPORTED;
-                end
-            end else begin
-                if(txn_words!=7'h7f) txn_words<=txn_words+1'd1;
-                if(read_mode==RD_CAPS) begin
-                    response_word<=caps_latch[{read_index[2:0],4'b0000} +: 16];
-                    read_index<=read_index+1'd1;
-                end else if(read_mode==RD_SNAPSHOT) begin
-                    response_word<={8'd0,snapshot_read_latch[{read_index[4:0],3'b000} +: 8]};
-                    read_index<=read_index+1'd1;
-                end
-                else if(txn_owned && received_bytes<20) begin
-                    if(received_bytes<expected_bytes)
-                        tx_payload[{received_bytes[3:0],3'b000} +: 8]<=host_word[7:0];
-                    received_bytes<=received_bytes+1'd1;
-                    if(host_word[15:8]!=0 && tx_error==F_NONE) tx_error<=F_BAD_WORD;
-                    if(received_bytes>=expected_bytes && tx_error==F_NONE) tx_error<=F_BAD_LENGTH;
-                end else if(txn_owned && tx_error==F_NONE) tx_error<=F_BAD_LENGTH;
+        end
+        if(uio_start) begin
+            if(host_word==SNAPSHOT_READ && !snapshot_valid) begin
+                if(fault_code==F_NONE) fault_code<=F_NO_SNAPSHOT;
+                abort_pending<=1; abort_has_sequence<=0;
             end
         end
 
@@ -253,7 +218,7 @@ end
 always @(posedge clk_sys) begin
     if(rst) begin
         command_ack_toggle_sys<=0; snapshot_toggle_sys<=0;
-        command_ready_sys<=0; stream_state<=ST_IDLE; feed_index<=0;
+        command_ready_sys<=0; stream_state<=ST_IDLE;
         command_toggle_sync_sys<=0; snapshot_ack_sync_sys<=0;
     end else begin
         command_toggle_sync_sys <= {command_toggle_sync_sys[0],command_toggle_rom};
@@ -261,16 +226,15 @@ always @(posedge clk_sys) begin
         case(stream_state)
             ST_IDLE: if(command_toggle_sync_sys[1]!=command_ready_sys) begin
                 command_ready_sys<=command_toggle_sync_sys[1];
-                feed_index<=0;
                 stream_state<=ST_FEED;
             end
-            ST_FEED: if(feed_index==command_bytes_box) begin
+            ST_FEED: begin
                 if(command_id_box==STATUS) stream_state<=ST_SNAPSHOT;
                 else begin
                     command_ack_toggle_sys<=command_ready_sys;
                     stream_state<=ST_IDLE;
                 end
-            end else feed_index<=feed_index+1'd1;
+            end
             ST_SNAPSHOT: begin
                 snapshot_toggle_sys<=~snapshot_toggle_sys;
                 stream_state<=ST_SNAPSHOT_ACK;
@@ -284,7 +248,7 @@ always @(posedge clk_sys) begin
     end
 end
 
-jtframe_cab_stream #(.REGRESSION_V2(1)) u_cab_stream(
+jtframe_cab_stream #(.REGRESSION_V2(1), .PARALLEL_V2(1)) u_cab_stream(
     .rst           ( rst                ),
     .clk           ( clk_sys            ),
     .lvbl          ( lvbl               ),
@@ -297,6 +261,7 @@ jtframe_cab_stream #(.REGRESSION_V2(1)) u_cab_stream(
     .rx_cmd        ( stream_rx_cmd      ),
     .rx_byte       ( stream_rx_byte     ),
     .rx_index      ( stream_rx_index    ),
+    .rx_parallel   ( command_box        ),
     .active        ( stream_cab_active  ),
     .hold_reset    ( stream_hold_reset  ),
     .state_out     ( stream_state_out   ),

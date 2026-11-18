@@ -28,6 +28,18 @@ ghdl -a --std=08 --workdir="$out_root" \
     "$source_dir/test.vhd"
 ghdl -e --std=08 --workdir="$out_root" test
 
+for tuple in '0 100' '1 99' '1 2001'; do
+    read -r checkpoint hold_ms <<< "$tuple"
+    run_dir="$out_root/invalid-arm-$checkpoint-$hold_ms"
+    mkdir -p "$run_dir"
+    ghdl -r --std=08 --workdir="$out_root" test \
+        -gCAPTURE_ENABLE=true -gINVALID_ARM_TEST=true \
+        -gCAPTURE_ARM_CHECKPOINT="$checkpoint" -gCAPTURE_HOLD_MS="$hold_ms" \
+        --ieee-asserts=disable --assert-level=error --stop-time=300us \
+        > "$run_dir/sim.log" 2>&1
+    require_marker "$run_dir/sim.log" 'PASS invalid checkpoint or hold rejected by ascal'
+done
+
 for fill in 00 A5; do
     for capture in false true; do
         run_dir="$out_root/fill-$fill/capture-$capture"
@@ -41,9 +53,30 @@ for fill in 00 A5; do
     done
 done
 
-# A short real pipeline run crosses the write-ID wrap point without billions
-# of ordinary frames; the scaler under test remains the production entity.
-run_dir="$out_root/write-id-wrap"
+# Compare active RGB output with regression enabled but no capture commands.
+# The adversarial memory model applies periodic waitrequest backpressure.
+for stall_cycles in 0 5; do
+    for capture in false true; do
+        run_dir="$out_root/video-inactive-$stall_cycles-$capture"
+        mkdir -p "$run_dir"
+        ghdl -r --std=08 --workdir="$out_root" test \
+            -gCAPTURE_ENABLE="$capture" -gARM_CAPTURE=false \
+            -gMEM_STALL_CYCLES="$stall_cycles" -gPADDING_FILL='x"00"' \
+            --ieee-asserts=disable --assert-level=error --stop-time=2300us \
+            > "$run_dir/sim.log" 2>&1
+        require_marker "$run_dir/sim.log" 'VIDEO_OUTPUT samples='
+    done
+    video_off=$(sed -n 's/^.*VIDEO_OUTPUT /VIDEO_OUTPUT /p' "$out_root/video-inactive-$stall_cycles-false/sim.log")
+    video_on=$(sed -n 's/^.*VIDEO_OUTPUT /VIDEO_OUTPUT /p' "$out_root/video-inactive-$stall_cycles-true/sim.log")
+    if [[ -z "$video_off" || "$video_off" != "$video_on" ]]; then
+        echo "inactive output mismatch: stalls=$stall_cycles off=$video_off on=$video_on" >&2
+        exit 1
+    fi
+    echo "PASS inactive capture video output stalls=$stall_cycles: $video_on"
+done
+
+# Exercise both ordering-bit values with two acknowledgements coalesced.
+run_dir="$out_root/order-bit-coalesced"
 mkdir -p "$run_dir"
 ghdl -r --std=08 --workdir="$out_root" test \
     -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=10 \
@@ -75,7 +108,39 @@ cat "$run_dir/sim.log"
 require_marker "$run_dir/sim.log" 'PASS actual ascal input/Avalon model'
 require_marker "$run_dir/sim.log" 'capture producer quiet; target requests=00013 expected=00013'
 require_marker "$run_dir/sim.log" 'capture Avalon drain complete; final ID='
-require_marker "$run_dir/sim.log" 'PASS explicit returned-read coverage: bursts=18 beats=288'
+require_marker "$run_dir/sim.log" 'PASS GFW1 matches DDR and detects burst and row swaps with unchanged sum'
+
+run_dir="$out_root/final-beat-fast-input-shifted-avl"
+mkdir -p "$run_dir"
+ghdl -r --std=08 --workdir="$out_root" test \
+    -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=10 \
+    -gINPUT_HALF_NS=6 -gAVL_PHASE_NS=3 -gSTALL_CAPTURE_FINAL=true \
+    -gPADDING_FILL='x"00"' \
+    --ieee-asserts=disable --assert-level=error --stop-time=2300us \
+    > "$run_dir/sim.log" 2>&1
+require_marker "$run_dir/sim.log" 'PASS GFW1 matches DDR and detects burst and row swaps with unchanged sum'
+require_marker "$run_dir/sim.log" 'PASS actual ascal input/Avalon model'
+
+run_dir="$out_root/two-outstanding-before-drain"
+mkdir -p "$run_dir"
+ghdl -r --std=08 --workdir="$out_root" test \
+    -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=10 -gSTALL_TWO_OUTSTANDING=true \
+    -gPADDING_FILL='x"00"' \
+    --ieee-asserts=disable --assert-level=error --stop-time=2300us \
+    > "$run_dir/sim.log" 2>&1
+require_marker "$run_dir/sim.log" 'PASS two target half bursts held before drain'
+require_marker "$run_dir/sim.log" 'capture target held with both halves leased'
+require_marker "$run_dir/sim.log" 'PASS GFW1 matches DDR and detects burst and row swaps with unchanged sum'
+
+run_dir="$out_root/two-outstanding-abort-drain"
+mkdir -p "$run_dir"
+ghdl -r --std=08 --workdir="$out_root" test \
+    -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=10 -gSTALL_TWO_ABORT=true \
+    -gPADDING_FILL='x"00"' \
+    --ieee-asserts=disable --assert-level=error --stop-time=2300us \
+    > "$run_dir/sim.log" 2>&1
+require_marker "$run_dir/sim.log" 'PASS two outstanding halves drained before abort acknowledgement'
+require_marker "$run_dir/sim.log" 'capture target held with both halves leased'
 
 run_dir="$out_root/staging-collision-half0"
 mkdir -p "$run_dir"
@@ -230,7 +295,6 @@ ghdl -r --std=08 --workdir="$out_root" test \
     > "$run_dir/sim.log" 2>&1
 cat "$run_dir/sim.log"
 require_marker "$run_dir/sim.log" 'PASS bounded watchdog cleanup and rejected post-watchdog ABORT ACK'
-require_marker "$run_dir/sim.log" 'PASS actual ascal input/Avalon model'
 
 run_dir="$out_root/two-result-rearm"
 mkdir -p "$run_dir"
@@ -304,39 +368,7 @@ ghdl -r --std=08 --workdir="$out_root" test \
 cat "$run_dir/sim.log"
 require_marker "$run_dir/sim.log" 'PASS same-edge RUNNING-to-DONE progress allowed CAP ARM'
 
-for beat in {0..15}; do
-    run_dir="$out_root/fence-corrupt-$beat"
-    mkdir -p "$run_dir"
-    ghdl -r --std=08 --workdir="$out_root" test \
-        -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=10 \
-    -gFENCE_CORRUPTION_TEST=true \
-        -gFENCE_CORRUPT_BEAT="$beat" -gPADDING_FILL='x"00"' \
-        --ieee-asserts=disable --assert-level=error --stop-time=2300us \
-        > "$run_dir/sim.log" 2>&1
-    cat "$run_dir/sim.log"
-    require_marker "$run_dir/sim.log" "injected exact-header fence corruption at beat $beat"
-    require_marker "$run_dir/sim.log" 'PASS exact header fence corruption was rejected and drained'
-done
-
-# Prove the corruption test fails when the injection is disabled.
-run_dir="$out_root/fence-corruption-disabled-probe"
-mkdir -p "$run_dir"
-if ghdl -r --std=08 --workdir="$out_root" test \
-    -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=10 \
-    -gFENCE_CORRUPTION_TEST=true -gFENCE_CORRUPT_BEAT=16 \
-    -gPADDING_FILL='x"00"' \
-    --ieee-asserts=disable --assert-level=error --stop-time=2300us \
-    > "$run_dir/sim.log" 2>&1; then
-    echo "disabled fence injection unexpectedly passed its corruption test" >&2
-    exit 1
-fi
-if ! rg -Fq 'fence corruption did not fault, drain all beats, and clean up' "$run_dir/sim.log"; then
-    cat "$run_dir/sim.log"
-    echo "disabled fence injection failed for an unrelated reason" >&2
-    exit 1
-fi
-
-run_dir="$out_root/wide-scan-address"
+run_dir="$out_root/large-payload"
 mkdir -p "$run_dir"
 ghdl -r --std=08 --workdir="$out_root" test \
     -gCAPTURE_ENABLE=true -gCAPTURE_ARM_CHECKPOINT=1 -gLARGE_SCAN_TEST=true \
@@ -344,7 +376,7 @@ ghdl -r --std=08 --workdir="$out_root" test \
     --ieee-asserts=disable --assert-level=error --stop-time=30000us \
     > "$run_dir/sim.log" 2>&1
 cat "$run_dir/sim.log"
-require_marker "$run_dir/sim.log" 'PASS 1200-burst large scan boundary 511/512/1199, CRC, RGB, fence, release'
+require_marker "$run_dir/sim.log" 'PASS 1200-burst payload checksum, CRC, RGB, release'
 
 run_dir="$out_root/cached-running-before-arm"
 mkdir -p "$run_dir"

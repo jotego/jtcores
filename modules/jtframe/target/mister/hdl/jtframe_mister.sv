@@ -291,10 +291,18 @@ wire [14:0] cab_frame, cab_frame_index;
 wire cab_active, cab_hold_reset, cab_dipsw_valid, cab_frame_start;
 wire [2:0] cab_state;
 wire [7:0] cab_error;
-wire cab_response_enable, cap_response_enable, ext_response_enable;
-wire [15:0] cab_response_word, cap_response_word, ext_response_word;
+wire ext_response_enable;
+wire [15:0] ext_response_word;
 wire io_strobe, io_enable;
 wire [15:0] host_word;
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [ 6:0] uio_words;
+wire [ 6:0] uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cab_caps, uio_cap_caps;
+wire [255:0] uio_snapshot;
+wire uio_snapshot_valid, uio_result_valid, uio_rst;
 wire [127:0] hps_status_full;
 
 wire [3*COLORW-1:0] base_rgb;
@@ -606,12 +614,34 @@ assign dipsw = cab_dipsw_valid ? cab_dipsw : hps_dipsw;
 assign io_strobe = hps_ext_bus[33];
 assign io_enable = hps_ext_bus[34] && !hps_ext_bus[35];
 assign host_word = hps_ext_bus[31:16];
-assign ext_response_enable = cap_response_enable || cab_response_enable;
-assign ext_response_word = cap_response_enable ? cap_response_word : cab_response_word;
+assign uio_rst = CAPTURE_BUILD ? cap_io_rst : rst;
 assign hps_ext_bus[32] = ext_response_enable;
 assign hps_ext_bus[15:0] = ext_response_enable ? ext_response_word : 16'hzzzz;
 
 generate if(REGRESSION_BUILD) begin: g_regression
+jtframe_mister_uio #(.CAPTURE_SUPPORT(CAPTURE_BUILD)) u_uio_transport(
+    .rst       ( uio_rst      ),
+    .clk       ( clk_rom      ),
+    .io_enable ( io_enable    ),
+    .io_strobe ( io_strobe    ),
+    .host_word ( host_word    ),
+    .cab_caps  ( uio_cab_caps ),
+    .cap_caps  ( uio_cap_caps ),
+    .cab_snapshot ( uio_snapshot ),
+    .cap_result ( cap_result ),
+    .cab_snapshot_valid ( uio_snapshot_valid ),
+    .cap_result_valid ( uio_result_valid ),
+    .response_enable ( ext_response_enable ),
+    .response_word ( ext_response_word ),
+    .start     ( uio_start    ),
+    .finish    ( uio_finish   ),
+    .active    ( uio_active   ),
+    .command   ( uio_command  ),
+    .words     ( uio_words    ),
+    .payload   ( uio_payload  ),
+    .bad_word  ( uio_bad_word  ),
+    .bad_index ( uio_bad_index )
+);
 jtframe_mister_cab u_cab_bridge(
     .rst             ( rst             ),
     .clk_rom         ( clk_rom         ),
@@ -620,8 +650,17 @@ jtframe_mister_cab u_cab_bridge(
     .io_strobe       ( io_strobe       ),
     .io_enable       ( io_enable       ),
     .host_word       ( host_word       ),
-    .response_enable ( cab_response_enable ),
-    .response_word   ( cab_response_word   ),
+    .uio_start       ( uio_start       ),
+    .uio_finish      ( uio_finish      ),
+    .uio_active      ( uio_active      ),
+    .uio_command     ( uio_command     ),
+    .uio_words       ( uio_words       ),
+    .uio_payload     ( uio_payload     ),
+    .uio_bad_word    ( uio_bad_word    ),
+    .uio_bad_index   ( uio_bad_index   ),
+    .uio_caps        ( uio_cab_caps        ),
+    .uio_snapshot    ( uio_snapshot        ),
+    .uio_snapshot_valid ( uio_snapshot_valid ),
     .cab_active      ( cab_active      ),
     .cab_hold_reset  ( cab_hold_reset  ),
     .cab_inputs      ( cab_inputs      ),
@@ -634,8 +673,8 @@ jtframe_mister_cab u_cab_bridge(
     .cab_error       ( cab_error       )
 );
 end else begin: g_no_regression
-    assign cab_response_enable=1'b0;
-    assign cab_response_word=16'd0;
+    assign ext_response_enable=1'b0;
+    assign ext_response_word=16'd0;
     assign cab_active=1'b0;
     assign cab_hold_reset=1'b0;
     assign cab_inputs=21'd0;
@@ -682,8 +721,16 @@ generate if(CAPTURE_BUILD) begin: g_capture
         .io_strobe               ( io_strobe               ),
         .io_enable               ( io_enable               ),
         .host_word               ( host_word               ),
-        .response_enable         ( cap_response_enable     ),
-        .response_word           ( cap_response_word       ),
+        .uio_start               ( uio_start               ),
+        .uio_finish              ( uio_finish              ),
+        .uio_active              ( uio_active              ),
+        .uio_command             ( uio_command             ),
+        .uio_words               ( uio_words               ),
+        .uio_payload             ( uio_payload             ),
+        .uio_bad_word            ( uio_bad_word            ),
+        .uio_bad_index           ( uio_bad_index           ),
+        .uio_caps                ( uio_cap_caps            ),
+        .uio_result_valid        ( uio_result_valid        ),
         .cap_state_in            ( cap_state               ),
         .cap_fault_in            ( cap_fault               ),
         .cap_req_toggle          ( cap_req_toggle          ),
@@ -725,8 +772,8 @@ end else begin: g_no_capture
     assign cap_io_rst=1'b0;
     assign cap_tag_rst=1'b0;
     assign cap_video_ok=1'b0;
-    assign cap_response_enable=1'b0;
-    assign cap_response_word=16'd0;
+    assign uio_cap_caps=128'd0;
+    assign uio_result_valid=1'b0;
     assign cap_req_toggle=1'b0;
     assign cap_req=32'd0;
     assign cap_release_toggle=1'b0;

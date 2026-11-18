@@ -5,6 +5,7 @@ package regression
 
 import (
 	"context"
+	"errors"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/xml"
@@ -18,6 +19,14 @@ import (
 	"strings"
 	"time"
 )
+
+type miSTerGamePreparationError struct { err error }
+func (e miSTerGamePreparationError) Error() string { return e.err.Error() }
+func (e miSTerGamePreparationError) Unwrap() error { return e.err }
+func isMiSTerGamePreparationError(err error) bool { var target miSTerGamePreparationError; return errors.As(err, &target) }
+// IsMiSTerGamePreparationError reports an expected failure limited to one game's inputs.
+func IsMiSTerGamePreparationError(err error) bool { return isMiSTerGamePreparationError(err) }
+func miSTerGameInputError(err error) error { return miSTerGamePreparationError{err: err} }
 
 // PrepareMiSTerManualSelection inventories exact source MRAs and the matching
 // release/mister build. It performs no hardware work and never assembles ARC
@@ -83,14 +92,23 @@ func PrepareMiSTerManualSelection(ctx context.Context, cfg Config, workspace str
 	return prepareMiSTerReleaseSelection(ctx, cfg, source, release, workspace, cores, sets)
 }
 
-func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, release, workspace string, cores, sets []string) (Manifest, error) {
+func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, release, workspace string, cores, sets []string, tolerateGameErrors ...bool) (Manifest, error) {
 	profilePath := cfg.GlobalProfile
 	if profilePath == "" {
 		profilePath = filepath.Join(source, "modules", "jtframe", "bin", "reg.yaml")
 	}
+	configSource := cfg.SourceConfigRoot
+	if configSource == "" { configSource = source }
 	romRoot := cfg.ROMSource
 	if romRoot == "" {
 		romRoot = filepath.Join(os.Getenv("HOME"), ".mame", "roms")
+	}
+	romSourceChecked := false
+	if len(tolerateGameErrors)>0 && tolerateGameErrors[0] {
+		rbfDir := filepath.Join(release, "mister")
+		info, err := os.Stat(rbfDir)
+		if err != nil { return Manifest{}, fmt.Errorf("inspect MiSTer bitstream directory: %w", err) }
+		if !info.IsDir() { return Manifest{}, fmt.Errorf("MiSTer bitstream path is not a directory: %s", rbfDir) }
 	}
 	selectedSets := map[string]bool{}
 	for _, set := range sets {
@@ -107,6 +125,11 @@ func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, rele
 		if !manualComponent(core) {
 			return Manifest{}, fmt.Errorf("unsafe MiSTer core %q", core)
 		}
+		if len(tolerateGameErrors)>0 && tolerateGameErrors[0] {
+			skipped, err := miSTerTargetSkipped(configSource, core)
+			if err != nil { return Manifest{}, err }
+			if skipped { manifest.SkippedTargets = append(manifest.SkippedTargets, core); continue }
+		}
 		mraPaths, err := manualMRAs(filepath.Join(release, "mra"), core, "")
 		if err != nil {
 			return Manifest{}, err
@@ -121,13 +144,18 @@ func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, rele
 				tuples = append(tuples, tuple)
 			}
 		}
-		exclusions, err := sourceExclusions(source, tuples)
+		exclusions, err := sourceExclusions(configSource, tuples)
 		if err != nil {
 			return Manifest{}, err
 		}
-		profileExclusions, err := profileSkipExclusions(source, tuples)
+		profileExclusions, err := profileSkipExclusions(configSource, tuples)
 		if err != nil {
 			return Manifest{}, err
+		}
+		if configSource != source {
+			currentExclusions, err := profileSkipExclusions(source, tuples)
+			if err != nil { return Manifest{}, err }
+			for key, reason := range currentExclusions { profileExclusions[key] = reason }
 		}
 		coreManifest := CoreManifest{Core: core}
 		for _, mraPath := range mraPaths {
@@ -146,19 +174,40 @@ func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, rele
 				if len(sets) != 0 {
 					return Manifest{}, fmt.Errorf("%s/%s is not regression eligible: %s", core, tuple.Setname, reason)
 				}
+				if reason == "" { reason = "debug MRA directory" }
+				manifest.SkippedGames = append(manifest.SkippedGames, core+"/"+tuple.Setname+": "+reason)
 				continue
+			}
+			if len(tolerateGameErrors)>0 && tolerateGameErrors[0] {
+				_, err := os.Lstat(filepath.Join(release, "mister", "jt"+core+".rbf"))
+				if os.IsNotExist(err) { manifest.SkippedBuilds = append(manifest.SkippedBuilds, core); break }
+				if err != nil { return Manifest{}, err }
 			}
 			if usedTuples[tupleKey(tuple)] {
 				return Manifest{}, fmt.Errorf("duplicate selected MRA tuple %s/%s/%s", tuple.Core, tuple.Setname, tuple.RBF)
 			}
 			usedTuples[tupleKey(tuple)] = true
+			if len(tolerateGameErrors)>0 && tolerateGameErrors[0] && !romSourceChecked {
+				raw, err := os.ReadFile(mraPath); if err != nil { return Manifest{}, err }
+				var inventory mraInventory
+				if err = xml.Unmarshal(raw,&inventory); err != nil { return Manifest{}, err }
+				reads, err := effectiveMRAArchiveReads(inventory); if err != nil { return Manifest{}, err }
+				if len(reads)>0 {
+					info, err := os.Stat(romRoot); if err != nil { return Manifest{}, fmt.Errorf("inspect MiSTer ROM source: %w", err) }
+					if !info.IsDir() { return Manifest{}, fmt.Errorf("MiSTer ROM source is not a directory: %s",romRoot) }
+					dir, err := os.Open(romRoot); if err != nil { return Manifest{}, fmt.Errorf("open MiSTer ROM source: %w",err) }
+					if err = dir.Close(); err != nil { return Manifest{}, err }; romSourceChecked = true
+				}
+			}
 			spec, err := prepareMiSTerGameAssets(ctx, cfg, source, release, romRoot, workspace, core, tuple.Setname, mraPath, profilePath)
 			if err != nil {
-				return Manifest{}, err
+				if len(tolerateGameErrors) == 0 || !tolerateGameErrors[0] || !isMiSTerGamePreparationError(err) { return Manifest{}, err }
+				spec = GameSpec{Setname: tuple.Setname, PreparationError: err.Error()}
 			}
 			coreManifest.Games = append(coreManifest.Games, spec)
 		}
 		if len(coreManifest.Games) == 0 {
+			if len(tolerateGameErrors)>0 && tolerateGameErrors[0] { continue }
 			return Manifest{}, fmt.Errorf("no eligible MiSTer MRAs selected for core %s", core)
 		}
 		manifest.Cores = append(manifest.Cores, coreManifest)
@@ -175,7 +224,7 @@ func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, rele
 			return Manifest{}, fmt.Errorf("no eligible MiSTer MRA matched requested setname %s", set)
 		}
 	}
-	if len(manifest.Cores) == 0 {
+	if len(manifest.Cores) == 0 && (len(tolerateGameErrors)==0 || !tolerateGameErrors[0]) {
 		return Manifest{}, fmt.Errorf("MiSTer selection is empty")
 	}
 	manifest.RunID = "mister-manual"
@@ -187,7 +236,7 @@ func prepareMiSTerReleaseSelection(ctx context.Context, cfg Config, source, rele
 // extracts its exact MiSTer RBF and MRA pair into the project release
 // tree using the existing archive transaction, then builds detached sessions.
 // SiDi-only ZIPs are deliberately ineligible for this target.
-func PrepareMiSTerBuild(ctx context.Context, cfg Config, dataRoot, workspace string, identity BuildIdentity) (Manifest, error) {
+func PrepareMiSTerBuild(ctx context.Context, cfg Config, dataRoot, workspace string, identity BuildIdentity, tolerateGameErrors ...bool) (Manifest, error) {
 	if identity.Workflow != compileAllWorkflow {
 		return Manifest{}, fmt.Errorf("MiSTer preparation requires a complete Compile all artifact")
 	}
@@ -230,7 +279,7 @@ func PrepareMiSTerBuild(ctx context.Context, cfg Config, dataRoot, workspace str
 	if len(cores) == 0 {
 		return Manifest{}, fmt.Errorf("selected Compile all artifact has no MiSTer main-game MRA inventory")
 	}
-	manifest, err := prepareMiSTerReleaseSelection(ctx, cfg, cfg.Source, release, workspace, cores, nil)
+	manifest, err := prepareMiSTerReleaseSelection(ctx, cfg, cfg.Source, release, workspace, cores, nil, tolerateGameErrors...)
 	if err != nil {
 		return Manifest{}, err
 	}
@@ -260,8 +309,8 @@ func PrepareMiSTerManualArchive(ctx context.Context, cfg Config, dataRoot, works
 	cfg.BuildsDir = filepath.Dir(archive.Path)
 	identity := BuildIdentity{Repository: "jotego/jtcores", Workflow: compileAllWorkflow,
 		RunID: "manual-" + archive.Commit[:12], Attempt: "1", SHA: archive.Commit,
-		Artifact: name, ArtifactSHA: archive.SHA256, Conclusion: "success", Event: "manual-mister"}
-	manifest, err := PrepareMiSTerBuild(ctx, cfg, dataRoot, workspace, identity)
+		Artifact: name, ArtifactSHA: archive.SHA256, Conclusion: "manual", Event: "manual-mister"}
+	manifest, err := PrepareMiSTerBuild(ctx, cfg, dataRoot, workspace, identity, len(cores)==0 && len(sets)==0)
 	if err != nil {
 		return Manifest{}, err
 	}
@@ -318,6 +367,12 @@ func filterMiSTerManifest(manifest Manifest, cores, sets []string) (Manifest, er
 		wantedSet[set] = true
 	}
 	filtered := Manifest{RunID: manifest.RunID, Build: manifest.Build, Source: manifest.Source, ProjectSHA: manifest.ProjectSHA}
+	for _, core := range manifest.SkippedTargets { if len(wantedCore)==0 || wantedCore[core] { filtered.SkippedTargets=append(filtered.SkippedTargets,core) } }
+	for _, core := range manifest.SkippedBuilds { if len(wantedCore)==0 || wantedCore[core] { filtered.SkippedBuilds=append(filtered.SkippedBuilds,core) } }
+	for _, game := range manifest.SkippedGames {
+		core, rest, _ := strings.Cut(game,"/"); set, _, _ := strings.Cut(rest,":")
+		if (len(wantedCore)==0 || wantedCore[core]) && (len(wantedSet)==0 || wantedSet[set]) { filtered.SkippedGames=append(filtered.SkippedGames,game) }
+	}
 	seenCore, seenSet := map[string]bool{}, map[string]bool{}
 	for _, core := range manifest.Cores {
 		if len(wantedCore) != 0 && !wantedCore[core.Core] {
@@ -356,9 +411,10 @@ func prepareMiSTerGameAssets(ctx context.Context, cfg Config, source, release, r
 	var spec GameSpec
 	spec.PreparedHashes = make(map[string]string)
 	rbf := filepath.Join(release, "mister", "jt"+core+".rbf")
-	if !regularNonempty(rbf) {
-		return spec, fmt.Errorf("MiSTer RBF is missing for %s", core)
-	}
+	info, err := os.Lstat(rbf)
+	if os.IsNotExist(err) { return spec, miSTerGameInputError(fmt.Errorf("MiSTer RBF is missing for %s", core)) }
+	if err != nil { return spec, err }
+	if !info.Mode().IsRegular() || info.Size()==0 { return spec, fmt.Errorf("MiSTer RBF is not a nonempty regular file for %s", core) }
 	profile, err := ResolveProfile(profilePath, source, core, set)
 	if err != nil {
 		return spec, err
@@ -426,9 +482,10 @@ func prepareMiSTerGameAssets(ctx context.Context, cfg Config, source, release, r
 	spec.CAB = ""
 	if profile.Inputs != "" {
 		spec.CAB = filepath.Clean(filepath.Join(source, "cores", core, "ver", set, profile.Inputs))
-		if !regularNonempty(spec.CAB) {
-			return GameSpec{}, fmt.Errorf("configured CAB input %q is unavailable", spec.CAB)
-		}
+		info, err := os.Stat(spec.CAB)
+		if os.IsNotExist(err) { return GameSpec{}, miSTerGameInputError(fmt.Errorf("configured CAB input %q is unavailable", spec.CAB)) }
+		if err != nil { return GameSpec{}, err }
+		if !info.Mode().IsRegular() || info.Size()==0 { return GameSpec{}, miSTerGameInputError(fmt.Errorf("configured CAB input %q is empty or not regular", spec.CAB)) }
 	}
 	spec.PreparedHashes[rbf] = rbfSHA
 	spec.PreparedHashes[originalPath] = originalSHA
@@ -455,6 +512,10 @@ func resolveMiSTerROMFixtures(inventory mraInventory, romRoot, assetDir, set str
 	for _, name := range orderedArchiveNames {
 		filename := filepath.Join(romRoot, name)
 		info, err := os.Lstat(filename)
+		if os.IsNotExist(err) && name == "jtbeta.zip" && os.Getenv("JTUTIL") != "" {
+			filename = filepath.Join(os.Getenv("JTUTIL"), name)
+			info, err = os.Lstat(filename)
+		}
 		if os.IsNotExist(err) {
 			// MRA zip fields are ordered candidates. Main continues to the next
 			// candidate when this archive is absent, so don't manufacture or

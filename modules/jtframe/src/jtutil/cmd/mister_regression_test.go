@@ -4,7 +4,9 @@
 package cmd
 
 import (
+	"archive/zip"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -18,6 +20,44 @@ import (
 	"github.com/spf13/cobra"
 	"jtutil/regression"
 )
+
+func TestMiSTerMissingPinnedMacrosReleasesLockAndWorkspace(t *testing.T) {
+	root := t.TempDir()
+	source, tempRoot, archiveRoot := filepath.Join(root, "source"), filepath.Join(root, "temp"), filepath.Join(root, "archives")
+	for _, dir := range []string{filepath.Join(source, "cores", "fixture", "cfg"), filepath.Join(source, "modules", "jtframe", "target"), tempRoot, archiveRoot} {
+		if err := os.MkdirAll(dir, 0700); err != nil { t.Fatal(err) }
+	}
+	if err := os.WriteFile(filepath.Join(source, "cores", "fixture", "cfg", "mame2mra.toml"), []byte("# fixture\n"), 0600); err != nil { t.Fatal(err) }
+	if err := os.WriteFile(filepath.Join(source, "modules", "jtframe", "target", "fixture"), []byte("tracked"), 0600); err != nil { t.Fatal(err) }
+	gitTestCommand(t, source, "init", "-q")
+	gitTestCommand(t, source, "add", ".")
+	gitTestCommand(t, source, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "missing pinned macros")
+	commit := strings.TrimSpace(gitTestCommand(t, source, "rev-parse", "HEAD"))
+	if err := os.WriteFile(filepath.Join(source, "cores", "fixture", "cfg", "macros.def"), []byte("JTFRAME_RATE=60\n"), 0600); err != nil { t.Fatal(err) }
+	archive, err := os.Create(filepath.Join(archiveRoot, commit+".zip")); if err != nil { t.Fatal(err) }
+	zw := zip.NewWriter(archive)
+	for name, contents := range map[string]string{"release/mra/game.mra": `<mame><name>fixture</name><setname>game</setname><rbf>jtfixture</rbf></mame>`, "release/mister/jtfixture.rbf": "rbf"} {
+		w, err := zw.Create(name); if err != nil { t.Fatal(err) }; if _, err = w.Write([]byte(contents)); err != nil { t.Fatal(err) }
+	}
+	if err = zw.Close(); err != nil { t.Fatal(err) }; if err = archive.Close(); err != nil { t.Fatal(err) }
+	mainSHA := strings.Repeat("c", 64)
+	qualification := filepath.Join(root, "qualification.json")
+	qualificationData := fmt.Sprintf(`{"schema":1,"target":"mister","generation":"gen-cli","convention":"native-non-rotated-rgb888-v1","qualification_id":"qual-cli","main_sha256":"%s","qualified":true}`, mainSHA)
+	if err = os.WriteFile(qualification, []byte(qualificationData), 0600); err != nil { t.Fatal(err) }
+	dataRoot := filepath.Join(root, "results")
+	cfg := regression.Config{Target: "mister", Root: dataRoot, BuildsDir: archiveRoot, Boards: []regression.MiSTerBoardConfig{{ID: "board-a", Host: "192.0.2.1", User: "jt", SSHConfig: "/nonexistent/offline", RemoteStagingRoot: "/media/fat/_Arcade"}}, CaptureContract: &regression.MiSTerCaptureContract{Generation: "gen-cli", Convention: regression.CaptureNativeNonRotatedRGB888, QualificationID: "qual-cli", QualificationEvidence: qualification, MainSHA256: mainSHA, CommandTimeoutSeconds: 1, LoadTimeoutSeconds: 1, CaptureTimeoutSeconds: 1, CleanupTimeoutSeconds: 1, MaxHoldMS: 1000, ExpectedBridgeCount: 1}}
+	t.Setenv("JTROOT", source); t.Setenv("TMPDIR", tempRoot)
+	oldGlobals := saveMiSTerCommandGlobals(); t.Cleanup(oldGlobals.restore)
+	regressionCommit, regressionPublishTo = commit, "github"
+	regressionManifest, regressionRunID, regressionMisterRunScope, regressionImport, regressionMigrate = "", "", "", "", ""
+	regressionRetryErrors, regressionPoll, regressionJTBin = false, false, false
+	command := newMiSTerCommandForTest(t)
+	err = runMiSTerRegression(context.Background(), command, cfg, dataRoot, nil, nil, true, true)
+	if err == nil || !strings.Contains(err.Error(), "macros.def") { t.Fatalf("missing pinned macros did not return an error: %v", err) }
+	lock, err := regression.AcquireLock(dataRoot); if err != nil { t.Fatalf("regression lock not released: %v", err) }; _ = regression.ReleaseLock(lock)
+	entries, err := os.ReadDir(tempRoot); if err != nil { t.Fatal(err) }
+	for _, entry := range entries { if strings.HasPrefix(entry.Name(), "jtutil-mister-run-") || strings.HasPrefix(entry.Name(), "jtutil-source-commit-") { t.Fatalf("temporary workspace retained: %s", entry.Name()) } }
+}
 
 func TestRegressionHelpDocumentsMiSTerAndHistoricalBoundaries(t *testing.T) {
 	for _, fragment := range []string{"qualification-gated MiSTer capture", "full-HDMI regression-capable RBFs", "board-free", "selected generation and qualification", "mame-frames"} {

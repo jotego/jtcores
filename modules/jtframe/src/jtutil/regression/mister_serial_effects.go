@@ -459,7 +459,7 @@ func (e *miSTerSerialResultEffects) stageCandidate(operationKey string, capture 
 func (e *miSTerSerialResultEffects) candidateSet(locator string, capture SessionCapture, session PreparedSession, qualification CaptureQualification) (CaptureSet, MiSTerReferenceProvenance, error) {
 	set := CaptureSet{Dir: locator, Format: "png"}
 	provenance := MiSTerReferenceProvenance{Version: 1, CaptureProtocol: capture.Receipt.CaptureProtocol, Target: "mister", Core: session.Core, Setname: session.Setname, Generation: qualification.Generation, Convention: qualification.Convention, QualificationID: qualification.QualificationID}
-	if capture.Receipt.CaptureProtocol != miSTerCaptureProtocolV2 || capture.Receipt.Epoch != 0 || len(capture.Receipt.Images) != len(session.Checkpoints) {
+	if !miSTerCurrentCaptureProtocol(capture.Receipt.CaptureProtocol) || capture.Receipt.Epoch != 0 || len(capture.Receipt.Images) != len(session.Checkpoints) {
 		return set, provenance, fmt.Errorf("fresh MiSTer candidate requires a complete v2 capture receipt")
 	}
 	var previousCheckpoint uint32

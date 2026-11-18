@@ -10,8 +10,16 @@ module jtframe_mister_capture_io(
     input              io_strobe,
     input              io_enable,
     input       [15:0] host_word,
-    output reg         response_enable,
-    output reg  [15:0] response_word,
+    input              uio_start,
+    input              uio_finish,
+    input              uio_active,
+    input       [15:0] uio_command,
+    input       [ 6:0] uio_words,
+    input       [95:0] uio_payload,
+    input              uio_bad_word,
+    input       [ 6:0] uio_bad_index,
+    output     [127:0] uio_caps,
+    output             uio_result_valid,
     input       [ 7:0] cap_state_in,
     input       [ 7:0] cap_fault_in,
     output reg         cap_req_toggle,
@@ -36,15 +44,12 @@ localparam [1:0] ACT_NONE=0, ACT_ARM=1, ACT_RELEASE=2, ACT_ABORT=3;
 localparam [7:0] F_BAD_LENGTH=1, F_BAD_WORD=2, F_BAD_STATE=3,
                  F_BAD_RELEASE=12;
 
-reg txn_active, txn_owned;
-reg [1:0] read_mode;
-reg [15:0] tx_command;
-reg [6:0] txn_words, read_index;
-reg [6:0] expected_words;
-reg [4:0] received_bytes;
-reg [63:0] tx_payload;
-reg [7:0] tx_error;
-reg [127:0] caps_latch;
+wire txn_active, txn_owned;
+wire [1:0] read_mode;
+wire [15:0] tx_command;
+wire [6:0] txn_words, expected_words, received_bytes;
+wire [63:0] tx_payload;
+wire [7:0] tx_error;
 reg result_valid;
 reg [15:0] command_freshness, submitted_freshness, result_freshness;
 reg [7:0] first_fault;
@@ -59,10 +64,22 @@ reg [14:0] active_checkpoint;
 reg overrun_abort_pending;
 reg [14:0] overrun_abort_checkpoint;
 reg [15:0] caps_flags;
-reg [7:0] caps_fault_code;
-reg [15:0] transaction_expected;
-reg transaction_known, transaction_read;
 reg action_ack;
+assign txn_active = uio_active;
+assign tx_command = uio_command;
+assign txn_words = uio_words;
+assign received_bytes = uio_words-1'b1;
+assign tx_payload = uio_payload[63:0];
+assign txn_owned = tx_command>=CAP_CAPS && tx_command<=CAP_ABORT;
+assign read_mode = !txn_active ? RD_NONE : tx_command==CAP_CAPS ? RD_CAPS :
+                   tx_command==CAP_RESULT_READ ? RD_RESULT : RD_NONE;
+assign expected_words = tx_command==CAP_CAPS || tx_command==CAP_ARM ? 8 :
+                        tx_command==CAP_RESULT_READ ? 64 : 4;
+assign tx_error = uio_bad_word && uio_bad_index<=expected_words ? F_BAD_WORD :
+                  received_bytes>expected_words ? F_BAD_LENGTH : 0;
+assign uio_caps = {16'd0,result_freshness,16'd0,command_freshness,
+                   caps_flags,16'd64,16'd2,16'hCA50};
+assign uio_result_valid = result_valid;
 wire txn_write = txn_active && txn_owned && read_mode==RD_NONE;
 wire transport_busy = action_busy || overrun_abort_pending || txn_write;
 wire has_fault = first_fault != 0 || cap_fault_in != 0;
@@ -75,18 +92,9 @@ always @* begin
     caps_flags[3] = has_fault;
     caps_flags[4] = last_release_complete;
     caps_flags[5] = cap_state_in == 8'd5;
+    // Native capture v3: descriptor contains a write-side pixel checksum.
+    caps_flags[6] = 1'b1;
     caps_flags[15:8] = first_fault != 0 ? first_fault : cap_fault_in;
-    caps_fault_code = first_fault != 0 ? first_fault : cap_fault_in;
-    transaction_expected = 0;
-    transaction_known = 1'b1;
-    transaction_read = 1'b0;
-    case(host_word)
-        CAP_CAPS: begin transaction_expected=8; transaction_read=1; end
-        CAP_ARM: begin transaction_expected=8; end
-        CAP_RESULT_READ: begin transaction_expected=64; transaction_read=1; end
-        CAP_RELEASE, CAP_ABORT: begin transaction_expected=4; end
-        default: transaction_known=1'b0;
-    endcase
     action_ack = action_kind == ACT_ARM ? req_ack_sync[1] == cap_req_toggle :
                  action_kind == ACT_RELEASE ? release_ack_sync[1] == cap_release_toggle :
                  action_kind == ACT_ABORT ? abort_ack_sync[1] == cap_abort_toggle : 1'b0;
@@ -94,17 +102,6 @@ end
 
 always @(posedge clk_rom) begin
     if(rst) begin
-        txn_active              <= 1'b0;
-        txn_owned               <= 1'b0;
-        read_mode               <= RD_NONE;
-        tx_command              <= 16'd0;
-        txn_words               <= 7'd0;
-        read_index              <= 7'd0;
-        expected_words          <= 7'd0;
-        received_bytes          <= 5'd0;
-        tx_payload              <= 64'd0;
-        tx_error                <= 8'd0;
-        caps_latch              <= 128'd0;
         result_valid            <= 1'b0;
         command_freshness      <= 16'd0;
         submitted_freshness      <= 16'd0;
@@ -135,14 +132,11 @@ always @(posedge clk_rom) begin
         active_checkpoint       <= 15'd0;
         overrun_abort_pending   <= 1'b0;
         overrun_abort_checkpoint<= 15'd0;
-        response_enable         <= 1'b0;
-        response_word           <= 16'd0;
     end else begin
         req_ack_sync       <= {req_ack_sync[0], cap_req_ack_toggle};
         release_ack_sync   <= {release_ack_sync[0], cap_release_ack_toggle};
         abort_ack_sync     <= {abort_ack_sync[0], cap_abort_ack_toggle};
         result_toggle_sync <= {result_toggle_sync[0], cap_result_toggle};
-        response_enable    <= io_enable && read_mode!=RD_NONE;
 
         // Capture and transport faults share the CAPS first-fault field. The
         // coherent ascal fault is sampled into the same sticky latch; ignore
@@ -212,14 +206,14 @@ always @(posedge clk_rom) begin
             overrun_abort_pending <= 1'b0;
         end
 
-        if(!io_enable) begin
+        if(uio_finish) begin
             if(txn_active && txn_owned) begin
                 if(read_mode != RD_NONE) begin
                     if(txn_words != expected_words + 1'd1 && first_fault==0 && cap_fault_in==0)
                         first_fault <= F_BAD_LENGTH;
                     if(read_mode==RD_RESULT && !result_valid && first_fault==0 && cap_fault_in==0)
                         first_fault <= F_BAD_STATE;
-                end else if(tx_error != 0 || {2'b0,received_bytes} != expected_words) begin
+                end else if(tx_error != 0 || received_bytes != expected_words) begin
                     if(first_fault==0 && cap_fault_in==0)
                         first_fault <= tx_error!=0 ? tx_error : F_BAD_LENGTH;
                 end else if(action_busy || overrun_abort_pending) begin
@@ -227,9 +221,10 @@ always @(posedge clk_rom) begin
                     overrun_abort_pending <= 1'b1;
                     overrun_abort_checkpoint <= owner_valid ? owner_checkpoint : active_checkpoint;
                 end else if(tx_command == CAP_ARM) begin
+                    // Reject bits that cannot be represented by the bundled
+                    // request. Ascal validates the checkpoint and hold range.
                     if(cap_state_in != 0 || owner_valid || tx_payload[15] ||
-                       tx_payload[31:16] != 0 || tx_payload[63:32] < 100 ||
-                       tx_payload[63:32] > 2000 || tx_payload[14:0] == 0) begin
+                       tx_payload[31:16] != 0 || |tx_payload[63:43]) begin
                         if(first_fault==0 && cap_fault_in==0) first_fault <= F_BAD_STATE;
                         command_freshness <= command_freshness + 1'b1;
                     end else begin
@@ -280,54 +275,10 @@ always @(posedge clk_rom) begin
                     end
                 end
             end
-            txn_active <= 1'b0;
-            txn_owned <= 1'b0;
-            read_mode <= RD_NONE;
-            txn_words <= 7'd0;
-            read_index <= 7'd0;
-            received_bytes <= 5'd0;
-            tx_error <= 8'd0;
-            expected_words <= 7'd0;
-        end else if(io_strobe) begin
-            if(!txn_active) begin
-                txn_active <= 1'b1;
-                txn_words <= 7'd1;
-                tx_command <= host_word;
-                tx_payload <= 64'd0;
-                received_bytes <= 5'd0;
-                tx_error <= 8'd0;
-                read_index <= 7'd0;
-                expected_words <= transaction_expected[6:0];
-                txn_owned <= transaction_known;
-                read_mode <= RD_NONE;
-                if(transaction_known && transaction_read) begin
-                    if(host_word == CAP_CAPS) begin
-                        caps_latch <= {16'd0,result_freshness,16'd0,
-                            command_freshness,caps_flags,16'd64,16'd2,16'hCA50};
-                        read_mode <= RD_CAPS;
-                    end else begin
-                        if(!result_valid && first_fault==0 && cap_fault_in==0)
-                            first_fault <= F_BAD_STATE;
-                        read_mode <= RD_RESULT;
-                    end
-                end
-            end else begin
-                if(txn_words != 7'h7f) txn_words <= txn_words + 1'b1;
-                if(read_mode==RD_CAPS) begin
-                    response_word <= caps_latch[{read_index[2:0],4'b0000} +: 16];
-                    read_index <= read_index + 1'b1;
-                end else if(read_mode==RD_RESULT) begin
-                    response_word <= {8'd0,(result_valid ? cap_result[{read_index[5:0],3'b000} +: 8] : 8'd0)};
-                    read_index <= read_index + 1'b1;
-                end else if(txn_owned) begin
-                    if(received_bytes < 8) begin
-                        tx_payload[{received_bytes[2:0],3'b000} +: 8] <= host_word[7:0];
-                        received_bytes <= received_bytes + 1'b1;
-                        if(host_word[15:8] != 0 && tx_error==0) tx_error <= F_BAD_WORD;
-                        if({2'b0,received_bytes} >= expected_words && tx_error==0) tx_error <= F_BAD_LENGTH;
-                    end else if(tx_error==0) tx_error <= F_BAD_LENGTH;
-                end
-            end
+        end
+        if(uio_start) begin
+            if(host_word==CAP_RESULT_READ && !result_valid && first_fault==0 && cap_fault_in==0)
+                first_fault <= F_BAD_STATE;
         end
     end
 end

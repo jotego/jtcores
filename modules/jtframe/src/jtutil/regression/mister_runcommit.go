@@ -120,6 +120,9 @@ func RunCommitMiSTer(ctx context.Context, log *CommitLog, prepared []MiSTerPrepa
 	if !policy.Manual && policy.RunScopeID != MiSTerAutomaticRunScopeID {
 		return PoolSnapshot{}, fmt.Errorf("automatic MiSTer runs require the stable %q scope", MiSTerAutomaticRunScopeID)
 	}
+	if policy.Manual && policy.RunScopeID == MiSTerAutomaticRunScopeID {
+		return PoolSnapshot{}, fmt.Errorf("MiSTer scope %q is reserved for automatic runs", MiSTerAutomaticRunScopeID)
+	}
 	if policy.Manual && !policy.Retry {
 		if scopeRetired(log.Progress, deps.Qualification, policy.RunScopeID) {
 			return PoolSnapshot{}, fmt.Errorf("manual MiSTer refresh requires a fresh run scope ID")
@@ -447,13 +450,13 @@ func (p MiSTerReferenceProvenance) Validate() error {
 		strings.TrimSpace(p.QualificationID) == "" || !isSHA256Hex(p.TestDefinitionID) || !isCommitSHA(p.SourceCommit) || len(p.Images) == 0 {
 		return fmt.Errorf("invalid MiSTer image provenance identity")
 	}
-	if p.CaptureProtocol != "" && p.CaptureProtocol != miSTerCaptureProtocolV2 {
+	if p.CaptureProtocol != "" && !miSTerCurrentCaptureProtocol(p.CaptureProtocol) {
 		return fmt.Errorf("unsupported MiSTer capture protocol %q", p.CaptureProtocol)
 	}
 	var previous uint32
 	for i, image := range p.Images {
-		sequenceInvalid := p.CaptureProtocol == miSTerCaptureProtocolV2 && image.Sequence != 0 ||
-			p.CaptureProtocol != miSTerCaptureProtocolV2 && image.Sequence != uint32(i+1)
+		sequenceInvalid := miSTerCurrentCaptureProtocol(p.CaptureProtocol) && image.Sequence != 0 ||
+			!miSTerCurrentCaptureProtocol(p.CaptureProtocol) && image.Sequence != uint32(i+1)
 		if sequenceInvalid || image.RequestedFrame == 0 || image.ActualFrame != image.RequestedFrame-1 || image.Checkpoint != image.RequestedFrame ||
 			image.Width == 0 || image.Height == 0 || image.Pitch < image.Width*3 || !isSHA256Hex(image.RGBSHA256) ||
 			(i > 0 && image.RequestedFrame <= previous) {

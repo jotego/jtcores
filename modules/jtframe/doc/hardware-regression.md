@@ -37,6 +37,33 @@ capture, copy, encode, release and cleanup. The checkpoint range is a protocol
 bound, not permission to run a 32767-frame session: at 60 Hz that would exceed
 the session deadline.
 
+The native v3 capture path advertises capability bit 6 in CAP CAPS word 3.
+Matching Main reads a 64-byte descriptor over UIO; its IEEE CRC protects the
+descriptor. Bytes 36..39 hold the number of bursts including the native
+header; bytes 40..43 contain the algorithm tag `GFW1`; bytes 44..47 hold the
+write-side hash. Starting at zero, for each little-endian 32-bit payload word
+(including row padding), GFW1 shifts the 32-bit state left, XORs `0x00400007`
+when the previous top bit was set, and XORs the word. It detects reordered DDR
+payloads but does not establish that the source game produced the correct
+frame or independently detect every possible corruption.
+
+The selected framebuffer slot remains owned and protected while Main copies
+its pixels. READY means the target writes were accepted by Avalon; Main
+verifies the copied payload against the checksum and retries a mismatch within
+the hold deadline. It then checks a fresh CAPS response for the same owned,
+fault-free READY result and freshness before releasing the slot. Native v3
+does not write a capture metadata header to DDR or scan pixels back through
+the FPGA. The v3 image receipt records the descriptor, checksum, and READY and
+post-copy CAPS witnesses. Main retains the legacy native v2 path when the
+capability bit is absent; older Main versions reject the new capability for
+automated capture. Ordinary gameplay with stock Main remains a requirement.
+
+The two scaler write-buffer halves remain leased until their final accepted
+burst acknowledgements return. A one-bit order tag distinguishes at most two
+outstanding writes, and both leases must clear before capture or cleanup drain
+is requested. A native header still precedes pixel data for the scaler itself;
+it is not a v3 capture receipt.
+
 ## MiSTer native regression
 
 MiSTer capture uses the normal CAB input stream and native RGB888 scaler
@@ -810,10 +837,10 @@ mismatch, never to qualify a reference.
 SiDi128 promotion requires a matching finalized regression progress entry, a
 stable PNG digest, no active run for the game, and an absent `ref/` immediately
 before rename. MiSTer promotion additionally requires the configured capture
-generation and qualification, a completed protocol-v2 NEW finalization, and a
+generation and qualification, a completed protocol-v2 or protocol-v3 NEW finalization, and a
 matching image receipt/provenance inventory. It records the same
 `reference-provenance.json` used by explicit MiSTer curation. Historical MiSTer
-captures without protocol-v2 provenance remain comparable but cannot be
+captures without supported protocol-v2 or protocol-v3 provenance remain comparable but cannot be
 promoted by this command. Games with active, stale or unverifiable progress can
 still be compared read-only; an exact pixel PASS stays PASS when promotion is
 withheld. Exact-match results and failures are appended to the fixed-width

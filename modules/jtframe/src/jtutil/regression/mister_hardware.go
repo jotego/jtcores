@@ -1275,8 +1275,7 @@ func validateMiSTerInputs(prepared PreparedSession, inputs *MiSTerSessionInputs)
 	if err = verifyMRAArchives(launch, prepared, inputs); err != nil {
 		return err
 	}
-	hasNVRAM, err := mraHasNVRAM(launch)
-	if err != nil {
+	if _, err := mraHasNVRAM(launch); err != nil {
 		return err
 	}
 	hasDefaultRAM := false
@@ -1286,27 +1285,6 @@ func validateMiSTerInputs(prepared PreparedSession, inputs *MiSTerSessionInputs)
 				return fmt.Errorf("prepared inputs contain multiple default NVRAM seeds")
 			}
 			hasDefaultRAM = true
-		}
-	}
-	if hasDefaultRAM && !hasNVRAM {
-		return fmt.Errorf("default NVRAM seed is present but the launch MRA has no nvram entry")
-	}
-	if hasDefaultRAM {
-		nvramSize, _, sizeErr := mraNVRAMSeedSize(launch)
-		if sizeErr != nil {
-			return sizeErr
-		}
-		for _, fixture := range prepared.Fixtures {
-			if fixture.Role == FixtureDefaultRAM {
-				localPath, pathErr := preparedFixturePath(prepared, inputs, fixture)
-				if pathErr != nil {
-					return pathErr
-				}
-				seed, readErr := readVerifyLocal(localPath, fixture.SHA256, miSTerRemoteOutputLimit)
-				if readErr != nil || uint32(len(seed)) != nvramSize {
-					return fmt.Errorf("default NVRAM seed size does not match the exact launch MRA size")
-				}
-			}
 		}
 	}
 	return nil
@@ -1842,7 +1820,7 @@ func (d *MiSTerSessionDriver) stageAndRun(ctx context.Context, active *miSTerAct
 			return pathErr
 		}
 		if fixture.Role == FixtureDefaultRAM {
-			continue // Installed at the candidate MRA's derived config/nvram name.
+			continue // Main loads the verified default from the candidate MRA.
 		}
 		remotePath := root + "/" + filepath.Base(local)
 		if fixture.Role == FixtureROMArchive {
@@ -1860,41 +1838,12 @@ func (d *MiSTerSessionDriver) stageAndRun(ctx context.Context, active *miSTerAct
 		return nvramErr
 	} else if hasNVRAM {
 		active.ledger.NVRAMPath = nvramPath
-		for _, fixture := range prepared.Fixtures {
-			if fixture.Role == FixtureDefaultRAM {
-				active.ledger.NVRAMSeedSHA256 = fixture.SHA256
-			}
-		}
+		active.ledger.NVRAMSeedSHA256 = ""
 		if err = d.writeLedger(active.ledger, "staging_nvram", ""); err != nil {
 			return err
 		}
 		if err = d.clearBackedUpFile(ctx, active, nvramPath); err != nil {
 			return err
-		}
-		for _, fixture := range prepared.Fixtures {
-			if fixture.Role != FixtureDefaultRAM {
-				continue
-			}
-			localPath, pathErr := preparedFixturePath(prepared, &inputs, fixture)
-			if pathErr != nil {
-				return pathErr
-			}
-			seed, readErr := readVerifyLocal(localPath, fixture.SHA256, miSTerFileLimit)
-			if readErr != nil {
-				return readErr
-			}
-			nvramSize, _, sizeErr := mraNVRAMSeedSize(launchMRABytes)
-			if sizeErr != nil || uint32(len(seed)) != nvramSize {
-				return fmt.Errorf("default NVRAM seed size differs from launch MRA")
-			}
-			if err = d.Remote.WriteFile(ctx, nvramPath, seed); err != nil {
-				return err
-			}
-			readback, exists, readErr := d.Remote.File(ctx, nvramPath, miSTerRemoteOutputLimit)
-			if readErr != nil || !exists || digestBytes(readback) != fixture.SHA256 {
-				return fmt.Errorf("default NVRAM seed readback did not match its prepared hash")
-			}
-			break
 		}
 	}
 	cabRemote, planRemote := root+"/input.jtcab", root+"/schedule.jtcp"

@@ -8,3 +8,4 @@ $JTFRAME/target/mister/hdl/jtframe_mister_status.v
 $JTFRAME/target/mister/hdl/jtframe_target_info.sv
 $JTFRAME/hdl/ram/jtframe_rpwp_ram.v
 $JTFRAME/target/mister/ver/capture_wrapper_disabled/stubs.sv
+$JTFRAME/target/mister/hdl/jtframe_mister_uio.v

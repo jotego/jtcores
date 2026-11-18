@@ -29,9 +29,26 @@ always @(posedge clk) begin
     else if(cap_life_toggle!=cap_life_ack) cap_life_ack<=cap_life_toggle;
 end
 
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [6:0] uio_words, uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cap_caps;
+wire uio_result_valid;
+jtframe_mister_uio transport(.rst(rst), .clk(clk), .io_enable(io_enable),
+    .io_strobe(io_strobe), .host_word(host_word), .start(uio_start),
+    .cab_caps(128'd0), .cap_caps(uio_cap_caps), .cab_snapshot(256'd0),
+    .cap_result(result_data), .cab_snapshot_valid(1'b0), .cap_result_valid(uio_result_valid),
+    .response_enable(response_enable), .response_word(response_word), .finish(uio_finish), .active(uio_active), .command(uio_command),
+    .words(uio_words), .payload(uio_payload), .bad_word(uio_bad_word),
+    .bad_index(uio_bad_index));
+
 jtframe_mister_capture_io uut(
+    .uio_start(uio_start), .uio_finish(uio_finish), .uio_active(uio_active),
+    .uio_command(uio_command), .uio_words(uio_words), .uio_payload(uio_payload),
+    .uio_bad_word(uio_bad_word), .uio_bad_index(uio_bad_index),
     .clk_rom(clk), .rst(rst), .io_strobe(io_strobe), .io_enable(io_enable),
-    .host_word(host_word), .response_enable(response_enable), .response_word(response_word),
+    .host_word(host_word), .uio_caps(uio_cap_caps), .uio_result_valid(uio_result_valid),
     .cap_state_in(cap_state), .cap_fault_in(cap_fault),
     .cap_req_toggle(req_toggle), .cap_req(req), .cap_req_ack_toggle(req_ack),
     .cap_release_toggle(release_toggle), .cap_release(release_cp),
@@ -45,7 +62,7 @@ jtframe_cab_stream #(.REGRESSION_V2(1)) u_cab(
     .rst(rst), .clk(clk), .lvbl(cab_lvbl), .capture_hold(1'b0),
     .capture_frame(cab_frame), .cab_epoch(cab_epoch), .frame_start(cab_frame_start),
     .frame_index(cab_frame_index), .rx_strobe(cab_rx_strobe), .rx_cmd(cab_rx_cmd),
-    .rx_byte(cab_rx_byte), .rx_index(cab_rx_index), .active(cab_active),
+    .rx_byte(cab_rx_byte), .rx_index(cab_rx_index), .rx_parallel(96'd0), .active(cab_active),
     .hold_reset(cab_hold_reset), .state_out(cab_state), .error_out(cab_error),
     .inputs(cab_inputs), .dipsw_valid(cab_dipsw_valid), .dipsw(cab_dipsw),
     .dump_pause(dump_pause), .snapshot(cab_snapshot)
@@ -123,8 +140,8 @@ initial begin
     repeat(3) tick(); rst=0; repeat(3) tick();
     read_caps(caps);
     if(caps[15:0]!==16'hCA50 || caps[31:16]!==2 || caps[47:32]!==64 ||
-       caps[63:48]!==0 || caps[95:64]!==0 || caps[127:96]!==0)
-        $fatal(1,"CAPS v2 layout mismatch: %h",caps);
+       caps[63:48]!==16'h0040 || caps[95:64]!==0 || caps[127:96]!==0)
+        $fatal(1,"CAPS v3 layout mismatch: %h",caps);
 
     // A valid request contains one nonzero 15-bit checkpoint and an 11-bit hold budget.
     uut.command_freshness=16'hffff;
@@ -200,7 +217,7 @@ initial begin
     reset_clean();
     begin_tx(16'h0191); put_u16(10); put_u16(0); end_tx();
     read_caps(caps);
-    if(req_toggle || caps[63:48] || caps[79:64]) $fatal(1,"unknown full command aliased ARM");
+    if(req_toggle || caps[63:48]!==16'h0040 || caps[79:64]) $fatal(1,"unknown full command aliased ARM");
     begin_tx(16'h0091); put_u16(10); put_u16(0); put_byte(100); put_byte(0); put_byte(0); end_tx();
     read_caps(caps);
     if(req_toggle || caps[63:56]!==1 || caps[79:64]!==0) $fatal(1,"short ARM side effect or wrong length fault");
@@ -208,12 +225,26 @@ initial begin
     begin_tx(16'h0091); put_u16(10); put_u16(0); put_byte(100); put_byte(0); put_byte(0); put_byte(0); put_byte(0); end_tx();
     read_caps(caps);
     if(req_toggle || caps[63:56]!==1) $fatal(1,"long ARM published");
-    reset_clean(); arm(0,100); read_caps(caps);
-    if(req_toggle || !caps[51]) $fatal(1,"zero checkpoint accepted");
-    reset_clean(); arm(10,99); read_caps(caps);
-    if(req_toggle || !caps[51]) $fatal(1,"low hold accepted");
-    reset_clean(); arm(10,2001); read_caps(caps);
-    if(req_toggle || !caps[51]) $fatal(1,"high hold accepted");
+    reset_clean();
+    begin_tx(16'h0091); word(16'h010a); put_u16(0); put_byte(100);
+    repeat(5) put_byte(0); end_tx(); read_caps(caps);
+    if(req_toggle || caps[63:56]!==2) $fatal(1,"first bad word was replaced by a later length fault");
+    reset_clean();
+    begin_tx(16'h0091); put_u16(10); put_u16(0); put_byte(100);
+    repeat(3) put_byte(0); word(16'h0100); end_tx(); read_caps(caps);
+    if(req_toggle || caps[63:56]!==1) $fatal(1,"extra bad word did not retain length fault precedence");
+    reset_clean(); arm(0,100);
+    if(!req_toggle || req[14:0]!=0) $fatal(1,"zero checkpoint was not forwarded");
+    cap_fault=3; req_ack=req_toggle; repeat(6) tick(); read_caps(caps);
+    if(!caps[51] || caps[49]) $fatal(1,"ascal zero-checkpoint rejection lost");
+    reset_clean(); arm(10,99);
+    if(!req_toggle || req[26:16]!=99) $fatal(1,"low hold was not forwarded");
+    cap_fault=3; req_ack=req_toggle; repeat(6) tick(); read_caps(caps);
+    if(!caps[51] || caps[49]) $fatal(1,"ascal low-hold rejection lost");
+    reset_clean(); arm(10,2001);
+    if(!req_toggle || req[26:16]!=2001) $fatal(1,"high hold was not forwarded");
+    cap_fault=3; req_ack=req_toggle; repeat(6) tick(); read_caps(caps);
+    if(!caps[51] || caps[49]) $fatal(1,"ascal high-hold rejection lost");
     reset_clean(); arm(10,32'h010003e8); read_caps(caps);
     if(req_toggle || !caps[51]) $fatal(1,"hold high bits silently narrowed");
     reset_clean();

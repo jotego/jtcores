@@ -919,7 +919,7 @@ func findMiSTerMameProvenance(root, core, set, newDir string, frames CaptureSet,
 			for _, finalization := range lane.Finalizations {
 				plan := finalization.Plan
 				if finalization.State != CaptureFinalizationComplete || finalization.JobKey != job || plan == nil || plan.Effect != MiSTerEffectNew || plan.Summary.Result != New ||
-					plan.Candidate.CaptureProtocol != "jtframe-capture-v2" || plan.Candidate.Target != "mister" || plan.Candidate.Core != core || plan.Candidate.Setname != set || plan.Candidate.Generation != generation || plan.Candidate.QualificationID != qualificationID {
+					!miSTerCurrentCaptureProtocol(plan.Candidate.CaptureProtocol) || plan.Candidate.Target != "mister" || plan.Candidate.Core != core || plan.Candidate.Setname != set || plan.Candidate.Generation != generation || plan.Candidate.QualificationID != qualificationID {
 					continue
 				}
 				if lane.Selected[jobKey] != plan.Summary.PortableID || lane.Games[jobKey].OperationKey != plan.Summary.OperationKey || lane.Games[jobKey].OutputDigest != plan.CandidateDigest {

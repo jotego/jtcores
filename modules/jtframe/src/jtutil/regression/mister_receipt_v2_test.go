@@ -296,3 +296,134 @@ func decodeJSONValueFromBytes(data []byte, target interface{}) error {
 	}
 	return decodeJSONValue(value, target)
 }
+
+func newMiSTerCaptureV3Fixture(t *testing.T) (miSTerCaptureV2Fixture, miSTerCaptureImageReceiptV2, miSTerCaptureReceiptRefV2) {
+	t.Helper()
+	f := newMiSTerCaptureV2Fixture(t)
+	var status miSTerCaptureStatusV2
+	if err := decodeJSONValueFromBytes(f.status, &status); err != nil { t.Fatal(err) }
+	status.CaptureProtocol, status.ReceiptProtocol = miSTerCaptureProtocolV3, "jtframe-capture-image-v3"
+	f.status = marshalTestJSON(t, status)
+	var manifest miSTerCaptureManifestV2
+	if err := decodeJSONValueFromBytes(f.manifest, &manifest); err != nil { t.Fatal(err) }
+	manifest.CaptureProtocol = miSTerCaptureProtocolV3
+	f.manifest = marshalTestJSON(t, manifest)
+	ref := manifest.Images[0]
+	var r miSTerCaptureImageReceiptV2
+	if err := decodeJSONValueFromBytes(f.files.ReceiptJSON[ref.ReceiptPath], &r); err != nil { t.Fatal(err) }
+	r.Protocol, r.CaptureProtocol = "jtframe-capture-image-v3", miSTerCaptureProtocolV3
+	r.PixelChecksum = "1234abcd"
+	r.PixelChecksumAlgorithm = "gfw1"
+	r.PostCopyCAPS = []uint16{0xca50, 2, 64, 0x46, 9, 0, 7, 0}
+	r.ReadyCAPS = append([]uint16(nil), r.PostCopyCAPS...)
+	r.ReleaseAckFreshness = 10
+	r.BurstCount = 1+r.PayloadBytes/256
+	desc, err := hex.DecodeString(r.DescriptorBytesHex); if err != nil { t.Fatal(err) }
+	binary.LittleEndian.PutUint32(desc[36:40], r.BurstCount)
+	binary.LittleEndian.PutUint32(desc[40:44], 0x31574647)
+	binary.LittleEndian.PutUint32(desc[44:48], 0x1234abcd)
+	crc := crc32.ChecksumIEEE(desc[:56]); binary.LittleEndian.PutUint32(desc[56:60], crc)
+	r.DescriptorCRC32, r.DescriptorBytesHex = fmt.Sprintf("%08x", crc), hex.EncodeToString(desc)
+	writeMiSTerV3TestReceipt(t, &f, ref, r, false)
+	return f, r, ref
+}
+
+func writeMiSTerV3TestReceipt(t *testing.T, f *miSTerCaptureV2Fixture, ref miSTerCaptureReceiptRefV2, r miSTerCaptureImageReceiptV2, addHeader bool) {
+	t.Helper()
+	raw := marshalTestJSON(t, r)
+	var obj map[string]interface{}
+	if err := decodeJSONValueFromBytes(raw, &obj); err != nil { t.Fatal(err) }
+	for _, key := range []string{"header_before_crc32", "header_after_crc32", "header_before_hex", "header_after_hex", "final_issued", "final_completed"} { delete(obj, key) }
+	if addHeader { obj["header_before_hex"] = "" }
+	raw = marshalTestJSON(t, obj)
+	f.files.ReceiptJSON[ref.ReceiptPath] = raw
+	if err := os.WriteFile(f.files.ReceiptLocal[ref.ReceiptPath], raw, 0600); err != nil { t.Fatal(err) }
+}
+
+func TestMiSTerCaptureV3ChecksumAndCAPSProof(t *testing.T) {
+	f, r, ref := newMiSTerCaptureV3Fixture(t)
+	writeReceipt := func(r miSTerCaptureImageReceiptV2, addHeader bool) { writeMiSTerV3TestReceipt(t, &f, ref, r, addHeader) }
+	got, err := ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root)
+	if err != nil || got.CaptureProtocol != miSTerCaptureProtocolV3 { t.Fatalf("valid v3 capture: %+v %v", got, err) }
+	for _, tc := range []struct{name string; mutate func(*miSTerCaptureImageReceiptV2)}{
+		{"checksum", func(v *miSTerCaptureImageReceiptV2) { v.PixelChecksum = "1234abce" }},
+		{"CAPS ready", func(v *miSTerCaptureImageReceiptV2) { v.PostCopyCAPS[3] = 0x42 }},
+		{"CAPS result", func(v *miSTerCaptureImageReceiptV2) { v.PostCopyCAPS = v.PostCopyCAPS[:7] }},
+		{"result freshness changed", func(v *miSTerCaptureImageReceiptV2) { v.PostCopyCAPS[6]++ }},
+		{"release freshness", func(v *miSTerCaptureImageReceiptV2) { v.ReleaseAckFreshness++ }},
+		{"burst count", func(v *miSTerCaptureImageReceiptV2) { v.BurstCount++ }},
+		{"algorithm", func(v *miSTerCaptureImageReceiptV2) { v.PixelChecksumAlgorithm = "sum32" }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			bad := r; bad.PostCopyCAPS = append([]uint16(nil), r.PostCopyCAPS...); tc.mutate(&bad)
+			writeReceipt(bad, false)
+			if _, err := ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err == nil { t.Fatal("invalid v3 proof accepted") }
+		})
+	}
+	writeReceipt(r, true)
+	if _, err := ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err == nil { t.Fatal("v3 receipt accepted fabricated header field") }
+}
+
+func TestMiSTerGFW1VectorsAndPermutations(t *testing.T) {
+	words := []uint32{0x80000000, 0x80000001, 0x40000003, 0x11223344}
+	raw := make([]byte, 4*len(words))
+	for i, word := range words { binary.LittleEndian.PutUint32(raw[4*i:], word) }
+	if got := miSTerGFW1(raw); got != 0x90a23354 { t.Fatalf("four words = %08x", got) }
+	for i := range words { binary.LittleEndian.PutUint32(raw[4*i:], words[len(words)-1-i]) }
+	if got := miSTerGFW1(raw); got != 0x09119a2e { t.Fatalf("reversed words = %08x", got) }
+	raw = make([]byte, 1024)
+	for i := uint32(0); i < 256; i++ { binary.LittleEndian.PutUint32(raw[4*i:], 0x9e3779b9*i+0x01020304) }
+	if got := miSTerGFW1(raw); got != 0x85c41297 { t.Fatalf("normal = %08x", got) }
+	for i := 0; i < 256; i++ { raw[i], raw[256+i] = raw[256+i], raw[i] }
+	if got := miSTerGFW1(raw); got != 0x7ead5021 { t.Fatalf("swapped bursts = %08x", got) }
+	for i := 0; i < 256; i++ { raw[i], raw[256+i] = raw[256+i], raw[i] }
+	for i := 0; i < 512; i++ { raw[i], raw[512+i] = raw[512+i], raw[i] }
+	if got := miSTerGFW1(raw); got != 0xe69f5929 { t.Fatalf("swapped rows = %08x", got) }
+}
+
+func TestMiSTerV3RejectsProvisionalUntaggedDescriptor(t *testing.T) {
+	f, receipt, ref := newMiSTerCaptureV3Fixture(t)
+	desc, err := hex.DecodeString(receipt.DescriptorBytesHex); if err != nil { t.Fatal(err) }
+	binary.LittleEndian.PutUint32(desc[40:44], receipt.BurstCount)
+	crc := crc32.ChecksumIEEE(desc[:56]); binary.LittleEndian.PutUint32(desc[56:60], crc)
+	receipt.DescriptorBytesHex, receipt.DescriptorCRC32 = hex.EncodeToString(desc), fmt.Sprintf("%08x", crc)
+	writeMiSTerV3TestReceipt(t, &f, ref, receipt, false)
+	if _, err = ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err == nil { t.Fatal("untagged provisional descriptor accepted") }
+	valid, _, ref := newMiSTerCaptureV3Fixture(t)
+	var object map[string]interface{}
+	if err = decodeJSONValueFromBytes(valid.files.ReceiptJSON[ref.ReceiptPath], &object); err != nil { t.Fatal(err) }
+	object["final_completed"] = 673
+	if _, err = decodeMiSTerCaptureImageReceiptV2(marshalTestJSON(t, object)); err == nil { t.Fatal("v3 receipt accepted provisional completed-count field") }
+}
+
+func TestMiSTerV3OptionalRawProofRecomputesGFW1(t *testing.T) {
+	f, receipt, ref := newMiSTerCaptureV3Fixture(t)
+	imageFile, err := os.Open(f.files.PNGLocal[receipt.PNGPath]); if err != nil { t.Fatal(err) }
+	img, err := png.Decode(imageFile); _ = imageFile.Close(); if err != nil { t.Fatal(err) }
+	raw := make([]byte, receipt.PayloadBytes)
+	for y := 0; y < int(receipt.Height); y++ {
+		for x := 0; x < int(receipt.Width); x++ {
+			p := color.RGBAModel.Convert(img.At(x, y)).(color.RGBA)
+			offset := y*int(receipt.RowPitch)+x*3
+			raw[offset], raw[offset+1], raw[offset+2] = p.R, p.G, p.B
+		}
+	}
+	receipt.RawRGBPath = "/tmp/jtframe-capture-proof-sess-v2/sess-v2-00001.rgb"
+	receipt.RawRGBSize = uint64(len(raw))
+	local := filepath.Join(f.root, "proof_00000001.rgb")
+	if err = os.WriteFile(local, raw, 0600); err != nil { t.Fatal(err) }
+	f.files.RawRGBLocal = map[string]string{receipt.RawRGBPath: local}
+	desc, err := hex.DecodeString(receipt.DescriptorBytesHex); if err != nil { t.Fatal(err) }
+	setChecksum := func(checksum uint32) {
+		binary.LittleEndian.PutUint32(desc[44:48], checksum)
+		crc := crc32.ChecksumIEEE(desc[:56]); binary.LittleEndian.PutUint32(desc[56:60], crc)
+		receipt.PixelChecksum, receipt.DescriptorCRC32 = fmt.Sprintf("%08x", checksum), fmt.Sprintf("%08x", crc)
+		receipt.DescriptorBytesHex = hex.EncodeToString(desc)
+		writeMiSTerV3TestReceipt(t, &f, ref, receipt, false)
+	}
+	checksum := miSTerGFW1(raw)
+	setChecksum(checksum)
+	if _, err = ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err != nil { t.Fatalf("valid raw GFW1 rejected: %v", err) }
+	setChecksum(checksum ^ 1)
+	if _, err = ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err == nil { t.Fatal("raw proof accepted matching but false descriptor and receipt checksums") }
+}

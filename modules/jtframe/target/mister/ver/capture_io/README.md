@@ -1,7 +1,7 @@
 # MiSTer capture UIO transport
 
 This simunit drives full 16-bit HPS UIO words and post-transaction enable
-deassertion. It checks the eight-word v2 CAPS layout, the native 15-bit
+deassertion. It checks the eight-word CAPS layout and native v3 capability bit, the native 15-bit
 checkpoint/11-bit hold request, persistent ownership through READY, stable
 JTC2 descriptor reads, clean release evidence, and rejection of checkpoint
 overflow. It also checks that a rejected ABORT ACK clears transport busy while

@@ -403,6 +403,33 @@ quartus_source_config_key() {
     )
 }
 
+# Audit the fitted MiSTer database using the same Quartus installation as the
+# compilation. The Tcl script decides from the generated QSF whether the
+# regression logic is present, and reports an explicit PASS or SKIP.
+run_mister_cdc_audit() {
+    [[ "$TARGET" = mister ]] || return 0
+    local report="${LOG%.log}.cdc.rpt" helper="$JTFRAME/bin/jtframe_mister_cdc.tcl"
+    local compiler sta markers
+    compiler=$(type -P quartus_sh) || { echo 'ERROR: cannot locate the selected Quartus installation for CDC audit'; return 1; }
+    sta="$(dirname "$compiler")/quartus_sta"
+    if [[ ! -r "$helper" || ! -x "$sta" ]]; then
+        echo "ERROR: MiSTer CDC audit helper or matching quartus_sta is unavailable"
+        return 1
+    fi
+    echo "MiSTer CDC audit report: $report"
+    if ! "$sta" -t "$helper" "$corename" > "$report" 2>&1; then
+        echo "ERROR: MiSTer CDC audit failed (see $report)"
+        tail -n 20 "$report"
+        return 1
+    fi
+    markers=$(grep -c '^JTFRAME_CDC ' "$report" || true)
+    if [[ "$markers" != 1 ]] || ! grep -Eq '^JTFRAME_CDC (PASS|SKIP)$' "$report"; then
+        echo "ERROR: MiSTer CDC audit did not produce exactly one valid result (see $report)"
+        return 1
+    fi
+    grep -E '^JTFRAME_CDC (PASS|SKIP)$' "$report"
+}
+
 compile_quartus() {
     local version compiler compiler_key config_key settings_key previous_key status
     compiler=$(command -v quartus_sh) || return

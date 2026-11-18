@@ -182,11 +182,25 @@ module test;
             lvbl=0; repeat(4) @(negedge clk_sys);
         end
     endtask
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [6:0] uio_words, uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cab_caps;
+wire [255:0] uio_snapshot;
+wire uio_snapshot_valid;
+jtframe_mister_uio transport(.rst(rst), .clk(clk_rom), .io_enable(EXT_BUS[34] && !EXT_BUS[35]), .io_strobe(EXT_BUS[33]), .host_word(EXT_BUS[31:16]),
+    .cab_caps(uio_cab_caps), .cap_caps(128'd0), .cab_snapshot(uio_snapshot),
+    .cap_result(512'd0), .cab_snapshot_valid(uio_snapshot_valid), .cap_result_valid(1'b0),
+    .response_enable(cab_response_enable), .response_word(cab_response_word), .start(uio_start), .finish(uio_finish), .active(uio_active), .command(uio_command),
+    .words(uio_words), .payload(uio_payload), .bad_word(uio_bad_word), .bad_index(uio_bad_index));
+
     jtframe_mister_cab dut(
+    .uio_start(uio_start), .uio_finish(uio_finish), .uio_active(uio_active),
+    .uio_command(uio_command), .uio_words(uio_words), .uio_payload(uio_payload), .uio_bad_word(uio_bad_word), .uio_bad_index(uio_bad_index),
         .rst(rst),.clk_rom(clk_rom),.clk_sys(clk_sys),.lvbl(lvbl),
         .io_strobe(EXT_BUS[33]),.io_enable(EXT_BUS[34]&&!EXT_BUS[35]),
-        .host_word(EXT_BUS[31:16]),.response_enable(cab_response_enable),
-        .response_word(cab_response_word),
+        .host_word(EXT_BUS[31:16]),.uio_caps(uio_cab_caps), .uio_snapshot(uio_snapshot), .uio_snapshot_valid(uio_snapshot_valid),
         .cab_active(cab_active),.cab_hold_reset(cab_hold_reset),.cab_inputs(cab_inputs),
         .cab_dipsw_valid(cab_dipsw_valid),.cab_dipsw(cab_dipsw),
         .cab_frame(cab_frame),
@@ -259,14 +273,14 @@ module test;
         payload[7:0]=1; payload[23:8]=1; payload[39:24]=1;
         count_begin(); write_cmd(16'h0082,5,payload); // ARM: one frame, one event, reset requested
         wait_idle();
-        count_end(6,5);
+        count_end(1,5);
         if(cab_state!==3'd1 || cab_error!==8'd0)
             $fatal(1,"read-only CAB observation missed ARMED: state=%0d error=%0d",cab_state,cab_error);
         payload=0;
         payload[31:16]=1; payload[52:32]=1; payload[53]=1; payload[95:64]=32'h12345678;
         count_begin(); write_cmd(16'h0086,12,payload); // PUSH_DIP: frame-zero input and DIP override
         wait_idle();
-        count_end(13,12);
+        count_end(1,12);
         count_begin(); write_cmd(16'h0084,0,0);
         wait_idle();
         count_end(1,0);

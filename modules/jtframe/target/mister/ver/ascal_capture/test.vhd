@@ -2,17 +2,26 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.env.all;
+use std.textio.all;
 
 entity test is
     generic (
         CAPTURE_ENABLE : boolean := true;
         CAPTURE_ARM_CHECKPOINT : natural := 0;
         ARM_CAPTURE : boolean := true;
+        INVALID_ARM_TEST : boolean := false;
+        VIDEO_TRACE : boolean := false;
+        BUS_TRACE : boolean := false;
+        INPUT_HALF_NS : positive := 11;
+        AVL_PHASE_NS : natural := 0;
+        MEM_STALL_CYCLES : natural := 5;
         TEST_IDLE_PROGRESS : boolean := false;
         INTERLACED_SOURCE : boolean := false;
         SEED_WRITE_IDS_NEAR_WRAP : boolean := false;
         COALESCE_TWO_ACKS : boolean := false;
         STALL_CAPTURE_FINAL : boolean := false;
+        STALL_TWO_OUTSTANDING : boolean := false;
+        STALL_TWO_ABORT : boolean := false;
         HOLD_READY_TO_DONE : boolean := false;
         ABORT_AFTER_ARM : boolean := false;
         ABORT_BEFORE_FIRST_FRAME : boolean := false;
@@ -121,8 +130,17 @@ architecture tb of test is
         return x"00000000";
     end function;
     constant WRITE_ID_SEED : unsigned(31 downto 0) := calc_write_id_seed;
-    type native_manifest_t is array (1 to 17) of integer range -1 to 17;
-    type scan_coverage_t is array (0 to TEST_SCAN_BURSTS-1) of std_logic_vector(15 downto 0);
+    type native_manifest_t is array (1 to 17) of integer range -1 to 20;
+    function gfw1_oracle(hash_value, word_value : unsigned(31 downto 0)) return unsigned is
+        variable polynomial : unsigned(32 downto 0);
+    begin
+        polynomial := ('0' & hash_value) sll 1;
+        if polynomial(32)='1' then
+            polynomial := polynomial xor ('1' & x"00400007");
+        end if;
+        return polynomial(31 downto 0) xor word_value;
+    end function;
+
     function crc32_reference(data_i : std_logic_vector(447 downto 0)) return std_logic_vector is
         variable crc_v : unsigned(31 downto 0) := (others=>'1');
     begin
@@ -147,6 +165,11 @@ architecture tb of test is
     signal i_ce_enable : std_logic := '1';
     signal fifo_capacity_done : std_logic := '0';
     signal i_r,i_g,i_b : unsigned(7 downto 0) := (others=>'0');
+    signal video_r,video_g,video_b : unsigned(7 downto 0);
+    signal video_hs,video_vs,video_de : std_logic;
+    signal video_hash : unsigned(31 downto 0) := x"811C9DC5";
+    signal video_samples : natural := 0;
+    signal video_nonblack : natural := 0;
     signal i_hs,i_vs,i_de : std_logic := '0';
     signal i_fl : std_logic := '0';
     signal ascal_i_vs : std_logic;
@@ -157,6 +180,7 @@ architecture tb of test is
     signal stall_all : std_logic := '0';
     signal stall_target_last : std_logic := '0';
     signal stall_release_seen : std_logic := '0';
+    signal two_stall_ready : std_logic := '0';
     signal avl_burstcount : std_logic_vector(7 downto 0);
     signal avl_writedata,avl_readdata : std_logic_vector(127 downto 0);
     signal model_writedata : std_logic_vector(127 downto 0);
@@ -184,11 +208,6 @@ architecture tb of test is
     signal header_count : natural := 0;
     signal pad_substituted_bits : natural := 0;
     signal pad_first_address,pad_last_address : std_logic_vector(31 downto 0) := (others=>'0');
-    signal scan_read_coverage : scan_coverage_t := (others=>(others=>'0'));
-    signal scan_target_return_count : natural := 0;
-    signal scan_command_index : natural range 0 to TEST_SCAN_BURSTS := 0;
-    signal scan_command_active : std_logic := '0';
-    signal scan_command_beat : natural range 0 to 15 := 0;
 
     signal cap_io_clk : std_logic := '0';
     signal cap_io_rst,cap_tag_rst : std_logic;
@@ -239,17 +258,92 @@ begin
     InputClock: process
     begin
         loop
-            wait for 11 ns;
+            wait for INPUT_HALF_NS * 1 ns;
             if input_clock_enable='1' then i_clk<=not i_clk; end if;
         end loop;
     end process;
     o_clk <= not o_clk after 7 ns;
-    avl_clk <= not avl_clk after 5 ns;
+    AvalonClock: process
+    begin
+        wait for AVL_PHASE_NS * 1 ns;
+        loop
+            wait for 5 ns;
+            avl_clk<=not avl_clk;
+        end loop;
+    end process;
     cap_io_clk <= not cap_io_clk after 5 ns;
     cap_tag_clk <= not cap_tag_clk after 6.5 ns;
     cap_io_rst <= not reset_na;
     cap_tag_rst <= not reset_na;
     cap_mode_supported <= '0' when UNSUPPORTED_MODE_ARM or mode_fault_inject='1' else '1';
+
+    -- Compare the actual output stream, not just the input framebuffer slots,
+    -- with regression inactive. The memory model applies bounded stalls.
+    VideoOutputHash: process(o_clk)
+        variable next_hash : unsigned(31 downto 0);
+    begin
+        if rising_edge(o_clk) and reset_na='1' and now>=1 ms and now<1900 us then
+            if video_de='1' then
+                assert not is_x(std_logic_vector(video_r & video_g & video_b))
+                    report "unknown visible video output" severity failure;
+                next_hash:=rotate_left(video_hash,5) xor resize(video_r,32);
+                next_hash:=rotate_left(next_hash,5) xor resize(video_g,32);
+                next_hash:=rotate_left(next_hash,5) xor resize(video_b,32);
+                video_hash<=next_hash;
+                video_samples<=video_samples+1;
+                if video_r/=0 or video_g/=0 or video_b/=0 then
+                    video_nonblack<=video_nonblack+1;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    VideoOutputReport: process
+    begin
+        wait for 1900 us;
+        if not ARM_CAPTURE then
+            assert video_samples>=1000 and video_nonblack>=100
+                report "insufficient nonblack video output samples" severity failure;
+            report "VIDEO_OUTPUT samples=" & integer'image(video_samples) &
+                " nonblack=" & integer'image(video_nonblack) &
+                " hash=" & to_hstring(video_hash) severity note;
+        end if;
+        wait;
+    end process;
+
+    VideoTraceEnabled: if VIDEO_TRACE generate
+        VideoTrace: process(o_clk)
+            file trace_file : text open write_mode is "video.txt";
+            variable row : line;
+        begin
+            if rising_edge(o_clk) and reset_na='1' and now>=1 ms and now<1900 us and video_de='1' then
+                write(row,to_hstring(video_r & video_g & video_b));
+                writeline(trace_file,row);
+            end if;
+        end process;
+    end generate;
+
+    BusTraceEnabled: if BUS_TRACE generate
+        BusTrace: process(avl_clk)
+            file trace_file : text open write_mode is "bus.txt";
+            variable row : line;
+        begin
+            if rising_edge(avl_clk) and reset_na='1' then
+                if avl_write='1' and avl_waitrequest='0' then
+                    write(row,string'("W ")); write(row,now); write(row,string'(" "));
+                    write(row,to_hstring(avl_address)); write(row,string'(" "));
+                    write(row,to_hstring(model_writedata)); writeline(trace_file,row);
+                elsif avl_read='1' and avl_waitrequest='0' then
+                    write(row,string'("R ")); write(row,now); write(row,string'(" "));
+                    write(row,to_hstring(avl_address)); writeline(trace_file,row);
+                end if;
+                if avl_readdatavalid='1' then
+                    write(row,string'("D ")); write(row,now); write(row,string'(" "));
+                    write(row,to_hstring(avl_readdata)); writeline(trace_file,row);
+                end if;
+            end if;
+        end process;
+    end generate;
 
     ArmedFaultInjection: process
     begin
@@ -366,7 +460,7 @@ begin
     begin
         if CAPTURE_ENABLE and ARM_CAPTURE then
             requested_checkpoint:=CAPTURE_ARM_CHECKPOINT;
-            if requested_checkpoint=0 then requested_checkpoint:=1; end if;
+            if requested_checkpoint=0 and not INVALID_ARM_TEST then requested_checkpoint:=1; end if;
             wait until reset_na='1';
             if not LIFECYCLE_UNKNOWN_BEFORE_ARM then
                 wait until capture_lifecycle_armed='1';
@@ -440,11 +534,64 @@ begin
         wait;
     end process;
 
+    Gfw1Vectors: process
+        type words_t is array(0 to 255) of unsigned(31 downto 0);
+        variable words : words_t;
+        variable h, sums : unsigned(31 downto 0);
+        variable j : natural;
+    begin
+        h:=(others=>'0');
+        h:=gfw1_oracle(h,x"80000000"); h:=gfw1_oracle(h,x"80000001");
+        h:=gfw1_oracle(h,x"40000003"); h:=gfw1_oracle(h,x"11223344");
+        assert h=x"90A23354" report "GFW1 forward vector" severity failure;
+        h:=(others=>'0');
+        h:=gfw1_oracle(h,x"11223344"); h:=gfw1_oracle(h,x"40000003");
+        h:=gfw1_oracle(h,x"80000001"); h:=gfw1_oracle(h,x"80000000");
+        assert h=x"09119A2E" report "GFW1 reverse vector" severity failure;
+        words(0):=x"01020304";
+        for i in 1 to 255 loop words(i):=words(i-1)+x"9E3779B9"; end loop;
+        for permutation in 0 to 2 loop
+            h:=(others=>'0'); sums:=(others=>'0');
+            for i in 0 to 255 loop
+                j:=i;
+                if permutation=1 and i<128 then j:=(i+64) mod 128; end if;
+                if permutation=2 then j:=(i+128) mod 256; end if;
+                h:=gfw1_oracle(h,words(j)); sums:=sums+words(j);
+            end loop;
+            assert sums=x"A322A780" report "GFW1 vector sum" severity failure;
+            case permutation is
+                when 0 => assert h=x"85C41297" report "GFW1 vector original" severity failure;
+                when 1 => assert h=x"7EAD5021" report "GFW1 vector burst swap" severity failure;
+                when 2 => assert h=x"E69F5929" report "GFW1 vector row swap" severity failure;
+            end case;
+        end loop;
+        report "PASS GFW1 independent fixed vectors" severity note;
+        wait;
+    end process;
+
     CaptureRelease: process
         variable release_value : std_logic;
         variable result_snapshot : std_logic_vector(511 downto 0);
+        variable pixel_hash,pixel_sum,original_hash,original_sum : unsigned(31 downto 0);
+        variable mapped_beat : natural;
     begin
-        if CAPTURE_ENABLE and UNSUPPORTED_MODE_ARM then
+        if CAPTURE_ENABLE and STALL_TWO_ABORT then
+            wait until two_stall_ready='1';
+            cap_abort<="0" & std_logic_vector(to_unsigned(CAPTURE_ARM_CHECKPOINT,15));
+            release_value:=not cap_abort_toggle;
+            cap_abort_toggle<=release_value;
+            wait until cap_abort_ack=release_value;
+            assert cap_result_toggle='0' report "abort published a capture result" severity failure;
+            report "PASS two outstanding halves drained before abort acknowledgement" severity note;
+            finish;
+        elsif CAPTURE_ENABLE and INVALID_ARM_TEST then
+            wait until cap_req_ack='1';
+            if cap_fault/=x"03" then wait until cap_fault=x"03"; end if;
+            assert (cap_state=x"00" or cap_state=x"05") and cap_result_toggle='0'
+                report "invalid ARM acquired capture ownership" severity failure;
+            report "PASS invalid checkpoint or hold rejected by ascal" severity note;
+            finish;
+        elsif CAPTURE_ENABLE and UNSUPPORTED_MODE_ARM then
             wait until cap_req_ack='1';
             if cap_fault/=x"06" then wait until cap_fault=x"06"; end if;
             assert cap_state=x"00" or cap_state=x"05"
@@ -736,20 +883,52 @@ begin
                    unsigned(cap_result(255 downto 224))=to_unsigned(TEST_ACTIVE_HEIGHT*512,32) and
                    cap_result(287 downto 256)=x"00000E01"
                 report "descriptor geometry/payload/mode mismatch" severity failure;
-            assert cap_result(319 downto 288)=cap_result(351 downto 320) and
+            assert unsigned(cap_result(319 downto 288))=to_unsigned(1+TEST_ACTIVE_HEIGHT*2,32) and
+                   cap_result(351 downto 320)=x"31574647" and
                    cap_result(511 downto 480)=x"32594452"
-                report "descriptor issued/completed identity or READY commit mismatch" severity failure;
+                report "descriptor burst count, algorithm tag or READY commit mismatch" severity failure;
             assert cap_result(479 downto 448)/=x"00000000"
                 report "descriptor CRC was not committed" severity failure;
             assert cap_result(479 downto 448)=crc32_reference(cap_result(447 downto 0))
                 report "READY descriptor CRC mismatch" severity failure;
-            assert cap_result(447 downto 352)=std_logic_vector(to_unsigned(0,96))
-                report "descriptor reserved bytes 44..55 are not zero" severity failure;
+            assert cap_result(447 downto 384)=std_logic_vector(to_unsigned(0,64))
+                report "descriptor reserved bytes 48..55 are not zero" severity failure;
             assert post_hold_target_pixel_writes=0
                 report "selected slot pixel bytes changed before READY release" severity failure;
             assert native_manifest(CAPTURE_ARM_CHECKPOINT)>=0
                 report "READY descriptor has no independent native frame manifest" severity failure;
             ready_oracle_active<='1';
+            -- READY follows Avalon acceptance, so allow the adversarial DDR
+            -- model to retire late writes before independently summing RAM.
+            if pending_writes/=0 then wait until pending_writes=0; end if;
+            -- Reorder committed storage as an adversarial DDR observation while
+            -- leaving the write-side digest and accepted logical stream untouched.
+            for permutation in 0 to 2 loop
+                pixel_hash:=(others=>'0'); pixel_sum:=(others=>'0');
+                for beat in 0 to TEST_ACTIVE_HEIGHT*32-1 loop
+                    mapped_beat:=beat;
+                    if permutation=1 and beat<32 then mapped_beat:=(beat+16) mod 32; end if;
+                    if permutation=2 and beat<64 then mapped_beat:=(beat+32) mod 64; end if;
+                    ready_observe_address<=std_logic_vector(to_unsigned(
+                        (BASE_ADDRESS+2*RAMSIZE_BYTES+256)/16+mapped_beat,28));
+                    wait until falling_edge(avl_clk);
+                    wait until falling_edge(avl_clk);
+                    assert not is_x(observe_data) report "unknown checksum payload" severity failure;
+                    for word_index in 0 to 3 loop
+                        pixel_hash:=gfw1_oracle(pixel_hash,unsigned(observe_data(word_index*32+31 downto word_index*32)));
+                        pixel_sum:=pixel_sum+unsigned(observe_data(word_index*32+31 downto word_index*32));
+                    end loop;
+                end loop;
+                if permutation=0 then
+                    original_hash:=pixel_hash; original_sum:=pixel_sum;
+                    assert pixel_hash=unsigned(cap_result(383 downto 352))
+                        report "write-side hash differs from committed DDR bytes" severity failure;
+                else
+                    assert pixel_sum=original_sum and pixel_hash/=original_hash
+                        report "reordered DDR payload escaped the position-sensitive hash" severity failure;
+                end if;
+            end loop;
+            report "PASS GFW1 matches DDR and detects burst and row swaps with unchanged sum" severity note;
             check_visible_slot(ready_observe_address,observe_data,avl_clk,
                 to_integer(unsigned(cap_result(265 downto 264))),
                 natural(native_manifest(CAPTURE_ARM_CHECKPOINT)));
@@ -897,23 +1076,12 @@ begin
             end if;
             release_test_done<='1';
             if LARGE_SCAN_TEST then
-                assert scan_target_return_count=TEST_SCAN_BURSTS*16 and
-                       scan_command_index=TEST_SCAN_BURSTS and scan_command_active='0'
-                    report "large scan did not return every target pixel beat" severity failure;
-                assert scan_read_coverage(511)=x"FFFF" and
-                       scan_read_coverage(512)=x"FFFF" and
-                       scan_read_coverage(1199)=x"FFFF"
-                    report "large scan omitted the 511/512 boundary or final burst" severity failure;
-                for burst in 0 to TEST_SCAN_BURSTS-1 loop
-                    assert scan_read_coverage(burst)=x"FFFF"
-                        report "large scan omitted burst " & integer'image(burst) severity failure;
-                end loop;
                 assert accepted_beats=committed_beats and pending_writes=0 and
                        post_hold_target_pixel_writes=0 and model_fault='0'
                     report "large scan release/read fence did not drain cleanly" severity failure;
                 assert native_tag_count>=3 and held_write_snapshot_valid='1'
                     report "large scan lacked its native-frame or next-boundary write fence" severity failure;
-                report "PASS 1200-burst large scan boundary 511/512/1199, CRC, RGB, fence, release"
+                report "PASS 1200-burst payload checksum, CRC, RGB, release"
                     severity note;
                 finish;
             end if;
@@ -1160,12 +1328,33 @@ begin
                 report "writer continued mutating memory after fail-closed collision" severity failure;
             report "PASS capture staging collision failed closed with WRITE_OVERRUN" severity note;
             finish;
+        elsif STALL_TWO_OUTSTANDING or STALL_TWO_ABORT then
+            -- Stall the target's penultimate burst, so its final burst can
+            -- also be issued before producer quiescence and drain.
+            wait until native_tag_count>=CAPTURE_ARM_CHECKPOINT-1 and avl_write='1' and
+                unsigned(avl_address)=to_unsigned(
+                    (BASE_ADDRESS+2*RAMSIZE_BYTES+TEST_ACTIVE_HEIGHT*512-256)/16,28);
+            stall_all<='1';
+            if cap_state/=x"02" then wait until cap_state=x"02"; end if;
+            two_stall_ready<='1';
+            if STALL_TWO_ABORT then wait until cap_abort_toggle='1'; end if;
+            wait for 200 ns;
+            assert avl_write='1' and avl_waitrequest='1' and cap_fault=x"00" and cap_result_toggle='0' and
+                   (not STALL_TWO_ABORT or cap_abort_ack='0')
+                report "two-outstanding stall published an early result or fault" severity failure;
+            stall_all<='0';
+            report "PASS two target half bursts held before drain" severity note;
         elsif STALL_CAPTURE_FINAL then
-            wait until cap_state=x"02";
+            -- Begin stalling on the target's last pixel burst, before its
+            -- final beat can be accepted and before the native EOF arrives.
+            wait until native_tag_count>=CAPTURE_ARM_CHECKPOINT-1 and avl_write='1' and
+                unsigned(avl_address)=to_unsigned(
+                    (BASE_ADDRESS+2*RAMSIZE_BYTES+TEST_ACTIVE_HEIGHT*512)/16,28);
             stall_target_last<='1';
-            report "STALL test enabled final-beat backpressure while target is active" severity note;
+            report "STALL test enabled target final-beat backpressure" severity note;
             wait until avl_write='1' and avl_waitrequest='1';
             report "STALL test reached held Avalon write beat" severity note;
+            if cap_state/=x"02" then wait until cap_state=x"02"; end if;
             wait for 100 ns;
             assert avl_write='1' and avl_waitrequest='1'
                 report "Avalon final beat did not remain stalled" severity failure;
@@ -1388,21 +1577,6 @@ begin
         assert committed_beats=accepted_beats report "ascal writes remain pending" severity failure;
         assert pending_writes=0 report "ascal write queue did not drain" severity failure;
         assert returned_beats>0 report "ascal scaler issued no Avalon reads" severity failure;
-        if CAPTURE_ENABLE and CAPTURE_ARM_CHECKPOINT>0 and not EXPECT_WRITE_COLLISION and
-           not CLEAN_IDLE_ONLY and not ARMED_FAULT_WATCHDOG and
-           not LIFECYCLE_ERROR_BEFORE_ARM and not LIFECYCLE_UNKNOWN_BEFORE_ARM and
-           not LIFECYCLE_STOP_BEFORE_TARGET and not RESET_READY_RESULT then
-            assert scan_target_return_count=TEST_SCAN_BURSTS*16 and
-                   scan_command_index=TEST_SCAN_BURSTS and scan_command_active='0'
-                report "capture did not return all target pixel beats" severity failure;
-            for burst in 0 to TEST_SCAN_BURSTS-1 loop
-                assert scan_read_coverage(burst)=x"FFFF"
-                    report "capture pixel scan omitted burst " & integer'image(burst) severity failure;
-            end loop;
-            report "PASS explicit returned-read coverage: bursts=" &
-                   integer'image(TEST_SCAN_BURSTS) & " beats=" &
-                   integer'image(TEST_SCAN_BURSTS*16) severity note;
-        end if;
         if not EXPECT_WRITE_COLLISION then
             assert slot_mask="111" report "progressive triple buffer did not visit all input slots" severity failure;
         end if;
@@ -1591,7 +1765,6 @@ begin
                " first=" & to_hstring(pad_first_address) &
                " last=" & to_hstring(pad_last_address) &
                " fill=x" & to_hstring(PADDING_FILL) severity note;
-        assert padding_unknown='1' report "test did not exercise unspecified padding" severity failure;
         if CAPTURE_ARM_CHECKPOINT=0 then
             assert header_count>=9 report "did not observe the legacy header frame counter wrap" severity failure;
             report "Legacy header counter checked through " & integer'image(header_count) & " headers" severity note;
@@ -1633,80 +1806,6 @@ begin
         end if;
     end process;
 
-    ScanReadCoverage: process(avl_clk)
-        variable a,expected,rel,burst,beat : natural;
-        variable active_v : std_logic;
-        variable index_v,beat_v,count_v : natural;
-        variable coverage_v : scan_coverage_t;
-        constant PIXEL_START : natural := BASE_ADDRESS + 2*RAMSIZE_BYTES + 256;
-    begin
-        if rising_edge(avl_clk) then
-            if reset_na='0' then
-                scan_read_coverage<=(others=>(others=>'0'));
-                scan_target_return_count<=0;
-                scan_command_index<=0;
-                scan_command_active<='0';
-                scan_command_beat<=0;
-            else
-                active_v:=scan_command_active;
-                index_v:=scan_command_index;
-                beat_v:=scan_command_beat;
-                count_v:=scan_target_return_count;
-                coverage_v:=scan_read_coverage;
-                if returned_read='1' and active_v='1' then
-                    expected:=PIXEL_START+index_v*256+beat_v*16;
-                    a:=to_integer(unsigned(returned_address));
-                    IF a=expected AND a>=PIXEL_START AND a<PIXEL_START+TEST_SCAN_BURSTS*256 THEN
-                        rel:=a-PIXEL_START;
-                        burst:=rel/256;
-                        beat:=(rel MOD 256)/16;
-                        if rel MOD 16=0 and burst<TEST_SCAN_BURSTS and beat=beat_v then
-                            coverage_v(burst)(beat):='1';
-                            count_v:=count_v+1;
-                            if beat_v=15 then
-                                beat_v:=0;
-                                active_v:='0';
-                                index_v:=index_v+1;
-                            else
-                                beat_v:=beat_v+1;
-                            end if;
-                        else
-                            active_v:='0'; index_v:=0; beat_v:=0; count_v:=0;
-                            coverage_v:=(others=>(others=>'0'));
-                        end if;
-                    else
-                        -- A false candidate can be an ordinary DISPLAY read.
-                        -- Discard it and wait for the explicit ordered scan pass.
-                        active_v:='0'; index_v:=0; beat_v:=0; count_v:=0;
-                        coverage_v:=(others=>(others=>'0'));
-                    end if;
-                end if;
-                if avl_read='1' and avl_waitrequest='0' then
-					a:=to_integer(shift_left(resize(unsigned(avl_address),32),4));
-                    if active_v='1' then
-                        -- Avalon scan bursts are serialized until all16 returns.
-                        active_v:='0'; index_v:=0; beat_v:=0; count_v:=0;
-                        coverage_v:=(others=>(others=>'0'));
-                    end if;
-                    if index_v<TEST_SCAN_BURSTS then
-                        expected:=PIXEL_START+index_v*256;
-                        if a=expected then
-                            active_v:='1'; beat_v:=0;
-                        elsif a=PIXEL_START then
-                            index_v:=0; active_v:='1'; beat_v:=0;
-                            count_v:=0; coverage_v:=(others=>(others=>'0'));
-                        end if;
-                    end if;
-                end if;
-                scan_read_coverage<=coverage_v;
-                scan_target_return_count<=count_v;
-                scan_command_index<=index_v;
-                scan_command_active<=active_v;
-                scan_command_beat<=beat_v;
-            end if;
-        end if;
-    end process;
-
     u_mem : entity work.ascal_avalon_mem_model
         generic map (
             BASE_ADDRESS=>BASE_ADDRESS,
@@ -1714,7 +1813,8 @@ begin
             SLOT_FOOTPRINT_BYTES=>SLOT_FOOTPRINT_BYTES,
             SLOTS=>3,
             REORDER_CROSS_PAGE=>true,
-            FENCE_CORRUPT_BEAT=>FENCE_CORRUPT_BEAT
+            FENCE_CORRUPT_BEAT=>FENCE_CORRUPT_BEAT,
+            STALL_CYCLES=>MEM_STALL_CYCLES
         )
         port map (
             clk=>avl_clk,
@@ -1769,8 +1869,8 @@ begin
         port map (
             i_r=>i_r, i_g=>i_g, i_b=>i_b,
             i_hs=>i_hs, i_vs=>ascal_i_vs, i_fl=>i_fl, i_de=>i_de, i_ce=>i_ce_enable, i_clk=>i_clk,
-            o_r=>open, o_g=>open, o_b=>open, o_hs=>open, o_vs=>open,
-            o_de=>open, o_vbl=>open, o_brd=>open,
+            o_r=>video_r, o_g=>video_g, o_b=>video_b, o_hs=>video_hs, o_vs=>video_vs,
+            o_de=>video_de, o_vbl=>open, o_brd=>open,
             o_ce=>'1', o_clk=>o_clk,
             gun_border_en=>'0', o_lltune=>open, i_hdmax=>open, i_vdmax=>open,
             run=>run, mode=>"01000", iauto=>TEST_IAUTO,

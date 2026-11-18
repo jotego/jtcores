@@ -3,6 +3,7 @@ jtframe/target/mister:
     - jtframe_emu.sv
     - jtframe_mister.sv
     - jtframe_mister_cab.v
+    - jtframe_mister_uio.v
     - jtframe_mister_capture_io.v
     - jtframe_mister_capture_tags.v
     - jtframe_mister_dwnld.v

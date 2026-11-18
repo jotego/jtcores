@@ -227,6 +227,9 @@ func TestDecodeMiSTerCaptureRecoveryReceiptRequiresConsistentCleanProof(t *testi
 
 func TestMiSTerRecoveryCAPSUsesV2WireAndReservedWords(t *testing.T) {
 	valid := validRecoveryReceipt("fresh-id-v2", 123)
+	valid.CAPSWords[3] = 0x40
+	if _, err := DecodeMiSTerCaptureRecoveryReceipt(marshalRecoveryReceipt(t, valid)); err != nil { t.Fatalf("idle checksum-format CAPS rejected: %v", err) }
+	valid.CAPSWords[3] = 0
 	valid.CAPSWords[4] = 0xffff
 	valid.CAPSWords[6] = 0xfffe
 	if _, err := DecodeMiSTerCaptureRecoveryReceipt(marshalRecoveryReceipt(t, valid)); err != nil {

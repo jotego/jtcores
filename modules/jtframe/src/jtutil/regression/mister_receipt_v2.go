@@ -16,6 +16,16 @@ import (
 )
 
 const miSTerCaptureProtocolV2 = "jtframe-capture-v2"
+const miSTerCaptureProtocolV3 = "jtframe-capture-v3"
+
+func miSTerCurrentCaptureProtocol(protocol string) bool { return protocol == miSTerCaptureProtocolV2 || protocol == miSTerCaptureProtocolV3 }
+
+// gfw1 hashes the entire padded, little-endian pixel payload in word order.
+func miSTerGFW1(raw []byte) uint32 {
+	var hash uint32
+	for i := 0; i < len(raw); i += 4 { hash = (hash << 1) ^ ((0 - (hash >> 31)) & 0x00400007) ^ binary.LittleEndian.Uint32(raw[i:i+4]) }
+	return hash
+}
 
 type miSTerCaptureStatusV2 struct {
 	Protocol           string `json:"protocol"`
@@ -123,6 +133,11 @@ type miSTerCaptureImageReceiptV2 struct {
 	HeaderBeforeCRC32    string `json:"header_before_crc32"`
 	HeaderAfterCRC32     string `json:"header_after_crc32"`
 	DescriptorBytesHex   string `json:"descriptor_bytes_hex"`
+	PixelChecksum        string `json:"pixel_checksum,omitempty"`
+	PixelChecksumAlgorithm string `json:"pixel_checksum_algorithm,omitempty"`
+	BurstCount           uint32 `json:"burst_count,omitempty"`
+	ReadyCAPS            []uint16 `json:"ready_caps,omitempty"`
+	PostCopyCAPS         []uint16 `json:"post_copy_caps,omitempty"`
 	HeaderBeforeHex      string `json:"header_before_hex"`
 	HeaderAfterHex       string `json:"header_after_hex"`
 	FinalIssued          uint32 `json:"final_issued"`
@@ -210,8 +225,9 @@ func decodeLiveMiSTerCaptureStatus(data []byte) (MiSTerCaptureStatus, error) {
 }
 
 func validateLiveMiSTerCaptureStatusV2(v miSTerCaptureStatusV2) error {
-	if v.Protocol != "jtframe-capture-session-v2" || v.CaptureProtocol != miSTerCaptureProtocolV2 ||
-		v.ReceiptProtocol != "jtframe-capture-image-v2" {
+	if v.Protocol != "jtframe-capture-session-v2" || !miSTerCurrentCaptureProtocol(v.CaptureProtocol) ||
+		(v.CaptureProtocol == miSTerCaptureProtocolV2 && v.ReceiptProtocol != "jtframe-capture-image-v2") ||
+		(v.CaptureProtocol == miSTerCaptureProtocolV3 && v.ReceiptProtocol != "jtframe-capture-image-v3") {
 		return fmt.Errorf("live MiSTer capture status does not identify the qualified v2 protocols")
 	}
 	if v.Checkpoint > 32767 || v.Fault > 13 || v.CopiedBytes > 8<<20 ||
@@ -301,7 +317,19 @@ func decodeMiSTerCaptureManifestV2(data []byte) (miSTerCaptureManifestV2, error)
 
 func decodeMiSTerCaptureImageReceiptV2(data []byte) (miSTerCaptureImageReceiptV2, error) {
 	var v miSTerCaptureImageReceiptV2
-	if err := strictJSONDecode(data, maxCaptureReceiptBytes, captureImageV2Keys, &v); err != nil {
+	root, err := strictJSONValue(data, maxCaptureReceiptBytes)
+	if err != nil { return v, err }
+	obj, ok := root.(map[string]interface{}); if !ok { return v, fmt.Errorf("image receipt must be an object") }
+	keys := captureImageV2Keys
+	if obj["protocol"] == "jtframe-capture-image-v3" {
+		keys = make([]string, 0, len(captureImageV2Keys)-2)
+		for _, key := range captureImageV2Keys {
+			if key != "header_before_crc32" && key != "header_after_crc32" && key != "header_before_hex" && key != "header_after_hex" && key != "final_issued" && key != "final_completed" { keys = append(keys, key) }
+		}
+		keys = append(keys, "pixel_checksum", "pixel_checksum_algorithm", "burst_count", "ready_caps", "post_copy_caps")
+	}
+	if err := requireJSONKeys(obj, keys); err != nil { return v, err }
+	if err := decodeJSONValue(root, &v); err != nil {
 		return v, err
 	}
 	return v, nil
@@ -377,11 +405,13 @@ func validateMiSTerCaptureV2(expected MiSTerReceiptExpectation, statusJSON, mani
 	planCRC := fmt.Sprintf("%08x", expected.PlanCRC32)
 	cabCRC := fmt.Sprintf("%08x", prepared.CAB.PayloadCRC32)
 	count := len(prepared.Checkpoints)
-	if status.Protocol != "jtframe-capture-session-v2" || status.CaptureProtocol != miSTerCaptureProtocolV2 ||
-		status.ReceiptProtocol != "jtframe-capture-image-v2" || status.SessionID != expected.Attempt.SessionID || status.State != "complete" ||
+	imageProtocol := "jtframe-capture-image-v2"
+	if status.CaptureProtocol == miSTerCaptureProtocolV3 { imageProtocol = "jtframe-capture-image-v3" }
+	if status.Protocol != "jtframe-capture-session-v2" || !miSTerCurrentCaptureProtocol(status.CaptureProtocol) ||
+		status.ReceiptProtocol != imageProtocol || status.SessionID != expected.Attempt.SessionID || status.State != "complete" ||
 		status.Fault != 0 || !status.CleanupConfirmed || status.ReloadRequired || status.StatusWriteFailed || status.ReceiptWriteFailed ||
 		status.EncoderBusy || !status.Scheduled || status.ScheduleState != "complete" ||
-		manifest.Protocol != "jtframe-capture-session-v2" || manifest.Version != 2 || manifest.CaptureProtocol != miSTerCaptureProtocolV2 ||
+		manifest.Protocol != "jtframe-capture-session-v2" || manifest.Version != 2 || manifest.CaptureProtocol != status.CaptureProtocol ||
 		manifest.SessionID != expected.Attempt.SessionID || manifest.State != "complete" || manifest.Reason != "" ||
 		manifest.FPGAGeneration != expected.FPGAGeneration || manifest.PlanCRC32 != planCRC || manifest.PackedCABCRC32 != cabCRC ||
 		manifest.PlanTotalFrames != prepared.CAB.TotalFrames || manifest.ExpectedCount != uint32(count) || manifest.CompletedCount != uint32(count) ||
@@ -448,6 +478,7 @@ func validateMiSTerCaptureV2(expected MiSTerReceiptExpectation, statusJSON, mani
 		if err != nil {
 			return result, fmt.Errorf("checkpoint %d: %w", checkpoint, err)
 		}
+		if receipt.CaptureProtocol != status.CaptureProtocol || receipt.Protocol != imageProtocol { return result, fmt.Errorf("checkpoint %d capture protocol changed", checkpoint) }
 		if err := validateMiSTerImageReceiptV2(receipt, expected, ref, checkpoint); err != nil {
 			return result, fmt.Errorf("checkpoint %d: %w", checkpoint, err)
 		}
@@ -482,6 +513,15 @@ func validateMiSTerCaptureV2(expected MiSTerReceiptExpectation, statusJSON, mani
 			if err := validateRawRGBProof(root, localRaw, legacy, validatedImage.DecodedRGBSHA256); err != nil {
 				return result, fmt.Errorf("checkpoint %d: %w", checkpoint, err)
 			}
+			// A raw proof lets the host independently hash the padding too.
+			// Without it, the qualified Main verifies the copied payload.
+			if receipt.CaptureProtocol == miSTerCaptureProtocolV3 {
+				raw, err := readOwnedRegularFile(root, localRaw, int64(receipt.RawRGBSize), 8<<20)
+				if err != nil { return result, err }
+				sum := miSTerGFW1(raw)
+				checksum, _ := parseHex32(receipt.PixelChecksum)
+				if sum != checksum { return result, fmt.Errorf("checkpoint %d raw payload checksum mismatch", checkpoint) }
+			}
 		} else if receipt.RawRGBSize != 0 {
 			return result, fmt.Errorf("checkpoint %d raw proof size has no path", checkpoint)
 		}
@@ -509,18 +549,19 @@ func validateMiSTerCaptureV2(expected MiSTerReceiptExpectation, statusJSON, mani
 	if status.Output != lastPNG || status.CopiedBytes != uint64(lastReceipt.PayloadBytes) {
 		return result, fmt.Errorf("v2 status output/payload does not match the last image")
 	}
-	result.CaptureProtocol = miSTerCaptureProtocolV2
+	result.CaptureProtocol = status.CaptureProtocol
 	return result, nil
 }
 
 func validateMiSTerImageReceiptV2(r miSTerCaptureImageReceiptV2, expected MiSTerReceiptExpectation,
 	ref miSTerCaptureReceiptRefV2, checkpoint uint32) error {
 	planCRC, cabCRC := fmt.Sprintf("%08x", expected.PlanCRC32), fmt.Sprintf("%08x", expected.Prepared.CAB.PayloadCRC32)
-	if r.Protocol != "jtframe-capture-image-v2" || r.CaptureProtocol != miSTerCaptureProtocolV2 || r.SessionID != expected.Attempt.SessionID ||
+	isV3 := r.Protocol == "jtframe-capture-image-v3" && r.CaptureProtocol == miSTerCaptureProtocolV3
+	if (!isV3 && (r.Protocol != "jtframe-capture-image-v2" || r.CaptureProtocol != miSTerCaptureProtocolV2)) || r.SessionID != expected.Attempt.SessionID ||
 		r.FPGAGeneration != expected.FPGAGeneration || r.PlanCRC32 != planCRC || r.PackedCABCRC32 != cabCRC ||
 		r.RequestedCheckpoint != checkpoint || r.ActualCheckpoint != checkpoint || r.DescriptorCheckpoint != checkpoint ||
 		checkpoint == 0 || r.ActualInterval+1 != checkpoint || r.Width == 0 || r.Height == 0 || r.Width > 4095 || r.Height > 4095 ||
-		r.ActualCheckpoint > expected.Prepared.CAB.TotalFrames || !r.ReleaseConfirmed || !r.PNGComplete || r.FinalIssued != r.FinalCompleted ||
+		r.ActualCheckpoint > expected.Prepared.CAB.TotalFrames || !r.ReleaseConfirmed || !r.PNGComplete || (!isV3 && r.FinalIssued != r.FinalCompleted) ||
 		r.PNGSize == 0 || r.PNGSize > miSTerPNGMaxBytes ||
 		ref.Checkpoint != checkpoint || ref.FPGAGeneration != r.FPGAGeneration || ref.PlanCRC32 != r.PlanCRC32 || ref.PackedCABCRC32 != r.PackedCABCRC32 {
 		return fmt.Errorf("v2 image receipt is incomplete or belongs to another attempt")
@@ -544,29 +585,33 @@ func validateMiSTerImageReceiptV2(r miSTerCaptureImageReceiptV2, expected MiSTer
 	if err != nil {
 		return fmt.Errorf("descriptor bytes: %w", err)
 	}
-	before, err := decodeFixedHex(r.HeaderBeforeHex, 256)
-	if err != nil {
-		return fmt.Errorf("header-before: %w", err)
-	}
-	after, err := decodeFixedHex(r.HeaderAfterHex, 256)
-	if err != nil {
-		return fmt.Errorf("header-after: %w", err)
-	}
 	dcrc, err := parseHex32(r.DescriptorCRC32)
 	if err != nil || dcrc != crc32.ChecksumIEEE(desc[:56]) || binary.LittleEndian.Uint32(desc[56:60]) != dcrc {
 		return fmt.Errorf("v2 descriptor CRC mismatch")
 	}
-	bcrc, err := parseHex32(r.HeaderBeforeCRC32)
-	if err != nil || bcrc != crc32.ChecksumIEEE(before) {
-		return fmt.Errorf("header-before CRC mismatch")
-	}
-	acrc, err := parseHex32(r.HeaderAfterCRC32)
-	if err != nil || acrc != crc32.ChecksumIEEE(after) || !bytes.Equal(before, after) {
-		return fmt.Errorf("stable header check failed")
+	var before []byte
+	if isV3 {
+		checksum, err := parseHex32(r.PixelChecksum)
+		caps := r.PostCopyCAPS
+		ready := r.ReadyCAPS
+		if err != nil || r.PixelChecksumAlgorithm != "gfw1" || binary.LittleEndian.Uint32(desc[40:44]) != 0x31574647 || checksum != binary.LittleEndian.Uint32(desc[44:48]) || len(caps) != 8 || len(ready) != 8 ||
+			ready[0] != 0xca50 || ready[1] != 2 || ready[2] != 64 || ready[3]&^uint16(0x10) != 0x46 || ready[5] != 0 || ready[7] != 0 ||
+			caps[0] != 0xca50 || caps[1] != 2 || caps[2] != 64 || caps[3]&^uint16(0x10) != 0x46 ||
+			caps[5] != 0 || caps[7] != 0 || caps[4] != ready[4] || caps[6] != ready[6] || caps[4]+1 != r.ReleaseAckFreshness ||
+			r.BurstCount != 1+r.PayloadBytes/256 { return fmt.Errorf("v3 checksum or post-copy CAPS proof is invalid") }
+	} else {
+		before, err = decodeFixedHex(r.HeaderBeforeHex, 256)
+		if err != nil { return fmt.Errorf("header-before: %w", err) }
+		after, err := decodeFixedHex(r.HeaderAfterHex, 256)
+		if err != nil { return fmt.Errorf("header-after: %w", err) }
+		bcrc, err := parseHex32(r.HeaderBeforeCRC32)
+		if err != nil || bcrc != crc32.ChecksumIEEE(before) { return fmt.Errorf("header-before CRC mismatch") }
+		acrc, err := parseHex32(r.HeaderAfterCRC32)
+		if err != nil || acrc != crc32.ChecksumIEEE(after) || !bytes.Equal(before, after) { return fmt.Errorf("stable header check failed") }
 	}
 	if string(desc[:4]) != "JTC2" || binary.LittleEndian.Uint16(desc[4:6]) != 2 || binary.LittleEndian.Uint16(desc[6:8]) != 64 ||
 		binary.LittleEndian.Uint16(desc[8:10]) != uint16(checkpoint) || binary.LittleEndian.Uint16(desc[10:12]) != uint16(checkpoint-1) ||
-		!allZero(desc[44:56]) || string(desc[60:64]) != "RDY2" {
+		(!isV3 && !allZero(desc[44:56])) || (isV3 && !allZero(desc[48:56])) || string(desc[60:64]) != "RDY2" {
 		return fmt.Errorf("v2 descriptor magic/version/checkpoint fields are invalid")
 	}
 	slotBase, err := parseHex32(r.SlotBase)
@@ -589,15 +634,16 @@ func validateMiSTerImageReceiptV2(r miSTerCaptureImageReceiptV2, expected MiSTer
 	if binary.LittleEndian.Uint32(desc[12:16]) != slotBase || binary.LittleEndian.Uint32(desc[16:20]) != r.SlotStride ||
 		binary.LittleEndian.Uint16(desc[20:22]) != uint16(r.Width) || binary.LittleEndian.Uint16(desc[22:24]) != uint16(r.Height) ||
 		binary.LittleEndian.Uint32(desc[24:28]) != r.RowPitch || binary.LittleEndian.Uint32(desc[28:32]) != r.PayloadBytes ||
-		binary.LittleEndian.Uint32(desc[32:36]) != mode || binary.LittleEndian.Uint32(desc[36:40]) != r.FinalIssued ||
-		binary.LittleEndian.Uint32(desc[40:44]) != r.FinalCompleted {
+		binary.LittleEndian.Uint32(desc[32:36]) != mode ||
+		(isV3 && binary.LittleEndian.Uint32(desc[36:40]) != r.BurstCount) ||
+		(!isV3 && (binary.LittleEndian.Uint32(desc[36:40]) != r.FinalIssued || binary.LittleEndian.Uint32(desc[40:44]) != r.FinalCompleted)) {
 		return fmt.Errorf("v2 descriptor fields disagree with receipt")
 	}
-	if before[0] != 1 || before[1] != 1 || binary.BigEndian.Uint16(before[2:4]) != 256 || binary.BigEndian.Uint16(before[4:6])&0x000f != 0 ||
+	if !isV3 && (before[0] != 1 || before[1] != 1 || binary.BigEndian.Uint16(before[2:4]) != 256 || binary.BigEndian.Uint16(before[4:6])&0x000f != 0 ||
 		binary.BigEndian.Uint16(before[6:8]) != uint16(r.Width) || binary.BigEndian.Uint16(before[8:10]) != uint16(r.Height) ||
 		binary.BigEndian.Uint16(before[10:12]) != uint16(r.RowPitch) || binary.BigEndian.Uint16(before[12:14]) == 0 ||
 		binary.BigEndian.Uint16(before[14:16]) == 0 || binary.BigEndian.Uint16(before[12:14]) > 4095 || binary.BigEndian.Uint16(before[14:16]) > 4095 ||
-		!bytes.Equal(before[192:256], desc) {
+		!bytes.Equal(before[192:256], desc)) {
 		return fmt.Errorf("v2 legacy header is invalid or does not embed descriptor")
 	}
 	return nil

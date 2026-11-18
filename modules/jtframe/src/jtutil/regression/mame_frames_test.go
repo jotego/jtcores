@@ -4,9 +4,13 @@ package regression
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/crc32"
 	"image"
 	"image/color"
 	"image/png"
@@ -94,6 +98,99 @@ func TestMameCannotPromoteJournaledMiSTerNewFromLegacyContext(t *testing.T) {
 	}
 	if _, err = os.Stat(f.gameRoot() + "/ref"); !os.IsNotExist(err) {
 		t.Fatalf("blocked MiSTer candidate created ref: %v", err)
+	}
+}
+
+func TestMameFindsFinalizedV3JournalProvenance(t *testing.T) {
+	f := newRunCommitRecoveryFixture(t, "mame-v3-journal")
+	proof, receipt, ref := newMiSTerCaptureV3Fixture(t)
+	item := &f.prepared[0]
+	packed := testPackedCAB(t, 1, make([]byte, 8), 200)
+	packedHash := sha256.Sum256(packed)
+	proof.expected.PackedCAB = packed
+	proof.expected.Prepared.CAB.PackedSHA256 = fmt.Sprintf("%x", packedHash)
+	proof.expected.Prepared.CAB.PayloadCRC32 = binary.LittleEndian.Uint32(packed[24:28])
+	proof.expected.Prepared.CAB.TotalFrames = 200
+	cabText := fmt.Sprintf("%08x", proof.expected.Prepared.CAB.PayloadCRC32)
+	oldReceiptPath := ref.ReceiptPath
+	ref.ReceiptPath = "/tmp/jtframe-capture-sess-v2-checkpoint-00064.receipt.json"
+	ref.Checkpoint = 100
+	proof.files.ReceiptLocal[ref.ReceiptPath] = filepath.Join(proof.root, "receipt_00000100.json")
+	delete(proof.files.ReceiptLocal, oldReceiptPath)
+	delete(proof.files.ReceiptJSON, oldReceiptPath)
+	if err := os.Remove(filepath.Join(proof.root, "receipt_00000001.json")); err != nil { t.Fatal(err) }
+	oldPNG := receipt.PNGPath
+	receipt.PNGPath = "/media/fat/screenshots/circusc/20261115_123456-cabcap_sess-v2_0064.png"
+	newLocalPNG := filepath.Join(proof.root, CapturePNGLocalName(100))
+	if err := os.Rename(proof.files.PNGLocal[oldPNG], newLocalPNG); err != nil { t.Fatal(err) }
+	delete(proof.files.PNGLocal, oldPNG)
+	proof.files.PNGLocal[receipt.PNGPath] = newLocalPNG
+	receipt.RequestedCheckpoint, receipt.ActualCheckpoint, receipt.DescriptorCheckpoint, receipt.ActualInterval = 100, 100, 100, 99
+	desc, err := hex.DecodeString(receipt.DescriptorBytesHex); if err != nil { t.Fatal(err) }
+	binary.LittleEndian.PutUint16(desc[8:10], 100); binary.LittleEndian.PutUint16(desc[10:12], 99)
+	descriptorCRC := crc32.ChecksumIEEE(desc[:56]); binary.LittleEndian.PutUint32(desc[56:60], descriptorCRC)
+	receipt.DescriptorBytesHex, receipt.DescriptorCRC32 = hex.EncodeToString(desc), fmt.Sprintf("%08x", descriptorCRC)
+	item.Job.SessionID, item.Job.Nonce = proof.expected.Attempt.SessionID, proof.expected.Attempt.Nonce
+	item.Job.Session.Profile.Video, item.Job.Session.Profile.Startup = 200, 0
+	item.Spec.Profile = item.Job.Session.Profile
+	item.Job.Session.Checkpoints = []uint32{100}
+	item.Job.Session.CAB = proof.expected.Prepared.CAB
+	item.PackedCAB = append([]byte(nil), proof.expected.PackedCAB...)
+	f.cfg.CaptureContract.MaxHoldMS = 1000
+	item.CapturePlan, err = EncodeCapturePlan(item.PackedCAB, []CapturePlanEntry{{Checkpoint: 100, MaxHoldMS: 1000}})
+	if err != nil { t.Fatal(err) }
+	if err = os.WriteFile(item.Job.Session.Paths.StagingDir, item.CapturePlan, 0600); err != nil { t.Fatal(err) }
+	planCRC := binary.LittleEndian.Uint32(item.CapturePlan[len(item.CapturePlan)-4:])
+	planText := fmt.Sprintf("%08x", planCRC)
+	var status miSTerCaptureStatusV2
+	if err = decodeJSONValueFromBytes(proof.status, &status); err != nil { t.Fatal(err) }
+	status.ScheduleCRC32 = planText
+	status.PackedCABCRC32, status.Checkpoint, status.Output = cabText, 100, receipt.PNGPath
+	proof.status = marshalTestJSON(t, status)
+	var manifest miSTerCaptureManifestV2
+	if err = decodeJSONValueFromBytes(proof.manifest, &manifest); err != nil { t.Fatal(err) }
+	manifest.PlanCRC32, manifest.PackedCABCRC32 = planText, cabText
+	manifest.PlanTotalFrames, manifest.PlannedCheckpoints[0] = 200, 100
+	manifest.Images[0] = ref
+	manifest.Images[0].PlanCRC32, manifest.Images[0].PackedCABCRC32 = planText, cabText
+	manifest.CABTerminal.Frames, manifest.CABTerminal.FramesTotal = 200, 200
+	proof.manifest = marshalTestJSON(t, manifest)
+	receipt.PlanCRC32, receipt.PackedCABCRC32 = planText, cabText
+	writeMiSTerV3TestReceipt(t, &proof, ref, receipt, false)
+	planHash := sha256.Sum256(item.CapturePlan)
+	proof.expected.PlanCRC32 = planCRC
+	proof.expected.MaxHoldMS = 1000
+	hook := func(_ context.Context, attempt AttemptKey, session PreparedSession) (SessionCapture, error) {
+		expected := proof.expected
+		expected.Attempt, expected.Prepared = attempt, session
+		validated, err := ValidateMiSTerCapture(expected, proof.status, proof.manifest, proof.files, proof.root)
+		if err != nil { return SessionCapture{}, err }
+		result := SessionCapture{Key: attempt, HostName: "MiSTer", Cleanup: SessionCleanup{Confirmed: true}, Receipt: CaptureReceipt{SessionID: attempt.SessionID, Generation: session.Generation, CaptureConvention: session.Convention, CaptureProtocol: validated.CaptureProtocol, PlanSHA256: fmt.Sprintf("%x", planHash), CABPayloadCRC32: session.CAB.PayloadCRC32}}
+		for _, image := range validated.Images {
+			local := proof.files.PNGLocal[image.PNGPath]
+			result.PNGPaths = append(result.PNGPaths, local)
+			result.Receipt.Images = append(result.Receipt.Images, ImageReceipt{RequestedFrame: image.Checkpoint, ActualFrame: image.Checkpoint-1, Checkpoint: image.Checkpoint, Width: image.Width, Height: image.Height, Pitch: image.RowPitch, Slot: image.Slot, Mode: image.Mode, DescriptorCRC32: image.DescriptorCRC32, Released: true, PNGPath: local, PNGBytes: int64(image.PNGSize), PNGComplete: true})
+		}
+		return result, nil
+	}
+	f.driverA.captureHook, f.driverB.captureHook = hook, hook
+	if _, err = RunCommitMiSTer(context.Background(), f.log, f.prepared, f.cfg, f.deps, f.policy); err != nil { t.Fatal(err) }
+	newDir := filepath.Join(f.gameRoot(), "new")
+	frames, err := read_published_mame_frames(newDir); if err != nil { t.Fatal(err) }
+	found, provenance, _, err := findMiSTerMameProvenance(f.log.Root, "fake", "alpha", newDir, frames, "gen-r1", "qual-r1")
+	if err != nil || !found || provenance == nil || provenance.CaptureProtocol != miSTerCaptureProtocolV3 { t.Fatalf("v3 journal lookup found=%v provenance=%+v err=%v", found, provenance, err) }
+	found, _, _, err = findMiSTerMameProvenance(f.log.Root, "fake", "alpha", newDir, frames, "other-generation", "qual-r1")
+	if err != nil || found { t.Fatalf("different generation matched: found=%v err=%v", found, err) }
+	for _, unsupported := range []string{"", "jtframe-capture-v1", "jtframe-capture-v99"} {
+		for key, lane := range f.log.Progress.CaptureRuns {
+			for operation, finalization := range lane.Finalizations {
+				if finalization.Plan != nil { plan := *finalization.Plan; plan.Candidate.CaptureProtocol = unsupported; finalization.Plan = &plan; lane.Finalizations[operation] = finalization }
+			}
+			f.log.Progress.CaptureRuns[key] = lane
+		}
+		if err = f.log.Save(); err != nil { t.Fatal(err) }
+		found, _, _, _ = findMiSTerMameProvenance(f.log.Root, "fake", "alpha", newDir, frames, "gen-r1", "qual-r1")
+		if found { t.Fatalf("unsupported capture protocol %q matched", unsupported) }
 	}
 }
 

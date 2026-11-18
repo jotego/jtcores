@@ -87,7 +87,7 @@ func miSTerRecoveryCAPSIdle(words []uint16) bool {
 		return false
 	}
 	flags := words[3]
-	return flags&^uint16(0x0010) == 0
+	return flags&^uint16(0x0050) == 0
 }
 
 func validRecoveryID(value string) bool {

@@ -22,6 +22,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 const miSTerNativeConfigRoot = "/media/fat/config"
@@ -543,6 +544,7 @@ func readMRAArchivePart(archives []MiSTerAssetFile, zipName string, part mraPart
 				}
 				archive, openErr := zip.OpenReader(asset.Path)
 				if openErr != nil {
+					if miSTerFatalROMIO(openErr) { return nil, openErr }
 					candidateErrors = append(candidateErrors, fmt.Sprintf("%s: %v", candidate, openErr))
 					continue
 				}
@@ -558,6 +560,7 @@ func readMRAArchivePart(archives []MiSTerAssetFile, zipName string, part mraPart
 					if memberErr == nil {
 						return window, nil
 					}
+					if miSTerFatalROMIO(memberErr) { return nil, memberErr }
 					candidateErrors = append(candidateErrors, fmt.Sprintf("%s member CRC candidate: %v", candidate, memberErr))
 					archive = nil
 					break
@@ -577,6 +580,7 @@ func readMRAArchivePart(archives []MiSTerAssetFile, zipName string, part mraPart
 			}
 			archive, openErr := zip.OpenReader(asset.Path)
 			if openErr != nil {
+				if miSTerFatalROMIO(openErr) { return nil, openErr }
 				candidateErrors = append(candidateErrors, fmt.Sprintf("%s: %v", candidate, openErr))
 				continue
 			}
@@ -588,6 +592,7 @@ func readMRAArchivePart(archives []MiSTerAssetFile, zipName string, part mraPart
 				found = true
 				window, memberErr := readMRAEntryWindow(entry, part)
 				if memberErr != nil {
+					if miSTerFatalROMIO(memberErr) { _ = archive.Close(); return nil, memberErr }
 					candidateErrors = append(candidateErrors, fmt.Sprintf("%s literal member: %v", candidate, memberErr))
 					break
 				}
@@ -605,9 +610,14 @@ func readMRAArchivePart(archives []MiSTerAssetFile, zipName string, part mraPart
 		}
 	}
 	if len(candidateErrors) != 0 {
-		return nil, fmt.Errorf("MRA part %q is missing from candidate archives %q (%s)", part.Name, zipName, strings.Join(candidateErrors, "; "))
+		return nil, miSTerGameInputError(fmt.Errorf("MRA part %q is missing from candidate archives %q (%s)", part.Name, zipName, strings.Join(candidateErrors, "; ")))
 	}
-	return nil, fmt.Errorf("MRA part %q is missing from candidate archives %q", part.Name, zipName)
+	return nil, miSTerGameInputError(fmt.Errorf("MRA part %q is missing from candidate archives %q", part.Name, zipName))
+}
+
+func miSTerFatalROMIO(err error) bool {
+	var pathErr *os.PathError
+	return errors.As(err, &pathErr) || errors.Is(err, syscall.EIO) || errors.Is(err, syscall.EACCES)
 }
 
 func readMRAEntryWindow(entry *zip.File, part mraPart) ([]byte, error) {
