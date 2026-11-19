@@ -1,0 +1,52 @@
+// SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Date: 29-10-2026
+// Hand-encoded native-mode program. Byte comments give instruction intent.
+@ffff0
+// JMP FAR 0000:0100 from the reset vector
+ea 00 01 00 00
+@100
+// CLI; XOR AX,AX; MOV DS,AX; MOV ES,AX; MOV SS,AX; MOV SP,8000
+fa 31 c0 8e d8 8e c0 8e d0 bc 00 80
+// MOV AX,A55A; MOV [0200],AX
+b8 5a a5 a3 00 02
+// MOV AX,1234; MOV [0203],AX; MOV AX,[0203]; INC AX; MOV [0206],AX
+b8 34 12 a3 03 02 a1 03 02 40 a3 06 02
+// LOCK INC word [0206]
+f0 ff 06 06 02
+// MOV AX,1234; MOV DX,0040; OUT DX,AX; IN AX,DX; MOV [0208],AX
+b8 34 12 ba 40 00 ef ed a3 08 02
+// MOV DX,0043; OUT DX,AX; IN AX,DX; MOV [020A],AX
+ba 43 00 ef ed a3 0a 02
+// MOV AL,0; SET1 AL,7 (NEC); MOV [020C],AL
+b0 00 0f 1c c0 07 a2 0c 02
+// Physical 20-bit wrap, then segment-offset wrap on an odd word.
+b8 ff ff 8e d8 b8 ab 89 a3 0f 00 a1 0f 00 89 c3 31 c0 8e d8 89 1e 0e 02
+b8 ef cd a3 ff ff a1 ff ff a3 10 02
+// CLD; MOV SI,0200; MOV DI,0240; MOV CX,5; REP MOVSB
+fc be 00 02 bf 40 02 b9 05 00 f3 a4
+// INT 30h
+cd 30
+// MOV byte [0220],1; STI; HLT (IRQ wake)
+c6 06 20 02 01 fb f4
+// MOV byte [0220],2; HLT (NMI wake)
+c6 06 20 02 02 f4
+// WAIT holds execution until POLL_N goes low.
+c6 06 20 02 03 9b
+// MOV byte [022F],5A; HLT; JMP HLT
+c6 06 2f 02 5a f4 eb fd
+@300
+// IRQ: INC byte [0221]; IRET
+fe 06 21 02 cf
+@320
+// NMI: INC byte [0222]; IRET
+fe 06 22 02 cf
+@340
+// INT 30h: INC byte [0223]; IRET
+fe 06 23 02 cf
+@00080
+00 03 00 00 // IRQ vector 20h -> 0000:0300
+@00008
+20 03 00 00 // NMI vector -> 0000:0320
+@000c0
+40 03 00 00 // Software vector 30h -> 0000:0340
