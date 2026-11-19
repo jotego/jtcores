@@ -23,6 +23,13 @@ wire [8:0] x = v - 9'd16;
 wire [8:0] y = 9'd271 - h;
 wire [8:0] edge_h = h < 9'd136 ? h : y;
 wire [8:0] edge_v = x < 9'd112 ? x : 9'd223 - x;
+wire       lower_bumper = x >= 9'd129;
+wire [8:0] bumper_row = x - (lower_bumper ? 9'd129 : 9'd58);
+wire [8:0] bumper_last = lower_bumper ? 9'd37 : 9'd36;
+wire [8:0] bumper_bevel = bumper_row <= 9'd18 ? bumper_row : bumper_last - bumper_row;
+wire       bumper = (lower_bumper || x >= 9'd58) && bumper_row <= bumper_last &&
+    h >= (lower_bumper ? 9'd178 : 9'd179) && h <= 9'd212 &&
+    h + bumper_bevel >= 9'd187 && h <= (lower_bumper ? 9'd202 : 9'd203) + bumper_bevel;
 wire [7:0] level = !(lhbl && lvbl) ? 0 :
     ball_pxl || (pixel && char_gate) ? {`JTFRAME_COLORW{1'b1}} :
     pixel ? {1'b0, {(`JTFRAME_COLORW-1){1'b1}}} : 0;
@@ -55,6 +62,19 @@ always @* begin
                 end else if (edge_h < 9'd40) tint = 3;
             end
         end
+        2'd3: begin
+            if (h >= 9'd32 && h < 9'd55 && (x < 9'd32 || x >= 9'd191)) tint = 5;
+            if (edge_v < 9'd24 && h >= 9'd55 && h < 9'd240)
+                tint = edge_v >= 9'd8 && h >= 9'd72 ? 6 : 4;
+            if (edge_v >= 9'd24) begin
+                if ((h >= 9'd10 && h < 9'd17) || (h >= 9'd121 && h < 9'd128)) tint = 6;
+                if (h >= 9'd231 && h < 9'd240) tint = 7;
+                if (h >= 9'd240 && h < 9'd255) tint = 3;
+                if (h >= 9'd255 && h < 9'd264) tint = 5;
+            end else if (edge_v >= 9'd16 && h < 9'd240 && h + edge_v >= 9'd255) tint = 7;
+            if (h >= 9'd164 && h < 9'd179 && x >= 9'd93 && x < 9'd131) tint = 6;
+            if (bumper) tint = 7;
+        end
         default:;
     endcase
 end
@@ -67,6 +87,7 @@ always @* begin
         4: color = 24'h0055ff;
         5: color = 24'hff2224;
         6: color = 24'h20ff26;
+        7: color = 24'hfeff26;
         default: color = 24'hffffff;
     endcase
 end
