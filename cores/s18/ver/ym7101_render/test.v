@@ -16,6 +16,11 @@ reg use48 = 0;
 reg compare_en = 1;
 localparam PASSIVE_MODE = 0;
 `endif
+`ifdef MODE4_DISABLED_TEST
+localparam MODE4_ENABLED = 0;
+`else
+localparam MODE4_ENABLED = 1;
+`endif
 `ifdef PASSIVE_TEST
 `ifdef PASSIVE_384_260
 `ifdef IRQ_HV_SCENARIO
@@ -1432,7 +1437,7 @@ always @(posedge clk) begin
     ym_edclk_l_legacy <= ym_edclk_d_legacy ? ym_edclk_o_legacy : edclk;
 end
 
-ym7101 #(.PASSIVE(PASSIVE_MODE)) uut_ym(
+ym7101 #(.PASSIVE(PASSIVE_MODE),.MODE4(MODE4_ENABLED)) uut_ym(
     .MCLK           ( ym_clk              ),
     .pxl_cen        ( pxl_cen             ),
     .pxl2_cen       ( pxl2_cen            ),

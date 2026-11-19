@@ -38,6 +38,7 @@ module jtxmen_video(
     input             objcha_n,
 
     output reg        vdtac,
+    output            pq,       // 052109 PQ: tile RAM CPU slot clock (3 MHz)
     input             tilesys_cs,
     output            rst8,     // reset signal at 8th frame
 
@@ -188,7 +189,7 @@ jtaliens_scroll #(
     .firq_n     (           ),
     .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
-    .q          (           ),
+    .q          ( pq        ),
     .e          (           ),
 
     // color byte connection

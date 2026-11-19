@@ -51,6 +51,7 @@ module jtriders_main(
     input         [15:0] rom_data,
     input                rom_ok,
     input                vdtac,
+    input                pq,        // 052109 PQ: tile RAM CPU slot clock
     input                tile_irqn,
     input                prot_irqn,
     output               riders_cs,
@@ -97,7 +98,10 @@ wire [15:0] glfgreat_cab, cpu_dout;
 wire [ 7:0] riders_cab, lgtnfght_cab;
 wire [ 2:0] lgtnfght_dim;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn, adc=0;
-wire        dtac_mux, lgtnfght_son, lgtnfght_rmrd;
+wire        dtac_mux, lgtnfght_son, lgtnfght_rmrd, vq_cs, bus_legit, dma_owns;
+wire        vq_rnw, pq_ok;
+reg         pq_l, pq_rd_ok;
+reg  [ 1:0] pq_cnt;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -106,8 +110,13 @@ wire [23:0] A_full = {A,1'b0};
 assign a_mx     = ~tmnt_bgackn ? tmnt_addr : A;
 assign main_addr= lgtnfght ? {2'd0,A[17:1]} : a_mx[19:1];
 assign ram_dsn  = ~tmnt_bgackn ? tmnt_dsn : {UDSn, LDSn};
-assign bus_cs   = rom_cs;
-assign bus_busy = rom_cs & ~ok_dly;
+assign vq_cs    = vram_cs & (ssriders | tmnt2 | glfgreat);
+assign vq_rnw   = ~tmnt_bgackn ? tmnt_wrn : RnW;
+assign pq_ok    = vq_rnw ? pq_rd_ok : pq_cnt[1];
+assign bus_cs   = rom_cs | vq_cs;
+assign bus_busy = (rom_cs & ~ok_dly) | (vq_cs & ~pq_ok);
+assign bus_legit= vq_cs;
+assign dma_owns = ~BGACKn;
 assign BUSn     = asn_mx | &ram_dsn;
 
 jtframe_okdly u_okdly(
@@ -126,6 +135,19 @@ assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = (lgtnfght | glfgreat) ? ~&{A[23],~ASn} : ~&{BGACKn, FC[1:0], ~ASn};
 assign dtac_mux = DTACKn | ~vdtac;
+
+always @(posedge clk) begin
+    pq_l <= pq;
+    if( &ram_dsn ) begin
+        pq_cnt   <= 0;
+        pq_rd_ok <= 0;
+    end else begin
+        pq_rd_ok <= pq_cnt[1];
+        if( pq_cnt==0 ) begin
+            if( pq && !pq_l && vq_cs ) pq_cnt <= 1;
+        end else if( pq!=pq_l && !pq_cnt[1] ) pq_cnt <= pq_cnt + 2'd1;
+    end
+end
 assign snd_wrn  = ~(snd_cs & ~RnW & (glfgreat ? ~UDSn : ~LDSn));
 
 assign riders_cs= prot_cs & ssriders;
@@ -370,7 +392,6 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 
 // The board seems to control DTACKn with combinational logic
 // DTACKn follows ASn with a delay of ~15.6ns
-wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -378,15 +399,16 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
-    .bus_ack    ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
+    .bus_ack    ( dma_owns  ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( asn_mx    ),
     .DSn        ( ram_dsn   ),
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( slow_mem  ),  // RAM of that age didn't operate at 16MHz
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

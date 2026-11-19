@@ -139,13 +139,14 @@ jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack( // 10 MHz
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( cpu_RnW   ),
+    .BGACKn     ( BGACKn    ),
     .ASn        ( ASn | ~inta_n ), // do not generate DTACK for int ack
     .DSn        ({cpu_UDSn,cpu_LDSn}),
     .num        ( 7'd29     ),  // numerator
     .den        ( 8'd146    ),  // denominator
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       ( fave      ),
     .fworst     ( fworst    )

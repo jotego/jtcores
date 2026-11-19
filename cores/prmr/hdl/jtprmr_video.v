@@ -36,6 +36,7 @@ module jtprmr_video(
     input             obank,
 
     output reg        vdtac,
+    output            pq,       // 052109 PQ: tile RAM CPU slot clock (3 MHz)
     input             tilesys_cs,
     output            rst8,     // reset signal at 8th frame
 
@@ -197,7 +198,7 @@ jtaliens_scroll #(
     .firq_n     (           ),
     .nmi_n      (           ),
     .flip       ( flip      ),
-    .q          (           ),
+    .q          ( pq        ),
     .e          (           ),
 
     // color byte connection

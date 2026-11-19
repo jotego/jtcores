@@ -28,6 +28,26 @@ func TestManualRegressionSelection(t *testing.T) {
 	}
 }
 
+func TestRegressionCommaSelections(t *testing.T) {
+	cores, sets, err := parse_regression_lists(" gng,1943,gng ", "", "1943a, gng", true, false)
+	if err != nil || strings.Join(cores, ",") != "1943,gng" || strings.Join(sets, ",") != "1943a,gng" { t.Fatalf("lists: %v %v %v", cores, sets, err) }
+	if _, _, err = parse_regression_lists("1943,gng", "gng,1943", "", true, true); err != nil { t.Fatalf("identical aliases: %v", err) }
+	if _, _, err = parse_regression_lists("1943", "gng", "", true, true); err == nil { t.Fatal("conflicting core aliases accepted") }
+	for _, tc := range []struct{ core, sets string }{{"1943,", ""}, {"1943", "gng,,1943a"}, {"../unsafe", ""}} {
+		if _, _, err = parse_regression_lists(tc.core, "", tc.sets, true, false); err == nil { t.Fatalf("accepted unsafe list core=%q sets=%q", tc.core, tc.sets) }
+	}
+}
+
+func TestExplicitRegressionEmptySelectors(t *testing.T) {
+	for _, tc := range []struct{name string; commit, coreChanged, coresChanged, setChanged bool; core, cores, set string}{
+		{name:"empty-core", coreChanged:true}, {name:"empty-cores", coresChanged:true}, {name:"empty-commit-set", commit:true, setChanged:true},
+		{name:"empty-local-set-default", setChanged:true},
+	} {
+		err:=validate_explicit_regression_values(tc.commit,tc.coreChanged,tc.coresChanged,tc.setChanged,tc.core,tc.cores,tc.set)
+		if err==nil {t.Fatalf("%s accepted",tc.name)}
+	}
+}
+
 func TestExplicitDebugManifestRejectedBeforeAnyCampaignWrite(t *testing.T) {
 	for _, existing := range []bool{false, true} {
 		t.Run(map[bool]string{false: "fresh", true: "resume"}[existing], func(t *testing.T) {
@@ -59,12 +79,15 @@ func TestExplicitDebugManifestRejectedBeforeAnyCampaignWrite(t *testing.T) {
 			}
 			oldConfig, oldManifest, oldRun, oldCore, oldSet := regressionConfig, regressionManifest, regressionRunID, regressionCore, regressionSetname
 			oldRetry, oldNoPublish, oldJTBin := regressionRetryErrors, regressionNoPublish, regressionJTBin
+			oldLegacy := regressionLegacySiDi128
 			t.Cleanup(func() {
 				regressionConfig, regressionManifest, regressionRunID, regressionCore, regressionSetname = oldConfig, oldManifest, oldRun, oldCore, oldSet
 				regressionRetryErrors, regressionNoPublish, regressionJTBin = oldRetry, oldNoPublish, oldJTBin
+				regressionLegacySiDi128 = oldLegacy
 			})
 			regressionConfig, regressionManifest, regressionRunID, regressionCore, regressionSetname = config, manifest, "", "", ""
 			regressionRetryErrors, regressionNoPublish, regressionJTBin = existing, true, false
+			regressionLegacySiDi128 = true
 			err := run_regression_cmd(regressionCmd, nil)
 			if err == nil || !strings.Contains(err.Error(), "debug") {
 				t.Fatalf("expected debug exclusion before any other preflight: %v", err)
@@ -86,4 +109,25 @@ func TestExplicitDebugManifestRejectedBeforeAnyCampaignWrite(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestLegacySiDi128OptInRejectsMiSTerConfig(t *testing.T) {
+	reset_curation_flags()
+	root := t.TempDir()
+	t.Setenv("JOTEGO", root)
+	config := filepath.Join(root, "mister.yaml")
+	if err := os.WriteFile(config, []byte("target: mister\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	regressionConfig = config
+	regressionLegacySiDi128 = true
+	regressionCmd.Flags().Lookup("legacy-sidi128").Changed = true
+	err := run_regression_cmd(regressionCmd, nil)
+	if err == nil || !strings.Contains(err.Error(), "cannot be combined with target=mister") {
+		t.Fatalf("legacy opt-in accepted MiSTer config: %v", err)
+	}
+	if _, statErr := os.Stat(filepath.Join(root, "regression")); !os.IsNotExist(statErr) {
+		t.Fatalf("mismatched target created regression archive: %v", statErr)
+	}
+	reset_curation_flags()
 }

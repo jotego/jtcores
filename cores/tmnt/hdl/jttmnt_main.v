@@ -32,6 +32,7 @@ module jttmnt_main(
     input                ram_ok,
     input                rom_ok,
     input                vdtac,
+    input                pq,        // 052109 PQ: video chips' CPU slot clock
     input                tile_irqn,
     input                tile_nmin,
 
@@ -79,7 +80,9 @@ wire        eep_do, eep_rdy;
 wire [ 7:0] hip_dout;
 reg  [15:0] cpu_din, cab_dout;
 reg         intn, LVBLl, div8;
-wire        bus_cs, bus_busy, BUSn;
+wire        bus_cs, bus_busy, BUSn, vq_cs, vq_rdy;
+reg         pq_l, vq_lat;
+reg  [ 3:0] vq_cnt;
 wire        dtac_mux;
 
 `ifdef SIMULATION
@@ -89,8 +92,10 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = irq_mode ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs | ram_cs ) & ~ok_dly;
+assign vq_cs    = (vram_cs | obj_cs) & ~BUSn & game_id!=THNDRX2;
+assign vq_rdy   = vq_lat && vq_cnt >= (game_id==PUNKSHOT && vram_cs ? 4'd8 : 4'd4);
+assign bus_cs   = rom_cs | ram_cs | vq_cs;
+assign bus_busy = ((rom_cs | ram_cs ) & ~ok_dly) | (vq_cs & ~vq_rdy);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -98,6 +103,17 @@ assign cpu_we   = ~RnW;
 assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = DTACKn | ~vdtac;
+
+always @(posedge clk) begin
+    pq_l <= pq;
+    if( UDSn & LDSn ) begin
+        vq_lat <= 0;
+        vq_cnt <= 0;
+    end else begin
+        if( pq && !pq_l && vq_cs ) vq_lat <= 1;
+        if( vq_lat && vq_cnt!=4'hf ) vq_cnt <= vq_cnt + 4'd1;
+    end
+end
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
 always @(posedge clk) begin
@@ -314,15 +330,16 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( vq_cs     ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
     .den        ({4'b1,div8,1'd0}),  // denominator, 4 (12MHz) or 6 (8MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

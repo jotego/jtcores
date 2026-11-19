@@ -185,12 +185,13 @@ func (args *Args) dump_alt_setnames(parsed_machines []ParsedMachine, parent_name
 		for _, altversion := range collect_alt_versions(d.machine, args.mra_cfg) {
 			alt_args := *args
 			alt_args.cur_alt_version = altversion
-			alt_xml, _, _, e := make_mra(d.machine, args.mra_cfg, alt_args)
+			alt_xml, _, coremod, e := make_mra(d.machine, args.mra_cfg, alt_args)
 			if e != nil {
 				all_errors = common.JoinErrors(all_errors, fmt.Errorf("%s (%s): %w", d.machine.Name, altversion, e))
 				continue
 			}
 			dump_mra(alt_args, d.machine, args.mra_cfg, alt_xml, parent_names)
+			alt_args.dump_crt_480i_mra(d.machine, args.mra_cfg, alt_xml, coremod, parent_names)
 			count++
 		}
 	}
@@ -392,6 +393,7 @@ func (args *Args) produce_mra_rom_nvram(d ParsedMachine, parent_names map[string
 	}
 	save_nvram(d.mra_xml)
 	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)
+	args.dump_crt_480i_mra(d.machine, mra_cfg, d.mra_xml, d.coremod, parent_names)
 }
 
 func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {
@@ -823,11 +825,16 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			}
 		}
 	}
-	pad := "A,B,X,Y,L,R,"
+	pad := ""
+	pad_keys := "ABXYLR"
+	for k := 0; k < len(buttons) && k < cfg.Buttons.Core && k < len(pad_keys); k++ {
+		if strings.TrimSpace(buttons[k]) != "-" {
+			pad += string(pad_keys[k]) + ","
+		}
+	}
 	for k := len(buttons); k < 6 && k < cfg.Buttons.Core; k++ {
 		buttons_str += "-,"
 	}
-	pad = pad[0 : len(buttons)*2]
 	if button_map != "" {
 		// MiSTer skips unnamed core inputs; '-' terminates the default list.
 		pad = ""
@@ -836,9 +843,9 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 			pad += string(button_map[k]) + ","
 		}
 	}
-	buttons_str += "Start,Coin,Core credits"
+	buttons_str += "Start,Coin,Core credits,Test,Service"
 	n.AddAttr("names", buttons_str)
-	n.AddAttr("default", pad+"Start,Select,-")
+	n.AddAttr("default", pad+"Start,Select,L2,R2,L3")
 	n.AddIntAttr("count", count)
 }
 

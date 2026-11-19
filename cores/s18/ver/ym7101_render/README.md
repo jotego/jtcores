@@ -22,6 +22,9 @@ cores/s18/ver/ym7101_render/sim.sh --mode legacy --scenario legacy_formats \
   --build-dir /nobackup/tasks/jtcores-180/render/legacy-formats
 cores/s18/ver/ym7101_render/sim.sh --mode passive \
   --geometry 400x262 --build-dir /nobackup/tasks/jtcores-180/render/passive
+cores/s18/ver/ym7101_render/sim.sh --mode passive --mode4 disabled \
+  --geometry 400x262 --scenario pattern_a --transitions \
+  --build-dir /nobackup/tasks/jtcores-190/render/mode4-off-pattern
 ```
 
 `--mode legacy` compares the pristine and candidate models. `--mode passive`
@@ -29,6 +32,11 @@ checks independent raster acquisition and rendered pixels. Passive geometry
 options are `400x262` (default), `384x260`, and `384x261`; `--transitions` adds
 the longer reset and display mode transition matrix. Both options are captured
 and verified when running an immutable staged snapshot.
+The candidate YM7101 defaults to `MODE4=1` for every existing invocation.
+`--mode4 disabled` explicitly tests the S18/Pocket `MODE4=0` wiring in passive
+mode and is recorded in the staged manifest. The option is rejected in legacy
+mode and for `legacy_formats`, whose default MODE4 comparison preserves the
+Mode4 and Mode5 H32 historical checks.
 
 `--scenario pattern_a` is the default and retains the validated PatternA
 fixture. `--scenario service` runs additional CPU-visible CRAM/VSRAM read and

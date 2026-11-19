@@ -115179,6 +115179,858 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="megazone" sourcefile="konami/megazone.cpp">
+		<description>Mega Zone (program code L)</description>
+		<year>1983</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="319_l07.11h" size="8192" crc="73b616ca" sha1="ecdcdd085020f8ffe87a574832f7cedb9bcacef9" region="maincpu" offset="6000"/>
+		<rom name="319_l06.9h" size="8192" crc="0ced03f9" sha1="4c8688b7bde5ee1adfe6a0db7178cca046eca7f4" region="maincpu" offset="8000"/>
+		<rom name="319_l05.8h" size="8192" crc="9dc3b5a1" sha1="d6373f5be06cd61b6d3ffbe36c160167ba9852f3" region="maincpu" offset="a000"/>
+		<rom name="319_l04.7h" size="8192" crc="785b983d" sha1="389e2f5494284089d39249e91293f3998c2b22c0" region="maincpu" offset="c000"/>
+		<rom name="319_l03.6h" size="8192" crc="a5318686" sha1="8c8fbb76a36108f4a0b3a50e8a9b1781508490f1" region="maincpu" offset="e000"/>
+		<rom name="319e02.6d" size="8192" crc="d5d45edb" sha1="3808d1b58fe152f8f5b49bf0aa40c53e9c9dd4bd" region="audiocpu" offset="0"/>
+		<rom name="319e01.3a" size="4096" crc="ed5725a0" sha1="64f54621487291fbfe827fb4cecca299fd0db781" region="daccpu" offset="0"/>
+		<rom name="319e11.3e" size="8192" crc="965a7ff6" sha1="210aae91a3838e5f7c78747d9b7419d266538ffc" region="gfx1" offset="0"/>
+		<rom name="319e09.2e" size="8192" crc="5eaa7f3e" sha1="4c038e80d575988407252897a1f1bc6b76af597c" region="gfx1" offset="2000"/>
+		<rom name="319e10.3d" size="8192" crc="7bb1aeee" sha1="be2dd46cd0121cedad6dab90a22643798a3176ab" region="gfx1" offset="4000"/>
+		<rom name="319e08.2d" size="8192" crc="6add71b1" sha1="fc8c0ecd3b7f03d63b6c3143143986883345fa38" region="gfx1" offset="6000"/>
+		<rom name="319_g12.8c" size="8192" crc="07b8b24b" sha1="faadcb20ee8b26b9ab0692df6a81e5423514863e" region="gfx2" offset="0"/>
+		<rom name="319_g13.10c" size="8192" crc="3d8f3743" sha1="1f6fbf804dacfa44cd11b4cf41d0bedb7f2ff6b6" region="gfx2" offset="2000"/>
+		<rom name="319b18.a16" size="32" crc="23cb02af" sha1="aba459826a75ec07bc6d97580e934f58aa22f4f4" region="proms" offset="0"/>
+		<rom name="319b16.c6" size="256" crc="5748e933" sha1="c1478c31533a11421cd4579ccfdbb430e193d17b" region="proms" offset="20"/>
+		<rom name="319b17.a11" size="256" crc="1fbfce73" sha1="1c58eb91982d5f10511d54a83070e859ac57d2f1" region="proms" offset="120"/>
+		<rom name="319b14.e7" size="32" crc="55044268" sha1="29cf4158314ed897daf045a7f07be865dd977663" region="proms" offset="220"/>
+		<rom name="319b15.e8" size="32" crc="31fd7ab9" sha1="04d6e51b4930619c8ee12fb0d7b5f981e4d6d8d3" region="proms" offset="240"/>
+		<device_ref name="konami1"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8039"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI-1" clock="1536000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="daccpu" name="Intel 8039" clock="7159090"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="filter.0.0" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.1" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.2" name="RC Filter"/>
+		<display tag="screen" type="raster" rotate="90" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 70k 70k+" value="24" default="yes"/>
+			<dipvalue name="20k 80k 80k+" value="16"/>
+			<dipvalue name="30k 90k 90k+" value="8"/>
+			<dipvalue name="30k 100k 100k+" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="megazonea" sourcefile="konami/megazone.cpp" cloneof="megazone" romof="megazone">
+		<description>Mega Zone (unknown program code 1)</description>
+		<year>1983</year>
+		<manufacturer>Konami (Interlogic / Kosuka license)</manufacturer>
+		<rom name="ic59_cpu.bin" size="8192" crc="f41922a0" sha1="9f54509da18721a76593921c6e52085e62e6ea6b" region="maincpu" offset="6000"/>
+		<rom name="ic58_cpu.bin" size="8192" crc="7fd7277b" sha1="e773247e0c9419cae49e04962ea362a2976c2db2" region="maincpu" offset="8000"/>
+		<rom name="ic57_cpu.bin" size="8192" crc="a4b33b51" sha1="12bb4da0319a7fe355e5ea4945759c8709aed5fe" region="maincpu" offset="a000"/>
+		<rom name="ic56_cpu.bin" size="8192" crc="2aabcfbf" sha1="f0054af98bd68158eab3328f8cf2a04b35e812c7" region="maincpu" offset="c000"/>
+		<rom name="ic55_cpu.bin" size="8192" crc="b33a3c37" sha1="2f1fdf1b9f18fcc9bd97cc9adeecc4ce77dd30c9" region="maincpu" offset="e000"/>
+		<rom name="319e02.6d" merge="319e02.6d" size="8192" crc="d5d45edb" sha1="3808d1b58fe152f8f5b49bf0aa40c53e9c9dd4bd" region="audiocpu" offset="0"/>
+		<rom name="319e01.3a" merge="319e01.3a" size="4096" crc="ed5725a0" sha1="64f54621487291fbfe827fb4cecca299fd0db781" region="daccpu" offset="0"/>
+		<rom name="319e11.3e" merge="319e11.3e" size="8192" crc="965a7ff6" sha1="210aae91a3838e5f7c78747d9b7419d266538ffc" region="gfx1" offset="0"/>
+		<rom name="319e09.2e" merge="319e09.2e" size="8192" crc="5eaa7f3e" sha1="4c038e80d575988407252897a1f1bc6b76af597c" region="gfx1" offset="2000"/>
+		<rom name="319e10.3d" merge="319e10.3d" size="8192" crc="7bb1aeee" sha1="be2dd46cd0121cedad6dab90a22643798a3176ab" region="gfx1" offset="4000"/>
+		<rom name="319e08.2d" merge="319e08.2d" size="8192" crc="6add71b1" sha1="fc8c0ecd3b7f03d63b6c3143143986883345fa38" region="gfx1" offset="6000"/>
+		<rom name="319_g12.8c" merge="319_g12.8c" size="8192" crc="07b8b24b" sha1="faadcb20ee8b26b9ab0692df6a81e5423514863e" region="gfx2" offset="0"/>
+		<rom name="319_g13.10c" merge="319_g13.10c" size="8192" crc="3d8f3743" sha1="1f6fbf804dacfa44cd11b4cf41d0bedb7f2ff6b6" region="gfx2" offset="2000"/>
+		<rom name="319b18.a16" merge="319b18.a16" size="32" crc="23cb02af" sha1="aba459826a75ec07bc6d97580e934f58aa22f4f4" region="proms" offset="0"/>
+		<rom name="319b16.c6" merge="319b16.c6" size="256" crc="5748e933" sha1="c1478c31533a11421cd4579ccfdbb430e193d17b" region="proms" offset="20"/>
+		<rom name="319b17.a11" merge="319b17.a11" size="256" crc="1fbfce73" sha1="1c58eb91982d5f10511d54a83070e859ac57d2f1" region="proms" offset="120"/>
+		<rom name="319b14.e7" merge="319b14.e7" size="32" crc="55044268" sha1="29cf4158314ed897daf045a7f07be865dd977663" region="proms" offset="220"/>
+		<rom name="319b15.e8" merge="319b15.e8" size="32" crc="31fd7ab9" sha1="04d6e51b4930619c8ee12fb0d7b5f981e4d6d8d3" region="proms" offset="240"/>
+		<device_ref name="konami1"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8039"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI-1" clock="1536000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="daccpu" name="Intel 8039" clock="7159090"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="filter.0.0" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.1" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.2" name="RC Filter"/>
+		<display tag="screen" type="raster" rotate="90" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 70k 70k+" value="24" default="yes"/>
+			<dipvalue name="20k 80k 80k+" value="16"/>
+			<dipvalue name="30k 90k 90k+" value="8"/>
+			<dipvalue name="30k 100k 100k+" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="megazoneb" sourcefile="konami/megazone.cpp" cloneof="megazone" romof="megazone">
+		<description>Mega Zone (unknown program code 2)</description>
+		<year>1983</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="7.11h" size="8192" crc="d42d67bf" sha1="adac80d183ad26a9b1ec25a2da7ebbb33b441b63" region="maincpu" offset="6000"/>
+		<rom name="6.9h" size="8192" crc="692398eb" sha1="518001d738c2fb9417e52edfe9a7b74a074af3b0" region="maincpu" offset="8000"/>
+		<rom name="5.8h" size="8192" crc="620ffec3" sha1="e047beb29e0cda72126e8dcdd0b7504a202efba2" region="maincpu" offset="a000"/>
+		<rom name="4.7h" size="8192" crc="28650971" sha1="25e405fb9f648b7118e3c7c7b3ba59a7b7c29c42" region="maincpu" offset="c000"/>
+		<rom name="3.6h" size="8192" crc="f264018f" sha1="6ca0f7e26311799b0650a6c58567405bc2a7f922" region="maincpu" offset="e000"/>
+		<rom name="319h02.6d" merge="319e02.6d" size="8192" crc="d5d45edb" sha1="3808d1b58fe152f8f5b49bf0aa40c53e9c9dd4bd" region="audiocpu" offset="0"/>
+		<rom name="319h01.3a" merge="319e01.3a" size="4096" crc="ed5725a0" sha1="64f54621487291fbfe827fb4cecca299fd0db781" region="daccpu" offset="0"/>
+		<rom name="319e11.3e" merge="319e11.3e" size="8192" crc="965a7ff6" sha1="210aae91a3838e5f7c78747d9b7419d266538ffc" region="gfx1" offset="0"/>
+		<rom name="319e09.2e" merge="319e09.2e" size="8192" crc="5eaa7f3e" sha1="4c038e80d575988407252897a1f1bc6b76af597c" region="gfx1" offset="2000"/>
+		<rom name="319e10.3d" merge="319e10.3d" size="8192" crc="7bb1aeee" sha1="be2dd46cd0121cedad6dab90a22643798a3176ab" region="gfx1" offset="4000"/>
+		<rom name="319e08.2d" merge="319e08.2d" size="8192" crc="6add71b1" sha1="fc8c0ecd3b7f03d63b6c3143143986883345fa38" region="gfx1" offset="6000"/>
+		<rom name="319_e12.8c" size="8192" crc="e0fb7835" sha1="44ccaaf92bdb83323f45e08dbe118697720e9105" region="gfx2" offset="0"/>
+		<rom name="319_g13.10c" merge="319_g13.10c" size="8192" crc="3d8f3743" sha1="1f6fbf804dacfa44cd11b4cf41d0bedb7f2ff6b6" region="gfx2" offset="2000"/>
+		<rom name="319b18.a16" merge="319b18.a16" size="32" crc="23cb02af" sha1="aba459826a75ec07bc6d97580e934f58aa22f4f4" region="proms" offset="0"/>
+		<rom name="319b16.c6" merge="319b16.c6" size="256" crc="5748e933" sha1="c1478c31533a11421cd4579ccfdbb430e193d17b" region="proms" offset="20"/>
+		<rom name="319b17.a11" merge="319b17.a11" size="256" crc="1fbfce73" sha1="1c58eb91982d5f10511d54a83070e859ac57d2f1" region="proms" offset="120"/>
+		<rom name="319b14.e7" merge="319b14.e7" size="32" crc="55044268" sha1="29cf4158314ed897daf045a7f07be865dd977663" region="proms" offset="220"/>
+		<rom name="319b15.e8" merge="319b15.e8" size="32" crc="31fd7ab9" sha1="04d6e51b4930619c8ee12fb0d7b5f981e4d6d8d3" region="proms" offset="240"/>
+		<device_ref name="konami1"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8039"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI-1" clock="1536000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="daccpu" name="Intel 8039" clock="7159090"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="filter.0.0" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.1" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.2" name="RC Filter"/>
+		<display tag="screen" type="raster" rotate="90" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2" value="3" default="yes"/>
+			<dipvalue name="3" value="2"/>
+			<dipvalue name="4" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 70k 70k+" value="24" default="yes"/>
+			<dipvalue name="20k 80k 80k+" value="16"/>
+			<dipvalue name="30k 90k 90k+" value="8"/>
+			<dipvalue name="30k 100k 100k+" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="megazoneh" sourcefile="konami/megazone.cpp" cloneof="megazone" romof="megazone">
+		<description>Mega Zone (program code H)</description>
+		<year>1983</year>
+		<manufacturer>Konami (Kosuka license)</manufacturer>
+		<rom name="319_h07.11h" size="8192" crc="8ca47f64" sha1="1a20db5ac504b9b004116cfa6992d63a86a04cc5" region="maincpu" offset="6000"/>
+		<rom name="319_h06.9h" size="8192" crc="ed35b12e" sha1="69e88c4801c838a24aba0a867af205a7169ad089" region="maincpu" offset="8000"/>
+		<rom name="319_h05.8h" size="8192" crc="c3655ccd" sha1="b86b58a12c6ced9a7e0a6d0cdb3881a28220a650" region="maincpu" offset="a000"/>
+		<rom name="319_h04.7h" size="8192" crc="9e221177" sha1="0c6fffd657d66090362108578aa78eb36bdcce6b" region="maincpu" offset="c000"/>
+		<rom name="319_h03.6h" size="8192" crc="9048955b" sha1="d8a7b46d984832f566298d3b417b3a34c9fea6c7" region="maincpu" offset="e000"/>
+		<rom name="319e02.6d" merge="319e02.6d" size="8192" crc="d5d45edb" sha1="3808d1b58fe152f8f5b49bf0aa40c53e9c9dd4bd" region="audiocpu" offset="0"/>
+		<rom name="319h01.3a" merge="319e01.3a" size="4096" crc="ed5725a0" sha1="64f54621487291fbfe827fb4cecca299fd0db781" region="daccpu" offset="0"/>
+		<rom name="319e11.3e" merge="319e11.3e" size="8192" crc="965a7ff6" sha1="210aae91a3838e5f7c78747d9b7419d266538ffc" region="gfx1" offset="0"/>
+		<rom name="319e09.2e" merge="319e09.2e" size="8192" crc="5eaa7f3e" sha1="4c038e80d575988407252897a1f1bc6b76af597c" region="gfx1" offset="2000"/>
+		<rom name="319e10.3d" merge="319e10.3d" size="8192" crc="7bb1aeee" sha1="be2dd46cd0121cedad6dab90a22643798a3176ab" region="gfx1" offset="4000"/>
+		<rom name="319e08.2d" merge="319e08.2d" size="8192" crc="6add71b1" sha1="fc8c0ecd3b7f03d63b6c3143143986883345fa38" region="gfx1" offset="6000"/>
+		<rom name="319_g12.8c" merge="319_g12.8c" size="8192" crc="07b8b24b" sha1="faadcb20ee8b26b9ab0692df6a81e5423514863e" region="gfx2" offset="0"/>
+		<rom name="319_g13.10c" merge="319_g13.10c" size="8192" crc="3d8f3743" sha1="1f6fbf804dacfa44cd11b4cf41d0bedb7f2ff6b6" region="gfx2" offset="2000"/>
+		<rom name="319b18.a16" merge="319b18.a16" size="32" crc="23cb02af" sha1="aba459826a75ec07bc6d97580e934f58aa22f4f4" region="proms" offset="0"/>
+		<rom name="319b16.c6" merge="319b16.c6" size="256" crc="5748e933" sha1="c1478c31533a11421cd4579ccfdbb430e193d17b" region="proms" offset="20"/>
+		<rom name="319b17.a11" merge="319b17.a11" size="256" crc="1fbfce73" sha1="1c58eb91982d5f10511d54a83070e859ac57d2f1" region="proms" offset="120"/>
+		<rom name="319b14.e7" merge="319b14.e7" size="32" crc="55044268" sha1="29cf4158314ed897daf045a7f07be865dd977663" region="proms" offset="220"/>
+		<rom name="prom.48" size="32" crc="796dea94" sha1="bab3c2a5466e1c07ec27cccf7b1a21e9de4ed982" region="proms" offset="240"/>
+		<device_ref name="konami1"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8039"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI-1" clock="1536000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="daccpu" name="Intel 8039" clock="7159090"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="filter.0.0" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.1" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.2" name="RC Filter"/>
+		<display tag="screen" type="raster" rotate="90" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 70k 70k+" value="24" default="yes"/>
+			<dipvalue name="20k 80k 80k+" value="16"/>
+			<dipvalue name="30k 90k 90k+" value="8"/>
+			<dipvalue name="30k 100k 100k+" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="megazonei" sourcefile="konami/megazone.cpp" cloneof="megazone" romof="megazone">
+		<description>Mega Zone (program code I)</description>
+		<year>1983</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="319_i07.11h" size="8192" crc="94b22ea8" sha1="dc3ed2a0d1a12df51e46561324d78b7d655be313" region="maincpu" offset="6000"/>
+		<rom name="319_i06.9h" size="8192" crc="0468b619" sha1="a6755728fab37674749f9b77cb53f6f228102f2f" region="maincpu" offset="8000"/>
+		<rom name="319_i05.8h" size="8192" crc="ac59000c" sha1="c7568589f6b0e1706e996fdfed9c16755541951e" region="maincpu" offset="a000"/>
+		<rom name="319_i04.7h" size="8192" crc="1e968603" sha1="fd818f678a3dc8d48a30f9f7670bfcb42a3009a2" region="maincpu" offset="c000"/>
+		<rom name="319_i03.6h" size="8192" crc="0888b803" sha1="37249bfb14c6c3ce40ad68be457ab1f66fd7ea70" region="maincpu" offset="e000"/>
+		<rom name="319e02.6d" merge="319e02.6d" size="8192" crc="d5d45edb" sha1="3808d1b58fe152f8f5b49bf0aa40c53e9c9dd4bd" region="audiocpu" offset="0"/>
+		<rom name="319e01.3a" merge="319e01.3a" size="4096" crc="ed5725a0" sha1="64f54621487291fbfe827fb4cecca299fd0db781" region="daccpu" offset="0"/>
+		<rom name="319e11.3e" merge="319e11.3e" size="8192" crc="965a7ff6" sha1="210aae91a3838e5f7c78747d9b7419d266538ffc" region="gfx1" offset="0"/>
+		<rom name="319e09.2e" merge="319e09.2e" size="8192" crc="5eaa7f3e" sha1="4c038e80d575988407252897a1f1bc6b76af597c" region="gfx1" offset="2000"/>
+		<rom name="319e10.3d" merge="319e10.3d" size="8192" crc="7bb1aeee" sha1="be2dd46cd0121cedad6dab90a22643798a3176ab" region="gfx1" offset="4000"/>
+		<rom name="319e08.2d" merge="319e08.2d" size="8192" crc="6add71b1" sha1="fc8c0ecd3b7f03d63b6c3143143986883345fa38" region="gfx1" offset="6000"/>
+		<rom name="319_e12.8c" size="8192" crc="e0fb7835" sha1="44ccaaf92bdb83323f45e08dbe118697720e9105" region="gfx2" offset="0"/>
+		<rom name="319_e13.10c" merge="319_g13.10c" size="8192" crc="3d8f3743" sha1="1f6fbf804dacfa44cd11b4cf41d0bedb7f2ff6b6" region="gfx2" offset="2000"/>
+		<rom name="319b18.a16" merge="319b18.a16" size="32" crc="23cb02af" sha1="aba459826a75ec07bc6d97580e934f58aa22f4f4" region="proms" offset="0"/>
+		<rom name="319b16.c6" merge="319b16.c6" size="256" crc="5748e933" sha1="c1478c31533a11421cd4579ccfdbb430e193d17b" region="proms" offset="20"/>
+		<rom name="319b17.a11" merge="319b17.a11" size="256" crc="1fbfce73" sha1="1c58eb91982d5f10511d54a83070e859ac57d2f1" region="proms" offset="120"/>
+		<rom name="319b14.e7" merge="319b14.e7" size="32" crc="55044268" sha1="29cf4158314ed897daf045a7f07be865dd977663" region="proms" offset="220"/>
+		<rom name="319b15.e8" merge="319b15.e8" size="32" crc="31fd7ab9" sha1="04d6e51b4930619c8ee12fb0d7b5f981e4d6d8d3" region="proms" offset="240"/>
+		<device_ref name="konami1"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8039"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI-1" clock="1536000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="daccpu" name="Intel 8039" clock="7159090"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="filter.0.0" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.1" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.2" name="RC Filter"/>
+		<display tag="screen" type="raster" rotate="90" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 70k 70k+" value="24" default="yes"/>
+			<dipvalue name="20k 80k 80k+" value="16"/>
+			<dipvalue name="30k 90k 90k+" value="8"/>
+			<dipvalue name="30k 100k 100k+" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="megazonej" sourcefile="konami/megazone.cpp" cloneof="megazone" romof="megazone">
+		<description>Mega Zone (program code J)</description>
+		<year>1983</year>
+		<manufacturer>Konami (Interlogic / Kosuka license)</manufacturer>
+		<rom name="319_j07.11h" size="8192" crc="5161a523" sha1="90b456c30bccaaca96c75c2f421af3a2875b0b6b" region="maincpu" offset="6000"/>
+		<rom name="319_j06.9h" size="8192" crc="7344c3de" sha1="d3867738d4828afa50c8b43116d68cc6074d6cb5" region="maincpu" offset="8000"/>
+		<rom name="319_j05.8h" size="8192" crc="affa492b" sha1="ee6789f293902716d65d08a89ae12dd96c75c885" region="maincpu" offset="a000"/>
+		<rom name="319_j04.7h" size="8192" crc="03544ab3" sha1="efa034cc6976b47915601cf215758df23e308878" region="maincpu" offset="c000"/>
+		<rom name="319_j03.6h" size="8192" crc="0d95cc0a" sha1="9aadadf09a4826da451ee35c89ee0254ec552d80" region="maincpu" offset="e000"/>
+		<rom name="319e02.6d" merge="319e02.6d" size="8192" crc="d5d45edb" sha1="3808d1b58fe152f8f5b49bf0aa40c53e9c9dd4bd" region="audiocpu" offset="0"/>
+		<rom name="319e01.3a" merge="319e01.3a" size="4096" crc="ed5725a0" sha1="64f54621487291fbfe827fb4cecca299fd0db781" region="daccpu" offset="0"/>
+		<rom name="319e11.3e" merge="319e11.3e" size="8192" crc="965a7ff6" sha1="210aae91a3838e5f7c78747d9b7419d266538ffc" region="gfx1" offset="0"/>
+		<rom name="319e09.2e" merge="319e09.2e" size="8192" crc="5eaa7f3e" sha1="4c038e80d575988407252897a1f1bc6b76af597c" region="gfx1" offset="2000"/>
+		<rom name="319e10.3d" merge="319e10.3d" size="8192" crc="7bb1aeee" sha1="be2dd46cd0121cedad6dab90a22643798a3176ab" region="gfx1" offset="4000"/>
+		<rom name="319e08.2d" merge="319e08.2d" size="8192" crc="6add71b1" sha1="fc8c0ecd3b7f03d63b6c3143143986883345fa38" region="gfx1" offset="6000"/>
+		<rom name="319_g12.8c" merge="319_g12.8c" size="8192" crc="07b8b24b" sha1="faadcb20ee8b26b9ab0692df6a81e5423514863e" region="gfx2" offset="0"/>
+		<rom name="319_g13.10c" merge="319_g13.10c" size="8192" crc="3d8f3743" sha1="1f6fbf804dacfa44cd11b4cf41d0bedb7f2ff6b6" region="gfx2" offset="2000"/>
+		<rom name="319b18.a16" merge="319b18.a16" size="32" crc="23cb02af" sha1="aba459826a75ec07bc6d97580e934f58aa22f4f4" region="proms" offset="0"/>
+		<rom name="319b16.c6" merge="319b16.c6" size="256" crc="5748e933" sha1="c1478c31533a11421cd4579ccfdbb430e193d17b" region="proms" offset="20"/>
+		<rom name="319b17.a11" merge="319b17.a11" size="256" crc="1fbfce73" sha1="1c58eb91982d5f10511d54a83070e859ac57d2f1" region="proms" offset="120"/>
+		<rom name="319b14.e7" merge="319b14.e7" size="32" crc="55044268" sha1="29cf4158314ed897daf045a7f07be865dd977663" region="proms" offset="220"/>
+		<rom name="319b15.e8" merge="319b15.e8" size="32" crc="31fd7ab9" sha1="04d6e51b4930619c8ee12fb0d7b5f981e4d6d8d3" region="proms" offset="240"/>
+		<device_ref name="konami1"/>
+		<device_ref name="z80"/>
+		<device_ref name="i8039"/>
+		<device_ref name="ls259"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<device_ref name="filter_rc"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI-1" clock="1536000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="daccpu" name="Intel 8039" clock="7159090"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="aysnd" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="dac" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="filter.0.0" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.1" name="RC Filter"/>
+		<chip type="audio" tag="filter.0.2" name="RC Filter"/>
+		<display tag="screen" type="raster" rotate="90" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="7" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="4"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="24">
+			<diplocation name="SW2" number="4"/>
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="20k 70k 70k+" value="24" default="yes"/>
+			<dipvalue name="20k 80k 80k+" value="16"/>
+			<dipvalue name="30k 90k 90k+" value="8"/>
+			<dipvalue name="30k 100k 100k+" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="mercenario" sourcefile="capcom/commando.cpp" cloneof="commando" romof="commando">
 		<description>Mercenario (bootleg of Commando)</description>
 		<year>1985</year>

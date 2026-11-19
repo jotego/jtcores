@@ -311,6 +311,18 @@ make_verilator_command() {
 "       -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE "
 }
 
+set_simulation_make_jobs() {
+    local regression_mode="$1"
+    MAKEJOBS=
+    if [ -z "$regression_mode" ]; then
+        MAKEJOBS=-j
+    fi
+}
+
+resolve_sim_regression() {
+    printf '%s' "${JTFRAME_SIM_REGRESSION:-}"
+}
+
 is_lint_on() {
 	echo "$EXTRA" | grep lint-only
 }

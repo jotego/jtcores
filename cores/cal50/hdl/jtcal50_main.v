@@ -76,7 +76,7 @@ assign rom_addr = A[19:1];
 assign VPAn     = ~&{A[23],~ASn};
 assign cpu_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | vgfx_cs;
-assign bus_busy = (rom_cs & ~ok_dly) | vgfx_bsy;
+assign bus_busy = (rom_cs & ~ok_dly) | (vgfx_cs & vgfx_bsy);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
 assign ram_addr = { buf_cs, A[15:1] };
@@ -138,8 +138,8 @@ wire       dial_cs = cab_cs && A[4:3]==2;
 
 always @(posedge clk) begin
     if(!vgfx_cs)
-        vgfx_bsy <= 0;
-    else if(pxl_cen) vgfx_bsy <= hdump==3;
+        vgfx_bsy <= 1;
+    else if(pxl_cen) vgfx_bsy <= hdump!=3;
 end
 
 always @(posedge clk) begin
@@ -225,15 +225,16 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( vgfx_cs   ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd6      ),  // denominator, 6 (48/6=8MHz)
     .DTACKn     ( dtackn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       ( fave      ),
     .fworst     (           )

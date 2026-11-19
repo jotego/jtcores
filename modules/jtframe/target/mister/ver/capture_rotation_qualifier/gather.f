@@ -1,0 +1,13 @@
+$JTFRAME/target/mister/hdl/jtframe_mister.sv
+$JTFRAME/target/mister/hdl/jtframe_mister_cab.v
+$JTFRAME/hdl/keyboard/jtframe_cab_stream.v
+$JTFRAME/target/mister/hdl/sys/arcade_video.v
+$JTFRAME/target/mister/hdl/jtframe_mister_capture_io.v
+$JTFRAME/target/mister/hdl/jtframe_mister_capture_tags.v
+$JTFRAME/target/mister/hdl/sys/hps_io.sv
+$JTFRAME/target/mister/hdl/jtframe_mister_dwnld.v
+$JTFRAME/target/mister/hdl/jtframe_mister_status.v
+$JTFRAME/target/mister/hdl/jtframe_target_info.sv
+$JTFRAME/hdl/ram/jtframe_rpwp_ram.v
+$JTFRAME/target/mister/ver/capture_rotation_qualifier/stubs.sv
+$JTFRAME/target/mister/hdl/jtframe_mister_uio.v

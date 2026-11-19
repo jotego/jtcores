@@ -21,6 +21,7 @@ module jttaitox_main(
     input                rst,
     input                clk,        // 48 MHz
     input                LVBL,
+    input                vram_busy,  // video logic owns the video RAM slot
 
     input                cchip,
 
@@ -79,7 +80,7 @@ module jttaitox_main(
 `ifndef NOMAIN
 wire [23:1] A;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn,
-            cpu_cenb, intn, bus_cs, bus_busy, LWRn;
+            cpu_cenb, intn, bus_cs, bus_busy, bus_legit, vram_cs, LWRn;
 wire [ 2:0] FC, IPLn;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
@@ -131,12 +132,14 @@ assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
 assign IPLn     = intn ? 3'b111 : (cchip ? 3'b001 : 3'b101);
 assign VPAn     = !(!ASn && FC==7);
 
+assign vram_cs   = oram_cs | vdcm_cs;
+assign bus_legit = vram_cs;
 `ifdef RAM_IN_SDRAM
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_cs   = rom_cs | ram_cs | vram_cs;
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok) | (vram_cs & vram_busy);
 `else
-assign bus_cs   = rom_cs;
-assign bus_busy = rom_cs & ~rom_ok;
+assign bus_cs   = rom_cs | vram_cs;
+assign bus_busy = (rom_cs & ~rom_ok) | (vram_cs & vram_busy);
 `endif
 
 always @(posedge clk) begin
@@ -187,15 +190,16 @@ jtframe_68kdtack_cen #(.W(6)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ), // 16 MHz XTAL / 2 = 8 MHz, exactly 48/6
     .den        ( 6'd6      ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     .fave       (           ),
     .fworst     (           )
 );

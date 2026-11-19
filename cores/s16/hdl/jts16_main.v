@@ -578,6 +578,8 @@ jtframe_okdly u_ram_okdly(
     .ok_dly ( ram_ok_dly )
 );
 
+wire [1:0] slow_wait = (objram_cs | pal_cs | io_cs | wdog_cs) ? 2'd2 : 2'd0;
+
 jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -587,13 +589,14 @@ jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
+    .RnW        ( cpu_RnW   ),
+    .BGACKn     ( BGACKn    ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 7'd29     ),  // numerator
     .den        ( 8'd146    ),  // denominator
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( slow_wait ),
     // Frequency report
     .fave       ( fave      ),
     .fworst     ( fworst    )

@@ -173,6 +173,7 @@ module jtframe_mister #(parameter
     output          game_rst_n,
     // reset forcing signals:
     input           rst_req,
+    input           cap_system_reset,
     // joystick
     output  [ 9:0]  game_joystick1, game_joystick2, game_joystick3, game_joystick4,
     // left analogue stick
@@ -210,6 +211,15 @@ module jtframe_mister #(parameter
     output    [1:0] scan2x_sl,
     // analogue h-size, applied by sys_top on the VGA branch only
     output    [4:0] hsize_ctl,
+`ifdef JTFRAME_CRT480I
+    // Analog output. MRA mod bit 18 selects 15 kHz 480i (jtframe_crt_480i); otherwise the
+    // scan2x_* picture as in any JTFRAME core. scan2x_* always feeds the HDMI scaler.
+    output    [7:0] crt_r, crt_g, crt_b,
+    output          crt_hs, crt_vs, crt_de, crt_cen, crt_f1,
+    output    [1:0] crt_sl,
+    output          crt_on,     // 480i selected, or still waiting for the mod bytes: sys_top keeps the scaler off
+                                // the analog output and gives HDMI the native picture
+`endif
     // non standard:
     output            dip_pause,
     inout             dip_flip,
@@ -222,12 +232,78 @@ module jtframe_mister #(parameter
     output    [ 7:0]  debug_bus,
     input     [ 7:0]  debug_view,
     output    [ 7:0]  st_addr,
-    input     [ 7:0]  st_dout
+    input     [ 7:0]  st_dout,
+    // Exact-capture boundary to sys_top/ascal.
+    output          cap_io_clk,
+    output          cap_tag_clk,
+    output          cap_io_rst,
+    output          cap_tag_rst,
+    output          cap_video_ok,
+    output          cap_req_toggle,
+    output  [ 31:0] cap_req,
+    input           cap_req_ack_toggle,
+    output          cap_release_toggle,
+    output   [15:0] cap_release,
+    input           cap_release_ack_toggle,
+    output          cap_abort_toggle,
+    output   [15:0] cap_abort,
+    input           cap_abort_ack_toggle,
+    output          cap_life_toggle,
+    output  [ 31:0] cap_life,
+    input           cap_life_ack_toggle,
+    output          cap_tag_valid,
+    output   [14:0] cap_tag,
+    input           cap_tag_ready,
+    output          cap_tag_error,
+    input           cap_result_toggle,
+    input   [511:0] cap_result,
+    output          cap_result_ack_toggle,
+    input     [7:0] cap_state,
+    input     [7:0] cap_fault
 );
+
+`ifdef JTFRAME_REGRESSION
+    `ifndef MISTER_DEBUG_NOHDMI
+localparam REGRESSION_BUILD=1;
+    `else
+localparam REGRESSION_BUILD=0;
+    `endif
+`else
+localparam REGRESSION_BUILD=0;
+`endif
+
+`ifdef JTFRAME_CRT480I
+localparam CAPTURE_BUILD=0;
+`elsif JTFRAME_INTERLACED
+localparam CAPTURE_BUILD=0;
+`else
+localparam CAPTURE_BUILD=REGRESSION_BUILD;
+`endif
 
 wire [21:0] gamma_bus;
 wire [31:0] timestamp;
 wire [ 7:0] ioctl_index;
+wire [35:0] hps_ext_bus;
+wire [31:0] hps_dipsw;
+wire [20:0] cab_inputs;
+wire [31:0] cab_dipsw;
+wire [14:0] cab_frame, cab_frame_index;
+wire cab_active, cab_hold_reset, cab_dipsw_valid, cab_frame_start;
+wire [2:0] cab_state;
+wire [7:0] cab_error;
+wire ext_response_enable;
+wire [15:0] ext_response_word;
+wire io_strobe, io_enable;
+wire [15:0] host_word;
+wire uio_start, uio_finish, uio_active, uio_bad_word;
+wire [15:0] uio_command;
+wire [ 6:0] uio_words;
+wire [ 6:0] uio_bad_index;
+wire [95:0] uio_payload;
+wire [127:0] uio_cab_caps, uio_cap_caps;
+wire [255:0] uio_snapshot;
+wire uio_snapshot_valid, uio_result_valid, uio_rst;
+wire [127:0] hps_status_full;
 
 wire [3*COLORW-1:0] base_rgb;
 wire        base_lhbl, base_lvbl, base_hs, base_vs;
@@ -242,7 +318,12 @@ wire        force_scan2x, direct_video;
 wire        video_rotated;
 wire        lightgun_en;
 
+`ifdef JTFRAME_CRT480I
+wire [18:0] core_mod;
+wire        core_mod_ok;
+`else
 wire [17:0] core_mod;
+`endif
 wire [ 7:0] st_lpbuf, game_vol;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support
@@ -333,6 +414,9 @@ always @(posedge clk_sys)
 
 jtframe_mister_status u_status(
     .status         ( status         ),
+`ifdef JTFRAME_CRT480I
+    .crt_on         ( crt_on         ),
+`endif
     .crop_en        ( crop_en        ),
     .vcopt          ( vcopt          ),
     .crop_scale     ( crop_scale     ),
@@ -392,9 +476,16 @@ reg         framebuf_flip;      // extra OSD options for rotation, bit 0 = rotat
 
 // OSD option visibility. This is linked to the d(D) and h(H) prefixes in cfgstr
 wire [15:0] status_menumask; // a high value hides the menu item
-wire        vertical;
+wire        vertical, db15_osd_combo_en;
 
-assign status_menumask[15:7] = 0,
+assign db15_osd_combo_en = ~status[61];
+assign status_menumask[15:9] = 0,
+       status_menumask[8]    = ~(db15_en | uart_en),
+`ifdef JTFRAME_CRT480I
+       status_menumask[7]    = ~crt_on, // extra CRT height/filter options in the Video page
+`else
+       status_menumask[7]    = 0,
+`endif
        status_menumask[6]    = ~lightgun_en, // sinden lightgun borders
        status_menumask[5]    = crop_ok, // video crop options
 `ifdef JTFRAME_ROTATE       // extra rotate options for vertical games
@@ -443,9 +534,12 @@ jtframe_mister_dwnld u_dwnld(
 
     // Configuration
     .core_mod       ( core_mod       ),
+`ifdef JTFRAME_CRT480I
+    .core_mod_ok    ( core_mod_ok    ),
+`endif
     .game_vol       ( game_vol       ),
     .status         ( status         ),
-    .dipsw          ( dipsw          ),
+    .dipsw          ( hps_dipsw      ),
     .cheat          ( cheat          ),
 
     // DDR
@@ -474,6 +568,7 @@ jtframe_joymux #(.BUTTONS(BUTTONS)) u_joymux(
 
     // joystick mux
     .db15_en    ( db15_en   ),
+    .osd_combo_en ( db15_osd_combo_en ),
     .joyusb_1   ( joyusb_1  ),
     .joyusb_2   ( joyusb_2  ),
     .joymux_1   ( joystick1 ),
@@ -508,15 +603,206 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
+`ifdef JTFRAME_CRT480I
+wire [127:0] status_full;   // CRT filter: 65:64; height: 69:67; bit 66 is free
+assign status_full = hps_status_full;
+`endif
+
+assign status = {hps_status_full[63:1],hps_status_full[0] | cab_hold_reset | cab_inputs[12]};
+assign dipsw = cab_dipsw_valid ? cab_dipsw : hps_dipsw;
+
+assign io_strobe = hps_ext_bus[33];
+assign io_enable = hps_ext_bus[34] && !hps_ext_bus[35];
+assign host_word = hps_ext_bus[31:16];
+assign uio_rst = CAPTURE_BUILD ? cap_io_rst : rst;
+assign hps_ext_bus[32] = ext_response_enable;
+assign hps_ext_bus[15:0] = ext_response_enable ? ext_response_word : 16'hzzzz;
+
+generate if(REGRESSION_BUILD) begin: g_regression
+jtframe_mister_uio #(.CAPTURE_SUPPORT(CAPTURE_BUILD)) u_uio_transport(
+    .rst       ( uio_rst      ),
+    .clk       ( clk_rom      ),
+    .io_enable ( io_enable    ),
+    .io_strobe ( io_strobe    ),
+    .host_word ( host_word    ),
+    .cab_caps  ( uio_cab_caps ),
+    .cap_caps  ( uio_cap_caps ),
+    .cab_snapshot ( uio_snapshot ),
+    .cap_result ( cap_result ),
+    .cab_snapshot_valid ( uio_snapshot_valid ),
+    .cap_result_valid ( uio_result_valid ),
+    .response_enable ( ext_response_enable ),
+    .response_word ( ext_response_word ),
+    .start     ( uio_start    ),
+    .finish    ( uio_finish   ),
+    .active    ( uio_active   ),
+    .command   ( uio_command  ),
+    .words     ( uio_words    ),
+    .payload   ( uio_payload  ),
+    .bad_word  ( uio_bad_word  ),
+    .bad_index ( uio_bad_index )
+);
+jtframe_mister_cab u_cab_bridge(
+    .rst             ( rst             ),
+    .clk_rom         ( clk_rom         ),
+    .clk_sys         ( clk_sys         ),
+    .lvbl            ( LVBL            ),
+    .io_strobe       ( io_strobe       ),
+    .io_enable       ( io_enable       ),
+    .host_word       ( host_word       ),
+    .uio_start       ( uio_start       ),
+    .uio_finish      ( uio_finish      ),
+    .uio_active      ( uio_active      ),
+    .uio_command     ( uio_command     ),
+    .uio_words       ( uio_words       ),
+    .uio_payload     ( uio_payload     ),
+    .uio_bad_word    ( uio_bad_word    ),
+    .uio_bad_index   ( uio_bad_index   ),
+    .uio_caps        ( uio_cab_caps        ),
+    .uio_snapshot    ( uio_snapshot        ),
+    .uio_snapshot_valid ( uio_snapshot_valid ),
+    .cab_active      ( cab_active      ),
+    .cab_hold_reset  ( cab_hold_reset  ),
+    .cab_inputs      ( cab_inputs      ),
+    .cab_dipsw_valid ( cab_dipsw_valid ),
+    .cab_dipsw       ( cab_dipsw       ),
+    .cab_frame       ( cab_frame       ),
+    .cab_frame_start ( cab_frame_start ),
+    .cab_frame_index ( cab_frame_index ),
+    .cab_state       ( cab_state       ),
+    .cab_error       ( cab_error       )
+);
+end else begin: g_no_regression
+    assign ext_response_enable=1'b0;
+    assign ext_response_word=16'd0;
+    assign cab_active=1'b0;
+    assign cab_hold_reset=1'b0;
+    assign cab_inputs=21'd0;
+    assign cab_dipsw_valid=1'b0;
+    assign cab_dipsw=32'd0;
+    assign cab_frame=15'd0;
+    assign cab_frame_start=1'b0;
+    assign cab_frame_index=15'd0;
+    assign cab_state=3'd0;
+    assign cab_error=8'd0;
+end endgenerate
+
+generate if(CAPTURE_BUILD) begin: g_capture
+    wire cap_reset_async = rst | cap_system_reset;
+    reg [1:0] cap_io_reset_pipe, cap_tag_reset_pipe;
+    reg cap_video_ok_reg;
+
+    assign cap_io_clk = clk_rom;
+    assign cap_tag_clk = clk_sys;
+    // Assert on framework startup or the same system reset event as ascal. Release
+    // separately in the two helper domains; CAB/game reset is intentionally absent.
+    always @(posedge clk_rom or posedge cap_reset_async) begin
+        if(cap_reset_async) cap_io_reset_pipe <= 2'b11;
+        else cap_io_reset_pipe <= {cap_io_reset_pipe[0],1'b0};
+    end
+
+    always @(posedge clk_sys or posedge cap_reset_async) begin
+        if(cap_reset_async) cap_tag_reset_pipe <= 2'b11;
+        else cap_tag_reset_pipe <= {cap_tag_reset_pipe[0],1'b0};
+    end
+
+    assign cap_io_rst = cap_io_reset_pipe[1];
+    assign cap_tag_rst = cap_tag_reset_pipe[1];
+    always @(posedge clk_rom) begin
+        if(rst) cap_video_ok_reg <= 1'b0;
+        else cap_video_ok_reg <= status[5:3]==0 && !force_scan2x &&
+                                 !gamma_bus[19] && !rotate[0] && !framebuf_flip;
+    end
+    assign cap_video_ok = cap_video_ok_reg;
+
+    jtframe_mister_capture_io u_capture_io(
+        .clk_rom                 ( clk_rom                 ),
+        .rst                     ( cap_io_rst              ),
+        .io_strobe               ( io_strobe               ),
+        .io_enable               ( io_enable               ),
+        .host_word               ( host_word               ),
+        .uio_start               ( uio_start               ),
+        .uio_finish              ( uio_finish              ),
+        .uio_active              ( uio_active              ),
+        .uio_command             ( uio_command             ),
+        .uio_words               ( uio_words               ),
+        .uio_payload             ( uio_payload             ),
+        .uio_bad_word            ( uio_bad_word            ),
+        .uio_bad_index           ( uio_bad_index           ),
+        .uio_caps                ( uio_cap_caps            ),
+        .uio_result_valid        ( uio_result_valid        ),
+        .cap_state_in            ( cap_state               ),
+        .cap_fault_in            ( cap_fault               ),
+        .cap_req_toggle          ( cap_req_toggle          ),
+        .cap_req                 ( cap_req                 ),
+        .cap_req_ack_toggle      ( cap_req_ack_toggle      ),
+        .cap_release_toggle      ( cap_release_toggle      ),
+        .cap_release             ( cap_release             ),
+        .cap_release_ack_toggle  ( cap_release_ack_toggle  ),
+        .cap_abort_toggle        ( cap_abort_toggle        ),
+        .cap_abort               ( cap_abort               ),
+        .cap_abort_ack_toggle    ( cap_abort_ack_toggle    ),
+        .cap_result_toggle       ( cap_result_toggle       ),
+        .cap_result              ( cap_result              ),
+        .cap_result_ack_toggle   ( cap_result_ack_toggle   )
+    );
+
+    jtframe_mister_capture_tags u_capture_tags(
+        .clk_sys                 ( clk_sys                 ),
+        .rst                     ( cap_tag_rst             ),
+        .lvbl                    ( LVBL                    ),
+        .cab_frame_start         ( cab_frame_start         ),
+        .cab_frame_index         ( cab_frame_index         ),
+        .cab_completed           ( cab_frame               ),
+        .cab_state               ( cab_state               ),
+        .cab_error               ( cab_error               ),
+        .cap_tag_valid           ( cap_tag_valid           ),
+        .cap_tag                 ( cap_tag                 ),
+        .cap_tag_ready           ( cap_tag_ready           ),
+        .cap_tag_overflow        (                         ),
+        .cap_tag_sequence_error  (                         ),
+        .cap_tag_error           ( cap_tag_error           ),
+        .cap_life_toggle         ( cap_life_toggle         ),
+        .cap_life                ( cap_life                ),
+        .cap_life_ack_toggle     ( cap_life_ack_toggle     )
+    );
+end else begin: g_no_capture
+    assign cap_io_clk=1'b0;
+    assign cap_tag_clk=1'b0;
+    assign cap_io_rst=1'b0;
+    assign cap_tag_rst=1'b0;
+    assign cap_video_ok=1'b0;
+    assign uio_cap_caps=128'd0;
+    assign uio_result_valid=1'b0;
+    assign cap_req_toggle=1'b0;
+    assign cap_req=32'd0;
+    assign cap_release_toggle=1'b0;
+    assign cap_release=16'd0;
+    assign cap_abort_toggle=1'b0;
+    assign cap_abort=16'd0;
+    assign cap_life_toggle=1'b0;
+    assign cap_life=32'd0;
+    assign cap_tag_valid=1'b0;
+    assign cap_tag=15'd0;
+    assign cap_tag_error=1'b0;
+    assign cap_result_ack_toggle=1'b0;
+end endgenerate
+
 hps_io #(
-    .STRLEN(1024),.PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
+    .STRLEN(1024),
+    .PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
 ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
+    .EXT_BUS         ( hps_ext_bus    ),
 
     .buttons         ( buttons        ),
-    .status          ( status         ),
+`ifdef JTFRAME_CRT480I
+    .status          ( hps_status_full),
+`else
+    .status          ( hps_status_full),
+`endif
     .status_menumask ( status_menumask),
     .gamma_bus       ( gamma_bus      ),
     .direct_video    ( direct_video   ),
@@ -678,8 +964,114 @@ u_arcade_video(
 
     .gamma_bus  ( gamma_bus     ),
     .fx         ( status[5:3]   ), // scanlines
+`ifdef JTFRAME_CRT480I
+    .forced_scandoubler( force_scan2x & ~crt_on ) // with 480i this path feeds the HDMI scaler only
+`else
     .forced_scandoubler( force_scan2x )
+`endif
 );
+
+`ifdef JTFRAME_CRT480I
+// jtframe_crt_480i (GPL-2.0-or-later, Chris Watson) re-times the game's own video into 15 kHz 480i for
+// the analog output when the MRA sets mod bit 18. It takes the same video as arcade_video,
+// before any scaler or scan line effect. It runs on clk_pico (48 MHz / 4.5 = 10.67 MHz output
+// pixels), where it meets timing (at 96 MHz its deflicker blend does not): each game pixel is
+// handed over with a toggle, and its output comes back to clk_sys for the single video clock.
+// clk_pico and clk_sys come from the same PLL; a game pixel and an output pixel both last
+// at least two clk_pico cycles.
+// The mod bytes arrive after the ROM, so the analog output stays black with no syncs until
+// they have: a 15 kHz monitor never sees the native rate while a 480i MRA loads. Every
+// jtframe MRA has them; an MRA without them gets no analog output (HDMI is not affected).
+reg [2:0] c480_height_m, c480_height;
+reg [1:0] c480_dfl_m, c480_dfl;
+reg [60:53] crt_pos_m, crt_pos;
+reg [3*COLORW-1:0] v1_pix, v2_pix;
+reg         v1_de, v1_vs, v1_t=0, v2_de, v2_vs, v2_t=0, v2_ce=0, c480_cen_l=0;
+reg         ana_on=0, crt_sel=0;
+wire  [7:0] c480_r, c480_g, c480_b;
+wire  [2:0] c480_vh;
+wire signed [6:0] c480_hoffset, c480_voffset;
+
+// The height menu starts at 224; the filter menu uses the module's encoding.
+assign c480_vh = c480_height < 3'd3 ? c480_height + 3'd4 : c480_height - 3'd3;
+// Keep the regular signed four-bit CRT offsets. Each H step is four output
+// pixels (-32..+28), and each V step is two field lines (-16..+14).
+assign c480_hoffset = {crt_pos[56], crt_pos[56:53], 2'b00};
+assign c480_voffset = {{2{crt_pos[60]}}, crt_pos[60:57], 1'b0};
+
+assign crt_on = crt_sel | ~ana_on;
+wire        c480_hs, c480_vs, c480_de, c480_cen, c480_f1;
+
+always @(posedge clk_sys) if( pxl_cen ) begin
+    v1_pix <= base_rgb;
+    { v1_de, v1_vs } <= { base_lhbl & base_lvbl, hsize_vs };
+    v1_t   <= ~v1_t;
+end
+
+always @(posedge clk_pico) begin
+    c480_height_m <= status_full[69:67];
+    c480_height   <= c480_height_m;
+    c480_dfl_m    <= status_full[65:64];
+    c480_dfl      <= c480_dfl_m;
+    crt_pos_m <= status[60:53];
+    crt_pos   <= crt_pos_m;
+    v2_t    <= v1_t;
+    v2_ce   <= v2_t != v1_t;
+    if( v2_t != v1_t ) begin
+        v2_pix <= v1_pix;
+        { v2_de, v2_vs } <= { v1_de, v1_vs };
+    end
+end
+
+always @(posedge clk_sys) begin
+    c480_cen_l <= c480_cen;
+    // crt_on follows bit 18 after every mod download
+    if( core_mod_ok && !hps_download ) begin
+        crt_sel <= core_mod[18];
+        ana_on <= 1;
+    end
+end
+
+jtframe_crt_480i #(
+    .CLK_HZ     ( 48_000_000    ),
+    .CLK_DIV    ( 4             ),
+    .CLK_FRAC   ( 1             ),    // 48 MHz / 4.5 = 10.67 MHz
+`ifdef JTFRAME_CRT480I_RING
+    .RING       ( `JTFRAME_CRT480I_RING ),
+`endif
+    .PW         ( 3*COLORW      ),
+    .LUT_EXT    ( 0             )
+) u_crt_480i(
+    .clk        ( clk_pico      ),
+    .ce_in      ( v2_ce         ),
+    .pix_in     ( v2_pix        ),
+    .vs_in      ( v2_vs         ),
+    .de_in      ( v2_de         ),
+    .hoffset    ( c480_hoffset  ),
+    .voffset    ( c480_voffset  ),
+    .deflicker  ( c480_dfl      ),
+    .vheight    ( c480_vh       ),                              // 1:1, or 200..240 lines
+    .lut_addr   (               ),
+    .lut_rgb    ( 24'd0         ),
+    .ce_out     ( c480_cen      ),
+    .r_out      ( c480_r        ),
+    .g_out      ( c480_g        ),
+    .b_out      ( c480_b        ),
+    .hs_out     ( c480_hs       ),
+    .vs_out     ( c480_vs       ),
+    .de_out     ( c480_de       ),
+    .hb_out     (               ),
+    .vb_out     (               ),
+    .field      ( c480_f1       ),
+    .locked     (               )
+);
+
+assign { crt_r, crt_g, crt_b } = !ana_on ? 24'd0 : crt_on ? { c480_r, c480_g, c480_b } : { scan2x_r, scan2x_g, scan2x_b };
+assign { crt_hs, crt_vs, crt_de } = !ana_on ? 3'd0 : crt_on ? { c480_hs, c480_vs, c480_de } : { scan2x_hs, scan2x_vs, scan2x_de };
+assign crt_cen = crt_on ? c480_cen & ~c480_cen_l : scan2x_cen; // one clk_sys cycle per output pixel
+assign crt_f1  = crt_on & c480_f1;
+assign crt_sl  = crt_on ? 2'd0 : scan2x_sl;
+`endif
 
 jtframe_board #(
     .BUTTONS               ( BUTTONS              ),
@@ -693,8 +1085,8 @@ jtframe_board #(
     .rst            ( rst             ),
     .rst_n          ( rst_n           ),
     .capture_pause  ( 1'b0            ),
-    .cab_active     ( 1'b0            ),
-    .cab_inputs     ( 21'b0           ),
+    .cab_active     ( cab_active      ),
+    .cab_inputs     ( cab_inputs      ),
     .cab_dump_pause ( 1'b0            ),
     .game_rst       ( game_rst        ),
     .game_rst_n     ( game_rst_n      ),
@@ -711,7 +1103,7 @@ jtframe_board #(
     .clk_rom        ( clk_rom         ),
     .clk_pico       ( clk_pico        ),
 
-    .core_mod       ( core_mod        ),
+    .core_mod       ( core_mod[17:0]  ),
     .game_vol       ( game_vol        ),
     .vertical       ( vertical        ),
     .black_frame    (                 ),
@@ -732,6 +1124,7 @@ jtframe_board #(
     .board_joystick2( joystick2       ),
     .board_joystick3( joystick3       ),
     .board_joystick4( joystick4       ),
+    .joy_aux_en     ( 1'b1            ),
     .joyana_l1      ( joyana_l1       ),
     .joyana_r1      ( joyana_r1       ),
     .joyana_l2      ( joyana_l2       ),

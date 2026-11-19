@@ -259,20 +259,21 @@ jtframe_pole #(.WA(8), .WS(14)) u_pole(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( sample    ),
-    .a          ( 8'he7     ),  // pole at 770Hz for a 48kHz sample rate
+    .a          ( 8'h94     ),  // first-order 4 kHz low-pass at 48 kHz
     .sin        ( oki_pre   ),
     .sout       ( pcm_rc    )
 );
 
-jtframe_iir2 #(.G(2), .WS(14)) u_butter(
+// 4 kHz Butterworth at 48 kHz, coefficients in units of 1/8192.
+jtframe_iir2 #(.G(1), .WS(14), .WC(15)) u_butter(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .sample     ( sample    ),
-    .a1         ( 14'd10483 ),
-    .a2         (-14'd3912  ),
-    .b0         ( 14'd405   ),
-    .b1         ( 14'd811   ),
-    .b2         ( 14'd405   ),
+    .a1         (-15'sd10483),
+    .a2         ( 15'sd3912 ),
+    .b0         ( 15'sd405  ),
+    .b1         ( 15'sd811  ),
+    .b2         ( 15'sd405  ),
     .sin        ( oki_pre   ),
     .sout       ( pcm_butter)
 );

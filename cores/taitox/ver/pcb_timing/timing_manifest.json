@@ -1,0 +1,215 @@
+{
+  "board": "Taito X P0-039A Superman",
+  "purpose": "matched frame-paced memory timing diagnostic",
+  "firmware_build_id": "0x2303",
+  "suite_id": "taitox-p0-039a-timing-v3-low64k-1frame",
+  "suite_crc32": "1148a629",
+  "image_crc32": "9041612a",
+  "source_files": [
+    "timing_diag.s",
+    "timing_firmware.c",
+    "timing_layout.ld"
+  ],
+  "assembled_bytes": 3872,
+  "cpu_image_bytes": 262144,
+  "lane_image_bytes": 131072,
+  "run_order": [
+    "baseline",
+    "rom-read-1",
+    "rom-read-2",
+    "rom-read-4",
+    "ram-read-1",
+    "ram-read-2",
+    "ram-read-4",
+    "ram-write-1",
+    "ram-write-2",
+    "ram-write-4",
+    "object-tail-read-1",
+    "object-tail-read-2",
+    "object-tail-read-4",
+    "object-tail-write-1",
+    "object-tail-write-2",
+    "object-tail-write-4",
+    "y-read-1",
+    "y-read-2",
+    "y-read-4",
+    "y-write-1",
+    "y-write-2",
+    "y-write-4",
+    "object-source-hidden-code-read-1",
+    "object-source-hidden-code-read-2",
+    "object-source-hidden-code-read-4",
+    "object-source-hidden-code-write-1",
+    "object-source-hidden-code-write-2",
+    "object-source-hidden-code-write-4",
+    "object-active-hidden-code-read-1",
+    "object-active-hidden-code-read-2",
+    "object-active-hidden-code-read-4",
+    "object-active-hidden-code-write-1",
+    "object-active-hidden-code-write-2",
+    "object-active-hidden-code-write-4",
+    "baseline-repeat"
+  ],
+  "primary_case_count": 22,
+  "supplemental_case_count": 12,
+  "steady_samples_per_run": 1,
+  "sample_storage_cpu_address": "0x00f00100",
+  "kernel_addresses": {
+    "timing_baseline": "0x000536",
+    "timing_read1": "0x000542",
+    "timing_read2": "0x00054e",
+    "timing_read4": "0x00055a",
+    "timing_write1": "0x000566",
+    "timing_write2": "0x000572",
+    "timing_write4": "0x00057e"
+  },
+  "transition_sample": "slot 0 is retained internally and excluded from the exported sample; its handler path matches steady samples",
+  "sample_format": "big-endian uint32 loop counts, four per data frame",
+  "result_frames": "metadata flags 0x01, range/CRC flags 0x02, IRQ2/4/6 counters flags 0x04, 9 data flags 0x10, terminal CRC flags 0x20",
+  "pico_protocol": "type-2 27-byte frames, CRC16-CCITT, sequence ACK, compact sample CRC32",
+  "pico_tx_cpu_window": "0x01b800-0x01bfff",
+  "pico_a10_physical_window": "0x00dc00-0x00dfff, FF-filled",
+  "picorom_size": "64 KiB per lane (addr_mask 0xffff); CPU 0x000000-0x01ffff only, nothing above is placed or accessed",
+  "rom_read_cpu_address": "0x010000",
+  "irq_handling": {
+    "vectors": {
+      "26": "IRQ2 VBL",
+      "28": "IRQ4 C-chip",
+      "30": "IRQ6 VBL+C-chip"
+    },
+    "sample_source": "first observed IRQ2 or IRQ6; IRQ4 is acknowledged and counted but never samples/resets the loop count",
+    "acknowledgements": {
+      "IRQ2": "write 0x0010 to 0x600000",
+      "IRQ4": "write 0x3000 to 0x300000",
+      "IRQ6": "write 0x3000 to 0x300000 and 0x0010 to 0x600000"
+    },
+    "watchdog": "write 0x0010 to 0x400000 on every IRQ and during the startup wait/result ACK wait",
+    "startup": "service watchdog before RAM qualification; service again after each RAM pass; service and clear both pending IRQ latches before marker 0x11 and before enabling IRQs",
+    "overhead": "each ISR masks IPL7 before saving registers, then acknowledges/services watchdog before C sampling work; this nonreentrant handler overhead is outside timed kernels but remains in per-frame loop counts"
+  },
+  "expected_irq_level": 6,
+  "fixed_count_mode": {
+    "loop": "DBRA with N=0,128,256,512; N=0 skips DBRA",
+    "repetitions_per_count": 3,
+    "marker_timestamps": "RP2040 event timestamps in microseconds (1 us resolution); bracket duration is not CPU edge/cycle time",
+    "event_budget": "28 events total including reset/RAM/start/end markers, within the PicoROM 31-entry ring",
+    "capture_order": "snapshot the event ring before requesting framed results; TX events can overwrite ring entries",
+    "dbra_note": "N>0 executes N DBRA instructions, costing 10*N + 4 CPU cycles before observer overhead; N=0 skips DBRA",
+    "brackets": [
+      {
+        "count": 0,
+        "repetition": 0,
+        "start_cpu_read": "0x01bc40",
+        "end_cpu_read": "0x01bc42",
+        "start_event_low9": "0x020",
+        "end_event_low9": "0x021"
+      },
+      {
+        "count": 0,
+        "repetition": 1,
+        "start_cpu_read": "0x01bc44",
+        "end_cpu_read": "0x01bc46",
+        "start_event_low9": "0x022",
+        "end_event_low9": "0x023"
+      },
+      {
+        "count": 0,
+        "repetition": 2,
+        "start_cpu_read": "0x01bc48",
+        "end_cpu_read": "0x01bc4a",
+        "start_event_low9": "0x024",
+        "end_event_low9": "0x025"
+      },
+      {
+        "count": 128,
+        "repetition": 0,
+        "start_cpu_read": "0x01bc4c",
+        "end_cpu_read": "0x01bc4e",
+        "start_event_low9": "0x026",
+        "end_event_low9": "0x027"
+      },
+      {
+        "count": 128,
+        "repetition": 1,
+        "start_cpu_read": "0x01bc50",
+        "end_cpu_read": "0x01bc52",
+        "start_event_low9": "0x028",
+        "end_event_low9": "0x029"
+      },
+      {
+        "count": 128,
+        "repetition": 2,
+        "start_cpu_read": "0x01bc54",
+        "end_cpu_read": "0x01bc56",
+        "start_event_low9": "0x02a",
+        "end_event_low9": "0x02b"
+      },
+      {
+        "count": 256,
+        "repetition": 0,
+        "start_cpu_read": "0x01bc58",
+        "end_cpu_read": "0x01bc5a",
+        "start_event_low9": "0x02c",
+        "end_event_low9": "0x02d"
+      },
+      {
+        "count": 256,
+        "repetition": 1,
+        "start_cpu_read": "0x01bc5c",
+        "end_cpu_read": "0x01bc5e",
+        "start_event_low9": "0x02e",
+        "end_event_low9": "0x02f"
+      },
+      {
+        "count": 256,
+        "repetition": 2,
+        "start_cpu_read": "0x01bc60",
+        "end_cpu_read": "0x01bc62",
+        "start_event_low9": "0x030",
+        "end_event_low9": "0x031"
+      },
+      {
+        "count": 512,
+        "repetition": 0,
+        "start_cpu_read": "0x01bc64",
+        "end_cpu_read": "0x01bc66",
+        "start_event_low9": "0x032",
+        "end_event_low9": "0x033"
+      },
+      {
+        "count": 512,
+        "repetition": 1,
+        "start_cpu_read": "0x01bc68",
+        "end_cpu_read": "0x01bc6a",
+        "start_event_low9": "0x034",
+        "end_event_low9": "0x035"
+      },
+      {
+        "count": 512,
+        "repetition": 2,
+        "start_cpu_read": "0x01bc6c",
+        "end_cpu_read": "0x01bc6e",
+        "start_event_low9": "0x036",
+        "end_event_low9": "0x037"
+      }
+    ]
+  },
+  "object_test_address_note": "Primary object-tail E03FFE is unused RAM at word offset 0x1fff and outside the MAME EOF sprite-bank copy. Supplemental probes use hidden sprite entry 511 code words at E003FE (source) and E023FE (active), with X/Y set offscreen before timing.",
+  "diagnostic_screen": {
+    "setup": "boot-v4 X1-001 pattern: mirror source and active LUTs, hidden unused entries, draw game tile codes 1..32 as a two-row color strip on blue backdrop",
+    "status_backdrops": {
+      "waiting": "blue 0x001f",
+      "irq2": "green 0x03e0",
+      "irq4-before-vblank": "cyan 0x03ff",
+      "irq6": "red 0x7c00",
+      "suite-complete": "white 0x7fff",
+      "fatal": "magenta 0x7c1f"
+    },
+    "setup_timing": "all screen initialization and status writes are outside timed kernels"
+  },
+  "sha256": {
+    "timing_cpu.bin": "3edde8ad5f6e53c4b53d9a282426f685f1d877283f4b486f66438cdd650a7acd",
+    "timing_a10_even_high.bin": "09e30444e4e38edf7d6981228894178debb0f8cb5ae2153a430a94d68fdaac50",
+    "timing_a5_odd_low.bin": "9500c0cb8b99bbaa5d8c7f87b53b6fce4805fe28dd7c34fff5ad7893cbe9a522"
+  }
+}

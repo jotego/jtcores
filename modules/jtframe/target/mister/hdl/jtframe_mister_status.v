@@ -3,6 +3,9 @@
  * Date: 14-03-2025 */
 module jtframe_mister_status (
     input  [63:0] status,
+`ifdef JTFRAME_CRT480I
+    input         crt_on,   // 480i analog output: it has its own position controls
+`endif
     output        crop_en,
     output [ 3:0] vcopt,
     output [ 2:0] crop_scale,
@@ -21,8 +24,12 @@ assign crop_en    = status[41];
 assign vcopt      = status[45:42];
 assign crop_scale = {1'b0, status[47:46]};
 
-// H-Pos & V-Pos for CRT
-assign { voffset, hoffset } = status[60:53];
+`ifndef JTFRAME_CRT480I
+wire crt_on = 0;
+`endif
+// The interlacer uses these same offset bits at its output. Keep the native
+// source offsets at rest in 480i mode so they do not also move the HDMI image.
+assign { voffset, hoffset } = crt_on ? 8'd0 : status[60:53];
 
 // Horizontal scaling for CRT
 assign hsize_enable = status[48];

@@ -47,6 +47,10 @@ qtono2j:
   inputs: reg.cab
 sf2ce:
   inputs: reg.cab
+sf2cre:
+  skip: true # Required ROM archive unavailable.
+sf2hfsce:
+  skip: true # Required ROM archive unavailable.
 sf2hf:
   inputs: reg.cab
 sf2:

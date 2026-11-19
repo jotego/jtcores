@@ -232,7 +232,7 @@ end
 
 // gp_in[31] = 0 - quick flag that FPGA is initialized (HPS reads 1 when FPGA is not in user mode)
 //                 used to avoid lockups while JTAG loading
-wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 8'd0, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
+wire [31:0] gp_in = {1'b0, btn_user | btn[1], btn_osd | btn[0], io_dig, 7'd0, ~HDMI_TX_INT, io_ver, io_ack, io_wide, io_dout | io_dout_sys};
 wire [31:0] gp_out;
 
 wire  [1:0] io_ver = 1; // 0 - obsolete. 1 - optimized HPS I/O. 2,3 - reserved for future.
@@ -289,11 +289,20 @@ cyclonev_hps_interface_mpu_general_purpose h2f_gp
 reg [15:0] cfg;
 reg        cfg_set      = 0;
 
+`ifdef JTFRAME_CRT480I
+	wire    crt480i_on;
+`endif
 `ifdef MISTER_DEBUG_NOHDMI
 	wire    vga_fb       = 0;
 	wire    direct_video = 1;
 `else
+`ifdef JTFRAME_CRT480I
+	// 480i selected by the MRA (or mod bytes not in yet): the VGA port never carries the scaler
+	// (15 kHz-only monitor), so no MiSTer.ini setting can route a scaled mode to VGA. Otherwise as usual.
+	wire    vga_fb       = ~crt480i_on & (cfg[12] | vga_force_scaler);
+`else
 	wire    vga_fb       = cfg[12] | vga_force_scaler;
+`endif
 	wire    direct_video = cfg[10];
 `endif
 
@@ -307,7 +316,11 @@ wire       io_osd_vga   = io_ss1 & ~io_ss2;
 	`ifdef MISTER_DEBUG_NOHDMI
 		wire vga_scaler   = 0;
 	`else
+	`ifdef JTFRAME_CRT480I
+		wire vga_scaler   = ~crt480i_on & (cfg[2] | vga_force_scaler);  // see vga_fb above
+	`else
 		wire vga_scaler   = cfg[2] | vga_force_scaler;
+	`endif
 	`endif
 `endif
 
@@ -396,6 +409,8 @@ always@(posedge clk_sys) begin
 `ifndef MISTER_DEBUG_NOHDMI
 			if(io_din[7:0] == 'h40) io_dout_sys <= fb_crc;
 `endif
+			if(io_din[7:0] == 'h42) io_dout_sys <= {1'b1, frame_cnt};
+			if(io_din[7:0] == 'h44) io_dout_sys <= 1;
 		end
 		else begin
 			cnt <= cnt + 1'd1;
@@ -536,6 +551,15 @@ always@(posedge clk_sys) begin
 	if(~vs_d2 & vs_d1) vs_wait <= 0;
 end
 
+reg [7:0] frame_cnt;
+always @(posedge clk_sys) begin
+	reg vs_r, vs_old;
+
+	vs_r <= vs_fix;
+	if(vs_r == vs_fix) vs_old <= vs_r;
+	if(~vs_old & vs_r) frame_cnt <= frame_cnt + 1'd1;
+end
+
 cyclonev_hps_interface_peripheral_uart uart
 (
 	.ri(0),
@@ -584,6 +608,7 @@ sysmem_lite sysmem
 (
 	//Reset/Clock
 	.reset_core_req(reset_req),
+	.vbuf_user_reset(vbuf_user_reset),
 	.reset_out(reset),
 	.clock(clk_100m),
 
@@ -686,6 +711,61 @@ wire  [23:0] hdmi_data;
 wire         hdmi_vs, hdmi_hs, hdmi_de, hdmi_vbl, hdmi_brd;
 wire         freeze;
 wire         bob_deint;
+wire         hdmi_f1;     // the scaler's field flag: f1, or 0 for the native picture while 480i is on
+
+wire CAP_IO_CLK, CAP_TAG_CLK, CAP_IO_RST, CAP_TAG_RST, CAP_VIDEO_OK;
+wire ascal_reset_na;
+wire vbuf_user_reset;
+wire CAP_REQ_TOGGLE, CAP_REQ_ACK_TOGGLE;
+wire [31:0] CAP_REQ;
+wire CAP_RELEASE_TOGGLE, CAP_RELEASE_ACK_TOGGLE;
+wire [15:0] CAP_RELEASE;
+wire CAP_ABORT_TOGGLE, CAP_ABORT_ACK_TOGGLE;
+wire [15:0] CAP_ABORT;
+wire CAP_LIFE_TOGGLE, CAP_LIFE_ACK_TOGGLE;
+wire [31:0] CAP_LIFE;
+wire CAP_TAG_VALID, CAP_TAG_READY, CAP_TAG_ERROR;
+wire [14:0] CAP_TAG;
+wire CAP_RESULT_TOGGLE, CAP_RESULT_ACK_TOGGLE;
+wire [511:0] CAP_RESULT;
+wire [7:0] CAP_STATE, CAP_FAULT;
+wire cap_mode_supported;
+
+`ifdef JTFRAME_REGRESSION
+`ifndef MISTER_DEBUG_NOHDMI
+`ifndef JTFRAME_CRT480I
+`ifndef JTFRAME_INTERLACED
+assign ascal_reset_na = ~(reset_req | CAP_IO_RST | CAP_TAG_RST);
+`else
+assign ascal_reset_na = ~reset_req;
+`endif
+`else
+assign ascal_reset_na = ~reset_req;
+`endif
+`else
+assign ascal_reset_na = ~reset_req;
+`endif
+`else
+assign ascal_reset_na = ~reset_req;
+`endif
+
+`ifdef JTFRAME_REGRESSION
+`ifndef MISTER_DEBUG_NOHDMI
+`ifndef JTFRAME_CRT480I
+`ifndef JTFRAME_INTERLACED
+assign vbuf_user_reset = CAP_IO_RST | CAP_TAG_RST;
+`else
+assign vbuf_user_reset = 1'b0;
+`endif
+`else
+assign vbuf_user_reset = 1'b0;
+`endif
+`else
+assign vbuf_user_reset = 1'b0;
+`endif
+`else
+assign vbuf_user_reset = 1'b0;
+`endif
 
 `ifndef MISTER_DEBUG_NOHDMI
 	wire clk_hdmi  = hdmi_clk_out;
@@ -711,16 +791,56 @@ wire         bob_deint;
 	`ifdef MISTER_DOWNSCALE_NN
 		.DOWNSCALE_NN("true"),
 	`endif
+		`ifdef JTFRAME_REGRESSION
+			`ifndef JTFRAME_CRT480I
+				`ifndef JTFRAME_INTERLACED
+					.CAPTURE("true"),
+					.CAPTURE_CYCLES_PER_MS(100000),
+				`else
+					.CAPTURE("false"),
+				`endif
+			`else
+				.CAPTURE("false"),
+			`endif
+		`else
+			.CAPTURE("false"),
+		`endif
 		.FRAC(8),
 		.N_DW(128),
 		.N_AW(28)
 	)
 	ascal
 	(
-		.reset_na   (~reset_req),
+		.reset_na   (ascal_reset_na),
 		.run        (1),
 		.freeze     (freeze),
 		.bob_deint  (bob_deint),
+		.cap_io_clk (CAP_IO_CLK),
+		.cap_io_rst (CAP_IO_RST),
+		.cap_req_toggle (CAP_REQ_TOGGLE),
+		.cap_req    (CAP_REQ),
+		.cap_req_ack_toggle (CAP_REQ_ACK_TOGGLE),
+		.cap_release_toggle (CAP_RELEASE_TOGGLE),
+		.cap_release (CAP_RELEASE),
+		.cap_release_ack_toggle (CAP_RELEASE_ACK_TOGGLE),
+		.cap_abort_toggle (CAP_ABORT_TOGGLE),
+		.cap_abort  (CAP_ABORT),
+		.cap_abort_ack_toggle (CAP_ABORT_ACK_TOGGLE),
+		.cap_life_toggle (CAP_LIFE_TOGGLE),
+		.cap_life   (CAP_LIFE),
+		.cap_life_ack_toggle (CAP_LIFE_ACK_TOGGLE),
+		.cap_tag_clk (CAP_TAG_CLK),
+		.cap_tag_rst (CAP_TAG_RST),
+		.cap_tag_valid (CAP_TAG_VALID),
+		.cap_tag    (CAP_TAG),
+		.cap_tag_error (CAP_TAG_ERROR),
+		.cap_tag_ready (CAP_TAG_READY),
+		.cap_result_toggle (CAP_RESULT_TOGGLE),
+		.cap_result (CAP_RESULT),
+		.cap_result_ack_toggle (CAP_RESULT_ACK_TOGGLE),
+		.cap_state  (CAP_STATE),
+		.cap_fault  (CAP_FAULT),
+		.cap_mode_supported (cap_mode_supported),
 
 		.i_clk    (clk_ihdmi),
 		.i_ce     (ce_hpix),
@@ -729,7 +849,7 @@ wire         bob_deint;
 		.i_b      (hb_out),
 		.i_hs     (hhs_fix),
 		.i_vs     (hvs_fix),
-		.i_fl     (f1),
+		.i_fl     (hdmi_f1),
 		.i_de     (hde_emu),
 		.iauto    (1),
 		.himin    (0),
@@ -807,6 +927,19 @@ wire         bob_deint;
 	);
 `endif
 
+`ifdef MISTER_DEBUG_NOHDMI
+// The debug target omits ascal, so do not leave its return sideband floating.
+assign CAP_REQ_ACK_TOGGLE = 1'b0;
+assign CAP_RELEASE_ACK_TOGGLE = 1'b0;
+assign CAP_ABORT_ACK_TOGGLE = 1'b0;
+assign CAP_LIFE_ACK_TOGGLE = 1'b0;
+assign CAP_TAG_READY = 1'b0;
+assign CAP_RESULT_TOGGLE = 1'b0;
+assign CAP_RESULT = 512'd0;
+assign CAP_STATE = 8'd0;
+assign CAP_FAULT = 8'd0;
+`endif
+
 reg        LFB_EN     = 0;
 reg        LFB_FLT    = 0;
 reg  [5:0] LFB_FMT    = 0;
@@ -825,6 +958,10 @@ reg [11:0] FB_WIDTH  = 0;
 reg [11:0] FB_HEIGHT = 0;
 reg [31:0] FB_BASE   = 0;
 reg [13:0] FB_STRIDE = 0;
+
+// Capture qualification follows the actual sampled native input. These
+// settings either transform that input or select an unqualified service path.
+assign cap_mode_supported = CAP_VIDEO_OK && !direct_video && !lowlat && !FB_EN;
 
 always @(posedge clk_sys) begin
 	FB_EN <= LFB_EN | fb_en;
@@ -1416,18 +1553,37 @@ wire [ 4:0] VGA_HSIZE;
 `ifdef MISTER_DUAL_SDRAM
 wire        hsize_off = 1'b1;   // no analogue VGA on a dual SDRAM board
 `else
+`ifdef JTFRAME_CRT480I
+wire        hsize_off = forced_scandoubler & ~crt480i_on;
+`else
 wire        hsize_off = forced_scandoubler;
 `endif
+`endif
+
+wire hsize_enable;
+assign hsize_enable = VGA_HSIZE[4] & ~hsize_off;
 
 jtframe_hretime #(
 	.DIV  (`JTFRAME_HSIZE_DIV  ),
+`ifdef JTFRAME_CRT480I
+`ifdef JTFRAME_SDRAM96
+	.DIV_ALT_X2(18), // 96 MHz / 10.67 MHz = 9 clocks per converted pixel
+`else
+	.DIV_ALT_X2(9),  // 48 MHz / 10.67 MHz = 4.5 clocks per converted pixel
+`endif
+`endif
 	.STEP (`JTFRAME_HSIZE_STEP ),
 	.DEPTH(`JTFRAME_HSIZE_DEPTH)
 ) u_hretime
 (
 	.clk(clk_vid),
 	.ce_in(vga_ce_mix),
-	.enable(VGA_HSIZE[4] & ~hsize_off),
+	.enable(hsize_enable),
+`ifdef JTFRAME_CRT480I
+	.div_alt(crt480i_on),
+`else
+	.div_alt(1'b0),
+`endif
 	.scale(VGA_HSIZE[3:0]),
 
 	.din(vga_data_mix),
@@ -1581,10 +1737,6 @@ assign SDCD_SPDIF = (mcp_en & ~spdif) ? 1'b0 : 1'bZ;
 
 `ifndef MISTER_DUAL_SDRAM
 	wire analog_l, analog_r;
-
-	assign AUDIO_SPDIF = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
-	assign AUDIO_R     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
-	assign AUDIO_L     = av_dis ? 1'bZ : (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
 `endif
 
 assign HDMI_MCLK = clk_audio;
@@ -1634,6 +1786,19 @@ audio_out audio_out
 `endif
 	.spdif(spdif)
 );
+
+`ifndef MISTER_DUAL_SDRAM
+	reg aud_spdif_q, aud_r_q, aud_l_q;
+	always @(posedge clk_audio) begin
+		aud_spdif_q <= (SW[0] | mcp_en) ? HDMI_LRCLK : spdif;
+		aud_r_q     <= (SW[0] | mcp_en) ? HDMI_I2S   : analog_r;
+		aud_l_q     <= (SW[0] | mcp_en) ? HDMI_SCLK  : analog_l;
+	end
+
+	assign AUDIO_SPDIF = av_dis ? 1'bZ : aud_spdif_q;
+	assign AUDIO_R     = av_dis ? 1'bZ : aud_r_q;
+	assign AUDIO_L     = av_dis ? 1'bZ : aud_l_q;
+`endif
 
 
 `ifndef MISTER_DISABLE_ALSA
@@ -1734,6 +1899,25 @@ sync_fix sync_h(clk_vid, hs_emu, hs_fix);
 wire  [6:0] user_out, user_in;
 
 assign clk_ihdmi= clk_vid;
+`ifdef JTFRAME_CRT480I
+// 480i selected by the MRA: the HDMI scaler takes the core's native picture (NATIVE_*), while
+// VGA carries the 15 kHz 480i picture. With direct_video, or without 480i, HDMI takes the VGA
+// stream as usual, so the scaler input (which the HPS also measures) follows it.
+wire  [7:0] nat_r, nat_g, nat_b;
+wire        nat_ce, nat_hs, nat_vs, nat_de, nat_hs_fix, nat_vs_fix;
+wire        hdmi_vga = direct_video | ~crt480i_on;
+sync_fix sync_nv(clk_vid, nat_vs, nat_vs_fix);
+sync_fix sync_nh(clk_vid, nat_hs, nat_hs_fix);
+assign hdmi_f1  = hdmi_vga & f1;   // the native picture is progressive
+assign ce_hpix  = hdmi_vga ? vga_ce_sl          : nat_ce;
+assign hr_out   = hdmi_vga ? vga_data_sl[23:16] : nat_r;
+assign hg_out   = hdmi_vga ? vga_data_sl[15:8]  : nat_g;
+assign hb_out   = hdmi_vga ? vga_data_sl[7:0]   : nat_b;
+assign hhs_fix  = hdmi_vga ? vga_hs_sl          : nat_hs_fix;
+assign hvs_fix  = hdmi_vga ? vga_vs_sl          : nat_vs_fix;
+assign hde_emu  = hdmi_vga ? vga_de_sl          : nat_de;
+`else
+assign hdmi_f1  = f1;
 assign ce_hpix  = vga_ce_sl;
 assign hr_out   = vga_data_sl[23:16];
 assign hg_out   = vga_data_sl[15:8];
@@ -1741,6 +1925,7 @@ assign hb_out   = vga_data_sl[7:0];
 assign hhs_fix  = vga_hs_sl;
 assign hvs_fix  = vga_vs_sl;
 assign hde_emu  = vga_de_sl;
+`endif
 
 wire uart_dtr;
 wire uart_dsr;
@@ -1786,7 +1971,7 @@ emu emu
 (
 	.CLK_50M(FPGA_CLK2_50),
 	.RESET(reset),
-	.HPS_BUS({fb_en, sl, f1, HDMI_TX_VS, 
+	.HPS_BUS({fb_en, sl, hdmi_f1, HDMI_TX_VS,
 				 clk_100m, clk_ihdmi,
 				 ce_hpix, hde_emu, hhs_fix, hvs_fix, 
 				 io_wait, clk_sys, io_fpga, io_uio, io_strobe, io_wide, io_din, io_dout}),
@@ -1799,6 +1984,16 @@ emu emu
 	.VGA_DE(de_emu),
 	.VGA_F1(f1),
 	.VGA_SCALER(vga_force_scaler),
+`ifdef JTFRAME_CRT480I
+	.CRT480I_ON(crt480i_on),
+	.NATIVE_CE(nat_ce),
+	.NATIVE_R(nat_r),
+	.NATIVE_G(nat_g),
+	.NATIVE_B(nat_b),
+	.NATIVE_HS(nat_hs),
+	.NATIVE_VS(nat_vs),
+	.NATIVE_DE(nat_de),
+`endif
 
 `ifndef MISTER_DUAL_SDRAM
 	.VGA_DISABLE(VGA_DISABLE),
@@ -1888,6 +2083,33 @@ emu emu
 
 	.BUTTONS(btn),
 	.OSD_STATUS(osd_status),
+	.CAP_SYSTEM_RESET(reset_req),
+	.CAP_IO_CLK(CAP_IO_CLK),
+	.CAP_TAG_CLK(CAP_TAG_CLK),
+	.CAP_IO_RST(CAP_IO_RST),
+	.CAP_TAG_RST(CAP_TAG_RST),
+	.CAP_VIDEO_OK(CAP_VIDEO_OK),
+	.CAP_REQ_TOGGLE(CAP_REQ_TOGGLE),
+	.CAP_REQ(CAP_REQ),
+	.CAP_REQ_ACK_TOGGLE(CAP_REQ_ACK_TOGGLE),
+	.CAP_RELEASE_TOGGLE(CAP_RELEASE_TOGGLE),
+	.CAP_RELEASE(CAP_RELEASE),
+	.CAP_RELEASE_ACK_TOGGLE(CAP_RELEASE_ACK_TOGGLE),
+	.CAP_ABORT_TOGGLE(CAP_ABORT_TOGGLE),
+	.CAP_ABORT(CAP_ABORT),
+	.CAP_ABORT_ACK_TOGGLE(CAP_ABORT_ACK_TOGGLE),
+	.CAP_LIFE_TOGGLE(CAP_LIFE_TOGGLE),
+	.CAP_LIFE(CAP_LIFE),
+	.CAP_LIFE_ACK_TOGGLE(CAP_LIFE_ACK_TOGGLE),
+	.CAP_TAG_VALID(CAP_TAG_VALID),
+	.CAP_TAG(CAP_TAG),
+	.CAP_TAG_READY(CAP_TAG_READY),
+	.CAP_TAG_ERROR(CAP_TAG_ERROR),
+	.CAP_RESULT_TOGGLE(CAP_RESULT_TOGGLE),
+	.CAP_RESULT(CAP_RESULT),
+	.CAP_RESULT_ACK_TOGGLE(CAP_RESULT_ACK_TOGGLE),
+	.CAP_STATE(CAP_STATE),
+	.CAP_FAULT(CAP_FAULT),
 
 	.SD_SCK(SD_CLK),
 	.SD_MOSI(SD_MOSI),

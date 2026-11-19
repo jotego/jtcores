@@ -94,7 +94,8 @@ bit     |  meaning                | Enabled with macro
 49-52   | CRT scale factor (retimer) | MiSTer only, `oHK`, hidden when bit 48 is 0
 53-56   | CRT H offset            | MiSTer only, `oLO`, signed 4-bit
 57-60   | CRT V offset            | MiSTer only, `oPS`, signed 4-bit
-61-63   |    -- free --           |
+61      | DB15 OSD combo         | MiSTer only, JTFRAME_NO_DB15 unset; default Start+Button 3, Off disables OSD shortcut only
+62-63   |    -- free --           |
 
 Note that CORE_OSD cannot be used with JTFRAME_PLL_TUNE
 
@@ -137,7 +138,8 @@ page and does not allocate a status bit.
 decodes bit 48 as `hsize_enable` and bits 52:49 as `hsize_scale`. These are
 forwarded as `VGA_HSIZE[4:0] = {hsize_enable, hsize_scale}` to the analog
 retimer in `sys_top.v`. Bits 60:53 remain the independent sync offsets;
-bits 61:63 remain free.
+Bit 61 is used by the DB15 OSD combo option when DB15 support is enabled;
+bits 62:63 remain free.
 
 The factor field stores a four-bit code. The retimer interprets codes 8…15
 as signed −8…−1 and adds one to codes 0…7, yielding +1…+8. Thus **code 0

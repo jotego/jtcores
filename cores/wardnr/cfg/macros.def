@@ -28,3 +28,7 @@ JTFRAME_180SHIFT
 
 [sidi128]
 JTFRAME_PLL=jtframe_pll6125
+
+[pocket]
+JTFRAME_PLL=jtframe_pll7000
+JTFRAME_PXLCLK=6

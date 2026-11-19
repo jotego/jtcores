@@ -2,6 +2,7 @@ astorm:
 bloxeed:
   inputs: reg.cab
 aquario:
+  skip: true
 cltchitr:
   inputs: reg.cab
 ddcrew:

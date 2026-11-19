@@ -47,17 +47,16 @@ func SignatureImage(frame int, img image.Image) (FrameSignature, error) {
 	return FrameSignature{Frame: frame, Width: w, Height: h, Pixels: digest}, nil
 }
 
-// SignatureImageAtCapturePrecision hashes MAME pixels after conversion to the
-// RGB444 or RGB555 code captured by jtframe_capture. FPGA images can require
-// exact expansion-grid values; MAME pixels are quantized to the same code.
-func SignatureImageAtCapturePrecision(frame int, img image.Image, bits int, requireExpanded bool) (FrameSignature, error) {
+// SignatureImageAtCapturePrecision hashes pixels after truncation to the
+// native per-channel capture precision shared by the FPGA and MAME images.
+func SignatureImageAtCapturePrecision(frame int, img image.Image, bits int) (FrameSignature, error) {
 	bounds := img.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 	if w <= 0 || h <= 0 {
 		return FrameSignature{}, fmt.Errorf("invalid image dimensions %dx%d", w, h)
 	}
-	if bits != 4 && bits != 5 {
-		return FrameSignature{}, fmt.Errorf("unsupported capture precision %d bits", bits)
+	if bits < 1 || bits > 8 {
+		return FrameSignature{}, fmt.Errorf("unsupported native capture precision %d bits", bits)
 	}
 	hash := sha256.New()
 	interior := sha256.New()
@@ -75,11 +74,7 @@ func SignatureImageAtCapturePrecision(frame int, img image.Image, bits int, requ
 			}
 			channels := [3]uint8{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8)}
 			for i, channel := range channels {
-				code := quantizeCaptureChannel(channel, bits)
-				if requireExpanded && expandCaptureChannel(code, bits) != channel {
-					return FrameSignature{}, fmt.Errorf("published FPGA pixel (%d,%d) channel %d is not on the %d-bit-per-channel expansion grid", x-bounds.Min.X, y-bounds.Min.Y, i, bits)
-				}
-				pixel[i] = code
+				pixel[i] = quantizeCaptureChannel(channel, bits)
 			}
 			_, _ = hash.Write(pixel[:])
 			if x > bounds.Min.X && x < bounds.Max.X-1 && y > bounds.Min.Y && y < bounds.Max.Y-1 {
@@ -96,13 +91,6 @@ func SignatureImageAtCapturePrecision(frame int, img image.Image, bits int, requ
 
 func quantizeCaptureChannel(value uint8, bits int) uint8 {
 	return value >> (8 - bits)
-}
-
-func expandCaptureChannel(code uint8, bits int) uint8 {
-	if bits == 4 {
-		return code * 17
-	}
-	return code<<3 | code>>2
 }
 
 // ImagesEqualRGB confirms the full decoded pixels after a signature match.
@@ -123,15 +111,14 @@ func ImagesEqualRGB(left, right image.Image) bool {
 	return true
 }
 
-// ImagesEqualAtCapturePrecision confirms all pixels after applying the
-// capture's RGB444/RGB555 channel quantization.
+// ImagesEqualAtCapturePrecision confirms pixels after applying native channel quantization.
 func ImagesEqualAtCapturePrecision(left, right image.Image, bits int) bool {
 	return images_equal_capture_region(left, right, bits, 0)
 }
 
 func images_equal_capture_region(left, right image.Image, bits, border int) bool {
 	a, b := left.Bounds(), right.Bounds()
-	if a.Dx() != b.Dx() || a.Dy() != b.Dy() || a.Dx() <= 2*border || a.Dy() <= 2*border || bits != 4 && bits != 5 {
+	if a.Dx() != b.Dx() || a.Dy() != b.Dy() || a.Dx() <= 2*border || a.Dy() <= 2*border || bits < 1 || bits > 8 {
 		return false
 	}
 	for y := border; y < a.Dy()-border; y++ {

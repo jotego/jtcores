@@ -31,7 +31,7 @@ func TestPollCutoffAndSuccessfulRetry(t *testing.T) {
         case strings.HasPrefix(joined,"run view 2 "):
             return []byte(fmt.Sprintf(`{"databaseId":2,"workflowName":"Compile all","status":"completed","conclusion":"success","headSha":"%s","headBranch":"master","event":"push","attempt":2,"jobs":[{"status":"completed","conclusion":"success"}]}`,sha)),nil
         case strings.Contains(joined,"runs/2/artifacts"):
-            return []byte(`{"artifacts":[{"id":22,"name":"aaaaaaa.zip","digest":"sha256:abc"}]}`),nil
+            return []byte(`[{"artifacts":[{"id":22,"name":"aaaaaaa.zip","digest":"sha256:abc"}]}]`),nil
         case strings.Contains(joined,"runs/2"):
             return []byte(`{"pull_requests":[]}`),nil
         default: t.Fatalf("unexpected command (old build must not be inspected): %s",joined);return nil,nil

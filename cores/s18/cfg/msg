@@ -15,9 +15,9 @@
         Reviewed by
     the \RJTAlpha team\W
 
-\R___Known issues___\W
-    - Some monitors may not
-    display the analog image
+Default speed is 60Hz for
+compatibility. Switch it
+manually to 57Hz (original)
 
  \B______ \RDIRECTORS\B _______\W
 Bender          Chris Gelatt

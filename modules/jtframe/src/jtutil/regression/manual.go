@@ -27,7 +27,7 @@ var manualCommand = func(ctx context.Context, source string, args ...string) ([]
 // PrepareManual selects only the requested core/set before generating ROMs.
 // It never discovers Actions builds. RBF bytes and MRA bytes, rather than an
 // inferred compile_all run, establish the identity of a manual session.
-func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname string, useJTBin bool) (Manifest, error) {
+func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname string, useJTBin bool, releaseOverride ...string) (Manifest, error) {
 	if !manualComponent(core) || setname != "" && !manualComponent(setname) {
 		return Manifest{}, fmt.Errorf("manual core and setname must be simple names")
 	}
@@ -51,6 +51,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	mode := "local"
 	if useJTBin {
 		release = os.Getenv("JTBIN")
+		if len(releaseOverride) > 0 && releaseOverride[0] != "" { release = releaseOverride[0]; mode = "commit" }
 		if release == "" {
 			return Manifest{}, fmt.Errorf("--jtbin requires JTBIN")
 		}
@@ -58,7 +59,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		if err != nil {
 			return Manifest{}, err
 		}
-		mode = "jtbin"
+		if mode != "commit" { mode = "jtbin" }
 	} else if !regularNonempty(filepath.Join(source, "cores", core, "cfg", "mame2mra.toml")) {
 		return Manifest{}, fmt.Errorf("unknown project core %s", core)
 	}
@@ -225,6 +226,9 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 		if !regularNonempty(game.ARC) {
 			return Manifest{}, fmt.Errorf("manual ARC converter did not produce %s", game.ARC)
 		}
+		if err = normalize_arc_buttons_file(game.ARC); err != nil {
+			return Manifest{}, fmt.Errorf("normalizing manual ARC button labels for %s: %w", set, err)
+		}
 		if profile.Inputs != "" {
 			game.CAB = filepath.Join(source, "cores", core, "ver", set, profile.Inputs)
 			if !regularNonempty(game.CAB) {
@@ -254,7 +258,7 @@ func PrepareManual(ctx context.Context, cfg Config, dataRoot, core, setname stri
 	}
 	build := BuildIdentity{Repository: cfg.Repository, Workflow: "manual", RunID: runID, Attempt: "1", SHA: "", Ref: release, Event: "manual-" + mode, Artifact: release, ArtifactSHA: identityHash, Conclusion: "manual"}
 	manifest := Manifest{RunID: runID, Build: build, Source: source, ProjectSHA: projectSHA, Cores: []CoreManifest{cm}}
-	evidence := map[string]any{"schema": 1, "mode": mode, "run_id": runID, "project_sha": projectSHA, "release_checkout_sha": releaseSHA, "selected_rbf": rbf, "binary_source_commit": "not inferred; RBF content hash is authoritative", "games": records}
+	evidence := map[string]any{"schema": 1, "mode": mode, "run_id": runID, "project_sha": projectSHA, "release_checkout_sha": releaseSHA, "selected_rbf": rbf, "binary_source_commit": build.SHA, "games": records}
 	data, _ := json.MarshalIndent(evidence, "", "  ")
 	if err = os.WriteFile(filepath.Join(log_dir, "manual-preparation.json"), append(data, '\n'), 0640); err != nil {
 		return Manifest{}, err

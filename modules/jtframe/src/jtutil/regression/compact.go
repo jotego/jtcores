@@ -58,7 +58,10 @@ type Progress struct {
     ArchiveSHA string `json:"archive_sha256,omitempty"`
     RBFs map[string]string `json:"rbfs,omitempty"`
     Games map[string]ProgressGame `json:"games"`
+    CaptureRuns map[string]CaptureRunProgress `json:"capture_runs,omitempty"`
     ReportURL string `json:"report_url,omitempty"`
+    GiteaReportURL string `json:"gitea_report_url,omitempty"`
+    GiteaReportComplete bool `json:"gitea_report_complete,omitempty"`
     ReportPR *int `json:"report_pr,omitempty"`
 }
 
@@ -217,6 +220,8 @@ func ManualCommit(ctx context.Context,source,core string,use_jtbin bool)(string,
 // RunCommit keeps one compact result per game. Existing capture/comparison code
 // writes its detailed working receipts only below a disposable /tmp directory.
 func RunCommit(ctx context.Context,log *CommitLog,manifest Manifest,cfg Config,hardware Hardware,manual,retry bool,partial ...bool) error {
+    if err:=requireLegacySiDi128(cfg);err!=nil{return err}
+    if err:=RequireCaptureTarget(log.Root,"sidi128");err!=nil{return err}
     progress:=log.Progress
     was_complete:=progress.AutomaticComplete
     full:=!manual && !(len(partial)>0&&partial[0])
@@ -241,7 +246,7 @@ func RunCommit(ctx context.Context,log *CommitLog,manifest Manifest,cfg Config,h
     for _,core:=range manifest.Cores{
         batch:=&Batch{Context:ctx,Root:log.Root,CorePath:cfg.Source,Core:core.Core,RunID:progress.Commit,
             Build:BuildIdentity{SHA:progress.Commit},ProjectSHA:manifest.ProjectSHA,Hardware:hardware,
-            GlobalProfile:cfg.GlobalProfile,Firmware:cfg.Firmware,FirmwareSHA256:cfg.FirmwareSHA256,CaptureToolSHA256:cfg.CaptureToolSHA256}
+            GlobalProfile:cfg.GlobalProfile,Firmware:cfg.Firmware,FirmwareSHA256:cfg.FirmwareSHA256,CaptureToolSHA256:cfg.CaptureToolSHA256,Config:cfg}
         batch.Log=&EventLog{Sink:func(event Event)error{
             if event.Outcome!=Error && !strings.Contains(event.Stage,"warning"){return nil}
             verdict:="warning";if event.Outcome==Error{verdict="error"}
@@ -254,9 +259,14 @@ func RunCommit(ctx context.Context,log *CommitLog,manifest Manifest,cfg Config,h
             if err!=nil{return log.Failed(err)}
             previous:=progress.Games[key]
             if !manual && previous.Result!=Pending && previous.Result!="" && !(retry&&previous.Result==Error) {
-                if previous.Input==fingerprint {
+                legacy_match:=false
+                if previous.Input!=fingerprint {legacy,e:=compact_legacy_fingerprint(cfg,progress.Commit,core.Core,game);legacy_match=e==nil&&legacy==previous.Input}
+                if previous.Input==fingerprint || legacy_match {
                     digest,output_error:=result_digest(log.Root,core.Core,game.Setname,previous.Result)
-                    if output_error==nil && digest==previous.Output{continue}
+                    if output_error==nil && digest==previous.Output{
+                        if legacy_match {previous.Input=fingerprint;progress.Games[key]=previous;if err=log.Save();err!=nil{return err}}
+                        continue
+                    }
                     if err=log.Entry(key,-1,"repeat","result images missing or changed");err!=nil{return err}
                 } else {
                     if err=log.Entry(key,-1,"repeat","inputs changed");err!=nil{return err}
@@ -299,7 +309,7 @@ func CompactFingerprint(cfg Config,commit,core string,game GameSpec)(string,erro
     // ARC/RBF/ROM/CAB bytes and profiles are hashed by gameSpecIdentity below.
     game.PreparedHashes=nil
     game.PreparationWarnings=nil
-    return compact_legacy_fingerprint(cfg,commit,core,game)
+    return portable_fingerprint(cfg,commit,core,game)
 }
 
 func compact_legacy_fingerprint(cfg Config,commit,core string,game GameSpec)(string,error) {

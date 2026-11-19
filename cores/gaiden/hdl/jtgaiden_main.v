@@ -208,13 +208,14 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'd0      ),
     .bus_ack    ( 1'd0      ),
+    .RnW        ( RnW       ),
+    .BGACKn     ( 1'b1      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 7'd24     ),  // 9.216 MHz
     .den        ( 8'd125    ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

@@ -76,6 +76,12 @@ path lands.
 - Sound: YM2610 and the TC0140SYT play correctly on hardware.
 
 
+## CPU bus timing
+
+ROM and work RAM take no wait states. The X1-001 video RAM (D00000 VDCM, E00000 ORAM) is shared with the video logic in 4-pixel slots (four CPU clocks at 8 MHz). The CPU gets one pixel clock per slot and the video logic owns the RAM for the rest. The core flags the busy slots from `hdump[1:0]`. Waiting for a free slot is a board wait, so the core does not recover those CPU clocks.
+
+Checked on a Superman P0-039A PCB with a PicoROM-based timing test (issue #230): CPU loops with 1, 2 and 4 video RAM accesses take 40, 44 and 52 clocks instead of 38, 42 and 50, for reads and writes alike. The core gives the same counts. Any of the four slot phases matches those loops, so the actual phase is not known.
+
 ## Video timing
 
 The X1-001 divides the 16 MHz oscillator to an 8 MHz dot clock over a

@@ -25,6 +25,7 @@ JTFRAME_SCAN2X
 uses simple scan doubler from JTFRAME
 .IP
 MISTER_DEBUG_NOHDMI skips MiSTer HDMI related logic. Speeds up compilation.
+MiSTer builds without HDMI also disable JTFRAME_REGRESSION support.
 .HP
 \fB\-\-undef\fR | \fB\-u\fR Undefines a macro
 .IP
@@ -50,7 +51,7 @@ Sets the date string attached to the RBF file name. Defaults to today
 Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
 .TP
 \fB\-mrq\fR
-Compiles MiSTer with no HDMI nor logo but with sound
+Compiles MiSTer without HDMI or logo, and disables regression support
 .TP
 \fB\-\-mrpasswd\fR
 Sets the SSH pasword to use on MiSTer

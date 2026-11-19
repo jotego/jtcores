@@ -108,8 +108,63 @@ set_false_path -from FB_EN
 set_false_path -to deb_osd[0]
 set_false_path -from emu:emu|jtframe_mister:u_frame|jtframe_board:u_board|jtframe_led:u_led|led
 
-set_false_path  -from  [get_clocks *]  -to  [get_clocks {sysmem|fpga_interfaces|clocks_resets*}]
-set_false_path  -from  [get_clocks *]  -to  [get_clocks {sysmem|fpga_interfaces|clocks_resets*}]
+# Keep asynchronous crossings into the HPS clocks false, but leave the HPS
+# user clock's internal ascal paths timed.  Its external interfaces still
+# need the legacy asynchronous cut, scoped through their actual data pins.
+set jtframe_hps_clocks [get_clocks {sysmem|fpga_interfaces|clocks_resets*}]
+set jtframe_hps_user_clock [get_clocks {sysmem|fpga_interfaces|clocks_resets|h2f_user0_clk}]
+set jtframe_ascal_keepers [get_keepers -nowarn {ascal:ascal|*}]
+if {[get_collection_size $jtframe_ascal_keepers] == 0} {
+    # Keep the original exception in builds without the HDMI scaler (for
+    # example, MiSTer no-HDMI builds).
+    set_false_path -from [get_clocks *] -to $jtframe_hps_clocks
+} else {
+    if {[get_collection_size $jtframe_hps_clocks] == 0 || [get_collection_size $jtframe_hps_user_clock] != 1} {
+        error "cannot identify the expected MiSTer HPS user clock"
+    }
+    set jtframe_hps_root_pin [get_pins -nowarn -compatibility_mode {*|h2f_user0_clk}]
+    if {[get_collection_size $jtframe_hps_root_pin] != 1} {
+        error "cannot identify the MiSTer HPS user clock pin"
+    }
+
+    # Preserve the broad legacy cut for any additional HPS clocks, while
+    # keeping all non-HPS-to-HPS asynchronous crossings on the user clock.
+    set jtframe_other_hps_clocks [remove_from_collection $jtframe_hps_clocks $jtframe_hps_user_clock]
+    if {[get_collection_size $jtframe_other_hps_clocks] > 0} {
+        set_false_path -from [get_clocks *] -to $jtframe_other_hps_clocks
+    }
+    set jtframe_other_clocks [remove_from_collection [get_clocks *] $jtframe_hps_user_clock]
+    set_false_path -from $jtframe_other_clocks -to $jtframe_hps_user_clock
+
+    # The HPS user clock also feeds non-ascal registers and memory interfaces.
+    # Cut those boundary paths only when they pass through their real adjacent
+    # data/control pins; this does not mask HPS-clock paths within ascal.
+    set jtframe_external_hps_keepers [remove_from_collection \
+        [get_fanouts $jtframe_hps_root_pin] $jtframe_ascal_keepers]
+    if {[get_collection_size $jtframe_external_hps_keepers] == 0} {
+        error "cannot identify external MiSTer HPS clock endpoints"
+    }
+    set jtframe_external_hps_pin_names [dict create]
+    foreach_in_collection keeper $jtframe_external_hps_keepers {
+        foreach field {synch_edges asynch_edges fanout_edges} {
+            set side [expr {$field eq "fanout_edges" ? "-dst" : "-src"}]
+            foreach edge [get_node_info $keeper -$field] {
+                set pin_name [get_node_info [get_edge_info $edge $side] -name]
+                dict set jtframe_external_hps_pin_names $pin_name 1
+            }
+        }
+    }
+    if {[dict size $jtframe_external_hps_pin_names] == 0} {
+        error "cannot identify external MiSTer HPS boundary pins"
+    }
+    set jtframe_external_hps_pins [get_pins -nowarn -compatibility_mode \
+        [dict keys $jtframe_external_hps_pin_names]]
+    if {[get_collection_size $jtframe_external_hps_pins] != [dict size $jtframe_external_hps_pin_names]} {
+        error "unmatched MiSTer HPS boundary pins"
+    }
+    set_false_path -from $jtframe_hps_user_clock -through $jtframe_external_hps_pins \
+        -to $jtframe_hps_user_clock
+}
 
 set_false_path -from [get_keepers {cfg_ready}] -to [get_keepers {vsd}]
 set_false_path -from [get_keepers {cfg_ready}] -to [get_keepers {vsd2}]

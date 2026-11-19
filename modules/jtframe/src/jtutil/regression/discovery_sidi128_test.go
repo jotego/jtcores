@@ -30,10 +30,10 @@ func mock_build_workflows(t *testing.T, runs []apiWorkflowRun) {
             if strings.HasPrefix(joined,"run view "+id+" ") {
                 return json.Marshal(map[string]any{"databaseId":run.ID,"workflowName":run.Name,"number":run.RunNumber,"attempt":run.Attempt,"status":run.Status,"conclusion":run.Conclusion,"headSha":run.HeadSHA,"headBranch":"master","event":"workflow_dispatch","jobs":[]map[string]string{{"status":"completed","conclusion":"success"}}})
             }
-            if strings.HasSuffix(joined,"/runs/"+id+"/artifacts") {
+            if strings.Contains(joined,"/runs/"+id+"/artifacts?per_page=100") {
                 name:=run.HeadSHA[:7]+".zip"
                 if run.Name=="Compile SiDi128" {name=run.HeadSHA[:7]+"-sidi128.zip"}
-                return json.Marshal(map[string]any{"artifacts":[]map[string]any{{"id":run.ID*10,"name":name,"digest":"sha256:feed"}}})
+                return json.Marshal([]map[string]any{{"artifacts":[]map[string]any{{"id":run.ID*10,"name":name,"digest":"sha256:feed"}}}})
             }
             if strings.HasSuffix(joined,"/runs/"+id) {return []byte(`{"pull_requests":[]}`),nil}
         }
@@ -61,6 +61,23 @@ func TestDiscoverBothBuildWorkflows(t *testing.T) {
             if got.RunID=="202" && (got.Workflow!=compileSidi128Workflow||got.Artifact!="bbbbbbb-sidi128.zip") {t.Fatalf("wrong SiDi128 identity: %+v",got)}
         })
     }
+}
+
+func TestMiSTerDiscoverySelectsOnlyCompileAll(t *testing.T) {
+	runs := dual_workflow_runs()
+	mock_build_workflows(t, runs)
+	got, err := DiscoverBuild(context.Background(), Config{Target: "mister"}, t.TempDir(), "")
+	if err != nil || got.Workflow != compileAllWorkflow || got.RunID != "101" {
+		t.Fatalf("MiSTer selected %+v: %v", got, err)
+	}
+	if _, err = getEligibleRunForTarget(context.Background(), githubRepository, 202, "mister"); err == nil {
+		t.Fatal("explicit SiDi128-only run was accepted for MiSTer")
+	}
+	runs[0].Conclusion = "failure"
+	mock_build_workflows(t, runs)
+	if _, err = DiscoverBuild(context.Background(), Config{Target: "mister"}, t.TempDir(), ""); err != ErrNoEligibleBuild {
+		t.Fatalf("MiSTer fell back to a SiDi-only build: %v", err)
+	}
 }
 
 func TestBothWorkflowsShareCommitCompletion(t *testing.T) {

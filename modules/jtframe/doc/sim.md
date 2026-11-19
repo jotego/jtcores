@@ -74,6 +74,11 @@ The fastest method to produce the sdram files is to run `jtutil sdram` from the 
 
 ## Simulator Speed
 
+`jtsim` uses `make -j` for Verilator builds unless regression scheduling is
+explicitly enabled with `JTFRAME_SIM_REGRESSION=1`. The
+`JTFRAME_REGRESSION` macro selects core-side capture logic and does not by
+itself disable parallel simulation builds.
+
 Comparison run on [Roc'n Rope](https://github.com/jotego/jtkicker) core for ten frames plus ROM loading.
 
 simulator | vcd/no video | no vcd/video | no vcd/no video
@@ -100,8 +105,8 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
-For the unattended SiDi128 hardware video regression, see
-[`hardware-regression.md`](hardware-regression.md). The older `run_regression.sh`
+For the SiDi128 campaign and the qualification-gated local MiSTer capture route,
+see [`hardware-regression.md`](hardware-regression.md). The older `run_regression.sh`
 flow below describes the separate `jtsim`/Gitea simulation workflow.
 
 The script `run_regression.sh` is used for automatic regressions triggered by Gitea Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), the workflow reports the failing regression result.

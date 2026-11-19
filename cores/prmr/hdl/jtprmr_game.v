@@ -11,7 +11,7 @@ localparam PRMRSOCR = 0;
 /* verilator tracing_on */
 wire        snd_irq, rmrd, rst8, dma_bsy, psac_cs,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n,
-            cpu_rnw, vdtac, tile_irqn, pair_we, obank, zrmck, psac_bank;
+            cpu_rnw, vdtac, pq, tile_irqn, pair_we, obank, zrmck, psac_bank;
 wire [15:0] pal_dout, oram_dout, oram_din;
 wire [15:0] video_dumpa;
 reg  [ 7:0] debug_mux;
@@ -54,6 +54,7 @@ jtprmr_main u_main(
     .cpu_we         ( cpu_we        ),
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
+    .pq             ( pq            ),
     .tile_irqn      ( tile_irqn     ),
     .cpu_n          ( cpu_n         ),
 
@@ -134,6 +135,7 @@ jtprmr_video u_video (
     .cpu_dsn        ( ram_dsn       ),
     .cpu_dout       ( ram_din       ),
     .vdtac          ( vdtac         ),
+    .pq             ( pq            ),
     .tilesys_dout   ( tilesys_dout  ),
     .objsys_dout    ( oram_dout     ),
     .pal_dout       ( pal_dout      ),

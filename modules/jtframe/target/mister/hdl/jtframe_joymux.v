@@ -12,7 +12,7 @@ module jtframe_joymux(
     output     [ 6:0] USER_OUT,
 
     // joystick mux
-    input             db15_en,
+    input             db15_en, osd_combo_en,
     input      [15:0] joyusb_1,
     input      [15:0] joyusb_2,
     output reg [15:0] joymux_1,
@@ -49,7 +49,7 @@ endfunction
 always @(posedge clk) begin
     joymux_1 <= assign_joy( joydb15_1, joyusb_1 );
     joymux_2 <= assign_joy( joydb15_2, joyusb_2 );
-    show_osd <= db15_en & ((joydb15_1[10] & joydb15_1[6]) | (joydb15_2[10]&joydb15_2[6]));
+    show_osd <= db15_en & osd_combo_en & ((joydb15_1[10] & joydb15_1[6]) | (joydb15_2[10]&joydb15_2[6]));
 end
 
 joy_db15 u_db15

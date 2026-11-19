@@ -121,6 +121,13 @@ func MakeMacros(core, target string, extra ...string) {
 	set_sdram_refresh_rate(int64(mclk))
 	add_subcarrier_clk(int64(mclk))
 	make_beta_macros(core, target)
+	remove_regression_without_hdmi(target)
+}
+
+func remove_regression_without_hdmi(target string) {
+	if target == "mister" && IsSet("MISTER_DEBUG_NOHDMI") {
+		Remove(JTFRAME_REGRESSION)
+	}
 }
 
 func remove_lf_buffer_rotation_conflict() {

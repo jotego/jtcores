@@ -23,6 +23,8 @@ wire        prc_snd, snd_sel, flip,
             cen_main, cen_sub,  cen_snd,  cen_mcu, cen_sndq;
 wire        obus_cs, ram_cs, dma_we, mcu_halt, sndfix_n;
 wire [ 1:0] io_mode;
+reg         blastoff;
+wire        dipflip;
 
 // bit 16 of ROM T10 in sch. is inverted. T10 is also shorter (128kB only)
 // limiting to 128kB ROMs for now to allow address mirroring on Splatter
@@ -44,6 +46,15 @@ assign sndram_din  = sndcpu_dout;
 assign bdout16 = {2{bdout}};
 assign dip_flip = flip;
 assign sndfix_n = dipsw[8];
+assign dipflip  = blastoff & ~dipsw[9];
+
+// The extra flip DIP only exists on Blast Off. Its defaults are two bytes
+// (bit 9 high); older MRAs for the other sets may provide only one byte, which
+// zero-extends dipsw[9] and must not flip their video.
+always @(posedge clk) begin
+    if( header && prog_we && prog_addr[2:0] == 3'd1 )
+        blastoff <= prog_data == 8'hB7; // Blast Off key ID
+end
 
 always @* begin
     case( debug_bus[7:6] )
@@ -265,7 +276,7 @@ jtshouse_triram u_triram(
 jtshouse_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .dipflip    ( ~dipsw[9] ),
+    .dipflip    ( dipflip   ),
 
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),

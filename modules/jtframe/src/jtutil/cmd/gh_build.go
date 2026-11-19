@@ -5,7 +5,9 @@
 package cmd
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -20,6 +22,12 @@ import (
 
 const gh_build_workflow = "compile-custom.yaml"
 const gh_build_poll_interval = 10 * time.Second
+
+// GitHub may answer 404 for a run for a short while after workflow_dispatch
+var gh_build_find_timeout = 60 * time.Second
+var gh_build_find_interval = 5 * time.Second
+
+var gh_build_run_not_found = errors.New("GitHub run not found")
 
 var gh_build_ref string
 var gh_build_batch bool
@@ -116,18 +124,40 @@ func (cfg *gh_build_config) run() error {
 }
 
 func (cfg *gh_build_config) wait() error {
+	status, e := cfg.wait_for_run()
+	if e != nil {
+		return e
+	}
 	if cfg.batch {
-		return cfg.wait_batch()
+		return cfg.wait_batch(status)
 	}
 	return cfg.gh_run("run", "watch", cfg.run_id, "--compact", "--exit-status", "--interval", "10")
 }
 
-func (cfg *gh_build_config) wait_batch() error {
-	seen := make(map[string]bool)
+// wait_for_run retries while GitHub still reports the new run as not found
+func (cfg *gh_build_config) wait_for_run() (*gh_build_run_status, error) {
+	deadline := time.Now().Add(gh_build_find_timeout)
 	for {
 		status, e := cfg.run_status()
-		if e != nil {
-			return e
+		if !errors.Is(e, gh_build_run_not_found) {
+			return status, e
+		}
+		if !time.Now().Before(deadline) {
+			return nil, fmt.Errorf("%w after %v: run %s", gh_build_run_not_found, gh_build_find_timeout, cfg.run_id)
+		}
+		time.Sleep(gh_build_find_interval)
+	}
+}
+
+func (cfg *gh_build_config) wait_batch(status *gh_build_run_status) error {
+	seen := make(map[string]bool)
+	for {
+		if status == nil {
+			var e error
+			status, e = cfg.run_status()
+			if e != nil {
+				return e
+			}
 		}
 		for _, job := range status.Jobs {
 			if job.Status != "completed" || seen[job.Name] {
@@ -142,15 +172,21 @@ func (cfg *gh_build_config) wait_batch() error {
 			}
 			return nil
 		}
+		status = nil
 		time.Sleep(gh_build_poll_interval)
 	}
 }
 
 func (cfg *gh_build_config) run_status() (*gh_build_run_status, error) {
-	output, e := cfg.gh_output("run", "view", cfg.run_id, "--json", "status,conclusion,jobs")
+	output, errout, e := cfg.gh_capture("run", "view", cfg.run_id, "--json", "status,conclusion,jobs")
 	if e != nil {
+		if strings.Contains(errout, "HTTP 404") {
+			return nil, fmt.Errorf("%w: %v", gh_build_run_not_found, e)
+		}
+		os.Stderr.WriteString(errout)
 		return nil, e
 	}
+	os.Stderr.WriteString(errout)
 	var status gh_build_run_status
 	e = json.Unmarshal([]byte(output), &status)
 	if e != nil {
@@ -182,6 +218,16 @@ func (cfg *gh_build_config) gh_output(args ...string) (string, error) {
 		return "", e
 	}
 	return string(out), nil
+}
+
+// gh_capture returns gh's stdout and stderr without printing them
+func (cfg *gh_build_config) gh_capture(args ...string) (string, string, error) {
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("gh", args...)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	e := cmd.Run()
+	return stdout.String(), stderr.String(), e
 }
 
 func (cfg *gh_build_config) gh_run(args ...string) error {
