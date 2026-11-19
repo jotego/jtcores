@@ -352,6 +352,8 @@ wire DTACKn;
 localparam [3:0] DIV_NUM= GAME==0 ? 4'd1 : 4'd5;
 localparam [4:0] DIV_DEN= GAME==0 ? 5'd4 : 5'd24;
 
+wire [1:0] prc_wait = GAME==0 && rom_cs ? 2'd2 : 2'd0;
+
 jtframe_68kdtack_cen u_dtack( // cen = 12 or 10 MHz
     .rst        ( rst        ),
     .clk        ( clk        ),
@@ -368,8 +370,7 @@ jtframe_68kdtack_cen u_dtack( // cen = 12 or 10 MHz
     .ASn        ( ASn        ),
     .DSn        ({UDSn,LDSn} ),
     .DTACKn     ( DTACKn     ),
-    .wait2      ( 1'b0       ),
-    .wait3      ( 1'b0       ),
+    .waitn      ( prc_wait   ),
     // Unused
     .fave       (            ),
     .fworst     (            )

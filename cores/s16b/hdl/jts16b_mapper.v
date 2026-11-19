@@ -22,16 +22,6 @@
 // write address = 3x8 = 6 x 4 -> 5 x 4 ?
 // read  address = 3x8 = 6 x 4 -> 5 x 4 ?
 
-// DTACK cycles
-// Programmed with bits [3:2] of size registers
-// D[3:2] | DTACK (# cycles)
-// -------|--------
-//  11    | use EDACK pin
-//  10    | 3
-//  01    | 2
-//  00    | 1
-
-
 module jts16b_mapper(
     input             rst,
     input             clk,
@@ -98,6 +88,7 @@ module jts16b_mapper(
 parameter FNUM = 7'd29, FDEN = 8'd146;
 
 reg  [ 1:0] dtack_cyc;    // number of DTACK cycles
+wire [ 1:0] dtack_wait;
 reg  [ 7:0] mmr[0:31];
 reg         bus_rq;
 reg         cpu_sel;
@@ -283,6 +274,8 @@ end
 // DTACK generation
 wire [15:0] fave, fworst;
 
+assign dtack_wait = dtack_cyc==2'd3 ? 2'd0 : 2'd2 - dtack_cyc;
+
 jtframe_68kdtack_cen #(.W(8),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -299,8 +292,7 @@ jtframe_68kdtack_cen #(.W(8),.RECOVERY(1)) u_dtack(
     .num        ( FNUM      ),  // numerator
     .den        ( FDEN      ),  // denominator
     .DTACKn     ( cpu_dtackn ),
-    .wait2      ( dtack_cyc==2 ),
-    .wait3      ( dtack_cyc==3 ),
+    .waitn      ( dtack_wait   ),
     .fave       ( fave      ),
     .fworst     ( fworst    )
 );

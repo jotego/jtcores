@@ -83,6 +83,7 @@ reg         gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
             pslrm_cs, psvrm_cs,
             objch_cs, pair_cs, sdon_cs, psch_cs;
+wire [ 1:0] psch_wait = psch_cs ? 2'd2 : 2'd0;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -295,8 +296,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (48/3=16MHz)
     .DTACKn     ( bus_dtackn),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( psch_wait ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

@@ -34,6 +34,7 @@ module jtxmen_main(
     input         [15:0] rom_data,
     input                rom_ok,
     input                vdtac,
+    input                pq,        // 052109 PQ: tile RAM CPU slot clock
     input                tile_irqn,
 
     // video configuration
@@ -71,7 +72,9 @@ reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
 reg  [15:0] cpu_din, cab_dout;
 wire        ok_dly;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
-wire        dtac_mux, intdma, IPLn1;
+wire        dtac_mux, intdma, IPLn1, vq_cs, vq_rdy;
+reg  [ 1:0] vq_cnt;
+reg         pq_l, vq_rd_ok;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -79,8 +82,10 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign bus_cs   = rom_cs;
-assign bus_busy = rom_cs & ~ok_dly;
+assign vq_cs    = vram_cs & ~BUSn;
+assign vq_rdy   = RnW ? vq_rd_ok : vq_cnt[1];
+assign bus_cs   = rom_cs | vq_cs;
+assign bus_busy = (rom_cs & ~ok_dly) | (vq_cs & ~vq_rdy);
 assign BUSn     = ASn | (LDSn & UDSn);
 
 jtframe_okdly u_okdly(
@@ -96,6 +101,19 @@ assign cpu_we   = ~RnW;
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~&{ FC[1:0], ~ASn };
 assign dtac_mux = DTACKn | ~vdtac;
+
+always @(posedge clk) begin
+    pq_l <= pq;
+    if( LDSn ) begin
+        vq_cnt   <= 0;
+        vq_rd_ok <= 0;
+    end else begin
+        vq_rd_ok <= vq_cnt[1];
+        if( vq_cnt==0 ) begin
+            if( pq && !pq_l && vq_cs ) vq_cnt <= 1;
+        end else if( pq!=pq_l && !vq_cnt[1] ) vq_cnt <= vq_cnt + 2'd1;
+    end
+end
 assign snd_wrn  = ~(snd_cs & ~RnW);
 assign IPLn1    = ~intdma | tile_irqn;
 assign pair_we  = pair_cs && !RnW && !LDSn;
@@ -225,7 +243,6 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 
 // The board seems to control DTACKn with combinational logic
 // DTACKn follows ASn with a delay of ~15.6ns
-wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -233,7 +250,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( vq_cs     ),
     .bus_ack    ( 1'b0      ),
     .RnW        ( RnW       ),
     .BGACKn     ( 1'b1      ),
@@ -242,8 +259,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( slow_mem  ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

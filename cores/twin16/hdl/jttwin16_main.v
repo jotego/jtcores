@@ -289,8 +289,7 @@ jtframe_68kdtack_cen #(.W(5),.RECOVERY(1)) u_dtack(
     .num        ( 4'd3      ),  // numerator
     .den        ( 5'd16     ),  // denominator, => 9216
     .DTACKn     ( pre_dtackn),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

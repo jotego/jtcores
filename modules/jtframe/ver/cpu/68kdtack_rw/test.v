@@ -33,13 +33,9 @@ initial begin
         assert_msg(phases[cfg*5]==phases[cfg*5+1],"ready reads and writes take equal CPU phases");
         if(`JTFRAME_DTACK_DEN>2) assert_msg(clocks[cfg*5+2]==clocks[cfg*5+3],"late reads and writes take equal master clocks");
         assert_msg(phases[cfg*5+2]==phases[cfg*5+3],"late reads and writes take equal CPU phases");
-        $display("DEN=%0d registered=%0d WAIT1=%0d wait2=%0d wait3=%0d ready R/W=%0d/%0d late R/W=%0d/%0d TAS=%0d",
-            `JTFRAME_DTACK_DEN,cfg/8,(cfg/4)%2,cfg%2,(cfg/2)%2,clocks[cfg*5],clocks[cfg*5+1],
+        $display("DEN=%0d registered=%0d gated=%0d waitn=%0d ready R/W=%0d/%0d late R/W=%0d/%0d TAS=%0d",
+            `JTFRAME_DTACK_DEN,cfg/8,(cfg/4)%2,cfg%4,clocks[cfg*5],clocks[cfg*5+1],
             clocks[cfg*5+2],clocks[cfg*5+3],clocks[cfg*5+4]);
-    end
-    for(cfg=0;cfg<5;cfg=cfg+1) begin
-        assert_msg(clocks[10+cfg]==clocks[15+cfg],"both waits equal wait3 with WAIT1=0");
-        assert_msg(clocks[30+cfg]==clocks[35+cfg],"both waits equal wait3 with WAIT1=1");
     end
     assert_msg(phases[80]==phases[81] && phases[82]==phases[83],"unmapped reads/writes preserve CPU bus timing");
     if(`JTFRAME_DTACK_DEN>2)
@@ -47,9 +43,11 @@ initial begin
     pass();
 end
 
+// Late responses grow with waitn so they still arrive after the last DTACK
+// sample: each wait state is at most four master clocks (DEN=4).
 generate for(k=0;k<80;k=k+1) begin: cases
-    dtack_cpu #(.WAIT1((k/20)%2),.REGISTERED(k/40),.WAIT2((k/5)%2),.WAIT3((k/10)%2),
-                .MODE(k%5==4 ? 2 : (k%5)%2),.LATENCY(k%5==2 || k%5==3 ? 16 : 0)) check_cpu(
+    dtack_cpu #(.WAITS((k/5)%4),.GATED((k/20)%2),.REGISTERED(k/40),
+                .MODE(k%5==4 ? 2 : (k%5)%2),.LATENCY(k%5==2 || k%5==3 ? 16+8*((k/5)%4) : 0)) check_cpu(
         .clk    ( clk       ),
         .done   ( done[k]   ),
         .clocks ( clocks[k] ),
@@ -58,7 +56,7 @@ generate for(k=0;k<80;k=k+1) begin: cases
 end endgenerate
 
 generate for(k=80;k<84;k=k+1) begin: unmapped
-    dtack_cpu #(.WAIT1((k-80)/2),.MODE(k%2),.UNMAPPED(1)) check_cpu(
+    dtack_cpu #(.WAITS((k-80)/2),.MODE(k%2),.UNMAPPED(1)) check_cpu(
         .clk    ( clk       ),
         .done   ( done[k]   ),
         .clocks ( clocks[k] ),
@@ -74,7 +72,7 @@ dtack_ownership check_ownership(
 endmodule
 
 module dtack_cpu #(
-    parameter WAIT1=0, WAIT2=0, WAIT3=0, MODE=0, LATENCY=0, REGISTERED=0, UNMAPPED=0
+    parameter WAITS=0, GATED=0, MODE=0, LATENCY=0, REGISTERED=0, UNMAPPED=0
 )(
     input clk,
     output reg done=0,
@@ -85,14 +83,17 @@ module dtack_cpu #(
 // MOVE.W (A0),D0 and MOVE.W D0,(A0) are both 8-clock instructions.
 // BRA.S is 10 clocks (including its discarded prefetch). The four transfers
 // in this loop each receive the
-// original read-side delay: WAIT1 adds one; wait3 adds one beyond that.
+// same waitn wait states. GATED drives waitn only for the data transfer, from
+// the strobe-gated data select, so instruction fetches then take no waits.
 localparam [4:0] DIVISOR=`JTFRAME_DTACK_DEN;
-localparam WAITS=WAIT1+WAIT3;
+localparam MOVE_WAITED=GATED!=0 ? 1 : 4;    // waited transfers per MOVE loop
+localparam TAS_WAITED =GATED!=0 ? 2 : 5;    // waited transfers per TAS loop
 localparam ITERATIONS=16;
-localparam EXPECT_PHASES=ITERATIONS*2*(18+4*WAITS);
+localparam EXPECT_PHASES=ITERATIONS*2*(18+MOVE_WAITED*WAITS);
 
 reg rst=1, decoded=0, finished=0;
-wire cen, cenb, asn, udsn, ldsn, rnw, dtackn, selected, data_cs, busy, wait2, wait3, bus_cs, helper_asn;
+wire cen, cenb, asn, udsn, ldsn, rnw, dtackn, selected, data_cs, busy, bus_cs, helper_asn;
+wire [1:0] waitn;
 wire [1:0] dsn;
 wire [23:1] addr;
 wire [15:0] dout;
@@ -104,10 +105,9 @@ integer held=0, replayed=0, start_held=0, start_replayed=0, start_debt=0, idle_c
 
 assign helper_asn=asn || finished;
 assign dsn={udsn,ldsn};
-assign wait2=WAIT2!=0;
-assign wait3=WAIT3!=0;
 assign selected=!asn && !(&dsn);
 assign data_cs=addr==23'h7f8000;
+assign waitn=GATED!=0 && !(selected && data_cs) ? 2'd0 : WAITS[1:0];
 // Artificial latency is counted from the CPU's common address setup, before
 // write strobes arrive. This makes the response deadline identical for R/W.
 assign busy=selected && data_cs && age<LATENCY;
@@ -184,7 +184,7 @@ always @(negedge clk) if(!rst && !finished) begin
                     assert_msg(u_cpu.u_cpu.D0[15:0]==16'h1234,"CPU consumes the read value");
                 end else assert_msg(writes>=ITERATIONS && reads==0,"write loop executes real writes only");
             end else begin
-                assert_msg(phases==ITERATIONS*2*(24+5*WAITS),"TAS/BRA exact nominal plus configured wait phases");
+                assert_msg(phases==ITERATIONS*2*(24+TAS_WAITED*WAITS),"TAS/BRA exact nominal plus configured wait phases");
                 assert_msg(reads==writes && writes>=ITERATIONS,"each TAS executes one read and one accepted write");
                 assert_msg(gaps==writes,"each TAS write follows a strobe gap with AS held low");
                 assert_msg(memory==16'hda3c,"TAS sets the selected byte and preserves its neighbour");
@@ -255,7 +255,7 @@ initial begin
     done=1;
 end
 
-jtframe_68kdtack_cen #(.WAIT1(WAIT1),.MFREQ(48000)) uut(
+jtframe_68kdtack_cen #(.MFREQ(48000)) uut(
     .rst          ( rst        ),
     .clk          ( clk        ),
     .cpu_cen      ( cen        ),
@@ -270,8 +270,7 @@ jtframe_68kdtack_cen #(.WAIT1(WAIT1),.MFREQ(48000)) uut(
     .DSn          ( dsn        ),
     .num          ( 4'd1       ),
     .den          ( DIVISOR    ),
-    .wait2        ( wait2      ),
-    .wait3        ( wait3      ),
+    .waitn        ( waitn      ),
     .DTACKn       ( dtackn     ),
     .fave         (            ),
     .fworst       (            )
@@ -360,8 +359,7 @@ jtframe_68kdtack_cen #(.MFREQ(48000)) uut(
     .DSn          ( dsn        ),
     .num          ( 4'd1       ),
     .den          ( 5'd4       ),
-    .wait2        ( 1'b0       ),
-    .wait3        ( 1'b0       ),
+    .waitn        ( 2'd0       ),
     .DTACKn       ( dtackn     ),
     .fave         (            ),
     .fworst       (            )

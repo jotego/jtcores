@@ -60,6 +60,21 @@ These items need double checking on the PCB
 
 * How much shadow is created by sprite palette 3F? The core assumes 25% attenuation
 
+# CPU Bus Timing
+
+The 315-5195 mapper sets the DTACK delay of each region from bits [3:2] of its size register. It inverts them into DTACK_SEL and taps a chain of flip-flops that shift AS on the CPU clock (315-5195 schematics, page 12 "DTACK GEN"). The first tap is AS sampled at the S4 rising edge, so an n-cycle delay gives n-1 68000 wait states.
+
+D[3:2] | DTACK_SEL | DTACK           | Wait states
+-------|-----------|-----------------|------------
+11     | 0         | external EDAK   | board logic
+10     | 1         | 1-cycle delay   | 0
+01     | 2         | 2-cycle delay   | 1
+00     | 3         | 3-cycle delay   | 2
+
+EDAK is left to the core's external bus logic.
+
+These wait states were derived from the schematics and have not been checked on a PCB yet.
+
 # Schematics
 
 The KiCAD schematics developed by JOTEGO's team are in the sch folder of each core. Some of them only reproduce one aspect of the board that we needed to double check. A link to PDF versions is available below.

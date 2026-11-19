@@ -64,7 +64,7 @@ module jtframe_68kdtack_cen #(parameter W=8, MFREQ=50000)(
     input [1:0] DSn,
     input [6:0] num,
     input [7:0] den,
-    input wait2, wait3,
+    input [1:0] waitn,
     output DTACKn,
     output [15:0] fave, fworst
 );

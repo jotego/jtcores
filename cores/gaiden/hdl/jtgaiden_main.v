@@ -215,8 +215,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .num        ( 7'd24     ),  // 9.216 MHz
     .den        ( 8'd125    ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       (           ),
     .fworst     (           )

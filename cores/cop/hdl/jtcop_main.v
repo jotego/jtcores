@@ -501,8 +501,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .num        ( MHZ>>1    ),  // numerator
     .den        ( 8'd24     ),  // denominator
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     // Frequency report
     .fave       ( fave      ),
     .fworst     (           )

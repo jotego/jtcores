@@ -133,8 +133,7 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .num        ( 11'd231   ),
     .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     .fave       (           ),
     .fworst     (           )
 );

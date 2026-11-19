@@ -1,0 +1,54 @@
+{
+  "board": "Taito X P0-039A Superman",
+  "firmware_version": "v5",
+  "purpose": "boot-entry, watchdog, and IRQ qualification only; no timing suite",
+  "capture_profile_id": "superman-p0-039a-boot-v5",
+  "capture_profile": {
+    "required_markers_in_order": [
+      "01",
+      "02",
+      "03",
+      "10",
+      "11",
+      "12"
+    ],
+    "fatal_marker": "1f",
+    "duplicates_or_out_of_order": "fail",
+    "timeout_before_terminal_marker": "fail",
+    "image_binding": "full A10 and A5 SHA-256 readbacks"
+  },
+  "source": "boot_control.s",
+  "source_sha256": "4f66eb9c18af78221ee9fd9274845f9ad75fdbbf5e2e95883c67d8af48542339",
+  "cpu_image_bytes": 262144,
+  "lane_image_bytes": 131072,
+  "assembled_code_bytes": 1082,
+  "reserved_cpu_window": "0x03b800-0x03bfff",
+  "reserved_a10_physical_window": "0x01dc00-0x01dfff",
+  "boot_markers": [
+    "01 reset entry",
+    "02 watchdog write passed",
+    "03 backdrop write passed",
+    "10 work RAM passed",
+    "11 display initialized",
+    "12 32 VBL IRQ entries",
+    "1f fatal"
+  ],
+  "irq_cadence_claim": "none; the 32-entry threshold proves handler execution only",
+  "irq_level_policy": {
+    "level_2": "IPL1 VBL; acknowledge 0x600000",
+    "level_4": "IPL2 C-chip; acknowledge 0x300000",
+    "level_6": "IPL1+IPL2; acknowledge both 0x600000 and 0x300000",
+    "vbl_qualification": "32 combined level-2 and level-6 entries; level 4 counted separately"
+  },
+  "watchdog_service": "write word 0x0010 to 0x400000 at reset, after long init phases, during polling/idle, and in each accepted IRQ",
+  "irq_counter_addresses": {
+    "level_2": "0xF00000",
+    "level_4": "0xF00002",
+    "level_6": "0xF00004"
+  },
+  "sha256": {
+    "boot_control_cpu.bin": "e62c8f8f947194da47052bae50e81450443c55deba98a65387e9b9d45e98074a",
+    "boot_control_a10_even_high.bin": "0949a552db06dfcd9ed3a46f54060872cd2c00338910793c4dd4b0fc57f94cab",
+    "boot_control_a5_odd_low.bin": "83a1e0c2998e01057c143008d919301c496bdf44aae96f26b179342ade66413b"
+  }
+}

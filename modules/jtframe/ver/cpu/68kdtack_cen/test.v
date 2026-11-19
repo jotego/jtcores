@@ -14,7 +14,7 @@ reg  [ 3:0] num;
 reg         asn, bus_busy, rec_asn, rec_bus_busy, stats_clr,
             recovery_done, wait_asn, wait_test_done, rec_legit, rec_ack;
 reg phase_seen, last_phi1;
-wire [5:0] qualification_done;
+wire [7:0] qualification_done;
 integer     errors;
 integer     wait2_ticks, wait3_ticks;
 
@@ -242,9 +242,9 @@ initial begin
         end
     join
 
-    $display("wait-state latency: wait2=%0d clocks wait3=%0d clocks",
+    $display("wait-state latency: waitn=1 %0d clocks, waitn=2 %0d clocks",
         wait2_ticks, wait3_ticks);
-    assert_msg(wait3_ticks>wait2_ticks,"wait3 must assert DTACKn later than wait2");
+    assert_msg(wait3_ticks>wait2_ticks,"waitn=2 must assert DTACKn later than waitn=1");
     wait_test_done = 1;
 end
 
@@ -314,8 +314,7 @@ jtframe_68kdtack_cen #(
     .DSn        ( {2{asn}}  ),  // If DSn goes high, DTACKn is reset high
     .num        ( num       ),  // numerator
     .den        ( den       ),  // denominator
-    .wait2      ( 1'b0      ), // high for 2 wait states
-    .wait3      ( 1'b0      ), // high for 3 wait states
+    .waitn      ( 2'd0      ),
 
     .DTACKn     ( DTACKn    ),
     .fave       ( fave      ), // average cpu_cen frequency in kHz
@@ -340,8 +339,7 @@ jtframe_68kdtack_cen #(
     .DSn        ( {2{rec_asn}} ),
     .num        ( 4'd5         ),
     .den        ( 5'd24        ),
-    .wait2      ( 1'b0         ),
-    .wait3      ( 1'b0         ),
+    .waitn      ( 2'd0         ),
     .DTACKn     ( rec_DTACKn   ),
     .fave       ( rec_fave     ),
     .fworst     (              )
@@ -366,8 +364,7 @@ jtframe_68kdtack_cen #(
     .num        ( 4'd5      ),
     .den        ( 5'd24     ),
     .DTACKn     (           ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     .fave       (           ),
     .fworst     (           )
 );
@@ -387,8 +384,7 @@ jtframe_68kdtack_cen #(.RECOVERY(0)) uut_wait2(
     .DSn        ( {2{wait_asn}} ),
     .num        ( 4'd1          ),
     .den        ( 5'd4          ),
-    .wait2      ( 1'b1          ),
-    .wait3      ( 1'b0          ),
+    .waitn      ( 2'd1          ),
     .DTACKn     ( wait2_DTACKn  ),
     .fave       (               ),
     .fworst     (               )
@@ -409,16 +405,15 @@ jtframe_68kdtack_cen #(.RECOVERY(0)) uut_wait3(
     .DSn        ( {2{wait_asn}} ),
     .num        ( 4'd1          ),
     .den        ( 5'd4          ),
-    .wait2      ( 1'b0          ),
-    .wait3      ( 1'b1          ),
+    .waitn      ( 2'd2          ),
     .DTACKn     ( wait3_DTACKn  ),
     .fave       (               ),
     .fworst     (               )
 );
 
 genvar cfg;
-generate for(cfg=0;cfg<6;cfg=cfg+1) begin: qualification
-    dtack_wait_check #(.WAIT1(cfg>=3),.EXTRA(cfg>=3 ? cfg-3 : cfg)) check_wait(
+generate for(cfg=0;cfg<8;cfg=cfg+1) begin: qualification
+    dtack_wait_check #(.WAITS(cfg%4),.GATED(cfg/4)) check_wait(
         .clk(clk), .rst(rst), .done(qualification_done[cfg])
     );
 end endgenerate
@@ -436,31 +431,33 @@ jtframe_test_clocks #(
 
 endmodule // test
 
-// Qualify WAIT1 and both configured extra waits using delivered CPU phases,
-// then check that a late response can wake the held DTACK-sampling Phi2.
-module dtack_wait_check #(parameter WAIT1=0, EXTRA=0)(
+// Qualify each waitn value using delivered CPU phases, then check that a late
+// response can wake the held DTACK-sampling Phi2. GATED drives waitn only
+// while AS is low, like a wait derived from an AS-gated chip select.
+module dtack_wait_check #(parameter WAITS=0, GATED=0)(
     input clk, rst,
     output reg done=0
 );
 reg asn=1, busy=0;
 wire cen, cenb, dtackn;
-wire wait2, wait3, cs;
+wire [1:0] waitn;
+wire cs;
 integer phi1_count, debt_before, idle_count;
-localparam EXPECT_PHI1 = WAIT1 ? (EXTRA==2 ? 3 : 2) : EXTRA;
-assign wait2=EXTRA==1;
-assign wait3=EXTRA==2;
+// The Phi1 entering S4 precedes the first DTACK sample: N waits need N+1.
+localparam EXPECT_PHI1 = WAITS==0 ? 0 : WAITS+1;
 assign cs=!asn;
-jtframe_68kdtack_cen #(.WAIT1(WAIT1),.MFREQ(48000)) uut(
+assign waitn = GATED!=0 && asn ? 2'd0 : WAITS[1:0];
+jtframe_68kdtack_cen #(.MFREQ(48000)) uut(
     .rst(rst), .clk(clk), .cpu_cen(cen), .cpu_cenb(cenb),
     .bus_cs(cs), .bus_busy(busy), .bus_legit(1'b0), .bus_ack(1'b0), .RnW(1'b1), .BGACKn(1'b1),
     .ASn(asn), .DSn({2{asn}}), .num(4'd1), .den(5'd4),
-    .wait2(wait2), .wait3(wait3), .DTACKn(dtackn), .fave(), .fworst()
+    .waitn(waitn), .DTACKn(dtackn), .fave(), .fworst()
 );
 `include "test_tasks.vh"
 // Check replay exclusion continuously, including a new access started with
 // debt remaining from the preceding artificial stall.
 always @(posedge clk) if(!rst && !asn) begin
-    if(uut.waitsh!=0 || (WAIT1!=0 && !uut.ack_armed)) begin
+    if(uut.board_wait) begin
         assert_msg(!uut.recover,"Configured board waits must not spend recovery debt");
         assert_msg(!uut.hold_cpu,"Configured board waits must continue nominal phases");
     end
@@ -488,7 +485,7 @@ initial begin
         if(cen) phi1_count=phi1_count+1;
         @(negedge clk);
     end
-    $display("WAIT1=%0d EXTRA=%0d ready acknowledgement after %0d Phi1 events",WAIT1,EXTRA,phi1_count);
+    $display("waitn=%0d gated=%0d ready acknowledgement after %0d Phi1 events",WAITS,GATED,phi1_count);
     assert_msg(phi1_count==EXPECT_PHI1,"Ready memory preserves deliberate wait qualification");
     assert_msg(uut.missing==0,"Ready memory must not acquire recovery debt");
     close_bus();
@@ -512,7 +509,7 @@ initial begin
     debt_before=uut.missing;
     assert_msg(debt_before>0,"New configured wait tested with outstanding debt");
     while(!uut.ack_ready) @(negedge clk);
-    if(EXTRA!=0 || WAIT1!=0)
+    if(WAITS!=0)
         assert_msg(uut.missing==debt_before,"Configured wait neither charges nor drains existing debt");
     busy=0; close_bus();
     // Idle wait inputs still describe the prior access. Clear AS so no CPU

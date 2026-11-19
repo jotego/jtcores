@@ -289,8 +289,7 @@ jtframe_68kdtack_cen u_dtack(
     .num       ( 4'd1     ),
     .den       ( 5'd4     ),
     .DTACKn    ( dtack_n  ),
-    .wait2     ( 1'b0     ),
-    .wait3     ( 1'b0     ),
+    .waitn     ( 2'd0     ),
     .fave      (          ),
     .fworst    (          )
 );

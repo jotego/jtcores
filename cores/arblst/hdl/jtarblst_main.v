@@ -198,8 +198,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .num        ( 5'd1      ),
     .den        ( 6'd6      ),
     .DTACKn     ( dtackn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( 2'd0      ),
     .fave       (           ),
     .fworst     (           )
 );

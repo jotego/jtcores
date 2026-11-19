@@ -28,6 +28,7 @@ module jttmnt_video(
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
     output reg        vdtac,
+    output            pq,       // 052109 PQ: video chips' CPU slot clock (3 MHz)
     input             pcu_cs,
     input             pal_cs,
     input             cpu_we,
@@ -131,6 +132,8 @@ jtriders_dump u_dump(
 
 wire [2:0] gfx_de;
 reg  [9:1] oa; // see sch object page (A column)
+
+assign pq = q;
 
 always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
 

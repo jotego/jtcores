@@ -1,7 +1,8 @@
 # 68000 read/write DTACK timing
 
 This simunit runs the real fx68k with the production `jtframe_68kdtack_cen`.
-All eight combinations of `WAIT1`, `wait2`, and `wait3` execute matching
+Every `waitn` value from 0 to 3, held constant or driven only from the
+strobe-gated data select, executes matching
 `MOVE.W (A0),D0` and `MOVE.W D0,(A0)` loops, with ready memory and with a
 16-master-clock response delay. Both combinational chip selects and chip selects
 registered one master clock after the data strobes are tested. A separate TAS
@@ -33,23 +34,22 @@ data and forward progress, but cannot require physical memory latency to be
 repaid or equal wall-clock throughput. Ready writes may briefly be held while
 the registered decode settles; those physical holds are included in the debt.
 
-The existing read timing is preserved:
+Each wait state adds one CPU clock to every transfer that requests it, for
+reads and writes alike:
 
-| WAIT1 | wait2 | wait3 | Added CPU waits per transfer | MOVE/BRA clocks | TAS/BRA clocks |
-|---|---|---|---|---|---|
-| 0 | 0 | 0 | 0 | 18 | 24 |
-| 0 | 1 | 0 | 0 | 18 | 24 |
-| 0 | 0 | 1 | 1 | 22 | 29 |
-| 0 | 1 | 1 | 1 | 22 | 29 |
-| 1 | 0 | 0 | 1 | 22 | 29 |
-| 1 | 1 | 0 | 1 | 22 | 29 |
-| 1 | 0 | 1 | 2 | 26 | 34 |
-| 1 | 1 | 1 | 2 | 26 | 34 |
+| waitn | MOVE/BRA clocks (constant / gated) | TAS/BRA clocks (constant / gated) |
+|---|---|---|
+| 0 | 18 / 18 | 24 / 24 |
+| 1 | 22 / 19 | 29 / 26 |
+| 2 | 26 / 20 | 34 / 28 |
+| 3 | 30 / 21 | 39 / 30 |
 
-`wait2` is an earlier qualification stage, not an additional whole CPU wait
-with the current fx68k sampling. Both high has the same timing as `wait3` alone;
-the regression asserts that equality directly. The table is a description of
-the retained timing, not a change to the meaning of those inputs.
+A constant `waitn` applies to all four transfers of the MOVE loop and all five
+of the TAS loop, instruction fetches included. When gated by the data select
+only the data transfers wait: one per MOVE loop, the read and write per TAS
+loop. The gated case checks that a wait derived from a strobe-gated chip
+select is not lost. Late responses grow by eight master clocks per wait state
+so they still arrive after the last DTACK sample at every divider.
 
 TAS checks exact instruction phases, a strobe gap with AS held low, one read
 and one accepted write per iteration, the modified upper byte, the unchanged

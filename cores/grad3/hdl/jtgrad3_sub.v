@@ -52,6 +52,7 @@ module jtgrad3_sub(
 
 `ifndef NOMAIN
 wire [23:1] A;
+wire [ 1:0] rom_wait;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, cpu_cen, cpu_cenb;
 wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
@@ -78,6 +79,7 @@ assign irq_trig  = A[22:18]=={2'd0,3'd6};
 assign bus_cs    = rom_cs | ram_cs | tile_cs | obj_cs | gchar_sel | gfx_cs | sh_cs | irq_mask_cs;
 wire [2:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, gchar_cs, gfx_cs };
+assign rom_wait = {1'b0, (rom_cs & |A[19:18]) | gfx_cs};
 assign ok_in = { rom_ok, gchar_ok, gfx_ok };
 assign video_req = tile_cs | (vid_dec_cs && A[19:18]==2'd2);
 assign video_req_n = ~video_req;
@@ -178,8 +180,7 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .num        ( cen_num   ),
     .den        ( 6'd24     ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
+    .waitn      ( rom_wait  ),
     .fave       (           ),
     .fworst     (           )
 );

@@ -16,6 +16,7 @@ module jtharier_dtack_cen(
     input         RnW, BGACKn,
     input         ASn,  // DTACKn set low at the next cpu_cen after ASn goes low
     input [1:0]   DSn,  // If DSn goes high, DTACKn is reset high
+    input [1:0]   waitn, // 68000 wait states for this transfer
 
     output        DTACKn,
     output  [15:0] fave, // average cpu_cen frequency in kHz
@@ -40,8 +41,7 @@ jtframe_68kdtack_cen #(.W(10)) u_dtack(
     .DSn        ( {UDSn,LDSn} ),
     .num        ( num         ),
     .den        ( den         ),
-    .wait2      ( 1'b0        ),
-    .wait3      ( 1'b0        ),
+    .waitn      ( waitn       ),
     .DTACKn     ( DTACKn      ),
     .fave       ( fave        ),
     .fworst     ( fworst      )

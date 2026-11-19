@@ -230,8 +230,7 @@ jtframe_68kdtack_cen #(.MFREQ(48000)) u_cen(
     .DSn          ( dsn                ),
     .num          ( 4'd1               ),
     .den          ( 5'd3               ),
-    .wait2        ( 1'b0               ),
-    .wait3        ( 1'b0               ),
+    .waitn        ( 2'd0               ),
     .DTACKn       ( dtackn             ),
     .fave         (                    ),
     .fworst       (                    )

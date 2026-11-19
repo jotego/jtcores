@@ -117,6 +117,7 @@ jtharier_dtack_cen u_dtack(
     .BGACKn     ( 1'b1        ),
     .ASn        ( ASn         ),
     .DSn        ( {UDSn,LDSn} ),
+    .waitn      ( 2'd0        ),
     .DTACKn     ( DTACKn      ),
     .fave       ( fave        ),
     .fworst     ( fworst      )

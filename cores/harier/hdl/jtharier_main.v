@@ -168,6 +168,7 @@ assign dsn      = { RnW | UDSn | mcu_syncw, RnW | LDSn | mcu_syncw };
 assign IPLn     = { blank4 ? vbl_irqn : mcu_ctrl[2], mcu_ctrl[1:0] };
 assign VPAn     = inta_n;
 
+wire [ 1:0] rom_wait = {1'b0, ~hangon & rom_cs};
 wire        bus_cs   = rom_cs | ram_cs | vram_cs | char_cs | objram_cs | pal_cs |
                        subram_cs | roadram_cs | io_cs | subrom_cs;
 // VWAIT: the board stalls the main CPU off video RAM until the video's fetch
@@ -511,6 +512,7 @@ jtharier_dtack_cen u_dtack(
     .BGACKn     ( BGACKn      ),
     .ASn        ( ASn         ),
     .DSn        ( {UDSn,LDSn} ),
+    .waitn      ( rom_wait    ),
     .DTACKn     ( DTACKn      ),
     .fave       ( fave        ),
     .fworst     ( fworst      )
