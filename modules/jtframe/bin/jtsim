@@ -161,7 +161,6 @@ case "$1" in
         DUMP=1
         add_macro DUMP;;
     -keepcpp)
-        shift
         TESTCPP=KEEP
         ;;
     -pause)
