@@ -4,8 +4,7 @@ jtframe/target/mister:
     - jtframe_mister.sv
     - jtframe_mister_cab.v
     - jtframe_mister_uio.v
-    - jtframe_mister_capture_io.v
-    - jtframe_mister_capture_tags.v
+    - jtframe_mister_capture.v
     - jtframe_mister_dwnld.v
     - jtframe_mister_status.v
     - jtframe_target_info.sv

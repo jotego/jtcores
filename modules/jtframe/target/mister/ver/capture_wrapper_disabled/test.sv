@@ -11,16 +11,6 @@ module test;
     wire [7:0] ioctl_dout;
     wire ioctl_wr;
     wire [31:0] dipsw;
-    wire cap_io_clk, cap_tag_clk, cap_io_rst, cap_tag_rst, cap_video_ok;
-    wire cap_req_toggle, cap_release_toggle, cap_abort_toggle, cap_life_toggle;
-    wire [31:0] cap_req, cap_life;
-    wire [15:0] cap_release, cap_abort, cap_tag;
-    wire cap_tag_valid, cap_tag_error, cap_result_ack_toggle;
-    reg [511:0] cap_result=0;
-    reg cap_result_toggle=0;
-    reg cap_req_ack_toggle=0, cap_release_ack_toggle=0, cap_abort_ack_toggle=0;
-    reg cap_life_ack_toggle=0, cap_tag_ready=0;
-    reg [7:0] cap_state=0, cap_fault=0;
     integer i, write_count=0;
     reg [26:0] write_addr[0:3];
     reg [7:0] write_data[0:3];
@@ -35,16 +25,7 @@ module test;
         .clk_sys(clk), .clk_rom(clk), .clk_pico(clk), .pll_locked(1'b1),
         .status(status), .HPS_BUS(HPS_BUS), .game_joystick1(game_joystick1),
         .ioctl_addr(ioctl_addr), .ioctl_dout(ioctl_dout), .ioctl_wr(ioctl_wr), .dipsw(dipsw),
-        .rst_req(1'b0), .cap_system_reset(1'b0),
-        .cap_io_clk(cap_io_clk), .cap_tag_clk(cap_tag_clk), .cap_io_rst(cap_io_rst), .cap_tag_rst(cap_tag_rst),
-        .cap_video_ok(cap_video_ok), .cap_req_toggle(cap_req_toggle), .cap_req(cap_req),
-        .cap_req_ack_toggle(cap_req_ack_toggle), .cap_release_toggle(cap_release_toggle), .cap_release(cap_release),
-        .cap_release_ack_toggle(cap_release_ack_toggle), .cap_abort_toggle(cap_abort_toggle), .cap_abort(cap_abort),
-        .cap_abort_ack_toggle(cap_abort_ack_toggle), .cap_life_toggle(cap_life_toggle), .cap_life(cap_life),
-        .cap_life_ack_toggle(cap_life_ack_toggle), .cap_tag_valid(cap_tag_valid), .cap_tag(cap_tag),
-        .cap_tag_ready(cap_tag_ready), .cap_tag_error(cap_tag_error), .cap_result_toggle(cap_result_toggle),
-        .cap_result(cap_result), .cap_result_ack_toggle(cap_result_ack_toggle),
-        .cap_state(cap_state), .cap_fault(cap_fault)
+        .rst_req(1'b0)
     );
 
     task tick(input integer count);
@@ -84,13 +65,9 @@ module test;
            uut.cab_frame !== 15'd0 || uut.cab_frame_index !== 15'd0 ||
            uut.cab_frame_start !== 1'b0 || uut.cab_state !== 3'd0 || uut.cab_error !== 8'd0)
             $fatal(1,"disabled wrapper changed CAB controls, reset, DIPs, or tags");
-        if(cap_io_clk !== 1'b0 || cap_tag_clk !== 1'b0 || cap_io_rst !== 1'b0 ||
-           cap_tag_rst !== 1'b0 || cap_video_ok !== 1'b0 || cap_req_toggle !== 1'b0 ||
-           cap_req !== 32'd0 || cap_release_toggle !== 1'b0 || cap_release !== 16'd0 ||
-           cap_abort_toggle !== 1'b0 || cap_abort !== 16'd0 || cap_life_toggle !== 1'b0 ||
-           cap_life !== 32'd0 || cap_tag_valid !== 1'b0 || cap_tag !== 15'd0 ||
-           cap_tag_error !== 1'b0 || cap_result_ack_toggle !== 1'b0)
-            $fatal(1,"disabled wrapper capture sideband was not neutral");
+        if(uut.cap_ddr_sel !== 1'b0 || uut.cap_ddr_we !== 1'b0 || uut.uio_result_valid !== 1'b0 ||
+           uut.uio_cap_caps !== 128'd0)
+            $fatal(1,"disabled wrapper capture DDR client or result was not neutral");
         if(status[0] !== uut.hps_status_full[0])
             $fatal(1,"CAB reset/input override leaked into ordinary status bit zero");
     end

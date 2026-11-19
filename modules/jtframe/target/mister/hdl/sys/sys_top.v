@@ -608,7 +608,6 @@ sysmem_lite sysmem
 (
 	//Reset/Clock
 	.reset_core_req(reset_req),
-	.vbuf_user_reset(vbuf_user_reset),
 	.reset_out(reset),
 	.clock(clk_100m),
 
@@ -713,60 +712,6 @@ wire         freeze;
 wire         bob_deint;
 wire         hdmi_f1;     // the scaler's field flag: f1, or 0 for the native picture while 480i is on
 
-wire CAP_IO_CLK, CAP_TAG_CLK, CAP_IO_RST, CAP_TAG_RST, CAP_VIDEO_OK;
-wire ascal_reset_na;
-wire vbuf_user_reset;
-wire CAP_REQ_TOGGLE, CAP_REQ_ACK_TOGGLE;
-wire [31:0] CAP_REQ;
-wire CAP_RELEASE_TOGGLE, CAP_RELEASE_ACK_TOGGLE;
-wire [15:0] CAP_RELEASE;
-wire CAP_ABORT_TOGGLE, CAP_ABORT_ACK_TOGGLE;
-wire [15:0] CAP_ABORT;
-wire CAP_LIFE_TOGGLE, CAP_LIFE_ACK_TOGGLE;
-wire [31:0] CAP_LIFE;
-wire CAP_TAG_VALID, CAP_TAG_READY, CAP_TAG_ERROR;
-wire [14:0] CAP_TAG;
-wire CAP_RESULT_TOGGLE, CAP_RESULT_ACK_TOGGLE;
-wire [511:0] CAP_RESULT;
-wire [7:0] CAP_STATE, CAP_FAULT;
-wire cap_mode_supported;
-
-`ifdef JTFRAME_REGRESSION
-`ifndef MISTER_DEBUG_NOHDMI
-`ifndef JTFRAME_CRT480I
-`ifndef JTFRAME_INTERLACED
-assign ascal_reset_na = ~(reset_req | CAP_IO_RST | CAP_TAG_RST);
-`else
-assign ascal_reset_na = ~reset_req;
-`endif
-`else
-assign ascal_reset_na = ~reset_req;
-`endif
-`else
-assign ascal_reset_na = ~reset_req;
-`endif
-`else
-assign ascal_reset_na = ~reset_req;
-`endif
-
-`ifdef JTFRAME_REGRESSION
-`ifndef MISTER_DEBUG_NOHDMI
-`ifndef JTFRAME_CRT480I
-`ifndef JTFRAME_INTERLACED
-assign vbuf_user_reset = CAP_IO_RST | CAP_TAG_RST;
-`else
-assign vbuf_user_reset = 1'b0;
-`endif
-`else
-assign vbuf_user_reset = 1'b0;
-`endif
-`else
-assign vbuf_user_reset = 1'b0;
-`endif
-`else
-assign vbuf_user_reset = 1'b0;
-`endif
-
 `ifndef MISTER_DEBUG_NOHDMI
 	wire clk_hdmi  = hdmi_clk_out;
 
@@ -791,56 +736,16 @@ assign vbuf_user_reset = 1'b0;
 	`ifdef MISTER_DOWNSCALE_NN
 		.DOWNSCALE_NN("true"),
 	`endif
-		`ifdef JTFRAME_REGRESSION
-			`ifndef JTFRAME_CRT480I
-				`ifndef JTFRAME_INTERLACED
-					.CAPTURE("true"),
-					.CAPTURE_CYCLES_PER_MS(100000),
-				`else
-					.CAPTURE("false"),
-				`endif
-			`else
-				.CAPTURE("false"),
-			`endif
-		`else
-			.CAPTURE("false"),
-		`endif
 		.FRAC(8),
 		.N_DW(128),
 		.N_AW(28)
 	)
 	ascal
 	(
-		.reset_na   (ascal_reset_na),
+		.reset_na   (~reset_req),
 		.run        (1),
 		.freeze     (freeze),
 		.bob_deint  (bob_deint),
-		.cap_io_clk (CAP_IO_CLK),
-		.cap_io_rst (CAP_IO_RST),
-		.cap_req_toggle (CAP_REQ_TOGGLE),
-		.cap_req    (CAP_REQ),
-		.cap_req_ack_toggle (CAP_REQ_ACK_TOGGLE),
-		.cap_release_toggle (CAP_RELEASE_TOGGLE),
-		.cap_release (CAP_RELEASE),
-		.cap_release_ack_toggle (CAP_RELEASE_ACK_TOGGLE),
-		.cap_abort_toggle (CAP_ABORT_TOGGLE),
-		.cap_abort  (CAP_ABORT),
-		.cap_abort_ack_toggle (CAP_ABORT_ACK_TOGGLE),
-		.cap_life_toggle (CAP_LIFE_TOGGLE),
-		.cap_life   (CAP_LIFE),
-		.cap_life_ack_toggle (CAP_LIFE_ACK_TOGGLE),
-		.cap_tag_clk (CAP_TAG_CLK),
-		.cap_tag_rst (CAP_TAG_RST),
-		.cap_tag_valid (CAP_TAG_VALID),
-		.cap_tag    (CAP_TAG),
-		.cap_tag_error (CAP_TAG_ERROR),
-		.cap_tag_ready (CAP_TAG_READY),
-		.cap_result_toggle (CAP_RESULT_TOGGLE),
-		.cap_result (CAP_RESULT),
-		.cap_result_ack_toggle (CAP_RESULT_ACK_TOGGLE),
-		.cap_state  (CAP_STATE),
-		.cap_fault  (CAP_FAULT),
-		.cap_mode_supported (cap_mode_supported),
 
 		.i_clk    (clk_ihdmi),
 		.i_ce     (ce_hpix),
@@ -927,19 +832,6 @@ assign vbuf_user_reset = 1'b0;
 	);
 `endif
 
-`ifdef MISTER_DEBUG_NOHDMI
-// The debug target omits ascal, so do not leave its return sideband floating.
-assign CAP_REQ_ACK_TOGGLE = 1'b0;
-assign CAP_RELEASE_ACK_TOGGLE = 1'b0;
-assign CAP_ABORT_ACK_TOGGLE = 1'b0;
-assign CAP_LIFE_ACK_TOGGLE = 1'b0;
-assign CAP_TAG_READY = 1'b0;
-assign CAP_RESULT_TOGGLE = 1'b0;
-assign CAP_RESULT = 512'd0;
-assign CAP_STATE = 8'd0;
-assign CAP_FAULT = 8'd0;
-`endif
-
 reg        LFB_EN     = 0;
 reg        LFB_FLT    = 0;
 reg  [5:0] LFB_FMT    = 0;
@@ -958,10 +850,6 @@ reg [11:0] FB_WIDTH  = 0;
 reg [11:0] FB_HEIGHT = 0;
 reg [31:0] FB_BASE   = 0;
 reg [13:0] FB_STRIDE = 0;
-
-// Capture qualification follows the actual sampled native input. These
-// settings either transform that input or select an unqualified service path.
-assign cap_mode_supported = CAP_VIDEO_OK && !direct_video && !lowlat && !FB_EN;
 
 always @(posedge clk_sys) begin
 	FB_EN <= LFB_EN | fb_en;
@@ -2083,33 +1971,6 @@ emu emu
 
 	.BUTTONS(btn),
 	.OSD_STATUS(osd_status),
-	.CAP_SYSTEM_RESET(reset_req),
-	.CAP_IO_CLK(CAP_IO_CLK),
-	.CAP_TAG_CLK(CAP_TAG_CLK),
-	.CAP_IO_RST(CAP_IO_RST),
-	.CAP_TAG_RST(CAP_TAG_RST),
-	.CAP_VIDEO_OK(CAP_VIDEO_OK),
-	.CAP_REQ_TOGGLE(CAP_REQ_TOGGLE),
-	.CAP_REQ(CAP_REQ),
-	.CAP_REQ_ACK_TOGGLE(CAP_REQ_ACK_TOGGLE),
-	.CAP_RELEASE_TOGGLE(CAP_RELEASE_TOGGLE),
-	.CAP_RELEASE(CAP_RELEASE),
-	.CAP_RELEASE_ACK_TOGGLE(CAP_RELEASE_ACK_TOGGLE),
-	.CAP_ABORT_TOGGLE(CAP_ABORT_TOGGLE),
-	.CAP_ABORT(CAP_ABORT),
-	.CAP_ABORT_ACK_TOGGLE(CAP_ABORT_ACK_TOGGLE),
-	.CAP_LIFE_TOGGLE(CAP_LIFE_TOGGLE),
-	.CAP_LIFE(CAP_LIFE),
-	.CAP_LIFE_ACK_TOGGLE(CAP_LIFE_ACK_TOGGLE),
-	.CAP_TAG_VALID(CAP_TAG_VALID),
-	.CAP_TAG(CAP_TAG),
-	.CAP_TAG_READY(CAP_TAG_READY),
-	.CAP_TAG_ERROR(CAP_TAG_ERROR),
-	.CAP_RESULT_TOGGLE(CAP_RESULT_TOGGLE),
-	.CAP_RESULT(CAP_RESULT),
-	.CAP_RESULT_ACK_TOGGLE(CAP_RESULT_ACK_TOGGLE),
-	.CAP_STATE(CAP_STATE),
-	.CAP_FAULT(CAP_FAULT),
 
 	.SD_SCK(SD_CLK),
 	.SD_MOSI(SD_MOSI),

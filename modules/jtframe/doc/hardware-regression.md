@@ -18,11 +18,13 @@ capability; `-u JTFRAME_REGRESSION` disables it explicitly. A defined value of
 `0` is still enabled under the project's macro-presence semantics.
 
 The exact capture transport is unavailable in CRT480I and interlaced builds.
-Native vertical capture uses the normal Video Rotate screen option set to No;
-rotated/framebuffer paths are unavailable to the current contract. A board
-build containing this capability is not, by itself, evidence that a core or
-hardware setup has been qualified. The configured qualification record must
-match the generation, convention, Main executable hash and qualification ID.
+Native vertical capture uses the normal Video Rotate screen option set to No.
+Cores that use DDR continuously for video (`JTFRAME_LF_BUFFER` in DDR,
+`JTFRAME_MR_GAME_DDR`) have no regression support, because the capture writer
+needs the core's video DDR port. A board build containing this capability is
+not, by itself, evidence that a core or hardware setup has been qualified. The
+configured qualification record must match the generation, convention, Main
+executable hash and qualification ID.
 
 The MiSTer route below is separate from the existing SiDi128 screenshot
 workflow. It does not change the SiDi128 result folders, history rows, or
@@ -37,40 +39,62 @@ capture, copy, encode, release and cleanup. The checkpoint range is a protocol
 bound, not permission to run a 32767-frame session: at 60 Hz that would exceed
 the session deadline.
 
+### Capture block
+
+`jtframe_mister_capture` handles the CAP_* commands, derives the checkpoint
+tags from the CAB replay counters and writes the frames. It runs entirely on
+`clk_sys`, which is also `clk_rom` and `DDRAM_CLK`, so the only clock crossing
+is Intel's f2sdram bridge and ordinary STA covers the capture logic. The HDMI
+scaler (`ascal.vhd`) is the unmodified MiSTer version.
+
+It captures the core's native video, the `arcade_video` output before the OSD
+and the scaler. While a capture is armed, every native frame is packed as
+RGB888, rows padded to a 256-byte pitch, and written through the core's DDR
+port to a fixed 2 MB slot at HPS address `0x3FE00000`. Pixels start 256 bytes
+into the slot. A frame starts at the first active pixel after the game's LVBL
+falling edge; the same edge produces the checkpoint of the interval that just
+ended. When the frame with the requested checkpoint has been written, writing
+stops and the slot stays frozen while the game keeps running. The block waits
+for its last burst to be accepted, then publishes the descriptor (READY).
+Capture never pauses or slows the game. There is no hold watchdog: a frozen
+slot blocks nothing, and Main enforces its own hold deadline.
+
+The block takes the video DDR client from `screen_rotate` only while it has
+data to write; capture requires rotation off, so `screen_rotate` is idle then.
+A DDR ROM download (`ioctl_rom`) is an unsupported video mode, and the DDR
+port only changes owner between bursts. Faults: bad length (1), bad word (2),
+bad state (3), late target (4), lifecycle change (5), unsupported video mode
+(6), tag sequence (7), write overrun (8), bad release (0x0C) and geometry
+change (0x0E).
+
 The native v3 capture path advertises capability bit 6 in CAP CAPS word 3.
 Matching Main reads a 64-byte descriptor over UIO; its IEEE CRC protects the
-descriptor. Bytes 36..39 hold the number of bursts including the native
-header; bytes 40..43 contain the algorithm tag `GFW1`; bytes 44..47 hold the
-write-side hash. Starting at zero, for each little-endian 32-bit payload word
-(including row padding), GFW1 shifts the 32-bit state left, XORs `0x00400007`
-when the previous top bit was set, and XORs the word. It detects reordered DDR
-payloads but does not establish that the source game produced the correct
-frame or independently detect every possible corruption.
+descriptor. Mode bit 13 marks the core DDR slot (slot 0, 2 MB stride, base
+`0x3FE00000`); Main builds that predate it reject the descriptor as an
+unsupported mode. Bytes 36..39 hold the number of 256-byte slot blocks,
+including the 256-byte offset before the pixels; bytes 40..43 contain the
+algorithm tag `GFW1`; bytes 44..47 hold the write-side hash. Starting at zero,
+for each little-endian 32-bit payload word (including row padding), GFW1
+shifts the 32-bit state left, XORs `0x00400007` when the previous top bit was
+set, and XORs the word. It detects reordered DDR payloads but does not
+establish that the source game produced the correct frame or independently
+detect every possible corruption.
 
-The selected framebuffer slot remains owned and protected while Main copies
-its pixels. READY means the target writes were accepted by Avalon; Main
-verifies the copied payload against the checksum and retries a mismatch within
-the hold deadline. It then checks a fresh CAPS response for the same owned,
-fault-free READY result and freshness before releasing the slot. Native v3
-does not write a capture metadata header to DDR or scan pixels back through
-the FPGA. The v3 image receipt records the descriptor, checksum, and READY and
-post-copy CAPS witnesses. Main retains the legacy native v2 path when the
-capability bit is absent; older Main versions reject the new capability for
-automated capture. Ordinary gameplay with stock Main remains a requirement.
-
-The two scaler write-buffer halves remain leased until their final accepted
-burst acknowledgements return. A one-bit order tag distinguishes at most two
-outstanding writes, and both leases must clear before capture or cleanup drain
-is requested. A native header still precedes pixel data for the scaler itself;
-it is not a v3 capture receipt.
+The slot remains owned and protected while Main copies its pixels. READY means
+the target writes were accepted by the DDR port; Main verifies the copied
+payload against the checksum and retries a mismatch within the hold deadline.
+It then checks a fresh CAPS response for the same owned, fault-free READY
+result and freshness before releasing the slot. The v3 image receipt records
+the descriptor, checksum, and READY and post-copy CAPS witnesses. Ordinary
+gameplay with stock Main remains a requirement.
 
 ## MiSTer native regression
 
-MiSTer capture uses the normal CAB input stream and native RGB888 scaler
-capture. It is a qualification-gated, local-only route. The initial capture
-contract supports progressive, non-rotated video without framebuffer or
-low-latency paths;
-CRT480I and interlaced builds are unavailable. Do not interpret a completed
+MiSTer capture uses the normal CAB input stream and the native RGB888
+capture writer. It is a qualification-gated, local-only route. The capture
+contract supports progressive, non-rotated native video. Scaler settings such
+as low latency or framebuffer modes do not affect it. CRT480I and interlaced
+builds are unavailable. Do not interpret a completed
 board transfer as a qualified result: the host checks session identity,
 generation, frame sequence, image receipts and pixel quality before it writes
 the selected generation's progress lane.

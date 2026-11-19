@@ -150,7 +150,7 @@ module jtframe_mr_ddrmux(
     input rot_clk,
     input [7:0] rot_burstcnt,
     input [28:0] rot_addr,
-    input rot_rd, rot_we,
+    input rot_rd, rot_we, rot_lock,
     input [7:0] rot_be,
     input [63:0] rot_din,
     output rot_busy,

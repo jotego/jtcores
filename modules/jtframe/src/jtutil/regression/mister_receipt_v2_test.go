@@ -427,3 +427,38 @@ func TestMiSTerV3OptionalRawProofRecomputesGFW1(t *testing.T) {
 	setChecksum(checksum ^ 1)
 	if _, err = ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err == nil { t.Fatal("raw proof accepted matching but false descriptor and receipt checksums") }
 }
+
+func TestMiSTerV3CoreDDRSlot(t *testing.T) {
+	f, r, ref := newMiSTerCaptureV3Fixture(t)
+	withSlot := func(base, mode uint32) miSTerCaptureImageReceiptV2 {
+		v := r
+		desc, err := hex.DecodeString(r.DescriptorBytesHex)
+		if err != nil { t.Fatal(err) }
+		binary.LittleEndian.PutUint32(desc[12:16], base)
+		binary.LittleEndian.PutUint32(desc[32:36], mode)
+		crc := crc32.ChecksumIEEE(desc[:56])
+		binary.LittleEndian.PutUint32(desc[56:60], crc)
+		v.SlotBase, v.Mode = fmt.Sprintf("%08x", base), fmt.Sprintf("%08x", mode)
+		v.DescriptorCRC32, v.DescriptorBytesHex = fmt.Sprintf("%08x", crc), hex.EncodeToString(desc)
+		return v
+	}
+	writeMiSTerV3TestReceipt(t, &f, ref, withSlot(miSTerCoreSlotBase, 0x2c01), false)
+	if _, err := ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err != nil {
+		t.Fatalf("core DDR slot rejected: %v", err)
+	}
+	for _, tc := range []struct {
+		name       string
+		base, mode uint32
+	}{
+		{"core mode at scaler base", miSTerScalerBase, 0x2c01},
+		{"core base without core mode", miSTerCoreSlotBase, 0x0c01},
+		{"reserved mode bit", miSTerCoreSlotBase, 0x6c01},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			writeMiSTerV3TestReceipt(t, &f, ref, withSlot(tc.base, tc.mode), false)
+			if _, err := ValidateMiSTerCapture(f.expected, f.status, f.manifest, f.files, f.root); err == nil {
+				t.Fatal("invalid core slot accepted")
+			}
+		})
+	}
+}

@@ -622,8 +622,7 @@ func validateMiSTerImageReceiptV2(r miSTerCaptureImageReceiptV2, expected MiSTer
 	if err != nil {
 		return fmt.Errorf("invalid capture mode")
 	}
-	if r.Slot > 2 || (r.SlotStride != miSTerSlotStride2 && r.SlotStride != miSTerSlotStride8) || slotBase != 0x20000000+r.Slot*r.SlotStride ||
-		((mode>>8)&3) != r.Slot || mode&0xff != miSTerRGBMode || mode&(1<<10) == 0 || mode&(1<<11) == 0 || mode&(1<<12) != 0 || mode&0xffffe000 != 0 {
+	if !miSTerCaptureSlotValid(mode, slotBase, r.SlotStride, r.Slot) || (mode&miSTerModeCoreDDR != 0 && !isV3) {
 		return fmt.Errorf("unsupported v2 slot/mode")
 	}
 	rowPitch := ((uint64(r.Width)*3 + 255) / 256) * 256
@@ -684,4 +683,24 @@ func allZero(data []byte) bool {
 		}
 	}
 	return true
+}
+
+// Mode bit 13: the core wrote its native frame to the fixed core DDR slot
+// (jtframe_mister_capture) instead of the HDMI scaler buffer.
+const (
+	miSTerModeCoreDDR  = 1 << 13
+	miSTerCoreSlotBase = 0x3FE00000
+	miSTerScalerBase   = 0x20000000
+)
+
+func miSTerCaptureSlotValid(mode, base, stride, slot uint32) bool {
+	if mode&0xff != miSTerRGBMode || mode&(1<<10) == 0 || mode&(1<<11) == 0 || mode&(1<<12) != 0 ||
+		mode&0xffffc000 != 0 || (mode>>8)&3 != slot {
+		return false
+	}
+	if mode&miSTerModeCoreDDR != 0 {
+		return slot == 0 && stride == miSTerSlotStride2 && base == miSTerCoreSlotBase
+	}
+	return slot <= 2 && (stride == miSTerSlotStride2 || stride == miSTerSlotStride8) &&
+		uint64(base) == miSTerScalerBase+uint64(slot)*uint64(stride)
 }

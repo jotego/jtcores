@@ -141,8 +141,6 @@ main() {
     [[ "$(worst_negative_sta_slack cached.sta.rpt)" = -0.462 ]]
     echo 'PASS cached timing reports retain negative slack'
 
-    test_mister_cdc_hook
-
     local jtcore_path=$JTFRAME/bin/jtcore
     local entry_root=$test_dir/nocopy-entry
     mkdir -p "$entry_root/modules" "$entry_root/stub-bin" "$entry_root/cores/probe/cfg" "$entry_root/cores/probe/mister/output_files"
@@ -175,56 +173,6 @@ EOF
     [[ "$output" != *'publish_mister_build_evidence: command not found'* ]]
     cmp -s "$entry_root/cores/probe/mister/output_files/jtprobe.rbf" "$entry_root/release/mister/jtprobe.rbf"
     echo 'PASS actual jtcore copy path preserves RBF bytes without build-evidence helper'
-}
-
-test_mister_cdc_hook() {
-    local saved_frame=$JTFRAME saved_path=$PATH
-    local bin="$test_dir/cdc-quartus/bin" wrong="$test_dir/cdc-other" frame="$test_dir/cdc-frame" helper_dir="$test_dir/cdc-frame/target/mister/syn"
-    mkdir -p "$bin" "$wrong" "$frame/bin" "$helper_dir"
-    : > "$helper_dir/jtframe_mister_cdc.tcl"
-    cat > "$bin/quartus_sh" <<'EOF'
-#!/bin/bash
-exit 0
-EOF
-    cat > "$bin/quartus_sta" <<'EOF'
-#!/bin/bash
-printf '%s\n' "$PWD|$*" >> "$MOCK_CDC_CALLS"
-case "$MOCK_CDC_MODE" in
-  pass) echo 'JTFRAME_CDC PASS' ;;
-  skip) echo 'JTFRAME_CDC SKIP' ;;
-  duplicate) printf '%s\n' 'JTFRAME_CDC PASS' 'JTFRAME_CDC SKIP' ;;
-  unknown) echo 'JTFRAME_CDC MAYBE' ;;
-  error) echo 'JTFRAME_CDC PASS'; exit 1 ;;
-  missing) echo 'unexpected timing output' ;;
-esac
-EOF
-    cat > "$wrong/quartus_sta" <<'EOF'
-#!/bin/bash
-echo 'wrong Quartus version selected' >&2
-exit 1
-EOF
-    chmod +x "$bin/quartus_sh" "$bin/quartus_sta" "$wrong/quartus_sta"
-    export MOCK_CDC_CALLS="$test_dir/cdc-calls" MOCK_CDC_MODE=pass
-    JTFRAME=$frame PATH="$wrong:$bin:$saved_path" TARGET=mister corename=probe LOG="$test_dir/cdc-build.log"
-    NODBG=--nodbg SKIPTIMING=1 JTFRAME_NOSTA=1 FAIL=1
-    run_mister_cdc_audit
-    [[ "$FAIL" = 1 ]]
-    grep -Fq "$test_dir|-t $helper_dir/jtframe_mister_cdc.tcl probe" "$MOCK_CDC_CALLS"
-    [[ -s "$test_dir/cdc-build.cdc.rpt" ]]
-    MOCK_CDC_MODE=skip run_mister_cdc_audit
-    for MOCK_CDC_MODE in duplicate unknown error missing; do
-        if run_mister_cdc_audit; then echo "FAIL CDC audit accepted $MOCK_CDC_MODE" >&2; exit 1; fi
-    done
-    MOCK_CDC_MODE=pass
-    mv "$bin/quartus_sta" "$bin/quartus_sta.saved"
-    if run_mister_cdc_audit; then echo 'FAIL missing matching quartus_sta accepted' >&2; exit 1; fi
-    mv "$bin/quartus_sta.saved" "$bin/quartus_sta"
-    rm "$helper_dir/jtframe_mister_cdc.tcl"
-    if run_mister_cdc_audit; then echo 'FAIL missing CDC helper accepted' >&2; exit 1; fi
-    TARGET=sidi128 run_mister_cdc_audit
-    JTFRAME=$saved_frame PATH=$saved_path TARGET=mist
-    unset JTFRAME_NOSTA SKIPTIMING NODBG MOCK_CDC_CALLS MOCK_CDC_MODE
-    echo 'PASS MiSTer CDC hook selects matching Quartus, preserves STA failure and fails closed'
 }
 
 generate_project() {

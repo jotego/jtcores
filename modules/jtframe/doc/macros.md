@@ -260,7 +260,12 @@ Standalone `-q` retains HDMI and keeps regression support. Use
 the usual presence semantics apply, so `JTFRAME_REGRESSION=0` is still enabled.
 Exact capture is unavailable for CRT480I and interlaced builds. Native vertical
 capture requires the existing Video Rotate screen option to be off; rotated,
-framebuffer, and other unqualified video modes are rejected at runtime.
+scan line, forced scan doubler and gamma modes are rejected at runtime.
+
+The capture writer uses the core's video DDR port, so MiSTer builds also remove
+`JTFRAME_REGRESSION` from cores that use DDR continuously for video: a
+`JTFRAME_LF_BUFFER` kept in DDR (vertical cores move it to BRAM) or
+`JTFRAME_MR_GAME_DDR`.
 
 ### JTFRAME_REMOTE
 

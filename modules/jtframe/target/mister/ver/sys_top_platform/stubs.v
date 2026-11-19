@@ -37,7 +37,6 @@ endmodule
 
 module sysmem_lite (
     input reset_core_req,
-    input vbuf_user_reset,
     input reset_out,
     input clock,
     input reset_hps_cold_req,
@@ -101,8 +100,7 @@ endmodule
 
 module ascal #(parameter RAMBASE=0, parameter RAMSIZE=0, parameter PALETTE2="false",
                parameter ADAPTIVE="true", parameter DOWNSCALE_NN="false",
-               parameter FRAC=0, parameter N_DW=128, parameter N_AW=28,
-               parameter CAPTURE="false", parameter CAPTURE_CYCLES_PER_MS=100000) (
+               parameter FRAC=0, parameter N_DW=128, parameter N_AW=28) (
     input reset_na,
     input run,
     input freeze,
@@ -178,44 +176,8 @@ module ascal #(parameter RAMBASE=0, parameter RAMSIZE=0, parameter PALETTE2="fal
     input avl_address,
     input avl_write,
     input avl_read,
-    input avl_byteenable,
-    input cap_io_clk,
-    input cap_io_rst,
-    input cap_req_toggle,
-    input [31:0] cap_req,
-    output cap_req_ack_toggle,
-    input cap_release_toggle,
-    input [15:0] cap_release,
-    output cap_release_ack_toggle,
-    input cap_abort_toggle,
-    input [15:0] cap_abort,
-    output cap_abort_ack_toggle,
-    input cap_life_toggle,
-    input [31:0] cap_life,
-    output cap_life_ack_toggle,
-    input cap_tag_clk,
-    input cap_tag_rst,
-    input cap_tag_valid,
-    input [14:0] cap_tag,
-    input cap_tag_error,
-    output cap_tag_ready,
-    output cap_result_toggle,
-    output [511:0] cap_result,
-    input cap_result_ack_toggle,
-    output [7:0] cap_state,
-    output [7:0] cap_fault,
-    input cap_mode_supported
+    input avl_byteenable
 );
-wire capture_generic_enabled = (CAPTURE == "true");
-assign cap_req_ack_toggle=1'b0;
-assign cap_release_ack_toggle=1'b0;
-assign cap_abort_ack_toggle=1'b0;
-assign cap_life_ack_toggle=1'b0;
-assign cap_tag_ready=1'b0;
-assign cap_result_toggle=1'b0;
-assign cap_result=512'd0;
-assign cap_state=8'd0;
-assign cap_fault=8'd0;
 endmodule
 
 module sys_umuldiv #(parameter P0=0, parameter P1=0, parameter P2=0) (
@@ -465,7 +427,6 @@ endmodule
 module emu (
     input CLK_50M,
     input RESET,
-    input CAP_SYSTEM_RESET,
     input HPS_BUS,
     input VGA_R,
     input VGA_G,
@@ -477,42 +438,6 @@ module emu (
     input VGA_SCALER,
     input VGA_DISABLE,
     input VGA_HSIZE,
-`ifdef JTFRAME_CRT480I
-    output CRT480I_ON,
-    output NATIVE_CE,
-    output [7:0] NATIVE_R,
-    output [7:0] NATIVE_G,
-    output [7:0] NATIVE_B,
-    output NATIVE_HS,
-    output NATIVE_VS,
-    output NATIVE_DE,
-`endif
-    output CAP_IO_CLK,
-    output CAP_TAG_CLK,
-    output CAP_IO_RST,
-    output CAP_TAG_RST,
-    output CAP_VIDEO_OK,
-    output CAP_REQ_TOGGLE,
-    output [31:0] CAP_REQ,
-    input CAP_REQ_ACK_TOGGLE,
-    output CAP_RELEASE_TOGGLE,
-    output [15:0] CAP_RELEASE,
-    input CAP_RELEASE_ACK_TOGGLE,
-    output CAP_ABORT_TOGGLE,
-    output [15:0] CAP_ABORT,
-    input CAP_ABORT_ACK_TOGGLE,
-    output CAP_LIFE_TOGGLE,
-    output [31:0] CAP_LIFE,
-    input CAP_LIFE_ACK_TOGGLE,
-    output CAP_TAG_VALID,
-    output [14:0] CAP_TAG,
-    input CAP_TAG_READY,
-    output CAP_TAG_ERROR,
-    input CAP_RESULT_TOGGLE,
-    input [511:0] CAP_RESULT,
-    output CAP_RESULT_ACK_TOGGLE,
-    input [7:0] CAP_STATE,
-    input [7:0] CAP_FAULT,
     input HDMI_WIDTH,
     input HDMI_HEIGHT,
     input HDMI_FREEZE,
@@ -596,31 +521,4 @@ module emu (
     input gun_border_en,
     input show_osd
 );
-assign CAP_IO_CLK=1'b0;
-assign CAP_TAG_CLK=1'b0;
-assign CAP_IO_RST=1'b0;
-assign CAP_TAG_RST=1'b0;
-assign CAP_VIDEO_OK=1'b0;
-assign CAP_REQ_TOGGLE=1'b0;
-assign CAP_REQ=32'd0;
-assign CAP_RELEASE_TOGGLE=1'b0;
-assign CAP_RELEASE=16'd0;
-assign CAP_ABORT_TOGGLE=1'b0;
-assign CAP_ABORT=16'd0;
-assign CAP_LIFE_TOGGLE=1'b0;
-assign CAP_LIFE=32'd0;
-assign CAP_TAG_VALID=1'b0;
-assign CAP_TAG=15'd0;
-assign CAP_TAG_ERROR=1'b0;
-assign CAP_RESULT_ACK_TOGGLE=1'b0;
-`ifdef JTFRAME_CRT480I
-assign CRT480I_ON=1'b0;
-assign NATIVE_CE=1'b0;
-assign NATIVE_R=8'd0;
-assign NATIVE_G=8'd0;
-assign NATIVE_B=8'd0;
-assign NATIVE_HS=1'b0;
-assign NATIVE_VS=1'b0;
-assign NATIVE_DE=1'b0;
-`endif
 endmodule

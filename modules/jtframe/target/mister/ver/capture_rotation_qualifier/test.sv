@@ -5,7 +5,7 @@ module test;
     reg [63:0] hps_status_drive=0;
     tri [48:0] HPS_BUS;
     wire [1:0] rotate;
-    wire cap_video_ok;
+    wire cap_video_ok = uut.g_capture.cap_video_ok;
     wire [7:0] scan2x_r,scan2x_g,scan2x_b;
     wire scan2x_hs,scan2x_vs,scan2x_clk,scan2x_cen,scan2x_de;
     wire [1:0] scan2x_sl;
@@ -24,8 +24,8 @@ module test;
 
     jtframe_mister uut(
         .clk_sys(clk), .clk_rom(clk), .clk_pico(clk), .pll_locked(1'b1),
-        .status(status), .HPS_BUS(HPS_BUS), .rst_req(1'b0), .cap_system_reset(1'b0),
-        .rotate(rotate), .cap_video_ok(cap_video_ok),
+        .status(status), .HPS_BUS(HPS_BUS), .rst_req(1'b0),
+        .rotate(rotate),
         .scan2x_r(scan2x_r),.scan2x_g(scan2x_g),.scan2x_b(scan2x_b),
         .scan2x_hs(scan2x_hs),.scan2x_vs(scan2x_vs),.scan2x_clk(scan2x_clk),
         .scan2x_cen(scan2x_cen),.scan2x_de(scan2x_de),.scan2x_sl(scan2x_sl),

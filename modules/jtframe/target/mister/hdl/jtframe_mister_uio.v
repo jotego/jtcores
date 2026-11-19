@@ -13,7 +13,8 @@ module jtframe_mister_uio #(
     input       [15:0] host_word,
     input      [127:0] cab_caps, cap_caps,
     input      [255:0] cab_snapshot,
-    input      [511:0] cap_result,
+    output       [5:0] cap_result_index,
+    input        [7:0] cap_result_byte,
     input              cab_snapshot_valid, cap_result_valid,
     output             response_enable,
     output reg  [15:0] response_word,
@@ -40,6 +41,7 @@ assign is_cap_caps = CAPTURE_SUPPORT && command==16'h0090;
 assign is_cab_read = command==16'h0087;
 assign is_cap_read = CAPTURE_SUPPORT && command==16'h0092;
 assign read_index = words-1'b1;
+assign cap_result_index = read_index[5:0];
 assign response_enable = !rst && !wait_idle && io_enable && active &&
                          (is_cab_caps || is_cap_caps || is_cab_read || is_cap_read);
 
@@ -88,7 +90,7 @@ always @(posedge clk) begin
                     {8'd0,cab_snapshot[{read_index[4:0],3'b000} +: 8]} : 16'd0;
             else if(is_cap_read)
                 response_word <= cap_read_valid ?
-                    {8'd0,cap_result[{read_index[5:0],3'b000} +: 8]} : 16'd0;
+                    {8'd0,cap_result_byte} : 16'd0;
         end
     end
 end

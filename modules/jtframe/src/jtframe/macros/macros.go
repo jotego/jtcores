@@ -122,10 +122,24 @@ func MakeMacros(core, target string, extra ...string) {
 	add_subcarrier_clk(int64(mclk))
 	make_beta_macros(core, target)
 	remove_regression_without_hdmi(target)
+	remove_regression_with_ddr_video(target)
 }
 
 func remove_regression_without_hdmi(target string) {
 	if target == "mister" && IsSet("MISTER_DEBUG_NOHDMI") {
+		Remove(JTFRAME_REGRESSION)
+	}
+}
+
+// The MiSTer capture writer owns the core's video DDR client. Cores that use
+// DDR continuously for video (LF buffer in DDR or game DDR) have no room for
+// it, so they lose regression. Must run after make_mr_lf_bram_macro.
+func remove_regression_with_ddr_video(target string) {
+	if target != "mister" {
+		return
+	}
+	lf_ddr := IsSet("JTFRAME_LF_BUFFER") && !IsSet("JTFRAME_MR_LF_BRAM")
+	if lf_ddr || IsSet("JTFRAME_MR_GAME_DDR") {
 		Remove(JTFRAME_REGRESSION)
 	}
 }

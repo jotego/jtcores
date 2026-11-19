@@ -173,7 +173,6 @@ module jtframe_mister #(parameter
     output          game_rst_n,
     // reset forcing signals:
     input           rst_req,
-    input           cap_system_reset,
     // joystick
     output  [ 9:0]  game_joystick1, game_joystick2, game_joystick3, game_joystick4,
     // left analogue stick
@@ -232,34 +231,7 @@ module jtframe_mister #(parameter
     output    [ 7:0]  debug_bus,
     input     [ 7:0]  debug_view,
     output    [ 7:0]  st_addr,
-    input     [ 7:0]  st_dout,
-    // Exact-capture boundary to sys_top/ascal.
-    output          cap_io_clk,
-    output          cap_tag_clk,
-    output          cap_io_rst,
-    output          cap_tag_rst,
-    output          cap_video_ok,
-    output          cap_req_toggle,
-    output  [ 31:0] cap_req,
-    input           cap_req_ack_toggle,
-    output          cap_release_toggle,
-    output   [15:0] cap_release,
-    input           cap_release_ack_toggle,
-    output          cap_abort_toggle,
-    output   [15:0] cap_abort,
-    input           cap_abort_ack_toggle,
-    output          cap_life_toggle,
-    output  [ 31:0] cap_life,
-    input           cap_life_ack_toggle,
-    output          cap_tag_valid,
-    output   [14:0] cap_tag,
-    input           cap_tag_ready,
-    output          cap_tag_error,
-    input           cap_result_toggle,
-    input   [511:0] cap_result,
-    output          cap_result_ack_toggle,
-    input     [7:0] cap_state,
-    input     [7:0] cap_fault
+    input     [ 7:0]  st_dout
 );
 
 `ifdef JTFRAME_REGRESSION
@@ -279,6 +251,7 @@ localparam CAPTURE_BUILD=0;
 `else
 localparam CAPTURE_BUILD=REGRESSION_BUILD;
 `endif
+
 
 wire [21:0] gamma_bus;
 wire [31:0] timestamp;
@@ -303,6 +276,8 @@ wire [95:0] uio_payload;
 wire [127:0] uio_cab_caps, uio_cap_caps;
 wire [255:0] uio_snapshot;
 wire uio_snapshot_valid, uio_result_valid, uio_rst;
+wire [ 7:0] cap_result_byte;
+wire [ 5:0] cap_result_index;
 wire [127:0] hps_status_full;
 
 wire [3*COLORW-1:0] base_rgb;
@@ -614,7 +589,7 @@ assign dipsw = cab_dipsw_valid ? cab_dipsw : hps_dipsw;
 assign io_strobe = hps_ext_bus[33];
 assign io_enable = hps_ext_bus[34] && !hps_ext_bus[35];
 assign host_word = hps_ext_bus[31:16];
-assign uio_rst = CAPTURE_BUILD ? cap_io_rst : rst;
+assign uio_rst = rst;
 assign hps_ext_bus[32] = ext_response_enable;
 assign hps_ext_bus[15:0] = ext_response_enable ? ext_response_word : 16'hzzzz;
 
@@ -628,7 +603,8 @@ jtframe_mister_uio #(.CAPTURE_SUPPORT(CAPTURE_BUILD)) u_uio_transport(
     .cab_caps  ( uio_cab_caps ),
     .cap_caps  ( uio_cap_caps ),
     .cab_snapshot ( uio_snapshot ),
-    .cap_result ( cap_result ),
+    .cap_result_index ( cap_result_index ),
+    .cap_result_byte  ( cap_result_byte  ),
     .cab_snapshot_valid ( uio_snapshot_valid ),
     .cap_result_valid ( uio_result_valid ),
     .response_enable ( ext_response_enable ),
@@ -687,105 +663,72 @@ end else begin: g_no_regression
     assign cab_error=8'd0;
 end endgenerate
 
+// Regression capture: one clk_sys block (clk_sys = clk_rom = DDRAM_CLK)
+// stores native frames in the core DDR region, where the HPS copies them.
+wire        cap_ddr_sel, cap_ddr_lock, cap_ddr_we, cap_ddr_busy;
+wire [ 7:0] cap_ddr_burstcnt, cap_ddr_be;
+wire [28:0] cap_ddr_addr;
+wire [63:0] cap_ddr_din;
+
 generate if(CAPTURE_BUILD) begin: g_capture
-    wire cap_reset_async = rst | cap_system_reset;
-    reg [1:0] cap_io_reset_pipe, cap_tag_reset_pipe;
-    reg cap_video_ok_reg;
+    reg cap_video_ok;
 
-    assign cap_io_clk = clk_rom;
-    assign cap_tag_clk = clk_sys;
-    // Assert on framework startup or the same system reset event as ascal. Release
-    // separately in the two helper domains; CAB/game reset is intentionally absent.
-    always @(posedge clk_rom or posedge cap_reset_async) begin
-        if(cap_reset_async) cap_io_reset_pipe <= 2'b11;
-        else cap_io_reset_pipe <= {cap_io_reset_pipe[0],1'b0};
-    end
-
-    always @(posedge clk_sys or posedge cap_reset_async) begin
-        if(cap_reset_async) cap_tag_reset_pipe <= 2'b11;
-        else cap_tag_reset_pipe <= {cap_tag_reset_pipe[0],1'b0};
-    end
-
-    assign cap_io_rst = cap_io_reset_pipe[1];
-    assign cap_tag_rst = cap_tag_reset_pipe[1];
+    // native, untransformed video (no scan line effects, forced scan
+    // doubler, gamma table or rotation) and no DDR ROM download
     always @(posedge clk_rom) begin
-        if(rst) cap_video_ok_reg <= 1'b0;
-        else cap_video_ok_reg <= status[5:3]==0 && !force_scan2x &&
-                                 !gamma_bus[19] && !rotate[0] && !framebuf_flip;
+        if(rst) cap_video_ok <= 1'b0;
+        else cap_video_ok <= status[5:3]==0 && !force_scan2x && !gamma_bus[19] &&
+                             !rotate[0] && !framebuf_flip && !ioctl_rom;
     end
-    assign cap_video_ok = cap_video_ok_reg;
 
-    jtframe_mister_capture_io u_capture_io(
-        .clk_rom                 ( clk_rom                 ),
-        .rst                     ( cap_io_rst              ),
-        .io_strobe               ( io_strobe               ),
-        .io_enable               ( io_enable               ),
-        .host_word               ( host_word               ),
-        .uio_start               ( uio_start               ),
-        .uio_finish              ( uio_finish              ),
-        .uio_active              ( uio_active              ),
-        .uio_command             ( uio_command             ),
-        .uio_words               ( uio_words               ),
-        .uio_payload             ( uio_payload             ),
-        .uio_bad_word            ( uio_bad_word            ),
-        .uio_bad_index           ( uio_bad_index           ),
-        .uio_caps                ( uio_cap_caps            ),
-        .uio_result_valid        ( uio_result_valid        ),
-        .cap_state_in            ( cap_state               ),
-        .cap_fault_in            ( cap_fault               ),
-        .cap_req_toggle          ( cap_req_toggle          ),
-        .cap_req                 ( cap_req                 ),
-        .cap_req_ack_toggle      ( cap_req_ack_toggle      ),
-        .cap_release_toggle      ( cap_release_toggle      ),
-        .cap_release             ( cap_release             ),
-        .cap_release_ack_toggle  ( cap_release_ack_toggle  ),
-        .cap_abort_toggle        ( cap_abort_toggle        ),
-        .cap_abort               ( cap_abort               ),
-        .cap_abort_ack_toggle    ( cap_abort_ack_toggle    ),
-        .cap_result_toggle       ( cap_result_toggle       ),
-        .cap_result              ( cap_result              ),
-        .cap_result_ack_toggle   ( cap_result_ack_toggle   )
-    );
-
-    jtframe_mister_capture_tags u_capture_tags(
-        .clk_sys                 ( clk_sys                 ),
-        .rst                     ( cap_tag_rst             ),
-        .lvbl                    ( LVBL                    ),
-        .cab_frame_start         ( cab_frame_start         ),
-        .cab_frame_index         ( cab_frame_index         ),
-        .cab_completed           ( cab_frame               ),
-        .cab_state               ( cab_state               ),
-        .cab_error               ( cab_error               ),
-        .cap_tag_valid           ( cap_tag_valid           ),
-        .cap_tag                 ( cap_tag                 ),
-        .cap_tag_ready           ( cap_tag_ready           ),
-        .cap_tag_overflow        (                         ),
-        .cap_tag_sequence_error  (                         ),
-        .cap_tag_error           ( cap_tag_error           ),
-        .cap_life_toggle         ( cap_life_toggle         ),
-        .cap_life                ( cap_life                ),
-        .cap_life_ack_toggle     ( cap_life_ack_toggle     )
+    jtframe_mister_capture u_capture(
+        .rst              ( rst                     ),
+        .clk              ( clk_sys                 ),
+        .host_word        ( host_word               ),
+        .uio_start        ( uio_start               ),
+        .uio_finish       ( uio_finish              ),
+        .uio_active       ( uio_active              ),
+        .uio_command      ( uio_command             ),
+        .uio_words        ( uio_words               ),
+        .uio_payload      ( uio_payload[63:0]       ),
+        .uio_bad_word     ( uio_bad_word            ),
+        .uio_bad_index    ( uio_bad_index           ),
+        .uio_caps         ( uio_cap_caps            ),
+        .uio_result_valid ( uio_result_valid        ),
+        .result_index     ( cap_result_index        ),
+        .result_byte      ( cap_result_byte         ),
+        .lvbl             ( LVBL                    ),
+        .cab_frame_start  ( cab_frame_start         ),
+        .cab_frame_index  ( cab_frame_index         ),
+        .cab_completed    ( cab_frame               ),
+        .cab_state        ( cab_state               ),
+        .cab_error        ( cab_error               ),
+        .pxl_cen          ( scan2x_cen              ),
+        .red              ( scan2x_r                ),
+        .green            ( scan2x_g                ),
+        .blue             ( scan2x_b                ),
+        .de               ( raw_de                  ),
+        .video_ok         ( cap_video_ok            ),
+        .ddr_sel          ( cap_ddr_sel             ),
+        .ddr_lock         ( cap_ddr_lock            ),
+        .ddr_busy         ( cap_ddr_busy            ),
+        .ddr_burstcnt     ( cap_ddr_burstcnt        ),
+        .ddr_addr         ( cap_ddr_addr            ),
+        .ddr_we           ( cap_ddr_we              ),
+        .ddr_be           ( cap_ddr_be              ),
+        .ddr_din          ( cap_ddr_din             )
     );
 end else begin: g_no_capture
-    assign cap_io_clk=1'b0;
-    assign cap_tag_clk=1'b0;
-    assign cap_io_rst=1'b0;
-    assign cap_tag_rst=1'b0;
-    assign cap_video_ok=1'b0;
-    assign uio_cap_caps=128'd0;
-    assign uio_result_valid=1'b0;
-    assign cap_req_toggle=1'b0;
-    assign cap_req=32'd0;
-    assign cap_release_toggle=1'b0;
-    assign cap_release=16'd0;
-    assign cap_abort_toggle=1'b0;
-    assign cap_abort=16'd0;
-    assign cap_life_toggle=1'b0;
-    assign cap_life=32'd0;
-    assign cap_tag_valid=1'b0;
-    assign cap_tag=15'd0;
-    assign cap_tag_error=1'b0;
-    assign cap_result_ack_toggle=1'b0;
+    assign uio_cap_caps     = 128'd0;
+    assign uio_result_valid = 1'b0;
+    assign cap_result_byte  = 8'd0;
+    assign cap_ddr_sel      = 1'b0;
+    assign cap_ddr_lock     = 1'b0;
+    assign cap_ddr_we       = 1'b0;
+    assign cap_ddr_burstcnt = 8'd0;
+    assign cap_ddr_be       = 8'd0;
+    assign cap_ddr_addr     = 29'd0;
+    assign cap_ddr_din      = 64'd0;
 end endgenerate
 
 hps_io #(
@@ -1462,6 +1405,23 @@ wire rot_clk;
 `endif
 `endif
 
+// The capture writer takes the video DDR client while it has data to write.
+// Capture requires rotation off, so screen_rotate is idle meanwhile. Cores
+// with other continuous video DDR use have no regression (see macros.go).
+wire        vid_busy, vid_rd, vid_we;
+wire [ 7:0] vid_burstcnt, vid_be;
+wire [28:0] vid_addr;
+wire [63:0] vid_din;
+
+assign vid_burstcnt = cap_ddr_sel ? cap_ddr_burstcnt : rot_burstcnt;
+assign vid_addr     = cap_ddr_sel ? cap_ddr_addr     : rot_addr;
+assign vid_rd       = cap_ddr_sel ? 1'b0             : rot_rd;
+assign vid_we       = cap_ddr_sel ? cap_ddr_we       : rot_we;
+assign vid_be       = cap_ddr_sel ? cap_ddr_be       : rot_be;
+assign vid_din      = cap_ddr_sel ? cap_ddr_din      : rot_din;
+assign rot_busy     = vid_busy |  cap_ddr_sel;
+assign cap_ddr_busy = vid_busy | ~cap_ddr_sel;
+
 jtframe_mr_ddrmux u_ddrmux(
         .rst            ( rst             ),
         .clk            ( clk_rom         ),
@@ -1473,13 +1433,14 @@ jtframe_mr_ddrmux u_ddrmux(
         .ddrld_busy     ( ddrld_busy      ),
         // Video DDR client
         .rot_clk        ( rot_clk         ),
-        .rot_burstcnt   ( rot_burstcnt    ),
-        .rot_addr       ( rot_addr        ),
-        .rot_rd         ( rot_rd          ),
-        .rot_we         ( rot_we          ),
-        .rot_be         ( rot_be          ),
-        .rot_din        ( rot_din         ),
-        .rot_busy       ( rot_busy        ),
+        .rot_burstcnt   ( vid_burstcnt    ),
+        .rot_addr       ( vid_addr        ),
+        .rot_rd         ( vid_rd          ),
+        .rot_we         ( vid_we          ),
+        .rot_lock       ( cap_ddr_lock    ),
+        .rot_be         ( vid_be          ),
+        .rot_din        ( vid_din         ),
+        .rot_busy       ( vid_busy        ),
         // DDR Signals
         .ddr_clk        ( DDRAM_CLK       ),
         .ddr_busy       ( DDRAM_BUSY      ),

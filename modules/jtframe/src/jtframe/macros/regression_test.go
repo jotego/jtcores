@@ -59,3 +59,32 @@ func Test_mister_regression_can_be_removed_by_core_definition(t *testing.T) {
 		t.Fatal("core -JTFRAME_REGRESSION must remove the target default")
 	}
 }
+
+func Test_mister_regression_removed_with_ddr_video(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		extra []string
+		want  bool
+	}{
+		{"plain core", nil, true},
+		{"LF buffer in DDR", []string{"JTFRAME_LF_BUFFER"}, false},
+		{"vertical LF buffer moves to BRAM", []string{"JTFRAME_LF_BUFFER", "JTFRAME_VERTICAL"}, true},
+		{"game DDR", []string{"JTFRAME_MR_GAME_DDR"}, false},
+		{"vertical without LF buffer", []string{"JTFRAME_VERTICAL"}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			MakeMacros("gng", "mister", tc.extra...)  // gng is horizontal
+			if got := IsSet(JTFRAME_REGRESSION); got != tc.want {
+				t.Fatalf("JTFRAME_REGRESSION defined=%v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+func Test_ddr_video_policy_only_on_mister(t *testing.T) {
+	MakeFromMap(map[string]string{JTFRAME_REGRESSION: "", "JTFRAME_LF_BUFFER": ""})
+	remove_regression_with_ddr_video("sidi128")
+	if !IsSet(JTFRAME_REGRESSION) {
+		t.Fatal("non-MiSTer targets must keep their regression macro")
+	}
+}

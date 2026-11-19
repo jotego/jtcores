@@ -44,7 +44,6 @@ module emu
     //Async reset from top-level module.
     //Can be used as initial reset.
     input         RESET,
-    input         CAP_SYSTEM_RESET,
 
     //Must be passed to hps_io module
     inout  [48:0] HPS_BUS,
@@ -180,35 +179,7 @@ module emu
     output        uart_en,
     output        gun_border_en,
     output        show_osd,
-    input         OSD_STATUS,
-
-    // Exact-capture control path to the top-level ascal instance.
-    output        CAP_IO_CLK,
-    output        CAP_TAG_CLK,
-    output        CAP_IO_RST,
-    output        CAP_TAG_RST,
-    output        CAP_VIDEO_OK,
-    output        CAP_REQ_TOGGLE,
-    output [31:0] CAP_REQ,
-    input         CAP_REQ_ACK_TOGGLE,
-    output        CAP_RELEASE_TOGGLE,
-    output [15:0] CAP_RELEASE,
-    input         CAP_RELEASE_ACK_TOGGLE,
-    output        CAP_ABORT_TOGGLE,
-    output [15:0] CAP_ABORT,
-    input         CAP_ABORT_ACK_TOGGLE,
-    output        CAP_LIFE_TOGGLE,
-    output [31:0] CAP_LIFE,
-    input         CAP_LIFE_ACK_TOGGLE,
-    output        CAP_TAG_VALID,
-    output [14:0] CAP_TAG,
-    input         CAP_TAG_READY,
-    output        CAP_TAG_ERROR,
-    input         CAP_RESULT_TOGGLE,
-    input [511:0] CAP_RESULT,
-    output        CAP_RESULT_ACK_TOGGLE,
-    input [7:0]   CAP_STATE,
-    input [7:0]   CAP_FAULT
+    input         OSD_STATUS
     `ifdef SIMULATION
     ,output       sim_pxl_cen,
     output        sim_pxl_clk,
@@ -783,34 +754,7 @@ u_frame(
     // Debug
     .gfx_en         ( gfx_en         ),
     .debug_bus      ( debug_bus      ),
-    .debug_view     ( debug_view     ),
-    .cap_io_clk     ( CAP_IO_CLK     ),
-    .cap_tag_clk    ( CAP_TAG_CLK    ),
-    .cap_system_reset ( CAP_SYSTEM_RESET ),
-    .cap_io_rst     ( CAP_IO_RST     ),
-    .cap_tag_rst    ( CAP_TAG_RST    ),
-    .cap_video_ok   ( CAP_VIDEO_OK   ),
-    .cap_req_toggle ( CAP_REQ_TOGGLE ),
-    .cap_req        ( CAP_REQ        ),
-    .cap_req_ack_toggle ( CAP_REQ_ACK_TOGGLE ),
-    .cap_release_toggle ( CAP_RELEASE_TOGGLE ),
-    .cap_release    ( CAP_RELEASE    ),
-    .cap_release_ack_toggle ( CAP_RELEASE_ACK_TOGGLE ),
-    .cap_abort_toggle ( CAP_ABORT_TOGGLE ),
-    .cap_abort      ( CAP_ABORT      ),
-    .cap_abort_ack_toggle ( CAP_ABORT_ACK_TOGGLE ),
-    .cap_life_toggle ( CAP_LIFE_TOGGLE ),
-    .cap_life       ( CAP_LIFE       ),
-    .cap_life_ack_toggle ( CAP_LIFE_ACK_TOGGLE ),
-    .cap_tag_valid  ( CAP_TAG_VALID  ),
-    .cap_tag        ( CAP_TAG        ),
-    .cap_tag_ready  ( CAP_TAG_READY  ),
-    .cap_tag_error  ( CAP_TAG_ERROR  ),
-    .cap_result_toggle ( CAP_RESULT_TOGGLE ),
-    .cap_result     ( CAP_RESULT     ),
-    .cap_result_ack_toggle ( CAP_RESULT_ACK_TOGGLE ),
-    .cap_state      ( CAP_STATE      ),
-    .cap_fault      ( CAP_FAULT      )
+    .debug_view     ( debug_view     )
 );
 
 `include "jtframe_game_instance.v"

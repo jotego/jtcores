@@ -17,6 +17,7 @@ module jtframe_mr_ddrmux(
     input   [28:0] rot_addr,
     input          rot_rd,
     input          rot_we,
+    input          rot_lock, // the video client has a burst open
     input   [ 7:0] rot_be,
     input   [63:0] rot_din,
     output         rot_busy,
@@ -54,10 +55,14 @@ reg ddrld_en;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         ddrld_en <= 0;
-    end else if(!ddr_busy) begin
+    // Keep the owner while the video client has a burst open on the bus.
+    // A client burst that opens while the loader owns the port has not
+    // reached the bus yet: it waits on busy and does not hold the switch.
+    end else if(!ddr_busy && !(rot_lock && !ddrld_en)) begin
         case( {DDRLOAD[0], VERTICAL[0] || LFBUF[0]} )
             2'b00: ddrld_en <= 0; // don't care
-            2'b10: ddrld_en <= 1;
+            // the video DDR client may be the regression capture writer
+            2'b10: ddrld_en <= ioctl_rom;
             2'b01: ddrld_en <= 0;
             2'b11: ddrld_en <= ioctl_rom;
         endcase
