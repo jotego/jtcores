@@ -408,7 +408,7 @@ quartus_source_config_key() {
 # regression logic is present, and reports an explicit PASS or SKIP.
 run_mister_cdc_audit() {
     [[ "$TARGET" = mister ]] || return 0
-    local report="${LOG%.log}.cdc.rpt" helper="$JTFRAME/bin/jtframe_mister_cdc.tcl"
+    local report="${LOG%.log}.cdc.rpt" helper="$JTFRAME/target/mister/syn/jtframe_mister_cdc.tcl"
     local compiler sta markers
     compiler=$(type -P quartus_sh) || { echo 'ERROR: cannot locate the selected Quartus installation for CDC audit'; return 1; }
     sta="$(dirname "$compiler")/quartus_sta"

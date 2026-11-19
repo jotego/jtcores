@@ -11,7 +11,7 @@ main() {
     local build_dir revision helper test_dir
     build_dir=$(realpath "$1") || return 2
     revision=$2
-    helper="${JTFRAME:?source setprj.sh first}/bin/jtframe_mister_cdc.tcl"
+    helper="${JTFRAME:?source setprj.sh first}/target/mister/syn/jtframe_mister_cdc.tcl"
     test_dir=$(mktemp -d) || return 1
     trap 'rm -r -- "$test_dir"' RETURN
     if [[ ! -f "$build_dir/$revision.qpf" ]]; then

@@ -179,9 +179,9 @@ EOF
 
 test_mister_cdc_hook() {
     local saved_frame=$JTFRAME saved_path=$PATH
-    local bin="$test_dir/cdc-quartus/bin" wrong="$test_dir/cdc-other" frame="$test_dir/cdc-frame"
-    mkdir -p "$bin" "$wrong" "$frame/bin"
-    : > "$frame/bin/jtframe_mister_cdc.tcl"
+    local bin="$test_dir/cdc-quartus/bin" wrong="$test_dir/cdc-other" frame="$test_dir/cdc-frame" helper_dir="$test_dir/cdc-frame/target/mister/syn"
+    mkdir -p "$bin" "$wrong" "$frame/bin" "$helper_dir"
+    : > "$helper_dir/jtframe_mister_cdc.tcl"
     cat > "$bin/quartus_sh" <<'EOF'
 #!/bin/bash
 exit 0
@@ -209,7 +209,7 @@ EOF
     NODBG=--nodbg SKIPTIMING=1 JTFRAME_NOSTA=1 FAIL=1
     run_mister_cdc_audit
     [[ "$FAIL" = 1 ]]
-    grep -Fq "$test_dir|-t $frame/bin/jtframe_mister_cdc.tcl probe" "$MOCK_CDC_CALLS"
+    grep -Fq "$test_dir|-t $helper_dir/jtframe_mister_cdc.tcl probe" "$MOCK_CDC_CALLS"
     [[ -s "$test_dir/cdc-build.cdc.rpt" ]]
     MOCK_CDC_MODE=skip run_mister_cdc_audit
     for MOCK_CDC_MODE in duplicate unknown error missing; do
@@ -219,7 +219,7 @@ EOF
     mv "$bin/quartus_sta" "$bin/quartus_sta.saved"
     if run_mister_cdc_audit; then echo 'FAIL missing matching quartus_sta accepted' >&2; exit 1; fi
     mv "$bin/quartus_sta.saved" "$bin/quartus_sta"
-    rm "$frame/bin/jtframe_mister_cdc.tcl"
+    rm "$helper_dir/jtframe_mister_cdc.tcl"
     if run_mister_cdc_audit; then echo 'FAIL missing CDC helper accepted' >&2; exit 1; fi
     TARGET=sidi128 run_mister_cdc_audit
     JTFRAME=$saved_frame PATH=$saved_path TARGET=mist
