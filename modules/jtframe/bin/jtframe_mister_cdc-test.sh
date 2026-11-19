@@ -1,17 +1,17 @@
 #!/bin/bash
 # Exercise the real CDC helper against an existing, capture-enabled fitted DB.
-# Usage: jtframe_mister_cdc-test.sh <passing-build> <revision> [<duplicate-build> <revision>]
+# Usage: jtframe_mister_cdc-test.sh <passing-build> <revision> [<duplicate-build>|- <revision>|- [<request-duplicate-build> <revision>]]
 set -u
 
 main() {
-    if [[ $# != 2 && $# != 4 ]]; then
-        echo "Usage: $0 <passing build> <revision> [<duplicate build> <revision>]" >&2
+    if [[ $# != 2 && $# != 4 && $# != 6 ]]; then
+        echo "Usage: $0 <passing build> <revision> [<duplicate build>|- <revision>|- [<request duplicate build> <revision>]]" >&2
         return 2
     fi
     local build_dir revision helper test_dir
     build_dir=$(realpath "$1") || return 2
     revision=$2
-    helper="${JTFRAME:?source setprj.sh first}/bin/jtframe_mister_cdc.tcl"
+    helper="${JTFRAME:?source setprj.sh first}/target/mister/syn/jtframe_mister_cdc.tcl"
     test_dir=$(mktemp -d) || return 1
     trap 'rm -r -- "$test_dir"' RETURN
     if [[ ! -f "$build_dir/$revision.qpf" ]]; then
@@ -39,8 +39,11 @@ main() {
     fi
     printf '\n# set_global_assignment -name VERILOG_MACRO "MISTER_DEBUG_NOHDMI=1"\n' >> "$test_dir/mode/$revision.qsf"
     run_case "$test_dir/mode" "$revision" "$helper" "$test_dir/braced.log" pass 'JTFRAME_CDC PASS' || return 1
-    if [[ $# == 4 ]]; then
+    if [[ $# -ge 4 && "$3" != - ]]; then
         test_duplicate_half "$3" "$4" "$helper" "$test_dir" || return 1
+    fi
+    if [[ $# == 6 ]]; then
+        test_duplicate_request "$5" "$6" "$helper" "$test_dir" || return 1
     fi
     echo "CDC fitted-database tests passed"
 }
@@ -68,6 +71,26 @@ test_duplicate_half() {
     run_case "$dir" "$rev" "$tmp/missing-half.tcl" "$tmp/half.log" fail 'missing half_source half bit' || return 1
     run_case "$dir" "$rev" "$tmp/unknown-suffix.tcl" "$tmp/suffix.log" fail 'invalid half control path' || return 1
     run_case "$dir" "$rev" "$tmp/cross-bit.tcl" "$tmp/cross.log" fail 'invalid half control path' || return 1
+}
+
+# Optional fixture: a real fit (e.g. arblst seed 0) where Quartus cloned the
+# drain request toggle and the clone feeds only same-domain logic.  It must
+# pass, and must fail if clones are counted as separate logical sources.
+test_duplicate_request() {
+    local dir rev helper tmp
+    dir=$(realpath "$1") || return 2
+    rev=$2 helper=$3 tmp=$4
+    if [[ ! -f "$dir/$rev.qpf" ]]; then
+        echo "Missing request duplicate fitted project: $dir/$rev.qpf" >&2
+        return 2
+    fi
+    sed 's/regsub {~DUPLICATE\[0-9\]\*\$} \$name {} name/# no clone folding/' "$helper" > "$tmp/no-fold.tcl"
+    if cmp -s "$helper" "$tmp/no-fold.tcl"; then
+        echo "Could not construct no-fold fixture" >&2
+        return 1
+    fi
+    run_case "$dir" "$rev" "$helper" "$tmp/request-dup.log" pass 'JTFRAME_CDC PASS' || return 1
+    run_case "$dir" "$rev" "$tmp/no-fold.tcl" "$tmp/no-fold.log" fail 'uncovered request endpoints' || return 1
 }
 
 run_case() {

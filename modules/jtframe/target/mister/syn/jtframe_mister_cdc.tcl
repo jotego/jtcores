@@ -42,13 +42,27 @@ proc check_stage {label first second} {
     }
     check_pairs $label $first $second "" "" 1
 }
+# Quartus may clone a register to reduce fanout (seed dependent).  A clone
+# keeps the logical register's name plus a ~DUPLICATE[n] suffix.
+proc logical_name {name} {
+    regsub {~DUPLICATE[0-9]*$} $name {} name
+    return $name
+}
+proc logical_names {nodes} {
+    set result [dict create]
+    foreach_in_collection node $nodes { dict set result [logical_name [get_node_info $node -name]] 1 }
+    return $result
+}
 # Inspect every surviving launch/latch pair, including duplicate registers.
+# Full coverage requires every logical source register and every physical
+# destination register: a source clone may serve only same-domain logic, while
+# clock-wide extrema still bound the timing of every physical copy.
 proc check_pairs {label from to expected_from expected_to require_all} {
     set paths [get_timing_paths -setup -from $from -to $to -npaths 0 -pairs_only]
     if {[get_collection_size $paths] == 0} { error "missing $label paths" }
     array set seen_from {}; array set seen_to {}
     foreach_in_collection path $paths {
-        set source [get_node_info [get_path_info $path -from] -name]
+        set source [logical_name [get_node_info [get_path_info $path -from] -name]]
         set target [get_node_info [get_path_info $path -to] -name]
         set fc [get_clock_info [get_path_info $path -from_clock] -name]
         set tc [get_clock_info [get_path_info $path -to_clock] -name]
@@ -58,7 +72,7 @@ proc check_pairs {label from to expected_from expected_to require_all} {
         }
         set seen_from($source) 1; set seen_to($target) 1
     }
-    if {$require_all && ([array size seen_from] != [get_collection_size $from] ||
+    if {$require_all && ([array size seen_from] != [dict size [logical_names $from]] ||
                         [array size seen_to] != [get_collection_size $to])} {
         error "uncovered $label endpoints"
     }
