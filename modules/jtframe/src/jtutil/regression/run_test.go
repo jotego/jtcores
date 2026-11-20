@@ -26,6 +26,7 @@ type fake_lab struct {
 	color map[string]uint8 // frame colour per setname
 	dead  map[string]bool  // boards whose Main is not running
 	loads []string
+	clean map[string]int // Clean calls per setname
 }
 
 type fake_board struct {
@@ -91,6 +92,12 @@ func (b *fake_board) Fetch(ctx context.Context, id, dir string) error {
 }
 
 func (b *fake_board) Log(ctx context.Context) ([]byte, error) { return []byte("log of " + b.name), nil }
+func (b *fake_board) Clean(ctx context.Context, id string) error {
+	b.lab.mu.Lock()
+	defer b.lab.mu.Unlock()
+	b.lab.clean[id]++
+	return nil
+}
 func (b *fake_board) Reboot(ctx context.Context) error        { return nil }
 func (b *fake_board) Close()                                  {}
 
@@ -126,7 +133,7 @@ func fake_run(t *testing.T, lab *fake_lab, boards ...string) (Options, *bytes.Bu
 }
 
 func new_lab() *fake_lab {
-	return &fake_lab{fail: map[string]int{}, color: map[string]uint8{}, dead: map[string]bool{}}
+	return &fake_lab{fail: map[string]int{}, color: map[string]uint8{}, dead: map[string]bool{}, clean: map[string]int{}}
 }
 
 func run_games(t *testing.T, opts Options, out *bytes.Buffer) *progress {
@@ -190,6 +197,9 @@ func TestRunRetryOnce(t *testing.T) {
 	opts, out := fake_run(t, lab, "m1", "m2")
 	p := run_games(t, opts, out)
 	check_results(t, p, map[string]Outcome{"aaa/a1": New, "aaa/a2": Error, "bbb/b1": New})
+	if lab.clean["a1"] != 2 || lab.clean["a2"] != 2 || lab.clean["b1"] != 1 {
+		t.Errorf("/tmp/jtcap/<id> removals %v", lab.clean)
+	}
 	if lab.fail["a2"] != 3 {
 		t.Errorf("a2 ran %d times, want 2", 5-lab.fail["a2"])
 	}

@@ -33,6 +33,8 @@ type Board interface {
 	// Fetch copies /tmp/jtcap/<id>/*.png to dir in one tar stream
 	Fetch(ctx context.Context, id, dir string) error
 	Log(ctx context.Context) ([]byte, error)
+	// Clean removes /tmp/jtcap/<id>: Main never deletes it and /tmp is RAM
+	Clean(ctx context.Context, id string) error
 	// Reboot restarts the board and waits for Health
 	Reboot(ctx context.Context) error
 	Close()
@@ -125,6 +127,10 @@ func (b *ssh_board) Log(ctx context.Context) ([]byte, error) {
 	var out bytes.Buffer
 	e := b.run(ctx, time.Minute, "cat /tmp/MiSTer.log", &out)
 	return out.Bytes(), e
+}
+
+func (b *ssh_board) Clean(ctx context.Context, id string) error {
+	return b.run(ctx, 30*time.Second, "rm -rf /tmp/jtcap/"+sh_quote(id), nil)
 }
 
 func (b *ssh_board) Reboot(ctx context.Context) error {

@@ -81,6 +81,9 @@ func (r *runner) worker(b Board) {
 		if e == nil {
 			fails = 0
 			j.logs["MiSTer.log"], _ = b.Log(r.ctx) // kept if the frames differ
+			if e := b.Clean(r.ctx, j.set); e != nil {
+				r.printf("%s: cannot remove /tmp/jtcap/%s: %v", b.Name(), j.set, e)
+			}
 			outcome, msg, e := r.finalize(j, dir)
 			if e != nil {
 				outcome, msg = Error, e.Error()
@@ -94,6 +97,7 @@ func (r *runner) worker(b Board) {
 		fails++
 		j.tries, j.failed_on = j.tries+1, b.Name()
 		log, _ := b.Log(r.ctx) // before any reboot
+		b.Clean(r.ctx, j.set)
 		j.logs[fmt.Sprintf("MiSTer-%d-%s.log", j.tries, b.Name())] = log
 		if j.tries < 2 {
 			r.printf("%s: %s/%s attempt failed, retrying: %v", b.Name(), j.core, j.set, e)
