@@ -1,8 +1,7 @@
 name: SiDi128 hardware regression
 
 on:
-  schedule:
-    - cron: '0 3 * * *'
+  # schedule disabled until the workflow runs the new MiSTer regression
   workflow_dispatch:
     inputs:
       legacy_sidi128:
